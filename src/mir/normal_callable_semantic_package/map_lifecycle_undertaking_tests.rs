@@ -415,3 +415,130 @@ fn verify_rejects_map_local_and_kindless_local_borrow_kinds() {
         }
     ));
 }
+
+#[test]
+fn text_entry_describes_text_store_class() {
+    // A string-literal entry seals its owned payload at Facts issuance:
+    // describe classifies it `EntryStore(Text)`, never `Opaque`.
+    let package = issue(
+        "static box Work { make() { local m = %{\"name\" => \"main\"} return 0 } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("text-entry package");
+    let operations = operations_of(&package, 0, 0);
+    assert!(operations.contains(&Op::EntryStore(StoreClass::Text)));
+    assert!(!operations.contains(&Op::EntryStore(StoreClass::Opaque)));
+}
+
+#[test]
+fn declared_capability_seals_a_text_entry() {
+    // The declared consumer lane covers `EntryStore(Text)`: a
+    // non-escaping map with a string-literal entry verifies.
+    let package = issue(
+        "static box Work { make() { local m = %{\"name\" => \"main\"} return 0 } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("text-entry package");
+    let obligations = package
+        .describe_map_lifecycle_obligations()
+        .expect("obligations describe");
+    let capability = MapLifecycleConsumerCapabilityV1::covering([
+        Op::ValueCreate,
+        Op::EntryStore(StoreClass::Scalar),
+        Op::EntryStore(StoreClass::Transferred),
+        Op::EntryStore(StoreClass::Text),
+        Op::EntryDisplace,
+        Op::OwnershipTransfer,
+        Op::OwnershipShare(BorrowKind::Handle),
+        Op::ReturnHandoff,
+        Op::NormalCleanup,
+        Op::FaultCleanup,
+    ]);
+    let undertaking = verify_map_lifecycle_undertaking(&obligations, capability).unwrap();
+    assert_eq!(undertaking.owners().len(), 1);
+}
+
+#[test]
+fn verify_still_rejects_opaque_entry_classes() {
+    // Non-empty arrays and nested-map children have no consumer lane:
+    // they still describe `EntryStore(Opaque)` and fail verify.
+    for entry in ["[1, 2]", "%{\"x\" => 1}"] {
+        let package = issue(&format!(
+            "static box Work {{ make() {{ local m = %{{\"op\" => {entry} }} return 0 }} }}
+             static box Main {{ main() {{ return 30 }} }}",
+        ))
+        .expect("opaque-entry package");
+        let obligations = package
+            .describe_map_lifecycle_obligations()
+            .expect("obligations describe");
+        let capability = MapLifecycleConsumerCapabilityV1::covering([
+            Op::ValueCreate,
+            Op::EntryStore(StoreClass::Scalar),
+            Op::EntryStore(StoreClass::Transferred),
+            Op::EntryStore(StoreClass::Text),
+            Op::EntryDisplace,
+            Op::OwnershipTransfer,
+            Op::OwnershipShare(BorrowKind::Handle),
+            Op::ReturnHandoff,
+            Op::NormalCleanup,
+            Op::FaultCleanup,
+        ]);
+        let error = verify_map_lifecycle_undertaking(&obligations, capability).unwrap_err();
+        assert!(
+            matches!(
+                error,
+                MapLifecycleUndertakingIssueV1::UncoveredOperation {
+                    operation: Op::EntryStore(StoreClass::Opaque),
+                    ..
+                }
+            ),
+            "{entry}: {error:?}"
+        );
+    }
+}
+
+#[test]
+fn merged_route_shape_stops_at_array_entries_not_text() {
+    // The `local main` residual shape: a text entry and an empty-array
+    // entry in one literal. Text is covered by the declared lane; the
+    // `[]` store class stays `Opaque` and is the sole uncovered
+    // obligation.
+    let package = issue(
+        "static box Work { make() {
+            local m = %{\"name\" => \"main\", \"params\" => []} return 0 } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("mixed-entry package");
+    let obligations = package
+        .describe_map_lifecycle_obligations()
+        .expect("obligations describe");
+    let [owner] = obligations.as_ref() else {
+        panic!("one map-owning owner");
+    };
+    let [site] = owner.sites() else {
+        panic!("one map site");
+    };
+    let operations: std::collections::BTreeSet<_> = site.operations().collect();
+    assert!(operations.contains(&Op::EntryStore(StoreClass::Text)));
+    assert!(operations.contains(&Op::EntryStore(StoreClass::Opaque)));
+    let capability = MapLifecycleConsumerCapabilityV1::covering([
+        Op::ValueCreate,
+        Op::EntryStore(StoreClass::Scalar),
+        Op::EntryStore(StoreClass::Transferred),
+        Op::EntryStore(StoreClass::Text),
+        Op::EntryDisplace,
+        Op::OwnershipTransfer,
+        Op::OwnershipShare(BorrowKind::Handle),
+        Op::ReturnHandoff,
+        Op::NormalCleanup,
+        Op::FaultCleanup,
+    ]);
+    let error = verify_map_lifecycle_undertaking(&obligations, capability).unwrap_err();
+    assert!(matches!(
+        error,
+        MapLifecycleUndertakingIssueV1::UncoveredOperation {
+            operation: Op::EntryStore(StoreClass::Opaque),
+            ..
+        }
+    ));
+}

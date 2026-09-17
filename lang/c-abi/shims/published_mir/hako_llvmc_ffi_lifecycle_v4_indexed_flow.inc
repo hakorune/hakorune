@@ -49,7 +49,8 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (birth || faulted || ri || !value || value->origin < 0 ||
           state[value->origin] != LV4_LIVE) return 0;
       yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
-      if (value->kind == LV4_KEY && (!(lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value")) ||
+      if (value->kind == LV4_KEY && (!(lv4_is(op, "kind", "map_install_indexed") ||
+          lv4_is(op, "kind", "map_install_value") || lv4_is(op, "kind", "map_install_text")) ||
           lv4_u(op, "key") != value->id)) return 0;
       if (value->kind == LV4_OUTCOME && (!lv4_is(op, "kind", "map_end_outcome") ||
           lv4_u(op, "outcome") != value->id)) return 0;
@@ -173,6 +174,15 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if ((fi && !ordinary) || !lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1) || value->origin < 0) return 0;
       normal[value->origin] = state[value->origin] = 0;
+    } else if (lv4_is(op, "kind", "map_install_text")) {
+      hako_lv4_value *map = lv4_index_value(fn, lv4_u(op, "map")),
+          *key = lv4_index_value(fn, lv4_u(op, "key"));
+      if ((fi && !ordinary) || faulted || state[bi] ||
+          in->profile != LV4_INDEXED_SAFE_MUTEX ||
+          !lv4_indexed_live(fn, lv4_u(op, "map"), LV4_MAP, state, 0, 0) ||
+          !lv4_indexed_live(fn, lv4_u(op, "key"), LV4_KEY, state, 0, 0)) return 0;
+      normal[key->origin] = state[key->origin] = 0;
+      normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value")) {
       int scalar = lv4_is(op, "kind", "map_install_value");
       hako_lv4_value *map = lv4_index_value(fn, lv4_u(op, "map")),

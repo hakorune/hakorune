@@ -342,3 +342,54 @@ fn scalar_install_preserves_opaque_protocol_and_rejects_opaque_payload() {
         }
     ));
 }
+
+#[test]
+fn text_install_consumes_the_key_and_carries_no_value_operand() {
+    let mut function = graph(true);
+    function
+        .blocks
+        .get_mut(&BasicBlockId(2))
+        .unwrap()
+        .set_terminator(invoke(
+            Map::InstallText {
+                map: ValueId(2),
+                key: ValueId(3),
+                utf8: "owned text".into(),
+            },
+            3,
+            6,
+        ));
+    check_function(&function).unwrap();
+    // The sealed bytes are inline: rewriting ValueIds leaves them
+    // untouched, and no payload operand exists to track.
+    let mut op = Map::InstallText {
+        map: ValueId(2),
+        key: ValueId(3),
+        utf8: "owned text".into(),
+    };
+    op.rewrite_values(|v| v.0 += 10);
+    assert_eq!(op.used_values(), vec![ValueId(12), ValueId(13)]);
+    assert!(matches!(
+        &op,
+        Map::InstallText { utf8, .. } if utf8 == "owned text"
+    ));
+    assert!(!op.effects().is_pure());
+    // A dead map or a non-MapKey operand still rejects.
+    for (map, key) in [(1u32, 3u32), (2, 1), (4, 3)] {
+        let mut function = graph(true);
+        function
+            .blocks
+            .get_mut(&BasicBlockId(2))
+            .unwrap()
+            .set_terminator(invoke(
+                Map::InstallText {
+                    map: ValueId(map),
+                    key: ValueId(key),
+                    utf8: "x".into(),
+                },
+                3,
+                6,
+            ));
+        assert!(check_function(&function).is_err(), "map={map} key={key}");
+    }
+}

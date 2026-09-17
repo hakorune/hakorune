@@ -230,9 +230,9 @@ pub(crate) enum MapValueSource {
         binding: BindingRefV1,
         kind: Option<SourceScalarKind>,
     },
-    /// A sealed string-literal site. The payload stays source-owned; the
-    /// entry's `site` carries the exact location for later readers.
-    String,
+    /// A sealed string literal; the UTF-8 payload is sealed with the row
+    /// so a consumer never re-reads the source site.
+    String(Box<str>),
     /// A self-rooted parameter handle (OpaqueHandle/DeclaredHandle/ExactText
     /// at install). Never a live Home/Map local — those stay on the
     /// transfer path only.
@@ -263,7 +263,7 @@ impl MapValueSource {
             Self::Integer(_) => Some(SourceScalarKind::Integer),
             Self::Bool(_) => Some(SourceScalarKind::Bool),
             Self::Local { kind, .. } => *kind,
-            Self::String | Self::BorrowedHandle(_) | Self::MapLocal(_) => None,
+            Self::String(_) | Self::BorrowedHandle(_) | Self::MapLocal(_) => None,
         }
     }
     /// The borrow kind and root binding one leaf carries when the entry
@@ -298,9 +298,12 @@ pub(crate) enum MapEntryStoreClassV1 {
     /// `Local`) — the store obligation is `OwnershipShare`, never an
     /// `EntryStore`.
     Borrowed,
-    /// No install lane today: string literals, `[...]` entry values,
-    /// and `%{...}` child maps (indexed install requires a transfer
-    /// acquisition the child does not carry).
+    /// `InstallText` lane: an owned UTF-8 payload sealed on the
+    /// `MapValueSource::String` row.
+    Text,
+    /// No install lane today: `[...]` entry values and `%{...}` child
+    /// maps (indexed install requires a transfer acquisition the child
+    /// does not carry).
     Opaque,
 }
 
@@ -313,6 +316,7 @@ impl MapHomeEntry {
             }
             MapEntryOwnership::Value(value) => match value {
                 _ if value.scalar_kind().is_some() => MapEntryStoreClassV1::Scalar,
+                MapValueSource::String(_) => MapEntryStoreClassV1::Text,
                 MapValueSource::BorrowedHandle(_)
                 | MapValueSource::MapLocal(_)
                 | MapValueSource::Local { kind: None, .. } => MapEntryStoreClassV1::Borrowed,
@@ -613,7 +617,9 @@ fn map_value_leaf(
             Some(MapValueSource::MapLocal(root))
         }
         _ => match input.function().expression_source().literal(site) {
-            Some(ResolvedLiteralSourceV1::String) => Some(MapValueSource::String),
+            Some(ResolvedLiteralSourceV1::String(text)) => {
+                Some(MapValueSource::String(text.clone()))
+            }
             _ => None,
         },
     }

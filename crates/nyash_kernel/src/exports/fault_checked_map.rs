@@ -194,6 +194,47 @@ pub unsafe extern "C" fn install_value(
     }
 }
 
+/// Owned UTF-8 entry payload. The bytes are caller-supplied read-only input
+/// validated before the commit protocol — never a shared or interned handle.
+#[export_name = "nyash.map.checked_install_text_v1"]
+pub unsafe extern "C" fn install_text(
+    frame: *mut c_void,
+    profile: u32,
+    site: u64,
+    map_ptr: *mut c_void,
+    key_ptr: *mut c_void,
+    bytes: *const u8,
+    len: usize,
+    out_ptr: *mut c_void,
+) -> u32 {
+    if len > isize::MAX as usize
+        || !separate(&[
+            (frame as usize, size_of::<FaultFrame>()),
+            (map_ptr as usize, size_of::<MapStorage>()),
+            (key_ptr as usize, size_of::<KeyStorage>()),
+            (out_ptr as usize, size_of::<OutcomeStorage>()),
+            (bytes as usize, len),
+        ])
+    {
+        return Status::InvalidContract as u32;
+    }
+    let slice = if len == 0 {
+        &[]
+    } else {
+        unsafe { std::slice::from_raw_parts(bytes, len) }
+    };
+    let text = match std::str::from_utf8(slice) {
+        Ok(text) => text,
+        Err(_) => return Status::InvalidContract as u32,
+    };
+    let value = CheckedMapPayload::Text(text.into());
+    unsafe {
+        install_candidate(frame, profile, site, map_ptr, key_ptr, out_ptr, || {
+            Ok(value)
+        })
+    }
+}
+
 // Preflight precedes key consumption; candidate preparation follows it. Both
 // exports use this one commit/outcome protocol, preserving Indexed fault order.
 unsafe fn install_candidate(

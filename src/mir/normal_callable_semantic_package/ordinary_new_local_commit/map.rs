@@ -205,15 +205,24 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         for entry in flow.entries() {
             let Some((acquisition, binding)) = entry.transfer_home() else {
-                // Stored entries need a scalar kind or a self-rooted
-                // handle borrow — the only borrowed leaf the selected
-                // InstallValue lane carries. Map-local, kind-less local,
-                // and opaque child payloads keep failing here.
-                let covered = entry.value_source().is_some_and(|v| {
-                    v.scalar_kind().is_some()
-                        || v.borrowed_root()
-                            .is_some_and(|(kind, _)| kind == MapEntryBorrowKindV1::Handle)
-                });
+                // Stored entries need a covered store class — scalar or
+                // sealed text payloads, or a self-rooted handle borrow,
+                // the only borrowed leaf the selected InstallValue lane
+                // carries. Map-local, kind-less local, and opaque child
+                // payloads keep failing here.
+                let covered = match entry.store_class() {
+                    crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Scalar
+                    | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Text => {
+                        true
+                    }
+                    crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Borrowed => {
+                        entry.value_source().is_some_and(|v| {
+                            v.borrowed_root()
+                                .is_some_and(|(kind, _)| kind == MapEntryBorrowKindV1::Handle)
+                        })
+                    }
+                    _ => false,
+                };
                 if !covered {
                     return Err(freeze("map-value-consumer-missing"));
                 }
@@ -297,7 +306,11 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         for entry in flow.entries() {
             let Some((acquisition, binding)) = entry.transfer_home() else {
-                if entry.value_source().and_then(|v| v.scalar_kind()).is_none() {
+                if !matches!(
+                    entry.store_class(),
+                    crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Scalar
+                        | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Text
+                ) {
                     return Err(freeze("map-value-consumer-missing"));
                 }
                 continue;
@@ -432,7 +445,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 MirInstruction::Invoke {
                     operation:
                         InvokeOperation::Map(
-                            op @ (Map::InstallIndexed { .. } | Map::InstallValue { .. }),
+                            op @ (Map::InstallIndexed { .. }
+                            | Map::InstallValue { .. }
+                            | Map::InstallText { .. }),
                         ),
                     ..
                 } => Some(op),
@@ -485,6 +500,14 @@ impl OrdinaryNewClaimLedgerV1 {
                         }) {
                             return Err(freeze("map-literal-value-drift"));
                         }
+                    }
+                }
+                Map::InstallText { map, utf8, .. } if *map == *result => {
+                    // The inline payload must be the entry's own sealed
+                    // string — no re-read or rewrite downstream.
+                    match entry.value_source() {
+                        Some(MapValueSource::String(text)) if utf8.as_str() == text.as_ref() => {}
+                        _ => return Err(freeze("map-literal-value-drift")),
                     }
                 }
                 _ => return Err(freeze("map-install-source-drift")),

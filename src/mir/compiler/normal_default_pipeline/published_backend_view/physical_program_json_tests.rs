@@ -515,3 +515,20 @@ fn map_value_wire_kind_is_explicit_and_has_no_object_identity() {
         );
     }
 }
+
+#[test]
+fn map_install_text_publishes_inline_utf8_without_a_value_operand() {
+    use crate::mir::instruction::MapInvokeOperation as Map;
+    let op = InvokeOperation::Map(Map::InstallText {
+        map: ValueId(1),
+        key: ValueId(2),
+        utf8: "sealed payload".into(),
+    });
+    let encoded =
+        encode_invoke(&op, &BTreeMap::new(), &BTreeMap::new(), 0, Some(42), None).unwrap();
+    assert_eq!(
+        encoded,
+        json!({"kind": "map_install_text", "map": 1, "key": 2,
+        "utf8": "sealed payload", "site": 42})
+    );
+}

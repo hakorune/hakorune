@@ -358,6 +358,14 @@ fn encode_invoke(
                         crate::mir::instruction::MapValueKind::Bool => 2u32,
                     },
                 }),
+                Map::InstallText {
+                    map,
+                    key,
+                    utf8,
+                } => json!({
+                    "kind": "map_install_text", "map": value(map), "key": value(key),
+                    "utf8": utf8,
+                }),
                 Map::EndOutcome { outcome } => {
                     json!({"kind": "map_end_outcome", "outcome": value(outcome)})
                 }

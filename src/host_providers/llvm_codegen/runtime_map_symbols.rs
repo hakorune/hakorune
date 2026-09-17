@@ -9,10 +9,12 @@ const SYMBOLS: &[&str] = &[
     "nyash.map.outcome_init_v1",
     "nyash.map.checked_install_indexed_v1",
     "nyash.map.checked_install_value_v1",
+    "nyash.map.checked_install_text_v1",
     "nyash.map.outcome_end_v1",
     "nyash.map.outcome_dispose_v1",
     "nyash.map.checked_end_v1",
     "nyash.map.storage_dispose_v1",
+    "nyash.map.storage_move_v1",
 ];
 pub(super) fn require_checked_map_symbols(archive: &Path) -> Result<(), String> {
     let output = Command::new("nm")

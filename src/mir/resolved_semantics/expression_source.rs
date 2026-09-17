@@ -85,7 +85,9 @@ pub(crate) enum ResolvedLiteralSourceV1 {
         value: i64,
         declared_type_name: Box<str>,
     },
-    String,
+    /// A sealed string literal. The payload is sealed with the row — a
+    /// consumer never re-reads the source site.
+    String(Box<str>),
     Float,
     Bool(bool),
     Null,
@@ -523,7 +525,7 @@ fn map_literal(value: &LiteralValue) -> ResolvedLiteralSourceV1 {
             value: *value,
             declared_type_name: declared_type_name.clone().into(),
         },
-        LiteralValue::String(_) => ResolvedLiteralSourceV1::String,
+        LiteralValue::String(text) => ResolvedLiteralSourceV1::String(text.clone().into()),
         LiteralValue::Float(_) => ResolvedLiteralSourceV1::Float,
         LiteralValue::Bool(value) => ResolvedLiteralSourceV1::Bool(*value),
         LiteralValue::Null => ResolvedLiteralSourceV1::Null,

@@ -35,6 +35,13 @@ pub enum MapInvokeOperation {
         value: ValueId,
         kind: MapValueKind,
     },
+    /// Store an owned UTF-8 payload; the bytes are sealed on the source
+    /// row and carried inline like a prepared key.
+    InstallText {
+        map: ValueId,
+        key: ValueId,
+        utf8: String,
+    },
     EndOutcome {
         outcome: ValueId,
     },
@@ -48,7 +55,7 @@ impl MapInvokeOperation {
         match self {
             Self::New => Some(InvokeNormalResultKind::Map),
             Self::PrepareKey { .. } => Some(InvokeNormalResultKind::MapKey),
-            Self::InstallIndexed { .. } | Self::InstallValue { .. } => {
+            Self::InstallIndexed { .. } | Self::InstallValue { .. } | Self::InstallText { .. } => {
                 Some(InvokeNormalResultKind::MapOutcome)
             }
             Self::EndOutcome { .. } | Self::End { .. } => None,
@@ -57,7 +64,7 @@ impl MapInvokeOperation {
     pub fn effects(&self) -> EffectMask {
         match self {
             Self::New | Self::PrepareKey { .. } => EffectMask::CONTROL.add(Effect::Alloc),
-            Self::InstallIndexed { .. } | Self::InstallValue { .. } => {
+            Self::InstallIndexed { .. } | Self::InstallValue { .. } | Self::InstallText { .. } => {
                 EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control)
             }
             Self::EndOutcome { .. } | Self::End { .. } => EffectMask::WRITE
@@ -75,6 +82,7 @@ impl MapInvokeOperation {
             | Self::InstallValue {
                 map, key, value, ..
             } => vec![*map, *key, *value],
+            Self::InstallText { map, key, .. } => vec![*map, *key],
             Self::EndOutcome { outcome } => vec![*outcome],
             Self::End { map } => vec![*map],
         }
@@ -91,6 +99,10 @@ impl MapInvokeOperation {
                 rewrite(map);
                 rewrite(key);
                 rewrite(value);
+            }
+            Self::InstallText { map, key, .. } => {
+                rewrite(map);
+                rewrite(key);
             }
             Self::EndOutcome { outcome } => rewrite(outcome),
             Self::End { map } => rewrite(map),

@@ -382,15 +382,22 @@ undertaking rides `PreparedNormalCallableSemanticPackageInstallV1` into
 `InstalledNormalCallableSemanticPackageV1` (`map_lifecycle_undertaking()`).
 The capability is the builder consumer's own declaration —
 `BuilderInstallConsumerV1::map_lifecycle_capability()` names exactly the
-implemented lanes (create, scalar/transferred entry store, displace,
-`OwnershipShare(Handle)`, return handoff, Normal/Fault cleanup);
-`OwnershipShare(MapLocal)`/`OwnershipShare(Local)`, opaque entry stores,
-and slot/argument/contained handoffs stay undeclared and fail closed at
-verify. `EntryStore` carries the sealed row's own `store_class()`
-precision — `Scalar` and `Transferred` are the declared lanes while
-`Opaque` classes (string, `[...]`, `%{...}` child values) describe the
-obligation but stay uncovered, so an owner storing them stops at
-preflight before catalog mutation; borrowed entries carry
+implemented lanes (create, scalar/transferred/text entry store,
+displace, `OwnershipShare(Handle)`, return handoff, Normal/Fault
+cleanup); `OwnershipShare(MapLocal)`/`OwnershipShare(Local)`, opaque
+entry stores, and slot/argument/contained handoffs stay undeclared and
+fail closed at verify. `EntryStore` carries the sealed row's own
+`store_class()` precision — `Scalar`, `Transferred`, and `Text` are the
+declared lanes while `Opaque` classes (`[...]`, `%{...}` child values)
+describe the obligation but stay uncovered, so an owner storing them
+stops at preflight before catalog mutation. A `Text` entry is the
+sealed `MapValueSource::String` row's owned payload: it lowers through
+the dedicated `InstallText` operation carrying the bytes inline like a
+prepared key — never an interned or shared host handle — and lands as
+`CheckedMapPayload::Text` via `nyash.map.checked_install_text_v1`;
+ending it is a no-op with no Home obligation. `validate_map_emission`
+pins the emitted bytes to the sealed row (`map-literal-value-drift`).
+Borrowed entries carry
 `OwnershipShare` instead of a store. `OwnershipShare` is kind-specific
 (`MapEntryBorrowKindV1`): only `Handle` is admitted — a self-rooted
 parameter handle reaches the consumer as an i64 wire value (ordinary

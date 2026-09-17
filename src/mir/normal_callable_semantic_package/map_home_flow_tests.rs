@@ -376,11 +376,12 @@ fn map_install_accepts_complete_unannotated_root_and_aliases() {
 
 #[test]
 fn opaque_entry_classes_reject_at_preflight_before_catalog() {
-    // String/`[...]`/`%{...}` child values have no consumer install lane;
-    // the undertaking describes `EntryStore(Opaque)` and verify fails
+    // `[...]`/`%{...}` child values have no consumer install lane; the
+    // undertaking describes `EntryStore(Opaque)` and verify fails
     // before catalog mutation — the lowering lane's
-    // `map-value-consumer-missing` is never reached.
-    for entry in ["\"const\"", "[1, 2]", "%{\"x\" => 1}"] {
+    // `map-value-consumer-missing` is never reached. String entries are
+    // the declared `EntryStore(Text)` lane, not this reject set.
+    for entry in ["[1, 2]", "%{\"x\" => 1}"] {
         let package = issue(&format!(
             "static box Work {{ make() {{ return %{{\"op\" => {entry} }} }} }}
              static box Main {{ main() {{ return 30 }} }}",
@@ -597,7 +598,10 @@ fn return_boundary_map_admits_string_literal_and_borrowed_param_handle() {
         panic!("two entries");
     };
     assert_eq!(op.key(), "op");
-    assert_eq!(op.value_source(), Some(&MapValueSource::String));
+    assert_eq!(
+        op.value_source(),
+        Some(&MapValueSource::String("const".into()))
+    );
     assert_eq!(args.key(), "args");
     let Some(MapValueSource::BorrowedHandle(root)) = args.value_source() else {
         panic!("param handle stays a borrowed root, never a home");

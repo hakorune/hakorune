@@ -380,6 +380,7 @@ checks for roles, identities, SSA, transfer, cleanup or temporary consumption.
 | key prepare UTF-8 | bytes plus length; Empty -> Ready native MapKeyDomain before child evaluation |
 | checked indexed install | validate frame/Map/profile/Ready key/Unissued outcome and nonoverlap before consumption; move key, prepare indexed residence and install |
 | checked value install | validate kind and Bool bits before key consumption, then the same install state machine; I64/Bool occupy inline payloads, never indexed identities |
+| checked text install | validate UTF-8 bytes and pointer separation before key consumption, then the same install state machine; Text occupies an owned inline payload, never an interned or shared handle |
 | detached end | move Ready payload and mark Consumed before child end; ReadyNoOld also consumes |
 | Map end | require Live; consume through Ending to Ended with first-Fault/best-effort cleanup |
 | key dispose | cancel Ready natively, or release Empty/Consumed bookkeeping |
@@ -390,7 +391,7 @@ Implemented export spellings are `nyash.map.storage_init_v1`,
 `nyash.map.checked_new_v1`, `nyash.map.key_init_v1`,
 `nyash.map.key_prepare_utf8_v1`, `nyash.map.key_dispose_v1`,
 `nyash.map.outcome_init_v1`, `nyash.map.checked_install_indexed_v1`,
-`nyash.map.checked_install_value_v1`,
+`nyash.map.checked_install_value_v1`, `nyash.map.checked_install_text_v1`,
 `nyash.map.outcome_end_v1`, `nyash.map.outcome_dispose_v1`,
 `nyash.map.checked_end_v1` and `nyash.map.storage_dispose_v1`.
 
@@ -403,6 +404,14 @@ Storage retains I64/Bool inline alongside Residence in one non-Clone payload
 sum; rejection returns the exact payload, and detached/end attempts invoke real
 Home end only for Residence. Native projection of present Values still refuses.
 The value export does not by itself activate source or C consumer coverage.
+
+The text entry uses `(frame, profile:u32, site:u64, map, key,
+bytes:*const u8, len:usize, outcome)->u32`; the byte region joins the
+non-overlap contract and must be valid UTF-8 — either failure returns
+InvalidContract without consuming Key or publishing Outcome. Storage
+copies the bytes into an owned `Box<str>`: the caller's buffer is never
+retained and no interned handle is produced, so map end and detached
+ends stay no-ops for Text.
 
 Key preparation consumes exact UTF-8 bytes, including embedded NUL. Preserve
 canonical i64 versus noncanonical numeric text through the existing MapKeyDomain

@@ -1,9 +1,9 @@
-date = "2026-09-16"
+date = "2026-09-17"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0"
 current_execution_cohort = "map_lifecycle_consumer"
-current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0__merged_route_owner_uncovered_operation_entry_store_opaque"
+current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0__merged_route_owner_uncovered_operation_entry_store_empty_array"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "closed__resolver_if_source_expr_relation_2026-09-15"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -33,26 +33,26 @@ in child owners, and pins production-route Normal/callee-Fault/
 caller-Fault evidence on a source-issued artifact (3/3
 map_consumer_tests + 6/6 lifecycle tests + 243/243 package).
 Next named merged-route residual (classified 2026-09-17):
-`return <qualified call>` is now its own
-`TerminalRelationV1::OpaqueCall` class; the
-`CompatMirEmitBox._module_with_blocks` stop moved from
-`OwnerTerminalHomesUnavailable` to named
-`UncoveredOperation` sites (`EntryStore(Opaque)`/
-`OwnershipShare` on `local main`, `ArgumentHandoff` on the
-argument literal). C5c-3 then landed `OwnershipShare(Handle)`:
-self-rooted formals are LV4_I64 wire values admitted through
-`InstallValue`/`I64` (non-owning `end()`), verify adds the
-`BorrowedEntryEscape` guard, `MapLocal`/`Local` borrows and
-`EntryStore(Opaque)`/`ArgumentHandoff` stay undeclared — the
-merged-route stop is now `EntryStore(Opaque)` at `local main`.
-C6-4 rootless cohort stays deferred; C1-id opaque source
-identity remains pre-production homework. Production switch
-and legacy retirement remain unclaimed. Review fix (2026-09-16):
-region-flow AnalyzerV1 now authorizes the full sealed
-`explicit_sites()` set instead of the singleton `explicit_site()`
-(dac1e73e5b, 13/13 resolved_region_flow incl. 3 multi-site pins);
-fmt drift cleared (5035bc4b77); residual resolved_/resolved_lowering
-reds verified parent-reproduced baseline at 12bc76ed4d.
+`CompatMirEmitBox._module_with_blocks` stops at named
+`UncoveredOperation` sites (`OpaqueCall` terminal class
+already split). C5c-3 landed `OwnershipShare(Handle)` via
+`InstallValue`/`I64` + `BorrowedEntryEscape`; C9-1 landed
+`EntryStore(Text)`: sealed
+`ResolvedLiteralSourceV1::String(Box<str>)` → `InstallText`
+→ `map_install_text` JSON →
+`nyash.map.checked_install_text_v1` → owned
+`CheckedMapPayload::Text` (no interned handle). The stop is
+now the two empty-array entries (`"params" => []`,
+`"locals" => []`) at `local main` — `EntryStore(EmptyArray)`
+is the next bounded slice; non-empty `[...]`, MapChild,
+`OwnershipShare(MapLocal)`, `ArgumentHandoff` stay
+undeclared. C6-4 rootless cohort stays deferred; C1-id
+opaque source identity remains pre-production homework.
+Production switch and legacy retirement remain unclaimed.
+Review fix (2026-09-16): region-flow AnalyzerV1 authorizes
+the full sealed `explicit_sites()` set (dac1e73e5b, 13/13);
+fmt drift cleared (5035bc4b77); resolved_* reds verified
+parent-reproduced baseline at 12bc76ed4d.
 """
 next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-expr-relation-d8-2026-09-15.md"

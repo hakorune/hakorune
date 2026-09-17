@@ -74,11 +74,12 @@ fn emit_flow(
             outward,
             &mut bindings,
         )?;
-        // Only pure scalar materialization or an exact bound read is allowed here.
-        // Keep the prepared Key normal block exclusive to its install. The
-        // store class is the sealed row's own predicate — the undertaking
-        // verifies the same classification before catalog mutation.
-        let (value, scalar_kind) = match entry.store_class() {
+        // Only pure scalar materialization, sealed inline payloads, or an
+        // exact bound read is allowed here. Keep the prepared Key normal
+        // block exclusive to its install. The store class is the sealed
+        // row's own predicate — the undertaking verifies the same
+        // classification before catalog mutation.
+        let pending = match entry.store_class() {
             MapEntryStoreClassV1::Scalar => {
                 let Some(source) = entry.value_source() else {
                     return Err(freeze("map-value-consumer-missing"));
@@ -123,9 +124,11 @@ fn emit_flow(
                     }
                     _ => return Err(freeze("map-value-consumer-missing")),
                 };
-                (value, Some(kind))
+                PendingInstall::Value(value, kind)
             }
-            MapEntryStoreClassV1::Transferred => (state.read_variable(entry.site().node())?, None),
+            MapEntryStoreClassV1::Transferred => {
+                PendingInstall::Indexed(state.read_variable(entry.site().node())?)
+            }
             MapEntryStoreClassV1::Borrowed => {
                 // A self-rooted handle borrow stores the handle's i64
                 // value through the existing InstallValue lane — the
@@ -140,7 +143,15 @@ fn emit_flow(
                 state
                     .value_for_exact_binding(site.owner(), *binding)
                     .map_err(|_| freeze("map-borrow-binding"))?;
-                (value, Some(MapValueKind::I64))
+                PendingInstall::Value(value, MapValueKind::I64)
+            }
+            MapEntryStoreClassV1::Text => {
+                // The sealed String row carries the owned payload; the
+                // text rides the install inline like a prepared key.
+                let Some(MapValueSource::String(text)) = entry.value_source() else {
+                    return Err(freeze("map-value-consumer-missing"));
+                };
+                PendingInstall::Text(text.to_string())
             }
             MapEntryStoreClassV1::Opaque => {
                 return Err(freeze("map-value-consumer-missing"));
@@ -156,18 +167,23 @@ fn emit_flow(
             &mut bindings,
         )?
         .expect("key prepare produces an opaque result");
-        let operation = match scalar_kind {
-            Some(kind) => Map::InstallValue {
+        let operation = match pending {
+            PendingInstall::Value(value, kind) => Map::InstallValue {
                 map: result,
                 key,
                 value,
                 kind,
             },
-            None => Map::InstallIndexed {
+            PendingInstall::Indexed(value) => Map::InstallIndexed {
                 map: result,
                 key,
                 value,
                 object: ledger.map_candidate_object(entry, value)?,
+            },
+            PendingInstall::Text(utf8) => Map::InstallText {
+                map: result,
+                key,
+                utf8,
             },
         };
         let outcome = invoke(builder, frame, operation, precommit, &mut bindings)?
@@ -192,6 +208,14 @@ fn emit_flow(
     }
     ledger.record_map_emission(site, result, bindings)?;
     Ok(result)
+}
+
+/// One pending entry install: a materialized scalar/indexed value, or an
+/// inline sealed payload that needs no ValueId operand.
+enum PendingInstall {
+    Value(ValueId, MapValueKind),
+    Indexed(ValueId),
+    Text(String),
 }
 
 fn record_literal(

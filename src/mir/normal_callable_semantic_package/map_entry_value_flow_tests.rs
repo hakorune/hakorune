@@ -43,7 +43,7 @@ fn nested_map_entry_issues_entry_slot_child_row() {
     // NestedMap carries no value source, binding, or home claim — every
     // downstream scalar/transfer gate stays fail-closed.
     assert!(a.value_source().is_none() && a.transfer_home().is_none() && a.binding().is_none());
-    assert_eq!(b.value_source(), Some(&MapValueSource::String));
+    assert_eq!(b.value_source(), Some(&MapValueSource::String("s".into())));
     let child = package
         .ordinary_new_claim_ledger
         .map_flow(&child_owned)
@@ -189,7 +189,10 @@ fn array_entry_records_exact_leaf_elements() {
         panic!("three leaf elements");
     };
     assert_eq!(first.value_source(), Some(&MapValueSource::Integer(1)));
-    assert_eq!(second.value_source(), Some(&MapValueSource::String));
+    assert_eq!(
+        second.value_source(),
+        Some(&MapValueSource::String("s".into()))
+    );
     assert!(matches!(
         third.value_source(),
         Some(MapValueSource::BorrowedHandle(_))
@@ -287,7 +290,7 @@ fn map_local_entry_is_a_non_consuming_borrow() {
     };
     assert_eq!(inner.binding(), Some(*m_binding));
     assert_eq!(inner.transfer_home(), None);
-    assert_eq!(k.value_source(), Some(&MapValueSource::String));
+    assert_eq!(k.value_source(), Some(&MapValueSource::String("s".into())));
     // `m` is not consumed: it stays in the parent's outer set after all
     // installs — the borrow marks no transfer.
     assert_eq!(

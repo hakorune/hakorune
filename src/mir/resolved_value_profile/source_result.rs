@@ -673,7 +673,7 @@ fn literal_class(
         ResolvedLiteralSourceV1::Integer(_) | ResolvedLiteralSourceV1::TypedInteger { .. } => {
             ExprClassV1::I64
         }
-        ResolvedLiteralSourceV1::String => ExprClassV1::String,
+        ResolvedLiteralSourceV1::String(_) => ExprClassV1::String,
         ResolvedLiteralSourceV1::Bool(_) => ExprClassV1::Bool,
         ResolvedLiteralSourceV1::Null => ExprClassV1::Null,
         ResolvedLiteralSourceV1::Float | ResolvedLiteralSourceV1::Void => {

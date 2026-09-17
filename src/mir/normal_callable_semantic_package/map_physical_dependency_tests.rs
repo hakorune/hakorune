@@ -427,6 +427,64 @@ fn self_rooted_handle_borrow_emits_install_value_i64() {
 }
 
 #[test]
+fn string_literal_entry_emits_install_text() {
+    // `local m = %{"name" => "main"}`: the sealed Text entry lowers to
+    // `InstallText{utf8}` carrying the Facts-issued payload inline — no
+    // ValueId operand, no host handle. The strict verifier accepts the
+    // key-consume + outcome-publish shape.
+    let source = "static box Work { make() {
+        local m = %{\"name\" => \"main\"} return 0
+    } }
+    static box Main { main() { return 30 } }";
+    let package = issue(source).unwrap();
+    let main = package
+        .declaration_catalog()
+        .source_backed_app_main()
+        .unwrap();
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| !row.identity().same_as(main.parser_identity()))
+        .unwrap();
+    let (key, _, _) = package
+        .catalog
+        .selected_identities()
+        .find(|(_, identity, _)| declaration.identity().same_as(identity))
+        .expect("selected identity for the Work.make declaration");
+    let mut builder = MirBuilder::new();
+    let function = package
+        .batch()
+        .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+            builder.lower_map_dependency_for_test(
+                input,
+                key.clone(),
+                declaration.identity(),
+                identity.method_source_observation().cloned(),
+                std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                None,
+            )
+        })
+        .unwrap()
+        .unwrap_or_else(|e| panic!("{e}"));
+    let utf8 = function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .find_map(|i| match i {
+            MirInstruction::Invoke {
+                operation: InvokeOperation::Map(MapInvokeOperation::InstallText { utf8, .. }),
+                ..
+            } => Some(utf8.clone()),
+            _ => None,
+        })
+        .expect("InstallText expected");
+    assert_eq!(utf8, "main");
+    crate::mir::verification::MirVerifier::new_strict()
+        .verify_function(&function)
+        .unwrap_or_else(|e| panic!("{e:?}"));
+}
+
+#[test]
 fn map_literal_in_call_argument_position_stays_rejected() {
     // No map-argument lane is admitted in this slice: a `%{...}` call
     // argument reaches the builder boundary and is refused by its own named

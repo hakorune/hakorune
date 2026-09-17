@@ -225,7 +225,7 @@ pub(super) fn terminal_returned_source(
     locals: &PrefixLocalFlow<'_>,
 ) -> Option<TerminalReturnedSourceV1> {
     match input.function().expression_source().literal(site) {
-        Some(ResolvedLiteralSourceV1::String) => {
+        Some(ResolvedLiteralSourceV1::String(_)) => {
             return Some(TerminalReturnedSourceV1::StringLiteral);
         }
         Some(ResolvedLiteralSourceV1::Null) => {

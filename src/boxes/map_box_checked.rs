@@ -17,17 +17,19 @@ pub trait CanonicalMapResidence: Send + Sync {
     fn end(self: Box<Self>) -> Result<(), MapEndError>;
 }
 
-/// One slot payload. Trivial values carry no child-Home obligation and need
-/// no allocation. Residences remain non-Clone and are ended exactly once.
+/// One slot payload. Trivial values carry no child-Home obligation. Owned
+/// text keeps its own bytes — never an interned or shared handle. Residences
+/// remain non-Clone and are ended exactly once.
 pub enum CheckedMapPayload {
     I64(i64),
     Bool(bool),
+    Text(Box<str>),
     Residence(Box<dyn CanonicalMapResidence>),
 }
 impl CheckedMapPayload {
     fn end(self) -> Result<(), MapEndError> {
         match self {
-            Self::I64(_) | Self::Bool(_) => Ok(()),
+            Self::I64(_) | Self::Bool(_) | Self::Text(_) => Ok(()),
             Self::Residence(value) => value.end(),
         }
     }

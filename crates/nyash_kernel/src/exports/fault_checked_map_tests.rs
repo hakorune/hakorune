@@ -298,6 +298,78 @@ fn value_abi_rejects_bad_bits_before_key_consumption_and_preserves_real_home() {
     }
 }
 
+unsafe extern "C" {
+    #[link_name = "nyash.map.checked_install_text_v1"]
+    fn text_export(
+        frame: *mut c_void,
+        profile: u32,
+        site: u64,
+        map: *mut c_void,
+        key: *mut c_void,
+        bytes: *const u8,
+        len: usize,
+        outcome: *mut c_void,
+    ) -> u32;
+}
+
+#[test]
+fn text_abi_owns_validated_bytes_and_rejects_invalid_utf8_before_key_consumption() {
+    let (mut f, mut m, mut k, mut o) = (
+        Slot::<FaultFrame>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<KeyStorage>::new(),
+        Slot::<OutcomeStorage>::new(),
+    );
+    unsafe {
+        let (f, m, k, o) = (f.ptr(), m.ptr(), k.ptr(), o.ptr());
+        assert_eq!(super::super::frame_init(f), 0);
+        assert_eq!(map_init(m), 0);
+        assert_eq!(allocate(f, 1, 1, m), 0);
+        prepare(f, k, b"a");
+        assert_eq!(outcome_init(o), 0);
+        // Invalid UTF-8 is a contract reject: the key is not consumed and
+        // the outcome stays Unissued.
+        assert_eq!(text_export(f, 1, 4, m, k, b"\xff".as_ptr(), 1, o), 2);
+        assert!(matches!(
+            *admit::<Mutex<KeyState>>(k, KEY_TAG)
+                .unwrap()
+                .lock()
+                .unwrap(),
+            KeyState::Ready(_)
+        ));
+        assert!(matches!(
+            *admit::<Mutex<OutcomeState>>(o, OUT_TAG)
+                .unwrap()
+                .lock()
+                .unwrap(),
+            OutcomeState::Unissued
+        ));
+        // Valid bytes install: outcome publishes, the key is consumed.
+        let text = "猫";
+        assert_eq!(text_export(f, 1, 4, m, k, text.as_ptr(), text.len(), o), 0);
+        assert_eq!(outcome_dispose(o), 2); // Ready outcome must be consumed
+        assert_eq!(outcome_end(f, 5, o), 0); // ReadyNoOld
+        assert_eq!(outcome_dispose(o), 0);
+        // Replacement detaches the owned Text; ending it is a no-op.
+        prepare(f, k, b"a");
+        assert_eq!(outcome_init(o), 0);
+        assert_eq!(text_export(f, 1, 6, m, k, b"other".as_ptr(), 5, o), 0);
+        assert_eq!(outcome_end(f, 7, o), 0);
+        assert_eq!(outcome_dispose(o), 0);
+        assert_eq!(key_dispose(k), 0);
+        // An empty payload is valid text (null pointer, zero length).
+        prepare(f, k, b"b");
+        assert_eq!(outcome_init(o), 0);
+        assert_eq!(text_export(f, 1, 8, m, k, std::ptr::null(), 0, o), 0);
+        assert_eq!(outcome_end(f, 9, o), 0);
+        assert_eq!(outcome_dispose(o), 0);
+        assert_eq!(key_dispose(k), 0);
+        assert_eq!(map_end(f, 10, m), 0);
+        assert_eq!(map_dispose(m), 0);
+        assert_eq!(super::super::frame_dispose(f), 0);
+    }
+}
+
 #[test]
 fn value_abi_mixed_replacement_never_treats_integer_bits_as_a_handle() {
     let (mut f, mut m, mut k, mut o) = (
