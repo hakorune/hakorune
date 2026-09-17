@@ -1,11 +1,10 @@
 Task: MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0
 Parent: mir-call-map-local-entry-source-i0-2026-09-15.md
-NextCard: C8 two-function non-AppMain consumer acceptance
-(normal+Fault cleanup) — F5-2 landed: call-site `MapLocalProgress`
-commit row + `result:"map"` emission + C v2 execution evidence
-(storage_move=1, received lease ends once, exit 30; the source-issued
-artifact executes through the unchanged consumer). C6-4 rootless
-cohort stays deferred; C1-id remains pre-production homework.
+NextCard: T1 readable Map argument (borrowed read-only no-escape
+handoff) — first vertical slice of the accepted 2026-09-18
+map-argument Decision; T1..T5 queued in the T-series work-package
+table (consultation #4). C6-4 rootless cohort stays deferred;
+C1-id remains pre-production homework running in parallel.
 Route note (2026-09-15): the call-arg and contained-descendant +
 array-element cards landed — merged loop1 now passes entirely and the
 first failure is `map_install_owners` (`Err(())`), this card's
@@ -1130,3 +1129,83 @@ flakes green under `--test-threads=1`/standalone:
 `verified_main_*`, `shared_root_kernel_*`,
 `instance_box_declaration_lifecycle_stops_*`, `typed_array_source_*`),
 `map_write_timing::boxcall_delegation`, `mir_corebox_router` extra rows.
+
+## External design consultation #4 (2026-09-18, ChatGPT Pro — map-argument lane)
+
+Inquiry: `CHATGPT_PRO_INQUIRY_MAP_ARGUMENT_LANE_JP.md`; full response:
+`CHATGPT_PRO_RESPONSE_MAP_ARGUMENT_LANE_JP.md`. Factual claims verified
+against HEAD `17edb9c766` — the int/handle `I64` tag conflation in the
+`Borrowed` store, `MapInstallFailure.candidate` dropped without semantic
+`end()` at the kernel boundary, `to_json`'s actual read surface
+(`module.get`/`length`/`get`/`keys`/`is_map`/`is_array`/missing-sentinel +
+`functions_0` fallback + `len==0` repair), and the write-only
+`observe_native` → `ProjectionUnavailable` bound all check out.
+
+**Decision (accepted 2026-09-18):** `%{"functions" => [main]}` is a
+caller-owned temporary Map that owns its Array storage whose elements
+borrow the existing `main` map. The first call contract is a
+**synchronous read-only no-escape borrow**: the callee never takes
+dispose responsibility; on Normal and Fault the caller cleans the
+temporary region after the callee returns (borrow liveness ends when the
+containing region's cleanup completes, not at callee return). Consume /
+mutable / escape forms stay named rejections until their own contracts
+exist. `BorrowedEntryEscape` stays — a borrow handoff is admitted only
+when the exact formal contract, every borrow root's liveness, and both
+Normal+Fault cleanup paths are proven; capability-set membership alone
+never admits.
+
+Representation prerequisites recorded by the response (close before
+read lanes open):
+
+- int vs handle: the `Borrowed` store currently conflates to
+  `CheckedMapPayload::I64`; the semantic tag must survive store→read —
+  no type recovery from key names, values, or registry hits.
+- `EmptyArray` converges to a zero-length Array view, not a fresh
+  mutable ArrayBox per projection (alias semantics of `MapBox.get`);
+  unimplemented identity observation stays a named rejection.
+- `install_candidate` failure paths must gain staging-ownership or
+  explicit cleanup before payloads can own children — Rust Drop is not
+  semantic `end()`.
+
+Layer placement follows the existing chain (no second compiler, no
+omnibus registry, no receipt chain): Facts carry owner/site/containment/
+binding/ordinal; parameter-result contracts carry formal value-kind +
+access(ReadOnly) + escape(NoEscape); Recipe/cleanup carries staging
+owner, evaluation order, borrow window, release order; verify co-seals
+exact actual↔formal, root liveness, mutation/move/end prohibition
+(alias, re-entry, helper calls included), callee non-escape, and
+full-member coverage; physical emit binds BindingRef→value/placement
+once; runtime keeps storage state, lookup, bounds, kind tags.
+
+Work packages T1–T5 are queued in the Ordered bounded card queue below.
+T1 is the vertical slice; T2's Array staging/borrow relations may be
+prepared in parallel. Deferred placements (response §9): C1-id stays
+pre-production homework running in parallel (mandatory before its issuer
+touches production, not a stop reason for read work); C6-4 rootless
+stays an independent family unless the required artifact is
+library-only; owned MapChild reuses T2's containment machinery only when
+a real nested-map transfer needs it — never as a borrowed-MapLocal
+substitute; received-map return / escaping borrows stay closed under
+`BorrowedEntryEscape`. Production switch conflates two censuses
+(response §10): compiling `CompatMirEmitBox` ≠ retiring the compat MIR
+path it emits — Rust-side legacy lowering/writer/reader and .hako-side
+fallback/repair are separate caller-zero deletion units.
+
+### Ordered bounded card queue — map-argument work packages (T-series)
+
+| #   | Work package (exit shown as running evidence) | Depends |
+| --- | --------------------------------------------- | ------- |
+| T1  | readable Map argument end-to-end — a small ordinary callee receives a Map and its result is decided by a real `get` (source→MIR→OBJ→link→execute; Normal + callee-read-Fault + caller-temporary-cleanup-Fault). Requires: semantic tags surviving store→read (int vs handle), read ABI (lookup/length/indexed/kind-test/scalar projection as tagged views bound to the borrow window — no clone, no fresh ownership), formal borrow contract (value kind + ReadOnly + NoEscape per slot — not a blanket exact_formals lift), call-edge co-seal, Invoke + FaultFrame for fallible callees, both cleanup paths. Negative: kernel-only green, capability-set addition alone, constant-return shortcuts, Main-only authority | C9-2 |
+| T2  | `[main]` end-to-end — callee actually reads `funcs[0].name` (Text), `params` empty array, `blocks` kind/length from runtime storage. Requires: owned `Array` payload with staging owner + reverse-prefix cleanup on mid-construction fault, `BorrowedMap`/`BorrowedHandle` payload kinds (physical-side refs only — never in source Facts), transitive liveness (argument→Array→main→blocks), `[main, main]` double-borrow without double-end, fault injection at construction/install/callee/cleanup per real owner. Negative: markers, whole-map serialize, probe side-tables, blanket `EntryStore(Opaque)` admission | T1 |
+| T3  | original `to_json` unmodified — `return MirJsonEmitBox.to_json(%{"functions"=>[main]})` compiles and runs; JSON verified on finite fixtures (empty/non-empty blocks, params, flags, Unicode/escapes); returned Text outlives input-map cleanup (no borrowed view returned as Text result). Requires: resolved call-graph feature census first (get/length/get/is_map/is_array/flags.keys/recursion/early-return/Text ops — enumerate before building, not discovered one-by-one), qualified-call lane, recursion closed inside the existing callable cohort, Text-result ownership ABI. `to_json` body admission is a separate job reusing T1/T2 read contracts — not folded into one commit | T2 |
+| T4  | merged compiler runs — real merged source's MIR/OBJ/execution plus result agreement on a finite program the compiled compiler produces. Requires: full member coverage (unreached members don't count as covered), real ingress, publish, backend, actual use — tracked at same revision/config; missing input artifacts never count as success | T3 |
+| T5  | production switch + physical deletion — the named production caller switches to the new route; the selected family's old edges are deleted after caller-zero. Requires: the production entry, backend/profile, canonical tuple, and deletion unit named at start; separate evidence for seal / finalized artifact / physical input / OBJ-link / execution / default switch / caller-zero / physical deletion — no step's success counts as the next's proof; opt-in success and comment-only deprecation don't count | T4 |
+
+Reporting contract per package (response §7/8): changed contracts, the
+source, generated artifacts, execution results, Normal/Fault owners,
+named rejections, and remaining old production edges — recorded on this
+card at each landing. C8's `#[ignore]`d LLVM/runtime tests run from an
+acceptance runner explicitly; environment-missing skips never count as
+gate success. Internal commits keep BoxCount (semantic admission) and
+BoxShape (behavior-preserving split) separate; 760-line split design,
+800-line hard stop.

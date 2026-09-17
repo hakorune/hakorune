@@ -18,26 +18,27 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-map-lifecycle-consumer-i0-2026-09-15"
 latest_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
 latest_card_summary = """
-Map lifecycle consumer spine through C9-2. F3 non-i64
-terminal relations, F4 Map return/arg ABI, C5a..C5c-3
-undertaking + admission + EntryStore precision +
-OwnershipShare(Handle), C6-1/-2/-3 membership/per-function
-edges/C v2 nested calls, F5-1/-2 map-result lane, C8
-two-function non-AppMain consumer acceptance, C9-1
-`EntryStore(Text)` and C9-2 `EntryStore(EmptyArray)`
-(`InstallEmptyArray{map,key}` → `map_install_empty_array` →
-owned-empty `CheckedMapPayload::EmptyArray` marker, no host
-handle — the checked lane is write-only) are landed.
-`local main` is now fully covered; the reported stop is
-`EntryStore(Opaque)` on the `%{"functions" => [main]}`
-argument literal. Next bounded slice: the map-argument
-cluster (`ArgumentHandoff` call-edge promotion + the
-argument literal's `EntryStore(Opaque)` non-empty array
-residence + `OwnershipShare(MapLocal)` + `to_json` body
-admission). MapChild stays undeclared. C6-4 rootless
-cohort deferred; C1-id opaque source identity remains
-pre-production homework. Production switch and legacy
-retirement remain unclaimed.
+Map lifecycle consumer spine through C9-2 plus the accepted
+2026-09-18 map-argument Decision (ChatGPT Pro consultation #4,
+`CHATGPT_PRO_RESPONSE_MAP_ARGUMENT_LANE_JP.md`): `%{"functions"
+=> [main]}` is a caller-owned temporary Map owning its Array
+storage whose elements borrow `main`; the first call contract
+is a synchronous read-only no-escape borrow — consume/mutable/
+escape stay named rejections, `BorrowedEntryEscape` stays.
+Representation prerequisites recorded: semantic tags must
+survive store→read (int vs handle), `EmptyArray` converges to
+a zero-length Array view (no per-projection fresh ArrayBox),
+`install_candidate` failure paths need staging-ownership
+cleanup before payloads own children. Work packages T1..T5
+queued on the card: T1 readable Map argument end-to-end
+(source→MIR→OBJ→link→execute, Normal+callee-read+caller-
+cleanup Faults) is the next bounded slice; T2 `[main]`
+(owned Array + BorrowedMap + transitive liveness), T3
+unmodified `to_json`, T4 merged compiler execution, T5
+production switch + caller-zero deletion. MapChild stays
+undeclared; C6-4 rootless deferred; C1-id remains
+pre-production homework in parallel. Production switch and
+legacy retirement remain unclaimed.
 """
 next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-expr-relation-d8-2026-09-15.md"
