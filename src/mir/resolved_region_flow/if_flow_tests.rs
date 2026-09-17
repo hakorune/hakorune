@@ -310,3 +310,74 @@ fn root_terminal_return_is_authorized_by_the_completion_product() {
 
     assert!(result.if_flows().is_empty());
 }
+
+#[test]
+fn sealed_if_else_value_return_set_is_authorized() {
+    // A completing `if`/`else` terminal seals one `ExplicitReturns` set whose
+    // sites live inside the branch bodies. The analyzer must authorize the
+    // sealed set, not a singleton site.
+    let ast = function(vec![if_stmt(
+        literal(1),
+        vec![ASTNode::Return {
+            value: Some(Box::new(literal(1))),
+            span: Span::unknown(),
+        }],
+        Some(vec![ASTNode::Return {
+            value: Some(Box::new(literal(2))),
+            span: Span::unknown(),
+        }]),
+    )]);
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(ast).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    assert_eq!(completion.explicit_sites().len(), 2);
+
+    let result = analyze_resolved_function_flow_v1(input, &completion).unwrap();
+    assert_eq!(result.if_flows().len(), 1);
+}
+
+#[test]
+fn sealed_unit_return_with_implicit_end_is_authorized() {
+    // `if (c) { return void }` leaves a reachable implicit end: the sealed
+    // `ExplicitUnitSetWithImplicitEnd` authorizes the nested unit site while
+    // the fallthrough exit stays implicit.
+    let ast = function(vec![
+        local("x", 0),
+        if_stmt(
+            variable("x"),
+            vec![ASTNode::Return {
+                value: Some(Box::new(ASTNode::Literal {
+                    value: LiteralValue::Void,
+                    span: Span::unknown(),
+                })),
+                span: Span::unknown(),
+            }],
+            None,
+        ),
+    ]);
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(ast).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    assert_eq!(completion.explicit_sites().len(), 1);
+    assert!(completion.implicit_body_end().is_some());
+
+    let result = analyze_resolved_function_flow_v1(input, &completion).unwrap();
+    assert_eq!(result.if_flows().len(), 1);
+}
+
+#[test]
+fn unsealed_return_set_never_reaches_flow_analysis() {
+    // A non-completing `if` with a value return cannot seal a completion at
+    // all — the verifier still owns the admission boundary.
+    let ast = function(vec![if_stmt(
+        literal(1),
+        vec![ASTNode::Return {
+            value: Some(Box::new(literal(1))),
+            span: Span::unknown(),
+        }],
+        None,
+    )]);
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(ast).unwrap();
+    let input = unit.root_function_input().unwrap();
+    assert!(verify_function_completion_v1(input).is_err());
+}

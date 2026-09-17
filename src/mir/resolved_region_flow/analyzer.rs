@@ -68,7 +68,11 @@ struct AnalysisSummaryV1 {
 struct AnalyzerV1<'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
     draft: ResolvedFunctionFlowDraftV1,
-    authorized_return_site: Option<SourceStmtSiteV1>,
+    /// Every explicit return site the sealed Completion authorized. The set
+    /// is the whole `explicit_sites()` row so generalized completions
+    /// (`ExplicitReturns`, `ExplicitUnitSetWithImplicitEnd`) authorize exactly
+    /// their sealed sites; any other `return` still rejects.
+    authorized_return_sites: Vec<SourceStmtSiteV1>,
 }
 
 impl<'source> AnalyzerV1<'source> {
@@ -95,7 +99,7 @@ impl<'source> AnalyzerV1<'source> {
         Ok(Self {
             input,
             draft: ResolvedFunctionFlowDraftV1::new(owner),
-            authorized_return_site: completion.explicit_site().cloned(),
+            authorized_return_sites: completion.explicit_sites().to_vec(),
         })
     }
 
@@ -175,10 +179,14 @@ impl<'source> AnalyzerV1<'source> {
             ASTNode::Assignment { .. } => self.analyze_assignment(statement),
             ASTNode::If { .. } => self.analyze_if(statement),
             ASTNode::Return { value, .. } => {
-                if self.authorized_return_site.as_ref() != Some(statement.site()) {
+                if !self
+                    .authorized_return_sites
+                    .iter()
+                    .any(|site| site == statement.site())
+                {
                     return Err(self.unsupported_statement(
                         statement,
-                        "return_not_fallthrough_or_not_root_final",
+                        "return_not_in_sealed_completion_sites",
                     ));
                 }
                 if value.is_none() {
