@@ -6,8 +6,8 @@
 
 use super::{
     BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, HomeDemandV1, OwnedExprSiteV1,
-    ResolvedLexicalRefV1, ResolvedLiteralSourceV1, SourceBindingSiteV1, SourceExprSiteV1,
-    SourcePathSegmentV1, SourceStmtSiteV1,
+    ResolvedLexicalRefV1, ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1,
+    SourceBindingSiteV1, SourceExprSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -81,8 +81,8 @@ pub(crate) use map_flow::{
 use terminal_relation::{map_literal_keys, return_scalar, terminal_returned_source, ReturnScalar};
 pub(crate) use terminal_relation::{
     TerminalI64AddReturnV1, TerminalI64CallReturnV1, TerminalI64FieldReturnV1,
-    TerminalIntegerLiteralReturnV1, TerminalRelationV1, TerminalReturnedSourceV1,
-    TerminalUnitReturnV1, TerminalValueReturnV1,
+    TerminalIntegerLiteralReturnV1, TerminalOpaqueCallReturnV1, TerminalRelationV1,
+    TerminalReturnedSourceV1, TerminalUnitReturnV1, TerminalValueReturnV1,
 };
 
 pub(crate) fn issue_new_home_prefixes_v1(
@@ -429,7 +429,37 @@ pub(crate) fn scan_new_home_flow<E>(
                                                     ));
                                                 true
                                             }
-                                            None => false,
+                                            None => {
+                                                // `return <qualified call>`
+                                                // — the sealed method-call
+                                                // row proves a qualified
+                                                // receiver; the relation
+                                                // records the call site only
+                                                // and owns no callee, result
+                                                // class, or handoff authority.
+                                                if input.function().method_calls().any(
+                                                    |(site, row)| {
+                                                        *site == *value.site()
+                                                            && matches!(
+                                                                row.receiver(),
+                                                                ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
+                                                            )
+                                                    },
+                                                ) {
+                                                    terminal_relation = Some(
+                                                        TerminalRelationV1::OpaqueCall(
+                                                            TerminalOpaqueCallReturnV1::issue(
+                                                                input.owner(),
+                                                                statement.site().clone(),
+                                                                value.site().clone(),
+                                                            ),
+                                                        ),
+                                                    );
+                                                    true
+                                                } else {
+                                                    false
+                                                }
+                                            }
                                         }
                                     }
                                 }

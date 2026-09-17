@@ -394,6 +394,41 @@ pub(super) fn return_scalar<E>(
     }
 }
 
+/// Exact source relation for a `return <call>` whose sealed method-call row
+/// proves a qualified receiver outside the lexical environment. This row
+/// records only owner and sites: it owns no callee identity, result class,
+/// argument handoff, Invoke emission, or ABI authority. It is not the affine
+/// `Call` relation and it is not a `Value` source classification.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct TerminalOpaqueCallReturnV1 {
+    owner: FunctionOwnerIdV1,
+    return_site: SourceStmtSiteV1,
+    call_site: SourceExprSiteV1,
+}
+
+impl TerminalOpaqueCallReturnV1 {
+    pub(super) const fn issue(
+        owner: FunctionOwnerIdV1,
+        return_site: SourceStmtSiteV1,
+        call_site: SourceExprSiteV1,
+    ) -> Self {
+        Self {
+            owner,
+            return_site,
+            call_site,
+        }
+    }
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
+        &self.return_site
+    }
+    pub(crate) fn call_site(&self) -> &SourceExprSiteV1 {
+        &self.call_site
+    }
+}
+
 /// A terminal Call publishes its pending value only on Normal. On Fault the
 /// original Completion supplies caller cleanup and outward propagation.
 /// Target and argument sites stay in the package's existing affine Call row.
@@ -442,6 +477,7 @@ pub(crate) enum TerminalRelationV1 {
     IntegerLiteral(TerminalIntegerLiteralReturnV1),
     I64Field(TerminalI64FieldReturnV1),
     Value(TerminalValueReturnV1),
+    OpaqueCall(TerminalOpaqueCallReturnV1),
 }
 
 impl TerminalRelationV1 {
@@ -453,6 +489,7 @@ impl TerminalRelationV1 {
             Self::IntegerLiteral(row) => row.owner,
             Self::I64Field(row) => row.owner,
             Self::Value(row) => row.owner,
+            Self::OpaqueCall(row) => row.owner,
         }
     }
 }

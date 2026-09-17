@@ -10,6 +10,13 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     HomePrefixUnavailableV1, TerminalRelationV1, TerminalReturnedSourceV1,
 };
 
+/// Covered obligations admit install; the physical execution boundary
+/// stays downstream at lowering.
+fn assert_install_admits(package: super::VerifiedNormalCallableSemanticPackageV1) {
+    let mut context = crate::mir::builder::CompilationContext::new();
+    assert!(package.prepare_install(&mut context).is_ok());
+}
+
 fn work_contract<'a>(
     package: &'a super::VerifiedNormalCallableSemanticPackageV1,
 ) -> super::result_contract::CallableResultContractRefV1<'a> {
@@ -159,6 +166,81 @@ fn return_void_issues_the_unit_terminal_relation() {
         .expect("root flow")
         .terminal_homes()
         .is_ok());
+}
+
+/// `return <qualified call>` — the sealed method-call row proves a
+/// qualified receiver outside the lexical environment. The OpaqueCall
+/// relation records owner and sites only: it owns no callee identity,
+/// result class, argument handoff, or Invoke authority.
+#[test]
+fn qualified_call_return_issues_opaque_call_relation() {
+    for body in [
+        "local m = %{\"k\" => 1} return Work.helper(0)",
+        "local m = %{\"k\" => 1} return Main.main()",
+    ] {
+        let package = issue(&format!(
+            "static box Work {{ make(args) {{ {body} }}
+                     helper(x) {{ return x }} }}
+                 static box Main {{ main() {{ return 30 }} }}"
+        ))
+        .expect("qualified-call return package");
+        let contract = work_contract(&package);
+        let Some(TerminalRelationV1::OpaqueCall(relation)) = contract.terminal_relation() else {
+            panic!("{body} issues an OpaqueCall relation");
+        };
+        assert_eq!(relation.owner(), contract.owner());
+        assert_eq!(
+            Some(relation.return_site()),
+            contract.completion().explicit_site()
+        );
+        let flow = contract
+            .completion()
+            .cleanup()
+            .root_flow()
+            .expect("root flow");
+        // The call result is opaque to this owner; the map local still
+        // owes its own terminal cleanup.
+        assert_eq!(flow.terminal_homes().unwrap().len(), 1, "{body}");
+        assert_install_admits(package);
+    }
+}
+
+/// A qualified call carrying a map argument keeps the OpaqueCall relation
+/// but the argument's lifecycle obligations fail closed at the named
+/// capability boundary — never flattened into unavailable terminal homes.
+#[test]
+fn qualified_call_map_argument_reaches_the_named_capability_boundary() {
+    let package = issue(
+        "static box Work { make(args) { local m = %{\"k\" => 1} return Work.helper(%{\"a\" => m}) }
+             helper(x) { return x } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("qualified-call map-argument package");
+    let contract = work_contract(&package);
+    let Some(TerminalRelationV1::OpaqueCall(relation)) = contract.terminal_relation() else {
+        panic!("map-argument qualified call issues an OpaqueCall relation");
+    };
+    assert_eq!(relation.owner(), contract.owner());
+    let flow = contract
+        .completion()
+        .cleanup()
+        .root_flow()
+        .expect("root flow");
+    assert!(flow.terminal_homes().is_ok());
+    let mut context = crate::mir::builder::CompilationContext::new();
+    let error = match package.prepare_install(&mut context) {
+        Err((_, error)) => error,
+        Ok(_) => panic!("map argument handoff is not an admitted capability"),
+    };
+    assert!(
+        matches!(
+            error,
+            super::install::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleUndertaking(
+                super::map_lifecycle_undertaking::MapLifecycleUndertakingIssueV1::UncoveredOperation { .. }
+            )
+        ),
+        "{error:?}"
+    );
 }
 
 #[test]

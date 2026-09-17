@@ -90,20 +90,23 @@ pub(in crate::mir::normal_callable_semantic_package) fn map_result_callee(
 
 /// The callee's own terminal relation is the sole result-class evidence:
 /// a Map-source `return` yields a `Map` call result, every other admitted
-/// relation stays `I64`. Declared annotations never decide this.
+/// relation stays `I64`. An `OpaqueCall` terminal proves no result class —
+/// the callee cannot publish an Invoke result kind until its return value
+/// is decomposed. Declared annotations never decide this.
 pub(in crate::mir::normal_callable_semantic_package) fn call_result_kind(
     terminal_relation: Option<&TerminalRelationV1>,
-) -> InvokeCallResultKind {
+) -> Option<InvokeCallResultKind> {
     match terminal_relation {
+        Some(TerminalRelationV1::OpaqueCall(_)) => None,
         Some(TerminalRelationV1::Value(row))
             if matches!(
                 row.returned(),
                 TerminalReturnedSourceV1::MapLiteral(_) | TerminalReturnedSourceV1::MapLocal(_)
             ) =>
         {
-            InvokeCallResultKind::Map
+            Some(InvokeCallResultKind::Map)
         }
-        _ => InvokeCallResultKind::I64,
+        _ => Some(InvokeCallResultKind::I64),
     }
 }
 
@@ -415,7 +418,7 @@ impl DirectCallDispositionLoanV1 {
                 }
                 _ => return Err(reject),
             }
-            row.result = call_result_kind(callee.terminal_relation());
+            row.result = call_result_kind(callee.terminal_relation()).ok_or(reject)?;
             row.execution = DirectCallExecutionV1::Lifecycle;
         }
         Ok(())

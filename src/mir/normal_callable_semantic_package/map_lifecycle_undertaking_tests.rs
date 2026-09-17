@@ -74,28 +74,43 @@ fn nested_map_child_describes_slot_handoff() {
 
 #[test]
 fn call_argument_map_owner_stops_at_describe_without_exit_evidence() {
-    // A `%{...}` call argument makes the owning call unavailable to the
-    // i64-call prefix (literal-argument coverage only), so the owner has
-    // no sealed terminal evidence — describe must stop, never emit a
-    // partially known obligation set. The `ArgumentHandoff` operation
-    // stays in the contract vocabulary for the future call-argument
-    // lane; nothing reachable can declare it today.
-    for body in [
-        "local r = Helpers.consume(%{\"a\" => flag}, 7) return 30",
-        "return Helpers.consume(%{\"a\" => flag}, 7)",
-    ] {
-        let package = issue(&format!(
-            "static box Helpers {{ consume(a, b) {{ return 30 }} run(flag) {{ {body} }} }}
-             static box Main {{ main() {{ return 30 }} }}",
-        ))
-        .expect("call-argument map package");
-        assert!(matches!(
-            package.describe_map_lifecycle_obligations(),
-            Err(
-                super::map_lifecycle_undertaking::MapObligationDescribeIssueV1::OwnerTerminalHomesUnavailable { .. }
-            )
-        ), "{body}");
-    }
+    // A `%{...}` argument under a non-terminal local call leaves the owner
+    // without sealed terminal evidence — describe must stop, never emit a
+    // partially known obligation set.
+    let package = issue(
+        "static box Helpers { consume(a, b) { return 30 } run(flag) { local r = Helpers.consume(%{\"a\" => flag}, 7) return 30 } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("call-argument map package");
+    assert!(matches!(
+        package.describe_map_lifecycle_obligations(),
+        Err(
+            super::map_lifecycle_undertaking::MapObligationDescribeIssueV1::OwnerTerminalHomesUnavailable { .. }
+        )
+    ));
+}
+
+#[test]
+fn terminal_qualified_call_argument_describes_the_named_handoff() {
+    // `return <qualified call>` is its own OpaqueCall terminal class: the
+    // owner has sealed terminal evidence, so describe reaches the argument
+    // map and names `ArgumentHandoff` instead of flattening the missing
+    // terminal into unavailable homes. Verify still cannot declare it.
+    let package = issue(
+        "static box Helpers { consume(a, b) { return 30 } run(flag) { return Helpers.consume(%{\"a\" => flag}, 7) } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("terminal call-argument map package");
+    let obligations = package
+        .describe_map_lifecycle_obligations()
+        .expect("opaque-call terminal admits describe");
+    let [owner] = obligations.as_ref() else {
+        panic!("one map-owning owner");
+    };
+    let [site] = owner.sites() else {
+        panic!("one map site");
+    };
+    assert!(site.operations().any(|op| op == Op::ArgumentHandoff));
 }
 
 #[test]

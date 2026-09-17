@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0"
 current_execution_cohort = "map_lifecycle_consumer"
-current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0__merged_route_owner_terminal_homes_unavailable_return_qualified_call"
+current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0__merged_route_owner_uncovered_operation_argument_handoff"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "closed__resolver_if_source_expr_relation_2026-09-15"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -32,13 +32,14 @@ prior_homes preflight rejection), accepts Borrowed fault frames
 in child owners, and pins production-route Normal/callee-Fault/
 caller-Fault evidence on a source-issued artifact (3/3
 map_consumer_tests + 6/6 lifecycle tests + 243/243 package).
-Next named merged-route terminal (probed 2026-09-16):
-`OwnerTerminalHomesUnavailable` on
-`MirSchemaBox._module_with_blocks` — an instance-method owner
-whose terminal `return MirJsonEmitBox.to_json(%{...})` is a
-qualified static call return, outside every covered terminal
-class (C8 explicitly non-claimed `return <call>` in
-non-AppMain owners). C6-4 rootless cohort stays deferred,
+Next named merged-route residual (classified 2026-09-17):
+`return <qualified call>` is now its own
+`TerminalRelationV1::OpaqueCall` class; the
+`CompatMirEmitBox._module_with_blocks` stop moved from
+`OwnerTerminalHomesUnavailable` to named
+`UncoveredOperation` sites (`EntryStore(Opaque)`/
+`OwnershipShare` on `local main`, `ArgumentHandoff` on the
+`%{"functions" => [main]}` argument literal). C6-4 rootless cohort stays deferred,
 C1-id opaque source identity remains pre-production
 homework. Production switch and legacy retirement remain
 unclaimed. Review fix (2026-09-16): region-flow AnalyzerV1

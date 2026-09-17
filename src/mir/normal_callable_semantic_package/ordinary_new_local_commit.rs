@@ -144,6 +144,7 @@ impl FinalizedRootSourceHandoffV1 {
             TerminalRelationV1::IntegerLiteral(row) => row.owner(),
             TerminalRelationV1::I64Field(row) => row.owner(),
             TerminalRelationV1::Value(row) => row.owner(),
+            TerminalRelationV1::OpaqueCall(row) => row.owner(),
         }
     }
 
@@ -168,6 +169,8 @@ impl FinalizedRootSourceHandoffV1 {
             // A non-i64 value return derives no physical result ABI at this
             // boundary; the lifecycle capability lane supplies it.
             TerminalRelationV1::Value(_) => return None,
+            // An opaque call return proves no result class at all.
+            TerminalRelationV1::OpaqueCall(_) => return None,
         })
     }
 

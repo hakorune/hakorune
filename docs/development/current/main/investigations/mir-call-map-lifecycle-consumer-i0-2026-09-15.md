@@ -991,3 +991,75 @@ family — so the classification Decision must also name the
 callee-admission ordering (terminal relation for the caller may land
 first only if the callee cohort is already cataloged, or the caller
 slice must wait behind the callee's own admission chain).
+
+## OpaqueCall Decision (2026-09-17, worker-audited, landed)
+
+```text
+Decision:
+  `return <qualified call>` (a sealed `method_calls()` row whose
+  receiver is `QualifiedUnbound`) is its own terminal class —
+  `TerminalRelationV1::OpaqueCall(TerminalOpaqueCallReturnV1
+  {owner, return_site, call_site})`. It is not the affine `Call`
+  relation (no loan row, no i64 arguments, no Invoke lane) and not a
+  `Value` source (its result class is unproven; `Value` classifies
+  non-i64 returned sources only).
+Source authority + canonical issuer:
+  The resolver-sealed `VerifiedResolvedMethodCallSourceV1` row
+  (receiver disposition, selector, arity, argument sites) is the only
+  authority; `scan_new_home_flow` issues the relation after
+  `terminal_call`, `return_scalar`, and `terminal_returned_source`
+  all decline.
+Non-authority:
+  `direct_call_observations`/loan rows prove nothing for qualified
+  calls; `OpaqueCall` never issues Invoke, never claims callee
+  catalog membership, never claims a result class, and never hands
+  map arguments across the boundary.
+Fail-fast boundary:
+  No `method_calls()` row or a `Lexical`/`CurrentOwner`/`Other`
+  receiver keeps `ReturnValueNotCovered`. `call_result_kind` is
+  Option-ized so an `OpaqueCall` callee cannot fabricate
+  `InvokeCallResultKind::I64`; both query sites fail closed
+  (`LifecycleSourceMismatch` inside `co_seal_lifecycle`,
+  `root-instance-call-result-kind-unavailable` on the AppMain lane).
+  `result_abi()` derives `None`; `finalized_root_handoff` checks
+  owner drift only. Describe reaches the argument map rows and names
+  `ArgumentHandoff`/`EntryStore(Opaque)`/`OwnershipShare`;
+  `verify_map_lifecycle_undertaking` fails `UncoveredOperation` —
+  the typed blocker replacing `OwnerTerminalHomesUnavailable`.
+Smallest next slice:
+  The map-argument handoff capability itself (`ArgumentHandoff`,
+  `EntryStore(Opaque)`, `OwnershipShare` argument entries), ordered
+  behind callee-body admission (`MirJsonEmitBox.to_json`: recursion,
+  `.get`, `is_array`, expression-`if`, early returns, concat) only
+  where a `Call`/Invoke relation actually requires the callee in the
+  batch. `OpaqueCall` itself needs no callee membership — the caller
+  relation joins the caller's own sealed row only.
+Non-claims:
+  No `ArgumentHandoff`/`ContainedHandoff` capability, no qualified
+  callee resolution (import-inventory plumbing), no qualified-call
+  Invoke or physical edge, no `me.`/`obj.` receiver calls, no
+  `local x = <qualified call>` initializer lane, no map-result
+  qualified calls, no `_module_with_blocks` admission — its install
+  still rejects, now with a named operation instead of unavailable
+  terminal homes.
+```
+
+Evidence: `terminal_value_return_tests` pins `OpaqueCall` retention,
+`terminal_homes = Ok`, install admit for the no-map-argument shape,
+and `MapLifecycleUndertaking(UncoveredOperation)` for the map-argument
+shape; `map_lifecycle_undertaking_tests` pins `ArgumentHandoff` in the
+described set and keeps `OwnerTerminalHomesUnavailable` for the
+non-terminal local-call shape. Package suite 247/247; the two
+`resolved_semantics` reds are baseline entries in
+`cargo_lib_red_baseline.failures.txt`. Changed-file line counts stay
+below 800 (`home_new_prefix.rs` 744).
+
+Remaining named residual on the merged route: the
+`UncoveredOperation` sites in `CompatMirEmitBox._module_with_blocks`
+— the `local main` literal's `EntryStore(Opaque)`/`OwnershipShare`
+entries (`"blocks" => blocks`) and the `%{"functions" => [main]}`
+argument literal's `ArgumentHandoff` — plus `MirJsonEmitBox.to_json`'s
+own body admission. The honest stop moved from
+`OwnerTerminalHomesUnavailable` to the named operation set; the next
+bounded slice is the map-argument/entry handoff capability Decision,
+not further terminal classification.

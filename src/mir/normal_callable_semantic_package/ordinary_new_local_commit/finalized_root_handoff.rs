@@ -62,6 +62,11 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("artifact-root-value-owner-drift"));
                     }
                 }
+                TerminalRelationV1::OpaqueCall(relation) => {
+                    if relation.owner() != owner {
+                        return Err(freeze("artifact-root-opaque-call-owner-drift"));
+                    }
+                }
             }
         }
         let call_payload = if matches!(
