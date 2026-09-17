@@ -741,3 +741,50 @@ fn compile_resolved_preflight_error_leaves_builder_unopened() {
     ));
     assert!(compiler.builder.current_module.is_none());
 }
+
+#[test]
+fn sealed_unit_set_with_implicit_end_stays_outside_the_canonical_route() {
+    // `if (x) { return void }` seals a single-site
+    // `ExplicitUnitSetWithImplicitEnd` completion, but the canonical
+    // first-family route still owns statement admission: `verify_body`
+    // runs before completion sealing and rejects every nested Return, so
+    // the sealed form is authorized groundwork, not a lowered shape.
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![
+        local("x", literal(0)),
+        if_stmt(
+            variable("x"),
+            vec![ASTNode::Return {
+                value: Some(Box::new(ASTNode::Literal {
+                    value: LiteralValue::Void,
+                    span: Span::unknown(),
+                })),
+                span: Span::unknown(),
+            }],
+            None,
+        ),
+    ]))
+    .expect("unit-set fixture resolves");
+    let input = unit.root_function_input().expect("function input");
+    let completion = crate::mir::resolved_control_flow::verify_function_completion_v1(input)
+        .expect("sealed completion");
+    assert!(matches!(
+        completion,
+        crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1::ExplicitUnitSetWithImplicitEnd(_)
+    ));
+
+    assert!(matches!(
+        CanonicalLoweringPreflightV1::verify(&unit),
+        Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
+            reason: "return_not_allowed_here",
+            ..
+        })
+    ));
+    let mut compiler = MirCompiler::with_options(false);
+    assert!(matches!(
+        compiler.compile_resolved(unit.lowering_input(), None),
+        Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
+            reason: "return_not_allowed_here",
+            ..
+        })
+    ));
+}

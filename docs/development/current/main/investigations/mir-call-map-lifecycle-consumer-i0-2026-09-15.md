@@ -834,17 +834,32 @@ Two defects from the external review were fixed on this branch:
    now carries the whole `explicit_sites()` set — the same convention
    `IfControlAnalyzerV1` already used — and authorizes a `Return` by
    exact site membership (`return_not_in_sealed_completion_sites` for
-   any unsealed site). Single-site `ExplicitUnitSetWithImplicitEnd`
-   completions now lower end-to-end through the canonical route;
-   multi-site value sets still fail closed at draft seal
+   any unsealed site). **Correction (2026-09-17 review):** the earlier
+   note claimed single-site `ExplicitUnitSetWithImplicitEnd` completions
+   lower end-to-end through the canonical route — that is not true.
+   `verify_body` (`capability.rs`, `ReturnPolicyV1::FinalOnly` at the
+   root body / `Forbidden` inside `if`/`else`/`BlockExpr` bodies) runs
+   before `verify_function_completion_v1` and rejects every nested
+   `return` with `return_not_allowed_here`, so no sealed generalized
+   completion reaches the canonical analyzer or draft seal in
+   production; the set-based authorization is forward groundwork for
+   the lane that lifts that gate, exercised today only by direct
+   analyzer tests. Downstream lanes fail closed the same way:
+   multi-site value sets at draft seal
    (`MultipleExplicitReturnClaimsUnsupported`) where the exact-two
    `PreparedFunctionExitSetV1` lane is the designed consumer — its
    generic-lane wiring is a named later slice
    (`multi_site_exit.rs` documents the deferred fresh-session
-   consumer). Pins: `sealed_if_else_value_return_set_is_authorized`,
+   consumer) — generic_g0 requires `returns_value` + exactly one site,
+   and s6c ingress requires the exact-two loop-return+tail set.
+   Pins: `sealed_if_else_value_return_set_is_authorized`,
    `sealed_unit_return_with_implicit_end_is_authorized`,
    `unsealed_return_set_never_reaches_flow_analysis` in
-   `if_flow_tests.rs` (13/13 `resolved_region_flow`).
+   `if_flow_tests.rs` (13/13 `resolved_region_flow`), plus the
+   boundary pin
+   `sealed_unit_set_with_implicit_end_stays_outside_the_canonical_route`
+   in `capability_tests.rs` (sealed completion asserted,
+   preflight + `compile_resolved` reject `return_not_allowed_here`).
 2. **fmt drift** (`5035bc4b77`): 15 session-touched files reformatted;
    `cargo fmt --check` clean.
 
