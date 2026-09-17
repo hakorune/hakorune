@@ -114,6 +114,8 @@ mod map_call_argument_flow_tests;
 #[cfg(test)]
 mod map_contained_descendant_flow_tests;
 #[cfg(test)]
+mod map_entry_value_flow_tests;
+#[cfg(test)]
 mod map_home_flow_tests;
 #[cfg(test)]
 mod map_value_completion_tests;
