@@ -50,9 +50,7 @@ impl DirectCallDispositionRowV1 {
     ) -> Result<&VerifiedCanonicalDirectCallEmissionV1, DirectCallLoanErrorV1> {
         match self.execution {
             DirectCallExecutionV1::Lifecycle => Ok(&self.emission),
-            DirectCallExecutionV1::Scalar => {
-                Err(DirectCallLoanErrorV1::LifecycleSourceMismatch)
-            }
+            DirectCallExecutionV1::Scalar => Err(DirectCallLoanErrorV1::LifecycleSourceMismatch),
         }
     }
     pub(crate) fn new(
@@ -180,9 +178,7 @@ impl DirectCallDispositionLoanV1 {
             .ok_or(DirectCallLoanErrorV1::SiteMissing)?;
         match std::mem::replace(slot, DirectCallDispositionSlotV1::Taken) {
             DirectCallDispositionSlotV1::Ready(row) => Ok(row),
-            DirectCallDispositionSlotV1::Taken => {
-                Err(DirectCallLoanErrorV1::SiteAlreadyTaken)
-            }
+            DirectCallDispositionSlotV1::Taken => Err(DirectCallLoanErrorV1::SiteAlreadyTaken),
         }
     }
 
@@ -225,10 +221,7 @@ impl DirectCallDispositionLoansV1 {
         Ok(Self { loans: issued })
     }
 
-    pub(crate) fn get(
-        &self,
-        owner: FunctionOwnerIdV1,
-    ) -> Option<&DirectCallDispositionLoanV1> {
+    pub(crate) fn get(&self, owner: FunctionOwnerIdV1) -> Option<&DirectCallDispositionLoanV1> {
         self.loans.get(&owner)
     }
 
@@ -243,9 +236,7 @@ impl DirectCallDispositionLoansV1 {
         self.loans.values()
     }
 
-    pub(crate) fn iter_mut(
-        &mut self,
-    ) -> impl Iterator<Item = &mut DirectCallDispositionLoanV1> {
+    pub(crate) fn iter_mut(&mut self) -> impl Iterator<Item = &mut DirectCallDispositionLoanV1> {
         self.loans.values_mut()
     }
 
@@ -386,10 +377,7 @@ mod tests {
                         site.clone(),
                         DirectCallDispositionRowV1::new(Box::new([]), emission),
                     ),
-                    (
-                        site,
-                        DirectCallDispositionRowV1::new(Box::new([]), second),
-                    ),
+                    (site, DirectCallDispositionRowV1::new(Box::new([]), second),),
                 ],
             )
             .err(),

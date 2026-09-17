@@ -606,9 +606,7 @@ pub(in crate::mir::builder) fn lower_prepared_raw_function_preflight_with_port_v
     prepared: PreparedRawFunctionPreflightV1,
 ) -> Result<ValueId, String>
 where
-    Port: RawAstChildLoweringPortV1
-        + RawFunctionHeaderLookupPortV1
-        + DirectCallDispositionPortV1,
+    Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1 + DirectCallDispositionPortV1,
 {
     replay_function_call_trace(builder, &prepared.name);
     match prepared.route {

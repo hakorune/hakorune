@@ -53,8 +53,8 @@ pub(in crate::mir::builder) use raw_ordinary_new_claim::RawOrdinaryNewClaimPortV
 
 pub(in crate::mir::builder) use super::raw_loop_child_port::RawLoopChildEntryPortV1;
 pub(in crate::mir::builder) use super::recursive_child_lowering_port::{
-    DirectCallDispositionPortV1, DeclaredInstanceReceiverIngressV1,
-    RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    DeclaredInstanceReceiverIngressV1, DirectCallDispositionPortV1, RawAstChildLoweringPortV1,
+    RecursiveChildLoweringPortV1,
 };
 
 pub(in crate::mir::builder) fn normalize_instance_box_method_input_v1(
@@ -288,7 +288,9 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         module_port: &'port mut ModuleLoweringPortV1<'collector>,
         cleanup_exit_policy: CleanupExitPolicyV1,
         callable_loop_root_scope: &'port mut super::UnpublishedCallableLoopRootScopeV1,
-        direct_call_loans: Option<&'port mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoansV1>,
+        direct_call_loans: Option<
+            &'port mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoansV1,
+        >,
     ) -> Self {
         Self::new_with_optional_callable_loop_root_scope_and_direct_call_loan(
             module_port,
@@ -315,7 +317,9 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         module_port: &'port mut ModuleLoweringPortV1<'collector>,
         cleanup_exit_policy: CleanupExitPolicyV1,
         callable_loop_root_scope: Option<&'port mut super::UnpublishedCallableLoopRootScopeV1>,
-        direct_call_loans: Option<&'port mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoansV1>,
+        direct_call_loans: Option<
+            &'port mut crate::mir::normal_callable_semantic_package::DirectCallDispositionLoansV1,
+        >,
     ) -> Self {
         Self {
             module_port,
@@ -613,10 +617,8 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
 impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
     fn take_direct_call_disposition_v1(
         &mut self,
-    ) -> Result<
-        crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1,
-        String,
-    > {
+    ) -> Result<crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1, String>
+    {
         if !self.is_direct_call_scope_v1() {
             return Err("[freeze:contract][direct-call/scope-mismatch]".to_owned());
         }
@@ -670,13 +672,9 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         let actual = self
             .current_source_site_v1()
             .map(crate::mir::resolved_semantics::SourceExprSiteV1::from_node)
-            .ok_or_else(|| {
-                "[freeze:contract][direct-call/argument-site-missing]".to_owned()
-            })?;
+            .ok_or_else(|| "[freeze:contract][direct-call/argument-site-missing]".to_owned())?;
         if &actual != expected {
-            return Err(
-                "[freeze:contract][direct-call/argument-site-mismatch]".to_owned(),
-            );
+            return Err("[freeze:contract][direct-call/argument-site-mismatch]".to_owned());
         }
         Ok(())
     }

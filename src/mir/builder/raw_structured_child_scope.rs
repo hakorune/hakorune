@@ -278,10 +278,8 @@ where
 {
     fn take_direct_call_disposition_v1(
         &mut self,
-    ) -> Result<
-        crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1,
-        String,
-    > {
+    ) -> Result<crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1, String>
+    {
         self.child.take_direct_call_disposition_v1()
     }
 

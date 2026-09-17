@@ -77,10 +77,8 @@ impl RawInvocationChildPortV1<'_, '_> {
 
     pub(in crate::mir::builder) fn take_direct_call_disposition_inner_v1(
         &mut self,
-    ) -> Result<
-        crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1,
-        String,
-    > {
+    ) -> Result<crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1, String>
+    {
         let owner = self
             .callable_owner_v1()
             .ok_or_else(|| "[freeze:contract][direct-call/owner-missing]".to_owned())?;

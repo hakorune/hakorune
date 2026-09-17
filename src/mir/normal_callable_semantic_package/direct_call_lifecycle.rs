@@ -181,8 +181,7 @@ impl DirectCallDispositionLoanV1 {
         let mut owners = std::collections::BTreeSet::new();
         for row in self.rows.values().filter_map(|slot| match slot {
             DirectCallDispositionSlotV1::Ready(row) if map_owned(batch, row) => Some(row),
-            DirectCallDispositionSlotV1::Ready(_)
-            | DirectCallDispositionSlotV1::Taken => None,
+            DirectCallDispositionSlotV1::Ready(_) | DirectCallDispositionSlotV1::Taken => None,
         }) {
             owners.insert(row.emission.target().callable().owner());
         }

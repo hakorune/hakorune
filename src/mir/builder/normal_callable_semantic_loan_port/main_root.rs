@@ -120,9 +120,7 @@ fn verify_raw_callable_owner_v1(
 impl DirectCallDispositionPortV1
     for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_>
 {
-    fn take_direct_call_disposition_v1(
-        &mut self,
-    ) -> Result<DirectCallDispositionRowV1, String> {
+    fn take_direct_call_disposition_v1(&mut self) -> Result<DirectCallDispositionRowV1, String> {
         self.inner.take_direct_call_disposition_v1()
     }
 

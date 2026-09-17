@@ -677,11 +677,11 @@ impl ModuleBuilderInvocationSessionV1 {
 #[path = "normal_default_root_catalog_loop_scope_tests.rs"]
 mod loop_scope_tests;
 #[cfg(test)]
-#[path = "normal_default_root_catalog_lifecycle_tests.rs"]
-mod normal_default_root_catalog_lifecycle_tests;
-#[cfg(test)]
 #[path = "normal_default_root_catalog_map_consumer_tests.rs"]
 mod map_consumer_tests;
+#[cfg(test)]
+#[path = "normal_default_root_catalog_lifecycle_tests.rs"]
+mod normal_default_root_catalog_lifecycle_tests;
 #[cfg(test)]
 #[path = "normal_default_root_catalog_root_source_handoff_tests.rs"]
 mod root_source_handoff_tests;

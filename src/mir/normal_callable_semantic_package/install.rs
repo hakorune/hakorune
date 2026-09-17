@@ -299,8 +299,7 @@ pub(crate) struct PreparedNormalCallableSemanticPackageInstallV1<'context> {
 #[must_use]
 pub(crate) struct NormalCallableSemanticPackagePortV1<'package> {
     pub(super) installed: &'package InstalledNormalCallableSemanticPackageV1,
-    pub(super) direct_call_loans:
-        Option<super::direct_call_loan::DirectCallDispositionLoansV1>,
+    pub(super) direct_call_loans: Option<super::direct_call_loan::DirectCallDispositionLoansV1>,
     consumed: BTreeSet<SelectedNormalCallableKeyV1>,
     declared_instance_consumed: BTreeSet<u32>,
     s6c_child_consumed: bool,
@@ -517,9 +516,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
     pub(crate) fn open_lowering_port(
         &self,
         context: &CompilationContext,
-        direct_call_loans: Option<
-            super::direct_call_loan::DirectCallDispositionLoansV1,
-        >,
+        direct_call_loans: Option<super::direct_call_loan::DirectCallDispositionLoansV1>,
     ) -> Result<NormalCallableSemanticPackagePortV1<'_>, NormalCallableSemanticPackageInstallIssueV1>
     {
         if !self.installed_in(context) {
@@ -530,9 +527,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
 
     pub(crate) fn open_lowering_port_after_install(
         &self,
-        direct_call_loans: Option<
-            super::direct_call_loan::DirectCallDispositionLoansV1,
-        >,
+        direct_call_loans: Option<super::direct_call_loan::DirectCallDispositionLoansV1>,
     ) -> Result<NormalCallableSemanticPackagePortV1<'_>, NormalCallableSemanticPackageInstallIssueV1>
     {
         if self.direct_call_loans.is_some() {

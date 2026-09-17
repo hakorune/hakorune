@@ -437,9 +437,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         .map_err(|error| NormalCallableSemanticPackageIssueV1::AppMainRoot { _error: error })?;
     let mut direct_call_loans = match app_main_identity.as_ref() {
         Some(identity) => issue_direct_call_loans_v1(&catalog, &batch, &selected, identity)
-            .map_err(
-                |error| NormalCallableSemanticPackageIssueV1::DirectCall { _error: error },
-            )?,
+            .map_err(|error| NormalCallableSemanticPackageIssueV1::DirectCall { _error: error })?,
         None => None,
     };
     let parameter_contracts = {
@@ -628,11 +626,9 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
                 &result_contracts,
                 &ordinary_new_claim_ledger,
             )
-            .map_err(
-                |error| NormalCallableSemanticPackageIssueV1::DirectCall {
-                    _error: DirectCallDispositionIssueV1::Loan(error),
-                },
-            )?;
+            .map_err(|error| NormalCallableSemanticPackageIssueV1::DirectCall {
+                _error: DirectCallDispositionIssueV1::Loan(error),
+            })?;
         }
     }
     let physical_header = issue_callable_physical_header_from_result_contract_v1(&result_contracts);

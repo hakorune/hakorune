@@ -212,9 +212,7 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
 /// package-owned affine loans; structured scopes and the semantic adapter only
 /// forward the already-borrowed capability.
 pub(in crate::mir::builder) trait DirectCallDispositionPortV1 {
-    fn take_direct_call_disposition_v1(
-        &mut self,
-    ) -> Result<DirectCallDispositionRowV1, String> {
+    fn take_direct_call_disposition_v1(&mut self) -> Result<DirectCallDispositionRowV1, String> {
         Err("[freeze:contract][direct-call/loan-unavailable]".to_owned())
     }
 

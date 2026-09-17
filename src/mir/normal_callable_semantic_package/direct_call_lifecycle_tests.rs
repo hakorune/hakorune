@@ -428,13 +428,11 @@ fn map_target_without_exact_terminal_arguments_or_cleanup_cannot_remain_scalar()
         assert!(
             matches!(
                 result,
-                Err(
-                    super::NormalCallableSemanticPackageIssueV1::DirectCall {
-                        _error: super::issuer::DirectCallDispositionIssueV1::Loan(
-                            DirectCallLoanErrorV1::LifecycleSourceMismatch
-                        ),
-                    }
-                )
+                Err(super::NormalCallableSemanticPackageIssueV1::DirectCall {
+                    _error: super::issuer::DirectCallDispositionIssueV1::Loan(
+                        DirectCallLoanErrorV1::LifecycleSourceMismatch
+                    ),
+                })
             ),
             "{main} / {helper}: {result:?}"
         );
@@ -515,13 +513,11 @@ fn non_map_local_call_with_prior_home_rejects_instead_of_scalar_fallback() {
     assert!(
         matches!(
             result,
-            Err(
-                super::NormalCallableSemanticPackageIssueV1::DirectCall {
-                    _error: super::issuer::DirectCallDispositionIssueV1::Loan(
-                        DirectCallLoanErrorV1::LifecycleSourceMismatch
-                    ),
-                }
-            )
+            Err(super::NormalCallableSemanticPackageIssueV1::DirectCall {
+                _error: super::issuer::DirectCallDispositionIssueV1::Loan(
+                    DirectCallLoanErrorV1::LifecycleSourceMismatch
+                ),
+            })
         ),
         "{result:?}"
     );
@@ -598,13 +594,11 @@ fn map_result_lane_rejects_unannotated_scalar_callee() {
     assert!(
         matches!(
             result,
-            Err(
-                super::NormalCallableSemanticPackageIssueV1::DirectCall {
-                    _error: super::issuer::DirectCallDispositionIssueV1::Loan(
-                        DirectCallLoanErrorV1::LifecycleSourceMismatch
-                    ),
-                }
-            )
+            Err(super::NormalCallableSemanticPackageIssueV1::DirectCall {
+                _error: super::issuer::DirectCallDispositionIssueV1::Loan(
+                    DirectCallLoanErrorV1::LifecycleSourceMismatch
+                ),
+            })
         ),
         "{result:?}"
     );

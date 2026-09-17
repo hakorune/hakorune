@@ -105,9 +105,8 @@ impl MirBuilder {
         completion: PreparedRawOrdinaryFunctionCompletionV1,
     ) -> Result<ValueId, String>
     where
-        Port: RawAstChildLoweringPortV1
-            + RawFunctionHeaderLookupPortV1
-            + DirectCallDispositionPortV1,
+        Port:
+            RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1 + DirectCallDispositionPortV1,
     {
         match completion {
             PreparedRawOrdinaryFunctionCompletionV1::StrNormalization { argument } => {
@@ -131,9 +130,8 @@ impl MirBuilder {
         arguments: Vec<ASTNode>,
     ) -> Result<ValueId, String>
     where
-        Port: RawAstChildLoweringPortV1
-            + RawFunctionHeaderLookupPortV1
-            + DirectCallDispositionPortV1,
+        Port:
+            RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1 + DirectCallDispositionPortV1,
     {
         // Take the owned row first.  Its borrow ends before recursive
         // argument descent, so nested calls can use the same affine loan.
@@ -157,9 +155,9 @@ impl MirBuilder {
             format!("[freeze:contract][direct-call/lifecycle-consumer-missing] {error:?}")
         })?;
         let dst = self.next_value_id();
-        let instruction = emission.materialize(dst, arg_values).map_err(|error| {
-            format!("[freeze:contract][direct-call/materialization] {error:?}")
-        })?;
+        let instruction = emission
+            .materialize(dst, arg_values)
+            .map_err(|error| format!("[freeze:contract][direct-call/materialization] {error:?}"))?;
         self.emit_instruction(instruction)?;
         Ok(dst)
     }

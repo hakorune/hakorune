@@ -40,12 +40,10 @@ fn source_backed_map_consumer_child_receives_and_releases_its_lease() {
                     matches!(
                         i,
                         crate::mir::MirInstruction::Invoke {
-                            operation:
-                                crate::mir::instruction::InvokeOperation::Call {
-                                    result:
-                                        crate::mir::instruction::InvokeCallResultKind::Map,
-                                    ..
-                                },
+                            operation: crate::mir::instruction::InvokeOperation::Call {
+                                result: crate::mir::instruction::InvokeCallResultKind::Map,
+                                ..
+                            },
                             ..
                         }
                     )
@@ -151,15 +149,13 @@ fn source_backed_map_consumer_fault_suffix_still_releases_pending_homes() {
         .values()
         .find(|function| function.signature.name.contains("use_map"))
         .expect("cataloged use_map definition");
-    let follow_jumps = |mut id: crate::mir::BasicBlockId| {
-        loop {
-            match &use_map.blocks[&id].terminator {
-                Some(crate::mir::MirInstruction::Jump {
-                    target,
-                    edge_args: None,
-                }) => id = *target,
-                _ => return id,
-            }
+    let follow_jumps = |mut id: crate::mir::BasicBlockId| loop {
+        match &use_map.blocks[&id].terminator {
+            Some(crate::mir::MirInstruction::Jump {
+                target,
+                edge_args: None,
+            }) => id = *target,
+            _ => return id,
         }
     };
     // The map-result invoke binds the received lease through its normal
@@ -174,12 +170,10 @@ fn source_backed_map_consumer_fault_suffix_still_releases_pending_homes() {
                     matches!(
                         i,
                         crate::mir::MirInstruction::Invoke {
-                            operation:
-                                crate::mir::instruction::InvokeOperation::Call {
-                                    result:
-                                        crate::mir::instruction::InvokeCallResultKind::Map,
-                                    ..
-                                },
+                            operation: crate::mir::instruction::InvokeOperation::Call {
+                                result: crate::mir::instruction::InvokeCallResultKind::Map,
+                                ..
+                            },
                             ..
                         }
                     )
@@ -190,7 +184,11 @@ fn source_backed_map_consumer_fault_suffix_still_releases_pending_homes() {
             _ => None,
         })
         .expect("one map-result projection binds the received lease");
-    let ends: Vec<(crate::mir::ValueId, crate::mir::BasicBlockId, crate::mir::BasicBlockId)> = use_map
+    let ends: Vec<(
+        crate::mir::ValueId,
+        crate::mir::BasicBlockId,
+        crate::mir::BasicBlockId,
+    )> = use_map
         .blocks
         .values()
         .filter_map(|block| match &block.terminator {
@@ -212,10 +210,7 @@ fn source_backed_map_consumer_fault_suffix_still_releases_pending_homes() {
     // the exit's pending chain releases it behind the outermost clean
     // release. Exactly one End(m) sits on the clean chain ahead of
     // `return 42`; every other End(m) drains to ReturnFault.
-    let received_ends: Vec<_> = ends
-        .iter()
-        .filter(|(map, ..)| *map == received)
-        .collect();
+    let received_ends: Vec<_> = ends.iter().filter(|(map, ..)| *map == received).collect();
     assert!(
         received_ends.len() >= 2,
         "the received lease must release on the clean chain and on fault"
@@ -225,9 +220,7 @@ fn source_backed_map_consumer_fault_suffix_still_releases_pending_homes() {
         .filter(|(_, normal, _)| {
             matches!(
                 use_map.blocks[&follow_jumps(*normal)].terminator,
-                Some(crate::mir::MirInstruction::Return {
-                    value: Some(_)
-                })
+                Some(crate::mir::MirInstruction::Return { value: Some(_) })
             )
         })
         .count();
@@ -238,9 +231,7 @@ fn source_backed_map_consumer_fault_suffix_still_releases_pending_homes() {
     for (map, normal, fault) in &received_ends {
         if matches!(
             use_map.blocks[&follow_jumps(*normal)].terminator,
-            Some(crate::mir::MirInstruction::Return {
-                value: Some(_)
-            })
+            Some(crate::mir::MirInstruction::Return { value: Some(_) })
         ) {
             continue;
         }
@@ -256,10 +247,7 @@ fn source_backed_map_consumer_fault_suffix_still_releases_pending_homes() {
     }
     // The second pending home keeps the same contract: one clean release
     // ahead of Return and at least one fault-path release.
-    let literal_ends: Vec<_> = ends
-        .iter()
-        .filter(|(map, ..)| *map != received)
-        .collect();
+    let literal_ends: Vec<_> = ends.iter().filter(|(map, ..)| *map != received).collect();
     assert!(
         literal_ends.len() >= 2,
         "the pending literal home must release on clean and fault paths"
