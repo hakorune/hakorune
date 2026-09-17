@@ -17,7 +17,7 @@ fn non_app_main_map_receive_issues_owner_scoped_loans() {
     .expect("non-AppMain map-receive package");
     let ledger = &package.ordinary_new_claim_ledger;
     let mut receive = None;
-    let mut scalar_call = None;
+    let mut lifecycle_call = None;
     for declaration in package.batch().declarations() {
         let owner = declaration.owner();
         let Some(flow) = ledger
@@ -32,13 +32,13 @@ fn non_app_main_map_receive_issues_owner_scoped_loans() {
             {
                 receive = Some((owner, call.site().site().clone()));
             } else {
-                scalar_call = Some((owner, call.site().site().clone()));
+                lifecycle_call = Some((owner, call.site().site().clone()));
             }
         }
     }
     let (receive_owner, receive_site) = receive.expect("use_map Map-result call");
-    let (scalar_owner, scalar_site) = scalar_call.expect("main scalar call");
-    assert_ne!(receive_owner, scalar_owner);
+    let (callee_owner, callee_site) = lifecycle_call.expect("main local call");
+    assert_ne!(receive_owner, callee_owner);
     let loans = package.direct_call_loans.as_mut().expect("owner loans");
     assert_eq!(loans.iter().count(), 2, "main and use_map loans");
     let row = loans
@@ -55,16 +55,23 @@ fn non_app_main_map_receive_issues_owner_scoped_loans() {
         row.into_scalar_emission().err(),
         Some(DirectCallLoanErrorV1::LifecycleConsumerMissing)
     );
-    let scalar = loans
-        .get_mut(scalar_owner)
+    // `use_map` returns i64, but its sealed body already carries lifecycle
+    // local calls — the edge must stay on the Invoke route so the artifact
+    // can reach the lifecycle-bearing callee. Scalar `Call` is rejected.
+    let callee = loans
+        .get_mut(callee_owner)
         .expect("main loan")
-        .take_once(scalar_owner, scalar_site)
-        .expect("scalar row");
+        .take_once(callee_owner, callee_site)
+        .expect("lifecycle row");
     assert_eq!(
-        scalar.result(),
+        callee.result(),
         crate::mir::instruction::InvokeCallResultKind::I64
     );
-    assert!(scalar.into_scalar_emission().is_ok());
+    assert!(callee.lifecycle_emission().is_ok());
+    assert_eq!(
+        callee.into_scalar_emission().err(),
+        Some(DirectCallLoanErrorV1::LifecycleConsumerMissing)
+    );
     package
         .direct_call_loans
         .take()
@@ -105,7 +112,9 @@ fn non_app_main_map_receive_with_prior_home_rejects_before_catalog_mutation() {
         package.prepare_install(&mut context),
         Err((
             _,
-            super::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleConsumerMissing
+            super::NormalCallableSemanticPackageInstallIssueV1::MapObligationDescribe(
+                super::map_lifecycle_undertaking::MapObligationDescribeIssueV1::CallPriorHomesUnsupported { .. }
+            )
         ))
     ));
     assert!(context.callable_declaration_catalog_vacant());
@@ -153,9 +162,10 @@ fn partially_consumed_owner_loan_rejects_at_finish() {
 }
 
 #[test]
-fn untouched_owner_loans_drain_for_a_bypassed_lane() {
+fn untouched_owner_loans_drain_only_with_bypass_evidence() {
     // An owner whose selected lane never enters direct-call scope leaves its
-    // loan fully untouched; only a partially consumed loan is a violation.
+    // loan fully untouched — but only the canonical route's own mark may
+    // close it. Untouched and bypassed are different states.
     let mut package = issue(
         r#"static box Main {
             main() { local r = use_map(10) return 30 }
@@ -164,12 +174,34 @@ fn untouched_owner_loans_drain_for_a_bypassed_lane() {
         }"#,
     )
     .expect("non-AppMain map-receive package");
-    package
-        .direct_call_loans
-        .take()
-        .expect("owner loans")
+    let mut loans = package.direct_call_loans.take().expect("owner loans");
+    let owners: Vec<_> = loans.iter().map(|loan| loan.owner()).collect();
+    assert!(!owners.is_empty());
+    for owner in owners {
+        loans.mark_canonical_route_bypass(owner);
+    }
+    loans
         .finish_empty()
-        .expect("untouched loans drain without residual");
+        .expect("marked bypass loans drain without residual");
+}
+
+#[test]
+fn untouched_owner_loans_reject_without_bypass_evidence() {
+    // The same untouched loans, with no route claiming them, are residual:
+    // finish_empty must not confuse "never entered scope" with "consumed".
+    let mut package = issue(
+        r#"static box Main {
+            main() { local r = use_map(10) return 30 }
+            use_map(seed: i64): i64 { local m = make_map() return 42 }
+            make_map() { return %{"a" => 1} }
+        }"#,
+    )
+    .expect("non-AppMain map-receive package");
+    let loans = package.direct_call_loans.take().expect("owner loans");
+    assert_eq!(
+        loans.finish_empty(),
+        Err(DirectCallLoanErrorV1::ResidualRows)
+    );
 }
 
 #[test]

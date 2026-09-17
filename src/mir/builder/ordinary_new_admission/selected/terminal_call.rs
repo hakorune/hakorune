@@ -206,16 +206,12 @@ pub(in crate::mir::builder) fn emit_local(
     let normal_landing = builder.next_block_id();
     let fault_landing = builder.next_block_id();
     let result = builder.next_value_id();
-    // A map-result call's row is the sole lifecycle owner of this site: with a
-    // Plain terminal exit there is no Call entry `frame` field to carry the
-    // shared frame definition, so the row records it like every other
-    // lifecycle-emitting row. The I64 path keeps its bindings in the terminal
-    // Call entry, which already records the frame once.
-    let mut bindings = if result_kind == InvokeCallResultKind::Map {
-        vec![fault_frame_binding(builder, state, frame)?]
-    } else {
-        Vec::new()
-    };
+    // Every lifecycle-emitting local call records the shared frame
+    // definition in its own group: under a Plain terminal exit there is no
+    // Call entry `frame` field to carry it, and under a Call exit the entry
+    // records the same pair again — coverage deduplicates on (block,
+    // instruction), so the group stays authoritative in both shapes.
+    let mut bindings = vec![fault_frame_binding(builder, state, frame)?];
     append_block(
         builder,
         fault_landing,

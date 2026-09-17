@@ -5,16 +5,16 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     MapValueSource, SourceScalarKind, TerminalRelationV1,
 };
 
-fn assert_install_stop(package: super::VerifiedNormalCallableSemanticPackageV1) {
+fn assert_install_stop(
+    package: super::VerifiedNormalCallableSemanticPackageV1,
+    expected: impl FnOnce(&super::install::NormalCallableSemanticPackageInstallIssueV1) -> bool,
+) {
     let mut context = CompilationContext::new();
     let error = match package.prepare_install(&mut context) {
         Err((_, error)) => error,
         Ok(_) => panic!("source capability cannot enable physical Map execution"),
     };
-    assert!(matches!(
-        error,
-        super::install::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleConsumerMissing
-    ));
+    assert!(expected(&error), "{error:?}");
     assert!(context.callable_declaration_catalog_vacant());
 }
 
@@ -153,7 +153,14 @@ fn borrowed_formals_are_allowed_unused_but_do_not_issue_map_ownership() {
             if entry == "30" {
                 assert_install_admits(package);
             } else {
-                assert_install_stop(package);
+                assert_install_stop(package, |error| {
+                    matches!(
+                        error,
+                        super::install::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleUndertaking(
+                            super::map_lifecycle_undertaking::MapLifecycleUndertakingIssueV1::UncoveredOperation { .. }
+                        )
+                    )
+                });
             }
         }
     }
@@ -422,5 +429,12 @@ fn source_write_does_not_reuse_a_stale_scalar_kind() {
         .unwrap();
     assert!(flow.maps().iter().all(|map| map.complete().is_none()));
     assert!(flow.terminal_homes().is_err());
-    assert_install_stop(package);
+    assert_install_stop(package, |error| {
+        matches!(
+            error,
+            super::install::NormalCallableSemanticPackageInstallIssueV1::MapObligationDescribe(
+                super::map_lifecycle_undertaking::MapObligationDescribeIssueV1::OwnerTerminalHomesUnavailable { .. }
+            )
+        )
+    });
 }

@@ -51,10 +51,14 @@ fn declared_root_unissued_map_sites_stop_before_install() {
             Err((_, issue)) => issue,
             Ok(_) => panic!("unissued Map installed: {body}"),
         };
+        // The stop stays typed: an undescribable obligation keeps its
+        // describe cause, an uncovered operation keeps the undertaking
+        // cause — neither collapses into ConsumerMissing.
         assert!(
             matches!(issue,
-            super::install::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleConsumerMissing
-        ),
+            super::install::NormalCallableSemanticPackageInstallIssueV1::MapObligationDescribe(_)
+                | super::install::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleUndertaking(_)
+            ),
             "{issue:?}: {body}"
         );
         assert!(context.callable_declaration_catalog_vacant());

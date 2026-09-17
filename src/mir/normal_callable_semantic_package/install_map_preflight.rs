@@ -21,7 +21,7 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         use NormalCallableSemanticPackageInstallIssueV1 as Issue;
         let obligations = self
             .describe_map_lifecycle_obligations()
-            .map_err(|_| Issue::MapLifecycleConsumerMissing)?;
+            .map_err(Issue::MapObligationDescribe)?;
         if obligations.is_empty() {
             return Ok(None);
         }
@@ -29,7 +29,7 @@ impl VerifiedNormalCallableSemanticPackageV1 {
             &obligations,
             BuilderInstallConsumerV1::map_lifecycle_capability(),
         )
-        .map_err(|_| Issue::MapLifecycleConsumerMissing)?;
+        .map_err(Issue::MapLifecycleUndertaking)?;
         // Direct-call evidence stays scoped to the loans that carry it:
         // the affine rows must be unspent at install, every map-carrying
         // loan target must have described obligations, and a loan never

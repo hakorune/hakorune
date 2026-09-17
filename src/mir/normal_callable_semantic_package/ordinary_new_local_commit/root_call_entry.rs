@@ -56,7 +56,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect())
     }
 
-    fn validate_local_call_binding_groups(
+    pub(super) fn validate_local_call_binding_groups(
         &self,
         owner: FunctionOwnerIdV1,
         groups: &[(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)],
@@ -219,12 +219,12 @@ impl OrdinaryNewClaimLedgerV1 {
             RootHomeExitProgress::Emitted {
                 origins,
                 bindings,
-                entry: RootHomeExitEntry::Plain,
+                entry: RootHomeExitEntry::Plain { local_bindings },
             } => {
                 *progress = RootHomeExitProgress::Emitted {
                     origins,
                     bindings,
-                    entry: RootHomeExitEntry::Plain,
+                    entry: RootHomeExitEntry::Plain { local_bindings },
                 };
                 Ok(None)
             }
@@ -245,10 +245,11 @@ impl OrdinaryNewClaimLedgerV1 {
         cleanup: &[(BasicBlockId, MirInstruction)],
     ) -> Result<(), String> {
         let Some((_, terminal)) = self.call_source_completion_for_owner(owner) else {
-            return if matches!(entry, RootHomeExitEntry::Plain) {
-                Ok(())
-            } else {
-                Err(freeze("call-source-missing"))
+            return match entry {
+                RootHomeExitEntry::Plain { local_bindings } => {
+                    self.check_local_call_binding_groups(owner, function, finishing, local_bindings)
+                }
+                RootHomeExitEntry::Call { .. } => Err(freeze("call-source-missing")),
             };
         };
         let RootHomeExitEntry::Call {
@@ -260,6 +261,10 @@ impl OrdinaryNewClaimLedgerV1 {
             frame,
         } = entry
         else {
+            let RootHomeExitEntry::Plain { local_bindings } = entry else {
+                return Err(freeze("call-entry-missing"));
+            };
+            self.check_local_call_binding_groups(owner, function, finishing, local_bindings)?;
             return if self.root_instance_call_expected(owner) {
                 // The source method is known, but its target result contract
                 // is unavailable. Preserve the existing artifact stop rather
@@ -353,19 +358,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("call-binding-drift"));
             }
         }
-        self.validate_local_call_binding_groups(owner, local_bindings)?;
-        for (_, group) in local_bindings {
-            for (id, instruction) in group {
-                if !super::super::physical_boundary::check_binding(
-                    function,
-                    finishing,
-                    *id,
-                    instruction,
-                )? {
-                    return Err(freeze("local-call-binding-drift"));
-                }
-            }
-        }
+        self.check_local_call_binding_groups(owner, function, finishing, local_bindings)?;
         let mapped = |binding: &(BasicBlockId, MirInstruction)| match finishing {
             Some(p) => p
                 .binding(binding.0, &binding.1)?
@@ -382,6 +375,32 @@ impl OrdinaryNewClaimLedgerV1 {
             &mapped(invoke)?,
             &mapped(projection)?,
         )?;
+        Ok(())
+    }
+
+    /// Match one owner's recorded lifecycle local-call binding groups
+    /// against the finished function: the source-ordered site sequence first,
+    /// then every recorded instruction at its projected block.
+    fn check_local_call_binding_groups(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+        groups: &[(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)],
+    ) -> Result<(), String> {
+        self.validate_local_call_binding_groups(owner, groups)?;
+        for (_, group) in groups {
+            for (id, instruction) in group {
+                if !super::super::physical_boundary::check_binding(
+                    function,
+                    finishing,
+                    *id,
+                    instruction,
+                )? {
+                    return Err(freeze("local-call-binding-drift"));
+                }
+            }
+        }
         Ok(())
     }
 
@@ -431,35 +450,35 @@ impl RootHomeExitEntry {
     ) -> Option<&crate::mir::normal_callable_semantic_package::RootCallDispositionV1> {
         match self {
             Self::Call { row, .. } => Some(row),
-            Self::Plain => None,
+            Self::Plain { .. } => None,
         }
     }
 
     pub(crate) fn call_arguments(&self) -> Option<&[(BasicBlockId, MirInstruction)]> {
         match self {
             Self::Call { arguments, .. } => Some(arguments),
-            Self::Plain => None,
+            Self::Plain { .. } => None,
         }
     }
 
     pub(crate) fn call_invoke(&self) -> Option<&(BasicBlockId, MirInstruction)> {
         match self {
             Self::Call { invoke, .. } => Some(invoke),
-            Self::Plain => None,
+            Self::Plain { .. } => None,
         }
     }
 
     pub(crate) fn call_projection(&self) -> Option<&(BasicBlockId, MirInstruction)> {
         match self {
             Self::Call { projection, .. } => Some(projection),
-            Self::Plain => None,
+            Self::Plain { .. } => None,
         }
     }
 
     pub(crate) fn call_frame(&self) -> Option<&(BasicBlockId, MirInstruction)> {
         match self {
             Self::Call { frame, .. } => Some(frame),
-            Self::Plain => None,
+            Self::Plain { .. } => None,
         }
     }
 }
@@ -557,8 +576,14 @@ impl RootHomeExitEntry {
         &self,
         bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
     ) {
+        let local_groups = match self {
+            Self::Plain { local_bindings } => local_bindings,
+            Self::Call { local_bindings, .. } => local_bindings,
+        };
+        for (_, group) in local_groups {
+            bindings.extend_from_slice(group);
+        }
         if let Self::Call {
-            local_bindings,
             arguments,
             invoke,
             projection,
@@ -566,9 +591,6 @@ impl RootHomeExitEntry {
             ..
         } = self
         {
-            for (_, group) in local_bindings {
-                bindings.extend_from_slice(group);
-            }
             bindings.extend_from_slice(arguments);
             bindings.push(invoke.clone());
             bindings.push(projection.clone());

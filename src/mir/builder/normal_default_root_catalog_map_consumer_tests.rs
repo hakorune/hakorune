@@ -107,14 +107,38 @@ fn source_backed_map_consumer_child_receives_and_releases_its_lease() {
         .values()
         .find(|function| function.signature.name == "main")
         .expect("lowered main");
+    // `use_map` is a lifecycle-bearing callee even though it returns i64:
+    // the artifact admits it only through an Invoke{Call} edge, so main's
+    // call rides the sealed lifecycle row — never a plain scalar Call.
+    let i64_invokes = main
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter(|instruction| {
+            matches!(
+                instruction,
+                crate::mir::MirInstruction::Invoke {
+                    operation: crate::mir::instruction::InvokeOperation::Call {
+                        result: crate::mir::instruction::InvokeCallResultKind::I64,
+                        ..
+                    },
+                    ..
+                }
+            )
+        })
+        .count();
+    assert_eq!(
+        i64_invokes, 1,
+        "main reaches the lifecycle callee through Invoke{{Call{{I64}}}}"
+    );
     assert_eq!(
         main.blocks
             .values()
             .flat_map(|block| block.all_instructions())
             .filter(|instruction| matches!(instruction, crate::mir::MirInstruction::Call(_)))
             .count(),
-        1,
-        "main's scalar use_map call stays on the sealed row"
+        0,
+        "no scalar Call remains for the lifecycle-bearing callee"
     );
     // Artifact validation covers every lifecycle site of every owner.
     validate(&module).expect("artifact lifecycle coverage");

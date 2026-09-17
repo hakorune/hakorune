@@ -417,6 +417,12 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                 // unrelated canonical session.
                 if let Some(program) = try_prepare_callable_single_loop_program_v1(selected.source())?
                 {
+                    // The issued canonical program is the bypass evidence:
+                    // this exact owner's loan rows stay untouched on purpose
+                    // and close through the mark, never silently.
+                    if let Some(loans) = inner.direct_call_loans.as_deref_mut() {
+                        loans.mark_canonical_route_bypass(selected.source().owner());
+                    }
                     return inner
                         .lower_normal_cataloged_static_box_method_with_callable_single_loop_program_v1(
                             builder,

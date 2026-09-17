@@ -22,7 +22,13 @@ pub(in crate::mir::normal_callable_semantic_package) enum RootHomeExitProgress {
 
 #[derive(Debug)]
 pub(crate) enum RootHomeExitEntry {
-    Plain,
+    /// A non-call terminal exit. `local_bindings` carries the source-ordered
+    /// lifecycle binding groups recorded by local Call rows under this owner;
+    /// the Plain exit owns them directly because no terminal Call entry
+    /// exists to carry them.
+    Plain {
+        local_bindings: Vec<(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)>,
+    },
     Call {
         row: crate::mir::normal_callable_semantic_package::RootCallDispositionV1,
         local_bindings: Vec<(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)>,
@@ -176,7 +182,20 @@ impl OrdinaryNewClaimLedgerV1 {
         origins: Vec<(RootHomeReleaseOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
-        self.record_root_home_exit_with_entry(owner, origins, bindings, RootHomeExitEntry::Plain)
+        // A Plain exit still owns the lifecycle local-call binding groups
+        // recorded under this owner: they move into the entry so final
+        // validation can match them against the finished function.
+        let mut pending = self.root_local_call_bindings.borrow_mut();
+        let pending_groups = pending.get(&owner).map(Vec::as_slice).unwrap_or(&[]);
+        self.validate_local_call_binding_groups(owner, pending_groups)?;
+        let local_bindings = pending.remove(&owner).unwrap_or_default();
+        drop(pending);
+        self.record_root_home_exit_with_entry(
+            owner,
+            origins,
+            bindings,
+            RootHomeExitEntry::Plain { local_bindings },
+        )
     }
 
     fn record_root_home_exit_with_entry(
@@ -186,15 +205,6 @@ impl OrdinaryNewClaimLedgerV1 {
         bindings: Vec<(BasicBlockId, MirInstruction)>,
         entry: RootHomeExitEntry,
     ) -> Result<(), String> {
-        if matches!(entry, RootHomeExitEntry::Plain)
-            && self
-                .root_local_call_bindings
-                .borrow()
-                .get(&owner)
-                .is_some_and(|bindings| !bindings.is_empty())
-        {
-            return Err(freeze("local-call-without-terminal"));
-        }
         let mut exits = self.root_exits.borrow_mut();
         let progress = exits
             .get_mut(&owner)
@@ -254,7 +264,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     return Err(freeze("root-cleanup-graph/residual-node"));
                 }
                 let mapped = projection.map(|p| p.bindings(bindings)).transpose()?;
-                if let (RootHomeExitEntry::Plain, Some(projection), Some(mapped)) =
+                if let (RootHomeExitEntry::Plain { .. }, Some(projection), Some(mapped)) =
                     (entry, projection, mapped.as_ref())
                 {
                     if let Some((entry, _)) = bindings.last() {
@@ -343,7 +353,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }) = exits.get(&owner)
         {
             match entry {
-                RootHomeExitEntry::Plain if !origins.is_empty() => {
+                RootHomeExitEntry::Plain { .. } if !origins.is_empty() => {
                     super::root_cleanup_graph::validate_original(function, bindings, origins.len())?
                 }
                 RootHomeExitEntry::Call {
