@@ -872,6 +872,112 @@ reds (already recorded at C8) plus 10 `resolved_lowering` reds —
 `resolved_` filter reds (loop phi materializer, owner-forest receiver,
 shadow vocabulary, brand constructor) are likewise unrelated modules.
 
+## Review fix note (2026-09-17, review of `ec71673454`)
+
+The external review of `ec71673454` named two contract defects plus a
+diagnostics-flattening cost. All three are closed on this branch:
+
+1. **A map-receiving callee fell to the scalar `Call` route.**
+   `co_seal_lifecycle` gated the non-map-owned local-call arm on the
+   caller's `call_source_completion`, which a Plain terminal exit does
+   not have, so `use_map` — a lifecycle-bearing callee returning `i64` —
+   was classified Scalar and emitted `Call{Global}`. In the lifecycle
+   artifact that edge confers no membership: the callee's Invoke-bearing
+   body would reject `function-not-cataloged` /
+   `instruction-unsupported` at `admit_lifecycle`. The classifier now
+   reads the callee's own sealed products — a terminal Call relation, or
+   a root flow carrying local calls or Map rows
+   (`callee_lifecycle_participant` in `direct_call_lifecycle.rs`) — and
+   keeps the call on `InvokeOperation::Call` with `I64` result kind.
+   `RootHomeExitEntry::Plain` gained `local_bindings` so the Plain exit
+   owns the source-ordered lifecycle binding groups directly (validated
+   by the same `validate_local_call_binding_groups` the Call entry
+   uses), and `emit_local` records the shared `fault_frame` definition
+   in every lifecycle-emitting local-call group — duplicate coverage
+   under Call exits deduplicates on `(block, instruction)`.
+   `non_map_local_call_with_plain_return_preserves_scalar` still pins
+   the ordinary-callee scalar path, so the lift is callee-evidence-only.
+
+2. **`finish_empty()` accepted a fully untouched loan.** Ready rows are
+   now explained rows: `DirectCallDispositionLoanV1` gained
+   `canonical_route_bypassed`, set only through
+   `mark_canonical_route_bypass(owner)` — called exactly at the selected
+   CallableSingleLoop lowering in `lower_app_main_static_child`
+   (`normal_callable_semantic_loan_port.rs`) for the exact
+   `program.owner()`. Untouched without the mark, or partially consumed,
+   rejects `ResidualRows`; the bypassed lane drains. No blanket bypass.
+
+3. **Typed causes no longer flatten.** `install_map_preflight` maps
+   `describe_map_lifecycle_obligations` failures to
+   `InstallIssue::MapObligationDescribe(MapObligationDescribeIssueV1)`
+   and `verify_map_lifecycle_undertaking` failures to
+   `InstallIssue::MapLifecycleUndertaking(MapLifecycleUndertakingIssueV1)`,
+   preserving `OwnerTerminalHomesUnavailable`,
+   `CallPriorHomesUnsupported { owner, site }`, `UncoveredOperation`,
+   `EmptyUndertaking`, and siblings through `package_issue`'s `{:?}`
+   boundary instead of collapsing to `MapLifecycleConsumerMissing`.
+
+Focused: `normal_callable_semantic_package` 244/244; the three
+`normal_default_root_catalog_map_consumer_tests` pins green (the C8
+`main` now asserts `Invoke{Call{I64}}` reaches `use_map`, not a scalar
+`Call`). Baseline reds unchanged
+(`source_backed_app_main_direct_call_consumes_affine_loan`,
+`main_f1_rejects_direct_call_and_nested_owner_before_lowering` —
+parent-reproduced; batch-only env/flaky reds classified separately).
+
+### Runtime acceptance (the C8 execution evidence)
+
+`published_map_consumer_tests.rs` (feature `plugins`, `#[ignore]`d on
+toolchain) materializes the same C8 family
+
+```hako
+static box Main {
+    main() { return use_map(10) }
+    use_map(seed: i64): i64 { local m = make_map() local n = %{"b" => 2} return 42 }
+    make_map() { return %{"a" => 1} }
+}
+```
+
+through `compile_normal_with_published`, asserts the issued physical
+JSON carries exactly one `result:"map"` edge and one `ordinary_map`
+callee, compiles the view to an object, and links it against
+`libnyash_lifecycle_kernel.a` + `published_map_fault_probe.c` with
+`-DHAKO_MAP_SOURCE_PROBE -DHAKO_MAP_CONSUMER_PROBE`. The v4 map storage
+is opaque to read ABI by design, so the returned map's contents are
+evidenced transitively: the probe captures key bytes at
+`key_prepare_utf8`, records each successful `checked_install_value`
+against its map storage, follows `storage_move` from the ended caller
+slot back to the callee slot that received the install, and prints one
+`END key=value local|moved` line per `checked_end`.
+
+Observed (probe stdout, deterministic):
+
+```text
+=== normal ===                     42 2 3 2 2 2 2 1
+END b=2 local
+END a=1 moved                      <- returned map carried a=1 into the
+                                      caller's end: usable after callee
+                                      cleanup, freed in caller
+=== value-install-fault-1 ===      70 1 1 1 1 1 1 0   REPORT 101
+END empty local                    <- callee fault: lease ended in
+                                      make_map cleanup, no storage_move
+=== value-install-fault-2 ===      70 2 3 2 2 2 2 1   REPORT 101
+END empty local
+END a=1 moved                      <- caller fault: received map freed
+                                      in caller while carrying a=1
+=== value-outcome-fault-1/-2 ===   70, REPORT 100; committed entries
+END a=1 local / END b=2 local + END a=1 moved
+=== end-fault ===                  70 2 3 2 2 2 2 1   REPORT 100
+END b=2 local / END a=1 moved      <- release-under-fault still drains
+```
+
+Counts are observed releases, not inferred: map storage init/dispose,
+key init/dispose, outcome init/dispose, and `storage_move` are pinned
+per mode (`init==dispose` in every mode; `moves` is 0 iff the callee
+faulted before the return handoff). `Ordinary`-role callers,
+`prior_homes`, and map arguments remain non-claims; no production
+switch or legacy retirement is claimed.
+
 ## Next-slice sharpening (2026-09-16)
 
 The `return <qualified call>` terminal class carries a second

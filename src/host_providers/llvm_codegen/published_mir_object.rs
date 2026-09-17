@@ -178,5 +178,9 @@ mod map_source_tests;
 mod map_four_owner_tests;
 
 #[cfg(all(test, feature = "plugins"))]
+#[path = "published_map_consumer_tests.rs"]
+mod map_consumer_tests;
+
+#[cfg(all(test, feature = "plugins"))]
 #[path = "published_static_map_tests.rs"]
 mod static_map_tests;
