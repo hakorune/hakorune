@@ -313,6 +313,7 @@ impl DirectCallDispositionLoanV1 {
                 // The original caller relation owns local placement, not Map
                 // membership. Its existing Invoke consumer records the binding.
                 row.execution = DirectCallExecutionV1::Lifecycle;
+                root.record_lifecycle_local_call_site(self.owner, site.clone());
                 continue;
             }
             if !exact_formals(batch, parameters, row) {
@@ -335,14 +336,14 @@ impl DirectCallDispositionLoanV1 {
                 None => LocalCallResultClassV1::Map,
             };
             let completion = root.call_source_completion_for_owner(self.owner);
-            let arguments = match completion {
+            let (arguments, local_binding_site) = match completion {
                 Some((call_completion, terminal)) if site.site() == terminal.call_site() => {
                     if call_completion.explicit_site() != Some(terminal.return_site())
                         || terminal.arguments().len() != row.argument_sites.len()
                     {
                         return Err(reject);
                     }
-                    terminal.arguments()
+                    (terminal.arguments(), None)
                 }
                 _ => {
                     let local = root
@@ -361,7 +362,12 @@ impl DirectCallDispositionLoanV1 {
                     if local.result() == LocalCallResultClassV1::I64 && completion.is_none() {
                         return Err(reject);
                     }
-                    local.arguments()
+                    // Only an I64-classified local call records a binding
+                    // group under the caller; a Map result owns its own
+                    // emission record.
+                    let binding_site =
+                        (local.result() == LocalCallResultClassV1::I64).then(|| site.clone());
+                    (local.arguments(), binding_site)
                 }
             };
             let owner = row.emission.target().callable().owner();
@@ -420,6 +426,9 @@ impl DirectCallDispositionLoanV1 {
             }
             row.result = call_result_kind(callee.terminal_relation()).ok_or(reject)?;
             row.execution = DirectCallExecutionV1::Lifecycle;
+            if let Some(site) = local_binding_site {
+                root.record_lifecycle_local_call_site(self.owner, site);
+            }
         }
         Ok(())
     }

@@ -182,6 +182,12 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
             )>,
         >,
     >,
+    // The local-call sites `co_seal_lifecycle` routed through the lifecycle
+    // lane under each caller owner. Sealed I64 `local_calls()` rows are the
+    // candidate set only: a callee with no sealed lifecycle product keeps
+    // the scalar Call route and owes no binding group, so this marked subset
+    // — not the whole sealed prefix — is the binding-group expectation.
+    lifecycle_local_call_sites: RefCell<BTreeMap<FunctionOwnerIdV1, Vec<OwnedExprSiteV1>>>,
     root_instance_calls:
         RefCell<BTreeMap<OwnedExprSiteV1, root_instance_call::RootInstanceCallDispositionSlotV1>>,
     root_instance_call_expected: RefCell<BTreeSet<FunctionOwnerIdV1>>,
@@ -273,6 +279,7 @@ impl OrdinaryNewClaimLedgerV1 {
             child_physical_validation: RefCell::new(BTreeMap::new()),
             root_exits: RefCell::new(BTreeMap::new()),
             root_local_call_bindings: RefCell::new(BTreeMap::new()),
+            lifecycle_local_call_sites: RefCell::new(BTreeMap::new()),
             root_instance_calls: RefCell::new(BTreeMap::new()),
             root_instance_call_expected: RefCell::new(BTreeSet::new()),
             field_reads: RefCell::new(BTreeMap::new()),

@@ -157,7 +157,9 @@ the sealed statement inventory proves absence by checking for
 `BlockExprPrelude` children of the wrapper site, and a non-empty prelude
 rejects with `NonEmptyBlockExprPrelude` rather than silently dropping
 statement effects. It also records the exact `String/null` inequality fact
-used by a later conditional-value consumer.
+used by a later conditional-value consumer. The row-driven expression
+classifier lives in `source_result_classify.rs`; `source_result.rs` keeps the
+product vocabulary, the sealed-input identity checks, and issuance.
 
 Every observed call publishes one explicit `SourceCallDispositionV1`:
 `Static` only where the branded route catalog proves the same-module

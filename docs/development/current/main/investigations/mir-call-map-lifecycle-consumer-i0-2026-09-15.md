@@ -1069,3 +1069,59 @@ borrowed-handle entry is admitted by C5c-3; the next bounded slice is
 — `checked_new_v1` issues a positive host handle the indexed lane
 cannot carry), then `ArgumentHandoff` (call-edge
 promotion + wire kind + `exact_formals` + callee map-read lane).
+
+## Review fix note (2026-09-17, review of `8161f2abb9`)
+
+The external review named one current-change regression plus two
+hygiene gaps. All three are closed on this branch:
+
+1. **Plain-exit binding expectation counted scalar-route calls**
+   (`6b8efa6d8c` follow-up). `expected_local_call_sites` enumerated
+   every sealed I64 `local_calls()` row, but the seal predicate
+   (`is_i64_call`) is routing-agnostic — a callee with no sealed
+   lifecycle product keeps the scalar `Call` route under a Plain
+   caller exit (`callee_lifecycle_participant` `continue` arm) and
+   owes no binding group. `record_root_home_exit` then froze on
+   `local-call-binding-sequence` for
+   `main() { local first = helper(10) return 0 }` shapes that
+   previously published. `co_seal_lifecycle` — the routing authority —
+   now marks each site it routes to `DirectCallExecutionV1::Lifecycle`
+   on the ledger (`lifecycle_local_call_sites`), and
+   `expected_local_call_binding_sites` returns the marked subset of
+   sealed I64 rows. Under Call-exit callers every sealed I64 local
+   call is still marked or the co-seal rejects, so the strict
+   group↔site ordering check is unchanged there. Pins:
+   `scalar_local_then_plain_return_preserves_ordinary_call_through_publication`
+   green again (deterministic, was red at `6b8efa6d8c` onward);
+   `non_map_local_call_with_plain_return_preserves_scalar` still pins
+   the scalar route at package level; `normal_callable_semantic_package`
+   257/257.
+2. **Stale README authority reference.** `normal_callable_semantic_package`
+   README named the deleted `map_install_owners` and the singular
+   AppMain loan; it now describes the per-owner
+   `DirectCallDispositionLoansV1` evidence (unspent rows, map-target
+   ⊆ described owners, no self-target) with the undertaking verify as
+   the coverage proof.
+3. **`source_result.rs` crossed the 760 split-design line** (783).
+   Split at the responsibility boundary: `source_result.rs` keeps the
+   product vocabulary, sealed-input identity checks, and issuance
+   (335); `source_result_classify.rs` owns the row-driven expression
+   classifier (463). `source_result` tests 19/19; `cargo fmt --check`
+   clean; warning count unchanged.
+
+Red classification for this fix round (all non-current-change):
+parent-reproduced at `ec82461377` — `source_backed_app_main_direct_call_consumes_affine_loan`,
+`main_f1_rejects_direct_call_and_nested_owner_before_lowering`,
+`published_consumer_runs_once_and_propagates_failure_without_retry`,
+`published_consumer_does_not_consume_explicit_compatibility`,
+`actual_string_helpers_general_result_row_*`,
+`source_bound_static_result_owner_*`, `source_backed_package_failure_*`,
+`parser_scan_package_passes_callable_source_handoff_*`,
+`instance_box_declaration_lifecycle_preserves_*` ×2,
+`instance_method_batch_preserves_prefix_*`, `test_weak_handle_lifecycle`,
+`global_call_route_plan` ×2, `mir_corebox_router` ×2. Order-dependent
+flakes green under `--test-threads=1`/standalone:
+`module_lifecycle`/`capture_tests` family (`mirbuilder_minimal_*`,
+`verified_main_*`, `shared_root_kernel_*`,
+`instance_box_declaration_lifecycle_stops_*`, `typed_array_source_*`),
+`map_write_timing::boxcall_delegation`, `mir_corebox_router` extra rows.

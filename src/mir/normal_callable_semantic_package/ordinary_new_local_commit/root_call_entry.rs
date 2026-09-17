@@ -18,7 +18,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if site.owner() != owner {
             return Err(freeze("local-call-binding-owner-drift"));
         }
-        let expected = self.expected_local_call_sites(owner)?;
+        let expected = self.expected_local_call_binding_sites(owner)?;
         let mut rows = self.root_local_call_bindings.borrow_mut();
         let groups = rows.entry(owner).or_default();
         if groups.iter().any(|(recorded, _)| recorded == &site) {
@@ -34,7 +34,24 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
-    fn expected_local_call_sites(
+    /// `co_seal_lifecycle` is the routing authority: it marks exactly the
+    /// sealed local-call sites whose affine rows take the lifecycle Invoke
+    /// lane. The binding-group expectation is that marked subset — a sealed
+    /// I64 local call that keeps the scalar Call route emits a plain `Call`
+    /// instruction and owes no lifecycle bindings.
+    pub(crate) fn record_lifecycle_local_call_site(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: OwnedExprSiteV1,
+    ) {
+        let mut routed = self.lifecycle_local_call_sites.borrow_mut();
+        let sites = routed.entry(owner).or_default();
+        if !sites.contains(&site) {
+            sites.push(site);
+        }
+    }
+
+    fn expected_local_call_binding_sites(
         &self,
         owner: FunctionOwnerIdV1,
     ) -> Result<Vec<OwnedExprSiteV1>, String> {
@@ -45,12 +62,15 @@ impl OrdinaryNewClaimLedgerV1 {
             .cleanup()
             .root_flow()
             .ok_or_else(|| freeze("local-call-source-missing"))?;
+        let routed = self.lifecycle_local_call_sites.borrow();
+        let routed = routed.get(&owner);
         Ok(flow
             .local_calls()
             .iter()
             .filter(|call| {
                 call.result()
                     == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
+                    && routed.is_some_and(|sites| sites.contains(call.site()))
             })
             .map(|call| call.site().clone())
             .collect())
@@ -61,7 +81,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         groups: &[(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)],
     ) -> Result<(), String> {
-        let expected = self.expected_local_call_sites(owner)?;
+        let expected = self.expected_local_call_binding_sites(owner)?;
         if groups.len() != expected.len()
             || groups
                 .iter()

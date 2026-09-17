@@ -340,10 +340,13 @@ Complete flow row in its own owner's completion, including same-owner
 nested/argument/control sites and Dynamic-selected declarations. Missing
 owner/completion/flow cannot bypass preflight. Script roots and
 separately transferred lambda bodies are outside this inventory; no all-Map
-coverage claim is made. When an AppMain direct-call loan exists its affine
-slots must be unspent and every map-carrying loan target must have
-described obligations; per-owner lane admissibility (`map_install_owners`)
-remains as scoped AppMain product evidence only. The existing Local
+coverage claim is made. Direct-call evidence stays scoped to the issued
+per-owner loans (`DirectCallDispositionLoansV1` covers the AppMain root and
+the selected `is_main_static_child` owners, never a by-name inventory):
+every loan row must be unspent at install, every map-carrying loan target
+must have described obligations, and no loan may target its own owner —
+scoped product evidence only; the sealed undertaking verify is the coverage
+proof. The existing Local
 annotation policy is shared with physical placement; source
 initializer/alias relations select its precommit use without ValueIds or names.
 Unavailable coverage returns `MapLifecycleConsumerMissing`; annotation refusal
