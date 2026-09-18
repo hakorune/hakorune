@@ -1975,6 +1975,29 @@ test relaxation. The attempted nested-map literal fixture remains a named
 negative at `EntryStore(Opaque)`; the next implementation must first satisfy
 the bounded MapLocal argument contract above.
 
+### Accepted physical contract for the next slice (2026-09-19)
+
+The bounded operation is named `InstallBorrowedArray`. It carries the parent
+Map value, prepared key, and an ordered finite list of already-lowered child
+Map values. The MIR operation returns the existing `MapOutcome` role and has
+the same Normal/Fault `Outcome` cleanup as the other Map install operations.
+Its source-side admission class is a new precise
+`MapEntryStoreClassV1::BorrowedArray`, issued only when every array element is
+an exact `MapValueSource::MapLocal`; `NestedMap`, scalar, mixed, and nested
+array elements remain `Opaque`. The lifecycle undertaking therefore co-seals
+`EntryStore(BorrowedArray)` with one `OwnershipShare(MapLocal)` per distinct
+borrow root and the existing `ArgumentHandoff` edge.
+
+The checked owner reuses `CanonicalMapArrayResidence` with a borrowed
+residence implementation: it validates each child Map is live, stores the
+ordered child pointers for synchronous `ArrayIndexMap`, and performs no child
+End on residence cleanup. The caller's existing MapLocal cleanup remains the
+sole child End owner. The C ABI receives a non-overlapping pointer array and
+length, validates all regions and profile/site identity, and installs the
+borrowed residence atomically; any construction or install Fault leaves the
+caller child Maps live. No generic ArrayBox or numeric handle recovery is
+introduced.
+
 ## T2 read contract decision (2026-09-19, design stop closed)
 
 **Decision:** The intermediate read product is a source Facts projection,
