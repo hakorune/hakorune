@@ -200,6 +200,10 @@ pub(crate) enum ArrayElementKindV1 {
     /// A nested `[...]` literal; its own `Element(ordinal)` children are
     /// classified recursively. No flow row — arrays are not MapLiteral rows.
     NestedArray(Box<[ArrayElementSource]>),
+    /// A nested `%{...}` literal. The child emits its own `MapHomeFlow`
+    /// row, while this element keeps the exact source identity needed to
+    /// follow an Array -> Map read without re-reading AST or names.
+    NestedMap(OwnedExprSiteV1),
 }
 impl ArrayElementSource {
     pub(crate) fn site(&self) -> &SourceExprSiteV1 {
@@ -210,14 +214,21 @@ impl ArrayElementSource {
     pub(crate) fn value_source(&self) -> Option<&MapValueSource> {
         match &self.kind {
             ArrayElementKindV1::Leaf(value) => Some(value),
-            ArrayElementKindV1::NestedArray(_) => None,
+            ArrayElementKindV1::NestedArray(_) | ArrayElementKindV1::NestedMap(_) => None,
         }
     }
     /// `Some` for nested `[...]` elements; leaves return `None`.
     pub(crate) fn nested_elements(&self) -> Option<&[ArrayElementSource]> {
         match &self.kind {
             ArrayElementKindV1::NestedArray(elements) => Some(elements),
-            ArrayElementKindV1::Leaf(_) => None,
+            ArrayElementKindV1::Leaf(_) | ArrayElementKindV1::NestedMap(_) => None,
+        }
+    }
+    /// `Some` for a nested map element; leaves and nested arrays return `None`.
+    pub(crate) fn nested_map(&self) -> Option<&OwnedExprSiteV1> {
+        match &self.kind {
+            ArrayElementKindV1::NestedMap(site) => Some(site),
+            ArrayElementKindV1::Leaf(_) | ArrayElementKindV1::NestedArray(_) => None,
         }
     }
 }
@@ -516,8 +527,16 @@ pub(super) fn observe_map<E>(
             // A `[...]` entry value carries classified elements: leaf
             // sources or nested `[...]` literals. Elements issue no
             // transfer and consume no Home.
-            let elements = match observe_array_elements(input, shape, locals, child, element_count)
-            {
+            let elements = match observe_array_elements(
+                input,
+                shape,
+                locals,
+                child,
+                element_count,
+                used,
+                nested_out,
+                compatible,
+            )? {
                 Ok(elements) => elements,
                 Err(issue) => return Ok(Err(issue)),
             };
@@ -561,16 +580,20 @@ pub(super) fn observe_map<E>(
 }
 
 /// Classify each `Element(ordinal)` child of a sealed `[...]` literal:
-/// nested array literals recurse, leaves classify through `map_value_leaf`,
-/// anything else (including `%{...}` literals and live Home locals) stays
-/// `MapCandidateNotCovered`. Elements issue no transfer and consume no Home.
-fn observe_array_elements(
+/// nested array literals recurse, nested map literals issue child flow rows,
+/// and leaves classify through `map_value_leaf`. Unsupported expressions and
+/// live Home elements stay `MapCandidateNotCovered`; this slice never transfers
+/// a Home from an array element.
+fn observe_array_elements<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     shape: &crate::mir::resolved_semantics::VerifiedResolvedBodyShapeInventoryV1,
-    locals: &PrefixLocalFlow<'_>,
+    locals: &mut PrefixLocalFlow<'_>,
     array_site: &SourceExprSiteV1,
     element_count: u32,
-) -> Result<Vec<ArrayElementSource>, HomePrefixUnavailableV1> {
+    used: &mut std::collections::BTreeSet<BindingRefV1>,
+    nested_out: &mut Vec<MapHomeObservation>,
+    compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
+) -> Result<Result<Vec<ArrayElementSource>, HomePrefixUnavailableV1>, E> {
     let mut elements = Vec::with_capacity(element_count as usize);
     for element_ordinal in 0..element_count {
         let mut relations = shape.relations().iter().filter(|row| {
@@ -578,22 +601,64 @@ fn observe_array_elements(
                 && row.role() == &SourcePathSegmentV1::Element(element_ordinal)
         });
         let Some(relation) = relations.next() else {
-            return Err(HomePrefixUnavailableV1::SourceMismatch);
+            return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
         };
         if relations.next().is_some() {
-            return Err(HomePrefixUnavailableV1::SourceMismatch);
+            return Ok(Err(HomePrefixUnavailableV1::SourceMismatch));
         }
         let element = relation.child();
         let kind = if let Some(nested_count) = array_literal_element_count(input, element) {
             ArrayElementKindV1::NestedArray(
-                observe_array_elements(input, shape, locals, element, nested_count)?
-                    .into_boxed_slice(),
+                match observe_array_elements(
+                    input,
+                    shape,
+                    locals,
+                    element,
+                    nested_count,
+                    used,
+                    nested_out,
+                    compatible,
+                )? {
+                    Ok(elements) => elements,
+                    Err(issue) => return Ok(Err(issue)),
+                }
+                .into_boxed_slice(),
             )
+        } else if let Some(child_keys) = map_literal_keys(input, element) {
+            // Array elements may own a nested Map. Keep the child as its own
+            // source flow row and retain only its exact identity here; the
+            // child itself is not allowed to consume an outer Home through
+            // this first read slice, so it is observed with an empty Home
+            // prefix and fails closed if it needs one.
+            let child_owned = OwnedExprSiteV1::new(input.owner(), element.clone());
+            match observe_map(
+                input,
+                &child_owned,
+                MapDestinationV1::ContainedIn {
+                    parent: OwnedExprSiteV1::new(input.owner(), array_site.clone()),
+                    role: SourcePathSegmentV1::Element(element_ordinal),
+                },
+                child_keys,
+                locals,
+                &[],
+                used,
+                nested_out,
+                compatible,
+            )? {
+                Ok((child_flow, _)) => {
+                    nested_out.push(MapHomeObservation::Complete(child_flow));
+                    ArrayElementKindV1::NestedMap(child_owned)
+                }
+                Err(issue) => {
+                    nested_out.push(MapHomeObservation::Unavailable { site: child_owned });
+                    return Ok(Err(issue));
+                }
+            }
         } else {
             let Some(value) = map_value_leaf(input, locals, element) else {
-                return Err(HomePrefixUnavailableV1::MapCandidateNotCovered(
+                return Ok(Err(HomePrefixUnavailableV1::MapCandidateNotCovered(
                     element.clone(),
-                ));
+                )));
             };
             ArrayElementKindV1::Leaf(value)
         };
@@ -602,7 +667,7 @@ fn observe_array_elements(
             kind,
         });
     }
-    Ok(elements)
+    Ok(Ok(elements))
 }
 
 /// Leaf entry/element source classification shared by map entry values and

@@ -1886,3 +1886,20 @@ reverse-prefix cleanup, deduplicated borrow liveness, and the first
 `funcs[0].name` Text read. T2-beta adds EmptyArray plus `params`/`blocks`
 index/length/kind reads. The source-to-OBJ execution and Normal/Fault
 acceptance matrix remain required before T2 is marked complete.
+
+## T2-alpha source provenance progress (2026-09-19)
+
+`ArrayElementKindV1::NestedMap` now retains the exact child
+`OwnedExprSiteV1`, and `observe_array_elements` issues that child as a
+`ContainedIn` `MapHomeFlow` row. This closes the source-side
+`Array -> Map` relation needed by `funcs[0].name` without AST rereads,
+name-based recovery, or a new authority. Array-element Home transfers still
+reject, and the parent `NestedArray` remains `Opaque` to the physical install
+lane until an owned Array residence exists.
+
+Focused evidence: `map_entry_value_flow_tests` 10/10 passed, including the
+positive nested-map provenance fixture and the unchanged Home-element
+fail-fast fixture. No production caller, MapInvoke read, Array residence,
+Text projection, or T2 acceptance claim is made by this row. The next exact
+slice is the physical owned-Array residence with reverse-prefix cleanup and
+candidate return on install Fault.

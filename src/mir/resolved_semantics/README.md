@@ -1221,9 +1221,11 @@ child subtree is marked in the parent's outer at the parent's entry index. The
 parent entry records `NestedMap` ownership — no value source, no binding, so
 physical emission stays fail-closed. A `[...]` entry value records
 `NestedArray` ownership with each sealed `Element(ordinal)` child classified
-through the element chain: leaf sources or a nested `[...]` literal whose own
-elements recurse (`ArrayElementKindV1`); `%{...}` elements, element transfers
-and other classes stay uncovered at this boundary. A live map-installed local (`local m = %{...}` or an alias)
+through the element chain: leaf sources, a nested `[...]` literal whose own
+elements recurse, or a nested `%{...}` child that issues its own exact
+`ContainedIn` Map flow row (`ArrayElementKindV1`). Array-element Home transfers
+remain unavailable in this slice; unsupported expressions stay uncovered. A
+live map-installed local (`local m = %{...}` or an alias)
 is borrowed by reference as `MapLocal` — the local stays the owner and still
 issues its own End; nothing is consumed. A `%{...}` literal at a call's
 `Argument(ordinal)` position — observed only inside a terminal return value
@@ -1248,7 +1250,9 @@ classifies its own install requirement through `store_class()`: `Scalar`
 `Borrowed` (reference entries whose obligation is a share, never a
 store — the `Handle` kind lowers through `InstallValue` under the
 `BorrowedHandle` tag), and `Opaque` (non-empty `[...]` and `%{...}`
-child values with no install lane). The lifecycle undertaking and the
+child values with no install lane; nested-map array provenance is recorded
+but remains physically opaque until an owned Array residence is admitted).
+The lifecycle undertaking and the
 selected emit lane read this
 one predicate; nothing reclassifies an entry downstream. These records and
 terminal order

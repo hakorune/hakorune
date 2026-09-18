@@ -238,37 +238,61 @@ fn array_entry_empty_literal_and_local_position_complete() {
 
 #[test]
 fn array_entry_rejects_home_and_container_elements() {
-    for (body, statement) in [
-        // a live Home element is a transfer question, never a leaf borrow
-        ("local p = new Page() return %{\"a\" => [p]}", 1u32),
-        // a `%{...}` element stays uncovered — the element map still gets
-        // its own ContainedIn row from the sweep
-        ("return %{\"a\" => [%{}]}", 0u32),
-    ] {
-        let package = issue(&source(body)).unwrap();
-        let flow = package
-            .ordinary_new_claim_ledger
-            .root_completion_for_test()
-            .cleanup()
-            .root_flow()
-            .unwrap();
-        // The return-boundary outer map stays Unavailable — its array entry
-        // still holds a non-leaf element. (A contained descendant map inside
-        // that element now gets its own row; pin the outer row by site.)
-        let return_map_site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
-            SourcePathSegmentV1::Body(statement),
-            SourcePathSegmentV1::Value,
-        ]));
-        let observation = flow
-            .maps()
-            .iter()
-            .find(|observation| observation.site().site() == &return_map_site)
-            .expect("outer return map row");
-        assert!(
-            observation.complete().is_none(),
-            "{body} must stay Unavailable"
-        );
-    }
+    // A live Home element is still a transfer question, never a leaf borrow.
+    let body = "local p = new Page() return %{\"a\" => [p]}";
+    let package = issue(&source(body)).unwrap();
+    let flow = package
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap();
+    let return_map_site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(1),
+        SourcePathSegmentV1::Value,
+    ]));
+    let observation = flow
+        .maps()
+        .iter()
+        .find(|observation| observation.site().site() == &return_map_site)
+        .expect("outer return map row");
+    assert!(
+        observation.complete().is_none(),
+        "{body} must stay Unavailable"
+    );
+}
+
+#[test]
+fn array_entry_records_nested_map_provenance_but_keeps_physical_lane_opaque() {
+    let package = issue(&source(
+        "return %{\"functions\" => [%{\"name\" => \"main\"}]}",
+    ))
+    .expect("nested map array source facts complete");
+    let flow = package
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap();
+    let [outer, child] = flow.maps() else {
+        panic!("outer array map and nested element map");
+    };
+    let outer = outer.complete().expect("outer source flow");
+    let [functions] = outer.entries() else {
+        panic!("functions entry");
+    };
+    let [element] = functions.array_elements().expect("array element") else {
+        panic!("one nested map element");
+    };
+    let nested = element.nested_map().expect("nested map identity");
+    assert_eq!(
+        nested.site().node().segments().last(),
+        Some(&SourcePathSegmentV1::Element(0))
+    );
+    assert_eq!(child.site(), nested);
+    // Source provenance is now available, but no physical array residence
+    // has been admitted yet; the install lane remains fail-closed.
+    assert_eq!(functions.store_class(), MapEntryStoreClassV1::Opaque);
 }
 
 #[test]
