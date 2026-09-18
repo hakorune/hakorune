@@ -650,6 +650,23 @@ fn map_install_empty_array_publishes_no_payload_operand() {
 }
 
 #[test]
+fn map_install_borrowed_array_publishes_ordered_map_elements() {
+    use crate::mir::instruction::MapInvokeOperation as Map;
+    let op = InvokeOperation::Map(Map::InstallBorrowedArray {
+        map: ValueId(1),
+        key: ValueId(2),
+        elements: vec![ValueId(7), ValueId(7), ValueId(9)].into_boxed_slice(),
+    });
+    let encoded =
+        encode_invoke(&op, &BTreeMap::new(), &BTreeMap::new(), 0, Some(42), None, None).unwrap();
+    assert_eq!(
+        encoded,
+        json!({"kind": "map_install_borrowed_array", "map": 1, "key": 2,
+        "elements": [7, 7, 9], "site": 42})
+    );
+}
+
+#[test]
 fn map_view_reads_publish_typed_index_and_text_operations() {
     use crate::mir::instruction::MapInvokeOperation as Map;
     let index = InvokeOperation::Map(Map::ArrayIndexMap {

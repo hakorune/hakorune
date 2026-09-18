@@ -8,8 +8,8 @@ use std::sync::Mutex;
 #[path = "map_array_residence.rs"]
 mod array_residence;
 pub use array_residence::{
-    CanonicalMapArrayResidence, CheckedMapArrayReadError, CheckedMapReadView,
-    OwnedMapArrayResidence, OwnedMapArrayResidenceBuilder,
+    BorrowedMapArrayResidence, CanonicalMapArrayResidence, CheckedMapArrayReadError,
+    CheckedMapReadView, OwnedMapArrayResidence, OwnedMapArrayResidenceBuilder,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

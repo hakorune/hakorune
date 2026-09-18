@@ -139,6 +139,10 @@ uint32_t nyrt_map_key_prepare_utf8_v1(void *, uint64_t, void *, const uint8_t *,
 uint32_t nyrt_map_key_dispose_v1(void *) __asm__("nyash.map.key_dispose_v1");
 uint32_t nyrt_map_outcome_init_v1(void *) __asm__("nyash.map.outcome_init_v1");
 uint32_t nyrt_map_checked_install_indexed_v1(void *, uint32_t, uint64_t, void *, void *, int64_t, int64_t, void *) __asm__("nyash.map.checked_install_indexed_v1");
+/* Borrowed Array payload. `elements` points to `len` live Map storage
+ * pointers owned by the caller's MapLocal cleanup; the installed residence
+ * never ends those child Maps. */
+uint32_t nyrt_map_checked_install_borrowed_array_v1(void *, uint32_t, uint64_t, void *, void *, const void *const *, size_t, void *) __asm__("nyash.map.checked_install_borrowed_array_v1");
 /* Checked Map value kinds. Bool payload is exactly 0 or 1. The borrowed-handle
  * kind stores a non-consuming handle snapshot: the map never owns the target
  * and an i64 read on the entry records Fault 104. */

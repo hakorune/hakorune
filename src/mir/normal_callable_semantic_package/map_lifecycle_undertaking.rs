@@ -390,6 +390,12 @@ pub(crate) fn verify_map_lifecycle_undertaking(
     for owner_obligations in obligations {
         owners.push(owner_obligations.owner());
         for site in owner_obligations.sites() {
+            let borrowed_array = site.operations().any(|operation| {
+                matches!(
+                    operation,
+                    Op::EntryStore(MapEntryStoreClassV1::BorrowedArray)
+                )
+            });
             for operation in site.operations() {
                 if !capability.covers(operation) {
                     return Err(MapLifecycleUndertakingIssueV1::UncoveredOperation {
@@ -413,8 +419,38 @@ pub(crate) fn verify_map_lifecycle_undertaking(
             // entry from ever being misread as a scalar — a `Handle`
             // borrow may ride that edge. A non-`Handle` borrow has no
             // physical reference lane at all, so it still escapes
-            // unproven even on the argument edge.
+            // unproven even on the argument edge. The one exception is the
+            // precise BorrowedArray argument row below, whose physical
+            // operation carries every child Map and whose edge is co-sealed
+            // before catalog mutation.
             if let Some(borrow) = site.borrows().first() {
+                // `OwnershipShare(MapLocal)` is meaningful only as the
+                // element-root evidence of the bounded BorrowedArray
+                // argument lane. A single borrowed Map entry still has no
+                // physical owner and must remain fail-closed even though
+                // the selected consumer declares the array lane.
+                let unsupported_map_local = site.operations().any(|operation| {
+                    matches!(
+                        operation,
+                        Op::OwnershipShare(MapEntryBorrowKindV1::MapLocal)
+                    )
+                }) && !borrowed_array;
+                if unsupported_map_local {
+                    return Err(MapLifecycleUndertakingIssueV1::BorrowedEntryEscape {
+                        owner: owner_obligations.owner(),
+                        site: site.site().clone(),
+                        binding: borrow.binding(),
+                    });
+                }
+                if borrowed_array
+                    && !matches!(site.destination(), MapDestinationV1::CallArgument { .. })
+                {
+                    return Err(MapLifecycleUndertakingIssueV1::BorrowedEntryEscape {
+                        owner: owner_obligations.owner(),
+                        site: site.site().clone(),
+                        binding: borrow.binding(),
+                    });
+                }
                 let escaping_handoff = site.operations().any(|operation| {
                     matches!(
                         operation,
@@ -424,6 +460,7 @@ pub(crate) fn verify_map_lifecycle_undertaking(
                 let unproven_argument = site
                     .operations()
                     .any(|operation| matches!(operation, Op::ArgumentHandoff))
+                    && !borrowed_array
                     && site.operations().any(|operation| {
                         matches!(
                             operation,

@@ -268,6 +268,30 @@ def array_text_fault_program():
     return data
 
 
+def borrowed_array_program():
+    """Install duplicate borrowed MapLocal roots, then end the caller roots."""
+    graph = Graph()
+    parent = graph.invoke(dict(kind="map_new"), [], True)
+    parent_end = dict(kind="map_end", map=parent)
+    child = graph.invoke(dict(kind="map_new"), [parent_end], True)
+    child_end = dict(kind="map_end", map=child)
+    key = graph.invoke(dict(kind="map_prepare_key", utf8="functions"),
+                       [child_end, parent_end], True)
+    outcome = graph.invoke(
+        dict(kind="map_install_borrowed_array", map=parent, key=key,
+             elements=[child, child]),
+        [child_end, parent_end], True)
+    graph.invoke(dict(kind="map_end_outcome", outcome=outcome),
+                 [child_end, parent_end])
+    graph.invoke(parent_end, [child_end])
+    graph.invoke(child_end, [])
+    graph.term(graph.current, dict(op="return", value=1))
+    data = program(["unused"])
+    data["functions"][0]["blocks"] = graph.blocks
+    data["process_result_site"] = graph.site
+    return data
+
+
 with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     work = Path(directory)
     driver, obj, exe = [work / name for name in ("driver", "map.o", "map")]
@@ -338,6 +362,11 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
     assert run([exe], env=env).returncode == 70
     print("ArrayIndexMap -> MapGetText on missing entry -> named Fault105 -> EXE70")
+
+    compile_input(borrowed_array_program())
+    checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
+    assert run([exe], env=env).returncode == 30
+    print("duplicate MapLocal roots -> InstallBorrowedArray -> caller-owned cleanup -> EXE30")
 
     compile_input(program(["same", "same"]))
     wraps = ["storage_init", "storage_dispose", "key_init", "key_dispose",

@@ -24,7 +24,8 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
   int scalar = lv4_is(op, "kind", "map_install_value");
   int text = lv4_is(op, "kind", "map_install_text");
   int empty = lv4_is(op, "kind", "map_install_empty_array");
-  int install = scalar || text || empty || lv4_is(op, "kind", "map_install_indexed");
+  int borrowed = lv4_is(op, "kind", "map_install_borrowed_array");
+  int install = scalar || text || empty || borrowed || lv4_is(op, "kind", "map_install_indexed");
   int get = lv4_is(op, "kind", "map_checked_get");
   int array_index = lv4_is(op, "kind", "map_array_index_map");
   int get_text = lv4_is(op, "kind", "map_get_text");
@@ -33,6 +34,17 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
     const char* storage = make_map ? "map" : make_key ? "key" : "outcome";
     lv4_map_bookkeeping(f, make_map ? "storage_init" : make_key ? "key_init" : "outcome_init",
         storage, b, b, 0);
+  }
+  if (borrowed) {
+    yyjson_val* elements = yyjson_obj_get(op, "elements");
+    size_t len = yyjson_arr_size(elements);
+    for (size_t i = 0; i < len; i++) {
+      uint32_t value = (uint32_t)yyjson_get_uint(yyjson_arr_get(elements, i));
+      fprintf(f,
+          "  %%borrowed_element_ptr%u_%zu = getelementptr inbounds [%zu x ptr], ptr %%borrowed_elements%u, i64 0, i64 %zu\n"
+          "  store ptr %%v%u, ptr %%borrowed_element_ptr%u_%zu, align 8\n",
+          b, i, len, b, i, value, b, i);
+    }
   }
   fprintf(f, "  %%status%u = call i32 ", b);
   if (get) {
@@ -69,6 +81,11 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
   } else if (empty) {
     fprintf(f, "@\"nyash.map.checked_install_empty_array_v1\"(ptr %%frame, i32 %u, i64 %llu, ptr %%v%u, ptr %%v%u, ptr %%outcome%u)\n",
         in->profile, site, lv4_u(op, "map"), lv4_u(op, "key"), b);
+  } else if (borrowed) {
+    yyjson_val* elements = yyjson_obj_get(op, "elements");
+    size_t len = yyjson_arr_size(elements);
+    fprintf(f, "@\"nyash.map.checked_install_borrowed_array_v1\"(ptr %%frame, i32 %u, i64 %llu, ptr %%v%u, ptr %%v%u, ptr %%borrowed_elements%u, i64 %zu, ptr %%outcome%u)\n",
+        in->profile, site, lv4_u(op, "map"), lv4_u(op, "key"), b, len, b);
   } else if (install) {
     fprintf(f, "@\"nyash.map.checked_install_indexed_v1\"(ptr %%frame, i32 %u, i64 %llu, ptr %%v%u, ptr %%v%u, i64 %%v%u, i64 %u, ptr %%outcome%u)\n",
         in->profile, site, lv4_u(op, "map"), lv4_u(op, "key"), lv4_u(op, "value"), lv4_type_id(in, op), b);
@@ -116,8 +133,13 @@ static void lv4_map_alloca(FILE* f, yyjson_val* op, uint32_t b,
     name = "text"; size = (uint32_t)sizeof(NyrtTextViewStorageV1); align = (uint32_t)_Alignof(NyrtTextViewStorageV1);
   }
   else if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
-      lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array")) { name = "outcome"; size = abi->outcome_size; align = abi->outcome_align; }
+      lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array") ||
+      lv4_is(op, "kind", "map_install_borrowed_array")) { name = "outcome"; size = abi->outcome_size; align = abi->outcome_align; }
   if (name) fprintf(f, "  %%%s%u = alloca [%u x i8], align %u\n", name, b, size, align);
+  if (lv4_is(op, "kind", "map_install_borrowed_array")) {
+    yyjson_val* elements = yyjson_obj_get(op, "elements");
+    fprintf(f, "  %%borrowed_elements%u = alloca [%zu x ptr], align 8\n", b, yyjson_arr_size(elements));
+  }
   if (lv4_is(op, "kind", "map_checked_get")) {
     /* The kernel writes the slot only on Normal; a Fault read leaves the
      * sentinel so a stray consumer observes -1, never uninitialized stack. */
@@ -138,6 +160,7 @@ static void lv4_map_declarations(FILE* f, const hako_lv4_input* in) {
       "declare i32 @\"nyash.map.checked_install_value_v1\"(ptr, i32, i64, ptr, ptr, i32, i64, ptr)\n"
       "declare i32 @\"nyash.map.checked_install_text_v1\"(ptr, i32, i64, ptr, ptr, ptr, i64, ptr)\n"
       "declare i32 @\"nyash.map.checked_install_empty_array_v1\"(ptr, i32, i64, ptr, ptr, ptr)\n"
+      "declare i32 @\"nyash.map.checked_install_borrowed_array_v1\"(ptr, i32, i64, ptr, ptr, ptr, i64, ptr)\n"
       "declare i32 @\"nyash.map.outcome_end_v1\"(ptr, i64, ptr)\n"
       "declare i32 @\"nyash.map.checked_end_v1\"(ptr, i64, ptr)\n"
       "declare i32 @\"nyash.map.checked_get_i64_v1\"(ptr, i64, ptr, ptr, i64, ptr)\n"

@@ -2128,3 +2128,35 @@ the quick kernel archive: an empty Map drives `ArrayIndexMap` to named Fault
 matrix remains green (six normal EXE30 programs plus the malformed-input
 preservation set); this is physical ABI evidence only and is not source-to-OBJ
 acceptance.
+
+## T2-alpha borrowed-array install progress (2026-09-19)
+
+The accepted all-`MapLocal` argument shape now has one physical operation all the
+way through the selected lanes. `MapEntryStoreClassV1::BorrowedArray` is issued
+only for a non-empty direct array whose elements retain exact `MapLocal` source
+bindings. The existing argument edge and one `OwnershipShare(MapLocal)` per
+distinct root co-seal with the new `MapInvokeOperation::InstallBorrowedArray`;
+opaque, nested, scalar, and mixed arrays remain rejected at admission. The MIR
+verifier requires a live Map parent, Map key, and live Map children, and the
+published JSON carries the ordered element ids.
+
+The checked owner now provides `BorrowedMapArrayResidence`: it stores child
+pointers for the synchronous borrowed window, never ends a child, and leaves
+the caller's MapLocal roots as the sole End authority. The kernel export
+`nyash.map.checked_install_borrowed_array_v1` preflights the frame, parent,
+key, and every child; a failed child admission leaves the caller child live.
+The published C validator and V4 emitter validate the non-empty element list,
+pass the pointer array to the kernel, consume only the key, and keep the
+Normal/Fault outcome contract explicit.
+
+Focused evidence is 26/26 lifecycle-undertaking tests, 2/2 kernel
+success/failure lifetime tests, 1/1 published JSON test, `cargo check --profile
+quick --lib`, `cargo check --profile quick -p nyash_kernel`, and C syntax
+checking. The existing `published_map_physical_execution_test.py` also passes
+with the quick kernel archive: six normal EXE30 programs, ArrayIndexMap named
+Fault105/EXE70, duplicate-MapLocal `InstallBorrowedArray` EXE30, borrowed-
+handle checks, and 27 malformed-input preservation cases. This is physical ABI
+and checked-lifetime evidence only. A source-issued
+MapLocal array reaching this operation through the selected compiler and a
+Normal/Fault source-to-OBJ acceptance fixture are still open; no production
+cutover, legacy retirement, `to_json`, or generic ArrayBox claim is made.

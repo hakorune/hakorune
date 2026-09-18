@@ -11,6 +11,7 @@ const SYMBOLS: &[&str] = &[
     "nyash.map.checked_install_value_v1",
     "nyash.map.checked_install_text_v1",
     "nyash.map.checked_install_empty_array_v1",
+    "nyash.map.checked_install_borrowed_array_v1",
     "nyash.map.outcome_end_v1",
     "nyash.map.outcome_dispose_v1",
     "nyash.map.checked_end_v1",

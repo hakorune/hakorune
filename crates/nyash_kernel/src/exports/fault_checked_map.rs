@@ -8,8 +8,8 @@ use crate::exports::{
 };
 use nyash_rust::boxes::{
     map_box::checked::{
-        CheckedMap, CheckedMapArrayReadError, CheckedMapError, CheckedMapI64Read,
-        CheckedMapPayload, CheckedMapTextViewRead, MapEndError, MapEndReport,
+        BorrowedMapArrayResidence, CheckedMap, CheckedMapArrayReadError, CheckedMapError,
+        CheckedMapI64Read, CheckedMapPayload, CheckedMapTextViewRead, MapEndError, MapEndReport,
     },
     map_key_domain::MapKeyDomain,
 };
@@ -270,6 +270,61 @@ pub unsafe extern "C" fn install_empty_array(
     unsafe {
         install_candidate(frame, profile, site, map_ptr, key_ptr, out_ptr, || {
             Ok(CheckedMapPayload::EmptyArray)
+        })
+    }
+}
+
+/// Install a checked Array whose elements borrow caller-owned MapLocal roots.
+/// The element pointer array is read only during this call; the resulting
+/// residence never ends the child Maps, because the caller owns their cleanup.
+#[export_name = "nyash.map.checked_install_borrowed_array_v1"]
+pub unsafe extern "C" fn install_borrowed_array(
+    frame: *mut c_void,
+    profile: u32,
+    site: u64,
+    map_ptr: *mut c_void,
+    key_ptr: *mut c_void,
+    elements_ptr: *const *mut c_void,
+    len: usize,
+    out_ptr: *mut c_void,
+) -> u32 {
+    let Some(bytes) = len.checked_mul(size_of::<*mut c_void>()) else {
+        return Status::InvalidContract as u32;
+    };
+    if len == 0
+        || len > isize::MAX as usize
+        || bytes > isize::MAX as usize
+        || !separate(&[
+            (frame as usize, size_of::<FaultFrame>()),
+            (map_ptr as usize, size_of::<MapStorage>()),
+            (key_ptr as usize, size_of::<KeyStorage>()),
+            (out_ptr as usize, size_of::<OutcomeStorage>()),
+            (elements_ptr as usize, bytes),
+        ])
+        || !unsafe { valid_frame(frame) }
+        || profile != 1
+        || store::check_indexed_profile(TypedObjectStoreBackend::SafeMutex).is_err()
+    {
+        return Status::InvalidContract as u32;
+    }
+    unsafe {
+        install_candidate(frame, profile, site, map_ptr, key_ptr, out_ptr, || {
+            let raw = std::slice::from_raw_parts(elements_ptr, len);
+            let mut elements = Vec::new();
+            elements
+                .try_reserve(len)
+                .map_err(|_| CheckedStorageError::AllocationOrStorageUnavailable)?;
+            for child_ptr in raw {
+                let child = admit::<CheckedMap>(*child_ptr, MAP_TAG)
+                    .map_err(|_| CheckedStorageError::ObjectOrFieldMismatch)?;
+                child
+                    .require_live()
+                    .map_err(|_| CheckedStorageError::ObjectOrFieldMismatch)?;
+                elements.push(child as *const CheckedMap);
+            }
+            let residence = BorrowedMapArrayResidence::try_from_elements(elements)
+                .map_err(|_| CheckedStorageError::AllocationOrStorageUnavailable)?;
+            Ok(CheckedMapPayload::Array(Box::new(residence)))
         })
     }
 }

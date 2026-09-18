@@ -361,3 +361,39 @@ fn map_local_alias_and_array_element_borrow_the_same_root() {
         assert_eq!(*root, *x_root);
     }
 }
+
+#[test]
+fn all_map_local_array_entry_is_a_borrowed_array() {
+    let package = issue(&source(
+        "local main = %{\"name\" => \"main\"} return %{\"functions\" => [main]}",
+    ))
+    .expect("MapLocal array source facts complete");
+    let flow = package
+        .ordinary_new_claim_ledger
+        .root_completion_for_test()
+        .cleanup()
+        .root_flow()
+        .unwrap();
+    let map = flow
+        .maps()
+        .last()
+        .and_then(|row| row.complete())
+        .expect("returned parent map flow");
+    let [functions] = map.entries() else {
+        panic!("one functions entry");
+    };
+    assert_eq!(functions.store_class(), MapEntryStoreClassV1::BorrowedArray);
+    let bindings = functions
+        .borrowed_array_bindings()
+        .expect("exact MapLocal root");
+    let [binding] = bindings.as_ref() else {
+        panic!("one borrowed array element");
+    };
+    let [element] = functions.array_elements().expect("array elements") else {
+        panic!("one array element");
+    };
+    assert_eq!(
+        element.value_source(),
+        Some(&MapValueSource::MapLocal(*binding))
+    );
+}

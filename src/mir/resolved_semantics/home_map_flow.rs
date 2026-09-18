@@ -315,6 +315,11 @@ pub(crate) enum MapEntryStoreClassV1 {
     /// `InstallEmptyArray` lane: a `[]` literal carries no elements and
     /// no child obligation — the map owns the empty-array meaning itself.
     EmptyArray,
+    /// A non-empty array whose every direct element is an exact `MapLocal`
+    /// binding. The array borrows the caller's live Map roots; it is not an
+    /// owned child transfer and therefore requires a dedicated physical
+    /// residence plus `OwnershipShare(MapLocal)` evidence.
+    BorrowedArray,
     /// No install lane today: non-empty `[...]` entry values and
     /// `%{...}` child maps (indexed install requires a transfer
     /// acquisition the child does not carry).
@@ -329,6 +334,10 @@ impl MapHomeEntry {
             MapEntryOwnership::NestedArray { elements } => {
                 if elements.is_empty() {
                     MapEntryStoreClassV1::EmptyArray
+                } else if elements.iter().all(|element| {
+                    matches!(element.value_source(), Some(MapValueSource::MapLocal(_)))
+                }) {
+                    MapEntryStoreClassV1::BorrowedArray
                 } else {
                     MapEntryStoreClassV1::Opaque
                 }
@@ -385,6 +394,24 @@ impl MapHomeEntry {
             MapEntryOwnership::NestedArray { elements } => Some(elements),
             _ => None,
         }
+    }
+    /// Exact direct `MapLocal` roots for the bounded borrowed-array lane.
+    /// Returning `None` shares the same sealed predicate as `store_class()`;
+    /// callers must not reconstruct the classification from source names.
+    pub(crate) fn borrowed_array_bindings(&self) -> Option<Box<[BindingRefV1]>> {
+        if self.store_class() != MapEntryStoreClassV1::BorrowedArray {
+            return None;
+        }
+        let elements = self.array_elements()?;
+        Some(
+            elements
+                .iter()
+                .map(|element| match element.value_source() {
+                    Some(MapValueSource::MapLocal(binding)) => *binding,
+                    _ => unreachable!("BorrowedArray classification drift"),
+                })
+                .collect(),
+        )
     }
     pub(crate) fn displaced(&self) -> Option<&SourceExprSiteV1> {
         self.displaced.as_ref()

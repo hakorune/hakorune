@@ -27,6 +27,144 @@ unsafe fn prepare(frame: *mut c_void, key: *mut c_void, text: &[u8]) {
         0
     );
 }
+
+unsafe fn live_map(ptr: *mut c_void) -> bool {
+    match admit::<CheckedMap>(ptr, MAP_TAG) {
+        Ok(map) => map.require_live().is_ok(),
+        Err(_) => false,
+    }
+}
+
+unsafe fn install_text_entry(
+    frame: *mut c_void,
+    map: *mut c_void,
+    key: *mut c_void,
+    out: *mut c_void,
+) {
+    assert_eq!(map_init(map), 0);
+    assert_eq!(allocate(frame, 1, 10, map), 0);
+    prepare(frame, key, b"name");
+    assert_eq!(outcome_init(out), 0);
+    assert_eq!(
+        install_text(frame, 1, 11, map, key, b"main".as_ptr(), 4, out),
+        0
+    );
+    assert_eq!(outcome_end(frame, 12, out), 0);
+    assert_eq!(outcome_dispose(out), 0);
+    assert_eq!(key_dispose(key), 0);
+}
+
+#[test]
+fn borrowed_array_install_keeps_duplicate_map_local_roots_caller_owned() {
+    let (mut f, mut parent, mut key, mut out, mut child, mut child2, mut child_key, mut child_out) = (
+        Slot::<FaultFrame>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<KeyStorage>::new(),
+        Slot::<OutcomeStorage>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<KeyStorage>::new(),
+        Slot::<OutcomeStorage>::new(),
+    );
+    unsafe {
+        let (f, parent, key, out, child, child2, child_key, child_out) = (
+            f.ptr(),
+            parent.ptr(),
+            key.ptr(),
+            out.ptr(),
+            child.ptr(),
+            child2.ptr(),
+            child_key.ptr(),
+            child_out.ptr(),
+        );
+        assert_eq!(super::super::frame_init(f), 0);
+        install_text_entry(f, child, child_key, child_out);
+        install_text_entry(f, child2, child_key, child_out);
+        assert_eq!(map_init(parent), 0);
+        assert_eq!(allocate(f, 1, 20, parent), 0);
+        prepare(f, key, b"functions");
+        assert_eq!(outcome_init(out), 0);
+        let elements = [child, child];
+        assert_eq!(
+            install_borrowed_array(
+                f,
+                1,
+                21,
+                parent,
+                key,
+                elements.as_ptr(),
+                elements.len(),
+                out,
+            ),
+            0
+        );
+        assert_eq!(outcome_end(f, 22, out), 0);
+        assert_eq!(outcome_dispose(out), 0);
+        assert_eq!(key_dispose(key), 0);
+        assert!(live_map(parent));
+        assert_eq!(map_end(f, 23, parent), 0);
+        assert!(live_map(child));
+        assert!(live_map(child2));
+        assert_eq!(map_dispose(parent), 0);
+        assert_eq!(map_end(f, 24, child), 0);
+        assert_eq!(map_end(f, 25, child2), 0);
+        assert_eq!(map_dispose(child), 0);
+        assert_eq!(map_dispose(child2), 0);
+        assert_eq!(super::super::frame_dispose(f), 0);
+    }
+}
+
+#[test]
+fn borrowed_array_install_rejects_foreign_element_without_consuming_child() {
+    let (mut f, mut parent, mut key, mut out, mut child, mut child_key, mut child_out) = (
+        Slot::<FaultFrame>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<KeyStorage>::new(),
+        Slot::<OutcomeStorage>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<KeyStorage>::new(),
+        Slot::<OutcomeStorage>::new(),
+    );
+    unsafe {
+        let (f, parent, key, out, child, child_key, child_out) = (
+            f.ptr(),
+            parent.ptr(),
+            key.ptr(),
+            out.ptr(),
+            child.ptr(),
+            child_key.ptr(),
+            child_out.ptr(),
+        );
+        assert_eq!(super::super::frame_init(f), 0);
+        install_text_entry(f, child, child_key, child_out);
+        assert_eq!(map_init(parent), 0);
+        assert_eq!(allocate(f, 1, 30, parent), 0);
+        prepare(f, key, b"functions");
+        assert_eq!(outcome_init(out), 0);
+        let elements = [child, std::ptr::null_mut()];
+        assert_eq!(
+            install_borrowed_array(
+                f,
+                1,
+                31,
+                parent,
+                key,
+                elements.as_ptr(),
+                elements.len(),
+                out,
+            ),
+            1
+        );
+        assert_eq!(outcome_dispose(out), 0);
+        assert_eq!(key_dispose(key), 0);
+        assert!(live_map(child));
+        assert_eq!(map_end(f, 32, parent), 0);
+        assert_eq!(map_dispose(parent), 0);
+        assert_eq!(map_end(f, 33, child), 0);
+        assert_eq!(map_dispose(child), 0);
+        assert_eq!(super::super::frame_dispose(f), 0);
+    }
+}
 #[test]
 fn opaque_install_end_and_disposal_use_real_indexed_objects() {
     let (mut f, mut m, mut k, mut o) = (

@@ -411,6 +411,12 @@ fn encode_invoke(
                 Map::InstallEmptyArray { map, key } => json!({
                     "kind": "map_install_empty_array", "map": value(map), "key": value(key),
                 }),
+                Map::InstallBorrowedArray { map, key, elements } => json!({
+                    "kind": "map_install_borrowed_array",
+                    "map": value(map),
+                    "key": value(key),
+                    "elements": elements.iter().map(value).collect::<Vec<_>>(),
+                }),
                 Map::EndOutcome { outcome } => {
                     json!({"kind": "map_end_outcome", "outcome": value(outcome)})
                 }

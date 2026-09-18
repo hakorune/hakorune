@@ -578,6 +578,7 @@ fn full_capability() -> MapLifecycleConsumerCapabilityV1 {
         Op::EntryStore(StoreClass::Transferred),
         Op::EntryStore(StoreClass::Text),
         Op::EntryStore(StoreClass::EmptyArray),
+        Op::EntryStore(StoreClass::BorrowedArray),
         Op::EntryDisplace,
         Op::OwnershipTransfer,
         Op::OwnershipShare(BorrowKind::Handle),
@@ -590,6 +591,50 @@ fn full_capability() -> MapLifecycleConsumerCapabilityV1 {
         Op::NormalCleanup,
         Op::FaultCleanup,
     ])
+}
+
+#[test]
+fn borrowed_array_argument_co_seals_map_local_roots() {
+    let package = issue(
+        r#"
+        static box Helpers {
+            read_name(m: MapBox): i64 {
+                local name = m.get("functions").get(0).get("name")
+                return 30
+            }
+        }
+        static box Main {
+            main() {
+                local main = %{"name" => "main"}
+                return read_name(%{"functions" => [main]})
+            }
+        }
+        "#,
+    )
+    .expect("MapLocal borrowed-array argument package");
+    let obligations = package
+        .describe_map_lifecycle_obligations()
+        .expect("obligations describe");
+    let site = obligations
+        .iter()
+        .flat_map(|owner| owner.sites())
+        .find(|site| {
+            site.operations()
+                .any(|operation| operation == Op::EntryStore(StoreClass::BorrowedArray))
+        })
+        .expect("borrowed-array entry site");
+    assert!(matches!(
+        site.destination(),
+        crate::mir::resolved_semantics::home_new_prefix::MapDestinationV1::CallArgument { .. }
+    ));
+    assert!(site
+        .operations()
+        .any(|operation| operation == Op::OwnershipShare(BorrowKind::MapLocal)));
+    assert!(site
+        .operations()
+        .any(|operation| operation == Op::ArgumentHandoff));
+    verify_map_lifecycle_undertaking(&obligations, full_capability())
+        .expect("bounded borrowed-array argument verifies");
 }
 
 #[test]
@@ -626,10 +671,7 @@ fn verify_still_rejects_a_handle_borrow_on_return_or_contained_handoffs() {
     // Only the argument edge carries a proven borrow contract. A handle
     // borrow riding `return` (ReturnBoundary or returned-local) still
     // escapes unproven, as does any contained handoff.
-    for body in [
-        "return %{\"v\" => h}",
-        "local m = %{\"v\" => h} return m",
-    ] {
+    for body in ["return %{\"v\" => h}", "local m = %{\"v\" => h} return m"] {
         let package = issue(&format!(
             "static box Work {{ stash(h) {{ {body} }} }}
              static box Main {{ main() {{ return 30 }} }}",
@@ -638,10 +680,12 @@ fn verify_still_rejects_a_handle_borrow_on_return_or_contained_handoffs() {
         let obligations = package
             .describe_map_lifecycle_obligations()
             .expect("obligations describe");
-        let error =
-            verify_map_lifecycle_undertaking(&obligations, full_capability()).unwrap_err();
+        let error = verify_map_lifecycle_undertaking(&obligations, full_capability()).unwrap_err();
         assert!(
-            matches!(error, MapLifecycleUndertakingIssueV1::BorrowedEntryEscape { .. }),
+            matches!(
+                error,
+                MapLifecycleUndertakingIssueV1::BorrowedEntryEscape { .. }
+            ),
             "{body}: {error:?}"
         );
     }

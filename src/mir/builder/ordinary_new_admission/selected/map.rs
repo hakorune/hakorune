@@ -182,6 +182,20 @@ fn emit_flow(
                 // install needs no value operand.
                 PendingInstall::EmptyArray
             }
+            MapEntryStoreClassV1::BorrowedArray => {
+                let bindings = entry
+                    .borrowed_array_bindings()
+                    .ok_or_else(|| freeze("map-borrowed-array-classification"))?;
+                let elements = bindings
+                    .iter()
+                    .map(|binding| {
+                        state
+                            .value_for_exact_binding(site.owner(), *binding)
+                            .map_err(|_| freeze("map-borrowed-array-binding"))
+                    })
+                    .collect::<Result<Box<[_]>, _>>()?;
+                PendingInstall::BorrowedArray(elements)
+            }
             MapEntryStoreClassV1::Opaque => {
                 return Err(freeze("map-value-consumer-missing"));
             }
@@ -216,6 +230,11 @@ fn emit_flow(
                 utf8,
             },
             PendingInstall::EmptyArray => Map::InstallEmptyArray { map: result, key },
+            PendingInstall::BorrowedArray(elements) => Map::InstallBorrowedArray {
+                map: result,
+                key,
+                elements,
+            },
         };
         let outcome = invoke(builder, frame, operation, precommit, &mut bindings)?
             .0
@@ -249,6 +268,7 @@ enum PendingInstall {
     Indexed(ValueId),
     Text(String),
     EmptyArray,
+    BorrowedArray(Box<[ValueId]>),
 }
 
 fn record_literal(

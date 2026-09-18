@@ -51,7 +51,7 @@ owned Array with reverse-prefix cleanup plus borrowed nested-Map Text reads
 (14/14 focused owner tests). Typed `ArrayIndexMap`/`MapGetText` MIR verifier
 and published-JSON projection are recorded (3 view tests + 1 JSON test), and the
 kernel/C ABI text-view handoff is landed with 69/69 focused kernel tests green.
-T2-alpha source Facts/co-seal for direct `m.get("functions").get(0).get("name")` are 3/3; the selected normal caller now wires a scoped physical consumer for `ArrayIndexMap -> MapGetText`, while direct no-consumer install still stops at `MapReadPhysicalConsumerMissing`. The accepted next operation is typed `InstallBorrowedArray` for all-MapLocal arrays, co-sealed with `OwnershipShare(MapLocal)` and the existing argument edge; the source-to-OBJ fixture remains blocked at the existing `EntryStore(Opaque)` boundary until this operation is implemented.
+T2-alpha source Facts/co-seal for direct `m.get("functions").get(0).get("name")` are 3/3; the selected normal caller wires a scoped physical consumer for `ArrayIndexMap -> MapGetText`. The accepted `InstallBorrowedArray` operation is now implemented for non-empty all-MapLocal arrays through source classification, MIR/verifier, published JSON, checked residence, kernel export, and C validator/emitter; it co-seals `OwnershipShare(MapLocal)` with the existing argument edge. The source-to-OBJ fixture remains the active blocker until a source-issued MapLocal array reaches this operation and its Normal/Fault acceptance is observed.
 Non-claims remain: no qualified Invoke, source/OBJ acceptance, production cutover, `to_json`, or legacy retirement.
 """
 next_design_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2"

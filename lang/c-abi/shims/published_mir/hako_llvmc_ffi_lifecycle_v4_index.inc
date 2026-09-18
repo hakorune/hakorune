@@ -74,7 +74,8 @@ static int lv4_operation_result(yyjson_val* op) {
   if (lv4_is(op, "kind", "map_new")) return LV4_MAP;
   if (lv4_is(op, "kind", "map_prepare_key")) return LV4_KEY;
   if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
-      lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array"))
+      lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array") ||
+      lv4_is(op, "kind", "map_install_borrowed_array"))
     return LV4_OUTCOME;
   if (lv4_is(op, "kind", "map_checked_get")) return LV4_I64;
   if (lv4_is(op, "kind", "map_array_index_map")) return LV4_MAP_VIEW;

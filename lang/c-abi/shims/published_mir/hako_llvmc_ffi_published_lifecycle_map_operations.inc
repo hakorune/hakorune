@@ -4,6 +4,7 @@ static int hako_physical_map_kind(const char* kind) {
   return kind && (!strcmp(kind, "map_new") || !strcmp(kind, "map_prepare_key") ||
       (!strcmp(kind, "map_install_indexed") || !strcmp(kind, "map_install_value")) ||
       !strcmp(kind, "map_install_text") || !strcmp(kind, "map_install_empty_array") ||
+      !strcmp(kind, "map_install_borrowed_array") ||
       !strcmp(kind, "map_checked_get") || !strcmp(kind, "map_array_index_map") ||
       !strcmp(kind, "map_get_text") || !strcmp(kind, "map_end_outcome") ||
       !strcmp(kind, "map_end"));
@@ -17,6 +18,7 @@ static int hako_physical_map_operation(yyjson_val* function, yyjson_val* layouts
   static const char* const value_keys[] = {"kind", "site", "map", "key", "value_kind", "value"};
   static const char* const text_keys[] = {"kind", "site", "map", "key", "utf8"};
   static const char* const empty_array_keys[] = {"kind", "site", "map", "key"};
+  static const char* const borrowed_array_keys[] = {"kind", "site", "map", "key", "elements"};
   static const char* const end_keys[] = {"kind", "site", "map"};
   static const char* const get_keys[] = {"kind", "site", "map", "utf8"};
   static const char* const array_index_keys[] = {"kind", "site", "map", "utf8", "index"};
@@ -61,6 +63,18 @@ static int hako_physical_map_operation(yyjson_val* function, yyjson_val* layouts
     return hako_physical_exact_keys(op, empty_array_keys, 4) &&
         hako_physical_u32(yyjson_obj_get(op, "key"), &value) &&
         hako_physical_value_available_at(function, value, block, index);
+  if (hako_physical_string(yyjson_obj_get(op, "kind"), "map_install_borrowed_array")) {
+    yyjson_val* elements = yyjson_obj_get(op, "elements");
+    if (!hako_physical_exact_keys(op, borrowed_array_keys, 5) ||
+        !hako_physical_u32(yyjson_obj_get(op, "key"), &value) ||
+        !hako_physical_value_available_at(function, value, block, index) ||
+        !elements || !yyjson_is_arr(elements) || !yyjson_arr_size(elements)) return 0;
+    for (size_t i = 0; i < yyjson_arr_size(elements); i++) {
+      if (!hako_physical_u32(yyjson_arr_get(elements, i), &value) ||
+          !hako_physical_value_available_at(function, value, block, index)) return 0;
+    }
+    return 1;
+  }
   return hako_physical_exact_keys(op, install_keys, 6) &&
       hako_physical_u32(yyjson_obj_get(op, "key"), &value) &&
       hako_physical_value_available_at(function, value, block, index) &&

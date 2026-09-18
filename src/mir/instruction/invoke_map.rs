@@ -59,6 +59,14 @@ pub enum MapInvokeOperation {
         map: ValueId,
         key: ValueId,
     },
+    /// Store an ordered array of already-lowered child Map values by
+    /// borrowed reference. The parent owns the array residence, while the
+    /// caller's MapLocal roots remain the sole End owners.
+    InstallBorrowedArray {
+        map: ValueId,
+        key: ValueId,
+        elements: Box<[ValueId]>,
+    },
     /// Read one checked i64 entry by a sealed UTF-8 key. The map operand is
     /// borrowed for the read only — owned locals keep their own End and
     /// borrowed formals keep caller ownership; the op never consumes either.
@@ -95,7 +103,8 @@ impl MapInvokeOperation {
             Self::InstallIndexed { .. }
             | Self::InstallValue { .. }
             | Self::InstallText { .. }
-            | Self::InstallEmptyArray { .. } => Some(InvokeNormalResultKind::MapOutcome),
+            | Self::InstallEmptyArray { .. }
+            | Self::InstallBorrowedArray { .. } => Some(InvokeNormalResultKind::MapOutcome),
             Self::CheckedGetI64 { .. } => Some(InvokeNormalResultKind::I64),
             Self::ArrayIndexMap { .. } => Some(InvokeNormalResultKind::MapView),
             Self::MapGetText { .. } => Some(InvokeNormalResultKind::TextView),
@@ -108,7 +117,8 @@ impl MapInvokeOperation {
             Self::InstallIndexed { .. }
             | Self::InstallValue { .. }
             | Self::InstallText { .. }
-            | Self::InstallEmptyArray { .. } => {
+            | Self::InstallEmptyArray { .. }
+            | Self::InstallBorrowedArray { .. } => {
                 EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control)
             }
             Self::CheckedGetI64 { .. } => EffectMask::READ.add(Effect::Control),
@@ -133,6 +143,10 @@ impl MapInvokeOperation {
             Self::InstallText { map, key, .. } | Self::InstallEmptyArray { map, key } => {
                 vec![*map, *key]
             }
+            Self::InstallBorrowedArray { map, key, elements } => std::iter::once(*map)
+                .chain(std::iter::once(*key))
+                .chain(elements.iter().copied())
+                .collect(),
             Self::CheckedGetI64 { map, .. } => vec![*map],
             Self::ArrayIndexMap { map, .. } | Self::MapGetText { map, .. } => vec![*map],
             Self::EndOutcome { outcome } => vec![*outcome],
@@ -155,6 +169,13 @@ impl MapInvokeOperation {
             Self::InstallText { map, key, .. } | Self::InstallEmptyArray { map, key } => {
                 rewrite(map);
                 rewrite(key);
+            }
+            Self::InstallBorrowedArray { map, key, elements } => {
+                rewrite(map);
+                rewrite(key);
+                for element in elements.iter_mut() {
+                    rewrite(element);
+                }
             }
             Self::CheckedGetI64 { map, .. } => rewrite(map),
             Self::ArrayIndexMap { map, .. } | Self::MapGetText { map, .. } => rewrite(map),

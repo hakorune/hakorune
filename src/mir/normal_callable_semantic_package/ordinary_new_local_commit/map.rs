@@ -369,6 +369,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Scalar
                         | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Text
                         | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::EmptyArray
+                        | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::BorrowedArray
                 ) {
                     return Err(freeze("map-value-consumer-missing"));
                 }
@@ -517,6 +518,20 @@ impl OrdinaryNewClaimLedgerV1 {
         self.local_commits.borrow().values().any(|row|
             matches!(row, LocalCommitV1::Map(map) if map.binding == Some(binding) && map.local() == Some(value)))
     }
+    fn installed_map_value_for_binding(&self, binding: BindingRefV1) -> Result<ValueId, String> {
+        let rows = self.local_commits.borrow();
+        let mut values = rows.values().filter_map(|row| match row {
+            LocalCommitV1::Map(map) if map.binding == Some(binding) => map.local(),
+            _ => None,
+        });
+        let value = values
+            .next()
+            .ok_or_else(|| freeze("map-borrowed-array-binding-missing"))?;
+        if values.next().is_some() {
+            return Err(freeze("map-borrowed-array-binding-duplicate"));
+        }
+        Ok(value)
+    }
     pub(super) fn validate_map_emission(
         &self,
         site: &OwnedExprSiteV1,
@@ -565,7 +580,8 @@ impl OrdinaryNewClaimLedgerV1 {
                             op @ (Map::InstallIndexed { .. }
                             | Map::InstallValue { .. }
                             | Map::InstallText { .. }
-                            | Map::InstallEmptyArray { .. }),
+                            | Map::InstallEmptyArray { .. }
+                            | Map::InstallBorrowedArray { .. }),
                         ),
                     ..
                 } => Some(op),
@@ -632,6 +648,22 @@ impl OrdinaryNewClaimLedgerV1 {
                     if *map == *result
                         && entry.store_class()
                             == crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::EmptyArray => {}
+                Map::InstallBorrowedArray { map, elements, .. }
+                    if *map == *result
+                        && entry.store_class()
+                            == crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::BorrowedArray =>
+                {
+                    let bindings = entry
+                        .borrowed_array_bindings()
+                        .ok_or_else(|| freeze("map-borrowed-array-classification"))?;
+                    let expected = bindings
+                        .iter()
+                        .map(|binding| self.installed_map_value_for_binding(*binding))
+                        .collect::<Result<Vec<_>, _>>()?;
+                    if elements.as_ref() != expected.as_slice() {
+                        return Err(freeze("map-borrowed-array-value-drift"));
+                    }
+                }
                 _ => return Err(freeze("map-install-source-drift")),
             }
         }

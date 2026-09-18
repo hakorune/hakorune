@@ -40,13 +40,15 @@ impl BuilderInstallConsumerV1 {
     /// handle), text entry payloads (owned inline bytes via
     /// `InstallText`), empty-array payloads (`InstallEmptyArray` — the
     /// map owns the empty-array meaning directly; no host handle is
-    /// minted), local-binding and return-boundary handoff, the
+    /// minted), borrowed MapLocal-array payloads
+    /// (`InstallBorrowedArray` — the caller retains the sole child End
+    /// roots), local-binding and return-boundary handoff, the
     /// caller-owned `%{...}` argument handoff into a borrowed Map
     /// formal (the caller keeps release responsibility — the callee
     /// borrows the storage and never ends it), and the Normal/Fault
     /// cleanup chains. Opaque entry classes (non-empty `[...]`,
-    /// `%{...}` child values), live map-local and kind-less local
-    /// borrows, borrows on escaping maps (`BorrowedEntryEscape`), and
+    /// `%{...}` child values), live map-local single-entry and kind-less
+    /// local borrows, borrows on escaping maps (`BorrowedEntryEscape`), and
     /// slot/containment handoffs stay unimplemented — obligations
     /// demanding them keep failing admission at
     /// `verify_map_lifecycle_undertaking`. This declaration is the
@@ -66,10 +68,16 @@ impl BuilderInstallConsumerV1 {
             MapLifecycleOperationV1::EntryStore(
                 crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::EmptyArray,
             ),
+            MapLifecycleOperationV1::EntryStore(
+                crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::BorrowedArray,
+            ),
             MapLifecycleOperationV1::EntryDisplace,
             MapLifecycleOperationV1::OwnershipTransfer,
             MapLifecycleOperationV1::OwnershipShare(
                 crate::mir::resolved_semantics::home_new_prefix::MapEntryBorrowKindV1::Handle,
+            ),
+            MapLifecycleOperationV1::OwnershipShare(
+                crate::mir::resolved_semantics::home_new_prefix::MapEntryBorrowKindV1::MapLocal,
             ),
             MapLifecycleOperationV1::ReturnHandoff,
             MapLifecycleOperationV1::ArgumentHandoff,

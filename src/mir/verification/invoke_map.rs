@@ -122,6 +122,13 @@ pub(super) fn check(
                     Map::InstallText { map, key, .. } | Map::InstallEmptyArray { map, key } => {
                         has_kind(map, Kind::Map) && has_kind(key, Kind::MapKey)
                     }
+                    Map::InstallBorrowedArray { map, key, elements } => {
+                        has_kind(map, Kind::Map)
+                            && has_kind(key, Kind::MapKey)
+                            && elements.iter().all(|element| {
+                                has_kind(element, Kind::Map) || is_map_param(function, element)
+                            })
+                    }
                     Map::CheckedGetI64 { map, .. } => {
                         has_kind(map, Kind::Map) || is_map_param(function, map)
                     }
@@ -144,6 +151,9 @@ pub(super) fn check(
                 let allowed = matches!(instruction,
                     MirInstruction::Invoke { operation: InvokeOperation::Map(Map::InstallIndexed { map, key, .. } | Map::InstallValue { map, key, .. } | Map::InstallText { map, key, .. } | Map::InstallEmptyArray { map, key }), .. }
                         if value == *map || value == *key)
+                    || matches!(instruction,
+                    MirInstruction::Invoke { operation: InvokeOperation::Map(Map::InstallBorrowedArray { map, key, elements }), .. }
+                        if value == *map || value == *key || elements.contains(&value))
                     || matches!(instruction,
                     MirInstruction::Invoke { operation: InvokeOperation::Map(Map::End { map }), .. } if value == *map)
                     || matches!(instruction,
@@ -198,7 +208,7 @@ pub(super) fn check(
             .get(normal_landing)
             .ok_or("map-normal-missing")?;
         let immediate = matches!(normal.terminator.as_ref(),
-            Some(MirInstruction::Invoke { operation: InvokeOperation::Map(Map::InstallIndexed { key, .. } | Map::InstallValue { key, .. } | Map::InstallText { key, .. } | Map::InstallEmptyArray { key, .. }), .. })
+            Some(MirInstruction::Invoke { operation: InvokeOperation::Map(Map::InstallIndexed { key, .. } | Map::InstallValue { key, .. } | Map::InstallText { key, .. } | Map::InstallEmptyArray { key, .. } | Map::InstallBorrowedArray { key, .. }), .. })
                 if *kind == Kind::MapKey && key == value)
             || matches!(normal.terminator.as_ref(),
             Some(MirInstruction::Invoke { operation: InvokeOperation::Map(Map::EndOutcome { outcome }), .. })
@@ -281,6 +291,17 @@ fn visit(
                     if !live.contains(map) =>
                 {
                     return Err("map-install-not-live")
+                }
+                Map::InstallBorrowedArray { map, elements, .. } => {
+                    if !live.contains(map) {
+                        return Err("map-install-not-live");
+                    }
+                    if elements
+                        .iter()
+                        .any(|element| !live.contains(element) && !is_map_param(function, element))
+                    {
+                        return Err("map-borrowed-array-element-not-live");
+                    }
                 }
                 _ => {}
             }

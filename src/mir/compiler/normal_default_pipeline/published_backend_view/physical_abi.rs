@@ -51,7 +51,8 @@ impl PublishedLifecycleCheckedOperationKindV1 {
                 MapInvokeOperation::InstallIndexed { .. }
                 | MapInvokeOperation::InstallValue { .. }
                 | MapInvokeOperation::InstallText { .. }
-                | MapInvokeOperation::InstallEmptyArray { .. } => Self::MapInstall,
+                | MapInvokeOperation::InstallEmptyArray { .. }
+                | MapInvokeOperation::InstallBorrowedArray { .. } => Self::MapInstall,
                 MapInvokeOperation::CheckedGetI64 { .. } => Self::MapCheckedGet,
                 MapInvokeOperation::ArrayIndexMap { .. } => Self::MapArrayIndex,
                 MapInvokeOperation::MapGetText { .. } => Self::MapGetText,
