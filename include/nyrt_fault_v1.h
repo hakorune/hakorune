@@ -9,6 +9,8 @@
 #define NYRT_FAULT_REASON_EXIT_CODE_OUT_OF_RANGE_V1 102u
 /* Exact FieldSet type failure; details = { expected kind, actual kind }. */
 #define NYRT_FAULT_REASON_FIELD_TYPE_MISMATCH_V1 103u
+/* Checked Map scalar read found a present non-i64 payload; details = {0,0}. */
+#define NYRT_FAULT_REASON_MAP_NON_SCALAR_READ_V1 104u
 
 /* Checked Array element tags; source enum discriminants are not this ABI. */
 #define NYRT_ARRAY_ELEMENT_I8_V1 1u
@@ -141,6 +143,11 @@ uint32_t nyrt_map_checked_install_indexed_v1(void *, uint32_t, uint64_t, void *,
 #define NYRT_MAP_VALUE_I64 1u
 #define NYRT_MAP_VALUE_BOOL 2u
 uint32_t nyrt_map_checked_install_value_v1(void *, uint32_t, uint64_t, void *, void *, uint32_t, int64_t, void *) __asm__("nyash.map.checked_install_value_v1");
+/* Checked Map scalar read: Normal writes the i64 to out; Missing writes 0.
+ * A present non-i64 payload records Fault 104 and leaves out unchanged.
+ * The key is validated UTF-8 caller input — no key storage is consumed.
+ * The read never ends, moves, or borrows the map lease. */
+uint32_t nyrt_map_checked_get_i64_v1(void *, uint64_t, void *, const uint8_t *, size_t, int64_t *) __asm__("nyash.map.checked_get_i64_v1");
 uint32_t nyrt_map_outcome_end_v1(void *, uint64_t, void *) __asm__("nyash.map.outcome_end_v1");
 uint32_t nyrt_map_outcome_dispose_v1(void *) __asm__("nyash.map.outcome_dispose_v1");
 uint32_t nyrt_map_checked_end_v1(void *, uint64_t, void *) __asm__("nyash.map.checked_end_v1");

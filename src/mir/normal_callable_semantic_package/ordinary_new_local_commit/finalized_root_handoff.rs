@@ -67,6 +67,13 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("artifact-root-opaque-call-owner-drift"));
                     }
                 }
+                TerminalRelationV1::MapGet(relation) => {
+                    if relation.owner() != owner
+                        || !self.terminal_map_get_return_emitted(owner)
+                    {
+                        return Err(freeze("artifact-root-map-get-unavailable"));
+                    }
+                }
             }
         }
         let call_payload = if matches!(

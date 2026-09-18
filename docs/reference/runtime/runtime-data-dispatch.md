@@ -381,6 +381,7 @@ checks for roles, identities, SSA, transfer, cleanup or temporary consumption.
 | checked indexed install | validate frame/Map/profile/Ready key/Unissued outcome and nonoverlap before consumption; move key, prepare indexed residence and install |
 | checked value install | validate kind and Bool bits before key consumption, then the same install state machine; I64/Bool occupy inline payloads, never indexed identities |
 | checked text install | validate UTF-8 bytes and pointer separation before key consumption, then the same install state machine; Text occupies an owned inline payload, never an interned or shared handle |
+| checked scalar i64 get | validate frame/site/Live map/UTF-8 key bytes and pointer separation; Normal writes the i64 to `out` (Missing writes `0`); a present non-i64 payload records Fault 104 without writing `out`; consumes nothing and leaves the map live |
 | detached end | move Ready payload and mark Consumed before child end; ReadyNoOld also consumes |
 | Map end | require Live; consume through Ending to Ended with first-Fault/best-effort cleanup |
 | key dispose | cancel Ready natively, or release Empty/Consumed bookkeeping |
@@ -394,7 +395,8 @@ Implemented export spellings are `nyash.map.storage_init_v1`,
 `nyash.map.checked_install_value_v1`, `nyash.map.checked_install_text_v1`,
 `nyash.map.checked_install_empty_array_v1`,
 `nyash.map.outcome_end_v1`, `nyash.map.outcome_dispose_v1`,
-`nyash.map.checked_end_v1` and `nyash.map.storage_dispose_v1`.
+`nyash.map.checked_get_i64_v1`, `nyash.map.checked_end_v1` and
+`nyash.map.storage_dispose_v1`.
 
 The value entry uses `(frame, profile:u32, site:u64, map, key, kind:u32,
 payload:i64, outcome)->u32`; pointer regions keep the same opaque contract.
@@ -420,6 +422,17 @@ marker (`CheckedMapPayload::EmptyArray`): the map owns the empty-array
 meaning directly, no host handle is minted, and map end and detached
 ends are no-ops. It shares the same install preflight, key consumption,
 and outcome publication protocol as the other install exports.
+
+The checked scalar-read entry uses `(frame, site:u64, map,
+bytes:*const u8, len:usize, out:*mut i64)->u32`. It requires a Live map and
+valid UTF-8 key bytes supplied by the caller — no key storage is prepared
+or consumed. A present `I64` payload writes the value and a missing key
+writes `0`, both Normal; a present non-i64 payload records Fault 104
+(`NYRT_FAULT_REASON_MAP_NON_SCALAR_READ_V1`) and leaves `out` unwritten.
+The read installs nothing, borrows nothing and ends nothing: entry order
+and the lease are untouched, so borrowed `MapBox` formals can read without
+owning the map. The compiler's `map_checked_get` op pre-initializes `out`
+to `-1` so a Fault read can never surface uninitialized stack.
 
 Key preparation consumes exact UTF-8 bytes, including embedded NUL. Preserve
 canonical i64 versus noncanonical numeric text through the existing MapKeyDomain

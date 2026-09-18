@@ -49,6 +49,13 @@ pub enum MapInvokeOperation {
         map: ValueId,
         key: ValueId,
     },
+    /// Read one checked i64 entry by a sealed UTF-8 key. The map operand is
+    /// borrowed for the read only — owned locals keep their own End and
+    /// borrowed formals keep caller ownership; the op never consumes either.
+    CheckedGetI64 {
+        map: ValueId,
+        utf8: String,
+    },
     EndOutcome {
         outcome: ValueId,
     },
@@ -66,6 +73,7 @@ impl MapInvokeOperation {
             | Self::InstallValue { .. }
             | Self::InstallText { .. }
             | Self::InstallEmptyArray { .. } => Some(InvokeNormalResultKind::MapOutcome),
+            Self::CheckedGetI64 { .. } => Some(InvokeNormalResultKind::I64),
             Self::EndOutcome { .. } | Self::End { .. } => None,
         }
     }
@@ -78,6 +86,7 @@ impl MapInvokeOperation {
             | Self::InstallEmptyArray { .. } => {
                 EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control)
             }
+            Self::CheckedGetI64 { .. } => EffectMask::READ.add(Effect::Control),
             Self::EndOutcome { .. } | Self::End { .. } => EffectMask::WRITE
                 .union(EffectMask::MUT)
                 .union(EffectMask::IO)
@@ -96,6 +105,7 @@ impl MapInvokeOperation {
             Self::InstallText { map, key, .. } | Self::InstallEmptyArray { map, key } => {
                 vec![*map, *key]
             }
+            Self::CheckedGetI64 { map, .. } => vec![*map],
             Self::EndOutcome { outcome } => vec![*outcome],
             Self::End { map } => vec![*map],
         }
@@ -117,6 +127,7 @@ impl MapInvokeOperation {
                 rewrite(map);
                 rewrite(key);
             }
+            Self::CheckedGetI64 { map, .. } => rewrite(map),
             Self::EndOutcome { outcome } => rewrite(outcome),
             Self::End { map } => rewrite(map),
         }

@@ -232,7 +232,8 @@ impl PinnedTextResidenceBackendCarrierV1 {
                     }
                     index += 1;
                 }
-                PhysicalCallableLaneRoleV1::OrdinaryScalar => {
+                PhysicalCallableLaneRoleV1::OrdinaryScalar
+                | PhysicalCallableLaneRoleV1::CheckedMap => {
                     if slot.logical_ordinal() != Some(expected_ordinal) {
                         return Err(PinnedTextResidenceBackendCarrierIssueV1::LaneIndexMismatch);
                     }

@@ -180,6 +180,10 @@ pub(crate) struct PublishedLifecyclePhysicalFunctionV1<'module> {
     name: &'module str,
     role: PublishedLifecyclePhysicalFunctionRoleV1,
     params: &'module [ValueId],
+    /// Positionally aligned with `params` (the signature's declared types).
+    /// Drives the wire `representation` — a `Box("MapBox")` formal rides as
+    /// borrowed checked-map storage, not an i64.
+    param_types: &'module [crate::mir::MirType],
     entry: BasicBlockId,
     blocks: Box<[PublishedLifecyclePhysicalBlockV1<'module>]>,
 }
@@ -195,6 +199,10 @@ impl<'module> PublishedLifecyclePhysicalFunctionV1<'module> {
 
     pub(crate) fn params(&self) -> &'module [ValueId] {
         self.params
+    }
+
+    pub(crate) fn param_types(&self) -> &'module [crate::mir::MirType] {
+        self.param_types
     }
 
     pub(crate) const fn entry(&self) -> BasicBlockId {
@@ -582,6 +590,7 @@ fn issue_function_with_module<'module>(
         name: function.signature.name.as_str(),
         role,
         params: &function.params,
+        param_types: &function.signature.params,
         entry: function.entry_block,
         blocks: blocks.into_boxed_slice(),
     })

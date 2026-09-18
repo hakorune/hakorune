@@ -68,9 +68,28 @@ impl ResolvedCallableRefV1 {
     }
 }
 
+/// One exact-profile formal parameter ABI kind. `Map` is the checked-map
+/// argument contract's wire kind (a borrowed map-storage pointer); it is
+/// not a scalar ABI and never projects to `MirType::Integer`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ExactCallableParamAbiV1 {
+    I64,
+    Map,
+}
+
+impl ExactCallableParamAbiV1 {
+    fn classify(source_type_name: &str) -> Option<Self> {
+        match source_type_name {
+            "i64" => Some(Self::I64),
+            "MapBox" => Some(Self::Map),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ExactTrivialCallableSignatureV1 {
-    params: Box<[ExactTrivialScalarAbiV1]>,
+    params: Box<[ExactCallableParamAbiV1]>,
     /// Source-recorded result annotation only: `:i64` seals as `Some(I64)`
     /// and an unannotated header seals as `None` — the map-result
     /// candidate profile. This field never decides the runtime result
@@ -79,14 +98,14 @@ pub(crate) struct ExactTrivialCallableSignatureV1 {
 }
 
 impl ExactTrivialCallableSignatureV1 {
-    fn from_validated(arity: usize, result: Option<ExactTrivialScalarAbiV1>) -> Self {
-        Self {
-            params: vec![ExactTrivialScalarAbiV1::I64; arity].into_boxed_slice(),
-            result,
-        }
+    fn from_validated(
+        params: Box<[ExactCallableParamAbiV1]>,
+        result: Option<ExactTrivialScalarAbiV1>,
+    ) -> Self {
+        Self { params, result }
     }
 
-    pub(crate) fn params(&self) -> &[ExactTrivialScalarAbiV1] {
+    pub(crate) fn params(&self) -> &[ExactCallableParamAbiV1] {
         &self.params
     }
 
@@ -118,8 +137,8 @@ impl VerifiedOwnerFreeCallableHeaderV1 {
     pub(super) fn seal(
         view: CallableHeaderSyntaxViewV1<'_>,
     ) -> Result<Self, CallableIndexSealErrorV1> {
-        let result = validate_exact_i64_header(view, true)?;
-        Self::from_validated_view(view, result)
+        let (params, result) = validate_exact_i64_header(view, true)?;
+        Self::from_validated_view(view, params, result)
     }
 
     /// Seal a top-level source function for the App Main free-call index.
@@ -130,23 +149,27 @@ impl VerifiedOwnerFreeCallableHeaderV1 {
     pub(super) fn seal_top_level(
         view: CallableHeaderSyntaxViewV1<'_>,
     ) -> Result<Self, CallableIndexSealErrorV1> {
-        let result = validate_exact_i64_header(view, false)?;
-        Self::from_validated_view(view, result)
+        let (params, result) = validate_exact_i64_header(view, false)?;
+        Self::from_validated_view(view, params, result)
     }
 
     fn from_validated_view(
         view: CallableHeaderSyntaxViewV1<'_>,
+        params: Box<[ExactCallableParamAbiV1]>,
         result: Option<ExactTrivialScalarAbiV1>,
     ) -> Result<Self, CallableIndexSealErrorV1> {
         let arity = u32::try_from(view.params().len())
             .map_err(|_| CallableIndexSealErrorV1::ArityOverflow)?;
+        if arity as usize != params.len() {
+            return Err(CallableIndexSealErrorV1::ParameterDeclarationCardinality);
+        }
         let source_key = CanonicalCallableKeyV1::free_static(view.name(), arity);
         Ok(Self {
             symbol: CanonicalCallableSymbolV1::from_name_arity(
                 source_key.name(),
                 source_key.arity() as usize,
             ),
-            signature: ExactTrivialCallableSignatureV1::from_validated(view.params().len(), result),
+            signature: ExactTrivialCallableSignatureV1::from_validated(params, result),
             source_key,
         })
     }
@@ -343,15 +366,23 @@ impl CallableIndexDraftV1 {
     }
 }
 
-/// Validate one exact-profile header and return the sealed result
-/// annotation. The zero-parameter rejection is kept only for the annotated
-/// `:i64` lane: an unannotated header is the map-result candidate profile,
-/// whose result class the callee's sealed terminal relation must prove
-/// before any call site may use it.
+/// Validate one exact-profile header and return the sealed per-slot
+/// parameter ABI kinds plus the result annotation. The zero-parameter
+/// rejection is kept only for the annotated `:i64` lane: an unannotated
+/// header is the map-result candidate profile, whose result class the
+/// callee's sealed terminal relation must prove before any call site may
+/// use it. A `: MapBox` declared formal seals as the `Map` param kind —
+/// the checked-map argument contract's borrowed storage wire.
 fn validate_exact_i64_header(
     view: CallableHeaderSyntaxViewV1<'_>,
     require_static: bool,
-) -> Result<Option<ExactTrivialScalarAbiV1>, CallableIndexSealErrorV1> {
+) -> Result<
+    (
+        Box<[ExactCallableParamAbiV1]>,
+        Option<ExactTrivialScalarAbiV1>,
+    ),
+    CallableIndexSealErrorV1,
+> {
     if require_static && !view.is_static() {
         return Err(CallableIndexSealErrorV1::StaticRequired);
     }
@@ -373,18 +404,17 @@ fn validate_exact_i64_header(
     if view.params().len() != view.param_decls().len() {
         return Err(CallableIndexSealErrorV1::ParameterDeclarationCardinality);
     }
+    let mut params = Vec::with_capacity(view.params().len());
     for (index, (name, declaration)) in view.params().iter().zip(view.param_decls()).enumerate() {
         if declaration.name != *name {
             return Err(CallableIndexSealErrorV1::ParameterNameMismatch { index });
         }
-        if declaration
+        let kind = declaration
             .declared_type_name
             .as_deref()
-            .and_then(ExactTrivialScalarAbiV1::classify)
-            != Some(ExactTrivialScalarAbiV1::I64)
-        {
-            return Err(CallableIndexSealErrorV1::ParameterTypeOutsideProfile { index });
-        }
+            .and_then(ExactCallableParamAbiV1::classify)
+            .ok_or(CallableIndexSealErrorV1::ParameterTypeOutsideProfile { index })?;
+        params.push(kind);
     }
     let result = match view.return_type_name() {
         Some(name) => Some(
@@ -394,7 +424,7 @@ fn validate_exact_i64_header(
         None => None,
     };
 
-    Ok(result)
+    Ok((params.into_boxed_slice(), result))
 }
 
 #[cfg(test)]

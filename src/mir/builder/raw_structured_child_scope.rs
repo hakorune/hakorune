@@ -368,6 +368,13 @@ where
         self.child.emit_terminal_i64_field_return(builder)
     }
 
+    fn emit_terminal_map_get_return(
+        &mut self,
+        builder: &mut MirBuilder,
+    ) -> Result<Option<ValueId>, String> {
+        self.child.emit_terminal_map_get_return(builder)
+    }
+
     fn emit_terminal_integer_literal_return(
         &mut self,
         builder: &mut MirBuilder,

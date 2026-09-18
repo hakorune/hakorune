@@ -25,6 +25,7 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
   int text = lv4_is(op, "kind", "map_install_text");
   int empty = lv4_is(op, "kind", "map_install_empty_array");
   int install = scalar || text || empty || lv4_is(op, "kind", "map_install_indexed");
+  int get = lv4_is(op, "kind", "map_checked_get");
   int end_map = lv4_is(op, "kind", "map_end");
   if (make_map || make_key || install) {
     const char* storage = make_map ? "map" : make_key ? "key" : "outcome";
@@ -32,7 +33,12 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
         storage, b, b, 0);
   }
   fprintf(f, "  %%status%u = call i32 ", b);
-  if (make_map) {
+  if (get) {
+    size_t len = yyjson_get_len(yyjson_obj_get(op, "utf8"));
+    /* Inline sealed key; kernel writes the i64 only on Normal. */
+    fprintf(f, "@\"nyash.map.checked_get_i64_v1\"(ptr %%frame, i64 %llu, ptr %%v%u, ptr @map_get_%zu_%u, i64 %zu, ptr %%get_out%u)\n",
+        site, lv4_u(op, "map"), fi, b, len, b);
+  } else if (make_map) {
     fprintf(f, "@\"nyash.map.checked_new_v1\"(ptr %%frame, i32 %u, i64 %llu, ptr %%map%u)\n",
         in->profile, site, b);
   } else if (make_key) {
@@ -61,6 +67,11 @@ static void lv4_map_emit_operation(FILE* f, const hako_lv4_input* in,
   fprintf(f, "  %%map_status_ok%u = icmp ult i32 %%status%u, 2\n"
       "  br i1 %%map_status_ok%u, label %%map_returned%u, label %%map_invalid\nmap_returned%u:\n",
       b, b, b, b, b);
+  if (get) {
+    /* No storage was initialized or consumed: dispatch on status only. */
+    lv4_map_dispatch(f, b, normal, fault);
+    return;
+  }
   if (!make_map && !make_key && !install) {
     lv4_map_bookkeeping(f, end_map ? "storage_dispose" : "outcome_dispose", "v",
         lv4_u(op, end_map ? "map" : "outcome"), b, 1);
@@ -88,6 +99,12 @@ static void lv4_map_alloca(FILE* f, yyjson_val* op, uint32_t b,
   else if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
       lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array")) { name = "outcome"; size = abi->outcome_size; align = abi->outcome_align; }
   if (name) fprintf(f, "  %%%s%u = alloca [%u x i8], align %u\n", name, b, size, align);
+  if (lv4_is(op, "kind", "map_checked_get")) {
+    /* The kernel writes the slot only on Normal; a Fault read leaves the
+     * sentinel so a stray consumer observes -1, never uninitialized stack. */
+    fprintf(f, "  %%get_out%u = alloca i64, align 8\n", b);
+    fprintf(f, "  store i64 -1, ptr %%get_out%u, align 8\n", b);
+  }
 }
 
 static void lv4_map_declarations(FILE* f, const hako_lv4_input* in) {
@@ -104,6 +121,7 @@ static void lv4_map_declarations(FILE* f, const hako_lv4_input* in) {
       "declare i32 @\"nyash.map.checked_install_empty_array_v1\"(ptr, i32, i64, ptr, ptr, ptr)\n"
       "declare i32 @\"nyash.map.outcome_end_v1\"(ptr, i64, ptr)\n"
       "declare i32 @\"nyash.map.checked_end_v1\"(ptr, i64, ptr)\n"
+      "declare i32 @\"nyash.map.checked_get_i64_v1\"(ptr, i64, ptr, ptr, i64, ptr)\n"
       "declare i32 @\"nyash.map.storage_dispose_v1\"(ptr)\n"
       "declare i32 @\"nyash.map.storage_move_v1\"(ptr, ptr)\n"
       "declare i32 @\"nyash.map.key_dispose_v1\"(ptr)\n"
@@ -114,12 +132,13 @@ static void lv4_map_declarations(FILE* f, const hako_lv4_input* in) {
       yyjson_val* op = yyjson_obj_get(lv4_term(fn->blocks[bi].block), "operation");
       int key = lv4_is(op, "kind", "map_prepare_key");
       int text_install = lv4_is(op, "kind", "map_install_text");
-      if (!key && !text_install) continue;
+      int get = lv4_is(op, "kind", "map_checked_get");
+      if (!key && !text_install && !get) continue;
       yyjson_val* text = yyjson_obj_get(op, "utf8");
       const unsigned char* bytes = (const unsigned char*)yyjson_get_str(text);
       size_t len = yyjson_get_len(text);
       fprintf(f, "@%s_%zu_%u = private constant [%zu x i8] c\"",
-          key ? "map_key" : "map_text", fi, fn->blocks[bi].id, len);
+          key ? "map_key" : get ? "map_get" : "map_text", fi, fn->blocks[bi].id, len);
       for (size_t i = 0; i < len; i++) fprintf(f, "\\%02X", bytes[i]);
       fprintf(f, "\", align 1\n");
     }

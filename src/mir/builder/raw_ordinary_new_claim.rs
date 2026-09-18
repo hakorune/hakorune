@@ -40,6 +40,13 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
         Ok(None)
     }
 
+    fn emit_terminal_map_get_return(
+        &mut self,
+        _builder: &mut crate::mir::MirBuilder,
+    ) -> Result<Option<crate::mir::ValueId>, String> {
+        Ok(None)
+    }
+
     fn emit_root_home_exit(
         &mut self,
         _builder: &mut crate::mir::MirBuilder,
@@ -338,6 +345,54 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         };
         crate::mir::builder::ordinary_new_admission::selected::emit_terminal_i64_field_return(
             builder, ledger, prepared,
+        )
+        .map(Some)
+    }
+
+    fn emit_terminal_map_get_return(
+        &mut self,
+        builder: &mut crate::mir::MirBuilder,
+    ) -> Result<Option<crate::mir::ValueId>, String> {
+        let Some(ledger) = &self.ordinary_new_claim_ledger else {
+            return Ok(None);
+        };
+        let owner = self
+            .callable_owner_v1()
+            .ok_or("[ordinary-map-get-return/owner-missing]")?;
+        let site = self
+            .current_source_site_v1()
+            .ok_or("[ordinary-map-get-return/site-missing]")?;
+        let state = self
+            .callable_ledger
+            .as_ref()
+            .ok_or("[ordinary-map-get-return/state-missing]")?;
+        let Some(prepared) =
+            ledger.prepare_terminal_map_get_return(owner, &site, |binding, source_site| {
+                let value = state.borrow_mut().read_variable(source_site)?;
+                let expected = state
+                    .borrow()
+                    .value_for_exact_binding(owner, binding)
+                    .map_err(|error| {
+                        format!(
+                            "[freeze:contract][ordinary-map-get-return/receiver-binding] {error:?}"
+                        )
+                    })?;
+                if value != expected {
+                    return Err(
+                        "[freeze:contract][ordinary-map-get-return/receiver-binding-drift]".into(),
+                    );
+                }
+                Ok(value)
+            })?
+        else {
+            return Ok(None);
+        };
+        crate::mir::builder::ordinary_new_admission::selected::emit_terminal_map_get_return(
+            builder,
+            &mut state.borrow_mut(),
+            ledger,
+            owner,
+            prepared,
         )
         .map(Some)
     }

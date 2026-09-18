@@ -3,8 +3,9 @@
 //! authority is issued here.
 use super::local_flow::{OrdinaryObservation, PrefixLocalFlow};
 use super::{
-    BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLexicalRefV1,
-    ResolvedLiteralSourceV1, SourceExprSiteV1, SourceStmtSiteV1,
+    BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, OwnedExprSiteV1,
+    ResolvedLexicalRefV1, ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1,
+    SourceExprSiteV1, SourceStmtSiteV1,
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -429,6 +430,127 @@ impl TerminalOpaqueCallReturnV1 {
     }
 }
 
+/// How the receiver of a terminal `<map>.get("...")` holds the map.
+/// `OwnedLocal` reads a map the function still owes its own End for;
+/// `BorrowedParameter` reads caller-owned storage under the checked-map
+/// argument contract — it never gains or loses release responsibility.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum TerminalMapGetReceiverClassV1 {
+    OwnedLocal,
+    BorrowedParameter,
+}
+
+/// Exact source relation for `return <map-binding>.get("<literal>")` — the
+/// bounded readable-Map terminal. The row records owner, sites, receiver
+/// binding/class and the sealed literal key only; it owns no physical
+/// value, kernel symbol, ABI, recipe, JSON, or backend authority.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct TerminalMapGetReturnV1 {
+    owner: FunctionOwnerIdV1,
+    return_site: SourceStmtSiteV1,
+    call_site: OwnedExprSiteV1,
+    receiver_site: SourceExprSiteV1,
+    receiver: BindingRefV1,
+    receiver_class: TerminalMapGetReceiverClassV1,
+    key: Box<str>,
+}
+
+impl TerminalMapGetReturnV1 {
+    pub(super) fn issue(
+        owner: FunctionOwnerIdV1,
+        return_site: SourceStmtSiteV1,
+        call_site: OwnedExprSiteV1,
+        receiver_site: SourceExprSiteV1,
+        receiver: BindingRefV1,
+        receiver_class: TerminalMapGetReceiverClassV1,
+        key: Box<str>,
+    ) -> Self {
+        Self {
+            owner,
+            return_site,
+            call_site,
+            receiver_site,
+            receiver,
+            receiver_class,
+            key,
+        }
+    }
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
+        &self.return_site
+    }
+    pub(crate) fn call_site(&self) -> &OwnedExprSiteV1 {
+        &self.call_site
+    }
+    pub(crate) fn receiver_site(&self) -> &SourceExprSiteV1 {
+        &self.receiver_site
+    }
+    pub(crate) const fn receiver(&self) -> BindingRefV1 {
+        self.receiver
+    }
+    pub(crate) const fn receiver_class(&self) -> TerminalMapGetReceiverClassV1 {
+        self.receiver_class
+    }
+    pub(crate) fn key(&self) -> &str {
+        &self.key
+    }
+}
+
+/// Classify `return <receiver>.get("<literal>")` on a live map binding.
+/// The sealed method-call row is the receiver/selector/argument authority;
+/// the running local flow decides owned vs borrowed — nothing here
+/// reclassifies either side. Non-get selectors, non-literal keys, and
+/// non-map receivers stay uncovered and fail at the caller's boundary.
+pub(super) fn terminal_map_get(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    return_site: &SourceStmtSiteV1,
+    site: &SourceExprSiteV1,
+    locals: &PrefixLocalFlow<'_>,
+) -> Option<TerminalMapGetReturnV1> {
+    let row = input
+        .function()
+        .method_calls()
+        .find(|(call_site, _)| **call_site == *site)
+        .map(|(_, row)| row)?;
+    if row.owner() != input.owner() || row.selector() != "get" || row.arity() != 1 {
+        return None;
+    }
+    let ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)) =
+        row.receiver()
+    else {
+        return None;
+    };
+    let receiver_class = if locals.is_map_local(binding) {
+        TerminalMapGetReceiverClassV1::OwnedLocal
+    } else if locals.is_borrowed_map(binding) {
+        TerminalMapGetReceiverClassV1::BorrowedParameter
+    } else {
+        return None;
+    };
+    let [argument] = row.arguments() else {
+        return None;
+    };
+    let key = match input
+        .function()
+        .expression_source()
+        .literal(argument.site())
+    {
+        Some(ResolvedLiteralSourceV1::String(text)) => text.clone(),
+        _ => return None,
+    };
+    Some(TerminalMapGetReturnV1::issue(
+        input.owner(),
+        return_site.clone(),
+        OwnedExprSiteV1::new(input.owner(), site.clone()),
+        row.receiver_site().clone(),
+        binding,
+        receiver_class,
+        key,
+    ))
+}
+
 /// A terminal Call publishes its pending value only on Normal. On Fault the
 /// original Completion supplies caller cleanup and outward propagation.
 /// Target and argument sites stay in the package's existing affine Call row.
@@ -478,6 +600,7 @@ pub(crate) enum TerminalRelationV1 {
     I64Field(TerminalI64FieldReturnV1),
     Value(TerminalValueReturnV1),
     OpaqueCall(TerminalOpaqueCallReturnV1),
+    MapGet(TerminalMapGetReturnV1),
 }
 
 impl TerminalRelationV1 {
@@ -490,6 +613,7 @@ impl TerminalRelationV1 {
             Self::I64Field(row) => row.owner,
             Self::Value(row) => row.owner,
             Self::OpaqueCall(row) => row.owner,
+            Self::MapGet(row) => row.owner,
         }
     }
 }

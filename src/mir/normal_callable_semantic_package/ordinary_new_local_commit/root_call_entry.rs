@@ -248,6 +248,32 @@ impl OrdinaryNewClaimLedgerV1 {
                 };
                 Ok(None)
             }
+            // The MapGet payload stays internal like a Plain entry: the
+            // physical instructions already live in the finished function
+            // body, so the handoff carries no separate read receipt.
+            RootHomeExitProgress::Emitted {
+                origins,
+                bindings,
+                entry:
+                    RootHomeExitEntry::MapGet {
+                        local_bindings,
+                        invoke,
+                        projection,
+                        frame,
+                    },
+            } => {
+                *progress = RootHomeExitProgress::Emitted {
+                    origins,
+                    bindings,
+                    entry: RootHomeExitEntry::MapGet {
+                        local_bindings,
+                        invoke,
+                        projection,
+                        frame,
+                    },
+                };
+                Ok(None)
+            }
             RootHomeExitProgress::Finalized => Err(freeze("root-call-already-finalized")),
             other => {
                 *progress = other;
@@ -267,9 +293,29 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some((_, terminal)) = self.call_source_completion_for_owner(owner) else {
             return match entry {
                 RootHomeExitEntry::Plain { local_bindings } => {
+                    // A source MapGet terminal owes its checked-read entry;
+                    // a Plain exit can never carry it.
+                    if self.terminal_map_get_return_for_owner(owner).is_some() {
+                        return Err(freeze("map-get-entry-missing"));
+                    }
                     self.check_local_call_binding_groups(owner, function, finishing, local_bindings)
                 }
                 RootHomeExitEntry::Call { .. } => Err(freeze("call-source-missing")),
+                RootHomeExitEntry::MapGet {
+                    local_bindings,
+                    invoke,
+                    projection,
+                    frame,
+                } => self.validate_map_get_entry(
+                    owner,
+                    function,
+                    finishing,
+                    local_bindings,
+                    invoke,
+                    projection,
+                    frame,
+                    cleanup,
+                ),
             };
         };
         let RootHomeExitEntry::Call {
@@ -401,7 +447,7 @@ impl OrdinaryNewClaimLedgerV1 {
     /// Match one owner's recorded lifecycle local-call binding groups
     /// against the finished function: the source-ordered site sequence first,
     /// then every recorded instruction at its projected block.
-    fn check_local_call_binding_groups(
+    pub(super) fn check_local_call_binding_groups(
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
@@ -470,35 +516,35 @@ impl RootHomeExitEntry {
     ) -> Option<&crate::mir::normal_callable_semantic_package::RootCallDispositionV1> {
         match self {
             Self::Call { row, .. } => Some(row),
-            Self::Plain { .. } => None,
+            Self::Plain { .. } | Self::MapGet { .. } => None,
         }
     }
 
     pub(crate) fn call_arguments(&self) -> Option<&[(BasicBlockId, MirInstruction)]> {
         match self {
             Self::Call { arguments, .. } => Some(arguments),
-            Self::Plain { .. } => None,
+            Self::Plain { .. } | Self::MapGet { .. } => None,
         }
     }
 
     pub(crate) fn call_invoke(&self) -> Option<&(BasicBlockId, MirInstruction)> {
         match self {
             Self::Call { invoke, .. } => Some(invoke),
-            Self::Plain { .. } => None,
+            Self::Plain { .. } | Self::MapGet { .. } => None,
         }
     }
 
     pub(crate) fn call_projection(&self) -> Option<&(BasicBlockId, MirInstruction)> {
         match self {
             Self::Call { projection, .. } => Some(projection),
-            Self::Plain { .. } => None,
+            Self::Plain { .. } | Self::MapGet { .. } => None,
         }
     }
 
     pub(crate) fn call_frame(&self) -> Option<&(BasicBlockId, MirInstruction)> {
         match self {
             Self::Call { frame, .. } => Some(frame),
-            Self::Plain { .. } => None,
+            Self::Plain { .. } | Self::MapGet { .. } => None,
         }
     }
 }
@@ -598,7 +644,9 @@ impl RootHomeExitEntry {
     ) {
         let local_groups = match self {
             Self::Plain { local_bindings } => local_bindings,
-            Self::Call { local_bindings, .. } => local_bindings,
+            Self::Call { local_bindings, .. } | Self::MapGet { local_bindings, .. } => {
+                local_bindings
+            }
         };
         for (_, group) in local_groups {
             bindings.extend_from_slice(group);
@@ -612,6 +660,17 @@ impl RootHomeExitEntry {
         } = self
         {
             bindings.extend_from_slice(arguments);
+            bindings.push(invoke.clone());
+            bindings.push(projection.clone());
+            bindings.push(frame.clone());
+        }
+        if let Self::MapGet {
+            invoke,
+            projection,
+            frame,
+            ..
+        } = self
+        {
             bindings.push(invoke.clone());
             bindings.push(projection.clone());
             bindings.push(frame.clone());

@@ -27,7 +27,8 @@ use crate::mir::instance_constructor_abi::{
 use crate::mir::resolved_semantics::home_new_prefix::{
     issue_new_home_prefixes_v1, CallerNewHomePrefixV1, HomePrefixUnavailableV1,
     SelectedNewArgumentUnavailableV1, TerminalI64AddReturnV1, TerminalI64FieldReturnV1,
-    TerminalIntegerLiteralReturnV1, TerminalRelationV1, TerminalUnitReturnV1,
+    TerminalIntegerLiteralReturnV1, TerminalMapGetReturnV1, TerminalRelationV1,
+    TerminalUnitReturnV1,
 };
 use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
@@ -64,6 +65,9 @@ pub(crate) use terminal_result::PreparedTerminalI64AddReturnV1;
 #[path = "ordinary_new_terminal_field_return.rs"]
 mod terminal_field_return;
 pub(crate) use terminal_field_return::PreparedTerminalI64FieldReturnV1;
+#[path = "ordinary_new_terminal_map_get_return.rs"]
+mod terminal_map_get_return;
+pub(crate) use terminal_map_get_return::PreparedTerminalMapGetReturnV1;
 #[path = "birth_abi_handoff.rs"]
 mod birth_abi_handoff;
 #[path = "ordinary_new_candidate.rs"]
@@ -589,12 +593,22 @@ pub(super) fn issue_ordinary_source_cohort_v1(
                         candidates.push(candidate);
                     }
                 }
+                // A `%{...}` literal makes the owner a map owner; a `: MapBox`
+                // declared formal does too — the borrowed-map read terminal
+                // needs the homes-aware completion that classifies it.
                 let has_map = input.body_shape().is_some_and(|shape| {
                     shape.expressions().iter().any(|row| matches!(
                         row,
                         crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral { .. }
                     ))
-                });
+                }) || parameter_contracts
+                    .iter()
+                    .filter(|row| row.batch_slot == batch_slot)
+                    .flat_map(|row| row.parameters.iter())
+                    .any(|row| {
+                        row.kind
+                            == crate::mir::callable_parameter_contract::CallableParameterContractKindV1::Map
+                    });
                 let new_sites: BTreeMap<_, _> = candidates.iter().map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
                 let child_new_ready = seed_eligible && !new_sites.is_empty()
                     && issue_new_home_prefixes_v1(input, &new_sites).values().all(Result::is_ok);

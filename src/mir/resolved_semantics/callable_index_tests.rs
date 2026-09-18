@@ -63,7 +63,7 @@ fn seals_one_exact_static_i64_header_without_new_identity() {
     assert_eq!(header.source_key().arity(), 1);
     assert_eq!(header.symbol().as_mir_name(), "countdown/1");
     assert_eq!(header.signature().arity(), 1);
-    assert_eq!(header.signature().params(), &[ExactTrivialScalarAbiV1::I64]);
+    assert_eq!(header.signature().params(), &[ExactCallableParamAbiV1::I64]);
     assert_eq!(
         header.signature().result(),
         Some(ExactTrivialScalarAbiV1::I64)

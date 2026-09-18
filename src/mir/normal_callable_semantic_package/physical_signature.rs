@@ -28,6 +28,10 @@ pub(crate) enum PhysicalCallableLaneRoleV1 {
     OrdinaryScalar,
     ExactTextSlot,
     ExactTextGeneration,
+    /// A `: MapBox` formal under the checked-map argument contract: the
+    /// physical lane carries a borrowed map-storage pointer, never an i64
+    /// handle or an owned value.
+    CheckedMap,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -292,6 +296,9 @@ pub(super) fn issue_callable_physical_signature_v1(
                                 .checked_add(1)
                                 .ok_or(CallablePhysicalSignatureIssueV1::LaneOverflow)?;
                             PhysicalCallableLaneRoleV1::ExactTextGeneration
+                        }
+                        CallableParameterContractKindV1::Map => {
+                            PhysicalCallableLaneRoleV1::CheckedMap
                         }
                         CallableParameterContractKindV1::OpaqueHandle
                         | CallableParameterContractKindV1::DeclaredHandle

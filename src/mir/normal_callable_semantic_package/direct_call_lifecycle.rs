@@ -12,7 +12,9 @@ use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::resolved_semantics::home_new_prefix::{
     LocalCallResultClassV1, TerminalRelationV1, TerminalReturnedSourceV1,
 };
-use crate::mir::resolved_semantics::{BodyExpressionShapeV1, SourceBindingSiteV1};
+use crate::mir::resolved_semantics::{
+    BodyExpressionShapeV1, ExactCallableParamAbiV1, SourceBindingSiteV1,
+};
 
 fn map_owned(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -146,7 +148,8 @@ fn exact_formals(
                                 == CallableParameterContractKindV1::ExactTrivial(
                                     ExactTrivialParameterAbiV1::I64,
                                 )
-                            && target.signature().params()[index] == ExactTrivialScalarAbiV1::I64
+                            && target.signature().params()[index]
+                                == ExactCallableParamAbiV1::I64
                             && input.function().declaration_binding(
                                 &SourceBindingSiteV1::Parameter {
                                     index: parameter.ordinal,
@@ -301,7 +304,7 @@ impl DirectCallDispositionLoanV1 {
                     || signature
                         .params()
                         .iter()
-                        .any(|kind| *kind != ExactTrivialScalarAbiV1::I64)
+                        .any(|kind| *kind != ExactCallableParamAbiV1::I64)
                     || caller.owner() != self.owner
                     || terminal_site.is_some_and(|site| caller.explicit_site() != Some(site))
                     || !caller.returns_value()

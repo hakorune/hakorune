@@ -586,7 +586,8 @@ fn issue_birth_calls(
         | FinalizedRootResultAbiV1::I64AddReturn { owner }
         | FinalizedRootResultAbiV1::UnitReturn { owner }
         | FinalizedRootResultAbiV1::IntegerLiteralReturn { owner }
-        | FinalizedRootResultAbiV1::I64FieldReturn { owner } => owner,
+        | FinalizedRootResultAbiV1::I64FieldReturn { owner }
+        | FinalizedRootResultAbiV1::MapGetReturn { owner } => owner,
     };
     let indexed = births
         .iter()
@@ -666,7 +667,8 @@ pub(super) fn root_result_category(result: FinalizedRootResultAbiV1) -> Compiled
         FinalizedRootResultAbiV1::CallReturn { .. }
         | FinalizedRootResultAbiV1::I64AddReturn { .. }
         | FinalizedRootResultAbiV1::IntegerLiteralReturn { .. }
-        | FinalizedRootResultAbiV1::I64FieldReturn { .. } => CompiledEntryRootResultV1::I64,
+        | FinalizedRootResultAbiV1::I64FieldReturn { .. }
+        | FinalizedRootResultAbiV1::MapGetReturn { .. } => CompiledEntryRootResultV1::I64,
         FinalizedRootResultAbiV1::UnitReturn { .. } => CompiledEntryRootResultV1::Unit,
     }
 }

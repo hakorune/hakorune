@@ -47,6 +47,15 @@ pub enum CheckedMapError {
     ProjectionUnavailable,
 }
 
+/// Bounded scalar-read outcome for the checked lane. `Missing` is a Normal
+/// outcome (the lane contract maps it to `0`); `NonScalar` means an entry
+/// exists but is not an `I64` payload — surfaced as a Fault by the ABI.
+pub enum CheckedMapI64Read {
+    Missing,
+    Value(i64),
+    NonScalar,
+}
+
 #[must_use = "a rejected candidate still belongs to its prior owner"]
 pub struct MapInstallFailure {
     pub error: CheckedMapError,
@@ -223,6 +232,27 @@ impl CheckedMap {
         } else {
             Ok(None)
         }
+    }
+
+    /// Bounded scalar read for the checked lane. Read-only: the lease and
+    /// entry order are untouched, so borrowed callers can read without
+    /// owning the map. `Missing` and `NonScalar` are distinct outcomes —
+    /// the ABI maps them to `0`-Normal and Fault respectively.
+    pub fn read_i64(&self, key: &MapKeyDomain) -> Result<CheckedMapI64Read, CheckedMapError> {
+        let state = self
+            .state
+            .lock()
+            .map_err(|_| CheckedMapError::StorageUnavailable)?;
+        if state.phase != Phase::Live {
+            return Err(CheckedMapError::InvalidState);
+        }
+        Ok(match state.entries.get(key) {
+            None => CheckedMapI64Read::Missing,
+            Some(entry) => match &entry.payload {
+                CheckedMapPayload::I64(value) => CheckedMapI64Read::Value(*value),
+                _ => CheckedMapI64Read::NonScalar,
+            },
+        })
     }
 
     /// Both returned outcomes consume the end attempt. No storage lock spans end.

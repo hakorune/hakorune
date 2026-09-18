@@ -127,6 +127,15 @@ pub(in crate::mir::builder::resolved_lowering) fn validate_descriptor_sequence(
                 }
                 previous_text = None;
             }
+            PhysicalCallableLaneRoleV1::CheckedMap => {
+                if descriptor.logical_ordinal().is_none()
+                    || descriptor.carrier() != PhysicalCallableLaneCarrierV1::CheckedMapStorage
+                    || !seen_bindings.insert(descriptor.binding())
+                {
+                    return Err("physical entry checked-map binding drift".to_owned());
+                }
+                previous_text = None;
+            }
             PhysicalCallableLaneRoleV1::ExactTextSlot => {
                 let ordinal = descriptor
                     .logical_ordinal()

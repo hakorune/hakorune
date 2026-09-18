@@ -109,8 +109,8 @@ pub(crate) use callable_header_source_unit::{
 pub(crate) use callable_header_view::{CallableFunctionSyntaxViewV1, CallableHeaderSyntaxViewV1};
 pub(crate) use callable_index::{
     CallableIndexSealErrorV1, CallableLookupErrorV1, CallableNamespaceV1, CanonicalCallableKeyV1,
-    ExactTrivialCallableSignatureV1, ResolvedCallableRefV1, VerifiedCallableHeaderV1,
-    VerifiedCallableIndexV1, VerifiedOwnerFreeCallableHeaderV1,
+    ExactCallableParamAbiV1, ExactTrivialCallableSignatureV1, ResolvedCallableRefV1,
+    VerifiedCallableHeaderV1, VerifiedCallableIndexV1, VerifiedOwnerFreeCallableHeaderV1,
 };
 pub(crate) use callable_module_header_view::{
     CallableModuleHeaderSyntaxErrorV1, CallableModuleHeaderSyntaxViewV1,

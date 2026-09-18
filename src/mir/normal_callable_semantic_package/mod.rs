@@ -101,7 +101,7 @@ pub(crate) use ordinary_new_coseal::{
     FinalizedRootSourceHandoffV1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,
     OrdinaryNewConstructorDispositionV1, OrdinaryNewTrivialArgumentKindV1,
     OrdinaryNewTrivialArgumentV1, PreparedTerminalI64AddReturnV1, PreparedTerminalI64FieldReturnV1,
-    RootCallDispositionV1, RootInstanceCallDispositionRowV1,
+    PreparedTerminalMapGetReturnV1, RootCallDispositionV1, RootInstanceCallDispositionRowV1,
 };
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{
@@ -119,6 +119,8 @@ mod map_entry_value_flow_tests;
 mod map_home_flow_tests;
 #[cfg(test)]
 mod map_value_completion_tests;
+#[cfg(test)]
+mod map_get_terminal_tests;
 #[cfg(test)]
 mod terminal_value_return_tests;
 

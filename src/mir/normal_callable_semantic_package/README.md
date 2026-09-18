@@ -426,6 +426,17 @@ the i64 call-admission seam. `new MapBox()` construction sites share this
 operation vocabulary through OrdinaryNew claim evidence, not `MapHomeFlow`
 rows — that describe arm is a separate bounded row.
 
+The bounded readable-Map argument lane admits a `: MapBox` formal as a
+borrowed read-only contract (`CallableParameterContractKindV1::Map`,
+`StoredLocal::BorrowedMap`): the callee reads caller-owned storage, owns
+nothing and never gains or loses an End obligation. Its only terminal is
+`return <binding>.get("<literal>")` — `TerminalMapGetReturnV1` records
+owner, sites, receiver binding/class (`OwnedLocal` | `BorrowedParameter`)
+and the sealed literal key; non-get selectors, non-literal keys and
+`return <borrowed>` stay uncovered and fail closed. The receiver class is
+decided by the running local flow alone — a borrowed formal can never ride
+the owned map-local return lane.
+
 The AST-free take-once definition payload uses existing field declarations.
 After installed-context validation, the port moves it to the normal collector
 before bodies. Duplicate transfer rejects. Package completion and source-backed
@@ -585,6 +596,7 @@ ValueId, name lookup, or final-MIR reclassification can satisfy this check.
 | Explicit bare Return / Unit | Completion-backed Unit relation; only selected root-home emitter consumes it and emits Return(None) after cleanup. The void statement result is not a return payload. `return void` spells the same explicit-unit terminal. |
 | Integer literal | Retains its own exact terminal/result relation, separate from Add, field and Unit. |
 | TerminalValueReturnV1 | Non-i64 `return <value>`: records the exact returned source — MapLiteral site, map-local/Home/handle binding root, or String/Null/Float literal. A returned map-local/Home binding leaves the caller-facing terminal cleanup; the lifecycle contract owns the transfer decision. No physical result ABI is derived here, so a root `Value` terminal still stops at `root-result-missing`. |
+| TerminalMapGetReturnV1 | Readable-Map `return <map>.get("<literal>")`: exact Return/call/receiver sites, receiver binding/class and sealed literal key. The read does not consume the receiver — an owned local still owes its End and a borrowed `MapBox` formal keeps caller ownership. Lowers to `MapInvokeOperation::CheckedGetI64` (map pointer, UTF-8 key, fault frame, out slot) with the i64 projected through `InvokeNormalResult`; finalizes as `FinalizedRootResultAbiV1::MapGetReturn`. |
 
 These relations carry no MIR IDs, ABI, JSON, Recipe key or raw-dispatch authority.
 Progress is physical ledger state; missing/duplicate/drifted results reject and

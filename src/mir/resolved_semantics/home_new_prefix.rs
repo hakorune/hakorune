@@ -78,11 +78,14 @@ pub(crate) use map_flow::{
     ArrayElementSource, MapDestinationV1, MapEntryBorrowKindV1, MapEntryStoreClassV1, MapHomeEntry,
     MapHomeFlow, MapHomeObservation, MapValueSource, RootHomeFlow,
 };
-use terminal_relation::{map_literal_keys, return_scalar, terminal_returned_source, ReturnScalar};
+use terminal_relation::{
+    map_literal_keys, return_scalar, terminal_map_get, terminal_returned_source, ReturnScalar,
+};
 pub(crate) use terminal_relation::{
     TerminalI64AddReturnV1, TerminalI64CallReturnV1, TerminalI64FieldReturnV1,
-    TerminalIntegerLiteralReturnV1, TerminalOpaqueCallReturnV1, TerminalRelationV1,
-    TerminalReturnedSourceV1, TerminalUnitReturnV1, TerminalValueReturnV1,
+    TerminalIntegerLiteralReturnV1, TerminalMapGetReceiverClassV1, TerminalMapGetReturnV1,
+    TerminalOpaqueCallReturnV1, TerminalRelationV1, TerminalReturnedSourceV1,
+    TerminalUnitReturnV1, TerminalValueReturnV1,
 };
 
 pub(crate) fn issue_new_home_prefixes_v1(
@@ -399,6 +402,21 @@ pub(crate) fn scan_new_home_flow<E>(
                                     }
                                     Some(_) => true,
                                     None => {
+                                        // `return <map>.get("<key>")` — the
+                                        // bounded readable-Map terminal. The
+                                        // receiver stays live: owned locals
+                                        // still owe their End and borrowed
+                                        // formals keep caller ownership.
+                                        if let Some(row) = terminal_map_get(
+                                            input,
+                                            statement.site(),
+                                            value.site(),
+                                            &locals,
+                                        ) {
+                                            terminal_relation =
+                                                Some(TerminalRelationV1::MapGet(row));
+                                            true
+                                        } else {
                                         match terminal_returned_source(input, value.site(), &locals)
                                         {
                                             Some(returned) => {
@@ -460,6 +478,7 @@ pub(crate) fn scan_new_home_flow<E>(
                                                     false
                                                 }
                                             }
+                                        }
                                         }
                                     }
                                 }

@@ -453,7 +453,8 @@ fn validate_lanes(
                     .ok_or(PinnedTextBackendFrameContractIssueV1::RootCountMismatch)?;
                 index += 1;
             }
-            PhysicalCallableLaneRoleV1::OrdinaryScalar => {
+            PhysicalCallableLaneRoleV1::OrdinaryScalar
+            | PhysicalCallableLaneRoleV1::CheckedMap => {
                 if lane.logical_ordinal() != Some(ordinal) {
                     return Err(PinnedTextBackendFrameContractIssueV1::FormalOrdinalMismatch);
                 }

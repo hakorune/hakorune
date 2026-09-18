@@ -18,6 +18,10 @@ pub(crate) enum SourceScalarKind {
 enum StoredLocal {
     Home { acquisition: super::OwnedExprSiteV1 },
     Map,
+    /// A `: MapBox` declared formal — caller-owned map storage borrowed
+    /// read-only for the call. It reads like a live map but owns nothing:
+    /// no End obligation, no ownership transfer back, no map-local return.
+    BorrowedMap,
     Consumed,
     Handle(BindingRefV1),
     Trivial(Option<SourceScalarKind>),
@@ -95,6 +99,7 @@ impl<'source> PrefixLocalFlow<'source> {
                     StoredLocal::Trivial(Some(SourceScalarKind::Integer))
                 }
                 CallableParameterContractKindV1::ExactTrivial(_) => return false,
+                CallableParameterContractKindV1::Map => StoredLocal::BorrowedMap,
                 CallableParameterContractKindV1::OpaqueHandle
                 | CallableParameterContractKindV1::DeclaredHandle
                 | CallableParameterContractKindV1::ExactText(_) => StoredLocal::Handle(binding),
@@ -125,7 +130,7 @@ impl<'source> PrefixLocalFlow<'source> {
             return None;
         };
         match self.locals.get(&binding)? {
-            StoredLocal::Home { .. } | StoredLocal::Map => {
+            StoredLocal::Home { .. } | StoredLocal::Map | StoredLocal::BorrowedMap => {
                 Some(OrdinaryObservation::Handle(binding))
             }
             StoredLocal::Handle(root)
@@ -149,6 +154,14 @@ impl<'source> PrefixLocalFlow<'source> {
     /// reference; the local stays the owner and still issues its own End.
     pub(super) fn is_map_local(&self, root: BindingRefV1) -> bool {
         matches!(self.locals.get(&root), Some(StoredLocal::Map))
+    }
+
+    /// `root` is a `: MapBox` declared formal — caller-owned map storage
+    /// borrowed read-only. It participates in reads and borrowed-entry
+    /// classification but owns nothing: `is_map_local` stays owned-only so
+    /// a borrowed formal can never ride the map-local return lane.
+    pub(super) fn is_borrowed_map(&self, root: BindingRefV1) -> bool {
+        matches!(self.locals.get(&root), Some(StoredLocal::BorrowedMap))
     }
 
     /// The sealed `new` acquisition site of a live Home local root.

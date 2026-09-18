@@ -7,7 +7,7 @@ use crate::mir::normal_callable_semantic_package::{
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 
-pub(super) struct Emission {
+pub(in crate::mir::builder::ordinary_new_admission) struct Emission {
     pub(super) row: RootCallDispositionV1,
     pub(super) arguments: Vec<(BasicBlockId, MirInstruction)>,
     pub(super) call: MirCall,
@@ -66,12 +66,12 @@ pub(in crate::mir::builder) fn emit(
         owner,
         Some(value),
         value,
-        Some(Emission {
+        Some(RootExitIngress::Call(Emission {
             row: RootCallDispositionV1::Direct(row),
             arguments,
             call,
             result,
-        }),
+        })),
     )
 }
 
@@ -105,12 +105,12 @@ pub(in crate::mir::builder) fn emit_instance(
         owner,
         Some(value),
         value,
-        Some(Emission {
+        Some(RootExitIngress::Call(Emission {
             row: RootCallDispositionV1::Instance(row),
             arguments: Vec::new(),
             call,
             result,
-        }),
+        })),
     )
 }
 
@@ -120,8 +120,7 @@ pub(super) fn emit_ingress(
     value: ValueId,
     clean: BasicBlockId,
     fault: BasicBlockId,
-    call: MirCall,
-    result: InvokeCallResultKind,
+    operation: InvokeOperation,
     bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
 ) -> Result<
     (
@@ -161,7 +160,7 @@ pub(super) fn emit_ingress(
         .ok_or_else(|| freeze("no-normal-landing"))?
         .add_instruction(projection.clone());
     let invoke = MirInstruction::Invoke {
-        operation: InvokeOperation::Call { call, result },
+        operation,
         fault_frame: frame,
         normal_landing,
         fault_landing,

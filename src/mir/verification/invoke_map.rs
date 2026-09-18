@@ -8,6 +8,22 @@ use std::collections::{BTreeMap, BTreeSet};
 
 type Results = BTreeMap<ValueId, (Kind, BasicBlockId)>;
 
+/// A `: MapBox` declared formal — caller-owned storage borrowed read-only.
+/// It is not a `Map` result but is a valid read operand: the checked-map
+/// argument contract keeps it live for the whole call.
+fn is_map_param(function: &MirFunction, value: &ValueId) -> bool {
+    function
+        .params
+        .iter()
+        .position(|param| param == value)
+        .is_some_and(|index| {
+            matches!(
+                function.signature.params.get(index),
+                Some(crate::mir::MirType::Box(name)) if name == "MapBox"
+            )
+        })
+}
+
 pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
     if !function.blocks.values().any(|b| {
         b.all_instructions().any(|i| {
@@ -74,6 +90,9 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                     Map::InstallText { map, key, .. } | Map::InstallEmptyArray { map, key } => {
                         has_kind(map, Kind::Map) && has_kind(key, Kind::MapKey)
                     }
+                    Map::CheckedGetI64 { map, .. } => {
+                        has_kind(map, Kind::Map) || is_map_param(function, map)
+                    }
                     Map::EndOutcome { outcome } => has_kind(outcome, Kind::MapOutcome),
                     Map::End { map } => has_kind(map, Kind::Map),
                 };
@@ -91,6 +110,8 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                         if value == *map || value == *key)
                     || matches!(instruction,
                     MirInstruction::Invoke { operation: InvokeOperation::Map(Map::End { map }), .. } if value == *map)
+                    || matches!(instruction,
+                    MirInstruction::Invoke { operation: InvokeOperation::Map(Map::CheckedGetI64 { map, .. }), .. } if value == *map)
                     || matches!(instruction,
                     MirInstruction::Invoke { operation: InvokeOperation::Map(Map::EndOutcome { outcome }), .. } if value == *outcome)
                     // A Map lease may cross the return boundary exactly once:
@@ -181,6 +202,11 @@ fn visit(
         {
             match operation {
                 Map::End { map } if !live.remove(map) => return Err("map-end-not-live"),
+                Map::CheckedGetI64 { map, .. }
+                    if !live.contains(map) && !is_map_param(function, map) =>
+                {
+                    return Err("map-get-not-live")
+                }
                 Map::InstallIndexed { map, .. }
                 | Map::InstallValue { map, .. }
                 | Map::InstallText { map, .. }

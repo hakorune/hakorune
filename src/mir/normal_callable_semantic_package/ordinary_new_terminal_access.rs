@@ -170,6 +170,16 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
+    pub(crate) fn terminal_map_get_return_for_owner(
+        &self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    ) -> Option<&TerminalMapGetReturnV1> {
+        match self.terminal_relation_for_owner(owner) {
+            Some(TerminalRelationV1::MapGet(row)) => Some(row),
+            _ => None,
+        }
+    }
+
     pub(crate) fn prepare_terminal_integer_literal_return(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,

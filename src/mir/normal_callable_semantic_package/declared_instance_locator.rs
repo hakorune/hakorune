@@ -516,7 +516,8 @@ fn validate_signature(
         }
         logical_ordinals.insert(ordinal);
         match lane.role() {
-            PhysicalCallableLaneRoleV1::OrdinaryScalar => {}
+            PhysicalCallableLaneRoleV1::OrdinaryScalar
+            | PhysicalCallableLaneRoleV1::CheckedMap => {}
             PhysicalCallableLaneRoleV1::ExactTextSlot => {
                 let Some(next) = lanes.get(index + 1) else {
                     return Err(DeclaredInstanceCallPackageLocatorIssueV1::LaneTextPairMismatch);

@@ -249,6 +249,36 @@ uint32_t wrap_consumer_value(void* frame, uint32_t profile, uint64_t site, void*
 static unsigned consumer_outcome_fault_fired;
 #endif
 
+#ifdef HAKO_MAP_READ_PROBE
+/* Readable-map lane: one checked scalar get must leave the borrowed/owned
+ * storage live — no key/outcome bookkeeping, no disposal — and the owning
+ * `checked_end` must still run afterwards on both Normal and Fault paths. */
+static unsigned read_seq, read_get_seq, read_end_seq, read_ends;
+static char read_key[32];
+static size_t read_key_len;
+static int64_t read_out;
+static uint32_t read_status;
+
+extern uint32_t real_read_get(void*, uint64_t, void*, const uint8_t*, size_t, int64_t*)
+    __asm__("__real_nyash.map.checked_get_i64_v1");
+uint32_t wrap_read_get(void*, uint64_t, void*, const uint8_t*, size_t, int64_t*)
+    __asm__("__wrap_nyash.map.checked_get_i64_v1");
+uint32_t wrap_read_get(void* frame, uint64_t site, void* map,
+    const uint8_t* bytes, size_t len, int64_t* out) {
+  size_t copy;
+  uint32_t status;
+  read_get_seq = ++read_seq;
+  status = real_read_get(frame, site, map, bytes, len, out);
+  copy = len < 31 ? len : 31;
+  memcpy(read_key, bytes, copy);
+  read_key[copy] = '\0';
+  read_key_len = len;
+  read_out = *out;
+  read_status = status;
+  return status;
+}
+#endif
+
 #if defined(HAKO_MAP_CALL_PROBE) || defined(HAKO_MAP_CONSUMER_PROBE)
 /* The map-result Call lane's return handoff: the callee's storage_move into
  * caller-owned out storage is counted separately from storage_dispose. */
@@ -308,7 +338,14 @@ uint32_t wrap_outcome_end(void* frame, uint64_t site, void* out) {
 extern uint32_t real_end(void*, uint64_t, void*) __asm__("__real_nyash.map.checked_end_v1");
 uint32_t wrap_end(void*, uint64_t, void*) __asm__("__wrap_nyash.map.checked_end_v1");
 uint32_t wrap_end(void* frame, uint64_t site, void* map) {
-  uint32_t result = real_end(frame, site, map);
+  uint32_t result;
+#ifdef HAKO_MAP_READ_PROBE
+  read_end_seq = ++read_seq;
+#endif
+  result = real_end(frame, site, map);
+#ifdef HAKO_MAP_READ_PROBE
+  read_ends++;
+#endif
 #ifdef HAKO_MAP_CONSUMER_PROBE
   consumer_record_end(map, result);
 #endif
@@ -378,6 +415,10 @@ int main(int argc, char** argv) {
       map_init, map_dispose, key_init, key_dispose, outcome_init, outcome_dispose);
 #if defined(HAKO_MAP_CALL_PROBE) || defined(HAKO_MAP_CONSUMER_PROBE)
   printf(" %u", moves);
+#endif
+#ifdef HAKO_MAP_READ_PROBE
+  printf(" READ %s %zu %lld %u %u %u %u", read_key, read_key_len,
+      (long long)read_out, read_status, read_get_seq, read_end_seq, read_ends);
 #endif
   printf("\n");
   return (int)result;

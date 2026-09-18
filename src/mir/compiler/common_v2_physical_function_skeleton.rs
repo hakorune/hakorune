@@ -18,7 +18,7 @@ use crate::mir::compiler::common_v2_session_admission::{
 };
 use crate::parser::CallableDeclarationIdentityV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
-use crate::mir::{BasicBlockId, FunctionSignature, MirFunction, MirType};
+use crate::mir::{BasicBlockId, FunctionSignature, MirFunction};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PhysicalFunctionSkeletonRejectV1 {
@@ -230,7 +230,10 @@ pub(crate) fn reserve_common_v2_physical_function_skeleton<'loan, 'source, 'join
     let function = MirFunction::new(
         FunctionSignature {
             name: storage.key().mir_symbol_projection(),
-            params: vec![MirType::Integer; descriptors.len()],
+            params: descriptors
+                .iter()
+                .map(|descriptor| descriptor.carrier().mir_type())
+                .collect(),
             return_type: callable.result().mir_type(),
             effects: callable.physical_effects().effect_mask(),
         },
@@ -288,6 +291,7 @@ fn validate_descriptor_rows(
             row.carrier(),
             PhysicalCallableLaneCarrierV1::ExistingCallableI64
                 | PhysicalCallableLaneCarrierV1::U64BitsOnI64
+                | PhysicalCallableLaneCarrierV1::CheckedMapStorage
         )
     }) {
         return Err(PhysicalFunctionSkeletonRejectV1::UnsupportedCarrier);

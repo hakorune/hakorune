@@ -7,7 +7,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableParameterDescriptorV1;
 use crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1;
 use crate::mir::resolved_semantics::{BindingRefV1, SourceBindingSiteV1};
-use crate::mir::{BasicBlockId, MirType, ValueId};
+use crate::mir::{BasicBlockId, ValueId};
 
 use super::CanonicalSsaFunctionSessionV2;
 
@@ -31,6 +31,7 @@ pub(super) fn adopt(
         let site = match role {
             PhysicalCallableLaneRoleV1::InstanceReceiver => SourceBindingSiteV1::Receiver,
             PhysicalCallableLaneRoleV1::OrdinaryScalar
+            | PhysicalCallableLaneRoleV1::CheckedMap
             | PhysicalCallableLaneRoleV1::ExactTextSlot => {
                 let ordinal = descriptor
                     .logical_ordinal()
@@ -59,7 +60,7 @@ pub(super) fn adopt(
             .function_state
             .type_ctx
             .value_types
-            .insert(value, MirType::Integer);
+            .insert(value, descriptor.carrier().mir_type());
 
         if role == PhysicalCallableLaneRoleV1::ExactTextSlot {
             let generation = descriptors
@@ -135,7 +136,8 @@ fn reserved_values(
             let expected = ValueId::new(
                 u32::try_from(index).map_err(|_| "physical entry ValueId overflow".to_owned())?,
             );
-            if value != expected || function.signature.params[index] != MirType::Integer {
+            let expected_type = descriptors[index].carrier().mir_type();
+            if value != expected || function.signature.params[index] != expected_type {
                 return Err("physical entry parameter carrier drift".to_owned());
             }
             Ok(value)

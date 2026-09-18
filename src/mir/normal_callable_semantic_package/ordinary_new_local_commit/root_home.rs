@@ -37,6 +37,16 @@ pub(crate) enum RootHomeExitEntry {
         projection: (BasicBlockId, MirInstruction),
         frame: (BasicBlockId, MirInstruction),
     },
+    /// A terminal `return <map>.get("<literal>")` exit. The read invoke and
+    /// its i64 projection are retained exactly like a Call ingress; there is
+    /// no target row or argument list because the key is sealed inline and
+    /// the receiver binding is resolved at prepare time.
+    MapGet {
+        local_bindings: Vec<(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)>,
+        invoke: (BasicBlockId, MirInstruction),
+        projection: (BasicBlockId, MirInstruction),
+        frame: (BasicBlockId, MirInstruction),
+    },
 }
 
 /// One source-issued root Home obligation after its existing local value has
@@ -358,6 +368,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 RootHomeExitEntry::Call {
                     invoke, projection, ..
+                }
+                | RootHomeExitEntry::MapGet {
+                    invoke, projection, ..
                 } => super::root_cleanup_graph::call::validate_original(
                     function,
                     bindings,
@@ -377,3 +390,5 @@ impl OrdinaryNewClaimLedgerV1 {
 
 #[path = "root_call_entry.rs"]
 mod call_entry;
+#[path = "root_map_get_entry.rs"]
+mod map_get_entry;

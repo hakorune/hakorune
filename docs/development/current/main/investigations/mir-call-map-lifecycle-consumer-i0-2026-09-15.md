@@ -1209,3 +1209,134 @@ acceptance runner explicitly; environment-missing skips never count as
 gate success. Internal commits keep BoxCount (semantic admission) and
 BoxShape (behavior-preserving split) separate; 760-line split design,
 800-line hard stop.
+
+### T1 bounded implementation plan (2026-09-18, read-only worker audit)
+
+Read-only worker audit (agent 804f9e55) mapped the T1 surface against
+HEAD `cb2adda501`. Findings: (a) `m.get("k")` seals as a neutral
+`MethodCall` row — no `TerminalRelationV1` map-read variant exists;
+terminal stop `ReturnValueNotCovered`, initializer stop
+`PrefixNotCovered` (corrects the earlier card note: `to_json`'s
+`module.get` dies at `PrefixNotCovered`, not `EntryStore(Opaque)`);
+(b) the all-i64 formal restriction is three-layered —
+`validate_exact_i64_header` (callable_index.rs), `exact_formals`
+(direct_call_lifecycle.rs), `ExactTrivial*` ABI spelling; the carrier
+`CallableParameterContractKindV1` exists but `DeclaredHandle` discards
+the declared box name; (c) `MapCallEdgeContractV1` vocabulary is never
+constructed — the edge-conformance plug-in point is
+`preflight_map_install`; (d) no read lane at any layer — no
+`MapInvokeOperation::Get`, no `nyash.map.checked_get_*`, C emit prints
+`i64` per param, `CheckedMap` is deliberately write-only; (e) the
+`Borrowed` store conflates into `CheckedMapPayload::I64`
+(selected/map.rs).
+
+```text
+Decision: split T1 into T1-α (callee-side read contract: `: MapBox`
+  formal + `return m.get("lit")` scalar lookup → i64, verified
+  read-only + no-escape) and T1-β (caller-side argument handoff:
+  `ArgumentHandoff` capability + call-edge co-seal + caller emission +
+  the full end-to-end fixture). The checked lane's scalar-get contract:
+  Present(I64)→value, Missing→0, non-scalar payload→Fault — a new lane
+  contract; no VM `.get`/sentinel semantics are changed.
+Source authority + canonical issuer: the `: MapBox` parameter
+  declaration (existing callable-parameter-contract issuer) plus the
+  callee body's sealed rows (existing terminal-relation scanner).
+Non-authority: runtime payload shape, key names, registry hits; the
+  `DeclaredHandle` legacy kind does not carry the map contract.
+Fail-fast boundary: non-scalar payload reaching the i64 projection;
+  any use of `m` outside the admitted read (store/return/argument/
+  mutation stays uncovered); untyped or foreign-owner formals;
+  unsupported declared types.
+Smallest next slice: T1-α — contract kind + header/signature admission
+  + `MapLookup` terminal relation + `ptr` param ABI + `checked_get`
+  kernel op + C emit + `#[ignore]`d probe that invokes the compiled
+  callee against hand-built checked storage.
+Non-claims: no caller `ArgumentHandoff`, no borrowed-handle entries,
+  no array/text/key-enumeration reads, no `to_json`, no production
+  switch, no legacy retirement.
+```
+
+Bounded order inside T1 (each its own commit, BoxCount only):
+
+1. **T1-α callee read contract** — new contract kind `Map` minted for
+   `: MapBox` (read-only/no-escape by construction; a second mode would
+   be a new variant); `validate_exact_i64_header` +
+   `ExactTrivialCallableSignatureV1` carry a per-slot kind; new
+   `TerminalRelationV1` variant for `return <map-formal>.get("lit")`;
+   physical signature param kind (`ptr` map-storage wire);
+   `MapInvokeOperation` read op + `nyash.map.checked_get_*` kernel
+   export + `map_get` JSON/C emit; probe executes the compiled callee
+   against storage built through existing `checked_new`/install
+   symbols — no caller lane needed.
+2. **T1-β caller argument handoff** — `ArgumentHandoff` in
+   `map_lifecycle_capability()`; `MapCallEdgeContractV1` rows built and
+   co-sealed at `preflight_map_install` (CallArgument destination ×
+   callee map formal × callee evidence); caller emission constructs
+   `%{"k"=>7}`, passes the `%mapN` storage pointer, cleans on Normal
+   and Fault; `exact_formals` admits the map formal; end-to-end
+   `main(){ return Helpers.read_k(%{"k"=>7}) }` executes.
+3. **T1-γ tag coverage** — `CheckedMapPayload` borrowed-handle variant +
+   tagged install op + kind-mismatch read evidence (a handle entry can
+   never be misread as i64); `BorrowedEntryEscape` admission under the
+   proven edge contract if a borrowed entry rides the argument map.
+
+## T1-α landed evidence (2026-09-18, callee-side readable Map contract)
+
+Landed: the `: MapBox` formal mints `CallableParameterContractKindV1::Map`
+(callable-parameter-contract issuer, header `MapBox` spelling only — the
+`DeclaredHandle` legacy kind never carries it). `StoredLocal::BorrowedMap`
+separates the borrowed formal from owned map locals in the prefix flow, so
+`return m` can never ride the map-local return lane. `TerminalMapGetReturnV1`
+(`TerminalRelationV1::MapGet`) seals `return <map>.get("<literal>")` with
+owner, sites, receiver binding/class (`OwnedLocal` | `BorrowedParameter`)
+and the sealed literal key; `has_map` admits Map-formal owners into the
+homes-aware walk, and `retain_child_terminal_relation` keeps the relation.
+The ledger issues `PreparedTerminalMapGetReturnV1` /
+`RootHomeExitEntry::MapGet`; `record_root_map_get_exit` creates the
+`Invoke{CheckedGetI64}` on the function's own fault frame (Borrowed-mode
+children accepted — mode is re-validated by frame validation, not by the
+entry); cleanup ingress, binding preservation, key identity and local-call
+binding groups are validated by `root_map_get_entry`. The builder dispatch
+`emit_terminal_map_get_return` (RootExitIngress::MapGet) projects the i64
+through `InvokeNormalResult`; finalization seals
+`FinalizedRootResultAbiV1::MapGetReturn`.
+
+Physical: `MapInvokeOperation::CheckedGetI64` verified in `invoke_map`
+(role, no-escape, live map / map-formal liveness; `normal_result_kind` =
+I64). Wire: `param_types` `"map"` representation on the physical ABI JSON
+and `hako_physical_params` C admission; `map_checked_get` op carries the
+sealed UTF-8 key inline. C emit: MapBox formals declare `ptr`; the op
+emits a private key constant, an `i64` out-slot pre-initialized to `-1`
+(Fault reads never surface uninitialized stack), calls
+`nyash.map.checked_get_i64_v1(frame, site, map, key, len, out)` and
+dispatches on status only — no key/outcome/storage bookkeeping. Kernel:
+`CheckedMap::read_i64` (Present(I64)→value, Missing→0 written on Normal,
+non-scalar→Fault reason 104 `NYRT_FAULT_REASON_MAP_NON_SCALAR_READ_V1`),
+exported as `nyash.map.checked_get_i64_v1`, registered in
+`runtime_map_symbols` and `include/nyrt_fault_v1.h`.
+
+Evidence: 6/6 `map_get_terminal_tests` (owned-local root + child relations
+with cleanup retained; borrowed-formal relation with empty terminal homes;
+borrowed-escape, non-literal key and non-get selector all stay uncovered
+at `ReturnValueNotCovered`); 265/265 `normal_callable_semantic_package`;
+18/18 `physical_program`; `map_read_tests::
+issued_map_read_source_exe_probe_observes_get_contract_and_end`
+(`--ignored`) green — compiled object linked against
+`libnyash_lifecycle_kernel.a` + `published_map_fault_probe.c`
+(`HAKO_MAP_READ_PROBE`): i64 read exits 7 with `READ k 1 7 0 1 2 1`,
+empty map exits 0, `%{"k" => true}` exits 70 with `REPORT 104` and out
+sentinel `-1`; get runs at seq 1, `checked_end` at seq 2 exactly once —
+the read leaves the owned storage live until End on Normal and Fault.
+`map_`/`terminal` batch reds: recorded baseline set (global_call_route_plan
+×2, mir_corebox_router type-certainty ×2, published_consumer ×2, array
+route ×3, root_catalog_lifecycle ×2) + `map_write_timing`/env-race flakes —
+all standalone-green or parent-reproduced; no current-change failure.
+
+Non-claims: no caller `ArgumentHandoff` (a sealed `Call` edge carrying a
+map argument remains T1-β — the uncalled cataloged callee still stops at
+`admission-function-not-birth` on the published route, which is the
+existing membership contract, not a regression); no borrowed-entry/tag
+coverage (T1-γ); no `to_json`, no production switch, no legacy
+retirement. The compiled-callee reach is root-owned storage only in this
+slice; the same emit path serves `BorrowedParameter` receivers once a
+call edge can hand the pointer across.

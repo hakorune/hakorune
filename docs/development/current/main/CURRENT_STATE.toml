@@ -1,9 +1,9 @@
-date = "2026-09-17"
+date = "2026-09-18"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0"
 current_execution_cohort = "map_lifecycle_consumer"
-current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0__merged_route_owner_uncovered_operation_entry_store_opaque"
+current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0__map_argument_caller_handoff"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "closed__resolver_if_source_expr_relation_2026-09-15"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -18,27 +18,30 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-map-lifecycle-consumer-i0-2026-09-15"
 latest_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
 latest_card_summary = """
-Map lifecycle consumer spine through C9-2 plus the accepted
-2026-09-18 map-argument Decision (ChatGPT Pro consultation #4,
-`CHATGPT_PRO_RESPONSE_MAP_ARGUMENT_LANE_JP.md`): `%{"functions"
-=> [main]}` is a caller-owned temporary Map owning its Array
-storage whose elements borrow `main`; the first call contract
-is a synchronous read-only no-escape borrow — consume/mutable/
-escape stay named rejections, `BorrowedEntryEscape` stays.
-Representation prerequisites recorded: semantic tags must
-survive store→read (int vs handle), `EmptyArray` converges to
-a zero-length Array view (no per-projection fresh ArrayBox),
-`install_candidate` failure paths need staging-ownership
-cleanup before payloads own children. Work packages T1..T5
-queued on the card: T1 readable Map argument end-to-end
-(source→MIR→OBJ→link→execute, Normal+callee-read+caller-
-cleanup Faults) is the next bounded slice; T2 `[main]`
-(owned Array + BorrowedMap + transitive liveness), T3
-unmodified `to_json`, T4 merged compiler execution, T5
-production switch + caller-zero deletion. MapChild stays
-undeclared; C6-4 rootless deferred; C1-id remains
-pre-production homework in parallel. Production switch and
-legacy retirement remain unclaimed.
+Map lifecycle consumer spine through C9-2 plus the map-argument
+T-series; T1-α landed 2026-09-18: the callee-side readable Map
+contract. `: MapBox` mints `CallableParameterContractKindV1::Map`
+→ `StoredLocal::BorrowedMap` (read-only, no escape, never an End
+obligation); `TerminalRelationV1::MapGet` seals
+`return <map>.get("<literal>")` for OwnedLocal and
+BorrowedParameter receivers; the ledger emits
+`Invoke{CheckedGetI64}` on the function's own fault frame and
+finalizes `FinalizedRootResultAbiV1::MapGetReturn`. Wire/emit:
+`"map"` param representation, `ptr` formals, `map_checked_get`
+op with inline sealed key, `-1`-initialized i64 out-slot, kernel
+`nyash.map.checked_get_i64_v1` (Present(I64)→value, Missing→0,
+non-scalar→Fault 104; read consumes nothing). Evidence: 6/6
+map_get_terminal_tests, 265/265 package, 18/18 physical_program,
+`--ignored` exe probe (i64→7, missing→0, non-scalar→70/REPORT
+104, checked_end exactly once after the read); batch reds all
+recorded baseline or env-race flakes. Next bounded slice: T1-β
+caller-side argument handoff (`ArgumentHandoff` capability +
+call-edge co-seal + caller emission +
+`main(){ return Helpers.read_k(%{"k"=>7}) }` end-to-end). T1-γ
+borrowed-entry/tag coverage follows. Non-claims: no caller
+handoff, no tag coverage, no `to_json`, no production switch,
+no legacy retirement; the uncalled-callee reach stays gated by
+the existing sealed-Call membership contract.
 """
 next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-expr-relation-d8-2026-09-15.md"

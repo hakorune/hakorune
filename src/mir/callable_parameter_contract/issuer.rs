@@ -47,7 +47,7 @@ pub(crate) enum CallableParameterContractIssueV1 {
 }
 
 fn is_admitted_declared_box_name(source_type: &str) -> bool {
-    matches!(source_type, "ArrayBox" | "MapBox")
+    matches!(source_type, "ArrayBox")
 }
 
 pub(crate) fn issue_callable_parameter_contract_v1(
@@ -88,6 +88,8 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                                 ExactTrivialParameterAbiV1::classify(source_type)
                             {
                                 CallableParameterContractKindV1::ExactTrivial(abi)
+                            } else if source_type == "MapBox" {
+                                CallableParameterContractKindV1::Map
                             } else if is_admitted_declared_box_name(source_type) {
                                 CallableParameterContractKindV1::DeclaredHandle
                             } else {

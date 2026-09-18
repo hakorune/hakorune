@@ -86,7 +86,9 @@ static int hako_physical_params(yyjson_val* fn) {
         !hako_physical_u32(yyjson_obj_get(param, "value"), NULL)) return 0;
     if (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") ||
         hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_map")) {
-      if (!hako_physical_string(yyjson_obj_get(param, "representation"), "i64")) return 0;
+      /* "map" marks a borrowed checked-map storage pointer (MapBox formal). */
+      if (!hako_physical_string(yyjson_obj_get(param, "representation"), "i64") &&
+          !hako_physical_string(yyjson_obj_get(param, "representation"), "map")) return 0;
     } else if (!hako_physical_string(yyjson_obj_get(param, "representation"), "kind_payload_v1")) return 0;
   }
   return 1;
@@ -495,6 +497,7 @@ static int hako_physical_map_kind(const char* kind) {
   return kind && (!strcmp(kind, "map_new") || !strcmp(kind, "map_prepare_key") ||
       (!strcmp(kind, "map_install_indexed") || !strcmp(kind, "map_install_value")) ||
       !strcmp(kind, "map_install_text") || !strcmp(kind, "map_install_empty_array") ||
+      !strcmp(kind, "map_checked_get") ||
       !strcmp(kind, "map_end_outcome") || !strcmp(kind, "map_end"));
 }
 static int hako_physical_map_operation(yyjson_val* function, yyjson_val* layouts,
@@ -506,6 +509,7 @@ static int hako_physical_map_operation(yyjson_val* function, yyjson_val* layouts
   static const char* const text_keys[] = {"kind", "site", "map", "key", "utf8"};
   static const char* const empty_array_keys[] = {"kind", "site", "map", "key"};
   static const char* const end_keys[] = {"kind", "site", "map"};
+  static const char* const get_keys[] = {"kind", "site", "map", "utf8"};
   static const char* const outcome_keys[] = {"kind", "site", "outcome"};
   uint32_t value, object;
   if (!hako_physical_u64(yyjson_obj_get(op, "site"), NULL)) return 0;
@@ -521,6 +525,9 @@ static int hako_physical_map_operation(yyjson_val* function, yyjson_val* layouts
       !hako_physical_value_available_at(function, value, block, index)) return 0;
   if (hako_physical_string(yyjson_obj_get(op, "kind"), "map_end"))
     return hako_physical_exact_keys(op, end_keys, 3);
+  if (hako_physical_string(yyjson_obj_get(op, "kind"), "map_checked_get"))
+    return hako_physical_exact_keys(op, get_keys, 4) &&
+        yyjson_is_str(yyjson_obj_get(op, "utf8"));
   if (hako_physical_string(yyjson_obj_get(op, "kind"), "map_install_value"))
     return hako_physical_exact_keys(op, value_keys, 6) &&
         hako_physical_u32(yyjson_obj_get(op, "value_kind"), &object) &&
@@ -553,7 +560,7 @@ static int hako_physical_result_operation(yyjson_val* op, int native) {
   return !strcmp(kind, "new_box") || !strcmp(kind, "map_new") ||
       !strcmp(kind, "map_prepare_key") || (!strcmp(kind, "map_install_indexed") || !strcmp(kind, "map_install_value")) ||
       !strcmp(kind, "map_install_text") || !strcmp(kind, "map_install_empty_array") ||
-      !strcmp(kind, "ordinary_call");
+      !strcmp(kind, "map_checked_get") || !strcmp(kind, "ordinary_call");
 }
 
 static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* functions,

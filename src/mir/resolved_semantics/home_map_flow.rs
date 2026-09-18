@@ -621,7 +621,9 @@ fn map_value_leaf(
         Some(OrdinaryObservation::Handle(root)) if locals.is_self_rooted_handle(root) => {
             Some(MapValueSource::BorrowedHandle(root))
         }
-        Some(OrdinaryObservation::Handle(root)) if locals.is_map_local(root) => {
+        Some(OrdinaryObservation::Handle(root))
+            if locals.is_map_local(root) || locals.is_borrowed_map(root) =>
+        {
             Some(MapValueSource::MapLocal(root))
         }
         _ => match input.function().expression_source().literal(site) {

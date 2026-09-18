@@ -76,6 +76,7 @@ static int lv4_operation_result(yyjson_val* op) {
   if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
       lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array"))
     return LV4_OUTCOME;
+  if (lv4_is(op, "kind", "map_checked_get")) return LV4_I64;
   return LV4_BAD;
 }
 
@@ -229,8 +230,15 @@ static int lv4_index_open(hako_lv4_input* in) {
     }
     for (size_t pi = 0; pi < yyjson_arr_size(params); pi++) {
       hako_lv4_value* param = &fn->values[fn->value_count++];
-      param->id = lv4_u(yyjson_arr_get(params, pi), "value");
-      param->kind = ordinary ? LV4_I64 : LV4_TAGGED; param->origin = -1;
+      yyjson_val* row = yyjson_arr_get(params, pi);
+      param->id = lv4_u(row, "value");
+      if (ordinary && lv4_is(row, "representation", "map")) {
+        /* Borrowed checked-map storage: caller-owned lease, never an
+           allocation and never ended here. */
+        param->kind = LV4_MAP; param->origin = -2;
+      } else {
+        param->kind = ordinary ? LV4_I64 : LV4_TAGGED; param->origin = -1;
+      }
     }
     for (size_t bi = 0; bi < fn->block_count; bi++) {
       yyjson_val* block = yyjson_arr_get(blocks, bi);

@@ -76,9 +76,13 @@ fn emit_lifecycle_physical_program_value(
                     .receiver_object()
                     .map(|object| object.declaration_index()),
                 "params": function.params().iter().skip(usize::from(function.role().has_receiver()))
-                    .map(|param| json!({
+                    .zip(function.param_types().iter().skip(usize::from(function.role().has_receiver())))
+                    .map(|(param, param_type)| json!({
                         "value": value(param),
-                        "representation": if function.role().ordinary_target().is_some() {
+                        "representation": if matches!(param_type, crate::mir::MirType::Box(name) if name == "MapBox") {
+                            // Borrowed checked-map storage pointer, not an i64 payload.
+                            "map"
+                        } else if function.role().ordinary_target().is_some() {
                             "i64"
                         } else {
                             "kind_payload_v1"
@@ -373,6 +377,9 @@ fn encode_invoke(
                     json!({"kind": "map_end_outcome", "outcome": value(outcome)})
                 }
                 Map::End { map } => json!({"kind": "map_end", "map": value(map)}),
+                Map::CheckedGetI64 { map, utf8 } => {
+                    json!({"kind": "map_checked_get", "map": value(map), "utf8": utf8})
+                }
             };
             with_site(
                 encoded,

@@ -6,14 +6,14 @@
 
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 
-use super::{CallableNamespaceV1, VerifiedCallableCatalogV1};
+use super::{CallableNamespaceV1, ExactCallableParamAbiV1, VerifiedCallableCatalogV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct NormalizedCallableCatalogRowV1 {
     namespace: CallableNamespaceV1,
     name: Box<str>,
     arity: u32,
-    params: Box<[ExactTrivialScalarAbiV1]>,
+    params: Box<[ExactCallableParamAbiV1]>,
     result: Option<ExactTrivialScalarAbiV1>,
     symbol: Box<str>,
 }
@@ -31,7 +31,7 @@ impl NormalizedCallableCatalogRowV1 {
         self.arity
     }
 
-    pub(crate) fn params(&self) -> &[ExactTrivialScalarAbiV1] {
+    pub(crate) fn params(&self) -> &[ExactCallableParamAbiV1] {
         &self.params
     }
 

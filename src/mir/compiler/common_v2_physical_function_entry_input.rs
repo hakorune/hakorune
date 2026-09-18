@@ -17,6 +17,22 @@ use crate::mir::resolved_semantics::BindingRefV1;
 pub(in crate::mir) enum PhysicalCallableLaneCarrierV1 {
     ExistingCallableI64,
     U64BitsOnI64,
+    /// A borrowed checked-map storage pointer (`ptr` wire); the callee
+    /// never owns or disposes the pointed storage.
+    CheckedMapStorage,
+}
+
+impl PhysicalCallableLaneCarrierV1 {
+    /// The physical `MirType` the carrier occupies in the skeleton
+    /// signature. `CheckedMapStorage` keeps `MapBox` metadata so emission
+    /// can spell the lane `ptr` instead of the unconditional `i64` used by
+    /// the scalar carriers.
+    pub(in crate::mir) fn mir_type(self) -> crate::mir::MirType {
+        match self {
+            Self::CheckedMapStorage => crate::mir::MirType::Box("MapBox".to_owned()),
+            Self::ExistingCallableI64 | Self::U64BitsOnI64 => crate::mir::MirType::Integer,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -267,6 +283,25 @@ fn build_descriptors(
                     PhysicalCallableLaneCarrierV1::U64BitsOnI64,
                 )?;
                 lane_index += 2;
+            }
+            PhysicalCallableLaneRoleV1::CheckedMap => {
+                if lane.logical_ordinal() != Some(ordinal)
+                    || !seen_bindings.insert(lane.binding())
+                {
+                    return Err(PhysicalFunctionEntryInputRejectV1::LogicalOrdinal);
+                }
+                push_descriptor(
+                    &mut descriptors,
+                    &mut descriptor_names,
+                    lane.index(),
+                    lane.role(),
+                    Some(ordinal),
+                    lane.binding(),
+                    decl.name.clone().into_boxed_str(),
+                    decl.declared_type_name.clone().map(Into::into),
+                    PhysicalCallableLaneCarrierV1::CheckedMapStorage,
+                )?;
+                lane_index += 1;
             }
             PhysicalCallableLaneRoleV1::InstanceReceiver
             | PhysicalCallableLaneRoleV1::ExactTextGeneration => {

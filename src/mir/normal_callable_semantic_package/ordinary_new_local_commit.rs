@@ -145,6 +145,7 @@ impl FinalizedRootSourceHandoffV1 {
             TerminalRelationV1::I64Field(row) => row.owner(),
             TerminalRelationV1::Value(row) => row.owner(),
             TerminalRelationV1::OpaqueCall(row) => row.owner(),
+            TerminalRelationV1::MapGet(row) => row.owner(),
         }
     }
 
@@ -171,6 +172,9 @@ impl FinalizedRootSourceHandoffV1 {
             TerminalRelationV1::Value(_) => return None,
             // An opaque call return proves no result class at all.
             TerminalRelationV1::OpaqueCall(_) => return None,
+            TerminalRelationV1::MapGet(row) => {
+                FinalizedRootResultAbiV1::MapGetReturn { owner: row.owner() }
+            }
         })
     }
 
@@ -220,6 +224,10 @@ pub(crate) enum FinalizedRootResultAbiV1 {
     UnitReturn { owner: FunctionOwnerIdV1 },
     IntegerLiteralReturn { owner: FunctionOwnerIdV1 },
     I64FieldReturn { owner: FunctionOwnerIdV1 },
+    /// `return <map>.get("<literal>")` — the readable-Map terminal. The
+    /// checked read produces the exact i64 payload; the map itself is
+    /// never the returned value.
+    MapGetReturn { owner: FunctionOwnerIdV1 },
 }
 
 impl NewLocalCommitV1 {

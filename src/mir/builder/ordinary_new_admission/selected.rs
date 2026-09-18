@@ -9,7 +9,7 @@ use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1,
     OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1, PreparedTerminalI64AddReturnV1,
-    PreparedTerminalI64FieldReturnV1,
+    PreparedTerminalI64FieldReturnV1, PreparedTerminalMapGetReturnV1,
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlock, BasicBlockId, Callee, MirBuilder, MirInstruction, MirType, ValueId};
@@ -285,6 +285,14 @@ pub(in crate::mir::builder) fn emit_root_home_unit_exit(
     emit_root_home_exit_payload(builder, state, ledger, owner, None, statement_result, None)
 }
 
+/// One physically-emitting terminal ingress: the existing terminal Call or
+/// the readable-Map checked get. Both share the same Normal/Fault cleanup
+/// graph; the ledger entry kind keeps them apart.
+pub(super) enum RootExitIngress {
+    Call(terminal_call::Emission),
+    MapGet { map: ValueId, utf8: String },
+}
+
 fn emit_root_home_exit_payload(
     builder: &mut MirBuilder,
     state: &mut CallableSemanticLoweringState,
@@ -292,7 +300,7 @@ fn emit_root_home_exit_payload(
     owner: FunctionOwnerIdV1,
     return_value: Option<ValueId>,
     statement_result: ValueId,
-    call: Option<terminal_call::Emission>,
+    ingress: Option<RootExitIngress>,
 ) -> Result<ValueId, String> {
     let operations = ledger.begin_root_home_exit(owner)?;
     let mut bindings = Vec::new();
@@ -310,7 +318,7 @@ fn emit_root_home_exit_payload(
     // Empty-Home Plain has no Fault edge. Do not issue a disconnected terminal
     // that finishing would remove while its recorded binding stayed live —
     // and do not materialize a frame definition no Invoke would consume.
-    if !operations.is_empty() || call.is_some() {
+    if !operations.is_empty() || ingress.is_some() {
         let frame = state.borrow_fault_frame(builder)?;
         let mut fault = builder.next_block_id();
         append_block(
@@ -321,8 +329,9 @@ fn emit_root_home_exit_payload(
         )?;
         for (index, origin) in operations.into_iter().rev().enumerate() {
             let operation = origin.operation().clone();
-            // A clean call's Fault skips its own retry and joins the remaining
-            // fault-pending suffix. Later Normal outcomes cannot clear that Fault.
+            // A clean ingress's Fault skips its own retry and joins the
+            // remaining fault-pending suffix. Later Normal outcomes cannot
+            // clear that Fault.
             let next_clean = cleanup_step(
                 builder,
                 frame,
@@ -336,35 +345,66 @@ fn emit_root_home_exit_payload(
                 .cloned()
                 .ok_or_else(|| freeze("root-home-release-binding-missing"))?;
             origins.push((origin, block, instruction));
-            if call.is_some() || index + 1 < count {
+            if ingress.is_some() || index + 1 < count {
                 fault = cleanup_step(builder, frame, operation, fault, fault, &mut bindings)?;
             }
             clean = next_clean;
         }
         origins.reverse();
-        if let Some(call) = call {
-            let (invoke, projection) = terminal_call::emit_ingress(
-                builder,
-                frame,
-                statement_result,
-                clean,
-                fault,
-                call.call,
-                call.result,
-                &mut bindings,
-            )?;
-            let frame_binding = fault_frame_binding(builder, state, frame)?;
-            ledger.record_root_call_exit(
-                owner,
-                call.row,
-                call.arguments,
-                invoke,
-                projection,
-                frame_binding,
-                origins,
-                bindings,
-            )?;
-            return Ok(statement_result);
+        match ingress {
+            Some(RootExitIngress::Call(call)) => {
+                let (invoke, projection) = terminal_call::emit_ingress(
+                    builder,
+                    frame,
+                    statement_result,
+                    clean,
+                    fault,
+                    InvokeOperation::Call {
+                        call: call.call,
+                        result: call.result,
+                    },
+                    &mut bindings,
+                )?;
+                let frame_binding = fault_frame_binding(builder, state, frame)?;
+                ledger.record_root_call_exit(
+                    owner,
+                    call.row,
+                    call.arguments,
+                    invoke,
+                    projection,
+                    frame_binding,
+                    origins,
+                    bindings,
+                )?;
+                return Ok(statement_result);
+            }
+            Some(RootExitIngress::MapGet { map, utf8 }) => {
+                let (invoke, projection) = terminal_call::emit_ingress(
+                    builder,
+                    frame,
+                    statement_result,
+                    clean,
+                    fault,
+                    InvokeOperation::Map(
+                        crate::mir::instruction::MapInvokeOperation::CheckedGetI64 {
+                            map,
+                            utf8,
+                        },
+                    ),
+                    &mut bindings,
+                )?;
+                let frame_binding = fault_frame_binding(builder, state, frame)?;
+                ledger.record_root_map_get_exit(
+                    owner,
+                    invoke,
+                    projection,
+                    frame_binding,
+                    origins,
+                    bindings,
+                )?;
+                return Ok(statement_result);
+            }
+            None => {}
         }
     }
     let origin = builder
@@ -456,6 +496,37 @@ pub(in crate::mir::builder) fn emit_terminal_i64_field_return(
     )?;
     ledger.record_terminal_i64_field_return(prepared.site.owner(), result)?;
     Ok(result)
+}
+
+/// Emit the bounded readable-Map terminal: one checked `get` read whose i64
+/// projection becomes the returned value. The ingress shares the terminal
+/// Call's Normal/Fault cleanup graph — an owned map local still owes its
+/// End on both paths; a borrowed formal releases nothing here.
+pub(in crate::mir::builder) fn emit_terminal_map_get_return(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
+    prepared: PreparedTerminalMapGetReturnV1,
+) -> Result<ValueId, String> {
+    let value = builder.next_value_id();
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(value, MirType::Integer);
+    emit_root_home_exit_payload(
+        builder,
+        state,
+        ledger,
+        owner,
+        Some(value),
+        value,
+        Some(RootExitIngress::MapGet {
+            map: prepared.map,
+            utf8: prepared.utf8,
+        }),
+    )
 }
 
 fn cleanup_chain(

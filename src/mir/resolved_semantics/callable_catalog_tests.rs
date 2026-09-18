@@ -142,7 +142,10 @@ fn one_entry_catalog_preserves_exact_callable_header_contract() {
     assert_eq!(header.source_key().name(), "only");
     assert_eq!(header.source_key().arity(), 1);
     assert_eq!(header.symbol().as_mir_name(), "only/1");
-    assert_eq!(header.signature().params(), &[ExactTrivialScalarAbiV1::I64]);
+    assert_eq!(
+        header.signature().params(),
+        &[ExactCallableParamAbiV1::I64]
+    );
     assert_eq!(
         header.signature().result(),
         Some(ExactTrivialScalarAbiV1::I64)
@@ -196,7 +199,7 @@ fn normalized_catalog_is_independent_of_declaration_order_and_owner_brand() {
     );
     assert_eq!(
         first_normalized.rows()[0].params(),
-        &[ExactTrivialScalarAbiV1::I64]
+        &[ExactCallableParamAbiV1::I64]
     );
     assert_eq!(
         first_normalized.rows()[0].result(),

@@ -9,6 +9,11 @@ use crate::mir::resolved_semantics::{
 pub(crate) enum CallableParameterContractKindV1 {
     OpaqueHandle,
     DeclaredHandle,
+    /// A `: MapBox` declared formal under the checked-map argument
+    /// contract: a synchronous read-only no-escape borrow of caller-owned
+    /// map storage. The variant itself is the whole admitted contract —
+    /// consume, mutable and escaping modes have no kind and stay rejected.
+    Map,
     ExactTrivial(ExactTrivialParameterAbiV1),
     ExactText(ExactTextFormalAbiV1),
 }
@@ -16,7 +21,7 @@ pub(crate) enum CallableParameterContractKindV1 {
 impl CallableParameterContractKindV1 {
     pub(crate) const fn home_demand(self) -> HomeDemandV1 {
         match self {
-            Self::OpaqueHandle | Self::DeclaredHandle => HomeDemandV1::Handle,
+            Self::OpaqueHandle | Self::DeclaredHandle | Self::Map => HomeDemandV1::Handle,
             Self::ExactTrivial(_) => HomeDemandV1::Trivial,
             Self::ExactText(_) => HomeDemandV1::Handle,
         }

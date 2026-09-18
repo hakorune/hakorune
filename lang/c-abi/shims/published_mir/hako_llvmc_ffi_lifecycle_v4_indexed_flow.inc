@@ -6,7 +6,9 @@ static int lv4_indexed_live(hako_lv4_function_index* fn, uint32_t id, int kind,
     const uint16_t* state, uint32_t object, int check_object) {
   hako_lv4_value* value = lv4_index_value(fn, id);
   if (!value || value->kind != kind || (check_object && value->object_id != object)) return 0;
-  if (value->origin == -2) return kind == LV4_HANDLE;
+  /* Borrowed operand (-2): receiver handle or a caller-owned checked-map
+   * storage pointer — live for the whole call, never allocated or ended. */
+  if (value->origin == -2) return kind == LV4_HANDLE || kind == LV4_MAP;
   return value->origin >= 0 && state[value->origin] == LV4_LIVE;
 }
 
@@ -204,6 +206,13 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
         normal[value->origin] = (uint16_t)(map->origin + LV4_TRANSFER_BASE);
       }
       normal[key->origin] = state[key->origin] = 0;
+      normal[bi] = LV4_LIVE;
+    } else if (lv4_is(op, "kind", "map_checked_get")) {
+      /* Read-only scalar lookup: the map operand must be a live owned lease
+         or a borrowed formal; the read consumes neither. */
+      if ((fi && !ordinary) || faulted || state[bi] ||
+          in->profile != LV4_INDEXED_SAFE_MUTEX ||
+          !lv4_indexed_live(fn, lv4_u(op, "map"), LV4_MAP, state, 0, 0)) return 0;
       normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "map_end") || lv4_is(op, "kind", "map_end_outcome")) {
       int map_end = lv4_is(op, "kind", "map_end");

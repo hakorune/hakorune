@@ -6,10 +6,9 @@
 
 use crate::ast::ASTNode;
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
-use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 use crate::mir::resolved_semantics::{
-    BindingKindV1, BindingRefV1, ExprChildRoleV1, OwnedExprSiteV1, ResolvedLexicalRefV1,
-    SourceExprSiteV1, VerifiedCallableHeaderV1,
+    BindingKindV1, BindingRefV1, ExactCallableParamAbiV1, ExprChildRoleV1, OwnedExprSiteV1,
+    ResolvedLexicalRefV1, SourceExprSiteV1, VerifiedCallableHeaderV1,
 };
 
 use super::callable_single_loop_recipe_coseal::VerifiedCallablePreludeV1;
@@ -121,7 +120,7 @@ impl VerifiedCallablePreludeArgumentListV1 {
                 return Err(PreludeArgumentRejectV1::AbiUnsupported);
             }
             if header.signature().params().get(ordinal as usize)
-                != Some(&ExactTrivialScalarAbiV1::I64)
+                != Some(&ExactCallableParamAbiV1::I64)
             {
                 return Err(PreludeArgumentRejectV1::AbiUnsupported);
             }
