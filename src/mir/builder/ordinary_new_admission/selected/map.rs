@@ -148,11 +148,13 @@ fn emit_flow(
             }
             MapEntryStoreClassV1::Borrowed => {
                 // A self-rooted handle borrow stores the handle's i64
-                // value through the existing InstallValue lane — the
-                // payload end is a no-op, so the map never owns the
-                // handle. Live map-local and kind-less local borrows have
-                // no physical reference lane and stay frozen here; verify
-                // already refuses them before lowering.
+                // bits under the BorrowedHandle tag — the payload end is
+                // a no-op (the map never owns the handle) and a checked
+                // i64 read on the tagged entry Faults instead of
+                // conflating the bits with a scalar. Live map-local and
+                // kind-less local borrows have no physical reference lane
+                // and stay frozen here; verify already refuses them
+                // before lowering.
                 let Some(MapValueSource::BorrowedHandle(binding)) = entry.value_source() else {
                     return Err(freeze("map-value-consumer-missing"));
                 };
@@ -160,7 +162,7 @@ fn emit_flow(
                 state
                     .value_for_exact_binding(site.owner(), *binding)
                     .map_err(|_| freeze("map-borrow-binding"))?;
-                PendingInstall::Value(value, MapValueKind::I64)
+                PendingInstall::Value(value, MapValueKind::BorrowedHandle)
             }
             MapEntryStoreClassV1::Text => {
                 // The sealed String row carries the owned payload; the

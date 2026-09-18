@@ -398,6 +398,7 @@ fn encode_invoke(
                     "value": value(stored), "value_kind": match kind {
                         crate::mir::instruction::MapValueKind::I64 => 1u32,
                         crate::mir::instruction::MapValueKind::Bool => 2u32,
+                        crate::mir::instruction::MapValueKind::BorrowedHandle => 3u32,
                     },
                 }),
                 Map::InstallText {

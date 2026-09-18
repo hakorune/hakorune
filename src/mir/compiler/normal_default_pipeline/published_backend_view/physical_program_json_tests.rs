@@ -596,7 +596,11 @@ fn map_result_local_call_publishes_ordinary_map_callee_and_map_edge() {
 #[test]
 fn map_value_wire_kind_is_explicit_and_has_no_object_identity() {
     use crate::mir::instruction::{MapInvokeOperation as Map, MapValueKind};
-    for (kind, wire) in [(MapValueKind::I64, 1), (MapValueKind::Bool, 2)] {
+    for (kind, wire) in [
+        (MapValueKind::I64, 1),
+        (MapValueKind::Bool, 2),
+        (MapValueKind::BorrowedHandle, 3),
+    ] {
         let op = InvokeOperation::Map(Map::InstallValue {
             map: ValueId(1),
             key: ValueId(2),

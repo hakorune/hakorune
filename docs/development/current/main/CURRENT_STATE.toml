@@ -1,11 +1,11 @@
-date = "2026-09-18"
+date = "2026-09-19"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0"
 current_execution_cohort = "map_lifecycle_consumer"
-current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0__map_argument_tag_coverage"
+current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0__t2_bounded_plan"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "closed__resolver_if_source_expr_relation_2026-09-15"
+current_design_stop = "open__t2_bounded_plan_2026-09-19"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -19,41 +19,45 @@ latest_card = "mir-call-map-lifecycle-consumer-i0-2026-09-15"
 latest_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
 latest_card_summary = """
 Map lifecycle consumer spine through C9-2 plus the map-argument
-T-series; T1-α landed 2026-09-18 (callee-side readable Map
-contract through `CheckedGetI64` → `"map"`/`ptr` wire → kernel
-`nyash.map.checked_get_i64_v1`) and T1-β landed 2026-09-18: the
-caller-side argument handoff. `TerminalCallArgumentV1::Map(site)`
-seals the `CallArgument` `MapHomeFlow` actual on
-`TerminalI64CallReturnV1`; `preflight_map_install` co-seals
-`MapCallEdgeContractV1::Argument{ordinal}` (caller site+ordinal
-↔ callee Map formal ↔ callee `MapGet` `BorrowedParameter`
-receiver) on the undertaking's `call_edges` with
-`ArgumentHandoff` capability; the site-keyed
-`LocalCommitV1::Map` (binding None) emits the literal and the
-arg-map `End` rides innermost on both exit cleanup chains. The
-wire spells `{"kind":"map"}` only for the corroborated
-`Box("MapBox")` ↔ `CheckedMapStorage` pair; V4 indexed flow
-admits the actual as a live owned lease against a `"map"`
-formal (borrow consumes nothing; `-2` re-handoff fails). The
-card's qualified `Helpers.read_k(...)` stays parked on
-`OpaqueCall` — the bare `read_k(...)` resolves to the same
-callee through the free-static index and is the lane's
-fixture. Executable probe: Normal exits 7
-(`READ k 1 7 0 1 2 1`), callee non-scalar Fault exits 70
-(`REPORT 104`, read seq 1 < End seq 2), caller `prepare-fault`
-exits 70 (`REPORT 100`, callee never entered, partial key
-disposed once). Evidence: 53 focused + 189 batch green, full
-C physical suite green incl. 2 new flow-layer pins.
-`home_new_prefix.rs` 788 lines is over-760 debt recorded for a
-BoxShape split. Next bounded slice: T1-γ borrowed-entry/tag
-coverage. Non-claims: no tag coverage, no qualified-call
-Invoke, no `to_json`, no production switch, no legacy
-retirement.
+T-series; T1's vertical slice is complete — T1-α landed
+2026-09-18 (callee-side readable Map contract through
+`CheckedGetI64` → `"map"`/`ptr` wire → kernel
+`nyash.map.checked_get_i64_v1`), T1-β landed 2026-09-18
+(caller-side argument handoff: `TerminalCallArgumentV1::Map`,
+`MapCallEdgeContractV1` co-seal at `preflight_map_install`,
+corroborated `{"kind":"map"}` wire actual), and T1-γ landed
+2026-09-19: borrowed-entry payload tag coverage. Sealed
+`MapValueSource::BorrowedHandle` entries install under
+`MapValueKind::BorrowedHandle` → `value_kind:3` →
+`CheckedMapPayload::BorrowedHandle` — never owned by the map,
+never misread as i64 (checked read records Fault 104). The
+undertaking admits `ArgumentHandoff + OwnershipShare(Handle)`
+under the proven edge co-seal while `MapLocal`/`Local` borrows
+and Slot/Return/Contained handoffs stay `BorrowedEntryEscape`;
+the `terminal_map_get` entry-inspection gate is replaced by
+the tag guarantee, so owned maps with borrowed entries and
+call-returned maps now issue readable terminal relations.
+Physical evidence: kind=3 entry read exits 70 on the Fault
+path (map_end once), kind=1 control exits 30; 26 malformed
+inputs still named-reject. `ArgumentHandoff + Handle` is
+describe/verify-level only today — `OpaqueHandle` formals are
+not direct-call catalogable, so no package-install producer
+builds a borrowed-entry argument literal yet. Card's qualified
+`Helpers.read_k(...)` stays parked on `OpaqueCall`;
+`home_new_prefix.rs` 787 and `published_lifecycle_physical_
+v2.inc` 798 lines are over-760 debt recorded for a BoxShape
+split. Next bounded slice per the ordered queue: T2 —
+callee-side runtime reads of `funcs[0].name` (Text), `params`
+(empty Array), `blocks` kind/length; needs a bounded plan
+(owned Array payload + staging owner + transitive liveness)
+before implementation. Non-claims: no `MapLocal`/`Local`
+borrow lane, no qualified-call Invoke, no Arrays yet, no
+`to_json`, no production switch, no legacy retirement.
 """
-next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-expr-relation-d8-2026-09-15.md"
-next_execution_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
+next_design_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
+next_execution_card = "none__awaiting_t2_bounded_plan"
+next_execution_card_path = "none__awaiting_t2_bounded_plan"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

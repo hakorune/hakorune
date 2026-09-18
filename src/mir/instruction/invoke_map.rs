@@ -11,10 +11,14 @@ pub enum InvokeNormalResultKind {
 }
 
 /// Physical scalar payload; source capability cannot supply this distinction.
+/// `BorrowedHandle` carries a non-consuming handle snapshot — the map never
+/// owns it, and an i64 read on the tagged entry Faults instead of
+/// conflating handle bits with a scalar.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MapValueKind {
     I64,
     Bool,
+    BorrowedHandle,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

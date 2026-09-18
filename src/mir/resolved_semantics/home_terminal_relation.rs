@@ -2,7 +2,6 @@
 //! the New-home prefix walk. No physical value, ABI, recipe, JSON, or backend
 //! authority is issued here.
 use super::local_flow::{OrdinaryObservation, PrefixLocalFlow};
-use super::map_flow::{MapEntryStoreClassV1, MapHomeObservation};
 use super::{
     BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLexicalRefV1,
     ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
@@ -504,12 +503,19 @@ impl TerminalMapGetReturnV1 {
 /// the running local flow decides owned vs borrowed — nothing here
 /// reclassifies either side. Non-get selectors, non-literal keys, and
 /// non-map receivers stay uncovered and fail at the caller's boundary.
+///
+/// Entry inspection is deliberately absent: every compilable map carries
+/// tagged payloads (`I64`/`Bool`/`Text`/`EmptyArray`/`Residence`/
+/// `BorrowedHandle`), so a checked read dispatches safely on any entry —
+/// `I64` reads back its value, a missing key reads `0`-Normal, and every
+/// non-i64 payload records Fault 104. A call-returned map whose literal
+/// flow row lives in the callee is readable for the same reason: the
+/// callee could only have installed tagged payloads.
 pub(super) fn terminal_map_get(
     input: ResolvedFunctionLoweringInputV1<'_>,
     return_site: &SourceStmtSiteV1,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
-    maps: &[MapHomeObservation],
 ) -> Option<TerminalMapGetReturnV1> {
     let row = input
         .function()
@@ -531,34 +537,6 @@ pub(super) fn terminal_map_get(
     } else {
         return None;
     };
-    if receiver_class == TerminalMapGetReceiverClassV1::OwnedLocal {
-        // A `Borrowed` store lane conflates a borrowed handle's i64 into
-        // `CheckedMapPayload::I64`, so a checked get would read it back as
-        // a scalar with no Fault.  Until T1-γ's payload tags land, a map
-        // carrying such an entry stays unreadable; every other store class
-        // either cannot install or records Fault 104 on an i64 read.  The
-        // entry classes are only visible on the local `%{...}` flow row —
-        // a call-returned map (`local m = make_map()`) carries no
-        // observation, so its entries cannot be verified here and the read
-        // stays uncovered too.  For `BorrowedParameter` receivers the
-        // caller's entry classes are not visible at this seal — the T1-β
-        // edge co-seal owns the same `no Borrowed entries` condition on
-        // the argument map.
-        let Some(map) = maps.iter().find_map(|observation| {
-            observation
-                .complete()
-                .filter(|map| map.local_binding() == Some(binding))
-        }) else {
-            return None;
-        };
-        if map
-            .entries()
-            .iter()
-            .any(|entry| entry.store_class() == MapEntryStoreClassV1::Borrowed)
-        {
-            return None;
-        }
-    }
     let [argument] = row.arguments() else {
         return None;
     };

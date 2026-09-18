@@ -320,6 +320,41 @@ fn empty_array_payload_is_an_owned_marker_with_trivial_end() {
 }
 
 #[test]
+fn borrowed_handle_payload_reads_non_scalar_and_ends_trivially() {
+    // A borrowed-handle entry stores a non-consuming snapshot: the map
+    // never owns the target, so install/detach/end carry no Home
+    // obligation — and a scalar read reports NonScalar (the ABI's Fault
+    // 104) rather than conflating handle bits with an I64.
+    let map = CheckedMap::unissued();
+    let failed = map
+        .install(
+            MapKeyDomain::from_text("a"),
+            CheckedMapPayload::BorrowedHandle(0x5AFE),
+        )
+        .err()
+        .unwrap();
+    assert_eq!(failed.error, CheckedMapError::InvalidState);
+    assert!(matches!(
+        failed.candidate,
+        CheckedMapPayload::BorrowedHandle(0x5AFE)
+    ));
+    map.acquire().unwrap();
+    install(&map, "a", failed.candidate).end().unwrap();
+    assert!(matches!(
+        map.read_i64(&MapKeyDomain::from_text("a")),
+        Ok(CheckedMapI64Read::NonScalar)
+    ));
+    let old = install(&map, "a", CheckedMapPayload::I64(7));
+    assert!(matches!(
+        old.0,
+        Some(CheckedMapPayload::BorrowedHandle(0x5AFE))
+    ));
+    old.end().unwrap();
+    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    map.require_disposable().unwrap();
+}
+
+#[test]
 fn value_replacement_after_failed_residence_end_keeps_new_slot_and_other_homes() {
     let map = Arc::new(CheckedMap::unissued());
     let events = Arc::new(Mutex::new(Vec::new()));

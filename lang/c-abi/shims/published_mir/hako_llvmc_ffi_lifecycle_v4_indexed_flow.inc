@@ -228,7 +228,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if (scalar) {
         uint32_t kind = lv4_u(op, "value_kind");
         if (!((kind == NYRT_MAP_VALUE_I64 && value->kind == LV4_I64) ||
-              (kind == NYRT_MAP_VALUE_BOOL && value->kind == LV4_BOOL))) return 0;
+              (kind == NYRT_MAP_VALUE_BOOL && value->kind == LV4_BOOL) ||
+              (kind == NYRT_MAP_VALUE_BORROWED_HANDLE && value->kind == LV4_I64))) return 0;
       } else {
         if (!lv4_indexed_live(fn, value->id, LV4_HANDLE, state,
                 lv4_u(op, "object_id"), 1) || value->origin < 0) return 0;

@@ -89,7 +89,7 @@ fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
                     if mutation == 0 {
                         *kind = match kind {
                             crate::mir::instruction::MapValueKind::I64 => crate::mir::instruction::MapValueKind::Bool,
-                            crate::mir::instruction::MapValueKind::Bool => crate::mir::instruction::MapValueKind::I64,
+                            crate::mir::instruction::MapValueKind::Bool | crate::mir::instruction::MapValueKind::BorrowedHandle => crate::mir::instruction::MapValueKind::I64,
                         };
                     } else { *value = maps[0]; }
                     changed = true;
@@ -151,7 +151,7 @@ fn map_callable_dependency_preserves_opaque_local_and_alias_identity() {
                             0 => MapInvokeOperation::InstallValue { map, key, value,
                                 kind: match kind {
                                     crate::mir::instruction::MapValueKind::I64 => crate::mir::instruction::MapValueKind::Bool,
-                                    crate::mir::instruction::MapValueKind::Bool => crate::mir::instruction::MapValueKind::I64,
+                                    crate::mir::instruction::MapValueKind::Bool | crate::mir::instruction::MapValueKind::BorrowedHandle => crate::mir::instruction::MapValueKind::I64,
                                 } },
                             1 => MapInvokeOperation::InstallValue { map, key, value: map, kind },
                             _ => MapInvokeOperation::InstallIndexed { map, key, value,
@@ -354,13 +354,14 @@ fn return_installed_map_local_transfers_its_lease_to_return() {
 }
 
 #[test]
-fn self_rooted_handle_borrow_emits_install_value_i64() {
+fn self_rooted_handle_borrow_emits_install_value_borrowed_handle() {
     // `local m = %{"v" => h}` inside a parameterized non-main owner: the
     // sealed BorrowedHandle entry is an `OwnershipShare(Handle)` the
-    // declared lane stores through `InstallValue{I64}` — the formal's
-    // physical i64 value, with a no-op payload end (the map never owns
-    // the handle). The pin asserts the stored value is the exact
-    // parameter ValueId, not a re-materialized copy.
+    // declared lane stores through `InstallValue{BorrowedHandle}` — the
+    // formal's physical i64 bits under the borrowed-handle tag, with a
+    // no-op payload end (the map never owns the handle). The pin asserts
+    // the stored value is the exact parameter ValueId, not a
+    // re-materialized copy.
     for annotation in ["", ": StringBox"] {
         let source = format!(
             "static box Work {{ stash(h{annotation}) {{
@@ -413,8 +414,8 @@ fn self_rooted_handle_borrow_emits_install_value_i64() {
             .unwrap_or_else(|| panic!("annotation={annotation}: InstallValue expected"));
         assert_eq!(
             install.1,
-            crate::mir::instruction::MapValueKind::I64,
-            "annotation={annotation}: the borrowed handle stores as i64"
+            crate::mir::instruction::MapValueKind::BorrowedHandle,
+            "annotation={annotation}: the borrowed handle stores under its tag"
         );
         assert!(
             function.params.contains(&install.0),

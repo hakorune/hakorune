@@ -568,3 +568,102 @@ fn entry_store_empty_array_still_requires_a_declared_operation() {
         }
     ));
 }
+
+/// The full declared consumer lane, including every borrow kind — used to
+/// isolate escape-admission behavior from capability coverage.
+fn full_capability() -> MapLifecycleConsumerCapabilityV1 {
+    MapLifecycleConsumerCapabilityV1::covering([
+        Op::ValueCreate,
+        Op::EntryStore(StoreClass::Scalar),
+        Op::EntryStore(StoreClass::Transferred),
+        Op::EntryStore(StoreClass::Text),
+        Op::EntryStore(StoreClass::EmptyArray),
+        Op::EntryDisplace,
+        Op::OwnershipTransfer,
+        Op::OwnershipShare(BorrowKind::Handle),
+        Op::OwnershipShare(BorrowKind::MapLocal),
+        Op::OwnershipShare(BorrowKind::Local),
+        Op::SlotHandoff,
+        Op::ReturnHandoff,
+        Op::ArgumentHandoff,
+        Op::ContainedHandoff,
+        Op::NormalCleanup,
+        Op::FaultCleanup,
+    ])
+}
+
+#[test]
+fn verify_admits_a_handle_borrow_on_the_argument_handoff_edge() {
+    // `ArgumentHandoff` is the one proven edge: the install preflight
+    // co-seals caller site+ordinal against the callee's `Map` formal and
+    // read evidence, and the `BorrowedHandle` payload tag keeps the entry
+    // from being misread as a scalar. A `Handle` borrow on that edge
+    // verifies.
+    let package = issue(
+        "static box Helpers { consume(m) { return 30 } run(flag) { return Helpers.consume(%{\"a\" => flag}) } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("argument-edge handle-borrow package");
+    let obligations = package
+        .describe_map_lifecycle_obligations()
+        .expect("obligations describe");
+    let [owner] = obligations.as_ref() else {
+        panic!("one map-owning owner");
+    };
+    let [site] = owner.sites() else {
+        panic!("one map site");
+    };
+    assert!(site.operations().any(|op| op == Op::ArgumentHandoff));
+    assert!(site
+        .operations()
+        .any(|op| op == Op::OwnershipShare(BorrowKind::Handle)));
+    verify_map_lifecycle_undertaking(&obligations, full_capability())
+        .expect("handle borrow on the argument edge verifies");
+}
+
+#[test]
+fn verify_still_rejects_a_handle_borrow_on_return_or_contained_handoffs() {
+    // Only the argument edge carries a proven borrow contract. A handle
+    // borrow riding `return` (ReturnBoundary or returned-local) still
+    // escapes unproven, as does any contained handoff.
+    for body in [
+        "return %{\"v\" => h}",
+        "local m = %{\"v\" => h} return m",
+    ] {
+        let package = issue(&format!(
+            "static box Work {{ stash(h) {{ {body} }} }}
+             static box Main {{ main() {{ return 30 }} }}",
+        ))
+        .expect("escaping handle-borrow package");
+        let obligations = package
+            .describe_map_lifecycle_obligations()
+            .expect("obligations describe");
+        let error =
+            verify_map_lifecycle_undertaking(&obligations, full_capability()).unwrap_err();
+        assert!(
+            matches!(error, MapLifecycleUndertakingIssueV1::BorrowedEntryEscape { .. }),
+            "{body}: {error:?}"
+        );
+    }
+}
+
+#[test]
+fn verify_still_rejects_a_non_handle_borrow_on_the_argument_edge() {
+    // `MapLocal`/`Local` borrows have no physical reference lane — they
+    // escape unproven even on the argument edge (here with a capability
+    // that declares every borrow kind, isolating the escape check from
+    // coverage).
+    let package = issue(
+        "static box Helpers { consume(m) { return 30 } run() { local n = %{\"x\" => 1} return Helpers.consume(%{\"a\" => n}) } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("argument-edge map-local borrow package");
+    let obligations = package
+        .describe_map_lifecycle_obligations()
+        .expect("obligations describe");
+    let error = verify_map_lifecycle_undertaking(&obligations, full_capability()).unwrap_err();
+    assert!(matches!(
+        error,
+        MapLifecycleUndertakingIssueV1::BorrowedEntryEscape { .. }
+    ));
+}

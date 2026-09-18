@@ -287,7 +287,11 @@ fn map_operation_rewrite_keeps_key_bytes_object_identity_and_effects() {
 #[test]
 fn scalar_install_preserves_opaque_protocol_and_rejects_opaque_payload() {
     use crate::mir::instruction::MapValueKind;
-    for kind in [MapValueKind::I64, MapValueKind::Bool] {
+    for kind in [
+        MapValueKind::I64,
+        MapValueKind::Bool,
+        MapValueKind::BorrowedHandle,
+    ] {
         let mut function = graph(true);
         function
             .blocks

@@ -1610,3 +1610,97 @@ of a borrowed formal still fail closed); qualified `Helpers.read_k`
 Invoke support stays parked on `OpaqueCall`; no mixed/multi-argument
 map shapes; no Arrays, no `to_json`, no production switch, no legacy
 retirement. Next bounded slice: T1-γ.
+
+## T1-γ landed evidence (2026-09-19, borrowed-entry payload tag coverage)
+
+Landed: a borrowed entry no longer conflates into `I64`. The sealed
+`MapValueSource::BorrowedHandle` / `MapEntryStoreClassV1::Borrowed`
+row installs under its own payload tag end to end — `MapValueKind::
+BorrowedHandle` (MIR) → `value_kind: 3` (wire + C validation) →
+`CheckedMapPayload::BorrowedHandle` (kernel storage). The map never
+owns the target (payload end is a no-op) and the checked i64 read lane
+records Fault 104 on the tagged entry instead of returning handle
+bits — the kind-mismatch evidence the card required.
+
+Payload/ABI: `MapValueKind::BorrowedHandle`; `CheckedMapPayload::
+BorrowedHandle(i64)` ends trivially; `nyash.map.checked_install_
+value_v1` maps kind `3` (`NYRT_MAP_VALUE_BORROWED_HANDLE`) to the new
+payload; unknown kinds and invalid bool payloads still reject as
+`InvalidContract`. `read_i64` treats every non-`I64` payload —
+including `BorrowedHandle` — as `NonScalar` → `REPORT 104`.
+
+Emission/verification: `emit_flow` and the local-commit post-emission
+check both expect `MapValueKind::BorrowedHandle` for a `Handle`
+borrowed source — a kind drift either direction freezes. The wire
+encodes kind `3`; the V4 indexed flow admits `kind=3` only on an
+`LV4_I64` physical value (no owned-handle transfer, no ownership),
+and the V2 physical parser accepts `3` beside `1`/`2`.
+
+Undertaking: the borrowed-entry escape gate now distinguishes proven
+edges — `ArgumentHandoff + OwnershipShare(Handle)` is admitted because
+the install preflight already co-seals caller site+ordinal ↔ callee
+`Map` formal ↔ callee read evidence and the payload tag keeps the
+entry unreadable-as-scalar across the edge. `ArgumentHandoff` with
+`MapLocal`/`Local` borrows, and any `Slot`/`Return`/`Contained`
+handoff mixed with borrows, still reject `BorrowedEntryEscape`.
+
+Terminal gate replaced: `terminal_map_get` no longer inspects entry
+classes — every compilable map carries tagged payloads, so a checked
+read dispatches safely on any entry (I64 → value, missing → 0-Normal,
+non-i64 → Fault 104). A call-returned map (`local m = make_map()`)
+is readable for the same reason. The two pre-tag pins inverted to
+positive evidence:
+`owned_local_map_get_with_borrowed_handle_entry_reads_as_tagged_fault`
+and `call_returned_map_get_issues_relation_and_installs`.
+
+Reachability note: `ArgumentHandoff + Handle` is describe/verify-level
+only in the current cohort — the only `Handle` borrow source is a
+self-rooted `StoredLocal::Handle` parameter, and `OpaqueHandle`
+formals are not direct-call catalogable (callable index keeps the
+`i64`/`MapBox` header contract), so no package-install producer can
+build a borrowed-entry argument literal yet. The undertaking admits
+the shape; the edge gate keeps unproven callers fail-closed
+(`borrowed_handle_entry_on_a_non_terminal_argument_stays_edge_gated`
+rejects at `Loan(LifecycleSourceMismatch)`).
+
+Executable: `published_map_physical_execution_test.py` — the new
+`handle_entry_program` installs `value_kind: 3`, runs
+`map_checked_get` on the entry and exits 70 (Fault path runs
+`map_end` once); the same graph with `value_kind: 1` exits 30. The
+malformed matrix now rejects `value_kind: 0/4` and kind↔type drift
+(`3` on a bool, `2` on an i64) — 26 named rejections preserve the
+object.
+
+Pins: `map_box_checked_tests::
+borrowed_handle_payload_reads_non_scalar_and_ends_trivially`;
+`map_physical_dependency_tests::
+self_rooted_handle_borrow_emits_install_value_borrowed_handle` (+ the
+`BorrowedHandle` wire arm and drift mutation); `physical_program_
+json_tests::map_value_wire_kind_is_explicit_and_has_no_object_
+identity` covers `1/2/3`; `invoke_map_tests` loops cover all three
+kinds; `map_lifecycle_undertaking_tests` +1 (verify-level
+`ArgumentHandoff + Handle` admission boundary).
+
+Suites: `map_box::checked` 10/10, `map_get_terminal` 12/12,
+`map_lifecycle_undertaking` 25/25, `map_physical_dependency` 8/8,
+`physical_program_json` 15/15, `verification::invoke::map_tests`
+11/11, `mir::verification` 105/105, `normal_callable_semantic_
+package` 277/277 green; `mir::resolved_semantics` 2 reds are
+`cargo_lib_red_baseline.failures.txt` entries (known baseline debt).
+`cargo check --profile quick` clean with identical dead-code warning
+count (1330); `cc -fsyntax-only -Wall` identical warning count (13).
+`libhako_llvmc_ffi.so` rebuilt via `tools/build_hako_llvmc_ffi.sh`;
+`target/quick/libnyash_kernel.a` rebuilt before the physical run.
+`home_new_prefix.rs` shrank 788→787; the over-760 split stays a
+recorded BoxShape follow-up. `published_lifecycle_physical_v2.inc`
+797→798 — inside the 800 stop but flagged for the same split family.
+
+Non-claims: no handle-typed read result (checked reads still Fault
+on borrowed entries); no `MapLocal`/`Local` borrow lane; no
+`Return`/`Slot`/`Contained` borrowed escape; qualified
+`Helpers.read_k` stays on `OpaqueCall`; no mixed/multi-argument map
+shapes, no Arrays, no `to_json`, no production switch, no legacy
+retirement. T1's vertical slice (α+β+γ) is complete; next bounded
+slice per the ordered queue: T2 — callee-side runtime reads of
+`funcs[0].name` (Text), `params` (empty Array), `blocks` kind/length
+(owned Array payload + staging owner + transitive liveness).

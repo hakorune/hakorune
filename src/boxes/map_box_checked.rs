@@ -21,18 +21,23 @@ pub trait CanonicalMapResidence: Send + Sync {
 /// text keeps its own bytes — never an interned or shared handle. An empty
 /// array entry owns the empty-array meaning itself: no host handle or
 /// backing object is minted, so a read lane materializes a fresh ArrayBox
-/// on projection. Residences remain non-Clone and are ended exactly once.
+/// on projection. A borrowed handle stores a non-consuming snapshot — the
+/// map never owns the target, end is a no-op, and a scalar read Faults
+/// rather than conflating handle bits with `I64`. Residences remain
+/// non-Clone and are ended exactly once.
 pub enum CheckedMapPayload {
     I64(i64),
     Bool(bool),
     Text(Box<str>),
     EmptyArray,
+    BorrowedHandle(i64),
     Residence(Box<dyn CanonicalMapResidence>),
 }
 impl CheckedMapPayload {
     fn end(self) -> Result<(), MapEndError> {
         match self {
-            Self::I64(_) | Self::Bool(_) | Self::Text(_) | Self::EmptyArray => Ok(()),
+            Self::I64(_) | Self::Bool(_) | Self::Text(_) | Self::EmptyArray
+            | Self::BorrowedHandle(_) => Ok(()),
             Self::Residence(value) => value.end(),
         }
     }

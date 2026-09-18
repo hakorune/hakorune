@@ -535,6 +535,48 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     assert "unsupported-cohort" in result.stderr, result.stderr
     print("map-kind actual on a scalar value rejects at the flow layer")
 
+    # T1-gamma: value_kind=3 installs a BorrowedHandle payload. A checked i64
+    # read on it records the non-scalar Fault (104) instead of conflating the
+    # handle bits, and the map still ends on the Fault edge -> exit 70.
+    def handle_entry_program():
+        graph = Graph()
+        map_value = graph.invoke(dict(kind="map_new"), [], True)
+        end = dict(kind="map_end", map=map_value)
+        value = graph.value
+        graph.value += 1
+        graph.row(graph.current, dict(op="const_i64", dst=value, value=0x5AFE))
+        key = graph.invoke(dict(kind="map_prepare_key", utf8="k"), [end], True)
+        outcome = graph.invoke(dict(kind="map_install_value", map=map_value,
+                                    key=key, value=value, value_kind=3),
+                               [end], True)
+        graph.invoke(dict(kind="map_end_outcome", outcome=outcome), [end])
+        graph.invoke(dict(kind="map_checked_get", map=map_value, utf8="k"),
+                     [end], True)
+        graph.invoke(end, [])
+        graph.term(graph.current, dict(op="return", value=1))
+        data = program(["same"])
+        data["functions"][0]["blocks"] = graph.blocks
+        data["process_result_site"] = graph.site
+        return data
+
+    compile_input(handle_entry_program())
+    checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
+    result = run([exe], env=env)
+    assert result.returncode == 70, (result.returncode, result.stderr)
+    print("value_kind=3 installs BorrowedHandle -> checked i64 read Faults -> exit 70")
+    # The same graph with kind=1 treats the payload as a scalar: the read
+    # lands Normal and the program returns 30.
+    scalar = handle_entry_program()
+    next(b["terminator"]["instruction"]["operation"]
+         for b in scalar["functions"][0]["blocks"]
+         if b["terminator"]["instruction"].get("operation", {}).get("kind")
+         == "map_install_value")["value_kind"] = 1
+    compile_input(scalar)
+    checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
+    result = run([exe], env=env)
+    assert result.returncode == 30, (result.returncode, result.stderr)
+    print("value_kind=1 on the same payload reads as scalar -> exit 30")
+
     # The read-only borrow never gains an End obligation or a write lane:
     # map_end and map_install_* on caller-owned storage must reject at the
     # flow layer (a -2 origin must never index the state arrays).
@@ -607,7 +649,7 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
                     if b["terminator"]["instruction"].get("operation", {}).get("kind") == kind)
 
     malformed = []
-    for field, bad in [("value_kind", 0), ("value_kind", 3), ("value_kind", 2),
+    for field, bad in [("value_kind", 0), ("value_kind", 4), ("value_kind", 2),
                        ("value", 999999), ("object_id", 0)]:
         data = value_program([("i64", 30)])
         operation(data, "map_install_value")[field] = bad

@@ -543,7 +543,8 @@ static int hako_physical_map_operation(yyjson_val* function, yyjson_val* layouts
   if (hako_physical_string(yyjson_obj_get(op, "kind"), "map_install_value"))
     return hako_physical_exact_keys(op, value_keys, 6) &&
         hako_physical_u32(yyjson_obj_get(op, "value_kind"), &object) &&
-        (object == NYRT_MAP_VALUE_I64 || object == NYRT_MAP_VALUE_BOOL) &&
+        (object == NYRT_MAP_VALUE_I64 || object == NYRT_MAP_VALUE_BOOL ||
+         object == NYRT_MAP_VALUE_BORROWED_HANDLE) &&
         hako_physical_u32(yyjson_obj_get(op, "key"), &value) &&
         hako_physical_value_available_at(function, value, block, index) &&
         hako_physical_u32(yyjson_obj_get(op, "value"), &value) &&

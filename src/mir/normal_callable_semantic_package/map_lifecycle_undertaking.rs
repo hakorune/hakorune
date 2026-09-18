@@ -399,22 +399,39 @@ pub(crate) fn verify_map_lifecycle_undertaking(
                     });
                 }
             }
-            // A borrowed entry must not ride a handoff: the sealed borrow
-            // rows prove the target outlives the map only while the map
-            // stays inside this owner. Slot/Return/Argument/Contained
-            // handoffs carry no borrow-liveness contract yet, so a site
-            // mixing them with borrows is refused even when every named
-            // operation is declared covered.
+            // A borrowed entry must not ride an unproven handoff: the
+            // sealed borrow rows prove the target outlives the map only
+            // while the map stays inside this owner. Slot/Return/
+            // Contained handoffs carry no borrow-liveness contract, so a
+            // site mixing them with borrows is refused even when every
+            // named operation is declared covered.
+            //
+            // `ArgumentHandoff` is the one proven edge: the install
+            // preflight co-seals the caller site+ordinal against the
+            // callee's `Map` formal and sealed read evidence before the
+            // map crosses, and the `BorrowedHandle` payload tag keeps the
+            // entry from ever being misread as a scalar — a `Handle`
+            // borrow may ride that edge. A non-`Handle` borrow has no
+            // physical reference lane at all, so it still escapes
+            // unproven even on the argument edge.
             if let Some(borrow) = site.borrows().first() {
-                if site.operations().any(|operation| {
+                let escaping_handoff = site.operations().any(|operation| {
                     matches!(
                         operation,
-                        Op::SlotHandoff
-                            | Op::ReturnHandoff
-                            | Op::ArgumentHandoff
-                            | Op::ContainedHandoff
+                        Op::SlotHandoff | Op::ReturnHandoff | Op::ContainedHandoff
                     )
-                }) {
+                });
+                let unproven_argument = site
+                    .operations()
+                    .any(|operation| matches!(operation, Op::ArgumentHandoff))
+                    && site.operations().any(|operation| {
+                        matches!(
+                            operation,
+                            Op::OwnershipShare(kind)
+                                if kind != MapEntryBorrowKindV1::Handle
+                        )
+                    });
+                if escaping_handoff || unproven_argument {
                     return Err(MapLifecycleUndertakingIssueV1::BorrowedEntryEscape {
                         owner: owner_obligations.owner(),
                         site: site.site().clone(),

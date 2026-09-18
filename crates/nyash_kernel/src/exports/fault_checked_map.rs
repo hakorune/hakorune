@@ -174,6 +174,7 @@ pub unsafe extern "C" fn install(
 // Checked Map value ABI kinds, not object storage tags or source capabilities.
 const MAP_VALUE_I64: u32 = 1;
 const MAP_VALUE_BOOL: u32 = 2;
+const MAP_VALUE_BORROWED_HANDLE: u32 = 3;
 // Scalar-read outcome reasons (mirrored in include/nyrt_fault_v1.h).
 const MAP_GET_NON_SCALAR_REASON: u32 = 104;
 #[export_name = "nyash.map.checked_install_value_v1"]
@@ -190,6 +191,7 @@ pub unsafe extern "C" fn install_value(
     let value = match (kind, payload) {
         (MAP_VALUE_I64, value) => CheckedMapPayload::I64(value),
         (MAP_VALUE_BOOL, 0 | 1) => CheckedMapPayload::Bool(payload == 1),
+        (MAP_VALUE_BORROWED_HANDLE, value) => CheckedMapPayload::BorrowedHandle(value),
         _ => return Status::InvalidContract as u32,
     };
     unsafe {

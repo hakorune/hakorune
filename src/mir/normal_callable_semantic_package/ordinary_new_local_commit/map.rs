@@ -548,14 +548,14 @@ impl OrdinaryNewClaimLedgerV1 {
                         Some(SourceScalarKind::Integer) => MapValueKind::I64,
                         Some(SourceScalarKind::Bool) => MapValueKind::Bool,
                         // A self-rooted handle borrow rides the same
-                        // InstallValue lane — the i64 wire kind is the
-                        // sealed borrow classification, not a re-read of
-                        // the leaf.
+                        // InstallValue lane under the BorrowedHandle tag —
+                        // the tagged wire kind is the sealed borrow
+                        // classification, not a re-read of the leaf.
                         None if source
                             .borrowed_root()
                             .is_some_and(|(borrow, _)| borrow == MapEntryBorrowKindV1::Handle) =>
                         {
-                            MapValueKind::I64
+                            MapValueKind::BorrowedHandle
                         }
                         None => return Err(freeze("map-value-consumer-missing")),
                     };
