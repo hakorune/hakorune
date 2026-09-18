@@ -1881,9 +1881,11 @@ The ordered queue is now:
    unsupported-shape negatives before catalog mutation.
 2. **T2-alpha co-seal and physical admission:** match that Fact to the
    existing `MapLifecycleUndertakingV1`, then consume the already-landed
-   `ArrayIndexMap -> MapGetText` owner. No source-to-OBJ claim is made until
-   the selected compiler caller emits the typed operations and rejects partial
-   Normal/Fault ownership.
+   `ArrayIndexMap -> MapGetText` owner. The selected compiler caller is now
+   wired to the scoped consumer and exact Fact rows; the remaining acceptance
+   gate is a source fixture whose nested-map argument survives the existing
+   lifecycle capability. No source-to-OBJ claim is made until that fixture
+   emits the typed operations and rejects partial Normal/Fault ownership.
 3. **T2-alpha acceptance:** run the source-to-OBJ fixture and caller switch
    evidence; only then select T2-beta (`params`/`blocks`).
 4. **Separate hygiene:** land one mechanical fmt-only commit after the T2
@@ -1910,10 +1912,32 @@ while the old terminal `return m.get("k")` path remains admitted unchanged.
 `MapReadPhysicalConsumerMissing` is a deliberate install boundary until the
 selected compiler caller consumes the already-landed `ArrayIndexMap ->
 MapGetText` owner. The focused source tests cover the three rows, the
-pre-catalog stop, and the unrelated-key non-claim. This row therefore closes
-source Fact issuance and co-seal wiring only; source-to-OBJ execution,
-production caller switch, Normal/Fault acceptance, and T2 completion remain
-open under `t2_alpha_source_to_obj_admission`.
+pre-catalog stop, and the unrelated-key non-claim. The selected normal builder
+caller now supplies the existing install consumer, scopes one physical
+consumer across recursive owner lowering, matches each exact Fact site, and
+records the typed bindings in the existing ordinary-new ledger. A direct
+`prepare_install` without that selected consumer still stops with the named
+`MapReadPhysicalConsumerMissing` issue. The source-to-OBJ fixture was then
+replayed and stopped earlier at the existing `EntryStore(Opaque)` lifecycle
+boundary for the nested-map literal argument; no reader claim is inferred
+from that failed fixture. This row therefore closes consumer wiring only;
+source-to-OBJ execution, production cutover, Normal/Fault acceptance, and T2
+completion remain open under `t2_alpha_source_to_obj_admission`.
+
+Focused evidence for the wiring is `cargo check --profile quick --lib` and
+the three `map_read_fact_tests`, all green on 2026-09-19. The attempted
+selected-caller fixture is retained as a negative boundary observation, not a
+passing acceptance receipt: its named stop is
+`MapLifecycleUndertaking(UncoveredOperation(EntryStore(Opaque)))` while the
+existing nested-map literal capability remains parked.
+
+The wiring touches existing modules that were already near the repository's
+760-line design threshold; the changed files remain below the 800-line hard
+stop. The over-760 rows (`normal_callable_semantic_loan_port.rs`,
+`raw_expression_dispatch/mod.rs`, `recursive_child_lowering.rs`, and
+`normal_callable_semantic_package/install.rs`) are recorded as a later
+BoxShape split task. No compression or unrelated formatting cleanup is mixed
+into this semantic slice.
 
 ## T2 read contract decision (2026-09-19, design stop closed)
 

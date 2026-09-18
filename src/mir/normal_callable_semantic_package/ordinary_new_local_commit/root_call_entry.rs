@@ -6,6 +6,24 @@ use crate::mir::normal_callable_semantic_package::RootCallDispositionV1;
 use crate::mir::ConstValue;
 
 impl OrdinaryNewClaimLedgerV1 {
+    pub(crate) fn record_map_read_bindings(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: OwnedExprSiteV1,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+    ) -> Result<(), String> {
+        if site.owner() != owner || bindings.is_empty() {
+            return Err(freeze("map-read-binding-shape"));
+        }
+        let mut rows = self.map_read_bindings.borrow_mut();
+        let groups = rows.entry(owner).or_default();
+        if groups.iter().any(|(recorded, _)| recorded == &site) {
+            return Err(freeze("map-read-binding-duplicate"));
+        }
+        groups.push((site, bindings));
+        Ok(())
+    }
+
     pub(crate) fn record_root_local_call_bindings(
         &self,
         owner: FunctionOwnerIdV1,

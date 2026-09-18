@@ -253,6 +253,15 @@ impl super::MirBuilder {
                     port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::Receiver)?;
                 let m = MethodCallExpr::try_from(node.clone())
                     .expect("ASTNode::MethodCall must convert");
+                if let Some(value) = port.try_lower_map_read_method_call_v1(
+                    self,
+                    m.object.as_ref(),
+                    &m.method,
+                    m.arguments.as_slice(),
+                    receiver_source.clone(),
+                )? {
+                    return Ok(value);
+                }
                 let input = RawLegacyMethodCallInputV1::with_receiver_source(
                     *m.object,
                     m.method,

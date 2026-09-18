@@ -203,6 +203,19 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
     ) -> R {
         execute(self)
     }
+
+    /// Consume one resolver-issued typed Map read when the selected physical
+    /// owner is armed. Compatibility and test ports keep the generic route.
+    fn try_lower_map_read_method_call_v1(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _receiver: &ASTNode,
+        _method: &str,
+        _arguments: &[ASTNode],
+        _receiver_source: PreparedRawChildSourceV1,
+    ) -> Result<Option<ValueId>, String> {
+        Ok(None)
+    }
 }
 
 /// Narrow capability for source-backed direct-call loan consumers.

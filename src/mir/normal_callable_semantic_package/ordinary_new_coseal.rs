@@ -189,6 +189,18 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // the scalar Call route and owes no binding group, so this marked subset
     // — not the whole sealed prefix — is the binding-group expectation.
     lifecycle_local_call_sites: RefCell<BTreeMap<FunctionOwnerIdV1, Vec<OwnedExprSiteV1>>>,
+    // Physical bindings for the source-issued typed Map read chain. The
+    // selected caller records these only after the typed Invoke and its
+    // Normal/Fault projections are emitted.
+    map_read_bindings: RefCell<
+        BTreeMap<
+            FunctionOwnerIdV1,
+            Vec<(
+                OwnedExprSiteV1,
+                Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
+            )>,
+        >,
+    >,
     root_instance_calls:
         RefCell<BTreeMap<OwnedExprSiteV1, root_instance_call::RootInstanceCallDispositionSlotV1>>,
     root_instance_call_expected: RefCell<BTreeSet<FunctionOwnerIdV1>>,
@@ -281,6 +293,7 @@ impl OrdinaryNewClaimLedgerV1 {
             root_exits: RefCell::new(BTreeMap::new()),
             root_local_call_bindings: RefCell::new(BTreeMap::new()),
             lifecycle_local_call_sites: RefCell::new(BTreeMap::new()),
+            map_read_bindings: RefCell::new(BTreeMap::new()),
             root_instance_calls: RefCell::new(BTreeMap::new()),
             root_instance_call_expected: RefCell::new(BTreeSet::new()),
             field_reads: RefCell::new(BTreeMap::new()),

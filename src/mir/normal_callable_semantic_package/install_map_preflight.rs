@@ -19,11 +19,14 @@ impl VerifiedNormalCallableSemanticPackageV1 {
     /// Complete flow row in its own owner's completion.
     pub(super) fn preflight_map_install(
         &self,
+        selected_consumer: Option<&BuilderInstallConsumerV1>,
     ) -> Result<Option<MapLifecycleUndertakingV1>, NormalCallableSemanticPackageInstallIssueV1>
     {
         use NormalCallableSemanticPackageInstallIssueV1 as Issue;
-        if let Some(site) = self.map_read_facts.first_site().cloned() {
-            return Err(Issue::MapReadPhysicalConsumerMissing { site });
+        if selected_consumer.is_none() {
+            if let Some(site) = self.map_read_facts.first_site().cloned() {
+                return Err(Issue::MapReadPhysicalConsumerMissing { site });
+            }
         }
         let obligations = self
             .describe_map_lifecycle_obligations()

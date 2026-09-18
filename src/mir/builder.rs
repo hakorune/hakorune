@@ -27,6 +27,7 @@ mod callable_declaration_catalog; // Complete same-module callable declaration a
 mod literal_lowering;
 #[cfg(test)]
 mod literal_postemit_retirement_tests;
+mod map_read_physical_consumer; // source-issued Map read Facts to typed MIR operations
 mod new_expression;
 mod normal_callable_binding_materialization;
 mod normal_callable_binding_materialization_port; // existing formal ValueId handoff

@@ -19,6 +19,7 @@ use super::callable_declaration_catalog::{
     SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
 };
 use super::main_expansion::VerifiedMainStaticChildV1;
+use super::map_read_physical_consumer::MapReadPhysicalConsumerV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
@@ -63,6 +64,7 @@ pub(super) struct NormalCallableSemanticPackagePortAdapterV1<
     package: NormalCallableSemanticPackagePortV1<'package>,
     target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'target>>,
     constructor_demand: InstanceConstructorDemandConsumptionV1,
+    map_read_consumer: Option<Rc<RefCell<MapReadPhysicalConsumerV1>>>,
 }
 
 impl<'package, 'loan, 'port, 'collector, 'target>
@@ -73,16 +75,31 @@ impl<'package, 'loan, 'port, 'collector, 'target>
         package: NormalCallableSemanticPackagePortV1<'package>,
         target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'target>>,
         constructor_manifest: Option<super::normal_instance_constructor_admission::VerifiedInstanceConstructorPhysicalDemandManifestV1>,
-    ) -> Self {
-        Self {
+    ) -> Result<Self, String> {
+        let map_read_consumer = {
+            let facts = package.map_read_facts_snapshot();
+            if facts.is_empty() {
+                None
+            } else {
+                let consumer = Rc::new(RefCell::new(MapReadPhysicalConsumerV1::new(facts)));
+                inner.install_map_read_consumer(Rc::clone(&consumer))?;
+                Some(consumer)
+            }
+        };
+        Ok(Self {
             inner,
             package,
             target_binding,
             constructor_demand: InstanceConstructorDemandConsumptionV1::new(constructor_manifest),
-        }
+            map_read_consumer,
+        })
     }
 
-    pub(super) fn complete(self) -> Result<(), String> {
+    pub(super) fn complete(mut self) -> Result<(), String> {
+        if let Some(consumer) = self.map_read_consumer.take() {
+            consumer.borrow().finish()?;
+            self.inner.clear_map_read_consumer();
+        }
         self.constructor_demand
             .complete()
             .map_err(|error| error.to_string())?;
@@ -338,6 +355,23 @@ impl RecursiveChildLoweringPortV1
                 result
             }
         }
+    }
+
+    fn try_lower_map_read_method_call_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        receiver: &ASTNode,
+        method: &str,
+        arguments: &[ASTNode],
+        receiver_source: PreparedRawChildSourceV1,
+    ) -> Result<Option<ValueId>, String> {
+        self.inner.try_lower_map_read_method_call_v1(
+            builder,
+            receiver,
+            method,
+            arguments,
+            receiver_source,
+        )
     }
 }
 

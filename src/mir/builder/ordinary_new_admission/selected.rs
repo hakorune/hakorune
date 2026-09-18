@@ -580,7 +580,7 @@ fn cleanup_step(
     Ok(origin)
 }
 
-fn append_block(
+pub(in crate::mir::builder) fn append_block(
     builder: &mut MirBuilder,
     id: BasicBlockId,
     terminator: MirInstruction,
@@ -605,7 +605,7 @@ fn freeze(reason: &str) -> String {
     format!("[freeze:contract][ordinary-new/emission/{reason}]")
 }
 
-fn fault_frame_binding(
+pub(in crate::mir::builder) fn fault_frame_binding(
     builder: &MirBuilder,
     state: &CallableSemanticLoweringState,
     frame: ValueId,

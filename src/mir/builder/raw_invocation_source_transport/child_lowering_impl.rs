@@ -200,6 +200,24 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         lower_raw_expression_with_recursion_guard_v1(builder, self, input)
     }
 
+    fn try_lower_map_read_method_call_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        receiver: &ASTNode,
+        method: &str,
+        arguments: &[ASTNode],
+        receiver_source: PreparedRawChildSourceV1,
+    ) -> Result<Option<ValueId>, String> {
+        RawInvocationChildPortV1::try_lower_map_read_method_call_v1(
+            self,
+            builder,
+            receiver,
+            method,
+            arguments,
+            receiver_source,
+        )
+    }
+
     fn prepare_expression_child_source_v1(
         &self,
         parent: &ASTNode,

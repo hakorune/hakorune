@@ -97,7 +97,9 @@ pub(in crate::mir) use issuer::{
 pub(in crate::mir) use map_lifecycle_undertaking::{
     MapLifecycleConsumerCapabilityV1, MapLifecycleOperationV1, MapLifecycleUndertakingV1,
 };
-pub(crate) use map_read_fact::MapReadFactsV1;
+pub(crate) use map_read_fact::{
+    MapReadFactV1, MapReadFactsV1, MapReadOperandV1, MapReadOperationV1, MapReadResultClassV1,
+};
 pub(in crate::mir) use model::NormalCallableDynamicProjectionRefV1;
 pub(crate) use model::VerifiedNormalCallableSemanticPackageV1;
 pub(crate) use ordinary_new_coseal::{

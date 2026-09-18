@@ -316,6 +316,11 @@ impl OrdinaryNewClaimLedgerV1 {
             result.extend_from_slice(bindings);
             entry.append_bindings(&mut result);
         }
+        if let Some(groups) = self.map_read_bindings.borrow().get(&owner) {
+            for (_, bindings) in groups {
+                result.extend_from_slice(bindings);
+            }
+        }
         Ok(result)
     }
 }

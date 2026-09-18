@@ -51,8 +51,8 @@ owned Array with reverse-prefix cleanup plus borrowed nested-Map Text reads
 (14/14 focused owner tests). Typed `ArrayIndexMap`/`MapGetText` MIR verifier
 and published-JSON projection are recorded (3 view tests + 1 JSON test), and the
 kernel/C ABI text-view handoff is landed with 69/69 focused kernel tests green.
-T2-alpha source Facts/co-seal for direct `m.get("functions").get(0).get("name")` are 3/3; physical install stops at `MapReadPhysicalConsumerMissing` until the caller consumes `ArrayIndexMap -> MapGetText`.
-Non-claims remain: no qualified Invoke, source/OBJ admission, production cutover, `to_json`, or legacy retirement.
+T2-alpha source Facts/co-seal for direct `m.get("functions").get(0).get("name")` are 3/3; the selected normal caller now wires a scoped physical consumer for `ArrayIndexMap -> MapGetText`, while direct no-consumer install still stops at `MapReadPhysicalConsumerMissing`. The source-to-OBJ fixture remains blocked earlier by the existing `EntryStore(Opaque)` nested-map literal boundary, so this is wiring evidence only.
+Non-claims remain: no qualified Invoke, source/OBJ acceptance, production cutover, `to_json`, or legacy retirement.
 """
 next_design_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"

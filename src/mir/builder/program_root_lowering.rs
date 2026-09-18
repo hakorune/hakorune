@@ -349,7 +349,7 @@ impl MirBuilder {
                     package_port,
                     target_binding,
                     constructor_manifest,
-                );
+                )?;
                 let result = self.lower_prepared_program_root_with_callable_port_v1(
                     work,
                     snapshot,

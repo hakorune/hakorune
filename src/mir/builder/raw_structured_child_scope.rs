@@ -248,6 +248,23 @@ where
         self.child.lower_me_expression_v1(builder)
     }
 
+    fn try_lower_map_read_method_call_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        receiver: &ASTNode,
+        method: &str,
+        arguments: &[ASTNode],
+        receiver_source: PreparedRawChildSourceV1,
+    ) -> Result<Option<ValueId>, String> {
+        self.child.try_lower_map_read_method_call_v1(
+            builder,
+            receiver,
+            method,
+            arguments,
+            receiver_source,
+        )
+    }
+
     fn take_construction_store_v1(
         &mut self,
     ) -> Result<

@@ -446,11 +446,19 @@ sealed `MapHomeFlow`. It records the owner, caller edge and formal binding,
 receiver/operand sites, typed operation/result class, containment path, and
 borrow-root occurrences without issuing a Recipe key, physical ID, or MIR
 type. The existing direct-call co-seal accepts this Fact as the callee read
-evidence; an unrelated `m.get("k")` remains unchanged. Until the selected
-physical reader is wired, preflight stops with the named
-`MapReadPhysicalConsumerMissing` issue before catalog mutation. This is source
-Fact progress only: no source-to-OBJ caller, production cutover, or T2
-acceptance claim is made.
+evidence; an unrelated `m.get("k")` remains unchanged. Direct
+`prepare_install` callers still stop with the named
+`MapReadPhysicalConsumerMissing` issue before catalog mutation. The selected
+normal builder caller now supplies its existing `BuilderInstallConsumerV1`
+capability and attaches one scoped `MapReadPhysicalConsumerV1` to the existing
+recursive lowering port. That consumer matches the exact Fact site and emits
+the already-verified `ArrayIndexMap -> MapGetText` pair; it records bindings
+through the existing ordinary-new ledger and must consume every Fact before
+the package scope completes. This closes wiring only: the source-to-OBJ
+acceptance fixture is still open because the current nested-map literal
+handoff stops at the existing `EntryStore(Opaque)` lifecycle boundary before
+the selected reader is reached. No production cutover, OBJ execution, or T2
+completion claim is made.
 
 T2-alpha now has a physical owner for the first nested-map Array shape:
 `CheckedMapPayload::Array` carries `CanonicalMapArrayResidence`, and
@@ -462,8 +470,9 @@ fresh mutable `ArrayBox` and no child End authority. This owner contract is
 covered independently. The MIR vocabulary now represents this as
 `ArrayIndexMap -> MapView -> MapGetText -> TextView`; the verifier rejects
 chaining or escaping the view, and the published JSON/diagnostic projections
-carry the typed key/index. Kernel/C ABI emission, source admission, and
-production caller cutover are deliberately still unopened.
+carry the typed key/index. Kernel/C ABI emission is landed; source-to-OBJ
+acceptance and production caller cutover remain open behind the lifecycle
+fixture boundary above.
 
 The bounded readable-Map argument lane admits a `: MapBox` formal as a
 borrowed read-only contract (`CallableParameterContractKindV1::Map`,

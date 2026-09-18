@@ -562,7 +562,8 @@ fn package_adapter_selected_dynamic_production_branch_uses_same_candidate_collec
                 package_port,
                 Some(binding),
                 None,
-            );
+            )
+            .expect("map-read consumer adapter");
         use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
         adapter
             .lower_cataloged_static_box_method(

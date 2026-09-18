@@ -98,6 +98,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     catalog_brand: SameModuleCallableCatalogBrandV1,
     batch: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     direct_call_loans: Option<super::direct_call_loan::DirectCallDispositionLoansV1>,
+    map_read_facts: super::map_read_fact::MapReadFactsV1,
     /// Sealed pre-install proof that every owner's described Map
     /// obligations are covered by the selected consumer's declared
     /// capability. `None` when no member carries Map obligations.
@@ -316,6 +317,12 @@ pub(crate) struct NormalCallableSemanticPackagePortV1<'package> {
 }
 
 impl NormalCallableSemanticPackagePortV1<'_> {
+    pub(in crate::mir) fn map_read_facts_snapshot(
+        &self,
+    ) -> super::map_read_fact::MapReadFactsV1 {
+        self.installed.map_read_facts().clone()
+    }
+
     pub(in crate::mir) fn take_object_definitions(
         &mut self,
         context: &CompilationContext,
@@ -360,7 +367,9 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         BuilderPrivateInstalledCallablePackageBundleV1,
         NormalCallableSemanticPackageInstallIssueV1,
     > {
-        let prepared = self.prepare_install(context).map_err(|(_, issue)| issue)?;
+        let prepared = self
+            .prepare_install_with_consumer(context, &consumer)
+            .map_err(|(_, issue)| issue)?;
         let installed = prepared.commit();
         Ok(consumer.seal(installed, BuilderInstallTokenV1::issue()))
     }
@@ -372,7 +381,32 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         PreparedNormalCallableSemanticPackageInstallV1<'context>,
         (Self, NormalCallableSemanticPackageInstallIssueV1),
     > {
-        let map_lifecycle_undertaking = match self.preflight_map_install() {
+        let map_lifecycle_undertaking = match self.preflight_map_install(None) {
+            Ok(undertaking) => undertaking,
+            Err(issue) => return Err((self, issue)),
+        };
+        if !context.callable_declaration_catalog_vacant() {
+            return Err((
+                self,
+                NormalCallableSemanticPackageInstallIssueV1::CatalogSlotOccupied,
+            ));
+        }
+        Ok(PreparedNormalCallableSemanticPackageInstallV1 {
+            context,
+            package: self,
+            map_lifecycle_undertaking,
+        })
+    }
+
+    pub(in crate::mir) fn prepare_install_with_consumer<'context>(
+        self,
+        context: &'context mut CompilationContext,
+        consumer: &BuilderInstallConsumerV1,
+    ) -> Result<
+        PreparedNormalCallableSemanticPackageInstallV1<'context>,
+        (Self, NormalCallableSemanticPackageInstallIssueV1),
+    > {
+        let map_lifecycle_undertaking = match self.preflight_map_install(Some(consumer)) {
             Ok(undertaking) => undertaking,
             Err(issue) => return Err((self, issue)),
         };
@@ -397,7 +431,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             catalog,
             batch,
             direct_call_loans,
-            map_read_facts: _,
+            map_read_facts,
             ordinary_new_claim_ledger,
             instance_constructors,
             selected,
@@ -423,6 +457,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             catalog_brand,
             batch,
             direct_call_loans,
+            map_read_facts,
             map_lifecycle_undertaking: self.map_lifecycle_undertaking,
             ordinary_new_claim_ledger,
             instance_constructors,
@@ -441,6 +476,12 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
 }
 
 impl InstalledNormalCallableSemanticPackageV1 {
+    pub(in crate::mir) fn map_read_facts(
+        &self,
+    ) -> &super::map_read_fact::MapReadFactsV1 {
+        &self.map_read_facts
+    }
+
     /// The undertaking sealed at pre-install: every owner's described Map
     /// obligations covered by the selected consumer's declared capability.
     pub(in crate::mir) fn map_lifecycle_undertaking(

@@ -225,6 +225,8 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     pub(in crate::mir::builder) callable_ledger: Option<Rc<RefCell<CallableSemanticLoweringState>>>,
     pub(in crate::mir::builder) ordinary_new_claim_ledger:
         Option<Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>>,
+    pub(in crate::mir::builder) map_read_consumer:
+        Option<Rc<RefCell<super::map_read_physical_consumer::MapReadPhysicalConsumerV1>>>,
     pub(in crate::mir::builder) generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1,
     /// Source-only Script resolver deferral carried through the existing raw
     /// runtime owner. It does not select a route or issue a fallback.
@@ -327,6 +329,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             semantic_ledger: None,
             callable_ledger: None,
             ordinary_new_claim_ledger: None,
+            map_read_consumer: None,
             generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1::new(),
             script_deferred_observation: None,
             callable_loop_root_scope,
@@ -349,6 +352,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             semantic_ledger: self.semantic_ledger.clone(),
             callable_ledger: self.callable_ledger.clone(),
             ordinary_new_claim_ledger: self.ordinary_new_claim_ledger.clone(),
+            map_read_consumer: self.map_read_consumer.clone(),
             generic_loop_diagnostic: self.generic_loop_diagnostic.reborrow(),
             script_deferred_observation: self.script_deferred_observation.clone(),
             callable_loop_root_scope: self.callable_loop_root_scope.as_deref_mut(),
@@ -361,6 +365,21 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             cleanup_exit_policy: self.cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
         }
+    }
+
+    pub(in crate::mir::builder) fn install_map_read_consumer(
+        &mut self,
+        consumer: Rc<RefCell<super::map_read_physical_consumer::MapReadPhysicalConsumerV1>>,
+    ) -> Result<(), String> {
+        if self.map_read_consumer.is_some() {
+            return Err("[freeze:contract][map-read/consumer-duplicate]".to_owned());
+        }
+        self.map_read_consumer = Some(consumer);
+        Ok(())
+    }
+
+    pub(in crate::mir::builder) fn clear_map_read_consumer(&mut self) {
+        self.map_read_consumer = None;
     }
 
     /// Arm one narrowly scoped phase2160 RawCompatibility runtime-Box
