@@ -1767,3 +1767,60 @@ Suites: kernel `checked_map` 11/11; `map_get_terminal` 13/13;
 recorded-baseline reds; `published_map_physical_execution_test.py`
 full suite green (27 malformed rejections); `libhako_llvmc_ffi.so`
 rebuilt; pointer guard ok.
+
+## MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2 read-owner design stop (2026-09-19, read-only audit integrated)
+
+**Decision:** T2 remains `NoSafeSlice` for implementation. Existing
+`MapLifecycleUndertakingV1` and `preflight_map_install` are suitable as the
+final lifecycle co-seal and admission boundary, but they must not become the
+canonical issuer of intermediate read meaning. A separate read receipt or
+owner chain is not justified; the missing design is a finite source read Fact
+vocabulary, a referenced Recipe obligation, and a physical read-owner
+contract that can be co-sealed by the existing lifecycle owner.
+
+**Source authority + issuer to fix:** resolver-sealed body shape and exact
+`CallableSemanticSourceLedgerView::method_calls()` rows identify the read
+site. `MapHomeFlow`/`MapEntryBorrowV1` identify receiver provenance and borrow
+roots. A bounded read Fact must bind those rows to one of
+`MapLookup(Text)`, `ArrayIndex`, `ArrayLength`, or `KindTest`, including
+result class and containment path. The issuer is not allowed to infer this
+from a selector, MIR type, runtime handle, or reconstructed name/key.
+
+**Co-seal/admission owner:** `VerifiedNormalCallableSemanticPackageV1`
+`preflight_map_install` may reference the read Fact and add the typed,
+read-only, no-escape obligation to `MapLifecycleUndertakingV1`. The enum or
+capability extension alone is insufficient: the selected consumer must have
+the matching physical operation and Normal/Fault projection before catalog
+mutation.
+
+**Physical owner:** `MapInvokeOperation` and checked-map payload APIs must
+provide the typed lookup/view, missing/kind/bounds failures, and cleanup
+behavior. `observe_native`, generic route tables, raw pointers/handles, and
+`TerminalMapGetReturnV1` remain non-authoritative; the latter is only for a
+terminal literal `return m.get(...)` and cannot represent intermediate reads.
+
+**Fail-fast boundary:** reject before catalog mutation when a read site is
+missing, foreign, duplicate, or ambiguous; when a non-empty Array is still
+`Opaque`; when owned staging or reverse-prefix cleanup is absent; when the
+actual/formal read relation is not co-sealed; or when any Normal/Fault owner
+is missing. Construction, install, read, and cleanup faults preserve one
+primary fault and publish no partial package.
+
+**Ownership contract to design:** caller staging owns each Array prefix and
+releases it in reverse order on construction failure. Successful install
+transfers the temporary Map/Array ownership exactly once. Element reads borrow
+`main` without ending it; `[main, main]` records two occurrences but one
+release root. Callee read completion does not end caller storage; the caller
+performs the single final cleanup.
+
+**Bounded next design slice:** define the four read Fact/result classes,
+containment and borrow-root fields, Recipe reference and no-escape window,
+the physical `MapInvokeOperation`/checked-map result contract, and the
+preflight co-seal check. Only after that Decision may T2-alpha implement
+owned Array staging plus the first `funcs[0].name` Text read. T2-beta remains
+the later EmptyArray view and `params`/`blocks` index/length/kind reads.
+
+**Non-claims:** no `to_json` body admission, qualified-call Invoke,
+MapChild transfer, non-empty opaque element recovery, Text result escaping,
+production switch, legacy retirement, or T2 acceptance completion is opened
+by this design stop.

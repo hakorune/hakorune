@@ -1,11 +1,11 @@
 date = "2026-09-19"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0"
+current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2"
 current_execution_cohort = "map_lifecycle_consumer"
-current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0__t2_bounded_plan"
+current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2__read_fact_owner_seal"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "open__t2_bounded_plan_2026-09-19"
+current_design_stop = "open__t2_read_fact_owner_2026-09-19"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -46,18 +46,17 @@ builds a borrowed-entry argument literal yet. Card's qualified
 `Helpers.read_k(...)` stays parked on `OpaqueCall`;
 `home_new_prefix.rs` 787 and `published_lifecycle_physical_
 v2.inc` 798 lines are over-760 debt recorded for a BoxShape
-split. Next bounded slice per the ordered queue: T2 —
-callee-side runtime reads of `funcs[0].name` (Text), `params`
-(empty Array), `blocks` kind/length; needs a bounded plan
-(owned Array payload + staging owner + transitive liveness)
-before implementation. Non-claims: no `MapLocal`/`Local`
+split. T2 remains design-stopped: the existing lifecycle owner can
+co-seal reads but cannot issue their source meaning. The next bounded
+design slice fixes the finite read Fact vocabulary, Recipe reference,
+and physical read-owner contract before implementation. Non-claims: no `MapLocal`/`Local`
 borrow lane, no qualified-call Invoke, no Arrays yet, no
 `to_json`, no production switch, no legacy retirement.
 """
-next_design_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0"
+next_design_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
-next_execution_card = "none__awaiting_t2_bounded_plan"
-next_execution_card_path = "none__awaiting_t2_bounded_plan"
+next_execution_card = "none__awaiting_t2_read_fact_owner_decision"
+next_execution_card_path = "none__awaiting_t2_read_fact_owner_decision"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
