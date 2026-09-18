@@ -1838,6 +1838,23 @@ family checks were also separated: `module_lifecycle_capture_tests` is
 outside the T2 implementation slice and must not be silently treated as
 green evidence.
 
+### Current-head replay receipt (2026-09-19)
+
+At HEAD `8c6635d7bc`, the same quick serial command
+`cargo test --profile quick --lib normal_default_root_catalog_lifecycle_tests -- --test-threads=1`
+completed its 18-test filter with 13 passed and exactly the same five
+failures: `actual_string_helpers_general_result_row_reaches_its_first_loop_carrier`,
+`parser_scan_package_passes_callable_source_handoff_without_fallback`,
+`source_backed_app_main_direct_call_consumes_affine_loan`,
+`source_backed_package_failure_is_terminal_before_builder_effects`, and
+`source_bound_static_result_owner_reaches_the_raw_terminal`. The first named
+terminals match the parent replay (`raw-compat/runtime-box-fate-retired/static`,
+`static-result-ingress/no-exact-static-target`, the affine-loan count drift,
+`RootExpansion` versus `CallableSemanticSeal`, and the same retired-static
+compatibility stop). This closes the review's unclassified five as immutable
+known baseline debt; none is evidence for or against the T2 source-admission
+slice.
+
 ## T2 read contract decision (2026-09-19, design stop closed)
 
 **Decision:** The intermediate read product is a source Facts projection,
