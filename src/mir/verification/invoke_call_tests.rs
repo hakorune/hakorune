@@ -191,3 +191,101 @@ fn call_fault_cannot_read_normal_result() {
         });
     assert!(MirVerifier::new().verify_function(&function).is_err());
 }
+
+fn cataloged_callee(
+    param: crate::mir::MirType,
+) -> (
+    hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    crate::mir::MirFunction,
+) {
+    use crate::mir::{FunctionSignature, MirType};
+    let key =
+        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method("Worker", "run", 1);
+    let mut callee = crate::mir::MirFunction::new(
+        FunctionSignature {
+            name: key.mir_symbol_projection(),
+            params: vec![param],
+            return_type: MirType::Integer,
+            effects: crate::mir::EffectMask::CONTROL,
+        },
+        BasicBlockId::new(0),
+    );
+    callee
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .unwrap()
+        .set_terminator(MirInstruction::Return { value: None });
+    (key, callee)
+}
+
+fn call_module(
+    callee: (
+        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        crate::mir::MirFunction,
+    ),
+) -> crate::mir::MirModule {
+    let mut module = crate::mir::MirModule::new("call_argument_conformance".into());
+    module.add_function(call_function());
+    module.add_cataloged_box_method(callee.0, callee.1).unwrap();
+    module
+}
+
+#[test]
+fn cataloged_call_rejects_non_i64_parameter_on_the_scalar_edge() {
+    // The published ordinary Call/Invoke edge spells every argument as a
+    // scalar; a cataloged callee whose formal is a borrowed map (MapBox)
+    // cannot be reached by it. Typed and untyped arguments both fail
+    // closed: the map lane is T1-beta caller handoff, not this verifier's
+    // concern to invent.
+    for typed in [true, false] {
+        let mut module = call_module(cataloged_callee(crate::mir::MirType::Box("MapBox".into())));
+        if typed {
+            module
+                .functions
+                .get_mut("invoke_control_test")
+                .unwrap()
+                .metadata
+                .value_types
+                .insert(ValueId::new(1), crate::mir::MirType::Integer);
+        }
+        let errors = MirVerifier::new().verify_module(&module).unwrap_err();
+        assert!(
+            format!("{errors:?}").contains("call-argument-type-drift"),
+            "typed={typed}: {errors:?}"
+        );
+    }
+}
+
+#[test]
+fn cataloged_call_rejects_proven_non_scalar_argument() {
+    let mut module = call_module(cataloged_callee(crate::mir::MirType::Integer));
+    module
+        .functions
+        .get_mut("invoke_control_test")
+        .unwrap()
+        .metadata
+        .value_types
+        .insert(ValueId::new(1), crate::mir::MirType::Float);
+    let errors = MirVerifier::new().verify_module(&module).unwrap_err();
+    assert!(
+        format!("{errors:?}").contains("call-argument-type-drift"),
+        "{errors:?}"
+    );
+}
+
+#[test]
+fn cataloged_call_accepts_i64_argument_contract() {
+    for typed in [true, false] {
+        let mut module = call_module(cataloged_callee(crate::mir::MirType::Integer));
+        if typed {
+            module
+                .functions
+                .get_mut("invoke_control_test")
+                .unwrap()
+                .metadata
+                .value_types
+                .insert(ValueId::new(1), crate::mir::MirType::Integer);
+        }
+        MirVerifier::new().verify_module(&module).unwrap();
+    }
+}

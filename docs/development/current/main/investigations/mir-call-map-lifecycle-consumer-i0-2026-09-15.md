@@ -1340,3 +1340,82 @@ coverage (T1-γ); no `to_json`, no production switch, no legacy
 retirement. The compiled-callee reach is root-owned storage only in this
 slice; the same emit path serves `BorrowedParameter` receivers once a
 call edge can hand the pointer across.
+
+## Review fix note (2026-09-18, ordinary-call param-ABI conformance)
+
+The review of the T1-α lane found one correctness/security hole:
+`static box Main { main() { return read_k(10) } read_k(m: MapBox): i64
+{ return m.get("k") } }` compiled with `verification = Ok(())` — an i64
+`Const` argument rode an `Invoke{Call}` edge into a callee whose
+physical formal is a `MapBox`/`ptr`. The asymmetry proved it a bug, not
+a deferred slice: a *map* argument to the same formal failed closed at
+admission while an *integer* argument sailed through. Root cause: the
+`signature.params().any(|k| k != I64)` rejection sat behind the
+`local_call_for_owner` `continue`, so the terminal `return <call>` arm
+never consulted it, and `materialize_call` validated arity only. The
+malformed edge passed semantic seal, MIR verification and physical
+validation; only LLVM IR emission would have rejected the incompatible
+signature — and a slot spelled `i64` would have dereferenced the integer
+as a map pointer.
+
+Fix — one rule at the sealed-contract boundary plus independent
+fail-closed layers; no caller-side map handoff is claimed:
+
+1. `co_seal_lifecycle` scalar arm now rejects any non-`I64` sealed
+   formal **before** the `local_call_for_owner` lookup, covering the
+   terminal `return <call>`, local `local x = <call>` and
+   non-participant `continue` arms with one check. The `map_owned` arm
+   keeps rejecting through `exact_formals`.
+2. `VerifiedTrivialDirectCallV1::seal` applies the same all-`I64` gate
+   to the `InlineI64` route (`DirectCallTargetMismatch`).
+3. `VerifiedCanonicalDirectCallEmissionV1::materialize` /
+   `materialize_call` gain `ScalarParameterAbi { index }`; every
+   emission lane (`into_scalar_emission`, `lifecycle_emission`,
+   trivial-SSA `emit`/`emit_resolved_header`, `root_call_entry`)
+   funnels through it, so a malformed edge cannot be constructed even
+   if a caller bypasses the seal.
+4. MIR verifier `check_call_edge` (`invoke.rs`) resolves cataloged
+   same-module callee keys from the published carrier and enforces:
+   arity including instance receivers; no `Box("MapBox")` formal on the
+   scalar edge (it mirrors the wire `"map"` representation exactly);
+   a recorded argument type must be `Integer`/`Unknown`, never a proven
+   non-i64 kind → `call-argument-type-drift`. Uncataloged callees stay
+   outside this relation's authority.
+5. C `hako_physical_validate_ordinary_call` requires per-argument
+   `kind == "i64"` **and** callee param `representation == "i64"` — the
+   edge is i64-only end to end because operands are spelled `i64 %v`;
+   a `"map"` formal and a `"map"` argument kind both fail closed.
+6. V4 indexed flow enforces the identical i64-only relation on live
+   values (`representation == "i64"` → `LV4_I64`, else `LV4_BAD`).
+
+Scope kept: `MapBox`→`MapBox` argument handoff remains T1-β — every
+layer above rejects it rather than silently widening; the emitter's
+unconditional `i64 %v` spelling is now the only reachable shape, so the
+emitter needed no change.
+
+Pins: `direct_call_lifecycle_tests` +3 — `i64_parameter_callee_accepts_scalar_call_arguments`,
+`map_parameter_callee_rejects_scalar_call_arguments` (terminal + local ×
+`m.get` + plain bodies), `map_owned_map_parameter_callee_still_rejects_direct_call`;
+`canonical_direct_call_tests::rejects_non_scalar_parameter_abi_before_materialization`;
+`invoke_call_tests` +3 — `cataloged_call_rejects_non_i64_parameter_on_the_scalar_edge`
+(typed + untyped), `cataloged_call_rejects_proven_non_scalar_argument`,
+`cataloged_call_accepts_i64_argument_contract`;
+`published_map_physical_execution_test.py` — `i64 argument -> i64 formal`
+compiles; `i64`→`map` and `map`→`i64` argument/formal drift both reject
+`published-lifecycle-physical-parser/function-body`.
+
+Suites: `normal_callable_semantic_package` 268/268, `verification`
+107/107, `resolved_value_profile` 65/65, `canonical_direct_call` 6/6,
+`physical_program` 18/18; `published_map_physical_execution_test.py`
+full suite green, `published_lifecycle_v4_execution_test.py` full suite
+green, `published_lifecycle_v4_nested_call_test.c` pass; `cc
+-fsyntax-only -Wall` warning count identical to baseline (85).
+`direct_call`-filtered reds `source_backed_app_main_direct_call_consumes_affine_loan`
++ `main_f1_rejects_direct_call_and_nested_owner_before_lowering` are
+recorded in `cargo_lib_red_baseline.tests.txt` — known baseline debt,
+unchanged.
+
+Non-claims: no `ArgumentHandoff`, no call-edge map co-seal, no
+`main(){ return Helpers.read_k(%{"k"=>7}) }` fixture (all still T1-β);
+no tag coverage (T1-γ); no `to_json`, no production switch, no legacy
+retirement.

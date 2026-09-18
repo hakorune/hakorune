@@ -116,6 +116,52 @@ fn rejects_argument_cardinality_before_materialization() {
 }
 
 #[test]
+fn rejects_non_scalar_parameter_abi_before_materialization() {
+    // `materialize*` projects only the scalar Call/Invoke lane; a callee
+    // whose sealed signature carries a non-i64 parameter (e.g. MapBox) can
+    // never be spelled correctly by i64 argument operands, so the emission
+    // refuses before any malformed edge can be built.
+    let tree = ASTNode::FunctionDeclaration {
+        name: "read_k".to_string(),
+        params: vec!["m".to_string()],
+        param_decls: vec![ParamDecl {
+            name: "m".to_string(),
+            declared_type_name: Some("MapBox".to_string()),
+        }],
+        return_type_name: Some("i64".to_string()),
+        body: Vec::new(),
+        uses: Vec::new(),
+        contracts: Vec::new(),
+        is_static: true,
+        is_override: false,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    };
+    let source = VerifiedResolvedCallableProgramV1::resolve(ASTNode::Program {
+        statements: vec![tree],
+        span: Span::unknown(),
+    })
+    .unwrap();
+    let map_header = source
+        .module()
+        .source()
+        .catalog()
+        .index()
+        .resolve_free_static_source_call("read_k", 1)
+        .unwrap()
+        .clone();
+    let emission = VerifiedCanonicalDirectCallEmissionV1::conservative_from_header(&map_header);
+    assert_eq!(
+        emission.materialize_call(None, vec![ValueId::new(3)]),
+        Err(DirectCallEmissionErrorV1::ScalarParameterAbi { index: 0 })
+    );
+    assert_eq!(
+        emission.materialize(ValueId::new(9), vec![ValueId::new(3)]),
+        Err(DirectCallEmissionErrorV1::ScalarParameterAbi { index: 0 })
+    );
+}
+
+#[test]
 fn invoke_projection_retains_issued_target_and_has_no_embedded_result() {
     let emission = VerifiedCanonicalDirectCallEmissionV1::from_header_with_published_key(
         &header(),

@@ -174,6 +174,11 @@ For a non-Map target, existing exact local and terminal Call relations select
 the same Lifecycle consumer after owner/site/destination, all-i64 argument
 cardinality, explicit return, successful cleanup and empty prior Homes are checked. That consumer
 records the Invoke result binding required by the original caller Completion.
+The scalar Call edge carries only i64 argument values: before either relation
+is consulted, a callee whose sealed signature holds any non-`I64` formal (for
+example a borrowed `MapBox` storage pointer) rejects — the terminal `return
+<call>` arm cannot bypass that gate, and caller-side map argument handoff
+remains a separate admitted lane.
 Without a local or terminal Call relation the row stays Scalar, including
 Plain exits and terminal-only G0;
 the existing terminal return consumer still borrows its source Call relation.

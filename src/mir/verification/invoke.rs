@@ -27,6 +27,17 @@ pub(super) fn check_module(module: &crate::mir::MirModule) -> Result<(), Vec<Ver
                         errors.push(error(*id, "object-field-read-definition-invalid"));
                     }
                 }
+                let call = match instruction {
+                    MirInstruction::Call(call) => Some(call),
+                    MirInstruction::Invoke {
+                        operation: InvokeOperation::Call { call, .. },
+                        ..
+                    } => Some(call),
+                    _ => None,
+                };
+                if let Some(call) = call {
+                    check_call_edge(module, function, *id, call, &mut errors);
+                }
                 if let MirInstruction::Invoke { operation, .. } = instruction {
                     match operation {
                         InvokeOperation::Map(MapInvokeOperation::InstallIndexed { object, .. })
@@ -277,6 +288,64 @@ fn check_frame_entry(function: &MirFunction, errors: &mut Vec<VerificationError>
             .is_some_and(|values| values.contains(&frame))
         {
             errors.push(error(*id, "frame-escaped-as-source-value"));
+        }
+    }
+}
+
+/// One scalar Call edge only carries i64 argument values. When the callee is
+/// a cataloged same-module definition, its published signature is the param
+/// authority: a non-scalar formal (for example a borrowed `MapBox` storage
+/// pointer) has no admitted argument kind on this edge, and a recorded
+/// argument type must prove `Integer` — or stay unrecorded, matching the
+/// physical lane's i64 spelling — never a concrete non-i64 kind.
+/// Uncataloged callees are outside this relation's authority.
+fn check_call_edge(
+    module: &crate::mir::MirModule,
+    function: &MirFunction,
+    block: BasicBlockId,
+    call: &crate::mir::definitions::MirCall,
+    errors: &mut Vec<VerificationError>,
+) {
+    use hakorune_mir_defs::{
+        CanonicalGlobalTargetV1 as Global, CanonicalSameModuleCallableKeyV1 as Key,
+        CanonicalSameModuleGlobalTargetV1 as SameModule, SameModuleCallableNamespaceV1,
+    };
+    let (key, receiver_params) = match &call.callee {
+        Callee::Global(Global::SameModule(SameModule::StaticBoxMethod {
+            owner,
+            method,
+            arity,
+        })) => (Key::static_box_method(owner, method, *arity), 0),
+        Callee::Global(Global::SameModule(SameModule::FreeFunction { name, arity })) => {
+            (Key::free_function(name, *arity), 0)
+        }
+        Callee::SameModuleInstance { key, .. }
+            if key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod =>
+        {
+            (key.clone(), 1)
+        }
+        _ => return,
+    };
+    let Some(callee) = module
+        .canonical_callable_definition_symbol(&key)
+        .and_then(|symbol| module.functions.get(symbol))
+    else {
+        return;
+    };
+    let params = &callee.signature.params;
+    if call.args.len() + receiver_params != params.len() {
+        errors.push(error(block, "call-argument-type-drift"));
+        return;
+    }
+    for (argument, parameter) in call.args.iter().zip(params.iter().skip(receiver_params)) {
+        let non_scalar = matches!(parameter, crate::mir::MirType::Box(name) if name == "MapBox");
+        let drift = matches!(
+            function.metadata.value_types.get(argument),
+            Some(kind) if !matches!(kind, crate::mir::MirType::Integer | crate::mir::MirType::Unknown)
+        );
+        if non_scalar || drift {
+            errors.push(error(block, "call-argument-type-drift"));
+            return;
         }
     }
 }

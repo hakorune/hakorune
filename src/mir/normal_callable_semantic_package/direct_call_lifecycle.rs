@@ -272,6 +272,21 @@ impl DirectCallDispositionLoanV1 {
                 {
                     return Err(reject);
                 }
+                // The scalar Call route carries only i64 argument values.
+                // A callee whose sealed signature holds a non-scalar formal
+                // (for example a borrowed MapBox storage pointer) can never
+                // be reached through this edge — neither the terminal Call
+                // nor the local-call arm may admit it.
+                if row
+                    .emission
+                    .target()
+                    .signature()
+                    .params()
+                    .iter()
+                    .any(|kind| *kind != ExactCallableParamAbiV1::I64)
+                {
+                    return Err(reject);
+                }
                 let Some(local) = root.local_call_for_owner(self.owner, site.site()) else {
                     continue;
                 };
@@ -301,10 +316,6 @@ impl DirectCallDispositionLoanV1 {
                     || local.result() != LocalCallResultClassV1::I64
                     || signature.arity() != row.argument_sites.len()
                     || signature.result() != Some(ExactTrivialScalarAbiV1::I64)
-                    || signature
-                        .params()
-                        .iter()
-                        .any(|kind| *kind != ExactCallableParamAbiV1::I64)
                     || caller.owner() != self.owner
                     || terminal_site.is_some_and(|site| caller.explicit_site() != Some(site))
                     || !caller.returns_value()

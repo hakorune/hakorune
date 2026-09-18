@@ -4,7 +4,8 @@ use crate::mir::canonical_direct_call_contract::{
     VerifiedDirectCallEffectV1, VerifiedTrivialDirectCallTargetV1,
 };
 use crate::mir::resolved_semantics::{
-    FunctionOwnerIdV1, SourceExprSiteV1, VerifiedCallableIndexV1, VerifiedResolvedFunctionV1,
+    ExactCallableParamAbiV1, FunctionOwnerIdV1, SourceExprSiteV1, VerifiedCallableIndexV1,
+    VerifiedResolvedFunctionV1,
 };
 
 use super::error::TrivialProfileContractErrorV1;
@@ -39,9 +40,17 @@ impl VerifiedTrivialDirectCallV1 {
             .map_err(
                 |_| TrivialProfileContractErrorV1::DirectCallHeaderMismatch { site: site.clone() },
             )?;
+        // Every argument analyzed as `InlineI64`; a callee whose sealed
+        // signature holds a non-scalar formal (for example a borrowed MapBox
+        // storage pointer) cannot be satisfied by this edge.
         if resolved.owner() != owner
             || header.callable() != target.callable()
             || header.signature().arity() != arguments.len()
+            || header
+                .signature()
+                .params()
+                .iter()
+                .any(|kind| *kind != ExactCallableParamAbiV1::I64)
         {
             return Err(TrivialProfileContractErrorV1::DirectCallTargetMismatch { site });
         }

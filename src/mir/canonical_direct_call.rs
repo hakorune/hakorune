@@ -8,7 +8,7 @@ use crate::mir::canonical_direct_call_contract::{
     VerifiedDirectCallEffectV1, VerifiedTrivialDirectCallTargetV1,
 };
 use crate::mir::definitions::MirCall;
-use crate::mir::resolved_semantics::VerifiedCallableHeaderV1;
+use crate::mir::resolved_semantics::{ExactCallableParamAbiV1, VerifiedCallableHeaderV1};
 use crate::mir::resolved_value_profile::VerifiedTrivialDirectCallV1;
 use crate::mir::{Callee, Effect, EffectMask, MirInstruction, ValueId};
 use hakorune_mir_defs::CanonicalGlobalTargetV1;
@@ -40,6 +40,7 @@ pub(crate) struct VerifiedCanonicalDirectCallEmissionV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum DirectCallEmissionErrorV1 {
     ArgumentCardinality { expected: usize, actual: usize },
+    ScalarParameterAbi { index: usize },
     TargetProjection { key: String },
 }
 
@@ -96,12 +97,23 @@ impl VerifiedCanonicalDirectCallEmissionV1 {
         dst: Option<ValueId>,
         args: Vec<ValueId>,
     ) -> Result<MirCall, DirectCallEmissionErrorV1> {
-        let expected = self.target.signature().arity();
+        let signature = self.target.signature();
+        let expected = signature.arity();
         if args.len() != expected {
             return Err(DirectCallEmissionErrorV1::ArgumentCardinality {
                 expected,
                 actual: args.len(),
             });
+        }
+        // This materialization only carries i64 argument values; a formal
+        // sealed as a non-scalar ABI (for example a borrowed MapBox storage
+        // pointer) has no admitted edge through this lane.
+        if let Some(index) = signature
+            .params()
+            .iter()
+            .position(|kind| *kind != ExactCallableParamAbiV1::I64)
+        {
+            return Err(DirectCallEmissionErrorV1::ScalarParameterAbi { index });
         }
         let target = if let Some(key) = self.target.published_key() {
             key.canonical_global_target_v1().map_err(|_| {

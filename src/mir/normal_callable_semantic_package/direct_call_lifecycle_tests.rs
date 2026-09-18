@@ -477,6 +477,61 @@ fn non_map_terminal_call_retains_source_completion_and_scalar_row() {
 }
 
 #[test]
+fn i64_parameter_callee_accepts_scalar_call_arguments() {
+    assert!(issue(
+        "static box Main { main() { return read_k(10) } read_k(k: i64): i64 { return 7 } }"
+    )
+    .is_ok());
+    assert!(issue(
+        "static box Main { main() { local x = read_k(10) return 0 } read_k(k: i64): i64 { return 7 } }"
+    )
+    .is_ok());
+}
+
+#[test]
+fn map_parameter_callee_rejects_scalar_call_arguments() {
+    // The scalar Call edge carries only i64 argument values; a `: MapBox`
+    // formal needs borrowed map storage no scalar argument can produce.
+    // Terminal `return <call>` and local `local x = <call>` shapes both fail
+    // closed at co-seal instead of materializing a type-confused edge.
+    for callee_body in ["return m.get(\"k\")", "return 7"] {
+        for main_body in ["return read_k(10)", "local x = read_k(10) return 0"] {
+            let result = issue(&format!(
+                "static box Main {{ main() {{ {main_body} }} read_k(m: MapBox): i64 {{ {callee_body} }} }}"
+            ));
+            assert!(
+                matches!(
+                    result,
+                    Err(super::NormalCallableSemanticPackageIssueV1::DirectCall {
+                        _error: super::issuer::DirectCallDispositionIssueV1::Loan(
+                            DirectCallLoanErrorV1::LifecycleSourceMismatch
+                        ),
+                    })
+                ),
+                "{main_body} / {callee_body}: {result:?}"
+            );
+        }
+    }
+}
+
+#[test]
+fn map_owned_map_parameter_callee_still_rejects_direct_call() {
+    // A MapBox callee classified by a caller map literal is not callable
+    // either: the direct-call lane has no caller-side map handoff yet.
+    let result = issue(
+        "static box Main { main() { local m = %{\"k\" => 7} return read_k(m) } read_k(m: MapBox): i64 { local x = %{\"a\" => 1} return m.get(\"k\") } }",
+    );
+    assert!(matches!(
+        result,
+        Err(super::NormalCallableSemanticPackageIssueV1::DirectCall {
+            _error: super::issuer::DirectCallDispositionIssueV1::Loan(
+                DirectCallLoanErrorV1::LifecycleSourceMismatch
+            ),
+        })
+    ));
+}
+
+#[test]
 fn non_map_local_call_selects_lifecycle_without_reclassifying_terminal() {
     let mut package = issue(
         "static box Main { main() { local first = helper(10) return helper(20) }

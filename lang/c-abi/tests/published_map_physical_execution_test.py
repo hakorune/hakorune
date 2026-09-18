@@ -414,6 +414,60 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     compile_input(borrowed)
     print("borrowed MapBox param -> map_checked_get -> compiled")
 
+    # Ordinary-call argument kinds must equal the callee's published
+    # parameter representations. The scalar edge carries "i64" values only:
+    # a "map" formal cannot be filled by it (the source-side T1-beta handoff
+    # seals this upstream; the physical validator is the fail-closed layer).
+    def call_into(callee, arg_kind):
+        caller = dict(name="main", role="root_i64", entry=0, params=[],
+                      receiver=None, receiver_object=None, blocks=[
+            dict(id=0, edges=[dict(target=1, args=None),
+                            dict(target=2, args=None)],
+                 instructions=[
+                     dict(index=0, instruction=dict(
+                         op="fault_frame_enter", dst=0, mode="root_owned")),
+                     dict(index=1, instruction=dict(
+                         op="const_i64", dst=1, value=10))],
+                 terminator=dict(index=2, instruction=dict(
+                     op="invoke", fault_frame=0, normal=1, fault=2,
+                     operation=dict(kind="ordinary_call", result="i64",
+                                    call=dict(target=1, dst=None, args=[
+                                        dict(kind=arg_kind, value=1)]))))),
+            dict(id=1, edges=[], instructions=[dict(index=0, instruction=dict(
+                     op="invoke_normal_result", invoke_block=0, dst=2))],
+                 terminator=dict(index=1, instruction=dict(
+                     op="return", value=2))),
+            dict(id=2, edges=[], instructions=[],
+                 terminator=dict(index=0, instruction=dict(
+                     op="return_fault", fault_frame=0)))])
+        return dict(schema="hako.published-lifecycle-physical-program.v2",
+                    storage_profile=1, fault_abi_version=1,
+                    process_result_site=1, layouts=[],
+                    functions=[caller, callee])
+
+    scalar_callee = dict(name="Work.read_k/1", role="ordinary_i64", entry=0,
+                         params=[dict(value=9, representation="i64")],
+                         receiver=None, receiver_object=None, blocks=[
+        dict(id=0, edges=[], instructions=[
+            dict(index=0, instruction=dict(
+                op="fault_frame_enter", dst=2, mode="borrowed")),
+            dict(index=1, instruction=dict(op="const_i64", dst=3, value=7))],
+            terminator=dict(index=2, instruction=dict(op="return", value=3)))])
+    compile_input(call_into(scalar_callee, "i64"))
+    print("i64 argument -> i64 formal -> compiled")
+
+    # i64 argument into a borrowed-map formal, and a map argument into an
+    # i64 formal: both are ABI drift the parser must name.
+    drifted = call_into(copy.deepcopy(borrowed["functions"][1]), "i64")
+    assert_named_reject(drifted,
+                        "published-lifecycle-physical-parser/function-body")
+    i64_param_callee = copy.deepcopy(borrowed["functions"][1])
+    i64_param_callee["params"] = [dict(value=1, representation="i64")]
+    drifted = call_into(i64_param_callee, "map")
+    assert_named_reject(drifted,
+                        "published-lifecycle-physical-parser/function-body")
+    print("call argument kind <-> callee parameter representation drift rejects")
+
     # The read-only borrow never gains an End obligation or a write lane:
     # map_end and map_install_* on caller-owned storage must reject at the
     # flow layer (a -2 origin must never index the state arrays).

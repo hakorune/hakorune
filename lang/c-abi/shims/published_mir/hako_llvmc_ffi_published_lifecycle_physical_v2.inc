@@ -483,9 +483,14 @@ static int hako_physical_validate_ordinary_call(yyjson_val* function, yyjson_val
       yyjson_arr_size(yyjson_obj_get(callee, "params")) != yyjson_arr_size(args)) return 0;
   for (size_t i = 0; i < yyjson_arr_size(args); i++) {
     yyjson_val* arg = yyjson_arr_get(args, i);
+    yyjson_val* param = yyjson_arr_get(yyjson_obj_get(callee, "params"), i);
     uint32_t value;
+    /* The ordinary-call edge is i64-only end to end: operands are spelled
+       `i64 %v`, so a "map" (or any non-i64) formal can never be filled here
+       and a non-i64 argument kind can never satisfy an i64 formal. */
     if (!hako_physical_exact_keys(arg, arg_keys, 2) ||
         !hako_physical_string(yyjson_obj_get(arg, "kind"), "i64") ||
+        !hako_physical_string(yyjson_obj_get(param, "representation"), "i64") ||
         !hako_physical_u32(yyjson_obj_get(arg, "value"), &value) ||
         !hako_physical_value_available_at(function, value, block, index)) return 0;
   }

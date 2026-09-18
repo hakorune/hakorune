@@ -151,10 +151,20 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
                 in->index[target].receiver_object, 1))
           return LV4_FLOW_RECEIVER_MISMATCH;
       }
-      for (size_t i = 0; i < yyjson_arr_size(args); i++) {
-        yyjson_val* arg = yyjson_arr_get(args, i);
-        hako_lv4_value* value = lv4_index_value(fn, lv4_u(arg, "value"));
-        if (!value || value->kind != LV4_I64) return 0;
+      {
+        yyjson_val* cparams = yyjson_obj_get(in->index[target].function, "params");
+        for (size_t i = 0; i < yyjson_arr_size(args); i++) {
+          yyjson_val* arg = yyjson_arr_get(args, i);
+          hako_lv4_value* value = lv4_index_value(fn, lv4_u(arg, "value"));
+          /* The ordinary-call edge is i64-only end to end: the callee's
+             sealed param representation must be "i64" and the live argument
+             value must be scalar. A "map" formal fails closed here the same
+             way the physical validator rejects it. */
+          const char* repr = yyjson_get_str(yyjson_obj_get(
+              yyjson_arr_get(cparams, i), "representation"));
+          int want = repr && !strcmp(repr, "i64") ? LV4_I64 : LV4_BAD;
+          if (!value || value->kind != want) return 0;
+        }
       }
       normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "map_new") ||
