@@ -265,7 +265,7 @@ fn value_abi_rejects_bad_bits_before_key_consumption_and_preserves_real_home() {
         assert_eq!(key_dispose(k), 0);
         prepare(f, k, b"a");
         assert_eq!(outcome_init(o), 0);
-        for (kind, bits) in [(0, 0), (3, 0), (MAP_VALUE_BOOL, 2), (MAP_VALUE_BOOL, -1)] {
+        for (kind, bits) in [(0, 0), (4, 0), (MAP_VALUE_BOOL, 2), (MAP_VALUE_BOOL, -1)] {
             assert_eq!(value_export(f, 1, 4, m, k, kind, bits, o), 2);
             assert!(live(a));
             assert!(matches!(
@@ -464,6 +464,78 @@ fn value_abi_mixed_replacement_never_treats_integer_bits_as_a_handle() {
         ));
         assert_eq!(map_end(f, 6, m), 0);
         assert!(!live(transferred) && live(caller_owned));
+        assert_eq!(map_dispose(m), 0);
+        reclaim_checked_indexed(TypedObjectStoreBackend::SafeMutex, caller_owned, 919).unwrap();
+        assert_eq!(super::super::frame_dispose(f), 0);
+    }
+}
+
+unsafe extern "C" {
+    #[link_name = "nyash.map.checked_get_i64_v1"]
+    fn get_i64_export(
+        frame: *mut c_void,
+        site: u64,
+        map: *mut c_void,
+        bytes: *const u8,
+        len: usize,
+        out: *mut i64,
+    ) -> u32;
+}
+
+#[test]
+fn value_abi_borrowed_handle_never_claims_or_reads_back_the_target() {
+    let (mut f, mut m, mut k, mut o) = (
+        Slot::<FaultFrame>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<KeyStorage>::new(),
+        Slot::<OutcomeStorage>::new(),
+    );
+    unsafe {
+        let (f, m, k, o) = (f.ptr(), m.ptr(), k.ptr(), o.ptr());
+        assert_eq!(super::super::frame_init(f), 0);
+        assert_eq!(map_init(m), 0);
+        assert_eq!(allocate(f, 1, 1, m), 0);
+        let caller_owned = child();
+        // Kind 3 installs the caller's bits as a non-owning snapshot.
+        prepare(f, k, b"a");
+        assert_eq!(outcome_init(o), 0);
+        assert_eq!(
+            value_export(f, 1, 2, m, k, MAP_VALUE_BORROWED_HANDLE, caller_owned, o),
+            0
+        );
+        assert_eq!(outcome_end(f, 3, o), 0);
+        assert_eq!(outcome_dispose(o), 0);
+        assert_eq!(key_dispose(k), 0);
+        assert!(live(caller_owned));
+        // A scalar read must never expose the handle bits as an integer.
+        let mut out = MaybeUninit::<i64>::new(-1);
+        assert_eq!(
+            get_i64_export(f, 4, m, b"a".as_ptr(), 1, out.as_mut_ptr()),
+            1
+        );
+        assert_eq!((*f.cast::<FaultFrame>()).primary.reason, 104);
+        assert_eq!(out.assume_init(), -1);
+        // Replacing the entry ends the borrowed payload — a no-op that
+        // leaves the caller's object live.
+        prepare(f, k, b"a");
+        assert_eq!(outcome_init(o), 0);
+        assert_eq!(value_export(f, 1, 5, m, k, MAP_VALUE_I64, 7, o), 0);
+        assert_eq!(outcome_end(f, 6, o), 0);
+        assert_eq!(outcome_dispose(o), 0);
+        assert_eq!(key_dispose(k), 0);
+        assert!(live(caller_owned));
+        // Map end releases nothing for a borrowed snapshot either.
+        prepare(f, k, b"a");
+        assert_eq!(outcome_init(o), 0);
+        assert_eq!(
+            value_export(f, 1, 7, m, k, MAP_VALUE_BORROWED_HANDLE, caller_owned, o),
+            0
+        );
+        assert_eq!(outcome_end(f, 8, o), 0);
+        assert_eq!(outcome_dispose(o), 0);
+        assert_eq!(key_dispose(k), 0);
+        assert_eq!(map_end(f, 9, m), 0);
+        assert!(live(caller_owned));
         assert_eq!(map_dispose(m), 0);
         reclaim_checked_indexed(TypedObjectStoreBackend::SafeMutex, caller_owned, 919).unwrap();
         assert_eq!(super::super::frame_dispose(f), 0);

@@ -193,7 +193,11 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       for (size_t i = 0; i < yyjson_arr_size(args); i++) {
         yyjson_val* arg = yyjson_arr_get(args, i);
         hako_lv4_value* value = lv4_index_value(fn, lv4_u(arg, "value"));
-        if (!value || value->kind != (lv4_u(arg, "kind") == 1 ? LV4_I64 : LV4_BOOL)) return 0;
+        /* arg kind is exact: 1 is i64, 2 is bool — anything else,
+           including a missing field, rejects rather than defaulting. */
+        uint32_t arg_kind = lv4_u(arg, "kind");
+        if (!value || (arg_kind != 1 && arg_kind != 2) ||
+            value->kind != (arg_kind == 1 ? LV4_I64 : LV4_BOOL)) return 0;
       }
     } else if (lv4_is(op, "kind", "field_set")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));

@@ -117,9 +117,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn call_result_kind(
 /// sealed `%{...}` actual, the callee's `Map` formal ABI and contract
 /// kind, and the callee's own `BorrowedParameter` terminal read must
 /// agree at every ordinal — names and annotations never decide this.
-/// A `Borrowed`-class entry cannot ride the handoff: the callee reads
-/// `InstallValue` payloads as scalars, so the sealed borrow class would
-/// silently re-read as an integer until the T1-γ payload tag exists.
+/// A `Borrowed`-class entry still cannot ride the handoff: the T1-γ
+/// `BorrowedHandle` payload tag makes the entry readable-as-Fault rather
+/// than silently scalar, so the misread hazard is gone — but no producer
+/// reachability exists yet. The only `Handle` borrow source is a
+/// self-rooted parameter, and `OpaqueHandle` formals are not direct-call
+/// catalogable, so no package-install caller can build a borrowed-entry
+/// argument literal today. The undertaking admits the verified shape;
+/// this gate keeps the unproven edge closed until a catalogable borrow
+/// source exists.
 fn map_argument_edge(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     parameters: &[OwnedCallableParameterContractDeclarationV1],

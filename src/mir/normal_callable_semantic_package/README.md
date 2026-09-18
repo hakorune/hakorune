@@ -391,10 +391,10 @@ undertaking rides `PreparedNormalCallableSemanticPackageInstallV1` into
 The capability is the builder consumer's own declaration —
 `BuilderInstallConsumerV1::map_lifecycle_capability()` names exactly the
 implemented lanes (create, scalar/transferred/text/empty-array entry
-store, displace, `OwnershipShare(Handle)`, return handoff, Normal/Fault
-cleanup); `OwnershipShare(MapLocal)`/`OwnershipShare(Local)`, opaque
-entry stores, and slot/argument/contained handoffs stay undeclared and
-fail closed at verify. `EntryStore` carries the sealed row's own
+store, displace, `OwnershipShare(Handle)`, return and argument
+handoffs, Normal/Fault cleanup); `OwnershipShare(MapLocal)`/
+`OwnershipShare(Local)`, opaque entry stores, and slot/contained
+handoffs stay undeclared and fail closed at verify. `EntryStore` carries the sealed row's own
 `store_class()` precision — `Scalar`, `Transferred`, `Text`, and
 `EmptyArray` are the declared lanes while `Opaque` classes (non-empty
 `[...]`, `%{...}` child values) describe the obligation but stay
@@ -415,19 +415,27 @@ Borrowed entries carry
 `OwnershipShare` instead of a store. `OwnershipShare` is kind-specific
 (`MapEntryBorrowKindV1`): only `Handle` is admitted — a self-rooted
 parameter handle reaches the consumer as an i64 wire value (ordinary
-formals are all LV4_I64), so the borrowed entry lowers through the
-existing `InstallValue`/`I64` lane and `end()` stays a non-owning no-op;
+formals are all LV4_I64) tagged `MapValueKind::BorrowedHandle`, so the
+borrowed entry lowers through `InstallValue` as
+`CheckedMapPayload::BorrowedHandle` (wire `value_kind` 3): a scalar read
+Faults non-scalar instead of re-reading the handle bits, and `end()`
+stays a non-owning no-op;
 the exact root binding is still checked via `take_exact_lexical_value`.
 Verify also rejects a `BorrowedEntryEscape`: a site that stores borrowed
-entries while performing an outward handoff (Slot/Return/Argument/
-Contained) fails closed even when every named operation is covered —
-the borrow cannot ride a boundary with no liveness contract. The selected emit lane reads the
+entries while performing an outward handoff fails closed even when
+every named operation is covered — the `ArgumentHandoff +
+OwnershipShare(Handle)` pair is the one admitted borrow escape, while
+Slot/Return/Contained and every non-`Handle` borrow stay rejected
+because the boundary carries no liveness contract for them. The selected emit lane reads the
 same `store_class()` predicate — one classification, verified once. The one-shot install token itself remains provenance, not
 capability evidence. `MapCallEdgeContractV1` defines the call-edge
-conformance vocabulary (argument handoff vs return receive); edge
-resolution stays deferred because both kinds are unreachable — argument
-handoffs fail at per-owner verify and map-result callees remain gated at
-the i64 call-admission seam. `new MapBox()` construction sites share this
+conformance vocabulary (argument handoff vs return receive); the
+argument edge resolves at install through the caller/callee co-seal in
+`preflight_map_install` for actuals whose entries are all owned —
+a `Borrowed`-class entry still cannot ride the edge because no
+catalogable borrow source exists yet (`OpaqueHandle` formals are not
+direct-call catalogable), and the return edge stays deferred —
+map-result callees remain gated at the i64 call-admission seam. `new MapBox()` construction sites share this
 operation vocabulary through OrdinaryNew claim evidence, not `MapHomeFlow`
 rows — that describe arm is a separate bounded row.
 

@@ -101,6 +101,27 @@ fn borrowed_handle_entry_on_a_non_terminal_argument_stays_edge_gated() {
     ));
 }
 
+/// A borrowed `Handle` entry on a *terminal* call argument stays
+/// edge-gated too: `map_argument_edge` co-seals only actuals whose
+/// entries are all owned — the `Borrowed` store class has no
+/// catalogable call-edge source yet, so the unproven edge rejects at
+/// the loan layer rather than riding the handoff.
+#[test]
+fn borrowed_handle_entry_on_a_terminal_argument_stays_edge_gated() {
+    let result = issue(
+        "static box Work { read_a(m: MapBox): i64 { return m.get(\"a\") } }
+         static box Main { main() { return 0 } drive(h) { return read_a(%{\"k\" => h, \"a\" => 9}) } }",
+    );
+    assert!(matches!(
+        result,
+        Err(super::NormalCallableSemanticPackageIssueV1::DirectCall {
+            _error: super::issuer::DirectCallDispositionIssueV1::Loan(
+                super::direct_call_loan::DirectCallLoanErrorV1::LifecycleSourceMismatch
+            ),
+        })
+    ));
+}
+
 #[test]
 fn map_argument_to_unread_formal_rejects_at_co_seal() {
     // The edge requires the callee's `BorrowedParameter` read evidence —

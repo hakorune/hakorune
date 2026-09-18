@@ -1668,7 +1668,7 @@ Executable: `published_map_physical_execution_test.py` — the new
 `map_checked_get` on the entry and exits 70 (Fault path runs
 `map_end` once); the same graph with `value_kind: 1` exits 30. The
 malformed matrix now rejects `value_kind: 0/4` and kind↔type drift
-(`3` on a bool, `2` on an i64) — 26 named rejections preserve the
+(`3` on a bool, `2` on an i64) — 27 named rejections preserve the
 object.
 
 Pins: `map_box_checked_tests::
@@ -1704,3 +1704,66 @@ retirement. T1's vertical slice (α+β+γ) is complete; next bounded
 slice per the ordered queue: T2 — callee-side runtime reads of
 `funcs[0].name` (Text), `params` (empty Array), `blocks` kind/length
 (owned Array payload + staging owner + transitive liveness).
+
+## Review fix note (2026-09-19, T1-γ closeout audit)
+
+Post-merge review of `6ce7e64d` plus one read-only audit found six
+follow-ups; all closed in this slice — no behavior change beyond
+tightening two reject boundaries.
+
+**① reference/README sync** — `runtime-data-dispatch.md` still claimed
+"other kinds/bits return InvalidContract" at exactly the boundary T1-γ
+changed; it now names `NYRT_MAP_VALUE_BORROWED_HANDLE=3` (non-owning
+snapshot, Fault 104 on scalar read, trivial end) in the prose, the
+table row, and the `map_install_value` paragraph. `src/boxes/README.md`
+`CheckedMapPayload`, `normal_callable_semantic_package/README.md`
+(Handle lane + declared `ArgumentHandoff` + edge resolution status),
+`resolved_semantics/README.md` `store_class()` enumeration, and
+`ownership.md` bounded-evidence paragraph now carry the same contract.
+
+**② self-invalidating comments** — the `Borrowed`-edge gates in
+`direct_call_lifecycle.rs` and `ordinary_new_local_commit/map.rs`
+justified rejection by "until the T1-γ payload tag exists"; the tag
+landed, so both now state the live reason: no catalogable borrow
+source (`OpaqueHandle` formals are not direct-call catalogable).
+Test comments in `map_home_flow_tests`/`map_value_completion_tests`
+aligned the same way; the emit-site comment in
+`physical_program_json.rs` marks `value_kind` as the NYRT checked-map
+namespace (static-V2 maps the same field name 3→F64 — kept visibly
+separate).
+
+**③ emit-arm drift guard** — the `Borrowed` arm in `selected/map.rs`
+corroborated the exact binding but discarded the read value; it now
+compares it against the site's operand and freezes
+`map-borrow-binding-drift` on mismatch, matching the `Scalar` arm.
+
+**④ test isolation** — `map_write_timing_tests` ran env mutation under
+a private lock that never coordinated with `PROCESS_STATE_LOCK`;
+`boxcall_delegation_success_...` raced under parallel `map_` runs.
+All env-sensitive tests in the file now use the canonical
+`crate::test_support::with_env_var` (unified mode pinned `off`/`1`
+explicitly); the private lock/guard is deleted. Broad `map_` batch is
+back to the 4 recorded-baseline reds only.
+
+**⑤ kernel contract test** — `fault_checked_map_tests` asserted
+`value_kind=3` rejects InvalidContract; the kind is valid now, so the
+bad-kinds loop uses `4` and a new positive test
+(`value_abi_borrowed_handle_never_claims_or_reads_back_the_target`)
+pins install → Fault-104 read with untouched `out` → trivial
+replacement/end leaving the caller's object live.
+
+**⑥ physical layer tightening** — `birth_call` argument kinds silently
+defaulted `!=1 → Bool`; the check now requires `kind ∈ {1,2}` exactly
+(missing/0/other rejects). The malformed matrix gains the documented
+`3`-on-bool drift case (26→27 named rejections), and
+`map_get_terminal_tests` pins the terminal-call `Borrowed`-entry edge
+(`borrowed_handle_entry_on_a_terminal_argument_stays_edge_gated`).
+
+Suites: kernel `checked_map` 11/11; `map_get_terminal` 13/13;
+`map_lifecycle_undertaking` 25/25; `map_physical_dependency` 8/8;
+`physical_program_json` 15/15; `map_box::checked` 10/10;
+`mir::verification` 105/105; `normal_callable_semantic_package`
+278/278; `map_write_timing` 7/7; broad `map_` 357 passed / 4
+recorded-baseline reds; `published_map_physical_execution_test.py`
+full suite green (27 malformed rejections); `libhako_llvmc_ffi.so`
+rebuilt; pointer guard ok.

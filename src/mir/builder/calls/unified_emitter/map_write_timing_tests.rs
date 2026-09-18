@@ -7,7 +7,6 @@ use super::{CallTarget, UnifiedCallEmitterBox};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{EffectMask, MirInstruction, MirType, ValueId};
 use std::collections::BTreeSet;
-use std::sync::{Mutex, OnceLock};
 
 const UNIFIED_CALL_ENV: &str = "NYASH_MIR_UNIFIED_CALL";
 
@@ -104,32 +103,6 @@ fn assert_seed_map_fact(builder: &MirBuilder, receiver: ValueId) {
             .get(&(receiver, "answer".to_string())),
         Some(&MirType::Integer)
     );
-}
-
-fn unified_env_lock() -> &'static Mutex<()> {
-    static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
-    LOCK.get_or_init(|| Mutex::new(()))
-}
-
-struct UnifiedCallModeGuard(Option<String>);
-
-impl UnifiedCallModeGuard {
-    fn disabled() -> Self {
-        let previous = std::env::var(UNIFIED_CALL_ENV).ok();
-        // SAFETY: the focused test holds `unified_env_lock` for the full scope.
-        unsafe { std::env::set_var(UNIFIED_CALL_ENV, "off") };
-        Self(previous)
-    }
-}
-
-impl Drop for UnifiedCallModeGuard {
-    fn drop(&mut self) {
-        // SAFETY: the focused test holds `unified_env_lock` for the full scope.
-        match self.0.take() {
-            Some(value) => unsafe { std::env::set_var(UNIFIED_CALL_ENV, value) },
-            None => unsafe { std::env::remove_var(UNIFIED_CALL_ENV) },
-        }
-    }
 }
 
 #[test]
@@ -242,74 +215,76 @@ fn direct_unified_set_success_preserves_source_and_final_receiver_coverage() {
 
 #[test]
 fn terminal_boxcall_set_failure_publishes_no_map_fact_residual() {
-    let _lock = unified_env_lock()
-        .lock()
-        .unwrap_or_else(|error| error.into_inner());
-    let _mode = UnifiedCallModeGuard::disabled();
-    let mut builder = builder_with_entry("map_write_boxcall_failure/0");
-    let (receiver, key, value) = install_map_set_inputs(&mut builder);
-    builder.function_state.current_block = None;
+    crate::test_support::with_env_var(UNIFIED_CALL_ENV, "off", || {
+        let mut builder = builder_with_entry("map_write_boxcall_failure/0");
+        let (receiver, key, value) = install_map_set_inputs(&mut builder);
+        builder.function_state.current_block = None;
 
-    let error = builder
-        .emit_box_or_plugin_call(
-            None,
-            receiver,
-            "set".to_string(),
-            None,
-            vec![key, value],
-            EffectMask::PURE,
-        )
-        .unwrap_err();
+        let error = builder
+            .emit_box_or_plugin_call(
+                None,
+                receiver,
+                "set".to_string(),
+                None,
+                vec![key, value],
+                EffectMask::PURE,
+            )
+            .unwrap_err();
 
-    assert_eq!(error, "No current basic block");
-    assert_eq!(call_count(&builder), 0);
-    assert!(map_facts(&builder).is_empty());
+        assert_eq!(error, "No current basic block");
+        assert_eq!(call_count(&builder), 0);
+        assert!(map_facts(&builder).is_empty());
+    });
 }
 
 #[test]
 fn terminal_boxcall_set_success_observes_only_the_semantic_source_receiver() {
-    let _lock = unified_env_lock()
-        .lock()
-        .unwrap_or_else(|error| error.into_inner());
-    let _mode = UnifiedCallModeGuard::disabled();
-    let mut builder = builder_with_entry("map_write_boxcall_success/0");
-    let (receiver, key, value) = install_map_set_inputs(&mut builder);
+    crate::test_support::with_env_var(UNIFIED_CALL_ENV, "off", || {
+        let mut builder = builder_with_entry("map_write_boxcall_success/0");
+        let (receiver, key, value) = install_map_set_inputs(&mut builder);
 
-    builder
-        .emit_box_or_plugin_call(
-            None,
-            receiver,
-            "set".to_string(),
-            None,
-            vec![key, value],
-            EffectMask::PURE,
-        )
-        .unwrap();
+        builder
+            .emit_box_or_plugin_call(
+                None,
+                receiver,
+                "set".to_string(),
+                None,
+                vec![key, value],
+                EffectMask::PURE,
+            )
+            .unwrap();
 
-    assert_eq!(call_count(&builder), 1);
-    assert_eq!(map_facts(&builder), BTreeSet::from([receiver]));
+        assert_eq!(call_count(&builder), 1);
+        assert_eq!(map_facts(&builder), BTreeSet::from([receiver]));
+    });
 }
 
 #[test]
 fn boxcall_delegation_success_retains_source_and_local_receiver_coverage() {
-    let mut builder = builder_with_entry("map_write_boxcall_delegate_success/0");
-    let (receiver, key, value) = install_map_set_inputs(&mut builder);
+    // The unified-on mode is what adds the delegated LocalSSA receiver to the
+    // fact set — pin it explicitly so a concurrent env mutation elsewhere can
+    // never interleave a different mode (PROCESS_STATE_LOCK serializes all
+    // env-mutating tests).
+    crate::test_support::with_env_var(UNIFIED_CALL_ENV, "1", || {
+        let mut builder = builder_with_entry("map_write_boxcall_delegate_success/0");
+        let (receiver, key, value) = install_map_set_inputs(&mut builder);
 
-    builder
-        .emit_box_or_plugin_call(
-            None,
-            receiver,
-            "set".to_string(),
-            None,
-            vec![key, value],
-            EffectMask::PURE,
-        )
-        .unwrap();
+        builder
+            .emit_box_or_plugin_call(
+                None,
+                receiver,
+                "set".to_string(),
+                None,
+                vec![key, value],
+                EffectMask::PURE,
+            )
+            .unwrap();
 
-    assert_eq!(call_count(&builder), 1);
-    assert!(map_facts(&builder).contains(&receiver));
-    assert!(
-        map_facts(&builder).len() >= 2,
-        "delegated LocalSSA receiver coverage"
-    );
+        assert_eq!(call_count(&builder), 1);
+        assert!(map_facts(&builder).contains(&receiver));
+        assert!(
+            map_facts(&builder).len() >= 2,
+            "delegated LocalSSA receiver coverage"
+        );
+    });
 }

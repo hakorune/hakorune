@@ -395,6 +395,9 @@ fn encode_invoke(
                     kind,
                 } => json!({
                     "kind": "map_install_value", "map": value(map), "key": value(key),
+                    // NYRT_MAP_VALUE_* checked-map kinds — a different
+                    // namespace from the static-V2 HAKO_LLVMC_MAP_VALUE_*
+                    // table, where the same field name maps 3 to F64.
                     "value": value(stored), "value_kind": match kind {
                         crate::mir::instruction::MapValueKind::I64 => 1u32,
                         crate::mir::instruction::MapValueKind::Bool => 2u32,

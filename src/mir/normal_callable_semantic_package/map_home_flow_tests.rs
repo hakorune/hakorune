@@ -64,8 +64,9 @@ fn declared_root_unissued_map_sites_stop_before_install() {
     }
     // Covered shapes admit install: a sealed `return %{...}` carries only
     // ReturnHandoff, and a self-rooted formal borrowed into an in-owner
-    // map is `OwnershipShare(Handle)` — the declared InstallValue i64
-    // lane stores the formal's value while the owner keeps it alive.
+    // map is `OwnershipShare(Handle)` — the InstallValue lane stores the
+    // formal's value under the `BorrowedHandle` tag while the owner
+    // keeps it alive.
     for body in ["return %{}", "local m = %{\"v\" => value} return 30"] {
         let package = issue(&format!(
             "static box Helpers {{ consume(value) {{ return 30 }} run(value) {{ {body} }} }}

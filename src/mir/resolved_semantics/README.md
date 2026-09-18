@@ -1242,10 +1242,14 @@ issues `Unavailable` for any sealed literal the walk never reached — one row
 per sealed literal keeps preflight loop1 fail-closed. Each entry also
 classifies its own install requirement through `store_class()`: `Scalar`
 (`InstallValue` — Integer/Bool literals and kind-sealed locals),
-`Transferred` (`InstallIndexed` — a consuming Home transfer), `Borrowed`
-(reference entries whose obligation is a share, never a store), and
-`Opaque` (string, `[...]`, and `%{...}` child values with no install
-lane). The lifecycle undertaking and the selected emit lane read this
+`Transferred` (`InstallIndexed` — a consuming Home transfer), `Text`
+(`InstallText` — an owned UTF-8 payload on the `String` row),
+`EmptyArray` (`InstallEmptyArray` — the map owns the `[]` meaning),
+`Borrowed` (reference entries whose obligation is a share, never a
+store — the `Handle` kind lowers through `InstallValue` under the
+`BorrowedHandle` tag), and `Opaque` (non-empty `[...]` and `%{...}`
+child values with no install lane). The lifecycle undertaking and the
+selected emit lane read this
 one predicate; nothing reclassifies an entry downstream. These records and
 terminal order
 have one owner in Completion. The unconnected consumer is stopped at package

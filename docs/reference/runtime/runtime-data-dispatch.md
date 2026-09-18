@@ -348,7 +348,8 @@ opaque detached storage rejects disposal before consumption. Rust Drop is
 not a fallback source finalizer. Opaque ABI and descriptor/session are implemented.
 Selected C Map emission uses the existing V4 physical input and exact-origin
 storage validation. Its explicit `map_install_value` operation carries I64/Bool
-kind and an existing i64 payload lane, never an object identity. Bool remains
+kind, a BorrowedHandle kind for sealed non-consuming handle snapshots, and an
+existing i64 payload lane — never an object identity. Bool remains
 0/1 through constant/Copy emission; it is not an i1 lane in this consumer.
 Value leaves scalar availability unchanged; both install operations consume Key
 on returned Normal/Fault, and only Normal publishes an Outcome. Missing/wrong
@@ -379,7 +380,7 @@ checks for roles, identities, SSA, transfer, cleanup or temporary consumption.
 | key init | fresh native storage -> Empty |
 | key prepare UTF-8 | bytes plus length; Empty -> Ready native MapKeyDomain before child evaluation |
 | checked indexed install | validate frame/Map/profile/Ready key/Unissued outcome and nonoverlap before consumption; move key, prepare indexed residence and install |
-| checked value install | validate kind and Bool bits before key consumption, then the same install state machine; I64/Bool occupy inline payloads, never indexed identities |
+| checked value install | validate kind and Bool bits before key consumption, then the same install state machine; I64/Bool occupy inline payloads, BorrowedHandle occupies a non-owning inline snapshot, never indexed identities |
 | checked text install | validate UTF-8 bytes and pointer separation before key consumption, then the same install state machine; Text occupies an owned inline payload, never an interned or shared handle |
 | checked scalar i64 get | validate frame/site/Live map/UTF-8 key bytes and pointer separation; Normal writes the i64 to `out` (Missing writes `0`); a present non-i64 payload records Fault 104 without writing `out`; consumes nothing and leaves the map live |
 | detached end | move Ready payload and mark Consumed before child end; ReadyNoOld also consumes |
@@ -401,9 +402,15 @@ Implemented export spellings are `nyash.map.storage_init_v1`,
 The value entry uses `(frame, profile:u32, site:u64, map, key, kind:u32,
 payload:i64, outcome)->u32`; pointer regions keep the same opaque contract.
 `NYRT_MAP_VALUE_I64=1` accepts the full signed i64 range;
-`NYRT_MAP_VALUE_BOOL=2` accepts only0/1. Other kinds/bits return InvalidContract
-without consuming Key or publishing Outcome. No Handle/String/Float inference.
-Storage retains I64/Bool inline alongside Residence in one non-Clone payload
+`NYRT_MAP_VALUE_BOOL=2` accepts only0/1;
+`NYRT_MAP_VALUE_BORROWED_HANDLE=3` accepts the full signed i64 range as a
+non-consuming handle snapshot — the map never owns the target, payload end is
+a no-op, and a checked scalar i64 read on the entry records Fault 104 instead
+of conflating handle bits with a scalar. Other kinds/bits return
+InvalidContract without consuming Key or publishing Outcome. No
+Handle/String/Float inference — BorrowedHandle is an explicit sealed kind,
+never inferred from the payload. Storage retains I64/Bool/BorrowedHandle
+inline alongside Residence in one non-Clone payload
 sum; rejection returns the exact payload, and detached/end attempts invoke real
 Home end only for Residence. Native projection of present Values still refuses.
 The value export does not by itself activate source or C consumer coverage.

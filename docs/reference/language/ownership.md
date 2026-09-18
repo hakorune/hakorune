@@ -245,7 +245,11 @@ retained separately from capability. The compiler now also preserves the exact
 I64 declaration contract through parameter and alias source flow; a coarse
 Trivial capability alone does not supply its representation. An unsupported intervening statement
 cannot preserve a usable stale local kind. A borrowed formal may remain unused without becoming an
-owning-slot candidate. AppMain consumes exact Integer/Bool literal and known
+owning-slot candidate. A self-rooted parameter handle may instead be
+stored as a non-owning borrowed entry (`BorrowedHandle` payload): the
+map never owns the referenced target, the enclosing owner keeps it
+alive, and a scalar read Faults non-scalar rather than exposing the
+handle bits as an integer. AppMain consumes exact Integer/Bool literal and known
 local representations through InstallValue, retaining Home-only InstallIndexed.
 Unknown scalar representation remains rejected before installation. Ordinary
 callable source Completion stays separate from root admission and does not grant

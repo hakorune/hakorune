@@ -317,10 +317,12 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         for entry in flow.entries() {
             let Some((acquisition, binding)) = entry.transfer_home() else {
-                // A borrowed entry cannot ride an argument handoff until the
-                // T1-γ payload tag exists: the callee reads `InstallValue`
-                // payloads as scalars and the sealed borrow classification
-                // would be silently re-read as an integer.
+                // A borrowed entry cannot ride an argument handoff: the
+                // `BorrowedHandle` payload tag made the entry readable as a
+                // non-scalar Fault rather than a silent integer, but no
+                // catalogable borrow source exists for the call edge yet
+                // (`OpaqueHandle` formals are not direct-call catalogable),
+                // so the unproven edge stays closed.
                 if !matches!(
                     entry.store_class(),
                     crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Scalar

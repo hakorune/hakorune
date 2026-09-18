@@ -159,9 +159,13 @@ fn emit_flow(
                     return Err(freeze("map-value-consumer-missing"));
                 };
                 let value = state.read_variable(entry.site().node())?;
-                state
+                if state
                     .value_for_exact_binding(site.owner(), *binding)
-                    .map_err(|_| freeze("map-borrow-binding"))?;
+                    .map_err(|_| freeze("map-borrow-binding"))?
+                    != value
+                {
+                    return Err(freeze("map-borrow-binding-drift"));
+                }
                 PendingInstall::Value(value, MapValueKind::BorrowedHandle)
             }
             MapEntryStoreClassV1::Text => {

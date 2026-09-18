@@ -150,8 +150,8 @@ fn borrowed_formals_describe_a_handle_share_the_declared_lane_admits() {
             // A sealed scalar literal entry is covered; a borrowed
             // formal entry is an `OwnershipShare(Handle)` obligation —
             // the declared consumer lane stores the self-rooted handle's
-            // i64 value through `InstallValue` while the in-owner map
-            // keeps the formal alive for it.
+            // i64 bits through `InstallValue` under the `BorrowedHandle`
+            // tag while the in-owner map keeps the formal alive for it.
             assert_install_admits(package);
         }
     }

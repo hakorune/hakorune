@@ -654,6 +654,10 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
         data = value_program([("i64", 30)])
         operation(data, "map_install_value")[field] = bad
         malformed.append(data)
+    # Kind 3 rides only an i64 carrier: on a bool value it is drift too.
+    data = value_program([("bool", True)])
+    operation(data, "map_install_value")["value_kind"] = 3
+    malformed.append(data)
     for operand in ["map", "key"]:
         data = value_program([("i64", 30)])
         op = operation(data, "map_install_value")
