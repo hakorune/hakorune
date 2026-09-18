@@ -648,3 +648,45 @@ fn map_install_empty_array_publishes_no_payload_operand() {
         json!({"kind": "map_install_empty_array", "map": 1, "key": 2, "site": 42})
     );
 }
+
+#[test]
+fn map_view_reads_publish_typed_index_and_text_operations() {
+    use crate::mir::instruction::MapInvokeOperation as Map;
+    let index = InvokeOperation::Map(Map::ArrayIndexMap {
+        map: ValueId(1),
+        utf8: "functions".into(),
+        index: 0,
+    });
+    let text = InvokeOperation::Map(Map::MapGetText {
+        map: ValueId(2),
+        utf8: "name".into(),
+    });
+    assert_eq!(
+        encode_invoke(
+            &index,
+            &BTreeMap::new(),
+            &BTreeMap::new(),
+            0,
+            Some(42),
+            None,
+            None,
+        )
+        .unwrap(),
+        json!({"kind": "map_array_index_map", "map": 1,
+            "utf8": "functions", "index": 0, "site": 42})
+    );
+    assert_eq!(
+        encode_invoke(
+            &text,
+            &BTreeMap::new(),
+            &BTreeMap::new(),
+            0,
+            Some(43),
+            None,
+            None,
+        )
+        .unwrap(),
+        json!({"kind": "map_get_text", "map": 2,
+            "utf8": "name", "site": 43})
+    );
+}

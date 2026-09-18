@@ -8,6 +8,12 @@ pub enum InvokeNormalResultKind {
     Map,
     MapKey,
     MapOutcome,
+    /// Borrowed Map view produced by a checked ArrayIndex. The view has no
+    /// End authority and must be consumed by the next typed read.
+    MapView,
+    /// Borrowed Text view produced by a checked MapGetText. The view has no
+    /// End authority and cannot cross a return or call boundary.
+    TextView,
 }
 
 /// Physical scalar payload; source capability cannot supply this distinction.
@@ -60,6 +66,19 @@ pub enum MapInvokeOperation {
         map: ValueId,
         utf8: String,
     },
+    /// Read one Map element from an owned Array entry. The parent Map remains
+    /// live; the result is a borrowed Map view with no independent cleanup.
+    ArrayIndexMap {
+        map: ValueId,
+        utf8: String,
+        index: i64,
+    },
+    /// Read an owned Text entry from a borrowed Map view. The result is a
+    /// borrowed Text view and cannot be returned or stored by this lane.
+    MapGetText {
+        map: ValueId,
+        utf8: String,
+    },
     EndOutcome {
         outcome: ValueId,
     },
@@ -78,6 +97,8 @@ impl MapInvokeOperation {
             | Self::InstallText { .. }
             | Self::InstallEmptyArray { .. } => Some(InvokeNormalResultKind::MapOutcome),
             Self::CheckedGetI64 { .. } => Some(InvokeNormalResultKind::I64),
+            Self::ArrayIndexMap { .. } => Some(InvokeNormalResultKind::MapView),
+            Self::MapGetText { .. } => Some(InvokeNormalResultKind::TextView),
             Self::EndOutcome { .. } | Self::End { .. } => None,
         }
     }
@@ -91,6 +112,9 @@ impl MapInvokeOperation {
                 EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control)
             }
             Self::CheckedGetI64 { .. } => EffectMask::READ.add(Effect::Control),
+            Self::ArrayIndexMap { .. } | Self::MapGetText { .. } => {
+                EffectMask::READ.add(Effect::Control)
+            }
             Self::EndOutcome { .. } | Self::End { .. } => EffectMask::WRITE
                 .union(EffectMask::MUT)
                 .union(EffectMask::IO)
@@ -110,6 +134,7 @@ impl MapInvokeOperation {
                 vec![*map, *key]
             }
             Self::CheckedGetI64 { map, .. } => vec![*map],
+            Self::ArrayIndexMap { map, .. } | Self::MapGetText { map, .. } => vec![*map],
             Self::EndOutcome { outcome } => vec![*outcome],
             Self::End { map } => vec![*map],
         }
@@ -132,6 +157,7 @@ impl MapInvokeOperation {
                 rewrite(key);
             }
             Self::CheckedGetI64 { map, .. } => rewrite(map),
+            Self::ArrayIndexMap { map, .. } | Self::MapGetText { map, .. } => rewrite(map),
             Self::EndOutcome { outcome } => rewrite(outcome),
             Self::End { map } => rewrite(map),
         }

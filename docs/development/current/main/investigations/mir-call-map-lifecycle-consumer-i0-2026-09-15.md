@@ -1920,5 +1920,22 @@ including nested-map Text read, reverse-prefix fault cleanup, and unchanged
 Array candidate identity on parent install refusal. This closes the owner-level
 T2-alpha Array residence contract only. No `MapInvokeOperation`, kernel export,
 C emission, source admission, compiler production caller, or T2 source-to-OBJ
-acceptance claim is made. The next exact slice is the typed physical operation
-vocabulary and its selected compiler/kernel handoff for ArrayIndex -> MapGetText.
+acceptance claim is made. The next exact slice is the selected compiler/kernel
+handoff for the ArrayIndex -> MapGetText vocabulary.
+
+## T2-alpha typed MIR read vocabulary progress (2026-09-19)
+
+The bounded MIR vocabulary is now explicit: `ArrayIndexMap { map, utf8, index }`
+produces a borrowed `MapView` for the first `funcs[0]` shape, and
+`MapGetText { map, utf8 }` consumes that view and produces a borrowed
+`TextView`. Both operations are READ+CONTROL, grant no End authority, and keep
+the parent Map live until its normal or fault cleanup path ends it. The verifier
+rejects direct text reads on an ordinary Map, nested ArrayIndexMap on a MapView,
+and MapView escape through branch, return, store, call, or End.
+
+Published JSON and diagnostic projections carry the operation kind, key, and
+index. Focused evidence is 3/3 view-verifier tests, 1/1 typed JSON test, and the
+existing Map verifier 11/11. This slice does not claim a kernel export, C ABI
+validator/emitter, source Fact admission, production caller, OBJ execution, or
+T2 acceptance. The next exact slice is the lifetime-safe TextView wire/output
+handoff across Normal and Fault paths.

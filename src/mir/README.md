@@ -340,3 +340,11 @@ shared Invoke verifier still owns Normal-only SSA and exact object definitions.
 These checks never issue source Home availability or activate the C consumer.
 The contract is in `docs/reference/mir/INSTRUCTION_SET.md`; source publication
 must also consume the existing Completion and retained emission progress.
+
+The typed T2-alpha read vocabulary is `ArrayIndexMap { map, utf8, index } ->
+MapView` followed immediately by `MapGetText { map, utf8 } -> TextView`. Both
+operations are READ+CONTROL and retain the parent Map's End obligation. The
+verifier rejects direct text reads on an ordinary Map, nested array indexing,
+and MapView escape through store, return, call, branch, or End. MIR JSON and
+diagnostic projections carry the key/index only; kernel/C ABI emission, source
+admission, and production caller cutover remain separate slices.

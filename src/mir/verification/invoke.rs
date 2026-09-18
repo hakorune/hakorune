@@ -436,5 +436,9 @@ mod array_tests;
 mod map_tests;
 
 #[cfg(test)]
+#[path = "invoke_map_view_tests.rs"]
+mod map_view_tests;
+
+#[cfg(test)]
 #[path = "invoke_call_tests.rs"]
 mod call_tests;

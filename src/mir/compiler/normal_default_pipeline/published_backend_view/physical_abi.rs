@@ -27,6 +27,8 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     MapPrepareKey,
     MapInstall,
     MapCheckedGet,
+    MapArrayIndex,
+    MapGetText,
     MapEndOutcome,
     MapEnd,
     ArrayNew,
@@ -51,6 +53,8 @@ impl PublishedLifecycleCheckedOperationKindV1 {
                 | MapInvokeOperation::InstallText { .. }
                 | MapInvokeOperation::InstallEmptyArray { .. } => Self::MapInstall,
                 MapInvokeOperation::CheckedGetI64 { .. } => Self::MapCheckedGet,
+                MapInvokeOperation::ArrayIndexMap { .. } => Self::MapArrayIndex,
+                MapInvokeOperation::MapGetText { .. } => Self::MapGetText,
                 MapInvokeOperation::EndOutcome { .. } => Self::MapEndOutcome,
                 MapInvokeOperation::End { .. } => Self::MapEnd,
             }),
@@ -375,7 +379,9 @@ fn referenced_objects(
                         ids.insert(field.object().declaration_index());
                     }
                     MirInstruction::Invoke { operation, .. } => match operation {
-                        InvokeOperation::Map(MapInvokeOperation::InstallIndexed { object, .. })
+                        InvokeOperation::Map(MapInvokeOperation::InstallIndexed {
+                            object, ..
+                        })
                         | InvokeOperation::NewBox { object }
                         | InvokeOperation::HomeRelease { object, .. }
                         | InvokeOperation::ReclaimUnpublished { object, .. } => {

@@ -404,11 +404,7 @@ fn encode_invoke(
                         crate::mir::instruction::MapValueKind::BorrowedHandle => 3u32,
                     },
                 }),
-                Map::InstallText {
-                    map,
-                    key,
-                    utf8,
-                } => json!({
+                Map::InstallText { map, key, utf8 } => json!({
                     "kind": "map_install_text", "map": value(map), "key": value(key),
                     "utf8": utf8,
                 }),
@@ -421,6 +417,13 @@ fn encode_invoke(
                 Map::End { map } => json!({"kind": "map_end", "map": value(map)}),
                 Map::CheckedGetI64 { map, utf8 } => {
                     json!({"kind": "map_checked_get", "map": value(map), "utf8": utf8})
+                }
+                Map::ArrayIndexMap { map, utf8, index } => json!({
+                    "kind": "map_array_index_map", "map": value(map),
+                    "utf8": utf8, "index": index,
+                }),
+                Map::MapGetText { map, utf8 } => {
+                    json!({"kind": "map_get_text", "map": value(map), "utf8": utf8})
                 }
             };
             with_site(
@@ -516,8 +519,7 @@ fn encode_invoke(
             // (`Box("MapBox")` actual, `CheckedMapStorage` formal) pair as
             // `"map"`; everything else stays `"i64"`, and a map actual or
             // map formal without its counterpart is ABI drift.
-            let (functions, caller) =
-                call_context.ok_or_else(|| fault("ordinary-call-context"))?;
+            let (functions, caller) = call_context.ok_or_else(|| fault("ordinary-call-context"))?;
             let callee = functions
                 .get(*target as usize)
                 .ok_or_else(|| fault("ordinary-target-missing"))?;

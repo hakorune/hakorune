@@ -446,8 +446,11 @@ Map install commits. Construction faults release the acquired prefix in reverse
 order; duplicate element references share one release root. The owner exposes
 only a borrowed ArrayIndex Map view followed by a typed Text lookup, with no
 fresh mutable `ArrayBox` and no child End authority. This owner contract is
-covered independently; `MapInvokeOperation`, kernel/C ABI emission, source
-admission, and production caller cutover are deliberately still unopened.
+covered independently. The MIR vocabulary now represents this as
+`ArrayIndexMap -> MapView -> MapGetText -> TextView`; the verifier rejects
+chaining or escaping the view, and the published JSON/diagnostic projections
+carry the typed key/index. Kernel/C ABI emission, source admission, and
+production caller cutover are deliberately still unopened.
 
 The bounded readable-Map argument lane admits a `: MapBox` formal as a
 borrowed read-only contract (`CallableParameterContractKindV1::Map`,

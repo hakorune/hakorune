@@ -84,8 +84,13 @@ pub(super) fn check(
             else {
                 continue;
             };
-            if let Some(kind @ (Kind::Map | Kind::MapKey | Kind::MapOutcome)) =
-                operation.normal_result_kind()
+            if let Some(
+                kind @ (Kind::Map
+                | Kind::MapKey
+                | Kind::MapOutcome
+                | Kind::MapView
+                | Kind::TextView),
+            ) = operation.normal_result_kind()
             {
                 if results.insert(*dst, (kind, *invoke_block)).is_some() {
                     return Err("map-duplicate-result");
@@ -120,6 +125,10 @@ pub(super) fn check(
                     Map::CheckedGetI64 { map, .. } => {
                         has_kind(map, Kind::Map) || is_map_param(function, map)
                     }
+                    Map::ArrayIndexMap { map, .. } => {
+                        has_kind(map, Kind::Map) || is_map_param(function, map)
+                    }
+                    Map::MapGetText { map, .. } => has_kind(map, Kind::MapView),
                     Map::EndOutcome { outcome } => has_kind(outcome, Kind::MapOutcome),
                     Map::End { map } => has_kind(map, Kind::Map),
                 };
@@ -139,6 +148,8 @@ pub(super) fn check(
                     MirInstruction::Invoke { operation: InvokeOperation::Map(Map::End { map }), .. } if value == *map)
                     || matches!(instruction,
                     MirInstruction::Invoke { operation: InvokeOperation::Map(Map::CheckedGetI64 { map, .. }), .. } if value == *map)
+                    || matches!(instruction,
+                    MirInstruction::Invoke { operation: InvokeOperation::Map(Map::ArrayIndexMap { map, .. } | Map::MapGetText { map, .. }), .. } if value == *map)
                     || matches!(instruction,
                     MirInstruction::Invoke { operation: InvokeOperation::Map(Map::EndOutcome { outcome }), .. } if value == *outcome)
                     // A Map lease may cross the return boundary exactly once:
@@ -174,7 +185,7 @@ pub(super) fn check(
     // These temporaries have one immediate consumer in this source cohort.
     // Fresh/nested child evaluation and its cancellation edges are not admitted.
     for (value, (kind, producer)) in &results {
-        if *kind == Kind::Map {
+        if *kind == Kind::Map || *kind == Kind::TextView {
             continue;
         }
         let Some(MirInstruction::Invoke { normal_landing, .. }) =
@@ -192,6 +203,15 @@ pub(super) fn check(
             || matches!(normal.terminator.as_ref(),
             Some(MirInstruction::Invoke { operation: InvokeOperation::Map(Map::EndOutcome { outcome }), .. })
                 if *kind == Kind::MapOutcome && outcome == value);
+        let view_immediate = matches!(normal.terminator.as_ref(),
+            Some(MirInstruction::Invoke { operation: InvokeOperation::Map(Map::MapGetText { map, .. }), .. })
+                if *kind == Kind::MapView && map == value);
+        if *kind == Kind::MapView {
+            if normal.instructions.len() != 1 || !view_immediate || uses.get(value) != Some(&1) {
+                return Err("map-view-not-immediate");
+            }
+            continue;
+        }
         if normal.instructions.len() != 1 || !immediate || uses.get(value) != Some(&1) {
             return Err("map-temporary-consumption");
         }
@@ -246,6 +266,14 @@ fn visit(
                 {
                     return Err("map-get-not-live")
                 }
+                Map::ArrayIndexMap { map, .. } => {
+                    if !live.contains(map) && !is_map_param(function, map) {
+                        return Err("map-array-index-not-live");
+                    }
+                }
+                Map::MapGetText { map, .. } if !live.remove(map) => {
+                    return Err("map-text-view-not-live")
+                }
                 Map::InstallIndexed { map, .. }
                 | Map::InstallValue { map, .. }
                 | Map::InstallText { map, .. }
@@ -276,11 +304,11 @@ fn visit(
             let mut next = live.clone();
             if matches!(term, MirInstruction::Invoke {
                 operation, normal_landing, ..
-            } if *normal_landing == target && operation.normal_result_kind() == Some(Kind::Map))
+            } if *normal_landing == target && matches!(operation.normal_result_kind(), Some(Kind::Map | Kind::MapView)))
             {
-                let mut values = results
-                    .iter()
-                    .filter(|(_, (kind, producer))| *kind == Kind::Map && *producer == id);
+                let mut values = results.iter().filter(|(_, (kind, producer))| {
+                    matches!(*kind, Kind::Map | Kind::MapView) && *producer == id
+                });
                 let (&value, _) = values.next().ok_or("map-result-missing")?;
                 if values.next().is_some() || !next.insert(value) {
                     return Err("map-result-duplicate");
