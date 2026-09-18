@@ -1,11 +1,11 @@
 date = "2026-09-19"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2"
 current_execution_cohort = "map_argument_read_t2"
 current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2__t2_alpha_source_to_obj_admission"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "closed__t2_read_fact_owner_2026-09-19"
+current_design_stop = "open__t2_alpha_nested_array_argument_handoff_2026-09-19"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -51,13 +51,13 @@ owned Array with reverse-prefix cleanup plus borrowed nested-Map Text reads
 (14/14 focused owner tests). Typed `ArrayIndexMap`/`MapGetText` MIR verifier
 and published-JSON projection are recorded (3 view tests + 1 JSON test), and the
 kernel/C ABI text-view handoff is landed with 69/69 focused kernel tests green.
-T2-alpha source Facts/co-seal for direct `m.get("functions").get(0).get("name")` are 3/3; the selected normal caller now wires a scoped physical consumer for `ArrayIndexMap -> MapGetText`, while direct no-consumer install still stops at `MapReadPhysicalConsumerMissing`. The source-to-OBJ fixture remains blocked earlier by the existing `EntryStore(Opaque)` nested-map literal boundary, so this is wiring evidence only.
+T2-alpha source Facts/co-seal for direct `m.get("functions").get(0).get("name")` are 3/3; the selected normal caller now wires a scoped physical consumer for `ArrayIndexMap -> MapGetText`, while direct no-consumer install still stops at `MapReadPhysicalConsumerMissing`. A new design stop records the missing typed non-empty Map Array staging operation and `OwnershipShare(MapLocal)` argument relation; the source-to-OBJ fixture remains blocked at the existing `EntryStore(Opaque)` boundary until that Decision is implemented.
 Non-claims remain: no qualified Invoke, source/OBJ acceptance, production cutover, `to_json`, or legacy retirement.
 """
 next_design_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
-next_execution_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
+next_execution_card = "none__design_stop"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

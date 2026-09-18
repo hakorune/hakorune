@@ -1939,6 +1939,42 @@ stop. The over-760 rows (`normal_callable_semantic_loan_port.rs`,
 BoxShape split task. No compression or unrelated formatting cleanup is mixed
 into this semantic slice.
 
+## T2-alpha nested-array argument handoff design stop (2026-09-19)
+
+```text
+Decision: Keep the first source-to-OBJ witness bounded to one direct Map
+argument whose `functions` entry is a non-empty Array of MapLocal elements.
+The Array is caller-owned, read-only during the callee call, and released by
+one reverse-root cleanup after Normal or Fault. Duplicate element occurrences
+share one release root.
+Source authority + canonical issuer: the existing `MapHomeFlow::NestedArray`
+and its exact `ArrayElementSource::MapLocal` rows, co-sealed with the existing
+`MapReadFactV1` direct-call edge. `OwnedMapArrayResidenceBuilder` remains the
+physical staging owner; `MapLifecycleUndertakingV1` remains the final
+admission/co-seal owner.
+Non-authority: AST names, reconstructed `main` identities, generic ArrayBox
+routes, runtime handles, `EntryStore(Opaque)` reclassification, and a new
+capability enum arm without a physical operation.
+Fail-fast boundary: reject before catalog mutation unless every element is a
+sealed MapLocal with exact borrow-root liveness, the parent Map/Array staging
+owner is present, and construction/install/callee-read/Normal/Fault cleanup
+all have one named owner. Reject scalar, mixed, transferred, escaping, and
+unsealed element shapes.
+Smallest next slice: design and implement one typed physical operation for
+staging/committing the non-empty Map Array payload from already-lowered child
+Map values, plus the `OwnershipShare(MapLocal)` argument relation. Reuse the
+existing Array residence builder and MapView/TextView read operations; do not
+generalize Array storage or open `to_json` yet.
+Non-claims: no generic Array literal admission, MapChild transfer, received
+Map return, Text result escape, `params`/`blocks` reads, `to_json` body
+admission, production cutover, or legacy retirement.
+```
+
+This is a new design boundary discovered by the selected-caller replay, not a
+test relaxation. The attempted nested-map literal fixture remains a named
+negative at `EntryStore(Opaque)`; the next implementation must first satisfy
+the bounded MapLocal argument contract above.
+
 ## T2 read contract decision (2026-09-19, design stop closed)
 
 **Decision:** The intermediate read product is a source Facts projection,
