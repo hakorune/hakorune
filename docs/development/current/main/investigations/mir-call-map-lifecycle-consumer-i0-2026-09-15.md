@@ -1824,3 +1824,16 @@ the later EmptyArray view and `params`/`blocks` index/length/kind reads.
 MapChild transfer, non-empty opaque element recovery, Text result escaping,
 production switch, legacy retirement, or T2 acceptance completion is opened
 by this design stop.
+
+## Baseline red reconciliation (2026-09-19)
+
+The five deterministic failures reported during the lifecycle review were
+replayed at parent `3e3d39d632` with the quick, serial lifecycle filter. They
+are therefore known baseline debt, not regressions from the T1 work. The
+failure manifest now includes all five, including the previously missing
+`source_backed_app_main_direct_call_consumes_affine_loan` row. The direct
+family checks were also separated: `module_lifecycle_capture_tests` is
+18/18, while `runtime::weak_handles` retains its one manifest failure and
+`parser_direct_birth_call` retains its one manifest failure. These reds stay
+outside the T2 implementation slice and must not be silently treated as
+green evidence.
