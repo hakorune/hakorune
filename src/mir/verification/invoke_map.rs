@@ -32,7 +32,26 @@ fn is_map_param(function: &MirFunction, value: &ValueId) -> bool {
     }
 }
 
-pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
+/// The borrowed-argument lane admits only edges `check_call_edge` can
+/// corroborate. The module-aware lane requires the callee to resolve to its
+/// cataloged definition; the function-only lane has no catalog to consult,
+/// so it keeps the sealed-callee shape boundary and leaves unresolvable
+/// keys to the module pass. Every other callee — constructors, dynamic or
+/// foreign targets — is an unproven escape, never a borrow.
+fn borrowed_map_call_edge(
+    call: &crate::mir::definitions::MirCall,
+    module: Option<&crate::mir::MirModule>,
+) -> bool {
+    match module {
+        Some(module) => super::cataloged_call_target(module, call).is_some(),
+        None => super::cataloged_edge_key(call).is_some(),
+    }
+}
+
+pub(super) fn check(
+    function: &MirFunction,
+    module: Option<&crate::mir::MirModule>,
+) -> Result<(), &'static str> {
     if !function.blocks.values().any(|b| {
         b.all_instructions().any(|i| {
             matches!(
@@ -129,13 +148,14 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                     // A caller-owned Map lease borrowed across a sealed call
                     // edge: the callee reads it through its borrowed map
                     // formal while ownership stays here — the caller's
-                    // cleanup chain still owes the single End. The
-                    // actual/formal pair corroboration itself lives in
-                    // `check_call_edge`; this arm only keeps the lease from
-                    // reading as an opaque escape.
+                    // cleanup chain still owes the single End. The edge must
+                    // be one `check_call_edge` actually corroborates the
+                    // actual/formal pair on; an uncorroborated callee is an
+                    // escape, never a borrow.
                     || (matches!(instruction, MirInstruction::Invoke {
                             operation: InvokeOperation::Call { call, .. }, ..
-                        } if call.args.contains(&value))
+                        } if call.args.contains(&value)
+                            && borrowed_map_call_edge(call, module))
                         && results[&value].0 == Kind::Map);
                 if !allowed {
                     return Err("map-opaque-escape");

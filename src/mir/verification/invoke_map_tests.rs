@@ -1,5 +1,5 @@
 use super::*;
-use crate::mir::instruction::{FaultFrameMode, MapInvokeOperation as Map};
+use crate::mir::instruction::{FaultFrameMode, InvokeCallResultKind, MapInvokeOperation as Map};
 use crate::mir::{BasicBlock, ConstValue, EffectMask, FunctionSignature, MirType, ValueId};
 
 fn invoke(operation: Map, normal: u32, fault: u32) -> MirInstruction {
@@ -435,5 +435,205 @@ fn empty_array_install_consumes_the_key_and_carries_no_operands() {
                 6,
             ));
         assert!(check_function(&function).is_err(), "map={map} key={key}");
+    }
+}
+
+/// A caller-owned `%{...}` lease handed to `call` as an argument: the
+/// caller builds it, the callee may borrow it, and the caller still Ends
+/// it on both landing chains. Whether the edge may borrow at all is the
+/// sealed callee-corroboration question this fixture isolates.
+fn map_argument_call_function(callee: Callee, result: InvokeCallResultKind) -> MirFunction {
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "map_argument_call".into(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::CONTROL,
+        },
+        BasicBlockId::new(0),
+    );
+    let mut entry = BasicBlock::new(BasicBlockId(0));
+    entry.add_instruction(MirInstruction::FaultFrameEnter {
+        dst: ValueId(0),
+        mode: FaultFrameMode::RootOwned,
+    });
+    entry.add_instruction(MirInstruction::Const {
+        dst: ValueId(1),
+        value: ConstValue::Integer(30),
+    });
+    entry.set_terminator(invoke(Map::New, 1, 9));
+    let mut origin = BasicBlock::new(BasicBlockId(1));
+    origin.add_instruction(MirInstruction::InvokeNormalResult {
+        invoke_block: BasicBlockId(0),
+        dst: ValueId(2),
+    });
+    origin.set_terminator(MirInstruction::Invoke {
+        operation: InvokeOperation::Call {
+            call: crate::mir::definitions::MirCall::new(None, callee, vec![ValueId(2)]),
+            result,
+        },
+        fault_frame: ValueId(0),
+        normal_landing: BasicBlockId(3),
+        fault_landing: BasicBlockId(4),
+    });
+    let mut normal = BasicBlock::new(BasicBlockId(3));
+    if result != InvokeCallResultKind::Unit {
+        normal.add_instruction(MirInstruction::InvokeNormalResult {
+            invoke_block: BasicBlockId(1),
+            dst: ValueId(5),
+        });
+    }
+    normal.set_terminator(invoke(Map::End { map: ValueId(2) }, 5, 6));
+    let mut fault = BasicBlock::new(BasicBlockId(4));
+    fault.set_terminator(invoke(Map::End { map: ValueId(2) }, 7, 8));
+    for block in [entry, origin, normal, fault] {
+        function.add_block(block);
+    }
+    let returned = match result {
+        InvokeCallResultKind::Unit => ValueId(1),
+        _ => ValueId(5),
+    };
+    for (id, terminator) in [
+        (
+            5,
+            MirInstruction::Return {
+                value: Some(returned),
+            },
+        ),
+        (
+            6,
+            MirInstruction::ReturnFault {
+                fault_frame: ValueId(0),
+            },
+        ),
+        (
+            7,
+            MirInstruction::ReturnFault {
+                fault_frame: ValueId(0),
+            },
+        ),
+        (
+            8,
+            MirInstruction::ReturnFault {
+                fault_frame: ValueId(0),
+            },
+        ),
+        (
+            9,
+            MirInstruction::ReturnFault {
+                fault_frame: ValueId(0),
+            },
+        ),
+    ] {
+        let mut block = BasicBlock::new(BasicBlockId(id));
+        block.set_terminator(terminator);
+        function.add_block(block);
+    }
+    function.update_cfg();
+    function
+}
+
+#[test]
+fn map_argument_borrow_rides_a_corroborated_call_edge() {
+    use crate::mir::{MirModule, MirVerifier};
+    let callee_key =
+        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method("Worker", "run", 1);
+    let mut function = map_argument_call_function(
+        Callee::Global(
+            hakorune_mir_defs::CanonicalGlobalTargetV1::new_static_box_method(
+                "Worker".into(),
+                "run".into(),
+                1,
+            )
+            .unwrap(),
+        ),
+        InvokeCallResultKind::I64,
+    );
+    function
+        .metadata
+        .value_types
+        .insert(ValueId(2), MirType::Box("MapBox".into()));
+    // The function-only lane has no catalog to consult: it admits the
+    // sealed callee shape and leaves membership to the module pass.
+    MirVerifier::new().verify_function(&function).unwrap();
+    let mut module = MirModule::new("map_argument_handoff".into());
+    module.add_function(function);
+    let mut callee = MirFunction::new(
+        FunctionSignature {
+            name: callee_key.mir_symbol_projection(),
+            params: vec![MirType::Box("MapBox".into())],
+            return_type: MirType::Integer,
+            effects: EffectMask::CONTROL,
+        },
+        BasicBlockId::new(0),
+    );
+    callee
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .unwrap()
+        .set_terminator(MirInstruction::Return { value: None });
+    module.add_cataloged_box_method(callee_key, callee).unwrap();
+    MirVerifier::new().verify_module(&module).unwrap();
+}
+
+#[test]
+fn map_argument_borrow_rejects_uncorroborated_callees() {
+    use crate::mir::{MirModule, MirVerifier};
+    // A birth() argument edge corroborates nothing: the constructor's
+    // formals sit outside `check_call_edge`, so the lease is an escape,
+    // never a borrow — at every layer.
+    let function = map_argument_call_function(
+        Callee::BirthConstructor {
+            key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor(
+                "Worker", 1,
+            ),
+            receiver: ValueId(1),
+        },
+        InvokeCallResultKind::Unit,
+    );
+    let errors = MirVerifier::new().verify_function(&function).unwrap_err();
+    assert!(
+        format!("{errors:?}").contains("map-opaque-escape"),
+        "{errors:?}"
+    );
+    let mut module = MirModule::new("map_argument_escape".into());
+    module.add_function(function);
+    let errors = MirVerifier::new().verify_module(&module).unwrap_err();
+    assert!(
+        format!("{errors:?}").contains("map-opaque-escape"),
+        "{errors:?}"
+    );
+
+    // A sealed-shape callee that never catalogs: the function lane can
+    // only prove the shape, but the module pass resolves no definition —
+    // an unproven escape, not a borrow.
+    let function = map_argument_call_function(
+        Callee::Global(
+            hakorune_mir_defs::CanonicalGlobalTargetV1::new_static_box_method(
+                "Worker".into(),
+                "run".into(),
+                1,
+            )
+            .unwrap(),
+        ),
+        InvokeCallResultKind::I64,
+    );
+    MirVerifier::new().verify_function(&function).unwrap();
+    let mut module = MirModule::new("map_argument_escape".into());
+    module.add_function(function);
+    let errors = MirVerifier::new().verify_module(&module).unwrap_err();
+    assert!(
+        format!("{errors:?}").contains("map-opaque-escape"),
+        "{errors:?}"
+    );
+
+    // Foreign and dynamic callees are outside the sealed edge entirely.
+    for callee in [Callee::Extern("foreign".into()), Callee::Value(ValueId(1))] {
+        let function = map_argument_call_function(callee, InvokeCallResultKind::I64);
+        let errors = MirVerifier::new().verify_function(&function).unwrap_err();
+        assert!(
+            format!("{errors:?}").contains("map-opaque-escape"),
+            "{errors:?}"
+        );
     }
 }

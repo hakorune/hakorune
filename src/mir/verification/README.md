@@ -24,6 +24,16 @@ not source permission: affine Lifecycle/Completion and final recorded bindings
 remain the source and execution owners. Ordinary physical export remains stopped;
 I64 cannot pass the existing Unit Birth serializer.
 
+## Borrowed Map call argument
+
+`InvokeOperation::Call` may carry a caller-owned Map lease in `call.args`
+only on an edge `check_call_edge` corroborates — a cataloged same-module
+static/free/instance callee. `verify_module` resolves the callee through
+the catalog; `verify_function` has no catalog and admits only the sealed
+callee shape, deferring membership to the module pass. Constructors,
+dynamic and foreign callees are `map-opaque-escape`, never borrows. The
+caller still owes the single `Map::End` on both landing chains.
+
 ## Function Check Groups
 
 `verify_function` keeps error precision by running separate checks. Treat these

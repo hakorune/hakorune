@@ -75,6 +75,22 @@ pub(super) fn check_module(module: &crate::mir::MirModule) -> Result<(), Vec<Ver
 }
 
 pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<VerificationError>> {
+    check_function_inner(function, None)
+}
+
+/// The module-aware lane: cataloged call edges resolve against the module,
+/// so a borrowed Map argument must prove its callee — never its shape alone.
+pub(super) fn check_function_in_module(
+    module: &crate::mir::MirModule,
+    function: &MirFunction,
+) -> Result<(), Vec<VerificationError>> {
+    check_function_inner(function, Some(module))
+}
+
+fn check_function_inner(
+    function: &MirFunction,
+    module: Option<&crate::mir::MirModule>,
+) -> Result<(), Vec<VerificationError>> {
     let has_control = function.blocks.values().any(|block| {
         block.all_instructions().any(|inst| {
             matches!(
@@ -213,7 +229,7 @@ pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<Verificat
     {
         errors.append(&mut found);
     }
-    if let Err(reason) = map::check(function) {
+    if let Err(reason) = map::check(function, module) {
         errors.push(error(function.entry_block, reason));
     }
     if errors.is_empty() {
@@ -292,6 +308,49 @@ fn check_frame_entry(function: &MirFunction, errors: &mut Vec<VerificationError>
     }
 }
 
+/// The same-module call edges this verifier corroborates argument kinds on:
+/// static-box and free calls plus instance methods resolve to cataloged
+/// callee keys, the second element counting formals the receiver already
+/// fills. Constructors, dynamic values and foreign targets have no sealed
+/// formal authority here — a borrowed Map lease must never ride them.
+fn cataloged_edge_key(
+    call: &crate::mir::definitions::MirCall,
+) -> Option<(hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, usize)> {
+    use hakorune_mir_defs::{
+        CanonicalGlobalTargetV1 as Global, CanonicalSameModuleCallableKeyV1 as Key,
+        CanonicalSameModuleGlobalTargetV1 as SameModule, SameModuleCallableNamespaceV1,
+    };
+    match &call.callee {
+        Callee::Global(Global::SameModule(SameModule::StaticBoxMethod {
+            owner,
+            method,
+            arity,
+        })) => Some((Key::static_box_method(owner, method, *arity), 0)),
+        Callee::Global(Global::SameModule(SameModule::FreeFunction { name, arity })) => {
+            Some((Key::free_function(name, *arity), 0))
+        }
+        Callee::SameModuleInstance { key, .. }
+            if key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod =>
+        {
+            Some((key.clone(), 1))
+        }
+        _ => None,
+    }
+}
+
+/// Resolve the edge to its cataloged callee definition; `None` keeps the
+/// call outside this relation's authority (see `check_call_edge`).
+fn cataloged_call_target<'module>(
+    module: &'module crate::mir::MirModule,
+    call: &crate::mir::definitions::MirCall,
+) -> Option<(&'module MirFunction, usize)> {
+    let (key, receiver_params) = cataloged_edge_key(call)?;
+    module
+        .canonical_callable_definition_symbol(&key)
+        .and_then(|symbol| module.functions.get(symbol))
+        .map(|callee| (callee, receiver_params))
+}
+
 /// One scalar Call edge only carries i64 argument values. When the callee is
 /// a cataloged same-module definition, its published signature is the param
 /// authority: a non-scalar formal (for example a borrowed `MapBox` storage
@@ -306,30 +365,7 @@ fn check_call_edge(
     call: &crate::mir::definitions::MirCall,
     errors: &mut Vec<VerificationError>,
 ) {
-    use hakorune_mir_defs::{
-        CanonicalGlobalTargetV1 as Global, CanonicalSameModuleCallableKeyV1 as Key,
-        CanonicalSameModuleGlobalTargetV1 as SameModule, SameModuleCallableNamespaceV1,
-    };
-    let (key, receiver_params) = match &call.callee {
-        Callee::Global(Global::SameModule(SameModule::StaticBoxMethod {
-            owner,
-            method,
-            arity,
-        })) => (Key::static_box_method(owner, method, *arity), 0),
-        Callee::Global(Global::SameModule(SameModule::FreeFunction { name, arity })) => {
-            (Key::free_function(name, *arity), 0)
-        }
-        Callee::SameModuleInstance { key, .. }
-            if key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod =>
-        {
-            (key.clone(), 1)
-        }
-        _ => return,
-    };
-    let Some(callee) = module
-        .canonical_callable_definition_symbol(&key)
-        .and_then(|symbol| module.functions.get(symbol))
-    else {
+    let Some((callee, receiver_params)) = cataloged_call_target(module, call) else {
         return;
     };
     let params = &callee.signature.params;
