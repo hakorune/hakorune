@@ -2194,3 +2194,30 @@ This bounded row is landed in the current implementation commit.
 The next exact slice is T2-beta: the empty `params` array and the bounded
 `blocks` index/length/kind reads, with its own source Facts, physical owner,
 and Normal/Fault acceptance receipt.
+
+## T2-beta task split (2026-09-19)
+
+The read-only owner audit keeps this work inside the existing map-read
+authority chain: resolver-exact method-call rows plus `MapHomeFlow` issue the
+Facts; `MapLifecycleUndertakingV1` co-seals the no-escape/borrow relation; and
+`MapReadPhysicalConsumerV1` lowers the selected rows. No new semantic receipt
+or generic ArrayBox/KindTest owner is needed.
+
+1. **T2-beta-1 — ArrayLength:** add one `MapReadOperationV1::ArrayLength`
+   row with an `I64` result and the matching `MapInvokeOperation`/checked-map
+   read. Admit only the exact `params` `EmptyArray` shape and the proven
+   non-empty `BorrowedArray` shape; return `0` for the empty residence and the
+   sealed element count for the non-empty residence. Missing, foreign,
+   duplicate, non-literal, unconsumed, and borrow-escape rows reject before
+   catalog mutation.
+2. **T2-beta-2 — blocks kind:** reuse the landed
+   `ArrayIndexMap -> MapGetText` chain for `blocks[0].get("kind")`, with
+   `blocks` restricted to a non-empty all-`MapLocal` array. Empty-index,
+   scalar/mixed/nested arrays, and generic kind inspection remain rejected.
+3. **T2-beta acceptance:** add one source-to-OBJ Normal/Fault fixture for the
+   bounded `params`/`blocks` shape, then record the exact command and runtime
+   outcomes. Do not claim whole-T2 completion, qualified Invoke, `to_json`,
+   production cutover, or legacy retirement.
+
+The mechanical `cargo fmt --check` drift remains a separate closeout commit;
+it is not part of either T2-beta implementation slice.
