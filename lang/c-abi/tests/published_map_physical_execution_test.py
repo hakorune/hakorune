@@ -468,6 +468,73 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
                         "published-lifecycle-physical-parser/function-body")
     print("call argument kind <-> callee parameter representation drift rejects")
 
+    # Map actual -> map formal: the caller owns a live LV4_MAP lease, the
+    # edge borrows it, and the caller still emits End on Normal and Fault.
+    # The borrowed callee never gains an End obligation.
+    def map_arg_program():
+        callee = copy.deepcopy(borrowed["functions"][1])
+        callee["blocks"][0]["terminator"]["instruction"]["operation"]["site"] = 3
+        caller = dict(name="main", role="root_i64", entry=0, params=[],
+                      receiver=None, receiver_object=None, blocks=[
+            dict(id=0, edges=[dict(target=1, args=None),
+                            dict(target=2, args=None)],
+                 instructions=[dict(index=0, instruction=dict(
+                     op="fault_frame_enter", dst=1, mode="root_owned"))],
+                 terminator=dict(index=1, instruction=dict(
+                     op="invoke", fault_frame=1, normal=1, fault=2,
+                     operation=dict(kind="map_new", site=0)))),
+            dict(id=1, edges=[dict(target=3, args=None),
+                            dict(target=4, args=None)],
+                 instructions=[dict(index=0, instruction=dict(
+                     op="invoke_normal_result", invoke_block=0, dst=2))],
+                 terminator=dict(index=1, instruction=dict(
+                     op="invoke", fault_frame=1, normal=3, fault=4,
+                     operation=dict(kind="ordinary_call", result="i64",
+                                    call=dict(target=1, dst=None, args=[
+                                        dict(kind="map", value=2)]))))),
+            dict(id=2, edges=[], instructions=[],
+                 terminator=dict(index=0, instruction=dict(
+                     op="return_fault", fault_frame=1))),
+            dict(id=3, edges=[dict(target=5, args=None),
+                            dict(target=6, args=None)],
+                 instructions=[dict(index=0, instruction=dict(
+                     op="invoke_normal_result", invoke_block=1, dst=3))],
+                 terminator=dict(index=1, instruction=dict(
+                     op="invoke", fault_frame=1, normal=5, fault=6,
+                     operation=dict(kind="map_end", map=2, site=1)))),
+            dict(id=4, edges=[dict(target=7, args=None),
+                            dict(target=8, args=None)],
+                 instructions=[],
+                 terminator=dict(index=0, instruction=dict(
+                     op="invoke", fault_frame=1, normal=7, fault=8,
+                     operation=dict(kind="map_end", map=2, site=2)))),
+            dict(id=5, edges=[], instructions=[],
+                 terminator=dict(index=0, instruction=dict(
+                     op="return", value=3))),
+            dict(id=6, edges=[], instructions=[],
+                 terminator=dict(index=0, instruction=dict(
+                     op="return_fault", fault_frame=1))),
+            dict(id=7, edges=[], instructions=[],
+                 terminator=dict(index=0, instruction=dict(
+                     op="return_fault", fault_frame=1))),
+            dict(id=8, edges=[], instructions=[],
+                 terminator=dict(index=0, instruction=dict(
+                     op="return_fault", fault_frame=1)))])
+        return dict(schema="hako.published-lifecycle-physical-program.v2",
+                    storage_profile=1, fault_abi_version=1,
+                    process_result_site=4, layouts=[],
+                    functions=[caller, callee])
+
+    compile_input(map_arg_program())
+    print("caller-owned map actual -> borrowed map formal -> compiled")
+
+    # The "map" actual kind is not a spell-only claim: an i64 value behind
+    # it is cohort drift the flow layer must name.
+    result = compile_input(
+        call_into(copy.deepcopy(borrowed["functions"][1]), "map"), False)
+    assert "unsupported-cohort" in result.stderr, result.stderr
+    print("map-kind actual on a scalar value rejects at the flow layer")
+
     # The read-only borrow never gains an End obligation or a write lane:
     # map_end and map_install_* on caller-owned storage must reject at the
     # flow layer (a -2 origin must never index the state arrays).

@@ -224,11 +224,15 @@ pub(crate) enum MapObligationDescribeIssueV1 {
 }
 
 /// The sealed relation the undertaking proves: described obligations exist
-/// and the declared capability covers every one of them.
+/// and the declared capability covers every one of them. Call edges are
+/// attached by the install preflight's own co-seal — each row pairs a
+/// described `CallArgument` obligation with a lifecycle-admitted loan edge
+/// whose callee formal ABI and contract kind both agree at the ordinal.
 #[derive(Debug)]
 pub(crate) struct MapLifecycleUndertakingV1 {
     owners: Box<[FunctionOwnerIdV1]>,
     capability: MapLifecycleConsumerCapabilityV1,
+    call_edges: Box<[MapCallEdgeContractV1]>,
     _seal: MapLifecycleUndertakingSealV1,
 }
 
@@ -241,6 +245,21 @@ impl MapLifecycleUndertakingV1 {
     }
     pub(crate) fn capability(&self) -> &MapLifecycleConsumerCapabilityV1 {
         &self.capability
+    }
+    pub(crate) fn call_edges(&self) -> &[MapCallEdgeContractV1] {
+        &self.call_edges
+    }
+
+    /// Attach the co-sealed call-edge contracts. Only the package's
+    /// install preflight may do this — the pairs it records were already
+    /// matched against both the described obligations and the sealed
+    /// loan rows; the undertaking issues no new meaning.
+    pub(in crate::mir::normal_callable_semantic_package) fn with_call_edges(
+        mut self,
+        call_edges: impl IntoIterator<Item = MapCallEdgeContractV1>,
+    ) -> Self {
+        self.call_edges = call_edges.into_iter().collect();
+        self
     }
 }
 
@@ -411,6 +430,7 @@ pub(crate) fn verify_map_lifecycle_undertaking(
     Ok(MapLifecycleUndertakingV1 {
         owners: owners.into_boxed_slice(),
         capability,
+        call_edges: Box::new([]),
         _seal: MapLifecycleUndertakingSealV1,
     })
 }

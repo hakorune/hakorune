@@ -25,7 +25,13 @@ fn terminal_map_call_borrows_real_caller_cleanup_and_stops_scalar_emission() {
             .unwrap();
         assert_eq!(completion.owner(), call.owner());
         assert_eq!(completion.explicit_site(), Some(call.return_site()));
-        assert_eq!(call.arguments(), [30, 5]);
+        assert_eq!(
+            call.arguments(),
+            [
+                crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::I64(30),
+                crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::I64(5),
+            ]
+        );
         assert_eq!(
             completion
                 .cleanup()
@@ -80,7 +86,10 @@ fn local_map_call_and_terminal_map_call_share_the_root_source_owner() {
     let local = &flow.local_calls()[0];
     assert_eq!(local.owner(), terminal.owner());
     assert_eq!(local.arguments(), [10]);
-    assert_eq!(terminal.arguments(), [20]);
+    assert_eq!(
+        terminal.arguments(),
+        [crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::I64(20)]
+    );
 
     let owner = terminal.owner();
     let local_site = local.site().site().clone();

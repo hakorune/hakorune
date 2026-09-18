@@ -581,6 +581,24 @@ pub(super) fn terminal_map_get(
     ))
 }
 
+/// One sealed terminal-Call argument class. `I64` carries the literal value
+/// the scalar lane re-materializes; `Map` names the exact `%{...}` literal
+/// site whose `CallArgument` flow row carries the construction facts — the
+/// row records the source class only, never the pointer it becomes.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum TerminalCallArgumentV1 {
+    I64(i64),
+    Map(OwnedExprSiteV1),
+}
+impl TerminalCallArgumentV1 {
+    pub(crate) const fn map_site(&self) -> Option<&OwnedExprSiteV1> {
+        match self {
+            Self::I64(_) => None,
+            Self::Map(site) => Some(site),
+        }
+    }
+}
+
 /// A terminal Call publishes its pending value only on Normal. On Fault the
 /// original Completion supplies caller cleanup and outward propagation.
 /// Target and argument sites stay in the package's existing affine Call row.
@@ -589,14 +607,14 @@ pub(crate) struct TerminalI64CallReturnV1 {
     owner: FunctionOwnerIdV1,
     return_site: SourceStmtSiteV1,
     call_site: SourceExprSiteV1,
-    arguments: Box<[i64]>,
+    arguments: Box<[TerminalCallArgumentV1]>,
 }
 impl TerminalI64CallReturnV1 {
     pub(super) const fn issue(
         owner: FunctionOwnerIdV1,
         return_site: SourceStmtSiteV1,
         call_site: SourceExprSiteV1,
-        arguments: Box<[i64]>,
+        arguments: Box<[TerminalCallArgumentV1]>,
     ) -> Self {
         Self {
             owner,
@@ -614,7 +632,7 @@ impl TerminalI64CallReturnV1 {
     pub(crate) fn call_site(&self) -> &SourceExprSiteV1 {
         &self.call_site
     }
-    pub(crate) fn arguments(&self) -> &[i64] {
+    pub(crate) fn arguments(&self) -> &[TerminalCallArgumentV1] {
         &self.arguments
     }
 }

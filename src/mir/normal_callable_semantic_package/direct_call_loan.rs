@@ -190,6 +190,45 @@ impl DirectCallDispositionLoanV1 {
         }
     }
 
+    /// Every lifecycle-admitted row's borrowed-Map formal ordinals with the
+    /// callee owner the signature belongs to — the sealed call edge half the
+    /// install-side co-seal matches against described `ArgumentHandoff`
+    /// obligations. Nothing here re-reads the source; the signature's own
+    /// sealed ABI is the evidence.
+    pub(in crate::mir::normal_callable_semantic_package) fn map_argument_edges(
+        &self,
+    ) -> Vec<(OwnedExprSiteV1, u32, FunctionOwnerIdV1)> {
+        self.rows
+            .iter()
+            .filter_map(|(site, slot)| match slot {
+                DirectCallDispositionSlotV1::Ready(row)
+                    if matches!(row.execution, DirectCallExecutionV1::Lifecycle) =>
+                {
+                    Some((site, row))
+                }
+                _ => None,
+            })
+            .flat_map(|(site, row)| {
+                row.emission
+                    .target()
+                    .signature()
+                    .params()
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, kind)| {
+                        **kind == crate::mir::resolved_semantics::ExactCallableParamAbiV1::Map
+                    })
+                    .map(move |(ordinal, _)| {
+                        (
+                            site.clone(),
+                            ordinal as u32,
+                            row.emission.target().callable().owner(),
+                        )
+                    })
+            })
+            .collect()
+    }
+
     pub(crate) fn finish_empty(self) -> Result<(), DirectCallLoanErrorV1> {
         if self
             .rows

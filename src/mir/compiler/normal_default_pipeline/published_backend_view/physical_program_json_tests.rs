@@ -19,6 +19,68 @@ fn request(source: &str) -> NormalCompileRequestV1 {
 }
 
 #[test]
+fn map_argument_edge_serializes_corroborated_map_pair() {
+    // The caller's `%{...}` actual, the callee's `Map` formal, and the
+    // borrowed read all agree at the sealed edge — the wire spells
+    // `"kind": "map"` on the actual and `"representation": "map"` on the
+    // formal, and the caller keeps `map_end` on Normal and Fault.
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let mut compiler = MirCompiler::with_options(false);
+        compiler
+            .compile_normal_with_published(
+                request(
+                    "static box Helpers { read_k(m: MapBox): i64 { return m.get(\"k\") } }
+                     static box Main { main() { return read_k(%{\"k\" => 7}) } }",
+                ),
+                |view, verification| -> Result<(), String> {
+                    assert!(verification.is_ok(), "{verification:?}");
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    let json = emit_lifecycle_physical_abi_json(&input)?;
+                    let decoded: serde_json::Value = serde_json::from_str(&json).unwrap();
+                    let functions = decoded["functions"].as_array().unwrap();
+                    let caller = functions
+                        .iter()
+                        .find(|row| row["name"] == "main")
+                        .expect("caller row");
+                    let callee = functions
+                        .iter()
+                        .find(|row| row["name"] == "Helpers.read_k/1")
+                        .expect("callee row");
+                    assert_eq!(callee["params"][0]["representation"], "map");
+                    let instructions: Vec<&serde_json::Value> = caller["blocks"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .flat_map(|block| {
+                            block["instructions"].as_array().unwrap().iter().chain(
+                                std::iter::once(&block["terminator"]["instruction"]),
+                            )
+                        })
+                        .collect();
+                    let call = instructions
+                        .iter()
+                        .find(|row| row["operation"]["kind"] == "ordinary_call")
+                        .expect("ordinary call edge");
+                    assert_eq!(call["operation"]["call"]["args"][0]["kind"], "map");
+                    assert_eq!(call["operation"]["result"], "i64");
+                    let ends: Vec<&serde_json::Value> = instructions
+                        .iter()
+                        .filter(|row| row["operation"]["kind"] == "map_end")
+                        .copied()
+                        .collect();
+                    assert!(
+                        ends.len() >= 2,
+                        "caller cleans the arg map on Normal and Fault: {ends:?}"
+                    );
+                    Ok(())
+                },
+            )
+            .unwrap();
+    });
+}
+
+#[test]
 fn unannotated_pair_issues_tagged_input_from_retained_contract() {
     use crate::mir::normal_callable_semantic_package::BirthFormalPhysicalDispositionV1;
     crate::runtime::ring0::ensure_global_ring0_initialized();
@@ -133,6 +195,7 @@ fn serializer_preserves_signed_compare_predicates() {
             None,
             None,
             &BTreeMap::new(),
+            None,
         )
         .expect("physical signed comparison");
         assert_eq!(
@@ -158,6 +221,7 @@ fn serializer_rejects_nonissued_instruction_vocabulary() {
             None,
             None,
             &BTreeMap::new(),
+            None,
         ),
         Err(error) if error.contains("instruction-unsupported"),
     ));
@@ -413,6 +477,7 @@ fn native_float_wire_preserves_signed_zero_and_nan_payload_bits() {
                             None,
                             Some(&input),
                             &BTreeMap::new(),
+                            None,
                         )?;
                         let decoded: Value =
                             serde_json::from_str(&serde_json::to_string(&encoded).unwrap())
@@ -539,7 +604,7 @@ fn map_value_wire_kind_is_explicit_and_has_no_object_identity() {
             kind,
         });
         let encoded =
-            encode_invoke(&op, &BTreeMap::new(), &BTreeMap::new(), 0, Some(42), None).unwrap();
+            encode_invoke(&op, &BTreeMap::new(), &BTreeMap::new(), 0, Some(42), None, None).unwrap();
         assert_eq!(
             encoded,
             json!({"kind": "map_install_value", "map": 1,
@@ -557,7 +622,7 @@ fn map_install_text_publishes_inline_utf8_without_a_value_operand() {
         utf8: "sealed payload".into(),
     });
     let encoded =
-        encode_invoke(&op, &BTreeMap::new(), &BTreeMap::new(), 0, Some(42), None).unwrap();
+        encode_invoke(&op, &BTreeMap::new(), &BTreeMap::new(), 0, Some(42), None, None).unwrap();
     assert_eq!(
         encoded,
         json!({"kind": "map_install_text", "map": 1, "key": 2,
@@ -573,7 +638,7 @@ fn map_install_empty_array_publishes_no_payload_operand() {
         key: ValueId(2),
     });
     let encoded =
-        encode_invoke(&op, &BTreeMap::new(), &BTreeMap::new(), 0, Some(42), None).unwrap();
+        encode_invoke(&op, &BTreeMap::new(), &BTreeMap::new(), 0, Some(42), None, None).unwrap();
     assert_eq!(
         encoded,
         json!({"kind": "map_install_empty_array", "map": 1, "key": 2, "site": 42})

@@ -1,9 +1,12 @@
 //! Precommit use of existing root and Local products; no semantic issuance.
 use super::super::map_lifecycle_undertaking::{
-    verify_map_lifecycle_undertaking, MapLifecycleUndertakingV1,
+    verify_map_lifecycle_undertaking, MapCallEdgeContractV1, MapCallEdgeKindV1,
+    MapLifecycleUndertakingV1,
 };
 use super::*;
 use crate::mir::builder::BuilderInstallConsumerV1;
+use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+use crate::mir::resolved_semantics::home_new_prefix::MapDestinationV1;
 use crate::mir::resolved_semantics::{BindingOriginV1, ResolvedLexicalRefV1, SourceBindingSiteV1};
 
 impl VerifiedNormalCallableSemanticPackageV1 {
@@ -50,6 +53,63 @@ impl VerifiedNormalCallableSemanticPackageV1 {
                 }
             }
         }
+        // Call-edge co-seal: every lifecycle-admitted loan edge that
+        // carries a borrowed-Map formal must pair with the caller's
+        // described `CallArgument` obligation at the same site/ordinal,
+        // and the callee's own parameter contract must declare `Map`
+        // there — signature ABI, contract kind, and caller actual agree
+        // or the edge is refused. The reverse sweep then refuses any
+        // described `CallArgument` obligation no sealed edge covers
+        // (for example a map argument riding a non-lifecycle call).
+        let mut call_edges = Vec::new();
+        if let Some(loans) = self.direct_call_loans.as_ref() {
+            for loan in loans.iter() {
+                for (site, ordinal, callee) in loan.map_argument_edges() {
+                    let contract_map = self.parameter_contracts.iter().any(|row| {
+                        row.owner == callee
+                            && row.parameters.iter().any(|parameter| {
+                                parameter.ordinal == ordinal
+                                    && parameter.kind == CallableParameterContractKindV1::Map
+                            })
+                    });
+                    let obligation_match = obligations.iter().any(|owner_rows| {
+                        owner_rows.sites().iter().any(|row| {
+                            matches!(
+                                row.destination(),
+                                MapDestinationV1::CallArgument { call, ordinal: expected }
+                                    if call == &site && *expected == ordinal
+                            )
+                        })
+                    });
+                    if !contract_map || !obligation_match {
+                        return Err(Issue::MapLifecycleConsumerMissing);
+                    }
+                    call_edges.push(MapCallEdgeContractV1::new(
+                        site,
+                        MapCallEdgeKindV1::Argument { ordinal },
+                    ));
+                }
+            }
+        }
+        for owner_rows in obligations.iter() {
+            for row in owner_rows.sites() {
+                let MapDestinationV1::CallArgument { call, ordinal } = row.destination() else {
+                    continue;
+                };
+                let covered = call_edges.iter().any(|edge| {
+                    edge.call_site() == call
+                        && matches!(
+                            edge.kind(),
+                            MapCallEdgeKindV1::Argument { ordinal: expected }
+                                if *expected == *ordinal
+                        )
+                });
+                if !covered {
+                    return Err(Issue::MapLifecycleConsumerMissing);
+                }
+            }
+        }
+        let undertaking = undertaking.with_call_edges(call_edges);
         for owner in obligations.iter().map(|row| row.owner()) {
             let mut declarations = self.batch.declarations().filter(|d| d.owner() == owner);
             let declaration = declarations

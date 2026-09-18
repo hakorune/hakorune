@@ -82,10 +82,10 @@ use terminal_relation::{
     map_literal_keys, return_scalar, terminal_map_get, terminal_returned_source, ReturnScalar,
 };
 pub(crate) use terminal_relation::{
-    TerminalI64AddReturnV1, TerminalI64CallReturnV1, TerminalI64FieldReturnV1,
-    TerminalIntegerLiteralReturnV1, TerminalMapGetReceiverClassV1, TerminalMapGetReturnV1,
-    TerminalOpaqueCallReturnV1, TerminalRelationV1, TerminalReturnedSourceV1,
-    TerminalUnitReturnV1, TerminalValueReturnV1,
+    TerminalCallArgumentV1, TerminalI64AddReturnV1, TerminalI64CallReturnV1,
+    TerminalI64FieldReturnV1, TerminalIntegerLiteralReturnV1, TerminalMapGetReceiverClassV1,
+    TerminalMapGetReturnV1, TerminalOpaqueCallReturnV1, TerminalRelationV1,
+    TerminalReturnedSourceV1, TerminalUnitReturnV1, TerminalValueReturnV1,
 };
 
 pub(crate) fn issue_new_home_prefixes_v1(
@@ -317,6 +317,41 @@ pub(crate) fn scan_new_home_flow<E>(
                                 value.site().clone(),
                             ))? =>
                             {
+                                // Every argument seals as its own source
+                                // class: an integer literal carries its
+                                // value; a `%{...}` literal names its exact
+                                // `CallArgument` flow row (already observed
+                                // above for this return value). Neither arm
+                                // re-reads a type or resolves a name.
+                                let call_owned =
+                                    OwnedExprSiteV1::new(input.owner(), value.site().clone());
+                                let argument_class = |ordinal: u32,
+                                                      site: &SourceExprSiteV1|
+                                 -> Option<TerminalCallArgumentV1> {
+                                    match input.function().expression_source().literal(site) {
+                                        Some(ResolvedLiteralSourceV1::Integer(value)) => {
+                                            return Some(TerminalCallArgumentV1::I64(*value));
+                                        }
+                                        _ => {}
+                                    }
+                                    let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+                                    let mut candidates = maps.iter().filter(|row| {
+                                        row.site() == &owned
+                                            && matches!(
+                                                row.complete().map(|flow| flow.destination()),
+                                                Some(MapDestinationV1::CallArgument {
+                                                    call,
+                                                    ordinal: expected,
+                                                }) if call == &call_owned && *expected == ordinal
+                                            )
+                                    });
+                                    let row = candidates.next()?;
+                                    if candidates.next().is_some() {
+                                        return None;
+                                    }
+                                    row.complete()?;
+                                    Some(TerminalCallArgumentV1::Map(owned))
+                                };
                                 let arguments = input
                                     .function()
                                     .direct_call_observations()
@@ -324,17 +359,9 @@ pub(crate) fn scan_new_home_flow<E>(
                                     .and_then(|(_, row)| {
                                         row.argument_sites()
                                             .iter()
-                                            .map(|site| {
-                                                match input
-                                                    .function()
-                                                    .expression_source()
-                                                    .literal(site)
-                                                {
-                                                    Some(ResolvedLiteralSourceV1::Integer(
-                                                        value,
-                                                    )) => Some(*value),
-                                                    _ => None,
-                                                }
+                                            .enumerate()
+                                            .map(|(ordinal, site)| {
+                                                argument_class(ordinal as u32, site)
                                             })
                                             .collect::<Option<Vec<_>>>()
                                     });
@@ -346,17 +373,9 @@ pub(crate) fn scan_new_home_flow<E>(
                                         .and_then(|(_, row)| {
                                             row.arguments()
                                                 .iter()
-                                                .map(|argument| {
-                                                    match input
-                                                        .function()
-                                                        .expression_source()
-                                                        .literal(argument.site())
-                                                    {
-                                                        Some(ResolvedLiteralSourceV1::Integer(
-                                                            value,
-                                                        )) => Some(*value),
-                                                        _ => None,
-                                                    }
+                                                .enumerate()
+                                                .map(|(ordinal, argument)| {
+                                                    argument_class(ordinal as u32, argument.site())
                                                 })
                                                 .collect::<Option<Vec<_>>>()
                                         })
@@ -418,45 +437,50 @@ pub(crate) fn scan_new_home_flow<E>(
                                                 Some(TerminalRelationV1::MapGet(row));
                                             true
                                         } else {
-                                        match terminal_returned_source(input, value.site(), &locals)
-                                        {
-                                            Some(returned) => {
-                                                // A returned local/Home leaves
-                                                // with the caller: it is no
-                                                // longer this function's
-                                                // terminal cleanup.
-                                                let binding = match &returned {
-                                                    TerminalReturnedSourceV1::MapLocal(binding)
-                                                    | TerminalReturnedSourceV1::Home {
-                                                        binding,
-                                                        ..
-                                                    } => Some(*binding),
-                                                    _ => None,
-                                                };
-                                                if let Some(binding) = binding {
-                                                    homes.retain(|home| *home != binding);
-                                                    locals.consume_home(binding);
+                                            match terminal_returned_source(
+                                                input,
+                                                value.site(),
+                                                &locals,
+                                            ) {
+                                                Some(returned) => {
+                                                    // A returned local/Home leaves
+                                                    // with the caller: it is no
+                                                    // longer this function's
+                                                    // terminal cleanup.
+                                                    let binding = match &returned {
+                                                        TerminalReturnedSourceV1::MapLocal(
+                                                            binding,
+                                                        )
+                                                        | TerminalReturnedSourceV1::Home {
+                                                            binding,
+                                                            ..
+                                                        } => Some(*binding),
+                                                        _ => None,
+                                                    };
+                                                    if let Some(binding) = binding {
+                                                        homes.retain(|home| *home != binding);
+                                                        locals.consume_home(binding);
+                                                    }
+                                                    terminal_relation =
+                                                        Some(TerminalRelationV1::Value(
+                                                            TerminalValueReturnV1::issue(
+                                                                input.owner(),
+                                                                statement.site().clone(),
+                                                                value.site().clone(),
+                                                                returned,
+                                                            ),
+                                                        ));
+                                                    true
                                                 }
-                                                terminal_relation =
-                                                    Some(TerminalRelationV1::Value(
-                                                        TerminalValueReturnV1::issue(
-                                                            input.owner(),
-                                                            statement.site().clone(),
-                                                            value.site().clone(),
-                                                            returned,
-                                                        ),
-                                                    ));
-                                                true
-                                            }
-                                            None => {
-                                                // `return <qualified call>`
-                                                // — the sealed method-call
-                                                // row proves a qualified
-                                                // receiver; the relation
-                                                // records the call site only
-                                                // and owns no callee, result
-                                                // class, or handoff authority.
-                                                if input.function().method_calls().any(
+                                                None => {
+                                                    // `return <qualified call>`
+                                                    // — the sealed method-call
+                                                    // row proves a qualified
+                                                    // receiver; the relation
+                                                    // records the call site only
+                                                    // and owns no callee, result
+                                                    // class, or handoff authority.
+                                                    if input.function().method_calls().any(
                                                     |(site, row)| {
                                                         *site == *value.site()
                                                             && matches!(
@@ -478,8 +502,8 @@ pub(crate) fn scan_new_home_flow<E>(
                                                 } else {
                                                     false
                                                 }
+                                                }
                                             }
-                                        }
                                         }
                                     }
                                 }

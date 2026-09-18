@@ -95,7 +95,9 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
-    pub(crate) fn terminal_call_arguments(&self) -> Option<&[i64]> {
+    pub(crate) fn terminal_call_arguments(
+        &self,
+    ) -> Option<&[crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1]> {
         self.call_source_completion()
             .map(|(_, terminal)| terminal.arguments())
     }
@@ -108,7 +110,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn terminal_call_arguments_for_owner(
         &self,
         owner: FunctionOwnerIdV1,
-    ) -> Option<&[i64]> {
+    ) -> Option<&[crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1]> {
         self.call_source_completion_for_owner(owner)
             .map(|(_, terminal)| terminal.arguments())
     }
@@ -348,22 +350,73 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("call-argument-count"));
         }
         let mut values = Vec::with_capacity(arguments.len());
-        for ((_, instruction), literal) in arguments.iter().zip(terminal.arguments()) {
-            match instruction {
-                MirInstruction::Const {
-                    dst,
-                    value: ConstValue::Integer(value),
-                } if value == literal => values.push(*dst),
+        for (ordinal, ((_, instruction), argument)) in
+            arguments.iter().zip(terminal.arguments()).enumerate()
+        {
+            match (instruction, argument) {
+                (
+                    MirInstruction::Const {
+                        dst,
+                        value: ConstValue::Integer(value),
+                    },
+                    crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::I64(
+                        literal,
+                    ),
+                ) if value == literal => values.push(*dst),
+                (
+                    MirInstruction::InvokeNormalResult { dst, .. },
+                    crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::Map(
+                        site,
+                    ),
+                ) => {
+                    // The recorded projection must produce the exact lease
+                    // the sealed CallArgument flow row emitted into this
+                    // argument slot — never a re-read of the map site.
+                    let rows = self.local_commits.borrow();
+                    let Some(LocalCommitV1::Map(row)) = rows.get(site) else {
+                        return Err(freeze("call-argument-drift"));
+                    };
+                    let flow = self.map_flow(site)?;
+                    if site.owner() != owner
+                        || row.binding.is_some()
+                        || row.emitted_value() != Some(*dst)
+                        || !matches!(
+                            flow.destination(),
+                            crate::mir::resolved_semantics::home_new_prefix::MapDestinationV1::CallArgument {
+                                call,
+                                ordinal: expected,
+                            } if call.site() == terminal.call_site() && *expected == ordinal as u32
+                        )
+                    {
+                        return Err(freeze("call-argument-drift"));
+                    }
+                    values.push(*dst);
+                }
                 _ => return Err(freeze("call-argument-drift")),
             }
         }
+        let typed: Vec<_> = values
+            .into_iter()
+            .zip(terminal.arguments())
+            .map(|(value, argument)| {
+                let class = match argument {
+                    crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::I64(_) => {
+                        crate::mir::resolved_semantics::ExactCallableParamAbiV1::I64
+                    }
+                    crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::Map(_) => {
+                        crate::mir::resolved_semantics::ExactCallableParamAbiV1::Map
+                    }
+                };
+                (value, class)
+            })
+            .collect();
         let expected = match row {
             RootCallDispositionV1::Direct(row) => row
                 .physical_emission()
-                .materialize_call(None, values)
+                .materialize_call_typed(None, typed)
                 .map_err(|_| freeze("call-projection-failed"))?,
             RootCallDispositionV1::Instance(row) => {
-                if !values.is_empty() || row.argument_sites().iter().next().is_some() {
+                if !typed.is_empty() || row.argument_sites().iter().next().is_some() {
                     return Err(freeze("instance-call-arguments"));
                 }
                 let receiver = self.resolve_instance_receiver(owner, row)?;

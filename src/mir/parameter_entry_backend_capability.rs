@@ -118,8 +118,26 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
         }
         validate_parameter_entry_contracts(target)?;
         let receiver_offset = usize::from(has_receiver);
+        // The numeric contract rows cover i64 formals only; a `MapBox`
+        // formal is admitted by its own corroborated triple — declared
+        // name, signature type, and physical carrier — so the per-formal
+        // coverage is `numeric rows + map carriers == explicit params`.
+        let map_formals = target
+            .metadata
+            .physical_param_carriers
+            .as_deref()
+            .unwrap_or_default()
+            .iter()
+            .skip(receiver_offset)
+            .filter(|carrier| {
+                matches!(
+                    carrier,
+                    crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage
+                )
+            })
+            .count();
         if target.metadata.declared_param_decls.len() != target.params.len()
-            || target.metadata.parameter_entry_contracts.len()
+            || target.metadata.parameter_entry_contracts.len() + map_formals
                 != target.params.len().saturating_sub(receiver_offset)
             || target.signature.params.len() != target.params.len()
         {
@@ -141,16 +159,44 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
                 LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
             ));
         }
-        for (explicit_index, ((declaration, contract), ty)) in target
+        let mut contracts = target.metadata.parameter_entry_contracts.iter();
+        for (explicit_index, (declaration, ty)) in target
             .metadata
             .declared_param_decls
             .iter()
             .skip(receiver_offset)
-            .zip(&target.metadata.parameter_entry_contracts)
             .zip(target.signature.params.iter().skip(receiver_offset))
             .enumerate()
         {
             let formal_index = explicit_index + receiver_offset;
+            let map_carrier = matches!(
+                target
+                    .metadata
+                    .physical_param_carriers
+                    .as_deref()
+                    .and_then(|carriers| carriers.get(formal_index)),
+                Some(
+                    crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage,
+                )
+            );
+            if map_carrier {
+                if declaration.implicit_receiver
+                    || declaration.declared_type_name.as_deref() != Some("MapBox")
+                    || *ty != MirType::Box("MapBox".into())
+                {
+                    return Err(format!(
+                        "{} reason=ordinary-parameter-contract function={symbol} index={formal_index}",
+                        LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
+                    ));
+                }
+                continue;
+            }
+            let Some(contract) = contracts.next() else {
+                return Err(format!(
+                    "{} reason=ordinary-parameter-contract function={symbol} index={formal_index}",
+                    LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
+                ));
+            };
             if declaration.implicit_receiver
                 || declaration.declared_type_name.as_deref() != Some("i64")
                 || *ty != MirType::Integer
@@ -164,6 +210,12 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
                     LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
                 ));
             }
+        }
+        if contracts.next().is_some() {
+            return Err(format!(
+                "{} reason=ordinary-parameter-count function={symbol}",
+                LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
+            ));
         }
     }
     Ok(())

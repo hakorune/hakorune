@@ -156,14 +156,22 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
         for (size_t i = 0; i < yyjson_arr_size(args); i++) {
           yyjson_val* arg = yyjson_arr_get(args, i);
           hako_lv4_value* value = lv4_index_value(fn, lv4_u(arg, "value"));
-          /* The ordinary-call edge is i64-only end to end: the callee's
-             sealed param representation must be "i64" and the live argument
-             value must be scalar. A "map" formal fails closed here the same
-             way the physical validator rejects it. */
+          /* Corroborated pair per ordinal: a caller-owned live map lease
+             spelled "map" rides the edge borrowed against a "map" formal;
+             the loan consumes nothing and the caller still owns End. Every
+             other pair stays i64, and a map claim on either side alone is
+             ABI drift, never a silent scalar fill. */
           const char* repr = yyjson_get_str(yyjson_obj_get(
               yyjson_arr_get(cparams, i), "representation"));
-          int want = repr && !strcmp(repr, "i64") ? LV4_I64 : LV4_BAD;
+          const char* arg_kind = yyjson_get_str(yyjson_obj_get(arg, "kind"));
+          int want = repr && !strcmp(repr, "i64") ? LV4_I64
+              : repr && !strcmp(repr, "map") ? LV4_MAP : LV4_BAD;
           if (!value || value->kind != want) return 0;
+          if (want == LV4_MAP) {
+            if (!arg_kind || strcmp(arg_kind, "map") ||
+                !lv4_indexed_live(fn, value->id, LV4_MAP, state, 0, 0))
+              return 0;
+          } else if (!arg_kind || strcmp(arg_kind, "i64")) return 0;
         }
       }
       normal[bi] = LV4_LIVE;

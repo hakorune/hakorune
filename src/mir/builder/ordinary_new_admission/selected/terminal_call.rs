@@ -36,22 +36,42 @@ pub(in crate::mir::builder) fn emit(
         .ok_or_else(|| freeze("no-block"))?;
     let mut arguments = Vec::new();
     let mut values = Vec::new();
-    for literal in ledger
+    for argument in ledger
         .terminal_call_arguments_for_owner(owner)
         .ok_or_else(|| freeze("call-source-missing"))?
     {
-        let value = crate::mir::builder::emission::constant::emit_integer(builder, *literal)?;
-        arguments.push((
-            block,
-            MirInstruction::Const {
-                dst: value,
-                value: crate::mir::ConstValue::Integer(*literal),
-            },
-        ));
-        values.push(value);
+        use crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1;
+        match argument {
+            TerminalCallArgumentV1::I64(literal) => {
+                let value =
+                    crate::mir::builder::emission::constant::emit_integer(builder, *literal)?;
+                arguments.push((
+                    block,
+                    MirInstruction::Const {
+                        dst: value,
+                        value: crate::mir::ConstValue::Integer(*literal),
+                    },
+                ));
+                values.push((
+                    value,
+                    crate::mir::resolved_semantics::ExactCallableParamAbiV1::I64,
+                ));
+            }
+            TerminalCallArgumentV1::Map(site) => {
+                // The sealed CallArgument flow row drives construction;
+                // the caller keeps the lease — the callee borrows the
+                // storage pointer and the caller's exit chain Ends it.
+                let (value, projection) = super::map::emit_argument(builder, state, ledger, site)?;
+                arguments.push(projection);
+                values.push((
+                    value,
+                    crate::mir::resolved_semantics::ExactCallableParamAbiV1::Map,
+                ));
+            }
+        }
     }
     let call = emission
-        .materialize_call(None, values)
+        .materialize_call_typed(None, values)
         .map_err(|_| freeze("call-projection-failed"))?;
     let value = builder.next_value_id();
     builder

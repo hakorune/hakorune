@@ -189,6 +189,11 @@ pub(crate) struct PublishedLifecyclePhysicalFunctionV1<'module> {
     /// identity so the name is never re-read to spell `ptr`.
     param_carriers:
         Option<&'module [crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1]>,
+    /// The caller-side actual representation record: the same sealed
+    /// `value_types` map the MIR verifier corroborates against callee
+    /// formals. A `Box("MapBox")` actual is the only map-kind evidence;
+    /// an unrecorded or `Integer` actual is the scalar lane.
+    value_types: &'module std::collections::BTreeMap<ValueId, crate::mir::MirType>,
     entry: BasicBlockId,
     blocks: Box<[PublishedLifecyclePhysicalBlockV1<'module>]>,
 }
@@ -216,6 +221,12 @@ impl<'module> PublishedLifecyclePhysicalFunctionV1<'module> {
         &'module [crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1],
     > {
         self.param_carriers
+    }
+
+    pub(crate) fn value_types(
+        &self,
+    ) -> &'module std::collections::BTreeMap<ValueId, crate::mir::MirType> {
+        self.value_types
     }
 
     pub(crate) const fn entry(&self) -> BasicBlockId {
@@ -605,6 +616,7 @@ fn issue_function_with_module<'module>(
         params: &function.params,
         param_types: &function.signature.params,
         param_carriers: function.metadata.physical_param_carriers.as_deref(),
+        value_types: &function.metadata.value_types,
         entry: function.entry_block,
         blocks: blocks.into_boxed_slice(),
     })

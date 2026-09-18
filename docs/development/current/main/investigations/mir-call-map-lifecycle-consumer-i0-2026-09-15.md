@@ -1518,3 +1518,95 @@ caller-side source-to-EXE evidence (T1-β); no tag coverage (T1-γ);
 carrier-less fallback retained only for functions outside every
 signature issuer; no `to_json`, no production switch, no legacy
 retirement.
+
+## T1-β landed evidence (2026-09-18, caller-side Map argument handoff)
+
+Landed end to end: `static box Helpers { read_k(m: MapBox): i64 {
+return m.get("k") } } static box Main { main() { return
+read_k(%{"k" => 7}) } }` compiles, verifies, publishes and executes —
+the caller builds the literal, hands the `%mapN` storage pointer across
+the sealed edge, the borrowed callee performs the real `checked_get`,
+and the caller still emits `Map::End` on Normal and Fault.
+
+Source/facts: `TerminalCallArgumentV1` seals call arguments per class —
+`I64(i64)` or `Map(OwnedExprSiteV1)` — on `TerminalI64CallReturnV1`;
+`home_new_prefix` classifies a `%{...}` actual by its existing
+`CallArgument` `MapHomeFlow` row into `Map(site)` instead of dropping
+the argument list. Spelling note: the card's `Helpers.read_k(...)`
+qualified form stays on the parked `OpaqueCall` lane (no direct-call
+observation → the package stops at the named capability boundary —
+pinned); the bare `read_k(...)` resolves through the free-static index
+to the same `Helpers.read_k` callee and is the bounded lane's fixture.
+
+Semantic co-seal: `co_seal_lifecycle` gains a map-argument arm — a Map
+formal looks up the loan's `map_argument_edges` `(call_site, ordinal)
+→ callee_owner`; `preflight_map_install` co-seals
+`MapCallEdgeContractV1::Argument { ordinal }` binding caller site +
+ordinal ↔ callee Map formal ↔ callee `MapGet` `BorrowedParameter`
+receiver, rejects site/ordinal/carrier drift and non-read formals, and
+carries the contract on the undertaking's `call_edges`; the capability
+now includes `ArgumentHandoff`. `map_argument_to_unread_formal` rejects
+at co-seal.
+
+Emission: `map::emit_argument` / `begin_map_argument_emission` issues
+the site-keyed `LocalCommitV1::Map` (`binding: None`) and threads the
+storage ValueId into `materialize_call_typed` (per-class arg sites;
+the scalar path is unchanged); `RootHomeReleaseOriginV1` became a
+subject enum so the argument map's `End` rides innermost on both exit
+cleanup chains; `root_call_entry` validates per-class argument
+evidence.
+
+Physical layers: the ordinary-call arg spells `{"kind":"map","value"}`
+only for the corroborated pair — `Box("MapBox")` actual ↔
+`CheckedMapStorage` formal — and `ordinary-argument-kind` rejects a
+one-sided claim; `param_carriers` ride `PublishedLifecyclePhysicalFunctionV1`.
+MIR verifier `check_call_edge` admits exactly the map↔map pair and
+`invoke_map` leases the Call-argument use (still no End on borrowed
+storage). `parameter_entry_backend_capability` counts `CheckedMapStorage`
+carriers beside the numeric contracts (decl/signature/carrier arity
+must align; non-Map formals keep exact-i64 contracts). C layers:
+`hako_physical_validate_ordinary_call` keeps the kind↔representation
+pair rule; `hako_llvmc_ffi_lifecycle_v4_indexed_flow.inc` admits a
+`"map"` actual only as a live owned lease against a `"map"` formal
+(the borrow consumes nothing; a `-2` borrowed re-handoff fails
+`lv4_indexed_live`); C emit spells the map actual `ptr %v`.
+
+Executable: `map_read_tests::
+issued_map_argument_source_exe_probe_observes_borrowed_read_and_caller_end`
+(`--ignored`, LLVM18 + `libnyash_lifecycle_kernel.a` +
+`published_map_fault_probe.c`) — Normal exits 7 with
+`READ k 1 7 0 1 2 1` (one construction, one read, one caller End, read
+before End); callee non-scalar read Fault exits 70 with `REPORT 104`,
+`READ k 1 -1 1 1 2 1` — read attempted once, caller End exactly once;
+caller `prepare-fault` exits 70 with `REPORT 100`,
+`READ  0 0 0 0 1 1` — the callee is never entered and the partially
+initialized key storage is disposed once (`1 1`), matching the
+root-owned lifecycle baseline.
+
+Pins: `map_get_terminal_tests`
+(`borrowed_map_argument_handoff_co_seals_call_edge`,
+`map_argument_to_unread_formal_rejects_at_co_seal`,
+`qualified_static_call_argument_stays_on_parked_opaque_lane`),
+`terminal_value_return_tests::
+qualified_call_map_argument_reaches_the_named_capability_boundary`,
+`physical_program_json_tests::
+map_argument_edge_serializes_corroborated_map_pair` (arg kind `"map"`,
+result `"i64"`, formal `"map"`, one `map_checked_get`, `map_end` on
+both cleanup paths); `published_map_physical_execution_test.py` +2 —
+`caller-owned map actual -> borrowed map formal -> compiled` and
+`map-kind actual on a scalar value rejects at the flow layer`
+(`unsupported-cohort`).
+
+Suites: 53 focused + 189 package/verification/resolved batch green;
+full C physical suite green; `cargo check` clean. The stale
+`libhako_llvmc_ffi.so` needed `tools/build_hako_llvmc_ffi.sh` before
+the object probe picked up the C-side edits. `home_new_prefix.rs`
+grew 764→788 — under the 800 hard stop but over the 760 design line
+on a pre-existing over-760 file; a boundary split is recorded as a
+BoxShape follow-up, not folded into this slice.
+
+Non-claims: T1-γ tag/payload coverage (borrowed entries and re-handoff
+of a borrowed formal still fail closed); qualified `Helpers.read_k`
+Invoke support stays parked on `OpaqueCall`; no mixed/multi-argument
+map shapes; no Arrays, no `to_json`, no production switch, no legacy
+retirement. Next bounded slice: T1-γ.

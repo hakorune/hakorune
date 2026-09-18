@@ -98,10 +98,119 @@ fn issued_map_read_source_exe_probe_observes_get_contract_and_end() {
     });
 }
 
+/// Caller-side `%{...}` argument handoff: `main` builds the literal, hands
+/// the storage pointer across the sealed edge, and keeps the End — the
+/// borrowed callee only reads. The READ/END sequence must place the
+/// callee's get before the caller's End on Normal and Fault alike.
+#[test]
+#[ignore = "requires selected C FFI, LLVM18 and lifecycle runtime"]
+fn issued_map_argument_source_exe_probe_observes_borrowed_read_and_caller_end() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        use crate::runner::modes::common_util::normal_callable::{
+            materialize_normal_callable_program_v1, NormalCallableMaterializationOutcomeV1,
+        };
+        const CALLEE: &str =
+            "static box Helpers { read_k(m: MapBox): i64 { return m.get(\"k\") } }";
+        // (body, mode arg, exit, expected tail). The caller's construction
+        // bookkeeping matches the root-owned lane: one literal install,
+        // the read itself allocates nothing. `prepare-fault` stops the
+        // literal mid-construction; the End still runs on the caller's
+        // Fault chain and the callee never sees the storage.
+        let cases: [(&str, Option<&str>, i32, &str); 3] = [
+            (
+                "return read_k(%{\"k\" => 7})",
+                None,
+                7,
+                "7 1 1 1 1 1 1 READ k 1 7 0 1 2 1\n",
+            ),
+            (
+                "return read_k(%{\"k\" => true})",
+                None,
+                70,
+                "70 1 1 1 1 1 1 READ k 1 -1 1 1 2 1\n",
+            ),
+            (
+                "return read_k(%{\"k\" => 7})",
+                Some("prepare-fault"),
+                70,
+                "70 1 1 1 1 0 0 READ  0 0 0 0 1 1\n",
+            ),
+        ];
+        for (case, (body, mode, expected_exit, expected_tail)) in cases.iter().enumerate() {
+            let source = format!("{CALLEE} static box Main {{ main() {{ {body} }} }}");
+            let NormalCallableMaterializationOutcomeV1::SourceBacked(source) =
+                materialize_normal_callable_program_v1(
+                    source,
+                    crate::parser::ParserBuildConfig::default(),
+                )
+                .unwrap()
+            else {
+                panic!("source-backed request");
+            };
+            let request = NormalCompileRequestV1::for_mir_mode_callable_source(
+                source,
+                None,
+                std::collections::HashMap::new(),
+            );
+            let dir = std::env::temp_dir()
+                .join(format!("hako-map-arg-source-{}-{case}", std::process::id()));
+            std::fs::create_dir_all(&dir).unwrap();
+            MirCompiler::with_options(true)
+                .compile_normal_with_published(
+                    request,
+                    |view, verification| -> Result<(), String> {
+                        assert!(verification.is_ok(), "{verification:?}");
+                        let input = view.issue_lifecycle_physical_abi_input()?;
+                        let json = emit_lifecycle_physical_abi_json(&input)?;
+                        assert_eq!(
+                            json.matches("\"kind\":\"map_checked_get\"").count(),
+                            1,
+                            "{json}"
+                        );
+                        assert!(json.contains("\"kind\":\"map\""), "{json}");
+                        let runtime = Path::new("target/lifecycle-kernel/release");
+                        let session = LifecycleRuntimeSessionV1::select(
+                            runtime.join("libnyash_lifecycle_kernel.a"),
+                        )?;
+                        let object = dir.join("map-arg.o");
+                        compile_published_view_object(
+                            view,
+                            object.to_str().unwrap(),
+                            Some(&session),
+                        )
+                        .map_err(|error| format!("object: {error}"))?;
+                        assert_map_read_probe_with_mode(
+                            &object,
+                            session.runtime_archive(),
+                            &dir,
+                            *mode,
+                            *expected_exit,
+                            expected_tail,
+                        )
+                    },
+                )
+                .unwrap_or_else(|e| panic!("case {case}: {e}"));
+            std::fs::remove_dir_all(dir).unwrap();
+        }
+    });
+}
+
 fn assert_map_read_probe(
     object: &Path,
     archive: &Path,
     dir: &Path,
+    expected_exit: i32,
+    expected_tail: &str,
+) -> Result<(), String> {
+    assert_map_read_probe_with_mode(object, archive, dir, None, expected_exit, expected_tail)
+}
+
+fn assert_map_read_probe_with_mode(
+    object: &Path,
+    archive: &Path,
+    dir: &Path,
+    mode: Option<&str>,
     expected_exit: i32,
     expected_tail: &str,
 ) -> Result<(), String> {
@@ -147,7 +256,11 @@ fn assert_map_read_probe(
         "{}",
         String::from_utf8_lossy(&linked.stderr)
     );
-    let result = Command::new(&exe)
+    let mut run = Command::new(&exe);
+    if let Some(mode) = mode {
+        run.arg(mode);
+    }
+    let result = run
         .env("NYASH_NYRT_SILENT_RESULT", "1")
         .env("HAKO_NYRT_PLUGIN_HOST", "off")
         .output()
@@ -155,7 +268,12 @@ fn assert_map_read_probe(
     assert_eq!(result.status.code(), Some(expected_exit), "{result:?}");
     let stdout = String::from_utf8_lossy(&result.stdout);
     if expected_exit == 70 {
-        assert!(stdout.contains("REPORT 104 "), "{stdout}");
+        let reason = if mode.is_some() {
+            "REPORT 100 "
+        } else {
+            "REPORT 104 "
+        };
+        assert!(stdout.contains(reason), "{stdout}");
     }
     assert!(stdout.ends_with(expected_tail), "{stdout}");
     Ok(())

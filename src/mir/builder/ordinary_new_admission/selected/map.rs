@@ -14,7 +14,23 @@ pub(in crate::mir::builder) fn emit(
     relation: &ResolvedInitializerRelationV1,
 ) -> Result<ValueId, String> {
     ledger.begin_map_emission(site, relation)?;
-    emit_flow(builder, state, ledger, site)
+    emit_flow(builder, state, ledger, site).map(|(result, _)| result)
+}
+
+/// Emit a `%{...}` literal in call-argument position. The sealed
+/// `CallArgument` flow row is the sole membership evidence; the emitted
+/// lease stays caller-owned — the callee borrows the storage pointer for
+/// the call's duration and the caller's own exit chain Ends it. Returns
+/// the lease value and the `NewMap` projection pair as argument evidence.
+pub(in crate::mir::builder) fn emit_argument(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    site: &OwnedExprSiteV1,
+) -> Result<(ValueId, (BasicBlockId, MirInstruction)), String> {
+    ledger.begin_map_argument_emission(site)?;
+    let (result, projection) = emit_flow(builder, state, ledger, site)?;
+    Ok((result, projection.expect("Map New records its projection")))
 }
 
 /// Emit a `return %{...}` literal. The sealed ReturnBoundary flow row is
@@ -27,7 +43,7 @@ pub(in crate::mir::builder) fn emit_return(
     site: &OwnedExprSiteV1,
 ) -> Result<ValueId, String> {
     ledger.begin_map_return_emission(site)?;
-    emit_flow(builder, state, ledger, site)
+    emit_flow(builder, state, ledger, site).map(|(result, _)| result)
 }
 
 fn emit_flow(
@@ -35,7 +51,7 @@ fn emit_flow(
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
     site: &OwnedExprSiteV1,
-) -> Result<ValueId, String> {
+) -> Result<(ValueId, Option<(BasicBlockId, MirInstruction)>), String> {
     if state.owner() != site.owner() {
         return Err(freeze("map-owner"));
     }
@@ -56,8 +72,9 @@ fn emit_flow(
         outward,
         &mut bindings,
     )?;
-    let result = invoke(builder, frame, Map::New, allocation_fault, &mut bindings)?
-        .expect("Map New produces an opaque result");
+    let (result, new_projection) =
+        invoke(builder, frame, Map::New, allocation_fault, &mut bindings)?;
+    let result = result.expect("Map New produces an opaque result");
     builder
         .function_state
         .type_ctx
@@ -172,6 +189,7 @@ fn emit_flow(
             precommit,
             &mut bindings,
         )?
+        .0
         .expect("key prepare produces an opaque result");
         let operation = match pending {
             PendingInstall::Value(value, kind) => Map::InstallValue {
@@ -194,6 +212,7 @@ fn emit_flow(
             PendingInstall::EmptyArray => Map::InstallEmptyArray { map: result, key },
         };
         let outcome = invoke(builder, frame, operation, precommit, &mut bindings)?
+            .0
             .expect("install produces its detached outcome");
         let committed = map_fault(
             builder,
@@ -214,7 +233,7 @@ fn emit_flow(
         )?;
     }
     ledger.record_map_emission(site, result, bindings)?;
-    Ok(result)
+    Ok((result, new_projection))
 }
 
 /// One pending entry install: a materialized scalar/indexed value, an
@@ -261,7 +280,7 @@ fn invoke(
     operation: Map,
     fault: BasicBlockId,
     bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
-) -> Result<Option<ValueId>, String> {
+) -> Result<(Option<ValueId>, Option<(BasicBlockId, MirInstruction)>), String> {
     let value = operation
         .normal_result_kind()
         .map(|_| builder.next_value_id());
@@ -279,13 +298,16 @@ fn invoke(
     builder.emit_instruction(instruction.clone())?;
     bindings.push((origin, instruction));
     builder.start_new_block(normal)?;
-    if let Some(dst) = value {
-        let projection = MirInstruction::InvokeNormalResult {
-            invoke_block: origin,
-            dst,
-        };
-        builder.emit_instruction(projection.clone())?;
-        bindings.push((normal, projection));
-    }
-    Ok(value)
+    let projection = value
+        .map(|dst| {
+            let projection = MirInstruction::InvokeNormalResult {
+                invoke_block: origin,
+                dst,
+            };
+            builder.emit_instruction(projection.clone())?;
+            bindings.push((normal, projection.clone()));
+            Ok::<(BasicBlockId, MirInstruction), String>((normal, projection))
+        })
+        .transpose()?;
+    Ok((value, projection))
 }

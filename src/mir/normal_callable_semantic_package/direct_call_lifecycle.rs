@@ -10,7 +10,8 @@ use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    LocalCallResultClassV1, TerminalRelationV1, TerminalReturnedSourceV1,
+    LocalCallResultClassV1, MapDestinationV1, MapEntryStoreClassV1, TerminalCallArgumentV1,
+    TerminalMapGetReceiverClassV1, TerminalRelationV1, TerminalReturnedSourceV1,
 };
 use crate::mir::resolved_semantics::{
     BodyExpressionShapeV1, ExactCallableParamAbiV1, SourceBindingSiteV1,
@@ -112,6 +113,140 @@ pub(in crate::mir::normal_callable_semantic_package) fn call_result_kind(
     }
 }
 
+/// Co-seal one caller→callee borrowed-Map argument edge. The caller's
+/// sealed `%{...}` actual, the callee's `Map` formal ABI and contract
+/// kind, and the callee's own `BorrowedParameter` terminal read must
+/// agree at every ordinal — names and annotations never decide this.
+/// A `Borrowed`-class entry cannot ride the handoff: the callee reads
+/// `InstallValue` payloads as scalars, so the sealed borrow class would
+/// silently re-read as an integer until the T1-γ payload tag exists.
+fn map_argument_edge(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    parameters: &[OwnedCallableParameterContractDeclarationV1],
+    results: &VerifiedCallableResultContractCohortV1,
+    root: &OrdinaryNewClaimLedgerV1,
+    caller_owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    row: &DirectCallDispositionRowV1,
+) -> bool {
+    let target = row.emission.target();
+    let signature = target.signature();
+    if signature.result() != Some(ExactTrivialScalarAbiV1::I64)
+        || signature.arity() != row.argument_sites.len()
+        || !target.published_key().is_some_and(|key| {
+            key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
+        })
+    {
+        return false;
+    }
+    let callee_owner = target.callable().owner();
+    let mut contracts = parameters.iter().filter(|row| row.owner == callee_owner);
+    let Some(contract) = contracts.next() else {
+        return false;
+    };
+    if contracts.next().is_some() || contract.parameters.len() != row.argument_sites.len() {
+        return false;
+    }
+    // Caller side: the sealed terminal Call carries every argument class.
+    let Some((caller, terminal)) = root.call_source_completion_for_owner(caller_owner) else {
+        return false;
+    };
+    if caller.owner() != caller_owner
+        || terminal.owner() != caller_owner
+        || terminal.call_site() != site.site()
+        || caller.explicit_site() != Some(terminal.return_site())
+        || !caller.returns_value()
+        || terminal.arguments().len() != row.argument_sites.len()
+        || !matches!(caller.cleanup().terminal_homes(), Some(Ok(_)))
+    {
+        return false;
+    }
+    let arguments = terminal.arguments();
+    // Callee side: the sealed result contract proves a usable completion,
+    // and its terminal read proves the formal is held borrowed.
+    let mut matches = results
+        .rows()
+        .filter(|result| result.owner() == callee_owner);
+    let Some(callee) = matches.next() else {
+        return false;
+    };
+    let callee = callee.borrow();
+    if matches.next().is_some()
+        || callee_owner == caller_owner
+        || !callee.completion().returns_value()
+    {
+        return false;
+    }
+    let Some(flow) = callee.completion().cleanup().root_flow() else {
+        return false;
+    };
+    if flow.terminal_homes().is_err() {
+        return false;
+    }
+    let Some(TerminalRelationV1::MapGet(read)) = callee.terminal_relation() else {
+        return false;
+    };
+    if read.owner() != callee_owner
+        || read.receiver_class() != TerminalMapGetReceiverClassV1::BorrowedParameter
+        || callee.completion().explicit_site() != Some(read.return_site())
+    {
+        return false;
+    }
+    batch
+        .with_lowering_input(contract.batch_slot, |input| {
+            input.owner() == callee_owner
+                && contract
+                    .parameters
+                    .iter()
+                    .enumerate()
+                    .all(|(index, parameter)| {
+                        if parameter.ordinal as usize != index
+                            || input.function().declaration_binding(
+                                &SourceBindingSiteV1::Parameter {
+                                    index: parameter.ordinal,
+                                },
+                            ) != Some(parameter.binding)
+                        {
+                            return false;
+                        }
+                        let formal_map = signature.params()[index] == ExactCallableParamAbiV1::Map;
+                        let contract_map = parameter.kind == CallableParameterContractKindV1::Map;
+                        let contract_i64 = parameter.kind
+                            == CallableParameterContractKindV1::ExactTrivial(
+                                ExactTrivialParameterAbiV1::I64,
+                            );
+                        if formal_map != contract_map || (!formal_map && !contract_i64) {
+                            return false;
+                        }
+                        match (&arguments[index], formal_map) {
+                            (TerminalCallArgumentV1::I64(_), false) => true,
+                            (TerminalCallArgumentV1::Map(arg_site), true) => {
+                                // The callee must read this exact formal
+                                // under the borrowed contract — an unread
+                                // Map formal is not yet an admitted edge.
+                                if read.receiver() != parameter.binding
+                                    || arg_site.owner() != caller_owner
+                                {
+                                    return false;
+                                }
+                                let Ok(arg_flow) = root.map_flow(arg_site) else {
+                                    return false;
+                                };
+                                matches!(
+                                    arg_flow.destination(),
+                                    MapDestinationV1::CallArgument { call, ordinal }
+                                        if call == site && *ordinal == index as u32
+                                ) && arg_flow.entries().iter().all(|entry| {
+                                    entry.store_class() != MapEntryStoreClassV1::Borrowed
+                                })
+                            }
+                            _ => false,
+                        }
+                    })
+        })
+        .unwrap_or(false)
+}
+
 fn exact_formals(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     parameters: &[OwnedCallableParameterContractDeclarationV1],
@@ -148,8 +283,7 @@ fn exact_formals(
                                 == CallableParameterContractKindV1::ExactTrivial(
                                     ExactTrivialParameterAbiV1::I64,
                                 )
-                            && target.signature().params()[index]
-                                == ExactCallableParamAbiV1::I64
+                            && target.signature().params()[index] == ExactCallableParamAbiV1::I64
                             && input.function().declaration_binding(
                                 &SourceBindingSiteV1::Parameter {
                                     index: parameter.ordinal,
@@ -285,7 +419,16 @@ impl DirectCallDispositionLoanV1 {
                     .iter()
                     .any(|kind| *kind != ExactCallableParamAbiV1::I64)
                 {
-                    return Err(reject);
+                    // The one admitted non-scalar edge: a borrowed Map
+                    // formal whose caller actual is its own `%{...}`
+                    // literal — actual class, formal ABI, contract kind,
+                    // and the callee's borrowed read must agree at every
+                    // ordinal. Anything else stays rejected.
+                    if !map_argument_edge(batch, parameters, results, root, self.owner, site, row) {
+                        return Err(reject);
+                    }
+                    row.execution = DirectCallExecutionV1::Lifecycle;
+                    continue;
                 }
                 let Some(local) = root.local_call_for_owner(self.owner, site.site()) else {
                     continue;
@@ -350,14 +493,14 @@ impl DirectCallDispositionLoanV1 {
                 None => LocalCallResultClassV1::Map,
             };
             let completion = root.call_source_completion_for_owner(self.owner);
-            let (arguments, local_binding_site) = match completion {
+            let (argument_count, local_binding_site) = match completion {
                 Some((call_completion, terminal)) if site.site() == terminal.call_site() => {
                     if call_completion.explicit_site() != Some(terminal.return_site())
                         || terminal.arguments().len() != row.argument_sites.len()
                     {
                         return Err(reject);
                     }
-                    (terminal.arguments(), None)
+                    (terminal.arguments().len(), None)
                 }
                 _ => {
                     let local = root
@@ -381,7 +524,7 @@ impl DirectCallDispositionLoanV1 {
                     // emission record.
                     let binding_site =
                         (local.result() == LocalCallResultClassV1::I64).then(|| site.clone());
-                    (local.arguments(), binding_site)
+                    (local.arguments().len(), binding_site)
                 }
             };
             let owner = row.emission.target().callable().owner();
@@ -396,7 +539,7 @@ impl DirectCallDispositionLoanV1 {
             let flow = callee.completion().cleanup().root_flow().ok_or(reject)?;
             if flow.terminal_homes().is_err()
                 || flow.maps().iter().any(|map| map.complete().is_none())
-                || arguments.len() != row.argument_sites.len()
+                || argument_count != row.argument_sites.len()
             {
                 return Err(reject);
             }

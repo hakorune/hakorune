@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0"
 current_execution_cohort = "map_lifecycle_consumer"
-current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0__map_argument_caller_handoff"
+current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0__map_argument_tag_coverage"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "closed__resolver_if_source_expr_relation_2026-09-15"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -19,38 +19,36 @@ latest_card = "mir-call-map-lifecycle-consumer-i0-2026-09-15"
 latest_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
 latest_card_summary = """
 Map lifecycle consumer spine through C9-2 plus the map-argument
-T-series; T1-α landed 2026-09-18: the callee-side readable Map
-contract (`CallableParameterContractKindV1::Map` →
-`StoredLocal::BorrowedMap` → `TerminalRelationV1::MapGet` →
-`Invoke{CheckedGetI64}` → `"map"`/`ptr` wire → kernel
-`nyash.map.checked_get_i64_v1`; read consumes nothing, owned
-storage still ends exactly once on Normal and Fault). Second
-review round closed 2026-09-18: ① scalar→Map ABI drift was
-already rejected by `4da7d21969` on every call-validation layer;
-②a `CheckedMapStorage` now survives to final argument emission —
-`metadata.physical_param_carriers` is issued beside the signature
-(skeleton descriptors or declared-type projection), the emit
-spells `"map"` only for carrier + corroborating `Box("MapBox")`
-name and rejects one-sided claims as `param-carrier-drift`, and
-`is_map_param`/`check_call_edge` read the same lane; ②b an
-owned map carrying a `Borrowed`-class entry (handle stored as
-`InstallValue(I64)`) seals no MapGet relation until T1-γ's
-payload tags — the T1-β edge co-seal owns the same condition on
-argument maps; ③ result-ABI consolidation (owner + verified
-result representation instead of per-relation `*Return`
-variants) is recorded as a design task. Evidence: 7/7
-map_get_terminal, 28/28 invoke verifier incl. carrier-drift
-pins, real-compile carrier assertion on `Work.read_k/1`, C
-physical suite green; 4 reds all recorded baseline. Next
-bounded slice: T1-β caller-side argument handoff
-(`ArgumentHandoff` capability + call-edge co-seal +
-actual/formal type/ownership/physical matching + caller
-emission + `main(){ return Helpers.read_k(%{"k"=>7}) }`
-Normal/Fault end-to-end). T1-γ borrowed-entry/tag coverage
-follows. Non-claims: no caller handoff, no tag coverage, no
-`to_json`, no production switch, no legacy retirement; the
-uncalled-callee reach stays gated by the existing sealed-Call
-membership contract.
+T-series; T1-α landed 2026-09-18 (callee-side readable Map
+contract through `CheckedGetI64` → `"map"`/`ptr` wire → kernel
+`nyash.map.checked_get_i64_v1`) and T1-β landed 2026-09-18: the
+caller-side argument handoff. `TerminalCallArgumentV1::Map(site)`
+seals the `CallArgument` `MapHomeFlow` actual on
+`TerminalI64CallReturnV1`; `preflight_map_install` co-seals
+`MapCallEdgeContractV1::Argument{ordinal}` (caller site+ordinal
+↔ callee Map formal ↔ callee `MapGet` `BorrowedParameter`
+receiver) on the undertaking's `call_edges` with
+`ArgumentHandoff` capability; the site-keyed
+`LocalCommitV1::Map` (binding None) emits the literal and the
+arg-map `End` rides innermost on both exit cleanup chains. The
+wire spells `{"kind":"map"}` only for the corroborated
+`Box("MapBox")` ↔ `CheckedMapStorage` pair; V4 indexed flow
+admits the actual as a live owned lease against a `"map"`
+formal (borrow consumes nothing; `-2` re-handoff fails). The
+card's qualified `Helpers.read_k(...)` stays parked on
+`OpaqueCall` — the bare `read_k(...)` resolves to the same
+callee through the free-static index and is the lane's
+fixture. Executable probe: Normal exits 7
+(`READ k 1 7 0 1 2 1`), callee non-scalar Fault exits 70
+(`REPORT 104`, read seq 1 < End seq 2), caller `prepare-fault`
+exits 70 (`REPORT 100`, callee never entered, partial key
+disposed once). Evidence: 53 focused + 189 batch green, full
+C physical suite green incl. 2 new flow-layer pins.
+`home_new_prefix.rs` 788 lines is over-760 debt recorded for a
+BoxShape split. Next bounded slice: T1-γ borrowed-entry/tag
+coverage. Non-claims: no tag coverage, no qualified-call
+Invoke, no `to_json`, no production switch, no legacy
+retirement.
 """
 next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-expr-relation-d8-2026-09-15.md"

@@ -485,14 +485,21 @@ static int hako_physical_validate_ordinary_call(yyjson_val* function, yyjson_val
     yyjson_val* arg = yyjson_arr_get(args, i);
     yyjson_val* param = yyjson_arr_get(yyjson_obj_get(callee, "params"), i);
     uint32_t value;
-    /* The ordinary-call edge is i64-only end to end: operands are spelled
-       `i64 %v`, so a "map" (or any non-i64) formal can never be filled here
-       and a non-i64 argument kind can never satisfy an i64 formal. */
+    const char* arg_kind;
+    /* The corroborated pair rule: a caller-owned checked-map actual spells
+       "map" and is admitted only against a "map" formal — the storage
+       pointer rides the edge borrowed. Every other pair stays i64; a map
+       claim on one side alone is ABI drift, never a silent scalar fill. */
     if (!hako_physical_exact_keys(arg, arg_keys, 2) ||
-        !hako_physical_string(yyjson_obj_get(arg, "kind"), "i64") ||
-        !hako_physical_string(yyjson_obj_get(param, "representation"), "i64") ||
+        !(arg_kind = yyjson_get_str(yyjson_obj_get(arg, "kind"))) ||
         !hako_physical_u32(yyjson_obj_get(arg, "value"), &value) ||
         !hako_physical_value_available_at(function, value, block, index)) return 0;
+    if (!strcmp(arg_kind, "map")) {
+      if (!hako_physical_string(yyjson_obj_get(param, "representation"), "map")) return 0;
+    } else if (strcmp(arg_kind, "i64") ||
+        !hako_physical_string(yyjson_obj_get(param, "representation"), "i64")) {
+      return 0;
+    }
   }
   return 1;
 }

@@ -51,6 +51,16 @@ impl MapLocalProgress {
             _ => None,
         }
     }
+    /// The emitted map lease value regardless of install/check phase. A
+    /// binding-less row (return boundary or call argument) names this value
+    /// through its whole lifecycle — the caller-owned argument map's End
+    /// reads it before the batch `mark_checked` runs.
+    pub(super) fn emitted_value(&self) -> Option<ValueId> {
+        match self.progress {
+            MapProgress::Emitted { result, .. } => Some(result),
+            _ => None,
+        }
+    }
     pub(super) fn install(&mut self, local: ValueId) {
         match &mut self.progress {
             MapProgress::Emitted { result, phase, .. }
@@ -274,6 +284,68 @@ impl OrdinaryNewClaimLedgerV1 {
                 owner: site.owner(),
                 binding: Some(call.destination()),
                 declaration: Some(call.declaration().clone()),
+                progress: MapProgress::Emitting,
+            }),
+        );
+        Ok(())
+    }
+    /// Begin emission for a `%{...}` literal in call-argument position.
+    /// The sealed `CallArgument` flow row is the sole membership evidence:
+    /// its parent call site and ordinal must match the recorded slot, and
+    /// the caller retains release responsibility — the callee receives a
+    /// borrowed storage pointer and never Ends it.
+    pub(crate) fn begin_map_argument_emission(&self, site: &OwnedExprSiteV1) -> Result<(), String> {
+        let flow = self.map_flow(site)?;
+        let crate::mir::resolved_semantics::home_new_prefix::MapDestinationV1::CallArgument {
+            call,
+            ..
+        } = flow.destination()
+        else {
+            return Err(freeze("map-argument-source-drift"));
+        };
+        if call.owner() != site.owner() {
+            return Err(freeze("map-argument-source-drift"));
+        }
+        let mut rows = self.local_commits.borrow_mut();
+        if rows.contains_key(site) {
+            return Err(freeze("map-duplicate-emission"));
+        }
+        for binding in flow.allocation_fault() {
+            if !installed_home(&rows, binding).is_ok_and(LocalCommitV1::end_available) {
+                return Err(freeze("map-prior-home-unavailable"));
+            }
+        }
+        for entry in flow.entries() {
+            let Some((acquisition, binding)) = entry.transfer_home() else {
+                // A borrowed entry cannot ride an argument handoff until the
+                // T1-γ payload tag exists: the callee reads `InstallValue`
+                // payloads as scalars and the sealed borrow classification
+                // would be silently re-read as an integer.
+                if !matches!(
+                    entry.store_class(),
+                    crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Scalar
+                        | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::Text
+                        | crate::mir::resolved_semantics::home_new_prefix::MapEntryStoreClassV1::EmptyArray
+                ) {
+                    return Err(freeze("map-value-consumer-missing"));
+                }
+                continue;
+            };
+            let row = rows
+                .get(acquisition)
+                .and_then(LocalCommitV1::ordinary)
+                .filter(|row| row.installs(binding))
+                .ok_or_else(|| freeze("map-candidate-not-installed"))?;
+            if row.destruction != super::super::ObjectDestructionDispositionV1::PlainI64NoHook {
+                return Err(freeze("map-candidate-end-unavailable"));
+            }
+        }
+        rows.insert(
+            site.clone(),
+            LocalCommitV1::Map(MapLocalProgress {
+                owner: site.owner(),
+                binding: None,
+                declaration: None,
                 progress: MapProgress::Emitting,
             }),
         );

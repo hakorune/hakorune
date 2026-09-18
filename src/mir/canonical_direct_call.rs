@@ -115,6 +115,44 @@ impl VerifiedCanonicalDirectCallEmissionV1 {
         {
             return Err(DirectCallEmissionErrorV1::ScalarParameterAbi { index });
         }
+        self.project_call(dst, args)
+    }
+
+    /// The typed-argument lane: each argument value carries the caller's
+    /// sealed argument class and must equal the callee's sealed formal ABI
+    /// at the same ordinal. `Map` arguments are borrowed checked-map
+    /// storage pointers the caller still owns; a class/formal mismatch at
+    /// any ordinal is an ABI violation, never a silent coercion.
+    pub(crate) fn materialize_call_typed(
+        &self,
+        dst: Option<ValueId>,
+        args: Vec<(ValueId, ExactCallableParamAbiV1)>,
+    ) -> Result<MirCall, DirectCallEmissionErrorV1> {
+        let signature = self.target.signature();
+        let expected = signature.arity();
+        if args.len() != expected {
+            return Err(DirectCallEmissionErrorV1::ArgumentCardinality {
+                expected,
+                actual: args.len(),
+            });
+        }
+        let mut values = Vec::with_capacity(expected);
+        for (index, ((value, class), formal)) in
+            args.into_iter().zip(signature.params()).enumerate()
+        {
+            if class != *formal {
+                return Err(DirectCallEmissionErrorV1::ScalarParameterAbi { index });
+            }
+            values.push(value);
+        }
+        self.project_call(dst, values)
+    }
+
+    fn project_call(
+        &self,
+        dst: Option<ValueId>,
+        args: Vec<ValueId>,
+    ) -> Result<MirCall, DirectCallEmissionErrorV1> {
         let target = if let Some(key) = self.target.published_key() {
             key.canonical_global_target_v1().map_err(|_| {
                 DirectCallEmissionErrorV1::TargetProjection {

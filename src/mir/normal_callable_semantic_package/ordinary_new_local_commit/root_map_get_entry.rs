@@ -71,9 +71,10 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("map-get-source-missing"))?;
         let MirInstruction::Invoke {
             operation:
-                InvokeOperation::Map(
-                    crate::mir::instruction::MapInvokeOperation::CheckedGetI64 { utf8, .. },
-                ),
+                InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::CheckedGetI64 {
+                    utf8,
+                    ..
+                }),
             fault_frame,
             ..
         } = &invoke.1

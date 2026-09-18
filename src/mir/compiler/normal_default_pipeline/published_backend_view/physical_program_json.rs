@@ -14,7 +14,9 @@ use crate::mir::{BinaryOp, Callee, ConstValue, EdgeArgs, MirInstruction, ValueId
 use hakorune_mir_defs::CanonicalFieldRefV1;
 
 use super::physical_abi::PublishedLifecyclePhysicalAbiInputV1;
-use super::physical_program::PublishedLifecyclePhysicalProgramV1;
+use super::physical_program::{
+    PublishedLifecyclePhysicalFunctionV1, PublishedLifecyclePhysicalProgramV1,
+};
 
 const SCHEMA: &str = "hako.published-lifecycle-physical-program.v2";
 
@@ -44,6 +46,7 @@ fn emit_lifecycle_physical_program_value(
                                 diagnostic_site(abi_input, function_ordinal, block.id().0, row.index(), row.instruction())?,
                                 abi_input,
                                 &ordinary,
+                                Some((program.functions(), function)),
                             )?,
                         })) })
                         .collect::<Result<Vec<_>, String>>()?;
@@ -61,6 +64,7 @@ fn emit_lifecycle_physical_program_value(
                                 )?,
                                 abi_input,
                                 &ordinary,
+                                Some((program.functions(), function)),
                             )?,
                         },
                         "edges": block.edges().iter().map(encode_edge).collect::<Vec<_>>(),
@@ -210,6 +214,15 @@ fn encode_edge_args(args: &EdgeArgs) -> Value {
     })
 }
 
+/// The ordinary-call corroboration pair: the published function table and
+/// the caller row whose sealed `value_types` names each actual. Only the
+/// `InvokeOperation::Call` arm consumes it.
+type CallContext<'module> = (
+    &'module [PublishedLifecyclePhysicalFunctionV1<'module>],
+    &'module PublishedLifecyclePhysicalFunctionV1<'module>,
+);
+
+#[allow(clippy::too_many_arguments)]
 fn encode_instruction(
     field_ref: Option<CanonicalFieldRefV1>,
     instruction: &MirInstruction,
@@ -218,6 +231,7 @@ fn encode_instruction(
     diagnostic_site: Option<u64>,
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
     ordinary: &BTreeMap<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, u32>,
+    call_context: Option<CallContext<'_>>,
 ) -> Result<Value, String> {
     Ok(match instruction {
         MirInstruction::Const {
@@ -287,6 +301,7 @@ fn encode_instruction(
         } => json!({
             "op": "invoke", "operation": encode_invoke(
                 operation, births, ordinary, caller_function_index, diagnostic_site, abi_input,
+                call_context,
             )?,
             "fault_frame": value(fault_frame), "normal": normal_landing.0, "fault": fault_landing.0,
         }),
@@ -356,6 +371,7 @@ fn encode_invoke(
     caller_function_index: u32,
     diagnostic_site: Option<u64>,
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
+    call_context: Option<CallContext<'_>>,
 ) -> Result<Value, String> {
     Ok(match operation {
         InvokeOperation::Map(operation) => {
@@ -489,9 +505,39 @@ fn encode_invoke(
             if call.dst.is_some() {
                 return Err(fault("ordinary-destination"));
             }
-            let args = call.args.iter().map(|value| json!({
-                "kind": "i64", "value": value.0,
-            })).collect::<Vec<_>>();
+            // Corroborated actual/formal per ordinal: the caller's sealed
+            // `value_types` row is the only actual authority, and the
+            // callee's signature-installed carrier is the only formal
+            // authority. The bounded handoff admits exactly the
+            // (`Box("MapBox")` actual, `CheckedMapStorage` formal) pair as
+            // `"map"`; everything else stays `"i64"`, and a map actual or
+            // map formal without its counterpart is ABI drift.
+            let (functions, caller) =
+                call_context.ok_or_else(|| fault("ordinary-call-context"))?;
+            let callee = functions
+                .get(*target as usize)
+                .ok_or_else(|| fault("ordinary-target-missing"))?;
+            let args = call
+                .args
+                .iter()
+                .enumerate()
+                .map(|(index, value)| {
+                    let map_actual = matches!(
+                        caller.value_types().get(value),
+                        Some(crate::mir::MirType::Box(name)) if name == "MapBox"
+                    );
+                    let map_formal = matches!(
+                        callee.param_carriers().and_then(|carriers| carriers.get(index)),
+                        Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage)
+                    );
+                    if map_actual != map_formal {
+                        return Err(fault("ordinary-argument-kind"));
+                    }
+                    Ok(json!({
+                        "kind": if map_actual { "map" } else { "i64" }, "value": value.0,
+                    }))
+                })
+                .collect::<Result<Vec<_>, String>>()?;
             let call = match super::physical_program::ordinary_call_receiver(&call.callee)? {
                 Some(receiver) => json!({
                     "target": target,

@@ -16,7 +16,9 @@ pub(crate) enum SourceScalarKind {
 }
 
 enum StoredLocal {
-    Home { acquisition: super::OwnedExprSiteV1 },
+    Home {
+        acquisition: super::OwnedExprSiteV1,
+    },
     Map,
     /// A `: MapBox` declared formal — caller-owned map storage borrowed
     /// read-only for the call. It reads like a live map but owns nothing:

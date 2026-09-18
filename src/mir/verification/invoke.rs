@@ -348,7 +348,7 @@ fn check_call_edge(
         // `CheckedMapStorage` carrier or the `Box("MapBox")` name asserting a
         // map formal rejects the scalar edge — a disagreement is drift, not a
         // clean i64 formal.  Carrier-less callees keep the name contract.
-        let non_scalar = match callee.metadata.physical_param_carriers.as_deref() {
+        let map_formal = match callee.metadata.physical_param_carriers.as_deref() {
             Some(carriers) => {
                 carriers.get(index + receiver_params).copied()
                     == Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage)
@@ -356,11 +356,24 @@ fn check_call_edge(
             }
             None => named_map,
         };
-        let drift = matches!(
+        // The bounded handoff admits exactly the corroborated
+        // (`Box("MapBox")` actual, map formal) pair — the caller-owned
+        // checked-map storage borrowed across the call. A map claim on one
+        // side alone is ABI drift; every other pair stays scalar, where an
+        // absent record keeps the untyped admission and a concrete non-i64
+        // record rejects.
+        let map_actual = matches!(
             function.metadata.value_types.get(argument),
-            Some(kind) if !matches!(kind, crate::mir::MirType::Integer | crate::mir::MirType::Unknown)
+            Some(crate::mir::MirType::Box(name)) if name == "MapBox"
         );
-        if non_scalar || drift {
+        let scalar_drift = matches!(
+            function.metadata.value_types.get(argument),
+            Some(kind) if !matches!(
+                kind,
+                crate::mir::MirType::Integer | crate::mir::MirType::Unknown
+            ) && !map_actual
+        );
+        if (map_formal != map_actual) || (!map_formal && scalar_drift) {
             errors.push(error(block, "call-argument-type-drift"));
             return;
         }

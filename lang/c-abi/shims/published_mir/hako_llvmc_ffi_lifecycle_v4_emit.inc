@@ -253,8 +253,13 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
               b, lv4_u(call, "target"));
         if (yyjson_is_uint(yyjson_obj_get(call, "receiver")))
           fprintf(f, ", i64 %%v%u", lv4_u(call, "receiver"));
-        for (size_t i = 0; i < yyjson_arr_size(args); i++)
-          fprintf(f, ", i64 %%v%u", lv4_u(yyjson_arr_get(args, i), "value"));
+        for (size_t i = 0; i < yyjson_arr_size(args); i++) {
+          yyjson_val* arg = yyjson_arr_get(args, i);
+          /* A "map" actual is the caller's borrowed storage pointer; the
+             callee's "map" formal receives it as `ptr`. */
+          fprintf(f, lv4_is(arg, "kind", "map") ? ", ptr %%v%u" : ", i64 %%v%u",
+              lv4_u(arg, "value"));
+        }
         fprintf(f, ")\n");
       } else {
       fprintf(f, "  %%status%u = call i32 ", b);

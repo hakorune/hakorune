@@ -125,6 +125,17 @@ pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {
                     // A Map lease may cross the return boundary exactly once:
                     // the caller's out storage becomes the placement owner.
                     || (matches!(instruction, MirInstruction::Return { value: Some(returned) } if value == *returned)
+                        && results[&value].0 == Kind::Map)
+                    // A caller-owned Map lease borrowed across a sealed call
+                    // edge: the callee reads it through its borrowed map
+                    // formal while ownership stays here — the caller's
+                    // cleanup chain still owes the single End. The
+                    // actual/formal pair corroboration itself lives in
+                    // `check_call_edge`; this arm only keeps the lease from
+                    // reading as an opaque escape.
+                    || (matches!(instruction, MirInstruction::Invoke {
+                            operation: InvokeOperation::Call { call, .. }, ..
+                        } if call.args.contains(&value))
                         && results[&value].0 == Kind::Map);
                 if !allowed {
                     return Err("map-opaque-escape");

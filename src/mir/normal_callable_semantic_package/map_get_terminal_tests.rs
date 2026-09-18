@@ -37,11 +37,94 @@ fn contract_for<'a>(
 }
 
 #[test]
-fn owned_local_map_get_issues_terminal_relation_and_keeps_cleanup() {
+fn borrowed_map_argument_handoff_co_seals_call_edge() {
+    // `%{...}` in terminal-call argument position is the T1-β handoff:
+    // the caller owns construction plus Normal/Fault cleanup, the callee
+    // borrows the storage, and `preflight_map_install` co-seals the edge
+    // contract — nothing is reconstructed downstream. The bare spelling
+    // `read_k(...)` resolves program-wide by exact name+arity to
+    // `Helpers.read_k`; the qualified `Helpers.read_k(...)` spelling
+    // stays on the parked OpaqueCall lane (pinned below).
     let package = issue(
-        "static box Main { main() { local m = %{\"k\" => 7} return m.get(\"k\") } }",
+        "static box Helpers { read_k(m: MapBox): i64 { return m.get(\"k\") } } \
+         static box Main { main() { return read_k(%{\"k\" => 7}) } }",
     )
-    .expect("owned map-get package");
+    .expect("map-argument package");
+    let mut context = crate::mir::builder::CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .map_err(|(_, issue)| issue)
+        .expect("covered handoff installs")
+        .commit();
+    let undertaking = installed
+        .map_lifecycle_undertaking()
+        .expect("map lifecycle undertaking");
+    let [edge] = undertaking.call_edges() else {
+        panic!("exactly one sealed call edge");
+    };
+    assert!(matches!(
+        edge.kind(),
+        super::map_lifecycle_undertaking::MapCallEdgeKindV1::Argument { ordinal: 0 }
+    ));
+    let ledger = installed.ordinary_new_claim_ledger();
+    let (completion, terminal) = ledger
+        .call_source_completion_for_owner(edge.call_site().owner())
+        .expect("caller terminal call");
+    assert_eq!(terminal.call_site(), edge.call_site().site());
+    assert_eq!(completion.explicit_site(), Some(terminal.return_site()));
+    let [crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::Map(actual)] =
+        terminal.arguments()
+    else {
+        panic!("one Map-classed actual");
+    };
+    assert_eq!(actual.owner(), edge.call_site().owner());
+}
+
+#[test]
+fn map_argument_to_unread_formal_rejects_at_co_seal() {
+    // The edge requires the callee's `BorrowedParameter` read evidence —
+    // a Map formal the callee never reads is not an admitted handoff.
+    let result = issue(
+        "static box Helpers { read_k(m: MapBox): i64 { return 7 } } \
+         static box Main { main() { return read_k(%{\"k\" => 7}) } }",
+    );
+    assert!(matches!(
+        result,
+        Err(super::NormalCallableSemanticPackageIssueV1::DirectCall {
+            _error: super::issuer::DirectCallDispositionIssueV1::Loan(
+                super::direct_call_loan::DirectCallLoanErrorV1::LifecycleSourceMismatch
+            ),
+        })
+    ));
+}
+
+#[test]
+fn qualified_static_call_argument_stays_on_parked_opaque_lane() {
+    // `Helpers.read_k(...)` spells a qualified call: OpaqueCall terminal,
+    // no loan edge, no Invoke lane — the OpaqueCall Decision's parked
+    // non-claim. The CallArgument obligation still describes, so
+    // preflight's reverse sweep refuses it with the named issue rather
+    // than materializing an edge downstream.
+    let package = issue(
+        "static box Helpers { read_k(m: MapBox): i64 { return m.get(\"k\") } } \
+         static box Main { main() { return Helpers.read_k(%{\"k\" => 7}) } }",
+    )
+    .expect("opaque-call package issues");
+    let mut context = crate::mir::builder::CompilationContext::new();
+    assert!(matches!(
+        package.prepare_install(&mut context),
+        Err((
+            _,
+            super::NormalCallableSemanticPackageInstallIssueV1::MapLifecycleConsumerMissing
+        ))
+    ));
+}
+
+#[test]
+fn owned_local_map_get_issues_terminal_relation_and_keeps_cleanup() {
+    let package =
+        issue("static box Main { main() { local m = %{\"k\" => 7} return m.get(\"k\") } }")
+            .expect("owned map-get package");
     // The AppMain root carries no result-contract row; its relation lives on
     // the claim ledger keyed by the root owner.
     let ledger = &package.ordinary_new_claim_ledger;
@@ -59,7 +142,10 @@ fn owned_local_map_get_issues_terminal_relation_and_keeps_cleanup() {
     assert_eq!(relation.key(), "k");
     // The read does not consume the map; the owned local still owes its End.
     let flow = completion.cleanup().root_flow().expect("root flow");
-    assert!(flow.terminal_homes().unwrap().contains(&relation.receiver()));
+    assert!(flow
+        .terminal_homes()
+        .unwrap()
+        .contains(&relation.receiver()));
     assert_install_admits(package);
 }
 
@@ -74,9 +160,7 @@ fn owned_local_map_get_in_child_owner_keeps_cleanup() {
         .result_contracts
         .rows()
         .map(|row| row.borrow())
-        .find(|row| {
-            matches!(row.terminal_relation(), Some(TerminalRelationV1::MapGet(_)))
-        })
+        .find(|row| matches!(row.terminal_relation(), Some(TerminalRelationV1::MapGet(_))))
         .expect("child contract row");
     let Some(TerminalRelationV1::MapGet(relation)) = contract.terminal_relation() else {
         panic!("child terminal map-get issues the MapGet relation");
@@ -90,7 +174,10 @@ fn owned_local_map_get_in_child_owner_keeps_cleanup() {
         .cleanup()
         .root_flow()
         .expect("root flow");
-    assert!(flow.terminal_homes().unwrap().contains(&relation.receiver()));
+    assert!(flow
+        .terminal_homes()
+        .unwrap()
+        .contains(&relation.receiver()));
 }
 
 #[test]

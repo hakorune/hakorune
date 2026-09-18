@@ -40,12 +40,15 @@ impl BuilderInstallConsumerV1 {
     /// handle), text entry payloads (owned inline bytes via
     /// `InstallText`), empty-array payloads (`InstallEmptyArray` — the
     /// map owns the empty-array meaning directly; no host handle is
-    /// minted), local-binding and return-boundary handoff, and the
-    /// Normal/Fault cleanup chains. Opaque entry classes (non-empty
-    /// `[...]`, `%{...}` child values), live map-local and kind-less
-    /// local borrows, borrows on escaping maps (`BorrowedEntryEscape`),
-    /// and slot/argument/containment handoffs stay unimplemented —
-    /// obligations demanding them keep failing admission at
+    /// minted), local-binding and return-boundary handoff, the
+    /// caller-owned `%{...}` argument handoff into a borrowed Map
+    /// formal (the caller keeps release responsibility — the callee
+    /// borrows the storage and never ends it), and the Normal/Fault
+    /// cleanup chains. Opaque entry classes (non-empty `[...]`,
+    /// `%{...}` child values), live map-local and kind-less local
+    /// borrows, borrows on escaping maps (`BorrowedEntryEscape`), and
+    /// slot/containment handoffs stay unimplemented — obligations
+    /// demanding them keep failing admission at
     /// `verify_map_lifecycle_undertaking`. This declaration is the
     /// consumer's own claim; it is not inferred from registry presence.
     pub(in crate::mir) fn map_lifecycle_capability() -> MapLifecycleConsumerCapabilityV1 {
@@ -69,6 +72,7 @@ impl BuilderInstallConsumerV1 {
                 crate::mir::resolved_semantics::home_new_prefix::MapEntryBorrowKindV1::Handle,
             ),
             MapLifecycleOperationV1::ReturnHandoff,
+            MapLifecycleOperationV1::ArgumentHandoff,
             MapLifecycleOperationV1::NormalCleanup,
             MapLifecycleOperationV1::FaultCleanup,
         ])

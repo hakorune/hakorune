@@ -49,19 +49,36 @@ pub(crate) enum RootHomeExitEntry {
     },
 }
 
+/// What one root-exit release operation reclaims. A `Binding` is a live
+/// local Home bound before the terminal expression; an `ArgumentMap` is a
+/// `%{...}` call-argument map constructed inside it — the caller keeps the
+/// lease through the borrowed callee call and Ends it on both exit paths.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum RootHomeReleaseSubjectV1 {
+    Binding(BindingRefV1),
+    ArgumentMap { site: OwnedExprSiteV1, ordinal: u32 },
+}
+
 /// One source-issued root Home obligation after its existing local value has
 /// been physically bound. The source binding and explicit return stay intact;
 /// neither block identity nor an emitted instruction issues this origin.
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct RootHomeReleaseOriginV1 {
-    binding: BindingRefV1,
+    subject: RootHomeReleaseSubjectV1,
     exit: crate::mir::resolved_semantics::SourceStmtSiteV1,
     operation: InvokeOperation,
 }
 
 impl RootHomeReleaseOriginV1 {
-    pub(crate) const fn binding(&self) -> BindingRefV1 {
-        self.binding
+    pub(crate) const fn subject(&self) -> &RootHomeReleaseSubjectV1 {
+        &self.subject
+    }
+
+    pub(crate) fn binding(&self) -> Option<BindingRefV1> {
+        match self.subject {
+            RootHomeReleaseSubjectV1::Binding(binding) => Some(binding),
+            RootHomeReleaseSubjectV1::ArgumentMap { .. } => None,
+        }
     }
 
     pub(crate) fn exit(&self) -> &crate::mir::resolved_semantics::SourceStmtSiteV1 {
@@ -154,7 +171,7 @@ impl OrdinaryNewClaimLedgerV1 {
             })?;
             available &= row.end_available();
             origins.push(RootHomeReleaseOriginV1 {
-                binding: *binding,
+                subject: RootHomeReleaseSubjectV1::Binding(*binding),
                 exit: exit.clone(),
                 operation: row.end_operation(),
             });
@@ -183,7 +200,64 @@ impl OrdinaryNewClaimLedgerV1 {
         else {
             unreachable!()
         };
-        Ok(operands)
+        drop(exits);
+        // Call-argument maps are the youngest caller-owned resources: they
+        // are constructed inside the terminal expression, the callee borrows
+        // their storage for the call's duration, and the caller Ends them on
+        // both exit paths before any older Home. Their leases exist only
+        // after argument emission, so the origins attach here — never at
+        // prepare time and never re-derived from MIR.
+        let mut operations = Vec::new();
+        if let Some((completion, terminal)) = self.call_source_completion_for_owner(owner) {
+            if completion.owner() == owner && terminal.owner() == owner {
+                let exit = completion
+                    .explicit_site()
+                    .ok_or_else(|| freeze("root-exit-source-missing"))?;
+                let rows = self.local_commits.borrow();
+                let mut argument_maps: Vec<(u32, &OwnedExprSiteV1)> = terminal
+                    .arguments()
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(ordinal, argument)| {
+                        argument.map_site().map(|site| (ordinal as u32, site))
+                    })
+                    .collect();
+                argument_maps.sort_by_key(|(ordinal, _)| std::cmp::Reverse(*ordinal));
+                for (ordinal, site) in argument_maps {
+                    let Some(LocalCommitV1::Map(row)) = rows.get(site) else {
+                        return Err(freeze("root-exit-argument-map-missing"));
+                    };
+                    if site.owner() != owner || row.binding.is_some() {
+                        return Err(freeze("root-exit-argument-map-drift"));
+                    }
+                    let flow = self.map_flow(site)?;
+                    if !matches!(
+                        flow.destination(),
+                        crate::mir::resolved_semantics::home_new_prefix::MapDestinationV1::CallArgument {
+                            call,
+                            ordinal: expected,
+                        } if call.site() == terminal.call_site() && *expected == ordinal
+                    ) {
+                        return Err(freeze("root-exit-argument-map-drift"));
+                    }
+                    let map = row
+                        .emitted_value()
+                        .ok_or_else(|| freeze("root-exit-argument-map-missing"))?;
+                    operations.push(RootHomeReleaseOriginV1 {
+                        subject: RootHomeReleaseSubjectV1::ArgumentMap {
+                            site: site.clone(),
+                            ordinal,
+                        },
+                        exit: exit.clone(),
+                        operation: InvokeOperation::Map(
+                            crate::mir::instruction::MapInvokeOperation::End { map },
+                        ),
+                    });
+                }
+            }
+        }
+        operations.extend(operands);
+        Ok(operations)
     }
 
     pub(crate) fn record_root_home_exit(
@@ -265,7 +339,29 @@ impl OrdinaryNewClaimLedgerV1 {
                 entry,
             }) => {
                 self.validate_call_entry(owner, function, projection, entry, bindings)?;
-                if origins.len() != expected_homes.len() {
+                // Call-argument maps precede the binding origins: they are
+                // emitted inside the terminal expression (youngest), in
+                // descending argument order. Their expected sequence comes
+                // from the sealed terminal Call, never from the MIR.
+                let expected_argument_maps = self
+                    .call_source_completion_for_owner(owner)
+                    .filter(|(completion, _)| completion.owner() == owner)
+                    .map(|(_, terminal)| {
+                        terminal
+                            .arguments()
+                            .iter()
+                            .enumerate()
+                            .filter_map(|(ordinal, argument)| {
+                                argument
+                                    .map_site()
+                                    .map(|site| (ordinal as u32, site.clone()))
+                            })
+                            .collect::<Vec<_>>()
+                    })
+                    .unwrap_or_default();
+                let mut expected_argument_maps = expected_argument_maps;
+                expected_argument_maps.sort_by_key(|(ordinal, _)| std::cmp::Reverse(*ordinal));
+                if origins.len() != expected_homes.len() + expected_argument_maps.len() {
                     return Err(freeze("root-exit-origin-count"));
                 }
                 if projection
@@ -287,8 +383,19 @@ impl OrdinaryNewClaimLedgerV1 {
                         )?;
                     }
                 }
-                for (emitted, expected_binding) in origins.iter().zip(expected_homes) {
-                    if emitted.origin.binding() != *expected_binding
+                let expected_subjects = expected_argument_maps
+                    .iter()
+                    .map(|(ordinal, site)| RootHomeReleaseSubjectV1::ArgumentMap {
+                        site: site.clone(),
+                        ordinal: *ordinal,
+                    })
+                    .chain(
+                        expected_homes
+                            .iter()
+                            .map(|binding| RootHomeReleaseSubjectV1::Binding(*binding)),
+                    );
+                for (emitted, expected_subject) in origins.iter().zip(expected_subjects) {
+                    if emitted.origin.subject() != &expected_subject
                         || emitted.origin.exit() != expected_exit
                     {
                         return Err(freeze("root-exit-origin-drift"));
