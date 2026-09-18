@@ -1840,7 +1840,7 @@ green evidence.
 
 ### Current-head replay receipt (2026-09-19)
 
-At HEAD `8c6635d7bc`, the same quick serial command
+At replay commit `8c6635d7bc`, the same quick serial command
 `cargo test --profile quick --lib normal_default_root_catalog_lifecycle_tests -- --test-threads=1`
 completed its 18-test filter with 13 passed and exactly the same five
 failures: `actual_string_helpers_general_result_row_reaches_its_first_loop_carrier`,
@@ -1886,14 +1886,16 @@ The ordered queue is now:
    gate is a source fixture whose nested-map argument survives the existing
    lifecycle capability. No source-to-OBJ claim is made until that fixture
    emits the typed operations and rejects partial Normal/Fault ownership.
-3. **T2-alpha acceptance:** run the source-to-OBJ fixture and caller switch
-   evidence; only then select T2-beta (`params`/`blocks`).
+3. **T2-alpha acceptance:** **landed below** — the source-to-OBJ fixture and
+   selected caller evidence pass for the bounded `functions[0].name` shape.
+   T2-beta (`params`/`blocks`) is now the next bounded slice.
 4. **Separate hygiene:** land one mechanical fmt-only commit after the T2
    source slice, with no semantic or baseline-red changes mixed in.
 
-The pointer remains `MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2` with blocker
-`t2_alpha_source_to_obj_admission`; no production cutover, legacy deletion, or
-T2 completion claim is opened by this reconciliation.
+The pointer remains `MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2` and now names the
+T2-beta EmptyArray/index/length/kind slice as the next blocker. No production
+cutover, legacy deletion, or whole-T2 completion claim is opened by this
+reconciliation.
 
 ## T2-alpha source Fact issuer progress (2026-09-19)
 
@@ -2156,7 +2158,39 @@ checking. The existing `published_map_physical_execution_test.py` also passes
 with the quick kernel archive: six normal EXE30 programs, ArrayIndexMap named
 Fault105/EXE70, duplicate-MapLocal `InstallBorrowedArray` EXE30, borrowed-
 handle checks, and 27 malformed-input preservation cases. This is physical ABI
-and checked-lifetime evidence only. A source-issued
-MapLocal array reaching this operation through the selected compiler and a
-Normal/Fault source-to-OBJ acceptance fixture are still open; no production
-cutover, legacy retirement, `to_json`, or generic ArrayBox claim is made.
+and checked-lifetime evidence; the source-issued Normal/Fault acceptance is
+recorded below. No production cutover, legacy retirement, `to_json`, or
+generic ArrayBox claim is made.
+
+## T2-alpha source-to-OBJ acceptance (2026-09-19)
+
+The selected `compile_normal_with_published` caller now reaches the bounded
+source shape end to end: `Main.main` builds one child Map, hands
+`%{"functions" => [child, child]}` to `Helpers.read(MapBox)`, and the callee
+executes `functions[0].name`. The `BorrowedArray` consumer observes each exact
+array-element source site through the existing variable ledger before emitting
+the ordered child `ValueId`s; unconsumed element sites therefore remain a
+fail-fast error rather than being hidden by a count relaxation.
+
+One source-issued object was compiled, linked with the lifecycle archive, and
+executed in both modes. Normal exits 30. The existing C fault probe's
+`prepare-fault` mode exits 70 and emits `REPORT 100`, proving the caller's
+cleanup path remains reachable after a construction fault. The malformed
+`name => true` variant is intentionally rejected earlier by the existing
+`MapReadFact::NameValueNotText` boundary and is not treated as runtime Fault
+evidence.
+
+Focused evidence: `cargo test --profile quick --lib
+host_providers::llvm_codegen::published_mir_object::map_array_source_tests::issued_borrowed_array_source_reaches_obj_normal_and_prepare_fault
+-- --exact --ignored --nocapture` passed 1/1 on 2026-09-19. The lifecycle
+archive was rebuilt with `cargo build --release -p nyash_lifecycle_kernel
+--target-dir target/lifecycle-kernel`, and its checked borrowed-array symbol
+was present. This closes the bounded T2-alpha source-to-OBJ Normal/Fault
+receipt. It does not claim the broader T2 matrix, production cutover, legacy
+retirement, `to_json`, or generic ArrayBox admission.
+
+This bounded row is landed in the current implementation commit.
+
+The next exact slice is T2-beta: the empty `params` array and the bounded
+`blocks` index/length/kind reads, with its own source Facts, physical owner,
+and Normal/Fault acceptance receipt.

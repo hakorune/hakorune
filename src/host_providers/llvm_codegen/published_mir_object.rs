@@ -186,5 +186,9 @@ mod map_consumer_tests;
 mod map_read_tests;
 
 #[cfg(all(test, feature = "plugins"))]
+#[path = "published_map_array_source_tests.rs"]
+mod map_array_source_tests;
+
+#[cfg(all(test, feature = "plugins"))]
 #[path = "published_static_map_tests.rs"]
 mod static_map_tests;

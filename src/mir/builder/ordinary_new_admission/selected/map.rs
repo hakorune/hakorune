@@ -186,12 +186,25 @@ fn emit_flow(
                 let bindings = entry
                     .borrowed_array_bindings()
                     .ok_or_else(|| freeze("map-borrowed-array-classification"))?;
-                let elements = bindings
+                let sites = entry
+                    .array_elements()
+                    .ok_or_else(|| freeze("map-borrowed-array-elements"))?;
+                if sites.len() != bindings.len() {
+                    return Err(freeze("map-borrowed-array-shape"));
+                }
+                let elements = sites
                     .iter()
-                    .map(|binding| {
-                        state
+                    .zip(bindings.iter())
+                    .map(|(element, binding)| {
+                        let value = state.read_variable(element.site().node())?;
+                        if state
                             .value_for_exact_binding(site.owner(), *binding)
-                            .map_err(|_| freeze("map-borrowed-array-binding"))
+                            .map_err(|_| freeze("map-borrowed-array-binding"))?
+                            != value
+                        {
+                            return Err(freeze("map-borrowed-array-binding-drift"));
+                        }
+                        Ok(value)
                     })
                     .collect::<Result<Box<[_]>, _>>()?;
                 PendingInstall::BorrowedArray(elements)
