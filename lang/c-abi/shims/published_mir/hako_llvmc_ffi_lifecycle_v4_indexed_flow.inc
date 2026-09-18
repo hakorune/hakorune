@@ -6,9 +6,20 @@ static int lv4_indexed_live(hako_lv4_function_index* fn, uint32_t id, int kind,
     const uint16_t* state, uint32_t object, int check_object) {
   hako_lv4_value* value = lv4_index_value(fn, id);
   if (!value || value->kind != kind || (check_object && value->object_id != object)) return 0;
-  /* Borrowed operand (-2): receiver handle or a caller-owned checked-map
-   * storage pointer — live for the whole call, never allocated or ended. */
-  if (value->origin == -2) return kind == LV4_HANDLE || kind == LV4_MAP;
+  /* Borrowed operand (-2): a receiver handle lives for the whole call. */
+  if (value->origin == -2) return kind == LV4_HANDLE;
+  return value->origin >= 0 && state[value->origin] == LV4_LIVE;
+}
+
+/* A checked-map read operand: a live owned lease, or a caller-owned MapBox
+ * formal (origin -2) borrowed for the whole call. Only the read lane uses
+ * this predicate — install and end lanes keep lv4_indexed_live, so borrowed
+ * storage is never mutated or ended. */
+static int lv4_indexed_map_readable(hako_lv4_function_index* fn, uint32_t id,
+    const uint16_t* state) {
+  hako_lv4_value* value = lv4_index_value(fn, id);
+  if (!value || value->kind != LV4_MAP) return 0;
+  if (value->origin == -2) return 1;
   return value->origin >= 0 && state[value->origin] == LV4_LIVE;
 }
 
@@ -212,13 +223,15 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
          or a borrowed formal; the read consumes neither. */
       if ((fi && !ordinary) || faulted || state[bi] ||
           in->profile != LV4_INDEXED_SAFE_MUTEX ||
-          !lv4_indexed_live(fn, lv4_u(op, "map"), LV4_MAP, state, 0, 0)) return 0;
+          !lv4_indexed_map_readable(fn, lv4_u(op, "map"), state)) return 0;
       normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "map_end") || lv4_is(op, "kind", "map_end_outcome")) {
       int map_end = lv4_is(op, "kind", "map_end");
       uint32_t id = lv4_u(op, map_end ? "map" : "outcome");
       hako_lv4_value* value = lv4_index_value(fn, id);
-      if ((fi && !ordinary) ||
+      /* Borrowed storage (-2) is never ended: only an owned live lease or
+         outcome may reach this lane and index the state arrays. */
+      if ((fi && !ordinary) || !value || value->origin < 0 ||
           !lv4_indexed_live(fn, id, map_end ? LV4_MAP : LV4_OUTCOME, state, 0, 0)) return 0;
       normal[value->origin] = state[value->origin] = 0;
       if (map_end) for (size_t i = 0; i < count; i++)

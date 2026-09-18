@@ -384,6 +384,76 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     drifted["functions"][0]["blocks"][0]["terminator"]["instruction"]["operation"]["result"] = "i64"
     assert_named_reject(drifted, "published-lifecycle-physical-parser/function-body")
 
+    # Borrowed MapBox param lane: a "map"-representation formal is caller-owned
+    # storage — map_checked_get is the only admitted map operation on it.
+    borrowed = dict(schema="hako.published-lifecycle-physical-program.v2",
+                    storage_profile=1, fault_abi_version=1, process_result_site=1,
+                    layouts=[], functions=[
+        dict(name="main", role="root_i64", entry=0, params=[],
+             receiver=None, receiver_object=None, blocks=[
+            dict(id=0, edges=[], instructions=[
+                dict(index=0, instruction=dict(
+                    op="fault_frame_enter", dst=0, mode="root_owned")),
+                dict(index=1, instruction=dict(op="const_i64", dst=1, value=30))],
+                terminator=dict(index=2, instruction=dict(op="return", value=1)))]),
+        dict(name="Work.read_k/1", role="ordinary_i64", entry=0,
+             params=[dict(value=1, representation="map")],
+             receiver=None, receiver_object=None, blocks=[
+            dict(id=0, edges=[dict(target=1, args=None), dict(target=2, args=None)],
+                 instructions=[dict(index=0, instruction=dict(
+                     op="fault_frame_enter", dst=2, mode="borrowed"))],
+                 terminator=dict(index=1, instruction=dict(
+                     op="invoke", fault_frame=2, normal=1, fault=2,
+                     operation=dict(kind="map_checked_get", map=1, utf8="k", site=0)))),
+            dict(id=1, edges=[], instructions=[dict(index=0, instruction=dict(
+                     op="invoke_normal_result", invoke_block=0, dst=3))],
+                 terminator=dict(index=1, instruction=dict(op="return", value=3))),
+            dict(id=2, edges=[], instructions=[],
+                 terminator=dict(index=0, instruction=dict(
+                     op="return_fault", fault_frame=2)))])])
+    compile_input(borrowed)
+    print("borrowed MapBox param -> map_checked_get -> compiled")
+
+    # The read-only borrow never gains an End obligation or a write lane:
+    # map_end and map_install_* on caller-owned storage must reject at the
+    # flow layer (a -2 origin must never index the state arrays).
+    for kind in ["map_end", "map_install_empty_array", "map_install_text"]:
+        data = copy.deepcopy(borrowed)
+        blocks = data["functions"][1]["blocks"]
+        if kind == "map_end":
+            # map_end produces no result: the projection row becomes a const.
+            blocks[0]["terminator"]["instruction"]["operation"] = dict(
+                kind="map_end", map=1, site=0)
+            blocks[1]["instructions"][0]["instruction"] = dict(
+                op="const_i64", dst=3, value=0)
+        else:
+            # Keep every other lane consistent (prepare_key -> install ->
+            # end_outcome) so the only anomaly is the borrowed map operand.
+            blocks[0]["terminator"]["instruction"]["operation"] = dict(
+                kind="map_prepare_key", utf8="k", site=0)
+            op = dict(kind=kind, map=1, key=3, site=1)
+            if kind == "map_install_text":
+                op["utf8"] = "x"
+            blocks[1]["terminator"] = dict(index=1, instruction=dict(
+                op="invoke", fault_frame=2, normal=3, fault=4, operation=op))
+            blocks[1]["edges"] = [dict(target=3, args=None), dict(target=4, args=None)]
+            blocks.append(dict(id=3, edges=[dict(target=5, args=None), dict(target=4, args=None)],
+                instructions=[dict(index=0, instruction=dict(
+                    op="invoke_normal_result", invoke_block=1, dst=4))],
+                terminator=dict(index=1, instruction=dict(
+                    op="invoke", fault_frame=2, normal=5, fault=4,
+                    operation=dict(kind="map_end_outcome", outcome=4, site=2)))))
+            blocks.append(dict(id=4, edges=[], instructions=[],
+                terminator=dict(index=0, instruction=dict(
+                    op="return_fault", fault_frame=2))))
+            blocks.append(dict(id=5, edges=[], instructions=[dict(index=0, instruction=dict(
+                    op="const_i64", dst=5, value=0))],
+                terminator=dict(index=1, instruction=dict(op="return", value=5))))
+            data["process_result_site"] = 3
+        result = compile_input(data, False)
+        assert "unsupported-cohort" in result.stderr, (kind, result.stderr)
+    print("map_end/map_install_* on borrowed MapBox storage reject at the flow layer")
+
     # When the source-issued artifact is supplied, the unchanged consumer
     # compiles and executes it with the same storage evidence.
     if ISSUED:
