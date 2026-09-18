@@ -154,6 +154,47 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         Ok(map)
     }
+    pub(crate) fn map_flow_for_local_binding(
+        &self,
+        binding: BindingRefV1,
+    ) -> Result<Option<&MapHomeFlow>, String> {
+        let mut found = None;
+        for row in self.completion_index.values() {
+            let Ok(completion) = row else { continue };
+            let Some(flow) = completion.cleanup().root_flow() else {
+                continue;
+            };
+            for observation in flow.maps() {
+                let Some(map) = observation.complete() else {
+                    continue;
+                };
+                if map.local_binding() != Some(binding) {
+                    continue;
+                }
+                if found.replace(map).is_some() {
+                    return Err(freeze("map-local-binding-duplicate"));
+                }
+            }
+        }
+        if let Some(Ok(root)) = self.root_completion.as_ref() {
+            if !self.completion_index.contains_key(&root.owner()) {
+                if let Some(flow) = root.cleanup().root_flow() {
+                    for observation in flow.maps() {
+                        let Some(map) = observation.complete() else {
+                            continue;
+                        };
+                        if map.local_binding() != Some(binding) {
+                            continue;
+                        }
+                        if found.replace(map).is_some() {
+                            return Err(freeze("map-local-binding-duplicate"));
+                        }
+                    }
+                }
+            }
+        }
+        Ok(found)
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn map_demands_consumed(&self) -> bool {
         let rows = self.local_commits.borrow();
         let mut completions: Vec<_> = self

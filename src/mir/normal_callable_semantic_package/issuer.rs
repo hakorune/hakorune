@@ -340,6 +340,9 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     DirectCall {
         _error: DirectCallDispositionIssueV1,
     },
+    MapReadFact {
+        _error: super::map_read_fact::MapReadFactIssueV1,
+    },
     RootInstanceCall {
         _error: String,
     },
@@ -599,6 +602,13 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     let s6c_child = issue_s6c_semantic_child_v1(&batch, &selected, &mut completion_seeds)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::S6CChild { _error: error })?;
     ordinary_new_claim_ledger.retain_completion_index(&completion_seeds);
+    let map_read_facts = super::map_read_fact::issue_map_read_facts_v1(
+        &batch,
+        direct_call_loans.as_ref(),
+        &parameter_contracts,
+        &ordinary_new_claim_ledger,
+    )
+    .map_err(|error| NormalCallableSemanticPackageIssueV1::MapReadFact { _error: error })?;
     let s6c_storage_header = match s6c_child.as_ref() {
         None => None,
         Some(child) => {
@@ -625,6 +635,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
                 &parameter_contracts,
                 &result_contracts,
                 &ordinary_new_claim_ledger,
+                &map_read_facts,
             )
             .map_err(|error| NormalCallableSemanticPackageIssueV1::DirectCall {
                 _error: DirectCallDispositionIssueV1::Loan(error),
@@ -675,6 +686,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         catalog,
         batch,
         direct_call_loans,
+        map_read_facts,
         ordinary_new_claim_ledger: Rc::new(ordinary_new_claim_ledger),
         instance_constructors,
         selected,

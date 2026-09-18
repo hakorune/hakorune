@@ -229,6 +229,40 @@ impl DirectCallDispositionLoanV1 {
             .collect()
     }
 
+    /// All ready Map formals, including rows whose lifecycle execution has
+    /// not yet been co-sealed. Source Fact issuance runs before that seal and
+    /// therefore must inspect the same exact signature rows without treating
+    /// them as already admitted physical edges.
+    pub(in crate::mir::normal_callable_semantic_package) fn map_formal_edges(
+        &self,
+    ) -> Vec<(OwnedExprSiteV1, u32, FunctionOwnerIdV1)> {
+        self.rows
+            .iter()
+            .filter_map(|(site, slot)| match slot {
+                DirectCallDispositionSlotV1::Ready(row) => Some((site, row)),
+                DirectCallDispositionSlotV1::Taken => None,
+            })
+            .flat_map(|(site, row)| {
+                row.emission
+                    .target()
+                    .signature()
+                    .params()
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, kind)| {
+                        **kind == crate::mir::resolved_semantics::ExactCallableParamAbiV1::Map
+                    })
+                    .map(move |(ordinal, _)| {
+                        (
+                            site.clone(),
+                            ordinal as u32,
+                            row.emission.target().callable().owner(),
+                        )
+                    })
+            })
+            .collect()
+    }
+
     pub(crate) fn finish_empty(self) -> Result<(), DirectCallLoanErrorV1> {
         if self
             .rows

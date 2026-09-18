@@ -439,6 +439,19 @@ map-result callees remain gated at the i64 call-admission seam. `new MapBox()` c
 operation vocabulary through OrdinaryNew claim evidence, not `MapHomeFlow`
 rows — that describe arm is a separate bounded row.
 
+The first source read Fact slice is now issued by the same semantic package.
+`MapReadFactV1` joins the resolver-exact direct-call edge, the callee's
+`m.get("functions").get(0).get("name")` method-call rows, and the caller's
+sealed `MapHomeFlow`. It records the owner, caller edge and formal binding,
+receiver/operand sites, typed operation/result class, containment path, and
+borrow-root occurrences without issuing a Recipe key, physical ID, or MIR
+type. The existing direct-call co-seal accepts this Fact as the callee read
+evidence; an unrelated `m.get("k")` remains unchanged. Until the selected
+physical reader is wired, preflight stops with the named
+`MapReadPhysicalConsumerMissing` issue before catalog mutation. This is source
+Fact progress only: no source-to-OBJ caller, production cutover, or T2
+acceptance claim is made.
+
 T2-alpha now has a physical owner for the first nested-map Array shape:
 `CheckedMapPayload::Array` carries `CanonicalMapArrayResidence`, and
 `OwnedMapArrayResidenceBuilder` owns staged checked-map roots until the parent

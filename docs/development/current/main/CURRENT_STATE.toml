@@ -51,8 +51,8 @@ owned Array with reverse-prefix cleanup plus borrowed nested-Map Text reads
 (14/14 focused owner tests). Typed `ArrayIndexMap`/`MapGetText` MIR verifier
 and published-JSON projection are recorded (3 view tests + 1 JSON test), and the
 kernel/C ABI text-view handoff is landed with 69/69 focused kernel tests green.
-Non-claims: no `MapLocal`/`Local` borrow lane, no qualified-call Invoke, no compiler/source admission,
-no production caller cutover, no OBJ execution, no `to_json`, and no legacy retirement.
+T2-alpha source Facts/co-seal for direct `m.get("functions").get(0).get("name")` are 3/3; physical install stops at `MapReadPhysicalConsumerMissing` until the caller consumes `ArrayIndexMap -> MapGetText`.
+Non-claims remain: no qualified Invoke, source/OBJ admission, production cutover, `to_json`, or legacy retirement.
 """
 next_design_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"

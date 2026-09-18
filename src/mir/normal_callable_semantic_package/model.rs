@@ -37,6 +37,7 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) catalog: VerifiedSourceBackedSameModuleCallableCatalogV1,
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
     pub(super) direct_call_loans: Option<super::direct_call_loan::DirectCallDispositionLoansV1>,
+    pub(super) map_read_facts: super::map_read_fact::MapReadFactsV1,
     pub(super) ordinary_new_claim_ledger:
         std::rc::Rc<super::ordinary_new_coseal::OrdinaryNewClaimLedgerV1>,
     pub(super) instance_constructors:
@@ -83,6 +84,10 @@ pub(in crate::mir) enum NormalCallableDynamicProjectionRefV1<'package> {
 }
 
 impl VerifiedNormalCallableSemanticPackageV1 {
+    pub(crate) fn map_read_facts(&self) -> &super::map_read_fact::MapReadFactsV1 {
+        &self.map_read_facts
+    }
+
     pub(in crate::mir) fn take_root_execution(
         &mut self,
     ) -> Result<crate::mir::builder::PreparedAdmittedNormalRootExpansionV1, ()> {

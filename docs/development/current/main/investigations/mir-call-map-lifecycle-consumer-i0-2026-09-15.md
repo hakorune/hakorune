@@ -1877,7 +1877,7 @@ The ordered queue is now:
 
 1. **T2-alpha source Fact issuer:** issue the finite `MapReadFactV1`-shaped
    row from resolver-exact method-call source plus `MapHomeFlow`, bounded to
-   the `funcs.get(0).get("name")` spelling. Add missing/foreign/duplicate and
+   the direct `m.get("functions").get(0).get("name")` spelling. Add missing/foreign/duplicate and
    unsupported-shape negatives before catalog mutation.
 2. **T2-alpha co-seal and physical admission:** match that Fact to the
    existing `MapLifecycleUndertakingV1`, then consume the already-landed
@@ -1892,6 +1892,28 @@ The ordered queue is now:
 The pointer remains `MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2` with blocker
 `t2_alpha_source_to_obj_admission`; no production cutover, legacy deletion, or
 T2 completion claim is opened by this reconciliation.
+
+## T2-alpha source Fact issuer progress (2026-09-19)
+
+The source-only first row is now implemented and focused-tested. The issuer
+joins the exact direct-call edge with the callee's resolver method-call rows
+for the bounded direct chain
+`m.get("functions").get(0).get("name")`, plus the caller's completed
+`MapHomeFlow` and nested child-map provenance. It emits three rows:
+`MapLookup(functions) -> ArrayView`, `ArrayIndex(0) -> MapView`, and
+`MapLookup(name) -> TextView`. Each row retains source-owned receiver and
+operand sites, containment, and borrow-root occurrences; no Recipe key,
+physical ID, MIR type, or runtime handle is minted.
+
+The direct-call loan co-seal consumes the same Fact for formal-read evidence,
+while the old terminal `return m.get("k")` path remains admitted unchanged.
+`MapReadPhysicalConsumerMissing` is a deliberate install boundary until the
+selected compiler caller consumes the already-landed `ArrayIndexMap ->
+MapGetText` owner. The focused source tests cover the three rows, the
+pre-catalog stop, and the unrelated-key non-claim. This row therefore closes
+source Fact issuance and co-seal wiring only; source-to-OBJ execution,
+production caller switch, Normal/Fault acceptance, and T2 completion remain
+open under `t2_alpha_source_to_obj_admission`.
 
 ## T2 read contract decision (2026-09-19, design stop closed)
 

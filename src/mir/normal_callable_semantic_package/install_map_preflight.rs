@@ -22,6 +22,9 @@ impl VerifiedNormalCallableSemanticPackageV1 {
     ) -> Result<Option<MapLifecycleUndertakingV1>, NormalCallableSemanticPackageInstallIssueV1>
     {
         use NormalCallableSemanticPackageInstallIssueV1 as Issue;
+        if let Some(site) = self.map_read_facts.first_site().cloned() {
+            return Err(Issue::MapReadPhysicalConsumerMissing { site });
+        }
         let obligations = self
             .describe_map_lifecycle_obligations()
             .map_err(Issue::MapObligationDescribe)?;

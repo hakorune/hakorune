@@ -29,6 +29,9 @@ mod issuer;
 mod map_lifecycle_undertaking;
 #[cfg(test)]
 mod map_lifecycle_undertaking_tests;
+mod map_read_fact;
+#[cfg(test)]
+mod map_read_fact_tests;
 mod model;
 mod ordinary_new_coseal;
 mod physical_header;
@@ -94,6 +97,7 @@ pub(in crate::mir) use issuer::{
 pub(in crate::mir) use map_lifecycle_undertaking::{
     MapLifecycleConsumerCapabilityV1, MapLifecycleOperationV1, MapLifecycleUndertakingV1,
 };
+pub(crate) use map_read_fact::MapReadFactsV1;
 pub(in crate::mir) use model::NormalCallableDynamicProjectionRefV1;
 pub(crate) use model::VerifiedNormalCallableSemanticPackageV1;
 pub(crate) use ordinary_new_coseal::{

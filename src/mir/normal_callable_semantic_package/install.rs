@@ -48,6 +48,9 @@ pub(crate) use signature_loan::ResolvedCallablePhysicalSignatureLoanV1;
 pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     ForeignCatalog,
     MapLifecycleConsumerMissing,
+    MapReadPhysicalConsumerMissing {
+        site: crate::mir::resolved_semantics::OwnedExprSiteV1,
+    },
     /// The sealed obligation describe failed before capability matching:
     /// keep the typed owner/site cause instead of flattening it.
     MapObligationDescribe(super::map_lifecycle_undertaking::MapObligationDescribeIssueV1),
@@ -394,6 +397,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             catalog,
             batch,
             direct_call_loans,
+            map_read_facts: _,
             ordinary_new_claim_ledger,
             instance_constructors,
             selected,

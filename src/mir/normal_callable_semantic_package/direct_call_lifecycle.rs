@@ -131,6 +131,7 @@ fn map_argument_edge(
     parameters: &[OwnedCallableParameterContractDeclarationV1],
     results: &VerifiedCallableResultContractCohortV1,
     root: &OrdinaryNewClaimLedgerV1,
+    map_read_facts: &crate::mir::normal_callable_semantic_package::MapReadFactsV1,
     caller_owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
     row: &DirectCallDispositionRowV1,
@@ -186,18 +187,23 @@ fn map_argument_edge(
     let Some(flow) = callee.completion().cleanup().root_flow() else {
         return false;
     };
-    if flow.terminal_homes().is_err() {
+    let source_fact_edge = map_read_facts
+        .rows()
+        .iter()
+        .any(|fact| fact.owner() == callee_owner && fact.call_site() == site);
+    if flow.terminal_homes().is_err() && !source_fact_edge {
         return false;
     }
-    let Some(TerminalRelationV1::MapGet(read)) = callee.terminal_relation() else {
-        return false;
+    let terminal_receiver = match callee.terminal_relation() {
+        Some(TerminalRelationV1::MapGet(read))
+            if read.owner() == callee_owner
+                && read.receiver_class() == TerminalMapGetReceiverClassV1::BorrowedParameter
+                && callee.completion().explicit_site() == Some(read.return_site()) =>
+        {
+            Some(read.receiver())
+        }
+        _ => None,
     };
-    if read.owner() != callee_owner
-        || read.receiver_class() != TerminalMapGetReceiverClassV1::BorrowedParameter
-        || callee.completion().explicit_site() != Some(read.return_site())
-    {
-        return false;
-    }
     batch
         .with_lowering_input(contract.batch_slot, |input| {
             input.owner() == callee_owner
@@ -230,7 +236,13 @@ fn map_argument_edge(
                                 // The callee must read this exact formal
                                 // under the borrowed contract — an unread
                                 // Map formal is not yet an admitted edge.
-                                if read.receiver() != parameter.binding
+                                let source_fact_read = map_read_facts.has_edge_read(
+                                    callee_owner,
+                                    site,
+                                    index as u32,
+                                    parameter.binding,
+                                );
+                                if terminal_receiver != Some(parameter.binding) && !source_fact_read
                                     || arg_site.owner() != caller_owner
                                 {
                                     return false;
@@ -397,6 +409,7 @@ impl DirectCallDispositionLoanV1 {
         parameters: &[OwnedCallableParameterContractDeclarationV1],
         results: &VerifiedCallableResultContractCohortV1,
         root: &OrdinaryNewClaimLedgerV1,
+        map_read_facts: &crate::mir::normal_callable_semantic_package::MapReadFactsV1,
     ) -> Result<(), DirectCallLoanErrorV1> {
         let reject = DirectCallLoanErrorV1::LifecycleSourceMismatch;
         for (site, slot) in &mut self.rows {
@@ -430,7 +443,16 @@ impl DirectCallDispositionLoanV1 {
                     // literal — actual class, formal ABI, contract kind,
                     // and the callee's borrowed read must agree at every
                     // ordinal. Anything else stays rejected.
-                    if !map_argument_edge(batch, parameters, results, root, self.owner, site, row) {
+                    if !map_argument_edge(
+                        batch,
+                        parameters,
+                        results,
+                        root,
+                        map_read_facts,
+                        self.owner,
+                        site,
+                        row,
+                    ) {
                         return Err(reject);
                     }
                     row.execution = DirectCallExecutionV1::Lifecycle;
