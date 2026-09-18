@@ -1938,4 +1938,33 @@ index. Focused evidence is 3/3 view-verifier tests, 1/1 typed JSON test, and the
 existing Map verifier 11/11. This slice does not claim a kernel export, C ABI
 validator/emitter, source Fact admission, production caller, OBJ execution, or
 T2 acceptance. The next exact slice is the lifetime-safe TextView wire/output
-handoff across Normal and Fault paths.
+handoff across Normal and Fault paths; the bounded kernel/C ABI progress below
+records that handoff without opening source admission or production cutover.
+
+## T2-alpha kernel/C ABI handoff progress (2026-09-19)
+
+The selected physical handoff now consumes the typed vocabulary without adding
+an ownership authority. `ArrayIndexMap` writes a fresh `MapViewStorage` carrying
+the live parent and child Map pointers; `MapGetText` consumes that descriptor and
+writes a fresh `TextViewStorage` containing the child Map's owned UTF-8 pointer
+and length. The parent Array residence remains the sole End owner, and the view
+descriptors have no disposal or return/slot escape path. The target Map storage
+size/alignment is asserted as the upper bound for both descriptor layouts.
+
+Normal writes only fresh output storage. Missing, bounds, non-array, non-map,
+and non-text outcomes record the named Map Fault reasons 105–110; malformed,
+overlapping, or reused descriptor storage is InvalidContract. Rust focused
+evidence is `array_index_map_then_get_text_borrows_child_bytes_and_consumes_view`
+and `array_and_text_view_faults_are_named_and_parent_remains_endable`, both green
+in the 69-test kernel batch; `cargo check --profile quick` is also green with
+the repository's pre-existing warnings. Physical C validators and V4 emission
+now recognize both operations, and the required runtime symbol inventory is
+updated. Source Fact admission, production caller cutover, OBJ execution,
+Normal/Fault source acceptance, and legacy retirement remain unclaimed.
+
+The synthetic physical consumer also compiles and links the new symbols against
+the quick kernel archive: an empty Map drives `ArrayIndexMap` to named Fault
+105, the cleanup Map end runs, and the executable exits 70. The existing Map
+matrix remains green (six normal EXE30 programs plus the malformed-input
+preservation set); this is physical ABI evidence only and is not source-to-OBJ
+acceptance.

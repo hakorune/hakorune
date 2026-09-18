@@ -3,7 +3,10 @@
 //! This module deliberately owns only arrays whose elements are checked Maps.
 //! Scalar and mixed Array shapes remain outside the selected T2-alpha lane and
 //! are rejected before a Map payload is committed.
-use super::{CheckedMap, CheckedMapError, CheckedMapTextRead, MapEndError, MapKeyDomain};
+use super::{
+    CheckedMap, CheckedMapError, CheckedMapTextRead, CheckedMapTextViewRead, MapEndError,
+    MapKeyDomain,
+};
 use std::sync::Arc;
 
 /// Faults produced by an ArrayIndex against a checked Array residence.
@@ -27,6 +30,19 @@ pub struct CheckedMapReadView {
 impl CheckedMapReadView {
     pub fn read_text(&self, key: &MapKeyDomain) -> Result<CheckedMapTextRead, CheckedMapError> {
         self.map.read_text(key)
+    }
+
+    pub fn read_text_view(
+        &self,
+        key: &MapKeyDomain,
+    ) -> Result<CheckedMapTextViewRead, CheckedMapError> {
+        self.map.read_text_view(key)
+    }
+
+    /// Borrowed pointer for the synchronous kernel descriptor. The parent
+    /// Array residence keeps this child Map alive until the view is consumed.
+    pub fn borrowed_map_ptr(&self) -> *const CheckedMap {
+        Arc::as_ptr(&self.map)
     }
 }
 

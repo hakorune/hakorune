@@ -252,6 +252,22 @@ def mixed_program():
     return data
 
 
+def array_text_fault_program():
+    """MapView -> TextView wiring; an empty Map takes the named missing fault."""
+    graph = Graph()
+    map_value = graph.invoke(dict(kind="map_new"), [], True)
+    end = dict(kind="map_end", map=map_value)
+    view = graph.invoke(dict(kind="map_array_index_map", map=map_value,
+                             utf8="functions", index=0), [end], True)
+    graph.invoke(dict(kind="map_get_text", map=view, utf8="name"), [end], True)
+    graph.invoke(end, [])
+    graph.term(graph.current, dict(op="return", value=1))
+    data = program(["unused"])
+    data["functions"][0]["blocks"] = graph.blocks
+    data["process_result_site"] = graph.site
+    return data
+
+
 with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     work = Path(directory)
     driver, obj, exe = [work / name for name in ("driver", "map.o", "map")]
@@ -317,6 +333,11 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
     assert run([exe], env=env).returncode == 30
     print("two live Maps with later ordinary allocations -> linked EXE30")
+
+    compile_input(array_text_fault_program())
+    checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
+    assert run([exe], env=env).returncode == 70
+    print("ArrayIndexMap -> MapGetText on missing entry -> named Fault105 -> EXE70")
 
     compile_input(program(["same", "same"]))
     wraps = ["storage_init", "storage_dispose", "key_init", "key_dispose",

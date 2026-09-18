@@ -77,6 +77,8 @@ static int lv4_operation_result(yyjson_val* op) {
       lv4_is(op, "kind", "map_install_text") || lv4_is(op, "kind", "map_install_empty_array"))
     return LV4_OUTCOME;
   if (lv4_is(op, "kind", "map_checked_get")) return LV4_I64;
+  if (lv4_is(op, "kind", "map_array_index_map")) return LV4_MAP_VIEW;
+  if (lv4_is(op, "kind", "map_get_text")) return LV4_TEXT_VIEW;
   return LV4_BAD;
 }
 
@@ -152,7 +154,8 @@ static int lv4_index_kinds(const hako_lv4_input* in, hako_lv4_function_index* fn
   for (size_t i = 0; i < fn->value_count; i++) {
     hako_lv4_value* value = &fn->values[i];
     if (!lv4_is(value->instruction, "op", "copy")) continue;
-    if (value->kind == LV4_MAP || value->kind == LV4_KEY || value->kind == LV4_OUTCOME)
+    if (value->kind == LV4_MAP || value->kind == LV4_KEY || value->kind == LV4_OUTCOME ||
+        value->kind == LV4_MAP_VIEW || value->kind == LV4_TEXT_VIEW)
       return 0;
     if (value->kind == LV4_I64 || value->kind == LV4_BOOL) continue;
     hako_lv4_value* source = value;

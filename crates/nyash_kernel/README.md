@@ -75,6 +75,19 @@ or source Fault. Supported profiles are SafeMutex and SingleThreadExact.
 The trusted pointer contract is in `include/nyrt_fault_v1.h`; the ABI alone does
 not activate a compiler/backend lifecycle consumer.
 
+### Checked Map borrowed read descriptors
+
+The T2-alpha exports `nyash.map.checked_array_index_map_v1` and
+`nyash.map.checked_get_text_v1` form one synchronous read chain. ArrayIndexMap
+records a live parent/child Map view without transferring End authority;
+MapGetText consumes that view and returns a pointer/length into the child Map's
+owned UTF-8 payload, so no string clone is made. The parent Array residence
+keeps the child live until the parent Map ends. Normal initializes only the
+fresh TextView slot; missing, bounds, non-array, non-map, and non-text cases
+record Fault reasons 105–110, while malformed or reused descriptors return
+InvalidContract. This runtime evidence does not activate source admission or a
+compiler production caller.
+
 ### Process entry artifacts
 
 The default `legacy-entry` feature exports the compatibility `main`, including

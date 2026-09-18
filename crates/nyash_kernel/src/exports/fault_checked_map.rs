@@ -8,8 +8,8 @@ use crate::exports::{
 };
 use nyash_rust::boxes::{
     map_box::checked::{
-        CheckedMap, CheckedMapError, CheckedMapI64Read, CheckedMapPayload, MapEndError,
-        MapEndReport,
+        CheckedMap, CheckedMapArrayReadError, CheckedMapError, CheckedMapI64Read,
+        CheckedMapPayload, CheckedMapTextViewRead, MapEndError, MapEndReport,
     },
     map_key_domain::MapKeyDomain,
 };
@@ -17,7 +17,14 @@ use std::{ffi::c_void, mem::size_of, mem::MaybeUninit, sync::Mutex};
 #[path = "fault_checked_map_storage.rs"]
 mod storage;
 use storage::*;
-pub(super) use storage::{KeyStorage, MapStorage, OutcomeStorage};
+pub(super) use storage::{
+    KeyStorage, MapStorage, MapView, MapViewStorage, OutcomeStorage, TextView, TextViewStorage,
+};
+
+const _: () = {
+    assert!(size_of::<MapStorage>() >= size_of::<MapViewStorage>());
+    assert!(size_of::<MapStorage>() >= size_of::<TextViewStorage>());
+};
 
 unsafe fn valid_frame(ptr: *mut c_void) -> bool {
     !ptr.is_null()
@@ -177,6 +184,12 @@ const MAP_VALUE_BOOL: u32 = 2;
 const MAP_VALUE_BORROWED_HANDLE: u32 = 3;
 // Scalar-read outcome reasons (mirrored in include/nyrt_fault_v1.h).
 const MAP_GET_NON_SCALAR_REASON: u32 = 104;
+const MAP_ARRAY_MISSING_REASON: u32 = 105;
+const MAP_ARRAY_BOUNDS_REASON: u32 = 106;
+const MAP_ARRAY_NON_ARRAY_REASON: u32 = 107;
+const MAP_ARRAY_NON_MAP_REASON: u32 = 108;
+const MAP_TEXT_MISSING_REASON: u32 = 109;
+const MAP_TEXT_NON_TEXT_REASON: u32 = 110;
 #[export_name = "nyash.map.checked_install_value_v1"]
 pub unsafe extern "C" fn install_value(
     frame: *mut c_void,
@@ -404,6 +417,168 @@ pub unsafe extern "C" fn get_i64(
             Some(reason) => unsafe { failed(frame, site, reason) },
             None => Status::InvalidContract as u32,
         },
+    }
+}
+
+fn array_read_reason(error: CheckedMapArrayReadError) -> Option<u32> {
+    match error {
+        CheckedMapArrayReadError::Missing => Some(MAP_ARRAY_MISSING_REASON),
+        CheckedMapArrayReadError::Bounds => Some(MAP_ARRAY_BOUNDS_REASON),
+        CheckedMapArrayReadError::NonArray => Some(MAP_ARRAY_NON_ARRAY_REASON),
+        CheckedMapArrayReadError::NonMap => Some(MAP_ARRAY_NON_MAP_REASON),
+        CheckedMapArrayReadError::StorageUnavailable => Some(100),
+        CheckedMapArrayReadError::InvalidState => None,
+    }
+}
+
+/// Borrow one nested Map from a checked Array. The descriptor owns no Map or
+/// Array root; it only records the parent and child pointers for the next
+/// synchronous MapGetText call.
+#[export_name = "nyash.map.checked_array_index_map_v1"]
+pub unsafe extern "C" fn array_index_map(
+    frame: *mut c_void,
+    site: u64,
+    map_ptr: *mut c_void,
+    bytes: *const u8,
+    len: usize,
+    index: i64,
+    view_ptr: *mut c_void,
+) -> u32 {
+    if len > isize::MAX as usize
+        || !separate(&[
+            (frame as usize, size_of::<FaultFrame>()),
+            (map_ptr as usize, size_of::<MapStorage>()),
+            (view_ptr as usize, size_of::<MapViewStorage>()),
+            (bytes as usize, len),
+        ])
+        || !unsafe { valid_frame(frame) }
+    {
+        return Status::InvalidContract as u32;
+    }
+    let map = match unsafe { admit::<CheckedMap>(map_ptr, MAP_TAG) } {
+        Ok(value) => value,
+        Err(status) => return status as u32,
+    };
+    if map.require_live().is_err() {
+        return Status::InvalidContract as u32;
+    }
+    let slice = if len == 0 {
+        &[]
+    } else {
+        unsafe { std::slice::from_raw_parts(bytes, len) }
+    };
+    let text = match std::str::from_utf8(slice) {
+        Ok(text) => text,
+        Err(_) => return Status::InvalidContract as u32,
+    };
+    let key = match MapKeyDomain::try_from_text(text) {
+        Ok(key) => key,
+        Err(_) => return unsafe { failed(frame, site, 100) },
+    };
+    let child = match map.read_array_map(&key, index) {
+        Ok(view) => view.borrowed_map_ptr(),
+        Err(error) => match array_read_reason(error) {
+            Some(reason) => return unsafe { failed(frame, site, reason) },
+            None => return Status::InvalidContract as u32,
+        },
+    };
+    if child.is_null() {
+        return Status::InvalidContract as u32;
+    }
+    unsafe {
+        init(
+            view_ptr,
+            VIEW_TAG,
+            MapView {
+                state: VIEW_LIVE,
+                reserved: 0,
+                parent_map: map_ptr,
+                child_map: child,
+            },
+        )
+    }
+}
+
+/// Consume a borrowed MapView and expose a borrowed UTF-8 slice. Missing and
+/// non-Text entries are source Faults; Normal writes only the fresh TextView
+/// output slot, and no operation retains a mutable borrow after return.
+#[export_name = "nyash.map.checked_get_text_v1"]
+pub unsafe extern "C" fn get_text(
+    frame: *mut c_void,
+    site: u64,
+    view_ptr: *mut c_void,
+    bytes: *const u8,
+    len: usize,
+    out_ptr: *mut c_void,
+) -> u32 {
+    if len > isize::MAX as usize
+        || !separate(&[
+            (frame as usize, size_of::<FaultFrame>()),
+            (view_ptr as usize, size_of::<MapViewStorage>()),
+            (out_ptr as usize, size_of::<TextViewStorage>()),
+            (bytes as usize, len),
+        ])
+        || !unsafe { valid_frame(frame) }
+    {
+        return Status::InvalidContract as u32;
+    }
+    let view = match unsafe { admit_mut::<MapView>(view_ptr, VIEW_TAG) } {
+        Ok(value) => value,
+        Err(status) => return status as u32,
+    };
+    if view.state != VIEW_LIVE || view.parent_map.is_null() || view.child_map.is_null() {
+        return Status::InvalidContract as u32;
+    }
+    let parent = match unsafe { admit::<CheckedMap>(view.parent_map, MAP_TAG) } {
+        Ok(value) => value,
+        Err(status) => return status as u32,
+    };
+    if parent.require_live().is_err() {
+        return Status::InvalidContract as u32;
+    }
+    view.state = VIEW_CONSUMED;
+    let slice = if len == 0 {
+        &[]
+    } else {
+        unsafe { std::slice::from_raw_parts(bytes, len) }
+    };
+    let text = match std::str::from_utf8(slice) {
+        Ok(text) => text,
+        Err(_) => return Status::InvalidContract as u32,
+    };
+    let key = match MapKeyDomain::try_from_text(text) {
+        Ok(key) => key,
+        Err(_) => return unsafe { failed(frame, site, 100) },
+    };
+    let child = unsafe { &*view.child_map };
+    if child.require_live().is_err() {
+        return Status::InvalidContract as u32;
+    }
+    let (bytes, len) = match child.read_text_view(&key) {
+        Ok(CheckedMapTextViewRead::Value { bytes, len }) => (bytes, len),
+        Ok(CheckedMapTextViewRead::Missing) => {
+            return unsafe { failed(frame, site, MAP_TEXT_MISSING_REASON) }
+        }
+        Ok(CheckedMapTextViewRead::NonText) => {
+            return unsafe { failed(frame, site, MAP_TEXT_NON_TEXT_REASON) }
+        }
+        Err(CheckedMapError::StorageUnavailable) => return unsafe { failed(frame, site, 100) },
+        Err(CheckedMapError::InvalidState) => return Status::InvalidContract as u32,
+        Err(CheckedMapError::CapacityUnavailable)
+        | Err(CheckedMapError::OrderExhausted)
+        | Err(CheckedMapError::ProjectionUnavailable) => return Status::InvalidContract as u32,
+    };
+    unsafe {
+        init(
+            out_ptr,
+            TEXT_VIEW_TAG,
+            TextView {
+                state: VIEW_LIVE,
+                reserved: 0,
+                bytes,
+                len,
+            },
+        )
     }
 }
 

@@ -2,7 +2,9 @@ use super::*;
 use crate::exports::typed_object_store_backend::{
     new_checked_indexed, reclaim_checked_indexed, validate_checked_indexed_identity,
 };
+use nyash_rust::boxes::map_box::checked::{CheckedMap, CheckedMapPayload, OwnedMapArrayResidence};
 use std::mem::MaybeUninit;
+use std::sync::Arc;
 struct Slot<T>(Box<MaybeUninit<T>>);
 impl<T> Slot<T> {
     fn new() -> Self {
@@ -538,6 +540,93 @@ fn value_abi_borrowed_handle_never_claims_or_reads_back_the_target() {
         assert!(live(caller_owned));
         assert_eq!(map_dispose(m), 0);
         reclaim_checked_indexed(TypedObjectStoreBackend::SafeMutex, caller_owned, 919).unwrap();
+        assert_eq!(super::super::frame_dispose(f), 0);
+    }
+}
+
+fn text_child(value: CheckedMapPayload) -> Arc<CheckedMap> {
+    let child = Arc::new(CheckedMap::unissued());
+    child.acquire().unwrap();
+    child
+        .install(MapKeyDomain::from_text("name"), value)
+        .map_err(|failure| failure.error)
+        .unwrap()
+        .end()
+        .unwrap();
+    child
+}
+
+unsafe fn install_array_parent(map: *mut c_void, child: Arc<CheckedMap>) {
+    let mut residence = OwnedMapArrayResidence::builder(1).unwrap();
+    residence.push_map(child).unwrap();
+    let payload = CheckedMapPayload::Array(Box::new(residence.finish()));
+    admit::<CheckedMap>(map, MAP_TAG)
+        .unwrap()
+        .install(MapKeyDomain::from_text("functions"), payload)
+        .map_err(|failure| failure.error)
+        .unwrap()
+        .end()
+        .unwrap();
+}
+
+#[test]
+fn array_index_map_then_get_text_borrows_child_bytes_and_consumes_view() {
+    let (mut f, mut m, mut view, mut text) = (
+        Slot::<FaultFrame>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<MapViewStorage>::new(),
+        Slot::<TextViewStorage>::new(),
+    );
+    unsafe {
+        let (f, m, view, text) = (f.ptr(), m.ptr(), view.ptr(), text.ptr());
+        assert_eq!(super::super::frame_init(f), 0);
+        assert_eq!(map_init(m), 0);
+        assert_eq!(allocate(f, 1, 1, m), 0);
+        let child = text_child(CheckedMapPayload::Text("needle".into()));
+        install_array_parent(m, child);
+        assert_eq!(
+            array_index_map(f, 2, m, b"functions".as_ptr(), 9, 0, view),
+            0
+        );
+        assert_eq!(get_text(f, 3, view, b"name".as_ptr(), 4, text), 0);
+        let result = admit::<TextView>(text, TEXT_VIEW_TAG).unwrap();
+        let bytes = std::slice::from_raw_parts(result.bytes, result.len);
+        assert_eq!(bytes, b"needle");
+        assert_eq!(
+            admit::<MapView>(view, VIEW_TAG).unwrap().state,
+            VIEW_CONSUMED
+        );
+        assert_eq!(get_text(f, 4, view, b"name".as_ptr(), 4, text), 2);
+        assert_eq!(map_end(f, 5, m), 0);
+        assert_eq!(map_dispose(m), 0);
+        assert_eq!(super::super::frame_dispose(f), 0);
+    }
+}
+
+#[test]
+fn array_and_text_view_faults_are_named_and_parent_remains_endable() {
+    let (mut f, mut m, mut view) = (
+        Slot::<FaultFrame>::new(),
+        Slot::<MapStorage>::new(),
+        Slot::<MapViewStorage>::new(),
+    );
+    unsafe {
+        let (f, m, view) = (f.ptr(), m.ptr(), view.ptr());
+        assert_eq!(super::super::frame_init(f), 0);
+        assert_eq!(map_init(m), 0);
+        assert_eq!(allocate(f, 1, 1, m), 0);
+        let child = text_child(CheckedMapPayload::I64(7));
+        install_array_parent(m, child);
+        assert_eq!(
+            array_index_map(f, 2, m, b"functions".as_ptr(), 9, 1, view),
+            1
+        );
+        assert_eq!(
+            (*f.cast::<FaultFrame>()).primary.reason,
+            MAP_ARRAY_BOUNDS_REASON
+        );
+        assert_eq!(map_end(f, 3, m), 0);
+        assert_eq!(map_dispose(m), 0);
         assert_eq!(super::super::frame_dispose(f), 0);
     }
 }

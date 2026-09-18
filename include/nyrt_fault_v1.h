@@ -151,6 +151,34 @@ uint32_t nyrt_map_checked_install_value_v1(void *, uint32_t, uint64_t, void *, v
  * The key is validated UTF-8 caller input — no key storage is consumed.
  * The read never ends, moves, or borrows the map lease. */
 uint32_t nyrt_map_checked_get_i64_v1(void *, uint64_t, void *, const uint8_t *, size_t, int64_t *) __asm__("nyash.map.checked_get_i64_v1");
+/* T2-alpha borrowed read descriptors. Storage is caller-owned and fresh; the
+ * descriptors carry no End authority and are consumed only by the next read.
+ * The selected lifecycle emitter allocates these with the target Map storage
+ * size/alignment, which is required to be at least these fixed layouts. */
+typedef struct NyrtMapViewStorageV1 {
+    uint64_t magic;
+    uint32_t state;
+    uint32_t reserved;
+    void *parent_map;
+    const void *child_map;
+} NyrtMapViewStorageV1;
+typedef struct NyrtTextViewStorageV1 {
+    uint64_t magic;
+    uint32_t state;
+    uint32_t reserved;
+    const uint8_t *bytes;
+    size_t len;
+} NyrtTextViewStorageV1;
+/* ArrayIndexMap faults: missing=105, bounds=106, non-array=107, non-map=108. */
+#define NYRT_FAULT_REASON_MAP_ARRAY_MISSING_V1 105u
+#define NYRT_FAULT_REASON_MAP_ARRAY_BOUNDS_V1 106u
+#define NYRT_FAULT_REASON_MAP_ARRAY_NON_ARRAY_V1 107u
+#define NYRT_FAULT_REASON_MAP_ARRAY_NON_MAP_V1 108u
+/* MapGetText faults: missing=109, present non-text=110. */
+#define NYRT_FAULT_REASON_MAP_TEXT_MISSING_V1 109u
+#define NYRT_FAULT_REASON_MAP_TEXT_NON_TEXT_V1 110u
+uint32_t nyrt_map_checked_array_index_map_v1(void *, uint64_t, void *, const uint8_t *, size_t, int64_t, void *) __asm__("nyash.map.checked_array_index_map_v1");
+uint32_t nyrt_map_checked_get_text_v1(void *, uint64_t, void *, const uint8_t *, size_t, void *) __asm__("nyash.map.checked_get_text_v1");
 uint32_t nyrt_map_outcome_end_v1(void *, uint64_t, void *) __asm__("nyash.map.outcome_end_v1");
 uint32_t nyrt_map_outcome_dispose_v1(void *) __asm__("nyash.map.outcome_dispose_v1");
 uint32_t nyrt_map_checked_end_v1(void *, uint64_t, void *) __asm__("nyash.map.checked_end_v1");

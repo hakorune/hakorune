@@ -32,6 +32,19 @@ pub enum CheckedMapTextRead {
     NonText,
 }
 
+/// Borrowed UTF-8 result for the physical TextView lane. The reference is
+/// valid only while the checked Map remains live; no bytes are cloned here.
+pub enum CheckedMapTextViewRead {
+    Missing,
+    /// A borrowed byte range into the live Map's owned `Box<str>` payload.
+    /// The caller must retain the Map owner until the view is consumed.
+    Value {
+        bytes: *const u8,
+        len: usize,
+    },
+    NonText,
+}
+
 /// One slot payload. Trivial values carry no child-Home obligation. Owned
 /// text keeps its own bytes — never an interned or shared handle. An empty
 /// array entry owns the empty-array meaning itself: no host handle or
@@ -321,6 +334,31 @@ impl CheckedMap {
             Some(entry) => match &entry.payload {
                 CheckedMapPayload::Text(value) => CheckedMapTextRead::Value(value.clone()),
                 _ => CheckedMapTextRead::NonText,
+            },
+        })
+    }
+
+    /// Borrow the bytes of an owned Text payload without materializing a new
+    /// Box. The caller must keep this Map live until the view is consumed.
+    pub fn read_text_view(
+        &self,
+        key: &MapKeyDomain,
+    ) -> Result<CheckedMapTextViewRead, CheckedMapError> {
+        let state = self
+            .state
+            .lock()
+            .map_err(|_| CheckedMapError::StorageUnavailable)?;
+        if state.phase != Phase::Live {
+            return Err(CheckedMapError::InvalidState);
+        }
+        Ok(match state.entries.get(key) {
+            None => CheckedMapTextViewRead::Missing,
+            Some(entry) => match &entry.payload {
+                CheckedMapPayload::Text(value) => CheckedMapTextViewRead::Value {
+                    bytes: value.as_ptr(),
+                    len: value.len(),
+                },
+                _ => CheckedMapTextViewRead::NonText,
             },
         })
     }

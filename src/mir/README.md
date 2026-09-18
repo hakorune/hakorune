@@ -346,5 +346,8 @@ MapView` followed immediately by `MapGetText { map, utf8 } -> TextView`. Both
 operations are READ+CONTROL and retain the parent Map's End obligation. The
 verifier rejects direct text reads on an ordinary Map, nested array indexing,
 and MapView escape through store, return, call, branch, or End. MIR JSON and
-diagnostic projections carry the key/index only; kernel/C ABI emission, source
-admission, and production caller cutover remain separate slices.
+diagnostic projections carry the key/index only. The kernel/C ABI handoff now
+uses fresh caller-owned descriptors: ArrayIndexMap records the live parent and
+child Map, and MapGetText consumes it to expose borrowed UTF-8 bytes without a
+clone. Source admission, production caller cutover, OBJ execution, and legacy
+retirement remain separate slices.

@@ -113,6 +113,19 @@ An existing primary Fault does not change a successful end's returned status.
 The full runtime ABI additionally supports explicit key cancellation; compiler
 support for a child-Fault edge must use that contract before widening this cohort.
 
+#### T2-alpha borrowed Map reads
+
+`ArrayIndexMap { map, utf8, index } -> MapView` reads a checked Array residence
+and writes a fresh caller-owned view descriptor. `MapGetText { map, utf8 } ->
+TextView` consumes that descriptor and writes a byte pointer/length into the
+child Map's owned UTF-8 payload. The descriptors carry no End authority and the
+parent Map remains the sole cleanup owner. Normal initializes the output only;
+missing, bounds, non-array, non-map, and non-text results record the named
+105–110 Map Fault reasons. InvalidContract is reserved for malformed storage,
+overlap, or descriptor state. This is a kernel/C ABI handoff slice only: source
+admission, production caller cutover, OBJ execution, and legacy retirement are
+separate obligations.
+
 Finishing may concatenate recorded instruction sequences only across an original
 Jump to a deleted sole-predecessor block. The lifecycle owner uses one physical
 correspondence for validation, InvokeNormalResult origins and artifact coverage;

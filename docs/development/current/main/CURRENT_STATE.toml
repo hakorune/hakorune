@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2"
 current_execution_cohort = "map_argument_read_t2"
-current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2__t2_alpha_kernel_c_text_view_handoff"
+current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2__t2_alpha_source_to_obj_admission"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "closed__t2_read_fact_owner_2026-09-19"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -44,15 +44,15 @@ describe/verify-level only today — `OpaqueHandle` formals are
 not direct-call catalogable, so no package-install producer
 builds a borrowed-entry argument literal yet. Card's qualified
 `Helpers.read_k(...)` stays parked on `OpaqueCall`;
-`home_new_prefix.rs` 787 and `published_lifecycle_physical_
-v2.inc` 798 lines are over-760 debt recorded for a BoxShape
-split. T2 read Fact, Recipe, co-seal, and physical-owner contract is
+`home_new_prefix.rs` 787 lines remains over-760 debt recorded for a BoxShape split; the physical validator is below the 800 hard stop. T2 read Fact, Recipe, co-seal, and physical-owner contract is
 fixed; T2-alpha source provenance records nested Map children inside
 Array elements (10/10 focused tests), and the checked owner now stages an
 owned Array with reverse-prefix cleanup plus borrowed nested-Map Text reads
 (14/14 focused owner tests). Typed `ArrayIndexMap`/`MapGetText` MIR verifier
-and published-JSON projection are recorded (3 view tests + 1 JSON test);
-kernel/C ABI text-view handoff for `funcs[0].name` remains next. Non-claims: no `MapLocal`/`Local` borrow lane, no qualified-call Invoke, no compiler/C ABI Array admission, no `to_json`, no production switch, no legacy retirement.
+and published-JSON projection are recorded (3 view tests + 1 JSON test), and the
+kernel/C ABI text-view handoff is landed with 69/69 focused kernel tests green.
+Non-claims: no `MapLocal`/`Local` borrow lane, no qualified-call Invoke, no compiler/source admission,
+no production caller cutover, no OBJ execution, no `to_json`, and no legacy retirement.
 """
 next_design_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"

@@ -151,7 +151,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         int kind = lv4_input_type(in, fn, dst);
         hako_lv4_block* producer = lv4_index_block(&in->index[fi], lv4_u(ins, "invoke_block"));
         yyjson_val* producer_op = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
-        const char* storage = kind == LV4_MAP ? "map" : kind == LV4_KEY ? "key" : kind == LV4_OUTCOME ? "outcome" : NULL;
+        const char* storage = kind == LV4_MAP ? "map" : kind == LV4_KEY ? "key" :
+            kind == LV4_OUTCOME ? "outcome" : kind == LV4_MAP_VIEW ? "view" :
+            kind == LV4_TEXT_VIEW ? "text" : NULL;
         if (storage) fprintf(f, "  %%v%u = getelementptr i8, ptr %%%s%u, i64 0\n", dst, storage, lv4_u(ins, "invoke_block"));
         else if (kind == LV4_I64 && lv4_is(producer_op, "kind", "map_checked_get"))
           fprintf(f, "  %%v%u = load i64, ptr %%get_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));

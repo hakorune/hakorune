@@ -16,6 +16,26 @@ pub(in crate::exports::fault) struct Placement<T> {
 pub(in crate::exports::fault) type MapStorage = Placement<CheckedMap>;
 pub(in crate::exports::fault) type KeyStorage = Placement<Mutex<KeyState>>;
 pub(in crate::exports::fault) type OutcomeStorage = Placement<Mutex<OutcomeState>>;
+pub(super) const VIEW_TAG: u64 = 0x564945570001;
+pub(super) const TEXT_VIEW_TAG: u64 = 0x544558540001;
+pub(super) const VIEW_LIVE: u32 = 1;
+pub(super) const VIEW_CONSUMED: u32 = 2;
+#[repr(C)]
+pub(in crate::exports::fault) struct MapView {
+    pub(in crate::exports::fault) state: u32,
+    pub(in crate::exports::fault) reserved: u32,
+    pub(in crate::exports::fault) parent_map: *mut c_void,
+    pub(in crate::exports::fault) child_map: *const CheckedMap,
+}
+#[repr(C)]
+pub(in crate::exports::fault) struct TextView {
+    pub(in crate::exports::fault) state: u32,
+    pub(in crate::exports::fault) reserved: u32,
+    pub(in crate::exports::fault) bytes: *const u8,
+    pub(in crate::exports::fault) len: usize,
+}
+pub(in crate::exports::fault) type MapViewStorage = Placement<MapView>;
+pub(in crate::exports::fault) type TextViewStorage = Placement<TextView>;
 pub(in crate::exports::fault) enum KeyState {
     Empty,
     Ready(MapKeyDomain),
@@ -49,6 +69,16 @@ pub(super) unsafe fn admit<'a, T>(ptr: *mut c_void, magic: u64) -> Result<&'a T,
         return Err(Status::InvalidContract);
     }
     Ok(unsafe { (&*place).value.assume_init_ref() })
+}
+pub(super) unsafe fn admit_mut<'a, T>(ptr: *mut c_void, magic: u64) -> Result<&'a mut T, Status> {
+    if ptr.is_null() || (ptr as usize) % std::mem::align_of::<Placement<T>>() != 0 {
+        return Err(Status::InvalidContract);
+    }
+    let place = ptr.cast::<Placement<T>>();
+    if unsafe { std::ptr::addr_of!((*place).magic).read() } != magic {
+        return Err(Status::InvalidContract);
+    }
+    Ok(unsafe { (&mut *place).value.assume_init_mut() })
 }
 /// Only after live obligations and all borrows have ended. No semantic callback.
 pub(super) unsafe fn dispose<T>(ptr: *mut c_void) -> u32 {

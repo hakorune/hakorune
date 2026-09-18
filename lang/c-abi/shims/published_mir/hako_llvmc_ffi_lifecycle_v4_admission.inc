@@ -11,7 +11,10 @@ typedef struct {
   hako_llvmc_lifecycle_measurement* measurement;
 } hako_lv4_input;
 
-enum { LV4_BAD, LV4_I64, LV4_HANDLE, LV4_FRAME, LV4_UNIT, LV4_TEXT, LV4_BOOL, LV4_F64, LV4_TAGGED, LV4_MAP, LV4_KEY, LV4_OUTCOME };
+enum {
+  LV4_BAD, LV4_I64, LV4_HANDLE, LV4_FRAME, LV4_UNIT, LV4_TEXT, LV4_BOOL,
+  LV4_F64, LV4_TAGGED, LV4_MAP, LV4_KEY, LV4_OUTCOME, LV4_MAP_VIEW, LV4_TEXT_VIEW
+};
 
 static uint32_t lv4_u(yyjson_val* object, const char* key) {
   return (uint32_t)yyjson_get_uint(yyjson_obj_get(object, key));

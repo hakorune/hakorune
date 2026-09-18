@@ -59,8 +59,9 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
               lv4_u(ins, "object_id"), 1)) return 0;
     } else if (lv4_is(ins, "op", "invoke_normal_result")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(ins, "dst"));
+      int result_requires_live = value && value->kind != LV4_TEXT_VIEW;
       if (birth || faulted || ri || !value || value->origin < 0 ||
-          state[value->origin] != LV4_LIVE) return 0;
+          (result_requires_live && state[value->origin] != LV4_LIVE)) return 0;
       yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
       if (value->kind == LV4_KEY && (!(lv4_is(op, "kind", "map_install_indexed") ||
           lv4_is(op, "kind", "map_install_value") || lv4_is(op, "kind", "map_install_text") ||
@@ -248,6 +249,20 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           in->profile != LV4_INDEXED_SAFE_MUTEX ||
           !lv4_indexed_map_readable(fn, lv4_u(op, "map"), state)) return 0;
       normal[bi] = LV4_LIVE;
+    } else if (lv4_is(op, "kind", "map_array_index_map")) {
+      /* ArrayIndex creates one borrowed view; the parent Map remains live. */
+      if ((fi && !ordinary) || faulted || state[bi] ||
+          in->profile != LV4_INDEXED_SAFE_MUTEX ||
+          !lv4_indexed_map_readable(fn, lv4_u(op, "map"), state)) return 0;
+      normal[bi] = LV4_LIVE;
+    } else if (lv4_is(op, "kind", "map_get_text")) {
+      /* Text lookup consumes the immediately-produced view on both Normal
+         and Fault; TextView itself has no cleanup state or escape lane. */
+      hako_lv4_value* view = lv4_index_value(fn, lv4_u(op, "map"));
+      if ((fi && !ordinary) || faulted || state[bi] || !view ||
+          view->kind != LV4_MAP_VIEW || view->origin < 0 ||
+          state[view->origin] != LV4_LIVE) return 0;
+      normal[view->origin] = state[view->origin] = 0;
     } else if (lv4_is(op, "kind", "map_end") || lv4_is(op, "kind", "map_end_outcome")) {
       int map_end = lv4_is(op, "kind", "map_end");
       uint32_t id = lv4_u(op, map_end ? "map" : "outcome");
