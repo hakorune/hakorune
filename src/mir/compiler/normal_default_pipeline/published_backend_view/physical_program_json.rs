@@ -77,18 +77,40 @@ fn emit_lifecycle_physical_program_value(
                     .map(|object| object.declaration_index()),
                 "params": function.params().iter().skip(usize::from(function.role().has_receiver()))
                     .zip(function.param_types().iter().skip(usize::from(function.role().has_receiver())))
-                    .map(|(param, param_type)| json!({
-                        "value": value(param),
-                        "representation": if matches!(param_type, crate::mir::MirType::Box(name) if name == "MapBox") {
-                            // Borrowed checked-map storage pointer, not an i64 payload.
-                            "map"
-                        } else if function.role().ordinary_target().is_some() {
-                            "i64"
-                        } else {
-                            "kind_payload_v1"
-                        },
-                    }))
-                    .collect::<Vec<_>>(),
+                    .enumerate()
+                    .map(|(index, (param, param_type))| {
+                        // The signature-issued carrier is the representation
+                        // authority: `CheckedMapStorage` alone spells `map`.
+                        // The `Box("MapBox")` name corroborates the carrier —
+                        // either side asserting without the other is drift.
+                        let carrier = function
+                            .param_carriers()
+                            .and_then(|carriers| {
+                                carriers.get(index + usize::from(function.role().has_receiver()))
+                            })
+                            .copied();
+                        let named_map = matches!(
+                            param_type,
+                            crate::mir::MirType::Box(name) if name == "MapBox"
+                        );
+                        let representation = match (carrier, named_map) {
+                            (Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage), true) => {
+                                // Borrowed checked-map storage pointer, not an i64 payload.
+                                "map"
+                            }
+                            (Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage), false)
+                            | (_, true) => {
+                                return Err(fault("param-carrier-drift"));
+                            }
+                            _ if function.role().ordinary_target().is_some() => "i64",
+                            _ => "kind_payload_v1",
+                        };
+                        Ok(json!({
+                            "value": value(param),
+                            "representation": representation,
+                        }))
+                    })
+                    .collect::<Result<Vec<_>, String>>()?,
                 "entry": function.entry().0,
                 "blocks": blocks,
             }))

@@ -20,28 +20,37 @@ latest_card_path = "docs/development/current/main/investigations/mir-call-map-li
 latest_card_summary = """
 Map lifecycle consumer spine through C9-2 plus the map-argument
 T-series; T1-α landed 2026-09-18: the callee-side readable Map
-contract. `: MapBox` mints `CallableParameterContractKindV1::Map`
-→ `StoredLocal::BorrowedMap` (read-only, no escape, never an End
-obligation); `TerminalRelationV1::MapGet` seals
-`return <map>.get("<literal>")` for OwnedLocal and
-BorrowedParameter receivers; the ledger emits
-`Invoke{CheckedGetI64}` on the function's own fault frame and
-finalizes `FinalizedRootResultAbiV1::MapGetReturn`. Wire/emit:
-`"map"` param representation, `ptr` formals, `map_checked_get`
-op with inline sealed key, `-1`-initialized i64 out-slot, kernel
-`nyash.map.checked_get_i64_v1` (Present(I64)→value, Missing→0,
-non-scalar→Fault 104; read consumes nothing). Evidence: 6/6
-map_get_terminal_tests, 265/265 package, 18/18 physical_program,
-`--ignored` exe probe (i64→7, missing→0, non-scalar→70/REPORT
-104, checked_end exactly once after the read); batch reds all
-recorded baseline or env-race flakes. Next bounded slice: T1-β
-caller-side argument handoff (`ArgumentHandoff` capability +
-call-edge co-seal + caller emission +
-`main(){ return Helpers.read_k(%{"k"=>7}) }` end-to-end). T1-γ
-borrowed-entry/tag coverage follows. Non-claims: no caller
-handoff, no tag coverage, no `to_json`, no production switch,
-no legacy retirement; the uncalled-callee reach stays gated by
-the existing sealed-Call membership contract.
+contract (`CallableParameterContractKindV1::Map` →
+`StoredLocal::BorrowedMap` → `TerminalRelationV1::MapGet` →
+`Invoke{CheckedGetI64}` → `"map"`/`ptr` wire → kernel
+`nyash.map.checked_get_i64_v1`; read consumes nothing, owned
+storage still ends exactly once on Normal and Fault). Second
+review round closed 2026-09-18: ① scalar→Map ABI drift was
+already rejected by `4da7d21969` on every call-validation layer;
+②a `CheckedMapStorage` now survives to final argument emission —
+`metadata.physical_param_carriers` is issued beside the signature
+(skeleton descriptors or declared-type projection), the emit
+spells `"map"` only for carrier + corroborating `Box("MapBox")`
+name and rejects one-sided claims as `param-carrier-drift`, and
+`is_map_param`/`check_call_edge` read the same lane; ②b an
+owned map carrying a `Borrowed`-class entry (handle stored as
+`InstallValue(I64)`) seals no MapGet relation until T1-γ's
+payload tags — the T1-β edge co-seal owns the same condition on
+argument maps; ③ result-ABI consolidation (owner + verified
+result representation instead of per-relation `*Return`
+variants) is recorded as a design task. Evidence: 7/7
+map_get_terminal, 28/28 invoke verifier incl. carrier-drift
+pins, real-compile carrier assertion on `Work.read_k/1`, C
+physical suite green; 4 reds all recorded baseline. Next
+bounded slice: T1-β caller-side argument handoff
+(`ArgumentHandoff` capability + call-edge co-seal +
+actual/formal type/ownership/physical matching + caller
+emission + `main(){ return Helpers.read_k(%{"k"=>7}) }`
+Normal/Fault end-to-end). T1-γ borrowed-entry/tag coverage
+follows. Non-claims: no caller handoff, no tag coverage, no
+`to_json`, no production switch, no legacy retirement; the
+uncalled-callee reach stays gated by the existing sealed-Call
+membership contract.
 """
 next_design_card = "MIR-CALL-RESOLVER-IF-SOURCE-EXPR-RELATION-D8"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-resolver-if-source-expr-relation-d8-2026-09-15.md"

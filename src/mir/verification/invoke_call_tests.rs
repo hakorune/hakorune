@@ -257,6 +257,34 @@ fn cataloged_call_rejects_non_i64_parameter_on_the_scalar_edge() {
 }
 
 #[test]
+fn cataloged_call_rejects_carrier_name_drift() {
+    // The skeleton-installed carrier is the formal's physical authority: a
+    // `CheckedMapStorage` carrier behind an `Integer` signature spelling is
+    // drift, not a clean scalar formal — the scalar edge stays closed.
+    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
+    let (key, mut callee) = cataloged_callee(crate::mir::MirType::Integer);
+    callee.metadata.physical_param_carriers =
+        Some(Box::new([PhysicalCallableLaneCarrierV1::CheckedMapStorage]));
+    let module = call_module((key, callee));
+    let errors = MirVerifier::new().verify_module(&module).unwrap_err();
+    assert!(
+        format!("{errors:?}").contains("call-argument-type-drift"),
+        "{errors:?}"
+    );
+}
+
+#[test]
+fn cataloged_call_accepts_i64_carrier_contract() {
+    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
+    let (key, mut callee) = cataloged_callee(crate::mir::MirType::Integer);
+    callee.metadata.physical_param_carriers = Some(Box::new([
+        PhysicalCallableLaneCarrierV1::ExistingCallableI64,
+    ]));
+    let module = call_module((key, callee));
+    MirVerifier::new().verify_module(&module).unwrap();
+}
+
+#[test]
 fn cataloged_call_rejects_proven_non_scalar_argument() {
     let mut module = call_module(cataloged_callee(crate::mir::MirType::Integer));
     module

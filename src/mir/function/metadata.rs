@@ -612,6 +612,21 @@ pub struct FunctionMetadata {
     /// is not runtime-value proof.
     pub declared_param_decls: Vec<MirParamDecl>,
 
+    /// Signature-aligned physical carrier per parameter, issued where the
+    /// physical signature itself is issued: the canonical physical-function
+    /// skeleton installs it from typed lane descriptors, and the declared
+    /// signature projection installs it beside `signature.params` on paths
+    /// that never see the skeleton. Backends and verifiers read this lane
+    /// instead of re-deriving a formal's physical role from `MirType`
+    /// spelling: `CheckedMapStorage` means a borrowed checked-map storage
+    /// pointer, never an i64 handle. Absent only on functions built outside
+    /// every signature issuer.
+    pub(in crate::mir) physical_param_carriers: Option<
+        Box<
+            [crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1],
+        >,
+    >,
+
     /// Executable parameter-entry semantic contracts rebuilt from declaration
     /// evidence during semantic refresh.
     pub parameter_entry_contracts: Vec<ParameterEntryContract>,

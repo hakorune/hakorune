@@ -1419,3 +1419,102 @@ Non-claims: no `ArgumentHandoff`, no call-edge map co-seal, no
 `main(){ return Helpers.read_k(%{"k"=>7}) }` fixture (all still T1-β);
 no tag coverage (T1-γ); no `to_json`, no production switch, no legacy
 retirement.
+
+## Review fix note (2026-09-18, typed carrier + borrowed-entry read gate)
+
+Second review round on `3e9f8bba` found three items; the first was
+already closed by `4da7d21969` (ordinary-call actual↔formal
+representation cross-check on every call validation layer). The
+remaining two are closed here; the third is recorded as a design task.
+
+**① confirmed closed** — `hako_physical_validate_ordinary_call`
+requires each argument `kind == "i64"` and the callee formal
+`representation == "i64"`; birth calls stay constrained to
+`birth_unit` + `kind_payload_v1`. A `ptr`/Map formal cannot be reached
+by any scalar edge; `published_map_physical_execution_test.py`
+rejects both drift directions at the parser.
+
+**②a typed carrier end-to-end** — `CheckedMapStorage` now survives to
+final argument emission instead of degrading to a `"MapBox"` name
+match. `MirFunction.metadata.physical_param_carriers` is a
+signature-aligned carrier list installed where the physical signature
+itself is issued: the canonical skeleton copies typed lane
+descriptors, and `project_declared_signature_representation` installs
+it beside `signature.params` on paths that never see the skeleton
+(`: MapBox` → `CheckedMapStorage`, every other declared or
+unannotated formal → `ExistingCallableI64`; skeleton-installed rows
+are never overwritten, and a decl/signature arity mismatch keeps the
+carrier-less contract). `PublishedLifecyclePhysicalFunctionV1`
+carries it; the JSON emit spells `"map"` only for
+`(CheckedMapStorage, Box("MapBox"))` and rejects every one-sided or
+contradictory claim as `param-carrier-drift`. The verifier reads the
+same lane: `is_map_param` requires carrier + corroborating name when
+carriers exist, and `check_call_edge` treats either a carrier-backed
+or name-backed map formal as non-scalar (drift →
+`call-argument-type-drift`). Carrier-less functions keep the name
+contract as the compatibility fallback. Verified end-to-end:
+`Work.read_k/1` compiles with `params=[Box("MapBox")]` and
+`carriers=[CheckedMapStorage]`.
+
+**②b borrowed-entry read gate** — `MapValueSource::BorrowedHandle`
+stores through `InstallValue(I64)`, so a `Borrowed`-class entry would
+be silently misread as a scalar by `checked_get`. `terminal_map_get`
+now takes the observed map rows and, for `OwnedLocal` receivers,
+declines the `MapGet` relation when any entry has
+`MapEntryStoreClassV1::Borrowed` — fail-closed before physical
+lowering (the function stays `ReturnValueNotCovered`). Entry classes
+are only visible on the local `%{...}` flow row, so the same seal also
+declines receivers whose entries cannot be verified at all: a
+call-returned map local (`local m = make_map()`) carries no
+observation and its `get` read stays uncovered — the caller's own
+lifecycle-edge admission then rejects the package
+(`Loan(LifecycleSourceMismatch)`), which previously sealed the read
+and would have emitted an unchecked `checked_get` over whatever the
+callee installed. A `BorrowedParameter` receiver cannot inspect its
+caller's entry classes at seal time either, so T1-β's call-edge
+co-seal owns the same `no Borrowed entries` condition on the argument
+map; T1-γ's payload tags replace this gate entirely.
+
+**③ recorded design task — result-ABI consolidation** —
+`FinalizedRootResultAbiV1::MapGetReturn` is another backend-specific
+variant even though it converges to `CompiledEntryRootResultV1::I64`
+like Add/Literal/Field returns. Direction: after finalization, derive
+the compiled result from **owner + verified result representation**
+rather than minting a specialized return variant per source relation,
+so future Array reads do not multiply backend `*Return` rows. Not an
+immediate refactor — recorded to bound future churn before T2/T3
+widen the read lane.
+
+Pins: `map_get_terminal_tests` +2
+(`owned_local_map_get_with_borrowed_handle_entry_stays_uncovered` —
+`read_k(h) { local m = %{"k" => h} return m.get("k") }` seals no
+relation; `call_returned_map_get_stays_uncovered` —
+`local m = make_map() return m.get("k")` rejects the package at the
+caller's lifecycle-edge admission); `invoke::call_tests` +2
+(`cataloged_call_rejects_carrier_name_drift`,
+`cataloged_call_accepts_i64_carrier_contract`);
+`physical_program_json_tests` +1
+(`compiled_map_formal_keeps_checked_map_storage_carrier` — real
+compile of the Map-formal callee asserts the carrier survives to the
+compiled `MirFunction`). `ordinary_new_coseal.rs` was split first at
+its responsibility boundary
+(`c589f520b8`, issue vocabulary → `ordinary_new_coseal_issue.rs`,
+494+334 lines) so this slice stays under the 800-line hard limit.
+
+Suites: `verification::invoke` 28/28, `map_get_terminal` 8/8,
+`compiled_map_formal` 1/1, `physical_program`/`canonical_direct_call`/
+`direct_call_lifecycle` 51/51, `normal_callable_semantic_package` +
+`resolved_semantics` + `resolved_value_profile` + `physical_program`
+690 passed / 4 recorded-baseline reds
+(`resolver_seals_receiver_read_as_structural_upvar`,
+`accepted_vocabulary_is_closed_and_reviewable`,
+`map_value_get_missing_key…`, `map_value_get_mixed…` — all in
+`cargo_lib_red_baseline.tests.txt`);
+`published_map_physical_execution_test.py` full suite green;
+`cargo check --profile quick` clean.
+
+Non-claims unchanged: no `ArgumentHandoff`, no call-edge co-seal, no
+caller-side source-to-EXE evidence (T1-β); no tag coverage (T1-γ);
+carrier-less fallback retained only for functions outside every
+signature issuer; no `to_json`, no production switch, no legacy
+retirement.

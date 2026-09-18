@@ -76,6 +76,38 @@ fn unannotated_pair_issues_tagged_input_from_retained_contract() {
     });
 }
 
+/// The typed carrier survives to the compiled function on the ordinary
+/// (non-skeleton) path: a `: MapBox` formal keeps `CheckedMapStorage`
+/// beside its `Box("MapBox")` signature spelling, so the wire emit never
+/// re-derives `ptr` from the name.
+#[test]
+fn compiled_map_formal_keeps_checked_map_storage_carrier() {
+    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let mut compiler = MirCompiler::with_options(false);
+        let result = compiler
+            .compile_normal(request(
+                "static box Work { read_k(m: MapBox) { return m.get(\"k\") } }
+                 static box Main { main() { local m = %{\"k\" => 7} return m.get(\"k\") } }",
+            ))
+            .expect("map-formal program compiles");
+        let callee = result
+            .module
+            .functions
+            .get("Work.read_k/1")
+            .expect("cataloged callee");
+        assert_eq!(
+            callee.signature.params,
+            vec![crate::mir::MirType::Box("MapBox".to_owned())]
+        );
+        assert_eq!(
+            callee.metadata.physical_param_carriers.as_deref(),
+            Some(&[PhysicalCallableLaneCarrierV1::CheckedMapStorage][..])
+        );
+    });
+}
+
 #[test]
 fn serializer_preserves_signed_compare_predicates() {
     use crate::mir::CompareOp;

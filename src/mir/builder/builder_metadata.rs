@@ -88,6 +88,30 @@ impl MirBuilder {
 /// This projection is not semantic contract proof. Executable parameter-entry
 /// truth is rebuilt separately as typed `ParameterEntryContract` rows.
 fn project_declared_signature_representation(function: &mut MirFunction) {
+    // Signature-aligned carriers are issued alongside the declared-type
+    // projection: a `: MapBox` formal occupies the borrowed checked-map
+    // storage lane, every other declared or unannotated formal rides the
+    // existing i64 callable lane. Skeleton-installed carriers stay
+    // untouched, and a declaration/signature arity mismatch keeps the
+    // carrier-less contract instead of inventing an alignment.
+    if function.metadata.physical_param_carriers.is_none()
+        && function.metadata.declared_param_decls.len() == function.signature.params.len()
+    {
+        use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
+        function.metadata.physical_param_carriers = Some(
+            function
+                .metadata
+                .declared_param_decls
+                .iter()
+                .map(|decl| match decl.declared_type_name.as_deref() {
+                    Some("Map" | "MapBox") if !decl.implicit_receiver => {
+                        PhysicalCallableLaneCarrierV1::CheckedMapStorage
+                    }
+                    _ => PhysicalCallableLaneCarrierV1::ExistingCallableI64,
+                })
+                .collect(),
+        );
+    }
     for (index, decl) in function.metadata.declared_param_decls.iter().enumerate() {
         let Some(param_type) = decl
             .declared_type_name

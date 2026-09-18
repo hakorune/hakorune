@@ -251,6 +251,15 @@ pub(crate) fn reserve_common_v2_physical_function_skeleton<'loan, 'source, 'join
             implicit_receiver: false,
         })
         .collect();
+    // Signature-aligned carriers stay typed to the final argument: the
+    // `CheckedMapStorage` lane keeps its identity so later consumers never
+    // re-derive a formal's physical role from the `Box("MapBox")` spelling.
+    function.metadata.physical_param_carriers = Some(
+        descriptors
+            .iter()
+            .map(|descriptor| descriptor.carrier())
+            .collect(),
+    );
     function.metadata.declared_return_type_name =
         storage.return_type_name().map(str::to_owned);
     function.metadata.declared_capability_uses = storage.uses().to_vec();

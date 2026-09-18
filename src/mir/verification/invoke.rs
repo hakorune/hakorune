@@ -337,8 +337,25 @@ fn check_call_edge(
         errors.push(error(block, "call-argument-type-drift"));
         return;
     }
-    for (argument, parameter) in call.args.iter().zip(params.iter().skip(receiver_params)) {
-        let non_scalar = matches!(parameter, crate::mir::MirType::Box(name) if name == "MapBox");
+    for (index, (argument, parameter)) in call
+        .args
+        .iter()
+        .zip(params.iter().skip(receiver_params))
+        .enumerate()
+    {
+        let named_map = matches!(parameter, crate::mir::MirType::Box(name) if name == "MapBox");
+        // Where signature-aligned carriers were issued, either the
+        // `CheckedMapStorage` carrier or the `Box("MapBox")` name asserting a
+        // map formal rejects the scalar edge — a disagreement is drift, not a
+        // clean i64 formal.  Carrier-less callees keep the name contract.
+        let non_scalar = match callee.metadata.physical_param_carriers.as_deref() {
+            Some(carriers) => {
+                carriers.get(index + receiver_params).copied()
+                    == Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage)
+                    || named_map
+            }
+            None => named_map,
+        };
         let drift = matches!(
             function.metadata.value_types.get(argument),
             Some(kind) if !matches!(kind, crate::mir::MirType::Integer | crate::mir::MirType::Unknown)

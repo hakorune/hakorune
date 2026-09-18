@@ -148,6 +148,60 @@ fn borrowed_map_parameter_return_stays_uncovered() {
     );
 }
 
+/// A map carrying a `Borrowed` handle entry stays unreadable: the store lane
+/// conflates the handle's i64 into `CheckedMapPayload::I64`, so a checked get
+/// would silently misread it.  Until T1-γ's payload tags land, the seal
+/// refuses the combination rather than letting the read decide.
+#[test]
+fn owned_local_map_get_with_borrowed_handle_entry_stays_uncovered() {
+    let package = issue(
+        "static box Work { read_k(h) { local m = %{\"k\" => h} return m.get(\"k\") } }
+         static box Main { main() { return 0 } }",
+    )
+    .expect("borrowed-entry map-get package");
+    let contract = contract_for(&package, 1);
+    assert!(
+        contract.terminal_relation().is_none(),
+        "borrowed-entry map issues no MapGet relation"
+    );
+    assert!(
+        matches!(
+            contract
+                .completion()
+                .cleanup()
+                .root_flow()
+                .expect("root flow")
+                .terminal_homes(),
+            Err(HomePrefixUnavailableV1::ReturnValueNotCovered(_))
+        ),
+        "borrowed-entry map stays uncovered"
+    );
+}
+
+/// A call-returned map local (`local m = make_map()`) carries no `%{...}`
+/// flow observation, so its entry classes cannot be verified at this
+/// seal — the read stays uncovered rather than trusting unseen entries.
+/// The uncovered terminal then fails the caller's own lifecycle-edge
+/// admission (`terminal_homes` is `Err`), so the package rejects
+/// fail-closed instead of emitting an unchecked read.
+#[test]
+fn call_returned_map_get_stays_uncovered() {
+    let result = issue(
+        "static box Main { main() { local r = use_map(10) return 30 } use_map(seed: i64): i64 { local m = make_map() return m.get(\"k\") } make_map() { return %{\"a\" => 1} } }",
+    );
+    assert!(
+        matches!(
+            result,
+            Err(super::NormalCallableSemanticPackageIssueV1::DirectCall {
+                _error: super::issuer::DirectCallDispositionIssueV1::Loan(
+                    super::direct_call_loan::DirectCallLoanErrorV1::LifecycleSourceMismatch
+                ),
+            })
+        ),
+        "call-returned map read rejects the package: {result:?}"
+    );
+}
+
 /// The key is a sealed source literal. A parameter-bound or computed key
 /// stays uncovered rather than widening the contract.
 #[test]

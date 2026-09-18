@@ -10,18 +10,26 @@ type Results = BTreeMap<ValueId, (Kind, BasicBlockId)>;
 
 /// A `: MapBox` declared formal — caller-owned storage borrowed read-only.
 /// It is not a `Map` result but is a valid read operand: the checked-map
-/// argument contract keeps it live for the whole call.
+/// argument contract keeps it live for the whole call.  Where signature-
+/// aligned carriers were issued, `CheckedMapStorage` is the authority and
+/// the `Box("MapBox")` name must corroborate it; functions built outside
+/// every signature issuer keep the existing name contract.
 fn is_map_param(function: &MirFunction, value: &ValueId) -> bool {
-    function
-        .params
-        .iter()
-        .position(|param| param == value)
-        .is_some_and(|index| {
-            matches!(
-                function.signature.params.get(index),
-                Some(crate::mir::MirType::Box(name)) if name == "MapBox"
-            )
-        })
+    let Some(index) = function.params.iter().position(|param| param == value) else {
+        return false;
+    };
+    let named_map = matches!(
+        function.signature.params.get(index),
+        Some(crate::mir::MirType::Box(name)) if name == "MapBox"
+    );
+    match function.metadata.physical_param_carriers.as_deref() {
+        Some(carriers) => {
+            carriers.get(index).copied()
+                == Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage)
+                && named_map
+        }
+        None => named_map,
+    }
 }
 
 pub(super) fn check(function: &MirFunction) -> Result<(), &'static str> {

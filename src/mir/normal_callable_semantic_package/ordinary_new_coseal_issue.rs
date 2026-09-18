@@ -8,26 +8,21 @@
 use std::collections::BTreeMap;
 use std::rc::Rc;
 
+use super::super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1;
+use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use super::candidate::OrdinaryNewCandidate;
 use super::coseal_helpers::{
-    convert_selected_new_arguments, is_direct_local_initializer,
-    retain_child_terminal_relation,
-};
-use super::{
-    OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1,
+    convert_selected_new_arguments, is_direct_local_initializer, retain_child_terminal_relation,
 };
 use super::{field_reads, terminal_home};
+use super::{OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1};
 use crate::ast::ASTNode;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::function::ObjectDestructionDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     issue_new_home_prefixes_v1, SelectedNewArgumentUnavailableV1, TerminalRelationV1,
 };
-use crate::mir::resolved_semantics::{
-    BindingKindV1, OwnedExprSiteV1, SourceExprSiteV1,
-};
-use super::super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1;
-use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
+use crate::mir::resolved_semantics::{BindingKindV1, OwnedExprSiteV1, SourceExprSiteV1};
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_cohort_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,

@@ -412,6 +412,7 @@ pub(crate) fn scan_new_home_flow<E>(
                                             statement.site(),
                                             value.site(),
                                             &locals,
+                                            &maps,
                                         ) {
                                             terminal_relation =
                                                 Some(TerminalRelationV1::MapGet(row));

@@ -184,6 +184,11 @@ pub(crate) struct PublishedLifecyclePhysicalFunctionV1<'module> {
     /// Drives the wire `representation` — a `Box("MapBox")` formal rides as
     /// borrowed checked-map storage, not an i64.
     param_types: &'module [crate::mir::MirType],
+    /// Signature-aligned physical carriers issued beside the signature —
+    /// the wire `representation` authority. `CheckedMapStorage` keeps its
+    /// identity so the name is never re-read to spell `ptr`.
+    param_carriers:
+        Option<&'module [crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1]>,
     entry: BasicBlockId,
     blocks: Box<[PublishedLifecyclePhysicalBlockV1<'module>]>,
 }
@@ -203,6 +208,14 @@ impl<'module> PublishedLifecyclePhysicalFunctionV1<'module> {
 
     pub(crate) fn param_types(&self) -> &'module [crate::mir::MirType] {
         self.param_types
+    }
+
+    pub(in crate::mir) fn param_carriers(
+        &self,
+    ) -> Option<
+        &'module [crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1],
+    > {
+        self.param_carriers
     }
 
     pub(crate) const fn entry(&self) -> BasicBlockId {
@@ -591,6 +604,7 @@ fn issue_function_with_module<'module>(
         role,
         params: &function.params,
         param_types: &function.signature.params,
+        param_carriers: function.metadata.physical_param_carriers.as_deref(),
         entry: function.entry_block,
         blocks: blocks.into_boxed_slice(),
     })
