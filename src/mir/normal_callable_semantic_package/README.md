@@ -439,6 +439,16 @@ map-result callees remain gated at the i64 call-admission seam. `new MapBox()` c
 operation vocabulary through OrdinaryNew claim evidence, not `MapHomeFlow`
 rows — that describe arm is a separate bounded row.
 
+T2-alpha now has a physical owner for the first nested-map Array shape:
+`CheckedMapPayload::Array` carries `CanonicalMapArrayResidence`, and
+`OwnedMapArrayResidenceBuilder` owns staged checked-map roots until the parent
+Map install commits. Construction faults release the acquired prefix in reverse
+order; duplicate element references share one release root. The owner exposes
+only a borrowed ArrayIndex Map view followed by a typed Text lookup, with no
+fresh mutable `ArrayBox` and no child End authority. This owner contract is
+covered independently; `MapInvokeOperation`, kernel/C ABI emission, source
+admission, and production caller cutover are deliberately still unopened.
+
 The bounded readable-Map argument lane admits a `: MapBox` formal as a
 borrowed read-only contract (`CallableParameterContractKindV1::Map`,
 `StoredLocal::BorrowedMap`): the callee reads caller-owned storage, owns

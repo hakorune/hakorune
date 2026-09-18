@@ -5,6 +5,13 @@ use super::table::MapTable;
 use crate::boxes::map_key_domain::MapKeyDomain;
 use std::sync::Mutex;
 
+#[path = "map_array_residence.rs"]
+mod array_residence;
+pub use array_residence::{
+    CanonicalMapArrayResidence, CheckedMapArrayReadError, CheckedMapReadView,
+    OwnedMapArrayResidence, OwnedMapArrayResidenceBuilder,
+};
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MapEndError {
     ProfileMismatch,
@@ -17,11 +24,21 @@ pub trait CanonicalMapResidence: Send + Sync {
     fn end(self: Box<Self>) -> Result<(), MapEndError>;
 }
 
+/// Read-only text result from a checked Map. A present non-text value is a
+/// Fault at the physical boundary; it is never stringified as a fallback.
+pub enum CheckedMapTextRead {
+    Missing,
+    Value(Box<str>),
+    NonText,
+}
+
 /// One slot payload. Trivial values carry no child-Home obligation. Owned
 /// text keeps its own bytes — never an interned or shared handle. An empty
 /// array entry owns the empty-array meaning itself: no host handle or
-/// backing object is minted, so a read lane materializes a fresh ArrayBox
-/// on projection. A borrowed handle stores a non-consuming snapshot — the
+/// backing object is minted. An owned Array residence is a separate
+/// non-Clone physical owner; ArrayIndex returns a read-only Map view and
+/// never creates a fresh mutable ArrayBox. A borrowed handle stores a
+/// non-consuming snapshot — the
 /// map never owns the target, end is a no-op, and a scalar read Faults
 /// rather than conflating handle bits with `I64`. Residences remain
 /// non-Clone and are ended exactly once.
@@ -31,13 +48,18 @@ pub enum CheckedMapPayload {
     Text(Box<str>),
     EmptyArray,
     BorrowedHandle(i64),
+    Array(Box<dyn CanonicalMapArrayResidence>),
     Residence(Box<dyn CanonicalMapResidence>),
 }
 impl CheckedMapPayload {
     fn end(self) -> Result<(), MapEndError> {
         match self {
-            Self::I64(_) | Self::Bool(_) | Self::Text(_) | Self::EmptyArray
+            Self::I64(_)
+            | Self::Bool(_)
+            | Self::Text(_)
+            | Self::EmptyArray
             | Self::BorrowedHandle(_) => Ok(()),
+            Self::Array(value) => value.end(),
             Self::Residence(value) => value.end(),
         }
     }
@@ -256,6 +278,49 @@ impl CheckedMap {
             Some(entry) => match &entry.payload {
                 CheckedMapPayload::I64(value) => CheckedMapI64Read::Value(*value),
                 _ => CheckedMapI64Read::NonScalar,
+            },
+        })
+    }
+
+    /// Read a nested Map from an owned Array entry. The returned view keeps
+    /// the array's child root alive but has no end authority; the owning Map
+    /// remains solely responsible for cleanup.
+    pub fn read_array_map(
+        &self,
+        key: &MapKeyDomain,
+        index: i64,
+    ) -> Result<CheckedMapReadView, CheckedMapArrayReadError> {
+        let state = self
+            .state
+            .lock()
+            .map_err(|_| CheckedMapArrayReadError::StorageUnavailable)?;
+        if state.phase != Phase::Live {
+            return Err(CheckedMapArrayReadError::InvalidState);
+        }
+        let Some(entry) = state.entries.get(key) else {
+            return Err(CheckedMapArrayReadError::Missing);
+        };
+        let CheckedMapPayload::Array(array) = &entry.payload else {
+            return Err(CheckedMapArrayReadError::NonArray);
+        };
+        array.read_map(index)
+    }
+
+    /// Read an owned text slot from this Map. This is the MapLookup half of
+    /// the bounded ArrayIndex -> MapGetText physical chain.
+    pub fn read_text(&self, key: &MapKeyDomain) -> Result<CheckedMapTextRead, CheckedMapError> {
+        let state = self
+            .state
+            .lock()
+            .map_err(|_| CheckedMapError::StorageUnavailable)?;
+        if state.phase != Phase::Live {
+            return Err(CheckedMapError::InvalidState);
+        }
+        Ok(match state.entries.get(key) {
+            None => CheckedMapTextRead::Missing,
+            Some(entry) => match &entry.payload {
+                CheckedMapPayload::Text(value) => CheckedMapTextRead::Value(value.clone()),
+                _ => CheckedMapTextRead::NonText,
             },
         })
     }

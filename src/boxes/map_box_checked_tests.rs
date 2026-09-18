@@ -388,3 +388,161 @@ fn value_replacement_after_failed_residence_end_keeps_new_slot_and_other_homes()
     assert_eq!(*events.lock().unwrap(), [1, 2]);
     map.require_disposable().unwrap();
 }
+
+fn text_child(value: &str) -> Arc<CheckedMap> {
+    let map = Arc::new(CheckedMap::unissued());
+    map.acquire().unwrap();
+    install(&map, "name", CheckedMapPayload::Text(value.into()))
+        .end()
+        .unwrap();
+    map
+}
+
+#[test]
+fn owned_array_reads_nested_map_text_and_releases_duplicate_root_once() {
+    let child = text_child("main");
+    let mut builder = OwnedMapArrayResidence::builder(2).unwrap();
+    builder.push_map(Arc::clone(&child)).unwrap();
+    builder.push_map(Arc::clone(&child)).unwrap();
+    let array = builder.finish();
+
+    let map = CheckedMap::unissued();
+    map.acquire().unwrap();
+    install(&map, "functions", CheckedMapPayload::Array(Box::new(array)))
+        .end()
+        .unwrap();
+
+    let view = map
+        .read_array_map(&MapKeyDomain::from_text("functions"), 0)
+        .unwrap();
+    assert!(matches!(
+        view.read_text(&MapKeyDomain::from_text("name")),
+        Ok(CheckedMapTextRead::Value(value)) if value.as_ref() == "main"
+    ));
+    let second = map
+        .read_array_map(&MapKeyDomain::from_text("functions"), 1)
+        .unwrap();
+    assert!(matches!(
+        second.read_text(&MapKeyDomain::from_text("name")),
+        Ok(CheckedMapTextRead::Value(value)) if value.as_ref() == "main"
+    ));
+    assert!(matches!(
+        map.read_array_map(&MapKeyDomain::from_text("functions"), 2),
+        Err(CheckedMapArrayReadError::Bounds)
+    ));
+    drop((view, second));
+    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    child.require_disposable().unwrap();
+    map.require_disposable().unwrap();
+}
+
+#[test]
+fn array_builder_fault_releases_acquired_prefix_in_reverse_root_order() {
+    let events = Arc::new(Mutex::new(Vec::new()));
+    let first = Arc::new(CheckedMap::unissued());
+    first.acquire().unwrap();
+    install(&first, "name", candidate(&first, &events, 1, true, None))
+        .end()
+        .unwrap();
+    let second = Arc::new(CheckedMap::unissued());
+    second.acquire().unwrap();
+    install(&second, "name", candidate(&second, &events, 2, true, None))
+        .end()
+        .unwrap();
+    let invalid = Arc::new(CheckedMap::unissued());
+
+    let mut builder = OwnedMapArrayResidence::builder(3).unwrap();
+    builder.push_map(Arc::clone(&first)).unwrap();
+    builder.push_map(Arc::clone(&second)).unwrap();
+    assert_eq!(builder.push_map(invalid), Err(MapEndError::InvalidIdentity));
+    assert_eq!(*events.lock().unwrap(), vec![2, 1]);
+    first.require_disposable().unwrap();
+    second.require_disposable().unwrap();
+}
+
+#[test]
+fn array_candidate_is_returned_unchanged_when_map_install_refuses_it() {
+    let child = text_child("main");
+    let mut builder = OwnedMapArrayResidence::builder(1).unwrap();
+    builder.push_map(Arc::clone(&child)).unwrap();
+    let payload = CheckedMapPayload::Array(Box::new(builder.finish()));
+    let address = match &payload {
+        CheckedMapPayload::Array(value) => {
+            value.as_ref() as *const dyn CanonicalMapArrayResidence as *const ()
+        }
+        _ => unreachable!(),
+    };
+    let map = CheckedMap::unissued();
+    let failed = map
+        .install(MapKeyDomain::from_text("functions"), payload)
+        .err()
+        .unwrap();
+    assert_eq!(failed.error, CheckedMapError::InvalidState);
+    match &failed.candidate {
+        CheckedMapPayload::Array(value) => {
+            assert_eq!(
+                value.as_ref() as *const dyn CanonicalMapArrayResidence as *const (),
+                address
+            );
+        }
+        _ => panic!("array candidate changed shape"),
+    }
+    map.acquire().unwrap();
+    install(&map, "functions", failed.candidate).end().unwrap();
+    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    child.require_disposable().unwrap();
+}
+
+#[test]
+fn array_index_and_text_lookup_reject_missing_kind_and_bounds() {
+    let child = Arc::new(CheckedMap::unissued());
+    child.acquire().unwrap();
+    install(&child, "name", CheckedMapPayload::I64(7))
+        .end()
+        .unwrap();
+    let mut builder = OwnedMapArrayResidence::builder(1).unwrap();
+    builder.push_map(Arc::clone(&child)).unwrap();
+
+    let map = CheckedMap::unissued();
+    map.acquire().unwrap();
+    install(
+        &map,
+        "functions",
+        CheckedMapPayload::Array(Box::new(builder.finish())),
+    )
+    .end()
+    .unwrap();
+    install(&map, "scalar", CheckedMapPayload::I64(1))
+        .end()
+        .unwrap();
+    assert!(matches!(
+        map.read_array_map(&MapKeyDomain::from_text("missing"), 0),
+        Err(CheckedMapArrayReadError::Missing)
+    ));
+    assert!(matches!(
+        map.read_array_map(&MapKeyDomain::from_text("functions"), -1),
+        Err(CheckedMapArrayReadError::Bounds)
+    ));
+    assert!(matches!(
+        map.read_array_map(&MapKeyDomain::from_text("scalar"), 0),
+        Err(CheckedMapArrayReadError::NonArray)
+    ));
+    assert!(matches!(
+        map.read_array_map(&MapKeyDomain::from_text("functions"), 1),
+        Err(CheckedMapArrayReadError::Bounds)
+    ));
+    let view = map
+        .read_array_map(&MapKeyDomain::from_text("functions"), 0)
+        .unwrap();
+    assert!(matches!(
+        view.read_text(&MapKeyDomain::from_text("missing")),
+        Ok(CheckedMapTextRead::Missing)
+    ));
+    assert!(matches!(
+        view.read_text(&MapKeyDomain::from_text("name")),
+        Ok(CheckedMapTextRead::NonText)
+    ));
+    drop(view);
+    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    child.require_disposable().unwrap();
+}

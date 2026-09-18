@@ -1903,3 +1903,22 @@ fail-fast fixture. No production caller, MapInvoke read, Array residence,
 Text projection, or T2 acceptance claim is made by this row. The next exact
 slice is the physical owned-Array residence with reverse-prefix cleanup and
 candidate return on install Fault.
+
+## T2-alpha physical owner progress (2026-09-19)
+
+The physical owner slice is now bounded at the checked storage boundary.
+`CheckedMapPayload::Array` carries the sole `CanonicalMapArrayResidence`
+contract, and `OwnedMapArrayResidenceBuilder` stages checked Map children before
+the parent install commits. A failed append releases the acquired prefix in
+reverse root order; repeated element roots are deduplicated so `[main, main]`
+ends `main` once. `CheckedMap::read_array_map` returns a read-only child view,
+and the view's `read_text` path validates `CheckedMapPayload::Text` without
+granting child End authority or materializing a mutable `ArrayBox`.
+
+Focused evidence: `boxes::map_box::checked::tests::` is 14/14 green,
+including nested-map Text read, reverse-prefix fault cleanup, and unchanged
+Array candidate identity on parent install refusal. This closes the owner-level
+T2-alpha Array residence contract only. No `MapInvokeOperation`, kernel export,
+C emission, source admission, compiler production caller, or T2 source-to-OBJ
+acceptance claim is made. The next exact slice is the typed physical operation
+vocabulary and its selected compiler/kernel handoff for ArrayIndex -> MapGetText.
