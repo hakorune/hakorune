@@ -1837,3 +1837,52 @@ family checks were also separated: `module_lifecycle_capture_tests` is
 `parser_direct_birth_call` retains its one manifest failure. These reds stay
 outside the T2 implementation slice and must not be silently treated as
 green evidence.
+
+## T2 read contract decision (2026-09-19, design stop closed)
+
+**Decision:** The intermediate read product is a source Facts projection,
+not a new receipt chain. The issuer joins one resolver-exact
+`VerifiedResolvedMethodCallSourceV1` row with one `MapHomeFlow`/array-element
+provenance path and issues a `MapReadFactV1`-shaped row. It carries no Recipe
+key, physical ID, MIR type, or reconstructed name. `MapLifecycleUndertakingV1`
+references these rows as read obligations and remains the sole lifecycle
+co-seal/admission owner.
+
+**Finite read vocabulary:**
+
+| operation | exact source operand | result class | ownership rule |
+| --- | --- | --- | --- |
+| `MapLookup` | sealed literal-key source row | `TextView`, `ArrayView`, or `MapView` | receiver and result are borrowed views; no escape or end |
+| `ArrayIndex` | sealed integer-index source row | `TextView`, `ArrayView`, or `MapView` | bounds are checked by the physical owner; the view keeps the array root live |
+| `ArrayLength` | no operand | `I64` | read-only scalar; it does not consume the array view |
+| `KindTest` | no operand | tagged `Kind`/`Bool` | tag inspection only; it does not materialize or transfer storage |
+
+Every row records owner, exact read site, receiver site, receiver
+provenance/containment path, operand site, result class, and all borrow-root
+occurrences. The Recipe projection records source order, one staging owner,
+the no-escape/no-move/no-end borrow window, and a deduplicated release-root
+set. Two occurrences such as `[main, main]` therefore retain two read rows but
+one cleanup root.
+
+**Co-seal rule:** preflight must match the method-call row, receiver Fact,
+payload tag, result class, and actual/formal Map edge exactly before catalog
+mutation. The selected consumer capability must cover the exact read operation
+and its Normal/Fault projection; adding an enum arm or capability name alone
+never admits a row. Missing, foreign, duplicate, ambiguous, unsupported,
+un-staged, or incompletely cleaned reads reject with no partial package.
+
+**Physical contract:** the checked-map owner adds typed read operations for
+Text, Array index/length, and Kind, with explicit Normal result kinds and
+FaultFrame paths for missing, kind, bounds, storage, and cleanup failures.
+`CheckedMapPayload::Array` owns a canonical Array residence transferred once
+at install; a read returns a borrowed view and never creates a fresh mutable
+ArrayBox. Construction faults release the acquired prefix in reverse order;
+install faults return the candidate to that owner; caller cleanup ends the
+temporary Map/Array exactly once. Generic `observe_native`, route tables, raw
+handles, and `TerminalMapGetReturnV1` remain outside this contract.
+
+**T2-alpha implementation boundary:** admit only the owned Array staging,
+reverse-prefix cleanup, deduplicated borrow liveness, and the first
+`funcs[0].name` Text read. T2-beta adds EmptyArray plus `params`/`blocks`
+index/length/kind reads. The source-to-OBJ execution and Normal/Fault
+acceptance matrix remain required before T2 is marked complete.
