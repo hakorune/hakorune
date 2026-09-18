@@ -1855,6 +1855,44 @@ compatibility stop). This closes the review's unclassified five as immutable
 known baseline debt; none is evidence for or against the T2 source-admission
 slice.
 
+## Review reconciliation and task queue (2026-09-19)
+
+The remaining birth/lifecycle observations are named rather than an open T2
+red: `module_lifecycle_capture_tests` is 18/18 green, while the one
+`runtime::weak_handles` manifest failure and the one `parser_direct_birth_call`
+manifest failure are retained as known baseline rows. The reported broader
+birth/lifecycle filter count must not be used as an unclassified blocker for
+this map lane; any reopening needs its exact test filter and parent replay.
+
+`cargo fmt --check` is currently red in nine files, all mechanical formatting
+drift: `src/mir/builder/ordinary_new_admission/selected.rs`,
+`src/mir/normal_callable_semantic_package/{declared_instance_locator.rs,
+map_lifecycle_undertaking_tests.rs,mod.rs,ordinary_new_local_commit.rs}`,
+`src/mir/normal_callable_semantic_package/ordinary_new_local_commit/{finalized_root_handoff.rs,root_call_cleanup_graph.rs}`,
+`src/mir/resolved_semantics/callable_catalog_tests.rs`, and
+`src/mir/verification.rs`. This is a separate closeout task and is not mixed
+into the T2 semantic slice.
+
+The ordered queue is now:
+
+1. **T2-alpha source Fact issuer:** issue the finite `MapReadFactV1`-shaped
+   row from resolver-exact method-call source plus `MapHomeFlow`, bounded to
+   the `funcs.get(0).get("name")` spelling. Add missing/foreign/duplicate and
+   unsupported-shape negatives before catalog mutation.
+2. **T2-alpha co-seal and physical admission:** match that Fact to the
+   existing `MapLifecycleUndertakingV1`, then consume the already-landed
+   `ArrayIndexMap -> MapGetText` owner. No source-to-OBJ claim is made until
+   the selected compiler caller emits the typed operations and rejects partial
+   Normal/Fault ownership.
+3. **T2-alpha acceptance:** run the source-to-OBJ fixture and caller switch
+   evidence; only then select T2-beta (`params`/`blocks`).
+4. **Separate hygiene:** land one mechanical fmt-only commit after the T2
+   source slice, with no semantic or baseline-red changes mixed in.
+
+The pointer remains `MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2` with blocker
+`t2_alpha_source_to_obj_admission`; no production cutover, legacy deletion, or
+T2 completion claim is opened by this reconciliation.
+
 ## T2 read contract decision (2026-09-19, design stop closed)
 
 **Decision:** The intermediate read product is a source Facts projection,
