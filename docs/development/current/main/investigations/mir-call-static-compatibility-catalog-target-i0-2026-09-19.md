@@ -1,10 +1,10 @@
 ---
-Status: selected__design_stop__loop_route_boundary__2026-09-19
+Status: closed__frontier_pause__2026-09-19
 Task: MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0
 Date: 2026-09-19
 Parent: mir-call-static-compatibility-catalog-target-d0-2026-09-14.md
 ProductionCaller: selected normal MIR/static-receiver route only
-Implementation permission: false; one finite Cataloged static-result tuple remains blocked by a named loop terminal
+Implementation permission: false; the finite tuple remains blocked by the named loop terminal and is handed to the promotion D0
 Classification: BoxCount; one source-backed publication consumer and one cohort-local retirement
 ---
 
@@ -245,7 +245,8 @@ switch, or retirement under this card.
 another inventoried family satisfies its own exclusive-owner and delete-set
 boundary, or a separately accepted parser-loop promotion design names the
 existing authority to extend. This card may resume at Cataloged observation
-only after that decision; the current pointer remains a design stop.
+only after that decision; the current pointer now selects the separate
+parser-loop promotion design stop.
 
 ## Frontier inventory check — 2026-09-19
 
@@ -265,3 +266,8 @@ inside the selected static dependency. It must be a separate design card that
 extends one existing semantic authority and names its source/exit co-seal,
 physical consumer, negative ownership matrix, and eventual old-edge delete
 set before any implementation permission or catalog observation is opened.
+
+The successor is
+`mir-call-parser-nested-loop-source-promotion-d0-2026-09-19.md`; this card's
+static catalog work resumes only after that D0 is accepted or closed with a
+typed `NoSafeSlice`.
