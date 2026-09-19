@@ -716,3 +716,49 @@ remaining design evidence is the resolver/physical-result route reaching that
 site and consuming the handoff exactly once; then the cohort-local old edge
 can be selected for deletion. No instance-box expansion or generic fallback
 is authorized.
+
+## Resolver/physical-result dependency reconciliation — 2026-09-19
+
+The upstream resolver boundary is now landed and must not be reopened as a
+second parser task. `ResolvedExpressionSourceInventoryV1` publishes the exact
+expression-`If` relation (condition, both empty-prelude `BlockExpr` tails,
+consumer role, and nested call observations), and the source-result issuer
+consumes that sealed relation through the callable ledger. Declared
+`ArrayBox`/`MapBox` parameters and `return null` value classification have
+also crossed their named terminals. These receipts prove source admission
+facts only; they do not issue a physical value or publication handoff.
+
+The remaining blocker is the physical result consumer. Existing
+`IfRecipeV1`/`IfJoinSigV1` and `resolved_lowering/if_recipe_adapter.rs` own
+statement-`If` control and `I64`/`Bool` trivial values. They cannot consume the
+expression product's `String` branch class, and widening them would mix
+statement and expression authority. `canonical_ssa` remains the sole mutable
+CFG/SSA/PHI owner, so the next design row must add a route-specific result
+port over that owner, carrying the source-issued owner, exact expression-`If`
+site, branch exits, and the parametric `I64 | String` class. The physical
+consumer may project `I64 -> MirType::Integer` or `String -> MirType::String`
+only after consuming the co-sealed product; it must never infer the class from
+MIR values or rescan the AST.
+
+### Next bounded design slice
+
+1. **Result-port contract:** name the existing canonical CFG/SSA entry and
+   the one result-carrying JoinSig/port for `Return.Value`, initializer, and
+   assignment-RHS consumers. Keep the statement-`If` owner unchanged.
+2. **Static tuple co-seal:** map the parser-issued
+   `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` row to
+   that port with its exact `SourceExprSiteV1`, target/header, `ExactI64`
+   result, and required i64 argument ordinal `[1]`.
+3. **Parametric guards:** prove the same port rejects missing/foreign
+   conditional rows, mixed or unknown branch classes, duplicate consumers,
+   non-empty preludes, and unconsumed products before any MIR effect. The
+   finite parser cohort remains whole-source admitted; an I64-only shortcut is
+   not selected.
+4. **Exit:** open implementation only after the port, source-result product,
+   publication handoff, and exact delete-set are co-sealed. Until then, no
+   caller switch, fallback re-entry, or legacy-edge deletion is authorized.
+
+This dependency audit supersedes the older wording that described the resolver
+expression-`If` relation itself as pending. The relation and source-result
+issuer are landed; physical expression-result lowering and live Cataloged-site
+consumption remain open.
