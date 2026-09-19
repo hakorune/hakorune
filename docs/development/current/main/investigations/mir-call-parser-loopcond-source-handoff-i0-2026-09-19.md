@@ -420,6 +420,19 @@ The raw body-input item test remains green at 3/3. This is a preparation seam,
 not a production switch: no complex item lowering, nested/exit transfer,
 physical allocation, publication, or compatibility retirement is claimed.
 
+### Source-port direct-exit transfer receipt
+
+The existing `parts::exit` owner now has a port-parametric direct exit entry.
+`ExitLeaf::Return` lowers its value through the exact source input, while
+depth-one break/continue reuse the existing PHI closure. The LoopCond source
+item seam accepts this `ExitLeaf` shape and resolves its statement through the
+same body input; unsupported depths remain named rejects.
+
+The focused LoopCond utility matrix passes 4/4, including a return value and
+the direct item path. This does not cover exit-if preludes, nested loops,
+complex recipe branches, physical allocation, publication, or old-edge
+retirement.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs

@@ -495,6 +495,7 @@ pub(super) fn lower_stmt_list_no_direct_exit(
 mod tests {
     use super::{direct_exit_reject, is_direct_exit_reject, DirectExitRejectReason};
     use crate::ast::{ASTNode, LiteralValue, Span};
+    use crate::mir::builder::control_flow::plan::recipe_tree::ExitKind;
     use crate::mir::builder::control_flow::plan::RawLoopPlanExpressionPortV1;
     use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
     use crate::mir::builder::control_flow::recipes::refs::StmtRef;
@@ -539,6 +540,8 @@ mod tests {
             &mut builder,
             &mut bindings,
             &BTreeMap::new(),
+            &BTreeMap::new(),
+            &BTreeMap::new(),
             &mut BTreeMap::new(),
             "raw body input",
         )
@@ -554,6 +557,49 @@ mod tests {
                     crate::mir::builder::control_flow::plan::CoreEffectPlan::GlobalCall { func, .. }
                 )
             ] if func == "Worker.run"
+        ));
+    }
+
+    #[test]
+    fn raw_exit_leaf_return_uses_port_value_input() {
+        let body = vec![ASTNode::Return {
+            value: Some(Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(9),
+                span: Span::unknown(),
+            })),
+            span: Span::unknown(),
+        }];
+        let port = RawLoopPlanExpressionPortV1::new();
+        let body_input = body.as_slice();
+        let mut builder = MirBuilder::new();
+        let mut bindings = BTreeMap::<String, ValueId>::new();
+        let result = super::super::loop_cond_bc_item::lower_loop_cond_item_input(
+            &port,
+            &body_input,
+            &LoopCondBreakContinueItem::ExitLeaf {
+                kind: ExitKind::Return,
+                stmt: StmtRef::new(0),
+            },
+            &mut builder,
+            &mut bindings,
+            &BTreeMap::new(),
+            &BTreeMap::new(),
+            &BTreeMap::new(),
+            &mut BTreeMap::new(),
+            "raw exit input",
+        )
+        .expect("exit lowering")
+        .expect("exit leaf");
+        assert!(matches!(
+            result.as_slice(),
+            [
+                crate::mir::builder::control_flow::plan::LoweredRecipe::Effect(
+                    crate::mir::builder::control_flow::plan::CoreEffectPlan::Const { .. }
+                ),
+                crate::mir::builder::control_flow::plan::LoweredRecipe::Exit(
+                    crate::mir::builder::control_flow::plan::CoreExitPlan::Return(Some(_))
+                )
+            ]
         ));
     }
 }

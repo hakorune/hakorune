@@ -5,8 +5,10 @@
 
 use super::super::steps::effects_to_plans;
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering_associated_input::lower_return_statement_input;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::recipe_tree::ExitKind;
+use crate::mir::builder::control_flow::plan::LoopPlanExpressionPortV1;
 use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::control_flow::recipes::{refs::StmtRef, RecipeBody};
 use crate::mir::builder::MirBuilder;
@@ -61,6 +63,55 @@ pub(in crate::mir::builder) fn lower_loop_cond_exit_source(
         kind,
         error_prefix,
     )
+}
+
+/// Lower one already-paired exit statement through a source expression port.
+///
+/// Break/continue have no value child, while return values must use the exact
+/// source input so a source-aware caller cannot silently re-enter raw
+/// `PlanNormalizer::lower_value_ast`.
+pub(in crate::mir::builder) fn lower_loop_cond_exit_source_input<'input, P>(
+    port: &P,
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
+    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
+    statement: P::StmtInput<'input>,
+    kind: ExitKind,
+    error_prefix: &str,
+) -> Result<Vec<LoweredRecipe>, String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
+{
+    match kind {
+        ExitKind::Break { depth: 1 } => Ok(vec![CorePlan::Exit(
+            build_break_with_phi_args(break_phi_dsts, current_bindings, error_prefix)?,
+        )]),
+        ExitKind::Continue { depth: 1 } => Ok(vec![CorePlan::Exit(
+            build_continue_with_phi_args(
+                builder,
+                carrier_step_phis,
+                current_bindings,
+                error_prefix,
+            )?,
+        )]),
+        ExitKind::Return => {
+            if !matches!(port.stmt_syntax(&statement), ASTNode::Return { .. }) {
+                return Err(format!(
+                    "{error_prefix}: ExitLeaf::Return expects Return"
+                ));
+            }
+            lower_return_statement_input(port, statement, builder, current_bindings, error_prefix)
+        }
+        ExitKind::Break { depth } => Err(format!(
+            "[freeze:contract][exit_depth] {error_prefix}: break depth={} unsupported (only depth=1)",
+            depth
+        )),
+        ExitKind::Continue { depth } => Err(format!(
+            "[freeze:contract][exit_depth] {error_prefix}: continue depth={} unsupported (only depth=1)",
+            depth
+        )),
+    }
 }
 
 fn lower_loop_cond_exit_input(

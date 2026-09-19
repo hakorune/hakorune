@@ -36,6 +36,8 @@ pub(super) fn lower_loop_cond_item_input<'input, P>(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
     carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
+    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     carrier_updates: &mut BTreeMap<String, crate::mir::ValueId>,
     error_prefix: &str,
 ) -> Result<Option<Vec<LoweredRecipe>>, String>
@@ -43,6 +45,22 @@ where
     P: LoopPlanExpressionPortV1 + 'input,
 {
     let LoopCondBreakContinueItem::Stmt(stmt_ref) = item else {
+        if let LoopCondBreakContinueItem::ExitLeaf { kind, stmt } = item {
+            let statement = port
+                .body_stmt(body, stmt.index())
+                .map_err(|error| error.render())?;
+            return parts::exit::lower_loop_cond_exit_source_input(
+                port,
+                builder,
+                current_bindings,
+                carrier_step_phis,
+                break_phi_dsts,
+                statement,
+                *kind,
+                error_prefix,
+            )
+            .map(Some);
+        }
         return Ok(None);
     };
     lower_simple_effect_stmt_body_input(
