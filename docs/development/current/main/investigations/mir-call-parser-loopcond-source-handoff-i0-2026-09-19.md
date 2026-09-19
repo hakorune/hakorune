@@ -138,6 +138,74 @@ missing child/exit/site or any lowering error discards the whole session.
 This recheck does not authorize a new issuer, route token, catalog row,
 fallback, production switch, or compatibility retirement.
 
+## Same-owner bridge decision — accepted design boundary
+
+The bridge reuses the existing local `LoopCondBreakContinueFacts.recipe` and
+the existing `LoopCondBreakContinuePhiMaterializer`/cleanup/verifier owner. It
+does **not** create a second portable `VerifiedLoopRecipeV1`, a new semantic
+JoinSig authority, or a parallel LoopCond issuer. In this card, “JoinSig” means
+the existing route-local phi closure produced by that physical owner; the
+portable loop-recipe JoinSig family remains outside this row.
+
+The one move-only source input is named
+`SourceLoopCondPhysicalInputV1`. The existing source Facts issuer constructs it
+after planner Facts/Recipe extraction and before any Builder allocation. Its
+contract is:
+
+```text
+SourceLoopCondPhysicalInputV1
+  owner/frame/source-kind/origin
+  forest: VerifiedLoopCondBreakContinueSourceForestProjectionV1
+  target: same-invocation source target relation and exact call site
+  root/condition/body: located RawInvocationSourceContextV1 values
+  item_bindings: every local StmtRef and nested recipe item paired with its
+                 resolver-issued SourceNodeSiteV1/context
+  exits: the forest's paired (SourceStmtSiteV1, ResolvedExitRecordV1) rows
+  facts: exactly one existing LoopCondBreakContinueFacts + its Recipe
+  source_port: borrowed CallableLoopSourceExpressionPortV1
+```
+
+Construction is a co-seal, not a later join. It rejects before Builder effects
+when owner, frame, origin, root path, forest parent, source context, target,
+recipe item, or exit evidence differs; when a `StmtRef` is missing, duplicated,
+foreign, or recovered by name/line/ordinal; when the planner emits no exact
+LoopCond Facts or an overlapping `GenericLoopV1`/`LoopBreak` route; or when the
+selected result/argument ordinal is not `ExactI64/[1]`. The item bindings are
+issued from the already located body contexts and resolver child roles; the
+physical consumer never scans AST, searches Hako lines, or recreates a site.
+
+The source physical adapter consumes this input exactly once and calls the
+existing LoopCond lowering helpers through a `LoopPlanExpressionPortV1`. The
+raw facade may keep its raw port, but the source path must thread the located
+port through header condition, every recipe item, nested-loop entry, exit
+transfer, and cleanup. Nested items use the co-sealed child context and forest
+parent binding; they must not call `nested_loop_depth1_route`, construct a
+`LoopRouteContext`, reselect a route, or enter the legacy normalizer. All
+preflight checks happen before `LoopBlocksStandard5::allocate`; any lowerer
+error drops the whole input and leaves no source physical session or catalog
+effect.
+
+The implementation slice is therefore four existing-owner changes: (1) extend
+the current source issuer with the co-sealed item/exit input, (2) parameterize
+the LoopCond helper chain over the existing expression port while retaining the
+raw facade, (3) issue one exact LoopCond route token and hand the source result
+to the existing static-result consumer, and (4) add the finite positive/
+negative matrix before deleting only the selected parser tuple's old edge.
+No new source authority, portable JoinSig, fallback, VM route, catalog row, or
+compatibility retirement is implied until those four steps pass.
+
+The resolver-input attach point is the existing package scope
+`with_callable_source_scope(input, ...)`. `raw_loop_child_entry` currently has
+only the projected callable ledger and cannot mint the forest projection by
+itself. The scope must therefore lend one source-bridge capability to
+`RawInvocationChildPortV1`, and the child entry must consume that capability for
+the active loop. The capability may borrow the already-issued
+`ResolvedFunctionLoweringInputV1` or carry a one-shot projection made at that
+scope; it must not copy the resolver forest into the lowering state or create a
+second ledger. If the lifetime cannot be represented at this existing scope
+without a second owner, this remains `NoSafeSlice` and the compatibility edge
+stays selected.
+
 ## Ordered implementation tasks
 
 | Order | Task | Completion condition |
