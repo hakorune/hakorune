@@ -29,6 +29,14 @@ pub(in crate::mir::builder) enum PartsAssociatedSourceErrorV1 {
     MissingRecipeStatement { index: usize },
     ForeignRawBlock,
     ForeignLocatedBlock,
+    /// The located source port rejected a child/statement projection.
+    SourcePortProjection(String),
+    /// A `Synthetic` carrier reached the located callable-loop spine.
+    SyntheticCarrier,
+    /// A recipe body no longer aligns 1:1 with the located body carrier.
+    RecipeBodyMismatch,
+    /// A projected condition expression disagrees with the issued CondBlockView.
+    ConditionViewMismatch,
 }
 
 mod sealed {
@@ -36,6 +44,10 @@ mod sealed {
 }
 
 pub(super) mod block_driver;
+pub(in crate::mir::builder::control_flow::plan::parts) mod callable_loop_source;
+pub(in crate::mir::builder::control_flow::plan::parts) mod callable_loop_source_lowering;
+#[cfg(test)]
+mod callable_loop_source_tests;
 pub(in crate::mir::builder) mod direct_if;
 pub(super) mod dispatch;
 #[cfg(test)]

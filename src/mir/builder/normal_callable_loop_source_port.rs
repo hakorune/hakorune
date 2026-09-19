@@ -21,7 +21,7 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::ValueId;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(super) enum CallableLoopSourceExprInputV1<'input> {
     Located {
         node: &'input ASTNode,
@@ -30,7 +30,7 @@ pub(super) enum CallableLoopSourceExprInputV1<'input> {
     Synthetic(&'input ASTNode),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(super) enum CallableLoopSourceStmtInputV1<'input> {
     Located {
         node: &'input ASTNode,
@@ -39,7 +39,7 @@ pub(super) enum CallableLoopSourceStmtInputV1<'input> {
     Synthetic(&'input ASTNode),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(super) enum CallableLoopSourceBodyInputV1<'input> {
     Located {
         statements: &'input [ASTNode],

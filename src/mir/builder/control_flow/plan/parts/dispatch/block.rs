@@ -144,6 +144,14 @@ fn render_raw_source_error(error: PartsAssociatedSourceErrorV1, error_prefix: &s
         | PartsAssociatedSourceErrorV1::ForeignLocatedBlock => format!(
             "[freeze:contract][recipe] foreign_associated_source_block: ctx={error_prefix}"
         ),
+        // These variants are only produced by the located callable-loop
+        // provider; the raw provider never emits them.
+        PartsAssociatedSourceErrorV1::SourcePortProjection(_)
+        | PartsAssociatedSourceErrorV1::SyntheticCarrier
+        | PartsAssociatedSourceErrorV1::RecipeBodyMismatch
+        | PartsAssociatedSourceErrorV1::ConditionViewMismatch => format!(
+            "[freeze:contract][recipe] unexpected_source_provider_error: ctx={error_prefix}"
+        ),
     }
 }
 

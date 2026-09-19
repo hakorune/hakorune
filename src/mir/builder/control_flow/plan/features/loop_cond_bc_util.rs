@@ -138,7 +138,7 @@ pub(super) fn lower_simple_effect_stmt(
 /// raw facade above uses the same owner with `RawLoopPlanExpressionPortV1`,
 /// while block-expression loop preludes stay in the existing specialized
 /// owner until their nested source contexts are co-sealed.
-pub(super) fn lower_simple_effect_stmt_input<'input, P>(
+pub(in crate::mir::builder) fn lower_simple_effect_stmt_input<'input, P>(
     port: &P,
     statement: P::StmtInput<'input>,
     builder: &mut MirBuilder,

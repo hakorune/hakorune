@@ -604,6 +604,47 @@ fail-fast check. It does not claim ProgramBlock/LoopV0/ExitIfTree physical
 lowering, publication consumption, caller cutover, or old-edge retirement;
 the `source-port-lowering-missing` terminal remains the active boundary.
 
+### Located parts provider and hooks receipt — decomposition item 2
+
+`plan/parts/associated_source/` now hosts the located callable-loop sibling
+provider recorded in the audit checkpoint. `callable_loop_source.rs`
+implements `PartsAssociatedSourceV1` over `CallableLoopSourceExpressionPortV1`
+with two block carriers: `located_body` pairs a recipe block with a
+`child_body_from_stmt`-projected body and `singleton` pairs a
+`from_ref(stmt)` recipe with the already-located statement. Both reject
+`Synthetic` carriers up front, re-prove recipe/body 1:1 alignment
+(`RecipeBodyMismatch`), reject foreign arenas (`ForeignRawBlock`), wrap
+port projection failures as `SourcePortProjection`, and compare the issued
+`CondBlockView` against the projected condition (`ConditionViewMismatch`).
+`callable_loop_source_lowering.rs` implements
+`PartsAssociatedLoweringHooksV1`: opaque statements reuse
+`lower_simple_effect_stmt_input` (widened to `pub(in crate::mir::builder)`),
+an opaque `If` re-derives the singleton no-exit/exit-allowed container recipe
+exactly like the raw return-prelude arm, opaque exits reuse
+`lower_loop_cond_exit_source_input`, `ExitOnly`/`ExitAllowed` ifs reuse
+`lower_exit_if_state_core` with `lower_cond_expr_to_if_plans_input`, and
+`Join` ifs reuse `lower_if_join_state_core`; branch blocks recurse through
+the same neutral driver. `LoopV0` stays a named reject
+(`loop-v0-source-lowering-missing`) until item 3 wires the port-parametric
+`loop_v0` entry. The source-port input enums gained `Clone` for projection
+reuse, and the raw error renderer now covers the located-only variants.
+
+Focused evidence: `cargo check --profile quick --lib --tests` green; the new
+`callable_loop_source_tests` module passes 15/15 — projection
+(`Body(i)`/`IfCondition`/`LoopBody` site verification), negative matrix
+(foreign arena, recipe/body mismatch, synthetic carrier, condition-view
+mismatch, unlocated vocabulary), and hook coverage through the neutral
+driver (no-exit statement block, join if, exit-if under `ExitAllowed` via a
+`LoopBody` child carrier, opaque-if singleton recursion, LoopV0 named
+reject). The whole `associated_source` filter stays green at 32/32,
+including the raw provider, located provider, parity, and dispatch tests.
+
+This receipt claims only the located provider, hooks, and their focused
+evidence. It does not claim `lower_raw_loop_v0` (item 3), the ProgramBlock
+production wiring (item 4), publication consumption, caller cutover, or
+old-edge retirement; `source-port-lowering-missing` remains the active
+terminal.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs
