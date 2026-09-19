@@ -682,3 +682,37 @@ existing-owner reuse. It does not close publication acceptance: target/header/
 result co-seal, real source-site consumption, cohort-local compatibility-edge
 deletion, and phase14 source-to-exe evidence remain open. No code, fallback,
 resolver widening, or new semantic receipt is authorized by this note.
+
+## Finite tuple shape audit — 2026-09-19
+
+The first tuple has a narrower caller boundary than the whole parser corpus:
+
+```text
+caller:  ParserProgramBox.parse/2
+         (static box; StaticBoxMethod namespace)
+site:    parser_program_box.hako:102
+target:  ParserStringUtilsBox.starts_with/3
+args:    String, I64, String
+result:  ExactI64 (source returns only 0 or 1)
+required_i64_arguments: [1]
+```
+
+The caller namespace is significant. `ParserProgramBox` is a static box, so
+its source context can become `Cataloged(StaticBoxMethod)` and is eligible for
+the existing publication ingress. The similarly named calls in instance
+`ParserBox` are not part of this tuple: their `InstanceBoxMethod` lineage is a
+separate lane and must not be admitted by widening the static ingress or by
+matching the owner name.
+
+The result and argument facts are already represented by the existing
+`VerifiedStaticCallResultPublicationHandoffV1`: the target/header and exact
+source `SourceExprSiteV1` are keyed by the parser-issued caller/site, the
+result representation is `ExactI64`, and only argument ordinal 1 requires the
+i64 proof. The Hako source line is diagnostic evidence only; the publication
+consumer must receive the parser/resolver-issued `SourceExprSiteV1`.
+
+This closes the tuple's semantic shape, but not its live acceptance. The
+remaining design evidence is the resolver/physical-result route reaching that
+site and consuming the handoff exactly once; then the cohort-local old edge
+can be selected for deletion. No instance-box expansion or generic fallback
+is authorized.
