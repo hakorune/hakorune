@@ -493,12 +493,10 @@ pub(super) fn lower_stmt_list_no_direct_exit(
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        direct_exit_reject, is_direct_exit_reject, lower_simple_effect_stmt_body_input,
-        DirectExitRejectReason,
-    };
+    use super::{direct_exit_reject, is_direct_exit_reject, DirectExitRejectReason};
     use crate::ast::{ASTNode, LiteralValue, Span};
     use crate::mir::builder::control_flow::plan::RawLoopPlanExpressionPortV1;
+    use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
     use crate::mir::builder::control_flow::recipes::refs::StmtRef;
     use crate::mir::builder::MirBuilder;
     use crate::mir::ValueId;
@@ -534,10 +532,10 @@ mod tests {
         let body_input = body.as_slice();
         let mut builder = MirBuilder::new();
         let mut bindings = BTreeMap::<String, ValueId>::new();
-        let result = lower_simple_effect_stmt_body_input(
+        let result = super::super::loop_cond_bc_item::lower_loop_cond_item_input(
             &port,
             &body_input,
-            StmtRef::new(0),
+            &LoopCondBreakContinueItem::Stmt(StmtRef::new(0)),
             &mut builder,
             &mut bindings,
             &BTreeMap::new(),

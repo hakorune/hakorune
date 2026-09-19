@@ -9,6 +9,7 @@ use crate::mir::builder::control_flow::plan::nested_loop_depth1::try_lower_neste
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::parts::conditional_update::lower_conditional_update_if_assume_with_break_phi_args_recipe_first;
 use crate::mir::builder::control_flow::plan::parts::entry::apply_loop_final_values_to_bindings;
+use crate::mir::builder::control_flow::plan::LoopPlanExpressionPortV1;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::{
     LoopCondBreakContinueItem, NestedLoopDepth1Recipe,
@@ -19,7 +20,42 @@ use std::collections::BTreeMap;
 
 use super::loop_cond_bc::LOOP_COND_ERR;
 use super::loop_cond_bc_item_stmt::lower_loop_cond_stmt;
-use super::loop_cond_bc_util::{get_stmt, lower_simple_effect_stmt};
+use super::loop_cond_bc_util::{
+    get_stmt, lower_simple_effect_stmt, lower_simple_effect_stmt_body_input,
+};
+
+/// Source-port preparation for the recipe's direct statement item.
+///
+/// Complex LoopCond variants keep their existing owner until their nested and
+/// exit contexts are parameterized. Returning `None` here is deliberate: the
+/// source caller must not fall through to the raw item lowerer.
+pub(super) fn lower_loop_cond_item_input<'input, P>(
+    port: &P,
+    body: &P::BodyInput<'input>,
+    item: &LoopCondBreakContinueItem,
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
+    carrier_updates: &mut BTreeMap<String, crate::mir::ValueId>,
+    error_prefix: &str,
+) -> Result<Option<Vec<LoweredRecipe>>, String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
+{
+    let LoopCondBreakContinueItem::Stmt(stmt_ref) = item else {
+        return Ok(None);
+    };
+    lower_simple_effect_stmt_body_input(
+        port,
+        body,
+        *stmt_ref,
+        builder,
+        current_bindings,
+        carrier_phis,
+        carrier_updates,
+        error_prefix,
+    )
+}
 
 pub(in crate::mir::builder) fn lower_loop_cond_item(
     builder: &mut MirBuilder,

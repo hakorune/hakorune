@@ -408,6 +408,18 @@ preparation seam: no source LoopCond production caller consumes it yet, and
 complex item variants, nested/exit transfer, physical allocation, publication,
 old-edge retirement, and source-to-MIR acceptance remain open.
 
+### Source-port direct-item dispatch receipt
+
+The LoopCond item owner now exposes a source-port preparation entry for the
+`Stmt` recipe variant. It resolves the `StmtRef` through the supplied body
+input and delegates to the shared simple-statement owner. Complex variants
+return no source lowering result deliberately; they cannot fall through to the
+raw item dispatcher until their nested and exit contexts are parameterized.
+
+The raw body-input item test remains green at 3/3. This is a preparation seam,
+not a production switch: no complex item lowering, nested/exit transfer,
+physical allocation, publication, or compatibility retirement is claimed.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs
