@@ -49,6 +49,23 @@ The census shows no reusable source-aware owner for this shape today. The
 missing relation is the source-bound loop/exit contract, not a missing static
 target lookup.
 
+## Source inventory receipt — 2026-09-19
+
+The resolver already exposes the required source authority: `loop_sites`,
+`resolved_loop_source_context`, `resolved_loop_source_forest`, and the sealed
+`resolved_exits` inventory. The existing callable handoff consumes only the
+parent loop site, direct condition/body child sites, and binding rows. Its
+`classify_suffix` check explicitly rejects any descendant loop or nested body
+segment as `nested-loop-profile-not-admitted`, and the prepared source-facts
+payload has no exit-relation field.
+
+This closes design tasks 1 and 2 at the boundary level. The missing owner is
+precise: one source-bound product must co-seal the outer loop identity, its
+direct/nested loop forest, and every resolved break/return transfer before a
+Recipe or physical adapter can consume the body. Reusing only the existing
+binding schedule would leave exits and nested ownership unproved, so it is not
+a safe promotion.
+
 ## Ordered design tasks
 
 | Order | Task | Completion condition |
