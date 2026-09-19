@@ -49,6 +49,34 @@ The product must remain move-only and owner-branded. It cannot expose a
 reacquirable `(forest, exits, bindings)` tuple or let a later consumer pair
 independently issued rows.
 
+## Read-only product mapping receipt — 2026-09-19
+
+The existing source adapter can consume only part of this contract. `bind_resolved_loop_source_forest_v1`
+converts the resolver forest into `VerifiedLoopSourceForestBindingV1`, preserving the owner,
+ordered source paths, and parent indices. `into_source_binding` then checks dense Recipe loop
+coverage, root-parent shape, and every parent index. This is reusable only after a parser Recipe
+with the same forest exists; it does not create that Recipe.
+
+`ResolvedExitRecordV1` already co-seals the exit origin, containing source region, and typed
+transfer (`Continue`, `Break`, or `Return`). There is no exit field in
+`PreparedCallableGenericLoopSourceFactsPayloadV1`, `CallableLoopReadyBodyOnlyProductV1`, or
+the borrowed `CallableGenericLoopSourceRelationViewV1`. The existing callable handoff therefore
+cannot prove that every parser break/return belongs to the sealed loop forest.
+
+The portable Recipe schema has `loops`, `blocks`, and `exits`, and
+`LoopJoinSigElaboratorV1` can consume those rows after Recipe verification. Its
+`VerifiedLoopContinuationContractV1` transports one JoinSig-derived `After` binding; it is not a
+source exit inventory. The current `CallableGenericLoopV1PhysicalAdapterV1` receives only the
+GenericLoop condition/body view and lowers through `compose_source_generic_loop_v1_recipe_with_port`;
+it has no forest or exit consumer.
+
+**Mapping decision:** the first missing consumer field is an atomic, owner-branded
+`loop-forest + resolved-exit-set` relation carried with the existing callable source Facts/Recipe
+claim. Adding only a forest binding, only an exit receipt, or only a physical adapter argument
+would recreate the forbidden post-hoc pairing. Until one existing source-aware issuer and one
+Recipe/JoinSig/physical consumer co-seal that relation, this D0 remains a design stop and the
+parent static tuple remains at `GenericLoopV1NotSelected`.
+
 ## Ordered design tasks
 
 | Order | Task | Completion condition |
