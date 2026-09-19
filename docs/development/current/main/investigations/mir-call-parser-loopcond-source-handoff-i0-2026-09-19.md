@@ -1,11 +1,12 @@
 ---
-Status: selected__fast__2026-09-19
+Status: selected__design_stop__2026-09-19
 Task: MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0
 Date: 2026-09-19
 Parent: mir-call-parser-nested-loop-source-promotion-d0-2026-09-19.md
 ProductionCaller: selected normal MIR/static-receiver route only
-Implementation permission: true for the bounded source-bridge attach and route-token
-slice; source physical/caller cutover remains closed until its focused evidence passes
+Implementation permission: source-bridge attach and route-token threading are
+landed; physical consumer implementation is closed until the input/port contract
+below is accepted
 Classification: BoxCount; one source-backed nested-loop handoff and one compatibility-edge retirement
 ---
 
@@ -272,13 +273,41 @@ static-result publication, caller cutover, or old-edge deletion. The raw entry
 test module was split at the existing responsibility boundary to keep the
 implementation file below the 760-line design threshold.
 
+### Physical consumer audit — typed NoSafeSlice
+
+The read-only physical audit confirms that calling the existing LoopCond
+adapter is unsafe. `LoopCondBreakContinueFacts.recipe` and its phi/cleanup/
+verifier owner are reusable, but the current physical entry requires a
+`LoopRouteContext`, reads raw `CondBlockView`/`RecipeBody` through `StmtRef`,
+and nested lowering re-enters `nested_loop_depth1_route`. The current route
+token would also discard the source contexts when consumed, so it cannot be
+passed directly to that owner without losing the resolver relation.
+
+The accepted design boundary is one same-owner `SourceLoopCondPhysicalInputV1`
+transport aggregate issued by the existing source Facts owner. It must carry
+the existing LoopCond Facts/Recipe, located root/condition/body contexts,
+forest and exit rows, exact item/nested bindings, and the same-invocation target
+relation. A source-port LoopCond entry and the existing split helpers then
+consume it once, reject missing/foreign/duplicate item or exit bindings and
+nested route re-entry before `LoopBlocksStandard5::allocate`, and propagate
+failure to the existing rejected-session disposal. No `LoopRouteContext`, AST
+or name remap, GenericLoop adapter, second Recipe/JoinSig, or physical layout
+authority may enter this path.
+
+This is an internal design gap, not an external wait. The current selected
+route therefore remains at typed `NoSafeSlice` until the input contract and
+port-parametric `loop_cond_bc`/item/nested/exit lowering are accepted. The
+static publication tuple, old-edge deletion, VM route, and fallback remain
+closed. Worker audit evidence: existing source adapter and route-token seams
+reviewed on 2026-09-19; no code or Cargo changes were made for this audit.
+
 ## Ordered implementation tasks
 
 | Order | Task | Completion condition |
 | --- | --- | --- |
 | 1 | Source bridge attach | Build the one-shot owned projection inventory in the existing callable semantic state and consume it through the existing callable ledger. Scope restoration, exact-site take, duplicate/missing rejection, and GenericLoop-unarmed behavior are focused and green. |
 | 2 | Source co-seal and LoopCond route token | One move-only product binds the exact three-member forest, ordered paths/frame keys, all resolver exits, parser brand/owner, and target/source site; the route registry yields exactly `[LoopCondBreakContinue]`, with GenericLoop, LoopBreak, overlap, and route re-entry as typed rejects. **Source-side production threading is now landed; the physical consumer remains the open endpoint.** |
-| 3 | Source physical consume | `loop_cond_bc` needs a source-aware adapter that lowers nested recipe items and exit transfers without constructing `LoopRouteContext`, and discards the whole session on error. |
+| 3 | Source physical consume design | Accept `SourceLoopCondPhysicalInputV1` plus port-parametric `loop_cond_bc`/item/nested/exit lowering; only then implement the physical consume. Until that contract is accepted, the typed NoSafeSlice terminal remains. |
 | 4 | Static tuple handoff | The selected static result reaches the existing statement-If/Equal consumer with ordered arguments and ExactI64 result; duplicate consume and wrong ordinal reject before argument effects. |
 | 5 | Negative matrix | Wrong owner/brand, forest parent drift, omitted child, wrong path, missing/duplicate/foreign exit, wrong target/header/result, legacy route re-entry, and extra nested loop all fail closed. |
 | 6 | Retirement and acceptance | After positive plus negative evidence, remove only the selected tuple's retained compatibility/static-child disposition and record source-to-MIR acceptance. |

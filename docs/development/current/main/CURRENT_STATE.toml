@@ -1,11 +1,11 @@
 date = "2026-09-19"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0"
 current_execution_cohort = "parser_loopcond_source_handoff"
-current_blocker_token = "MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0__Fast_SourceRouteTokenProductionThreaded_PhysicalConsumerMissing"
+current_blocker_token = "MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0__DesignStop_SourceLoopCondPhysicalInputMissing"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "closed__parser_loopcond_source_bridge_attach_point__2026-09-19"
+current_design_stop = "open__parser_loopcond_source_physical_input_contract__2026-09-19"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -49,13 +49,13 @@ fallback, AST rescan, VM route, production switch, or cohort retirement is autho
 The OwnedText T3 family remains parked. Finite tuple: `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3`, `ExactI64`, required i64 `[1]`; merged input is observed, acceptance still waits for Cataloged reach. The repeated parser-loop NoSafeSlice is closed by a premise-reset and frontier inventory in the parent card. The selected promotion D0 accepted the existing LoopCondBreakContinue Facts/Recipe/physical owner, and `MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0` owns the source forest/exit co-seal, physical consume, focused matrix, and selected old-edge deletion. The caller-zero forest co-seal product and focused three-member/four-exit projection test are landed. A read-only bridge audit then recorded `NoSafeSlice`: the existing source Facts issuer is GenericLoop-only, local LoopCond exit Recipe rows lose resolver exit records, and the physical owner requires `LoopRouteContext`.
 	The same-owner bridge reuses local LoopCond Recipe/phi-cleanup without portable JoinSig. Commit `688902ee67` lands the attach-only slice: one owned, one-shot forest projection inventory is built in existing `CallableSemanticLoweringState` from `with_callable_source_scope(input, ...)`, with exact-site take; no third Raw-port lifetime, resolver forest copy, or second ledger. The root-site filter prevents nested overlap, and `normal_callable_loop_source_route.rs` proves a route-neutral move-only token for the exclusive LoopCond registry route plus typed missing-projection rejection.
 	Its strict preparation constructor co-seals resolver method-call item bindings with an exact source target relation and rejects empty/foreign/out-of-root/mismatched rows; focused route/no-method-row tests are green. The production-threading slice now carries origin/source-kind, root item inventory, forest projection, and canonical target through RawLoopChildEntry into the source Facts issuer; exact/missing/overlap route tests and cargo check are green.
-	LoopCond consumes the token then stops at `callable-loop/loop-cond/source-physical-consumer-missing`; physical/static handoff and old-edge deletion remain closed.
+	LoopCond consumes the token then stops at `callable-loop/loop-cond/source-physical-consumer-missing`. A read-only physical audit confirms that the existing adapter cannot be called safely: it requires `LoopRouteContext`, raw `StmtRef`/`CondBlockView` access, and nested route re-entry, while the current token would discard source contexts. Design stop is therefore reopened for one same-owner `SourceLoopCondPhysicalInputV1` transport aggregate carrying existing LoopCond Facts/Recipe, source contexts, forest/exits, exact item/nested bindings, and target relation. A source-port LoopCond entry must validate and consume it before `LoopBlocksStandard5::allocate`, using existing split helpers and propagating failure to rejected-session disposal. No AST/name remap, GenericLoop adapter, second Recipe/JoinSig, physical layout authority, static publication, old-edge deletion, VM route, or fallback is authorized. Worker audit was read-only on 2026-09-19; no code or Cargo changes were made.
 Non-claims: no qualified Invoke, whole-T2 completion, production cutover, to_json, or legacy retirement.
 """
 next_design_card = "MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-loopcond-source-handoff-i0-2026-09-19.md"
-next_execution_card = "MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-parser-loopcond-source-handoff-i0-2026-09-19.md"
+next_execution_card = "none__design_stop__awaiting_source_loopcond_physical_input_contract"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
