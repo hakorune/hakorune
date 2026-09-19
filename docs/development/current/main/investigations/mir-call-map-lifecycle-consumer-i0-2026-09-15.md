@@ -2239,13 +2239,29 @@ parent owner stays at 766 lines, below the 800-line hard stop.
 Focused evidence on this worktree: `map_read_fact_tests` 4/4, checked-map
 kernel tests 17/17, the typed published-JSON pin 1/1, `cargo check
 --profile quick -p nyash_kernel`, `git diff --check`, and the current-state
-pointer guard all pass. The C syntax check and source-to-OBJ Normal/Fault
-acceptance still remain open; the lifecycle archive must be rebuilt before
-that acceptance can observe the new runtime symbol. This therefore closes
-T2-beta-1 implementation/local verification only, not T2-beta acceptance.
+pointer guard all pass. The selected lifecycle archive was then rebuilt with
+`cargo build --release -p nyash_lifecycle_kernel --target-dir
+target/lifecycle-kernel`; `nm` showed `nyash.map.checked_array_length_v1`.
+The C shim was rebuilt with `bash tools/build_hako_llvmc_ffi.sh` so the
+published physical parser/emitter observed the new operation rather than a
+stale `target/release/libhako_llvmc_ffi.so`.
 
-Next bounded tasks are: (1) rebuild the selected lifecycle archive and run the
-`params` source-to-OBJ fixture with Normal/Fault evidence, (2) record or fix
-the exact C validator/emitter result, and only then (3) start T2-beta-2 for
-`blocks[0].get("kind")`. The separate nine-file fmt drift remains a later
-mechanical closeout and does not reopen this lane.
+## T2-beta-1 source-to-OBJ acceptance (2026-09-19)
+
+The bounded `params` empty-array fixture now passes the selected source-backed
+route end to end. Focused evidence:
+
+`CARGO_BUILD_JOBS=4 cargo test --profile quick --lib
+host_providers::llvm_codegen::published_mir_object::map_array_source_tests::issued_empty_params_length_source_reaches_obj_normal_and_prepare_fault
+-- --exact --ignored --nocapture` passed 1/1. The same linked object exits
+Normal `0`; injected `prepare-fault` exits `70` and emits `REPORT 100`.
+The earlier parser/function-body rejection was caused by the stale C shim
+artifact, not by a new source/MIR/ABI mismatch; rebuilding that artifact made
+the unchanged bounded fixture pass.
+
+This closes T2-beta-1 implementation, focused local verification, and the
+source-to-OBJ Normal/Fault receipt. It does not claim the broader T2 matrix,
+qualified Invoke, `to_json`, production cutover, or legacy retirement. The
+next bounded slice is T2-beta-2: non-empty all-`MapLocal`
+`blocks[0].get("kind")` through the existing `ArrayIndexMap -> MapGetText`
+chain. The separate nine-file fmt drift remains a later mechanical closeout.
