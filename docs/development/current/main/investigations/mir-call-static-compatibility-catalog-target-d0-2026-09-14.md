@@ -728,14 +728,16 @@ consumes that sealed relation through the callable ledger. Declared
 also crossed their named terminals. These receipts prove source admission
 facts only; they do not issue a physical value or publication handoff.
 
-The remaining blocker is the physical result consumer. Existing
+The resolver/source-result boundary has two distinct physical consumers.
+Existing
 `IfRecipeV1`/`IfJoinSigV1` and `resolved_lowering/if_recipe_adapter.rs` own
 statement-`If` control and `I64`/`Bool` trivial values. They cannot consume the
 expression product's `String` branch class, and widening them would mix
 statement and expression authority. `canonical_ssa` remains the sole mutable
-CFG/SSA/PHI owner, so the next design row must add a route-specific result
-port over that owner, carrying the source-issued owner, exact expression-`If`
-site, branch exits, and the parametric `I64 | String` class. The existing
+CFG/SSA/PHI owner. The expression-result design row must eventually add a
+route-specific result port over that owner, carrying the source-issued owner,
+exact expression-`If` site, branch exits, and the parametric `I64 | String`
+class. The existing
 `VerifiedResolvedIfCfgReadyJoinRowsV1` is a useful CFG witness, but its rows
 are `BindingRefV1` joins and therefore cannot be used by manufacturing a
 synthetic binding for an expression result. The physical consumer may project
@@ -764,26 +766,31 @@ commit in their current owners.
 
 ### Next bounded design slice
 
-1. **Result-port contract:** name the existing canonical CFG/SSA entry and
-   the one result-carrying JoinSig/port for `Return.Value`, initializer, and
-   assignment-RHS consumers. Keep the statement-`If` owner unchanged.
+1. **Static call-result port:** name the source-site-to-publication adapter
+   over `take_for_source`, `StaticResultPublicationIngressPortV1`, and
+   `lower_selected_static_result_publication_v1`. Keep the statement-`If`
+   owner unchanged; this port emits the call value only.
 2. **Static tuple co-seal:** map the parser-issued
    `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` row to
-   that port with its exact `SourceExprSiteV1`, target/header, `ExactI64`
+   that adapter with its exact `SourceExprSiteV1`, target/header, `ExactI64`
    result, and required i64 argument ordinal `[1]`.
-3. **Parametric guards:** prove the same port rejects missing/foreign
-   conditional rows, mixed or unknown branch classes, duplicate consumers,
-   non-empty preludes, and unconsumed products before any MIR effect. The
-   finite parser cohort remains whole-source admitted; an I64-only shortcut is
-   not selected.
-4. **Exit:** open implementation only after the port, source-result product,
-   publication handoff, and exact delete-set are co-sealed. Until then, no
-   caller switch, fallback re-entry, or legacy-edge deletion is authorized.
+3. **Static port guards:** prove foreign/missing/duplicate source sites,
+   target/header/result drift, instance lineage, wrong required ordinal,
+   argument-count drift, double consume, and compatibility re-entry reject
+   before any MIR effect.
+4. **Separate expression row:** only after the static tuple design is
+   accepted, continue the independent `Value`/`Rhs`/`Initializer(_)` result
+   port for the five deferred expression-`If` callables. It must keep the
+   existing statement `BindingRefV1` owners unchanged.
+5. **Exit:** open implementation only after the selected port, source-result
+   product, publication handoff, and exact delete-set are co-sealed. Until
+   then, no caller switch, fallback re-entry, or legacy-edge deletion is
+   authorized.
 
 This dependency audit supersedes the older wording that described the resolver
 expression-`If` relation itself as pending. The relation and source-result
-issuer are landed; physical expression-result lowering and live Cataloged-site
-consumption remain open.
+issuer are landed; selected static-call publication consumption remains open,
+while physical expression-result lowering remains a separate deferred row.
 
 ## Static call-result port and separate expression-result boundary
 
