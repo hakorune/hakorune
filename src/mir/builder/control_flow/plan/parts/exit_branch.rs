@@ -5,8 +5,10 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
+use crate::mir::builder::control_flow::plan::LoopPlanExpressionPortV1;
 use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
+use crate::mir::resolved_semantics::ExprChildRoleV1;
 use std::collections::BTreeMap;
 
 use super::super::steps::effects_to_plans;
@@ -55,6 +57,41 @@ pub(in crate::mir::builder) fn split_exit_branch<'a>(
             _ => format!(" (last={})", last.node_type()),
         }
     ))
+}
+
+/// Validate the first source-port ExitIf branch slice.
+///
+/// The source path uses the port's body/statement relation for the one branch
+/// member; it never indexes a copied `RecipeBody` or reconstructs a source site
+/// from an AST node. This preparation helper deliberately performs no lowering
+/// or allocation.
+pub(in crate::mir::builder) fn validate_return_exit_branch_input<'input, P>(
+    port: &P,
+    body: &P::BodyInput<'input>,
+    error_prefix: &str,
+) -> Result<(), String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
+{
+    let len = port.body_statements(body).len();
+    if len != 1 {
+        return Err(format!(
+            "{error_prefix}: if body must contain exactly one return (len={len})"
+        ));
+    }
+    let statement = port.body_stmt(body, 0).map_err(|error| error.render())?;
+    if !matches!(
+        port.stmt_syntax(&statement),
+        ASTNode::Return { value: Some(_), .. }
+    ) {
+        return Err(format!(
+            "{error_prefix}: if body must end in value return (actual={})",
+            port.stmt_syntax(&statement).node_type()
+        ));
+    }
+    port.child_expr_from_stmt(&statement, ExprChildRoleV1::ReturnValue)
+        .map_err(|error| format!("{error_prefix}: return value: {}", error.render()))?;
+    Ok(())
 }
 
 pub(in crate::mir::builder) fn lower_exit_branch_with_prelude(
@@ -183,4 +220,64 @@ fn lower_exit_branch(
     };
     plans.push(CorePlan::Exit(exit));
     Ok(plans)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::validate_return_exit_branch_input;
+    use crate::ast::{ASTNode, LiteralValue, Span};
+    use crate::mir::builder::control_flow::plan::RawLoopPlanExpressionPortV1;
+
+    fn return_value(value: i64) -> ASTNode {
+        ASTNode::Return {
+            value: Some(Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(value),
+                span: Span::unknown(),
+            })),
+            span: Span::unknown(),
+        }
+    }
+
+    #[test]
+    fn source_port_validates_single_value_return_branch() {
+        let statements = vec![return_value(7)];
+        let port = RawLoopPlanExpressionPortV1::new();
+        let body = &statements[..];
+        validate_return_exit_branch_input(&port, &body, "source-port-exit-branch")
+            .expect("direct source exit branch");
+    }
+
+    #[test]
+    fn source_port_rejects_branch_prelude_and_non_return_tail() {
+        let statements = vec![
+            ASTNode::Local {
+                variables: vec!["value".to_owned()],
+                initial_values: vec![Some(Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(1),
+                    span: Span::unknown(),
+                }))],
+                declared_type_names: Vec::new(),
+                span: Span::unknown(),
+            },
+            return_value(7),
+        ];
+        let port = RawLoopPlanExpressionPortV1::new();
+        let body = &statements[..];
+        let error = validate_return_exit_branch_input(&port, &body, "source-port-exit-branch")
+            .expect_err("non-exit tail must reject");
+        assert!(error.contains("exactly one return"), "{error}");
+    }
+
+    #[test]
+    fn source_port_rejects_return_without_value() {
+        let statements = vec![ASTNode::Return {
+            value: None,
+            span: Span::unknown(),
+        }];
+        let port = RawLoopPlanExpressionPortV1::new();
+        let body = &statements[..];
+        let error = validate_return_exit_branch_input(&port, &body, "source-port-exit-branch")
+            .expect_err("value-less return must reject");
+        assert!(error.contains("value return"), "{error}");
+    }
 }

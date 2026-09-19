@@ -437,6 +437,28 @@ The source exit entry is intentionally limited to direct `ExitLeaf` rows. It
 does not reinterpret an `ExitIf` or nested recipe as a direct exit, so those
 shapes remain explicit next work rather than entering a raw fallback.
 
+### Source-port ExitIf shape preflight receipt
+
+The next preparation slice reuses the existing `parts::exit_branch` owner for
+the first `ExitIf { block: None }` source shape. Before any Builder allocation,
+the located source port now requires an `If` with no `else`, an exactly one
+statement then body, and a value-bearing `return`; the return value is resolved
+through the same child expression port. Branch preludes, value-less returns,
+break/continue tails, optional else branches, `ExitIfTree`, nested loops, and
+all physical lowering remain explicit rejects for later slices. The validator
+does not allocate a copied body or issue a Recipe/MIR result.
+
+The focused source-port validator matrix passes 3/3, and the existing LoopCond
+utility matrix passes 4/4. This receipt proves only the bounded ExitIf shape
+preflight; source caller cutover, physical branch lowering, static publication,
+old-edge retirement, and source-to-MIR acceptance remain open.
+
+Warning cleanup remains a separate parked hygiene task,
+`MIRBUILDER-WARNING-BASELINE-REFRESH-I0`, in the workstream cleanup map. It
+must first classify lib/lib-test lint/file/owner/role before a single unused
+import cohort is changed; this LoopCond slice neither suppresses nor widens
+that warning baseline.
+
 ### Fourth-day audit reconciliation — source bridge and external closeout
 
 The audit's eager-bridge concern is not reproduced as a current implementation

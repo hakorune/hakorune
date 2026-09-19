@@ -9,6 +9,7 @@ use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCond
 use crate::mir::builder::control_flow::joinir::route_entry::registry::RecipeFirstRouteSelectionV1;
 use crate::mir::builder::control_flow::plan::LoopPlanExpressionPortV1;
 use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
+use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 use crate::mir::builder::normal_callable_loop_handoff::CallableLoopReadyBodyOnlyProductV1;
 use crate::mir::builder::normal_callable_loop_handoff::CallableSemanticLoopHandoffPreEffectReceiptV1;
 use crate::mir::builder::normal_callable_loop_source_facts::CallableGenericLoopSourceFactsRouteErrorV1;
@@ -234,8 +235,59 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
             &self.condition_source,
             &self.body,
             &self.body_source,
-        )
+        )?;
+        let facts = self.loop_cond_facts()?;
+        let body = self
+            .source_port
+            .body(&self.body, &self.body_source)
+            .map_err(|error| format!("[freeze:contract][callable-loop/source-port] {error}"))?;
+        preflight_source_exit_if_items(&self.source_port, &body, &facts.recipe.items)
     }
+}
+
+fn preflight_source_exit_if_items<'input, P>(
+    port: &P,
+    body: &P::BodyInput<'input>,
+    items: &[LoopCondBreakContinueItem],
+) -> Result<(), String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
+{
+    for item in items {
+        let LoopCondBreakContinueItem::ExitIf {
+            if_stmt,
+            block: None,
+        } = item
+        else {
+            continue;
+        };
+        let statement = port
+            .body_stmt(body, if_stmt.index())
+            .map_err(|error| error.render())?;
+        if !matches!(
+            port.stmt_syntax(&statement),
+            ASTNode::If {
+                else_body: None,
+                ..
+            }
+        ) {
+            return Err(
+                "[freeze:contract][callable-loop/loop-cond/source-exit-if-shape]".to_owned(),
+            );
+        }
+        let then_body = port
+            .child_body_from_stmt(
+                &statement,
+                crate::mir::resolved_semantics::BodyChildRoleV1::IfThen,
+            )
+            .map_err(|error| error.render())?;
+        crate::mir::builder::control_flow::plan::validate_return_exit_branch_input(
+            port,
+            &then_body,
+            "[freeze:contract][callable-loop/loop-cond/source-exit-if-then]",
+        )?;
+    }
+    Ok(())
 }
 
 pub(super) fn preflight_source_port_inputs(
