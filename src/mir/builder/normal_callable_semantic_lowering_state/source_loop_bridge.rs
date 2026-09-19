@@ -28,8 +28,9 @@ impl CallableLoopSourceBridgeV1 {
             return Ok(None);
         }
 
+        let loop_sites = root_loop_sites(input.function().loop_sites().cloned().collect());
         let mut projections = BTreeMap::new();
-        for site in input.function().loop_sites() {
+        for site in &loop_sites {
             let located = input.source().exact_stmt(site).map_err(|error| {
                 format!("[freeze:contract][callable-loop/source-bridge/locate] {error:?}")
             })?;
@@ -65,10 +66,43 @@ impl CallableLoopSourceBridgeV1 {
     }
 }
 
+fn root_loop_sites(loop_sites: Vec<SourceStmtSiteV1>) -> Vec<SourceStmtSiteV1> {
+    loop_sites
+        .iter()
+        .filter(|site| {
+            !loop_sites.iter().any(|ancestor| {
+                ancestor != *site
+                    && site
+                        .node()
+                        .segments()
+                        .starts_with(ancestor.node().segments())
+            })
+        })
+        .cloned()
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::CallableLoopSourceBridgeV1;
     use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+    use crate::mir::resolved_semantics::{SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1};
+
+    #[test]
+    fn root_inventory_drops_nested_loop_roots() {
+        let root = SourceStmtSiteV1::from_node(SourcePathV1::root_body(1).node());
+        let child = SourceStmtSiteV1::from_node(
+            SourcePathV1::root_body(1)
+                .child(SourcePathSegmentV1::LoopBodyRoot)
+                .child(SourcePathSegmentV1::LoopBody(0))
+                .node(),
+        );
+
+        assert_eq!(
+            super::root_loop_sites(vec![child, root.clone()]),
+            vec![root]
+        );
+    }
 
     #[test]
     fn owned_inventory_takes_exact_loop_projection_once() {

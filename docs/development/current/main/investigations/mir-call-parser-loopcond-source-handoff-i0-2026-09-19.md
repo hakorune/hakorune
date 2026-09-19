@@ -4,8 +4,8 @@ Task: MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0
 Date: 2026-09-19
 Parent: mir-call-parser-nested-loop-source-promotion-d0-2026-09-19.md
 ProductionCaller: selected normal MIR/static-receiver route only
-Implementation permission: true for the bounded source-bridge attach slice; route/physical
-cutover remains closed until its focused evidence passes
+Implementation permission: true for the bounded source-bridge attach and route-token
+slice; source physical/caller cutover remains closed until its focused evidence passes
 Classification: BoxCount; one source-backed nested-loop handoff and one compatibility-edge retirement
 ---
 
@@ -67,6 +67,7 @@ Permitted edits are limited to the existing owners:
 - `src/mir/builder/control_flow/plan/features/loop_cond_bc.rs` and its existing
   split helpers
 - `src/mir/builder/control_flow/joinir/route_entry/registry/selection.rs`
+- `src/mir/builder/normal_callable_loop_source_route.rs`
 - the existing callable source Facts/port modules and their focused tests
 
 The source physical path may not construct a `LoopRouteContext`, invoke the
@@ -94,9 +95,9 @@ edge or claim source-to-MIR acceptance.
 
 ## Design audit checkpoint — typed NoSafeSlice
 
-The read-only bridge audit closed the next boundary as `NoSafeSlice`; no code
-or fixture change is authorized until this contract is designed in the
-existing owners. `CallableGenericLoopSourceFactsIssuerV1` is the only current
+The read-only bridge audit initially closed the next boundary as `NoSafeSlice`;
+at that point no code or fixture change was authorized until this contract was
+designed in the existing owners. `CallableGenericLoopSourceFactsIssuerV1` is the only current
 source Facts issuer, but it accepts only the GenericLoop payload and emits
 `GenericLoopV1` selection. The local `LoopCondBreakContinueFacts`/Recipe can
 express nested AST shapes, yet its `StmtRef` exit items do not retain the
@@ -105,7 +106,7 @@ LoopCond composer/physicalizer also requires `LoopRouteContext` and re-enters
 AST/legacy lowering; the source GenericLoop expression port cannot safely
 consume it.
 
-This is an internal authority gap, not an external wait. The reopen contract
+This was an internal authority gap, not an external wait. The reopen contract
 is one same-owner co-seal that carries the forest binding, all paired exit
 records, the selected source target relation, and a source-aware LoopCond
 Recipe/JoinSig handoff into a physical adapter that does not construct
@@ -136,7 +137,7 @@ LoopCond Recipe/JoinSig into `loop_cond_bc` and its nested-item helpers. The
 consumer must thread that port through header, item, nested-exit, and cleanup
 lowering without constructing `LoopRouteContext` or reclassifying a route;
 missing child/exit/site or any lowering error discards the whole session.
-This recheck does not authorize a new issuer, route token, catalog row,
+At the recheck boundary this did not authorize a new issuer, route token, catalog row,
 fallback, production switch, or compatibility retirement.
 
 ## Same-owner bridge decision — accepted design boundary
@@ -221,6 +222,28 @@ line. A missing or duplicate projection is a typed source-bridge rejection;
 ordinary GenericLoop callers remain unarmed. This closes the previous lifetime
 `NoSafeSlice` at the attach boundary, while route selection and physical
 consumption remain pending implementation evidence.
+
+### Source route-token receipt — bounded task 2 preparation
+
+The bridge inventory now admits only forest roots. Nested loop sites are
+subsumed by their nearest resolver-issued root, so one callable scope cannot
+issue overlapping projections for the same forest. The root-site filter has a
+focused positive test (`root_inventory_drops_nested_loop_roots`) in addition to
+the existing exact take-once test.
+
+`normal_callable_loop_source_route.rs` adds the route-neutral, move-only
+`CallableLoopSourceRouteTokenV1` constructor. It co-seals the existing
+`PlanBuildOutcome`/`RecipeFirstRouteSelectionV1` with the exact owned forest
+projection and rejects missing Facts, missing LoopCond Facts, non-exclusive or
+overlapping routes, foreign owner, and source identity drift. Its fixture
+proves the exclusive `[LoopCondBreakContinue]` route and missing-projection
+failure (`source_loop_cond_route_token` focused filter: 2/2 green).
+
+This is a preparation product, not a production switch: the token does not yet
+carry the same-invocation parser target relation or source item bindings, and
+no physical consumer has been attached. The next slice must extend the
+existing source Facts owner with those fields before any caller can consume the
+token, lower `loop_cond_bc`, publish a result, or delete the compatibility edge.
 
 ## Ordered implementation tasks
 
