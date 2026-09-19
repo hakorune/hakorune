@@ -824,7 +824,7 @@ target             = ParserStringUtilsBox.starts_with/3
 argument shape     = String, I64, String
 required i64 args  = [1]
 publication result = ExactI64
-consumer           = statement IfCondition -> Equal.left
+consumer           = statement IfCondition -> BinaryOp::Equal.lhs
 excluded           = ParserBox instance methods and every compatibility root
 ```
 
