@@ -3,11 +3,13 @@ use crate::mir::builder::control_flow::edgecfg::api::Frag;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::coreloop_frame::{
-    build_coreloop_frame, build_header_step_phis,
+    build_coreloop_frame, build_header_step_phis, CoreLoopFrame,
 };
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::features::step_mode;
-use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::lower_loop_header_cond;
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::{
+    lower_loop_header_cond, LoopHeaderCondResult,
+};
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, RecipeBlock, RecipeBodies,
@@ -41,6 +43,140 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     error_prefix: &str,
 ) -> Result<LoweredRecipe, String> {
     const LOOP_V0_ERR: &str = "[freeze:contract][loop_v0]";
+    let body_recipe = arena
+        .get(body_block.body_id)
+        .ok_or_else(|| format!("{LOOP_V0_ERR} invalid_body_id: ctx={error_prefix}"))?;
+    lower_loop_v0_core(
+        builder,
+        current_bindings,
+        &body_recipe.body,
+        &cond_view.tail_expr,
+        |builder, loop_bindings, frame| {
+            lower_loop_header_cond(
+                builder,
+                loop_bindings,
+                cond_view,
+                frame.header_bb,
+                frame.body_bb,
+                frame.after_bb,
+                empty_carriers_args(),
+                empty_carriers_args(),
+                LOOP_V0_ERR,
+            )
+        },
+        |builder, body_bindings, carrier_step_phis, break_phi_dsts, pre_bindings_for_verify| {
+            match body_contract {
+                BlockContractKind::StmtOnly => {
+                    let verified = super::super::entry::verify_stmt_only_block_with_pre(
+                        arena,
+                        body_block,
+                        LOOP_V0_ERR,
+                        Some(pre_bindings_for_verify),
+                    )?;
+                    super::super::entry::lower_stmt_only_block_verified(
+                        builder,
+                        body_bindings,
+                        carrier_step_phis,
+                        Some(break_phi_dsts),
+                        verified,
+                        LOOP_V0_ERR,
+                        |builder, bindings, carrier_step_phis, break_phi_dsts, stmt, error_prefix| {
+                            parts_stmt::lower_return_prelude_stmt(
+                                builder,
+                                bindings,
+                                carrier_step_phis,
+                                break_phi_dsts,
+                                stmt,
+                                error_prefix,
+                            )
+                        },
+                    )
+                }
+                BlockContractKind::NoExit => {
+                    let verified = super::super::entry::verify_no_exit_block_with_pre(
+                        arena,
+                        body_block,
+                        LOOP_V0_ERR,
+                        Some(pre_bindings_for_verify),
+                    )?;
+                    super::super::entry::lower_no_exit_block_verified(
+                        builder,
+                        body_bindings,
+                        carrier_step_phis,
+                        Some(break_phi_dsts),
+                        verified,
+                        LOOP_V0_ERR,
+                    )
+                }
+                BlockContractKind::ExitAllowed => {
+                    let verified = super::super::entry::verify_exit_allowed_block_with_pre(
+                        arena,
+                        body_block,
+                        LOOP_V0_ERR,
+                        Some(pre_bindings_for_verify),
+                    )?;
+                    super::super::entry::lower_exit_allowed_block_verified(
+                        builder,
+                        body_bindings,
+                        carrier_step_phis,
+                        break_phi_dsts,
+                        verified,
+                        LOOP_V0_ERR,
+                    )
+                }
+                BlockContractKind::ExitOnly => {
+                    let verified = super::super::entry::verify_exit_only_block_with_pre(
+                        arena,
+                        body_block,
+                        LOOP_V0_ERR,
+                        Some(pre_bindings_for_verify),
+                    )?;
+                    super::super::entry::lower_exit_only_block_verified(
+                        builder,
+                        body_bindings,
+                        carrier_step_phis,
+                        break_phi_dsts,
+                        verified,
+                        LOOP_V0_ERR,
+                    )
+                }
+            }
+        },
+        error_prefix,
+    )
+}
+
+/// Shared LoopV0 frame/carrier/backedge owner.
+///
+/// The raw facade and the located source hook differ only in how the header
+/// condition and the body block are produced; carrier discovery, frame
+/// construction, PHIs, and the fallthrough backedge stay in this one owner.
+/// `body_stmts` is the already-issued recipe body — carrier collection reads
+/// names off the co-sealed AST, never a fresh source lookup.
+pub(in crate::mir::builder) fn lower_loop_v0_core<LowerCond, LowerBody>(
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    body_stmts: &[crate::ast::ASTNode],
+    cond_tail_expr: &crate::ast::ASTNode,
+    lower_cond: LowerCond,
+    lower_body: LowerBody,
+    error_prefix: &str,
+) -> Result<LoweredRecipe, String>
+where
+    LowerCond: FnOnce(
+        &mut MirBuilder,
+        &BTreeMap<String, ValueId>,
+        &CoreLoopFrame,
+    ) -> Result<LoopHeaderCondResult, String>,
+    LowerBody: FnOnce(
+        &mut MirBuilder,
+        &mut BTreeMap<String, crate::mir::ValueId>,
+        &BTreeMap<String, crate::mir::ValueId>,
+        &BTreeMap<String, crate::mir::ValueId>,
+        &BTreeMap<String, crate::mir::ValueId>,
+    ) -> Result<Vec<LoweredRecipe>, String>,
+{
+    const LOOP_V0_ERR: &str = "[freeze:contract][loop_v0]";
     let strict_or_dev = joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
     let planner_required = strict_or_dev && joinir_dev::planner_required_enabled();
     let contract_err = |detail: &str| -> String {
@@ -51,14 +187,11 @@ pub(in crate::mir::builder) fn lower_loop_v0(
         }
     };
 
-    let body_recipe = arena
-        .get(body_block.body_id)
-        .ok_or_else(|| format!("{LOOP_V0_ERR} invalid_body_id: ctx={error_prefix}"))?;
     let pre_loop_map = builder.function_state.variable_ctx.variable_map.clone();
 
-    let mut carrier_vars = BTreeSet::from_iter(carriers::collect_from_body(&body_recipe.body).vars);
+    let mut carrier_vars = BTreeSet::from_iter(carriers::collect_from_body(body_stmts).vars);
     let mut assigned_vars = BTreeSet::new();
-    for stmt in &body_recipe.body {
+    for stmt in body_stmts {
         collect_assigned_vars(stmt, &mut assigned_vars);
     }
     for name in assigned_vars {
@@ -74,7 +207,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     }
     if carrier_vars.is_empty() {
         carrier_vars = collect_carriers_from_condition(
-            condition_vars(&cond_view.tail_expr),
+            condition_vars(cond_tail_expr),
             builder,
             current_bindings,
         );
@@ -130,18 +263,9 @@ pub(in crate::mir::builder) fn lower_loop_v0(
             .insert(name.clone(), *value_id);
     }
 
-    // Header short-circuit lowering (CondBlockView-first).
-    let header_result = lower_loop_header_cond(
-        builder,
-        &loop_bindings,
-        cond_view,
-        frame.header_bb,
-        frame.body_bb,
-        frame.after_bb,
-        empty_carriers_args(),
-        empty_carriers_args(),
-        LOOP_V0_ERR,
-    )?;
+    // Header short-circuit lowering; the caller chooses the raw CondBlockView
+    // facade or the source-aware port input.
+    let header_result = lower_cond(builder, &loop_bindings, &frame)?;
     // The loop header condition may lower into short-circuit helper blocks.
     // Each concrete block that branches to after_bb is a real PHI predecessor,
     // so after PHIs must seed all such normal-exit edges.
@@ -188,82 +312,13 @@ pub(in crate::mir::builder) fn lower_loop_v0(
         }
     }
     let body_entry_bindings = body_bindings.clone();
-    let body_plans = match body_contract {
-        BlockContractKind::StmtOnly => {
-            let verified = super::super::entry::verify_stmt_only_block_with_pre(
-                arena,
-                body_block,
-                LOOP_V0_ERR,
-                Some(&pre_bindings_for_verify),
-            )?;
-            super::super::entry::lower_stmt_only_block_verified(
-                builder,
-                &mut body_bindings,
-                &frame.carrier_step_phis,
-                Some(&break_phi_dsts),
-                verified,
-                LOOP_V0_ERR,
-                |builder, bindings, carrier_step_phis, break_phi_dsts, stmt, error_prefix| {
-                    parts_stmt::lower_return_prelude_stmt(
-                        builder,
-                        bindings,
-                        carrier_step_phis,
-                        break_phi_dsts,
-                        stmt,
-                        error_prefix,
-                    )
-                },
-            )?
-        }
-        BlockContractKind::NoExit => {
-            let verified = super::super::entry::verify_no_exit_block_with_pre(
-                arena,
-                body_block,
-                LOOP_V0_ERR,
-                Some(&pre_bindings_for_verify),
-            )?;
-            super::super::entry::lower_no_exit_block_verified(
-                builder,
-                &mut body_bindings,
-                &frame.carrier_step_phis,
-                Some(&break_phi_dsts),
-                verified,
-                LOOP_V0_ERR,
-            )?
-        }
-        BlockContractKind::ExitAllowed => {
-            let verified = super::super::entry::verify_exit_allowed_block_with_pre(
-                arena,
-                body_block,
-                LOOP_V0_ERR,
-                Some(&pre_bindings_for_verify),
-            )?;
-            super::super::entry::lower_exit_allowed_block_verified(
-                builder,
-                &mut body_bindings,
-                &frame.carrier_step_phis,
-                &break_phi_dsts,
-                verified,
-                LOOP_V0_ERR,
-            )?
-        }
-        BlockContractKind::ExitOnly => {
-            let verified = super::super::entry::verify_exit_only_block_with_pre(
-                arena,
-                body_block,
-                LOOP_V0_ERR,
-                Some(&pre_bindings_for_verify),
-            )?;
-            super::super::entry::lower_exit_only_block_verified(
-                builder,
-                &mut body_bindings,
-                &frame.carrier_step_phis,
-                &break_phi_dsts,
-                verified,
-                LOOP_V0_ERR,
-            )?
-        }
-    };
+    let body_plans = lower_body(
+        builder,
+        &mut body_bindings,
+        &frame.carrier_step_phis,
+        &break_phi_dsts,
+        &pre_bindings_for_verify,
+    )?;
     // Fallthrough: explicit backedge with carrier values (fills step-join PHIs).
     let mut body_plans = body_plans;
     let mut body_defined_values = BTreeSet::new();

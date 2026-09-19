@@ -645,6 +645,45 @@ production wiring (item 4), publication consumption, caller cutover, or
 old-edge retirement; `source-port-lowering-missing` remains the active
 terminal.
 
+### Port-parametric `loop_v0` core and source hook receipt — decomposition item 3
+
+`parts/loop_/loop_v0.rs` now splits the existing owner into a thin raw facade
+and `lower_loop_v0_core`, a `FnOnce`-generic core that owns carrier
+discovery, `CoreLoopFrame` construction, header/body/step/after PHIs, the
+fallthrough backedge, and `CorePlan::Loop` emission. The raw facade keeps the
+same signature and injects `lower_loop_header_cond` (CondBlockView prelude +
+raw port) plus the verified contract lowerers; the source hook injects
+`lower_loop_header_cond_with_port` plus recursion through
+`lower_callable_loop_source_parts_block`. Nested `LoopV0` therefore consumes
+already-issued carriers end to end — the header condition enters as a located
+`ExprInput`, the co-sealed body block re-enters the same provider/hooks pair,
+and an inner `carrier_updates` map is discarded exactly like the raw path,
+which threads no updates through a nested loop body. A `BlockExpr` condition
+(the `CondBlockView` prelude shape) is a named reject
+(`loop-v0-cond-prelude-unlocated`) before any Builder effect, matching the
+raw facade's prelude-only authority. `CallableLoopSourcePartsBlockV1` exposes
+`recipe_body()` for carrier collection over the issued recipe AST; no
+`RecipeBody` rescan for identity, no AST/name lookup, and no raw retry were
+added.
+
+Focused evidence: `cargo check --profile quick --lib --tests` green; the
+`callable_loop_source` filter passes 38/38, including the new
+`driver_lowers_loop_v0_through_the_shared_core` (nested `LoopV0` lowers to
+`CorePlan::Loop` through the source port, carrier `tmp` round-trips header +
+body sites) and `driver_rejects_a_loop_v0_block_expr_condition_before_effects`
+(the forged `Synthetic` BlockExpr condition stops at the named terminal).
+Adjacent filters stay green: `associated_source` 33/33, `loop_v0` 6/6,
+`nested_depth1` 1/1, `simple_while` 16/16. The `loop_cond` filter shows one
+red, `program_block_with_exit_signals_prefers_recipe_only`, reproduced
+identically on parent commit `98b5402c58` — classified as known baseline
+debt, not a current-change failure.
+
+This receipt claims only the port-parametric `loop_v0` split and the
+source-aware nested `LoopV0` hook. It does not claim ProgramBlock production
+wiring (item 4), publication consumption, caller cutover, or old-edge
+retirement; `source-port-lowering-missing` remains the active terminal for
+the outer production caller.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs

@@ -4,8 +4,10 @@
 //! `lower_simple_effect_stmt_input` for opaque statements,
 //! `lower_loop_cond_exit_source_input` for opaque exits, the shared exit-if /
 //! join-if state cores for explicit `IfV2` items, and the same block driver
-//! recursively for branch recipes. `RecipeItem::LoopV0` stays a named reject
-//! until the port-parametric `loop_v0` entry lands (decomposition item 3).
+//! recursively for branch recipes. `RecipeItem::LoopV0` reuses the shared
+//! `loop_v0` frame/carrier core with a ported header condition and a located
+//! body block; a `BlockExpr` (prelude) condition stays a named reject until a
+//! ported prelude lowering exists.
 
 use std::collections::BTreeMap;
 use std::convert::Infallible;
@@ -22,14 +24,16 @@ use crate::mir::builder::control_flow::plan::parts::dispatch::if_exit_only::{
 use crate::mir::builder::control_flow::plan::parts::dispatch::if_join::{
     lower_if_join_state_core, JoinIfBranchV1,
 };
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::lower_loop_header_cond_with_port;
 use crate::mir::builder::control_flow::plan::parts::exit as parts_exit;
 use crate::mir::builder::control_flow::plan::parts::join_scope::{
     collect_branch_local_vars_from_maps, filter_branch_locals_from_maps,
 };
 use crate::mir::builder::control_flow::plan::parts::var_map_scope::reseal_branch_bindings;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    IfContractKind, IfMode, RecipeItem,
+    BlockContractKind, IfContractKind, IfMode, RecipeItem,
 };
+use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
 use crate::mir::builder::control_flow::plan::{CoreIfJoin, LoweredRecipe};
 use crate::mir::builder::normal_callable_loop_source_port::{
     CallableLoopSourceBodyInputV1, CallableLoopSourceExprInputV1,
@@ -98,14 +102,17 @@ where
     )
 }
 
-struct CallableLoopSourcePartsLoweringHooksV1<'context> {
-    builder: &'context mut MirBuilder,
-    current_bindings: &'context mut BTreeMap<String, ValueId>,
-    carrier_phis: &'context BTreeMap<String, ValueId>,
-    carrier_step_phis: &'context BTreeMap<String, ValueId>,
-    break_phi_dsts: &'context BTreeMap<String, ValueId>,
-    carrier_updates: &'context mut BTreeMap<String, ValueId>,
-    error_prefix: &'context str,
+/// Hook bundle threaded through the neutral dispatcher. `pub(super)` so the
+/// sibling test module can drive a single hook (e.g. the LoopV0 boundary)
+/// without reconstructing a whole recipe block.
+pub(super) struct CallableLoopSourcePartsLoweringHooksV1<'context> {
+    pub(super) builder: &'context mut MirBuilder,
+    pub(super) current_bindings: &'context mut BTreeMap<String, ValueId>,
+    pub(super) carrier_phis: &'context BTreeMap<String, ValueId>,
+    pub(super) carrier_step_phis: &'context BTreeMap<String, ValueId>,
+    pub(super) break_phi_dsts: &'context BTreeMap<String, ValueId>,
+    pub(super) carrier_updates: &'context mut BTreeMap<String, ValueId>,
+    pub(super) error_prefix: &'context str,
 }
 
 impl<'view, 'ledger: 'view>
@@ -287,16 +294,81 @@ impl<'view, 'ledger: 'view>
         match bridge {}
     }
 
+    /// Nested `LoopV0` reuses the shared `loop_v0` frame/carrier owner: the
+    /// header condition enters through `lower_loop_header_cond_with_port` and
+    /// the co-sealed body block recurses through this same provider. The raw
+    /// `CondBlockView` prelude has no ported lowering yet, so a BlockExpr
+    /// condition is a named reject before any Builder effect.
     fn lower_raw_loop_v0(
         &mut self,
-        _port: CallableLoopSourceExpressionPortV1<'ledger>,
+        port: CallableLoopSourceExpressionPortV1<'ledger>,
         loop_input: CallableLoopSourcePartsLoopV0V1<'view>,
     ) -> Result<Self::Output, String> {
-        let _ = loop_input;
-        Err(format!(
-            "{SOURCE_PARTS_ERR} loop-v0-source-lowering-missing: ctx={}",
-            self.error_prefix
-        ))
+        reseal_branch_bindings(self.builder, self.current_bindings);
+        if matches!(
+            port.expr_syntax(&loop_input.condition),
+            ASTNode::BlockExpr { .. }
+        ) {
+            return Err(format!(
+                "{SOURCE_PARTS_ERR} loop-v0-cond-prelude-unlocated: ctx={}",
+                self.error_prefix
+            ));
+        }
+        let mode = match loop_input.body_contract {
+            BlockContractKind::StmtOnly => PartsAssociatedBlockModeV1::StmtOnly,
+            BlockContractKind::NoExit => PartsAssociatedBlockModeV1::NoExit,
+            BlockContractKind::ExitAllowed => PartsAssociatedBlockModeV1::ExitAllowed,
+            BlockContractKind::ExitOnly => PartsAssociatedBlockModeV1::ExitOnly,
+        };
+        let body_recipe = loop_input
+            .body_block
+            .recipe_body()
+            .map_err(|error| render_source_error(error, self.error_prefix))?;
+        let cond_tail = port.expr_syntax(&loop_input.condition);
+        let condition = loop_input.condition;
+        let body_block = loop_input.body_block;
+        let error_prefix = self.error_prefix;
+        let plan = super::super::loop_::lower_loop_v0_core(
+            self.builder,
+            self.current_bindings,
+            &body_recipe.body,
+            cond_tail,
+            |builder, loop_bindings, frame| {
+                lower_loop_header_cond_with_port(
+                    builder,
+                    loop_bindings,
+                    &port,
+                    condition,
+                    frame.header_bb,
+                    frame.body_bb,
+                    frame.after_bb,
+                    empty_carriers_args(),
+                    empty_carriers_args(),
+                    SOURCE_PARTS_ERR,
+                )
+            },
+            |builder, body_bindings, carrier_step_phis, break_phi_dsts, _pre_bindings| {
+                // The inner body's carrier updates are consumed by the loop_v0
+                // backedge, not by the enclosing block's update map — matching
+                // the raw path, which threads no carrier_updates through a
+                // nested loop body.
+                let mut inner_updates = BTreeMap::new();
+                lower_callable_loop_source_parts_block(
+                    port,
+                    &body_block,
+                    mode,
+                    builder,
+                    body_bindings,
+                    carrier_step_phis,
+                    carrier_step_phis,
+                    break_phi_dsts,
+                    &mut inner_updates,
+                    error_prefix,
+                )
+            },
+            error_prefix,
+        )?;
+        Ok(vec![plan])
     }
 }
 

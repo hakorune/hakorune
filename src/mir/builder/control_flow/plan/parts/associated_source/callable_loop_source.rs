@@ -99,7 +99,11 @@ impl<'view> CallableLoopSourcePartsBlockV1<'view> {
         })
     }
 
-    fn recipe_body(&self) -> Result<&'view RecipeBody, PartsAssociatedSourceErrorV1> {
+    /// The issued recipe body backing this block. Carriers read names off the
+    /// co-sealed AST; no fresh source lookup is performed.
+    pub(in crate::mir::builder::control_flow::plan::parts) fn recipe_body(
+        &self,
+    ) -> Result<&'view RecipeBody, PartsAssociatedSourceErrorV1> {
         self.arena
             .get(self.block.body_id)
             .ok_or(PartsAssociatedSourceErrorV1::MissingRecipeBody)
