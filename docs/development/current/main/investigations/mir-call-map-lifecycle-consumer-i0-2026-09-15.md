@@ -2602,3 +2602,43 @@ Invoke admission, no to_json acceptance, no production switch, no retirement.
    positive, foreign-site, duplicate-site, and Normal/Fault cleanup negatives.
    Only after that may a Map Text copy row or recursive `to_json` family be
    selected.
+
+### D0 canonical handle-class audit (2026-09-19)
+
+The value-representation SSOT does provide a reusable **representation class**:
+`handle_owned` is the canonical public carrier for non-scalar,
+non-borrowed values, and the ownership rule says callable returns are owned by
+default. That class is not, by itself, a callable-result owner or a selected
+physical route.
+
+The existing runtime evidence does not close that gap. `nyrt_handle_retain_h`
+and `nyrt_handle_release_h` provide independent strong-handle operations, but
+they are runtime substrate APIs with no source-result/site/owner brand.
+`CopyOwned`/`DestroyOwned` are MIR-interpreter ownership instructions; the
+selected published C lifecycle path does not consume them as a return protocol.
+The published physical program still has only `ordinary_i64` and
+`ordinary_map` callable roles. Its `ordinary_call` result vocabulary is
+`i64`/`map`, while `map_get_text` produces `LV4_TEXT_VIEW`. A `const_string`
+value is indexed as `LV4_TEXT` and is not materialized into a returned owned
+handle. The existing generic `StringHandle` routes and StringBox helper
+exports therefore remain non-authority compatibility surfaces for this lane.
+
+**Decision:** retain `handle_owned` as the representation candidate, but do
+not promote it into the selected callable result owner by naming. A future
+physical owner must issue a distinct branded `OwnedText` result row, a typed
+out-slot/role, and one real source-backed caller. It must co-seal the existing
+source-result `String` product, terminal relation, callable owner/site, and
+Normal/callee-Fault/caller-Fault cleanup before package/catalog mutation.
+
+**Rejection boundary:** missing `OwnedText` physical role or out-slot,
+`const_string`/TextView escape without owned materialization, unbranded raw
+handle, generic compatibility re-entry, duplicate/foreign return site, and
+any cleanup path that cannot prove exactly one caller release remain named
+fail-fast stops. The direct literal/concat fixture is a design acceptance
+candidate only; it is not a production switch or an I0 completion claim.
+
+**Next bounded design slice:** inventory one real source-backed caller that can
+consume the typed owner, then define the `OwnedText` wire/role and its fresh
+UTF-8 materialization operation. If no such caller exists in the selected
+route, keep this family `NoSafeSlice` and park it with the explicit reopen
+trigger rather than adding a disconnected receipt or adapter.
