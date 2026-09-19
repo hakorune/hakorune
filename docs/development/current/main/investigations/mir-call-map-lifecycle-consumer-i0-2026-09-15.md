@@ -2476,3 +2476,13 @@ borrowed view rather than an owned Text return. The next design slice is to
 co-seal the qualified static-call/source-result product with a Text-result
 ownership contract, while retaining named rejection for dynamic keys,
 unproven recursion, and compatibility sentinel branches.
+
+The existing owner inventory narrows that Decision: `issue_source_result_product_v1`
+in `resolved_value_profile` is the canonical source-result issuer for branded
+qualified calls and `SourceResultClassV1::{I64,String}`; the static-call
+publication owner remains an I64/target handoff and cannot be promoted into a
+String owner by name. The pinned-Text residence machinery is a physical
+resource owner, not source result evidence. T3 therefore needs one explicit
+co-seal between the source-result product, the bounded MapRead Facts, and an
+owned Text return port; adding a second result issuer or inferring type from
+MIR/JSON is rejected.
