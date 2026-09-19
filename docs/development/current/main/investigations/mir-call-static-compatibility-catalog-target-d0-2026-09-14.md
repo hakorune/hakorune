@@ -1,10 +1,10 @@
 ---
-Status: selected__source_admission_design__2026-09-19
+Status: selected__publication_tuple_design__2026-09-19
 Task: MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0
 Date: 2026-09-14
 Parent: mir-call-r7-stringbox-lower-structural-membership-i0-2026-09-14.md
 NextCard: none__mixed_source_co_seal_design
-Implementation permission: false; user reopened design and taskization only
+Implementation permission: false; publication tuple design and taskization only
 ---
 
 # Static compatibility source admission and handoff
