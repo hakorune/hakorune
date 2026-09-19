@@ -1,10 +1,10 @@
 ---
-Status: closed__design__2026-09-14
+Status: closed__stable_known_red__2026-09-19
 Task: MIR-CALL-NORMAL-PIPELINE-RED-RECOVERY-D0
 Date: 2026-09-14
 Priority: classify and recover the selected normal-pipeline reds without weakening a route or hiding a terminal
 Parent: mir-call-static-compatibility-i0-a3-package-admission-boundary-2026-09-14.md
-NextCard: mir-call-normal-pipeline-lifecycle-route-recovery-d0-2026-09-14.md
+NextCard: MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0
 Implementation permission: false until each red has a reproduced baseline and one existing owner
 ---
 
@@ -74,3 +74,28 @@ The next card owns only the latter pair.
 No red may be reclassified from `Unclassified` to baseline solely because a
 test name appears in an old document. The exact command, SHA and first
 terminal are part of the receipt.
+
+## Current-head classification receipt — 2026-09-19
+
+At `58f454b343`, the current checkout ran one quick-profile Cargo process:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib \
+  mir::compiler::normal_default_pipeline::tests -- --test-threads=1
+```
+
+The filter contained 29 tests: 26 passed, 2 failed, and 1 was ignored. The
+only failures were the two documented `published_consumer_*` baseline rows,
+with the same callback-count and `artifact-root-completion-unavailable`
+terminals. The two former route candidates,
+`normal_ingress_preserves_app_main_free_static_definition_after_finish` and
+`normal_ingress_preserves_top_level_free_function_after_finish`, passed at
+this current head. Their state is therefore `ParentPassCurrentPass`, an
+informational correction rather than a current-change failure. The compiler's
+547 warnings are existing baseline debt.
+
+The route-observer I0 is already landed and its focused receipt is recorded in
+`mir-call-normal-ingress-ordinary-invoke-lifecycle-i0-2026-09-14.md`. This D0
+has no owner-local code change to authorize. The next active design boundary
+is the existing static source-admission/publication tuple card; the parked
+OwnedText T3 family remains untouched.

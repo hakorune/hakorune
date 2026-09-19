@@ -1,11 +1,11 @@
 date = "2026-09-19"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-NORMAL-PIPELINE-RED-RECOVERY-D0"
-current_execution_cohort = "normal_pipeline_red_recovery"
-current_blocker_token = "MIR-CALL-NORMAL-PIPELINE-RED-RECOVERY-D0__parent_current_classification"
+current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0"
+current_execution_cohort = "static_source_admission_publication_tuple"
+current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__publication_tuple_and_cutover_design"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "open__normal_pipeline_red_parent_current_classification_2026-09-19"
+current_design_stop = "open__static_publication_tuple_and_cutover_design_2026-09-19"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-normal-pipeline-red-recovery-d0-2026-09-14.md"
-latest_card = "mir-call-normal-pipeline-red-recovery-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-normal-pipeline-red-recovery-d0-2026-09-14.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-d0-2026-09-14.md"
+latest_card = "mir-call-static-compatibility-catalog-target-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-d0-2026-09-14.md"
 latest_card_summary = """
 Map lifecycle consumer spine through C9-2 and the map-argument T-series.
 T1 alpha/beta/gamma and T2-alpha are closed with source-to-OBJ evidence.
@@ -42,12 +42,14 @@ port exists. T3 is `ParkedSealed__NoSelectedOwnedTextCaller`; its reopen
 trigger remains in the owning card. The parser static-parent set relation I0
 has now closed its focused recheck (12/12 and 9/9); A2 body/call/constructor
 guards and A3 package admission are already closed. The next bounded row is
-the normal-pipeline red recovery design stop, which must classify
-parent/current results before any owner-local fix.
+the normal-pipeline red recovery inventory is stable (26 pass, 2 known
+baseline failures, 1 ignored), and its route-observer I0 is already landed.
+The next non-parked row is the static source-admission/publication tuple
+design; the OwnedText T3 family remains parked.
 Non-claims: no qualified Invoke, whole-T2 completion, production cutover, to_json, or legacy retirement.
 """
-next_design_card = "MIR-CALL-NORMAL-PIPELINE-RED-RECOVERY-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-normal-pipeline-red-recovery-d0-2026-09-14.md"
+next_design_card = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-d0-2026-09-14.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

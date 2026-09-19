@@ -1,5 +1,5 @@
 ---
-Status: selected__source_admission_design__2026-09-14
+Status: selected__source_admission_design__2026-09-19
 Task: MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0
 Date: 2026-09-14
 Parent: mir-call-r7-stringbox-lower-structural-membership-i0-2026-09-14.md
@@ -628,3 +628,17 @@ I0 must update affected module README and reference contracts with code/tests.
 Run one Cargo process, quick profile, at most four jobs and focused nonzero
 positive/negative tests plus existing owner guards. No whole-library or CI run
 is required to accept this taskization. Windows is not a gate in this ladder.
+
+## Scheduler handoff — 2026-09-19
+
+The normal-pipeline red recovery inventory is now stable: the two
+`published_consumer_*` failures are immutable parent/current baseline debt and
+the two former route candidates pass at the current head. The route-observer
+I0 is already landed, so no assertion rewrite or owner fix is selected here.
+
+This card is the next non-parked design boundary. A0/A1/A2/A3 child receipts
+are retained as prerequisites; the remaining decision is the exact
+source-backed publication target/header/result tuple and its later cohort-local
+compatibility-edge cutover/delete set. Implementation remains prohibited until
+that authority chain and terminal inventory are accepted. The OwnedText T3
+family stays `ParkedSealed__NoSelectedOwnedTextCaller`.
