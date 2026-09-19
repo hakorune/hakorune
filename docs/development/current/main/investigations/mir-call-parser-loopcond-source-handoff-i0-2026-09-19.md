@@ -1,10 +1,11 @@
 ---
-Status: selected__design_stop__2026-09-19
+Status: selected__fast__2026-09-19
 Task: MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0
 Date: 2026-09-19
 Parent: mir-call-parser-nested-loop-source-promotion-d0-2026-09-19.md
 ProductionCaller: selected normal MIR/static-receiver route only
-Implementation permission: false while the same-owner source bridge remains `NoSafeSlice`
+Implementation permission: true for the bounded source-bridge attach slice; route/physical
+cutover remains closed until its focused evidence passes
 Classification: BoxCount; one source-backed nested-loop handoff and one compatibility-edge retirement
 ---
 
@@ -197,22 +198,25 @@ compatibility retirement is implied until those four steps pass.
 The resolver-input attach point is the existing package scope
 `with_callable_source_scope(input, ...)`. `raw_loop_child_entry` currently has
 only the projected callable ledger and cannot mint the forest projection by
-itself. The scope must therefore lend one source-bridge capability to
-`RawInvocationChildPortV1`, and the child entry must consume that capability for
-the active loop. The capability may borrow the already-issued
-`ResolvedFunctionLoweringInputV1` or carry a one-shot projection made at that
-scope; it must not copy the resolver forest into the lowering state or create a
-second ledger. If the lifetime cannot be represented at this existing scope
-without a second owner, this remains `NoSafeSlice` and the compatibility edge
-stays selected.
+itself. The accepted attach is a move-only, owned projection inventory created
+once from `input` at that scope and stored as one optional field in the existing
+`CallableSemanticLoweringState`. The existing callable ledger is the sole
+carrier: a child Loop takes the exact projection for its resolver-issued site,
+and the scope restores the parent state after the callback. No third lifetime
+parameter is added to `RawInvocationChildPortV1`, the resolver forest is not
+copied into a second ledger, and no projection is re-created from AST, name, or
+line. A missing or duplicate projection is a typed source-bridge rejection;
+ordinary GenericLoop callers remain unarmed. This closes the previous lifetime
+`NoSafeSlice` at the attach boundary, while route selection and physical
+consumption remain pending implementation evidence.
 
 ## Ordered implementation tasks
 
 | Order | Task | Completion condition |
 | --- | --- | --- |
-| 1 | Source co-seal | One move-only product binds the exact three-member forest, ordered paths/frame keys, all resolver exits, parser brand/owner, and target/source site. Foreign, missing, duplicate, or orphan rows reject before effects. |
-| 2 | LoopCond route token | **Blocked by NoSafeSlice.** First design the same-owner source Facts/Recipe/JoinSig product; then the route registry must yield exactly `[LoopCondBreakContinue]` for this product, with GenericLoop, LoopBreak, overlap, and route re-entry as typed rejects. |
-| 3 | Source physical consume | **Blocked by NoSafeSlice.** `loop_cond_bc` needs a source-aware adapter that lowers nested recipe items and exit transfers without constructing `LoopRouteContext`, and discards the whole session on error. |
+| 1 | Source bridge attach | Build the one-shot owned projection inventory in the existing callable semantic state and consume it through the existing callable ledger. Scope restoration, exact-site take, duplicate/missing rejection, and GenericLoop-unarmed behavior are focused and green. |
+| 2 | Source co-seal and LoopCond route token | One move-only product binds the exact three-member forest, ordered paths/frame keys, all resolver exits, parser brand/owner, and target/source site; the route registry yields exactly `[LoopCondBreakContinue]`, with GenericLoop, LoopBreak, overlap, and route re-entry as typed rejects. |
+| 3 | Source physical consume | `loop_cond_bc` needs a source-aware adapter that lowers nested recipe items and exit transfers without constructing `LoopRouteContext`, and discards the whole session on error. |
 | 4 | Static tuple handoff | The selected static result reaches the existing statement-If/Equal consumer with ordered arguments and ExactI64 result; duplicate consume and wrong ordinal reject before argument effects. |
 | 5 | Negative matrix | Wrong owner/brand, forest parent drift, omitted child, wrong path, missing/duplicate/foreign exit, wrong target/header/result, legacy route re-entry, and extra nested loop all fail closed. |
 | 6 | Retirement and acceptance | After positive plus negative evidence, remove only the selected tuple's retained compatibility/static-child disposition and record source-to-MIR acceptance. |

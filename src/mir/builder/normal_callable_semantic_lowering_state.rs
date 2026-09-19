@@ -33,6 +33,8 @@ mod observation;
 /// only projects that identity onto the `ValueId`s allocated by existing Lower.
 #[path = "normal_callable_semantic_lowering_state/map_local.rs"]
 mod map_local;
+#[path = "normal_callable_semantic_lowering_state/source_loop_bridge.rs"]
+mod source_loop_bridge;
 pub(in crate::mir) use map_local::validate_map_local_annotation;
 
 #[derive(Debug)]
@@ -61,6 +63,7 @@ pub(super) struct CallableSemanticLoweringState {
     consumed_assignments: BTreeSet<SourceNodeSiteV1>,
     consumed_direct_lambdas: BTreeSet<SourceNodeSiteV1>,
     consumed_brand_constructors: BTreeSet<SourceNodeSiteV1>,
+    source_loop_bridge: Option<source_loop_bridge::CallableLoopSourceBridgeV1>,
 }
 
 #[derive(Debug)]
@@ -89,6 +92,7 @@ impl CallableSemanticLoweringState {
             Rc<super::normal_callable_dynamic_source::VerifiedSourceBackedDynamicCallableV1>,
         >,
     ) -> Result<Self, String> {
+        let source_loop_bridge = source_loop_bridge::CallableLoopSourceBridgeV1::from_input(input)?;
         let dynamic_origins = match dynamic_source {
             Some(source) => CallableDynamicOriginLoweringStateV1::from_shared_source(source),
             None => {
@@ -246,6 +250,7 @@ impl CallableSemanticLoweringState {
             consumed_assignments: BTreeSet::new(),
             consumed_direct_lambdas: BTreeSet::new(),
             consumed_brand_constructors: BTreeSet::new(),
+            source_loop_bridge,
         })
     }
 
@@ -279,6 +284,26 @@ impl CallableSemanticLoweringState {
             &self.variables,
             &self.assignments,
         )
+    }
+
+    /// Lend one resolver-issued forest projection to the active source Loop.
+    /// The projection is move-only and remains owned by this callable state
+    /// until the exact source site consumes it.
+    pub(super) fn take_source_loop_bridge(
+        &mut self,
+        site: &SourceNodeSiteV1,
+    ) -> Result<
+        Option<
+            crate::mir::loop_structural_facts::VerifiedLoopCondBreakContinueSourceForestProjectionV1,
+        >,
+        String,
+    >{
+        let statement_site =
+            crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
+        self.source_loop_bridge
+            .as_mut()
+            .map(|bridge| bridge.take_for(&statement_site))
+            .transpose()
     }
 
     pub(super) fn prepare_source_backed_dynamic_loop_ingress(
