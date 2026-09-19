@@ -1,7 +1,8 @@
 //! T0-C0 raw-facade parity for the shared loop-condition port core.
 
-use super::cond_lowering_loop_header::{lower_loop_header_cond, LoopHeaderCondResult};
-use super::cond_lowering_loop_header_port::lower_loop_header_cond_input;
+use super::cond_lowering_loop_header::{
+    lower_loop_header_cond, lower_loop_header_cond_with_port, LoopHeaderCondResult,
+};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
@@ -41,7 +42,7 @@ fn raw_loop_header_facade_matches_explicit_raw_port_core() {
     .expect("raw facade lowers");
 
     let port = RawLoopPlanExpressionPortV1::new();
-    let core = lower_loop_header_cond_input(
+    let core = lower_loop_header_cond_with_port(
         &mut core_builder,
         &BTreeMap::new(),
         &port,

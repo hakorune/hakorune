@@ -9,7 +9,9 @@ use super::cond_lowering_prelude::lower_cond_prelude_stmts;
 use crate::mir::builder::control_flow::cleanup::policies::cond_prelude_vocab::prelude_has_loop_like_stmt;
 use crate::mir::builder::control_flow::edgecfg::api::BranchStub;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::{CoreEffectPlan, RawLoopPlanExpressionPortV1};
+use crate::mir::builder::control_flow::plan::{
+    CoreEffectPlan, LoopPlanExpressionPortV1, RawLoopPlanExpressionPortV1,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, EdgeArgs, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
@@ -53,7 +55,7 @@ pub fn lower_loop_header_cond(
     let (bindings, prelude_effects) =
         lower_cond_prelude_stmts(builder, phi_bindings, &cond.prelude_stmts, error_prefix)?;
     let port = RawLoopPlanExpressionPortV1::new();
-    let mut result = lower_loop_header_cond_input(
+    let mut result = lower_loop_header_cond_with_port(
         builder,
         &bindings,
         &port,
@@ -74,4 +76,40 @@ pub fn lower_loop_header_cond(
     }
 
     Ok(result)
+}
+
+/// Lower one already-located loop-header expression through the shared
+/// expression port.
+///
+/// The raw facade above still owns `CondBlockView` prelude handling. A
+/// source-aware physical consumer enters here with the resolver-issued
+/// expression input directly; this helper performs no route classification,
+/// AST lookup, or fallback selection.
+pub(in crate::mir::builder) fn lower_loop_header_cond_with_port<'input, P>(
+    builder: &mut MirBuilder,
+    phi_bindings: &BTreeMap<String, ValueId>,
+    port: &P,
+    input: P::ExprInput<'input>,
+    current_bb: BasicBlockId,
+    body_bb: BasicBlockId,
+    after_bb: BasicBlockId,
+    body_args: EdgeArgs,
+    after_args: EdgeArgs,
+    error_prefix: &str,
+) -> Result<LoopHeaderCondResult, String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
+{
+    lower_loop_header_cond_input(
+        builder,
+        phi_bindings,
+        port,
+        input,
+        current_bb,
+        body_bb,
+        after_bb,
+        body_args,
+        after_args,
+        error_prefix,
+    )
 }

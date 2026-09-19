@@ -364,6 +364,19 @@ does not allocate MIR or claim physical lowering. The source-port
 parameterization of header/item/nested/exit lowering, static tuple publication,
 old-edge retirement, and source-to-MIR acceptance remain open.
 
+### Source-port header extraction receipt
+
+The first physical-lowering preparation slice now exposes
+`lower_loop_header_cond_with_port` from the existing loop-header owner. The
+raw `CondBlockView` facade keeps its prelude validation and delegates its tail
+through the same `LoopPlanExpressionPortV1` core that a located source
+consumer will use. The helper performs no route selection, AST lookup, or
+fallback; it only lowers an already-issued expression input. The focused raw
+facade parity test passes with one exact test selected. This is a
+behavior-preserving preparation step: the source LoopCond entry still stops
+before Builder allocation, and item/nested/exit lowering, publication,
+retirement, and source-to-MIR acceptance remain open.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs
