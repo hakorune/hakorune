@@ -13,12 +13,12 @@ Classification: BoxCount; one bounded source-loop admission profile
 ## Six-line brief
 
 ```text
-Decision: decide whether the existing source-aware GenericLoop Facts/Recipe/
+Decision: decide whether the existing LoopCondBreakContinue Facts/Recipe/
 JoinSig/physical chain can admit one parser nested/exit-driven profile as one
 co-sealed product; keep the tuple at a typed stop until that decision is accepted.
 Source authority + canonical issuer: parser-branded merged source plus the
-resolver-issued loop forest and resolved-exit records, consumed by the existing
-CallableGenericLoopSourceFactsIssuerV1 chain.
+resolver-issued loop forest and resolved-exit records, consumed by one
+source-aware extension of the existing LoopCondBreakContinue Facts/Recipe owner.
 Non-authority: parser line numbers, names/arity, AST/MIR rescans, LoopBreak's
 legacy Builder route, VM/compatibility retry, and a parser-specific issuer.
 Fail-fast boundary: missing or foreign root/forest/exit/target identity,
@@ -61,17 +61,23 @@ Candidate A is the only authority allowed into this design:
 
 ```text
 RawInvocationSourceContextV1
-  -> CallableGenericLoopSourceFactsIssuerV1
-  -> CallableGenericLoopV1SemanticRecipeV1
+  -> existing LoopCondBreakContinue Facts/Recipe owner
+  -> one source-aware co-sealed handoff under that owner
   -> RecipeFirstRouteSelectionV1
-  -> existing GenericLoop JoinSig/physical adapter
+  -> existing LoopCondBreakContinue JoinSig/physical pipeline
   -> existing completion/DraftSeal and static publication consumer
 ```
 
-The extension, if accepted, must add the loop forest, ordered body paths,
-resolved exits, and target/source relation to this existing move-only product
-and consume them in the same Recipe/JoinSig/physical transaction. The source
-issuer remains the sole issuer; no sidecar forest observer may be paired later.
+The parser outer condition is a state-machine condition, not a progression
+loop: it has no GenericLoop `loop_var`/increment pair. The existing GenericLoop
+source adapter therefore cannot be the authority for this profile; its nested
+source path explicitly rejects `UnsupportedFirstCohort`. The existing
+LoopCondBreakContinue facts can represent the reviewed shape through its
+`ProgramBlock` and `NestedLoopDepth1` recipe items. The extension, if accepted,
+must add the loop forest, ordered body paths, resolved exits, and target/source
+relation to that owner and consume them in one Recipe/JoinSig/physical
+transaction. The source issuer remains the sole issuer; no sidecar forest
+observer may be paired later.
 
 `LoopBreakRecipe` is not a candidate: its direct three-statement terminal and
 legacy `MirBuilder` route do not carry the source handoff. A new parser route,
@@ -83,7 +89,7 @@ rejected by this D0.
 | Order | Task | Completion condition |
 | --- | --- | --- |
 | 1 | Forest/exit co-seal | One existing source Facts owner binds root, both child loops, parent indices, frame keys, all resolver exits, and the `starts_with` source site from the same invocation. |
-| 2 | Generic route precedence | The existing registry has one unambiguous source-backed route for this profile; ordinary Generic, LoopBreak, nested omission, and overlapping raw schedules keep typed rejects. |
+| 2 | LoopCond route precedence | The existing registry has one unambiguous source-backed LoopCondBreakContinue route for this profile; ordinary Generic, LoopBreak, nested omission, and overlapping raw schedules keep typed rejects. |
 | 3 | Recipe/JoinSig contract | The existing Recipe and JoinSig expose ordered nested segments and exit transfers without reconstructing meaning from AST/MIR or names. |
 | 4 | Physical consumer contract | The existing physical adapter can consume every co-sealed segment/exit and finish or discard the whole session; no partial static argument effects are allowed. |
 | 5 | Negative ownership matrix | Foreign root/brand, parent drift, missing/duplicate exit, wrong target, omitted child, extra loop, wrong condition, and route overlap reject before catalog/effects. |
@@ -99,8 +105,8 @@ complete forest and exit set without a second authority, retain
 field/consumer named.
 
 The positive acceptance shape is deliberately one source invocation: the
-merged parser route reaches the existing Generic source product with all
-three loop members and all exits co-sealed, then the parent static tuple may
+merged parser route reaches the existing LoopCondBreakContinue source product
+with all three loop members and all exits co-sealed, then the parent static tuple may
 continue to Cataloged. It does not claim physical lowering, source-to-exe,
 compatibility retirement, or any other parser callsite.
 
@@ -111,6 +117,9 @@ compatibility retirement, or any other parser callsite.
 - `mir-call-parser-loop-forest-exit-coseal-d0-2026-09-19.md` — resolver forest
   and exit evidence plus the missing callable co-seal.
 - `mirbuilder-callable-loop-ready-generic-loop-v1-recipe-authority-d0-2026-08-22.md`
-  — existing GenericLoop source Facts/Recipe/physical boundary.
+  — existing GenericLoop boundary that rejects this state-machine profile.
+- `src/mir/builder/control_flow/facts/loop_cond_break_continue.rs` and
+  `src/mir/builder/control_flow/plan/loop_cond/break_continue_item.rs` — the
+  existing Facts/Recipe shape that carries ProgramBlock and NestedLoopDepth1.
 - `lang/src/compiler/parser/program/parser_program_box.hako:81-189` — finite
   nested/exit-driven counterexample shape.
