@@ -117,6 +117,19 @@ pub fn with_env_vars<R>(updates: &[(&'static str, Option<&str>)], f: impl FnOnce
     f()
 }
 
+/// JoinIR mode keys read by GenericLoop facts extraction and loop lowering
+/// paths.  Tests that drive a lowering path pin all six keys so a concurrent
+/// strict/planner_required window (e.g. `with_default_and_strict_modes`)
+/// cannot flip the observed route mid-run.
+pub const JOINIR_DEFAULT_MODE: [(&'static str, Option<&'static str>); 6] = [
+    ("NYASH_JOINIR_DEV", None),
+    ("HAKO_JOINIR_PLANNER_REQUIRED", None),
+    ("HAKO_JOINIR_STRICT", None),
+    ("NYASH_JOINIR_STRICT", None),
+    ("HAKO_JOINIR_DEBUG", None),
+    ("NYASH_JOINIR_DEBUG", None),
+];
+
 /// Serialize a test operation that resolves executables or launches tools.
 ///
 /// The process-wide environment lock is also needed when a caller does not

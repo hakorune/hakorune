@@ -133,7 +133,8 @@ pub(super) fn real_ledger(
         ASTNode::FunctionDeclaration { body, .. } => body.clone(),
         _ => panic!("fixture must be a function"),
     };
-    let syntax = CallableFunctionSyntaxViewV1::from_function_ast(&function).expect("callable syntax");
+    let syntax =
+        CallableFunctionSyntaxViewV1::from_function_ast(&function).expect("callable syntax");
     let mut resolver = FunctionSemanticResolverSessionV1::new(7701).expect("resolver");
     let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
         .resolve_selected_callable_forests(&[syntax.function()])
@@ -207,9 +208,7 @@ pub(super) fn project<'view, 'ledger: 'view>(
 /// `function` declarations seal a lexical `me` receiver binding, so the entry
 /// is instance-shaped (receiver + 0 params) and installed before any
 /// materialized read.
-pub(super) fn test_builder(
-    ledger: &Rc<RefCell<CallableSemanticLoweringState>>,
-) -> MirBuilder {
+pub(super) fn test_builder(ledger: &Rc<RefCell<CallableSemanticLoweringState>>) -> MirBuilder {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("t/0".to_owned());
@@ -232,6 +231,8 @@ pub(super) fn test_builder(
 
 /// Neutral driver entry: installs the entry values the ledger requires before
 /// any materialized read, then drives one co-sealed block through the hooks.
+/// The block driver runs under the pinned default JoinIR mode so a concurrent
+/// strict/planner_required window cannot flip the observed lowering route.
 pub(super) fn drive_block(
     ledger: &Rc<RefCell<CallableSemanticLoweringState>>,
     block: &CallableLoopSourcePartsBlockV1<'_>,
@@ -243,18 +244,21 @@ pub(super) fn drive_block(
     let mut bindings = BTreeMap::new();
     let mut carrier_updates = BTreeMap::new();
     let empty = BTreeMap::new();
-    let plans = lower_callable_loop_source_parts_block(
-        port,
-        block,
-        mode,
-        &mut builder,
-        &mut bindings,
-        &empty,
-        &empty,
-        &empty,
-        &mut carrier_updates,
-        "callable-loop-parts/test",
-    )?;
+    let plans =
+        crate::test_support::with_env_vars(&crate::test_support::JOINIR_DEFAULT_MODE, || {
+            lower_callable_loop_source_parts_block(
+                port,
+                block,
+                mode,
+                &mut builder,
+                &mut bindings,
+                &empty,
+                &empty,
+                &empty,
+                &mut carrier_updates,
+                "callable-loop-parts/test",
+            )
+        })?;
     Ok((plans, bindings))
 }
 
@@ -269,12 +273,8 @@ pub(super) fn drive_recipe(
     let carrier = port
         .body(body, &function_body_source())
         .expect("located body");
-    let block = CallableLoopSourcePartsBlockV1::located_body(
-        recipe_arena,
-        recipe_block,
-        carrier,
-        &port,
-    )
-    .expect("co-sealed block");
+    let block =
+        CallableLoopSourcePartsBlockV1::located_body(recipe_arena, recipe_block, carrier, &port)
+            .expect("co-sealed block");
     drive_block(ledger, &block, mode)
 }

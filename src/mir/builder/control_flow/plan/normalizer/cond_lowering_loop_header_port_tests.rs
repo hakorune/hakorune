@@ -13,6 +13,15 @@ use std::collections::BTreeMap;
 
 #[test]
 fn raw_loop_header_facade_matches_explicit_raw_port_core() {
+    // Both routes must observe one JoinIR mode for the snapshot comparison;
+    // pin the default mode so a concurrent strict/planner_required window
+    // cannot flip the route between the two lowerings.
+    crate::test_support::with_env_vars(&crate::test_support::JOINIR_DEFAULT_MODE, || {
+        raw_loop_header_facade_matches_explicit_raw_port_core_body();
+    });
+}
+
+fn raw_loop_header_facade_matches_explicit_raw_port_core_body() {
     let final_comparison_span = Span::new(30, 31, 7, 9);
     let condition = binary(
         BinaryOperator::And,

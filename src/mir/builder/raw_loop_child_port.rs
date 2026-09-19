@@ -215,11 +215,41 @@ mod tests {
         assert_eq!(after, before, "fail-fast must not create partial MIR");
     }
 
+    /// Strict + planner_required mode: the located source-port composer only
+    /// admits RecipeOnly bodies in this slice, so the same unarmed site reaches
+    /// the named RecipeOnly terminal instead of the GenericLoop lowering
+    /// boundary.
+    const STRICT_PLANNER_MODES: [(&'static str, Option<&'static str>); 6] = [
+        ("NYASH_JOINIR_DEV", Some("1")),
+        ("HAKO_JOINIR_PLANNER_REQUIRED", Some("1")),
+        ("HAKO_JOINIR_STRICT", Some("1")),
+        ("NYASH_JOINIR_STRICT", Some("1")),
+        ("HAKO_JOINIR_DEBUG", None),
+        ("NYASH_JOINIR_DEBUG", None),
+    ];
+
     /// A resolver-cataloged loop left deliberately unarmed (unsupported
     /// ancestor) keeps the ordinary GenericLoop boundary even when a sibling
     /// armed the callable source bridge.
     #[test]
     fn unarmed_nested_loop_keeps_generic_loop_boundary() {
+        crate::test_support::with_env_vars(&crate::test_support::JOINIR_DEFAULT_MODE, || {
+            lower_unarmed_nested_loop()
+                .expect("unarmed nested loop must keep the GenericLoop boundary");
+        });
+        crate::test_support::with_env_vars(&STRICT_PLANNER_MODES, || {
+            let error = lower_unarmed_nested_loop()
+                .expect_err("strict planner_required keeps the named RecipeOnly boundary");
+            assert!(
+                error.contains("callable-loop source port requires RecipeOnly body"),
+                "{error}"
+            );
+        });
+    }
+
+    /// Lower the if-nested (resolver-cataloged but unarmed) loop of the mixed
+    /// fixture through the raw invocation child port.
+    fn lower_unarmed_nested_loop() -> Result<(), String> {
         crate::runtime::ring0::ensure_global_ring0_initialized();
         let program = NyashParser::parse_from_string(
             r#"
@@ -314,7 +344,24 @@ static function mixed_loop(x: i64): i64 {
             body_kind: None,
         });
 
-        port.lower_loop(&mut builder, nested_loop)
-            .expect("unarmed nested loop must keep the GenericLoop boundary");
+        let before = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("test function")
+            .blocks
+            .len();
+        let result = port.lower_loop(&mut builder, nested_loop);
+        if result.is_err() {
+            let after = builder
+                .function_state
+                .current_function
+                .as_ref()
+                .expect("test function")
+                .blocks
+                .len();
+            assert_eq!(after, before, "named reject must not leave partial MIR");
+        }
+        result.map(|_| ())
     }
 }

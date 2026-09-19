@@ -359,7 +359,10 @@ fn semantic_recipe_reaches_the_single_named_physical_adapter() {
             .value_types
             .insert(limit, crate::mir::MirType::Integer);
 
-        let value = CallableGenericLoopV1PhysicalAdapterV1::lower_for_test(&mut builder, recipe)
+        let value =
+            crate::test_support::with_env_vars(&crate::test_support::JOINIR_DEFAULT_MODE, || {
+                CallableGenericLoopV1PhysicalAdapterV1::lower_for_test(&mut builder, recipe)
+            })
             .expect("source Recipe must reach the named physical adapter");
         assert!(builder
             .function_state
@@ -565,13 +568,16 @@ fn source_aware_adapter_consumes_real_callable_ledger_once_for_bound(bound: i64)
     state.install_entry_values(&entry).expect("entry install");
     let ledger = Rc::new(RefCell::new(state));
     let mut root_scope = UnpublishedCallableLoopRootScopeV1::for_test();
-    let value = CallableGenericLoopV1PhysicalAdapterV1::lower(
-        &mut builder,
-        &mut root_scope,
-        recipe,
-        &ledger,
-    )
-    .expect("source-aware adapter");
+    let value =
+        crate::test_support::with_env_vars(&crate::test_support::JOINIR_DEFAULT_MODE, || {
+            CallableGenericLoopV1PhysicalAdapterV1::lower(
+                &mut builder,
+                &mut root_scope,
+                recipe,
+                &ledger,
+            )
+        })
+        .expect("source-aware adapter");
     assert!(builder
         .function_state
         .type_ctx
@@ -722,13 +728,16 @@ fn physical_adapter_rejects_relation_owner_mismatch_before_builder_effect() {
             .expect("semantic Recipe");
         let mut builder = MirBuilder::new();
         let mut root_scope = UnpublishedCallableLoopRootScopeV1::for_test();
-        let error = CallableGenericLoopV1PhysicalAdapterV1::lower(
-            &mut builder,
-            &mut root_scope,
-            recipe,
-            &ledger,
-        )
-        .expect_err("foreign callable ledger must fail before physical effects");
+        let error =
+            crate::test_support::with_env_vars(&crate::test_support::JOINIR_DEFAULT_MODE, || {
+                CallableGenericLoopV1PhysicalAdapterV1::lower(
+                    &mut builder,
+                    &mut root_scope,
+                    recipe,
+                    &ledger,
+                )
+            })
+            .expect_err("foreign callable ledger must fail before physical effects");
         assert!(error.contains("callable-loop/relation-ledger-owner-mismatch"));
         assert!(builder.function_state.current_function.is_none());
         assert!(builder.function_state.current_block.is_none());

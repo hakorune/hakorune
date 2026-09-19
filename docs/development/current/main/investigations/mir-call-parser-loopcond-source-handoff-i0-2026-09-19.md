@@ -708,6 +708,29 @@ GenericLoop boundary). The seven `normal_callable`/`loop_cond` reds
 shape, `BorrowedEntryEscape`) reproduce identically on parent `e6f6456425` —
 classified as known baseline debt, not a current-change failure.
 
+### Ambient-env pin receipt — review fix
+
+Lowering paths read `GenericLoopFactsPolicyFrameV1::from_environment()` and
+`joinir_dev` flags per call, so a test that asserts a route without pinning
+the six mode keys can observe a concurrent strict window. The unarmed-boundary
+test now runs both modes under `PROCESS_STATE_LOCK`: default mode asserts the
+GenericLoop boundary, strict+planner_required asserts the named
+`callable-loop source port requires RecipeOnly body` terminal with no partial
+MIR. `crate::test_support::JOINIR_DEFAULT_MODE` owns the cleared key set;
+`drive_block` (callable-loop source testkit), the three physical-adapter tests
+in `normal_callable_loop_source_facts_tests`, and the loop-header facade/core
+parity test pin the same default mode around their lowering calls.
+
+Focused evidence: the `associated_source` + `raw_loop` + `normal_callable` +
+`cond_lowering_loop_header` filters pass with the pin applied; the same
+filters under `HAKO_JOINIR_STRICT=1 NYASH_JOINIR_STRICT=1
+HAKO_JOINIR_PLANNER_REQUIRED=1 NYASH_JOINIR_DEV=1` keep the pinned tests
+green. The eight `recursive_child_lowering_rawport_tests` reds
+(`missing-expression-source-receipt`) and the
+`production_skip_while_prepares_dynamic_ingress_before_loop_effects` unwrap
+red reproduce identically on session parent `976b65200a` — classified as
+known baseline debt, not a current-change failure.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs
