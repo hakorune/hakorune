@@ -1,5 +1,5 @@
 ---
-Status: selected__design_stop__parser_loop_forest_exit_coseal__2026-09-19
+Status: closed__no_safe_slice__parser_loop_forest_exit_coseal__2026-09-19
 Task: MIR-CALL-PARSER-LOOP-FOREST-EXIT-COSEAL-D0
 Date: 2026-09-19
 Parent: mir-call-parser-loop-source-admission-d0-2026-09-19.md
@@ -108,12 +108,13 @@ Tasks 1 and 2 are closed at the design level: the required atomic product is nam
 existing forest, exit, Recipe, JoinSig, continuation, and physical consumers are mapped. Task 4
 is also closed by the negative matrix above. Task 3 has a typed physical result: the current
 callable GenericLoop adapter consumes only the one-condition/one-body view, so it cannot accept
-this product without a new source-aware consumer contract. Task 5 remains open only for the
-authority decision: either extend that same callable source issuer and its Recipe/physical owner
-as one implementation slice, or retain `NoSafeSlice` and keep the parent static tuple parked.
+this product without a new source-aware consumer contract. Task 5 is closed by retaining
+`NoSafeSlice`: no existing source-aware issuer and Recipe/physical owner can consume this finite
+parser shape without a new semantic loop contract. The parent static tuple remains parked at
+`GenericLoopV1NotSelected`.
 
-The next implementation card must therefore name the exact extension owner and its delete-set
-before any field is added. This D0 creates no implementation permission.
+Any future promotion card must name the exact extension owner and its delete-set
+before any field is added. This closed D0 creates no implementation permission.
 
 ## Ordered design tasks
 
@@ -132,3 +133,13 @@ consumer or a typed `NoSafeSlice`. The static parent remains before
 Cataloged/Selected until this matrix and its negative evidence are complete.
 No new parser issuer, fallback, AST rewrite, MIR scan, VM route, or production
 caller switch is authorized here.
+
+## Closeout receipt — 2026-09-19
+
+The forest/exit mapping and negative matrix are complete. The only missing
+field is the atomic owner-branded relation that co-seals the parser loop
+forest and all resolved exits with the callable source facts. No current
+Recipe/JoinSig/physical consumer carries that relation, so promotion is not a
+safe slice. This card is closed as `NoSafeSlice`; it grants no implementation
+permission and does not reopen the legacy LoopBreak route. The next selected
+design row is the independent current-change source-hint red recovery card.

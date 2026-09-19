@@ -105,9 +105,9 @@ static publication row, or production caller switch is permitted by this card.
 
 Tasks 1 and 2 are closed by the source inventory and route census above. Task
 3 is the explicit `NoSafeSlice` decision: no existing source-aware product can
-consume the parser shape without the missing forest/exit relation. The next
-bounded design card is
-`mir-call-parser-loop-forest-exit-coseal-d0-2026-09-19.md`; it is the only
-selected dependency before the parent static catalog I0 can resume. The
-pointer and parent card retain the named `GenericLoopV1NotSelected` terminal,
-the old compatibility edge, and all non-claims.
+consume the parser shape without the missing forest/exit relation. The
+forest/exit co-seal successor has now completed that mapping and is also
+closed at `NoSafeSlice`; the parent static catalog I0 remains parked at
+`GenericLoopV1NotSelected` with its old compatibility edge retained. The
+current selected row is the independent source-hint red recovery D0. The
+pointer and parent card retain all parser-loop non-claims.

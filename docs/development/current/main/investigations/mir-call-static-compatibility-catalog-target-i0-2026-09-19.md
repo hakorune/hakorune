@@ -194,6 +194,8 @@ Facts, a LoopBreak-compatible Recipe/JoinSig co-seal, and the physical adapter
 plus positive/negative ownership guards. Only after that card names an
 accepted source terminal may this static I0 resume at Cataloged observation.
 
-The source-admission D0 has now closed at `NoSafeSlice`. Its successor is the
-selected parser-loop forest/exit co-seal D0, which must resolve the missing
-source product before this card can observe Cataloged/Selected.
+The source-admission D0 and its parser-loop forest/exit co-seal successor are
+closed at `NoSafeSlice`. This static tuple therefore remains parked before
+Cataloged/Selected; no parser-loop promotion or compatibility re-entry is
+authorized. The current selected row is the independent source-hint red
+recovery D0, whose verification result does not promote this static tuple.
