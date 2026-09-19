@@ -1,9 +1,11 @@
 Task: MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0
 Parent: mir-call-map-local-entry-source-i0-2026-09-15.md
-NextCard: `MIR-CALL-MAP-T3-OWNED-TEXT-RETURN-OWNER-D0` — choose one
-owned Text callable-result representation, its C/LLVM out-slot, and its
-Normal/Fault cleanup contract. T1/T2 map lifecycle rows and the T3 source
-feature census are closed; this frontier remains design-only.
+NextCard: `MIR-CALL-NORMAL-PIPELINE-RED-RECOVERY-D0` — the T3 owned-Text
+family is `ParkedSealed__NoSelectedOwnedTextCaller`, and the parser
+static-parent successor has now closed its focused recheck. Resume T3 only
+when its explicit source-backed caller trigger appears. T1/T2 map lifecycle
+rows and the T3 source feature census are closed; no disconnected Text ABI is
+opened.
 Route note (2026-09-19): the source-result issuer is reusable for the
 semantic `String` class, but the selected ordinary callable lane has no
 owned Text return owner. `MapGetText` remains a borrowed view and the
@@ -2664,3 +2666,15 @@ caller whose callee and receiving operation are both admitted in the selected
 normal lifecycle route, with a typed `OwnedText` out-slot and exactly-one
 caller release on Normal and both Fault paths. Until that trigger exists, do
 not add an OwnedText receipt, adapter, fixture, or production switch.
+
+### T3 scheduler handoff (2026-09-19)
+
+The D0 decision is now sealed as
+`ParkedSealed__NoSelectedOwnedTextCaller`: the selected route has no physical
+owned-Text result role and no caller that can consume one. This is family-local
+and does not stop the MirBuilder program. The parser static-parent successor
+has now closed its focused recheck. The next already-inventoried action is
+`MIR-CALL-NORMAL-PIPELINE-RED-RECOVERY-D0`, which must classify
+parent/current results before any owner-local fix. T3 remains reopen-only on
+the trigger above; no census repetition or new receipt is allowed while it is
+parked.

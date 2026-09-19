@@ -1,9 +1,9 @@
 ---
-Status: selected__fast__2026-09-14
+Status: closed__focused_recheck__2026-09-19
 Task: MIR-CALL-STATIC-COMPATIBILITY-I0-A1-STATIC-PARENT
 Date: 2026-09-14
 Parent: mir-call-static-compatibility-a1-static-parent-co-seal-d0-2026-09-14.md
-NextCard: none__a1_body_call_constructor_handoff_d0
+NextCard: MIR-CALL-NORMAL-PIPELINE-RED-RECOVERY-D0
 Implementation permission: true for the parser static-parent set relation only
 ---
 
@@ -86,3 +86,21 @@ Focused receipts:
 Known baseline: the quick lib test build emits the repository's existing warning
 set (535 warnings); no new warning classification or cargo-fmt-wide cleanup is
 part of this slice.
+
+## Current-head focused recheck — 2026-09-19
+
+The existing A1 owners were rechecked at the current checkout with one Cargo
+process at `CARGO_BUILD_JOBS=4` and the quick profile:
+
+- `static_box_source_tests`: 12 passed, 0 failed, 8133 filtered;
+- `normal_source_plan_surface_tests`: 9 passed, 0 failed, 8136 filtered;
+- the compiler emitted the existing warning set (547 warnings); no test or
+  new-red failure appeared;
+- `git diff --check` and `bash tools/checks/current_state_pointer_guard.sh`
+  passed.
+
+This receipt closes the A1 focused parser relation recheck. It does not claim
+MixedProgram source admission, body/call/constructor production handoff beyond
+the existing guards, publication, fallback retirement, old-edge deletion,
+Windows evidence, or R7 closure. The next bounded action is the existing
+`MIR-CALL-NORMAL-PIPELINE-RED-RECOVERY-D0` design stop.
