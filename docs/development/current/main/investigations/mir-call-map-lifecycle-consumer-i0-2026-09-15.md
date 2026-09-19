@@ -2293,3 +2293,28 @@ This closes T2-beta-2 for its bounded kind-read shape only. The next exact
 slice is T2-beta-3: `blocks.length()` on the same non-empty all-`MapLocal`
 residence. T2 acceptance, qualified Invoke, `to_json`, production cutover,
 and legacy retirement remain open.
+
+## T2-beta-3 implementation and source-to-OBJ acceptance (2026-09-19)
+
+The existing `ArrayLength -> I64` operation now receives the exact
+`blocks.length()` source relation. The issuer requires a non-empty
+`BorrowedArray` with every direct element sealed as `MapLocal`; empty, scalar,
+mixed, and nested entries stop before catalog mutation with named Fact issues.
+When the same body also has the bounded kind read, each distinct source
+`m.get("blocks")` site is paired with its own downstream relation. The issuer
+does not merge sites or relax the duplicate-site guard; a combined body is
+therefore represented by two lookups, one index/kind chain, and one length row.
+
+Focused source-authority evidence: `map_read_fact_tests` 16/16 passed. The
+source-to-OBJ fixture
+`host_providers::llvm_codegen::published_mir_object::map_array_source_tests::issued_borrowed_blocks_length_source_reaches_obj_normal_and_prepare_fault`
+passed 1/1 with `--exact --ignored --nocapture`; published JSON contains one
+`map_install_borrowed_array`, one `map_array_length`, and no
+`map_array_index_map`. The linked object returns array length `1` in Normal,
+and injected `prepare-fault` exits `70` with `REPORT 100`.
+
+This closes T2-beta-3 for its bounded length shape. Together with the recorded
+T2-beta-1 `params.length()` and T2-beta-2 `blocks[0].get("kind")` receipts,
+the bounded T2-beta acceptance inventory is complete. This still does not
+claim whole-T2 completion, qualified Invoke, `to_json`, production cutover,
+or legacy retirement.

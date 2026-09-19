@@ -245,6 +245,15 @@ pub(crate) enum MapReadFactIssueV1 {
     KindValueNotText {
         site: OwnedExprSiteV1,
     },
+    BlocksLengthMissing {
+        site: OwnedExprSiteV1,
+    },
+    BlocksLengthDuplicate {
+        site: OwnedExprSiteV1,
+    },
+    BlocksLengthOperandMismatch {
+        site: OwnedExprSiteV1,
+    },
     ArrayElementMissing {
         site: OwnedExprSiteV1,
     },
@@ -335,7 +344,16 @@ pub(super) fn issue_map_read_facts_v1(
                     blocks_chain::has_blocks_kind_candidate(input.function(), formal.binding)
                 })
                 .unwrap_or(false);
-            if !has_first_candidate && !has_params_length_candidate && !has_blocks_kind_candidate {
+            let has_blocks_length_candidate = batch
+                .with_lowering_input(declaration.batch_slot(), |input| {
+                    blocks_chain::has_blocks_length_candidate(input.function(), formal.binding)
+                })
+                .unwrap_or(false);
+            if !has_first_candidate
+                && !has_params_length_candidate
+                && !has_blocks_kind_candidate
+                && !has_blocks_length_candidate
+            {
                 continue;
             }
             let issued = batch
@@ -366,11 +384,21 @@ pub(super) fn issue_map_read_facts_v1(
                         rows.extend(blocks_chain::issue_blocks_kind_chain(
                             input.function(),
                             formal.binding,
-                            call_site,
+                            call_site.clone(),
                             ordinal,
                             actual_map,
                             actual_flow,
                             ledger,
+                        )?);
+                    }
+                    if has_blocks_length_candidate {
+                        rows.extend(blocks_chain::issue_blocks_length_chain(
+                            input.function(),
+                            formal.binding,
+                            call_site,
+                            ordinal,
+                            actual_map,
+                            actual_flow,
                         )?);
                     }
                     Ok(rows)
@@ -632,7 +660,7 @@ fn issue_chain(
         .ok_or_else(|| MapReadFactIssueV1::ArrayElementMissing {
             site: actual_map.clone(),
         })?;
-    let child = child_map_for_element(ledger, element).ok_or_else(|| {
+    let child = blocks_chain::child_map_for_element(ledger, element).ok_or_else(|| {
         MapReadFactIssueV1::ArrayElementNotMap {
             site: OwnedExprSiteV1::new(actual_map.owner(), element.site().clone()),
         }
@@ -759,17 +787,4 @@ fn literal_integer(
         Some(ResolvedLiteralSourceV1::TypedInteger { value, .. }) => Some(*value),
         _ => None,
     }
-}
-
-fn child_map_for_element<'a>(
-    ledger: &'a OrdinaryNewClaimLedgerV1,
-    element: &crate::mir::resolved_semantics::home_new_prefix::ArrayElementSource,
-) -> Option<&'a MapHomeFlow> {
-    if let Some(site) = element.nested_map() {
-        return ledger.map_flow(site).ok();
-    }
-    let Some(MapValueSource::MapLocal(binding)) = element.value_source() else {
-        return None;
-    };
-    ledger.map_flow_for_local_binding(*binding).ok().flatten()
 }

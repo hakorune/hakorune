@@ -22,27 +22,18 @@ pub(super) fn has_blocks_kind_candidate(
     function: &crate::mir::resolved_semantics::VerifiedResolvedFunctionV1,
     formal_binding: BindingRefV1,
 ) -> bool {
-    let Some(first) = function.method_calls().find_map(|(_, call)| {
-        (call.receiver()
-            == ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(
-                formal_binding,
-            ))
-            && call.selector() == "get"
-            && call.arity() == 1
-            && literal_string(function, call.arguments()[0].site()) == Some("blocks"))
-        .then_some(call)
-    }) else {
-        return false;
-    };
-    let Some(second) = function.method_calls().find_map(|(_, call)| {
-        (call.receiver_site() == first.site() && call.selector() == "get" && call.arity() == 1)
-            .then_some(call)
-    }) else {
-        return false;
-    };
-    function.method_calls().any(|(_, call)| {
-        call.receiver_site() == second.site() && call.selector() == "get" && call.arity() == 1
-    })
+    function
+        .method_calls()
+        .any(|(_, call)| is_blocks_kind_lookup(function, formal_binding, call))
+}
+
+pub(super) fn has_blocks_length_candidate(
+    function: &crate::mir::resolved_semantics::VerifiedResolvedFunctionV1,
+    formal_binding: BindingRefV1,
+) -> bool {
+    function
+        .method_calls()
+        .any(|(_, call)| is_blocks_length_lookup(function, formal_binding, call))
 }
 
 pub(super) fn issue_blocks_kind_chain(
@@ -56,15 +47,7 @@ pub(super) fn issue_blocks_kind_chain(
 ) -> Result<Vec<MapReadFactV1>, MapReadFactIssueV1> {
     let first = unique_call(
         function,
-        |call| {
-            call.receiver()
-                == ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(
-                    formal_binding,
-                ))
-                && call.selector() == "get"
-                && call.arity() == 1
-                && literal_string(function, call.arguments()[0].site()) == Some("blocks")
-        },
+        |call| is_blocks_kind_lookup(function, formal_binding, call),
         MapReadFactIssueV1::BlocksEntryMissing {
             site: actual_map.clone(),
         },
@@ -226,6 +209,150 @@ pub(super) fn issue_blocks_kind_chain(
     ])
 }
 
+pub(super) fn issue_blocks_length_chain(
+    function: &crate::mir::resolved_semantics::VerifiedResolvedFunctionV1,
+    formal_binding: BindingRefV1,
+    call_site: OwnedExprSiteV1,
+    argument_ordinal: u32,
+    actual_map: &OwnedExprSiteV1,
+    actual_flow: &MapHomeFlow,
+) -> Result<Vec<MapReadFactV1>, MapReadFactIssueV1> {
+    let first = unique_call(
+        function,
+        |call| is_blocks_length_lookup(function, formal_binding, call),
+        MapReadFactIssueV1::BlocksEntryMissing {
+            site: actual_map.clone(),
+        },
+        MapReadFactIssueV1::FirstLookupDuplicate {
+            owner: actual_map.owner(),
+        },
+    )?;
+    let length = unique_call(
+        function,
+        |call| {
+            call.receiver_site() == first.site() && call.selector() == "length" && call.arity() == 0
+        },
+        MapReadFactIssueV1::BlocksLengthMissing {
+            site: actual_map.clone(),
+        },
+        MapReadFactIssueV1::BlocksLengthDuplicate {
+            site: actual_map.clone(),
+        },
+    )?;
+    if !length.arguments().is_empty() {
+        return Err(MapReadFactIssueV1::BlocksLengthOperandMismatch {
+            site: actual_map.clone(),
+        });
+    }
+    let blocks = actual_flow
+        .entries()
+        .iter()
+        .find(|entry| entry.key() == "blocks")
+        .ok_or_else(|| MapReadFactIssueV1::BlocksEntryMissing {
+            site: actual_map.clone(),
+        })?;
+    let elements =
+        blocks
+            .array_elements()
+            .ok_or_else(|| MapReadFactIssueV1::BlocksEntryNotArray {
+                site: actual_map.clone(),
+            })?;
+    let element = elements
+        .first()
+        .ok_or_else(|| MapReadFactIssueV1::BlocksElementMissing {
+            site: actual_map.clone(),
+        })?;
+    if blocks.store_class() != MapEntryStoreClassV1::BorrowedArray {
+        return Err(MapReadFactIssueV1::BlocksEntryUnsupported {
+            site: actual_map.clone(),
+        });
+    }
+    for element in elements {
+        if !matches!(element.value_source(), Some(MapValueSource::MapLocal(_))) {
+            return Err(MapReadFactIssueV1::BlocksElementNotMapLocal {
+                site: OwnedExprSiteV1::new(actual_map.owner(), element.site().clone()),
+            });
+        }
+    }
+    let owner = first.owner();
+    let containment = vec![
+        actual_map.clone(),
+        OwnedExprSiteV1::new(actual_map.owner(), blocks.site().clone()),
+        OwnedExprSiteV1::new(actual_map.owner(), element.site().clone()),
+    ];
+    let first_site = OwnedExprSiteV1::new(owner, first.site().clone());
+    let length_site = OwnedExprSiteV1::new(owner, length.site().clone());
+    let first_receiver = OwnedExprSiteV1::new(owner, first.receiver_site().clone());
+    let length_receiver = OwnedExprSiteV1::new(owner, length.receiver_site().clone());
+    let first_operand = OwnedExprSiteV1::new(owner, first.arguments()[0].site().clone());
+    let borrow_roots = borrow_roots_for_entry(actual_flow, blocks);
+    let mut rows = vec![MapReadFactV1 {
+        owner,
+        call_site: call_site.clone(),
+        argument_ordinal,
+        receiver_binding: formal_binding,
+        site: first_site,
+        receiver_site: first_receiver,
+        operand_site: first_operand,
+        operation: MapReadOperationV1::MapLookup,
+        operand: MapReadOperandV1::Key("blocks".into()),
+        result: MapReadResultClassV1::ArrayView,
+        containment: containment.clone().into_boxed_slice(),
+        borrow_roots: borrow_roots.clone().into_boxed_slice(),
+    }];
+    rows.push(MapReadFactV1 {
+        owner,
+        call_site,
+        argument_ordinal,
+        receiver_binding: formal_binding,
+        site: length_site,
+        receiver_site: length_receiver.clone(),
+        operand_site: length_receiver,
+        operation: MapReadOperationV1::ArrayLength,
+        operand: MapReadOperandV1::Key("blocks".into()),
+        result: MapReadResultClassV1::I64,
+        containment: containment.into_boxed_slice(),
+        borrow_roots: borrow_roots.into_boxed_slice(),
+    });
+    Ok(rows)
+}
+
+fn is_blocks_lookup(
+    function: &crate::mir::resolved_semantics::VerifiedResolvedFunctionV1,
+    formal_binding: BindingRefV1,
+    call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+) -> bool {
+    call.receiver()
+        == ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(formal_binding))
+        && call.selector() == "get"
+        && call.arity() == 1
+        && literal_string(function, call.arguments()[0].site()) == Some("blocks")
+}
+
+fn is_blocks_kind_lookup(
+    function: &crate::mir::resolved_semantics::VerifiedResolvedFunctionV1,
+    formal_binding: BindingRefV1,
+    call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+) -> bool {
+    is_blocks_lookup(function, formal_binding, call)
+        && function.method_calls().any(|(_, child)| {
+            child.receiver_site() == call.site() && child.selector() == "get" && child.arity() == 1
+        })
+}
+
+fn is_blocks_length_lookup(
+    function: &crate::mir::resolved_semantics::VerifiedResolvedFunctionV1,
+    formal_binding: BindingRefV1,
+    call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+) -> bool {
+    is_blocks_lookup(function, formal_binding, call)
+        && function.method_calls().any(|(_, child)| {
+            child.receiver_site() == call.site()
+                && child.selector() == "length"
+                && child.arity() == 0
+        })
+}
+
 pub(super) fn borrow_roots(
     actual: &MapHomeFlow,
     entry: &MapHomeEntry,
@@ -250,6 +377,19 @@ pub(super) fn borrow_roots_for_entry(
         collect_element_roots(elements, &mut roots);
     }
     roots.into_iter().collect()
+}
+
+pub(super) fn child_map_for_element<'a>(
+    ledger: &'a OrdinaryNewClaimLedgerV1,
+    element: &ArrayElementSource,
+) -> Option<&'a MapHomeFlow> {
+    if let Some(site) = element.nested_map() {
+        return ledger.map_flow(site).ok();
+    }
+    let Some(MapValueSource::MapLocal(binding)) = element.value_source() else {
+        return None;
+    };
+    ledger.map_flow_for_local_binding(*binding).ok().flatten()
 }
 
 fn collect_element_roots(elements: &[ArrayElementSource], roots: &mut BTreeSet<BindingRefV1>) {

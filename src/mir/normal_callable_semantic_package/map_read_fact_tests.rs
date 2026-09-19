@@ -44,6 +44,21 @@ static box Main {
 }
 "#;
 
+const BLOCKS_LENGTH_READ_SOURCE: &str = r#"
+static box Helpers {
+    read_length(m: MapBox): i64 {
+        local count = m.get("blocks").length()
+        return count
+    }
+}
+static box Main {
+    main() {
+        local block = %{ "kind" => "entry" }
+        return read_length(%{ "blocks" => [block] })
+    }
+}
+"#;
+
 #[test]
 fn source_issues_one_fact_for_each_bounded_nested_read() {
     let package = issue(NESTED_MAP_READ_SOURCE).expect("bounded source Map read package");
@@ -143,6 +158,109 @@ fn source_issues_blocks_kind_for_non_empty_all_map_local_array() {
     assert_eq!(kind.operation(), MapReadOperationV1::MapLookup);
     assert_eq!(kind.result(), MapReadResultClassV1::TextView);
     assert!(rows.iter().all(|row| !row.containment().is_empty()));
+}
+
+#[test]
+fn source_issues_blocks_length_for_non_empty_all_map_local_array() {
+    let package = issue(BLOCKS_LENGTH_READ_SOURCE).expect("bounded blocks length package");
+    let rows = package.map_read_facts().rows();
+    assert_eq!(rows.len(), 2);
+    let blocks = rows
+        .iter()
+        .find(|row| {
+            row.operation() == MapReadOperationV1::MapLookup
+                && row.operand() == &MapReadOperandV1::Key("blocks".into())
+        })
+        .expect("blocks read");
+    assert_eq!(blocks.operation(), MapReadOperationV1::MapLookup);
+    assert_eq!(blocks.result(), MapReadResultClassV1::ArrayView);
+    let length = rows
+        .iter()
+        .find(|row| row.operation() == MapReadOperationV1::ArrayLength)
+        .expect("blocks length read");
+    assert_eq!(length.operand(), &MapReadOperandV1::Key("blocks".into()));
+    assert_eq!(length.result(), MapReadResultClassV1::I64);
+    assert!(rows.iter().all(|row| !row.containment().is_empty()));
+}
+
+#[test]
+fn source_tracks_distinct_blocks_lookups_when_kind_and_length_are_read() {
+    let source = BLOCKS_KIND_READ_SOURCE.replace(
+        "local kind = m.get(\"blocks\").get(0).get(\"kind\")",
+        "local kind = m.get(\"blocks\").get(0).get(\"kind\")\n        local count = m.get(\"blocks\").length()",
+    );
+    let package = issue(&source).expect("combined bounded blocks package");
+    let rows = package.map_read_facts().rows();
+    assert_eq!(rows.len(), 5);
+    assert_eq!(
+        rows.iter()
+            .filter(|row| {
+                row.operation() == MapReadOperationV1::MapLookup
+                    && row.operand() == &MapReadOperandV1::Key("blocks".into())
+            })
+            .count(),
+        2
+    );
+    assert_eq!(
+        rows.iter()
+            .filter(|row| row.operation() == MapReadOperationV1::ArrayLength)
+            .count(),
+        1
+    );
+}
+
+#[test]
+fn blocks_length_rejects_empty_array() {
+    let source =
+        BLOCKS_LENGTH_READ_SOURCE.replace("%{ \"blocks\" => [block] }", "%{ \"blocks\" => [] }");
+    let error = issue(&source).expect_err("empty blocks array must reject");
+    assert!(matches!(
+        error,
+        super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+            _error: MapReadFactIssueV1::BlocksElementMissing { .. }
+        }
+    ));
+}
+
+#[test]
+fn blocks_length_rejects_scalar_entry() {
+    let source =
+        BLOCKS_LENGTH_READ_SOURCE.replace("%{ \"blocks\" => [block] }", "%{ \"blocks\" => 7 }");
+    let error = issue(&source).expect_err("scalar blocks entry must reject");
+    assert!(matches!(
+        error,
+        super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+            _error: MapReadFactIssueV1::BlocksEntryNotArray { .. }
+        }
+    ));
+}
+
+#[test]
+fn blocks_length_rejects_mixed_array() {
+    let source = BLOCKS_LENGTH_READ_SOURCE.replace(
+        "%{ \"blocks\" => [block] }",
+        "%{ \"blocks\" => [block, 7] }",
+    );
+    let error = issue(&source).expect_err("mixed blocks array must reject");
+    assert!(matches!(
+        error,
+        super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+            _error: MapReadFactIssueV1::BlocksEntryUnsupported { .. }
+        }
+    ));
+}
+
+#[test]
+fn blocks_length_rejects_nested_array() {
+    let source = BLOCKS_LENGTH_READ_SOURCE
+        .replace("%{ \"blocks\" => [block] }", "%{ \"blocks\" => [[block]] }");
+    let error = issue(&source).expect_err("nested blocks array must reject");
+    assert!(matches!(
+        error,
+        super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+            _error: MapReadFactIssueV1::BlocksEntryUnsupported { .. }
+        }
+    ));
 }
 
 #[test]

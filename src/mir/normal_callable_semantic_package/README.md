@@ -479,8 +479,11 @@ The T2-beta extension reuses the same physical consumer for
 the existing `ArrayIndexMap -> MapGetText` rows. Scalar, empty, mixed, nested,
 nonzero-index, nonliteral-key, and non-text-child shapes reject at the Fact
 boundary. The selected source-to-OBJ fixture passes Normal=30 and injected
-prepare-Fault=70 with `REPORT 100`; `blocks.length()` remains the next bounded
-T2 row.
+prepare-Fault=70 with `REPORT 100`. The same bounded issuer now admits
+`blocks.length()` as `ArrayLength -> I64`; empty, scalar, mixed, and nested
+entries remain named rejects. Its source-to-OBJ fixture passes Normal=1 and
+injected prepare-Fault=70 with `REPORT 100`. These are bounded receipts only;
+the aggregate T2 acceptance and production caller cutover remain separate.
 
 The bounded readable-Map argument lane admits a `: MapBox` formal as a
 borrowed read-only contract (`CallableParameterContractKindV1::Map`,
