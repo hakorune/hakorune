@@ -377,6 +377,23 @@ behavior-preserving preparation step: the source LoopCond entry still stops
 before Builder allocation, and item/nested/exit lowering, publication,
 retirement, and source-to-MIR acceptance remain open.
 
+### Source-port simple-statement preparation receipt
+
+The next physical-lowering preparation slice now routes the existing raw
+LoopCond simple-statement facade through a port-parametric owner. Assignment,
+local initialization, method/function calls, generic calls, and print effects
+use the existing `LoopPlanExpressionPortV1` child roles and associated-input
+helpers; the raw facade supplies `RawLoopPlanExpressionPortV1`, preserving its
+pre-port behavior. BlockExpr loop preludes remain in their existing specialized
+owner because their nested source contexts are a separate co-sealed boundary.
+
+The quick library check passed, the focused direct-exit module passed 2/2, and
+the associated-input parity module passed 3/3. This receipt only proves the
+shared statement owner and raw parity preparation. The source LoopCond caller
+has not yet been switched to the located port, and nested/item/exit physical
+consumption, publication, old-edge retirement, and source-to-MIR acceptance
+remain open.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs

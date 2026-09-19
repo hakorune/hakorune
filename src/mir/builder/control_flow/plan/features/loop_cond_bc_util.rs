@@ -1,19 +1,21 @@
 //! Utility functions for item/statement lowering.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::features::carrier_merge::{
-    lower_assignment_stmt, lower_local_init_stmt,
+use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering_associated_input::{
+    lower_assignment_inputs, lower_function_call_statement_input, lower_local_statement_input,
+    lower_method_call_statement_input,
 };
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
 use crate::mir::builder::control_flow::plan::parts::var_map_scope::publish_emission_cache;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::{
-    CoreCallSourceV1, CoreEffectPlan, CorePlan, LoweredRecipe,
+    CoreEffectPlan, CorePlan, LoopPlanExpressionPortV1, LoweredRecipe, RawLoopPlanExpressionPortV1,
 };
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::builder::MirBuilder;
-use crate::mir::{Effect, EffectMask};
+use crate::mir::resolved_semantics::ExprChildRoleV1;
+use crate::mir::{Effect, EffectMask, ValueId};
 use std::collections::BTreeMap;
 
 use super::loop_cond_bc::LOOP_COND_ERR;
@@ -74,112 +76,171 @@ pub(super) fn lower_simple_effect_stmt(
     stmt: &ASTNode,
     error_prefix: &str,
 ) -> Result<Option<Vec<LoweredRecipe>>, String> {
-    match stmt {
-        ASTNode::Assignment { target, value, .. } => {
-            if let ASTNode::Variable { name, .. } = target.as_ref() {
-                if value_has_blockexpr_prelude_loop(value) {
-                    let (value_id, plans) = lower_value_stmt_with_blockexpr_loop_prelude(
-                        builder,
-                        current_bindings,
-                        carrier_phis,
-                        carrier_step_phis,
-                        break_phi_dsts,
-                        carrier_updates,
-                        value,
-                        error_prefix,
-                    )?;
-                    if carrier_phis.contains_key(name) {
-                        carrier_updates.insert(name.clone(), value_id);
-                    }
-                    if carrier_phis.contains_key(name) || current_bindings.contains_key(name) {
-                        current_bindings.insert(name.clone(), value_id);
-                    }
-                    publish_emission_cache(builder, name.clone(), value_id);
-                    return Ok(Some(plans));
+    if let ASTNode::Assignment { target, value, .. } = stmt {
+        if let ASTNode::Variable { name, .. } = target.as_ref() {
+            if value_has_blockexpr_prelude_loop(value) {
+                let (value_id, plans) = lower_value_stmt_with_blockexpr_loop_prelude(
+                    builder,
+                    current_bindings,
+                    carrier_phis,
+                    carrier_step_phis,
+                    break_phi_dsts,
+                    carrier_updates,
+                    value,
+                    error_prefix,
+                )?;
+                if carrier_phis.contains_key(name) {
+                    carrier_updates.insert(name.clone(), value_id);
                 }
+                if carrier_phis.contains_key(name) || current_bindings.contains_key(name) {
+                    current_bindings.insert(name.clone(), value_id);
+                }
+                publish_emission_cache(builder, name.clone(), value_id);
+                return Ok(Some(plans));
             }
+        }
+    }
 
-            let effects = lower_assignment_stmt(
+    if let ASTNode::Local { initial_values, .. } = stmt {
+        if initial_values
+            .iter()
+            .flatten()
+            .any(|value| value_has_blockexpr_prelude_loop(value))
+        {
+            return lower_simple_effect_stmt_with_blockexpr_local_prelude(
                 builder,
                 current_bindings,
                 carrier_phis,
+                carrier_step_phis,
+                break_phi_dsts,
                 carrier_updates,
+                stmt,
+                error_prefix,
+            );
+        }
+    }
+
+    let port = RawLoopPlanExpressionPortV1::new();
+    lower_simple_effect_stmt_input(
+        &port,
+        stmt,
+        builder,
+        current_bindings,
+        carrier_phis,
+        carrier_updates,
+        error_prefix,
+    )
+}
+
+/// Lower the simple statement subset through a located expression port.
+///
+/// This is the shared entry for the source-aware LoopCond physical path. The
+/// raw facade above uses the same owner with `RawLoopPlanExpressionPortV1`,
+/// while block-expression loop preludes stay in the existing specialized
+/// owner until their nested source contexts are co-sealed.
+pub(super) fn lower_simple_effect_stmt_input<'input, P>(
+    port: &P,
+    statement: P::StmtInput<'input>,
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, ValueId>,
+    carrier_phis: &BTreeMap<String, ValueId>,
+    carrier_updates: &mut BTreeMap<String, ValueId>,
+    error_prefix: &str,
+) -> Result<Option<Vec<LoweredRecipe>>, String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
+{
+    match port.stmt_syntax(&statement) {
+        ASTNode::Assignment { .. } => {
+            for (name, value_id) in current_bindings.iter() {
+                publish_emission_cache(builder, name.clone(), *value_id);
+            }
+            let target = port
+                .child_expr_from_stmt(&statement, ExprChildRoleV1::AssignmentTarget)
+                .map_err(|error| error.render())?;
+            let value = port
+                .child_expr_from_stmt(&statement, ExprChildRoleV1::AssignmentValue)
+                .map_err(|error| error.render())?;
+            let (binding, effects) = lower_assignment_inputs(
+                port,
                 target,
                 value,
-                error_prefix,
-            )?;
-            Ok(Some(effects_to_plans(effects)))
-        }
-        ASTNode::Local {
-            variables,
-            initial_values,
-            ..
-        } => {
-            if variables.len() != initial_values.len() {
-                return Err(format!("{error_prefix}: local init arity mismatch"));
-            }
-            if initial_values
-                .iter()
-                .flatten()
-                .any(|value| value_has_blockexpr_prelude_loop(value))
-            {
-                let mut plans = Vec::new();
-                for (name, init) in variables.iter().zip(initial_values.iter()) {
-                    let init_node = loop_body_lowering::local_init_node_or_null(init.as_ref());
-                    let (value_id, mut init_plans) = lower_value_stmt_with_blockexpr_loop_prelude(
-                        builder,
-                        current_bindings,
-                        carrier_phis,
-                        carrier_step_phis,
-                        break_phi_dsts,
-                        carrier_updates,
-                        init_node.as_ref(),
-                        error_prefix,
-                    )?;
-                    plans.append(&mut init_plans);
-                    current_bindings.insert(name.clone(), value_id);
-                    publish_emission_cache(builder, name.clone(), value_id);
-                }
-                return Ok(Some(plans));
-            }
-
-            let effects = lower_local_init_stmt(
                 builder,
                 current_bindings,
-                variables,
-                initial_values,
                 error_prefix,
             )?;
+            if let Some((name, value_id)) = binding {
+                if carrier_phis.contains_key(&name) {
+                    carrier_updates.insert(name.clone(), value_id);
+                }
+                if carrier_phis.contains_key(&name) || current_bindings.contains_key(&name) {
+                    current_bindings.insert(name.clone(), value_id);
+                }
+                publish_emission_cache(builder, name, value_id);
+            }
+            Ok(Some(effects_to_plans(effects)))
+        }
+        ASTNode::Local { .. } => {
+            let (inits, effects) = lower_local_statement_input(
+                port,
+                &statement,
+                builder,
+                current_bindings,
+                error_prefix,
+            )?;
+            let values = inits.iter().map(|(_, value)| *value).collect::<Vec<_>>();
+            let _ = port.exact_source_local_completion(&statement, &values)?;
+            for (name, value_id) in inits {
+                current_bindings.insert(name.clone(), value_id);
+                publish_emission_cache(builder, name, value_id);
+            }
             Ok(Some(effects_to_plans(effects)))
         }
         ASTNode::MethodCall { .. } => {
-            let effects = loop_body_lowering::lower_method_call_stmt(
+            let input = port
+                .statement_expr(&statement)
+                .map_err(|error| error.render())?;
+            let effects = lower_method_call_statement_input(
+                port,
+                input,
                 builder,
                 current_bindings,
-                stmt,
                 error_prefix,
             )?;
             Ok(Some(effects_to_plans(effects)))
         }
         ASTNode::FunctionCall { .. } => {
-            let effects = loop_body_lowering::lower_function_call_stmt(
+            let input = port
+                .statement_expr(&statement)
+                .map_err(|error| error.render())?;
+            let effects = lower_function_call_statement_input(
+                port,
+                input,
                 builder,
                 current_bindings,
-                stmt,
                 error_prefix,
             )?;
             Ok(Some(effects_to_plans(effects)))
         }
         ASTNode::Call { .. } => {
+            let input = port
+                .statement_expr(&statement)
+                .map_err(|error| error.render())?;
             let (_value_id, effects) =
-                PlanNormalizer::lower_value_ast(stmt, builder, current_bindings)?;
+                PlanNormalizer::lower_value_input(port, input, builder, current_bindings)?;
             Ok(Some(effects_to_plans(effects)))
         }
-        ASTNode::Print { expression, .. } => {
+        ASTNode::Print { .. } => {
+            let expression = port
+                .child_expr_from_stmt(&statement, ExprChildRoleV1::PrintValue)
+                .map_err(|error| error.render())?;
+            let source = port
+                .call_source(&expression)
+                .map_err(|error| error.render())?;
             let (value_id, mut effects) =
-                PlanNormalizer::lower_value_ast(expression, builder, current_bindings)?;
+                PlanNormalizer::lower_value_input(port, expression, builder, current_bindings)?;
             effects.push(CoreEffectPlan::ExternCall {
-                source: CoreCallSourceV1::Unlocated,
+                source,
                 dst: None,
                 iface_name: "env.console".to_string(),
                 method_name: "log".to_string(),
@@ -190,6 +251,47 @@ pub(super) fn lower_simple_effect_stmt(
         }
         _ => Ok(None),
     }
+}
+
+fn lower_simple_effect_stmt_with_blockexpr_local_prelude(
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, ValueId>,
+    carrier_phis: &BTreeMap<String, ValueId>,
+    carrier_step_phis: &BTreeMap<String, ValueId>,
+    break_phi_dsts: &BTreeMap<String, ValueId>,
+    carrier_updates: &mut BTreeMap<String, ValueId>,
+    stmt: &ASTNode,
+    error_prefix: &str,
+) -> Result<Option<Vec<LoweredRecipe>>, String> {
+    let ASTNode::Local {
+        variables,
+        initial_values,
+        ..
+    } = stmt
+    else {
+        return Ok(None);
+    };
+    if variables.len() != initial_values.len() {
+        return Err(format!("{error_prefix}: local init arity mismatch"));
+    }
+    let mut plans = Vec::new();
+    for (name, init) in variables.iter().zip(initial_values.iter()) {
+        let init_node = loop_body_lowering::local_init_node_or_null(init.as_ref());
+        let (value_id, mut init_plans) = lower_value_stmt_with_blockexpr_loop_prelude(
+            builder,
+            current_bindings,
+            carrier_phis,
+            carrier_step_phis,
+            break_phi_dsts,
+            carrier_updates,
+            init_node.as_ref(),
+            error_prefix,
+        )?;
+        plans.append(&mut init_plans);
+        current_bindings.insert(name.clone(), value_id);
+        publish_emission_cache(builder, name.clone(), value_id);
+    }
+    Ok(Some(plans))
 }
 
 fn lower_value_stmt_with_blockexpr_loop_prelude(
