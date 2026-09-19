@@ -122,6 +122,10 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
         self.demand.target()
     }
 
+    pub(crate) const fn representation(&self) -> &VerifiedCallableResultRepresentationV1 {
+        self.demand.representation()
+    }
+
     pub(crate) fn required_i64_arguments(&self) -> &[u32] {
         &self.required_i64_arguments
     }
@@ -133,7 +137,7 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
 
 #[cfg(test)]
 impl VerifiedStaticCallResultPublicationHandoffV1 {
-    fn from_test_parts(
+    pub(crate) fn from_test_parts(
         catalog_identity: usize,
         demand: VerifiedStaticCallResultPublicationDemandV1,
         required_i64_arguments: &[u32],

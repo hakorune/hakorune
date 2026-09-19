@@ -197,6 +197,11 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                 "[freeze:contract][callable-loop/loop-cond/source-item-parent-mismatch]".to_owned(),
             );
         }
+        if !self.source_target.has_exact_i64_requirement(&[1]) {
+            return Err(
+                "[freeze:contract][callable-loop/loop-cond/result-requirement-mismatch]".to_owned(),
+            );
+        }
         self.source_port
             .expr(&self.condition, &self.condition_source)
             .map_err(|error| {

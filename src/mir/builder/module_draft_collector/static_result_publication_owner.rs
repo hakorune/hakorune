@@ -1,7 +1,7 @@
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::callable_result_representation::{
     StaticCallResultPublicationOwnerTakeErrorV1, StaticCallResultPublicationTakeV1,
-    VerifiedStaticCallResultPublicationOwnerV1,
+    VerifiedStaticCallResultPublicationHandoffV1, VerifiedStaticCallResultPublicationOwnerV1,
 };
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 
@@ -41,5 +41,18 @@ impl ModuleDraftCollectorV1 {
             .as_ref()
             .and_then(|owner| owner.target_for_source(caller, site))
             .cloned()
+    }
+
+    /// Borrowed peek at one selected publication row.  The row stays owned by
+    /// the publication owner; `take_static_result_publication_handoff` remains
+    /// the sole consumption boundary.
+    pub(in crate::mir::builder) fn selected_static_result_handoff_for_source(
+        &self,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<&VerifiedStaticCallResultPublicationHandoffV1> {
+        self.static_result_publication_owner
+            .as_ref()
+            .and_then(|owner| owner.selected_handoff_for_source(caller, site))
     }
 }

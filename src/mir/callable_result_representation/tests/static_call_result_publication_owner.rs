@@ -85,6 +85,97 @@ fn issuer_keeps_exact_source_row_and_consumes_it_once() {
 }
 
 #[test]
+fn selected_handoff_peek_reads_requirement_without_consuming() {
+    let declarations = declarations(SOURCE);
+    let targets = qualified_targets(&declarations, &[], &[]);
+    let targets = extend_current_owner_targets(
+        targets,
+        &declarations,
+        &[CallSiteSpecV1 {
+            caller_owner: "StringHelpers",
+            caller_name: "int_to_str",
+            caller_arity: 1,
+            site: call_site(),
+        }],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let mut owner =
+        VerifiedStaticCallResultPublicationOwnerV1::issue(&declarations, &targets, &results)
+            .expect("source-bound owner must issue exact rows");
+    let caller = key(&declarations, "StringHelpers", "int_to_str", 1);
+    let target = key(&declarations, "StringHelpers", "to_i64", 1);
+
+    let handoff = owner
+        .selected_handoff_for_source(&caller, &call_site())
+        .expect("selected row must be peekable");
+    assert_eq!(handoff.caller(), &caller);
+    assert_eq!(handoff.site(), &call_site());
+    assert_eq!(handoff.target(), &target);
+    assert_eq!(
+        handoff.representation(),
+        &VerifiedCallableResultRepresentationV1::ExactI64
+    );
+    assert_eq!(handoff.required_i64_arguments(), &[0]);
+
+    assert!(matches!(
+        owner
+            .take_for_source(&declarations, &caller, &call_site())
+            .expect("peek must not consume the selected row"),
+        StaticCallResultPublicationTakeV1::Selected(_)
+    ));
+    assert!(owner.finish_empty().is_ok());
+}
+
+#[test]
+fn selected_handoff_peek_stays_empty_for_target_only_and_foreign_sites() {
+    let source = r#"
+        static box TextOwner {
+            caller() { return me.text() }
+            text() { return "text" }
+        }
+    "#;
+    let declarations = declarations(source);
+    let targets = qualified_targets(&declarations, &[], &[]);
+    let targets = extend_current_owner_targets(
+        targets,
+        &declarations,
+        &[CallSiteSpecV1 {
+            caller_owner: "TextOwner",
+            caller_name: "caller",
+            caller_arity: 0,
+            site: return_call_site(),
+        }],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let mut owner =
+        VerifiedStaticCallResultPublicationOwnerV1::issue(&declarations, &targets, &results)
+            .expect("target-only row must issue");
+    let caller = key(&declarations, "TextOwner", "caller", 0);
+
+    assert!(
+        owner
+            .selected_handoff_for_source(&caller, &return_call_site())
+            .is_none(),
+        "target-only rows have no selected handoff to peek"
+    );
+    assert!(
+        owner
+            .selected_handoff_for_source(&caller, &digit_call_site())
+            .is_none(),
+        "foreign sites have no selected handoff to peek"
+    );
+
+    let target = key(&declarations, "TextOwner", "text", 0);
+    assert_eq!(
+        owner
+            .take_for_source(&declarations, &caller, &return_call_site())
+            .expect("target-only lookup remains well-formed"),
+        StaticCallResultPublicationTakeV1::TargetOnly(target)
+    );
+    assert!(owner.finish_empty().is_ok());
+}
+
+#[test]
 fn source_keyed_take_rejects_wrong_site_and_foreign_catalog() {
     let declarations = declarations(SOURCE);
     let targets = qualified_targets(&declarations, &[], &[]);

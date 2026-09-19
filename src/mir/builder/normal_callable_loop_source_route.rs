@@ -8,6 +8,9 @@
 use crate::mir::builder::control_flow::joinir::route_entry::registry::RecipeFirstRouteSelectionV1;
 use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
+use crate::mir::callable_result_representation::{
+    VerifiedCallableResultRepresentationV1, VerifiedStaticCallResultPublicationHandoffV1,
+};
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::loop_structural_facts::VerifiedLoopCondBreakContinueSourceForestProjectionV1;
 use crate::mir::resolved_semantics::{
@@ -29,6 +32,7 @@ pub(in crate::mir::builder) enum CallableLoopSourceRouteRejectV1 {
     SourceTargetMissing,
     SourceTargetSiteMismatch,
     SourceTargetMultiple,
+    SourceTargetRequirementMismatch,
     SourceIdentityMissing,
     SourceParentMissing,
 }
@@ -98,20 +102,60 @@ impl CallableLoopSourceItemBindingV1 {
     }
 }
 
+/// Selected static-result requirement evidence copied from one publication
+/// row.  This is a read-only copy of the sealed requirement shape; the owned
+/// handoff itself stays with the publication owner for its sole physical
+/// consumer.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) struct CallableLoopSourceTargetRequirementV1 {
+    representation: VerifiedCallableResultRepresentationV1,
+    required_i64_arguments: Box<[u32]>,
+}
+
+impl CallableLoopSourceTargetRequirementV1 {
+    pub(in crate::mir::builder) fn from_handoff(
+        handoff: &VerifiedStaticCallResultPublicationHandoffV1,
+    ) -> Self {
+        Self {
+            representation: handoff.representation().clone(),
+            required_i64_arguments: handoff
+                .required_i64_arguments()
+                .to_vec()
+                .into_boxed_slice(),
+        }
+    }
+
+    pub(in crate::mir::builder) const fn representation(
+        &self,
+    ) -> &VerifiedCallableResultRepresentationV1 {
+        &self.representation
+    }
+
+    pub(in crate::mir::builder) fn required_i64_arguments(&self) -> &[u32] {
+        &self.required_i64_arguments
+    }
+}
+
 /// Exact target relation issued by the same invocation's source-target
 /// authority. The route token never derives a target from selector text.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) struct CallableLoopSourceTargetRelationV1 {
     call_site: SourceExprSiteV1,
     target: CanonicalSameModuleCallableKeyV1,
+    requirement: Option<CallableLoopSourceTargetRequirementV1>,
 }
 
 impl CallableLoopSourceTargetRelationV1 {
     pub(in crate::mir::builder) fn new(
         call_site: SourceExprSiteV1,
         target: CanonicalSameModuleCallableKeyV1,
+        requirement: Option<CallableLoopSourceTargetRequirementV1>,
     ) -> Self {
-        Self { call_site, target }
+        Self {
+            call_site,
+            target,
+            requirement,
+        }
     }
 
     pub(in crate::mir::builder) const fn call_site(&self) -> &SourceExprSiteV1 {
@@ -120,6 +164,22 @@ impl CallableLoopSourceTargetRelationV1 {
 
     pub(in crate::mir::builder) const fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
         &self.target
+    }
+
+    pub(in crate::mir::builder) fn requirement(
+        &self,
+    ) -> Option<&CallableLoopSourceTargetRequirementV1> {
+        self.requirement.as_ref()
+    }
+
+    /// Whether the selected publication row for this site carries the exact
+    /// i64 representation with the given required-argument ordinals.
+    pub(in crate::mir::builder) fn has_exact_i64_requirement(&self, ordinals: &[u32]) -> bool {
+        self.requirement.as_ref().is_some_and(|requirement| {
+            requirement.representation()
+                == &VerifiedCallableResultRepresentationV1::ExactI64
+                && requirement.required_i64_arguments() == ordinals
+        })
     }
 }
 
@@ -327,8 +387,19 @@ fn is_under_parent(site: &SourceNodeSiteV1, parent: &SourceNodeSiteV1) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{CallableLoopSourceRouteRejectV1, CallableLoopSourceRouteTokenV1};
+    use super::{
+        CallableLoopSourceRouteRejectV1, CallableLoopSourceRouteTokenV1,
+        CallableLoopSourceTargetRelationV1, CallableLoopSourceTargetRequirementV1,
+    };
     use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
+    use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
+    use crate::mir::callable_result_representation::{
+        VerifiedCallableResultRepresentationV1, VerifiedStaticCallResultPublicationDemandV1,
+        VerifiedStaticCallResultPublicationHandoffV1,
+    };
+    use crate::mir::resolved_semantics::{
+        SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
+    };
     use crate::mir::builder::control_flow::joinir::route_entry::registry::select_recipe_first_routes;
     use crate::mir::builder::control_flow::plan::single_planner::{
         self, CallableLoopFactsPlannerInputV1,
@@ -553,5 +624,85 @@ mod tests {
         )
         .expect_err("item inventory must be explicit when no method row exists");
         assert_eq!(error, CallableLoopSourceRouteRejectV1::SourceItemsMissing);
+    }
+
+    fn requirement_site() -> SourceExprSiteV1 {
+        SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::Initializer(0),
+        ]))
+    }
+
+    fn requirement_target() -> CanonicalSameModuleCallableKeyV1 {
+        CanonicalSameModuleCallableKeyV1::test_static_box_method("StringHelpers", "to_i64", 1)
+    }
+
+    #[test]
+    fn source_target_requirement_copies_selected_handoff_evidence() {
+        let caller = CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "StringHelpers",
+            "int_to_str",
+            1,
+        );
+        let site = requirement_site();
+        let target = requirement_target();
+        let handoff = VerifiedStaticCallResultPublicationHandoffV1::from_test_parts(
+            7,
+            VerifiedStaticCallResultPublicationDemandV1::from_test_parts(
+                caller,
+                site.clone(),
+                target.clone(),
+            ),
+            &[1],
+        );
+        let requirement = CallableLoopSourceTargetRequirementV1::from_handoff(&handoff);
+        assert_eq!(
+            requirement.representation(),
+            &VerifiedCallableResultRepresentationV1::ExactI64
+        );
+        assert_eq!(requirement.required_i64_arguments(), &[1]);
+    }
+
+    #[test]
+    fn source_target_relation_accepts_only_exact_i64_ordinal_one() {
+        let site = requirement_site();
+        let target = requirement_target();
+        let exact = |ordinals: &[u32]| {
+            CallableLoopSourceTargetRequirementV1 {
+                representation: VerifiedCallableResultRepresentationV1::ExactI64,
+                required_i64_arguments: ordinals.to_vec().into_boxed_slice(),
+            }
+        };
+
+        let selected = CallableLoopSourceTargetRelationV1::new(
+            site.clone(),
+            target.clone(),
+            Some(exact(&[1])),
+        );
+        assert!(selected.has_exact_i64_requirement(&[1]));
+        assert!(!selected.has_exact_i64_requirement(&[0]));
+
+        let wrong_ordinals = CallableLoopSourceTargetRelationV1::new(
+            site.clone(),
+            target.clone(),
+            Some(exact(&[0, 2])),
+        );
+        assert!(!wrong_ordinals.has_exact_i64_requirement(&[1]));
+
+        let wrong_representation = CallableLoopSourceTargetRelationV1::new(
+            site.clone(),
+            target.clone(),
+            Some(CallableLoopSourceTargetRequirementV1 {
+                representation: VerifiedCallableResultRepresentationV1::ExactNominalBox {
+                    box_name: "Text".into(),
+                },
+                required_i64_arguments: vec![1].into_boxed_slice(),
+            }),
+        );
+        assert!(!wrong_representation.has_exact_i64_requirement(&[1]));
+
+        let missing_evidence =
+            CallableLoopSourceTargetRelationV1::new(site, target, None);
+        assert!(!missing_evidence.has_exact_i64_requirement(&[1]));
     }
 }

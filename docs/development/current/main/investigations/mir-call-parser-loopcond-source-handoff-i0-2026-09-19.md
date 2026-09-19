@@ -569,6 +569,41 @@ The pre-cutover verification items are unchanged and now include the
 production compile. Non-claims are unchanged: no publication, caller cutover,
 old-edge deletion, VM route, or fallback is authorized by this checkpoint.
 
+### ExactI64/[1] co-seal receipt — decomposition item 1
+
+The selected-result requirement is now co-sealed onto the source target
+relation. `VerifiedStaticCallResultPublicationOwnerV1` exposes
+`selected_handoff_for_source`, a read-only peek that borrows one selected
+publication row without consuming it; `take_for_source` stays the sole
+consumption boundary for the later physical consumer. The peek is forwarded
+through `ModuleDraftCollectorV1` and `ModuleLoweringPortV1`, and
+`source_target_for_loop` in `raw_loop_child_port.rs` copies the row's
+representation and required-i64 ordinals into the new
+`CallableLoopSourceTargetRequirementV1` evidence on
+`CallableLoopSourceTargetRelationV1`, rejecting
+`SourceTargetRequirementMismatch` when the peeked row's site or target does
+not match the relation being minted. `SourceLoopCondPhysicalInputV1::
+validate_for_source_port` now rejects
+`callable-loop/loop-cond/result-requirement-mismatch` before any port or
+Builder effect when the co-sealed requirement is not `ExactI64` with required
+ordinal `[1]`. This resolves the audit checkpoint's open attach question: the
+requirement is captured where `module_port` is in scope (relation issuance),
+so no catalog needs to be reachable through `source_ledger`.
+
+Focused evidence: `cargo check --profile quick --lib` green; new tests
+`source_target_requirement_copies_selected_handoff_evidence`,
+`source_target_relation_accepts_only_exact_i64_ordinal_one`,
+`selected_handoff_peek_reads_requirement_without_consuming`, and
+`selected_handoff_peek_stays_empty_for_target_only_and_foreign_sites` pass;
+the neighboring `static_call_result_publication_owner` (9/9),
+`source_loop_cond` (3/3), `source_loop_item` (1/1), and `armed_scope` (1/1)
+filters stay green.
+
+This receipt claims only the co-sealed requirement evidence and its
+fail-fast check. It does not claim ProgramBlock/LoopV0/ExitIfTree physical
+lowering, publication consumption, caller cutover, or old-edge retirement;
+the `source-port-lowering-missing` terminal remains the active boundary.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs

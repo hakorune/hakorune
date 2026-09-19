@@ -214,6 +214,17 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
         self.exact_targets.get(&(caller.clone(), site.clone()))
     }
 
+    /// Borrowed peek at one selected publication row.  This never consumes
+    /// the row; `take_for_source` remains the sole consumption boundary for
+    /// the later physical consumer.
+    pub(crate) fn selected_handoff_for_source(
+        &self,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<&VerifiedStaticCallResultPublicationHandoffV1> {
+        self.rows.get(&(caller.clone(), site.clone()))
+    }
+
     pub(crate) fn finish_empty(&self) -> Result<(), StaticCallResultPublicationOwnerFinishErrorV1> {
         if let Some(((caller, site), _handoff)) = self.rows.iter().next() {
             let target = self

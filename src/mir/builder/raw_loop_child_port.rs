@@ -10,6 +10,7 @@ use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::module_lowering_invocation::ModuleLoweringPortV1;
 use crate::mir::builder::normal_callable_loop_source_route::{
     CallableLoopSourceRouteRejectV1, CallableLoopSourceTargetRelationV1,
+    CallableLoopSourceTargetRequirementV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationRootLineageV1;
 use crate::mir::{MirBuilder, ValueId};
@@ -127,9 +128,19 @@ fn source_target_for_loop(
         if relation.is_some() {
             return Err(CallableLoopSourceRouteRejectV1::SourceTargetMultiple);
         }
+        let requirement = module_port
+            .selected_static_result_handoff_for_source(caller, item.call_site())
+            .map(|handoff| {
+                if handoff.target() != &target || handoff.site() != item.call_site() {
+                    return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
+                }
+                Ok(CallableLoopSourceTargetRequirementV1::from_handoff(handoff))
+            })
+            .transpose()?;
         relation = Some(CallableLoopSourceTargetRelationV1::new(
             item.call_site().clone(),
             target,
+            requirement,
         ));
     }
     Ok(relation)
