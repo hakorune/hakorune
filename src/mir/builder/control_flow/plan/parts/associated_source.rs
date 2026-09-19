@@ -52,6 +52,9 @@ pub(super) mod block_driver;
 pub(in crate::mir::builder::control_flow::plan::parts) mod callable_loop_source;
 #[cfg(test)]
 mod callable_loop_source_driver_tests;
+pub(super) mod callable_loop_source_items;
+#[cfg(test)]
+mod callable_loop_source_items_tests;
 pub(in crate::mir::builder::control_flow::plan::parts) mod callable_loop_source_lowering;
 #[cfg(test)]
 mod callable_loop_source_testkit;

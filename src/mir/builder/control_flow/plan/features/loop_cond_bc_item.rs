@@ -29,7 +29,7 @@ use super::loop_cond_bc_util::{
 /// Complex LoopCond variants keep their existing owner until their nested and
 /// exit contexts are parameterized. Returning `None` here is deliberate: the
 /// source caller must not fall through to the raw item lowerer.
-pub(super) fn lower_loop_cond_item_input<'input, P>(
+pub(in crate::mir::builder) fn lower_loop_cond_item_input<'input, P>(
     port: &P,
     body: &P::BodyInput<'input>,
     item: &LoopCondBreakContinueItem,

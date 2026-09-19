@@ -52,6 +52,7 @@ mod verify_shape;
 
 pub(in crate::mir::builder) use associated_source::direct_if::lower_if_join_input as lower_direct_if_join_input;
 pub(in crate::mir::builder) use associated_source::located_lowering::prepare_located_generic_loop_parts_execution_v1;
+pub(in crate::mir::builder) use associated_source::callable_loop_source_items::lower_loop_cond_source_item;
 pub(in crate::mir::builder) use associated_source::located_lowering::{
     PreparedLocatedGenericLoopPartsBodyV1, PreparedLocatedGenericLoopPartsExecutionV1,
 };

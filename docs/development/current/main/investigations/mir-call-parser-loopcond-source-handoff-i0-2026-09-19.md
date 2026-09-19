@@ -783,6 +783,56 @@ over the merged-route, `accum_semantic_parity_tests`, `associated_source`,
 `cond_lowering_loop_header`, `raw_loop_child`, and the extract
 `mode_pair`/`unarmed_nested` filters is green (86/86).
 
+### LoopCond item arms on the located spine receipt — decomposition item 4
+
+`callable_loop_source_items.rs` now owns `lower_loop_cond_source_item`, the
+per-item dispatcher the item-6 sibling will call once per issued
+`LoopCondBreakContinueItem`. `build_loop_cond_break_continue_recipe_inner`
+issues exactly one item per recipe body statement, so the item ordinal
+locates `GeneralIf` (which carries no `StmtRef`) while payload `StmtRef`s
+stay the item authority for `ProgramBlock`/`ExitIfTree`. The arms mirror the
+raw owners: `ProgramBlock{stmt_only: None}` re-derives
+`try_build_exit_allowed_block_recipe` on the located statement (same
+`true`-then-`false` order as the raw arm), seals the `singleton` block, and
+drives `PartsAssociatedBlockModeV1::ExitAllowed` with
+`apply_nested_loop_preheader_freshness` on the emitted plans; `GeneralIf`
+seals its issued no-exit recipe against the statement at the item ordinal
+and drives `NoExit`; `ExitIfTree` re-proves the issued `cond_view` against
+the projected `IfCondition` child (the `CondBlockView` check is now the
+shared `require_condition_view_match` free function), co-seals the issued
+ExitOnly branch recipes against `IfThen`/`IfElse` child carriers, and runs
+`lower_explicit_if` -> `lower_exit_if_state_core` under `ExitOnly`.
+`Stmt`/`ExitLeaf` delegate to the existing `lower_loop_cond_item_input`
+(widened to `pub(in crate::mir::builder)`), and its `Ok(None)` return is a
+fail-fast `loop-cond-item-unhandled`, never a raw fallthrough. Every other
+variant is a named `loop-cond-item-unsupported` reject; a `stmt_only`
+payload is `program-block-stmt-only-unlocated` because flattened container
+recipes cannot align 1:1 with a located carrier (same policy as
+`opaque-stmt-container-unlocated`), and a failed exit-allowed re-derivation
+is `program-block-recipe-unlocatable` — the raw join/exit-if fallback
+owners stay rejected on the located spine, matching `lower_opaque_if_source`.
+No raw `lower_loop_cond_item` fallback, `LoopRouteContext`, AST/name rescan,
+or second recipe authority was added.
+
+Focused evidence: `cargo check --profile quick --lib --tests` green; the new
+`callable_loop_source_items_tests` module passes 10/10 — `Stmt` and
+`ExitLeaf` through the located body, `ProgramBlock` through a `LoopBody`
+child carrier (`break` only resolves inside a loop body, so the fixture
+hosts the if inside `loop(true)` exactly like
+`driver_lowers_exit_if_under_exit_allowed_mode`), `GeneralIf` through the
+issued no-exit recipe, `ExitIfTree` in both `ExitAll`+else and the
+acceptance tuple's `ExitIf`-no-else mode, and named rejects for else parity
+drift, item-index drift, `stmt_only`, and unsupported variants. The
+`callable_loop_source` filter stays green at 48/48 and the neighboring
+`static_call_result_publication_owner`/`cond_lowering_loop_header`/
+`raw_loop_child`/`merged_route`/`unarmed_nested`/`mode_pair`/`armed_scope`
+filters pass 26/26.
+
+This receipt claims only the located item arms and their focused evidence.
+It does not claim the end-to-end physical consumer (items 5-6), caller
+cutover, or old-edge retirement; `source-port-lowering-missing` remains the
+active terminal for the outer production caller.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs

@@ -206,24 +206,7 @@ impl<'view, 'ledger: 'view> CallableLoopSourcePartsAssociatedSourceV1<'view, 'le
         cond_view: &CondBlockView,
         syntax: &ASTNode,
     ) -> Result<(), PartsAssociatedSourceErrorV1> {
-        let matches = if cond_view.prelude_stmts.is_empty() {
-            cond_view.tail_expr == *syntax
-        } else {
-            matches!(
-                syntax,
-                ASTNode::BlockExpr {
-                    prelude_stmts,
-                    tail_expr,
-                    ..
-                } if *prelude_stmts == cond_view.prelude_stmts
-                    && **tail_expr == cond_view.tail_expr
-            )
-        };
-        if matches {
-            Ok(())
-        } else {
-            Err(PartsAssociatedSourceErrorV1::ConditionViewMismatch)
-        }
+        require_condition_view_match(cond_view, syntax)
     }
 
     fn child_expr(
@@ -254,6 +237,33 @@ impl<'view, 'ledger: 'view> CallableLoopSourcePartsAssociatedSourceV1<'view, 'le
     ) -> Result<CallableLoopSourcePartsBlockV1<'view>, PartsAssociatedSourceErrorV1> {
         let body = self.child_body(parent, role)?;
         CallableLoopSourcePartsBlockV1::located_body(self.arena, block, body, &self.port)
+    }
+}
+
+/// The issued `CondBlockView` is the condition authority; the projected
+/// expression must carry the same prelude/tail shape. Item arms that consume
+/// an issued branch recipe without a container block reuse this same check.
+pub(super) fn require_condition_view_match(
+    cond_view: &CondBlockView,
+    syntax: &ASTNode,
+) -> Result<(), PartsAssociatedSourceErrorV1> {
+    let matches = if cond_view.prelude_stmts.is_empty() {
+        cond_view.tail_expr == *syntax
+    } else {
+        matches!(
+            syntax,
+            ASTNode::BlockExpr {
+                prelude_stmts,
+                tail_expr,
+                ..
+            } if *prelude_stmts == cond_view.prelude_stmts
+                && **tail_expr == cond_view.tail_expr
+        )
+    };
+    if matches {
+        Ok(())
+    } else {
+        Err(PartsAssociatedSourceErrorV1::ConditionViewMismatch)
     }
 }
 

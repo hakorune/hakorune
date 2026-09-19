@@ -50,9 +50,9 @@ use super::callable_loop_source::{
 use super::dispatch::{PartsAssociatedBlockModeV1, PartsAssociatedLoweringHooksV1};
 use super::PartsAssociatedSourceErrorV1;
 
-const SOURCE_PARTS_ERR: &str = "[freeze:contract][callable-loop/parts]";
+pub(super) const SOURCE_PARTS_ERR: &str = "[freeze:contract][callable-loop/parts]";
 
-fn render_source_error(error: PartsAssociatedSourceErrorV1, error_prefix: &str) -> String {
+pub(super) fn render_source_error(error: PartsAssociatedSourceErrorV1, error_prefix: &str) -> String {
     format!("{SOURCE_PARTS_ERR}/source {error:?}: ctx={error_prefix}")
 }
 
