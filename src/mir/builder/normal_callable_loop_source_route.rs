@@ -271,6 +271,54 @@ impl CallableLoopSourceRouteTokenV1 {
     ) -> Option<&CallableLoopSourceTargetRelationV1> {
         self.source_target.as_ref()
     }
+
+    /// Move the already co-sealed route product into its sole physical
+    /// consumer.  The Facts/Recipe remains owned by `outcome`; callers must
+    /// consume this tuple exactly once and may not reconstruct it from AST or
+    /// source names.
+    pub(in crate::mir::builder) fn into_physical_parts(
+        self,
+    ) -> Result<
+        (
+            FunctionOwnerIdV1,
+            SourceNodeSiteV1,
+            PlanBuildOutcome,
+            RecipeFirstRouteSelectionV1,
+            VerifiedLoopCondBreakContinueSourceForestProjectionV1,
+            Box<[CallableLoopSourceItemBindingV1]>,
+            CallableLoopSourceTargetRelationV1,
+        ),
+        CallableLoopSourceRouteRejectV1,
+    > {
+        let Self {
+            owner,
+            parent_site,
+            outcome,
+            selection,
+            projection,
+            source_items,
+            source_target,
+        } = self;
+        let source_target =
+            source_target.ok_or(CallableLoopSourceRouteRejectV1::SourceTargetMissing)?;
+        if source_items.is_empty() {
+            return Err(CallableLoopSourceRouteRejectV1::SourceItemsMissing);
+        }
+        if selection.raw_execution_routes() != [LoopRouteId::LoopCondBreakContinue] {
+            return Err(CallableLoopSourceRouteRejectV1::RouteNotExclusive {
+                routes: selection.raw_execution_routes().into(),
+            });
+        }
+        Ok((
+            owner,
+            parent_site,
+            outcome,
+            selection,
+            projection,
+            source_items,
+            source_target,
+        ))
+    }
 }
 
 fn is_under_parent(site: &SourceNodeSiteV1, parent: &SourceNodeSiteV1) -> bool {
@@ -440,6 +488,50 @@ mod tests {
         )
         .expect_err("source route must not mint without resolver projection");
         assert_eq!(reject, CallableLoopSourceRouteRejectV1::ProjectionMissing);
+    }
+
+    #[test]
+    fn source_loop_cond_route_token_rejects_physical_transfer_without_target() {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(route_fixture())
+            .expect("loop-cond fixture resolves");
+        let input = unit.root_function_input().expect("root input");
+        let body = input.source().root_body().expect("root body");
+        let root = input.source().body_stmt(&body, 1).expect("root loop");
+        let crate::ast::ASTNode::Loop {
+            condition, body, ..
+        } = root.node()
+        else {
+            panic!("fixture root must be a loop")
+        };
+        let policy =
+            GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
+        let outcome =
+            single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
+                condition,
+                body,
+                policy,
+                "route-fixture".into(),
+                false,
+            ))
+            .expect("planner outcome");
+        let selection = select_recipe_first_routes(outcome.facts.as_ref());
+        let projection = issue_loop_cond_break_continue_source_forest_projection_v1(input, &root)
+            .expect("forest projection");
+        let token = CallableLoopSourceRouteTokenV1::issue(
+            input.owner(),
+            root.site().node().clone(),
+            input.function().function_origin(),
+            input.function().source_kind(),
+            outcome,
+            selection,
+            Some(projection),
+        )
+        .expect("route token before physical transfer");
+        let reject = token
+            .into_physical_parts()
+            .expect_err("physical transfer must require the exact target relation");
+        assert_eq!(reject, CallableLoopSourceRouteRejectV1::SourceTargetMissing);
     }
 
     #[test]

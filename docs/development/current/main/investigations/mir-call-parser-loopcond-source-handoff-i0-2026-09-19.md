@@ -240,7 +240,7 @@ overlapping routes, foreign owner, and source identity drift. The same owner
 now also exposes a strict co-seal constructor for resolver-issued method-call
 item bindings and an exact target relation; it rejects an empty item set,
 foreign/out-of-root items, a missing target, or a target site absent from the
-item inventory. The focused route filter remains green (2/2), and the explicit
+item inventory. The focused route filter remains green (3/3), and the explicit
 no-method-row inventory reject is green (1/1).
 
 This is still a preparation product, not a production switch: no production
@@ -318,6 +318,26 @@ lowering is complete; no publication or compatibility retirement is implied.
 | 4 | Static tuple handoff | The selected static result reaches the existing statement-If/Equal consumer with ordered arguments and ExactI64 result; duplicate consume and wrong ordinal reject before argument effects. |
 | 5 | Negative matrix | Wrong owner/brand, forest parent drift, omitted child, wrong path, missing/duplicate/foreign exit, wrong target/header/result, legacy route re-entry, and extra nested loop all fail closed. |
 | 6 | Retirement and acceptance | After positive plus negative evidence, remove only the selected tuple's retained compatibility/static-child disposition and record source-to-MIR acceptance. |
+
+## Progress checkpoint — physical input preflight
+
+The first fast implementation slice now consumes the move-only
+`CallableLoopSourceRouteTokenV1` into `SourceLoopCondPhysicalInputV1`. The
+existing planner Facts/Recipe, source forest projection, source item inventory,
+target relation, source contexts, and binding pre-effect move together; the
+shape and parent-site checks reject before any Builder allocation. The raw
+entry invokes the input validator and then stops at the named
+`callable-loop/loop-cond/source-port-lowering-missing` terminal. No AST/name
+remap, second Recipe/JoinSig, compatibility fallback, or physical layout is
+introduced.
+
+Evidence at `2026-09-19`: `CARGO_BUILD_JOBS=4 cargo check --profile quick
+--lib -j4` passed; the focused route filter
+`cargo test --profile quick --lib source_loop_cond_route_token
+-- --test-threads=1` passed 3/3, including the missing-target physical transfer
+reject. This receipt covers input materialization and preflight only. The
+source-port parameterization of header/item/nested/exit lowering, static tuple
+publication, old-edge retirement, and source-to-MIR acceptance remain open.
 
 ## Focused validation
 
