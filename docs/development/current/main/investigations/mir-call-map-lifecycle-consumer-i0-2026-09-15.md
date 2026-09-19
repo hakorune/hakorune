@@ -2642,3 +2642,25 @@ consume the typed owner, then define the `OwnedText` wire/role and its fresh
 UTF-8 materialization operation. If no such caller exists in the selected
 route, keep this family `NoSafeSlice` and park it with the explicit reopen
 trigger rather than adding a disconnected receipt or adapter.
+
+### D0 source-backed caller inventory (2026-09-19)
+
+The live `MirJsonEmitBox.to_json` graph has a finite set of direct qualified
+callers, but it currently has **zero selected callers that consume a typed
+owned-Text result**. The closest production-shaped candidate is
+`LlvmBackendBox._write_evidence_json_if_requested`: it calls
+`MirJsonEmitBox.to_json(root)` and passes the returned text to `FileBox.write`.
+That write path is an external/generic compatibility surface, not a
+source-bound selected physical consumer, so it cannot serve as the D0
+acceptance caller without a separate source/owner and Normal/Fault cleanup
+proof. The remaining direct callers are compiler-emitter helpers, loop/if
+adapters, and JSON-builder/test helpers that return or append serialized text;
+they likewise do not prove a selected callable-result handoff. Recursive
+`to_json` helpers are callee-internal calls and do not add a caller owner.
+
+**Inventory decision:** keep `MIR-CALL-MAP-T3-OWNED-TEXT-RETURN-OWNER-D0` at
+`NoSafeSlice`/design stop. The explicit reopen trigger is a source-backed
+caller whose callee and receiving operation are both admitted in the selected
+normal lifecycle route, with a typed `OwnedText` out-slot and exactly-one
+caller release on Normal and both Fault paths. Until that trigger exists, do
+not add an OwnedText receipt, adapter, fixture, or production switch.
