@@ -454,11 +454,10 @@ capability and attaches one scoped `MapReadPhysicalConsumerV1` to the existing
 recursive lowering port. That consumer matches the exact Fact site and emits
 the already-verified `ArrayIndexMap -> MapGetText` pair; it records bindings
 through the existing ordinary-new ledger and must consume every Fact before
-the package scope completes. This closes wiring only: the source-to-OBJ
-acceptance fixture is still open because the current nested-map literal
-handoff stops at the existing `EntryStore(Opaque)` lifecycle boundary before
-the selected reader is reached. No production cutover, OBJ execution, or T2
-completion claim is made.
+the package scope completes. The bounded `functions[0].name` source-to-OBJ
+fixture is accepted through Normal=30 and injected prepare-Fault=70 with
+`REPORT 100`; this is a bounded receipt, not a production cutover or whole-T2
+claim.
 
 T2-alpha now has a physical owner for the first nested-map Array shape:
 `CheckedMapPayload::Array` carries `CanonicalMapArrayResidence`, and
@@ -470,9 +469,18 @@ fresh mutable `ArrayBox` and no child End authority. This owner contract is
 covered independently. The MIR vocabulary now represents this as
 `ArrayIndexMap -> MapView -> MapGetText -> TextView`; the verifier rejects
 chaining or escaping the view, and the published JSON/diagnostic projections
-carry the typed key/index. Kernel/C ABI emission is landed; source-to-OBJ
-acceptance and production caller cutover remain open behind the lifecycle
-fixture boundary above.
+carry the typed key/index. Kernel/C ABI emission and the selected source-to-OBJ
+Normal/Fault receipt are landed for the bounded shape; production caller
+cutover remains outside this card.
+
+The T2-beta extension reuses the same physical consumer for
+`blocks[0].get("kind")`. Its source issuer admits only a non-empty
+`BorrowedArray` whose direct elements are all `MapLocal` bindings, then emits
+the existing `ArrayIndexMap -> MapGetText` rows. Scalar, empty, mixed, nested,
+nonzero-index, nonliteral-key, and non-text-child shapes reject at the Fact
+boundary. The selected source-to-OBJ fixture passes Normal=30 and injected
+prepare-Fault=70 with `REPORT 100`; `blocks.length()` remains the next bounded
+T2 row.
 
 The bounded readable-Map argument lane admits a `: MapBox` formal as a
 borrowed read-only contract (`CallableParameterContractKindV1::Map`,

@@ -2214,7 +2214,11 @@ or generic ArrayBox/KindTest owner is needed.
    `ArrayIndexMap -> MapGetText` chain for `blocks[0].get("kind")`, with
    `blocks` restricted to a non-empty all-`MapLocal` array. Empty-index,
    scalar/mixed/nested arrays, and generic kind inspection remain rejected.
-3. **T2-beta acceptance:** add one source-to-OBJ Normal/Fault fixture for the
+3. **T2-beta-3 — blocks length:** reuse the ArrayLength operation for the
+   bounded non-empty all-`MapLocal` `blocks` entry. Keep the exact
+   `blocks.length()` receiver relation and reject empty/scalar/mixed/nested
+   entries before catalog mutation.
+4. **T2-beta acceptance:** add source-to-OBJ Normal/Fault fixtures for the
    bounded `params`/`blocks` shape, then record the exact command and runtime
    outcomes. Do not claim whole-T2 completion, qualified Invoke, `to_json`,
    production cutover, or legacy retirement.
@@ -2265,3 +2269,27 @@ qualified Invoke, `to_json`, production cutover, or legacy retirement. The
 next bounded slice is T2-beta-2: non-empty all-`MapLocal`
 `blocks[0].get("kind")` through the existing `ArrayIndexMap -> MapGetText`
 chain. The separate nine-file fmt drift remains a later mechanical closeout.
+
+## T2-beta-2 implementation and source-to-OBJ acceptance (2026-09-19)
+
+The existing `MapLookup -> ArrayIndex -> MapLookup(TextView)` consumer now
+also receives the exact `blocks[0].get("kind")` source rows. The issuer admits
+only a non-empty `BorrowedArray` whose direct elements are all sealed
+`MapLocal` bindings; scalar, empty, mixed, nested, nonzero-index, nonliteral
+kind-key, and non-text child-value shapes stop with named Fact issues. The
+helper lives in `map_read_blocks_chain.rs` so the parent issuer remains below
+the 800-line hard stop. No new Recipe, physical owner, or generic kind
+inspection route was added.
+
+Focused source-authority evidence: `map_read_fact_tests` 11/11 passed. The
+source-to-OBJ fixture
+`host_providers::llvm_codegen::published_mir_object::map_array_source_tests::issued_borrowed_blocks_kind_source_reaches_obj_normal_and_prepare_fault`
+passed 1/1 with `--exact --ignored --nocapture`; the linked object exits
+Normal `30`, injected `prepare-fault` exits `70`, and emits `REPORT 100`.
+Published JSON contains one `map_install_borrowed_array`, one
+`map_array_index_map`, and one `map_get_text` operation.
+
+This closes T2-beta-2 for its bounded kind-read shape only. The next exact
+slice is T2-beta-3: `blocks.length()` on the same non-empty all-`MapLocal`
+residence. T2 acceptance, qualified Invoke, `to_json`, production cutover,
+and legacy retirement remain open.

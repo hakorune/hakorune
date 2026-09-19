@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2"
 current_execution_cohort = "map_argument_read_t2"
-current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2__t2_beta_blocks_kind"
+current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2__t2_beta_blocks_length"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "closed__t2_alpha_nested_array_argument_handoff_2026-09-19"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -18,41 +18,12 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-map-lifecycle-consumer-i0-2026-09-15"
 latest_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
 latest_card_summary = """
-Map lifecycle consumer spine through C9-2 plus the map-argument
-T-series; T1's vertical slice is complete — T1-α landed
-2026-09-18 (callee-side readable Map contract through
-`CheckedGetI64` → `"map"`/`ptr` wire → kernel
-`nyash.map.checked_get_i64_v1`), T1-β landed 2026-09-18
-(caller-side argument handoff: `TerminalCallArgumentV1::Map`,
-`MapCallEdgeContractV1` co-seal at `preflight_map_install`,
-corroborated `{"kind":"map"}` wire actual), and T1-γ landed
-2026-09-19: borrowed-entry payload tag coverage. Sealed
-`MapValueSource::BorrowedHandle` entries install under
-`MapValueKind::BorrowedHandle` → `value_kind:3` →
-`CheckedMapPayload::BorrowedHandle` — never owned by the map,
-never misread as i64 (checked read records Fault 104). The
-undertaking admits `ArgumentHandoff + OwnershipShare(Handle)`
-under the proven edge co-seal while `MapLocal`/`Local` borrows
-and Slot/Return/Contained handoffs stay `BorrowedEntryEscape`;
-the `terminal_map_get` entry-inspection gate is replaced by
-the tag guarantee, so owned maps with borrowed entries and
-call-returned maps now issue readable terminal relations.
-Physical evidence: kind=3 entry read exits 70 on the Fault
-path (map_end once), kind=1 control exits 30; 26 malformed
-inputs still named-reject. `ArgumentHandoff + Handle` is
-describe/verify-level only today — `OpaqueHandle` formals are
-not direct-call catalogable, so no package-install producer
-builds a borrowed-entry argument literal yet. Card's qualified
-`Helpers.read_k(...)` stays parked on `OpaqueCall`;
-`home_new_prefix.rs` 787 lines remains over-760 debt recorded for a BoxShape split; the physical validator is below the 800 hard stop. T2 read Fact, Recipe, co-seal, and physical-owner contract is
-fixed; T2-alpha source provenance records nested Map children inside
-Array elements (10/10 focused tests), and the checked owner now stages an
-owned Array with reverse-prefix cleanup plus borrowed nested-Map Text reads
-(14/14 focused owner tests). Typed `ArrayIndexMap`/`MapGetText` MIR verifier
-and published-JSON projection are recorded (3 view tests + 1 JSON test), and the
-kernel/C ABI text-view handoff is landed with 69/69 focused kernel tests green.
-T2-alpha source Facts/co-seal for direct `m.get("functions").get(0).get("name")` are 3/3; the selected normal caller wires a scoped physical consumer for `ArrayIndexMap -> MapGetText`. The accepted `InstallBorrowedArray` operation is now implemented for non-empty all-MapLocal arrays through source classification, MIR/verifier, published JSON, checked residence, kernel export, and C validator/emitter; it co-seals `OwnershipShare(MapLocal)` with the existing argument edge. The source-issued source-to-OBJ fixture now passes Normal=30 and injected prepare-Fault=70 with `REPORT 100` on the same linked object; exact array-element source sites are consumed by the existing variable ledger. T2-alpha is closed for this bounded shape. T2-beta-1 `params` ArrayLength is also closed through source-to-OBJ (Normal=0, prepare-Fault=70 with `REPORT 100`) after rebuilding the lifecycle archive and C shim. Next is T2-beta-2: bounded `blocks[0].get("kind")`.
-Non-claims remain: no qualified Invoke, whole-T2 completion, production cutover, `to_json`, or legacy retirement.
+Map lifecycle consumer spine through C9-2 and the map-argument T-series.
+T1 alpha/beta/gamma and T2-alpha are closed with source-to-OBJ evidence.
+T2-beta-1 params ArrayLength is closed: Normal=0, prepare-Fault=70, REPORT 100.
+T2-beta-2 blocks[0].get(kind) is closed: Normal=30, prepare-Fault=70, REPORT 100.
+Next is T2-beta-3: bounded blocks.length(); then run the T2-beta acceptance row.
+Non-claims: no qualified Invoke, whole-T2 completion, production cutover, to_json, or legacy retirement.
 """
 next_design_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
@@ -74,7 +45,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-05: Birth Call checkpoint supersedes the historical carrier-open note above. Package 75/75 including typed Birth publication, Unit/value and explicit-contract rejection, conservative-mask equality and host pre-artifact rejection with empty output directory; shared defs 11/11, vm-reference check green. Selected source-to-Call Global/manual-prefix/fixed-IO edges removed; compatibility branch remains. C execution/EXE30 is still open; M7-S write-only source/MIR/OBJ/EXE/reject evidence is closed; llvmlite remains explicit compatibility.",
-  "2026-09-09/10: Map/Birth physical cohorts close with direct/linked exit30 and Fault/cleanup evidence; c3fa1f8a75, 60bcf68add, f4b387de48, 89199dbc3c, and 36cdbb08c8 are recorded. Root method Rust I0 closes at 629e558e91; physical receiver-lane D0 is accepted. Untyped storage, child shapes, whole-Map/R7 remain parked. C measurement P0 closed at a0ab958b81; pre-llc V2/V4 fusion parked.",
-  "2026-09-10/13: Receiver/callee/FieldGet/schema, Pair exit30, and the selected-C/generic compatibility rows are recorded; Loop remains ParkedSealed__NoCallableNoneCaller. Published-row I0 moves the borrowed ledger into HakoLlvmcInvocation with focused ownership, overlap, duplicate, zero-row, residual, lifetime/query, formal, route, pointer, and diff evidence. Native Windows AOT I1 remains a separate closed proof. Rust llvmlite runner request I0 is closed with one invocation policy preserving selector/fallback/NyRT projections; the retained compatibility frontier returns to design stop D1.",
+  "2026-09-05: Birth Call checkpoint closed; C EXE30 and llvmlite compatibility remain open.",
+  "2026-09-09/10: Map/Birth physical cohorts and receiver lane closed; whole-Map/R7 parked; C measurement closed.",
+  "2026-09-10/13: Receiver/callee/FieldGet/schema, Pair, selected-C rows, and published ownership evidence recorded; retained compatibility frontier at design stop D1.",
 ]

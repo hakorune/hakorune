@@ -11,13 +11,14 @@ use super::ordinary_new_coseal::OrdinaryNewClaimLedgerV1;
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    MapEntryStoreClassV1, MapHomeEntry, MapHomeFlow, MapValueSource, TerminalCallArgumentV1,
+    MapEntryStoreClassV1, MapHomeFlow, MapValueSource, TerminalCallArgumentV1,
 };
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLexicalRefV1,
     ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
 };
-use std::collections::BTreeSet;
+#[path = "map_read_blocks_chain.rs"]
+mod blocks_chain;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) enum MapReadOperationV1 {
@@ -214,6 +215,36 @@ pub(crate) enum MapReadFactIssueV1 {
     ParamsEntryUnsupported {
         site: OwnedExprSiteV1,
     },
+    BlocksEntryMissing {
+        site: OwnedExprSiteV1,
+    },
+    BlocksEntryNotArray {
+        site: OwnedExprSiteV1,
+    },
+    BlocksEntryUnsupported {
+        site: OwnedExprSiteV1,
+    },
+    BlocksElementMissing {
+        site: OwnedExprSiteV1,
+    },
+    BlocksElementNotMapLocal {
+        site: OwnedExprSiteV1,
+    },
+    BlocksChildMapUnavailable {
+        site: OwnedExprSiteV1,
+    },
+    KindEntryMissing {
+        site: OwnedExprSiteV1,
+    },
+    KindEntryDuplicate {
+        site: OwnedExprSiteV1,
+    },
+    KindEntryOperandMismatch {
+        site: OwnedExprSiteV1,
+    },
+    KindValueNotText {
+        site: OwnedExprSiteV1,
+    },
     ArrayElementMissing {
         site: OwnedExprSiteV1,
     },
@@ -299,7 +330,12 @@ pub(super) fn issue_map_read_facts_v1(
                     has_array_length_candidate(input.function(), formal.binding)
                 })
                 .unwrap_or(false);
-            if !has_first_candidate && !has_params_length_candidate {
+            let has_blocks_kind_candidate = batch
+                .with_lowering_input(declaration.batch_slot(), |input| {
+                    blocks_chain::has_blocks_kind_candidate(input.function(), formal.binding)
+                })
+                .unwrap_or(false);
+            if !has_first_candidate && !has_params_length_candidate && !has_blocks_kind_candidate {
                 continue;
             }
             let issued = batch
@@ -320,10 +356,21 @@ pub(super) fn issue_map_read_facts_v1(
                         rows.extend(issue_array_length_chain(
                             input.function(),
                             formal.binding,
+                            call_site.clone(),
+                            ordinal,
+                            actual_map,
+                            actual_flow,
+                        )?);
+                    }
+                    if has_blocks_kind_candidate {
+                        rows.extend(blocks_chain::issue_blocks_kind_chain(
+                            input.function(),
+                            formal.binding,
                             call_site,
                             ordinal,
                             actual_map,
                             actual_flow,
+                            ledger,
                         )?);
                     }
                     Ok(rows)
@@ -455,7 +502,7 @@ fn issue_array_length_chain(
     let first_receiver = OwnedExprSiteV1::new(owner, first.receiver_site().clone());
     let second_receiver = OwnedExprSiteV1::new(owner, second.receiver_site().clone());
     let first_operand = OwnedExprSiteV1::new(owner, first.arguments()[0].site().clone());
-    let borrow_roots = borrow_roots_for_entry(actual_flow, params);
+    let borrow_roots = blocks_chain::borrow_roots_for_entry(actual_flow, params);
     Ok(vec![
         MapReadFactV1 {
             owner,
@@ -616,7 +663,7 @@ fn issue_chain(
         containment.push(child.site().clone());
     }
     let owner = first.owner();
-    let borrow_roots = borrow_roots(actual_flow, functions, child);
+    let borrow_roots = blocks_chain::borrow_roots(actual_flow, functions, child);
     let first_site = OwnedExprSiteV1::new(owner, first.site().clone());
     let second_site = OwnedExprSiteV1::new(owner, second.site().clone());
     let third_site = OwnedExprSiteV1::new(owner, third.site().clone());
@@ -725,43 +772,4 @@ fn child_map_for_element<'a>(
         return None;
     };
     ledger.map_flow_for_local_binding(*binding).ok().flatten()
-}
-
-fn borrow_roots(
-    actual: &MapHomeFlow,
-    entry: &MapHomeEntry,
-    child: &MapHomeFlow,
-) -> Vec<BindingRefV1> {
-    let mut roots = BTreeSet::new();
-    roots.extend(actual.allocation_fault());
-    roots.extend(child.allocation_fault());
-    if let Some(elements) = entry.array_elements() {
-        collect_element_roots(elements, &mut roots);
-    }
-    roots.into_iter().collect()
-}
-
-fn borrow_roots_for_entry(actual: &MapHomeFlow, entry: &MapHomeEntry) -> Vec<BindingRefV1> {
-    let mut roots = BTreeSet::new();
-    roots.extend(actual.allocation_fault());
-    if let Some(elements) = entry.array_elements() {
-        collect_element_roots(elements, &mut roots);
-    }
-    roots.into_iter().collect()
-}
-
-fn collect_element_roots(
-    elements: &[crate::mir::resolved_semantics::home_new_prefix::ArrayElementSource],
-    roots: &mut BTreeSet<BindingRefV1>,
-) {
-    for element in elements {
-        if let Some(source) = element.value_source() {
-            if let Some((_, root)) = source.borrowed_root() {
-                roots.insert(root);
-            }
-        }
-        if let Some(nested) = element.nested_elements() {
-            collect_element_roots(nested, roots);
-        }
-    }
 }

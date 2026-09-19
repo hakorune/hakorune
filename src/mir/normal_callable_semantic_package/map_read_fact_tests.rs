@@ -1,7 +1,9 @@
 //! Focused source-authority tests for the bounded nested Map read chain.
 
 use super::brand_catalog_tests::issue_with_brand_catalog as issue;
-use super::map_read_fact::{MapReadOperandV1, MapReadOperationV1, MapReadResultClassV1};
+use super::map_read_fact::{
+    MapReadFactIssueV1, MapReadOperandV1, MapReadOperationV1, MapReadResultClassV1,
+};
 
 const NESTED_MAP_READ_SOURCE: &str = r#"
 static box Helpers {
@@ -24,6 +26,21 @@ static box Helpers {
 }
 static box Main {
     main() { return read_params(%{"params" => []}) }
+}
+"#;
+
+const BLOCKS_KIND_READ_SOURCE: &str = r#"
+static box Helpers {
+    read_kind(m: MapBox): i64 {
+        local kind = m.get("blocks").get(0).get("kind")
+        return 30
+    }
+}
+static box Main {
+    main() {
+        local block = %{ "kind" => "entry" }
+        return read_kind(%{ "blocks" => [block] })
+    }
 }
 "#;
 
@@ -100,4 +117,110 @@ fn source_issues_array_length_for_exact_params_array() {
     assert_eq!(length.operand(), &MapReadOperandV1::Key("params".into()));
     assert_eq!(length.result(), MapReadResultClassV1::I64);
     assert!(rows.iter().all(|row| !row.containment().is_empty()));
+}
+
+#[test]
+fn source_issues_blocks_kind_for_non_empty_all_map_local_array() {
+    let package = issue(BLOCKS_KIND_READ_SOURCE).expect("bounded blocks kind package");
+    let rows = package.map_read_facts().rows();
+    assert_eq!(rows.len(), 3);
+    let blocks = rows
+        .iter()
+        .find(|row| row.operand() == &MapReadOperandV1::Key("blocks".into()))
+        .expect("blocks read");
+    assert_eq!(blocks.operation(), MapReadOperationV1::MapLookup);
+    assert_eq!(blocks.result(), MapReadResultClassV1::ArrayView);
+    let index = rows
+        .iter()
+        .find(|row| row.operation() == MapReadOperationV1::ArrayIndex)
+        .expect("blocks index read");
+    assert_eq!(index.operand(), &MapReadOperandV1::Index(0));
+    assert_eq!(index.result(), MapReadResultClassV1::MapView);
+    let kind = rows
+        .iter()
+        .find(|row| row.operand() == &MapReadOperandV1::Key("kind".into()))
+        .expect("kind read");
+    assert_eq!(kind.operation(), MapReadOperationV1::MapLookup);
+    assert_eq!(kind.result(), MapReadResultClassV1::TextView);
+    assert!(rows.iter().all(|row| !row.containment().is_empty()));
+}
+
+#[test]
+fn blocks_kind_rejects_scalar_entry() {
+    let source =
+        BLOCKS_KIND_READ_SOURCE.replace("%{ \"blocks\" => [block] }", "%{ \"blocks\" => 7 }");
+    let error = issue(&source).expect_err("scalar blocks entry must reject");
+    assert!(matches!(
+        error,
+        super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+            _error: MapReadFactIssueV1::BlocksEntryNotArray { .. }
+        }
+    ));
+}
+
+#[test]
+fn blocks_kind_rejects_mixed_array() {
+    let source = BLOCKS_KIND_READ_SOURCE.replace(
+        "%{ \"blocks\" => [block] }",
+        "%{ \"blocks\" => [block, 7] }",
+    );
+    let error = issue(&source).expect_err("mixed blocks array must reject");
+    assert!(matches!(
+        error,
+        super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+            _error: MapReadFactIssueV1::BlocksEntryUnsupported { .. }
+        }
+    ));
+}
+
+#[test]
+fn blocks_kind_rejects_nested_array() {
+    let source = BLOCKS_KIND_READ_SOURCE
+        .replace("%{ \"blocks\" => [block] }", "%{ \"blocks\" => [[block]] }");
+    let error = issue(&source).expect_err("nested blocks array must reject");
+    assert!(matches!(
+        error,
+        super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+            _error: MapReadFactIssueV1::BlocksEntryUnsupported { .. }
+        }
+    ));
+}
+
+#[test]
+fn blocks_kind_rejects_nonzero_index() {
+    let source = BLOCKS_KIND_READ_SOURCE.replace("get(0)", "get(1)");
+    let error = issue(&source).expect_err("nonzero blocks index must reject");
+    assert!(matches!(
+        error,
+        super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+            _error: MapReadFactIssueV1::ArrayIndexOperandMismatch { .. }
+        }
+    ));
+}
+
+#[test]
+fn blocks_kind_rejects_nonliteral_kind_key() {
+    let source = BLOCKS_KIND_READ_SOURCE.replace(
+        "local kind = m.get(\"blocks\").get(0).get(\"kind\")",
+        "local key = \"kind\" local kind = m.get(\"blocks\").get(0).get(key)",
+    );
+    let error = issue(&source).expect_err("nonliteral kind key must reject");
+    assert!(matches!(
+        error,
+        super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+            _error: MapReadFactIssueV1::KindEntryOperandMismatch { .. }
+        }
+    ));
+}
+
+#[test]
+fn blocks_kind_rejects_nontext_child_value() {
+    let source = BLOCKS_KIND_READ_SOURCE.replace("\"entry\"", "7");
+    let error = issue(&source).expect_err("nontext kind value must reject");
+    assert!(matches!(
+        error,
+        super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+            _error: MapReadFactIssueV1::KindValueNotText { .. }
+        }
+    ));
 }
