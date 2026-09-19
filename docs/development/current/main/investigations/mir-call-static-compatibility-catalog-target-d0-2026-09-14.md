@@ -735,10 +735,19 @@ expression product's `String` branch class, and widening them would mix
 statement and expression authority. `canonical_ssa` remains the sole mutable
 CFG/SSA/PHI owner, so the next design row must add a route-specific result
 port over that owner, carrying the source-issued owner, exact expression-`If`
-site, branch exits, and the parametric `I64 | String` class. The physical
-consumer may project `I64 -> MirType::Integer` or `String -> MirType::String`
-only after consuming the co-sealed product; it must never infer the class from
-MIR values or rescan the AST.
+site, branch exits, and the parametric `I64 | String` class. The existing
+`VerifiedResolvedIfCfgReadyJoinRowsV1` is a useful CFG witness, but its rows
+are `BindingRefV1` joins and therefore cannot be used by manufacturing a
+synthetic binding for an expression result. The physical consumer may project
+`I64 -> MirType::Integer` or `String -> MirType::String` only after consuming
+the co-sealed product; it must never infer the class from MIR values or rescan
+the AST.
+
+The exact exclusion is visible in the current owner code: `IfValueClassV1`
+contains only `I64` and `Bool`, `CanonicalIfPhysicalCorrespondenceV1` is
+statement-site/assignment oriented, and `class_for_representation` rejects
+non-trivial representations. These are valid statement-If invariants, not a
+missing switch to widen in place.
 
 ### Next bounded design slice
 
