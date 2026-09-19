@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T3"
 current_execution_cohort = "map_to_json_t3"
-current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T3__source_feature_census"
+current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T3__source_result_text_owner_decision"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "open__t3_source_feature_census_2026-09-19"
+current_design_stop = "open__t3_source_result_text_owner_decision_2026-09-19"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -33,8 +33,11 @@ inventory is now closed at Fact issuance: nine scalar/opaque/nested/mixed,
 foreign, and duplicate shapes reject before package/catalog installation, and
 the focused map-read suite is 19/19. The selected physical consumer closeout
 is also closed: the aggregate source-to-OBJ/fault receipt is 1/1 and its ten
-source Facts match the physical operation inventory. Next is the T3 source
-feature census design stop for the unmodified `MirJsonEmitBox.to_json` graph.
+source Facts match the physical operation inventory. The T3 source feature
+census is concrete: 70 `get`, 9 `length`, 1 `keys`, 5 `is_map`, 6 `is_array`,
+1 `indexOf`, and 5 String-helper sites in the unmodified
+`MirJsonEmitBox.to_json` graph. Next is the source-result, qualified-call,
+and owned-Text owner decision.
 Non-claims: no qualified Invoke, whole-T2 completion, production cutover, to_json, or legacy retirement.
 """
 next_design_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T3"

@@ -2457,3 +2457,22 @@ fixture, fallback, or production switch is permitted during this stop.
 **Non-claims:** no T3 body admission, qualified-call lane, recursion support,
 Text-result ABI, `to_json` acceptance, production cutover, or legacy
 retirement.
+
+### T3 census result and owner gap
+
+The static source census is now concrete for the live file: **70** `get`
+sites, **9** `length` sites, **1** `keys` site, **5** `BoxHelpers.is_map`
+sites, **6** `BoxHelpers.is_array` sites, **1** `indexOf` site, and **5**
+`StringHelpers` (`to_i64`/`int_to_str`/`json_quote`) sites. The recursive call
+graph is finite and named: `_emit_vid_array_rec`, `_emit_effects_rec`,
+`_emit_phi_incoming_rec`, `_emit_phi_rec`, `_emit_block_rec`,
+`_emit_function_rec`, `_emit_flags_rec`, and `_emit_module_rec`.
+
+The census closes the inventory question but not the owner decision. Existing
+`MapReadFactV1`/`MapReadPhysicalConsumerV1` covers only the already accepted
+literal `functions`/`params`/`blocks` chains. `MapInvokeOperation` has no
+source-backed `MapKeys` or map/array predicate result, and `MapGetText` is a
+borrowed view rather than an owned Text return. The next design slice is to
+co-seal the qualified static-call/source-result product with a Text-result
+ownership contract, while retaining named rejection for dynamic keys,
+unproven recursion, and compatibility sentinel branches.
