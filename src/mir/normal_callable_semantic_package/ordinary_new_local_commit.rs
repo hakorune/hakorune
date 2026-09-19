@@ -219,15 +219,27 @@ impl FinalizedRootSourceHandoffV1 {
 /// Final-handoff projection of the already-issued terminal source relation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum FinalizedRootResultAbiV1 {
-    CallReturn { owner: FunctionOwnerIdV1 },
-    I64AddReturn { owner: FunctionOwnerIdV1 },
-    UnitReturn { owner: FunctionOwnerIdV1 },
-    IntegerLiteralReturn { owner: FunctionOwnerIdV1 },
-    I64FieldReturn { owner: FunctionOwnerIdV1 },
+    CallReturn {
+        owner: FunctionOwnerIdV1,
+    },
+    I64AddReturn {
+        owner: FunctionOwnerIdV1,
+    },
+    UnitReturn {
+        owner: FunctionOwnerIdV1,
+    },
+    IntegerLiteralReturn {
+        owner: FunctionOwnerIdV1,
+    },
+    I64FieldReturn {
+        owner: FunctionOwnerIdV1,
+    },
     /// `return <map>.get("<literal>")` — the readable-Map terminal. The
     /// checked read produces the exact i64 payload; the map itself is
     /// never the returned value.
-    MapGetReturn { owner: FunctionOwnerIdV1 },
+    MapGetReturn {
+        owner: FunctionOwnerIdV1,
+    },
 }
 
 impl NewLocalCommitV1 {

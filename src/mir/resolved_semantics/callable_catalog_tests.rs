@@ -142,10 +142,7 @@ fn one_entry_catalog_preserves_exact_callable_header_contract() {
     assert_eq!(header.source_key().name(), "only");
     assert_eq!(header.source_key().arity(), 1);
     assert_eq!(header.symbol().as_mir_name(), "only/1");
-    assert_eq!(
-        header.signature().params(),
-        &[ExactCallableParamAbiV1::I64]
-    );
+    assert_eq!(header.signature().params(), &[ExactCallableParamAbiV1::I64]);
     assert_eq!(
         header.signature().result(),
         Some(ExactTrivialScalarAbiV1::I64)

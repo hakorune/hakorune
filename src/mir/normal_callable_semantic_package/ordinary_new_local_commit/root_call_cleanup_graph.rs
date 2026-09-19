@@ -91,9 +91,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
         // checked read invoke, Normal result projection, Fault cleanup.
         MirInstruction::Invoke {
             operation:
-                InvokeOperation::Map(
-                    crate::mir::instruction::MapInvokeOperation::CheckedGetI64 { .. },
-                ),
+                InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::CheckedGetI64 {
+                    ..
+                }),
             fault_frame,
             normal_landing,
             fault_landing,

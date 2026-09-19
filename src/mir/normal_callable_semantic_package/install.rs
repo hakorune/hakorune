@@ -317,9 +317,7 @@ pub(crate) struct NormalCallableSemanticPackagePortV1<'package> {
 }
 
 impl NormalCallableSemanticPackagePortV1<'_> {
-    pub(in crate::mir) fn map_read_facts_snapshot(
-        &self,
-    ) -> super::map_read_fact::MapReadFactsV1 {
+    pub(in crate::mir) fn map_read_facts_snapshot(&self) -> super::map_read_fact::MapReadFactsV1 {
         self.installed.map_read_facts().clone()
     }
 
@@ -476,9 +474,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
 }
 
 impl InstalledNormalCallableSemanticPackageV1 {
-    pub(in crate::mir) fn map_read_facts(
-        &self,
-    ) -> &super::map_read_fact::MapReadFactsV1 {
+    pub(in crate::mir) fn map_read_facts(&self) -> &super::map_read_fact::MapReadFactsV1 {
         &self.map_read_facts
     }
 

@@ -122,11 +122,11 @@ mod map_contained_descendant_flow_tests;
 #[cfg(test)]
 mod map_entry_value_flow_tests;
 #[cfg(test)]
+mod map_get_terminal_tests;
+#[cfg(test)]
 mod map_home_flow_tests;
 #[cfg(test)]
 mod map_value_completion_tests;
-#[cfg(test)]
-mod map_get_terminal_tests;
 #[cfg(test)]
 mod terminal_value_return_tests;
 

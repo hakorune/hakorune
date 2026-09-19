@@ -386,10 +386,7 @@ fn emit_root_home_exit_payload(
                     clean,
                     fault,
                     InvokeOperation::Map(
-                        crate::mir::instruction::MapInvokeOperation::CheckedGetI64 {
-                            map,
-                            utf8,
-                        },
+                        crate::mir::instruction::MapInvokeOperation::CheckedGetI64 { map, utf8 },
                     ),
                     &mut bindings,
                 )?;

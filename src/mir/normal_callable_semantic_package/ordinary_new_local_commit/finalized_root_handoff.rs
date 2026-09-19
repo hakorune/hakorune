@@ -68,9 +68,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     }
                 }
                 TerminalRelationV1::MapGet(relation) => {
-                    if relation.owner() != owner
-                        || !self.terminal_map_get_return_emitted(owner)
-                    {
+                    if relation.owner() != owner || !self.terminal_map_get_return_emitted(owner) {
                         return Err(freeze("artifact-root-map-get-unavailable"));
                     }
                 }
