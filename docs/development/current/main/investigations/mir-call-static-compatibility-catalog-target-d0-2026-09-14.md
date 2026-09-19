@@ -974,7 +974,11 @@ split, the undertaking/handle matrix, fail-closed `BlockExpr` preludes, the
 T1-gamma fault chain, probe cleanup, and the `CURRENT_STATE` pointer update do
 not reopen this static tuple. The map-family reds remain a separate known
 baseline lane, and the current normal-pipeline inventory remains the pointer's
-26-pass/2-baseline/1-ignored receipt.
+26-pass/2-baseline/1-ignored receipt. The historical A0-2 source-hint test was
+green at `8ee28a0d8f` but fails at the current head on its old
+`caller-prefix-capability` assertion; classify it as a current-change red and
+track recovery as `MIR-CALL-SOURCE-HINT-RED-RECOVERY-D0`, never as a baseline
+or ignored row.
 
 The five deterministic `normal_default_root_catalog_lifecycle_tests` failures
 are now classified as `known baseline debt`: parent `3e3d39d632` and the
@@ -986,10 +990,10 @@ and `tests::parser::parser_direct_birth_call::parser_birth_keeps_parent_construc
 remain the two known manifest reds. The broader historical filter count is
 not an open blocker for this card.
 
-The verification-only reconciliation is therefore complete. The next task is
-the active static publication tuple design: keep the baseline rows outside
+The baseline verification reconciliation is complete; the source-hint red is a
+separate current-change recovery task. The next task is the active static
+publication tuple design: keep the baseline rows outside
 this cohort, then co-seal the Cataloged source site, exact target/result
 handoff, negative matrix, and cohort-local old-edge delete set before any
 implementation entry. Current `cargo fmt --all -- --check`, `git diff --check`,
-and `current_state_pointer_guard.sh` are green; older fmt-drift or dirty-tree
-notes are historical until reproduced.
+and `current_state_pointer_guard.sh` are green; older fmt-drift or dirty-tree notes are historical until reproduced.
