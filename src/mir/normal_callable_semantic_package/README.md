@@ -502,6 +502,14 @@ these nine rejects. The next bounded row is selected-consumer closeout; this
 receipt does not claim qualified Invoke, whole-T2 completion, `to_json`, a
 production cutover, or legacy retirement.
 
+The selected physical consumer closeout is also witnessed by the aggregate
+source-to-OBJ receipt. Its ten source Facts reach exactly the existing JSON
+inventory (two borrowed-array installs, one empty-array install, two index
+reads, two length reads, and two text reads), while the adapter's
+`MapReadPhysicalConsumerV1::finish` rejects pending, duplicate, or unconsumed
+rows. The eight-case Normal/Fault receipt passes 1/1 on the current tree; the
+next T3 feature census remains design-only.
+
 The bounded readable-Map argument lane admits a `: MapBox` formal as a
 borrowed read-only contract (`CallableParameterContractKindV1::Map`,
 `StoredLocal::BorrowedMap`): the callee reads caller-owned storage, owns

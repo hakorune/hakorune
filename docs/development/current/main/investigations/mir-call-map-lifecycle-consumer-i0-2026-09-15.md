@@ -2393,3 +2393,67 @@ accepted aggregate Fact set is consumed exactly once by the selected physical
 consumer and that no marker, side-table, opaque/probe-side, or unconsumed Fact
 route is admitted. Keep the existing source-to-OBJ and fault receipts as the
 terminal evidence; do not widen the source shape while closing this row.
+
+## T2 selected-consumer closeout (2026-09-19)
+
+The selected lowering route now has a current source-to-OBJ receipt for the
+aggregate shape. `MapReadPhysicalConsumerV1::finish` is reached by the normal
+callable package adapter and requires every issued Fact site to be consumed
+exactly once; duplicate sites, pending array relations, and any unconsumed row
+stop with the existing freeze contract. The aggregate JSON inventory matches
+the ten source Facts through the existing physical owner: two borrowed-array
+installs, one empty-array install, two ArrayIndexMap reads, two ArrayLength
+reads, and two MapGetText reads. No marker or probe-side operation is used as a
+source Fact substitute.
+
+Current focused evidence:
+
+`CARGO_BUILD_JOBS=4 cargo test --profile quick --lib
+host_providers::llvm_codegen::published_mir_object::map_array_source_tests::issued_aggregate_map_read_source_reaches_obj_fault_matrix
+-- --exact --ignored --nocapture` passed **1/1** on the current tree. Its eight
+Normal/Fault cases still exit as recorded, including named reports and the
+`checked_end`-before-frame-disposal sequence. Together with the 19/19 Fact
+suite and the negative inventory above, this closes the bounded selected
+consumer row only; the next T3 feature census is still design work.
+
+## MIR-CALL-MAP-LIFECYCLE-CONSUMER-T3 source feature census design stop (2026-09-19)
+
+**Decision:** keep T3 at design stop until the unmodified
+`MirJsonEmitBox.to_json` call graph is inventoried as finite source shapes.
+No new T3 semantic receipt, generic map fallback, or body admission is opened
+by this census.
+
+**Source authority + canonical issuer:** the source authority is the live Hako
+body in `lang/src/shared/mir/json_emit_box.hako`; a canonical T3 Fact issuer is
+not selected yet. Existing T2 `MapReadFactV1` rows remain authoritative only
+for their already bounded `functions`/`params`/`blocks` read shapes.
+
+**Non-authority:** AST rewrites, MIR JSON re-reading, runtime key names,
+compatibility sentinel probing, `observe_native`, and the old `functions_0`
+fallback cannot establish T3 source meaning.
+
+**Finite inventory to close before implementation:**
+
+| family | source sites in `MirJsonEmitBox` | current boundary |
+|---|---|---|
+| literal map reads | module/function/block/instruction/callee `get` chains | T2 covers only the named aggregate rows; remaining fields need separate Facts |
+| array reads | `length()` plus indexed `get(idx)` in recursive emitters | only bounded `params`/`blocks`/`functions[0]` rows are admitted today |
+| type predicates | `BoxHelpers.is_map` and `BoxHelpers.is_array` | no T3 source Fact or physical owner selected |
+| dynamic flags | `flags.keys()`, `keys.length()`, `keys.get(i)`, `flags.get(k)` | dynamic-key relation and Text ownership are unproven |
+| recursion | module/function/block/params/effects/phi/flags recursive helpers | recursion and cycle policy are not yet co-sealed |
+| early exits/sentinels | null, `[map/missing]`, empty arrays, absent optional fields, `functions_0` fallback | compatibility branches must be classified before source admission |
+| Text operations | coercion, `indexOf`, `json_quote`, `int_to_str`, `to_i64`, concatenation, comparisons | no common T3 result/ownership contract selected |
+
+**Fail-fast boundary:** before source-backed package admission, reject a T3
+site that is missing, foreign, duplicated, dynamically keyed without a sealed
+relation, recursive without a cycle/termination contract, or lacking a Text
+result owner. Do not infer a Recipe from emitted JSON or a runtime handle.
+
+**Smallest next slice:** turn this inventory into a source-site census with
+owner, receiver relation, operand/result class, recursion edge, and early-exit
+policy; then choose one finite family for a separate design Decision. No code,
+fixture, fallback, or production switch is permitted during this stop.
+
+**Non-claims:** no T3 body admission, qualified-call lane, recursion support,
+Text-result ABI, `to_json` acceptance, production cutover, or legacy
+retirement.
