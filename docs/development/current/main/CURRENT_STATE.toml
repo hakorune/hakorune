@@ -40,8 +40,10 @@ census is concrete: 70 `get`, 9 `length`, 1 `keys`, 5 `is_map`, 6 `is_array`,
 semantic `String`/`I64` classes, but no selected owned-Text caller or return
 port exists. T3 is `ParkedSealed__NoSelectedOwnedTextCaller`; its reopen
 trigger remains in the owning card. The parser static-parent set relation I0
-has now closed its focused recheck (12/12 and 9/9); A2 body/call/constructor
-guards and A3 package admission are already closed. The next bounded row is
+has now closed its focused recheck (12/12 and 9/9); A0-2 typed lineage,
+A0-3 mixed admission and A3 package admission are landed/closed at their
+bounded boundaries, while A2 body/call/constructor guards are also closed.
+The next bounded row is
 the normal-pipeline red recovery inventory is stable (26 pass, 2 known
 baseline failures, 1 ignored), and its route-observer I0 is already landed.
 The next non-parked row is the static source-admission/publication tuple
