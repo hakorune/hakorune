@@ -433,6 +433,10 @@ the direct item path. This does not cover exit-if preludes, nested loops,
 complex recipe branches, physical allocation, publication, or old-edge
 retirement.
 
+The source exit entry is intentionally limited to direct `ExitLeaf` rows. It
+does not reinterpret an `ExitIf` or nested recipe as a direct exit, so those
+shapes remain explicit next work rather than entering a raw fallback.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs
