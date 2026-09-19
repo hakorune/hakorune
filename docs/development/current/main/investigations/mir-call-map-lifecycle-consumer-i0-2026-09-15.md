@@ -2543,3 +2543,47 @@ owner by naming. The next task is therefore
 `MIR-CALL-MAP-T3-OWNED-TEXT-RETURN-OWNER-D0`: define one physical return owner
 or explicitly reject the family, with creation, transfer, Normal/Fault cleanup,
 and consumer handoff all co-sealed before implementation permission.
+
+## MIR-CALL-MAP-T3-OWNED-TEXT-RETURN-OWNER-D0 design brief (2026-09-19)
+
+```text
+Decision: design one OwnedText callable-result contract as an extension of the
+existing package result/physical-program chain; keep TextView borrowed and do
+not widen the I64 publication owner. The D0 is not implementation permission.
+Source authority + canonical issuer: source_result product supplies the
+semantic String class; TerminalRelation/Completion supplies the exact return
+site and cleanup relation; the package result contract co-seals them before a
+physical OwnedText row is issued.
+Non-authority: MirType::String alone, generic string/global route profiles,
+StringBox names, JSON fields, TextView storage, pinned formal residence, and
+runtime handles recovered after lowering.
+Fail-fast boundary: reject missing or foreign source/result co-seal, mixed or
+nullable return class, borrowed TextView escape, missing owned storage or
+transfer, duplicate return site, and any Normal/Fault cleanup mismatch before
+package/catalog mutation.
+Smallest next slice: choose the owned storage representation and its C/LLVM
+out-slot, define one Normal transfer plus callee/caller Fault cleanup matrix,
+then prove one direct declared-String literal/concat callable; map TextView
+copy and recursive/json_emit families remain later rows.
+Non-claims: no new semantic receipt yet, no MapGetText escape, no qualified
+Invoke admission, no to_json acceptance, no production switch, no retirement.
+```
+
+### D0 bounded task order
+
+1. **Representation:** choose an owned UTF-8 result carrier with an explicit
+   owner/generation and length contract; raw `i64`/`TextView` aliases are not
+   acceptable substitutes.
+2. **Co-seal:** bind that carrier to the existing source-result class,
+   `TerminalRelationV1`, `FunctionOwnerIdV1`, and exact return site through the
+   package result contract. Do not issue a second source classifier.
+3. **Control flow:** specify Normal transfer, callee Fault reclamation, caller
+   Fault reclamation, and caller final release. A `TextView` cannot enter this
+   path.
+4. **Physical consumer:** add the operation/result vocabulary and C/LLVM
+   output-slot contract only after steps 1–3 are accepted; ordinary i64/map
+   and map TextView lanes remain unchanged.
+5. **First acceptance:** use one declared-String literal/concat callable with
+   positive, foreign-site, duplicate-site, and Normal/Fault cleanup negatives.
+   Only after that may a Map Text copy row or recursive `to_json` family be
+   selected.

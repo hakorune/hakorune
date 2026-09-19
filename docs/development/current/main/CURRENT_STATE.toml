@@ -1,9 +1,9 @@
 date = "2026-09-19"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T3"
-current_execution_cohort = "map_to_json_t3"
-current_blocker_token = "MIR-CALL-MAP-T3-OWNED-TEXT-RETURN-OWNER-D0__contract_design"
+current_execution_row = "MIR-CALL-MAP-T3-OWNED-TEXT-RETURN-OWNER-D0"
+current_execution_cohort = "map_to_json_t3_owned_text_return"
+current_blocker_token = "MIR-CALL-MAP-T3-OWNED-TEXT-RETURN-OWNER-D0__representation_and_cleanup_decision"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "open__t3_owned_text_return_owner_contract_design_2026-09-19"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -39,10 +39,11 @@ census is concrete: 70 `get`, 9 `length`, 1 `keys`, 5 `is_map`, 6 `is_array`,
 `MirJsonEmitBox.to_json` graph. The source-result issuer is reusable for
 semantic `String`/`I64` classes, but no owned Text return port is selected;
 T3 remains at design stop for the bounded physical owned-Text return-owner
-Decision (`MIR-CALL-MAP-T3-OWNED-TEXT-RETURN-OWNER-D0`).
+Decision (`MIR-CALL-MAP-T3-OWNED-TEXT-RETURN-OWNER-D0`): representation,
+Normal/Fault transfer, and cleanup are not yet accepted.
 Non-claims: no qualified Invoke, whole-T2 completion, production cutover, to_json, or legacy retirement.
 """
-next_design_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T3"
+next_design_card = "MIR-CALL-MAP-T3-OWNED-TEXT-RETURN-OWNER-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-map-lifecycle-consumer-i0-2026-09-15.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
