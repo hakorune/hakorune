@@ -16,7 +16,9 @@ use std::collections::BTreeMap;
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::expression_port::LoopPlanExpressionPortV1;
-use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
+use crate::mir::builder::control_flow::plan::facts::exit_only_block::{
+    try_build_exit_allowed_block_recipe, ExitAllowedBlockRecipe,
+};
 use crate::mir::builder::control_flow::plan::features::loop_cond_bc_item::lower_loop_cond_item_input;
 use crate::mir::builder::control_flow::plan::features::nested_loop_depth1_preheader::apply_nested_loop_preheader_freshness;
 use crate::mir::builder::control_flow::plan::recipe_tree::IfContractKind;
@@ -237,4 +239,46 @@ pub(in crate::mir::builder) fn lower_loop_cond_source_item<'view, 'ledger: 'view
             "{SOURCE_PARTS_ERR} loop-cond-item-unsupported: ctx={error_prefix}"
         )),
     }
+}
+
+/// Drive the issued `BodyLoweringPolicy::ExitAllowed` body recipe against the
+/// co-sealed loop-body carrier. This is the located-source counterpart of the
+/// raw `verify_exit_allowed_block_with_pre` + `lower_exit_allowed_block_verified`
+/// arm; the recipe stays the packaging authority and the driver keeps the
+/// ExitAllowed postconditions.
+#[allow(clippy::too_many_arguments)]
+pub(in crate::mir::builder) fn lower_loop_cond_source_exit_allowed_body<
+    'view,
+    'ledger: 'view,
+>(
+    port: CallableLoopSourceExpressionPortV1<'ledger>,
+    body: &CallableLoopSourceBodyInputV1<'view>,
+    recipe: &ExitAllowedBlockRecipe,
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, ValueId>,
+    carrier_phis: &BTreeMap<String, ValueId>,
+    carrier_step_phis: &BTreeMap<String, ValueId>,
+    break_phi_dsts: &BTreeMap<String, ValueId>,
+    carrier_updates: &mut BTreeMap<String, ValueId>,
+    error_prefix: &str,
+) -> Result<Vec<LoweredRecipe>, String> {
+    let block = CallableLoopSourcePartsBlockV1::located_body(
+        &recipe.arena,
+        &recipe.block,
+        body.clone(),
+        &port,
+    )
+    .map_err(|error| render_source_error(error, error_prefix))?;
+    lower_callable_loop_source_parts_block(
+        port,
+        &block,
+        PartsAssociatedBlockModeV1::ExitAllowed,
+        builder,
+        current_bindings,
+        carrier_phis,
+        carrier_step_phis,
+        break_phi_dsts,
+        carrier_updates,
+        error_prefix,
+    )
 }

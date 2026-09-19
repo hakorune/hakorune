@@ -36,6 +36,8 @@ use super::raw_loop_child_entry::PreparedCallableGenericLoopSourceFactsPayloadV1
 #[path = "normal_callable_loop_source_facts/loop_cond.rs"]
 mod loop_cond;
 use loop_cond::CallableLoopCondSourceFactsV1;
+#[allow(unused_imports)]
+pub(in crate::mir::builder) use loop_cond::SourceLoopCondPhysicalInputV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsSourceErrorV1 {

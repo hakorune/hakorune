@@ -424,9 +424,10 @@ pub(in crate::mir::builder) struct CallableLoopCondSourceFactsV1<'source> {
 }
 
 impl<'source> CallableLoopCondSourceFactsV1<'source> {
-    /// Consume the source Facts product at the physical boundary.  This is a
-    /// preflight-only transfer; the actual LoopCond lowering remains a later
-    /// source-port consumer.
+    /// Consume the source Facts product at the physical boundary.  The
+    /// resulting input feeds the sole LoopCond physical consumer,
+    /// `lower_loop_cond_break_continue_source`, through the raw child-entry
+    /// caller — never the raw `LoopRouteContext` route.
     pub(in crate::mir::builder) fn into_physical_input<'ledger>(
         self,
         source_ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,

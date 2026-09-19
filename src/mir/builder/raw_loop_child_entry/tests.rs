@@ -301,6 +301,257 @@ fn body_only_product_rejects_before_builder_effect_when_facts_are_absent() {
     assert!(builder.function_state.current_block.is_none());
 }
 
+/// Build one resolved LoopCond fixture plus its armed callable ledger: the
+/// loop carries a resolver-cataloged `starts_with` call under the loop site,
+/// so the source bridge arms the forest projection and catalogs the item row
+/// exactly like the production `parse/2` shape.
+struct ArmedLoopCondEdge {
+    ledger: std::rc::Rc<
+        std::cell::RefCell<
+            crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
+        >,
+    >,
+    loop_site: crate::mir::resolved_semantics::SourceNodeSiteV1,
+    call_site: crate::mir::resolved_semantics::SourceExprSiteV1,
+    loop_node: ASTNode,
+    loop_index: usize,
+}
+
+fn armed_loop_cond_edge() -> ArmedLoopCondEdge {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let program = crate::parser::NyashParser::parse_from_string(
+        r#"
+static function caller(flag: i64, text: i64): i64 {
+    loop(flag < 2) {
+        if text.starts_with("a", 0) == 1 {
+            flag = flag + 1
+        } else {
+            break
+        }
+    }
+    return flag
+}
+"#,
+    )
+    .expect("loop-cond fixture parses");
+    let ASTNode::Program { statements, .. } = program else {
+        panic!("fixture is a program")
+    };
+    let function = statements
+        .iter()
+        .find(|node| matches!(node, ASTNode::FunctionDeclaration { .. }))
+        .expect("loop-cond function");
+    let ASTNode::FunctionDeclaration { body, .. } = function else {
+        panic!("fixture is a function")
+    };
+    let (loop_index, loop_node) = body
+        .iter()
+        .enumerate()
+        .find(|(_, node)| matches!(node, ASTNode::Loop { .. }))
+        .map(|(index, node)| (index, node.clone()))
+        .expect("loop statement");
+
+    let unit = crate::mir::compiler::VerifiedResolvedSourceUnitV1::resolve_function(
+        function.clone(),
+    )
+    .expect("loop-cond fixture resolves");
+    let input = unit.root_function_input().expect("root input");
+    let loop_site = input
+        .function()
+        .loop_sites()
+        .find(|site| site.node().segments().len() == 1)
+        .expect("root loop site")
+        .node()
+        .clone();
+    let state = crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source(input)
+        .expect("loop-cond callable state");
+    let ledger = std::rc::Rc::new(std::cell::RefCell::new(state));
+    let items = ledger
+        .borrow()
+        .source_loop_items(&loop_site)
+        .expect("armed loop must catalog resolver method rows");
+    let call_site = items
+        .first()
+        .expect("loop-cond fixture must contain a method call")
+        .call_site()
+        .clone();
+    ArmedLoopCondEdge {
+        ledger,
+        loop_site,
+        call_site,
+        loop_node,
+        loop_index,
+    }
+}
+
+/// Mint the exact `ExactI64`/`[1]` target relation the module port installs
+/// for the selected static publication row.
+fn armed_source_target(
+    call_site: crate::mir::resolved_semantics::SourceExprSiteV1,
+) -> super::CallableLoopSourceTargetRelationV1 {
+    let caller_key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+        "ParserProgramBox",
+        "parse",
+        2,
+    );
+    let target_key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+        "ParserStringUtilsBox",
+        "starts_with",
+        3,
+    );
+    let handoff =
+        crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1::from_test_parts(
+            7,
+            crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationDemandV1::from_test_parts(
+                caller_key,
+                call_site.clone(),
+                target_key.clone(),
+            ),
+            &[1],
+        );
+    let requirement =
+        crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetRequirementV1::from_handoff(
+            &handoff,
+        );
+    crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetRelationV1::new(
+        call_site,
+        target_key,
+        Some(requirement),
+    )
+}
+
+fn armed_loop_cond_builder(
+    ledger: &std::cell::RefCell<
+        crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
+    >,
+) -> MirBuilder {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("caller/2".to_owned());
+    for name in ["flag", "text"] {
+        let parameter = builder.alloc_typed(crate::mir::MirType::Unknown);
+        builder
+            .function_state
+            .current_function
+            .as_mut()
+            .expect("test function")
+            .params
+            .push(parameter);
+        builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .insert(name.to_owned(), parameter);
+    }
+    let entry = crate::mir::builder::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1::static_function(&builder, 2)
+        .expect("static entry values");
+    ledger
+        .borrow_mut()
+        .install_entry_values(&entry)
+        .expect("entry install");
+    builder
+}
+
+/// Drive the armed LoopCond production edge end to end: the located source
+/// handoff, issued source relations, and route token must produce a
+/// `LoopCondReady` facts product, and the named physical consumer must lower
+/// it to a `CorePlan::Loop` plus a real `ValueId`. The `source_target`
+/// relation is minted through the same `from_handoff` shape the module port
+/// installs for the selected static publication; the residual caller-side
+/// publication installation stays a later bounded slice.
+#[test]
+fn armed_loop_cond_edge_lowers_through_the_source_port() {
+    let edge = armed_loop_cond_edge();
+    let disposition = edge
+        .ledger
+        .borrow()
+        .loop_binding_source_projection()
+        .project_disposition(edge.loop_site.clone())
+        .expect("loop binding disposition");
+    let (_, root) = RawInvocationSourceContextV1::from_transport(
+        crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceTransportV1::root(
+            (),
+            RawInvocationRootLineageV1::ScriptRoot,
+        ),
+    );
+    let (_, parent_source) = RawInvocationSourceContextV1::from_transport(
+        root.body_statement(edge.loop_node.clone(), edge.loop_index),
+    );
+    let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
+        &parent_source,
+        edge.loop_node,
+        Some(disposition),
+    )
+    .expect("located loop-cond entry");
+    let mut builder = armed_loop_cond_builder(&edge.ledger);
+    let mut scope =
+        crate::mir::builder::module_invocation_session::UnpublishedCallableLoopRootScopeV1::for_test(
+        );
+    crate::test_support::with_env_vars(&crate::test_support::JOINIR_STRICT_PLANNER_MODE, || {
+        prepared
+            .lower_v1_with_root_scope_and_callable_ledger(
+                &mut builder,
+                "caller",
+                false,
+                false,
+                GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
+                &mut scope,
+                &edge.ledger,
+                Some(armed_source_target(edge.call_site)),
+            )
+            .expect("armed loop-cond edge must lower through the source port");
+    });
+}
+
+/// The same armed edge must still stop at the named `SourceTargetMissing`
+/// boundary when the selected static publication row is not installed.
+#[test]
+fn armed_loop_cond_edge_rejects_missing_source_target() {
+    let edge = armed_loop_cond_edge();
+    let disposition = edge
+        .ledger
+        .borrow()
+        .loop_binding_source_projection()
+        .project_disposition(edge.loop_site.clone())
+        .expect("loop binding disposition");
+    let (_, root) = RawInvocationSourceContextV1::from_transport(
+        crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceTransportV1::root(
+            (),
+            RawInvocationRootLineageV1::ScriptRoot,
+        ),
+    );
+    let (_, parent_source) = RawInvocationSourceContextV1::from_transport(
+        root.body_statement(edge.loop_node.clone(), edge.loop_index),
+    );
+    let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
+        &parent_source,
+        edge.loop_node,
+        Some(disposition),
+    )
+    .expect("located loop-cond entry");
+    let mut builder = armed_loop_cond_builder(&edge.ledger);
+    let mut scope =
+        crate::mir::builder::module_invocation_session::UnpublishedCallableLoopRootScopeV1::for_test(
+        );
+    let error =
+        crate::test_support::with_env_vars(&crate::test_support::JOINIR_STRICT_PLANNER_MODE, || {
+            prepared.lower_v1_with_root_scope_and_callable_ledger(
+                &mut builder,
+                "caller",
+                false,
+                false,
+                GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
+                &mut scope,
+                &edge.ledger,
+                None,
+            )
+            .expect_err("missing source target must stay a named terminal")
+        });
+    assert!(
+        error.contains("LoopCondRouteRejected(SourceTargetMissing)"),
+        "unexpected terminal: {error}"
+    );
+}
+
 #[test]
 fn unlocated_entry_is_rejected_before_child_classification() {
     let error = PreparedLocatedRawLoopChildEntryV1::prepare(

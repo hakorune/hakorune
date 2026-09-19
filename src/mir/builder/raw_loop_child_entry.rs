@@ -319,10 +319,27 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 let physical_input = source_facts.into_physical_input(source_ledger)?;
                 physical_input.validate_for_source_port()?;
                 physical_input.preflight_source_port()?;
-                return Err(
-                    "[freeze:contract][callable-loop/loop-cond/source-port-lowering-missing]"
-                        .to_owned(),
+                let plan = crate::mir::builder::control_flow::plan::features::loop_cond_bc_source::lower_loop_cond_break_continue_source(
+                    builder,
+                    &physical_input,
+                )?;
+                crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
+                    .map_err(|error| {
+                        format!("[freeze:contract][callable-loop/verify] {error}")
+                    })?;
+                let context = crate::mir::builder::control_flow::plan::features::generic_loop_context::GenericLoopV1SourceLoweringContextV1::new(
+                    debug,
+                    in_static_box,
                 );
+                return crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower(
+                    builder, plan, &context,
+                )
+                .map_err(|error| {
+                    format!("[freeze:contract][callable-loop/lower] {error}")
+                })?
+                .ok_or_else(|| {
+                    "[freeze:contract][callable-loop/lower-no-value]".to_owned()
+                });
             }
             CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error) => {
                 return Err(format!(

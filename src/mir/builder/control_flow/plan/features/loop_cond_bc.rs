@@ -30,13 +30,10 @@ use std::collections::{BTreeMap, BTreeSet};
 
 pub(super) const LOOP_COND_ERR: &str = "[normalizer] loop_cond_break_continue";
 
-pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
-    builder: &mut MirBuilder,
-    facts: LoopCondBreakContinueFacts,
-    _ctx: &LoopRouteContext,
-) -> Result<LoweredRecipe, String> {
-    // Facts->Lower contract: keep this match exhaustive.
-    match facts.accept_kind {
+/// Facts->Lower contract pin: every issued accept kind must have a lowering
+/// arm in both the raw and the located-source consumers. Keep exhaustive.
+pub(super) const fn pin_accept_kind_contract(kind: LoopCondBreakAcceptKind) {
+    match kind {
         LoopCondBreakAcceptKind::ExitIf => (),
         LoopCondBreakAcceptKind::ContinueIf => (),
         LoopCondBreakAcceptKind::ConditionalUpdate => (),
@@ -48,6 +45,14 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
         LoopCondBreakAcceptKind::NestedLoopOnly => (),
         LoopCondBreakAcceptKind::ProgramBlockNoExit => (),
     }
+}
+
+pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
+    builder: &mut MirBuilder,
+    facts: LoopCondBreakContinueFacts,
+    _ctx: &LoopRouteContext,
+) -> Result<LoweredRecipe, String> {
+    pin_accept_kind_contract(facts.accept_kind);
 
     let blocks = LoopBlocksStandard5::allocate(builder)?;
     let LoopBlocksStandard5 {
@@ -326,7 +331,7 @@ pub(super) fn sync_carrier_bindings(
     }
 }
 
-fn extend_unique_carriers(carrier_vars: &mut Vec<String>, more: Vec<String>) {
+pub(super) fn extend_unique_carriers(carrier_vars: &mut Vec<String>, more: Vec<String>) {
     for name in more {
         if !carrier_vars.iter().any(|existing| existing == &name) {
             carrier_vars.push(name);
@@ -364,7 +369,7 @@ fn lower_loop_cond_body_items(
     Ok(body_plans)
 }
 
-fn collect_carrier_vars_from_condition(
+pub(super) fn collect_carrier_vars_from_condition(
     builder: &MirBuilder,
     condition: &crate::ast::ASTNode,
 ) -> Vec<String> {

@@ -833,6 +833,60 @@ It does not claim the end-to-end physical consumer (items 5-6), caller
 cutover, or old-edge retirement; `source-port-lowering-missing` remains the
 active terminal for the outer production caller.
 
+### Located-source physical consumer receipt — decomposition items 5-6
+
+`features/loop_cond_bc_source.rs` now owns
+`lower_loop_cond_break_continue_source`, the sole physical consumer of the
+co-sealed `SourceLoopCondPhysicalInputV1`. It mirrors
+`lower_loop_cond_break_continue` step for step — `LoopBlocksStandard5`
+allocation, carrier collection over the co-sealed body plus condition reads
+(`collect_outer_from_body` and the widened `collect_carrier_vars_from_condition`,
+which observe names only and issue no authority), phi materializer
+preparation, `lower_loop_header_cond_with_port` on the port-projected
+condition input, cleanup, phi closure, and the existing verifier — but every
+body statement runs through `lower_loop_cond_source_item` against the
+port-projected `CallableLoopSourceBodyInputV1`, and the
+`BodyLoweringPolicy::ExitAllowed` arm drives the issued exit-allowed recipe
+through `lower_loop_cond_source_exit_allowed_body` (a `located_body` seal plus
+`PartsAssociatedBlockModeV1::ExitAllowed` in the same sibling module) with the
+identical `if body must be single-exit` fallback into the per-item loop. The
+raw `accept_kind` contract pin is now the shared `pin_accept_kind_contract`,
+so both consumers fail on the same unhandled kind. The sibling never touches
+`LoopRouteContext`, `CondBlockView`, or the raw item owner.
+
+`raw_loop_child_entry.rs` no longer stops at
+`callable-loop/loop-cond/source-port-lowering-missing`: the `LoopCondReady`
+arm validates and preflights the physical input, lowers it through the
+sibling, runs `PlanVerifier::verify`, and consumes the plan through
+`PlanLowerer::lower` under the same `GenericLoopV1SourceLoweringContextV1`
+the GenericLoop adapter uses — the sole source-to-MIR terminal for the armed
+LoopCond edge. `SourceLoopCondPhysicalInputV1` is re-exported at
+`pub(in crate::mir::builder)` from `normal_callable_loop_source_facts` so the
+consumer signature can name it.
+
+Focused evidence: `armed_loop_cond_edge_lowers_through_the_source_port` in
+`raw_loop_child_entry/tests.rs` drives the real pipeline — resolved
+`static function caller(flag, text)` fixture with a cataloged
+`text.starts_with` row under the loop site, armed forest bridge, projected
+binding disposition, forged `ExactI64`/`[1]` target relation minted via
+`from_handoff` — through `issue_once` -> `LoopCondReady` ->
+`into_physical_input` -> validate/preflight -> sibling -> `CorePlan::Loop` ->
+verify -> `PlanLowerer` -> `Ok(ValueId)`. The sibling test fixture uses a
+`Variable` receiver so the call lowers without a registered box.
+`armed_loop_cond_edge_rejects_missing_source_target` pins the named
+`LoopCondRouteRejected(SourceTargetMissing)` terminal when no publication
+row is installed. The `raw_loop_child`/`callable_loop_source`/
+`source_loop_bridge`/`merged_route`/`unarmed_nested`/`physical_adapter`
+filter set passes 67/67.
+
+This receipt claims only the physical consumer, its caller wiring, and the
+focused armed-edge evidence. It does not claim the caller-side publication
+installation (production `source_target_for_loop` still yields
+`SourceTargetMissing` until the selected static publication row is wired),
+`callable_handoff=None` legacy-edge retirement, raw item-branch deletion, or
+the `parse/2` source-to-exe closeout — those stay bounded follow-ups in the
+card order.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs
