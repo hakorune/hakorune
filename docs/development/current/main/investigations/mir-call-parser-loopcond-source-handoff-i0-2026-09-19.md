@@ -235,15 +235,19 @@ the existing exact take-once test.
 `CallableLoopSourceRouteTokenV1` constructor. It co-seals the existing
 `PlanBuildOutcome`/`RecipeFirstRouteSelectionV1` with the exact owned forest
 projection and rejects missing Facts, missing LoopCond Facts, non-exclusive or
-overlapping routes, foreign owner, and source identity drift. Its fixture
-proves the exclusive `[LoopCondBreakContinue]` route and missing-projection
-failure (`source_loop_cond_route_token` focused filter: 2/2 green).
+overlapping routes, foreign owner, and source identity drift. The same owner
+now also exposes a strict co-seal constructor for resolver-issued method-call
+item bindings and an exact target relation; it rejects an empty item set,
+foreign/out-of-root items, a missing target, or a target site absent from the
+item inventory. The focused route filter remains green (2/2), and the explicit
+no-method-row inventory reject is green (1/1).
 
-This is a preparation product, not a production switch: the token does not yet
-carry the same-invocation parser target relation or source item bindings, and
-no physical consumer has been attached. The next slice must extend the
-existing source Facts owner with those fields before any caller can consume the
-token, lower `loop_cond_bc`, publish a result, or delete the compatibility edge.
+This is still a preparation product, not a production switch: no production
+caller has supplied the target relation or item inventory, and no physical
+consumer has been attached. The next slice must thread these fields from the
+same-invocation source-target owner through the existing source Facts owner
+before any caller can consume the token, lower `loop_cond_bc`, publish a
+result, or delete the compatibility edge.
 
 ## Ordered implementation tasks
 
