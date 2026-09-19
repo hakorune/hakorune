@@ -9,8 +9,14 @@ use std::collections::BTreeMap;
 
 use crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceItemBindingV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::compiler::loop_cond_break_continue_projection::issue_loop_cond_break_continue_source_forest_projection_v1;
+use crate::mir::compiler::loop_cond_break_continue_projection::{
+    issue_loop_cond_break_continue_source_forest_projection_v1,
+    LoopCondBreakContinueForestProjectionRejectV1,
+};
 use crate::mir::loop_structural_facts::VerifiedLoopCondBreakContinueSourceForestProjectionV1;
+use crate::mir::loop_structural_facts::{
+    LoopRootSourceBindingRejectV1, LoopSourceForestBindingRejectV1,
+};
 use crate::mir::resolved_semantics::{
     SemanticOwnerSourceKindV1, SourceNodeSiteV1, SourceStmtSiteV1,
 };
@@ -46,12 +52,15 @@ impl CallableLoopSourceBridgeV1 {
                 format!("[freeze:contract][callable-loop/source-bridge/locate] {error:?}")
             })?;
             let projection =
-                issue_loop_cond_break_continue_source_forest_projection_v1(input, &located)
-                    .map_err(|error| {
-                        format!(
+                match issue_loop_cond_break_continue_source_forest_projection_v1(input, &located) {
+                    Ok(projection) => projection,
+                    Err(error) if projection_is_unarmed(&error) => continue,
+                    Err(error) => {
+                        return Err(format!(
                             "[freeze:contract][callable-loop/source-bridge/projection] {error:?}"
-                        )
-                    })?;
+                        ));
+                    }
+                };
             if projections.insert(site.clone(), projection).is_some() {
                 return Err(
                     "[freeze:contract][callable-loop/source-bridge/duplicate-site]".to_owned(),
@@ -124,11 +133,24 @@ fn root_loop_sites(loop_sites: Vec<SourceStmtSiteV1>) -> Vec<SourceStmtSiteV1> {
         .collect()
 }
 
+fn projection_is_unarmed(error: &LoopCondBreakContinueForestProjectionRejectV1) -> bool {
+    matches!(
+        error,
+        LoopCondBreakContinueForestProjectionRejectV1::ForestBinding(
+            LoopSourceForestBindingRejectV1::Source {
+                reason: LoopRootSourceBindingRejectV1::UnsupportedAncestor { .. },
+                ..
+            }
+        )
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::CallableLoopSourceBridgeV1;
     use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
     use crate::mir::resolved_semantics::{SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1};
+    use crate::parser::NyashParser;
 
     #[test]
     fn root_inventory_drops_nested_loop_roots() {
@@ -168,5 +190,36 @@ mod tests {
         assert_eq!(projection.member_sites().len(), 1);
         assert!(bridge.take_for(&site).is_err(), "take is one-shot");
         assert_eq!(bridge.len(), 0);
+    }
+
+    #[test]
+    fn nested_scope_loop_does_not_abort_callable_source_bridge() {
+        let program = NyashParser::parse_from_string(
+            r#"
+static function nested_scope_loop(x: i64): i64 {
+    if x == 1 {
+        loop(x < 2) {
+            x = x + 1
+        }
+    }
+    return x
+}
+"#,
+        )
+        .expect("nested scope loop fixture parses");
+        let function = match program {
+            crate::ast::ASTNode::Program { statements, .. } => statements
+                .into_iter()
+                .find(|node| matches!(node, crate::ast::ASTNode::FunctionDeclaration { .. }))
+                .expect("nested scope loop function"),
+            _ => panic!("fixture is a program"),
+        };
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(function)
+            .expect("nested scope loop resolves");
+        let input = unit.root_function_input().expect("root input");
+
+        assert!(CallableLoopSourceBridgeV1::from_input(input)
+            .expect("unsupported nested scope loop must remain unarmed")
+            .is_none());
     }
 }

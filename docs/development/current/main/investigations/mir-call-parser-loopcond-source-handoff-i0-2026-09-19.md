@@ -250,6 +250,26 @@ same-invocation source-target owner through the existing source Facts owner
 before any caller can consume the token, lower `loop_cond_bc`, publish a
 result, or delete the compatibility edge.
 
+### Eager bridge regression audit — corrected bounded behavior
+
+The fourth-day audit reproduced a real availability regression in the attach
+step: a declared callable containing a loop under an `if` reached the source
+bridge, whose eager forest projection returned
+`ForestBinding(Source::UnsupportedAncestor { segment: IfThen(0) })`. Because
+`CallableSemanticLoweringState::from_exact_source` propagated that error, the
+whole callable failed before route selection even though the loop was outside
+the selected LoopCond source route. This violated the GenericLoop-unarmed
+boundary.
+
+The bridge now skips only the typed `UnsupportedAncestor` projection reject and
+leaves that loop unarmed; all locate, owner, forest, member, exit, and duplicate
+errors remain fail-fast. The focused parser fixture
+`nested_scope_loop_does_not_abort_callable_source_bridge` proves the nested
+`if` case, while the existing exact-take and root-inventory tests remain green.
+This changes no route, Recipe, physical consumer, publication, fallback, or
+compatibility-retirement behavior. The remaining physical lowerer endpoint is
+still the selected next task.
+
 ### Same-owner production threading receipt — bounded task 2 endpoint
 
 The next bounded step now threads the resolver method-call rows and the
@@ -312,7 +332,7 @@ lowering is complete; no publication or compatibility retirement is implied.
 
 | Order | Task | Completion condition |
 | --- | --- | --- |
-| 1 | Source bridge attach | Build the one-shot owned projection inventory in the existing callable semantic state and consume it through the existing callable ledger. Scope restoration, exact-site take, duplicate/missing rejection, and GenericLoop-unarmed behavior are focused and green. |
+| 1 | Source bridge attach | Build the one-shot owned projection inventory in the existing callable semantic state and consume it through the existing callable ledger. Scope restoration, exact-site take, duplicate/missing rejection, and GenericLoop-unarmed behavior are focused and green; unsupported source ancestry is explicitly unarmed rather than a callable-wide error. |
 | 2 | Source co-seal and LoopCond route token | One move-only product binds the exact three-member forest, ordered paths/frame keys, all resolver exits, parser brand/owner, and target/source site; the route registry yields exactly `[LoopCondBreakContinue]`, with GenericLoop, LoopBreak, overlap, and route re-entry as typed rejects. **Source-side production threading is now landed; the physical consumer remains the open endpoint.** |
 | 3 | Source physical consume | Materialize and validate `SourceLoopCondPhysicalInputV1`, thread the existing source port, then parameterize `loop_cond_bc`/item/nested/exit lowering. Keep the named terminal until the full physical consumer is green. |
 | 4 | Static tuple handoff | The selected static result reaches the existing statement-If/Equal consumer with ordered arguments and ExactI64 result; duplicate consume and wrong ordinal reject before argument effects. |
