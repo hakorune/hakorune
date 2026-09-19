@@ -954,13 +954,17 @@ concrete design question for this tuple: does the actual
 `parser_program_box.hako:102` row, or does it stop at a named unsupported
 shape before target issuance?
 
-The next proof must answer that question at the existing owner with the
-parser-issued caller/site and the exact first terminal. A name/arity allowlist,
-AST rescan, MIR inference, or a partial-row fallback is forbidden. If the
-callable is complete, the existing Cataloged publication handoff is the
-implementation entry; if it is not, the missing source-shape owner becomes a
-separate NoSafeSlice row and this tuple stays closed. Neither result permits
-compatibility re-entry or a second publication issuer.
+The exact current-head replay at `8ca7f964d8` ran the named lifecycle test
+alone and reproduced `lexical scope body ...
+[freeze:contract][static-result-ingress/no-exact-static-target]`. This pins
+the terminal but does not yet distinguish an incomplete source observation
+from a target-catalog omission. The next proof must answer that question at
+the existing owner with the parser-issued caller/site and the first terminal.
+A name/arity allowlist, AST rescan, MIR inference, or partial-row fallback is
+forbidden. If the callable is complete, the existing Cataloged publication
+handoff is the implementation entry; otherwise the missing source-shape owner
+becomes a separate NoSafeSlice row. Neither result permits compatibility
+re-entry or a second publication issuer.
 
 ## Verification-health handoff — 2026-09-19
 
