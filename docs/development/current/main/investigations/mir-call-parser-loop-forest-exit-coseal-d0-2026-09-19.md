@@ -141,5 +141,6 @@ field is the atomic owner-branded relation that co-seals the parser loop
 forest and all resolved exits with the callable source facts. No current
 Recipe/JoinSig/physical consumer carries that relation, so promotion is not a
 safe slice. This card is closed as `NoSafeSlice`; it grants no implementation
-permission and does not reopen the legacy LoopBreak route. The next selected
-design row is the independent current-change source-hint red recovery card.
+permission and does not reopen the legacy LoopBreak route. The independent
+source-hint red recovery was a separate fixture-only I0 and is now closed;
+this parser-loop terminal remains unchanged.

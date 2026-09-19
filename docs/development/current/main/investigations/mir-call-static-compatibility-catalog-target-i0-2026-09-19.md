@@ -157,11 +157,12 @@ remain the only authorities. Their exact route requirement is raw
 `GenericLoopV1NotSelected` terminal. The existing Recipe cannot consume this
 shape because nested or first-cohort-ineligible loops stop before effects.
 
-The next design task is one decision for this exact finite shape: extend the
-existing Facts/Recipe and adapter together, or retain the typed terminal.
-Either outcome must keep one authority and one route. No new parser Recipe
-issuer, AST/MIR rescan, compatibility/VM retry, static catalog row,
-production switch, or retirement is authorized while this decision is open.
+The loop-owner decision is closed by the forest/exit D0: retain the typed
+`GenericLoopV1NotSelected` terminal. Any future promotion requires a separate
+design card that extends one existing Facts/Recipe/JoinSig/physical authority
+as a co-sealed source product. No new parser Recipe issuer, AST/MIR rescan,
+compatibility/VM retry, static catalog row, production switch, or retirement
+is authorized by this card.
 
 ## Existing loop-owner audit decision — 2026-09-19
 
@@ -197,5 +198,6 @@ accepted source terminal may this static I0 resume at Cataloged observation.
 The source-admission D0 and its parser-loop forest/exit co-seal successor are
 closed at `NoSafeSlice`. This static tuple therefore remains parked before
 Cataloged/Selected; no parser-loop promotion or compatibility re-entry is
-authorized. The current selected row is the independent source-hint red
-recovery D0, whose verification result does not promote this static tuple.
+authorized. The independent source-hint fixture correction I0 is also closed;
+the pointer now returns to this static design stop and its result does not
+promote the tuple.
