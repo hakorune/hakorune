@@ -117,6 +117,27 @@ fallback, or production switch. Evidence: read-only audit of
 `plan/recipe_tree/loop_cond_composer.rs`, and
 `plan/features/loop_cond_bc.rs` on 2026-09-19.
 
+### Bridge audit recheck — same result, narrower reopen slice
+
+An independent read-only recheck confirmed that `LoopPlanExpressionPortV1`
+and `CallableLoopSourceExpressionPortV1` are available, but their only
+production physical consumer is the GenericLoop adapter. The LoopCond chain
+still enters `loop_cond_bc::lower_loop_cond_break_continue`, reads raw
+`CondBlockView`/`StmtRef` items, and its nested path constructs a fresh
+`LoopRouteContext` through `nested_loop_depth1_route`. The existing
+`VerifiedLoopSourceForestBindingV1::into_source_binding` also accepts only a
+portable `VerifiedLoopRecipeV1`, so it cannot bind this local LoopCond Recipe.
+
+The next design slice is therefore one same-owner contract, before any code:
+`SourceLoopCondPhysicalInputV1` must carry the already-issued forest binding,
+paired exit records, exact source body/condition ports, and the selected
+LoopCond Recipe/JoinSig into `loop_cond_bc` and its nested-item helpers. The
+consumer must thread that port through header, item, nested-exit, and cleanup
+lowering without constructing `LoopRouteContext` or reclassifying a route;
+missing child/exit/site or any lowering error discards the whole session.
+This recheck does not authorize a new issuer, route token, catalog row,
+fallback, production switch, or compatibility retirement.
+
 ## Ordered implementation tasks
 
 | Order | Task | Completion condition |
