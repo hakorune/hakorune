@@ -945,26 +945,26 @@ must not be silently reclassified or used to widen this static tuple.
 ## Residual source-site reachability boundary — 2026-09-19
 
 `VerifiedWholeSourceStaticCallTargetInventoryV1::observe_all_calls` is the
-current source-side gate before the publication owner. For a bounded
-`ShadowResolveErrorV0` it skips that whole callable and retains only the first
-observation-unavailable cause; it does not publish partial MethodCall rows.
-That behavior is correct for incomplete source facts, but it leaves one
-concrete design question for this tuple: does the actual
-`ParserProgramBox.parse/2` body complete source observation and issue the
-`parser_program_box.hako:102` row, or does it stop at a named unsupported
-shape before target issuance?
+current source-side gate before the publication owner. A bounded
+`ShadowResolveErrorV0` skips the whole callable and retains only its first
+unavailable cause; it never publishes partial MethodCall rows.
 
-The exact current-head replay at `8ca7f964d8` ran the named lifecycle test
-alone and reproduced `lexical scope body ...
-[freeze:contract][static-result-ingress/no-exact-static-target]`. This pins
-the terminal but does not yet distinguish an incomplete source observation
-from a target-catalog omission. The next proof must answer that question at
-the existing owner with the parser-issued caller/site and the first terminal.
-A name/arity allowlist, AST rescan, MIR inference, or partial-row fallback is
-forbidden. If the callable is complete, the existing Cataloged publication
-handoff is the implementation entry; otherwise the missing source-shape owner
-becomes a separate NoSafeSlice row. Neither result permits compatibility
-re-entry or a second publication issuer.
+The current-head replay at `8ca7f964d8` reproduced
+`[freeze:contract][static-result-ingress/no-exact-static-target]` in
+`parser_scan_package_passes_callable_source_handoff_without_fallback`.
+Read-only audit pinned this red to the fixture: the test passes
+`parser_scan_loop_box.hako` directly to `from_callable_source`, so its
+`using ParserCommonUtilsBox` is not recursively merged and the imported
+declaration is absent from the catalog. Production uses
+`prepare_source_with_imports`; this is typed fixture omission, not observer,
+ingress, or instance/me-lineage evidence. Keep it outside the selected tuple.
+
+The bounded next task is `MIR-CALL-STATIC-TARGET-MERGED-ROUTE-RECHECK-D0`:
+run the real merged input through the existing declaration/target/result
+catalogs and prove the parser-issued `ParserProgramBox.parse/2` site at
+`parser_program_box.hako:102` has the exact `starts_with/3` row. A missing row
+there remains a separate `NoSafeSlice`; no allowlist, AST rescan, MIR
+inference, partial fallback, or second publication issuer is allowed.
 
 ## Verification-health handoff — 2026-09-19
 
