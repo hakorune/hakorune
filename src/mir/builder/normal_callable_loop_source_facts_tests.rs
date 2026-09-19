@@ -12,9 +12,12 @@ use crate::mir::builder::normal_callable_loop_handoff::{
     CallableLoopBindingRoleV1, VerifiedCallableSemanticLoopBindingScheduleV1,
 };
 use crate::mir::builder::normal_callable_loop_physical_adapter::CallableGenericLoopV1PhysicalAdapterV1;
+use crate::mir::builder::normal_callable_loop_source_facts::loop_cond::preflight_source_port_inputs;
+use crate::mir::builder::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1;
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::raw_invocation_source_transport::{
-    RawInvocationRootLineageV1, RawInvocationSourceContextV1,
+    RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawInvocationSourceTransportV1,
+    RawUnlocatedPortalV1,
 };
 use crate::mir::builder::raw_loop_child_entry::PreparedLocatedRawLoopChildEntryV1;
 use crate::mir::builder::MirBuilder;
@@ -587,6 +590,65 @@ fn source_aware_adapter_consumes_real_callable_ledger_once() {
     for bound in [0, 1, 3] {
         source_aware_adapter_consumes_real_callable_ledger_once_for_bound(bound);
     }
+}
+
+#[test]
+fn loop_cond_source_port_preflight_reaches_nested_method_call() {
+    let (state, _, _) = real_callable_ledger_for_owner_mismatch_test();
+    let ledger = Rc::new(RefCell::new(state));
+    let program = NyashParser::parse_from_string(
+        "function loop_port(i) { loop(i < 1) { if ParserStringUtilsBox.starts_with(\"a\", 0, \"a\") == 1 { break } } }",
+    )
+    .expect("nested source loop parses");
+    let ASTNode::Program { mut statements, .. } = program else {
+        panic!("expected program")
+    };
+    let ASTNode::FunctionDeclaration { body, .. } = statements.remove(0) else {
+        panic!("expected function")
+    };
+    let loop_node = body.first().expect("loop body root");
+    let parent = RawInvocationSourceContextV1::Located {
+        root: RawInvocationRootLineageV1::ScriptRoot,
+        site: SourcePathV1::root_body(0).node(),
+        body_kind: Some(SourceBodyKindV1::Function),
+    };
+    let condition_source = parent
+        .child_expression(
+            loop_node,
+            crate::mir::resolved_semantics::ExprChildRoleV1::LoopCondition,
+        )
+        .expect("loop condition source");
+    let body_source = parent
+        .child_body(
+            loop_node,
+            crate::mir::resolved_semantics::BodyChildRoleV1::LoopBody,
+        )
+        .expect("loop body source");
+    let ASTNode::Loop {
+        condition, body, ..
+    } = loop_node
+    else {
+        panic!("expected loop")
+    };
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    preflight_source_port_inputs(&port, condition, &condition_source, body, &body_source)
+        .expect("located source port must reach nested method call");
+}
+
+#[test]
+fn loop_cond_source_port_preflight_rejects_unlocated_carrier() {
+    let (state, _, _) = real_callable_ledger_for_owner_mismatch_test();
+    let ledger = Rc::new(RefCell::new(state));
+    let (_, unlocated) = RawInvocationSourceContextV1::from_transport(
+        RawInvocationSourceTransportV1::unlocated((), RawUnlocatedPortalV1::CallObject),
+    );
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let error = preflight_source_port_inputs(&port, &integer(1), &unlocated, &[], &unlocated)
+        .expect_err("source port must reject an unlocated carrier");
+    assert!(
+        error.contains("source-site-missing"),
+        "unexpected error: {error}"
+    );
 }
 
 #[test]

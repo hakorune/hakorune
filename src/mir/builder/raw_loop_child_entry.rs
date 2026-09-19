@@ -312,6 +312,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 })?;
                 let physical_input = source_facts.into_physical_input(source_ledger)?;
                 physical_input.validate_for_source_port()?;
+                physical_input.preflight_source_port()?;
                 return Err(
                     "[freeze:contract][callable-loop/loop-cond/source-port-lowering-missing]"
                         .to_owned(),

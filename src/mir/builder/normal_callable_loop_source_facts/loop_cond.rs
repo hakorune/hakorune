@@ -7,6 +7,7 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts;
 use crate::mir::builder::control_flow::joinir::route_entry::registry::RecipeFirstRouteSelectionV1;
+use crate::mir::builder::control_flow::plan::LoopPlanExpressionPortV1;
 use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 use crate::mir::builder::normal_callable_loop_handoff::CallableLoopReadyBodyOnlyProductV1;
 use crate::mir::builder::normal_callable_loop_handoff::CallableSemanticLoopHandoffPreEffectReceiptV1;
@@ -220,6 +221,137 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
         }
         Ok(())
     }
+
+    /// Consume the source port through the already-issued loop topology before
+    /// a physical Builder session is opened.  This is deliberately a
+    /// preflight: it does not lower or allocate MIR, but it proves that the
+    /// condition, body statements, nested control-flow bodies, and method-call
+    /// sites all remain reachable through the same located carrier.
+    pub(in crate::mir::builder) fn preflight_source_port(&self) -> Result<(), String> {
+        preflight_source_port_inputs(
+            &self.source_port,
+            &self.condition,
+            &self.condition_source,
+            &self.body,
+            &self.body_source,
+        )
+    }
+}
+
+pub(super) fn preflight_source_port_inputs(
+    source_port: &CallableLoopSourceExpressionPortV1<'_>,
+    condition: &ASTNode,
+    condition_source: &RawInvocationSourceContextV1,
+    body: &[ASTNode],
+    body_source: &RawInvocationSourceContextV1,
+) -> Result<(), String> {
+    let condition = source_port
+        .expr(condition, condition_source)
+        .map_err(|error| format!("[freeze:contract][callable-loop/source-port] {error}"))?;
+    preflight_source_expr(source_port, condition)?;
+
+    let body = source_port
+        .body(body, body_source)
+        .map_err(|error| format!("[freeze:contract][callable-loop/source-port] {error}"))?;
+    preflight_source_body(source_port, &body)
+}
+
+fn preflight_source_body<'input, P>(port: &P, body: &P::BodyInput<'input>) -> Result<(), String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
+{
+    for index in 0..port.body_statements(body).len() {
+        let statement = port
+            .body_stmt(body, index)
+            .map_err(|error| error.render())?;
+        preflight_source_stmt(port, &statement)?;
+    }
+    Ok(())
+}
+
+fn preflight_source_stmt<'input, P>(
+    port: &P,
+    statement: &P::StmtInput<'input>,
+) -> Result<(), String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
+{
+    let expression = port
+        .statement_expr(statement)
+        .map_err(|error| error.render())?;
+    preflight_source_expr(port, expression)
+}
+
+fn preflight_source_expr<'input, P>(
+    port: &P,
+    expression: P::ExprInput<'input>,
+) -> Result<(), String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
+{
+    use crate::ast::ASTNode;
+    use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
+
+    match port.expr_syntax(&expression) {
+        ASTNode::MethodCall { arguments, .. } => {
+            port.call_source(&expression)
+                .map_err(|error| error.render())?;
+            let receiver = port
+                .child_expr(&expression, ExprChildRoleV1::Receiver)
+                .map_err(|error| error.render())?;
+            preflight_source_expr(port, receiver)?;
+            for index in 0..arguments.len() {
+                let argument = port
+                    .child_expr(&expression, ExprChildRoleV1::CallArgument(index as u32))
+                    .map_err(|error| error.render())?;
+                preflight_source_expr(port, argument)?;
+            }
+        }
+        ASTNode::If { else_body, .. } => {
+            let condition = port
+                .child_expr(&expression, ExprChildRoleV1::IfCondition)
+                .map_err(|error| error.render())?;
+            preflight_source_expr(port, condition)?;
+            let then_body = port
+                .child_body(&expression, BodyChildRoleV1::IfThen)
+                .map_err(|error| error.render())?;
+            preflight_source_body(port, &then_body)?;
+            if else_body.is_some() {
+                let else_body = port
+                    .child_body(&expression, BodyChildRoleV1::IfElse)
+                    .map_err(|error| error.render())?;
+                preflight_source_body(port, &else_body)?;
+            }
+        }
+        ASTNode::Loop { .. } => {
+            let condition = port
+                .child_expr(&expression, ExprChildRoleV1::LoopCondition)
+                .map_err(|error| error.render())?;
+            preflight_source_expr(port, condition)?;
+            let body = port
+                .child_body(&expression, BodyChildRoleV1::LoopBody)
+                .map_err(|error| error.render())?;
+            preflight_source_body(port, &body)?;
+        }
+        ASTNode::BinaryOp { .. } => {
+            let left = port
+                .child_expr(&expression, ExprChildRoleV1::BinaryLeft)
+                .map_err(|error| error.render())?;
+            let right = port
+                .child_expr(&expression, ExprChildRoleV1::BinaryRight)
+                .map_err(|error| error.render())?;
+            preflight_source_expr(port, left)?;
+            preflight_source_expr(port, right)?;
+        }
+        ASTNode::UnaryOp { .. } => {
+            let operand = port
+                .child_expr(&expression, ExprChildRoleV1::UnaryOperand)
+                .map_err(|error| error.render())?;
+            preflight_source_expr(port, operand)?;
+        }
+        _ => {}
+    }
+    Ok(())
 }
 
 #[derive(Debug)]

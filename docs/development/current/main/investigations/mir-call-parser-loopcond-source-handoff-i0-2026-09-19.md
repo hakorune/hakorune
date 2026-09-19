@@ -337,9 +337,12 @@ Evidence at `2026-09-19`: `CARGO_BUILD_JOBS=4 cargo check --profile quick
 `cargo test --profile quick --lib source_loop_cond_route_token
 -- --test-threads=1` passed 3/3, including the missing-target physical transfer
 reject. This receipt covers input materialization, source-port attachment, and
-preflight only. The source-port parameterization of header/item/nested/exit
-lowering, static tuple publication, old-edge retirement, and source-to-MIR
-acceptance remain open.
+preflight only. The production-threaded preflight now consumes the located port
+through the loop condition, every body statement, nested `if`/`loop` bodies,
+and method-call receiver/argument carriers before the named terminal. It still
+does not allocate MIR or claim physical lowering. The source-port
+parameterization of header/item/nested/exit lowering, static tuple publication,
+old-edge retirement, and source-to-MIR acceptance remain open.
 
 ## Focused validation
 
