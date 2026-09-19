@@ -109,5 +109,6 @@ consume the parser shape without the missing forest/exit relation. The
 forest/exit co-seal successor has now completed that mapping and is also
 closed at `NoSafeSlice`; the parent static catalog I0 remains parked at
 `GenericLoopV1NotSelected` with its old compatibility edge retained. The
-current selected row is the independent source-hint red recovery D0. The
-pointer and parent card retain all parser-loop non-claims.
+independent source-hint fixture correction I0 is closed, and the pointer has
+returned to the static catalog design stop. The pointer and parent card retain
+all parser-loop non-claims.
