@@ -162,3 +162,34 @@ existing Facts/Recipe and adapter together, or retain the typed terminal.
 Either outcome must keep one authority and one route. No new parser Recipe
 issuer, AST/MIR rescan, compatibility/VM retry, static catalog row,
 production switch, or retirement is authorized while this decision is open.
+
+## Existing loop-owner audit decision — 2026-09-19
+
+The read-only owner audit resolves the choice for this static I0. The parser
+outer loop has `cont_prog == 1`, state assignments, early `break` exits, and
+two nested loops in the same callable body. The route registry therefore
+fronts the existing `LoopBreakRecipe` family before source-aware
+`GenericLoopV1`; `pred_generic_loop_v1` deliberately excludes a loop when
+`loop_break` facts are present. The `LoopBreakRecipe` handler still consumes a
+legacy `LoopRouteContext` and lowers through `MirBuilder`; it has no
+source-lineage co-seal or callable source handoff that this card can reuse.
+
+The source-backed GenericLoop adapter is also explicit: its
+`GenericLoopV1SourceLoweringContextV1` has no legacy route capability and
+returns `UnsupportedFirstCohort` for nested lowering. The available
+`loop_cond_break_continue` projection is `#![cfg(test)]` and only accepts a
+single statement body containing an `if` with `break`/`continue`; it is not a
+production consumer for this parser body.
+
+**Decision for this I0: retain the named typed terminal and do not widen the
+static tuple.** There is no existing source-aware Facts/Recipe/physical owner
+that can consume this shape without a new semantic loop admission contract.
+That is a `NoSafeSlice` design result for the parser dependency, not permission
+to add a parser-specific issuer, re-enter the legacy route, or skip to the
+static catalog. The selected compatibility edge remains retained.
+
+If parser-loop promotion is later selected, it requires a separate bounded
+design card with one existing authority extended together: source loop/exit
+Facts, a LoopBreak-compatible Recipe/JoinSig co-seal, and the physical adapter
+plus positive/negative ownership guards. Only after that card names an
+accepted source terminal may this static I0 resume at Cataloged observation.
