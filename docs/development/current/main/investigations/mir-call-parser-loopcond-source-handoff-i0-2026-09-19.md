@@ -195,6 +195,18 @@ negative matrix before deleting only the selected parser tuple's old edge.
 No new source authority, portable JoinSig, fallback, VM route, catalog row, or
 compatibility retirement is implied until those four steps pass.
 
+### Source bridge attach receipt — bounded task 1
+
+Commit `688902ee67` adds the attach-only portion of this boundary. The
+existing `CallableSemanticLoweringState` now constructs one owned projection
+inventory from the package-scope `ResolvedFunctionLoweringInputV1`; the
+inventory has an exact-site, one-shot `take_for` operation and no resolver
+input lifetime is stored. The focused test
+`owned_inventory_takes_exact_loop_projection_once` is green, and quick library
+`cargo check` is green. This receipt does not claim that `RawLoopChildEntry` or
+the LoopCond physical consumer has consumed the capability yet; task 2 remains
+the production co-seal/route handoff.
+
 The resolver-input attach point is the existing package scope
 `with_callable_source_scope(input, ...)`. `raw_loop_child_entry` currently has
 only the projected callable ledger and cannot mint the forest projection by
