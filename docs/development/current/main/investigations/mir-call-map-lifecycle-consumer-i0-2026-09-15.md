@@ -2486,3 +2486,40 @@ resource owner, not source result evidence. T3 therefore needs one explicit
 co-seal between the source-result product, the bounded MapRead Facts, and an
 owned Text return port; adding a second result issuer or inferring type from
 MIR/JSON is rejected.
+
+## T3 owned-Text return owner decision stop (2026-09-19)
+
+**Decision:** keep T3 at `NoSafeSlice` until an existing physical owner or a
+separately accepted physical owner contract can undertake an owned Text result
+across a callable return. The semantic source-result issuer is reusable for the
+`String` class, but it does not by itself authorize a return lane.
+
+**Evidence:** `MapInvokeOperation::MapGetText` and
+`MapReadResultClassV1::TextView` are explicitly borrowed views with no End or
+return authority. `PinnedTextResidenceLifecycleV1` and its backend carrier
+cover formal Text residence and Enter/Finish cleanup only; they do not own a
+callee-created return value. `VerifiedStaticCallResultPublicationOwnerV1`
+remains an exact-I64/target handoff and cannot be widened by naming.
+
+**Source authority + canonical issuers:** the live `MirJsonEmitBox.to_json`
+source and resolver ledger feed `issue_source_result_product_v1` for the
+semantic result class; the existing `MapReadFactV1` issuer remains the sole
+issuer for the bounded map read rows. A physical Text-return owner is not yet
+selected.
+
+**Fail-fast boundary:** reject before source-backed package admission when a
+`String` result has no co-sealed owned-return transfer and cleanup contract,
+when a `TextView` would cross a call/return boundary, or when the map Fact,
+source-result product, and physical owner have different owner/site brands.
+Dynamic keys, unproven recursion, compatibility sentinels, and missing branch
+class evidence remain rejected as before.
+
+**Smallest next design slice:** audit the existing callable return/signature
+and C/LLVM Text lanes for one reusable owned-result owner. If none matches,
+write a bounded owner Decision specifying creation, transfer, Normal/Fault
+cleanup, and consumer handoff before any new semantic receipt or production
+caller is added. No implementation, fixture, fallback, or route switch is
+authorized by this stop.
+
+**Non-claims:** no T3 body admission, qualified Invoke, owned Text ABI,
+`to_json` acceptance, production switch, or legacy retirement.
