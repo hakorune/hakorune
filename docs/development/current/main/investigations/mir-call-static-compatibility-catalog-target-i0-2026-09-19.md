@@ -1,10 +1,10 @@
 ---
-Status: selected__fast__merged_input_observed__2026-09-19
+Status: selected__design_stop__loop_route_boundary__2026-09-19
 Task: MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0
 Date: 2026-09-19
 Parent: mir-call-static-compatibility-catalog-target-d0-2026-09-14.md
 ProductionCaller: selected normal MIR/static-receiver route only
-Implementation permission: true; one finite Cataloged static-result tuple
+Implementation permission: false; one finite Cataloged static-result tuple remains blocked by a named loop terminal
 Classification: BoxCount; one source-backed publication consumer and one cohort-local retirement
 ---
 
@@ -92,11 +92,51 @@ module README/reference only when the implementation changes the contract.
 ## Observation receipt — 2026-09-19
 
 The merged-route guard passes its first boundary: `prepare_normal_source_with_imports`
-and `parse_normal_callable_program_with_build_config` accept the real parser
-program input, with more than one lineage segment and at least three import
-edges. This proves the input is no longer the direct `parser_scan_loop_box`
-fixture. The subsequent full `transform_normal_callable_program_v1` attempt
-did not finish within a bounded 120-second run after parsing; no Cataloged or
-Selected publication row was claimed. The next action is to observe the
-existing transform/parameter-source owner and name its first terminal before
-adding a catalog assertion or changing the compatibility disposition.
+and the production `materialize_normal_callable_program_with_identity_and_lineage_v1`
+helper accepts the real parser program input, with more than one lineage
+segment and at least three import edges. The source remains `SourceBacked` and
+retains a merged lineage, so this is no longer the direct
+`parser_scan_loop_box` fixture. The lifecycle consumer then stops before the
+static declaration/target/result catalog at the named terminal:
+
+```text
+[freeze:contract][callable-loop/route-not-front-selected]
+GenericLoopV1NotSelected
+```
+
+The focused guard is
+`normal_default_root_catalog_merged_route_tests::merged_parser_program_source_stops_at_named_loop_boundary_before_static_target`.
+It proves the merged source and production materialization while asserting the
+first loop boundary; it does not claim `Cataloged`, `Selected`, physical
+static-result consumption, or compatibility retirement. The next action is a
+design audit against the existing source-aware GenericLoop Recipe authority
+(`mirbuilder-callable-loop-ready-generic-loop-v1-recipe-authority-d0-2026-08-22.md`).
+Do not add a catalog assertion, parser-specific fallback, AST rescan, or VM
+route while that dependency is unresolved.
+
+The earlier bounded timeout and stale quick-linker failure are tooling
+observations, not semantic evidence. A stale-free `CARGO_INCREMENTAL=0`
+focused run completed in 6m22s with the guard green; the test body completed
+in 0.16s and emitted 547 existing warnings.
+
+## Design stop — parser loop dependency
+
+The selected source-backed parser invocation reaches an existing callable-loop
+owner before the selected static call. This is inside the selected lifecycle
+boundary, so it cannot be classified as an external CI issue or bypassed by a
+compatibility retry. The loop source-facts issuer and semantic Recipe/physical
+adapter are the existing authorities; this card may consume their future
+named terminal but may not create a second loop or static catalog owner.
+
+The static tuple remains open with this finite stop condition:
+
+```text
+merged parser source -> source-backed materialization
+  -> callable-loop source facts
+  -> route selection = GenericLoopV1NotSelected
+  -> static Cataloged/Selected row not reached
+```
+
+Until the existing loop Recipe authority names an accepted consumer for this
+source shape, the static I0 stays at `design_stop`, the selected old edge is
+retained, and no production switch or retirement is authorized.
