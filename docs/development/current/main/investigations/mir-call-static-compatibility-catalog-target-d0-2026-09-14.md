@@ -766,7 +766,7 @@ commit in their current owners.
 
 ### Next bounded design slice
 
-1. **Static call-result port:** name the source-site-to-publication adapter
+1. **Static call-result port:** name the Cataloged source-site-to-publication adapter
    over `take_for_source`, `StaticResultPublicationIngressPortV1`, and
    `lower_selected_static_result_publication_v1`. Keep the statement-`If`
    owner unchanged; this port emits the call value only.
@@ -782,10 +782,10 @@ commit in their current owners.
    accepted, continue the independent `Value`/`Rhs`/`Initializer(_)` result
    port for the five deferred expression-`If` callables. It must keep the
    existing statement `BindingRefV1` owners unchanged.
-5. **Exit:** open implementation only after the selected port, source-result
-   product, publication handoff, and exact delete-set are co-sealed. Until
-   then, no caller switch, fallback re-entry, or legacy-edge deletion is
-   authorized.
+5. **Exit:** open implementation only after the selected port, publication
+   handoff, and exact delete-set are co-sealed. The separate expression row
+   must co-seal its source-result product independently. Until then, no caller
+   switch, fallback re-entry, or legacy-edge deletion is authorized.
 
 This dependency audit supersedes the older wording that described the resolver
 expression-`If` relation itself as pending. The relation and source-result
@@ -807,8 +807,8 @@ issued in the current `design_stop`:
 
 | Input | Required authority and invariant |
 | --- | --- |
-| source owner | The `CanonicalSameModuleCallableKeyV1` from `VerifiedSourceResultProductV1::owner`, co-sealed with the matching `FunctionOwnerIdV1` ledger view. A foreign product, ledger, or resolved input rejects before call lowering. |
-| call observation | One resolver-issued `SourceExprSiteV1` and one `Static` `SourceCallDispositionV1` for that exact site. The target comes from `direct_call_target`/`method_call`, never from a name or MIR scan. |
+| source owner | The Cataloged `CanonicalSameModuleCallableKeyV1` and parser-issued `SourceExprSiteV1` selected by the existing source context. A missing, foreign, or unlocated source context rejects before call lowering. |
+| call observation | One exact row from the branded `VerifiedSourceStaticCallTargetCatalogV1` and matching `VerifiedSameModuleCallableResultCatalogV1`. The target/header comes from those catalogs, never from a name or MIR scan. |
 | target/result handoff | `VerifiedStaticCallResultPublicationHandoffV1`, branded by the exact declaration catalog, with the same caller/site/target, `ExactI64` representation, and required argument ordinal `[1]`. |
 | physical consumer | `StaticResultPublicationIngressPortV1::take_static_result_publication_ingress_v1` followed by `lower_selected_static_result_publication_v1`; ordered argument descent and the existing Call receipt remain the physical owners. |
 | outer condition | The emitted `ValueId` is passed to the existing statement-condition/`Equal` lowering. No synthetic binding or PHI is created by this port. |
@@ -823,19 +823,18 @@ source site        = parser-issued SourceExprSiteV1
 target             = ParserStringUtilsBox.starts_with/3
 argument shape     = String, I64, String
 required i64 args  = [1]
-source result      = SourceResultClassV1::I64
 publication result = ExactI64
 consumer           = statement IfCondition -> Equal.left
 excluded           = ParserBox instance methods and every compatibility root
 ```
 
-The selected tuple's co-seal order is source result product → exact static
-call observation → publication owner `take_for_source` → ingress → physical
-static call bridge → existing statement-condition consumer. A failure at any
-earlier relation is a named rejection; it cannot reopen the legacy owner or
-publish a partial product. The source product, publication handoff, and port
-each have one consumer, so an unconsumed sibling or a second consume remains
-a blocker.
+The selected tuple's co-seal order is Cataloged source context → branded
+target/result catalog row → publication owner `take_for_source` → ingress →
+physical static call bridge → existing statement-condition consumer. A
+failure at any earlier relation is a named rejection; it cannot reopen the
+legacy owner or publish a partial product. The publication handoff and port
+each have one consumer, so an unconsumed row or a second consume remains a
+blocker.
 
 The separate expression-result port is still needed for the finite deferred
 cohort (`PatternUtilBox`, `JsonNumberCanonicalBox`, `JsonFragNormalizerBox`,
@@ -854,8 +853,8 @@ selected `starts_with/3` call is an expression result.
 The static call-result port guard must exercise these finite reject classes
 without weakening the existing source-result errors:
 
-1. `ForeignCallable`, `ForeignLedger`, `ForeignResolvedInput`, or a catalog
-   identity mismatch (`ForeignCallTargetCatalog`).
+1. Missing/foreign/unlocated source context, a catalog brand mismatch, or a
+   target/result catalog identity mismatch.
 2. Missing or duplicate call site, a static disposition whose target is not
    the exact `ParserStringUtilsBox.starts_with/3` row, or a call-site parent
    that is not the selected `ParserProgramBox.parse/2` owner.
@@ -871,12 +870,11 @@ duplicate conditional sites, missing branch tails, non-empty `BlockExpr`
 preludes, `UnknownExpression`, `UnprovenResultClass`, mixed `I64`/`String`
 branch classes, CFG predecessor drift, and `ConsumerSiteDrift`.
 
-The selected positive proof is one exact source site, one `ExactI64` handoff,
-one physical static call result, and one existing statement-condition
+The selected positive proof is one exact Cataloged source site, one `ExactI64`
+handoff, one physical static call result, and one existing statement-condition
 consumer. The separate expression positive proof is deferred to its own
-cohort and must not be substituted here.
-Implementation permission remains closed until this port contract, the
-source-result product, the publication handoff, and the cohort-local old-edge
-delete set are all co-sealed. The lifecycle/birth red inventory reported in
-review remains a separate verification-health lane; it must not be silently
-reclassified or used to widen this static tuple.
+cohort and must not be substituted here. Implementation permission remains
+closed until this static port contract, the publication handoff, and the
+cohort-local old-edge delete set are co-sealed. The lifecycle/birth red
+inventory reported in review remains a separate verification-health lane; it
+must not be silently reclassified or used to widen this static tuple.
