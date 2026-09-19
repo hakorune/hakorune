@@ -1,11 +1,11 @@
 date = "2026-09-19"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0"
 current_execution_cohort = "static_source_admission_publication_tuple"
-current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0__publication_tuple_and_cutover_design"
+current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0__merged_route_transform_observation"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "open__static_publication_tuple_and_cutover_design_2026-09-19"
+current_design_stop = "closed__static_publication_tuple_and_cutover_design_2026-09-19"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-d0-2026-09-14.md"
-latest_card = "mir-call-static-compatibility-catalog-target-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-d0-2026-09-14.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-i0-2026-09-19.md"
+latest_card = "mir-call-static-compatibility-catalog-target-i0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-i0-2026-09-19.md"
 latest_card_summary = """
 Map lifecycle consumer spine through C9-2 and the map-argument T-series.
 T1 alpha/beta/gamma and T2-alpha are closed with source-to-OBJ evidence.
@@ -43,19 +43,21 @@ trigger remains in the owning card. The parser static-parent set relation I0
 has now closed its focused recheck (12/12 and 9/9); A0-2 typed lineage,
 A0-3 mixed admission and A3 package admission are landed/closed at their
 bounded boundaries, while A2 body/call/constructor guards are also closed.
-The next bounded row is the stable normal-pipeline red inventory (26 pass, 2 known baseline failures, 1 ignored); route-observer I0 is landed. The historical A0-2 source-hint focused test is a separate current-change red; recovery is taskified in the active card, not baseline/ignored. The next
-non-parked row is static source-admission/publication tuple design. Its
-publication ingress and owner installation exist. Resolver expression-If relation/source-result issuer are landed; selected static tuple boundary = source-site-to-publication port + exact Cataloged consumption; expression-result PHI is a separate deferred cohort.
-The OwnedText T3 family remains parked. The finite tuple is
-static `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3`,
-result `ExactI64`, required i64 argument `[1]`; instance `ParserBox` calls
-stay out of this cohort. Acceptance waits for that Cataloged reach.
+The stable normal-pipeline red inventory is 26 pass, 2 known baseline failures,
+1 ignored; route-observer I0 is landed. The A0-2 source-hint test remains a
+separate current-change red with recovery taskified in its parent card. Static
+tuple design is closed; the selected fast row is one Cataloged
+ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3 publication
+consume plus cohort-local retirement. The real merged parser input now passes
+prepare+parse; full transform/catalog observation stops at a bounded 120-second
+named terminal and remains open. Expression-result PHI, VM, and other parser rows remain outside this I0.
+The OwnedText T3 family remains parked. Finite tuple: `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3`, `ExactI64`, required i64 `[1]`; merged input is observed, acceptance still waits for Cataloged reach.
 Non-claims: no qualified Invoke, whole-T2 completion, production cutover, to_json, or legacy retirement.
 """
-next_design_card = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-d0-2026-09-14.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-i0-2026-09-19.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

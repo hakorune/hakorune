@@ -683,5 +683,8 @@ mod map_consumer_tests;
 #[path = "normal_default_root_catalog_lifecycle_tests.rs"]
 mod normal_default_root_catalog_lifecycle_tests;
 #[cfg(test)]
+#[path = "normal_default_root_catalog_merged_route_tests.rs"]
+mod normal_default_root_catalog_merged_route_tests;
+#[cfg(test)]
 #[path = "normal_default_root_catalog_root_source_handoff_tests.rs"]
 mod root_source_handoff_tests;

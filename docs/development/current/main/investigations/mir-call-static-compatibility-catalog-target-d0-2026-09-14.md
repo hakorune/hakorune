@@ -1,9 +1,9 @@
 ---
-Status: selected__publication_tuple_design__2026-09-19
+Status: closed__design__2026-09-19
 Task: MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0
 Date: 2026-09-14
 Parent: mir-call-r7-stringbox-lower-structural-membership-i0-2026-09-14.md
-NextCard: none__mixed_source_co_seal_design
+NextCard: MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0
 Implementation permission: false; publication tuple design and taskization only
 ---
 
