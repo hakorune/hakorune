@@ -942,6 +942,26 @@ cohort-local old-edge delete set are co-sealed. The lifecycle/birth red
 inventory reported in review remains a separate verification-health lane; it
 must not be silently reclassified or used to widen this static tuple.
 
+## Residual source-site reachability boundary — 2026-09-19
+
+`VerifiedWholeSourceStaticCallTargetInventoryV1::observe_all_calls` is the
+current source-side gate before the publication owner. For a bounded
+`ShadowResolveErrorV0` it skips that whole callable and retains only the first
+observation-unavailable cause; it does not publish partial MethodCall rows.
+That behavior is correct for incomplete source facts, but it leaves one
+concrete design question for this tuple: does the actual
+`ParserProgramBox.parse/2` body complete source observation and issue the
+`parser_program_box.hako:102` row, or does it stop at a named unsupported
+shape before target issuance?
+
+The next proof must answer that question at the existing owner with the
+parser-issued caller/site and the exact first terminal. A name/arity allowlist,
+AST rescan, MIR inference, or a partial-row fallback is forbidden. If the
+callable is complete, the existing Cataloged publication handoff is the
+implementation entry; if it is not, the missing source-shape owner becomes a
+separate NoSafeSlice row and this tuple stays closed. Neither result permits
+compatibility re-entry or a second publication issuer.
+
 ## Verification-health handoff — 2026-09-19
 
 The review report's completed items are treated as closed evidence only where
