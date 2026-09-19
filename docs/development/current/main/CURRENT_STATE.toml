@@ -5,7 +5,7 @@ current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0"
 current_execution_cohort = "static_catalog_target_design"
 current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0__GenericLoopV1NotSelected"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "open__static_catalog_target_loop_route__2026-09-19"
+current_design_stop = "open__static_catalog_target_loop_route__premise_reset_frontier_pause__2026-09-19"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -50,7 +50,7 @@ Facts/Recipe/physical owner for this nested, exit-driven parser loop, so the
 parent retains `NoSafeSlice`; no Cataloged or Selected publication claim is
 made. The parser-loop forest/exit co-seal D0 is closed as `NoSafeSlice`; the source-hint fixture correction I0 is closed with its focused test green, and the pointer returns to the static tuple design stop. No parser-specific
 fallback, AST rescan, VM route, production switch, or cohort retirement is authorized. Expression-result PHI and other parser rows remain outside this I0.
-The OwnedText T3 family remains parked. Finite tuple: `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3`, `ExactI64`, required i64 `[1]`; merged input is observed, acceptance still waits for Cataloged reach.
+The OwnedText T3 family remains parked. Finite tuple: `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3`, `ExactI64`, required i64 `[1]`; merged input is observed, acceptance still waits for Cataloged reach. The repeated parser-loop NoSafeSlice is closed by a premise-reset audit inside the active card: the complete nested/exit-driven parse loop is the semantic unit, classifier arms and opaque forest/exit relations are recorded, and no existing callable source Facts/Recipe/JoinSig/physical owner can co-seal it. This is an explicit frontier pause; no parser-specific issuer, rescan, fallback, catalog row, production switch, or retirement is authorized until a separate accepted loop-promotion decision names an existing authority to extend.
 Non-claims: no qualified Invoke, whole-T2 completion, production cutover, to_json, or legacy retirement.
 """
 next_design_card = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0"

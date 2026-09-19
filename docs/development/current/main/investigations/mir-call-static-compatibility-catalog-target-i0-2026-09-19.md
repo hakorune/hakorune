@@ -201,3 +201,48 @@ Cataloged/Selected; no parser-loop promotion or compatibility re-entry is
 authorized. The independent source-hint fixture correction I0 is also closed;
 the pointer now returns to this static design stop and its result does not
 promote the tuple.
+
+## Premise-reset audit — 2026-09-19
+
+The repeated `NoSafeSlice` results are now treated as a premise boundary, not
+as a request for another census or a parser-specific patch.
+
+```text
+semantic unit:
+  the complete ParserProgramBox.parse/2 outer loop, including its nested
+  static-semicolon and semicolon-scan loops, state updates, break exits, and
+  return transfers; starts_with/3 is only the downstream witness.
+exact membership:
+  parser_program_box.hako:81 (cont_prog loop), :102 (starts_with site),
+  :131 (static_semis loop), :182 (semicolon scan), plus their state writes and
+  early exits.
+classifier arms:
+  LoopBreak direct-three-statement recognition; specialized break/continue and
+  return routes; GenericLoopV1's raw [GenericLoopV1] selection; and the
+  non-nested CallableSingleLoop cohort.
+transferred or opaque subtree:
+  nested loop bodies and exit transfers are present in resolver forest/exit
+  data, but the callable source Facts and physical adapter carry only the
+  direct condition/body relation. Dropping those relations would lose the
+  source owner at the publication boundary.
+type requirements:
+  resolver forest/exits and portable Recipe fields exist, but no callable
+  source issuer currently co-seals the parser forest plus resolved exits into
+  a Recipe/JoinSig product consumed by the physical adapter.
+counterexample:
+  admitting only the line-102 starts_with call leaves the line-131 and
+  line-182 nested loops and their early exits without an owned terminal.
+```
+
+**Premise decision.** Extending the existing GenericLoopV1 or LoopBreak owner
+inside this static I0 is not a safe slice: it would require a new semantic
+loop-admission contract and a new co-sealed source product. Retain the typed
+`GenericLoopV1NotSelected` terminal and the compatibility edge. Do not add a
+parser issuer, AST/MIR rescan, compatibility/VM retry, catalog row, production
+switch, or retirement under this card.
+
+**Frontier pause.** There is no executable successor for this tuple until
+another inventoried family satisfies its own exclusive-owner and delete-set
+boundary, or a separately accepted parser-loop promotion design names the
+existing authority to extend. This card may resume at Cataloged observation
+only after that decision; the current pointer remains a design stop.
