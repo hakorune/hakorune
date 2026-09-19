@@ -1,5 +1,5 @@
 ---
-Status: selected__design_stop__source_hint_red_recovery__2026-09-19
+Status: closed__corrected_test_contract__source_hint_red_recovery__2026-09-19
 Task: MIR-CALL-SOURCE-HINT-RED-RECOVERY-D0
 Date: 2026-09-19
 Parent: mir-call-static-compatibility-catalog-target-d0-2026-09-14.md
@@ -26,21 +26,48 @@ The historical A0-2 source-hint test was green at `8ee28a0d8f` and is red at
 the current head. The owner is
 `src/mir/builder/normal_script_array_source_lifecycle.rs`; the test is
 `runner::modes::common_util::source_hint::normal_tests::normal_preparation_preserves_local_with_and_without_prelude`.
-The current terminal has not yet been recorded in this card, so the first
-action is observation rather than changing the assertion.
+The current terminal is now recorded. With the original fixture, the
+source-backed package stops at
+`Resolver(... Function(AppMainDirectCall(IndexSeal)))`: the imported
+`Nested.get/0` and the prelude `Helper.get/0` collide in the source-unit
+FreeStatic `(name, arity)` index. This is a fixture-shape conflict, not an
+Array owner failure.
 
 The fixture contains two independent dimensions:
 
 | Row | Shape | Required classification |
 | --- | --- | --- |
 | P | root `local a: Array<i8> = [7]`, followed by `local b = 9` and `return 30` | positive source lifecycle admission and completion through the existing Array owner |
-| I | the same root plus a nested imported static box and local prefix | named rejection at the existing caller-prefix boundary; no fallback |
+| I | the same root plus a nested imported static box and local prefix | named rejection at the existing caller-prefix boundary; no fallback; static method names must be unique in the FreeStatic index |
 | C | typed-child capability cases already covered by the Array lifecycle owner (`bool`, float, out-of-range, nested/unknown) | explicit negative capability rows; never folded into P |
 
 The test also checks lineage shape (root, prelude, nested segment), runtime
 alias compatibility, and malformed source rejection. Those observations are
 transport evidence; they do not prove Array ownership or a production caller
 switch.
+
+## Observation receipt — 2026-09-19
+
+The first focused run with the default quick incremental build did not reach
+the test: the linker emitted `undefined hidden symbol` diagnostics. A clean
+`CARGO_INCREMENTAL=0` run reached the test in 6m19s and exposed the actual
+fixture terminal:
+
+```text
+[mir/callable-semantic-package/issue] Batch {
+  Resolver(SourceBoundSelectedCallableResolverRejectV1 {
+    source: Callable { diagnostic_owner: Some("Nested"), diagnostic_name: "get" },
+    error: Function(AppMainDirectCall(IndexSeal))
+  })
+}
+```
+
+The same run with only the two fixture method names changed to unique names
+(`nested_get` and `helper_get`) reached the intended negative terminal
+`[freeze:contract][script-array/source-lifecycle-unavailable] caller-prefix-capability`
+and passed. This proves the old assertion remains the right negative contract;
+the fixture was invalid after selected static-child direct-call indexing became
+source-unit-wide.
 
 ## Existing owner map
 
@@ -56,10 +83,10 @@ switch.
 
 | Order | Task | Completion condition |
 | --- | --- | --- |
-| 1 | Reproduce the exact red | Run only the named source-hint test at the accepted quick profile and record the first error/terminal and commit. No whole-library rerun. |
-| 2 | Split the finite fixtures | Prove the unimported `Array<i8>=[7]` row, imported-prefix row, and typed-child rows have separate expected terminals. |
-| 3 | Map to the owner | Decide whether the current terminal is an owner bug, stale expectation, or transport mismatch using existing source products and lifecycle guards. |
-| 4 | Choose one bounded action | If an existing owner can close it, create a separate fast I0 with positive/negative guards; otherwise record `NoSafeSlice` or a corrected test contract. No new issuer/fallback. |
+| 1 | Reproduce the exact red | **Closed.** The clean focused run recorded `IndexSeal`; the unique-name replay recorded `caller-prefix-capability`. |
+| 2 | Split the finite fixtures | **Closed at the test boundary.** Root `Array<i8>=[7]`, imported prefix, and typed-child capability rows remain distinct. |
+| 3 | Map to the owner | **Closed.** The failure is a duplicate FreeStatic fixture key; existing resolver/index and Array lifecycle owners are correct. |
+| 4 | Choose one bounded action | **Selected:** a test-only fast I0 renames the two fixture methods uniquely and retains the named prefix negative. No production issuer/fallback change. |
 | 5 | Closeout | Update the owner test/docs and pointer only after the terminal is observable; preserve baseline receipts and run pointer/diff checks. |
 
 ## Acceptance and non-claims
@@ -72,3 +99,13 @@ proving the row classification is insufficient.
 
 This D0 does not authorize changes to parser loop admission, static target
 catalogs, VM/compatibility routes, baseline manifests, or production edges.
+The selected fixture correction is a separate fast I0 and changes no compiler
+behavior.
+
+## Closeout receipt — 2026-09-19
+
+The current-change red is explained by a stale fixture collision exposed by
+the source-unit FreeStatic index. The positive Array source row and the
+caller-prefix negative are both valid once the fixture uses distinct method
+names. The next card is the test-only fast I0; no production code, fallback,
+or semantic receipt changes are authorized by this D0.

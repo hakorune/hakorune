@@ -18,10 +18,13 @@ fn normal_preparation_preserves_local_with_and_without_prelude() {
             let directory = tempfile::tempdir().unwrap();
             let prelude = directory.path().join("prelude.hako");
             let nested = directory.path().join("nested.hako");
-            std::fs::write(&nested, "static box Nested { get() { return 1 } }\n").unwrap();
+            // The merged source unit has one FreeStatic (name, arity) index;
+            // keep imported and local static methods distinct so this fixture
+            // reaches the intended prefix-capability boundary.
+            std::fs::write(&nested, "static box Nested { nested_get() { return 1 } }\n").unwrap();
             std::fs::write(
                 &prelude,
-                format!("using \"{}\" as NestedAlias\nstatic box Helper {{\nget() {{\nlocal n: i64 = 7\nreturn n\n}}\n}}\n", nested.display()),
+                format!("using \"{}\" as NestedAlias\nstatic box Helper {{\nhelper_get() {{\nlocal n: i64 = 7\nreturn n\n}}\n}}\n", nested.display()),
             )
             .unwrap();
             for imported in [false, true] {
