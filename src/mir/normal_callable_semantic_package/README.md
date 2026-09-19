@@ -489,8 +489,9 @@ The aggregate fixture now combines `functions[0].name`, `params.length()`,
 It emits ten source Fact rows and reaches the selected physical owner with two
 borrowed-array installs, one empty-array install, two index reads, two length
 reads, and two text reads. Its linked object returns `0` in Normal and exits
-`70` with `REPORT 100` under injected `prepare-fault`; construction, install,
-callee-read, and caller-cleanup Fault coverage remain the next T2 matrix.
+`70` with the named `REPORT` reason under construction, install, callee-read,
+and cleanup fault injection. The probe also confirms `checked_end` precedes
+fault-frame disposal; the full T2 negative inventory remains separate.
 
 The bounded readable-Map argument lane admits a `: MapBox` formal as a
 borrowed read-only contract (`CallableParameterContractKindV1::Map`,

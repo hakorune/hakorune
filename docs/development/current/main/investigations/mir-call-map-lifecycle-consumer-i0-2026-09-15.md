@@ -2330,11 +2330,13 @@ physical operation was introduced.
 
 Focused source-authority evidence: `map_read_fact_tests` 18/18 passed. The
 source-to-OBJ fixture
-`host_providers::llvm_codegen::published_mir_object::map_array_source_tests::issued_aggregate_map_read_source_reaches_obj_normal_and_prepare_fault`
+`host_providers::llvm_codegen::published_mir_object::map_array_source_tests::issued_aggregate_map_read_source_reaches_obj_fault_matrix`
 passed 1/1 with `--exact --ignored`; published JSON contains two borrowed
 array installs, one empty-array install, two array-index reads, two array
 length reads, and two text reads. The linked object returns `0` in Normal;
-injected `prepare-fault` exits `70` and emits `REPORT 100`.
+construction/install/read/cleanup fault modes exit `70` with their named
+`REPORT` reason, and the probe confirms `checked_end` precedes fault-frame
+disposal.
 
 This closes only the aggregate main matrix. The next bounded slice is the T2
 ownership/fault matrix: exercise construction, install, callee-read, and
@@ -2342,3 +2344,27 @@ caller-cleanup Fault paths on this same source-owned aggregate, with the
 existing owner and named fault terminals. Whole-T2 completion still requires
 the full negative inventory, qualified Invoke, `to_json`, production cutover,
 and legacy retirement evidence.
+
+## T2 ownership/fault matrix acceptance (2026-09-19)
+
+The aggregate source-to-OBJ fixture now runs eight cases through the same
+published object: Normal, construction `prepare-fault`, borrowed-array
+`install-fault`, empty-array install fault, ArrayIndexMap read fault,
+MapGetText read fault, ArrayLength read fault, and cleanup `end-fault`. The
+test-only C probe wraps the existing ABI symbols and delegates to the real
+kernel in Normal; injected statuses travel through the existing emitter
+status dispatch and `ReturnFault` path. No production owner or source
+authority was added.
+
+Focused evidence: the renamed aggregate fault-matrix test passed 1/1 with
+`--exact --ignored`; every fault case exited `70` with its named report reason,
+and the probe's sequence receipt confirmed `checked_end` before fault-frame
+disposal. The aggregate JSON shape remains two borrowed-array installs, one
+empty-array install, two index reads, two length reads, and two text reads.
+
+This closes the bounded T2 ownership/fault matrix only. The next bounded slice
+is the T2 negative-inventory closeout: one aggregate-family guard must prove
+unsupported scalar, mixed, nested, foreign, duplicate, and opaque/probe-side
+routes stop before catalog mutation without weakening the accepted source
+shape. Whole-T2 completion, qualified Invoke, `to_json`, production cutover,
+and legacy retirement remain open.

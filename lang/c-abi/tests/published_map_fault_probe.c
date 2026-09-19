@@ -11,6 +11,14 @@ static int is_mode(const char* expected) { return mode && !strcmp(mode, expected
 static uint32_t fault(void* frame, uint64_t site) {
   return nyrt_fault_record_static_v1(frame, 100, site, 0, 0);
 }
+static uint32_t fault_reason(void* frame, uint32_t reason, uint64_t site) {
+  return nyrt_fault_record_static_v1(frame, reason, site, 0, 0);
+}
+#ifdef HAKO_MAP_SOURCE_PROBE
+static unsigned source_probe_sequence;
+static unsigned source_probe_end_sequence;
+static unsigned source_probe_frame_sequence;
+#endif
 
 #define BOOKKEEPING(label, symbol) \
   extern uint32_t real_##label(void*) __asm__("__real_nyash.map." symbol "_v1"); \
@@ -22,6 +30,65 @@ BOOKKEEPING(key_init, "key_init")
 BOOKKEEPING(key_dispose, "key_dispose")
 BOOKKEEPING(outcome_init, "outcome_init")
 BOOKKEEPING(outcome_dispose, "outcome_dispose")
+
+#ifdef HAKO_MAP_SOURCE_PROBE
+/* T2 aggregate fault injection observes the real lifecycle status dispatch.
+ * These wrappers never fabricate a successful payload or cleanup: a selected
+ * mode records one named runtime Fault and lets the generated ReturnFault
+ * path perform the ordinary caller cleanup. */
+extern uint32_t real_borrowed_install(void*, uint32_t, uint64_t, void*, void*, const void* const*, size_t, void*)
+    __asm__("__real_nyash.map.checked_install_borrowed_array_v1");
+uint32_t wrap_borrowed_install(void*, uint32_t, uint64_t, void*, void*, const void* const*, size_t, void*)
+    __asm__("__wrap_nyash.map.checked_install_borrowed_array_v1");
+uint32_t wrap_borrowed_install(void* frame, uint32_t profile, uint64_t site, void* map,
+    void* key, const void* const* elements, size_t length, void* out) {
+  if (is_mode("install-fault")) return fault(frame, site);
+  return real_borrowed_install(frame, profile, site, map, key, elements, length, out);
+}
+
+extern uint32_t real_empty_install(void*, uint32_t, uint64_t, void*, void*, void*)
+    __asm__("__real_nyash.map.checked_install_empty_array_v1");
+uint32_t wrap_empty_install(void*, uint32_t, uint64_t, void*, void*, void*)
+    __asm__("__wrap_nyash.map.checked_install_empty_array_v1");
+uint32_t wrap_empty_install(void* frame, uint32_t profile, uint64_t site, void* map,
+    void* key, void* out) {
+  if (is_mode("empty-install-fault")) return fault(frame, site);
+  return real_empty_install(frame, profile, site, map, key, out);
+}
+
+extern uint32_t real_array_length(void*, uint64_t, void*, const uint8_t*, size_t, int64_t*)
+    __asm__("__real_nyash.map.checked_array_length_v1");
+uint32_t wrap_array_length(void*, uint64_t, void*, const uint8_t*, size_t, int64_t*)
+    __asm__("__wrap_nyash.map.checked_array_length_v1");
+uint32_t wrap_array_length(void* frame, uint64_t site, void* map,
+    const uint8_t* bytes, size_t length, int64_t* out) {
+  if (is_mode("array-length-fault"))
+    return fault_reason(frame, NYRT_FAULT_REASON_MAP_ARRAY_LENGTH_NON_ARRAY_V1, site);
+  return real_array_length(frame, site, map, bytes, length, out);
+}
+
+extern uint32_t real_array_index(void*, uint64_t, void*, const uint8_t*, size_t, int64_t, void*)
+    __asm__("__real_nyash.map.checked_array_index_map_v1");
+uint32_t wrap_array_index(void*, uint64_t, void*, const uint8_t*, size_t, int64_t, void*)
+    __asm__("__wrap_nyash.map.checked_array_index_map_v1");
+uint32_t wrap_array_index(void* frame, uint64_t site, void* map,
+    const uint8_t* bytes, size_t length, int64_t index, void* out) {
+  if (is_mode("array-index-fault"))
+    return fault_reason(frame, NYRT_FAULT_REASON_MAP_ARRAY_BOUNDS_V1, site);
+  return real_array_index(frame, site, map, bytes, length, index, out);
+}
+
+extern uint32_t real_get_text(void*, uint64_t, void*, const uint8_t*, size_t, void*)
+    __asm__("__real_nyash.map.checked_get_text_v1");
+uint32_t wrap_get_text(void*, uint64_t, void*, const uint8_t*, size_t, void*)
+    __asm__("__wrap_nyash.map.checked_get_text_v1");
+uint32_t wrap_get_text(void* frame, uint64_t site, void* map,
+    const uint8_t* bytes, size_t length, void* out) {
+  if (is_mode("text-read-fault"))
+    return fault_reason(frame, NYRT_FAULT_REASON_MAP_TEXT_MISSING_V1, site);
+  return real_get_text(frame, site, map, bytes, length, out);
+}
+#endif
 
 extern uint32_t real_new(void*, uint32_t, uint64_t, void*) __asm__("__real_nyash.map.checked_new_v1");
 uint32_t wrap_new(void*, uint32_t, uint64_t, void*) __asm__("__wrap_nyash.map.checked_new_v1");
@@ -339,6 +406,9 @@ extern uint32_t real_end(void*, uint64_t, void*) __asm__("__real_nyash.map.check
 uint32_t wrap_end(void*, uint64_t, void*) __asm__("__wrap_nyash.map.checked_end_v1");
 uint32_t wrap_end(void* frame, uint64_t site, void* map) {
   uint32_t result;
+#ifdef HAKO_MAP_SOURCE_PROBE
+  source_probe_end_sequence = ++source_probe_sequence;
+#endif
 #ifdef HAKO_MAP_READ_PROBE
   read_end_seq = ++read_seq;
 #endif
@@ -374,8 +444,11 @@ int32_t wrap_report(const void* frame) {
 extern uint32_t real_frame_dispose(void*) __asm__("__real_nyash.fault.frame_dispose_v1");
 uint32_t wrap_frame_dispose(void*) __asm__("__wrap_nyash.fault.frame_dispose_v1");
 uint32_t wrap_frame_dispose(void* frame) {
+  source_probe_frame_sequence = ++source_probe_sequence;
   printf("FRAME OUTER %u REPORTS %u MAP %u KEY %u OUTCOME %u\n",
       outer_ends, reports, map_dispose, key_dispose, outcome_dispose);
+  printf("SEQ_END %u SEQ_FRAME %u\n", source_probe_end_sequence,
+      source_probe_frame_sequence);
 #if defined(HAKO_MAP_THREE_OWNER_PROBE) || defined(HAKO_MAP_FOUR_OWNER_PROBE) || defined(HAKO_MAP_FIVE_OWNER_PROBE)
   printf("VALUES");
 #ifdef HAKO_MAP_THREE_OWNER_PROBE

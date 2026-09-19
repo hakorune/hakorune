@@ -393,13 +393,22 @@ fn issued_borrowed_blocks_length_source_reaches_obj_normal_and_prepare_fault() {
 
 #[test]
 #[ignore = "requires selected C FFI, LLVM18 and lifecycle runtime"]
-fn issued_aggregate_map_read_source_reaches_obj_normal_and_prepare_fault() {
+fn issued_aggregate_map_read_source_reaches_obj_fault_matrix() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         use crate::runner::modes::common_util::normal_callable::{
             materialize_normal_callable_program_v1, NormalCallableMaterializationOutcomeV1,
         };
-        for (case, expected_exit) in [("normal", 0), ("prepare-fault", 70)] {
+        for (case, expected_exit, expected_report) in [
+            ("normal", 0, None),
+            ("prepare-fault", 70, Some(100)),
+            ("install-fault", 70, Some(100)),
+            ("empty-install-fault", 70, Some(100)),
+            ("array-index-fault", 70, Some(106)),
+            ("text-read-fault", 70, Some(109)),
+            ("array-length-fault", 70, Some(112)),
+            ("end-fault", 70, Some(100)),
+        ] {
             let NormalCallableMaterializationOutcomeV1::SourceBacked(source) =
                 materialize_normal_callable_program_v1(
                     AGGREGATE_MAP_READ_SOURCE.to_string(),
@@ -460,13 +469,15 @@ fn issued_aggregate_map_read_source_reaches_obj_normal_and_prepare_fault() {
                         "{case}: {}",
                         String::from_utf8_lossy(&output.stderr)
                     );
-                    if case == "prepare-fault" {
+                    if let Some(reason) = expected_report {
+                        let report = format!("REPORT {reason} ");
                         assert!(
-                            String::from_utf8_lossy(&output.stdout).contains("REPORT 100"),
-                            "{}",
+                            String::from_utf8_lossy(&output.stdout).contains(&report),
+                            "expected {report} in {}",
                             String::from_utf8_lossy(&output.stdout)
                         );
                     }
+                    assert_probe_end_precedes_frame(&output.stdout)?;
                     Ok(())
                 },
             );
@@ -474,6 +485,30 @@ fn issued_aggregate_map_read_source_reaches_obj_normal_and_prepare_fault() {
             result.unwrap_or_else(|error| panic!("{case}: {error}"));
         }
     });
+}
+
+fn assert_probe_end_precedes_frame(stdout: &[u8]) -> Result<(), String> {
+    let text = String::from_utf8_lossy(stdout);
+    let mut end = None;
+    let mut frame = None;
+    let mut tokens = text.split_whitespace();
+    while let Some(token) = tokens.next() {
+        match token {
+            "SEQ_END" => end = tokens.next().and_then(|value| value.parse::<u32>().ok()),
+            "SEQ_FRAME" => frame = tokens.next().and_then(|value| value.parse::<u32>().ok()),
+            _ => {}
+        }
+    }
+    let Some(end) = end else {
+        return Err(format!("missing SEQ_END in {text}"));
+    };
+    let Some(frame) = frame else {
+        return Err(format!("missing SEQ_FRAME in {text}"));
+    };
+    if end == 0 || frame <= end {
+        return Err(format!("cleanup order end={end} frame={frame}: {text}"));
+    }
+    Ok(())
 }
 
 fn link_borrowed_array_probe(object: &Path, exe: &Path, archive: &Path) -> Result<(), String> {
@@ -493,8 +528,13 @@ fn link_borrowed_array_probe(object: &Path, exe: &Path, archive: &Path) -> Resul
         "checked_new",
         "key_prepare_utf8",
         "checked_install_indexed",
+        "checked_install_borrowed_array",
+        "checked_install_empty_array",
         "outcome_end",
         "checked_end",
+        "checked_array_length",
+        "checked_array_index_map",
+        "checked_get_text",
     ] {
         command.arg(format!("-Wl,--wrap=nyash.map.{name}_v1"));
     }
