@@ -11,16 +11,20 @@ use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 use crate::mir::builder::normal_callable_loop_handoff::CallableLoopReadyBodyOnlyProductV1;
 use crate::mir::builder::normal_callable_loop_handoff::CallableSemanticLoopHandoffPreEffectReceiptV1;
 use crate::mir::builder::normal_callable_loop_source_facts::CallableGenericLoopSourceFactsRouteErrorV1;
+use crate::mir::builder::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1;
 use crate::mir::builder::normal_callable_loop_source_route::{
     CallableLoopSourceItemBindingV1, CallableLoopSourceRouteRejectV1,
     CallableLoopSourceRouteTokenV1, CallableLoopSourceTargetRelationV1,
 };
+use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use crate::mir::loop_structural_facts::VerifiedLoopCondBreakContinueSourceForestProjectionV1;
 use crate::mir::resolved_semantics::{
     FunctionOriginV1, FunctionOwnerIdV1, SemanticOwnerSourceKindV1, SourceNodeSiteV1,
     SourceStmtSiteV1,
 };
+use std::cell::RefCell;
+use std::rc::Rc;
 
 /// One move-only source/physical transport for the selected LoopCond route.
 ///
@@ -28,7 +32,7 @@ use crate::mir::resolved_semantics::{
 /// are transferred together.  No field is reconstructed from AST shape or a
 /// source line after this product is issued.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct SourceLoopCondPhysicalInputV1<'source> {
+pub(in crate::mir::builder) struct SourceLoopCondPhysicalInputV1<'source, 'ledger> {
     owner: FunctionOwnerIdV1,
     parent_site: SourceNodeSiteV1,
     parent_source: &'source RawInvocationSourceContextV1,
@@ -42,9 +46,10 @@ pub(in crate::mir::builder) struct SourceLoopCondPhysicalInputV1<'source> {
     projection: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
     source_target: CallableLoopSourceTargetRelationV1,
+    source_port: CallableLoopSourceExpressionPortV1<'ledger>,
 }
 
-impl SourceLoopCondPhysicalInputV1<'_> {
+impl SourceLoopCondPhysicalInputV1<'_, '_> {
     pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
@@ -101,6 +106,12 @@ impl SourceLoopCondPhysicalInputV1<'_> {
         &self.source_target
     }
 
+    pub(in crate::mir::builder) const fn source_port(
+        &self,
+    ) -> &CallableLoopSourceExpressionPortV1<'_> {
+        &self.source_port
+    }
+
     pub(in crate::mir::builder) fn loop_cond_facts(
         &self,
     ) -> Result<&LoopCondBreakContinueFacts, String> {
@@ -142,6 +153,10 @@ impl SourceLoopCondPhysicalInputV1<'_> {
             "[freeze:contract][callable-loop/body/source-site-missing]".to_owned()
         })?;
         if self.pre_effect.loop_site() != &self.parent_site
+            || !self
+                .parent_source
+                .shares_root_lineage(&self.condition_source)
+            || !self.parent_source.shares_root_lineage(&self.body_source)
             || !condition_site
                 .segments()
                 .starts_with(self.parent_site.segments())
@@ -180,6 +195,16 @@ impl SourceLoopCondPhysicalInputV1<'_> {
                 "[freeze:contract][callable-loop/loop-cond/source-item-parent-mismatch]".to_owned(),
             );
         }
+        self.source_port
+            .expr(&self.condition, &self.condition_source)
+            .map_err(|error| {
+                format!("[freeze:contract][callable-loop/loop-cond/source-port] {error}")
+            })?;
+        self.source_port
+            .body(&self.body, &self.body_source)
+            .map_err(|error| {
+                format!("[freeze:contract][callable-loop/loop-cond/source-port] {error}")
+            })?;
         let facts = self.loop_cond_facts()?;
         if facts.condition != self.condition || facts.recipe.body.body != self.body {
             return Err(
@@ -209,19 +234,14 @@ pub(in crate::mir::builder) struct CallableLoopCondSourceFactsV1<'source> {
     route_token: CallableLoopSourceRouteTokenV1,
 }
 
-impl CallableLoopCondSourceFactsV1<'_> {
-    pub(in crate::mir::builder) fn into_route_token(self) -> CallableLoopSourceRouteTokenV1 {
-        self.route_token
-    }
-}
-
 impl<'source> CallableLoopCondSourceFactsV1<'source> {
     /// Consume the source Facts product at the physical boundary.  This is a
     /// preflight-only transfer; the actual LoopCond lowering remains a later
     /// source-port consumer.
-    pub(in crate::mir::builder) fn into_physical_input(
+    pub(in crate::mir::builder) fn into_physical_input<'ledger>(
         self,
-    ) -> Result<SourceLoopCondPhysicalInputV1<'source>, String> {
+        source_ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
+    ) -> Result<SourceLoopCondPhysicalInputV1<'source, 'ledger>, String> {
         let Self {
             _owner,
             _parent_source,
@@ -236,6 +256,12 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             route_token.into_physical_parts().map_err(|error| {
                 format!("[freeze:contract][callable-loop/loop-cond/input] {error:?}")
             })?;
+        if source_ledger.borrow().owner() != owner {
+            return Err(
+                "[freeze:contract][callable-loop/loop-cond/source-port-owner-mismatch]".to_owned(),
+            );
+        }
+        let source_port = CallableLoopSourceExpressionPortV1::new(source_ledger);
         let facts = outcome
             .facts
             .as_ref()
@@ -284,6 +310,7 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             projection,
             source_items,
             source_target,
+            source_port,
         })
     }
 }

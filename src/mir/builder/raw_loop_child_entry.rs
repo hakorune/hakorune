@@ -306,7 +306,11 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         let source_facts = match CallableGenericLoopSourceFactsIssuerV1::issue_once(payload) {
             CallableGenericLoopSourceFactsDispositionV1::Ready(source_facts) => source_facts,
             CallableGenericLoopSourceFactsDispositionV1::LoopCondReady(source_facts) => {
-                let physical_input = source_facts.into_physical_input()?;
+                let source_ledger = callable_ledger.ok_or_else(|| {
+                    "[freeze:contract][callable-loop/loop-cond/source-port-ledger-missing]"
+                        .to_owned()
+                })?;
+                let physical_input = source_facts.into_physical_input(source_ledger)?;
                 physical_input.validate_for_source_port()?;
                 return Err(
                     "[freeze:contract][callable-loop/loop-cond/source-port-lowering-missing]"

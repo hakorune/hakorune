@@ -324,9 +324,10 @@ lowering is complete; no publication or compatibility retirement is implied.
 The first fast implementation slice now consumes the move-only
 `CallableLoopSourceRouteTokenV1` into `SourceLoopCondPhysicalInputV1`. The
 existing planner Facts/Recipe, source forest projection, source item inventory,
-target relation, source contexts, and binding pre-effect move together; the
-shape and parent-site checks reject before any Builder allocation. The raw
-entry invokes the input validator and then stops at the named
+target relation, source contexts, binding pre-effect, and a borrowed
+`CallableLoopSourceExpressionPortV1` move together; the shape and parent-site
+checks reject before any Builder allocation. The raw entry invokes the input
+validator and then stops at the named
 `callable-loop/loop-cond/source-port-lowering-missing` terminal. No AST/name
 remap, second Recipe/JoinSig, compatibility fallback, or physical layout is
 introduced.
@@ -335,9 +336,10 @@ Evidence at `2026-09-19`: `CARGO_BUILD_JOBS=4 cargo check --profile quick
 --lib -j4` passed; the focused route filter
 `cargo test --profile quick --lib source_loop_cond_route_token
 -- --test-threads=1` passed 3/3, including the missing-target physical transfer
-reject. This receipt covers input materialization and preflight only. The
-source-port parameterization of header/item/nested/exit lowering, static tuple
-publication, old-edge retirement, and source-to-MIR acceptance remain open.
+reject. This receipt covers input materialization, source-port attachment, and
+preflight only. The source-port parameterization of header/item/nested/exit
+lowering, static tuple publication, old-edge retirement, and source-to-MIR
+acceptance remain open.
 
 ## Focused validation
 
