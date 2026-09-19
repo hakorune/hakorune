@@ -836,6 +836,30 @@ legacy owner or publish a partial product. The publication handoff and port
 each have one consumer, so an unconsumed row or a second consume remains a
 blocker.
 
+### Cohort-local old-edge boundary
+
+The shared fallback edge is still visible at
+`src/mir/builder/method_call_handlers.rs:456` through
+`handle_static_method_call_with_descent`, whose non-`Math` terminal at
+`:493-498` issues `UnissuedStaticCallRetirementV1::GenericCompatibility`.
+That branch is not globally deletable: `Math` compatibility and unselected
+static/instance partitions remain outside this cohort. The selected delete
+set is therefore a source-row disposition, not a blanket line deletion:
+
+1. the Cataloged `(ParserProgramBox.parse/2, SourceExprSiteV1)` row must be
+   consumed by the existing publication owner and never classify as
+   `Unavailable`;
+2. the selected row is removed from the compatibility/source-child inventory
+   only after `Selected` physical publication is observed; and
+3. the shared `GenericCompatibility` terminal, instance `ParserBox` calls,
+   `Math`, missing/foreign sites, and every unselected parser call remain
+   retained and independently guarded.
+
+The acceptance guard must observe that the selected source site reaches
+`StaticResultPublicationIngressV1::Selected` and cannot enter
+`GenericCompatibility`; a red before that named terminal keeps the delete set
+open rather than being counted as a successful cutover.
+
 The separate expression-result port is still needed for the finite deferred
 cohort (`PatternUtilBox`, `JsonNumberCanonicalBox`, `JsonFragNormalizerBox`,
 and `LowerMethodArrayGetSetBox`). That port may reuse `IfCfgSessionV1`,
