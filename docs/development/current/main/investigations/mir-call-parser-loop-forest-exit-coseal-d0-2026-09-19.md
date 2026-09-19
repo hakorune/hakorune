@@ -77,6 +77,35 @@ would recreate the forbidden post-hoc pairing. Until one existing source-aware i
 Recipe/JoinSig/physical consumer co-seal that relation, this D0 remains a design stop and the
 parent static tuple remains at `GenericLoopV1NotSelected`.
 
+## Negative matrix receipt — 2026-09-19
+
+| Counterexample | Existing boundary | Status for the co-seal product |
+| --- | --- | --- |
+| foreign owner or frame | resolver owner verification, `VerifiedLoopSourceForestBindingV1` owner check, and the physical adapter's ledger-owner check | reusable pre-effect guards; the new product must carry one owner/frame token through all fields |
+| forest parent-index drift or root with a parent | `ParentIndexOutOfRange`, `RootParentMismatch`, and `RecipeParentMismatch` in `into_source_binding` | reusable only after a parser Recipe has dense loop keys; no parser Recipe exists yet |
+| missing exit or exit for a different loop/function | resolver verifies `source_region` and typed transfer targets, but callable source Facts retain no exit set | **uncovered**; the co-sealed product must reject before Recipe/physical effects |
+| duplicate exit/site membership | resolver maps are keyed by sealed source sites, but the callable handoff does not consume a complete exit inventory | **uncovered at the selected owner**; no deduplication or post-hoc merge may be added |
+| condition/body binding-site drift | existing `ParentSiteMismatch`, `ConditionSiteMismatch`, `BodySiteMismatch`, and pre-effect schedule checks | reusable for direct rows; nested descendant coverage is still missing |
+| nested loop omitted from the forest | `nested-loop-profile-not-admitted` and `NestedLoopOutsideFirstCohort` | current typed terminal; promotion requires the same co-sealed forest to reach Recipe |
+| binding row without matching forest member | direct body-only schedule validates its own rows, but has no forest/exit relation | **uncovered**; reject as an unconsumed sibling rather than dropping the row |
+
+This matrix closes the negative-design inventory for the finite parser shape. It does not
+authorize a new issuer or a predicate-only route change: the three uncovered cases are all
+missing fields in one co-sealed product, not independent fallbacks.
+
+## D0 progress decision — 2026-09-19
+
+Tasks 1 and 2 are closed at the design level: the required atomic product is named, and its
+existing forest, exit, Recipe, JoinSig, continuation, and physical consumers are mapped. Task 4
+is also closed by the negative matrix above. Task 3 has a typed physical result: the current
+callable GenericLoop adapter consumes only the one-condition/one-body view, so it cannot accept
+this product without a new source-aware consumer contract. Task 5 remains open only for the
+authority decision: either extend that same callable source issuer and its Recipe/physical owner
+as one implementation slice, or retain `NoSafeSlice` and keep the parent static tuple parked.
+
+The next implementation card must therefore name the exact extension owner and its delete-set
+before any field is added. This D0 creates no implementation permission.
+
 ## Ordered design tasks
 
 | Order | Task | Completion condition |
