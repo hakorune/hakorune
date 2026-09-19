@@ -672,8 +672,10 @@ enter the retained owner policy for `Unavailable`. The owner is installed by
 
 Therefore the unresolved tuple is upstream reachability and exact source
 identity, not a missing ingress connector. The phase14 source-backed MIR
-route must first survive the finite resolver expression-`If`/physical-result
-boundary and issue a `Cataloged` source site. Only then can the selected
+route must first complete its mixed source/package admission and callable
+lowering, then issue a `Cataloged` source site. The separate resolver
+expression-`If`/physical-result boundary belongs to the five deferred
+expression cohort and is not the selected tuple's consumer. Only then can the selected
 `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` observation
 consume the existing owner. A compatibility root cannot borrow this owner.
 
@@ -682,6 +684,43 @@ existing-owner reuse. It does not close publication acceptance: target/header/
 result co-seal, real source-site consumption, cohort-local compatibility-edge
 deletion, and phase14 source-to-exe evidence remain open. No code, fallback,
 resolver widening, or new semantic receipt is authorized by this note.
+
+## Cataloged source-site issuance audit — 2026-09-19
+
+The source-site transport already has one continuous authority chain; a second
+site issuer or wrapper would create the competing authority this card forbids:
+
+```text
+SelectedNormalCallableKeyV1::Cataloged
+  -> normal_callable_semantic_loan_port::with_callable_source_scope
+  -> RawInvocationSourceTransportV1::root
+       root = RawInvocationRootLineageV1::Cataloged(catalog_key)
+       site = SourcePathV1::function_body()
+  -> raw_invocation_body::drive_located_invocation_body_v1
+  -> RawInvocationSourceContextV1::child_statement/child_expression
+       exact Body(index), IfCondition, Lhs, Argument(index), ... sites
+  -> StaticResultPublicationIngressPortV1
+  -> ModuleDraftCollectorV1::take_static_result_publication_handoff
+  -> VerifiedStaticCallResultPublicationOwnerV1::take_for_source
+```
+
+The ingress accepts only a `Located` context whose root is
+`RawInvocationRootLineageV1::Cataloged(caller)` in the
+`StaticBoxMethod` namespace. It turns the carried `SourceNodeSiteV1` into the
+same `SourceExprSiteV1` key used by the publication owner. `Unavailable` is
+reserved for compatibility or non-cataloged roots; a source-backed missing or
+unlocated context is a typed error. The `Selected` result then enters the
+existing static physical bridge, while `NoExactStaticTarget` stops before
+argument descent.
+
+This closes the design question "where is the Cataloged site issued?" as a
+reuse of the existing callable scope and ingress. It does not prove that the
+phase14 parser body reaches the chain. The remaining live acceptance is one
+selected `ParserProgramBox.parse/2` body lowering with the exact
+`ParserStringUtilsBox.starts_with/3` site observed as `Cataloged` and
+`Selected`; that observation must be paired with the negative
+`Unavailable`/instance/foreign cases and the old-edge guard. A new source
+context field, source-site remapper, or publication owner is not authorized.
 
 ## Finite tuple shape audit — 2026-09-19
 
