@@ -1,10 +1,10 @@
 ---
-Status: selected__design_stop__2026-09-19
+Status: accepted__design__implementation_child_selected__2026-09-19
 Task: MIR-CALL-PARSER-NESTED-LOOP-SOURCE-PROMOTION-D0
 Date: 2026-09-19
 Parent: mir-call-static-compatibility-catalog-target-i0-2026-09-19.md
 ProductionCaller: selected normal MIR/static-receiver route only
-Implementation permission: false; this card fixes the source-product and route boundary only
+Implementation permission: false; design accepted and handed to the bounded source-handoff I0
 Classification: BoxCount; one bounded source-loop admission profile
 ---
 
@@ -84,6 +84,22 @@ legacy `MirBuilder` route do not carry the source handoff. A new parser route,
 parser-specific Recipe issuer, AST rescan, or compatibility retry is also
 rejected by this D0.
 
+## Decision — 2026-09-19
+
+Candidate A is accepted as a same-owner extension of the existing
+`LoopCondBreakContinue` Facts/Recipe/physical pipeline. The source product will
+carry the resolver forest, ordered source paths, resolved exits, and selected
+static target relation together. `RecipeFirstRouteSelectionV1` remains the
+route authority; the source handoff adds a typed LoopCond selection token
+instead of re-running the planner or manufacturing a Generic route.
+
+The existing GenericLoop owner is explicitly outside this decision because the
+parser root has no progression variable/increment pair and the source context
+rejects nested lowering. The existing LoopBreak owner remains compatibility
+only because its direct terminal requires the legacy `MirBuilder` route. This
+is one BoxCount extension of the LoopCond source contract, not a second route
+or a parser-specific semantic family.
+
 ## Ordered design tasks
 
 | Order | Task | Completion condition |
@@ -95,14 +111,20 @@ rejected by this D0.
 | 5 | Negative ownership matrix | Foreign root/brand, parent drift, missing/duplicate exit, wrong target, omitted child, extra loop, wrong condition, and route overlap reject before catalog/effects. |
 | 6 | Parent handoff | Only after tasks 1–5 are accepted may the parent static card observe one Cataloged row and later design its Selected/retirement evidence. |
 
+The implementation child is
+`MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0`. It may edit only the existing
+LoopCond source/Recipe/physical owners and their focused guards. Its closeout
+must remove the selected static tuple's retained compatibility disposition in
+the same bounded series after positive and negative evidence; it may not widen
+the parser corpus or reopen VM/legacy routes.
+
 ## Stop boundary and acceptance
 
-This remains `design_stop`. Do not edit Rust/Hako, add fixtures, issue a new
-semantic receipt, or move the static tuple to Cataloged until the existing
-authority can be named for every task above. If Candidate A cannot carry the
-complete forest and exit set without a second authority, retain
-`GenericLoopV1NotSelected` and close this D0 as `NoSafeSlice` with the missing
-field/consumer named.
+This D0 is complete as a design stop. The implementation child must still
+fail before Cataloged if the co-sealed forest/exit/source product cannot be
+consumed by the existing LoopCond physical pipeline. If that occurs, retain
+`GenericLoopV1NotSelected`, preserve the compatibility edge, and record the
+missing field/consumer as a typed `NoSafeSlice`; do not add a third owner.
 
 The positive acceptance shape is deliberately one source invocation: the
 merged parser route reaches the existing LoopCondBreakContinue source product
