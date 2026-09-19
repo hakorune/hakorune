@@ -952,23 +952,20 @@ not reopen this static tuple. The map-family reds remain a separate known
 baseline lane, and the current normal-pipeline inventory remains the pointer's
 26-pass/2-baseline/1-ignored receipt.
 
-The following review reds are **not yet classified** because the interrupted
-replay did not provide a matching pre-session parent result:
+The five deterministic `normal_default_root_catalog_lifecycle_tests` failures
+are now classified as `known baseline debt`: parent `3e3d39d632` and the
+current-head replay `8c6635d7bc` both ran the same quick serial filter and
+returned 13/18 with the identical five names and terminals. The direct
+birth/lifecycle split is also recorded: `module_lifecycle_capture_tests` is
+18/18 green, while `runtime::weak_handles::tests::test_weak_handle_lifecycle`
+and `tests::parser::parser_direct_birth_call::parser_birth_keeps_parent_constructor_delegation`
+remain the two known manifest reds. The broader historical filter count is
+not an open blocker for this card.
 
-1. the five deterministic `normal_default_root_catalog_lifecycle_tests`
-   failures (`actual_string_helpers...`, `parser_scan_package...`,
-   `source_backed_app_main...`, `source_backed_package_failure...`, and
-   `source_bound_static_result_owner...`); and
-2. the remaining birth-lifecycle filter failures (module-lifecycle capture,
-   weak-handle, parser-direct-birth and related rows).
-
-The next verification-only task is therefore bounded: replay each exact quick
-filter on the current commit, replay the same filter at the recorded
-pre-session parent, and classify only an identical fingerprint as
-`known baseline debt`; a current-only delta is a `current-change failure` and
-must name its owner before any fix is selected. Record the command, commit,
-test name, and result in the owning verification card. Do not classify from a
-partial run, widen the static publication tuple, or turn this lane into a
-code fix while the comparison is incomplete. Current `cargo fmt --all -- --check`,
-`git diff --check`, and `current_state_pointer_guard.sh` are green; any older
-fmt-drift or dirty-tree note is historical until reproduced.
+The verification-only reconciliation is therefore complete. The next task is
+the active static publication tuple design: keep the baseline rows outside
+this cohort, then co-seal the Cataloged source site, exact target/result
+handoff, negative matrix, and cohort-local old-edge delete set before any
+implementation entry. Current `cargo fmt --all -- --check`, `git diff --check`,
+and `current_state_pointer_guard.sh` are green; older fmt-drift or dirty-tree
+notes are historical until reproduced.
