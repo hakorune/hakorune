@@ -24,6 +24,7 @@ use super::normal_callable_loop_source_facts::{
 use super::normal_callable_loop_source_route::{
     CallableLoopSourceItemBindingV1, CallableLoopSourceTargetRelationV1,
 };
+use super::normal_callable_semantic_lowering_state::CallableLoopSourceBridgeTakeV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
@@ -270,9 +271,14 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 let function_origin = Some(state.function_origin());
                 let source_kind = Some(state.source_kind());
                 drop(state);
-                let projection = callable_ledger
+                let projection = match callable_ledger
                     .borrow_mut()
-                    .take_source_loop_bridge(parent_site)?;
+                    .take_source_loop_bridge(parent_site)?
+                {
+                    CallableLoopSourceBridgeTakeV1::Armed(projection) => Some(projection),
+                    CallableLoopSourceBridgeTakeV1::Unarmed
+                    | CallableLoopSourceBridgeTakeV1::BridgeAbsent => None,
+                };
                 (function_origin, source_kind, projection, items)
             } else {
                 (None, None, None, Box::default())

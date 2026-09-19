@@ -684,6 +684,30 @@ wiring (item 4), publication consumption, caller cutover, or old-edge
 retirement; `source-port-lowering-missing` remains the active terminal for
 the outer production caller.
 
+### Unarmed-site take disposition receipt — review fix
+
+`CallableLoopSourceBridgeV1` now records resolver-cataloged sites that the
+forest projection deliberately leaves unarmed (unsupported ancestor) in a
+separate `unarmed` inventory, and `take_for` returns a typed
+`CallableLoopSourceBridgeTakeV1` (`Armed` / `Unarmed` / `BridgeAbsent`).
+`missing-site` remains a contract violation for sites the bridge never
+cataloged, and an armed take is still one-shot. The `Ready` consumer in
+`raw_loop_child_entry` maps `Unarmed`/`BridgeAbsent` to the ordinary
+GenericLoop boundary instead of failing the callable.
+
+This fixes a mixed-cohort regression: a callable with an armed root loop and
+an `if`-nested loop previously died at `source-bridge/missing-site` before
+the unarmed loop could reach `issue_once`, contradicting the
+"unsupported nested loops remain unarmed" contract.
+
+Focused evidence: `source_loop_bridge` filter 5/5, `raw_loop_child_*`
+filters green including `unarmed_nested_loop_keeps_generic_loop_boundary`
+(end-to-end `lower_loop` on the `if`-nested site lowers through the
+GenericLoop boundary). The seven `normal_callable`/`loop_cond` reds
+(`runtime-box-fate-retired`, `DynamicCarrierMismatch`, `ProgramBlock` recipe
+shape, `BorrowedEntryEscape`) reproduce identically on parent `e6f6456425` —
+classified as known baseline debt, not a current-change failure.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs

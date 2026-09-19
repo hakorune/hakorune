@@ -5,7 +5,7 @@
 //! ledger, so the lowering state can lend an exact forest row to a child
 //! without introducing a third lifetime on `RawInvocationChildPortV1`.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceItemBindingV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -21,10 +21,26 @@ use crate::mir::resolved_semantics::{
     SemanticOwnerSourceKindV1, SourceNodeSiteV1, SourceStmtSiteV1,
 };
 
+/// One take outcome for a resolver-issued loop site.
+///
+/// `Armed` projections are consumed exactly once.  `Unarmed` sites were
+/// cataloged by the resolver but deliberately left unarmed by the forest
+/// projection (for example an unsupported ancestor); the caller keeps the
+/// ordinary GenericLoop boundary for them.  `BridgeAbsent` covers callables
+/// whose inventory never armed a loop bridge at all.  A site that is neither
+/// armed nor unarmed remains a contract violation, not a fallback.
+#[derive(Debug)]
+pub(in crate::mir::builder) enum CallableLoopSourceBridgeTakeV1 {
+    BridgeAbsent,
+    Armed(VerifiedLoopCondBreakContinueSourceForestProjectionV1),
+    Unarmed,
+}
+
 #[derive(Debug)]
 pub(super) struct CallableLoopSourceBridgeV1 {
     projections: BTreeMap<SourceStmtSiteV1, VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
     source_items: BTreeMap<SourceStmtSiteV1, Box<[CallableLoopSourceItemBindingV1]>>,
+    unarmed: BTreeSet<SourceStmtSiteV1>,
 }
 
 impl CallableLoopSourceBridgeV1 {
@@ -41,6 +57,7 @@ impl CallableLoopSourceBridgeV1 {
         let loop_sites = root_loop_sites(input.function().loop_sites().cloned().collect());
         let mut projections = BTreeMap::new();
         let mut source_items = BTreeMap::new();
+        let mut unarmed = BTreeSet::new();
         let ledger = input
             .forest()
             .callable_source_ledger(input.owner())
@@ -54,7 +71,15 @@ impl CallableLoopSourceBridgeV1 {
             let projection =
                 match issue_loop_cond_break_continue_source_forest_projection_v1(input, &located) {
                     Ok(projection) => projection,
-                    Err(error) if projection_is_unarmed(&error) => continue,
+                    Err(error) if projection_is_unarmed(&error) => {
+                        if !unarmed.insert(site.clone()) {
+                            return Err(
+                                "[freeze:contract][callable-loop/source-bridge/duplicate-site]"
+                                    .to_owned(),
+                            );
+                        }
+                        continue;
+                    }
                     Err(error) => {
                         return Err(format!(
                             "[freeze:contract][callable-loop/source-bridge/projection] {error:?}"
@@ -88,16 +113,23 @@ impl CallableLoopSourceBridgeV1 {
         Ok((!projections.is_empty()).then_some(Self {
             projections,
             source_items,
+            unarmed,
         }))
     }
 
     pub(super) fn take_for(
         &mut self,
         site: &SourceStmtSiteV1,
-    ) -> Result<VerifiedLoopCondBreakContinueSourceForestProjectionV1, String> {
-        self.projections.remove(site).ok_or_else(|| {
-            format!("[freeze:contract][callable-loop/source-bridge/missing-site] site={site:?}")
-        })
+    ) -> Result<CallableLoopSourceBridgeTakeV1, String> {
+        if let Some(projection) = self.projections.remove(site) {
+            return Ok(CallableLoopSourceBridgeTakeV1::Armed(projection));
+        }
+        if self.unarmed.contains(site) {
+            return Ok(CallableLoopSourceBridgeTakeV1::Unarmed);
+        }
+        Err(format!(
+            "[freeze:contract][callable-loop/source-bridge/missing-site] site={site:?}"
+        ))
     }
 
     pub(super) fn source_items_for(
@@ -147,7 +179,7 @@ fn projection_is_unarmed(error: &LoopCondBreakContinueForestProjectionRejectV1) 
 
 #[cfg(test)]
 mod tests {
-    use super::CallableLoopSourceBridgeV1;
+    use super::{CallableLoopSourceBridgeTakeV1, CallableLoopSourceBridgeV1};
     use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
     use crate::mir::resolved_semantics::{SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1};
     use crate::parser::NyashParser;
@@ -186,7 +218,11 @@ mod tests {
             .expect("declared function loop inventory");
 
         assert_eq!(bridge.len(), 1);
-        let projection = bridge.take_for(&site).expect("exact projection");
+        let CallableLoopSourceBridgeTakeV1::Armed(projection) =
+            bridge.take_for(&site).expect("exact projection")
+        else {
+            panic!("armed loop site must take the armed projection")
+        };
         assert_eq!(projection.member_sites().len(), 1);
         assert!(bridge.take_for(&site).is_err(), "take is one-shot");
         assert_eq!(bridge.len(), 0);
@@ -221,5 +257,102 @@ static function nested_scope_loop(x: i64): i64 {
         assert!(CallableLoopSourceBridgeV1::from_input(input)
             .expect("unsupported nested scope loop must remain unarmed")
             .is_none());
+    }
+
+    fn mixed_loop_function() -> crate::ast::ASTNode {
+        let program = NyashParser::parse_from_string(
+            r#"
+static function mixed_loop(x: i64): i64 {
+    loop(x < 10) {
+        x = x + 1
+    }
+    if x == 1 {
+        loop(x < 2) {
+            x = x + 1
+        }
+    }
+    return x
+}
+"#,
+        )
+        .expect("mixed loop fixture parses");
+        let crate::ast::ASTNode::Program { statements, .. } = program else {
+            panic!("fixture is a program")
+        };
+        statements
+            .into_iter()
+            .find(|node| matches!(node, crate::ast::ASTNode::FunctionDeclaration { .. }))
+            .expect("mixed loop function")
+    }
+
+    #[test]
+    fn unarmed_nested_loop_take_is_a_typed_disposition() {
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(mixed_loop_function())
+            .expect("mixed loop fixture resolves");
+        let input = unit.root_function_input().expect("root input");
+        let sites: Vec<_> = input.function().loop_sites().cloned().collect();
+        assert_eq!(sites.len(), 2, "fixture has one armed and one unarmed loop");
+        let armed_site = sites
+            .iter()
+            .find(|site| site.node().segments().len() == 1)
+            .expect("root loop site")
+            .clone();
+        let unarmed_site = sites
+            .iter()
+            .find(|site| site.node().segments().len() == 2)
+            .expect("if-nested loop site")
+            .clone();
+        let mut bridge = CallableLoopSourceBridgeV1::from_input(input)
+            .expect("mixed loop bridge")
+            .expect("armed root loop keeps the bridge armed");
+
+        assert!(
+            matches!(
+                bridge.take_for(&unarmed_site),
+                Ok(CallableLoopSourceBridgeTakeV1::Unarmed)
+            ),
+            "unsupported-ancestor loop must take the unarmed disposition"
+        );
+        assert!(
+            matches!(
+                bridge.take_for(&unarmed_site),
+                Ok(CallableLoopSourceBridgeTakeV1::Unarmed)
+            ),
+            "unarmed disposition is not a consumed projection"
+        );
+        assert!(matches!(
+            bridge.take_for(&armed_site),
+            Ok(CallableLoopSourceBridgeTakeV1::Armed(_))
+        ));
+        assert!(
+            bridge.take_for(&armed_site).is_err(),
+            "armed take remains one-shot"
+        );
+        let foreign_site = SourceStmtSiteV1::from_node(SourcePathV1::root_body(9).node());
+        assert!(
+            bridge.take_for(&foreign_site).is_err(),
+            "uncataloged site remains a contract violation"
+        );
+    }
+
+    #[test]
+    fn callable_state_reports_unarmed_disposition_for_nested_loop() {
+        use super::super::CallableSemanticLoweringState;
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(mixed_loop_function())
+            .expect("mixed loop fixture resolves");
+        let input = unit.root_function_input().expect("root input");
+        let sites: Vec<_> = input.function().loop_sites().cloned().collect();
+        let unarmed_site = sites
+            .iter()
+            .find(|site| site.node().segments().len() == 2)
+            .expect("if-nested loop site")
+            .clone();
+        let mut state = CallableSemanticLoweringState::from_exact_source(input)
+            .expect("mixed loop callable state");
+
+        assert!(matches!(
+            state.take_source_loop_bridge(unarmed_site.node()),
+            Ok(CallableLoopSourceBridgeTakeV1::Unarmed)
+        ));
     }
 }

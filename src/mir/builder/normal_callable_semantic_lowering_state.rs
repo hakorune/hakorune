@@ -36,6 +36,7 @@ mod map_local;
 #[path = "normal_callable_semantic_lowering_state/source_loop_bridge.rs"]
 mod source_loop_bridge;
 pub(in crate::mir) use map_local::validate_map_local_annotation;
+pub(in crate::mir::builder) use source_loop_bridge::CallableLoopSourceBridgeTakeV1;
 
 #[derive(Debug)]
 pub(super) struct CallableSemanticLoweringState {
@@ -300,22 +301,19 @@ impl CallableSemanticLoweringState {
 
     /// Lend one resolver-issued forest projection to the active source Loop.
     /// The projection is move-only and remains owned by this callable state
-    /// until the exact source site consumes it.
+    /// until the exact source site consumes it.  Resolver-cataloged sites the
+    /// forest projection deliberately left unarmed report `Unarmed`; a site
+    /// the bridge never cataloged stays a contract violation.
     pub(super) fn take_source_loop_bridge(
         &mut self,
         site: &SourceNodeSiteV1,
-    ) -> Result<
-        Option<
-            crate::mir::loop_structural_facts::VerifiedLoopCondBreakContinueSourceForestProjectionV1,
-        >,
-        String,
-    >{
+    ) -> Result<CallableLoopSourceBridgeTakeV1, String> {
         let statement_site =
             crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
-        self.source_loop_bridge
-            .as_mut()
-            .map(|bridge| bridge.take_for(&statement_site))
-            .transpose()
+        match self.source_loop_bridge.as_mut() {
+            Some(bridge) => bridge.take_for(&statement_site),
+            None => Ok(CallableLoopSourceBridgeTakeV1::BridgeAbsent),
+        }
     }
 
     pub(super) fn source_loop_items(

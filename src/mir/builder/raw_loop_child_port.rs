@@ -153,12 +153,17 @@ mod tests {
     use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
     use crate::mir::builder::module_invocation_session::UnpublishedCallableLoopRootScopeV1;
     use crate::mir::builder::module_lowering_invocation::ModuleLoweringPortV1;
+    use crate::mir::builder::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
+    use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
     use crate::mir::builder::raw_invocation_source_transport::{
         RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawInvocationSourceTransportV1,
     };
     use crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1;
     use crate::mir::builder::MirBuilder;
+    use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
     use crate::parser::NyashParser;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
     #[test]
     fn armed_scope_without_ledger_fails_before_legacy_loop_effects() {
@@ -208,5 +213,108 @@ mod tests {
             .blocks
             .len();
         assert_eq!(after, before, "fail-fast must not create partial MIR");
+    }
+
+    /// A resolver-cataloged loop left deliberately unarmed (unsupported
+    /// ancestor) keeps the ordinary GenericLoop boundary even when a sibling
+    /// armed the callable source bridge.
+    #[test]
+    fn unarmed_nested_loop_keeps_generic_loop_boundary() {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        let program = NyashParser::parse_from_string(
+            r#"
+static function mixed_loop(x: i64): i64 {
+    loop(x < 10) {
+        x = x + 1
+    }
+    if x == 1 {
+        loop(x < 2) {
+            local tmp = 0
+            x = x + 1
+        }
+    }
+    return x
+}
+"#,
+        )
+        .expect("mixed loop fixture parses");
+        let crate::ast::ASTNode::Program { statements, .. } = program else {
+            panic!("fixture is a program")
+        };
+        let function = statements
+            .into_iter()
+            .find(|node| matches!(node, crate::ast::ASTNode::FunctionDeclaration { .. }))
+            .expect("mixed loop function");
+        let crate::ast::ASTNode::FunctionDeclaration { body, .. } = &function else {
+            panic!("fixture is a function")
+        };
+        let crate::ast::ASTNode::If { then_body, .. } = body
+            .iter()
+            .find(|node| matches!(node, crate::ast::ASTNode::If { .. }))
+            .expect("if statement")
+        else {
+            unreachable!()
+        };
+        let nested_loop = then_body
+            .iter()
+            .find(|node| matches!(node, crate::ast::ASTNode::Loop { .. }))
+            .expect("if-nested loop")
+            .clone();
+
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(function)
+            .expect("mixed loop fixture resolves");
+        let input = unit.root_function_input().expect("root input");
+        let nested_site = input
+            .function()
+            .loop_sites()
+            .find(|site| site.node().segments().len() == 2)
+            .expect("if-nested loop site")
+            .node()
+            .clone();
+        let state = CallableSemanticLoweringState::from_exact_source(input)
+            .expect("mixed loop callable state");
+        let ledger = Rc::new(RefCell::new(state));
+
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("mixed_loop/0".to_owned());
+        let parameter = builder.alloc_typed(crate::mir::MirType::Integer);
+        builder
+            .function_state
+            .current_function
+            .as_mut()
+            .expect("test function")
+            .params
+            .push(parameter);
+        builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .insert("x".to_owned(), parameter);
+        let entry = PreparedCallableEntryValuesV1::static_function(&builder, 1)
+            .expect("static entry values");
+        ledger
+            .borrow_mut()
+            .install_entry_values(&entry)
+            .expect("entry install");
+
+        let mut collector =
+            ModuleDraftCollectorV1::with_brand(ModuleInvocationBrandV1::legacy_test());
+        let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
+        let mut scope = UnpublishedCallableLoopRootScopeV1::for_test();
+        let mut port =
+            RawInvocationChildPortV1::new_with_cleanup_exit_policy_and_callable_loop_scope(
+                &mut module_port,
+                crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1::default(),
+                &mut scope,
+            );
+        port.callable_ledger = Some(ledger);
+        port.active_source = Some(RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::ScriptRoot,
+            site: nested_site,
+            body_kind: None,
+        });
+
+        port.lower_loop(&mut builder, nested_loop)
+            .expect("unarmed nested loop must keep the GenericLoop boundary");
     }
 }
