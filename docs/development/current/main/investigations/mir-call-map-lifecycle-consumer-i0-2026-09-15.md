@@ -1,39 +1,54 @@
 Task: MIR-CALL-MAP-LIFECYCLE-CONSUMER-I0
 Parent: mir-call-map-local-entry-source-i0-2026-09-15.md
-NextCard: T1 readable Map argument (borrowed read-only no-escape
-handoff) — first vertical slice of the accepted 2026-09-18
-map-argument Decision; T1..T5 queued in the T-series work-package
-table (consultation #4). C6-4 rootless cohort stays deferred;
-C1-id remains pre-production homework running in parallel.
-Route note (2026-09-15): the call-arg and contained-descendant +
-array-element cards landed — merged loop1 now passes entirely and the
-first failure is `map_install_owners` (`Err(())`), this card's
-territory.
-Implementation permission: pending six-line brief acceptance
+NextCard: `MIR-CALL-MAP-T3-OWNED-TEXT-RETURN-OWNER-D0` — choose one
+owned Text callable-result representation, its C/LLVM out-slot, and its
+Normal/Fault cleanup contract. T1/T2 map lifecycle rows and the T3 source
+feature census are closed; this frontier remains design-only.
+Route note (2026-09-19): the source-result issuer is reusable for the
+semantic `String` class, but the selected ordinary callable lane has no
+owned Text return owner. `MapGetText` remains a borrowed view and the
+I64 publication owner is not widened by naming.
+Implementation permission: design stop until the D0 Decision is accepted;
+no code, fixture, fallback, or production switch.
 ---
 
 # Map lifecycle consumer I0
 
-## Six-line brief
+## Current six-line brief (2026-09-19)
 
 ```text
-Decision: pending — the merged route now stops at
-[callable-semantic-package/install] MapLifecycleConsumerMissing; census
-which Map lifecycle consumer the install stage requires and which merged
-declaration fails to provide it.
-Source authority + canonical issuer: pending census of the install
-issuer (normal_callable_semantic_package install path).
-Non-authority: pending.
-Fail-fast boundary: pending.
-Smallest next slice: name the issuer, the required consumer row, and the
-failing merged declaration; then bound the fix.
-Non-claims: production caller switch, physicalization, legacy retirement.
+Decision: design one OwnedText callable-result contract as an extension of
+the existing package result/physical-program chain; keep TextView borrowed
+and do not widen the I64 publication owner. This is not implementation
+permission.
+Source authority + canonical issuer: source-result product supplies the
+semantic String class; TerminalRelation/Completion supplies the exact return
+site and cleanup relation; the package result contract co-seals them before
+a physical OwnedText row is issued.
+Non-authority: MirType::String alone, generic string/global route profiles,
+StringBox names, JSON fields, TextView storage, pinned formal residence, and
+runtime handles recovered after lowering.
+Fail-fast boundary: reject missing or foreign source/result co-seal, mixed or
+nullable return class, borrowed TextView escape, missing owned storage or
+transfer, duplicate return site, and Normal/Fault cleanup mismatch before
+package/catalog mutation.
+Smallest next slice: choose the owned storage representation and C/LLVM
+out-slot, define Normal plus callee/caller Fault cleanup, then prove one
+direct declared-String literal/concat callable.
+Non-claims: no new receipt yet, no MapGetText escape, no qualified Invoke,
+no to_json acceptance, no production switch, no retirement.
 ```
 
-`Census boundary: merged entry program -> callable-semantic-package
-install stage; pending first investigation.`
+`Census boundary: MirJsonEmitBox.to_json source -> source-result product ->
+package result contract -> physical C/LLVM return terminal; includes the
+existing ordinary I64/Map lanes and TextView boundary; excludes generic
+compatibility routes.`
 
-## Entry contract
+The older T1/T2 entry and acceptance prose below is retained as landed
+history. It does not select the current row; `CURRENT_STATE.toml` and this
+brief select T3 D0.
+
+## Historical T1/T2 entry contract
 
 The previous card normalized 15 malformed `birth ... return 0` corpus
 sites to `return void` (the accepted Unit contract — `Unit Birth has no
@@ -41,7 +56,7 @@ result`). The merged route advanced past
 `OrdinaryNew/BirthCompletionNotUnit` and now stops at
 `MapLifecycleConsumerMissing` during package install.
 
-## Acceptance
+## Historical T1/T2 acceptance
 
 Pending: the merged entry advances past the install-stage
 MapLifecycleConsumerMissing to the next named terminal.
