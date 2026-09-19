@@ -2523,3 +2523,23 @@ authorized by this stop.
 
 **Non-claims:** no T3 body admission, qualified Invoke, owned Text ABI,
 `to_json` acceptance, production switch, or legacy retirement.
+
+### Physical return-lane audit result (2026-09-19)
+
+The bounded owner audit is complete and found no reusable callable-return
+owner. `VerifiedCallableResultContractRowV1` retains only
+`Option<ExactTrivialScalarAbiV1>`, and that ABI classifies only exact `i64`;
+`CallablePhysicalHeader` and the common-V2 skeleton therefore expose only the
+scalar result lane. `ExactTextSlot`/`ExactTextGeneration` in
+`PhysicalCallableSignature` describe formal input lanes, not a returned Text
+value. The published lifecycle C lane corroborates the same boundary:
+`ordinary_call` is admitted as `ordinary_i64` or `ordinary_map`, while
+`map_get_text` allocates `NyrtTextViewStorageV1` and remains `LV4_TEXT_VIEW`.
+
+`SourceEntryResultV1::String` and the generic `MirType::String` projections are
+process-entry/physical projection surfaces, not an owner for an ordinary
+callable's owned return and cleanup. They cannot be promoted into the missing
+owner by naming. The next task is therefore
+`MIR-CALL-MAP-T3-OWNED-TEXT-RETURN-OWNER-D0`: define one physical return owner
+or explicitly reject the family, with creation, transfer, Normal/Fault cleanup,
+and consumer handoff all co-sealed before implementation permission.
