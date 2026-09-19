@@ -2305,7 +2305,7 @@ When the same body also has the bounded kind read, each distinct source
 does not merge sites or relax the duplicate-site guard; a combined body is
 therefore represented by two lookups, one index/kind chain, and one length row.
 
-Focused source-authority evidence: `map_read_fact_tests` 16/16 passed. The
+Focused source-authority evidence: `map_read_fact_tests` 17/17 passed. The
 source-to-OBJ fixture
 `host_providers::llvm_codegen::published_mir_object::map_array_source_tests::issued_borrowed_blocks_length_source_reaches_obj_normal_and_prepare_fault`
 passed 1/1 with `--exact --ignored --nocapture`; published JSON contains one
