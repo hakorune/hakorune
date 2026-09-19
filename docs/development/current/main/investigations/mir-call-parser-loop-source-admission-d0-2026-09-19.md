@@ -66,6 +66,20 @@ Recipe or physical adapter can consume the body. Reusing only the existing
 binding schedule would leave exits and nested ownership unproved, so it is not
 a safe promotion.
 
+The route census adds two independent rejection proofs. The GenericLoop shape
+detectors recognize several `parse_program2_nested_*` patterns, but route
+selection suppresses GenericLoop when `LoopBreak` facts are also present, and
+the source GenericLoop context rejects nested lowering before effects. The
+LoopBreak extractor itself requires the bounded three-statement, one-break,
+no-continue/no-return profile; the parser body has state guards, early returns,
+and nested loops, so its legacy Recipe cannot be promoted by changing a
+predicate alone.
+
+**Task 3 decision:** retain `NoSafeSlice` for the parent static I0. A future
+promotion must extend one existing source-aware authority with the missing
+loop-forest/exit co-seal and a matching Recipe/JoinSig/physical adapter in a
+separate card. No implementation permission is created by this D0.
+
 ## Ordered design tasks
 
 | Order | Task | Completion condition |
