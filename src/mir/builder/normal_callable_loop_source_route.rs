@@ -28,6 +28,9 @@ pub(in crate::mir::builder) enum CallableLoopSourceRouteRejectV1 {
     SourceItemOutsideLoop,
     SourceTargetMissing,
     SourceTargetSiteMismatch,
+    SourceTargetMultiple,
+    SourceIdentityMissing,
+    SourceParentMissing,
 }
 
 /// Resolver-owned source item relation retained for the future LoopCond

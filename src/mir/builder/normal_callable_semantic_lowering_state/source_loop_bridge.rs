@@ -7,14 +7,18 @@
 
 use std::collections::BTreeMap;
 
+use crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceItemBindingV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::loop_cond_break_continue_projection::issue_loop_cond_break_continue_source_forest_projection_v1;
 use crate::mir::loop_structural_facts::VerifiedLoopCondBreakContinueSourceForestProjectionV1;
-use crate::mir::resolved_semantics::{SemanticOwnerSourceKindV1, SourceStmtSiteV1};
+use crate::mir::resolved_semantics::{
+    SemanticOwnerSourceKindV1, SourceNodeSiteV1, SourceStmtSiteV1,
+};
 
 #[derive(Debug)]
 pub(super) struct CallableLoopSourceBridgeV1 {
     projections: BTreeMap<SourceStmtSiteV1, VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
+    source_items: BTreeMap<SourceStmtSiteV1, Box<[CallableLoopSourceItemBindingV1]>>,
 }
 
 impl CallableLoopSourceBridgeV1 {
@@ -30,6 +34,13 @@ impl CallableLoopSourceBridgeV1 {
 
         let loop_sites = root_loop_sites(input.function().loop_sites().cloned().collect());
         let mut projections = BTreeMap::new();
+        let mut source_items = BTreeMap::new();
+        let ledger = input
+            .forest()
+            .callable_source_ledger(input.owner())
+            .map_err(|error| {
+                format!("[freeze:contract][callable-loop/source-bridge/ledger] {error:?}")
+            })?;
         for site in &loop_sites {
             let located = input.source().exact_stmt(site).map_err(|error| {
                 format!("[freeze:contract][callable-loop/source-bridge/locate] {error:?}")
@@ -46,9 +57,29 @@ impl CallableLoopSourceBridgeV1 {
                     "[freeze:contract][callable-loop/source-bridge/duplicate-site]".to_owned(),
                 );
             }
+            let items = ledger
+                .method_calls()
+                .filter(|(call_site, _)| is_under_root(call_site.node(), site.node()))
+                .map(|(_, call)| {
+                    CallableLoopSourceItemBindingV1::from_resolved(input.owner(), call).map_err(
+                        |error| {
+                            format!("[freeze:contract][callable-loop/source-bridge/item] {error:?}")
+                        },
+                    )
+                })
+                .collect::<Result<Vec<_>, _>>()?
+                .into_boxed_slice();
+            if source_items.insert(site.clone(), items).is_some() {
+                return Err(
+                    "[freeze:contract][callable-loop/source-bridge/duplicate-items]".to_owned(),
+                );
+            }
         }
 
-        Ok((!projections.is_empty()).then_some(Self { projections }))
+        Ok((!projections.is_empty()).then_some(Self {
+            projections,
+            source_items,
+        }))
     }
 
     pub(super) fn take_for(
@@ -60,10 +91,21 @@ impl CallableLoopSourceBridgeV1 {
         })
     }
 
+    pub(super) fn source_items_for(
+        &self,
+        site: &SourceStmtSiteV1,
+    ) -> Option<Box<[CallableLoopSourceItemBindingV1]>> {
+        self.source_items.get(site).cloned()
+    }
+
     #[cfg(test)]
     pub(super) fn len(&self) -> usize {
         self.projections.len()
     }
+}
+
+fn is_under_root(site: &SourceNodeSiteV1, root: &SourceNodeSiteV1) -> bool {
+    site.segments().starts_with(root.segments())
 }
 
 fn root_loop_sites(loop_sites: Vec<SourceStmtSiteV1>) -> Vec<SourceStmtSiteV1> {

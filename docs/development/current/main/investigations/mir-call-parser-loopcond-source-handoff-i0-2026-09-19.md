@@ -249,12 +249,35 @@ same-invocation source-target owner through the existing source Facts owner
 before any caller can consume the token, lower `loop_cond_bc`, publish a
 result, or delete the compatibility edge.
 
+### Same-owner production threading receipt — bounded task 2 endpoint
+
+The next bounded step now threads the resolver method-call rows and the
+canonical target lookup through the existing source bridge. The callable
+semantic state retains the function origin/source kind and an exact-root item
+inventory; `RawLoopChildEntry` moves those fields, the forest projection, and
+the target relation into the source Facts payload before Builder allocation.
+The Facts issuer accepts the existing exclusive `LoopCondBreakContinue`
+selection and issues one `CallableLoopSourceRouteTokenV1` carrying the
+co-sealed projection, items, and target. Missing identity, parent, items,
+target, target-site mismatch, and multiple target candidates remain typed
+fail-fast boundaries. The route selection has focused positive, missing, and
+overlap tests, and the existing source-route matrix remains green.
+
+The source physical consumer is intentionally still absent. When the selected
+LoopCond disposition reaches the raw entry, it consumes the route token and
+stops at the named `callable-loop/loop-cond/source-physical-consumer-missing`
+terminal before any Builder/legacy route effect. This receipt therefore claims
+source production threading only; it does not claim source-to-MIR acceptance,
+static-result publication, caller cutover, or old-edge deletion. The raw entry
+test module was split at the existing responsibility boundary to keep the
+implementation file below the 760-line design threshold.
+
 ## Ordered implementation tasks
 
 | Order | Task | Completion condition |
 | --- | --- | --- |
 | 1 | Source bridge attach | Build the one-shot owned projection inventory in the existing callable semantic state and consume it through the existing callable ledger. Scope restoration, exact-site take, duplicate/missing rejection, and GenericLoop-unarmed behavior are focused and green. |
-| 2 | Source co-seal and LoopCond route token | One move-only product binds the exact three-member forest, ordered paths/frame keys, all resolver exits, parser brand/owner, and target/source site; the route registry yields exactly `[LoopCondBreakContinue]`, with GenericLoop, LoopBreak, overlap, and route re-entry as typed rejects. |
+| 2 | Source co-seal and LoopCond route token | One move-only product binds the exact three-member forest, ordered paths/frame keys, all resolver exits, parser brand/owner, and target/source site; the route registry yields exactly `[LoopCondBreakContinue]`, with GenericLoop, LoopBreak, overlap, and route re-entry as typed rejects. **Source-side production threading is now landed; the physical consumer remains the open endpoint.** |
 | 3 | Source physical consume | `loop_cond_bc` needs a source-aware adapter that lowers nested recipe items and exit transfers without constructing `LoopRouteContext`, and discards the whole session on error. |
 | 4 | Static tuple handoff | The selected static result reaches the existing statement-If/Equal consumer with ordered arguments and ExactI64 result; duplicate consume and wrong ordinal reject before argument effects. |
 | 5 | Negative matrix | Wrong owner/brand, forest parent drift, omitted child, wrong path, missing/duplicate/foreign exit, wrong target/header/result, legacy route re-entry, and extra nested loop all fail closed. |

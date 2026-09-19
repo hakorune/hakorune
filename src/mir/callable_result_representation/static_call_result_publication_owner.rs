@@ -206,6 +206,14 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
         self.target_only_targets.len()
     }
 
+    pub(crate) fn target_for_source(
+        &self,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<&CanonicalSameModuleCallableKeyV1> {
+        self.exact_targets.get(&(caller.clone(), site.clone()))
+    }
+
     pub(crate) fn finish_empty(&self) -> Result<(), StaticCallResultPublicationOwnerFinishErrorV1> {
         if let Some(((caller, site), _handoff)) = self.rows.iter().next() {
             let target = self

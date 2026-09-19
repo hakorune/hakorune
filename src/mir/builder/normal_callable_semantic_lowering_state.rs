@@ -6,8 +6,8 @@ use std::rc::Rc;
 use crate::mir::builder::stmts::CompletedLocalStatementV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, SourceBindingSiteV1,
-    SourceNodeSiteV1,
+    BindingRefV1, FunctionOriginV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1,
+    SemanticOwnerSourceKindV1, SourceBindingSiteV1, SourceNodeSiteV1,
 };
 use crate::mir::ValueId;
 
@@ -42,6 +42,8 @@ pub(super) struct CallableSemanticLoweringState {
     fault_frame: Option<crate::mir::builder::function_fault_frame::FunctionFaultFrameV1>,
     construction: construction::ConstructionState,
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    function_origin: FunctionOriginV1,
+    source_kind: SemanticOwnerSourceKindV1,
     receiver: Option<BindingRefV1>,
     parameters: Box<[BindingRefV1]>,
     locals: BTreeMap<SourceNodeSiteV1, Box<[BindingRefV1]>>,
@@ -78,6 +80,14 @@ pub(super) struct PreparedCallableDynamicRebindV1 {
 impl CallableSemanticLoweringState {
     pub(super) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
         self.owner
+    }
+
+    pub(super) const fn function_origin(&self) -> FunctionOriginV1 {
+        self.function_origin
+    }
+
+    pub(super) const fn source_kind(&self) -> SemanticOwnerSourceKindV1 {
+        self.source_kind
     }
 
     pub(super) fn from_exact_source(
@@ -230,6 +240,8 @@ impl CallableSemanticLoweringState {
         Ok(Self {
             initializers,
             owner: owner_id,
+            function_origin: input.function().function_origin(),
+            source_kind: input.function().source_kind(),
             receiver,
             parameters,
             locals,
@@ -304,6 +316,19 @@ impl CallableSemanticLoweringState {
             .as_mut()
             .map(|bridge| bridge.take_for(&statement_site))
             .transpose()
+    }
+
+    pub(super) fn source_loop_items(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Option<Box<[
+        crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceItemBindingV1
+    ]>>{
+        let statement_site =
+            crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
+        self.source_loop_bridge
+            .as_ref()
+            .and_then(|bridge| bridge.source_items_for(&statement_site))
     }
 
     pub(super) fn prepare_source_backed_dynamic_loop_ingress(

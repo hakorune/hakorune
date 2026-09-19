@@ -91,6 +91,13 @@ impl RawInvocationSourceContextV1 {
         }
     }
 
+    pub(in crate::mir::builder) fn root_lineage(&self) -> Option<&RawInvocationRootLineageV1> {
+        match self {
+            Self::Located { root, .. } => Some(root),
+            Self::UnlocatedCompatibility { .. } => None,
+        }
+    }
+
     /// Project only the source context for one body statement.  The source
     /// port uses this without taking ownership of the AST node; an unlocated
     /// compatibility result is rejected instead of becoming a name fallback.

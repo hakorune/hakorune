@@ -7,6 +7,11 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
+use crate::mir::builder::module_lowering_invocation::ModuleLoweringPortV1;
+use crate::mir::builder::normal_callable_loop_source_route::{
+    CallableLoopSourceRouteRejectV1, CallableLoopSourceTargetRelationV1,
+};
+use crate::mir::builder::raw_invocation_source_transport::RawInvocationRootLineageV1;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::raw_loop_child_entry::PreparedLocatedRawLoopChildEntryV1;
@@ -83,11 +88,51 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
                     policy,
                     root_scope,
                     callable_ledger,
+                    source_target_for_loop(self.module_port, source, callable_ledger).map_err(
+                        |error| format!("[freeze:contract][callable-loop/source-target] {error:?}"),
+                    )?,
                 )
             }
             None => prepared.lower_v1(builder, &function_name, debug, in_static_box, policy),
         }
     }
+}
+
+fn source_target_for_loop(
+    module_port: &ModuleLoweringPortV1<'_>,
+    source: &super::raw_invocation_source_transport::RawInvocationSourceContextV1,
+    callable_ledger: &std::rc::Rc<
+        std::cell::RefCell<
+            super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
+        >,
+    >,
+) -> Result<Option<CallableLoopSourceTargetRelationV1>, CallableLoopSourceRouteRejectV1> {
+    let Some(caller) = source.root_lineage().and_then(|root| match root {
+        RawInvocationRootLineageV1::Cataloged(key) => Some(key),
+        _ => None,
+    }) else {
+        return Ok(None);
+    };
+    let Some(parent_site) = source.site() else {
+        return Ok(None);
+    };
+    let Some(items) = callable_ledger.borrow().source_loop_items(parent_site) else {
+        return Ok(None);
+    };
+    let mut relation = None;
+    for item in items.iter() {
+        let Some(target) = module_port.target_for_source(caller, item.call_site()) else {
+            continue;
+        };
+        if relation.is_some() {
+            return Err(CallableLoopSourceRouteRejectV1::SourceTargetMultiple);
+        }
+        relation = Some(CallableLoopSourceTargetRelationV1::new(
+            item.call_site().clone(),
+            target,
+        ));
+    }
+    Ok(relation)
 }
 
 #[cfg(test)]

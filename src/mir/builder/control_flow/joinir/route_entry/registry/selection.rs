@@ -46,12 +46,28 @@ pub(crate) struct VerifiedLocatedGenericLoopV1SelectionV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedLocatedLoopCondBreakContinueSelectionV1 {
+    _seal: LocatedLoopCondBreakContinueSelectionSealV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
 struct LocatedGenericLoopV1SelectionSealV1;
+
+#[derive(Debug, PartialEq, Eq)]
+struct LocatedLoopCondBreakContinueSelectionSealV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum LocatedGenericLoopV1SelectionErrorV1 {
     GenericLoopV1NotSelected,
     NonGenericOrOverlappingSelection {
+        raw_execution_routes: Box<[LoopRouteId]>,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum LocatedLoopCondBreakContinueSelectionErrorV1 {
+    LoopCondBreakContinueNotSelected,
+    NonExclusiveSelection {
         raw_execution_routes: Box<[LoopRouteId]>,
     },
 }
@@ -72,6 +88,35 @@ impl RecipeFirstRouteSelectionV1 {
             }
             routes => Err(
                 LocatedGenericLoopV1SelectionErrorV1::NonGenericOrOverlappingSelection {
+                    raw_execution_routes: routes.into(),
+                },
+            ),
+        }
+    }
+
+    /// Select the source-aware LoopCond route only when the shared registry
+    /// yields exactly one raw execution route. This is a route token, not
+    /// route execution or a fallback decision.
+    pub(crate) fn verify_located_loop_cond_break_continue_v1(
+        &self,
+    ) -> Result<
+        VerifiedLocatedLoopCondBreakContinueSelectionV1,
+        LocatedLoopCondBreakContinueSelectionErrorV1,
+    > {
+        match self.raw_execution_routes() {
+            [LoopRouteId::LoopCondBreakContinue] => {
+                Ok(VerifiedLocatedLoopCondBreakContinueSelectionV1 {
+                    _seal: LocatedLoopCondBreakContinueSelectionSealV1,
+                })
+            }
+            [] => {
+                Err(LocatedLoopCondBreakContinueSelectionErrorV1::LoopCondBreakContinueNotSelected)
+            }
+            routes if !routes.contains(&LoopRouteId::LoopCondBreakContinue) => {
+                Err(LocatedLoopCondBreakContinueSelectionErrorV1::LoopCondBreakContinueNotSelected)
+            }
+            routes => Err(
+                LocatedLoopCondBreakContinueSelectionErrorV1::NonExclusiveSelection {
                     raw_execution_routes: routes.into(),
                 },
             ),
@@ -161,7 +206,8 @@ pub(crate) fn select_recipe_first_routes(
 mod tests {
     use super::{
         select_recipe_first_routes, LocatedGenericLoopV1SelectionErrorV1,
-        RecipeFirstRouteSelectionV1, VerifiedLocatedGenericLoopV1SelectionV1,
+        LocatedLoopCondBreakContinueSelectionErrorV1, RecipeFirstRouteSelectionV1,
+        VerifiedLocatedGenericLoopV1SelectionV1, VerifiedLocatedLoopCondBreakContinueSelectionV1,
     };
     use crate::mir::builder::control_flow::joinir::route_entry::registry::route_id::LoopRouteId;
     use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
@@ -230,6 +276,46 @@ mod tests {
         assert!(matches!(
             selected.verify_located_generic_loop_v1(),
             Err(LocatedGenericLoopV1SelectionErrorV1::NonGenericOrOverlappingSelection { .. })
+        ));
+    }
+
+    #[test]
+    fn located_loop_cond_selection_accepts_exact_route() {
+        let selected = selection(
+            &[LoopRouteId::LoopCondBreakContinue],
+            &[LoopRouteId::LoopCondBreakContinue],
+        );
+
+        assert!(matches!(
+            selected.verify_located_loop_cond_break_continue_v1(),
+            Ok(VerifiedLocatedLoopCondBreakContinueSelectionV1 { .. })
+        ));
+    }
+
+    #[test]
+    fn located_loop_cond_selection_rejects_missing_or_overlapping_route() {
+        let missing = selection(
+            &[LoopRouteId::LoopSimpleWhile],
+            &[LoopRouteId::LoopSimpleWhile],
+        );
+        assert_eq!(
+            missing.verify_located_loop_cond_break_continue_v1(),
+            Err(LocatedLoopCondBreakContinueSelectionErrorV1::LoopCondBreakContinueNotSelected)
+        );
+
+        let overlapping = selection(
+            &[
+                LoopRouteId::LoopCondBreakContinue,
+                LoopRouteId::LoopSimpleWhile,
+            ],
+            &[
+                LoopRouteId::LoopCondBreakContinue,
+                LoopRouteId::LoopSimpleWhile,
+            ],
+        );
+        assert!(matches!(
+            overlapping.verify_located_loop_cond_break_continue_v1(),
+            Err(LocatedLoopCondBreakContinueSelectionErrorV1::NonExclusiveSelection { .. })
         ));
     }
 

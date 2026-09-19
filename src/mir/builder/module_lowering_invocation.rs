@@ -26,6 +26,8 @@ use crate::mir::{FunctionSignature, MirBuilder, MirFunction};
 
 #[path = "module_lowering_invocation_resolved_loan.rs"]
 mod resolved_loan;
+#[path = "module_lowering_invocation_target.rs"]
+mod target;
 
 /// Owned canonical child identity before collector admission.
 ///

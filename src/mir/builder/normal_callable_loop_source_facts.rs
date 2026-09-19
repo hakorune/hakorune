@@ -18,6 +18,7 @@ use crate::mir::builder::control_flow::plan::single_planner::{
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::control_flow::plan::GenericLoopV1Facts;
 use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
+use crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceRouteRejectV1;
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1, SourcePathSegmentV1};
 
@@ -31,6 +32,10 @@ use super::normal_callable_loop_handoff::{
 };
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use super::raw_loop_child_entry::PreparedCallableGenericLoopSourceFactsPayloadV1;
+
+#[path = "normal_callable_loop_source_facts/loop_cond.rs"]
+mod loop_cond;
+use loop_cond::CallableLoopCondSourceFactsV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsSourceErrorV1 {
@@ -48,6 +53,7 @@ pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsSourceErrorV1 {
 pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsRouteErrorV1 {
     GenericLoopV1NotSelected,
     NonGenericOrOverlapping { routes: Box<[LoopRouteId]> },
+    LoopCondRouteRejected(CallableLoopSourceRouteRejectV1),
 }
 
 #[derive(Debug)]
@@ -57,6 +63,7 @@ pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsDispositionV1<'so
     FactsRejected(Box<str>),
     RouteNotFrontSelected(CallableGenericLoopSourceFactsRouteErrorV1),
     Ready(CallableGenericLoopSourceFactsV1<'source>),
+    LoopCondReady(CallableLoopCondSourceFactsV1<'source>),
 }
 
 /// One move-only source-located Facts/Recipe outcome.
@@ -581,6 +588,11 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             debug,
             in_static_box,
             policy,
+            function_origin,
+            source_kind,
+            source_projection,
+            source_items,
+            source_target,
         } = payload;
 
         if let Err(error) = validate_source_input(
@@ -611,9 +623,39 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
         let selected = match selection.verify_located_generic_loop_v1() {
             Ok(selected) => selected,
             Err(error) => {
+                if selection
+                    .verify_located_loop_cond_break_continue_v1()
+                    .is_ok()
+                {
+                    return match loop_cond::issue(
+                        owner,
+                        parent_source,
+                        condition_source,
+                        body_source,
+                        condition,
+                        body,
+                        binding_product,
+                        function_origin,
+                        source_kind,
+                        outcome,
+                        selection,
+                        source_projection,
+                        source_items,
+                        source_target,
+                    ) {
+                        Ok(source_facts) => {
+                            CallableGenericLoopSourceFactsDispositionV1::LoopCondReady(source_facts)
+                        }
+                        Err(error) => {
+                            CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
+                                error,
+                            )
+                        }
+                    };
+                }
                 return CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
                     route_error(error),
-                )
+                );
             }
         };
 

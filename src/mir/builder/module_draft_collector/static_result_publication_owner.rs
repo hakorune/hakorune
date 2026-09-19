@@ -31,4 +31,15 @@ impl ModuleDraftCollectorV1 {
         };
         owner.take_for_source(declarations, caller, site)
     }
+
+    pub(in crate::mir::builder) fn target_for_source(
+        &self,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<CanonicalSameModuleCallableKeyV1> {
+        self.static_result_publication_owner
+            .as_ref()
+            .and_then(|owner| owner.target_for_source(caller, site))
+            .cloned()
+    }
 }
