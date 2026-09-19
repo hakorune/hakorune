@@ -199,6 +199,18 @@ physical claims. The neutral transport is compiler-free, with nine policy tests
 and five projection tests green. The legacy LoopCond facts/Recipe variants
 remain migration-only and selection is still closed.
 
+The parser LoopCond handoff adds a second caller-zero source product under the
+same owner: `VerifiedLoopCondBreakContinueSourceForestProjectionV1`. It consumes
+the resolver-issued preorder forest and binds every member's parent relation
+through `VerifiedLoopSourceForestBindingV1`; it also retains every resolved exit
+whose exact source site lies below the selected root. Source sites and
+`ResolvedExitRecordV1` stay paired, so no exit can be recovered by ordinal,
+line number, AST scan, or MIR target. The first focused fixture seals three
+members with parent indices `[None, Some(0), Some(0)]` and four nested exits.
+This is still caller-zero: the LoopCond route, Recipe/JoinSig, physical
+consumer, static result handoff, and compatibility-edge retirement remain in
+the selected parser I0.
+
 The Direct Accum S0 projection keeps the AST-bearing observation in
 `mir/compiler/direct_accum_projection.rs`. That adapter navigates only through
 `FunctionSourceViewV1` and the shared child-role vocabulary, then issues the

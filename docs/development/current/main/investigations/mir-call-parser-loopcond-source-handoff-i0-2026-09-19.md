@@ -73,6 +73,24 @@ legacy normalizer, or re-enter route classification. If a touched file would
 cross 760 lines, split at the responsibility boundary before adding behavior;
 800 lines is a hard stop.
 
+## Progress checkpoint — source forest co-seal
+
+The first implementation step is landed in the existing compiler projection and
+neutral structural-facts owner. `issue_loop_cond_break_continue_source_forest_projection_v1`
+consumes the resolver's complete nested forest, binds its ordered parent
+relations through `VerifiedLoopSourceForestBindingV1`, and retains every
+resolver exit under the selected root as a paired source-site/transfer row.
+The focused fixture proves a three-member forest with parent indices
+`[None, Some(0), Some(0)]` and four nested exits. No route, Recipe, Builder,
+MIR, or physical identity is issued by this step; the product remains
+caller-zero until the source Facts issuer consumes it.
+
+Evidence: `forest_projection_seals_nested_members_and_all_root_exits` plus the
+five existing single-loop projection tests pass under the focused quick
+library filter. The remaining I0 work is the source Facts/Recipe handoff and
+physical/static consumer path below; this checkpoint does not retire the old
+edge or claim source-to-MIR acceptance.
+
 ## Ordered implementation tasks
 
 | Order | Task | Completion condition |

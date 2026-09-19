@@ -1,4 +1,5 @@
 use super::loop_cond_break_continue_projection::{
+    issue_loop_cond_break_continue_source_forest_projection_v1,
     issue_loop_cond_break_continue_source_projection_v1, LoopCondBreakContinueProjectionRejectV1,
 };
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
@@ -72,6 +73,67 @@ fn branch() -> ASTNode {
         else_body: Some(vec![ASTNode::Continue {
             span: Span::unknown(),
         }]),
+        span: Span::unknown(),
+    }
+}
+
+fn nested_exit_function() -> ASTNode {
+    let child_with_return = ASTNode::Loop {
+        condition: Box::new(binary(
+            BinaryOperator::Less,
+            integer(0),
+            integer(1),
+        )),
+        body: vec![ASTNode::Return {
+            value: Some(Box::new(integer(1))),
+            span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    };
+    let child_with_transfers = ASTNode::Loop {
+        condition: Box::new(boolean(true)),
+        body: vec![
+            ASTNode::Continue {
+                span: Span::unknown(),
+            },
+            ASTNode::Break {
+                span: Span::unknown(),
+            },
+        ],
+        span: Span::unknown(),
+    };
+    ASTNode::FunctionDeclaration {
+        name: "nested_exit_projection".into(),
+        params: Vec::new(),
+        param_decls: Vec::new(),
+        return_type_name: None,
+        body: vec![
+            ASTNode::Loop {
+                condition: Box::new(binary(
+                    BinaryOperator::Less,
+                    integer(0),
+                    integer(1),
+                )),
+                body: vec![
+                    child_with_return,
+                    child_with_transfers,
+                    ASTNode::Return {
+                        value: Some(Box::new(integer(2))),
+                        span: Span::unknown(),
+                    },
+                ],
+                span: Span::unknown(),
+            },
+            ASTNode::Return {
+                value: Some(Box::new(integer(3))),
+                span: Span::unknown(),
+            },
+        ],
+        uses: Vec::new(),
+        contracts: Vec::new(),
+        is_static: true,
+        is_override: false,
+        attrs: DeclarationAttrs::default(),
         span: Span::unknown(),
     }
 }
@@ -195,4 +257,45 @@ fn projection_rejects_foreign_loop_owner() {
         issue_loop_cond_break_continue_source_projection_v1(input, &foreign_loop, foreign_source),
         Err(LoopCondBreakContinueProjectionRejectV1::ForeignOwner)
     );
+}
+
+#[test]
+fn forest_projection_seals_nested_members_and_all_root_exits() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_exit_function()).unwrap();
+    let input = unit.root_function_input().expect("root function input");
+    let body = input.source().root_body().expect("function body");
+    let root = input.source().body_stmt(&body, 0).expect("root loop");
+    let projection = issue_loop_cond_break_continue_source_forest_projection_v1(input, &root)
+        .expect("nested loop source forest");
+
+    assert_eq!(projection.member_sites().len(), 3);
+    assert_eq!(projection.forest_binding().members().len(), 3);
+    assert_eq!(
+        projection
+            .forest_binding()
+            .members()
+            .iter()
+            .map(|member| member.parent_index())
+            .collect::<Vec<_>>(),
+        vec![None, Some(0), Some(0)]
+    );
+    assert_eq!(projection.exits().len(), 4);
+    assert!(projection
+        .exits()
+        .iter()
+        .all(|exit| exit.site().node().segments().starts_with(root.site().node().segments())));
+    assert!(projection
+        .exits()
+        .iter()
+        .any(|exit| matches!(
+            exit.record().origin(),
+            ResolvedExitOriginV1::ExplicitContinue
+        )));
+    assert!(projection
+        .exits()
+        .iter()
+        .any(|exit| matches!(
+            exit.record().origin(),
+            ResolvedExitOriginV1::ExplicitBreak
+        )));
 }
