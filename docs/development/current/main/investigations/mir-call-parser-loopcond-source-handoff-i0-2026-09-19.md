@@ -437,6 +437,25 @@ The source exit entry is intentionally limited to direct `ExitLeaf` rows. It
 does not reinterpret an `ExitIf` or nested recipe as a direct exit, so those
 shapes remain explicit next work rather than entering a raw fallback.
 
+### Fourth-day audit reconciliation — source bridge and external closeout
+
+The audit's eager-bridge concern is not reproduced as a current implementation
+failure at the reviewed boundary. `CallableLoopSourceBridgeV1::from_input`
+skips only the typed `UnsupportedAncestor` projection reject; locate, owner,
+forest, member, exit, and duplicate errors still fail fast. The focused
+`nested_scope_loop_does_not_abort_callable_source_bridge` test is green (1/1),
+and the direct `UnsupportedAncestor` path guard is green (1/1). This proves the
+existing `if` ancestry regression is closed. The equivalent `try`, task-scope,
+fastmem, and catch fixtures are not yet observed, so they remain a verification
+item before source caller cutover rather than a new semantic slice.
+
+The borrowed Map residence row is already `Open, not selected` in the hygiene
+punchlist; its production caller and direct tests were present before the audit.
+The raw-pointer/root-lifetime API remains an independent owner concern and does
+not reopen this parser LoopCond lane. The fixed 11-entry real-app EXE suite is
+also a separate existing closeout owner; its missing receipt does not authorize
+publication, fallback, or old-edge work in this card.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs
