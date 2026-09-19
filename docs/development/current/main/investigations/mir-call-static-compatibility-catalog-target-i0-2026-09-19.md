@@ -193,3 +193,7 @@ design card with one existing authority extended together: source loop/exit
 Facts, a LoopBreak-compatible Recipe/JoinSig co-seal, and the physical adapter
 plus positive/negative ownership guards. Only after that card names an
 accepted source terminal may this static I0 resume at Cataloged observation.
+
+The source-admission D0 has now closed at `NoSafeSlice`. Its successor is the
+selected parser-loop forest/exit co-seal D0, which must resolve the missing
+source product before this card can observe Cataloged/Selected.

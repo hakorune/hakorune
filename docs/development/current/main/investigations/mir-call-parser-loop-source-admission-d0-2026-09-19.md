@@ -1,5 +1,5 @@
 ---
-Status: selected__design_stop__parser_loop_source_admission__2026-09-19
+Status: closed__no_safe_slice__parser_loop_source_admission__2026-09-19
 Task: MIR-CALL-PARSER-LOOP-SOURCE-ADMISSION-D0
 Date: 2026-09-19
 Parent: mir-call-static-compatibility-catalog-target-i0-2026-09-19.md
@@ -100,3 +100,14 @@ compatibility edge.
 
 No parser fallback, AST rewrite, MIR scan, VM retry, synthetic source site,
 static publication row, or production caller switch is permitted by this card.
+
+## Closeout receipt — 2026-09-19
+
+Tasks 1 and 2 are closed by the source inventory and route census above. Task
+3 is the explicit `NoSafeSlice` decision: no existing source-aware product can
+consume the parser shape without the missing forest/exit relation. The next
+bounded design card is
+`mir-call-parser-loop-forest-exit-coseal-d0-2026-09-19.md`; it is the only
+selected dependency before the parent static catalog I0 can resume. The
+pointer and parent card retain the named `GenericLoopV1NotSelected` terminal,
+the old compatibility edge, and all non-claims.
