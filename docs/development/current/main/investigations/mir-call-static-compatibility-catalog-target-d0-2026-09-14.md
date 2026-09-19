@@ -749,6 +749,19 @@ statement-site/assignment oriented, and `class_for_representation` rejects
 non-trivial representations. These are valid statement-If invariants, not a
 missing switch to widen in place.
 
+The physical design can still reuse the canonical mechanics without creating a
+second CFG/SSA owner. `IfCfgSessionV1` remains responsible for block layout,
+branch closure, and merge-predecessor revalidation. A new expression-result
+witness should carry those verified predecessors, the two source-issued branch
+values, the exact outer consumer, and the `I64 | String` class without a
+`BindingRefV1`. Its adapter can then call the existing
+`PhiDraftV1::prepare_cfg_ready` and
+`phi_lifecycle::define_final_from_prepared_completion`; the source class is
+the only type hint, and the returned `ValueId` is handed to the existing
+Return/initializer/RHS consumer. This reuses `phi_type_publication` and input
+materialization while keeping source admission, CFG topology, and physical
+commit in their current owners.
+
 ### Next bounded design slice
 
 1. **Result-port contract:** name the existing canonical CFG/SSA entry and
