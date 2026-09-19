@@ -493,6 +493,15 @@ reads, and two text reads. Its linked object returns `0` in Normal and exits
 and cleanup fault injection. The probe also confirms `checked_end` precedes
 fault-frame disposal; the full T2 negative inventory remains separate.
 
+The aggregate-family negative inventory is now closed at the source Fact
+boundary. The focused guard rejects scalar, opaque, nested, and mixed array
+storage, foreign `params`/`blocks` entries, and duplicate `blocks.length()` sites
+with named `MapReadFactIssueV1` variants before package/catalog installation.
+`map_read_fact_tests` passes 19/19, including the accepted aggregate rows and
+these nine rejects. The next bounded row is selected-consumer closeout; this
+receipt does not claim qualified Invoke, whole-T2 completion, `to_json`, a
+production cutover, or legacy retirement.
+
 The bounded readable-Map argument lane admits a `: MapBox` formal as a
 borrowed read-only contract (`CallableParameterContractKindV1::Map`,
 `StoredLocal::BorrowedMap`): the callee reads caller-owned storage, owns

@@ -2368,3 +2368,28 @@ unsupported scalar, mixed, nested, foreign, duplicate, and opaque/probe-side
 routes stop before catalog mutation without weakening the accepted source
 shape. Whole-T2 completion, qualified Invoke, `to_json`, production cutover,
 and legacy retirement remain open.
+
+## T2 negative-inventory closeout (2026-09-19)
+
+The aggregate-family source guard now covers the unsupported storage and
+identity shapes that could otherwise bypass the accepted read contract. The
+focused cases are: scalar `params`, opaque and nested `params` arrays, scalar,
+mixed, and nested `blocks` arrays, foreign `params`/`blocks` entries, and a
+duplicate `blocks.length()` site. Each case stops with its named
+`MapReadFactIssueV1` variant during Fact issuance, before a semantic package
+exists to reach catalog installation; the accepted aggregate shape remains
+unchanged.
+
+Focused evidence:
+
+`CARGO_BUILD_JOBS=4 cargo test --profile quick --lib map_read_fact_tests
+-- --test-threads=1` passed **19/19**. The test includes the existing positive
+rows and the nine negative cases above. This is source-authority evidence only;
+it does not claim qualified Invoke, the whole T2 inventory, `to_json`, a
+production caller cutover, or legacy retirement.
+
+The next bounded row is **T2 selected-consumer closeout**: verify that the
+accepted aggregate Fact set is consumed exactly once by the selected physical
+consumer and that no marker, side-table, opaque/probe-side, or unconsumed Fact
+route is admitted. Keep the existing source-to-OBJ and fault receipts as the
+terminal evidence; do not widen the source shape while closing this row.

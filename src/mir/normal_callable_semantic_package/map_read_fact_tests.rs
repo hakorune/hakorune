@@ -265,6 +265,102 @@ fn source_issues_one_aggregate_row_set_for_functions_params_and_blocks() {
 }
 
 #[test]
+fn aggregate_rejects_unsupported_storage_before_catalog_mutation() {
+    let cases = [
+        (
+            "params scalar",
+            AGGREGATE_MAP_READ_SOURCE.replace("\"params\" => []", "\"params\" => 7"),
+        ),
+        (
+            "params opaque array",
+            AGGREGATE_MAP_READ_SOURCE.replace("\"params\" => []", "\"params\" => [7]"),
+        ),
+        (
+            "params nested array",
+            AGGREGATE_MAP_READ_SOURCE
+                .replace("\"params\" => []", "\"params\" => [[function_row]]"),
+        ),
+        (
+            "blocks scalar",
+            AGGREGATE_MAP_READ_SOURCE.replace("\"blocks\" => [block]", "\"blocks\" => 7"),
+        ),
+        (
+            "blocks mixed array",
+            AGGREGATE_MAP_READ_SOURCE
+                .replace("\"blocks\" => [block]", "\"blocks\" => [block, 7]"),
+        ),
+        (
+            "blocks nested array",
+            AGGREGATE_MAP_READ_SOURCE
+                .replace("\"blocks\" => [block]", "\"blocks\" => [[block]]"),
+        ),
+        (
+            "foreign params entry",
+            AGGREGATE_MAP_READ_SOURCE.replace("\"params\" => []", "\"other\" => []"),
+        ),
+        (
+            "foreign blocks entry",
+            AGGREGATE_MAP_READ_SOURCE.replace("\"blocks\" => [block]", "\"other\" => [block]"),
+        ),
+        (
+            "duplicate blocks length site",
+            AGGREGATE_MAP_READ_SOURCE.replace(
+                "local blocks_count = m.get(\"blocks\").length()\n        return",
+                "local blocks_count = m.get(\"blocks\").length()\n        local blocks_count_again = m.get(\"blocks\").length()\n        return",
+            ),
+        ),
+    ];
+    for (label, source) in cases {
+        let error = issue(&source).expect_err(label);
+        match label {
+            "params scalar" => assert!(matches!(
+                error,
+                super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+                    _error: MapReadFactIssueV1::ParamsEntryNotArray { .. }
+                }
+            )),
+            "params opaque array" | "params nested array" => assert!(matches!(
+                error,
+                super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+                    _error: MapReadFactIssueV1::ParamsEntryUnsupported { .. }
+                }
+            )),
+            "blocks scalar" => assert!(matches!(
+                error,
+                super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+                    _error: MapReadFactIssueV1::BlocksEntryNotArray { .. }
+                }
+            )),
+            "blocks mixed array" | "blocks nested array" => assert!(matches!(
+                error,
+                super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+                    _error: MapReadFactIssueV1::BlocksEntryUnsupported { .. }
+                }
+            )),
+            "foreign params entry" => assert!(matches!(
+                error,
+                super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+                    _error: MapReadFactIssueV1::ParamsEntryMissing { .. }
+                }
+            )),
+            "foreign blocks entry" => assert!(matches!(
+                error,
+                super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+                    _error: MapReadFactIssueV1::BlocksEntryMissing { .. }
+                }
+            )),
+            "duplicate blocks length site" => assert!(matches!(
+                error,
+                super::NormalCallableSemanticPackageIssueV1::MapReadFact {
+                    _error: MapReadFactIssueV1::FirstLookupDuplicate { .. }
+                }
+            )),
+            _ => unreachable!("case is exhaustively matched above"),
+        }
+    }
+}
+
+#[test]
 fn blocks_length_rejects_empty_array() {
     let source =
         BLOCKS_LENGTH_READ_SOURCE.replace("%{ \"blocks\" => [block] }", "%{ \"blocks\" => [] }");
