@@ -15,6 +15,18 @@ static box Main {
 }
 "#;
 
+const ARRAY_LENGTH_READ_SOURCE: &str = r#"
+static box Helpers {
+    read_params(m: MapBox): i64 {
+        local count = m.get("params").length()
+        return count
+    }
+}
+static box Main {
+    main() { return read_params(%{"params" => []}) }
+}
+"#;
+
 #[test]
 fn source_issues_one_fact_for_each_bounded_nested_read() {
     let package = issue(NESTED_MAP_READ_SOURCE).expect("bounded source Map read package");
@@ -65,4 +77,27 @@ fn unrelated_map_lookup_does_not_claim_the_bounded_chain() {
     assert!(package.map_read_facts().is_empty());
     let mut context = crate::mir::builder::CompilationContext::new();
     assert!(package.prepare_install(&mut context).is_ok());
+}
+
+#[test]
+fn source_issues_array_length_for_exact_params_array() {
+    let package = issue(ARRAY_LENGTH_READ_SOURCE).expect("bounded array length package");
+    let rows = package.map_read_facts().rows();
+    assert_eq!(rows.len(), 2);
+    let params = rows
+        .iter()
+        .find(|row| {
+            row.operation() == MapReadOperationV1::MapLookup
+                && row.operand() == &MapReadOperandV1::Key("params".into())
+        })
+        .expect("params read");
+    assert_eq!(params.operation(), MapReadOperationV1::MapLookup);
+    assert_eq!(params.result(), MapReadResultClassV1::ArrayView);
+    let length = rows
+        .iter()
+        .find(|row| row.operation() == MapReadOperationV1::ArrayLength)
+        .expect("array length read");
+    assert_eq!(length.operand(), &MapReadOperandV1::Key("params".into()));
+    assert_eq!(length.result(), MapReadResultClassV1::I64);
+    assert!(rows.iter().all(|row| !row.containment().is_empty()));
 }

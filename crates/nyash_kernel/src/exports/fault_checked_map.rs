@@ -8,12 +8,15 @@ use crate::exports::{
 };
 use nyash_rust::boxes::{
     map_box::checked::{
-        BorrowedMapArrayResidence, CheckedMap, CheckedMapArrayReadError, CheckedMapError,
-        CheckedMapI64Read, CheckedMapPayload, CheckedMapTextViewRead, MapEndError, MapEndReport,
+        BorrowedMapArrayResidence, CheckedMap, CheckedMapArrayLengthRead, CheckedMapArrayReadError,
+        CheckedMapError, CheckedMapI64Read, CheckedMapPayload, CheckedMapTextViewRead, MapEndError,
+        MapEndReport,
     },
     map_key_domain::MapKeyDomain,
 };
 use std::{ffi::c_void, mem::size_of, mem::MaybeUninit, sync::Mutex};
+#[path = "fault_checked_map_array_length.rs"]
+mod array_length;
 #[path = "fault_checked_map_storage.rs"]
 mod storage;
 use storage::*;

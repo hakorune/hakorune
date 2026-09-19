@@ -5,7 +5,8 @@ static int hako_physical_map_kind(const char* kind) {
       (!strcmp(kind, "map_install_indexed") || !strcmp(kind, "map_install_value")) ||
       !strcmp(kind, "map_install_text") || !strcmp(kind, "map_install_empty_array") ||
       !strcmp(kind, "map_install_borrowed_array") ||
-      !strcmp(kind, "map_checked_get") || !strcmp(kind, "map_array_index_map") ||
+      !strcmp(kind, "map_checked_get") || !strcmp(kind, "map_array_length") ||
+      !strcmp(kind, "map_array_index_map") ||
       !strcmp(kind, "map_get_text") || !strcmp(kind, "map_end_outcome") ||
       !strcmp(kind, "map_end"));
 }
@@ -38,6 +39,7 @@ static int hako_physical_map_operation(yyjson_val* function, yyjson_val* layouts
   if (hako_physical_string(yyjson_obj_get(op, "kind"), "map_end"))
     return hako_physical_exact_keys(op, end_keys, 3);
   if (hako_physical_string(yyjson_obj_get(op, "kind"), "map_checked_get") ||
+      hako_physical_string(yyjson_obj_get(op, "kind"), "map_array_length") ||
       hako_physical_string(yyjson_obj_get(op, "kind"), "map_get_text"))
     return hako_physical_exact_keys(op, get_keys, 4) &&
         yyjson_is_str(yyjson_obj_get(op, "utf8"));

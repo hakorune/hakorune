@@ -256,7 +256,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       }
       normal[key->origin] = state[key->origin] = 0;
       normal[bi] = LV4_LIVE;
-    } else if (lv4_is(op, "kind", "map_checked_get")) {
+    } else if (lv4_is(op, "kind", "map_checked_get") || lv4_is(op, "kind", "map_array_length")) {
       /* Read-only scalar lookup: the map operand must be a live owned lease
          or a borrowed formal; the read consumes neither. */
       if ((fi && !ordinary) || faulted || state[bi] ||

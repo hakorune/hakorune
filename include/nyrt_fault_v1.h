@@ -181,8 +181,12 @@ typedef struct NyrtTextViewStorageV1 {
 /* MapGetText faults: missing=109, present non-text=110. */
 #define NYRT_FAULT_REASON_MAP_TEXT_MISSING_V1 109u
 #define NYRT_FAULT_REASON_MAP_TEXT_NON_TEXT_V1 110u
+/* ArrayLength faults: missing=111, present non-array=112. */
+#define NYRT_FAULT_REASON_MAP_ARRAY_LENGTH_MISSING_V1 111u
+#define NYRT_FAULT_REASON_MAP_ARRAY_LENGTH_NON_ARRAY_V1 112u
 uint32_t nyrt_map_checked_array_index_map_v1(void *, uint64_t, void *, const uint8_t *, size_t, int64_t, void *) __asm__("nyash.map.checked_array_index_map_v1");
 uint32_t nyrt_map_checked_get_text_v1(void *, uint64_t, void *, const uint8_t *, size_t, void *) __asm__("nyash.map.checked_get_text_v1");
+uint32_t nyrt_map_checked_array_length_v1(void *, uint64_t, void *, const uint8_t *, size_t, int64_t *) __asm__("nyash.map.checked_array_length_v1");
 uint32_t nyrt_map_outcome_end_v1(void *, uint64_t, void *) __asm__("nyash.map.outcome_end_v1");
 uint32_t nyrt_map_outcome_dispose_v1(void *) __asm__("nyash.map.outcome_dispose_v1");
 uint32_t nyrt_map_checked_end_v1(void *, uint64_t, void *) __asm__("nyash.map.checked_end_v1");

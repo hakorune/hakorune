@@ -31,9 +31,16 @@ pub(in crate::mir::builder) struct MapReadPhysicalConsumerV1 {
 
 #[derive(Debug, Clone)]
 struct PendingArrayReadV1 {
-    index_site: OwnedExprSiteV1,
+    next_site: OwnedExprSiteV1,
     parent_map: ValueId,
     key: Box<str>,
+    kind: PendingArrayReadKindV1,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum PendingArrayReadKindV1 {
+    Index,
+    Length,
 }
 
 impl MapReadPhysicalConsumerV1 {
@@ -54,8 +61,17 @@ impl MapReadPhysicalConsumerV1 {
         let Some(row) = self.facts.rows().iter().find(|row| row.site() == site) else {
             return Ok(None);
         };
-        if method != "get" || arguments.len() != 1 {
-            return Err(freeze("source-shape"));
+        match row.operation() {
+            MapReadOperationV1::MapLookup | MapReadOperationV1::ArrayIndex => {
+                if method != "get" || arguments.len() != 1 {
+                    return Err(freeze("source-shape"));
+                }
+            }
+            MapReadOperationV1::ArrayLength => {
+                if method != "length" || !arguments.is_empty() {
+                    return Err(freeze("source-shape"));
+                }
+            }
         }
         if self.consumed.contains(site) {
             return Err(freeze("duplicate-site"));
@@ -63,7 +79,7 @@ impl MapReadPhysicalConsumerV1 {
         Ok(Some(row.clone()))
     }
 
-    pub(in crate::mir::builder) fn begin_first(
+    pub(in crate::mir::builder) fn begin_array(
         &mut self,
         row: &MapReadFactV1,
         parent_map: ValueId,
@@ -76,24 +92,29 @@ impl MapReadPhysicalConsumerV1 {
         let MapReadOperandV1::Key(key) = row.operand() else {
             return Err(freeze("first-row-operand"));
         };
-        let index = self
+        let next = self
             .facts
             .rows()
             .iter()
             .find(|candidate| candidate.receiver_site() == row.site())
             .ok_or_else(|| freeze("index-row-missing"))?;
-        if index.operation() != MapReadOperationV1::ArrayIndex
-            || index.result() != MapReadResultClassV1::MapView
-        {
-            return Err(freeze("index-row-shape"));
-        }
+        let kind = match (next.operation(), next.result()) {
+            (MapReadOperationV1::ArrayIndex, MapReadResultClassV1::MapView) => {
+                PendingArrayReadKindV1::Index
+            }
+            (MapReadOperationV1::ArrayLength, MapReadResultClassV1::I64) => {
+                PendingArrayReadKindV1::Length
+            }
+            _ => return Err(freeze("array-next-row-shape")),
+        };
         if self.pending_array.is_some() || !self.consumed.insert(row.site().clone()) {
             return Err(freeze("first-row-consume"));
         }
         self.pending_array = Some(PendingArrayReadV1 {
-            index_site: index.site().clone(),
+            next_site: next.site().clone(),
             parent_map,
             key: key.clone(),
+            kind,
         });
         Ok(())
     }
@@ -107,8 +128,9 @@ impl MapReadPhysicalConsumerV1 {
             .pending_array
             .as_ref()
             .ok_or_else(|| freeze("index-without-first"))?;
-        if pending.index_site != *row.site()
+        if pending.next_site != *row.site()
             || pending.parent_map != receiver
+            || pending.kind != PendingArrayReadKindV1::Index
             || row.operation() != MapReadOperationV1::ArrayIndex
             || row.result() != MapReadResultClassV1::MapView
         {
@@ -124,6 +146,36 @@ impl MapReadPhysicalConsumerV1 {
         }
         self.pending_array = None;
         Ok((parent_map, key, i64::from(*index)))
+    }
+
+    pub(in crate::mir::builder) fn array_length(
+        &mut self,
+        row: &MapReadFactV1,
+        receiver: ValueId,
+    ) -> Result<(ValueId, String), String> {
+        let (parent_map, key) = {
+            let pending = self
+                .pending_array
+                .as_ref()
+                .ok_or_else(|| freeze("length-without-array"))?;
+            if pending.next_site != *row.site()
+                || pending.parent_map != receiver
+                || pending.kind != PendingArrayReadKindV1::Length
+                || row.operation() != MapReadOperationV1::ArrayLength
+                || row.result() != MapReadResultClassV1::I64
+            {
+                return Err(freeze("length-relation"));
+            }
+            let MapReadOperandV1::Key(key) = row.operand() else {
+                return Err(freeze("length-operand"));
+            };
+            (pending.parent_map, key.to_string())
+        };
+        if !self.consumed.insert(row.site().clone()) {
+            return Err(freeze("length-row-consume"));
+        }
+        self.pending_array = None;
+        Ok((parent_map, key))
     }
 
     pub(in crate::mir::builder) fn text_read(
@@ -199,7 +251,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         let mut state = state.borrow_mut();
         let value = match row.result() {
             MapReadResultClassV1::ArrayView => {
-                consumer.borrow_mut().begin_first(&row, receiver_value)?;
+                consumer.borrow_mut().begin_array(&row, receiver_value)?;
                 receiver_value
             }
             MapReadResultClassV1::MapView => {
@@ -228,6 +280,18 @@ impl RawInvocationChildPortV1<'_, '_> {
                     &site,
                     crate::mir::instruction::MapInvokeOperation::MapGetText { map, utf8: key },
                     MirType::Box("TextView".to_owned()),
+                )?
+            }
+            MapReadResultClassV1::I64 => {
+                let (map, key) = consumer.borrow_mut().array_length(&row, receiver_value)?;
+                emit_typed_map_read(
+                    builder,
+                    &mut state,
+                    ledger,
+                    owner,
+                    &site,
+                    crate::mir::instruction::MapInvokeOperation::ArrayLength { map, utf8: key },
+                    MirType::Integer,
                 )?
             }
         };

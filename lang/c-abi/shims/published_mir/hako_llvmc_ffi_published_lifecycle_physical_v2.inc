@@ -513,7 +513,8 @@ static int hako_physical_result_operation(yyjson_val* op, int native) {
       !strcmp(kind, "map_prepare_key") || (!strcmp(kind, "map_install_indexed") || !strcmp(kind, "map_install_value")) ||
       !strcmp(kind, "map_install_text") || !strcmp(kind, "map_install_empty_array") ||
       !strcmp(kind, "map_install_borrowed_array") ||
-      !strcmp(kind, "map_checked_get") || !strcmp(kind, "map_array_index_map") ||
+      !strcmp(kind, "map_checked_get") || !strcmp(kind, "map_array_length") ||
+      !strcmp(kind, "map_array_index_map") ||
       !strcmp(kind, "map_get_text") || !strcmp(kind, "ordinary_call");
 }
 

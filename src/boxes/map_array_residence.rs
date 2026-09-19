@@ -83,6 +83,7 @@ unsafe impl Sync for CheckedMapReadView {}
 /// ArrayIndex returns a borrowed view; only the owner can end the root.
 pub trait CanonicalMapArrayResidence: Send + Sync {
     fn read_map(&self, index: i64) -> Result<CheckedMapReadView, CheckedMapArrayReadError>;
+    fn len(&self) -> usize;
     fn end(self: Box<Self>) -> Result<(), MapEndError>;
 }
 
@@ -138,6 +139,10 @@ impl CanonicalMapArrayResidence for OwnedMapArrayResidence {
         })
     }
 
+    fn len(&self) -> usize {
+        self.elements.len()
+    }
+
     fn end(self: Box<Self>) -> Result<(), MapEndError> {
         Self::release_roots(self.release_roots)
     }
@@ -180,6 +185,10 @@ impl CanonicalMapArrayResidence for BorrowedMapArrayResidence {
             _ => CheckedMapArrayReadError::InvalidState,
         })?;
         Ok(CheckedMapReadView::borrowed(ptr))
+    }
+
+    fn len(&self) -> usize {
+        self.elements.len()
     }
 
     fn end(self: Box<Self>) -> Result<(), MapEndError> {

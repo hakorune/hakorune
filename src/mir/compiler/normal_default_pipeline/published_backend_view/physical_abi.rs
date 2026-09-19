@@ -27,6 +27,7 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     MapPrepareKey,
     MapInstall,
     MapCheckedGet,
+    MapArrayLength,
     MapArrayIndex,
     MapGetText,
     MapEndOutcome,
@@ -54,6 +55,7 @@ impl PublishedLifecycleCheckedOperationKindV1 {
                 | MapInvokeOperation::InstallEmptyArray { .. }
                 | MapInvokeOperation::InstallBorrowedArray { .. } => Self::MapInstall,
                 MapInvokeOperation::CheckedGetI64 { .. } => Self::MapCheckedGet,
+                MapInvokeOperation::ArrayLength { .. } => Self::MapArrayLength,
                 MapInvokeOperation::ArrayIndexMap { .. } => Self::MapArrayIndex,
                 MapInvokeOperation::MapGetText { .. } => Self::MapGetText,
                 MapInvokeOperation::EndOutcome { .. } => Self::MapEndOutcome,

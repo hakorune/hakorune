@@ -546,3 +546,42 @@ fn array_index_and_text_lookup_reject_missing_kind_and_bounds() {
     assert_eq!(map.end().unwrap(), MapEndReport::default());
     child.require_disposable().unwrap();
 }
+
+#[test]
+fn array_length_reads_empty_marker_and_borrowed_residence_without_projection() {
+    let empty = CheckedMap::unissued();
+    empty.acquire().unwrap();
+    install(&empty, "params", CheckedMapPayload::EmptyArray)
+        .end()
+        .unwrap();
+    assert!(matches!(
+        empty.read_array_length(&MapKeyDomain::from_text("params")),
+        Ok(CheckedMapArrayLengthRead::Value(0))
+    ));
+    assert!(matches!(
+        empty.read_array_length(&MapKeyDomain::from_text("missing")),
+        Ok(CheckedMapArrayLengthRead::Missing)
+    ));
+    assert_eq!(empty.end().unwrap(), MapEndReport::default());
+
+    let child = text_child("main");
+    let mut builder = OwnedMapArrayResidence::builder(2).unwrap();
+    builder.push_map(Arc::clone(&child)).unwrap();
+    builder.push_map(Arc::clone(&child)).unwrap();
+    let array = builder.finish();
+    let map = CheckedMap::unissued();
+    map.acquire().unwrap();
+    install(&map, "blocks", CheckedMapPayload::Array(Box::new(array)))
+        .end()
+        .unwrap();
+    assert!(matches!(
+        map.read_array_length(&MapKeyDomain::from_text("blocks")),
+        Ok(CheckedMapArrayLengthRead::Value(2))
+    ));
+    assert!(matches!(
+        map.read_array_length(&MapKeyDomain::from_text("missing")),
+        Ok(CheckedMapArrayLengthRead::Missing)
+    ));
+    assert_eq!(map.end().unwrap(), MapEndReport::default());
+    child.require_disposable().unwrap();
+}

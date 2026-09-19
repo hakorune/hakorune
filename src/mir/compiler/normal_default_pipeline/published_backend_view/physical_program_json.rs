@@ -424,6 +424,9 @@ fn encode_invoke(
                 Map::CheckedGetI64 { map, utf8 } => {
                     json!({"kind": "map_checked_get", "map": value(map), "utf8": utf8})
                 }
+                Map::ArrayLength { map, utf8 } => {
+                    json!({"kind": "map_array_length", "map": value(map), "utf8": utf8})
+                }
                 Map::ArrayIndexMap { map, utf8, index } => json!({
                     "kind": "map_array_index_map", "map": value(map),
                     "utf8": utf8, "index": index,

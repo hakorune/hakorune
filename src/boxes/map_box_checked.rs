@@ -96,6 +96,15 @@ pub enum CheckedMapI64Read {
     NonScalar,
 }
 
+/// Length read for the selected Array residence lane. Missing and a present
+/// non-Array entry remain distinct so the ABI can fail closed with a named
+/// reason instead of treating arbitrary payloads as arrays.
+pub enum CheckedMapArrayLengthRead {
+    Missing,
+    Value(usize),
+    NonArray,
+}
+
 #[must_use = "a rejected candidate still belongs to its prior owner"]
 pub struct MapInstallFailure {
     pub error: CheckedMapError,
@@ -317,6 +326,30 @@ impl CheckedMap {
             return Err(CheckedMapArrayReadError::NonArray);
         };
         array.read_map(index)
+    }
+
+    /// Read the length of an exact Array entry without publishing a view.
+    /// `EmptyArray` is a zero-length marker and therefore has no residence;
+    /// non-empty arrays expose only their sealed residence length.
+    pub fn read_array_length(
+        &self,
+        key: &MapKeyDomain,
+    ) -> Result<CheckedMapArrayLengthRead, CheckedMapError> {
+        let state = self
+            .state
+            .lock()
+            .map_err(|_| CheckedMapError::StorageUnavailable)?;
+        if state.phase != Phase::Live {
+            return Err(CheckedMapError::InvalidState);
+        }
+        Ok(match state.entries.get(key) {
+            None => CheckedMapArrayLengthRead::Missing,
+            Some(entry) => match &entry.payload {
+                CheckedMapPayload::EmptyArray => CheckedMapArrayLengthRead::Value(0),
+                CheckedMapPayload::Array(array) => CheckedMapArrayLengthRead::Value(array.len()),
+                _ => CheckedMapArrayLengthRead::NonArray,
+            },
+        })
     }
 
     /// Read an owned text slot from this Map. This is the MapLookup half of

@@ -11,7 +11,7 @@ use super::ordinary_new_coseal::OrdinaryNewClaimLedgerV1;
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    MapHomeEntry, MapHomeFlow, MapValueSource, TerminalCallArgumentV1,
+    MapEntryStoreClassV1, MapHomeEntry, MapHomeFlow, MapValueSource, TerminalCallArgumentV1,
 };
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLexicalRefV1,
@@ -23,10 +23,12 @@ use std::collections::BTreeSet;
 pub(crate) enum MapReadOperationV1 {
     MapLookup,
     ArrayIndex,
+    ArrayLength,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) enum MapReadResultClassV1 {
+    I64,
     ArrayView,
     MapView,
     TextView,
@@ -179,6 +181,15 @@ pub(crate) enum MapReadFactIssueV1 {
     ArrayIndexOperandMismatch {
         owner: FunctionOwnerIdV1,
     },
+    ArrayLengthMissing {
+        owner: FunctionOwnerIdV1,
+    },
+    ArrayLengthDuplicate {
+        owner: FunctionOwnerIdV1,
+    },
+    ArrayLengthOperandMismatch {
+        owner: FunctionOwnerIdV1,
+    },
     TextLookupMissing {
         owner: FunctionOwnerIdV1,
     },
@@ -192,6 +203,15 @@ pub(crate) enum MapReadFactIssueV1 {
         site: OwnedExprSiteV1,
     },
     FunctionsEntryNotArray {
+        site: OwnedExprSiteV1,
+    },
+    ParamsEntryMissing {
+        site: OwnedExprSiteV1,
+    },
+    ParamsEntryNotArray {
+        site: OwnedExprSiteV1,
+    },
+    ParamsEntryUnsupported {
         site: OwnedExprSiteV1,
     },
     ArrayElementMissing {
@@ -274,20 +294,39 @@ pub(super) fn issue_map_read_facts_v1(
                     has_first_lookup_candidate(input.function(), formal.binding)
                 })
                 .unwrap_or(false);
-            if !has_first_candidate {
+            let has_params_length_candidate = batch
+                .with_lowering_input(declaration.batch_slot(), |input| {
+                    has_array_length_candidate(input.function(), formal.binding)
+                })
+                .unwrap_or(false);
+            if !has_first_candidate && !has_params_length_candidate {
                 continue;
             }
             let issued = batch
                 .with_lowering_input(declaration.batch_slot(), |input| {
-                    issue_chain(
-                        input.function(),
-                        formal.binding,
-                        call_site.clone(),
-                        ordinal,
-                        actual_map,
-                        actual_flow,
-                        ledger,
-                    )
+                    let mut rows = Vec::new();
+                    if has_first_candidate {
+                        rows.extend(issue_chain(
+                            input.function(),
+                            formal.binding,
+                            call_site.clone(),
+                            ordinal,
+                            actual_map,
+                            actual_flow,
+                            ledger,
+                        )?);
+                    }
+                    if has_params_length_candidate {
+                        rows.extend(issue_array_length_chain(
+                            input.function(),
+                            formal.binding,
+                            call_site,
+                            ordinal,
+                            actual_map,
+                            actual_flow,
+                        )?);
+                    }
+                    Ok(rows)
                 })
                 .map_err(|_| MapReadFactIssueV1::FormalMissing {
                     owner: callee_owner,
@@ -323,6 +362,130 @@ fn has_first_lookup_candidate(
             && call.arity() == 1
             && literal_string(function, call.arguments()[0].site()) == Some("functions")
     })
+}
+
+fn has_array_length_candidate(
+    function: &crate::mir::resolved_semantics::VerifiedResolvedFunctionV1,
+    formal_binding: BindingRefV1,
+) -> bool {
+    function.method_calls().any(|(_, call)| {
+        call.receiver()
+            == ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(
+                formal_binding,
+            ))
+            && call.selector() == "get"
+            && call.arity() == 1
+            && literal_string(function, call.arguments()[0].site()) == Some("params")
+    }) && function
+        .method_calls()
+        .any(|(_, call)| call.selector() == "length" && call.arity() == 0)
+}
+
+fn issue_array_length_chain(
+    function: &crate::mir::resolved_semantics::VerifiedResolvedFunctionV1,
+    formal_binding: BindingRefV1,
+    call_site: OwnedExprSiteV1,
+    argument_ordinal: u32,
+    actual_map: &OwnedExprSiteV1,
+    actual_flow: &MapHomeFlow,
+) -> Result<Vec<MapReadFactV1>, MapReadFactIssueV1> {
+    let first = unique_call(
+        function,
+        |call| {
+            call.receiver()
+                == ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(
+                    formal_binding,
+                ))
+                && call.selector() == "get"
+                && call.arity() == 1
+                && literal_string(function, call.arguments()[0].site()) == Some("params")
+        },
+        MapReadFactIssueV1::FirstLookupMissing {
+            owner: actual_map.owner(),
+        },
+        MapReadFactIssueV1::FirstLookupDuplicate {
+            owner: actual_map.owner(),
+        },
+    )?;
+    let second = unique_call(
+        function,
+        |call| {
+            call.receiver_site() == first.site() && call.selector() == "length" && call.arity() == 0
+        },
+        MapReadFactIssueV1::ArrayLengthMissing {
+            owner: actual_map.owner(),
+        },
+        MapReadFactIssueV1::ArrayLengthDuplicate {
+            owner: actual_map.owner(),
+        },
+    )?;
+    if !second.arguments().is_empty() {
+        return Err(MapReadFactIssueV1::ArrayLengthOperandMismatch {
+            owner: actual_map.owner(),
+        });
+    }
+    let params = actual_flow
+        .entries()
+        .iter()
+        .find(|entry| entry.key() == "params")
+        .ok_or_else(|| MapReadFactIssueV1::ParamsEntryMissing {
+            site: actual_map.clone(),
+        })?;
+    if params.array_elements().is_none() {
+        return Err(MapReadFactIssueV1::ParamsEntryNotArray {
+            site: actual_map.clone(),
+        });
+    }
+    if !matches!(
+        params.store_class(),
+        MapEntryStoreClassV1::EmptyArray | MapEntryStoreClassV1::BorrowedArray
+    ) {
+        return Err(MapReadFactIssueV1::ParamsEntryUnsupported {
+            site: actual_map.clone(),
+        });
+    }
+    let owner = first.owner();
+    let mut containment = vec![actual_map.clone()];
+    containment.push(OwnedExprSiteV1::new(
+        actual_map.owner(),
+        params.site().clone(),
+    ));
+    let first_site = OwnedExprSiteV1::new(owner, first.site().clone());
+    let second_site = OwnedExprSiteV1::new(owner, second.site().clone());
+    let first_receiver = OwnedExprSiteV1::new(owner, first.receiver_site().clone());
+    let second_receiver = OwnedExprSiteV1::new(owner, second.receiver_site().clone());
+    let first_operand = OwnedExprSiteV1::new(owner, first.arguments()[0].site().clone());
+    let borrow_roots = borrow_roots_for_entry(actual_flow, params);
+    Ok(vec![
+        MapReadFactV1 {
+            owner,
+            call_site: call_site.clone(),
+            argument_ordinal,
+            receiver_binding: formal_binding,
+            site: first_site,
+            receiver_site: first_receiver,
+            operand_site: first_operand,
+            operation: MapReadOperationV1::MapLookup,
+            operand: MapReadOperandV1::Key("params".into()),
+            result: MapReadResultClassV1::ArrayView,
+            containment: containment.clone().into_boxed_slice(),
+            borrow_roots: borrow_roots.clone().into_boxed_slice(),
+        },
+        MapReadFactV1 {
+            owner,
+            call_site,
+            argument_ordinal,
+            receiver_binding: formal_binding,
+            site: second_site,
+            receiver_site: second_receiver.clone(),
+            operand_site: second_receiver,
+            operation: MapReadOperationV1::ArrayLength,
+            operand: MapReadOperandV1::Key("params".into()),
+            result: MapReadResultClassV1::I64,
+            containment: containment.into_boxed_slice(),
+            borrow_roots: borrow_roots.into_boxed_slice(),
+        },
+    ])
 }
 
 fn issue_chain(
@@ -572,6 +735,15 @@ fn borrow_roots(
     let mut roots = BTreeSet::new();
     roots.extend(actual.allocation_fault());
     roots.extend(child.allocation_fault());
+    if let Some(elements) = entry.array_elements() {
+        collect_element_roots(elements, &mut roots);
+    }
+    roots.into_iter().collect()
+}
+
+fn borrow_roots_for_entry(actual: &MapHomeFlow, entry: &MapHomeEntry) -> Vec<BindingRefV1> {
+    let mut roots = BTreeSet::new();
+    roots.extend(actual.allocation_fault());
     if let Some(elements) = entry.array_elements() {
         collect_element_roots(elements, &mut roots);
     }

@@ -707,3 +707,27 @@ fn map_view_reads_publish_typed_index_and_text_operations() {
             "utf8": "name", "site": 43})
     );
 }
+
+#[test]
+fn map_array_length_publishes_typed_i64_operation() {
+    use crate::mir::instruction::MapInvokeOperation as Map;
+    let operation = InvokeOperation::Map(Map::ArrayLength {
+        map: ValueId(1),
+        utf8: "params".into(),
+    });
+    let encoded = encode_invoke(
+        &operation,
+        &BTreeMap::new(),
+        &BTreeMap::new(),
+        0,
+        Some(44),
+        None,
+        None,
+    )
+    .unwrap();
+    assert_eq!(
+        encoded,
+        json!({"kind": "map_array_length", "map": 1,
+            "utf8": "params", "site": 44})
+    );
+}

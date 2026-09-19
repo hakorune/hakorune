@@ -129,7 +129,7 @@ pub(super) fn check(
                                 has_kind(element, Kind::Map) || is_map_param(function, element)
                             })
                     }
-                    Map::CheckedGetI64 { map, .. } => {
+                    Map::CheckedGetI64 { map, .. } | Map::ArrayLength { map, .. } => {
                         has_kind(map, Kind::Map) || is_map_param(function, map)
                     }
                     Map::ArrayIndexMap { map, .. } => {
@@ -157,7 +157,7 @@ pub(super) fn check(
                     || matches!(instruction,
                     MirInstruction::Invoke { operation: InvokeOperation::Map(Map::End { map }), .. } if value == *map)
                     || matches!(instruction,
-                    MirInstruction::Invoke { operation: InvokeOperation::Map(Map::CheckedGetI64 { map, .. }), .. } if value == *map)
+                    MirInstruction::Invoke { operation: InvokeOperation::Map(Map::CheckedGetI64 { map, .. } | Map::ArrayLength { map, .. }), .. } if value == *map)
                     || matches!(instruction,
                     MirInstruction::Invoke { operation: InvokeOperation::Map(Map::ArrayIndexMap { map, .. } | Map::MapGetText { map, .. }), .. } if value == *map)
                     || matches!(instruction,
@@ -271,7 +271,7 @@ fn visit(
         {
             match operation {
                 Map::End { map } if !live.remove(map) => return Err("map-end-not-live"),
-                Map::CheckedGetI64 { map, .. }
+                Map::CheckedGetI64 { map, .. } | Map::ArrayLength { map, .. }
                     if !live.contains(map) && !is_map_param(function, map) =>
                 {
                     return Err("map-get-not-live")

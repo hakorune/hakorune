@@ -74,6 +74,12 @@ pub enum MapInvokeOperation {
         map: ValueId,
         utf8: String,
     },
+    /// Read the length of an exact checked Array entry. The map remains live;
+    /// the result is an i64 and the operation never publishes an Array view.
+    ArrayLength {
+        map: ValueId,
+        utf8: String,
+    },
     /// Read one Map element from an owned Array entry. The parent Map remains
     /// live; the result is a borrowed Map view with no independent cleanup.
     ArrayIndexMap {
@@ -105,7 +111,9 @@ impl MapInvokeOperation {
             | Self::InstallText { .. }
             | Self::InstallEmptyArray { .. }
             | Self::InstallBorrowedArray { .. } => Some(InvokeNormalResultKind::MapOutcome),
-            Self::CheckedGetI64 { .. } => Some(InvokeNormalResultKind::I64),
+            Self::CheckedGetI64 { .. } | Self::ArrayLength { .. } => {
+                Some(InvokeNormalResultKind::I64)
+            }
             Self::ArrayIndexMap { .. } => Some(InvokeNormalResultKind::MapView),
             Self::MapGetText { .. } => Some(InvokeNormalResultKind::TextView),
             Self::EndOutcome { .. } | Self::End { .. } => None,
@@ -121,7 +129,9 @@ impl MapInvokeOperation {
             | Self::InstallBorrowedArray { .. } => {
                 EffectMask::WRITE.add(Effect::Alloc).add(Effect::Control)
             }
-            Self::CheckedGetI64 { .. } => EffectMask::READ.add(Effect::Control),
+            Self::CheckedGetI64 { .. } | Self::ArrayLength { .. } => {
+                EffectMask::READ.add(Effect::Control)
+            }
             Self::ArrayIndexMap { .. } | Self::MapGetText { .. } => {
                 EffectMask::READ.add(Effect::Control)
             }
@@ -147,7 +157,7 @@ impl MapInvokeOperation {
                 .chain(std::iter::once(*key))
                 .chain(elements.iter().copied())
                 .collect(),
-            Self::CheckedGetI64 { map, .. } => vec![*map],
+            Self::CheckedGetI64 { map, .. } | Self::ArrayLength { map, .. } => vec![*map],
             Self::ArrayIndexMap { map, .. } | Self::MapGetText { map, .. } => vec![*map],
             Self::EndOutcome { outcome } => vec![*outcome],
             Self::End { map } => vec![*map],
@@ -177,7 +187,7 @@ impl MapInvokeOperation {
                     rewrite(element);
                 }
             }
-            Self::CheckedGetI64 { map, .. } => rewrite(map),
+            Self::CheckedGetI64 { map, .. } | Self::ArrayLength { map, .. } => rewrite(map),
             Self::ArrayIndexMap { map, .. } | Self::MapGetText { map, .. } => rewrite(map),
             Self::EndOutcome { outcome } => rewrite(outcome),
             Self::End { map } => rewrite(map),

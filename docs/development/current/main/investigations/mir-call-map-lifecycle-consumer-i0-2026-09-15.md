@@ -2221,3 +2221,31 @@ or generic ArrayBox/KindTest owner is needed.
 
 The mechanical `cargo fmt --check` drift remains a separate closeout commit;
 it is not part of either T2-beta implementation slice.
+
+## T2-beta-1 implementation progress (2026-09-19)
+
+The `ArrayLength` implementation is now present through the existing read
+authority chain. The source issuer emits `MapLookup("params") -> ArrayView`
+and `ArrayLength("params") -> I64` only for the exact `params` entry with an
+`EmptyArray` marker or a proven non-empty `BorrowedArray`; the selected
+physical consumer lowers the same rows to `MapInvokeOperation::ArrayLength`.
+The checked owner returns zero for the marker, the sealed residence length for
+an array, and named Faults for missing/non-array entries. The kernel export,
+runtime symbol table, header, published JSON, V2/V4 validators, and V4 emitter
+carry the same operation without adding a new ownership authority. The
+physical export was split into `fault_checked_map_array_length.rs` so the
+parent owner stays at 766 lines, below the 800-line hard stop.
+
+Focused evidence on this worktree: `map_read_fact_tests` 4/4, checked-map
+kernel tests 17/17, the typed published-JSON pin 1/1, `cargo check
+--profile quick -p nyash_kernel`, `git diff --check`, and the current-state
+pointer guard all pass. The C syntax check and source-to-OBJ Normal/Fault
+acceptance still remain open; the lifecycle archive must be rebuilt before
+that acceptance can observe the new runtime symbol. This therefore closes
+T2-beta-1 implementation/local verification only, not T2-beta acceptance.
+
+Next bounded tasks are: (1) rebuild the selected lifecycle archive and run the
+`params` source-to-OBJ fixture with Normal/Fault evidence, (2) record or fix
+the exact C validator/emitter result, and only then (3) start T2-beta-2 for
+`blocks[0].get("kind")`. The separate nine-file fmt drift remains a later
+mechanical closeout and does not reopen this lane.
