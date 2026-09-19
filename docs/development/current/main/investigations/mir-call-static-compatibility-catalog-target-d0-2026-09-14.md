@@ -941,3 +941,34 @@ closed until this static port contract, the publication handoff, and the
 cohort-local old-edge delete set are co-sealed. The lifecycle/birth red
 inventory reported in review remains a separate verification-health lane; it
 must not be silently reclassified or used to widen this static tuple.
+
+## Verification-health handoff — 2026-09-19
+
+The review report's completed items are treated as closed evidence only where
+the current tree and pointer agree: birth `return 0` normalization, the test
+split, the undertaking/handle matrix, fail-closed `BlockExpr` preludes, the
+T1-gamma fault chain, probe cleanup, and the `CURRENT_STATE` pointer update do
+not reopen this static tuple. The map-family reds remain a separate known
+baseline lane, and the current normal-pipeline inventory remains the pointer's
+26-pass/2-baseline/1-ignored receipt.
+
+The following review reds are **not yet classified** because the interrupted
+replay did not provide a matching pre-session parent result:
+
+1. the five deterministic `normal_default_root_catalog_lifecycle_tests`
+   failures (`actual_string_helpers...`, `parser_scan_package...`,
+   `source_backed_app_main...`, `source_backed_package_failure...`, and
+   `source_bound_static_result_owner...`); and
+2. the remaining birth-lifecycle filter failures (module-lifecycle capture,
+   weak-handle, parser-direct-birth and related rows).
+
+The next verification-only task is therefore bounded: replay each exact quick
+filter on the current commit, replay the same filter at the recorded
+pre-session parent, and classify only an identical fingerprint as
+`known baseline debt`; a current-only delta is a `current-change failure` and
+must name its owner before any fix is selected. Record the command, commit,
+test name, and result in the owning verification card. Do not classify from a
+partial run, widen the static publication tuple, or turn this lane into a
+code fix while the comparison is incomplete. Current `cargo fmt --all -- --check`,
+`git diff --check`, and `current_state_pointer_guard.sh` are green; any older
+fmt-drift or dirty-tree note is historical until reproduced.
