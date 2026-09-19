@@ -80,7 +80,12 @@ pub(in crate::mir::builder) fn lower_loop_v0(
                         Some(break_phi_dsts),
                         verified,
                         LOOP_V0_ERR,
-                        |builder, bindings, carrier_step_phis, break_phi_dsts, stmt, error_prefix| {
+                        |builder,
+                         bindings,
+                         carrier_step_phis,
+                         break_phi_dsts,
+                         stmt,
+                         error_prefix| {
                             parts_stmt::lower_return_prelude_stmt(
                                 builder,
                                 bindings,

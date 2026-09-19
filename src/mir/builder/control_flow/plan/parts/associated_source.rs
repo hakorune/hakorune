@@ -24,9 +24,14 @@ use std::convert::Infallible;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum PartsAssociatedSourceErrorV1 {
-    ItemIndexOutOfBounds { index: usize, len: usize },
+    ItemIndexOutOfBounds {
+        index: usize,
+        len: usize,
+    },
     MissingRecipeBody,
-    MissingRecipeStatement { index: usize },
+    MissingRecipeStatement {
+        index: usize,
+    },
     ForeignRawBlock,
     ForeignLocatedBlock,
     /// The located source port rejected a child/statement projection.
@@ -45,9 +50,9 @@ mod sealed {
 
 pub(super) mod block_driver;
 pub(in crate::mir::builder::control_flow::plan::parts) mod callable_loop_source;
-pub(in crate::mir::builder::control_flow::plan::parts) mod callable_loop_source_lowering;
 #[cfg(test)]
 mod callable_loop_source_driver_tests;
+pub(in crate::mir::builder::control_flow::plan::parts) mod callable_loop_source_lowering;
 #[cfg(test)]
 mod callable_loop_source_testkit;
 #[cfg(test)]

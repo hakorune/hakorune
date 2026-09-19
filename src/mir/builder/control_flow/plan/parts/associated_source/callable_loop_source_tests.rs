@@ -110,9 +110,7 @@ fn projects_explicit_if_with_exact_child_carriers() {
     ));
     assert_eq!(source.block_len(&then_block), Ok(1));
     assert_eq!(
-        else_block
-            .as_ref()
-            .map(|block| source.block_len(block)),
+        else_block.as_ref().map(|block| source.block_len(block)),
         Some(Ok(1))
     );
     assert_eq!(port.stmt_syntax(&stmt), &body[0]);
@@ -253,8 +251,8 @@ fn singleton_requires_the_exact_statement() {
     let (ledger, _) = real_ledger("function t() { local x = 1 }");
     let port = CallableLoopSourceExpressionPortV1::new(&ledger);
     let stmt = local("x", integer(1));
-    let recipe = try_build_no_exit_block_recipe(std::slice::from_ref(&stmt), true)
-        .expect("no-exit recipe");
+    let recipe =
+        try_build_no_exit_block_recipe(std::slice::from_ref(&stmt), true).expect("no-exit recipe");
     let carrier_body = vec![stmt.clone()];
     let carrier = port
         .body(&carrier_body, &function_body_source())
@@ -274,13 +272,8 @@ fn singleton_requires_the_exact_statement() {
         .expect("located body");
     let foreign = port.body_stmt(&foreign_carrier, 0).expect("located stmt");
     assert_eq!(
-        CallableLoopSourcePartsBlockV1::singleton(
-            &recipe.arena,
-            &recipe.block,
-            foreign,
-            &port
-        )
-        .map(|_| ()),
+        CallableLoopSourcePartsBlockV1::singleton(&recipe.arena, &recipe.block, foreign, &port)
+            .map(|_| ()),
         Err(PartsAssociatedSourceErrorV1::RecipeBodyMismatch)
     );
 }

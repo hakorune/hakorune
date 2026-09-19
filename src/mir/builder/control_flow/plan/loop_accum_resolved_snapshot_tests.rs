@@ -362,9 +362,14 @@ fn resolved_candidate_snapshot_is_unpublished_and_fresh_reuse_is_stable() {
             Some("direct_accum_snapshot_failure.hako"),
         )
         .expect_err("late prepared failure must abort");
-    assert!(error
-        .to_string()
-        .contains("test_injected_prepared_commit_failure"));
+    // The injected failure surfaces through the typed resolved-cutover
+    // terminal; `resolved_direct_accum_hardening_p0` pins the same variant.
+    let rendered = error.to_string();
+    assert!(
+        rendered.contains("[freeze:contract][canonical_lowering/resolved_cutover]")
+            && rendered.contains("DirectAccum(ExternalCommit(EvidenceMismatch))"),
+        "unexpected injected prepared-commit failure terminal: {rendered}"
+    );
     assert_eq!(compiler.builder_test_fingerprint_for_snapshot(), before);
 
     let fresh = semantic_candidate(&mut compiler).expect("fresh snapshot");

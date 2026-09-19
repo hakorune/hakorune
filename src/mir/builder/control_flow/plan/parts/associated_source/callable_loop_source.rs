@@ -111,9 +111,8 @@ impl<'view> CallableLoopSourcePartsBlockV1<'view> {
 }
 
 /// `RecipeItem::LoopV0` payload carried beside the located loop statement.
-pub(in crate::mir::builder::control_flow::plan::parts) struct CallableLoopSourcePartsLoopV0V1<
-    'view,
-> {
+pub(in crate::mir::builder::control_flow::plan::parts) struct CallableLoopSourcePartsLoopV0V1<'view>
+{
     pub(in crate::mir::builder::control_flow::plan::parts) source:
         CallableLoopSourceStmtInputV1<'view>,
     pub(in crate::mir::builder::control_flow::plan::parts) kind: LoopKindV0,
@@ -130,7 +129,10 @@ pub(in crate::mir::builder::control_flow::plan::parts) struct CallableLoopSource
 /// The provider borrows one recipe arena for the block it drives; child
 /// blocks minted by `item()` always share that arena, so a foreign block can
 /// only arrive through the constructor checks above.
-pub(in crate::mir::builder::control_flow::plan::parts) struct CallableLoopSourcePartsAssociatedSourceV1<'view, 'ledger> {
+pub(in crate::mir::builder::control_flow::plan::parts) struct CallableLoopSourcePartsAssociatedSourceV1<
+    'view,
+    'ledger,
+> {
     arena: &'view RecipeBodies,
     port: CallableLoopSourceExpressionPortV1<'ledger>,
 }
@@ -170,12 +172,11 @@ impl<'view, 'ledger: 'view> CallableLoopSourcePartsAssociatedSourceV1<'view, 'le
         reference: StmtRef,
     ) -> Result<CallableLoopSourceStmtInputV1<'view>, PartsAssociatedSourceErrorV1> {
         self.require_own_block(block)?;
-        let recipe_stmt = block
-            .recipe_body()?
-            .get_ref(reference)
-            .ok_or(PartsAssociatedSourceErrorV1::MissingRecipeStatement {
+        let recipe_stmt = block.recipe_body()?.get_ref(reference).ok_or(
+            PartsAssociatedSourceErrorV1::MissingRecipeStatement {
                 index: reference.index(),
-            })?;
+            },
+        )?;
         let projected = match &block.body {
             CallableLoopSourcePartsBlockBodyV1::Singleton(stmt) => {
                 if reference.index() != 0 {
@@ -356,7 +357,8 @@ impl<'view, 'ledger: 'view> PartsAssociatedSourceV1
                 let source = self.statement(block, *loop_stmt)?;
                 let condition = self.child_expr(&source, ExprChildRoleV1::LoopCondition)?;
                 self.require_condition_view(cond_view, self.port.expr_syntax(&condition))?;
-                let body_block = self.child_block(body_block, &source, BodyChildRoleV1::LoopBody)?;
+                let body_block =
+                    self.child_block(body_block, &source, BodyChildRoleV1::LoopBody)?;
                 PartsAssociatedRecipeItemV1::RawLoopV0 {
                     loop_input: CallableLoopSourcePartsLoopV0V1 {
                         source,

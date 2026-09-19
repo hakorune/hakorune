@@ -118,10 +118,7 @@ impl CallableLoopSourceTargetRequirementV1 {
     ) -> Self {
         Self {
             representation: handoff.representation().clone(),
-            required_i64_arguments: handoff
-                .required_i64_arguments()
-                .to_vec()
-                .into_boxed_slice(),
+            required_i64_arguments: handoff.required_i64_arguments().to_vec().into_boxed_slice(),
         }
     }
 
@@ -176,8 +173,7 @@ impl CallableLoopSourceTargetRelationV1 {
     /// i64 representation with the given required-argument ordinals.
     pub(in crate::mir::builder) fn has_exact_i64_requirement(&self, ordinals: &[u32]) -> bool {
         self.requirement.as_ref().is_some_and(|requirement| {
-            requirement.representation()
-                == &VerifiedCallableResultRepresentationV1::ExactI64
+            requirement.representation() == &VerifiedCallableResultRepresentationV1::ExactI64
                 && requirement.required_i64_arguments() == ordinals
         })
     }
@@ -392,21 +388,19 @@ mod tests {
         CallableLoopSourceTargetRelationV1, CallableLoopSourceTargetRequirementV1,
     };
     use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
-    use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
-    use crate::mir::callable_result_representation::{
-        VerifiedCallableResultRepresentationV1, VerifiedStaticCallResultPublicationDemandV1,
-        VerifiedStaticCallResultPublicationHandoffV1,
-    };
-    use crate::mir::resolved_semantics::{
-        SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
-    };
     use crate::mir::builder::control_flow::joinir::route_entry::registry::select_recipe_first_routes;
     use crate::mir::builder::control_flow::plan::single_planner::{
         self, CallableLoopFactsPlannerInputV1,
     };
     use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
+    use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
+    use crate::mir::callable_result_representation::{
+        VerifiedCallableResultRepresentationV1, VerifiedStaticCallResultPublicationDemandV1,
+        VerifiedStaticCallResultPublicationHandoffV1,
+    };
     use crate::mir::compiler::loop_cond_break_continue_projection::issue_loop_cond_break_continue_source_forest_projection_v1;
     use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+    use crate::mir::resolved_semantics::{SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1};
 
     fn route_fixture() -> ASTNode {
         let variable = |name: &str| ASTNode::Variable {
@@ -667,11 +661,9 @@ mod tests {
     fn source_target_relation_accepts_only_exact_i64_ordinal_one() {
         let site = requirement_site();
         let target = requirement_target();
-        let exact = |ordinals: &[u32]| {
-            CallableLoopSourceTargetRequirementV1 {
-                representation: VerifiedCallableResultRepresentationV1::ExactI64,
-                required_i64_arguments: ordinals.to_vec().into_boxed_slice(),
-            }
+        let exact = |ordinals: &[u32]| CallableLoopSourceTargetRequirementV1 {
+            representation: VerifiedCallableResultRepresentationV1::ExactI64,
+            required_i64_arguments: ordinals.to_vec().into_boxed_slice(),
         };
 
         let selected = CallableLoopSourceTargetRelationV1::new(
@@ -701,8 +693,7 @@ mod tests {
         );
         assert!(!wrong_representation.has_exact_i64_requirement(&[1]));
 
-        let missing_evidence =
-            CallableLoopSourceTargetRelationV1::new(site, target, None);
+        let missing_evidence = CallableLoopSourceTargetRelationV1::new(site, target, None);
         assert!(!missing_evidence.has_exact_i64_requirement(&[1]));
     }
 }

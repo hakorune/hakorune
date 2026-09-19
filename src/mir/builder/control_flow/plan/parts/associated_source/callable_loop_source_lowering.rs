@@ -18,13 +18,13 @@ use crate::mir::builder::control_flow::plan::expression_port::LoopPlanExpression
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
 use crate::mir::builder::control_flow::plan::features::loop_cond_bc_util::lower_simple_effect_stmt_input;
 use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_if_plan_port::lower_cond_expr_to_if_plans_input;
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::lower_loop_header_cond_with_port;
 use crate::mir::builder::control_flow::plan::parts::dispatch::if_exit_only::{
     lower_exit_if_state_core, ExitIfBranchV1, ExitIfStatePolicyV1,
 };
 use crate::mir::builder::control_flow::plan::parts::dispatch::if_join::{
     lower_if_join_state_core, JoinIfBranchV1,
 };
-use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::lower_loop_header_cond_with_port;
 use crate::mir::builder::control_flow::plan::parts::exit as parts_exit;
 use crate::mir::builder::control_flow::plan::parts::join_scope::{
     collect_branch_local_vars_from_maps, filter_branch_locals_from_maps,
@@ -192,9 +192,7 @@ impl<'view, 'ledger: 'view>
     ) -> Result<Self::Output, String> {
         reseal_branch_bindings(self.builder, self.current_bindings);
         if matches!(contract, IfContractKind::Join) {
-            return self.lower_join_if_source(
-                port, condition, then_block, else_block,
-            );
+            return self.lower_join_if_source(port, condition, then_block, else_block);
         }
         let (policy, then_mode, else_mode) = match contract {
             IfContractKind::ExitOnly {
@@ -304,7 +302,6 @@ impl<'view, 'ledger: 'view>
         port: CallableLoopSourceExpressionPortV1<'ledger>,
         loop_input: CallableLoopSourcePartsLoopV0V1<'view>,
     ) -> Result<Self::Output, String> {
-        reseal_branch_bindings(self.builder, self.current_bindings);
         if matches!(
             port.expr_syntax(&loop_input.condition),
             ASTNode::BlockExpr { .. }
@@ -314,6 +311,7 @@ impl<'view, 'ledger: 'view>
                 self.error_prefix
             ));
         }
+        reseal_branch_bindings(self.builder, self.current_bindings);
         let mode = match loop_input.body_contract {
             BlockContractKind::StmtOnly => PartsAssociatedBlockModeV1::StmtOnly,
             BlockContractKind::NoExit => PartsAssociatedBlockModeV1::NoExit,
@@ -385,7 +383,8 @@ impl CallableLoopSourcePartsLoweringHooksV1<'_> {
         source: CallableLoopSourceStmtInputV1<'view>,
     ) -> Result<Vec<LoweredRecipe>, String> {
         let stmt_node = port.stmt_syntax(&source);
-        if let Some(recipe) = try_build_no_exit_block_recipe(std::slice::from_ref(stmt_node), true) {
+        if let Some(recipe) = try_build_no_exit_block_recipe(std::slice::from_ref(stmt_node), true)
+        {
             let block = CallableLoopSourcePartsBlockV1::singleton(
                 &recipe.arena,
                 &recipe.block,
@@ -452,37 +451,39 @@ impl CallableLoopSourcePartsLoweringHooksV1<'_> {
         else_block: Option<CallableLoopSourcePartsBlockV1<'view>>,
     ) -> Result<Vec<LoweredRecipe>, String> {
         let mut condition = Some(condition);
-        let mut lower_branch = |branch: JoinIfBranchV1,
-                                builder: &mut MirBuilder,
-                                bindings: &mut BTreeMap<String, ValueId>| {
-            let block = match branch {
-                JoinIfBranchV1::Then => &then_block,
-                JoinIfBranchV1::Else => else_block.as_ref().ok_or_else(|| {
-                    format!(
-                        "{SOURCE_PARTS_ERR} join-if-else-missing: ctx={}",
-                        self.error_prefix
-                    )
-                })?,
+        let mut lower_branch =
+            |branch: JoinIfBranchV1,
+             builder: &mut MirBuilder,
+             bindings: &mut BTreeMap<String, ValueId>| {
+                let block = match branch {
+                    JoinIfBranchV1::Then => &then_block,
+                    JoinIfBranchV1::Else => else_block.as_ref().ok_or_else(|| {
+                        format!(
+                            "{SOURCE_PARTS_ERR} join-if-else-missing: ctx={}",
+                            self.error_prefix
+                        )
+                    })?,
+                };
+                lower_callable_loop_source_parts_block(
+                    port,
+                    block,
+                    PartsAssociatedBlockModeV1::NoExit,
+                    builder,
+                    bindings,
+                    self.carrier_phis,
+                    self.carrier_step_phis,
+                    self.break_phi_dsts,
+                    self.carrier_updates,
+                    self.error_prefix,
+                )
             };
-            lower_callable_loop_source_parts_block(
-                port,
-                block,
-                PartsAssociatedBlockModeV1::NoExit,
-                builder,
-                bindings,
-                self.carrier_phis,
-                self.carrier_step_phis,
-                self.break_phi_dsts,
-                self.carrier_updates,
-                self.error_prefix,
-            )
-        };
-        let normalize_branch_maps = |pre: &BTreeMap<String, ValueId>,
-                                     then_map: &BTreeMap<String, ValueId>,
-                                     else_map: &BTreeMap<String, ValueId>| {
-            let locals = collect_branch_local_vars_from_maps(pre, then_map, else_map);
-            filter_branch_locals_from_maps(pre, then_map, else_map, &locals)
-        };
+        let normalize_branch_maps =
+            |pre: &BTreeMap<String, ValueId>,
+             then_map: &BTreeMap<String, ValueId>,
+             else_map: &BTreeMap<String, ValueId>| {
+                let locals = collect_branch_local_vars_from_maps(pre, then_map, else_map);
+                filter_branch_locals_from_maps(pre, then_map, else_map, &locals)
+            };
         let mut lower_condition = |builder: &mut MirBuilder,
                                    bindings: &mut BTreeMap<String, ValueId>,
                                    then_plans,

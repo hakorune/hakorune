@@ -233,6 +233,10 @@ pub(super) fn test_builder(ledger: &Rc<RefCell<CallableSemanticLoweringState>>) 
 /// any materialized read, then drives one co-sealed block through the hooks.
 /// The block driver runs under the pinned default JoinIR mode so a concurrent
 /// strict/planner_required window cannot flip the observed lowering route.
+/// The pin acquires the non-reentrant process state lock, so callers must not
+/// invoke this driver inside another `with_env_vars`/`ScopedTestConfig`
+/// scope (including `with_default_and_strict_modes`); mode-scoped callers
+/// must call `lower_callable_loop_source_parts_block` directly instead.
 pub(super) fn drive_block(
     ledger: &Rc<RefCell<CallableSemanticLoweringState>>,
     block: &CallableLoopSourcePartsBlockV1<'_>,

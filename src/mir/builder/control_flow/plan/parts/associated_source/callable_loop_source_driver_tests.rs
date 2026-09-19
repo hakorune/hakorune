@@ -18,9 +18,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::plan::expression_port::LoopPlanExpressionPortV1;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
-use crate::mir::builder::control_flow::plan::recipe_tree::{
-    IfContractKind, IfMode, RecipeItem,
-};
+use crate::mir::builder::control_flow::plan::recipe_tree::{IfContractKind, IfMode, RecipeItem};
 use crate::mir::builder::control_flow::plan::CorePlan;
 use crate::mir::builder::normal_callable_loop_source_port::{
     CallableLoopSourceExprInputV1, CallableLoopSourceExpressionPortV1,
@@ -46,9 +44,8 @@ fn driver_lowers_no_exit_stmt_block_through_the_source_port() {
 
 #[test]
 fn driver_lowers_join_if_through_the_source_port() {
-    let (ledger, body) = real_ledger(
-        "function t() { local tmp = 0; if tmp == 0 { tmp = 1 } else { tmp = 2 } }",
-    );
+    let (ledger, body) =
+        real_ledger("function t() { local tmp = 0; if tmp == 0 { tmp = 1 } else { tmp = 2 } }");
     let recipe = try_build_no_exit_block_recipe(&body, true).expect("no-exit recipe");
     assert!(matches!(
         recipe.block.items[1],
@@ -86,7 +83,10 @@ fn driver_lowers_exit_if_under_exit_allowed_mode() {
     let carrier = port
         .child_body_from_stmt(&loop_stmt, BodyChildRoleV1::LoopBody)
         .expect("located loop body");
-    let ASTNode::Loop { body: loop_body, .. } = &body[0] else {
+    let ASTNode::Loop {
+        body: loop_body, ..
+    } = &body[0]
+    else {
         panic!("fixture loop")
     };
     let recipe = try_build_exit_allowed_block_recipe(loop_body, true).expect("exit-allowed recipe");
@@ -99,19 +99,11 @@ fn driver_lowers_exit_if_under_exit_allowed_mode() {
             ..
         }
     ));
-    let block = CallableLoopSourcePartsBlockV1::located_body(
-        &recipe.arena,
-        &recipe.block,
-        carrier,
-        &port,
-    )
-    .expect("co-sealed block");
-    let (plans, bindings) = drive_block(
-        &ledger,
-        &block,
-        PartsAssociatedBlockModeV1::ExitAllowed,
-    )
-    .expect("exit-if lowers");
+    let block =
+        CallableLoopSourcePartsBlockV1::located_body(&recipe.arena, &recipe.block, carrier, &port)
+            .expect("co-sealed block");
+    let (plans, bindings) = drive_block(&ledger, &block, PartsAssociatedBlockModeV1::ExitAllowed)
+        .expect("exit-if lowers");
     assert!(!plans.is_empty());
     assert!(bindings.contains_key("tmp"));
 }
@@ -143,10 +135,7 @@ fn driver_lowers_loop_v0_through_the_shared_core() {
     let (ledger, body) =
         real_ledger("function t() { local tmp = 0; loop(tmp < 3) { tmp = tmp + 1 } }");
     let recipe = try_build_no_exit_block_recipe(&body, true).expect("no-exit recipe");
-    assert!(matches!(
-        recipe.block.items[1],
-        RecipeItem::LoopV0 { .. }
-    ));
+    assert!(matches!(recipe.block.items[1], RecipeItem::LoopV0 { .. }));
     let (plans, bindings) = drive_recipe(
         &ledger,
         &body,
@@ -178,10 +167,9 @@ fn driver_rejects_a_loop_v0_block_expr_condition_before_effects() {
     let block =
         CallableLoopSourcePartsBlockV1::located_body(&recipe.arena, &recipe.block, carrier, &port)
             .expect("co-sealed block");
-    let source =
-        super::callable_loop_source::CallableLoopSourcePartsAssociatedSourceV1::for_block(
-            &block, port,
-        );
+    let source = super::callable_loop_source::CallableLoopSourcePartsAssociatedSourceV1::for_block(
+        &block, port,
+    );
     let item = project(&source, &block, 1).expect("loop item");
     let PartsAssociatedRecipeItemV1::RawLoopV0 { mut loop_input } = item else {
         panic!("expected RawLoopV0")
@@ -209,8 +197,5 @@ fn driver_rejects_a_loop_v0_block_expr_condition_before_effects() {
     let error = hooks
         .lower_raw_loop_v0(port, loop_input)
         .expect_err("BlockExpr condition is a named reject");
-    assert!(
-        error.contains("loop-v0-cond-prelude-unlocated"),
-        "{error}"
-    );
+    assert!(error.contains("loop-v0-cond-prelude-unlocated"), "{error}");
 }

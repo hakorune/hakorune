@@ -133,7 +133,7 @@ The static tuple remains open with this finite stop condition:
 ```text
 merged parser source -> source-backed materialization
   -> callable-loop source facts
-  -> route selection = GenericLoopV1NotSelected
+  -> LoopCond route token = LoopCondRouteRejected(SourceTargetMissing)
   -> static Cataloged/Selected row not reached
 ```
 
@@ -271,3 +271,23 @@ The successor is
 `mir-call-parser-nested-loop-source-promotion-d0-2026-09-19.md`; this card's
 static catalog work resumes only after that D0 is accepted or closed with a
 typed `NoSafeSlice`.
+
+## LoopCond boundary move receipt — 2026-09-20
+
+The parser-loop promotion successor
+(`mir-call-parser-loopcond-source-handoff-i0-2026-09-19.md`) now selects the
+parser outer loop for `LoopCondBreakContinue` and issues the source route
+token with bound identity/parent/items. The Compatibility caller path does
+not yet install a static-result publication owner, so the token issuer
+reaches the typed `LoopCondRouteRejected(SourceTargetMissing)` terminal — one
+step deeper than the `GenericLoopV1NotSelected` boundary recorded above and
+still strictly before any `Cataloged`/`Selected` row or physical
+static-result consumption.
+
+The merged-route guard
+(`merged_parser_program_source_stops_at_named_loop_boundary_before_static_target`)
+now asserts that named terminal under a pinned default JoinIR mode. This
+card's static I0 remains at `design_stop`: the open endpoint is the static
+tuple handoff (publication owner reachability on the Compatibility path),
+not a parser issuer, second catalog owner, fallback, VM route, or
+production switch.

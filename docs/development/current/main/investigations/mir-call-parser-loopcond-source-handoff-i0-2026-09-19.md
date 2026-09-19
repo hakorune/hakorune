@@ -731,6 +731,58 @@ green. The eight `recursive_child_lowering_rawport_tests` reds
 red reproduce identically on session parent `976b65200a` — classified as
 known baseline debt, not a current-change failure.
 
+### Merged-route boundary move receipt — review fix
+
+The merged parser program guard
+(`merged_parser_program_source_stops_at_named_loop_boundary_before_static_target`)
+was red on review: it still asserted the pre-handoff
+`GenericLoopV1NotSelected` terminal while the route token now issues
+`LoopCondRouteRejected(SourceTargetMissing)`. This is a designed move, not a
+threading defect. `source_target_for_loop` reads the selected publication
+owner through `ModuleLoweringPortV1::target_for_source`; the Compatibility
+materialization path installs no `static_result_publication_owner` (the
+preflight issuer only runs when a `semantic_package` exists), so every
+resolver-bound item reports no published target and the token issuer raises
+the typed `SourceTargetMissing` reject before any Builder effect. The loop is
+still LoopCond-selected and its source items are bound, so the stop is one
+step deeper than `GenericLoopV1NotSelected` and still strictly before the
+static catalog — matching this card's open task 4 (static tuple handoff).
+
+The guard now pins the default JoinIR mode (`JOINIR_DEFAULT_MODE`) alongside
+the existing using/macro keys and asserts the new named terminal. The parent
+static card's finite stop condition was updated to the same boundary. No
+fallback, second publication owner, AST/name rescan, or target synthesis was
+added; task 4 must extend the existing publication owner so the
+Compatibility caller path can publish the selected row.
+
+Secondary review fixes in the same slice:
+
+- `crate::test_support::JOINIR_MODE_KEYS` is now the single owner of the six
+  JoinIR mode keys; `JOINIR_DEFAULT_MODE` and the new
+  `JOINIR_STRICT_PLANNER_MODE` preset are derived from it, and the
+  GenericLoop extract test support plus the raw-loop strict test consume the
+  shared constants instead of duplicating the list.
+- `lower_raw_loop_v0` now checks the `BlockExpr` condition prelude before
+  `reseal_branch_bindings`, so `loop-v0-cond-prelude-unlocated` literally
+  precedes any Builder effect.
+- `drive_block` documents that its default-mode pin holds the non-reentrant
+  process state lock and must not be nested inside another env scope;
+  mode-scoped callers use `lower_callable_loop_source_parts_block` directly.
+- `resolved_candidate_snapshot_is_unpublished_and_fresh_reuse_is_stable`
+  asserted a `BuilderContract` marker string that
+  `5967a0f367` (09-12) removed when cutover diagnostics became typed. The
+  assert now pins the same
+  `DirectAccum(ExternalCommit(EvidenceMismatch))` terminal as
+  `resolved_direct_accum_hardening_p0`. This red was baseline-listed as
+  green and is classified as pre-existing baseline debt reconciled to the
+  typed terminal, not a current-change failure.
+
+Focused evidence: `cargo test --profile quick --lib -- --test-threads=1`
+over the merged-route, `accum_semantic_parity_tests`, `associated_source`,
+`normal_callable_loop_source_facts`, `source_loop_bridge`,
+`cond_lowering_loop_header`, `raw_loop_child`, and the extract
+`mode_pair`/`unarmed_nested` filters is green (86/86).
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs
