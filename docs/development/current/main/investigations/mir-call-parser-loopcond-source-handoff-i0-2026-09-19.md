@@ -394,6 +394,20 @@ has not yet been switched to the located port, and nested/item/exit physical
 consumption, publication, old-edge retirement, and source-to-MIR acceptance
 remain open.
 
+### Source-port recipe item lookup receipt
+
+The next preparation slice adds a shared body-input accessor for LoopCond
+`StmtRef` items. It resolves the reference through the already-issued
+`LoopPlanExpressionPortV1::body_stmt` input and then enters the existing simple
+statement owner, so a located source caller can carry its statement context
+without a `RecipeBody` rescan, line lookup, or name reconstruction. The raw
+facade remains available through `RawLoopPlanExpressionPortV1`.
+
+The focused body-input test and the direct-exit tests pass 3/3. This is still a
+preparation seam: no source LoopCond production caller consumes it yet, and
+complex item variants, nested/exit transfer, physical allocation, publication,
+old-edge retirement, and source-to-MIR acceptance remain open.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs

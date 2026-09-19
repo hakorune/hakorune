@@ -253,6 +253,40 @@ where
     }
 }
 
+/// Resolve one recipe statement reference through the already-issued body
+/// input, then lower only the simple-statement subset through the same port.
+///
+/// The source-aware caller supplies the located body input; this helper never
+/// scans a `RecipeBody`, reconstructs a source site, or falls back to a raw AST
+/// lookup.  The raw loop-cond facade can use `RawLoopPlanExpressionPortV1`
+/// when preserving legacy behavior.
+pub(super) fn lower_simple_effect_stmt_body_input<'input, P>(
+    port: &P,
+    body: &P::BodyInput<'input>,
+    stmt_ref: StmtRef,
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, ValueId>,
+    carrier_phis: &BTreeMap<String, ValueId>,
+    carrier_updates: &mut BTreeMap<String, ValueId>,
+    error_prefix: &str,
+) -> Result<Option<Vec<LoweredRecipe>>, String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
+{
+    let statement = port
+        .body_stmt(body, stmt_ref.index())
+        .map_err(|error| error.render())?;
+    lower_simple_effect_stmt_input(
+        port,
+        statement,
+        builder,
+        current_bindings,
+        carrier_phis,
+        carrier_updates,
+        error_prefix,
+    )
+}
+
 fn lower_simple_effect_stmt_with_blockexpr_local_prelude(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, ValueId>,
@@ -459,7 +493,16 @@ pub(super) fn lower_stmt_list_no_direct_exit(
 
 #[cfg(test)]
 mod tests {
-    use super::{direct_exit_reject, is_direct_exit_reject, DirectExitRejectReason};
+    use super::{
+        direct_exit_reject, is_direct_exit_reject, lower_simple_effect_stmt_body_input,
+        DirectExitRejectReason,
+    };
+    use crate::ast::{ASTNode, LiteralValue, Span};
+    use crate::mir::builder::control_flow::plan::RawLoopPlanExpressionPortV1;
+    use crate::mir::builder::control_flow::recipes::refs::StmtRef;
+    use crate::mir::builder::MirBuilder;
+    use crate::mir::ValueId;
+    use std::collections::BTreeMap;
 
     #[test]
     fn direct_exit_reject_is_tagged_and_detectable() {
@@ -475,5 +518,44 @@ mod tests {
     fn direct_exit_reject_accepts_legacy_strings() {
         let legacy = "[normalizer] loop_cond_break_continue: break must be last";
         assert!(is_direct_exit_reject(legacy));
+    }
+
+    #[test]
+    fn raw_body_stmt_ref_uses_port_input_without_ast_rescan() {
+        let body = vec![ASTNode::FunctionCall {
+            name: "Worker.run".to_string(),
+            arguments: vec![ASTNode::Literal {
+                value: LiteralValue::Integer(7),
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        }];
+        let port = RawLoopPlanExpressionPortV1::new();
+        let body_input = body.as_slice();
+        let mut builder = MirBuilder::new();
+        let mut bindings = BTreeMap::<String, ValueId>::new();
+        let result = lower_simple_effect_stmt_body_input(
+            &port,
+            &body_input,
+            StmtRef::new(0),
+            &mut builder,
+            &mut bindings,
+            &BTreeMap::new(),
+            &mut BTreeMap::new(),
+            "raw body input",
+        )
+        .expect("body statement lowering")
+        .expect("simple function call");
+        assert!(matches!(
+            result.as_slice(),
+            [
+                crate::mir::builder::control_flow::plan::LoweredRecipe::Effect(
+                    crate::mir::builder::control_flow::plan::CoreEffectPlan::Const { .. }
+                ),
+                crate::mir::builder::control_flow::plan::LoweredRecipe::Effect(
+                    crate::mir::builder::control_flow::plan::CoreEffectPlan::GlobalCall { func, .. }
+                )
+            ] if func == "Worker.run"
+        ));
     }
 }
