@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0"
 current_execution_cohort = "static_source_admission_publication_tuple"
-current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0__parser_loop_route_not_front_selected"
+current_blocker_token = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0__parser_loop_no_safe_slice__generic_loop_v1_not_selected"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "open__selected_parser_loop_dependency_2026-09-19"
+current_design_stop = "open__parser_loop_no_safe_slice_separate_admission_design_2026-09-19"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,10 +18,8 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-static-compatibility-catalog-target-i0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-static-compatibility-catalog-target-i0-2026-09-19.md"
 latest_card_summary = """
-Map lifecycle consumer spine through C9-2 and the map-argument T-series; T1 alpha/beta/gamma and T2-alpha closed with source-to-OBJ evidence.
-T2-beta-1 params ArrayLength: Normal=0, prepare-Fault=70, REPORT 100; T2-beta-2 blocks[0].get(kind): Normal=30, prepare-Fault=70, REPORT 100; T2-beta-3 blocks.length: Normal=1, prepare-Fault=70, REPORT 100.
-The bounded T2-beta acceptance inventory is complete. The aggregate main
-matrix is also closed: one finite source-to-OBJ shape combines functions,
+Map lifecycle consumer spine through C9-2 and the map-argument T-series; T1 alpha/beta/gamma and T2-alpha closed with source-to-OBJ evidence. T2-beta-1 params ArrayLength: Normal=0, prepare-Fault=70, REPORT 100; T2-beta-2 blocks[0].get(kind): Normal=30, prepare-Fault=70, REPORT 100; T2-beta-3 blocks.length: Normal=1, prepare-Fault=70, REPORT 100.
+The bounded T2-beta acceptance inventory is complete. The aggregate main matrix is also closed: one finite source-to-OBJ shape combines functions,
 params, and blocks; source Facts are 18/18 and the aggregate acceptance is
 1/1 with Normal=0 and prepare-Fault=70/REPORT100. The ownership/fault matrix
 is also closed: construction, install, callee-read, and cleanup faults all
@@ -41,16 +39,18 @@ has closed its focused recheck (12/12 and 9/9); A0-2/A0-3/A3 and A2 guards are
 landed at their bounded boundaries. The stable normal-pipeline red inventory
 is 26 pass, 2 known baseline failures, 1 ignored; route-observer I0 is landed.
 The A0-2 source-hint test remains a separate current-change red with recovery
-taskified in its parent card. Static
-tuple design is closed, but the selected implementation row is now at
-design_stop: the real merged parser input passes prepare and the production
-source-backed materializer, then lifecycle stops at the named
-`callable-loop/route-not-front-selected` / `GenericLoopV1NotSelected` terminal
-before the static declaration/target/result catalog. No Cataloged or Selected
-publication claim is made. The next design dependency is the existing
-GenericLoop Recipe authority card; no parser-specific fallback, AST rescan, VM route,
-production switch, or cohort retirement is authorized. Expression-result PHI and
-other parser rows remain outside this I0.
+taskified in its parent card. Static tuple design is closed, but the selected
+implementation row is now at design_stop: the real merged parser input passes
+prepare and the production source-backed materializer, then lifecycle stops at
+the named `callable-loop/route-not-front-selected` /
+`GenericLoopV1NotSelected` terminal before the static declaration/target/result
+catalog. Read-only audit found no existing source-aware Facts/Recipe/physical
+owner for this nested, exit-driven parser loop, so this I0 retains the typed
+terminal as `NoSafeSlice`; no Cataloged or Selected publication claim is made.
+A separate bounded parser-loop admission design card is required before this
+I0 can resume. No parser-specific fallback, AST rescan, VM route, production
+switch, or cohort retirement is authorized. Expression-result PHI and other
+parser rows remain outside this I0.
 The OwnedText T3 family remains parked. Finite tuple: `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3`, `ExactI64`, required i64 `[1]`; merged input is observed, acceptance still waits for Cataloged reach.
 Non-claims: no qualified Invoke, whole-T2 completion, production cutover, to_json, or legacy retirement.
 """
