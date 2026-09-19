@@ -70,6 +70,15 @@ source exit inventory. The current `CallableGenericLoopV1PhysicalAdapterV1` rece
 GenericLoop condition/body view and lowers through `compose_source_generic_loop_v1_recipe_with_port`;
 it has no forest or exit consumer.
 
+An adjacent source-aware owner does not close this gap. `issue_nested_predicate_source_projection_v1`
+and `produce_nested_predicate_recipe_v1` do consume a resolver forest, Recipe, and JoinSig, and the
+canonical nested-predicate lowerer has a physical owner. That owner is deliberately a different
+finite shape: it requires exactly two forest members (`[None, Some(0)]`), fixed root/child body
+lengths and i64 recurrence roles, and its emitted Recipe has `exits = Vec::new()`. It therefore
+cannot consume the parser's `cont_prog` loop with nested scans and break/return transfers without
+widening its semantic contract. Reusing it by relaxing a shape predicate would create a new
+meaning under the wrong owner.
+
 **Mapping decision:** the first missing consumer field is an atomic, owner-branded
 `loop-forest + resolved-exit-set` relation carried with the existing callable source Facts/Recipe
 claim. Adding only a forest binding, only an exit receipt, or only a physical adapter argument
