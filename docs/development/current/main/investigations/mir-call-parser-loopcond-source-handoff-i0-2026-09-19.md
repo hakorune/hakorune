@@ -478,6 +478,97 @@ not reopen this parser LoopCond lane. The fixed 11-entry real-app EXE suite is
 also a separate existing closeout owner; its missing receipt does not authorize
 publication, fallback, or old-edge work in this card.
 
+### Worker audit checkpoint — physical consumer decomposition
+
+A read-only worker audit on 2026-09-19 decomposed the remaining physical
+consume into the concrete recipe inventory and per-variant owner surface. The
+root loop recipe for the acceptance tuple is statically determined: four
+`Stmt` items (:82, :99, :100, :122), one `ExitIfTree{mode:ExitIf}` (:83-86),
+four `ProgramBlock` items with `stmt_only: None` (:88-97, :101-120, :124-151,
+:153-210), and one `GeneralIf` (:123). The accept kind is `MixedIf`, the body
+lowering policy is `RecipeOnly`, and `propagate_nested_carriers` is false. One
+residual predicate stays a verification item: `loop(true)` at :182 requires
+`is_supported_bool_expr_with_canon` to accept the literal for its `LoopV0`
+container arm, and the LoopCond-exclusive route selection requires the strict
++ `planner_required` environment, which acceptance evidence must pin.
+
+The nested children :131/:182 are not `NestedLoopDepth1` items. They sit
+inside `ProgramBlock` if-bodies and lower through `RecipeItem::LoopV0` ->
+`parts::loop_::lower_loop_v0`, whose contract already avoids
+`nested_loop_depth1_route` and `LoopRouteContext`. No route re-entry is on
+this tuple's path; the nested-loop concern reduces to threading the located
+port into the LoopV0 entry, not to bypassing route classification.
+
+The audit also confirms the co-seal gap named by this card: neither
+`CallableLoopSourceRouteTokenV1` nor `SourceLoopCondPhysicalInputV1` currently
+proves the `ExactI64`/required-ordinal `[1]` tuple, and no production caller
+consumes `lower_loop_cond_item_input` yet (its callers are test-only). The
+permitted edit surface for the remaining slices is the existing-owner set
+already used by the landed seams plus the `plan/parts/associated_source*`
+provider/hooks machinery, `plan/parts/loop_/*`, and the ported `parts::stmt`/
+if-join equivalents; all are existing-owner extensions, not new authorities.
+
+Accepted decomposition (same-owner, no new authority):
+
+1. `ExactI64`/`[1]` co-seal check: the physical-input boundary consumes the
+   existing `project_static_exact_i64_requirement_v1` authority
+   (`callable_result_representation/static_exact_i64_requirement.rs`) for the
+   co-sealed `source_target`, cross-checks the target key, and rejects
+   `callable-loop/loop-cond/result-requirement-mismatch` before Builder
+   allocation when the tuple is not `ExactI64` with required ordinal `[1]`.
+   The catalog attach point is confirmed during implementation; if the
+   catalogs are not reachable through `source_ledger`, the check moves to the
+   Facts-issuer stage where they are in scope.
+2. One `PartsAssociatedSourceV1` sibling provider over
+   `CallableLoopSourceExpressionPortV1` plus one
+   `PartsAssociatedLoweringHooksV1` implementation, placed under
+   `plan/parts/associated_source/` (the sealed trait and dispatcher are
+   `parts`-private). It reuses `lower_verified_parts_associated_block` and
+   the existing ported owners: `lower_simple_effect_stmt_input` for opaque
+   statements and `lower_loop_cond_exit_source_input` for opaque exits.
+   Recipe block contracts (the `try_build_exit_allowed_block_recipe`
+   derivation on a `ProgramBlock` statement, the issued ExitOnly branch
+   recipes on `ExitIfTree`) remain the structural packaging authority on
+   already-co-sealed statements; they classify no new semantics. Located
+   statements resolve through `body_stmt`/`child_body_from_stmt`, and a
+   `Synthetic` body input must not appear on the located spine because it
+   drops located identity for every descendant.
+3. `lower_raw_loop_v0` hook arm -> a port-parametric entry on the existing
+   `loop_v0` owner: the issued `LoopKindV0`/`body_contract`/`features` stay
+   the semantic payload while the located loop statement's condition and
+   body resolve through port children; nested body items recurse through the
+   same provider. `call_source` already returns `LocatedMethodCall` for any
+   sourced method call, so nested calls keep located identity without a
+   recipe schema change or a per-loop forest-binding consumer; the
+   projection's member coverage stays an input-validation property.
+4. Item arms in `lower_loop_cond_item_input`: `ProgramBlock` (ExitAllowed
+   driver on the located if statement), `GeneralIf` (NoExit), and
+   `ExitIfTree` (ExitOnly); `Stmt`/`ExitLeaf` are already landed. Every other
+   variant (`TailBreak`, `ContinueIfWithElse`, `ConditionalUpdateIf`,
+   `Else*`, `NestedLoopDepth1`, `ExitIf` with `block: Some`) stays a named
+   reject, and `Ok(None)` at the driver is fail-fast; it never falls through
+   to `lower_loop_cond_item`.
+5. Carrier collection (`collect_outer_from_body`,
+   `collect_carrier_vars_from_condition`) stays on the co-sealed
+   condition/body: it only collects variable names for carrier discovery on
+   shape-verified input and issues no authority.
+6. A port-parametric `lower_loop_cond_break_continue` sibling consumes the
+   validated `SourceLoopCondPhysicalInputV1` end to end
+   (`LoopBlocksStandard5::allocate` -> carriers -> phi materializer ->
+   `lower_loop_header_cond_with_port` -> ported item driver -> cleanup ->
+   verifier -> `CorePlan::Loop`). The named `source-port-lowering-missing`
+   terminal remains until this entry is green.
+7. Caller cutover replaces the terminal in `raw_loop_child_entry.rs`; the
+   `callable_handoff=None` legacy edge and the raw item branches retire only
+   after positive plus negative evidence (tasks 4-6 unchanged).
+
+The pre-cutover verification items are unchanged and now include the
+`loop(true)` bool-expr residual above, the `try`/task-scope/fastmem/catch
+`UnsupportedAncestor` fixtures, and confirmation that the armed
+`RawInvocationChildPortV1` path is the one reached by the `parse/2`
+production compile. Non-claims are unchanged: no publication, caller cutover,
+old-edge deletion, VM route, or fallback is authorized by this checkpoint.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs
