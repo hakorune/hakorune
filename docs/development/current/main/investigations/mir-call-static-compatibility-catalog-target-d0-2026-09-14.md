@@ -642,3 +642,41 @@ source-backed publication target/header/result tuple and its later cohort-local
 compatibility-edge cutover/delete set. Implementation remains prohibited until
 that authority chain and terminal inventory are accepted. The OwnedText T3
 family stays `ParkedSealed__NoSelectedOwnedTextCaller`.
+
+## Publication ingress source audit — 2026-09-19
+
+The remaining boundary is not an unconnected Builder call site. The existing
+publication chain is already wired at three distinct owners:
+
+```text
+normal_default_root_catalog_lifecycle
+  -> ScriptDirectStaticCallLookupIssuerV1
+  -> static_result_publication_owner
+  -> ModuleDraftCollectorV1::install_static_result_publication_owner
+
+StaticReceiver/member route
+  -> StaticResultPublicationIngressPortV1
+  -> Selected/TargetOnly physical lowerer
+  -> Unavailable-only legacy owner policy
+```
+
+`src/mir/builder/method_call_handlers/static_current_owner_policy.rs` takes
+the publication ingress before the legacy owner policy for `me.method(...)`;
+`src/mir/builder/calls/member_route.rs` does the same for a static receiver.
+Both routes fail on a typed ingress error or an exact-target miss and only
+enter the retained owner policy for `Unavailable`. The owner is installed by
+`normal_default_root_catalog_lifecycle.rs` and
+`program_root_lowering.rs`; no second publication issuer is needed.
+
+Therefore the unresolved tuple is upstream reachability and exact source
+identity, not a missing ingress connector. The phase14 source-backed MIR
+route must first survive the finite resolver expression-`If`/physical-result
+boundary and issue a `Cataloged` source site. Only then can the selected
+`ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` observation
+consume the existing owner. A compatibility root cannot borrow this owner.
+
+This audit closes the question "where should publication be connected?" as an
+existing-owner reuse. It does not close publication acceptance: target/header/
+result co-seal, real source-site consumption, cohort-local compatibility-edge
+deletion, and phase14 source-to-exe evidence remain open. No code, fallback,
+resolver widening, or new semantic receipt is authorized by this note.

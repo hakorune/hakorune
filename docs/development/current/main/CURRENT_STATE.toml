@@ -45,7 +45,10 @@ guards and A3 package admission are already closed. The next bounded row is
 the normal-pipeline red recovery inventory is stable (26 pass, 2 known
 baseline failures, 1 ignored), and its route-observer I0 is already landed.
 The next non-parked row is the static source-admission/publication tuple
-design; the OwnedText T3 family remains parked.
+design. A source audit confirms its publication ingress and owner installation
+already exist; the remaining open boundary is upstream resolver/physical-result
+reach plus exact Cataloged source-site consumption. The OwnedText T3 family
+remains parked.
 Non-claims: no qualified Invoke, whole-T2 completion, production cutover, to_json, or legacy retirement.
 """
 next_design_card = "MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-D0"
