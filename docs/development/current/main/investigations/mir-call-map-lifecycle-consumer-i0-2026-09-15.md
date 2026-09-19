@@ -1881,14 +1881,9 @@ manifest failure are retained as known baseline rows. The reported broader
 birth/lifecycle filter count must not be used as an unclassified blocker for
 this map lane; any reopening needs its exact test filter and parent replay.
 
-`cargo fmt --check` is currently red in nine files, all mechanical formatting
-drift: `src/mir/builder/ordinary_new_admission/selected.rs`,
-`src/mir/normal_callable_semantic_package/{declared_instance_locator.rs,
-map_lifecycle_undertaking_tests.rs,mod.rs,ordinary_new_local_commit.rs}`,
-`src/mir/normal_callable_semantic_package/ordinary_new_local_commit/{finalized_root_handoff.rs,root_call_cleanup_graph.rs}`,
-`src/mir/resolved_semantics/callable_catalog_tests.rs`, and
-`src/mir/verification.rs`. This is a separate closeout task and is not mixed
-into the T2 semantic slice.
+The earlier formatting-drift observation is superseded: at the current
+checkout `cargo fmt --all -- --check` passes. No fmt-only task remains open;
+the semantic queue below stays separate from baseline-red classification.
 
 The ordered queue is now:
 
@@ -1906,8 +1901,9 @@ The ordered queue is now:
 3. **T2-alpha acceptance:** **landed below** — the source-to-OBJ fixture and
    selected caller evidence pass for the bounded `functions[0].name` shape.
    T2-beta (`params`/`blocks`) is now the next bounded slice.
-4. **Separate hygiene:** land one mechanical fmt-only commit after the T2
-   source slice, with no semantic or baseline-red changes mixed in.
+4. **Separate hygiene:** reopen only if `cargo fmt --all -- --check` turns
+   red again; keep any mechanical fix separate from semantic or baseline-red
+   changes.
 
 The pointer remains `MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2` and now names the
 T2-beta EmptyArray/index/length/kind slice as the next blocker. No production

@@ -140,3 +140,25 @@ merged parser source -> source-backed materialization
 Until the existing loop Recipe authority names an accepted consumer for this
 source shape, the static I0 stays at `design_stop`, the selected old edge is
 retained, and no production switch or retirement is authorized.
+
+## Read-only loop-boundary audit receipt — 2026-09-19
+
+The parser loop dependency is now pinned to one finite source shape. The
+`ParserProgramBox.parse/2` owner has an outer `loop(cont_prog == 1)` at
+`lang/src/compiler/parser/program/parser_program_box.hako:81`; the selected
+`starts_with/3` site at line 102 is inside that loop's declaration branch. The
+same body also contains nested loops (`static_semis == 1` and `loop(true)`) and
+exit-driven control, so it is outside the accepted GenericLoopV1 first cohort.
+
+The existing `CallableGenericLoopSourceFactsIssuerV1::issue_once`,
+`verify_located_generic_loop_v1`, and GenericLoop semantic/physical adapter
+remain the only authorities. Their exact route requirement is raw
+`[GenericLoopV1]`; the current result is the named
+`GenericLoopV1NotSelected` terminal. The existing Recipe cannot consume this
+shape because nested or first-cohort-ineligible loops stop before effects.
+
+The next design task is one decision for this exact finite shape: extend the
+existing Facts/Recipe and adapter together, or retain the typed terminal.
+Either outcome must keep one authority and one route. No new parser Recipe
+issuer, AST/MIR rescan, compatibility/VM retry, static catalog row,
+production switch, or retirement is authorized while this decision is open.
