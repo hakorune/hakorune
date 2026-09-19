@@ -1,10 +1,10 @@
 ---
-Status: selected__fast__2026-09-19
+Status: selected__design_stop__2026-09-19
 Task: MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0
 Date: 2026-09-19
 Parent: mir-call-parser-nested-loop-source-promotion-d0-2026-09-19.md
 ProductionCaller: selected normal MIR/static-receiver route only
-Implementation permission: true for the existing LoopCond source/Recipe/physical owners and one selected static edge
+Implementation permission: false while the same-owner source bridge remains `NoSafeSlice`
 Classification: BoxCount; one source-backed nested-loop handoff and one compatibility-edge retirement
 ---
 
@@ -91,13 +91,39 @@ library filter. The remaining I0 work is the source Facts/Recipe handoff and
 physical/static consumer path below; this checkpoint does not retire the old
 edge or claim source-to-MIR acceptance.
 
+## Design audit checkpoint — typed NoSafeSlice
+
+The read-only bridge audit closed the next boundary as `NoSafeSlice`; no code
+or fixture change is authorized until this contract is designed in the
+existing owners. `CallableGenericLoopSourceFactsIssuerV1` is the only current
+source Facts issuer, but it accepts only the GenericLoop payload and emits
+`GenericLoopV1` selection. The local `LoopCondBreakContinueFacts`/Recipe can
+express nested AST shapes, yet its `StmtRef` exit items do not retain the
+resolver `ResolvedExitRecordV1` rows or the forest parent binding. The existing
+LoopCond composer/physicalizer also requires `LoopRouteContext` and re-enters
+AST/legacy lowering; the source GenericLoop expression port cannot safely
+consume it.
+
+This is an internal authority gap, not an external wait. The reopen contract
+is one same-owner co-seal that carries the forest binding, all paired exit
+records, the selected source target relation, and a source-aware LoopCond
+Recipe/JoinSig handoff into a physical adapter that does not construct
+`LoopRouteContext`. Until that product and consumer are specified, retain the
+selected compatibility edge and do not issue a route token, catalog row,
+fallback, or production switch. Evidence: read-only audit of
+`normal_callable_loop_source_facts.rs`,
+`control_flow/facts/loop_cond_break_continue.rs`,
+`control_flow/recipes/loop_cond_break_continue.rs`,
+`plan/recipe_tree/loop_cond_composer.rs`, and
+`plan/features/loop_cond_bc.rs` on 2026-09-19.
+
 ## Ordered implementation tasks
 
 | Order | Task | Completion condition |
 | --- | --- | --- |
 | 1 | Source co-seal | One move-only product binds the exact three-member forest, ordered paths/frame keys, all resolver exits, parser brand/owner, and target/source site. Foreign, missing, duplicate, or orphan rows reject before effects. |
-| 2 | LoopCond route token | The route registry yields exactly `[LoopCondBreakContinue]` for this product; GenericLoop, LoopBreak, overlap, and route re-entry are typed rejects. |
-| 3 | Source physical consume | `loop_cond_bc` consumes the product through the existing source expression/body port, lowers nested recipe items and exit transfers, and discards the whole session on error. |
+| 2 | LoopCond route token | **Blocked by NoSafeSlice.** First design the same-owner source Facts/Recipe/JoinSig product; then the route registry must yield exactly `[LoopCondBreakContinue]` for this product, with GenericLoop, LoopBreak, overlap, and route re-entry as typed rejects. |
+| 3 | Source physical consume | **Blocked by NoSafeSlice.** `loop_cond_bc` needs a source-aware adapter that lowers nested recipe items and exit transfers without constructing `LoopRouteContext`, and discards the whole session on error. |
 | 4 | Static tuple handoff | The selected static result reaches the existing statement-If/Equal consumer with ordered arguments and ExactI64 result; duplicate consume and wrong ordinal reject before argument effects. |
 | 5 | Negative matrix | Wrong owner/brand, forest parent drift, omitted child, wrong path, missing/duplicate/foreign exit, wrong target/header/result, legacy route re-entry, and extra nested loop all fail closed. |
 | 6 | Retirement and acceptance | After positive plus negative evidence, remove only the selected tuple's retained compatibility/static-child disposition and record source-to-MIR acceptance. |
