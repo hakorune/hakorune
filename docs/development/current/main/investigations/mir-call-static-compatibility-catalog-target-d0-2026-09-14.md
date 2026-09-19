@@ -784,3 +784,75 @@ This dependency audit supersedes the older wording that described the resolver
 expression-`If` relation itself as pending. The relation and source-result
 issuer are landed; physical expression-result lowering and live Cataloged-site
 consumption remain open.
+
+## Expression-result port contract — design-only finite input table
+
+The next port is a route-specific adapter over the existing canonical CFG/SSA
+owners. It is not a widened `IfRecipeV1`, `IfJoinSigV1`, or
+`VerifiedResolvedIfCfgReadyJoinRowsV1`: those owners remain statement-`If`
+owners and their rows require a real `BindingRefV1`. The expression port has
+no synthetic binding and is consumed only for the exact outer source consumer
+recorded by `ResolvedExpressionIfConsumerV1`.
+
+The proposed sealed input is the following finite relation. These are design
+fields, not a new receipt issued in the current `design_stop`:
+
+| Input | Required authority and invariant |
+| --- | --- |
+| source owner | The `CanonicalSameModuleCallableKeyV1` from `VerifiedSourceResultProductV1::owner`, co-sealed with the matching `FunctionOwnerIdV1` ledger view. A foreign product, ledger, or resolved input rejects before CFG work. |
+| source result product | One `VerifiedSourceResultProductV1` branded by the exact declaration catalog. Its `SourceResultClassV1` is `I64` or `String`; `operations`, `bool_facts`, and `call_dispositions` are consumed as sealed rows, never recomputed from MIR or AST. |
+| conditional row | One `ResolvedConditionalExpressionSourceV1` selected by the product's exact outer `SourceExprSiteV1`. Its condition, `then_block`/`then_tail`, `else_block`/`else_tail`, and `ResolvedExpressionIfConsumerV1` must all belong to the same ledger owner. |
+| consumer | The resolver-issued parent and role are one of `Value`, `Rhs`, or `Initializer(_)`. The port passes the resulting `ValueId` to that existing consumer; it does not choose a consumer from names, line numbers, or MIR shape. |
+| branch values | Exactly two source-issued branch value relations, both class-compatible with the product (`I64` or `String`). A missing, foreign, unknown, or mixed branch class rejects before any physical effect. |
+| CFG witness | `IfCfgSessionV1` owns block layout, branch closure, and predecessor revalidation. The port receives its verified predecessor relation and does not create a second CFG/SSA owner. |
+| physical commit | Reuse `PhiDraftV1::prepare_cfg_ready`, `phi_lifecycle::define_final_from_prepared_completion`, existing `phi_type_publication`, and input materialization. Only the sealed source class selects `MirType::Integer` or `MirType::String`; the adapter never infers it from a `ValueId`. |
+| publication handoff | The existing `VerifiedStaticCallResultPublicationHandoffV1` remains the target/header/result authority. It must carry the same parser-issued site, `ExactI64` result, and required argument ordinal `[1]`, and it is consumed once by the existing publication ingress. |
+
+For the first selected tuple, the table is finite and exact:
+
+```text
+source owner       = ParserProgramBox.parse/2
+source namespace   = StaticBoxMethod
+source site        = parser-issued SourceExprSiteV1
+                    (parser_program_box.hako:102 is diagnostic only)
+target             = ParserStringUtilsBox.starts_with/3
+argument shape     = String, I64, String
+required i64 args  = [1]
+source result      = SourceResultClassV1::I64
+publication result = ExactI64
+eligible consumers = Value | Rhs | Initializer(_)
+excluded           = ParserBox instance methods and every compatibility root
+```
+
+The co-seal order is source result product → exact conditional row and
+consumer → verified CFG predecessors and branch values → physical PHI/value
+commit → static publication handoff. A failure at any earlier relation is a
+named rejection; it cannot reopen the legacy owner or publish a partial
+product. The product, port output, and publication handoff each have one
+consumer, so an unconsumed sibling or a second consume remains a blocker.
+
+### Required negative matrix before implementation entry
+
+The port guard must exercise these finite reject classes without weakening the
+existing source-result errors:
+
+1. `ForeignCallable`, `ForeignLedger`, `ForeignResolvedInput`, or a catalog
+   identity mismatch (`ForeignCallTargetCatalog`).
+2. Missing or duplicate conditional site; missing branch tail; a conditional
+   row whose parent or role is not the exact `Value`/`Rhs`/`Initializer(_)`
+   consumer recorded by the resolver (`ConsumerSiteDrift`).
+3. Non-empty `BlockExpr` prelude, missing branch value, `UnknownExpression`,
+   `UnprovenResultClass`, or mixed `I64`/`String` branch classes.
+4. CFG predecessor drift, an already-consumed port/product, a duplicate
+   consumer, or a result handed to a different outer site.
+5. Missing, foreign, ambiguous, or wrong-result static target/header; a
+   required argument ordinal other than `[1]`; instance-box lineage presented
+   to the static ingress; or any compatibility-root re-entry.
+
+The positive proof is the same tuple with one exact source site, one
+`ExactI64` handoff, one result value, and one existing publication consumer.
+Implementation permission remains closed until this port contract, the
+source-result product, the publication handoff, and the cohort-local old-edge
+delete set are all co-sealed. The lifecycle/birth red inventory reported in
+review remains a separate verification-health lane; it must not be silently
+reclassified or used to widen this static tuple.
