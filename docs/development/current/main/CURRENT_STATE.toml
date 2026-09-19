@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2"
 current_execution_cohort = "map_argument_read_t2"
-current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2__t2_aggregate_main_matrix"
+current_blocker_token = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2__t2_ownership_fault_matrix"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "closed__t2_alpha_nested_array_argument_handoff_2026-09-19"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -23,8 +23,11 @@ T1 alpha/beta/gamma and T2-alpha are closed with source-to-OBJ evidence.
 T2-beta-1 params ArrayLength is closed: Normal=0, prepare-Fault=70, REPORT 100.
 T2-beta-2 blocks[0].get(kind) is closed: Normal=30, prepare-Fault=70, REPORT 100.
 T2-beta-3 blocks.length is closed: Normal=1, prepare-Fault=70, REPORT 100.
-The bounded T2-beta acceptance inventory is complete. Next is the T2 aggregate
-main matrix: functions, params, and blocks in one finite source-to-OBJ shape.
+The bounded T2-beta acceptance inventory is complete. The aggregate main
+matrix is also closed: one finite source-to-OBJ shape combines functions,
+params, and blocks; source Facts are 18/18 and the aggregate acceptance is
+1/1 with Normal=0 and prepare-Fault=70/REPORT100. Next is the T2 ownership
+and fault matrix for construction, install, callee-read, and caller-cleanup.
 Non-claims: no qualified Invoke, whole-T2 completion, production cutover, to_json, or legacy retirement.
 """
 next_design_card = "MIR-CALL-MAP-LIFECYCLE-CONSUMER-T2"

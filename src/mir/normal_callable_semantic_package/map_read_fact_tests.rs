@@ -59,6 +59,29 @@ static box Main {
 }
 "#;
 
+const AGGREGATE_MAP_READ_SOURCE: &str = r#"
+static box Helpers {
+    read_all(m: MapBox): i64 {
+        local name = m.get("functions").get(0).get("name")
+        local params_count = m.get("params").length()
+        local kind = m.get("blocks").get(0).get("kind")
+        local blocks_count = m.get("blocks").length()
+        return params_count
+    }
+}
+static box Main {
+    main() {
+        local function_row = %{ "name" => "main" }
+        local block = %{ "kind" => "entry" }
+        return read_all(%{
+            "functions" => [function_row],
+            "params" => [],
+            "blocks" => [block]
+        })
+    }
+}
+"#;
+
 #[test]
 fn source_issues_one_fact_for_each_bounded_nested_read() {
     let package = issue(NESTED_MAP_READ_SOURCE).expect("bounded source Map read package");
@@ -207,6 +230,38 @@ fn source_tracks_distinct_blocks_lookups_when_kind_and_length_are_read() {
             .count(),
         1
     );
+}
+
+#[test]
+fn source_issues_one_aggregate_row_set_for_functions_params_and_blocks() {
+    let package = issue(AGGREGATE_MAP_READ_SOURCE).expect("aggregate bounded map package");
+    let rows = package.map_read_facts().rows();
+    assert_eq!(rows.len(), 10);
+    assert_eq!(
+        rows.iter()
+            .filter(|row| row.operation() == MapReadOperationV1::MapLookup)
+            .count(),
+        6
+    );
+    assert_eq!(
+        rows.iter()
+            .filter(|row| row.operation() == MapReadOperationV1::ArrayIndex)
+            .count(),
+        2
+    );
+    assert_eq!(
+        rows.iter()
+            .filter(|row| row.operation() == MapReadOperationV1::ArrayLength)
+            .count(),
+        2
+    );
+    assert_eq!(
+        rows.iter()
+            .filter(|row| row.result() == MapReadResultClassV1::ArrayView)
+            .count(),
+        4
+    );
+    assert!(rows.iter().all(|row| !row.containment().is_empty()));
 }
 
 #[test]

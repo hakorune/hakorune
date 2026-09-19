@@ -2318,3 +2318,27 @@ T2-beta-1 `params.length()` and T2-beta-2 `blocks[0].get("kind")` receipts,
 the bounded T2-beta acceptance inventory is complete. This still does not
 claim whole-T2 completion, qualified Invoke, `to_json`, production cutover,
 or legacy retirement.
+
+## T2 aggregate main matrix acceptance (2026-09-19)
+
+One finite source-backed fixture now exercises the existing issuer and
+physical consumer in one callable: `functions[0].name`, `params.length()`,
+`blocks[0].get("kind")`, and `blocks.length()`. The source Fact contains ten
+rows (six `MapLookup`, two `ArrayIndex`, and two `ArrayLength`), with the two
+`blocks` lookup sites remaining distinct. No new authority, Recipe key, or
+physical operation was introduced.
+
+Focused source-authority evidence: `map_read_fact_tests` 18/18 passed. The
+source-to-OBJ fixture
+`host_providers::llvm_codegen::published_mir_object::map_array_source_tests::issued_aggregate_map_read_source_reaches_obj_normal_and_prepare_fault`
+passed 1/1 with `--exact --ignored`; published JSON contains two borrowed
+array installs, one empty-array install, two array-index reads, two array
+length reads, and two text reads. The linked object returns `0` in Normal;
+injected `prepare-fault` exits `70` and emits `REPORT 100`.
+
+This closes only the aggregate main matrix. The next bounded slice is the T2
+ownership/fault matrix: exercise construction, install, callee-read, and
+caller-cleanup Fault paths on this same source-owned aggregate, with the
+existing owner and named fault terminals. Whole-T2 completion still requires
+the full negative inventory, qualified Invoke, `to_json`, production cutover,
+and legacy retirement evidence.

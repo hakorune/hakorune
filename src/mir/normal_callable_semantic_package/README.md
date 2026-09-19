@@ -483,7 +483,14 @@ prepare-Fault=70 with `REPORT 100`. The same bounded issuer now admits
 `blocks.length()` as `ArrayLength -> I64`; empty, scalar, mixed, and nested
 entries remain named rejects. Its source-to-OBJ fixture passes Normal=1 and
 injected prepare-Fault=70 with `REPORT 100`. These are bounded receipts only;
-the aggregate T2 acceptance and production caller cutover remain separate.
+the full T2 acceptance and production caller cutover remain separate.
+The aggregate fixture now combines `functions[0].name`, `params.length()`,
+`blocks[0].get("kind")`, and `blocks.length()` in one source-backed callable.
+It emits ten source Fact rows and reaches the selected physical owner with two
+borrowed-array installs, one empty-array install, two index reads, two length
+reads, and two text reads. Its linked object returns `0` in Normal and exits
+`70` with `REPORT 100` under injected `prepare-fault`; construction, install,
+callee-read, and caller-cleanup Fault coverage remain the next T2 matrix.
 
 The bounded readable-Map argument lane admits a `: MapBox` formal as a
 borrowed read-only contract (`CallableParameterContractKindV1::Map`,

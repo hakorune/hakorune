@@ -9,6 +9,29 @@ use crate::mir::{MirCompiler, NormalCompileRequestV1};
 use std::path::Path;
 use std::process::Command;
 
+const AGGREGATE_MAP_READ_SOURCE: &str = r#"
+static box Helpers {
+    read_all(m: MapBox): i64 {
+        local name = m.get("functions").get(0).get("name")
+        local params_count = m.get("params").length()
+        local kind = m.get("blocks").get(0).get("kind")
+        local blocks_count = m.get("blocks").length()
+        return params_count
+    }
+}
+static box Main {
+    main() {
+        local function_row = %{ "name" => "main" }
+        local block = %{ "kind" => "entry" }
+        return read_all(%{
+            "functions" => [function_row],
+            "params" => [],
+            "blocks" => [block]
+        })
+    }
+}
+"#;
+
 #[test]
 #[ignore = "requires selected C FFI, LLVM18 and lifecycle runtime"]
 fn issued_borrowed_array_source_reaches_obj_normal_and_prepare_fault() {
@@ -336,6 +359,91 @@ fn issued_borrowed_blocks_length_source_reaches_obj_normal_and_prepare_fault() {
                         runtime.join("libnyash_lifecycle_kernel.a"),
                     )?;
                     let object = dir.join("blocks-length.o");
+                    compile_published_view_object(view, object.to_str().unwrap(), Some(&session))
+                        .map_err(|error| format!("object: {error}"))?;
+                    let linked = dir.join("linked");
+                    link_borrowed_array_probe(&object, &linked, session.runtime_archive())?;
+                    let output = Command::new(&linked)
+                        .arg(case)
+                        .env("NYASH_NYRT_SILENT_RESULT", "1")
+                        .env("HAKO_NYRT_PLUGIN_HOST", "off")
+                        .output()
+                        .map_err(|error| error.to_string())?;
+                    assert_eq!(
+                        output.status.code(),
+                        Some(expected_exit),
+                        "{case}: {}",
+                        String::from_utf8_lossy(&output.stderr)
+                    );
+                    if case == "prepare-fault" {
+                        assert!(
+                            String::from_utf8_lossy(&output.stdout).contains("REPORT 100"),
+                            "{}",
+                            String::from_utf8_lossy(&output.stdout)
+                        );
+                    }
+                    Ok(())
+                },
+            );
+            std::fs::remove_dir_all(dir).unwrap();
+            result.unwrap_or_else(|error| panic!("{case}: {error}"));
+        }
+    });
+}
+
+#[test]
+#[ignore = "requires selected C FFI, LLVM18 and lifecycle runtime"]
+fn issued_aggregate_map_read_source_reaches_obj_normal_and_prepare_fault() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        use crate::runner::modes::common_util::normal_callable::{
+            materialize_normal_callable_program_v1, NormalCallableMaterializationOutcomeV1,
+        };
+        for (case, expected_exit) in [("normal", 0), ("prepare-fault", 70)] {
+            let NormalCallableMaterializationOutcomeV1::SourceBacked(source) =
+                materialize_normal_callable_program_v1(
+                    AGGREGATE_MAP_READ_SOURCE.to_string(),
+                    crate::parser::ParserBuildConfig::default(),
+                )
+                .expect("source materialization")
+            else {
+                panic!("source-backed request required");
+            };
+            let request = crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(
+                source,
+                None,
+                std::collections::HashMap::new(),
+            );
+            let dir = std::env::temp_dir().join(format!(
+                "hako-map-aggregate-source-{}-{case}",
+                std::process::id()
+            ));
+            std::fs::create_dir_all(&dir).unwrap();
+            let result = crate::mir::MirCompiler::with_options(true).compile_normal_with_published(
+                request,
+                |view, verification| -> Result<(), String> {
+                    assert!(verification.is_ok(), "{verification:?}");
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    let json = emit_lifecycle_physical_abi_json(&input)?;
+                    assert_eq!(
+                        json.matches("\"kind\":\"map_install_borrowed_array\"")
+                            .count(),
+                        2,
+                        "{json}"
+                    );
+                    assert_eq!(
+                        json.matches("\"kind\":\"map_install_empty_array\"").count(),
+                        1,
+                        "{json}"
+                    );
+                    assert_eq!(json.matches("\"kind\":\"map_array_index_map\"").count(), 2);
+                    assert_eq!(json.matches("\"kind\":\"map_array_length\"").count(), 2);
+                    assert_eq!(json.matches("\"kind\":\"map_get_text\"").count(), 2);
+                    let runtime = Path::new("target/lifecycle-kernel/release");
+                    let session = LifecycleRuntimeSessionV1::select(
+                        runtime.join("libnyash_lifecycle_kernel.a"),
+                    )?;
+                    let object = dir.join("aggregate-map-read.o");
                     compile_published_view_object(view, object.to_str().unwrap(), Some(&session))
                         .map_err(|error| format!("object: {error}"))?;
                     let linked = dir.join("linked");
