@@ -1215,3 +1215,12 @@ while a second take of an already consumed exact site fails with the named
 name-based lowering. The focused duplicate-take test is green (1/1). This
 closes only the one-shot transport guard; receiver/argument/result rejection,
 LoopCond physical acceptance, and old-edge deletion remain open.
+
+### A′ slice 2 resolver rejection guards — 2026-09-20
+
+The resolver contract rejection matrix now has 5/5 focused passes: the
+non-lexical receiver and argument-arity drift are rejected alongside the
+existing outside-loop, target-placement, and foreign-membership guards. The
+generated target issuer already rejects an incompatible result relation; the
+source-port Text result consume and LoopCond physical acceptance remain open,
+so this does not claim parser source-to-MIR cutover or old-edge deletion.

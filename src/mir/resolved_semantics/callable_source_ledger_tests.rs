@@ -580,6 +580,76 @@ fn resolver_callable_contract_co_seals_body_substring_and_generated_target() {
 }
 
 #[test]
+fn resolver_callable_contract_rejects_non_lexical_receiver() {
+    let tree = function(vec![ASTNode::Loop {
+        condition: Box::new(method_call(literal(7), "length", vec![])),
+        body: Vec::new(),
+        span: Span::unknown(),
+    }]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let view = forest.callable_source_ledger(forest.roots()[0]).unwrap();
+    let (_, call) = view.method_calls().next().expect("one method call");
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0).unwrap();
+    let mut target_issuer =
+        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap();
+    let target = target_issuer.issue(row).unwrap();
+    let membership = view.resolved_loop_source(&stmt(0)).unwrap();
+
+    assert_eq!(
+        ResolverCoreMethodCallableContractIssuerV1::issue(
+            &view,
+            call,
+            &membership,
+            ResolvedLoopPlacementV1::Condition,
+            target,
+        )
+        .unwrap_err(),
+        ResolverCoreMethodCallableContractRejectV1::UnsupportedReceiver
+    );
+}
+
+#[test]
+fn resolver_callable_contract_rejects_argument_arity_drift() {
+    let tree = function(vec![
+        local("text", literal(7)),
+        ASTNode::Loop {
+            condition: Box::new(method_call(variable("text"), "substring", vec![literal(0)])),
+            body: Vec::new(),
+            span: Span::unknown(),
+        },
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let view = forest.callable_source_ledger(forest.roots()[0]).unwrap();
+    let (_, call) = view.method_calls().next().expect("one method call");
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringSubstring, 2).unwrap();
+    let mut target_issuer =
+        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap();
+    let target = target_issuer.issue(row).unwrap();
+    let membership = view.resolved_loop_source(&stmt(1)).unwrap();
+
+    assert_eq!(
+        ResolverCoreMethodCallableContractIssuerV1::issue(
+            &view,
+            call,
+            &membership,
+            ResolvedLoopPlacementV1::Condition,
+            target,
+        )
+        .unwrap_err(),
+        ResolverCoreMethodCallableContractRejectV1::TargetArityMismatch {
+            expected: 2,
+            actual: 1,
+        }
+    );
+}
+
+#[test]
 fn resolver_callable_contract_rejects_call_outside_selected_loop_body() {
     let tree = function(vec![
         local("text", literal(7)),
