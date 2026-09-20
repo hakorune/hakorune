@@ -1,9 +1,9 @@
 ---
-Status: accepted_design__2026-09-21__ResolvedMethodStaticTargetCoissueI0
+Status: landed_bounded__2026-09-21__ResolvedMethodStaticTargetCoissueI0
 Task: MIR-CALL-D1B-RESOLVED-METHOD-STATIC-TARGET-COISSUE-I0
 Date: 2026-09-21
 Parent: mir-call-d1b-resolved-method-static-target-coissue-d0-2026-09-21.md
-Implementation permission: true; owned canonical-key relation and one-shot
+Implementation permission: landed; owned canonical-key relation and one-shot
   pre-effect consumption only
 NextCard: MIR-CALL-D1B-MAIN-RAW-EXACT-SOURCE-ISSUER-LOAN-D0
 ---
@@ -69,3 +69,30 @@ or old-edge deletion. The next D0 decides how this exact relation enters the
 source-to-raw loan and physical target consumer. If the package port cannot
 prove one-shot ownership without a second relation or an empty-as-available
 fallback, close this I0 as `NoSafeSlice` and retain the typed terminal.
+
+## Receipt (2026-09-21)
+
+Commit `02cc09f7653df52aa4f2350551a4075089f3498d` retains the exact
+`CanonicalSameModuleCallableKeyV1` returned by the existing declaration
+catalog, transports the owned relation through install, and exposes the
+package-port one-shot terminal before Main argument descent. The selected
+input helper was moved to `install/selected_lowering_input.rs` so the touched
+install owner is 664 lines and the new sibling is 163 lines; all touched Rust
+files remain below the 760-line design threshold and 800-line hard stop.
+
+Focused relation evidence is 4/4: direct canonical owner, imported alias,
+foreign import view, and one-shot package consumption. The unavailable Main
+relation case is 1/1 and proves `None` is distinct from a second take. The
+quick lifecycle collection is 31 pass / 5 fail; the five failures are the
+existing baseline rows `actual_string_helpers_general_result_row_reaches_its_first_loop_carrier`,
+`parser_scan_package_passes_callable_source_handoff_without_fallback`,
+`source_backed_app_main_direct_call_consumes_affine_loan`,
+`source_backed_package_failure_is_terminal_before_builder_effects`, and
+`source_bound_static_result_owner_reaches_the_raw_terminal`, matching the
+parent census with no new failure. The quick lib build reports 565 warnings,
+the established warning baseline. `cargo fmt --all -- --check` and
+`git diff --check` pass.
+
+The next design boundary is the source-to-raw exact source issuer and affine
+loan lifetime. No target/Callee, argument lowering, publication, production
+switch, compatibility retry, backend parity, or legacy deletion is claimed.
