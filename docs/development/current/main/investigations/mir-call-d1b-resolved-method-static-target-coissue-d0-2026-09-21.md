@@ -1,10 +1,11 @@
 ---
-Status: design_stop__2026-09-21__ResolvedMethodStaticTargetCoIssue
+Status: accepted_design__2026-09-21__ResolvedMethodStaticTargetCoIssue
 Task: MIR-CALL-D1B-RESOLVED-METHOD-STATIC-TARGET-COISSUE-D0
 Date: 2026-09-21
 Parent: mir-call-d1b-main-raw-qualified-method-source-coseal-d0-2026-09-21.md
-Implementation permission: false; issuer and traversal design only
-NextCard: MIR-CALL-D1B-RESOLVED-QUALIFIED-RECEIVER-IDENTITY-COSEAL-D0
+Implementation permission: accepted bounded design; next I0 may extend the
+  existing relation with its canonical declaration key and one-shot terminal
+NextCard: MIR-CALL-D1B-RESOLVED-METHOD-STATIC-TARGET-COISSUE-I0
 ---
 
 # Resolver MethodCall static-target co-issue D0
@@ -51,11 +52,13 @@ The missing join is the same-session qualified receiver/alias to
 `observe_method_calls_shadow_view_v0`. The separate Script inventory has that
 join but performs its own observation and is therefore not a free Main issuer.
 
-The current resolver product has a sharper boundary: `ResolvedMethodCallSourceV1`
-records `QualifiedUnbound` but no receiver lexeme, alias identity, or canonical
-owner. The declaration catalog's static lookup cannot recover that relation from
-the site alone. This is why candidate uniqueness and name/arity lookup are not
-acceptable substitutes for the missing source relation.
+The current resolver product already retains `QualifiedUnbound` together with
+`ResolvedQualifiedReceiverIdentityV1` (the exact source spelling). The existing
+Main co-issuer in `src/mir/normal_callable_semantic_package/model.rs:168-250`
+uses that row, the one lifecycle-owned import view, and the same declaration
+catalog to verify alias/direct-owner precedence, namespace, selector, arity,
+and declaration shape. The former identity gap is therefore stale; no second
+AST traversal is needed for this join.
 
 ## Decision boundary
 
@@ -67,11 +70,27 @@ resolver rows without a second traversal, a new parallel semantic authority,
 or a public receipt. Neither outcome opens target publication or raw loan
 transport.
 
-The finite recheck selects the reject boundary for the current products: the
-qualified receiver identity is absent from the resolver Facts, while the only
-product that retains it is the separate AST-backed Script inventory. A new
-design row must decide how the same source traversal retains this identity;
-until then the Main family stays typed-reject/parked.
+The finite recheck selects the accepted boundary for the current products:
+the relation is already source-backed and same-brand, but its owned row stops
+at `canonical_owner/selector/arity`. The remaining design is to retain the
+already-verified `CanonicalSameModuleCallableKeyV1` and expose one exact
+pre-effect consumer. This is a row extension of the existing Main issuer, not
+a new AST-backed target authority.
+
+## Accepted decision (2026-09-21)
+
+The read-only owner audit confirms one safe I0. Extend
+`VerifiedQualifiedReceiverCatalogRowV1` with the exact declaration key returned
+by the existing catalog lookup. The issuer must store that key only after the
+same resolver row, shared import-view brand, static namespace, selector, and
+arity checks succeed. The installed package may consume the owned relation once
+through an existing package-port seam before argument descent; a second take,
+foreign site, or missing relation is a named terminal. Do not reconstruct the
+key later from receiver spelling, name/arity, Script inventory, or AST.
+
+The I0 does not publish `Callee`, issue an affine loan, lower arguments, or
+switch the production caller. Those remain the next source-to-raw handoff
+boundary after the relation key has an exact consumer.
 
 ## Acceptance and reopen
 
