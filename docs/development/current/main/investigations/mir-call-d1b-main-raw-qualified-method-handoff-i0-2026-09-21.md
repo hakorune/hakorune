@@ -1,5 +1,5 @@
 ---
-Status: fast__2026-09-21__MainQualifiedMethodSourceHandoff
+Status: closed__2026-09-21__MainQualifiedMethodSourceHandoff
 Task: MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-HANDOFF-I0
 Date: 2026-09-21
 Parent: mir-call-d1b-main-raw-qualified-method-source-coseal-d0-2026-09-21.md
@@ -59,6 +59,31 @@ Focused tests must cover:
 Keep the existing relation brand and declaration-key checks. A failure after the
 handoff is terminal for the current lowering transaction; no legacy retry or
 Script publication re-entry is allowed.
+
+## Execution receipt
+
+The bounded implementation landed at `d6ee865368`:
+
+* the Main adapter now owns the relation for the lowering callback and exposes
+  an explicitly unarmed compatibility hook;
+* the exact source row is taken once, retaining the resolver-provided ordered
+  argument sites; and
+* the existing target-only physical terminal consumes the declaration key after
+  expected-site argument descent. No result ABI or publication row was added.
+
+Focused relation evidence is green:
+`app_main_qualified_receiver_relation_takes_exact_row_and_argument_sites_once`
+and the existing direct, alias, foreign-view, and package one-shot tests. The
+new guard checks ordered two-argument sites, receiver mismatch before taking,
+exact take, residual completion, and second-take rejection. `cargo fmt --check`
+and `cargo check --profile quick --lib` pass. The quick check reports the
+repository's existing warning baseline (1,845 warnings); no new warning family
+was introduced by this slice.
+
+The full source-backed Main call acceptance remains outside this I0. The
+existing `source_backed_app_main_direct_call_consumes_affine_loan` family still
+reproduces the known cleanup/state-imbalance baseline, so it is recorded as a
+next-card acceptance dependency rather than claimed as a regression fixed here.
 
 ## Closeout
 
