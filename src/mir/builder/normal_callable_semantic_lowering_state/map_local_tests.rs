@@ -1,9 +1,13 @@
 use super::*;
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
+use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::resolved_semantics::{
     CallableFunctionSyntaxViewV1, FunctionSemanticResolverSessionV1,
-    ResolveSelectedCallableForestsOutcomeV1,
+    ResolveSelectedCallableForestsOutcomeV1, SourcePathV1,
 };
+use crate::mir::source_call_target::issue_source_bound_core_method_calls_v1;
+use crate::mir::ValueId;
 use crate::parser::NyashParser;
 
 fn fixture() -> CallableSemanticLoweringState {
@@ -40,6 +44,66 @@ fn fixture() -> CallableSemanticLoweringState {
     let state =
         CallableSemanticLoweringState::from_exact_source(input).expect("fixture lowering state");
     state
+}
+
+fn core_method_fixture() -> (
+    CallableSemanticLoweringState,
+    crate::mir::resolved_semantics::SourceExprSiteV1,
+) {
+    let program = NyashParser::parse_from_string(
+        "function caller(text) { loop(text.length() < 2) { local piece = text.substring(0, 1) } }",
+    )
+    .expect("core-method fixture parses");
+    let crate::ast::ASTNode::Program { mut statements, .. } = program else {
+        panic!("fixture must be a program")
+    };
+    let function = statements.remove(0);
+    let syntax = CallableFunctionSyntaxViewV1::from_function_ast(&function)
+        .expect("core-method callable syntax");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(9103).expect("resolver");
+    let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
+        .resolve_selected_callable_forests(&[syntax.function()])
+        .expect("core-method forest")
+    else {
+        panic!("core-method fixture unexpectedly deferred")
+    };
+    let forest = forests.into_vec().pop().expect("core-method root forest");
+    let owner = forest.roots()[0];
+    let ledger = forest
+        .callable_source_ledger(owner)
+        .expect("core-method source ledger");
+    let rows = issue_source_bound_core_method_calls_v1(&ledger).expect("core-method rows");
+    let site = rows
+        .iter()
+        .find_map(|(site, row)| {
+            (row.contract().target().row().row().op == CoreMethodOp::StringLen)
+                .then(|| site.clone())
+        })
+        .expect("length row");
+    let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
+        &function,
+        &forest,
+        syntax.function().root_profile(),
+    )
+    .expect("core-method projection");
+    let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+        &function,
+        &forest,
+        &projection,
+    )
+    .expect("core-method input");
+    let mut state =
+        CallableSemanticLoweringState::from_exact_source_with_dynamic_source_and_core_methods(
+            input,
+            None,
+            rows.into_vec().into_iter().collect(),
+        )
+        .expect("core-method lowering state");
+    state.entry_installed = true;
+    for (index, binding) in state.parameters.iter().copied().enumerate() {
+        state.values.insert(binding, ValueId::new(index as u32 + 1));
+    }
+    (state, site)
 }
 
 #[test]
@@ -84,4 +148,24 @@ fn local_initializer_lookup_rejects_missing_locator_and_foreign_binding() {
     assert!(state
         .local_initializer(statement.node(), *ordinal as usize)
         .is_ok());
+}
+
+#[test]
+fn source_core_method_take_rejects_duplicate_exact_site() {
+    let (mut state, site) = core_method_fixture();
+    let missing = SourcePathV1::root_body(99).expr();
+    assert!(state
+        .take_source_core_method_call(&missing, "length", 0)
+        .expect("missing exact site")
+        .is_none());
+    let first = state
+        .take_source_core_method_call(&site, "length", 0)
+        .expect("first exact take")
+        .expect("length row");
+    assert_eq!(first.result_type(), crate::mir::MirType::Integer);
+
+    let duplicate = state
+        .take_source_core_method_call(&site, "length", 0)
+        .expect_err("duplicate take must freeze");
+    assert!(duplicate.contains("duplicate-core-method-call-consumption"));
 }

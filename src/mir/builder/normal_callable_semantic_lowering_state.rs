@@ -68,6 +68,7 @@ pub(super) struct CallableSemanticLoweringState {
     consumed_assignments: BTreeSet<SourceNodeSiteV1>,
     consumed_direct_lambdas: BTreeSet<SourceNodeSiteV1>,
     consumed_brand_constructors: BTreeSet<SourceNodeSiteV1>,
+    consumed_source_core_method_calls: BTreeSet<crate::mir::resolved_semantics::SourceExprSiteV1>,
     source_loop_bridge: Option<source_loop_bridge::CallableLoopSourceBridgeV1>,
     source_core_method_calls: BTreeMap<
         crate::mir::resolved_semantics::SourceExprSiteV1,
@@ -286,6 +287,7 @@ impl CallableSemanticLoweringState {
             consumed_assignments: BTreeSet::new(),
             consumed_direct_lambdas: BTreeSet::new(),
             consumed_brand_constructors: BTreeSet::new(),
+            consumed_source_core_method_calls: BTreeSet::new(),
             source_loop_bridge,
             source_core_method_calls,
         })
@@ -298,8 +300,14 @@ impl CallableSemanticLoweringState {
         arity: u32,
     ) -> Result<Option<ExactSourceMethodCallV1>, String> {
         let Some(row) = self.source_core_method_calls.remove(site) else {
+            if self.consumed_source_core_method_calls.contains(site) {
+                return Err(freeze("duplicate-core-method-call-consumption"));
+            }
             return Ok(None);
         };
+        if !self.consumed_source_core_method_calls.insert(site.clone()) {
+            return Err(freeze("duplicate-core-method-call-consumption"));
+        }
         let contract = row.into_contract();
         if contract.call_site() != site
             || contract.result_site() != site

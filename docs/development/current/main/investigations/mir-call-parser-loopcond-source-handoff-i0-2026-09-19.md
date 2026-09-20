@@ -1205,3 +1205,13 @@ rejected, and a duplicate `(caller, source-site)` is rejected. This closes
 only the catalog issuance guard. Wrong receiver/argument/result, duplicate
 take from lowering state, LoopCond physical acceptance, and old-edge deletion
 remain open; the existing 555-warning baseline is unchanged.
+
+### A′ slice 2 exact take guard — 2026-09-20
+
+`CallableSemanticLoweringState` now records consumed CoreMethod source sites.
+An unregistered site still returns `None` for the existing family boundary,
+while a second take of an already consumed exact site fails with the named
+`duplicate-core-method-call-consumption` freeze instead of reopening raw
+name-based lowering. The focused duplicate-take test is green (1/1). This
+closes only the one-shot transport guard; receiver/argument/result rejection,
+LoopCond physical acceptance, and old-edge deletion remain open.
