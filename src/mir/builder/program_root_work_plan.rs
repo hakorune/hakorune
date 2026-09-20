@@ -13,9 +13,9 @@ use super::normal_instance_constructor_admission::{
 use super::normal_script_composite_partition::CanonicalScriptCompositeProgramPartitionV1;
 #[cfg(test)]
 use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
-use super::normal_script_program_item_admission::{
-    classify_normal_script_program_item_v1, NormalScriptProgramItemAdmissionV1,
-};
+#[cfg(test)]
+use super::normal_script_program_item_admission::classify_normal_script_program_item_v1;
+use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 use super::normal_script_root_demand_window::PreparedScriptRootAdmissionV1;
 #[cfg(test)]
 use super::normal_script_root_demand_window::ScriptRootDemandWindowBuilderV1;
