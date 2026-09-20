@@ -1,5 +1,5 @@
 ---
-Status: design_stop__2026-09-21__MainRawQualifiedMethodSourceCoSeal
+Status: parked_sealed__2026-09-21__NoSafeSlice_MainQualifiedTargetReuse
 Task: MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-SOURCE-COSEAL-D0
 Date: 2026-09-21
 Parent: mir-call-d1b-main-raw-exact-source-issuer-loan-d0-2026-09-21.md
@@ -80,6 +80,20 @@ design row must decide whether the existing resolver MethodCall relation and the
 declaration/import catalog can co-issue an AST-free qualified static target in
 the same source session. If that requires a second traversal or issuer, the
 Main family remains typed-reject/parked.
+
+## Read-only owner audit
+
+The bounded owner audit confirmed the reject boundary. The Main package relation
+at `src/mir/normal_callable_semantic_package/model.rs:168-250` owns only the
+resolver ledger's caller/site/receiver/owner/selector/arity relation; it does
+not retain an AST call site or lexical product. The existing target chain still
+requires `VerifiedSourceMethodCallSiteV1::verify` to project the AST body and
+`VerifiedQualifiedReceiverLexicalDispositionsV1` to run its own shadow
+traversal. `VerifiedSourceStaticCallTargetCatalogV1::seal_qualified` has no
+entry point that consumes the Main relation. The Script whole-source inventory
+therefore cannot be handed to Main without a second source observation or a
+hidden Script retry. This D0 is sealed as `NoSafeSlice`; implementation remains
+closed and the next D0 owns the resolver/catalog co-issuer decision.
 
 ## Reopen trigger
 
