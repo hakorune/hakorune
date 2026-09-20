@@ -187,6 +187,30 @@ source-scoped issuer co-seals the exact resolver row and verifies that the
 direct topology is the same row consumed by the terminality proof. No change
 to terminality predicates or logical role vocabulary is authorized in D0.
 
+### Bridge ownership correction (worker recheck)
+
+`CallableLoopSourceBridgeV1` must not become a merged-package `LoopRouteId`
+inventory. It is constructed from one `ResolvedFunctionLoweringInputV1` and is
+therefore a per-callable source-evidence provider only. It does not issue route
+policy, terminality, catalog brand, or package-completeness meaning.
+
+The viable D1 premise is narrower: retain a route-neutral LoopBreak candidate in
+that bridge, then extend the existing
+`CallableGenericLoopSourceFactsIssuerV1` boundary to co-seal the candidate with
+the existing planner `PlanBuildOutcome`, `LoopBreakFacts`/
+`LoopBreakSourceTopologyV1`, `DirectLoopBreakTerminalityV1`, exact source
+items/exit rows, and the catalog brand. The resulting move-only product may
+feed the existing `CallableLoopSourceParts` located block and
+`lower_raw_loop_v0`/`lower_loop_v0_core`; it must not add a second Recipe,
+JoinSig, or route ledger.
+
+This still does not satisfy the D0 acceptance boundary. A parent-level
+observer must aggregate every callable's route-neutral candidate from the same
+merged package and prove complete coverage before `Cataloged`/`Selected`,
+caller-zero, or an old-edge delete-set can be claimed. The bridge remains
+source evidence, the Facts issuer remains the semantic co-seal point, and
+package completeness remains an explicit downstream obligation.
+
 ## Physical adapter premise audit
 
 The physical owner is narrower than the route name suggests. The shared
