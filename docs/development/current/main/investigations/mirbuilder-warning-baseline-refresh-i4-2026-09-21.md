@@ -1,18 +1,18 @@
 ---
-Status: closed__2026-09-21__WarningBaselineRefreshI3__LocalReceiptSelected
-Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I3
+Status: design_stop__2026-09-21__WarningBaselineRefreshI4__NextCohortSelection
+Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I4
 Date: 2026-09-21
-Parent: mirbuilder-warning-unused-import-program-root-test-i0-2026-09-21.md
+Parent: mirbuilder-warning-unused-import-local-receipt-i0-2026-09-21.md
 Implementation permission: false; refresh and select one cohort only
-NextCard: MIRBUILDER-WARNING-UNUSED-IMPORT-LOCAL-RECEIPT-I0
+NextCard: MIRBUILDER-WARNING-SURFACE-CENSUS-R0
 ---
 
-# MirBuilder warning baseline refresh I3
+# MirBuilder warning baseline refresh I4
 
 ## Six-line brief
 
 ```text
-Decision: refresh both warning surfaces after the third import cohort before
+Decision: refresh both warning surfaces after the fourth import cohort before
   selecting another cleanup row.
 Source authority + canonical issuer: fixed quick-profile Cargo diagnostics and
   the checked-in warning classification policy.
@@ -21,7 +21,7 @@ Non-authority: historical counts, cargo-fix, blanket allow, visibility edits,
 Fail-fast boundary: command drift, new failure name, unclassified test-only
   reference, or warning family outside the inventory stops selection.
 Smallest next slice: compare current lib/lib-test inventories against
-  1,843/562 and select at most one caller-zero import cohort.
+  1,842/561 and select at most one caller-zero import cohort.
 Non-claims: no broad warning deletion, suppression, semantic refactor, or
   production route change.
 ```
@@ -33,7 +33,3 @@ Run `cargo check --profile quick --lib -j4` and
 file:line, owner, and production/test/compat/generated role, then select one
 cohort or write `NoSafeSlice`. Keep dead-code/private-interface rows with
 their owners. No code edit is permitted until the selection is recorded.
-
-I3's receipt was reproduced at lib=1,843 and lib-test=562. The selected
-parent-module `drive_local_statement_with_receipt_v1` import was removed by
-the child card, producing lib=1,842 and lib-test=561 with no new failure.
