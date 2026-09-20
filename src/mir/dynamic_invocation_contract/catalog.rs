@@ -92,7 +92,8 @@ impl<'catalog> VerifiedDynamicInvocationEnvelopeCatalogV1<'catalog> {
         self.targets
             .all_rows()
             .filter_map(|((caller, site), target)| match target {
-                VerifiedSourceCallTargetV1::Static(_) => None,
+                VerifiedSourceCallTargetV1::Static(_)
+                | VerifiedSourceCallTargetV1::CoreMethod(_) => None,
                 VerifiedSourceCallTargetV1::DynamicMember(target) => {
                     Some(VerifiedDynamicInvocationEnvelopeRefV1 {
                         caller,

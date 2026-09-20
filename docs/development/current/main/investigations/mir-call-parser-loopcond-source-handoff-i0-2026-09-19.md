@@ -1177,3 +1177,22 @@ classified; they do not widen this row.
 No Windows or whole-library run is required for this I0. The parent static
 card owns the later phase14/16/17 source-to-exe closeout; this card must first
 prove the selected source-to-MIR handoff and its old-edge deletion.
+
+### A′ slice 2 transport implementation checkpoint — 2026-09-20
+
+The selected route-neutral catalog now has a third `CoreMethod` arm carrying
+the existing generated-manifest/CoreMethod-instance target and resolver-owned
+lexical receiver contract. The semantic package issues these rows before
+install, co-seals them through `VerifiedSourceCallTargetCatalogV1`, and lends
+the selected caller's exact-site map through the existing lowering state and
+source expression port. Main static children, cataloged static methods, and
+cataloged instance methods use the same transport; unsupported non-lexical
+receivers remain unarmed for their existing owner.
+
+Evidence: `CARGO_BUILD_JOBS=4 cargo check --profile quick --lib` passes;
+the focused `merged_parser` guard passes 2/2 after the transport change. The
+test binary reports the repository's existing warning baseline (555 warnings
+for the filtered lib-test build); warning cleanup remains a separate task.
+The exact positive/negative receiver/argument/result matrix and production
+LoopCond physical acceptance are still pending, so this receipt claims neither
+parser source-to-MIR acceptance nor old-edge deletion.

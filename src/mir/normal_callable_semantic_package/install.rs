@@ -83,6 +83,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     CatalogSlotOccupied,
     LoweringAlreadyStarted,
     LoweringNotCompleted,
+    CoreMethodSource(Box<str>),
     DirectCallLoanNotConsumed,
     MainRootUnavailable,
     MainRootRelationMismatch,
@@ -117,6 +118,15 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     physical_header: VerifiedCallablePhysicalHeaderCohortV1,
     dynamic: NormalCallableDynamicProjectionV1,
     dynamic_physical_header: RefCell<Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>>,
+    source_core_method_calls: RefCell<
+        std::collections::BTreeMap<
+            SelectedNormalCallableKeyV1,
+            std::collections::BTreeMap<
+                crate::mir::resolved_semantics::SourceExprSiteV1,
+                crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1,
+            >,
+        >,
+    >,
 }
 
 pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
@@ -442,6 +452,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             dynamic,
             dynamic_physical_header,
             declared_instance_call_locators,
+            source_core_method_calls,
         } = self.package;
         match root_execution {
             NormalRootExecutionPackageStateV1::Prepared(root) => root.discard_unconnected(),
@@ -469,11 +480,25 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             physical_header,
             dynamic,
             dynamic_physical_header: RefCell::new(dynamic_physical_header),
+            source_core_method_calls: RefCell::new(source_core_method_calls),
         }
     }
 }
 
 impl InstalledNormalCallableSemanticPackageV1 {
+    pub(crate) fn take_source_core_method_calls(
+        &self,
+        key: &SelectedNormalCallableKeyV1,
+    ) -> std::collections::BTreeMap<
+        crate::mir::resolved_semantics::SourceExprSiteV1,
+        crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1,
+    > {
+        self.source_core_method_calls
+            .borrow_mut()
+            .remove(key)
+            .unwrap_or_default()
+    }
+
     pub(in crate::mir) fn map_read_facts(&self) -> &super::map_read_fact::MapReadFactsV1 {
         &self.map_read_facts
     }

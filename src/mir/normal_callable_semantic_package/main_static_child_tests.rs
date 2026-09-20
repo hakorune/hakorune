@@ -95,7 +95,7 @@ fn main_static_child_port_consumes_all_role_rows_once() {
             .expect("same installed catalog");
         assert_eq!(children.len(), 4);
         for child in children {
-            port.with_main_static_child_lowering_input(child, |input| {
+            port.with_main_static_child_lowering_input(child, |input, _core_method_calls| {
                 let (selected, admission, _signature) = input.into_lowering_and_admission();
                 assert!(matches!(
                     selected.semantic(),

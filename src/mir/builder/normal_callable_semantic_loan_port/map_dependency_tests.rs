@@ -65,6 +65,7 @@ impl MirBuilder {
                 RawInvocationRootLineageV1::Cataloged(key),
                 input,
                 None,
+                std::collections::BTreeMap::new(),
                 observation,
                 Rc::clone(&ledger),
                 |inner, transport| {

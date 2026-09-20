@@ -427,6 +427,12 @@ fn classify_method_call(
                 .push(SourceCallDispositionV1::Dynamic { site: site.clone() });
             ExprClassV1::Opaque
         }
+        Some(VerifiedSourceCallTargetV1::CoreMethod(_)) => {
+            state
+                .call_dispositions
+                .push(SourceCallDispositionV1::Absent { site: site.clone() });
+            ExprClassV1::Opaque
+        }
         None => {
             state
                 .call_dispositions

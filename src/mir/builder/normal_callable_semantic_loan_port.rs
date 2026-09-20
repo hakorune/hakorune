@@ -128,17 +128,19 @@ impl<'package, 'loan, 'port, 'collector, 'target>
         };
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
-        self.package
-            .with_selected_lowering_input(&key, |input| {
+        Ok(self
+            .package
+            .with_selected_lowering_input_and_core_methods(&key, |input, core_method_calls| {
                 with_selected_source_scope(
                     inner,
                     lineage,
                     input,
+                    core_method_calls,
                     Rc::clone(&ordinary_new_claim_ledger),
                     execute,
                 )
             })
-            .map_err(package_issue)?
+            .map_err(package_issue)?)
     }
 }
 
@@ -204,6 +206,10 @@ fn with_selected_source_scope<'port, 'collector, R>(
     inner: &mut RawInvocationChildPortV1<'port, 'collector>,
     lineage: super::raw_invocation_source_transport::RawInvocationRootLineageV1,
     input: SelectedCallableLoweringInputRefV1<'_>,
+    core_method_calls: std::collections::BTreeMap<
+        crate::mir::resolved_semantics::SourceExprSiteV1,
+        crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1,
+    >,
     ordinary_new_claim_ledger: Rc<
         crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
     >,
@@ -226,6 +232,7 @@ fn with_selected_source_scope<'port, 'collector, R>(
         lineage,
         input.source(),
         dynamic_source,
+        core_method_calls,
         input.method_source_observation().cloned(),
         ordinary_new_claim_ledger,
         execute,
@@ -237,6 +244,10 @@ fn with_callable_source_scope<'port, 'collector, R>(
     lineage: super::raw_invocation_source_transport::RawInvocationRootLineageV1,
     input: ResolvedFunctionLoweringInputV1<'_>,
     dynamic_source: Option<Rc<crate::mir::builder::VerifiedSourceBackedDynamicCallableV1>>,
+    core_method_calls: std::collections::BTreeMap<
+        crate::mir::resolved_semantics::SourceExprSiteV1,
+        crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1,
+    >,
     observation: Option<CallableMethodSourceObservationV1>,
     ordinary_new_claim_ledger: Rc<
         crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
@@ -248,9 +259,10 @@ fn with_callable_source_scope<'port, 'collector, R>(
 ) -> Result<R, String> {
     let transport =
         super::raw_invocation_source_transport::RawInvocationSourceTransportV1::root((), lineage);
-    let state = super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source_with_dynamic_source(
+    let state = super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source_with_dynamic_source_and_core_methods(
         input,
         dynamic_source,
+        core_method_calls,
     )?;
     let state = Rc::new(RefCell::new(state));
     let script_ledger = inner.semantic_ledger.take();
@@ -428,7 +440,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
         self.package
-            .with_main_static_child_lowering_input(child, |input| {
+            .with_main_static_child_lowering_input(child, |input, core_method_calls| {
                 let (selected, admission, signature) = input.into_lowering_and_admission();
                 if !matches!(
                     selected.semantic(),
@@ -471,6 +483,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     inner,
                     lineage,
                     selected,
+                    core_method_calls,
                     Rc::clone(&ordinary_new_claim_ledger),
                     |inner, transport| {
                         inner
@@ -609,6 +622,9 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         let target_binding = self.target_binding.as_ref();
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
+        let core_method_calls = self.package.take_source_core_method_calls(
+            &SelectedNormalCallableKeyV1::Cataloged(admission.source_key().clone()),
+        );
         self.package
             .with_selected_cataloged_lowering_input_and_signature(admission, |input, signature| {
                 validate_selected_cataloged_input(&input)?;
@@ -695,6 +711,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                             inner,
                             lineage,
                             selected,
+                            core_method_calls,
                             Rc::clone(&ordinary_new_claim_ledger),
                             |inner, transport| {
                             inner

@@ -11,12 +11,14 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::ValueId;
 
+use super::control_flow::plan::expression_port::ExactSourceMethodCallV1;
 use super::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
 use super::normal_callable_dynamic_origin::{
     CallableDynamicOriginLoweringStateV1, CurrentDynamicBindingReceiptV1,
     PreparedDynamicOriginRebindV1,
 };
 use super::normal_callable_dynamic_source::SourceBackedDynamicCallableIssuerV1;
+use crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1;
 
 #[path = "normal_callable_construction_state.rs"]
 pub(super) mod construction;
@@ -67,6 +69,10 @@ pub(super) struct CallableSemanticLoweringState {
     consumed_direct_lambdas: BTreeSet<SourceNodeSiteV1>,
     consumed_brand_constructors: BTreeSet<SourceNodeSiteV1>,
     source_loop_bridge: Option<source_loop_bridge::CallableLoopSourceBridgeV1>,
+    source_core_method_calls: BTreeMap<
+        crate::mir::resolved_semantics::SourceExprSiteV1,
+        VerifiedSourceBoundCoreMethodCallV1,
+    >,
 }
 
 #[derive(Debug)]
@@ -101,6 +107,23 @@ impl CallableSemanticLoweringState {
         input: ResolvedFunctionLoweringInputV1<'_>,
         dynamic_source: Option<
             Rc<super::normal_callable_dynamic_source::VerifiedSourceBackedDynamicCallableV1>,
+        >,
+    ) -> Result<Self, String> {
+        Self::from_exact_source_with_dynamic_source_and_core_methods(
+            input,
+            dynamic_source,
+            BTreeMap::new(),
+        )
+    }
+
+    pub(super) fn from_exact_source_with_dynamic_source_and_core_methods(
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        dynamic_source: Option<
+            Rc<super::normal_callable_dynamic_source::VerifiedSourceBackedDynamicCallableV1>,
+        >,
+        source_core_method_calls: BTreeMap<
+            crate::mir::resolved_semantics::SourceExprSiteV1,
+            VerifiedSourceBoundCoreMethodCallV1,
         >,
     ) -> Result<Self, String> {
         let source_loop_bridge = source_loop_bridge::CallableLoopSourceBridgeV1::from_input(input)?;
@@ -264,7 +287,53 @@ impl CallableSemanticLoweringState {
             consumed_direct_lambdas: BTreeSet::new(),
             consumed_brand_constructors: BTreeSet::new(),
             source_loop_bridge,
+            source_core_method_calls,
         })
+    }
+
+    pub(super) fn take_source_core_method_call(
+        &mut self,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+        method: &str,
+        arity: u32,
+    ) -> Result<Option<ExactSourceMethodCallV1>, String> {
+        let Some(row) = self.source_core_method_calls.remove(site) else {
+            return Ok(None);
+        };
+        let contract = row.into_contract();
+        if contract.call_site() != site
+            || contract.result_site() != site
+            || contract.arguments().len() != arity as usize
+        {
+            return Err(freeze("core-method-call-shape"));
+        }
+        let target = contract.target();
+        let generated = target.row().row();
+        if target.row().arity() != arity
+            || (generated.canonical != method && !generated.aliases.contains(&method))
+            || generated.effect != crate::mir::core_method_result_kind::CoreMethodEffectV1::PureRead
+        {
+            return Err(freeze("core-method-call-target"));
+        }
+        let receiver = match contract.receiver() {
+            crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::Lexical(
+                crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(_),
+            ) => self.read_variable(contract.receiver_site().node())?,
+            _ => return Err(freeze("core-method-call-receiver")),
+        };
+        let result_type = match target.result() {
+            crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller => {
+                crate::mir::MirType::Integer
+            }
+            crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller => {
+                crate::mir::MirType::String
+            }
+        };
+        Ok(Some(ExactSourceMethodCallV1::new(
+            receiver,
+            result_type,
+            crate::mir::EffectMask::PURE.add(crate::mir::Effect::Io),
+        )))
     }
 
     pub(super) fn explicit_extern_symbol(&self, site: &SourceNodeSiteV1) -> Option<&str> {
@@ -564,6 +633,7 @@ impl CallableSemanticLoweringState {
             || self.consumed_assignments.len() != self.assignments.len()
             || self.consumed_direct_lambdas.len() != self.direct_lambda_captures.len()
             || self.consumed_brand_constructors.len() != self.brand_constructors.constructor_count()
+            || !self.source_core_method_calls.is_empty()
         {
             return Err(format!(
                 "{} owner={:?} entry={} locals={}/{} variables={}/{} missing_variables={:?} assignments={}/{} lambdas={}/{}",

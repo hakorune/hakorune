@@ -10,6 +10,7 @@ use std::rc::Rc;
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::expression_port::sealed::Sealed;
+use crate::mir::builder::control_flow::plan::expression_port::ExactSourceMethodCallV1;
 use crate::mir::builder::control_flow::plan::{
     CoreCallSourceV1, LoopPlanExpressionPortErrorV1, LoopPlanExpressionPortV1,
 };
@@ -358,6 +359,26 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
         }
         let site = Self::exact_site(Self::source_of_expr(input))?;
         self.ledger.borrow_mut().read_variable(&site).map(Some)
+    }
+
+    fn exact_source_method_call<'input>(
+        &self,
+        input: &Self::ExprInput<'input>,
+        method: &str,
+        arity: u32,
+    ) -> Result<Option<ExactSourceMethodCallV1>, String>
+    where
+        Self: 'input,
+    {
+        if !matches!(self.expr_syntax(input), ASTNode::MethodCall { .. }) {
+            return Ok(None);
+        }
+        let site = Self::exact_site(Self::source_of_expr(input))?;
+        self.ledger.borrow_mut().take_source_core_method_call(
+            &SourceExprSiteV1::from_node(site),
+            method,
+            arity,
+        )
     }
 
     fn exact_source_assignment_rebind<'input>(

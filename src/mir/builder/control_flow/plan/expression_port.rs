@@ -6,6 +6,7 @@
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1};
 use crate::mir::ValueId;
+use crate::mir::{EffectMask, MirType};
 
 use super::CoreCallSourceV1;
 
@@ -22,6 +23,42 @@ pub(in crate::mir::builder) enum LoopPlanExpressionPortErrorV1 {
     BodyRoleParentMismatch,
     RootBodyRequestedAsChild,
     Located(crate::mir::callable_result_representation::CallableResultLegacyLocationErrorV1),
+}
+
+/// Exact source-call projection consumed by the normalizer for one
+/// resolver-issued CoreMethod contract.  It carries physical values only;
+/// semantic identity remains in the source contract owner.
+#[derive(Debug, Clone)]
+pub(in crate::mir::builder) struct ExactSourceMethodCallV1 {
+    receiver: ValueId,
+    result_type: MirType,
+    effects: EffectMask,
+}
+
+impl ExactSourceMethodCallV1 {
+    pub(in crate::mir::builder) const fn new(
+        receiver: ValueId,
+        result_type: MirType,
+        effects: EffectMask,
+    ) -> Self {
+        Self {
+            receiver,
+            result_type,
+            effects,
+        }
+    }
+
+    pub(in crate::mir::builder) fn receiver(&self) -> ValueId {
+        self.receiver
+    }
+
+    pub(in crate::mir::builder) fn result_type(&self) -> MirType {
+        self.result_type.clone()
+    }
+
+    pub(in crate::mir::builder) fn effects(&self) -> EffectMask {
+        self.effects
+    }
 }
 
 impl LoopPlanExpressionPortErrorV1 {
@@ -151,6 +188,20 @@ pub(in crate::mir::builder) trait LoopPlanExpressionPortV1:
         Self: 'input,
     {
         Ok(false)
+    }
+
+    /// Consume one exact source-bound CoreMethod call before raw receiver
+    /// lookup.  Raw ports return `None` and retain compatibility behavior.
+    fn exact_source_method_call<'input>(
+        &self,
+        _input: &Self::ExprInput<'input>,
+        _method: &str,
+        _arity: u32,
+    ) -> Result<Option<ExactSourceMethodCallV1>, String>
+    where
+        Self: 'input,
+    {
+        Ok(None)
     }
 }
 

@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::{collections::BTreeMap, rc::Rc};
 
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, NormalCatalogedBoxMethodDraftAdmissionV1,
@@ -7,19 +7,31 @@ use crate::mir::builder::{
 use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::ReceiverPolicyV1;
+use crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1;
 use crate::parser::CallableDeclarationIdentityV1;
 
 use super::super::declared_instance_locator::DeclaredInstanceCallLocatorScopeV1;
 use super::super::ordinary_new_coseal::OrdinaryNewAdmissionClaimV1;
 use super::super::s6c_child::S6CSemanticChildRefV1;
 use super::{
-    MainStaticChildLoweringInputV1, NormalCallableSemanticPackageInstallIssueV1,
-    NormalCallableSemanticPackagePortV1, ResolvedCallablePhysicalSignatureLoanV1,
-    S6CCommonV2PreSessionLoanRefV1, S6CInstalledCallableLoanRefV1,
-    SelectedCallableLoweringInputRefV1, SelectedCatalogedCallableLoweringInputV1,
+    MainStaticChildLoweringInputV1,
+    NormalCallableSemanticPackageInstallIssueV1, NormalCallableSemanticPackagePortV1,
+    ResolvedCallablePhysicalSignatureLoanV1, S6CCommonV2PreSessionLoanRefV1,
+    S6CInstalledCallableLoanRefV1, SelectedCallableLoweringInputRefV1,
+    SelectedCatalogedCallableLoweringInputV1,
 };
 
 impl NormalCallableSemanticPackagePortV1<'_> {
+    pub(crate) fn take_source_core_method_calls(
+        &self,
+        key: &SelectedNormalCallableKeyV1,
+    ) -> BTreeMap<
+        crate::mir::resolved_semantics::SourceExprSiteV1,
+        VerifiedSourceBoundCoreMethodCallV1,
+    > {
+        self.installed.take_source_core_method_calls(key)
+    }
+
     /// Lend the installed package's source-backed App Main root input once.
     ///
     /// The catalog relation is copied only as an opaque comparison witness;
@@ -205,6 +217,39 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         Ok(result)
     }
 
+    /// Lend one selected input together with the route-neutral CoreMethod arm
+    /// issued from that same resolver ledger.  The catalog is consumed into
+    /// the callback's scoped lowering state; no second name map is retained.
+    pub(crate) fn with_selected_lowering_input_and_core_methods<R>(
+        &mut self,
+        key: &SelectedNormalCallableKeyV1,
+        callback: impl for<'loan> FnOnce(
+            SelectedCallableLoweringInputRefV1<'loan>,
+            BTreeMap<
+                crate::mir::resolved_semantics::SourceExprSiteV1,
+                VerifiedSourceBoundCoreMethodCallV1,
+            >,
+        ) -> Result<R, String>,
+    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
+        if self.consumed.contains(key) {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::DuplicateSelectedKey);
+        }
+        if self.installed.selected.is_main_child_key(key) {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::MainChildAdmissionRequired);
+        }
+        let core_method_calls = self.installed.take_source_core_method_calls(key);
+        let result = self
+            .installed
+            .with_selected_lowering_input(key, |selected| callback(selected, core_method_calls))?
+            .map_err(|error| {
+                NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(
+                    error.into_boxed_str(),
+                )
+            })?;
+        self.consumed.insert(key.clone());
+        Ok(result)
+    }
+
     pub(in crate::mir) fn with_selected_cataloged_lowering_input<R>(
         &mut self,
         admission: NormalCatalogedBoxMethodDraftAdmissionV1,
@@ -317,7 +362,13 @@ impl NormalCallableSemanticPackagePortV1<'_> {
     pub(in crate::mir) fn with_main_static_child_lowering_input<R>(
         &mut self,
         child: &VerifiedMainStaticChildV1<'_>,
-        callback: impl for<'loan> FnOnce(MainStaticChildLoweringInputV1<'loan>) -> R,
+        callback: impl for<'loan> FnOnce(
+            MainStaticChildLoweringInputV1<'loan>,
+            BTreeMap<
+                crate::mir::resolved_semantics::SourceExprSiteV1,
+                VerifiedSourceBoundCoreMethodCallV1,
+            >,
+        ) -> R,
     ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
         let Some((key, identity, role)) = self
             .installed
@@ -350,6 +401,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
             .physical_signature
             .row(batch_slot)
             .ok_or(NormalCallableSemanticPackageInstallIssueV1::PhysicalSignatureUnavailable)?;
+        let core_method_calls = self.installed.take_source_core_method_calls(&key);
         let result = self
             .installed
             .with_selected_lowering_input(&key, |selected| {
@@ -371,13 +423,16 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                     }
                 })
                 .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::MainChildRoleMismatch)?;
-                Ok(callback(MainStaticChildLoweringInputV1 {
-                    selected,
-                    admission,
-                    signature: ResolvedCallablePhysicalSignatureLoanV1::new(signature),
-                    _role: role,
-                    _catalog_brand: self.installed.catalog_brand.clone(),
-                }))
+                Ok(callback(
+                    MainStaticChildLoweringInputV1 {
+                        selected,
+                        admission,
+                        signature: ResolvedCallablePhysicalSignatureLoanV1::new(signature),
+                        _role: role,
+                        _catalog_brand: self.installed.catalog_brand.clone(),
+                    },
+                    core_method_calls,
+                ))
             })??;
         self.consumed.insert(key);
         Ok(result)

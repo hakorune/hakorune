@@ -21,6 +21,9 @@ impl<'package, 'loan, 'port, 'collector, 'target>
     ) -> Result<R, String> {
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
+        let core_method_calls = self.package.take_source_core_method_calls(
+            &SelectedNormalCallableKeyV1::Cataloged(admission.source_key().clone()),
+        );
         self.package
             .with_selected_cataloged_lowering_input_signature_and_declared_instance_locator(
                 admission,
@@ -44,6 +47,7 @@ impl<'package, 'loan, 'port, 'collector, 'target>
                     inner,
                     lineage,
                     selected,
+                    core_method_calls,
                     Rc::clone(&ordinary_new_claim_ledger),
                     |inner, transport| {
                         inner.with_declared_instance_locator_scope(locator, |inner| {

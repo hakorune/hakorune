@@ -26,8 +26,9 @@ mod whole_source_inventory_error;
 pub(crate) use callable_receiver_policy::SameModuleCallableSourceReceiverPolicyV1;
 #[allow(unused_imports)]
 pub(crate) use core_method::{
-    issue_source_bound_s6c_call_relation_v1, S6CSourceBoundCallRelationRefV1,
-    S6CSourceBoundCallRelationRejectV1, S6CSourceBoundCallRoleV1,
+    issue_source_bound_core_method_calls_v1, issue_source_bound_s6c_call_relation_v1,
+    S6CSourceBoundCallRelationRefV1, S6CSourceBoundCallRelationRejectV1, S6CSourceBoundCallRoleV1,
+    SourceBoundCoreMethodTargetIssueV1, VerifiedSourceBoundCoreMethodCallV1,
     VerifiedSourceBoundS6CCallRelationV1,
 };
 #[allow(unused_imports)]

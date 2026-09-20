@@ -98,7 +98,9 @@ fn unchanged_full_parser_scan_source_issues_exact_dynamic_member_rows() {
                 target.call_site().clone(),
                 target.result_site().clone(),
             ),
-            VerifiedSourceCallTargetV1::Static(_) => panic!("unexpected static projection"),
+            VerifiedSourceCallTargetV1::Static(_) | VerifiedSourceCallTargetV1::CoreMethod(_) => {
+                panic!("unexpected non-dynamic projection")
+            }
         })
         .collect::<Vec<_>>();
     dispatches.sort_by(|left, right| left.0.cmp(&right.0));

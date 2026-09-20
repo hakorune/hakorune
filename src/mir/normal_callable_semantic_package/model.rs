@@ -9,7 +9,10 @@ use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
 use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
+use std::collections::BTreeMap;
 use std::rc::Rc;
+
+use crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1;
 
 #[derive(Debug)]
 pub(super) struct OwnedCallableParameterContractV1 {
@@ -55,6 +58,13 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) physical_header: super::physical_header::VerifiedCallablePhysicalHeaderCohortV1,
     pub(super) dynamic: NormalCallableDynamicProjectionV1,
     pub(super) dynamic_physical_header: Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>,
+    pub(super) source_core_method_calls: BTreeMap<
+        crate::mir::builder::SelectedNormalCallableKeyV1,
+        BTreeMap<
+            crate::mir::resolved_semantics::SourceExprSiteV1,
+            VerifiedSourceBoundCoreMethodCallV1,
+        >,
+    >,
 }
 
 #[derive(Debug)]

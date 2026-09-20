@@ -45,6 +45,9 @@ pub(super) fn lower_app_main_root_body_v1(
     };
     let inner = &mut *adapter.inner;
     let ordinary_new_claim_ledger = adapter.package.ordinary_new_claim_ledger();
+    let core_method_calls = adapter.package.take_source_core_method_calls(
+        &crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(catalog_key.clone()),
+    );
     adapter
         .package
         .with_app_main_root_lowering_input(&catalog_key, expected_identity, |input, identity| {
@@ -55,6 +58,7 @@ pub(super) fn lower_app_main_root_body_v1(
                 lineage,
                 input,
                 None,
+                core_method_calls,
                 identity.method_source_observation().cloned(),
                 Rc::clone(&ordinary_new_claim_ledger),
                 |inner, transport| {
