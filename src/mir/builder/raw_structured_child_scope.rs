@@ -23,6 +23,7 @@ use super::recursive_child_lowering::{
     RecursiveChildLoweringPortV1,
 };
 use super::recursive_child_lowering_port::{
+    QualifiedStaticMethodHandoffIngressV1, QualifiedStaticMethodHandoffPortV1,
     ScriptDirectStaticClaimCompletionErrorV1, ScriptDirectStaticClaimIngressV1,
 };
 use super::static_result_publication_ingress::{
@@ -335,6 +336,21 @@ where
             method,
             argument_count,
         )
+    }
+}
+
+impl<Port> QualifiedStaticMethodHandoffPortV1 for RawStructuredChildScopePortV1<'_, Port>
+where
+    Port: QualifiedStaticMethodHandoffPortV1,
+{
+    fn take_qualified_static_method_handoff_v1(
+        &mut self,
+        receiver: &str,
+        method: &str,
+        argument_count: usize,
+    ) -> Result<QualifiedStaticMethodHandoffIngressV1, String> {
+        self.child
+            .take_qualified_static_method_handoff_v1(receiver, method, argument_count)
     }
 }
 

@@ -52,8 +52,8 @@ pub(in crate::mir::builder) use raw_ordinary_new_claim::RawOrdinaryNewClaimPortV
 
 pub(in crate::mir::builder) use super::raw_loop_child_port::RawLoopChildEntryPortV1;
 pub(in crate::mir::builder) use super::recursive_child_lowering_port::{
-    DeclaredInstanceReceiverIngressV1, DirectCallDispositionPortV1, RawAstChildLoweringPortV1,
-    RecursiveChildLoweringPortV1,
+    DeclaredInstanceReceiverIngressV1, DirectCallDispositionPortV1,
+    QualifiedStaticMethodHandoffPortV1, RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 
 pub(in crate::mir::builder) fn normalize_instance_box_method_input_v1(
@@ -254,6 +254,8 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
 }
 
 struct RawInvocationChildPortSealV1;
+
+impl QualifiedStaticMethodHandoffPortV1 for RawInvocationChildPortV1<'_, '_> {}
 
 impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     /// Start one raw recursive frame from the exact invocation port.
@@ -733,7 +735,8 @@ pub(super) fn lower_raw_expression_with_recursion_guard_v1<Port>(
     input: ASTNode,
 ) -> Result<ValueId, String>
 where
-    Port: RawExpressionDispatchPortV1,
+    Port: RawExpressionDispatchPortV1
+        + super::recursive_child_lowering_port::QualifiedStaticMethodHandoffPortV1,
 {
     let node_kind = std::mem::discriminant(&input);
     super::raw_expression_recursion_guard::with_legacy_expression_recursion_guard_v1(

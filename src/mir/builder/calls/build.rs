@@ -196,7 +196,9 @@ impl MirBuilder {
     where
         Port: MethodCallLoweringPortV1
             + RecursiveChildLoweringPortV1
-            + StaticResultPublicationIngressPortV1,
+            + StaticResultPublicationIngressPortV1
+            + super::super::recursive_child_lowering::DirectCallDispositionPortV1
+            + super::super::recursive_child_lowering_port::QualifiedStaticMethodHandoffPortV1,
     {
         self.build_method_call_from_input_with_route_v1(port, input, |builder, port, input| {
             builder.build_member_method_call_with_claim_ingress_v1(port, input)

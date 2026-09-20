@@ -14,6 +14,9 @@ use super::super::raw_invocation_source_transport::RawInvocationRootLineageV1;
 use super::super::recursive_child_lowering::{
     DirectCallDispositionPortV1, RecursiveChildLoweringPortV1,
 };
+use super::super::recursive_child_lowering_port::{
+    QualifiedStaticMethodHandoffIngressV1, QualifiedStaticMethodHandoffPortV1,
+};
 use super::NormalCallableSemanticPackagePortAdapterV1;
 
 pub(super) fn lower_app_main_root_body_v1(
@@ -43,10 +46,7 @@ pub(super) fn lower_app_main_root_body_v1(
         }
         app_main.catalog_key().clone()
     };
-    let _qualified_static_relation = adapter
-        .package
-        .take_app_main_qualified_receiver_catalog()
-        .map_err(|error| format!("[freeze:contract][mir/main-qualified-static-target/{error}]"))?;
+    adapter.install_app_main_qualified_receiver_relation()?;
     let inner = &mut *adapter.inner;
     let ordinary_new_claim_ledger = adapter.package.ordinary_new_claim_ledger();
     let core_method_calls = adapter.package.take_source_core_method_calls(
@@ -148,6 +148,41 @@ impl DirectCallDispositionPortV1
         expected: &SourceExprSiteV1,
     ) -> Result<(), String> {
         self.inner.validate_current_call_argument_site_v1(expected)
+    }
+}
+
+impl QualifiedStaticMethodHandoffPortV1
+    for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_>
+{
+    fn take_qualified_static_method_handoff_v1(
+        &mut self,
+        receiver: &str,
+        method: &str,
+        argument_count: usize,
+    ) -> Result<QualifiedStaticMethodHandoffIngressV1, String> {
+        let Some(relation) = self.qualified_main_relation.as_mut() else {
+            return Ok(QualifiedStaticMethodHandoffIngressV1::Unavailable);
+        };
+        let Some(crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1::Located {
+            root: crate::mir::builder::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(caller),
+            site,
+            ..
+        }) = self.inner.current_source_context_v1() else {
+            return Ok(QualifiedStaticMethodHandoffIngressV1::Unavailable);
+        };
+        let site = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site);
+        let Some(take) = relation
+            .take_for_source(&caller, &site, receiver, method, argument_count as u32)
+            .map_err(|error| error.to_string())?
+        else {
+            return Ok(QualifiedStaticMethodHandoffIngressV1::Unavailable);
+        };
+        if take.argument_sites().len() != argument_count {
+            return Err(
+                "[freeze:contract][mir/main-qualified-relation/argument-cardinality]".to_owned(),
+            );
+        }
+        Ok(QualifiedStaticMethodHandoffIngressV1::Ready(take))
     }
 }
 

@@ -15,6 +15,7 @@ use super::method_call_terminal::{
 use super::static_result_publication::PreparedStaticCallResultPublicationV1;
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
+use crate::mir::resolved_semantics::SourceExprSiteV1;
 
 pub(in crate::mir::builder) fn lower_selected_static_result_publication_v1<Port>(
     builder: &mut MirBuilder,
@@ -75,6 +76,40 @@ where
     if argument_values.len() != expected_arity {
         return Err(format!(
             "[freeze:contract][static-target-only/physical-arity] expected {}, got {}",
+            expected_arity,
+            argument_values.len()
+        ));
+    }
+    emit_static_global_target_value_terminal_v1(builder, target, argument_values)
+}
+
+pub(in crate::mir::builder) fn lower_target_only_static_result_publication_with_expected_sites_v1<
+    Port,
+>(
+    builder: &mut MirBuilder,
+    descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
+    target_key: CanonicalSameModuleCallableKeyV1,
+    expected_sites: &[SourceExprSiteV1],
+) -> Result<ValueId, String>
+where
+    Port: MethodCallDescentPortV1
+        + crate::mir::builder::recursive_child_lowering::DirectCallDispositionPortV1,
+{
+    let expected_arity = target_key.arity() as usize;
+    if expected_sites.len() != expected_arity {
+        return Err(format!(
+            "[freeze:contract][static-target-only/argument-site-cardinality] expected={} actual={}",
+            expected_arity,
+            expected_sites.len()
+        ));
+    }
+    let target = target_key.canonical_global_target_v1().map_err(|error| {
+        format!("[freeze:contract][static-target-only/target-projection] {error}")
+    })?;
+    let argument_values = descent.lower_all_with_expected_sites(builder, expected_sites)?;
+    if argument_values.len() != expected_arity {
+        return Err(format!(
+            "[freeze:contract][static-target-only/physical-arity] expected={} actual={}",
             expected_arity,
             argument_values.len()
         ));

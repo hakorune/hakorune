@@ -9,12 +9,15 @@ use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::raw_structured_child_scope::PreparedRawChildSourceV1;
+use super::super::recursive_child_lowering::DirectCallDispositionPortV1;
 use super::super::recursive_child_lowering::{
     drive_legacy_expression_v1, drive_legacy_statement_v1, RawAstChildLoweringPortV1,
 };
 use super::call_argument_descent::{
-    drive_call_arguments_v1, lower_call_argument_v1, CallArgumentDescentPortV1,
+    drive_call_arguments_v1, drive_call_arguments_with_expected_sites_v1, lower_call_argument_v1,
+    CallArgumentDescentPortV1,
 };
+use crate::mir::resolved_semantics::SourceExprSiteV1;
 
 pub(in crate::mir::builder) struct MethodCallSyntaxViewV1<'input> {
     receiver: &'input ASTNode,
@@ -165,6 +168,18 @@ where
 
     pub(in crate::mir::builder) fn terminal_port(&mut self) -> &mut Port {
         self.port
+    }
+
+    pub(in crate::mir::builder) fn lower_all_with_expected_sites(
+        &mut self,
+        builder: &mut MirBuilder,
+        expected_sites: &[SourceExprSiteV1],
+    ) -> Result<Vec<ValueId>, String>
+    where
+        Port: DirectCallDispositionPortV1,
+    {
+        let arguments = self.port.call_arguments_input(self.input)?;
+        drive_call_arguments_with_expected_sites_v1(builder, self.port, arguments, expected_sites)
     }
 }
 

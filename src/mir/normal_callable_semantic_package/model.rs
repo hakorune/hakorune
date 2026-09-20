@@ -39,6 +39,7 @@ pub(crate) struct VerifiedQualifiedReceiverCatalogRowV1 {
     declaration_key: CanonicalSameModuleCallableKeyV1,
     selector: Box<str>,
     arity: u32,
+    argument_sites: Box<[SourceExprSiteV1]>,
     admission: QualifiedReceiverCatalogAdmissionV1,
 }
 
@@ -71,6 +72,10 @@ impl VerifiedQualifiedReceiverCatalogRowV1 {
         self.arity
     }
 
+    pub(crate) fn argument_sites(&self) -> &[SourceExprSiteV1] {
+        &self.argument_sites
+    }
+
     pub(crate) const fn admission(&self) -> QualifiedReceiverCatalogAdmissionV1 {
         self.admission
     }
@@ -79,11 +84,71 @@ impl VerifiedQualifiedReceiverCatalogRowV1 {
 #[derive(Debug)]
 pub(crate) struct VerifiedQualifiedReceiverCatalogRelationV1 {
     rows: Box<[VerifiedQualifiedReceiverCatalogRowV1]>,
+    consumed: std::collections::BTreeSet<SourceExprSiteV1>,
+}
+
+#[derive(Debug)]
+pub(crate) struct QualifiedReceiverCatalogTakeV1 {
+    declaration_key: CanonicalSameModuleCallableKeyV1,
+    argument_sites: Box<[SourceExprSiteV1]>,
 }
 
 impl VerifiedQualifiedReceiverCatalogRelationV1 {
     pub(crate) fn rows(&self) -> &[VerifiedQualifiedReceiverCatalogRowV1] {
         &self.rows
+    }
+
+    pub(crate) fn take_for_source(
+        &mut self,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        site: &SourceExprSiteV1,
+        receiver: &str,
+        selector: &str,
+        arity: u32,
+    ) -> Result<Option<QualifiedReceiverCatalogTakeV1>, Box<str>> {
+        let Some(row) = self.rows.iter().find(|row| row.site() == site) else {
+            return Ok(None);
+        };
+        if row.caller() != caller {
+            return Err("[freeze:contract][mir/main-qualified-relation/caller-mismatch]".into());
+        }
+        if row.receiver() != receiver {
+            return Err("[freeze:contract][mir/main-qualified-relation/receiver-mismatch]".into());
+        }
+        if row.selector() != selector || row.arity() != arity {
+            return Err(
+                "[freeze:contract][mir/main-qualified-relation/declaration-mismatch]".into(),
+            );
+        }
+        if !self.consumed.insert(site.clone()) {
+            return Err("[freeze:contract][mir/main-qualified-relation/already-taken]".into());
+        }
+        Ok(Some(QualifiedReceiverCatalogTakeV1 {
+            declaration_key: row.declaration_key().clone(),
+            argument_sites: row.argument_sites().to_vec().into_boxed_slice(),
+        }))
+    }
+
+    pub(crate) fn finish_empty(&self) -> Result<(), Box<str>> {
+        if self.consumed.len() != self.rows.len() {
+            return Err(format!(
+                "[freeze:contract][mir/main-qualified-relation/residual-rows] consumed={} total={}",
+                self.consumed.len(),
+                self.rows.len()
+            )
+            .into());
+        }
+        Ok(())
+    }
+}
+
+impl QualifiedReceiverCatalogTakeV1 {
+    pub(crate) fn declaration_key(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.declaration_key
+    }
+
+    pub(crate) fn argument_sites(&self) -> &[SourceExprSiteV1] {
+        &self.argument_sites
     }
 }
 
@@ -237,6 +302,26 @@ impl VerifiedNormalCallableSemanticPackageV1 {
                             "[freeze:contract][mir/main-import-view/declaration-shape]".to_owned()
                         );
                     }
+                    let argument_sites = call
+                        .arguments()
+                        .iter()
+                        .enumerate()
+                        .map(|(index, argument)| {
+                            if argument.ordinal() != index as u32 {
+                                return Err(
+                                    "[freeze:contract][mir/main-import-view/argument-ordinal]"
+                                        .to_owned(),
+                                );
+                            }
+                            Ok(argument.site().clone())
+                        })
+                        .collect::<Result<Vec<_>, String>>()?;
+                    if argument_sites.len() != call.arity() as usize {
+                        return Err(
+                            "[freeze:contract][mir/main-import-view/argument-cardinality]"
+                                .to_owned(),
+                        );
+                    }
                     rows.push(VerifiedQualifiedReceiverCatalogRowV1 {
                         caller: caller.clone(),
                         site: site.clone(),
@@ -245,6 +330,7 @@ impl VerifiedNormalCallableSemanticPackageV1 {
                         declaration_key: declaration.key().clone(),
                         selector: call.selector().into(),
                         arity: call.arity(),
+                        argument_sites: argument_sites.into_boxed_slice(),
                         admission,
                     });
                 }
@@ -253,6 +339,7 @@ impl VerifiedNormalCallableSemanticPackageV1 {
             .map_err(|error| format!("[mir/main-import-view/batch] {error:?}"))??;
         Ok(Some(VerifiedQualifiedReceiverCatalogRelationV1 {
             rows: rows.into_boxed_slice(),
+            consumed: std::collections::BTreeSet::new(),
         }))
     }
 

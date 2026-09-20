@@ -5,8 +5,13 @@
 
 use super::super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::super::normal_script_semantic_lowering_state::ScriptDirectStaticClaimTakeV1;
-use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
-use super::super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
+use super::super::recursive_child_lowering::{
+    DirectCallDispositionPortV1, RecursiveChildLoweringPortV1,
+};
+use super::super::recursive_child_lowering_port::{
+    QualifiedStaticMethodHandoffIngressV1, QualifiedStaticMethodHandoffPortV1,
+    ScriptDirectStaticClaimIngressV1,
+};
 use super::super::static_result_publication_ingress::{
     StaticResultPublicationIngressPortV1, StaticResultPublicationIngressV1,
 };
@@ -19,6 +24,7 @@ use super::receiver_binding::ReceiverNormalizationPlan;
 use super::script_direct_static_physical_bridge::lower_claimed_script_direct_static_v1;
 use super::{
     lower_selected_static_result_publication_v1, lower_target_only_static_result_publication_v1,
+    lower_target_only_static_result_publication_with_expected_sites_v1,
 };
 use crate::ast::ASTNode;
 
@@ -71,7 +77,9 @@ impl MirBuilder {
     where
         Port: MethodCallLoweringPortV1
             + RecursiveChildLoweringPortV1
-            + StaticResultPublicationIngressPortV1,
+            + StaticResultPublicationIngressPortV1
+            + QualifiedStaticMethodHandoffPortV1
+            + DirectCallDispositionPortV1,
     {
         let route_plan = {
             let syntax = port.method_call_syntax(input)?;
@@ -90,6 +98,22 @@ impl MirBuilder {
                     arguments.len(),
                 )? {
                     ScriptDirectStaticClaimIngressV1::Unavailable => {
+                        match port.take_qualified_static_method_handoff_v1(
+                            &box_name,
+                            &method,
+                            arguments.len(),
+                        )? {
+                            QualifiedStaticMethodHandoffIngressV1::Ready(handoff) => {
+                                let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
+                                return lower_target_only_static_result_publication_with_expected_sites_v1(
+                                    self,
+                                    &mut descent,
+                                    handoff.declaration_key().clone(),
+                                    handoff.argument_sites(),
+                                );
+                            }
+                            QualifiedStaticMethodHandoffIngressV1::Unavailable => {}
+                        }
                         let declarations = self.comp_ctx.callable_declaration_catalog().ok();
                         match port.take_static_result_publication_ingress_v1(
                             declarations,

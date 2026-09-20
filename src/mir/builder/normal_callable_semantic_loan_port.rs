@@ -67,6 +67,9 @@ pub(super) struct NormalCallableSemanticPackagePortAdapterV1<
     target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'target>>,
     constructor_demand: InstanceConstructorDemandConsumptionV1,
     map_read_consumer: Option<Rc<RefCell<MapReadPhysicalConsumerV1>>>,
+    qualified_main_relation: Option<
+        crate::mir::normal_callable_semantic_package::VerifiedQualifiedReceiverCatalogRelationV1,
+    >,
 }
 
 impl<'package, 'loan, 'port, 'collector, 'target>
@@ -94,7 +97,18 @@ impl<'package, 'loan, 'port, 'collector, 'target>
             target_binding,
             constructor_demand: InstanceConstructorDemandConsumptionV1::new(constructor_manifest),
             map_read_consumer,
+            qualified_main_relation: None,
         })
+    }
+
+    pub(super) fn install_app_main_qualified_receiver_relation(&mut self) -> Result<(), String> {
+        self.qualified_main_relation = self
+            .package
+            .take_app_main_qualified_receiver_catalog()
+            .map_err(|error| {
+                format!("[freeze:contract][mir/main-qualified-static-target/{error}]")
+            })?;
+        Ok(())
     }
 
     pub(super) fn complete(mut self) -> Result<(), String> {
@@ -105,6 +119,9 @@ impl<'package, 'loan, 'port, 'collector, 'target>
         self.constructor_demand
             .complete()
             .map_err(|error| error.to_string())?;
+        if let Some(relation) = self.qualified_main_relation.as_ref() {
+            relation.finish_empty().map_err(|error| error.to_string())?;
+        }
         self.package.complete().map_err(package_issue)
     }
 

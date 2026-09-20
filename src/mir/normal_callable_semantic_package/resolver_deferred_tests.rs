@@ -356,6 +356,56 @@ fn app_main_qualified_receiver_relation_resolves_imported_alias_in_shared_view()
 }
 
 #[test]
+fn app_main_qualified_receiver_relation_takes_exact_row_and_argument_sites_once() {
+    let source = final_source(
+        "static box Helpers { run(first: i64, second: i64): i64 { return first } }\n\
+         static box Main { main() { return Helpers.run(2, 3) } }",
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(114).unwrap();
+    let package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
+        .expect("qualified argument-site package");
+    let imports = crate::mir::source_call_target::VerifiedStaticImportAliasViewV1::seal(
+        package.declaration_catalog(),
+        std::iter::empty::<(String, String)>(),
+    )
+    .expect("empty invocation import view");
+    let mut relation = package
+        .issue_app_main_qualified_receiver_catalog_relation(&imports)
+        .expect("qualified argument-site relation")
+        .expect("source-backed Main relation");
+    let row = &relation.rows()[0];
+    let caller = row.caller().clone();
+    let site = row.site().clone();
+    let receiver = row.receiver().to_owned();
+    let selector = row.selector().to_owned();
+    let arity = row.arity();
+    let expected_argument_sites = row.argument_sites().to_vec();
+    assert_eq!(expected_argument_sites.len(), 2);
+    assert_ne!(expected_argument_sites[0], expected_argument_sites[1]);
+
+    let mismatch = relation
+        .take_for_source(&caller, &site, "WrongReceiver", &selector, arity)
+        .expect_err("receiver mismatch must fail before taking");
+    assert_eq!(
+        &*mismatch,
+        "[freeze:contract][mir/main-qualified-relation/receiver-mismatch]"
+    );
+    let take = relation
+        .take_for_source(&caller, &site, &receiver, &selector, arity)
+        .expect("exact relation take")
+        .expect("matching row");
+    assert_eq!(take.argument_sites(), expected_argument_sites.as_slice());
+    assert!(relation.finish_empty().is_ok());
+    let second = relation
+        .take_for_source(&caller, &site, &receiver, &selector, arity)
+        .expect_err("second exact take must fail");
+    assert_eq!(
+        &*second,
+        "[freeze:contract][mir/main-qualified-relation/already-taken]"
+    );
+}
+
+#[test]
 fn app_main_qualified_receiver_relation_rejects_foreign_import_view() {
     let source = final_source(
         "static box Helpers { run(value: i64): i64 { return value } }\n\

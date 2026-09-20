@@ -111,7 +111,10 @@ pub(crate) use map_read_fact::{
     MapReadFactV1, MapReadFactsV1, MapReadOperandV1, MapReadOperationV1, MapReadResultClassV1,
 };
 pub(in crate::mir) use model::NormalCallableDynamicProjectionRefV1;
-pub(crate) use model::VerifiedNormalCallableSemanticPackageV1;
+pub(crate) use model::{
+    QualifiedReceiverCatalogTakeV1, VerifiedNormalCallableSemanticPackageV1,
+    VerifiedQualifiedReceiverCatalogRelationV1,
+};
 pub(crate) use ordinary_new_coseal::{
     BirthAbiHandoffV1, BirthResultAbiV1, FinalizedBirthActualsV1, FinalizedRootResultAbiV1,
     FinalizedRootSourceHandoffV1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,

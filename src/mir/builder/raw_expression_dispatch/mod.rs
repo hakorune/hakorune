@@ -149,6 +149,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + BrandConstructorSourcePortV1
         + DirectCallDispositionPortV1
         + StaticResultPublicationIngressPortV1
+        + super::recursive_child_lowering_port::QualifiedStaticMethodHandoffPortV1
 {
 }
 
@@ -160,7 +161,8 @@ impl super::MirBuilder {
         ast: ASTNode,
     ) -> Result<ValueId, String>
     where
-        Port: RawExpressionDispatchPortV1,
+        Port: RawExpressionDispatchPortV1
+            + super::recursive_child_lowering_port::QualifiedStaticMethodHandoffPortV1,
     {
         // Track current source span for downstream instruction emission
         self.metadata_ctx.set_current_span(ast.span());

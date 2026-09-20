@@ -14,11 +14,13 @@ use super::super::me_call_header_observation::{
 };
 use super::super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
 use super::{
-    DirectCallDispositionPortV1, RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1,
-    RawNestedMainFateV1, RecursiveChildLoweringPortV1,
+    DirectCallDispositionPortV1, QualifiedStaticMethodHandoffPortV1, RawBoxMethodChildPortV1,
+    RawFunctionHeaderLookupPortV1, RawNestedMainFateV1, RecursiveChildLoweringPortV1,
 };
 
 pub(in crate::mir::builder) struct RawLegacyChildLoweringPortV1;
+
+impl QualifiedStaticMethodHandoffPortV1 for RawLegacyChildLoweringPortV1 {}
 
 impl MeCallHeaderObservationPortV1 for RawLegacyChildLoweringPortV1 {
     fn observe_me_call_parameters(

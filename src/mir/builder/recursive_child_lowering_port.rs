@@ -64,6 +64,25 @@ pub(in crate::mir::builder) enum DeclaredInstanceReceiverIngressV1 {
     },
 }
 
+/// One-shot handoff for the resolver-owned Main qualified StaticBoxMethod
+/// relation. Compatibility ports stay explicitly unarmed.
+#[derive(Debug)]
+pub(in crate::mir::builder) enum QualifiedStaticMethodHandoffIngressV1 {
+    Unavailable,
+    Ready(crate::mir::normal_callable_semantic_package::QualifiedReceiverCatalogTakeV1),
+}
+
+pub(in crate::mir::builder) trait QualifiedStaticMethodHandoffPortV1 {
+    fn take_qualified_static_method_handoff_v1(
+        &mut self,
+        _receiver: &str,
+        _method: &str,
+        _argument_count: usize,
+    ) -> Result<QualifiedStaticMethodHandoffIngressV1, String> {
+        Ok(QualifiedStaticMethodHandoffIngressV1::Unavailable)
+    }
+}
+
 pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
     type BodyInput;
     type StatementInput;
