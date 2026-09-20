@@ -258,6 +258,42 @@ route-neutral source candidate (or a typed absence) to that enumeration before
 `Cataloged`/`Selected` and before any caller-zero or delete-set claim. This
 narrows the design gap; it does not close the current `NoSafeSlice`.
 
+### D1 owner selection (read-only, 2026-09-20)
+
+The parent observer has one existing owner: the body of
+`issue_normal_callable_semantic_package_with_brand_catalog_v1`. It already
+owns the batch/catalog brand and is the only place that turns the complete
+resolver batch into the pre-Builder semantic package. D1 should add one
+package-private LoopBreak coverage input at this boundary, using the existing
+`with_declaration_semantics` enumeration and one exact `with_lowering_input`
+loan per row. The selected map, Dynamic projection, and install `complete()`
+must not be promoted into this observer.
+
+The per-row source issuer remains the existing
+`CallableGenericLoopSourceFactsIssuerV1` family. Its LoopBreak extension may
+reuse the route-neutral forest transport recorded above, the existing planner
+`PlanBuildOutcome`/`LoopBreakFacts`, and `DirectLoopBreakTerminalityV1`; it
+must issue an explicit disposition for every batch row: `Candidate`,
+`SupportedNonCandidate`, `Unresolved`, or `Rejected`. A missing
+`LoopBreakSourceTopologyV1` is a supported non-candidate for specialized
+shapes, not an implicit `None` or a compatibility retry. Unresolved, foreign,
+duplicate, and mismatched source relations remain package errors.
+
+The resulting package-private coverage product is the sole bridge between
+the batch observer and the existing source-bound physical consumer. It is
+keyed by the resolver-issued batch slot/owner/source identity and the same
+catalog brand, and it lends a move-only candidate only to the located raw
+caller. The physical side remains
+`RawInvocationChildPortV1` -> `CallableLoopSourceParts` ->
+`lower_raw_loop_v0`/`lower_loop_v0_core`; no new route ledger, Dynamic type,
+selected-key map, or legacy-composer ingress is allowed.
+
+This selects existing owners for D1 and removes the owner-identity ambiguity.
+It does not authorize implementation in D0: the typed disposition, direct
+source-shape product, physical pre-effect consume, focused negatives, and
+exclusive old-edge set must still be implemented and observed before the
+parser package may reach `Cataloged`/`Selected`.
+
 ### Existing issuer route audit (read-only, 2026-09-20)
 
 `CallableGenericLoopSourceFactsIssuerV1` is the closest existing source owner,
