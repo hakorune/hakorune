@@ -160,6 +160,33 @@ also name the exclusive old-edge delete set. Until that contract exists, do
 not extend the selected package map, reuse the root invocation matrix, or
 issue a new semantic receipt.
 
+### Direct terminality candidate (read-only recheck)
+
+The ordered registry does contain a narrower LoopBreak candidate:
+`DirectLoopBreakTerminalityV1` in
+`control_flow/joinir/route_entry/registry/direct_loop_break_terminality.rs`,
+and its `VerifiedDirectLoopBreakLogicalProductV1` wrapper in
+`live_ordered_terminality/logical_product.rs`. The candidate proves only the
+direct three-statement scheduler shape and records the four logical roles
+(`LoopCondition`, `BreakIfSubtree`, `CarrierUpdate`, and
+`LoopBackContinuation`). It is reusable evidence for the future adapter's
+existing LoopBreak Facts/Recipe owner.
+
+It does not close this row: the terminality proof receives `LoopFacts` and the
+borrowed AST body, but issues no `FunctionOwnerIdV1`, resolver forest/exit
+relation, package brand, source-call item inventory, or exclusive deletion set.
+The logical product exposes only `route()` and the unreached legacy tail; it
+cannot identify which callable row in the merged parser package owns the
+product. Treating its four role tags as source lineage would cross the same
+authority boundary as inferring from names or AST shape. The candidate is
+therefore a reusable downstream proof, not the missing source issuer or
+package acceptance observer.
+
+The next design slice may wrap this existing terminality/product only after a
+source-scoped issuer co-seals the exact resolver row and verifies that the
+direct topology is the same row consumed by the terminality proof. No change
+to terminality predicates or logical role vocabulary is authorized in D0.
+
 ## Physical adapter premise audit
 
 The physical owner is narrower than the route name suggests. The shared
