@@ -52,6 +52,34 @@ selected `starts_with/3` method. The existing root work plan iterates every
 immediate and deferred method, and the installed package's selected-call APIs
 are scoped loans whose `complete()` requires all selected coverage.
 
+## Finite dependency census
+
+The parent nested-loop design already fixes the only reviewed source topology
+that can produce this package boundary. The source witness is one caller,
+`ParserProgramBox.parse/2`, with these loop members:
+
+| Member | Source witness | Exit witness |
+| --- | --- | --- |
+| root state-machine loop | `:81 loop(cont_prog == 1)` | `break` at `:85/:95`; returns at `:104/:109/:127/:142/:161/:165/:194` |
+| static-semicolon child | `:131 loop(static_semis == 1)` | condition-only child boundary |
+| semicolon-scan child | `:182 loop(true)` | `continue :186` and `break :188` |
+
+The parent card records the resolver-owned root/child indices, frame keys, and
+all exit records; its line numbers are source witnesses only. The current
+package terminal supplies only the raw route label
+`LoopBreakRecipe`/`GenericLoopV1NotSelected`, not a source-to-route slot map.
+Therefore this D0 must not infer that label from names, line numbers, or AST
+shape. The next audit has a finite target: recover the exact resolver rows for
+those three members from the same invocation, then decide whether the existing
+generic-direct LoopBreak product can receive them.
+
+The existing LoopBreak design explicitly rejects the parser nested profile as a
+new route: its logical product is generic-direct-only, while its physicalizer
+is `NoSafeSlice` because the legacy composer enters `lower_loop_v0` after
+Builder-bound mutation. This row may reopen that owner only with a source-aware
+move-only input and a builder-free pre-effect consumer contract; it may not
+promote a parser-specific LoopBreak route.
+
 ## Owner audit and NoSafeSlice decision
 
 The existing package exposes source AST/catalog loans, selected callable loans,
