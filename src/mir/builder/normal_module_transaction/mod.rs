@@ -21,15 +21,16 @@ mod source_draft;
 
 #[cfg(test)]
 pub(super) use callable_batch::reject_normal_callable_batch_for_test;
-pub(in crate::mir) use callable_batch::{
-    NormalCallableBatchErrorV1, RejectedNormalCallableBatchV1,
-};
+#[cfg(test)]
+pub(in crate::mir) use callable_batch::NormalCallableBatchErrorV1;
+pub(in crate::mir) use callable_batch::RejectedNormalCallableBatchV1;
 #[cfg(test)]
 pub(super) use callable_commit::reject_normal_callable_commit_for_test;
+#[cfg(test)]
+pub(in crate::mir) use callable_commit::NormalCallableCommitErrorV1;
 pub(in crate::mir) use callable_commit::{
     CompletedNormalCallableCandidateV1, CompletedNormalCallableModuleEvidenceV1,
-    NormalCallableCandidateVerificationReceiptV1, NormalCallableCommitErrorV1,
-    RejectedNormalCallableCommitV1,
+    NormalCallableCandidateVerificationReceiptV1, RejectedNormalCallableCommitV1,
 };
 #[cfg(test)]
 pub(in crate::mir) use callable_draft_prefix::completed_for_main_physical;
@@ -45,17 +46,20 @@ pub(in crate::mir) use canonical_batch::{
 pub(in crate::mir) use entry_target::{
     canonical_normal_main_entry_target, CanonicalNormalMainEntryTargetV1,
 };
+#[cfg(test)]
+pub(in crate::mir) use main_transaction::NormalMainModuleTransactionStageV1;
 pub(in crate::mir) use main_transaction::{
     CompletedNormalMainModuleCandidateV1, CompletedNormalMainModuleEvidenceV1,
     NormalMainCandidateVerificationReceiptV1, NormalMainModuleTransactionErrorV1,
-    NormalMainModuleTransactionStageV1,
 };
-pub(in crate::mir::builder) use rejection::{
-    NormalModuleTransactionSchemaErrorV1, RejectedNormalModuleTransactionSchemaV1,
-};
+pub(in crate::mir::builder) use rejection::NormalModuleTransactionSchemaErrorV1;
+#[cfg(test)]
+pub(in crate::mir::builder) use rejection::RejectedNormalModuleTransactionSchemaV1;
+#[cfg(test)]
+pub(in crate::mir::builder) use schema::NormalModuleDraftRoleV1;
 pub(in crate::mir::builder) use schema::{
-    NormalModuleDraftExpectationV1, NormalModuleDraftRoleV1, NormalModuleEntryRelationV1,
-    NormalModuleTransactionDraftV1, NormalModuleTransactionSchemaV1,
+    NormalModuleDraftExpectationV1, NormalModuleEntryRelationV1, NormalModuleTransactionDraftV1,
+    NormalModuleTransactionSchemaV1,
 };
 pub(in crate::mir) use script_transaction::{
     CompletedNormalScriptModuleCandidateV1, CompletedNormalScriptModuleEvidenceV1,
