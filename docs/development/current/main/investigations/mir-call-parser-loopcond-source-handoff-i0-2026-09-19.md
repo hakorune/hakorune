@@ -1,5 +1,5 @@
 ---
-Status: selected__fast__2026-09-20__ValidateLoopTrueSourceToMirMatrix
+Status: selected__fast__2026-09-20__ValidateParserSourceToMirAcceptance
 Task: MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0
 Date: 2026-09-19
 Parent: mir-call-parser-nested-loop-source-promotion-d0-2026-09-19.md
