@@ -58,6 +58,16 @@ language contract therefore keeps bare StaticBoxMethod recovery at typed
 pre-effect reject or named compatibility park. A target or loan cannot be
 opened by wrapping `name + arity`, candidate uniqueness, or raw lineage.
 
+The current-head consumer census confirms the gap. The resolver's
+`ResolvedDirectCallObservationV1` is consumed by the exact FreeStatic index and
+the package loan, while `VerifiedResolvedMethodCallSourceV1` is consumed by
+Map/CoreMethod owners and deliberately has no target field. The complete
+`VerifiedWholeSourceStaticCallTargetInventoryV1` is consumed by the separate
+normal Script/static-result lane and its tests; it has no normal Main package
+consumer. Reusing that AST-backed inventory as a new Main issuer would create a
+second source authority unless one shared source traversal is explicitly
+accepted by a later design.
+
 ## Decision — design stop
 
 No single existing issuer currently covers all four forms. FreeStatic is an
