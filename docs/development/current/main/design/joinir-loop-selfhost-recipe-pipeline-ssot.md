@@ -31,12 +31,13 @@ Related:
   retirement at `18f2162e0d`; the Callable/Generic segment route is sole for
   that admitted cohort. All-family source co-seal, backend parity, and broad
   production selection remain separate.
-- **Next ordered task:** hand off to the existing
-  `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` design stop after G0 source-to-EXE
-  acceptance I0 closed with its local LLVM18 toolchain boundary recorded.
-  Strict/dev LegacyCallV0 reader stop is closed, but release compatibility
-  still shares the parser and has no independently owned delete-set; Loop
-  production selection remains unopened.
+- **Current scheduler frontier:** follow the `CURRENT_STATE.toml` pointer to
+  `MIR-CALL-PARSER-LOOPBREAK-SOURCE-CONSUMER-D0` before returning to the
+  existing `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` design stop. The parser row is
+  a dependency owner decision for one bounded package window, not broad Loop
+  production selection. Strict/dev LegacyCallV0 reader stop is closed, but
+  release compatibility still shares the parser and has no independently owned
+  delete-set; broad Loop production selection remains unopened.
 - **Reopen condition:** complete the recorded M10 semantic/transfer/session
   prerequisites and M8/M9 coverage, then name one unchanged production
   caller, its replacement path, fail-fast terminal, and exclusive deletion
