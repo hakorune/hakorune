@@ -6,17 +6,22 @@
 //! become one unpublished completion product.
 
 use super::module_draft_collector::CollectedDraftAdmissionReceiptV1;
-use super::module_draft_collector::{FunctionDraftKeyV1, ModuleDraftCollectorV1};
+#[cfg(test)]
+use super::module_draft_collector::FunctionDraftKeyV1;
+use super::module_draft_collector::ModuleDraftCollectorV1;
+#[cfg(test)]
 use super::module_invocation_drain::ConditionFnPolicyV1;
 use super::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationTokenV1};
 use super::module_invocation_owner_chain::{BrandedCollectorV1, InvocationBranded};
 use super::raw_expansion_receipt_ledger::{
-    RawCallableMainCompatibilityDispositionV1, RawExpansionReceiptLedgerV1,
-    RawExpansionReservationV1, SealedRawExpansionReceiptLedgerV1,
+    RawCallableMainCompatibilityDispositionV1, SealedRawExpansionReceiptLedgerV1,
 };
+#[cfg(test)]
+use super::raw_expansion_receipt_ledger::{RawExpansionReceiptLedgerV1, RawExpansionReservationV1};
 use super::raw_root_body_exit::RawRootBodyExitWitnessV1;
 use super::root_batch_slot::{raw_main_entry_target, RawMainEntryTargetV1};
 use super::root_body_completion::CompletedRootBodyV1;
+#[cfg(test)]
 use super::root_draft_batch::PreparedRootDraftBatchV1;
 
 #[derive(Debug)]
