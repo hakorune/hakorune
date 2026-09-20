@@ -1,27 +1,27 @@
 ---
-Status: closed__2026-09-21__WarningBaselineRefreshI2__ProgramRootTestSelected
-Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I2
+Status: design_stop__2026-09-21__WarningBaselineRefreshI3__NextCohortSelection
+Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I3
 Date: 2026-09-21
-Parent: mirbuilder-warning-unused-import-loop-schedule-i0-2026-09-21.md
+Parent: mirbuilder-warning-unused-import-program-root-test-i0-2026-09-21.md
 Implementation permission: false; refresh and select one cohort only
-NextCard: MIRBUILDER-WARNING-UNUSED-IMPORT-PROGRAM-ROOT-TEST-I0
+NextCard: MIRBUILDER-WARNING-SURFACE-CENSUS-R0
 ---
 
-# MirBuilder warning baseline refresh I2
+# MirBuilder warning baseline refresh I3
 
 ## Six-line brief
 
 ```text
-Decision: refresh both warning surfaces after the second import cohort before
+Decision: refresh both warning surfaces after the third import cohort before
   selecting another cleanup row.
 Source authority + canonical issuer: fixed quick-profile Cargo diagnostics and
   the checked-in warning classification policy.
 Non-authority: historical counts, cargo-fix, blanket allow, visibility edits,
-  dead-code guesses, or loop/semantic interpretation of lint output.
+  dead-code guesses, or semantic interpretation of lint output.
 Fail-fast boundary: command drift, new failure name, unclassified test-only
   reference, or warning family outside the inventory stops selection.
 Smallest next slice: compare current lib/lib-test inventories against
-  1,843/563 and select at most one caller-zero import cohort.
+  1,843/562 and select at most one caller-zero import cohort.
 Non-claims: no broad warning deletion, suppression, semantic refactor, or
   production route change.
 ```
@@ -33,9 +33,3 @@ Run `cargo check --profile quick --lib -j4` and
 file:line, owner, and production/test/compat/generated role, then select one
 cohort or write `NoSafeSlice`. Keep dead-code/private-interface rows with
 their owners. No code edit is permitted until the selection is recorded.
-
-I2's current receipt was reproduced at lib=1,843 and lib-test=563. The
-selected row was the cfg(test)-only
-`NormalScriptRuntimeStatementAdmissionV1` import in
-`program_root_work_plan.rs`; the child card closes it with lib=1,843 and
-lib-test=562.
