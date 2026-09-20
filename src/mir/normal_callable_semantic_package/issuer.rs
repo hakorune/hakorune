@@ -29,10 +29,6 @@ use crate::mir::compiler::dynamic_full_body_recipe::{
 use crate::mir::resolved_semantics::{
     CallableLookupErrorV1, FunctionSemanticResolverSessionV1, SourceExprSiteV1,
 };
-use crate::mir::source_call_target::{
-    VerifiedSourceBoundCoreMethodCallV1, VerifiedSourceCallTargetCatalogV1,
-    VerifiedStaticImportAliasViewV1,
-};
 #[cfg(test)]
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use std::rc::Rc;
@@ -43,6 +39,7 @@ mod app_main_relation;
 mod direct_call_co_seal;
 
 use self::direct_call_co_seal::validate_cataloged_source_co_seal_v1;
+use super::core_method_source::issue_source_core_method_calls_v1;
 
 use super::declared_instance_locator::{
     issue_declared_instance_call_package_locator_v1, DeclaredInstanceCallPackageLocatorIssueV1,
@@ -383,64 +380,6 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     CoreMethodSource {
         _error: String,
     },
-}
-
-fn issue_source_core_method_calls_v1(
-    catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
-    selected: &VerifiedSelectedCallableBatchMapV1,
-) -> Result<
-    std::collections::BTreeMap<
-        SelectedNormalCallableKeyV1,
-        std::collections::BTreeMap<SourceExprSiteV1, VerifiedSourceBoundCoreMethodCallV1>,
-    >,
-    String,
-> {
-    let declarations = catalog.catalog();
-    let imports = VerifiedStaticImportAliasViewV1::seal(declarations, [])
-        .map_err(|error| format!("{error:?}"))?;
-    let mut target_catalog = VerifiedSourceCallTargetCatalogV1::seal_qualified(&imports, [])
-        .map_err(|error| format!("{error:?}"))?;
-    let mut issued = std::collections::BTreeMap::new();
-    for key in selected.keys() {
-        let SelectedNormalCallableKeyV1::Cataloged(catalog_key) = key else {
-            continue;
-        };
-        let batch_slot = selected
-            .batch_slot(key)
-            .ok_or_else(|| "selected callable has no semantic batch slot".to_owned())?;
-        let rows = batch
-            .with_lowering_input(batch_slot, |input| {
-                let ledger = input
-                    .forest()
-                    .callable_source_ledger(input.owner())
-                    .map_err(|error| format!("{error:?}"))?;
-                let rows = crate::mir::source_call_target::issue_source_bound_core_method_calls_v1(
-                    &ledger,
-                )
-                .map_err(|error| format!("{error:?}"))?;
-                Ok::<_, String>(rows)
-            })
-            .map_err(|error| format!("{error:?}"))??;
-        target_catalog = target_catalog
-            .extend_core_method_calls(catalog_key.clone(), Vec::from(rows).into_iter())
-            .map_err(|error| format!("{error:?}"))?;
-        let has_rows = target_catalog
-            .all_rows()
-            .any(|((caller, _), _)| caller == catalog_key);
-        if has_rows {
-            let rows = target_catalog
-                .into_core_method_calls(catalog_key)
-                .map_err(|error| format!("{error:?}"))?;
-            issued.insert(
-                SelectedNormalCallableKeyV1::Cataloged(catalog_key.clone()),
-                rows,
-            );
-            target_catalog = VerifiedSourceCallTargetCatalogV1::seal_qualified(&imports, [])
-                .map_err(|error| format!("{error:?}"))?;
-        }
-    }
-    Ok(issued)
 }
 
 #[cfg(test)]

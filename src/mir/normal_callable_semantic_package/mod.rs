@@ -6,6 +6,7 @@
 //! consumption, physical ABI, or fallback route.
 
 mod completion_seed;
+mod core_method_source;
 mod declared_instance_locator;
 #[cfg(test)]
 mod direct_call_lifecycle_tests;
