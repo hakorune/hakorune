@@ -82,6 +82,31 @@ Builder-bound mutation. This row may reopen that owner only with a source-aware
 move-only input and a builder-free pre-effect consumer contract; it may not
 promote a parser-specific LoopBreak route.
 
+## Resolver/consumer bridge audit
+
+The resolver-side API is intentionally source-complete but route-neutral:
+`VerifiedResolvedFunctionV1::loop_sites()` exposes the finite Loop-site
+inventory, `resolved_loop_source_forest(root)` co-seals parent indices, and
+`resolved_loop_source_context(site)` lends the exact Scope/Region pair. None of
+these products records which physical `LoopRouteId` later classified the site.
+`only_loop_site()` is a singleton guard and cannot select one member from this
+package's three-member forest.
+
+The current source bridge has the complementary boundary: its route issuer
+accepts only Generic/LoopCond/LoopTrue source products. The LoopBreak path
+starts at `LoopBreakFacts`, enters `route_loop_break_recipe` with
+`LoopRouteContext`, and its composer reaches `lower_loop_v0` after it has
+already received a mutable `MirBuilder`. There is no source-port argument or
+package route inventory at that boundary. The package root therefore cannot
+name the exact method behind the raw `[LoopBreakRecipe]` observation without
+adding a new route observer or inferring from names/AST, both prohibited here.
+
+This is a confirmed missing-owner condition, not a missing line-number lookup.
+The next slice must first name one existing package-scoped route inventory
+authority (or explicitly reject that owner) before any LoopBreak source issuer
+or physical adapter is designed. Until then, `GenericLoopV1NotSelected` stays
+the terminal and the selected parser tuple cannot advance to Cataloged.
+
 ## Owner audit and NoSafeSlice decision
 
 The existing package exposes source AST/catalog loans, selected callable loans,
