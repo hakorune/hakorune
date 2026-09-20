@@ -65,13 +65,15 @@ that can produce this package boundary. The source witness is one caller,
 | semicolon-scan child | `:182 loop(true)` | `continue :186` and `break :188` |
 
 The parent card records the resolver-owned root/child indices, frame keys, and
-all exit records; its line numbers are source witnesses only. The current
-package terminal supplies only the raw route label
-`LoopBreakRecipe`/`GenericLoopV1NotSelected`, not a source-to-route slot map.
-Therefore this D0 must not infer that label from names, line numbers, or AST
-shape. The next audit has a finite target: recover the exact resolver rows for
-those three members from the same invocation, then decide whether the existing
-generic-direct LoopBreak product can receive them.
+all exit records; its line numbers are source witnesses only. Two terminal
+observations are currently visible and must not be conflated: the lifecycle
+raw front reports `[LoopBreakRecipe]`, while the source bridge normalizes its
+stop to `GenericLoopV1NotSelected`. Neither observation is a source-to-route
+slot map, and no co-sealed relation currently proves that they identify the
+same dependency rows. Therefore this D0 must not infer either label from
+names, line numbers, or AST shape. The next audit has a finite target: recover
+the exact resolver rows for those three members from the same invocation, then
+decide whether the existing generic-direct LoopBreak product can receive them.
 
 The existing LoopBreak design explicitly rejects the parser nested profile as a
 new route: its logical product is generic-direct-only, while its physicalizer
