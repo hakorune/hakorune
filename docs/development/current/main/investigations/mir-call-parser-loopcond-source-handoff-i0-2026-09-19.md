@@ -1472,7 +1472,8 @@ second physical route or claim parser acceptance.
 Validation recorded for this slice: `cargo check --profile quick --lib` passed;
 the existing source-Facts focused suite passed 16/16; and the new route token
 guard passed 1/1 for exact, missing, and overlapping LoopTrue selections. The
-quick test build still reports the repository warning baseline (561 warnings in
-the filtered test build); warning cleanup is a separate task. Source-port
+quick test build reports 561 warnings in the filtered test build; the prior
+recorded baseline was 555, with the disconnected LoopTrue product contributing
+current dead-code rows. Warning cleanup is a separate task. Source-port
 physical consumption, parser source-to-MIR acceptance, publication, and old
 edge retirement remain open.
