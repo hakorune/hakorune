@@ -1,10 +1,10 @@
 ---
-Status: parked_sealed__2026-09-21__NoSafeSlice_MainQualifiedTargetReuse
+Status: accepted__2026-09-21__MainQualifiedMethodSourceHandoff
 Task: MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-SOURCE-COSEAL-D0
 Date: 2026-09-21
 Parent: mir-call-d1b-main-raw-exact-source-issuer-loan-d0-2026-09-21.md
-Implementation permission: false; reuse decision and finite relation census only
-NextCard: MIR-CALL-D1B-RESOLVED-METHOD-STATIC-TARGET-COISSUE-D0
+Implementation permission: false; design decision only
+NextCard: MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-HANDOFF-I0
 ---
 
 # Main raw qualified MethodCall source co-seal D0
@@ -12,24 +12,25 @@ NextCard: MIR-CALL-D1B-RESOLVED-METHOD-STATIC-TARGET-COISSUE-D0
 ## Six-line brief
 
 ```text
-Decision: evaluate the existing qualified MethodCall source-target owner for
-  one Main-root family; do not broaden bare FunctionCall or invent a target
-  from selector/arity.
-Source authority + canonical issuer: the existing declaration-catalog,
-  import-alias, lexical-receiver, and QualifiedCallRouteFacts chain that can
-  issue VerifiedSourceStaticCallTargetCatalogV1; resolver MethodCall facts are
-  the route-neutral input, not a target by themselves.
-Non-authority: RawInvocationRootLineageV1, ResolvedDirectCallObservationV1,
-  static-candidate cardinality, names/arity/symbols, CoreMethod rows, the
-  package loan, and the separate Script result lane as an unexamined retry.
-Fail-fast boundary: one same-catalog caller/site, receiver lexical disposition,
-  alias relation, declaration target, argument-site set, brand, and callable
-  owner must be co-sealed before effects or target publication.
-Smallest next slice: prove whether the existing qualified source product can be
-  consumed from the same source loan/package without a second AST traversal or
-  second issuer; otherwise record NoSafeSlice and keep the Main family parked.
-Non-claims: no Rust/Hako code, target/Callee emission, affine loan, raw
-  dispatcher, Script/Main route switch, fallback, backend, JSON, or Call schema.
+Decision: promote the existing Main qualified-receiver relation to one exact,
+  one-shot source handoff for the finite qualified StaticBoxMethod family; do
+  not broaden bare FunctionCall or invent a target from selector/arity.
+Source authority + canonical issuer: resolver-issued
+  VerifiedResolvedMethodCallSourceV1 joined once with the lifecycle-owned
+  import view and the existing same-module declaration catalog by
+  VerifiedNormalCallableSemanticPackageV1::issue_app_main_qualified_receiver_catalog_relation.
+Non-authority: RawInvocationRootLineageV1, Script whole-source inventory,
+  names/arity/symbol lookup, CoreMethod rows, DirectCallDispositionLoansV1,
+  and any separate result-publication issuer.
+Fail-fast boundary: exact Main caller/site, receiver spelling and alias brand,
+  declaration key/selector/arity, ordered argument-site set, and the
+  Cataloged raw scope must be co-sealed before argument descent; a relation
+  row is consumable exactly once and residual rows are a named closeout error.
+Smallest next slice: retain resolver argument sites, take one scoped handoff in
+  the installed Main adapter, validate each argument site, and reuse the
+  existing target-only physical terminal. No second AST walk or source issuer.
+Non-claims: no result ABI/publication, other callers, instance/dynamic calls,
+  VM, fallback restoration, backend parity, or legacy-edge deletion.
 ```
 
 ## Finite boundary
@@ -75,25 +76,21 @@ lexically bound, alias-conflict, duplicate, nested, and wrong-kind rows have a
 named reject. No target/Callee, package field, loan, raw dispatcher, or MIR Call
 may be added here.
 
-The current result is `NoSafeSlice` for direct Main reuse. The next bounded
-design row must decide whether the existing resolver MethodCall relation and the
-declaration/import catalog can co-issue an AST-free qualified static target in
-the same source session. If that requires a second traversal or issuer, the
-Main family remains typed-reject/parked.
+The current result is an accepted bounded source handoff, not a new target
+authority. The relation already carries the canonical declaration key from the
+same resolver/import/catalog session. The next I0 may move that relation once
+into the Main raw adapter and call the existing target-only physical terminal;
+it must not issue a second target/result product or rescan the AST.
 
 ## Read-only owner audit
 
-The bounded owner audit confirmed the reject boundary. The Main package relation
-at `src/mir/normal_callable_semantic_package/model.rs:168-250` owns only the
-resolver ledger's caller/site/receiver/owner/selector/arity relation; it does
-not retain an AST call site or lexical product. The existing target chain still
-requires `VerifiedSourceMethodCallSiteV1::verify` to project the AST body and
-`VerifiedQualifiedReceiverLexicalDispositionsV1` to run its own shadow
-traversal. `VerifiedSourceStaticCallTargetCatalogV1::seal_qualified` has no
-entry point that consumes the Main relation. The Script whole-source inventory
-therefore cannot be handed to Main without a second source observation or a
-hidden Script retry. This D0 is sealed as `NoSafeSlice`; implementation remains
-closed and the next D0 owns the resolver/catalog co-issuer decision.
+The bounded owner audit confirms that the Main relation is the selected source
+owner for this handoff. It already owns the resolver ledger's caller/site,
+receiver/owner/selector/arity relation and the same-brand declaration key. The
+only missing product is ordered argument-site retention plus an affine,
+one-shot consumer in the Main adapter. The Script whole-source inventory and
+`VerifiedSourceStaticCallTargetCatalogV1` remain outside this route; they are
+not reused as a second issuer or hidden retry.
 
 ## Reopen trigger
 

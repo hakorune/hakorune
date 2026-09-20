@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__MainRawExactSourceIssuerLoan
+Status: closed__2026-09-21__QualifiedFamilyDelegated
 Task: MIR-CALL-D1B-MAIN-RAW-EXACT-SOURCE-ISSUER-LOAN-D0
 Date: 2026-09-21
 Parent: mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml
 Implementation permission: false; source-authority census and bounded decision only
-NextCard: MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-SOURCE-COSEAL-D0
+NextCard: MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-HANDOFF-I0
 ---
 
 # Main raw exact source issuer and loan D0
@@ -25,9 +25,9 @@ Non-authority: RawInvocationRootLineageV1, name/arity or symbol lookup,
 Fail-fast boundary: missing, foreign, duplicate, mixed-brand, wrong-family, or
   site/owner mismatch must stop before argument descent, effects, collector
   mutation, target publication, or MirInstruction::call.
-Smallest next slice: census each source call family and decide whether an
-  existing owner can issue an exact site relation; otherwise seal a typed
-  reject/compatibility park with the missing relation named.
+Smallest next slice: the qualified MethodCall child D0 has selected the
+  existing Main relation owner; execute its one-shot handoff I0. Bare calls,
+  instance methods, and other forms remain separate design rows.
 Non-claims: no Rust/Hako implementation, target/Callee, package-plus-loan,
   raw dispatcher, fallback removal, backend, JSON, or Call-schema change.
 ```
@@ -84,31 +84,28 @@ and define the exact site-to-declaration relation before any target/Callee or
 affine loan transport is implemented. Missing or foreign relations remain
 typed rejects; no fallback or retry may reopen the legacy path.
 
-The finite family selection is now explicit: the next design row is the
-qualified MethodCall source co-seal. FreeStatic remains on its existing exact
-index row, Main Cataloged remains provenance-only, and the separate Script
-inventory cannot be silently reused as a second issuer. This D0 remains a
-design stop until that qualified source product is shown to cross the same
-source session without an AST rescan.
+The finite family selection is now explicit: the qualified MethodCall child D0
+accepted the existing Main relation as its source owner and handed the bounded
+work to `MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-HANDOFF-I0`. FreeStatic remains
+on its existing exact index row, Main Cataloged remains provenance-only for
+other forms, and the separate Script inventory cannot be silently reused as a
+second issuer. This parent remains closed for the unselected families.
 
 ## 2026-09-21 read-only bridge audit
 
-The worker audit confirms `NoSafeSlice` at the current boundary. The installed
-Main relation is relation-only: it owns `(caller, SourceExprSiteV1,
-declaration_key)` plus receiver admission, but it is not a target, ABI, or raw
-loan. `DirectCallDispositionLoansV1` only consumes resolver
-`direct_call_observations()` for bare `FunctionCall`, while the existing raw
-static terminal enters through the Script/AST-backed
-`StaticResultPublicationIngressPortV1` and
-`VerifiedStaticCallResultPublicationOwnerV1`. Reusing either as the Main
-issuer would create a second source authority or reverse the ownership chain.
+The worker audit identified the missing product as one same-session co-seal for
+the qualified family. The installed Main relation is relation-only: it owns
+`(caller, SourceExprSiteV1, declaration_key)` plus receiver admission, but it
+is not a target, ABI, or raw loan. The qualified child D0 selected this
+relation as the owner; the I0 handoff retains argument sites and reuses the
+existing target-only terminal. The Script/AST publication lane and bare-call
+loan remain separate and are not fallback routes.
 
-The missing design product is therefore one same-session co-seal for the
+The selected implementation product is one same-session co-seal for the
 qualified family: `(caller, site, declaration_key, argument_sites)` bound to
 the raw physical terminal with an affine lifetime and exact one-shot
-consumption. Until an existing owner is selected for that product, no target,
-Callee, loan transport, argument descent, fallback reopening, or production
-switch is authorized.
+consumption. No other target, Callee, loan transport, fallback reopening, or
+production switch is authorized by this parent.
 
 ## Reopen trigger
 
