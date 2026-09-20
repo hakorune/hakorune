@@ -171,21 +171,44 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                 "[freeze:contract][callable-loop/loop-cond/source-site-parent-mismatch]".to_owned(),
             );
         }
-        let target_site = self.source_target.call_site();
-        let target_matches = self
-            .source_items
-            .iter()
-            .filter(|item| item.call_site() == target_site)
-            .count();
-        if target_matches == 0 {
-            return Err(
-                "[freeze:contract][callable-loop/loop-cond/source-target-site-missing]".to_owned(),
-            );
-        }
-        if target_matches > 1 {
-            return Err(
-                "[freeze:contract][callable-loop/loop-cond/source-target-site-multiple]".to_owned(),
-            );
+        if self.source_target.core_method_items().is_empty() {
+            let target_site = self.source_target.call_site();
+            let target_matches = self
+                .source_items
+                .iter()
+                .filter(|item| item.call_site() == target_site)
+                .count();
+            if target_matches == 0 {
+                return Err(
+                    "[freeze:contract][callable-loop/loop-cond/source-target-site-missing]"
+                        .to_owned(),
+                );
+            }
+            if target_matches > 1 {
+                return Err(
+                    "[freeze:contract][callable-loop/loop-cond/source-target-site-multiple]"
+                        .to_owned(),
+                );
+            }
+        } else {
+            let core_sites = self
+                .source_target
+                .core_method_items()
+                .iter()
+                .map(|item| item.call_site())
+                .collect::<std::collections::BTreeSet<_>>();
+            if core_sites.len() != self.source_target.core_method_items().len()
+                || core_sites.len() != self.source_items.len()
+                || self
+                    .source_items
+                    .iter()
+                    .any(|item| !core_sites.contains(item.call_site()))
+            {
+                return Err(
+                    "[freeze:contract][callable-loop/loop-cond/core-method-item-coverage]"
+                        .to_owned(),
+                );
+            }
         }
         if self.source_items.iter().any(|item| {
             !item
@@ -198,7 +221,9 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                 "[freeze:contract][callable-loop/loop-cond/source-item-parent-mismatch]".to_owned(),
             );
         }
-        if !self.source_target.has_exact_i64_requirement(&[1]) {
+        if self.source_target.core_method_items().is_empty()
+            && !self.source_target.has_exact_i64_requirement(&[1])
+        {
             return Err(
                 "[freeze:contract][callable-loop/loop-cond/result-requirement-mismatch]".to_owned(),
             );

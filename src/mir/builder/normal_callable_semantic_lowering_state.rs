@@ -406,6 +406,25 @@ impl CallableSemanticLoweringState {
             .and_then(|bridge| bridge.source_items_for(&statement_site))
     }
 
+    /// Return the resolver-issued CoreMethod item rows that cover one exact
+    /// loop root. This is an applicability view only; physical consumption
+    /// still happens once through `take_source_core_method_call`.
+    pub(super) fn source_core_method_items(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Box<
+        [crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceItemBindingV1],
+    > {
+        let Some(items) = self.source_loop_items(site) else {
+            return Box::new([]);
+        };
+        items
+            .into_vec()
+            .into_iter()
+            .filter(|item| self.source_core_method_calls.contains_key(item.call_site()))
+            .collect()
+    }
+
     pub(super) fn prepare_source_backed_dynamic_loop_ingress(
         &self,
         schedule: super::normal_callable_loop_handoff::VerifiedCallableSemanticLoopBindingScheduleV1,

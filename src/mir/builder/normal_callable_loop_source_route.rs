@@ -154,8 +154,9 @@ impl CallableLoopSourceTargetRequirementV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) struct CallableLoopSourceTargetRelationV1 {
     call_site: SourceExprSiteV1,
-    target: CanonicalSameModuleCallableKeyV1,
+    target: Option<CanonicalSameModuleCallableKeyV1>,
     requirement: Option<CallableLoopSourceTargetRequirementV1>,
+    core_methods: Box<[CallableLoopSourceItemBindingV1]>,
 }
 
 impl CallableLoopSourceTargetRelationV1 {
@@ -166,17 +167,32 @@ impl CallableLoopSourceTargetRelationV1 {
     ) -> Self {
         Self {
             call_site,
-            target,
+            target: Some(target),
             requirement,
+            core_methods: Box::new([]),
         }
+    }
+
+    pub(in crate::mir::builder) fn core_methods(
+        methods: Box<[CallableLoopSourceItemBindingV1]>,
+    ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
+        let Some(first) = methods.first() else {
+            return Err(CallableLoopSourceRouteRejectV1::SourceItemsMissing);
+        };
+        Ok(Self {
+            call_site: first.call_site().clone(),
+            target: None,
+            requirement: None,
+            core_methods: methods,
+        })
     }
 
     pub(in crate::mir::builder) const fn call_site(&self) -> &SourceExprSiteV1 {
         &self.call_site
     }
 
-    pub(in crate::mir::builder) const fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
-        &self.target
+    pub(in crate::mir::builder) fn target(&self) -> Option<&CanonicalSameModuleCallableKeyV1> {
+        self.target.as_ref()
     }
 
     pub(in crate::mir::builder) fn requirement(
@@ -192,6 +208,10 @@ impl CallableLoopSourceTargetRelationV1 {
             requirement.representation() == &VerifiedCallableResultRepresentationV1::ExactI64
                 && requirement.required_i64_arguments() == ordinals
         })
+    }
+
+    pub(in crate::mir::builder) fn core_method_items(&self) -> &[CallableLoopSourceItemBindingV1] {
+        &self.core_methods
     }
 }
 
@@ -214,6 +234,9 @@ pub(in crate::mir::builder) struct CallableLoopSourceTargetProbeV1 {
     uncovered: Box<[SourceExprSiteV1]>,
     /// A published handoff disagreed with its exact target relation.
     requirement_mismatch: bool,
+    /// Resolver-issued CoreMethod rows that cover the loop's method items.
+    /// This is a distinct source family from static publication evidence.
+    core_methods: Box<[CallableLoopSourceItemBindingV1]>,
 }
 
 impl CallableLoopSourceTargetProbeV1 {
@@ -224,6 +247,7 @@ impl CallableLoopSourceTargetProbeV1 {
             selected: Box::new([]),
             uncovered: Box::new([]),
             requirement_mismatch: false,
+            core_methods: Box::new([]),
         }
     }
 
@@ -232,10 +256,20 @@ impl CallableLoopSourceTargetProbeV1 {
         uncovered: Box<[SourceExprSiteV1]>,
         requirement_mismatch: bool,
     ) -> Self {
+        Self::from_parts_with_core_methods(selected, uncovered, requirement_mismatch, Box::new([]))
+    }
+
+    pub(in crate::mir::builder) fn from_parts_with_core_methods(
+        selected: Box<[CallableLoopSourceTargetRelationV1]>,
+        uncovered: Box<[SourceExprSiteV1]>,
+        requirement_mismatch: bool,
+        core_methods: Box<[CallableLoopSourceItemBindingV1]>,
+    ) -> Self {
         Self {
             selected,
             uncovered,
             requirement_mismatch,
+            core_methods,
         }
     }
 
@@ -250,6 +284,7 @@ impl CallableLoopSourceTargetProbeV1 {
             selected,
             uncovered,
             requirement_mismatch,
+            core_methods,
         } = self;
         if requirement_mismatch {
             return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
@@ -263,18 +298,37 @@ impl CallableLoopSourceTargetProbeV1 {
             return Err(CallableLoopSourceRouteRejectV1::SourceTargetMultiple);
         }
         let mut selected = Vec::from(selected);
-        let Some(relation) = selected.pop() else {
-            return Err(
-                CallableLoopSourceRouteRejectV1::SourceCallOutsideSelectedFamily {
-                    call_sites: source_items
-                        .iter()
-                        .map(|item| item.call_site().clone())
-                        .collect::<Vec<_>>()
-                        .into_boxed_slice(),
-                },
-            );
-        };
-        Ok(relation)
+        if let Some(relation) = selected.pop() {
+            return Ok(relation);
+        }
+        if !core_methods.is_empty() {
+            let covered = core_methods
+                .iter()
+                .map(|item| item.call_site())
+                .collect::<std::collections::BTreeSet<_>>();
+            let uncovered = source_items
+                .iter()
+                .filter(|item| !covered.contains(item.call_site()))
+                .map(|item| item.call_site().clone())
+                .collect::<Vec<_>>();
+            if !uncovered.is_empty() {
+                return Err(
+                    CallableLoopSourceRouteRejectV1::SourceCallOutsideSelectedFamily {
+                        call_sites: uncovered.into_boxed_slice(),
+                    },
+                );
+            }
+            return CallableLoopSourceTargetRelationV1::core_methods(core_methods);
+        }
+        Err(
+            CallableLoopSourceRouteRejectV1::SourceCallOutsideSelectedFamily {
+                call_sites: source_items
+                    .iter()
+                    .map(|item| item.call_site().clone())
+                    .collect::<Vec<_>>()
+                    .into_boxed_slice(),
+            },
+        )
     }
 }
 

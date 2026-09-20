@@ -15,7 +15,9 @@ use std::convert::Infallible;
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::plan::expression_port::LoopPlanExpressionPortV1;
-use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
+use crate::mir::builder::control_flow::plan::facts::exit_only_block::{
+    try_build_exit_allowed_block_in_arena, try_build_exit_allowed_block_recipe,
+};
 use crate::mir::builder::control_flow::plan::features::loop_cond_bc_util::lower_simple_effect_stmt_input;
 use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_if_plan_port::lower_cond_expr_to_if_plans_input;
 use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::lower_loop_header_cond_with_port;
@@ -31,15 +33,18 @@ use crate::mir::builder::control_flow::plan::parts::join_scope::{
 };
 use crate::mir::builder::control_flow::plan::parts::var_map_scope::reseal_branch_bindings;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
-    BlockContractKind, IfContractKind, IfMode, RecipeItem,
+    BlockContractKind, IfContractKind, IfMode, RecipeBlock, RecipeBodies, RecipeItem,
 };
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
 use crate::mir::builder::control_flow::plan::{CoreIfJoin, LoweredRecipe};
+use crate::mir::builder::control_flow::recipes::refs::StmtRef;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::builder::normal_callable_loop_source_port::{
     CallableLoopSourceBodyInputV1, CallableLoopSourceExprInputV1,
     CallableLoopSourceExpressionPortV1, CallableLoopSourceStmtInputV1,
 };
 use crate::mir::builder::MirBuilder;
+use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::ValueId;
 
 use super::block_driver::lower_verified_parts_associated_block;
@@ -386,6 +391,9 @@ impl CallableLoopSourcePartsLoweringHooksV1<'_> {
         source: CallableLoopSourceStmtInputV1<'view>,
     ) -> Result<Vec<LoweredRecipe>, String> {
         let stmt_node = port.stmt_syntax(&source);
+        if let Some(result) = self.try_lower_nested_exit_join_source(port, source.clone())? {
+            return Ok(result);
+        }
         if let Some(recipe) = try_build_no_exit_block_recipe(std::slice::from_ref(stmt_node), true)
         {
             let block = CallableLoopSourcePartsBlockV1::singleton(
@@ -443,6 +451,128 @@ impl CallableLoopSourcePartsLoweringHooksV1<'_> {
         ))
     }
 
+    /// Lower the one source shape that the exit-allowed recipe intentionally
+    /// keeps opaque: an outer join `if` whose then branch ends in a conditional
+    /// return `if`. The recipe facts owner cannot mark that outer node as
+    /// exit-bearing because the branch still falls through, so this adapter
+    /// assembles the already-issued prelude/inner recipes and sends the outer
+    /// condition through the existing join state core. No raw AST lowerer or
+    /// route reclassification is used.
+    fn try_lower_nested_exit_join_source<'view, 'ledger: 'view>(
+        &mut self,
+        port: CallableLoopSourceExpressionPortV1<'ledger>,
+        source: CallableLoopSourceStmtInputV1<'view>,
+    ) -> Result<Option<Vec<LoweredRecipe>>, String> {
+        let ASTNode::If {
+            then_body,
+            else_body: Some(else_body),
+            ..
+        } = port.stmt_syntax(&source)
+        else {
+            return Ok(None);
+        };
+        let Some(ASTNode::If { .. }) = then_body.last() else {
+            return Ok(None);
+        };
+        let Some(inner_stmt) = then_body.last() else {
+            return Ok(None);
+        };
+
+        let condition = port
+            .child_expr_from_stmt(&source, ExprChildRoleV1::IfCondition)
+            .map_err(|error| error.render())?;
+        let then_carrier = port
+            .child_body_from_stmt(&source, BodyChildRoleV1::IfThen)
+            .map_err(|error| error.render())?;
+        let else_carrier = port
+            .child_body_from_stmt(&source, BodyChildRoleV1::IfElse)
+            .map_err(|error| error.render())?;
+
+        let mut arena = RecipeBodies::new();
+        let prelude_block = if then_body.len() > 1 {
+            Some(
+                try_build_exit_allowed_block_in_arena(
+                    &mut arena,
+                    &then_body[..then_body.len() - 1],
+                    true,
+                )
+                .ok_or_else(|| {
+                    format!(
+                        "{SOURCE_PARTS_ERR} nested-exit-prelude-unlocatable: ctx={}",
+                        self.error_prefix
+                    )
+                })?,
+            )
+        } else {
+            None
+        };
+        let inner_block = try_build_exit_allowed_block_in_arena(
+            &mut arena,
+            std::slice::from_ref(inner_stmt),
+            true,
+        )
+        .ok_or_else(|| {
+            format!(
+                "{SOURCE_PARTS_ERR} nested-exit-inner-unlocatable: ctx={}",
+                self.error_prefix
+            )
+        })?;
+        let mut then_items = prelude_block
+            .as_ref()
+            .map(|block| block.items.clone().to_vec())
+            .unwrap_or_default();
+        let mut inner_item = inner_block.items.first().cloned().ok_or_else(|| {
+            format!(
+                "{SOURCE_PARTS_ERR} nested-exit-inner-empty: ctx={}",
+                self.error_prefix
+            )
+        })?;
+        let RecipeItem::IfV2 {
+            cond_view,
+            contract,
+            then_block,
+            else_block,
+            ..
+        } = inner_item
+        else {
+            return Err(format!(
+                "{SOURCE_PARTS_ERR} nested-exit-inner-not-if: ctx={}",
+                self.error_prefix
+            ));
+        };
+        inner_item = RecipeItem::IfV2 {
+            if_stmt: StmtRef::new(then_body.len() - 1),
+            cond_view,
+            contract,
+            then_block,
+            else_block,
+        };
+        then_items.push(inner_item);
+        let then_body_id = arena.register(RecipeBody::new(then_body.to_vec()));
+        let then_block = RecipeBlock::new(then_body_id, then_items);
+        let else_block = try_build_exit_allowed_block_in_arena(&mut arena, else_body, true)
+            .ok_or_else(|| {
+                format!(
+                    "{SOURCE_PARTS_ERR} nested-exit-else-unlocatable: ctx={}",
+                    self.error_prefix
+                )
+            })?;
+
+        let then_block =
+            CallableLoopSourcePartsBlockV1::located_body(&arena, &then_block, then_carrier, &port)
+                .map_err(|error| render_source_error(error, self.error_prefix))?;
+        let else_block =
+            CallableLoopSourcePartsBlockV1::located_body(&arena, &else_block, else_carrier, &port)
+                .map_err(|error| render_source_error(error, self.error_prefix))?;
+        Ok(Some(self.lower_join_if_source_with_mode(
+            port,
+            condition,
+            then_block,
+            Some(else_block),
+            PartsAssociatedBlockModeV1::ExitAllowed,
+        )?))
+    }
+
     /// Join-bearing `IfV2` inside a `NoExit` block: branch snapshots and join
     /// materialization stay in `lower_if_join_state_core`; the located branch
     /// blocks recurse through this same provider in `NoExit` mode.
@@ -452,6 +582,23 @@ impl CallableLoopSourcePartsLoweringHooksV1<'_> {
         condition: CallableLoopSourceExprInputV1<'view>,
         then_block: CallableLoopSourcePartsBlockV1<'view>,
         else_block: Option<CallableLoopSourcePartsBlockV1<'view>>,
+    ) -> Result<Vec<LoweredRecipe>, String> {
+        self.lower_join_if_source_with_mode(
+            port,
+            condition,
+            then_block,
+            else_block,
+            PartsAssociatedBlockModeV1::NoExit,
+        )
+    }
+
+    fn lower_join_if_source_with_mode<'view, 'ledger: 'view>(
+        &mut self,
+        port: CallableLoopSourceExpressionPortV1<'ledger>,
+        condition: CallableLoopSourceExprInputV1<'view>,
+        then_block: CallableLoopSourcePartsBlockV1<'view>,
+        else_block: Option<CallableLoopSourcePartsBlockV1<'view>>,
+        branch_mode: PartsAssociatedBlockModeV1,
     ) -> Result<Vec<LoweredRecipe>, String> {
         let mut condition = Some(condition);
         let mut lower_branch =
@@ -470,7 +617,7 @@ impl CallableLoopSourcePartsLoweringHooksV1<'_> {
                 lower_callable_loop_source_parts_block(
                     port,
                     block,
-                    PartsAssociatedBlockModeV1::NoExit,
+                    branch_mode,
                     builder,
                     bindings,
                     self.carrier_phis,

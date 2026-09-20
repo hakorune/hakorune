@@ -1254,3 +1254,21 @@ returned. `Unarmed` and `BridgeAbsent` still carry an empty relation to their
 existing GenericLoop boundary. The production edge guard remains green (1/1),
 and the unarmed-loop disposition guard remains green (1/1); the repository's
 555 compiler-warning baseline is a separate cleanup inventory.
+
+### A′ slice 2 receiver-family frontier — 2026-09-20
+
+The resolver-issued CoreMethod-only family is now transported through the
+existing source route and source-port consumer. The merged parser order moves
+past the preceding `StringHelpers.index_of/3` receiver-only loop; its nested
+conditional-return `if` is handled by the existing source join/exit cores and
+does not re-enter the raw normalizer. The next armed parser loop reaches the
+existing callable handoff contract and stops at
+`[freeze:contract][callable-loop-handoff/carrier-cardinality]`, which requires
+exactly one Carrier row for the first cohort. This is a real bounded frontier,
+not a publication failure: multi-carrier handoff has no selected owner in this
+I0 and remains a follow-up design row.
+
+The merged guard records this named handoff terminal. No `None` acceptance,
+route reorder, VM/fallback path, parser publication, caller switch, or
+old-edge deletion is claimed. The 555-warning baseline and the native Windows
+lifecycle evidence remain separate closeout items.

@@ -116,22 +116,26 @@ fn source_target_for_loop(
         >,
     >,
 ) -> CallableLoopSourceTargetProbeV1 {
-    let Some(caller) = source.root_lineage().and_then(|root| match root {
-        RawInvocationRootLineageV1::Cataloged(key) => Some(key),
-        _ => None,
-    }) else {
-        return CallableLoopSourceTargetProbeV1::empty();
-    };
     let Some(parent_site) = source.site() else {
         return CallableLoopSourceTargetProbeV1::empty();
     };
     let Some(items) = callable_ledger.borrow().source_loop_items(parent_site) else {
         return CallableLoopSourceTargetProbeV1::empty();
     };
+    let core_methods = callable_ledger
+        .borrow()
+        .source_core_method_items(parent_site);
+    let caller = source.root_lineage().and_then(|root| match root {
+        RawInvocationRootLineageV1::Cataloged(key) => Some(key),
+        _ => None,
+    });
     let mut selected = Vec::new();
     let mut uncovered = Vec::new();
     let mut requirement_mismatch = false;
     for item in items.iter() {
+        let Some(caller) = caller else {
+            break;
+        };
         let Some(target) = module_port.target_for_source(caller, item.call_site()) else {
             continue;
         };
@@ -151,10 +155,11 @@ fn source_target_for_loop(
             Some(CallableLoopSourceTargetRequirementV1::from_handoff(handoff)),
         ));
     }
-    CallableLoopSourceTargetProbeV1::from_parts(
+    CallableLoopSourceTargetProbeV1::from_parts_with_core_methods(
         selected.into_boxed_slice(),
         uncovered.into_boxed_slice(),
         requirement_mismatch,
+        core_methods,
     )
 }
 

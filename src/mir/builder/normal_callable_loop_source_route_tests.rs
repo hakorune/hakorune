@@ -592,6 +592,33 @@ fn issue_with_source_relations_maps_no_obligation_to_outside_selected_family() {
 }
 
 #[test]
+fn issue_with_source_relations_accepts_core_method_only_family() {
+    let parts = armed_loop_cond_parts(MIXED_LOOP_COND_SOURCE);
+    let core_items = parts.items.clone();
+    let token = CallableLoopSourceRouteTokenV1::issue_with_source_relations(
+        parts.owner,
+        parts.parent_site,
+        parts.function_origin,
+        parts.source_kind,
+        parts.outcome,
+        parts.selection,
+        Some(parts.projection),
+        parts.items,
+        CallableLoopSourceTargetProbeV1::from_parts_with_core_methods(
+            Box::new([]),
+            Box::new([]),
+            false,
+            core_items,
+        ),
+    )
+    .expect("CoreMethod-only loop family must co-seal");
+    let relation = token.source_target().expect("core method relation");
+    assert!(relation.target().is_none());
+    assert_eq!(relation.core_method_items().len(), 2);
+    assert!(!relation.has_exact_i64_requirement(&[1]));
+}
+
+#[test]
 fn issue_with_source_relations_maps_a_handoff_disagreement_to_requirement_mismatch() {
     let parts = armed_loop_cond_parts(ARMED_LOOP_COND_SOURCE);
     let reject = CallableLoopSourceRouteTokenV1::issue_with_source_relations(

@@ -69,29 +69,22 @@ fn merged_parser_program_source_stops_at_named_loop_boundary_before_static_targe
             )
             .expect_err("parser program must stop at its named loop boundary");
         let message = rejected.error().to_string();
-        // The LoopCond source handoff card selects the armed parser loops.
-        // The first reached one is `StringHelpers.index_of/3`, whose loop
-        // items are Bound-receiver `substring` calls that carry no exact
-        // same-module static target at all, so the boundary is the typed
-        // `SourceCallOutsideSelectedFamily` terminal carrying the probed
-        // item sites — still strictly before any static catalog row or
-        // physical consumption. `SourceTargetUnselected` is reserved for a
-        // site that does carry an exact static target but lacks its selected
-        // publication row.
+        // The CoreMethod-only receiver family now crosses the preceding
+        // `StringHelpers.index_of/3` source-port shape. The next armed parser
+        // loop reaches the existing first-cohort handoff, whose source
+        // contract still requires exactly one carrier. Keep that terminal
+        // named until a bounded multi-carrier handoff owner is selected.
         assert!(
-            message.contains("[freeze:contract][callable-loop/route-not-front-selected]")
-                && message.contains("LoopCondRouteRejected(SourceCallOutsideSelectedFamily"),
+            message.contains("callable-loop-handoff/carrier-cardinality"),
             "unexpected parser loop terminal: {message}"
         );
         rejected.discard();
     });
 }
 
-/// Diagnostic pin for the armed LoopCond edge: the merged parser source
-/// stops at `SourceCallOutsideSelectedFamily`, so pin the inventory facts
-/// behind it — every caller is observed, `parse/2` publishes
-/// `starts_with/3` targets inside the loop, and `index_of/3`'s loop items
-/// are Bound-receiver calls with no same-module static target row.
+/// Diagnostic pin for the armed LoopCond edge: the merged parser source now
+/// crosses the receiver-only `index_of/3` loop and stops at the existing
+/// first-cohort carrier cardinality contract before parser publication.
 #[test]
 fn merged_parser_static_inventory_probe() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
