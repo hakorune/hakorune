@@ -274,6 +274,30 @@ parallel LoopBreak issuer, to reinterpret `RouteNotFrontSelected`, or to make
 the legacy composer source-aware by inference. The parent observer and this
 same-owner issuer remain separate obligations in the next design slice.
 
+### Source projection shape for D1 (read-only contract)
+
+The existing LoopCond/LoopTrue projectors establish the safe shape for this
+extension. A LoopBreak projector would start from the resolver-issued root
+`SourceStmtSiteV1`, open its exact condition/body through
+`ResolvedFunctionLoweringInputV1::source()`, and obtain parentage/exits only
+from `function().resolved_loop_source_forest(...)` and the resolved exit index.
+It must never rebuild a loop member from `LoopSourceBodySiteV1` coordinates.
+
+The bounded direct product therefore needs the same source identity tuple as
+the sibling projections (`FunctionOriginV1`, `SemanticOwnerSourceKindV1`,
+owner, and root frame key), plus exact sites for the loop, condition,
+break-if, carrier-update, step, and the explicit break exit/record. Its forest
+binding and exit rows must remain paired with those sites. The existing
+`LoopBreakSourceTopologyV1` can be checked against this product for the
+direct three-statement indices, but cannot serve as the resolver identity by
+itself.
+
+The projector must reject foreign owner, missing forest/exit, non-loop member,
+break targeting another loop, ScopeBox-expanded direct topology, duplicate or
+out-of-root sites, and any specialized `LoopBreakFacts` row whose
+`source_topology` is absent. This is a D1 contract only; no new receipt or
+source projection is issued in D0.
+
 ## Physical adapter premise audit
 
 The physical owner is narrower than the route name suggests. The shared
