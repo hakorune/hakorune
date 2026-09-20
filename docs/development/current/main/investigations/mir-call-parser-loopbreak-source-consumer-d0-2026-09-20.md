@@ -330,6 +330,25 @@ authorize code, fixture, fallback, backend parity, or production-switch work
 until the parent observer's typed candidate/absence relation is accepted by
 the existing package owner.
 
+### Candidate/absence vocabulary audit (read-only, 2026-09-20)
+
+The nearby `DynamicCallableAdmissionV1` already demonstrates the required
+fail-closed distinction: `Candidate` and typed `Declined` are separate, while
+unresolved and rejected source evidence remain different package errors. This
+is the right shape for the LoopBreak design vocabulary, but its Dynamic type
+must not be reused for loop meaning.
+
+D1 should therefore name a LoopBreak-specific admission disposition with an
+explicit candidate, a supported non-candidate, and typed unresolved/rejected
+outcomes. `Option<LoopBreakCandidate>` is forbidden because it would merge
+unsupported shape, missing resolver evidence, and a real source absence. The
+package issuer must inspect every resolved batch row, including unselected
+rows; selected-map membership is not a LoopBreak census.
+
+Only after that disposition and its finite error mapping are accepted may the
+package issue a typed LoopBreak coverage field. Until then the current package
+model remains unchanged and `NoSafeSlice` stays open.
+
 ## Physical adapter premise audit
 
 The physical owner is narrower than the route name suggests. The shared
