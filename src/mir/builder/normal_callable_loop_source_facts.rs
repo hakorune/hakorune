@@ -8,6 +8,8 @@
 mod generic;
 #[path = "normal_callable_loop_source_facts/loop_cond.rs"]
 mod loop_cond;
+#[path = "normal_callable_loop_source_facts/loop_true.rs"]
+mod loop_true;
 
 pub(in crate::mir::builder) use generic::*;
 pub(in crate::mir::builder) use loop_cond::*;

@@ -1458,3 +1458,21 @@ negative co-seal guards in the split source-Facts owner; (2) add the source-port
 LoopTrue adapter with preflight before Builder effects; (3) run the parser
 source-to-MIR matrix; (4) delete only the selected `parse/2 -> starts_with/3`
 compatibility edge after the acceptance terminal is observed.
+
+### LoopTrue source Facts product implementation — 2026-09-20
+
+The bounded construction slice is now present in the split source-Facts owner.
+`CallableLoopTrueSourceFactsV1` retains the existing
+`LoopTrueBreakContinueFacts`/Recipe outcome and co-seals the located source
+contexts, resolver forest projection, source item rows, and the exact target
+relation. The existing raw caller accepts the new disposition only as a named
+`source-physical-unselected` terminal, so this slice does not silently enter a
+second physical route or claim parser acceptance.
+
+Validation recorded for this slice: `cargo check --profile quick --lib` passed;
+the existing source-Facts focused suite passed 16/16; and the new route token
+guard passed 1/1 for exact, missing, and overlapping LoopTrue selections. The
+quick test build still reports the repository warning baseline (561 warnings in
+the filtered test build); warning cleanup is a separate task. Source-port
+physical consumption, parser source-to-MIR acceptance, publication, and old
+edge retirement remain open.

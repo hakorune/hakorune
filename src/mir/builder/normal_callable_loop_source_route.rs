@@ -276,7 +276,7 @@ impl CallableLoopSourceTargetProbeV1 {
     /// Resolve the classification into the single co-sealed target relation.
     /// Evidence gaps are checked before selection arity so a dropped
     /// required row can never reclassify as out of scope.
-    fn into_selected_relation(
+    pub(in crate::mir::builder) fn into_selected_relation(
         self,
         source_items: &[CallableLoopSourceItemBindingV1],
     ) -> Result<CallableLoopSourceTargetRelationV1, CallableLoopSourceRouteRejectV1> {

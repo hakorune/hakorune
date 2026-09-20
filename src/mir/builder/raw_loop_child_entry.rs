@@ -343,6 +343,12 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
                 .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned());
             }
+            CallableGenericLoopSourceFactsDispositionV1::LoopTrueReady(_) => {
+                return Err(
+                    "[freeze:contract][callable-loop/loop-true/source-physical-unselected]"
+                        .to_owned(),
+                );
+            }
             CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error) => {
                 return Err(format!(
                     "[freeze:contract][callable-loop/source-unavailable] {error:?}"
