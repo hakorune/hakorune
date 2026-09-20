@@ -16,8 +16,7 @@ use super::array_receiver_proof::{match_array_get_call, match_array_set_call};
 use super::string_corridor_recognizer::{match_len_call, match_substring_call};
 use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::{
-    definitions::Callee, BasicBlock, BasicBlockId, BinaryOp, ConstValue, MirFunction,
-    MirInstruction, MirModule, ValueId,
+    BasicBlock, BasicBlockId, BinaryOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
 };
 
 mod model;

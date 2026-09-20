@@ -1,5 +1,5 @@
 use super::*;
-use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+use crate::mir::definitions::call_unified::{Callee, CalleeBoxKind, TypeCertainty};
 use crate::mir::{BasicBlock, EffectMask, FunctionSignature, MirType};
 
 #[test]
