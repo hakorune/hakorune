@@ -4,7 +4,7 @@ Task: MIR-CALL-D1B-RESOLVED-METHOD-STATIC-TARGET-COISSUE-D0
 Date: 2026-09-21
 Parent: mir-call-d1b-main-raw-qualified-method-source-coseal-d0-2026-09-21.md
 Implementation permission: false; issuer and traversal design only
-NextCard: none
+NextCard: MIR-CALL-D1B-RESOLVED-QUALIFIED-RECEIVER-IDENTITY-COSEAL-D0
 ---
 
 # Resolver MethodCall static-target co-issue D0
@@ -51,6 +51,12 @@ The missing join is the same-session qualified receiver/alias to
 `observe_method_calls_shadow_view_v0`. The separate Script inventory has that
 join but performs its own observation and is therefore not a free Main issuer.
 
+The current resolver product has a sharper boundary: `ResolvedMethodCallSourceV1`
+records `QualifiedUnbound` but no receiver lexeme, alias identity, or canonical
+owner. The declaration catalog's static lookup cannot recover that relation from
+the site alone. This is why candidate uniqueness and name/arity lookup are not
+acceptable substitutes for the missing source relation.
+
 ## Decision boundary
 
 This D0 must choose one of two outcomes. The accepted path is a private
@@ -60,6 +66,12 @@ reject path records `NoSafeSlice` if the source catalog cannot receive the
 resolver rows without a second traversal, a new parallel semantic authority,
 or a public receipt. Neither outcome opens target publication or raw loan
 transport.
+
+The finite recheck selects the reject boundary for the current products: the
+qualified receiver identity is absent from the resolver Facts, while the only
+product that retains it is the separate AST-backed Script inventory. A new
+design row must decide how the same source traversal retains this identity;
+until then the Main family stays typed-reject/parked.
 
 ## Acceptance and reopen
 
