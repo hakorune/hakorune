@@ -1,13 +1,14 @@
 ---
-Status: selected__fast__2026-09-20__ValidateParserSourceToMirAcceptance
+Status: handed_off__2026-09-20__ParserSourceToMirPackageAcceptanceWindow
 Task: MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0
 Date: 2026-09-19
 Parent: mir-call-parser-nested-loop-source-promotion-d0-2026-09-19.md
 ProductionCaller: selected normal MIR/static-receiver route only
 Implementation permission: D2 physical consumption is landed through the
-existing skeleton/phi/cleanup/verifier owner. The next bounded slice is the
-finite parser source-to-MIR matrix; publication, selected old-edge retirement,
-and other parser shapes remain closed
+existing skeleton/phi/cleanup/verifier owner. The next boundary is a
+design-only same-package acceptance window for the finite parser tuple;
+publication, selected old-edge retirement, and other parser shapes remain
+closed until that window has one safe owner.
 Classification: BoxCount; one source-backed nested-loop handoff and one compatibility-edge retirement
 ---
 
