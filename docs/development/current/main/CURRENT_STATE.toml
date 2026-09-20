@@ -1,11 +1,11 @@
 date = "2026-09-21"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-PARSER-LOOPBREAK-SOURCE-PHYSICAL-I0"
 current_execution_cohort = "parser_loopbreak_source_physical"
-current_blocker_token = "MIR-CALL-PARSER-LOOPBREAK-SOURCE-PHYSICAL-I0__SourceBoundPhysicalOwnerAndDeleteSet"
+current_blocker_token = "MIR-CALL-PARSER-LOOPBREAK-SOURCE-PHYSICAL-I0__Fast_SourceBoundPhysicalInputAndTerminalRetirement"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "open__parser_loopbreak_source_physical_i0__source_bound_physical_owner_and_delete_set"
+current_design_stop = "closed__parser_loopbreak_source_physical_i0__source_bound_physical_owner_and_delete_set__2026-09-21"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -49,12 +49,12 @@ The OwnedText T3 family remains parked. Finite tuple: `ParserProgramBox.parse/2 
 The first fast slice materializes and validates the move-only input; located LoopCond lowering reaches `LoopCondReady` with raw parity green. A′ slice 1 separates exact obligations from consumable evidence; merged order stops at `SourceCallOutsideSelectedFamily` for `index_of/3` bound items, while dropped required rows remain `SourceTargetUnselected`. The physical-input port slice is complete. A′ slice 2 now selects the existing route-neutral `VerifiedSourceCallTargetCatalogV1` as the bound-CoreMethod owner; the generated manifest plus existing CoreMethod/resolver issuers remain canonical, and the normal semantic package transports the per-call contracts into the source port. The next boundary is the package acceptance-window D0; no target-only lowering, `None` acceptance, reorder, S6C revival, old-edge deletion, VM, or fallback is authorized.
 Non-claims: no qualified Invoke, whole-T2 completion, production cutover, to_json, legacy retirement. A-prime transport/guards remain green (merged_parser 2/2; issuer 3/3; exact take 1/1; resolver rejection 5/5; source-port physical 1/1). The production mixed LoopCond edge is 1/1; armed item absence fails named, while Unarmed/BridgeAbsent retain GenericLoop. The CoreMethod-only family first exposed the generic `carrier-cardinality-0` boundary on a `loop(true)` row. D2 now keeps that GenericLoop contract unchanged and gives the selected LoopTrue source handoff its own non-empty carrier-set validation; the parser fixture exposes two body-read/rebind carriers and is the current matrix input. The LoopTrue source-handoff D0 is accepted and its first fast slice is closed: the 759-line Facts owner was split into a 758-line GenericLoop owner plus facade, with the focused source-Facts suite green at 16/16.
 D1/D2 LoopTrue source handoff is landed: existing Facts/Recipe and resolver/source relations are co-sealed; literal-true carriers are validated; raw caller consumes the existing physical skeleton/cleanup/verifier. Focused evidence: physical 1/1, handoff 6/6, source-Facts 16/16, merged parser 2/2. The package stops at LoopBreak route-not-front-selected before catalog installation. D0 owner selection is closed in the D0 card. Fast row `MIR-CALL-PARSER-LOOPBREAK-SOURCE-PACKAGE-I0` closed at `bf47befd87`: direct source-shape co-seal, complete candidate/absence coverage, specialized-topology typed absence, and relation guards are green.
-Transport row `MIR-CALL-PARSER-LOOPBREAK-SOURCE-TRANSPORT-I0` closed on 2026-09-21: installed package retention, one-shot owner take, selected lowering-state transport, and 5/5 focused package guards are green; quick check passes with 1845 baseline warnings. The next row is the source-bound physical design stop; physical lowering, source-to-MIR acceptance, publication, old-edge deletion, other shapes, backend parity, and warning cleanup remain open.
+Transport row `MIR-CALL-PARSER-LOOPBREAK-SOURCE-TRANSPORT-I0` closed on 2026-09-21: installed package retention, one-shot owner take, selected lowering-state transport, and 5/5 focused package guards are green; quick check passes with 1845 baseline warnings. The source-bound physical row is now selected fast with the existing associated-source/loop_v0 owner and the direct source terminal delete tuple named; physical implementation, source-to-MIR acceptance, publication, other shapes, compatibility-route retirement, backend parity, and warning cleanup remain open.
 """
 next_design_card = "MIR-CALL-PARSER-LOOPBREAK-SOURCE-PHYSICAL-I0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-loopbreak-source-physical-i0-2026-09-21.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "MIR-CALL-PARSER-LOOPBREAK-SOURCE-PHYSICAL-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-parser-loopbreak-source-physical-i0-2026-09-21.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

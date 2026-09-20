@@ -1,10 +1,12 @@
 ---
-Status: design_stop__2026-09-21__ParserLoopBreakSourcePhysical
+Status: selected__fast__2026-09-21__ParserLoopBreakSourcePhysical
 Task: MIR-CALL-PARSER-LOOPBREAK-SOURCE-PHYSICAL-I0
 Current execution row: MIR-CALL-PARSER-LOOPBREAK-SOURCE-PHYSICAL-I0
 Date: 2026-09-21
 Parent: mir-call-parser-loopbreak-source-transport-i0-2026-09-20.md
-Implementation permission: false until the source-bound physical owner and delete set are accepted
+Implementation permission: the same-owner source Recipe/input/consumer and
+selected source-terminal retirement below are accepted for one bounded slice;
+compatibility-route retirement, publication, and other LoopBreak shapes remain closed
 NextCard: none
 ---
 
@@ -13,8 +15,9 @@ NextCard: none
 ## Six-line brief
 
 ```text
-Decision: design one source-bound LoopBreak adapter that reuses the existing
-  loop_v0 physical owner after exact source/Facts/Recipe co-seal.
+Decision: admit the selected direct parser LoopBreak through one source-bound
+  input and the existing loop_v0 physical owner after exact source/Facts/Recipe
+  co-seal.
 Source authority + canonical issuer: resolver-issued
   `issue_loop_break_source_projection_v1`, the existing
   `issue_callable_loop_break_source_facts_v1` planner/terminal co-seal, and
@@ -23,9 +26,11 @@ Non-authority: synthetic AST/StmtRef construction, name remapping, a second
   LoopBreak Recipe, LoopRouteContext inference, legacy composer, or fallback.
 Fail-fast boundary: named pre-effect rejection for missing, foreign, duplicate,
   out-of-root, order-mismatched, or non-direct source rows.
-Smallest next slice: inventory the existing source-parts/loop_v0 consumer,
-  exact LoopBreak source site and exit/forest relation, and finite old-edge set.
-Non-claims: no route execution, publication, backend parity, VM work, or delete.
+Smallest next slice: source-bound Recipe constructor, move-only physical input,
+  raw caller consume, focused direct/negative matrix, and retirement of the
+  selected source `GenericLoopV1NotSelected` terminal.
+Non-claims: no compatibility-route deletion, publication, backend parity, VM
+  work, or other LoopBreak topology.
 ```
 
 ## Design tasks
@@ -79,13 +84,12 @@ The production inventory is currently:
 | `loop_break_composer.rs::compose_loop_break_recipe` | exclusive composer called by the compatibility route | delete only with the route-handler switch; do not remove the shared `build_loop_break_recipe` used by matcher/tests |
 | `callable_loop_source_lowering.rs` / `loop_v0.rs` | neutral physical frame and located source-part owners | retained and reused |
 
-This inventory does not yet form an exclusive delete tuple: the source caller
-currently stops before the compatibility route, while the compatibility route
-still has a non-source role. Therefore the implementation permission remains
-false. The next design decision must bind one move-only physical input to the
-existing source Facts/Recipe outcome, prove the exact loop/condition/body and
-exit/forest relation before `lower_loop_v0_core`, and then name the first
-source caller plus the exact compatibility edge that it exclusively replaces.
+This inventory is the design-stop evidence for the bounded tuple accepted
+below. The compatibility route still has a non-source role, so its global
+handler remains retained; the selected source terminal is the only old edge
+retired by this row. The implementation must bind one move-only physical input
+to the existing source Facts/Recipe outcome and prove the exact
+loop/condition/body and exit/forest relation before `lower_loop_v0_core`.
 
 The package transport is therefore evidence of retained ownership, not
 source-to-MIR acceptance. No production switch, deletion, or publication claim
@@ -119,19 +123,49 @@ failure before `lower_loop_v0_core`. It may reuse the existing recipe builder's
 verification helpers, but it must not reconstruct source identity from names,
 ordinals, dummy AST, or `LoopRouteContext`.
 
-This confirms why the current row remains a design stop: the source-bound
-Recipe constructor and its exact source caller are not yet present, and the
-compatibility `route_loop_break_recipe` still serves a non-source role. The
-physical input contract can be accepted only together with the source caller,
-the pre-effect reject, and an exclusive old-edge tuple.
+This was the reason the row stayed at design stop before the owner/input/caller
+decision. The accepted slice below supplies the source-bound constructor and
+caller while retaining the compatibility route for its separate non-source
+role.
 
-## Required design-stop evidence
+## Accepted bounded implementation slice — 2026-09-21
 
-The card cannot enter `fast` until the same owner names the source issuer,
-physical consumer, pre-effect terminal, and deletion set. Focused evidence must
-cover one direct candidate, one typed absence, one specialized rejection, and
-foreign/duplicate/out-of-root relations. A local transport green is not
-source-to-MIR acceptance.
+The source authority, physical owner, and selected old edge are now named:
+
+```text
+source projection/Facts/package
+  -> SourceLoopBreakPhysicalInputV1 (same LoopBreak Facts owner)
+  -> source-bound build_loop_break_recipe constructor (same Recipe owner)
+  -> CallableLoopSourcePartsBlockV1 + lower_callable_loop_source_parts_block
+  -> lower_loop_v0_core / PlanVerifier / PlanLowerer
+```
+
+The selected caller is the existing `raw_loop_child_entry.rs` source-backed
+callable-loop entry. It consumes the package candidate by exact parent source
+site before the generic route issuer. The delete tuple is limited to that
+source candidate's current `GenericLoopV1NotSelected` terminal and its direct
+source-side handoff; the compatibility `route_loop_break_recipe` remains for
+non-source callers and is not deleted in this slice. A candidate never falls
+through to the generic route, and an absent/unsupported candidate keeps its
+existing typed terminal.
+
+Pre-effect validation must prove owner/function origin/source kind, parent /
+condition / body lineage, the three direct statement sites, forest and explicit
+break exit, target relation, recipe-body equality, and `LoopBreakStepPlacement`.
+The physical adapter must fail before `lower_loop_v0_core` allocation on any
+missing, foreign, duplicate, out-of-root, local-prelude, specialized, or
+source/recipe mismatch.
+
+Required focused evidence is one direct parser candidate reaching source-to-MIR,
+one supported non-candidate, one specialized topology rejection, and
+foreign/duplicate/out-of-root relation rejects; the existing compatibility
+route tests remain separate evidence.
+
+## Implementation acceptance evidence
+
+The design stop is closed by the accepted owner/input/caller/delete tuple above.
+Implementation must prove the listed source-to-MIR and negative evidence; a
+local transport green is not source-to-MIR acceptance.
 
 ## Non-claims
 
