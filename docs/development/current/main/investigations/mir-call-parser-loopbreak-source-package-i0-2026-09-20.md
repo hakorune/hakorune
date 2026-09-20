@@ -45,8 +45,8 @@ Non-claims: no physical LoopBreak lowering, production caller switch, old-edge
 3. `issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1`
    remains the sole package observer. It enumerates every `VerifiedResolvedCallableSemantic`
    batch row, including unselected rows, and stores one package-private
-   candidate/absence row keyed by batch slot, owner, source identity, and the
-   same catalog brand.
+   candidate/absence row keyed by batch slot, owner, and source identity. The
+   existing callable catalog remains the separate catalog-brand owner.
 
 ## Disposition contract
 
@@ -69,7 +69,7 @@ and recipe are not reused for LoopBreak.
 | --- | --- | --- |
 | 1 | Add the direct source projector beside the existing LoopCond/LoopTrue projectors | exact loop/condition/break-if/carrier-update/step sites and explicit break exit remain paired with the resolver forest and frame identity |
 | 2 | Extend the existing Facts issuer | Generic, LoopCond, and LoopTrue paths remain unchanged; LoopBreak candidate and all typed declines/rejects are named |
-| 3 | Issue package-wide coverage | every batch row is observed once; duplicate/missing/foreign row and catalog-brand drift reject before package publication |
+| 3 | Issue package-wide coverage | every batch row is observed once; duplicate/missing/foreign row metadata rejects before package publication; catalog brand remains with the existing catalog owner |
 | 4 | Add focused guards | direct positive parser row plus missing forest, foreign owner, duplicate site, out-of-root, ScopeBox, specialized-topology, and incomplete-batch negatives are green |
 | 5 | Closeout evidence | record source sizes, classified reds, and the next physical-consumer card; do not claim source-to-MIR success |
 | 6 | Warning cleanup handoff | the retained source package is consumed by the next physical owner, or its now-obsolete accessors are removed; no new dead-code warning is left unclassified |
@@ -86,7 +86,7 @@ package candidate reaches its named terminal.
 ## Acceptance boundary
 
 This I0 is complete only when the existing parser package issuer exposes a
-brand-matched, complete candidate/absence product for all batch rows and all
+batch-matched, complete candidate/absence product for all batch rows and all
 negative cases fail before Builder effects. It does not advance the parser
 package to source-to-MIR acceptance; that remains the next physical-consumer
 row with its own caller, terminal, and exclusive delete-set.
@@ -108,6 +108,8 @@ fixture reaches one retained Candidate row (1/1). The three projector guards
 and both package guards are green; `cargo check --profile quick` is green. The
 retained candidate/absence products are intentionally not yet
 consumed by physical lowering, so their warning cleanup belongs to the next
-physical-consumer slice. Package-level foreign/duplicate/incomplete negative
-guards still remain before closeout. No route execution, fallback, production
+physical-consumer slice. The source-shape and resolver-relation negative
+guards still remain before closeout. The package rows validator now rejects
+foreign owner, duplicate slot, missing slot, and unexpected slot metadata; its
+focused negative matrix is 4/4. No route execution, fallback, production
 switch, or legacy edge changed in this slice.

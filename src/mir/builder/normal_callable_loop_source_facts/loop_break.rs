@@ -60,7 +60,7 @@ impl VerifiedCallableLoopBreakSourceCandidateV1 {
         &self.projection
     }
 
-    pub(in crate::mir) fn outcome(&self) -> &PlanBuildOutcome {
+    pub(in crate::mir::builder) fn outcome(&self) -> &PlanBuildOutcome {
         &self.outcome
     }
 
