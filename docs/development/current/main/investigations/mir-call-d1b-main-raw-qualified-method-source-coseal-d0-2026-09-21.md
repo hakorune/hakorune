@@ -4,7 +4,7 @@ Task: MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-SOURCE-COSEAL-D0
 Date: 2026-09-21
 Parent: mir-call-d1b-main-raw-exact-source-issuer-loan-d0-2026-09-21.md
 Implementation permission: false; reuse decision and finite relation census only
-NextCard: none
+NextCard: MIR-CALL-D1B-RESOLVED-METHOD-STATIC-TARGET-COISSUE-D0
 ---
 
 # Main raw qualified MethodCall source co-seal D0
@@ -53,6 +53,12 @@ The normal Script lane consumes this chain through
 currently consume it. `VerifiedResolvedMethodCallSourceV1` is the resolver-owned
 AST-free relation used by other owners, but intentionally contains no target.
 
+The Script issuer is evidence of a usable target owner, not a Main solution by
+itself. It performs whole-source MethodCall inventory and Script-window
+observation inside the Script lane. Sending that product to Main would either
+add a second AST observation beside the resolver relation or make the Script
+lane a hidden retry; neither is allowed in this D0.
+
 ## Decision boundary
 
 The only viable successor is an owner-preserving handoff from the existing
@@ -68,6 +74,12 @@ to one declaration key with same-brand ownership, and all missing/foreign,
 lexically bound, alias-conflict, duplicate, nested, and wrong-kind rows have a
 named reject. No target/Callee, package field, loan, raw dispatcher, or MIR Call
 may be added here.
+
+The current result is `NoSafeSlice` for direct Main reuse. The next bounded
+design row must decide whether the existing resolver MethodCall relation and the
+declaration/import catalog can co-issue an AST-free qualified static target in
+the same source session. If that requires a second traversal or issuer, the
+Main family remains typed-reject/parked.
 
 ## Reopen trigger
 
