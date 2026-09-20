@@ -2,8 +2,8 @@ use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDecl
 use crate::mir::builder::{
     issue_source_backed_same_module_callable_catalog_v1, CanonicalSameModuleCallableKeyV1,
     CatalogedBoxMethodPhysicalHeaderProjectionV1, ConsumedNormalRootCallableSourceV1,
-    SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1, SourceBackedCallableCatalogIssueV1,
-    VerifiedSourceBackedSameModuleCallableCatalogV1,
+    GenericLoopFactsPolicyFrameV1, SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
+    SourceBackedCallableCatalogIssueV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 #[cfg(test)]
 use crate::mir::builder::{NormalRootExecutionConsumerRejectV1, NormalRootExecutionConsumerV1};
@@ -54,6 +54,7 @@ use super::dynamic_admission::{
 use super::instance_constructor_semantic::{
     issue_instance_constructor_semantic_batch_v1, InstanceConstructorSemanticBatchIssueV1,
 };
+use super::loop_break_source::issue_loop_break_source_package_v1;
 use super::model::{
     NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1,
     OwnedCallableParameterContractV1, VerifiedNormalCallableSemanticPackageV1,
@@ -380,6 +381,9 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     CoreMethodSource {
         _error: String,
     },
+    LoopBreakSource {
+        _error: super::loop_break_source::LoopBreakSourcePackageIssueV1,
+    },
 }
 
 #[cfg(test)]
@@ -396,10 +400,25 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_v1(
     issue_normal_callable_semantic_package_with_brand_catalog_v1(resolver, source, None)
 }
 
+#[cfg(test)]
 pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_v1(
     resolver: &mut FunctionSemanticResolverSessionV1,
     source: ConsumedNormalRootCallableSourceV1,
     brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
+    issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1(
+        resolver,
+        source,
+        brand_catalog,
+        GenericLoopFactsPolicyFrameV1::from_environment(),
+    )
+}
+
+pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1(
+    resolver: &mut FunctionSemanticResolverSessionV1,
+    source: ConsumedNormalRootCallableSourceV1,
+    brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+    loop_policy: GenericLoopFactsPolicyFrameV1,
 ) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
     let instance_constructors =
         issue_instance_constructor_semantic_batch_v1(resolver, source.source(), brand_catalog)
@@ -436,6 +455,8 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             Ok((batch, root_execution))
         })
         .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
+    let loop_break_source = issue_loop_break_source_package_v1(&batch, loop_policy)
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::LoopBreakSource { _error: error })?;
     let selected = issue_selected_callable_batch_map_v1(&catalog, &batch)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::SelectedMapping { _error: error })?;
     let source_core_method_calls = issue_source_core_method_calls_v1(&catalog, &batch, &selected)
@@ -707,6 +728,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         physical_header,
         dynamic,
         dynamic_physical_header,
+        loop_break_source,
         source_core_method_calls,
     })
 }

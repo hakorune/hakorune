@@ -451,6 +451,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             physical_header,
             dynamic,
             dynamic_physical_header,
+            loop_break_source: _,
             declared_instance_call_locators,
             source_core_method_calls,
         } = self.package;

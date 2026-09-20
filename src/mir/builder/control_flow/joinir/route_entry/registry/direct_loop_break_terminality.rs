@@ -7,7 +7,7 @@ use crate::mir::builder::control_flow::joinir::route_entry::registry::route_id::
 use crate::mir::builder::control_flow::plan::facts::LoopFacts;
 
 /// Opaque proof that the direct generic LoopBreak route is scheduler-terminal.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct DirectLoopBreakTerminalityV1 {
     route: LoopRouteId,
 }

@@ -31,7 +31,8 @@ use super::{
 use super::{BuilderInstallConsumerV1, BuilderPrivateCallableLoweringScopeV1};
 use crate::ast::ASTNode;
 use crate::mir::normal_callable_semantic_package::{
-    issue_normal_callable_semantic_package_with_brand_catalog_v1, OrdinaryNewClaimLedgerV1,
+    issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1,
+    OrdinaryNewClaimLedgerV1,
 };
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use std::rc::Rc;
@@ -253,10 +254,11 @@ impl ModuleBuilderInvocationSessionV1 {
         let mut semantic_package = match callable_source.take() {
             Some(callable) => {
                 let package = match declaration_facts.with_brand_catalog(|catalog| {
-                    issue_normal_callable_semantic_package_with_brand_catalog_v1(
+                    issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1(
                         &mut resolver,
                         callable,
                         Some(catalog),
+                        self.config().generic_loop_facts_policy_v1(),
                     )
                 }) {
                     Ok(package) => package,

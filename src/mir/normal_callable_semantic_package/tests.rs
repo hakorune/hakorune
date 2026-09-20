@@ -63,6 +63,10 @@ fn parser_scan_source_seals_one_dynamic_candidate_and_all_parameter_contracts() 
     .expect("exact parser scan semantic package");
 
     assert_eq!(package.batch().declarations().len(), 4);
+    assert_eq!(
+        package.loop_break_source_row_count(),
+        package.batch().declarations().len()
+    );
     assert_eq!(package.parameter_declaration_count(), 4);
     assert_eq!(package.parameter_count(), 15);
     let NormalCallableDynamicProjectionRefV1::Selected { program } = package.dynamic_projection()
@@ -73,6 +77,30 @@ fn parser_scan_source_seals_one_dynamic_candidate_and_all_parameter_contracts() 
         program.current(),
         crate::mir::compiler::dynamic_full_body_recipe::DynamicInvocationCleanupCurrentDispositionV1::ExactI64TrivialNoEnd
     );
+}
+
+#[test]
+fn direct_loop_break_source_package_retains_one_candidate_row() {
+    let package = issue(
+        r#"
+static box Main {
+    main() {
+        local i = 0
+        local sum = 0
+        loop(i < 3) {
+            if i == 3 { break }
+            sum = sum + 1
+            i = i + 1
+        }
+        return sum
+    }
+}
+"#,
+    )
+    .expect("direct LoopBreak semantic package");
+
+    assert_eq!(package.loop_break_source_row_count(), 1);
+    assert_eq!(package.loop_break_source_candidate_count(), 1);
 }
 
 #[test]

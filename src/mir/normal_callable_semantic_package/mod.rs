@@ -27,6 +27,7 @@ pub(crate) use instance_constructor_semantic::{
     BirthFormalUseCoverageV1,
 };
 mod issuer;
+mod loop_break_source;
 mod map_lifecycle_undertaking;
 #[cfg(test)]
 mod map_lifecycle_undertaking_tests;
@@ -90,9 +91,12 @@ pub(crate) use install::{
     SelectedCatalogedCallableLoweringInputV1,
 };
 #[cfg(test)]
-pub(in crate::mir) use issuer::issue_normal_callable_semantic_package_v1;
 pub(in crate::mir) use issuer::{
+    issue_normal_callable_semantic_package_v1,
     issue_normal_callable_semantic_package_with_brand_catalog_v1,
+};
+pub(in crate::mir) use issuer::{
+    issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1,
     NormalCallableSemanticPackageIssueV1,
 };
 pub(in crate::mir) use map_lifecycle_undertaking::{

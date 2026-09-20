@@ -9,6 +9,7 @@
 pub(in crate::mir::builder) struct BuilderEmitDebugPolicySnapshotV1 {
     joinir_debug: bool,
     joinir_strict: bool,
+    joinir_dev: bool,
     joinir_planner_required: bool,
     local_ssa_trace: bool,
     trace_recv: bool,
@@ -23,6 +24,7 @@ impl BuilderEmitDebugPolicySnapshotV1 {
         Self {
             joinir_debug: crate::config::env::joinir_dev::debug_enabled(),
             joinir_strict: crate::config::env::joinir_dev::strict_enabled(),
+            joinir_dev: crate::config::env::joinir_dev_enabled(),
             joinir_planner_required: crate::config::env::joinir_dev::planner_required_enabled(),
             local_ssa_trace: crate::config::env::builder_local_ssa_trace(),
             trace_recv: crate::config::env::builder_trace_recv(),
@@ -43,6 +45,10 @@ impl BuilderEmitDebugPolicySnapshotV1 {
 
     pub(in crate::mir::builder) const fn joinir_strict_enabled(self) -> bool {
         self.joinir_strict
+    }
+
+    pub(in crate::mir::builder) const fn joinir_dev_enabled(self) -> bool {
+        self.joinir_dev
     }
 
     pub(in crate::mir::builder) const fn joinir_planner_required_enabled(self) -> bool {
@@ -92,6 +98,7 @@ impl Default for BuilderEmitDebugPolicySnapshotV1 {
         Self {
             joinir_debug: false,
             joinir_strict: false,
+            joinir_dev: false,
             joinir_planner_required: false,
             local_ssa_trace: false,
             trace_recv: false,

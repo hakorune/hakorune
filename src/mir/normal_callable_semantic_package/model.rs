@@ -58,6 +58,7 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) physical_header: super::physical_header::VerifiedCallablePhysicalHeaderCohortV1,
     pub(super) dynamic: NormalCallableDynamicProjectionV1,
     pub(super) dynamic_physical_header: Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>,
+    pub(super) loop_break_source: super::loop_break_source::VerifiedLoopBreakSourcePackageV1,
     pub(super) source_core_method_calls: BTreeMap<
         crate::mir::builder::SelectedNormalCallableKeyV1,
         BTreeMap<
@@ -145,6 +146,16 @@ impl VerifiedNormalCallableSemanticPackageV1 {
     #[cfg(test)]
     pub(crate) fn batch(&self) -> &VerifiedResolvedCallableSemanticBatchV1 {
         &self.batch
+    }
+
+    #[cfg(test)]
+    pub(crate) fn loop_break_source_row_count(&self) -> usize {
+        self.loop_break_source.rows().len()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn loop_break_source_candidate_count(&self) -> usize {
+        self.loop_break_source.candidate_count()
     }
 
     #[cfg(test)]

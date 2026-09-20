@@ -40,6 +40,10 @@ mod normal_callable_dynamic_source; // source-backed untyped formal/Loop carrier
 mod normal_callable_loop_handoff; // callable Loop source/BindingRef S0 handoff
 mod normal_callable_loop_physical_adapter; // callable GenericLoopV1 source Recipe consumer
 mod normal_callable_loop_source_facts; // callable source-aware Facts/Recipe Ready issuer
+pub(in crate::mir) use normal_callable_loop_source_facts::{
+    issue_callable_loop_break_source_facts_v1, CallableLoopBreakSourceFactsDispositionV1,
+    CallableLoopBreakSourceFactsIssueV1, VerifiedCallableLoopBreakSourceFactsV1,
+};
 mod normal_callable_loop_source_port; // source-aware GenericLoop expression capability
 mod normal_callable_loop_source_route; // callable source-owned LoopCond route token
 mod normal_callable_package_bridge; // Builder-private package install boundary
@@ -50,6 +54,7 @@ pub(in crate::mir) use normal_callable_semantic_lowering_state::validate_map_loc
 mod function_fault_frame; // Shared physical frame; source owners select the role
 mod normal_callable_semantic_source; // Co-sealed selected callable source authority
 mod normal_callable_semantic_source_lookup; // Exact legacy source-site/view lookup during cutover
+pub(in crate::mir) use control_flow::plan::GenericLoopFactsPolicyFrameV1;
 mod normal_cataloged_box_method_lowering;
 mod ordinary_new_admission;
 mod variable_read;

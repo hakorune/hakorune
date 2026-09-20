@@ -179,6 +179,26 @@ impl BuilderInvocationConfigV1 {
         self.emit_debug_policy.generic_g0_policy_mode_v1()
     }
 
+    /// Project the invocation-owned flags into the existing LoopFacts policy
+    /// frame.  Source package issuance must consume this snapshot instead of
+    /// rereading process environment after the invocation has started.
+    pub(in crate::mir) fn generic_loop_facts_policy_v1(
+        &self,
+    ) -> crate::mir::builder::GenericLoopFactsPolicyFrameV1 {
+        let emit = self.emit_debug_policy;
+        let strict = emit.joinir_strict_enabled();
+        let strict_or_dev = strict || emit.joinir_dev_enabled();
+        let planner_required = strict_or_dev && emit.joinir_planner_required_enabled();
+        crate::mir::builder::GenericLoopFactsPolicyFrameV1::from_values(
+            strict,
+            strict_or_dev,
+            emit.joinir_debug_enabled(),
+            planner_required,
+            strict && planner_required,
+            true,
+        )
+    }
+
     pub(in crate::mir::builder) fn using_import_boxes(&self) -> &HashMap<String, String> {
         &self.using_import_boxes
     }

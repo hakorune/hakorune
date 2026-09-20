@@ -36,13 +36,14 @@ Non-claims: no physical LoopBreak lowering, production caller switch, old-edge
    `VerifiedLoopCondBreakContinueSourceForestProjectionV1`; it adds only the
    direct LoopBreak source shape and verifies its relation to
    `LoopBreakSourceTopologyV1`.
-2. `CallableGenericLoopSourceFactsIssuerV1` remains the sole per-callable
-   source/Facts co-seal owner. Its new branch consumes the existing planner
-   `PlanBuildOutcome`, direct terminality proof, source shape, forest/exit
-   transport, exact source items, and catalog brand without issuing a second
-   Recipe or JoinSig.
-3. `issue_normal_callable_semantic_package_with_brand_catalog_v1` remains the
-   sole package observer. It enumerates every `VerifiedResolvedCallableSemantic`
+2. The Builder-owned `normal_callable_loop_source_facts` facade remains the
+   sole per-callable source/Facts boundary. Its direct LoopBreak issuer
+   consumes the existing planner `PlanBuildOutcome`, direct terminality proof,
+   source shape, forest/exit transport, and exact source items without issuing
+   a second Recipe or JoinSig; the surrounding package keeps the catalog brand
+   on its existing owner.
+3. `issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1`
+   remains the sole package observer. It enumerates every `VerifiedResolvedCallableSemantic`
    batch row, including unselected rows, and stores one package-private
    candidate/absence row keyed by batch slot, owner, source identity, and the
    same catalog brand.
@@ -71,6 +72,7 @@ and recipe are not reused for LoopBreak.
 | 3 | Issue package-wide coverage | every batch row is observed once; duplicate/missing/foreign row and catalog-brand drift reject before package publication |
 | 4 | Add focused guards | direct positive parser row plus missing forest, foreign owner, duplicate site, out-of-root, ScopeBox, specialized-topology, and incomplete-batch negatives are green |
 | 5 | Closeout evidence | record source sizes, classified reds, and the next physical-consumer card; do not claim source-to-MIR success |
+| 6 | Warning cleanup handoff | the retained source package is consumed by the next physical owner, or its now-obsolete accessors are removed; no new dead-code warning is left unclassified |
 
 ## Explicit non-work
 
@@ -96,6 +98,16 @@ The direct source projector is now present at
 resolver-owned loop site, condition/break/assignment sites, and the paired
 explicit-break exit record. Direct three-statement shape, ScopeBox, explicit
 else, body arity, and exit-target rejection are covered by three focused tests
-(3/3). No Builder, route execution, package publication, fallback, or legacy
-edge changed in this slice. Package-wide candidate/absence coverage and the
-Facts co-seal remain open and are the next implementation steps.
+(3/3). The invocation-owned LoopFacts policy now travels from the Builder
+snapshot into package issuance without a second environment read. The
+source/Facts owner emits an explicit Candidate or SupportedNonCandidate for
+each resolver loop, and the package issuer stores one row for every semantic
+batch declaration before selected mapping. The parser-scan package guard
+asserts row count equals declaration count (1/1), and an inline direct-loop
+fixture reaches one retained Candidate row (1/1). The three projector guards
+and both package guards are green; `cargo check --profile quick` is green. The
+retained candidate/absence products are intentionally not yet
+consumed by physical lowering, so their warning cleanup belongs to the next
+physical-consumer slice. Package-level foreign/duplicate/incomplete negative
+guards still remain before closeout. No route execution, fallback, production
+switch, or legacy edge changed in this slice.
