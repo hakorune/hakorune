@@ -1,12 +1,12 @@
 ---
-Status: selected__fast__2026-09-21__ParserLoopBreakSourcePhysical
+Status: design_stop__2026-09-21__ParserLoopBreakSourceShapeFrontier
 Task: MIR-CALL-PARSER-LOOPBREAK-SOURCE-PHYSICAL-I0
 Current execution row: MIR-CALL-PARSER-LOOPBREAK-SOURCE-PHYSICAL-I0
 Date: 2026-09-21
 Parent: mir-call-parser-loopbreak-source-transport-i0-2026-09-20.md
-Implementation permission: the same-owner source Recipe/input/consumer and
-selected source-terminal retirement below are accepted for one bounded slice;
-compatibility-route retirement, publication, and other LoopBreak shapes remain closed
+Implementation permission: the direct three-statement source Recipe/input/consumer
+is implemented and type-checked; no broader LoopBreak shape, fallback, publication,
+or compatibility retirement is authorized until the source contract below is accepted
 NextCard: none
 ---
 
@@ -178,3 +178,51 @@ selected old-edge retirement remain open.
 The parser `starts_with/3` tuple remains stopped before physical lowering and
 publication. No Cataloged/Selected claim, backend parity claim, source-to-MIR
 claim, or legacy retirement claim is made here.
+
+## Design stop — parser composite LoopBreak frontier — 2026-09-21
+
+The direct physical slice is complete as a source-bound owner, but the merged
+parser acceptance does not satisfy its direct-shape contract. The parser body
+contains assignments, nested conditionals, and multiple exits; the existing
+`LoopBreakRecipe` terminal is therefore outside the direct three-statement
+candidate and currently stops the full package before catalog installation.
+Treating that terminal as an empty/noncandidate row would hide a required
+physical route, while widening the direct adapter would mix two topologies.
+
+```text
+Decision: keep the direct LoopBreak physical owner closed at its exact
+  three-statement contract and design one separate source-aware composite
+  LoopBreak boundary for the finite parser route before implementation.
+Source authority + canonical issuer: resolver loop forest/exit ledger plus the
+  existing LoopBreak Facts/Recipe issuer, co-sealed by the source Facts owner;
+  the bridge supplies evidence only and does not issue route or terminality.
+Non-authority: `LoopRouteContext`, AST/name rescan, direct-terminality proof,
+  generic retry, compatibility fallback, VM route, or a second Recipe/JoinSig.
+Fail-fast boundary: exact callable/owner/root/body/exit/target relation and
+  complete source item coverage before any physical frame allocation; missing,
+  foreign, duplicate, or unsupported composite rows remain named rejects.
+Smallest next slice: finite census of the parser composite LoopBreak topology,
+  then an owner decision for a source-port input that reuses the existing
+  LoopBreak Recipe/physical spine or records `NoSafeSlice`.
+Non-claims: no composite source-to-MIR, publication, caller switch, old-edge
+  deletion, backend parity, or warning cleanup.
+```
+
+The existing direct adapter and its 15/15 source/package matrix remain valid
+evidence for the direct shape. The merged parser smoke is dependency evidence
+only: it reaches the named `GenericLoopV1NotSelected` terminal because the
+composite LoopBreak route has no accepted source physical owner yet.
+
+### Finite parser-shape census
+
+| source owner/site | observed shape | boundary |
+| --- | --- | --- |
+| `ParserProgramBox.parse/2`, `parser_program_box.hako:81` | `loop(cont_prog == 1)` with the `skip_ws` assignment, multiple conditional exits, progress/guard assignments, and nested `starts_with/3` calls | composite LoopBreak; outside the direct three-statement owner |
+| `ParserProgramBox.parse/2`, `parser_program_box.hako:182` | `loop(true)` with a `skip_ws` assignment, conditional `continue`, and tail `break` | LoopTrue composite; owned by the sibling LoopTrue boundary, not this direct row |
+
+This census covers the two loop sites in the selected `ParserProgramBox.parse/2`
+body that can precede the `ParserStringUtilsBox.starts_with/3` obligation. It
+excludes imported parser callables and unrelated compatibility loops; those are
+not acceptance evidence for this tuple. The next design decision must name one
+source owner for the first row or explicitly seal it as `NoSafeSlice` before any
+caller or terminal change.
