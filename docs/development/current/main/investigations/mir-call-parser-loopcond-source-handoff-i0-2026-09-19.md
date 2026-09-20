@@ -1,12 +1,12 @@
 ---
-Status: design_stop__2026-09-20__LoopTrue-source-owner
+Status: selected__fast__2026-09-20__LoopTrueSourceFactsSplit
 Task: MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0
 Date: 2026-09-19
 Parent: mir-call-parser-nested-loop-source-promotion-d0-2026-09-19.md
 ProductionCaller: selected normal MIR/static-receiver route only
-Implementation permission: the same-owner input/port contract below is accepted
-for one bounded implementation slice; route completion, publication, and old-edge
-retirement remain closed
+Implementation permission: the accepted D0 permits one behavior-preserving
+Facts-owner split before the LoopTrue source arm; route completion, publication,
+and old-edge retirement remain closed
 Classification: BoxCount; one source-backed nested-loop handoff and one compatibility-edge retirement
 ---
 
