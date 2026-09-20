@@ -72,6 +72,29 @@ method in each static box. The installed package's selected-call APIs are
 scoped loans; they do not complete one callable while preserving package
 coverage.
 
+## Unselected dependency row: LoopBreak source consumer
+
+The package terminal has one concrete missing owner, kept outside this D0's
+selected tuple:
+
+```text
+Task: MIR-CALL-PARSER-LOOPBREAK-SOURCE-CONSUMER-D0
+Status: unselected__dependency_only__2026-09-20
+Source authority: same-invocation resolver forest/exit ledger plus the
+  existing `LoopBreakFacts`/Recipe outcome for the finite dependency methods.
+Required consumer: an existing LoopBreak physical owner extended with one
+  source-aware, move-only input; it must reuse the existing cleanup/verifier
+  and never construct `LoopRouteContext` on the source path.
+Current gap: `LoopBreakFacts` retains cloned/derived expressions in the
+  reviewed subsets, `loop_break_composer` is mutation-first, and
+  `route_loop_break_recipe` consumes the legacy `LoopRouteContext`/`MirBuilder`
+  route. No source-lineage co-seal or source-port consumer exists.
+Reopen condition: finite dependency caller/shape inventory, one issuer and
+  one physical consumer, named pre-effect reject, and an exclusive old-edge
+  delete-set. Until then, preserve `GenericLoopV1NotSelected` and do not
+  promote this row from dependency-only.
+```
+
 ## Owner and rejection matrix
 
 | Concern | Existing authority | Required result |
@@ -103,7 +126,8 @@ acceptance-window observation that:
    result/effect, foreign row, duplicate row, and package-brand drift; and
 4. states whether the missing `LoopBreak` source consumer is a separate
    bounded design row, with its own source issuer, physical consumer, and
-   exclusive old-edge delete-set.
+   exclusive old-edge delete-set. The dependency-only row above records that
+   split without reopening the parked LoopBreak route in this card.
 
 Until then the parent LoopCond handoff card remains implemented through D2 but
 does not claim parser source-to-MIR acceptance, publication, old-edge deletion,
