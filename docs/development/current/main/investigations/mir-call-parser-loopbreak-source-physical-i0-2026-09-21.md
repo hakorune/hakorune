@@ -15,8 +15,10 @@ NextCard: none
 ```text
 Decision: design one source-bound LoopBreak adapter that reuses the existing
   loop_v0 physical owner after exact source/Facts/Recipe co-seal.
-Source authority + canonical issuer: the existing LoopBreak source Facts and
-  Recipe owners, joined with the selected callable's resolver source relations.
+Source authority + canonical issuer: resolver-issued
+  `issue_loop_break_source_projection_v1`, the existing
+  `issue_callable_loop_break_source_facts_v1` planner/terminal co-seal, and
+  the package observer `issue_loop_break_source_package_v1`.
 Non-authority: synthetic AST/StmtRef construction, name remapping, a second
   LoopBreak Recipe, LoopRouteContext inference, legacy composer, or fallback.
 Fail-fast boundary: named pre-effect rejection for missing, foreign, duplicate,
@@ -48,6 +50,46 @@ The existing physical core is reusable only after source alignment is proven.
 The legacy `loop_break_composer` and `route_loop_break_recipe` are not source
 consumers. `LoopRouteContext`, synthetic `StmtRef`, and unconditional fallback
 remain outside the authority chain.
+
+## Static owner and edge audit — 2026-09-21
+
+The issuer is present; the earlier package-level `NoSafeSlice` premise was
+superseded by the transport row. The current source authority chain is finite:
+
+```text
+issue_loop_break_source_projection_v1
+  -> issue_callable_loop_break_source_facts_v1
+  -> issue_loop_break_source_package_v1
+  -> LoopBreakSourcePackageLoanV1
+```
+
+The reusable physical owner is the existing associated-source lowering spine:
+`lower_callable_loop_source_parts_block` together with
+`CallableLoopSourcePartsLoweringHooksV1::lower_raw_loop_v0` and the shared
+`lower_loop_v0_core` frame/edge owner. A future source adapter may call this
+spine once it owns a source-aligned LoopBreak recipe; it must not add a second
+Recipe or re-enter `LoopRouteContext`.
+
+The production inventory is currently:
+
+| caller/edge | observed role | fate in this row |
+| --- | --- | --- |
+| `raw_loop_child_entry.rs` → `CallableGenericLoopSourceFactsIssuerV1` | source-backed callable loop entry; LoopBreak currently terminates as `GenericLoopV1NotSelected` before physical lowering | candidate source caller to be wired after the physical input contract is accepted |
+| `route_entry/registry/handlers/routes.rs::route_loop_break_recipe` | compatibility route using `LoopRouteContext` and `RecipeComposer::compose_loop_break_recipe` | retained until a named source caller switches; it is not a source consumer |
+| `loop_break_composer.rs::compose_loop_break_recipe` | exclusive composer called by the compatibility route | delete only with the route-handler switch; do not remove the shared `build_loop_break_recipe` used by matcher/tests |
+| `callable_loop_source_lowering.rs` / `loop_v0.rs` | neutral physical frame and located source-part owners | retained and reused |
+
+This inventory does not yet form an exclusive delete tuple: the source caller
+currently stops before the compatibility route, while the compatibility route
+still has a non-source role. Therefore the implementation permission remains
+false. The next design decision must bind one move-only physical input to the
+existing source Facts/Recipe outcome, prove the exact loop/condition/body and
+exit/forest relation before `lower_loop_v0_core`, and then name the first
+source caller plus the exact compatibility edge that it exclusively replaces.
+
+The package transport is therefore evidence of retained ownership, not
+source-to-MIR acceptance. No production switch, deletion, or publication claim
+is made by this audit.
 
 ## Required design-stop evidence
 

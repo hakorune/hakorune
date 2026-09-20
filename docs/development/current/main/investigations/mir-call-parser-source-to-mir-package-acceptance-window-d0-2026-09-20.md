@@ -85,10 +85,12 @@ Source authority: same-invocation resolver forest/exit ledger plus the
 Required consumer: an existing LoopBreak physical owner extended with one
   source-aware, move-only input; it must reuse the existing cleanup/verifier
   and never construct `LoopRouteContext` on the source path.
-Current gap: `LoopBreakFacts` retains cloned/derived expressions in the
-  reviewed subsets, `loop_break_composer` is mutation-first, and
-  `route_loop_break_recipe` consumes the legacy `LoopRouteContext`/`MirBuilder`
-  route. No source-lineage co-seal or source-port consumer exists.
+Current gap: the source projection and Facts/package co-seal now exist, but
+  no source-lineage physical consumer is connected. `loop_break_composer` is
+  mutation-first, and `route_loop_break_recipe` consumes the legacy
+  `LoopRouteContext`/`MirBuilder` route. The remaining gap is the physical
+  source-port adapter and its exclusive production delete tuple, not a missing
+  source issuer.
 Reopen condition: finite dependency caller/shape inventory, one issuer and
   one physical consumer, named pre-effect reject, and an exclusive old-edge
   delete-set. Until then, preserve `GenericLoopV1NotSelected` and do not
