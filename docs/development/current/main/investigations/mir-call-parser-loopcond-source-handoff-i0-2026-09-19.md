@@ -1124,6 +1124,47 @@ Evidence: source inspection of `source_call_target/core_method.rs`,
 remains 2/2 at the named terminal. This audit does not claim receiver
 physical lowering, parser acceptance, caller switch, or old-edge retirement.
 
+### A′ slice 2 decision — route-neutral CoreMethod owner selected
+
+The existing production owner for the receiver-only family is now fixed as
+`source_call_target::VerifiedSourceCallTargetCatalogV1`. It already owns the
+complete, catalog-branded source MethodCall rows and the route-neutral
+Static/DynamicMember target union. The bound CoreMethod row will be a third
+route-disjoint arm in that same catalog, keyed by the exact
+`(caller, SourceExprSiteV1)` pair; no second target catalog or package-local
+name map is allowed.
+
+The canonical issuer remains the generated CoreMethod manifest plus the
+existing `CoreMethodInstanceTargetIssuerV1` and
+`ResolverCoreMethodCallableContractIssuerV1`. For each exact resolver method
+row whose generated `StringBox` operation/arity is supported, one issuer
+session produces one move-only target and the resolver contract co-seals the
+lexical receiver binding, ordered argument sites, result site, loop
+membership/placement, selector alias, `PureRead` effect, Text/I64 result, and
+the manifest/schema/policy brands. A fresh issuer session per source call is
+permitted because its relation/target brand scopes one call contract; it does
+not create a second semantic manifest or deduplication authority. Unsupported
+selector/arity, non-lexical receiver, missing loop placement, or any source
+row drift remains a named rejection.
+
+The existing normal callable semantic package is the transport owner for this
+catalog. It will retain the co-sealed per-call contracts and lend the selected
+caller's rows into `CallableSemanticLoweringState`; the source expression port
+will consume an exact contract by source site. Receiver variables therefore
+use the resolver-issued binding/value relation before any raw name lookup, and
+the physical MethodCall emission must verify the contract's receiver,
+arguments, result class, effect, and Fault behavior. This is transport of an
+existing source-call authority, not a new semantic receipt family.
+
+The next fast slice is bounded to (1) issue the catalog arm from the existing
+semantic package using generated manifest rows, (2) transport the selected
+caller's contracts through the existing lowering state/source port, and (3)
+add positive/negative exact-site tests for two `substring/2` rows, wrong
+receiver/argument/result, foreign site, and duplicate take. Only after this
+consumer is green may the LoopCond obligation admit the bound family. S6C,
+AST/name lookup, route reordering, `None` acceptance, fallback, VM, and old
+edge deletion remain closed.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs
