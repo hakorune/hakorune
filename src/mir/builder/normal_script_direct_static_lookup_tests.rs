@@ -35,7 +35,7 @@ fn issuer_moves_one_owned_target_result_relation_from_the_parser_loan() {
     let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
         .expect("neutral source window");
     let (lookup, _publication_owner) =
-        ScriptDirectStaticCallLookupIssuerV1::issue(&package, Some(&neutral), &[])
+        ScriptDirectStaticCallLookupIssuerV1::issue_for_test(&package, Some(&neutral), &[])
             .expect("owned lookup relation");
     let lookup = lookup.expect("non-App Script lookup");
     let rows = lookup.rows().collect::<Vec<_>>();
@@ -57,7 +57,7 @@ fn issuer_retains_complete_source_coverage_with_the_selected_row() {
     let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
         .expect("neutral source window");
     let (lookup, _publication_owner) =
-        ScriptDirectStaticCallLookupIssuerV1::issue(&package, Some(&neutral), &[])
+        ScriptDirectStaticCallLookupIssuerV1::issue_for_test(&package, Some(&neutral), &[])
             .expect("owned lookup relation");
     let lookup = lookup.expect("non-App Script lookup");
     let coverage = lookup.source_coverage();
@@ -86,7 +86,7 @@ fn issuer_seals_true_zero_call_script_as_complete_empty_coverage() {
     let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
         .expect("neutral source window");
     let (lookup, _publication_owner) =
-        ScriptDirectStaticCallLookupIssuerV1::issue(&package, Some(&neutral), &[])
+        ScriptDirectStaticCallLookupIssuerV1::issue_for_test(&package, Some(&neutral), &[])
             .expect("owned lookup relation");
     let lookup = lookup.expect("non-App Script lookup");
     assert!(lookup.source_coverage().is_empty());
@@ -105,7 +105,7 @@ fn cataloged_box_has_complete_empty_root_coverage() {
     let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
         .expect("cataloged static box source window");
     let (lookup, _publication_owner) =
-        ScriptDirectStaticCallLookupIssuerV1::issue(&package, Some(&neutral), &[])
+        ScriptDirectStaticCallLookupIssuerV1::issue_for_test(&package, Some(&neutral), &[])
             .expect("root lookup must observe only executable source");
     let lookup = lookup.expect("non-App Script lookup");
 
@@ -120,7 +120,7 @@ fn issuer_keeps_non_direct_source_routes_in_coverage() {
     let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
         .expect("neutral source window");
     let (lookup, _publication_owner) =
-        ScriptDirectStaticCallLookupIssuerV1::issue(&package, Some(&neutral), &[])
+        ScriptDirectStaticCallLookupIssuerV1::issue_for_test(&package, Some(&neutral), &[])
             .expect("owned lookup relation");
     let lookup = lookup.expect("non-App Script lookup");
     let rows = lookup.source_coverage().rows().expect("non-empty coverage");
@@ -149,7 +149,7 @@ fn issuer_keeps_typeop_and_reserved_routes_in_coverage() {
     let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
         .expect("neutral source window");
     let (lookup, _publication_owner) =
-        ScriptDirectStaticCallLookupIssuerV1::issue(&package, Some(&neutral), &[])
+        ScriptDirectStaticCallLookupIssuerV1::issue_for_test(&package, Some(&neutral), &[])
             .expect("owned lookup relation");
     let lookup = lookup.expect("non-App Script lookup");
     let rows = lookup.source_coverage().rows().expect("non-empty coverage");
@@ -176,7 +176,7 @@ fn issuer_rejects_a_neutral_window_from_a_foreign_parser_invocation() {
     let foreign_window = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&foreign_package)
         .expect("foreign neutral source window");
     assert!(matches!(
-        ScriptDirectStaticCallLookupIssuerV1::issue(&package, Some(&foreign_window), &[]),
+        ScriptDirectStaticCallLookupIssuerV1::issue_for_test(&package, Some(&foreign_window), &[]),
         Err(NormalScriptDirectStaticLookupIssueV1::Lookup(
             ScriptDirectStaticCallLookupErrorV1::Coverage(
                 ScriptDirectStaticCallCoverageIssueV1::ForeignInvocation
@@ -191,7 +191,7 @@ fn issuer_rejects_a_target_outside_the_owned_catalog() {
     let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
         .expect("neutral source window");
     assert!(matches!(
-        ScriptDirectStaticCallLookupIssuerV1::issue(&package, Some(&neutral), &[]),
+        ScriptDirectStaticCallLookupIssuerV1::issue_for_test(&package, Some(&neutral), &[]),
         Err(NormalScriptDirectStaticLookupIssueV1::Lookup(
             ScriptDirectStaticCallLookupErrorV1::TargetOutsideCatalog { .. }
         ))

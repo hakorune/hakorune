@@ -1,10 +1,11 @@
 ---
-Status: design_stop__2026-09-21__MainImportViewOwnership
+Status: accepted_design__2026-09-21__MainImportViewOwnership
 Task: MIR-CALL-D1B-MAIN-IMPORT-VIEW-OWNERSHIP-D0
 Date: 2026-09-21
 Parent: mir-call-d1b-resolved-qualified-receiver-catalog-coissue-i0-2026-09-21.md
-Implementation permission: false; choose one Main import-view owner only
-NextCard: none
+Implementation permission: accepted bounded transport; next I0 may implement
+  the single lifecycle-owned view and relation-only Main handoff
+NextCard: MIR-CALL-D1B-MAIN-IMPORT-VIEW-OWNERSHIP-I0
 ---
 
 # Main import-view ownership D0
@@ -41,6 +42,29 @@ preserve one import authority for the later qualified receiver co-issuer and
 must state how Script lookup consumes the same relation without re-sealing a
 competing authority. If no existing owner can do this with one borrowed or
 owned product, record `NoSafeSlice` and leave the qualified catalog row parked.
+
+## Accepted decision (2026-09-21)
+
+`ModuleBuilderInvocationSession`'s `using_import_boxes` is the invocation
+source. `normal_default_root_catalog_lifecycle.rs` is the canonical issuer: it
+will seal one `VerifiedStaticImportAliasViewV1` against the already-issued
+package declaration catalog after the package exists, then borrow that exact
+view into both the Script lookup and the Main qualified-receiver co-issuer.
+The view is never stored self-referentially in the package. The Main co-issuer
+returns an owned AST-free relation, which the package retains for the later
+target/loan row.
+
+`ScriptDirectStaticCallLookupIssuerV1` must consume the borrowed view and stop
+sealing its own copy. `core_method_source.rs` remains a brand-only source
+route with no qualified import facts; its empty construction must be named as
+brand-only rather than treated as an import authority. Duplicate aliases,
+empty/foreign owners, catalog-brand drift, and view reuse outside the same
+invocation remain typed rejection conditions.
+
+The worker consultation confirmed the exact owner and transport seam. The
+existing `VerifiedStaticImportAliasViewV1` borrows the declaration catalog, so
+only the lifecycle can share it safely across both consumers; the package
+stores only the owned relation rows.
 
 ## Required decision checks
 

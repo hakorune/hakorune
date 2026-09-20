@@ -1,5 +1,6 @@
 use crate::mir::builder::{
-    CatalogedBoxMethodPhysicalHeaderProjectionV1, VerifiedSourceBackedDynamicCallableV1,
+    CanonicalSameModuleCallableKeyV1, CatalogedBoxMethodPhysicalHeaderProjectionV1,
+    SameModuleCallableNamespaceV1, VerifiedSourceBackedDynamicCallableV1,
     VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 use crate::mir::callable_parameter_contract::{
@@ -7,12 +8,79 @@ use crate::mir::callable_parameter_contract::{
 };
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
-use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
+use crate::mir::resolved_semantics::{
+    BindingRefV1, FunctionOwnerIdV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
+};
 use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
 use std::collections::BTreeMap;
 use std::rc::Rc;
 
-use crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1;
+use crate::mir::source_call_target::{
+    VerifiedSourceBoundCoreMethodCallV1, VerifiedStaticImportAliasViewV1,
+};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum QualifiedReceiverCatalogAdmissionV1 {
+    ImportedAlias,
+    DirectCanonicalOwner,
+}
+
+/// Owned relation-only handoff for qualified Main method calls.
+///
+/// This is deliberately not a target, loan, Recipe, ABI, or physical symbol.
+/// The lifecycle-owned import view is borrowed while these rows are issued;
+/// only the exact relation survives in the package.
+#[derive(Debug)]
+pub(crate) struct VerifiedQualifiedReceiverCatalogRowV1 {
+    caller: CanonicalSameModuleCallableKeyV1,
+    site: SourceExprSiteV1,
+    receiver: Box<str>,
+    canonical_owner: Box<str>,
+    selector: Box<str>,
+    arity: u32,
+    admission: QualifiedReceiverCatalogAdmissionV1,
+}
+
+impl VerifiedQualifiedReceiverCatalogRowV1 {
+    pub(crate) fn caller(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.caller
+    }
+
+    pub(crate) fn site(&self) -> &SourceExprSiteV1 {
+        &self.site
+    }
+
+    pub(crate) fn receiver(&self) -> &str {
+        &self.receiver
+    }
+
+    pub(crate) fn canonical_owner(&self) -> &str {
+        &self.canonical_owner
+    }
+
+    pub(crate) fn selector(&self) -> &str {
+        &self.selector
+    }
+
+    pub(crate) const fn arity(&self) -> u32 {
+        self.arity
+    }
+
+    pub(crate) const fn admission(&self) -> QualifiedReceiverCatalogAdmissionV1 {
+        self.admission
+    }
+}
+
+#[derive(Debug)]
+pub(crate) struct VerifiedQualifiedReceiverCatalogRelationV1 {
+    rows: Box<[VerifiedQualifiedReceiverCatalogRowV1]>,
+}
+
+impl VerifiedQualifiedReceiverCatalogRelationV1 {
+    pub(crate) fn rows(&self) -> &[VerifiedQualifiedReceiverCatalogRowV1] {
+        &self.rows
+    }
+}
 
 #[derive(Debug)]
 pub(super) struct OwnedCallableParameterContractV1 {
@@ -66,6 +134,8 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
             VerifiedSourceBoundCoreMethodCallV1,
         >,
     >,
+    pub(super) app_main_qualified_receiver_catalog:
+        Option<VerifiedQualifiedReceiverCatalogRelationV1>,
 }
 
 #[derive(Debug)]
@@ -95,6 +165,105 @@ pub(in crate::mir) enum NormalCallableDynamicProjectionRefV1<'package> {
 }
 
 impl VerifiedNormalCallableSemanticPackageV1 {
+    pub(crate) fn issue_app_main_qualified_receiver_catalog_relation(
+        &self,
+        imports: &VerifiedStaticImportAliasViewV1<'_>,
+    ) -> Result<Option<VerifiedQualifiedReceiverCatalogRelationV1>, Box<str>> {
+        let Some(app_main) = self.catalog.catalog().source_backed_app_main() else {
+            return Ok(None);
+        };
+        if !imports.is_branded_by(self.catalog.catalog()) {
+            return Err("[freeze:contract][mir/main-import-view/catalog-brand]".into());
+        }
+        let Some((main_slot, _callable_index)) = self.batch.main_callable_index() else {
+            return Ok(None);
+        };
+        let caller = app_main.catalog_key().clone();
+        let mut rows = Vec::new();
+        self.batch
+            .with_lowering_input(main_slot, |input| {
+                let ledger = input
+                    .forest()
+                    .callable_source_ledger(input.owner())
+                    .map_err(|error| format!("[mir/main-import-view/ledger] {error:?}"))?;
+                for (site, call) in ledger.method_calls() {
+                    if call.receiver() != ResolvedMethodCallReceiverSourceV1::QualifiedUnbound {
+                        continue;
+                    }
+                    let Some(identity) = call.qualified_receiver_identity() else {
+                        return Err(
+                            "[freeze:contract][mir/main-import-view/missing-receiver-identity]"
+                                .to_owned(),
+                        );
+                    };
+                    let receiver = identity.source_name();
+                    if receiver.is_empty() || matches!(receiver, "__mir__" | "__repl" | "mem") {
+                        return Err(
+                            "[freeze:contract][mir/main-import-view/reserved-receiver]".to_owned()
+                        );
+                    }
+                    let (admission, canonical_owner) = match imports.canonical_owner(receiver) {
+                        Some(owner) => (QualifiedReceiverCatalogAdmissionV1::ImportedAlias, owner),
+                        None => (
+                            QualifiedReceiverCatalogAdmissionV1::DirectCanonicalOwner,
+                            receiver,
+                        ),
+                    };
+                    let Some(declaration) = self.catalog.catalog().declaration_for(
+                        SameModuleCallableNamespaceV1::StaticBoxMethod,
+                        canonical_owner,
+                        call.selector(),
+                        usize::try_from(call.arity()).map_err(|_| {
+                            "[freeze:contract][mir/main-import-view/arity-overflow]".to_owned()
+                        })?,
+                    ) else {
+                        return Err(
+                            "[freeze:contract][mir/main-import-view/declaration-mismatch]"
+                                .to_owned(),
+                        );
+                    };
+                    if declaration.key().namespace()
+                        != SameModuleCallableNamespaceV1::StaticBoxMethod
+                        || declaration.key().owner() != canonical_owner
+                        || declaration.key().name() != call.selector()
+                        || declaration.key().arity() != call.arity()
+                    {
+                        return Err(
+                            "[freeze:contract][mir/main-import-view/declaration-shape]".to_owned()
+                        );
+                    }
+                    rows.push(VerifiedQualifiedReceiverCatalogRowV1 {
+                        caller: caller.clone(),
+                        site: site.clone(),
+                        receiver: receiver.into(),
+                        canonical_owner: canonical_owner.into(),
+                        selector: call.selector().into(),
+                        arity: call.arity(),
+                        admission,
+                    });
+                }
+                Ok::<_, String>(())
+            })
+            .map_err(|error| format!("[mir/main-import-view/batch] {error:?}"))??;
+        Ok(Some(VerifiedQualifiedReceiverCatalogRelationV1 {
+            rows: rows.into_boxed_slice(),
+        }))
+    }
+
+    pub(crate) fn retain_app_main_qualified_receiver_catalog(
+        &mut self,
+        relation: VerifiedQualifiedReceiverCatalogRelationV1,
+    ) -> Result<(), Box<str>> {
+        if self
+            .app_main_qualified_receiver_catalog
+            .replace(relation)
+            .is_some()
+        {
+            return Err("[freeze:contract][mir/main-import-view/duplicate-relation]".into());
+        }
+        Ok(())
+    }
+
     pub(crate) fn map_read_facts(&self) -> &super::map_read_fact::MapReadFactsV1 {
         &self.map_read_facts
     }

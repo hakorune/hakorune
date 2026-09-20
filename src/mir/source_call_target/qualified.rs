@@ -13,6 +13,20 @@ use super::{
 };
 
 impl<'catalog> VerifiedStaticImportAliasViewV1<'catalog> {
+    /// Brand-only view for a route that has no import observations.
+    ///
+    /// CoreMethod source rows use the declaration catalog as an identity
+    /// witness but do not consume invocation aliases. Naming this separately
+    /// keeps that route from looking like a second import authority.
+    pub(crate) fn brand_only(
+        declarations: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
+    ) -> Self {
+        Self {
+            catalog: declarations,
+            aliases: BTreeMap::new(),
+        }
+    }
+
     pub(crate) fn seal(
         declarations: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
         rows: impl IntoIterator<Item = (String, String)>,

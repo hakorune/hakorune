@@ -26,8 +26,7 @@ pub(crate) fn issue_source_core_method_calls_v1(
     String,
 > {
     let declarations = catalog.catalog();
-    let imports = VerifiedStaticImportAliasViewV1::seal(declarations, [])
-        .map_err(|error| format!("{error:?}"))?;
+    let imports = VerifiedStaticImportAliasViewV1::brand_only(declarations);
     let mut target_catalog = VerifiedSourceCallTargetCatalogV1::seal_qualified(&imports, [])
         .map_err(|error| format!("{error:?}"))?;
     let mut issued = BTreeMap::new();

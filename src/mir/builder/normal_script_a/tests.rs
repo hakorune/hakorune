@@ -37,8 +37,9 @@ fn pre_effect_parts(
 ) {
     let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(package)
         .expect("neutral source window");
-    let (lookup, _) = ScriptDirectStaticCallLookupIssuerV1::issue(package, Some(&neutral), &[])
-        .expect("owned lookup relation");
+    let (lookup, _) =
+        ScriptDirectStaticCallLookupIssuerV1::issue_for_test(package, Some(&neutral), &[])
+            .expect("owned lookup relation");
     let lookup = lookup.expect("non-App Script lookup");
     let facts = package
         .with_normal_program_source_loan(|loan| {

@@ -33,8 +33,9 @@ fn inputs(
     VerifiedScriptDirectStaticCallLookupV1,
     PreparedNormalProgramDeclarationFactsV1,
 ) {
-    let (lookup, _) = ScriptDirectStaticCallLookupIssuerV1::issue(package, Some(window), &[])
-        .expect("owned lookup");
+    let (lookup, _) =
+        ScriptDirectStaticCallLookupIssuerV1::issue_for_test(package, Some(window), &[])
+            .expect("owned lookup");
     let lookup = lookup.expect("Script lookup");
     let facts = package
         .with_normal_program_source_loan(|loan| {

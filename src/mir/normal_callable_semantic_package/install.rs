@@ -132,6 +132,8 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
             >,
         >,
     >,
+    app_main_qualified_receiver_catalog:
+        Option<super::model::VerifiedQualifiedReceiverCatalogRelationV1>,
 }
 
 pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
@@ -444,6 +446,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             loop_break_source,
             declared_instance_call_locators,
             source_core_method_calls,
+            app_main_qualified_receiver_catalog,
         } = self.package;
         match root_execution {
             NormalRootExecutionPackageStateV1::Prepared(root) => root.discard_unconnected(),
@@ -473,6 +476,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             dynamic_physical_header: RefCell::new(dynamic_physical_header),
             loop_break_source: RefCell::new(loop_break_source),
             source_core_method_calls: RefCell::new(source_core_method_calls),
+            app_main_qualified_receiver_catalog,
         }
     }
 }

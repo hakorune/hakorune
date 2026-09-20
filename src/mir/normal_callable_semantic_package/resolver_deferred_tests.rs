@@ -281,6 +281,106 @@ fn app_main_direct_call_observation_issues_one_affine_loan() {
 }
 
 #[test]
+fn app_main_qualified_receiver_relation_retains_exact_catalog_row() {
+    let source = final_source(
+        "static box Helpers { run(value: i64): i64 { return value } }\n\
+         static box Main { main() { return Helpers.run(2) } }",
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(108).unwrap();
+    let mut package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
+        .expect("qualified App Main package");
+    let imports = crate::mir::source_call_target::VerifiedStaticImportAliasViewV1::seal(
+        package.declaration_catalog(),
+        std::iter::empty::<(String, String)>(),
+    )
+    .expect("empty invocation import view");
+    let relation = package
+        .issue_app_main_qualified_receiver_catalog_relation(&imports)
+        .expect("qualified receiver relation");
+    let relation = relation.expect("source-backed Main relation");
+    assert_eq!(relation.rows().len(), 1);
+    {
+        let row = &relation.rows()[0];
+        assert_eq!(row.receiver(), "Helpers");
+        assert_eq!(row.canonical_owner(), "Helpers");
+        assert_eq!(row.selector(), "run");
+        assert_eq!(row.arity(), 1);
+        assert_eq!(
+            row.admission(),
+            super::model::QualifiedReceiverCatalogAdmissionV1::DirectCanonicalOwner
+        );
+    }
+    package
+        .retain_app_main_qualified_receiver_catalog(relation)
+        .expect("owned Main relation retention");
+    assert_eq!(
+        package
+            .app_main_qualified_receiver_catalog
+            .as_ref()
+            .expect("retained Main relation")
+            .rows()
+            .len(),
+        1
+    );
+}
+
+#[test]
+fn app_main_qualified_receiver_relation_resolves_imported_alias_in_shared_view() {
+    let source = final_source(
+        "static box Helpers { run(value: i64): i64 { return value } }\n\
+         static box Main { main() { return HelpersAlias.run(2) } }",
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(111).unwrap();
+    let package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
+        .expect("qualified alias App Main package");
+    let imports = crate::mir::source_call_target::VerifiedStaticImportAliasViewV1::seal(
+        package.declaration_catalog(),
+        [("HelpersAlias".to_owned(), "Helpers".to_owned())],
+    )
+    .expect("invocation import view");
+    let relation = package
+        .issue_app_main_qualified_receiver_catalog_relation(&imports)
+        .expect("qualified alias relation")
+        .expect("source-backed Main relation");
+    assert_eq!(relation.rows().len(), 1);
+    let row = &relation.rows()[0];
+    assert_eq!(row.receiver(), "HelpersAlias");
+    assert_eq!(row.canonical_owner(), "Helpers");
+    assert_eq!(
+        row.admission(),
+        super::model::QualifiedReceiverCatalogAdmissionV1::ImportedAlias
+    );
+}
+
+#[test]
+fn app_main_qualified_receiver_relation_rejects_foreign_import_view() {
+    let source = final_source(
+        "static box Helpers { run(value: i64): i64 { return value } }\n\
+         static box Main { main() { return Helpers.run(2) } }",
+    );
+    let foreign_source = final_source("static box Main { main() { return 0 } }");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(109).unwrap();
+    let package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
+        .expect("qualified App Main package");
+    let mut foreign_resolver = FunctionSemanticResolverSessionV1::new(110).unwrap();
+    let foreign_package =
+        issue_normal_callable_semantic_package_v1(&mut foreign_resolver, foreign_source)
+            .expect("foreign package");
+    let foreign_imports = crate::mir::source_call_target::VerifiedStaticImportAliasViewV1::seal(
+        foreign_package.declaration_catalog(),
+        std::iter::empty::<(String, String)>(),
+    )
+    .expect("foreign import view");
+    let error = package
+        .issue_app_main_qualified_receiver_catalog_relation(&foreign_imports)
+        .expect_err("foreign import view must fail closed");
+    assert_eq!(
+        &*error,
+        "[freeze:contract][mir/main-import-view/catalog-brand]"
+    );
+}
+
+#[test]
 fn app_main_direct_call_accepts_top_level_free_function() {
     let source = final_source(
         "function helper(value: i64): i64 { return value }\n\

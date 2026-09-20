@@ -34,7 +34,7 @@ impl ScriptDirectStaticCallLookupIssuerV1 {
     pub(super) fn issue(
         package: &VerifiedNormalCallableSemanticPackageV1,
         neutral_window: Option<&PreparedCanonicalScriptNeutralProgramWindowV1>,
-        import_rows: &[(String, String)],
+        imports: &VerifiedStaticImportAliasViewV1<'_>,
     ) -> Result<
         (
             Option<VerifiedScriptDirectStaticCallLookupV1>,
@@ -43,11 +43,11 @@ impl ScriptDirectStaticCallLookupIssuerV1 {
         NormalScriptDirectStaticLookupIssueV1,
     > {
         let declarations = package.declaration_catalog();
-        let imports =
-            VerifiedStaticImportAliasViewV1::seal(declarations, import_rows.iter().cloned())
-                .map_err(|error| NormalScriptDirectStaticLookupIssueV1::Import {
-                    _detail: format!("{error:?}").into(),
-                })?;
+        if !imports.is_branded_by(declarations) {
+            return Err(NormalScriptDirectStaticLookupIssueV1::Import {
+                _detail: "[freeze:contract][mir/script-static-lookup/import-brand]".into(),
+            });
+        }
         let inventory =
             VerifiedWholeSourceStaticCallTargetInventoryV1::verify(declarations, &imports)
                 .map_err(|error| NormalScriptDirectStaticLookupIssueV1::Targets {
@@ -96,6 +96,28 @@ impl ScriptDirectStaticCallLookupIssuerV1 {
             })??;
 
         Ok((Some(lookup), publication_owner))
+    }
+
+    #[cfg(test)]
+    pub(super) fn issue_for_test(
+        package: &VerifiedNormalCallableSemanticPackageV1,
+        neutral_window: Option<&PreparedCanonicalScriptNeutralProgramWindowV1>,
+        import_rows: &[(String, String)],
+    ) -> Result<
+        (
+            Option<VerifiedScriptDirectStaticCallLookupV1>,
+            VerifiedStaticCallResultPublicationOwnerV1,
+        ),
+        NormalScriptDirectStaticLookupIssueV1,
+    > {
+        let imports = VerifiedStaticImportAliasViewV1::seal(
+            package.declaration_catalog(),
+            import_rows.iter().cloned(),
+        )
+        .map_err(|error| NormalScriptDirectStaticLookupIssueV1::Import {
+            _detail: format!("{error:?}").into(),
+        })?;
+        Self::issue(package, neutral_window, &imports)
     }
 }
 

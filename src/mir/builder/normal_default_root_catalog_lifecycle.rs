@@ -35,6 +35,7 @@ use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewClaimLedgerV1,
 };
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
+use crate::mir::source_call_target::VerifiedStaticImportAliasViewV1;
 use std::rc::Rc;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -251,6 +252,12 @@ impl ModuleBuilderInvocationSessionV1 {
                 })
             }
         };
+        let import_rows = self
+            .config()
+            .using_import_boxes()
+            .iter()
+            .map(|(alias, owner)| (alias.clone(), owner.clone()))
+            .collect::<Vec<_>>();
         let mut semantic_package = match callable_source.take() {
             Some(callable) => {
                 let package = match declaration_facts.with_brand_catalog(|catalog| {
@@ -318,37 +325,79 @@ impl ModuleBuilderInvocationSessionV1 {
                 }
             },
         };
-        let import_rows = self
-            .config()
-            .using_import_boxes()
-            .iter()
-            .map(|(alias, owner)| (alias.clone(), owner.clone()))
-            .collect::<Vec<_>>();
         let lookup_window = if preflight_is_app_mode {
             None
         } else {
             neutral_window.as_ref()
         };
-        let (mut script_lookup, mut preflight_static_result_publication_owner) =
+        let (mut script_lookup, mut preflight_static_result_publication_owner, main_relation) =
             match semantic_package.as_ref() {
-                None => (None, None),
-                Some(package) => match ScriptDirectStaticCallLookupIssuerV1::issue(
-                    package,
-                    lookup_window,
-                    &import_rows,
-                ) {
-                    Ok((lookup, publication_owner)) => (lookup, Some(publication_owner)),
-                    Err(error) => {
-                        return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
-                            session: self,
-                            _source: None,
-                            error: NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                format!("[mir/script-static-lookup/preflight] {error:?}").into(),
-                            ),
-                        })
+                None => (None, None, None),
+                Some(package) => {
+                    let imports = match VerifiedStaticImportAliasViewV1::seal(
+                        package.declaration_catalog(),
+                        import_rows.iter().cloned(),
+                    ) {
+                        Ok(imports) => imports,
+                        Err(error) => {
+                            return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                                session: self,
+                                _source: None,
+                                error: NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                    format!("[mir/import-view/issue] {error:?}").into(),
+                                ),
+                            })
+                        }
+                    };
+                    let main_relation = if preflight_is_app_mode {
+                        match package.issue_app_main_qualified_receiver_catalog_relation(&imports) {
+                            Ok(relation) => relation,
+                            Err(error) => {
+                                return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                                    session: self,
+                                    _source: None,
+                                    error:
+                                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                            format!("[mir/main-import-view/issue] {error}").into(),
+                                        ),
+                                })
+                            }
+                        }
+                    } else {
+                        None
+                    };
+                    match ScriptDirectStaticCallLookupIssuerV1::issue(
+                        package,
+                        lookup_window,
+                        &imports,
+                    ) {
+                        Ok((lookup, publication_owner)) => {
+                            (lookup, Some(publication_owner), main_relation)
+                        }
+                        Err(error) => {
+                            return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                                session: self,
+                                _source: None,
+                                error: NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                    format!("[mir/script-static-lookup/preflight] {error:?}")
+                                        .into(),
+                                ),
+                            })
+                        }
                     }
-                },
+                }
             };
+        if let (Some(package), Some(relation)) = (semantic_package.as_mut(), main_relation) {
+            if let Err(error) = package.retain_app_main_qualified_receiver_catalog(relation) {
+                return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                    session: self,
+                    _source: None,
+                    error: NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                        format!("[mir/main-import-view/retain] {error}").into(),
+                    ),
+                });
+            }
+        }
         let (mut pre_effect_script_source, constructor_source_cohort) = match (
             semantic_package.as_ref(),
             neutral_window.take(),

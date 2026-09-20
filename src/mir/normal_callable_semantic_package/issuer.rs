@@ -730,5 +730,6 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         dynamic_physical_header,
         loop_break_source,
         source_core_method_calls,
+        app_main_qualified_receiver_catalog: None,
     })
 }
