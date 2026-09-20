@@ -104,6 +104,27 @@ static box Main {
 }
 
 #[test]
+fn loop_break_source_package_retains_typed_absence_for_unsupported_shape() {
+    let package = issue(
+        r#"
+static box Main {
+    main() {
+        local i = 0
+        loop(i < 3) {
+            i = i + 1
+        }
+        return i
+    }
+}
+"#,
+    )
+    .expect("unsupported loop shape remains a valid semantic package");
+
+    assert_eq!(package.loop_break_source_row_count(), 1);
+    assert_eq!(package.loop_break_source_candidate_count(), 0);
+}
+
+#[test]
 fn selected_dynamic_loan_carries_the_package_source_seed() {
     let package = issue(include_str!(
         "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"

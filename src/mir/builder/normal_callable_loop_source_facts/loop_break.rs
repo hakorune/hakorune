@@ -22,7 +22,7 @@ use super::super::control_flow::plan::planner::PlanBuildOutcome;
 use super::super::control_flow::plan::single_planner::{self, CallableLoopFactsPlannerInputV1};
 use super::super::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir) enum CallableLoopBreakSourceFactsIssueV1 {
     SourceLedger(Box<str>),
     SourceNavigation(Box<str>),
@@ -33,7 +33,7 @@ pub(in crate::mir) enum CallableLoopBreakSourceFactsIssueV1 {
 /// One source-aligned direct LoopBreak candidate retained for the later
 /// physical consumer. The planner outcome and terminality proof are existing
 /// products; this type only keeps them paired with the resolver projection.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(in crate::mir) struct VerifiedCallableLoopBreakSourceCandidateV1 {
     owner: FunctionOwnerIdV1,
     function_origin: FunctionOriginV1,
@@ -69,7 +69,7 @@ impl VerifiedCallableLoopBreakSourceCandidateV1 {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(in crate::mir) struct VerifiedCallableLoopBreakSourceFactsV1 {
     owner: FunctionOwnerIdV1,
     function_origin: FunctionOriginV1,
@@ -95,7 +95,7 @@ impl VerifiedCallableLoopBreakSourceFactsV1 {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(in crate::mir) enum CallableLoopBreakSourceFactsDispositionV1 {
     Candidate(VerifiedCallableLoopBreakSourceFactsV1),
     SupportedNonCandidate {

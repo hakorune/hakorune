@@ -12,10 +12,18 @@ use crate::mir::resolved_semantics::{
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::located::LocatedStmtV1;
+use super::loop_cond_break_continue_projection::{
+    issue_loop_cond_break_continue_source_forest_projection_v1,
+    LoopCondBreakContinueForestProjectionRejectV1,
+};
+use crate::mir::loop_structural_facts::VerifiedLoopCondBreakContinueSourceForestProjectionV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum LoopBreakSourceProjectionRejectV1 {
     ForeignOwner,
+    Forest(LoopCondBreakContinueForestProjectionRejectV1),
+    DuplicateSite,
+    OutOfRoot,
     SourceLookup,
     SourceNavigation,
     ScopeBox,
@@ -34,7 +42,7 @@ pub(crate) enum LoopBreakSourceProjectionRejectV1 {
 /// The three body sites are retained separately so a later Facts owner can
 /// co-seal them with its existing `LoopBreakSourceTopologyV1` instead of
 /// rebuilding source identity from flattened AST coordinates.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedLoopBreakSourceProjectionV1 {
     owner: FunctionOwnerIdV1,
     function_origin: FunctionOriginV1,
@@ -45,6 +53,7 @@ pub(crate) struct VerifiedLoopBreakSourceProjectionV1 {
     break_condition_site: SourceExprSiteV1,
     break_exit_site: SourceStmtSiteV1,
     break_exit: ResolvedExitRecordV1,
+    forest: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     carrier_update_site: SourceStmtSiteV1,
     step_site: SourceStmtSiteV1,
     root_frame_key: crate::mir::resolved_semantics::LoopExecutionFrameKeyV1,
@@ -87,6 +96,10 @@ impl VerifiedLoopBreakSourceProjectionV1 {
         self.break_exit
     }
 
+    pub(crate) fn forest(&self) -> &VerifiedLoopCondBreakContinueSourceForestProjectionV1 {
+        &self.forest
+    }
+
     pub(crate) fn carrier_update_site(&self) -> &SourceStmtSiteV1 {
         &self.carrier_update_site
     }
@@ -123,6 +136,8 @@ pub(crate) fn issue_loop_break_source_projection_v1(
     }
     let function = input.function();
     verify_source_identity(function, loop_stmt, &resolved_source)?;
+    let forest = issue_loop_cond_break_continue_source_forest_projection_v1(input, loop_stmt)
+        .map_err(LoopBreakSourceProjectionRejectV1::Forest)?;
     let source = input.source();
     let loop_condition = source
         .child_expr_from_stmt(
@@ -193,6 +208,14 @@ pub(crate) fn issue_loop_break_source_projection_v1(
     if !matches!(step.node(), ASTNode::Assignment { .. }) {
         return Err(LoopBreakSourceProjectionRejectV1::StepShape);
     }
+    let statement_sites = [
+        loop_stmt.site(),
+        break_if.site(),
+        break_exit.site(),
+        carrier_update.site(),
+        step.site(),
+    ];
+    validate_direct_statement_sites(loop_stmt.site(), &statement_sites)?;
 
     let loop_region = function
         .loop_region_bundle(loop_stmt.site())
@@ -210,6 +233,13 @@ pub(crate) fn issue_loop_break_source_projection_v1(
     {
         return Err(LoopBreakSourceProjectionRejectV1::ExitTargetMismatch);
     }
+    if !forest
+        .exits()
+        .iter()
+        .any(|exit| exit.site() == break_exit.site())
+    {
+        return Err(LoopBreakSourceProjectionRejectV1::ExitResolution);
+    }
 
     Ok(VerifiedLoopBreakSourceProjectionV1 {
         owner: input.owner(),
@@ -221,6 +251,7 @@ pub(crate) fn issue_loop_break_source_projection_v1(
         break_condition_site: break_condition.site().clone(),
         break_exit_site: break_exit.site().clone(),
         break_exit: *exit_record,
+        forest,
         carrier_update_site: carrier_update.site().clone(),
         step_site: step.site().clone(),
         root_frame_key: resolved_source.frame_key(),
@@ -243,11 +274,28 @@ fn verify_source_identity(
     }
 }
 
+fn validate_direct_statement_sites(
+    root: &SourceStmtSiteV1,
+    sites: &[&SourceStmtSiteV1],
+) -> Result<(), LoopBreakSourceProjectionRejectV1> {
+    for (index, site) in sites.iter().enumerate() {
+        if !site.node().segments().starts_with(root.node().segments()) {
+            return Err(LoopBreakSourceProjectionRejectV1::OutOfRoot);
+        }
+        if sites[..index].iter().any(|previous| previous == site) {
+            return Err(LoopBreakSourceProjectionRejectV1::DuplicateSite);
+        }
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::{issue_loop_break_source_projection_v1, LoopBreakSourceProjectionRejectV1};
     use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
+    use crate::mir::compiler::loop_cond_break_continue_projection::issue_loop_cond_break_continue_source_forest_projection_v1;
     use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+    use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1};
 
     fn variable(name: &str) -> ASTNode {
         ASTNode::Variable {
@@ -361,6 +409,8 @@ mod tests {
         let projection = issue_loop_break_source_projection_v1(input, &loop_stmt, resolved)
             .expect("direct LoopBreak projection");
         assert_eq!(projection.owner(), input.owner());
+        assert_eq!(projection.forest().member_sites().len(), 1);
+        assert_eq!(projection.forest().exits().len(), 1);
         assert_eq!(projection.break_if_site().node().segments().len(), 2);
         assert_eq!(projection.carrier_update_site().node().segments().len(), 2);
         assert_eq!(projection.step_site().node().segments().len(), 2);
@@ -401,6 +451,65 @@ mod tests {
         assert_eq!(
             issue_loop_break_source_projection_v1(input, &loop_stmt, resolved),
             Err(LoopBreakSourceProjectionRejectV1::BreakIfElseBody)
+        );
+    }
+
+    #[test]
+    fn loop_break_projection_rejects_foreign_owner_before_forest_issue() {
+        let first = VerifiedResolvedSourceUnitV1::resolve_function(direct_loop(false, false))
+            .expect("first resolved fixture");
+        let second = VerifiedResolvedSourceUnitV1::resolve_function(direct_loop(false, false))
+            .expect("second resolved fixture");
+        let input = first.root_function_input().expect("first input");
+        let foreign_input = second.root_function_input().expect("second input");
+        let body = foreign_input.source().root_body().expect("foreign body");
+        let foreign_loop = foreign_input
+            .source()
+            .body_stmt(&body, 1)
+            .expect("foreign loop");
+        let foreign_source = foreign_input
+            .function()
+            .resolved_loop_source(foreign_loop.site())
+            .expect("foreign source");
+        assert_eq!(
+            issue_loop_break_source_projection_v1(input, &foreign_loop, foreign_source),
+            Err(LoopBreakSourceProjectionRejectV1::ForeignOwner)
+        );
+    }
+
+    #[test]
+    fn loop_break_forest_guard_rejects_missing_root_before_shape_reads() {
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(direct_loop(false, false))
+            .expect("resolved fixture");
+        let input = unit.root_function_input().expect("root input");
+        let body = input.source().root_body().expect("root body");
+        let local = input.source().body_stmt(&body, 0).expect("local statement");
+        assert_eq!(
+            issue_loop_cond_break_continue_source_forest_projection_v1(input, &local),
+            Err(super::super::loop_cond_break_continue_projection::
+                LoopCondBreakContinueForestProjectionRejectV1::ForestLookup)
+        );
+    }
+
+    fn statement_site(segments: Vec<SourcePathSegmentV1>) -> SourceStmtSiteV1 {
+        SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(segments))
+    }
+
+    #[test]
+    fn direct_statement_relation_rejects_duplicate_and_out_of_root_sites() {
+        let root = statement_site(vec![SourcePathSegmentV1::Body(0)]);
+        let child = statement_site(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::LoopBody(0),
+        ]);
+        let outside = statement_site(vec![SourcePathSegmentV1::Body(1)]);
+        assert_eq!(
+            super::validate_direct_statement_sites(&root, &[&root, &child, &child]),
+            Err(LoopBreakSourceProjectionRejectV1::DuplicateSite)
+        );
+        assert_eq!(
+            super::validate_direct_statement_sites(&root, &[&root, &outside]),
+            Err(LoopBreakSourceProjectionRejectV1::OutOfRoot)
         );
     }
 }

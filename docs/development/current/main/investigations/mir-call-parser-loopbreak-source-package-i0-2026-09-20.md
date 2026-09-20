@@ -96,20 +96,27 @@ row with its own caller, terminal, and exclusive delete-set.
 The direct source projector is now present at
 `src/mir/compiler/loop_break_source_projection.rs`. It observes only the
 resolver-owned loop site, condition/break/assignment sites, and the paired
-explicit-break exit record. Direct three-statement shape, ScopeBox, explicit
-else, body arity, and exit-target rejection are covered by three focused tests
-(3/3). The invocation-owned LoopFacts policy now travels from the Builder
+explicit-break exit record. It now also co-seals the existing route-neutral
+resolver forest/exit projection and verifies that the direct break exit is a
+member of that forest. Direct three-statement shape, ScopeBox, explicit else,
+foreign owner, and missing forest are covered by five focused projector tests
+(5/5); a direct relation guard separately rejects duplicate and out-of-root
+sites (2/2). The invocation-owned LoopFacts policy now travels from the Builder
 snapshot into package issuance without a second environment read. The
 source/Facts owner emits an explicit Candidate or SupportedNonCandidate for
 each resolver loop, and the package issuer stores one row for every semantic
 batch declaration before selected mapping. The parser-scan package guard
 asserts row count equals declaration count (1/1), and an inline direct-loop
-fixture reaches one retained Candidate row (1/1). The three projector guards
-and both package guards are green; `cargo check --profile quick` is green. The
+fixture reaches one retained Candidate row (1/1). An unsupported loop shape
+retains one typed absence row (1/1, candidate count 0). The five projector
+guards, package positive/absence guards, and package metadata negative matrix
+are green; `cargo check --profile quick` is green. The
 retained candidate/absence products are intentionally not yet
 consumed by physical lowering, so their warning cleanup belongs to the next
-physical-consumer slice. The source-shape and resolver-relation negative
-guards still remain before closeout. The package rows validator now rejects
-foreign owner, duplicate slot, missing slot, and unexpected slot metadata; its
-focused negative matrix is 4/4. No route execution, fallback, production
-switch, or legacy edge changed in this slice.
+physical-consumer slice. Existing resolver forest tests cover duplicate-site
+and missing-root construction rejection; package-level out-of-root lineage and
+specialized-topology guards still require a source-package-level receipt before
+closeout. The package rows validator rejects foreign owner, duplicate slot,
+missing slot, and unexpected slot metadata; its focused negative matrix is
+4/4. No route execution, fallback, production switch, or legacy edge changed
+in this slice.
