@@ -101,11 +101,39 @@ package route inventory at that boundary. The package root therefore cannot
 name the exact method behind the raw `[LoopBreakRecipe]` observation without
 adding a new route observer or inferring from names/AST, both prohibited here.
 
+The nearby `InvocationRouteMatrixV1`/`RouteOwnedInvocationInventoryV2` does not
+close this gap: it inventories root invocation families (`RawStaticChild`,
+`CallableModuleBatch`, and similar publication/drain lanes), not per-callable
+`LoopRouteId` rows or source loop sites. Reusing it as a LoopBreak selector
+would cross its authority boundary and silently turn a root-family observation
+into loop meaning.
+
 This is a confirmed missing-owner condition, not a missing line-number lookup.
 The next slice must first name one existing package-scoped route inventory
 authority (or explicitly reject that owner) before any LoopBreak source issuer
 or physical adapter is designed. Until then, `GenericLoopV1NotSelected` stays
 the terminal and the selected parser tuple cannot advance to Cataloged.
+
+## Existing-owner decision
+
+The audit of nearby products is finite and does not reveal a reusable
+package-scoped LoopBreak owner:
+
+| Candidate | What it actually carries | Decision for this row |
+| --- | --- | --- |
+| resolver batch / selected package map | callable identity, owner, forest, batch slot, and role | no `LoopRouteId` or package LoopBreak rows; do not turn selected-map transport into route meaning |
+| callable source ledger | source-call observations and forest/context relations | explicitly does not issue Loop policy; retain as source evidence only |
+| `LoopRouteContext` / route execution witness | AST-local route context and raw route schedule/attempt | no source identity or package coverage; cannot be the source issuer |
+| `CallableLoopSourceBridgeV1` / source-route token | per-callable Generic/LoopCond/LoopTrue projections | no LoopBreak product and no package-wide inventory; cannot be widened by inference |
+| `InvocationRouteMatrixV1` / `RouteOwnedInvocationInventoryV2` | root invocation families and publication/drain lanes | wrong authority: root-family inventory is not a per-callable loop-route map |
+
+Decision: no existing candidate owns the missing relation. The smallest safe
+design slice is one source-scoped LoopBreak product in the existing LoopBreak
+owner, co-sealing callable identity, exact source site/forest/exits, route
+outcome, package brand, and a builder-free physical input. That product must
+also name the exclusive old-edge delete set. Until that contract exists, do
+not extend the selected package map, reuse the root invocation matrix, or
+issue a new semantic receipt.
 
 ## Owner audit and NoSafeSlice decision
 
