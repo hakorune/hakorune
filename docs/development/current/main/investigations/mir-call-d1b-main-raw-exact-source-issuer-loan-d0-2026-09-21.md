@@ -91,6 +91,25 @@ inventory cannot be silently reused as a second issuer. This D0 remains a
 design stop until that qualified source product is shown to cross the same
 source session without an AST rescan.
 
+## 2026-09-21 read-only bridge audit
+
+The worker audit confirms `NoSafeSlice` at the current boundary. The installed
+Main relation is relation-only: it owns `(caller, SourceExprSiteV1,
+declaration_key)` plus receiver admission, but it is not a target, ABI, or raw
+loan. `DirectCallDispositionLoansV1` only consumes resolver
+`direct_call_observations()` for bare `FunctionCall`, while the existing raw
+static terminal enters through the Script/AST-backed
+`StaticResultPublicationIngressPortV1` and
+`VerifiedStaticCallResultPublicationOwnerV1`. Reusing either as the Main
+issuer would create a second source authority or reverse the ownership chain.
+
+The missing design product is therefore one same-session co-seal for the
+qualified family: `(caller, site, declaration_key, argument_sites)` bound to
+the raw physical terminal with an affine lifetime and exact one-shot
+consumption. Until an existing owner is selected for that product, no target,
+Callee, loan transport, argument descent, fallback reopening, or production
+switch is authorized.
+
 ## Reopen trigger
 
 Reopen only when a finite source family has one resolver/catalog issuer, one
