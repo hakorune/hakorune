@@ -211,6 +211,29 @@ caller-zero, or an old-edge delete-set can be claimed. The bridge remains
 source evidence, the Facts issuer remains the semantic co-seal point, and
 package completeness remains an explicit downstream obligation.
 
+### Parent observer audit (read-only, 2026-09-20)
+
+The existing `VerifiedResolvedCallableSemanticBatchV1::with_declaration_semantics`
+is a viable enumeration substrate: it validates complete batch-row coverage,
+slot/identity/owner/body-shape parity, and lends every resolver-backed callable
+row from one package. It is transport and coverage evidence only. The batch row
+does not carry a `LoopRouteId`, a LoopBreak candidate, route terminality, or an
+old-edge relation, so it cannot issue the missing source meaning.
+
+`NormalCallableSemanticPackagePortV1::complete()` is narrower still. Its
+`consumed` set proves selected-key lowering coverage, while the other checks
+cover declared-instance locators, ordinary-new claims, and object definitions.
+It does not compare all batch rows with LoopBreak candidates and therefore
+cannot be promoted into the package observer by interpreting selected-key
+consumption as loop coverage. Doing so would create a second semantic
+authority at the install boundary.
+
+Decision: reuse the batch callback as the finite parent enumeration in D1, but
+keep the missing observer explicit. A same-package observer must join each
+route-neutral source candidate (or a typed absence) to that enumeration before
+`Cataloged`/`Selected` and before any caller-zero or delete-set claim. This
+narrows the design gap; it does not close the current `NoSafeSlice`.
+
 ## Physical adapter premise audit
 
 The physical owner is narrower than the route name suggests. The shared
