@@ -1,11 +1,11 @@
 date = "2026-09-21"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-CANONICAL-OWNER-D0"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-CANONICAL-OWNER-I0"
 current_execution_cohort = "d1b_main_raw_qualified_method_canonical_owner"
-current_blocker_token = "MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-CANONICAL-OWNER-D0__DesignStop_MainQualifiedMethodCanonicalOwner"
+current_blocker_token = "MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-CANONICAL-OWNER-I0__Selected_MainQualifiedMethodCanonicalOwner"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "open__d1b_main_raw_qualified_method_canonical_owner_d0__no_safe_slice_2026-09-21"
+current_design_stop = "closed__d1b_main_raw_qualified_method_canonical_owner_d0__accepted_owner_tuple_2026-09-21"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-main-raw-qualified-method-canonical-owner-d0-2026-09-21.md"
-latest_card = "mir-call-d1b-main-raw-qualified-method-canonical-owner-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-qualified-method-canonical-owner-d0-2026-09-21.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-main-raw-qualified-method-canonical-owner-i0-2026-09-21.md"
+latest_card = "mir-call-d1b-main-raw-qualified-method-canonical-owner-i0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-qualified-method-canonical-owner-i0-2026-09-21.md"
 latest_card_summary = """
 Map lifecycle consumer spine through C9-2 and the map-argument T-series; T1 alpha/beta/gamma and T2-alpha closed with source-to-OBJ evidence. T2-beta-1 params ArrayLength: Normal=0, prepare-Fault=70, REPORT 100; T2-beta-2 blocks[0].get(kind): Normal=30, prepare-Fault=70, REPORT 100; T2-beta-3 blocks.length: Normal=1, prepare-Fault=70, REPORT 100.
 The bounded T2-beta acceptance inventory is complete. The aggregate main matrix is also closed: one finite source-to-OBJ shape combines functions,
@@ -51,13 +51,13 @@ Non-claims: no qualified Invoke, whole-T2 completion, production cutover, to_jso
 D1/D2 LoopTrue source handoff is landed: existing Facts/Recipe and resolver/source relations are co-sealed; literal-true carriers are validated; raw caller consumes the existing physical skeleton/cleanup/verifier. Focused evidence: physical 1/1, handoff 6/6, source-Facts 16/16, merged parser 2/2. The package stops at LoopBreak route-not-front-selected before catalog installation. D0 owner selection is closed in the D0 card. Fast row `MIR-CALL-PARSER-LOOPBREAK-SOURCE-PACKAGE-I0` closed at `bf47befd87`: direct source-shape co-seal, complete candidate/absence coverage, specialized-topology typed absence, and relation guards are green.
 Transport row `MIR-CALL-PARSER-LOOPBREAK-SOURCE-TRANSPORT-I0` closed on 2026-09-21: installed package retention, one-shot owner take, selected lowering-state transport, and 5/5 focused package guards are green; quick check passes with the existing warning baseline. The direct source-bound physical adapter is type-checked with the existing associated-source/loop_v0 owner and its focused matrix is 15/15. The merged parser smoke stops at the named `GenericLoopV1NotSelected` terminal because the parser uses a composite LoopBreak topology.
 The direct row is now `ParkedSealed__NoSafeSlice`; the composite source-owner D0 is also sealed because the current Facts/Recipe owner has no complete nested-body topology product. Main identity and Cataloged raw scope are landed, but the exact source-site issuer for target/loan is absent. The qualified receiver identity carrier I0 landed at `10c3a301f3` with 11/11 focused tests. The Main import-view ownership I0 landed at `a8efc20975`: one lifecycle seal is borrowed by Script/Main, CoreMethod is brand-only, and the owned Main relation transport has direct/alias/foreign-view guards.
- Qualified target-reuse D0 remains valid: resolver rows retain qualified receiver identity, one lifecycle import view is shared, and relation I0 at `02cc09f765` consumes the declaration key once. The qualified source co-seal D0 is accepted, and physical handoff I0 landed at `d6ee865368` with ordered argument sites, one-shot Main take, expected-site descent, and the existing target-only terminal. Acceptance D0 is now `NoSafeSlice`: raw `inner.lower_body` has no canonical MethodCall Recipe, while `CanonicalTrivialSsaLowererV1` closes authority only for literals/variables/binary/block/bare FunctionCall. The next design defines one canonical MethodCall owner for Cataloged Main direct/alias rows; no implementation, fallback, VM repair, result ABI, or production cutover is authorized.
+ Qualified target-reuse D0 remains valid: resolver rows retain qualified receiver identity, one lifecycle import view is shared, and relation I0 at `02cc09f765` consumes the declaration key once. The qualified source co-seal D0 is accepted, and physical handoff I0 landed at `d6ee865368` with ordered argument sites, one-shot Main take, expected-site descent, and the existing target-only terminal. Canonical-owner D0 is accepted: the existing Binding-SSA Facts/Recipe/physical session is extended with one exact qualified MethodCall row, selected callee `ExactI64` proof, canonical InlineI64 argument descent, and the existing target-only terminal. I0 switches only the admitted Cataloged Main direct/alias family; no fallback repair, VM repair, new result ABI, broad production cutover, or LegacyCallV0 retirement is authorized.
 Parser source-to-MIR acceptance, publication, other shapes, compatibility-route retirement, backend parity, warning cleanup, and one array-cleanup baseline classification remain open.
 """
-next_design_card = "MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-CANONICAL-OWNER-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-qualified-method-canonical-owner-d0-2026-09-21.md"
-next_execution_card = "none__design_stop_pending_acceptance"
-next_execution_card_path = "none"
+next_design_card = "none__accepted_d0"
+next_design_card_path = "none"
+next_execution_card = "MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-CANONICAL-OWNER-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-qualified-method-canonical-owner-i0-2026-09-21.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
