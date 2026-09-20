@@ -1,5 +1,5 @@
 ---
-Status: fast__2026-09-21__ResolvedQualifiedReceiverIdentityCarrier
+Status: landed__2026-09-21__ResolvedQualifiedReceiverIdentityCarrier
 Task: MIR-CALL-D1B-RESOLVED-QUALIFIED-RECEIVER-IDENTITY-I0
 Date: 2026-09-21
 Parent: mir-call-d1b-resolved-qualified-receiver-identity-coseal-d0-2026-09-21.md
@@ -53,6 +53,23 @@ remain outside the carrier.
 The implementation must preserve the current `QualifiedUnbound` disposition
 for existing consumers. The carrier is passive source identity only and must
 not alter resolver acceptance or introduce a target lookup.
+
+## Closeout receipt
+
+- Commit: `10c3a301f3` (`feat(mir): retain qualified receiver source identity`).
+- Focused gate: `CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo test
+  --profile quick --lib resolved_shape_` — 11 passed, 0 failed.
+- Evidence covers direct qualified spelling, lexical non-carrier behavior,
+  static/instance receiver separation, and missing/duplicate receiver relation
+  rejection at the existing source boundary.
+- `body_shape.rs` is 685 lines; the touched Rust owners remain below the 760
+  design target and 800-line hard stop.
+- The test binary reported 563 existing compiler warnings. They are recorded as
+  warning-baseline debt; no new warning was attributed to this I0.
+
+No declaration/import co-seal, target/loan, package publication, production
+caller switch, fallback, backend, or old-edge deletion is claimed. The next
+design dependency is the catalog/import co-issuer D0 named in the header.
 
 ## Exit and next design dependency
 
