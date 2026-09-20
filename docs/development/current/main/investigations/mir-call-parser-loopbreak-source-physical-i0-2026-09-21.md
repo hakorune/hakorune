@@ -1,13 +1,14 @@
 ---
-Status: design_stop__2026-09-21__ParserLoopBreakSourceShapeFrontier
+Status: ParkedSealed__NoSafeSlice__2026-09-21__ParserLoopBreakCompositeOwner
 Task: MIR-CALL-PARSER-LOOPBREAK-SOURCE-PHYSICAL-I0
 Current execution row: MIR-CALL-PARSER-LOOPBREAK-SOURCE-PHYSICAL-I0
 Date: 2026-09-21
 Parent: mir-call-parser-loopbreak-source-transport-i0-2026-09-20.md
 Implementation permission: the direct three-statement source Recipe/input/consumer
-is implemented and type-checked; no broader LoopBreak shape, fallback, publication,
-or compatibility retirement is authorized until the source contract below is accepted
-NextCard: none
+is implemented and type-checked. The composite parser topology is sealed as a
+separate design row; no widening, fallback, publication, or compatibility
+retirement is authorized from this card.
+NextCard: MIR-CALL-PARSER-LOOPBREAK-SOURCE-COMPOSITE-D0
 ---
 
 # Parser LoopBreak source physical I0
@@ -223,6 +224,24 @@ composite LoopBreak route has no accepted source physical owner yet.
 This census covers the two loop sites in the selected `ParserProgramBox.parse/2`
 body that can precede the `ParserStringUtilsBox.starts_with/3` obligation. It
 excludes imported parser callables and unrelated compatibility loops; those are
-not acceptance evidence for this tuple. The next design decision must name one
-source owner for the first row or explicitly seal it as `NoSafeSlice` before any
-caller or terminal change.
+not acceptance evidence for this tuple. The composite owner decision is now
+owned by `MIR-CALL-PARSER-LOOPBREAK-SOURCE-COMPOSITE-D0`; this direct row does
+not reopen or reclassify the route.
+
+## Closeout classification — composite shape parked
+
+The direct source physical owner is complete for its exact three-statement
+contract, with the focused source/package matrix at 15/15. The parser site at
+`parser_program_box.hako:81` is outside that contract: its body has assignments,
+nested conditionals, multiple exits, and nested `starts_with/3` observations.
+The existing source LoopBreak issuer deliberately filters this body as
+unsupported (`BodyArity`/`BreakIfShape`/related topology rejects), while route
+selection keeps LoopBreak ahead of LoopCond. No existing source-aligned physical
+consumer can therefore be claimed for this composite shape.
+
+This family is `ParkedSealed__NoSafeSlice` for the direct row. Reopen only from
+the composite D0 when one same-owner source Recipe/physical contract can retain
+every resolver body item, nested exit, carrier update, step, and target relation,
+or when an explicit typed pre-effect retirement for the parser route is accepted.
+The compatibility `LoopRouteContext` path, generic retry, AST/name rescan, VM
+route, and backend parity remain outside this row.
