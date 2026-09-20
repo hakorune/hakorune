@@ -545,7 +545,7 @@ physical archive move = 0
 Restore the existing lifecycle machinery before moving anything:
 
 ```text
-2026-09-20 read-only audit: INDEX.md has 673 registered rows, 851 direct Markdown files, 182 direct files outside the registry, and 4 rows pointing at TOML paths; declared baseline remains 77. Do not change the baseline until archive/sidecar scope is adjudicated.
+2026-09-20 read-only audit: INDEX.md has 673 registered rows, 851 direct Markdown files, 182 direct files outside the registry, and 4 rows pointing at TOML paths; declared baseline remains 77. The narrower direct-file inventory used by the V0 lifecycle guard found 80 unregistered design files. On 2026-09-21 the three post-baseline direct contracts (`collection-literal-construction-ssot.md`, `constructor-lifecycle-llvm-lowering-ssot.md`, and `mir-call-published-rows-invocation-ownership-d0.md`) were classified as authority rows and the generated manifest was refreshed; strict inventory is green and the declared baseline remains 77. Do not mass-register the remaining sidecar/archive scope or raise the baseline.
 restore required executable modes
 restore or deliberately retire the missing phase-293x archive entry
 make strict inventory green

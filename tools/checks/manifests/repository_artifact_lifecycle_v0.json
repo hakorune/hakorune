@@ -1,16 +1,16 @@
 {
   "counts": {
-    "checks": 3807,
-    "design_direct": 869,
-    "docs": 13257,
+    "checks": 3818,
+    "design_direct": 872,
+    "docs": 13381,
     "docs_development_archive": 2792,
-    "docs_development_current": 9034,
-    "main_direct": 168,
+    "docs_development_current": 9158,
+    "main_direct": 170,
     "phase_296x_archive": 2315,
     "phase_296x_direct": 1035,
     "private": 0,
-    "src": 4685,
-    "tools": 7427
+    "src": 4930,
+    "tools": 7409
   },
   "design_registry": {
     "authority_registry_decided": true,
@@ -844,11 +844,11 @@
       "role_assignment": "none",
       "singleton_family_count": 35
     },
-    "direct_files": 869,
-    "markdown_files": 848,
+    "direct_files": 872,
+    "markdown_files": 851,
     "non_markdown_files": 21,
     "owned_sidecar_count": 119,
-    "registered_count": 673,
+    "registered_count": 676,
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 8,
@@ -858,9 +858,9 @@
     },
     "seed_union_count": 175,
     "status_counts": {
-      "active_like": 133,
-      "closed": 20,
-      "other_or_missing": 695
+      "active_like": 134,
+      "closed": 21,
+      "other_or_missing": 696
     },
     "unregistered": [
       "allocator-hook-activation-proof-v0.toml",
@@ -943,13 +943,13 @@
     ],
     "unregistered_baseline": 77,
     "unregistered_count": 77,
-    "unseeded_count": 694,
+    "unseeded_count": 697,
     "violations": []
   },
   "document_reachability": {
     "ambiguous_basename_count": 15,
     "archived_in_place_count": 1389,
-    "document_count": 9034,
+    "document_count": 9158,
     "nested_archive_first_batch": {
       "archive_target_collision_count": 0,
       "cluster_count": 1364,
@@ -1935,18 +1935,18 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 5475,
-    "root_count": 3898,
+    "reachable_count": 5523,
+    "root_count": 3897,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1035,
       "current_pointer": 5,
-      "design_authority": 271,
+      "design_authority": 274,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3274
+      "reference_src_tools": 3271
     },
-    "unreachable_count": 3559,
-    "unreachable_pending_count": 2170,
+    "unreachable_count": 3635,
+    "unreachable_pending_count": 2246,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0
@@ -3812,7 +3812,7 @@
         "current_pointer": false,
         "direct_files": 156,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 91,
+        "external_reference_count": 71,
         "phase": "phase-29cc",
         "status": "closed",
         "status_source": "docs/development/current/main/phases/phase-29cc/README.md",

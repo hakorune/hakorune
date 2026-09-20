@@ -19,22 +19,18 @@ tree before changing this card:
 |---|---|---|
 | North-star scheduler text says Loop production selection is unopened | **Closed** | `52ffa39d36` updates the loop SSOT scheduler frontier to `MIR-CALL-PARSER-LOOPBREAK-SOURCE-PACKAGE-I0`; the broader production-selection claim remains explicitly unopened. |
 | Typed carrier ABI is missing from the primary ABI reference | **Closed** | `52ffa39d36` adds the checked-Map callable carrier v1 contract to `docs/reference/abi/nyrt_c_abi_v0.md`, including `representation:"map"`, `param-carrier-drift`, the checked C surface, and borrowed-view lifetime ownership. |
-| Design-registry membership drift is repaired | **Open** | `docs/development/current/main/design/INDEX.md` remains the authority in warning mode. The 2026-09-20 read-only census is recorded in the lifecycle workstream: 673 registered rows, 851 direct Markdown files, 182 direct files outside the registry, and 4 registry paths ending in TOML; declared baseline remains 77. Classification/adjudication is still required before changing the registry or baseline. |
+| Design-registry membership drift is repaired | **Closed for the current delta** | The current inventory found 673 registered rows and 80 direct unregistered design files against the declared baseline of 77. The three post-baseline direct contracts (`collection-literal-construction-ssot.md`, `constructor-lifecycle-llvm-lowering-ssot.md`, and `mir-call-published-rows-invocation-ownership-d0.md`) are now explicit `authority` rows in `design/INDEX.md`; the generated V0 manifest is refreshed and `repository_artifact_lifecycle_inventory.py --check --strict` is green. Warning mode and the declared baseline 77 remain unchanged; broader sidecar/archive census stays outside this closeout. |
 
 The “8 months / 8 files” wording from the later audit was not used as a
 fact because the exact in-tree census is larger and has a different scope.
 No bulk registration or baseline increase is authorized by this reconciliation.
 
-The remaining documentation P1 is therefore a bounded registry-classification
-decision, not an untracked repair pass. Its input boundary is the 2026-09-20
-census: 182 direct Markdown files outside the registry, four registry paths
-ending in TOML, and the declared unregistered baseline of 77. The next docs
-action is to classify that finite set as registry row, owned sidecar, or
-archive/retirement evidence, then update only the selected owner and its
-manifest. Keep `INDEX.md` in warning mode until the classification is complete;
-do not mass-register files or raise the baseline. This is recorded here for a
-later docs-hygiene selection and does not retarget the active LoopBreak
-production lane.
+The remaining documentation P1 is closed for the current direct-file delta,
+not converted into a mass registration. The three newly added contracts were
+classified as registry rows, the V0 manifest was regenerated from that
+authority, and the warning baseline stayed at 77. Sidecar/archive adjudication
+and the wider lifecycle census remain separate work; this closeout does not
+retarget the active MirBuilder production lane.
 
 ## P1 — spec/decision management
 

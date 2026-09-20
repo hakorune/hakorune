@@ -7617,6 +7617,39 @@ sidecars = []
 supersedes = []
 superseded_by = ""
 retire_when = "design registry storage adopts an explicitly accepted replacement schema"
+
+[[documents]]
+path = "collection-literal-construction-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "INDEX.md"
+classification_basis = "Current contract: intrinsic collection identity, retained Script Array execution, and bounded Map/Call retirement"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "collection construction and its selected physical cutover are replaced by an explicitly accepted authority"
+
+[[documents]]
+path = "constructor-lifecycle-llvm-lowering-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "INDEX.md"
+classification_basis = "Current contract: source-owned constructor requirements through selected physical LLVM/OBJ/EXE lifecycle"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "constructor lifecycle and its selected physical lowering are replaced by an explicitly accepted authority"
+
+[[documents]]
+path = "mir-call-published-rows-invocation-ownership-d0.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "mirbuilder-final-pipeline-ssot.md"
+classification_basis = "Current contract: invocation-owned published-call row lifetime and exact consumer handoff"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "published-row invocation ownership is replaced by an explicitly accepted pipeline authority"
 ```
 <!-- design-registry-v0:end -->
 
