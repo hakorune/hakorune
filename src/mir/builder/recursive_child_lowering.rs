@@ -10,7 +10,8 @@ use crate::mir::resolved_semantics::{ScriptResolverDeferredV1, SourceNodeSiteV1}
 use crate::mir::{MirBuilder, ValueId};
 use std::cell::RefCell;
 use std::rc::Rc;
-
+#[path = "recursive_child_lowering_loop_true.rs"]
+mod loop_true_projection;
 use super::calls::LegacyFunctionPendingSessionV1;
 use super::control_flow::cleanup::CleanupExitPolicyV1;
 use super::function_signature_lookup::FunctionSignatureLookupV1;
@@ -34,7 +35,6 @@ use super::raw_invocation_source_transport::{
     RawSourceTransportPortV1,
 };
 use crate::parser::CallableMethodSourceObservationV1;
-
 #[path = "recursive_child_lowering/instance_capture.rs"]
 mod instance_capture;
 mod legacy_port;
@@ -44,7 +44,6 @@ mod pending_helpers;
 mod raw_ordinary_new_claim;
 #[path = "normal_script_direct_static_claim_transport.rs"]
 mod script_direct_static_claim_transport;
-
 pub(in crate::mir::builder) use legacy_port::{
     drive_raw_legacy_body_v1, drive_raw_legacy_expression_v1, drive_raw_legacy_statement_v1,
     RawLegacyChildLoweringPortV1,
@@ -538,30 +537,6 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         self.callable_ledger
             .as_ref()
             .map(|ledger| ledger.borrow().owner())
-    }
-
-    pub(in crate::mir::builder) fn issue_callable_loop_binding_schedule_v1(
-        &self,
-    ) -> Result<
-        Option<super::normal_callable_loop_handoff::CallableLoopBindingProjectionDispositionV1>,
-        String,
-    > {
-        let Some(ledger) = self.callable_ledger.as_ref() else {
-            return Ok(None);
-        };
-        let loop_site = self
-            .active_source
-            .as_ref()
-            .and_then(RawInvocationSourceContextV1::site)
-            .cloned()
-            .ok_or_else(|| {
-                "[freeze:contract][callable-loop-handoff/missing-loop-source]".to_owned()
-            })?;
-        let state = ledger.borrow();
-        state
-            .loop_binding_source_projection()
-            .project_disposition(loop_site)
-            .map(Some)
     }
 
     /// Capture one raw static child while the same invocation port remains

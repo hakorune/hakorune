@@ -9,6 +9,8 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, SourceNodeSiteV1, SourcePathSegmentV1,
 };
+#[path = "normal_callable_loop_handoff_loop_true.rs"]
+mod loop_true_projection;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum CallableLoopBindingRoleV1 {

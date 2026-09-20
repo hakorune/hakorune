@@ -49,19 +49,19 @@ mod sealed {
 }
 
 pub(super) mod block_driver;
-pub(in crate::mir::builder::control_flow::plan::parts) mod callable_loop_source;
+pub(in crate::mir::builder) mod callable_loop_source;
 #[cfg(test)]
 mod callable_loop_source_driver_tests;
 pub(super) mod callable_loop_source_items;
 #[cfg(test)]
 mod callable_loop_source_items_tests;
-pub(in crate::mir::builder::control_flow::plan::parts) mod callable_loop_source_lowering;
+pub(in crate::mir::builder) mod callable_loop_source_lowering;
 #[cfg(test)]
 mod callable_loop_source_testkit;
 #[cfg(test)]
 mod callable_loop_source_tests;
 pub(in crate::mir::builder) mod direct_if;
-pub(super) mod dispatch;
+pub(in crate::mir::builder) mod dispatch;
 #[cfg(test)]
 mod dispatch_tests;
 #[cfg(test)]

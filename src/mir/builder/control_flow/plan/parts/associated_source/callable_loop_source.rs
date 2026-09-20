@@ -42,8 +42,7 @@ pub(in crate::mir::builder::control_flow::plan::parts) enum CallableLoopSourcePa
 }
 
 /// One recipe block co-sealed with its located body carrier.
-pub(in crate::mir::builder::control_flow::plan::parts) struct CallableLoopSourcePartsBlockV1<'view>
-{
+pub(in crate::mir::builder) struct CallableLoopSourcePartsBlockV1<'view> {
     arena: &'view RecipeBodies,
     block: &'view RecipeBlock,
     body: CallableLoopSourcePartsBlockBodyV1<'view>,
@@ -77,7 +76,7 @@ impl<'view> CallableLoopSourcePartsBlockV1<'view> {
     /// Pair a recipe block with the located child body it was registered
     /// from. The recipe body must be a verbatim clone of the same statement
     /// list; per-statement equality is re-checked at item projection time.
-    pub(in crate::mir::builder::control_flow::plan::parts) fn located_body(
+    pub(in crate::mir::builder) fn located_body(
         arena: &'view RecipeBodies,
         block: &'view RecipeBlock,
         body: CallableLoopSourceBodyInputV1<'view>,

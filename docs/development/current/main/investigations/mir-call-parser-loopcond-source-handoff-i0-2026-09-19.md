@@ -1,13 +1,13 @@
 ---
-Status: selected__fast__2026-09-20__LoopTrueSourceFactsProduct
+Status: selected__fast__2026-09-20__ValidateLoopTrueSourceToMirMatrix
 Task: MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0
 Date: 2026-09-19
 Parent: mir-call-parser-nested-loop-source-promotion-d0-2026-09-19.md
 ProductionCaller: selected normal MIR/static-receiver route only
-Implementation permission: the accepted D0 permits the bounded LoopTrue source
-Facts product and its reject guards. The Facts/Recipe issuer remains the
-existing owner; source-port physical consume, route completion, publication,
-and old-edge retirement remain closed
+Implementation permission: D2 physical consumption is landed through the
+existing skeleton/phi/cleanup/verifier owner. The next bounded slice is the
+finite parser source-to-MIR matrix; publication, selected old-edge retirement,
+and other parser shapes remain closed
 Classification: BoxCount; one source-backed nested-loop handoff and one compatibility-edge retirement
 ---
 
@@ -1459,6 +1459,25 @@ LoopTrue adapter with preflight before Builder effects; (3) run the parser
 source-to-MIR matrix; (4) delete only the selected `parse/2 -> starts_with/3`
 compatibility edge after the acceptance terminal is observed.
 
+### LoopTrue source-port physical adapter D2 — accepted design — 2026-09-20
+
+```text
+Decision: consume the already co-sealed LoopTrue source product through the
+  existing LoopTrue skeleton, phi materializer, cleanup, and verifier.
+Source authority + canonical issuer: SourceLoopTruePhysicalInputV1 from the
+  existing source Facts owner; LoopTrueBreakContinueFacts/Recipe remains the
+  only semantic issuer; associated-source Parts is the located carrier owner.
+Non-authority: LoopRouteContext, raw AST/normalizer lowering, route retry,
+  GenericLoop fallback, VM, or a second LoopTrue Recipe/JoinSig.
+Fail-fast boundary: validate the source product and located body before
+  alloc_loop_true_skeleton; reject source-port/recipe mismatch and propagate
+  lowering errors to the named caller terminal.
+Smallest next slice: add the adapter and raw caller arm only; then run the
+  finite parser source-to-MIR matrix before any publication or old-edge edit.
+Non-claims: parser acceptance, publication, compatibility-edge retirement,
+  other LoopTrue shapes, VM/AOT parity, or warning cleanup.
+```
+
 ### LoopTrue source Facts product implementation — 2026-09-20
 
 The bounded construction slice is now present in the split source-Facts owner.
@@ -1477,3 +1496,21 @@ recorded baseline was 555, with the disconnected LoopTrue product contributing
 current dead-code rows. Warning cleanup is a separate task. Source-port
 physical consumption, parser source-to-MIR acceptance, publication, and old
 edge retirement remain open.
+
+### LoopTrue source-port physical adapter implementation — 2026-09-20
+
+The D2 adapter is now wired through the existing LoopTrue skeleton, phi
+materializer, associated-source Parts dispatcher, cleanup, and verifier. The
+literal-`true` binding contract is a sibling handoff owner: GenericLoop keeps
+its condition-read carrier rule, while LoopTrue validates exactly one
+body-read/rebind carrier before the source product is consumed. No second
+Facts/Recipe issuer or route retry was added.
+
+Focused evidence: the armed source-port edge
+`armed_loop_true_edge_lowers_through_the_source_port` is 1/1; the existing
+callable handoff suite is 6/6; the source-Facts suite is 16/16; and the merged
+parser boundary suite remains 2/2 at its named pre-catalog terminal. The quick
+test build reports the current 556-warning baseline. This closes D2 physical
+consumption only; parser source-to-MIR acceptance, publication, selected old
+edge deletion, other LoopTrue shapes, VM/AOT parity, and warning cleanup remain
+open.

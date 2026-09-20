@@ -9,7 +9,7 @@ use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, IfContractK
 use super::{PartsAssociatedRecipeItemV1, PartsAssociatedSourceV1, VerifiedPartsAssociatedItemV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder::control_flow::plan::parts) enum PartsAssociatedBlockModeV1 {
+pub(in crate::mir::builder) enum PartsAssociatedBlockModeV1 {
     ExitOnly,
     ExitAllowed,
     StmtOnly,

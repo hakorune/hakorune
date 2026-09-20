@@ -58,7 +58,11 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
         let source = self.active_source.as_ref().ok_or_else(|| {
             "[freeze:contract][raw-loop-child-entry/missing-located-source]".to_owned()
         })?;
-        let callable_handoff = self.issue_callable_loop_binding_schedule_v1()?;
+        let loop_condition = match &loop_node {
+            ASTNode::Loop { condition, .. } => condition.as_ref(),
+            _ => return Err("[freeze:contract][raw-loop-child-entry/expected-loop]".to_owned()),
+        };
+        let callable_handoff = self.issue_callable_loop_binding_schedule_v1(loop_condition)?;
         let admission_observation = self.generic_loop_diagnostic.issue_for_loop(source);
         let function_name = builder
             .function_state

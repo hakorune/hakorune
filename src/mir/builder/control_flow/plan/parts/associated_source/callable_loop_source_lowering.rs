@@ -66,10 +66,7 @@ pub(super) fn render_source_error(
 
 /// Drive one co-sealed recipe block through the located source provider.
 #[allow(clippy::too_many_arguments)]
-pub(in crate::mir::builder::control_flow::plan::parts) fn lower_callable_loop_source_parts_block<
-    'view,
-    'ledger,
->(
+pub(in crate::mir::builder) fn lower_callable_loop_source_parts_block<'view, 'ledger>(
     port: CallableLoopSourceExpressionPortV1<'ledger>,
     block: &CallableLoopSourcePartsBlockV1<'view>,
     mode: PartsAssociatedBlockModeV1,

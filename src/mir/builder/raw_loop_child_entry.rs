@@ -343,11 +343,30 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
                 .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned());
             }
-            CallableGenericLoopSourceFactsDispositionV1::LoopTrueReady(_) => {
-                return Err(
-                    "[freeze:contract][callable-loop/loop-true/source-physical-unselected]"
-                        .to_owned(),
-                );
+            CallableGenericLoopSourceFactsDispositionV1::LoopTrueReady(source_facts) => {
+                let source_ledger = callable_ledger.ok_or_else(|| {
+                    "[freeze:contract][callable-loop/loop-true/source-port-ledger-missing]"
+                        .to_owned()
+                })?;
+                let physical_input = source_facts.into_physical_input(source_ledger)?;
+                physical_input.validate_for_source_port()?;
+                let plan = crate::mir::builder::control_flow::plan::features::
+                    loop_true_break_continue_source::lower_loop_true_break_continue_source(
+                        builder,
+                        &physical_input,
+                    )?;
+                crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
+                    .map_err(|error| format!("[freeze:contract][callable-loop/verify] {error}"))?;
+                let context = crate::mir::builder::control_flow::plan::features::
+                    generic_loop_context::GenericLoopV1SourceLoweringContextV1::new(
+                        debug,
+                        in_static_box,
+                    );
+                return crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower(
+                    builder, plan, &context,
+                )
+                .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
+                .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned());
             }
             CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error) => {
                 return Err(format!(
@@ -543,6 +562,9 @@ fn contains_reachable_box_declaration(node: &ASTNode) -> bool {
     }
 }
 
+#[cfg(test)]
+#[path = "raw_loop_child_entry/loop_true_tests.rs"]
+mod loop_true_tests;
 #[cfg(test)]
 #[path = "raw_loop_child_entry/tests.rs"]
 mod tests;
