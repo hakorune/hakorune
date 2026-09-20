@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__MainQualifiedMethodAcceptance
+Status: design_stop__2026-09-21__MainQualifiedMethodAcceptance__NoSafeSlice_CanonicalMethodCallOwnerMissing
 Task: MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-ACCEPTANCE-D0
 Date: 2026-09-21
 Parent: mir-call-d1b-main-raw-qualified-method-handoff-i0-2026-09-21.md
 Implementation permission: false; design decision only
-NextCard: MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-ACCEPTANCE-I0
+NextCard: MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-CANONICAL-OWNER-D0
 ---
 
 # Main raw qualified MethodCall acceptance D0
@@ -40,9 +40,19 @@ warning baseline.
 The full source-backed Main call is not yet an acceptance receipt. The existing
 qualified/direct Main call family reaches the known
 `canonical_function_session/cleanup_failed` state-imbalance baseline around
-resolved binding authority. This D0 must identify the existing canonical owner
-and terminal that closes that authority; it must not hide the red by routing to
-compatibility or by weakening cleanup checks.
+resolved binding authority. This D0 audit found no existing canonical owner
+that can consume the qualified MethodCall row and close that authority. It
+must not hide the red by routing to compatibility or by weakening cleanup
+checks.
+
+The current raw Main hook enters `inner.lower_body` after installing the
+resolver input and relation. The canonical `CanonicalTrivialSsaLowererV1`
+owner closes resolved binding authority, but its expression contract admits
+Literal, Variable, BinaryOp, BlockExpr, and bare FunctionCall only; a qualified
+MethodCall is outside that Recipe and would hit the sealed unsupported-shape
+boundary. The existing `NormalMainDirectCallPreflightV1` is likewise a bare
+FunctionCall profile. Therefore neither owner can be attached to this I0 by a
+one-line finish call or a route rename.
 
 The finite inventory is only qualified direct-owner/import-alias calls in the
 Cataloged App Main root. It excludes bare functions, `me.method`, instance
@@ -58,4 +68,10 @@ legacy retirement.
 * keep the I0 relation and target-only bridge as the sole physical path; and
 * record the exact acceptance command and the known baseline classification.
 
-No implementation is authorized until this owner/terminal tuple is accepted.
+Decision: `NoSafeSlice` for the current acceptance implementation. The next
+bounded design slice is to define one canonical MethodCall-capable source
+owner that reuses the resolver input, qualified relation, argument-site
+ledger, and existing completion/cleanup receipt. It must explicitly cover
+qualified direct-owner and import-alias rows and reject bare/instance/Script/
+compatibility shapes. No implementation is authorized until that
+owner/terminal tuple is accepted.
