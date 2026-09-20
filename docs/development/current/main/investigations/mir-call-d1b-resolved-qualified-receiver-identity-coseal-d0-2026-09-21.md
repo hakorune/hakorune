@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__ResolvedQualifiedReceiverIdentity
+Status: accepted_design__2026-09-21__ResolvedQualifiedReceiverIdentityCarrier
 Task: MIR-CALL-D1B-RESOLVED-QUALIFIED-RECEIVER-IDENTITY-COSEAL-D0
 Date: 2026-09-21
 Parent: mir-call-d1b-resolved-method-static-target-coissue-d0-2026-09-21.md
-Implementation permission: false; resolver/source relation design only
-NextCard: none
+Implementation permission: false; carrier design accepted, implementation delegated
+NextCard: MIR-CALL-D1B-RESOLVED-QUALIFIED-RECEIVER-IDENTITY-I0
 ---
 
 # Resolver qualified receiver identity co-seal D0
@@ -49,6 +49,30 @@ only the source site. The existing `VerifiedQualifiedCallRouteFactsV1` can deriv
 the receiver and import mapping only from its AST-backed source-call product.
 That split prevents an exact same-session resolver-to-catalog join today.
 
+## Accepted decision
+
+The read-only same-traversal audit found a bounded carrier slice. The existing
+shadow resolver already has `ASTNode::Variable { name, .. }` at
+`shadow/expr.rs:454-487`; the loss occurs only when
+`body_shape_resolver.rs` reduces the row to a site. Retain that exact source
+name in the existing body-shape row only for a receiver proven
+`QualifiedUnbound`, then co-seal it into the existing
+`VerifiedResolvedMethodCallSourceV1` as a private source-identity relation.
+This reuses the current resolver issuer and does not create a second traversal,
+target, ABI, Recipe key, or physical symbol.
+
+The carrier slice must reject missing/duplicate identity, lexical-bound
+receivers, dynamic/`me` receivers, wrong-kind rows, and nested-owner crossings
+at the existing resolver/body-shape boundary. The later import-alias and
+canonical-owner co-seal remains a separate D0 because the resolver receives a
+brand catalog but not `VerifiedStaticImportAliasViewV1`; that view is built by
+the existing source catalog owner from the invocation imports.
+
+Consultation evidence: read-only audit
+`receiver_identity_same_traversal_audit` on 2026-09-21. It identified the
+bounded carrier files and confirmed that the Script AST-backed inventory cannot
+be reused as Main authority.
+
 ## Design alternatives
 
 The preferred shape is a private resolver-owned receiver identity relation that
@@ -56,14 +80,14 @@ is issued in the existing MethodCall traversal and immediately co-sealed with
 the source-backed catalog/import brand. It may carry source identity and
 canonical-owner evidence, but not a target, ABI, Recipe key, ValueId, or
 physical symbol. A second AST walk or a consumer-side name lookup is rejected;
-if the existing traversal cannot issue the relation without either, this row is
-`NoSafeSlice` and the Main qualified family remains typed-reject/parked.
+if the existing traversal cannot issue the carrier without either, this row is
+`NoSafeSlice` and the Main qualified family remains typed-reject/parked. The
+audit resolved that question for the carrier only; full catalog co-seal remains
+the next design dependency.
 
 ## Acceptance and reopen
 
-Acceptance requires one exact relation per qualified site, same owner and brand,
-explicit lexical/alias precedence, complete argument-site coverage, and typed
-rejection of missing, foreign, duplicate, dynamic, nested, and wrong-kind rows.
-Implementation may open only after this relation can be consumed once by the
-existing source catalog owner; no target/loan/Call publication is authorized by
-this D0.
+Acceptance for this D0 is the accepted carrier contract above and one bounded
+implementation row. Exact catalog/import-brand co-seal, target/loan/Call
+publication, and production caller selection remain outside this decision and
+are owned by `MIR-CALL-D1B-RESOLVED-QUALIFIED-RECEIVER-CATALOG-COISSUE-D0`.
