@@ -1196,3 +1196,12 @@ for the filtered lib-test build); warning cleanup remains a separate task.
 The exact positive/negative receiver/argument/result matrix and production
 LoopCond physical acceptance are still pending, so this receipt claims neither
 parser source-to-MIR acceptance nor old-edge deletion.
+
+### A′ slice 2 catalog guards — 2026-09-20
+
+The issuer/catalog boundary now has a focused 3/3 guard: the generated
+`length/0` and `substring/2` rows retain exact placement, a foreign caller is
+rejected, and a duplicate `(caller, source-site)` is rejected. This closes
+only the catalog issuance guard. Wrong receiver/argument/result, duplicate
+take from lowering state, LoopCond physical acceptance, and old-edge deletion
+remain open; the existing 555-warning baseline is unchanged.

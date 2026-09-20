@@ -13,8 +13,9 @@ use crate::mir::resolved_semantics::{
 use crate::parser::{NyashParser, ParserBuildConfig};
 
 use super::{
-    issue_source_bound_s6c_call_relation_v1, S6CSourceBoundCallRelationRejectV1,
-    S6CSourceBoundCallRoleV1,
+    issue_source_bound_core_method_calls_v1, issue_source_bound_s6c_call_relation_v1,
+    S6CSourceBoundCallRelationRejectV1, S6CSourceBoundCallRoleV1,
+    SourceBoundCoreMethodTargetIssueV1,
 };
 
 const FIXTURE: &str = include_str!("../../../apps/tests/scan_with_init_typed_ok_min.hako");
@@ -174,5 +175,116 @@ fn source_bound_s6c_relation_rejects_foreign_ledger_owner() {
             role: S6CSourceBoundCallRoleV1::Length,
             reject: ResolverCoreMethodCallableContractRejectV1::ForeignLoopMembership,
         }
+    ));
+}
+
+#[test]
+fn source_bound_core_method_issuer_keeps_exact_length_and_substring_rows() {
+    let batch = batch(FIXTURE, 106);
+    let rows = batch
+        .with_declaration_semantics(|view| {
+            let row = &view.declarations()[0];
+            row.with_source_ledger(|ledger| issue_source_bound_core_method_calls_v1(&ledger))
+                .unwrap()
+        })
+        .unwrap()
+        .unwrap();
+
+    assert_eq!(rows.len(), 2);
+    assert_eq!(
+        rows[0].1.contract().target().row().row().op,
+        CoreMethodOp::StringLen
+    );
+    assert_eq!(
+        rows[0].1.contract().placement(),
+        crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Condition
+    );
+    assert_eq!(
+        rows[1].1.contract().target().row().row().op,
+        CoreMethodOp::StringSubstring
+    );
+    assert_eq!(
+        rows[1].1.contract().placement(),
+        crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Body
+    );
+    for (_, row) in rows.iter() {
+        assert_eq!(row.contract().call_site(), row.contract().result_site());
+        assert_eq!(
+            row.contract().receiver_site().node().segments().last(),
+            Some(&crate::mir::resolved_semantics::SourcePathSegmentV1::Receiver)
+        );
+    }
+    assert_eq!(rows[0].1.contract().arguments().len(), 0);
+    assert_eq!(rows[1].1.contract().arguments().len(), 2);
+}
+
+#[test]
+fn source_bound_core_method_catalog_rejects_foreign_caller() {
+    let batch = batch(FIXTURE, 107);
+    let rows = batch
+        .with_declaration_semantics(|view| {
+            let row = &view.declarations()[0];
+            row.with_source_ledger(|ledger| issue_source_bound_core_method_calls_v1(&ledger))
+                .unwrap()
+        })
+        .unwrap()
+        .unwrap();
+    let declarations =
+        crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(
+            &NyashParser::parse_from_string(FIXTURE).unwrap(),
+        )
+        .unwrap();
+    let target_catalog = crate::mir::source_call_target::test_support::empty_targets(&declarations);
+    let foreign = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+        "Foreign", "run", 0,
+    );
+    let rejected = target_catalog
+        .extend_core_method_calls(foreign.clone(), rows)
+        .unwrap_err();
+    assert_eq!(
+        rejected,
+        SourceBoundCoreMethodTargetIssueV1::ForeignCaller(foreign)
+    );
+}
+
+#[test]
+fn source_bound_core_method_catalog_rejects_duplicate_exact_site() {
+    let batch = batch(FIXTURE, 108);
+    let (first, second) = batch
+        .with_declaration_semantics(|view| {
+            let row = &view.declarations()[0];
+            row.with_source_ledger(|ledger| {
+                (
+                    issue_source_bound_core_method_calls_v1(&ledger).unwrap(),
+                    issue_source_bound_core_method_calls_v1(&ledger).unwrap(),
+                )
+            })
+            .unwrap()
+        })
+        .unwrap();
+    let declarations =
+        crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(
+            &NyashParser::parse_from_string(FIXTURE).unwrap(),
+        )
+        .unwrap();
+    let caller = declarations
+        .declaration_for(
+            crate::mir::builder::SameModuleCallableNamespaceV1::StaticBoxMethod,
+            "Main",
+            "find_ok",
+            2,
+        )
+        .unwrap()
+        .key()
+        .clone();
+    let target_catalog = crate::mir::source_call_target::test_support::empty_targets(&declarations)
+        .extend_core_method_calls(caller.clone(), first)
+        .unwrap();
+    let rejected = target_catalog
+        .extend_core_method_calls(caller, second)
+        .unwrap_err();
+    assert!(matches!(
+        rejected,
+        SourceBoundCoreMethodTargetIssueV1::CatalogCollision(_)
     ));
 }
