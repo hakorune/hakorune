@@ -3,12 +3,12 @@ use std::collections::{BTreeMap, HashMap};
 use super::{
     classify_raw_loop_child_entry_v1, CallableLoopBindingProjectionDispositionV1,
     PreparedLocatedRawLoopChildEntryV1, RawLoopChildEntryDispositionV1,
-    VerifiedCallableSemanticLoopBindingScheduleV1,
 };
 use crate::ast::{ASTNode, DeclarationAttrs, Span};
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::normal_callable_loop_handoff::{
     CallableLoopBindingReceiptV1, CallableLoopBindingRoleV1, CallableLoopSourceProjectionV1,
+    VerifiedCallableSemanticLoopBindingScheduleV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawUnlocatedPortalV1,
@@ -76,7 +76,7 @@ fn located_loop_source() -> RawInvocationSourceContextV1 {
 
 fn callable_handoff(
     loop_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
-) -> super::VerifiedCallableSemanticLoopBindingScheduleV1 {
+) -> VerifiedCallableSemanticLoopBindingScheduleV1 {
     let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
     let owner = issuer.issue().unwrap();
     let binding = crate::mir::resolved_semantics::BindingRefV1::new(owner, BindingId::new(0));

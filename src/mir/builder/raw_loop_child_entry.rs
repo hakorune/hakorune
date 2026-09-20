@@ -15,7 +15,7 @@ use super::generic_loop_admission_observation::GenericLoopAdmissionObservationV1
 use super::module_invocation_session::UnpublishedCallableLoopRootScopeV1;
 use super::normal_callable_loop_handoff::{
     CallableLoopBindingProjectionDispositionV1, CallableLoopOutsideReasonV1,
-    CallableLoopReadyBodyOnlyProductV1, VerifiedCallableSemanticLoopBindingScheduleV1,
+    CallableLoopReadyBodyOnlyProductV1,
 };
 use super::normal_callable_loop_physical_adapter::CallableGenericLoopV1PhysicalAdapterV1;
 use super::normal_callable_loop_source_facts::{

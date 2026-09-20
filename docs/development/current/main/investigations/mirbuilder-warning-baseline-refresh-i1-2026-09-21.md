@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI1__NextCohortSelection
+Status: closed__2026-09-21__WarningBaselineRefreshI1__LoopScheduleSelected
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I1
 Date: 2026-09-21
 Parent: mirbuilder-warning-unused-import-array-text-callee-i0-2026-09-21.md
 Implementation permission: false; refresh and select one cohort only
-NextCard: MIRBUILDER-WARNING-SURFACE-CENSUS-R0
+NextCard: MIRBUILDER-WARNING-UNUSED-IMPORT-LOOP-SCHEDULE-I0
 ---
 
 # MirBuilder warning baseline refresh I1
@@ -39,9 +39,14 @@ role again. It may select one import cohort only when both surfaces prove the
 old import path is unused or the test-only dependency is explicitly moved.
 Dead-code and private-interface rows remain with their semantic owners.
 
+The post-I0 receipt was reproduced at the next head: lib=1,844 and
+lib-test=563 before the loop-schedule move. The selected cohort was the
+production-only `VerifiedCallableSemanticLoopBindingScheduleV1` import; its
+test dependency was already explicit in the test file. The row is closed by
+the child card with lib=1,843 and lib-test=563.
+
 ## Acceptance and stop
 
-Close I1 with two reproducible command receipts, stable failure-name
-classification, and one selected cohort or an explicit `NoSafeSlice`. No code,
-fixture, `allow`, or baseline manifest change is permitted until that decision
-is recorded.
+I1 closes with two reproducible command receipts, stable failure-name
+classification, and the one selected cohort. No broader code, fixture,
+`allow`, or baseline manifest change is authorized by this card.
