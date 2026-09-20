@@ -152,13 +152,37 @@ package-scoped LoopBreak owner:
 | `CallableLoopSourceBridgeV1` / source-route token | per-callable Generic/LoopCond/LoopTrue projections | no LoopBreak product and no package-wide inventory; cannot be widened by inference |
 | `InvocationRouteMatrixV1` / `RouteOwnedInvocationInventoryV2` | root invocation families and publication/drain lanes | wrong authority: root-family inventory is not a per-callable loop-route map |
 
-Decision: no existing candidate owns the missing relation. The smallest safe
-design slice is one source-scoped LoopBreak product in the existing LoopBreak
-owner, co-sealing callable identity, exact source site/forest/exits, route
-outcome, package brand, and a builder-free physical input. That product must
-also name the exclusive old-edge delete set. Until that contract exists, do
-not extend the selected package map, reuse the root invocation matrix, or
-issue a new semantic receipt.
+Decision: no current candidate owns the LoopBreak meaning relation. The
+smallest safe design slice is one source-scoped LoopBreak product in the
+existing LoopBreak owner, co-sealing callable identity, exact source
+site/forest/exits, route outcome, package brand, and a builder-free physical
+input. The package issuer below may observe complete coverage, but it must not
+become a second LoopBreak meaning issuer. That product must also name the
+exclusive old-edge delete set. Until that contract exists, do not extend the
+selected package map, reuse the root invocation matrix, or issue a new
+semantic receipt.
+
+### Package issuer as parent-observer candidate (read-only, 2026-09-20)
+
+`issue_normal_callable_semantic_package_with_brand_catalog_v1` already owns the
+same-package co-seal boundary. It consumes one resolved batch, iterates every
+declaration for existing Dynamic/ordinary/direct-call products, validates the
+catalog/batch relation, and stores the batch in the non-splittable semantic
+package. This makes the package issuer the natural place to aggregate a
+route-neutral LoopBreak candidate or a typed absence for every batch row.
+
+That observation does not exist today: the package model has no LoopBreak
+coverage field, and the issuer must not infer one from method names, AST shape,
+selected keys, or the `LoopRouteContext` consumer. The issuer can therefore be
+reused as the parent coverage owner only after the same-owner Facts issuer
+defines the source candidate and its reject vocabulary. The lowering port stays
+the selected-consumption checker; it is not the observer.
+
+D1 boundary: package issuer = complete-row coverage observer and brand
+co-seal; existing `CallableGenericLoopSourceFactsIssuerV1` = per-callable
+LoopBreak source/Facts co-seal; existing LoopBreak physical owner = consumer.
+If any of these three contracts cannot be joined without a new semantic
+authority, retain `NoSafeSlice` rather than adding an aggregate guess.
 
 ### Direct terminality candidate (read-only recheck)
 
