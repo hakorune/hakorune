@@ -88,3 +88,14 @@ brand-matched, complete candidate/absence product for all batch rows and all
 negative cases fail before Builder effects. It does not advance the parser
 package to source-to-MIR acceptance; that remains the next physical-consumer
 row with its own caller, terminal, and exclusive delete-set.
+
+## Progress receipt (2026-09-20)
+
+The direct source projector is now present at
+`src/mir/compiler/loop_break_source_projection.rs`. It observes only the
+resolver-owned loop site, condition/break/assignment sites, and the paired
+explicit-break exit record. Direct three-statement shape, ScopeBox, explicit
+else, body arity, and exit-target rejection are covered by three focused tests
+(3/3). No Builder, route execution, package publication, fallback, or legacy
+edge changed in this slice. Package-wide candidate/absence coverage and the
+Facts co-seal remain open and are the next implementation steps.

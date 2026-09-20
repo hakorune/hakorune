@@ -105,6 +105,8 @@ pub(in crate::mir) mod located;
 pub(crate) mod loop_cond_break_continue_observation;
 #[allow(dead_code)]
 pub(in crate::mir) mod loop_cond_break_continue_projection;
+#[allow(dead_code)]
+pub(in crate::mir) mod loop_break_source_projection;
 pub(crate) mod loop_physical_prepare;
 #[cfg(test)]
 pub(crate) mod loop_true_break_continue_observation;
