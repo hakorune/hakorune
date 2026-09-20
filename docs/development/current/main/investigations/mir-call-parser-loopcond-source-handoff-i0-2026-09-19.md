@@ -1243,3 +1243,14 @@ production preparation, `LoopCondReady` source input, and named source
 physical consumer therefore execute as one mixed edge. This is still a
 production-edge guard only: ParserProgramBox package/publication acceptance,
 selected old-edge deletion, and the 555-warning cleanup remain open.
+
+### Armed source-item catalog guard — 2026-09-20
+
+`RawLoopChildEntry` no longer converts a missing source-item catalog into an
+empty relation. After an `Armed` bridge take, the existing catalog must be
+present or the named
+`[freeze:contract][callable-loop/source-bridge/armed-items-missing]` error is
+returned. `Unarmed` and `BridgeAbsent` still carry an empty relation to their
+existing GenericLoop boundary. The production edge guard remains green (1/1),
+and the unarmed-loop disposition guard remains green (1/1); the repository's
+555 compiler-warning baseline is a separate cleanup inventory.

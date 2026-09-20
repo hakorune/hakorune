@@ -267,17 +267,25 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                     );
                 };
                 let state = callable_ledger.borrow();
-                let items = state.source_loop_items(parent_site).unwrap_or_default();
                 let function_origin = Some(state.function_origin());
                 let source_kind = Some(state.source_kind());
                 drop(state);
-                let projection = match callable_ledger
+                let bridge = callable_ledger
                     .borrow_mut()
-                    .take_source_loop_bridge(parent_site)?
-                {
-                    CallableLoopSourceBridgeTakeV1::Armed(projection) => Some(projection),
+                    .take_source_loop_bridge(parent_site)?;
+                let (projection, items) = match bridge {
+                    CallableLoopSourceBridgeTakeV1::Armed(projection) => {
+                        let items = callable_ledger
+                            .borrow()
+                            .source_loop_items(parent_site)
+                            .ok_or_else(|| {
+                                "[freeze:contract][callable-loop/source-bridge/armed-items-missing]"
+                                    .to_owned()
+                            })?;
+                        (Some(projection), items)
+                    }
                     CallableLoopSourceBridgeTakeV1::Unarmed
-                    | CallableLoopSourceBridgeTakeV1::BridgeAbsent => None,
+                    | CallableLoopSourceBridgeTakeV1::BridgeAbsent => (None, Box::default()),
                 };
                 (function_origin, source_kind, projection, items)
             } else {
