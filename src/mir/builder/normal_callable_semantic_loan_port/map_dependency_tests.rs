@@ -6,10 +6,12 @@ use crate::mir::builder::normal_callable_binding_materialization_port::{
     CallableBindingMaterializationPortV1, CallableEntryShapeV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationRootLineageV1;
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
 use crate::mir::resolved_semantics::SourceBindingSiteV1;
 use crate::mir::MirType;
 use crate::parser::CallableDeclarationIdentityV1;
+use crate::parser::CallableMethodSourceObservationV1;
 
 impl MirBuilder {
     pub(in crate::mir) fn lower_map_dependency_for_test(
@@ -60,7 +62,7 @@ impl MirBuilder {
         invocation.with_module_port(|builder, port| {
             let mut inner = RawInvocationChildPortV1::new(port);
             inner.direct_call_loans = loans;
-            with_callable_source_scope(
+            super::source_scope::with_callable_source_scope(
                 &mut inner,
                 RawInvocationRootLineageV1::Cataloged(key),
                 input,
@@ -68,6 +70,7 @@ impl MirBuilder {
                 std::collections::BTreeMap::new(),
                 observation,
                 Rc::clone(&ledger),
+                None,
                 |inner, transport| {
                     inner.with_source_transport_v1(transport, |inner, ()| {
                         inner

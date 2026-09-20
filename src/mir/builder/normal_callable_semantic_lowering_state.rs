@@ -18,6 +18,7 @@ use super::normal_callable_dynamic_origin::{
     PreparedDynamicOriginRebindV1,
 };
 use super::normal_callable_dynamic_source::SourceBackedDynamicCallableIssuerV1;
+use crate::mir::normal_callable_semantic_package::LoopBreakSourcePackageLoanV1;
 use crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1;
 
 #[path = "normal_callable_construction_state.rs"]
@@ -70,6 +71,7 @@ pub(super) struct CallableSemanticLoweringState {
     consumed_brand_constructors: BTreeSet<SourceNodeSiteV1>,
     consumed_source_core_method_calls: BTreeSet<crate::mir::resolved_semantics::SourceExprSiteV1>,
     source_loop_bridge: Option<source_loop_bridge::CallableLoopSourceBridgeV1>,
+    loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
     source_core_method_calls: BTreeMap<
         crate::mir::resolved_semantics::SourceExprSiteV1,
         VerifiedSourceBoundCoreMethodCallV1,
@@ -126,6 +128,25 @@ impl CallableSemanticLoweringState {
             crate::mir::resolved_semantics::SourceExprSiteV1,
             VerifiedSourceBoundCoreMethodCallV1,
         >,
+    ) -> Result<Self, String> {
+        Self::from_exact_source_with_dynamic_source_and_core_methods_and_loop_break_source(
+            input,
+            dynamic_source,
+            source_core_method_calls,
+            None,
+        )
+    }
+
+    pub(super) fn from_exact_source_with_dynamic_source_and_core_methods_and_loop_break_source(
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        dynamic_source: Option<
+            Rc<super::normal_callable_dynamic_source::VerifiedSourceBackedDynamicCallableV1>,
+        >,
+        source_core_method_calls: BTreeMap<
+            crate::mir::resolved_semantics::SourceExprSiteV1,
+            VerifiedSourceBoundCoreMethodCallV1,
+        >,
+        loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
     ) -> Result<Self, String> {
         let source_loop_bridge = source_loop_bridge::CallableLoopSourceBridgeV1::from_input(input)?;
         let dynamic_origins = match dynamic_source {
@@ -289,6 +310,7 @@ impl CallableSemanticLoweringState {
             consumed_brand_constructors: BTreeSet::new(),
             consumed_source_core_method_calls: BTreeSet::new(),
             source_loop_bridge,
+            loop_break_source,
             source_core_method_calls,
         })
     }
@@ -649,6 +671,10 @@ impl CallableSemanticLoweringState {
         self.dynamic_origins
             .finish()
             .map_err(|error| error.to_string())?;
+        let loop_break_transport_kind = self
+            .loop_break_source
+            .as_ref()
+            .map(LoopBreakSourcePackageLoanV1::is_candidate);
         let missing_variables = self
             .variables
             .keys()
@@ -663,7 +689,7 @@ impl CallableSemanticLoweringState {
             || !self.source_core_method_calls.is_empty()
         {
             return Err(format!(
-                "{} owner={:?} entry={} locals={}/{} variables={}/{} missing_variables={:?} assignments={}/{} lambdas={}/{}",
+                "{} owner={:?} entry={} locals={}/{} variables={}/{} missing_variables={:?} assignments={}/{} lambdas={}/{} loop_break_transport_kind={:?}",
                 freeze("incomplete-consumption"),
                 self.owner,
                 self.entry_installed,
@@ -676,6 +702,7 @@ impl CallableSemanticLoweringState {
                 self.assignments.len(),
                 self.consumed_direct_lambdas.len(),
                 self.direct_lambda_captures.len(),
+                loop_break_transport_kind,
             ));
         }
         Ok(())

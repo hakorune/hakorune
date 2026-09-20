@@ -1,10 +1,11 @@
 ---
-Status: design_stop__2026-09-20__ParserLoopBreakSourceConsumer
+Status: closed__owner_contract_and_transport_boundary__2026-09-20
 Task: MIR-CALL-PARSER-LOOPBREAK-SOURCE-CONSUMER-D0
 Current execution row: MIR-CALL-PARSER-LOOPBREAK-SOURCE-CONSUMER-D0
 Date: 2026-09-20
 Parent: mir-call-parser-source-to-mir-package-acceptance-window-d0-2026-09-20.md
 Implementation permission: false; this row fixes the missing owner contract before code or fixture changes
+NextCard: MIR-CALL-PARSER-LOOPBREAK-SOURCE-TRANSPORT-I0
 ---
 
 # Parser LoopBreak source consumer D0
@@ -442,9 +443,9 @@ unsupported shape, missing resolver evidence, and a real source absence. The
 package issuer must inspect every resolved batch row, including unselected
 rows; selected-map membership is not a LoopBreak census.
 
-Only after that disposition and its finite error mapping are accepted may the
-package issue a typed LoopBreak coverage field. Until then the current package
-model remains unchanged and `NoSafeSlice` stays open.
+The package row/absence disposition and finite error mapping were accepted by
+the package I0. The remaining `NoSafeSlice` belongs to the source-bound
+physical adapter, which is handed to the next card.
 
 ## Physical adapter premise audit
 
@@ -470,11 +471,12 @@ existing `lower_raw_loop_v0`/`loop_v0_core` owner. Missing, foreign, duplicate,
 out-of-root, order-mismatched, and non-direct-specialized rows remain named
 pre-effect rejects.
 
-This audit keeps the row at `NoSafeSlice`: the missing source-aligned Recipe
-construction and LoopBreak route token are design work, not permission to add
-a synthetic receipt or to make the legacy composer source-aware by inference.
+This audit keeps the physical row at `NoSafeSlice`: the missing source-aligned
+Recipe construction and LoopBreak route token are design work, not permission
+to add a synthetic receipt or to make the legacy composer source-aware by
+inference.
 
-## Owner audit and NoSafeSlice decision
+## Owner audit and accepted boundary
 
 The existing package exposes source AST/catalog loans, selected callable loans,
 physical-signature rows, and result contracts. None is a package-scoped
@@ -484,10 +486,27 @@ LoopBreak dependency as a named terminal. The LoopBreak path still uses
 `route_loop_break_recipe` with `LoopRouteContext`/`MirBuilder`; it has no
 source-lineage co-seal or source-port consumer.
 
-Therefore this row stays `design_stop` with `NoSafeSlice`. The package
-acceptance-window card is handed off without a parser acceptance claim. The
-next design work is bounded to the finite LoopBreak dependency inventory below;
-it must not reopen the parked route generally.
+The owner contract is now accepted at the transport boundary. The package
+issuer remains the complete-row observer, the existing LoopBreak Facts issuer
+remains the per-callable semantic co-seal, and the existing source `loop_v0`
+parts/physical core remains the later consumer. The next slice first retains
+the already-issued candidate through install and moves it once into the
+selected callable lowering scope. It must not lower a route, issue another
+Recipe, or infer a candidate from source text. The package acceptance-window
+card is still handed off without a parser source-to-MIR claim.
+
+The transport contract is concrete:
+
+1. install retains `VerifiedLoopBreakSourcePackageV1` instead of discarding it;
+2. the package port takes one owner-scoped candidate/absence product, with a
+   named duplicate/foreign-owner rejection;
+3. the selected source scope transfers that product into the existing
+   `CallableSemanticLoweringState` before Builder effects;
+4. the raw LoopBreak physical consumer remains a later card and must consume
+   the exact source site before `reseal_branch_bindings`/`lower_loop_v0_core`.
+
+This closes the owner decision but does not close physical lowering, caller
+switch, publication, or legacy retirement.
 
 ## Required next-design inventory
 
@@ -512,3 +531,13 @@ Focused positive/negative evidence must cover exact source site, package brand,
 exit/forest relation, duplicate/foreign rows, and dependency terminality. Until
 then the parent parser tuple remains a design dependency and all production,
 publication, and legacy-retirement claims stay closed.
+
+## Design closeout receipt (2026-09-20)
+
+The read-only bridge audit confirmed that the source bridge is per-callable
+evidence only and cannot become a package-wide route inventory. The selected
+same-owner transport is therefore the smallest safe next slice: preserve the
+existing package candidate, lend it exactly once to the selected lowering
+scope, and leave route selection and physical lowering to their existing
+owners. No new semantic receipt, route, fallback, or backend lane is opened by
+this decision.

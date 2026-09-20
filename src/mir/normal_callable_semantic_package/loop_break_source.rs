@@ -50,6 +50,34 @@ pub(in crate::mir) enum LoopBreakSourcePackageIssueV1 {
 pub(super) enum OwnedLoopBreakSourcePackageRowV1 {
     Candidate(VerifiedCallableLoopBreakSourceFactsV1),
     SupportedNonCandidate { loop_count: usize },
+    Consumed,
+}
+
+/// One owner-scoped LoopBreak source product lent to the selected lowering
+/// scope. The package keeps the row sealed until this one-shot move; the
+/// lowering state then owns the product for the later physical consumer.
+#[derive(Debug)]
+pub(in crate::mir) enum LoopBreakSourcePackageLoanV1 {
+    Candidate(VerifiedCallableLoopBreakSourceFactsV1),
+    SupportedNonCandidate {
+        owner: FunctionOwnerIdV1,
+        loop_count: usize,
+    },
+}
+
+impl LoopBreakSourcePackageLoanV1 {
+    pub(in crate::mir) fn is_candidate(&self) -> bool {
+        match self {
+            Self::Candidate(facts) => {
+                let _ = facts;
+                true
+            }
+            Self::SupportedNonCandidate { owner, loop_count } => {
+                let _ = (owner, loop_count);
+                false
+            }
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -77,12 +105,44 @@ impl VerifiedLoopBreakSourcePackageV1 {
         &self.rows
     }
 
+    pub(in crate::mir) fn take_for_owner(
+        &mut self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<LoopBreakSourcePackageLoanV1, String> {
+        let Some(row) = self.rows.iter_mut().find(|row| row.owner == owner) else {
+            return Err(
+                "[freeze:contract][callable-loop-break/source-package/owner-row-missing]"
+                    .to_owned(),
+            );
+        };
+        let previous = std::mem::replace(&mut row.row, OwnedLoopBreakSourcePackageRowV1::Consumed);
+        match previous {
+            OwnedLoopBreakSourcePackageRowV1::Candidate(facts) => {
+                Ok(LoopBreakSourcePackageLoanV1::Candidate(facts))
+            }
+            OwnedLoopBreakSourcePackageRowV1::SupportedNonCandidate { loop_count } => {
+                Ok(LoopBreakSourcePackageLoanV1::SupportedNonCandidate { owner, loop_count })
+            }
+            OwnedLoopBreakSourcePackageRowV1::Consumed => Err(
+                "[freeze:contract][callable-loop-break/source-package/owner-row-duplicate-take]"
+                    .to_owned(),
+            ),
+        }
+    }
+
     #[cfg(test)]
     pub(super) fn candidate_count(&self) -> usize {
         self.rows
             .iter()
             .filter(|row| matches!(row.row, OwnedLoopBreakSourcePackageRowV1::Candidate(_)))
             .count()
+    }
+
+    #[cfg(test)]
+    pub(super) fn candidate_owner(&self) -> Option<FunctionOwnerIdV1> {
+        self.rows.iter().find_map(|row| {
+            matches!(row.row, OwnedLoopBreakSourcePackageRowV1::Candidate(_)).then_some(row.owner)
+        })
     }
 }
 

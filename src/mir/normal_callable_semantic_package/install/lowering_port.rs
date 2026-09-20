@@ -14,11 +14,10 @@ use super::super::declared_instance_locator::DeclaredInstanceCallLocatorScopeV1;
 use super::super::ordinary_new_coseal::OrdinaryNewAdmissionClaimV1;
 use super::super::s6c_child::S6CSemanticChildRefV1;
 use super::{
-    MainStaticChildLoweringInputV1,
-    NormalCallableSemanticPackageInstallIssueV1, NormalCallableSemanticPackagePortV1,
-    ResolvedCallablePhysicalSignatureLoanV1, S6CCommonV2PreSessionLoanRefV1,
-    S6CInstalledCallableLoanRefV1, SelectedCallableLoweringInputRefV1,
-    SelectedCatalogedCallableLoweringInputV1,
+    MainStaticChildLoweringInputV1, NormalCallableSemanticPackageInstallIssueV1,
+    NormalCallableSemanticPackagePortV1, ResolvedCallablePhysicalSignatureLoanV1,
+    S6CCommonV2PreSessionLoanRefV1, S6CInstalledCallableLoanRefV1,
+    SelectedCallableLoweringInputRefV1, SelectedCatalogedCallableLoweringInputV1,
 };
 
 impl NormalCallableSemanticPackagePortV1<'_> {
@@ -220,7 +219,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
     /// Lend one selected input together with the route-neutral CoreMethod arm
     /// issued from that same resolver ledger.  The catalog is consumed into
     /// the callback's scoped lowering state; no second name map is retained.
-    pub(crate) fn with_selected_lowering_input_and_core_methods<R>(
+    pub(in crate::mir) fn with_selected_lowering_input_and_core_methods<R>(
         &mut self,
         key: &SelectedNormalCallableKeyV1,
         callback: impl for<'loan> FnOnce(
@@ -229,6 +228,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                 crate::mir::resolved_semantics::SourceExprSiteV1,
                 VerifiedSourceBoundCoreMethodCallV1,
             >,
+            super::LoopBreakSourcePackageTakeHandle<'loan>,
         ) -> Result<R, String>,
     ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
         if self.consumed.contains(key) {
@@ -240,7 +240,12 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         let core_method_calls = self.installed.take_source_core_method_calls(key);
         let result = self
             .installed
-            .with_selected_lowering_input(key, |selected| callback(selected, core_method_calls))?
+            .with_selected_lowering_input(key, |selected| {
+                let loop_break_take = super::LoopBreakSourcePackageTakeHandle {
+                    installed: self.installed,
+                };
+                callback(selected, core_method_calls, loop_break_take)
+            })?
             .map_err(|error| {
                 NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(
                     error.into_boxed_str(),
@@ -308,6 +313,41 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         })
     }
 
+    /// Variant for the source-backed lowering path that also lends the
+    /// package-owned LoopBreak transport handle. Existing callers keep the
+    /// narrower signature above.
+    pub(in crate::mir) fn with_selected_cataloged_lowering_input_signature_and_loop_break<R>(
+        &mut self,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+        callback: impl for<'loan> FnOnce(
+            SelectedCatalogedCallableLoweringInputV1<'loan>,
+            ResolvedCallablePhysicalSignatureLoanV1<'loan>,
+            super::LoopBreakSourcePackageTakeHandle<'loan>,
+        ) -> R,
+    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
+        let key = SelectedNormalCallableKeyV1::Cataloged(admission.source_key().clone());
+        let batch_slot = self
+            .installed
+            .selected
+            .batch_slot(&key)
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::SelectedKeyUnavailable)?;
+        let signature = self
+            .installed
+            .physical_signature
+            .row(batch_slot)
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::PhysicalSignatureUnavailable)?;
+        self.with_selected_cataloged_lowering_input(admission, |input| {
+            let loop_break_take = super::LoopBreakSourcePackageTakeHandle {
+                installed: self.installed,
+            };
+            callback(
+                input,
+                ResolvedCallablePhysicalSignatureLoanV1::new(signature),
+                loop_break_take,
+            )
+        })
+    }
+
     /// Lend the selected cataloged input, physical signature, and the same
     /// installed package's DeclaredInstance receiver locator in one callback.
     /// The locator is transport-only and is consumed by exact source site;
@@ -368,6 +408,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                 crate::mir::resolved_semantics::SourceExprSiteV1,
                 VerifiedSourceBoundCoreMethodCallV1,
             >,
+            super::LoopBreakSourcePackageTakeHandle<'loan>,
         ) -> R,
     ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
         let Some((key, identity, role)) = self
@@ -423,6 +464,9 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                     }
                 })
                 .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::MainChildRoleMismatch)?;
+                let loop_break_take = super::LoopBreakSourcePackageTakeHandle {
+                    installed: self.installed,
+                };
                 Ok(callback(
                     MainStaticChildLoweringInputV1 {
                         selected,
@@ -432,6 +476,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                         _catalog_brand: self.installed.catalog_brand.clone(),
                     },
                     core_method_calls,
+                    loop_break_take,
                 ))
             })??;
         self.consumed.insert(key);

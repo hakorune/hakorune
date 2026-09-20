@@ -2,8 +2,8 @@ use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
 
 use super::{
-    issue_normal_callable_semantic_package_v1, NormalCallableDynamicProjectionRefV1,
-    NormalCallableSemanticPackageIssueV1,
+    issue_normal_callable_semantic_package_v1, LoopBreakSourcePackageLoanV1,
+    NormalCallableDynamicProjectionRefV1, NormalCallableSemanticPackageIssueV1,
 };
 
 fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
@@ -76,6 +76,41 @@ static box Main {
 
     assert_eq!(package.loop_break_source_row_count(), 1);
     assert_eq!(package.loop_break_source_candidate_count(), 1);
+}
+
+#[test]
+fn loop_break_source_candidate_is_taken_once_by_its_owner() {
+    let mut package = issue(
+        r#"
+static box Main {
+    main() {
+        local i = 0
+        local sum = 0
+        loop(i < 3) {
+            if i == 3 { break }
+            sum = sum + 1
+            i = i + 1
+        }
+        return sum
+    }
+}
+"#,
+    )
+    .expect("direct LoopBreak semantic package");
+    let owner = package
+        .loop_break_source
+        .candidate_owner()
+        .expect("candidate owner");
+
+    let loan = package
+        .loop_break_source
+        .take_for_owner(owner)
+        .expect("owner receives the sealed candidate row");
+    assert!(matches!(loan, LoopBreakSourcePackageLoanV1::Candidate(_)));
+    let duplicate = package.loop_break_source.take_for_owner(owner);
+    assert!(duplicate
+        .expect_err("a consumed owner row cannot be taken again")
+        .contains("owner-row-duplicate-take"));
 }
 
 #[test]

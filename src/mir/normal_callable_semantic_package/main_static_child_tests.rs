@@ -95,14 +95,17 @@ fn main_static_child_port_consumes_all_role_rows_once() {
             .expect("same installed catalog");
         assert_eq!(children.len(), 4);
         for child in children {
-            port.with_main_static_child_lowering_input(child, |input, _core_method_calls| {
-                let (selected, admission, _signature) = input.into_lowering_and_admission();
-                assert!(matches!(
-                    selected.semantic(),
-                    super::SelectedCallableSemanticRefV1::Ordinary
-                ));
-                assert_eq!(admission.source_key().owner(), "Main");
-            })
+            port.with_main_static_child_lowering_input(
+                child,
+                |input, _core_method_calls, _loop_break_take| {
+                    let (selected, admission, _signature) = input.into_lowering_and_admission();
+                    assert!(matches!(
+                        selected.semantic(),
+                        super::SelectedCallableSemanticRefV1::Ordinary
+                    ));
+                    assert_eq!(admission.source_key().owner(), "Main");
+                },
+            )
             .expect("typed Main-child Port loan");
         }
         port.take_object_definitions(&context)

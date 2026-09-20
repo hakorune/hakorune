@@ -1,11 +1,13 @@
 //! Consuming source-backed catalog installation and scoped selected loans.
 
+mod loop_break_source;
 mod lowering_port;
 #[path = "install_map_preflight.rs"]
 mod map_preflight;
 #[path = "selected_input.rs"]
 mod selected_input;
 mod signature_loan;
+mod types;
 
 use std::{cell::RefCell, collections::BTreeSet, rc::Rc};
 
@@ -13,10 +15,9 @@ use crate::mir::builder::{
     BuilderInstallConsumerV1, BuilderPrivateInstalledCallablePackageBundleV1,
     CatalogedBoxMethodPhysicalHeaderProjectionV1, CompilationContext,
     NormalCatalogedBoxMethodDraftAdmissionV1, SameModuleCallableCatalogBrandV1,
-    SelectedNormalCallableKeyV1, VerifiedSourceBackedDynamicCallableV1,
+    SelectedNormalCallableKeyV1,
 };
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV1;
-use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::VerifiedResolvedBlockExpressionExpectationV1;
 use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
@@ -42,7 +43,10 @@ use super::{
     BuilderInstallTokenV1,
 };
 
+pub(in crate::mir) use loop_break_source::LoopBreakSourcePackageTakeHandle;
 pub(crate) use signature_loan::ResolvedCallablePhysicalSignatureLoanV1;
+pub(crate) use types::PreparedNormalCallableSemanticPackageInstallV1;
+pub(in crate::mir) use types::SelectedCallableSemanticRefV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
@@ -118,6 +122,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     physical_header: VerifiedCallablePhysicalHeaderCohortV1,
     dynamic: NormalCallableDynamicProjectionV1,
     dynamic_physical_header: RefCell<Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>>,
+    loop_break_source: RefCell<super::loop_break_source::VerifiedLoopBreakSourcePackageV1>,
     source_core_method_calls: RefCell<
         std::collections::BTreeMap<
             SelectedNormalCallableKeyV1,
@@ -296,21 +301,6 @@ impl<'loan> SelectedCatalogedCallableLoweringInputV1<'loan> {
     }
 }
 
-#[derive(Clone, Copy)]
-pub(in crate::mir) enum SelectedCallableSemanticRefV1<'loan> {
-    Ordinary,
-    Dynamic {
-        program: &'loan VerifiedDynamicExitTransactionCoSealV1,
-        source: &'loan std::rc::Rc<VerifiedSourceBackedDynamicCallableV1>,
-    },
-}
-
-pub(crate) struct PreparedNormalCallableSemanticPackageInstallV1<'context> {
-    context: &'context mut CompilationContext,
-    package: VerifiedNormalCallableSemanticPackageV1,
-    map_lifecycle_undertaking: Option<super::MapLifecycleUndertakingV1>,
-}
-
 /// Exactly-once lowering surface for one installed package.
 ///
 /// The port borrows the whole installed package and never reveals a batch
@@ -451,7 +441,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             physical_header,
             dynamic,
             dynamic_physical_header,
-            loop_break_source: _,
+            loop_break_source,
             declared_instance_call_locators,
             source_core_method_calls,
         } = self.package;
@@ -481,6 +471,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             physical_header,
             dynamic,
             dynamic_physical_header: RefCell::new(dynamic_physical_header),
+            loop_break_source: RefCell::new(loop_break_source),
             source_core_method_calls: RefCell::new(source_core_method_calls),
         }
     }

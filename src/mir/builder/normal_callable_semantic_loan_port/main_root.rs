@@ -53,7 +53,7 @@ pub(super) fn lower_app_main_root_body_v1(
         .with_app_main_root_lowering_input(&catalog_key, expected_identity, |input, identity| {
             let lineage = RawInvocationRootLineageV1::Cataloged(catalog_key.clone());
             let expected_lineage = lineage.clone();
-            super::with_callable_source_scope(
+            super::source_scope::with_callable_source_scope(
                 inner,
                 lineage,
                 input,
@@ -61,6 +61,7 @@ pub(super) fn lower_app_main_root_body_v1(
                 core_method_calls,
                 identity.method_source_observation().cloned(),
                 Rc::clone(&ordinary_new_claim_ledger),
+                None,
                 |inner, transport| {
                     inner.with_source_transport_v1(transport, |inner, ()| {
                         verify_raw_callable_owner_v1(identity.owner(), inner.callable_owner_v1())

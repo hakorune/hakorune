@@ -8,12 +8,10 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
-use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
     BodyChildRoleV1, ExprChildRoleV1, OwnedExprSiteV1, SourceExprSiteV1, SourcePathSegmentV1,
 };
 use crate::mir::{MirBuilder, ValueId};
-use crate::parser::CallableMethodSourceObservationV1;
 
 use super::callable_declaration_catalog::{
     SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
@@ -48,6 +46,10 @@ mod generic_g0;
 mod main_root;
 #[path = "normal_callable_semantic_loan_port/ordinary_new.rs"]
 mod ordinary_new;
+#[path = "normal_callable_semantic_loan_port/source_scope.rs"]
+mod source_scope;
+use source_scope::with_selected_source_scope;
+
 pub(super) use canonical_route::{
     classify_canonical_callable_route, try_prepare_callable_single_loop_program_v1,
     CanonicalCallableRouteV1,
@@ -130,16 +132,20 @@ impl<'package, 'loan, 'port, 'collector, 'target>
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
         Ok(self
             .package
-            .with_selected_lowering_input_and_core_methods(&key, |input, core_method_calls| {
-                with_selected_source_scope(
-                    inner,
-                    lineage,
-                    input,
-                    core_method_calls,
-                    Rc::clone(&ordinary_new_claim_ledger),
-                    execute,
-                )
-            })
+            .with_selected_lowering_input_and_core_methods(
+                &key,
+                |input, core_method_calls, loop_break_take| {
+                    with_selected_source_scope(
+                        inner,
+                        lineage,
+                        input,
+                        core_method_calls,
+                        Rc::clone(&ordinary_new_claim_ledger),
+                        Some(loop_break_take),
+                        execute,
+                    )
+                },
+            )
             .map_err(package_issue)?)
     }
 }
@@ -200,91 +206,6 @@ fn validate_selected_signature_loan_parts(
         ));
     }
     Ok(())
-}
-
-fn with_selected_source_scope<'port, 'collector, R>(
-    inner: &mut RawInvocationChildPortV1<'port, 'collector>,
-    lineage: super::raw_invocation_source_transport::RawInvocationRootLineageV1,
-    input: SelectedCallableLoweringInputRefV1<'_>,
-    core_method_calls: std::collections::BTreeMap<
-        crate::mir::resolved_semantics::SourceExprSiteV1,
-        crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1,
-    >,
-    ordinary_new_claim_ledger: Rc<
-        crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
-    >,
-    execute: impl FnOnce(
-        &mut RawInvocationChildPortV1<'port, 'collector>,
-        super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
-    ) -> Result<R, String>,
-) -> Result<R, String> {
-    let dynamic_source = match input.semantic() {
-        crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Dynamic {
-            source,
-            ..
-        } => Some(std::rc::Rc::clone(source)),
-        crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Ordinary => {
-            None
-        }
-    };
-    with_callable_source_scope(
-        inner,
-        lineage,
-        input.source(),
-        dynamic_source,
-        core_method_calls,
-        input.method_source_observation().cloned(),
-        ordinary_new_claim_ledger,
-        execute,
-    )
-}
-
-fn with_callable_source_scope<'port, 'collector, R>(
-    inner: &mut RawInvocationChildPortV1<'port, 'collector>,
-    lineage: super::raw_invocation_source_transport::RawInvocationRootLineageV1,
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    dynamic_source: Option<Rc<crate::mir::builder::VerifiedSourceBackedDynamicCallableV1>>,
-    core_method_calls: std::collections::BTreeMap<
-        crate::mir::resolved_semantics::SourceExprSiteV1,
-        crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1,
-    >,
-    observation: Option<CallableMethodSourceObservationV1>,
-    ordinary_new_claim_ledger: Rc<
-        crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
-    >,
-    execute: impl FnOnce(
-        &mut RawInvocationChildPortV1<'port, 'collector>,
-        super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
-    ) -> Result<R, String>,
-) -> Result<R, String> {
-    let transport =
-        super::raw_invocation_source_transport::RawInvocationSourceTransportV1::root((), lineage);
-    let state = super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source_with_dynamic_source_and_core_methods(
-        input,
-        dynamic_source,
-        core_method_calls,
-    )?;
-    let state = Rc::new(RefCell::new(state));
-    let script_ledger = inner.semantic_ledger.take();
-    let parent_callable = inner.callable_ledger.replace(state.clone());
-    let parent_ordinary_new_claim_ledger = inner
-        .ordinary_new_claim_ledger
-        .replace(ordinary_new_claim_ledger);
-    let result = inner
-        .with_callable_method_source_observation(observation, |inner| execute(inner, transport));
-    inner.callable_ledger = parent_callable;
-    inner.ordinary_new_claim_ledger = parent_ordinary_new_claim_ledger;
-    inner.semantic_ledger = script_ledger;
-    match result {
-        Ok(value) => {
-            Rc::try_unwrap(state)
-                .map_err(|_| "[freeze:contract][mir/callable-semantic/ledger-loan]".to_owned())?
-                .into_inner()
-                .finish()?;
-            Ok(value)
-        }
-        Err(error) => Err(error),
-    }
 }
 
 impl RecursiveChildLoweringPortV1
@@ -440,7 +361,9 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
         self.package
-            .with_main_static_child_lowering_input(child, |input, core_method_calls| {
+            .with_main_static_child_lowering_input(
+                child,
+                |input, core_method_calls, loop_break_take| {
                 let (selected, admission, signature) = input.into_lowering_and_admission();
                 if !matches!(
                     selected.semantic(),
@@ -485,6 +408,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     selected,
                     core_method_calls,
                     Rc::clone(&ordinary_new_claim_ledger),
+                    Some(loop_break_take),
                     |inner, transport| {
                         inner
                             .lower_normal_cataloged_static_box_method_with_source_v1(
@@ -501,7 +425,8 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                             .map_err(|error| error.to_string())
                     },
                 )
-            })
+                },
+            )
             .map_err(package_issue)?
     }
 
@@ -622,11 +547,15 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         let target_binding = self.target_binding.as_ref();
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
-        let core_method_calls = self.package.take_source_core_method_calls(
-            &SelectedNormalCallableKeyV1::Cataloged(admission.source_key().clone()),
-        );
+        let core_method_calls =
+            self.package
+                .take_source_core_method_calls(&SelectedNormalCallableKeyV1::Cataloged(
+                    admission.source_key().clone(),
+                ));
         self.package
-            .with_selected_cataloged_lowering_input_and_signature(admission, |input, signature| {
+            .with_selected_cataloged_lowering_input_signature_and_loop_break(
+                admission,
+                |input, signature, loop_break_take| {
                 validate_selected_cataloged_input(&input)?;
                 validate_selected_signature_loan(&input, &signature)?;
                 if matches!(
@@ -713,6 +642,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                             selected,
                             core_method_calls,
                             Rc::clone(&ordinary_new_claim_ledger),
+                            Some(loop_break_take),
                             |inner, transport| {
                             inner
                                 .lower_normal_cataloged_static_box_method_with_source_v1(
@@ -731,7 +661,8 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                         )
                     }
                 }
-            })
+                },
+            )
             .map_err(package_issue)?
     }
 
