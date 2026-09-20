@@ -1304,3 +1304,22 @@ afterward. With the guard removed, the focused merged-parser test reached
 `[freeze:contract][callable-loop/route-not-front-selected]
 GenericLoopV1NotSelected`, confirming that a count relaxation is not a safe
 implementation slice.
+
+### External raw-loop audit reconciliation — 2026-09-20
+
+The audit item describing `raw_loop_child_entry.rs:270`
+`unwrap_or_default()` is stale at this head. Commit `54c3176a4d` changed the
+Armed source-item catalog lookup to `ok_or_else` with the named
+`[freeze:contract][callable-loop/source-bridge/armed-items-missing]` terminal;
+only `Unarmed` and `BridgeAbsent` retain the empty relation used by their
+existing GenericLoop boundary. This is a closed correction, not an open Mid
+blocker.
+
+The remaining audit observations are low-priority BoxShape/knowledge debt:
+raw and normal parity still have sibling control branches, the two-stage
+parity helper remains duplicated, the source-target requirement retains a
+residual `Option`, and `normal_callable_loop_source_facts.rs` is at 759 lines.
+They do not change the selected authority, source acceptance, or the current
+LoopTrue design stop. A future mechanical cleanup must preserve the named
+rejects and split the facts owner before adding semantic behavior. The
+repository's 555-warning baseline remains a separate cleanup inventory.
