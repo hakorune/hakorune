@@ -234,6 +234,22 @@ route-neutral source candidate (or a typed absence) to that enumeration before
 `Cataloged`/`Selected` and before any caller-zero or delete-set claim. This
 narrows the design gap; it does not close the current `NoSafeSlice`.
 
+### Existing issuer route audit (read-only, 2026-09-20)
+
+`CallableGenericLoopSourceFactsIssuerV1` is the closest existing source owner,
+but its production disposition is closed over `Ready`, `LoopCondReady`, and
+`LoopTrueReady`. `issue_once` verifies the Generic route first, then dispatches
+only the LoopCond and LoopTrue source issuers; a `LoopBreakRecipe` selection
+therefore reaches the named `RouteNotFrontSelected` terminal. The direct
+LoopBreak terminality proof is not currently wired into this issuer.
+
+Decision: the missing source issuer is a bounded extension of this existing
+Facts owner, provided it co-seals the resolver source relations and the direct
+terminality/product before the physical port. It is not permission to add a
+parallel LoopBreak issuer, to reinterpret `RouteNotFrontSelected`, or to make
+the legacy composer source-aware by inference. The parent observer and this
+same-owner issuer remain separate obligations in the next design slice.
+
 ## Physical adapter premise audit
 
 The physical owner is narrower than the route name suggests. The shared
