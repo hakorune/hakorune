@@ -413,6 +413,20 @@ caller and old edge when the source candidate is admitted; it must not claim
 caller-zero or delete the shared LoopBreak route while this tuple still stops
 before catalog selection.
 
+The eventual source-backed old edge is now identifiable without deleting a
+shared route: in `CallableGenericLoopSourceFactsIssuerV1::issue_once`, a
+`LoopBreakRecipe` selection currently falls through the generic
+`RouteNotFrontSelected(GenericLoopV1NotSelected)` disposition, and
+`PreparedLocatedRawLoopChildEntryV1` turns that disposition into the named
+`callable-loop/route-not-front-selected` error. D1 may replace only this
+resolver-backed LoopBreak candidate branch with the co-sealed source product;
+the generic `RouteNotFrontSelected` arm must remain for unsupported or
+unclassified routes, and `RawLegacyChildLoweringPortV1` plus the shared
+`route_loop_break_recipe` remain outside the delete-set. The exclusive
+retirement tuple is therefore: one admitted LoopBreak candidate branch, its
+source-backed stop edge, and the corresponding candidate-only diagnostic
+mapping. It is not caller-zero and is not a global route deletion.
+
 ### Candidate/absence vocabulary audit (read-only, 2026-09-20)
 
 The nearby `DynamicCallableAdmissionV1` already demonstrates the required
