@@ -1,12 +1,13 @@
 ---
-Status: selected__fast__2026-09-20__LoopTrueSourceFactsSplit
+Status: design_stop__2026-09-20__LoopTrueSourceProductContract
 Task: MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0
 Date: 2026-09-19
 Parent: mir-call-parser-nested-loop-source-promotion-d0-2026-09-19.md
 ProductionCaller: selected normal MIR/static-receiver route only
 Implementation permission: the accepted D0 permits one behavior-preserving
-Facts-owner split before the LoopTrue source arm; route completion, publication,
-and old-edge retirement remain closed
+Facts-owner split before the LoopTrue source arm; that split is closed. The
+LoopTrue source product contract must be accepted before semantic code begins;
+route completion, publication, and old-edge retirement remain closed
 Classification: BoxCount; one source-backed nested-loop handoff and one compatibility-edge retirement
 ---
 
@@ -1382,3 +1383,31 @@ past the design threshold. The new arm may reuse the existing
 but it must receive a source port and an exact resolver exit table as one
 move-only input. A missing source row is a named reject, never an empty
 catalog or a return to the raw normalizer.
+
+### Facts-owner split closeout — 2026-09-20
+
+```text
+Decision: complete the accepted BoxShape-only preparation by separating the
+  existing GenericLoop Facts owner from its LoopCond sibling behind the same
+  module facade; no source shape or semantic route is added.
+Source authority + canonical issuer: unchanged existing GenericLoop and
+  LoopCond Facts/Recipe issuers; the facade only re-exports those issuers.
+Non-authority: a LoopTrue issuer, parser acceptance, AST/name lookup,
+  LoopRouteContext adaptation, fallback, and production switching.
+Fail-fast boundary: unchanged existing issuer and route rejects; the split
+  must preserve private test access and module paths without changing behavior.
+Smallest next slice: design the move-only LoopTrue source product and its
+  exact co-seal/reject contract before adding the semantic arm.
+Non-claims: no LoopTrue source acceptance, publication, old-edge deletion,
+  warning cleanup, or whole-library green.
+```
+
+The 759-line owner is now `normal_callable_loop_source_facts/generic.rs` at
+758 lines, with a 13-line facade and the existing `loop_cond.rs` sibling. The
+focused command
+`CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_loop_source_facts -- --test-threads=1`
+finished **16 passed, 0 failed, 0 ignored** (8199 filtered), including the
+structural lease and source-Facts tests. `git diff --check` is clean. The
+quick lib-test build reports the existing **555-warning** baseline; this slice
+does not claim warning reduction. The split is behavior-preserving and is
+ready for commit/push after pointer synchronization.
