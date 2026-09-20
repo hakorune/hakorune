@@ -1353,3 +1353,32 @@ the existing LoopTrue skeleton/phi/cleanup owner. Missing child, exit, site,
 or lowering evidence must discard the whole session. Until this contract is
 accepted, `carrier-cardinality-0` remains the terminal and no route widening,
 AST rescan, GenericLoop retry, or fallback is authorized.
+
+### Next design contract — LoopTrue source handoff D0
+
+```text
+Decision: keep the GenericLoop carrier contract unchanged and add one
+  source-aware LoopTrue handoff beside it; the selected parser child may enter
+  only after the new product is co-sealed.
+Source authority + canonical issuer: the resolver-issued forest/exit ledger
+  plus the existing LoopTrueBreakContinue Facts/Recipe issuer, split at the
+  current 759-line facts boundary before adding the new arm.
+Non-authority: GenericLoop carrier widening, AST/name reconstruction,
+  LoopRouteContext, route retry, VM/fallback, and a second Facts/Recipe issuer.
+Fail-fast boundary: source root/body/branch, binding, exit target, frame,
+  route, or result relation mismatch rejects before skeleton allocation;
+  GenericLoop's `carrier-cardinality` terminal remains untouched.
+Smallest next slice: design and test the move-only `LoopTrue` source product,
+  then add only its source-port physical adapter; no caller switch yet.
+Non-claims: no parser acceptance, publication, old-edge deletion, or broad
+  LoopTrue shape expansion beyond the finite `parser_program_box.hako` tuple.
+```
+
+The D0 entry condition is a responsibility split, not a semantic workaround:
+the existing `normal_callable_loop_source_facts.rs` must first be divided at
+the GenericLoop issuer/route view boundary so its 759-line owner does not grow
+past the design threshold. The new arm may reuse the existing
+`LoopTrueBreakContinueFacts.recipe`, phi materializer, cleanup, and verifier,
+but it must receive a source port and an exact resolver exit table as one
+move-only input. A missing source row is a named reject, never an empty
+catalog or a return to the raw normalizer.
