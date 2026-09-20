@@ -37,9 +37,14 @@ pub(in crate::mir::builder) use callable_lowerer::lower_callable_single_loop_fun
 pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_pending_v1;
 pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_v1;
 pub(super) use operation_dispatcher::LoopOperationDispatchServicesV1;
+#[cfg(test)]
 pub(super) use segment_allocator::allocate_for_layout;
+#[cfg(test)]
 pub(super) use segment_dispatcher::emit_loop_segment_operation_dispatch_v1;
+#[cfg(test)]
 pub(super) use segment_dispatcher::preflight_loop_segment_operation_dispatch_v1;
+#[cfg(test)]
 pub(super) use segment_topology::LoopPhysicalSegmentBlockReceiptV1;
+#[cfg(test)]
 pub(super) use topology::ReadyLoopEntryV1;
 pub(super) use topology::*;

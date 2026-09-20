@@ -1,18 +1,18 @@
 ---
-Status: closed__2026-09-21__WarningBaselineRefreshI6__LoopPhysicalizerTestFacadeSelected
-Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I6
+Status: design_stop__2026-09-21__WarningBaselineRefreshI7__NextCohortSelection
+Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I7
 Date: 2026-09-21
-Parent: mirbuilder-warning-program-root-classifier-import-i0-2026-09-21.md
+Parent: mirbuilder-warning-loop-physicalizer-test-facade-i0-2026-09-21.md
 Implementation permission: false; refresh and select one cohort only
-NextCard: MIRBUILDER-WARNING-LOOP-PHYSICALIZER-TEST-FACADE-I0
+NextCard: MIRBUILDER-WARNING-SURFACE-CENSUS-R0
 ---
 
-# MirBuilder warning baseline refresh I6
+# MirBuilder warning baseline refresh I7
 
 ## Six-line brief
 
 ```text
-Decision: refresh both warning surfaces after the program-root classifier
+Decision: refresh both warning surfaces after the loop physicalizer facade
   cohort before selecting another cleanup row.
 Source authority + canonical issuer: fixed quick-profile Cargo diagnostics and
   the checked-in warning classification policy.
@@ -21,7 +21,7 @@ Non-authority: historical counts, cargo-fix, blanket allow, visibility edits,
 Fail-fast boundary: command drift, new failure name, unclassified test-only
   reference, or a warning family outside the inventory stops selection.
 Smallest next slice: compare current lib/lib-test inventories against
-  1,840/561 and select at most one caller-zero import cohort.
+  1,835/561 and select at most one caller-zero import cohort.
 Non-claims: no broad warning deletion, suppression, semantic refactor, or
   production route change.
 ```
@@ -33,15 +33,3 @@ Run `cargo check --profile quick --lib -j4` and
 file:line, owner, and production/test/compat/generated role, then select one
 cohort or write `NoSafeSlice`. Keep dead-code/private-interface rows with
 their owners. No code edit is permitted until the selection is recorded.
-
-## Inventory and selection
-
-The fixed commands completed with exit 0 and reproduced lib=1,840 and
-lib-test=561. The selected same-owner cohort is the five explicit
-`loop_recipe_physicalizer` re-exports at lines 40-44: `allocate_for_layout`,
-the two segment dispatch functions, `LoopPhysicalSegmentBlockReceiptV1`, and
-`ReadyLoopEntryV1`. Their only external consumer is the cfg(test)
-`generic_g0_physical_emitter_session`; production lowerers use their defining
-submodules directly. Gate the five re-exports together with cfg(test). The
-operation-dispatcher and topology wildcard re-exports remain unchanged because
-production lowerers consume them.
