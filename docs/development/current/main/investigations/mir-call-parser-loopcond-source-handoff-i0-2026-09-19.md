@@ -1232,3 +1232,14 @@ Both effects retain the exact parameter receiver and argument arity. This
 closes the source-port Text-result consume evidence only; the production
 LoopCond physical adapter, parser source-to-MIR cutover, and old-edge deletion
 remain open.
+
+### Production LoopCond physical-edge guard — 2026-09-20
+
+`armed_loop_cond_edge_lowers_through_the_source_port` is green (1/1). Its
+existing `RawInvocationChildPortV1` fixture now carries the selected static
+`starts_with/3` relation together with resolver-issued CoreMethod rows for
+`length/0` in the LoopCond condition and `substring/2` in the loop body. The
+production preparation, `LoopCondReady` source input, and named source
+physical consumer therefore execute as one mixed edge. This is still a
+production-edge guard only: ParserProgramBox package/publication acceptance,
+selected old-edge deletion, and the 555-warning cleanup remain open.

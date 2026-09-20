@@ -17,6 +17,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{
     FunctionOwnerIssuerV1, SourceBodyKindV1, SourcePathSegmentV1, SourcePathV1,
 };
+use crate::mir::source_call_target::issue_source_bound_core_method_calls_v1;
 use hakorune_mir_core::BindingId;
 
 fn span() -> Span {
@@ -321,8 +322,9 @@ fn armed_loop_cond_edge() -> ArmedLoopCondEdge {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     let program = crate::parser::NyashParser::parse_from_string(
         r#"
-static function caller(flag: i64, text: i64): i64 {
-    loop(flag < 2) {
+static function caller(flag: i64, text: String): i64 {
+    loop(flag < text.length()) {
+        local piece = text.substring(0, 1)
         if text.starts_with("a", 0) == 1 {
             flag = flag + 1
         } else {
@@ -362,16 +364,32 @@ static function caller(flag: i64, text: i64): i64 {
         .expect("root loop site")
         .node()
         .clone();
-    let state = crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source(input)
-        .expect("loop-cond callable state");
+    let source_ledger = input
+        .forest()
+        .callable_source_ledger(input.owner())
+        .expect("loop-cond source ledger");
+    let core_method_rows = issue_source_bound_core_method_calls_v1(&source_ledger)
+        .expect("loop-cond core method rows");
+    assert_eq!(
+        core_method_rows.len(),
+        2,
+        "fixture must issue length and substring rows"
+    );
+    let state = crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source_with_dynamic_source_and_core_methods(
+        input,
+        None,
+        core_method_rows.into_vec().into_iter().collect(),
+    )
+    .expect("loop-cond callable state");
     let ledger = std::rc::Rc::new(std::cell::RefCell::new(state));
     let items = ledger
         .borrow()
         .source_loop_items(&loop_site)
         .expect("armed loop must catalog resolver method rows");
     let call_site = items
-        .first()
-        .expect("loop-cond fixture must contain a method call")
+        .iter()
+        .find(|item| item.selector() == "starts_with")
+        .expect("loop-cond fixture must contain starts_with publication call")
         .call_site()
         .clone();
     ArmedLoopCondEdge {
@@ -426,8 +444,11 @@ fn armed_loop_cond_builder(
 ) -> MirBuilder {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("caller/2".to_owned());
-    for name in ["flag", "text"] {
-        let parameter = builder.alloc_typed(crate::mir::MirType::Unknown);
+    for (name, ty) in [
+        ("flag", crate::mir::MirType::Integer),
+        ("text", crate::mir::MirType::String),
+    ] {
+        let parameter = builder.alloc_typed(ty);
         builder
             .function_state
             .current_function
