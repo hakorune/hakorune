@@ -36,6 +36,7 @@ pub(crate) struct VerifiedQualifiedReceiverCatalogRowV1 {
     site: SourceExprSiteV1,
     receiver: Box<str>,
     canonical_owner: Box<str>,
+    declaration_key: CanonicalSameModuleCallableKeyV1,
     selector: Box<str>,
     arity: u32,
     admission: QualifiedReceiverCatalogAdmissionV1,
@@ -56,6 +57,10 @@ impl VerifiedQualifiedReceiverCatalogRowV1 {
 
     pub(crate) fn canonical_owner(&self) -> &str {
         &self.canonical_owner
+    }
+
+    pub(crate) fn declaration_key(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.declaration_key
     }
 
     pub(crate) fn selector(&self) -> &str {
@@ -237,6 +242,7 @@ impl VerifiedNormalCallableSemanticPackageV1 {
                         site: site.clone(),
                         receiver: receiver.into(),
                         canonical_owner: canonical_owner.into(),
+                        declaration_key: declaration.key().clone(),
                         selector: call.selector().into(),
                         arity: call.arity(),
                         admission,

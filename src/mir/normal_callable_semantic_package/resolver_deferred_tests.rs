@@ -1,4 +1,4 @@
-use crate::mir::builder::NormalRootExecutionConsumerV1;
+use crate::mir::builder::{CompilationContext, NormalRootExecutionConsumerV1};
 use crate::mir::callable_semantic_batch::ResolvedCallableSemanticBatchIssueV1;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1, ResolveOwnerForestErrorV1,
@@ -303,6 +303,9 @@ fn app_main_qualified_receiver_relation_retains_exact_catalog_row() {
         let row = &relation.rows()[0];
         assert_eq!(row.receiver(), "Helpers");
         assert_eq!(row.canonical_owner(), "Helpers");
+        assert_eq!(row.declaration_key().owner(), "Helpers");
+        assert_eq!(row.declaration_key().name(), "run");
+        assert_eq!(row.declaration_key().arity(), 1);
         assert_eq!(row.selector(), "run");
         assert_eq!(row.arity(), 1);
         assert_eq!(
@@ -377,6 +380,78 @@ fn app_main_qualified_receiver_relation_rejects_foreign_import_view() {
     assert_eq!(
         &*error,
         "[freeze:contract][mir/main-import-view/catalog-brand]"
+    );
+}
+
+#[test]
+fn app_main_qualified_receiver_package_port_is_one_shot() {
+    let source = final_source(
+        "static box Helpers { run(value: i64): i64 { return value } }\n\
+         static box Main { main() { return Helpers.run(2) } }",
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(112).unwrap();
+    let mut package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
+        .expect("qualified App Main package");
+    let imports = crate::mir::source_call_target::VerifiedStaticImportAliasViewV1::seal(
+        package.declaration_catalog(),
+        std::iter::empty::<(String, String)>(),
+    )
+    .expect("empty invocation import view");
+    let relation = package
+        .issue_app_main_qualified_receiver_catalog_relation(&imports)
+        .expect("qualified receiver relation")
+        .expect("source-backed Main relation");
+    package
+        .retain_app_main_qualified_receiver_catalog(relation)
+        .expect("owned Main relation retention");
+
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog slot")
+        .commit();
+    let mut port = installed
+        .begin_lowering(&context)
+        .expect("same installed catalog");
+    let first = port
+        .take_app_main_qualified_receiver_catalog()
+        .expect("first relation take");
+    assert_eq!(first.expect("owned relation").rows().len(), 1);
+    let error = match port.take_app_main_qualified_receiver_catalog() {
+        Ok(_) => panic!("second relation take must fail"),
+        Err(error) => error,
+    };
+    assert_eq!(
+        &*error,
+        "[freeze:contract][mir/main-qualified-relation/already-taken]"
+    );
+}
+
+#[test]
+fn app_main_without_qualified_receiver_is_unavailable_but_still_one_shot() {
+    let source = final_source("static box Main { main() { return 0 } }");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(113).unwrap();
+    let package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
+        .expect("plain App Main package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog slot")
+        .commit();
+    let mut port = installed
+        .begin_lowering(&context)
+        .expect("same installed catalog");
+    assert!(port
+        .take_app_main_qualified_receiver_catalog()
+        .expect("unavailable relation take")
+        .is_none());
+    let error = match port.take_app_main_qualified_receiver_catalog() {
+        Ok(_) => panic!("second unavailable-relation take must fail"),
+        Err(error) => error,
+    };
+    assert_eq!(
+        &*error,
+        "[freeze:contract][mir/main-qualified-relation/already-taken]"
     );
 }
 

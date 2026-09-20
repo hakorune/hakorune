@@ -43,6 +43,10 @@ pub(super) fn lower_app_main_root_body_v1(
         }
         app_main.catalog_key().clone()
     };
+    let _qualified_static_relation = adapter
+        .package
+        .take_app_main_qualified_receiver_catalog()
+        .map_err(|error| format!("[freeze:contract][mir/main-qualified-static-target/{error}]"))?;
     let inner = &mut *adapter.inner;
     let ordinary_new_claim_ledger = adapter.package.ordinary_new_claim_ledger();
     let core_method_calls = adapter.package.take_source_core_method_calls(
