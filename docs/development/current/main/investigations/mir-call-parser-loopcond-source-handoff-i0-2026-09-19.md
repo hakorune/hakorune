@@ -1323,3 +1323,33 @@ They do not change the selected authority, source acceptance, or the current
 LoopTrue design stop. A future mechanical cleanup must preserve the named
 rejects and split the facts owner before adding semantic behavior. The
 repository's 555-warning baseline remains a separate cleanup inventory.
+
+### LoopTrue owner-selection audit — 2026-09-20
+
+The finite parser boundary has a different source shape from every existing
+production LoopTrue source product. `parser_program_box.hako:182-189` has a
+three-statement body (`skip_ws` assignment, an inner conditional `continue`,
+and a tail `break`) with no explicit `else`. The existing source projection in
+`src/mir/compiler/loop_true_break_continue_projection.rs` requires one body
+statement, an explicit else, a single branch whose then/else arms are exactly
+`break`/`continue`, and an equality binding. It therefore correctly declines
+this parser shape before policy.
+
+The production `LoopTrueEarlyExitFacts` owner has a separate fixed topology:
+the first statement must be an exit-only if, followed by one or two assignment
+statements, with no nested loop or continue. The parser body also fails that
+contract. The broader `LoopTrueBreakContinueFacts` owner can classify an
+`ExitAllowed` body, but its lowerer still consumes AST/`StmtRef` rows and a
+`LoopRouteContext`; it has no source port or resolver-exit co-seal consumer.
+The existing source projection and the broad facts/physical lowerer therefore
+cannot be combined by a caller-side adapter without creating a second
+authority.
+
+The next design slice is consequently bounded to one source-aware
+`LoopTrueBreakContinue` handoff: co-seal the parser root/body/branch contexts,
+all resolver exit records, rebind/iteration bindings, and the existing
+LoopTrue Recipe before physical effects; then thread one source port through
+the existing LoopTrue skeleton/phi/cleanup owner. Missing child, exit, site,
+or lowering evidence must discard the whole session. Until this contract is
+accepted, `carrier-cardinality-0` remains the terminal and no route widening,
+AST rescan, GenericLoop retry, or fallback is authorized.
