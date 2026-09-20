@@ -16,12 +16,12 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
+use crate::mir::builder::control_flow::plan::expression_port::LoopPlanExpressionPortV1;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_only_block_recipe;
 use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
-use crate::mir::builder::control_flow::plan::expression_port::LoopPlanExpressionPortV1;
 use crate::mir::builder::normal_callable_loop_source_port::{
     CallableLoopSourceBodyInputV1, CallableLoopSourceExpressionPortV1,
 };
@@ -197,8 +197,8 @@ fn source_item_lowers_general_if_through_the_issued_no_exit_recipe() {
         )
         .expect("local seed lowers");
     }
-    let recipe =
-        try_build_no_exit_block_recipe(std::slice::from_ref(&body[2]), true).expect("no-exit recipe");
+    let recipe = try_build_no_exit_block_recipe(std::slice::from_ref(&body[2]), true)
+        .expect("no-exit recipe");
     let plans = drive_item(
         &ledger,
         &carrier,
@@ -220,9 +220,8 @@ fn source_item_lowers_exit_if_tree_through_issued_branch_recipes() {
     // The issued ExitOnly branch recipes stay the packaging authority; the
     // dispatcher only seals them against the located branch carriers and
     // reuses the shared exit-if state core.
-    let (ledger, body) = real_ledger(
-        "function t() { local i = 0; if i == 0 { return 0 } else { return 1 } }",
-    );
+    let (ledger, body) =
+        real_ledger("function t() { local i = 0; if i == 0 { return 0 } else { return 1 } }");
     let carrier = located_body(&ledger, &body);
     let mut builder = test_builder(&ledger);
     let _scope = LexicalScopeGuard::new(&mut builder);
@@ -249,13 +248,11 @@ fn source_item_lowers_exit_if_tree_through_issued_branch_recipes() {
         if_stmt: StmtRef::new(1),
         cond_view: CondBlockView::from_expr(condition),
         mode: IfMode::ExitAll,
-        then_body: try_build_exit_only_block_recipe(then_body, true).expect("then exit-only recipe"),
+        then_body: try_build_exit_only_block_recipe(then_body, true)
+            .expect("then exit-only recipe"),
         else_body: Some(
-            try_build_exit_only_block_recipe(
-                else_body.as_ref().expect("fixture else"),
-                true,
-            )
-            .expect("else exit-only recipe"),
+            try_build_exit_only_block_recipe(else_body.as_ref().expect("fixture else"), true)
+                .expect("else exit-only recipe"),
         ),
     };
     let plans = drive_item(&ledger, &carrier, &mut builder, &mut bindings, 1, &item)
@@ -299,7 +296,8 @@ fn source_item_lowers_exit_if_tree_exit_if_mode_without_else() {
         if_stmt: StmtRef::new(1),
         cond_view: CondBlockView::from_expr(condition),
         mode: IfMode::ExitIf,
-        then_body: try_build_exit_only_block_recipe(then_body, true).expect("then exit-only recipe"),
+        then_body: try_build_exit_only_block_recipe(then_body, true)
+            .expect("then exit-only recipe"),
         else_body: None,
     };
     let plans = drive_item(&ledger, &carrier, &mut builder, &mut bindings, 1, &item)
@@ -330,14 +328,14 @@ fn source_item_rejects_exit_if_tree_else_parity_drift() {
         panic!("fixture if")
     };
     assert!(else_body.is_none());
-    let forged_else =
-        try_build_exit_only_block_recipe(&[return_stmt(integer(1))], true)
-            .expect("forged else recipe");
+    let forged_else = try_build_exit_only_block_recipe(&[return_stmt(integer(1))], true)
+        .expect("forged else recipe");
     let item = LoopCondBreakContinueItem::ExitIfTree {
         if_stmt: StmtRef::new(1),
         cond_view: CondBlockView::from_expr(condition),
         mode: IfMode::ExitAll,
-        then_body: try_build_exit_only_block_recipe(then_body, true).expect("then exit-only recipe"),
+        then_body: try_build_exit_only_block_recipe(then_body, true)
+            .expect("then exit-only recipe"),
         else_body: Some(forged_else),
     };
     let error = drive_item(&ledger, &carrier, &mut builder, &mut bindings, 1, &item)
@@ -357,8 +355,8 @@ fn source_item_rejects_general_if_index_drift() {
     let mut builder = test_builder(&ledger);
     let _scope = LexicalScopeGuard::new(&mut builder);
     let mut bindings = BTreeMap::new();
-    let recipe =
-        try_build_no_exit_block_recipe(std::slice::from_ref(&body[2]), true).expect("no-exit recipe");
+    let recipe = try_build_no_exit_block_recipe(std::slice::from_ref(&body[2]), true)
+        .expect("no-exit recipe");
     let error = drive_item(
         &ledger,
         &carrier,
@@ -381,8 +379,8 @@ fn source_item_rejects_program_block_stmt_only_as_unlocated() {
     let mut builder = test_builder(&ledger);
     let _scope = LexicalScopeGuard::new(&mut builder);
     let mut bindings = BTreeMap::new();
-    let stmt_only = try_build_stmt_only_block_recipe(std::slice::from_ref(&body[2]))
-        .expect("stmt-only recipe");
+    let stmt_only =
+        try_build_stmt_only_block_recipe(std::slice::from_ref(&body[2])).expect("stmt-only recipe");
     let error = drive_item(
         &ledger,
         &carrier,
@@ -395,7 +393,10 @@ fn source_item_rejects_program_block_stmt_only_as_unlocated() {
         },
     )
     .expect_err("stmt_only program block is a named reject");
-    assert!(error.contains("program-block-stmt-only-unlocated"), "{error}");
+    assert!(
+        error.contains("program-block-stmt-only-unlocated"),
+        "{error}"
+    );
 }
 
 #[test]

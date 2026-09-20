@@ -31,9 +31,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::ValueId;
 
-use super::callable_loop_source::{
-    require_condition_view_match, CallableLoopSourcePartsBlockV1,
-};
+use super::callable_loop_source::{require_condition_view_match, CallableLoopSourcePartsBlockV1};
 use super::callable_loop_source_lowering::{
     lower_callable_loop_source_parts_block, render_source_error,
     CallableLoopSourcePartsLoweringHooksV1, SOURCE_PARTS_ERR,
@@ -247,10 +245,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_source_item<'view, 'ledger: 'view
 /// arm; the recipe stays the packaging authority and the driver keeps the
 /// ExitAllowed postconditions.
 #[allow(clippy::too_many_arguments)]
-pub(in crate::mir::builder) fn lower_loop_cond_source_exit_allowed_body<
-    'view,
-    'ledger: 'view,
->(
+pub(in crate::mir::builder) fn lower_loop_cond_source_exit_allowed_body<'view, 'ledger: 'view>(
     port: CallableLoopSourceExpressionPortV1<'ledger>,
     body: &CallableLoopSourceBodyInputV1<'view>,
     recipe: &ExitAllowedBlockRecipe,

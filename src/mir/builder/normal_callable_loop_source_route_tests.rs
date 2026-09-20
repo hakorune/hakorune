@@ -103,17 +103,15 @@ fn source_loop_cond_route_token_requires_exclusive_registry_route() {
     else {
         panic!("fixture root must be a loop")
     };
-    let policy =
-        GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
-    let outcome =
-        single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
-            condition,
-            body,
-            policy,
-            "route-fixture".into(),
-            false,
-        ))
-        .expect("planner outcome");
+    let policy = GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
+    let outcome = single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
+        condition,
+        body,
+        policy,
+        "route-fixture".into(),
+        false,
+    ))
+    .expect("planner outcome");
     let selection = select_recipe_first_routes(outcome.facts.as_ref());
     assert_eq!(
         selection.raw_execution_routes(),
@@ -152,17 +150,15 @@ fn source_loop_cond_route_token_rejects_missing_projection() {
     else {
         panic!("fixture root must be a loop")
     };
-    let policy =
-        GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
-    let outcome =
-        single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
-            condition,
-            body,
-            policy,
-            "route-fixture".into(),
-            false,
-        ))
-        .expect("planner outcome");
+    let policy = GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
+    let outcome = single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
+        condition,
+        body,
+        policy,
+        "route-fixture".into(),
+        false,
+    ))
+    .expect("planner outcome");
     let selection = select_recipe_first_routes(outcome.facts.as_ref());
     let reject = CallableLoopSourceRouteTokenV1::issue(
         input.owner(),
@@ -191,17 +187,15 @@ fn source_loop_cond_route_token_rejects_physical_transfer_without_target() {
     else {
         panic!("fixture root must be a loop")
     };
-    let policy =
-        GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
-    let outcome =
-        single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
-            condition,
-            body,
-            policy,
-            "route-fixture".into(),
-            false,
-        ))
-        .expect("planner outcome");
+    let policy = GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
+    let outcome = single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
+        condition,
+        body,
+        policy,
+        "route-fixture".into(),
+        false,
+    ))
+    .expect("planner outcome");
     let selection = select_recipe_first_routes(outcome.facts.as_ref());
     let projection = issue_loop_cond_break_continue_source_forest_projection_v1(input, &root)
         .expect("forest projection");
@@ -255,11 +249,8 @@ fn requirement_target() -> CanonicalSameModuleCallableKeyV1 {
 
 #[test]
 fn source_target_requirement_copies_selected_handoff_evidence() {
-    let caller = CanonicalSameModuleCallableKeyV1::test_static_box_method(
-        "StringHelpers",
-        "int_to_str",
-        1,
-    );
+    let caller =
+        CanonicalSameModuleCallableKeyV1::test_static_box_method("StringHelpers", "int_to_str", 1);
     let site = requirement_site();
     let target = requirement_target();
     let handoff = VerifiedStaticCallResultPublicationHandoffV1::from_test_parts(
@@ -288,19 +279,13 @@ fn source_target_relation_accepts_only_exact_i64_ordinal_one() {
         required_i64_arguments: ordinals.to_vec().into_boxed_slice(),
     };
 
-    let selected = CallableLoopSourceTargetRelationV1::new(
-        site.clone(),
-        target.clone(),
-        Some(exact(&[1])),
-    );
+    let selected =
+        CallableLoopSourceTargetRelationV1::new(site.clone(), target.clone(), Some(exact(&[1])));
     assert!(selected.has_exact_i64_requirement(&[1]));
     assert!(!selected.has_exact_i64_requirement(&[0]));
 
-    let wrong_ordinals = CallableLoopSourceTargetRelationV1::new(
-        site.clone(),
-        target.clone(),
-        Some(exact(&[0, 2])),
-    );
+    let wrong_ordinals =
+        CallableLoopSourceTargetRelationV1::new(site.clone(), target.clone(), Some(exact(&[0, 2])));
     assert!(!wrong_ordinals.has_exact_i64_requirement(&[1]));
 
     let wrong_representation = CallableLoopSourceTargetRelationV1::new(
@@ -369,17 +354,15 @@ fn armed_loop_cond_parts(source: &str) -> ArmedLoopCondParts {
     else {
         panic!("fixture root must be a loop")
     };
-    let policy =
-        GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
-    let outcome =
-        single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
-            condition,
-            body,
-            policy,
-            "armed-loop-cond-fixture".into(),
-            false,
-        ))
-        .expect("planner outcome");
+    let policy = GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
+    let outcome = single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
+        condition,
+        body,
+        policy,
+        "armed-loop-cond-fixture".into(),
+        false,
+    ))
+    .expect("planner outcome");
     let selection = select_recipe_first_routes(outcome.facts.as_ref());
     assert_eq!(
         selection.raw_execution_routes(),
@@ -446,11 +429,8 @@ static function caller(flag: i64, text: i64): i64 {
 "#;
 
 fn selected_relation(call_site: &SourceExprSiteV1) -> CallableLoopSourceTargetRelationV1 {
-    let caller = CanonicalSameModuleCallableKeyV1::test_static_box_method(
-        "ParserProgramBox",
-        "parse",
-        2,
-    );
+    let caller =
+        CanonicalSameModuleCallableKeyV1::test_static_box_method("ParserProgramBox", "parse", 2);
     let target = CanonicalSameModuleCallableKeyV1::test_static_box_method(
         "ParserStringUtilsBox",
         "starts_with",
@@ -468,7 +448,9 @@ fn selected_relation(call_site: &SourceExprSiteV1) -> CallableLoopSourceTargetRe
     CallableLoopSourceTargetRelationV1::new(
         call_site.clone(),
         target,
-        Some(CallableLoopSourceTargetRequirementV1::from_handoff(&handoff)),
+        Some(CallableLoopSourceTargetRequirementV1::from_handoff(
+            &handoff,
+        )),
     )
 }
 
@@ -501,7 +483,11 @@ fn issue_with_source_relations_co_seals_the_single_selected_relation() {
 #[test]
 fn issue_with_source_relations_keeps_unrelated_items_out_of_the_selected_set() {
     let parts = armed_loop_cond_parts(MIXED_LOOP_COND_SOURCE);
-    assert_eq!(parts.items.len(), 2, "mixed fixture must catalog both calls");
+    assert_eq!(
+        parts.items.len(),
+        2,
+        "mixed fixture must catalog both calls"
+    );
     let token = CallableLoopSourceRouteTokenV1::issue_with_source_relations(
         parts.owner,
         parts.parent_site,
@@ -519,7 +505,10 @@ fn issue_with_source_relations_keeps_unrelated_items_out_of_the_selected_set() {
     )
     .expect("one selected relation plus an unrelated item must co-seal");
     assert_eq!(
-        token.source_target().expect("co-sealed relation").call_site(),
+        token
+            .source_target()
+            .expect("co-sealed relation")
+            .call_site(),
         &parts.call_sites[0]
     );
 }
@@ -566,17 +555,16 @@ fn issue_with_source_relations_maps_multiple_selected_relations_to_multiple() {
         Some(parts.projection),
         parts.items,
         CallableLoopSourceTargetProbeV1::from_parts(
-            vec![
-                selected_relation(&call_site),
-                selected_relation(&call_site),
-            ]
-            .into_boxed_slice(),
+            vec![selected_relation(&call_site), selected_relation(&call_site)].into_boxed_slice(),
             Box::new([]),
             false,
         ),
     )
     .expect_err("two selected obligations must stop as multiple");
-    assert_eq!(reject, CallableLoopSourceRouteRejectV1::SourceTargetMultiple);
+    assert_eq!(
+        reject,
+        CallableLoopSourceRouteRejectV1::SourceTargetMultiple
+    );
 }
 
 #[test]

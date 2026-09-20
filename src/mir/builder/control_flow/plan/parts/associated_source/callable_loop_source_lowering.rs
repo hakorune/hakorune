@@ -52,7 +52,10 @@ use super::PartsAssociatedSourceErrorV1;
 
 pub(super) const SOURCE_PARTS_ERR: &str = "[freeze:contract][callable-loop/parts]";
 
-pub(super) fn render_source_error(error: PartsAssociatedSourceErrorV1, error_prefix: &str) -> String {
+pub(super) fn render_source_error(
+    error: PartsAssociatedSourceErrorV1,
+    error_prefix: &str,
+) -> String {
     format!("{SOURCE_PARTS_ERR}/source {error:?}: ctx={error_prefix}")
 }
 

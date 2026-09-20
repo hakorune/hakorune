@@ -135,8 +135,8 @@ fn source_target_for_loop(
         let Some(target) = module_port.target_for_source(caller, item.call_site()) else {
             continue;
         };
-        let Some(handoff) = module_port
-            .selected_static_result_handoff_for_source(caller, item.call_site())
+        let Some(handoff) =
+            module_port.selected_static_result_handoff_for_source(caller, item.call_site())
         else {
             uncovered.push(item.call_site().clone());
             continue;

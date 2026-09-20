@@ -324,9 +324,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                     &physical_input,
                 )?;
                 crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
-                    .map_err(|error| {
-                        format!("[freeze:contract][callable-loop/verify] {error}")
-                    })?;
+                    .map_err(|error| format!("[freeze:contract][callable-loop/verify] {error}"))?;
                 let context = crate::mir::builder::control_flow::plan::features::generic_loop_context::GenericLoopV1SourceLoweringContextV1::new(
                     debug,
                     in_static_box,
@@ -334,12 +332,8 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 return crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower(
                     builder, plan, &context,
                 )
-                .map_err(|error| {
-                    format!("[freeze:contract][callable-loop/lower] {error}")
-                })?
-                .ok_or_else(|| {
-                    "[freeze:contract][callable-loop/lower-no-value]".to_owned()
-                });
+                .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
+                .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned());
             }
             CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error) => {
                 return Err(format!(

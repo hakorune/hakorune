@@ -351,10 +351,9 @@ static function caller(flag: i64, text: i64): i64 {
         .map(|(index, node)| (index, node.clone()))
         .expect("loop statement");
 
-    let unit = crate::mir::compiler::VerifiedResolvedSourceUnitV1::resolve_function(
-        function.clone(),
-    )
-    .expect("loop-cond fixture resolves");
+    let unit =
+        crate::mir::compiler::VerifiedResolvedSourceUnitV1::resolve_function(function.clone())
+            .expect("loop-cond fixture resolves");
     let input = unit.root_function_input().expect("root input");
     let loop_site = input
         .function()
@@ -537,8 +536,9 @@ fn armed_loop_cond_edge_rejects_missing_source_target() {
     let mut scope =
         crate::mir::builder::module_invocation_session::UnpublishedCallableLoopRootScopeV1::for_test(
         );
-    let error =
-        crate::test_support::with_env_vars(&crate::test_support::JOINIR_STRICT_PLANNER_MODE, || {
+    let error = crate::test_support::with_env_vars(
+        &crate::test_support::JOINIR_STRICT_PLANNER_MODE,
+        || {
             prepared.lower_v1_with_root_scope_and_callable_ledger(
                 &mut builder,
                 "caller",
@@ -554,7 +554,8 @@ fn armed_loop_cond_edge_rejects_missing_source_target() {
                 ),
             )
             .expect_err("missing source target must stay a named terminal")
-        });
+        },
+    );
     assert!(
         error.contains("LoopCondRouteRejected(SourceTargetUnselected"),
         "unexpected terminal: {error}"
@@ -592,8 +593,9 @@ fn armed_loop_cond_edge_rejects_items_outside_the_selected_family() {
     let mut scope =
         crate::mir::builder::module_invocation_session::UnpublishedCallableLoopRootScopeV1::for_test(
         );
-    let error =
-        crate::test_support::with_env_vars(&crate::test_support::JOINIR_STRICT_PLANNER_MODE, || {
+    let error = crate::test_support::with_env_vars(
+        &crate::test_support::JOINIR_STRICT_PLANNER_MODE,
+        || {
             prepared.lower_v1_with_root_scope_and_callable_ledger(
                 &mut builder,
                 "caller",
@@ -605,7 +607,8 @@ fn armed_loop_cond_edge_rejects_items_outside_the_selected_family() {
                 crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetProbeV1::empty(),
             )
             .expect_err("no selected obligation must stay a named terminal")
-        });
+        },
+    );
     assert!(
         error.contains("LoopCondRouteRejected(SourceCallOutsideSelectedFamily"),
         "unexpected terminal: {error}"

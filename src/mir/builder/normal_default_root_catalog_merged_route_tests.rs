@@ -136,12 +136,11 @@ fn merged_parser_static_inventory_probe() {
         )
         .expect("merged parser semantic package");
         let declarations = package.declaration_catalog();
-        let imports =
-            crate::mir::source_call_target::VerifiedStaticImportAliasViewV1::seal(
-                declarations,
-                std::iter::empty::<(String, String)>(),
-            )
-            .expect("empty import view seals against merged declarations");
+        let imports = crate::mir::source_call_target::VerifiedStaticImportAliasViewV1::seal(
+            declarations,
+            std::iter::empty::<(String, String)>(),
+        )
+        .expect("empty import view seals against merged declarations");
         let inventory =
             crate::mir::source_call_target::VerifiedWholeSourceStaticCallTargetInventoryV1::verify(
                 declarations,
@@ -152,28 +151,26 @@ fn merged_parser_static_inventory_probe() {
         // The merged inventory observes every caller and publishes the
         // acceptance tuple rows: `ParserProgramBox.parse/2` carries
         // `ParserStringUtilsBox.starts_with/3` targets inside the loop body.
-        assert!(inventory.first_method_observation_unavailability().is_none());
-        let parse_key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
-            "ParserProgramBox",
-            "parse",
-            2,
-        );
+        assert!(inventory
+            .first_method_observation_unavailability()
+            .is_none());
+        let parse_key =
+            crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+                "ParserProgramBox",
+                "parse",
+                2,
+            );
         let starts_with_targets = inventory
             .calls()
             .filter(|row| row.call().caller() == &parse_key)
             .filter(|row| row.call().method() == "starts_with")
             .filter(|row| {
-                row.call()
-                    .site()
-                    .node()
-                    .segments()
-                    .iter()
-                    .any(|segment| {
-                        matches!(
-                            segment,
-                            crate::mir::resolved_semantics::SourcePathSegmentV1::LoopBody(_)
-                        )
-                    })
+                row.call().site().node().segments().iter().any(|segment| {
+                    matches!(
+                        segment,
+                        crate::mir::resolved_semantics::SourcePathSegmentV1::LoopBody(_)
+                    )
+                })
             })
             .filter(|row| inventory.target(&parse_key, row.call().site()).is_some())
             .count();

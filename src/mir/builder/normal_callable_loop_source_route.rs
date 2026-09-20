@@ -22,7 +22,9 @@ use crate::mir::resolved_semantics::{
 pub(in crate::mir::builder) enum CallableLoopSourceRouteRejectV1 {
     FactsMissing,
     LoopCondFactsMissing,
-    RouteNotExclusive { routes: Box<[LoopRouteId]> },
+    RouteNotExclusive {
+        routes: Box<[LoopRouteId]>,
+    },
     ProjectionMissing,
     ProjectionOwnerMismatch,
     ProjectionIdentityMismatch,
