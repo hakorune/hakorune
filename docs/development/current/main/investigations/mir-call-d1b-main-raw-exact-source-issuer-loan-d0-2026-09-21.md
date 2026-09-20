@@ -15,9 +15,10 @@ NextCard: none
 Decision: keep target publication and the affine raw loan closed until one
   existing source authority binds the exact site to one callable declaration;
   do not turn raw lineage or name lookup into a target issuer.
-Source authority + canonical issuer: resolver-owned SourceExprSiteV1,
-  VerifiedResolvedMethodCallSourceV1 / the existing FreeStatic index, and the
-  source-backed catalog owners already active in this resolver session.
+Source authority: resolver-owned SourceExprSiteV1 and
+  VerifiedResolvedMethodCallSourceV1; canonical target issuer is only the
+  existing FreeStatic index in this boundary. Qualified MethodCall remains
+  facts-only until an existing owner is selected.
 Non-authority: RawInvocationRootLineageV1, name/arity or symbol lookup,
   static-candidate uniqueness, Main spelling, AST re-scan, compatibility
   resolver, and the package loan itself.
