@@ -1,13 +1,13 @@
 ---
-Status: design_stop__2026-09-20__LoopTrueSourceProductContract
+Status: selected__fast__2026-09-20__LoopTrueSourceFactsProduct
 Task: MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0
 Date: 2026-09-19
 Parent: mir-call-parser-nested-loop-source-promotion-d0-2026-09-19.md
 ProductionCaller: selected normal MIR/static-receiver route only
-Implementation permission: the accepted D0 permits one behavior-preserving
-Facts-owner split before the LoopTrue source arm; that split is closed. The
-LoopTrue source product contract must be accepted before semantic code begins;
-route completion, publication, and old-edge retirement remain closed
+Implementation permission: the accepted D0 permits the bounded LoopTrue source
+Facts product and its reject guards. The Facts/Recipe issuer remains the
+existing owner; source-port physical consume, route completion, publication,
+and old-edge retirement remain closed
 Classification: BoxCount; one source-backed nested-loop handoff and one compatibility-edge retirement
 ---
 
@@ -1411,3 +1411,50 @@ structural lease and source-Facts tests. `git diff --check` is clean. The
 quick lib-test build reports the existing **555-warning** baseline; this slice
 does not claim warning reduction. The split is behavior-preserving and is
 ready for commit/push after pointer synchronization.
+
+### LoopTrue source product D1 — accepted design — 2026-09-20
+
+The read-only owner audit confirmed that the existing LoopTrue source
+projection is a different one-body/explicit-else shape and has no production
+physical consumer. The parser loop therefore gets a separate source product
+at the existing Facts-owner boundary; this is a bounded extension of the
+selected owner, not a caller-side adapter around the wrong projection.
+
+```text
+Decision: issue one move-only source-aware LoopTrue Facts product for the
+  finite parser child at parser_program_box.hako:182-189, while retaining the
+  existing LoopTrueBreakContinueFacts/Recipe as the sole semantic issuer.
+Source authority + canonical issuer: same-invocation resolver loop forest,
+  ResolvedExitRecordV1 ledger, located source contexts, and the existing
+  LoopTrueBreakContinueFacts/Recipe outcome co-sealed by the source Facts owner.
+Non-authority: loop_true_break_continue_projection.rs's narrow shape, AST/name
+  lookup, LoopRouteContext, GenericLoop/LoopCond retry, VM/fallback, or a
+  second Recipe/JoinSig issuer.
+Fail-fast boundary: before skeleton allocation, reject owner/frame/root or
+  parentage drift; missing/foreign/duplicate forest member or exit; any exit
+  whose transfer target is not the selected root/member; Facts/Recipe body or
+  route mismatch; missing source item/target/result relation; and source-port
+  coverage failure. Never turn a missing row into an empty catalog.
+Smallest next slice: construct and guard the move-only source product only;
+  then add a source-port physical adapter to the existing LoopTrue
+  skeleton/phi/cleanup/verifier owner. No parser switch yet.
+Non-claims: no source-to-MIR acceptance, publication, old-edge deletion,
+  broad LoopTrue shape expansion, or VM/AOT parity.
+```
+
+The product fields are finite and co-sealed: owner/frame/root source context;
+resolver forest binding and all exit rows under the root; the planner's exact
+`LoopTrueBreakContinueFacts` outcome (including its existing Recipe); the
+located condition/body source contexts; resolver-issued item/target relations;
+and one borrowed `CallableLoopSourceExpressionPortV1`. Construction requires
+the selected `LoopTrueBreakContinue` route and the parser tuple's `ExactI64`
+result requirement `[1]`. The physical adapter will consume this product
+before `alloc_loop_true_skeleton`, thread the source port through expression
+lowering, and reuse the current phi materializer, cleanup, and verifier. It
+must not call the existing AST/`LoopRouteContext` entry for the source route.
+
+The finite implementation order is now: (1) issue the product and positive /
+negative co-seal guards in the split source-Facts owner; (2) add the source-port
+LoopTrue adapter with preflight before Builder effects; (3) run the parser
+source-to-MIR matrix; (4) delete only the selected `parse/2 -> starts_with/3`
+compatibility edge after the acceptance terminal is observed.
