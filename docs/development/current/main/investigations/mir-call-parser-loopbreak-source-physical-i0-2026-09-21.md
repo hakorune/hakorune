@@ -91,6 +91,40 @@ The package transport is therefore evidence of retained ownership, not
 source-to-MIR acceptance. No production switch, deletion, or publication claim
 is made by this audit.
 
+## Recipe/source alignment audit — 2026-09-21
+
+The existing `build_loop_break_recipe` is the correct Recipe owner, but its
+current compatibility constructor emits dummy `Span`s, variable nodes, the
+break-if node, and assignment nodes from `LoopBreakFacts`. That representation
+cannot be handed directly to `CallableLoopSourcePartsBlockV1::located_body`:
+the located source port deliberately compares every recipe-body statement with
+the resolver-owned source statement and would return `RecipeBodyMismatch`.
+
+The safe implementation shape is therefore a same-owner source constructor,
+not a second Recipe authority:
+
+1. accept the already-issued source loop/condition/body carriers and the
+   existing `LoopBreakFacts`/`LoopBreakSourceTopologyV1`;
+2. build the same `RecipeBlock`/`RecipeBodies` shape while retaining the
+   actual located loop, break-if, break-then, carrier-update, and step nodes;
+3. prove the topology indices, break exit/forest, `LoopBreakStepPlacement`,
+   carrier deduplication, and condition views before any Builder allocation;
+4. pass that one recipe through `CallableLoopSourcePartsBlockV1` and the
+   existing `lower_callable_loop_source_parts_block` /
+   `lower_loop_v0_core` spine.
+
+The source constructor must reject any source/body mismatch, local-prelude or
+specialized topology, missing/foreign/duplicate site, and target relation
+failure before `lower_loop_v0_core`. It may reuse the existing recipe builder's
+verification helpers, but it must not reconstruct source identity from names,
+ordinals, dummy AST, or `LoopRouteContext`.
+
+This confirms why the current row remains a design stop: the source-bound
+Recipe constructor and its exact source caller are not yet present, and the
+compatibility `route_loop_break_recipe` still serves a non-source role. The
+physical input contract can be accepted only together with the source caller,
+the pre-effect reject, and an exclusive old-edge tuple.
+
 ## Required design-stop evidence
 
 The card cannot enter `fast` until the same owner names the source issuer,
