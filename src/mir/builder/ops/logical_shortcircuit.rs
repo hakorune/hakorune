@@ -30,7 +30,9 @@
 //! **OR semantics**: LHS==true → skip (result=true), LHS==false → eval RHS
 
 use super::super::{MirBuilder, ValueId};
-use crate::ast::{ASTNode, BinaryOperator};
+#[cfg(test)]
+use crate::ast::ASTNode;
+use crate::ast::BinaryOperator;
 #[cfg(test)]
 use crate::mir::builder::recursive_child_lowering::drive_raw_legacy_expression_v1;
 use crate::mir::loop_api::LoopBuilderApi; // for current_block()
