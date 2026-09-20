@@ -330,6 +330,28 @@ authorize code, fixture, fallback, backend parity, or production-switch work
 until the parent observer's typed candidate/absence relation is accepted by
 the existing package owner.
 
+### Old-edge census (read-only, 2026-09-20)
+
+The parser source-backed invocation currently enters
+`RawInvocationChildPortV1::lower_loop`, then
+`PreparedLocatedRawLoopChildEntryV1::lower_v1_with_root_scope_and_callable_ledger`.
+Its LoopBreak observation stops in the source issuer's
+`RouteNotFrontSelected` branch before catalog installation; it does not retry
+through `route_loop_break_recipe` or the legacy composer.
+
+The separate `RawLegacyChildLoweringPortV1` still delegates a non-callable loop
+to `lower_loop_or_freeze_v1`, whose JoinIR registry can select
+`route_loop_break_recipe`. That compatibility sibling is not the parser
+source-backed caller and is outside this D0. Removing the registry route now
+would therefore have a non-exclusive delete-set and would break unrelated
+families.
+
+Decision: the parser tuple's current delete-set is explicitly
+`DeleteSetEmpty__pre-admission-terminal`. D1 must record the eventual named
+caller and old edge when the source candidate is admitted; it must not claim
+caller-zero or delete the shared LoopBreak route while this tuple still stops
+before catalog selection.
+
 ### Candidate/absence vocabulary audit (read-only, 2026-09-20)
 
 The nearby `DynamicCallableAdmissionV1` already demonstrates the required
