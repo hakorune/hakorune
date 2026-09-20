@@ -866,15 +866,18 @@ VerifiedResolvedMethodCallSourceV1
   owner
   exact call site
   exact receiver site
+  qualified receiver source spelling when `QualifiedUnbound`
   ordered arguments 0..arity
   result site = call expression site
   selector spelling
   checked arity
 ```
 
-The shadow traversal records receiver and argument child relations once. The
-resolver issuer verifies complete/gap-free argument coverage and exact child
-membership before publishing the row through
+The shadow traversal records receiver and argument child relations once. For a
+receiver proven outside the lexical environment, the same traversal retains
+the exact source spelling as passive identity; it does not resolve an import
+alias or canonical owner. The resolver issuer verifies complete/gap-free
+argument coverage and exact child membership before publishing the row through
 `CallableSemanticSourceLedgerView::method_calls()`. Missing, duplicate, or
 reordered rows fail before Builder effects. Result identity and owner identity
 cannot be supplied separately from the sealed function.

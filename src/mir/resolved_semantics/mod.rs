@@ -87,8 +87,8 @@ pub(crate) use body_shape::{
     BodyEffectKindV1, BodyEffectShapeV1, BodyExpressionShapeV1, BodyMeReceiverV1,
     BodyShapeRelationV1, BodyStatementShapeV1, ResolvedFunctionBodyShapeProductV1,
     ResolvedMethodCallArgumentSourceV1, ResolvedMethodCallReceiverSourceV1,
-    ResolvedMethodCallSourceIssueV1, VerifiedResolvedBodyShapeInventoryV1,
-    VerifiedResolvedMethodCallSourceV1,
+    ResolvedMethodCallSourceIssueV1, ResolvedQualifiedReceiverIdentityV1,
+    VerifiedResolvedBodyShapeInventoryV1, VerifiedResolvedMethodCallSourceV1,
 };
 pub(crate) use brand_source_relation::{
     BrandCallSourceRelationKindV1, VerifiedBrandCallSourceRelationV1,

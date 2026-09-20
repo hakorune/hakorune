@@ -58,6 +58,7 @@ pub(crate) enum BodyExpressionShapeV1 {
     /// Source-call routing may later bind it as a qualified static owner.
     QualifiedReceiver {
         site: SourceExprSiteV1,
+        source_name: Box<str>,
     },
     Me {
         site: SourceExprSiteV1,
@@ -90,7 +91,7 @@ impl BodyExpressionShapeV1 {
             Self::MapLiteral { site, .. }
             | Self::ArrayLiteral { site, .. }
             | Self::Variable { site, .. }
-            | Self::QualifiedReceiver { site }
+            | Self::QualifiedReceiver { site, .. }
             | Self::Me { site, .. }
             | Self::FieldAccess { site, .. }
             | Self::MethodCall { site, .. }
@@ -181,6 +182,7 @@ pub(crate) enum ShadowExpressionShapeV0 {
     },
     Variable {
         site: SourceExprSiteV1,
+        source_name: Box<str>,
     },
     Me {
         site: SourceExprSiteV1,
@@ -250,6 +252,7 @@ pub(crate) struct VerifiedResolvedMethodCallSourceV1 {
     site: SourceExprSiteV1,
     receiver_site: SourceExprSiteV1,
     receiver: ResolvedMethodCallReceiverSourceV1,
+    qualified_receiver_identity: Option<ResolvedQualifiedReceiverIdentityV1>,
     arguments: Box<[ResolvedMethodCallArgumentSourceV1]>,
     result_site: SourceExprSiteV1,
     selector: Box<str>,
@@ -269,6 +272,24 @@ pub(crate) enum ResolvedMethodCallReceiverSourceV1 {
     Other,
 }
 
+/// Exact source spelling retained for a receiver proven outside the lexical
+/// environment. This is passive identity only; it is not an alias resolution
+/// or target fact.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ResolvedQualifiedReceiverIdentityV1 {
+    source_name: Box<str>,
+}
+
+impl ResolvedQualifiedReceiverIdentityV1 {
+    fn new(source_name: Box<str>) -> Self {
+        Self { source_name }
+    }
+
+    pub(crate) fn source_name(&self) -> &str {
+        &self.source_name
+    }
+}
+
 impl VerifiedResolvedMethodCallSourceV1 {
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
@@ -284,6 +305,12 @@ impl VerifiedResolvedMethodCallSourceV1 {
 
     pub(crate) const fn receiver(&self) -> ResolvedMethodCallReceiverSourceV1 {
         self.receiver
+    }
+
+    pub(crate) fn qualified_receiver_identity(
+        &self,
+    ) -> Option<&ResolvedQualifiedReceiverIdentityV1> {
+        self.qualified_receiver_identity.as_ref()
     }
 
     pub(crate) fn arguments(&self) -> &[ResolvedMethodCallArgumentSourceV1] {
@@ -308,6 +335,8 @@ pub(crate) enum ResolvedMethodCallSourceIssueV1 {
     MissingReceiverRelation(SourceExprSiteV1),
     DuplicateReceiverRelation(SourceExprSiteV1),
     ReceiverSourceMismatch(SourceExprSiteV1),
+    MissingQualifiedReceiverIdentity(SourceExprSiteV1),
+    UnexpectedQualifiedReceiverIdentity(SourceExprSiteV1),
     MissingArgumentRelation {
         site: SourceExprSiteV1,
         ordinal: u32,
@@ -470,31 +499,55 @@ fn issue_resolved_method_call_sources_from_rows_v1(
         if !expression_sites.contains(&receiver) {
             return Err(ResolvedMethodCallSourceIssueV1::ChildOutsideExpressionInventory(receiver));
         }
-        let receiver_source = expressions
+        let (receiver_source, qualified_receiver_identity) = expressions
             .iter()
             .find(|expression| expression_shape_site(expression) == receiver)
             .map(|expression| match expression {
                 BodyExpressionShapeV1::Variable { resolved, .. } => {
-                    ResolvedMethodCallReceiverSourceV1::Lexical(*resolved)
+                    (ResolvedMethodCallReceiverSourceV1::Lexical(*resolved), None)
                 }
-                BodyExpressionShapeV1::QualifiedReceiver { .. } => {
-                    ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
-                }
+                BodyExpressionShapeV1::QualifiedReceiver { source_name, .. } => (
+                    ResolvedMethodCallReceiverSourceV1::QualifiedUnbound,
+                    Some(ResolvedQualifiedReceiverIdentityV1::new(
+                        source_name.clone(),
+                    )),
+                ),
                 BodyExpressionShapeV1::Me {
                     receiver: BodyMeReceiverV1::Lexical(receiver),
                     ..
-                } => ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(
-                    *receiver,
-                )),
+                } => (
+                    ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(
+                        *receiver,
+                    )),
+                    None,
+                ),
                 BodyExpressionShapeV1::Me {
                     receiver: BodyMeReceiverV1::StaticCurrentOwner,
                     ..
-                } => ResolvedMethodCallReceiverSourceV1::CurrentOwner,
-                _ => ResolvedMethodCallReceiverSourceV1::Other,
+                } => (ResolvedMethodCallReceiverSourceV1::CurrentOwner, None),
+                _ => (ResolvedMethodCallReceiverSourceV1::Other, None),
             })
             .ok_or_else(|| {
                 ResolvedMethodCallSourceIssueV1::ChildOutsideExpressionInventory(receiver.clone())
             })?;
+        let qualified_receiver_identity = match (receiver_source, qualified_receiver_identity) {
+            (ResolvedMethodCallReceiverSourceV1::QualifiedUnbound, Some(identity)) => {
+                Some(identity)
+            }
+            (ResolvedMethodCallReceiverSourceV1::QualifiedUnbound, None) => {
+                return Err(
+                    ResolvedMethodCallSourceIssueV1::MissingQualifiedReceiverIdentity(site.clone()),
+                )
+            }
+            (_, Some(_)) => {
+                return Err(
+                    ResolvedMethodCallSourceIssueV1::UnexpectedQualifiedReceiverIdentity(
+                        site.clone(),
+                    ),
+                )
+            }
+            (_, None) => None,
+        };
 
         let argument_rows = relations
             .iter()
@@ -564,6 +617,7 @@ fn issue_resolved_method_call_sources_from_rows_v1(
             site: site.clone(),
             receiver_site: receiver,
             receiver: receiver_source,
+            qualified_receiver_identity,
             arguments: arguments.into_boxed_slice(),
             result_site: site.clone(),
             selector: method.clone(),

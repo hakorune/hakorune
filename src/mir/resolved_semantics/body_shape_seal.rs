@@ -59,10 +59,10 @@ pub(crate) fn seal_shadow_body_shape(
         .expressions
         .into_values()
         .map(|row| match row {
-            ShadowExpressionShapeV0::Variable { site } => match variable_refs.get(&site).copied() {
+            ShadowExpressionShapeV0::Variable { site, source_name } => match variable_refs.get(&site).copied() {
                 Some(resolved) => Ok(BodyExpressionShapeV1::Variable { site, resolved }),
                 None if method_receiver_sites.contains(&site) => {
-                    Ok(BodyExpressionShapeV1::QualifiedReceiver { site })
+                    Ok(BodyExpressionShapeV1::QualifiedReceiver { site, source_name })
                 }
                 None => Err("body variable shape lacks lexical resolution"),
             },

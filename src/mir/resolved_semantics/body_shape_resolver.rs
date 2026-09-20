@@ -54,9 +54,10 @@ impl<'ast, 'schema> super::shadow::resolver::ShadowResolverV0<'ast, 'schema> {
                     element_count: elements.len(),
                 }
             }
-            crate::ast::ASTNode::Variable { .. } => {
-                ShadowExpressionShapeV0::Variable { site: site.clone() }
-            }
+            crate::ast::ASTNode::Variable { name, .. } => ShadowExpressionShapeV0::Variable {
+                site: site.clone(),
+                source_name: name.clone().into_boxed_str(),
+            },
             crate::ast::ASTNode::Me { .. } => ShadowExpressionShapeV0::Me { site: site.clone() },
             crate::ast::ASTNode::FieldAccess { field, .. } => {
                 ShadowExpressionShapeV0::FieldAccess {

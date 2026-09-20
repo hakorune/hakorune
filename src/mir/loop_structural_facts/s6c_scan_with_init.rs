@@ -269,7 +269,7 @@ fn expression_shape_site(shape: &BodyExpressionShapeV1) -> SourceExprSiteV1 {
         BodyExpressionShapeV1::MapLiteral { site, .. }
         | BodyExpressionShapeV1::ArrayLiteral { site, .. }
         | BodyExpressionShapeV1::Variable { site, .. }
-        | BodyExpressionShapeV1::QualifiedReceiver { site }
+        | BodyExpressionShapeV1::QualifiedReceiver { site, .. }
         | BodyExpressionShapeV1::Me { site, .. }
         | BodyExpressionShapeV1::FieldAccess { site, .. }
         | BodyExpressionShapeV1::MethodCall { site, .. }

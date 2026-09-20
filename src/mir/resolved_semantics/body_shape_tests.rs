@@ -260,6 +260,114 @@ fn resolved_shape_issues_declared_instance_method_receiver_source() {
 }
 
 #[test]
+fn resolved_shape_preserves_qualified_receiver_identity_in_the_same_source_row() {
+    let tree = function(
+        vec![return_value(Some(ASTNode::MethodCall {
+            object: Box::new(ASTNode::Variable {
+                name: "ParserAlias".into(),
+                span: Span::unknown(),
+            }),
+            method: "starts_with".into(),
+            arguments: vec![int(1)],
+            span: Span::unknown(),
+        }))],
+        true,
+    );
+    let product = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve_with_body_shape(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let receiver = product
+        .body_shape()
+        .expressions()
+        .iter()
+        .find_map(|row| match row {
+            BodyExpressionShapeV1::QualifiedReceiver {
+                site, source_name, ..
+            } => Some((site.clone(), source_name.as_ref())),
+            _ => None,
+        })
+        .expect("qualified receiver shape");
+    assert_eq!(receiver.1, "ParserAlias");
+
+    let calls = super::body_shape::issue_resolved_method_call_sources_v1(product.body_shape())
+        .expect("qualified method source");
+    let call = calls
+        .values()
+        .find(|call| call.receiver_site() == &receiver.0)
+        .expect("qualified call row");
+    assert_eq!(
+        call.receiver(),
+        super::ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
+    );
+    assert_eq!(
+        call.qualified_receiver_identity()
+            .expect("qualified identity")
+            .source_name(),
+        "ParserAlias"
+    );
+
+    let mut missing = product.body_shape().relations().to_vec();
+    missing.retain(|row| {
+        !(row.parent == *call.site().node() && row.role == SourcePathSegmentV1::Receiver)
+    });
+    assert_eq!(
+        super::body_shape::issue_resolved_method_call_sources_with_relations_for_test(
+            product.body_shape(),
+            &missing,
+        ),
+        Err(super::ResolvedMethodCallSourceIssueV1::MissingReceiverRelation(call.site().clone(),))
+    );
+
+    let mut duplicate = product.body_shape().relations().to_vec();
+    let receiver_row = duplicate
+        .iter()
+        .find(|row| row.parent == *call.site().node() && row.role == SourcePathSegmentV1::Receiver)
+        .cloned()
+        .expect("receiver relation");
+    duplicate.push(receiver_row);
+    assert_eq!(
+        super::body_shape::issue_resolved_method_call_sources_with_relations_for_test(
+            product.body_shape(),
+            &duplicate,
+        ),
+        Err(
+            super::ResolvedMethodCallSourceIssueV1::DuplicateReceiverRelation(call.site().clone(),)
+        )
+    );
+}
+
+#[test]
+fn resolved_shape_does_not_attach_identity_to_a_lexical_receiver() {
+    let params = vec!["ParserAlias".to_string()];
+    let body = vec![return_value(Some(ASTNode::MethodCall {
+        object: Box::new(ASTNode::Variable {
+            name: "ParserAlias".into(),
+            span: Span::unknown(),
+        }),
+        method: "starts_with".into(),
+        arguments: vec![int(1)],
+        span: Span::unknown(),
+    }))];
+    let product = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve_with_body_shape(FunctionSyntaxViewV1::from_borrowed_function_parts(
+            &params,
+            &body,
+            ReceiverPolicyV1::Absent,
+        ))
+        .unwrap();
+    let calls = super::body_shape::issue_resolved_method_call_sources_v1(product.body_shape())
+        .expect("lexical method source");
+    let call = calls.values().next().expect("lexical call row");
+    assert!(matches!(
+        call.receiver(),
+        super::ResolvedMethodCallReceiverSourceV1::Lexical(_)
+    ));
+    assert!(call.qualified_receiver_identity().is_none());
+}
+
+#[test]
 fn resolved_shape_keeps_empty_body_as_complete_empty_inventory() {
     let tree = function(Vec::new(), true);
     let product = FunctionSemanticResolverSessionV1::new(0)

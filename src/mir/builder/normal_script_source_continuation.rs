@@ -342,7 +342,9 @@ fn expression_site(
         crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral { site, .. }
         | crate::mir::resolved_semantics::BodyExpressionShapeV1::ArrayLiteral { site, .. }
         | crate::mir::resolved_semantics::BodyExpressionShapeV1::Variable { site, .. }
-        | crate::mir::resolved_semantics::BodyExpressionShapeV1::QualifiedReceiver { site }
+        | crate::mir::resolved_semantics::BodyExpressionShapeV1::QualifiedReceiver {
+            site, ..
+        }
         | crate::mir::resolved_semantics::BodyExpressionShapeV1::Me { site, .. }
         | crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { site, .. }
         | crate::mir::resolved_semantics::BodyExpressionShapeV1::MethodCall { site, .. }
