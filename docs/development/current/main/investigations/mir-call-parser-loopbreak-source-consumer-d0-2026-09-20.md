@@ -135,6 +135,34 @@ also name the exclusive old-edge delete set. Until that contract exists, do
 not extend the selected package map, reuse the root invocation matrix, or
 issue a new semantic receipt.
 
+## Physical adapter premise audit
+
+The physical owner is narrower than the route name suggests. The shared
+`loop_v0_core` frame/carrier/backedge implementation is reusable, but the
+current `loop_break_composer` cannot be called from a located source path:
+
+| Observed owner | Boundary | Decision |
+| --- | --- | --- |
+| `LoopBreakFacts` + `LoopBreakSourceTopologyV1` | existing planner facts; topology is currently only the direct three-statement shape | candidate source authority; specialized LoopBreak subsets remain rejected until they issue source topology |
+| `loop_break_composer` / `build_loop_break_recipe` | creates dummy AST nodes and synthetic `StmtRef` bodies before raw `lower_loop_v0` | reject as source consumer; synthetic recipe rows cannot prove source alignment |
+| `CallableLoopSourceParts` + `lower_raw_loop_v0` | already validates located recipe/source bodies and enters `lower_loop_v0_core` through source closures | selected physical boundary for a future direct-generic adapter |
+| `LoopCond` source token | exact route token is hard-coded to `LoopCondBreakContinue` | cannot be reused for LoopBreak |
+
+The required design is therefore a source-bound direct-generic LoopBreak
+adapter, not a call into the legacy composer. Its source Facts issuer must
+co-seal the existing `LoopBreakFacts`/Recipe outcome with the direct
+`break-if -> carrier-update -> step` topology, source identity, package brand,
+and the exact source item/target rows. The physical adapter must validate all
+of those relations before `reseal_branch_bindings` or `lower_loop_v0_core`,
+construct a located `CallableLoopSourcePartsBlockV1`, and then reuse the
+existing `lower_raw_loop_v0`/`loop_v0_core` owner. Missing, foreign, duplicate,
+out-of-root, order-mismatched, and non-direct-specialized rows remain named
+pre-effect rejects.
+
+This audit keeps the row at `NoSafeSlice`: the missing source-aligned Recipe
+construction and LoopBreak route token are design work, not permission to add
+a synthetic receipt or to make the legacy composer source-aware by inference.
+
 ## Owner audit and NoSafeSlice decision
 
 The existing package exposes source AST/catalog loans, selected callable loans,
