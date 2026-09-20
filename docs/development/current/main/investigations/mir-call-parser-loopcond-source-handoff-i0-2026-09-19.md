@@ -1502,15 +1502,21 @@ edge retirement remain open.
 The D2 adapter is now wired through the existing LoopTrue skeleton, phi
 materializer, associated-source Parts dispatcher, cleanup, and verifier. The
 literal-`true` binding contract is a sibling handoff owner: GenericLoop keeps
-its condition-read carrier rule, while LoopTrue validates exactly one
-body-read/rebind carrier before the source product is consumed. No second
+its condition-read carrier rule, while LoopTrue validates every body-read/
+rebind carrier before the source product is consumed. No second
 Facts/Recipe issuer or route retry was added.
 
 Focused evidence: the armed source-port edge
 `armed_loop_true_edge_lowers_through_the_source_port` is 1/1; the existing
 callable handoff suite is 6/6; the source-Facts suite is 16/16; and the merged
-parser boundary suite remains 2/2 at its named pre-catalog terminal. The quick
-test build reports the current 556-warning baseline. This closes D2 physical
-consumption only; parser source-to-MIR acceptance, publication, selected old
-edge deletion, other LoopTrue shapes, VM/AOT parity, and warning cleanup remain
-open.
+parser boundary suite is 2/2. The full merged package now crosses the selected
+LoopCond/LoopTrue source handoffs; its dependency-terminal/raw-front is
+`[LoopBreakRecipe]`, yielding the existing `GenericLoopV1NotSelected` terminal
+before catalog installation. That terminal
+is outside the selected
+`ParserProgramBox.parse/2 -> starts_with/3` tuple and is recorded as dependency
+evidence, not parser acceptance. The quick test build reports the current
+556-warning baseline. This closes D2 physical consumption and the named
+matrix boundary only; parser source-to-MIR acceptance, publication, selected
+old-edge deletion, other LoopTrue shapes, VM/AOT parity, and warning cleanup
+remain open.

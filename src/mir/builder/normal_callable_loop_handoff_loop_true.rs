@@ -1,8 +1,8 @@
 //! Literal-`true` LoopTrue binding contract.
 //!
 //! GenericLoop keeps its condition-read carrier contract in the parent
-//! handoff.  This sibling only admits the existing LoopTrue route's one
-//! body-read/rebind carrier and reuses the same receipt and schedule types.
+//! handoff. This sibling admits the existing LoopTrue route's non-empty set of
+//! body-read/rebind carriers and reuses the same receipt and schedule types.
 
 use super::*;
 
@@ -109,8 +109,8 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
             }
             rows.push(row);
         }
-        if carrier_count != 1 {
-            return Err(freeze("loop-true-carrier-cardinality"));
+        if carrier_count == 0 {
+            return Err(freeze("loop-true-carrier-cardinality-0"));
         }
         for binding in iteration_locals {
             if !rows.iter().any(|row| row.binding() == binding) {

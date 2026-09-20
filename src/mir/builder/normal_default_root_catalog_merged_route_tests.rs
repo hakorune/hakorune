@@ -69,22 +69,24 @@ fn merged_parser_program_source_stops_at_named_loop_boundary_before_static_targe
             )
             .expect_err("parser program must stop at its named loop boundary");
         let message = rejected.error().to_string();
-        // The CoreMethod-only receiver family now crosses the preceding
-        // `StringHelpers.index_of/3` source-port shape. The next armed parser
-        // loop reaches the existing first-cohort handoff, whose source
-        // contract still requires exactly one carrier. Keep that terminal
-        // named until a bounded multi-carrier handoff owner is selected.
+        // The selected LoopCond and LoopTrue source handoffs now cross the
+        // preceding parser-loop boundaries. The complete merged package still
+        // contains a LoopBreakRecipe route outside this source tuple, so the
+        // existing source bridge stops before catalog installation with its
+        // named non-selected-route terminal.
         assert!(
-            message.contains("callable-loop-handoff/carrier-cardinality"),
+            message.contains("callable-loop/route-not-front-selected")
+                && message.contains("GenericLoopV1NotSelected"),
             "unexpected parser loop terminal: {message}"
         );
         rejected.discard();
     });
 }
 
-/// Diagnostic pin for the armed LoopCond edge: the merged parser source now
-/// crosses the receiver-only `index_of/3` loop and stops at the existing
-/// first-cohort carrier cardinality contract before parser publication.
+/// Diagnostic pin for the selected source-loop edges: the merged parser
+/// source inventory still observes the target call inside the parse loop,
+/// while the full package remains bounded by the existing non-selected route
+/// terminal before parser publication.
 #[test]
 fn merged_parser_static_inventory_probe() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
