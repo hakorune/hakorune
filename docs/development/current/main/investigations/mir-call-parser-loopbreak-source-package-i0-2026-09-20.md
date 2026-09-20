@@ -1,8 +1,9 @@
 ---
-Status: fast__2026-09-20__ParserLoopBreakSourcePackage
+Status: closed__bounded_source_package__2026-09-20
 Task: MIR-CALL-PARSER-LOOPBREAK-SOURCE-PACKAGE-I0
 Date: 2026-09-20
 Parent: mir-call-parser-loopbreak-source-consumer-d0-2026-09-20.md
+NextCard: MIR-CALL-PARSER-LOOPBREAK-SOURCE-CONSUMER-D0
 Implementation permission: true for source projection, LoopBreak Facts co-seal, and package-wide candidate/absence coverage only
 ---
 
@@ -108,15 +109,25 @@ each resolver loop, and the package issuer stores one row for every semantic
 batch declaration before selected mapping. The parser-scan package guard
 asserts row count equals declaration count (1/1), and an inline direct-loop
 fixture reaches one retained Candidate row (1/1). An unsupported loop shape
-retains one typed absence row (1/1, candidate count 0). The five projector
-guards, package positive/absence guards, and package metadata negative matrix
-are green; `cargo check --profile quick` is green. The
+retains one typed absence row (1/1, candidate count 0). The specialized
+LoopBreak topology fixture also retains a typed absence row (1/1). The five
+projector guards, package positive/absence guards, and package metadata
+negative matrix are green; `cargo check --profile quick` is green. The
 retained candidate/absence products are intentionally not yet
 consumed by physical lowering, so their warning cleanup belongs to the next
-physical-consumer slice. Existing resolver forest tests cover duplicate-site
-and missing-root construction rejection; package-level out-of-root lineage and
-specialized-topology guards still require a source-package-level receipt before
-closeout. The package rows validator rejects foreign owner, duplicate slot,
+physical-consumer slice. Source sizes at closeout are 515 lines for the
+projector, 277 for the Facts owner, 735 for the package's general tests, and
+130 for the dedicated LoopBreak source tests; all remain below the 760/800
+line limits. Existing resolver forest tests cover duplicate-site
+and missing-root construction rejection, while the direct projector relation
+guard rejects duplicate and out-of-root sites before package row issuance.
+Package-level mutation of resolver lineage is not a production input; a
+separate malformed-forest injection guard is outside this I0. The package rows
+validator rejects foreign owner, duplicate slot,
 missing slot, and unexpected slot metadata; its focused negative matrix is
-4/4. No route execution, fallback, production switch, or legacy edge changed
-in this slice.
+4/4. No current-change red was observed in the focused gates; the 566-warning
+test-build census is existing informational debt and is handed to the next
+physical consumer. The next bounded row is the parent
+`MIR-CALL-PARSER-LOOPBREAK-SOURCE-CONSUMER-D0`, which remains a design stop
+until its source-bound physical owner and delete-set are accepted. No route
+execution, fallback, production switch, or legacy edge changed in this slice.

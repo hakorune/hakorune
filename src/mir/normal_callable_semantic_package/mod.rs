@@ -78,6 +78,9 @@ mod resolver_deferred_tests;
 mod s6c_child_tests;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+#[path = "loop_break_source_tests.rs"]
+mod loop_break_source_tests;
 
 pub(in crate::mir) use declared_instance_locator::{
     DeclaredInstanceCallLocatorScopeV1, DeclaredInstanceCallLocatorViewV1,
