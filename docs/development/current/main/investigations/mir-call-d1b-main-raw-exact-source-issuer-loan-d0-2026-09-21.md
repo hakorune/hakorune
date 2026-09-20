@@ -4,7 +4,7 @@ Task: MIR-CALL-D1B-MAIN-RAW-EXACT-SOURCE-ISSUER-LOAN-D0
 Date: 2026-09-21
 Parent: mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml
 Implementation permission: false; source-authority census and bounded decision only
-NextCard: none
+NextCard: MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-SOURCE-COSEAL-D0
 ---
 
 # Main raw exact source issuer and loan D0
@@ -83,6 +83,13 @@ The next design decision must choose one family only, name its existing issuer,
 and define the exact site-to-declaration relation before any target/Callee or
 affine loan transport is implemented. Missing or foreign relations remain
 typed rejects; no fallback or retry may reopen the legacy path.
+
+The finite family selection is now explicit: the next design row is the
+qualified MethodCall source co-seal. FreeStatic remains on its existing exact
+index row, Main Cataloged remains provenance-only, and the separate Script
+inventory cannot be silently reused as a second issuer. This D0 remains a
+design stop until that qualified source product is shown to cross the same
+source session without an AST rescan.
 
 ## Reopen trigger
 
