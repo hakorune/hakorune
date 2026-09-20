@@ -298,6 +298,38 @@ out-of-root sites, and any specialized `LoopBreakFacts` row whose
 `source_topology` is absent. This is a D1 contract only; no new receipt or
 source projection is issued in D0.
 
+## D1 bounded task tuple (design handoff; implementation still closed)
+
+1. **Source projection owner** — extend the existing compiler source-projector
+   family with the direct LoopBreak shape above. Its only inputs are one
+   `ResolvedFunctionLoweringInputV1` and one resolver-issued root site; its
+   output is source evidence, never a Recipe or physical ID.
+2. **Facts co-seal owner** — extend
+   `CallableGenericLoopSourceFactsIssuerV1` with one exclusive LoopBreak branch
+   that joins the projection, existing `PlanBuildOutcome`/
+   `LoopBreakFacts`, and `DirectLoopBreakTerminalityV1`. Generic, LoopCond, and
+   LoopTrue behavior remains unchanged.
+3. **Package coverage owner** — in the existing package issuer, enumerate every
+   batch declaration and join one candidate or typed absence by batch slot,
+   owner, source identity, and catalog brand. Missing/duplicate/foreign or
+   unclassified rows reject before catalog selection; selected-key consumption
+   is not used as a substitute.
+4. **Physical consumer** — adapt the existing source-bound LoopBreak physical
+   owner to consume the move-only co-sealed product before Builder allocation,
+   then reuse `CallableLoopSourceParts`, cleanup, verifier, and
+   `lower_loop_v0_core`. The legacy composer remains untouched.
+5. **Acceptance and retirement** — prove the full parser package reaches the
+   named Cataloged/Selected terminal, then record the exact production caller,
+   old edge, and exclusive delete-set before any switch or deletion. Positive
+   evidence must cover the direct parser member; negative evidence must cover
+   missing/foreign/duplicate/out-of-root/ScopeBox and specialized-topology
+   rejection. No task closes on a selected-method-only green.
+
+This tuple is the smallest implementation-ready design result. It does not
+authorize code, fixture, fallback, backend parity, or production-switch work
+until the parent observer's typed candidate/absence relation is accepted by
+the existing package owner.
+
 ## Physical adapter premise audit
 
 The physical owner is narrower than the route name suggests. The shared
