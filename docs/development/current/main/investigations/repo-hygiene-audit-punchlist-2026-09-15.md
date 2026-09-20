@@ -1,5 +1,7 @@
 Task: REPO-HYGIENE-AUDIT-PUNCHLIST-2026-09-15
-Status: tracking card — verified findings, none started
+Status: tracking card — verified findings; fifth-audit docs reconciliation is
+2/3 closed, with design-registry classification still open. The original
+rows below remain independently tracked unless a row says otherwise.
 Source: external day-3 audit (2-lens independent review) delivered 2026-09-15
 ---
 
@@ -7,6 +9,21 @@ Source: external day-3 audit (2-lens independent review) delivered 2026-09-15
 
 External audit findings verified in-tree on `3e3d39d632`. Each row is a
 bounded follow-up; none is part of the active MirBuilder semantic lane.
+
+## 2026-09-20 fifth-audit reconciliation
+
+The later audit's three documentation P1s were checked against the current
+tree before changing this card:
+
+| Finding | State | Evidence / boundary |
+|---|---|---|
+| North-star scheduler text says Loop production selection is unopened | **Closed** | `52ffa39d36` updates the loop SSOT scheduler frontier to `MIR-CALL-PARSER-LOOPBREAK-SOURCE-PACKAGE-I0`; the broader production-selection claim remains explicitly unopened. |
+| Typed carrier ABI is missing from the primary ABI reference | **Closed** | `52ffa39d36` adds the checked-Map callable carrier v1 contract to `docs/reference/abi/nyrt_c_abi_v0.md`, including `representation:"map"`, `param-carrier-drift`, the checked C surface, and borrowed-view lifetime ownership. |
+| Design-registry membership drift is repaired | **Open** | `docs/development/current/main/design/INDEX.md` remains the authority in warning mode. The 2026-09-20 read-only census is recorded in the lifecycle workstream: 673 registered rows, 851 direct Markdown files, 182 direct files outside the registry, and 4 registry paths ending in TOML; declared baseline remains 77. Classification/adjudication is still required before changing the registry or baseline. |
+
+The “8 months / 8 files” wording from the later audit was not used as a
+fact because the exact in-tree census is larger and has a different scope.
+No bulk registration or baseline increase is authorized by this reconciliation.
 
 ## P1 — spec/decision management
 
