@@ -71,9 +71,34 @@ raw front reports `[LoopBreakRecipe]`, while the source bridge normalizes its
 stop to `GenericLoopV1NotSelected`. Neither observation is a source-to-route
 slot map, and no co-sealed relation currently proves that they identify the
 same dependency rows. Therefore this D0 must not infer either label from
-names, line numbers, or AST shape. The next audit has a finite target: recover
-the exact resolver rows for those three members from the same invocation, then
-decide whether the existing generic-direct LoopBreak product can receive them.
+names, line numbers, or AST shape.
+
+### Static merged-source candidate inventory (read-only)
+
+The source import closure rooted at
+`lang/src/compiler/parser/program/parser_program_box.hako` is now bounded to
+ten files: `ParserProgramBox`, `ParserStringUtilsBox`, `RuneContractBox`,
+`ParserDeclarationBox`, `GrammarContractProjection`, `ParserFromRejectBox`,
+`ParserDelegateExposesBox`, `ParserRecordDeclarationBox`,
+`ParserBrandDeclarationBox`, and `ParserBoxWeakFieldBox`. A source-text census
+finds five methods in that closure whose bodies contain both a `loop` and a
+`break`:
+
+| Candidate method | Source sites observed | Status |
+| --- | --- | --- |
+| `ParserProgramBox.parse/2` | root `:81`, children `:131` and `:182` | caller topology; route still resolver-owned |
+| `ParserStringUtilsBox.trim/1` | `:87` | candidate only; no LoopBreak route claim |
+| `ParserStringUtilsBox.to_int/1` | `:105` | candidate only; no LoopBreak route claim |
+| `ParserDelegateExposesBox._parse_delegate/3` | `:54` | candidate only; no LoopBreak route claim |
+| `ParserRecordDeclarationBox.parse/3` | `:19` | candidate only; no LoopBreak route claim |
+
+This narrows the next audit from an unspecified package to a finite set, but
+it does not select a route: a textual `break` is not a `LoopBreakFacts` or
+`LoopRouteId` receipt. The resolver rows and route-first facts for these
+candidates must still be recovered from the same invocation. Until that
+observation exists, the raw `[LoopBreakRecipe]` and normalized
+`GenericLoopV1NotSelected` labels remain dependency terminals, and no method
+may be admitted or skipped by name, line, or shape.
 
 The existing LoopBreak design explicitly rejects the parser nested profile as a
 new route: its logical product is generic-direct-only, while its physicalizer
