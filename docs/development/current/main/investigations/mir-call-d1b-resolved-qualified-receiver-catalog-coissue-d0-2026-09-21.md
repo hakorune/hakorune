@@ -1,10 +1,11 @@
 ---
-Status: design_stop__2026-09-21__ResolvedQualifiedReceiverCatalogCoissue
+Status: accepted_design__2026-09-21__ResolvedQualifiedReceiverCatalogCoissue
 Task: MIR-CALL-D1B-RESOLVED-QUALIFIED-RECEIVER-CATALOG-COISSUE-D0
 Date: 2026-09-21
 Parent: mir-call-d1b-resolved-qualified-receiver-identity-i0-2026-09-21.md
-Implementation permission: false; catalog/import co-issuer design only
-NextCard: none
+Implementation permission: accepted bounded design; next I0 may implement the
+  relation-only co-issuer, with no target/loan/publication claim
+NextCard: MIR-CALL-D1B-RESOLVED-QUALIFIED-RECEIVER-CATALOG-COISSUE-I0
 ---
 
 # Resolver qualified receiver catalog co-issue D0
@@ -42,9 +43,35 @@ Script, and raw compatibility routes remain excluded.
 
 ## Required decision
 
-Choose whether the existing route-facts owner can accept the resolver carrier
-through a borrowed source-catalog seam, or whether a small resolver-to-catalog
-co-issuer must be added. Reject any solution that re-reads the AST, resolves by
-name/arity alone, duplicates import authority, or issues a target before the
-exact relation is sealed. If no single owner can consume both products, seal
-this family as `NoSafeSlice` rather than adding an adapter or fallback.
+The existing route-facts owner cannot accept the resolver carrier without
+re-reading the AST, and the Script inventory is outside the Main authority.
+Accept one small AST-free resolver-to-catalog co-issuer at the existing Main
+package handoff. It borrows, exactly once, the resolver batch/source ledger,
+the invocation-owned `VerifiedStaticImportAliasViewV1`, and the declaration
+catalog, then seals only their qualified-receiver relation. It does not mint a
+new target, loan, Recipe, ABI, physical symbol, or publication receipt.
+
+The accepted finite shape is App Main's exact batch slot with one
+`QualifiedUnbound` receiver identity and one resolver method-call row. An
+alias must resolve through the sealed import view; an unaliased receiver must
+match the existing direct-owner relation. Selector and arity come from the
+resolver row and must match the catalog's static-box-method declaration. The
+issuer rejects missing/duplicate identity, batch/site/brand mismatch, foreign
+catalog or import view, duplicate alias, lexically bound/direct ambiguity,
+wrong namespace, selector, or arity, plus instance/`me`, dynamic, nested,
+reserved, Script, and raw routes.
+
+The read-only worker audit confirmed that the existing
+`VerifiedQualifiedCallRouteFactsV1` and `whole_source_inventory.rs` are AST
+backed and therefore cannot be reused as Main authority. The next I0 may add
+one private borrowed callback seam at the existing package/batch handoff; it
+must not add a second traversal, name/arity target lookup, or compatibility
+fallback. Target/loan/source-site publication remains a later row.
+
+## Accepted decision (2026-09-21)
+
+`MIR-CALL-D1B-RESOLVED-QUALIFIED-RECEIVER-CATALOG-COISSUE-I0` is the smallest
+safe slice. Its implementation permission is limited to the relation product
+and focused positive/negative guards. If the existing handoff cannot borrow
+all three products with one owner, the I0 must close as `NoSafeSlice` rather
+than introduce an adapter or new authority.
