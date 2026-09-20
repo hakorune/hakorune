@@ -160,13 +160,14 @@ impl RawInvocationChildPortV1<'_, '_> {
         }
         let function_name = admission.physical_symbol().to_owned();
         let session_name = function_name.clone();
-        let resolved = ResolvedChildDraftAdmissionV1::canonical_resolved_owner(
+        let resolved = ResolvedChildDraftAdmissionV1::cataloged_box_method(
             signature.owner(),
+            admission.source_key().clone(),
             function_name.clone(),
             admission.physical_arity(),
         );
         let pending: PendingFunctionSessionCloseV1<'_> = builder
-            .capture_resolved_function_pending_session_v1(&session_name, move |builder| {
+            .capture_resolved_function_pending_after_owned_close_v1(&session_name, move |builder| {
                 builder
                     .lower_resolved_trivial_function_draft_with_physical_name_v1(
                         plan,
@@ -207,7 +208,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             admission.physical_arity(),
         );
         let pending = builder
-            .capture_resolved_function_pending_session_v1(&session_name, move |builder| {
+            .capture_resolved_function_pending_after_owned_close_v1(&session_name, move |builder| {
                 builder
                     .lower_resolved_direct_accum_function_draft_with_physical_name_v1(
                         plan,

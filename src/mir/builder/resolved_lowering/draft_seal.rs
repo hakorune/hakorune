@@ -197,6 +197,16 @@ impl ReadyFunctionDraftSealV1 {
         self.checked_callout_census.take()
     }
 
+    /// Project the already claimed single value exit for the existing Main
+    /// root owner. The full DraftSeal path remains the authority for child
+    /// publication; this root bridge only needs the site keyed operand to
+    /// install the root terminator on its pre-existing function skeleton.
+    pub(in crate::mir::builder) fn explicit_operand(&self) -> Option<(BasicBlockId, ValueId)> {
+        self.completion
+            .explicit_operand()
+            .map(|witness| (witness.block(), witness.value()))
+    }
+
     pub(super) fn prepare(
         self,
     ) -> Result<PreparedFunctionExitPlanV1, FunctionDraftSealPreparationErrorV1> {

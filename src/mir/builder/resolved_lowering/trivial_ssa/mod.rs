@@ -13,3 +13,4 @@ mod parameter_entry;
 pub(super) use callable_abi::install_trivial_callable_abi_v1;
 pub(in crate::mir::builder::resolved_lowering) use direct_call::emit_resolved_header;
 pub(super) use lowerer::CanonicalTrivialSsaLowererV1;
+pub(in crate::mir::builder) use lowerer::QualifiedMethodRecipePortV1;

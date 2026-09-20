@@ -1,16 +1,22 @@
 use std::rc::Rc;
 
 use crate::ast::ASTNode;
+use crate::mir::builder::callable_declaration_catalog::CanonicalSameModuleCallableKeyV1;
 use crate::mir::builder::normal_callable_binding_materialization_port::{
     CallableBindingMaterializationPortV1, CallableEntryShapeV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::RawSourceTransportPortV1;
+use crate::mir::callable_result_representation::StaticCallResultPublicationTakeV1;
+use crate::mir::compiler::capability::CanonicalLoweringPreflightV1;
+use crate::mir::compiler::normal_source_plan::VerifiedNormalMainRoleV1;
 use crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceExprSiteV1};
 use crate::mir::{MirBuilder, ValueId};
 use crate::parser::CallableDeclarationIdentityV1;
 
 use super::super::raw_invocation_source_transport::RawInvocationRootLineageV1;
+use super::super::raw_invocation_source_transport::RawInvocationSourceContextV1;
+use super::super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::super::recursive_child_lowering::{
     DirectCallDispositionPortV1, RecursiveChildLoweringPortV1,
 };
@@ -18,6 +24,105 @@ use super::super::recursive_child_lowering_port::{
     QualifiedStaticMethodHandoffIngressV1, QualifiedStaticMethodHandoffPortV1,
 };
 use super::NormalCallableSemanticPackagePortAdapterV1;
+
+pub(super) struct MainQualifiedMethodRecipePort<'relation, 'port, 'collector> {
+    relation: &'relation mut Option<
+        crate::mir::normal_callable_semantic_package::VerifiedQualifiedReceiverCatalogRelationV1,
+    >,
+    context: &'relation mut RawInvocationChildPortV1<'port, 'collector>,
+}
+
+impl<'relation, 'port, 'collector> MainQualifiedMethodRecipePort<'relation, 'port, 'collector> {
+    pub(super) fn new(
+        relation: &'relation mut Option<
+            crate::mir::normal_callable_semantic_package::VerifiedQualifiedReceiverCatalogRelationV1,
+        >,
+        context: &'relation mut RawInvocationChildPortV1<'port, 'collector>,
+    ) -> Result<Self, String> {
+        let Some(RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::Cataloged(_),
+            ..
+        }) = context.current_source_context_v1()
+        else {
+            return Err("[freeze:contract][mir/main-qualified-recipe/context-missing]".to_owned());
+        };
+        Ok(Self { relation, context })
+    }
+}
+
+impl crate::mir::builder::resolved_lowering::QualifiedMethodRecipePortV1
+    for MainQualifiedMethodRecipePort<'_, '_, '_>
+{
+    fn take_qualified_method_recipe_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        site: &SourceExprSiteV1,
+        receiver: &str,
+        selector: &str,
+        argument_count: usize,
+    ) -> Result<
+        Option<(
+            CanonicalSameModuleCallableKeyV1,
+            Box<[SourceExprSiteV1]>,
+            Option<crate::mir::callable_result_representation::
+                VerifiedStaticCallResultPublicationHandoffV1>,
+        )>,
+        String,
+    >{
+        let Some(RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::Cataloged(caller),
+            ..
+        }) = self.context.current_source_context_v1()
+        else {
+            return Err("[freeze:contract][mir/main-qualified-recipe/context-missing]".to_owned());
+        };
+        let relation = self.relation.as_mut().ok_or_else(|| {
+            "[freeze:contract][mir/main-qualified-recipe/relation-missing]".to_owned()
+        })?;
+        let take = relation
+            .take_for_source(
+                &caller,
+                site,
+                receiver,
+                selector,
+                u32::try_from(argument_count).map_err(|_| {
+                    "[freeze:contract][mir/main-qualified-recipe/arity-overflow]".to_owned()
+                })?,
+            )
+            .map_err(|error| error.to_string())?;
+        let Some(take) = take else {
+            return Ok(None);
+        };
+        let declarations = builder
+            .comp_ctx
+            .callable_declaration_catalog()
+            .map_err(|_| {
+                "[freeze:contract][mir/main-qualified-recipe/declarations-missing]".to_owned()
+            })?;
+        let publication = self
+            .context
+            .module_port
+            .take_static_result_publication_handoff(declarations, &caller, site)
+            .map_err(|error| {
+                format!("[freeze:contract][mir/main-qualified-recipe/publication] {error:?}")
+            })?;
+        let publication = match publication {
+            StaticCallResultPublicationTakeV1::Selected(handoff) => Some(handoff),
+            StaticCallResultPublicationTakeV1::TargetOnly(_) => None,
+            StaticCallResultPublicationTakeV1::NoExactStaticTarget => {
+                return Err(
+                    "[freeze:contract][mir/main-qualified-recipe/publication-target-missing]"
+                        .to_owned(),
+                )
+            }
+        };
+        Ok(Some((
+            take.declaration_key().clone(),
+            take.argument_sites().to_vec().into_boxed_slice(),
+            publication,
+        )))
+    }
+}
 
 pub(super) fn lower_app_main_root_body_v1(
     adapter: &mut NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_>,
@@ -48,6 +153,7 @@ pub(super) fn lower_app_main_root_body_v1(
     };
     adapter.install_app_main_qualified_receiver_relation()?;
     let inner = &mut *adapter.inner;
+    let qualified_relation = &mut adapter.qualified_main_relation;
     let ordinary_new_claim_ledger = adapter.package.ordinary_new_claim_ledger();
     let core_method_calls = adapter.package.take_source_core_method_calls(
         &crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(catalog_key.clone()),
@@ -103,7 +209,39 @@ pub(super) fn lower_app_main_root_body_v1(
                             builder,
                             CallableEntryShapeV1::Static { parameter_count },
                         )?;
-                        let value = inner.lower_body(builder, body)?;
+                        let value = if input.function().method_calls().next().is_some() {
+                            let canonical_result = (|| {
+                                let plan = CanonicalLoweringPreflightV1::
+                                    verify_normal_main0_function_with_qualified_methods_v1(
+                                        input,
+                                        VerifiedNormalMainRoleV1::seal_for_qualified_methods(),
+                                    )
+                                    .map_err(|error| {
+                                        format!(
+                                            "[freeze:contract][mir/callable-main/qualified-preflight] {error:?}"
+                                        )
+                                    })?;
+                                let mut recipe_port = MainQualifiedMethodRecipePort::new(
+                                    qualified_relation,
+                                    inner,
+                                )?;
+                                crate::mir::builder::resolved_lowering::
+                                    lower_resolved_trivial_body_with_qualified_method_port_v1(
+                                        builder,
+                                        plan,
+                                        &mut recipe_port,
+                                    )
+                            })();
+                            // The App Main wrapper is still owned by the legacy
+                            // outer function session. The canonical inner
+                            // session has already finished its authority before
+                            // returning, so clear that scoped guard before the
+                            // legacy wrapper performs its normal cleanup.
+                            builder.function_state.resolved_binding_state = Default::default();
+                            canonical_result?
+                        } else {
+                            inner.lower_body(builder, body)?
+                        };
                         inner.complete_construction_stores_v1(builder)?;
                         Ok(value)
                     })

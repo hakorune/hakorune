@@ -34,6 +34,10 @@ impl VerifiedNormalMainRoleV1 {
     pub(super) fn seal_for_direct_call() -> Self {
         Self::seal()
     }
+
+    pub(crate) fn seal_for_qualified_methods() -> Self {
+        Self::seal()
+    }
 }
 
 #[derive(Debug)]

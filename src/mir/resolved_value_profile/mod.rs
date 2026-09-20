@@ -15,6 +15,7 @@ mod nested_recipe_mapper;
 mod operator;
 mod parameter_entry;
 pub(crate) mod product;
+mod qualified_method;
 mod recipe_facts;
 mod recipe_mapper;
 mod recipe_source_paths;
@@ -54,6 +55,7 @@ pub(crate) use analyzer_mode::TrivialCanonicalAnalysisModeV1;
 pub(crate) use consumption::TrivialProfileConsumptionV1;
 pub(crate) use direct_call::VerifiedTrivialDirectCallV1;
 pub(crate) use nested_recipe_mapper::{map_nested_trivial_if_recipe_v1, NestedIfRecipeMapRejectV1};
+pub(crate) use qualified_method::VerifiedTrivialQualifiedMethodCallV1;
 pub(crate) use recipe_facts::VerifiedTrivialIfRecipeFactsV1;
 pub(crate) use recipe_mapper::{map_trivial_if_recipe_v1, IfRecipeMapRejectV1};
 #[allow(unused_imports)]

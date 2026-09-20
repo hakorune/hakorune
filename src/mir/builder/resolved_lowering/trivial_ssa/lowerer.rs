@@ -9,6 +9,8 @@ use crate::mir::builder::resolved_lowering::canonical_ssa::{
     finish_profile_close, CanonicalSsaFunctionSessionV2,
 };
 use crate::mir::builder::resolved_lowering::draft_seal::ReadyFunctionDraftSealV1;
+use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
+use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
@@ -17,7 +19,9 @@ use crate::mir::resolved_control_flow::if_control::{
     ResolvedIfControlMaterializationV1, VerifiedResolvedFunctionIfControlV1,
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
-use crate::mir::resolved_semantics::{BindingKindV1, ResolvedExitSiteV1, SourceBindingSiteV1};
+use crate::mir::resolved_semantics::{
+    BindingKindV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
+};
 use crate::mir::resolved_value_profile::product::{
     TrivialRepresentationV1, VerifiedTrivialCanonicalOwnerV1,
 };
@@ -27,17 +31,37 @@ use crate::mir::{BasicBlockId, MirType, ValueId};
 pub(in crate::mir::builder::resolved_lowering) struct CanonicalTrivialSsaLowererV1<
     'builder,
     'source,
+    'port,
 > {
     builder: &'builder mut MirBuilder,
     input: ResolvedFunctionLoweringInputV1<'source>,
     session: CanonicalSsaFunctionSessionV2<'source>,
     profile: TrivialProfileConsumptionV1,
     if_recipe: CanonicalIfRecipeAdmissionDispositionV1,
+    qualified_method_port: Option<&'port mut dyn QualifiedMethodRecipePortV1>,
+}
+
+pub(in crate::mir::builder) trait QualifiedMethodRecipePortV1 {
+    fn take_qualified_method_recipe_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        site: &SourceExprSiteV1,
+        receiver: &str,
+        selector: &str,
+        argument_count: usize,
+    ) -> Result<
+        Option<(
+            CanonicalSameModuleCallableKeyV1,
+            Box<[SourceExprSiteV1]>,
+            Option<VerifiedStaticCallResultPublicationHandoffV1>,
+        )>,
+        String,
+    >;
 }
 
 mod if_materialization;
 
-impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
+impl<'builder, 'source, 'port> CanonicalTrivialSsaLowererV1<'builder, 'source, 'port> {
     pub(in crate::mir::builder::resolved_lowering) fn new(
         builder: &'builder mut MirBuilder,
         input: ResolvedFunctionLoweringInputV1<'source>,
@@ -80,7 +104,31 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             session,
             profile: TrivialProfileConsumptionV1::new(profile),
             if_recipe,
+            qualified_method_port: None,
         })
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn new_with_qualified_method_port(
+        builder: &'builder mut MirBuilder,
+        input: ResolvedFunctionLoweringInputV1<'source>,
+        if_control: VerifiedResolvedFunctionIfControlV1,
+        completion: VerifiedFunctionCompletionV1,
+        profile: VerifiedTrivialCanonicalOwnerV1,
+        block_expr_count: usize,
+        if_recipe: CanonicalIfRecipeAdmissionDispositionV1,
+        qualified_method_port: &'port mut dyn QualifiedMethodRecipePortV1,
+    ) -> Result<Self, String> {
+        let mut lowerer = Self::new(
+            builder,
+            input,
+            if_control,
+            completion,
+            profile,
+            block_expr_count,
+            if_recipe,
+        )?;
+        lowerer.qualified_method_port = Some(qualified_method_port);
+        Ok(lowerer)
     }
 
     pub(in crate::mir::builder::resolved_lowering) fn lower(
@@ -338,6 +386,88 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             ASTNode::BlockExpr { .. } => {
                 let result = self.lower_block_expr(expression, coverage.as_deref_mut())?;
                 (result.0, Some(result.1))
+            }
+            ASTNode::MethodCall { arguments, .. } => {
+                let mut argument_values = Vec::with_capacity(arguments.len());
+                let mut argument_sites = Vec::with_capacity(arguments.len());
+                for index in 0..arguments.len() {
+                    let index = u32::try_from(index).map_err(|_| {
+                        "[freeze:contract][canonical_qualified_method/argument_index_overflow]"
+                            .to_owned()
+                    })?;
+                    let argument = self
+                        .input
+                        .source()
+                        .child_expr_from_expr(expression, ExprChildRoleV1::CallArgument(index))
+                        .map_err(|error| error.to_string())?;
+                    let (value, representation) =
+                        self.lower_expr(&argument, coverage.as_deref_mut())?;
+                    require_representation(
+                        representation,
+                        TrivialRepresentationV1::InlineI64,
+                        "qualified_method_argument",
+                    )?;
+                    argument_sites.push(argument.site().clone());
+                    argument_values.push(value);
+                }
+                let row = self
+                    .profile
+                    .claim_qualified_method_call(expression.site())?;
+                let port = self.qualified_method_port.as_deref_mut().ok_or_else(|| {
+                    "[freeze:contract][canonical_qualified_method/recipe_port_missing]".to_owned()
+                })?;
+                let Some((target_key, expected_sites, publication)) = port
+                    .take_qualified_method_recipe_v1(
+                        self.builder,
+                        expression.site(),
+                        row.receiver(),
+                        row.selector(),
+                        arguments.len(),
+                    )?
+                else {
+                    return Err(
+                        "[freeze:contract][canonical_qualified_method/recipe_missing]".to_owned(),
+                    );
+                };
+                if expected_sites.as_ref() != row.arguments()
+                    || target_key.arity() as usize != arguments.len()
+                {
+                    return Err(
+                        "[freeze:contract][canonical_qualified_method/recipe_drift]".to_owned()
+                    );
+                }
+                if argument_sites.as_slice() != expected_sites.as_ref() {
+                    return Err(
+                        "[freeze:contract][canonical_qualified_method/argument_site_drift]"
+                            .to_owned(),
+                    );
+                }
+                let target = target_key.canonical_global_target_v1().map_err(|error| {
+                    format!("[freeze:contract][canonical_qualified_method/target] {error}")
+                })?;
+                let value = match publication {
+                    Some(handoff) => {
+                        if handoff.target() != &target_key {
+                            return Err(
+                                "[freeze:contract][canonical_qualified_method/publication_target_drift]"
+                                    .to_owned(),
+                            );
+                        }
+                        crate::mir::builder::calls::lower_selected_static_result_publication_with_arguments_v1(
+                            self.builder,
+                            handoff,
+                            argument_values,
+                        )?
+                    }
+                    None => {
+                        crate::mir::builder::calls::emit_static_global_target_value_terminal_v1(
+                            self.builder,
+                            target,
+                            argument_values,
+                        )?
+                    }
+                };
+                return Ok((value, TrivialRepresentationV1::InlineI64));
             }
             ASTNode::FunctionCall { arguments, .. } => {
                 let expected_target = self.profile.direct_call_target(expression.site())?;

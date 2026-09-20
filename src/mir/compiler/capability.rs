@@ -2,7 +2,9 @@
 
 use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::resolved_control_flow::if_control::{
-    verify_resolved_function_if_control_v1, verify_resolved_function_if_control_with_direct_call_v1,
+    verify_resolved_function_if_control_v1,
+    verify_resolved_function_if_control_with_direct_call_v1,
+    verify_resolved_function_if_control_with_qualified_method_v1,
 };
 use crate::mir::resolved_control_flow::{
     verify_function_completion_v1, VerifiedFunctionCompletionV1,
@@ -211,6 +213,33 @@ impl CanonicalLoweringPreflightV1 {
         }
     }
 
+    pub(crate) fn verify_normal_main0_function_with_qualified_methods_v1<'a>(
+        function: ResolvedFunctionLoweringInputV1<'a>,
+        role: super::normal_source_plan::VerifiedNormalMainRoleV1,
+    ) -> Result<CanonicalTrivialBindingSsaPlanV1<'a>, CanonicalLoweringErrorV1> {
+        match Self::verify_function_with_policy(
+            function,
+            DirectCallAdmissionV1::QualifiedMethods,
+            CanonicalFunctionRolePolicyV1::NormalMainQualifiedMethods,
+            Some(role),
+        )? {
+            CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => Ok(plan),
+            CanonicalFirstFamilyPlanV1::Loop(_) => unsupported(
+                "root",
+                function.source().root(),
+                "qualified_methods_not_loop_family",
+            ),
+            CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {
+                let (function, ..) = plan.into_parts();
+                unsupported(
+                    "root",
+                    function.source().root(),
+                    "qualified_methods_requires_trivial_binding_ssa",
+                )
+            }
+        }
+    }
+
     fn verify_function_with_policy<'a>(
         function: ResolvedFunctionLoweringInputV1<'a>,
         direct_call_admission: DirectCallAdmissionV1,
@@ -245,7 +274,8 @@ impl CanonicalLoweringPreflightV1 {
                 !*is_static || *is_override || name == "main"
             }
             CanonicalFunctionRolePolicyV1::NormalMain0
-            | CanonicalFunctionRolePolicyV1::NormalMainDirectCall0 => {
+            | CanonicalFunctionRolePolicyV1::NormalMainDirectCall0
+            | CanonicalFunctionRolePolicyV1::NormalMainQualifiedMethods => {
                 !*is_static || *is_override || name != "main" || !params.is_empty()
             }
         };
@@ -274,9 +304,14 @@ impl CanonicalLoweringPreflightV1 {
         }
 
         let direct_call_count = function.function().direct_call_targets().count();
-        let expression_policy = match (direct_call_admission, direct_call_count) {
-            (_, 0) => FirstFamilyExpressionPolicyV1::Closed,
-            (DirectCallAdmissionV1::FiniteOneOrMore, 1..)
+        let method_call_count = function.function().method_calls().count();
+        let expression_policy = match (direct_call_admission, direct_call_count, method_call_count)
+        {
+            (DirectCallAdmissionV1::QualifiedMethods, _, 1..) => {
+                FirstFamilyExpressionPolicyV1::QualifiedMethods
+            }
+            (_, 0, 0) => FirstFamilyExpressionPolicyV1::Closed,
+            (DirectCallAdmissionV1::FiniteOneOrMore, 1.., 0)
                 if function.callable_index().is_some() =>
             {
                 FirstFamilyExpressionPolicyV1::ExactDirectCall
@@ -320,6 +355,9 @@ impl CanonicalLoweringPreflightV1 {
             FirstFamilyExpressionPolicyV1::ExactDirectCall => {
                 verify_resolved_function_if_control_with_direct_call_v1(function, &completion)
             }
+            FirstFamilyExpressionPolicyV1::QualifiedMethods => {
+                verify_resolved_function_if_control_with_qualified_method_v1(function, &completion)
+            }
         }
         .map_err(|error| CanonicalLoweringErrorV1::ResolvedRegionFlow {
             detail: format!("if_control_contract={error:?}"),
@@ -351,6 +389,16 @@ impl CanonicalLoweringPreflightV1 {
                 &completion,
                 &if_control,
                 TrivialCanonicalAnalysisModeV1::NormalMainFiniteDirectCalls { role: main_role },
+            ),
+            (
+                CanonicalFunctionRolePolicyV1::NormalMainQualifiedMethods,
+                FirstFamilyExpressionPolicyV1::QualifiedMethods,
+                Some(main_role),
+            ) => analyze_trivial_canonical_with_mode_v1(
+                function,
+                &completion,
+                &if_control,
+                TrivialCanonicalAnalysisModeV1::NormalMainQualifiedMethods { role: main_role },
             ),
             (
                 CanonicalFunctionRolePolicyV1::OrdinaryFirstFamily,
@@ -452,6 +500,7 @@ enum ReturnPolicyV1 {
 enum FirstFamilyExpressionPolicyV1 {
     Closed,
     ExactDirectCall,
+    QualifiedMethods,
 }
 
 fn verify_body(
@@ -651,6 +700,27 @@ fn verify_expression(
                         site: site.clone(),
                         actual: expression.node().node_type(),
                         reason: "direct_call_argument_index_overflow",
+                    }
+                })?;
+                let argument = input
+                    .source()
+                    .child_expr_from_expr(expression, ExprChildRoleV1::CallArgument(index))
+                    .map_err(source_navigation)?;
+                block_expr_count += verify_expression(input, &argument, expression_policy)?;
+            }
+            Ok(block_expr_count)
+        }
+        ASTNode::MethodCall { arguments, .. }
+            if expression_policy == FirstFamilyExpressionPolicyV1::QualifiedMethods
+                && input.function().method_call(expression.site()).is_some() =>
+        {
+            let mut block_expr_count = 0;
+            for index in 0..arguments.len() {
+                let index = u32::try_from(index).map_err(|_| {
+                    CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
+                        site: site.clone(),
+                        actual: expression.node().node_type(),
+                        reason: "qualified_method_argument_index_overflow",
                     }
                 })?;
                 let argument = input

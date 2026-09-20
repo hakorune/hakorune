@@ -14,7 +14,7 @@ use crate::mir::resolved_semantics::{
 use crate::mir::{MirBuilder, ValueId};
 
 use super::callable_declaration_catalog::{
-    SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
+    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
 };
 use super::main_expansion::VerifiedMainStaticChildV1;
 use super::map_read_physical_consumer::MapReadPhysicalConsumerV1;
@@ -31,6 +31,7 @@ use super::recursive_child_lowering::{
     RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1, RawInvocationChildPortV1,
     RawOrdinaryNewClaimPortV1, RecursiveChildLoweringPortV1,
 };
+use super::recursive_child_lowering_port::QualifiedStaticMethodHandoffPortV1;
 use crate::mir::normal_callable_semantic_package::{
     NormalCallableSemanticPackageInstallIssueV1, NormalCallableSemanticPackagePortV1,
     ResolvedCallablePhysicalSignatureLoanV1, SelectedCallableLoweringInputRefV1,
@@ -341,6 +342,49 @@ impl RawBoxMethodChildPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, 
         input: super::nested_box_method_source::NestedBoxMethodLoweringInputV1,
     ) -> Result<(), String> {
         self.inner.lower_nested_box_method(builder, input)
+    }
+}
+
+impl crate::mir::builder::resolved_lowering::QualifiedMethodRecipePortV1
+    for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_>
+{
+    fn take_qualified_method_recipe_v1(
+        &mut self,
+        _builder: &mut crate::mir::MirBuilder,
+        site: &SourceExprSiteV1,
+        receiver: &str,
+        selector: &str,
+        argument_count: usize,
+    ) -> Result<
+        Option<(
+            CanonicalSameModuleCallableKeyV1,
+            Box<[SourceExprSiteV1]>,
+            Option<crate::mir::callable_result_representation::
+                VerifiedStaticCallResultPublicationHandoffV1>,
+        )>,
+        String,
+    >{
+        let crate::mir::builder::recursive_child_lowering_port::QualifiedStaticMethodHandoffIngressV1::Ready(take) =
+            <Self as QualifiedStaticMethodHandoffPortV1>::take_qualified_static_method_handoff_v1(
+                self,
+                receiver,
+                selector,
+                argument_count,
+            )?
+        else {
+            return Ok(None);
+        };
+        if take.argument_sites().len() != argument_count {
+            return Err(
+                "[freeze:contract][mir/main-qualified-recipe/argument-cardinality]".to_owned(),
+            );
+        }
+        let _ = site;
+        Ok(Some((
+            take.declaration_key().clone(),
+            take.argument_sites().to_vec().into_boxed_slice(),
+            None,
+        )))
     }
 }
 

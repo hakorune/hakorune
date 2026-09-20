@@ -36,7 +36,7 @@ enum IfMaterializationOutcomeV1 {
     Selected(CanonicalIfPhysicalReceiptV1),
 }
 
-impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
+impl<'builder, 'source, 'port> CanonicalTrivialSsaLowererV1<'builder, 'source, 'port> {
     pub(super) fn lower_if(&mut self, statement: &LocatedStmtV1<'source>) -> Result<(), String> {
         if self.if_recipe.is_not_selected() {
             return self.lower_if_legacy_unselected(statement);

@@ -94,6 +94,58 @@ pub(in crate::mir) use selected_dynamic_physical_capability::{
 };
 pub(in crate::mir::builder) use selected_dynamic_physical_emitter::assemble_unpublished_selected_dynamic_w6_from_parts;
 
+/// Consume one already-admitted trivial Binding-SSA plan on an existing
+/// function skeleton.  The caller owns the package recipe port; this helper
+/// only wires it into the existing canonical session and does not create a
+/// second function or fallback route.
+pub(in crate::mir::builder) fn lower_resolved_trivial_body_with_qualified_method_port_v1(
+    builder: &mut MirBuilder,
+    plan: CanonicalTrivialBindingSsaPlanV1<'_>,
+    port: &mut dyn QualifiedMethodRecipePortV1,
+) -> Result<crate::mir::ValueId, String> {
+    let (input, if_control, completion, profile, block_expr_count) = plan.into_parts();
+    let recipe_preflight = produce_trivial_if_physical_input_v1(&profile, input.function())
+        .map_err(|error| format!("[freeze:contract][if_recipe/producer] {error:?}"))?;
+    let recipe_admission =
+        admit_trivial_if_recipe_v1(recipe_preflight, input.function(), &if_control)
+            .map_err(|error| format!("[freeze:contract][if_recipe/admission] {error:?}"))?;
+    builder
+        .function_state
+        .resolved_binding_state
+        .install(input.function())
+        .map_err(|error| error.to_string())?;
+    install_trivial_callable_abi_v1(builder, &profile);
+    let ready = CanonicalTrivialSsaLowererV1::new_with_qualified_method_port(
+        builder,
+        input,
+        if_control,
+        completion,
+        profile,
+        block_expr_count,
+        recipe_admission,
+        port,
+    )?
+    .lower()?;
+    let (block, value) = ready.explicit_operand().ok_or_else(|| {
+        "[freeze:contract][canonical_qualified_method/value_return_required]".to_owned()
+    })?;
+    let function = builder
+        .function_state
+        .current_function
+        .as_mut()
+        .ok_or_else(|| {
+            "[freeze:contract][canonical_qualified_method/function_missing]".to_owned()
+        })?;
+    function
+        .get_block_mut(block)
+        .ok_or_else(|| {
+            "[freeze:contract][canonical_qualified_method/return_block_missing]".to_owned()
+        })?
+        .set_terminator(crate::mir::MirInstruction::Return { value: Some(value) });
+    builder.function_state.current_block = Some(block);
+    Ok(value)
+}
+
 #[cfg(test)]
 mod block_expr_tests;
 #[cfg(test)]
@@ -172,6 +224,7 @@ use direct_accum_lowerer::CanonicalDirectAccumSsaLowererV1;
 use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
 use if_recipe_adapter::{admit_trivial_if_recipe_v1, produce_trivial_if_physical_input_v1};
 use lowerer::CanonicalFunctionLowererV1;
+pub(in crate::mir::builder) use trivial_ssa::QualifiedMethodRecipePortV1;
 use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1};
 
 #[derive(Debug, PartialEq, Eq)]

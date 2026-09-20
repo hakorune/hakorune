@@ -10,4 +10,5 @@ pub(crate) enum TrivialCanonicalAnalysisModeV1 {
     OrdinaryFiniteDirectCalls,
     NormalMainClosed { role: VerifiedNormalMainRoleV1 },
     NormalMainFiniteDirectCalls { role: VerifiedNormalMainRoleV1 },
+    NormalMainQualifiedMethods { role: VerifiedNormalMainRoleV1 },
 }

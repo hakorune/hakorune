@@ -336,8 +336,8 @@ impl CanonicalIfPhysicalReceiptImplicitElseV1 {
     }
 }
 
-pub(super) fn physicalize_if_recipe_v1<'builder, 'source>(
-    lowerer: &mut CanonicalTrivialSsaLowererV1<'builder, 'source>,
+pub(super) fn physicalize_if_recipe_v1<'builder, 'source, 'port>(
+    lowerer: &mut CanonicalTrivialSsaLowererV1<'builder, 'source, 'port>,
     statement: &LocatedStmtV1<'source>,
     demand: CanonicalIfPhysicalDemandV1,
 ) -> Result<CanonicalIfPhysicalSuccessV1, String> {

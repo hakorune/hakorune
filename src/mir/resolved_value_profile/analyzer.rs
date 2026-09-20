@@ -31,6 +31,7 @@ use super::product::{
     TrivialBindingDefinitionOriginV1, TrivialProfileCoverageSubjectV1, TrivialRepresentationV1,
     TrivialTerminalProfileV1, VerifiedTrivialCanonicalOwnerV1,
 };
+use super::qualified_method::VerifiedTrivialQualifiedMethodCallV1;
 use super::recipe_facts::{RecipeBranchV1, TrivialIfRecipeFactsDraftV1};
 use super::TrivialCanonicalOwnerAnalysisV1;
 
@@ -45,22 +46,31 @@ pub(super) fn analyze_trivial_canonical_with_mode_impl_v1(
     if_control: &VerifiedResolvedFunctionIfControlV1,
     mode: TrivialCanonicalAnalysisModeV1,
 ) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
-    let (direct_call_policy, root_profile_policy) = match mode {
+    let (direct_call_policy, root_profile_policy, qualified_method_policy) = match mode {
         TrivialCanonicalAnalysisModeV1::OrdinaryClosed => (
             DirectCallPolicyV1::Forbidden,
             RootProfilePolicyV1::OrdinaryFirstFamily,
+            false,
         ),
         TrivialCanonicalAnalysisModeV1::OrdinaryFiniteDirectCalls => (
             DirectCallPolicyV1::FiniteOneOrMore,
             RootProfilePolicyV1::OrdinaryFirstFamily,
+            false,
         ),
         TrivialCanonicalAnalysisModeV1::NormalMainClosed { role: _ } => (
             DirectCallPolicyV1::Forbidden,
             RootProfilePolicyV1::NormalMain0,
+            false,
         ),
         TrivialCanonicalAnalysisModeV1::NormalMainFiniteDirectCalls { role: _ } => (
             DirectCallPolicyV1::FiniteOneOrMore,
             RootProfilePolicyV1::NormalMain0,
+            false,
+        ),
+        TrivialCanonicalAnalysisModeV1::NormalMainQualifiedMethods { role: _ } => (
+            DirectCallPolicyV1::FiniteZeroOrMore,
+            RootProfilePolicyV1::NormalMain0,
+            true,
         ),
     };
     analyze_with_policy(
@@ -69,6 +79,7 @@ pub(super) fn analyze_trivial_canonical_with_mode_impl_v1(
         if_control,
         direct_call_policy,
         root_profile_policy,
+        qualified_method_policy,
     )
 }
 
@@ -78,9 +89,16 @@ fn analyze_with_policy(
     if_control: &VerifiedResolvedFunctionIfControlV1,
     direct_call_policy: DirectCallPolicyV1,
     root_profile_policy: RootProfilePolicyV1,
+    qualified_method_policy: bool,
 ) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
-    match AnalyzerV1::new(input, if_control, direct_call_policy, root_profile_policy)
-        .and_then(|analyzer| analyzer.analyze(completion))
+    match AnalyzerV1::new(
+        input,
+        if_control,
+        direct_call_policy,
+        qualified_method_policy,
+        root_profile_policy,
+    )
+    .and_then(|analyzer| analyzer.analyze(completion))
     {
         Ok(product) => Ok(TrivialCanonicalOwnerAnalysisV1::Admitted(product)),
         Err(AnalysisFailureV1::Stop(stop)) => {
@@ -101,8 +119,10 @@ struct AnalyzerV1<'a> {
     expected_if_sites: BTreeSet<SourceStmtSiteV1>,
     visited_if_sites: BTreeSet<SourceStmtSiteV1>,
     direct_call_policy: DirectCallPolicyV1,
+    qualified_method_policy: bool,
     root_profile_policy: RootProfilePolicyV1,
     direct_call_count: u32,
+    qualified_method_count: u32,
 }
 
 impl<'a> AnalyzerV1<'a> {
@@ -110,6 +130,7 @@ impl<'a> AnalyzerV1<'a> {
         input: ResolvedFunctionLoweringInputV1<'a>,
         if_control: &VerifiedResolvedFunctionIfControlV1,
         direct_call_policy: DirectCallPolicyV1,
+        qualified_method_policy: bool,
         root_profile_policy: RootProfilePolicyV1,
     ) -> AnalysisResultV1<Self> {
         if if_control.owner() != input.owner() {
@@ -124,8 +145,10 @@ impl<'a> AnalyzerV1<'a> {
             expected_if_sites: if_control.exact_if_sites().cloned().collect(),
             visited_if_sites: BTreeSet::new(),
             direct_call_policy,
+            qualified_method_policy,
             root_profile_policy,
             direct_call_count: 0,
+            qualified_method_count: 0,
         })
     }
 
@@ -163,6 +186,11 @@ impl<'a> AnalyzerV1<'a> {
             }
             _ => {}
         }
+        if self.qualified_method_policy && self.qualified_method_count == 0 {
+            return Err(
+                TrivialProfileContractErrorV1::QualifiedMethodCardinality { actual: 0 }.into(),
+            );
+        }
 
         if self.terminal.is_none() {
             let body_end = u32::try_from(body.statements().len())
@@ -199,6 +227,7 @@ impl<'a> AnalyzerV1<'a> {
             parts.parameter_entries,
             parts.values,
             parts.direct_calls,
+            parts.qualified_method_calls,
             parts.definitions,
             parts.merge_profiles,
             terminal,
@@ -668,6 +697,77 @@ impl<'a> AnalyzerV1<'a> {
                 writes.extend(inner_writes);
                 result
             }
+            ASTNode::MethodCall { arguments, .. } => {
+                if !self.qualified_method_policy {
+                    return stop_expression(
+                        expression,
+                        TrivialProfileStopReasonV1::ExpressionOutsideProfile,
+                    );
+                }
+                let call = self
+                    .input
+                    .function()
+                    .method_call(expression.site())
+                    .ok_or_else(
+                        || TrivialProfileContractErrorV1::MissingMethodCallResolution {
+                            site: expression.site().clone(),
+                        },
+                    )?;
+                if !matches!(
+                    call.receiver(),
+                    crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
+                ) || call.qualified_receiver_identity().is_none()
+                {
+                    return stop_expression(
+                        expression,
+                        TrivialProfileStopReasonV1::ExpressionOutsideProfile,
+                    );
+                }
+                let mut argument_sites = Vec::with_capacity(arguments.len());
+                for index in 0..arguments.len() {
+                    let ordinal = u32::try_from(index).map_err(|_| {
+                        TrivialProfileContractErrorV1::DirectCallHeaderMismatch {
+                            site: expression.site().clone(),
+                        }
+                    })?;
+                    let argument = self
+                        .input
+                        .source()
+                        .child_expr_from_expr(expression, ExprChildRoleV1::CallArgument(ordinal))
+                        .map_err(|error| self.source_navigation(error))?;
+                    let representation = self.analyze_expr(&argument, environment, writes)?;
+                    if representation != TrivialRepresentationV1::InlineI64 {
+                        return stop_expression(
+                            &argument,
+                            TrivialProfileStopReasonV1::BinaryOperandsNotExact,
+                        );
+                    }
+                    argument_sites.push(argument.site().clone());
+                }
+                self.fact_coverage
+                    .method_call(self.input.function(), expression.site())?;
+                let row = VerifiedTrivialQualifiedMethodCallV1::seal(call).map_err(|detail| {
+                    TrivialProfileContractErrorV1::SourceNavigation {
+                        detail: detail.to_owned(),
+                    }
+                })?;
+                if row.arguments() != argument_sites.as_slice() {
+                    return Err(TrivialProfileContractErrorV1::SourceNavigation {
+                        detail:
+                            "[freeze:contract][trivial_profile/qualified-method-argument-sites]"
+                                .to_owned(),
+                    }
+                    .into());
+                }
+                self.draft.record_qualified_method_call(row)?;
+                self.qualified_method_count =
+                    self.qualified_method_count.checked_add(1).ok_or_else(|| {
+                        TrivialProfileContractErrorV1::QualifiedMethodCardinality {
+                            actual: u32::MAX,
+                        }
+                    })?;
+                return Ok(TrivialRepresentationV1::InlineI64);
+            }
             ASTNode::FunctionCall {
                 name, arguments, ..
             } => {
@@ -678,7 +778,7 @@ impl<'a> AnalyzerV1<'a> {
                             TrivialProfileStopReasonV1::ExpressionOutsideProfile,
                         )
                     }
-                    DirectCallPolicyV1::FiniteOneOrMore => {}
+                    DirectCallPolicyV1::FiniteZeroOrMore | DirectCallPolicyV1::FiniteOneOrMore => {}
                 }
                 let mut argument_sites = Vec::with_capacity(arguments.len());
                 for index in 0..arguments.len() {

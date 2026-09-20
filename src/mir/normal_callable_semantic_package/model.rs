@@ -8,6 +8,8 @@ use crate::mir::callable_parameter_contract::{
 };
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
+use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
+use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
 };
@@ -300,6 +302,40 @@ impl VerifiedNormalCallableSemanticPackageV1 {
                     {
                         return Err(
                             "[freeze:contract][mir/main-import-view/declaration-shape]".to_owned()
+                        );
+                    }
+                    let selected_key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+                        declaration.key().clone(),
+                    );
+                    let Some(batch_slot) = self.selected.batch_slot(&selected_key) else {
+                        return Err(
+                            "[freeze:contract][mir/main-import-view/selected-header-missing]"
+                                .to_owned(),
+                        );
+                    };
+                    let Some(header) = self.physical_header.row(batch_slot, &self.result_contracts)
+                    else {
+                        return Err(
+                            "[freeze:contract][mir/main-import-view/selected-header-missing]"
+                                .to_owned(),
+                        );
+                    };
+                    let exact_i64_params = self
+                        .parameter_contracts
+                        .iter()
+                        .find(|row| row.batch_slot == batch_slot)
+                        .is_some_and(|row| {
+                            row.parameters.iter().all(|parameter| {
+                                parameter.kind
+                                    == CallableParameterContractKindV1::ExactTrivial(
+                                        ExactTrivialParameterAbiV1::I64,
+                                    )
+                            })
+                        });
+                    if header.result() != ExactTrivialScalarAbiV1::I64 || !exact_i64_params {
+                        return Err(
+                            "[freeze:contract][mir/main-import-view/selected-header-not-exact-i64]"
+                                .to_owned(),
                         );
                     }
                     let argument_sites = call

@@ -114,12 +114,18 @@ pub(crate) enum TrivialProfileContractErrorV1 {
     MissingDirectCallResolution {
         site: SourceExprSiteV1,
     },
+    MissingMethodCallResolution {
+        site: SourceExprSiteV1,
+    },
     MissingCallableIndex,
     DirectCallCardinality {
         actual: u32,
     },
     DirectCallCardinalityOverflow {
         site: SourceExprSiteV1,
+    },
+    QualifiedMethodCardinality {
+        actual: u32,
     },
     DirectCallHeaderMismatch {
         site: SourceExprSiteV1,
@@ -128,6 +134,10 @@ pub(crate) enum TrivialProfileContractErrorV1 {
         site: SourceExprSiteV1,
     },
     DirectCallFactCoverageMismatch {
+        missing: Box<[SourceExprSiteV1]>,
+        extra: Box<[SourceExprSiteV1]>,
+    },
+    MethodCallFactCoverageMismatch {
         missing: Box<[SourceExprSiteV1]>,
         extra: Box<[SourceExprSiteV1]>,
     },

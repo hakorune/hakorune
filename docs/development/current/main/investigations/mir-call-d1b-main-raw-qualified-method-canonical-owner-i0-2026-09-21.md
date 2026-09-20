@@ -1,10 +1,10 @@
 ---
-Status: selected__2026-09-21__MainQualifiedMethodCanonicalOwner
+Status: closed__2026-09-21__MainQualifiedMethodCanonicalOwner
 Task: MIR-CALL-D1B-MAIN-RAW-QUALIFIED-METHOD-CANONICAL-OWNER-I0
 Date: 2026-09-21
 Parent: mir-call-d1b-main-raw-qualified-method-canonical-owner-d0-2026-09-21.md
 Implementation permission: true for the bounded owner tuple below
-NextCard: acceptance follow-up after focused evidence
+NextCard: acceptance follow-up for other qualified/static shapes
 ---
 
 # Main qualified MethodCall canonical owner I0
@@ -22,7 +22,8 @@ Fail-fast boundary: exact site/receiver/declaration/ordered args, selected
   callee ExactI64 header, InlineI64 arguments, one-shot consumption, and empty
   residual relation before canonical session finish.
 Smallest slice: issue the row, lower it through CanonicalTrivialSsaLowererV1,
-  emit the existing target-only terminal, then switch only the Main caller.
+  consume the existing selected-result handoff or target-only terminal, then
+  switch only the Main caller.
 Non-claims: strings/objects, nested or instance methods, me, VM parity,
   broad production cutover, and LegacyCallV0 retirement.
 ```
@@ -38,8 +39,9 @@ Non-claims: strings/objects, nested or instance methods, me, VM parity,
    argument site.  Relation errors are typed before Builder effects.
 3. Extend the existing analyzer/lowerer pair.  A MethodCall arm claims the
    exact row, recursively lowers its arguments through canonical `lower_expr`,
-   requires `InlineI64`, emits `emit_static_global_target_value_terminal_v1`,
-   and reports the row's `InlineI64` result.  The existing
+   requires `InlineI64`, consumes the existing selected-result publication
+   handoff (or target-only terminal when no result row exists), and reports the
+   row's `InlineI64` result.  The existing
    `CanonicalSsaFunctionSessionV2` finish chain remains the only completion.
 4. In `lower_app_main_root_body_v1`, select this owner before
    `inner.lower_body` only when the complete bounded recipe is admitted.  A
@@ -69,3 +71,24 @@ This card does not admit String/OwnedText results, Map/Handle arguments,
 conditional-value joins, nested owner forests, `me.method`, instance methods,
 ScriptRoot, compatibility or VM lanes, publication ABI changes, or old-edge
 deletion outside the selected Main qualified family.
+
+## Focused evidence and closeout
+
+- `cargo check --profile quick --lib -j4`: PASS; the pre-existing warning
+  baseline remains (1,845 library warnings).
+- `cargo test --profile quick --lib
+  source_backed_app_main_qualified_static_call_uses_canonical_owner
+  -- --test-threads=1 --nocapture`: PASS (1/1).  The installed source-backed
+  Main caller emits one canonical `Helpers.run/1` `Call`, has no legacy call,
+  and the normal collector drains the cataloged child.
+- `cargo test --profile quick --lib app_main_qualified_receiver_relation
+  -- --test-threads=1`: PASS (4/4), including direct/alias/foreign and
+  one-shot exact-site relation checks.
+- `git diff --check` and `current_state_pointer_guard.sh`: PASS.
+
+The selected exact-i64 publication handoff is now consumed and committed by
+the existing physical receipt bridge; no new ABI or result authority was
+introduced.  The normal cataloged child admission uses its existing
+`CatalogedBoxMethod` collector key.  Broader qualified shapes, VM/compatibility
+lanes, parser source-to-MIR acceptance, old-edge retirement, and warning
+cleanup remain outside this closeout.

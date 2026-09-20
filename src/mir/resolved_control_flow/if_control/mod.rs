@@ -22,5 +22,7 @@ pub(crate) use use_ledger::{
 
 pub(super) use analyzer::{analyze_resolved_if_control_v1, ResolvedIfControlErrorV1};
 pub(crate) use analyzer::{
-    verify_resolved_function_if_control_v1, verify_resolved_function_if_control_with_direct_call_v1,
+    verify_resolved_function_if_control_v1,
+    verify_resolved_function_if_control_with_direct_call_v1,
+    verify_resolved_function_if_control_with_qualified_method_v1,
 };

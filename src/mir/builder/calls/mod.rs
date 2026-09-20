@@ -79,13 +79,16 @@ pub(in crate::mir::builder) use method_call_descent::{
     MethodCallArgumentDescentV1, MethodCallDescentPortV1, RawLegacyMethodCallInputV1,
 };
 pub(in crate::mir::builder) use method_call_terminal::emit_standard_value_terminal_raw_v1;
+pub(in crate::mir::builder) use method_call_terminal::emit_static_global_target_value_terminal_v1;
 pub(in crate::mir::builder) use method_call_terminal::emit_static_global_value_terminal_with_receipt_v1;
 pub(in crate::mir::builder) use method_call_terminal::MethodCallValueTerminalPortV1;
 pub(in crate::mir::builder) use method_call_terminal::{
     StandardMethodCallCompletionV1, StaticMethodCallCompletionV1,
 };
 pub(in crate::mir::builder) use static_result_publication_physical_bridge::{
-    lower_selected_static_result_publication_v1, lower_target_only_static_result_publication_v1,
+    lower_selected_static_result_publication_v1,
+    lower_selected_static_result_publication_with_arguments_v1,
+    lower_target_only_static_result_publication_v1,
     lower_target_only_static_result_publication_with_expected_sites_v1,
 };
 #[cfg(test)]

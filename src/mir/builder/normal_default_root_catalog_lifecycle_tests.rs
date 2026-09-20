@@ -419,6 +419,50 @@ fn source_backed_app_main_direct_call_consumes_affine_loan() {
 }
 
 #[test]
+fn source_backed_app_main_qualified_static_call_uses_canonical_owner() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        "static box Helpers { run(value: i64): i64 { return value } } static box Main { main() { return Helpers.run(2) } }",
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("source-backed qualified Main call must use the canonical owner");
+    let (_, module, _) = completed.into_parts();
+    let main = module
+        .functions
+        .iter()
+        .find(|(_, function)| function.signature.name == "main")
+        .map(|(_, function)| function)
+        .expect("lowered Main function");
+    let call = main
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .find_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Call(call) => Some(call),
+            crate::mir::MirInstruction::LegacyCallV0 { .. } => None,
+            _ => None,
+        })
+        .expect("qualified call physical terminal");
+    assert_eq!(
+        call.callee,
+        crate::mir::Callee::Global(
+            hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+                "Helpers", "run", 1,
+            )
+            .canonical_global_target_v1()
+            .expect("qualified static target"),
+        )
+    );
+    assert_eq!(module.canonical_callable_definition_count(), 1);
+}
+
+#[test]
 fn source_backed_declared_instance_me_method_emits_mandatory_receiver_call() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     let source = callable_source(

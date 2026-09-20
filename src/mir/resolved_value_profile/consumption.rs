@@ -12,7 +12,7 @@ use super::product::{
     TrivialBindingDefinitionOriginV1, TrivialProfileCoverageSubjectV1, TrivialRepresentationV1,
     TrivialTerminalProfileV1, VerifiedTrivialCanonicalOwnerV1, VerifiedTrivialParameterEntryV1,
 };
-use super::VerifiedTrivialDirectCallV1;
+use super::{VerifiedTrivialDirectCallV1, VerifiedTrivialQualifiedMethodCallV1};
 
 #[derive(Debug)]
 pub(crate) struct TrivialProfileConsumptionV1 {
@@ -80,6 +80,25 @@ impl TrivialProfileConsumptionV1 {
                 format!("[freeze:contract][trivial_profile/direct_call_missing] site={site:?}")
             })?;
         self.claim(TrivialProfileCoverageSubjectV1::DirectCall(site.clone()))?;
+        Ok(row)
+    }
+
+    pub(crate) fn claim_qualified_method_call(
+        &mut self,
+        site: &SourceExprSiteV1,
+    ) -> Result<VerifiedTrivialQualifiedMethodCallV1, String> {
+        let row = self
+            .product
+            .qualified_method_calls()
+            .iter()
+            .find(|row| row.site() == site)
+            .cloned()
+            .ok_or_else(|| {
+                format!("[freeze:contract][trivial_profile/qualified_method_missing] site={site:?}")
+            })?;
+        self.claim(TrivialProfileCoverageSubjectV1::QualifiedMethodCall(
+            site.clone(),
+        ))?;
         Ok(row)
     }
 

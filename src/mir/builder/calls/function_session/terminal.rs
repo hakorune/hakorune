@@ -195,6 +195,22 @@ impl MirBuilder {
         .capture_pending(operation)
     }
 
+    /// Capture a draft whose operation already owns and closes its canonical
+    /// resolved session. The outer scope only retains caller context until
+    /// collector admission and must not issue a second resolved obligation.
+    pub(in crate::mir::builder) fn capture_resolved_function_pending_after_owned_close_v1(
+        &mut self,
+        function_name: &str,
+        operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+    ) -> Result<PendingFunctionSessionCloseV1<'_>, CanonicalFunctionSessionErrorV1> {
+        CanonicalFunctionLoweringSessionV1::open(
+            self,
+            function_name,
+            super::FunctionBodyCaptureV1::Legacy(Vec::new()),
+        )
+        .capture_pending(operation)
+    }
+
     /// Capture one raw legacy child without publishing it after restoration.
     ///
     /// This is disconnected S0 vocabulary.  The legacy body snapshot retains

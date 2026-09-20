@@ -9,6 +9,7 @@ use crate::mir::resolved_semantics::{
 
 use super::direct_call::VerifiedTrivialDirectCallV1;
 use super::nested_recipe_facts::VerifiedNestedTrivialIfRecipeFactsV1;
+use super::qualified_method::VerifiedTrivialQualifiedMethodCallV1;
 use super::recipe_facts::VerifiedTrivialIfRecipeFactsV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -215,6 +216,7 @@ impl VerifiedTrivialFunctionReturnV1 {
 pub(crate) enum TrivialProfileCoverageSubjectV1 {
     Value(SourceExprSiteV1),
     DirectCall(SourceExprSiteV1),
+    QualifiedMethodCall(SourceExprSiteV1),
     Definition {
         binding: BindingRefV1,
         origin: TrivialBindingDefinitionOriginV1,
@@ -259,6 +261,7 @@ pub(crate) struct VerifiedTrivialCanonicalOwnerV1 {
     parameter_entries: Box<[VerifiedTrivialParameterEntryV1]>,
     values: Box<[VerifiedLocatedTrivialValueV1]>,
     direct_calls: Box<[VerifiedTrivialDirectCallV1]>,
+    qualified_method_calls: Box<[VerifiedTrivialQualifiedMethodCallV1]>,
     definitions: Box<[VerifiedTrivialBindingDefinitionV1]>,
     merge_profiles: Box<[VerifiedTrivialIfMergeProfileV1]>,
     terminal: TrivialTerminalProfileV1,
@@ -275,6 +278,7 @@ impl VerifiedTrivialCanonicalOwnerV1 {
         parameter_entries: Vec<VerifiedTrivialParameterEntryV1>,
         values: Vec<VerifiedLocatedTrivialValueV1>,
         direct_calls: Vec<VerifiedTrivialDirectCallV1>,
+        qualified_method_calls: Vec<VerifiedTrivialQualifiedMethodCallV1>,
         definitions: Vec<VerifiedTrivialBindingDefinitionV1>,
         merge_profiles: Vec<VerifiedTrivialIfMergeProfileV1>,
         terminal: TrivialTerminalProfileV1,
@@ -288,6 +292,7 @@ impl VerifiedTrivialCanonicalOwnerV1 {
             parameter_entries: parameter_entries.into_boxed_slice(),
             values: values.into_boxed_slice(),
             direct_calls: direct_calls.into_boxed_slice(),
+            qualified_method_calls: qualified_method_calls.into_boxed_slice(),
             definitions: definitions.into_boxed_slice(),
             merge_profiles: merge_profiles.into_boxed_slice(),
             terminal,
@@ -313,6 +318,10 @@ impl VerifiedTrivialCanonicalOwnerV1 {
 
     pub(crate) fn direct_calls(&self) -> &[VerifiedTrivialDirectCallV1] {
         &self.direct_calls
+    }
+
+    pub(crate) fn qualified_method_calls(&self) -> &[VerifiedTrivialQualifiedMethodCallV1] {
+        &self.qualified_method_calls
     }
 
     pub(crate) fn definitions(&self) -> &[VerifiedTrivialBindingDefinitionV1] {
@@ -360,6 +369,12 @@ impl VerifiedTrivialCanonicalOwnerV1 {
                     .iter()
                     .find(|row| row.site() == site)
                     .map(VerifiedTrivialDirectCallV1::result)
+            })
+            .or_else(|| {
+                self.qualified_method_calls
+                    .iter()
+                    .find(|row| row.site() == site)
+                    .map(VerifiedTrivialQualifiedMethodCallV1::result)
             })
     }
 }

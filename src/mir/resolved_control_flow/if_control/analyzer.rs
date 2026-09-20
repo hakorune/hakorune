@@ -85,10 +85,26 @@ pub(crate) fn verify_resolved_function_if_control_with_direct_call_v1(
         })
 }
 
+/// Coverage ingress for the bounded normal-Main qualified static-method row.
+/// Method identity and target admission remain owned by the resolver profile;
+/// this verifier only proves that the receiver and ordered arguments belong to
+/// the function's source coverage partition.
+pub(crate) fn verify_resolved_function_if_control_with_qualified_method_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    completion: &VerifiedFunctionCompletionV1,
+) -> Result<VerifiedResolvedFunctionIfControlV1, ResolvedFunctionIfControlContractErrorV1> {
+    IfControlAnalyzerV1::new(input, completion, ExpressionPolicyV1::QualifiedMethod)
+        .and_then(IfControlAnalyzerV1::analyze)
+        .map_err(|error| ResolvedFunctionIfControlContractErrorV1 {
+            detail: format!("{error:?}"),
+        })
+}
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum ExpressionPolicyV1 {
     Closed,
     DirectCall,
+    QualifiedMethod,
 }
 
 struct IfControlRowDraftV1<'source> {
@@ -348,6 +364,28 @@ impl<'source> IfControlAnalyzerV1<'source> {
             ASTNode::FunctionCall { arguments, .. }
                 if self.expression_policy == ExpressionPolicyV1::DirectCall =>
             {
+                for index in 0..arguments.len() {
+                    let child = self
+                        .input
+                        .source()
+                        .child_expr_from_expr(
+                            expression,
+                            ExprChildRoleV1::CallArgument(checked_index(index)?),
+                        )
+                        .map_err(source_navigation)?;
+                    self.visit_expression(&child, owner_row)?;
+                }
+                Ok(())
+            }
+            ASTNode::MethodCall { arguments, .. }
+                if self.expression_policy == ExpressionPolicyV1::QualifiedMethod =>
+            {
+                let receiver = self
+                    .input
+                    .source()
+                    .child_expr_from_expr(expression, ExprChildRoleV1::Receiver)
+                    .map_err(source_navigation)?;
+                self.visit_expression(&receiver, owner_row)?;
                 for index in 0..arguments.len() {
                     let child = self
                         .input
