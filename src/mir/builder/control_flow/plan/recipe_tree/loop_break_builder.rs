@@ -53,7 +53,7 @@ fn should_dedupe_carrier_update(facts: &LoopBreakFacts) -> bool {
 /// * `loop_cond_view` - CondBlockView for the loop condition
 /// * `break_cond_view` - CondBlockView for the break condition
 /// * `facts` - LoopBreakFacts extracted from AST
-pub(super) fn build_loop_break_recipe(
+pub(in crate::mir::builder) fn build_loop_break_recipe(
     loop_stmt: &ASTNode,
     loop_cond_view: CondBlockView,
     break_cond_view: CondBlockView,
@@ -197,6 +197,77 @@ pub(super) fn build_loop_break_recipe(
     );
 
     Some(BuiltRecipeTree { arena, root })
+}
+
+/// Build the same LoopBreak recipe shape while retaining the resolver-located
+/// statements.  The compatibility constructor above intentionally synthesizes
+/// dummy nodes for the legacy `LoopRouteContext` path; a source consumer must
+/// use this constructor so `CallableLoopSourcePartsBlockV1` can prove every
+/// recipe body entry against the exact source carrier.
+pub(in crate::mir::builder) fn build_loop_break_source_recipe(
+    loop_stmt: &ASTNode,
+    loop_body: &[ASTNode],
+    break_then_body: &[ASTNode],
+    loop_cond_view: CondBlockView,
+    break_cond_view: CondBlockView,
+    facts: &LoopBreakFacts,
+) -> Result<BuiltRecipeTree, &'static str> {
+    if loop_body.len() != 3 || facts.step_placement != LoopBreakStepPlacement::Last {
+        return Err("source-loopbreak-shape");
+    }
+    if !matches!(
+        loop_body.first(),
+        Some(ASTNode::If {
+            else_body: None,
+            then_body,
+            ..
+        }) if then_body.len() == 1 && matches!(then_body.first(), Some(ASTNode::Break { .. }))
+    ) {
+        return Err("source-loopbreak-break-if");
+    }
+    if break_then_body.len() != 1 || !matches!(break_then_body.first(), Some(ASTNode::Break { .. }))
+    {
+        return Err("source-loopbreak-break-body");
+    }
+
+    let mut arena = RecipeBodies::new();
+    let loop_body_id = arena.register(RecipeBody::new(vec![loop_stmt.clone()]));
+    let break_body_id = arena.register(RecipeBody::new(break_then_body.to_vec()));
+    let combined_body_id = arena.register(RecipeBody::new(loop_body.to_vec()));
+    let break_then_block = RecipeBlock::new(
+        break_body_id,
+        vec![RecipeItem::Exit {
+            kind: ExitKind::Break { depth: 1 },
+            stmt: StmtRef::new(0),
+        }],
+    );
+    let break_if_item = RecipeItem::IfV2 {
+        if_stmt: StmtRef::new(0),
+        cond_view: break_cond_view,
+        contract: IfContractKind::ExitOnly {
+            mode: IfMode::ExitIf,
+        },
+        then_block: Box::new(break_then_block),
+        else_block: None,
+    };
+    let mut loop_body_items = vec![break_if_item];
+    if !should_dedupe_carrier_update(facts) {
+        loop_body_items.push(RecipeItem::Stmt(StmtRef::new(1)));
+    }
+    loop_body_items.push(RecipeItem::Stmt(StmtRef::new(2)));
+    let loop_body_block = RecipeBlock::new(combined_body_id, loop_body_items);
+    let root = RecipeBlock::new(
+        loop_body_id,
+        vec![RecipeItem::LoopV0 {
+            loop_stmt: StmtRef::new(0),
+            kind: LoopKindV0::WhileLike,
+            cond_view: loop_cond_view,
+            body_block: Box::new(loop_body_block),
+            body_contract: BlockContractKind::ExitAllowed,
+            features: LoopV0Features::default(),
+        }],
+    );
+    Ok(BuiltRecipeTree { arena, root })
 }
 
 #[cfg(test)]

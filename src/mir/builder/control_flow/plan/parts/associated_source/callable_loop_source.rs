@@ -51,7 +51,7 @@ pub(in crate::mir::builder) struct CallableLoopSourcePartsBlockV1<'view> {
 impl<'view> CallableLoopSourcePartsBlockV1<'view> {
     /// Pair a `from_ref(stmt)` singleton recipe with its located statement.
     /// The recipe body must be exactly one verbatim clone of the statement.
-    pub(in crate::mir::builder::control_flow::plan::parts) fn singleton(
+    pub(in crate::mir::builder) fn singleton(
         arena: &'view RecipeBodies,
         block: &'view RecipeBlock,
         stmt: CallableLoopSourceStmtInputV1<'view>,

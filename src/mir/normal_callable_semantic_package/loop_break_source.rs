@@ -13,7 +13,7 @@ use crate::mir::builder::{
 use crate::mir::callable_semantic_batch::{
     ResolvedCallableSemanticBatchLoanErrorV1, VerifiedResolvedCallableSemanticBatchV1,
 };
-use crate::mir::resolved_semantics::{FunctionOriginV1, FunctionOwnerIdV1};
+use crate::mir::resolved_semantics::{FunctionOriginV1, FunctionOwnerIdV1, SourceStmtSiteV1};
 use std::collections::BTreeSet;
 
 #[derive(Debug)]
@@ -76,6 +76,16 @@ impl LoopBreakSourcePackageLoanV1 {
                 let _ = (owner, loop_count);
                 false
             }
+        }
+    }
+
+    pub(in crate::mir) fn take_candidate_for_site(
+        &mut self,
+        site: &SourceStmtSiteV1,
+    ) -> Option<crate::mir::builder::VerifiedCallableLoopBreakSourceCandidateV1> {
+        match self {
+            Self::Candidate(facts) => facts.take_candidate_for_site(site),
+            Self::SupportedNonCandidate { .. } => None,
         }
     }
 }

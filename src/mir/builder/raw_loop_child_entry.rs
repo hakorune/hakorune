@@ -52,6 +52,7 @@ pub(in crate::mir::builder) enum RawLoopChildEntryDispositionV1 {
 /// source location before the current route owner.
 pub(in crate::mir::builder) struct PreparedLocatedRawLoopChildEntryV1<'source> {
     parent_source: &'source RawInvocationSourceContextV1,
+    loop_node: ASTNode,
     condition_source: RawInvocationSourceContextV1,
     body_source: RawInvocationSourceContextV1,
     condition: ASTNode,
@@ -148,9 +149,10 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         let body_source = parent_source.child_body(&loop_node, BodyChildRoleV1::LoopBody)?;
         verify_exact_loop_child_receipts(&condition_source, &body_source)?;
 
+        let loop_node = loop_node;
         let ASTNode::Loop {
             condition, body, ..
-        } = loop_node
+        } = loop_node.clone()
         else {
             return Err("[freeze:contract][raw-loop-child-entry/expected-loop]".to_owned());
         };
@@ -158,6 +160,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
 
         Ok(Self {
             parent_source,
+            loop_node,
             condition_source,
             body_source,
             condition: *condition,
@@ -229,6 +232,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
     ) -> Result<ValueId, String> {
         let Self {
             parent_source,
+            loop_node,
             condition_source,
             body_source,
             condition,
@@ -258,7 +262,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             None => return lower_non_callable_loop_legacy_v1(builder, condition, body),
         };
         let owner = binding_product.owner();
-        let (function_origin, source_kind, source_projection, source_items) =
+        let (function_origin, source_kind, mut source_projection, source_items) =
             if let Some(callable_ledger) = callable_ledger {
                 let Some(parent_site) = parent_source.site() else {
                     return Err(
@@ -291,8 +295,54 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             } else {
                 (None, None, None, Box::default())
             };
+        let loop_break_candidate = match (callable_ledger, parent_source.site()) {
+            (Some(callable_ledger), Some(parent_site)) => callable_ledger
+                .borrow_mut()
+                .take_loop_break_source_candidate(parent_site)?,
+            _ => None,
+        };
+        match loop_break_candidate {
+            Some(candidate) => {
+                let callable_ledger = callable_ledger.ok_or_else(|| {
+                    "[freeze:contract][callable-loop/loop-break/source-port-ledger-missing]"
+                        .to_owned()
+                })?;
+                let forest_projection = source_projection.take().ok_or_else(|| {
+                    "[freeze:contract][callable-loop/loop-break/source-forest-missing]".to_owned()
+                })?;
+                let physical_input = candidate.into_physical_input(
+                    parent_source,
+                    loop_node,
+                    condition_source,
+                    body_source,
+                    condition,
+                    body,
+                    binding_product,
+                    forest_projection,
+                    source_items,
+                    source_target_probe,
+                    callable_ledger,
+                )?;
+                let plan = crate::mir::builder::control_flow::plan::features::
+                    loop_break_source::lower_loop_break_source(builder, &physical_input)?;
+                crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
+                    .map_err(|error| format!("[freeze:contract][callable-loop/verify] {error}"))?;
+                let context = crate::mir::builder::control_flow::plan::features::
+                    generic_loop_context::GenericLoopV1SourceLoweringContextV1::new(
+                        debug,
+                        in_static_box,
+                    );
+                return crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower(
+                    builder, plan, &context,
+                )
+                .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
+                .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned());
+            }
+            None => {}
+        }
         let prepared = Self {
             parent_source,
+            loop_node,
             condition_source,
             body_source,
             condition,
@@ -444,6 +494,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
     ) -> Result<PreparedCallableGenericLoopSourceFactsPayloadV1<'source>, String> {
         let Self {
             parent_source,
+            loop_node: _,
             condition_source,
             body_source,
             condition,

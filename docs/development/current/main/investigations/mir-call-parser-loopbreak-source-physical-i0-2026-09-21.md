@@ -164,8 +164,14 @@ route tests remain separate evidence.
 ## Implementation acceptance evidence
 
 The design stop is closed by the accepted owner/input/caller/delete tuple above.
-Implementation must prove the listed source-to-MIR and negative evidence; a
-local transport green is not source-to-MIR acceptance.
+The source-bound adapter and raw-caller consume are now type-checked, and the
+existing focused LoopBreak source/package matrix is green (15/15 tests). The
+merged parser lifecycle smoke also remains green, but it still terminates at
+the named `GenericLoopV1NotSelected` boundary because the parser's
+`starts_with/3` call is inside the larger LoopCond body rather than this
+direct three-statement LoopBreak shape. This is dependency evidence only;
+the direct parser source-to-MIR, negative physical matrix, publication, and
+selected old-edge retirement remain open.
 
 ## Non-claims
 
