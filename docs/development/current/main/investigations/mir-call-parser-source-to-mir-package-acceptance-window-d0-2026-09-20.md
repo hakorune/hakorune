@@ -1,5 +1,5 @@
 ---
-Status: design_stop__2026-09-20__ParserSourceToMirPackageAcceptanceWindow
+Status: handed_off__2026-09-20__ParserLoopBreakSourceConsumer
 Task: MIR-CALL-PARSER-SOURCE-TO-MIR-PACKAGE-ACCEPTANCE-WINDOW-D0
 Current execution row: MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0__PackageAcceptanceWindowD0
 Date: 2026-09-20
@@ -115,20 +115,22 @@ The following are rejected in this D0:
 - issuing a synthetic `Cataloged`/`Selected` receipt before the package owner
   and consumer are named.
 
-## Acceptance for the next design decision
+## Handoff decision
 
-The design stop closes only when one existing owner is named for an
-acceptance-window observation that:
+The owner audit did not find an existing package-scoped acceptance observer
+that can consume the selected tuple while preserving whole-package coverage.
+The selected-call APIs are scoped loans, and `complete()` requires every
+selected method; a target-only lowerer, skipped `LoopBreakRecipe`, or partial
+package would violate the package authority. This is therefore a confirmed
+`NoSafeSlice`, not an acceptance failure to hide.
 
-1. consumes the resolver-issued selected tuple from the installed package;
-2. preserves all other package methods and records the dependency terminal;
-3. has a finite positive/negative matrix for exact site, target, signature,
-   result/effect, foreign row, duplicate row, and package-brand drift; and
-4. states whether the missing `LoopBreak` source consumer is a separate
-   bounded design row, with its own source issuer, physical consumer, and
-   exclusive old-edge delete-set. The dependency-only row above records that
-   split without reopening the parked LoopBreak route in this card.
+The missing owner is now a separate bounded design row:
+`MIR-CALL-PARSER-LOOPBREAK-SOURCE-CONSUMER-D0` in
+`mir-call-parser-loopbreak-source-consumer-d0-2026-09-20.md`. That row owns
+the finite dependency inventory, source-issuer decision, existing physical
+consumer choice, pre-effect reject, and exclusive old-edge delete-set.
 
-Until then the parent LoopCond handoff card remains implemented through D2 but
-does not claim parser source-to-MIR acceptance, publication, old-edge deletion,
-or production switching.
+The parent LoopCond handoff remains implemented through D2, but this card
+claims no parser source-to-MIR acceptance, publication, old-edge deletion, or
+production switching. The named `GenericLoopV1NotSelected` terminal remains
+unchanged until the next design row closes its owner boundary.
