@@ -874,18 +874,63 @@ binding disposition, forged `ExactI64`/`[1]` target relation minted via
 verify -> `PlanLowerer` -> `Ok(ValueId)`. The sibling test fixture uses a
 `Variable` receiver so the call lowers without a registered box.
 `armed_loop_cond_edge_rejects_missing_source_target` pins the named
-`LoopCondRouteRejected(SourceTargetMissing)` terminal when no publication
-row is installed. The `raw_loop_child`/`callable_loop_source`/
+`LoopCondRouteRejected(SourceTargetUnselected)` terminal when no
+publication row is installed. The `raw_loop_child`/`callable_loop_source`/
 `source_loop_bridge`/`merged_route`/`unarmed_nested`/`physical_adapter`
 filter set passes 67/67.
 
 This receipt claims only the physical consumer, its caller wiring, and the
 focused armed-edge evidence. It does not claim the caller-side publication
-installation (production `source_target_for_loop` still yields
-`SourceTargetMissing` until the selected static publication row is wired),
+installation (production `source_target_for_loop` still yields no relation
+until the selected static publication row is wired),
 `callable_handoff=None` legacy-edge retirement, raw item-branch deletion, or
 the `parse/2` source-to-exe closeout — those stay bounded follow-ups in the
 card order.
+
+### Source-target terminal diagnosis receipt — publication audit
+
+A read-only worker audit corrected this card's earlier hypothesis: the
+armed source route is selected only when `callable_loop_root_scope` is
+`Some`, which only the Installed `RawInvocationChildPortV1` constructor
+passes, and `program_root_lowering.rs` installs the
+`VerifiedStaticCallResultPublicationOwnerV1` before constructing that port.
+`SourceTargetMissing` in the merged run is therefore not a Compatibility
+owner-install gap.
+
+`source_target_for_loop` still returns `Ok(None)` for every non-applicable
+exit (non-cataloged lineage, missing site, missing/empty ledger items) —
+that `None` is load-bearing: the function runs for every loop reaching the
+armed scope, including unarmed, GenericLoop, and nested loops that never
+consume a target relation. An earlier variant of this slice made those
+exits fatal and immediately regressed
+`unarmed_nested_loop_keeps_generic_loop_boundary`; the design was reverted.
+The diagnosis instead lives at the LoopCond issue boundary, where
+`source_items` is already proven non-empty: a missing relation there now
+rejects as `SourceTargetUnselected { call_sites }` carrying every probed
+item site, while `SourceTargetMissing` stays only at the
+`into_physical_parts` physical-transfer boundary.
+
+`merged_parser_static_inventory_probe` pins the inventory facts behind the
+terminal: 65 observed callers, 430 calls, 104 targets, no bounded
+observation unavailability; `ParserProgramBox.parse/2` does publish
+`starts_with/3` target rows inside its loop; but the first reached armed
+LoopCond loop is `StringHelpers.index_of/3`, whose two loop items are
+`Qualified(Bound)` `substring/2` calls — bound-receiver calls never carry
+a static publication row, so `SourceTargetUnselected` is the correct
+route-contract reject, not a missing-install bug. The merged guard test
+now asserts that terminal.
+
+Focused evidence: `merged_parser` 2/2, `raw_loop_child` 12/12,
+`callable_loop_source` 48/48, `normal_callable_loop_source` 22/22,
+`loop_cond_bc` 10/10, `normal_callable_loop_source_facts` 16/16.
+
+This receipt claims only the named-terminal diagnosis and the inventory
+probe. It does not claim a route-contract resolution — whether armed
+LoopCond selection should skip loops whose items are all bound-receiver
+calls, or whether the static-target requirement itself should be relaxed
+for them, is an open design question for this card. It also does not claim
+`callable_handoff=None` retirement, raw item-branch deletion, or the
+`parse/2` source-to-exe closeout.
 
 ## Focused validation
 

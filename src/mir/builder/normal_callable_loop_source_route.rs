@@ -33,6 +33,12 @@ pub(in crate::mir::builder) enum CallableLoopSourceRouteRejectV1 {
     SourceTargetSiteMismatch,
     SourceTargetMultiple,
     SourceTargetRequirementMismatch,
+    /// The bound source items exist but no selected publication relation was
+    /// supplied for any of them. `call_sites` records the probed item sites
+    /// so the terminal is diagnosable without re-running the port.
+    SourceTargetUnselected {
+        call_sites: Box<[SourceExprSiteV1]>,
+    },
     SourceIdentityMissing,
     SourceParentMissing,
 }
@@ -254,8 +260,15 @@ impl CallableLoopSourceRouteTokenV1 {
         {
             return Err(CallableLoopSourceRouteRejectV1::SourceItemOutsideLoop);
         }
-        let source_target =
-            source_target.ok_or(CallableLoopSourceRouteRejectV1::SourceTargetMissing)?;
+        let source_target = source_target.ok_or_else(|| {
+            CallableLoopSourceRouteRejectV1::SourceTargetUnselected {
+                call_sites: source_items
+                    .iter()
+                    .map(|item| item.call_site().clone())
+                    .collect::<Vec<_>>()
+                    .into_boxed_slice(),
+            }
+        })?;
         if !source_items
             .iter()
             .any(|item| item.call_site() == source_target.call_site())

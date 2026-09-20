@@ -502,7 +502,7 @@ fn armed_loop_cond_edge_lowers_through_the_source_port() {
     });
 }
 
-/// The same armed edge must still stop at the named `SourceTargetMissing`
+/// The same armed edge must still stop at the named `SourceTargetUnselected`
 /// boundary when the selected static publication row is not installed.
 #[test]
 fn armed_loop_cond_edge_rejects_missing_source_target() {
@@ -547,7 +547,7 @@ fn armed_loop_cond_edge_rejects_missing_source_target() {
             .expect_err("missing source target must stay a named terminal")
         });
     assert!(
-        error.contains("LoopCondRouteRejected(SourceTargetMissing)"),
+        error.contains("LoopCondRouteRejected(SourceTargetUnselected"),
         "unexpected terminal: {error}"
     );
 }

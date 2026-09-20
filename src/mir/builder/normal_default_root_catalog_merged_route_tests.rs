@@ -69,16 +69,134 @@ fn merged_parser_program_source_stops_at_named_loop_boundary_before_static_targe
             )
             .expect_err("parser program must stop at its named loop boundary");
         let message = rejected.error().to_string();
-        // The LoopCond source handoff card now selects the parser loop,
-        // so the named boundary moved one step deeper: the route token
-        // requires a selected static-result publication row, which the
-        // Compatibility caller path does not install yet. The stop is
-        // still before any static catalog row or physical consumption.
+        // The LoopCond source handoff card selects the armed parser loops.
+        // The first reached one is `StringHelpers.index_of/3`, whose loop
+        // items are Bound-receiver `substring` calls with no selected
+        // publication row, so the boundary is the typed
+        // `SourceTargetUnselected` terminal carrying the probed item sites —
+        // still strictly before any static catalog row or physical
+        // consumption.
         assert!(
             message.contains("[freeze:contract][callable-loop/route-not-front-selected]")
-                && message.contains("LoopCondRouteRejected(SourceTargetMissing)"),
+                && message.contains("LoopCondRouteRejected(SourceTargetUnselected"),
             "unexpected parser loop terminal: {message}"
         );
         rejected.discard();
+    });
+}
+
+/// Diagnostic pin for the armed LoopCond edge: the merged parser source
+/// stops at `SourceTargetUnselected`, so pin the inventory facts behind it —
+/// every caller is observed, `parse/2` publishes `starts_with/3` targets
+/// inside the loop, and `index_of/3`'s loop items are Bound-receiver calls
+/// with no selected publication row.
+#[test]
+fn merged_parser_static_inventory_probe() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let env_updates: Vec<(&'static str, Option<&'static str>)> =
+        crate::test_support::JOINIR_DEFAULT_MODE
+            .into_iter()
+            .chain([
+                ("NYASH_ALLOW_USING_FILE", Some("1")),
+                ("NYASH_ENABLE_USING", Some("1")),
+                ("NYASH_OPERATOR_BOX_ALL", Some("0")),
+                ("NYASH_MACRO_DISABLE", Some("1")),
+            ])
+            .collect();
+    crate::test_support::with_env_vars(&env_updates, || {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+        let filename = root.join("lang/src/compiler/parser/program/parser_program_box.hako");
+        let code = std::fs::read_to_string(&filename).expect("parser program source");
+        let runner = NyashRunner::new(Default::default());
+        let prepared = prepare_normal_source_with_imports(
+            &runner,
+            filename.to_str().expect("utf8 parser path"),
+            &code,
+        )
+        .expect("merged parser source");
+        let transformed = materialize_normal_callable_program_with_identity_and_lineage_v1(
+            prepared.code,
+            runner.parser_build_config(),
+            filename.to_string_lossy().into_owned(),
+            prepared.lineage,
+        )
+        .expect("merged parser materialization");
+        let NormalCallableMaterializationOutcomeV1::SourceBacked(source) = transformed else {
+            panic!("merged parser source must stay source-backed")
+        };
+
+        let mut resolver =
+            crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1::new(4_219)
+                .expect("resolver");
+        let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1(
+            &mut resolver,
+            source,
+        )
+        .expect("merged parser semantic package");
+        let declarations = package.declaration_catalog();
+        let imports =
+            crate::mir::source_call_target::VerifiedStaticImportAliasViewV1::seal(
+                declarations,
+                std::iter::empty::<(String, String)>(),
+            )
+            .expect("empty import view seals against merged declarations");
+        let inventory =
+            crate::mir::source_call_target::VerifiedWholeSourceStaticCallTargetInventoryV1::verify(
+                declarations,
+                &imports,
+            )
+            .expect("merged parser inventory");
+
+        // The merged inventory observes every caller and publishes the
+        // acceptance tuple rows: `ParserProgramBox.parse/2` carries
+        // `ParserStringUtilsBox.starts_with/3` targets inside the loop body.
+        assert!(inventory.first_method_observation_unavailability().is_none());
+        let parse_key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "ParserProgramBox",
+            "parse",
+            2,
+        );
+        let starts_with_targets = inventory
+            .calls()
+            .filter(|row| row.call().caller() == &parse_key)
+            .filter(|row| row.call().method() == "starts_with")
+            .filter(|row| {
+                row.call()
+                    .site()
+                    .node()
+                    .segments()
+                    .iter()
+                    .any(|segment| {
+                        matches!(
+                            segment,
+                            crate::mir::resolved_semantics::SourcePathSegmentV1::LoopBody(_)
+                        )
+                    })
+            })
+            .filter(|row| inventory.target(&parse_key, row.call().site()).is_some())
+            .count();
+        assert!(
+            starts_with_targets > 0,
+            "merged parser inventory must publish starts_with targets inside the parse loop"
+        );
+        // The first reached armed LoopCond loop belongs to
+        // `StringHelpers.index_of/3`; its loop items are Bound-receiver
+        // `substring` calls, so none publish a static target row — that is
+        // the `SourceTargetUnselected` boundary the guard pins.
+        let index_of_key =
+            crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+                "StringHelpers",
+                "index_of",
+                3,
+            );
+        let index_of_published = inventory
+            .calls()
+            .filter(|row| row.call().caller() == &index_of_key)
+            .filter(|row| inventory.target(&index_of_key, row.call().site()).is_some())
+            .count();
+        assert_eq!(
+            index_of_published, 0,
+            "index_of loop items must stay unpublished (Bound receivers)"
+        );
     });
 }
