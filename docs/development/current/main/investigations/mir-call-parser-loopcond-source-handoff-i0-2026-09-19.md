@@ -1086,6 +1086,44 @@ the merged order still does not reach `parse/2`. Slice 2 (sole-route wiring)
 and slice 3 (receiver-consumer contract) remain. No caller reordering, no
 new Verified receipt family, no `None` acceptance was introduced.
 
+### A′ slice 2 audit — receiver-only owner boundary
+
+The existing CoreMethod source machinery was audited before opening the
+receiver-only route. `source_call_target::core_method` can co-seal a
+resolver-owned lexical receiver with a `StringBox` `length/0` or
+`substring/2` target, but its only composed product,
+`VerifiedSourceBoundS6CCallRelationV1`, is the parked fixed `ScanWithInit`
+shape: exactly one length call, exactly one substring call, one typed-input
+relation, and one S6C physical session. It is not consumed by the current
+`LoopCondBreakContinue` source bridge, and no production
+`CoreMethodInstanceTargetIssuerV1`/target inventory is installed in the
+current `ModuleLoweringPortV1` route.
+
+The first armed merged loop is `StringHelpers.index_of/3`. Its loop body has
+two resolver-issued `substring/2` bound-receiver items, while the length calls
+that establish `n` and `m` are outside the loop root. Reusing the parked S6C
+pair would therefore drop source coverage; adding a second target issuer or
+reopening the common-V2 lane would create a competing authority. The current
+source port also proves the remaining physical gap: its generic MethodCall
+receiver arms still consult the raw name map, while only standalone variable
+inputs consume `exact_source_variable_value` at the exact source site.
+
+Decision: keep `SourceCallOutsideSelectedFamily` as the named terminal and do
+not accept plain `None`, reorder the merged program, or revive S6C. The next
+bounded design slice must name one existing production owner for a per-call
+bound-CoreMethod target (including receiver binding, argument sites, Text
+result, and effect/fault completion) and show how that product is consumed by
+the current LoopCond source physical adapter. Until that owner and target
+issuer are identified, no route token or new `Verified*` receipt is issued.
+
+Evidence: source inspection of `source_call_target/core_method.rs`,
+`resolved_semantics/resolver_core_method_callable_contract.rs`,
+`normal_callable_loop_source_port.rs`,
+`control_flow/plan/normalizer/helpers_value/lower.rs`, and the merged
+`StringHelpers.index_of/3` inventory; the focused `merged_parser` guard
+remains 2/2 at the named terminal. This audit does not claim receiver
+physical lowering, parser acceptance, caller switch, or old-edge retirement.
+
 ## Focused validation
 
 Use one `cargo test --profile quick --lib` process with at most four build jobs
