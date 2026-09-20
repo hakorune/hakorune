@@ -1,6 +1,6 @@
 Task: REPO-HYGIENE-AUDIT-PUNCHLIST-2026-09-15
 Status: tracking card — verified findings; fifth-audit docs reconciliation is
-2/3 closed, with design-registry classification still open. The original
+3/3 closed for the current direct-file delta. The original
 rows below remain independently tracked unless a row says otherwise.
 Source: external day-3 audit (2-lens independent review) delivered 2026-09-15
 ---
