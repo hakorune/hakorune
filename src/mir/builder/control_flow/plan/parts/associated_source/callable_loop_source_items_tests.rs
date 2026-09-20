@@ -10,7 +10,7 @@ use std::rc::Rc;
 
 use super::callable_loop_source_items::lower_loop_cond_source_item;
 use super::callable_loop_source_testkit::{
-    function_body_source, integer, real_ledger, test_builder, variable,
+    function_body_source, integer, real_core_method_ledger, real_ledger, test_builder, variable,
 };
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
@@ -18,18 +18,21 @@ use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_b
 use crate::mir::builder::control_flow::facts::stmt_view::try_build_stmt_only_block_recipe;
 use crate::mir::builder::control_flow::plan::expression_port::LoopPlanExpressionPortV1;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_only_block_recipe;
+use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, IfMode};
+use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
+use crate::mir::builder::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
 use crate::mir::builder::normal_callable_loop_source_port::{
     CallableLoopSourceBodyInputV1, CallableLoopSourceExpressionPortV1,
 };
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::builder::MirBuilder;
-use crate::mir::resolved_semantics::BodyChildRoleV1;
-use crate::mir::ValueId;
+use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
+use crate::mir::{MirType, ValueId};
 
 /// Drive one issued item through the located dispatcher under the pinned
 /// default JoinIR mode, sharing `builder`/`bindings` across calls exactly
@@ -72,6 +75,30 @@ fn located_body<'a>(
         .expect("located body")
 }
 
+fn core_method_test_builder(
+    ledger: &Rc<RefCell<CallableSemanticLoweringState>>,
+) -> (MirBuilder, ValueId) {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("t/1".to_owned());
+    let receiver = builder.alloc_typed(MirType::Unknown);
+    let parameter = builder.alloc_typed(MirType::String);
+    builder
+        .function_state
+        .current_function
+        .as_mut()
+        .expect("test function")
+        .params
+        .extend([receiver, parameter]);
+    let entry =
+        PreparedCallableEntryValuesV1::instance_method(&builder, 1).expect("instance entry values");
+    ledger
+        .borrow_mut()
+        .install_entry_values(&entry)
+        .expect("entry install");
+    (builder, parameter)
+}
+
 fn return_stmt(value: ASTNode) -> ASTNode {
     ASTNode::Return {
         value: Some(Box::new(value)),
@@ -97,6 +124,76 @@ fn source_item_lowers_a_stmt_item_through_the_located_body() {
     .expect("direct stmt lowers");
     assert!(!plans.is_empty());
     assert!(bindings.contains_key("i"));
+}
+
+#[test]
+fn source_item_method_calls_consume_exact_core_method_rows() {
+    let (ledger, body) = real_core_method_ledger(
+        "function t(text) { loop(text.length() < 2) { local piece = text.substring(0, 1) } }",
+    );
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let function_body = port
+        .body(&body, &function_body_source())
+        .expect("located function body");
+    let loop_stmt = port
+        .body_stmt(&function_body, 0)
+        .expect("located loop statement");
+    let condition = port
+        .child_expr_from_stmt(&loop_stmt, ExprChildRoleV1::LoopCondition)
+        .expect("located loop condition");
+    let loop_body = port
+        .child_body_from_stmt(&loop_stmt, BodyChildRoleV1::LoopBody)
+        .expect("located loop body");
+    let body_stmt = port.body_stmt(&loop_body, 0).expect("located body item");
+    let substring = port
+        .child_expr_from_stmt(&body_stmt, ExprChildRoleV1::LocalInitializer(0))
+        .expect("located substring initializer");
+    let (mut builder, parameter) = core_method_test_builder(&ledger);
+    let _scope = LexicalScopeGuard::new(&mut builder);
+
+    let (_, _, _, condition_effects) =
+        PlanNormalizer::lower_compare_input(&port, condition, &mut builder, &BTreeMap::new())
+            .expect("length lowers through source port");
+    let length = condition_effects
+        .iter()
+        .find_map(|effect| match effect {
+            CoreEffectPlan::MethodCall {
+                dst: Some(dst),
+                object,
+                method,
+                ..
+            } if method == "length" => Some((*dst, *object)),
+            _ => None,
+        })
+        .expect("length method effect");
+    assert_eq!(length.1, parameter);
+    assert_eq!(
+        builder.function_state.type_ctx.get_type(length.0),
+        Some(&MirType::Integer)
+    );
+
+    let (_, substring_effects) =
+        PlanNormalizer::lower_value_input(&port, substring, &mut builder, &BTreeMap::new())
+            .expect("substring lowers through source port");
+    let substring = substring_effects
+        .iter()
+        .find_map(|effect| match effect {
+            CoreEffectPlan::MethodCall {
+                dst: Some(dst),
+                object,
+                method,
+                args,
+                ..
+            } if method == "substring" => Some((*dst, *object, args.len())),
+            _ => None,
+        })
+        .expect("substring method effect");
+    assert_eq!(substring.1, parameter);
+    assert_eq!(substring.2, 2);
+    assert_eq!(
+        builder.function_state.type_ctx.get_type(substring.0),
+        Some(&MirType::String)
+    );
 }
 
 #[test]

@@ -34,6 +34,7 @@ use crate::mir::resolved_semantics::{
     CallableFunctionSyntaxViewV1, FunctionSemanticResolverSessionV1,
     ResolveSelectedCallableForestsOutcomeV1, SourceBodyKindV1, SourcePathSegmentV1, SourcePathV1,
 };
+use crate::mir::source_call_target::issue_source_bound_core_method_calls_v1;
 use crate::mir::ValueId;
 use crate::parser::NyashParser;
 
@@ -156,6 +157,64 @@ pub(super) fn real_ledger(
     )
     .expect("source lowering input");
     let state = CallableSemanticLoweringState::from_exact_source(input).expect("callable ledger");
+    (Rc::new(RefCell::new(state)), body)
+}
+
+/// Real resolver-backed ledger with the bounded CoreMethod catalog arm
+/// installed. The fixture deliberately places one `length/0` in the Loop
+/// condition and one `substring/2` in its body so the source expression port
+/// consumes both exact rows through the existing physical normalizer.
+pub(super) fn real_core_method_ledger(
+    source: &str,
+) -> (Rc<RefCell<CallableSemanticLoweringState>>, Vec<ASTNode>) {
+    let program = NyashParser::parse_from_string(source).expect("core-method fixture parses");
+    let ASTNode::Program { mut statements, .. } = program else {
+        panic!("core-method fixture must be a program")
+    };
+    let function = statements.remove(0);
+    let body = match &function {
+        ASTNode::FunctionDeclaration { body, .. } => body.clone(),
+        _ => panic!("core-method fixture must be a function"),
+    };
+    let syntax =
+        CallableFunctionSyntaxViewV1::from_function_ast(&function).expect("core-method syntax");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(7702).expect("resolver");
+    let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
+        .resolve_selected_callable_forests(&[syntax.function()])
+        .expect("core-method source forest")
+    else {
+        panic!("core-method source forest unexpectedly deferred")
+    };
+    let forest = forests.into_vec().pop().expect("core-method source root");
+    let owner = forest.roots()[0];
+    let ledger = forest
+        .callable_source_ledger(owner)
+        .expect("core-method source ledger");
+    let rows = issue_source_bound_core_method_calls_v1(&ledger).expect("core-method source rows");
+    assert_eq!(
+        rows.len(),
+        2,
+        "fixture must issue length and substring rows"
+    );
+    let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
+        &function,
+        &forest,
+        syntax.function().root_profile(),
+    )
+    .expect("core-method source projection");
+    let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+        &function,
+        &forest,
+        &projection,
+    )
+    .expect("core-method source input");
+    let state =
+        CallableSemanticLoweringState::from_exact_source_with_dynamic_source_and_core_methods(
+            input,
+            None,
+            rows.into_vec().into_iter().collect(),
+        )
+        .expect("core-method callable ledger");
     (Rc::new(RefCell::new(state)), body)
 }
 

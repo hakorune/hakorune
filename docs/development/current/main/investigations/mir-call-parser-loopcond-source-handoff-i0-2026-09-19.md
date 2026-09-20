@@ -1221,6 +1221,14 @@ LoopCond physical acceptance, and old-edge deletion remain open.
 The resolver contract rejection matrix now has 5/5 focused passes: the
 non-lexical receiver and argument-arity drift are rejected alongside the
 existing outside-loop, target-placement, and foreign-membership guards. The
-generated target issuer already rejects an incompatible result relation; the
-source-port Text result consume and LoopCond physical acceptance remain open,
-so this does not claim parser source-to-MIR cutover or old-edge deletion.
+generated target issuer already rejects an incompatible result relation.
+
+The real source expression port now has a focused physical guard,
+`source_item_method_calls_consume_exact_core_method_rows` (1/1): a resolver-
+issued `length/0` in the LoopCond condition lowers through the existing compare
+consumer with an Integer result, and a resolver-issued `substring/2` in the
+LoopCond body lowers through the local initializer consumer with a Text result.
+Both effects retain the exact parameter receiver and argument arity. This
+closes the source-port Text-result consume evidence only; the production
+LoopCond physical adapter, parser source-to-MIR cutover, and old-edge deletion
+remain open.
