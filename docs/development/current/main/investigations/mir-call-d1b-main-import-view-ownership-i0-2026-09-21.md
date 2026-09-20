@@ -1,5 +1,5 @@
 ---
-Status: fast__2026-09-21__MainImportViewOwnership
+Status: landed_bounded__2026-09-21__a8efc20975
 Task: MIR-CALL-D1B-MAIN-IMPORT-VIEW-OWNERSHIP-I0
 Date: 2026-09-21
 Parent: mir-call-d1b-main-import-view-ownership-d0-2026-09-21.md
@@ -51,7 +51,7 @@ the same borrowed view, the package retains owned relation rows, and no target
 or loan is issued. Record exact Cargo command/result, line counts, warning
 baseline classification, pointer sync, and `git diff --check` at closeout.
 
-## Implementation receipt (working tree, 2026-09-21)
+## Implementation receipt (2026-09-21, `a8efc20975`)
 
 The lifecycle now extracts `using_import_boxes` once, seals one
 `VerifiedStaticImportAliasViewV1`, and borrows that view into Script lookup and
