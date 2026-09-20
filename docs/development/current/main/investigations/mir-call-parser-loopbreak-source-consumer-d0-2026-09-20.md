@@ -298,6 +298,31 @@ out-of-root sites, and any specialized `LoopBreakFacts` row whose
 `source_topology` is absent. This is a D1 contract only; no new receipt or
 source projection is issued in D0.
 
+### Existing forest transport reuse audit (read-only, 2026-09-20)
+
+`VerifiedLoopCondBreakContinueSourceForestProjectionV1` is route-neutral
+transport despite its historical module/type name. Its fields are limited to
+the owner, resolver forest binding, member sites, paired resolved exit rows,
+function/source identity, and the root frame key; it contains no LoopCond
+condition, branch shape, `LoopRouteId`, Recipe, JoinSig, Builder, or physical
+identity. The same type is already consumed by both the LoopCond and LoopTrue
+source-Facts owners, so using it as the forest/exit half of a future LoopBreak
+co-seal does not create a second semantic authority.
+
+The current projector function and rejection enum retain `LoopCond` names, but
+their forest path only validates resolver-owned loop membership, parentage, and
+exit pairing. D1 may reuse that existing transport and must not add a second
+forest receipt merely to avoid the name. A separate direct LoopBreak source
+shape check is still required for the exact break-if/carrier-update/step sites;
+the planner's `LoopBreakSourceTopologyV1` remains only a relation to verify,
+not resolver identity.
+
+This removes a possible transport-owner gap, but it does not close the row:
+the LoopBreak Facts issuer still lacks the direct source-shape co-seal, the
+package issuer still lacks candidate-or-typed-absence coverage for every batch
+row, and no source-bound LoopBreak physical consumer or exclusive delete-set
+has been proven. `NoSafeSlice` therefore remains the current disposition.
+
 ## D1 bounded task tuple (design handoff; implementation still closed)
 
 1. **Source projection owner** — extend the existing compiler source-projector
