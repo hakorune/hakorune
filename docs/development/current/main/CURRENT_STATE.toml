@@ -1,11 +1,11 @@
 date = "2026-09-20"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0"
 current_execution_cohort = "parser_loopcond_source_handoff"
-current_blocker_token = "MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0__Fast_APrimeBoundCoreMethodCatalogTransport"
+current_blocker_token = "MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0__Design_LoopTrueCarrierZeroSourceOwner"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "closed__parser_loopcond_receiver_only_owner_boundary__2026-09-20__source_call_target_catalog_owner"
+current_design_stop = "open__parser_loop_true_condition_source_owner__2026-09-20__existing_looptrue_facts_without_source_physical_consumer"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -52,12 +52,12 @@ The OwnedText T3 family remains parked. Finite tuple: `ParserProgramBox.parse/2 
 	LoopCond consumes the token then enters the selected `SourceLoopCondPhysicalInputV1` port slice. The accepted same-owner contract carries existing LoopCond Facts/Recipe, source contexts, forest/exits, exact item/nested bindings, target relation, and a borrowed `CallableLoopSourceExpressionPortV1`; preflight must finish before `LoopBlocksStandard5::allocate`, use existing split helpers, and propagate lowering failure to rejected-session disposal.
 The first fast slice materializes and validates the move-only input; located LoopCond lowering reaches `LoopCondReady` with raw parity green. A′ slice 1 separates exact obligations from consumable evidence; merged order stops at `SourceCallOutsideSelectedFamily` for `index_of/3` bound items, while dropped required rows remain `SourceTargetUnselected`. The physical-input port slice is complete. A′ slice 2 now selects the existing route-neutral `VerifiedSourceCallTargetCatalogV1` as the bound-CoreMethod owner; the generated manifest plus existing CoreMethod/resolver issuers remain canonical, and the normal semantic package transports the per-call contracts into the source port. The next fast slice wires that catalog arm and exact receiver/argument/result/effect coverage. `None` acceptance, reorder, S6C revival, old-edge deletion, VM, and fallback remain closed.
 	No AST/name remap, GenericLoop adapter, second Recipe/JoinSig, or physical layout authority is authorized.
-Non-claims: no qualified Invoke, whole-T2 completion, production cutover, to_json, or legacy retirement. A-prime transport/guards remain green (merged_parser 2/2; issuer 3/3; exact take 1/1; resolver rejection 5/5; source-port physical 1/1). The production mixed LoopCond edge is 1/1; armed item absence now fails with `[freeze:contract][callable-loop/source-bridge/armed-items-missing]`, while Unarmed/BridgeAbsent retain GenericLoop. The CoreMethod-only receiver family now crosses the preceding `StringHelpers.index_of/3` loop; the merged parser guard reaches the existing `[freeze:contract][callable-loop-handoff/carrier-cardinality]` first-cohort terminal. ParserProgramBox acceptance, multi-carrier handoff owner selection, old-edge deletion, and the broader 555-warning cleanup remain open.
+Non-claims: no qualified Invoke, whole-T2 completion, production cutover, to_json, legacy retirement. A-prime transport/guards remain green (merged_parser 2/2; issuer 3/3; exact take 1/1; resolver rejection 5/5; source-port physical 1/1). The production mixed LoopCond edge is 1/1; armed item absence fails named, while Unarmed/BridgeAbsent retain GenericLoop. The CoreMethod-only family crosses `index_of/3`, then reaches `carrier-cardinality-0` (`loop(true)`, no carrier). Relaxing the guard reaches only `GenericLoopV1NotSelected` because LoopCond Facts rejects true conditions; no source-aware LoopTrue physical consumer is selected. Parser acceptance, LoopTrue owner selection, old-edge deletion, and 555-warning cleanup remain open.
 """
 next_design_card = "MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-loopcond-source-handoff-i0-2026-09-19.md"
-next_execution_card = "MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-parser-loopcond-source-handoff-i0-2026-09-19.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

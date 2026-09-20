@@ -1263,12 +1263,44 @@ past the preceding `StringHelpers.index_of/3` receiver-only loop; its nested
 conditional-return `if` is handled by the existing source join/exit cores and
 does not re-enter the raw normalizer. The next armed parser loop reaches the
 existing callable handoff contract and stops at
-`[freeze:contract][callable-loop-handoff/carrier-cardinality]`, which requires
-exactly one Carrier row for the first cohort. This is a real bounded frontier,
-not a publication failure: multi-carrier handoff has no selected owner in this
-I0 and remains a follow-up design row.
+`[freeze:contract][callable-loop-handoff/carrier-cardinality-0]`. The
+diagnostic count is zero: this loop has `loop(true)` and no carrier. This is a
+real bounded frontier, not a publication failure. A temporary removal of the
+cardinality guard advances only to `GenericLoopV1NotSelected`, because the
+existing `LoopCondBreakContinue` Facts owner rejects a true condition; it does
+not prove a safe multi-carrier widening.
 
-The merged guard records this named handoff terminal. No `None` acceptance,
-route reorder, VM/fallback path, parser publication, caller switch, or
-old-edge deletion is claimed. The 555-warning baseline and the native Windows
-lifecycle evidence remain separate closeout items.
+The merged guard records this named handoff terminal. Keep the handoff
+fail-fast until a source-aware `LoopTrue` owner is selected or a bounded
+alternative is accepted. No `None` acceptance, route reorder, VM/fallback
+path, parser publication, caller switch, or old-edge deletion is claimed. The
+555-warning baseline and the native Windows lifecycle evidence remain separate
+closeout items.
+
+### Carrier-zero design stop — 2026-09-20
+
+```text
+Decision: Preserve the existing handoff cardinality rejection; the observed
+  parser boundary is a zero-carrier `loop(true)`, not a proven multi-carrier
+  source LoopCond shape.
+Source authority + canonical issuer: existing route registry plus
+  `LoopCondBreakContinue` Facts/Recipe issuer; the source-aware LoopCond
+  physical adapter remains its sole consumer for this card.
+Non-authority: a relaxed handoff count, GenericLoop retry, VM/fallback route,
+  AST/name reconstruction, and the existing LoopTrue facts without a source
+  physical consumer.
+Fail-fast boundary: `callable-loop-handoff/carrier-cardinality-0`; relaxing it
+  must not turn `GenericLoopV1NotSelected` into implicit fallback.
+Smallest next slice: select and audit one existing source-aware LoopTrue
+  physical owner for the finite `loop(true)` parser loop, or record NoSafeSlice
+  with its exact missing consumer and reopen trigger.
+Non-claims: no parser source-to-MIR acceptance, production switch, old-edge
+  deletion, or multi-carrier support claim.
+```
+
+The temporary diagnostic run used one quick Cargo process and embedded the
+carrier count in the error only for observation; the source was restored
+afterward. With the guard removed, the focused merged-parser test reached
+`[freeze:contract][callable-loop/route-not-front-selected]
+GenericLoopV1NotSelected`, confirming that a count relaxation is not a safe
+implementation slice.
