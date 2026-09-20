@@ -22,7 +22,7 @@ use super::normal_callable_loop_source_facts::{
     CallableGenericLoopSourceFactsDispositionV1, CallableGenericLoopSourceFactsIssuerV1,
 };
 use super::normal_callable_loop_source_route::{
-    CallableLoopSourceItemBindingV1, CallableLoopSourceTargetRelationV1,
+    CallableLoopSourceItemBindingV1, CallableLoopSourceTargetProbeV1,
 };
 use super::normal_callable_semantic_lowering_state::CallableLoopSourceBridgeTakeV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
@@ -89,7 +89,7 @@ pub(in crate::mir::builder) struct PreparedCallableGenericLoopSourceFactsPayload
         crate::mir::loop_structural_facts::VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     >,
     pub(in crate::mir::builder) source_items: Box<[CallableLoopSourceItemBindingV1]>,
-    pub(in crate::mir::builder) source_target: Option<CallableLoopSourceTargetRelationV1>,
+    pub(in crate::mir::builder) source_target_probe: CallableLoopSourceTargetProbeV1,
 }
 
 impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
@@ -185,7 +185,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             policy,
             None,
             None,
-            None,
+            CallableLoopSourceTargetProbeV1::empty(),
         )
     }
 
@@ -206,7 +206,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             policy,
             Some(callable_loop_root_scope),
             None,
-            None,
+            CallableLoopSourceTargetProbeV1::empty(),
         )
     }
 
@@ -225,7 +225,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 >,
             >,
         >,
-        source_target: Option<CallableLoopSourceTargetRelationV1>,
+        source_target_probe: CallableLoopSourceTargetProbeV1,
     ) -> Result<ValueId, String> {
         let Self {
             parent_source,
@@ -307,7 +307,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 source_kind,
                 source_projection,
                 source_items,
-                source_target,
+                source_target_probe,
             )?;
         let source_facts = match CallableGenericLoopSourceFactsIssuerV1::issue_once(payload) {
             CallableGenericLoopSourceFactsDispositionV1::Ready(source_facts) => source_facts,
@@ -393,7 +393,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             None,
             None,
             Box::default(),
-            None,
+            CallableLoopSourceTargetProbeV1::empty(),
         )
     }
 
@@ -413,7 +413,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             crate::mir::loop_structural_facts::VerifiedLoopCondBreakContinueSourceForestProjectionV1,
         >,
         source_items: Box<[CallableLoopSourceItemBindingV1]>,
-        source_target: Option<CallableLoopSourceTargetRelationV1>,
+        source_target_probe: CallableLoopSourceTargetProbeV1,
     ) -> Result<PreparedCallableGenericLoopSourceFactsPayloadV1<'source>, String> {
         let Self {
             parent_source,
@@ -463,7 +463,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             source_kind,
             source_projection,
             source_items,
-            source_target,
+            source_target_probe,
         })
     }
 }

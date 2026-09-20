@@ -9,7 +9,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::module_lowering_invocation::ModuleLoweringPortV1;
 use crate::mir::builder::normal_callable_loop_source_route::{
-    CallableLoopSourceRouteRejectV1, CallableLoopSourceTargetRelationV1,
+    CallableLoopSourceTargetProbeV1, CallableLoopSourceTargetRelationV1,
     CallableLoopSourceTargetRequirementV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationRootLineageV1;
@@ -89,9 +89,7 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
                     policy,
                     root_scope,
                     callable_ledger,
-                    source_target_for_loop(self.module_port, source, callable_ledger).map_err(
-                        |error| format!("[freeze:contract][callable-loop/source-target] {error:?}"),
-                    )?,
+                    source_target_for_loop(self.module_port, source, callable_ledger),
                 )
             }
             None => prepared.lower_v1(builder, &function_name, debug, in_static_box, policy),
@@ -99,6 +97,16 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
     }
 }
 
+/// Classify the armed loop's item sites against the publication owner.
+///
+/// `target_for_source` reads the inventory-derived exact-target map — the
+/// non-consumable "this site is an exact same-module static call" obligation
+/// fact that survives row consumption — while
+/// `selected_static_result_handoff_for_source` peeks the consumable selected
+/// row. The probe only reports classification data and never decides
+/// fatality, so the product is equally safe for routes outside LoopCond;
+/// `issue_with_source_relations` is the single boundary that maps it to the
+/// named terminals.
 fn source_target_for_loop(
     module_port: &ModuleLoweringPortV1<'_>,
     source: &super::raw_invocation_source_transport::RawInvocationSourceContextV1,
@@ -107,43 +115,47 @@ fn source_target_for_loop(
             super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
         >,
     >,
-) -> Result<Option<CallableLoopSourceTargetRelationV1>, CallableLoopSourceRouteRejectV1> {
+) -> CallableLoopSourceTargetProbeV1 {
     let Some(caller) = source.root_lineage().and_then(|root| match root {
         RawInvocationRootLineageV1::Cataloged(key) => Some(key),
         _ => None,
     }) else {
-        return Ok(None);
+        return CallableLoopSourceTargetProbeV1::empty();
     };
     let Some(parent_site) = source.site() else {
-        return Ok(None);
+        return CallableLoopSourceTargetProbeV1::empty();
     };
     let Some(items) = callable_ledger.borrow().source_loop_items(parent_site) else {
-        return Ok(None);
+        return CallableLoopSourceTargetProbeV1::empty();
     };
-    let mut relation = None;
+    let mut selected = Vec::new();
+    let mut uncovered = Vec::new();
+    let mut requirement_mismatch = false;
     for item in items.iter() {
         let Some(target) = module_port.target_for_source(caller, item.call_site()) else {
             continue;
         };
-        if relation.is_some() {
-            return Err(CallableLoopSourceRouteRejectV1::SourceTargetMultiple);
-        }
-        let requirement = module_port
+        let Some(handoff) = module_port
             .selected_static_result_handoff_for_source(caller, item.call_site())
-            .map(|handoff| {
-                if handoff.target() != &target || handoff.site() != item.call_site() {
-                    return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
-                }
-                Ok(CallableLoopSourceTargetRequirementV1::from_handoff(handoff))
-            })
-            .transpose()?;
-        relation = Some(CallableLoopSourceTargetRelationV1::new(
+        else {
+            uncovered.push(item.call_site().clone());
+            continue;
+        };
+        if handoff.target() != &target || handoff.site() != item.call_site() {
+            requirement_mismatch = true;
+            continue;
+        }
+        selected.push(CallableLoopSourceTargetRelationV1::new(
             item.call_site().clone(),
             target,
-            requirement,
+            Some(CallableLoopSourceTargetRequirementV1::from_handoff(handoff)),
         ));
     }
-    Ok(relation)
+    CallableLoopSourceTargetProbeV1::from_parts(
+        selected.into_boxed_slice(),
+        uncovered.into_boxed_slice(),
+        requirement_mismatch,
+    )
 }
 
 #[cfg(test)]

@@ -388,7 +388,7 @@ static function caller(flag: i64, text: i64): i64 {
 /// for the selected static publication row.
 fn armed_source_target(
     call_site: crate::mir::resolved_semantics::SourceExprSiteV1,
-) -> super::CallableLoopSourceTargetRelationV1 {
+) -> crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetRelationV1 {
     let caller_key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
         "ParserProgramBox",
         "parse",
@@ -496,14 +496,19 @@ fn armed_loop_cond_edge_lowers_through_the_source_port() {
                 GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
                 &mut scope,
                 &edge.ledger,
-                Some(armed_source_target(edge.call_site)),
+                crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetProbeV1::from_parts(
+                    vec![armed_source_target(edge.call_site)].into_boxed_slice(),
+                    Box::new([]),
+                    false,
+                ),
             )
             .expect("armed loop-cond edge must lower through the source port");
     });
 }
 
 /// The same armed edge must still stop at the named `SourceTargetUnselected`
-/// boundary when the selected static publication row is not installed.
+/// boundary when the site carries an exact same-module static target but its
+/// selected publication row is absent (dropped, target-only, or consumed).
 #[test]
 fn armed_loop_cond_edge_rejects_missing_source_target() {
     let edge = armed_loop_cond_edge();
@@ -542,12 +547,67 @@ fn armed_loop_cond_edge_rejects_missing_source_target() {
                 GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
                 &mut scope,
                 &edge.ledger,
-                None,
+                crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetProbeV1::from_parts(
+                    Box::new([]),
+                    vec![edge.call_site.clone()].into_boxed_slice(),
+                    false,
+                ),
             )
             .expect_err("missing source target must stay a named terminal")
         });
     assert!(
         error.contains("LoopCondRouteRejected(SourceTargetUnselected"),
+        "unexpected terminal: {error}"
+    );
+}
+
+/// An armed edge whose items carry no same-module static publication
+/// obligation at all stops at the distinct `SourceCallOutsideSelectedFamily`
+/// terminal instead of disguising itself as missing evidence.
+#[test]
+fn armed_loop_cond_edge_rejects_items_outside_the_selected_family() {
+    let edge = armed_loop_cond_edge();
+    let disposition = edge
+        .ledger
+        .borrow()
+        .loop_binding_source_projection()
+        .project_disposition(edge.loop_site.clone())
+        .expect("loop binding disposition");
+    let (_, root) = RawInvocationSourceContextV1::from_transport(
+        crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceTransportV1::root(
+            (),
+            RawInvocationRootLineageV1::ScriptRoot,
+        ),
+    );
+    let (_, parent_source) = RawInvocationSourceContextV1::from_transport(
+        root.body_statement(edge.loop_node.clone(), edge.loop_index),
+    );
+    let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
+        &parent_source,
+        edge.loop_node,
+        Some(disposition),
+    )
+    .expect("located loop-cond entry");
+    let mut builder = armed_loop_cond_builder(&edge.ledger);
+    let mut scope =
+        crate::mir::builder::module_invocation_session::UnpublishedCallableLoopRootScopeV1::for_test(
+        );
+    let error =
+        crate::test_support::with_env_vars(&crate::test_support::JOINIR_STRICT_PLANNER_MODE, || {
+            prepared.lower_v1_with_root_scope_and_callable_ledger(
+                &mut builder,
+                "caller",
+                false,
+                false,
+                GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
+                &mut scope,
+                &edge.ledger,
+                crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetProbeV1::empty(),
+            )
+            .expect_err("no selected obligation must stay a named terminal")
+        });
+    assert!(
+        error.contains("LoopCondRouteRejected(SourceCallOutsideSelectedFamily"),
         "unexpected terminal: {error}"
     );
 }

@@ -16,7 +16,8 @@ use crate::mir::builder::normal_callable_loop_source_facts::CallableGenericLoopS
 use crate::mir::builder::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1;
 use crate::mir::builder::normal_callable_loop_source_route::{
     CallableLoopSourceItemBindingV1, CallableLoopSourceRouteRejectV1,
-    CallableLoopSourceRouteTokenV1, CallableLoopSourceTargetRelationV1,
+    CallableLoopSourceRouteTokenV1, CallableLoopSourceTargetProbeV1,
+    CallableLoopSourceTargetRelationV1,
 };
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
@@ -520,7 +521,7 @@ pub(super) fn issue<'source>(
     selection: RecipeFirstRouteSelectionV1,
     projection: Option<VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
-    source_target: Option<CallableLoopSourceTargetRelationV1>,
+    source_target_probe: CallableLoopSourceTargetProbeV1,
 ) -> Result<CallableLoopCondSourceFactsV1<'source>, CallableGenericLoopSourceFactsRouteErrorV1> {
     let function_origin = function_origin.ok_or_else(|| {
         CallableGenericLoopSourceFactsRouteErrorV1::LoopCondRouteRejected(
@@ -546,7 +547,7 @@ pub(super) fn issue<'source>(
         selection,
         projection,
         source_items,
-        source_target,
+        source_target_probe,
     )
     .map_err(CallableGenericLoopSourceFactsRouteErrorV1::LoopCondRouteRejected)?;
     Ok(CallableLoopCondSourceFactsV1 {

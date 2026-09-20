@@ -739,11 +739,15 @@ was red on review: it still asserted the pre-handoff
 `GenericLoopV1NotSelected` terminal while the route token now issues
 `LoopCondRouteRejected(SourceTargetMissing)`. This is a designed move, not a
 threading defect. `source_target_for_loop` reads the selected publication
-owner through `ModuleLoweringPortV1::target_for_source`; the Compatibility
-materialization path installs no `static_result_publication_owner` (the
-preflight issuer only runs when a `semantic_package` exists), so every
-resolver-bound item reports no published target and the token issuer raises
-the typed `SourceTargetMissing` reject before any Builder effect. The loop is
+owner through `ModuleLoweringPortV1::target_for_source`. This receipt
+originally hypothesized that the Compatibility materialization path
+installed no `static_result_publication_owner`; the later worker audit
+("Source-target terminal diagnosis receipt") corrected this — the armed
+route is Installed-only and the owner is already installed. The actual
+cause is that the first reached armed loop (`StringHelpers.index_of/3`)
+binds only `Qualified(Bound)` `substring` items, which carry no static
+publication row, so the issue boundary now raises the typed
+`SourceTargetUnselected` reject before any Builder effect. The loop is
 still LoopCond-selected and its source items are bound, so the stop is one
 step deeper than `GenericLoopV1NotSelected` and still strictly before the
 static catalog — matching this card's open task 4 (static tuple handoff).
@@ -931,6 +935,156 @@ calls, or whether the static-target requirement itself should be relaxed
 for them, is an open design question for this card. It also does not claim
 `callable_handoff=None` retirement, raw item-branch deletion, or the
 `parse/2` source-to-exe closeout.
+
+### Applicability/evidence separation decision — ordered next slices (A′)
+
+Review of `6b28f34e0e` accepted the diagnosis above and fixed the direction.
+The root issue is that "this loop can lower" and "this particular static call
+can publish" are currently the same required condition; `ExactI64/[1]` is
+evidence for the selected call, not a condition for LoopCond in general. The
+short-term move is **A′** — the source side determines the applicable scope
+and the required evidence *before* arming — and the final shape separates the
+LoopCond structural contract from the per-call publication obligation. Plain
+`None` acceptance (B) is rejected because it cannot distinguish "no
+obligation" from "a required row is missing"; the named
+`SourceTargetUnselected` terminal (C) stays correct as the stop for this
+unfinished family. Production selection follows the existing owner's typed
+identity and declared scope — the acceptance tuple is a validation target,
+never a name lookup.
+
+Obligation/evidence contract (replaces row-presence checks):
+
+| source-side obligation | evidence | behavior |
+| --- | --- | --- |
+| no obligation for this publication family | a separate contract covers each call | lower through that contract |
+| obligation | exact site + target + result all match | lower through the selected static path |
+| obligation | row missing / mismatch / already consumed | named terminal |
+| call itself unsupported | no consumer evidence | unsupported terminal |
+
+`observed_rows.is_empty()` is not proof of "no obligation". Requirements come
+from the source-determined contract; publication evidence must cover them
+with no gap and no surplus. Arming consumes only immutable requirement
+information — never the presence of a consumable handoff row, which could
+hide ordering or double-consume as "out of scope". Roles stay split: Facts =
+loop structure / exits / call sites / receiver bindings; Recipe/admission =
+applicable scope, sole route, required call contract; Verify/co-seal =
+publication/result/consumer evidence match; Lower = consume the verified
+selection.
+
+Corrected premises for the remaining design:
+
+1. Unarming does not return to GenericLoop. The Facts issuer selects the
+   route independently (route selection in
+   `normal_callable_loop_source_facts.rs`), so a LoopCond shape proceeds
+   toward the LoopCond side even without a projection. The explicit
+   applicability/capability disposition must connect to the sole route
+   selection — no try-new-route-then-fall-back shape.
+2. Bound-receiver calls are not proven lowerable through the port path. The
+   current connection still searches the receiver by variable name and hands
+   off to the existing raw emitter without consuming source binding evidence
+   (`plan/normalizer/helpers_value/lower.rs`,
+   `plan/lowerer/effect_emission.rs`). `substring` receiver/arguments/Text
+   result/comparison/effect-Fault handling must be confirmed before that
+   admission opens.
+3. `source_target_for_loop` currently rejects `SourceTargetMultiple` on any
+   second exact static target (`raw_loop_child_port.rs`), so one selected
+   call plus one unrelated static call can already stop the loop. The check
+   must cover the *selected obligation set*; every other call is covered by
+   its own contract.
+4. `Bound` is the resolver's receiver-binding classification, not a
+   dynamic-dispatch verdict. The accurate claim is only that these items are
+   not same-module static publication targets under this profile.
+
+Ordered next slices:
+
+1. **Separate applicability from evidence-missing.** Deliberately dropping a
+   required row must still stop at a named terminal; it must never reclassify
+   as "out of scope".
+2. **Wire A′ into the sole route selection.** Confirm whether `index_of/3`
+   can lower through the existing path; if its receiver-call family is
+   unsupported, stop locally with that reason — do not reorder the merged
+   program to dodge it.
+3. **Close the receiver-only consumer** for the covered family: a contract
+   that consumes the same source binding end to end, not a `None`
+   acceptance.
+4. **Reach the acceptance tuple in the original merged order.** Verify the
+   selected call's evidence end to end and retire only its old edge.
+
+Guard cases that must each stay green-by-contract or red-at-a-named-terminal:
+required-row removal, static+bound mixed items, multiple static targets, and
+a loop with zero calls.
+
+This decision claims only the direction and slice order. It does not
+authorize implementation, a new Verified receipt family, caller reordering,
+or relaxation of the publication obligation.
+
+### A′ slice 1 receipt — obligation/evidence separation at the issue boundary
+
+The lossy `Option<CallableLoopSourceTargetRelationV1>` handoff is replaced by
+`CallableLoopSourceTargetProbeV1`, an immutable classification product that
+`source_target_for_loop` (`raw_loop_child_port.rs`) now always emits:
+
+- `selected`: exact-target sites whose selected publication row is still
+  present (`target_for_source` reads the inventory-derived `exact_targets`
+  map — the non-consumable obligation fact — while
+  `selected_static_result_handoff_for_source` only peeks the consumable row).
+- `uncovered`: exact-target sites whose selected row is absent — target-only,
+  dropped, or already consumed obligations.
+- `requirement_mismatch`: a published handoff disagreed with its exact
+  target.
+
+The probe never decides fatality, so unarmed/GenericLoop/nested paths are
+untouched (the earlier `unarmed_nested_loop` regression shape cannot recur:
+the probe is infallible). Terminal mapping lives at exactly one place —
+`CallableLoopSourceTargetProbeV1::into_selected_relation`, called by
+`issue_with_source_relations` after the item-structure checks:
+
+1. `requirement_mismatch` → `SourceTargetRequirementMismatch`
+2. `uncovered` non-empty → `SourceTargetUnselected { call_sites }` — a
+   dropped required row can never reclassify as out of scope
+3. `selected` length > 1 → `SourceTargetMultiple` — now scoped to the
+   *selected obligation set*; an unrelated static call no longer trips it
+   (corrected premise 3)
+4. `selected` empty → new `SourceCallOutsideSelectedFamily { call_sites }` —
+   "no obligation" is a distinct unsupported-family terminal, not evidence
+   missing and not silent acceptance
+5. otherwise the single relation must bind an item site or reject as
+   `SourceTargetSiteMismatch`
+
+The merged run now stops at `SourceCallOutsideSelectedFamily` for
+`StringHelpers.index_of/3`: its `substring` items carry no exact same-module
+static target (corrected premise 4 — `Bound` is a receiver-binding class, not
+proof of dynamic dispatch), so there is no publication obligation and no
+evidence gap. `SourceTargetUnselected` is reserved for the genuine
+missing-required-row case. `SourceTargetMissing` stays only at
+`into_physical_parts`.
+
+Focused evidence (quick profile, one cargo process at a time):
+`normal_callable_loop_source_route` 13/13 — including the new boundary
+matrix `issue_with_source_relations_{co_seals_the_single_selected_relation,
+keeps_unrelated_items_out_of_the_selected_set (two cataloged items, one
+selected obligation), maps_a_missing_required_row_to_unselected,
+maps_multiple_selected_relations_to_multiple,
+maps_no_obligation_to_outside_selected_family,
+maps_a_handoff_disagreement_to_requirement_mismatch,
+rejects_a_relation_site_outside_the_items}`;
+`raw_loop_child_entry` 11/11 — including the new
+`armed_loop_cond_edge_rejects_items_outside_the_selected_family`;
+`merged_parser` 2/2 with the guard asserting the renamed terminal;
+`normal_callable_loop_source_facts`/`raw_loop_child_port` 20/20. The
+`static_call_result_publication`/`normal_default_root_catalog`/
+`module_lowering_invocation` sweep shows 6 reds, all already listed in
+`cargo_lib_red_baseline.tests.txt` (known baseline debt — failure modes are
+pre-existing terminals such as `[static-result-ingress/no-exact-static-target]`,
+unrelated to this probe). `normal_callable_loop_source_route.rs` was split
+into `normal_callable_loop_source_route_tests.rs` for the 760-line headroom
+(482 / 650 lines).
+
+Non-claims: the receiver-only consumer for `index_of/3`'s `substring` items
+is still closed — `SourceCallOutsideSelectedFamily` is the designed stop, so
+the merged order still does not reach `parse/2`. Slice 2 (sole-route wiring)
+and slice 3 (receiver-consumer contract) remain. No caller reordering, no
+new Verified receipt family, no `None` acceptance was introduced.
 
 ## Focused validation
 

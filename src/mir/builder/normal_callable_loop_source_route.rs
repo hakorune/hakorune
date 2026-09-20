@@ -33,10 +33,18 @@ pub(in crate::mir::builder) enum CallableLoopSourceRouteRejectV1 {
     SourceTargetSiteMismatch,
     SourceTargetMultiple,
     SourceTargetRequirementMismatch,
-    /// The bound source items exist but no selected publication relation was
-    /// supplied for any of them. `call_sites` records the probed item sites
-    /// so the terminal is diagnosable without re-running the port.
+    /// An exact same-module static target was resolved for the listed sites
+    /// but its selected publication row is absent — target-only, missing,
+    /// or already consumed evidence all stop here instead of reclassifying
+    /// as out of scope.
     SourceTargetUnselected {
+        call_sites: Box<[SourceExprSiteV1]>,
+    },
+    /// No bound item site belongs to the selected same-module static
+    /// publication family, so no target relation can be co-sealed. Those
+    /// calls need their own consumer contract; this is the unsupported
+    /// family terminal, not a missing-evidence one.
+    SourceCallOutsideSelectedFamily {
         call_sites: Box<[SourceExprSiteV1]>,
     },
     SourceIdentityMissing,
@@ -185,6 +193,89 @@ impl CallableLoopSourceTargetRelationV1 {
     }
 }
 
+/// Immutable obligation/evidence classification for one armed loop's source
+/// items, produced by the module-port probe before route selection.
+///
+/// `ModuleLoweringPortV1::target_for_source` reads the inventory-derived
+/// exact-target map — the non-consumable "this site is an exact same-module
+/// static call" requirement fact. `selected_static_result_handoff_for_source`
+/// only peeks the consumable selected row. The probe classifies and never
+/// decides fatality: `issue_with_source_relations` maps this product to the
+/// named LoopCond terminals, and every other route ignores it.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct CallableLoopSourceTargetProbeV1 {
+    /// Exact-target sites whose selected publication row is still present,
+    /// in item order.
+    selected: Box<[CallableLoopSourceTargetRelationV1]>,
+    /// Exact-target sites whose selected publication row is absent —
+    /// target-only, missing, or already consumed obligations.
+    uncovered: Box<[SourceExprSiteV1]>,
+    /// A published handoff disagreed with its exact target relation.
+    requirement_mismatch: bool,
+}
+
+impl CallableLoopSourceTargetProbeV1 {
+    /// Empty probe: the loop is outside the selected family because the
+    /// caller is not cataloged, the site is missing, or no item rows exist.
+    pub(in crate::mir::builder) fn empty() -> Self {
+        Self {
+            selected: Box::new([]),
+            uncovered: Box::new([]),
+            requirement_mismatch: false,
+        }
+    }
+
+    pub(in crate::mir::builder) fn from_parts(
+        selected: Box<[CallableLoopSourceTargetRelationV1]>,
+        uncovered: Box<[SourceExprSiteV1]>,
+        requirement_mismatch: bool,
+    ) -> Self {
+        Self {
+            selected,
+            uncovered,
+            requirement_mismatch,
+        }
+    }
+
+    /// Resolve the classification into the single co-sealed target relation.
+    /// Evidence gaps are checked before selection arity so a dropped
+    /// required row can never reclassify as out of scope.
+    fn into_selected_relation(
+        self,
+        source_items: &[CallableLoopSourceItemBindingV1],
+    ) -> Result<CallableLoopSourceTargetRelationV1, CallableLoopSourceRouteRejectV1> {
+        let Self {
+            selected,
+            uncovered,
+            requirement_mismatch,
+        } = self;
+        if requirement_mismatch {
+            return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
+        }
+        if !uncovered.is_empty() {
+            return Err(CallableLoopSourceRouteRejectV1::SourceTargetUnselected {
+                call_sites: uncovered,
+            });
+        }
+        if selected.len() > 1 {
+            return Err(CallableLoopSourceRouteRejectV1::SourceTargetMultiple);
+        }
+        let mut selected = Vec::from(selected);
+        let Some(relation) = selected.pop() else {
+            return Err(
+                CallableLoopSourceRouteRejectV1::SourceCallOutsideSelectedFamily {
+                    call_sites: source_items
+                        .iter()
+                        .map(|item| item.call_site().clone())
+                        .collect::<Vec<_>>()
+                        .into_boxed_slice(),
+                },
+            );
+        };
+        Ok(relation)
+    }
+}
+
 /// One move-only source route token.  The planner outcome and resolver forest
 /// are consumed together; no later consumer may pair them by AST shape or
 /// source line.
@@ -249,7 +340,7 @@ impl CallableLoopSourceRouteTokenV1 {
         selection: RecipeFirstRouteSelectionV1,
         projection: Option<VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
         source_items: Box<[CallableLoopSourceItemBindingV1]>,
-        source_target: Option<CallableLoopSourceTargetRelationV1>,
+        source_target_probe: CallableLoopSourceTargetProbeV1,
     ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
         if source_items.is_empty() {
             return Err(CallableLoopSourceRouteRejectV1::SourceItemsMissing);
@@ -260,15 +351,7 @@ impl CallableLoopSourceRouteTokenV1 {
         {
             return Err(CallableLoopSourceRouteRejectV1::SourceItemOutsideLoop);
         }
-        let source_target = source_target.ok_or_else(|| {
-            CallableLoopSourceRouteRejectV1::SourceTargetUnselected {
-                call_sites: source_items
-                    .iter()
-                    .map(|item| item.call_site().clone())
-                    .collect::<Vec<_>>()
-                    .into_boxed_slice(),
-            }
-        })?;
+        let source_target = source_target_probe.into_selected_relation(&source_items)?;
         if !source_items
             .iter()
             .any(|item| item.call_site() == source_target.call_site())
@@ -395,318 +478,5 @@ fn is_under_parent(site: &SourceNodeSiteV1, parent: &SourceNodeSiteV1) -> bool {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::{
-        CallableLoopSourceRouteRejectV1, CallableLoopSourceRouteTokenV1,
-        CallableLoopSourceTargetRelationV1, CallableLoopSourceTargetRequirementV1,
-    };
-    use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
-    use crate::mir::builder::control_flow::joinir::route_entry::registry::select_recipe_first_routes;
-    use crate::mir::builder::control_flow::plan::single_planner::{
-        self, CallableLoopFactsPlannerInputV1,
-    };
-    use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
-    use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
-    use crate::mir::callable_result_representation::{
-        VerifiedCallableResultRepresentationV1, VerifiedStaticCallResultPublicationDemandV1,
-        VerifiedStaticCallResultPublicationHandoffV1,
-    };
-    use crate::mir::compiler::loop_cond_break_continue_projection::issue_loop_cond_break_continue_source_forest_projection_v1;
-    use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
-    use crate::mir::resolved_semantics::{SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1};
-
-    fn route_fixture() -> ASTNode {
-        let variable = |name: &str| ASTNode::Variable {
-            name: name.into(),
-            span: Span::unknown(),
-        };
-        let integer = |value: i64| ASTNode::Literal {
-            value: LiteralValue::Integer(value),
-            span: Span::unknown(),
-        };
-        let condition = ASTNode::BinaryOp {
-            operator: BinaryOperator::Less,
-            left: Box::new(variable("flag")),
-            right: Box::new(integer(2)),
-            span: Span::unknown(),
-        };
-        let branch_condition = ASTNode::BinaryOp {
-            operator: BinaryOperator::Equal,
-            left: Box::new(variable("flag")),
-            right: Box::new(integer(1)),
-            span: Span::unknown(),
-        };
-        let increment = ASTNode::Assignment {
-            target: Box::new(variable("flag")),
-            value: Box::new(ASTNode::BinaryOp {
-                operator: BinaryOperator::Add,
-                left: Box::new(variable("flag")),
-                right: Box::new(integer(1)),
-                span: Span::unknown(),
-            }),
-            span: Span::unknown(),
-        };
-        ASTNode::FunctionDeclaration {
-            name: "loop_cond_route_fixture".into(),
-            params: Vec::new(),
-            param_decls: Vec::new(),
-            return_type_name: None,
-            body: vec![
-                ASTNode::Local {
-                    variables: vec!["flag".into()],
-                    initial_values: vec![Some(Box::new(integer(0)))],
-                    declared_type_names: vec![None],
-                    span: Span::unknown(),
-                },
-                ASTNode::Loop {
-                    condition: Box::new(condition),
-                    body: vec![ASTNode::If {
-                        condition: Box::new(branch_condition),
-                        then_body: vec![increment],
-                        else_body: Some(vec![ASTNode::Break {
-                            span: Span::unknown(),
-                        }]),
-                        span: Span::unknown(),
-                    }],
-                    span: Span::unknown(),
-                },
-            ],
-            uses: Vec::new(),
-            contracts: Vec::new(),
-            is_static: true,
-            is_override: false,
-            attrs: DeclarationAttrs::default(),
-            span: Span::unknown(),
-        }
-    }
-
-    #[test]
-    fn source_loop_cond_route_token_requires_exclusive_registry_route() {
-        crate::runtime::ring0::ensure_global_ring0_initialized();
-        let unit = VerifiedResolvedSourceUnitV1::resolve_function(route_fixture())
-            .expect("loop-cond fixture resolves");
-        let input = unit.root_function_input().expect("root input");
-        let body = input.source().root_body().expect("root body");
-        let root = input.source().body_stmt(&body, 1).expect("root loop");
-        let crate::ast::ASTNode::Loop {
-            condition, body, ..
-        } = root.node()
-        else {
-            panic!("fixture root must be a loop")
-        };
-        let policy =
-            GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
-        let outcome =
-            single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
-                condition,
-                body,
-                policy,
-                "route-fixture".into(),
-                false,
-            ))
-            .expect("planner outcome");
-        let selection = select_recipe_first_routes(outcome.facts.as_ref());
-        assert_eq!(
-            selection.raw_execution_routes(),
-            [crate::mir::loop_recipe_contract::route_id::LoopRouteId::LoopCondBreakContinue]
-        );
-        let projection = issue_loop_cond_break_continue_source_forest_projection_v1(input, &root)
-            .expect("forest projection");
-        let token = CallableLoopSourceRouteTokenV1::issue(
-            input.owner(),
-            root.site().node().clone(),
-            input.function().function_origin(),
-            input.function().source_kind(),
-            outcome,
-            selection,
-            Some(projection),
-        )
-        .expect("exclusive source route token");
-        assert_eq!(token.owner(), input.owner());
-        assert_eq!(token.parent_site(), &root.site().node().clone());
-        assert_eq!(token.projection().member_sites().len(), 1);
-        assert_eq!(token.selection().raw_execution_routes().len(), 1);
-        assert!(token.outcome().facts.is_some());
-    }
-
-    #[test]
-    fn source_loop_cond_route_token_rejects_missing_projection() {
-        crate::runtime::ring0::ensure_global_ring0_initialized();
-        let unit = VerifiedResolvedSourceUnitV1::resolve_function(route_fixture())
-            .expect("loop-cond fixture resolves");
-        let input = unit.root_function_input().expect("root input");
-        let body = input.source().root_body().expect("root body");
-        let root = input.source().body_stmt(&body, 1).expect("root loop");
-        let crate::ast::ASTNode::Loop {
-            condition, body, ..
-        } = root.node()
-        else {
-            panic!("fixture root must be a loop")
-        };
-        let policy =
-            GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
-        let outcome =
-            single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
-                condition,
-                body,
-                policy,
-                "route-fixture".into(),
-                false,
-            ))
-            .expect("planner outcome");
-        let selection = select_recipe_first_routes(outcome.facts.as_ref());
-        let reject = CallableLoopSourceRouteTokenV1::issue(
-            input.owner(),
-            root.site().node().clone(),
-            input.function().function_origin(),
-            input.function().source_kind(),
-            outcome,
-            selection,
-            None,
-        )
-        .expect_err("source route must not mint without resolver projection");
-        assert_eq!(reject, CallableLoopSourceRouteRejectV1::ProjectionMissing);
-    }
-
-    #[test]
-    fn source_loop_cond_route_token_rejects_physical_transfer_without_target() {
-        crate::runtime::ring0::ensure_global_ring0_initialized();
-        let unit = VerifiedResolvedSourceUnitV1::resolve_function(route_fixture())
-            .expect("loop-cond fixture resolves");
-        let input = unit.root_function_input().expect("root input");
-        let body = input.source().root_body().expect("root body");
-        let root = input.source().body_stmt(&body, 1).expect("root loop");
-        let crate::ast::ASTNode::Loop {
-            condition, body, ..
-        } = root.node()
-        else {
-            panic!("fixture root must be a loop")
-        };
-        let policy =
-            GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
-        let outcome =
-            single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
-                condition,
-                body,
-                policy,
-                "route-fixture".into(),
-                false,
-            ))
-            .expect("planner outcome");
-        let selection = select_recipe_first_routes(outcome.facts.as_ref());
-        let projection = issue_loop_cond_break_continue_source_forest_projection_v1(input, &root)
-            .expect("forest projection");
-        let token = CallableLoopSourceRouteTokenV1::issue(
-            input.owner(),
-            root.site().node().clone(),
-            input.function().function_origin(),
-            input.function().source_kind(),
-            outcome,
-            selection,
-            Some(projection),
-        )
-        .expect("route token before physical transfer");
-        let reject = token
-            .into_physical_parts()
-            .expect_err("physical transfer must require the exact target relation");
-        assert_eq!(reject, CallableLoopSourceRouteRejectV1::SourceTargetMissing);
-    }
-
-    #[test]
-    fn source_loop_item_inventory_rejects_a_loop_without_resolver_method_rows() {
-        crate::runtime::ring0::ensure_global_ring0_initialized();
-        let unit = VerifiedResolvedSourceUnitV1::resolve_function(route_fixture())
-            .expect("loop-cond fixture resolves");
-        let input = unit.root_function_input().expect("root input");
-        let body = input.source().root_body().expect("root body");
-        let root = input.source().body_stmt(&body, 1).expect("root loop");
-        let ledger = input
-            .forest()
-            .callable_source_ledger(input.owner())
-            .expect("callable ledger");
-        let error = CallableLoopSourceRouteTokenV1::source_items_for_loop(
-            &ledger,
-            input.owner(),
-            root.site().node(),
-        )
-        .expect_err("item inventory must be explicit when no method row exists");
-        assert_eq!(error, CallableLoopSourceRouteRejectV1::SourceItemsMissing);
-    }
-
-    fn requirement_site() -> SourceExprSiteV1 {
-        SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
-            SourcePathSegmentV1::Body(0),
-            SourcePathSegmentV1::Initializer(0),
-        ]))
-    }
-
-    fn requirement_target() -> CanonicalSameModuleCallableKeyV1 {
-        CanonicalSameModuleCallableKeyV1::test_static_box_method("StringHelpers", "to_i64", 1)
-    }
-
-    #[test]
-    fn source_target_requirement_copies_selected_handoff_evidence() {
-        let caller = CanonicalSameModuleCallableKeyV1::test_static_box_method(
-            "StringHelpers",
-            "int_to_str",
-            1,
-        );
-        let site = requirement_site();
-        let target = requirement_target();
-        let handoff = VerifiedStaticCallResultPublicationHandoffV1::from_test_parts(
-            7,
-            VerifiedStaticCallResultPublicationDemandV1::from_test_parts(
-                caller,
-                site.clone(),
-                target.clone(),
-            ),
-            &[1],
-        );
-        let requirement = CallableLoopSourceTargetRequirementV1::from_handoff(&handoff);
-        assert_eq!(
-            requirement.representation(),
-            &VerifiedCallableResultRepresentationV1::ExactI64
-        );
-        assert_eq!(requirement.required_i64_arguments(), &[1]);
-    }
-
-    #[test]
-    fn source_target_relation_accepts_only_exact_i64_ordinal_one() {
-        let site = requirement_site();
-        let target = requirement_target();
-        let exact = |ordinals: &[u32]| CallableLoopSourceTargetRequirementV1 {
-            representation: VerifiedCallableResultRepresentationV1::ExactI64,
-            required_i64_arguments: ordinals.to_vec().into_boxed_slice(),
-        };
-
-        let selected = CallableLoopSourceTargetRelationV1::new(
-            site.clone(),
-            target.clone(),
-            Some(exact(&[1])),
-        );
-        assert!(selected.has_exact_i64_requirement(&[1]));
-        assert!(!selected.has_exact_i64_requirement(&[0]));
-
-        let wrong_ordinals = CallableLoopSourceTargetRelationV1::new(
-            site.clone(),
-            target.clone(),
-            Some(exact(&[0, 2])),
-        );
-        assert!(!wrong_ordinals.has_exact_i64_requirement(&[1]));
-
-        let wrong_representation = CallableLoopSourceTargetRelationV1::new(
-            site.clone(),
-            target.clone(),
-            Some(CallableLoopSourceTargetRequirementV1 {
-                representation: VerifiedCallableResultRepresentationV1::ExactNominalBox {
-                    box_name: "Text".into(),
-                },
-                required_i64_arguments: vec![1].into_boxed_slice(),
-            }),
-        );
-        assert!(!wrong_representation.has_exact_i64_requirement(&[1]));
-
-        let missing_evidence = CallableLoopSourceTargetRelationV1::new(site, target, None);
-        assert!(!missing_evidence.has_exact_i64_requirement(&[1]));
-    }
-}
+#[path = "normal_callable_loop_source_route_tests.rs"]
+mod tests;

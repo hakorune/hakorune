@@ -594,7 +594,7 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             source_kind,
             source_projection,
             source_items,
-            source_target,
+            source_target_probe,
         } = payload;
 
         if let Err(error) = validate_source_input(
@@ -643,7 +643,7 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
                         selection,
                         source_projection,
                         source_items,
-                        source_target,
+                        source_target_probe,
                     ) {
                         Ok(source_facts) => {
                             CallableGenericLoopSourceFactsDispositionV1::LoopCondReady(source_facts)
