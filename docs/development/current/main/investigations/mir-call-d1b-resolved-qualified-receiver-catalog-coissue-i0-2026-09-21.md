@@ -1,10 +1,10 @@
 ---
-Status: fast__2026-09-21__ResolvedQualifiedReceiverCatalogCoissue
+Status: ParkedSealed__NoSafeSlice__2026-09-21__ResolvedQualifiedReceiverCatalogCoissue
 Task: MIR-CALL-D1B-RESOLVED-QUALIFIED-RECEIVER-CATALOG-COISSUE-I0
 Date: 2026-09-21
 Parent: mir-call-d1b-resolved-qualified-receiver-catalog-coissue-d0-2026-09-21.md
-Implementation permission: true; relation-only Main co-issuer
-NextCard: none
+Implementation permission: false; required Main import-view owner is absent
+NextCard: MIR-CALL-D1B-MAIN-IMPORT-VIEW-OWNERSHIP-D0
 ---
 
 # Resolver qualified receiver catalog co-issue I0
@@ -43,7 +43,21 @@ walk outside the Main authority. It must not infer a target from name/arity,
 create a second import authority, or attach a target/loan before this relation
 is sealed.
 
-## Required guards and closeout
+## Premise audit and closeout
+
+The intended invocation-owned `VerifiedStaticImportAliasViewV1` is not an
+existing Main product. The Lifecycle converts `using_import_boxes` for the
+Script lookup, and the package CoreMethod helper seals an empty import view;
+neither is a valid Main import authority. Implementing this I0 would either
+seal a second competing view or accept an empty view, so the bounded relation
+cannot be issued safely.
+
+This row is `ParkedSealed__NoSafeSlice`, not a code failure. Reopen only after
+`MIR-CALL-D1B-MAIN-IMPORT-VIEW-OWNERSHIP-D0` names one invocation owner and a
+single transport into the package/co-issuer. No Rust source, fixture, fallback,
+target, loan, publication, or receipt was added by this row.
+
+## Required guards and later closeout
 
 Add focused guards for one valid direct receiver and for missing/duplicate
 identity, empty spelling, Main slot/site mismatch, foreign brand/import view,

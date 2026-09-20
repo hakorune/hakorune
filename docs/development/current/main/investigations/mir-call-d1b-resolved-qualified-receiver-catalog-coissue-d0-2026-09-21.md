@@ -5,7 +5,7 @@ Date: 2026-09-21
 Parent: mir-call-d1b-resolved-qualified-receiver-identity-i0-2026-09-21.md
 Implementation permission: accepted bounded design; next I0 may implement the
   relation-only co-issuer, with no target/loan/publication claim
-NextCard: MIR-CALL-D1B-RESOLVED-QUALIFIED-RECEIVER-CATALOG-COISSUE-I0
+NextCard: MIR-CALL-D1B-MAIN-IMPORT-VIEW-OWNERSHIP-D0
 ---
 
 # Resolver qualified receiver catalog co-issue D0
@@ -75,3 +75,12 @@ safe slice. Its implementation permission is limited to the relation product
 and focused positive/negative guards. If the existing handoff cannot borrow
 all three products with one owner, the I0 must close as `NoSafeSlice` rather
 than introduce an adapter or new authority.
+
+The I0 premise audit found that the required invocation-owned import view is
+not present in the current Main path: `using_import_boxes` is converted and
+sealed by the Script lookup path, while the package CoreMethod helper seals an
+empty view independently. Reusing either would duplicate import authority or
+silently give Main an empty view. The co-issuer relation therefore remains a
+valid bounded design, but its implementation is blocked until
+`MIR-CALL-D1B-MAIN-IMPORT-VIEW-OWNERSHIP-D0` selects one owner and transport
+for that view.
