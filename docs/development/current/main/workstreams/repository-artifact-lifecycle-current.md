@@ -545,7 +545,7 @@ physical archive move = 0
 Restore the existing lifecycle machinery before moving anything:
 
 ```text
-2026-09-20 read-only audit: INDEX.md has 673 registered rows, 851 direct Markdown files, 182 direct files outside the registry, and 4 rows pointing at TOML sidecars; declared baseline remains 77. Do not change the baseline until archive/sidecar scope is adjudicated.
+2026-09-20 read-only audit: INDEX.md has 673 registered rows, 851 direct Markdown files, 182 direct files outside the registry, and 4 rows pointing at TOML paths; declared baseline remains 77. Do not change the baseline until archive/sidecar scope is adjudicated.
 restore required executable modes
 restore or deliberately retire the missing phase-293x archive entry
 make strict inventory green
