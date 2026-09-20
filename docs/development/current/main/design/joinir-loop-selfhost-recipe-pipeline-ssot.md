@@ -32,11 +32,11 @@ Related:
   that admitted cohort. All-family source co-seal, backend parity, and broad
   production selection remain separate.
 - **Current scheduler frontier:** follow the `CURRENT_STATE.toml` pointer to
-  `MIR-CALL-PARSER-LOOPBREAK-SOURCE-CONSUMER-D0` before returning to the
+  `MIR-CALL-PARSER-LOOPBREAK-SOURCE-PACKAGE-I0` before returning to the
   existing `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` design stop. The parser row is
-  a dependency owner decision for one bounded package window, not broad Loop
-  production selection. Strict/dev LegacyCallV0 reader stop is closed, but
-  release compatibility still shares the parser and has no independently owned
+  a bounded source-package admission window, not broad Loop production
+  selection. Strict/dev LegacyCallV0 reader stop is closed, but release
+  compatibility still shares the parser and has no independently owned
   delete-set; broad Loop production selection remains unopened.
 - **Reopen condition:** complete the recorded M10 semantic/transfer/session
   prerequisites and M8/M9 coverage, then name one unchanged production

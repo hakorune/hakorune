@@ -173,6 +173,37 @@ the [Map projection owner](../../development/current/main/design/collection-lite
 Do not reinterpret the existing static C row layout or widen call signatures
 silently to implement this planned runtime contract.
 
+### Typed checked-Map callable carrier v1
+
+The selected callable physical ABI has one explicit Map carrier. In published
+Program JSON, a formal whose issued physical carrier is a borrowed checked-Map
+storage pointer must use `"representation":"map"`; the carrier and the
+`MapBox` parameter type are checked together. A carrier/type mismatch rejects
+with `param-carrier-drift` before publication. The carrier is a borrowed view;
+the callee does not own or dispose the caller's Map storage.
+
+The runtime checked-Map C surface is declared in
+`include/nyrt_fault_v1.h` and is versioned by the runtime descriptor. The
+storage/key/outcome lifecycle is:
+
+1. `nyrt_map_storage_init_v1`, `nyrt_map_key_init_v1`, and
+   `nyrt_map_key_prepare_utf8_v1` prepare fresh, synchronous regions;
+2. `nyrt_map_checked_new_v1`, `nyrt_map_checked_install_indexed_v1`,
+   `nyrt_map_checked_install_borrowed_array_v1`, and
+   `nyrt_map_checked_install_value_v1` install typed entries;
+3. `nyrt_map_checked_get_i64_v1`, `nyrt_map_checked_array_index_map_v1`,
+   `nyrt_map_checked_get_text_v1`, and
+   `nyrt_map_checked_array_length_v1` perform checked reads;
+4. `nyrt_map_checked_end_v1` or the matching outcome/storage dispose entry
+   closes the one-shot operation.
+
+The three value tags are `NYRT_MAP_VALUE_I64=1`, `BOOL=2`, and
+`BORROWED_HANDLE=3`. A borrowed-handle entry never becomes an integer read;
+`nyrt_map_checked_get_i64_v1` records the existing type fault and leaves the
+output unchanged. Detailed storage, residence, fault, and lifetime rules stay
+owned by the [checked-map opaque ABI contract](../runtime/runtime-data-dispatch.md#checked-map-opaque-abi-contract)
+and the [collection construction owner](../../development/current/main/design/collection-literal-construction-ssot.md#published-operand-projection-inventory).
+
 Decision (2026-09-08): the unpublished static compiler frame v2 distinguishes
 result representation from physical operation selection. Its value row has an
 Operation action with a finite selection for I64 binary, I64/Bool/String
