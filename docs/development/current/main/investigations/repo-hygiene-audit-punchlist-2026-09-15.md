@@ -25,6 +25,17 @@ The “8 months / 8 files” wording from the later audit was not used as a
 fact because the exact in-tree census is larger and has a different scope.
 No bulk registration or baseline increase is authorized by this reconciliation.
 
+The remaining documentation P1 is therefore a bounded registry-classification
+decision, not an untracked repair pass. Its input boundary is the 2026-09-20
+census: 182 direct Markdown files outside the registry, four registry paths
+ending in TOML, and the declared unregistered baseline of 77. The next docs
+action is to classify that finite set as registry row, owned sidecar, or
+archive/retirement evidence, then update only the selected owner and its
+manifest. Keep `INDEX.md` in warning mode until the classification is complete;
+do not mass-register files or raise the baseline. This is recorded here for a
+later docs-hygiene selection and does not retarget the active LoopBreak
+production lane.
+
 ## P1 — spec/decision management
 
 | # | Finding | Verified evidence | Required action |
