@@ -20,6 +20,7 @@ pub use path::{PathFieldV0, PathSegmentV0, PathV0};
 pub use program_v0_body_view::{
     read_program_v0_body, ProgramV0BodyViewError, ValidatedProgramV0BodyView,
 };
+#[cfg(test)]
 pub(crate) use program_v0_snapshot_witness::build_snapshot_from_validated_view_v0;
 pub use schema::{
     AtomKeyV0, AtomSpecV0, AtomValueKindV0, BinaryOperatorV0, ChildCardinalityV0, ChildRoleV0,

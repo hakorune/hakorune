@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI12__NextCohortSelection
+Status: closed__2026-09-21__WarningBaselineRefreshI12__SnapshotWitnessTestFacade
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I12
 Date: 2026-09-21
 Parent: mirbuilder-warning-invocation-identity-test-facade-i0-2026-09-21.md
-Implementation permission: false; refresh and select one cohort only
-NextCard: MIRBUILDER-WARNING-SURFACE-CENSUS-R0
+Implementation permission: true for one cfg(test) snapshot-witness re-export move only
+NextCard: MIRBUILDER-WARNING-SNAPSHOT-WITNESS-TEST-FACADE-I0
 ---
 
 # MirBuilder warning baseline refresh I12
@@ -34,3 +34,14 @@ file:line, owner, and production/test/compat/generated role, then select one
 cohort or write `NoSafeSlice`. Keep dead-code/private-interface rows with
 their owners. No code edit is permitted until the selection is recorded.
 
+## I12 inventory and decision
+
+The fresh commands both exited 0: lib produced 1,819 warnings and lib-test
+produced 561 warnings. The `unused_imports` diagnostic at
+`src/analysis/bounded_body_snapshot_v0/mod.rs:23` is one caller-zero
+test-facade row for `build_snapshot_from_validated_view_v0`. Repository-wide
+reference search finds only the analysis and strict-JSON snapshot test
+modules; no production consumer imports this re-export. The selected next
+slice was one `#[cfg(test)]` re-export gate, with expected lib 1,818 and
+lib-test 561. Execution completed with those counts; the implementation card
+records the fixed command evidence.
