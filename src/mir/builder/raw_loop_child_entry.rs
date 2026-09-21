@@ -295,12 +295,20 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             } else {
                 (None, None, None, Box::default())
             };
-        let loop_break_candidate = match (callable_ledger, parent_source.site()) {
-            (Some(callable_ledger), Some(parent_site)) => callable_ledger
-                .borrow_mut()
-                .take_loop_break_source_candidate(parent_site)?,
-            _ => None,
-        };
+        let (loop_break_candidate, composite_loop_break_candidate) =
+            match (callable_ledger, parent_source.site()) {
+                (Some(callable_ledger), Some(parent_site)) => {
+                    let mut state = callable_ledger.borrow_mut();
+                    let direct = state.take_loop_break_source_candidate(parent_site)?;
+                    let composite = if direct.is_none() {
+                        state.take_loop_break_composite_source_candidate(parent_site)?
+                    } else {
+                        None
+                    };
+                    (direct, composite)
+                }
+                _ => (None, None),
+            };
         match loop_break_candidate {
             Some(candidate) => {
                 let callable_ledger = callable_ledger.ok_or_else(|| {
@@ -338,7 +346,45 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
                 .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned());
             }
-            None => {}
+            None => {
+                if let Some(candidate) = composite_loop_break_candidate {
+                    let callable_ledger = callable_ledger.ok_or_else(|| {
+                        "[freeze:contract][callable-loop/composite/source-port-ledger-missing]"
+                            .to_owned()
+                    })?;
+                    let physical_input = candidate.into_physical_input(
+                        parent_source,
+                        loop_node,
+                        condition_source,
+                        body_source,
+                        condition,
+                        body,
+                        binding_product,
+                        source_items,
+                        source_target_probe,
+                        callable_ledger,
+                    )?;
+                    let plan = crate::mir::builder::control_flow::plan::features::
+                        loop_break_composite_source::lower_loop_break_composite_source(
+                            builder,
+                            &physical_input,
+                        )?;
+                    crate::mir::builder::control_flow::verify::PlanVerifier::verify(&plan)
+                        .map_err(|error| {
+                            format!("[freeze:contract][callable-loop/verify] {error}")
+                        })?;
+                    let context = crate::mir::builder::control_flow::plan::features::
+                        generic_loop_context::GenericLoopV1SourceLoweringContextV1::new(
+                            debug,
+                            in_static_box,
+                        );
+                    return crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower(
+                        builder, plan, &context,
+                    )
+                    .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
+                    .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned());
+                }
+            }
         }
         let prepared = Self {
             parent_source,

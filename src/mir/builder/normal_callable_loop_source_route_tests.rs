@@ -514,6 +514,55 @@ fn issue_with_source_relations_keeps_unrelated_items_out_of_the_selected_set() {
 }
 
 #[test]
+fn composite_target_probe_requires_complete_source_order() {
+    let parts = armed_loop_cond_parts(MIXED_LOOP_COND_SOURCE);
+    assert_eq!(parts.items.len(), 2);
+    let relations = parts
+        .call_sites
+        .iter()
+        .map(selected_relation)
+        .collect::<Vec<_>>()
+        .into_boxed_slice();
+    let selected = CallableLoopSourceTargetProbeV1::from_parts(relations, Box::new([]), false)
+        .into_selected_relations(&parts.items)
+        .expect("composite source items require one selected relation each");
+    assert_eq!(selected.len(), parts.items.len());
+
+    let mut reversed = selected.into_vec();
+    reversed.reverse();
+    let error = CallableLoopSourceTargetProbeV1::from_parts(
+        reversed.into_boxed_slice(),
+        Box::new([]),
+        false,
+    )
+    .into_selected_relations(&parts.items)
+    .expect_err("composite handoffs must remain source ordered");
+    assert!(matches!(
+        error,
+        CallableLoopSourceRouteRejectV1::SourceTargetOrderMismatch { .. }
+    ));
+}
+
+#[test]
+fn composite_target_probe_rejects_missing_selected_relation() {
+    let parts = armed_loop_cond_parts(MIXED_LOOP_COND_SOURCE);
+    let error = CallableLoopSourceTargetProbeV1::from_parts(
+        vec![selected_relation(&parts.call_sites[0])].into_boxed_slice(),
+        Box::new([]),
+        false,
+    )
+    .into_selected_relations(&parts.items)
+    .expect_err("composite source handoffs must cover every item");
+    assert!(matches!(
+        error,
+        CallableLoopSourceRouteRejectV1::SourceTargetCardinality {
+            expected: 2,
+            actual: 1
+        }
+    ));
+}
+
+#[test]
 fn issue_with_source_relations_maps_a_missing_required_row_to_unselected() {
     let parts = armed_loop_cond_parts(ARMED_LOOP_COND_SOURCE);
     let call_site = parts.call_sites[0].clone();

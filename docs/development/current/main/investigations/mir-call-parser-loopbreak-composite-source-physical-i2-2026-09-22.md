@@ -1,9 +1,9 @@
 ---
-Status: design_stop__2026-09-22__CompositePackageI1AcceptedSingletonOwnerBoundary
+Status: fast__2026-09-22__CompositeEnvelopeOwnerDecisionAccepted
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PHYSICAL-I2
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-package-i1-2026-09-22.md
-Implementation permission: false; I1 accepted; first name the existing physical source-port and selected-target relation, then implement one bounded adapter slice
+Implementation permission: true for the composite physical envelope and its focused guards; direct physical input, production caller switch, and old-edge deletion remain out of scope
 NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 ---
 
@@ -90,7 +90,30 @@ The bounded I2 rows are:
    record the named terminal. Only a green source-backed handoff can open I3;
    no caller switch or old-edge deletion is part of I2.
 
-The next implementation permission is limited to this envelope and its
-positive, missing-target, foreign-target, residual, and second-take guards.
-No production switch, source-to-MIR completion, or old-edge deletion is
-implied by the Decision.
+The implementation permission is limited to this envelope and its positive,
+missing-target, foreign-target, residual, and second-take guards. No
+production switch, source-to-MIR completion, or old-edge deletion is implied
+by the Decision.
+
+## Implementation evidence — 2026-09-22
+
+The accepted same-owner envelope is now wired through the existing lowering
+spine. The direct singleton `SourceLoopBreakPhysicalInputV1` contract is
+unchanged. A composite candidate is taken by exact source site, checked for
+complete source-item order and `ExactI64` `[1]` selected handoffs, co-sealed
+with its source port and Recipe, and lowered through
+`CallableLoopSourcePartsBlockV1`/`LoopV0`. The envelope does not consume
+publication rows; `VerifiedStaticCallResultPublicationOwnerV1::take_for_source`
+remains their one-shot authority.
+
+Focused evidence is green: the source-route suite is **16/16**, the existing
+package/composite suite is **8/8**, and the raw loop-entry suite is **11/11**.
+`cargo check --profile quick --lib` also passes with the recorded existing
+warning baseline (1,674 warnings in this check); no warning suppression was
+added. All touched sources remain below the 760/800 line limits.
+
+This does not yet prove the selected parser source-to-MIR/publication
+invocation. I3 therefore remains a design-stop card until that acceptance is
+run; only then may the selected caller switch, caller-zero proof, and the
+exclusive old-edge deletion proceed. The warning cohort remains paused at I147
+with the remaining `dead_code` rows owned by their semantic lanes.

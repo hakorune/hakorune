@@ -34,6 +34,14 @@ pub(in crate::mir::builder) enum CallableLoopSourceRouteRejectV1 {
     SourceTargetMissing,
     SourceTargetSiteMismatch,
     SourceTargetMultiple,
+    SourceTargetCardinality {
+        expected: usize,
+        actual: usize,
+    },
+    SourceTargetOrderMismatch {
+        expected: SourceExprSiteV1,
+        actual: SourceExprSiteV1,
+    },
     SourceTargetRequirementMismatch,
     /// An exact same-module static target was resolved for the listed sites
     /// but its selected publication row is absent — target-only, missing,
@@ -329,6 +337,59 @@ impl CallableLoopSourceTargetProbeV1 {
                     .into_boxed_slice(),
             },
         )
+    }
+
+    /// Consume the complete ordered selected set for a composite source
+    /// Recipe.  The direct route keeps `into_selected_relation`'s singleton
+    /// contract; this batch route only accepts one selected handoff for every
+    /// resolver-issued source item, in the same order.
+    pub(in crate::mir::builder) fn into_selected_relations(
+        self,
+        source_items: &[CallableLoopSourceItemBindingV1],
+    ) -> Result<Box<[CallableLoopSourceTargetRelationV1]>, CallableLoopSourceRouteRejectV1> {
+        let Self {
+            selected,
+            uncovered,
+            requirement_mismatch,
+            core_methods,
+        } = self;
+        if requirement_mismatch {
+            return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
+        }
+        if !uncovered.is_empty() {
+            return Err(CallableLoopSourceRouteRejectV1::SourceTargetUnselected {
+                call_sites: uncovered,
+            });
+        }
+        if !core_methods.is_empty() {
+            return Err(
+                CallableLoopSourceRouteRejectV1::SourceCallOutsideSelectedFamily {
+                    call_sites: core_methods
+                        .iter()
+                        .map(|item| item.call_site().clone())
+                        .collect::<Vec<_>>()
+                        .into_boxed_slice(),
+                },
+            );
+        }
+        if selected.len() != source_items.len() {
+            return Err(CallableLoopSourceRouteRejectV1::SourceTargetCardinality {
+                expected: source_items.len(),
+                actual: selected.len(),
+            });
+        }
+        for (item, relation) in source_items.iter().zip(selected.iter()) {
+            if item.call_site() != relation.call_site() {
+                return Err(CallableLoopSourceRouteRejectV1::SourceTargetOrderMismatch {
+                    expected: item.call_site().clone(),
+                    actual: relation.call_site().clone(),
+                });
+            }
+            if !relation.has_exact_i64_requirement(&[1]) {
+                return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
+            }
+        }
+        Ok(selected)
     }
 }
 

@@ -476,7 +476,6 @@ impl VerifiedCallableLoopBreakCompositeSourceFactsV1 {
         Ok(())
     }
 
-    #[cfg(test)]
     pub(in crate::mir) fn take_candidate_for_site(
         &mut self,
         site: &crate::mir::resolved_semantics::SourceStmtSiteV1,

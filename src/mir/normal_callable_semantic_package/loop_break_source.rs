@@ -95,7 +95,6 @@ impl LoopBreakSourcePackageLoanV1 {
         }
     }
 
-    #[cfg(test)]
     pub(in crate::mir) fn take_composite_candidate_for_site(
         &mut self,
         site: &SourceStmtSiteV1,

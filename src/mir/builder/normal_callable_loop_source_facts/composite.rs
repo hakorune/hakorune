@@ -46,6 +46,15 @@ impl VerifiedCallableLoopBreakCompositeSourceCandidateV1 {
     pub(in crate::mir) fn recipe_is_nonempty(&self) -> bool {
         !self.recipe.root.items.is_empty()
     }
+
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        VerifiedLoopBreakCompositeSourceProjectionV1,
+        BuiltRecipeTree,
+    ) {
+        (self.projection, self.recipe)
+    }
 }
 
 pub(in crate::mir) fn issue_composite_source_candidate_v1(

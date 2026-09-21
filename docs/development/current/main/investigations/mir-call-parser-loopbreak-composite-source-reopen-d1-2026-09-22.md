@@ -4,7 +4,7 @@ Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-REOPEN-D1
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-package-d0-2026-09-21.md
 Implementation permission: true for the bounded body-role projection successor only
-NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-BODY-ROLE-I0
+NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PHYSICAL-I2
 ---
 
 # Parser composite LoopBreak semantic lane reopen D1
