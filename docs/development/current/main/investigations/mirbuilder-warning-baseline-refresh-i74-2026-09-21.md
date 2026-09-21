@@ -47,3 +47,24 @@ stable warning refresh at its parent/current pair.
 The nested If role slice passed its focused suite **4/4** and reduced lib
 warnings from **1,749** to **1,748** while retaining lib-test at **557**. The
 canonical nested JoinSig owner and test coverage remain unchanged.
+
+## Refresh result and bounded deletion selection
+
+The sequential refresh completed with lib **1,748** warnings and lib-test **557**,
+matching the nested-role closeout. The next finite caller-zero edge is the
+parent re-export of `IfRecipeDecodeErrorV1` and `IfRecipeNormalizerV1` in
+`src/mir/if_recipe_contract/mod.rs:44`. Both definitions are owned by
+`normalize.rs`; the parent-facade consumers are test modules only
+(`if_recipe_contract/tests.rs` and `resolved_value_profile` tests), with no
+non-test caller. Retain the test facade under `cfg(test)` and remove its
+production edge in one focused slice.
+
+Selected successor:
+`MIRBUILDER-WARNING-IF-RECIPE-NORMALIZER-TEST-SCOPE-I0`.
+
+## Closeout selection result
+
+The I74 refresh confirmed lib **1,748** and lib-test **557**, then selected the
+caller-zero If recipe normalizer pair. Its fast slice passed `if_recipe` **24/24**
+and `recipe_call` **6/6**, reducing lib warnings to **1,747** while preserving
+the lib-test surface.

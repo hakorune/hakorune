@@ -41,6 +41,7 @@ pub(crate) use nested_schema::{
 pub(crate) use nested_verify::{
     NestedIfRecipeRejectReasonV1, NestedIfRecipeVerifierV1, VerifiedNestedIfRecipeArtifactV1,
 };
+#[cfg(test)]
 pub(crate) use normalize::{IfRecipeDecodeErrorV1, IfRecipeNormalizerV1};
 pub(crate) use physical_input::{IfPhysicalInputRejectReasonV1, VerifiedIfPhysicalInputV1};
 pub(crate) use schema::{
