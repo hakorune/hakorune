@@ -20,7 +20,6 @@ mod tests;
 pub(crate) use issuer::{
     issue_resolved_callable_semantic_batch_v1,
     issue_resolved_callable_semantic_batch_with_brand_catalog_v1,
-    issue_resolved_callable_semantic_batch_with_policy_v1, DirectCallObservationBatchPolicyV1,
 };
 pub(crate) use issuer::{
     issue_resolved_callable_semantic_batch_with_freestatic_targets_v1,

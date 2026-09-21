@@ -47,3 +47,19 @@ run its focused gate and the stable warning refresh at its parent/current pair.
 The physical ABI test import slice deleted one unused `use super::*` line. Its
 lib check stayed at **1,741**, lib-test is now **556**, and the named physical
 ABI test passed **1/1**. No ABI or production route changed.
+
+## Refresh result and selected bounded edge
+
+The sequential refresh completed with lib **1,741** warnings and lib-test
+**556**, with no new red. The finite candidate is the `#[cfg(test)]` parent
+re-export in `src/mir/callable_semantic_batch/mod.rs`:
+`issue_resolved_callable_semantic_batch_with_policy_v1` and
+`DirectCallObservationBatchPolicyV1` have no repository caller through that
+facade; the issuer's internal references remain canonical. I84 will remove only
+those two unused export edges.
+
+## Closeout result
+
+The callable semantic batch re-export deletion passed lib check, test build, and
+its named **13/13** focused suite. Lib stayed at **1,741** and lib-test
+decreased from **556** to **555**.
