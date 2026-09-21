@@ -3,8 +3,11 @@
 //! This remains disconnected from public ingress.  It is the only product
 //! allowed to pair a postprocessed module with the Builder readiness owner.
 
+#[cfg(test)]
 use super::module_postprocess::{
     CanonicalFinalVerificationSealInnerV1, CanonicalFinalVerificationSealV1,
+};
+use super::module_postprocess::{
     ModuleVerificationEvidenceV1, PostprocessEvidenceInputV1, PostprocessedModuleInvocationV1,
 };
 use super::publication_kernel::PublishedModuleTransferV1;
