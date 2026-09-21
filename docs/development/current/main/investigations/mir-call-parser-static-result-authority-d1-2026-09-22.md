@@ -49,6 +49,18 @@ rows are later `ExactI64` rows. The same caller also contains target-only
 `ParserDeclarationBox.parse_or_null/3` and `RuneContractBox.invalid_placement_tag/1`
 rows, so a selected `starts_with` handoff cannot claim whole-package coverage.
 
+The source-shape read gives one useful subpartition without issuing a result
+claim. The eight `KnownNonI64Return` rows contain six String-shaped targets
+(`ParserDeclarationBox._profile/1`, `GrammarContractProjection.status/2`,
+`GrammarContractProjection.stable_reject_tag/2`,
+`ParserDeclarationBox._profile_name/1`, `RuneContractBox._extract_name/1`,
+and `RuneContractBox._extract_entry_arg0/1`) and two Bool-shaped targets
+(`StringHelpers.is_space/1` and `StringHelpers.is_digit/1`). The two
+`RecursiveDependency` rows are the self-recursive `ParserStringUtilsBox.i2s/1`
+and `StringHelpers.int_to_str/1`. The single `UnsupportedStatementKind` row is
+`StringHelpers.starts_with/3`. These are source-shape candidates only: a
+declared or visually inferred type cannot cross the D1 authority boundary.
+
 ## Existing-owner comparison
 
 | owner | what it can issue | why it cannot close this D1 |
@@ -77,16 +89,19 @@ that a nominal/String result can enter the LoopBreak physical consumer.
    identity and package brand in every proposed product.
 2. Define which source relation can prove a callee body result without using a
    declared type alone, MIR inference, or an AST/name rescan.
-3. Decide whether the canonical issuer is a new static-call result owner or an
+3. For the six String-shaped and two Bool-shaped candidates, identify the
+   resolver-issued body/result rows and the distinct physical representation
+   contract; do not merge Bool into I64 by convention.
+4. Decide whether the canonical issuer is a new static-call result owner or an
    explicit extension of an existing source-result owner; do not create a
    second publication bridge.
-4. For each admitted class, name the physical consumer and representation/
+5. For each admitted class, name the physical consumer and representation/
    effect/ABI fields. For every non-admitted class, name a typed terminal that
    rejects before Builder effects while retaining the source identity.
-5. Add duplicate, foreign-brand, missing-result, recursive, unsupported-body,
+6. Add duplicate, foreign-brand, missing-result, recursive, unsupported-body,
    residual, and one-shot obligations to the design. Do not implement them in
    this card.
-6. If no single bounded owner can cover a finite family, close that family as
+7. If no single bounded owner can cover a finite family, close that family as
    `NoSafeSlice` with an observable reopen trigger rather than widening
    `ExactI64` or filtering target-only rows.
 
