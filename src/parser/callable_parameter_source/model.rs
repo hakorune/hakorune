@@ -165,6 +165,7 @@ impl ParserCallableParameterDeclarationSourceV1 {
 }
 
 impl ResolverMethodParameterSyntaxV1 {
+    #[cfg(test)]
     pub(super) fn from_neutral_syntax(name: String, declared_type_name: Option<String>) -> Self {
         Self {
             name: name.into_boxed_str(),
@@ -172,6 +173,7 @@ impl ResolverMethodParameterSyntaxV1 {
         }
     }
 
+    #[cfg(test)]
     pub(crate) fn name(&self) -> &str {
         &self.name
     }

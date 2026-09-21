@@ -30,6 +30,7 @@ mod syntax_loan;
 pub(in crate::parser) use catalog::{
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
 };
+#[cfg(test)]
 pub(super) use issuer::project_neutral_parameter_syntax_v1;
 pub(crate) use model::ResolverMethodParameterSyntaxV1;
 pub(in crate::parser) use model::{

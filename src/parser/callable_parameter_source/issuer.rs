@@ -1,5 +1,7 @@
+#[cfg(test)]
 use crate::ast::ParamDecl;
 
+#[cfg(test)]
 use super::model::ResolverMethodParameterSyntaxV1;
 
 /// Preserve the existing neutral `ParamDecl` fallback projection.
@@ -7,6 +9,7 @@ use super::model::ResolverMethodParameterSyntaxV1;
 /// This issuer intentionally has no parser brand, parameter ordinal receipt,
 /// or transfer classification. The subsequent source-seal I0 replaces this
 /// neutral projection with the complete sibling catalog atomically.
+#[cfg(test)]
 pub(in crate::parser) fn project_neutral_parameter_syntax_v1(
     param_decls: &[ParamDecl],
     params: &[String],

@@ -4,17 +4,24 @@
 //! only AST-free source syntax. It does not resolve names/types, issue Home
 //! ABI, or construct a target/Recipe product.
 
+#[cfg(test)]
 use std::collections::HashSet;
 
-use crate::ast::{ASTNode, BoxMethodInventoryOrdinalV1};
+#[cfg(test)]
+use crate::ast::ASTNode;
+use crate::ast::BoxMethodInventoryOrdinalV1;
 
 use super::callable_contract_syntax::CallableContractSyntaxV1;
-use super::callable_parameter_source::{
-    project_neutral_parameter_syntax_v1, ResolverMethodParameterSyntaxV1,
-};
+#[cfg(test)]
+use super::callable_parameter_source::project_neutral_parameter_syntax_v1;
+use super::callable_parameter_source::ResolverMethodParameterSyntaxV1;
 use super::source_authority::ParserInvocationBrandV1;
-use super::source_seal::{ParsedProgramWithSourceV1, ParserBoxSourceSealV1};
-use super::{NyashParser, ParseError, ParserBuildConfig};
+use super::source_seal::ParsedProgramWithSourceV1;
+#[cfg(test)]
+use super::source_seal::ParserBoxSourceSealV1;
+use super::NyashParser;
+#[cfg(test)]
+use super::{ParseError, ParserBuildConfig};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ResolverMethodSignatureSyntaxV1 {
@@ -164,6 +171,7 @@ impl ParserBoxResolverSourceHandoffV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg(test)]
 pub(crate) enum ResolverSourceHandoffErrorV1 {
     ProgramNotAvailable,
     BoxSiteMissing { statement_ordinal: u32 },
@@ -180,6 +188,7 @@ impl NyashParser {
     /// Parse and consume the rich parser source seals into the single
     /// AST-free resolver ingress. The AST remains available to the caller;
     /// the source seals do not.
+    #[cfg(test)]
     pub(crate) fn parse_from_string_with_resolver_source_handoff(
         input: impl Into<String>,
         build_config: ParserBuildConfig,
@@ -196,6 +205,7 @@ impl NyashParser {
 }
 
 impl ParsedProgramWithSourceV1 {
+    #[cfg(test)]
     pub(crate) fn into_ast_and_resolver_source_handoff(
         self,
     ) -> Result<(ASTNode, ParserBoxResolverSourceHandoffV1), ResolverSourceHandoffErrorV1> {
@@ -206,6 +216,7 @@ impl ParsedProgramWithSourceV1 {
     }
 }
 
+#[cfg(test)]
 pub(super) fn build_resolver_source_handoff(
     ast: &ASTNode,
     seals: &[ParserBoxSourceSealV1],
@@ -254,6 +265,7 @@ pub(super) fn build_resolver_source_handoff(
     })
 }
 
+#[cfg(test)]
 fn collect_explicit_methods(
     seal: &ParserBoxSourceSealV1,
     statement_ordinal: u32,
@@ -301,6 +313,7 @@ fn collect_explicit_methods(
     Ok(methods)
 }
 
+#[cfg(test)]
 fn signature_from_declaration(
     declaration: &ASTNode,
     name: &str,
