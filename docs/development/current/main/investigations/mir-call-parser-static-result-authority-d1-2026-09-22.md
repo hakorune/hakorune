@@ -61,6 +61,12 @@ and `StringHelpers.int_to_str/1`. The single `UnsupportedStatementKind` row is
 `StringHelpers.starts_with/3`. These are source-shape candidates only: a
 declared or visually inferred type cannot cross the D1 authority boundary.
 
+The physical GlobalCall planner does have a `Bool -> ScalarI64` projection,
+and the language reference contains historical Boolean-as-integer examples.
+Neither is a source-owned callable result proof for this lane. D1 must name a
+semantic Bool/result relation before that physical projection can be consumed;
+otherwise Bool would be silently coerced into the existing `ExactI64` family.
+
 ## Existing-owner comparison
 
 | owner | what it can issue | why it cannot close this D1 |
@@ -91,7 +97,8 @@ that a nominal/String result can enter the LoopBreak physical consumer.
    declared type alone, MIR inference, or an AST/name rescan.
 3. For the six String-shaped and two Bool-shaped candidates, identify the
    resolver-issued body/result rows and the distinct physical representation
-   contract; do not merge Bool into I64 by convention.
+   contract; do not merge Bool into I64 by convention or by reading the
+   GlobalCall/MIR projection.
 4. Decide whether the canonical issuer is a new static-call result owner or an
    explicit extension of an existing source-result owner; do not create a
    second publication bridge.
