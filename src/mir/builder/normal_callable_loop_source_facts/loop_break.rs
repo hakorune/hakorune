@@ -61,28 +61,8 @@ pub(in crate::mir) struct VerifiedCallableLoopBreakSourceCandidateV1 {
 }
 
 impl VerifiedCallableLoopBreakSourceCandidateV1 {
-    pub(in crate::mir) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
-    }
-
-    pub(in crate::mir) const fn function_origin(&self) -> FunctionOriginV1 {
-        self.function_origin
-    }
-
-    pub(in crate::mir) const fn source_kind(&self) -> SemanticOwnerSourceKindV1 {
-        self.source_kind
-    }
-
     pub(in crate::mir) fn projection(&self) -> &VerifiedLoopBreakSourceProjectionV1 {
         &self.projection
-    }
-
-    pub(in crate::mir::builder) fn outcome(&self) -> &PlanBuildOutcome {
-        &self.outcome
-    }
-
-    pub(in crate::mir) fn terminality(&self) -> &DirectLoopBreakTerminalityV1 {
-        &self.terminality
     }
 
     pub(in crate::mir::builder) fn into_physical_input<'source, 'ledger>(
