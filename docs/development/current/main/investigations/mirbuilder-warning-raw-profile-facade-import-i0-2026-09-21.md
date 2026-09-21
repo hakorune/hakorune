@@ -1,9 +1,9 @@
 ---
-Status: design_stop__2026-09-21__WarningRawProfileFacadeImport__FastTransitionRequired
+Status: fast__2026-09-21__WarningRawProfileFacadeImport__ExecuteOneImportDeletion
 Task: MIRBUILDER-WARNING-RAW-PROFILE-FACADE-IMPORT-I0
 Date: 2026-09-21
 Parent: mirbuilder-warning-baseline-refresh-i64-2026-09-21.md
-Implementation permission: false; one bounded import deletion after fast-mode transition
+Implementation permission: true for one bounded import deletion and one test path move only
 NextCard: MIRBUILDER-WARNING-BASELINE-REFRESH-I65
 ---
 
