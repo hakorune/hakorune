@@ -1,5 +1,5 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI80__SelectNextBoundedCohort
+Status: closeout__2026-09-21__BaselineStable__I81Selected
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I80
 Date: 2026-09-21
 Parent: mirbuilder-warning-macro-transform-test-scope-i0-2026-09-21.md
@@ -51,3 +51,24 @@ parent re-export to `cfg(test)`, leaving the canonical implementation and
 policy-aware production path unchanged. Its focused suites passed LoopCond
 **9/9** and normal-callable transform **7/7**; the library warning baseline is
 now **1,742** and lib-test remains **557**.
+
+## Refresh result and selected bounded edge
+
+The sequential refresh completed with lib **1,742** warnings and lib-test
+**557**, matching the macro-transform closeout. No new red or command drift was
+observed. The finite candidate is the parent re-export of
+`map_loop_true_source_binding_reject` in `src/mir/loop_structural_facts/mod.rs`.
+The canonical mapper remains required by the test-only compiler adapter, so the
+function itself is not deletable. Only its non-test parent export edge may be
+scoped to `cfg(test)`; the test compiler module and focused route tests retain
+the test-time path.
+
+Selected successor:
+`MIRBUILDER-WARNING-LOOP-TRUE-REJECT-MAPPER-TEST-SCOPE-I0`.
+
+## Closeout result
+
+The selected I81 slice first rejected an over-broad `cfg(test)` scope because
+production route-policy modules consume the LoopTrue observation types. The
+corrected slice split the mapper from those types, scoped only the mapper export,
+and passed lib check plus LoopTrue **9/9**. Lib warnings decreased to **1,741**.
