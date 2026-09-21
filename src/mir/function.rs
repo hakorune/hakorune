@@ -55,9 +55,9 @@ pub use object_metadata::{
     SourcePackedArrayDirectReadConsumptionPlan, TypedObjectFieldPlan, TypedObjectFieldStorage,
     TypedObjectPlan, UserBoxFieldDecl, WeakFieldContractSpec, WeakFieldId, WeakFieldWriteContract,
 };
-pub(crate) use published_backend_view::{
-    PublishedMirBackendView, PublishedStaticMethodCFrameV1, PublishedStaticMethodRouteV1,
-};
+#[cfg(test)]
+pub(crate) use published_backend_view::PublishedStaticMethodCFrameV1;
+pub(crate) use published_backend_view::{PublishedMirBackendView, PublishedStaticMethodRouteV1};
 pub use typed_array_contract::{
     TypedArrayBoundaryValue, TypedArrayContractBoundary, TypedArrayContractDisposition,
     TypedArrayContractSource, TypedArrayContractSourceIdentity, TypedArrayElementContract,

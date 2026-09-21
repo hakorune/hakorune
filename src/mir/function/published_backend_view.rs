@@ -1,7 +1,9 @@
 //! Historical import and test paths; the normal compiler owns the sole view.
 
+#[cfg(test)]
+pub(crate) use crate::mir::compiler::published_backend_view::PublishedStaticMethodCFrameV1;
 pub(crate) use crate::mir::compiler::published_backend_view::{
-    PublishedMirBackendView, PublishedStaticMethodCFrameV1, PublishedStaticMethodRouteV1,
+    PublishedMirBackendView, PublishedStaticMethodRouteV1,
 };
 
 #[cfg(test)]

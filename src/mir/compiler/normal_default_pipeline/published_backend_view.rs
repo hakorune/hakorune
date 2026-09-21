@@ -35,9 +35,8 @@ mod physical_program_json;
 pub(super) use lifecycle::is_lifecycle_instruction;
 pub(crate) use lifecycle::PublishedObjectStorageProfileV1;
 
-pub(crate) use c_transport::{
-    PublishedStaticMethodCFrameV1,
-};
+#[cfg(test)]
+pub(crate) use c_transport::PublishedStaticMethodCFrameV1;
 pub(crate) use compiled_entry_contract::{
     CompiledEntryContractV1, CompiledEntryFormalKindV1, CompiledEntryRootResultV1,
 };
