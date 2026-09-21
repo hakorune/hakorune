@@ -21,6 +21,7 @@ pub(crate) use model::{
     ParserNormalProgramBodySourceRowV1, ParserNormalProgramBodySyntaxKindV1,
     ParserNormalProgramSourceAuthorityDispositionV1,
 };
+#[cfg(test)]
 pub(in crate::parser) use module_rows::ParserNormalModuleSourceRowsDispositionV1;
 pub(crate) use transform_guard::{
     validate_parser_normal_program_source_transform_v1, ParserNormalProgramSourceTransformRejectV1,

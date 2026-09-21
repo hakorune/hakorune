@@ -1,11 +1,11 @@
 date = "2026-09-21"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-WARNING-BASELINE-REFRESH-I14"
-current_execution_cohort = "mirbuilder_warning_baseline_refresh_i14"
-current_blocker_token = "MIRBUILDER-WARNING-BASELINE-REFRESH-I14__NextCohortSelection"
+current_execution_row = "MIRBUILDER-WARNING-BASELINE-REFRESH-I15"
+current_execution_cohort = "mirbuilder_warning_baseline_refresh_i15"
+current_blocker_token = "MIRBUILDER-WARNING-BASELINE-REFRESH-I15__NextCohortSelection"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "MIRBUILDER-WARNING-BASELINE-REFRESH-I14__NextCohortSelection__2026-09-21"
+current_design_stop = "MIRBUILDER-WARNING-BASELINE-REFRESH-I15__NextCohortSelection__2026-09-21"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-warning-baseline-refresh-i14-2026-09-21.md"
-latest_card = "mirbuilder-warning-baseline-refresh-i14"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-warning-baseline-refresh-i14-2026-09-21.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-warning-baseline-refresh-i15-2026-09-21.md"
+latest_card = "mirbuilder-warning-baseline-refresh-i15"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-warning-baseline-refresh-i15-2026-09-21.md"
 latest_card_summary = """
 Map lifecycle consumer spine through C9-2 and the map-argument T-series; T1 alpha/beta/gamma and T2-alpha closed with source-to-OBJ evidence. T2-beta-1 params ArrayLength: Normal=0, prepare-Fault=70, REPORT 100; T2-beta-2 blocks[0].get(kind): Normal=30, prepare-Fault=70, REPORT 100; T2-beta-3 blocks.length: Normal=1, prepare-Fault=70, REPORT 100.
 The bounded T2-beta acceptance inventory is complete. The aggregate main matrix is also closed: one finite source-to-OBJ shape combines functions,
@@ -52,10 +52,10 @@ D1/D2 LoopTrue source handoff is landed: existing Facts/Recipe and resolver/sour
 Transport row `MIR-CALL-PARSER-LOOPBREAK-SOURCE-TRANSPORT-I0` closed on 2026-09-21: installed package retention, one-shot owner take, selected lowering-state transport, and 5/5 focused package guards are green; quick check passes with the existing warning baseline. The direct source-bound physical adapter is type-checked with the existing associated-source/loop_v0 owner and its focused matrix is 15/15. The merged parser smoke stops at the named `GenericLoopV1NotSelected` terminal because the parser uses a composite LoopBreak topology.
 The direct row is now `ParkedSealed__NoSafeSlice`; the composite source-owner D0 is also sealed because the current Facts/Recipe owner has no complete nested-body topology product. Main identity and Cataloged raw scope are landed, but the exact source-site issuer for target/loan is absent. The qualified receiver identity carrier I0 landed at `10c3a301f3` with 11/11 focused tests. The Main import-view ownership I0 landed at `a8efc20975`: one lifecycle seal is borrowed by Script/Main, CoreMethod is brand-only, and the owned Main relation transport has direct/alias/foreign-view guards.
  Qualified target-reuse D0 remains valid: resolver rows retain qualified receiver identity, one lifecycle import view is shared, and relation I0 at `02cc09f765` consumes the declaration key once. The qualified source co-seal D0 is accepted, and physical handoff I0 landed at `d6ee865368` with ordered argument sites, one-shot Main take, expected-site descent, and the existing target-only terminal. Canonical-owner D0 is accepted: the existing Binding-SSA Facts/Recipe/physical session is extended with one exact qualified MethodCall row, selected callee `ExactI64` proof, canonical InlineI64 argument descent, and the existing selected-result publication or target-only terminal. I0 is closed with source-backed Main acceptance 1/1, relation guards 4/4, quick library check green, and normal cataloged child admission aligned to `CatalogedBoxMethod`; no fallback repair, VM repair, new result ABI, broad production cutover, or LegacyCallV0 retirement is authorized.
-Parser source-to-MIR acceptance, publication, other shapes, compatibility-route retirement, and backend parity remain open. Warning cleanup completed fourteen explicit import cohorts (lib 1845→1817; lib-test 563→561); I14 requires a fresh warning inventory before selecting the next caller-zero cohort.
+Parser source-to-MIR acceptance, publication, other shapes, compatibility-route retirement, and backend parity remain open. Warning cleanup completed fifteen explicit import cohorts (lib 1845→1816; lib-test 563→561); I15 requires a fresh warning inventory before selecting the next caller-zero cohort.
 """
-next_design_card = "MIRBUILDER-WARNING-BASELINE-REFRESH-I14"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-warning-baseline-refresh-i14-2026-09-21.md"
+next_design_card = "MIRBUILDER-WARNING-BASELINE-REFRESH-I15"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-warning-baseline-refresh-i15-2026-09-21.md"
 next_execution_card = "none__design_stop"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
