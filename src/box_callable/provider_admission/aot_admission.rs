@@ -149,6 +149,7 @@ impl PreparedAotExecutableAdmissionV1 {
         self.aliases
     }
 
+    #[cfg(test)]
     pub(crate) const fn registry_branch_count(&self) -> usize {
         self.registry.branch_count()
     }

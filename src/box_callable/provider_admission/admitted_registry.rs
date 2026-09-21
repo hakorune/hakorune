@@ -56,6 +56,7 @@ impl AdmittedTextScanRegistryV1 {
         })
     }
 
+    #[cfg(test)]
     pub(crate) const fn branch_count(&self) -> usize {
         1
     }
