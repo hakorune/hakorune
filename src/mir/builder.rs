@@ -79,9 +79,9 @@ pub(in crate::mir) use normal_callable_catalog_owner_link::{
 pub(in crate::mir) use normal_callable_dynamic_source::{
     issue_source_backed_dynamic_callable_v1, VerifiedSourceBackedDynamicCallableV1,
 };
-pub(in crate::mir) use normal_callable_semantic_source::{
-    NormalCallableSemanticAdmissionV1, VerifiedNormalCallableSemanticSourceV1,
-};
+#[cfg(test)]
+pub(in crate::mir) use normal_callable_semantic_source::NormalCallableSemanticAdmissionV1;
+pub(in crate::mir) use normal_callable_semantic_source::VerifiedNormalCallableSemanticSourceV1;
 mod calls; // Call system modules (refactored from builder_calls)
 #[allow(dead_code)]
 mod canonical_physical_drain;
