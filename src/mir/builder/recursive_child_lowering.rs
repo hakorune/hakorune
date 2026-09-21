@@ -44,9 +44,10 @@ mod pending_helpers;
 mod raw_ordinary_new_claim;
 #[path = "normal_script_direct_static_claim_transport.rs"]
 mod script_direct_static_claim_transport;
+#[cfg(test)]
+pub(in crate::mir::builder) use legacy_port::drive_raw_legacy_expression_v1;
 pub(in crate::mir::builder) use legacy_port::{
-    drive_raw_legacy_body_v1, drive_raw_legacy_expression_v1, drive_raw_legacy_statement_v1,
-    RawLegacyChildLoweringPortV1,
+    drive_raw_legacy_body_v1, drive_raw_legacy_statement_v1, RawLegacyChildLoweringPortV1,
 };
 pub(in crate::mir::builder) use raw_ordinary_new_claim::RawOrdinaryNewClaimPortV1;
 
