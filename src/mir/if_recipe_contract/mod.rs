@@ -22,10 +22,9 @@ mod tests;
 
 pub(crate) use error::IfRecipeRejectReasonV1;
 pub(crate) use ids::{IfBindingKeyV1, IfBlockKeyV1, IfItemKeyV1, IfValueKeyV1};
-pub(crate) use join_sig::{
-    IfJoinEdgeRoleV1, IfJoinEdgeV1, IfJoinObligationV1, IfJoinPortV1, IfJoinSigV1,
-    IfJoinValueEdgeV1,
-};
+pub(crate) use join_sig::{IfJoinEdgeRoleV1, IfJoinPortV1, IfJoinSigV1};
+#[cfg(test)]
+pub(crate) use join_sig::{IfJoinEdgeV1, IfJoinObligationV1, IfJoinValueEdgeV1};
 pub(crate) use nested_join_sig::{
     NestedIfJoinCompositionRoleV1, NestedIfJoinSigComposerV1, NestedIfJoinSigRejectReasonV1,
     VerifiedNestedIfJoinSigV1,

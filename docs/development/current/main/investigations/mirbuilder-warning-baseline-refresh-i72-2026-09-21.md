@@ -56,3 +56,19 @@ parent commit, so they are `known baseline debt`, not current-change failures:
 MapLiteral/New qualified-preflight failures, the existing typed assertion
 mismatch, and the LLVM opaque-pointer/object failures. No test was deleted and
 no warning was suppressed.
+
+## Refresh result and bounded deletion selection
+
+The sequential refresh completed on 2026-09-21 with lib **1,750** warnings and
+lib-test **557** warnings, matching the I71/C-frame closeout baseline. The first
+finite caller-zero cohort is the production re-export edge for
+`IfJoinEdgeV1`, `IfJoinObligationV1`, and `IfJoinValueEdgeV1` in
+`src/mir/if_recipe_contract/mod.rs:25-28`. Repository census found the actual
+types owned by `join_sig.rs`, direct physicalizer use through `join_sig`, and
+only test consumers through the parent facade; no non-test caller consumes
+these parent re-exports. The bounded action is to retain the test facade under
+`cfg(test)` and remove its production edge, with the existing If recipe and
+physicalizer tests as the guard. No JoinSig type or physical owner is deleted.
+
+Selected successor:
+`MIRBUILDER-WARNING-IF-JOIN-REEXPORT-TEST-SCOPE-I0`.
