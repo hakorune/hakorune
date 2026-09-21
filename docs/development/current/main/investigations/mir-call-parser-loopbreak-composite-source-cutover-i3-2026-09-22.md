@@ -4,7 +4,7 @@ Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
 Implementation permission: false until the selected merged parser route frontier is resolved; publication acceptance remains the next implementation slice after that decision
-NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-RETIREMENT-R0
+NextCard: MIR-CALL-PARSER-LOOPBREAK-PREFRONT-SOURCE-CONSUMER-D0
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -88,18 +88,20 @@ yet reached. The previously recorded
 `static-result-ingress/no-exact-static-target` terminal belongs to a direct or
 unselected fixture and is not the current merged-parser acceptance boundary.
 
-This is a design boundary, not permission to add a fallback. Before I3 task 4
-can start, the existing source owner and route selector must be named for the
-preceding non-front-selected loops, together with the exact rejection boundary
-for routes that remain outside the selected family. No AST rescan, name-based
-inference, VM repair, generic fallback, or new publication authority is
-authorized while that decision is open.
+This is a design boundary, not permission to add a fallback. The read-only
+owner audit found no current source-aware consumer for the preceding
+`LoopBreakRecipe`/`LoopSimpleWhile` rows: `SupportedNonCandidate` is package
+coverage only, while the legacy `LoopRouteContext` owner lacks source identity.
+The bounded decision is moved to
+`MIR-CALL-PARSER-LOOPBREAK-PREFRONT-SOURCE-CONSUMER-D0`, which must choose one
+existing-owner extension or retain the rows as named dependency terminals.
+No AST rescan, name-based inference, VM repair, generic fallback, or new
+publication authority is authorized while that decision is open.
 
 The ordered queue is consequently:
 
-1. **I3 precondition — route-frontier decision:** close the existing-owner
-   mapping for the earlier `GenericLoopV1NotSelected` sites, or record a
-   bounded named terminal if they are outside this source family.
+1. **D0 precondition — pre-front source consumer:** decide the bounded source
+   owner or named terminal for the finite preceding LoopBreak/non-front rows.
 2. **I3 task 4 — publication acceptance:** once the selected merged route
    reaches the existing one-shot publication owner, run the
    `parse/2 -> starts_with/3` acceptance and record its named terminal.
@@ -109,16 +111,19 @@ The ordered queue is consequently:
    edge and temporary assets, and retain the re-entry guard.
 
 Until item 1 is accepted, items 2–4 remain queued and no production cutover
-or retirement claim is made.
+or retirement claim is made. D0 is design-only; it does not reopen the warning
+cohort.
 
 ## Current design evidence
 
 The merged parser inventory reaches the selected `starts_with/3` rows, while
-the lifecycle invocation still stops at the named publication boundary. The
-existing composite envelope validates and stores source-target relations, but
-does not consume the publication owner's one-shot handoff. Therefore the next
-slice must reuse the existing publication ingress/physical bridge rather than
-add a second authority or relax the terminal.
+the lifecycle invocation stops earlier at the named
+`callable-loop/route-not-front-selected` /
+`GenericLoopV1NotSelected` dependency terminal. The existing composite
+envelope validates and stores source-target relations, but the publication
+owner is not reached. After D0, task 4 must still reuse the existing
+publication ingress/physical bridge rather than add a second authority or
+relax the terminal.
 
 ## I3 task 4 implementation evidence — 2026-09-22
 
