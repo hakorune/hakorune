@@ -62,6 +62,26 @@ The line numbers are source witnesses from the bounded parser import closure;
 they are not selector inputs. The source/owner relation comes from the
 resolver-issued forest and package batch slot.
 
+## Source-item relation census
+
+The four pre-front rows cannot be admitted by a `core_methods`-only shortcut.
+Their loop bodies contain these resolver-issued call families:
+
+| row | loop-local calls | relation consequence |
+| --- | --- | --- |
+| `trim/1` | bound `substring` reads | source-port core-method coverage |
+| `to_int/1` | bound `indexOf` read | source-port core-method coverage |
+| `_parse_delegate/3` | bound `ctx.*` reads plus static `ParserStringUtilsBox.to_int` | core-method coverage plus an exact static-call disposition |
+| `ParserRecordDeclarationBox.parse/3` | bound `ctx.*` reads | source-port core-method coverage |
+
+The static `to_int` row must be either joined to an existing selected
+publication handoff or rejected as an explicit outside-family obligation. It
+must not disappear when the route is classified as `SupportedNonCandidate`.
+Likewise, an empty target list is not evidence that a loop has no source
+items. The eventual source owner therefore needs one per-item disposition
+(`SelectedStatic`, `CoreMethod`, or named rejection) and a residual check
+before Parts/LoopV0 lowering.
+
 ## Authority audit
 
 ```text
@@ -83,7 +103,7 @@ compatibility sibling outside the source-backed caller.
 ## Bounded decision required before implementation
 
 The next design pass must choose one of these two explicit outcomes for the
-four non-candidate rows:
+four non-candidate rows, after fixing the per-item relation vocabulary above:
 
 1. extend one existing source route owner with an exact resolver/source-port
    product and focused positive/negative coverage; or
@@ -95,4 +115,3 @@ fallback, re-enter `LoopRouteContext`, reorder package declarations, or issue
 an empty/default semantic receipt. I3 task 4 publication acceptance remains
 queued behind this D0; task 5 caller switch and R0 task 6 caller-zero/deletion
 remain unopened.
-
