@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__ParserRouteFrontierBeforePublication
+Status: queued__2026-09-22__PrefrontStructuredSourceI0
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: false until the selected merged parser route frontier is resolved; publication acceptance remains the next implementation slice after that decision
-NextCard: MIR-CALL-PARSER-LOOPBREAK-PREFRONT-SOURCE-CONSUMER-D0
+Implementation permission: false until the selected merged parser route frontier is resolved; publication acceptance remains queued behind the active pre-front structured-source I0
+NextCard: MIR-CALL-PARSER-LOOPBREAK-PREFRONT-STRUCTURED-SOURCE-I0
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -30,8 +30,10 @@ Non-claims: no whole-repository migration, backend promotion, warning cleanup,
 I1 and I2 are closed at their package/Recipe and focused physical boundaries.
 The design stop is accepted for this bounded slice. A failed or deferred
 source terminal reopens the owning semantic row; it does not authorize a
-fallback or a VM repair. Once task 4 and task 5 close, the successor
-retirement card owns caller-zero and the exclusive delete set.
+fallback or a VM repair. The D0 decision selected the existing-owner
+pre-front structured-source I0; task 4 remains queued until that bounded
+consumer is green. Once task 4 and task 5 close, the successor retirement
+card owns caller-zero and the exclusive delete set.
 
 ## Accepted design decision — 2026-09-22
 
@@ -92,16 +94,16 @@ This is a design boundary, not permission to add a fallback. The read-only
 owner audit found no current source-aware consumer for the preceding
 `LoopBreakRecipe`/`LoopSimpleWhile` rows: `SupportedNonCandidate` is package
 coverage only, while the legacy `LoopRouteContext` owner lacks source identity.
-The bounded decision is moved to
-`MIR-CALL-PARSER-LOOPBREAK-PREFRONT-SOURCE-CONSUMER-D0`, which must choose one
-existing-owner extension or retain the rows as named dependency terminals.
-No AST rescan, name-based inference, VM repair, generic fallback, or new
-publication authority is authorized while that decision is open.
+The bounded decision is recorded in
+`MIR-CALL-PARSER-LOOPBREAK-PREFRONT-SOURCE-CONSUMER-D0`: the existing LoopBreak
+owner is extended by the active structured-source I0 for the finite preceding
+rows. No AST rescan, name-based inference, VM repair, generic fallback, or new
+publication authority is authorized.
 
 The ordered queue is consequently:
 
-1. **D0 precondition — pre-front source consumer:** decide the bounded source
-   owner or named terminal for the finite preceding LoopBreak/non-front rows.
+1. **I0 precondition — pre-front structured source consumer:** implement the
+   accepted existing-owner extension and its mixed item-disposition guards.
 2. **I3 task 4 — publication acceptance:** once the selected merged route
    reaches the existing one-shot publication owner, run the
    `parse/2 -> starts_with/3` acceptance and record its named terminal.
@@ -110,9 +112,9 @@ The ordered queue is consequently:
 4. **R0 task 6 — retirement:** prove caller-zero, remove the exclusive old
    edge and temporary assets, and retain the re-entry guard.
 
-Until item 1 is accepted, items 2–4 remain queued and no production cutover
-or retirement claim is made. D0 is design-only; it does not reopen the warning
-cohort.
+Until item 1 is green, items 2–4 remain queued and no production cutover or
+retirement claim is made. The warning cohort remains paused at I147; D0 does
+not reopen it.
 
 ## Current design evidence
 
@@ -121,9 +123,10 @@ the lifecycle invocation stops earlier at the named
 `callable-loop/route-not-front-selected` /
 `GenericLoopV1NotSelected` dependency terminal. The existing composite
 envelope validates and stores source-target relations, but the publication
-owner is not reached. After D0, task 4 must still reuse the existing
-publication ingress/physical bridge rather than add a second authority or
-relax the terminal.
+owner is not reached. The active I0 must first consume the finite pre-front
+structured rows through the accepted existing owner. After I0, task 4 must
+still reuse the existing publication ingress/physical bridge rather than add a
+second authority or relax the terminal.
 
 ## I3 task 4 implementation evidence — 2026-09-22
 
