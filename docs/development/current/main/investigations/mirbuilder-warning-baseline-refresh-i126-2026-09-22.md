@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__WarningBaselineRefreshI126__AwaitingNextCohort
+Status: closed__2026-09-22__WarningBaselineRefreshI126__SelectedParserSourceAdmissionAccessor
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I126
 Date: 2026-09-22
 Parent: mirbuilder-warning-loopbreak-candidate-accessors-i0-2026-09-22.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: prefer MIR-RETIRE-FIRST-OLD-EDGE-R0 only if its caller-zero proof changes
+NextCard: MIRBUILDER-WARNING-PARSER-SOURCE-ADMISSION-COORDINATE-I0
 ---
 
 # MirBuilder warning baseline refresh I126
@@ -37,6 +37,18 @@ successor evidence still prevent old-edge deletion.
 I126 is design-only. Refresh both warning counts, classify the selected
 diagnostics, and name one finite owner/caller/delete set before implementation.
 Do not convert the old-edge `NoSafeSlice` into a source disposition.
+
+The refreshed diagnostics remain lib **1,691** and lib-test **547**. The
+disconnected completion scaffold was rejected as a candidate because tracked
+legacy guards still observe it; deleting it would require a separate guard and
+historical-row retirement. The selected finite warning item is the unused
+`ParserSourceAdmissionRowV1::coordinate` method at
+`src/parser/normal_callable_program_source/source_admission.rs:20`.
+Repository-wide Rust search found only its declaration; the row and its
+`rows()` consumer remain live. The old-edge `NoSafeSlice` is unchanged.
+
+I126 therefore selects deletion of exactly this accessor body. No parser
+admission row, source authority, guard, or compatibility route is changed.
 
 ## Acceptance
 

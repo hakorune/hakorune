@@ -17,10 +17,6 @@ pub(in crate::parser) struct ParserSourceAdmissionRowV1 {
 }
 
 impl ParserSourceAdmissionRowV1 {
-    pub(in crate::parser) fn coordinate(&self) -> &ParserSourceDeclarationCoordinateV1 {
-        &self.coordinate
-    }
-
     pub(in crate::parser) fn canonical_segment(&self) -> &str {
         &self.canonical_segment
     }
