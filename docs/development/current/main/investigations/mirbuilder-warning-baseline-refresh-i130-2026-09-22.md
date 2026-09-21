@@ -36,6 +36,18 @@ shared `lower_loop_or_freeze_v1`, and parser composite successor still prevent
 LoopBreak caller-zero proof. `MIR-RETIRE-FIRST-OLD-EDGE-R0` therefore remains
 `NoSafeSlice` unless a new census changes that result.
 
+## Owner selection request
+
+The owner has requested that the next selected slice prefer the deletion lane
+`MIR-RETIRE-FIRST-OLD-EDGE-R0`: one exact source-side LoopBreak old-edge
+caller, with caller census, physical removal, absence guard, and focused
+acceptance recorded as one bounded series. This is a scheduling priority, not
+permission to delete a live caller. The I120 census remains the authority for
+the entry condition; do not remove a caller to manufacture caller-zero. If a
+fresh census still finds the selected edge live, keep this row in
+`NoSafeSlice` and record the blocker rather than opening a warning facade or
+switching a compatibility route.
+
 ## Acceptance
 
 ```text
