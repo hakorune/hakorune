@@ -21,6 +21,7 @@ pub(super) fn parse(
     Ok(completed.into_ast())
 }
 
+#[cfg(test)]
 pub(super) fn parse_normal_callable_program(
     input: String,
     fuel: Option<usize>,

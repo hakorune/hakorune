@@ -29,6 +29,7 @@ pub(crate) use source_admission::{ParserSourceAdmissionErrorV1, ParserSourceAdmi
 pub(crate) use transform::FinalCallableProgramSourceRejectV1;
 
 impl super::NyashParser {
+    #[cfg(test)]
     pub(crate) fn parse_normal_callable_program_with_build_config(
         input: impl Into<String>,
         build_config: super::ParserBuildConfig,

@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__WarningBaselineRefreshI144__NoSafeSlice
+Status: closed__2026-09-22__WarningBaselineRefreshI144__SelectedI145
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I144
 Date: 2026-09-22
 Parent: mirbuilder-warning-initial-source-missing-slot-retire-i143-2026-09-22.md
 Implementation permission: false; refresh diagnostics and select one finite next cohort
-NextCard: owner-decision__I144_warning_census
+NextCard: MIRBUILDER-WARNING-PARSER-TEST-ONLY-PARSE-HELPER-I145
 ---
 
 # MirBuilder warning baseline refresh I144
@@ -41,3 +41,30 @@ snapshots, and unrelated grouped diagnostics.
 
 Until that census is complete, no new warning cohort is selected and the
 work mode remains `design_stop`.
+
+## Baseline refresh and bounded selection
+
+The fresh HEAD `c532a3df1c` quick check completed successfully with the same
+**1,675 lib warnings** as I143. The LoopBreak old-edge recheck is unchanged:
+the compatibility registry and raw legacy caller still keep
+`MIR-RETIRE-FIRST-OLD-EDGE-R0` at `NoSafeSlice`.
+
+The next finite production-zero cohort is the parser's test-only helper pair:
+
+* `NyashParser::parse_normal_callable_program_with_build_config` in
+  `src/parser/normal_callable_program_source/mod.rs`;
+* its sole production-body callee
+  `string_postpass_entry::parse_normal_callable_program`.
+
+Repository census found no non-test caller of either symbol. All observed
+callers of the `NyashParser` method are in `#[cfg(test)]` modules or test
+files; the normal production path uses
+`parse_with_callable_parameter_source` directly. The helper pair therefore
+has one owner, no production caller, and a finite delete set consisting only
+of adding `#[cfg(test)]` to both declarations. This preserves every existing
+test call while removing the library-only dead-code warnings; no parser
+behavior, source authority, or route changes are involved.
+
+`MIRBUILDER-WARNING-PARSER-TEST-ONLY-PARSE-HELPER-I145` is selected as the
+next fast slice. Its closeout must record the focused parser tests, quick
+library and test-binary warning counts, formatter, pointer, and diff guards.
