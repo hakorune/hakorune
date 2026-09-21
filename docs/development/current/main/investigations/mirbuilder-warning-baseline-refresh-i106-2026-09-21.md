@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI106__SelectNextCohort
+Status: closed__2026-09-21__WarningBaselineRefreshI106__SelectedModuleTokenId
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I106
 Date: 2026-09-21
 Parent: mirbuilder-warning-module-id-same-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: one explicitly justified caller-zero deletion or warning row
+NextCard: MIRBUILDER-WARNING-MODULE-TOKEN-ID-I0
 ---
 
 # MirBuilder warning baseline refresh I106
@@ -47,3 +47,18 @@ baseline is lib **1,701** and lib-test **551**. The old-edge deletion lane
 remains `NoSafeSlice`: the live compatibility registry entry still has no
 named successor; any future deletion row requires a named successor and
 caller-zero proof.
+
+## Refresh result and selected cohort
+
+The sequential refresh completed with lib **1,701** warnings and lib-test
+**551** warnings. The selected warning cohort is the unused
+`ModuleInvocationTokenV1::id` accessor and its now-unreachable test-only
+`ModuleInvocationIdV1::ordinal` helper in `module_invocation_identity.rs`.
+
+The finite caller census is production-zero: no source, tool, or tracked-doc
+caller exists. Four identity fixtures use the accessor only to inspect a brand
+or ordinal; they can use the existing `brand()` accessor and token
+`PartialEq` directly. The bounded row leaves
+`ModuleInvocationBrandV1::same` unchanged.
+
+The next bounded cohort is `MIRBUILDER-WARNING-MODULE-TOKEN-ID-I0`.

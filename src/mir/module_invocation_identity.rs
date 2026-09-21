@@ -91,11 +91,6 @@ impl ModuleInvocationIdV1 {
     pub(crate) const fn brand(&self) -> ModuleInvocationBrandV1 {
         self.brand
     }
-
-    #[cfg(test)]
-    pub(crate) const fn ordinal(&self) -> u64 {
-        self.brand.invocation_ordinal().get()
-    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -115,10 +110,6 @@ impl ModuleInvocationTokenV1 {
 
     pub(crate) const fn brand(&self) -> ModuleInvocationBrandV1 {
         self.id.brand()
-    }
-
-    pub(crate) const fn id(&self) -> &ModuleInvocationIdV1 {
-        &self.id
     }
 
     pub(crate) fn from_issued(

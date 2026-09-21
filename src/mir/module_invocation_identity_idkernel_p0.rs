@@ -60,5 +60,5 @@ fn token_preserves_route_family_without_identity_conversion() {
         token.family(),
         ModuleInvocationFamilyV1::BindingSsaRecursive
     );
-    assert_eq!(token.id().brand(), token.brand());
+    assert_eq!(token.brand().ordinal(), 3);
 }

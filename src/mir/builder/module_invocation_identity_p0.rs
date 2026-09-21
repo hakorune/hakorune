@@ -24,7 +24,7 @@ fn one_factory_mints_each_existing_family_once() {
     assert_eq!(tokens.len(), 5);
     for (token, family) in tokens.iter().zip(FAMILIES) {
         assert_eq!(token.family(), family);
-        assert!(token.id().ordinal() > 0);
+        assert!(token.brand().ordinal() > 0);
     }
 }
 
@@ -35,8 +35,8 @@ fn invocation_ids_are_distinct_and_not_clone_authority() {
     let second = factory
         .mint(InvocationRootFamilyV1::BindingSsaRecursive)
         .unwrap();
-    assert_ne!(first.id().ordinal(), second.id().ordinal());
-    assert_ne!(first.id(), second.id());
+    assert_ne!(first.brand().ordinal(), second.brand().ordinal());
+    assert_ne!(first, second);
 }
 
 #[test]
@@ -58,7 +58,7 @@ fn foreign_source_family_is_rejected_before_token_creation() {
     let token = factory
         .mint(InvocationRootFamilyV1::Raw)
         .expect("rejected foreign source must not consume the issuer ordinal");
-    assert_eq!(token.id().ordinal(), 1);
+    assert_eq!(token.brand().ordinal(), 1);
 }
 
 #[test]
