@@ -5,7 +5,9 @@ use std::collections::BTreeMap;
 
 use crate::mir::builder::normal_script_direct_static_recipe::ScriptDirectStaticRecipeKeyV1;
 use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1;
-use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceExprSiteV1};
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
+#[cfg(test)]
+use crate::mir::resolved_semantics::SourceExprSiteV1;
 
 use super::scalar_operand_recipe::{
     ScalarOperandRecipeArgumentV1, VerifiedScriptDirectStaticScalarOperandRecipeV1,
