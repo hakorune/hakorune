@@ -50,12 +50,19 @@ consumer for the parser composite root.
 | `control_flow/plan/parts/associated_source/callable_loop_source_lowering.rs:7-10,157-163` | associated-source lowering can recurse only after a Recipe; an opaque `Loop` is a named reject | this is a physical consumer seam, not a source-product issuer |
 | `control_flow/joinir/route_entry/registry/handlers/routes.rs:26-54` | legacy route consumes `LoopRouteContext` and `MirBuilder` | it cannot be reused as the source-backed consumer |
 | `compiler/dynamic_full_body_source.rs:187-230` and `dynamic_full_body_recipe/mod.rs:177-210` | dynamic owner hard-codes a different three-statement root/body profile | it is not the parser composite owner |
+| `compiler/loop_cond_break_continue_projection.rs:145-178` and `normal_callable_loop_source_facts/generic/issuer.rs:39-96` | LoopCond source admission requires one root-body branch with explicit else, then/else exit arity 1 | parser root `:81` has multiple body statements and nested loops, so LoopCond is not an existing consumer |
 
 The existing associated-source Parts spine is therefore reusable only after a
 new composite Recipe is issued. It cannot be selected as the missing issuer,
 and the direct LoopBreak Facts/Recipe owner cannot retain the parser inventory
 without changing its accepted shape. No code, fallback, target-only filter,
 new semantic receipt, or production switch is authorized by I1.
+
+The generic issuer's LoopCond branch does not provide a hidden escape hatch:
+it is entered only after the located LoopCond projection succeeds. The
+projection's one-body/explicit-else contract rejects this parser root before
+the LoopCond physical input is constructed. Reclassifying the root merely to
+reach that consumer would change route authority and is outside this row.
 
 ### Bounded next decision
 
