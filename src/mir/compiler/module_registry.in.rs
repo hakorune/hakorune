@@ -109,6 +109,7 @@ pub(in crate::mir) mod loop_cond_break_continue_projection;
 pub(in crate::mir) mod loop_break_source_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod loop_break_composite_source_projection;
+pub(in crate::mir) mod loop_break_composite_body_role;
 pub(crate) mod loop_physical_prepare;
 #[cfg(test)]
 pub(crate) mod loop_true_break_continue_observation;

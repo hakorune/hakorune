@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__CompositeLoopBreakSemanticLaneReopened
+Status: closed__2026-09-22__CompositeBodyRoleContractAccepted
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-REOPEN-D1
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-package-d0-2026-09-21.md
-Implementation permission: false; reopen the same-owner composite source-to-publication contract
-NextCard: owner-decision__composite_body_role_and_package_recipe
+Implementation permission: true for the bounded body-role projection successor only
+NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-BODY-ROLE-I0
 ---
 
 # Parser composite LoopBreak semantic lane reopen D1
@@ -95,6 +95,17 @@ same product specifies how every class maps to the existing Recipe vocabulary.
 The current `LoopBreakFacts`/`build_loop_break_source_recipe` direct-three
 statement contract remains unchanged; widening its predicate would hide the
 missing composite mapping.
+
+## Decision — 2026-09-22
+
+The finite role contract is now accepted in the successor
+`MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-BODY-ROLE-I0`. It reuses the resolver
+forest, region index, and exit ledger, names the four role classes
+(`Statement`, `If`, `Loop`, `Exit`), and keeps target-to-Recipe mapping out of
+the projection slice. I0 may implement only this source product and its
+positive/negative coverage guards. Package retention, Recipe issuance,
+physical consumption, production cutover, and old-edge deletion remain
+separate cards.
 
 The compatibility registry, `route_loop_break_recipe`, and
 `lower_loop_or_freeze_v1` remain outside this selected source delete set until

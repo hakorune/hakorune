@@ -7,6 +7,10 @@
 use std::collections::BTreeSet;
 
 use crate::mir::compiler::located::{LocatedStmtV1, SourceBodySiteV1};
+use crate::mir::compiler::loop_break_composite_body_role::{
+    issue_loop_break_composite_body_role_map_v1, LoopBreakCompositeBodyRoleRejectV1,
+    VerifiedLoopBreakCompositeBodyRoleMapV1,
+};
 use crate::mir::compiler::loop_break_source_projection::{
     issue_loop_break_source_body_inventory_v1, LoopBreakSourceBodyInventoryRejectV1,
     VerifiedLoopBreakSourceBodyInventoryV1,
@@ -29,6 +33,7 @@ pub(crate) enum LoopBreakCompositeSourceProjectionRejectV1 {
     SourceNavigation,
     Forest(LoopCondBreakContinueForestProjectionRejectV1),
     BodyInventory(LoopBreakSourceBodyInventoryRejectV1),
+    BodyRole(LoopBreakCompositeBodyRoleRejectV1),
     DuplicateExit,
     ExitOutsideRoot,
     RootBreakMissing,
@@ -49,6 +54,7 @@ pub(crate) struct VerifiedLoopBreakCompositeSourceProjectionV1 {
     loop_condition_site: SourceExprSiteV1,
     loop_body_site: SourceBodySiteV1,
     body_inventory: VerifiedLoopBreakSourceBodyInventoryV1,
+    body_roles: VerifiedLoopBreakCompositeBodyRoleMapV1,
     forest: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     root_frame_key: crate::mir::resolved_semantics::LoopExecutionFrameKeyV1,
 }
@@ -80,6 +86,10 @@ impl VerifiedLoopBreakCompositeSourceProjectionV1 {
 
     pub(crate) fn body_inventory(&self) -> &VerifiedLoopBreakSourceBodyInventoryV1 {
         &self.body_inventory
+    }
+
+    pub(crate) fn body_roles(&self) -> &VerifiedLoopBreakCompositeBodyRoleMapV1 {
+        &self.body_roles
     }
 
     pub(crate) fn forest(&self) -> &VerifiedLoopCondBreakContinueSourceForestProjectionV1 {
@@ -148,6 +158,13 @@ pub(crate) fn issue_loop_break_composite_source_projection_v1(
         .map_err(|_| LoopBreakCompositeSourceProjectionRejectV1::SourceNavigation)?;
     let body_inventory = issue_loop_break_source_body_inventory_v1(input, loop_stmt, &loop_body)
         .map_err(LoopBreakCompositeSourceProjectionRejectV1::BodyInventory)?;
+    let body_roles = issue_loop_break_composite_body_role_map_v1(
+        input,
+        loop_stmt,
+        &loop_body,
+        &forest,
+    )
+    .map_err(LoopBreakCompositeSourceProjectionRejectV1::BodyRole)?;
 
     Ok(VerifiedLoopBreakCompositeSourceProjectionV1 {
         owner: input.owner(),
@@ -157,6 +174,7 @@ pub(crate) fn issue_loop_break_composite_source_projection_v1(
         loop_condition_site: loop_condition.site().clone(),
         loop_body_site: loop_body.site().clone(),
         body_inventory,
+        body_roles,
         forest,
         root_frame_key: resolved_source.frame_key(),
     })
@@ -313,6 +331,8 @@ mod tests {
         assert_eq!(projection.body_inventory().nested_loops().len(), 1);
         assert_eq!(projection.forest().member_sites().len(), 2);
         assert_eq!(projection.forest().exits().len(), 2);
+        assert_eq!(projection.body_roles().root().count_loops(), 2);
+        assert_eq!(projection.body_roles().root().count_exits(), 2);
         assert_eq!(projection.loop_body_site().owner(), input.owner());
     }
 
@@ -437,6 +457,7 @@ mod tests {
                 projections.iter().any(|projection| {
                     projection.forest().member_sites().len() >= 3
                         && projection.body_inventory().nested_loops().len() >= 2
+                        && projection.body_roles().root().count_loops() >= 3
                 }),
                 "merged parser source must issue a nested composite projection; rejects={rejects:?}"
             );
