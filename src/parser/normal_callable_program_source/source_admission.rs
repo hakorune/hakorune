@@ -93,6 +93,7 @@ impl ParserSourceAdmissionWitnessV1 {
         })
     }
 
+    #[cfg(test)]
     pub(in crate::parser) fn rows(&self) -> &[ParserSourceAdmissionRowV1] {
         &self.rows
     }

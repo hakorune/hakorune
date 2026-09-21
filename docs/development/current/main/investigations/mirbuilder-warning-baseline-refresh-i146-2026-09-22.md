@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__WarningBaselineRefreshI146__NoSafeSlice
+Status: closed__2026-09-22__WarningBaselineRefreshI146__SelectedI147
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I146
 Date: 2026-09-22
 Parent: mirbuilder-warning-parser-test-only-parse-helper-i145-2026-09-22.md
 Implementation permission: false; refresh diagnostics and select one finite next cohort
-NextCard: owner-decision__I146_warning_census
+NextCard: MIRBUILDER-WARNING-PARSER-ADMISSION-ROWS-TEST-ACCESSOR-I147
 ---
 
 # MirBuilder warning baseline refresh I146
@@ -39,3 +39,22 @@ The LoopBreak old-edge lane remains a priority check, not an automatic
 permission: `route_loop_break_recipe` must first prove caller-zero and a
 successor for the live compatibility caller. If that census remains live,
 I146 may select one safe production-zero warning row instead.
+
+## Baseline refresh and bounded selection
+
+The fresh HEAD `aa12995682` quick check completed successfully with **1,673
+lib warnings**. The old-edge census remains the I120/I130 result: the live
+compatibility registry and raw legacy caller prevent caller-zero proof, so
+`MIR-RETIRE-FIRST-OLD-EDGE-R0` stays `NoSafeSlice`.
+
+The selected production-zero warning is the test-only accessor
+`ParserSourceAdmissionWitnessV1::rows` at
+`src/parser/normal_callable_program_source/source_admission.rs:96`.
+Repository search found its only uses in the three `#[cfg(test)]` assertions
+in the same module; production code consumes the witness as an opaque
+admission proof and reads no rows. The finite delete set is one declaration:
+add `#[cfg(test)]` to `rows`, preserving the existing tests and all admission
+behavior. This is the exact owner/caller/delete tuple required by I146.
+
+`MIRBUILDER-WARNING-PARSER-ADMISSION-ROWS-TEST-ACCESSOR-I147` is selected as
+the next fast slice.
