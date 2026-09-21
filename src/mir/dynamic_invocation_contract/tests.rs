@@ -10,6 +10,9 @@ use crate::mir::source_call_target::{
 };
 use crate::parser::NyashParser;
 
+use super::catalog::{
+    DynamicInvocationEnvelopeIssueV1, VerifiedDynamicInvocationEnvelopeCatalogV1,
+};
 use super::*;
 
 fn seal_source<'source>(

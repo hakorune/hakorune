@@ -6,9 +6,6 @@
 mod catalog;
 mod model;
 
-pub(crate) use catalog::{
-    DynamicInvocationEnvelopeIssueV1, VerifiedDynamicInvocationEnvelopeCatalogV1,
-};
 #[allow(unused_imports)]
 pub(crate) use model::{
     dynamic_invocation_execution_envelope_v1, DynamicInvocationControlV1,
