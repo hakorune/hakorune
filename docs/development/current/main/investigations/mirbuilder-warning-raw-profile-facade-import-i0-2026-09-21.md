@@ -1,5 +1,5 @@
 ---
-Status: fast__2026-09-21__WarningRawProfileFacadeImport__ExecuteOneImportDeletion
+Status: closed__2026-09-21__WarningRawProfileFacadeImport__OneImportDeletion
 Task: MIRBUILDER-WARNING-RAW-PROFILE-FACADE-IMPORT-I0
 Date: 2026-09-21
 Parent: mirbuilder-warning-baseline-refresh-i64-2026-09-21.md
@@ -57,3 +57,25 @@ source/test reference, compile error, new warning or red name, or behavior
 change rejects the deletion and restores the parent import before returning to
 the next baseline refresh. No `#[allow]`, cargo-fix, or neighboring import
 cleanup is allowed.
+
+## Execution evidence
+
+The bounded deletion completed with exactly the two authorized edits: the
+parent `mir` facade no longer re-exports `RawPublishedCompileProfileV1`, and
+the existing VM-reference test names the owning
+`raw_vm_reference_contract` module directly. A post-edit source census finds
+no production facade caller and no remaining parent-path caller.
+
+The fixed gates ran sequentially and exited 0:
+
+| gate | result | evidence |
+| --- | --- | --- |
+| `cargo check --profile quick --lib -j4` | lib **1,754** warnings | `/tmp/hakorune-warning-raw-profile-lib-20260921.log` |
+| `cargo test --profile quick --lib --no-run -j4` | lib-test **560** warnings | `/tmp/hakorune-warning-raw-profile-lib-test-20260921.log` |
+| `cargo fmt --all -- --check` | PASS | local command |
+| `git diff --check` | PASS | local command |
+| current-state pointer guard | PASS | local command |
+
+No production route, Raw profile behavior, test assertion, failure name, or
+warning family changed. The next action is a fresh two-surface baseline
+refresh; no neighboring import, suppression, or dead-code cleanup is included.

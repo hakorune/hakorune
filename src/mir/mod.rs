@@ -120,8 +120,7 @@ pub(crate) use compiler::source_entry_vm_reference::RawVmReferenceRunReportV1;
 #[cfg(feature = "vm-reference")]
 pub(crate) use compiler::source_entry_vm_runner_adapter::RawVmReferenceInvocationFailureReportV1;
 pub(crate) use raw_vm_reference_contract::{
-    RawPublishedCompileProfileV1, RawPublishedCompileRequestV1, RawVmReferenceInvocationV1,
-    RawVmReferenceSupportProfileV1,
+    RawPublishedCompileRequestV1, RawVmReferenceInvocationV1, RawVmReferenceSupportProfileV1,
 };
 #[cfg(feature = "vm-reference")]
 pub(crate) use raw_vm_reference_contract::{

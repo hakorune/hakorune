@@ -131,7 +131,7 @@ fn consuming_handoff_keeps_the_existing_raw_profile_paired() {
     assert_eq!(invocation.compile.module_name.as_ref(), "main");
     assert_eq!(
         invocation.compile.profile,
-        crate::mir::RawPublishedCompileProfileV1::narrow_v1()
+        crate::mir::raw_vm_reference_contract::RawPublishedCompileProfileV1::narrow_v1()
     );
 }
 
