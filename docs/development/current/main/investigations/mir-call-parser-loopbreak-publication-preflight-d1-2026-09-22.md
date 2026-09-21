@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__PrefrontTargetOnly
+Status: closeout__2026-09-22__NoSafeSliceResultFamilyOwner
 Task: MIR-CALL-PARSER-LOOPBREAK-PUBLICATION-PREFLIGHT-D1
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
 Implementation permission: false; resolve the target-only source family before I3 publication
-NextCard: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
+NextCard: mir-call-parser-publication-result-family-d0-2026-09-22.md
 ---
 
 # Parser LoopBreak publication preflight D1
@@ -61,20 +61,41 @@ family. Therefore changing `source_target_for_loop` to ignore this row would
 make the selected `starts_with` proof appear green by hiding an earlier
 unconsumed product. That is not a safe slice.
 
+## Target-only census closeout — 2026-09-22
+
+The same merged-parser lifecycle invocation emitted a finite target-only
+census of **57 rows**, covering **18 callers** and **31 caller-to-target
+pairs**. Ten rows under a `LoopBody` site cover five callers; the first armed
+row is the `StringHelpers.skip_ws/2 -> is_space/1` row above. The selected
+`ParserProgramBox.parse/2` caller also contains three target-only rows
+(`RuneContractBox.invalid_placement_tag/1` and
+`ParserDeclarationBox.parse_or_null/3`), so reaching `starts_with/3` cannot
+make whole-package acceptance complete.
+
+The existing `VerifiedCallableResultRepresentationV1` and publication bridge
+issue only `ExactI64`. `CoreMethod` rows cover bound receiver methods and do
+not cover these static targets. The source/result owners therefore have no
+existing consumer that can classify the complete target-only family without a
+new result-family authority. The package acceptance D0 forbids filtering,
+partial installation, and target-only lowering.
+
+**Decision:** close D1 as `NoSafeSlice__ResultFamilyOwnerAbsent`. The next
+bounded design is the result-family authority census; I3 publication remains
+queued until that design either selects an existing sibling owner or records a
+named, observable reopening condition for a future result-family slice.
+
 ## Bounded design work
 
-1. Re-census the merged parser import closure from the resolver ledger and
-   record every target-only static item with caller, exact source site, target,
-   result disposition, and whether it lies under an armed LoopBreak candidate.
-2. Check whether an existing result representation and physical consumer can
-   cover the target-only family without a new ABI or a second publication
-   authority. If not, record the family as `NoSafeSlice` with its reopen owner.
-3. Check whether the existing source candidate issuer can issue a typed
-   outside-family terminal before candidate consumption while preserving all
-   package rows. Name the owner and all reject/consume obligations; do not add
-   a filter or fallback.
-4. Only after the finite inventory has one accepted owner/terminal may the
-   pointer return to I3 task 4. I3 task 5 and R0 task 6 remain queued.
+1. The finite target-only census is complete and recorded above.
+2. The existing ExactI64 result owner cannot cover the family without a new
+   result-family authority; filtering and partial package acceptance are
+   rejected by the existing contract.
+3. A typed outside-family terminal has no existing package owner that can
+   preserve complete selected-call coverage, so it is not invented here.
+4. The result-family authority census is delegated to
+   `MIR-CALL-PARSER-PUBLICATION-RESULT-FAMILY-D0`; only after that design is
+   accepted may the pointer return to I3 task 4. I3 task 5 and R0 task 6
+   remain queued.
 
 ## Evidence and non-claims
 
