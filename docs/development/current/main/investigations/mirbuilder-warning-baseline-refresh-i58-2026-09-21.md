@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI58__NextCohortSelection
+Status: closed__2026-09-21__WarningBaselineRefreshI58__SelectedNormalSourcePlanTestImport
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I58
 Date: 2026-09-21
 Parent: mirbuilder-warning-published-backend-test-imports-i0-2026-09-21.md
-Implementation permission: false; refresh and select one cohort only
-NextCard: MIRBUILDER-WARNING-SURFACE-CENSUS-R0
+Implementation permission: true for the selected test-only rejection re-export only
+NextCard: MIRBUILDER-WARNING-NORMAL-SOURCE-PLAN-TEST-IMPORT-I0
 ---
 
 # MirBuilder warning baseline refresh I58
@@ -36,3 +36,22 @@ one cohort or write `NoSafeSlice`. Keep dead-code/private-interface rows with
 
 The previous fixed baseline is lib **1,764** and lib-test **561** after the
 selected published-backend test re-export cohort.
+
+
+## Selection evidence
+
+The fixed gates completed sequentially with exit 0 after the published-backend
+cohort:
+
+| surface | warnings | evidence |
+| --- | ---: | --- |
+| lib | 1,764 | `/tmp/hakorune-warning-i58-lib-20260921.log` |
+| lib test | 561 | `/tmp/hakorune-warning-i58-lib-test-20260921.log` |
+
+The first warning group is the unused `NormalUnsupportedTopLevelKindV1` re-export
+at `src/mir/compiler/normal_source_plan/mod.rs:135`. A source census shows the
+parent re-export is consumed only by `#[cfg(test)]` parser-bound-policy and
+normal-source-plan fixtures; production modules import the rejection type from
+their owning submodule. The bounded slice is therefore a test-only rejection
+re-export gate, with expected lib **1,764 → 1,763** and lib-test unchanged at
+**561**. No source-plan policy, rejection mapping, or test body is selected.

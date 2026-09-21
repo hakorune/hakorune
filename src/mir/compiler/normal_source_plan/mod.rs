@@ -132,8 +132,10 @@ pub(crate) use product::{
 };
 pub(crate) use rejection::{
     NormalSourcePlanErrorV1, NormalSourcePlanIdentityFieldV1, NormalSourcePlanStageV1,
-    NormalUnsupportedTopLevelKindV1, RejectedNormalSourcePlanV1,
+    RejectedNormalSourcePlanV1,
 };
+#[cfg(test)]
+pub(crate) use rejection::NormalUnsupportedTopLevelKindV1;
 pub(crate) use script_physical_entry::{
     CompletedScriptPhysicalExitV1, OpenScriptPhysicalEntryV1,
     RejectedNormalScriptPhysicalEntryV1,
