@@ -1,10 +1,10 @@
 ---
-Status: queued__2026-09-22__AwaitingResultFamilyAuthority
+Status: queued__2026-09-22__AwaitingStaticResultAuthority
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: false; resolve MIR-CALL-PARSER-PUBLICATION-RESULT-FAMILY-D0 before I3 task 4
-NextCard: mir-call-parser-publication-result-family-d0-2026-09-22.md
+Implementation permission: false; resolve MIR-CALL-PARSER-STATIC-RESULT-AUTHORITY-D1 before I3 task 4
+NextCard: mir-call-parser-static-result-authority-d1-2026-09-22.md
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -92,10 +92,11 @@ ExactI64, but they are not the first reached row.
 This does not authorize filtering the target-only row: the accepted I0
 contract requires every resolver item to be `SelectedStatic` or `CoreMethod`,
 and the package acceptance D0 forbids target-only lowering or partial package
-coverage. I3 is therefore a design stop until the bounded D1 preflight card
-names an existing owner or a typed terminal for this finite family. D1 closed
-with `NoSafeSlice__ResultFamilyOwnerAbsent` after observing 57 target-only
-rows in the package; D0 now owns the result-family authority choice. No code,
+coverage. I3 remains queued until the static-result authority D1 card names an
+existing owner or a typed terminal for this finite family. The earlier
+preflight D1 closed with `NoSafeSlice__ResultFamilyOwnerAbsent` after observing
+57 target-only rows; D0 closed with the same bounded NoSafeSlice and the new D1
+now owns the static-result authority design. No code,
 fallback, publication, caller switch, or retirement claim is made here.
 
 ## Acceptance frontier recheck — 2026-09-22

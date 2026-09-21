@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__ResultFamilyAuthority
+Status: closeout__2026-09-22__NoSafeSliceResultFamilyOwner
 Task: MIR-CALL-PARSER-PUBLICATION-RESULT-FAMILY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-publication-preflight-d1-2026-09-22.md
-Implementation permission: false; select or explicitly park the result-family owner
-NextCard: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
+Implementation permission: false; retain the named NoSafeSlice until the static-result authority D1 is designed
+NextCard: mir-call-parser-static-result-authority-d1-2026-09-22.md
 ---
 
 # Parser publication result-family authority D0
@@ -44,14 +44,25 @@ target-only calls such as `RuneContractBox.invalid_placement_tag/1` and
 `ParserDeclarationBox.parse_or_null/3`; these cannot be dropped while claiming
 whole-package coverage.
 
+The target-only rows are not one homogeneous result family. The finite
+classification is `UnknownExpression=19`,
+`StaticCallTargetAuthorityUnavailable=20`, `StaticCallResultUnavailable=7`,
+`KnownNonI64Return=8`, `RecursiveDependency=2`, and
+`UnsupportedStatementKind=1`. This partition is part of the D0 input and must
+remain keyed by exact caller/site/target identity.
+
 ## Existing authority audit
 
-`VerifiedCallableResultRepresentationV1` currently exposes only `ExactI64`,
-and `VerifiedStaticCallResultPublicationOwnerV1` emits either a selected
-ExactI64 handoff or `TargetOnly`. The `CoreMethod` result-kind table is a
-separate bound-receiver authority and cannot classify same-module static
-targets. The existing source-result design for String/conditional values may
-be a candidate sibling, but it is not yet a callable publication owner.
+`VerifiedCallableResultRepresentationV1` exposes both `ExactI64` and
+`ExactNominalBox`; the catalog also retains typed `Unavailable` reasons.
+`VerifiedStaticCallResultPublicationOwnerV1` can consume a general source-call
+row with either representation, but its no-general-row projection
+`project_static_exact_i64_requirement_v1` admits only `ExactI64` and otherwise
+returns `TargetResultUnavailable`, which becomes `TargetOnly` here. The
+`CoreMethod` result-kind table is a separate bound-receiver authority and
+cannot classify same-module static targets. The existing source-result design
+for String/conditional values may be a candidate sibling, but it is not yet a
+callable publication owner.
 
 The decision must therefore distinguish these options without silently
 changing the ExactI64 contract:
@@ -66,18 +77,43 @@ target-only as outside-family is not an accepted option in this D0.
 
 ## Required design work
 
-1. Partition all 57 rows by source result class and physical need, preserving
-   caller/site/target identity and package brand.
-2. Compare each partition with existing source-result, callable-result, and
-   CoreMethod owners; identify the first missing relation rather than adding a
-   default or empty disposition.
-3. Choose one issuer and one consumer for any admitted non-ExactI64 family,
-   including duplicate, foreign, missing, result-site, and residual guards.
-4. If no owner can cover the finite inventory without a new semantic ABI,
-   close with `NoSafeSlice` and record the exact reopening owner. Do not code.
-5. If an owner is selected, return the pointer to I3 task 4 with an explicit
+1. Preserve the six-way disposition partition above and split each class by
+   physical need, retaining caller/site/target and package brand.
+2. Compare `UnknownExpression` and target/result-authority gaps with the
+   existing source-result and source-target owners; do not relabel them as a
+   String/nominal result merely because the target is a static method.
+3. For the `KnownNonI64Return` and any nominal result rows, verify whether an
+   existing general source-call row and physical nominal consumer can be
+   co-sealed. A catalog enum alone is not an owner.
+4. Keep recursive and unsupported rows as named typed terminals unless an
+   existing source owner supplies the missing relation; no retry or default.
+5. If no owner covers the finite inventory without a new semantic ABI, close
+   with `NoSafeSlice` and record the exact reopening owner. Do not code.
+6. If an owner is selected, return the pointer to I3 task 4 with an explicit
    implementation card; task 5 caller switch and R0 task 6 retirement stay
    queued.
+
+## D0 closeout decision — 2026-09-22
+
+The six-class census and existing-owner comparison are complete. No existing
+owner safely covers all 57 target-only rows as a source-loop publication
+family. The callable result catalog records `ExactI64`, `ExactNominalBox`,
+and typed `Unavailable` reasons, but the publication owner has no consumable
+source call row for these target-only sites. The source-result product records
+source classes and route observations, but has no production caller/site/
+target/result/effect publication consumer. `CoreMethod` remains a bound
+receiver authority.
+
+**Decision:** close D0 as
+`NoSafeSlice__ResultFamilyOwnerAbsent`. The missing chain is
+`callee body proof -> exact source call-site result -> representation/effect/
+ABI -> physical publication or typed pre-effect terminal`. D1 now owns that
+bounded static-result authority design. Do not filter target-only rows, widen
+`ExactI64` in place, or advance I3 publication.
+
+**Reopen trigger:** a bounded owner must co-seal exact caller/site/target and
+package brand, preserve the six-way disposition or a justified finite subset,
+and name a physical consumer or typed terminal for every row.
 
 ## Queue handoff
 
@@ -85,8 +121,8 @@ The warning cohort is intentionally closed at I147: `unused_imports=17` is
 the measured mechanical result, while `dead_code` remains owner debt. Do not
 spend the semantic lane's design-stop time on another warning sweep.
 
-After this D0 has an accepted result-family owner (or a named `NoSafeSlice`),
-the queue is fixed:
+After the successor D1 has an accepted finite owner (or a named
+`NoSafeSlice`), the queue is fixed:
 
 1. I3 task 4 — publish the selected composite LoopBreak source row through
    the existing one-shot owner.

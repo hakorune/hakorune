@@ -72,17 +72,35 @@ row is the `StringHelpers.skip_ws/2 -> is_space/1` row above. The selected
 `ParserDeclarationBox.parse_or_null/3`), so reaching `starts_with/3` cannot
 make whole-package acceptance complete.
 
-The existing `VerifiedCallableResultRepresentationV1` and publication bridge
-issue only `ExactI64`. `CoreMethod` rows cover bound receiver methods and do
-not cover these static targets. The source/result owners therefore have no
-existing consumer that can classify the complete target-only family without a
-new result-family authority. The package acceptance D0 forbids filtering,
-partial installation, and target-only lowering.
+The existing result catalog has both `ExactI64` and `ExactNominalBox`
+representations, plus typed `Unavailable` reasons. The target-only projection
+used here is narrower: when no general source call row exists,
+`project_static_exact_i64_requirement_v1` can admit only `ExactI64`, so every
+other result disposition remains target-only at this boundary. The 57 rows
+partition as follows:
+
+| result disposition at the target key | rows |
+| --- | ---: |
+| `Unavailable(UnknownExpression)` | 19 |
+| `Unavailable(StaticCallTargetAuthorityUnavailable)` | 20 |
+| `Unavailable(StaticCallResultUnavailable)` | 7 |
+| `Unavailable(KnownNonI64Return)` | 8 |
+| `Unavailable(RecursiveDependency)` | 2 |
+| `Unavailable(UnsupportedStatementKind)` | 1 |
+
+`ExactNominalBox` is therefore an existing catalog representation, but it is
+not a consumer for these rows: no general source-call row or nominal physical
+handoff is present at the target-only sites. `CoreMethod` rows cover bound
+receiver methods and do not cover these same-module static targets. The
+package acceptance D0 still forbids filtering, partial installation, and
+target-only lowering; the successor static-result authority D1 must distinguish
+missing authority from a result-family extension instead of treating all 57
+rows as one family.
 
 **Decision:** close D1 as `NoSafeSlice__ResultFamilyOwnerAbsent`. The next
-bounded design is the result-family authority census; I3 publication remains
-queued until that design either selects an existing sibling owner or records a
-named, observable reopening condition for a future result-family slice.
+bounded design is the static-result authority D1 card; I3 publication remains
+queued until that design either selects an existing owner or records a named,
+observable reopening condition for a future result-family slice.
 
 ## Bounded design work
 
@@ -92,8 +110,8 @@ named, observable reopening condition for a future result-family slice.
    rejected by the existing contract.
 3. A typed outside-family terminal has no existing package owner that can
    preserve complete selected-call coverage, so it is not invented here.
-4. The result-family authority census is delegated to
-   `MIR-CALL-PARSER-PUBLICATION-RESULT-FAMILY-D0`; only after that design is
+4. The static-result authority design is delegated to
+   `MIR-CALL-PARSER-STATIC-RESULT-AUTHORITY-D1`; only after that design is
    accepted may the pointer return to I3 task 4. I3 task 5 and R0 task 6
    remain queued.
 
