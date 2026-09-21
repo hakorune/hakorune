@@ -660,9 +660,11 @@ mod receiver; // ReceiverMaterializationBox（Method recv の pin+LocalSSA 集�
 mod record_helper_args; // RECORD-VALUE-HELPER-001: local record helper argument scalarization
 mod record_values; // C205b: builder-local record value scalarization
 pub(in crate::mir) mod resolved_lowering; // sealed source/product -> exact BindingRef lowering
+#[cfg(test)]
 pub(in crate::mir) use resolved_lowering::issue_selected_dynamic_v2_emission_plan;
 #[cfg(test)]
 pub(in crate::mir) use resolved_lowering::issue_selected_dynamic_v2_physical_capability_admission;
+#[cfg(test)]
 pub(in crate::mir) use resolved_lowering::with_common_v2_canonical_session;
 pub(in crate::mir) use resolved_lowering::CanonicalResolvedBuildErrorV1;
 mod rewrite; // P1: Known rewrite & special consolidation

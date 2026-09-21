@@ -66,6 +66,7 @@ pub(in crate::mir::builder) use common_v2_s6c_text_content_root_admission::{
 pub(in crate::mir::builder) use common_v2_s6c_text_cursor_preheader::issue_common_v2_s6c_text_cursor_preheader_v1;
 #[cfg(test)]
 pub(in crate::mir::builder) use common_v2_s6c_text_cursor_preheader::CommonV2S6CTextCursorPreheaderRejectV1;
+#[cfg(test)]
 pub(in crate::mir) use common_v2_session::with_common_v2_canonical_session;
 #[cfg(test)]
 pub(in crate::mir::builder) use common_v2_session::{
