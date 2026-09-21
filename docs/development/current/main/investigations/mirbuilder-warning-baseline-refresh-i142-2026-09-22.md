@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__WarningBaselineRefreshI142__NoSafeSlice
+Status: closed__2026-09-22__WarningBaselineRefreshI142__SelectedI143
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I142
 Date: 2026-09-22
 Parent: mirbuilder-warning-wrap-in-program-retire-i141-2026-09-22.md
 Implementation permission: false; refresh diagnostics and select one finite next cohort
-NextCard: owner-decision__I142_warning_census
+NextCard: MIRBUILDER-WARNING-INITIAL-SOURCE-MISSING-SLOT-RETIRE-I143
 ---
 
 # MirBuilder warning baseline refresh I142
@@ -39,5 +39,11 @@ its focused guard; includes Rust production and test references for the
 candidate, excludes semantic expansion, feature-only consumers, historical
 snapshots, and unrelated grouped diagnostics.
 
-Until that census is complete, no new warning cohort is selected and the
-work mode remains `design_stop`.
+The rerun completed with lib **1,676 warnings** and exit status 0. The
+smallest finite declaration-only candidate is
+`InitialCallableProgramSourceRejectV1::MissingProgramSlotSet`: repository
+search finds only its enum declaration, with no constructor, match arm, test,
+or documentation authority. The issuer receives a required
+`ProjectedProgramItemSlotSetV1`, so the candidate is unreachable in the
+current owner contract. I143 owns removing this one variant; all other
+warning groups remain outside this slice.

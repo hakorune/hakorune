@@ -20,7 +20,6 @@ use crate::parser::source_path::{
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::parser) enum InitialCallableProgramSourceRejectV1 {
     NotProgram,
-    MissingProgramSlotSet,
     ForeignParser,
     DuplicateAnchor,
     MissingProgramSlot,
