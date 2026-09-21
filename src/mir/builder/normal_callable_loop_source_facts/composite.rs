@@ -242,14 +242,28 @@ fn build_body_block(
             if condition.site() != condition_site {
                 return Err("[freeze:contract][composite-loopbreak/if-condition-site]".into());
             }
-            let contract = if else_block.is_none() && then_roles.iter().all(is_exit_role) {
-                IfContractKind::ExitOnly {
+            let then_exits_all = roles_exit_on_all_paths(then_roles);
+            let contract = match (then_exits_all, else_roles.map(roles_exit_on_all_paths)) {
+                (true, None) => Some(IfContractKind::ExitOnly {
                     mode: IfMode::ExitIf,
-                }
-            } else {
-                IfContractKind::ExitAllowed {
-                    mode: IfMode::ExitIf,
-                }
+                }),
+                (true, Some(true)) => Some(IfContractKind::ExitOnly {
+                    mode: IfMode::ExitAll,
+                }),
+                (true, Some(false)) => Some(IfContractKind::ExitAllowed {
+                    mode: IfMode::ThenOnlyExit,
+                }),
+                (false, Some(true)) => Some(IfContractKind::ExitAllowed {
+                    mode: IfMode::ElseOnlyExit,
+                }),
+                // A join-bearing nested if stays opaque and is lowered by the
+                // existing source statement owner. Do not manufacture an
+                // ExitIf contract for a branch that can fall through.
+                (false, None) | (false, Some(false)) => None,
+            };
+            let Some(contract) = contract else {
+                items.push(RecipeItem::Stmt(stmt_ref));
+                continue;
             };
             items.push(RecipeItem::IfV2 {
                 if_stmt: stmt_ref,
@@ -304,8 +318,24 @@ fn build_body_block(
     Ok(RecipeBlock::new(body_id, items))
 }
 
-fn is_exit_role(role: &CompositeLoopBodyRoleV1) -> bool {
-    role.as_exit().is_some()
+fn roles_exit_on_all_paths(roles: &[CompositeLoopBodyRoleV1]) -> bool {
+    roles.last().is_some_and(role_exits_on_all_paths)
+}
+
+fn role_exits_on_all_paths(role: &CompositeLoopBodyRoleV1) -> bool {
+    match role {
+        CompositeLoopBodyRoleV1::Exit { .. } => true,
+        CompositeLoopBodyRoleV1::If {
+            then_body,
+            else_body: Some(else_body),
+            ..
+        } => roles_exit_on_all_paths(then_body) && roles_exit_on_all_paths(else_body),
+        CompositeLoopBodyRoleV1::Statement { .. }
+        | CompositeLoopBodyRoleV1::Loop { .. }
+        | CompositeLoopBodyRoleV1::If {
+            else_body: None, ..
+        } => false,
+    }
 }
 
 fn exit_kind(

@@ -40,10 +40,11 @@ mod normal_callable_dynamic_source; // source-backed untyped formal/Loop carrier
 mod normal_callable_loop_handoff; // callable Loop source/BindingRef S0 handoff
 mod normal_callable_loop_physical_adapter; // callable GenericLoopV1 source Recipe consumer
 mod normal_callable_loop_source_facts; // callable source-aware Facts/Recipe Ready issuer
+#[cfg(test)]
+pub(in crate::mir) use normal_callable_loop_source_facts::issue_composite_source_candidate_v1;
 pub(in crate::mir) use normal_callable_loop_source_facts::{
-    issue_callable_loop_break_source_facts_v1, issue_composite_source_candidate_v1,
-    CallableLoopBreakSourceFactsDispositionV1, CallableLoopBreakSourceFactsIssueV1,
-    VerifiedCallableLoopBreakCompositeSourceCandidateV1,
+    issue_callable_loop_break_source_facts_v1, CallableLoopBreakSourceFactsDispositionV1,
+    CallableLoopBreakSourceFactsIssueV1, VerifiedCallableLoopBreakCompositeSourceCandidateV1,
     VerifiedCallableLoopBreakCompositeSourceFactsV1, VerifiedCallableLoopBreakSourceCandidateV1,
     VerifiedCallableLoopBreakSourceFactsV1,
 };

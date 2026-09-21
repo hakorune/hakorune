@@ -1,9 +1,9 @@
 ---
-Status: fast__2026-09-22__PrefrontStructuredSourceRows1to3
+Status: closeout__2026-09-22__PrefrontStructuredSourceRows1to4
 Task: MIR-CALL-PARSER-LOOPBREAK-PREFRONT-STRUCTURED-SOURCE-I0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-prefront-source-consumer-d0-2026-09-22.md
-Implementation permission: true for the finite pre-front structured source owner and its focused guards only
+Implementation permission: false; the finite pre-front structured source owner and its focused guards are closed
 NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 ---
 
@@ -80,7 +80,7 @@ limits, and the warning cohort remains paused at I147.
 
 ## Implementation checkpoint — 2026-09-22
 
-Rows 1–3 are implemented in the existing LoopBreak owner. The composite
+Rows 1–4 are implemented in the existing LoopBreak owner. The composite
 projection no longer discards a valid one-member structured forest; the source
 route now consumes one source-order disposition per resolver item, combining
 the existing selected-static handoff with the existing CoreMethod owner; and
@@ -90,18 +90,22 @@ No new semantic issuer, fallback, VM route, or publication claim was added.
 Focused evidence is green:
 
 * `normal_callable_loop_source` route tests: 35/35
-* `loop_break_source` package tests: 18/18
+* `loop_break_source` package tests: 19/19
 * `single_structured_projection_is_admitted_by_composite_owner`: 1/1
+* `finite_parser_loopbreak_sources_retain_structured_candidates`: 1/1
+* merged parser lifecycle: 1/1, reaching the named
+  `[freeze:contract][callable-loop/static-publication/no-selected-handoff]`
+  frontier
 * `cargo check --profile quick --lib`: pass with the I147 warning baseline
-  (`1672` generated warnings)
+  (`1671` generated warnings)
 * `cargo fmt --all -- --check`, `git diff --check`, and the current-state
   pointer guard: pass
 
-Row 4 remains open. The four finite parser source rows
-(`trim/1`, `to_int/1`, `_parse_delegate/3`, and
-`ParserRecordDeclarationBox.parse/3`) still need their explicit source guard
-and named unsupported-terminal classification. The merged parser lifecycle
-still stops at the existing `GenericLoopV1NotSelected` frontier, so I3
-publication acceptance, caller switch, old-edge deletion, and warning cleanup
-remain queued. Until Row 4 is closed, keep this card active and do not move the
-pointer to I3.
+The four finite parser source rows (`trim/1`, `to_int/1`,
+`_parse_delegate/3`, and `ParserRecordDeclarationBox.parse/3`) retain their
+structured candidates and exact-site consumption. A join-bearing nested `if`
+that is outside the four exit-bearing contract shapes remains an opaque
+`Stmt`, so the existing source statement owner handles it without a new
+semantic contract. The merged parser lifecycle now reaches the existing I3
+publication boundary. I3 task 4 is therefore the next bounded slice; caller
+switch, old-edge deletion, and warning cleanup remain queued.

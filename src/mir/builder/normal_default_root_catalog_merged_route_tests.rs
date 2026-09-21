@@ -10,7 +10,7 @@ use crate::runner::modes::common_util::source_hint::prepare_normal_source_with_i
 use crate::runner::NyashRunner;
 
 #[test]
-fn merged_parser_program_source_stops_at_named_loop_boundary_before_static_target() {
+fn merged_parser_program_source_stops_at_named_publication_boundary() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     // The loop boundary reads the ambient JoinIR mode keys, so pin the
     // default mode to keep the observed terminal stable under a concurrent
@@ -70,13 +70,11 @@ fn merged_parser_program_source_stops_at_named_loop_boundary_before_static_targe
             .expect_err("parser program must stop at its named loop boundary");
         let message = rejected.error().to_string();
         // The selected LoopCond and LoopTrue source handoffs now cross the
-        // preceding parser-loop boundaries. The complete merged package still
-        // contains a LoopBreakRecipe route outside this source tuple, so the
-        // existing source bridge stops before catalog installation with its
-        // named non-selected-route terminal.
+        // preceding parser-loop boundaries. The composite LoopBreak source
+        // consumer also reaches the existing publication boundary; the
+        // selected parser tuple is still waiting for its one-shot handoff.
         assert!(
-            message.contains("callable-loop/route-not-front-selected")
-                && message.contains("GenericLoopV1NotSelected"),
+            message.contains("callable-loop/static-publication/no-selected-handoff"),
             "unexpected parser loop terminal: {message}"
         );
         rejected.discard();

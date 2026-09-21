@@ -1,10 +1,10 @@
 ---
-Status: queued__2026-09-22__PrefrontStructuredSourceI0
+Status: fast__2026-09-22__PublicationAcceptance
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: false until the selected merged parser route frontier is resolved; publication acceptance remains queued behind the active pre-front structured-source I0
-NextCard: MIR-CALL-PARSER-LOOPBREAK-PREFRONT-STRUCTURED-SOURCE-I0
+Implementation permission: true for I3 task 4 publication acceptance only; task 5 caller switch remains gated on the task 4 receipt
+NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-RETIREMENT-R0
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -30,10 +30,10 @@ Non-claims: no whole-repository migration, backend promotion, warning cleanup,
 I1 and I2 are closed at their package/Recipe and focused physical boundaries.
 The design stop is accepted for this bounded slice. A failed or deferred
 source terminal reopens the owning semantic row; it does not authorize a
-fallback or a VM repair. The D0 decision selected the existing-owner
-pre-front structured-source I0; task 4 remains queued until that bounded
-consumer is green. Once task 4 and task 5 close, the successor retirement
-card owns caller-zero and the exclusive delete set.
+fallback or a VM repair. The predecessor existing-owner pre-front
+structured-source I0 is now closed at rows 1–4 and has handed this card the
+named publication frontier. Once task 4 and task 5 close, the successor
+retirement card owns caller-zero and the exclusive delete set.
 
 ## Accepted design decision — 2026-09-22
 
@@ -80,74 +80,66 @@ the task queue; it does not claim publication, cutover, or retirement yet.
 
 ## Acceptance frontier recheck — 2026-09-22
 
-The selected merged parser inventory contains one composite LoopBreak candidate,
-but it is reached after earlier callable loop sites. The lifecycle invocation
-stops at the earlier named terminal
-`[freeze:contract][callable-loop/route-not-front-selected]` /
-`GenericLoopV1NotSelected`, while those earlier sites carry supported
-non-candidate loop loans. The selected publication handoff is therefore not
-yet reached. The previously recorded
-`static-result-ingress/no-exact-static-target` terminal belongs to a direct or
-unselected fixture and is not the current merged-parser acceptance boundary.
+The selected merged parser inventory contains one composite LoopBreak candidate
+after the earlier callable loop sites. The pre-front structured-source I0 now
+consumes those finite rows, and the lifecycle invocation reaches the existing
+named publication boundary
+`[freeze:contract][callable-loop/static-publication/no-selected-handoff]`.
+The selected `parse/2 -> starts_with/3` row is therefore visible to I3 task 4,
+but its one-shot publication handoff has not yet been accepted. The old
+`callable-loop/route-not-front-selected` / `GenericLoopV1NotSelected` terminal
+is no longer the merged-parser frontier.
 
-This is a design boundary, not permission to add a fallback. The read-only
-owner audit found no current source-aware consumer for the preceding
-`LoopBreakRecipe`/`LoopSimpleWhile` rows: `SupportedNonCandidate` is package
-coverage only, while the legacy `LoopRouteContext` owner lacks source identity.
-The bounded decision is recorded in
-`MIR-CALL-PARSER-LOOPBREAK-PREFRONT-SOURCE-CONSUMER-D0`: the existing LoopBreak
-owner is extended by the active structured-source I0 for the finite preceding
-rows. No AST rescan, name-based inference, VM repair, generic fallback, or new
-publication authority is authorized.
+This is a publication boundary, not permission to add a fallback. No AST
+rescan, name-based inference, VM repair, generic fallback, or new publication
+authority is authorized.
 
 The ordered queue is consequently:
 
-1. **I0 precondition — pre-front structured source consumer:** implement the
-   accepted existing-owner extension and its mixed item-disposition guards.
-2. **I3 task 4 — publication acceptance:** once the selected merged route
-   reaches the existing one-shot publication owner, run the
-   `parse/2 -> starts_with/3` acceptance and record its named terminal.
-3. **I3 task 5 — caller switch:** switch only that selected parser caller
-   after the publication guard is green.
-4. **R0 task 6 — retirement:** prove caller-zero, remove the exclusive old
+1. **I3 task 4 — publication acceptance:** connect the selected source row to
+   the existing one-shot publication owner and record the named outcome.
+2. **I3 task 5 — caller switch:** switch only that selected parser caller after
+   the publication guard is green.
+3. **R0 task 6 — retirement:** prove caller-zero, remove the exclusive old
    edge and temporary assets, and retain the re-entry guard.
 
-Until item 1 is green, items 2–4 remain queued and no production cutover or
-retirement claim is made. The warning cohort remains paused at I147; D0 does
-not reopen it.
+Until item 1 is green, items 2–3 remain queued and no production cutover or
+retirement claim is made. The warning cohort remains paused at I147.
 
 ## Current design evidence
 
-The merged parser inventory reaches the selected `starts_with/3` rows, while
-the lifecycle invocation stops earlier at the named
-`callable-loop/route-not-front-selected` /
-`GenericLoopV1NotSelected` dependency terminal. The existing composite
-envelope validates and stores source-target relations, but the publication
-owner is not reached. The active I0 must first consume the finite pre-front
-structured rows through the accepted existing owner. After I0, task 4 must
-still reuse the existing publication ingress/physical bridge rather than add a
+The merged parser inventory reaches the selected `starts_with/3` rows, and the
+pre-front consumer carries the finite preceding rows through the existing
+source owner. The lifecycle invocation now stops at the named
+`callable-loop/static-publication/no-selected-handoff` boundary. Task 4 must
+reuse the existing publication ingress/physical bridge rather than add a
 second authority or relax the terminal.
 
-## I3 task 4 implementation evidence — 2026-09-22
+## I3 task 4 preflight evidence — 2026-09-22
 
-The bounded handoff is now threaded through the existing owners. The selected
-composite LoopBreak row takes the existing static-result handoff, installs it
-in the callable lowering ledger, and the source expression port consumes it
-once. The normalizer emits the existing `GlobalCall` shape, and the physical
-bridge reuses the existing selected-result publication emitter with the
-normalizer's already-reserved destination type. Missing, foreign, mismatched,
-duplicate, and residual handoffs stop with named contract errors. Direct and
-generic LoopBreak routes are unchanged.
+The bounded handoff plumbing is present in the existing owners and their
+focused guards. The selected composite LoopBreak row must still take the
+existing static-result handoff, install it in the callable lowering ledger,
+and let the source expression port consume it once. The normalizer and
+physical bridge are already the selected `GlobalCall`/publication owners;
+missing, foreign, mismatched, duplicate, and residual handoffs remain named
+contract errors. Direct and generic LoopBreak routes are unchanged.
 
 Focused evidence is green: source-route 16/16, raw child entry 11/11, raw
 child-port 2/2, package 8/8, and publication bridge 2/2. `cargo check
 --profile quick --lib` and `cargo fmt --all -- --check` also pass with the
 existing warning baseline.
 
-The end-to-end merged parser fixture still stops before the selected handoff at
-the pre-existing named `callable-loop/route-not-front-selected` /
-`GenericLoopV1NotSelected` terminal. This evidence does not claim publication
-acceptance or caller cutover. Task 5 remains unopened until the route frontier
-is resolved and the selected `parse/2 -> starts_with/3` invocation reaches
-the handoff with its acceptance guard green. R0 still owns caller-zero and
-old-edge deletion.
+The end-to-end merged parser fixture now stops at the named
+`[freeze:contract][callable-loop/static-publication/no-selected-handoff]`
+terminal after the pre-front consumer. This evidence does not claim
+publication acceptance or caller cutover. Task 5 remains unopened until task
+4 proves the selected `parse/2 -> starts_with/3` handoff. R0 still owns
+caller-zero and old-edge deletion.
+
+## I0 handoff receipt — 2026-09-22
+
+The predecessor I0 is closed at rows 1–4. Focused evidence is route 35/35,
+package 19/19, finite parser source retention 1/1, and the merged parser
+frontier guard 1/1. The source bridge reaches this I3 boundary without
+changing VM/compatibility, generic fallback, or the direct LoopBreak route.
