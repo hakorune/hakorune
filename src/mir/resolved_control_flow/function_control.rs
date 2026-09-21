@@ -418,10 +418,9 @@ pub(super) fn is_loop_control_exit(exit: &ResolvedExitRecordV1) -> bool {
 mod new_homes;
 #[path = "function_control_terminal.rs"]
 mod terminal;
-pub(crate) use new_homes::{
-    verify_function_completion_with_new_homes_and_argument_observations_v1,
-    verify_function_completion_with_new_homes_v1,
-};
+pub(crate) use new_homes::verify_function_completion_with_new_homes_and_argument_observations_v1;
+#[cfg(test)]
+pub(crate) use new_homes::verify_function_completion_with_new_homes_v1;
 
 pub(crate) fn verify_function_completion_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
