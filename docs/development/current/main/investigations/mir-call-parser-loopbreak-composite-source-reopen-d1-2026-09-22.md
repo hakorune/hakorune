@@ -66,6 +66,36 @@ names those fields and the package/Recipe owner can consume them without
 reconstruction. Once accepted, open the smallest I0 from task 1 and keep the
 warning I148 card parked.
 
+## Read-only relation audit — 2026-09-22
+
+The resolver already owns enough identity to close one item that had been
+listed as missing. `ResolvedExitRecordV1::source_region()` is a sealed
+`RegionId`; the same `VerifiedResolvedFunctionV1` exposes `region()` and
+`if_region_bundle()`. A future body-role issuer can therefore bind an exit to
+its enclosing `IfThen`/`IfElse` region by walking the resolver region-parent
+chain. It must reject a foreign owner, an exit outside the selected root
+forest, an ambiguous branch, or a transfer whose target loop does not match.
+No source-path or AST re-scan is needed for this relation.
+
+The remaining finite relation matrix is:
+
+| resolver product | required retained relation | current status |
+| --- | --- | --- |
+| forest preorder (`root :81`, children `:131`/`:182`) | one owner/function-origin/source-kind row and parent index per loop | existing `VerifiedLoopCondBreakContinueSourceForestProjectionV1` |
+| each loop body inventory | ordered statement site plus typed role (`branch`, `nested-loop`, `carrier`, `step`, or supported opaque statement) | **missing**; current inventory keeps sites only |
+| each `If` exit | exact branch owner, exit site, source region, origin, and transfer | resolver fields exist; same-owner body-role issuer must co-seal them |
+| each nested loop | child route identity, frame key, and parent body role | forest/frame exist; body-role/Recipe relation missing |
+| selected method-call items | exact call site and target/publication requirement | existing source-item/target probe; composite product does not retain it |
+| Recipe body/item | one source role to one existing `RecipeItem`/`JoinSig` item | **missing**; no second Recipe issuer is allowed |
+
+This narrows the next decision: task 1 may reuse the existing resolver region
+and forest products, but it cannot be reopened as an implementation slice until
+the body-role enum/product names the finite accepted statement classes and the
+same product specifies how every class maps to the existing Recipe vocabulary.
+The current `LoopBreakFacts`/`build_loop_break_source_recipe` direct-three
+statement contract remains unchanged; widening its predicate would hide the
+missing composite mapping.
+
 The compatibility registry, `route_loop_break_recipe`, and
 `lower_loop_or_freeze_v1` remain outside this selected source delete set until
 their non-source callers have a successor or a separate retirement decision.
