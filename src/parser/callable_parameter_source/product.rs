@@ -1,7 +1,7 @@
 use super::canonical_script_source_admission::issue_canonical_script_cohort;
-use super::catalog::{
-    ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
-};
+#[cfg(test)]
+use super::catalog::ParserCallableParameterSourceCatalogV1;
+use super::catalog::ParserCallableParameterSourceDispositionV1;
 use super::composite_source::issue_parser_composite_source_v1;
 use super::normal_root_execution::{
     ParserNormalRootExecutionIssuerV1, ParserNormalRootExecutionSourceDispositionV1,
