@@ -15,9 +15,11 @@ use crate::mir::compiler::dynamic_full_body_recipe::coseal::{
 use crate::mir::loop_recipe_contract::{
     LoopConditionV2, LoopExitKindV2, LoopJoinBranchArmTransferRefV2, LoopJoinBranchExitRefV2,
     LoopJoinBranchExitTargetV2, LoopJoinEdgeRoleV1, LoopJoinLogicalTransferRejectV2,
-    LoopJoinLogicalTransferViewV2, LoopJoinNextItemV1, LoopOperationExecutionClassV2,
+    LoopJoinLogicalTransferViewV2, LoopOperationExecutionClassV2,
     LoopRecipeProvenanceV1,
 };
+#[cfg(test)]
+use crate::mir::loop_recipe_contract::LoopJoinNextItemV1;
 use crate::mir::resolved_semantics::{
     FunctionOwnerIdV1, LoopExecutionFrameKeyV1, ResolvedScopeRegionPairV1,
 };
