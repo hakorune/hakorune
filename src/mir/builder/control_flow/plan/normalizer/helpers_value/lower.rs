@@ -227,20 +227,43 @@ impl super::super::PlanNormalizer {
                     .set_type(result_id, result_type);
 
                 if let Some(exact_source_call) = exact_source_call {
-                    if !matches!(object.as_ref(), ASTNode::Variable { .. }) {
-                        return Err(
-                            "[freeze:contract][callable-loop/core-method-receiver-shape]"
-                                .to_owned(),
-                        );
+                    if let Some(target) = exact_source_call.static_target() {
+                        if target.namespace()
+                            != crate::mir::builder::SameModuleCallableNamespaceV1::StaticBoxMethod
+                            || target.name() != method
+                            || target.arity() != arguments.len() as u32
+                        {
+                            return Err(
+                                "[freeze:contract][callable-loop/static-publication-target]"
+                                    .to_owned(),
+                            );
+                        }
+                        arg_effects.push(CoreEffectPlan::GlobalCall {
+                            source: call_source.clone(),
+                            dst: Some(result_id),
+                            func: target.mir_symbol_projection(),
+                            args: arg_ids,
+                        });
+                    } else {
+                        if !matches!(object.as_ref(), ASTNode::Variable { .. }) {
+                            return Err(
+                                "[freeze:contract][callable-loop/core-method-receiver-shape]"
+                                    .to_owned(),
+                            );
+                        }
+                        let receiver = exact_source_call.receiver().ok_or_else(|| {
+                            "[freeze:contract][callable-loop/core-method-receiver-missing]"
+                                .to_owned()
+                        })?;
+                        arg_effects.push(CoreEffectPlan::MethodCall {
+                            source: call_source.clone(),
+                            dst: Some(result_id),
+                            object: receiver,
+                            method: method.clone(),
+                            args: arg_ids,
+                            effects: exact_source_call.effects(),
+                        });
                     }
-                    arg_effects.push(CoreEffectPlan::MethodCall {
-                        source: call_source.clone(),
-                        dst: Some(result_id),
-                        object: exact_source_call.receiver(),
-                        method: method.clone(),
-                        args: arg_ids,
-                        effects: exact_source_call.effects(),
-                    });
                 } else {
                     match object.as_ref() {
                         ASTNode::Variable { name, .. } if name == "env" => {

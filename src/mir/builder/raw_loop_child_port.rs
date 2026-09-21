@@ -85,6 +85,15 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
                 let callable_ledger = self.callable_ledger.as_ref().ok_or_else(|| {
                     "[freeze:contract][raw-loop-child-entry/callable-ledger-missing]".to_owned()
                 })?;
+                let consume_publication = source
+                    .site()
+                    .map(|site| {
+                        callable_ledger
+                            .borrow()
+                            .has_loop_break_composite_source_candidate(site)
+                    })
+                    .unwrap_or(false);
+                let declarations = builder.comp_ctx.callable_declaration_catalog().ok();
                 prepared.lower_v1_with_root_scope_and_callable_ledger(
                     builder,
                     &function_name,
@@ -93,7 +102,13 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
                     policy,
                     root_scope,
                     callable_ledger,
-                    source_target_for_loop(self.module_port, source, callable_ledger),
+                    source_target_for_loop(
+                        self.module_port,
+                        declarations,
+                        source,
+                        callable_ledger,
+                        consume_publication,
+                    )?,
                 )
             }
             None => prepared.lower_v1(builder, &function_name, debug, in_static_box, policy),
@@ -112,19 +127,21 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
 /// `issue_with_source_relations` is the single boundary that maps it to the
 /// named terminals.
 fn source_target_for_loop(
-    module_port: &ModuleLoweringPortV1<'_>,
+    module_port: &mut ModuleLoweringPortV1<'_>,
+    declarations: Option<&crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1>,
     source: &super::raw_invocation_source_transport::RawInvocationSourceContextV1,
     callable_ledger: &std::rc::Rc<
         std::cell::RefCell<
             super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
         >,
     >,
-) -> CallableLoopSourceTargetProbeV1 {
+    consume_publication: bool,
+) -> Result<CallableLoopSourceTargetProbeV1, String> {
     let Some(parent_site) = source.site() else {
-        return CallableLoopSourceTargetProbeV1::empty();
+        return Ok(CallableLoopSourceTargetProbeV1::empty());
     };
     let Some(items) = callable_ledger.borrow().source_loop_items(parent_site) else {
-        return CallableLoopSourceTargetProbeV1::empty();
+        return Ok(CallableLoopSourceTargetProbeV1::empty());
     };
     let core_methods = callable_ledger
         .borrow()
@@ -143,27 +160,80 @@ fn source_target_for_loop(
         let Some(target) = module_port.target_for_source(caller, item.call_site()) else {
             continue;
         };
-        let Some(handoff) =
-            module_port.selected_static_result_handoff_for_source(caller, item.call_site())
-        else {
+        let selected_handoff = module_port
+            .selected_static_result_handoff_for_source(caller, item.call_site())
+            .map(|handoff| {
+                (
+                    handoff.target().clone(),
+                    handoff.site().clone(),
+                    CallableLoopSourceTargetRequirementV1::from_handoff(handoff),
+                )
+            });
+        let Some((selected_target, selected_site, requirement)) = selected_handoff else {
+            if consume_publication {
+                return Err(
+                    "[freeze:contract][callable-loop/static-publication/no-selected-handoff]"
+                        .to_owned(),
+                );
+            }
             uncovered.push(item.call_site().clone());
             continue;
         };
-        if handoff.target() != &target || handoff.site() != item.call_site() {
+        if selected_target != target || &selected_site != item.call_site() {
             requirement_mismatch = true;
             continue;
+        }
+        if consume_publication {
+            let declarations = declarations.ok_or_else(|| {
+                "[freeze:contract][callable-loop/static-publication/catalog-missing]".to_owned()
+            })?;
+            let handoff = module_port
+                .take_static_result_publication_handoff(declarations, caller, item.call_site())
+                .map_err(|error| {
+                    format!("[freeze:contract][callable-loop/static-publication/take/{error:?}]")
+                })?;
+            let handoff = match handoff {
+                crate::mir::callable_result_representation::StaticCallResultPublicationTakeV1::Selected(
+                    handoff,
+                ) => handoff,
+                crate::mir::callable_result_representation::StaticCallResultPublicationTakeV1::TargetOnly(
+                    target,
+                ) => {
+                    return Err(format!(
+                        "[freeze:contract][callable-loop/static-publication/target-only] {}",
+                        target.mir_symbol_projection()
+                    ));
+                }
+                crate::mir::callable_result_representation::StaticCallResultPublicationTakeV1::NoExactStaticTarget => {
+                    return Err(
+                        "[freeze:contract][callable-loop/static-publication/no-exact-target]"
+                            .to_owned(),
+                    );
+                }
+            };
+            if handoff.target() != &target || handoff.site() != item.call_site() {
+                return Err(
+                    "[freeze:contract][callable-loop/static-publication/taken-relation-mismatch]"
+                        .to_owned(),
+                );
+            }
+            callable_ledger
+                .borrow_mut()
+                .install_source_static_result_publication(item.call_site(), handoff)?;
         }
         selected.push(CallableLoopSourceTargetRelationV1::new(
             item.call_site().clone(),
             target,
-            Some(CallableLoopSourceTargetRequirementV1::from_handoff(handoff)),
+            Some(requirement),
         ));
     }
-    CallableLoopSourceTargetProbeV1::from_parts_with_core_methods(
-        selected.into_boxed_slice(),
-        uncovered.into_boxed_slice(),
-        requirement_mismatch,
-        core_methods,
+    Ok(
+        CallableLoopSourceTargetProbeV1::from_parts_with_core_methods(
+            selected.into_boxed_slice(),
+            uncovered.into_boxed_slice(),
+            requirement_mismatch,
+            core_methods,
+        ),
     )
 }
 

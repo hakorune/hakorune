@@ -7,6 +7,7 @@
 //! state.
 
 use super::PlanLowerer;
+use crate::mir::builder::calls::lower_selected_static_result_publication_with_arguments_and_destination_v1;
 use crate::mir::builder::calls::CallTarget;
 use crate::mir::builder::control_flow::plan::{CoreCallSourceV1, CoreEffectPlan};
 use crate::mir::builder::MirBuilder;
@@ -14,6 +15,8 @@ use crate::mir::callable_result_representation::{
     CallableResultActivationDispositionV1, ClaimedCallableResultLoopBatchV1,
 };
 use crate::mir::{MirType, ValueId};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 /// One lowering invocation owns exactly one effect-emission policy.
 ///
@@ -23,6 +26,9 @@ use crate::mir::{MirType, ValueId};
 pub(in crate::mir::builder) enum CorePlanEffectEmissionPortV1<'plan> {
     Raw,
     Claimed(ClaimedCallableResultLoopBatchV1<'plan>),
+    SourcePublication(
+        Rc<RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
+    ),
 }
 
 impl CorePlanEffectEmissionPortV1<'_> {
@@ -34,6 +40,12 @@ impl CorePlanEffectEmissionPortV1<'_> {
         claims: ClaimedCallableResultLoopBatchV1<'plan>,
     ) -> CorePlanEffectEmissionPortV1<'plan> {
         CorePlanEffectEmissionPortV1::Claimed(claims)
+    }
+
+    pub(in crate::mir::builder) fn source_publication(
+        ledger: Rc<RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
+    ) -> Self {
+        Self::SourcePublication(ledger)
     }
 
     pub(super) fn emit_effect(
@@ -69,6 +81,54 @@ impl CorePlanEffectEmissionPortV1<'_> {
                     } => emit_selected_exact_i64(builder, effect, target, required_i64_arguments),
                 }
             }
+            Self::SourcePublication(ledger) => {
+                let Some(source) = call_source(effect) else {
+                    return PlanLowerer::emit_raw_effect(builder, effect);
+                };
+                let CoreCallSourceV1::LocatedMethodCall(site) = source else {
+                    return PlanLowerer::emit_raw_effect(builder, effect);
+                };
+                let Some(handoff) = ledger
+                    .borrow_mut()
+                    .take_source_static_result_publication(site)?
+                else {
+                    return PlanLowerer::emit_raw_effect(builder, effect);
+                };
+                let CoreEffectPlan::GlobalCall {
+                    dst: Some(dst),
+                    func,
+                    args,
+                    ..
+                } = effect
+                else {
+                    return Err(
+                        "[freeze:contract][callable-loop/static-publication/effect-shape]"
+                            .to_owned(),
+                    );
+                };
+                if handoff.target().mir_symbol_projection() != *func {
+                    return Err(
+                        "[freeze:contract][callable-loop/static-publication/effect-target]"
+                            .to_owned(),
+                    );
+                }
+                let args = args
+                    .iter()
+                    .copied()
+                    .map(|value| builder.local_arg(value))
+                    .collect();
+                let emitted =
+                    lower_selected_static_result_publication_with_arguments_and_destination_v1(
+                        builder, handoff, args, *dst,
+                    )?;
+                if emitted != *dst {
+                    return Err(
+                        "[freeze:contract][callable-loop/static-publication/destination]"
+                            .to_owned(),
+                    );
+                }
+                Ok(())
+            }
         }
     }
 
@@ -78,6 +138,16 @@ impl CorePlanEffectEmissionPortV1<'_> {
             Self::Claimed(claims) => claims.finish().map_err(|error| {
                 format!("[freeze:contract][callable_result/loop_claim_finish] {error:?}")
             }),
+            Self::SourcePublication(ledger) => {
+                if ledger
+                    .borrow()
+                    .has_pending_source_static_result_publications()
+                {
+                    Err("[freeze:contract][callable-loop/static-publication/residual]".to_owned())
+                } else {
+                    Ok(())
+                }
+            }
         }
     }
 }

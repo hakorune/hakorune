@@ -69,6 +69,30 @@ impl PreparedStaticCallResultPublicationV1 {
             .set_type(self.destination, exact_type);
         Ok(())
     }
+
+    /// Commit a publication whose destination type was preallocated by the
+    /// source normalizer. Existing matching type information is accepted as
+    /// the same destination contract; conflicting type information still
+    /// fails closed.
+    pub(in crate::mir::builder) fn commit_external_destination(
+        self,
+        builder: &mut MirBuilder,
+    ) -> Result<(), String> {
+        let exact_type = exact_physical_result_type(self.demand.representation());
+        if let Some(existing) = builder.function_state.type_ctx.get_type(self.destination) {
+            if existing != &exact_type {
+                return Err(
+                    "[freeze:contract][static-call-result-publication/type-mismatch]".to_owned(),
+                );
+            }
+            return Ok(());
+        }
+        builder
+            .function_state
+            .type_ctx
+            .set_type(self.destination, exact_type);
+        Ok(())
+    }
 }
 
 #[cfg(test)]

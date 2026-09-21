@@ -4,6 +4,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
 use crate::mir::builder::stmts::CompletedLocalStatementV1;
+use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOriginV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1,
@@ -76,6 +77,12 @@ pub(super) struct CallableSemanticLoweringState {
         crate::mir::resolved_semantics::SourceExprSiteV1,
         VerifiedSourceBoundCoreMethodCallV1,
     >,
+    source_static_result_publications: BTreeMap<
+        crate::mir::resolved_semantics::SourceExprSiteV1,
+        VerifiedStaticCallResultPublicationHandoffV1,
+    >,
+    consumed_source_static_result_publications:
+        BTreeSet<crate::mir::resolved_semantics::SourceExprSiteV1>,
 }
 
 #[derive(Debug)]
@@ -312,7 +319,40 @@ impl CallableSemanticLoweringState {
             source_loop_bridge,
             loop_break_source,
             source_core_method_calls,
+            source_static_result_publications: BTreeMap::new(),
+            consumed_source_static_result_publications: BTreeSet::new(),
         })
+    }
+
+    pub(super) fn install_source_static_result_publication(
+        &mut self,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+        handoff: VerifiedStaticCallResultPublicationHandoffV1,
+    ) -> Result<(), String> {
+        if handoff.site() != site {
+            return Err(freeze("static-publication-site-mismatch"));
+        }
+        if handoff.representation()
+            != &crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactI64
+        {
+            return Err(freeze("static-publication-representation"));
+        }
+        if handoff.target().namespace()
+            != crate::mir::builder::SameModuleCallableNamespaceV1::StaticBoxMethod
+        {
+            return Err(freeze("static-publication-target-namespace"));
+        }
+        if self.source_core_method_calls.contains_key(site)
+            || self.source_static_result_publications.contains_key(site)
+            || self
+                .consumed_source_static_result_publications
+                .contains(site)
+        {
+            return Err(freeze("duplicate-static-publication-site"));
+        }
+        self.source_static_result_publications
+            .insert(site.clone(), handoff);
+        Ok(())
     }
 
     pub(super) fn take_source_core_method_call(
@@ -324,6 +364,35 @@ impl CallableSemanticLoweringState {
         let Some(row) = self.source_core_method_calls.remove(site) else {
             if self.consumed_source_core_method_calls.contains(site) {
                 return Err(freeze("duplicate-core-method-call-consumption"));
+            }
+            if let Some(handoff) = self.source_static_result_publications.get(site) {
+                if handoff.site() != site
+                    || handoff.target().namespace()
+                        != crate::mir::builder::SameModuleCallableNamespaceV1::StaticBoxMethod
+                    || handoff.target().name() != method
+                    || handoff.target().arity() != arity
+                    || handoff.representation()
+                        != &crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactI64
+                {
+                    return Err(freeze("static-publication-target"));
+                }
+                if !self
+                    .consumed_source_static_result_publications
+                    .insert(site.clone())
+                {
+                    return Err(freeze("duplicate-static-publication-consumption"));
+                }
+                return Ok(Some(ExactSourceMethodCallV1::static_publication(
+                    handoff.target().clone(),
+                    crate::mir::MirType::Integer,
+                    crate::mir::EffectMask::PURE.add(crate::mir::Effect::Io),
+                )));
+            }
+            if self
+                .consumed_source_static_result_publications
+                .contains(site)
+            {
+                return Err(freeze("duplicate-static-publication-consumption"));
             }
             return Ok(None);
         };
@@ -364,6 +433,30 @@ impl CallableSemanticLoweringState {
             result_type,
             crate::mir::EffectMask::PURE.add(crate::mir::Effect::Io),
         )))
+    }
+
+    pub(super) fn take_source_static_result_publication(
+        &mut self,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Result<Option<VerifiedStaticCallResultPublicationHandoffV1>, String> {
+        if !self
+            .consumed_source_static_result_publications
+            .contains(site)
+        {
+            return Ok(None);
+        }
+        let handoff = self
+            .source_static_result_publications
+            .remove(site)
+            .ok_or_else(|| freeze("missing-static-publication-handoff"))?;
+        if handoff.site() != site {
+            return Err(freeze("static-publication-site-mismatch"));
+        }
+        Ok(Some(handoff))
+    }
+
+    pub(super) fn has_pending_source_static_result_publications(&self) -> bool {
+        !self.source_static_result_publications.is_empty()
     }
 
     pub(super) fn explicit_extern_symbol(&self, site: &SourceNodeSiteV1) -> Option<&str> {
@@ -460,6 +553,18 @@ impl CallableSemanticLoweringState {
             .as_mut()
             .map(|loan| Ok(loan.take_composite_candidate_for_site(&statement_site)))
             .unwrap_or(Ok(None))
+    }
+
+    pub(super) fn has_loop_break_composite_source_candidate(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> bool {
+        let statement_site =
+            crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
+        self.loop_break_source
+            .as_ref()
+            .map(|loan| loan.has_composite_candidate_for_site(&statement_site))
+            .unwrap_or(false)
     }
 
     /// Return the resolver-issued CoreMethod item rows that cover one exact
@@ -724,6 +829,7 @@ impl CallableSemanticLoweringState {
             || self.consumed_direct_lambdas.len() != self.direct_lambda_captures.len()
             || self.consumed_brand_constructors.len() != self.brand_constructors.constructor_count()
             || !self.source_core_method_calls.is_empty()
+            || !self.source_static_result_publications.is_empty()
         {
             return Err(format!(
                 "{} owner={:?} entry={} locals={}/{} variables={}/{} missing_variables={:?} assignments={}/{} lambdas={}/{} loop_break_transport_kind={:?}",

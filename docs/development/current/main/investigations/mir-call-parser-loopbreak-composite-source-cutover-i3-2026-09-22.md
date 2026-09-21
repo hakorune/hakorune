@@ -84,3 +84,26 @@ existing composite envelope validates and stores source-target relations, but
 does not consume the publication owner's one-shot handoff. Therefore the next
 slice must reuse the existing publication ingress/physical bridge rather than
 add a second authority or relax the terminal.
+
+## I3 task 4 implementation evidence — 2026-09-22
+
+The bounded handoff is now threaded through the existing owners. The selected
+composite LoopBreak row takes the existing static-result handoff, installs it
+in the callable lowering ledger, and the source expression port consumes it
+once. The normalizer emits the existing `GlobalCall` shape, and the physical
+bridge reuses the existing selected-result publication emitter with the
+normalizer's already-reserved destination type. Missing, foreign, mismatched,
+duplicate, and residual handoffs stop with named contract errors. Direct and
+generic LoopBreak routes are unchanged.
+
+Focused evidence is green: source-route 16/16, raw child entry 11/11, raw
+child-port 2/2, package 8/8, and publication bridge 2/2. `cargo check
+--profile quick --lib` and `cargo fmt --all -- --check` also pass with the
+existing warning baseline.
+
+The end-to-end parser fixture still stops at the pre-existing named
+`static-result-ingress/no-exact-static-target` terminal, so this evidence does
+not claim publication acceptance or caller cutover. Task 5 remains unopened
+until the selected `parse/2 -> starts_with/3` invocation reaches this handoff
+and its acceptance guard is green. R0 still owns caller-zero and old-edge
+deletion.

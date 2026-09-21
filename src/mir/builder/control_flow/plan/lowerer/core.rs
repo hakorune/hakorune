@@ -17,7 +17,9 @@ use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringConte
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
+use std::cell::RefCell;
 use std::collections::BTreeMap;
+use std::rc::Rc;
 
 /// LoopFrame: Break/Continue target tracking with PHI input accumulation
 #[derive(Debug, Clone)]
@@ -43,6 +45,22 @@ impl super::PlanLowerer {
     ) -> Result<Option<ValueId>, String> {
         let mut port = super::emission_port::CorePlanEffectEmissionPortV1::raw();
         Self::lower_with_emission_port(builder, plan, ctx, &mut port)
+    }
+
+    /// Lower one source-backed composite plan through the existing selected
+    /// static-result publication owner. The ledger is borrowed only by the
+    /// stack-scoped emission port and is never copied into the Builder.
+    pub(in crate::mir::builder) fn lower_with_source_publication(
+        builder: &mut MirBuilder,
+        plan: LoweredRecipe,
+        ctx: &dyn PlanLoweringContext,
+        ledger: Rc<RefCell<crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState>>,
+    ) -> Result<Option<ValueId>, String> {
+        let mut port =
+            super::emission_port::CorePlanEffectEmissionPortV1::source_publication(ledger);
+        let result = Self::lower_with_emission_port(builder, plan, ctx, &mut port)?;
+        port.finish()?;
+        Ok(result)
     }
 
     /// Internal entry for one already-selected effect-emission authority.

@@ -4,6 +4,7 @@
 //! vocabulary. It owns neither source paths nor callable-result claims.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1};
 use crate::mir::ValueId;
 use crate::mir::{EffectMask, MirType};
@@ -30,7 +31,8 @@ pub(in crate::mir::builder) enum LoopPlanExpressionPortErrorV1 {
 /// semantic identity remains in the source contract owner.
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct ExactSourceMethodCallV1 {
-    receiver: ValueId,
+    receiver: Option<ValueId>,
+    static_target: Option<CanonicalSameModuleCallableKeyV1>,
     result_type: MirType,
     effects: EffectMask,
 }
@@ -42,14 +44,34 @@ impl ExactSourceMethodCallV1 {
         effects: EffectMask,
     ) -> Self {
         Self {
-            receiver,
+            receiver: Some(receiver),
+            static_target: None,
             result_type,
             effects,
         }
     }
 
-    pub(in crate::mir::builder) fn receiver(&self) -> ValueId {
+    pub(in crate::mir::builder) const fn static_publication(
+        target: CanonicalSameModuleCallableKeyV1,
+        result_type: MirType,
+        effects: EffectMask,
+    ) -> Self {
+        Self {
+            receiver: None,
+            static_target: Some(target),
+            result_type,
+            effects,
+        }
+    }
+
+    pub(in crate::mir::builder) fn receiver(&self) -> Option<ValueId> {
         self.receiver
+    }
+
+    pub(in crate::mir::builder) fn static_target(
+        &self,
+    ) -> Option<&CanonicalSameModuleCallableKeyV1> {
+        self.static_target.as_ref()
     }
 
     pub(in crate::mir::builder) fn result_type(&self) -> MirType {
