@@ -17,6 +17,7 @@ pub(crate) struct AdmittedTextScanRowV1 {
 }
 
 impl AdmittedTextScanRowV1 {
+    #[cfg(test)]
     pub(crate) const fn entry(self) -> TextScanAotEntryIdV1 {
         self.entry
     }
@@ -67,6 +68,7 @@ impl AdmittedTextScanRegistryV1 {
         self.plan_stamp
     }
 
+    #[cfg(test)]
     pub(crate) fn row(&self, role: TextScanAdmittedRoleV1) -> AdmittedTextScanRowV1 {
         self.rows
             .iter()

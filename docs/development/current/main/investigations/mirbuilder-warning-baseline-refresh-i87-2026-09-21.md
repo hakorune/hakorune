@@ -46,3 +46,20 @@ run its focused gate and the stable warning refresh at its parent/current pair.
 
 The ProgramV0 snapshot witness module is now test-only. Lib warnings are
 **1,737**, lib-test is **553**, and the snapshot focused suite passed **38/38**.
+
+## Refresh result and selected bounded edge
+
+The sequential refresh completed with lib **1,737** warnings and lib-test
+**553**, with no new red. The strict JSON tree warning family is excluded
+because runtime-direct extern-provider code consumes it. The next finite test-only
+edge is the `entry`, `branch_count`, and `row` methods on
+`AdmittedTextScanRowV1`/`AdmittedTextScanRegistryV1`; repository census finds
+callers only in the module's own tests. I88 will scope those three methods to
+`cfg(test)`.
+
+## Closeout result
+
+The admitted-registry method slice first rejected production use of
+`branch_count`, restored it, and then passed lib check, test build, and the
+focused **2/2** suite with only `entry` and `row` scoped to tests. Lib warnings
+decreased from **1,737** to **1,736**; lib-test remained **553**.
