@@ -1,10 +1,11 @@
 ---
-Status: handed_off__2026-09-20__ParserLoopBreakSourceConsumer
+Status: design_stop__2026-09-21__ParserLoopBreakCompositeDependencyParked
 Task: MIR-CALL-PARSER-SOURCE-TO-MIR-PACKAGE-ACCEPTANCE-WINDOW-D0
-Current execution row: MIR-CALL-PARSER-LOOPCOND-SOURCE-HANDOFF-I0__PackageAcceptanceWindowD0
-Date: 2026-09-20
+Current execution row: MIR-CALL-PARSER-SOURCE-TO-MIR-PACKAGE-ACCEPTANCE-WINDOW-D0
+Date: 2026-09-21
 Parent: mir-call-parser-loopcond-source-handoff-i0-2026-09-19.md
-Implementation permission: false; resolve the package acceptance owner before code or fixture changes
+Implementation permission: false; package acceptance remains parked at the named composite LoopBreak dependency terminal
+NextCard: none__design_stop
 ---
 
 # Parser source-to-MIR package acceptance window D0
@@ -161,9 +162,10 @@ package observer cannot legally skip this method or install a target-only
 subset: `complete()` requires every selected method.
 
 This confirms the child composite row's `NoSafeSlice` from source structure and
-owner fields. The next design decision is same-owner co-sealing of a composite
-LoopBreak body/item/exit product, or an explicit typed pre-effect retirement
-boundary; no fallback, LoopCond reclassification, or old-edge deletion is
-authorized before that decision. The deletion order remains source acceptance,
-production cutover, caller-zero proof, then removal of only the selected parser
-edge.
+owner fields. `MIR-CALL-PARSER-LOOPBREAK-SOURCE-COMPOSITE-D0` is now closed as
+`ParkedSealed__NoSafeSlice`, and this package acceptance window remains at
+`design_stop` until a same-owner composite LoopBreak body/item/exit product or
+an explicit typed pre-effect retirement boundary is accepted. No fallback,
+LoopCond reclassification, or old-edge deletion is authorized before that
+decision. The deletion order remains source acceptance, production cutover,
+caller-zero proof, then removal of only the selected parser edge.

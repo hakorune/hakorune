@@ -1,5 +1,5 @@
 ---
-Status: design_stop__2026-09-21__ParserLoopBreakCompositeSourceProductDecision
+Status: closed__2026-09-21__ParkedSealed_NoSafeSlice_CompositeSourceProductDecision
 Task: MIR-CALL-PARSER-LOOPBREAK-SOURCE-COMPOSITE-D0
 Current execution row: MIR-CALL-PARSER-LOOPBREAK-SOURCE-COMPOSITE-D0
 Date: 2026-09-21
