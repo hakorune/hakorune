@@ -37,3 +37,21 @@ cargo test --profile quick --lib --no-run -j4
 Record lint, file and line, owner, role, and whether a grouped diagnostic masks
 multiple import items. Select one finite caller-zero import cohort or write
 `NoSafeSlice`. Keep dead-code and private-interface rows with their owners.
+
+## Refresh result and bounded selection
+
+The sequential refresh completed on 2026-09-21 with no new failure: lib
+generated **1,754** warnings and lib-test generated **558** warnings. The next
+caller-zero cohort is the two-item test facade at
+`src/mir/dynamic_invocation_contract/mod.rs:10`:
+`DynamicInvocationEnvelopeIssueV1` and
+`VerifiedDynamicInvocationEnvelopeCatalogV1`. A complete source census finds
+their definitions and all non-test references only in `catalog.rs`; the other
+references are in `dynamic_invocation_contract/tests.rs`, which currently
+receives them through the parent facade. The bounded slice can move the two
+test imports into that test module and remove the parent re-export without
+changing any production authority or route.
+
+Selected successor: `MIRBUILDER-WARNING-DYNAMIC-INVOCATION-TEST-FACADE-I0`.
+No dynamic operator, catalog implementation, semantic route, or dead-code row
+is included.
