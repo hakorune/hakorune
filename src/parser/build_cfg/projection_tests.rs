@@ -87,7 +87,7 @@ fn source_projection_records_exact_final_slots_for_then_and_else() {
         (BuildMode::Release, SourceBuildGateBranchV1::Else),
     ] {
         let output = projected_gate_slots(mode);
-        let rows = output.item_slots.rows();
+        let rows = output.item_slots.into_rows();
         assert_eq!(rows.len(), 3);
         assert_eq!(
             rows.iter()

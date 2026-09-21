@@ -43,13 +43,17 @@ box Plain {
     );
     assert!(!seal.declaration_syntax().is_sync());
     assert!(matches!(parsed.ast(), ASTNode::Program { .. }));
+    let declaration_path =
+        crate::parser::source_path::SourceProgramDeclarationPathV1::from_parser_path(
+            parsed.source_seals()[0].box_site().path().clone(),
+        );
     assert_eq!(
         parsed
             .normal_source_plan_seed()
             .projected_program_slots()
-            .rows()
-            .len(),
-        1
+            .exact_final_slot(&declaration_path)
+            .expect("same-parser declaration path must be accepted"),
+        Some(0)
     );
     assert!(parsed
         .normal_source_plan_seed()

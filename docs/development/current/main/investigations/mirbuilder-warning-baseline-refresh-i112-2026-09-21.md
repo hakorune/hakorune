@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI112__AwaitingNextCohort
+Status: closed__2026-09-21__WarningBaselineRefreshI112__SelectedSlotRows
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I112
 Date: 2026-09-21
 Parent: mirbuilder-warning-build-gate-brand-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: awaiting one named warning cohort after the I112 refresh
+NextCard: MIRBUILDER-WARNING-SLOT-ROWS-I0
 ---
 
 # MirBuilder warning baseline refresh I112
@@ -34,9 +34,18 @@ accessor while preserving row-level parser identity. Its focused suite passed
 produced **551 lib-test warnings**; formatting, diff, and pointer guards pass.
 
 The old-edge lane remains `NoSafeSlice`: no named successor or caller-zero
-proof authorizes legacy-edge deletion in this refresh. The next worker must
-perform a fresh finite warning census and select one bounded row before any
-implementation change.
+proof authorizes legacy-edge deletion in this refresh. The I112 refresh
+reproduced **1,697 lib warnings** and selected one bounded warning cohort.
+
+The selected warning is the unused `ProjectedProgramItemSlotSetV1::rows`
+accessor in `src/parser/build_cfg/program_item_slots.rs:48`. It has no
+production caller; the production consumer already takes the owned rows via
+`into_rows`, and two parser tests only borrowed the accessor. The bounded row
+switches those tests to `into_rows` or `exact_final_slot` and deletes the
+redundant borrow projection.
+
+The old-edge lane remains `NoSafeSlice`; this selection does not authorize a
+legacy route or compatibility deletion.
 
 ## Acceptance
 
