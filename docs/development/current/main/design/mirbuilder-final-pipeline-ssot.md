@@ -36,14 +36,14 @@ Related:
   corrected static witness now compiles and executes the called G0 helper
   through LLVM18 with exit3, without skip (`16f87f5eeb`). This proves the
   bounded source-called G0 cohort, not all-family Loop or whole-pipeline completion.
-- **Current scheduler frontier:** follow the `CURRENT_STATE.toml` pointer to
-  `MIR-CALL-PARSER-LOOPBREAK-SOURCE-CONSUMER-D0` for the bounded parser package
-  dependency owner decision, then return to the active R7 card for one
-  owner-local Stop/Promote/Delete decision. Static, Rust/AOT/public Generic
-  options and named harness ownership have landed; automatic pure-core replay
-  and unused private replay storage are retired through `16329a0da2`. Public
-  compatibility ABI and aggregate Call schema retirement remain separate open
-  boundaries.
+- **Current scheduler frontier:** follow the `CURRENT_STATE.toml` pointer for
+  the selected owner; the earlier parser LoopBreak consumer D0 is no longer a
+  live pointer. Its direct source row is parked at the named composite-owner
+  `NoSafeSlice` because the source physical consumer and exclusive delete tuple
+  are still missing. Static, Rust/AOT/public Generic options and named harness
+  ownership have landed; automatic pure-core replay and unused private replay
+  storage are retired through `16329a0da2`. Public compatibility ABI and
+  aggregate Call schema retirement remain separate open boundaries.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.

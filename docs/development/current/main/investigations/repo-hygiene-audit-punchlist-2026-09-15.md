@@ -32,6 +32,25 @@ authority, and the warning baseline stayed at 77. Sidecar/archive adjudication
 and the wider lifecycle census remain separate work; this closeout does not
 retarget the active MirBuilder production lane.
 
+### 2026-09-21 code-side registry correction
+
+The previous reconciliation covered the design registry only. It did not close
+the separate code-side `src/mir/builder/control_flow/plan/REGISTRY.md` row.
+The current in-tree census finds nine files added under `plan/` since
+2026-09-14 that were not named there: five production/source-handoff files and
+four test-only companions. The registry now names the complete seven-surface
+handoff family (including the already-landed LoopTrue and dispatch seams) and
+states that the test companions are evidence, not route owners.
+The auditor's “eight files” number is therefore not retained as a fact; the
+bounded inventory above is the current scope.
+
+The two pipeline SSOT capsules also had stale hard-coded scheduler pointers.
+They now follow `CURRENT_STATE.toml`, retain the correct
+`NoSafeSlice`/missing-consumer boundary, and explicitly state that broad Loop
+production selection remains unopened until the physical-consumer and
+exclusive-delete tuple exists. This is a pointer correction, not a production
+selection claim.
+
 ## P1 — spec/decision management
 
 | # | Finding | Verified evidence | Required action |

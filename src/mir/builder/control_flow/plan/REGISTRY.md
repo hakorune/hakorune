@@ -139,6 +139,27 @@ Rejected bypasses:
 - new `plan/mod.rs` public exports need an owner, consumer, and retire/promote
   note in this registry.
 
+## Source-backed handoff surfaces (2026-09-21 census)
+
+The source-backed loop handoff is one associated-source family. These recent
+files are named here so the code-side registry does not confuse a new physical
+surface with a new route or semantic issuer:
+
+| Surface | Role | Current disposition |
+|---|---|---|
+| `features/loop_break_source.rs` | LoopBreak source physical adapter | direct row parked; composite owner is `NoSafeSlice` |
+| `features/loop_cond_bc_source.rs` | LoopCond source item adapter | consumes the existing LoopCond owner |
+| `features/loop_true_break_continue_source.rs` | LoopTrue source physical adapter | landed bounded consumer |
+| `parts/associated_source/callable_loop_source.rs` | associated-source input owner | shared source handoff owner |
+| `parts/associated_source/callable_loop_source_items.rs` | source item bindings | shared source handoff part |
+| `parts/associated_source/callable_loop_source_lowering.rs` | source item lowering seam | shared source handoff part |
+| `parts/associated_source/dispatch.rs` | associated-source dispatch seam | shared source handoff part |
+
+The companion `*_tests.rs`, `*_driver_tests.rs`, and `*_testkit.rs` files are
+test evidence for this family, not additional route owners. Any future
+retirement must name the same owner, consumer, and delete-set; this row does
+not authorize a second Recipe, route, or fallback.
+
 ## Notes (avoid box explosion)
 
 - Canon (analysis-only) lives in `src/mir/builder/control_flow/generic_loop_canon/`; the former plan-side forwarding shelf is retired.

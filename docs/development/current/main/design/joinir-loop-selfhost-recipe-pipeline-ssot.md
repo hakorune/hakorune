@@ -31,13 +31,15 @@ Related:
   retirement at `18f2162e0d`; the Callable/Generic segment route is sole for
   that admitted cohort. All-family source co-seal, backend parity, and broad
   production selection remain separate.
-- **Current scheduler frontier:** follow the `CURRENT_STATE.toml` pointer to
-  `MIR-CALL-PARSER-LOOPBREAK-SOURCE-PACKAGE-I0` before returning to the
-  existing `MIR-CALL-COMPATIBILITY-RETIRE-R7-D0` design stop. The parser row is
-  a bounded source-package admission window, not broad Loop production
-  selection. Strict/dev LegacyCallV0 reader stop is closed, but release
-  compatibility still shares the parser and has no independently owned
-  delete-set; broad Loop production selection remains unopened.
+- **Current scheduler frontier:** follow the `CURRENT_STATE.toml` pointer for
+  the selected owner. The parser LoopBreak package and transport rows are
+  closed, while the composite source owner is parked at its named
+  `NoSafeSlice`; its source physical consumer and exclusive delete tuple are
+  still missing. This is a bounded source-package admission result, not a
+  broad Loop production switch. Strict/dev LegacyCallV0 reader stop is closed,
+  but release compatibility still shares the parser and has no independently
+  owned delete-set, so broad Loop production selection remains unopened until
+  that tuple exists.
 - **Reopen condition:** complete the recorded M10 semantic/transfer/session
   prerequisites and M8/M9 coverage, then name one unchanged production
   caller, its replacement path, fail-fast terminal, and exclusive deletion
