@@ -40,3 +40,21 @@ Select one finite caller-zero import cohort or write `NoSafeSlice`. Keep
 dead-code and private-interface rows with their owners. No code edit is
 permitted until the selection is recorded and the pointer enters its bounded
 successor. The current fixed baseline is lib **1,754** and lib-test **558**.
+
+## Refresh result and bounded selection
+
+The sequential refresh completed on 2026-09-21 with the fixed commands and no
+new failure: lib **1,754** warnings and lib-test **558** warnings. The first
+caller-zero import cohort is the parent facade re-export
+`src/mir/function.rs:59::PublishedStaticMethodCallCRowV1`. A repository-wide
+source census finds the definition and its real consumers under
+`mir/compiler/normal_default_pipeline/published_backend_view`; the only
+occurrence in `mir/function.rs` is the unused parent re-export, while the
+historical child module imports the canonical compiler owner directly. Removing
+this one parent import therefore does not alter the function-view API used by
+the C-frame consumers and cannot move the warning into an owner-local import.
+
+Selected successor: `MIRBUILDER-WARNING-STATIC-METHOD-CROW-FACADE-I0`.
+The successor may remove only this parent facade item, then rerun both fixed
+gates and classify any changed warning count. No other warning family, dead-code
+row, visibility change, or production route is in scope.
