@@ -298,7 +298,8 @@ pub(in crate::mir) use required_argument_proof::{
     VerifiedScriptDirectStaticRequiredArgumentProofV1,
 };
 pub(in crate::mir::builder) use scalar_operand_recipe::issue_node;
+#[cfg(test)]
+pub(in crate::mir) use scalar_operand_recipe::ScalarOperandRecipeArgumentV1;
 pub(in crate::mir) use scalar_operand_recipe::{
-    ScalarBinaryOperatorV1, ScalarOperandRecipeArgumentV1, ScalarOperandRecipeNodeV1,
-    ScalarUnaryOperatorV1,
+    ScalarBinaryOperatorV1, ScalarOperandRecipeNodeV1, ScalarUnaryOperatorV1,
 };
