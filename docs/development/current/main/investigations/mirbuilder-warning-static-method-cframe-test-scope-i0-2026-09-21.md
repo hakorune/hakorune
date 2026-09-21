@@ -1,9 +1,9 @@
 ---
-Status: design_stop__2026-09-21__SelectedBoundedWarningCohort__ReadyForFastTransition
+Status: fast__2026-09-21__SelectedBoundedWarningCohort__ExecuteTestScope
 Task: MIRBUILDER-WARNING-STATIC-METHOD-CFRAME-TEST-SCOPE-I0
 Date: 2026-09-21
 Parent: mirbuilder-warning-baseline-refresh-i71-2026-09-21.md
-Implementation permission: false until pointer transition commit
+Implementation permission: true for CFrame cfg(test) scoping only
 NextCard: MIRBUILDER-WARNING-BASELINE-REFRESH-I72
 ---
 
