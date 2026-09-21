@@ -48,3 +48,25 @@ The LoopFamilyAdmission slice passed `family_admission` **6/6** and
 `family_selector` **5/5**, reducing lib warnings from **1,747** to **1,746**
 while lib-test remained **557**. Canonical admission and selector ownership
 remain unchanged.
+
+## Refresh result and bounded deletion selection
+
+The sequential refresh completed with lib **1,746** warnings and lib-test **557**,
+matching the LoopFamilyAdmission closeout. The next finite caller-zero cohort
+is the parent re-export of `select_canonical_loop_family_v1`,
+`CanonicalLoopFamilySelectionOutcomeV1`, and
+`CanonicalLoopFamilySelectionReasonV1` in `src/mir/loop_route_policy/mod.rs`.
+The definitions are owned by `family_selector.rs`; the repository census shows
+only `family_selector_tests.rs` consumes these parent-facade names. Retain the
+test facade under `cfg(test)` and remove its production edge in one focused
+slice.
+
+Selected successor:
+`MIRBUILDER-WARNING-LOOP-FAMILY-SELECTOR-TEST-SCOPE-I0`.
+
+## Closeout selection result
+
+The I76 refresh confirmed lib **1,746** and lib-test **557**, then selected the
+caller-zero canonical loop selector parent facade. Its fast slice passed
+`family_selector` **5/5**, reducing lib warnings to **1,745** while preserving
+the lib-test surface.

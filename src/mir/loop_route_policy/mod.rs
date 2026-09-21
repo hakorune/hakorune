@@ -67,11 +67,12 @@ pub(crate) use family_selection::{
     select_canonical_family_for_test, CanonicalFamilySelectionOutcomeV1,
     CanonicalFamilySelectorInputV1, FamilySelectionUnresolvedV1, GenericFamilyEvidenceV1,
 };
+#[cfg(test)]
 pub(crate) use family_selector::{
-    select_canonical_loop_family_v1, CanonicalLoopFamilyCandidateV1,
-    CanonicalLoopFamilySelectionOutcomeV1, CanonicalLoopFamilySelectionReasonV1,
-    CanonicalLoopFamilySelectionV1,
+    select_canonical_loop_family_v1, CanonicalLoopFamilySelectionOutcomeV1,
+    CanonicalLoopFamilySelectionReasonV1,
 };
+pub(crate) use family_selector::{CanonicalLoopFamilyCandidateV1, CanonicalLoopFamilySelectionV1};
 #[allow(unused_imports)]
 pub(crate) use generic_g0::{
     issue_generic_g0_candidate_v1, GenericG0CoverageV1, GenericG0PolicyContextV1,
