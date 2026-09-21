@@ -20,17 +20,6 @@ use super::{BuildGateExplainReport, ParseError, ParserMetadata};
 use source_rows::{compatibility_rows, source_backed_compatibility_rows};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum ParserCompatibilityCohortV1 {
-    InterfaceBox,
-    StaticBox,
-    RecordBox,
-    MixedProgram,
-    TopLevelBuildGate,
-    NoBoxDeclarations,
-    NonProgram,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum ParserPostpassProgramCohortV1 {
     OrdinaryTopLevelBox,
     InterfaceBox,
@@ -46,21 +35,6 @@ impl ParserPostpassProgramCohortV1 {
     fn is_ordinary(self) -> bool {
         matches!(self, Self::OrdinaryTopLevelBox)
     }
-
-    fn compatibility(self) -> ParserCompatibilityCohortV1 {
-        match self {
-            Self::InterfaceBox => ParserCompatibilityCohortV1::InterfaceBox,
-            Self::StaticBox => ParserCompatibilityCohortV1::StaticBox,
-            Self::RecordBox => ParserCompatibilityCohortV1::RecordBox,
-            Self::MixedProgram => ParserCompatibilityCohortV1::MixedProgram,
-            Self::TopLevelBuildGate => ParserCompatibilityCohortV1::TopLevelBuildGate,
-            Self::NoBoxDeclarations => ParserCompatibilityCohortV1::NoBoxDeclarations,
-            Self::NonProgram => ParserCompatibilityCohortV1::NonProgram,
-            Self::OrdinaryTopLevelBox => {
-                unreachable!("ordinary cohort cannot become compatibility")
-            }
-        }
-    }
 }
 
 #[derive(Debug)]
@@ -71,7 +45,6 @@ pub(super) enum ParserBoxPostpassRowV1 {
     },
     AstOnlyCompatibility {
         _final_box_ordinal: usize,
-        cohort: ParserCompatibilityCohortV1,
     },
 }
 
@@ -248,8 +221,7 @@ impl CompletedParserPostpassV1 {
         if program_cohort.is_ordinary() {
             return Err(ParserPostpassEnvelopeErrorV1::CompatibilityForOrdinary);
         }
-        let cohort = program_cohort.compatibility();
-        let rows = compatibility_rows(&ast, cohort);
+        let rows = compatibility_rows(&ast);
         Ok(Self {
             program: CompletedParserProgramV1::Compatibility { ast, callable_rows },
             metadata,
@@ -276,13 +248,8 @@ impl CompletedParserPostpassV1 {
         if program_cohort.is_ordinary() {
             return Err(ParserPostpassEnvelopeErrorV1::CompatibilityForOrdinary);
         }
-        let cohort = program_cohort.compatibility();
-        let rows = source_backed_compatibility_rows(
-            program.ast(),
-            cohort,
-            source_seals,
-            final_box_ordinals,
-        )?;
+        let rows =
+            source_backed_compatibility_rows(program.ast(), source_seals, final_box_ordinals)?;
         Ok(Self {
             program: CompletedParserProgramV1::Initial(program),
             metadata,
@@ -626,10 +593,7 @@ mod tests {
         );
         assert!(matches!(
             envelope.box_coverage().rows(),
-            [ParserBoxPostpassRowV1::AstOnlyCompatibility {
-                cohort: ParserCompatibilityCohortV1::StaticBox,
-                ..
-            }]
+            [ParserBoxPostpassRowV1::AstOnlyCompatibility { .. }]
         ));
         assert!(matches!(
             &envelope.normal_source_plan_seed,

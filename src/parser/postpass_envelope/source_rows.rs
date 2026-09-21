@@ -3,12 +3,9 @@
 use crate::ast::ASTNode;
 use crate::parser::source_seal::ParserBoxSourceSealV1;
 
-use super::{ParserBoxPostpassRowV1, ParserCompatibilityCohortV1, ParserPostpassEnvelopeErrorV1};
+use super::{ParserBoxPostpassRowV1, ParserPostpassEnvelopeErrorV1};
 
-pub(super) fn compatibility_rows(
-    ast: &ASTNode,
-    cohort: ParserCompatibilityCohortV1,
-) -> Box<[ParserBoxPostpassRowV1]> {
+pub(super) fn compatibility_rows(ast: &ASTNode) -> Box<[ParserBoxPostpassRowV1]> {
     let ASTNode::Program { statements, .. } = ast else {
         return Box::new([]);
     };
@@ -19,7 +16,6 @@ pub(super) fn compatibility_rows(
             matches!(statement, ASTNode::BoxDeclaration { .. }).then_some(
                 ParserBoxPostpassRowV1::AstOnlyCompatibility {
                     _final_box_ordinal: final_box_ordinal,
-                    cohort,
                 },
             )
         })
@@ -32,7 +28,6 @@ pub(super) fn compatibility_rows(
 /// rows; this owner neither recreates an ordinary seal nor classifies names.
 pub(super) fn source_backed_compatibility_rows(
     ast: &ASTNode,
-    cohort: ParserCompatibilityCohortV1,
     source_seals: Box<[ParserBoxSourceSealV1]>,
     final_box_ordinals: Box<[usize]>,
 ) -> Result<Box<[ParserBoxPostpassRowV1]>, ParserPostpassEnvelopeErrorV1> {
@@ -82,7 +77,6 @@ pub(super) fn source_backed_compatibility_rows(
                     })
                     .unwrap_or(ParserBoxPostpassRowV1::AstOnlyCompatibility {
                         _final_box_ordinal: final_box_ordinal,
-                        cohort,
                     })
             })
         })
