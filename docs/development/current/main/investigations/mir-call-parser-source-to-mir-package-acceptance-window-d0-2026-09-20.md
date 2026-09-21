@@ -1,11 +1,11 @@
 ---
-Status: design_stop__2026-09-21__ParserLoopBreakCompositeDependencyParked
+Status: closed__2026-09-21__CompositeSourceProductDesignAccepted
 Task: MIR-CALL-PARSER-SOURCE-TO-MIR-PACKAGE-ACCEPTANCE-WINDOW-D0
 Current execution row: MIR-CALL-PARSER-SOURCE-TO-MIR-PACKAGE-ACCEPTANCE-WINDOW-D0
 Date: 2026-09-21
 Parent: mir-call-parser-loopcond-source-handoff-i0-2026-09-19.md
-Implementation permission: false; package acceptance remains parked at the named composite LoopBreak dependency terminal
-NextCard: none__design_stop
+Implementation permission: false; package acceptance remains parked until the selected source-product/Recipe rows close
+NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PRODUCT-I0
 ---
 
 # Parser source-to-MIR package acceptance window D0
@@ -235,3 +235,13 @@ verbatim statement syntax for every mapped block, so a missing or reordered
 source item fails before physical allocation. This closes the semantic
 source-to-Recipe correspondence required by the design gate; implementation
 still waits for the owner decision to be accepted in `CURRENT_STATE.toml`.
+
+## Decision accepted for the first implementation slice — 2026-09-21
+
+The owner decision is now accepted for one bounded fast row:
+`MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PRODUCT-I0`. That row may issue
+and guard the resolver-branded source body-role inventory in the existing
+LoopBreak projector and retain it through the existing owner boundary. It may
+not mint Recipe keys, lower a physical loop, change package selection, switch a
+production caller, or delete an old edge. Those remain separate rows with the
+same acceptance contract above.
