@@ -9,12 +9,17 @@ use crate::mir::loop_recipe_contract::{
 };
 use crate::mir::loop_route_policy::{
     DirectAccumRouteAdmissionRejectV1, VerifiedDirectAccumPolicyHandoffV1,
-    VerifiedDirectAccumPolicyReceiptV1, VerifiedLoopPolicyWinnerV1,
+    VerifiedDirectAccumPolicyReceiptV1,
 };
+#[cfg(test)]
+use crate::mir::loop_route_policy::VerifiedLoopPolicyWinnerV1;
 use crate::mir::loop_structural_facts::{
-    issue_selected_loop_recipe_demand_v1, DirectAccumBindingEffectEntryV1,
-    DirectAccumBindingEffectRoleV1, SelectedLoopDemandRejectV1,
+    issue_selected_loop_recipe_demand_v1, SelectedLoopDemandRejectV1,
     VerifiedDirectAccumBindingEffectPlanV1,
+};
+#[cfg(test)]
+use crate::mir::loop_structural_facts::{
+    DirectAccumBindingEffectEntryV1, DirectAccumBindingEffectRoleV1,
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 
