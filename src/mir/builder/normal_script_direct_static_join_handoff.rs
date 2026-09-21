@@ -290,9 +290,9 @@ mod physical_input;
 mod required_argument_proof;
 mod scalar_operand_recipe;
 
-pub(in crate::mir) use physical_input::{
-    VerifiedScriptDirectStaticPhysicalInputRowV1, VerifiedScriptDirectStaticPhysicalInputV1,
-};
+#[cfg(test)]
+pub(in crate::mir) use physical_input::VerifiedScriptDirectStaticPhysicalInputRowV1;
+pub(in crate::mir) use physical_input::VerifiedScriptDirectStaticPhysicalInputV1;
 pub(in crate::mir) use required_argument_proof::{
     RequiredArgumentProofArgumentV1, ScriptDirectStaticRequiredArgumentProofDispositionV1,
     VerifiedScriptDirectStaticRequiredArgumentProofV1,
