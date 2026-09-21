@@ -48,3 +48,22 @@ The LoopTrue observation slice passed focused LoopTrue **9/9** and
 `family_admission` **6/6**, reducing lib warnings from **1,744** to **1,743**
 while lib-test remained **557**. Canonical observation ownership remains
 unchanged.
+
+## Candidate selection and correction
+
+The initial census nominated the parent re-export of
+`map_loop_true_source_binding_reject` in `src/mir/loop_structural_facts/mod.rs`,
+but the focused compile rejected the caller-zero premise:
+`mir/compiler/loop_true_break_continue_observation.rs` still imports the mapper
+through that parent facade. The re-export was restored immediately; the restored
+lib check is **1,743** and the LoopTrue observation suite is **9/9**. This
+candidate is therefore recorded as `NoSafeSlice` for this cohort.
+
+The next bounded candidate was the macro transform facade, whose consumers are
+test modules only.
+
+## Closeout selection result
+
+The macro transform parent facade was scoped to `cfg(test)`. That slice landed
+with lib warnings **1,742** (from **1,743**) and the required LoopCond **9/9**
+and macro-transform **7/7** focused suites green.
