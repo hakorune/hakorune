@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__WarningBaselineRefreshI130__AwaitingNextCohort
+Status: closed__2026-09-22__WarningBaselineRefreshI130__SelectedI131
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I130
 Date: 2026-09-22
 Parent: mirbuilder-warning-dynamic-v2-reject-dead-variants-i129-2026-09-22.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: prefer MIR-RETIRE-FIRST-OLD-EDGE-R0 only if its caller-zero proof changes
+NextCard: MIRBUILDER-WARNING-GENERIC-G0-PARAMETERS-ACCESSOR-I131
 ---
 
 # MirBuilder warning baseline refresh I130
