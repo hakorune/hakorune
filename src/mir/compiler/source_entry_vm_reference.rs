@@ -4,9 +4,9 @@
 //! the complete projected owner and exposes only the already-normalized
 //! process outcome.
 
-use super::canonical_core_dispatch::publication::{
-    CanonicalPublishedFamilyKindV1, PublishedCanonicalSourceEntryOwnerV1,
-};
+use super::canonical_core_dispatch::publication::PublishedCanonicalSourceEntryOwnerV1;
+#[cfg(test)]
+use super::canonical_core_dispatch::publication::CanonicalPublishedFamilyKindV1;
 use super::raw_root_publication::RawPublishedInvocationV1;
 use super::source_entry_projection::ProjectedSourceEntryV1;
 use super::source_entry_result::{
