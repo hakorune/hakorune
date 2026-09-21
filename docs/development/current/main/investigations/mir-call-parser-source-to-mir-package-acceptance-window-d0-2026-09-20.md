@@ -169,3 +169,48 @@ an explicit typed pre-effect retirement boundary is accepted. No fallback,
 LoopCond reclassification, or old-edge deletion is authorized before that
 decision. The deletion order remains source acceptance, production cutover,
 caller-zero proof, then removal of only the selected parser edge.
+
+## Composite source-product contract — design-only proposal — 2026-09-21
+
+The missing product can be designed without adding a second route authority.
+The canonical issuer remains `CallableGenericLoopSourceFactsIssuerV1`, in the
+same resolver/planner invocation that already issues the LoopBreak Facts and
+package row. Its source product must be a source relation product only; it must
+not carry `RecipeItem`/`StmtRef` keys, `BodyId`, BasicBlock/Value IDs, or a
+physical route selector.
+
+The co-sealed product has five relation groups:
+
+1. **Root identity** — callable owner/origin/source kind, root loop site `:81`,
+   condition site, and the existing resolver forest/frame key.
+2. **Body roles** — an ordered source-site row for every root body statement,
+   branch body, and nested child body. Each row keeps its parent body/member
+   relation and exact source statement or expression site; no AST or line
+   reconstruction is permitted.
+3. **Exit ledger** — every `break`, `continue`, and return transfer observed
+   under the root, paired with its resolver `ResolvedExitRecordV1`. Missing,
+   foreign, duplicate, or target-mismatched exits reject before Builder effects.
+4. **Child route relations** — `:131` and `:182` retain the planner-issued
+   child disposition. `:182` remains the existing literal-true LoopTrue route;
+   the composite product only nests that relation and never reclassifies it as
+   LoopBreak. Unsupported children produce typed absence, not an empty option.
+5. **Call/target relations** — resolver-issued method-call bindings for the
+   `starts_with/3` sites plus the selected publication/CoreMethod relation from
+   the same invocation. Dropped required sites, multiple selected targets, and
+   requirement mismatches remain named package rejects.
+
+The Recipe producer consumes this source product once and creates the existing
+Recipe vocabulary: `RecipeItem::Stmt`, `IfV2`, `Exit`, and nested `LoopV0` with
+`RecipeBlock` bodies. It is the only layer allowed to mint `StmtRef`/`BodyId`
+and `CondBlockView` relations. The associated-source physical provider then
+rechecks each Recipe item against the co-sealed source port, including nested
+body length and statement syntax, before `lower_loop_v0_core` allocates a
+frame. The generic located representation remains outside this bridge because
+it rejects nested `LoopV0`.
+
+The implementation row may open only when this product is issued as one
+owner-scoped candidate-or-typed-absence, the Recipe mapping consumes it once,
+and the physical input carries the same forest, exit, child, carrier, and target
+relations without a second scan. Until then the current named terminal and
+`NoSafeSlice` remain authoritative; this section grants no code, fixture,
+fallback, package-success, production-switch, or deletion permission.
