@@ -56,8 +56,7 @@ pub use object_metadata::{
     TypedObjectPlan, UserBoxFieldDecl, WeakFieldContractSpec, WeakFieldId, WeakFieldWriteContract,
 };
 pub(crate) use published_backend_view::{
-    PublishedMirBackendView, PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
-    PublishedStaticMethodRouteV1,
+    PublishedMirBackendView, PublishedStaticMethodCFrameV1, PublishedStaticMethodRouteV1,
 };
 pub use typed_array_contract::{
     TypedArrayBoundaryValue, TypedArrayContractBoundary, TypedArrayContractDisposition,

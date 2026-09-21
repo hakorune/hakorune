@@ -36,7 +36,7 @@ pub(super) use lifecycle::is_lifecycle_instruction;
 pub(crate) use lifecycle::PublishedObjectStorageProfileV1;
 
 pub(crate) use c_transport::{
-    PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
+    PublishedStaticMethodCFrameV1,
 };
 pub(crate) use compiled_entry_contract::{
     CompiledEntryContractV1, CompiledEntryFormalKindV1, CompiledEntryRootResultV1,
