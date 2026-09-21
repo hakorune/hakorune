@@ -63,6 +63,7 @@ mod session_length;
 mod session_segments;
 
 mod s6c_scalar_equality_leaf;
+#[cfg(test)]
 pub(in crate::mir::builder) use s6c_scalar_equality_leaf::{
     issue_common_v2_s6c_text_scalar_equality_leaf_v1, CommonV2S6CTextScalarEqualityLeafShapeV1,
 };

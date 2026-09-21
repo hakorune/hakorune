@@ -63,10 +63,11 @@ pub(in crate::mir::builder) use common_v2_s6c_text_content_root_admission::{
     CommonV2S6CTextContentRootAdmissionRejectV1, CommonV2S6CTextContentRootAdmissionV1,
     CommonV2S6CTextContentRootRoleV1, CommonV2S6CTextContentRootRowV1,
 };
-pub(in crate::mir::builder) use common_v2_s6c_text_cursor_preheader::{
-    issue_common_v2_s6c_text_cursor_preheader_v1, CommonV2S6CTextCursorPreheaderRejectV1,
-};
+pub(in crate::mir::builder) use common_v2_s6c_text_cursor_preheader::issue_common_v2_s6c_text_cursor_preheader_v1;
+#[cfg(test)]
+pub(in crate::mir::builder) use common_v2_s6c_text_cursor_preheader::CommonV2S6CTextCursorPreheaderRejectV1;
 pub(in crate::mir) use common_v2_session::with_common_v2_canonical_session;
+#[cfg(test)]
 pub(in crate::mir::builder) use common_v2_session::{
     issue_common_v2_s6c_text_scalar_equality_leaf_v1, CommonV2S6CTextScalarEqualityLeafShapeV1,
 };
@@ -75,6 +76,7 @@ pub(in crate::mir::builder) use loop_recipe_physicalizer::lower_callable_single_
 pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_physical_entry_draft_seal;
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_pinned_text_physical_entry_draft_seal;
+#[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session;
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_expected_brand;
@@ -88,6 +90,7 @@ pub(in crate::mir) use selected_dynamic_physical_abi::{
 #[cfg(test)]
 pub(in crate::mir) use selected_dynamic_physical_capability::issue_selected_dynamic_v2_physical_capability_admission;
 pub(in crate::mir::builder) use selected_dynamic_physical_capability::issue_selected_dynamic_v2_physical_capability_admission_from_brand;
+#[cfg(test)]
 pub(in crate::mir) use selected_dynamic_physical_capability::{
     DynamicV2PhysicalCapabilityDispositionV1, DynamicV2PhysicalRepresentationV1,
     DynamicV2ProducerFamilyV1, SelectedDynamicV2PhysicalCapabilityRejectV1,
