@@ -5,6 +5,7 @@
 //! checked wire and adopts the runtime End lease without emitting a CallOut,
 //! ValueId, TextEq, or control-flow instruction.
 
+#[cfg(test)]
 use std::num::NonZeroU64;
 
 use crate::abi::dynamic_call_slot_wire::{
@@ -13,9 +14,9 @@ use crate::abi::dynamic_call_slot_wire::{
 };
 use crate::mir::loop_recipe_contract::LoopValueKeyV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
-use crate::runtime::dynamic_v2_lease::{
-    EndAuthorizedTextBorrowRejectV1, EndAuthorizedTextV1, LeaseConsumeRejectV1,
-};
+#[cfg(test)]
+use crate::runtime::dynamic_v2_lease::EndAuthorizedTextV1;
+use crate::runtime::dynamic_v2_lease::{EndAuthorizedTextBorrowRejectV1, LeaseConsumeRejectV1};
 use crate::runtime::source_bound_v9_runtime::{
     produce_source_bound_v9_runtime_v1, SourceBoundV9RuntimeProducerPlanV1,
     SourceBoundV9RuntimeProducerRejectV1, SourceBoundV9RuntimeResultV1,
