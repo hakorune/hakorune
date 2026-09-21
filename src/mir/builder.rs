@@ -339,6 +339,7 @@ mod normal_script_source_continuation_tests;
 mod program_root_lowering; // Shared typed/generic Program root owner
 pub(in crate::mir) use normal_default_program_root::PreparedNormalDefaultProgramRootV1;
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::CompletedNormalDefaultRootCatalogLifecycleV1;
+#[cfg(test)]
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::NormalDefaultRootCatalogLifecycleStageV1;
 #[allow(dead_code)]
 mod cataloged_box_method_collector_handoff;
