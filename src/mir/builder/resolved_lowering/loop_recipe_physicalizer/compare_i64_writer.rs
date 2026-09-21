@@ -7,6 +7,7 @@
 use super::operation_ledger::LoopOperationValueDefinitionSourceV1;
 use crate::mir::builder::builder_emit::CanonicalCompareDefinitionSourceV1;
 
+#[cfg(test)]
 pub(in crate::mir::builder::resolved_lowering) use crate::mir::builder::resolved_lowering::CanonicalLoopCompareI64WriterV1;
 
 impl LoopOperationValueDefinitionSourceV1 for CanonicalCompareDefinitionSourceV1 {
