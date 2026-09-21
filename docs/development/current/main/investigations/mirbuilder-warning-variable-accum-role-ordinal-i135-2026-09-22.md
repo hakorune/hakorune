@@ -1,5 +1,5 @@
 ---
-Status: ready__2026-09-22__WarningVariableAccumRoleOrdinal__Fast
+Status: closed__2026-09-22__WarningVariableAccumRoleOrdinal__DeletedAndVerified
 Task: MIRBUILDER-WARNING-VARIABLE-ACCUM-ROLE-ORDINAL-I135
 Date: 2026-09-22
 Parent: mirbuilder-warning-baseline-refresh-i134-2026-09-22.md
@@ -49,7 +49,7 @@ Run sequentially with one Cargo process:
 ```text
 cargo fmt --all -- --check
 cargo test --profile quick --lib mir::compiler::variable_accum_recurrence_projection
-cargo test --profile quick --lib mir::loop_recipe_contract::variable_accum_recurrence_producer
+cargo test --profile quick --lib variable_recurrence_producer_seals_existing_recipe_core
 cargo check --profile quick --lib -j4
 cargo test --profile quick --lib --no-run -j4
 bash tools/checks/current_state_pointer_guard.sh
@@ -62,3 +62,17 @@ lib/lib-test warning counts and confirm the role inventory remains intact.
 
 If a caller or role-identity dependency appears, return to design_stop. Do not
 replace the accessor with another ordinal or infer a Recipe key from position.
+
+## Closeout evidence
+
+The declaration-only `ordinal` method was physically deleted. Repository
+census found no caller or qualified reference; the eleven-role enum, `ALL`
+inventory, operation-role coverage, Facts issuer, and Recipe producer remain
+unchanged. `cargo fmt --all -- --check` passed. The source projection focused
+suite passed **9/9**, and the exact Recipe producer test
+`variable_recurrence_producer_seals_existing_recipe_core` passed **1/1**.
+`cargo check --profile quick --lib -j4` passed with lib **1,686** warnings;
+`cargo test --profile quick --lib --no-run -j4` passed with lib-test **544**
+warnings. The pointer guard and `git diff --check` passed. No semantic route,
+fallback, test deletion, or old-edge claim changed; the LoopBreak old-edge
+remains `NoSafeSlice`.

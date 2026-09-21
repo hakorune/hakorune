@@ -56,22 +56,6 @@ impl VariableAccumRecurrenceSourceRoleV1 {
         Self::StepAdd,
         Self::StepInductionWrite,
     ];
-
-    pub(crate) const fn ordinal(self) -> u8 {
-        match self {
-            Self::ConditionBound => 0,
-            Self::ConditionInductionRead => 1,
-            Self::ConditionCompare => 2,
-            Self::AccumulatorRead => 3,
-            Self::AccumulatorInductionRead => 4,
-            Self::AccumulatorAdd => 5,
-            Self::AccumulatorWrite => 6,
-            Self::StepInductionRead => 7,
-            Self::StepDelta => 8,
-            Self::StepAdd => 9,
-            Self::StepInductionWrite => 10,
-        }
-    }
 }
 
 /// The bounded cohort has one value class.  Keeping it typed avoids making
