@@ -47,3 +47,25 @@ stable warning refresh at its parent/current pair.
 The canonical loop selector slice passed `family_selector` **5/5**, reducing
 lib warnings from **1,746** to **1,745** while lib-test remained **557**.
 Canonical selector ownership remains unchanged.
+
+## Refresh result and bounded deletion selection
+
+The sequential refresh completed with lib **1,745** warnings and lib-test **557**,
+matching the canonical selector closeout. The next finite caller-zero cohort is
+the parent re-export of `issue_loop_cond_family_observation_v1`,
+`LoopCondObservationContextV1`, `LoopCondObservationDeclineV1`,
+`LoopCondObservationRejectV1`, and `LoopCondObservationUnresolvedV1` in
+`src/mir/loop_route_policy/mod.rs`. Their canonical owner is
+`loop_cond_break_continue_observation.rs`; parent-facade consumers are test
+modules only. Retain the test facade under `cfg(test)` and remove its
+production edge in one focused slice.
+
+Selected successor:
+`MIRBUILDER-WARNING-LOOP-COND-OBSERVATION-TEST-SCOPE-I0`.
+
+## Closeout selection result
+
+The I77 refresh confirmed lib **1,745** and lib-test **557**, then selected the
+caller-zero LoopCond observation parent facade. Its fast slice passed the
+LoopCond observation suite **9/9** and `family_admission` **6/6**, reducing lib
+warnings to **1,744** while preserving the lib-test surface.

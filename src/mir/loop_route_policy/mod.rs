@@ -86,10 +86,11 @@ pub(crate) use generic_g0_observation::{
     GenericG0ObservationRejectV1, GenericG0ObservationUnresolvedV1,
     VerifiedGenericG0FamilyCandidateV1,
 };
+pub(crate) use loop_cond_break_continue_observation::LoopCondFamilyObservationV1;
+#[cfg(test)]
 pub(crate) use loop_cond_break_continue_observation::{
-    issue_loop_cond_family_observation_v1, LoopCondFamilyObservationV1,
-    LoopCondObservationContextV1, LoopCondObservationDeclineV1, LoopCondObservationRejectV1,
-    LoopCondObservationUnresolvedV1,
+    issue_loop_cond_family_observation_v1, LoopCondObservationContextV1,
+    LoopCondObservationDeclineV1, LoopCondObservationRejectV1, LoopCondObservationUnresolvedV1,
 };
 #[allow(unused_imports)]
 pub(crate) use loop_true_break_continue::{
