@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI93__SelectNextCohort
+Status: closed__2026-09-21__WarningBaselineRefreshI93__NoSafeOldEdge
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I93
 Date: 2026-09-21
 Parent: mirbuilder-warning-callable-contract-disposition-syntax-delete-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: MIR-RETIRE-FIRST-OLD-EDGE-R0 or one explicitly justified caller-zero warning row
+NextCard: MIRBUILDER-WARNING-BASELINE-REFRESH-I94
 ---
 
 # MirBuilder warning baseline refresh I93
@@ -53,3 +53,32 @@ It must not expand to `lower_loop_or_freeze_v1`, `LegacyCallV0`, or the live
 compatibility route. If the census is not caller-zero or the physical owner
 is not sole, record `NoSafeSlice` and retain the warning cohort as baseline
 debt.
+
+## Old-edge census result and next selection
+
+The proposed old-edge target was re-read against the production graph. The
+only direct reference to `route_loop_break_recipe` is the live
+`ENTRIES[LoopRouteId::LoopBreakRecipe]` registry entry, and its only internal
+composer call is `RecipeComposer::compose_loop_break_recipe`. The registry is
+invoked by the compatibility `route_loop` path from `try_cf_loop_joinir`;
+non-source raw loop paths still reach that path. The source
+`raw_loop_child_entry` instead consumes its source candidate through the
+source physical adapter before generic facts, and the composite parser shape
+currently stops at `RouteNotFrontSelected`. Therefore the route/composer pair
+has a live compatibility caller and is not caller-zero. `MIR-RETIRE-FIRST-OLD-
+EDGE-R0` is recorded as `NoSafeSlice` until a named source caller switches and
+the live compatibility route has its own successor.
+
+The next bounded warning row is the already classified mixed-cfg local
+`loop_phi_materializer.rs:467`. Renaming the loop index to `_index` preserves
+the test-only failure-injection comparison while making the non-test build's
+intent explicit; no semantic owner, receipt, or production route changes.
+
+## Closeout evidence
+
+The route/composer old-edge remains `NoSafeSlice`: the registry entry is a
+live compatibility caller, while the source raw-loop entry already bypasses
+it through the source physical adapter. I93's post-accessor refresh recorded
+lib **1,711** and lib-test **552**; the mixed-cfg warning was selected as the
+next bounded implementation row. No compatibility route or old edge was
+deleted.

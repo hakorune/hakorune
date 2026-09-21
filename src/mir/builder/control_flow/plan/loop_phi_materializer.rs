@@ -464,14 +464,14 @@ fn materialize_impl(
     preflight_builder(builder, &pending)?;
     let mut txn = PhiTxn::begin(MATERIALIZER_TAG);
     let mut sites = Vec::with_capacity(pending.len());
-    for (index, row) in pending.into_iter().enumerate() {
+    for (_index, row) in pending.into_iter().enumerate() {
         let token = match txn.define_provisional_phi(builder, row.block, row.dst, MATERIALIZER_TAG)
         {
             Ok(token) => token,
             Err(error) => return Err(transaction_error(builder, txn, error)),
         };
         #[cfg(test)]
-        if fail_after == Some(index) {
+        if fail_after == Some(_index) {
             return Err(transaction_error(
                 builder,
                 txn,
