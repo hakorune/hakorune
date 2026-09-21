@@ -61,8 +61,9 @@ common/type_hint.rs:
 common/case_a.rs:
   minimal Case-A shape guard
 
-loop_target_policy.rs:
-  neutral five-name Loop/If/strict classification
+loop_scope_shape/case_a.rs:
+  current two-target Case-A registration for Main.skip/1 and
+  FuncScannerBox.trim/1
 ```
 
 ## Ownership Rules
@@ -73,7 +74,7 @@ Route truth stays with active route owners:
 
 ```text
 Loop target registration:
-  lowering/loop_target_policy.rs
+  lowering/loop_scope_shape/case_a.rs (two current Case-A targets)
 
 VM execution registration:
   JOINIR_VM_EXEC_TARGETS
@@ -101,8 +102,9 @@ explicit VM bridge
 `JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0` retires that dispatch
 surface. `JOINMODULE-FORMER-LOWERONLY-TARGET-LOWERERS-RETIRE0-RET0` then
 retires the three caller-zero target lowerers and their exclusive evidence.
-The neutral five-name Loop/If policy remains active; only skip/trim retain VM
-Exec routes.
+The stale five-name `loop_target_policy` classification and its wrapper are
+retired by `MIRBUILDER-WARNING-LOOP-TARGET-POLICY-RETIRE-I139`; only the
+skip/trim Case-A routes and their VM Exec rows remain active.
 
 ### Dry-Run / Observation
 
@@ -151,7 +153,8 @@ Retired:
 
 ```text
 JOINMODULE-VM-LOWERONLY-OBSERVATION0-REOWN-RET0:
-  five-name classification -> neutral loop_target_policy
+  stale five-name policy and wrapper -> deleted
+  current Case-A registration -> loop_scope_shape/case_a.rs
   lower_only_routes.rs -> deleted
   VM target table -> two Exec rows only
 ```
@@ -168,7 +171,7 @@ keep Stage1/StageB lowerers and direct tests
 Status: landed as read-only inventory.
 
 Before moving code between target lowerers, keep the route inventory explicit.
-The inventory follows the neutral five-name loop-target policy; VM execution
+The inventory follows the two current Case-A targets; VM execution
 registration is the separate two-row `JOINIR_VM_EXEC_TARGETS`.
 
 #### `Main.skip/1`

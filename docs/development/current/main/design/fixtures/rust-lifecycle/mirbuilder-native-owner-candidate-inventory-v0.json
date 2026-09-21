@@ -17714,16 +17714,6 @@
       "status": "rejected"
     },
     {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_loop_lowering_target",
-      "line": 21,
-      "path": "src/mir/join_ir/lowering/loop_target_policy.rs",
-      "reject_reasons": [
-        "depends_on_lowering"
-      ],
-      "status": "rejected"
-    },
-    {
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "extract_variable_name",
       "line": 139,
@@ -17751,16 +17741,6 @@
       "reject_reasons": [
         "carrier_surface",
         "depends_on_builder",
-        "depends_on_lowering"
-      ],
-      "status": "rejected"
-    },
-    {
-      "candidate_kind": "boolean_classifier",
-      "function": "is_loop_lowered_function",
-      "line": 62,
-      "path": "src/mir/join_ir/lowering/mod.rs",
-      "reject_reasons": [
         "depends_on_lowering"
       ],
       "status": "rejected"

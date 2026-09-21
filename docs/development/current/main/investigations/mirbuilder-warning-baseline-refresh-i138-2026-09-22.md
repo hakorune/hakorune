@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__WarningBaselineRefreshI138__NoSafeSlice
+Status: closed__2026-09-22__WarningBaselineRefreshI138__SelectedI139
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I138
 Date: 2026-09-22
 Parent: mirbuilder-warning-direct-accum-effect-role-test-facade-i137-2026-09-22.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: owner-decision__joinir-loop-target-policy-or-new-warning-census
+NextCard: MIRBUILDER-WARNING-LOOP-TARGET-POLICY-RETIRE-I139
 ---
 
 # MirBuilder warning baseline refresh I138
@@ -51,19 +51,18 @@ bash tools/checks/current_state_pointer_guard.sh
 
 ## Selection result
 
-The post-I137 baseline is lib **1,685** and lib-test **544**. The remaining
-candidate with the clearest caller-zero shape is the
-`is_loop_lowered_function`/`loop_target_policy` family under
-`src/mir/join_ir/lowering/`. Its Rust production caller census is empty, but
-the tracked JoinIR thinning SSOT and module README explicitly name
-`loop_target_policy.rs` as the active five-name classification authority.
-Deleting or test-gating it would therefore change the documented authority
-chain, even though the current compiler does not call the wrapper. That is a
-design decision rather than a warning-only cleanup, so this candidate is
-`NoSafeSlice` and is not selected.
+The post-I137 baseline is lib **1,685** and lib-test **544**. The read-only
+owner audit and an independent source census now resolve the earlier design
+stop: `is_loop_lowered_function`, `is_loop_lowering_target`, and the
+five-name table have no Rust production caller outside their own tests. The
+current route owner is `loop_scope_shape/case_a.rs`, which registers only
+`Main.skip/1` and `FuncScannerBox.trim/1`; the former LowerOnly/If lanes were
+retired by the recorded JoinIR refactors. The current README and SSOT still
+describe the stale five-name module as active, so the smallest safe slice is
+to retire that BoxShape and repair the current docs and generated inventory in
+the same change. The selected card is
+`MIRBUILDER-WARNING-LOOP-TARGET-POLICY-RETIRE-I139`.
 
 The other measured warnings either have production references, belong to
 future source/Recipe owners, or are grouped diagnostics whose delete set is
-not finite without a semantic decision. No additional fast cohort is selected
-until the target-policy owner is reconciled or a new declaration-only row is
-proven with the same caller census.
+not finite without a semantic decision. They remain outside I139.

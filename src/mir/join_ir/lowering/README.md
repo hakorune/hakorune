@@ -39,9 +39,11 @@ Read first:
   `if_lowering_router` / `condition_lowerer` 側に置く。
 - target-specific loop lowerer の整理順と route inventory は
   `docs/development/current/main/design/joinir-target-lowerer-thinning-ssot.md`
-  を正本にする。5関数のLoop分類は `loop_target_policy.rs`、VM execution
-  はdispatch側の2つのExec targetが所有する。target-specific lowererを
-  1つのgeneric lowererへ潰さない。
+  を正本にする。現行のCase-A対象は
+  `loop_scope_shape/case_a.rs` が登録する `Main.skip/1` と
+  `FuncScannerBox.trim/1` の2つで、VM executionはdispatch側の2つの
+  Exec targetが所有する。target-specific lowererを1つのgeneric lowererへ
+  潰さない。
 - ConditionEnv は「条件で参照する JoinIR ValueId だけ」を持つ。body-local を直接入れず、必要なら昇格＋ScopeManager に解決を任せる。
 - Fail-Fast 原則: Unsupported/NotFound は明示エラーにして、by-name ヒューリスティックや静かなフォールバックは禁止。
 

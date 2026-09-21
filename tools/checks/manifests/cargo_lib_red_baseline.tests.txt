@@ -4332,8 +4332,6 @@ mir::join_ir::lowering::loop_scope_shape::tests::test_needs_phi_consistency
 mir::join_ir::lowering::loop_scope_shape::tests::test_ordered_accessors
 mir::join_ir::lowering::loop_scope_shape::tests::test_variable_definitions_from_inspector
 mir::join_ir::lowering::loop_scope_shape::tests::test_variable_definitions_partial_availability
-mir::join_ir::lowering::loop_target_policy::tests::policy_excludes_if_and_arbitrary_functions
-mir::join_ir::lowering::loop_target_policy::tests::policy_keeps_exact_five_loop_targets
 mir::join_ir::lowering::loop_to_join::core::tests::test_lowerer_creation
 mir::join_ir::lowering::loop_update_analyzer::tests::test_analyze_num_str_string_append
 mir::join_ir::lowering::loop_update_analyzer::tests::test_analyze_number_accumulation_base10
@@ -4343,7 +4341,6 @@ mir::join_ir::lowering::loop_update_analyzer::tests::test_analyze_simple_increme
 mir::join_ir::lowering::loop_update_analyzer::tests::test_atoi_update_expr_detection
 mir::join_ir::lowering::loop_view_builder::tests::simple_while_main_route_gate_uses_static_method_identity
 mir::join_ir::lowering::loop_view_builder::tests::test_builder_creation
-mir::join_ir::lowering::tests::test_is_loop_lowered_function
 mir::join_ir::lowering::type_inference::tests::test_infer_box_type_builtin_boxes
 mir::join_ir::lowering::type_inference::tests::test_infer_box_type_collection_boxes
 mir::join_ir::lowering::type_inference::tests::test_infer_box_type_plugin_boxes
