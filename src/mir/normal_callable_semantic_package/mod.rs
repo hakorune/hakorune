@@ -95,14 +95,13 @@ pub(crate) use install::{
     S6CCommonV2PreSessionLoanRefV1, SelectedCallableLoweringInputRefV1,
     SelectedCatalogedCallableLoweringInputV1,
 };
+pub(in crate::mir) use issuer::issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1;
+#[cfg(test)]
+pub(in crate::mir) use issuer::NormalCallableSemanticPackageIssueV1;
 #[cfg(test)]
 pub(in crate::mir) use issuer::{
     issue_normal_callable_semantic_package_v1,
     issue_normal_callable_semantic_package_with_brand_catalog_v1,
-};
-pub(in crate::mir) use issuer::{
-    issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1,
-    NormalCallableSemanticPackageIssueV1,
 };
 pub(in crate::mir) use map_lifecycle_undertaking::{
     MapLifecycleConsumerCapabilityV1, MapLifecycleOperationV1, MapLifecycleUndertakingV1,
@@ -110,6 +109,7 @@ pub(in crate::mir) use map_lifecycle_undertaking::{
 pub(crate) use map_read_fact::{
     MapReadFactV1, MapReadFactsV1, MapReadOperandV1, MapReadOperationV1, MapReadResultClassV1,
 };
+#[cfg(test)]
 pub(in crate::mir) use model::NormalCallableDynamicProjectionRefV1;
 pub(crate) use model::{
     QualifiedReceiverCatalogTakeV1, VerifiedNormalCallableSemanticPackageV1,

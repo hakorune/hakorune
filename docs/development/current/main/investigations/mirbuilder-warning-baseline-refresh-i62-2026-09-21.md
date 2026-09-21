@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI62__NextCohortSelection
+Status: closed__2026-09-21__WarningBaselineRefreshI62__SelectedSemanticPackageTestReexports
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I62
 Date: 2026-09-21
 Parent: mirbuilder-warning-vm-reference-test-import-i0-2026-09-21.md
-Implementation permission: false; refresh and select one cohort only
-NextCard: MIRBUILDER-WARNING-SURFACE-CENSUS-R0
+Implementation permission: true for the selected two test-only semantic-package re-exports only
+NextCard: MIRBUILDER-WARNING-SEMANTIC-PACKAGE-TEST-REEXPORTS-I0
 ---
 
 # MirBuilder warning baseline refresh I62
@@ -36,3 +36,22 @@ one cohort or write `NoSafeSlice`. Keep dead-code/private-interface rows with
 
 The previous fixed baseline is lib **1,759** and lib-test **561** after the
 selected VM-reference test-import cohort.
+
+
+## Selection evidence
+
+The fixed gates completed sequentially with exit 0 after the VM-reference cohort:
+
+| surface | warnings | evidence |
+| --- | ---: | --- |
+| lib | 1,759 | `/tmp/hakorune-warning-i62-lib-20260921.log` |
+| lib test | 561 | `/tmp/hakorune-warning-i62-lib-test-20260921.log` |
+
+The first two warning groups are the unused `NormalCallableSemanticPackageIssueV1`
+and `NormalCallableDynamicProjectionRefV1` re-exports at
+`src/mir/normal_callable_semantic_package/mod.rs:103,113`. A source census shows
+both parent re-exports are consumed only by `#[cfg(test)]` fixtures; production
+issuer and model code use their owning submodules directly. The bounded same-owner
+slice gates these two test-only re-exports together, with expected lib **1,759 →
+1,757** and lib-test unchanged at **561**. No semantic-package issuer, model, or
+test body is selected.
