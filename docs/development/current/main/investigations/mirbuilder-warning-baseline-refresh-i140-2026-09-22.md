@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__WarningBaselineRefreshI140__NoSafeSlice
+Status: closed__2026-09-22__WarningBaselineRefreshI140__SelectedI141
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I140
 Date: 2026-09-22
 Parent: mirbuilder-warning-loop-target-policy-retire-i139-2026-09-22.md
 Implementation permission: false; refresh diagnostics and select one finite next cohort
-NextCard: owner-decision__I140_warning_census
+NextCard: MIRBUILDER-WARNING-WRAP-IN-PROGRAM-RETIRE-I141
 ---
 
 # MirBuilder warning baseline refresh I140
@@ -39,5 +39,13 @@ Boundary: quick-profile `src/lib.rs` diagnostics -> one selected owner and
 its focused guard; includes Rust production and test references for the
 candidate, excludes semantic expansion and unrelated grouped diagnostics.
 
-Until that census is complete, no new warning cohort is selected and the
-work mode remains `design_stop`.
+The rerun completed with lib **1,677 warnings** and exit status 0. The
+smallest finite production-zero item is `wrap_in_program` at
+`src/mir/builder/calls/function_lowering.rs:83`: its only source caller is
+the test-only checkpoint helper in `function_session_tests.rs`, while the
+production lowering paths construct and consume their body directly. The
+`calls` module is private to the builder, so this is not an external API
+retirement. I141 owns the helper deletion and the one test-local AST
+construction replacement. The remaining warning groups stay classified as
+live owners, feature-gated consumers, future semantic owners, or grouped
+diagnostics and are outside this slice.

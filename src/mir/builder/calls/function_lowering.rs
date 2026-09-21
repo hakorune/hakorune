@@ -78,11 +78,3 @@ pub fn prepare_static_method_signature(
 pub fn generate_method_function_name(box_name: &str, method_name: &str, arity: usize) -> String {
     format!("{}.{}/{}", box_name, method_name, arity)
 }
-
-/// Wrap statements in a Program node for consistent processing
-pub fn wrap_in_program(statements: Vec<ASTNode>) -> ASTNode {
-    ASTNode::Program {
-        statements,
-        span: crate::ast::Span::unknown(),
-    }
-}

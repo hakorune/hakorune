@@ -254,17 +254,6 @@
         "src/mir/builder/stmts/block_stmt.rs#let remaining = &statements[idx..];",
         "src/mir/builder/control_flow/normalization/suffix_router_box.rs#) -> Result<Option<usize>, String> {"
       ]
-    },
-    {
-      "id": "function-body-program-wrapper",
-      "current_input": "OwnedBodyVec",
-      "current_output": "SyntheticProgramAst",
-      "located_transport": false,
-      "planner_connection_allowed_in_b0_l2": false,
-      "evidence": [
-        "src/mir/builder/calls/function_lowering.rs#pub fn wrap_in_program(statements: Vec<ASTNode>) -> ASTNode",
-        "src/mir/builder/calls/lowering.rs#let program_ast = function_lowering::wrap_in_program(body);"
-      ]
     }
   ],
   "atomic_activation_contract": {

@@ -455,7 +455,10 @@ fn run_injected_checkpoint(
             return Err("injected:after_parameters".into());
         }
         let mut port = RawLegacyChildLoweringPortV1;
-        let program = super::function_lowering::wrap_in_program(body.clone());
+        let program = ASTNode::Program {
+            statements: body.clone(),
+            span: Span::unknown(),
+        };
         let _ = builder.build_expression_impl_with_port_v1(&mut port, program)?;
         if checkpoint == InjectedCheckpoint::AfterBody {
             return Err("injected:after_body".into());
