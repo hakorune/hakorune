@@ -5,6 +5,7 @@
 //! opaque source witnesses with real preflight plans and thread the identity
 //! through those owners. The existing route matrix remains the family SSOT.
 
+#[cfg(test)]
 use std::num::NonZeroU64;
 
 pub(in crate::mir::builder) use crate::mir::module_invocation_identity::{
