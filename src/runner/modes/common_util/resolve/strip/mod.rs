@@ -4,7 +4,9 @@ mod preexpand;
 mod prelude;
 mod using;
 
-pub(crate) use import_lineage::{MergedSourceLineageV1, MergedSourceSegmentV1};
+pub(crate) use import_lineage::MergedSourceLineageV1;
+#[cfg(test)]
+pub(crate) use import_lineage::MergedSourceSegmentV1;
 pub(crate) use merge::merge_prelude_text_with_imports_and_lineage;
 pub use merge::{
     merge_normal_prelude_text_with_imports, merge_prelude_asts_with_main, merge_prelude_text,
