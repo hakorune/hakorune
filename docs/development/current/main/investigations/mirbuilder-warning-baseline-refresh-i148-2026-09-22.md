@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__WarningBaselineRefreshI148__NoSafeSlice
+Status: ParkedSealed__2026-09-22__WarningBaselineRefreshI148__SemanticLanePriority
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I148
 Date: 2026-09-22
 Parent: mirbuilder-warning-parser-admission-rows-test-accessor-i147-2026-09-22.md
 Implementation permission: false; refresh diagnostics and select one finite next cohort
-NextCard: owner-decision__I148_warning_census
+NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-REOPEN-D1
 ---
 
 # MirBuilder warning baseline refresh I148
@@ -35,7 +35,9 @@ debt`, or `informational census`. Retired I139, I141, I143, I145, and I147
 symbols are not candidates again. A new candidate requires a complete
 owner/caller/delete-set tuple and focused guard before implementation.
 
-The LoopBreak old-edge lane remains a priority check, not automatic
-permission: `route_loop_break_recipe` must prove caller-zero and a successor
-for its live compatibility caller. If it remains live, I148 may select one
-safe production-zero warning row instead.
+The warning lane is intentionally parked at this boundary. The LoopBreak
+composite semantic lane has a finite next owner and is the higher-priority
+frontier: publication, caller switch, and selected old-edge retirement are
+still open. Reopen I148 only after that semantic lane closes or a new owner
+decision explicitly returns warning cleanup to the active scheduler. The
+LoopBreak old-edge remains protected by its caller-zero and successor proof.

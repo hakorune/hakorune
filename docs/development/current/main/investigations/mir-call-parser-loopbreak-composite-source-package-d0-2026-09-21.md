@@ -5,7 +5,7 @@ Current execution row: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PACKAGE-D0
 Date: 2026-09-21
 Parent: mir-call-parser-loopbreak-composite-forest-path-i0-2026-09-21.md
 Implementation permission: false; package/Recipe/physical changes require this boundary decision
-NextCard: MIRBUILDER-WARNING-BASELINE-REFRESH-I64
+NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-REOPEN-D1
 ---
 
 # Parser composite LoopBreak package boundary D0
@@ -101,6 +101,7 @@ source-aware physical input before allocation.
 
 No code or fixture changed in this D0. The independent forest-path evidence
 remains valid (28/28 structural-facts and 3/3 composite projection tests), but
-it does not prove package or source-to-MIR acceptance. The next selected row is
-the already taskized warning-surface refresh I64; the parser composite family
-stays sealed until its explicit reopen trigger is met.
+it does not prove package or source-to-MIR acceptance. The warning cleanup
+cohort through I147 is now parked after its measured 1,672/543 baseline; the
+next selection returns to the composite LoopBreak semantic lane through
+`MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-REOPEN-D1`.
