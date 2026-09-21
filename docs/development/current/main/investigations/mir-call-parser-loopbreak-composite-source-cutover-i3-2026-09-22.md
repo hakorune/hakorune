@@ -1,9 +1,9 @@
 ---
-Status: design_stop__2026-09-22__AwaitingParserPublicationAcceptance
+Status: fast__2026-09-22__ParserPublicationAcceptance
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: false; I2 physical envelope is focused-green; task 4 publication acceptance and task 5 caller switch are bounded here
+Implementation permission: true; accepted bounded task 4 publication acceptance only, followed by task 5 caller switch after its guard is green
 NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-RETIREMENT-R0
 ---
 
@@ -28,11 +28,30 @@ Non-claims: no whole-repository migration, backend promotion, warning cleanup,
 ```
 
 I1 and I2 are closed at their package/Recipe and focused physical boundaries.
-This row remains a design stop until the selected source-to-MIR invocation is
-named and its publication relation is accepted. A failed or deferred source
-terminal reopens the owning semantic row; it does not authorize a fallback or
-a VM repair. Once task 4 and task 5 close, the successor retirement card owns
-caller-zero and the exclusive delete set.
+The design stop is accepted for this bounded slice. A failed or deferred
+source terminal reopens the owning semantic row; it does not authorize a
+fallback or a VM repair. Once task 4 and task 5 close, the successor
+retirement card owns caller-zero and the exclusive delete set.
+
+## Accepted design decision — 2026-09-22
+
+The read-only publication audit is accepted as the implementation boundary for
+this slice. The existing
+`VerifiedStaticCallResultPublicationOwnerV1::take_for_source` remains the
+canonical issuer and one-shot owner. The existing callable lowering ledger is
+the transport, and the existing selected static-result physical bridge is the
+only emitter. The composite LoopBreak source site, exact target, `ExactI64`
+representation, required argument ordinals, and the handoff are co-sealed at
+the selected parser tuple before physical emission.
+
+The bounded implementation must fail fast on missing owner/catalog, foreign or
+mismatched site/target, `TargetOnly`/`NoExactStaticTarget`, duplicate take, and
+residual handoff. It may reuse the existing plan normalizer and physical
+`GlobalCall` bridge, but it must not add a second publication authority, infer
+from AST or names, revive VM/compatibility fallback, or alter generic/direct
+LoopBreak routes. The acceptance invocation is only
+`ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3`; caller switch
+and old-edge deletion remain task 5 and R0 respectively.
 
 ## Queue reconciliation — 2026-09-22
 
