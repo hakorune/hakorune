@@ -1,13 +1,13 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI70__NextCohortSelection
-Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I70
+Status: design_stop__2026-09-21__WarningBaselineRefreshI71__NextCohortSelection
+Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I71
 Date: 2026-09-21
 Parent: mirbuilder-warning-dynamic-operator-test-facade-i0-2026-09-21.md
 Implementation permission: false; refresh and select one cohort only
 NextCard: MIRBUILDER-WARNING-SURFACE-CENSUS-R0
 ---
 
-# MirBuilder warning baseline refresh I70
+# MirBuilder warning baseline refresh I71
 
 ## Six-line brief
 
@@ -38,20 +38,3 @@ cargo test --profile quick --lib --no-run -j4
 Record lint, file and line, owner, role, and grouped-diagnostic membership.
 Select one finite caller-zero import cohort or write `NoSafeSlice`. Keep
 dead-code and private-interface rows with their owners.
-
-## Refresh result and bounded selection
-
-The sequential refresh completed on 2026-09-21 with no new failure: lib
-generated **1,751** warnings and lib-test generated **557** warnings. The next
-caller-zero item is the test-only JoinSig export `IfJoinSigElaboratorV1` at
-`src/mir/if_recipe_contract/mod.rs:26`. A complete census finds its canonical
-production consumer importing `join_sig` directly and its only parent-facade
-consumer in `if_recipe_contract/tests.rs`. The other three grouped JoinSig
-warnings (`IfJoinEdgeV1`, `IfJoinObligationV1`, and `IfJoinValueEdgeV1`) remain
-because the sibling physicalizer test reaches them through the crate facade;
-they are outside this slice. The bounded slice moves only the elaborator import
-into the owner test module and removes that one re-export.
-
-Selected successor: `MIRBUILDER-WARNING-IF-JOINSIG-TEST-FACADE-I0`.
-The remaining JoinSig roles, physicalizer behavior, and If recipe semantics are
-outside the slice.
