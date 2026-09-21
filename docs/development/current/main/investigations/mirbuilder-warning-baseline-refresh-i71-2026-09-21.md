@@ -38,3 +38,19 @@ cargo test --profile quick --lib --no-run -j4
 Record lint, file and line, owner, role, and grouped-diagnostic membership.
 Select one finite caller-zero import cohort or write `NoSafeSlice`. Keep
 dead-code and private-interface rows with their owners.
+
+## Refresh result and bounded selection
+
+The sequential refresh completed on 2026-09-21 with no new failure: lib
+generated **1,751** warnings and lib-test generated **557** warnings. The next
+caller-zero item is `PublishedStaticMethodCFrameV1` at
+`src/mir/function.rs:59`. A complete census finds its consumers only in
+`#[cfg(test)]` modules (`mir_json_emit/io.rs`, the published-backend-view test
+modules, and the compiler map-query test); no non-test caller exists. The
+canonical definition remains `mir/compiler/normal_default_pipeline` and the
+historical function facade is only a test bridge. Scoping the C-frame re-export
+to `cfg(test)` in both function facade layers removes it from the production
+warning surface while preserving those test paths.
+
+Selected successor: `MIRBUILDER-WARNING-STATIC-METHOD-CFRAME-TEST-SCOPE-I0`.
+The C-row owner and C-frame ABI are outside the slice.
