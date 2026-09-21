@@ -24,11 +24,12 @@ use super::common_v2_s6c_substring_callout_admission::{
 use super::draft_seal::ReadyFunctionDraftSealV1;
 
 mod length_call;
-pub(in crate::mir::builder) use length_call::{
-    CanonicalLengthCallResultReceiptV1, LengthCallDirectEmitterRejectV1,
-};
+pub(in crate::mir::builder) use length_call::CanonicalLengthCallResultReceiptV1;
+#[cfg(test)]
+pub(in crate::mir::builder) use length_call::LengthCallDirectEmitterRejectV1;
 
 mod initial_index_seed;
+#[cfg(test)]
 pub(in crate::mir::builder) use initial_index_seed::InitialIndexSeedMaterializationRejectV1;
 
 mod return_read;
@@ -37,15 +38,18 @@ pub(in crate::mir::builder) use return_read::{
 };
 
 mod condition_bool;
+#[cfg(test)]
 pub(in crate::mir::builder) use condition_bool::{
     ConditionBoolMaterializationRejectV1, ConditionBoolReturnReadRejectV1,
 };
 
 mod s6c_operand_issuer;
+#[cfg(test)]
 pub(in crate::mir::builder) use s6c_operand_issuer::S6CTextEqOperandIssuerRejectV1;
 
 mod s6c_text_eq_occurrence;
 pub(in crate::mir::builder) use s6c_text_eq_occurrence::S6CTextEqOccurrencePhysicalViewV1;
+#[cfg(test)]
 pub(in crate::mir::builder) use s6c_text_eq_occurrence::S6CTextEqOccurrenceViewRejectV1;
 
 mod s6c_substring_callout_materializer;
