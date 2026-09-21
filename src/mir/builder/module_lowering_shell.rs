@@ -14,6 +14,7 @@ use crate::mir::{ConstValue, MirFunction, MirModule};
 
 mod declaration_fact_commit;
 
+#[cfg(test)]
 pub(in crate::mir::builder) use declaration_fact_commit::ModuleDeclarationFactShellPrepareErrorV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
