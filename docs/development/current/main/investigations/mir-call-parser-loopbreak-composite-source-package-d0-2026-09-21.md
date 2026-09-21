@@ -1,11 +1,11 @@
 ---
-Status: design_stop__2026-09-21__CompositePackageRetentionAndRecipeBoundary
+Status: ParkedSealed__NoSafeSlice__2026-09-21__CompositePackageBodyRoleMissing
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PACKAGE-D0
 Current execution row: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PACKAGE-D0
 Date: 2026-09-21
 Parent: mir-call-parser-loopbreak-composite-forest-path-i0-2026-09-21.md
 Implementation permission: false; package/Recipe/physical changes require this boundary decision
-NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PACKAGE-I3
+NextCard: MIRBUILDER-WARNING-BASELINE-REFRESH-I64
 ---
 
 # Parser composite LoopBreak package boundary D0
@@ -77,3 +77,30 @@ the physical owner would need to rediscover source meaning. In that case the
 successor must name one missing owner and a finite reopen trigger rather than
 adding a second semantic receipt. Only after this D0 closes may I3 implement
 the selected package/Recipe slice.
+
+## Decision and closeout — 2026-09-21
+
+The read-only owner audit confirms that the existing package owner remains the
+only safe retention boundary, but it cannot issue a composite candidate yet.
+`issue_callable_loop_break_source_facts_v1` retains the direct-only Facts
+product, which requires the three-statement body; the existing Recipe builder
+enforces the same shape. The new forest-path I0 fixes conditional ancestry
+transport, but its composite projection still carries only resolver identity,
+forest/exit membership, and recursive body inventory. It does not issue the
+missing ordered body-role map, nested exit-to-branch relation, child-route
+identity, or target-to-Recipe relation.
+
+Therefore this package row is `ParkedSealed__NoSafeSlice` with owner
+`CallableGenericLoopSourceFactsIssuerV1` / the existing LoopBreak Facts/Recipe
+consumer. The truthful terminal remains `GenericLoopV1NotSelected`; no empty
+candidate, package-only widening, LoopCond reclassification, retry, fallback,
+or second Recipe issuer is allowed. Reopen only after one same-owner composite
+Facts/body-role product co-seals the finite root/child/exit/source-item set,
+maps it once to the existing `RecipeItem` vocabulary, and reaches one
+source-aware physical input before allocation.
+
+No code or fixture changed in this D0. The independent forest-path evidence
+remains valid (28/28 structural-facts and 3/3 composite projection tests), but
+it does not prove package or source-to-MIR acceptance. The next selected row is
+the already taskized warning-surface refresh I64; the parser composite family
+stays sealed until its explicit reopen trigger is met.
