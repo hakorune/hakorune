@@ -154,6 +154,21 @@ The finite relation matrix is therefore:
 | `starts_with/3` sites under the root | resolver source item bindings and target probe | one target relation covering the selected site without dropping sibling calls |
 | carrier/progress/step assignments | located source statements | ordered Recipe roles and their continuation/exit relation |
 
+### Reopen task decomposition (design-only)
+
+These are the bounded tasks for a future accepted same-owner extension. They
+are planning rows only; none grants implementation permission while this card
+remains `design_stop`.
+
+| order | task | completion condition |
+| --- | --- | --- |
+| 1 | Issue one composite source body-role product from the resolver forest/exit ledger | root, child, branch, exit, carrier, and target sites are co-sealed with owner/origin and every unsupported shape has a typed absence |
+| 2 | Extend the existing LoopBreak Recipe producer | the product maps once to existing `RecipeItem`/`LoopV0`/`Exit` vocabulary, with no synthetic AST, `StmtRef`, or second Recipe issuer |
+| 3 | Preserve child-route identity | the `:131` child and literal-true `:182` child retain their own route meanings while remaining nested source relations of the `:81` body |
+| 4 | Extend the existing source physical input | one move-only input reaches `CallableLoopSourcePartsBlockV1`/`lower_loop_v0_core`; all relation checks finish before frame allocation |
+| 5 | Prove package acceptance | the full merged package observes every candidate or typed absence, reaches the selected `starts_with/3` source site, and passes positive/negative/guard checks |
+| 6 | Cut over and retire the selected old edge | production caller switch is observed, caller-zero is proven for the named branch, then only that exclusive old edge is deleted and guarded |
+
 ## Decision — NoSafeSlice
 
 The finite census is complete for the root and nested parser sites. The existing
