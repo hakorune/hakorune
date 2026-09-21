@@ -1,3 +1,8 @@
+use super::issuer::{issue_dynamic_operator_execution_envelope_v1, DynamicOperatorEnvelopeIssueV1};
+use super::model::{
+    DynamicOperatorControlV1, DynamicOperatorEffectV1, DynamicOperatorFaultV1,
+    DynamicOperatorInputAccessV1, DynamicOperatorOrderingV1, DynamicOperatorSuspensionV1,
+};
 use super::*;
 use crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1;
 

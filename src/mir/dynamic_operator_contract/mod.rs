@@ -7,13 +7,8 @@
 mod issuer;
 mod model;
 
-pub(crate) use issuer::{
-    issue_dynamic_operator_execution_envelope_v1, DynamicOperatorEnvelopeIssueV1,
-};
 pub(crate) use model::{
-    DynamicOperatorControlV1, DynamicOperatorDomainV1, DynamicOperatorEffectV1,
-    DynamicOperatorFamilyV1, DynamicOperatorFaultV1, DynamicOperatorInputAccessV1,
-    DynamicOperatorNormalResultV1, DynamicOperatorOrderingV1, DynamicOperatorSuspensionV1,
+    DynamicOperatorDomainV1, DynamicOperatorFamilyV1, DynamicOperatorNormalResultV1,
     DynamicOperatorValueClassV1, VerifiedDynamicOperatorExecutionEnvelopeV1,
 };
 
