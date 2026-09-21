@@ -94,6 +94,7 @@ pub(super) struct ParserBoxPostpassCoverageV1 {
 }
 
 impl ParserBoxPostpassCoverageV1 {
+    #[cfg(test)]
     pub(super) fn program_cohort(&self) -> ParserPostpassProgramCohortV1 {
         self.program_cohort
     }

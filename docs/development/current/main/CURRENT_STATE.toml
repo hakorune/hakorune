@@ -1,11 +1,11 @@
 date = "2026-09-21"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-WARNING-BASELINE-REFRESH-I100"
-current_execution_cohort = "mirbuilder_warning_baseline_refresh_i100"
-current_blocker_token = "MIRBUILDER-WARNING-BASELINE-REFRESH-I100__WarningSurfaces"
+current_execution_row = "MIRBUILDER-WARNING-BASELINE-REFRESH-I102"
+current_execution_cohort = "mirbuilder_warning_baseline_refresh_i102"
+current_blocker_token = "MIRBUILDER-WARNING-BASELINE-REFRESH-I102__WarningSurfaces"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "MIRBUILDER-WARNING-BASELINE-REFRESH-I100__refresh_before_next_cohort"
+current_design_stop = "MIRBUILDER-WARNING-BASELINE-REFRESH-I102__refresh_before_next_cohort"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-warning-baseline-refresh-i100-2026-09-21.md"
-latest_card = "mirbuilder-warning-baseline-refresh-i100"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-warning-baseline-refresh-i100-2026-09-21.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-warning-baseline-refresh-i102-2026-09-21.md"
+latest_card = "mirbuilder-warning-baseline-refresh-i102"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-warning-baseline-refresh-i102-2026-09-21.md"
 latest_card_summary = """
 Map lifecycle consumer spine through C9-2 and the map-argument T-series; T1 alpha/beta/gamma and T2-alpha closed with source-to-OBJ evidence. T2-beta-1 params ArrayLength: Normal=0, prepare-Fault=70, REPORT 100; T2-beta-2 blocks[0].get(kind): Normal=30, prepare-Fault=70, REPORT 100; T2-beta-3 blocks.length: Normal=1, prepare-Fault=70, REPORT 100.
 The bounded T2-beta acceptance inventory is complete. The aggregate main matrix is also closed: one finite source-to-OBJ shape combines functions, params, and blocks; source Facts are 18/18 and the aggregate acceptance is
@@ -52,11 +52,11 @@ Transport row `MIR-CALL-PARSER-LOOPBREAK-SOURCE-TRANSPORT-I0` closed on 2026-09-
 The direct row remains `ParkedSealed__NoSafeSlice`; I1 resolved the composite owner question by selecting a same-owner typed source projection extension, while the exact source-site issuer for target/loan remains outside I2. Main identity and Cataloged raw scope are landed, but package retention and physical publication are still open. The qualified receiver identity carrier I0 landed at `10c3a301f3` with 11/11 focused tests. The Main import-view ownership I0 landed at `a8efc20975`: one lifecycle seal is borrowed by Script/Main, CoreMethod is brand-only, and the owned Main relation transport has direct/alias/foreign-view guards.
  Qualified target-reuse D0 remains valid: resolver rows retain qualified receiver identity, one lifecycle import view is shared, and relation I0 at `02cc09f765` consumes the declaration key once. The qualified source co-seal D0 is accepted, and physical handoff I0 landed at `d6ee865368` with ordered argument sites, one-shot Main take, expected-site descent, and the existing target-only terminal. Canonical-owner D0 is accepted: the existing Binding-SSA Facts/Recipe/physical session is extended with one exact qualified MethodCall row, selected callee `ExactI64` proof, canonical InlineI64 argument descent, and the existing selected-result publication or target-only terminal. I0 is closed with source-backed Main acceptance 1/1, relation guards 4/4, quick library check green, and normal cataloged child admission aligned to `CatalogedBoxMethod`; no fallback repair, VM repair, new result ABI, broad production cutover, or LegacyCallV0 retirement is authorized.
 Parser source-to-MIR acceptance and publication remain open. LoopBreak residual guard and qualified-method adapter deletion are closed. I0 closed the direct source-body inventory guard with 6/6 focused tests; I1 accepted a same-owner composite source extension. Forest-path I0 closed with 28/28 structural-facts and 3/3 composite projection tests; the merged root issues both conditional children. Composite package D0 is `ParkedSealed__NoSafeSlice`: the direct-only LoopBreak Facts/Recipe owner lacks ordered body-role, nested-exit, child-route, and target-to-Recipe relations for the parser root. Reopen requires one same-owner composite product through one Recipe and one physical input.
- Warn I67/C closed; Cframe 1067d0dc23; joins/normalizer/admission/selector/LoopCond/LoopTrue snapshots 1749/1748/1747/1746/1745/1744/1743; ABI/batch/cleanup/result 556/555/554/553; I88 1736/553; I89 1723/553; I90 1715/553; Array 1713/553; catalog 1712/553; I92 1712/553; I93 syntax deleted 1711/552 and old-edge NoSafeSlice; I94 index cleanup 1710/552; I95 raw facade 1709/552; I96 branch-count facade 1708/552; I97 cursor facade 1707/552; I99 active-ordinal facade 1706/552; next baseline refresh.
+ Warn I67/C closed; Cframe 1067d0dc23; joins/normalizer/admission/selector/LoopCond/LoopTrue snapshots 1749/1748/1747/1746/1745/1744/1743; ABI/batch/cleanup/result 556/555/554/553; I88 1736/553; I89 1723/553; I90 1715/553; Array 1713/553; catalog 1712/553; I92 1712/553; I93 syntax deleted 1711/552 and old-edge NoSafeSlice; I94 index cleanup 1710/552; I95 raw facade 1709/552; I96 branch-count facade 1708/552; I97 cursor facade 1707/552; I99 active-ordinal facade 1706/552; I101 program-cohort facade 1705/552; next baseline refresh.
 """
-next_design_card = "MIRBUILDER-WARNING-BASELINE-REFRESH-I100"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-warning-baseline-refresh-i100-2026-09-21.md"
-next_execution_card = "none__design_stop__awaiting_I100_selection"
+next_design_card = "MIRBUILDER-WARNING-BASELINE-REFRESH-I102"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-warning-baseline-refresh-i102-2026-09-21.md"
+next_execution_card = "none__design_stop__awaiting_I102_selection"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
