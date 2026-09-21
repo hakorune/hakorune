@@ -26,9 +26,11 @@ use crate::ast::{
 use crate::parser::ParseError;
 
 pub(crate) use constructor_source::ConstructorSourceKindV1;
+#[cfg(test)]
+pub(in crate::parser) use constructor_source::ConstructorSourceOriginV1;
 pub(in crate::parser) use constructor_source::{
-    ConstructorSourceOriginV1, ConstructorSourceRelationV1, ConstructorSourceSignatureV1,
-    GeneratedBirthTriggerKindV1, GeneratedBirthTriggerSourceV1,
+    ConstructorSourceRelationV1, ConstructorSourceSignatureV1, GeneratedBirthTriggerKindV1,
+    GeneratedBirthTriggerSourceV1,
 };
 pub(in crate::parser) use declaration_syntax::{
     ParserBoxDeclarationKindV1, ParserBoxDeclarationSyntaxV1,
@@ -60,10 +62,12 @@ impl PartialEq for ParserInvocationBrandV1 {
 
 impl Eq for ParserInvocationBrandV1 {}
 
+#[cfg(test)]
+pub(super) use super::source_path::SourceBoxPathSegmentV1;
 pub(super) use super::source_path::{
-    SourceBoxDeclarationPathV1, SourceBoxPathCursorV1, SourceBoxPathSegmentV1,
-    SourceBuildGateBranchV1, SourceBuildGateIdV1, SourceProgramCallablePathV1,
-    SourceProgramDeclarationPathV1, SourceProgramMemberGateStepV1,
+    SourceBoxDeclarationPathV1, SourceBoxPathCursorV1, SourceBuildGateBranchV1,
+    SourceBuildGateIdV1, SourceProgramCallablePathV1, SourceProgramDeclarationPathV1,
+    SourceProgramMemberGateStepV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
