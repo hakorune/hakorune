@@ -1,9 +1,9 @@
 ---
-Status: design_stop__2026-09-21__WarningGenericG0DemandTestFacade__FastTransitionRequired
+Status: fast__2026-09-21__WarningGenericG0DemandTestFacade__ExecuteOneFacadeDeletion
 Task: MIRBUILDER-WARNING-GENERIC-G0-DEMAND-TEST-FACADE-I0
 Date: 2026-09-21
 Parent: mirbuilder-warning-baseline-refresh-i65-2026-09-21.md
-Implementation permission: false; one cfg(test) parent re-export deletion after fast transition
+Implementation permission: true for one cfg(test) parent re-export deletion only
 NextCard: MIRBUILDER-WARNING-BASELINE-REFRESH-I66
 ---
 
