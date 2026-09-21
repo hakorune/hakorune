@@ -571,7 +571,6 @@ mod tests {
     #[test]
     fn root_batch_terminal_consumes_body_owner_without_publishing_shell() {
         let (token, installed) = installed(RawRootSourceRouteV1::Script);
-        let brand = token.brand();
         let recipe = crate::mir::raw_root_body_recipe::RawRootBodyRecipeV1::from_parts(
             crate::mir::raw_root_body_recipe::RawRootBodyEntryContractV1::script(),
             Vec::new().into_boxed_slice(),
@@ -582,7 +581,12 @@ mod tests {
             .into_raw_root_batch_input()
             .prepare_raw_root_batch(token)
             .unwrap();
-        assert_eq!(batch.brand(), brand);
+        assert!(batch
+            .prepare_raw_drain(
+                crate::mir::raw_physical_drain::RawPhysicalDrainRouteV1::Script,
+                crate::mir::raw_physical_drain::RawPhysicalCallableMainDispositionV1::NotSelected,
+            )
+            .is_ok());
     }
 
     #[test]

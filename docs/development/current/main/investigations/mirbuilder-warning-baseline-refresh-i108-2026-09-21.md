@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI108__SelectNextCohort
+Status: closed__2026-09-21__WarningBaselineRefreshI108__SelectedRawPhysicalBrand
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I108
 Date: 2026-09-21
 Parent: mirbuilder-warning-module-token-id-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: one explicitly justified caller-zero deletion or warning row
+NextCard: MIRBUILDER-WARNING-RAW-PHYSICAL-BRAND-I0
 ---
 
 # MirBuilder warning baseline refresh I108
@@ -47,3 +47,19 @@ measured baseline is lib **1,700** and lib-test **551**. The old-edge deletion
 lane remains `NoSafeSlice`: the live compatibility registry entry still has no
 named successor; any future deletion row requires a named successor and
 caller-zero proof.
+
+## Refresh result and selected cohort
+
+The sequential refresh reproduced lib **1,700** warnings and lib-test **551**
+warnings. The selected warning is the unused
+`CompletedRawRootBatchPhysicalV1::brand` accessor in
+`raw_root_physical/root_batch_terminal.rs`.
+
+The production caller census is empty. One raw-root environment test reads the
+accessor; its bounded assertion now exercises the existing
+`prepare_raw_drain` handoff, so the test still verifies the physical route
+without retaining a convenience projection. No source, tool, or tracked-doc
+caller reads the accessor. Invocation brand checks performed during physical
+sealing remain intact.
+
+The next bounded cohort is `MIRBUILDER-WARNING-RAW-PHYSICAL-BRAND-I0`.

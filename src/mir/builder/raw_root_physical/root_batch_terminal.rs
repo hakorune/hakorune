@@ -7,7 +7,7 @@
 use super::{RawRootLedgerStateV1, RawRootPostBodyPhysicalStateV1};
 use crate::mir::builder::module_draft_collector::FunctionDraftKeyV1;
 use crate::mir::builder::module_invocation_identity::{
-    ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
+    ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
 };
 use crate::mir::builder::module_invocation_owner_chain::{BrandedShellV1, InvocationBranded};
 use crate::mir::builder::module_invocation_session::ModuleBuilderInvocationSessionV1;
@@ -338,10 +338,6 @@ impl RawRootBatchPhysicalInputV1 {
 }
 
 impl CompletedRawRootBatchPhysicalV1 {
-    pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
-        self.invocation.brand()
-    }
-
     pub(in crate::mir) fn prepare_raw_drain(
         self,
         route: crate::mir::raw_physical_drain::RawPhysicalDrainRouteV1,
