@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__CompositePackageRecipeMapping
+Status: fast__2026-09-22__CompositePackageRecipeMappingDecisionAccepted
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PACKAGE-I1
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-body-role-i0-2026-09-22.md
-Implementation permission: false; accept the package/Recipe relation before editing the package owner
-NextCard: owner-decision__composite_package_recipe_mapping
+Implementation permission: true for package retention and source-bound Recipe construction only
+NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PHYSICAL-I2
 ---
 
 # Parser composite LoopBreak package and Recipe mapping I1
@@ -81,6 +81,45 @@ one-shot `take_candidate_for_site` terminal, and must name the exact consumer
 that maps the composite Recipe. No implementation is permitted until that
 choice and the role-to-Recipe coverage tuple are accepted.
 
+## Decision — 2026-09-22
+
+Use an explicit tagged candidate at the existing package boundary. Preserve
+the current direct `Candidate(VerifiedCallableLoopBreakSourceFactsV1)` loan and
+add a sibling `CompositeCandidate` loan carrying the I0 projection plus its
+source-bound Recipe. The package issuer remains the sole row classifier; no
+shared envelope or name-based reclassification is added. The Recipe producer
+is an extension of the existing `loop_break_builder` owner, and it consumes
+the role tree exactly once while retaining the exact source AST bodies needed
+by `RecipeBodies`/`StmtRef`.
+
+This decision authorizes only the package-row disposition, one-shot composite
+take/finish, and source-bound Recipe construction/verification. The physical
+adapter, production caller switch, and old-edge deletion remain I2 and later.
+
+## Scheduler handoff — 2026-09-22
+
+The warning cohort is intentionally paused at I147: the unused-import tail is
+17 and the remaining `dead_code` count is owner debt, not a reason to keep the
+semantic lane waiting. No warning suppression, test deletion, or bulk
+`dead_code` cleanup belongs in this I1 slice. The next executable work is the
+package/Recipe mapping below; after it, I2 owns the physical adapter and only
+then may a later row consider caller switch and old-edge deletion.
+
+## Ordered task rows
+
+1. **I1 package/Recipe mapping** — add the tagged `Direct`/`Composite` row to
+   the existing package issuer, retain the composite projection exactly once,
+   build and verify the source-bound Recipe, and prove residual/duplicate/
+   second-take rejection while keeping direct rows green.
+2. **I2 physical handoff** — consume the verified composite Recipe through the
+   existing LoopBreak physical owner; this row must identify the exact source
+   port and selected target relation before any Builder effect.
+3. **I3 production cutover** — switch the selected parser caller, run the
+   source-to-MIR acceptance path, and delete the named old edge only after
+   caller-zero and guard evidence are present.
+
+Rows 2 and 3 are planning entries only until I1 acceptance is recorded.
+
 ## Acceptance and non-claims
 
 I1 is accepted only when the package owner can retain one composite row,
@@ -88,4 +127,3 @@ consume it once for its exact owner/site, verify the complete role-to-Recipe
 mapping, and finish with no residual candidate. Direct package tests must remain
 green. This still does not authorize the physical adapter, production caller
 switch, `GenericLoopV1NotSelected` retirement, or old-edge deletion.
-
