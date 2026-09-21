@@ -60,13 +60,14 @@ Non-claims: no code, fixture, source-to-MIR acceptance, publication, caller
 
 ### Census boundary
 
-`ParserProgramBox.parse/2` loop sites at `parser_program_box.hako:81` and `:182`
-are the finite selected boundary. It includes the body statements, nested
-conditional/exit branches, resolver loop-forest members, carrier updates, and
-the `starts_with/3` target sites that occur before package completion. It excludes
-imported parser callables, unrelated compatibility loops, the already-closed
-direct three-statement LoopBreak row, and the LoopTrue physical row at `:182`
-when its literal-true owner remains selected.
+`ParserProgramBox.parse/2` root loop site at `parser_program_box.hako:81` and
+its nested loop sites at `:131` and `:182` are the finite selected boundary.
+It includes the root body statements, nested conditional/exit branches,
+resolver loop-forest members, carrier updates, and the `starts_with/3` target
+sites that occur before package completion. The `:182` literal-true child keeps
+its LoopTrue route identity when that owner is selected; it is not reclassified
+as a LoopBreak root. The boundary excludes imported parser callables, unrelated
+compatibility loops, and the already-closed direct three-statement LoopBreak row.
 
 ## Current evidence
 
@@ -105,7 +106,7 @@ LoopCond reclassification, or compatibility retry may be introduced.
 
 ## Acceptance for this D0
 
-This design row closes only when the finite two-site census names the existing
+This design row closes only when the finite root/child census names the existing
 Facts/Recipe fields and resolver source relations for every required item, then
 records either the same-owner extension contract or `NoSafeSlice` with owner,
 evidence, and an observable reopen trigger. No Rust, Hako, fixture, guard,
@@ -142,9 +143,20 @@ one physical input before allocation. If any of those relations cannot be
 co-sealed, the row remains `NoSafeSlice`; no second issuer, route reclassification,
 or AST reconstruction is allowed.
 
+The finite relation matrix is therefore:
+
+| source relation | existing evidence | missing for a composite LoopBreak product |
+| --- | --- | --- |
+| root loop `:81` and condition | resolver forest member/condition site; `LoopBreakFacts.loop_condition` | none for identity; the body-role map is still absent |
+| root exits `:85`, `:95` and other nested exit records | forest `exits()` with exact `ResolvedExitRecordV1` | a Recipe role for each exit and its enclosing branch |
+| child loop `:131` | forest member/parentage and source-port child body | a nested `RecipeItem::LoopV0` relation issued by the LoopBreak owner |
+| child loop `:182` | forest member/parentage; literal-true LoopTrue facts when selected | explicit child-route ownership while retaining the root body relation |
+| `starts_with/3` sites under the root | resolver source item bindings and target probe | one target relation covering the selected site without dropping sibling calls |
+| carrier/progress/step assignments | located source statements | ordered Recipe roles and their continuation/exit relation |
+
 ## Decision — NoSafeSlice
 
-The finite census is complete for the two selected parser sites. The existing
+The finite census is complete for the root and nested parser sites. The existing
 `LoopBreakFacts` product carries loop expressions and an optional direct
 three-site `source_topology`; the specialized LoopBreak extractors leave that
 topology absent. `build_loop_break_source_recipe` likewise requires the exact
