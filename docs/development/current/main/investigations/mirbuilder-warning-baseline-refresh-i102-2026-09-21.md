@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI102__SelectNextCohort
+Status: closed__2026-09-21__WarningBaselineRefreshI102__SelectedPostpassFacade
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I102
 Date: 2026-09-21
 Parent: mirbuilder-warning-postpass-program-cohort-test-facade-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: one explicitly justified caller-zero deletion or warning row
+NextCard: MIRBUILDER-WARNING-POSTPASS-TEST-PROJECTION-FACADE-I0
 ---
 
 # MirBuilder warning baseline refresh I102
@@ -47,3 +47,15 @@ lib **1,705** and lib-test **552**. The old-edge deletion lane remains blocked
 because `route_loop_break_recipe` is still the live registry compatibility
 handler; a future deletion row requires a named successor and caller-zero
 proof.
+
+## Refresh result and selected cohort
+
+The sequential refresh completed with lib **1,705** warnings and lib-test
+**552** warnings. The old-edge census remains `NoSafeSlice`: the live
+compatibility registry entry still has no named successor. The next warning
+groups three postpass observation accessors—`metadata()`, `explain()`, and
+`initial_callable_source()`—whose callers are all test modules. Production
+consumers use the consuming projections and remain unchanged.
+
+The next bounded cohort is
+`MIRBUILDER-WARNING-POSTPASS-TEST-PROJECTION-FACADE-I0`.

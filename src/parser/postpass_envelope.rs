@@ -352,10 +352,12 @@ impl CompletedParserPostpassV1 {
         (ast, metadata)
     }
 
+    #[cfg(test)]
     pub(super) fn metadata(&self) -> &ParserMetadata {
         &self.metadata
     }
 
+    #[cfg(test)]
     pub(super) fn explain(&self) -> Option<&BuildGateExplainReport> {
         self.explain.as_ref()
     }
@@ -416,6 +418,7 @@ impl CompletedParserPostpassV1 {
         )
     }
 
+    #[cfg(test)]
     pub(super) fn initial_callable_source(
         &self,
     ) -> Option<&super::initial_callable_program_source::VerifiedInitialCallableProgramSourceV1>
