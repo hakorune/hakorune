@@ -7,7 +7,9 @@ use crate::mir::loop_recipe_contract::{
     LoopBindingKeyV1, LoopValueKeyV1, VerifiedLoopPhysicalInputV1,
 };
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
-use crate::mir::{BasicBlockId, BindingId};
+use crate::mir::BasicBlockId;
+#[cfg(test)]
+use crate::mir::BindingId;
 use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
