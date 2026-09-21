@@ -124,18 +124,6 @@ impl MergedSourceLineageV1 {
         })
     }
 
-    pub(crate) fn root(&self) -> &str {
-        &self.root
-    }
-
-    pub(crate) fn segments(&self) -> &[MergedSourceSegmentV1] {
-        &self.segments
-    }
-
-    pub(crate) fn edges(&self) -> &[ImportLineageEdgeV1] {
-        &self.edges
-    }
-
     pub(crate) fn locate_global_line(
         &self,
         line: usize,
@@ -182,8 +170,8 @@ mod tests {
             }],
         )
         .expect("exact coverage");
-        assert_eq!(lineage.segments().len(), 2);
-        assert_eq!(lineage.edges()[0].source_line, 1);
+        assert_eq!(lineage.segments.len(), 2);
+        assert_eq!(lineage.edges[0].source_line, 1);
     }
 
     #[test]
@@ -257,7 +245,7 @@ mod tests {
             ],
         )
         .expect("diamond imports may share one resolved segment");
-        assert_eq!(lineage.edges().len(), 4);
+        assert_eq!(lineage.edges.len(), 4);
     }
 
     #[test]

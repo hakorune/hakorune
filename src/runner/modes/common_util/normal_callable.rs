@@ -194,7 +194,7 @@ mod tests {
             source_lineage
                 .merged_source_lineage()
                 .unwrap()
-                .segments()
+                .segments
                 .len(),
             1
         );

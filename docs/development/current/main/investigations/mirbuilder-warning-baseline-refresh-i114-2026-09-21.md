@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI114__AwaitingNextCohort
+Status: closed__2026-09-21__WarningBaselineRefreshI114__SelectedLineageAccessors
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I114
 Date: 2026-09-21
 Parent: mirbuilder-warning-slot-rows-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: awaiting one named warning cohort after the I114 refresh
+NextCard: MIRBUILDER-WARNING-LINEAGE-ACCESSORS-I0
 ---
 
 # MirBuilder warning baseline refresh I114
@@ -35,9 +35,18 @@ warnings** and the test build produced **551 lib-test warnings**; formatting,
 diff, and pointer guards pass.
 
 The old-edge lane remains `NoSafeSlice`: no named successor or caller-zero
-proof authorizes legacy-edge deletion in this refresh. The next worker must
-perform a fresh finite warning census and select one bounded row before any
-implementation change.
+proof authorizes legacy-edge deletion in this refresh. The I114 refresh
+reproduced **1,696 lib warnings** and selected one bounded warning cohort.
+
+The selected warning is the unused `MergedSourceLineageV1::root`,
+`segments`, and `edges` accessor group in
+`src/runner/modes/common_util/resolve/strip/import_lineage.rs:127-135`.
+There are no production method callers; the finite callers are the lineage
+unit tests and four integration-style Rust tests, all of which can inspect
+the existing `pub(crate)` fields without changing the lineage data.
+
+The old-edge lane remains `NoSafeSlice`; this selection does not authorize a
+legacy route or compatibility deletion.
 
 ## Acceptance
 

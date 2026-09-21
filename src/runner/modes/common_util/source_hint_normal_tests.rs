@@ -49,9 +49,9 @@ fn normal_preparation_preserves_local_with_and_without_prelude() {
                         prepared.imports.get("NestedAlias").map(String::as_str),
                         Some("Nested")
                     );
-                    assert_eq!(prepared.lineage.segments().len(), 3);
-                    assert_eq!(prepared.lineage.edges().len(), 2);
-                    assert_eq!(prepared.lineage.segments()[0].dfs_ordinal, 0);
+                    assert_eq!(prepared.lineage.segments.len(), 3);
+                    assert_eq!(prepared.lineage.edges.len(), 2);
+                    assert_eq!(prepared.lineage.segments[0].dfs_ordinal, 0);
                     let root = filename.to_string_lossy().to_string();
                     let prelude = std::fs::canonicalize(&prelude)
                         .unwrap()
@@ -61,7 +61,7 @@ fn normal_preparation_preserves_local_with_and_without_prelude() {
                         .unwrap()
                         .to_string_lossy()
                         .to_string();
-                    let segments = prepared.lineage.segments();
+                    let segments = &prepared.lineage.segments;
                     let nested_segment = segments
                         .iter()
                         .find(|segment| segment.canonical_path.as_ref() == nested)
@@ -82,8 +82,8 @@ fn normal_preparation_preserves_local_with_and_without_prelude() {
                     assert_eq!(root_segment.local_line_count, 4);
                 } else {
                     assert_eq!(prepared.code, source);
-                    assert_eq!(prepared.lineage.segments().len(), 1);
-                    assert!(prepared.lineage.edges().is_empty());
+                    assert_eq!(prepared.lineage.segments.len(), 1);
+                    assert!(prepared.lineage.edges.is_empty());
                 }
                 assert!(!prepared.code.contains("static box StringifyOperator"));
                 assert!(!prepared.code.contains("static box CompareOperator"));

@@ -40,8 +40,8 @@ fn merged_parser_program_source_stops_at_named_loop_boundary_before_static_targe
         assert!(prepared.code.contains("static box ParserProgramBox"));
         assert!(prepared.code.contains("static box ParserStringUtilsBox"));
         assert!(prepared.code.contains("ParserStringUtilsBox.starts_with"));
-        assert!(prepared.lineage.segments().len() > 1);
-        assert!(prepared.lineage.edges().len() >= 3);
+        assert!(prepared.lineage.segments.len() > 1);
+        assert!(prepared.lineage.edges.len() >= 3);
 
         let crate::runner::modes::common_util::source_hint::PreparedSourceWithImports {
             code: prepared_code,
