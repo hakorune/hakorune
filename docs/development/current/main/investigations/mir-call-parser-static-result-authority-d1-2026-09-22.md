@@ -106,6 +106,34 @@ existing owner is explicitly extended or one new owner co-seals canonical
 caller/site/target identity, callee body result, representation/effect/ABI,
 and a physical consumer (or a typed pre-effect terminal).
 
+## Candidate boundary for a future implementation slice
+
+The only reuseable route identified so far is an extension at the existing
+callable-result catalog/publication boundary, with no second source matcher:
+
+```text
+declaration/body proof + branded source-target catalog
+  -> existing result catalog retains every static call site as
+     Selected(call-result row)
+     or TargetOnly(unavailable reason + exact target)
+  -> publication owner consumes Selected through the current handoff
+     and consumes TargetOnly as a typed pre-effect terminal
+```
+
+This is a design candidate, not implementation permission. It would preserve
+the six observed reasons and exact caller/site/target/package brand, while
+forbidding physical call emission for `TargetOnly`. It cannot make a caller
+accepted by filtering or by treating the terminal as a successful result; I3
+opens only after the selected parser caller has complete result coverage or a
+separate result-family card names a complete physical consumer.
+
+The future slice must prove that the existing result solver can retain a row
+for every observed target-only site, including sites after an unsupported
+prefix, and must reject foreign, duplicate, missing, recursive, residual, and
+second-consumption cases. Until that proof is designed and its consumer is
+named, D1 remains a design stop and no `Verified*`/`Prepared*` product is
+issued.
+
 ## Bounded design work
 
 1. Keep the six disposition classes separate and retain exact caller/site/target
