@@ -1,18 +1,18 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI84__SelectNextBoundedCohort
-Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I84
+Status: design_stop__2026-09-21__WarningBaselineRefreshI85__SelectNextBoundedCohort
+Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I85
 Date: 2026-09-21
-Parent: mirbuilder-warning-callable-semantic-batch-reexport-delete-i0-2026-09-21.md
+Parent: mirbuilder-warning-compiled-entry-cleanup-reexport-delete-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded warning cohort only
 NextCard: select one caller-zero facade or record NoSafeSlice
 ---
 
-# MirBuilder warning baseline refresh I84
+# MirBuilder warning baseline refresh I85
 
 ## Six-line brief
 
 ```text
-Decision: refresh warning surfaces after the callable semantic batch edge
+Decision: refresh warning surfaces after the compiled-entry cleanup edge
   deletion and select one finite caller-zero cohort only if compile-proven.
 Source authority + canonical issuer: quick-profile Cargo diagnostics and the
   checked-in warning classification policy.
@@ -20,7 +20,7 @@ Non-authority: warning-count guesses, cargo-fix, blanket allow, or an
   unclassified focused red.
 Fail-fast boundary: a new warning, non-test caller, command drift, or red
   stops selection and records NoSafeSlice.
-Smallest next slice: compare lib/lib-test against 1,741/555, census one
+Smallest next slice: compare lib/lib-test against 1,741/554, census one
   candidate, and select Delete or NoSafeSlice.
 Non-claims: no semantic refactor, suppression, production switch, or broad
   warning cleanup.
@@ -42,23 +42,8 @@ record `NoSafeSlice`. Keep dead-code and private-interface rows with their
 owners. A selected edge must prove caller-zero before physical removal, then
 run its focused gate and the stable warning refresh at its parent/current pair.
 
-## I84 evidence
+## I85 evidence
 
-The callable semantic batch slice removed two unused test-only parent exports.
-Lib remains **1,741**, lib-test is **555**, and the callable batch focused
-suite passed **13/13**.
-
-## Refresh result and selected bounded edge
-
-The sequential refresh completed with lib **1,741** warnings and lib-test
-**555**, with no new red. The remaining unused-import census identifies the
-`#[cfg(test)]` parent re-export of `CompiledEntryCleanupKindV1` in
-`published_backend_view.rs`. Its tests are nested under
-`compiled_entry_contract` and use the enum defined there, so the parent re-export
-is caller-zero. I85 will remove only that edge.
-
-## Closeout result
-
-The compiled-entry cleanup re-export deletion passed lib check, test build, and
-its named **3/3** focused suite. Lib stayed at **1,741** and lib-test decreased
-from **555** to **554**.
+The compiled-entry cleanup slice removed one unused test-only parent export. Lib
+remains **1,741**, lib-test is **554**, and the compiled-entry focused suite
+passed **3/3**.

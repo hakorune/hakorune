@@ -42,8 +42,6 @@ pub(crate) use compiled_entry_contract::{
 };
 #[cfg(test)]
 pub(crate) use c_transport::PublishedCallKindV1;
-#[cfg(test)]
-pub(crate) use compiled_entry_contract::CompiledEntryCleanupKindV1;
 pub(crate) use physical_abi::{PublishedLifecyclePhysicalAbiInputV1, PublishedLifecycleRuntimeRequirementsV1};
 pub(crate) use physical_program::PublishedLifecyclePhysicalFunctionRoleV1;
 pub(crate) use physical_program::ordinary_callable_key;
