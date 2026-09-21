@@ -6,7 +6,9 @@
 
 use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::builder::{MirBuilder, ValueId};
-use crate::mir::definitions::call_unified::{Callee, CalleeBoxKind, TypeCertainty};
+use crate::mir::definitions::call_unified::Callee;
+#[cfg(test)]
+use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 
 use super::super::annotation::callee_sig_name;
 
