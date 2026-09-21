@@ -23,10 +23,12 @@ use crate::parser::{
 
 #[path = "normal_instance_constructor_demand_manifest.rs"]
 mod demand_manifest;
+#[cfg(test)]
+pub(super) use demand_manifest::InstanceConstructorDemandManifestIssueV1;
 pub(super) use demand_manifest::{
     InstanceConstructorDemandExpectationV1, InstanceConstructorDemandManifestBuilderV1,
-    InstanceConstructorDemandManifestIssueV1, InstanceConstructorDemandRoleV1,
-    InstanceConstructorDemandTicketV1, VerifiedInstanceConstructorPhysicalDemandManifestV1,
+    InstanceConstructorDemandRoleV1, InstanceConstructorDemandTicketV1,
+    VerifiedInstanceConstructorPhysicalDemandManifestV1,
 };
 
 #[derive(Debug)]
