@@ -46,7 +46,6 @@ pub(crate) struct BuildGateDecisionRowV1 {
 /// projection may consume it; no resolver, Recipe, or physical layer sees it.
 #[derive(Debug)]
 pub(crate) struct PreparedBuildGateDecisionSetV1 {
-    brand: ParserInvocationBrandV1,
     rows: Box<[BuildGateDecisionRowV1]>,
 }
 
@@ -119,13 +118,8 @@ impl PreparedBuildGateDecisionSetV1 {
             ));
         }
         Ok(Self {
-            brand,
             rows: rows.into_boxed_slice(),
         })
-    }
-
-    pub(super) fn brand(&self) -> &ParserInvocationBrandV1 {
-        &self.brand
     }
 
     pub(super) fn rows(&self) -> &[BuildGateDecisionRowV1] {

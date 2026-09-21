@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI110__AwaitingNextCohort
+Status: closed__2026-09-21__WarningBaselineRefreshI110__SelectedBuildGateBrand
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I110
 Date: 2026-09-21
 Parent: mirbuilder-warning-raw-physical-brand-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: awaiting one named warning cohort after the I110 refresh
+NextCard: MIRBUILDER-WARNING-BUILD-GATE-BRAND-I0
 ---
 
 # MirBuilder warning baseline refresh I110
@@ -34,9 +34,18 @@ The preceding raw-physical row deleted
 produced **551 lib-test warnings**; formatting, diff, and pointer guards pass.
 
 The old-edge lane remains `NoSafeSlice`: no named successor or caller-zero
-proof authorizes legacy-edge deletion in this refresh. The next worker must
-perform a fresh finite warning census and select one bounded row before any
-implementation change.
+proof authorizes legacy-edge deletion in this refresh. The I110 refresh
+reproduced **1,699 lib warnings** and selected one bounded warning cohort.
+
+The selected warning is the redundant outer `brand` field and accessor on
+`PreparedBuildGateDecisionSetV1` (`src/parser/build_cfg/decision_set.rs:49,127`).
+Neither has a production caller; each issued `BuildGateDecisionRowV1` already
+carries and validates the parser brand. One parser unit test reads the
+accessor only as a convenience assertion. The next row removes that redundant
+projection and makes the test assert the row-level brand used by the consumer.
+
+The old-edge lane remains `NoSafeSlice`; this selection does not authorize a
+legacy route or compatibility deletion.
 
 ## Acceptance
 

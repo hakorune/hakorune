@@ -98,5 +98,5 @@ fn i0_c_product_is_non_clone_and_keeps_parser_brand() {
     let decisions: PreparedBuildGateDecisionSetV1 = parser
         .issue_build_gate_decision_set(&ast)
         .expect("decision set must seal");
-    assert_eq!(decisions.brand(), &expected);
+    assert_eq!(decisions.rows()[0].brand, expected);
 }
