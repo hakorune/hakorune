@@ -10,6 +10,7 @@ use parking_lot::{
 };
 use std::any::Any;
 use std::fmt::Display;
+#[cfg(test)]
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 
@@ -40,10 +41,12 @@ pub use surface_catalog::{
 };
 use text_cell::ArrayTextCell;
 
+#[cfg(test)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub(crate) struct ArrayStateIdentity(u64);
 
 struct ArrayStateCell {
+    #[cfg(test)]
     identity: ArrayStateIdentity,
     state: RwLock<ArrayStatePayload>,
 }
@@ -62,8 +65,10 @@ impl ArrayStateCell {
         storage: ArrayStorage,
         element_contract: Option<crate::typed_array_contract_spec::ArrayElementContractSpec>,
     ) -> Self {
+        #[cfg(test)]
         static NEXT_ID: AtomicU64 = AtomicU64::new(1);
         Self {
+            #[cfg(test)]
             identity: ArrayStateIdentity(NEXT_ID.fetch_add(1, Ordering::Relaxed)),
             state: RwLock::new(ArrayStatePayload {
                 storage,
@@ -101,6 +106,7 @@ pub struct ArrayBox {
 }
 
 impl ArrayBox {
+    #[cfg(test)]
     pub(crate) fn state_identity(&self) -> ArrayStateIdentity {
         self.items.identity
     }

@@ -1,5 +1,5 @@
 ---
-Status: fast__2026-09-21__SelectedBoundedWarningCohort__ExecuteTestScope
+Status: closed__2026-09-21__WarningArrayStateIdentityTestFacade
 Task: MIRBUILDER-WARNING-ARRAY-STATE-IDENTITY-TEST-FACADE-I0
 Date: 2026-09-21
 Parent: mirbuilder-warning-baseline-refresh-i90-2026-09-21.md
@@ -60,3 +60,26 @@ refresh must reduce lib warnings from **1,715** to **1,713**, keep lib-test at
 assertions. Run `cargo fmt --all -- --check`, `git diff --check`, and the
 current-state pointer guard before closeout. Do not add `#[allow]`, delete a
 test, or change production array behavior.
+
+## Execution evidence
+
+The identity observation surface is now test-only: `ArrayStateIdentity`, the
+`ArrayStateCell::identity` field and initializer, and
+`ArrayBox::state_identity()` are all gated with `cfg(test)`. Production array
+storage, sharing, cloning, and element-contract behavior are unchanged.
+
+Sequential acceptance passed:
+
+* `cargo check --profile quick --lib -j4`: **1,713** lib warnings, exactly
+  two fewer than I90; the retained production `branch_count` warning and the
+  mixed-cfg `loop_phi_materializer` index warning remain classified.
+* `cargo test --profile quick --lib --no-run -j4`: **553** lib-test warnings.
+* `cargo test --profile quick --lib boxes::array::tests::state_identity
+  -- --nocapture`: **1/1**.
+* `cargo test --profile quick --lib boxes::array::runtime_contract
+  -- --nocapture`: **4/4**.
+* `cargo fmt --all -- --check`, `git diff --check`, and the current-state
+  pointer guard all passed.
+
+No suppression, test deletion, runtime semantic change, or production caller
+was introduced. The next action is I91 warning baseline refresh.
