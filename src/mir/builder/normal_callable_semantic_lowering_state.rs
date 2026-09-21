@@ -687,6 +687,9 @@ impl CallableSemanticLoweringState {
         self.dynamic_origins
             .finish()
             .map_err(|error| error.to_string())?;
+        if let Some(loop_break_source) = self.loop_break_source.as_ref() {
+            loop_break_source.finish_empty()?;
+        }
         let loop_break_transport_kind = self
             .loop_break_source
             .as_ref()

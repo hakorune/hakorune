@@ -114,8 +114,85 @@ static box Main {
 }
 
 #[test]
+fn loop_break_source_candidate_rejects_finish_with_a_residual_row() {
+    let mut package = issue(
+        r#"
+static box Main {
+    main() {
+        local i = 0
+        local sum = 0
+        loop(i < 3) {
+            if i == 3 { break }
+            sum = sum + 1
+            i = i + 1
+        }
+        return sum
+    }
+}
+"#,
+    )
+    .expect("direct LoopBreak semantic package");
+    let owner = package
+        .loop_break_source
+        .candidate_owner()
+        .expect("candidate owner");
+    let loan = package
+        .loop_break_source
+        .take_for_owner(owner)
+        .expect("owner receives the candidate row");
+    let error = loan
+        .finish_empty()
+        .expect_err("an unconsumed candidate must not disappear at finish");
+    assert!(error.contains("residual-candidates"));
+}
+
+#[test]
+fn loop_break_source_candidate_finishes_after_exact_site_take() {
+    let mut package = issue(
+        r#"
+static box Main {
+    main() {
+        local i = 0
+        local sum = 0
+        loop(i < 3) {
+            if i == 3 { break }
+            sum = sum + 1
+            i = i + 1
+        }
+        return sum
+    }
+}
+"#,
+    )
+    .expect("direct LoopBreak semantic package");
+    let owner = package
+        .loop_break_source
+        .candidate_owner()
+        .expect("candidate owner");
+    let mut loan = package
+        .loop_break_source
+        .take_for_owner(owner)
+        .expect("owner receives the candidate row");
+    let site = match &loan {
+        LoopBreakSourcePackageLoanV1::Candidate(facts) => facts
+            .candidates()
+            .first()
+            .expect("candidate")
+            .projection()
+            .loop_site()
+            .clone(),
+        LoopBreakSourcePackageLoanV1::SupportedNonCandidate { .. } => {
+            panic!("fixture must issue a candidate")
+        }
+    };
+    assert!(loan.take_candidate_for_site(&site).is_some());
+    loan.finish_empty()
+        .expect("an exact candidate take leaves an empty loan");
+}
+
+#[test]
 fn loop_break_source_package_retains_typed_absence_for_unsupported_shape() {
-    let package = issue(
+    let mut package = issue(
         r#"
 static box Main {
     main() {
@@ -132,6 +209,16 @@ static box Main {
 
     assert_eq!(package.loop_break_source_row_count(), 1);
     assert_eq!(package.loop_break_source_candidate_count(), 0);
+    let owner = package
+        .loop_break_source
+        .first_owner()
+        .expect("typed absence owner");
+    let loan = package
+        .loop_break_source
+        .take_for_owner(owner)
+        .expect("owner receives typed absence");
+    loan.finish_empty()
+        .expect("typed absence must finish without a residual candidate");
 }
 
 #[test]

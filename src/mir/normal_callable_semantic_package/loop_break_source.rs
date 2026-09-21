@@ -88,6 +88,17 @@ impl LoopBreakSourcePackageLoanV1 {
             Self::SupportedNonCandidate { .. } => None,
         }
     }
+
+    pub(in crate::mir) fn finish_empty(&self) -> Result<(), String> {
+        match self {
+            Self::Candidate(facts) if !facts.candidates().is_empty() => Err(format!(
+                "[freeze:contract][callable-loop-break/source-package/residual-candidates] owner={:?} count={}",
+                facts.owner(),
+                facts.candidates().len(),
+            )),
+            Self::Candidate(_) | Self::SupportedNonCandidate { .. } => Ok(()),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -153,6 +164,11 @@ impl VerifiedLoopBreakSourcePackageV1 {
         self.rows.iter().find_map(|row| {
             matches!(row.row, OwnedLoopBreakSourcePackageRowV1::Candidate(_)).then_some(row.owner)
         })
+    }
+
+    #[cfg(test)]
+    pub(super) fn first_owner(&self) -> Option<FunctionOwnerIdV1> {
+        self.rows.first().map(|row| row.owner)
     }
 }
 
