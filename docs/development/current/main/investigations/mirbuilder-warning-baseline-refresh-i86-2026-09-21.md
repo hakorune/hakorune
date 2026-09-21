@@ -46,3 +46,18 @@ run its focused gate and the stable warning refresh at its parent/current pair.
 
 The completed-result-context slice removed one unused test-only glob. Lib remains
 **1,741**, lib-test is **553**, and the exact focused tests passed **2/2**.
+
+## Refresh result and selected bounded edge
+
+The sequential refresh completed with lib **1,741** warnings and lib-test
+**553**, with no new red and no unused-import warnings. The next finite
+production edge is `program_v0_snapshot_witness` in
+`analysis/bounded_body_snapshot_v0`: its public parent re-export and all callers
+are `#[cfg(test)]`, while the module itself is compiled in the production lib.
+I87 will scope only that module declaration to `cfg(test)`.
+
+## Closeout result
+
+The snapshot witness test-scope slice passed lib check, test build, and the
+focused **38/38** suite. Lib warnings decreased from **1,741** to **1,737**;
+lib-test remained **553**.

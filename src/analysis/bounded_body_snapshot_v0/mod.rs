@@ -5,6 +5,7 @@ mod decoded_utf8_byte_len_v0;
 mod outcome;
 mod path;
 mod program_v0_body_view;
+#[cfg(test)]
 mod program_v0_snapshot_witness;
 mod schema;
 mod snapshot;
