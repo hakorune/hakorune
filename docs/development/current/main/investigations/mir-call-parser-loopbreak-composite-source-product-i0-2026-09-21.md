@@ -1,11 +1,11 @@
 ---
-Status: fast__2026-09-21__ParserLoopBreakCompositeSourceProduct
+Status: closed__2026-09-21__DirectSourceBodyInventoryGuard
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PRODUCT-I0
 Current execution row: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PRODUCT-I0
 Date: 2026-09-21
 Parent: mir-call-parser-source-to-mir-package-acceptance-window-d0-2026-09-20.md
 Implementation permission: true for one source-body role inventory and its existing-owner guard; no Recipe/physical/cutover change
-NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-RECIPE-I0
+NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PRODUCT-I1
 ---
 
 # Parser composite LoopBreak source product I0
@@ -14,7 +14,8 @@ NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-RECIPE-I0
 
 ```text
 Decision: extend the existing LoopBreak source projector with one exact,
-  resolver-branded body-role inventory for the finite parser composite root.
+  resolver-branded body-role inventory for the selected direct source owner;
+  keep the parser composite root as the next bounded source-product row.
 Source authority + canonical issuer: the same invocation's
   ResolvedFunctionLoweringInputV1 source view, resolver forest/exit ledger,
   and CallableGenericLoopSourceFactsIssuerV1.
@@ -24,8 +25,9 @@ Fail-fast boundary: foreign owner, missing/duplicate/out-of-root source site,
   unsupported body child, missing exit record, or transfer mismatch rejects
   before any Builder effect.
 Smallest next slice: issue and validate the ordered source body-role inventory
-  for parser root `:81`, including nested `:131`/`:182` bodies and exact exit
-  sites, while keeping the existing direct three-statement candidate behavior.
+  on the existing direct projection, while preserving its three-statement
+  candidate behavior. The parser root `:81` with nested `:131`/`:182` remains
+  an explicit follow-up because its composite consumer is not yet selected.
 Non-claims: no composite Recipe, physical lowering, package success, production
   switch, old-edge deletion, backend parity, or warning cleanup.
 ```
@@ -39,20 +41,32 @@ paired `ResolvedExitRecordV1` rows. It contains no Recipe key, selector cursor,
 MIR identity, or route choice. The existing forest projection remains the
 parentage authority; the planner remains the child route authority.
 
-The direct three-statement shape must continue to issue the existing candidate
-unchanged. Composite bodies receive the inventory as a source-contract product
-for the next Recipe slice; they must not be silently downgraded to an empty
+The direct three-statement shape continues to issue the existing candidate
+unchanged and now retains the inventory. Composite bodies still do not issue a
+candidate in this row; they must not be silently downgraded to an empty
 candidate or routed through LoopCond.
+
+## I0 closeout evidence
+
+`cargo test --profile quick --lib loop_break_source_projection -- --nocapture`
+completed with 6/6 tests passing on 2026-09-21. The direct positive fixture
+checks owner/root identity, four ordered body statements, and no nested-loop
+rows. Existing foreign-owner, scope-box, explicit-else, forest, and duplicate
+site guards remain green. The quick build emitted the repository's existing
+warning baseline; this row made no warning policy claim.
 
 ## Focused acceptance
 
 | case | required result |
 | --- | --- |
-| parser root `:81` with children `:131` and `:182` | ordered inventory preserves exact parentage and source sites |
-| root breaks `:85`/`:95`, child continue/break, and returns | each transfer is paired with its resolver exit record |
+| direct LoopBreak root | ordered inventory preserves owner/root and exact body sites |
 | foreign or duplicated site | named reject before Builder effects |
-| unsupported child body or missing transfer | typed reject; no fallback or route reclassification |
+| unsupported child body | typed reject; no fallback or route reclassification |
 | existing direct three-statement fixture | prior source projection and physical matrix remain unchanged |
+
+The parser composite root `:81`/`:131`/`:182`, its full exit ledger, and its
+Recipe consumer are intentionally carried to `I1`; this I0 does not claim
+package acceptance or composite production reachability.
 
 Closeout requires focused positive/negative/guard evidence, the module README
 or source-contract note when the public boundary changes, and a clean pointer.

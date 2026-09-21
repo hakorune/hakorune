@@ -3,6 +3,8 @@
 //! This observer keeps only resolver-issued source sites and the paired exit
 //! record.  It does not issue a Recipe, select a route, or touch Builder state.
 
+use std::collections::BTreeSet;
+
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     FunctionOriginV1, FunctionOwnerIdV1, ResolvedControlTransferV1, ResolvedExitOriginV1,
@@ -11,7 +13,7 @@ use crate::mir::resolved_semantics::{
 };
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
-use super::located::LocatedStmtV1;
+use super::located::{LocatedBodyV1, LocatedStmtV1};
 use super::loop_cond_break_continue_projection::{
     issue_loop_cond_break_continue_source_forest_projection_v1,
     LoopCondBreakContinueForestProjectionRejectV1,
@@ -27,6 +29,7 @@ pub(crate) enum LoopBreakSourceProjectionRejectV1 {
     SourceLookup,
     SourceNavigation,
     ScopeBox,
+    BodyInventory(LoopBreakSourceBodyInventoryRejectV1),
     BodyArity,
     BreakIfShape,
     BreakIfBodyArity,
@@ -35,6 +38,45 @@ pub(crate) enum LoopBreakSourceProjectionRejectV1 {
     StepShape,
     ExitResolution,
     ExitTargetMismatch,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum LoopBreakSourceBodyInventoryRejectV1 {
+    ForeignOwner,
+    SourceNavigation,
+    UnsupportedBodyChild,
+    DuplicateSite,
+}
+
+/// Ordered source statement roles owned by one LoopBreak root.
+///
+/// This is deliberately a source-only product. It records exact sites and
+/// nested-loop membership for the next Recipe slice, without minting any
+/// Recipe or physical identifiers.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedLoopBreakSourceBodyInventoryV1 {
+    owner: FunctionOwnerIdV1,
+    root: SourceStmtSiteV1,
+    statements: Box<[SourceStmtSiteV1]>,
+    nested_loops: Box<[SourceStmtSiteV1]>,
+}
+
+impl VerifiedLoopBreakSourceBodyInventoryV1 {
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(crate) fn root(&self) -> &SourceStmtSiteV1 {
+        &self.root
+    }
+
+    pub(crate) fn statements(&self) -> &[SourceStmtSiteV1] {
+        &self.statements
+    }
+
+    pub(crate) fn nested_loops(&self) -> &[SourceStmtSiteV1] {
+        &self.nested_loops
+    }
 }
 
 /// Source-only proof for the direct three-statement LoopBreak profile.
@@ -54,6 +96,7 @@ pub(crate) struct VerifiedLoopBreakSourceProjectionV1 {
     break_exit_site: SourceStmtSiteV1,
     break_exit: ResolvedExitRecordV1,
     forest: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
+    body_inventory: VerifiedLoopBreakSourceBodyInventoryV1,
     carrier_update_site: SourceStmtSiteV1,
     step_site: SourceStmtSiteV1,
     root_frame_key: crate::mir::resolved_semantics::LoopExecutionFrameKeyV1,
@@ -98,6 +141,10 @@ impl VerifiedLoopBreakSourceProjectionV1 {
 
     pub(crate) fn forest(&self) -> &VerifiedLoopCondBreakContinueSourceForestProjectionV1 {
         &self.forest
+    }
+
+    pub(crate) fn body_inventory(&self) -> &VerifiedLoopBreakSourceBodyInventoryV1 {
+        &self.body_inventory
     }
 
     pub(crate) fn carrier_update_site(&self) -> &SourceStmtSiteV1 {
@@ -158,6 +205,8 @@ pub(crate) fn issue_loop_break_source_projection_v1(
     {
         return Err(LoopBreakSourceProjectionRejectV1::ScopeBox);
     }
+    let body_inventory = issue_loop_break_source_body_inventory_v1(input, loop_stmt, &loop_body)
+        .map_err(LoopBreakSourceProjectionRejectV1::BodyInventory)?;
     if loop_body.statements().len() != 3 {
         return Err(LoopBreakSourceProjectionRejectV1::BodyArity);
     }
@@ -252,10 +301,132 @@ pub(crate) fn issue_loop_break_source_projection_v1(
         break_exit_site: break_exit.site().clone(),
         break_exit: *exit_record,
         forest,
+        body_inventory,
         carrier_update_site: carrier_update.site().clone(),
         step_site: step.site().clone(),
         root_frame_key: resolved_source.frame_key(),
     })
+}
+
+fn issue_loop_break_source_body_inventory_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    root: &LocatedStmtV1<'_>,
+    body: &LocatedBodyV1<'_>,
+) -> Result<VerifiedLoopBreakSourceBodyInventoryV1, LoopBreakSourceBodyInventoryRejectV1> {
+    if input.owner() != root.owner() || input.owner() != body.site().owner() {
+        return Err(LoopBreakSourceBodyInventoryRejectV1::ForeignOwner);
+    }
+    let mut statements = Vec::new();
+    let mut nested_loops = Vec::new();
+    let mut seen = BTreeSet::new();
+    collect_loop_break_body_roles(
+        input,
+        root.site(),
+        body,
+        &mut statements,
+        &mut nested_loops,
+        &mut seen,
+    )?;
+    Ok(VerifiedLoopBreakSourceBodyInventoryV1 {
+        owner: input.owner(),
+        root: root.site().clone(),
+        statements: statements.into_boxed_slice(),
+        nested_loops: nested_loops.into_boxed_slice(),
+    })
+}
+
+fn collect_loop_break_body_roles(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    root: &SourceStmtSiteV1,
+    body: &LocatedBodyV1<'_>,
+    statements: &mut Vec<SourceStmtSiteV1>,
+    nested_loops: &mut Vec<SourceStmtSiteV1>,
+    seen: &mut BTreeSet<SourceStmtSiteV1>,
+) -> Result<(), LoopBreakSourceBodyInventoryRejectV1> {
+    for index in 0..body.statements().len() {
+        let statement = input
+            .source()
+            .body_stmt(body, index)
+            .map_err(|_| LoopBreakSourceBodyInventoryRejectV1::SourceNavigation)?;
+        if statement.owner() != input.owner()
+            || !statement
+                .site()
+                .node()
+                .segments()
+                .starts_with(root.node().segments())
+        {
+            return Err(LoopBreakSourceBodyInventoryRejectV1::ForeignOwner);
+        }
+        if !seen.insert(statement.site().clone()) {
+            return Err(LoopBreakSourceBodyInventoryRejectV1::DuplicateSite);
+        }
+        statements.push(statement.site().clone());
+        match statement.node() {
+            ASTNode::If { else_body, .. } => {
+                let then_body = input
+                    .source()
+                    .child_body_from_stmt(
+                        &statement,
+                        crate::mir::resolved_semantics::BodyChildRoleV1::IfThen,
+                    )
+                    .map_err(|_| LoopBreakSourceBodyInventoryRejectV1::SourceNavigation)?;
+                collect_loop_break_body_roles(
+                    input,
+                    root,
+                    &then_body,
+                    statements,
+                    nested_loops,
+                    seen,
+                )?;
+                if else_body.is_some() {
+                    let else_body = input
+                        .source()
+                        .child_body_from_stmt(
+                            &statement,
+                            crate::mir::resolved_semantics::BodyChildRoleV1::IfElse,
+                        )
+                        .map_err(|_| LoopBreakSourceBodyInventoryRejectV1::SourceNavigation)?;
+                    collect_loop_break_body_roles(
+                        input,
+                        root,
+                        &else_body,
+                        statements,
+                        nested_loops,
+                        seen,
+                    )?;
+                }
+            }
+            ASTNode::Loop { .. } => {
+                nested_loops.push(statement.site().clone());
+                let nested_body = input
+                    .source()
+                    .child_body_from_stmt(
+                        &statement,
+                        crate::mir::resolved_semantics::BodyChildRoleV1::LoopBody,
+                    )
+                    .map_err(|_| LoopBreakSourceBodyInventoryRejectV1::SourceNavigation)?;
+                collect_loop_break_body_roles(
+                    input,
+                    root,
+                    &nested_body,
+                    statements,
+                    nested_loops,
+                    seen,
+                )?;
+            }
+            ASTNode::LoopRange { .. }
+            | ASTNode::ScopeBox { .. }
+            | ASTNode::BuildGate { .. }
+            | ASTNode::TaskScope { .. }
+            | ASTNode::ContextScope { .. }
+            | ASTNode::FastMemRegion { .. }
+            | ASTNode::TryCatch { .. } => {
+                return Err(LoopBreakSourceBodyInventoryRejectV1::UnsupportedBodyChild);
+            }
+            _ => {}
+        }
+    }
+    Ok(())
 }
 
 fn verify_source_identity(
@@ -411,6 +582,10 @@ mod tests {
         assert_eq!(projection.owner(), input.owner());
         assert_eq!(projection.forest().member_sites().len(), 1);
         assert_eq!(projection.forest().exits().len(), 1);
+        assert_eq!(projection.body_inventory().owner(), input.owner());
+        assert_eq!(projection.body_inventory().root(), loop_stmt.site());
+        assert_eq!(projection.body_inventory().statements().len(), 4);
+        assert!(projection.body_inventory().nested_loops().is_empty());
         assert_eq!(projection.break_if_site().node().segments().len(), 2);
         assert_eq!(projection.carrier_update_site().node().segments().len(), 2);
         assert_eq!(projection.step_site().node().segments().len(), 2);
