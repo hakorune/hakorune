@@ -284,6 +284,12 @@ fn portable_path_v1(
             SourcePathSegmentV1::LoopBody(index) => {
                 LoopSourcePathStepV1::LoopBodyItem { index: *index }
             }
+            SourcePathSegmentV1::IfThen(index) => {
+                LoopSourcePathStepV1::IfThenItem { index: *index }
+            }
+            SourcePathSegmentV1::IfElse(index) => {
+                LoopSourcePathStepV1::IfElseItem { index: *index }
+            }
             segment if is_body_root(segment) => {
                 return Err(LoopRootSourceBindingRejectV1::OrphanBodyRoot {
                     depth,

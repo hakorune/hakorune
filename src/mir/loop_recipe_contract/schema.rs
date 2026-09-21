@@ -144,6 +144,8 @@ pub(crate) enum LoopSourcePathStepV1 {
     BodyItem { index: u32 },
     ScopeBodyItem { index: u32 },
     LoopBodyItem { index: u32 },
+    IfThenItem { index: u32 },
+    IfElseItem { index: u32 },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

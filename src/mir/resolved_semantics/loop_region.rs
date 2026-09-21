@@ -457,7 +457,10 @@ fn forest_parent_index(
     if let Some(segment) = relative.iter().skip(1).find(|segment| {
         !matches!(
             segment,
-            SourcePathSegmentV1::ScopeBody(_) | SourcePathSegmentV1::LoopBody(_)
+            SourcePathSegmentV1::ScopeBody(_)
+                | SourcePathSegmentV1::LoopBody(_)
+                | SourcePathSegmentV1::IfThen(_)
+                | SourcePathSegmentV1::IfElse(_)
         )
     }) {
         return Err(ResolvedLoopSourceForestRejectV1::UnsupportedAncestry {
@@ -474,10 +477,14 @@ fn forest_parent_index(
         };
         if !segments.starts_with(ancestor_segments)
             || !matches!(suffix.first(), Some(SourcePathSegmentV1::LoopBody(_)))
-            || suffix
-                .iter()
-                .skip(1)
-                .any(|segment| !matches!(segment, SourcePathSegmentV1::ScopeBody(_)))
+            || suffix.iter().skip(1).any(|segment| {
+                !matches!(
+                    segment,
+                    SourcePathSegmentV1::ScopeBody(_)
+                        | SourcePathSegmentV1::IfThen(_)
+                        | SourcePathSegmentV1::IfElse(_)
+                )
+            })
         {
             continue;
         }

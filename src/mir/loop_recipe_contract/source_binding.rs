@@ -118,6 +118,8 @@ fn verify_loop_source_shape(
         for (step_index, step) in child_path.iter().enumerate().skip(parent_path.len() + 1) {
             match step {
                 LoopSourcePathStepV1::ScopeBodyItem { .. } => {}
+                LoopSourcePathStepV1::IfThenItem { .. }
+                | LoopSourcePathStepV1::IfElseItem { .. } => {}
                 LoopSourcePathStepV1::BodyItem { .. } => {
                     return Err(Reject::SourcePathBodyItemAfterRoot {
                         loop_key: row.loop_key,

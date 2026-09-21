@@ -341,7 +341,7 @@ mod tests {
     }
 
     #[test]
-    fn merged_parser_source_retains_typed_composite_forest_boundary() {
+    fn merged_parser_source_issues_nested_composite_after_if_branch_path_extension() {
         crate::runtime::ring0::ensure_global_ring0_initialized();
         let env_updates: Vec<(&'static str, Option<&'static str>)> =
             crate::test_support::JOINIR_DEFAULT_MODE
@@ -434,13 +434,20 @@ mod tests {
                 .collect::<Vec<_>>();
 
             assert!(
-                rejects.iter().any(|reject| reject.contains("Forest(ForestLookup)"))
-                    || rejects.iter().any(|reject| reject.contains("Forest(ForestBinding")),
-                "parser composite must retain a typed forest rejection; rejects={rejects:?}"
+                projections.iter().any(|projection| {
+                    projection.forest().member_sites().len() >= 3
+                        && projection.body_inventory().nested_loops().len() >= 2
+                }),
+                "merged parser source must issue a nested composite projection; rejects={rejects:?}"
             );
             assert!(
-                !projections.is_empty(),
-                "parser source must still exercise the composite issuer on supported parse loops"
+                rejects
+                    .iter()
+                    .all(|reject| !reject.contains("Forest(ForestLookup)"))
+                    && rejects
+                        .iter()
+                        .all(|reject| !reject.contains("Forest(ForestBinding")),
+                "parser source must not retain the old forest boundary; rejects={rejects:?}"
             );
         });
     }

@@ -1,11 +1,11 @@
 ---
-Status: fast__2026-09-21__IfBranchLoopSourcePathExtension
+Status: closeout__2026-09-21__IfBranchLoopSourcePathExtension
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-FOREST-PATH-I0
 Current execution row: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-FOREST-PATH-I0
 Date: 2026-09-21
 Parent: mir-call-parser-loopbreak-composite-forest-boundary-d0-2026-09-21.md
 Implementation permission: true for one existing resolver/path owner extension; no package/Recipe/physical/cutover change
-NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PACKAGE-I3
+NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PACKAGE-D0
 ---
 
 # Parser composite LoopBreak forest path I0
@@ -50,3 +50,39 @@ branches.
 No package or Recipe consumer may be changed in this card. If any downstream
 consumer requires a new semantic relation beyond this path grammar, stop and
 open a new design card instead of widening I0.
+
+## Implementation and evidence — 2026-09-21
+
+The existing resolver/path owner now retains conditional descendants without a
+second issuer. `LoopSourcePathStepV1` has typed `IfThenItem` and `IfElseItem`
+variants; resolver forest ancestry accepts those segments only after the
+required loop-body entry; the portable adapter preserves them; and the source
+binding verifier accepts them only as branch suffixes after the exact parent
+prefix. Body re-entry, skipped intermediate loops, orphan roots, and foreign
+owners remain named rejects.
+
+Focused evidence:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib loop_structural_facts
+28 passed, 0 failed; warning baseline 560
+
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib loop_break_composite_source_projection
+3 passed, 0 failed; warning baseline 560
+```
+
+The first suite covers the synthetic `IfThen`/`IfElse` forest and the
+resolver-to-adapter binding guards. The second suite covers the direct
+composite product, foreign-root rejection, and the merged
+`parser_program_box.hako` source. The real parser check now issues a forest
+with the root plus both conditional child members and no
+`Forest(ForestLookup)` or `Forest(ForestBinding(...))` reject. The full
+`loop_recipe_contract` filter was also compiled; its new branch-path test is
+green, while one pre-existing unrelated
+`source_bound_core_rejects_derived_carrier_and_duplicate_effect_mismatch`
+failure remains known baseline debt outside this card's files.
+
+This closes the source-path capability only. Package retention, composite
+Recipe mapping, physical publication, production cutover, caller-zero proof,
+and old-edge deletion remain unclaimed and must be designed in the successor
+package row.

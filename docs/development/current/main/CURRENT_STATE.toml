@@ -1,11 +1,11 @@
 date = "2026-09-21"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-FOREST-PATH-I0"
-current_execution_cohort = "mir_call_parser_composite_forest_path_i0"
-current_blocker_token = "MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-FOREST-PATH-I0__IfBranchPath"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PACKAGE-D0"
+current_execution_cohort = "mir_call_parser_composite_source_package_d0"
+current_blocker_token = "MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PACKAGE-D0__PackageRecipeMap"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "none__fast__same_resolver_if_branch_loop_path_extension_accepted"
+current_design_stop = "MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PACKAGE-D0__source_to_recipe_package_boundary"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-parser-loopbreak-composite-forest-path-i0-2026-09-21.md"
-latest_card = "mir-call-parser-loopbreak-composite-forest-path-i0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-parser-loopbreak-composite-forest-path-i0-2026-09-21.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-parser-loopbreak-composite-source-package-d0-2026-09-21.md"
+latest_card = "mir-call-parser-loopbreak-composite-source-package-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-parser-loopbreak-composite-source-package-d0-2026-09-21.md"
 latest_card_summary = """
 Map lifecycle consumer spine through C9-2 and the map-argument T-series; T1 alpha/beta/gamma and T2-alpha closed with source-to-OBJ evidence. T2-beta-1 params ArrayLength: Normal=0, prepare-Fault=70, REPORT 100; T2-beta-2 blocks[0].get(kind): Normal=30, prepare-Fault=70, REPORT 100; T2-beta-3 blocks.length: Normal=1, prepare-Fault=70, REPORT 100.
 The bounded T2-beta acceptance inventory is complete. The aggregate main matrix is also closed: one finite source-to-OBJ shape combines functions,
@@ -52,12 +52,12 @@ D1/D2 LoopTrue source handoff is landed: existing Facts/Recipe and resolver/sour
 Transport row `MIR-CALL-PARSER-LOOPBREAK-SOURCE-TRANSPORT-I0` closed on 2026-09-21: installed package retention, one-shot owner take, selected lowering-state transport, and 5/5 focused package guards are green; quick check passes with the existing warning baseline. The direct source-bound physical adapter is type-checked with the existing associated-source/loop_v0 owner and its focused matrix is 15/15. The merged parser smoke stops at the named `GenericLoopV1NotSelected` terminal because the parser uses a composite LoopBreak topology.
 The direct row remains `ParkedSealed__NoSafeSlice`; I1 resolved the composite owner question by selecting a same-owner typed source projection extension, while the exact source-site issuer for target/loan remains outside I2. Main identity and Cataloged raw scope are landed, but package retention and physical publication are still open. The qualified receiver identity carrier I0 landed at `10c3a301f3` with 11/11 focused tests. The Main import-view ownership I0 landed at `a8efc20975`: one lifecycle seal is borrowed by Script/Main, CoreMethod is brand-only, and the owned Main relation transport has direct/alias/foreign-view guards.
  Qualified target-reuse D0 remains valid: resolver rows retain qualified receiver identity, one lifecycle import view is shared, and relation I0 at `02cc09f765` consumes the declaration key once. The qualified source co-seal D0 is accepted, and physical handoff I0 landed at `d6ee865368` with ordered argument sites, one-shot Main take, expected-site descent, and the existing target-only terminal. Canonical-owner D0 is accepted: the existing Binding-SSA Facts/Recipe/physical session is extended with one exact qualified MethodCall row, selected callee `ExactI64` proof, canonical InlineI64 argument descent, and the existing selected-result publication or target-only terminal. I0 is closed with source-backed Main acceptance 1/1, relation guards 4/4, quick library check green, and normal cataloged child admission aligned to `CatalogedBoxMethod`; no fallback repair, VM repair, new result ABI, broad production cutover, or LegacyCallV0 retirement is authorized.
-Parser source-to-MIR acceptance and publication remain open. LoopBreak residual guard and qualified-method adapter deletion are closed. I0 closed the direct source-body inventory guard with 6/6 focused tests; I1 audited existing owners and accepted a same-owner typed composite source projection extension. The composite forest D0 is now resolved: the parser root is present, while its conditional descendants exceed the existing loop path grammar. I0 owns the same-resolver `IfThen`/`IfElse` path extension only; package retention, Recipe mapping, physical cutover, and caller-zero proof remain closed behind it. After source acceptance, production cutover and caller-zero proof, only the selected parser old edge may be deleted. LegacyCallV0 schema retirement, VM/AOT parity, and broad R7 deletion remain unclaimed.
+Parser source-to-MIR acceptance and publication remain open. LoopBreak residual guard and qualified-method adapter deletion are closed. I0 closed the direct source-body inventory guard with 6/6 focused tests; I1 audited owners and accepted a same-owner composite source extension. Forest D0 is resolved: the parser root is present, while conditional descendants exceeded the old path grammar. Forest-path I0 closed with 28/28 structural-facts and 3/3 composite projection tests; the merged root issues both conditional children. The next design stop is composite package/Recipe D0: retention, exact source-to-Recipe mapping, physical cutover, and caller-zero proof remain closed behind it. After source acceptance and cutover, only the selected parser old edge may be deleted. LegacyCallV0 schema retirement, VM/AOT parity, and broad R7 deletion remain unclaimed.
 """
-next_design_card = "MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-FOREST-PATH-I0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-loopbreak-composite-forest-path-i0-2026-09-21.md"
-next_execution_card = "MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-FOREST-PATH-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-parser-loopbreak-composite-forest-path-i0-2026-09-21.md"
+next_design_card = "MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PACKAGE-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-loopbreak-composite-source-package-d0-2026-09-21.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

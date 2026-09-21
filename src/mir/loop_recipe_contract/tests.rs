@@ -385,6 +385,16 @@ fn nested_source_path_allows_scopes_after_direct_loop_entry() {
 }
 
 #[test]
+fn nested_source_path_allows_if_branch_after_direct_loop_entry() {
+    let mut artifact = golden();
+    artifact.source_binding.loops[1]
+        .path
+        .steps
+        .push(LoopSourcePathStepV1::IfThenItem { index: 3 });
+    LoopRecipeVerifierV1::verify_artifact(artifact).expect("trailing if branch is valid");
+}
+
+#[test]
 fn noncanonical_local_key_is_typed() {
     let mut artifact = golden();
     artifact.recipe.blocks[1].key = LoopBlockKeyV1::new(9);

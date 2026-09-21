@@ -484,7 +484,7 @@ fn multiple_scopes_under_a_loop_preserve_every_container_boundary() {
 }
 
 #[test]
-fn supported_owner_with_unportable_if_ancestor_is_typed_reject() {
+fn supported_owner_with_if_then_ancestor_preserves_branch_path() {
     let tree = function(vec![ASTNode::If {
         condition: Box::new(int(1)),
         then_body: vec![loop_stmt(Vec::new())],
@@ -498,11 +498,47 @@ fn supported_owner_with_unportable_if_ancestor_is_typed_reject() {
     ]);
 
     assert_eq!(
-        bind_resolved_loop_root_v1(product.resolved_loop_source(&site).unwrap()),
-        Err(LoopRootSourceBindingRejectV1::UnsupportedAncestor {
-            depth: 1,
-            segment: SourcePathSegmentV1::IfThen(0),
-        })
+        bind_resolved_loop_root_v1(product.resolved_loop_source(&site).unwrap())
+            .unwrap()
+            .into_root_claim(&verified_root_recipe()),
+        expected(vec![
+            LoopSourcePathStepV1::BodyItem { index: 0 },
+            LoopSourcePathStepV1::IfThenItem { index: 0 },
+        ])
+    );
+}
+
+#[test]
+fn nested_forest_preserves_if_then_and_if_else_member_paths() {
+    let tree = function(vec![loop_stmt(vec![ASTNode::If {
+        condition: Box::new(int(1)),
+        then_body: vec![loop_stmt(Vec::new())],
+        else_body: Some(vec![loop_stmt(Vec::new())]),
+        span: Span::unknown(),
+    }])]);
+    let product = resolve_function(&tree);
+    let root = stmt(vec![SourcePathSegmentV1::Body(0)]);
+    let forest = product
+        .resolved_loop_source_forest(&root)
+        .expect("conditional nested loop forest");
+    let binding = bind_resolved_loop_source_forest_v1(forest).expect("conditional path binding");
+
+    assert_eq!(binding.members().len(), 3);
+    assert_eq!(
+        binding.members()[1].path(),
+        &LoopSourcePathV1::new(vec![
+            LoopSourcePathStepV1::BodyItem { index: 0 },
+            LoopSourcePathStepV1::LoopBodyItem { index: 0 },
+            LoopSourcePathStepV1::IfThenItem { index: 0 },
+        ])
+    );
+    assert_eq!(
+        binding.members()[2].path(),
+        &LoopSourcePathV1::new(vec![
+            LoopSourcePathStepV1::BodyItem { index: 0 },
+            LoopSourcePathStepV1::LoopBodyItem { index: 0 },
+            LoopSourcePathStepV1::IfElseItem { index: 0 },
+        ])
     );
 }
 
