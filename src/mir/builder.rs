@@ -185,9 +185,11 @@ pub(in crate::mir) use entry_materialization::{
     CallableMainMaterializationPolicyV1, CallableMainMaterializationTargetV1,
     NormalEntryMaterializationSourceReceiptV1, RawEntryMaterializationSourceReceiptV1,
 };
+#[cfg(test)]
+pub(in crate::mir) use normal_root_execution::NormalRootExecutionConsumerRejectV1;
 pub(in crate::mir) use normal_root_execution::{
     AdmittedNormalRootExecutionModeV1, ConsumedNormalRootCallableSourceV1,
-    NormalRootExecutionConsumerRejectV1, NormalRootExecutionConsumerV1,
+    NormalRootExecutionConsumerV1,
 };
 pub(in crate::mir) use normal_runtime_inputs::NormalRuntimeInputSnapshotV1;
 pub(in crate::mir) use raw_root_static_child_admission::PreparedRawRootStaticChildDraftV1;
