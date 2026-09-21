@@ -1,9 +1,9 @@
 ---
-Status: fast__2026-09-22__ParserPublicationAcceptance
+Status: design_stop__2026-09-22__ParserRouteFrontierBeforePublication
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: true; accepted bounded task 4 publication acceptance only, followed by task 5 caller switch after its guard is green
+Implementation permission: false until the selected merged parser route frontier is resolved; publication acceptance remains the next implementation slice after that decision
 NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-RETIREMENT-R0
 ---
 
@@ -76,6 +76,41 @@ The warning cohort may resume only after this I3/R0 sequence closes, or when
 an owner-specific warning becomes a newly selected blocker. This ordering is
 the task queue; it does not claim publication, cutover, or retirement yet.
 
+## Acceptance frontier recheck — 2026-09-22
+
+The selected merged parser inventory contains one composite LoopBreak candidate,
+but it is reached after earlier callable loop sites. The lifecycle invocation
+stops at the earlier named terminal
+`[freeze:contract][callable-loop/route-not-front-selected]` /
+`GenericLoopV1NotSelected`, while those earlier sites carry supported
+non-candidate loop loans. The selected publication handoff is therefore not
+yet reached. The previously recorded
+`static-result-ingress/no-exact-static-target` terminal belongs to a direct or
+unselected fixture and is not the current merged-parser acceptance boundary.
+
+This is a design boundary, not permission to add a fallback. Before I3 task 4
+can start, the existing source owner and route selector must be named for the
+preceding non-front-selected loops, together with the exact rejection boundary
+for routes that remain outside the selected family. No AST rescan, name-based
+inference, VM repair, generic fallback, or new publication authority is
+authorized while that decision is open.
+
+The ordered queue is consequently:
+
+1. **I3 precondition — route-frontier decision:** close the existing-owner
+   mapping for the earlier `GenericLoopV1NotSelected` sites, or record a
+   bounded named terminal if they are outside this source family.
+2. **I3 task 4 — publication acceptance:** once the selected merged route
+   reaches the existing one-shot publication owner, run the
+   `parse/2 -> starts_with/3` acceptance and record its named terminal.
+3. **I3 task 5 — caller switch:** switch only that selected parser caller
+   after the publication guard is green.
+4. **R0 task 6 — retirement:** prove caller-zero, remove the exclusive old
+   edge and temporary assets, and retain the re-entry guard.
+
+Until item 1 is accepted, items 2–4 remain queued and no production cutover
+or retirement claim is made.
+
 ## Current design evidence
 
 The merged parser inventory reaches the selected `starts_with/3` rows, while
@@ -101,9 +136,10 @@ child-port 2/2, package 8/8, and publication bridge 2/2. `cargo check
 --profile quick --lib` and `cargo fmt --all -- --check` also pass with the
 existing warning baseline.
 
-The end-to-end parser fixture still stops at the pre-existing named
-`static-result-ingress/no-exact-static-target` terminal, so this evidence does
-not claim publication acceptance or caller cutover. Task 5 remains unopened
-until the selected `parse/2 -> starts_with/3` invocation reaches this handoff
-and its acceptance guard is green. R0 still owns caller-zero and old-edge
-deletion.
+The end-to-end merged parser fixture still stops before the selected handoff at
+the pre-existing named `callable-loop/route-not-front-selected` /
+`GenericLoopV1NotSelected` terminal. This evidence does not claim publication
+acceptance or caller cutover. Task 5 remains unopened until the route frontier
+is resolved and the selected `parse/2 -> starts_with/3` invocation reaches
+the handoff with its acceptance guard green. R0 still owns caller-zero and
+old-edge deletion.
