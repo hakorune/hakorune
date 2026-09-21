@@ -11,10 +11,11 @@ use crate::mir::builder::normal_script_direct_static_join_handoff::{
 };
 use crate::mir::builder::normal_script_direct_static_recipe::ScriptDirectStaticRecipeKeyV1;
 use crate::mir::builder::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
+#[cfg(test)]
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::resolved_semantics::{
-    FunctionOwnerIdV1, ResolvedBinaryOperatorV1, ResolvedExpressionSourceInventoryV1,
-    ResolvedLiteralSourceV1, ResolvedUnaryOperatorV1, SourceExprSiteV1,
-    VerifiedSemanticOwnerProductV1,
+    ResolvedBinaryOperatorV1, ResolvedExpressionSourceInventoryV1, ResolvedLiteralSourceV1,
+    ResolvedUnaryOperatorV1, SourceExprSiteV1, VerifiedSemanticOwnerProductV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
