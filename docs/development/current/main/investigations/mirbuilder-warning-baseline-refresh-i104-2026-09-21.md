@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI104__SelectNextCohort
+Status: closed__2026-09-21__WarningBaselineRefreshI104__SelectedProviderImpossibleReject
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I104
 Date: 2026-09-21
 Parent: mirbuilder-warning-postpass-compatibility-cohort-payload-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: one explicitly justified caller-zero deletion or warning row
+NextCard: MIRBUILDER-WARNING-PROVIDER-IMPOSSIBLE-REJECT-I0
 ---
 
 # MirBuilder warning baseline refresh I104
@@ -48,3 +48,20 @@ measured baseline is lib **1,703** and lib-test **552**. The old-edge deletion
 lane remains `NoSafeSlice`: the live compatibility registry entry still has no
 named successor; any future deletion row requires a named successor and
 caller-zero proof.
+
+## Refresh result and selected cohort
+
+The sequential refresh completed with lib **1,703** warnings and lib-test
+**552** warnings. The old-edge census remains `NoSafeSlice`. The next warning
+candidate is `ProviderAdmissionRejectV1::MissingCoreRow`.
+
+The finite caller census is empty: the variant is declared in
+`provider_admission/seal.rs`, but no constructor, match arm, test, or external
+consumer names it. `consume_text_scan` receives both core rows by reference and
+reports `CoreRowMismatch` for invalid rows, so the missing-row state cannot be
+issued through the current owner. The next slice removes only this impossible
+enum variant; all reachable rejection states and the provider admission owner
+remain unchanged.
+
+The next bounded cohort is
+`MIRBUILDER-WARNING-PROVIDER-IMPOSSIBLE-REJECT-I0`.

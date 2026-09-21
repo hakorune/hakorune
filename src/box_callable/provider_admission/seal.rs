@@ -19,7 +19,6 @@ use super::aot_admission::{build, PreparedAotExecutableAdmissionV1, TextScanEntr
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ProviderAdmissionRejectV1 {
-    MissingCoreRow,
     CoreRowMismatch,
     MissingExport,
     ExportMismatch,
