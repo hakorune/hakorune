@@ -1,4 +1,3 @@
-use super::*;
 use crate::mir::normal_callable_semantic_package::{
     brand_catalog_tests::issue_with_brand_catalog as issue,
     NormalCallableSemanticPackageInstallIssueV1 as Issue,
