@@ -1,5 +1,5 @@
 ---
-Status: fast__2026-09-21__SelectedBoundedWarningCohort__ExecuteTestScope
+Status: closeout__2026-09-21__Landed__ParentBaselineReproduced
 Task: MIRBUILDER-WARNING-STATIC-METHOD-CFRAME-TEST-SCOPE-I0
 Date: 2026-09-21
 Parent: mirbuilder-warning-baseline-refresh-i71-2026-09-21.md
@@ -36,3 +36,19 @@ cargo test --profile quick --lib --no-run -j4
 
 The published-backend-view and MIR JSON test paths must still compile and pass;
 the C-frame type and fields remain unchanged. No production import may be added.
+
+## Closeout
+
+Commit `1067d0dc23` scopes `PublishedStaticMethodCFrameV1` re-exports to
+`cfg(test)` in the function facade, historical child facade, and normal compiler
+published-view facade. The C-frame definition, fields, ABI, and test consumers
+are unchanged. The sequential quick gates reported lib **1,750** warnings and
+lib-test **557** warnings.
+
+The focused `published_backend_view` suite reported **88 passed, 5 failed,
+1 ignored** at the current commit, and the same five failures reproduced at the
+parent commit. They are recorded as `known baseline debt`: MapLiteral/New
+qualified-preflight failures, the existing typed assertion mismatch, and LLVM
+opaque-pointer/object failures. No warning was suppressed and no test was
+deleted. `cargo fmt --check`, `git diff --check`, and the current-state pointer
+guard are green.
