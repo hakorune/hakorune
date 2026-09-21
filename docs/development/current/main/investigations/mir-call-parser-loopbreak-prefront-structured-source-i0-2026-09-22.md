@@ -1,5 +1,5 @@
 ---
-Status: fast__2026-09-22__PrefrontStructuredSource
+Status: fast__2026-09-22__PrefrontStructuredSourceRows1to3
 Task: MIR-CALL-PARSER-LOOPBREAK-PREFRONT-STRUCTURED-SOURCE-I0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-prefront-source-consumer-d0-2026-09-22.md
@@ -78,3 +78,30 @@ unknown-family, residual, and second-take rows. Existing route/package/raw
 guards must remain green, all touched Rust files stay below the 760/800 line
 limits, and the warning cohort remains paused at I147.
 
+## Implementation checkpoint — 2026-09-22
+
+Rows 1–3 are implemented in the existing LoopBreak owner. The composite
+projection no longer discards a valid one-member structured forest; the source
+route now consumes one source-order disposition per resolver item, combining
+the existing selected-static handoff with the existing CoreMethod owner; and
+the physical envelope validates that batch before Parts/LoopV0 allocation.
+No new semantic issuer, fallback, VM route, or publication claim was added.
+
+Focused evidence is green:
+
+* `normal_callable_loop_source` route tests: 35/35
+* `loop_break_source` package tests: 18/18
+* `single_structured_projection_is_admitted_by_composite_owner`: 1/1
+* `cargo check --profile quick --lib`: pass with the I147 warning baseline
+  (`1672` generated warnings)
+* `cargo fmt --all -- --check`, `git diff --check`, and the current-state
+  pointer guard: pass
+
+Row 4 remains open. The four finite parser source rows
+(`trim/1`, `to_int/1`, `_parse_delegate/3`, and
+`ParserRecordDeclarationBox.parse/3`) still need their explicit source guard
+and named unsupported-terminal classification. The merged parser lifecycle
+still stops at the existing `GenericLoopV1NotSelected` frontier, so I3
+publication acceptance, caller switch, old-edge deletion, and warning cleanup
+remain queued. Until Row 4 is closed, keep this card active and do not move the
+pointer to I3.

@@ -11,8 +11,8 @@ use crate::mir::builder::normal_callable_loop_handoff::CallableLoopReadyBodyOnly
 use crate::mir::builder::normal_callable_loop_source_facts::composite::VerifiedCallableLoopBreakCompositeSourceCandidateV1;
 use crate::mir::builder::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1;
 use crate::mir::builder::normal_callable_loop_source_route::{
-    CallableLoopSourceItemBindingV1, CallableLoopSourceTargetProbeV1,
-    CallableLoopSourceTargetRelationV1,
+    CallableLoopSourceItemBindingV1, CallableLoopSourceItemDispositionV1,
+    CallableLoopSourceTargetProbeV1,
 };
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
@@ -42,7 +42,7 @@ pub(in crate::mir::builder) struct SourceLoopBreakCompositePhysicalInputV1<'sour
     projection: VerifiedLoopBreakCompositeSourceProjectionV1,
     recipe: BuiltRecipeTree,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
-    source_targets: Box<[CallableLoopSourceTargetRelationV1]>,
+    source_dispositions: Box<[CallableLoopSourceItemDispositionV1]>,
     source_port: CallableLoopSourceExpressionPortV1<'ledger>,
 }
 
@@ -74,12 +74,12 @@ impl<'source, 'ledger> SourceLoopBreakCompositePhysicalInputV1<'source, 'ledger>
                 "[freeze:contract][callable-loop/composite/candidate-source-mismatch]".to_owned(),
             );
         }
-        let source_targets = source_target_probe
-            .into_selected_relations(&source_items)
+        let source_dispositions = source_target_probe
+            .into_item_dispositions(&source_items)
             .map_err(|error| {
                 format!("[freeze:contract][callable-loop/composite/source-target] {error:?}")
             })?;
-        if source_items.is_empty() || source_targets.is_empty() {
+        if source_items.is_empty() || source_dispositions.is_empty() {
             return Err(
                 "[freeze:contract][callable-loop/composite/source-target-empty]".to_owned(),
             );
@@ -111,7 +111,7 @@ impl<'source, 'ledger> SourceLoopBreakCompositePhysicalInputV1<'source, 'ledger>
             projection,
             recipe,
             source_items,
-            source_targets,
+            source_dispositions,
             source_port: CallableLoopSourceExpressionPortV1::new(source_ledger),
         })
     }
@@ -166,20 +166,27 @@ impl<'source, 'ledger> SourceLoopBreakCompositePhysicalInputV1<'source, 'ledger>
                 "[freeze:contract][callable-loop/composite/source-lineage-mismatch]".to_owned(),
             );
         }
-        if self.source_items.len() != self.source_targets.len()
+        if self.source_items.len() != self.source_dispositions.len()
             || self.source_items.is_empty()
             || self
                 .source_items
                 .iter()
-                .zip(self.source_targets.iter())
-                .any(|(item, target)| {
-                    item.call_site() != target.call_site()
-                        || !target.has_exact_i64_requirement(&[1])
+                .zip(self.source_dispositions.iter())
+                .any(|(item, disposition)| {
+                    item.call_site() != disposition.call_site()
                         || !item
                             .call_site()
                             .node()
                             .segments()
                             .starts_with(self.parent_site.segments())
+                        || match disposition {
+                            CallableLoopSourceItemDispositionV1::SelectedStatic(relation) => {
+                                !relation.has_exact_i64_requirement(&[1])
+                            }
+                            CallableLoopSourceItemDispositionV1::CoreMethod(core_method) => {
+                                core_method.call_site() != item.call_site()
+                            }
+                        }
                 })
         {
             return Err(

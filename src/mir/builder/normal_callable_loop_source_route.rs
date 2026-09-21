@@ -34,15 +34,26 @@ pub(in crate::mir::builder) enum CallableLoopSourceRouteRejectV1 {
     SourceTargetMissing,
     SourceTargetSiteMismatch,
     SourceTargetMultiple,
+    #[cfg(test)]
     SourceTargetCardinality {
         expected: usize,
         actual: usize,
     },
+    #[cfg(test)]
     SourceTargetOrderMismatch {
         expected: SourceExprSiteV1,
         actual: SourceExprSiteV1,
     },
     SourceTargetRequirementMismatch,
+    SourceItemDuplicate {
+        call_site: SourceExprSiteV1,
+    },
+    SourceItemDispositionMissing {
+        call_site: SourceExprSiteV1,
+    },
+    SourceItemDispositionResidual {
+        call_sites: Box<[SourceExprSiteV1]>,
+    },
     /// An exact same-module static target was resolved for the listed sites
     /// but its selected publication row is absent — target-only, missing,
     /// or already consumed evidence all stop here instead of reclassifying
@@ -223,6 +234,24 @@ impl CallableLoopSourceTargetRelationV1 {
     }
 }
 
+/// One source-order disposition for a resolver-issued method item.  Static
+/// publication and bound CoreMethod rows share one batch, while their
+/// authorities remain distinct and are validated by their existing owners.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) enum CallableLoopSourceItemDispositionV1 {
+    SelectedStatic(CallableLoopSourceTargetRelationV1),
+    CoreMethod(CallableLoopSourceItemBindingV1),
+}
+
+impl CallableLoopSourceItemDispositionV1 {
+    pub(in crate::mir::builder) fn call_site(&self) -> &SourceExprSiteV1 {
+        match self {
+            Self::SelectedStatic(relation) => relation.call_site(),
+            Self::CoreMethod(item) => item.call_site(),
+        }
+    }
+}
+
 /// Immutable obligation/evidence classification for one armed loop's source
 /// items, produced by the module-port probe before route selection.
 ///
@@ -259,6 +288,7 @@ impl CallableLoopSourceTargetProbeV1 {
         }
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder) fn from_parts(
         selected: Box<[CallableLoopSourceTargetRelationV1]>,
         uncovered: Box<[SourceExprSiteV1]>,
@@ -343,6 +373,7 @@ impl CallableLoopSourceTargetProbeV1 {
     /// Recipe.  The direct route keeps `into_selected_relation`'s singleton
     /// contract; this batch route only accepts one selected handoff for every
     /// resolver-issued source item, in the same order.
+    #[cfg(test)]
     pub(in crate::mir::builder) fn into_selected_relations(
         self,
         source_items: &[CallableLoopSourceItemBindingV1],
@@ -390,6 +421,89 @@ impl CallableLoopSourceTargetProbeV1 {
             }
         }
         Ok(selected)
+    }
+
+    /// Consume the complete source-order disposition batch for a structured
+    /// source Recipe. Every resolver item is covered exactly once by either
+    /// the selected publication owner or the existing CoreMethod owner.
+    pub(in crate::mir::builder) fn into_item_dispositions(
+        self,
+        source_items: &[CallableLoopSourceItemBindingV1],
+    ) -> Result<Box<[CallableLoopSourceItemDispositionV1]>, CallableLoopSourceRouteRejectV1> {
+        use std::collections::BTreeMap;
+
+        let Self {
+            selected,
+            uncovered,
+            requirement_mismatch,
+            core_methods,
+        } = self;
+        if requirement_mismatch {
+            return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
+        }
+        if !uncovered.is_empty() {
+            return Err(CallableLoopSourceRouteRejectV1::SourceTargetUnselected {
+                call_sites: uncovered,
+            });
+        }
+
+        let mut selected_by_site = BTreeMap::new();
+        for relation in selected {
+            let call_site = relation.call_site().clone();
+            if selected_by_site
+                .insert(call_site.clone(), relation)
+                .is_some()
+            {
+                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site });
+            }
+        }
+        let mut core_by_site = BTreeMap::new();
+        for item in core_methods {
+            let call_site = item.call_site().clone();
+            if core_by_site.insert(call_site.clone(), item).is_some() {
+                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site });
+            }
+        }
+
+        let mut seen_items = BTreeMap::new();
+        let mut dispositions = Vec::with_capacity(source_items.len());
+        for item in source_items {
+            if seen_items.insert(item.call_site().clone(), ()).is_some() {
+                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate {
+                    call_site: item.call_site().clone(),
+                });
+            }
+            if let Some(relation) = selected_by_site.remove(item.call_site()) {
+                if !relation.has_exact_i64_requirement(&[1]) {
+                    return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
+                }
+                dispositions.push(CallableLoopSourceItemDispositionV1::SelectedStatic(
+                    relation,
+                ));
+            } else if let Some(core_method) = core_by_site.remove(item.call_site()) {
+                dispositions.push(CallableLoopSourceItemDispositionV1::CoreMethod(core_method));
+            } else {
+                return Err(
+                    CallableLoopSourceRouteRejectV1::SourceItemDispositionMissing {
+                        call_site: item.call_site().clone(),
+                    },
+                );
+            }
+        }
+
+        let mut residual = selected_by_site
+            .into_keys()
+            .chain(core_by_site.into_keys())
+            .collect::<Vec<_>>();
+        if !residual.is_empty() {
+            residual.sort();
+            return Err(
+                CallableLoopSourceRouteRejectV1::SourceItemDispositionResidual {
+                    call_sites: residual.into_boxed_slice(),
+                },
+            );
+        }
+        Ok(dispositions.into_boxed_slice())
     }
 }
 

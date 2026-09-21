@@ -27,7 +27,6 @@ use crate::mir::resolved_semantics::{
 pub(in crate::mir) enum CompositeLoopBreakSourceFactsIssueV1 {
     Projection(LoopBreakCompositeSourceProjectionRejectV1),
     Recipe(Box<str>),
-    NotComposite,
 }
 
 /// One source-bound composite candidate. The Recipe and source projection are
@@ -66,9 +65,6 @@ pub(in crate::mir) fn issue_composite_source_candidate_v1(
     let projection =
         issue_loop_break_composite_source_projection_v1(input, loop_stmt, resolved_source)
             .map_err(CompositeLoopBreakSourceFactsIssueV1::Projection)?;
-    if projection.forest().member_sites().len() < 2 {
-        return Err(CompositeLoopBreakSourceFactsIssueV1::NotComposite);
-    }
     let recipe = build_composite_source_recipe(input, &projection)
         .map_err(CompositeLoopBreakSourceFactsIssueV1::Recipe)?;
     Ok(VerifiedCallableLoopBreakCompositeSourceCandidateV1 { projection, recipe })

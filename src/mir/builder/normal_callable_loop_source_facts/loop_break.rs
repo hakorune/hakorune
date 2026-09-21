@@ -649,8 +649,7 @@ pub(in crate::mir) fn issue_callable_loop_break_source_facts_v1(
                 let (composite_source, _, _) = composite_membership.into_parts();
                 match issue_composite_source_candidate_v1(input, &loop_stmt, composite_source) {
                         Ok(candidate) => composite_candidates.push(candidate),
-                        Err(CompositeLoopBreakSourceFactsIssueV1::NotComposite)
-                        | Err(CompositeLoopBreakSourceFactsIssueV1::Projection(
+                        Err(CompositeLoopBreakSourceFactsIssueV1::Projection(
                             crate::mir::compiler::loop_break_composite_source_projection::LoopBreakCompositeSourceProjectionRejectV1::RootBreakMissing,
                         )) => {}
                         Err(issue) => {

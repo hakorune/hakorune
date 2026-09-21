@@ -78,17 +78,21 @@ fn parser_program_source_retains_composite_loopbreak_recipe_candidate() {
         loan,
         LoopBreakSourcePackageLoanV1::CompositeCandidate(_)
     ));
-    let site = match &loan {
+    let sites = match &loan {
         LoopBreakSourcePackageLoanV1::CompositeCandidate(facts) => facts
             .candidates()
-            .first()
-            .expect("composite candidate")
-            .projection()
-            .loop_site()
-            .clone(),
+            .iter()
+            .map(|candidate| candidate.projection().loop_site().clone())
+            .collect::<Vec<_>>(),
         _ => panic!("fixture must issue a composite candidate"),
     };
-    assert!(loan.take_composite_candidate_for_site(&site).is_some());
+    assert!(
+        !sites.is_empty(),
+        "composite candidate inventory must be finite"
+    );
+    for site in sites {
+        assert!(loan.take_composite_candidate_for_site(&site).is_some());
+    }
     loan.finish_empty()
         .expect("composite candidate is consumed exactly once");
 }
@@ -290,5 +294,5 @@ static box Main {
     .expect("specialized LoopBreak remains a valid semantic package");
 
     assert_eq!(package.loop_break_source_row_count(), 1);
-    assert_eq!(package.loop_break_source_candidate_count(), 0);
+    assert_eq!(package.loop_break_source_candidate_count(), 1);
 }

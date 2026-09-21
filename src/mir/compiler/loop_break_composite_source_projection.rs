@@ -306,6 +306,75 @@ mod tests {
         }
     }
 
+    fn single_structured_loop() -> ASTNode {
+        ASTNode::FunctionDeclaration {
+            name: "single_structured_loop_break_projection".into(),
+            params: Vec::new(),
+            param_decls: Vec::new(),
+            return_type_name: None,
+            body: vec![
+                ASTNode::Local {
+                    variables: vec!["i".into()],
+                    initial_values: vec![Some(Box::new(ASTNode::Literal {
+                        value: LiteralValue::Integer(0),
+                        span: Span::unknown(),
+                    }))],
+                    declared_type_names: vec![None],
+                    span: Span::unknown(),
+                },
+                ASTNode::Loop {
+                    condition: Box::new(ASTNode::BinaryOp {
+                        operator: BinaryOperator::Less,
+                        left: Box::new(variable("i")),
+                        right: Box::new(ASTNode::Literal {
+                            value: LiteralValue::Integer(3),
+                            span: Span::unknown(),
+                        }),
+                        span: Span::unknown(),
+                    }),
+                    body: vec![
+                        ASTNode::If {
+                            condition: Box::new(ASTNode::BinaryOp {
+                                operator: BinaryOperator::Equal,
+                                left: Box::new(variable("i")),
+                                right: Box::new(ASTNode::Literal {
+                                    value: LiteralValue::Integer(1),
+                                    span: Span::unknown(),
+                                }),
+                                span: Span::unknown(),
+                            }),
+                            then_body: vec![ASTNode::Break {
+                                span: Span::unknown(),
+                            }],
+                            else_body: None,
+                            span: Span::unknown(),
+                        },
+                        ASTNode::Assignment {
+                            target: Box::new(variable("i")),
+                            value: Box::new(ASTNode::BinaryOp {
+                                operator: BinaryOperator::Add,
+                                left: Box::new(variable("i")),
+                                right: Box::new(ASTNode::Literal {
+                                    value: LiteralValue::Integer(1),
+                                    span: Span::unknown(),
+                                }),
+                                span: Span::unknown(),
+                            }),
+                            span: Span::unknown(),
+                        },
+                    ],
+                    span: Span::unknown(),
+                },
+            ],
+            uses: Vec::new(),
+            contracts: Vec::new(),
+            is_static: true,
+            is_override: false,
+            attrs: DeclarationAttrs::default(),
+            span: Span::unknown(),
+        }
+    }
+
     #[test]
     fn composite_projection_retains_nested_loop_and_root_exit() {
         let unit = VerifiedResolvedSourceUnitV1::resolve_function(composite_loop())
@@ -334,6 +403,36 @@ mod tests {
         assert_eq!(projection.body_roles().root().count_loops(), 2);
         assert_eq!(projection.body_roles().root().count_exits(), 2);
         assert_eq!(projection.loop_body_site().owner(), input.owner());
+    }
+
+    #[test]
+    fn single_structured_projection_is_admitted_by_composite_owner() {
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(single_structured_loop())
+            .expect("resolved single structured fixture");
+        let input = unit.root_function_input().expect("root input");
+        let root_body = input.source().root_body().expect("root body");
+        let loop_stmt = input.source().body_stmt(&root_body, 1).expect("root loop");
+        let resolved = input
+            .function()
+            .resolved_loop_source(loop_stmt.site())
+            .expect("root loop source");
+        let projection = issue_loop_break_composite_source_projection_v1(
+            input,
+            &loop_stmt,
+            resolved,
+        )
+        .expect("single structured projection");
+        assert_eq!(projection.forest().member_sites().len(), 1);
+        assert!(projection.body_roles().root().contains_control());
+        crate::mir::builder::issue_composite_source_candidate_v1(
+            input,
+            &loop_stmt,
+            input
+                .function()
+                .resolved_loop_source(loop_stmt.site())
+                .expect("root loop source for candidate"),
+        )
+        .expect("one-member structured candidate");
     }
 
     #[test]

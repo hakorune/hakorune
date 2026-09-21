@@ -1,7 +1,8 @@
 use super::{
-    CallableLoopSourceItemBindingV1, CallableLoopSourceRouteRejectV1,
-    CallableLoopSourceRouteTokenV1, CallableLoopSourceTargetProbeV1,
-    CallableLoopSourceTargetRelationV1, CallableLoopSourceTargetRequirementV1,
+    CallableLoopSourceItemBindingV1, CallableLoopSourceItemDispositionV1,
+    CallableLoopSourceRouteRejectV1, CallableLoopSourceRouteTokenV1,
+    CallableLoopSourceTargetProbeV1, CallableLoopSourceTargetRelationV1,
+    CallableLoopSourceTargetRequirementV1,
 };
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::builder::control_flow::joinir::route_entry::registry::{
@@ -559,6 +560,64 @@ fn composite_target_probe_rejects_missing_selected_relation() {
             expected: 2,
             actual: 1
         }
+    ));
+}
+
+#[test]
+fn composite_item_probe_accepts_mixed_static_and_core_method_order() {
+    let parts = armed_loop_cond_parts(MIXED_LOOP_COND_SOURCE);
+    let dispositions = CallableLoopSourceTargetProbeV1::from_parts_with_core_methods(
+        vec![selected_relation(&parts.call_sites[0])].into_boxed_slice(),
+        Box::new([]),
+        false,
+        vec![parts.items[1].clone()].into_boxed_slice(),
+    )
+    .into_item_dispositions(&parts.items)
+    .expect("mixed source items must retain source order");
+    assert_eq!(dispositions.len(), 2);
+    assert!(matches!(
+        &dispositions[0],
+        CallableLoopSourceItemDispositionV1::SelectedStatic(relation)
+            if relation.call_site() == &parts.call_sites[0]
+    ));
+    assert!(matches!(
+        &dispositions[1],
+        CallableLoopSourceItemDispositionV1::CoreMethod(item)
+            if item.call_site() == &parts.call_sites[1]
+    ));
+}
+
+#[test]
+fn composite_item_probe_rejects_duplicate_source_item() {
+    let parts = armed_loop_cond_parts(MIXED_LOOP_COND_SOURCE);
+    let error = CallableLoopSourceTargetProbeV1::from_parts_with_core_methods(
+        vec![selected_relation(&parts.call_sites[0])].into_boxed_slice(),
+        Box::new([]),
+        false,
+        Box::new([]),
+    )
+    .into_item_dispositions(&[parts.items[0].clone(), parts.items[0].clone()])
+    .expect_err("duplicate resolver item must not be silently coalesced");
+    assert!(matches!(
+        error,
+        CallableLoopSourceRouteRejectV1::SourceItemDuplicate { .. }
+    ));
+}
+
+#[test]
+fn composite_item_probe_rejects_residual_core_method() {
+    let parts = armed_loop_cond_parts(MIXED_LOOP_COND_SOURCE);
+    let error = CallableLoopSourceTargetProbeV1::from_parts_with_core_methods(
+        vec![selected_relation(&parts.call_sites[0])].into_boxed_slice(),
+        Box::new([]),
+        false,
+        vec![parts.items[1].clone()].into_boxed_slice(),
+    )
+    .into_item_dispositions(&[parts.items[0].clone()])
+    .expect_err("unconsumed core method must remain a named residual");
+    assert!(matches!(
+        error,
+        CallableLoopSourceRouteRejectV1::SourceItemDispositionResidual { .. }
     ));
 }
 
