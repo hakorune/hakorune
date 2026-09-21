@@ -33,3 +33,35 @@ named and its publication relation is accepted. A failed or deferred source
 terminal reopens the owning semantic row; it does not authorize a fallback or
 a VM repair. Once task 4 and task 5 close, the successor retirement card owns
 caller-zero and the exclusive delete set.
+
+## Queue reconciliation — 2026-09-22
+
+The warning cohort is deliberately paused at I147. `unused_imports=17` is the
+remaining mechanical tail; `dead_code` remains owner debt and is not a reason
+to keep the semantic lane waiting. No warning cleanup row is selected while
+this parser publication boundary is open.
+
+The next bounded order is:
+
+1. **I3 task 4 — publication acceptance:** connect the selected
+   `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` source row
+   to the existing one-shot publication owner and record the named terminal.
+2. **I3 task 5 — caller switch:** switch that selected parser caller to the
+   source-backed composite LoopBreak route after the publication guard is
+   green. Do not change VM/compatibility or generic fallback routes.
+3. **R0 task 6 — retirement:** after the switch, prove caller-zero, delete the
+   exclusive old edge and temporary assets, and retain a guard against
+   re-entry.
+
+The warning cohort may resume only after this I3/R0 sequence closes, or when
+an owner-specific warning becomes a newly selected blocker. This ordering is
+the task queue; it does not claim publication, cutover, or retirement yet.
+
+## Current design evidence
+
+The merged parser inventory reaches the selected `starts_with/3` rows, while
+the lifecycle invocation still stops at the named publication boundary. The
+existing composite envelope validates and stores source-target relations, but
+does not consume the publication owner's one-shot handoff. Therefore the next
+slice must reuse the existing publication ingress/physical bridge rather than
+add a second authority or relax the terminal.
