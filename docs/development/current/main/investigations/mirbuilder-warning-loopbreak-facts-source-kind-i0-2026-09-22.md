@@ -13,7 +13,7 @@ NextCard: MIRBUILDER-WARNING-BASELINE-REFRESH-I122
 
 ```text
 Decision: delete VerifiedCallableLoopBreakSourceFactsV1::source_kind; its
-repository caller census is declaration-only and the field remains internal.
+repository caller census is declaration-only.
 Source authority + canonical issuer: the existing LoopBreak source-Facts
 owner and its source-kind field; no new semantic issuer is introduced.
 Non-authority: warning suppression, cargo-fix, field deletion, route changes,
@@ -32,8 +32,9 @@ The selected warning is `dead_code` for
 `VerifiedCallableLoopBreakSourceFactsV1::source_kind` at
 `src/mir/builder/normal_callable_loop_source_facts/loop_break.rs:436`.
 Repository search found no call outside the declaration. The enclosing
-`source_kind` field is still consumed when the Facts product is constructed
-and checked; the candidate projection's source-kind relation remains in use.
+`source_kind` field is assigned when the Facts product is constructed but is
+not read; the candidate projection's separate source-kind relation remains in
+use. That residual field warning is outside this accessor delete set.
 The delete set is exactly this accessor body. No field, issuer, candidate
 relation, route, or test fixture is part of the slice.
 
@@ -56,4 +57,5 @@ The focused source-Facts filter executed **16/16** tests. The warning baseline
 moved from lib **1,693** to **1,692** and from lib-test **550** to **549**;
 the same one accessor diagnostic was present in both targets. The no-run
 build, formatting, diff, and pointer guard all passed. No semantic receipt,
-LoopBreak admission, or compatibility route changed.
+LoopBreak admission, or compatibility route changed. The remaining outer
+Facts `source_kind` field warning is selected as the next bounded row.

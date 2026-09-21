@@ -420,7 +420,6 @@ impl<'source, 'ledger> SourceLoopBreakPhysicalInputV1<'source, 'ledger> {
 pub(in crate::mir) struct VerifiedCallableLoopBreakSourceFactsV1 {
     owner: FunctionOwnerIdV1,
     function_origin: FunctionOriginV1,
-    source_kind: SemanticOwnerSourceKindV1,
     candidates: Box<[VerifiedCallableLoopBreakSourceCandidateV1]>,
 }
 
@@ -642,7 +641,6 @@ pub(in crate::mir) fn issue_callable_loop_break_source_facts_v1(
             VerifiedCallableLoopBreakSourceFactsV1 {
                 owner,
                 function_origin: function.function_origin(),
-                source_kind: function.source_kind(),
                 candidates: candidates.into_boxed_slice(),
             },
         )

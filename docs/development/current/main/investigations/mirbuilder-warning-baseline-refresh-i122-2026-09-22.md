@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__WarningBaselineRefreshI122__AwaitingNextCohort
+Status: closed__2026-09-22__WarningBaselineRefreshI122__SelectedLoopBreakFactsField
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I122
 Date: 2026-09-22
 Parent: mirbuilder-warning-loopbreak-facts-source-kind-i0-2026-09-22.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: prefer MIR-RETIRE-FIRST-OLD-EDGE-R0 only if its caller-zero proof changes
+NextCard: MIRBUILDER-WARNING-LOOPBREAK-FACTS-SOURCE-KIND-FIELD-I0
 ---
 
 # MirBuilder warning baseline refresh I122
@@ -34,9 +34,19 @@ the compatibility registry, ledger-free legacy route, shared
 `lower_loop_or_freeze_v1` caller, and parser composite successor still prevent
 `MIR-RETIRE-FIRST-OLD-EDGE-R0` from being selected without new evidence.
 
-I122 is design-only. Refresh the two warning counts, classify the selected
-diagnostics, and name one finite owner/caller/delete set before implementation.
-Do not convert the `NoSafeSlice` old-edge state into a source disposition.
+The refreshed diagnostics identify one finite follow-up: the
+`VerifiedCallableLoopBreakSourceFactsV1::source_kind` field at
+`loop_break.rs:423` is assigned but never read. Its candidate-level
+source-kind relation is a distinct, still-retained field. I122 selects only
+the outer Facts field and its constructor assignment; no semantic issuer or
+candidate relation changes. The old-edge `NoSafeSlice` remains unchanged.
+
+```text
+cargo check --profile quick --lib -j4          passed; lib 1,692 warnings
+cargo test --profile quick --lib --no-run -j4  passed; lib-test 549 warnings
+```
+
+The next card owns the field deletion and its focused source-Facts acceptance.
 
 ## Acceptance
 
