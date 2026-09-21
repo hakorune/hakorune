@@ -4,7 +4,7 @@ Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I92
 Date: 2026-09-21
 Parent: mirbuilder-warning-parser-source-catalog-same-parser-test-facade-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded warning cohort only
-NextCard: select one caller-zero facade or record NoSafeSlice
+NextCard: MIRBUILDER-WARNING-CALLABLE-CONTRACT-DISPOSITION-SYNTAX-DELETE-I0
 ---
 
 # MirBuilder warning baseline refresh I92
@@ -47,3 +47,20 @@ run its focused gate and the stable warning refresh at its parent/current pair.
 The parser source-catalog facade closed with lib **1,712**, lib-test **553**,
 and parser source tests **56/56**. This card remeasures that pair before
 choosing the next warning row; it does not reopen parser source ownership.
+
+## Refresh result and selected cohort
+
+The sequential refresh completed with lib **1,712** warnings and lib-test
+**553** warnings. No new red or private-interface diagnostic appeared.
+
+The inventory retains `admitted_registry::branch_count` because
+`aot_admission.rs:153` is a production caller, and retains the mixed-cfg
+`loop_phi_materializer.rs:467` index warning for a separate cfg-aware row.
+The next candidate is `src/parser/callable_contract_syntax.rs:42`,
+`CallableContractSourceDispositionV1::syntax()`: repository-wide search found
+no caller beyond its definition. Production consumers already pattern-match
+the disposition directly, so deleting this unused accessor removes one dead
+edge without introducing a replacement authority.
+
+The next bounded cohort is
+`MIRBUILDER-WARNING-CALLABLE-CONTRACT-DISPOSITION-SYNTAX-DELETE-I0`.

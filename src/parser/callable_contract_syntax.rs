@@ -38,15 +38,6 @@ pub(crate) enum CallableContractSourceDispositionV1 {
     },
 }
 
-impl CallableContractSourceDispositionV1 {
-    pub(crate) fn syntax(&self) -> Option<&CallableContractSyntaxV1> {
-        match self {
-            Self::OutsideDirectDeclaredInstanceMethod => None,
-            Self::DirectDeclaredInstanceMethod { syntax } => syntax.as_ref(),
-        }
-    }
-}
-
 impl CallableContractSyntaxV1 {
     pub(super) fn from_instance_method(declaration: &ASTNode) -> Option<Self> {
         let attrs = match declaration {
