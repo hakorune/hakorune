@@ -36,12 +36,15 @@ pub(super) use lifecycle::is_lifecycle_instruction;
 pub(crate) use lifecycle::PublishedObjectStorageProfileV1;
 
 pub(crate) use c_transport::{
-    PublishedCallKindV1, PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
+    PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
 };
 pub(crate) use compiled_entry_contract::{
-    CompiledEntryCleanupKindV1, CompiledEntryContractV1, CompiledEntryFormalKindV1,
-    CompiledEntryRootResultV1,
+    CompiledEntryContractV1, CompiledEntryFormalKindV1, CompiledEntryRootResultV1,
 };
+#[cfg(test)]
+pub(crate) use c_transport::PublishedCallKindV1;
+#[cfg(test)]
+pub(crate) use compiled_entry_contract::CompiledEntryCleanupKindV1;
 pub(crate) use physical_abi::{PublishedLifecyclePhysicalAbiInputV1, PublishedLifecycleRuntimeRequirementsV1};
 pub(crate) use physical_program::PublishedLifecyclePhysicalFunctionRoleV1;
 pub(crate) use physical_program::ordinary_callable_key;
