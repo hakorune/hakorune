@@ -37,15 +37,19 @@ cargo test --profile quick --lib --no-run -j4
 
 Record lib/lib-test warning counts, classify every selected diagnostic, and
 keep production callers such as `admitted_registry::branch_count` in their
-owner rows. Before any implementation, perform the old-edge caller census and
-confirm that only the source-side `route_loop_break_recipe` edge is selected.
+owner rows. Before any implementation, perform the old-edge caller census.
+The current physical audit classifies `route_loop_break_recipe` as a
+compatibility route, not a source consumer; a source caller must first be
+switched and the exact edge must then prove caller-zero before deletion is
+selected.
 
 ## Deletion-lane instruction
 
 The warning cleanup has now demonstrated its first real source deletion in
 I93. The next worker/card selection must explicitly consider the bounded
-`MIR-RETIRE-FIRST-OLD-EDGE-R0` lane: caller census, one physical deletion,
-absence guard, and build/focused/guard receipt. It must not expand to
-`lower_loop_or_freeze_v1`, `LegacyCallV0`, or non-source callers. If the
-census is not caller-zero or the physical owner is not sole, record
-`NoSafeSlice` and retain the warning cohort as baseline debt.
+`MIR-RETIRE-FIRST-OLD-EDGE-R0` lane: caller census, source-caller switch if
+needed, one physical deletion, absence guard, and build/focused/guard receipt.
+It must not expand to `lower_loop_or_freeze_v1`, `LegacyCallV0`, or the live
+compatibility route. If the census is not caller-zero or the physical owner
+is not sole, record `NoSafeSlice` and retain the warning cohort as baseline
+debt.
