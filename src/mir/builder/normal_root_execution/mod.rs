@@ -7,9 +7,10 @@
 mod consumer;
 mod model;
 
+#[cfg(test)]
+pub(in crate::mir) use consumer::NormalRootExecutionConsumerRejectV1;
 pub(in crate::mir) use consumer::{
-    NormalRootExecutionConsumerRejectV1, NormalRootExecutionConsumerV1,
-    RejectedNormalRootExecutionConsumptionV1,
+    NormalRootExecutionConsumerV1, RejectedNormalRootExecutionConsumptionV1,
 };
 pub(in crate::mir) use model::{
     AdmittedNormalRootExecutionModeV1, ConsumedNormalRootCallableSourceV1,
