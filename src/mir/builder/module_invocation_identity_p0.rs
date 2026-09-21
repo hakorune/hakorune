@@ -36,7 +36,7 @@ fn invocation_ids_are_distinct_and_not_clone_authority() {
         .mint(InvocationRootFamilyV1::BindingSsaRecursive)
         .unwrap();
     assert_ne!(first.id().ordinal(), second.id().ordinal());
-    assert!(!first.id().same(second.id()));
+    assert_ne!(first.id(), second.id());
 }
 
 #[test]

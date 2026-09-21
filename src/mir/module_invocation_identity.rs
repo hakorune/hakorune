@@ -92,10 +92,6 @@ impl ModuleInvocationIdV1 {
         self.brand
     }
 
-    pub(crate) fn same(&self, other: &Self) -> bool {
-        self.brand.same(other.brand)
-    }
-
     #[cfg(test)]
     pub(crate) const fn ordinal(&self) -> u64 {
         self.brand.invocation_ordinal().get()

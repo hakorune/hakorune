@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI105__SelectNextCohort
+Status: closed__2026-09-21__WarningBaselineRefreshI105__SelectedModuleIdSame
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I105
 Date: 2026-09-21
 Parent: mirbuilder-warning-provider-impossible-reject-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: one explicitly justified caller-zero deletion or warning row
+NextCard: MIRBUILDER-WARNING-MODULE-ID-SAME-I0
 ---
 
 # MirBuilder warning baseline refresh I105
@@ -47,3 +47,18 @@ measured baseline is lib **1,702** and lib-test **551**. The old-edge deletion
 lane remains `NoSafeSlice`: the live compatibility registry entry still has no
 named successor; any future deletion row requires a named successor and
 caller-zero proof.
+
+## Refresh result and selected cohort
+
+The sequential refresh reproduced lib **1,702** warnings and lib-test **551**
+warnings. The old-edge census remains `NoSafeSlice`. The selected warning is
+`ModuleInvocationIdV1::same` in `module_invocation_identity.rs`.
+
+The finite caller census is production-zero: the method is declared once and
+has no source, tool, or tracked-doc caller. One test assertion uses the method
+to compare two IDs; the bounded implementation row replaces that assertion
+with the existing derived `PartialEq` identity comparison, then removes the
+method. `ModuleInvocationBrandV1::same` remains the canonical brand comparison
+used by the identity kernel and is outside this row.
+
+The next bounded cohort is `MIRBUILDER-WARNING-MODULE-ID-SAME-I0`.
