@@ -101,6 +101,7 @@ pub(crate) struct VerifiedLoopSourceForestBindingMemberV1 {
 }
 
 impl VerifiedLoopSourceForestBindingMemberV1 {
+    #[cfg(test)]
     pub(crate) fn path(&self) -> &LoopSourcePathV1 {
         &self.path
     }
@@ -115,6 +116,7 @@ impl VerifiedLoopSourceForestBindingV1 {
         &self.members
     }
 
+    #[cfg(test)]
     pub(crate) fn owner(&self) -> LoopRecipeSourceOwnerV1 {
         self.owner
     }

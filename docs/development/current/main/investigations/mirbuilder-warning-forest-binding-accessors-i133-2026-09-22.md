@@ -1,5 +1,5 @@
 ---
-Status: ready__2026-09-22__WarningForestBindingAccessors__Fast
+Status: closed__2026-09-22__WarningForestBindingAccessors__ProductionBuildRestricted
 Task: MIRBUILDER-WARNING-FOREST-BINDING-ACCESSORS-I133
 Date: 2026-09-22
 Parent: mirbuilder-warning-baseline-refresh-i132-2026-09-22.md
@@ -65,3 +65,15 @@ lib/lib-test warning counts and confirm the forest/Recipe symbols remain.
 If a production consumer appears, or if the test-only boundary changes the
 forest parent/path evidence, return to design_stop. Do not delete the forest
 binding or add a replacement production accessor.
+
+## Closeout evidence
+
+Both accessors now have `#[cfg(test)]`, so they remain available to the
+structural tests but are absent from the production lib build. The forest
+binding, parent-index checks, owner field, and Recipe conversion are unchanged.
+`cargo fmt --all -- --check` passed; the focused forest filter passed **28/28**;
+`cargo check --profile quick --lib -j4` passed with lib **1,687** warnings;
+`cargo test --profile quick --lib --no-run -j4` passed with lib-test **545**
+warnings; and the pointer guard passed. The two target warning locations are
+absent from the lib warning log. No forest schema, semantic route, test, or
+fallback was deleted.
