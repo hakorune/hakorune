@@ -1,5 +1,5 @@
 ---
-Status: fast__2026-09-22__CompositePackageRecipeMappingDecisionAccepted
+Status: closeout__2026-09-22__CompositePackageRecipeMappingGreen
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PACKAGE-I1
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-body-role-i0-2026-09-22.md
@@ -119,6 +119,31 @@ then may a later row consider caller switch and old-edge deletion.
    caller-zero and guard evidence are present.
 
 Rows 2 and 3 are planning entries only until I1 acceptance is recorded.
+
+## I1 evidence — 2026-09-22
+
+The tagged package/Recipe slice is complete at its bounded boundary. The
+parser program fixture retains one `CompositeCandidate`, the package owner
+accepts the exact owner row once, the composite Facts consume the exact loop
+site once, and `finish_empty` succeeds with no residual candidate. The direct
+candidate and typed-absence rows remain green in the same focused run.
+
+Evidence:
+
+* `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_semantic_package::loop_break_source_tests -- --nocapture`
+  — 8 passed, 0 failed, including the parser composite package test;
+* `cargo check --profile quick --lib` — exit 0; 1,674 warnings, matching the
+  existing warning baseline after the I147 cohort. No warning suppression,
+  test deletion, or dead-code claim was added by this slice;
+* `cargo fmt --all -- --check` and `bash tools/checks/current_state_pointer_guard.sh`
+  — green;
+* all new source files remain below the 760-line design threshold (the
+  existing LoopBreak Facts owner is 745 lines).
+
+This closes only package retention and source-bound Recipe construction. I2
+still needs a named physical source-port/target relation before allocation;
+there is no source-to-MIR publication, production caller switch, fallback
+change, or old-edge deletion claim.
 
 ## Acceptance and non-claims
 

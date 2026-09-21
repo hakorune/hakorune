@@ -55,6 +55,45 @@ fn parser_scan_source_seals_one_dynamic_candidate_and_all_parameter_contracts() 
 }
 
 #[test]
+fn parser_program_source_retains_composite_loopbreak_recipe_candidate() {
+    let mut package = issue(include_str!(
+        "../../../lang/src/compiler/parser/program/parser_program_box.hako"
+    ))
+    .expect("parser program composite LoopBreak semantic package");
+
+    assert_eq!(
+        package.loop_break_source_row_count(),
+        package.batch().declarations().len()
+    );
+    assert_eq!(package.loop_break_source_candidate_count(), 1);
+    let owner = package
+        .loop_break_source
+        .candidate_owner()
+        .expect("composite candidate owner");
+    let mut loan = package
+        .loop_break_source
+        .take_for_owner(owner)
+        .expect("owner receives composite candidate");
+    assert!(matches!(
+        loan,
+        LoopBreakSourcePackageLoanV1::CompositeCandidate(_)
+    ));
+    let site = match &loan {
+        LoopBreakSourcePackageLoanV1::CompositeCandidate(facts) => facts
+            .candidates()
+            .first()
+            .expect("composite candidate")
+            .projection()
+            .loop_site()
+            .clone(),
+        _ => panic!("fixture must issue a composite candidate"),
+    };
+    assert!(loan.take_composite_candidate_for_site(&site).is_some());
+    loan.finish_empty()
+        .expect("composite candidate is consumed exactly once");
+}
+
+#[test]
 fn direct_loop_break_source_package_retains_one_candidate_row() {
     let package = issue(
         r#"
@@ -183,6 +222,9 @@ static box Main {
             .clone(),
         LoopBreakSourcePackageLoanV1::SupportedNonCandidate { .. } => {
             panic!("fixture must issue a candidate")
+        }
+        LoopBreakSourcePackageLoanV1::CompositeCandidate(_) => {
+            panic!("direct fixture must not issue a composite candidate")
         }
     };
     assert!(loan.take_candidate_for_site(&site).is_some());

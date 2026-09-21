@@ -42,6 +42,14 @@ impl CompositeLoopEvidenceV1 {
         &self.site
     }
 
+    pub(in crate::mir) const fn member_index(&self) -> u32 {
+        self.member_index
+    }
+
+    pub(in crate::mir) const fn parent_index(&self) -> Option<u32> {
+        self.parent_index
+    }
+
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -81,6 +89,50 @@ impl CompositeLoopBodyRoleV1 {
                         .as_deref()
                         .is_some_and(|body| body.iter().any(Self::contains_control))
             }
+        }
+    }
+
+    pub(in crate::mir) fn as_statement(&self) -> Option<&SourceStmtSiteV1> {
+        match self {
+            Self::Statement { site } => Some(site),
+            _ => None,
+        }
+    }
+
+    pub(in crate::mir) fn as_if(
+        &self,
+    ) -> Option<(
+        &SourceStmtSiteV1,
+        &SourceExprSiteV1,
+        &[CompositeLoopBodyRoleV1],
+        Option<&[CompositeLoopBodyRoleV1]>,
+    )> {
+        match self {
+            Self::If {
+                site,
+                condition_site,
+                then_body,
+                else_body,
+            } => Some((site, condition_site, then_body, else_body.as_deref())),
+            _ => None,
+        }
+    }
+
+    pub(in crate::mir) fn as_loop(
+        &self,
+    ) -> Option<(&CompositeLoopEvidenceV1, &[CompositeLoopBodyRoleV1])> {
+        match self {
+            Self::Loop { evidence, body } => Some((evidence, body)),
+            _ => None,
+        }
+    }
+
+    pub(in crate::mir) fn as_exit(
+        &self,
+    ) -> Option<(&SourceStmtSiteV1, &ResolvedExitRecordV1)> {
+        match self {
+            Self::Exit { site, record, .. } => Some((site, record)),
+            _ => None,
         }
     }
 
@@ -133,6 +185,10 @@ pub(crate) struct VerifiedLoopBreakCompositeBodyRoleMapV1 {
 impl VerifiedLoopBreakCompositeBodyRoleMapV1 {
     #[cfg(test)]
     pub(crate) fn root(&self) -> &CompositeLoopBodyRoleV1 {
+        &self.root
+    }
+
+    pub(in crate::mir) fn root_for_recipe(&self) -> &CompositeLoopBodyRoleV1 {
         &self.root
     }
 

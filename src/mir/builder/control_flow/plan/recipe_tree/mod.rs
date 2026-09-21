@@ -20,6 +20,7 @@ pub(in crate::mir::builder) use block::{
 /// This is intentionally distinct from the portable verified Recipe artifact:
 /// route builders still own their Facts/AST reconstruction and admission
 /// policy.  The bundle only removes the repeated `{ arena, root }` shell.
+#[derive(Debug)]
 pub(in crate::mir::builder) struct BuiltRecipeTree {
     pub arena: RecipeBodies,
     pub root: RecipeBlock,
@@ -63,6 +64,23 @@ pub(in crate::mir::builder::control_flow::plan) use verified::verify_block_contr
 pub(in crate::mir::builder) use verified::{
     verify_port_sig_obligations_if_enabled, VerifiedRecipeBlock,
 };
+
+/// Source-backed recipe producers need the structural verifier without
+/// depending on the narrower internal pre-binding entry point.
+pub(in crate::mir::builder) fn verify_source_recipe_block(
+    arena: &RecipeBodies,
+    block: &RecipeBlock,
+    context: &str,
+) -> Result<(), String> {
+    verified::verify_block_contract_with_pre(
+        arena,
+        block,
+        BlockContractKind::ExitAllowed,
+        context,
+        None,
+    )
+    .map(|_| ())
+}
 
 // ===== RecipeComposer route entry facade =====
 pub(in crate::mir::builder) struct RecipeComposer;

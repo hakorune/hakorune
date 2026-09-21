@@ -42,7 +42,8 @@ mod normal_callable_loop_physical_adapter; // callable GenericLoopV1 source Reci
 mod normal_callable_loop_source_facts; // callable source-aware Facts/Recipe Ready issuer
 pub(in crate::mir) use normal_callable_loop_source_facts::{
     issue_callable_loop_break_source_facts_v1, CallableLoopBreakSourceFactsDispositionV1,
-    CallableLoopBreakSourceFactsIssueV1, VerifiedCallableLoopBreakSourceCandidateV1,
+    CallableLoopBreakSourceFactsIssueV1, VerifiedCallableLoopBreakCompositeSourceCandidateV1,
+    VerifiedCallableLoopBreakCompositeSourceFactsV1, VerifiedCallableLoopBreakSourceCandidateV1,
     VerifiedCallableLoopBreakSourceFactsV1,
 };
 mod normal_callable_loop_source_port; // source-aware GenericLoop expression capability

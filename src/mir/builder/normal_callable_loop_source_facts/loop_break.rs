@@ -4,6 +4,10 @@
 //! LoopBreak planner outcome and scheduler terminality. It does not lower a
 //! route, allocate a Builder, or infer a candidate from names.
 
+use super::composite::{
+    issue_composite_source_candidate_v1, CompositeLoopBreakSourceFactsIssueV1,
+    VerifiedCallableLoopBreakCompositeSourceCandidateV1,
+};
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::recipe_tree::build_loop_break_source_recipe;
@@ -45,6 +49,7 @@ pub(in crate::mir) enum CallableLoopBreakSourceFactsIssueV1 {
     SourceNavigation(Box<str>),
     Planner(Box<str>),
     Projection(LoopBreakSourceProjectionRejectV1),
+    Composite(CompositeLoopBreakSourceFactsIssueV1),
 }
 
 /// One source-aligned direct LoopBreak candidate retained for the later
@@ -435,8 +440,70 @@ impl VerifiedCallableLoopBreakSourceFactsV1 {
 }
 
 #[derive(Debug)]
+pub(in crate::mir) struct VerifiedCallableLoopBreakCompositeSourceFactsV1 {
+    owner: FunctionOwnerIdV1,
+    function_origin: FunctionOriginV1,
+    candidates: Box<[VerifiedCallableLoopBreakCompositeSourceCandidateV1]>,
+}
+
+impl VerifiedCallableLoopBreakCompositeSourceFactsV1 {
+    pub(in crate::mir) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(in crate::mir) const fn function_origin(&self) -> FunctionOriginV1 {
+        self.function_origin
+    }
+
+    pub(in crate::mir) fn candidates(
+        &self,
+    ) -> &[VerifiedCallableLoopBreakCompositeSourceCandidateV1] {
+        &self.candidates
+    }
+
+    pub(in crate::mir) fn validate_package_candidate(&self) -> Result<(), String> {
+        for candidate in &self.candidates {
+            let projection = candidate.projection();
+            if projection.owner() != self.owner
+                || projection.function_origin() != self.function_origin
+                || !candidate.recipe_is_nonempty()
+            {
+                return Err(
+                    "[freeze:contract][callable-loop-break/composite-package-relation]".to_owned(),
+                );
+            }
+        }
+        Ok(())
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn take_candidate_for_site(
+        &mut self,
+        site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+    ) -> Option<VerifiedCallableLoopBreakCompositeSourceCandidateV1> {
+        let mut candidates = std::mem::take(&mut self.candidates).into_vec();
+        let Some(index) = candidates
+            .iter()
+            .position(|candidate| candidate.projection().loop_site() == site)
+        else {
+            self.candidates = candidates.into_boxed_slice();
+            return None;
+        };
+        let candidate = candidates.remove(index);
+        if !candidate.recipe_is_nonempty() {
+            candidates.insert(index, candidate);
+            self.candidates = candidates.into_boxed_slice();
+            return None;
+        }
+        self.candidates = candidates.into_boxed_slice();
+        Some(candidate)
+    }
+}
+
+#[derive(Debug)]
 pub(in crate::mir) enum CallableLoopBreakSourceFactsDispositionV1 {
     Candidate(VerifiedCallableLoopBreakSourceFactsV1),
+    CompositeCandidate(VerifiedCallableLoopBreakCompositeSourceFactsV1),
     SupportedNonCandidate {
         owner: FunctionOwnerIdV1,
         loop_count: usize,
@@ -531,6 +598,7 @@ pub(in crate::mir) fn issue_callable_loop_break_source_facts_v1(
     }
 
     let mut candidates = Vec::new();
+    let mut composite_candidates = Vec::new();
     for site in loop_sites.iter() {
         let membership = match ledger.resolved_loop_source(site) {
             Ok(membership) => membership,
@@ -561,17 +629,47 @@ pub(in crate::mir) fn issue_callable_loop_break_source_facts_v1(
             }
         };
         let (resolved_source, _, _) = membership.into_parts();
-        let projection =
-            match issue_loop_break_source_projection_v1(input, &loop_stmt, resolved_source) {
-                Ok(projection) => projection,
-                Err(error) if unsupported_shape(&error) => continue,
-                Err(error) => {
-                    return CallableLoopBreakSourceFactsDispositionV1::Rejected {
-                        owner,
-                        issue: CallableLoopBreakSourceFactsIssueV1::Projection(error),
+        let projection = match issue_loop_break_source_projection_v1(
+            input,
+            &loop_stmt,
+            resolved_source,
+        ) {
+            Ok(projection) => projection,
+            Err(error) if unsupported_shape(&error) => {
+                let composite_membership = match ledger.resolved_loop_source(site) {
+                    Ok(membership) => membership,
+                    Err(error) => {
+                        return CallableLoopBreakSourceFactsDispositionV1::Unresolved {
+                            owner,
+                            issue: CallableLoopBreakSourceFactsIssueV1::SourceLedger(
+                                format!("{error:?}").into(),
+                            ),
+                        }
                     }
+                };
+                let (composite_source, _, _) = composite_membership.into_parts();
+                match issue_composite_source_candidate_v1(input, &loop_stmt, composite_source) {
+                        Ok(candidate) => composite_candidates.push(candidate),
+                        Err(CompositeLoopBreakSourceFactsIssueV1::NotComposite)
+                        | Err(CompositeLoopBreakSourceFactsIssueV1::Projection(
+                            crate::mir::compiler::loop_break_composite_source_projection::LoopBreakCompositeSourceProjectionRejectV1::RootBreakMissing,
+                        )) => {}
+                        Err(issue) => {
+                            return CallableLoopBreakSourceFactsDispositionV1::Rejected {
+                                owner,
+                                issue: CallableLoopBreakSourceFactsIssueV1::Composite(issue),
+                            }
+                        }
+                    }
+                continue;
+            }
+            Err(error) => {
+                return CallableLoopBreakSourceFactsDispositionV1::Rejected {
+                    owner,
+                    issue: CallableLoopBreakSourceFactsIssueV1::Projection(error),
                 }
-            };
+            }
+        };
         let planner_input = CallableLoopFactsPlannerInputV1::new(
             &condition,
             &body,
@@ -610,12 +708,17 @@ pub(in crate::mir) fn issue_callable_loop_break_source_facts_v1(
         });
     }
 
-    if candidates.is_empty() {
-        CallableLoopBreakSourceFactsDispositionV1::SupportedNonCandidate {
+    if !candidates.is_empty() && !composite_candidates.is_empty() {
+        return CallableLoopBreakSourceFactsDispositionV1::Rejected {
             owner,
-            loop_count: loop_sites.len(),
-        }
-    } else {
+            issue: CallableLoopBreakSourceFactsIssueV1::Composite(
+                CompositeLoopBreakSourceFactsIssueV1::Recipe(
+                    "[freeze:contract][callable-loopbreak/mixed-direct-composite]".into(),
+                ),
+            ),
+        };
+    }
+    if !candidates.is_empty() {
         let function = input.function();
         CallableLoopBreakSourceFactsDispositionV1::Candidate(
             VerifiedCallableLoopBreakSourceFactsV1 {
@@ -624,5 +727,19 @@ pub(in crate::mir) fn issue_callable_loop_break_source_facts_v1(
                 candidates: candidates.into_boxed_slice(),
             },
         )
+    } else if !composite_candidates.is_empty() {
+        let function = input.function();
+        CallableLoopBreakSourceFactsDispositionV1::CompositeCandidate(
+            VerifiedCallableLoopBreakCompositeSourceFactsV1 {
+                owner,
+                function_origin: function.function_origin(),
+                candidates: composite_candidates.into_boxed_slice(),
+            },
+        )
+    } else {
+        CallableLoopBreakSourceFactsDispositionV1::SupportedNonCandidate {
+            owner,
+            loop_count: loop_sites.len(),
+        }
     }
 }
