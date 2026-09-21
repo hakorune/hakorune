@@ -17,9 +17,9 @@ use super::module_invocation_owner_chain::{BrandedCollectorV1, InvocationBranded
 use super::raw_expansion_receipt_ledger::{
     RawExpansionReplacementEventV1, SealedRawExpansionReceiptLedgerV1,
 };
-use crate::mir::compiler::capability::{
-    ResolvedOwnerHeaderFamilyV1, VerifiedResolvedOwnerHeaderV1,
-};
+#[cfg(test)]
+use crate::mir::compiler::capability::ResolvedOwnerHeaderFamilyV1;
+use crate::mir::compiler::capability::VerifiedResolvedOwnerHeaderV1;
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct RawCollectionSourcePayloadV1 {
