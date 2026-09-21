@@ -16,12 +16,15 @@ mod s6c_typed_input_tests;
 #[cfg(test)]
 mod tests;
 
+#[cfg(test)]
 pub(crate) use issuer::{
     issue_resolved_callable_semantic_batch_v1,
     issue_resolved_callable_semantic_batch_with_brand_catalog_v1,
+    issue_resolved_callable_semantic_batch_with_policy_v1, DirectCallObservationBatchPolicyV1,
+};
+pub(crate) use issuer::{
     issue_resolved_callable_semantic_batch_with_freestatic_targets_v1,
     issue_resolved_callable_semantic_batch_with_main_freestatic_targets_v1,
-    issue_resolved_callable_semantic_batch_with_policy_v1, DirectCallObservationBatchPolicyV1,
     ResolvedCallableSemanticBatchIssueV1,
 };
 pub(crate) use model::{
