@@ -1,10 +1,10 @@
 ---
-Status: fast__2026-09-22__PublicationAcceptance
+Status: design_stop__2026-09-22__PublicationPreflightTargetOnly
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: true for I3 task 4 publication acceptance only; task 5 caller switch remains gated on the task 4 receipt
-NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-RETIREMENT-R0
+Implementation permission: false; resolve MIR-CALL-PARSER-LOOPBREAK-PUBLICATION-PREFLIGHT-D1 before I3 task 4
+NextCard: mir-call-parser-loopbreak-publication-preflight-d1-2026-09-22.md
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -77,6 +77,24 @@ The next bounded order is:
 The warning cohort may resume only after this I3/R0 sequence closes, or when
 an owner-specific warning becomes a newly selected blocker. This ordering is
 the task queue; it does not claim publication, cutover, or retirement yet.
+
+## Recheck correction — 2026-09-22
+
+The named no-selected-handoff frontier is earlier than the selected parser
+tuple in the full merged package. A read-only owner audit and a temporary
+test-only observation (removed after the run) found an armed
+`StringHelpers.skip_ws/2 -> StringHelpers.is_space/1` row at
+`[Body(4), LoopBody(0), IfCondition]`. The publication owner classifies this
+callee as target-only because the current ExactI64 result contract cannot
+prove it. The selected `ParserProgramBox.parse/2 -> starts_with/3` rows are
+ExactI64, but they are not the first reached row.
+
+This does not authorize filtering the target-only row: the accepted I0
+contract requires every resolver item to be `SelectedStatic` or `CoreMethod`,
+and the package acceptance D0 forbids target-only lowering or partial package
+coverage. I3 is therefore a design stop until the bounded D1 preflight card
+names an existing owner or a typed terminal for this finite family. No code,
+fallback, publication, caller switch, or retirement claim is made here.
 
 ## Acceptance frontier recheck — 2026-09-22
 
