@@ -33,6 +33,7 @@ impl ParserCallableParameterSourceCatalogV1 {
         &self.declarations
     }
 
+    #[cfg(test)]
     pub(crate) fn same_parser_source(&self, other: &Self) -> bool {
         self.brand.same_as(&other.brand)
     }
