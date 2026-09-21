@@ -1,5 +1,5 @@
 ---
-Status: fast__2026-09-21__SelectedBoundedWarningCohort__ExecuteTestFacadeDeletion
+Status: closed__2026-09-21__DynamicInvocationTestFacade__OwnerDirectImports
 Task: MIRBUILDER-WARNING-DYNAMIC-INVOCATION-TEST-FACADE-I0
 Date: 2026-09-21
 Parent: mirbuilder-warning-baseline-refresh-i68-2026-09-21.md
@@ -41,3 +41,16 @@ Success requires the parent facade items to disappear, the test module to import
 the canonical owner directly, no warning to move to another parent layer, and
 both commands to pass. The fixed counts may change only according to the
 observed diagnostic grouping and must be recorded explicitly.
+
+## Closeout evidence
+
+Commit `4ca97fc3a0` removed the parent `catalog` re-export and added the two
+direct owner imports to `tests.rs`. The complete source census now shows the
+types only in `catalog.rs` and the dynamic-invocation tests; no production
+caller or second facade remains.
+
+The fixed gates passed sequentially: lib generated **1,753** warnings and
+lib-test generated **557** warnings. The six focused dynamic-invocation tests
+also passed (`6 passed, 0 failed`). `cargo fmt --check`, `git diff --check`,
+and the current-state pointer guard are green. No dynamic operator or semantic
+route changed.
