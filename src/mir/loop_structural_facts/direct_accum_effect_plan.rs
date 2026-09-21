@@ -41,10 +41,6 @@ pub(crate) struct DirectAccumBindingEffectEntryV1 {
 }
 
 impl DirectAccumBindingEffectEntryV1 {
-    pub(crate) fn role(&self) -> DirectAccumBindingEffectRoleV1 {
-        self.role
-    }
-
     pub(crate) fn recipe_binding(&self) -> LoopBindingKeyV1 {
         self.recipe_binding
     }

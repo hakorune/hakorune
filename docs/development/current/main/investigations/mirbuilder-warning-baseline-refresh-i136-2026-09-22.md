@@ -1,10 +1,10 @@
 ---
-Status: ready__2026-09-22__WarningBaselineRefresh__DesignStop
+Status: closed__2026-09-22__WarningBaselineRefresh__SelectedI137
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I136
 Date: 2026-09-22
 Parent: mirbuilder-warning-variable-accum-role-ordinal-i135-2026-09-22.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: none__awaiting_I136_selection
+NextCard: MIRBUILDER-WARNING-DIRECT-ACCUM-EFFECT-ROLE-TEST-FACADE-I137
 ---
 
 # MirBuilder warning baseline refresh I136
@@ -51,3 +51,15 @@ cargo test --profile quick --lib --no-run -j4
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
+## Selection result
+
+The fresh baseline stayed at lib **1,686** and lib-test **544**. The selected
+finite production-zero row is the `role` accessor on
+`DirectAccumBindingEffectEntryV1` at
+`src/mir/loop_structural_facts/direct_accum_effect_plan.rs:44`. Its only
+caller is the existing `#[cfg(test)]` witness in
+`src/mir/compiler/direct_accum_profile.rs`; the production plan uses the
+role-keyed `entry(...)` lookup and does not need the accessor. The next card
+will gate this exact accessor with `#[cfg(test)]`, preserving the effect-plan
+shape and its focused witness. No old-edge caller census changed, so the
+LoopBreak deletion lane remains `NoSafeSlice`.

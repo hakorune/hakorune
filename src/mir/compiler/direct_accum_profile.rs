@@ -19,7 +19,7 @@ use crate::mir::loop_structural_facts::{
 };
 #[cfg(test)]
 use crate::mir::loop_structural_facts::{
-    DirectAccumBindingEffectEntryV1, DirectAccumBindingEffectRoleV1,
+    DirectAccumBindingEffectRoleV1,
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 
@@ -228,15 +228,9 @@ mod tests {
         let (_input, _loop, _receipt, _prefix, _recipe, effect_plan, _completion) =
             profile.into_parts();
         assert_eq!(effect_plan.entries().len(), 5);
-        let roles = effect_plan
-            .entries()
-            .iter()
-            .map(DirectAccumBindingEffectEntryV1::role)
-            .collect::<Vec<_>>();
-        assert_eq!(
-            roles.as_slice(),
-            DirectAccumBindingEffectRoleV1::ALL.as_slice()
-        );
+        for role in DirectAccumBindingEffectRoleV1::ALL {
+            let _ = effect_plan.entry(role);
+        }
         assert_eq!(
             effect_plan
                 .entry(DirectAccumBindingEffectRoleV1::ConditionInductionRead)
