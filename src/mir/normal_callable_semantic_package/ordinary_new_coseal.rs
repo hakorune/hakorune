@@ -14,7 +14,7 @@ use std::{
     rc::Rc,
 };
 
-pub(crate) use self::birth_abi_handoff::{BirthAbiHandoffV1, BirthResultAbiV1};
+pub(crate) use self::birth_abi_handoff::BirthAbiHandoffV1;
 use super::instance_constructor_semantic::{
     InstanceConstructorBirthLookupErrorV1, VerifiedInstanceConstructorSemanticBatchV1,
 };

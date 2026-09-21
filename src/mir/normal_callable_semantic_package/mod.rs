@@ -116,7 +116,7 @@ pub(crate) use model::{
     VerifiedQualifiedReceiverCatalogRelationV1,
 };
 pub(crate) use ordinary_new_coseal::{
-    BirthAbiHandoffV1, BirthResultAbiV1, FinalizedBirthActualsV1, FinalizedRootResultAbiV1,
+    BirthAbiHandoffV1, FinalizedBirthActualsV1, FinalizedRootResultAbiV1,
     FinalizedRootSourceHandoffV1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,
     OrdinaryNewConstructorDispositionV1, OrdinaryNewTrivialArgumentKindV1,
     OrdinaryNewTrivialArgumentV1, PreparedTerminalI64AddReturnV1, PreparedTerminalI64FieldReturnV1,
