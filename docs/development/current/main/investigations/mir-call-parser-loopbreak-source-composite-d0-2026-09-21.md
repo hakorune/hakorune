@@ -1,14 +1,40 @@
 ---
-Status: ParkedSealed__NoSafeSlice__2026-09-21__ParserLoopBreakCompositeSourceOwner
+Status: design_stop__2026-09-21__ParserLoopBreakCompositeSourceProductDecision
 Task: MIR-CALL-PARSER-LOOPBREAK-SOURCE-COMPOSITE-D0
 Current execution row: MIR-CALL-PARSER-LOOPBREAK-SOURCE-COMPOSITE-D0
 Date: 2026-09-21
 Parent: mir-call-parser-loopbreak-source-physical-i0-2026-09-21.md
-Implementation permission: false; design and finite source-shape census only
-NextCard: MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0
+Implementation permission: false; design-only source-product decision and finite relation census
+NextCard: MIR-CALL-PARSER-SOURCE-TO-MIR-PACKAGE-ACCEPTANCE-WINDOW-D0
 ---
 
 # Parser LoopBreak composite source owner D0
+
+## Selected design-stop task — composite source product
+
+```text
+Decision: decide whether the existing LoopBreak Facts/Recipe owner can
+  co-seal the parser's finite composite body, nested exits, and target rows
+  without creating a second route or source authority.
+Source authority + canonical issuer: same-invocation resolver forest/exit
+  ledger plus the existing LoopBreakFacts/Recipe issuer; the package issuer
+  observes complete candidate-or-typed-absence coverage only.
+Non-authority: AST/name/line reconstruction, LoopRouteContext, LoopCond
+  reclassification, selected-method filtering, fallback, retry, VM/backend,
+  or a synthetic Cataloged/Selected receipt.
+Fail-fast boundary: missing/foreign/duplicate body site, nested exit, carrier,
+  target, package brand, or recipe relation rejects before Builder effects.
+Smallest next slice: map the root `:81`, child `:131`, and child `:182`
+  relations to one source product; accept the same-owner extension or retain
+  `NoSafeSlice` with its exact missing relation and reopen trigger.
+Non-claims: no Rust/Hako code, fixture, package acceptance, production switch,
+  old-edge deletion, fallback, backend parity, or warning cleanup.
+```
+
+This is a design-only reopening of the previously parked composite row. The
+parent package acceptance reached this owner as its sole missing dependency; the
+reopening changes no route or behavior claim. Implementation remains forbidden
+until the relation map and existing-owner decision below are complete.
 
 ## Six-line brief
 
