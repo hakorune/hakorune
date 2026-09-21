@@ -1,11 +1,11 @@
 ---
-Status: design_stop__2026-09-21__NoSafeSlice_CompositeOwnerMissing
+Status: closed__2026-09-21__SameOwnerCompositeExtensionAccepted
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PRODUCT-I1
 Current execution row: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PRODUCT-I1
 Date: 2026-09-21
 Parent: mir-call-parser-loopbreak-composite-source-product-i0-2026-09-21.md
-Implementation permission: false; select the existing owner that will retain the composite inventory before any code change
-NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PRODUCT-I1
+Implementation permission: true for the bounded I2 source projection described by the successor card; package/Recipe/physical changes remain closed
+NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-OWNER-I2
 ---
 
 # Parser composite LoopBreak source-product consumer I1
@@ -71,3 +71,10 @@ LoopBreak Facts/Recipe product and a separately named existing source owner
 that already has a complete body/exit vocabulary. The decision must include
 the parser root `:81`, nested loops `:131`/`:182`, all resolver exit rows, and
 the exact `RecipeItem` mapping before implementation permission can reopen.
+
+That decision is now accepted as a same-owner extension: the existing LoopBreak
+source issuer and later associated-source physical owner remain the sole
+authority chain, with a typed composite source projection inserted before the
+existing Recipe vocabulary. Implementation is limited to the I2 source
+projection row; package retention, Recipe mapping, and physical cutover remain
+separate successors.
