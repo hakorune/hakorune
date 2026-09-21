@@ -11,9 +11,10 @@ mod emitter_admission_tests;
 
 pub(crate) use emitter_admission::{
     issue_generic_g0_physical_emitter_admission_from_source_parent_v1,
-    issue_generic_g0_physical_emitter_admission_v1,
     GenericG0PhysicalEmitterAdmissionRejectV1, PreparedGenericG0PhysicalEmitterAdmissionV1,
 };
+#[cfg(test)]
+pub(crate) use emitter_admission::issue_generic_g0_physical_emitter_admission_v1;
 #[cfg(test)]
 pub(crate) use emitter_admission::
     issue_generic_g0_physical_emitter_admission_with_missing_carrier_for_test;
