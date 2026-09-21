@@ -36,6 +36,7 @@ use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
     DynamicV2NativePreflightLedgerV1, DynamicV2PhysicalScheduleRowV1,
     PreparedSelectedDynamicV2EmissionPlanV1,
 };
+#[cfg(test)]
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::{
     DynamicV2CompareI64CapabilityDemandV1, DynamicV2TemporaryDischargeRowV1,
@@ -51,10 +52,9 @@ use crate::mir::BasicBlockId;
 use targets::DynamicV2PhysicalTargetSetV1;
 
 use formal_header::DynamicV2OpenedFormalHeaderV1;
-use value_ledger::{
-    DynamicV2PhysicalValueLedgerRejectV1, DynamicV2PhysicalValueLedgerV1,
-    DynamicV2PhysicalValueViewV1,
-};
+use value_ledger::DynamicV2PhysicalValueLedgerV1;
+#[cfg(test)]
+use value_ledger::{DynamicV2PhysicalValueLedgerRejectV1, DynamicV2PhysicalValueViewV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
@@ -595,9 +595,9 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     }
 }
 
-pub(in crate::mir::builder) use assembly::{
-    assemble_unpublished_selected_dynamic_w6, assemble_unpublished_selected_dynamic_w6_from_parts,
-};
+#[cfg(test)]
+pub(in crate::mir::builder) use assembly::assemble_unpublished_selected_dynamic_w6;
+pub(in crate::mir::builder) use assembly::assemble_unpublished_selected_dynamic_w6_from_parts;
 
 #[cfg(test)]
 mod tests;
