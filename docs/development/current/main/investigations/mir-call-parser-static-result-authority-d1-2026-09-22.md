@@ -89,6 +89,23 @@ No existing owner currently seals all four links for the finite inventory.
 The `ExactNominalBox` enum is evidence of a catalog representation, not proof
 that a nominal/String result can enter the LoopBreak physical consumer.
 
+## Additional candidate audit — existing terminal relations
+
+The existing terminal-return family does not close this missing owner either:
+
+| candidate | retained source relation | missing D1 authority |
+| --- | --- | --- |
+| `TerminalI64CallReturnV1` / `TerminalRelationV1::Call` | exact owner, return site, call site, and terminal argument classes for the ordinary instance lifecycle | no canonical same-module target key, callee body/result proof, result representation, effect/ABI relation, or LoopBreak publication consumer |
+| `TerminalOpaqueCallReturnV1` | owner, return site, and call site for an opaque qualified call | deliberately no callee identity, result class, argument handoff, Invoke, or ABI; it is not a static-result owner |
+| `TerminalValueReturnV1` / `TerminalMapGetReturnV1` | root/instance terminal value or checked map-read source relation | no static caller/target relation and no consumer for the parser LoopBreak result handoff |
+
+These rows are useful evidence for typed terminal boundaries, but adapting one
+by name would create a second authority or silently widen an instance-lifecycle
+contract. The D1 owner census therefore remains `NoSafeSlice` until an
+existing owner is explicitly extended or one new owner co-seals canonical
+caller/site/target identity, callee body result, representation/effect/ABI,
+and a physical consumer (or a typed pre-effect terminal).
+
 ## Bounded design work
 
 1. Keep the six disposition classes separate and retain exact caller/site/target
