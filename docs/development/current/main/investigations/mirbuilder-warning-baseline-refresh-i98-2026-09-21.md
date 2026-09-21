@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI98__SelectNextCohort
+Status: closed__2026-09-21__WarningBaselineRefreshI98__SelectedActiveOrdinalFacade
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I98
 Date: 2026-09-21
 Parent: mirbuilder-warning-source-member-cursor-open-test-facade-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: one explicitly justified caller-zero deletion or warning row
+NextCard: MIRBUILDER-WARNING-SOURCE-ACTIVE-ORDINAL-TEST-FACADE-I0
 ---
 
 # MirBuilder warning baseline refresh I98
@@ -47,3 +47,15 @@ I98 follows the source-member cursor test facade. The measured baseline is lib
 because `route_loop_break_recipe` is still the live registry compatibility
 handler; a future deletion row requires a named successor and caller-zero
 proof.
+
+## Refresh result and selected cohort
+
+The sequential refresh completed with lib **1,707** warnings and lib-test
+**552** warnings. The old-edge census remains `NoSafeSlice`: the live
+compatibility registry entry still has no named successor. The next warning is
+`NyashParser::active_source_statement_ordinal`; its only observed callers are
+the source-session tests, and no production caller exists. The parser's source
+identity state and `active_source_declaration_path` remain unchanged.
+
+The next bounded cohort is
+`MIRBUILDER-WARNING-SOURCE-ACTIVE-ORDINAL-TEST-FACADE-I0`.

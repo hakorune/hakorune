@@ -304,6 +304,7 @@ impl NyashParser {
         self.source_invocation_brand.clone()
     }
 
+    #[cfg(test)]
     pub(super) fn active_source_statement_ordinal(&self) -> Option<u32> {
         self.active_source_statement_ordinal
     }
