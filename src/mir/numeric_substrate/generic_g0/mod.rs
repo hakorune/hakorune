@@ -64,6 +64,7 @@ impl VerifiedGenericNumericFactLeaseG0 {
         self.target
     }
 
+    #[cfg(test)]
     pub(crate) fn parameters(&self) -> &[GenericG0NumericParameterFactV1] {
         &self.parameters
     }

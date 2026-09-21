@@ -46,7 +46,7 @@ fn natural_plain_literals_issue_one_cumulative_numeric_bundle() {
     let typed = issue_generic_g0_typed_source_bundle_v1(bundle, NumericTarget::host())
         .expect("S0C numeric bundle");
     assert_eq!(typed.source().source_types().literals().len(), 4);
-    assert_eq!(typed.numeric().parameters().len(), 2);
+    assert_eq!(typed.source().source_types().parameters().len(), 2);
     assert_eq!(typed.numeric().literals().len(), 4);
     assert_eq!(typed.numeric().literals()[0].value, 3);
     assert_eq!(typed.return_abi().source_type_name(), "i64");
