@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__WarningBaselineRefreshI134__AwaitingNextCohort
+Status: closed__2026-09-22__WarningBaselineRefreshI134__SelectedI135
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I134
 Date: 2026-09-22
 Parent: mirbuilder-warning-forest-binding-accessors-i133-2026-09-22.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: prefer MIR-RETIRE-FIRST-OLD-EDGE-R0 only if its caller-zero proof changes
+NextCard: MIRBUILDER-WARNING-VARIABLE-ACCUM-ROLE-ORDINAL-I135
 ---
 
 # MirBuilder warning baseline refresh I134
