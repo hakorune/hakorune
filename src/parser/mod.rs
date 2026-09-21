@@ -62,6 +62,7 @@ pub(crate) use public_api::*;
 mod postpass_compatibility;
 pub(crate) mod postpass_envelope;
 mod postpass_open;
+#[cfg(test)]
 mod release_source;
 mod runes;
 mod source_authority;

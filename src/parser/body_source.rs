@@ -5,16 +5,23 @@
 //! handoff for body-source work. It does not issue semantic facts, owners,
 //! targets, Recipe data, or MIR.
 
+#[cfg(test)]
 use std::collections::BTreeSet;
 
 use crate::ast::ASTNode;
 
+#[cfg(test)]
 use super::source_resolver_handoff::{
-    build_resolver_source_handoff, ParserBoxResolverSourceHandoffV1, ResolverBoxMethodSourceSiteV1,
-    ResolverSourceHandoffErrorV1, ResolverSourceInvocationProvenanceV1,
+    build_resolver_source_handoff, ParserBoxResolverSourceHandoffV1, ResolverSourceHandoffErrorV1,
 };
+use super::source_resolver_handoff::{
+    ResolverBoxMethodSourceSiteV1, ResolverSourceInvocationProvenanceV1,
+};
+#[cfg(test)]
 use super::source_seal::{ParsedProgramWithSourceV1, ParserBoxSourceSealV1};
-use super::{NyashParser, ParseError, ParserBuildConfig};
+use super::NyashParser;
+#[cfg(test)]
+use super::{ParseError, ParserBuildConfig};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ParserBoxMethodBodySourceRowV1 {
@@ -107,10 +114,12 @@ impl<'ast> ParserBoxInstanceMethodSyntaxLeaseV1<'ast> {
 /// One-shot parser transaction. The rich AST and source seals are consumed
 /// once; only the declaration handoff and normalized body envelope escape.
 #[derive(Debug)]
+#[cfg(test)]
 pub(crate) struct ParserResolverBodyTransactionV1 {
     product: ParsedProgramWithSourceV1,
 }
 
+#[cfg(test)]
 impl ParserResolverBodyTransactionV1 {
     pub(super) fn new(product: ParsedProgramWithSourceV1) -> Self {
         Self { product }
@@ -168,6 +177,7 @@ impl ParserResolverBodyTransactionV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg(test)]
 pub(crate) enum BodySourceTransactionErrorV1 {
     ResolverHandoff(ResolverSourceHandoffErrorV1),
     ProgramNotAvailable,
@@ -194,6 +204,7 @@ pub(crate) enum BodySourceTransactionErrorV1 {
 }
 
 impl NyashParser {
+    #[cfg(test)]
     pub(crate) fn parse_from_string_with_resolver_body_source(
         input: impl Into<String>,
         build_config: ParserBuildConfig,
@@ -203,6 +214,7 @@ impl NyashParser {
     }
 }
 
+#[cfg(test)]
 fn collect_body_rows(
     ast: &ASTNode,
     seals: &[ParserBoxSourceSealV1],
@@ -273,6 +285,7 @@ fn collect_body_rows(
     Ok(rows)
 }
 
+#[cfg(test)]
 fn collect_syntax_lease<'ast>(
     ast: &'ast ASTNode,
     seals: &'ast [ParserBoxSourceSealV1],
