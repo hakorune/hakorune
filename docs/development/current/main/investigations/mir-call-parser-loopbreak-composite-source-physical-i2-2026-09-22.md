@@ -1,5 +1,5 @@
 ---
-Status: design_stop__2026-09-22__CompositePackageI1AcceptedAwaitingPhysicalRelation
+Status: design_stop__2026-09-22__CompositePackageI1AcceptedSingletonOwnerBoundary
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PHYSICAL-I2
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-package-i1-2026-09-22.md
@@ -12,10 +12,12 @@ NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 ## Six-line brief
 
 ```text
-Decision: pending I1 package/Recipe acceptance; consume one verified
-  composite source Recipe through the existing LoopBreak physical owner.
-Source authority + canonical issuer: the I1 package loan, the resolver-issued
-  composite projection, and the existing LoopBreak physical adapter.
+  Decision: extend the existing LoopBreak source owner for composite input,
+  while keeping the direct physical input unchanged; selected target/loan
+  authority remains the publication owner.
+Source authority + canonical issuer: the I1 composite candidate issues the
+  projection plus Recipe; VerifiedStaticCallResultPublicationOwnerV1 issues
+  each caller/site selected handoff exactly once.
 Non-authority: AST rescans, LoopRouteContext reconstruction, names/line numbers,
   generic retry/fallback, VM routes, or a new physical/result authority.
 Fail-fast boundary: exact owner/site/Recipe relation, source-port coverage,
@@ -43,6 +45,39 @@ and `CallableLoopSourceExpressionPortV1` instance consume the composite
 Recipe, and how its selected target/loan relation is carried without rebuilding
 meaning from AST or names.
 
+## Relation census and Decision — 2026-09-22
+
+The direct physical path is singleton-target and remains unchanged. The
+composite package currently cannot reach it: the lowering-state take and raw
+loop entry accept only `VerifiedCallableLoopBreakSourceCandidateV1`, so a
+composite loan would fall through to the generic source-facts route. The
+direct `SourceLoopBreakPhysicalInputV1` and
+`normal_callable_loop_source_route::into_selected_relation` also carry one
+`CallableLoopSourceTargetRelationV1`; target peeking is not a consumed claim.
+
+The selected same-owner design is therefore:
+
+* `VerifiedCallableLoopBreakCompositeSourceCandidateV1` is the input-side
+  authority and retains the resolver projection plus `BuiltRecipeTree`.
+* The existing `SourceLoopBreakPhysicalInputV1`/`lower_loop_break_source`
+  owner is extended for composite input; the direct three-statement contract
+  is not relaxed.
+* `VerifiedStaticCallResultPublicationOwnerV1::take_for_source` remains the
+  only target/loan authority. It supplies the ordered caller/site selected
+  handoffs and its duplicate/foreign/residual checks remain authoritative.
+* `CallableLoopSourcePartsBlockV1` and the existing Parts/LoopV0 spine remain
+  the physical lowering inner owner. `ClaimedCallableResultLoopBatchV1` is
+  not connected because it would introduce a second target/result authority
+  and its current emission lane is disconnected from LoopBreak.
+
+The composite physical envelope must co-seal the verified Recipe, source
+expression port, ordered complete selected handoffs, and cleanup/loan
+terminal. It must reject owner/origin/site/forest/Recipe mismatch, missing or
+foreign/duplicate target, wrong order, second take, residual claim, and any
+failure before `LoopBlocksStandard5::allocate`. AST/name rescans,
+`LoopRouteContext` reconstruction, generic fallback, target probes, and VM
+routes remain non-authority.
+
 The bounded I2 rows are:
 
 1. **Relation census** — trace the existing direct LoopBreak physical owner
@@ -54,3 +89,8 @@ The bounded I2 rows are:
 3. **Acceptance gate** — run the selected parser source-to-MIR invocation and
    record the named terminal. Only a green source-backed handoff can open I3;
    no caller switch or old-edge deletion is part of I2.
+
+The next implementation permission is limited to this envelope and its
+positive, missing-target, foreign-target, residual, and second-take guards.
+No production switch, source-to-MIR completion, or old-edge deletion is
+implied by the Decision.
