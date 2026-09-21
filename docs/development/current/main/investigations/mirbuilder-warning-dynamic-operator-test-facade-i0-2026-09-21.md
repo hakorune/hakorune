@@ -1,9 +1,9 @@
 ---
-Status: design_stop__2026-09-21__SelectedBoundedWarningCohort__ReadyForFastTransition
+Status: fast__2026-09-21__SelectedBoundedWarningCohort__ExecuteTestFacadeDeletion
 Task: MIRBUILDER-WARNING-DYNAMIC-OPERATOR-TEST-FACADE-I0
 Date: 2026-09-21
 Parent: mirbuilder-warning-baseline-refresh-i69-2026-09-21.md
-Implementation permission: false until pointer transition commit
+Implementation permission: true for the selected issuer/model test imports only
 NextCard: MIRBUILDER-WARNING-BASELINE-REFRESH-I70
 ---
 
