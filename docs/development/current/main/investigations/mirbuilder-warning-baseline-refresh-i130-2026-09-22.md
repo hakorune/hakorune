@@ -48,6 +48,23 @@ fresh census still finds the selected edge live, keep this row in
 `NoSafeSlice` and record the blocker rather than opening a warning facade or
 switching a compatibility route.
 
+## Deletion-lane recheck
+
+The read-only I120 recheck at HEAD `c616161dd9` confirms
+`NoSafeSlice`. `route_loop_break_recipe` remains registered in
+`registry/mod.rs:63-69`, executed through `dispatch_entry` from the live
+preflight path, and consumed by `RecipeComposer::compose_loop_break_recipe`.
+The source adapter at `raw_loop_child_entry.rs:304-339` bypasses that registry
+only for its limited direct shape; the parser composite still stops at
+`GenericLoopV1NotSelected`. Compatibility production callers remain through
+the `callable_handoff == None` branch into
+`lower_non_callable_loop_legacy_v1`/`lower_loop_or_freeze_v1`, plus the
+independent `RawLegacyChildLoweringPortV1` caller. Existing tests exercise the
+registry, raw port, and route entry, while guards explicitly require the
+legacy edges. No caller-zero or same-series switch is proven, so the owner
+request is recorded as next-slice priority only; no physical deletion or
+absence guard is authorized in I130.
+
 ## Acceptance
 
 ```text
