@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__WarningBaselineRefreshI128__AwaitingNextCohort
+Status: closed__2026-09-22__WarningBaselineRefreshI128__SelectedI129
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I128
 Date: 2026-09-22
 Parent: mirbuilder-warning-parser-source-admission-coordinate-i0-2026-09-22.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: prefer MIR-RETIRE-FIRST-OLD-EDGE-R0 only if its caller-zero proof changes
+NextCard: MIRBUILDER-WARNING-DYNAMIC-V2-REJECT-DEAD-VARIANTS-I129
 ---
 
 # MirBuilder warning baseline refresh I128
@@ -40,6 +40,16 @@ evidence still prevent old-edge deletion. Re-evaluate the owner-requested
 `MIR-RETIRE-FIRST-OLD-EDGE-R0` first; if caller-zero is still absent, choose
 one production-zero warning item with a finite delete set. Do not delete the
 remaining parser row accessors as a group without a separate caller census.
+
+The I120 old-edge caller-zero proof did not change, so the requested
+`MIR-RETIRE-FIRST-OLD-EDGE-R0` remains `NoSafeSlice`. The selected finite
+warning cohort is the four unconstructed variants in
+`DynamicV2AotCallMetadataRejectV1`: `MissingCallRole`, `DuplicateCallRole`,
+`MissingNormalResult`, and `DuplicateNormalResult`. Repository-wide Rust,
+test, tool, and tracked-document search found only their enum declarations.
+The similarly named `MissingCallRole` in
+`DynamicV2RecipeOperationCursorRejectV1` is a separate live variant and is
+excluded. I129 deletes exactly these four variants.
 
 ## Acceptance
 

@@ -31,8 +31,6 @@ use super::aot_admission::{PreparedAotExecutableAdmissionV1, TextScanEntryContra
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum DynamicV2AotCallMetadataRejectV1 {
     InvalidReceipt(APrimeI64PhysicalReceiptRejectV1),
-    MissingCallRole,
-    DuplicateCallRole,
     MissingCallSite,
     CallSiteRoleMismatch,
     AdmissionEntryMismatch,
@@ -40,8 +38,6 @@ pub(crate) enum DynamicV2AotCallMetadataRejectV1 {
     FunctionSignatureMismatch,
     FormalLaneMismatch,
     FormalValueMismatch,
-    MissingNormalResult,
-    DuplicateNormalResult,
     ReceiverLaneMismatch,
     ArgumentLaneMismatch,
     ResultLaneMismatch,
