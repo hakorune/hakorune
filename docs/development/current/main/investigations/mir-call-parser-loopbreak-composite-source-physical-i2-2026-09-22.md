@@ -1,5 +1,5 @@
 ---
-Status: fast__2026-09-22__CompositeEnvelopeOwnerDecisionAccepted
+Status: closeout__2026-09-22__CompositePhysicalEnvelopeFocusedGreen
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PHYSICAL-I2
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-package-i1-2026-09-22.md
@@ -33,8 +33,8 @@ Non-claims: no production caller switch, source-to-MIR publication claim,
 I2 cannot start until I1 records a verified composite package row with no
 residual candidate. The physical owner must consume that row once, validate the
 source port before allocation, and retain the existing direct LoopBreak route
-unchanged. A named source-to-MIR acceptance invocation is required before the
-cutover row is opened.
+unchanged. Source-to-MIR/publication acceptance belongs to I3 task 4 and is
+not a hidden completion condition of this physical adapter row.
 
 ## I1 handoff and I2 task order — 2026-09-22
 
@@ -86,9 +86,9 @@ The bounded I2 rows are:
 2. **Physical adapter** — after the relation is accepted, consume one
    composite Recipe through that owner, with positive, missing, foreign,
    residual, and second-take guards. Keep direct rows unchanged.
-3. **Acceptance gate** — run the selected parser source-to-MIR invocation and
-   record the named terminal. Only a green source-backed handoff can open I3;
-   no caller switch or old-edge deletion is part of I2.
+3. **Physical acceptance gate** — record the focused route/package/raw
+   evidence and leave the selected parser source-to-MIR invocation to I3 task
+   4. No caller switch or old-edge deletion is part of I2.
 
 The implementation permission is limited to this envelope and its positive,
 missing-target, foreign-target, residual, and second-take guards. No
@@ -113,7 +113,7 @@ warning baseline (1,674 warnings in this check); no warning suppression was
 added. All touched sources remain below the 760/800 line limits.
 
 This does not yet prove the selected parser source-to-MIR/publication
-invocation. I3 therefore remains a design-stop card until that acceptance is
-run; only then may the selected caller switch, caller-zero proof, and the
-exclusive old-edge deletion proceed. The warning cohort remains paused at I147
-with the remaining `dead_code` rows owned by their semantic lanes.
+invocation. That is the explicit task-4 gate in I3; only after it may task 5
+switch the selected caller and the retirement card prove caller-zero and delete
+the exclusive old edge. The warning cohort remains paused at I147 with the
+remaining `dead_code` rows owned by their semantic lanes.
