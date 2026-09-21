@@ -35,6 +35,7 @@ pub(in crate::mir::builder::resolved_lowering) use text_residence_ingress::issue
 
 pub(super) use exit_projection::{FunctionDraftSealPreparationErrorV1, PreparedFunctionExitV1};
 pub(super) use multi_site_exit::PreparedFunctionExitSetV1;
+#[cfg(test)]
 pub(super) use multi_site_exit::{DetachedFunctionExitClaimSetV1, MultiSiteExitPreparationErrorV1};
 
 #[derive(Debug)]
