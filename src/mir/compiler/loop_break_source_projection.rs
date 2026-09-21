@@ -308,7 +308,7 @@ pub(crate) fn issue_loop_break_source_projection_v1(
     })
 }
 
-fn issue_loop_break_source_body_inventory_v1(
+pub(crate) fn issue_loop_break_source_body_inventory_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     root: &LocatedStmtV1<'_>,
     body: &LocatedBodyV1<'_>,

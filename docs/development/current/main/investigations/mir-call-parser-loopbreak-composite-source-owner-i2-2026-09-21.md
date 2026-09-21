@@ -1,11 +1,11 @@
 ---
-Status: fast__2026-09-21__CompositeSourceProjection
+Status: closeout__2026-09-21__SourceProductAndTypedParserForestBoundary
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-OWNER-I2
 Current execution row: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-OWNER-I2
 Date: 2026-09-21
 Parent: mir-call-parser-loopbreak-composite-source-product-i1-2026-09-21.md
 Implementation permission: true for one source-only composite projection product and focused guards; no package/Recipe/physical/cutover change
-NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PACKAGE-I3
+NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-FOREST-BOUNDARY-D0
 ---
 
 # Parser composite LoopBreak source-owner projection I2
@@ -16,7 +16,7 @@ NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PACKAGE-I3
 Decision: extend the existing LoopBreak source owner with a typed composite
   projection product; keep direct and composite candidates explicitly typed.
 Source authority + canonical issuer: one ResolvedFunctionLoweringInputV1,
-  its resolver loop forest/exit ledger, and the existing LoopBreak Facts issuer.
+  its resolver loop forest/exit ledger, and the existing LoopBreak source owner.
 Non-authority: LoopCond reclassification, LoopRouteContext, legacy routes,
   AST/name/line rescans, Recipe keys, BodyId/StmtRef, physical IDs, fallback,
   retry, package filtering, or backend parity.
@@ -32,12 +32,13 @@ Non-claims: no Recipe/package/physical publication, production switch, old-edge
 
 The I1 audit found no independent existing owner that can retain the parser
 composite body and resolver exit ledger. The accepted decision is therefore a
-same-owner extension: `issue_callable_loop_break_source_facts_v1` remains the
-sole LoopBreak source issuer, and it may classify one resolved invocation as a
-direct or typed composite source projection. The projection retains the
-resolver root, condition, ordered body inventory, complete nested forest, and
-every exit record as one source product. No later pass may reconstruct those
-relations from names, AST rescans, or line numbers.
+same-owner extension: the existing LoopBreak source projection/Facts owner
+remains the sole owner for this family, and its source issuer may classify one
+resolved invocation as a direct or typed composite source projection. The
+projection retains the resolver root, condition, ordered body inventory, the
+existing nested forest when that forest is issuable, and every exit record as
+one source product. No later pass may reconstruct those relations from names,
+AST rescans, or line numbers.
 
 The direct three-statement projection keeps its existing acceptance and
 physical path. The composite product is a new typed source shape in the same
@@ -63,7 +64,7 @@ legacy `LoopRouteContext` route, add a fallback, or change package admission.
 
 | input / witness | I2 result | required evidence |
 | --- | --- | --- |
-| parser root `:81` | composite projection | one root, one condition, ordered body inventory, nested `:131`/`:182` retained |
+| parser root `:81` | typed forest-boundary rejection | existing forest issuer reports `ForestLookup`; no composite product is fabricated |
 | nested loop sites `:131` and `:182` | nested inventory entries | source order and parent relation remain resolver-owned |
 | resolver exits at `:85`, `:95`, `:104`, `:109`, `:127`, `:142`, `:161`, `:165`, `:186`, `:188`, `:194` | one co-sealed exit ledger | no duplicate, foreign, or out-of-root exit record |
 | foreign root or source unit | typed rejection before effects | owner/source identity check |
@@ -84,13 +85,40 @@ receipt.
 2. Add a typed composite projection module that co-seals root/condition/body,
    the existing resolver forest, and the ordered body inventory.
 3. Add focused positive and negative guards for direct compatibility, nested
-   body retention, foreign roots, duplicate roles, and unsupported children.
+   body retention, foreign roots, and the parser's typed forest boundary.
 4. Run the focused projection test once with the repository's existing warning
    baseline. Do not launch another Cargo process concurrently.
-5. Close I2 only with source-product evidence and hand the exact retained
-   fields to the package/Recipe I3 card.
+5. Close I2 with source-product evidence and hand the exact retained fields
+   plus the parser forest blocker to the next design card.
 
 No production caller, package admission, physical lowering, or old-edge delete
 is part of this row. Those actions require their own source-to-Recipe and
 caller-zero evidence.
 
+## Implementation and evidence — 2026-09-21
+
+The same-owner module `src/mir/compiler/loop_break_composite_source_projection.rs`
+now co-seals the root/condition/body, ordered body inventory, existing forest
+product, and exit ledger. It exposes no Recipe, package, physical, or backend
+identity. The body inventory seam is crate-visible only; the direct projection
+shape is unchanged.
+
+Focused command:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib loop_break_composite_source_projection
+```
+
+Result: **3 passed, 0 failed**, with the repository warning baseline of 560
+warnings. The synthetic nested-loop/root-exit product and foreign-root guard
+are green. The merged parser check exercises supported `parse` loops, while
+the selected outer `parser_program_box.hako:81` shape remains a named typed
+boundary: `ForestLookup` for the root and `ForestBinding(UnsupportedAncestor)`
+for conditional nested loop members. This is evidence for the next design
+slice, not package or source-to-MIR acceptance.
+
+The next card must decide whether the existing resolver forest/binder can be
+extended in the same authority to represent those conditional descendants and
+the missing root forest, or whether the parser composite remains
+`ParkedSealed__NoSafeSlice`. No package/Recipe work is admitted until that
+decision is accepted.
