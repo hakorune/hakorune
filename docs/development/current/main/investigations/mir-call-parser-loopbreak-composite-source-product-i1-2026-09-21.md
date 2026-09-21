@@ -1,5 +1,5 @@
 ---
-Status: design_stop__2026-09-21__CompositeSourceProductConsumerBoundary
+Status: design_stop__2026-09-21__NoSafeSlice_CompositeOwnerMissing
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PRODUCT-I1
 Current execution row: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-PRODUCT-I1
 Date: 2026-09-21
@@ -36,3 +36,31 @@ fallback.
 
 The next worker audit must name the canonical consumer, its retained relation,
 and the exact source-to-Recipe correspondence before implementation resumes.
+
+## I1 existing-owner audit — 2026-09-21
+
+The audit keeps this row at `NoSafeSlice`; it did not find a safe existing
+consumer for the parser composite root.
+
+| owner | observed boundary | consequence |
+| --- | --- | --- |
+| `normal_callable_loop_source_facts/loop_break.rs:50-60` | candidate owns only the direct projection, planner outcome, and direct terminality | the composite body cannot enter this candidate without dropping roles |
+| `normal_callable_loop_source_facts/loop_break.rs:322-369` | physical input requires `facts.loop_condition`, `body.len() == 3`, and a one-statement break-if | the parser root's nested bodies and multiple exits have no retained input slot |
+| `normal_callable_loop_source_facts/loop_break.rs:379-416` and `control_flow/plan/recipe_tree/loop_break_builder.rs:207-226` | source Recipe requires the three-statement body and direct break-if | no source-to-Recipe mapping exists for the composite body |
+| `control_flow/plan/parts/associated_source/callable_loop_source_lowering.rs:7-10,157-163` | associated-source lowering can recurse only after a Recipe; an opaque `Loop` is a named reject | this is a physical consumer seam, not a source-product issuer |
+| `control_flow/joinir/route_entry/registry/handlers/routes.rs:26-54` | legacy route consumes `LoopRouteContext` and `MirBuilder` | it cannot be reused as the source-backed consumer |
+| `compiler/dynamic_full_body_source.rs:187-230` and `dynamic_full_body_recipe/mod.rs:177-210` | dynamic owner hard-codes a different three-statement root/body profile | it is not the parser composite owner |
+
+The existing associated-source Parts spine is therefore reusable only after a
+new composite Recipe is issued. It cannot be selected as the missing issuer,
+and the direct LoopBreak Facts/Recipe owner cannot retain the parser inventory
+without changing its accepted shape. No code, fallback, target-only filter,
+new semantic receipt, or production switch is authorized by I1.
+
+### Bounded next decision
+
+The next design decision must choose between a same-owner extension of the
+LoopBreak Facts/Recipe product and a separately named existing source owner
+that already has a complete body/exit vocabulary. The decision must include
+the parser root `:81`, nested loops `:131`/`:182`, all resolver exit rows, and
+the exact `RecipeItem` mapping before implementation permission can reopen.
