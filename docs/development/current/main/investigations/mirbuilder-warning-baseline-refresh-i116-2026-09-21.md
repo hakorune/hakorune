@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI116__AwaitingNextCohort
+Status: closed__2026-09-21__WarningBaselineRefreshI116__SelectedAPrimeWrapper
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I116
 Date: 2026-09-21
 Parent: mirbuilder-warning-lineage-accessors-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: awaiting one named warning cohort after the I116 refresh
+NextCard: MIRBUILDER-WARNING-A-PRIME-WRAPPER-I0
 ---
 
 # MirBuilder warning baseline refresh I116
@@ -36,9 +36,18 @@ warnings** and **550 lib-test warnings**; formatting, diff, and pointer guards
 passed.
 
 The old-edge lane remains `NoSafeSlice`: this warning baseline refresh does
-not authorize a legacy route or compatibility deletion. A fresh finite
-warning census must identify the next owner and caller boundary before any
-implementation change.
+not authorize a legacy route or compatibility deletion.
+
+The selected bounded row is the unused
+`insert_a_prime_i64_physical_receipt_json` wrapper in
+`src/runner/mir_json_emit/a_prime_i64_capability.rs:9-17`. `rg` found no
+production caller. The production metadata path already invokes the existing
+`insert_a_prime_i64_physical_receipt_value_json` helper after the selected
+receipt is present. Its only caller is the wrapper-specific absence test; that
+test and the wrapper can be deleted together without changing the selected
+receipt schema or metadata emission.
+
+The next card owns the wrapper deletion and the focused metadata/JSON tests.
 
 ## Acceptance
 

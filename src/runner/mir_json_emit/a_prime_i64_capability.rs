@@ -1,20 +1,4 @@
-use crate::mir::function::FunctionMetadata;
 use serde_json::json;
-
-/// Emit the sealed post-session A-prime capability exactly once.
-///
-/// Absence is intentional for ordinary/legacy functions.  This encoder does
-/// not infer rows from MIR instructions and does not synthesize an empty
-/// capability.
-pub(super) fn insert_a_prime_i64_physical_receipt_json(
-    obj: &mut serde_json::Map<String, serde_json::Value>,
-    metadata: &FunctionMetadata,
-) {
-    let Some(receipt) = metadata.a_prime_i64_physical_receipt() else {
-        return;
-    };
-    insert_a_prime_i64_physical_receipt_value_json(obj, receipt);
-}
 
 pub(super) fn insert_a_prime_i64_physical_receipt_value_json(
     obj: &mut serde_json::Map<String, serde_json::Value>,
@@ -67,15 +51,8 @@ mod tests {
         APrimeI64LaneV1, APrimeI64ParameterReceiptV1, APrimeI64PhysicalReceiptV1,
         APrimeI64ReturnReceiptV1,
     };
+    use crate::mir::function::FunctionMetadata;
     use crate::mir::{BasicBlockId, ValueId};
-
-    #[test]
-    fn absent_receipt_does_not_create_metadata_key() {
-        let metadata = FunctionMetadata::default();
-        let mut obj = serde_json::Map::new();
-        insert_a_prime_i64_physical_receipt_json(&mut obj, &metadata);
-        assert!(!obj.contains_key("a_prime_i64_physical_receipt"));
-    }
 
     #[test]
     fn sealed_receipt_emits_strict_schema() {
@@ -118,7 +95,10 @@ mod tests {
             .install_a_prime_i64_physical_receipt_for_test(receipt)
             .expect("receipt slot install");
         let mut obj = serde_json::Map::new();
-        insert_a_prime_i64_physical_receipt_json(&mut obj, &metadata);
+        let receipt = metadata
+            .a_prime_i64_physical_receipt()
+            .expect("receipt slot remains installed");
+        insert_a_prime_i64_physical_receipt_value_json(&mut obj, receipt);
         let value = &obj["a_prime_i64_physical_receipt"];
         assert_eq!(value["schema_version"], 2);
         assert_eq!(value["backend_family"], "llvm");
