@@ -53,11 +53,14 @@ pub(crate) use direct_accum_observation::{
 };
 #[allow(unused_imports)]
 pub(crate) use evaluate::freeze_loop_route_schedule_v1;
+#[cfg(test)]
 pub(crate) use family_admission::{
     assemble_loop_family_admission_window_v1, LoopFamilyAdmissionAssemblyOutcomeV1,
-    LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionIssueV1, LoopFamilyAdmissionModeV1,
-    LoopFamilyObservationRowV1, LoopFamilyTagV1, VerifiedLoopFamilyAdmissionRowsV1,
+    LoopFamilyAdmissionIssueV1, LoopFamilyObservationRowV1, VerifiedLoopFamilyAdmissionRowsV1,
     VerifiedLoopFamilyAdmissionWindowV1,
+};
+pub(crate) use family_admission::{
+    LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionModeV1, LoopFamilyTagV1,
 };
 #[cfg(test)]
 pub(crate) use family_selection::{

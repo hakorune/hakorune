@@ -47,3 +47,26 @@ stable warning refresh at its parent/current pair.
 The If recipe normalizer slice passed focused `if_recipe` **24/24** and
 `recipe_call` **6/6**, reducing lib warnings from **1,748** to **1,747** while
 lib-test remained **557**. Canonical normalize ownership remains unchanged.
+
+## Refresh result and bounded deletion selection
+
+The sequential refresh completed with lib **1,747** warnings and lib-test **557**,
+matching the normalizer closeout. The next finite caller-zero cohort is the
+parent re-export of `assemble_loop_family_admission_window_v1`,
+`LoopFamilyAdmissionAssemblyOutcomeV1`, `LoopFamilyAdmissionIssueV1`,
+`LoopFamilyObservationRowV1`, `VerifiedLoopFamilyAdmissionRowsV1`, and
+`VerifiedLoopFamilyAdmissionWindowV1` in `src/mir/loop_route_policy/mod.rs`.
+Their owner is `family_admission.rs`; production observation and selector code
+uses that owner module directly, while parent-facade consumers are test modules
+only. Retain the test facade under `cfg(test)` and remove its production edge
+in one focused slice.
+
+Selected successor:
+`MIRBUILDER-WARNING-LOOP-FAMILY-ADMISSION-TEST-SCOPE-I0`.
+
+## Closeout selection result
+
+The I75 refresh confirmed lib **1,747** and lib-test **557**, then selected the
+caller-zero LoopFamilyAdmission parent facade. Its fast slice passed
+`family_admission` **6/6** and `family_selector` **5/5**, reducing lib warnings
+to **1,746** while preserving the lib-test surface.
