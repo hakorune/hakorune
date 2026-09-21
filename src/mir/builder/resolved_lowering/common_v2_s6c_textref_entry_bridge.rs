@@ -8,7 +8,9 @@
 
 use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
-use crate::mir::{BasicBlockId, ValueId};
+use crate::mir::BasicBlockId;
+#[cfg(test)]
+use crate::mir::ValueId;
 
 use super::common_v2_session::S6CTextEqOccurrencePhysicalViewV1;
 use super::physical_entry_lane_adoption::PhysicalTextEntryLaneSidecarV1;
