@@ -2,46 +2,52 @@
 Status: closed__2026-09-21__WarningCommonV2SessionTestFacade
 Task: MIRBUILDER-WARNING-COMMON-V2-SESSION-TEST-FACADE-I0
 Date: 2026-09-21
-Parent: mirbuilder-warning-baseline-refresh-i9-2026-09-21.md
-Implementation permission: true for one cfg(test) common-v2-session facade-scope move only
-NextCard: MIRBUILDER-WARNING-BASELINE-REFRESH-I10
+Parent: mirbuilder-warning-baseline-refresh-i42-2026-09-21.md
+Implementation permission: true for two cfg(test) common-V2 session imports only
+NextCard: MIRBUILDER-WARNING-BASELINE-REFRESH-I43
 ---
 
-# Warning cleanup: common V2 session test facade
+# Warning cleanup: common-V2 session test facade
 
 ## Six-line brief
 
 ```text
-Decision: gate five unused common-V2-session reject re-exports with cfg(test);
-  existing focused tests keep using the same types.
-Source authority + canonical issuer: Rust cfg/name resolution in
-  common_v2_session/mod.rs, defining modules, test consumers, and the I9
-  two-surface warning inventory.
-Non-authority: cargo-fix, wildcard imports, session semantics, visibility
-  edits, dead-code ownership, or warning-count guesses.
-Fail-fast boundary: any production consumer, compile error, new warning, or
-  changed failure name rejects the move.
-Smallest next slice: add cfg(test) only to the five selected re-export groups,
-  then run both fixed checks and fmt/diff/pointer guards.
-Non-claims: no session lowering change, test behavior change, suppression,
-  broad warning cleanup, or production route change.
+Decision: gate MirBuilder and ReadyFunctionDraftSealV1 imports used only by
+  the common-V2 session test close seam.
+Source authority + canonical issuer: common_v2_session/mod.rs; production methods
+  retain fully qualified MirBuilder and existing session owners.
+Non-authority: cargo-fix, wildcard imports, draft-seal redesign, session
+  ownership, or warning guesses.
+Fail-fast boundary: any production unqualified consumer, compile error, changed
+  test warning, or warning-count mismatch rejects the slice.
+Smallest next slice: add cfg(test) to the two imports and run fixed gates once.
+Non-claims: no session redesign, physical lowering change, suppression, or cutover.
 ```
 
-## Precondition and acceptance
+## Preconditions and acceptance
 
-The I9 inventory records five lib-only unused-import diagnostics in
-`src/mir/builder/resolved_lowering/common_v2_session/mod.rs`. The parent
-re-exports are test-only; production uses the defining modules or direct
-qualified paths. Acceptance requires lib warnings to drop from 1,826 to 1,821,
-lib-test to remain 561, both fixed quick-profile commands to exit 0, and
-fmt/diff/pointer guards to remain green.
+I42 records two lib-only unused imports at
+`src/mir/builder/resolved_lowering/common_v2_session/mod.rs:15,24`. Both are
+used only by the `#[cfg(test)]` finish seam.
 
-## Execution evidence
+Acceptance requires lib warnings to drop from **1,790 to 1,788**, lib-test
+warnings to remain **561**, and both fixed commands to exit 0:
 
-The five selected re-export groups are now individually gated with
-`#[cfg(test)]`. `cargo check --profile quick --lib -j4` completed with lib
-warnings 1,821 (down from 1,826), and
-`cargo test --profile quick --lib --no-run -j4` completed with lib-test
-warnings 561 and produced the test executable. Both commands exited 0;
-production session code and test consumers retain their defining owners and
-direct paths.
+```text
+cargo check --profile quick --lib -j4
+cargo test --profile quick --lib --no-run -j4
+```
+
+Only the two import annotations may change.
+
+## Closeout evidence
+
+The sole permitted source edit gated the two common-V2 session imports:
+`MirBuilder` and `ReadyFunctionDraftSealV1` are both `#[cfg(test)]`; production
+methods retain their existing fully qualified builder references. The fixed gates
+completed sequentially with exit 0:
+
+* lib: 1,788 warnings — `/tmp/hakorune-warning-i0-common-v2-session-test-facade-lib-20260921.log`
+* lib test: 561 warnings — `/tmp/hakorune-warning-i0-common-v2-session-test-facade-lib-test-20260921.log`
+
+No session ownership, draft-seal behavior, or physical route changed.

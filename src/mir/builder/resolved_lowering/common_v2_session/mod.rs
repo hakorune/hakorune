@@ -12,7 +12,9 @@ use crate::mir::loop_recipe_contract::{
     StringLenCallTargetPlanRejectV1, VerifiedS6CReturnSourceRecipeBindingV1,
 };
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
-use crate::mir::{BasicBlockId, MirBuilder};
+use crate::mir::BasicBlockId;
+#[cfg(test)]
+use crate::mir::MirBuilder;
 use std::marker::PhantomData;
 
 use super::canonical_ssa::{CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2};
@@ -21,6 +23,7 @@ use super::common_v2_s6c_substring_callout_admission::{
     issue_common_v2_s6c_substring_callout_admission_v1, CommonV2SubstringCallOutAdmissionRejectV1,
     PreparedCommonV2SubstringCallOutAdmissionV1,
 };
+#[cfg(test)]
 use super::draft_seal::ReadyFunctionDraftSealV1;
 
 mod length_call;
