@@ -10,6 +10,7 @@ pub(crate) mod all_route_preflight;
 mod logical_product;
 mod transaction;
 
+#[cfg(test)]
 pub(crate) use transaction::qualify_live_loop_facts_v1;
 
 /// Opaque non-Clone capability binding one live loop frame to its derived facts.
