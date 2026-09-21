@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-21__WarningBaselineRefreshI118__AwaitingNextCohort
+Status: closed__2026-09-21__WarningBaselineRefreshI118__SelectedJsonArtifactWrapper
 Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I118
 Date: 2026-09-21
 Parent: mirbuilder-warning-a-prime-wrapper-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: awaiting one named warning cohort after the I118 refresh
+NextCard: MIRBUILDER-WARNING-JSON-ARTIFACT-WRAPPER-I0
 ---
 
 # MirBuilder warning baseline refresh I118
@@ -37,8 +37,15 @@ formatting and diff checks passed.
 
 The old-edge lane remains `NoSafeSlice`: this warning baseline refresh does
 not authorize a legacy route or compatibility deletion. A fresh finite
-warning census must identify the next owner and caller boundary before any
-implementation change.
+warning census identified one bounded production-zero wrapper row.
+
+The selected row is `runner/json_artifact/mod.rs::load_mir_json_to_module`.
+`rg` found no production caller; `load_json_artifact_to_module` already calls
+the canonical `mir_loader::load_mir_json_to_module` directly. Its only caller
+is a duplicate module-level test, while the canonical loader module retains
+the equivalent v0/Program distinction guards. The next card owns deleting the
+wrapper and duplicate test without changing artifact classification or direct
+parse behavior.
 
 ## Acceptance
 

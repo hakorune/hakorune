@@ -46,30 +46,9 @@ pub(crate) fn load_json_artifact_to_module(
     program_json_v0_loader::load_program_json_v0_to_module(runner, &payload)
 }
 
-pub(crate) fn load_mir_json_to_module(text: &str) -> Result<Option<crate::mir::MirModule>, String> {
-    mir_loader::load_mir_json_to_module(text)
-}
-
 pub(crate) fn parse_direct_mir_json_text(
     text: &str,
     path: &str,
 ) -> Result<crate::mir::MirModule, String> {
     mir_loader::parse_direct_mir_json_text(text, path)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::load_mir_json_to_module;
-
-    #[test]
-    fn load_mir_json_to_module_returns_none_for_program_json_v0() {
-        let program_json = r#"{
-            "version": 0,
-            "kind": "Program",
-            "body": [{"type":"Return","expr":{"type":"Int","value":1}}]
-        }"#;
-
-        let result = load_mir_json_to_module(program_json).expect("program json should not error");
-        assert!(result.is_none());
-    }
 }
