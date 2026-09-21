@@ -1,9 +1,9 @@
 ---
-Status: fast__2026-09-21__SelectedBoundedWarningCohort__ExecuteOneFacadeDeletion
+Status: closed__2026-09-21__StaticMethodCRowFacade__OwnerChainDeleted
 Task: MIRBUILDER-WARNING-STATIC-METHOD-CROW-FACADE-I0
 Date: 2026-09-21
 Parent: mirbuilder-warning-baseline-refresh-i67-2026-09-21.md
-Implementation permission: true for one parent facade re-export deletion only
+Implementation permission: true for the bounded facade chain only
 NextCard: MIRBUILDER-WARNING-BASELINE-REFRESH-I68
 ---
 
@@ -38,7 +38,17 @@ cargo check --profile quick --lib -j4
 cargo test --profile quick --lib --no-run -j4
 ```
 
-Success requires both commands to pass, the C-frame and C-row source census to
-remain unchanged except for the removed facade item, and the warning count to
-drop without a replacement warning. Any warning movement is a same-chain
-correction or a stop; it is not silently accepted.
+## Closeout evidence
+
+Commit `1e387d9f81` removed the unused C-row re-export from the compiler owner
+facade, the historical `mir/function` facade, and the parent `mir/function.rs`
+surface. The complete source census now finds the C-row only in its canonical
+`c_transport` owner and its v2 consumer; no facade occurrence remains.
+
+Both fixed gates passed sequentially on 2026-09-21: lib generated **1,754**
+warnings and lib-test generated **558** warnings, matching the prior diagnostic
+totals. The remaining C-frame import shares the former grouped diagnostic, so
+the total count does not fall; the C-row item itself is gone and no replacement
+C-row warning appears. `cargo fmt --check`, `git diff --check`, and the current
+state pointer guard are green. This is a source deletion with stable warning
+totals, not a claim of broad warning reduction.
