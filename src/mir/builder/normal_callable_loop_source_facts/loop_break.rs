@@ -433,10 +433,6 @@ impl VerifiedCallableLoopBreakSourceFactsV1 {
         self.function_origin
     }
 
-    pub(in crate::mir) const fn source_kind(&self) -> SemanticOwnerSourceKindV1 {
-        self.source_kind
-    }
-
     pub(in crate::mir) fn candidates(&self) -> &[VerifiedCallableLoopBreakSourceCandidateV1] {
         &self.candidates
     }
