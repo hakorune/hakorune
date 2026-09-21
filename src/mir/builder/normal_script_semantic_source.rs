@@ -16,14 +16,13 @@ use super::normal_script_semantic_source_core::{
 };
 use super::normal_script_source_continuation::VerifiedScriptSourceContinuationV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
-use crate::mir::resolved_semantics::{
-    BindingRefV1, VerifiedScriptRootDemandWindowV1, VerifiedSemanticOwnerForestV1,
-    VerifiedSemanticOwnerProductV1,
-};
 #[cfg(test)]
 use crate::mir::resolved_semantics::{
-    EnumVariantAdmissionV1, ScriptDiagnosticBoundaryV1, SemanticOwnerForestDraftV1,
+    BindingRefV1, EnumVariantAdmissionV1, ScriptDiagnosticBoundaryV1, SemanticOwnerForestDraftV1,
     SourceExprSiteV1, SourceStmtSiteV1, VerifiedResolvedScriptV1,
+};
+use crate::mir::resolved_semantics::{
+    VerifiedScriptRootDemandWindowV1, VerifiedSemanticOwnerForestV1, VerifiedSemanticOwnerProductV1,
 };
 
 #[cfg(test)]
