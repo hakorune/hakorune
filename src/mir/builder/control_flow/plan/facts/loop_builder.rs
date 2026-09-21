@@ -44,6 +44,7 @@ use super::loop_source_receipt::LoopSourceReceiptV1;
 use super::loop_split_scan::try_extract_split_scan_facts_with_projection;
 use super::loop_step_shape::try_extract_step_shape;
 use super::loop_types::LoopFacts;
+#[cfg(test)]
 use crate::mir::builder::control_flow::joinir::route_entry::registry::live_ordered_terminality::{
     bind_live_loop_facts_v1, LiveLoopFactsV1,
 };
