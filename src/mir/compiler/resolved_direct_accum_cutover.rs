@@ -7,18 +7,22 @@
 //! candidate and leaves the live compiler Builder untouched.
 
 use super::canonical_finalization::CanonicalModuleFinalizerV1;
-use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use super::direct_accum_profile::CanonicalDirectAccumPlanV1;
 use super::external_commit::PreparedModuleExternalCommitV1;
 use super::lowering_input::{
     CanonicalLoweringErrorV1, CanonicalResolvedCutoverFailureV1,
-    CanonicalResolvedCutoverStageErrorV1, ResolvedModuleLoweringInputV1,
+    CanonicalResolvedCutoverStageErrorV1,
 };
 use super::module_postprocess::ModulePostprocessOwnerV1;
 use super::source_bound_package::ExactCanonicalPreflightPlanV1;
 use super::{MirCompileResult, MirCompiler};
 use crate::mir::builder::BuilderInvocationConfigV1;
 use crate::mir::verification::MirVerifier;
+
+#[cfg(test)]
+use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
+#[cfg(test)]
+use super::lowering_input::ResolvedModuleLoweringInputV1;
 
 pub(super) fn compile_direct_accum_source_bound(
     compiler: &mut MirCompiler,
