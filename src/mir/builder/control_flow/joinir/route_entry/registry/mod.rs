@@ -50,7 +50,9 @@ pub(crate) use selection::{
     VerifiedLocatedGenericLoopV1SelectionV1,
 };
 use types::LegacyRouteSuccess;
-pub(crate) use types::{Entry, RouterEnv, SharedAbsentContractDeclineRouteV1};
+#[cfg(test)]
+pub(crate) use types::SharedAbsentContractDeclineRouteV1;
+pub(crate) use types::{Entry, RouterEnv};
 
 pub(crate) fn collect_b_lite_shadow_report(
     selection: &RecipeFirstRouteSelectionV1,
