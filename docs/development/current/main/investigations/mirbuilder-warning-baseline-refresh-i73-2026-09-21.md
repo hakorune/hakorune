@@ -49,3 +49,24 @@ the three caller-zero If Join parent re-exports. I0 landed the test-only scope
 and passed its focused `if_recipe` suite **24/24**. The current lib count is
 **1,749**; the next refresh must confirm the lib-test surface remains **557**.
 The canonical JoinSig and physical owners remain unchanged.
+
+## Refresh result and bounded deletion selection
+
+The sequential refresh completed with lib **1,749** warnings and lib-test **557**,
+matching the If-Join closeout. The next finite caller-zero edge is the parent
+re-export of `NestedIfJoinCompositionRoleV1` in
+`src/mir/if_recipe_contract/mod.rs:29`. The enum is owned by
+`nested_join_sig.rs`, and the repository census shows its only consumer through
+the parent facade is the `resolved_value_profile` nested-recipe test; no
+non-test caller exists. Retain the test facade under `cfg(test)` and remove the
+production edge in one focused slice.
+
+Selected successor:
+`MIRBUILDER-WARNING-NESTED-IF-ROLE-TEST-SCOPE-I0`.
+
+## Closeout selection result
+
+The I73 refresh confirmed lib **1,749** and lib-test **557**, then selected the
+caller-zero `NestedIfJoinCompositionRoleV1` parent re-export. Its fast slice
+landed as `MIRBUILDER-WARNING-NESTED-IF-ROLE-TEST-SCOPE-I0`; the focused
+`nested_recipe` suite passed **4/4** and the lib warning count became **1,748**.
