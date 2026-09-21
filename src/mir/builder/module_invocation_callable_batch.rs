@@ -13,6 +13,7 @@ use super::module_invocation_identity::{ModuleInvocationFamilyV1, ModuleInvocati
 use super::module_invocation_owner_chain::{BrandedCollectorV1, InvocationBranded};
 use crate::mir::canonical_recursive_callable_module_capability::CanonicalRecursiveCallableModuleCapabilityV1;
 use crate::mir::compiler::resolved_callable_module::VerifiedResolvedCallableModuleV1;
+#[cfg(test)]
 use crate::mir::compiler::{
     acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1,
     recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1,
