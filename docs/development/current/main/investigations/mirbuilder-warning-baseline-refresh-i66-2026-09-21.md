@@ -50,12 +50,14 @@ The fixed gates completed sequentially with exit 0 at the current head:
 | lib | 1,754 | `/tmp/hakorune-warning-i66-lib-20260921.log` |
 | lib test | 559 | `/tmp/hakorune-warning-i66-lib-test-20260921.log` |
 
-The selected cohort is the cfg(test)-only parent re-export
-`function_control::verify_function_completion_with_new_homes_v1` at
-`src/mir/resolved_control_flow/mod.rs:21`. The implementation and canonical
-test re-export remain in `function_control.rs`; a complete source census finds
-no parent-facade caller. The successor may remove only that parent re-export,
-with expected lib unchanged at **1,754** and lib-test **559 → 558**.
+The selected cohort is the two-layer cfg(test)-only re-export chain for
+`verify_function_completion_with_new_homes_v1` at
+`src/mir/resolved_control_flow/mod.rs:21` and
+`src/mir/resolved_control_flow/function_control.rs:423`. A complete source
+census finds only the helper definition and these unused re-exports; no caller
+remains. The successor may remove only this chain, with expected lib unchanged
+at **1,754** and lib-test **559 → 558**. The parent-only attempt was rejected
+as incomplete because the warning moved to the owner layer.
 
 Other imports remain owned rows: dynamic and operator facades have local test
 consumers, backend and If recipe names have external consumers, and
