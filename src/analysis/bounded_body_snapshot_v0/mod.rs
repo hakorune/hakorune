@@ -29,6 +29,7 @@ pub use schema::{
 };
 pub use snapshot::{AtomValueV0, BoundedBodyAnalysisSnapshotV0, SnapshotNodeV0};
 pub use snapshot_builder::{SnapshotBuildErrorV0, SnapshotBuilderV0, SnapshotNodeIndexV0};
+#[cfg(test)]
 pub(crate) use strict_json_tree_v0::{StrictJsonArenaV0, StrictJsonKindV0, StrictJsonNodeIdV0};
 pub use validated_view::{ValidatedAtomValueV0, ValidatedNodeV0, ValidatedTextV0};
 
