@@ -111,6 +111,37 @@ records either the same-owner extension contract or `NoSafeSlice` with owner,
 evidence, and an observable reopen trigger. No Rust, Hako, fixture, guard,
 production caller, or semantic receipt may change in this D0.
 
+## Existing-owner field and consumer feasibility audit — 2026-09-21
+
+The resolver forest projection is reusable transport, not the missing product.
+It already co-seals the function owner/origin/source kind, root frame, ordered
+member sites with parentage, and resolver exit records at exact source sites.
+That product can therefore carry the root `:81` relation and the nested body
+members at `:131` and `:182` without a second forest issuer. The `:182` member
+is a literal-true LoopTrue candidate when its own route is selected; it must be
+typed as that route rather than silently folded into the LoopBreak root.
+
+The missing relation is the LoopBreak-specific body role map. The current
+`LoopBreakFacts` source extension retains loop expressions and an optional
+direct three-site topology (`break_if`, carrier update, step), while the source
+projection rejects any body whose arity or direct break-if shape differs. The
+current source Recipe builder repeats that three-item requirement. Consequently
+the resolver forest can prove membership and exits, but it cannot by itself
+provide the ordered statement/branch/child-body roles that the Recipe issuer
+must map to `RecipeItem`s, nor the selected `starts_with/3` target relation.
+
+The physical side is less restrictive than the current issuer: the existing
+associated-source `CallableLoopSourcePartsBlockV1` can project nested `LoopV0`
+items when a Recipe body and located body are co-sealed, and it rechecks every
+statement against the source port. The separate generic located representation
+still rejects nested `LoopV0`, so it cannot be used as an implicit bridge. A
+same-owner extension is safe only if the LoopBreak issuer adds one composite
+source body/role product, maps it once into the existing Recipe vocabulary, and
+passes that Recipe plus the forest, exits, carriers, and target relation through
+one physical input before allocation. If any of those relations cannot be
+co-sealed, the row remains `NoSafeSlice`; no second issuer, route reclassification,
+or AST reconstruction is allowed.
+
 ## Decision — NoSafeSlice
 
 The finite census is complete for the two selected parser sites. The existing
