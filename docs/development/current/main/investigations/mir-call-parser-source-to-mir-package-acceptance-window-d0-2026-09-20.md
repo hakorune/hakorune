@@ -136,3 +136,34 @@ The parent LoopCond handoff remains implemented through D2, but this card
 claims no parser source-to-MIR acceptance, publication, old-edge deletion, or
 production switching. The named `GenericLoopV1NotSelected` terminal remains
 unchanged until the next design row closes its owner boundary.
+
+
+## Static dependency shape audit — 2026-09-21
+
+The package stop was checked against the actual parser source rather than only
+against the terminal text. The selected callable is `ParserProgramBox.parse/2`
+and the selected target is the `starts_with/3` call at
+`lang/src/compiler/parser/program/parser_program_box.hako:102`. That call is
+inside the outer `loop(cont_prog == 1)` at `:81`, under the declaration branch.
+The same loop has the finite exit/transfer rows already recorded by the parent
+handoff: returns at `:104`, `:109`, `:127`, `:142`, `:161`, `:165`, and `:194`,
+the outer `break` rows at `:85` and `:95`, the semicolon `continue` at `:186`,
+and the final `break` at `:188`.
+
+The current `LoopBreakFacts` owner can issue only loop condition, one break
+condition, carrier/step expressions, and an optional three-statement
+`source_topology` (`break_if`, `carrier_update`, `step`). The selected body also
+contains whitespace/progress assignments, nested conditionals, declaration and
+static-row branches, nested method observations, and several return exits. Its
+resolver forest/exits therefore cannot be consumed by the direct LoopBreak
+source input without losing a body-item or nested-exit relation. The existing
+package observer cannot legally skip this method or install a target-only
+subset: `complete()` requires every selected method.
+
+This confirms the child composite row's `NoSafeSlice` from source structure and
+owner fields. The next design decision is same-owner co-sealing of a composite
+LoopBreak body/item/exit product, or an explicit typed pre-effect retirement
+boundary; no fallback, LoopCond reclassification, or old-edge deletion is
+authorized before that decision. The deletion order remains source acceptance,
+production cutover, caller-zero proof, then removal of only the selected parser
+edge.
