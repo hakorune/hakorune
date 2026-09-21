@@ -1,5 +1,5 @@
 ---
-Status: fast__2026-09-22__CompositeLoopBreakBodyRoleProjection
+Status: closed__2026-09-22__CompositeLoopBreakBodyRoleProjectionGuardsGreen
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-BODY-ROLE-I0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-reopen-d1-2026-09-22.md
@@ -57,10 +57,10 @@ match the first `IfThen`/`IfElse` region issued by `if_region_bundle`. Reject a
 foreign owner, an exit outside the root forest, an ambiguous branch, or a
 transfer whose target loop is not the enclosing forest member.
 
-Selected method-call items remain a separate exact source-item inventory. I0
-must prove that each selected call site is contained by exactly one role-tree
-subtree and that no role subtree drops a selected item. The target/publication
-probe is transported unchanged; target-to-Recipe mapping belongs to I1.
+Resolver method-call sites contained by the composite root are retained as an
+exact source-item inventory and are checked against one role-tree subtree. The
+selected target/publication relation and any caller-specific method-call
+filter remain outside I0; target-to-Recipe mapping belongs to I1.
 
 ## Focused acceptance matrix
 
@@ -72,7 +72,7 @@ probe is transported unchanged; target-to-Recipe mapping belongs to I1.
 | foreign root or foreign forest | typed `ForeignOwner` rejection |
 | duplicate/missing body role or dropped child | typed coverage rejection |
 | exit outside root, wrong target, or unresolved branch | typed exit-relation rejection |
-| selected source call outside or twice inside the role tree | typed source-item coverage rejection |
+| root-contained resolver call outside or twice inside the role tree | typed source-item coverage rejection |
 
 I0 closes only when the positive parser projection and every negative row are
 green. The package loan, Recipe producer, physical adapter, and
@@ -87,7 +87,11 @@ the synthetic nested root, the foreign-root rejection, and the merged parser
 projection all pass. `cargo check --profile quick --lib` also passes with the
 I147 warning baseline of 1,672 library warnings.
 
-This does not close I0 yet. The current tests observe the positive nested role
-tree and the upstream foreign-owner stop; direct guards for duplicate/missing
-body coverage, unsupported shapes, and exit relation failures still need to be
-added before the negative rows above can be claimed.
+The role issuer now keeps one global statement-site set across recursive body
+descent and compares the observed loop-site set with the resolver forest. This
+closes the previously open child-omission hole. The focused composite matrix
+is 6/6 (three projection tests plus three role-call coverage tests), and the
+existing source-projection guard matrix is 6/6 for foreign, duplicate,
+unsupported, and exit-shape stops. `cargo check --profile quick --lib` remains
+green at the I147 baseline of 1,672 library warnings. I0 is closed at this
+source boundary; selected target-to-Recipe coverage remains an I1 non-claim.
