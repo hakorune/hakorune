@@ -1,5 +1,5 @@
 ---
-Status: fast__2026-09-21__WarningGenericG0DemandTestFacade__ExecuteOneFacadeDeletion
+Status: closed__2026-09-21__WarningGenericG0DemandTestFacade__OneFacadeDeletion
 Task: MIRBUILDER-WARNING-GENERIC-G0-DEMAND-TEST-FACADE-I0
 Date: 2026-09-21
 Parent: mirbuilder-warning-baseline-refresh-i65-2026-09-21.md
@@ -47,3 +47,23 @@ Expected counts are lib **1,754** and lib-test **559**. Any extra reference,
 compile failure, new warning/red name, or test behavior change rejects the
 deletion and returns to the next baseline refresh. No `#[allow]`, cargo-fix,
 or neighboring import cleanup is allowed.
+
+## Execution evidence
+
+The one authorized cfg(test) parent re-export line was removed. The two
+existing callers continue to use `generic_g0` directly; no production code,
+Recipe owner, or test body changed.
+
+The fixed gates ran sequentially and exited 0:
+
+| gate | result | evidence |
+| --- | --- | --- |
+| `cargo check --profile quick --lib -j4` | lib **1,754** warnings | `/tmp/hakorune-warning-generic-g0-lib-20260921.log` |
+| `cargo test --profile quick --lib --no-run -j4` | lib-test **559** warnings | `/tmp/hakorune-warning-generic-g0-lib-test-20260921.log` |
+| `cargo fmt --all -- --check` | PASS | local command |
+| `git diff --check` | PASS | local command |
+| current-state pointer guard | PASS | local command |
+
+No new failure name, warning family, or semantic behavior appeared. The next
+step is a fresh two-surface baseline refresh; no neighboring import or
+suppression cleanup is included.

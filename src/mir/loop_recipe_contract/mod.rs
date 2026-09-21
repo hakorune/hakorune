@@ -148,9 +148,6 @@ pub(crate) use generic_g0::{
 };
 
 #[cfg(test)]
-pub(crate) use generic_g0::generic_operation_demand_parts_for_test;
-
-#[cfg(test)]
 mod tests;
 
 #[cfg(test)]
