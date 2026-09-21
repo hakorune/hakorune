@@ -16,6 +16,7 @@ impl SourceBuildGateIdV1 {
         Self(raw)
     }
 
+    #[cfg(test)]
     pub(super) fn raw(self) -> u32 {
         self.0
     }

@@ -4,7 +4,7 @@ Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I94
 Date: 2026-09-21
 Parent: mirbuilder-warning-loop-phi-index-cfg-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: one explicitly justified caller-zero deletion or warning row
+NextCard: MIRBUILDER-WARNING-SOURCE-BUILD-GATE-RAW-TEST-FACADE-I0
 ---
 
 # MirBuilder warning baseline refresh I94
@@ -48,3 +48,16 @@ current measured baseline is lib **1,710** and lib-test **552** after the
 LoopPhi mixed-cfg cleanup. The next selection must preserve this distinction:
 warning cleanup may proceed only as a bounded owner row, while the old-edge
 lane remains blocked by the live compatibility caller.
+
+## Refresh result and selected cohort
+
+The sequential refresh completed with lib **1,710** warnings and lib-test
+**552** warnings. The old-edge census remains `NoSafeSlice`: the live
+compatibility registry entry has no named successor. The next warning
+candidate is `SourceBuildGateIdV1::raw()` at
+`src/parser/source_path.rs:19`; repository-wide search found five callers,
+all in `src/parser/source_session_tests.rs`, and no production caller. The
+bounded implementation only gates this observation accessor with `cfg(test)`.
+
+The next cohort is
+`MIRBUILDER-WARNING-SOURCE-BUILD-GATE-RAW-TEST-FACADE-I0`.
