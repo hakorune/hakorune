@@ -8,9 +8,9 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::{CompareOp, MirInstruction, MirType, ValueId};
 
-pub(in crate::mir::builder) use super::enum_match_scopebox::{
-    PreparedRawScopeBoxRouteV1, PreparedRawScopeBoxV1,
-};
+#[cfg(test)]
+pub(in crate::mir::builder) use super::enum_match_scopebox::PreparedRawScopeBoxRouteV1;
+pub(in crate::mir::builder) use super::enum_match_scopebox::PreparedRawScopeBoxV1;
 
 pub(in crate::mir::builder) struct PreparedRawEnumVariantHeaderV1 {
     tag: u32,
