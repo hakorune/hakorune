@@ -23,6 +23,7 @@ pub(super) struct ParserBoxMemberSourceCursorV1 {
 }
 
 impl ParserBoxMemberSourceCursorV1 {
+    #[cfg(test)]
     pub(super) fn open(brand: ParserInvocationBrandV1, statement_ordinal: u32) -> Self {
         Self::open_with_path(
             brand.clone(),

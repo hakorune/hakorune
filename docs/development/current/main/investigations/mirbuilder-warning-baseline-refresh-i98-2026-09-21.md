@@ -1,18 +1,18 @@
 ---
-Status: closed__2026-09-21__WarningBaselineRefreshI96__SelectedCursorFacade
-Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I96
+Status: design_stop__2026-09-21__WarningBaselineRefreshI98__SelectNextCohort
+Task: MIRBUILDER-WARNING-BASELINE-REFRESH-I98
 Date: 2026-09-21
-Parent: mirbuilder-warning-admitted-registry-branch-count-test-facade-i0-2026-09-21.md
+Parent: mirbuilder-warning-source-member-cursor-open-test-facade-i0-2026-09-21.md
 Implementation permission: false; refresh diagnostics and select one bounded next cohort
-NextCard: MIRBUILDER-WARNING-SOURCE-MEMBER-CURSOR-OPEN-TEST-FACADE-I0
+NextCard: one explicitly justified caller-zero deletion or warning row
 ---
 
-# MirBuilder warning baseline refresh I96
+# MirBuilder warning baseline refresh I98
 
 ## Six-line brief
 
 ```text
-Decision: refresh the post-admission-facade warning surface and select one
+Decision: refresh the post-cursor-facade warning surface and select one
 bounded row; keep the LoopBreak old-edge lane parked without a successor.
 Source authority + canonical issuer: quick-profile Cargo diagnostics, the
 warning classification policy, and the current LoopBreak owner census.
@@ -20,7 +20,7 @@ Non-authority: warning-count guesses, cargo-fix, blanket allow, or a guessed
 external/source caller.
 Fail-fast boundary: new warning, unclassified red, nonzero caller, or route
 authority mismatch stops selection and records NoSafeSlice.
-Smallest next slice: compare 1,708/552, census one candidate, and choose
+Smallest next slice: compare 1,707/552, census one candidate, and choose
 Delete > Stop > Promote > split > T0.
 Non-claims: no broad cleanup, LoopBreak deletion, publication, VM repair, or
 LegacyCallV0 retirement.
@@ -42,21 +42,8 @@ their existing owner rows. Select at most one implementation row, or record
 
 ## Handoff
 
-I96 follows the coupled test-only branch-count facade. The measured baseline is
-lib **1,708** and lib-test **552**. The old-edge deletion lane remains blocked
+I98 follows the source-member cursor test facade. The measured baseline is lib
+**1,707** and lib-test **552**. The old-edge deletion lane remains blocked
 because `route_loop_break_recipe` is still the live registry compatibility
 handler; a future deletion row requires a named successor and caller-zero
 proof.
-
-## Refresh result and selected cohort
-
-The sequential refresh completed with lib **1,708** warnings and lib-test
-**552** warnings. The old-edge census remains `NoSafeSlice`: the live
-compatibility registry entry still has no named successor. The next warning is
-`ParserBoxMemberSourceCursorV1::open`; its repository callers are the
-`source_authority` test-only helper and the cursor test module, with no
-production caller. Production parsing uses `open_with_path`, which is outside
-this row and remains unchanged.
-
-The next bounded cohort is
-`MIRBUILDER-WARNING-SOURCE-MEMBER-CURSOR-OPEN-TEST-FACADE-I0`.
