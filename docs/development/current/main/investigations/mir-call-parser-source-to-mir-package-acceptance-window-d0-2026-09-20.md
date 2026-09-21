@@ -214,3 +214,24 @@ and the physical input carries the same forest, exit, child, carrier, and target
 relations without a second scan. Until then the current named terminal and
 `NoSafeSlice` remain authoritative; this section grants no code, fixture,
 fallback, package-success, production-switch, or deletion permission.
+
+### Source-to-Recipe correspondence gate
+
+The proposed mapping is complete at the vocabulary level and does not require
+an AST rewrite:
+
+| resolver/source role | one Recipe representation | authority check |
+| --- | --- | --- |
+| ordinary assignment, local, or expression statement | `RecipeItem::Stmt` with the exact located statement | source-port syntax equality and body index |
+| conditional body with fallthrough or terminal branch | `RecipeItem::IfV2` plus nested `RecipeBlock`s | existing `IfContractKind`/`IfMode`, checked against co-sealed exit rows |
+| `break`, `continue`, or `return` | `RecipeItem::Exit` with depth/kind | exact `ResolvedExitRecordV1` transfer and source site |
+| nested `:131` or `:182` loop | nested `RecipeItem::LoopV0` and child `RecipeBlock` | child planner disposition; `:182` remains `Infinite`/LoopTrue when selected |
+| loop/branch condition with a prelude and tail | existing `CondBlockView` | source-port condition projection; no condition reparse |
+
+The Recipe producer is the sole layer that allocates `StmtRef` and `BodyId`;
+the source product carries only source sites, parentage, and resolver transfer
+records. `CallableLoopSourcePartsBlockV1` then proves body cardinality and
+verbatim statement syntax for every mapped block, so a missing or reordered
+source item fails before physical allocation. This closes the semantic
+source-to-Recipe correspondence required by the design gate; implementation
+still waits for the owner decision to be accepted in `CURRENT_STATE.toml`.
