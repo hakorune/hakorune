@@ -48,3 +48,25 @@ The LoopCond observation slice passed focused LoopCond **9/9** and
 `family_admission` **6/6**, reducing lib warnings from **1,745** to **1,744**
 while lib-test remained **557**. Canonical observation ownership remains
 unchanged.
+
+## Refresh result and bounded deletion selection
+
+The sequential refresh completed with lib **1,744** warnings and lib-test **557**,
+matching the LoopCond observation closeout. The next finite caller-zero cohort is
+the parent re-export of `issue_loop_true_family_observation_v1`,
+`LoopTrueObservationContextV1`, `LoopTrueObservationDeclineV1`,
+`LoopTrueObservationRejectV1`, and `LoopTrueObservationUnresolvedV1` in
+`src/mir/loop_route_policy/mod.rs`. Their canonical owner is
+`loop_true_break_continue_observation.rs`; parent-facade consumers are test
+modules only. Retain the test facade under `cfg(test)` and remove its
+production edge in one focused slice.
+
+Selected successor:
+`MIRBUILDER-WARNING-LOOP-TRUE-OBSERVATION-TEST-SCOPE-I0`.
+
+## Closeout selection result
+
+The I78 refresh confirmed lib **1,744** and lib-test **557**, then selected the
+caller-zero LoopTrue observation parent facade. Its fast slice passed the
+LoopTrue observation suite **9/9** and `family_admission` **6/6**, reducing lib
+warnings to **1,743** while preserving the lib-test surface.

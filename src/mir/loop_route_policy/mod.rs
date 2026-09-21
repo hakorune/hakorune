@@ -97,10 +97,11 @@ pub(crate) use loop_true_break_continue::{
     issue_loop_true_break_continue_policy_demand_v1, LoopTrueBreakContinuePolicyDemandRejectV1,
     VerifiedLoopTrueBreakContinuePolicyDemandV1, VerifiedLoopTrueBreakContinuePolicyReceiptV1,
 };
+pub(crate) use loop_true_break_continue_observation::LoopTrueFamilyObservationV1;
+#[cfg(test)]
 pub(crate) use loop_true_break_continue_observation::{
-    issue_loop_true_family_observation_v1, LoopTrueFamilyObservationV1,
-    LoopTrueObservationContextV1, LoopTrueObservationDeclineV1, LoopTrueObservationRejectV1,
-    LoopTrueObservationUnresolvedV1,
+    issue_loop_true_family_observation_v1, LoopTrueObservationContextV1,
+    LoopTrueObservationDeclineV1, LoopTrueObservationRejectV1, LoopTrueObservationUnresolvedV1,
 };
 #[allow(unused_imports)]
 pub(crate) use nested_predicate_observation::{
