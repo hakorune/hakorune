@@ -1,5 +1,5 @@
 ---
-Status: fast__2026-09-21__SelectedBoundedWarningCohort__ExecuteTestFacadeDeletion
+Status: closed__2026-09-21__DynamicOperatorTestFacade__OwnerDirectImports
 Task: MIRBUILDER-WARNING-DYNAMIC-OPERATOR-TEST-FACADE-I0
 Date: 2026-09-21
 Parent: mirbuilder-warning-baseline-refresh-i69-2026-09-21.md
@@ -37,3 +37,16 @@ cargo test --profile quick --lib --no-run -j4
 
 All dynamic-operator tests must compile and pass; no selected item may remain
 as a parent facade or reappear in another owner layer.
+
+## Closeout evidence
+
+Commit `92a7a542c4` moved the selected issuer and model imports into
+`dynamic_operator_contract/tests.rs` and removed their parent re-exports. The
+used domain/family/result/value exports remain in the parent module. The source
+census shows no selected item outside its canonical issuer/model owners and the
+test module.
+
+The fixed gates passed sequentially: lib generated **1,751** warnings and
+lib-test generated **557** warnings. The four focused dynamic-operator tests
+passed (`4 passed, 0 failed`). `cargo fmt --check`, `git diff --check`, and the
+current-state pointer guard are green. No operator semantics or route changed.
