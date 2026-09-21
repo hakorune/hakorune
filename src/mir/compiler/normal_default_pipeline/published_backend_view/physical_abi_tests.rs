@@ -1,4 +1,3 @@
-use super::*;
 use crate::mir::{MirCompiler, NormalCompileRequestV1};
 
 #[test]

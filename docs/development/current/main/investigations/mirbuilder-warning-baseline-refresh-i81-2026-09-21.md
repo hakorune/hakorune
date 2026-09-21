@@ -49,3 +49,17 @@ scoped only the test-only LoopTrue reject mapper edge after rejecting an
 over-broad scope that would have removed production route-policy types. Its
 lib check produced **1,741** warnings and the focused LoopTrue suite passed
 **9/9**.
+
+## Refresh result and selected bounded edge
+
+The sequential refresh completed with lib **1,741** warnings and lib-test
+**557**, with no new red. The next finite warning edge is the unused
+`use super::*` in `published_backend_view/physical_abi_tests.rs`; the test
+imports `MirCompiler` and `NormalCompileRequestV1` explicitly and no symbol from
+the parent glob. Removing that one test-only import is the selected I82 slice.
+
+## Closeout result
+
+The selected physical ABI test import deletion passed its lib check, test build,
+and named **1/1** focused test. Lib stayed at **1,741** and lib-test decreased
+from **557** to **556**.
