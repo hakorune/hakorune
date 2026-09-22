@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__PublicationRequiredOrdinalAuthorityMismatch
+Status: fast__2026-09-22__PublicationFormalOrdinalAuthoritySelected
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: false; task 4 is paused at required-ordinal authority reconciliation
-NextCard: none__task4_required_ordinal_authority_reconciliation
+Implementation permission: true; T4b/T4c formal-ordinal handoff guard and publication only
+NextCard: none__task4b_formal_ordinal_handoff_guard
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -22,8 +22,8 @@ Non-authority: VM/compatibility lanes, generic fallback, names, AST rescans,
 Fail-fast boundary: selected caller, source-to-MIR terminal, publication
   relation, and a stable handoff guard; caller-zero and physical deletion are
   owned by the successor retirement card.
-Smallest next slice: one read-only authority decision for the `[1]` versus
-  `[]` requirement; no publication or caller switch until it is accepted.
+Smallest next slice: align the existing handoff with the callee-formal
+  requirement and prove the selected owner row; no caller switch yet.
 Non-claims: no whole-repository migration, backend promotion, warning cleanup,
   or unrelated legacy retirement.
 ```
@@ -230,3 +230,23 @@ The next bounded task order is:
 The warning cohort stays paused at I147 (`unused_imports=17`; `dead_code` is
 owner debt). It resumes after T4/R0 or only if an owner-specific warning becomes
 a newly selected blocker.
+
+## T4a authority decision — 2026-09-22
+
+T4a is accepted. The existing call-row evidence remains the sole authority for
+both ordinal meanings: `callee_required_i64_arguments` is the formal parameter
+contract, while `required_i64_arguments` is the selected call-site dependency
+after actual-argument substitution. The publication handoff is consumed by the
+source LoopBreak relation, whose guards require the formal contract, so its
+ordinal field is standardized as the already-sealed callee formal requirement.
+The call-site dependency remains available only on the call row and is not
+reissued through publication.
+
+This is a field-meaning correction in the existing publication owner, not a new
+semantic receipt or result authority. `from_exact_i64_requirement` already
+copies the formal requirement; `from_general_call_result` must copy the same
+formal slice from `same_module_static_evidence`. T4b may rename the existing
+handoff/route accessors to make that meaning explicit and must add one focused
+owner guard for formal `[1]` alongside call-site `[]`. T4c then accepts the
+one-shot publication and residual check. No VM repair, fallback, AST rescan,
+caller switch, or old-edge deletion is part of T4b/T4c.
