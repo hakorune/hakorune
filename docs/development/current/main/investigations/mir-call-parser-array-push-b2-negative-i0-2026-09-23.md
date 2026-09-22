@@ -1,9 +1,9 @@
 ---
-Status: fast__source_array_push_negative_matrix
+Status: fast__named_array_state_negative_matrix
 Task: MIR-CALL-PARSER-ARRAY-PUSH-B2-NEGATIVE-I0
 Parent: mir-call-parser-array-push-b2-i0-2026-09-23
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-CUTOVER-D0
-Implementation permission: close the finite negative matrix for the existing source-owned carrier and ArrayPush handoff; do not switch a production caller or add a new semantic receipt
+Implementation permission: true for test-only negative coverage through the existing package install/loan bridge; do not switch a production caller or add a new semantic receipt
 ---
 
 # ArrayPush BindingRef negative matrix B2-NEGATIVE-I0
@@ -27,6 +27,25 @@ carrier guard and focused GenericLoop/package suites.
 Non-claims: no new Verified*/Prepared* receipt, no production caller switch,
 no runtime Text lifetime, no VM/AOT/platform parity, and no old-edge deletion.
 ```
+
+## Accepted fixture decision
+
+The missing callable-state fixture authority is resolved without a production
+hook. Tests must issue the real source-backed package with
+`issue_normal_callable_semantic_package_with_brand_catalog_v1`, call
+`prepare_install(...).commit()`, open `begin_lowering(...)`, and consume the
+selected row through
+`with_selected_lowering_input_and_core_methods(...)`. The callback's selected
+input and borrowed source rows are the only inputs to
+`CallableSemanticLoweringState::from_exact_source_with_dynamic_source_and_core_methods`.
+This keeps source, owner, session, and row identity co-sealed and permits no
+private-field mutation or synthetic row construction.
+
+The fixture helper belongs in the existing Builder state test family (split at
+760 lines if needed). It must install the existing entry values before reading
+the ArrayBox receiver, and it must return the exact `SourceExprSiteV1` for the
+named ArrayPush row plus the state under test. A second package instance is the
+foreign-session witness; it must never lend rows to the first state's source.
 
 ## Current boundary and evidence
 
@@ -52,20 +71,21 @@ owner test reference before this card can close.
 2. **Physical carrier** — retain the missing-label test and cover a foreign
    BindingRef that is not a carrier without turning it into a name lookup. The
    missing-label and non-carrier tests now close this row.
-3. **Source-item consumption** — test duplicate exact-site consumption and a
-   required ArrayPush with no matching source row. The existing
-   `source_core_method_take_rejects_duplicate_exact_site` covers the shared
-   exact-site owner; a direct named-Array state fixture is still required for
-   the ArrayPush-specific row.
-4. **Call shape** — mutate only the selected row's receiver/arity/method shape
-   in a test fixture and require `named-array-call-shape`; do not broaden the
-   production matcher. The upstream
+3. **Source-item consumption** — add the package-loan-backed named-array state
+   fixture and test duplicate exact-site consumption plus a required ArrayPush
+   with no matching source row. The existing
+   `source_core_method_take_rejects_duplicate_exact_site` remains shared-owner
+   evidence; the new state test must prove the ArrayPush-specific row through
+   the real selected input and borrowed row set.
+4. **Call shape** — pass only a wrong method or arity at the state consumer and
+   require `named-array-call-shape`; do not mutate private contracts or broaden
+   the production matcher. The upstream
    `selected_array_contract_rejects_reassignment_value_demand_and_non_text`
    test covers the source target boundary, but not the state consumer's final
    shape branch.
-5. **Finish** — leave one source read, rebind, or named write unconsumed and
-   assert the existing ledger finish rejects the residual. Reuse
-   `finish_with_named_arrays`; the existing
+5. **Finish** — leave one source read, rebind, or named write unconsumed in the
+   package-loan-backed state and assert the existing ledger finish rejects the
+   residual. Reuse `finish_with_named_arrays`; the existing
    `package_inventory_rejects_dropped_draft_and_allocation_without_write`
    covers the emission collector, while the callable-state residual fixture
    remains open. Do not add a second residual scanner.
@@ -81,11 +101,11 @@ runtime ownership proof, or production caller switch in this card. If a named
 negative cannot be constructed through the existing owner, record the missing
 fixture authority and return to design stop rather than manufacturing one.
 
-The current missing fixture authority is the callable-state construction of a
-named ArrayPush row without re-running parser/package issuance. The next safe
-step is a test-only fixture that borrows the existing source row and mutates
-only its already-owned contract fields; if that cannot be built through the
-current owner, keep the row open and do not add a production mutation hook.
+The former fixture gap is closed by the accepted package install/loan bridge
+above. Missing-row behavior must be observed through the required caller or
+collector: the raw `take_source_array_push` API may return `Ok(None)` for an
+unmatched site, so that result alone is not a named rejection and cannot close
+the row.
 
 The next card after this matrix is a design decision for the one selected
 production caller and its old-edge retirement. It is not implied by local green
