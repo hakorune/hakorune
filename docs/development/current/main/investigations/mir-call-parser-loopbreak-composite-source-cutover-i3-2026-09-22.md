@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__T4cRecursiveResultAuthority
+Status: design_stop__2026-09-22__T4cNoSafeSliceScheduler
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: false; read-only recursive-result authority audit only
-NextCard: none__t4c_recursive_string_result_audit
+Implementation permission: false; no existing recursive-String result owner; design decision only
+NextCard: none__t4c_recursive_string_result_NoSafeSlice__ResultFamilyOwnerAbsent
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -12,20 +12,22 @@ NextCard: none__t4c_recursive_string_result_audit
 ## Six-line brief
 
 ```text
-Decision: consume the selected composite LoopBreak handoff through the existing
-  one-shot publication owner, then switch only that parser caller to the
-  source-backed route.
-Source authority + canonical issuer: the accepted I1 package and I2 physical
-  owner, with the existing semantic package as the caller boundary.
+Decision: retain the selected composite LoopBreak handoff at the existing typed
+  TargetOnly/RecursiveDependency terminal until a source-backed String result
+  owner exists; do not bypass the terminal to force publication.
+Source authority + canonical issuer: the existing result solver/catalog and
+  VerifiedStaticCallResultPublicationOwnerV1, with the accepted I1 package and
+  I2 physical owner remaining the downstream consumer boundary.
 Non-authority: VM/compatibility lanes, generic fallback, names, AST rescans,
   and acceptance smoke results from an unselected backend.
 Fail-fast boundary: selected caller, source-to-MIR terminal, exact target and
   site relation, one-shot handoff consumption, residual-free finish; caller-zero
   and physical deletion are owned by the successor retirement card.
-Smallest next slice: take the real composite handoff, lower it through the
-  existing publication bridge, and prove the residual guard; no caller switch.
-Non-claims: no whole-repository migration, backend promotion, warning cleanup,
-  or unrelated legacy retirement.
+Smallest next slice: design-only decision on termination, String
+  representation, effect/ABI, and a named consumer or pre-effect terminal for
+  the two recursive helpers; no implementation is authorized in this card.
+Non-claims: no T4c publication acceptance, T5 caller switch, R0 deletion,
+  whole-repository migration, backend promotion, or warning cleanup.
 ```
 
 I1 and I2 are closed at their package/Recipe and focused physical boundaries.
@@ -428,15 +430,45 @@ Non-authority: method names, selected-row filtering, VM/compatibility fallback,
   fixture shrinking, synthetic recursion receipts, or a new result ABI.
 Fail-fast boundary: every cataloged caller/site is Selected or TargetOnly;
   TargetOnly stops before receiver/argument descent and physical effects.
-Smallest next slice: read-only audit whether the existing result owner can
-  prove termination, representation, effect, and ABI for exactly these two
-  recursive helpers; if not, record NoSafeSlice__ResultFamilyOwnerAbsent.
+Smallest next slice: decide whether an existing owner can prove termination,
+  representation, effect, and ABI for exactly these two recursive helpers; if
+  not, keep the family explicitly parked at NoSafeSlice.
 Non-claims: no T4c full acceptance, T5 caller switch, or R0 deletion.
 ```
 
-Design stop is local to this recursive result family.  No code, fallback,
-production switch, or warning cleanup is permitted until the audit produces
-an accepted existing owner or an explicit `NoSafeSlice` decision.
+Design stop is local to this recursive result family.  The audit produced the
+explicit `NoSafeSlice` decision, so no code, fallback, production switch, or
+warning cleanup is permitted until a separate owner design is accepted.
+
+## Scheduler premise reset — 2026-09-22
+
+The read-only audit is complete and the missing owner is internal, not an
+external wait.  The scheduler checked the already-inventoried alternatives:
+
+- `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE-R0` is already closed with its fixed
+  eleven-entry receipt.
+- `MIR-CALL-R7-STRINGBOX-LOWER-STRUCTURAL-MEMBERSHIP-I0` is implemented, but
+  its dynamic owner evidence stops at the same static-call terminal; bypassing
+  that terminal would be a new route.
+- `MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0` is parked at the parser
+  LoopCond/static-publication boundary and cannot be resumed by filtering the
+  recursive rows.
+- OwnedText T3 and the remaining M7-S matrix are already
+  `ParkedSealed`/`NoSafeSlice` with no exclusive delete-set.
+
+There is therefore no ready Promote, Stop, or Delete row in this family.  The
+only unresolved design is a source-backed owner for the two self-recursive
+String helpers: bounded termination proof, String result representation,
+effect/ABI relation, and a named physical consumer or pre-effect terminal.
+The existing catalog/publication owner does not provide that combination, and
+the active T4c contract forbids inventing it inside the LoopBreak cutover.
+
+The family remains explicitly parked at
+`NoSafeSlice__ResultFamilyOwnerAbsent`.  Reopen only with an accepted owner
+design (or a separately selected inventoried family); do not add a synthetic
+receipt, widen `ExactI64`, shrink the parser fixture, restore compatibility
+fallback, repair VM, or switch T5/R0.  I147 remains the warning boundary and
+`dead_code` remains owner debt.
 
 ## Task order after the I147 warning boundary — 2026-09-22
 
