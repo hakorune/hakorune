@@ -1,13 +1,27 @@
 ---
-Status: parked__2026-09-22__T4cNoSafeSlice__successor-authority-d0
+Status: waiting_on_internal_design__2026-09-22__StringPhysicalContract
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: false; no existing recursive-String result owner; design decision only
+Implementation permission: false; String physical contract is the next internal design task
 NextCard: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 ---
 
 # Parser composite LoopBreak production cutover I3
+
+## Current correction — Pro premise audit, 2026-09-22
+
+The ordered task queue is now owned by
+[the reopened String result D0](mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md).
+Normal-return representation requires no recursive termination proof. Existing
+loop/source handoff and selected `starts_with/3` (`ExactI64/[]`) are present;
+full merged-parser acceptance is still stopped by earlier recursive result rows.
+StringBox Compatibility probes are a distinct ingress and do not prove this
+source-backed boundary. References below to a required recursive measure,
+missing loop connection, `[1]`, or no ready internal design are historical and
+superseded. Current order: String physical contract -> same-owner implementation
+and validation -> T4c full acceptance -> T5 selected switch -> R0 deletion.
+
 
 ## Six-line brief
 

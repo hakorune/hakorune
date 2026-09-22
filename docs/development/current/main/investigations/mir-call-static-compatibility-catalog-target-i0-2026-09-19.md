@@ -4,11 +4,18 @@ Task: MIR-CALL-STATIC-COMPATIBILITY-CATALOG-TARGET-I0
 Date: 2026-09-19
 Parent: mir-call-static-compatibility-catalog-target-d0-2026-09-14.md
 ProductionCaller: selected normal MIR/static-receiver route only
-Implementation permission: false; the finite tuple remains blocked by the named loop terminal and is handed to the promotion D0
+Implementation permission: false; follow reopened recursive String result D0 for the canonical merged-parser dependency
 Classification: BoxCount; one source-backed publication consumer and one cohort-local retirement
 ---
 
 # Static compatibility catalog target I0
+
+Current frontier correction (2026-09-22): loop/source handoff and the selected
+`starts_with/3` row exist. Canonical merged-parser execution stops earlier at
+`TargetOnly/RecursiveDependency`; Compatibility probes stop at a different
+`legacy-fallback-retired` boundary. The active design and task queue are in
+[recursive String result D0](mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md).
+Older loop-stop and ordinal claims below are historical.
 
 ## Six-line brief
 
@@ -30,7 +37,7 @@ source site  = parser-issued SourceExprSiteV1 (parser_program_box.hako:102 is di
 target       = ParserStringUtilsBox.starts_with/3
 args         = String, I64, String
 result       = ExactI64
-required i64 = [1]
+required i64 = []  # real merged-parser result proof; not a physical argument policy
 consumer     = statement IfCondition -> BinaryOp::Equal.lhs
 excluded     = ParserBox instance methods, Math, compatibility roots, and all other static rows
 ```

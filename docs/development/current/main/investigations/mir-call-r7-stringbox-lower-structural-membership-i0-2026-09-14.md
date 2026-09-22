@@ -131,13 +131,15 @@ this probe; the structural guard and source inspection remain the evidence for
 the type-tag branch until the selected static-call boundary has an accepted
 owner or terminal.
 
-The probe used the existing direct-canary environment
-(`NYASH_DISABLE_NY_COMPILER=1`, `HAKO_DISABLE_NY_COMPILER=1`, and
-`NYASH_USING_AST=1`). Repeating it through the legacy Rust parser therefore
-does not avoid the boundary: the same static-call terminal is reached during
-the imported Hako execution. This rules out compiler-selection drift as the
-cause. Enabling VM fallback would bypass the selected fail-fast contract and
-is not valid acceptance evidence, so it remains unopened.
+The reported direct-canary environment does not establish a source-backed
+admission. The Compatibility import route has no publication owner even when
+the Rust parser is used. This differs from the canonical merged-parser
+`TargetOnly/RecursiveDependency` boundary tracked in
+[recursive String result D0](mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md).
+The previous claim that this ruled out all compiler-selection drift was too
+strong: a future acceptance must pin the actual binary and source-backed entry.
+No dynamic membership result or same-command parent replay is claimed here.
+This row retains its pending dynamic evidence; it does not authorize VM repair.
 
 ## Recovery result and next baseline (2026-09-14)
 
