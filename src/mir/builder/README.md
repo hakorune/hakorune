@@ -1381,3 +1381,7 @@ DirectAccum bridge now seals `After` before reading carrier keys 0/1 through
 the existing Binding-SSA/PhiTxn lifecycle. The P4-S1 immutable candidate
 snapshot is green for this singleton; it does not synthesize After PHIs or
 become a second PHI/SSA owner. All-route physical parity remains separate.
+
+Source call publication installation/consumption lives in
+`normal_callable_semantic_lowering_state/source_call_publication.rs`; the parent
+state retains the same source-keyed inventory and ownership.
