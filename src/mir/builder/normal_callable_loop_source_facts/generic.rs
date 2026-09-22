@@ -715,4 +715,8 @@ mod structural_lease_tests;
 mod carrier_relation_tests;
 
 #[cfg(test)]
+#[path = "generic/source_admission_tests.rs"]
+mod source_admission_tests;
+
+#[cfg(test)]
 pub(in crate::mir::builder) use carrier_relation_tests::source_final_values_for_test;

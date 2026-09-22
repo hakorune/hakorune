@@ -135,6 +135,18 @@ impl CallableLoopSourceItemBindingV1 {
     pub(in crate::mir::builder) const fn arity(&self) -> u32 {
         self.arity
     }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn for_test(call_site: SourceExprSiteV1) -> Self {
+        Self {
+            receiver_site: call_site.clone(),
+            argument_sites: Box::new([]),
+            result_site: call_site.clone(),
+            call_site,
+            selector: "test".into(),
+            arity: 0,
+        }
+    }
 }
 
 /// Selected static-result requirement evidence copied from one publication
@@ -168,6 +180,16 @@ impl CallableLoopSourceTargetRequirementV1 {
 
     pub(in crate::mir::builder) fn required_callee_i64_arguments(&self) -> &[u32] {
         &self.required_callee_i64_arguments
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn for_test(
+        representation: VerifiedCallableResultRepresentationV1,
+    ) -> Self {
+        Self {
+            representation,
+            required_callee_i64_arguments: Box::new([]),
+        }
     }
 }
 

@@ -299,3 +299,30 @@ route evidence, and a pointer/card update. It is not production cutover. The
 existing uncommitted carrier-projection and NamedArray test WIP remains a
 handoff artifact until this decision is accepted; it is not a receipt or a
 caller switch.
+
+## I0 focused-negative closeout — 2026-09-23
+
+The named source-evidence negative corpus is now present at the exact probe
+boundary:
+
+```text
+missing selected target -> SourceTargetUnselected
+duplicate selected target -> SourceItemDuplicate
+value-demanded non-scalar target -> SourceTargetRequirementMismatch
+foreign owner -> issuer_rejects_foreign_owner_before_facts (existing source-facts owner test)
+```
+
+All three new probe tests pass in the quick profile, the existing 13 GenericLoop
+source-facts tests remain green, and the reusable guard
+`rust_mirbuilder_generic_loop_source_route_admission_i0_guard.sh` pins the only
+admitted raw shapes (`[GenericLoopV1]` and source-authorized
+`[GenericLoopV0, GenericLoopV1]`) while rejecting `contains`/`None`/drop
+shortcuts. This closes the focused-negative I0 evidence row only. The raw
+registry remains neutral and the uncommitted carrier/NamedArray WIP remains a
+handoff artifact.
+
+Next bounded slice: `MIR-CALL-PARSER-ARRAY-PUSH-B2-I0`, described in the next
+card. B2 may consume the existing source relation view and physical adapter WIP
+for BindingRef carrier projection and retained NamedArray construction; it may
+not switch production callers, publish a new backend result, or delete an old
+edge until its own acceptance is complete.
