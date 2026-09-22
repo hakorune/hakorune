@@ -314,6 +314,25 @@ fn source_carrier_projection_rejects_missing_physical_label() {
     });
 }
 
+#[test]
+fn source_carrier_projection_keeps_non_carrier_binding_unmapped() {
+    with_receipt(&direct_source(), |receipt| {
+        receipt
+            .into_semantic_recipe()
+            .unwrap()
+            .with_source_relation_view_once(|view| {
+                let foreign_binding = BindingRefV1::new(view.owner(), BindingId::new(999_999));
+                assert_eq!(
+                    view.carrier_relation()
+                        .physical_value_for_binding(foreign_binding, &BTreeMap::new())
+                        .unwrap(),
+                    None
+                );
+            })
+            .unwrap();
+    });
+}
+
 pub(in crate::mir::builder) fn source_final_values_for_test(
 ) -> crate::mir::builder::control_flow::plan::CoreLoopFinalValuesV1 {
     with_receipt(&direct_source(), |receipt| {

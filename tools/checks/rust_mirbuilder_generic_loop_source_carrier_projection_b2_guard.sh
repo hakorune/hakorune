@@ -10,6 +10,9 @@ ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_loop_physical_adapter.rs"
 STATE="$ROOT_DIR/src/mir/builder/normal_callable_semantic_lowering_state.rs"
 RELATION="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_facts/generic/carrier_relation.rs"
 RELATION_TESTS="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_facts/generic/carrier_relation_tests.rs"
+STATE_TESTS="$ROOT_DIR/src/mir/builder/normal_callable_semantic_lowering_state/map_local_tests.rs"
+TARGET_TESTS="$ROOT_DIR/src/mir/source_call_target/named_array_method_tests.rs"
+EMISSION_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/named_array_emission_tests.rs"
 PUBLISHED_TESTS="$ROOT_DIR/src/mir/compiler/normal_default_pipeline/published_backend_view/named_array_source_tests.rs"
 TRAIT="$ROOT_DIR/src/mir/builder/control_flow/plan/expression_port.rs"
 NORMALIZER="$ROOT_DIR/src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs"
@@ -21,7 +24,8 @@ SELF_SCRIPT="tools/checks/rust_mirbuilder_generic_loop_source_carrier_projection
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$PORT" "$ADAPTER" "$STATE" "$RELATION" "$RELATION_TESTS" \
-  "$PUBLISHED_TESTS" "$TRAIT" "$NORMALIZER" "$CARD" "$README" "$INDEX"
+  "$STATE_TESTS" "$TARGET_TESTS" "$EMISSION_TESTS" "$PUBLISHED_TESTS" "$TRAIT" \
+  "$NORMALIZER" "$CARD" "$README" "$INDEX"
 
 guard_expect_fixed_in_file "$TAG" "CallableLoopSourceExpressionPortWithRelationV1" "$PORT" \
   "the source port must retain the relation-aware type"
@@ -45,6 +49,8 @@ guard_expect_fixed_in_file "$TAG" "source-carrier-physical-missing" "$RELATION" 
   "missing physical carrier labels must fail closed"
 guard_expect_fixed_in_file "$TAG" "source_carrier_projection_rejects_missing_physical_label" "$RELATION_TESTS" \
   "missing physical carrier evidence must be executable"
+guard_expect_fixed_in_file "$TAG" "source_carrier_projection_keeps_non_carrier_binding_unmapped" "$RELATION_TESTS" \
+  "a non-carrier BindingRef must not acquire a physical value"
 guard_expect_fixed_in_file "$TAG" "named_array_source_reaches_retained_typed_write_and_c_frame" "$PUBLISHED_TESTS" \
   "the positive source-to-physical ArrayPush path must remain covered"
 guard_expect_fixed_in_file "$TAG" "named_array_value_demand_rejects_before_published_consumer" "$PUBLISHED_TESTS" \
@@ -52,6 +58,12 @@ guard_expect_fixed_in_file "$TAG" "named_array_value_demand_rejects_before_publi
 guard_expect_fixed_in_file "$TAG" "physical_adapter_rejects_relation_owner_mismatch_before_builder_effect" \
   "$ROOT_DIR/src/mir/builder/normal_callable_loop_source_facts_tests.rs" \
   "foreign source relation ownership must remain rejected"
+guard_expect_fixed_in_file "$TAG" "source_core_method_take_rejects_duplicate_exact_site" "$STATE_TESTS" \
+  "the existing exact-site owner must retain duplicate/missing source-row evidence"
+guard_expect_fixed_in_file "$TAG" "selected_array_contract_rejects_reassignment_value_demand_and_non_text" "$TARGET_TESTS" \
+  "the source target owner must retain receiver/value/text negative evidence"
+guard_expect_fixed_in_file "$TAG" "package_inventory_rejects_dropped_draft_and_allocation_without_write" "$EMISSION_TESTS" \
+  "the existing emission owner must retain residual completion evidence"
 guard_expect_fixed_in_file "$TAG" "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0" "$CARD" \
   "the active card must name this bounded slice"
 guard_expect_fixed_in_file "$TAG" "one physical port" "$CARD" \

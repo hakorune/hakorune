@@ -35,8 +35,9 @@ source `ArrayPush` handoff, final induction publication through the existing
 callable ledger, and the reusable structural guard. Positive evidence covers
 literal, substring, and two-push loop rows with optimization both off and on;
 the retained typed write and existing C-frame query are observed. The value-
-demanded source form and a missing physical carrier label are terminal tests,
-and the existing physical-adapter foreign-owner test remains in the boundary.
+demanded source form and a missing physical carrier label are terminal tests;
+the non-carrier BindingRef projection is unmapped, and the existing
+physical-adapter foreign-owner test remains in the boundary.
 
 This card closes the remaining negative inventory. A green positive compile is
 not evidence that a duplicate source row, receiver/arity drift, or a residual
@@ -49,16 +50,25 @@ owner test reference before this card can close.
    the smallest source-session/site drift fixture at the adapter boundary. The
    rejection must occur before Composer, PlanLowerer, or Builder effects.
 2. **Physical carrier** — retain the missing-label test and cover a foreign
-   BindingRef that is not a carrier without turning it into a name lookup.
+   BindingRef that is not a carrier without turning it into a name lookup. The
+   missing-label and non-carrier tests now close this row.
 3. **Source-item consumption** — test duplicate exact-site consumption and a
-   required ArrayPush with no matching source row. The terminal must remain
-   typed and one-shot.
+   required ArrayPush with no matching source row. The existing
+   `source_core_method_take_rejects_duplicate_exact_site` covers the shared
+   exact-site owner; a direct named-Array state fixture is still required for
+   the ArrayPush-specific row.
 4. **Call shape** — mutate only the selected row's receiver/arity/method shape
    in a test fixture and require `named-array-call-shape`; do not broaden the
-   production matcher.
+   production matcher. The upstream
+   `selected_array_contract_rejects_reassignment_value_demand_and_non_text`
+   test covers the source target boundary, but not the state consumer's final
+   shape branch.
 5. **Finish** — leave one source read, rebind, or named write unconsumed and
    assert the existing ledger finish rejects the residual. Reuse
-   `finish_with_named_arrays`; do not add a second residual scanner.
+   `finish_with_named_arrays`; the existing
+   `package_inventory_rejects_dropped_draft_and_allocation_without_write`
+   covers the emission collector, while the callable-state residual fixture
+   remains open. Do not add a second residual scanner.
 6. **Closeout** — run the B2 carrier guard, source-route guard, current-state
    pointer guard, and focused suites. Record the exact test names and classify
    any red as current-change or baseline debt before choosing cutover design.
@@ -70,6 +80,12 @@ fallback route. Do not create a new semantic receipt, physical carrier map,
 runtime ownership proof, or production caller switch in this card. If a named
 negative cannot be constructed through the existing owner, record the missing
 fixture authority and return to design stop rather than manufacturing one.
+
+The current missing fixture authority is the callable-state construction of a
+named ArrayPush row without re-running parser/package issuance. The next safe
+step is a test-only fixture that borrows the existing source row and mutates
+only its already-owned contract fields; if that cannot be built through the
+current owner, keep the row open and do not add a production mutation hook.
 
 The next card after this matrix is a design decision for the one selected
 production caller and its old-edge retirement. It is not implied by local green
