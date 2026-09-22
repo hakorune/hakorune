@@ -1,37 +1,34 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2"
-current_execution_cohort = "mir_call_parser_array_push_b3_loopcond_carrier_relation_d2"
-current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2__NoConnectedSemanticProgramIssuer"
+current_execution_row = "JOINIR-LOOP-M8-LOOPCOND-EXITS-S6D"
+current_execution_cohort = "joinir_loop_m8_loopcond_exits_s6d"
+current_blocker_token = "JOINIR-LOOP-M8-LOOPCOND-EXITS-S6D__NoConnectedLoopCondSemanticProgramIssuer"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "FrontierPause__NoReadyPromoteStopDeleteAfterOrderedFamilyReselection_2026-09-23"
+current_design_stop = "LoopCondS6D__SourceValueRecipeJoinSigConsumerDeleteTupleUnproven_2026-09-23"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-active_lane = "MirBuilder Call compatibility retirement"
+active_lane = "MirBuilder Loop/M8 portable Recipe coverage"
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md"
-latest_card = "mir-call-parser-array-push-b3-loopcond-carrier-relation-d2"
-latest_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md"
+current_execution_design = "docs/development/current/main/investigations/joinir-loop-m8-loopcond-exits-s6d-2026-09-23.md"
+latest_card = "joinir-loop-m8-loopcond-exits-s6d"
+latest_card_path = "docs/development/current/main/investigations/joinir-loop-m8-loopcond-exits-s6d-2026-09-23.md"
 latest_card_summary = """
-B2 source-to-physical carrier projection and its negative matrix are closed.
-B3 D0/D1 accepted the value/origin branch-state rule; D2 is NoSafeSlice because
-LoopCondRecipe lacks portable carrier/join keys and no connected semantic-
-program issuer co-seals them. B3 I0 is unauthorized and the shared MethodCall
-delete set is empty. Scheduler reselection found no ready action: fixed EXE
-acceptance closed; M7-S has no exclusive delete set; R7's finite remaining
-owners are closed, retained, deferred, or NoSafeSlice; M10 co-seal is NoSafeSlice,
-transfer/boundary/If/Exit prerequisites are closed, and S6C caller-zero has no
-selected production consumer/delete set; parser recursive-result/composite
-loop candidates remain NoSafeSlice. Overall MirBuilder goal stays active.
+M8 S6D is the next inventoried LoopCond cohort after S6C. D0 is design-only:
+the existing source observation has predicate sites and resolver exits, while
+the local planner Recipe has AST/StmtRef structure; no connected issuer is
+known to co-seal typed predicate values, portable Recipe keys, and JoinSig
+continuation. The D0 must also name a production consumer and same-series old-
+edge deletion, or close S6D as NoSafeSlice and return to the family scheduler.
+No code, fixture, semantic receipt, or production switch is authorized.
 """
-next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md"
-next_execution_card = "none__frontier_pause__no_ready_promote_stop_delete_2026-09-23"
+next_design_card = "JOINIR-LOOP-M8-LOOPCOND-EXITS-S6D"
+next_design_card_path = "docs/development/current/main/investigations/joinir-loop-m8-loopcond-exits-s6d-2026-09-23.md"
+next_execution_card = "none__design_stop_s6d_tuple_unproven_2026-09-23"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

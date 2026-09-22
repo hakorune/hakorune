@@ -1802,6 +1802,10 @@ implementation may add only these caller-zero projections; Builder/session,
 lifecycle, Text residence, route, fallback/retry, production callers, and
 publication remain closed.
 
+S6D entry is a design stop, not an automatic caller-zero producer. Its exact
+current task is
+[`JOINIR-LOOP-M8-LOOPCOND-EXITS-S6D`](../investigations/joinir-loop-m8-loopcond-exits-s6d-2026-09-23.md): identify typed predicate values, a connected Recipe/JoinSig issuer, a named production consumer, and an old-edge deletion in the same bounded series. Until that tuple is established, S6D has no Recipe producer or production-selection claim.
+
 ### M10 pre-cutover authority seal — caller-zero only
 
 M8/M9 close logical coverage and parity. They do not by themselves authorize
