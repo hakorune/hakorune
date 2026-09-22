@@ -13,7 +13,7 @@ Implementation permission: B2 design only; ArrayPush implementation and runtime 
 
 - **Current decision:** S1 String and B1 Bool source-to-MIR publication are closed; next design resolves ArrayPush mutation/NoValue statement authority in existing owners.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** B2-D0 for `StringHelpers.split_lines/1` loop-local `arr.push(s.substring(last, i))`; settle receiver/binding, mutation/Fault/argument retention and NoValue consumer before implementation.
+- **Next ordered task:** B2-D0 for `StringHelpers.split_lines/1` loop-local `arr.push(s.substring(last, i))`; first settle compiler-ingress constructor policy transport; then co-seal receiver/binding and connect NoValue mutation consumption. See the B2 ordered queue below.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -479,3 +479,62 @@ Fail-fast boundary: unsupported source relation must reject before argument/muta
 Smallest next slice: close exact Array receiver/binding + push/1 argument/Fault contract + source statement consume/emit/finish and selected name-edge deletion.
 Non-claims: no ArrayPush implementation permission, tail-push/substring-1 coverage, full split_lines/parser acceptance or runtime String ABI completion yet.
 ```
+
+
+### B2 decision and ordered queue (2026-09-22)
+
+```text
+Decision: preserve constructor selection semantics; do not silently make explicit new ArrayBox intrinsic.
+Source authority + canonical issuer: resolver construction sites and binding ledger, existing ordinary declaration inventory, and constructor policy resolved at compiler ingress; source CoreMethod issuance co-seals these inputs.
+Non-authority: ArrayBox spelling, CoreBoxId alone, generated manifest, physical receiver type, or a second environment read inside the source issuer.
+Fail-fast boundary: unresolved/foreign constructor policy, shadowed or reassigned receiver, value-use of NoValue, duplicate or residual source consumption.
+Smallest next slice: settle one immutable constructor-policy input and its source-package handoff, then the bounded source-to-MIR ArrayPush statement cutover.
+Non-claims: this design does not activate ArrayPush, prove runtime Text/Fault ABI, complete parser acceptance, or delete shared legacy callers.
+```
+
+Read-only worker and local consumer audit agree on the following boundary.
+`ordinary_new_candidate.rs::resolve` checks ordinary source declarations first
+(including duplicate rejection), then leaves builtin/plugin construction to
+compatibility. `CoreBoxId::from_name` supplies identity, not provider selection.
+`box_factory/registry.rs::rebuild_cache` uses provider policy; Array reservation
+can change under plugin overrides. `ConstructionTarget` explicitly retains
+`Named` for explicit new. Thus the existing source inventory excludes user
+shadowing, but cannot yet prove the selected builtin constructor.
+
+This census covers: the loop-local split_lines construction/binding -> source
+method issuance -> statement Recipe -> ArrayElementWrite emission. Includes
+constructor shadowing/policy, receiver reassignment, nested argument coverage,
+one-shot consumption and residual rejection. Excludes loop-external tail push,
+substring/1, other Array methods and executable Text ABI acceptance.
+
+| Order | Task / existing owner | Observable completion |
+| --- | --- | --- |
+| 1 | Constructor policy handoff design: compiler ingress -> existing semantic package; resolver New site + initializer BindingRef | Name the actual ingress capture owner and immutable policy representation, with ordinary declaration priority and override behavior preserved. Distinguish user, selected builtin, provider override and unavailable policy. No builtin source claim until this mapping is closed. |
+| 2 | Source Array receiver and push contract: existing resolver expression inventory / CoreMethod issuer | Zero-argument construction site joins the exact initializer/receiver binding and loop frame under the same issuance. Reject reassignment conservatively; no alias inference. Co-seal push/1, Text argument site, NoValue and mutation semantics. Nested substring remains covered. |
+| 3 | Statement cutover: existing expression port / statement normalizer / effect Recipe / ArrayElementWrite writer | Explicit NoValue consumes once without fabricated ValueId; typed Push reaches emit_array_element_write(dst=None, index=None). Remove selected routing through the method-name/physical-type classifier in the same bounded series; finish rejects remaining rows. |
+| 4 | Focused source-to-MIR acceptance and deletion proof | Natural source witness emits the selected ArrayElementWrite; shadow/override/foreign/reassigned receiver, arity, value-use and duplicate/residual negatives pass. Guard proves the selected row cannot re-enter name-based dispatch. Recheck unchanged merged parser and classify its next terminal. |
+| 5 | Executable Text mutation contract and existing canonical acceptance queue | Verify durable Text retention, alias/lifetime behavior, argument evaluation before mutation, and supported mutation failure propagation in the selected runtime. Then continue canonical parser acceptance, T5 caller cutover and R0 retirement. |
+
+Rows 2–4 form one bounded migration series after row 1 closes; isolated issuer
+activation is not completion. The physical writer already exists in
+`builder/array_element_write.rs`. The statement normalizer currently bypasses
+exact source method consumption, and `lowerer/effect_emission.rs` reselects
+push by name and physical receiver type. Merely adding a CoreMethod row or
+passing another string MethodCall would leave those two gaps open.
+
+The selected delete-set is that source-owned statement's admission to the old
+name/type dispatch, not every shared Array writer or compatibility caller.
+Shared code is physically removable only after its remaining caller inventory
+is zero. Report edge retirement separately from file/line deletion.
+
+Runtime evidence remains distinct: the existing Array surface specifies Void
+and WriteHeap, and the sole append owner retains an owned element. The checked
+Array ABI currently covers numeric values; raw Text append status is not proof
+of semantic Fault delivery. Source-to-MIR design must preserve argument effects
+and mutation order but need not wait for executable ABI acceptance. Do not add
+a second append owner or reinterpret an unchecked status as a verified Fault.
+
+Immediate next action is row 1's compiler-ingress policy mapping, an internal
+design dependency, not platform/CI wait. Work mode stays design_stop: no new
+semantic receipt or fixture is authorized by this audit alone. Required owner
+README/reference updates belong to the corresponding implementation slice.
