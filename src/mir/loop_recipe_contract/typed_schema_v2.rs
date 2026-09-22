@@ -553,6 +553,13 @@ fn check_operation(
             values,
             definitions,
         ),
+        LoopOperationV2::ConstText { result, .. } => define_value(
+            *item_key,
+            *result,
+            LoopValueClassV2::Text,
+            values,
+            definitions,
+        ),
         LoopOperationV2::BinaryI64 {
             left,
             right,

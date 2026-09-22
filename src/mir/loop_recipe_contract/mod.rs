@@ -162,6 +162,10 @@ mod operation_effect_parity;
 mod operation_physical_demand_tests;
 
 #[cfg(test)]
+#[path = "typed_schema_v2_text_tests.rs"]
+mod typed_schema_v2_text_tests;
+
+#[cfg(test)]
 #[path = "typed_schema_v2_tests.rs"]
 mod typed_schema_v2_tests;
 

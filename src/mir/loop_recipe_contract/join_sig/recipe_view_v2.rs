@@ -140,6 +140,11 @@ fn operation_view(operation: &LoopOperationV2) -> LoopJoinOperationView<'_> {
             LoopJoinValueUses::None,
             Some(*result),
         ),
+        LoopOperationV2::ConstText { result, .. } => define(
+            LoopJoinOperationFamily::ConstText,
+            LoopJoinValueUses::None,
+            Some(*result),
+        ),
         LoopOperationV2::BinaryI64 {
             left,
             right,

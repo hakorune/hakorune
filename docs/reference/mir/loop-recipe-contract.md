@@ -2333,3 +2333,18 @@ elaboration. The closure's payload type separates this sole result from the
 collection; sole accessors cannot be invoked on a collection. This shared
 issuance refactor does not activate Generic source, extend value/operation
 vocabulary, or establish runtime/physical publication evidence.
+
+
+## V2 logical Text constant
+
+Decision: V2 `ConstText { result, value }` preserves exact UTF-8 text, including
+empty text and embedded NUL, and defines exactly one Text result. It consumes
+no logical operands. Missing/wrong result class and duplicate definitions reject.
+It is not a call, implicit conversion or source receipt.
+
+The source-program co-seal must match the exact resolver String literal site
+and value. `NonFaulting` denotes absence of a returned language-Fault successor,
+not semantic Pure or allocation freedom. The [String ABI](../abi/nyrt_c_abi_v0.md)
+retains exact-byte/length and zero-handle contract checks; host-fatal allocation
+failure is not turned into a fabricated language Fault. This opcode's logical
+admission does not enable a new source/physical consumer or complete Array push.

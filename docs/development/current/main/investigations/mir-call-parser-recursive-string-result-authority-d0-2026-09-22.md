@@ -1,10 +1,10 @@
 ---
-Status: fast__B2_const_text_logical_vocabulary
+Status: fast__B2_typed_verifier_split
 Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 (same card; source relation before D)
-Implementation permission: one ConstText logical opcode per brief below; no Generic activation or new source receipt; preserve D WIP
+Implementation permission: behavior-preserving typed V2 operation-verifier split only; preserve D WIP and source admission
 ---
 
 # Parser String result authority: corrected decision and task queue
@@ -13,7 +13,7 @@ Implementation permission: one ConstText logical opcode per brief below; no Gene
 
 - **Current decision:** B2 Array retention/discharge is implemented; D exposed a source GenericLoop carrier synchronization gap. The scoped carrier/origin design and ordered tasks below replace the induction-only proposal.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** add ConstText logical vocabulary, then conditional NamedArray class and common Core co-seal. Root closure collection is verified; D/branch/runtime evidence remains open.
+- **Next ordered task:** split the 764-line typed V2 verifier, then conditional NamedArray class/common Core co-seal. ConstText logical vocabulary is verified; D/branch/runtime evidence remains open.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -944,18 +944,9 @@ ordinals must survive filtering; two-exit branch pairs beyond Break/Continue
 need actual selected-route coverage. These still block Generic activation.
 Boundary: Generic semantic Recipe -> common logical transfer; no runtime claim.
 
-Landed closure prerequisite (BoxShape):
-Change: factor existing V2 JoinSig closure issuance through an exact root After
-collection. Retain the same engine and checked sole-carrier public entry.
-Contract: derive every After from the same verified Recipe and JoinSig; keep
-single-row and collection payloads type-distinct in the existing closure type.
-No general collection may silently enter a sole-row accessor. Generic source,
-new value classes/opcodes and physical activation are excluded from this slice.
-Done: existing single-carrier tests plus multi-carrier exact After coverage and
-missing After rejection; no new physical owner. Source Core/co-seal, ledger
-publication, D caller switch/deletion and selected-C runtime remain tasks 3-5.
-Stop: any need to change source admission or engine branch semantics returns to
-the unresolved mapping above. Do not collapse additional carriers to induction.
+Root closure prerequisite landed at `aea1f4a290`: shared issuance validates all
+root After rows; typed single/collection payloads retain checked sole admission.
+No Generic activation; detailed design and logical evidence live in that commit.
 
 Closure prerequisite baseline classification:
 `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib 's6c_'` on the changed tree
@@ -968,7 +959,7 @@ Classification: known baseline debt for this BoxShape, not ignored green.
 Logs: `/tmp/b2-closure-s6c.log`, `/tmp/b2-closure-parent-s6c.log`; parent used an
 isolated clean worktree with the same lockfile. Existing D WIP was untouched.
 
-Next bounded implementation after closure verification (BoxCount, one opcode):
+ConstText logical opcode (landed bounded BoxCount; no source activation):
 Change: add logical V2 ConstText with exact stored text and Text result through
 schema/verifier/JoinSig projections; no source/physical route activation.
 Contract: source authority remains the exact resolver literal; common Core must
@@ -985,3 +976,18 @@ Logs `/tmp/b2-closure-final-{build,dynamic,s6c}.log`; fmt, both existing guards
 and diff check pass. Initial filename filter matched zero and was corrected to
 `join_sig::v2::collection_tests::`; that zero run earns no evidence credit.
 No source caller switch/retirement is claimed. Three-file D WIP stays excluded.
+
+ConstText split boundary: typed_schema_v2.rs grows from 757 to 764 lines.
+Before further verifier changes, move check_operation and its class/definition
+helpers to an existing-verifier child module in a separate BoxShape commit;
+keep structural control checks in the parent. No line compression or new owner.
+
+ConstText receipt: new5 pass; schema41 + JoinSig20 + Dynamic33 + S6C65 =
+159 distinct pass. Same3 S6C baseline reds/reason as `b2f55c7ac5` above;
+no new red. Quick4m43s, warnings542. Logs `/tmp/b2-const-text-{build,schema,
+join,dynamic,s6c}.log`. README/reference, fmt, ingress/pointer/diff checks pass.
+Source literal co-seal and physical activation remain unimplemented.
+Next split contract: move check_operation/expect_defined_class/define_value to
+one verifier child; retain shared expect_defined_value and control checks in the
+parent. Existing test paths and error precedence remain unchanged; no opcode,
+source admission, new receipt, fallback or caller switch in that BoxShape.

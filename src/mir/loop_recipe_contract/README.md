@@ -965,3 +965,16 @@ V10, selector, fallback, retry, or production edge. Missing, foreign,
 duplicate, escaped, or drifted relations reject before physical effect. The
 next row is base-root admission; the portable Text-kernel/fastpath idea is
 parked in `contract-region-v0-ssot.md` and remains unselected.
+
+
+## V2 Text constants
+
+`ConstText { result, value }` retains exact UTF-8 text and defines a Text value.
+The typed verifier rejects a missing/wrong result class and duplicate definition;
+the common JoinSig view records a zero-input definition, not a CallSlot.
+`NonFaulting` means no returned language-Fault successor for the verified literal,
+not Pure, allocation-free execution or recoverable OOM. Existing selected literal
+materialization still checks exact bytes/length and treats a zero handle as a
+contract failure. Source authority requires the later common Core to match the
+resolver literal's exact site/value; logical wire validation does not issue it.
+Fixed Dynamic/S6C physical profiles remain outside this new operation's admission.

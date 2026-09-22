@@ -218,8 +218,7 @@ pub(in crate::mir) struct DynamicFullLoopOperationPhysicalRefV2<'program> {
     evidence: &'program DynamicFullLoopOperationSourceEffectV2,
     operation: &'program LoopOperationV2,
     call: Option<&'program VerifiedSourceBoundDynamicMemberCallV1>,
-    core_method:
-        Option<&'static crate::mir::core_method_result_kind::CoreMethodContractRowV2>,
+    core_method: Option<&'static crate::mir::core_method_result_kind::CoreMethodContractRowV2>,
 }
 
 impl<'program> DynamicFullLoopOperationPhysicalRefV2<'program> {
@@ -614,6 +613,9 @@ fn issue_operation_sources(
         };
         let (source_role, source_site) = source_anchor(source, coverage, placement.item)?;
         let (effect, call_role) = match operation {
+            LoopOperationV2::ConstText { .. } => {
+                return Err(DynamicFullLoopPhysicalEvidenceRejectV2::OperationSourceCardinality);
+            }
             LoopOperationV2::ReadBinding { .. } => {
                 (DynamicFullLoopOperationEffectV2::BindingRead, None)
             }

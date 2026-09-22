@@ -116,6 +116,11 @@ pub(crate) enum LoopOperationV2 {
         result: LoopValueKeyV1,
         value: i64,
     },
+    /// Exact UTF-8 text; source authority is attached by the common Core co-seal.
+    ConstText {
+        result: LoopValueKeyV1,
+        value: String,
+    },
     BinaryI64 {
         op: LoopBinaryI64OpV2,
         left: LoopValueKeyV1,
@@ -181,6 +186,7 @@ impl LoopOperationV2 {
         match self {
             Self::ReadBinding { .. }
             | Self::ConstI64 { .. }
+            | Self::ConstText { .. }
             | Self::BinaryI64 { .. }
             | Self::CompareI64 { .. }
             | Self::WriteBinding { .. }

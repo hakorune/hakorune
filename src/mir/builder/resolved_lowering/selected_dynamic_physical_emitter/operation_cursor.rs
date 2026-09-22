@@ -382,7 +382,8 @@ impl<'program> DynamicV2RecipeOperationCursorV1<'program> {
                 self.write_count += 1;
                 self.saw_write = true;
             }
-            LoopOperationV2::DynamicAdd { .. }
+            LoopOperationV2::ConstText { .. }
+            | LoopOperationV2::DynamicAdd { .. }
             | LoopOperationV2::DynamicLess { .. }
             | LoopOperationV2::TextEq { .. } => {
                 return Err(DynamicV2RecipeOperationCursorRejectV1::OperationShape)
