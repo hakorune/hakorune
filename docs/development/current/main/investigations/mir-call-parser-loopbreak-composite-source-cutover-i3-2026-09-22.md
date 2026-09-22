@@ -437,3 +437,37 @@ Non-claims: no T4c full acceptance, T5 caller switch, or R0 deletion.
 Design stop is local to this recursive result family.  No code, fallback,
 production switch, or warning cleanup is permitted until the audit produces
 an accepted existing owner or an explicit `NoSafeSlice` decision.
+
+## Task order after the I147 warning boundary — 2026-09-22
+
+The warning cohort is closed for this workstream at I147.  `unused_imports=17`
+is the measured mechanical tail; `dead_code` remains owner debt and is not a
+shared cleanup task.  The next work therefore stays on the semantic LoopBreak
+lane, with no new warning row unless one becomes an owner-specific blocker.
+
+The current recursive-result audit has a finite answer: the two helpers
+`ParserStringUtilsBox.i2s/1` and `StringHelpers.int_to_str/1` are self-recursive,
+the existing solver has no termination proof for them, and the current result
+owner exposes only exact `i64` or exact nominal-Box representations.  There is
+no existing String/OwnedText result ABI for this caller family.  The correct
+classification is `NoSafeSlice__ResultFamilyOwnerAbsent`; do not filter those
+rows, shrink the parser fixture, add a fallback, or mint a synthetic result.
+
+The bounded queue is consequently:
+
+1. **T4c authority closeout — closed here:** keep the typed
+   `TargetOnly/RecursiveDependency` terminal under the recorded
+   `NoSafeSlice__ResultFamilyOwnerAbsent` decision.  This closes the audit
+   boundary but does not claim merged-parser publication.
+2. **T4c publication acceptance — parked:** reopen only when an existing owner
+   can carry the required termination, representation, effect, and ABI
+   contract; then consume the selected composite handoff once and finish
+   residual-free.
+3. **T5 caller switch:** after T4c is green, switch only the selected parser
+   caller to the source-backed LoopBreak route.
+4. **R0 task 6 retirement:** after T5, prove caller-zero, delete the selected
+   old edge and temporary assets, and retain the re-entry guard.
+
+Until item 2 has an accepted owner, items 3--4 remain unopened.  No VM or
+compatibility repair, generic fallback, broad result-ABI expansion, or warning
+marathon is part of this queue.
