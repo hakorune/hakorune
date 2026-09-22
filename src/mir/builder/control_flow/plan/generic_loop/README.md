@@ -292,3 +292,16 @@ GENERIC-SEMANTIC-SHAPE-SCHEMA-D1 closes the typed shape contract. The bounded
 cfg(test)-only source-lease witness is now closed, and the bounded CarrierProof
 issuer is also closed. The next frontier is design-only role extension; no
 synthetic winner, demand, or production caller is allowed before that gate.
+
+Source binding / carrier correspondence (co-seal verified; physical publication pending):
+- `normal_callable_loop_source_facts/generic/carrier_relation.rs` is a private
+  co-seal helper of the existing semantic Recipe issuer. It joins exact target
+  sites to pre-effect BindingRefs, checks complete local declarations, and
+  allocates Recipe-local carrier slots without physical values.
+- The increment target must identify the unique source induction carrier.
+  Additional pre-loop bindings receive slots; loop/branch local rebinds retain
+  their declaration identity, including same-name shadowing, without slots.
+- The source relation view borrows these rows from its one semantic Recipe.
+  Labels are emission observations, not lookup authority. Existing carrier and
+  join owners still need scoped physical publication; this prerequisite does
+  not claim that synchronization, source-to-MIR cutover or runtime acceptance.

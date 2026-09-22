@@ -15,6 +15,17 @@ preservation, runtime representation or route authority. Source loop carrier and
 branch value synchronization must consume this relation through the existing
 Recipe/physical owners; declaration retention alone does not complete that work.
 
+The existing `CallableGenericLoopV1SemanticRecipeIssuerV1` co-seals the exact
+assignment target sites with their source BindingRefs and Recipe-local carrier
+slots. The planner's increment position must resolve to the unique source
+induction carrier. Other pre-loop rebinds receive distinct slots; loop-local
+rebinds retain declaration identity and receive no loop carrier. Source spelling
+is retained as an emission label only. Assignment/declaration coverage drift,
+foreign ownership and induction mismatch reject before physical allocation.
+The one-shot source relation view borrows this product from the same Recipe.
+Physical slot consumption and branch/header/exit publication remain separate
+implementation work; this check does not prove SSA synchronization or cutover.
+
 ## Callable source Local completion handoff — `MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0`
 
 Decision: implemented for the selected callable GenericLoop source edge. The

@@ -100,7 +100,7 @@ fn schedule(
                 CallableLoopBindingRoleV1::BodyRebind,
             ),
         ],
-        std::collections::BTreeMap::new(),
+        super::carrier_relation_tests::unread_tmp_declaration(owner),
     )
     .expect("complete carrier schedule")
 }

@@ -33,6 +33,10 @@ use crate::mir::builder::normal_callable_loop_handoff::{
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use crate::mir::builder::raw_loop_child_entry::PreparedCallableGenericLoopSourceFactsPayloadV1;
 
+#[path = "generic/carrier_relation.rs"]
+mod carrier_relation;
+use carrier_relation::{CallableLoopCarrierRelationRejectV1, CallableLoopCarrierRelationV1};
+
 use super::loop_cond;
 use super::loop_cond::CallableLoopCondSourceFactsV1;
 #[allow(unused_imports)]
@@ -229,6 +233,7 @@ impl<'source> CallableGenericLoopSourceFactsReceiptV1<'source> {
 #[derive(Debug)]
 pub(in crate::mir::builder) struct CallableGenericLoopV1SemanticRecipeV1<'source> {
     receipt: CallableGenericLoopSourceFactsReceiptV1<'source>,
+    carrier_relation: CallableLoopCarrierRelationV1,
 }
 
 /// Borrowed source-relation view for the caller-zero bridge row.
@@ -246,6 +251,7 @@ pub(in crate::mir::builder) struct CallableGenericLoopSourceRelationViewV1<'view
     pre_effect: &'view CallableSemanticLoopHandoffPreEffectReceiptV1,
     facts: &'view CanonicalLoopFacts,
     generic: &'view GenericLoopV1Facts,
+    carrier_relation: &'view CallableLoopCarrierRelationV1,
     selection: &'view RecipeFirstRouteSelectionV1,
     selected: &'view VerifiedLocatedGenericLoopV1SelectionV1,
     policy: GenericLoopFactsPolicyFrameV1,
@@ -254,6 +260,10 @@ pub(in crate::mir::builder) struct CallableGenericLoopSourceRelationViewV1<'view
 }
 
 impl CallableGenericLoopSourceRelationViewV1<'_> {
+    pub(in crate::mir::builder) fn carrier_relation(&self) -> &CallableLoopCarrierRelationV1 {
+        self.carrier_relation
+    }
+
     pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
@@ -311,6 +321,7 @@ pub(in crate::mir::builder) enum CallableGenericLoopV1SemanticRecipeRejectV1 {
     GenericFactsMissing,
     NestedLoopOutsideFirstCohort,
     BlockExprPreludeOutsideFirstCohort,
+    CarrierRelation(CallableLoopCarrierRelationRejectV1),
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -380,6 +391,7 @@ impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
             condition_source: &self.receipt.condition_source,
             body_source: &self.receipt.body_source,
             pre_effect: &self.receipt.pre_effect,
+            carrier_relation: &self.carrier_relation,
             facts,
             generic,
             selection: &self.receipt.selection,
@@ -401,7 +413,10 @@ impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
         self,
         use_view: impl for<'view> FnOnce(CallableGenericLoopSourceRelationViewV1<'view>) -> R,
     ) -> Result<R, CallableGenericLoopV1SemanticRecipeViewRejectV1> {
-        let Self { receipt } = self;
+        let Self {
+            receipt,
+            carrier_relation,
+        } = self;
         let Some(facts) = receipt.outcome.facts.as_ref() else {
             return Err(CallableGenericLoopV1SemanticRecipeViewRejectV1::FactsMissing);
         };
@@ -414,6 +429,7 @@ impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
             condition_source: &receipt.condition_source,
             body_source: &receipt.body_source,
             pre_effect: &receipt.pre_effect,
+            carrier_relation: &carrier_relation,
             facts,
             generic,
             selection: &receipt.selection,
@@ -429,7 +445,7 @@ impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
         self,
         use_view: impl for<'view> FnOnce(CallableGenericLoopV1SemanticViewV1<'view>) -> R,
     ) -> Result<R, CallableGenericLoopV1SemanticRecipeViewRejectV1> {
-        let Self { receipt } = self;
+        let Self { receipt, .. } = self;
         let Some(facts) = receipt.outcome.facts.as_ref() else {
             return Err(CallableGenericLoopV1SemanticRecipeViewRejectV1::FactsMissing);
         };
@@ -477,7 +493,12 @@ impl CallableGenericLoopV1SemanticRecipeIssuerV1 {
                 CallableGenericLoopV1SemanticRecipeRejectV1::BlockExprPreludeOutsideFirstCohort,
             );
         }
-        Ok(CallableGenericLoopV1SemanticRecipeV1 { receipt })
+        let carrier_relation = carrier_relation::issue(&receipt, generic)
+            .map_err(CallableGenericLoopV1SemanticRecipeRejectV1::CarrierRelation)?;
+        Ok(CallableGenericLoopV1SemanticRecipeV1 {
+            receipt,
+            carrier_relation,
+        })
     }
 }
 
@@ -658,3 +679,7 @@ mod tests;
 #[cfg(test)]
 #[path = "../normal_callable_loop_structural_lease_tests.rs"]
 mod structural_lease_tests;
+
+#[cfg(test)]
+#[path = "generic/carrier_relation_tests.rs"]
+mod carrier_relation_tests;
