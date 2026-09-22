@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B3-IF-LOOPCOND-I0"
-current_execution_cohort = "mir_call_parser_array_push_b3_if_loopcond_i0"
-current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B3-IF-LOOPCOND-I0__ValueOriginBranchScope"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2"
+current_execution_cohort = "mir_call_parser_array_push_b3_loopcond_carrier_relation_d2"
+current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2__RecipeCarrierBindingCoSeal"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "Accepted__B3D1ValueOriginScope__ImplementationReady"
+current_design_stop = "Accepted__B3D1ValueOriginScope__LoopCondCarrierBindingRelationOpen"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,22 +14,23 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-if-loopcond-i0-2026-09-23.md"
-latest_card = "mir-call-parser-array-push-b3-if-loopcond-i0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-if-loopcond-i0-2026-09-23.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md"
+latest_card = "mir-call-parser-array-push-b3-loopcond-carrier-relation-d2"
+latest_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md"
 latest_card_summary = """
 B2 source-to-physical carrier projection and its negative matrix are closed.
-B3 D0/D1 selected the existing LoopCond/GeneralIf route and accepted a
-physical value/origin scope: only current values and active origins reset and
-join, while source consumption and named writes remain monotonic. I0 now
-implements that owner-local scope for the one nested StringHelpers push; the
-post-Loop substring tail remains a separate non-claim and the shared MethodCall
-delete set remains empty.
+B3 D0/D1 selected the existing LoopCond/GeneralIf owner and accepted the
+branch-state rule: only current values and active origins reset/join, while
+source consumption and named writes remain monotonic. A read-only premise audit
+found LoopCond still lacks a co-sealed Recipe carrier-to-BindingRef relation;
+D2 resolves that existing-product mapping before I0 implementation. The
+post-Loop substring tail stays separate and the shared MethodCall delete set is
+empty.
 """
-next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-B3-IF-LOOPCOND-I0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-if-loopcond-i0-2026-09-23.md"
-next_execution_card = "MIR-CALL-PARSER-ARRAY-PUSH-B3-IF-LOOPCOND-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-if-loopcond-i0-2026-09-23.md"
+next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md"
+next_execution_card = "none__design_stop_pending_carrier_relation"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

@@ -1,9 +1,9 @@
 ---
-Status: closeout__loop_if_value_origin_scope_accepted
+Status: closeout__value_origin_scope_subdecision
 Task: MIR-CALL-PARSER-ARRAY-PUSH-B3-BRANCH-CONTINUATION-D1
 Parent: mir-call-parser-array-push-b3-if-loopcond-d0-2026-09-23
-NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B3-IF-LOOPCOND-I0
-Implementation permission: design accepted. The successor I0 may extend the existing physical ledger owner and join hooks only; do not add a semantic receipt, second carrier, caller route, or delete the shared MethodCall writer.
+NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2
+Implementation permission: this card accepts only the value/origin scope rule. It does not authorize implementation until the Recipe carrier-to-BindingRef relation and exact join output mapping are co-sealed by D2.
 ---
 
 # StringHelpers Loop-If branch continuation and ledger scope D1
@@ -68,12 +68,13 @@ operations independently:
 * `publish_source_loop_final_value` publishes a loop final binding only after
   the physical loop owner closes.
 
-D1 decision: extend the existing physical ledger owner with a value/origin
+D1 subdecision: extend the existing physical ledger owner with a value/origin
 scope used by the same branch reset/join order as
 `lower_if_join_state_core`. A Builder map snapshot without the ledger state is
 insufficient, but a whole-ledger rollback is also incorrect. Both branches are
 compiled once, so source obligations remain monotonic even when runtime takes
-only one branch.
+only one branch. This rule is accepted; the physical carrier mapping needed to
+connect join outputs to BindingRefs remains open and belongs to D2.
 
 The scope resets and publishes only current `values` and active origins for the
 exact source BindingRefs. It must not roll back consumed reads, assignments, or
@@ -119,11 +120,21 @@ normal finish collector.
    terminals. `Ok(None)` from a lookup is not a rejection until the caller or
    finish owner proves the required row was absent by contract.
 
-7. **D1 exit decision.** Accepted for I0. The finite map is
-   source→Facts→Recipe→existing GeneralIf join→physical ledger value/origin
-   scope→NamedArray finish. I0 must prove the scope with positive/negative
-   tests and retain the shared MethodCall writer; no old-edge deletion is
-   claimed in this row.
+7. **D1 exit decision.** Accept the scope semantics, but do not open I0 yet.
+   `SourceLoopCondPhysicalInputV1` and its Recipe still lack an exact
+   carrier/key/BindingRef/join-output relation. Resolve that existing-product
+   gap in D2 before implementation; do not recover identity from join names.
+
+## Design audit correction
+
+The read-only owner audit established that the existing `GeneralIf` owner is
+reusable and that source consumption must stay monotonic. It also found that
+LoopCond currently collects carrier names from AST and its phi materializer
+consumes `&[String]`; `SourceLoopCondPhysicalInputV1` has no co-sealed
+BindingRef-to-Recipe-carrier relation. Adding the branch scope before this
+relation is fixed could attach a name-keyed join result to the wrong source
+binding. Therefore this D1 scope rule is a subdecision, not implementation
+readiness. D2 owns the remaining mapping question.
 
 ## Required evidence and non-claims
 

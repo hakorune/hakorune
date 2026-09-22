@@ -1,9 +1,9 @@
 ---
-Status: fast__loop_if_value_origin_scope
+Status: design_pending__loopcond_carrier_relation
 Task: MIR-CALL-PARSER-ARRAY-PUSH-B3-IF-LOOPCOND-I0
 Parent: mir-call-parser-array-push-b3-branch-continuation-d1-2026-09-23
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B3-IF-LOOPCOND-CLOSEOUT
-Implementation permission: true; extend the existing physical ledger owner and existing LoopCond/GeneralIf join hooks only. No new semantic receipt, second carrier map, generic If classifier, compatibility fallback, VM/AOT work, or shared MethodCall deletion.
+Implementation permission: suspended until MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2 accepts the exact Recipe carrier-to-BindingRef and join-output mapping. The value/origin scope rule is accepted, but no code/fixture work may start while CURRENT_STATE is design_stop.
 ---
 
 # StringHelpers Loop-If ArrayPush value/origin scope I0
