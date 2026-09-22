@@ -68,6 +68,14 @@ evidence entry only: a failure is recorded as a first-surface census result,
 not repaired or skipped here.  The existing `scope=full` path remains the
 separate build/plugin baseline and was not duplicated by this job.
 
+## Census dispatch receipt — pending
+
+Run `35681768498` at SHA `d4168473d5b57178068d9574a48fd9758bbb9328`
+was dispatched with `scope=macos` at `2026-09-22T03:03:51Z`
+(`12:03:51 JST`).  It was queued when recorded and targets only the focused
+macOS job.  Provider and CAPI surfaces remain unclassified until the run
+finishes; this pending receipt is not a PASS claim.
+
 ## Census boundary
 
 このcensusが覆う境界: `macos-latest` runner checkout -> focused suite
