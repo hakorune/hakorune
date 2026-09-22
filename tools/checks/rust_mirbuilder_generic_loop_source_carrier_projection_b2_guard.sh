@@ -59,6 +59,9 @@ guard_expect_fixed_in_file "$TAG" "named_array_value_demand_rejects_before_publi
 guard_expect_fixed_in_file "$TAG" "physical_adapter_rejects_relation_owner_mismatch_before_builder_effect" \
   "$ROOT_DIR/src/mir/builder/normal_callable_loop_source_facts_tests.rs" \
   "foreign source relation ownership must remain rejected"
+guard_expect_fixed_in_file "$TAG" "physical_adapter_rejects_source_evidence_session_drift_before_builder_effect" \
+  "$ROOT_DIR/src/mir/builder/normal_callable_loop_source_facts_tests.rs" \
+  "source evidence session drift must remain rejected before physical effects"
 guard_expect_fixed_in_file "$TAG" "source_core_method_take_rejects_duplicate_exact_site" "$STATE_TESTS" \
   "the existing exact-site owner must retain duplicate/missing source-row evidence"
 guard_expect_fixed_in_file "$TAG" "named_array_state_rejects_call_shape_drift" "$STATE_NAMED_TESTS" \

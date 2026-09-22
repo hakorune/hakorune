@@ -1,5 +1,5 @@
 ---
-Status: fast__named_array_state_negative_matrix
+Status: closeout__named_array_state_negative_matrix
 Task: MIR-CALL-PARSER-ARRAY-PUSH-B2-NEGATIVE-I0
 Parent: mir-call-parser-array-push-b2-i0-2026-09-23
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-CUTOVER-D0
@@ -71,10 +71,11 @@ owner test reference before this card can close.
 
 ## B2 negative task queue
 
-1. **Foreign session and site** — keep the existing owner mismatch test and add
-   the smallest source-session/site drift fixture at the adapter boundary. The
-   rejection must occur before Composer, PlanLowerer, or Builder effects. This
-   remains open; the current state fixture does not fabricate a foreign session.
+1. **Foreign session and site** — keep the existing owner mismatch test and the
+   test-only session-parent drift fixture at the adapter boundary. Both reject
+   before Composer, PlanLowerer, or Builder effects; no production mutation hook
+   is compiled. `physical_adapter_rejects_source_evidence_session_drift_before_builder_effect`
+   now closes this row.
 2. **Physical carrier** — retain the missing-label test and cover a foreign
    BindingRef that is not a carrier without turning it into a name lookup. The
    missing-label and non-carrier tests now close this row.
@@ -100,6 +101,29 @@ owner test reference before this card can close.
 6. **Closeout** — run the B2 carrier guard, source-route guard, current-state
    pointer guard, and focused suites. Record the exact test names and classify
    any red as current-change or baseline debt before choosing cutover design.
+
+## Closeout evidence
+
+The package-loan-backed state tests are green in quick:
+
+* `named_array_state_rejects_call_shape_drift`
+* `named_array_state_rejects_duplicate_exact_site_consumption`
+* `named_array_state_finish_rejects_missing_source_row`
+* `named_array_state_finish_rejects_write_without_physical_emission`
+
+The adapter-side source-session boundary is also green:
+`physical_adapter_rejects_source_evidence_session_drift_before_builder_effect`.
+It uses a `#[cfg(test)]`-only recipe mutation to exercise the existing
+fail-fast check; production has no session mutation API. The foreign-owner,
+missing-carrier, non-carrier, value-demand, and emission-residual tests remain
+the existing owner evidence listed above. The quick run retains the existing
+542-warning baseline and adds no suppression. The B2 carrier guard, source
+route guard, current-state pointer guard, and `git diff --check` pass.
+
+This closes the negative matrix only. It does not claim a new production
+caller switch, runtime ownership, compatibility parity, or old-edge deletion.
+The next design card must first census the already-selected source ingress and
+the shared generic MethodCall edge before proposing any deletion.
 
 ## Explicit stop rules
 

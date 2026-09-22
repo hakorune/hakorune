@@ -686,6 +686,14 @@ runtime Text ownership, publication caller switching, compatibility parity, or
 old-edge retirement. The reusable structural gate is
 `rust_mirbuilder_generic_loop_source_carrier_projection_b2_guard.sh`.
 
+The B2 negative matrix is now closed by the package-loan-backed named-array
+state tests for call-shape drift, duplicate consumption, missing source rows,
+and missing physical emission, plus the adapter session-drift terminal. The
+session mutation used for that last test is `#[cfg(test)]` only; production has
+no mutation hook. The next design census treats the NamedArrayPush ingress as
+already selected and separately inventories the shared generic MethodCall edge;
+it does not claim a new caller switch or a deletion.
+
 ### Callable Loop Local completion handoff R0
 
 `direct_associated.rs` invokes one optional source-port completion capability

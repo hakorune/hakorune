@@ -742,3 +742,47 @@ fn physical_adapter_rejects_relation_owner_mismatch_before_builder_effect() {
         assert!(builder.function_state.current_block.is_none());
     });
 }
+
+#[test]
+fn physical_adapter_rejects_source_evidence_session_drift_before_builder_effect() {
+    let (state, _, _) = real_callable_ledger_for_owner_mismatch_test();
+    let relation_owner = state.owner();
+    let ledger = Rc::new(RefCell::new(state));
+    with_prepared(relation_owner, generic_loop(), |_, prepared| {
+        let payload = prepared
+            .into_callable_generic_loop_source_facts_payload(
+                relation_owner,
+                "session-drift",
+                false,
+                false,
+                policy(),
+            )
+            .expect("source facts payload");
+        let CallableGenericLoopSourceFactsDispositionV1::Ready(source_facts) =
+            CallableGenericLoopSourceFactsIssuerV1::issue_once(payload)
+        else {
+            panic!("source loop must be Ready")
+        };
+        let mut recipe = source_facts
+            .claim_all()
+            .expect("one-shot source claim")
+            .into_semantic_recipe()
+            .expect("semantic Recipe");
+        recipe.replace_session_parent_for_test(SourcePathV1::root_body(99).node());
+        let mut builder = MirBuilder::new();
+        let mut root_scope = UnpublishedCallableLoopRootScopeV1::for_test();
+        let error =
+            crate::test_support::with_env_vars(&crate::test_support::JOINIR_DEFAULT_MODE, || {
+                CallableGenericLoopV1PhysicalAdapterV1::lower(
+                    &mut builder,
+                    &mut root_scope,
+                    recipe,
+                    &ledger,
+                )
+            })
+            .expect_err("source evidence session drift must freeze");
+        assert!(error.contains("source-evidence-session-mismatch"));
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
+    });
+}

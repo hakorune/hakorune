@@ -389,6 +389,16 @@ impl CallableGenericLoopV1SemanticViewV1<'_> {
 }
 
 impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn replace_session_parent_for_test(
+        &mut self,
+        parent: SourceNodeSiteV1,
+    ) {
+        self.receipt
+            .route_admission
+            .replace_session_parent_for_test(parent);
+    }
+
     /// Observe the co-sealed source relation without consuming the Recipe.
     ///
     /// This is caller-zero infrastructure for the future normalizer port.  A

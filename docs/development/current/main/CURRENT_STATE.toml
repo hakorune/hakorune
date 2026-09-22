@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B2-NEGATIVE-I0"
-current_execution_cohort = "mir_call_parser_array_push_b2_negative_i0"
-current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B2-NEGATIVE-I0__NamedArrayNegativeMatrix"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B2-CUTOVER-D0"
+current_execution_cohort = "mir_call_parser_array_push_b2_cutover_d0"
+current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B2-CUTOVER-D0__SelectedIngressCensusAndDeleteSet"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "Accepted__NamedArrayStateNegativeFixtureViaPackageInstallBridge"
+current_design_stop = "Accepted__B2NegativeMatrixCloseout__SelectedArrayPushIngressCensusRequired"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,32 +14,23 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-parser-array-push-b2-negative-i0-2026-09-23.md"
-latest_card = "mir-call-parser-array-push-b2-i0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b2-i0-2026-09-23.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-parser-array-push-b2-cutover-d0-2026-09-23.md"
+latest_card = "mir-call-parser-array-push-b2-cutover-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b2-cutover-d0-2026-09-23.md"
 latest_card_summary = """
-The B2 source-projection checkpoint is landed at the focused source-to-physical
-boundary: the relation-aware BindingRef carrier projection, exact retained
-ArrayPush handoff, final induction publication, named-array positive/value
-demand tests, missing-physical-carrier negative, and reusable guard all pass.
-Raw V0/V1 precedence remains neutral. The next bounded slice is the named
-negative matrix for foreign session/site, duplicate or missing source item,
-receiver/arity drift, and residual ledger rows. No production caller switch,
-runtime ownership claim, or old-edge deletion is implied. The matrix now has
-an accepted test-only owner: issue the real source-backed package with the
-brand catalog, install and begin its lowering loan, and build
-CallableSemanticLoweringState from that same selected input and the borrowed
-core-method rows. This keeps source, owner, session, and rows co-sealed without
-exposing private package fields or adding a production mutation hook. The next
-bounded slice covers the named state shape, duplicate consumption, missing-row
-caller rejection, and residual finish checks. Four package-loan-backed state
-tests now pass in quick; foreign session/site drift remains the only open
-negative row before closeout.
+B2 source-to-physical carrier projection and its named negative matrix are
+closed. The package-loan-backed state tests cover call-shape drift, duplicate
+consumption, missing source rows, and missing physical emission; the adapter
+session-drift terminal and reusable guards are green in quick. The current
+design stop treats the normal NamedArrayPush ingress as already selected and
+requires a finite census of its missing-row terminal plus the shared generic
+MethodCall retain/delete set. No new caller switch, semantic receipt, runtime
+ownership claim, or deletion is implied.
 """
-next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-B2-NEGATIVE-I0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b2-negative-i0-2026-09-23.md"
-next_execution_card = "MIR-CALL-PARSER-ARRAY-PUSH-B2-NEGATIVE-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b2-negative-i0-2026-09-23.md"
+next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-B2-CUTOVER-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b2-cutover-d0-2026-09-23.md"
+next_execution_card = "none__design_stop_pending_acceptance"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

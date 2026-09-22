@@ -165,6 +165,11 @@ impl<'source> PreparedCallableGenericLoopSourceEvidenceV1<'source> {
     pub(super) fn source_dispositions(&self) -> &[CallableLoopSourceItemDispositionV1] {
         &self.source_dispositions
     }
+
+    #[cfg(test)]
+    pub(super) fn replace_session_parent_for_test(&mut self, parent: SourceNodeSiteV1) {
+        self.session.parent = parent;
+    }
 }
 
 /// Source route kind.  `SourceOverlap` is an opaque local seal; it does not
@@ -222,6 +227,11 @@ impl<'source> CallableGenericLoopSourceRouteAdmissionV1<'source> {
 
     pub(super) fn selected(&self) -> &CallableGenericLoopSourceRouteKindV1 {
         &self.selected
+    }
+
+    #[cfg(test)]
+    pub(super) fn replace_session_parent_for_test(&mut self, parent: SourceNodeSiteV1) {
+        self.evidence.replace_session_parent_for_test(parent);
     }
 
     pub(super) fn evidence(&self) -> &PreparedCallableGenericLoopSourceEvidenceV1<'source> {
