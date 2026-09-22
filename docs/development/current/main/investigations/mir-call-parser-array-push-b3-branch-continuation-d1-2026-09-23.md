@@ -1,9 +1,9 @@
 ---
-Status: design_stop__loop_if_branch_continuation_ledger_scope
+Status: closeout__loop_if_value_origin_scope_accepted
 Task: MIR-CALL-PARSER-ARRAY-PUSH-B3-BRANCH-CONTINUATION-D1
 Parent: mir-call-parser-array-push-b3-if-loopcond-d0-2026-09-23
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B3-IF-LOOPCOND-I0
-Implementation permission: false; design and finite source/owner census only. Do not add a fixture, change the ledger, widen a Recipe, issue a new semantic receipt, switch a caller, or delete the shared MethodCall writer.
+Implementation permission: design accepted. The successor I0 may extend the existing physical ledger owner and join hooks only; do not add a semantic receipt, second carrier, caller route, or delete the shared MethodCall writer.
 ---
 
 # StringHelpers Loop-If branch continuation and ledger scope D1
@@ -68,11 +68,19 @@ operations independently:
 * `publish_source_loop_final_value` publishes a loop final binding only after
   the physical loop owner closes.
 
-D1 must decide whether these existing operations can be wrapped by the same
-branch transaction used by `lower_if_join_state_core`. A Builder map snapshot
-without the ledger state is insufficient: it can make `last` appear joined
-while the source row, consumed-site set, or dynamic origin remains on one
-discarded branch.
+D1 decision: extend the existing physical ledger owner with a value/origin
+scope used by the same branch reset/join order as
+`lower_if_join_state_core`. A Builder map snapshot without the ledger state is
+insufficient, but a whole-ledger rollback is also incorrect. Both branches are
+compiled once, so source obligations remain monotonic even when runtime takes
+only one branch.
+
+The scope resets and publishes only current `values` and active origins for the
+exact source BindingRefs. It must not roll back consumed reads, assignments, or
+calls; materialized locals; removed source rows; `named_array_writes`; or
+historical `value_origins`. `take_source_array_push` is therefore consumed once
+by the statically lowered then body and its emission port remains owned by the
+normal finish collector.
 
 ## Ordered D1 tasks
 
@@ -90,8 +98,10 @@ discarded branch.
    the row (`read_variable`, `rebind`, `take_source_array_push`, pending
    `named_array_writes`, dynamic origin invalidation, and final publication) to
    branch entry, branch reset, join continuation, backedge, and loop exit.
-   Identify the smallest existing snapshot/restore owner; do not invent a
-   semantic receipt during this task.
+   Snapshot/restore only current values and active origins; leave all static
+   consumption and emission state monotonic. The smallest owner is
+   `CallableSemanticLoweringState` plus its
+   `CallableDynamicOriginLoweringStateV1`, not a new semantic receipt.
 
 4. **Origin and BindingRef proof.** Specify how the exact `i` and `last`
    BindingRefs and their active origins are restored after the discarded branch
@@ -109,16 +119,16 @@ discarded branch.
    terminals. `Ok(None)` from a lookup is not a rejection until the caller or
    finish owner proves the required row was absent by contract.
 
-7. **D1 exit decision.** Accept `I0` only if one existing owner can expose a
-   finite source→Facts→Recipe→branch transaction→physical consumer map with
-   positive/negative evidence and an explicit retain/delete set. Otherwise
-   record `NoSafeSlice__LoopCondLedgerBranchScopeMissing` and keep the family
-   design-stopped; do not add a fallback or move to runtime/serializer work.
+7. **D1 exit decision.** Accepted for I0. The finite map is
+   source→Facts→Recipe→existing GeneralIf join→physical ledger value/origin
+   scope→NamedArray finish. I0 must prove the scope with positive/negative
+   tests and retain the shared MethodCall writer; no old-edge deletion is
+   claimed in this row.
 
 ## Required evidence and non-claims
 
-This card is read-only design work. No Cargo, source edits, fixtures, guards,
-new `Verified*`/`Prepared*` receipts, caller switches, or deletions are
-allowed. B2's straight-line ArrayPush matrix is dependency evidence only and
-does not prove branch ledger scope. The post-Loop `substring(last)` row and
-runtime Text/Fault ownership remain separate cards.
+This card records the accepted design only. The successor I0 owns source edits,
+focused tests, and a reusable guard for the value/origin scope. B2's
+straight-line ArrayPush matrix is dependency evidence only and does not prove
+branch ledger scope. The post-Loop `substring(last)` row and runtime Text/Fault
+ownership remain separate cards.
