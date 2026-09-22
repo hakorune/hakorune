@@ -266,14 +266,25 @@ impl PublishedStaticMethodCFrameV2 {
 
     pub(crate) fn from_view_with_query<'m>(
         view: &super::PublishedMirBackendView<'m>,
-        mut query: impl FnMut(&str, u32, u32) -> Result<Option<super::map_named_allocations::NamedAllocationConsumer>, String>,
+        mut query: impl FnMut(
+            &str,
+            u32,
+            u32,
+        ) -> Result<
+            Option<super::map_named_allocations::NamedAllocationConsumer>,
+            String,
+        >,
     ) -> Result<Self, String> {
         let index = super::map_body_index::MapBodyIndex::from_view(view)?;
         let mut observations = Vec::new();
         for (&site, instruction) in &index.instructions {
-            if matches!(instruction, crate::mir::MirInstruction::NewBox {
-                target: crate::mir::ConstructionTarget::Named(_), ..
-            }) {
+            if matches!(
+                instruction,
+                crate::mir::MirInstruction::NewBox {
+                    target: crate::mir::ConstructionTarget::Named(_),
+                    ..
+                }
+            ) {
                 if let Some(consumer) = query(site.0, site.1, site.2)? {
                     observations.push((site, consumer));
                 }
@@ -288,6 +299,7 @@ impl PublishedStaticMethodCFrameV2 {
     ) -> Result<Self, String> {
         use std::collections::{BTreeMap, BTreeSet};
         use std::ffi::CString;
+        index.validate_named_array_requirements(view.module(), view.validated_named_arrays()?)?;
         let (actions, original) = index.map_frame_projection()?;
         let expanded: BTreeSet<_> = actions
             .iter()

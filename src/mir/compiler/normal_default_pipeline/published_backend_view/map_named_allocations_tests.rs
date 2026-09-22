@@ -358,3 +358,58 @@ mod projection;
 
 #[path = "map_frame_tests.rs"]
 mod frame;
+
+#[test]
+fn retained_named_array_requirement_requires_exact_array_consumer() {
+    let (module, rows) = crate::mir::normal_callable_semantic_package::named_array_emission_tests::physical_observation_fixture();
+    let view = PublishedMirBackendView::try_new(&module).unwrap();
+    let function = rows[0].caller().mir_symbol_projection();
+    let site = (function.as_str(), 0, 0);
+    for consumer in [
+        NamedAllocationConsumer::Array,
+        NamedAllocationConsumer::DirectArray,
+        NamedAllocationConsumer::Map,
+        NamedAllocationConsumer::File,
+        NamedAllocationConsumer::TypedObject,
+        NamedAllocationConsumer::InvalidPlan,
+        NamedAllocationConsumer::Unsupported,
+    ] {
+        let index = MapBodyIndex::from_view(&view)
+            .unwrap()
+            .with_named_allocations([(site, consumer)])
+            .unwrap();
+        let result = index.validate_named_array_requirements(&module, &rows);
+        if consumer == NamedAllocationConsumer::Array {
+            result.unwrap();
+        } else {
+            assert!(result.unwrap_err().contains("array-capability-unsupported"));
+        }
+    }
+    let index = MapBodyIndex::from_view(&view).unwrap();
+    assert!(index
+        .validate_named_array_requirements(&module, &rows)
+        .unwrap_err()
+        .contains("array-capability-missing"));
+    assert!(MapBodyIndex::from_view(&view)
+        .unwrap()
+        .with_named_allocations([
+            (site, NamedAllocationConsumer::Array),
+            (site, NamedAllocationConsumer::Array),
+        ])
+        .is_err());
+    assert!(MapBodyIndex::from_view(&view)
+        .unwrap()
+        .with_named_allocations([((function.as_str(), 0, 1), NamedAllocationConsumer::Array),])
+        .is_err());
+    let (_, foreign) = crate::mir::normal_callable_semantic_package::named_array_emission_tests::physical_observation_fixture();
+    assert!(index
+        .validate_named_array_requirements(&module, &foreign)
+        .is_err());
+    // A raw view cannot borrow authority merely because the marker is present.
+    assert!(view.validated_named_arrays().is_err());
+    assert!(
+        crate::mir::backend_capability::enforce_published_backend_supported(&view, "ny-llvmc-obj")
+            .is_err()
+    );
+    assert!(crate::runner::mir_json_emit::emit_published_view_body(&view).is_err());
+}

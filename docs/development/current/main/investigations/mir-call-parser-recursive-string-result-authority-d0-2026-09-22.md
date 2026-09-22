@@ -13,7 +13,7 @@ Implementation permission: B2-I0 bounded series below; production activation req
 
 - **Current decision:** B2-I0 mapping is accepted: conditional Named Array source contract, module-level artifact retention, NoValue typed write and mandatory backend discharge share the existing owners.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** connect C static-V2 discharge to the verified stage-3 collection/write transport and D selected caller cutover below. Text lifetime/Fault remains a separate explicit execution-contract task.
+- **Next ordered task:** activate D selected caller cutover through the verified stage-3 transport and stage-4 C discharge below. Text lifetime/Fault remains a separate explicit execution-contract task.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -719,21 +719,11 @@ compilation/caller, duplicate/residual and shared allocation), then perform B-D.
 Generic published preflight still rejects conditional markers; replace that
 stop only with the exact selected-consumer discharge, not a bypass flag.
 
-Stage 2 verification: final quick build 5m20s, package association **3/3**;
-physical mutation/raw rejection **2/2**, JSON **3/3**, Script finishing **7/7**,
-root/Birth retention **5/5**, map-local **3/3**, raw Loop **12/12**, published
-Script **2/2**, Script physical input **3/3**, Main static-child **4/4**, Named
-source contracts **7/7**: **51 passing tests** on one final binary. Logs:
-`/tmp/b2-retention-final-test.log`, `/tmp/b2-retention-regression-{0..9}.log`.
-Initial compile errors were a wrong InvokeOperation import and four isolated
-String test helpers using the old transport type; corrected before the final
-build. Test-only witnesses cannot create conditional Array authority. No
-unclassified focused red remains. Existing ingress/pointer guards and diff/
-format checks pass. README/reference updated. This is implementation commit 2
-of the bounded series; no production switch, runtime acceptance or deletion
-credit. The final build reports 548 warnings (stage 1: 545); unused emission
-preparation must become live in this series, without suppression or a warning
-cleanup detour. No CI dispatch was needed.
+Stage 2 receipt: `6740988fa4`, 51 focused tests pass after quick 5m20s;
+548 warnings. Package caller/source association, rootless retention and raw
+rejection are verified, without production activation. Detailed cohort logs:
+`/tmp/b2-retention-final-test.log`, `/tmp/b2-retention-regression-{0..9}.log`;
+Git retains the implementation and original closeout inventory.
 
 Executable Text lifetime/alias/Fault evidence remains the following acceptance
 task, with real selected runtime behavior required. B2 source-to-MIR completion
@@ -755,7 +745,7 @@ Non-claims: allocation compatibility is not Text lifetime, mutation Fault, full 
 
 | Order | Concrete owner transition | Done / rejection evidence |
 | --- | --- | --- |
-| A/B finish | In-progress package collector -> callable finish -> finalized handoff; source statement -> NamedArrayPush -> ArrayElementWrite | Rebuild latest tree once; residual, foreign compilation, one-shot clones, missing allocation and same-construction multiple-write tests. Natural source coverage is mandatory at activation; manually assembled physical tests do not substitute. |
+| A/B (stage 3 verified) | Package collector -> callable finish -> finalized handoff; source statement -> NamedArrayPush -> ArrayElementWrite | Rebuild latest tree once; residual, foreign compilation, one-shot clones, missing allocation and same-construction multiple-write tests. Natural source coverage is mandatory at activation; manually assembled physical tests do not substitute. |
 | C1 | published ingress + internal body projection | Validate retained source/marker/physical coverage. Only `emit_published_view_body(view)` borrows authority for internal serialization; both public JSON profiles and raw module still reject. No generic allow flag or marker removal. Explicitly preserve unsupported lifecycle rejection. |
 | C2 | `compile_published_static_v2` -> `from_view_with_query` -> `PublishedStaticMethodCFrameV2::from_index` | Use the same C document/options for query and compile. Join retained canonical allocation to exact function/block/instruction query through existing MapBodyIndex. Require actual Array consumer; reject missing/duplicate/foreign/drift and DirectArray Text before compile. Existing invocation Drop handles failure. |
 | D | package extended issuer -> selected statement producer/writer | Activate only after A-C connect. Literal Text and substring2 loop push evaluate once, use NoValue, and bypass no source obligation. Value-use rejects before child effects. Guard selected-site non-reentry into generic MethodCall and recheck unchanged merged parser to its next actual terminal. |
@@ -786,11 +776,25 @@ cohorts **51/51**, Loop scope **3/3**, Map dependency **8/8**, direct-call physi
 logs `/tmp/b2-retention-regression-{0..9}.log` and
 `/tmp/b2-emission-{loop,map,direct}-regression.log`. A zero-match helper-module
 filter was discarded; its actual consumer tests were listed and run instead.
-No unclassified focused red remains. Changed Rust files are <=738 lines;
-format/diff and ingress/pointer guards pass. Build warnings **543** (stage 2:548).
-README/reference updated. This is implementation stage 3 of the bounded series.
+Stage 3 (`d657e6db71`): no unclassified focused red; changed Rust <=738 lines;
+README/reference and guards pass. Warnings **543** (stage 2:548).
 These tests validate source/package/emission transport with explicit physical
 observations, not production source-to-write or runtime execution. Next C/D must
 connect selected capability discharge, activate the extended issuer, verify the
 natural source route, retire its selected legacy edge, and recheck merged parser.
 No CI dispatch, runtime Fault, shared code deletion or full parser claim.
+
+B2-I0 stage 4: published ingress/internal body projection now verify retained
+source correspondence; raw JSON and unsupported lifecycle still reject. Static
+V2 frame construction validates exact allocation observations from its existing
+same-invocation query before compile. Array passes; incompatible/missing/foreign/
+duplicate observations reject. No new C API or source authority was introduced.
+Quick build **4m18s**, warnings **543**. Named allocation/frame **13**, internal
+JSON **8**, raw JSON **3**, backend **3**, emission **5**, Script **2+3**:
+**37 passing tests**. One pre-existing private C-driver test remains ignored;
+this is not real C-query or runtime execution evidence. Logs:
+`/tmp/b2-capability-test.log`, `/tmp/b2-capability-regression-{0..6}.log`.
+README/reference, formatting, pointer/ingress guards and diff checks pass.
+Next D: select the extended package issuer, verify natural literal/substring2
+source-to-published handoff and C frame, retire selected generic dispatch ingress,
+and recheck unchanged merged parser. Runtime Text/Fault remains separate.

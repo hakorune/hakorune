@@ -98,6 +98,28 @@ impl<'module> PublishedMirBackendView<'module> {
         Ok(self)
     }
 
+    /// Borrow source obligations only after checking their complete physical image.
+    pub(crate) fn validated_named_arrays(
+        &self,
+    ) -> Result<
+        &'module [crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1],
+        String,
+    > {
+        match self.retained_handoff {
+            Some(handoff) => {
+                handoff.validate_named_arrays(self.module)?;
+                Ok(handoff.named_arrays())
+            }
+            None => {
+                crate::mir::normal_callable_semantic_package::validate_named_array_coverage(
+                    self.module,
+                    &[],
+                )?;
+                Ok(&[])
+            }
+        }
+    }
+
     pub(crate) fn retained_root(&self) -> Option<&'module crate::mir::MirFunction> {
         self.retained_root
     }

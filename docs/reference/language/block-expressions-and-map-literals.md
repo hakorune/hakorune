@@ -238,6 +238,12 @@ An installed package accounts for every conditional source write through callabl
 finish and final handoff. Recipe cloning does not grant a second consumption.
 Several writes may share one exact constructor; missing writes or conflicting
 constructor/allocation associations reject before publication.
+The selected static C invocation discharges the requirement using its actual
+constructor decision for the exact allocation site and the same compile options.
+Only the host Array consumer currently satisfies Text append; DirectArray does
+not. Internal body serialization borrows the retained view and does not make
+raw JSON a carrier of this authority. Allocation capability alone does not prove
+runtime Text ownership or mutation-Fault propagation.
 
 
 The compiler's resolver retains named-construction syntax as a passive source

@@ -127,6 +127,22 @@ pub(super) fn build_mir_json_root_with_profile(
     profile: JsonEgressProfile,
 ) -> Result<serde_json::Value, String> {
     crate::mir::named_array_obligation::reject_unretained_module(module)?;
+    build_root_contents(module, profile)
+}
+
+/// Internal body projection retains the borrowed published authority at its caller.
+/// This does not discharge the constructor capability or export an executable.
+pub(super) fn build_published_body_root(
+    view: &crate::mir::function::PublishedMirBackendView<'_>,
+) -> Result<serde_json::Value, String> {
+    view.validated_named_arrays()?;
+    build_root_contents(view.module(), JsonEgressProfile::CanonicalV1)
+}
+
+fn build_root_contents(
+    module: &crate::mir::MirModule,
+    profile: JsonEgressProfile,
+) -> Result<serde_json::Value, String> {
     let use_v1_schema = profile.is_canonical_v1();
     let boxed_sum_abi_plans = crate::mir::boxed_sum_abi_plan::build_boxed_sum_abi_plans(module);
     let mut funs = Vec::new();

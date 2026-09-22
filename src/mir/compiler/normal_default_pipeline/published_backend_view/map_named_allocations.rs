@@ -24,6 +24,37 @@ fn reject(reason: &str, site: Site<'_>) -> String {
 }
 
 impl<'m> MapBodyIndex<'m> {
+    /// Capability observations never grant source meaning. The caller lends the
+    /// retained rows only after finalized source/physical coverage validation.
+    pub(super) fn validate_named_array_requirements(
+        &self,
+        module: &'m crate::mir::MirModule,
+        rows: &[crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1],
+    ) -> Result<(), String> {
+        crate::mir::normal_callable_semantic_package::validate_named_array_coverage(module, rows)?;
+        for row in rows {
+            let function = row.validate(module)?;
+            let key = (function, row.marker().allocation);
+            let Producer::Instruction {
+                site,
+                instruction:
+                    MirInstruction::NewBox {
+                        target: ConstructionTarget::Named(_),
+                        ..
+                    },
+            } = self.producer(key)?
+            else {
+                return Err("[freeze:contract][named-array/allocation-producer-mismatch]".into());
+            };
+            match self.named_allocations.get(&site) {
+                Some(NamedAllocationConsumer::Array) => {}
+                None => return Err(reject("array-capability-missing", site)),
+                Some(_) => return Err(reject("array-capability-unsupported", site)),
+            }
+        }
+        Ok(())
+    }
+
     /// Consume this index when binding so a partial failure cannot escape.
     /// Missing observations are diagnosed only if a Named producer is demanded.
     pub(super) fn with_named_allocations(

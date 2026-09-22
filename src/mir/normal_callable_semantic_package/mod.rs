@@ -10,7 +10,7 @@ mod core_method_source;
 #[cfg(test)]
 mod core_method_source_tests;
 #[cfg(test)]
-mod named_array_emission_tests;
+pub(crate) mod named_array_emission_tests;
 #[cfg(test)]
 pub(crate) use core_method_source::test_witness::unconditional_test_rows;
 pub(crate) use core_method_source::{

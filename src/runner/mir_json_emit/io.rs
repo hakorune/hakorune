@@ -23,10 +23,7 @@ pub(crate) fn emit_published_view_body(
             }
         }
     }
-    let root = super::root::build_mir_json_root_with_profile(
-        module,
-        super::root::JsonEgressProfile::CanonicalV1,
-    )?;
+    let root = super::root::build_published_body_root(view)?;
     serialize_mir_json_root(&root)
 }
 

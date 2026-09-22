@@ -89,6 +89,14 @@ the generated program requires dynamically loaded runtime plugins.
   retained contracts without cloning, refreshing or repairing the module.
   Nonleading Phi, missing/stale contracts and mixed legacy/Extern ingress
   reject before C emission; explicit compatibility retains its separate owner.
+  Conditional Named Array obligations stay in the borrowed finalized view.
+  Internal body projection checks source/marker/physical correspondence; public
+  raw/JSON exits cannot export those obligations. Static V2 then matches the
+  exact allocation site against its existing C query on the same document and
+  compile options. Only the Array consumer satisfies this Text append contract;
+  missing/foreign observations or DirectArray reject before compile. Lifecycle
+  transport does not inherit this permission. This capability check does not
+  prove Text lifetime or checked mutation-Fault propagation.
   Module-only typed lifecycle admission remains fenced. Real OBJ and EXE
   callers pass the explicit `--emit-exe-nyrt` directory into one runtime session
   selecting `libnyash_lifecycle_kernel.a`. CLI EXE uses `--backend mir --emit-exe`;

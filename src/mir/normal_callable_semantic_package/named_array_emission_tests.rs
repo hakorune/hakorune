@@ -230,3 +230,10 @@ fn two_source_writes_share_one_exact_construction() {
         .unwrap_err()
         .contains("marker-source-mismatch"));
 }
+
+/// Source-issued relation with explicit physical observations for boundary tests.
+/// This cannot fabricate a finalized callable cohort or authorize publication.
+pub(crate) fn physical_observation_fixture() -> (MirModule, Vec<EmittedNamedArrayRequirementV1>) {
+    let row = emitted(&port(rows()));
+    (module(&row), vec![row])
+}

@@ -6,6 +6,9 @@ pub(crate) fn enforce_published_backend_supported(
     backend: &str,
 ) -> Result<(), String> {
     validate_published_ingress(view)?;
+    if backend != "ny-llvmc-obj" {
+        crate::mir::named_array_obligation::reject_unretained_module(view.module())?;
+    }
     enforce_refreshed_mir_backend_supported(view.module(), backend)
 }
 
@@ -15,6 +18,7 @@ pub(crate) fn enforce_published_lifecycle_backend_supported(
     view: &crate::mir::function::PublishedMirBackendView<'_>,
     input: &crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalAbiInputV1<'_>,
 ) -> Result<(), String> {
+    crate::mir::named_array_obligation::reject_unretained_module(view.module())?;
     validate_published_ingress(view)?;
     crate::mir::ownership_backend_capability::enforce(view.module(), "ny-llvmc-obj")?;
     crate::mir::exact_numeric_backend_capability::enforce_lifecycle_input(view.module(), input)?;
@@ -38,9 +42,9 @@ fn validate_published_ingress(
     view: &crate::mir::function::PublishedMirBackendView<'_>,
 ) -> Result<(), String> {
     let module = view.module();
-    // Until the selected consumer discharges conditional Array requirements,
-    // retaining source alone cannot admit executable output.
-    crate::mir::named_array_obligation::reject_unretained_module(module)?;
+    // Source/physical correspondence is checked here; actual constructor
+    // capability is discharged by the same C invocation that compiles it.
+    view.validated_named_arrays()?;
     for function in module.functions.values() {
         if !function.metadata.extern_call_routes.is_empty()
             || function
