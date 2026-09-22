@@ -171,10 +171,10 @@ fn source_target_for_loop(
             });
         let Some((selected_target, selected_site, requirement)) = selected_handoff else {
             if consume_publication {
-                return Err(
-                    "[freeze:contract][callable-loop/static-publication/no-selected-handoff]"
-                        .to_owned(),
-                );
+                return Err(format!(
+                    "[freeze:contract][callable-loop/static-publication/no-selected-handoff] caller={caller:?} site={:?} target={target:?}",
+                    item.call_site(),
+                ));
             }
             uncovered.push(item.call_site().clone());
             continue;

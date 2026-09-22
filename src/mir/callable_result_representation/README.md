@@ -2,14 +2,15 @@
 
 This module seals one bounded exact result-representation catalog from the
 same-module callable declaration and source-target catalogs. The currently
-admitted representations are exact `i64` and an exact nominal Box constructed
-by source.
+admitted representations are exact `i64`, exact String on normal return, and
+an exact nominal Box constructed by source.
 
 The S0b substrate owns:
 
 - one result disposition for every static declaration key;
 - exact parameter ordinals required to be `i64` at an exact-`i64` call site;
 - exact nominal Box identity for constructed-Box results;
+- String normal-result propagation without termination or purity claims;
 - exact source-site call-result evidence;
 - bounded String receiver composition with generated Core result rows;
 - deterministic construction-local dependency solving;
@@ -26,8 +27,8 @@ arguments are proved child-before-parent. Required callee argument ordinals are
 substituted through the caller's ordered facts, while non-required non-`i64`
 arguments do not invalidate an otherwise exact result. Constructor arguments
 are still traversed so nested exact call rows cannot disappear from coverage.
-Only identical nominal Box results merge; mixed Box classes and Box/`i64`
-returns become `ConflictingReturnRepresentations` independent of source order.
+Only agreeing String or identical nominal Box results merge; mixed String,
+Box classes and `i64` returns become `ConflictingReturnRepresentations` independent of source order.
 
 The two ordinal lists remain separate. `callee_required_i64_arguments` is the
 formal parameter contract retained in same-module static evidence. The call
@@ -52,7 +53,9 @@ inference is introduced.
 
 This proof is representation-only. It does not claim call totality, purity,
 termination, general String interpretation, Box subtyping/common-supertype
-inference, parameter-dependent Box typing, or recursive result inference. It
+inference, parameter-dependent Box typing, or general recursive result inference. String-left Add can establish its own
+normal-result class while preserving RHS traversal and the final recursive
+call row; an unproved result cycle still becomes RecursiveDependency. It
 stores no `ValueId`, `MirType`, Builder,
 final MIR metadata, physical-symbol parsing, runtime tag, or HMI-specific fact.
 
@@ -61,7 +64,7 @@ The normal module lifecycle now projects both exact general
 one `VerifiedStaticCallResultPublicationOwnerV1`. General evidence wins when
 present; the same caller/site cannot receive both rows. The raw terminal
 consumes a selected handoff once, requires a successful generic physical Call
-receipt, and commits either `MirType::Integer` or the exact
+receipt, and commits `MirType::Integer`, `MirType::String`, or the exact
 `MirType::Box(class)` through the sole source-bound publisher. Its receipt
 emitter suppresses the legacy signature annotation, so the two result
 authorities cannot double-write the destination. Selected
@@ -80,20 +83,32 @@ the source ingress. A TargetOnly row is consumed exactly once, must be drained
 before `finish_empty`, and terminates before receiver or argument descent; it
 never emits a physical Call and never falls through to compatibility lowering.
 
-## Accepted next String result slice (not implemented)
+## String normal-result publication
 
 The source normal-result contract is defined in
 [`strings.md`](../../../docs/reference/language/strings.md#source-call-normal-result-proof).
-Extend this catalog and its existing general-result publication owner with
-ExactString; retain the same solver, brands, exact sites and final stable
+This catalog and its existing general-result publication owner carry
+ExactString using the same solver, brands, exact sites and final stable
 call-row pass. Both operands of Add are visited even when the left proves
-String. Generated StringValue Core rows, local and loop merges supply evidence;
+String. A pending local receiver stays pending until its callee result closes;
+representation conflict on the RHS cannot invalidate a known String-left Add.
+Incompatible duplicate call rows are catalog errors, so neither concatenation
+nor discarded result contexts can swallow a source-ledger conflict. Generated StringValue Core rows, local and loop merges supply evidence;
 unary minus and mixed returns must not pass a String fact through.
 
 The existing publisher's projection is `MirType::String` on the completed MIR
 Call destination. Its emission receipt is not runtime success or a String
 ownership ABI. I64-only activation/Loop owners keep their present contracts;
 executable String return admission is a separate required followup.
+
+When an exact static source target has an unconditional `ExactString` result
+but caller analysis issued no general call-result row, the same publication
+owner projects an existing handoff directly from the branded catalogs. It
+checks canonical caller/site/target membership and rejects foreign catalogs;
+general rows always take precedence. No synthetic call-result row is issued.
+The empty I64 ordinal requirement follows from unconditional String proof.
+Full target inventory, nested TargetOnly rejection, one-shot consumption and
+residual checking remain unchanged.
 
 ## SITE0 located legacy inputs
 

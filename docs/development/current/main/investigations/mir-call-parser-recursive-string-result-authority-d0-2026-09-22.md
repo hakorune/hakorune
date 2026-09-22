@@ -1,10 +1,10 @@
 ---
-Status: accepted__design_closeout__2026-09-22__SourceToMirString
+Status: active__B1_design_accepted__S1_source_to_MIR_closed
 Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
-NextCard: MIR-CALL-PARSER-STRING-RESULT-S1 (same card)
-Implementation permission: S1 mapping accepted below; this user-requested turn is design/docs only
+NextCard: MIR-CALL-PARSER-BOOL-RESULT-B1 (same card)
+Implementation permission: B1 source-to-MIR composite scalar mapping accepted; runtime ABI activation excluded
 ---
 
 # Parser String result authority: corrected decision and task queue
@@ -12,8 +12,8 @@ Implementation permission: S1 mapping accepted below; this user-requested turn i
 ## Current Capsule
 
 - **Current decision:** extend the existing normal-result catalog and sole MIR publisher with `ExactString`; the bounded physical carrier is a Call destination `ValueId` typed `MirType::String`.
-- **Current implementation status:** design accepted, not implemented. Runtime String return ownership is not implied by a MIR emission receipt.
-- **Next ordered task:** restore the stale ingress guard, then implement S1 source-to-MIR String publication in the existing owners.
+- **Current implementation status:** S1 source-to-MIR implementation is verified; catalog 90, publisher 5, ingress 4 and merged dependency/inventory 2 tests pass. Full parser acceptance still stops at the named Bool dependency. Runtime String return ownership is not implied by a MIR emission receipt.
+- **Next ordered task:** implement accepted B1 exact Bool composite source publication; preserve direct I64-only routes and runtime ABI boundaries.
 - **Production stop line:** S1 does not activate a String runtime ABI or relax I64-only Loop consumers. Executable acceptance and runtime admission remain required before cutover claims.
 - **Retirement finish line:** selected parser acceptance/cutover and exclusive old-edge removal; catalog propagation alone is not legacy retirement.
 
@@ -57,7 +57,7 @@ This census covers: source declarations of `ParserStringUtilsBox.i2s/1` and
 physical Call/result publication. Includes their source call sites, String
 literal/left-String Add, substring, local and loop-merge result propagation as
 required by the unchanged bodies. Excludes general recursive type inference,
-mutual-recursion promotion, VM repair, all-String/backend support, and Map
+unanchored mutual-cycle inference, VM repair, all-String/backend support, and Map
 OwnedText T3 promotion. Inventory rows identify source witnesses, not name-based
 acceptance policy; exact target/site/catalog brands remain authoritative.
 
@@ -105,7 +105,7 @@ boundary, not silently projected to I64 or counted as parser completion.
 | Add with proved String left operand | Visit both children first; result is String on normal return, independently of RHS result dependency. Keep RHS call sites and all errors. |
 | Subtract/multiply/divide/modulo/unary minus | Numeric-only result proof; never pass a String fact through unary minus. |
 | Exact generated String Core row | Known String receiver plus generated result-kind/arity row supplies String; Bool/NoValue/Dynamic stay distinct. |
-| Local/assignment | Existing environment transports String; receiver evidence is a derived projection of this same result, not a second independent classification. |
+| Local/assignment | Existing environment transports String; receiver evidence is a derived projection. Pending local receivers remain pending, never an early permanent rejection. |
 | Branch/loop merge and returns | String with String merges; mixed String/I64/Box or unknown incoming path does not become exact. Keep loop entry, backedge, break and continue coverage. |
 | Same-module String call | Same branded target/call row carries ExactString. Result has no I64-result ordinal requirement; all physical arguments still undergo ordinary validation/evaluation. |
 | Unproved direct/mutual cycle | Existing Pending -> RecursiveDependency remains; no SCC guesses or synthetic base result. |
@@ -149,8 +149,8 @@ whole OwnedText/serializer work is a prerequisite for S1.
 | Order | Task / owner | Completion and retirement boundary |
 | --- | --- | --- |
 | G0 — closed | Existing ingress guard recovery | Four ingress states, both rejecting consumers and split transport paths checked; local PASS plus 13/13 rejected mutations, bash syntax and diff checks green. No compiler semantics change. |
-| S1 — next | MIR-CALL-PARSER-STRING-RESULT-S1; existing catalog + publisher | Implement the mapping above as one coherent result-family change; natural helper source yields String, final call rows are present, generic Call destination publishes String once. Remove superseded String-as-KnownNonI64 classification only for proved shapes. This is no shared legacy deletion credit. |
-| A1 | Canonical source-to-MIR recheck | Pin current binary, use real merged parser, observe whether RecursiveDependency is removed, take real parse/2 -> starts_with/3 once and finish empty. Classify any new terminal; no fixture shrinking. |
+| S1 — closed, source-to-MIR only | MIR-CALL-PARSER-STRING-RESULT-S1; existing catalog + publisher | Implement the mapping above as one coherent result-family change; natural helper source yields String, final call rows are present, generic Call destination publishes String once. Remove superseded String-as-KnownNonI64 classification only for proved shapes. This is no shared legacy deletion credit. |
+| A1 — dependency observed, acceptance open | Canonical source-to-MIR recheck | Pin current binary, use real merged parser, observe whether RecursiveDependency is removed, take real parse/2 -> starts_with/3 once and finish empty. Classify any new terminal; no fixture shrinking. |
 | D2/I2 | Selected runtime String call/return contract and implementation | Co-seal semantic exit, carrier, caller/callee ABI, ownership and Fault in existing package/C owners; add executable content/lifetime/Fault evidence. Never use S1 as ABI authority. |
 | T5 | Existing I3 selected caller cutover | After required acceptance, switch a remaining actual caller, or prove it already uses the selected owner; distinguish existing handoff from completed execution. |
 | R0 | Existing selected legacy retirement | Enumerate exact remaining caller and retained shared users, prove selected edge zero, delete exclusive code/tests/guards and add re-entry protection. |
@@ -190,9 +190,9 @@ proved MIR representation, and it does not authorize runtime activation.
 
 ## Evidence and checkpoint
 
-Read-only worker and local source audit agree on this mapping. No Cargo/runtime
-probe/CI was run for the design; S1 is accepted but unimplemented. The user
-requested design and taskification, so this turn closes at the design checkpoint.
+Read-only worker and local source audit agreed on this mapping at the design
+checkpoint. The resumed goal now implements S1; verification receipts follow
+actual focused runs. Runtime acceptance and cutover remain separate.
 
 At `3038bfb1e6`, the ingress guard returned exit 1 because of deleted `Absent`
 and pre-split paths; G0 retains that known baseline debt. Pro's unpushed patch
@@ -200,4 +200,178 @@ and reported mutation checks remain external evidence, not imported local work.
 Windows lifecycle stays user-deferred and warning cleanup stays paused at I147.
 
 G0 local receipt (2026-09-22): stale guard recovered from baseline `2f066b149b`;
-normal copied-tree check passes and 13 mutations reject. S1 is the next row.
+normal copied-tree check passes and 13 mutations reject. Local commit `5cdf6b2e9d`
+is not yet pushed. S1 remains active with the integration blocker below.
+
+
+## S1 integration decision and next bounded task (2026-09-22)
+
+Read-only worker review and local owner readback agree on the following
+extension. This closes the design question, not the failing implementation.
+
+```text
+Decision: project unconditional ExactString at an exact source target inside the existing publication owner when no general call-result row exists.
+Source authority + canonical issuer: same branded declaration/target/result catalogs -> VerifiedStaticCallResultPublicationOwnerV1 -> existing handoff.
+Non-authority: caller-result success, fabricated general rows, method names, AST rescan, or runtime ownership inferred from String.
+Fail-fast boundary: reject foreign catalogs, missing caller/site, non-static target, non-ExactString result and duplicate/general-row issuance.
+Smallest next slice: internal handoff constructor and owner branch after general-row selection, before the retained I64 projection.
+Non-claims: no nominal-Box widening, nested-target suppression, runtime ABI admission, parser completion or legacy retirement.
+```
+
+The current owner already supports exact I64 projection without a general
+caller row. Apply that same responsibility to unconditional String results:
+validate target/result brands, canonical caller membership, exact source site,
+static target namespace, callee `ExactString`, and absence of a general row.
+Return the existing handoff with `declarations.brand().identity()`; introduce
+no additional semantic receipt. Required I64 ordinals are `[]` because this
+result proof is unconditional, not because missing evidence is defaulted.
+Argument evaluation and nested target rejection remain independently required.
+
+Keep the complete `targets.rows()` inventory, `insert_selected`, one-shot take
+and `finish_empty` unchanged. A proved outer String result must not suppress
+an unproved nested call's TargetOnly row. Do not convert ExactString back to
+Unavailable to make preflight pass. Shared I64 and nominal Box contracts stay
+outside this change.
+
+Completion checklist for this same S1 row:
+
+1. Implement the validated constructor in `static_call_result_publication.rs`
+   and connect it in `static_call_result_publication_owner.rs`.
+2. Test a caller with no general row and an exact String callee, plus foreign
+   catalogs, missing source site/caller, wrong result/namespace, general-row
+   precedence, repeated take and residual finish. Include an unproved nested
+   target to demonstrate that its rejection remains intact.
+3. Rerun the focused catalog/publisher/ingress tests and the two exact merged
+   tests below with a nonzero executed count. Preserve the actual merged
+   source; classify any later terminal before changing expected outcomes.
+4. Update module README/reference with this projection boundary and record
+   the tested commit. Only then close S1 and proceed to A1. D2/I2 -> T5 -> R0
+   remain required in the ordered queue above; no extra platform CI is needed
+   for this source-to-MIR repair.
+
+### Observed pre-fix evidence
+
+These are local S1 working-tree results based on `5cdf6b2e9d`, not receipts
+for a committed implementation. Existing logs were read back in this design
+pass; Cargo was not rerun. The test binary was
+`target/quick/deps/nyash_rust-ae6a234ed40ac569`.
+
+- Catalog: 88 passed (`/tmp/string-s1-final-tests.log`).
+- Publisher: 5 passed; ingress: 4 passed (`/tmp/string-s1-verified-0.log`,
+  `/tmp/string-s1-verified-1.log`).
+- Both tests in
+  `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_merged_route_tests::`
+  fail: `merged_parser_program_source_stops_at_named_publication_boundary`
+  and `merged_parser_static_inventory_probe` (logs `-2.log` and `-3.log`).
+- Shared terminal: `TargetOnlyDispositionMustBeUnavailable`, caller
+  `ParserProgramBox.parse/2`, target `RuneContractBox.invalid_placement_tag/1`,
+  site `[Body(22), LoopBody(8), IfThen(5), IfThen(1), Value]`.
+  Classified as **current-change integration failure**, not accepted baseline
+  debt. The earlier zero-test filter is not evidence.
+
+Temporary logs are diagnostic pointers; the named tests, source tuple and
+result above are the durable record. Successful local result proof does not
+close this integration failure or permit production cutover.
+
+
+### Projection implementation checkpoint (2026-09-22)
+
+The validated String constructor and owner branch are now implemented in the
+working tree. Catalog tests: **90 passed** (`/tmp/string-s1-projection-final.log`),
+including missing-general-row projection, one-shot/residual/foreign rejection,
+general-row priority and retained TargetOnly for an unproved nested call.
+Before the last test/diagnostic additions, publisher 5 and ingress 4 passed,
+and `merged_parser_static_inventory_probe` passed against the rebuilt binary.
+These are working-tree receipts, not a committed S1 completion claim.
+
+The lifecycle test still fails its former RecursiveDependency assertion. Its
+new observed terminal (`/tmp/string-s1-loop-tuple.log`) is:
+
+- `callable-loop/static-publication/no-selected-handoff`
+- caller `StringHelpers.skip_ws/2`, target `StringHelpers.is_space/1`
+- site `[Body(4), LoopBody(0), IfCondition]`.
+
+Classification: newly exposed **dependency boundary**, not baseline-debt credit
+and not a successful acceptance. Read-only worker/source audit confirms
+`is_space` returns comparison/OR Bool; existing expression proof classifies
+non-arithmetic binary results as KnownNonI64 and return summarization issues
+`Unavailable(KnownNonI64Return)`. The publication owner therefore creates a
+TargetOnly row, never a Selected row for this site. The generic peek failure
+occurs before the I64 requirement gate. The prior exact String preflight
+failure is resolved; the real parser remains incomplete.
+
+Next actions within this card:
+
+1. Pin the exact newly observed dependency in the lifecycle assertion with
+   source identity, retain the inventory/selected starts_with assertion, and
+   rerun the focused tests. This records progress without claiming parser
+   acceptance; complete remaining projection negatives before S1 closeout.
+2. Design exact Bool normal-result proof and source condition publication in
+   the existing catalog/publisher and Loop relation/physical consumer. Existing
+   `into_item_dispositions` and composite physical gates are I64-only; all
+   required mappings must be settled together before a Bool implementation.
+   Bool is not ExactI64. Preserve RHS evaluation/short-circuit semantics,
+   one-shot publication and residual checks; introduce no parallel solver.
+3. Continue canonical acceptance, runtime String ownership, cutover and R0.
+   The new Bool dependency is an explicit prerequisite of full canonical
+   acceptance, not permission to reopen VM or platform lanes.
+
+## B1 design: exact Bool result through composite source publication
+
+Accepted mapping after read-only worker review and local consumer readback:
+
+```text
+Decision: extend existing composite source publication with exact Bool normal results; preserve direct I64-only contracts.
+Source authority + canonical issuer: same source result catalog and publication owner -> source item relation -> existing composite source port.
+Non-authority: helper names, physical i64 values, generic truthiness, or new Bool execution/receipt owner.
+Fail-fast boundary: unsupported result/operator, mixed returns, foreign or residual source rows, and String/Box at composite scalar admission.
+Smallest next slice: ExactBool -> existing handoff -> composite relation/state -> ExactSourceMethodCallV1(Bool) -> existing Call publisher/If consumer.
+Non-claims: no String runtime ownership, Bool C return ABI acceptance, direct singleton Loop widening, parser completion or old-edge removal from proof alone.
+```
+
+B1 begins after S1 closeout. The finite witness is unchanged
+`StringHelpers.skip_ws/2 -> is_space/1` at
+`[Body(4), LoopBody(0), IfCondition]`. The implementation accepts the existing
+composite exact scalar publication family (I64/Bool), not a name/site special
+case. This is source-to-MIR BoxCount; no unrelated refactor is bundled.
+
+| Existing owner | B1 change |
+| --- | --- |
+| Result expression/function proof, solver, disposition and call rows | ExactBool from Bool literals, explicit six comparisons and And/Or; Not must traverse its operand. Preserve both source child inventories and mixed-return rejection. Do not classify bitwise/shift as Bool. |
+| Static handoff and publisher | Same branded exact target projection when no general row exists; ExactBool maps to MirType::Bool, including external destination. |
+| `normal_callable_loop_source_route::into_item_dispositions` | Composite relation accepts exact scalar I64/Bool; direct I64 routes retain their requirement. |
+| `normal_callable_loop_source_facts/composite_physical.rs` | Validate that same composite scalar contract before consumption. |
+| `normal_callable_semantic_lowering_state` install/take | Validate I64/Bool and project Integer/Bool to the existing ExactSourceMethodCallV1. Keep current effects and one-shot/residual rules. |
+| `helpers_value/lower.rs` -> `lowerer/emission_port.rs` | Reuse result_type destination, GlobalCall, SourcePublication and external-destination publisher; no separate Bool emitter. |
+| Existing condition lowering ports | Keep branch and short-circuit ownership. Proof traversal of both children does not force runtime evaluation of the RHS. |
+
+Required B1 evidence: original source witness reaches an actual Bool Call
+destination used by the existing If condition; `starts_with` retains Integer
+and empty ordinal requirements; Bool/String and Bool/I64 returns reject;
+arithmetic/bitwise/shift are not Bool proofs; direct I64-only contracts reject
+Bool; composite rejects String/Box; foreign/duplicate/residual and mismatched
+external destination reject. Preserve source coverage and short-circuit
+behavior. Recheck the real merged parser and classify its next terminal.
+
+B1 shares this card. Its result-family extension replaces the bounded old
+KnownNonI64 classification for proved Bool shapes and composite I64-only
+admission, but does not earn shared legacy-retirement credit. T5/R0 remain
+explicit production switch/deletion work after required acceptance.
+
+
+### S1 closeout receipt (2026-09-22)
+
+Final quick-profile build: catalog **90/90**; the same rebuilt binary ran
+publisher **5/5**, ingress **4/4**, and exact merged-route module **2/2**.
+Logs: `/tmp/string-s1-closeout.log` and `/tmp/string-s1-closeout-{0,1,2}.log`.
+The two merged tests verify the exact Bool dependency terminal and retained
+selected I64 inventory, not successful parser compilation. The old assertion
+red is superseded by a source-identity-pinned dependency test; the original
+String projection defect is fixed. All current-change reds observed in this
+slice are resolved or explicitly represented by that open acceptance boundary.
+
+Ingress guard, StringBox membership guard, pointer guard and diff check pass.
+README/reference match the implemented normal-result contract. S1 replaces
+String-as-non-I64 classification only for proved forms and uses one publisher;
+no shared legacy edge was deleted. B1 is the next accepted source-to-MIR slice,
+followed by outstanding canonical acceptance/runtime ownership/cutover/R0.

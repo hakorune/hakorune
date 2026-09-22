@@ -150,9 +150,7 @@ fn invalid_result_surfaces_close_to_explicit_unavailable_rows() {
     );
     assert_eq!(
         disposition(source, "NegativeProofV1", "text", 0),
-        VerifiedCallableResultDispositionV1::Unavailable(
-            CallableResultUnavailableReasonV1::KnownNonI64Return
-        )
+        VerifiedCallableResultDispositionV1::ExactString
     );
     assert_eq!(
         disposition(source, "NegativeProofV1", "declared_text", 0),

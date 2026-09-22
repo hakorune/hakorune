@@ -419,16 +419,29 @@ fn exact_targets_close_direct_and_mutual_recursion_without_scc_inference() {
 
     for (owner, name) in [
         ("DirectV1", "again"),
-        ("WrappedV1", "again"),
         ("LeftV1", "call"),
         ("RightV1", "call"),
-        ("LeftWrappedV1", "call"),
-        ("RightWrappedV1", "call"),
     ] {
         assert_eq!(
             results.disposition(&key(&declarations, owner, name, 1)),
             Some(&recursive),
         );
+    }
+    // A String-left result anchors the existing worklist without proving
+    // termination or introducing SCC inference. Both recursive calls remain.
+    for (owner, name) in [
+        ("WrappedV1", "again"),
+        ("LeftWrappedV1", "call"),
+        ("RightWrappedV1", "call"),
+    ] {
+        let caller = key(&declarations, owner, name, 1);
+        assert_eq!(
+            results.disposition(&caller),
+            Some(&VerifiedCallableResultDispositionV1::ExactString)
+        );
+        assert!(results
+            .call_rows()
+            .any(|((row_caller, _), _)| row_caller == &caller));
     }
 }
 

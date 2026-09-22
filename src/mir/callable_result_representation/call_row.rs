@@ -83,8 +83,16 @@ impl<'target> VerifiedCallableResultCallSiteV1<'target> {
                 result_representation,
                 ..
             } => result_representation.clone(),
-            VerifiedCallableResultEvidenceV1::CoreStringMethod { .. } => {
-                VerifiedCallableResultRepresentationV1::ExactI64
+            VerifiedCallableResultEvidenceV1::CoreStringMethod { contract, .. } => {
+                match contract.result_kind {
+                    crate::mir::core_method_result_kind::CoreMethodResultKindV1::I64Value => {
+                        VerifiedCallableResultRepresentationV1::ExactI64
+                    }
+                    crate::mir::core_method_result_kind::CoreMethodResultKindV1::StringValue => {
+                        VerifiedCallableResultRepresentationV1::ExactString
+                    }
+                    _ => unreachable!("[freeze:contract][callable-result/core-result-kind]"),
+                }
             }
         }
     }

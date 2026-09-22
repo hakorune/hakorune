@@ -61,7 +61,7 @@ pointer syntax or become a second optimizer/physical authority.
 
 ## Source-call normal-result proof
 
-Decision (2026-09-22; accepted compiler design, implementation pending): an
+Decision (2026-09-22; source-to-MIR contract, runtime activation separate): an
 exact String result proof means that every normal value returned by the
 selected source callable is String. It does not prove successful evaluation,
 termination, purity, or absence of Fault. A proved String left operand in

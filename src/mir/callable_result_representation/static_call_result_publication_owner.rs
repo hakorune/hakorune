@@ -187,6 +187,27 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
                 insert_selected(&mut selected_targets, &mut rows, key, expected, handoff)?;
                 continue;
             }
+            if matches!(
+                results.disposition(&expected),
+                Some(VerifiedCallableResultDispositionV1::ExactString)
+            ) {
+                let handoff = VerifiedStaticCallResultPublicationHandoffV1::project_exact_string(
+                    declarations,
+                    caller,
+                    site,
+                    targets,
+                    results,
+                )
+                .map_err(|cause| {
+                    StaticCallResultPublicationOwnerErrorV1::Projection {
+                        caller: caller.clone(),
+                        site: site.clone(),
+                        cause,
+                    }
+                })?;
+                insert_selected(&mut selected_targets, &mut rows, key, expected, handoff)?;
+                continue;
+            }
             let requirement = match project_static_exact_i64_requirement_v1(
                 declarations,
                 caller,

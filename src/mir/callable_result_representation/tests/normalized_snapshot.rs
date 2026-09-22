@@ -30,6 +30,7 @@ struct NormalizedCallableKeyV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum NormalizedResultDispositionV1 {
     ExactI64 { required_arguments: Vec<u32> },
+    ExactString,
     ExactNominalBox { box_name: String },
     Unavailable(CallableResultUnavailableReasonV1),
 }
@@ -37,6 +38,7 @@ enum NormalizedResultDispositionV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum NormalizedResultRepresentationV1 {
     ExactI64,
+    ExactString,
     ExactNominalBox { box_name: String },
 }
 
@@ -127,6 +129,9 @@ fn normalize_disposition(
         } => NormalizedResultDispositionV1::ExactI64 {
             required_arguments: required_i64_arguments.to_vec(),
         },
+        VerifiedCallableResultDispositionV1::ExactString => {
+            NormalizedResultDispositionV1::ExactString
+        }
         VerifiedCallableResultDispositionV1::ExactNominalBox { box_name } => {
             NormalizedResultDispositionV1::ExactNominalBox {
                 box_name: box_name.clone(),
@@ -144,6 +149,9 @@ fn normalize_representation(
     match representation {
         VerifiedCallableResultRepresentationV1::ExactI64 => {
             NormalizedResultRepresentationV1::ExactI64
+        }
+        VerifiedCallableResultRepresentationV1::ExactString => {
+            NormalizedResultRepresentationV1::ExactString
         }
         VerifiedCallableResultRepresentationV1::ExactNominalBox { box_name } => {
             NormalizedResultRepresentationV1::ExactNominalBox {

@@ -69,15 +69,21 @@ fn merged_parser_program_source_stops_at_named_publication_boundary() {
             )
             .expect_err("parser program must stop at its named loop boundary");
         let message = rejected.error().to_string();
-        // The selected LoopCond and LoopTrue source handoffs now cross the
-        // preceding parser-loop boundaries. The composite LoopBreak source
-        // consumer reaches the existing static-result owner, where a
-        // cataloged target-only row stops before receiver/argument descent.
-        assert!(
-            message.contains("static-result-ingress/target-only/RecursiveDependency"),
-            "unexpected parser loop terminal: {message}"
-        );
-        assert!(!message.contains("callable-loop/static-publication/no-selected-handoff"));
+        // String result publication now crosses the earlier recursive boundary.
+        // Full parser acceptance remains blocked by the Bool-returning is_space
+        // target. Pin the exact dependency; this is not completed compilation.
+        for expected in [
+            "callable-loop/static-publication/no-selected-handoff",
+            "owner: \"StringHelpers\", name: \"skip_ws\", arity: 2",
+            "[Body(4), LoopBody(0), IfCondition]",
+            "owner: \"StringHelpers\", name: \"is_space\", arity: 1",
+        ] {
+            assert!(
+                message.contains(expected),
+                "unexpected parser terminal: {message}"
+            );
+        }
+        assert!(!message.contains("TargetOnlyDispositionMustBeUnavailable"));
         rejected.discard();
     });
 }

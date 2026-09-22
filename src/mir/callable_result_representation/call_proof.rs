@@ -48,6 +48,7 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
         method: &str,
         arguments: &[I64ExpressionFactV1],
         receiver_fact: Option<SourceCoreReceiverFactV1>,
+        receiver_pending: bool,
     ) -> Result<CallProofOutcomeV1<'target>, CallableResultCatalogErrorV1> {
         if let Some(source_target) = self.source_target(&site) {
             let target = source_target.target();
@@ -76,6 +77,15 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
                     });
                     CallProofOutcomeV1 { fact, row }
                 }
+                VerifiedCallableResultDispositionV1::ExactString => CallProofOutcomeV1 {
+                    fact: I64ExpressionFactV1::ExactString,
+                    row: Some(VerifiedCallableResultCallSiteV1::same_module_static(
+                        source_target,
+                        VerifiedCallableResultRepresentationV1::ExactString,
+                        Box::new([]),
+                        Box::new([]),
+                    )),
+                },
                 VerifiedCallableResultDispositionV1::ExactNominalBox { box_name } => {
                     CallProofOutcomeV1 {
                         fact: I64ExpressionFactV1::ExactNominalBox(box_name.clone()),
@@ -105,6 +115,14 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
             });
         }
 
+        // A local receiver whose source call is not solved yet may later
+        // acquire String evidence. Do not seal a permanent rejection early.
+        if receiver_fact.is_none() && receiver_pending {
+            return Ok(CallProofOutcomeV1 {
+                fact: I64ExpressionFactV1::PendingDependency,
+                row: None,
+            });
+        }
         self.prove_core_string_method(receiver_fact, method, arguments)
     }
 
@@ -141,12 +159,19 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
                     contract,
                 )),
             },
-            CoreMethodResultKindV1::BoolValue
-            | CoreMethodResultKindV1::StringValue
-            | CoreMethodResultKindV1::NoValue => CallProofOutcomeV1 {
-                fact: I64ExpressionFactV1::KnownNonI64,
-                row: None,
+            CoreMethodResultKindV1::StringValue => CallProofOutcomeV1 {
+                fact: I64ExpressionFactV1::ExactString,
+                row: Some(VerifiedCallableResultCallSiteV1::core_string_method(
+                    receiver_fact,
+                    contract,
+                )),
             },
+            CoreMethodResultKindV1::BoolValue | CoreMethodResultKindV1::NoValue => {
+                CallProofOutcomeV1 {
+                    fact: I64ExpressionFactV1::KnownNonI64,
+                    row: None,
+                }
+            }
             CoreMethodResultKindV1::Dynamic => CallProofOutcomeV1 {
                 fact: I64ExpressionFactV1::Unknown(
                     CallableResultUnavailableReasonV1::CoreMethodResultUnavailable,

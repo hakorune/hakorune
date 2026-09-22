@@ -202,6 +202,9 @@ fn disposition(
         FunctionProofOutcomeV1::Exact(requirements) => Ok(Some(
             VerifiedCallableResultDispositionV1::exact_i64(key, requirements)?,
         )),
+        FunctionProofOutcomeV1::ExactString => {
+            Ok(Some(VerifiedCallableResultDispositionV1::ExactString))
+        }
         FunctionProofOutcomeV1::ExactNominalBox(box_name) => {
             Ok(Some(VerifiedCallableResultDispositionV1::ExactNominalBox {
                 box_name,

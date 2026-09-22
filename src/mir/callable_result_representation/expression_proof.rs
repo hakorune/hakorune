@@ -18,6 +18,7 @@ use super::{
 pub(super) enum I64ExpressionFactV1 {
     Exact(RequirementSetV1),
     ExactNominalBox(String),
+    ExactString,
     KnownNonI64,
     Unknown(CallableResultUnavailableReasonV1),
     PendingDependency,
@@ -36,6 +37,7 @@ impl I64ExpressionFactV1 {
             (Self::ExactNominalBox(left), Self::ExactNominalBox(right)) if left == right => {
                 Self::ExactNominalBox(left.clone())
             }
+            (Self::ExactString, Self::ExactString) => Self::ExactString,
             (Self::KnownNonI64, Self::KnownNonI64) => Self::KnownNonI64,
             (Self::Unknown(left), Self::Unknown(right)) if left == right => {
                 Self::Unknown(left.clone())
@@ -186,6 +188,9 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
         let ASTNode::Variable { name, .. } = expression else {
             return None;
         };
+        if matches!(self.binding(name), Some(I64ExpressionFactV1::ExactString)) {
+            return Some(SourceCoreReceiverFactV1::ExactStringOnSuccess);
+        }
         self.environment.core_receiver_bindings.get(name).copied()
     }
 
@@ -222,8 +227,8 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 {
                     I64ExpressionFactV1::exact_empty()
                 }
-                LiteralValue::String(_)
-                | LiteralValue::TypedInteger { .. }
+                LiteralValue::String(_) => I64ExpressionFactV1::ExactString,
+                LiteralValue::TypedInteger { .. }
                 | LiteralValue::Float(_)
                 | LiteralValue::Bool(_)
                 | LiteralValue::Null
@@ -241,10 +246,18 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 operator: UnaryOperator::Minus,
                 operand,
                 ..
-            } => self.prove_expression(
-                operand,
-                &Self::child_path(expression, path, ExprChildRoleV1::UnaryOperand),
-            ),
+            } => {
+                let fact = self.prove_expression(
+                    operand,
+                    &Self::child_path(expression, path, ExprChildRoleV1::UnaryOperand),
+                )?;
+                Ok(match fact {
+                    I64ExpressionFactV1::Exact(_) | I64ExpressionFactV1::PendingDependency => fact,
+                    _ => I64ExpressionFactV1::Unknown(
+                        CallableResultUnavailableReasonV1::UnknownExpression,
+                    ),
+                })
+            }
             ASTNode::UnaryOp { .. } => Ok(I64ExpressionFactV1::KnownNonI64),
             ASTNode::BinaryOp {
                 operator,
@@ -260,6 +273,13 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                     right,
                     &Self::child_path(expression, path, ExprChildRoleV1::BinaryRight),
                 )?;
+                // Both subtrees have been visited. A known normal String result
+                // never removes RHS evaluation or its final source call row.
+                if *operator == BinaryOperator::Add
+                    && matches!(left, I64ExpressionFactV1::ExactString)
+                {
+                    return Ok(I64ExpressionFactV1::ExactString);
+                }
                 if matches!(
                     operator,
                     BinaryOperator::Add
@@ -286,16 +306,22 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 ..
             } => {
                 let receiver_fact = self.core_receiver_fact(object);
+                let receiver_pending = matches!(object.as_ref(), ASTNode::Variable { name, .. }
+                    if matches!(self.binding(name), Some(I64ExpressionFactV1::PendingDependency)));
                 let arguments = self.prove_arguments(expression, arguments, path)?;
                 let outcome = self.call_proof.prove_method_call(
                     path.expr(),
                     method,
                     &arguments,
                     receiver_fact,
+                    receiver_pending,
                 )?;
                 if let Some(row) = outcome.row {
                     if !self.record_call_row(path.expr(), row) {
-                        return Ok(I64ExpressionFactV1::Conflict);
+                        return Err(CallableResultCatalogErrorV1::DuplicateCallResultSite {
+                            caller: self.current_key.clone(),
+                            site: path.expr(),
+                        });
                     }
                 }
                 Ok(outcome.fact)

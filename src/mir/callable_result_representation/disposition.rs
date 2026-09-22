@@ -26,12 +26,14 @@ pub(crate) enum CallableResultUnavailableReasonV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum VerifiedCallableResultRepresentationV1 {
     ExactI64,
+    ExactString,
     ExactNominalBox { box_name: String },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum VerifiedCallableResultDispositionV1 {
     ExactI64 { required_i64_arguments: Box<[u32]> },
+    ExactString,
     ExactNominalBox { box_name: String },
     Unavailable(CallableResultUnavailableReasonV1),
 }
@@ -52,13 +54,14 @@ impl VerifiedCallableResultDispositionV1 {
             Self::ExactI64 {
                 required_i64_arguments,
             } => Some(required_i64_arguments),
-            Self::ExactNominalBox { .. } | Self::Unavailable(_) => None,
+            Self::ExactString | Self::ExactNominalBox { .. } | Self::Unavailable(_) => None,
         }
     }
 
     pub(crate) fn representation(&self) -> Option<VerifiedCallableResultRepresentationV1> {
         match self {
             Self::ExactI64 { .. } => Some(VerifiedCallableResultRepresentationV1::ExactI64),
+            Self::ExactString => Some(VerifiedCallableResultRepresentationV1::ExactString),
             Self::ExactNominalBox { box_name } => {
                 Some(VerifiedCallableResultRepresentationV1::ExactNominalBox {
                     box_name: box_name.clone(),

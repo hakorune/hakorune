@@ -1,11 +1,11 @@
 date = "2026-09-22"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-CALL-PARSER-STRING-RESULT-S1"
-current_execution_cohort = "mir_call_parser_string_result_s1"
-current_blocker_token = "MIR-CALL-PARSER-STRING-RESULT-S1__ImplementationPending"
+current_execution_row = "MIR-CALL-PARSER-BOOL-RESULT-B1"
+current_execution_cohort = "mir_call_parser_bool_result_b1"
+current_blocker_token = "MIR-CALL-PARSER-BOOL-RESULT-B1__ImplementationPending"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "none__accepted__string_result_s1"
+current_design_stop = "none__accepted__bool_result_b1"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -27,19 +27,24 @@ The existing result catalog/publication owner is the selected extension point;
 S1 source-to-MIR design is accepted: ExactString through the existing catalog
 and general publication owner projects to a Call destination typed MirType::String.
 MIR emission does not prove runtime success or ownership; executable String ABI
-admission remains a separate required task before cutover. This user-requested
-design checkpoint selects G0 guard recovery then S1 implementation, without code
-changes or runtime claims. The same D0 owns acceptance/cutover/retirement tasks.
+admission remains a separate required task before cutover. G0 recovery is closed;
+S1 source-to-MIR is verified: catalog 90, publisher 5, ingress 4 and merged
+route dependency/inventory 2 tests pass. Full parser acceptance still stops at
+skip_ws/2 -> is_space/1 Bool TargetOnly. B1 design is accepted: exact Bool
+through existing composite scalar publication and condition consumers,
+without widening direct I64-only Loop routes or activating runtime ABI.
+B1 implementation is selected. The same D0
+owns canonical acceptance, runtime admission, caller cutover and retirement.
 StringBox Compatibility probes have a distinct legacy-fallback-retired boundary;
 their dynamic membership evidence stays open. Pro commit 1a67ee4532 is not in
 this checkout. The publication ingress guard is restored locally: normal PASS and 13 rejecting
-mutations PASS; S1 implementation is now selected. Pro evidence remains separate.
+mutations PASS; B1 is now selected. Pro evidence remains separate.
 Windows lifecycle remains user-deferred, macOS CAPI retains its recorded clang
 capability boundary, and warning cleanup stays paused at I147.
 """
-next_design_card = "none__S1_mapping_accepted"
+next_design_card = "none__B1_mapping_accepted"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md"
-next_execution_card = "MIR-CALL-PARSER-STRING-RESULT-S1"
+next_execution_card = "MIR-CALL-PARSER-BOOL-RESULT-B1"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

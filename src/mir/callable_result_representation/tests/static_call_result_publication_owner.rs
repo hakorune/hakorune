@@ -190,7 +190,7 @@ fn selected_handoff_peek_stays_empty_for_target_only_and_foreign_sites() {
     let source = r#"
         static box TextOwner {
             caller() { return me.text() }
-            text() { return "text" }
+            text() { return true }
         }
     "#;
     let declarations = declarations(source);
@@ -376,7 +376,7 @@ fn exact_source_target_without_an_i64_result_stays_target_only() {
     let source = r#"
         static box TextOwner {
             caller() { return me.text() }
-            text() { return "text" }
+            text() { return true }
         }
     "#;
     let declarations = declarations(source);
@@ -487,7 +487,7 @@ fn issuer_finish_empty_rejects_mixed_selected_and_target_only_rows() {
         }
         static box TextOwner {
             caller() { return me.text() }
-            text() { return "text" }
+            text() { return true }
         }
     "#;
     let declarations = declarations(source);

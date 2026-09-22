@@ -13,3 +13,5 @@ mod source_proof;
 mod static_call_result_publication_owner;
 mod static_exact_i64_requirement;
 mod support;
+
+mod string_results;

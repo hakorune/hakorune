@@ -66,7 +66,11 @@ fn unsupported_receiver_spelling_arity_and_non_i64_results_remain_unavailable() 
             target_unavailable,
         );
     }
-    for name in ["substring", "contains"] {
+    assert_eq!(
+        disposition(source, "CoreNegativeV1", "substring", 1),
+        VerifiedCallableResultDispositionV1::ExactString
+    );
+    for name in ["contains"] {
         assert_eq!(disposition(source, "CoreNegativeV1", name, 1), non_i64,);
     }
 }
