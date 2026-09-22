@@ -1,11 +1,11 @@
 date = "2026-09-22"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0"
-current_execution_cohort = "mir_call_parser_array_push_b2_i0"
-current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0__ImplementationAndAcceptancePending"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B2-D0"
+current_execution_cohort = "mir_call_parser_array_push_b2_d0"
+current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B2-D0__SourceGenericLoopCarrierSyncMissing"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "none__B2_I0_mapping_accepted"
+current_design_stop = "NoSafeSlice__SourceGenericLoopBindingCarrierPublicationMissing"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,17 +18,14 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-parser-recursive-string-result-authority-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md"
 latest_card_summary = """
-S1 String and B1 Bool source-to-MIR publication are verified in the existing
-catalog/publication/Call owners. B1: catalog 92, publisher 5, Loop route 20,
-source Bool Call-to-Branch 1, merged dependency/inventory 2 tests pass.
+S1 String/B1 Bool source-to-MIR publication is verified; receipts are in the card.
 The real parse/2 -> starts_with/3 Selected ExactI64 handoff retains ordinals [].
 Full parser acceptance now stops at StringHelpers.split_lines/1 loop-local
 arr.push(s.substring(last,i)): source method item outside selected family.
 Extended source issuer is not yet selected by the production package. Required
 chain: source Named Array -> module-level FinalizedRootHandoff retention ->
 typed NoValue write -> exact backend discharge; pending work is specified below.
-Canonical caller/source association is sealed inside the existing package's
-selected-key/batch mapping, then transported once through selected lowering loans.
+Canonical caller/source association stays in the package-selected batch mapping.
 Stage 3 connects installed-package expected inventory, one-shot callable handback,
 module retention and typed statement/write transport. Latest quick build 4m18s:
 new emissions 5, retention cohorts 51, Loop scope 3, Map dependency 8 and direct
@@ -37,10 +34,13 @@ and runtime evidence remain pending; explicit physical witnesses do not replace 
 Stage 4 connects retained-view serialization and exact allocation query in the
 existing static V2 invocation: 37 focused tests pass, one pre-existing external
 C-driver test ignored, quick 4m18s, warnings 543. No real C-query execution claimed.
-Next D selects the extended production issuer, verifies natural source through
-published handoff/C frame, retires selected old dispatch and rechecks merged parser.
-Array issuer remains unselected until this explicit D cutover. Shared MethodCall branch physical
-deletion requires remaining caller-zero; selected-edge retirement is separate.
+D issuer/test changes are uncommitted: value-demand rejection passes, natural
+literal push fails dominance. MIR confirms body %11 is read by header and exit;
+body increment also reads init0 instead of the existing loop carrier.
+Design next: co-bind GenericLoop pre_effect source BindingRef rows with existing
+Recipe carrier publication at body entry/header/exit. No name-priority workaround.
+Merged parser now reaches no-exact-static-target; exact later site remains to
+identify before updating its old-terminal test. Last verified checkpoint 319a2d7102.
 Text lifetime/mutation Fault remains an explicit next execution-contract task:
 current append C ABI discards its failure result and is not checked-Fault proof.
 The Absent/Script-empty root and diagnostic/compatibility/JSON exits must not
@@ -55,7 +55,7 @@ warning cleanup remains paused at I147. Pro commit 1a67ee4532 was not imported.
 """
 next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-B2-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md"
-next_execution_card = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0"
+next_execution_card = "none__B2_source_loop_carrier_design_pending"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

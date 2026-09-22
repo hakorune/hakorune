@@ -1,19 +1,19 @@
 ---
-Status: fast__B2_array_push_bounded_mapping_accepted
+Status: design_stop__B2_source_generic_loop_carrier_sync
 Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
-NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 (same card)
-Implementation permission: B2-I0 bounded series below; production activation requires retained source obligation and exact backend discharge
+NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-D0 (same card; I0 cutover pending)
+Implementation permission: D paused until the source GenericLoop carrier mapping below is settled
 ---
 
 # Parser String result authority: corrected decision and task queue
 
 ## Current Capsule
 
-- **Current decision:** B2-I0 mapping is accepted: conditional Named Array source contract, module-level artifact retention, NoValue typed write and mandatory backend discharge share the existing owners.
+- **Current decision:** B2 Array retention/discharge is implemented; D exposed a source GenericLoop carrier synchronization gap. Settle that mapping before further cutover work.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** activate D selected caller cutover through the verified stage-3 transport and stage-4 C discharge below. Text lifetime/Fault remains a separate explicit execution-contract task.
+- **Next ordered task:** close the source GenericLoop BindingRef -> existing carrier publication mapping below, repair its entry/header/exit synchronization, then finish D cutover. Text lifetime/Fault stays separate.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -658,25 +658,10 @@ README/reference and reuse lane guards; close the selected old edge in this
 same bounded series (maximum five implementation commits, no per-case cards).
 
 
-B2-I0 stage 1 (source contract, verified): existing target and
-resolver contract owners now carry ArrayTextAppend/NoValue under a move-only
-Named Array requirement. The extended CoreMethod source entry joins existing
-Text rows before parents, excludes ordinary/brand ownership, and rejects
-receiver reassignment, value demand and unsupported Text evidence. Production
-package activation waits for retention; lowering-state install explicitly
-rejects unretained Array obligations before Builder effects. This is the first
-implementation stage of the accepted series, not caller-switch completion.
-Quick-profile verification: new Named Array contracts **7/7**, existing source
-CoreMethod **7/7**, target/Home **7/7**, ledger **20/20**, lowering-state map-local
-**3/3**. Logs: `/tmp/b2-contract-test.log` and
-`/tmp/b2-contract-regression-{0,1,2,3}.log`. The initial test-helper compile error
-(Result tested as Option) is corrected; a zero-match module filter was discarded
-and rerun using the binary's actual `map_local::tests` path. No unresolved red
-remains in this focused scope. Ingress/pointer guards, formatting and diff check
-pass. This is implementation commit 1 of the bounded series; next connect
-artifact retention before package activation. No baseline, physical execution,
-production switch or deletion credit is claimed. The state parent is 754 lines;
-place new responsibility in its existing child modules before further growth.
+B2 stage 1 receipt: `5f328559de`, conditional source ArrayTextAppend/NoValue
+contracts; 44 focused checks pass (7 new plus 7+7+20+3 existing), quick 5m24s.
+Production activation was intentionally deferred. Source contract details live
+in code/reference; Git retains the original closeout.
 
 ### B2 next implementation boundary — canonical retention decision
 
@@ -707,17 +692,9 @@ from a physical function name.
 | D | Production package selection and selected old-edge retirement | Activate the extended issuer only with A-C wired; remove this source statement's route through method-name/type dispatch in normalizer and effect emission. Guard selected caller-zero at the old dispatch and recheck unchanged merged parser; report the next actual terminal. |
 
 A-D remain tasks inside B2-I0, not new cards or independent completion claims.
-B2-I0 stage 2: the package now transports a private-constructor canonical/source
-association through selected and App Main loans. Module-only handoff retains
-existing callable contracts for rootless and scalar-Script output. Passive
-markers, physical correspondence checks and raw/backend/JSON refusal are in
-place. The emission draft/retained-row API is preparation: New/write emission
-collection is not yet connected, so A and C are not closed and the extended
-Array issuer remains unselected. Before activation, connect the package-owned
-emission collection through finish, test actual Named rows (including foreign
-compilation/caller, duplicate/residual and shared allocation), then perform B-D.
-Generic published preflight still rejects conditional markers; replace that
-stop only with the exact selected-consumer discharge, not a bypass flag.
+B2 stage 2 established canonical/source transport, module-only handoff, passive
+marker coverage and raw refusal. Stages 3/4 below connect collection/discharge;
+the current D counterexample governs production readiness.
 
 Stage 2 receipt: `6740988fa4`, 51 focused tests pass after quick 5m20s;
 548 warnings. Package caller/source association, rootless retention and raw
@@ -766,23 +743,13 @@ task must choose the existing failure owner and close that mapping before changi
 this ABI; do not silently reinterpret NoValue as successful mutation. DirectArray
 Text stays rejected. This internal gap does not reopen VM or platform work.
 
-B2-I0 stage 3: installed-package expected inventory now survives lending, callable
-finish hands emitted rows back once, and finalization retains them in the existing
-handoff. The source statement/Recipe uses the sole ArrayElementWrite writer;
-compilation-branded marker ownership rejects same-named foreign substitution.
-Latest-tree quick build **4m18s**, new emission tests **5/5**, prior retention
-cohorts **51/51**, Loop scope **3/3**, Map dependency **8/8**, direct-call physical
-**6/6**: **73 passing tests**. Log: `/tmp/b2-emission-final-test.log`; regression
-logs `/tmp/b2-retention-regression-{0..9}.log` and
-`/tmp/b2-emission-{loop,map,direct}-regression.log`. A zero-match helper-module
-filter was discarded; its actual consumer tests were listed and run instead.
-Stage 3 (`d657e6db71`): no unclassified focused red; changed Rust <=738 lines;
-README/reference and guards pass. Warnings **543** (stage 2:548).
-These tests validate source/package/emission transport with explicit physical
-observations, not production source-to-write or runtime execution. Next C/D must
-connect selected capability discharge, activate the extended issuer, verify the
-natural source route, retire its selected legacy edge, and recheck merged parser.
-No CI dispatch, runtime Fault, shared code deletion or full parser claim.
+B2 stage 3 receipt: `d657e6db71`, expected package inventory, one-shot handback,
+module retention and typed write transport; **73 tests pass**, quick **4m18s**,
+543 warnings. Five emission tests plus retention 51, Loop 3, Map 8, direct 6.
+Logs: `/tmp/b2-emission-final-test.log`, retention regression logs and
+`/tmp/b2-emission-{loop,map,direct}-regression.log`. README/reference and guards
+pass; changed Rust <=738 lines. Physical witnesses do not prove natural-source
+cutover. A zero-match helper filter was discarded and actual consumers rerun.
 
 B2-I0 stage 4: published ingress/internal body projection now verify retained
 source correspondence; raw JSON and unsupported lifecycle still reject. Static
@@ -798,3 +765,36 @@ README/reference, formatting, pointer/ingress guards and diff checks pass.
 Next D: select the extended package issuer, verify natural literal/substring2
 source-to-published handoff and C frame, retire selected generic dispatch ingress,
 and recheck unchanged merged parser. Runtime Text/Fault remains separate.
+
+### MIR-CALL-PARSER-ARRAY-PUSH-B2-D0 — source GenericLoop carrier synchronization
+
+Decision: design stop before further D implementation; connect existing source BindingRef and loop carrier authority, without changing lookup priority.
+Source authority + canonical issuer: GenericLoop source claim's pre_effect rows (owner/site/BindingRef/role); existing Recipe skeleton/carrier owner issues header and exit values.
+Non-authority: variable names, Builder variable_map, MIR-derived PHI inference, or passing an arbitrary BindingRef/ValueId pair.
+Fail-fast boundary: source/carrier correspondence before physical allocation and strict verification before publication; retain the failed natural-source witness.
+Smallest next slice: settle one source-bound carrier binding for body entry, header condition and loop exit; assignment consumption remains distinct from physical current-value publication.
+Non-claims: D activation is uncommitted and unverified; no B2 completion, executable acceptance or selected-edge retirement credit.
+
+Current-change failure: natural `Scan.run(s)` with local Named Array, `i=0`,
+`loop(i<1){arr.push("text");i=i+1}` and `return i` fails strict dominance.
+Dump proves body bb3 `%11 = 0 + 1`, header bb2 reads `%11`, exit bb5 returns
+`%11`; the loop header carrier is unused. The typed Array write itself is present.
+The read-only worker traced `generic_loop_composer` body rebind -> restored name
+cache only -> `exact_source_variable_value` reading the mutated callable ledger.
+Existing `CallableGenericLoopSourceRelationViewV1.pre_effect()` is currently
+unused by the physical adapter. Its source rows and the existing carrier owner
+must be co-bound; do not repair this with name-first reads or an extra PHI solver.
+
+Next design must name the pre-allocation co-seal and one scoped consumer for
+entry/header/exit publication, including zero iterations, repeated iterations,
+foreign owner/site and duplicate use. Then rerun literal/substring2/multiple-push
+source witnesses with optimization on/off, before D can close. The value-demand
+negative test already passes. Initial test-helper Debug compile error was fixed.
+Logs: `/tmp/b2-cutover-test.log` (5m03s; 1 pass/1 fail),
+`/tmp/b2-cutover-diagnostic.log` (intentional diagnostic panic, not a gate; probe
+removed after readback). No unresolved red is claimed as baseline or green.
+The unchanged merged-parser probe now reaches `static-result-ingress/no-exact-static-target`
+after the old loop-push boundary. Its old-terminal assertion is a current-change
+failure (`/tmp/b2-cutover-merged.log`); identify the exact later source site before
+updating that receipt. Preserve the uncommitted issuer/test changes; stage 4
+`319a2d7102` remains the last verified pushed checkpoint.
