@@ -1802,16 +1802,20 @@ implementation may add only these caller-zero projections; Builder/session,
 lifecycle, Text residence, route, fallback/retry, production callers, and
 publication remain closed.
 
-S6D D0 result (2026-09-23): `NoSafeSlice` for the current LoopCond cohort.
-The source projection records condition sites and branch exits, but not typed
-predicate values/effects; the local planner Recipe uses AST/StmtRef structure
-and has no portable Recipe keys or JoinSig continuation. No connected issuer
-co-seals those products for this route, and the existing raw LoopCond consumer
-has no selected replacement caller plus exclusive old-edge deletion in one
-bounded series. Reopen only when one existing semantic-program issuer can
-co-seal the exact source-to-Recipe/JoinSig relation and name that same-series
-consumer/cutover/delete tuple. The current compatibility route remains intact;
-S6D has no Recipe producer or production-selection claim.
+S6D design correction (2026-09-23): source projection still lacks typed
+predicate/effect and portable co-seal mapping. The former requirement for an
+already-connected issuer was circular: implementation-entry permits naming
+owners/consumers to extend. The selected design is one scalar initialized-local
+carrier, header compare, add/write, and explicit Break/Continue, with an exact
+After return. The step is an explicit profile extension, not existing projector
+coverage. Existing strict S6D observations remain required. See the
+[active D2 tasks](../investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md)
+for real caller/old-edge selection, source typing/effect, and callable boundary
+API decisions. Those internal design tasks precede implementation; no producer
+or production selection is claimed. M8 S6D stays producer/observation-only;
+a later bounded production Promote must satisfy M10 requirements and remove
+the selected cohort's old edge together with its caller switch. Shared legacy
+owners need not disappear to permit that design.
 
 The next ordered M8 row, S6E, is not ready: the normalized Generic corpus is
 inventoried, but route observations and checked dispositions are incomplete.
