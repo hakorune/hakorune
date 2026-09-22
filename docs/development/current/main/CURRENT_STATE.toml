@@ -26,16 +26,21 @@ Full parser acceptance now stops at StringHelpers.split_lines/1 loop-local
 arr.push(s.substring(last,i)): source method item outside selected family.
 B2 passive construction source transport is verified: new tests 3, ledger 20.
 B2-I0 stage 1 source contract is verified: new 7, existing 7+7+20+3 tests.
-Extended source issuer is not yet selected by the production package; lowering
-state rejects unretained obligations. Next: source Named Array -> module-level
-FinalizedRootHandoff retention -> typed NoValue write -> exact backend discharge.
+Extended source issuer is not yet selected by the production package. Required
+chain: source Named Array -> module-level FinalizedRootHandoff retention ->
+typed NoValue write -> exact backend discharge; pending work is specified below.
 Canonical caller/source association is sealed inside the existing package's
 selected-key/batch mapping, then transported once through selected lowering loans.
 Stage 2 package association/module retention and rejection coverage: 51 focused
-checks pass. Next connect actual Named New/write emission collection through
-package finish and handoff, then typed emission, selected capability discharge
-and production cutover/old-edge retirement (A-D). Emission draft API alone is
-not connected Array retention; extended Array issuer remains unselected.
+checks pass at 6740988fa4. A/B emission collection and typed-write changes are
+uncommitted; latest-tree verification is pending. The earlier emission snapshot
+passed 3 tests, not the newer fourth test or full source route.
+Next finish A/B evidence, then C retained-view serialization and exact allocation
+query in the existing static V2 invocation, then D production caller cutover.
+Array issuer stays unselected until A-C connect. Shared MethodCall branch physical
+deletion requires remaining caller-zero; selected-edge retirement is separate.
+Text lifetime/mutation Fault remains an explicit next execution-contract task:
+current append C ABI discards its failure result and is not checked-Fault proof.
 The Absent/Script-empty root and diagnostic/compatibility/JSON exits must not
 drop obligations. Passive metadata detects missing authority; it never grants it.
 Selected name-based statement dispatch is removed in the same bounded series.

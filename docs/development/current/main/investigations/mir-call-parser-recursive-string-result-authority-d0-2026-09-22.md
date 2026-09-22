@@ -13,7 +13,7 @@ Implementation permission: B2-I0 bounded series below; production activation req
 
 - **Current decision:** B2-I0 mapping is accepted: conditional Named Array source contract, module-level artifact retention, NoValue typed write and mandatory backend discharge share the existing owners.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** implement B2-I0 below for the unchanged split_lines loop-local push; retain the constructor obligation before activating its typed write. See the B2 ordered queue below.
+- **Next ordered task:** finish verification of the in-progress A/B collection/write changes, then C static-V2 discharge and D selected caller cutover below. Text lifetime/Fault remains a separate explicit execution-contract task.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -592,12 +592,10 @@ evidence rejects without fallback. The selected C allocation observer can supply
 capability evidence, never source admission (`published_backend_view/map_named_allocations.rs`
 already enforces this responsibility split for its own inventory).
 
-Next bounded design work: name the exact existing artifact field/retention path
-and one-shot capability discharge for this requirement, together with Array
-receiver/Home, Text argument, mutation and NoValue statement relation. Do not
-activate typed push while the requirement could be dropped or turned into an
-unconditional physical type fact. Reuse the existing physical append owner;
-keep this requirement separate from the later executable Text/Fault evidence.
+The artifact retention mapping is accepted below. The selected C discharge
+refinement below names the existing invocation/query owner. Activation still
+requires retained source plus exact physical correspondence; neither metadata
+nor allocation observations establish source semantics or executable Fault proof.
 
 
 ### MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 — accepted bounded series
@@ -741,3 +739,46 @@ Executable Text lifetime/alias/Fault evidence remains the following acceptance
 task, with real selected runtime behavior required. B2 source-to-MIR completion
 does not claim serializer/parser completion, tail-push/substring-1 support, or
 retirement of shared compatibility code whose other callers remain live.
+
+### B2 C/D refinement — selected C invocation and remaining execution contract
+
+Consultation reason: discharging a retained source requirement at C publication
+changes a capability boundary; a read-only worker inspected the actual query,
+serializer and append consumer before this Decision. No new receipt is needed.
+
+Decision: use the existing static V2 invocation and its actual compile options.
+Source authority + canonical issuer: existing package CoreMethod source co-seal; retained handoff preserves its owner/canonical/site relation.
+Non-authority: C allocation query and MIR markers observe physical correspondence only; names and host registry do not grant source semantics.
+Fail-fast boundary: reject mismatched or unsupported obligations before C compile/object publication; raw/JSON/non-supported lifecycle exits remain closed.
+Smallest next slice: finish A/B evidence, then bind retained obligations to the existing static V2 allocation query and switch the selected caller in this series.
+Non-claims: allocation compatibility is not Text lifetime, mutation Fault, full parser acceptance, or deletion of the shared MethodCall branch.
+
+| Order | Concrete owner transition | Done / rejection evidence |
+| --- | --- | --- |
+| A/B finish | In-progress package collector -> callable finish -> finalized handoff; source statement -> NamedArrayPush -> ArrayElementWrite | Rebuild latest tree once; residual, foreign compilation, one-shot clones, missing allocation and same-construction multiple-write tests. Natural source coverage is mandatory at activation; manually assembled physical tests do not substitute. |
+| C1 | published ingress + internal body projection | Validate retained source/marker/physical coverage. Only `emit_published_view_body(view)` borrows authority for internal serialization; both public JSON profiles and raw module still reject. No generic allow flag or marker removal. Explicitly preserve unsupported lifecycle rejection. |
+| C2 | `compile_published_static_v2` -> `from_view_with_query` -> `PublishedStaticMethodCFrameV2::from_index` | Use the same C document/options for query and compile. Join retained canonical allocation to exact function/block/instruction query through existing MapBodyIndex. Require actual Array consumer; reject missing/duplicate/foreign/drift and DirectArray Text before compile. Existing invocation Drop handles failure. |
+| D | package extended issuer -> selected statement producer/writer | Activate only after A-C connect. Literal Text and substring2 loop push evaluate once, use NoValue, and bypass no source obligation. Value-use rejects before child effects. Guard selected-site non-reentry into generic MethodCall and recheck unchanged merged parser to its next actual terminal. |
+| Execution contract next | Existing append runtime owner and selected C writer | Establish Text contents and retention after original handle release, alias visibility, mutation failure and cleanup behavior. Resolve failure propagation before any checked-Fault or full executable acceptance claim. |
+
+Deletion inventory: the selected source statement's edge to generic MethodCall
+and name/type dispatch is retired by D. The shared `push | set | insert` branch
+in `effect_emission.rs` still serves other callers; its whole physical deletion
+requires their migration/Stop and caller-zero. No B2-exclusive old function was
+identified for immediate removal. Record caller-edge retirement separately from
+physical source deletion; neither local green nor the new typed arm proves both.
+
+Execution-contract gap: current C typed append calls `nyash.array.slot_append_hh`
+and discards its result; the kernel can return zero on failure. Array's existing
+StringLike/keep storage is an implementation path, not checked-Fault evidence.
+The current physical validator rejects checked Invoke writes. The next execution
+task must choose the existing failure owner and close that mapping before changing
+this ABI; do not silently reinterpret NoValue as successful mutation. DirectArray
+Text stays rejected. This internal gap does not reopen VM or platform work.
+
+Handoff snapshot: HEAD `6740988fa4` remains the stage-2 checkpoint. Uncommitted
+A/B collection and typed-write changes are in progress. The earlier snapshot's
+three emission tests passed (`/tmp/b2-emission-test.log`); the subsequent missing-
+allocation test and edits have not been rebuilt. This is not latest-tree green,
+production activation, or a new landed stage. Pointer/diff checks pass for this
+design update; no new Cargo build or CI dispatch was requested by taskification.
