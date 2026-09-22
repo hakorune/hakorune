@@ -12,7 +12,7 @@ use super::super::raw_invocation_source_transport::{
 };
 use super::super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::SelectedCallableLoweringInputRefV1;
-use crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1;
+use crate::mir::normal_callable_semantic_package::SelectedSourceCoreMethodCallV1;
 
 pub(super) fn with_selected_source_scope<'port, 'collector, R>(
     inner: &mut RawInvocationChildPortV1<'port, 'collector>,
@@ -20,7 +20,7 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
     input: SelectedCallableLoweringInputRefV1<'_>,
     core_method_calls: BTreeMap<
         crate::mir::resolved_semantics::SourceExprSiteV1,
-        VerifiedSourceBoundCoreMethodCallV1,
+        SelectedSourceCoreMethodCallV1,
     >,
     ordinary_new_claim_ledger: Rc<OrdinaryNewClaimLedgerV1>,
     loop_break_take: Option<LoopBreakSourcePackageTakeHandle<'_>>,
@@ -29,6 +29,9 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
         RawInvocationSourceTransportV1<()>,
     ) -> Result<R, String>,
 ) -> Result<R, String> {
+    for row in core_method_calls.values() {
+        row.require_selected(input.selected_key(), input.source().owner())?;
+    }
     let dynamic_source = match input.semantic() {
         crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Dynamic {
             source,
@@ -60,7 +63,7 @@ pub(super) fn with_callable_source_scope<'port, 'collector, R>(
     dynamic_source: Option<Rc<crate::mir::builder::VerifiedSourceBackedDynamicCallableV1>>,
     core_method_calls: BTreeMap<
         crate::mir::resolved_semantics::SourceExprSiteV1,
-        VerifiedSourceBoundCoreMethodCallV1,
+        SelectedSourceCoreMethodCallV1,
     >,
     observation: Option<CallableMethodSourceObservationV1>,
     ordinary_new_claim_ledger: Rc<OrdinaryNewClaimLedgerV1>,

@@ -7,6 +7,13 @@
 
 mod completion_seed;
 mod core_method_source;
+#[cfg(test)]
+mod core_method_source_tests;
+#[cfg(test)]
+pub(crate) use core_method_source::test_witness::unconditional_test_rows;
+pub(crate) use core_method_source::{
+    validate_named_array_coverage, EmittedNamedArrayRequirementV1, SelectedSourceCoreMethodCallV1,
+};
 mod declared_instance_locator;
 #[cfg(test)]
 mod direct_call_lifecycle_tests;

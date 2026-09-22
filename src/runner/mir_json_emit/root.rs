@@ -126,6 +126,7 @@ pub(super) fn build_mir_json_root_with_profile(
     module: &crate::mir::MirModule,
     profile: JsonEgressProfile,
 ) -> Result<serde_json::Value, String> {
+    crate::mir::named_array_obligation::reject_unretained_module(module)?;
     let use_v1_schema = profile.is_canonical_v1();
     let boxed_sum_abi_plans = crate::mir::boxed_sum_abi_plan::build_boxed_sum_abi_plans(module);
     let mut funs = Vec::new();
@@ -390,6 +391,40 @@ pub(super) fn build_mir_json_root_with_profile(
 #[cfg(test)]
 mod tests {
     use super::JsonEgressProfile;
+
+    #[test]
+    fn both_json_profiles_reject_unretained_named_array_requirement() {
+        use crate::mir::*;
+        let mut module = MirModule::new("obligation".into());
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "probe".into(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        function.metadata.named_array_write_obligations.push(
+            crate::mir::named_array_obligation::NamedArrayWriteMarkerV1 {
+                allocation: ValueId::new(1),
+                receiver: ValueId::new(1),
+                argument: ValueId::new(2),
+                write: ArrayWriteSiteId(0),
+            },
+        );
+        module.functions.insert("probe".into(), function);
+        for profile in [
+            JsonEgressProfile::CanonicalV1,
+            JsonEgressProfile::CompatibilityV0 { methodize: false },
+            JsonEgressProfile::CompatibilityV0 { methodize: true },
+        ] {
+            assert_eq!(
+                super::build_mir_json_root_with_profile(&module, profile).unwrap_err(),
+                "[freeze:contract][named-array/retained-source-required]"
+            );
+        }
+    }
 
     #[test]
     fn json_profile_selector_matrix_is_finite_and_root_owned() {

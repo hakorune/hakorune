@@ -80,7 +80,7 @@ impl CallableSemanticLoweringState {
         if !self.consumed_source_core_method_calls.insert(site.clone()) {
             return Err(freeze("duplicate-core-method-call-consumption"));
         }
-        let contract = row.into_contract();
+        let contract = row.into_unconditional_contract()?;
         if contract.call_site() != site
             || contract.result_site() != site
             || contract.arguments().len() != arity as usize

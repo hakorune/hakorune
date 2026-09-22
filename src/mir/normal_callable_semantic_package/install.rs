@@ -133,7 +133,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
             SelectedNormalCallableKeyV1,
             std::collections::BTreeMap<
                 crate::mir::resolved_semantics::SourceExprSiteV1,
-                crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1,
+                crate::mir::normal_callable_semantic_package::SelectedSourceCoreMethodCallV1,
             >,
         >,
     >,
@@ -509,7 +509,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
         key: &SelectedNormalCallableKeyV1,
     ) -> std::collections::BTreeMap<
         crate::mir::resolved_semantics::SourceExprSiteV1,
-        crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1,
+        crate::mir::normal_callable_semantic_package::SelectedSourceCoreMethodCallV1,
     > {
         self.source_core_method_calls
             .borrow_mut()

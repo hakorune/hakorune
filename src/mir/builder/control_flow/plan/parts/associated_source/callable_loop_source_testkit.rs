@@ -212,7 +212,7 @@ pub(super) fn real_core_method_ledger(
         CallableSemanticLoweringState::from_exact_source_with_dynamic_source_and_core_methods(
             input,
             None,
-            rows.into_vec().into_iter().collect(),
+            crate::mir::normal_callable_semantic_package::unconditional_test_rows(rows),
         )
         .expect("core-method callable ledger");
     (Rc::new(RefCell::new(state)), body)

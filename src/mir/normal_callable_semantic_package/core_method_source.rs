@@ -3,6 +3,9 @@
 //! This module owns only the catalog/source target co-seal. It does not
 //! select a physical route or consume Builder state.
 
+mod emission;
+pub(crate) use emission::{validate_named_array_coverage, EmittedNamedArrayRequirementV1};
+
 use crate::mir::builder::{
     SelectedNormalCallableKeyV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
@@ -21,7 +24,7 @@ pub(crate) fn issue_source_core_method_calls_v1(
 ) -> Result<
     BTreeMap<
         SelectedNormalCallableKeyV1,
-        BTreeMap<SourceExprSiteV1, VerifiedSourceBoundCoreMethodCallV1>,
+        BTreeMap<SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
     >,
     String,
 > {
@@ -37,7 +40,7 @@ pub(crate) fn issue_source_core_method_calls_v1(
         let batch_slot = selected
             .batch_slot(key)
             .ok_or_else(|| "selected callable has no semantic batch slot".to_owned())?;
-        let rows = batch
+        let (owner, rows) = batch
             .with_lowering_input(batch_slot, |input| {
                 let ledger = input
                     .forest()
@@ -47,7 +50,7 @@ pub(crate) fn issue_source_core_method_calls_v1(
                     &ledger,
                 )
                 .map_err(|error| format!("{error:?}"))?;
-                Ok::<_, String>(rows)
+                Ok::<_, String>((input.owner(), rows))
             })
             .map_err(|error| format!("{error:?}"))??;
         target_catalog = target_catalog
@@ -60,6 +63,23 @@ pub(crate) fn issue_source_core_method_calls_v1(
             let rows = target_catalog
                 .into_core_method_calls(catalog_key)
                 .map_err(|error| format!("{error:?}"))?;
+            let rows = rows
+                .into_iter()
+                .map(|(site, row)| {
+                    if row.contract().owner() != owner || row.contract().call_site() != &site {
+                        return Err(crate::mir::named_array_obligation::fault(
+                            "package-source-mismatch",
+                        ));
+                    }
+                    Ok((
+                        site,
+                        SelectedSourceCoreMethodCallV1 {
+                            caller: catalog_key.clone(),
+                            row,
+                        },
+                    ))
+                })
+                .collect::<Result<BTreeMap<_, _>, String>>()?;
             issued.insert(
                 SelectedNormalCallableKeyV1::Cataloged(catalog_key.clone()),
                 rows,
@@ -70,3 +90,52 @@ pub(crate) fn issue_source_core_method_calls_v1(
     }
     Ok(issued)
 }
+
+/// Package-owned canonical association. Builder can observe or consume it, but
+/// cannot pair an arbitrary canonical key with a resolver contract.
+#[derive(Debug)]
+pub(crate) struct SelectedSourceCoreMethodCallV1 {
+    caller: crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    row: VerifiedSourceBoundCoreMethodCallV1,
+}
+
+impl SelectedSourceCoreMethodCallV1 {
+    pub(crate) fn contract(
+        &self,
+    ) -> &crate::mir::resolved_semantics::VerifiedResolverCoreMethodCallableContractV1 {
+        self.row.contract()
+    }
+
+    pub(crate) fn require_selected(
+        &self,
+        key: &SelectedNormalCallableKeyV1,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    ) -> Result<(), String> {
+        if !matches!(key, SelectedNormalCallableKeyV1::Cataloged(caller) if caller == &self.caller)
+            || self.contract().owner() != owner
+        {
+            return Err(crate::mir::named_array_obligation::fault(
+                "selected-source-mismatch",
+            ));
+        }
+        Ok(())
+    }
+
+    /// Unconditional String rows need no retained constructor obligation.
+    /// Conditional rows must instead remain owned through physical emission.
+    pub(crate) fn into_unconditional_contract(
+        self,
+    ) -> Result<crate::mir::resolved_semantics::VerifiedResolverCoreMethodCallableContractV1, String>
+    {
+        if self.contract().named_array_requirement().is_some() {
+            return Err(crate::mir::named_array_obligation::fault(
+                "retained-source-required",
+            ));
+        }
+        Ok(self.row.into_contract())
+    }
+}
+
+#[cfg(test)]
+#[path = "core_method_source_witness_tests.rs"]
+pub(crate) mod test_witness;

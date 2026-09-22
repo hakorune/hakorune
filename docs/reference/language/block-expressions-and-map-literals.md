@@ -226,6 +226,13 @@ this bounded contract. The extended issuer is not yet activated by the
 production package; finalized obligation retention and backend discharge remain
 required before typed execution.
 
+The compiler binds the canonical caller and resolver contract at the existing
+semantic-package declaration/batch co-seal. Physical observations may extend
+that association but cannot replace the caller or reconstruct source authority.
+Module retention does not require a synthetic root. Passive metadata markers
+detect missing source evidence on raw MIR/JSON egress; they are not executable
+Array admission, even after cloning the module.
+
 
 The compiler's resolver retains named-construction syntax as a passive source
 row: class spelling, ordered argument sites, and ordered field-initializer

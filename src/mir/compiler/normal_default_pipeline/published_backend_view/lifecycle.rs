@@ -49,18 +49,30 @@ impl<'module> PublishedMirBackendView<'module> {
         handoff: Option<&'module crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
     ) -> Result<Self, String> {
         let Some(handoff) = handoff else {
+            crate::mir::normal_callable_semantic_package::validate_named_array_coverage(
+                self.module,
+                &[],
+            )?;
             return self
                 .bind_retained_root(None)
                 .map_err(|error| error.to_string());
         };
+        crate::mir::normal_callable_semantic_package::validate_named_array_coverage(
+            self.module,
+            handoff.named_arrays(),
+        )?;
         self = self
-            .bind_retained_root(Some(handoff.root_key()))
+            .bind_retained_root(handoff.root_key())
             .map_err(|error| error.to_string())?;
+        if handoff.root_key().is_none() {
+            self.retained_handoff = Some(handoff);
+            return Ok(self);
+        }
         if let Some(array) = handoff.script_array() {
             let root = self
                 .retained_root
                 .ok_or_else(|| fault("retained-root-missing"))?;
-            if root.signature.name != handoff.root_key() {
+            if Some(root.signature.name.as_str()) != handoff.root_key() {
                 return Err(fault("retained-root-key-drift"));
             }
             array.validate_root_binding(root)?;

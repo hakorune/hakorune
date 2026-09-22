@@ -178,6 +178,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let birth_actuals = actuals.into_boxed_slice();
         Ok(if births.is_empty() {
             FinalizedRootHandoffV1::NoBirth {
+                named_arrays: Box::new([]),
                 callables,
                 root_key,
                 root_source,
@@ -185,6 +186,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         } else {
             FinalizedRootHandoffV1::Births {
+                named_arrays: Box::new([]),
                 callables,
                 root_key,
                 root_source,

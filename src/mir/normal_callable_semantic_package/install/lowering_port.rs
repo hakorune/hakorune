@@ -6,8 +6,8 @@ use crate::mir::builder::{
 };
 use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::normal_callable_semantic_package::SelectedSourceCoreMethodCallV1;
 use crate::mir::resolved_semantics::ReceiverPolicyV1;
-use crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1;
 use crate::parser::CallableDeclarationIdentityV1;
 
 use super::super::declared_instance_locator::DeclaredInstanceCallLocatorScopeV1;
@@ -24,10 +24,8 @@ impl NormalCallableSemanticPackagePortV1<'_> {
     pub(crate) fn take_source_core_method_calls(
         &self,
         key: &SelectedNormalCallableKeyV1,
-    ) -> BTreeMap<
-        crate::mir::resolved_semantics::SourceExprSiteV1,
-        VerifiedSourceBoundCoreMethodCallV1,
-    > {
+    ) -> BTreeMap<crate::mir::resolved_semantics::SourceExprSiteV1, SelectedSourceCoreMethodCallV1>
+    {
         self.installed.take_source_core_method_calls(key)
     }
 
@@ -226,7 +224,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
             SelectedCallableLoweringInputRefV1<'loan>,
             BTreeMap<
                 crate::mir::resolved_semantics::SourceExprSiteV1,
-                VerifiedSourceBoundCoreMethodCallV1,
+                SelectedSourceCoreMethodCallV1,
             >,
             super::LoopBreakSourcePackageTakeHandle<'loan>,
         ) -> Result<R, String>,
@@ -406,7 +404,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
             MainStaticChildLoweringInputV1<'loan>,
             BTreeMap<
                 crate::mir::resolved_semantics::SourceExprSiteV1,
-                VerifiedSourceBoundCoreMethodCallV1,
+                SelectedSourceCoreMethodCallV1,
             >,
             super::LoopBreakSourcePackageTakeHandle<'loan>,
         ) -> R,

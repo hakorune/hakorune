@@ -92,7 +92,7 @@ fn artifact_validation_retains_issued_root_birth_handoff() {
     let handoff = validate(&module)
         .expect("artifact handoff must validate")
         .expect("Pair root has a handoff");
-    assert_eq!(handoff.root_key(), "main");
+    assert_eq!(handoff.root_key(), Some("main"));
     let root_source = handoff
         .root_source()
         .expect("Pair root retains its issued source relation");

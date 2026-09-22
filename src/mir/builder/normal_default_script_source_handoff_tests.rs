@@ -41,7 +41,7 @@ fn script_source_survives_scope_and_reaches_both_finishing_consumers() {
         let array = handoff.script_array().expect("Script variant");
         assert_eq!(array.acquisition_count(), 2);
         array
-            .validate_root_binding(&module.functions[handoff.root_key()])
+            .validate_root_binding(&module.functions[handoff.root_key().expect("Script root")])
             .unwrap();
         assert!(handoff.root_source().is_none());
         assert!(handoff.root_result().is_none());
@@ -435,10 +435,18 @@ fn script_array_artifact_requires_finishing_and_preserves_unissued_distinction()
     let error = source.into_array_artifact(entry).unwrap_err();
     assert!(error.contains("artifact-before-finishing"), "{error}");
     let (_, module, validate) = completed("local scalar = 1\nreturn 30").into_artifact_parts();
-    assert!(
-        validate(&module).unwrap().is_none(),
-        "unissued Array is not an empty Array product"
-    );
+    let handoff = validate(&module).unwrap();
+    if let Some(handoff) = handoff {
+        assert!(
+            handoff.callables().is_some(),
+            "module retains only issued callable contracts"
+        );
+        assert!(handoff.root_key().is_none());
+        assert!(
+            handoff.script_array().is_none(),
+            "unissued Array is not an empty Array product"
+        );
+    }
 }
 
 #[test]
@@ -561,5 +569,25 @@ fn source_array_control_has_exact_fault_sets_and_reverse_terminal_homes() {
                 Some(MirInstruction::Jump { .. } | MirInstruction::Branch { .. })
             )));
         }
+    }
+}
+
+#[test]
+fn rootless_and_scalar_script_keep_module_callable_contracts() {
+    for suffix in ["", "local scalar = 1\nreturn 30"] {
+        let source = format!("static box Api {{ run() {{ return 7 }} }}\n{suffix}");
+        let completed = completed(&source);
+        assert!(completed.callables.is_some());
+        let (_, module, validate) = completed.into_artifact_parts();
+        let handoff = validate(&module)
+            .unwrap()
+            .expect("module contract must survive");
+        assert!(handoff.callables().is_some());
+        assert!(
+            handoff.root_key().is_none(),
+            "module retention cannot invent a root"
+        );
+        assert!(handoff.script_array().is_none());
+        assert!(handoff.births().is_none());
     }
 }

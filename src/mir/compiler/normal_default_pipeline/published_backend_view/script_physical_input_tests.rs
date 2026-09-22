@@ -184,7 +184,10 @@ fn script_physical_input_rejects_foreign_missing_and_drifted_handoff_corresponde
                     let handoff = view.retained_handoff.unwrap();
                     for mutation in 0..9 {
                         let mut module = view.module().clone();
-                        let root = module.functions.get_mut(handoff.root_key()).unwrap();
+                        let root = module
+                            .functions
+                            .get_mut(handoff.root_key().expect("Script root"))
+                            .unwrap();
                         match mutation {
                             0 => {
                                 root.metadata.typed_array_contract_sources[0]

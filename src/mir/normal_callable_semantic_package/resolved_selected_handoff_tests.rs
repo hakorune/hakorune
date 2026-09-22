@@ -11,7 +11,7 @@ use super::{
     issue_normal_callable_semantic_package_v1, NormalCallableSemanticPackageInstallIssueV1,
 };
 
-fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
+pub(super) fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         source,
         ParserBuildConfig::default(),

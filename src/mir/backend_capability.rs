@@ -38,6 +38,9 @@ fn validate_published_ingress(
     view: &crate::mir::function::PublishedMirBackendView<'_>,
 ) -> Result<(), String> {
     let module = view.module();
+    // Until the selected consumer discharges conditional Array requirements,
+    // retaining source alone cannot admit executable output.
+    crate::mir::named_array_obligation::reject_unretained_module(module)?;
     for function in module.functions.values() {
         if !function.metadata.extern_call_routes.is_empty()
             || function
@@ -60,6 +63,7 @@ pub(crate) fn enforce_mir_backend_supported(
     module: &MirModule,
     backend: &str,
 ) -> Result<(), String> {
+    crate::mir::named_array_obligation::reject_unretained_module(module)?;
     let refreshed = crate::mir::semantic_refresh::refresh_owned_for_boundary(
         module,
         crate::mir::ContractRefreshBoundary::BackendPreflight,

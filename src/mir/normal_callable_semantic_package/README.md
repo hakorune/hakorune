@@ -767,3 +767,15 @@ failure rejects before publication without retry. Unadmitted rows use explicit
 Outside before child-session effects and may retain CallableSemanticLoweringState;
 this is not post-failure fallback. Loops, calls, locals, receivers, typed signatures,
 parser-scan expansion and whole-callable cutover are outside this bounded row.
+
+CoreMethod source rows now leave the package with their canonical caller bound
+by the selected declaration/batch-slot mapping. The move-only transport has no
+Builder-visible constructor taking an arbitrary caller/contract pair. Selected
+and App Main loans check caller and resolver owner before lowering. Unconditional
+String contracts may be consumed directly; conditional Named Array contracts
+must retain the package association while recording allocation/write identity.
+The emission observation and exact marker coverage validator do not select a
+provider or issue source meaning. Rootless and scalar-Script artifact handoffs
+retain existing callable contracts as module data without inventing a root.
+Named Array emission collection and backend discharge still need connection
+before the extended push issuer is selected in production.

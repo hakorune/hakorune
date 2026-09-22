@@ -709,13 +709,33 @@ from a physical function name.
 | D | Production package selection and selected old-edge retirement | Activate the extended issuer only with A-C wired; remove this source statement's route through method-name/type dispatch in normalizer and effect emission. Guard selected caller-zero at the old dispatch and recheck unchanged merged parser; report the next actual terminal. |
 
 A-D remain tasks inside B2-I0, not new cards or independent completion claims.
-The bounded series has one implementation commit landed; retention scaffolding
-in the working tree (metadata marker, raw egress checks and
-`named_array_obligation.rs`) is uncompiled/unverified and does not close A or C.
-Preserve that work for the implementation pass; this design update adds no
-compiler behavior. Use focused quick-profile tests and existing lane guards,
-then update module README/reference with the implementation. No CI dispatch is
-needed to select or execute these tasks.
+B2-I0 stage 2: the package now transports a private-constructor canonical/source
+association through selected and App Main loans. Module-only handoff retains
+existing callable contracts for rootless and scalar-Script output. Passive
+markers, physical correspondence checks and raw/backend/JSON refusal are in
+place. The emission draft/retained-row API is preparation: New/write emission
+collection is not yet connected, so A and C are not closed and the extended
+Array issuer remains unselected. Before activation, connect the package-owned
+emission collection through finish, test actual Named rows (including foreign
+compilation/caller, duplicate/residual and shared allocation), then perform B-D.
+Generic published preflight still rejects conditional markers; replace that
+stop only with the exact selected-consumer discharge, not a bypass flag.
+
+Stage 2 verification: final quick build 5m20s, package association **3/3**;
+physical mutation/raw rejection **2/2**, JSON **3/3**, Script finishing **7/7**,
+root/Birth retention **5/5**, map-local **3/3**, raw Loop **12/12**, published
+Script **2/2**, Script physical input **3/3**, Main static-child **4/4**, Named
+source contracts **7/7**: **51 passing tests** on one final binary. Logs:
+`/tmp/b2-retention-final-test.log`, `/tmp/b2-retention-regression-{0..9}.log`.
+Initial compile errors were a wrong InvokeOperation import and four isolated
+String test helpers using the old transport type; corrected before the final
+build. Test-only witnesses cannot create conditional Array authority. No
+unclassified focused red remains. Existing ingress/pointer guards and diff/
+format checks pass. README/reference updated. This is implementation commit 2
+of the bounded series; no production switch, runtime acceptance or deletion
+credit. The final build reports 548 warnings (stage 1: 545); unused emission
+preparation must become live in this series, without suppression or a warning
+cleanup detour. No CI dispatch was needed.
 
 Executable Text lifetime/alias/Fault evidence remains the following acceptance
 task, with real selected runtime behavior required. B2 source-to-MIR completion

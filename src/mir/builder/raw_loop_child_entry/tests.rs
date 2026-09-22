@@ -378,7 +378,7 @@ static function caller(flag: i64, text: String): i64 {
     let state = crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source_with_dynamic_source_and_core_methods(
         input,
         None,
-        core_method_rows.into_vec().into_iter().collect(),
+        crate::mir::normal_callable_semantic_package::unconditional_test_rows(core_method_rows),
     )
     .expect("loop-cond callable state");
     let ledger = std::rc::Rc::new(std::cell::RefCell::new(state));

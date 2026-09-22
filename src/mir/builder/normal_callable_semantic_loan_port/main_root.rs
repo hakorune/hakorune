@@ -167,6 +167,9 @@ pub(super) fn lower_app_main_root_body_v1(
     adapter
         .package
         .with_app_main_root_lowering_input(&catalog_key, expected_identity, |input, identity| {
+            for row in core_method_calls.values() {
+                row.require_selected(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(catalog_key.clone()), input.owner())?;
+            }
             let lineage = RawInvocationRootLineageV1::Cataloged(catalog_key.clone());
             let expected_lineage = lineage.clone();
             super::source_scope::with_callable_source_scope(

@@ -1,3 +1,4 @@
+use super::SelectedSourceCoreMethodCallV1;
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, CatalogedBoxMethodPhysicalHeaderProjectionV1,
     SameModuleCallableNamespaceV1, VerifiedSourceBackedDynamicCallableV1,
@@ -17,9 +18,7 @@ use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSo
 use std::collections::BTreeMap;
 use std::rc::Rc;
 
-use crate::mir::source_call_target::{
-    VerifiedSourceBoundCoreMethodCallV1, VerifiedStaticImportAliasViewV1,
-};
+use crate::mir::source_call_target::VerifiedStaticImportAliasViewV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum QualifiedReceiverCatalogAdmissionV1 {
@@ -201,10 +200,7 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) loop_break_source: super::loop_break_source::VerifiedLoopBreakSourcePackageV1,
     pub(super) source_core_method_calls: BTreeMap<
         crate::mir::builder::SelectedNormalCallableKeyV1,
-        BTreeMap<
-            crate::mir::resolved_semantics::SourceExprSiteV1,
-            VerifiedSourceBoundCoreMethodCallV1,
-        >,
+        BTreeMap<crate::mir::resolved_semantics::SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
     >,
     pub(super) app_main_qualified_receiver_catalog:
         Option<VerifiedQualifiedReceiverCatalogRelationV1>,

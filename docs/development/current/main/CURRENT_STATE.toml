@@ -31,9 +31,11 @@ state rejects unretained obligations. Next: source Named Array -> module-level
 FinalizedRootHandoff retention -> typed NoValue write -> exact backend discharge.
 Canonical caller/source association is sealed inside the existing package's
 selected-key/batch mapping, then transported once through selected lowering loans.
-Next tasks A-D in the card cover retention, typed emission, capability discharge
-and production cutover/selected old-edge retirement. Existing retention scaffolding
-is uncompiled/unverified; the design/task update does not claim it complete.
+Stage 2 package association/module retention and rejection coverage: 51 focused
+checks pass. Next connect actual Named New/write emission collection through
+package finish and handoff, then typed emission, selected capability discharge
+and production cutover/old-edge retirement (A-D). Emission draft API alone is
+not connected Array retention; extended Array issuer remains unselected.
 The Absent/Script-empty root and diagnostic/compatibility/JSON exits must not
 drop obligations. Passive metadata detects missing authority; it never grants it.
 Selected name-based statement dispatch is removed in the same bounded series.

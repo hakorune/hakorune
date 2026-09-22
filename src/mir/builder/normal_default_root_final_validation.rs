@@ -69,6 +69,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
         impl FnOnce(&MirModule) -> Result<(), String>,
     ) {
         let validate = move |module: &MirModule| {
+            crate::mir::named_array_obligation::reject_unretained_module(module)?;
             let _callables = self.callables;
             let mut root_validation = self.root_validation;
             let _ = root_validation.validate(module, false)?;
@@ -168,10 +169,29 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                 RootValidation::OrdinaryNew { key, ledger } => ledger
                     .seal_finalized_root_birth_handoff(key, &birth_keys, self.callables)
                     .map(Some),
-                RootValidation::Script { key, entry, source } => source
-                    .into_array_artifact(entry)
-                    .map(|array| array.map(|array| crate::mir::finalized_root_handoff::FinalizedRootHandoffV1::ScriptArray { root_key: key, array, callables: self.callables })),
-                RootValidation::Absent => Ok(None),
+                RootValidation::Script { key, entry, source } => {
+                    use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
+                    Ok(match source.into_array_artifact(entry)? {
+                        Some(array) => Some(FinalizedRootHandoffV1::ScriptArray {
+                            named_arrays: Box::new([]),
+                            root_key: key,
+                            array,
+                            callables: self.callables,
+                        }),
+                        None => self
+                            .callables
+                            .map(|callables| FinalizedRootHandoffV1::Module {
+                                callables: Some(callables),
+                                named_arrays: Box::new([]),
+                            }),
+                    })
+                }
+                RootValidation::Absent => Ok(self.callables.map(|callables| {
+                    crate::mir::finalized_root_handoff::FinalizedRootHandoffV1::Module {
+                        callables: Some(callables),
+                        named_arrays: Box::new([]),
+                    }
+                })),
             }
         };
         (self.session, self.module, validate)

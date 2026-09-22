@@ -20,7 +20,10 @@ use super::{finish_schedule_for_normal_module, MirCompileResult, MirCompiler};
 
 mod lifecycle_admission;
 pub(in crate::mir) mod published_backend_view;
-pub(crate) use published_backend_view::{emit_lifecycle_physical_abi_json, PublishedLifecyclePhysicalAbiInputV1, PublishedLifecycleRuntimeRequirementsV1};
+pub(crate) use published_backend_view::{
+    emit_lifecycle_physical_abi_json, PublishedLifecyclePhysicalAbiInputV1,
+    PublishedLifecycleRuntimeRequirementsV1,
+};
 
 /// Only the unselected compatibility branch may return an owned module.
 /// A selected artifact callback returns its output, never admitted mutable MIR.
@@ -617,6 +620,9 @@ impl MirCompiler {
                             })?;
                     }
                     PublishedStaticMethodRouteV1::ExplicitCompatibility => {
+                        crate::mir::named_array_obligation::reject_unretained_module(
+                            &result.module,
+                        )?;
                         let prepared = session
                             .prepare_external_commit()
                             .map_err(|error| error.to_string())?;

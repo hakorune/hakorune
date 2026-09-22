@@ -20,7 +20,7 @@ use super::normal_callable_dynamic_origin::{
 };
 use super::normal_callable_dynamic_source::SourceBackedDynamicCallableIssuerV1;
 use crate::mir::normal_callable_semantic_package::LoopBreakSourcePackageLoanV1;
-use crate::mir::source_call_target::VerifiedSourceBoundCoreMethodCallV1;
+use crate::mir::normal_callable_semantic_package::SelectedSourceCoreMethodCallV1;
 
 #[path = "normal_callable_construction_state.rs"]
 pub(super) mod construction;
@@ -75,10 +75,8 @@ pub(super) struct CallableSemanticLoweringState {
     consumed_source_core_method_calls: BTreeSet<crate::mir::resolved_semantics::SourceExprSiteV1>,
     source_loop_bridge: Option<source_loop_bridge::CallableLoopSourceBridgeV1>,
     loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
-    source_core_method_calls: BTreeMap<
-        crate::mir::resolved_semantics::SourceExprSiteV1,
-        VerifiedSourceBoundCoreMethodCallV1,
-    >,
+    source_core_method_calls:
+        BTreeMap<crate::mir::resolved_semantics::SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
     source_static_result_publications: BTreeMap<
         crate::mir::resolved_semantics::SourceExprSiteV1,
         VerifiedStaticCallResultPublicationHandoffV1,
@@ -135,7 +133,7 @@ impl CallableSemanticLoweringState {
         >,
         source_core_method_calls: BTreeMap<
             crate::mir::resolved_semantics::SourceExprSiteV1,
-            VerifiedSourceBoundCoreMethodCallV1,
+            SelectedSourceCoreMethodCallV1,
         >,
     ) -> Result<Self, String> {
         Self::from_exact_source_with_dynamic_source_and_core_methods_and_loop_break_source(
@@ -153,7 +151,7 @@ impl CallableSemanticLoweringState {
         >,
         source_core_method_calls: BTreeMap<
             crate::mir::resolved_semantics::SourceExprSiteV1,
-            VerifiedSourceBoundCoreMethodCallV1,
+            SelectedSourceCoreMethodCallV1,
         >,
         loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
     ) -> Result<Self, String> {

@@ -22,7 +22,7 @@ fn script_array_reaches_published_callback_and_rejects_callable_admission() {
                             assert_eq!(array.acquisition_count(), 2);
                             let handoff = view.retained_handoff.expect("one borrowed handoff");
                             assert!(std::ptr::eq(array, handoff.script_array().unwrap()));
-                                assert!(view.retained_root_source().is_none());
+                            assert!(view.retained_root_source().is_none());
                             assert!(view.retained_root_result().is_none());
                             assert!(view.retained_birth_abi().is_none());
                             assert!(view.lifecycle_storage_profile().is_none());
@@ -60,12 +60,14 @@ fn script_artifact_view_rejects_missing_key_and_entry_drift() {
                         let mut module = view.module().clone();
                         match mutation {
                             0 => {
-                                module.functions.remove(handoff.root_key());
+                                module
+                                    .functions
+                                    .remove(handoff.root_key().expect("Script root"));
                             }
                             1 => {
                                 module
                                     .functions
-                                    .get_mut(handoff.root_key())
+                                    .get_mut(handoff.root_key().expect("Script root"))
                                     .unwrap()
                                     .signature
                                     .name = "foreign".into();
@@ -73,7 +75,7 @@ fn script_artifact_view_rejects_missing_key_and_entry_drift() {
                             2 => {
                                 module
                                     .functions
-                                    .get_mut(handoff.root_key())
+                                    .get_mut(handoff.root_key().expect("Script root"))
                                     .unwrap()
                                     .entry_block = crate::mir::BasicBlockId::new(u32::MAX);
                             }
