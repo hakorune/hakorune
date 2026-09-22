@@ -1,10 +1,10 @@
 ---
-Status: design_stop__owner_audit__2026-09-22__ClangNestedFunctionBoundary
+Status: closed__NoSafeSlice__2026-09-22__NoPhysicalLoweringContextOwner
 Task: MIR-PLATFORM-MACOS-CAPI-CLANG-D0
 Date: 2026-09-22
 Priority: owner audit only — macOS CAPI compilation stopped before lifetime execution
 Parent: mir-platform-macos-capability-d0-2026-09-15.md
-NextCard: per-owner bounded source row after compiler-boundary decision
+NextCard: none__frontier_pause__no_physical_lowering_context_owner
 Implementation permission: false; no compiler substitution, fallback, or C rewrite is authorized by this card
 ---
 
@@ -85,16 +85,42 @@ script emits `.dylib` on Darwin. That downstream path is unmeasured because
 clang fails first; it is recorded as a later bounded row, not folded into
 this compiler-boundary decision.
 
+## Independent owner audit — 2026-09-22
+
+The read-only owner audit found no existing bounded file-scope seam. The
+single `compile_doc_compat_pure` owner reaches 38 direct include roots and a
+recursive closure of 110 `.inc` files with 795 `auto` helper declarations
+(777 distinct names). The helpers are state-coupled rather than isolated
+Darwin spellings: the generic lowering state declares a local
+`lowering_state` and macro aliases, the compiler-state family consumes those
+aliases, and the prescan `EMIT` macro captures a local `FILE *f`.
+
+The captured set also includes invocation and function handles, blocks and
+counts, route and definition metadata, LLVM/object/error paths, and mutable
+cursors. `HakoLlvmcInvocation` owns documents, options, and ledgers but does
+not own that complete lowering stack or its output streams. Moving one helper
+family would therefore leave the remaining nested definitions invalid; making
+the owner file-scope requires a new physical lowering-context owner and an
+explicit state/issuer contract.
+
+Decision: `NoSafeSlice` for this card. Keep the existing single C owner and
+the named `BackendCapabilityMissing` boundary. Do not substitute compilers,
+add Darwin-only flags, skip CAPI, add a fallback, or create a parallel
+semantic/shim owner. A later row may reopen only after an accepted physical
+lowering-context owner is designed and mapped across the finite helper
+families.
+
 ## Task order
 
 1. Build a finite inventory of nested helper definitions reachable from the
    pure compile function body and group each by captured state and caller.
 2. Check the existing C owner/module README for a file-scope helper seam that
    preserves one compiled owner and the current state authority.
-3. If no bounded seam exists, record `NoSafeSlice` with the exact missing
-   owner; do not install GCC, add a Darwin-only flag, or hide the CAPI test.
-4. If a bounded seam exists, write its source-to-owner mapping and negative
-   compiler proof before opening an implementation row.
+3. **Closed as `NoSafeSlice`:** no existing physical owner contains the
+   complete captured lowering context. Do not install GCC, add a Darwin-only
+   flag, or hide the CAPI test.
+4. Reopen only after a physical lowering-context owner and its source-to-owner
+   mapping are accepted, with a negative compiler proof before implementation.
 5. Only after a clang-compatible owner is selected, open the separate Darwin
    dylib-name/loading row and rerun the focused CAPI lifetime test.
 
@@ -102,6 +128,8 @@ this compiler-boundary decision.
 
 - The owner audit names the full included nested-function inventory and one
   canonical C owner or an explicit `NoSafeSlice`.
+- The missing owner is explicit: a file-scope physical lowering-context owner
+  for the complete captured state and its issuer contract.
 - No new compiler, fallback, or semantic receipt is introduced here.
 - The macOS CAPI lifetime remains unproven until a later native run reaches
   the test body.
