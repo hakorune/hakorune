@@ -1,10 +1,10 @@
 ---
-Status: fast__2026-09-22__T4bFormalOrdinalGuardClosed
+Status: design_stop__2026-09-22__T4cSourceResultAuthorityRecheck
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: true; T4b/T4c formal-ordinal handoff guard and publication only
-NextCard: none__task4c_publication_acceptance
+Implementation permission: false; read-only source-result authority audit only
+NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3__t4a_source_result_authority_recheck
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -80,6 +80,47 @@ The next bounded order is:
 The warning cohort may resume only after this I3/R0 sequence closes, or when
 an owner-specific warning becomes a newly selected blocker. This ordering is
 the task queue; it does not claim publication, cutover, or retirement yet.
+
+## Queue correction after the real merged-parser probe — 2026-09-22
+
+The real merged-parser probe supersedes the earlier `[1]` premise for this
+selected row.  The probe built the merged `parser_program_box.hako` source,
+issued the existing target inventory and result catalog, and selected
+`ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` at
+`[Body(22), LoopBody(5), IfThen(0), IfCondition, Lhs]`.  The observed values
+were:
+
+- target: `ParserStringUtilsBox.starts_with/3`;
+- result disposition: `ExactI64 { required_i64_arguments: [] }`;
+- call-row result: absent (`None`);
+- publication handoff: present only with `required_callee_i64_arguments == []`.
+
+Therefore the repository currently does **not** expose a sealed formal
+`[1]` for this row.  The prior claim that the same call row retained formal
+`[1]` and call-site `[]` came from a different proof/fixture and cannot be
+used for this merged parser acceptance.  The T4b field rename remains a
+mechanical clarification, but it does not prove the selected parser contract.
+
+The active mode is consequently `design_stop`.  No publication take, source
+route ordinal widening, caller switch, VM repair, fallback, or old-edge
+deletion is permitted until the existing source-result owner answers one
+bounded question: whether `starts_with/3`'s formal `i` is intentionally
+unobservable under the current result-proof rule, or whether an existing
+source-proof owner can issue that formal requirement without inventing a new
+authority.  The next queue is:
+
+1. **T4a authority recheck:** census the exact `starts_with/3` proof and its
+   call-site substitution, including the condition-only-unknown rule; record
+   the accepted formal contract or a named typed rejection.
+2. **T4b guard decision:** only after T4a, add or revise the focused guard in
+   the existing result/publication owner.  If no existing owner can issue the
+   formal requirement, keep this family at `NoSafeSlice`.
+3. **T4c publication acceptance:** take the real composite handoff and drain
+   its residual owner only after T4a/T4b are green.
+4. **T5 caller switch**, then **R0 caller-zero and old-edge retirement**.
+
+Warning cleanup remains paused at I147 (`unused_imports=17`); `dead_code` is
+owner debt and is not a reason to keep this authority decision unresolved.
 
 ## Recheck correction — 2026-09-22
 
@@ -231,7 +272,7 @@ The warning cohort stays paused at I147 (`unused_imports=17`; `dead_code` is
 owner debt). It resumes after T4/R0 or only if an owner-specific warning becomes
 a newly selected blocker.
 
-## T4a authority decision — 2026-09-22
+## Historical T4a authority decision — superseded by the real merged-parser probe
 
 T4a is accepted. The existing call-row evidence remains the sole authority for
 both ordinal meanings: `callee_required_i64_arguments` is the formal parameter
@@ -251,7 +292,7 @@ owner guard for formal `[1]` alongside call-site `[]`. T4c then accepts the
 one-shot publication and residual check. No VM repair, fallback, AST rescan,
 caller switch, or old-edge deletion is part of T4b/T4c.
 
-## T4b completion receipt — 2026-09-22
+## T4b mechanical field-meaning receipt — semantic acceptance superseded
 
 The existing publication handoff now names and carries
 `required_callee_i64_arguments`. Its general-row constructor copies the formal
@@ -261,7 +302,7 @@ LoopBreak source relation and all three LoopCond/LoopTrue/Composite guards now
 use the explicit formal accessor. No second result authority or new receipt was
 introduced.
 
-Focused evidence is green:
+Focused unit evidence is green:
 
 - `general_owner_handoff_preserves_callee_formal_for_literal_call_site`: 1/1;
   formal `[1]` and call-site `[]` are asserted together.
@@ -270,7 +311,16 @@ Focused evidence is green:
 - `cargo fmt --all -- --check` and `git diff --check` pass; the quick profile
   retains the existing 545-warning baseline.
 
-T4c remains open: the selected handoff still needs to be taken by the real
-composite LoopBreak consumer and drained with its residual guard. The merged
-parser lifecycle remains bounded by the earlier typed TargetOnly terminal, so
-this receipt makes no caller-switch or production-acceptance claim.
+This proves only the mechanical field rename and synthetic/literal owner
+fixtures. It does not prove that the real merged parser row has formal `[1]`.
+The real probe recorded `ExactI64` with `required_i64_arguments == []`, no
+call-row result, and a handoff carrying `[]`; therefore T4c is reopened at
+the source-result authority boundary. The composite consumer must not take
+the row until the corrected T4a/T4b queue at the end of this card is green.
+
+## Current superseding status — 2026-09-22
+
+The card is in `design_stop`.  The bottom-most queue correction is the current
+authority: T4a source-result audit, T4b guard decision, T4c publication, T5
+caller switch, then R0 retirement.  Earlier `[1]` acceptance wording is
+historical and must not be used as a production or cutover claim.
