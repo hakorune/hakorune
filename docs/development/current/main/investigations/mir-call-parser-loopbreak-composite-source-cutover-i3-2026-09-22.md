@@ -1,10 +1,10 @@
 ---
-Status: fast__2026-09-22__T4bExactI64RepresentationGuard
+Status: fast__2026-09-22__T4cPublicationAcceptance
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: true; existing source-route representation guard only
-NextCard: none__task4c_publication_acceptance
+Implementation permission: true; existing one-shot publication owner only
+NextCard: none__task5_caller_switch
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -12,29 +12,30 @@ NextCard: none__task4c_publication_acceptance
 ## Six-line brief
 
 ```text
-Decision: reconcile the selected tuple's required-ordinal authority before
-  publication, then switch only that parser caller to the source-backed
-  composite LoopBreak route.
+Decision: consume the selected composite LoopBreak handoff through the existing
+  one-shot publication owner, then switch only that parser caller to the
+  source-backed route.
 Source authority + canonical issuer: the accepted I1 package and I2 physical
   owner, with the existing semantic package as the caller boundary.
 Non-authority: VM/compatibility lanes, generic fallback, names, AST rescans,
   and acceptance smoke results from an unselected backend.
-Fail-fast boundary: selected caller, source-to-MIR terminal, publication
-  relation, and a stable handoff guard; caller-zero and physical deletion are
-  owned by the successor retirement card.
-Smallest next slice: align the existing handoff with the callee-formal
-  requirement and prove the selected owner row; no caller switch yet.
+Fail-fast boundary: selected caller, source-to-MIR terminal, exact target and
+  site relation, one-shot handoff consumption, residual-free finish; caller-zero
+  and physical deletion are owned by the successor retirement card.
+Smallest next slice: take the real composite handoff, lower it through the
+  existing publication bridge, and prove the residual guard; no caller switch.
 Non-claims: no whole-repository migration, backend promotion, warning cleanup,
   or unrelated legacy retirement.
 ```
 
 I1 and I2 are closed at their package/Recipe and focused physical boundaries.
-Their design stop was accepted for those bounded slices. The current I3
-recheck has reopened a design stop at the result-ordinal authority. A failed
-or deferred source terminal reopens the owning semantic row; it does not
-authorize a fallback or a VM repair. The predecessor existing-owner pre-front
-structured-source I0 is now closed at rows 1–4 and has handed this card the
-named publication frontier. Once task 4 and task 5 close, the successor
+Their design stop was accepted for those bounded slices. The earlier I3
+result-ordinal concern is resolved by the real merged-parser probe and the
+T4b representation guard; it is retained below as historical evidence only.
+A failed or deferred source terminal reopens the owning semantic row; it does
+not authorize a fallback or a VM repair. The predecessor existing-owner
+pre-front structured-source I0 is closed at rows 1–4 and has handed this card
+the named publication frontier. Once T4c and task 5 close, the successor
 retirement card owns caller-zero and the exclusive delete set.
 
 ## Accepted design decision — 2026-09-22
@@ -57,14 +58,14 @@ LoopBreak routes. The acceptance invocation is only
 `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3`; caller switch
 and old-edge deletion remain task 5 and R0 respectively.
 
-## Queue reconciliation — 2026-09-22
+## Queue reconciliation — 2026-09-22 (historical, superseded by T4b closeout)
 
 The warning cohort is deliberately paused at I147. `unused_imports=17` is the
 remaining mechanical tail; `dead_code` remains owner debt and is not a reason
 to keep the semantic lane waiting. No warning cleanup row is selected while
 this parser publication boundary is open.
 
-The next bounded order is:
+The earlier bounded order was:
 
 1. **I3 task 4 — authority reconciliation, then publication acceptance:**
    resolve the selected `ParserProgramBox.parse/2 ->
@@ -354,3 +355,20 @@ This closes only T4b's representation guard.  The actual composite LoopBreak
 consumer still must take the selected handoff and drain the residual owner in
 T4c.  Caller switch (T5), caller-zero proof, and old-edge deletion (R0) remain
 queued; warning cleanup stays paused at I147.
+
+## Current task queue after T4b — 2026-09-22
+
+1. **T4c — publication acceptance (selected now):** exercise the real
+   composite LoopBreak consumer for `ParserProgramBox.parse/2 ->
+   ParserStringUtilsBox.starts_with/3`; consume the existing one-shot handoff,
+   lower through the selected publication bridge, and require a residual-free
+   finish. Keep the direct singleton and GenericLoop routes unchanged.
+2. **T5 — caller switch:** only after T4c is green, switch that one parser
+   caller to the source-backed composite route and retain the named terminal
+   guards. VM/compatibility lanes and unrelated callers remain out of scope.
+3. **R0 task 6 — retirement:** after T5, prove caller-zero, remove the
+   exclusive old edge and temporary assets, and keep a re-entry guard.
+4. **Warning cohort:** remain paused at I147 (`unused_imports=17`). The
+   remaining `dead_code` warnings stay with their owners and resume only after
+   this semantic sequence closes or an owner-specific warning becomes the
+   selected blocker.
