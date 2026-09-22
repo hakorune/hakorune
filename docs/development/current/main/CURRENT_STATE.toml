@@ -39,7 +39,7 @@ body increment also reads init0 instead of the existing loop carrier.
 Design queue fixes source BindingRef/slot co-seal and branch/loop publication.
 Origin transfer design closed: identity/kill over existing Recipe continuations.
 Declaration scope retained: 37 focused tests pass, quick 4m32s, warnings 542.
-Task 2 carrier co-seal: 33 focused pass, quick4m08s, warnings542. Task 3 transport: 94 focused pass, quick5m00s, warnings542. Next: keyed carriers/scoped publication.
+Task 2 carrier co-seal: 33 focused pass, quick4m08s, warnings542. Keyed physical core:112 focused pass, quick5m26s, warnings542. Next: exact entries/scoped publication.
 Merged parser now reaches no-exact-static-target; exact later site remains to
 identify before updating its old-terminal test. Last verified checkpoint 319a2d7102.
 Text lifetime/mutation Fault remains an explicit next execution-contract task:

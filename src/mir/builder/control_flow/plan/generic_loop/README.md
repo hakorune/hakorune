@@ -319,3 +319,17 @@ Loop final-value transport:
   reject Source completion; scoped ledger publication is still the next task.
 - `source_final_values` tests cover real plan remap, slot coverage and rejection
   before Builder effects. The existing raw plan corpus remains parity evidence.
+
+
+Key-preserving physical carrier core:
+- The existing skeleton allocator delegates to allocation from a consumed
+  representation decision. That allocation does not resolve the entry by name.
+- Existing carrier allocation and PHI closure accept keys independently of
+  labels. Raw adapters retain name lookup and their historical fallback; the
+  shared backedge closure requires each extra carrier's input explicitly.
+- Continue PhiArgs reuse the existing exit owner with the same key as the
+  carrier maps. No edge/PHI solver or source authority is added.
+- `keyed_carrier` tests distinguish equal labels, verify exact entry despite a
+  conflicting name cache, reject missing incoming, and retain preheader-only
+  inputs without a backedge. These are physical-owner witnesses; source ledger
+  entry/header/body/exit wiring and full slot validation remain required.

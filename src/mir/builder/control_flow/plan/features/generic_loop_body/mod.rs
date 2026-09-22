@@ -9,6 +9,8 @@ mod direct_associated_tests;
 mod direct_port;
 mod helpers;
 #[cfg(test)]
+mod keyed_carrier_tests;
+#[cfg(test)]
 mod nested_depth_observer_tests;
 mod nested_loop_depth1_handoff;
 mod nested_loop_recipe_adoption;

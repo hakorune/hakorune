@@ -205,10 +205,10 @@ pub(in crate::mir::builder) fn build_continue_exit_plan(depth: usize) -> CoreExi
 }
 
 #[track_caller]
-pub(in crate::mir::builder) fn build_continue_with_phi_args(
+pub(in crate::mir::builder) fn build_continue_with_phi_args<K: Ord + std::fmt::Display>(
     builder: &MirBuilder,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    current_bindings: &BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<K, crate::mir::ValueId>,
+    current_bindings: &BTreeMap<K, crate::mir::ValueId>,
     error_prefix: &str,
 ) -> Result<CoreExitPlan, String> {
     let mut phi_args = Vec::new();

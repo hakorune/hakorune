@@ -1,10 +1,10 @@
 ---
-Status: fast__B2_keyed_carrier_publication
+Status: fast__B2_source_ledger_publication
 Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 (same card; source relation before D)
-Implementation permission: task 3 keyed carrier allocation per accepted mapping; source activation awaits scoped publication verification; preserve D WIP
+Implementation permission: task 3 exact source entry/state connection per accepted mapping; source activation awaits scoped verification; preserve D WIP
 ---
 
 # Parser String result authority: corrected decision and task queue
@@ -13,7 +13,7 @@ Implementation permission: task 3 keyed carrier allocation per accepted mapping;
 
 - **Current decision:** B2 Array retention/discharge is implemented; D exposed a source GenericLoop carrier synchronization gap. The scoped carrier/origin design and ordered tasks below replace the induction-only proposal.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** final-value transport is verified (94 focused tests); connect exact carrier allocation and scoped ledger publication. D failures, branch integration and Text lifetime/Fault remain open.
+- **Next ordered task:** keyed physical carrier core is verified (112 focused tests); connect exact source entries and scoped ledger publication. D failures, branch integration and Text lifetime/Fault remain open.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -970,21 +970,29 @@ No Cargo or runtime probe was run for this design; worker review and static
 readback are design evidence only. Preserved D WIP is not included in this change.
 
 
-Task 3 transport receipt: CoreLoopPlan now carries exclusive Raw/Source final
-values through its actual remapper/verifier/lowerer. Source construction consumes
-the co-sealed Recipe view and rejects missing/duplicate slots. Raw consumers
-reject Source; default completion rejects before physical work. The publication
-hook is after the final typed-definition verification, but no context activates
-source ledger publication yet. Existing raw results and source admission remain.
-The accepted-plan corpus was separated without test removal (689 + 116 lines);
-all changed transport Rust files are <=690 lines. No production source cutover.
-Quick build **5m00s**, **542 warnings**. **94 distinct focused tests pass**:
-source22, child12, freshener4, corpus6, exact accumulated parity19, verifier25,
-lowerer6. The initial new4 are included in these cohorts, not counted twice.
-Logs: `/tmp/b2-final-values-final.log`, `/tmp/b2-final-values-cohort-{0..3}.log`,
-`/tmp/b2-final-values-parity-{0..18}.log`, `/tmp/b2-final-values-tail-{0,1}.log`.
-Initial mechanical compile errors were fixed; the zero-test parity filter was
-replaced with actual full paths and `--exact`. The interrupted intermediate
-build has no evidence credit. Formatting, ingress/pointer guards and diff check
-pass. Preserved D WIP remains excluded. Next: exact slot-keyed carrier entry,
-backedge and finalization in existing owners, then the scoped ledger connection.
+Task 3 transport landed at `09a70b4864`: exclusive Raw/Source rows survive
+actual plan remap/verification; default completion rejects before physical work.
+The publication hook follows final Lower verification but is not activated.
+94 distinct focused tests passed, quick5m00s, warnings542. Detailed cohort/log
+receipt and unchanged corpus split are retained in that commit. D WIP excluded.
+
+Task 3 carrier implementation verified: existing allocation/PHI closure
+now accepts a key distinct from its label; the skeleton allocation accepts the
+existing consumed representation. Continue PhiArgs uses that same key.
+Raw-only lookup/fallback stays in its facade; shared missing-backedge rejects.
+The two raw target producers (`helpers::collect_loop_carrier_targets` and located
+`direct_preflight`) use BTreeSet, preserving unique-key raw behavior.
+Physical witnesses cover equal labels/distinct keys, explicit entry despite
+conflicting cache, missing incoming, and preheader-only closure. They do not
+prove natural source admission, ledger synchronization, or D recovery.
+Source entry validation and scoped header/body/exit publication remain next;
+no source loop is activated or downgraded by this physical-owner refactor.
+
+Keyed physical core receipt: **112 distinct tests pass** (new3 + source22 +
+child12 + freshener4 + corpus6 + accumulated parity19 + verifier25 + lowerer6 +
+located15), quick **5m26s**, **542 warnings**. Logs:
+`/tmp/b2-keyed-carrier-final.log`, `/tmp/b2-keyed-carrier-cohort-{0..7}.log`.
+Unused prospective exports were removed, without suppression; the interrupted
+first build has no evidence credit. Formatting, ingress/pointer and diff checks
+pass. Existing raw callers now delegate to the shared keyed allocation/closure;
+source entry lookup, full slot validation and ledger publication remain unconnected.

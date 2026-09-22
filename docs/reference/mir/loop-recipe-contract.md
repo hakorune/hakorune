@@ -39,6 +39,13 @@ The source constructor consumes the existing semantic Recipe view and requires
 exact slot coverage. Raw-only consumers reject Source instead of using labels.
 This transport does not claim carrier/branch synchronization or production cutover.
 
+The physical GenericLoop skeleton/carrier/exit owners now accept explicit
+representation and keyed inputs independently of diagnostic labels. Current
+raw adapters preserve their existing behavior; missing incoming on the keyed
+closure rejects rather than defaulting to a header value. This preparation
+still requires source slot/entry validation and scoped ledger wiring before a
+source publication claim. It does not extend loop admission or origin transfer.
+
 ## Callable source Local completion handoff — `MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0`
 
 Decision: implemented for the selected callable GenericLoop source edge. The

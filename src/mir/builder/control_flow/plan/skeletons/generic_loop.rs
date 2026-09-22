@@ -42,6 +42,17 @@ pub(in crate::mir::builder) fn alloc_generic_loop_v0_skeleton(
     let carrier_representation =
         prepare_generic_loop_carrier_representation_v1(carrier_role, loop_var_init, transient_type)
             .map_err(|error| format!("GenericLoop carrier representation failed: {error:?}"))?;
+    alloc_generic_loop_skeleton_from_representation(builder, loop_var, carrier_representation)
+}
+
+/// Allocate using the existing representation decision, without a name lookup.
+/// The label is diagnostic/cache transport only. Source composition must install
+/// its complete Source final-value product before verification/publication.
+pub(in crate::mir::builder) fn alloc_generic_loop_skeleton_from_representation(
+    builder: &mut MirBuilder,
+    loop_var: &str,
+    carrier_representation: PreparedGenericLoopCarrierRepresentationV1,
+) -> Result<GenericLoopSkeleton, String> {
     let loop_var_init = carrier_representation.init();
     let exact_type = carrier_representation.exact_type().clone();
     let blocks = LoopBlocksStandard5::allocate(builder)?;

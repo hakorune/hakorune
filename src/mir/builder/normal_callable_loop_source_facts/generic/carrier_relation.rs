@@ -16,6 +16,12 @@ use crate::mir::resolved_semantics::{
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(in crate::mir::builder) struct CallableLoopCarrierSlotV1(usize);
 
+impl std::fmt::Display for CallableLoopCarrierSlotV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(formatter, "slot:{}", self.0)
+    }
+}
+
 #[derive(Debug)]
 pub(in crate::mir::builder) struct CallableLoopCarrierBindingV1 {
     slot: CallableLoopCarrierSlotV1,
