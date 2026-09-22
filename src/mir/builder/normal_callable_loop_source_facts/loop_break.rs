@@ -298,7 +298,7 @@ impl<'source, 'ledger> SourceLoopBreakPhysicalInputV1<'source, 'ledger> {
             .iter()
             .filter(|item| item.call_site() == self.source_target.call_site())
             .count();
-        if target_matches != 1 || !self.source_target.has_exact_i64_requirement(&[1]) {
+        if target_matches != 1 || !self.source_target.has_exact_callee_i64_requirement(&[1]) {
             return Err(
                 "[freeze:contract][callable-loop/loop-break/source-target-relation-mismatch]"
                     .to_owned(),

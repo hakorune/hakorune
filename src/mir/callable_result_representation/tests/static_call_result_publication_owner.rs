@@ -3,7 +3,8 @@ use crate::mir::resolved_semantics::SourcePathSegmentV1;
 use super::super::{
     CallableResultUnavailableReasonV1, StaticCallResultPublicationOwnerFinishErrorV1,
     StaticCallResultPublicationOwnerTakeErrorV1, StaticCallResultPublicationTakeV1,
-    VerifiedCallableResultRepresentationV1, VerifiedStaticCallResultPublicationOwnerV1,
+    VerifiedCallableResultEvidenceV1, VerifiedCallableResultRepresentationV1,
+    VerifiedStaticCallResultPublicationOwnerV1,
 };
 use super::support::{
     declarations, extend_current_owner_targets, key, qualified_targets, seal_with_targets, site,
@@ -85,6 +86,64 @@ fn issuer_keeps_exact_source_row_and_consumes_it_once() {
 }
 
 #[test]
+fn general_owner_handoff_preserves_callee_formal_for_literal_call_site() {
+    let source = r#"
+        static box ProviderV1 {
+            second(left, right) { return right }
+        }
+        static box ConsumerV1 {
+            fixed() { return ProviderV1.second("ignored", 41) }
+        }
+    "#;
+    let declarations = declarations(source);
+    let targets = qualified_targets(
+        &declarations,
+        &[],
+        &[CallSiteSpecV1 {
+            caller_owner: "ConsumerV1",
+            caller_name: "fixed",
+            caller_arity: 0,
+            site: return_call_site(),
+        }],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let caller = key(&declarations, "ConsumerV1", "fixed", 0);
+    let row = results
+        .call_result(&caller, &return_call_site())
+        .expect("literal static call must retain its source row");
+    assert_eq!(row.required_i64_arguments(), &[] as &[u32]);
+    match row.evidence() {
+        VerifiedCallableResultEvidenceV1::SameModuleStatic {
+            callee_required_i64_arguments,
+            ..
+        } => assert_eq!(callee_required_i64_arguments.as_ref(), &[1]),
+        VerifiedCallableResultEvidenceV1::CoreStringMethod { .. } => {
+            panic!("expected same-module static evidence")
+        }
+    }
+
+    let mut owner =
+        VerifiedStaticCallResultPublicationOwnerV1::issue(&declarations, &targets, &results)
+            .expect("publication owner must issue the general row");
+    let handoff = owner
+        .selected_handoff_for_source(&caller, &return_call_site())
+        .expect("selected row must expose a handoff");
+    assert_eq!(handoff.caller(), &caller);
+    assert_eq!(
+        handoff.target(),
+        &key(&declarations, "ProviderV1", "second", 2)
+    );
+    assert_eq!(handoff.required_callee_i64_arguments(), &[1]);
+    assert!(matches!(
+        owner
+            .take_for_source(&declarations, &caller, &return_call_site())
+            .expect("selected row must be consumable"),
+        StaticCallResultPublicationTakeV1::Selected(_)
+    ));
+    assert!(owner.finish_empty().is_ok());
+}
+
+#[test]
 fn selected_handoff_peek_reads_requirement_without_consuming() {
     let declarations = declarations(SOURCE);
     let targets = qualified_targets(&declarations, &[], &[]);
@@ -115,7 +174,7 @@ fn selected_handoff_peek_reads_requirement_without_consuming() {
         handoff.representation(),
         &VerifiedCallableResultRepresentationV1::ExactI64
     );
-    assert_eq!(handoff.required_i64_arguments(), &[0]);
+    assert_eq!(handoff.required_callee_i64_arguments(), &[0]);
 
     assert!(matches!(
         owner
@@ -266,7 +325,7 @@ fn issuer_projects_actual_string_helpers_general_row_into_the_same_owner() {
     };
     assert_eq!(handoff.caller(), &caller);
     assert_eq!(handoff.target(), &target);
-    assert!(handoff.required_i64_arguments().is_empty());
+    assert!(handoff.required_callee_i64_arguments().is_empty());
 }
 
 #[test]
@@ -302,14 +361,14 @@ fn exact_nominal_box_row_reaches_the_owned_publication_handoff() {
     else {
         panic!("exact Box row must not become unselected")
     };
-    let (demand, required_i64_arguments) = handoff.consume();
+    let (demand, required_callee_i64_arguments) = handoff.consume();
     assert_eq!(
         demand.representation(),
         &VerifiedCallableResultRepresentationV1::ExactNominalBox {
             box_name: "ProductV1".to_owned(),
         }
     );
-    assert!(required_i64_arguments.is_empty());
+    assert!(required_callee_i64_arguments.is_empty());
 }
 
 #[test]

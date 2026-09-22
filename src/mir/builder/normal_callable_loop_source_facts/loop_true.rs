@@ -191,7 +191,7 @@ impl SourceLoopTruePhysicalInputV1<'_, '_> {
                 "[freeze:contract][callable-loop/loop-true/source-target-site-coverage]".to_owned(),
             );
         }
-        if !self.source_target.has_exact_i64_requirement(&[1]) {
+        if !self.source_target.has_exact_callee_i64_requirement(&[1]) {
             return Err(
                 "[freeze:contract][callable-loop/loop-true/result-requirement-mismatch]".to_owned(),
             );
@@ -431,7 +431,7 @@ pub(super) fn issue<'source>(
             ),
         );
     }
-    if !source_target.has_exact_i64_requirement(&[1]) {
+    if !source_target.has_exact_callee_i64_requirement(&[1]) {
         return Err(
             CallableGenericLoopSourceFactsRouteErrorV1::LoopTrueRouteRejected(
                 CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch,

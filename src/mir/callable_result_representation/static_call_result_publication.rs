@@ -65,7 +65,7 @@ impl VerifiedStaticCallResultPublicationDemandV1 {
 pub(crate) struct VerifiedStaticCallResultPublicationHandoffV1 {
     catalog_identity: usize,
     demand: VerifiedStaticCallResultPublicationDemandV1,
-    required_i64_arguments: Box<[u32]>,
+    required_callee_i64_arguments: Box<[u32]>,
 }
 
 impl VerifiedStaticCallResultPublicationHandoffV1 {
@@ -73,7 +73,7 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
         requirement: VerifiedStaticExactI64RequirementV1<'_, '_>,
     ) -> Self {
         let catalog_identity = requirement.catalog_identity();
-        let required_i64_arguments = requirement
+        let required_callee_i64_arguments = requirement
             .required_i64_arguments()
             .to_vec()
             .into_boxed_slice();
@@ -82,7 +82,7 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
         Self {
             catalog_identity,
             demand,
-            required_i64_arguments,
+            required_callee_i64_arguments,
         }
     }
 
@@ -93,6 +93,7 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
         result: &VerifiedCallableResultCallSiteV1<'_>,
     ) -> Option<Self> {
         let target = result.static_target_key()?.clone();
+        let (_, required_callee_i64_arguments) = result.same_module_static_evidence()?;
         Some(Self {
             catalog_identity,
             demand: VerifiedStaticCallResultPublicationDemandV1 {
@@ -102,7 +103,9 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
                 representation: result.result_representation(),
                 _seal: VerifiedStaticCallResultPublicationDemandSealV1,
             },
-            required_i64_arguments: result.required_i64_arguments().to_vec().into_boxed_slice(),
+            required_callee_i64_arguments: required_callee_i64_arguments
+                .to_vec()
+                .into_boxed_slice(),
         })
     }
 
@@ -126,12 +129,12 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
         self.demand.representation()
     }
 
-    pub(crate) fn required_i64_arguments(&self) -> &[u32] {
-        &self.required_i64_arguments
+    pub(crate) fn required_callee_i64_arguments(&self) -> &[u32] {
+        &self.required_callee_i64_arguments
     }
 
     pub(crate) fn consume(self) -> (VerifiedStaticCallResultPublicationDemandV1, Box<[u32]>) {
-        (self.demand, self.required_i64_arguments)
+        (self.demand, self.required_callee_i64_arguments)
     }
 }
 
@@ -140,12 +143,14 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
     pub(crate) fn from_test_parts(
         catalog_identity: usize,
         demand: VerifiedStaticCallResultPublicationDemandV1,
-        required_i64_arguments: &[u32],
+        required_callee_i64_arguments: &[u32],
     ) -> Self {
         Self {
             catalog_identity,
             demand,
-            required_i64_arguments: required_i64_arguments.to_vec().into_boxed_slice(),
+            required_callee_i64_arguments: required_callee_i64_arguments
+                .to_vec()
+                .into_boxed_slice(),
         }
     }
 }
@@ -219,7 +224,7 @@ mod tests {
         assert_eq!(handoff.caller(), &caller);
         assert_eq!(handoff.site(), &site);
         assert_eq!(handoff.target(), &target);
-        assert_eq!(handoff.required_i64_arguments(), &[0, 2]);
+        assert_eq!(handoff.required_callee_i64_arguments(), &[0, 2]);
         let (demand, ordinals) = handoff.consume();
         assert_eq!(demand.caller(), &caller);
         assert_eq!(ordinals.as_ref(), &[0, 2]);

@@ -268,7 +268,7 @@ fn source_target_requirement_copies_selected_handoff_evidence() {
         requirement.representation(),
         &VerifiedCallableResultRepresentationV1::ExactI64
     );
-    assert_eq!(requirement.required_i64_arguments(), &[1]);
+    assert_eq!(requirement.required_callee_i64_arguments(), &[1]);
 }
 
 #[test]
@@ -277,17 +277,17 @@ fn source_target_relation_accepts_only_exact_i64_ordinal_one() {
     let target = requirement_target();
     let exact = |ordinals: &[u32]| CallableLoopSourceTargetRequirementV1 {
         representation: VerifiedCallableResultRepresentationV1::ExactI64,
-        required_i64_arguments: ordinals.to_vec().into_boxed_slice(),
+        required_callee_i64_arguments: ordinals.to_vec().into_boxed_slice(),
     };
 
     let selected =
         CallableLoopSourceTargetRelationV1::new(site.clone(), target.clone(), Some(exact(&[1])));
-    assert!(selected.has_exact_i64_requirement(&[1]));
-    assert!(!selected.has_exact_i64_requirement(&[0]));
+    assert!(selected.has_exact_callee_i64_requirement(&[1]));
+    assert!(!selected.has_exact_callee_i64_requirement(&[0]));
 
     let wrong_ordinals =
         CallableLoopSourceTargetRelationV1::new(site.clone(), target.clone(), Some(exact(&[0, 2])));
-    assert!(!wrong_ordinals.has_exact_i64_requirement(&[1]));
+    assert!(!wrong_ordinals.has_exact_callee_i64_requirement(&[1]));
 
     let wrong_representation = CallableLoopSourceTargetRelationV1::new(
         site.clone(),
@@ -296,13 +296,13 @@ fn source_target_relation_accepts_only_exact_i64_ordinal_one() {
             representation: VerifiedCallableResultRepresentationV1::ExactNominalBox {
                 box_name: "Text".into(),
             },
-            required_i64_arguments: vec![1].into_boxed_slice(),
+            required_callee_i64_arguments: vec![1].into_boxed_slice(),
         }),
     );
-    assert!(!wrong_representation.has_exact_i64_requirement(&[1]));
+    assert!(!wrong_representation.has_exact_callee_i64_requirement(&[1]));
 
     let missing_evidence = CallableLoopSourceTargetRelationV1::new(site, target, None);
-    assert!(!missing_evidence.has_exact_i64_requirement(&[1]));
+    assert!(!missing_evidence.has_exact_callee_i64_requirement(&[1]));
 }
 
 /// Everything `issue_with_source_relations` needs from one resolved armed
@@ -478,7 +478,7 @@ fn issue_with_source_relations_co_seals_the_single_selected_relation() {
     .expect("single selected relation must co-seal");
     let relation = token.source_target().expect("co-sealed relation");
     assert_eq!(relation.call_site(), &call_site);
-    assert!(relation.has_exact_i64_requirement(&[1]));
+    assert!(relation.has_exact_callee_i64_requirement(&[1]));
 }
 
 #[test]
@@ -723,7 +723,7 @@ fn issue_with_source_relations_accepts_core_method_only_family() {
     let relation = token.source_target().expect("core method relation");
     assert!(relation.target().is_none());
     assert_eq!(relation.core_method_items().len(), 2);
-    assert!(!relation.has_exact_i64_requirement(&[1]));
+    assert!(!relation.has_exact_callee_i64_requirement(&[1]));
 }
 
 #[test]

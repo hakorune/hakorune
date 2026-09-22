@@ -1,10 +1,10 @@
 ---
-Status: fast__2026-09-22__PublicationFormalOrdinalAuthoritySelected
+Status: fast__2026-09-22__T4bFormalOrdinalGuardClosed
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
 Implementation permission: true; T4b/T4c formal-ordinal handoff guard and publication only
-NextCard: none__task4b_formal_ordinal_handoff_guard
+NextCard: none__task4c_publication_acceptance
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -250,3 +250,27 @@ handoff/route accessors to make that meaning explicit and must add one focused
 owner guard for formal `[1]` alongside call-site `[]`. T4c then accepts the
 one-shot publication and residual check. No VM repair, fallback, AST rescan,
 caller switch, or old-edge deletion is part of T4b/T4c.
+
+## T4b completion receipt — 2026-09-22
+
+The existing publication handoff now names and carries
+`required_callee_i64_arguments`. Its general-row constructor copies the formal
+slice from `same_module_static_evidence`; the call-row
+`required_i64_arguments` remains the substituted call-site dependency. The
+LoopBreak source relation and all three LoopCond/LoopTrue/Composite guards now
+use the explicit formal accessor. No second result authority or new receipt was
+introduced.
+
+Focused evidence is green:
+
+- `general_owner_handoff_preserves_callee_formal_for_literal_call_site`: 1/1;
+  formal `[1]` and call-site `[]` are asserted together.
+- `static_call_result_publication_owner`: 10/10.
+- `normal_callable_loop_source_route`: 19/19.
+- `cargo fmt --all -- --check` and `git diff --check` pass; the quick profile
+  retains the existing 545-warning baseline.
+
+T4c remains open: the selected handoff still needs to be taken by the real
+composite LoopBreak consumer and drained with its residual guard. The merged
+parser lifecycle remains bounded by the earlier typed TargetOnly terminal, so
+this receipt makes no caller-switch or production-acceptance claim.

@@ -144,7 +144,7 @@ impl CallableLoopSourceItemBindingV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) struct CallableLoopSourceTargetRequirementV1 {
     representation: VerifiedCallableResultRepresentationV1,
-    required_i64_arguments: Box<[u32]>,
+    required_callee_i64_arguments: Box<[u32]>,
 }
 
 impl CallableLoopSourceTargetRequirementV1 {
@@ -153,7 +153,10 @@ impl CallableLoopSourceTargetRequirementV1 {
     ) -> Self {
         Self {
             representation: handoff.representation().clone(),
-            required_i64_arguments: handoff.required_i64_arguments().to_vec().into_boxed_slice(),
+            required_callee_i64_arguments: handoff
+                .required_callee_i64_arguments()
+                .to_vec()
+                .into_boxed_slice(),
         }
     }
 
@@ -163,8 +166,8 @@ impl CallableLoopSourceTargetRequirementV1 {
         &self.representation
     }
 
-    pub(in crate::mir::builder) fn required_i64_arguments(&self) -> &[u32] {
-        &self.required_i64_arguments
+    pub(in crate::mir::builder) fn required_callee_i64_arguments(&self) -> &[u32] {
+        &self.required_callee_i64_arguments
     }
 }
 
@@ -222,10 +225,13 @@ impl CallableLoopSourceTargetRelationV1 {
 
     /// Whether the selected publication row for this site carries the exact
     /// i64 representation with the given required-argument ordinals.
-    pub(in crate::mir::builder) fn has_exact_i64_requirement(&self, ordinals: &[u32]) -> bool {
+    pub(in crate::mir::builder) fn has_exact_callee_i64_requirement(
+        &self,
+        ordinals: &[u32],
+    ) -> bool {
         self.requirement.as_ref().is_some_and(|requirement| {
             requirement.representation() == &VerifiedCallableResultRepresentationV1::ExactI64
-                && requirement.required_i64_arguments() == ordinals
+                && requirement.required_callee_i64_arguments() == ordinals
         })
     }
 
@@ -416,7 +422,7 @@ impl CallableLoopSourceTargetProbeV1 {
                     actual: relation.call_site().clone(),
                 });
             }
-            if !relation.has_exact_i64_requirement(&[1]) {
+            if !relation.has_exact_callee_i64_requirement(&[1]) {
                 return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
             }
         }
@@ -474,7 +480,7 @@ impl CallableLoopSourceTargetProbeV1 {
                 });
             }
             if let Some(relation) = selected_by_site.remove(item.call_site()) {
-                if !relation.has_exact_i64_requirement(&[1]) {
+                if !relation.has_exact_callee_i64_requirement(&[1]) {
                     return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
                 }
                 dispositions.push(CallableLoopSourceItemDispositionV1::SelectedStatic(

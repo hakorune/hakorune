@@ -29,6 +29,14 @@ are still traversed so nested exact call rows cannot disappear from coverage.
 Only identical nominal Box results merge; mixed Box classes and Box/`i64`
 returns become `ConflictingReturnRepresentations` independent of source order.
 
+The two ordinal lists remain separate. `callee_required_i64_arguments` is the
+formal parameter contract retained in same-module static evidence. The call
+row's `required_i64_arguments` is the caller-side dependency after substituting
+the actual arguments (so a literal can make it empty). The source-bound
+publication handoff carries the formal list under
+`required_callee_i64_arguments`; it never reissues the caller-side dependency
+as a physical or LoopBreak route requirement.
+
 Qualified and current-owner `MethodCall` sites may consume the exact source
 target catalog. A call without such a row may use only the bounded
 `ExactStringOnSuccess` receiver fact together with one generated String Core

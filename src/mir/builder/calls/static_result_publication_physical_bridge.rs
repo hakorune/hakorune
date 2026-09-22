@@ -34,7 +34,7 @@ where
             expected_arity, source_argument_count
         ));
     }
-    let (demand, _required_i64_arguments) = handoff.consume();
+    let (demand, _required_callee_i64_arguments) = handoff.consume();
     let target_key = demand.target().clone();
     let target = target_key.canonical_global_target_v1().map_err(|error| {
         format!("[freeze:contract][static-result-bridge/target-projection] {error}")
@@ -71,7 +71,7 @@ pub(in crate::mir::builder) fn lower_selected_static_result_publication_with_arg
             argument_values.len()
         ));
     }
-    let (demand, _required_i64_arguments) = handoff.consume();
+    let (demand, _required_callee_i64_arguments) = handoff.consume();
     let target = demand
         .target()
         .canonical_global_target_v1()
@@ -108,7 +108,7 @@ pub(in crate::mir::builder) fn lower_selected_static_result_publication_with_arg
             argument_values.len()
         ));
     }
-    let (demand, _required_i64_arguments) = handoff.consume();
+    let (demand, _required_callee_i64_arguments) = handoff.consume();
     let target = demand
         .target()
         .canonical_global_target_v1()
