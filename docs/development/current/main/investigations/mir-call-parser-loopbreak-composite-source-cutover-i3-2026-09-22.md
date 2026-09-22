@@ -1,10 +1,10 @@
 ---
-Status: fast__2026-09-22__StaticResultTargetOnlyTerminalClosed
+Status: design_stop__2026-09-22__PublicationRequiredOrdinalAuthorityMismatch
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: true; I0 closed, task 4 publication acceptance is selected
-NextCard: none__task4_publication_acceptance
+Implementation permission: false; task 4 is paused at required-ordinal authority reconciliation
+NextCard: none__task4_required_ordinal_authority_reconciliation
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -12,8 +12,9 @@ NextCard: none__task4_publication_acceptance
 ## Six-line brief
 
 ```text
-Decision: prove publication for the selected parser tuple, then switch only
-  that parser caller to the source-backed composite LoopBreak route.
+Decision: reconcile the selected tuple's required-ordinal authority before
+  publication, then switch only that parser caller to the source-backed
+  composite LoopBreak route.
 Source authority + canonical issuer: the accepted I1 package and I2 physical
   owner, with the existing semantic package as the caller boundary.
 Non-authority: VM/compatibility lanes, generic fallback, names, AST rescans,
@@ -21,16 +22,17 @@ Non-authority: VM/compatibility lanes, generic fallback, names, AST rescans,
 Fail-fast boundary: selected caller, source-to-MIR terminal, publication
   relation, and a stable handoff guard; caller-zero and physical deletion are
   owned by the successor retirement card.
-Smallest next slice: one publication acceptance invocation followed by one
-  parser caller switch; do not delete the old edge in this card.
+Smallest next slice: one read-only authority decision for the `[1]` versus
+  `[]` requirement; no publication or caller switch until it is accepted.
 Non-claims: no whole-repository migration, backend promotion, warning cleanup,
   or unrelated legacy retirement.
 ```
 
 I1 and I2 are closed at their package/Recipe and focused physical boundaries.
-The design stop is accepted for this bounded slice. A failed or deferred
-source terminal reopens the owning semantic row; it does not authorize a
-fallback or a VM repair. The predecessor existing-owner pre-front
+Their design stop was accepted for those bounded slices. The current I3
+recheck has reopened a design stop at the result-ordinal authority. A failed
+or deferred source terminal reopens the owning semantic row; it does not
+authorize a fallback or a VM repair. The predecessor existing-owner pre-front
 structured-source I0 is now closed at rows 1–4 and has handed this card the
 named publication frontier. Once task 4 and task 5 close, the successor
 retirement card owns caller-zero and the exclusive delete set.
@@ -64,9 +66,10 @@ this parser publication boundary is open.
 
 The next bounded order is:
 
-1. **I3 task 4 — publication acceptance:** connect the selected
-   `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` source row
-   to the existing one-shot publication owner and record the named terminal.
+1. **I3 task 4 — authority reconciliation, then publication acceptance:**
+   resolve the selected `ParserProgramBox.parse/2 ->
+   ParserStringUtilsBox.starts_with/3` `[1]` versus `[]` contract first; only
+   then connect the source row to the existing one-shot publication owner.
 2. **I3 task 5 — caller switch:** switch that selected parser caller to the
    source-backed composite LoopBreak route after the publication guard is
    green. Do not change VM/compatibility or generic fallback routes.
@@ -133,10 +136,9 @@ The predecessor static-result TargetOnly I0 is closed. Cataloged unavailable
 rows now carry an explicit solver reason to the pre-effect terminal and the
 merged parser guard observes
 `static-result-ingress/target-only/RecursiveDependency` before argument
-descent. I3 task 4 is therefore the active bounded slice: connect the selected
-`ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` row to the
-existing one-shot publication owner and record its terminal. Task 5 caller
-switch and R0 caller-zero/deletion remain unopened.
+descent. I3 task 4 remains the selected bounded row, but it is paused at the
+required-ordinal authority mismatch described below. Task 5 caller switch and
+R0 caller-zero/deletion remain unopened.
 
 ## Current design evidence
 
@@ -175,3 +177,56 @@ The predecessor I0 is closed at rows 1–4. Focused evidence is route 35/35,
 package 19/19, finite parser source retention 1/1, and the merged parser
 frontier guard 1/1. The source bridge reaches this I3 boundary without
 changing VM/compatibility, generic fallback, or the direct LoopBreak route.
+
+## Task 4 requirement recheck — 2026-09-22
+
+A temporary focused probe (removed after the run) built the real merged parser
+source, issued the existing whole-source target inventory and result catalog,
+then issued `VerifiedStaticCallResultPublicationOwnerV1` for the selected
+LoopBody row `ParserProgramBox.parse/2 ->
+ParserStringUtilsBox.starts_with/3`. The row is `ExactI64` and the owner
+provides a one-shot selected handoff, but its observed
+`required_i64_arguments()` is `[]`.
+
+The active tuple contract and the source-loop relation require `[1]`. This is
+not a wrong-name or wrong-site selection: the row is the resolver-issued
+LoopBody target for the selected caller. The existing
+`source_proof::loop_invariant_ignores_condition_only_unknown_values` test also
+records that the result proof does not add arguments used only in branch or
+loop conditions. The parser `starts_with/3` body returns constants while its
+index parameter appears in those conditions, so the current owner emits `[]`
+under its existing authority.
+
+### Authority split confirmed by read-only audit
+
+The mismatch is a mixed tuple contract at the I3/D0 handoff boundary, not a
+wrong target selection. `starts_with(src, i, pat)` has the callee formal i64
+requirement `[1]`. The call proof substitutes that requirement through the
+actual arguments; the selected parser call passes literal `0` at ordinal `1`,
+so its selected call-site requirement is `[]`. The existing call row already
+retains both facts: `callee_required_i64_arguments == [1]` and
+`required_i64_arguments == []`. The publication handoff currently copies only
+the call-site field, while `CallableLoopSourceTargetRequirementV1` and its
+`has_exact_i64_requirement(&[1])` guards read that field as if it were the
+callee formal requirement.
+
+**Decision:** keep I3 task 4 in `design_stop` until these two meanings are
+represented and consumed separately. Do not silently change `[1]` to `[]`,
+mint a synthetic handoff, widen the physical relation, or switch the caller.
+The next bounded task order is:
+
+1. **T4a — authority decision:** keep the existing call-row evidence as the
+   source of both values and decide whether the I3 guard can borrow the formal
+   `[1]` there, or whether the existing handoff must expose that already-sealed
+   formal evidence as an explicit field.
+2. **T4b — focused contract guard:** add one owner-level check for the exact
+   caller/site/target that asserts formal `[1]` and selected call-site `[]`
+   together, then align the LoopBreak relation checks with their named field.
+3. **T4c — publication acceptance:** rerun the selected one-shot owner take
+   and residual guard only after T4a/T4b are green.
+4. **T5 — caller switch**, then **R0 task 6 — caller-zero and old-edge
+   retirement** remain queued behind T4c.
+
+The warning cohort stays paused at I147 (`unused_imports=17`; `dead_code` is
+owner debt). It resumes after T4/R0 or only if an owner-specific warning becomes
+a newly selected blocker.
