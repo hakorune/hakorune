@@ -12,9 +12,26 @@ use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1;
 
 use super::{
-    project_static_exact_i64_requirement_v1, StaticExactI64RequirementErrorV1,
+    project_static_exact_i64_requirement_v1, CallableResultUnavailableReasonV1,
+    StaticExactI64RequirementErrorV1, VerifiedCallableResultDispositionV1,
     VerifiedSameModuleCallableResultCatalogV1, VerifiedStaticCallResultPublicationHandoffV1,
 };
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct StaticCallResultTargetOnlyV1 {
+    target: CanonicalSameModuleCallableKeyV1,
+    reason: CallableResultUnavailableReasonV1,
+}
+
+impl StaticCallResultTargetOnlyV1 {
+    pub(crate) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.target
+    }
+
+    pub(crate) fn reason(&self) -> &CallableResultUnavailableReasonV1 {
+        &self.reason
+    }
+}
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum StaticCallResultPublicationOwnerErrorV1 {
@@ -34,6 +51,16 @@ pub(crate) enum StaticCallResultPublicationOwnerErrorV1 {
         site: SourceExprSiteV1,
         expected: CanonicalSameModuleCallableKeyV1,
         actual: CanonicalSameModuleCallableKeyV1,
+    },
+    TargetOnlyDispositionMissing {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+        target: CanonicalSameModuleCallableKeyV1,
+    },
+    TargetOnlyDispositionMustBeUnavailable {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+        target: CanonicalSameModuleCallableKeyV1,
     },
     DuplicateSelection {
         caller: CanonicalSameModuleCallableKeyV1,
@@ -68,13 +95,14 @@ pub(crate) enum StaticCallResultPublicationOwnerFinishErrorV1 {
         caller: CanonicalSameModuleCallableKeyV1,
         site: SourceExprSiteV1,
         target: CanonicalSameModuleCallableKeyV1,
+        reason: CallableResultUnavailableReasonV1,
     },
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum StaticCallResultPublicationTakeV1 {
     NoExactStaticTarget,
-    TargetOnly(CanonicalSameModuleCallableKeyV1),
+    TargetOnly(StaticCallResultTargetOnlyV1),
     Selected(VerifiedStaticCallResultPublicationHandoffV1),
 }
 
@@ -96,7 +124,7 @@ pub(crate) struct VerifiedStaticCallResultPublicationOwnerV1 {
     >,
     target_only_targets: BTreeMap<
         (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
-        CanonicalSameModuleCallableKeyV1,
+        StaticCallResultTargetOnlyV1,
     >,
     rows: BTreeMap<
         (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
@@ -168,7 +196,31 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
             ) {
                 Ok(requirement) => requirement,
                 Err(StaticExactI64RequirementErrorV1::TargetResultUnavailable) => {
-                    insert_target_only(&mut target_only_targets, key, expected)?;
+                    let disposition = results.disposition(&expected).ok_or_else(|| {
+                        StaticCallResultPublicationOwnerErrorV1::TargetOnlyDispositionMissing {
+                            caller: caller.clone(),
+                            site: site.clone(),
+                            target: expected.clone(),
+                        }
+                    })?;
+                    let VerifiedCallableResultDispositionV1::Unavailable(reason) = disposition
+                    else {
+                        return Err(
+                            StaticCallResultPublicationOwnerErrorV1::TargetOnlyDispositionMustBeUnavailable {
+                                caller: caller.clone(),
+                                site: site.clone(),
+                                target: expected.clone(),
+                            },
+                        );
+                    };
+                    insert_target_only(
+                        &mut target_only_targets,
+                        key,
+                        StaticCallResultTargetOnlyV1 {
+                            target: expected,
+                            reason: reason.clone(),
+                        },
+                    )?;
                     continue;
                 }
                 Err(cause) => {
@@ -240,12 +292,13 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
                 },
             );
         }
-        if let Some(((caller, site), target)) = self.target_only_targets.iter().next() {
+        if let Some(((caller, site), target_only)) = self.target_only_targets.iter().next() {
             return Err(
                 StaticCallResultPublicationOwnerFinishErrorV1::UnconsumedTargetOnly {
                     caller: caller.clone(),
                     site: site.clone(),
-                    target: target.clone(),
+                    target: target_only.target.clone(),
+                    reason: target_only.reason.clone(),
                 },
             );
         }
@@ -262,7 +315,13 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
         let mut exact_targets = BTreeMap::new();
         exact_targets.insert(key.clone(), target.clone());
         let mut target_only_targets = BTreeMap::new();
-        target_only_targets.insert(key, target);
+        target_only_targets.insert(
+            key,
+            StaticCallResultTargetOnlyV1 {
+                target,
+                reason: CallableResultUnavailableReasonV1::KnownNonI64Return,
+            },
+        );
         Self {
             catalog_identity: 0,
             exact_targets,
@@ -294,9 +353,9 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
                     },
                 );
             }
-            if let Some(target) = self.target_only_targets.remove(&key) {
+            if let Some(target_only) = self.target_only_targets.remove(&key) {
                 self.consumed_sites.insert(key);
-                return Ok(StaticCallResultPublicationTakeV1::TargetOnly(target));
+                return Ok(StaticCallResultPublicationTakeV1::TargetOnly(target_only));
             }
             if self.selected_targets.contains_key(&key) {
                 let handoff = self.rows.remove(&key).ok_or_else(|| {
@@ -344,10 +403,10 @@ fn insert_exact_target(
 fn insert_target_only(
     target_only_targets: &mut BTreeMap<
         (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
-        CanonicalSameModuleCallableKeyV1,
+        StaticCallResultTargetOnlyV1,
     >,
     key: (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
-    target: CanonicalSameModuleCallableKeyV1,
+    target_only: StaticCallResultTargetOnlyV1,
 ) -> Result<(), StaticCallResultPublicationOwnerErrorV1> {
     if target_only_targets.contains_key(&key) {
         return Err(
@@ -357,7 +416,7 @@ fn insert_target_only(
             },
         );
     }
-    target_only_targets.insert(key, target);
+    target_only_targets.insert(key, target_only);
     Ok(())
 }
 

@@ -4,10 +4,10 @@
 //! the legacy header path.  A declared instance method remains a separate
 //! sibling and is tested as such below.
 
+use super::static_result_publication_physical_bridge::lower_target_only_static_result_publication_v1;
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use crate::mir::builder::calls::call_argument_descent::CallArgumentDescentPortV1;
-use crate::mir::builder::calls::lower_target_only_static_result_publication_v1;
 use crate::mir::builder::calls::method_call_descent::{
     AssociatedMethodCallArgumentsV1, MethodCallDescentPortV1, MethodCallSyntaxViewV1,
 };

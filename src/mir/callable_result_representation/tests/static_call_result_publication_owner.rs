@@ -1,9 +1,9 @@
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
 use super::super::{
-    StaticCallResultPublicationOwnerFinishErrorV1, StaticCallResultPublicationOwnerTakeErrorV1,
-    StaticCallResultPublicationTakeV1, VerifiedCallableResultRepresentationV1,
-    VerifiedStaticCallResultPublicationOwnerV1,
+    CallableResultUnavailableReasonV1, StaticCallResultPublicationOwnerFinishErrorV1,
+    StaticCallResultPublicationOwnerTakeErrorV1, StaticCallResultPublicationTakeV1,
+    VerifiedCallableResultRepresentationV1, VerifiedStaticCallResultPublicationOwnerV1,
 };
 use super::support::{
     declarations, extend_current_owner_targets, key, qualified_targets, seal_with_targets, site,
@@ -166,11 +166,16 @@ fn selected_handoff_peek_stays_empty_for_target_only_and_foreign_sites() {
     );
 
     let target = key(&declarations, "TextOwner", "text", 0);
+    let StaticCallResultPublicationTakeV1::TargetOnly(target_only) = owner
+        .take_for_source(&declarations, &caller, &return_call_site())
+        .expect("target-only lookup remains well-formed")
+    else {
+        panic!("target-only row must remain target-only")
+    };
+    assert_eq!(target_only.target(), &target);
     assert_eq!(
-        owner
-            .take_for_source(&declarations, &caller, &return_call_site())
-            .expect("target-only lookup remains well-formed"),
-        StaticCallResultPublicationTakeV1::TargetOnly(target)
+        target_only.reason(),
+        &CallableResultUnavailableReasonV1::KnownNonI64Return
     );
     assert!(owner.finish_empty().is_ok());
 }
@@ -351,15 +356,21 @@ fn exact_source_target_without_an_i64_result_stays_target_only() {
                 caller: caller.clone(),
                 site: call_site.clone(),
                 target: target.clone(),
+                reason: CallableResultUnavailableReasonV1::KnownNonI64Return,
             }
         )
     );
 
+    let StaticCallResultPublicationTakeV1::TargetOnly(target_only) = owner
+        .take_for_source(&declarations, &caller, &call_site)
+        .expect("target-only lookup remains well-formed")
+    else {
+        panic!("target-only row must remain target-only")
+    };
+    assert_eq!(target_only.target(), &target);
     assert_eq!(
-        owner
-            .take_for_source(&declarations, &caller, &call_site)
-            .expect("target-only lookup remains well-formed"),
-        StaticCallResultPublicationTakeV1::TargetOnly(target)
+        target_only.reason(),
+        &CallableResultUnavailableReasonV1::KnownNonI64Return
     );
     assert!(matches!(
         owner.take_for_source(&declarations, &caller, &call_site),
@@ -465,11 +476,16 @@ fn issuer_finish_empty_rejects_mixed_selected_and_target_only_rows() {
         Err(StaticCallResultPublicationOwnerFinishErrorV1::UnconsumedTargetOnly { .. })
     ));
     let target_only_target = key(&declarations, "TextOwner", "text", 0);
+    let StaticCallResultPublicationTakeV1::TargetOnly(target_only) = owner
+        .take_for_source(&declarations, &target_only_caller, &return_call_site())
+        .expect("target-only mixed row must be consumed")
+    else {
+        panic!("target-only row must remain target-only")
+    };
+    assert_eq!(target_only.target(), &target_only_target);
     assert_eq!(
-        owner
-            .take_for_source(&declarations, &target_only_caller, &return_call_site())
-            .expect("target-only mixed row must be consumed"),
-        StaticCallResultPublicationTakeV1::TargetOnly(target_only_target)
+        target_only.reason(),
+        &CallableResultUnavailableReasonV1::KnownNonI64Return
     );
     assert_eq!(owner.pending_len(), 0);
     assert!(owner.finish_empty().is_ok());

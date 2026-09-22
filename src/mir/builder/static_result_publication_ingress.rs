@@ -20,7 +20,7 @@ use crate::mir::builder::recursive_child_lowering::{
 };
 use crate::mir::callable_result_representation::{
     StaticCallResultPublicationOwnerTakeErrorV1, StaticCallResultPublicationTakeV1,
-    VerifiedStaticCallResultPublicationHandoffV1,
+    StaticCallResultTargetOnlyV1, VerifiedStaticCallResultPublicationHandoffV1,
 };
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 
@@ -37,7 +37,7 @@ enum StaticResultPublicationSourceClassV1 {
 pub(in crate::mir::builder) enum StaticResultPublicationIngressV1 {
     Unavailable,
     NoExactStaticTarget,
-    TargetOnly(CanonicalSameModuleCallableKeyV1),
+    TargetOnly(StaticCallResultTargetOnlyV1),
     Selected(VerifiedStaticCallResultPublicationHandoffV1),
 }
 

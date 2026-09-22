@@ -200,8 +200,9 @@ fn source_target_for_loop(
                     target,
                 ) => {
                     return Err(format!(
-                        "[freeze:contract][callable-loop/static-publication/target-only] {}",
-                        target.mir_symbol_projection()
+                        "[freeze:contract][callable-loop/static-publication/target-only/{:?}] {}",
+                        target.reason(),
+                        target.target().mir_symbol_projection()
                     ));
                 }
                 crate::mir::callable_result_representation::StaticCallResultPublicationTakeV1::NoExactStaticTarget => {

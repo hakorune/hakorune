@@ -108,7 +108,13 @@ impl crate::mir::builder::resolved_lowering::QualifiedMethodRecipePortV1
             })?;
         let publication = match publication {
             StaticCallResultPublicationTakeV1::Selected(handoff) => Some(handoff),
-            StaticCallResultPublicationTakeV1::TargetOnly(_) => None,
+            StaticCallResultPublicationTakeV1::TargetOnly(target) => {
+                return Err(format!(
+                    "[freeze:contract][mir/main-qualified-recipe/target-only/{:?}] {}",
+                    target.reason(),
+                    target.target().mir_symbol_projection()
+                ))
+            }
             StaticCallResultPublicationTakeV1::NoExactStaticTarget => {
                 return Err(
                     "[freeze:contract][mir/main-qualified-recipe/publication-target-missing]"

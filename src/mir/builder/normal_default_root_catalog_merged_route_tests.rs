@@ -71,12 +71,13 @@ fn merged_parser_program_source_stops_at_named_publication_boundary() {
         let message = rejected.error().to_string();
         // The selected LoopCond and LoopTrue source handoffs now cross the
         // preceding parser-loop boundaries. The composite LoopBreak source
-        // consumer also reaches the existing publication boundary; the
-        // selected parser tuple is still waiting for its one-shot handoff.
+        // consumer reaches the existing static-result owner, where a
+        // cataloged target-only row stops before receiver/argument descent.
         assert!(
-            message.contains("callable-loop/static-publication/no-selected-handoff"),
+            message.contains("static-result-ingress/target-only/RecursiveDependency"),
             "unexpected parser loop terminal: {message}"
         );
+        assert!(!message.contains("callable-loop/static-publication/no-selected-handoff"));
         rejected.discard();
     });
 }

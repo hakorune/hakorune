@@ -1244,7 +1244,8 @@ for the existing Cataloged static-result owner. It keeps target and result
 states separate: `Unavailable` means that a compatibility/test port has no
 source-bound publication capability; `NoExactStaticTarget` means the exact
 Cataloged source site has no issued static target; `TargetOnly` transports an
-already-issued exact target without inventing a result handoff; and `Selected`
+already-issued exact target together with its catalog-owned unavailable reason
+without inventing a result handoff; and `Selected`
 consumes one existing publication handoff. Owner-backed source loss or drift
 is a typed freeze error. A Cataloged `expected_lineage` demoted to
 `UnlocatedCompatibility` is therefore never treated as ordinary `None`.
@@ -1254,9 +1255,9 @@ ingress before receiver/argument effects. For the qualified Cataloged path,
 the ingress selects the existing handoff by `(caller, SourceExprSiteV1)`;
 owner/method/arity strings are route metadata only. A selected row reuses the
 existing ordered argument driver, generic Call receipt emitter, and
-`PreparedStaticCallResultPublicationV1`; a `TargetOnly` row projects its
-already-owned canonical target, lowers arguments once, and uses the same typed
-terminal without result inference. No second target resolver, Call emitter,
+`PreparedStaticCallResultPublicationV1`; a `TargetOnly` row returns its named
+reasoned terminal before receiver or argument descent and emits no physical
+Call or argument effects. No second target resolver, Call emitter,
 publication owner, AST matcher, or late terminal hook exists. `NoExactStaticTarget`
 is a typed pre-effect terminal and never falls through to the ordinary
 compatibility route. Ledger-free Compatibility, Deferred, RawLegacy, and

@@ -35,7 +35,8 @@ pub(crate) use static_call_result_publication::{
 };
 pub(crate) use static_call_result_publication_owner::{
     StaticCallResultPublicationOwnerFinishErrorV1, StaticCallResultPublicationOwnerTakeErrorV1,
-    StaticCallResultPublicationTakeV1, VerifiedStaticCallResultPublicationOwnerV1,
+    StaticCallResultPublicationTakeV1, StaticCallResultTargetOnlyV1,
+    VerifiedStaticCallResultPublicationOwnerV1,
 };
 #[allow(unused_imports)]
 pub(crate) use static_exact_i64_requirement::{

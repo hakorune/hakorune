@@ -65,6 +65,13 @@ This production connection does not add result inference, name lookup,
 GenericLoop defaults, local-copy policy, Completion meaning, retry, fallback,
 runtime behavior, backend behavior, or ownership behavior.
 
+Cataloged static sites whose exact result is unavailable remain in the same
+one-shot publication owner as `TargetOnly(target, reason)` rows. The reason is
+one of the solver's explicit unavailable dispositions and is carried through
+the source ingress. A TargetOnly row is consumed exactly once, must be drained
+before `finish_empty`, and terminates before receiver or argument descent; it
+never emits a physical Call and never falls through to compatibility lowering.
+
 ## SITE0 located legacy inputs
 
 `located_legacy` borrows one canonical caller and its syntax only from a sealed

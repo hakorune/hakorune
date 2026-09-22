@@ -1,10 +1,10 @@
 ---
-Status: queued__2026-09-22__AwaitingStaticResultTargetOnlyTerminalI0
+Status: fast__2026-09-22__StaticResultTargetOnlyTerminalClosed
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: false; resolve MIR-CALL-PARSER-STATIC-RESULT-TARGET-ONLY-TERMINAL-I0 before I3 task 4
-NextCard: mir-call-parser-static-result-target-only-terminal-i0-2026-09-22.md
+Implementation permission: true; I0 closed, task 4 publication acceptance is selected
+NextCard: none__task4_publication_acceptance
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -126,6 +126,17 @@ The ordered queue is consequently:
 
 Until item 1 is green, items 2–3 remain queued and no production cutover or
 retirement claim is made. The warning cohort remains paused at I147.
+
+## I0 completion handoff — 2026-09-22
+
+The predecessor static-result TargetOnly I0 is closed. Cataloged unavailable
+rows now carry an explicit solver reason to the pre-effect terminal and the
+merged parser guard observes
+`static-result-ingress/target-only/RecursiveDependency` before argument
+descent. I3 task 4 is therefore the active bounded slice: connect the selected
+`ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` row to the
+existing one-shot publication owner and record its terminal. Task 5 caller
+switch and R0 caller-zero/deletion remain unopened.
 
 ## Current design evidence
 

@@ -1,9 +1,9 @@
 ---
-Status: fast__2026-09-22__StaticResultTargetOnlyTerminal
+Status: closed__2026-09-22__StaticResultTargetOnlyTerminal
 Task: MIR-CALL-PARSER-STATIC-RESULT-TARGET-ONLY-TERMINAL-I0
 Date: 2026-09-22
 Parent: mir-call-parser-static-result-authority-d1-2026-09-22.md
-Implementation permission: true; one existing result/publication owner extension and one pre-effect stop
+Implementation permission: false; bounded owner/ingress terminal is closed and handed to I3
 NextCard: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
 ---
 
@@ -101,6 +101,33 @@ Negative and guards:
 Required checks are the focused callable-result/publication and ingress tests,
 then the selected merged-parser lifecycle test. Cargo remains one process with
 quick profile and at most four build jobs.
+
+## Closeout receipt — 2026-09-22
+
+The existing publication owner now carries the exact catalog disposition beside
+each `TargetOnly` target. Missing or non-`Unavailable` dispositions reject at
+issue time; `finish_empty` reports the reason for residual rows. Qualified
+member, static-current-owner `me`, normal semantic-main, and raw LoopBreak
+consumers return the reasoned terminal before argument descent. The former
+target-only physical bridge remains only for its existing test-owned legacy
+fixture; its production re-export was removed, and no source-backed TargetOnly
+route calls it.
+
+Focused evidence:
+
+- callable-result owner: 9/9;
+- static-result ingress/physical bridge: 12/12;
+- merged parser terminal: 1/1 at
+  `static-result-ingress/target-only/RecursiveDependency`;
+- static-current-owner `me` guards: 5/5;
+- `cargo check --profile quick --lib`: green with the existing warning
+  baseline; `cargo fmt --all -- --check` and `git diff --check`: green.
+
+The parser scan lifecycle test still stops at the pre-existing
+`static-result-ingress/no-exact-static-target` baseline row; it is retained as
+known baseline debt and is outside this typed TargetOnly closeout. No new
+result ABI, parser package acceptance, caller switch, old-edge deletion, VM
+repair, or warning sweep is claimed.
 
 ## Exit and next queue
 

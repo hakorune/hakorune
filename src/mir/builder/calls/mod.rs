@@ -89,7 +89,6 @@ pub(in crate::mir::builder) use static_result_publication_physical_bridge::{
     lower_selected_static_result_publication_v1,
     lower_selected_static_result_publication_with_arguments_and_destination_v1,
     lower_selected_static_result_publication_with_arguments_v1,
-    lower_target_only_static_result_publication_v1,
     lower_target_only_static_result_publication_with_expected_sites_v1,
 };
 #[cfg(test)]

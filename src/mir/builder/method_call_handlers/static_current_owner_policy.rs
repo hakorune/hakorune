@@ -6,8 +6,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::calls::{
-    lower_selected_static_result_publication_v1, lower_target_only_static_result_publication_v1,
-    AssociatedMethodCallArgumentsV1,
+    lower_selected_static_result_publication_v1, AssociatedMethodCallArgumentsV1,
 };
 use crate::mir::builder::me_call_header_observation::MethodCallLoweringPortV1;
 use crate::mir::builder::recursive_child_lowering_port::DeclaredInstanceReceiverIngressV1;
@@ -60,13 +59,11 @@ impl MeCallPolicyBox {
                     .map(Some)
                 }
                 Ok(StaticResultPublicationIngressV1::TargetOnly(target)) => {
-                    return lower_target_only_static_result_publication_v1(
-                        builder,
-                        descent,
-                        target,
-                        arguments.len(),
-                    )
-                    .map(Some)
+                    return Err(format!(
+                        "[freeze:contract][static-result-ingress/target-only/{:?}] {}",
+                        target.reason(),
+                        target.target().mir_symbol_projection()
+                    ))
                 }
                 Ok(StaticResultPublicationIngressV1::NoExactStaticTarget) => {
                     return Err(
