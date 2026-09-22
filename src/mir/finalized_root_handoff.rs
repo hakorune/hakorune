@@ -41,6 +41,30 @@ pub(crate) enum FinalizedRootHandoffV1 {
 }
 
 impl FinalizedRootHandoffV1 {
+    pub(crate) fn validate_named_arrays(
+        &self,
+        module: &crate::mir::MirModule,
+    ) -> Result<(), String> {
+        for row in self.named_arrays() {
+            let key =
+                crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(row.caller().clone());
+            if self
+                .callables()
+                .and_then(|cohort| cohort.completed_result(&key))
+                .map(|result| result.owner())
+                != Some(row.owner())
+            {
+                return Err(crate::mir::named_array_obligation::fault(
+                    "handoff-source-owner-mismatch",
+                ));
+            }
+        }
+        crate::mir::normal_callable_semantic_package::validate_named_array_coverage(
+            module,
+            self.named_arrays(),
+        )
+    }
+
     pub(crate) fn named_arrays(&self) -> &[EmittedNamedArrayRequirementV1] {
         match self {
             Self::Module { named_arrays, .. }

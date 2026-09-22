@@ -5,6 +5,9 @@ pub(super) fn normalize_effect(
     effect: &CoreEffectPlan,
 ) -> Result<NormalizedEffectV1, &'static str> {
     Ok(match effect {
+        CoreEffectPlan::NamedArrayPush { .. } => {
+            return Err("source-owned Array push has no raw parity arm")
+        }
         CoreEffectPlan::MapLiteralEntryWrite {
             receiver,
             key,

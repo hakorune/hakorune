@@ -116,6 +116,34 @@ impl super::PlanLowerer {
                     value: value.clone(),
                 })?;
             }
+            CoreEffectPlan::NamedArrayPush {
+                receiver,
+                value,
+                emission,
+                ..
+            } => {
+                let receiver = builder.local_recv(*receiver);
+                let value = builder.local_arg(*value);
+                let write = builder.emit_array_element_write(
+                    None,
+                    crate::mir::ArrayElementWriteKind::Push,
+                    crate::mir::ArrayWriteProducerKind::MethodCall,
+                    receiver,
+                    None,
+                    value,
+                )?;
+                let marker = emission.record_write(write, receiver, value)?;
+                builder
+                    .function_state
+                    .current_function
+                    .as_mut()
+                    .ok_or_else(|| {
+                        "[freeze:contract][named-array/physical-function-missing]".to_owned()
+                    })?
+                    .metadata
+                    .named_array_write_obligations
+                    .push(marker);
+            }
             CoreEffectPlan::MethodCall {
                 dst,
                 object,

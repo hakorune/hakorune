@@ -14,6 +14,13 @@ use crate::mir::{BinaryOp, CompareOp, ConstValue, EffectMask, LocalSlotId, MirTy
 /// - effects: EffectMask for side effects (e.g., MUT for push)
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) enum CoreEffectPlan {
+    /// Source-owned NoValue Array mutation, without physical type/name dispatch.
+    NamedArrayPush {
+        source: CoreCallSourceV1,
+        receiver: ValueId,
+        value: ValueId,
+        emission: crate::mir::normal_callable_semantic_package::NamedArrayWriteEmissionPortV1,
+    },
     /// Method call (args are ValueIds, not Strings!)
     ///
     /// Phase 273 P2: dst is Option for void methods, effects for side effects

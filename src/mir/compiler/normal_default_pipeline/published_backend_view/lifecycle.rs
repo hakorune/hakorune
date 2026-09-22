@@ -57,10 +57,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 .bind_retained_root(None)
                 .map_err(|error| error.to_string());
         };
-        crate::mir::normal_callable_semantic_package::validate_named_array_coverage(
-            self.module,
-            handoff.named_arrays(),
-        )?;
+        handoff.validate_named_arrays(self.module)?;
         self = self
             .bind_retained_root(handoff.root_key())
             .map_err(|error| error.to_string())?;

@@ -69,6 +69,7 @@ impl MirBuilder {
                 None,
                 std::collections::BTreeMap::new(),
                 observation,
+                None,
                 Rc::clone(&ledger),
                 None,
                 |inner, transport| {

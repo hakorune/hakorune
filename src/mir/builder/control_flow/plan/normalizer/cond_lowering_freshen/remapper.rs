@@ -204,6 +204,12 @@ fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut Co
             *dst = dst.map(|d| remap_value_id(value_map, d));
             *args = remap_value_ids(value_map, args);
         }
+        CoreEffectPlan::NamedArrayPush {
+            receiver, value, ..
+        } => {
+            *receiver = remap_value_id(value_map, *receiver);
+            *value = remap_value_id(value_map, *value);
+        }
         CoreEffectPlan::MapLiteralEntryWrite {
             receiver,
             key,

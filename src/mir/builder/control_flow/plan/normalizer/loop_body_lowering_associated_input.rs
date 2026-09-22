@@ -169,6 +169,8 @@ where
     else {
         return Err(format!("{error_prefix}: expected method call"));
     };
+    let exact_statement =
+        port.exact_source_statement_call(&input, method, arguments.len() as u32)?;
     let source = port.call_source(&input).map_err(|error| error.render())?;
     let mut arg_ids = Vec::with_capacity(arguments.len());
     let mut effects = Vec::new();
@@ -180,6 +182,11 @@ where
             PlanNormalizer::lower_value_input(port, argument, builder, phi_bindings)?;
         arg_ids.push(arg_id);
         effects.append(&mut arg_effects);
+    }
+    if let Some(crate::mir::builder::control_flow::plan::expression_port::ExactSourceStatementCallV1::ArrayPush { receiver, emission }) = exact_statement {
+        let [value] = arg_ids.as_slice() else { return Err("[freeze:contract][named-array/argument-count]".into()); };
+        effects.push(CoreEffectPlan::NamedArrayPush { source, receiver, value: *value, emission });
+        return Ok(effects);
     }
     loop_body_lowering::debug_log_callstmt_binop_lit3(builder, &effects, "method");
 

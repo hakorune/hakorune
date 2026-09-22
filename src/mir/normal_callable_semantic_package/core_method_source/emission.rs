@@ -10,7 +10,7 @@ use crate::mir::{ArrayWriteSiteId, MirModule, ValueId};
 #[derive(Debug)]
 pub(crate) struct NamedArrayEmissionDraftV1 {
     source: SelectedSourceCoreMethodCallV1,
-    allocation: Option<ValueId>,
+    allocation: ValueId,
 }
 
 #[derive(Debug)]
@@ -25,34 +25,15 @@ impl SelectedSourceCoreMethodCallV1 {
             return Err(fault("source-requirement-missing"));
         }
         Ok(NamedArrayEmissionDraftV1 {
+            allocation: self
+                .allocation
+                .ok_or_else(|| fault("allocation-not-emitted"))?,
             source: self,
-            allocation: None,
         })
     }
 }
 
 impl NamedArrayEmissionDraftV1 {
-    pub(crate) fn record_allocation(
-        &mut self,
-        owner: FunctionOwnerIdV1,
-        site: &SourceExprSiteV1,
-        destination: ValueId,
-    ) -> Result<(), String> {
-        let requirement = self
-            .source
-            .contract()
-            .named_array_requirement()
-            .ok_or_else(|| fault("source-requirement-missing"))?;
-        if requirement.owner() != owner || requirement.construction() != site {
-            return Err(fault("allocation-source-mismatch"));
-        }
-        if self.allocation.is_some() {
-            return Err(fault("duplicate-allocation"));
-        }
-        self.allocation = Some(destination);
-        Ok(())
-    }
-
     pub(crate) fn record_write(
         self,
         owner: FunctionOwnerIdV1,
@@ -73,12 +54,11 @@ impl NamedArrayEmissionDraftV1 {
         {
             return Err(fault("write-source-mismatch"));
         }
-        let allocation = self
-            .allocation
-            .ok_or_else(|| fault("allocation-not-emitted"))?;
+        let allocation = self.allocation;
         Ok(EmittedNamedArrayRequirementV1 {
             source: self.source,
             marker: NamedArrayWriteMarkerV1 {
+                owner,
                 allocation,
                 receiver,
                 argument,
@@ -89,11 +69,24 @@ impl NamedArrayEmissionDraftV1 {
 }
 
 impl EmittedNamedArrayRequirementV1 {
+    pub(crate) fn caller(&self) -> &crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
+        &self.source.caller
+    }
+    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
+        self.source.contract().owner()
+    }
+    pub(crate) fn call_site(&self) -> &SourceExprSiteV1 {
+        self.source.contract().call_site()
+    }
+
     pub(crate) fn marker(&self) -> NamedArrayWriteMarkerV1 {
         self.marker
     }
 
     pub(crate) fn validate<'m>(&self, module: &'m MirModule) -> Result<&'m str, String> {
+        if self.marker.owner != self.owner() {
+            return Err(fault("marker-owner-mismatch"));
+        }
         let symbol = module
             .canonical_callable_definition_symbol(&self.source.caller)
             .ok_or_else(|| fault("canonical-caller-missing"))?;
@@ -174,4 +167,83 @@ pub(crate) fn validate_named_array_coverage(
         return Err(fault("marker-cardinality"));
     }
     Ok(())
+}
+
+impl SelectedSourceCoreMethodCallV1 {
+    pub(crate) fn record_named_allocation(
+        &mut self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceExprSiteV1,
+        destination: ValueId,
+    ) -> Result<bool, String> {
+        let Some(requirement) = self.contract().named_array_requirement() else {
+            return Ok(false);
+        };
+        if requirement.construction() != site {
+            return Ok(false);
+        }
+        if requirement.owner() != owner {
+            return Err(fault("allocation-source-mismatch"));
+        }
+        if self.allocation.is_some() {
+            return Err(fault("duplicate-allocation"));
+        }
+        self.allocation = Some(destination);
+        Ok(true)
+    }
+}
+
+/// Recipe clones share one consumption cell; they never clone the contract.
+#[derive(Debug, Clone)]
+pub(crate) struct NamedArrayWriteEmissionPortV1(std::rc::Rc<std::cell::RefCell<WriteState>>);
+
+#[derive(Debug)]
+enum WriteState {
+    Pending(NamedArrayEmissionDraftV1),
+    Emitted(EmittedNamedArrayRequirementV1),
+    Taken,
+}
+
+impl NamedArrayEmissionDraftV1 {
+    pub(crate) fn into_write_port(self) -> NamedArrayWriteEmissionPortV1 {
+        NamedArrayWriteEmissionPortV1(std::rc::Rc::new(std::cell::RefCell::new(
+            WriteState::Pending(self),
+        )))
+    }
+}
+
+impl NamedArrayWriteEmissionPortV1 {
+    pub(crate) fn record_write(
+        &self,
+        write: ArrayWriteSiteId,
+        receiver: ValueId,
+        argument: ValueId,
+    ) -> Result<NamedArrayWriteMarkerV1, String> {
+        let mut state = self.0.borrow_mut();
+        let WriteState::Pending(draft) = std::mem::replace(&mut *state, WriteState::Taken) else {
+            return Err(fault("duplicate-physical-write"));
+        };
+        let requirement = draft
+            .source
+            .contract()
+            .named_array_requirement()
+            .ok_or_else(|| fault("source-requirement-missing"))?;
+        let (owner, site, argument_site) = (
+            requirement.owner(),
+            requirement.call().clone(),
+            requirement.argument().clone(),
+        );
+        let row = draft.record_write(owner, &site, &argument_site, write, receiver, argument)?;
+        let marker = row.marker();
+        *state = WriteState::Emitted(row);
+        Ok(marker)
+    }
+
+    pub(crate) fn take_completed(&self) -> Result<EmittedNamedArrayRequirementV1, String> {
+        match std::mem::replace(&mut *self.0.borrow_mut(), WriteState::Taken) {
+            WriteState::Emitted(row) => Ok(row),
+            WriteState::Pending(_) => Err(fault("write-not-emitted")),
+            WriteState::Taken => Err(fault("duplicate-emission-consumption")),
+        }
+    }
 }

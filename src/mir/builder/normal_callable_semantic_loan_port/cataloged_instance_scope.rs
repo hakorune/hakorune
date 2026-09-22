@@ -21,6 +21,7 @@ impl<'package, 'loan, 'port, 'collector, 'target>
     ) -> Result<R, String> {
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
+        let named_array_emissions = self.package.named_array_emission_collector();
         let core_method_calls =
             self.package
                 .take_source_core_method_calls(&SelectedNormalCallableKeyV1::Cataloged(
@@ -50,7 +51,8 @@ impl<'package, 'loan, 'port, 'collector, 'target>
                     lineage,
                     selected,
                     core_method_calls,
-                    Rc::clone(&ordinary_new_claim_ledger),
+                    Rc::clone(&named_array_emissions),
+                        Rc::clone(&ordinary_new_claim_ledger),
                     None,
                     |inner, transport| {
                         inner.with_declared_instance_locator_scope(locator, |inner| {

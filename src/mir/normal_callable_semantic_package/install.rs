@@ -128,6 +128,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     dynamic: NormalCallableDynamicProjectionV1,
     dynamic_physical_header: RefCell<Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>>,
     loop_break_source: RefCell<super::loop_break_source::VerifiedLoopBreakSourcePackageV1>,
+    named_array_emissions: Rc<super::NamedArrayEmissionCollectorV1>,
     source_core_method_calls: RefCell<
         std::collections::BTreeMap<
             SelectedNormalCallableKeyV1,
@@ -464,6 +465,9 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             NormalRootExecutionPackageStateV1::Prepared(root) => root.discard_unconnected(),
             NormalRootExecutionPackageStateV1::MovedToLowering => {}
         }
+        let named_array_emissions = Rc::new(
+            super::NamedArrayEmissionCollectorV1::from_source_rows(&source_core_method_calls),
+        );
         let catalog_brand = catalog.catalog().brand().clone();
         self.context
             .install_callable_declaration_catalog_preflighted(catalog.into_catalog());
@@ -487,6 +491,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             dynamic,
             dynamic_physical_header: RefCell::new(dynamic_physical_header),
             loop_break_source: RefCell::new(loop_break_source),
+            named_array_emissions,
             source_core_method_calls: RefCell::new(source_core_method_calls),
             app_main_qualified_receiver_catalog: RefCell::new(app_main_qualified_receiver_catalog),
             app_main_qualified_receiver_catalog_taken: Cell::new(false),
@@ -536,8 +541,19 @@ impl InstalledNormalCallableSemanticPackageV1 {
         if !self.lowering_completed.get() {
             return Err(NormalCallableSemanticPackageInstallIssueV1::LoweringNotCompleted);
         }
+        let rows = Rc::try_unwrap(self.named_array_emissions)
+            .map_err(|_| {
+                NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(
+                    "named-array-collector-loan".into(),
+                )
+            })?
+            .finish()
+            .map_err(|error| {
+                NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into())
+            })?;
         self.result_contracts
-            .retain_completed_context(self.selected, self.parameter_contracts)
+            .retain_completed_context(self.selected, self.parameter_contracts)?
+            .retain_named_array_emissions(rows)
     }
 
     pub(in crate::mir) fn with_declared_instance_call_locators<R>(

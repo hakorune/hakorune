@@ -4,10 +4,8 @@
 //! vocabulary. It owns neither source paths nor callable-result claims.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1};
 use crate::mir::ValueId;
-use crate::mir::{EffectMask, MirType};
 
 use super::CoreCallSourceV1;
 
@@ -26,62 +24,10 @@ pub(in crate::mir::builder) enum LoopPlanExpressionPortErrorV1 {
     Located(crate::mir::callable_result_representation::CallableResultLegacyLocationErrorV1),
 }
 
-/// Exact source-call projection consumed by the normalizer for one
-/// resolver-issued CoreMethod contract.  It carries physical values only;
-/// semantic identity remains in the source contract owner.
-#[derive(Debug, Clone)]
-pub(in crate::mir::builder) struct ExactSourceMethodCallV1 {
-    receiver: Option<ValueId>,
-    static_target: Option<CanonicalSameModuleCallableKeyV1>,
-    result_type: MirType,
-    effects: EffectMask,
-}
-
-impl ExactSourceMethodCallV1 {
-    pub(in crate::mir::builder) const fn new(
-        receiver: ValueId,
-        result_type: MirType,
-        effects: EffectMask,
-    ) -> Self {
-        Self {
-            receiver: Some(receiver),
-            static_target: None,
-            result_type,
-            effects,
-        }
-    }
-
-    pub(in crate::mir::builder) const fn static_publication(
-        target: CanonicalSameModuleCallableKeyV1,
-        result_type: MirType,
-        effects: EffectMask,
-    ) -> Self {
-        Self {
-            receiver: None,
-            static_target: Some(target),
-            result_type,
-            effects,
-        }
-    }
-
-    pub(in crate::mir::builder) fn receiver(&self) -> Option<ValueId> {
-        self.receiver
-    }
-
-    pub(in crate::mir::builder) fn static_target(
-        &self,
-    ) -> Option<&CanonicalSameModuleCallableKeyV1> {
-        self.static_target.as_ref()
-    }
-
-    pub(in crate::mir::builder) fn result_type(&self) -> MirType {
-        self.result_type.clone()
-    }
-
-    pub(in crate::mir::builder) fn effects(&self) -> EffectMask {
-        self.effects
-    }
-}
+mod source_method;
+pub(in crate::mir::builder) use source_method::{
+    ExactSourceMethodCallV1, ExactSourceStatementCallV1,
+};
 
 impl LoopPlanExpressionPortErrorV1 {
     pub(in crate::mir::builder) fn render(&self) -> String {
@@ -210,6 +156,19 @@ pub(in crate::mir::builder) trait LoopPlanExpressionPortV1:
         Self: 'input,
     {
         Ok(false)
+    }
+
+    /// NoValue source calls are consumed separately from value demand.
+    fn exact_source_statement_call<'input>(
+        &self,
+        _input: &Self::ExprInput<'input>,
+        _method: &str,
+        _arity: u32,
+    ) -> Result<Option<ExactSourceStatementCallV1>, String>
+    where
+        Self: 'input,
+    {
+        Ok(None)
     }
 
     /// Consume one exact source-bound CoreMethod call before raw receiver

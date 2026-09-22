@@ -82,11 +82,17 @@ impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         self.inner.emit_ordinary_new_claim(builder, claim)
     }
 
+    fn validate_named_array_construction_route(&self, named_route: bool) -> Result<(), String> {
+        self.inner
+            .validate_named_array_construction_route(named_route)
+    }
+
     fn complete_ordinary_new_expression(
         &mut self,
         class: &str,
         value: ValueId,
     ) -> Result<(), String> {
+        self.inner.record_named_array_allocation_v1(value)?;
         let owner = self
             .inner
             .callable_owner_v1()

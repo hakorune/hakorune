@@ -8,6 +8,7 @@ use crate::mir::{
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct NamedArrayWriteMarkerV1 {
+    pub(crate) owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     pub(crate) allocation: ValueId,
     pub(crate) receiver: ValueId,
     pub(crate) argument: ValueId,

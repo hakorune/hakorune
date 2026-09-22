@@ -75,6 +75,8 @@ pub(super) struct CallableSemanticLoweringState {
     consumed_source_core_method_calls: BTreeSet<crate::mir::resolved_semantics::SourceExprSiteV1>,
     source_loop_bridge: Option<source_loop_bridge::CallableLoopSourceBridgeV1>,
     loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
+    named_array_writes:
+        Vec<crate::mir::normal_callable_semantic_package::NamedArrayWriteEmissionPortV1>,
     source_core_method_calls:
         BTreeMap<crate::mir::resolved_semantics::SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
     source_static_result_publications: BTreeMap<
@@ -155,12 +157,6 @@ impl CallableSemanticLoweringState {
         >,
         loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
     ) -> Result<Self, String> {
-        if source_core_method_calls
-            .values()
-            .any(|row| row.contract().named_array_requirement().is_some())
-        {
-            return Err(freeze("named-array-artifact-retention-required"));
-        }
         let source_loop_bridge = source_loop_bridge::CallableLoopSourceBridgeV1::from_input(input)?;
         let dynamic_origins = match dynamic_source {
             Some(source) => CallableDynamicOriginLoweringStateV1::from_shared_source(source),
@@ -325,6 +321,7 @@ impl CallableSemanticLoweringState {
             source_loop_bridge,
             loop_break_source,
             source_core_method_calls,
+            named_array_writes: Vec::new(),
             source_static_result_publications: BTreeMap::new(),
             consumed_source_static_result_publications: BTreeSet::new(),
         })
@@ -655,52 +652,6 @@ impl CallableSemanticLoweringState {
             .collect()
     }
 
-    pub(super) fn finish(self) -> Result<(), String> {
-        self.construction.finish()?;
-        self.dynamic_origins
-            .finish()
-            .map_err(|error| error.to_string())?;
-        if let Some(loop_break_source) = self.loop_break_source.as_ref() {
-            loop_break_source.finish_empty()?;
-        }
-        let loop_break_transport_kind = self
-            .loop_break_source
-            .as_ref()
-            .map(LoopBreakSourcePackageLoanV1::is_candidate);
-        let missing_variables = self
-            .variables
-            .keys()
-            .filter(|site| !self.consumed_variables.contains(*site))
-            .collect::<Vec<_>>();
-        if !self.entry_installed
-            || self.materialized_locals.len() != self.locals.len()
-            || self.consumed_variables.len() != self.variables.len()
-            || self.consumed_assignments.len() != self.assignments.len()
-            || self.consumed_direct_lambdas.len() != self.direct_lambda_captures.len()
-            || self.consumed_brand_constructors.len() != self.brand_constructors.constructor_count()
-            || !self.source_core_method_calls.is_empty()
-            || !self.source_static_result_publications.is_empty()
-        {
-            return Err(format!(
-                "{} owner={:?} entry={} locals={}/{} variables={}/{} missing_variables={:?} assignments={}/{} lambdas={}/{} loop_break_transport_kind={:?}",
-                freeze("incomplete-consumption"),
-                self.owner,
-                self.entry_installed,
-                self.materialized_locals.len(),
-                self.locals.len(),
-                self.consumed_variables.len(),
-                self.variables.len(),
-                missing_variables,
-                self.consumed_assignments.len(),
-                self.assignments.len(),
-                self.consumed_direct_lambdas.len(),
-                self.direct_lambda_captures.len(),
-                loop_break_transport_kind,
-            ));
-        }
-        Ok(())
-    }
-
     fn insert_value(&mut self, binding: BindingRefV1, value: ValueId) -> Result<(), String> {
         if self.values.insert(binding, value).is_some() {
             return Err(freeze("duplicate-value"));
@@ -750,3 +701,5 @@ fn ordered_bindings(
 fn freeze(reason: &str) -> String {
     format!("[freeze:contract][callable-semantic-lowering/{reason}]")
 }
+
+mod named_array;

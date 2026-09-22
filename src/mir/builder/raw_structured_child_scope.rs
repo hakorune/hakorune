@@ -441,6 +441,11 @@ where
         self.child.emit_ordinary_new_claim(builder, claim)
     }
 
+    fn validate_named_array_construction_route(&self, named_route: bool) -> Result<(), String> {
+        self.child
+            .validate_named_array_construction_route(named_route)
+    }
+
     fn complete_ordinary_new_expression(
         &mut self,
         class: &str,

@@ -361,6 +361,25 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
         self.ledger.borrow_mut().read_variable(&site).map(Some)
     }
 
+    fn exact_source_statement_call<'input>(
+        &self,
+        input: &Self::ExprInput<'input>,
+        method: &str,
+        arity: u32,
+    ) -> Result<
+        Option<
+            crate::mir::builder::control_flow::plan::expression_port::ExactSourceStatementCallV1,
+        >,
+        String,
+    >
+    where
+        Self: 'input,
+    {
+        let site = Self::exact_site(Self::source_of_expr(input))?;
+        Ok(self.ledger.borrow_mut().take_source_array_push(&SourceExprSiteV1::from_node(site), method, arity)?
+            .map(|(receiver, emission)| crate::mir::builder::control_flow::plan::expression_port::ExactSourceStatementCallV1::ArrayPush { receiver, emission }))
+    }
+
     fn exact_source_method_call<'input>(
         &self,
         input: &Self::ExprInput<'input>,

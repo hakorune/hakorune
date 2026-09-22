@@ -21,6 +21,12 @@ use super::{
 };
 
 impl NormalCallableSemanticPackagePortV1<'_> {
+    pub(crate) fn named_array_emission_collector(
+        &self,
+    ) -> Rc<super::super::NamedArrayEmissionCollectorV1> {
+        Rc::clone(&self.installed.named_array_emissions)
+    }
+
     pub(crate) fn take_source_core_method_calls(
         &self,
         key: &SelectedNormalCallableKeyV1,

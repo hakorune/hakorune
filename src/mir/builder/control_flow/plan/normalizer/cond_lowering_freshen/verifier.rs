@@ -283,6 +283,14 @@ fn find_unremapped_value_id_effect(
     _site: &'static str,
 ) -> Option<(ValueId, ValueId, &'static str)> {
     match effect {
+        CoreEffectPlan::NamedArrayPush {
+            receiver, value, ..
+        } => [
+            (*receiver, "NamedArrayPush.receiver"),
+            (*value, "NamedArrayPush.value"),
+        ]
+        .into_iter()
+        .find_map(|(old, site)| value_map.get(&old).copied().map(|new| (old, new, site))),
         CoreEffectPlan::MapLiteralEntryWrite {
             receiver,
             key,

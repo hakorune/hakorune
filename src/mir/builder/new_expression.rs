@@ -91,6 +91,10 @@ impl PreparedRawNewExpressionV1 {
     where
         Port: RawOrdinaryNewClaimPortV1,
     {
+        port.validate_named_array_construction_route(matches!(
+            self.route,
+            PreparedRawNewExpressionRouteV1::Ordinary { .. }
+        ))?;
         let PreparedRawNewExpressionRouteV1::Ordinary { arguments } = &self.route else {
             return Ok(());
         };

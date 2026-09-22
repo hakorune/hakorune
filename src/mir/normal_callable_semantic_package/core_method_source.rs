@@ -3,8 +3,12 @@
 //! This module owns only the catalog/source target co-seal. It does not
 //! select a physical route or consume Builder state.
 
+mod collector;
 mod emission;
-pub(crate) use emission::{validate_named_array_coverage, EmittedNamedArrayRequirementV1};
+pub(crate) use collector::NamedArrayEmissionCollectorV1;
+pub(crate) use emission::{
+    validate_named_array_coverage, EmittedNamedArrayRequirementV1, NamedArrayWriteEmissionPortV1,
+};
 
 use crate::mir::builder::{
     SelectedNormalCallableKeyV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
@@ -21,6 +25,52 @@ pub(crate) fn issue_source_core_method_calls_v1(
     catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+) -> Result<
+    BTreeMap<
+        SelectedNormalCallableKeyV1,
+        BTreeMap<SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
+    >,
+    String,
+> {
+    issue_source_core_method_calls_with_v1(
+        catalog,
+        batch,
+        selected,
+        crate::mir::source_call_target::issue_source_bound_core_method_calls_v1,
+    )
+}
+
+pub(crate) fn issue_source_core_method_calls_with_named_arrays_v1(
+    catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    brands: &crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1,
+) -> Result<
+    BTreeMap<
+        SelectedNormalCallableKeyV1,
+        BTreeMap<SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
+    >,
+    String,
+> {
+    issue_source_core_method_calls_with_v1(catalog, batch, selected, |ledger| {
+        crate::mir::source_call_target::issue_source_bound_core_method_calls_with_named_arrays_v1(
+            ledger,
+            batch.ordinary_box_coverage(),
+            brands,
+        )
+    })
+}
+
+fn issue_source_core_method_calls_with_v1(
+    catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    issue: impl Fn(
+        &crate::mir::resolved_semantics::CallableSemanticSourceLedgerView<'_>,
+    ) -> Result<
+        Box<[(SourceExprSiteV1, VerifiedSourceBoundCoreMethodCallV1)]>,
+        crate::mir::source_call_target::SourceBoundCoreMethodTargetIssueV1,
+    >,
 ) -> Result<
     BTreeMap<
         SelectedNormalCallableKeyV1,
@@ -46,10 +96,7 @@ pub(crate) fn issue_source_core_method_calls_v1(
                     .forest()
                     .callable_source_ledger(input.owner())
                     .map_err(|error| format!("{error:?}"))?;
-                let rows = crate::mir::source_call_target::issue_source_bound_core_method_calls_v1(
-                    &ledger,
-                )
-                .map_err(|error| format!("{error:?}"))?;
+                let rows = issue(&ledger).map_err(|error| format!("{error:?}"))?;
                 Ok::<_, String>((input.owner(), rows))
             })
             .map_err(|error| format!("{error:?}"))??;
@@ -76,6 +123,7 @@ pub(crate) fn issue_source_core_method_calls_v1(
                         SelectedSourceCoreMethodCallV1 {
                             caller: catalog_key.clone(),
                             row,
+                            allocation: None,
                         },
                     ))
                 })
@@ -97,6 +145,7 @@ pub(crate) fn issue_source_core_method_calls_v1(
 pub(crate) struct SelectedSourceCoreMethodCallV1 {
     caller: crate::mir::builder::CanonicalSameModuleCallableKeyV1,
     row: VerifiedSourceBoundCoreMethodCallV1,
+    allocation: Option<crate::mir::ValueId>,
 }
 
 impl SelectedSourceCoreMethodCallV1 {

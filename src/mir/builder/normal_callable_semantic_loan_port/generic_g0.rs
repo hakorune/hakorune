@@ -30,6 +30,7 @@ pub(super) fn lower_normal_top_level_function(
         );
     let inner = &mut *adapter.inner;
     let ordinary_new_claim_ledger = adapter.package.ordinary_new_claim_ledger();
+    let named_array_emissions = adapter.package.named_array_emission_collector();
     let mode = builder
         .comp_ctx
         .emit_debug_policy()
@@ -48,6 +49,7 @@ pub(super) fn lower_normal_top_level_function(
                     lineage,
                     selected,
                     std::collections::BTreeMap::new(),
+                    std::rc::Rc::clone(&named_array_emissions),
                     std::rc::Rc::clone(&ordinary_new_claim_ledger),
                     None,
                     |inner, transport| {

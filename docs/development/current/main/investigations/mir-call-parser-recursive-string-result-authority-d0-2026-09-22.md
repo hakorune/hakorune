@@ -13,7 +13,7 @@ Implementation permission: B2-I0 bounded series below; production activation req
 
 - **Current decision:** B2-I0 mapping is accepted: conditional Named Array source contract, module-level artifact retention, NoValue typed write and mandatory backend discharge share the existing owners.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** finish verification of the in-progress A/B collection/write changes, then C static-V2 discharge and D selected caller cutover below. Text lifetime/Fault remains a separate explicit execution-contract task.
+- **Next ordered task:** connect C static-V2 discharge to the verified stage-3 collection/write transport and D selected caller cutover below. Text lifetime/Fault remains a separate explicit execution-contract task.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -776,9 +776,21 @@ task must choose the existing failure owner and close that mapping before changi
 this ABI; do not silently reinterpret NoValue as successful mutation. DirectArray
 Text stays rejected. This internal gap does not reopen VM or platform work.
 
-Handoff snapshot: HEAD `6740988fa4` remains the stage-2 checkpoint. Uncommitted
-A/B collection and typed-write changes are in progress. The earlier snapshot's
-three emission tests passed (`/tmp/b2-emission-test.log`); the subsequent missing-
-allocation test and edits have not been rebuilt. This is not latest-tree green,
-production activation, or a new landed stage. Pointer/diff checks pass for this
-design update; no new Cargo build or CI dispatch was requested by taskification.
+B2-I0 stage 3: installed-package expected inventory now survives lending, callable
+finish hands emitted rows back once, and finalization retains them in the existing
+handoff. The source statement/Recipe uses the sole ArrayElementWrite writer;
+compilation-branded marker ownership rejects same-named foreign substitution.
+Latest-tree quick build **4m18s**, new emission tests **5/5**, prior retention
+cohorts **51/51**, Loop scope **3/3**, Map dependency **8/8**, direct-call physical
+**6/6**: **73 passing tests**. Log: `/tmp/b2-emission-final-test.log`; regression
+logs `/tmp/b2-retention-regression-{0..9}.log` and
+`/tmp/b2-emission-{loop,map,direct}-regression.log`. A zero-match helper-module
+filter was discarded; its actual consumer tests were listed and run instead.
+No unclassified focused red remains. Changed Rust files are <=738 lines;
+format/diff and ingress/pointer guards pass. Build warnings **543** (stage 2:548).
+README/reference updated. This is implementation stage 3 of the bounded series.
+These tests validate source/package/emission transport with explicit physical
+observations, not production source-to-write or runtime execution. Next C/D must
+connect selected capability discharge, activate the extended issuer, verify the
+natural source route, retire its selected legacy edge, and recheck merged parser.
+No CI dispatch, runtime Fault, shared code deletion or full parser claim.

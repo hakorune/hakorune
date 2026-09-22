@@ -16,6 +16,7 @@ pub(crate) fn unconditional_test_rows(
             caller: crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
                 "IsolatedSourceWitness", "unconditional", 0),
             row,
+            allocation: None,
         })
         })
         .collect()

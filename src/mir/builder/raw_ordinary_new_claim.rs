@@ -76,6 +76,10 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
         Err("[freeze:contract][raw-ordinary-new/no-physical-owner]".into())
     }
 
+    fn validate_named_array_construction_route(&self, _named_route: bool) -> Result<(), String> {
+        Ok(())
+    }
+
     fn try_take_ordinary_new_claim(
         &mut self,
         class: &str,
@@ -481,11 +485,25 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         )
     }
 
+    fn validate_named_array_construction_route(&self, named_route: bool) -> Result<(), String> {
+        let (Some(ledger), Some(site)) =
+            (self.callable_ledger.as_ref(), self.current_source_site_v1())
+        else {
+            return Ok(());
+        };
+        let site = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site);
+        if !named_route && ledger.borrow().requires_named_array_allocation(&site) {
+            return Err("[freeze:contract][named-array/non-named-construction-route]".into());
+        }
+        Ok(())
+    }
+
     fn complete_ordinary_new_expression(
         &mut self,
         class: &str,
         value: crate::mir::ValueId,
     ) -> Result<(), String> {
+        self.record_named_array_allocation_v1(value)?;
         let Some(ledger) = self.ordinary_new_claim_ledger.as_ref() else {
             return Ok(());
         };
@@ -571,6 +589,23 @@ impl super::RawInvocationChildPortV1<'_, '_> {
             || &site != claim.site()
         {
             return Err("[freeze:contract][raw-ordinary-new/emission-scope-mismatch]".into());
+        }
+        Ok(())
+    }
+}
+
+impl super::RawInvocationChildPortV1<'_, '_> {
+    pub(in crate::mir::builder) fn record_named_array_allocation_v1(
+        &self,
+        destination: crate::mir::ValueId,
+    ) -> Result<(), String> {
+        if let (Some(ledger), Some(site)) =
+            (self.callable_ledger.as_ref(), self.current_source_site_v1())
+        {
+            ledger.borrow_mut().record_named_array_allocation(
+                &crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
+                destination,
+            )?;
         }
         Ok(())
     }

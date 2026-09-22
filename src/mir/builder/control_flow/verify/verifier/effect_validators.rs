@@ -22,6 +22,12 @@ pub(super) fn verify_effect(
     loop_depth: usize,
 ) -> Result<(), String> {
     match effect {
+        CoreEffectPlan::NamedArrayPush {
+            receiver, value, ..
+        } => {
+            primitives::verify_value_id_basic(*receiver, depth, "NamedArrayPush.receiver")?;
+            primitives::verify_value_id_basic(*value, depth, "NamedArrayPush.value")?;
+        }
         CoreEffectPlan::MapLiteralEntryWrite {
             receiver,
             key,

@@ -4,6 +4,10 @@ use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType};
 
 fn fixture() -> (MirFunction, NamedArrayWriteMarkerV1) {
     let marker = NamedArrayWriteMarkerV1 {
+        owner: crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation()
+            .unwrap()
+            .issue()
+            .unwrap(),
         allocation: ValueId::new(1),
         receiver: ValueId::new(1),
         argument: ValueId::new(2),

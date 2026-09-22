@@ -777,5 +777,14 @@ must retain the package association while recording allocation/write identity.
 The emission observation and exact marker coverage validator do not select a
 provider or issue source meaning. Rootless and scalar-Script artifact handoffs
 retain existing callable contracts as module data without inventing a root.
-Named Array emission collection and backend discharge still need connection
-before the extended push issuer is selected in production.
+The installed package retains the expected Named Array inventory before lending
+rows. Callable finish returns one-shot emitted rows to that package collector;
+package finish rejects missing, foreign or duplicate emissions. Completed callable
+contracts carry them into the finalized handoff, including module-only output.
+Markers retain the existing compilation-branded function owner, preventing a
+same-named foreign compilation from substituting matching physical IDs. Recipe
+clones share a single write/consumption cell; they do not clone source authority.
+The source statement port emits NoValue through the existing ArrayElementWrite
+writer. Allocation must be recorded before preparing the statement, and residual
+rows reject at finish. The extended package issuer stays unselected until selected
+backend discharge connects; these APIs alone do not claim production cutover.

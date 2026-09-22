@@ -102,6 +102,11 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
         >,
     ) {
         let validate = move |module: &MirModule| {
+            let mut callables = self.callables;
+            let named_arrays = match callables.as_mut() {
+                Some(cohort) => cohort.take_named_array_emissions(),
+                None => Box::new([]),
+            };
             let mut covered = BTreeSet::new();
             let mut root_validation = self.root_validation;
             let retained_root = match &root_validation {
@@ -165,9 +170,9 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                     return Err(fault("uncovered-lifecycle-function"));
                 }
             }
-            match root_validation {
+            let handoff = match root_validation {
                 RootValidation::OrdinaryNew { key, ledger } => ledger
-                    .seal_finalized_root_birth_handoff(key, &birth_keys, self.callables)
+                    .seal_finalized_root_birth_handoff(key, &birth_keys, callables)
                     .map(Some),
                 RootValidation::Script { key, entry, source } => {
                     use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
@@ -176,22 +181,35 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                             named_arrays: Box::new([]),
                             root_key: key,
                             array,
-                            callables: self.callables,
+                            callables,
                         }),
-                        None => self
-                            .callables
-                            .map(|callables| FinalizedRootHandoffV1::Module {
-                                callables: Some(callables),
-                                named_arrays: Box::new([]),
-                            }),
+                        None => callables.map(|callables| FinalizedRootHandoffV1::Module {
+                            callables: Some(callables),
+                            named_arrays: Box::new([]),
+                        }),
                     })
                 }
-                RootValidation::Absent => Ok(self.callables.map(|callables| {
+                RootValidation::Absent => Ok(callables.map(|callables| {
                     crate::mir::finalized_root_handoff::FinalizedRootHandoffV1::Module {
                         callables: Some(callables),
                         named_arrays: Box::new([]),
                     }
                 })),
+            }?;
+            match handoff {
+                Some(handoff) => {
+                    let handoff = handoff.with_named_arrays(named_arrays)?;
+                    handoff.validate_named_arrays(module)?;
+                    Ok(Some(handoff))
+                }
+                None if named_arrays.is_empty() => {
+                    crate::mir::normal_callable_semantic_package::validate_named_array_coverage(
+                        module,
+                        &[],
+                    )?;
+                    Ok(None)
+                }
+                None => Err(crate::mir::named_array_obligation::fault("handoff-missing")),
             }
         };
         (self.session, self.module, validate)

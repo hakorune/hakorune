@@ -30,6 +30,7 @@ pub(in crate::mir) enum CallableResultContractIssueV1 {
 #[derive(Debug)]
 pub(crate) struct VerifiedCallableResultContractCohortV1 {
     rows: Box<[VerifiedCallableResultContractRowV1]>,
+    named_array_emissions: Box<[super::EmittedNamedArrayRequirementV1]>,
     completed_context: Option<(
         super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
         Box<[super::model::OwnedCallableParameterContractDeclarationV1]>,
@@ -189,6 +190,7 @@ pub(super) fn issue_callable_result_contract_cohort_v1(
     Ok(VerifiedCallableResultContractCohortV1 {
         rows: rows.into_boxed_slice(),
         completed_context: None,
+        named_array_emissions: Box::new([]),
     })
 }
 
@@ -251,3 +253,29 @@ impl VerifiedCallableResultContractCohortV1 {
 #[cfg(test)]
 #[path = "completed_result_context_tests.rs"]
 mod completed_context_tests;
+
+impl VerifiedCallableResultContractCohortV1 {
+    pub(super) fn retain_named_array_emissions(
+        mut self,
+        rows: Box<[super::EmittedNamedArrayRequirementV1]>,
+    ) -> Result<Self, super::NormalCallableSemanticPackageInstallIssueV1> {
+        for row in &rows {
+            let key = SelectedNormalCallableKeyV1::Cataloged(row.caller().clone());
+            if self.completed_result(&key).map(|contract| contract.owner()) != Some(row.owner()) {
+                return Err(
+                    super::NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(
+                        "named-array-completed-owner-mismatch".into(),
+                    ),
+                );
+            }
+        }
+        self.named_array_emissions = rows;
+        Ok(self)
+    }
+
+    pub(crate) fn take_named_array_emissions(
+        &mut self,
+    ) -> Box<[super::EmittedNamedArrayRequirementV1]> {
+        std::mem::take(&mut self.named_array_emissions)
+    }
+}

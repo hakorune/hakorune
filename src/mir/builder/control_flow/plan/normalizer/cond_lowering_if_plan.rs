@@ -203,7 +203,8 @@ fn effect_defines_value(effect: &CoreEffectPlan) -> bool {
         | CoreEffectPlan::Copy { .. }
         | CoreEffectPlan::LocalContractWrite { .. }
         | CoreEffectPlan::FieldGet { .. } => true,
-        CoreEffectPlan::MapLiteralEntryWrite { .. }
+        CoreEffectPlan::NamedArrayPush { .. }
+        | CoreEffectPlan::MapLiteralEntryWrite { .. }
         | CoreEffectPlan::FieldSet { .. }
         | CoreEffectPlan::ExitIf { .. }
         | CoreEffectPlan::IfEffect { .. } => false,

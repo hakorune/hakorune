@@ -10,9 +10,12 @@ mod core_method_source;
 #[cfg(test)]
 mod core_method_source_tests;
 #[cfg(test)]
+mod named_array_emission_tests;
+#[cfg(test)]
 pub(crate) use core_method_source::test_witness::unconditional_test_rows;
 pub(crate) use core_method_source::{
-    validate_named_array_coverage, EmittedNamedArrayRequirementV1, SelectedSourceCoreMethodCallV1,
+    validate_named_array_coverage, EmittedNamedArrayRequirementV1, NamedArrayEmissionCollectorV1,
+    NamedArrayWriteEmissionPortV1, SelectedSourceCoreMethodCallV1,
 };
 mod declared_instance_locator;
 #[cfg(test)]

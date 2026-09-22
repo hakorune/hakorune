@@ -407,6 +407,10 @@ mod tests {
         );
         function.metadata.named_array_write_obligations.push(
             crate::mir::named_array_obligation::NamedArrayWriteMarkerV1 {
+                owner: crate::mir::resolved_semantics::FunctionOwnerIssuerV1::new_for_compilation()
+                    .unwrap()
+                    .issue()
+                    .unwrap(),
                 allocation: ValueId::new(1),
                 receiver: ValueId::new(1),
                 argument: ValueId::new(2),

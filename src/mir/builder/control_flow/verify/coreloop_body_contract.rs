@@ -10,7 +10,8 @@ use crate::mir::builder::control_flow::lower::CoreEffectPlan;
 pub(in crate::mir::builder) fn is_leaf_effect_plan(effect: &CoreEffectPlan) -> bool {
     matches!(
         effect,
-        CoreEffectPlan::MethodCall { .. }
+        CoreEffectPlan::NamedArrayPush { .. }
+            | CoreEffectPlan::MethodCall { .. }
             | CoreEffectPlan::ExternCall { .. }
             | CoreEffectPlan::GlobalCall { .. }
             | CoreEffectPlan::ValueCall { .. }

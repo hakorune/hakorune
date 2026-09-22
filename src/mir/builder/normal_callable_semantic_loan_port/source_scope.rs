@@ -22,6 +22,9 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
         crate::mir::resolved_semantics::SourceExprSiteV1,
         SelectedSourceCoreMethodCallV1,
     >,
+    named_array_emissions: Rc<
+        crate::mir::normal_callable_semantic_package::NamedArrayEmissionCollectorV1,
+    >,
     ordinary_new_claim_ledger: Rc<OrdinaryNewClaimLedgerV1>,
     loop_break_take: Option<LoopBreakSourcePackageTakeHandle<'_>>,
     execute: impl FnOnce(
@@ -48,6 +51,7 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
         dynamic_source,
         core_method_calls,
         input.method_source_observation().cloned(),
+        Some(named_array_emissions),
         ordinary_new_claim_ledger,
         loop_break_take
             .map(|take| take.take_for_owner(input.source().owner()))
@@ -66,6 +70,9 @@ pub(super) fn with_callable_source_scope<'port, 'collector, R>(
         SelectedSourceCoreMethodCallV1,
     >,
     observation: Option<CallableMethodSourceObservationV1>,
+    named_array_emissions: Option<
+        Rc<crate::mir::normal_callable_semantic_package::NamedArrayEmissionCollectorV1>,
+    >,
     ordinary_new_claim_ledger: Rc<OrdinaryNewClaimLedgerV1>,
     loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
     execute: impl FnOnce(
@@ -93,10 +100,15 @@ pub(super) fn with_callable_source_scope<'port, 'collector, R>(
     inner.semantic_ledger = script_ledger;
     match result {
         Ok(value) => {
-            Rc::try_unwrap(state)
+            let rows = Rc::try_unwrap(state)
                 .map_err(|_| "[freeze:contract][mir/callable-semantic/ledger-loan]".to_owned())?
                 .into_inner()
-                .finish()?;
+                .finish_with_named_arrays()?;
+            match named_array_emissions {
+                Some(collector) => collector.hand_back(rows)?,
+                None if rows.is_empty() => {}
+                None => return Err("[freeze:contract][named-array/collector-missing]".into()),
+            }
             Ok(value)
         }
         Err(error) => Err(error),

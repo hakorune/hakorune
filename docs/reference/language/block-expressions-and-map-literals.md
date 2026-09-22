@@ -231,7 +231,13 @@ semantic-package declaration/batch co-seal. Physical observations may extend
 that association but cannot replace the caller or reconstruct source authority.
 Module retention does not require a synthetic root. Passive metadata markers
 detect missing source evidence on raw MIR/JSON egress; they are not executable
-Array admission, even after cloning the module.
+Array admission, even after cloning the module. The retained relation includes
+the existing compilation-branded source owner as well as the canonical caller;
+matching names and physical IDs from another compilation cannot substitute.
+An installed package accounts for every conditional source write through callable
+finish and final handoff. Recipe cloning does not grant a second consumption.
+Several writes may share one exact constructor; missing writes or conflicting
+constructor/allocation associations reject before publication.
 
 
 The compiler's resolver retains named-construction syntax as a passive source
