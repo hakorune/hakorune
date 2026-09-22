@@ -211,6 +211,17 @@ the existing name-resolution/provider contract. Plugin configuration may affect
 that explicit named operation where supported; it cannot redefine literal meaning.
 This is a construction distinction, not a second global runtime registry.
 
+Decision (selected compiler specialization): a typed Array operation on a named
+construction may carry a source-site-bound requirement that the selected
+constructor implements Core Array semantics. This does not turn Named into
+IntrinsicArray or override a same-named user declaration. The source contract,
+constructor and dependent writes must remain associated through finalization;
+the selected backend must discharge that requirement before executable output.
+An unknown/incompatible provider or missing retained evidence rejects rather
+than falling back or treating the requirement as an unconditional Array fact.
+This design decision does not claim that the specialization is implemented.
+
+
 The compiler's resolver retains named-construction syntax as a passive source
 row: class spelling, ordered argument sites, and ordered field-initializer
 names/sites. Local initialization joins that row through the existing exact

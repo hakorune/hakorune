@@ -1,19 +1,19 @@
 ---
-Status: design_stop__B2_array_push_source_contract__B1_source_to_MIR_closed
+Status: fast__B2_array_push_bounded_mapping_accepted
 Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
-NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-D0 (same card)
-Implementation permission: passive B2 source observation closed; ArrayPush semantic contract retention and backend discharge remain design-stopped
+NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 (same card)
+Implementation permission: B2-I0 bounded series below; production activation requires retained source obligation and exact backend discharge
 ---
 
 # Parser String result authority: corrected decision and task queue
 
 ## Current Capsule
 
-- **Current decision:** S1 String and B1 Bool source-to-MIR publication are closed; next design resolves ArrayPush mutation/NoValue statement authority in existing owners.
+- **Current decision:** B2-I0 mapping is accepted: conditional Named Array source contract, module-level artifact retention, NoValue typed write and mandatory backend discharge share the existing owners.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** B2-D0 for `StringHelpers.split_lines/1` loop-local `arr.push(s.substring(last, i))`; retain a source-site-bound Named Array requirement through artifact publication and discharge it at backend preflight before NoValue mutation activation. See the B2 ordered queue below.
+- **Next ordered task:** implement B2-I0 below for the unchanged split_lines loop-local push; retain the constructor obligation before activating its typed write. See the B2 ordered queue below.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -598,3 +598,61 @@ receiver/Home, Text argument, mutation and NoValue statement relation. Do not
 activate typed push while the requirement could be dropped or turned into an
 unconditional physical type fact. Reuse the existing physical append owner;
 keep this requirement separate from the later executable Text/Fault evidence.
+
+
+### MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 — accepted bounded series
+
+Change: replace the selected loop-local push statement's name/type-based
+MethodCall dispatch with source-owned typed ArrayElementWrite; keep Named
+construction and its conditional Core Array obligation through finalization.
+Contract: one source CoreMethod issuer, existing resolver binding/Loop frame,
+existing Recipe producer and ArrayElementWrite site issuer/writer. No provider
+selection from names, no new append implementation, no fake root or result.
+Done: natural source reaches the typed write and selected C preflight with exact
+retained construction/write correspondence; positive and rejection coverage
+below passes, selected legacy dispatch is unreachable, unchanged merged parser
+is rechecked. Runtime Text/Fault and full parser acceptance remain explicit.
+Stop: missing/foreign source obligation, unavailable Text Home contract, any
+unretained egress, or a physical consumer that cannot discharge the obligation.
+These are implementation failures to resolve in this series, not permission
+for fallback, provisional receipts or a different source witness.
+
+| Order | Single owner transition | Required boundary |
+| --- | --- | --- |
+| 1 | Existing semantic package/CoreMethod contract -> existing callable lowering state | Co-seal construction site, ordinary/brand exclusions, initializer BindingRef, exact unreassigned receiver, push site, loop/frame and exact Text argument producer. Extend existing target/Home schema with Array receiver, Text retained by receiver, MutatesShape and NoValue; this is conditional on the retained Named requirement. Existing selected substring result supplies the nested Text witness; no physical-type proof. |
+| 2 | Source construction/write emission -> existing finalized artifact handoff | At the existing prepared New source port record the emitted allocation destination with source owner/site, retaining Named. Add module-only retention to FinalizedRootHandoffV1 for RootValidation::Absent and Script without an Array root. Bind without fabricating root/Birth. Finalization checks exact canonical function, allocation and dependent writes after compiler finishing. |
+| 3 | Exact source statement port -> typed effect Recipe -> sole writer / backend preflight | Represent Value versus NoValue explicitly in the existing port; value demand rejects before child effects or result allocation. Statement consumes once, evaluates nested argument once, emits typed Push with dst=None/index=None, and finishes without residual rows. Backend checks the retained obligation against actual selected constructor/carrier before object publication; DirectArray is not accepted for Text without its own evidence. |
+
+The existing `PreparedRawNewExpressionV1` / source claim port is the construction
+attachment point. A selected requirement must reject a Core13 extern or other
+route that bypasses the chosen Named emission; it may not disappear when the
+ordinary user-Box claim is absent. The effect Recipe carries typed operation
+identity, not a string that asks `effect_emission.rs` to reselect push.
+
+Retention chain: `CompletedNormalDefaultRootCatalogLifecycleV1` ->
+`into_artifact_parts` -> `FinalizedRootHandoffV1` ->
+`compile_normal_with_published` -> `bind_finalized_root_handoff` ->
+`PublishedMirBackendView.retained_handoff`. The current Absent arm drops
+callables, and Script may return None; both must retain module obligations.
+`into_parts` and ExplicitCompatibility's early return must reject obligations
+that they cannot retain. Their diagnostic output is not parser acceptance.
+
+Use the existing function metadata boundary for a passive detection projection
+(allocation destination plus dependent write identities), while authoritative
+source rows stay in the finalized handoff. It survives clone/semantic refresh;
+it never grants receiver semantics. Following typed-array claim coverage,
+preflight requires exact one-to-one marker/retained-row/physical-input coverage.
+Bare-module backend and the shared JSON root builder reject undischarged rows
+in both profiles. Selected C internal body projection may use the retained
+published view during preflight; that projection is not an executable artifact
+or a generic allow flag. Reject missing, extra, duplicate, foreign-function,
+post-finishing drift and scrubbed-authority clones before external output.
+
+Focused coverage must include module without root, ordinary and Script roots,
+value-use rejection, nested substring coverage, duplicate/residual consumption,
+user/brand shadowing, constructor arguments/field overrides/reassignment,
+unsupported selected carrier, and all egress cases above. Required tests use
+the published source-backed entry; an earlier diagnostic stop is dependency
+evidence only. No whole-crate/Windows CI wait is introduced. Update owning
+README/reference and reuse lane guards; close the selected old edge in this
+same bounded series (maximum five implementation commits, no per-case cards).
