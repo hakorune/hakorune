@@ -1,11 +1,11 @@
 date = "2026-09-22"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0"
-current_execution_cohort = "mir_call_parser_recursive_string_result_authority_d0"
-current_blocker_token = "MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0__DesignAccepted__S1NotImplemented"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-PARSER-STRING-RESULT-S1"
+current_execution_cohort = "mir_call_parser_string_result_s1"
+current_blocker_token = "MIR-CALL-PARSER-STRING-RESULT-S1__ImplementationPending"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "none__source_to_mir_string_design_accepted__design_only_checkpoint"
+current_design_stop = "none__accepted__string_result_s1"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -32,8 +32,8 @@ design checkpoint selects G0 guard recovery then S1 implementation, without code
 changes or runtime claims. The same D0 owns acceptance/cutover/retirement tasks.
 StringBox Compatibility probes have a distinct legacy-fallback-retired boundary;
 their dynamic membership evidence stays open. Pro commit 1a67ee4532 is not in
-this checkout. The stale publication ingress guard is reproduced baseline debt,
-with restoration queued; no Pro runtime or mutation result is a local receipt.
+this checkout. The publication ingress guard is restored locally: normal PASS and 13 rejecting
+mutations PASS; S1 implementation is now selected. Pro evidence remains separate.
 Windows lifecycle remains user-deferred, macOS CAPI retains its recorded clang
 capability boundary, and warning cleanup stays paused at I147.
 """

@@ -148,7 +148,7 @@ whole OwnedText/serializer work is a prerequisite for S1.
 
 | Order | Task / owner | Completion and retirement boundary |
 | --- | --- | --- |
-| G0 | Existing ingress guard recovery | Replace deleted Absent/pre-split path assumptions with actual four states and both TargetOnly consumers; validate positive and rejecting mutations. Known baseline debt only. |
+| G0 — closed | Existing ingress guard recovery | Four ingress states, both rejecting consumers and split transport paths checked; local PASS plus 13/13 rejected mutations, bash syntax and diff checks green. No compiler semantics change. |
 | S1 — next | MIR-CALL-PARSER-STRING-RESULT-S1; existing catalog + publisher | Implement the mapping above as one coherent result-family change; natural helper source yields String, final call rows are present, generic Call destination publishes String once. Remove superseded String-as-KnownNonI64 classification only for proved shapes. This is no shared legacy deletion credit. |
 | A1 | Canonical source-to-MIR recheck | Pin current binary, use real merged parser, observe whether RecursiveDependency is removed, take real parse/2 -> starts_with/3 once and finish empty. Classify any new terminal; no fixture shrinking. |
 | D2/I2 | Selected runtime String call/return contract and implementation | Co-seal semantic exit, carrier, caller/callee ABI, ownership and Fault in existing package/C owners; add executable content/lifetime/Fault evidence. Never use S1 as ABI authority. |
@@ -198,3 +198,6 @@ At `3038bfb1e6`, the ingress guard returned exit 1 because of deleted `Absent`
 and pre-split paths; G0 retains that known baseline debt. Pro's unpushed patch
 and reported mutation checks remain external evidence, not imported local work.
 Windows lifecycle stays user-deferred and warning cleanup stays paused at I147.
+
+G0 local receipt (2026-09-22): stale guard recovered from baseline `2f066b149b`;
+normal copied-tree check passes and 13 mutations reject. S1 is the next row.
