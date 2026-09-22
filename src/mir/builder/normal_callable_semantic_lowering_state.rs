@@ -735,3 +735,7 @@ fn freeze(reason: &str) -> String {
 }
 
 mod named_array;
+
+#[cfg(test)]
+#[path = "normal_callable_semantic_lowering_state/named_array_tests.rs"]
+mod named_array_tests;

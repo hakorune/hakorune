@@ -58,6 +58,12 @@ demanded source form and a missing physical carrier label are terminal tests;
 the non-carrier BindingRef projection is unmapped, and the existing
 physical-adapter foreign-owner test remains in the boundary.
 
+The package-loan-backed state fixture now has executable evidence for
+`named-array-call-shape`, duplicate exact-site consumption, an unmatched site
+that remains a residual until finish, and a consumed source row whose physical
+write is still missing. The focused quick suite runs four tests green; the
+existing 542-warning baseline is unchanged and no suppression was added.
+
 This card closes the remaining negative inventory. A green positive compile is
 not evidence that a duplicate source row, receiver/arity drift, or a residual
 ledger row is rejected, so each row gets a named test or an explicit existing
@@ -67,7 +73,8 @@ owner test reference before this card can close.
 
 1. **Foreign session and site** — keep the existing owner mismatch test and add
    the smallest source-session/site drift fixture at the adapter boundary. The
-   rejection must occur before Composer, PlanLowerer, or Builder effects.
+   rejection must occur before Composer, PlanLowerer, or Builder effects. This
+   remains open; the current state fixture does not fabricate a foreign session.
 2. **Physical carrier** — retain the missing-label test and cover a foreign
    BindingRef that is not a carrier without turning it into a name lookup. The
    missing-label and non-carrier tests now close this row.
@@ -76,7 +83,8 @@ owner test reference before this card can close.
    with no matching source row. The existing
    `source_core_method_take_rejects_duplicate_exact_site` remains shared-owner
    evidence; the new state test must prove the ArrayPush-specific row through
-   the real selected input and borrowed row set.
+   the real selected input and borrowed row set. The duplicate and unmatched
+   finish tests now cover this row.
 4. **Call shape** — pass only a wrong method or arity at the state consumer and
    require `named-array-call-shape`; do not mutate private contracts or broaden
    the production matcher. The upstream
@@ -87,8 +95,8 @@ owner test reference before this card can close.
    package-loan-backed state and assert the existing ledger finish rejects the
    residual. Reuse `finish_with_named_arrays`; the existing
    `package_inventory_rejects_dropped_draft_and_allocation_without_write`
-   covers the emission collector, while the callable-state residual fixture
-   remains open. Do not add a second residual scanner.
+   covers the emission collector, and the callable-state residual fixture now
+   covers the missing physical write. Do not add a second residual scanner.
 6. **Closeout** — run the B2 carrier guard, source-route guard, current-state
    pointer guard, and focused suites. Record the exact test names and classify
    any red as current-change or baseline debt before choosing cutover design.
