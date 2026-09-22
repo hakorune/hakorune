@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__T4cNoSafeSliceScheduler
+Status: parked__2026-09-22__T4cNoSafeSlice__successor-authority-d0
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
 Implementation permission: false; no existing recursive-String result owner; design decision only
-NextCard: none__t4c_recursive_string_result_NoSafeSlice__ResultFamilyOwnerAbsent
+NextCard: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -469,6 +469,11 @@ design (or a separately selected inventoried family); do not add a synthetic
 receipt, widen `ExactI64`, shrink the parser fixture, restore compatibility
 fallback, repair VM, or switch T5/R0.  I147 remains the warning boundary and
 `dead_code` remains owner debt.
+
+The missing-owner decision is handed to
+`mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md`.  That
+successor is design-only and covers exactly the two recursive helpers; it does
+not reopen the parser fixture or authorize a new result ABI by itself.
 
 ## Task order after the I147 warning boundary — 2026-09-22
 
