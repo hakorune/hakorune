@@ -143,7 +143,7 @@ fn conditional_update_if_selects_loop_cond_and_requires_source_identity() {
 fn natural_source_coseals_induction_extra_carrier_and_local_rebind() {
     with_receipt(&direct_source(), |receipt| {
         let local_bindings = receipt
-            .pre_effect
+            .pre_effect()
             .local_declarations()
             .keys()
             .copied()
@@ -201,7 +201,7 @@ fn source_local_shadow_does_not_become_an_extra_loop_carrier() {
         .replace("sum = sum + tmp", "sum = sum + 2");
     with_receipt(&source, |receipt| {
         let local_bindings = receipt
-            .pre_effect
+            .pre_effect()
             .local_declarations()
             .keys()
             .copied()

@@ -8,7 +8,6 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::registry::{
     select_recipe_first_routes, LocatedGenericLoopV1SelectionErrorV1, RecipeFirstRouteSelectionV1,
-    VerifiedLocatedGenericLoopV1SelectionV1,
 };
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
 use crate::mir::builder::control_flow::plan::features::generic_loop_body;
@@ -19,6 +18,9 @@ use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::control_flow::plan::GenericLoopV1Facts;
 use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 use crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceRouteRejectV1;
+use crate::mir::builder::normal_callable_loop_source_route::{
+    CallableLoopSourceItemBindingV1, CallableLoopSourceItemDispositionV1,
+};
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1, SourcePathSegmentV1};
 
@@ -37,6 +39,12 @@ use crate::mir::builder::raw_loop_child_entry::PreparedCallableGenericLoopSource
 mod carrier_relation;
 pub(in crate::mir::builder) use carrier_relation::{
     CallableLoopCarrierRelationRejectV1, CallableLoopCarrierRelationV1, CallableLoopCarrierSlotV1,
+};
+#[path = "generic/source_admission.rs"]
+mod source_admission;
+pub(in crate::mir::builder) use source_admission::{
+    CallableGenericLoopSourceRouteAdmissionV1, CallableGenericLoopSourceRouteKindV1,
+    CallableGenericLoopSourceSessionKeyV1, PreparedCallableGenericLoopSourceEvidenceV1,
 };
 
 use super::loop_cond;
@@ -64,6 +72,7 @@ pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsSourceErrorV1 {
 pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsRouteErrorV1 {
     GenericLoopV1NotSelected,
     NonGenericOrOverlapping { routes: Box<[LoopRouteId]> },
+    SourceEvidenceRejected(Box<str>),
     LoopCondRouteRejected(CallableLoopSourceRouteRejectV1),
     LoopTrueRouteRejected(CallableLoopSourceRouteRejectV1),
 }
@@ -92,13 +101,11 @@ pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsV1<'source> {
     body_source: RawInvocationSourceContextV1,
     condition: ASTNode,
     body: Vec<ASTNode>,
-    binding_product: CallableLoopReadyBodyOnlyProductV1,
     policy: GenericLoopFactsPolicyFrameV1,
     debug: bool,
     in_static_box: bool,
     outcome: PlanBuildOutcome,
-    selection: RecipeFirstRouteSelectionV1,
-    selected: VerifiedLocatedGenericLoopV1SelectionV1,
+    route_admission: CallableGenericLoopSourceRouteAdmissionV1<'source>,
 }
 
 impl<'source> CallableGenericLoopSourceFactsV1<'source> {
@@ -114,7 +121,7 @@ impl<'source> CallableGenericLoopSourceFactsV1<'source> {
 
     #[cfg(test)]
     pub(in crate::mir::builder) fn selection(&self) -> &RecipeFirstRouteSelectionV1 {
-        &self.selection
+        self.route_admission.selection()
     }
 
     #[cfg(test)]
@@ -135,26 +142,21 @@ impl<'source> CallableGenericLoopSourceFactsV1<'source> {
             body_source,
             condition,
             body,
-            binding_product,
             policy,
             debug,
             in_static_box,
             outcome,
-            selection,
-            selected,
+            route_admission,
         } = self;
-        let parent_site = parent_source
+        parent_source
             .site()
             .ok_or(CallableGenericLoopSourceFactsClaimErrorV1::ParentNotLocated)?;
-        let condition_site = condition_source
+        condition_source
             .site()
             .ok_or(CallableGenericLoopSourceFactsClaimErrorV1::ConditionNotLocated)?;
-        let body_site = body_source
+        body_source
             .site()
             .ok_or(CallableGenericLoopSourceFactsClaimErrorV1::BodyNotLocated)?;
-        let pre_effect = binding_product
-            .consume_pre_effect(parent_site, condition_site, body_site)
-            .map_err(CallableGenericLoopSourceFactsClaimErrorV1::PreEffectRejected)?;
         Ok(CallableGenericLoopSourceFactsReceiptV1 {
             owner,
             parent_source,
@@ -162,13 +164,11 @@ impl<'source> CallableGenericLoopSourceFactsV1<'source> {
             body_source,
             _condition: condition,
             _body: body,
-            pre_effect,
             policy,
             debug,
             in_static_box,
             outcome,
-            selection,
-            selected,
+            route_admission,
         })
     }
 }
@@ -178,7 +178,6 @@ pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsClaimErrorV1 {
     ParentNotLocated,
     ConditionNotLocated,
     BodyNotLocated,
-    PreEffectRejected(String),
 }
 
 /// One-shot source-facts claim receipt.  The pre-effect receipt is retained
@@ -191,13 +190,11 @@ pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsReceiptV1<'sour
     body_source: RawInvocationSourceContextV1,
     _condition: ASTNode,
     _body: Vec<ASTNode>,
-    pre_effect: CallableSemanticLoopHandoffPreEffectReceiptV1,
     policy: GenericLoopFactsPolicyFrameV1,
     debug: bool,
     in_static_box: bool,
     outcome: PlanBuildOutcome,
-    selection: RecipeFirstRouteSelectionV1,
-    selected: VerifiedLocatedGenericLoopV1SelectionV1,
+    route_admission: CallableGenericLoopSourceRouteAdmissionV1<'source>,
 }
 
 impl<'source> CallableGenericLoopSourceFactsReceiptV1<'source> {
@@ -210,7 +207,11 @@ impl<'source> CallableGenericLoopSourceFactsReceiptV1<'source> {
     pub(in crate::mir::builder) fn pre_effect(
         &self,
     ) -> &CallableSemanticLoopHandoffPreEffectReceiptV1 {
-        &self.pre_effect
+        self.route_admission.evidence().pre_effect()
+    }
+
+    fn route_admission(&self) -> &CallableGenericLoopSourceRouteAdmissionV1<'source> {
+        &self.route_admission
     }
 
     #[cfg(test)]
@@ -235,7 +236,6 @@ impl<'source> CallableGenericLoopSourceFactsReceiptV1<'source> {
 #[derive(Debug)]
 pub(in crate::mir::builder) struct CallableGenericLoopV1SemanticRecipeV1<'source> {
     receipt: CallableGenericLoopSourceFactsReceiptV1<'source>,
-    carrier_relation: CallableLoopCarrierRelationV1,
 }
 
 /// Borrowed source-relation view for the caller-zero bridge row.
@@ -250,12 +250,15 @@ pub(in crate::mir::builder) struct CallableGenericLoopSourceRelationViewV1<'view
     parent_source: &'view RawInvocationSourceContextV1,
     condition_source: &'view RawInvocationSourceContextV1,
     body_source: &'view RawInvocationSourceContextV1,
+    session: &'view CallableGenericLoopSourceSessionKeyV1,
     pre_effect: &'view CallableSemanticLoopHandoffPreEffectReceiptV1,
     facts: &'view CanonicalLoopFacts,
     generic: &'view GenericLoopV1Facts,
     carrier_relation: &'view CallableLoopCarrierRelationV1,
+    source_items: &'view [CallableLoopSourceItemBindingV1],
+    source_dispositions: &'view [CallableLoopSourceItemDispositionV1],
     selection: &'view RecipeFirstRouteSelectionV1,
-    selected: &'view VerifiedLocatedGenericLoopV1SelectionV1,
+    selected: &'view CallableGenericLoopSourceRouteKindV1,
     policy: GenericLoopFactsPolicyFrameV1,
     debug: bool,
     in_static_box: bool,
@@ -288,6 +291,10 @@ impl CallableGenericLoopSourceRelationViewV1<'_> {
         self.pre_effect
     }
 
+    pub(in crate::mir::builder) fn session(&self) -> &CallableGenericLoopSourceSessionKeyV1 {
+        self.session
+    }
+
     pub(in crate::mir::builder) fn facts(&self) -> &CanonicalLoopFacts {
         self.facts
     }
@@ -296,11 +303,21 @@ impl CallableGenericLoopSourceRelationViewV1<'_> {
         self.generic
     }
 
+    pub(in crate::mir::builder) fn source_items(&self) -> &[CallableLoopSourceItemBindingV1] {
+        self.source_items
+    }
+
+    pub(in crate::mir::builder) fn source_dispositions(
+        &self,
+    ) -> &[CallableLoopSourceItemDispositionV1] {
+        self.source_dispositions
+    }
+
     pub(in crate::mir::builder) fn selection(&self) -> &RecipeFirstRouteSelectionV1 {
         self.selection
     }
 
-    pub(in crate::mir::builder) fn selected(&self) -> &VerifiedLocatedGenericLoopV1SelectionV1 {
+    pub(in crate::mir::builder) fn selected(&self) -> &CallableGenericLoopSourceRouteKindV1 {
         self.selected
     }
 
@@ -342,7 +359,7 @@ pub(in crate::mir::builder) struct CallableGenericLoopV1SemanticViewV1<'view> {
     facts: &'view CanonicalLoopFacts,
     _generic: &'view GenericLoopV1Facts,
     _selection: &'view RecipeFirstRouteSelectionV1,
-    _selected: &'view VerifiedLocatedGenericLoopV1SelectionV1,
+    _selected: &'view CallableGenericLoopSourceRouteKindV1,
     debug: bool,
     in_static_box: bool,
 }
@@ -387,17 +404,21 @@ impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
         let Some(generic) = facts.facts.generic_loop_v1() else {
             return Err(CallableGenericLoopV1SemanticRecipeViewRejectV1::GenericFactsMissing);
         };
+        let evidence = self.receipt.route_admission().evidence();
         let view = CallableGenericLoopSourceRelationViewV1 {
             owner: self.receipt.owner,
-            parent_source: self.receipt.parent_source,
-            condition_source: &self.receipt.condition_source,
-            body_source: &self.receipt.body_source,
-            pre_effect: &self.receipt.pre_effect,
-            carrier_relation: &self.carrier_relation,
+            parent_source: evidence.parent_source(),
+            condition_source: evidence.condition_source(),
+            body_source: evidence.body_source(),
+            session: evidence.session(),
+            pre_effect: self.receipt.pre_effect(),
+            carrier_relation: evidence.carrier_relation(),
+            source_items: evidence.source_items(),
+            source_dispositions: evidence.source_dispositions(),
             facts,
             generic,
-            selection: &self.receipt.selection,
-            selected: &self.receipt.selected,
+            selection: self.receipt.route_admission().selection(),
+            selected: self.receipt.route_admission().selected(),
             policy: self.receipt.policy,
             debug: self.receipt.debug,
             in_static_box: self.receipt.in_static_box,
@@ -415,27 +436,28 @@ impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
         self,
         use_view: impl for<'view> FnOnce(CallableGenericLoopSourceRelationViewV1<'view>) -> R,
     ) -> Result<R, CallableGenericLoopV1SemanticRecipeViewRejectV1> {
-        let Self {
-            receipt,
-            carrier_relation,
-        } = self;
+        let Self { receipt } = self;
         let Some(facts) = receipt.outcome.facts.as_ref() else {
             return Err(CallableGenericLoopV1SemanticRecipeViewRejectV1::FactsMissing);
         };
         let Some(generic) = facts.facts.generic_loop_v1() else {
             return Err(CallableGenericLoopV1SemanticRecipeViewRejectV1::GenericFactsMissing);
         };
+        let evidence = receipt.route_admission().evidence();
         let view = CallableGenericLoopSourceRelationViewV1 {
             owner: receipt.owner,
-            parent_source: receipt.parent_source,
-            condition_source: &receipt.condition_source,
-            body_source: &receipt.body_source,
-            pre_effect: &receipt.pre_effect,
-            carrier_relation: &carrier_relation,
+            parent_source: evidence.parent_source(),
+            condition_source: evidence.condition_source(),
+            body_source: evidence.body_source(),
+            session: evidence.session(),
+            pre_effect: receipt.pre_effect(),
+            carrier_relation: evidence.carrier_relation(),
+            source_items: evidence.source_items(),
+            source_dispositions: evidence.source_dispositions(),
             facts,
             generic,
-            selection: &receipt.selection,
-            selected: &receipt.selected,
+            selection: receipt.route_admission().selection(),
+            selected: receipt.route_admission().selected(),
             policy: receipt.policy,
             debug: receipt.debug,
             in_static_box: receipt.in_static_box,
@@ -456,12 +478,12 @@ impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
         };
         let view = CallableGenericLoopV1SemanticViewV1 {
             owner: receipt.owner,
-            _loop_site: receipt.pre_effect.loop_site(),
-            pre_effect: &receipt.pre_effect,
+            _loop_site: receipt.pre_effect().loop_site(),
+            pre_effect: receipt.pre_effect(),
             facts,
             _generic: generic,
-            _selection: &receipt.selection,
-            _selected: &receipt.selected,
+            _selection: receipt.route_admission().selection(),
+            _selected: receipt.route_admission().selected(),
             debug: receipt.debug,
             in_static_box: receipt.in_static_box,
         };
@@ -495,12 +517,18 @@ impl CallableGenericLoopV1SemanticRecipeIssuerV1 {
                 CallableGenericLoopV1SemanticRecipeRejectV1::BlockExprPreludeOutsideFirstCohort,
             );
         }
-        let carrier_relation = carrier_relation::issue(&receipt, generic)
-            .map_err(CallableGenericLoopV1SemanticRecipeRejectV1::CarrierRelation)?;
-        Ok(CallableGenericLoopV1SemanticRecipeV1 {
-            receipt,
-            carrier_relation,
-        })
+        // Recheck the pre-route relation against the still-owned planner
+        // outcome before exposing the Recipe. This preserves the existing
+        // mutation/negative tests while keeping the selected token out of the
+        // source evidence issuer.
+        carrier_relation::issue_pre_route(
+            receipt.owner,
+            receipt.route_admission().evidence().pre_effect(),
+            receipt.route_admission().evidence().body_source(),
+            generic,
+        )
+        .map_err(CallableGenericLoopV1SemanticRecipeRejectV1::CarrierRelation)?;
+        Ok(CallableGenericLoopV1SemanticRecipeV1 { receipt })
     }
 }
 
@@ -571,7 +599,7 @@ impl CallableLoopStructuralLeaseIssuerV1 {
             &receipt.parent_source,
             &receipt.condition_source,
             &receipt.body_source,
-            &receipt.pre_effect,
+            receipt.pre_effect(),
         )?;
         Ok(PreparedCallableLoopStructuralHandoffV1 { receipt, seed })
     }
@@ -588,10 +616,10 @@ impl<'source> PreparedCallableLoopStructuralHandoffV1<'source> {
         let Self { receipt, seed } = self;
         let view = CallableLoopReadyStructuralViewV1 {
             owner: receipt.owner,
-            loop_site: receipt.pre_effect.loop_site(),
-            pre_effect: &receipt.pre_effect,
+            loop_site: receipt.pre_effect().loop_site(),
+            pre_effect: receipt.pre_effect(),
             outcome: &receipt.outcome,
-            selection: &receipt.selection,
+            selection: receipt.route_admission().selection(),
             port: CallableLoopSourceBoundStructuralPortV1::from_seed(&seed),
         };
         use_view(view)

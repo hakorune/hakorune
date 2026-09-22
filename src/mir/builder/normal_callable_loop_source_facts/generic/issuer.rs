@@ -52,8 +52,72 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
         }
 
         let selection = select_recipe_first_routes(outcome.facts.as_ref());
-        let selected = match selection.verify_located_generic_loop_v1() {
-            Ok(selected) => selected,
+        // The raw registry remains neutral.  Source evidence is issued only
+        // for the two GenericLoop shapes admitted by this owner; LoopCond and
+        // LoopTrue keep their existing independent source consumers below.
+        if matches!(
+            selection.raw_execution_routes(),
+            [crate::mir::loop_recipe_contract::route_id::LoopRouteId::GenericLoopV1]
+                | [
+                    crate::mir::loop_recipe_contract::route_id::LoopRouteId::GenericLoopV0,
+                    crate::mir::loop_recipe_contract::route_id::LoopRouteId::GenericLoopV1
+                ]
+        ) {
+            let Some(generic) = outcome
+                .facts
+                .as_ref()
+                .and_then(|facts| facts.facts.generic_loop_v1())
+            else {
+                return CallableGenericLoopSourceFactsDispositionV1::FactsAbsent;
+            };
+            let evidence = match super::PreparedCallableGenericLoopSourceEvidenceV1::issue(
+                owner,
+                parent_source,
+                condition_source.clone(),
+                body_source.clone(),
+                binding_product,
+                generic,
+                source_items,
+                source_target_probe,
+            ) {
+                Ok(evidence) => evidence,
+                Err(error) => {
+                    return CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
+                        CallableGenericLoopSourceFactsRouteErrorV1::SourceEvidenceRejected(
+                            format!("{error:?}").into_boxed_str(),
+                        ),
+                    )
+                }
+            };
+            let route_admission = match super::CallableGenericLoopSourceRouteAdmissionV1::issue(
+                selection, evidence,
+            ) {
+                Ok(admission) => admission,
+                Err(error) => {
+                    return CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
+                        error,
+                    )
+                }
+            };
+            return CallableGenericLoopSourceFactsDispositionV1::Ready(
+                CallableGenericLoopSourceFactsV1 {
+                    owner,
+                    parent_source,
+                    condition_source,
+                    body_source,
+                    condition,
+                    body,
+                    policy,
+                    debug,
+                    in_static_box,
+                    outcome,
+                    route_admission,
+                },
+            );
+        }
+
+        match selection.verify_located_generic_loop_v1() {
+            Ok(_) => unreachable!("GenericLoop route handled above"),
             Err(error) => {
                 if selection
                     .verify_located_loop_cond_break_continue_v1()
@@ -119,22 +183,6 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
                     route_error(error),
                 );
             }
-        };
-
-        CallableGenericLoopSourceFactsDispositionV1::Ready(CallableGenericLoopSourceFactsV1 {
-            owner,
-            parent_source,
-            condition_source,
-            body_source,
-            condition,
-            body,
-            binding_product,
-            policy,
-            debug,
-            in_static_box,
-            outcome,
-            selection,
-            selected,
-        })
+        }
     }
 }

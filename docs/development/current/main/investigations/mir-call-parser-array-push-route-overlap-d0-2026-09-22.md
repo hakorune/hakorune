@@ -250,6 +250,42 @@ there is no later pairing by name, method count, MIR value, or bool flag.
    BindingRef carrier projection and conditional NamedArray construction/
    receiver/NoValue co-seal. Then consume the existing ArrayElementWrite row.
 
+## I0 implementation checkpoint — 2026-09-23
+
+Current execution row: `MIR-CALL-PARSER-ARRAY-PUSH-ROUTE-EVIDENCE-I0-FOCUSED-NEGATIVE`.
+
+The first implementation part of `MIR-CALL-PARSER-ARRAY-PUSH-ROUTE-EVIDENCE-I0`
+is now present in the existing GenericLoop owner. The source owner issues a
+move-only `PreparedCallableGenericLoopSourceEvidenceV1` before source route
+admission. It co-seals the consumed pre-effect, the carrier relation issued
+from pre-effect plus GenericLoopV1 facts, the source item batch, ordered item
+dispositions, and the owner/parent/condition/body session key. The route
+admission retains that evidence beside the raw registry selection and admits
+only `[GenericLoopV1]` or the source-authorized `[GenericLoopV0,
+GenericLoopV1]` schedule. The raw registry verifier and its neutral overlap
+tests are unchanged.
+
+Carrier validation is still re-run against the planner outcome at Recipe
+issuance so the existing mutation/negative tests remain fail-closed; it does
+not use a selected route token as evidence. The physical adapter's additional
+session/site recheck remains in the prior uncommitted carrier-projection WIP
+and is not counted as this route-admission receipt.
+
+Focused evidence collected on the working tree:
+
+```text
+generic carrier/source-facts tests: 6 + 13 passed
+GenericLoop raw selection matrix: 9 passed
+NamedArray source -> retained typed write -> C frame: 1 passed
+quick profile warnings: 542 (same as the pre-slice baseline)
+```
+
+This is a source-route admission result, not an ArrayPush publication or
+production cutover. The remaining I0 work is the named negative corpus for
+missing/foreign/duplicate/value-demanded source evidence and a reusable guard
+for the two admitted raw schedule shapes. Only after that corpus is green may
+the B2 BindingRef/NamedArray physical co-seal resume.
+
 ## Stop conditions and acceptance
 
 The raw-overlap and authority-cycle decisions above are accepted for the next

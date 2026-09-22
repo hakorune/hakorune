@@ -12,6 +12,7 @@ use crate::mir::builder::normal_callable_loop_handoff::{
 use crate::mir::resolved_semantics::{
     BindingRefV1, BodyChildRoleV1, ExprChildRoleV1, SourceBindingSiteV1, SourceStmtSiteV1,
 };
+use crate::mir::ValueId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(in crate::mir::builder) struct CallableLoopCarrierSlotV1(usize);
@@ -56,6 +57,14 @@ impl CallableLoopCarrierRelationV1 {
     pub(in crate::mir::builder) fn induction(&self) -> CallableLoopCarrierSlotV1 {
         self.induction
     }
+
+    pub(in crate::mir::builder) fn induction_binding(&self) -> Result<BindingRefV1, String> {
+        self.carriers
+            .iter()
+            .find(|carrier| carrier.slot() == self.induction)
+            .map(CallableLoopCarrierBindingV1::binding)
+            .ok_or_else(|| "[freeze:contract][callable-loop/induction-carrier-missing]".to_owned())
+    }
     pub(in crate::mir::builder) fn carriers(&self) -> &[CallableLoopCarrierBindingV1] {
         &self.carriers
     }
@@ -63,6 +72,26 @@ impl CallableLoopCarrierRelationV1 {
         &self,
     ) -> &BTreeMap<SourceNodeSiteV1, BindingRefV1> {
         &self.assignment_bindings
+    }
+
+    pub(in crate::mir::builder) fn physical_value_for_binding(
+        &self,
+        binding: BindingRefV1,
+        physical_by_label: &BTreeMap<String, ValueId>,
+    ) -> Result<Option<crate::mir::ValueId>, String> {
+        let Some(carrier) = self.carriers.iter().find(|row| row.binding() == binding) else {
+            return Ok(None);
+        };
+        physical_by_label
+            .get(carrier.label())
+            .copied()
+            .map(Some)
+            .ok_or_else(|| {
+                format!(
+                    "[freeze:contract][callable-loop/source-carrier-physical-missing] label={}",
+                    carrier.label()
+                )
+            })
     }
 }
 
@@ -80,15 +109,21 @@ pub(in crate::mir::builder) enum CallableLoopCarrierRelationRejectV1 {
     BindingLabelMismatch,
 }
 
-/// Called only by the semantic Recipe issuer while source and pre-effect are
-/// borrowed from its one claimed receipt. No independently installable product.
-pub(super) fn issue(
-    receipt: &CallableGenericLoopSourceFactsReceiptV1<'_>,
+/// Issue the carrier relation from the source owner before route admission.
+///
+/// This deliberately consumes only the pre-effect/source context and the
+/// planner's GenericLoopV1 facts.  It must not require a selected route token:
+/// source evidence is what authorizes the source-specific overlap admission.
+/// The returned relation is retained inside the move-only source evidence
+/// aggregate until the Recipe consumer observes it.
+pub(super) fn issue_pre_route(
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    pre: &CallableSemanticLoopHandoffPreEffectReceiptV1,
+    body_source: &RawInvocationSourceContextV1,
     generic: &GenericLoopV1Facts,
 ) -> Result<CallableLoopCarrierRelationV1, CallableLoopCarrierRelationRejectV1> {
     use CallableLoopCarrierRelationRejectV1 as Reject;
-    let pre = &receipt.pre_effect;
-    if pre.owner() != receipt.owner {
+    if pre.owner() != owner {
         return Err(Reject::ForeignOwner);
     }
     let mut assignments = BTreeMap::new();
@@ -98,7 +133,7 @@ pub(super) fn issue(
         .flat_map(|row| row.receipts())
         .chain(pre.body_only_rows().iter().flat_map(|row| row.receipts()))
     {
-        if row.binding().owner() != receipt.owner {
+        if row.binding().owner() != owner {
             return Err(Reject::ForeignOwner);
         }
         if row.role() == CallableLoopBindingRoleV1::BodyRebind
@@ -110,7 +145,7 @@ pub(super) fn issue(
         }
     }
     let mut syntax = SourceTargets::default();
-    syntax.collect(&generic.body.body, &receipt.body_source)?;
+    syntax.collect(&generic.body.body, body_source)?;
     if assignments.keys().ne(syntax.assignments.keys()) {
         return Err(Reject::TargetCoverage);
     }
@@ -122,7 +157,7 @@ pub(super) fn issue(
     if pre
         .local_declarations()
         .keys()
-        .any(|binding| binding.owner() != receipt.owner)
+        .any(|binding| binding.owner() != owner)
     {
         return Err(Reject::ForeignOwner);
     }
@@ -142,8 +177,7 @@ pub(super) fn issue(
     let ASTNode::Variable { name, .. } = target.as_ref() else {
         return Err(Reject::IncrementNotVariableAssignment);
     };
-    let increment_source = receipt
-        .body_source
+    let increment_source = body_source
         .body_statement_context(increment, increment_index)
         .and_then(|source| source.child_expression(increment, ExprChildRoleV1::AssignmentTarget))
         .map_err(Reject::SourceLocation)?;
