@@ -214,6 +214,8 @@ static box LowerReturnMethodStringLengthBox {
     local elem_end = JsonCursorBox.seek_obj_end(s, p); if elem_end < 0 || elem_end > arr_end { return null }
     local next = me._skip_ws_bounded(s, elem_end + 1, arr_end)
     if next > arr_end || s.substring(next, next + 1) != "]" { return null }
+    local elem_type = me._object_string(s, p, elem_end, "type")
+    if elem_type == null || !(elem_type == "Str" || elem_type == "String") { return null }
     if me._object_shape_ok(s, p, elem_end, "direct") != 1 { return null }
     return me._object_string_literal(s, p, elem_end, "value")
   }

@@ -102,6 +102,20 @@ boundary is limited to the compatibility root's scope/ledger choice; it does
 not reopen Generic G0 or change this Hako owner. After that D0's I0 lands, the
 phase14/16/17 and malformed-shape probes return here for closeout.
 
+## Type-tag boundary correction (2026-09-22)
+
+The bounded `_array_single_direct_string` reader now validates the element
+`type` tag as `Str` or `String` before accepting its `value`. Constructor and
+`indexOf` argument objects with a present but foreign tag are therefore
+rejected before any emitter is called. The structural guard was extended to
+pin this check.
+
+An attempted direct positive/foreign-tag probe could not reach this lowerer:
+the existing whole-module route stops first at
+`[freeze:contract][static-call/legacy-fallback-retired]` for
+`ParserStringUtilsBox.starts_with/3`. This reproduces the card's existing
+known baseline and is not evidence for or against the new type-tag branch.
+
 ## Recovery result and next baseline (2026-09-14)
 
 The compatibility-root recovery I0 is closed in

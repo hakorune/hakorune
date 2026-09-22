@@ -45,6 +45,15 @@ for pattern in "${required[@]}"; do
   fi
 done
 
+if ! rg -n 'local elem_type = me\._object_string\(s, p, elem_end, "type"\)' "$SOURCE" >/dev/null; then
+  echo "[$TAG] array string reader does not validate the type tag" >&2
+  exit 1
+fi
+if ! rg -n 'elem_type == "Str" \|\| elem_type == "String"' "$SOURCE" >/dev/null; then
+  echo "[$TAG] array string reader accepts an unrecognized type tag" >&2
+  exit 1
+fi
+
 if ! rg -n 'mname == "length"|mname == "size"|mname == "indexOf"' "$SOURCE" >/dev/null; then
   echo "[$TAG] selected method membership is missing" >&2
   exit 1
