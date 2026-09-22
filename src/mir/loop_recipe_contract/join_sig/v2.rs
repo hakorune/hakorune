@@ -23,14 +23,14 @@ pub(crate) enum LoopJoinClosureRejectV2 {
     JoinSig(LoopJoinSigRejectReasonV1),
 }
 
-/// One exact V2 JoinSig and the After derived from its sole root carrier.
+/// One exact V2 JoinSig and its owner-derived After payload.
 ///
 /// The closure is deliberately non-`Clone` and has no `into_parts`: V2
 /// callers can only retain or borrow the same-Recipe logical control proof.
 #[derive(Debug)]
-pub(crate) struct VerifiedLoopJoinClosureV2 {
+pub(crate) struct VerifiedLoopJoinClosureV2<A = VerifiedLoopAfterBinding<LoopValueClassV2>> {
     join_sig: VerifiedLoopJoinSigV2,
-    after: VerifiedLoopAfterBinding<LoopValueClassV2>,
+    after: A,
 }
 
 impl VerifiedLoopJoinClosureV2 {
@@ -73,7 +73,7 @@ pub(crate) fn issue_sole_root_carrier_join_closure_v2(
         .carriers
         .iter()
         .filter(|carrier| carrier.owner_loop == root);
-    let Some(carrier) = root_carriers.next() else {
+    let Some(_) = root_carriers.next() else {
         return Err(LoopJoinClosureRejectV2::RootCarrierCardinality { root, found: 0 });
     };
     let additional = root_carriers.count();
@@ -84,10 +84,52 @@ pub(crate) fn issue_sole_root_carrier_join_closure_v2(
         });
     }
 
+    let collection = issue_root_carrier_join_closure_v2(recipe)?;
+    let [after] = <[_; 1]>::try_from(collection.after.into_vec()).map_err(|rows| {
+        LoopJoinClosureRejectV2::RootCarrierCardinality {
+            root,
+            found: rows.len(),
+        }
+    })?;
+    Ok(VerifiedLoopJoinClosureV2 {
+        join_sig: collection.join_sig,
+        after,
+    })
+}
+
+/// Shared issuance, with no selected physical or source consumer of a collection.
+/// The sole-carrier facade checks its cardinality before entering this owner.
+/// Collection and sole payloads cannot use each other's accessors.
+pub(in crate::mir::loop_recipe_contract) fn issue_root_carrier_join_closure_v2(
+    recipe: &VerifiedLoopRecipeV2,
+) -> Result<
+    VerifiedLoopJoinClosureV2<Box<[VerifiedLoopAfterBinding<LoopValueClassV2>]>>,
+    LoopJoinClosureRejectV2,
+> {
+    let root = recipe.root_loop();
+    let carriers = recipe
+        .as_recipe()
+        .carriers
+        .iter()
+        .filter(|carrier| carrier.owner_loop == root)
+        .collect::<Vec<_>>();
+    if carriers.is_empty() {
+        return Err(LoopJoinClosureRejectV2::RootCarrierCardinality { root, found: 0 });
+    }
     let join_sig =
         LoopJoinSigElaboratorV2::elaborate(recipe).map_err(LoopJoinClosureRejectV2::JoinSig)?;
-    let after = join_sig
-        .require_after_binding_internal(root, carrier.binding, carrier.class)
-        .map_err(LoopJoinClosureRejectV2::JoinSig)?;
+    let after = carriers
+        .into_iter()
+        .map(|carrier| {
+            join_sig
+                .require_after_binding_internal(root, carrier.binding, carrier.class)
+                .map_err(LoopJoinClosureRejectV2::JoinSig)
+        })
+        .collect::<Result<Vec<_>, _>>()?
+        .into_boxed_slice();
     Ok(VerifiedLoopJoinClosureV2 { join_sig, after })
 }
+
+#[cfg(test)]
+#[path = "v2_collection_tests.rs"]
+mod collection_tests;

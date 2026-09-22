@@ -715,16 +715,21 @@ this receipt.
 
 ## V2 root-carrier Join closure
 
-The semantic-program row removes the split V2 issuance surface. A verified V2
-Recipe now enters `issue_sole_root_carrier_join_closure_v2`, which derives its
-root and requires exactly one root-owned carrier before invoking the private
-V2 adapter and raw After lookup. The result keeps the JoinSig and matching
-After in one non-`Clone` `VerifiedLoopJoinClosureV2` with no `into_parts`.
+The selected compiler profiles enter `issue_sole_root_carrier_join_closure_v2`,
+which requires exactly one root carrier before elaboration. It delegates to the
+same subtree's collection issuer, which derives one JoinSig and validates After
+for every root carrier. Any missing row rejects the whole result.
 
-The compiler profile supplies no Loop key, binding key, class, JoinSig, or
-After. `LoopJoinSigElaboratorV2` and a raw V2 After alias are not re-exported
-through the production facade. This subtree still does not import the Dynamic
-compiler profile; the profile consumes the safe combined closure instead.
+`VerifiedLoopJoinClosureV2<A>` keeps single-row and collection payloads distinct.
+Only the single-row specialization exposes the existing After/transfer accessors;
+a collection cannot silently select its first row. Both remain non-Clone and
+have no public `into_parts`. The checked sole facade consumes its one-row
+collection entirely inside the JoinSig owner.
+
+No source/physical profile is activated for collections. The compiler supplies
+no detached Loop key, binding, class, JoinSig or After. Raw V2 elaboration and
+After lookup remain private; Generic source co-seal is still required before
+using the collection for scoped publication.
 
 ## Forbidden dependencies
 

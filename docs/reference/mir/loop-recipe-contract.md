@@ -2319,3 +2319,17 @@ the same common-V2 session, then exercise one positive and one foreign/raw-
 condition negative fixture. Residence exit, normal-return finish, runtime,
 production, performance, fallback/retry, and `eq_hh` retirement remain
 closed.
+
+
+## V2 root-carrier closure collection
+
+Decision: the existing JoinSig owner derives and checks the complete root-carrier
+After collection from one verified V2 Recipe. No caller supplies independent
+After keys or pairs a detached JoinSig with a source product. Missing After
+rejects the collection atomically.
+
+Existing Dynamic/S6C admission still requires exactly one root carrier before
+elaboration. The closure's payload type separates this sole result from the
+collection; sole accessors cannot be invoked on a collection. This shared
+issuance refactor does not activate Generic source, extend value/operation
+vocabulary, or establish runtime/physical publication evidence.

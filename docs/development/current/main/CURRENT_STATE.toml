@@ -1,11 +1,11 @@
 date = "2026-09-22"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0"
 current_execution_cohort = "mir_call_parser_array_push_b2_i0"
-current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0__SourceContinuationTransferMappingPending"
+current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0__ConstTextLogicalVocabularyPending"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "SourceContinuationTransferMappingPending"
+current_design_stop = "Accepted__ConstTextLogicalVocabulary"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -39,7 +39,7 @@ body increment also reads init0 instead of the existing loop carrier.
 Design queue fixes source BindingRef/slot co-seal and branch/loop publication.
 Origin identity/kill policy accepted; concrete source continuation mapping remains open.
 Declaration scope retained: 37 focused tests pass, quick 4m32s, warnings 542.
-Task 2 carrier co-seal: 33 focused pass, quick4m08s, warnings542. Keyed physical core:112 focused pass, quick5m26s, warnings542. Next: map Generic operation/classes into common source-bound Core; existing JoinSig is reusable but its V2 closure is sole-carrier. Scoped publication follows.
+Task 2 carrier co-seal: 33 focused pass, quick4m08s, warnings542. Keyed physical core:112 focused pass, quick5m26s, warnings542. Root closure collection:100 focused pass,3 parent-reproduced baseline reds. Next: ConstText logical vocabulary; source co-seal and scoped publication follow.
 Merged parser now reaches no-exact-static-target; exact later site remains to
 identify before updating its old-terminal test. Last verified checkpoint 319a2d7102.
 Text lifetime/mutation Fault remains an explicit next execution-contract task:
@@ -56,8 +56,8 @@ warning cleanup remains paused at I147. Pro commit 1a67ee4532 was not imported.
 """
 next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
