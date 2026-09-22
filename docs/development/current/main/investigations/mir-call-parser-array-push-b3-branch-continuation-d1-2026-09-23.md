@@ -1,0 +1,124 @@
+---
+Status: design_stop__loop_if_branch_continuation_ledger_scope
+Task: MIR-CALL-PARSER-ARRAY-PUSH-B3-BRANCH-CONTINUATION-D1
+Parent: mir-call-parser-array-push-b3-if-loopcond-d0-2026-09-23
+NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B3-IF-LOOPCOND-I0
+Implementation permission: false; design and finite source/owner census only. Do not add a fixture, change the ledger, widen a Recipe, issue a new semantic receipt, switch a caller, or delete the shared MethodCall writer.
+---
+
+# StringHelpers Loop-If branch continuation and ledger scope D1
+
+## Six-line brief
+
+```text
+Decision: prove whether the existing LoopCond/GeneralIf owner can co-seal the
+nested split_lines ArrayPush with branch entry/reset/join/backedge/exit state
+for the exact `i` and `last` BindingRefs and their source origins.
+Source authority + canonical issuer: the existing resolver source forest and
+issue_source_core_method_calls_with_named_arrays_v1; the existing LoopCond
+Facts/Recipe consumer remains the sole semantic issuer and physical owner.
+Non-authority: Hako names, AST rescans, Builder variable-map snapshots alone,
+MIR phi shape, push text, compatibility lowerers, and the post-Loop tail push.
+Fail-fast boundary: branch site, continuation site, BindingRef, active-origin
+state, and named ArrayPush row must be one exact transaction; missing/foreign/
+duplicate/rollback/residual state stops at an existing named terminal.
+Smallest next slice: map the existing ledger APIs to one branch transaction and
+decide whether no new receipt or carrier map is required.
+Non-claims: no implementation, generic If support, tail-push support, runtime
+Text/Fault proof, raw push/set/insert retirement, VM/AOT parity, or serializer.
+```
+
+## Finite source inventory
+
+The selected source witness is `lang/src/shared/common/string_helpers.hako`
+`split_lines`:
+
+| row | source shape | D1 treatment |
+| --- | --- | --- |
+| loop row | `arr.push(s.substring(last, i))` inside `loop` → `if ch == "\n"`; the then branch also assigns `last = i + 1` | selected nested Loop-If row |
+| tail row | `arr.push(s.substring(last))` after the loop | explicit non-claim; separate future statement owner |
+
+The row identity must remain the resolver `SourceExprSiteV1` and the existing
+`BindingRefV1` relation for `arr`, `i`, and `last`. Method names, source text,
+or a MIR array shape cannot select either row.
+
+## Existing owner map
+
+```text
+source forest / named-array issuer
+  -> normal_callable_loop_source_facts::loop_cond::issue
+  -> SourceLoopCondPhysicalInputV1
+  -> loop_cond_bc_source::lower_loop_cond_break_continue_source
+  -> GeneralIf in associated_source::callable_loop_source_items
+  -> callable_loop_source_lowering::lower_join_if_source
+  -> dispatch::if_join::lower_if_join_state_core
+```
+
+The existing join core snapshots `MirBuilder` variable maps, resets each branch,
+normalizes branch maps, emits join payloads, and publishes continuation ValueIds.
+The source port, however, borrows the callable ledger and performs exact
+operations independently:
+
+* `read_variable` consumes an exact source read and reads the current
+  `BindingRefV1` value;
+* `rebind` consumes the assignment row, invalidates its dynamic origin, and
+  writes the new ValueId;
+* `take_source_array_push` consumes the exact named-array source row and stores
+  an emission port until `finish_with_named_arrays`;
+* `publish_source_loop_final_value` publishes a loop final binding only after
+  the physical loop owner closes.
+
+D1 must decide whether these existing operations can be wrapped by the same
+branch transaction used by `lower_if_join_state_core`. A Builder map snapshot
+without the ledger state is insufficient: it can make `last` appear joined
+while the source row, consumed-site set, or dynamic origin remains on one
+discarded branch.
+
+## Ordered D1 tasks
+
+1. **Exact row census.** Record the Loop site, If site, push site,
+   `substring(last, i)` argument site, `arr` receiver BindingRef, `i` and
+   `last` assignment/read sites, and the post-Loop tail site. Verify that the
+   nested row is under the Loop source root and the tail is not.
+
+2. **Issuer and recipe coverage.** Show that the named-array issuer emits one
+   row for the nested push, that `GeneralIf` is the selected `IfContractKind::Join`
+   item, and that no second classifier or source item map is needed. The tail
+   must remain outside the selected named-array set.
+
+3. **Branch transaction inventory.** Map each existing ledger mutation used by
+   the row (`read_variable`, `rebind`, `take_source_array_push`, pending
+   `named_array_writes`, dynamic origin invalidation, and final publication) to
+   branch entry, branch reset, join continuation, backedge, and loop exit.
+   Identify the smallest existing snapshot/restore owner; do not invent a
+   semantic receipt during this task.
+
+4. **Origin and BindingRef proof.** Specify how the exact `i` and `last`
+   BindingRefs and their active origins are restored after the discarded branch
+   and published after the join. A ValueId-only or name-only argument is a
+   rejection, not a partial acceptance.
+
+5. **Named-array one-shot proof.** Decide how the nested ArrayPush row is taken
+   exactly once across zero iterations, one iteration, multiple iterations,
+   true/false branches, and loop backedge. The post-Loop tail row must not be
+   consumed by the LoopCond owner.
+
+6. **Failure terminals.** Bind missing/foreign branch continuation,
+   source-site parent mismatch, duplicate row take, duplicate rebind,
+   rollback failure, unconsumed row, and emitted-write residual to existing
+   terminals. `Ok(None)` from a lookup is not a rejection until the caller or
+   finish owner proves the required row was absent by contract.
+
+7. **D1 exit decision.** Accept `I0` only if one existing owner can expose a
+   finite source→Facts→Recipe→branch transaction→physical consumer map with
+   positive/negative evidence and an explicit retain/delete set. Otherwise
+   record `NoSafeSlice__LoopCondLedgerBranchScopeMissing` and keep the family
+   design-stopped; do not add a fallback or move to runtime/serializer work.
+
+## Required evidence and non-claims
+
+This card is read-only design work. No Cargo, source edits, fixtures, guards,
+new `Verified*`/`Prepared*` receipts, caller switches, or deletions are
+allowed. B2's straight-line ArrayPush matrix is dependency evidence only and
+does not prove branch ledger scope. The post-Loop `substring(last)` row and
+runtime Text/Fault ownership remain separate cards.
