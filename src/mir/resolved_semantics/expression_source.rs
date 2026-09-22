@@ -218,6 +218,30 @@ impl ResolvedInitializerRelationV1 {
     }
 }
 
+/// Passive named-construction syntax; this is not builtin/provider authority.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ResolvedNewExpressionSourceV1 {
+    site: SourceExprSiteV1,
+    class: Box<str>,
+    arguments: Box<[SourceExprSiteV1]>,
+    field_initializers: Box<[(Box<str>, SourceExprSiteV1)]>,
+}
+
+impl ResolvedNewExpressionSourceV1 {
+    pub(crate) fn site(&self) -> &SourceExprSiteV1 {
+        &self.site
+    }
+    pub(crate) fn class(&self) -> &str {
+        &self.class
+    }
+    pub(crate) fn arguments(&self) -> &[SourceExprSiteV1] {
+        &self.arguments
+    }
+    pub(crate) fn field_initializers(&self) -> &[(Box<str>, SourceExprSiteV1)] {
+        &self.field_initializers
+    }
+}
+
 #[derive(Debug, Default)]
 pub(crate) struct ResolvedExpressionSourceInventoryV1 {
     binaries: BTreeMap<SourceExprSiteV1, ResolvedBinaryExpressionSourceV1>,
@@ -225,6 +249,7 @@ pub(crate) struct ResolvedExpressionSourceInventoryV1 {
     literals: BTreeMap<SourceExprSiteV1, ResolvedLiteralSourceV1>,
     conditionals: BTreeMap<SourceExprSiteV1, ResolvedConditionalExpressionSourceV1>,
     initializers: BTreeMap<SourceBindingSiteV1, ResolvedInitializerRelationV1>,
+    constructions: BTreeMap<SourceExprSiteV1, ResolvedNewExpressionSourceV1>,
 }
 
 impl ResolvedExpressionSourceInventoryV1 {
@@ -246,7 +271,15 @@ impl ResolvedExpressionSourceInventoryV1 {
             literals: literals.into_iter().collect(),
             conditionals: BTreeMap::new(),
             initializers: BTreeMap::new(),
+            constructions: BTreeMap::new(),
         }
+    }
+
+    pub(crate) fn construction(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&ResolvedNewExpressionSourceV1> {
+        self.constructions.get(site)
     }
 
     pub(crate) fn binaries(&self) -> impl Iterator<Item = &ResolvedBinaryExpressionSourceV1> {
@@ -303,6 +336,7 @@ pub(in crate::mir::resolved_semantics) struct ShadowExpressionSourceDraftV1 {
     literals: BTreeMap<SourceExprSiteV1, ResolvedLiteralSourceV1>,
     conditionals: Vec<ResolvedConditionalExpressionSourceV1>,
     initializers: Vec<ShadowInitializerRelationV1>,
+    constructions: Vec<ResolvedNewExpressionSourceV1>,
 }
 
 #[derive(Debug, Clone)]
@@ -320,6 +354,37 @@ impl<'ast, 'schema> super::shadow::resolver::ShadowResolverV0<'ast, 'schema> {
         site: SourceExprSiteV1,
     ) {
         match expression {
+            ASTNode::New {
+                class,
+                arguments,
+                field_initializers,
+                ..
+            } => {
+                let path = SourcePathV1::from_node(site.node());
+                self.expression_source
+                    .constructions
+                    .push(ResolvedNewExpressionSourceV1 {
+                        site: site.clone(),
+                        class: class.clone().into(),
+                        arguments: (0..arguments.len())
+                            .map(|index| {
+                                path.child(SourcePathSegmentV1::Argument(index as u32))
+                                    .expr()
+                            })
+                            .collect(),
+                        field_initializers: field_initializers
+                            .iter()
+                            .enumerate()
+                            .map(|(index, (name, _))| {
+                                (
+                                    name.clone().into(),
+                                    path.child(SourcePathSegmentV1::Initializer(index as u32))
+                                        .expr(),
+                                )
+                            })
+                            .collect(),
+                    });
+            }
             ASTNode::BinaryOp { operator, .. } => {
                 let path = SourcePathV1::from_node(site.node());
                 self.expression_source.binaries.insert(
@@ -399,6 +464,12 @@ pub(super) fn seal_shadow_expression_source_v1(
     draft: ShadowExpressionSourceDraftV1,
     binding_ref: impl Fn(ShadowBindingOrdinalV0) -> BindingRefV1,
 ) -> Result<ResolvedExpressionSourceInventoryV1, &'static str> {
+    let mut constructions = BTreeMap::new();
+    for row in draft.constructions {
+        if constructions.insert(row.site.clone(), row).is_some() {
+            return Err("duplicate construction expression source relation");
+        }
+    }
     let mut unaries = BTreeMap::new();
     for row in draft.unaries {
         let site = row.site.clone();
@@ -435,6 +506,7 @@ pub(super) fn seal_shadow_expression_source_v1(
         literals: draft.literals,
         conditionals,
         initializers,
+        constructions,
     })
 }
 
@@ -560,3 +632,7 @@ mod tests {
         );
     }
 }
+
+#[cfg(test)]
+#[path = "construction_source_tests.rs"]
+mod construction_tests;

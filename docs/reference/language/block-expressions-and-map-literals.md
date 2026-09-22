@@ -211,6 +211,14 @@ the existing name-resolution/provider contract. Plugin configuration may affect
 that explicit named operation where supported; it cannot redefine literal meaning.
 This is a construction distinction, not a second global runtime registry.
 
+The compiler's resolver retains named-construction syntax as a passive source
+row: class spelling, ordered argument sites, and ordered field-initializer
+names/sites. Local initialization joins that row through the existing exact
+source site and binding relation. Duplicate construction sites reject at the
+resolver seal. This transport does not select a builtin/provider, erase user
+shadowing, or authorize a collection operation; those require the selected
+source constructor contract.
+
 Retain existing evaluation and failure order: allocate before evaluating entries,
 evaluate children exactly once in source order, and perform each existing write
 after its child evaluation. Keep current Map key, duplicate-key and iteration

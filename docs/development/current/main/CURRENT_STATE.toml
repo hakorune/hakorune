@@ -24,11 +24,13 @@ source Bool Call-to-Branch 1, merged dependency/inventory 2 tests pass.
 The real parse/2 -> starts_with/3 Selected ExactI64 handoff retains ordinals [].
 Full parser acceptance now stops at StringHelpers.split_lines/1 loop-local
 arr.push(s.substring(last,i)): source method item outside selected family.
-B2-D0 design queue is recorded: preserve constructor semantics and first close
-compiler-ingress policy capture/transport (user shadowing and provider overrides),
-then source Array binding, NoValue typed statement cutover and selected name-edge
-retirement. Existing append writer is reusable; executable Text/Fault evidence
-is a separate required acceptance task. Implementation remains design-stopped. Generated ArrayPush
+B2 passive construction source transport is verified: new tests 3, ledger 20.
+Selected C allocation bypasses UnifiedBoxRegistry, so runtime registry capture
+is not a prerequisite. Next design retains the source-site-bound Named Array requirement through
+artifact publication and discharges it in backend preflight, then closes
+NoValue typed statement cutover and
+selected name-edge retirement. Existing append writer is reusable; executable
+Text/Fault evidence remains separate required acceptance. Generated ArrayPush
 manifest metadata is not source implementation authority. Runtime Bool/String
 ABI admission, canonical acceptance, caller cutover and R0 remain required.
 StringBox Compatibility probes retain their separate retired-fallback boundary.

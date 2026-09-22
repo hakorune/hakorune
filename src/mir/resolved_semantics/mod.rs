@@ -161,7 +161,7 @@ pub(crate) use expression_source::{
     ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1,
     ResolvedConditionalExpressionSourceV1, ResolvedExpressionIfConsumerV1,
     ResolvedExpressionSourceInventoryV1, ResolvedInitializerRelationV1, ResolvedLiteralSourceV1,
-    ResolvedUnaryExpressionSourceV1, ResolvedUnaryOperatorV1,
+    ResolvedNewExpressionSourceV1, ResolvedUnaryExpressionSourceV1, ResolvedUnaryOperatorV1,
 };
 pub(crate) use function_root::{
     ResolvedFunctionLoweringRootsV1, ResolvedFunctionRootVerificationErrorV1,

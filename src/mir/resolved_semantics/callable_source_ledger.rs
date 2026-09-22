@@ -224,6 +224,14 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.function.expression_source().literal(site)
     }
 
+    /// Borrows named-construction syntax without selecting a constructor.
+    pub(crate) fn construction_source(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&super::ResolvedNewExpressionSourceV1> {
+        self.function.expression_source().construction(site)
+    }
+
     pub(crate) fn unary_source(
         &self,
         site: &SourceExprSiteV1,

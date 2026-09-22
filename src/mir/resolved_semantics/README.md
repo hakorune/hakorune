@@ -245,7 +245,13 @@ Facts/Recipe or physical effect.
 ## S6C explicit typed-input contract I0
 
 `expression_source.rs` extends the same resolver seal with passive, AST-free
-binary/unary/literal/local-initializer rows. Each unary row retains its exact
+binary/unary/literal/local-initializer and named-construction rows. A New row
+retains the class spelling, ordered argument sites, and ordered named field
+initializer sites from the same shadow traversal. Duplicate construction sites
+reject at seal. The callable ledger joins an initializer to that row by exact
+site; it never treats the spelling as builtin/provider identity. These are
+passive observations, not Array admission, allocation success, or mutation
+receipts. Each unary row retains its exact
 operator and operand site; downstream S6C code proves `-1` only as
 `Minus(Integer(1))`, never from an Operand path or AST reread. The S6C issuer
 borrows those rows plus the callable source ledger and requires the exact annotated cohort

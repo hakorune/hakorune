@@ -4,7 +4,7 @@ Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-D0 (same card)
-Implementation permission: B2 design only; ArrayPush implementation and runtime ABI activation not yet authorized by an accepted mapping
+Implementation permission: passive B2 source observation closed; ArrayPush semantic contract retention and backend discharge remain design-stopped
 ---
 
 # Parser String result authority: corrected decision and task queue
@@ -13,7 +13,7 @@ Implementation permission: B2 design only; ArrayPush implementation and runtime 
 
 - **Current decision:** S1 String and B1 Bool source-to-MIR publication are closed; next design resolves ArrayPush mutation/NoValue statement authority in existing owners.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** B2-D0 for `StringHelpers.split_lines/1` loop-local `arr.push(s.substring(last, i))`; first settle compiler-ingress constructor policy transport; then co-seal receiver/binding and connect NoValue mutation consumption. See the B2 ordered queue below.
+- **Next ordered task:** B2-D0 for `StringHelpers.split_lines/1` loop-local `arr.push(s.substring(last, i))`; retain a source-site-bound Named Array requirement through artifact publication and discharge it at backend preflight before NoValue mutation activation. See the B2 ordered queue below.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -485,10 +485,10 @@ Non-claims: no ArrayPush implementation permission, tail-push/substring-1 covera
 
 ```text
 Decision: preserve constructor selection semantics; do not silently make explicit new ArrayBox intrinsic.
-Source authority + canonical issuer: resolver construction sites and binding ledger, existing ordinary declaration inventory, and constructor policy resolved at compiler ingress; source CoreMethod issuance co-seals these inputs.
+Source authority + canonical issuer: resolver construction sites/binding ledger and ordinary/brand declaration inventory; source constructor classification must co-seal with CoreMethod issuance and selected consumer capability.
 Non-authority: ArrayBox spelling, CoreBoxId alone, generated manifest, physical receiver type, or a second environment read inside the source issuer.
 Fail-fast boundary: unresolved/foreign constructor policy, shadowed or reassigned receiver, value-use of NoValue, duplicate or residual source consumption.
-Smallest next slice: settle one immutable constructor-policy input and its source-package handoff, then the bounded source-to-MIR ArrayPush statement cutover.
+Smallest next slice: passive construction source transport, then source constructor classification plus selected capability and the bounded ArrayPush statement cutover.
 Non-claims: this design does not activate ArrayPush, prove runtime Text/Fault ABI, complete parser acceptance, or delete shared legacy callers.
 ```
 
@@ -496,8 +496,8 @@ Read-only worker and local consumer audit agree on the following boundary.
 `ordinary_new_candidate.rs::resolve` checks ordinary source declarations first
 (including duplicate rejection), then leaves builtin/plugin construction to
 compatibility. `CoreBoxId::from_name` supplies identity, not provider selection.
-`box_factory/registry.rs::rebuild_cache` uses provider policy; Array reservation
-can change under plugin overrides. `ConstructionTarget` explicitly retains
+`box_factory/registry.rs::rebuild_cache` uses provider policy on runtime factory
+lanes; this registry is not used by the selected C Array allocation consumer. `ConstructionTarget` explicitly retains
 `Named` for explicit new. Thus the existing source inventory excludes user
 shadowing, but cannot yet prove the selected builtin constructor.
 
@@ -509,7 +509,7 @@ substring/1, other Array methods and executable Text ABI acceptance.
 
 | Order | Task / existing owner | Observable completion |
 | --- | --- | --- |
-| 1 | Constructor policy handoff design: compiler ingress -> existing semantic package; resolver New site + initializer BindingRef | Name the actual ingress capture owner and immutable policy representation, with ordinary declaration priority and override behavior preserved. Distinguish user, selected builtin, provider override and unavailable policy. No builtin source claim until this mapping is closed. |
+| 1 | Source constructor classification: existing semantic package, resolver New site + initializer BindingRef, ordinary/brand inventory | Passive source transport first; then settle selected named-Array capability without deriving source meaning from C dispatch. Distinguish ordinary user ownership, proved builtin construction, unsupported provider/capability and missing evidence. Preserve named override behavior where supported; no runtime registry capture for selected C. |
 | 2 | Source Array receiver and push contract: existing resolver expression inventory / CoreMethod issuer | Zero-argument construction site joins the exact initializer/receiver binding and loop frame under the same issuance. Reject reassignment conservatively; no alias inference. Co-seal push/1, Text argument site, NoValue and mutation semantics. Nested substring remains covered. |
 | 3 | Statement cutover: existing expression port / statement normalizer / effect Recipe / ArrayElementWrite writer | Explicit NoValue consumes once without fabricated ValueId; typed Push reaches emit_array_element_write(dst=None, index=None). Remove selected routing through the method-name/physical-type classifier in the same bounded series; finish rejects remaining rows. |
 | 4 | Focused source-to-MIR acceptance and deletion proof | Natural source witness emits the selected ArrayElementWrite; shadow/override/foreign/reassigned receiver, arity, value-use and duplicate/residual negatives pass. Guard proves the selected row cannot re-enter name-based dispatch. Recheck unchanged merged parser and classify its next terminal. |
@@ -534,7 +534,67 @@ of semantic Fault delivery. Source-to-MIR design must preserve argument effects
 and mutation order but need not wait for executable ABI acceptance. Do not add
 a second append owner or reinterpret an unchecked status as a verified Fault.
 
-Immediate next action is row 1's compiler-ingress policy mapping, an internal
-design dependency, not platform/CI wait. Work mode stays design_stop: no new
-semantic receipt or fixture is authorized by this audit alone. Required owner
+Row 1's semantic classification remains an internal design dependency, not
+platform/CI wait. Only the passive source observation prerequisite below has
+a closed implementation mapping; no Array semantic receipt is authorized. Required owner
 README/reference updates belong to the corresponding implementation slice.
+
+
+### MIR-CALL-PARSER-ARRAY-PUSH-B2-SOURCE — landed prerequisite
+
+Change: extend the existing resolver expression inventory with passive New
+rows, retaining class syntax and exact ordered argument/field-initializer sites.
+Old semantic authority: none; no constructor/provider selection is performed.
+Contract: the existing shadow traversal and seal own observations. Initializer
+BindingRef joins by the same exact site. Reject duplicate rows at seal. Neither
+class spelling nor this observation establishes builtin identity or effects.
+Done: resolver-ledger tests retain nested child coverage and local binding
+relations; duplicate source rows reject; existing ledger tests remain green.
+Update resolver README and source contract reference in this same slice.
+Stop: any need to choose a provider, issue Array receiver semantics, activate
+push or change source acceptance belongs to B2 design, not this prerequisite.
+
+Premise correction: selected C named allocation dispatch emits
+`nyash.array.birth_h` directly, whose kernel export constructs ArrayBox without
+UnifiedBoxRegistry. Runtime registry capture is therefore not a prerequisite
+of this lane. Preserve named-construction semantics from the reference; the C
+selector alone is not source authority. Subsequent B2 design must co-seal source
+constructor classification and selected consumer capability. Provider support
+on other lanes remains outside this migration, not an env-read dependency.
+
+
+B2-SOURCE receipt: quick build 5m24s; new construction tests **3/3**, existing
+callable ledger **20/20** on the same rebuilt binary. Logs:
+`/tmp/b2-source-test.log`, `/tmp/b2-ledger-test.log`. Natural parsed New with
+nested construction and a non-construction argument, ordered field child
+coverage, and duplicate-site rejection pass. Changed Rust files are below 760
+lines. Formatting, pointer guard and diff checks pass. Source observations are
+now retained; no Array receiver semantics, caller cutover or deletion claimed.
+
+### B2 remaining contract: conditional Named Array requirement
+
+Accepted direction after the selected-consumer premise audit: preserve
+`ConstructionTarget::Named`. The existing semantic package/source CoreMethod
+issuer may specialize push only under a retained, exact-source-site requirement
+that the named constructor realizes Core Array semantics. This is a requirement,
+not an unconditional builtin receiver proof. Same-name ordinary/brand ownership
+excludes this specialization; missing or foreign source evidence rejects.
+Zero-argument, no-field-override construction and exact unreassigned binding
+form the bounded source shape. Other shapes do not acquire builtin authority.
+
+The existing source-to-finalized-artifact handoff must retain this requirement
+without reconstructing it from a MIR name. At
+`backend_capability::enforce_published_backend_supported` / selected C preflight,
+the selected constructor consumer and options must discharge it before artifact
+publication. A provider may satisfy the requirement only with an equivalent
+contract; unknown override, incompatible carrier or missing/foreign/duplicate
+evidence rejects without fallback. The selected C allocation observer can supply
+capability evidence, never source admission (`published_backend_view/map_named_allocations.rs`
+already enforces this responsibility split for its own inventory).
+
+Next bounded design work: name the exact existing artifact field/retention path
+and one-shot capability discharge for this requirement, together with Array
+receiver/Home, Text argument, mutation and NoValue statement relation. Do not
+activate typed push while the requirement could be dropped or turned into an
+unconditional physical type fact. Reuse the existing physical append owner;
+keep this requirement separate from the later executable Text/Fault evidence.
