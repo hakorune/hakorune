@@ -68,6 +68,8 @@ required tuple in this route:
 | `CallableLoopCarrierRelationV1` | GenericLoop source admission | tied to `GenericLoopV1Facts` and its route admission; not a LoopCond product |
 | `VerifiedLoopRecipeCoSealV1` / `VerifiedCallableSemanticProgramV1` | portable callable-loop issuer | owns portable Recipe/Core/JoinSig/continuation for its admitted profile, but this LoopCond route does not consume or co-issue it |
 
+Fast-path entry is unmet: selecting a key or join here changes semantic
+identity, and no connected producer owns that meaning for this LoopCond route.
 Therefore D2 cannot honestly specify “wire the existing key” or make the
 current name-keyed physical maps key-based by adapter. Doing so would either
 invent Recipe authority in the physical input, borrow an unrelated issuer, or
@@ -88,6 +90,21 @@ Do not reopen a parked lane or append another B3 suffix. Reopen this candidate
 only after an accepted existing semantic-program issuer can represent the
 exact source→Core→Recipe/JoinSig→carrier/join relation as one issuance, with a
 named physical consumer and old-edge disposition.
+
+### Premise-reset circuit breaker check (2026-09-23)
+
+Not triggered. The 2026-09-19 parser forest/exit co-seal concerns a different
+`ParserProgramBox.parse/2` profile ([D0](mir-call-parser-loop-forest-exit-coseal-d0-2026-09-19.md));
+the 2026-09-21 accepted resolver IfThen/IfElse ancestry extension and its I0
+were intervening progress ([D0](mir-call-parser-loopbreak-composite-forest-boundary-d0-2026-09-21.md),
+[I0](mir-call-parser-loopbreak-composite-forest-path-i0-2026-09-21.md)). This
+B3 `StringHelpers.split_lines` carrier/join relation and M8 S6D's explicit
+Break/Continue predicate/effect product ([S6D decision](../design/joinir-loop-selfhost-recipe-pipeline-ssot.md))
+are distinct bounded LoopCond responsibilities, despite sharing the semantic-
+program boundary. They are not three consecutive NoSafeSlice outcomes for one
+responsibility. No connected LoopCond issuer or same-series consumer/delete
+tuple was found, so retain the frontier pause; do not append another B3 suffix
+or start implementation.
 
 Finite state disposition:
 
