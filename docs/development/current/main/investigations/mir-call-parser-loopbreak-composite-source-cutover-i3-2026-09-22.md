@@ -1,10 +1,10 @@
 ---
-Status: fast__2026-09-22__T4cPublicationAcceptance
+Status: design_stop__2026-09-22__T4cRecursiveResultAuthority
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: true; existing one-shot publication owner only
-NextCard: none__task5_caller_switch
+Implementation permission: false; read-only recursive-result authority audit only
+NextCard: none__t4c_recursive_string_result_audit
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -407,3 +407,33 @@ the current result/publication authority, or record a named `NoSafeSlice` if
 no existing owner can carry that dependency.  No new result receipt,
 synthetic fixture, VM route, T5 switch, or R0 deletion is authorized by this
 recheck.
+
+## T4c recursive-result authority design stop — 2026-09-22
+
+The upstream `RecursiveDependency` rows are finite and identified: the
+merged parser reaches `ParserStringUtilsBox.i2s/1` and
+`StringHelpers.int_to_str/1`, whose bodies recursively call themselves.  The
+existing monotone result solver intentionally seals stalled worklist rows as
+`Unavailable(RecursiveDependency)`.  The publication owner then preserves
+that disposition as `TargetOnly`, and ingress stops before argument descent or
+Builder effects.  This is the intended fail-fast boundary, not a missing
+`starts_with/3` handoff.
+
+```text
+Decision: keep the typed recursive-dependency terminal; do not bypass it to
+  reach the selected composite row.
+Source authority + canonical issuer: existing result solver/catalog and
+  VerifiedStaticCallResultPublicationOwnerV1.
+Non-authority: method names, selected-row filtering, VM/compatibility fallback,
+  fixture shrinking, synthetic recursion receipts, or a new result ABI.
+Fail-fast boundary: every cataloged caller/site is Selected or TargetOnly;
+  TargetOnly stops before receiver/argument descent and physical effects.
+Smallest next slice: read-only audit whether the existing result owner can
+  prove termination, representation, effect, and ABI for exactly these two
+  recursive helpers; if not, record NoSafeSlice__ResultFamilyOwnerAbsent.
+Non-claims: no T4c full acceptance, T5 caller switch, or R0 deletion.
+```
+
+Design stop is local to this recursive result family.  No code, fallback,
+production switch, or warning cleanup is permitted until the audit produces
+an accepted existing owner or an explicit `NoSafeSlice` decision.
