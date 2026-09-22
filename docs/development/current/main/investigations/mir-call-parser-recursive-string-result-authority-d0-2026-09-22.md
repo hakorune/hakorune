@@ -1,5 +1,5 @@
 ---
-Status: fast__B2_typed_verifier_split
+Status: fast__B2_named_array_class_co_seal
 Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
@@ -13,7 +13,7 @@ Implementation permission: behavior-preserving typed V2 operation-verifier split
 
 - **Current decision:** B2 Array retention/discharge is implemented; D exposed a source GenericLoop carrier synchronization gap. The scoped carrier/origin design and ordered tasks below replace the induction-only proposal.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** split the 764-line typed V2 verifier, then conditional NamedArray class/common Core co-seal. ConstText logical vocabulary is verified; D/branch/runtime evidence remains open.
+- **Next ordered task:** conditionally co-seal the retained NamedArray construction class with the common source Core, then carry its NoValue ArrayPush row into the existing Recipe. ConstText and the verifier split are landed; D/branch/runtime evidence remains open.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -971,23 +971,30 @@ Stop: do not synthesize a CallSlot, infer Pure or physical representation, or
 claim D/source acceptance. NamedArray class/co-seal and branch coverage follow.
 
 Closure final receipt: new3 + Dynamic33 + S6C64 = 100 distinct pass; S6C3
-remain the parent-reproduced baseline debt above. Quick5m56s, warnings542.
-Logs `/tmp/b2-closure-final-{build,dynamic,s6c}.log`; fmt, both existing guards
-and diff check pass. Initial filename filter matched zero and was corrected to
-`join_sig::v2::collection_tests::`; that zero run earns no evidence credit.
-No source caller switch/retirement is claimed. Three-file D WIP stays excluded.
+remain the parent-reproduced baseline debt. Quick5m56s, warnings542; fmt,
+guards and diff check pass. No source caller switch/retirement is claimed.
+Three-file D WIP stays excluded.
 
-ConstText split boundary: typed_schema_v2.rs grows from 757 to 764 lines.
-Before further verifier changes, move check_operation and its class/definition
-helpers to an existing-verifier child module in a separate BoxShape commit;
-keep structural control checks in the parent. No line compression or new owner.
+Typed verifier split receipt: parent 553 lines, operation child 225 lines;
+check_operation and its helpers moved with 41 focused tests passing. Structural
+checks remain in the parent; BoxShape-only, three-file D WIP excluded.
 
 ConstText receipt: new5 pass; schema41 + JoinSig20 + Dynamic33 + S6C65 =
-159 distinct pass. Same3 S6C baseline reds/reason as `b2f55c7ac5` above;
-no new red. Quick4m43s, warnings542. Logs `/tmp/b2-const-text-{build,schema,
-join,dynamic,s6c}.log`. README/reference, fmt, ingress/pointer/diff checks pass.
-Source literal co-seal and physical activation remain unimplemented.
-Next split contract: move check_operation/expect_defined_class/define_value to
-one verifier child; retain shared expect_defined_value and control checks in the
-parent. Existing test paths and error precedence remain unchanged; no opcode,
-source admission, new receipt, fallback or caller switch in that BoxShape.
+159 distinct pass; same3 S6C baseline reds as `b2f55c7ac5`, no new red.
+Quick4m43s, warnings542; README/reference, fmt and guards pass. Source
+literal co-seal and physical activation remain unimplemented.
+Loop-contract is 164 pass plus the parent-reproduced
+source_bound_core_rejects_derived_carrier_and_duplicate_effect_mismatch red;
+clean b985b86539 reproduces it, so known baseline debt. No new route is claimed.
+
+Next bounded design/task: conditionally issue NamedArrayReference only when the
+retained source construction requirement is present. Co-seal the source owner,
+construction site, receiver binding and NoValue write site in the existing
+common Core/JoinSig, then require the existing package collector to consume
+exactly one ArrayElementWrite row. Reject missing construction, foreign owner,
+duplicate construction, value-demand, reassignment and residual rows before
+any physical allocation/write observation. Reuse the existing writer and
+NamedArrayEmissionCollectorV1; do not add a new class authority, infer from
+ArrayBox names/handles, or activate the production caller until the selected
+natural source fixture reaches the exact writer and the old method-name edge
+can be retired.

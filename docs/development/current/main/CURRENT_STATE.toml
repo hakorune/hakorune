@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0"
 current_execution_cohort = "mir_call_parser_array_push_b2_i0"
-current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0__TypedV2VerifierSplitPending"
+current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0__NamedArrayLogicalClassPending"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "Accepted__TypedV2OperationVerifierSplit"
+current_design_stop = "Accepted__NamedArrayLogicalClassCoSeal"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -39,7 +39,7 @@ body increment also reads init0 instead of the existing loop carrier.
 Design queue fixes source BindingRef/slot co-seal and branch/loop publication.
 Origin identity/kill policy accepted; concrete source continuation mapping remains open.
 Declaration scope retained: 37 focused tests pass, quick 4m32s, warnings 542.
-Task 2 carrier co-seal: 33 focused pass, quick4m08s, warnings542. Keyed physical core:112 focused pass, quick5m26s, warnings542. Root closure collection:100 focused pass,3 parent-reproduced baseline reds. ConstText logical vocabulary:159 focused pass, same3 baseline reds. Next: split 764-line V2 verifier before conditional NamedArray class/co-seal.
+Task 2 carrier co-seal: 33 focused pass, quick4m08s, warnings542. Keyed physical core:112 focused pass, quick5m26s, warnings542. Root closure collection:100 focused pass,3 parent-reproduced baseline reds. ConstText logical vocabulary:159 focused pass, same3 baseline reds. Typed V2 verifier split: 41 focused pass, parent553/child225; loop-contract 164 pass plus one parent-reproduced baseline red. Next: conditional NamedArray class/common-Core co-seal.
 Merged parser now reaches no-exact-static-target; exact later site remains to
 identify before updating its old-terminal test. Last verified checkpoint 319a2d7102.
 Text lifetime/mutation Fault remains an explicit next execution-contract task:
