@@ -679,3 +679,45 @@ pass. This is implementation commit 1 of the bounded series; next connect
 artifact retention before package activation. No baseline, physical execution,
 production switch or deletion credit is claimed. The state parent is 754 lines;
 place new responsibility in its existing child modules before further growth.
+
+### B2 next implementation boundary — canonical retention decision
+
+Decision: bind the canonical caller to its existing source contract inside the
+semantic package, before lending it to Builder. `selected_mapping` owns the
+canonical key -> declaration -> batch-slot relation; `core_method_source.rs`
+already issues contracts from that slot's ledger. This is the co-seal point.
+An emission draft is move-only transport of this association, not another
+semantic issuer. Its constructor stays private to the semantic package.
+Builder may record allocation/write observations, never supply a replacement
+caller key. Owner equality or a crate-visible `new(key, requirement)` is not
+sufficient provenance. Preserve the existing loop/frame/target contract too.
+
+The read-only worker recommendation was checked against the existing package
+issuer and selected lowering port. Both ordinary selected and Main static-child
+loans take CoreMethod rows; both must transport the same package-bound relation.
+Raw `take_source_core_method_calls` is storage access, not authority to mint it.
+Unsupported TopLevel admission must reject before issuance, not silently drop
+an obligation. Finalization resolves the retained canonical key through the
+existing canonical definition lookup; it does not reconstruct source identity
+from a physical function name.
+
+| Next | Existing owner / deliverable | Completion evidence |
+| --- | --- | --- |
+| A | Package co-seal -> selected loan -> lowering state -> finalized handoff | Foreign key/ledger and cross-function substitution reject. Ordinary, Script-empty and rootless module retain the obligation; no fabricated root. Source/physical write coverage is exact, including shared construction and residual rows. |
+| B | Source statement -> typed Recipe -> existing ArrayElementWrite writer | Natural loop-local literal and nested-substring push emit once with NoValue. Value demand rejects before effects. Replace the temporary retention-required stop with the real consumer only after A is connected. |
+| C | Retained published view -> selected C capability discharge | Exact Named allocation consumer/options satisfy the retained obligation before object publication. Missing/duplicate/drift/unsupported carrier reject. Raw MIR, both JSON profiles, diagnostic and compatibility exits cannot shed it; internal preflight projection borrows the retained view. |
+| D | Production package selection and selected old-edge retirement | Activate the extended issuer only with A-C wired; remove this source statement's route through method-name/type dispatch in normalizer and effect emission. Guard selected caller-zero at the old dispatch and recheck unchanged merged parser; report the next actual terminal. |
+
+A-D remain tasks inside B2-I0, not new cards or independent completion claims.
+The bounded series has one implementation commit landed; retention scaffolding
+in the working tree (metadata marker, raw egress checks and
+`named_array_obligation.rs`) is uncompiled/unverified and does not close A or C.
+Preserve that work for the implementation pass; this design update adds no
+compiler behavior. Use focused quick-profile tests and existing lane guards,
+then update module README/reference with the implementation. No CI dispatch is
+needed to select or execute these tasks.
+
+Executable Text lifetime/alias/Fault evidence remains the following acceptance
+task, with real selected runtime behavior required. B2 source-to-MIR completion
+does not claim serializer/parser completion, tail-push/substring-1 support, or
+retirement of shared compatibility code whose other callers remain live.
