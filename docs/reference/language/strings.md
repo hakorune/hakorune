@@ -59,6 +59,28 @@ parked design only. If reopened, it must be a checked, closed leaf vocabulary
 that converges on the same verified corridor plan; it must not expose raw
 pointer syntax or become a second optimizer/physical authority.
 
+## Source-call normal-result proof
+
+Decision (2026-09-22; accepted compiler design, implementation pending): an
+exact String result proof means that every normal value returned by the
+selected source callable is String. It does not prove successful evaluation,
+termination, purity, or absence of Fault. A proved String left operand in
+concatenation can establish this result independently of the right operand's
+result class; the right operand must still be evaluated and its source calls
+must remain covered.
+
+The existing same-module result catalog is the canonical issuer. Literal,
+generated String Core result, local and branch/loop merge evidence may compose
+inside that owner; names, runtime tags and MIR types cannot substitute for
+source proof. Only agreeing normal-return representations merge as exact.
+
+The existing static-result publisher projects that source demand to a generic
+MIR Call destination with `MirType::String`. A completed MIR emission receipt
+is a compiler event, not runtime normal-return evidence. It neither selects an
+OwnedText/handle ABI nor creates ownership, cleanup or effect authority.
+Executable activation requires the selected runtime's call/return and ownership
+contract in addition to this proof; unsupported backends remain rejected.
+
 ## Model
 - `StringBox`: immutable UTF‑8 string value. Public text APIs are CP‑indexed.
 - `Utf8CursorBox`: delegated implementation for scanning and slicing `StringBox` as CPs.

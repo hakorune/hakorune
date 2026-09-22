@@ -80,6 +80,21 @@ the source ingress. A TargetOnly row is consumed exactly once, must be drained
 before `finish_empty`, and terminates before receiver or argument descent; it
 never emits a physical Call and never falls through to compatibility lowering.
 
+## Accepted next String result slice (not implemented)
+
+The source normal-result contract is defined in
+[`strings.md`](../../../docs/reference/language/strings.md#source-call-normal-result-proof).
+Extend this catalog and its existing general-result publication owner with
+ExactString; retain the same solver, brands, exact sites and final stable
+call-row pass. Both operands of Add are visited even when the left proves
+String. Generated StringValue Core rows, local and loop merges supply evidence;
+unary minus and mixed returns must not pass a String fact through.
+
+The existing publisher's projection is `MirType::String` on the completed MIR
+Call destination. Its emission receipt is not runtime success or a String
+ownership ABI. I64-only activation/Loop owners keep their present contracts;
+executable String return admission is a separate required followup.
+
 ## SITE0 located legacy inputs
 
 `located_legacy` borrows one canonical caller and its syntax only from a sealed

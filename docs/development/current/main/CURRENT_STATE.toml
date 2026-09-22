@@ -1,11 +1,11 @@
 date = "2026-09-22"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0"
 current_execution_cohort = "mir_call_parser_recursive_string_result_authority_d0"
-current_blocker_token = "MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0__StringPhysicalContractOpen"
+current_blocker_token = "MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0__DesignAccepted__S1NotImplemented"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "recursive_string__normal_return_carrier_ownership_fault_decision"
+current_design_stop = "none__source_to_mir_string_design_accepted__design_only_checkpoint"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -24,9 +24,12 @@ T4c physical consumer evidence is green, but full canonical acceptance stops
 at earlier recursive String dependencies. Pro feedback prompted a local premise
 reset: normal-return representation does not require termination proof.
 The existing result catalog/publication owner is the selected extension point;
-String carrier, ownership, Fault and physical publication contract are the next
-internal design task. The existing D0 contains the finite implementation,
-acceptance, caller-switch and exclusive old-edge deletion queue.
+S1 source-to-MIR design is accepted: ExactString through the existing catalog
+and general publication owner projects to a Call destination typed MirType::String.
+MIR emission does not prove runtime success or ownership; executable String ABI
+admission remains a separate required task before cutover. This user-requested
+design checkpoint selects G0 guard recovery then S1 implementation, without code
+changes or runtime claims. The same D0 owns acceptance/cutover/retirement tasks.
 StringBox Compatibility probes have a distinct legacy-fallback-retired boundary;
 their dynamic membership evidence stays open. Pro commit 1a67ee4532 is not in
 this checkout. The stale publication ingress guard is reproduced baseline debt,
@@ -34,9 +37,9 @@ with restoration queued; no Pro runtime or mutation result is a local receipt.
 Windows lifecycle remains user-deferred, macOS CAPI retains its recorded clang
 capability boundary, and warning cleanup stays paused at I147.
 """
-next_design_card = "MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0"
+next_design_card = "none__S1_mapping_accepted"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md"
-next_execution_card = "none__design_stop__string_physical_contract"
+next_execution_card = "MIR-CALL-PARSER-STRING-RESULT-S1"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

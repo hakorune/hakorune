@@ -1,9 +1,9 @@
 ---
-Status: waiting_on_internal_design__2026-09-22__StringPhysicalContract
+Status: queued__2026-09-22__StringResultS1Accepted
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: false; String physical contract is the next internal design task
+Implementation permission: false for I3 cutover; source-to-MIR String S1 is accepted in successor D0
 NextCard: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 ---
 
@@ -19,8 +19,10 @@ full merged-parser acceptance is still stopped by earlier recursive result rows.
 StringBox Compatibility probes are a distinct ingress and do not prove this
 source-backed boundary. References below to a required recursive measure,
 missing loop connection, `[1]`, or no ready internal design are historical and
-superseded. Current order: String physical contract -> same-owner implementation
-and validation -> T4c full acceptance -> T5 selected switch -> R0 deletion.
+superseded. Current order: accepted source-to-MIR String S1 -> T4c canonical recheck ->
+selected runtime ABI/ownership activation and executable acceptance -> T5
+selected switch -> R0 deletion. A MIR emission receipt does not prove runtime
+normal return; see the successor for the accepted boundary and finite tasks.
 
 
 ## Six-line brief
