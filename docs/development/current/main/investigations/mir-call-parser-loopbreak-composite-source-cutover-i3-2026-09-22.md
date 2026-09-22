@@ -1,10 +1,10 @@
 ---
-Status: queued__2026-09-22__AwaitingStaticResultAuthority
+Status: queued__2026-09-22__AwaitingStaticResultTargetOnlyTerminalI0
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: false; resolve MIR-CALL-PARSER-STATIC-RESULT-AUTHORITY-D1 before I3 task 4
-NextCard: mir-call-parser-static-result-authority-d1-2026-09-22.md
+Implementation permission: false; resolve MIR-CALL-PARSER-STATIC-RESULT-TARGET-ONLY-TERMINAL-I0 before I3 task 4
+NextCard: mir-call-parser-static-result-target-only-terminal-i0-2026-09-22.md
 ---
 
 # Parser composite LoopBreak production cutover I3

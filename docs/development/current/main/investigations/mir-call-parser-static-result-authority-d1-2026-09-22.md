@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__StaticResultAuthorityMissing
+Status: closed__design__2026-09-22__StaticResultAuthoritySelected
 Task: MIR-CALL-PARSER-STATIC-RESULT-AUTHORITY-D1
 Date: 2026-09-22
 Parent: mir-call-parser-publication-result-family-d0-2026-09-22.md
-Implementation permission: false; design the missing source-owned static-call result contract
-NextCard: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
+Implementation permission: false; design is closed and handed to the typed target-only terminal I0
+NextCard: mir-call-parser-static-result-target-only-terminal-i0-2026-09-22.md
 ---
 
 # Parser static-call result authority D1
@@ -134,6 +134,36 @@ second-consumption cases. Until that proof is designed and its consumer is
 named, D1 remains a design stop and no `Verified*`/`Prepared*` product is
 issued.
 
+## D1 accepted decision — 2026-09-22
+
+The canonical source issuer is the existing
+`VerifiedSameModuleCallableResultCatalogV1`, extended at its existing proof
+boundary to retain the exact source target/site disposition. The existing
+`VerifiedStaticCallResultPublicationOwnerV1` remains the sole consumer and
+physical handoff owner. No sibling source matcher, second result solver, or
+terminal-family reuse is introduced.
+
+The first implementation slice is therefore a typed target-only terminal:
+
+```text
+declaration/body proof + branded source-target catalog
+  -> Selected(handoff)                 -> existing physical publication
+  -> TargetOnly(target, reason)        -> typed pre-effect terminal
+```
+
+The terminal retains the exact caller/site/target/package brand and one of the
+six observed unavailable reasons. It is consumed before argument descent or
+Builder effects and emits no physical Call. Exact selected rows keep their
+current `ExactI64`/`ExactNominalBox` handoff unchanged. A future result-family
+slice is still required before a parser caller containing target-only rows can
+be accepted as a successful whole package; this I0 only makes the stop typed,
+observable, and non-bypassing.
+
+The design exit condition is met: the owner, consumer, source relation,
+failure boundary, and bounded implementation slice are named. The next card
+owns the code and focused guards; I3 publication, caller switch, and R0
+retirement remain queued behind it.
+
 ## Bounded design work
 
 1. Keep the six disposition classes separate and retain exact caller/site/target
@@ -159,9 +189,10 @@ issued.
 
 ## Exit and queue
 
-This card exits only with one owner/consumer decision for a finite family or a
-named `NoSafeSlice` with its exact reopening condition. Until then, I3 task 4
-publication, I3 task 5 caller switch, and R0 task 6 old-edge deletion remain
+This card exits with the selected existing owner/consumer decision and hands
+the bounded implementation to
+`mir-call-parser-static-result-target-only-terminal-i0-2026-09-22.md`. I3 task
+4 publication, I3 task 5 caller switch, and R0 task 6 old-edge deletion remain
 queued. The warning cohort stays closed at I147 (`unused_imports=17`);
 `dead_code` is owner debt to resume after the semantic sequence.
 
