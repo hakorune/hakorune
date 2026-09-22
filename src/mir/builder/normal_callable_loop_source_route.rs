@@ -233,6 +233,16 @@ impl CallableLoopSourceTargetRelationV1 {
         })
     }
 
+    pub(in crate::mir::builder) fn has_exact_scalar_result(&self) -> bool {
+        self.requirement.as_ref().is_some_and(|requirement| {
+            matches!(
+                requirement.representation(),
+                VerifiedCallableResultRepresentationV1::ExactI64
+                    | VerifiedCallableResultRepresentationV1::ExactBool
+            )
+        })
+    }
+
     pub(in crate::mir::builder) fn core_method_items(&self) -> &[CallableLoopSourceItemBindingV1] {
         &self.core_methods
     }
@@ -478,7 +488,7 @@ impl CallableLoopSourceTargetProbeV1 {
                 });
             }
             if let Some(relation) = selected_by_site.remove(item.call_site()) {
-                if !relation.has_exact_i64_result() {
+                if !relation.has_exact_scalar_result() {
                     return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
                 }
                 dispositions.push(CallableLoopSourceItemDispositionV1::SelectedStatic(
@@ -715,3 +725,7 @@ fn is_under_parent(site: &SourceNodeSiteV1, parent: &SourceNodeSiteV1) -> bool {
 #[cfg(test)]
 #[path = "normal_callable_loop_source_route_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "normal_callable_loop_scalar_result_tests.rs"]
+mod scalar_result_tests;

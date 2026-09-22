@@ -347,7 +347,13 @@ fn exact_string_projection_covers_callers_without_general_rows() {
     assert!(owner.finish_empty().is_ok());
     let missing_site = site(vec![Path::Body(99), Path::Value]);
     assert_eq!(
-        Handoff::project_exact_string(&declarations, &caller, &missing_site, &targets, &results),
+        Handoff::project_unconditional_result(
+            &declarations,
+            &caller,
+            &missing_site,
+            &targets,
+            &results
+        ),
         Err(Error::SourceTargetUnavailable)
     );
     let missing_caller =
@@ -355,7 +361,7 @@ fn exact_string_projection_covers_callers_without_general_rows() {
             "Absent", "caller", 0,
         );
     assert_eq!(
-        Handoff::project_exact_string(
+        Handoff::project_unconditional_result(
             &declarations,
             &missing_caller,
             &call_site,
@@ -367,12 +373,18 @@ fn exact_string_projection_covers_callers_without_general_rows() {
     let other_targets = qualified_targets(&declarations, &[], &[]);
     let other_results = seal_with_targets(&declarations, &other_targets);
     assert_eq!(
-        Handoff::project_exact_string(&declarations, &caller, &call_site, &targets, &other_results),
+        Handoff::project_unconditional_result(
+            &declarations,
+            &caller,
+            &call_site,
+            &targets,
+            &other_results
+        ),
         Err(Error::ResultCatalogBrandMismatch)
     );
     let foreign = super::support::declarations(source);
     assert_eq!(
-        Handoff::project_exact_string(&foreign, &caller, &call_site, &targets, &results),
+        Handoff::project_unconditional_result(&foreign, &caller, &call_site, &targets, &results),
         Err(Error::TargetCatalogBrandMismatch)
     );
 }
@@ -410,12 +422,24 @@ fn string_projection_does_not_replace_general_rows_or_unproved_nested_targets() 
     let call_site = site(vec![Path::Body(0), Path::Value]);
     assert!(results.call_result(&direct, &call_site).is_some());
     assert_eq!(
-        Handoff::project_exact_string(&declarations, &direct, &call_site, &targets, &results),
+        Handoff::project_unconditional_result(
+            &declarations,
+            &direct,
+            &call_site,
+            &targets,
+            &results
+        ),
         Err(Error::GeneralCallResultAlreadyAvailable)
     );
     let unknown = key(&declarations, "Strings", "unknown", 1);
     assert_eq!(
-        Handoff::project_exact_string(&declarations, &unknown, &call_site, &targets, &results),
+        Handoff::project_unconditional_result(
+            &declarations,
+            &unknown,
+            &call_site,
+            &targets,
+            &results
+        ),
         Err(Error::TargetResultUnavailable)
     );
     let mut rejected_nested = false;

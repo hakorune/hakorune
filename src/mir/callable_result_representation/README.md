@@ -2,7 +2,7 @@
 
 This module seals one bounded exact result-representation catalog from the
 same-module callable declaration and source-target catalogs. The currently
-admitted representations are exact `i64`, exact String on normal return, and
+admitted representations are exact `i64`, exact Bool, exact String on normal return, and
 an exact nominal Box constructed by source.
 
 The S0b substrate owns:
@@ -135,3 +135,10 @@ claim ledger. The unverified carrier exposes no statement slice; only the
 inactive proof may provide the future read-only suffix view. SUFFIX0-S0 remains
 disconnected from Builder, BLK0 routing, production roots, grammar, runtime,
 and backend behavior.
+
+Bool normal-result propagation uses the same catalog and publisher. Explicit
+comparisons, logical operators and Bool literals issue ExactBool; mixed result
+classes reject. The unconditional source-target projection covers String and
+Bool when no general row exists. Composite loop source consumers admit exact
+I64/Bool and preserve their source keys; direct I64-only routes stay unchanged.
+Runtime short-circuit evaluation remains owned by existing condition lowering.

@@ -11,8 +11,7 @@ impl CallableSemanticLoweringState {
         if handoff.site() != site {
             return Err(freeze("static-publication-site-mismatch"));
         }
-        if handoff.representation()
-            != &crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactI64
+        if !matches!(handoff.representation(), crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactI64 | crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactBool)
         {
             return Err(freeze("static-publication-representation"));
         }
@@ -50,11 +49,14 @@ impl CallableSemanticLoweringState {
                         != crate::mir::builder::SameModuleCallableNamespaceV1::StaticBoxMethod
                     || handoff.target().name() != method
                     || handoff.target().arity() != arity
-                    || handoff.representation()
-                        != &crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactI64
                 {
                     return Err(freeze("static-publication-target"));
                 }
+                let result_type = match handoff.representation() {
+                    crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactI64 => crate::mir::MirType::Integer,
+                    crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactBool => crate::mir::MirType::Bool,
+                    _ => return Err(freeze("static-publication-representation")),
+                };
                 if !self
                     .consumed_source_static_result_publications
                     .insert(site.clone())
@@ -63,7 +65,7 @@ impl CallableSemanticLoweringState {
                 }
                 return Ok(Some(ExactSourceMethodCallV1::static_publication(
                     handoff.target().clone(),
-                    crate::mir::MirType::Integer,
+                    result_type,
                     crate::mir::EffectMask::PURE.add(crate::mir::Effect::Io),
                 )));
             }

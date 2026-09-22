@@ -1,11 +1,11 @@
 date = "2026-09-22"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-PARSER-BOOL-RESULT-B1"
-current_execution_cohort = "mir_call_parser_bool_result_b1"
-current_blocker_token = "MIR-CALL-PARSER-BOOL-RESULT-B1__ImplementationPending"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B2-D0"
+current_execution_cohort = "mir_call_parser_array_push_b2_d0"
+current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B2-D0__SourceMutationContractMissing"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "none__accepted__bool_result_b1"
+current_design_stop = "MIR-CALL-PARSER-ARRAY-PUSH-B2-D0__SourceMutationContractMissing"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,33 +18,24 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-parser-recursive-string-result-authority-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md"
 latest_card_summary = """
-LoopBreak I1/I2 and T4b representation guard are landed; the real merged-parser
-starts_with/3 handoff is Selected ExactI64 with required ordinals []. Focused
-T4c physical consumer evidence is green, but full canonical acceptance stops
-at earlier recursive String dependencies. Pro feedback prompted a local premise
-reset: normal-return representation does not require termination proof.
-The existing result catalog/publication owner is the selected extension point;
-S1 source-to-MIR design is accepted: ExactString through the existing catalog
-and general publication owner projects to a Call destination typed MirType::String.
-MIR emission does not prove runtime success or ownership; executable String ABI
-admission remains a separate required task before cutover. G0 recovery is closed;
-S1 source-to-MIR is verified: catalog 90, publisher 5, ingress 4 and merged
-route dependency/inventory 2 tests pass. Full parser acceptance still stops at
-skip_ws/2 -> is_space/1 Bool TargetOnly. B1 design is accepted: exact Bool
-through existing composite scalar publication and condition consumers,
-without widening direct I64-only Loop routes or activating runtime ABI.
-B1 implementation is selected. The same D0
-owns canonical acceptance, runtime admission, caller cutover and retirement.
-StringBox Compatibility probes have a distinct legacy-fallback-retired boundary;
-their dynamic membership evidence stays open. Pro commit 1a67ee4532 is not in
-this checkout. The publication ingress guard is restored locally: normal PASS and 13 rejecting
-mutations PASS; B1 is now selected. Pro evidence remains separate.
-Windows lifecycle remains user-deferred, macOS CAPI retains its recorded clang
-capability boundary, and warning cleanup stays paused at I147.
+S1 String and B1 Bool source-to-MIR publication are verified in the existing
+catalog/publication/Call owners. B1: catalog 92, publisher 5, Loop route 20,
+source Bool Call-to-Branch 1, merged dependency/inventory 2 tests pass.
+The real parse/2 -> starts_with/3 Selected ExactI64 handoff retains ordinals [].
+Full parser acceptance now stops at StringHelpers.split_lines/1 loop-local
+arr.push(s.substring(last,i)): source method item outside selected family.
+B2-D0 is selected in design_stop: exact Array receiver/binding, mutation,
+argument retention/Fault, NoValue statement consumption and selected name-edge
+retirement mapping must be settled before implementation. Generated ArrayPush
+manifest metadata is not source implementation authority. Runtime Bool/String
+ABI admission, canonical acceptance, caller cutover and R0 remain required.
+StringBox Compatibility probes retain their separate retired-fallback boundary.
+Windows lifecycle is user-deferred; macOS retains its recorded capability gap;
+warning cleanup remains paused at I147. Pro commit 1a67ee4532 was not imported.
 """
-next_design_card = "none__B1_mapping_accepted"
+next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-B2-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md"
-next_execution_card = "MIR-CALL-PARSER-BOOL-RESULT-B1"
+next_execution_card = "none__B2_source_mutation_design_pending"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

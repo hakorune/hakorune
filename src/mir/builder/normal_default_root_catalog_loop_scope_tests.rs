@@ -79,3 +79,95 @@ fn source_backed_loop_keeps_invocation_scope_and_ledger_route() {
         },
     );
 }
+
+#[test]
+fn source_bool_call_feeds_existing_composite_condition() {
+    let source = r#"static box StringHelpers {
+          is_space(ch) { return ch == " " || ch == "\t" || ch == "\n" || ch == "\r" }
+          skip_ws(src, i) {
+            if src == null { return i }
+            local s = "" + src
+            local n = s.length()
+            local j = i
+            loop(j < n) {
+              if me.is_space(s.substring(j, j+1)) { j = j + 1 } else { break }
+            }
+            return j
+          }
+        }"#;
+    let root = source_backed_root(source);
+    crate::test_support::with_env_vars(&crate::test_support::JOINIR_DEFAULT_MODE, || {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        // Focused source witness copies the production helper bodies unchanged;
+        // the separate merged-parser acceptance retains the complete program.
+        let completed = session()
+            .complete_normal_default_program_root_catalog_lifecycle(
+                root,
+                CallableMainMaterializationPolicyV1::Omitted,
+                NormalRuntimeInputSnapshotV1::empty(),
+            )
+            .expect("Bool composite source witness must finish lowering");
+        let (_, module, _) = completed.into_parts();
+        let function = module
+            .functions
+            .values()
+            .find(|function| function.signature.name == "StringHelpers.skip_ws/2")
+            .expect("lowered helper");
+        let target = super::super::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "StringHelpers",
+            "is_space",
+            1,
+        )
+        .canonical_global_target_v1()
+        .unwrap();
+        let call = function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .find_map(|instruction| match instruction {
+                crate::mir::MirInstruction::Call(call)
+                    if call.callee == crate::mir::Callee::Global(target.clone()) =>
+                {
+                    Some(call)
+                }
+                _ => None,
+            })
+            .expect("source Bool Call");
+        let dst = call.dst.expect("Bool destination");
+        assert_eq!(
+            function.metadata.value_types.get(&dst),
+            Some(&crate::mir::MirType::Bool)
+        );
+        // Existing condition lowering may copy or compare a Bool before Branch.
+        // Follow only these explicit value-preserving/condition operations.
+        let mut condition_values = std::collections::BTreeSet::from([dst]);
+        loop {
+            let before = condition_values.len();
+            for instruction in function
+                .blocks
+                .values()
+                .flat_map(|block| block.all_instructions())
+            {
+                match instruction {
+                    crate::mir::MirInstruction::Copy { dst, src }
+                        if condition_values.contains(src) =>
+                    {
+                        condition_values.insert(*dst);
+                    }
+                    crate::mir::MirInstruction::Compare { dst, lhs, rhs, .. }
+                        if condition_values.contains(lhs) || condition_values.contains(rhs) =>
+                    {
+                        condition_values.insert(*dst);
+                    }
+                    _ => {}
+                }
+            }
+            if condition_values.len() == before {
+                break;
+            }
+        }
+        assert!(function.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| matches!(instruction,
+            crate::mir::MirInstruction::Branch { condition, .. } if condition_values.contains(condition))),
+            "source Bool Call must reach Branch through existing condition lowering: {function}");
+    });
+}

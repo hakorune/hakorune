@@ -512,3 +512,18 @@ facts or the VM implementation.
 Mutable implementation anchors and migration debt are listed in
 `docs/development/current/main/workstreams/type-contract-status.md`. Those
 paths are navigation evidence and do not override this type law.
+
+### Source-call Bool normal-result proof
+
+The source result catalog may prove that every normal return of a callable is
+Bool from Bool literals, comparisons and logical operators. This does not prove
+termination, successful evaluation or purity. Comparisons and logical operators
+are classified explicitly; bitwise and shift operators do not produce this
+proof. Mixed Bool/Integer or Bool/String returns are not exact Bool results.
+
+The existing source-bound publication owner projects this proof to a Bool MIR
+Call destination. Composite loop source publication can carry exact Integer or
+Bool results; direct I64-only loop contracts retain their restriction. Source
+proof visits call sites in both logical operands, while the existing condition
+owner retains runtime short-circuit evaluation. MIR publication does not prove
+a backend return ABI or executable acceptance.

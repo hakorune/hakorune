@@ -19,6 +19,7 @@ pub(super) enum I64ExpressionFactV1 {
     Exact(RequirementSetV1),
     ExactNominalBox(String),
     ExactString,
+    ExactBool,
     KnownNonI64,
     Unknown(CallableResultUnavailableReasonV1),
     PendingDependency,
@@ -38,6 +39,7 @@ impl I64ExpressionFactV1 {
                 Self::ExactNominalBox(left.clone())
             }
             (Self::ExactString, Self::ExactString) => Self::ExactString,
+            (Self::ExactBool, Self::ExactBool) => Self::ExactBool,
             (Self::KnownNonI64, Self::KnownNonI64) => Self::KnownNonI64,
             (Self::Unknown(left), Self::Unknown(right)) if left == right => {
                 Self::Unknown(left.clone())
@@ -227,10 +229,10 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 {
                     I64ExpressionFactV1::exact_empty()
                 }
+                LiteralValue::Bool(_) => I64ExpressionFactV1::ExactBool,
                 LiteralValue::String(_) => I64ExpressionFactV1::ExactString,
                 LiteralValue::TypedInteger { .. }
                 | LiteralValue::Float(_)
-                | LiteralValue::Bool(_)
                 | LiteralValue::Null
                 | LiteralValue::Void => I64ExpressionFactV1::KnownNonI64,
             }),
@@ -257,6 +259,17 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                         CallableResultUnavailableReasonV1::UnknownExpression,
                     ),
                 })
+            }
+            ASTNode::UnaryOp {
+                operator: UnaryOperator::Not,
+                operand,
+                ..
+            } => {
+                self.prove_expression(
+                    operand,
+                    &Self::child_path(expression, path, ExprChildRoleV1::UnaryOperand),
+                )?;
+                Ok(I64ExpressionFactV1::ExactBool)
             }
             ASTNode::UnaryOp { .. } => Ok(I64ExpressionFactV1::KnownNonI64),
             ASTNode::BinaryOp {
@@ -289,6 +302,18 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                         | BinaryOperator::Modulo
                 ) {
                     Ok(combine_arithmetic(left, right))
+                } else if matches!(
+                    operator,
+                    BinaryOperator::Equal
+                        | BinaryOperator::NotEqual
+                        | BinaryOperator::Less
+                        | BinaryOperator::Greater
+                        | BinaryOperator::LessEqual
+                        | BinaryOperator::GreaterEqual
+                        | BinaryOperator::And
+                        | BinaryOperator::Or
+                ) {
+                    Ok(I64ExpressionFactV1::ExactBool)
                 } else {
                     Ok(I64ExpressionFactV1::KnownNonI64)
                 }

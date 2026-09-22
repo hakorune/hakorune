@@ -14,6 +14,7 @@ use crate::mir::MirType;
 fn exact_physical_result_type(representation: &VerifiedCallableResultRepresentationV1) -> MirType {
     match representation {
         VerifiedCallableResultRepresentationV1::ExactI64 => MirType::Integer,
+        VerifiedCallableResultRepresentationV1::ExactBool => MirType::Bool,
         VerifiedCallableResultRepresentationV1::ExactString => MirType::String,
         VerifiedCallableResultRepresentationV1::ExactNominalBox { box_name } => {
             MirType::Box(box_name.clone())
@@ -129,7 +130,7 @@ mod tests {
         builder
     }
 
-    fn string_demand() -> VerifiedStaticCallResultPublicationDemandV1 {
+    fn source_result_demand(result: &str) -> VerifiedStaticCallResultPublicationDemandV1 {
         use crate::mir::builder::{
             SameModuleCallableNamespaceV1, VerifiedSameModuleCallableDeclarationCatalogV1,
         };
@@ -141,9 +142,9 @@ mod tests {
             VerifiedSourceMethodCallSiteV1, VerifiedSourceStaticCallTargetCatalogV1,
             VerifiedStaticImportAliasViewV1,
         };
-        let ast = crate::parser::NyashParser::parse_from_string(
-            "static box Text { caller() { return me.text() } text() { return \"猫\" } }",
-        )
+        let ast = crate::parser::NyashParser::parse_from_string(&format!(
+            "static box Text {{ caller() {{ return me.text() }} text() {{ return {result} }} }}"
+        ))
         .unwrap();
         let declarations =
             VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&ast).unwrap();
@@ -189,11 +190,43 @@ mod tests {
     }
 
     #[test]
-    fn source_string_publication_covers_both_destinations_and_mismatch() {
+    fn source_string_and_bool_publication_cover_destinations_and_mismatch() {
         crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
-            for external in [false, true] {
-                let mut builder = builder("string_publication/0");
-                let demand = string_demand();
+            for (result, expected) in [("\"猫\"", MirType::String), ("true", MirType::Bool)] {
+                for external in [false, true] {
+                    let mut builder = builder("string_publication/0");
+                    let demand = source_result_demand(result);
+                    let destination = builder.alloc_value_for_test();
+                    let target = demand.target().canonical_global_target_v1().unwrap();
+                    let emission =
+                        UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
+                            &mut builder,
+                            destination,
+                            CallTarget::Global(target),
+                            vec![],
+                            None,
+                        )
+                        .unwrap();
+                    let publication =
+                        PreparedStaticCallResultPublicationV1::prepare(demand, emission);
+                    if external {
+                        builder
+                            .function_state
+                            .type_ctx
+                            .set_type(destination, expected.clone());
+                        publication
+                            .commit_external_destination(&mut builder)
+                            .unwrap();
+                    } else {
+                        publication.commit(&mut builder).unwrap();
+                    }
+                    assert_eq!(
+                        builder.function_state.type_ctx.get_type(destination),
+                        Some(&expected)
+                    );
+                }
+                let mut builder = builder("string_publication_mismatch/0");
+                let demand = source_result_demand(result);
                 let destination = builder.alloc_value_for_test();
                 let target = demand.target().canonical_global_target_v1().unwrap();
                 let emission =
@@ -205,47 +238,19 @@ mod tests {
                         None,
                     )
                     .unwrap();
-                let publication = PreparedStaticCallResultPublicationV1::prepare(demand, emission);
-                if external {
-                    builder
-                        .function_state
-                        .type_ctx
-                        .set_type(destination, MirType::String);
-                    publication
-                        .commit_external_destination(&mut builder)
-                        .unwrap();
-                } else {
-                    publication.commit(&mut builder).unwrap();
-                }
+                builder
+                    .function_state
+                    .type_ctx
+                    .set_type(destination, MirType::Integer);
+                let error = PreparedStaticCallResultPublicationV1::prepare(demand, emission)
+                    .commit_external_destination(&mut builder)
+                    .unwrap_err();
+                assert!(error.contains("type-mismatch"));
                 assert_eq!(
                     builder.function_state.type_ctx.get_type(destination),
-                    Some(&MirType::String)
+                    Some(&MirType::Integer)
                 );
             }
-            let mut builder = builder("string_publication_mismatch/0");
-            let demand = string_demand();
-            let destination = builder.alloc_value_for_test();
-            let target = demand.target().canonical_global_target_v1().unwrap();
-            let emission = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
-                &mut builder,
-                destination,
-                CallTarget::Global(target),
-                vec![],
-                None,
-            )
-            .unwrap();
-            builder
-                .function_state
-                .type_ctx
-                .set_type(destination, MirType::Integer);
-            let error = PreparedStaticCallResultPublicationV1::prepare(demand, emission)
-                .commit_external_destination(&mut builder)
-                .unwrap_err();
-            assert!(error.contains("type-mismatch"));
-            assert_eq!(
-                builder.function_state.type_ctx.get_type(destination),
-                Some(&MirType::Integer)
-            );
         });
     }
 

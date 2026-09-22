@@ -482,7 +482,8 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             }
             CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error) => {
                 return Err(format!(
-                    "[freeze:contract][callable-loop/route-not-front-selected] {error:?}"
+                    "[freeze:contract][callable-loop/route-not-front-selected] {error:?} function={function_name} source={:?} site={:?}",
+                    parent_source.root_lineage(), parent_source.site()
                 ));
             }
         };

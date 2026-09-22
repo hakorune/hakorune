@@ -77,6 +77,15 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
                     });
                     CallProofOutcomeV1 { fact, row }
                 }
+                VerifiedCallableResultDispositionV1::ExactBool => CallProofOutcomeV1 {
+                    fact: I64ExpressionFactV1::ExactBool,
+                    row: Some(VerifiedCallableResultCallSiteV1::same_module_static(
+                        source_target,
+                        VerifiedCallableResultRepresentationV1::ExactBool,
+                        Box::new([]),
+                        Box::new([]),
+                    )),
+                },
                 VerifiedCallableResultDispositionV1::ExactString => CallProofOutcomeV1 {
                     fact: I64ExpressionFactV1::ExactString,
                     row: Some(VerifiedCallableResultCallSiteV1::same_module_static(

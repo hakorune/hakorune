@@ -69,20 +69,21 @@ fn merged_parser_program_source_stops_at_named_publication_boundary() {
             )
             .expect_err("parser program must stop at its named loop boundary");
         let message = rejected.error().to_string();
-        // String result publication now crosses the earlier recursive boundary.
-        // Full parser acceptance remains blocked by the Bool-returning is_space
-        // target. Pin the exact dependency; this is not completed compilation.
+        // String and Bool publication cross the prior result boundaries.
+        // ArrayPush mutation/NoValue source admission is still a dependency;
+        // this is a precise stop receipt, not completed parser acceptance.
         for expected in [
-            "callable-loop/static-publication/no-selected-handoff",
-            "owner: \"StringHelpers\", name: \"skip_ws\", arity: 2",
-            "[Body(4), LoopBody(0), IfCondition]",
-            "owner: \"StringHelpers\", name: \"is_space\", arity: 1",
+            "callable-loop/route-not-front-selected",
+            "SourceCallOutsideSelectedFamily",
+            "function=StringHelpers.split_lines/1",
+            "[Body(5), LoopBody(1), IfThen(0)]",
         ] {
             assert!(
                 message.contains(expected),
                 "unexpected parser terminal: {message}"
             );
         }
+        assert!(!message.contains("no-selected-handoff"));
         assert!(!message.contains("TargetOnlyDispositionMustBeUnavailable"));
         rejected.discard();
     });

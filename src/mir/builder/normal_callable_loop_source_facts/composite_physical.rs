@@ -181,7 +181,7 @@ impl<'source, 'ledger> SourceLoopBreakCompositePhysicalInputV1<'source, 'ledger>
                             .starts_with(self.parent_site.segments())
                         || match disposition {
                             CallableLoopSourceItemDispositionV1::SelectedStatic(relation) => {
-                                !relation.has_exact_i64_result()
+                                !relation.has_exact_scalar_result()
                             }
                             CallableLoopSourceItemDispositionV1::CoreMethod(core_method) => {
                                 core_method.call_site() != item.call_site()

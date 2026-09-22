@@ -86,8 +86,8 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
         }
     }
 
-    /// Project an unconditional String result without inventing a general call row.
-    pub(super) fn project_exact_string(
+    /// Project an unconditional String/Bool result without inventing a general call row.
+    pub(super) fn project_unconditional_result(
         declarations: &crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1,
         caller: &CanonicalSameModuleCallableKeyV1,
         site: &SourceExprSiteV1,
@@ -113,12 +113,15 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
         {
             return Err(Error::TargetMustBeStatic);
         }
-        if !matches!(
-            results.disposition(target),
-            Some(super::VerifiedCallableResultDispositionV1::ExactString)
-        ) {
-            return Err(Error::TargetResultUnavailable);
-        }
+        let representation = match results.disposition(target) {
+            Some(super::VerifiedCallableResultDispositionV1::ExactString) => {
+                VerifiedCallableResultRepresentationV1::ExactString
+            }
+            Some(super::VerifiedCallableResultDispositionV1::ExactBool) => {
+                VerifiedCallableResultRepresentationV1::ExactBool
+            }
+            _ => return Err(Error::TargetResultUnavailable),
+        };
         if results.call_result(caller, site).is_some() {
             return Err(Error::GeneralCallResultAlreadyAvailable);
         }
@@ -128,7 +131,7 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
                 caller: caller.clone(),
                 site: site.clone(),
                 target: target.clone(),
-                representation: VerifiedCallableResultRepresentationV1::ExactString,
+                representation,
                 _seal: VerifiedStaticCallResultPublicationDemandSealV1,
             },
             // Unconditional normal-result proof has no I64 argument requirements.

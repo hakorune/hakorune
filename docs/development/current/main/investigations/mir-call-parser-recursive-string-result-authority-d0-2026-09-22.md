@@ -1,23 +1,23 @@
 ---
-Status: active__B1_design_accepted__S1_source_to_MIR_closed
+Status: design_stop__B2_array_push_source_contract__B1_source_to_MIR_closed
 Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
-NextCard: MIR-CALL-PARSER-BOOL-RESULT-B1 (same card)
-Implementation permission: B1 source-to-MIR composite scalar mapping accepted; runtime ABI activation excluded
+NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-D0 (same card)
+Implementation permission: B2 design only; ArrayPush implementation and runtime ABI activation not yet authorized by an accepted mapping
 ---
 
 # Parser String result authority: corrected decision and task queue
 
 ## Current Capsule
 
-- **Current decision:** extend the existing normal-result catalog and sole MIR publisher with `ExactString`; the bounded physical carrier is a Call destination `ValueId` typed `MirType::String`.
-- **Current implementation status:** S1 source-to-MIR implementation is verified; catalog 90, publisher 5, ingress 4 and merged dependency/inventory 2 tests pass. Full parser acceptance still stops at the named Bool dependency. Runtime String return ownership is not implied by a MIR emission receipt.
-- **Next ordered task:** implement accepted B1 exact Bool composite source publication; preserve direct I64-only routes and runtime ABI boundaries.
-- **Production stop line:** S1 does not activate a String runtime ABI or relax I64-only Loop consumers. Executable acceptance and runtime admission remain required before cutover claims.
-- **Retirement finish line:** selected parser acceptance/cutover and exclusive old-edge removal; catalog propagation alone is not legacy retirement.
+- **Current decision:** S1 String and B1 Bool source-to-MIR publication are closed; next design resolves ArrayPush mutation/NoValue statement authority in existing owners.
+- **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
+- **Next ordered task:** B2-D0 for `StringHelpers.split_lines/1` loop-local `arr.push(s.substring(last, i))`; settle receiver/binding, mutation/Fault/argument retention and NoValue consumer before implementation.
+- **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
+- **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
-## Six-line brief
+## Accepted S1 six-line brief
 
 ```text
 Decision: accept S1 String normal-result propagation through the existing source-to-MIR publication chain.
@@ -375,3 +375,107 @@ README/reference match the implemented normal-result contract. S1 replaces
 String-as-non-I64 classification only for proved forms and uses one publisher;
 no shared legacy edge was deleted. B1 is the next accepted source-to-MIR slice,
 followed by outstanding canonical acceptance/runtime ownership/cutover/R0.
+
+
+### B1 implementation checkpoint
+
+The touched semantic lowering state was already 902 lines at S1 HEAD.
+Behavior-preserving commit `2f2f683122` extracted source call publication and
+consumption to `normal_callable_semantic_lowering_state/source_call_publication.rs`
+(parent 748 lines, extracted file 164). Quick library type-check passed; this
+separate commit does not widen a result contract. B1 modifies that extracted
+owner, with the same inventory fields retained in its parent.
+
+B1 result/catalog, unconditional String/Bool projection, Bool MIR publisher
+and four composite admission/consumption checks are implemented in the working
+tree. Quick library type-check passed; focused test verification is active.
+Full source-to-MIR Bool condition evidence and canonical parser recheck are
+still required before closeout. No executable Bool ABI or parser completion
+is claimed.
+
+
+B1 interim evidence: catalog **91/91**, existing publisher **5/5**, and existing
+Loop route tests **19/19** pass. Merged static inventory passes; full lifecycle
+now stops at `LoopCondRouteRejected(SourceCallOutsideSelectedFamily)` for
+`[Body(5), LoopBody(1), IfThen(0)]`, replacing the earlier is_space Bool terminal.
+The old dependency assertion is a current-change test failure, not baseline
+credit. Worker readback places this after successful LoopCond selection: the
+method item has neither a selected static relation nor a matching CoreMethod
+row. Owner/receiver classification is still unproven; diagnostic context has
+been added and requires the next build.
+
+A temporary attempt to inspect skip_ws in the rejected compilation's partial
+module failed because that function was unavailable there. That assertion was
+removed; it proves no Bool destination/branch property. Required next work:
+obtain source-owned Bool Call-to-Branch evidence from a completed compilation,
+add explicit direct-I64/composite-negative and publisher Bool tests, identify
+the new source item, and pin its classified terminal. B1 remains uncommitted
+and open; do not count the forward terminal movement as full acceptance.
+
+
+### B1 integration / next-owner audit (2026-09-22)
+
+The diagnostic rebuilt binary identifies the next full-parser boundary as
+`StringHelpers.split_lines/1`, loop `[Body(5)]`, method item
+`[Body(5), LoopBody(1), IfThen(0)]`: `arr.push(s.substring(last, i))`.
+Catalog 91, publisher 5 (now String and Bool destination/mismatch cases), and
+Loop route 20 (including composite scalar/direct I64 rejection) tests pass.
+The first focused-source command matched zero tests; it is discarded as
+receipt. Its corrected exact name is
+`mir::builder::normal_default_root_catalog_lifecycle::loop_scope_tests::source_bool_call_feeds_existing_composite_condition`.
+It completes source-backed lowering and confirms the is_space Call destination
+has Bool type, but its initial direct-ValueId Branch assertion failed. The
+revised test follows only Copy/Compare dependencies into Branch; result pending.
+Do not claim physical condition completion before that test passes.
+
+Read-only next-owner audit: `source_call_target/core_method.rs`, the CoreMethod
+instance issuer and resolver currently project StringBoxText/PureRead only.
+ArrayPush manifest metadata is NoValue/MutatesShape/ColdFallback/Unprojected;
+this is not an accepted source semantic law. Existing method-call statement
+lowering also bypasses exact_source_method_call and emits a name-based
+`dst: None` call. Issuer-only extension would leave source rows unconsumed.
+
+Next design after B1: co-seal exact `new ArrayBox` -> binding -> receiver,
+push/1 argument sites and loop/frame with Text argument retention, mutation
+and Fault. Connect NoValue statement consume/emit/finish through the existing
+statement physical owner; replace the selected name-dependent edge in the
+same slice. No invented ValueId, name/MIR-derived receiver proof or wholesale
+manifest activation. Required negatives: foreign/reassigned binding, arity,
+value-use of push, duplicate/residual rows, and argument failure before
+mutation. Keep nested substring evaluation/coverage. Loop-external tail push
+and substring/1 are distinct remaining boundaries, not covered by this tuple.
+This is a design task, not implementation permission for ArrayPush.
+
+
+### B1 closeout and B2-D0 selection (2026-09-22)
+
+Final quick-profile catalog **92/92**, publisher **5/5**, Loop route **20/20**,
+focused source Bool Call-to-Branch **1/1**, merged dependency/inventory **2/2**.
+Logs: `/tmp/bool-b1-closeout.log` and `/tmp/bool-b1-closeout-{0,1,2,3}.log`.
+Each direct test invocation had a nonzero executed count. The focused source
+uses unchanged is_space/skip_ws bodies, completes lowering, verifies Bool
+Call destination and reaches Branch through existing Copy/Compare condition
+operations. Catalog tests retain calls under Not/short-circuit source syntax;
+runtime condition lowering is unchanged. The full merged fixture is retained
+and pins ArrayPush's precise dependency, not successful parser compilation.
+
+The prior direct-ValueId Branch assertion was a test assumption error, replaced
+by explicit Copy/Compare dataflow verification. The former Bool stop assertion
+was superseded by the observed source-identified ArrayPush boundary. Neither
+red is counted as baseline debt. No unresolved current-change red remains in
+the focused B1 verification scope; full parser/runtime acceptance stays open.
+Formatting, diff, pointer and publication-ingress guard pass. All changed Rust
+files are below 760 lines after the separate state-operation split. B1 uses
+one source catalog, one publication owner and existing condition/Call consumers;
+no shared legacy deletion credit is claimed.
+
+B2-D0 is now selected in design_stop:
+
+```text
+Decision: resolve ArrayPush source mutation and NoValue statement mapping before activation.
+Source authority + canonical issuer: existing source construction/binding and CoreMethod owners; exact mutation/argument-retention issuance must be settled.
+Non-authority: ArrayPush manifest presence, arr name, physical MIR type, or ColdFallback execution.
+Fail-fast boundary: unsupported source relation must reject before argument/mutation effects; no synthetic value for NoValue.
+Smallest next slice: close exact Array receiver/binding + push/1 argument/Fault contract + source statement consume/emit/finish and selected name-edge deletion.
+Non-claims: no ArrayPush implementation permission, tail-push/substring-1 coverage, full split_lines/parser acceptance or runtime String ABI completion yet.
+```

@@ -24,7 +24,8 @@ pub(super) fn substitute_required_arguments(
                 substituted = union_requirements(&substituted, requirements);
             }
             I64ExpressionFactV1::PendingDependency => pending = true,
-            I64ExpressionFactV1::ExactString
+            I64ExpressionFactV1::ExactBool
+            | I64ExpressionFactV1::ExactString
             | I64ExpressionFactV1::ExactNominalBox(_)
             | I64ExpressionFactV1::KnownNonI64
             | I64ExpressionFactV1::Unknown(_)
@@ -41,7 +42,8 @@ pub(super) fn substitute_required_arguments(
 pub(super) fn exact_requirements(fact: &I64ExpressionFactV1) -> Option<&RequirementSetV1> {
     match fact {
         I64ExpressionFactV1::Exact(requirements) => Some(requirements),
-        I64ExpressionFactV1::ExactString
+        I64ExpressionFactV1::ExactBool
+        | I64ExpressionFactV1::ExactString
         | I64ExpressionFactV1::ExactNominalBox(_)
         | I64ExpressionFactV1::KnownNonI64
         | I64ExpressionFactV1::Unknown(_)

@@ -189,22 +189,26 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
             }
             if matches!(
                 results.disposition(&expected),
-                Some(VerifiedCallableResultDispositionV1::ExactString)
-            ) {
-                let handoff = VerifiedStaticCallResultPublicationHandoffV1::project_exact_string(
-                    declarations,
-                    caller,
-                    site,
-                    targets,
-                    results,
+                Some(
+                    VerifiedCallableResultDispositionV1::ExactString
+                        | VerifiedCallableResultDispositionV1::ExactBool
                 )
-                .map_err(|cause| {
-                    StaticCallResultPublicationOwnerErrorV1::Projection {
-                        caller: caller.clone(),
-                        site: site.clone(),
-                        cause,
-                    }
-                })?;
+            ) {
+                let handoff =
+                    VerifiedStaticCallResultPublicationHandoffV1::project_unconditional_result(
+                        declarations,
+                        caller,
+                        site,
+                        targets,
+                        results,
+                    )
+                    .map_err(|cause| {
+                        StaticCallResultPublicationOwnerErrorV1::Projection {
+                            caller: caller.clone(),
+                            site: site.clone(),
+                            cause,
+                        }
+                    })?;
                 insert_selected(&mut selected_targets, &mut rows, key, expected, handoff)?;
                 continue;
             }

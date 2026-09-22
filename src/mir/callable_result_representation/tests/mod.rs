@@ -15,3 +15,5 @@ mod static_exact_i64_requirement;
 mod support;
 
 mod string_results;
+
+mod bool_results;
