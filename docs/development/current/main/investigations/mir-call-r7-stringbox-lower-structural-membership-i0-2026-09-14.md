@@ -116,6 +116,21 @@ the existing whole-module route stops first at
 `ParserStringUtilsBox.starts_with/3`. This reproduces the card's existing
 known baseline and is not evidence for or against the new type-tag branch.
 
+## Direct lowerer probe recheck (2026-09-22)
+
+A direct `LowerReturnMethodStringLengthBox.try_lower` probe was attempted with
+positive direct/New/empty shapes and negative foreign-tag, wrong-class,
+extra-argument, and malformed inputs. The probe did not reach the selected
+lowerer: the Hako VM import closure stopped first at the existing
+`[freeze:contract][static-call/legacy-fallback-retired]`
+`StringScanBox.find_unescaped/3` terminal. This is the same retained static
+call boundary, observed one import layer earlier than the phase14/16/17
+`ParserStringUtilsBox.starts_with/3` smoke. It is classified as known baseline
+debt, not a current-change failure. No runtime membership claim is made from
+this probe; the structural guard and source inspection remain the evidence for
+the type-tag branch until the selected static-call boundary has an accepted
+owner or terminal.
+
 ## Recovery result and next baseline (2026-09-14)
 
 The compatibility-root recovery I0 is closed in
