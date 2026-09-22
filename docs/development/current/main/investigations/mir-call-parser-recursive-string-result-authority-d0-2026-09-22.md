@@ -4,7 +4,7 @@ Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 (same card; source relation before D)
-Implementation permission: conditional NamedArray source/Core co-seal and existing package-to-ArrayElementWrite handoff only; preserve runtime ABI, production cutover and unrelated D WIP
+Implementation permission: source BindingRef-to-carrier projection, then conditional NamedArray source/Core co-seal and existing package-to-ArrayElementWrite handoff; preserve runtime ABI, production cutover and unrelated D WIP
 ---
 
 # Parser String result authority: corrected decision and task queue
