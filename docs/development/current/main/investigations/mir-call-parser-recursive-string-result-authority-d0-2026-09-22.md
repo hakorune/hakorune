@@ -249,36 +249,11 @@ Completion checklist for this same S1 row:
    remain required in the ordered queue above; no extra platform CI is needed
    for this source-to-MIR repair.
 
-### Observed pre-fix evidence
+### Superseded S1 working-tree evidence
 
-These are local S1 working-tree results based on `5cdf6b2e9d`, not receipts
-for a committed implementation. Existing logs were read back in this design
-pass; Cargo was not rerun. The test binary was
-`target/quick/deps/nyash_rust-ae6a234ed40ac569`.
-
-- Catalog: 88 passed (`/tmp/string-s1-final-tests.log`).
-- Publisher: 5 passed; ingress: 4 passed (`/tmp/string-s1-verified-0.log`,
-  `/tmp/string-s1-verified-1.log`).
-- Both tests in
-  `mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_merged_route_tests::`
-  fail: `merged_parser_program_source_stops_at_named_publication_boundary`
-  and `merged_parser_static_inventory_probe` (logs `-2.log` and `-3.log`).
-- Shared terminal: `TargetOnlyDispositionMustBeUnavailable`, caller
-  `ParserProgramBox.parse/2`, target `RuneContractBox.invalid_placement_tag/1`,
-  site `[Body(22), LoopBody(8), IfThen(5), IfThen(1), Value]`.
-  Classified as **current-change integration failure**, not accepted baseline
-  debt. The earlier zero-test filter is not evidence.
-
-Temporary logs are diagnostic pointers; the named tests, source tuple and
-result above are the durable record. Successful local result proof does not
-close this integration failure or permit production cutover.
-
-
-### Superseded S1 projection checkpoint
-
-S1 projection and the subsequently resolved Bool dependency are retained in Git
-at `9460ee7b68` (old checkpoint section). The landed S1/B1 receipts below own
-completion evidence; their historical next-actions are no longer the queue.
+Pre-fix failures at `5cdf6b2e9d` and subsequent projection receipts are retained
+in Git at `b75332b524`. The landed S1/B1 receipts below supersede that historical
+queue; none was full parser/runtime acceptance.
 
 ## B1 design: exact Bool result through composite source publication
 
@@ -877,21 +852,11 @@ Missing increment, non-RecipeOnly and nested Generic restrictions stay unchanged
 Task 4 still requires natural D strict SSA, exact merged-parser terminal, caller
 switch and old ingress retirement. Task 5 requires selected-C Text/Fault evidence.
 
-Prior WIP receipt: `/tmp/b2-carrier-relation-final.log`, quick 5m16s, existing16
-pass/new4 fail before carrier validation; current-change fixture failures, not
-baseline debt. D dominance/merged-parser reds remain open. Preserve WIP issuer
-activation and published-view tests until their own gates pass. Task 2 focused
-co-seal plus existing source/child-entry gates do not close tasks 3-5.
-
-Task 2 slot co-seal receipt: natural induction/extra/repeated update/local shadow,
-owner/coverage/induction negatives and the original If admission negative pass.
-Focused source/lease **21** + raw child-entry **12** = **33 pass**, quick **4m08s**,
-**542 warnings**. Logs: `/tmp/b2-carrier-selected-route.log` and
-`/tmp/b2-carrier-child-entry.log`. The four fixture reds are resolved; observed
-If terminal is SourceIdentityMissing. Formatting, ingress/pointer guards and
-diff check pass. Source files <=744 lines. Task 3 publication remains design;
-D issuer/published-view WIP is excluded from this verified co-seal change.
-
+Task 2 landed at `231ef5f9e0`: source21 + child12 = 33 pass, quick4m08s,
+warnings542; owner/coverage/induction/shadow and retained If negative covered.
+Four fixture reds resolved; If terminal observed as SourceIdentityMissing.
+Historical failures/logs live in that commit. D SSA/merged-parser WIP remains
+current-change red, excluded from task 2 evidence.
 
 #### Task 3 physical transport Decision (2026-09-22)
 
@@ -956,7 +921,7 @@ Non-authority: diagnostic names, assignment union, future MIR reachability,
 raw Select support, and historical origins.
 Fail-fast boundary: missing source/continuation correspondence is Design stop,
 not a new runtime rejection or narrower source admission.
-Smallest next slice: task 3 source transfer mapping below; no code or fixtures.
+Smallest next slice: settle the exact Generic operation/class input to the common Core owner below; no code or fixtures.
 Non-claims: existing 112-test receipt does not establish scoped SSA or cutover.
 
 Change:
@@ -971,8 +936,8 @@ Contract:
   continuations, existing PHI/Select owns physical values, and completion commits
   once after final Lower verification. A cloned plan grants no publication right.
 Done (ordered tasks; existing tasks 3-5 remain one bounded series):
-  1. Map each admitted source route to its existing continuation owner. Co-seal
-     exact assignment identity/kill and reaching backedge/exit rows in the same
+  1. Close the common-Core input gaps in the table below, then co-seal exact
+     assignment identity/kill and reaching backedge/exit rows in the same
      Recipe issuance. Include zero-iteration, continue, break, return and joins;
      classify non-admitted shapes explicitly. Pure update If remains LoopCond,
      never forced Generic; missing admission is a separate semantic Decision.
@@ -996,3 +961,30 @@ Stop:
 
 Read-only worker and main source inspection establish this design gap; no new
 Rust/runtime evidence is claimed. Existing three-file D WIP is preserved.
+
+Task 3 concrete owner mapping (read-only worker + main, `b75332b524`):
+Boundary: callable Generic source Recipe issuance -> common logical transfer;
+includes the following owner/schema constraints; excludes runtime and a claim
+that every source shape already has a portable projection.
+
+| Input/transfer | Existing owner and required connection |
+| --- | --- |
+| Entry, predicate true/false, body entry, backedge | `loop_recipe_contract/join_sig/flow.rs::elaborate_view` already derives these roles from verified Recipe; never derive a second set from generated MIR. |
+| Branch continuation / exit | `join_sig/model.rs` and `transfer_view_v2.rs` preserve exact next block/item or exit item/target/payload. Summary exits are consistency evidence, not executable exit substitutes. |
+| Multiple carriers | Engine already supports a collection; `join_sig/v2.rs` closure restricts root to one. Extend the same closure to exact After collection and retain checked sole-carrier admission for existing Dynamic/S6C callers. No induction-only substitution. |
+| Source co-seal | `source_bound_core.rs` owns Recipe/source claim/binding/effect relations, currently V1. Generalize this owner for required typed input; do not invent a second Core or pair source and JoinSig later by owner/key. |
+| Generic issuer | `normal_callable_loop_source_facts/generic.rs` currently holds Facts + carrier relation only. Supply exact source-program inputs to the common Core; Dynamic's fixed `issue_dynamic_full_loop_semantic_program_v2` envelope is not a Generic issuer. |
+| Value/operation vocabulary | V2 has I64/Bool/Unit/Text/Dynamic; Named Array class and Text literal operation are not explicitly represented. Resolve these from existing source call/write and literal contracts before choosing the portable projection; no Dynamic relabel or synthetic CallSlot. |
+| Original item identity | Generic extractor removes every syntax-matching increment for `body_for_recipe`; source composer skips only the selected exact increment. Retain original source-site/item relation in issuance, never recover ordinals from the filtered body. This is a mapping hazard, not a reproduced runtime failure. |
+| Branch domain | Existing neutral `supported_arm_pair` accepts only Break/Continue for two exiting arms. Task 3's return/return and other terminal pairs are not proved by that helper; enumerate actual selected source routes before extending its semantic contract. |
+
+Accepted direction: reuse common source-bound Core and the one neutral JoinSig
+engine. Full Generic activation remains unaccepted until class/operation and
+branch coverage map to that portable contract. The next design output is the
+finite mapping for the existing D literals/substring2/repeated pushes, induction,
+extra carrier, scoped locals and admitted branch rows, including opaque call
+subtrees and their existing effects. Borrowed `LoopJoinRecipeView` is an internal
+view of verified input, not permission to create an unverified third Recipe.
+No new scalar-only fixture may replace this scope. Once this input mapping is
+closed, implement common closure/co-seal, ledger connection, D cutover/deletion,
+then selected-C execution in the order above. Existing WIP stays untouched.
