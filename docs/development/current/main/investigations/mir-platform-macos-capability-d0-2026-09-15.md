@@ -1,8 +1,8 @@
 ---
-Status: parked__user_selected_include__2026-09-15
+Status: design_stop__selected__2026-09-22__NativeRunnerCensus
 Task: MIR-PLATFORM-MACOS-CAPABILITY-D0
 Date: 2026-09-15
-Priority: census only — classify the first macOS failures before any implementation; parked behind the active Map lane
+Priority: census only — classify the first macOS failures before any implementation; selected after the Map red was cleared and the semantic lane reached a frontier pause
 Parent: mir-call-compatibility-retire-r7-d0-2026-09-11.md
 NextCard: per-gap bounded row (assigned after census)
 Implementation permission: false; reopen only after the census classifies every first failure and the Map lane's red is cleared or explicitly paused
@@ -58,6 +58,16 @@ Already in-tree — these are scaffolding, not capability proof:
   input, `dorny/paths-filter` gate for non-dispatch runs, and
   `cancel-in-progress` on pull_request only.
 
+## Focused manual runner entry — 2026-09-22
+
+`portability-ci.yml` now exposes a manual-only `scope=macos` job.  It runs
+the provider and Unix CAPI lifetime tests sequentially on one
+`macos-latest` runner with the quick profile and `CARGO_BUILD_JOBS=4`, so the
+test binary can be reused and the Windows lanes are not started.  This is an
+evidence entry only: a failure is recorded as a first-surface census result,
+not repaired or skipped here.  The existing `scope=full` path remains the
+separate build/plugin baseline and was not duplicated by this job.
+
 ## Census boundary
 
 このcensusが覆う境界: `macos-latest` runner checkout -> focused suite
@@ -112,8 +122,9 @@ edge is deleted until the macOS owner and evidence exist.
 
 ## D0 disposition
 
-Owner decision recorded 2026-09-15: macOS is a supported target. This
-card is parked behind the active Map lane (`MIR-CALL-MAP-LIFECYCLE-
-CONSUMER-I0`); it does not block it and must not be worked while the Map
-lane is red, unless the owner explicitly selects it. Windows lifecycle
-remains `deferred__user_selected_later__2026-09-14` — unchanged.
+Owner decision recorded 2026-09-15: macOS is a supported target. The Map
+lane red is now cleared and the selected semantic lane is at an explicit
+frontier pause, so this card is selected as a design-only native-runner
+census. It does not authorize compiler changes, fallback, or backend
+parity. Windows lifecycle remains
+`deferred__user_selected_later__2026-09-14` — unchanged.

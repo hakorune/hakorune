@@ -6,12 +6,13 @@ on:
   workflow_dispatch:
     inputs:
       scope:
-        description: "Manual scope: focused Windows acceptance or the full portability matrix"
+        description: "Manual scope: focused macOS/Windows acceptance or the full portability matrix"
         required: false
         default: windows
         type: choice
         options:
           - windows
+          - macos
           - full
 
 concurrency:
@@ -55,6 +56,30 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Build hakorune (release)
         run: cargo build --release --bin hakorune -q
+
+  macos-focused:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.scope == 'macos' }}
+    name: macOS focused capability census
+    runs-on: macos-latest
+    timeout-minutes: 35
+    env:
+      CARGO_BUILD_JOBS: 4
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Check temporary-input provider lifetime
+        run: >-
+          cargo test --profile quick --features llvmlite-compat --lib
+          host_providers::llvm_codegen::provider_keep::tests::provider_wrapper_exercises_missing_tool_invalid_input_child_failure_and_success
+          -- --exact
+      - name: Check temporary-input CAPI lifetime
+        run: >-
+          cargo test --profile quick --features llvmlite-compat --lib
+          host_providers::llvm_codegen::capi_transport::integration_tests::capi_production_wrapper_exercises_contract_loader_child_and_success_paths
+          -- --exact
 
   windows-check:
     needs: changes
