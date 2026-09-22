@@ -234,12 +234,25 @@ fn emit_selected_exact_i64(
 #[cfg(test)]
 mod tests {
     use super::emit_selected_exact_i64;
+    use super::CorePlanEffectEmissionPortV1;
     use crate::mir::builder::control_flow::plan::{CoreCallSourceV1, CoreEffectPlan};
+    use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
     use crate::mir::callable_result_representation::{
         generic_selected_activation_fixture, CallableResultActivationDispositionV1,
+        VerifiedStaticCallResultPublicationDemandV1, VerifiedStaticCallResultPublicationHandoffV1,
     };
+    use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+    use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
     use crate::mir::definitions::Callee;
+    use crate::mir::resolved_semantics::{
+        CallableFunctionSyntaxViewV1, FunctionSemanticResolverSessionV1,
+        ResolveSelectedCallableForestsOutcomeV1, SourceExprSiteV1, SourceNodeSiteV1,
+        SourcePathSegmentV1,
+    };
     use crate::mir::{ConstValue, MirInstruction, MirType};
+    use crate::parser::NyashParser;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
     fn generic_selected_target() -> (
         crate::mir::builder::CanonicalSameModuleCallableKeyV1,
@@ -371,5 +384,150 @@ mod tests {
             .iter()
             .all(|instruction| !matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
         assert_eq!(builder.function_state.type_ctx.value_types.get(&dst), None);
+    }
+
+    fn source_publication_fixture(
+        consume_source_call: bool,
+    ) -> (
+        Rc<RefCell<CallableSemanticLoweringState>>,
+        SourceExprSiteV1,
+        crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    ) {
+        let program = NyashParser::parse_from_string("function caller() { return 1 }")
+            .expect("publication fixture parses");
+        let crate::ast::ASTNode::Program { mut statements, .. } = program else {
+            panic!("publication fixture must be a program")
+        };
+        let function = statements.remove(0);
+        let syntax = CallableFunctionSyntaxViewV1::from_function_ast(&function)
+            .expect("publication fixture callable syntax");
+        let mut resolver = FunctionSemanticResolverSessionV1::new(9114).expect("resolver");
+        let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
+            .resolve_selected_callable_forests(&[syntax.function()])
+            .expect("publication fixture forest")
+        else {
+            panic!("publication fixture unexpectedly deferred")
+        };
+        let forest = forests
+            .into_vec()
+            .pop()
+            .expect("publication fixture root forest");
+        let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
+            &function,
+            &forest,
+            syntax.function().root_profile(),
+        )
+        .expect("publication fixture projection");
+        let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+            &function,
+            &forest,
+            &projection,
+        )
+        .expect("publication fixture input");
+        let mut state = CallableSemanticLoweringState::from_exact_source(input)
+            .expect("publication fixture lowering state");
+        let site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(0),
+        ]));
+        let caller = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "ParserProgramBox",
+            "parse",
+            2,
+        );
+        let target = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "ParserStringUtilsBox",
+            "starts_with",
+            3,
+        );
+        let demand = VerifiedStaticCallResultPublicationDemandV1::from_test_parts(
+            caller,
+            site.clone(),
+            target.clone(),
+        );
+        let handoff = VerifiedStaticCallResultPublicationHandoffV1::from_test_parts(7, demand, &[]);
+        state
+            .install_source_static_result_publication(&site, handoff)
+            .expect("install selected publication");
+        if consume_source_call {
+            state
+                .take_source_core_method_call(&site, "starts_with", 3)
+                .expect("source call take")
+                .expect("selected publication source call");
+        }
+        (Rc::new(RefCell::new(state)), site, target)
+    }
+
+    fn source_publication_effect(
+        builder: &mut crate::mir::builder::MirBuilder,
+        site: SourceExprSiteV1,
+        target: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    ) -> CoreEffectPlan {
+        let args = (0..target.arity())
+            .map(|value| {
+                let id = builder.alloc_value_for_test();
+                builder
+                    .emit_for_test(MirInstruction::Const {
+                        dst: id,
+                        value: ConstValue::Integer(value as i64),
+                    })
+                    .expect("publication argument const");
+                builder
+                    .function_state
+                    .type_ctx
+                    .set_type(id, MirType::Integer);
+                id
+            })
+            .collect();
+        let destination = builder.alloc_value_for_test();
+        builder
+            .function_state
+            .type_ctx
+            .set_type(destination, MirType::Integer);
+        CoreEffectPlan::GlobalCall {
+            dst: Some(destination),
+            func: target.mir_symbol_projection(),
+            args,
+            source: CoreCallSourceV1::LocatedMethodCall(site),
+        }
+    }
+
+    #[test]
+    fn source_publication_consumer_takes_once_and_finishes_without_residual() {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        let (ledger, site, target) = source_publication_fixture(true);
+        let mut builder = crate::mir::builder::MirBuilder::new();
+        builder.enter_function_for_test("source_publication_consumer".to_owned());
+        let effect = source_publication_effect(&mut builder, site.clone(), &target);
+        let mut port = CorePlanEffectEmissionPortV1::source_publication(Rc::clone(&ledger));
+
+        port.emit_effect(&mut builder, &effect)
+            .expect("selected source publication");
+        let duplicate = port
+            .emit_effect(&mut builder, &effect)
+            .expect_err("duplicate source publication take must freeze");
+        assert!(duplicate.contains("missing-static-publication-handoff"));
+        port.finish()
+            .expect("selected publication is residual-free");
+        assert!(!ledger
+            .borrow()
+            .has_pending_source_static_result_publications());
+    }
+
+    #[test]
+    fn source_publication_consumer_rejects_unconsumed_residual() {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        let (ledger, _site, _target) = source_publication_fixture(false);
+        let mut builder = crate::mir::builder::MirBuilder::new();
+        builder.enter_function_for_test("source_publication_residual".to_owned());
+        let port = CorePlanEffectEmissionPortV1::source_publication(Rc::clone(&ledger));
+
+        let error = port
+            .finish()
+            .expect_err("unconsumed source publication must remain visible");
+        assert!(error.contains("static-publication/residual"));
+        assert!(ledger
+            .borrow()
+            .has_pending_source_static_result_publications());
+        let _ = builder;
     }
 }

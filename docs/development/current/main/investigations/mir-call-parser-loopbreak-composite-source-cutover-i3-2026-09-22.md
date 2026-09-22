@@ -372,3 +372,20 @@ queued; warning cleanup stays paused at I147.
    remaining `dead_code` warnings stay with their owners and resume only after
    this semantic sequence closes or an owner-specific warning becomes the
    selected blocker.
+
+## T4c physical-consumer guard — 2026-09-22
+
+The existing `CorePlanEffectEmissionPortV1::SourcePublication` consumer now
+has a focused positive/negative guard.  The test installs the existing
+one-shot handoff in `CallableSemanticLoweringState`, marks the exact source
+call consumed, emits the real `GlobalCall` through the selected publication
+bridge, rejects a duplicate take, and requires a residual-free `finish`.
+The companion negative test leaves the handoff unconsumed and requires the
+named `static-publication/residual` terminal.  Both tests pass (2/2), with
+the existing 545-warning baseline.
+
+This closes the physical consumer guard only.  It does not claim that the
+full merged `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3`
+source-to-MIR invocation has completed; that canonical acceptance remains
+the next T4c evidence step.  T5 caller switch and R0 caller-zero/deletion
+remain unopened, and the I147 warning cohort stays paused.
