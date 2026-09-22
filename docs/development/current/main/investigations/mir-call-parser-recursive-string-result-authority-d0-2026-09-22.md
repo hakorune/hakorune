@@ -1,10 +1,10 @@
 ---
-Status: fast__B2_source_ledger_publication
+Status: design_stop__B2_source_continuation_transfer
 Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 (same card; source relation before D)
-Implementation permission: task 3 exact source entry/state connection per accepted mapping; source activation awaits scoped verification; preserve D WIP
+Implementation permission: design/taskification only until source continuation mapping closes; preserve D WIP
 ---
 
 # Parser String result authority: corrected decision and task queue
@@ -13,7 +13,7 @@ Implementation permission: task 3 exact source entry/state connection per accept
 
 - **Current decision:** B2 Array retention/discharge is implemented; D exposed a source GenericLoop carrier synchronization gap. The scoped carrier/origin design and ordered tasks below replace the induction-only proposal.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** keyed physical carrier core is verified (112 focused tests); connect exact source entries and scoped ledger publication. D failures, branch integration and Text lifetime/Fault remain open.
+- **Next ordered task:** co-seal source continuation/identity-kill mapping before scoped ledger activation; keyed physical core is verified. D failures, branch integration and Text lifetime/Fault remain open.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -274,47 +274,11 @@ result above are the durable record. Successful local result proof does not
 close this integration failure or permit production cutover.
 
 
-### Projection implementation checkpoint (2026-09-22)
+### Superseded S1 projection checkpoint
 
-The validated String constructor and owner branch are now implemented in the
-working tree. Catalog tests: **90 passed** (`/tmp/string-s1-projection-final.log`),
-including missing-general-row projection, one-shot/residual/foreign rejection,
-general-row priority and retained TargetOnly for an unproved nested call.
-Before the last test/diagnostic additions, publisher 5 and ingress 4 passed,
-and `merged_parser_static_inventory_probe` passed against the rebuilt binary.
-These are working-tree receipts, not a committed S1 completion claim.
-
-The lifecycle test still fails its former RecursiveDependency assertion. Its
-new observed terminal (`/tmp/string-s1-loop-tuple.log`) is:
-
-- `callable-loop/static-publication/no-selected-handoff`
-- caller `StringHelpers.skip_ws/2`, target `StringHelpers.is_space/1`
-- site `[Body(4), LoopBody(0), IfCondition]`.
-
-Classification: newly exposed **dependency boundary**, not baseline-debt credit
-and not a successful acceptance. Read-only worker/source audit confirms
-`is_space` returns comparison/OR Bool; existing expression proof classifies
-non-arithmetic binary results as KnownNonI64 and return summarization issues
-`Unavailable(KnownNonI64Return)`. The publication owner therefore creates a
-TargetOnly row, never a Selected row for this site. The generic peek failure
-occurs before the I64 requirement gate. The prior exact String preflight
-failure is resolved; the real parser remains incomplete.
-
-Next actions within this card:
-
-1. Pin the exact newly observed dependency in the lifecycle assertion with
-   source identity, retain the inventory/selected starts_with assertion, and
-   rerun the focused tests. This records progress without claiming parser
-   acceptance; complete remaining projection negatives before S1 closeout.
-2. Design exact Bool normal-result proof and source condition publication in
-   the existing catalog/publisher and Loop relation/physical consumer. Existing
-   `into_item_dispositions` and composite physical gates are I64-only; all
-   required mappings must be settled together before a Bool implementation.
-   Bool is not ExactI64. Preserve RHS evaluation/short-circuit semantics,
-   one-shot publication and residual checks; introduce no parallel solver.
-3. Continue canonical acceptance, runtime String ownership, cutover and R0.
-   The new Bool dependency is an explicit prerequisite of full canonical
-   acceptance, not permission to reopen VM or platform lanes.
+S1 projection and the subsequently resolved Bool dependency are retained in Git
+at `9460ee7b68` (old checkpoint section). The landed S1/B1 receipts below own
+completion evidence; their historical next-actions are no longer the queue.
 
 ## B1 design: exact Bool result through composite source publication
 
@@ -976,23 +940,59 @@ The publication hook follows final Lower verification but is not activated.
 94 distinct focused tests passed, quick5m00s, warnings542. Detailed cohort/log
 receipt and unchanged corpus split are retained in that commit. D WIP excluded.
 
-Task 3 carrier implementation verified: existing allocation/PHI closure
-now accepts a key distinct from its label; the skeleton allocation accepts the
-existing consumed representation. Continue PhiArgs uses that same key.
-Raw-only lookup/fallback stays in its facade; shared missing-backedge rejects.
-The two raw target producers (`helpers::collect_loop_carrier_targets` and located
-`direct_preflight`) use BTreeSet, preserving unique-key raw behavior.
-Physical witnesses cover equal labels/distinct keys, explicit entry despite
-conflicting cache, missing incoming, and preheader-only closure. They do not
-prove natural source admission, ledger synchronization, or D recovery.
-Source entry validation and scoped header/body/exit publication remain next;
-no source loop is activated or downgraded by this physical-owner refactor.
+Task 3 keyed core landed at `9460ee7b68`: shared allocation/PHI closure and
+Continue preserve keys independently of labels; missing incoming rejects.
+112 distinct focused tests pass, quick5m26s, warnings542; raw parity retained.
+These are physical witnesses, not source-ledger or D acceptance. Detailed logs,
+cohorts and interrupted-build classification live in that commit.
 
-Keyed physical core receipt: **112 distinct tests pass** (new3 + source22 +
-child12 + freshener4 + corpus6 + accumulated parity19 + verifier25 + lowerer6 +
-located15), quick **5m26s**, **542 warnings**. Logs:
-`/tmp/b2-keyed-carrier-final.log`, `/tmp/b2-keyed-carrier-cohort-{0..7}.log`.
-Unused prospective exports were removed, without suppression; the interrupted
-first build has no evidence credit. Formatting, ingress/pointer and diff checks
-pass. Existing raw callers now delegate to the shared keyed allocation/closure;
-source entry lookup, full slot validation and ledger publication remain unconnected.
+#### Task 3 remaining design and execution queue (2026-09-22)
+
+Decision: retain the accepted identity/kill policy and keyed physical owners;
+close its missing source-continuation mapping before implementation resumes.
+Source authority + canonical issuer: resolver sites/BindingRef and source-bound
+Core continuation evidence, co-sealed by the existing semantic Recipe issuer.
+Non-authority: diagnostic names, assignment union, future MIR reachability,
+raw Select support, and historical origins.
+Fail-fast boundary: missing source/continuation correspondence is Design stop,
+not a new runtime rejection or narrower source admission.
+Smallest next slice: task 3 source transfer mapping below; no code or fixtures.
+Non-claims: existing 112-test receipt does not establish scoped SSA or cutover.
+
+Change:
+  Replace source GenericLoop name-map restoration with exact scoped ledger
+  publication. The current carrier relation holds assignment/declaration
+  membership, but no continuation-indexed origin transfer. The adapter context
+  has no source-completion capability; shared physical helpers alone cannot
+  activate it. This corrects the preceding broad implementation permission.
+Contract:
+  Same callable ledger owns values and active_origins; consumption, completed
+  locals and historical origins never roll back. Existing Recipe/JoinSig owns
+  continuations, existing PHI/Select owns physical values, and completion commits
+  once after final Lower verification. A cloned plan grants no publication right.
+Done (ordered tasks; existing tasks 3-5 remain one bounded series):
+  1. Map each admitted source route to its existing continuation owner. Co-seal
+     exact assignment identity/kill and reaching backedge/exit rows in the same
+     Recipe issuance. Include zero-iteration, continue, break, return and joins;
+     classify non-admitted shapes explicitly. Pure update If remains LoopCond,
+     never forced Generic; missing admission is a separate semantic Decision.
+  2. Connect exact entry validation and scoped entry/header/body/exit state in
+     ledger + dynamic-origin owner + source port. Scope locals by BindingRef;
+     validate all slots before allocation and transfer observations at finish.
+  3. Wire composer/context to shared keyed carriers and exclusive Source final
+     values; validate the whole completion before any publication. Close natural
+     SSA, extra-carrier/shadowing, admitted branch, wrong-owner, duplicate finish,
+     missing-slot and origin-kill evidence; preserve raw parity.
+  4. Close D current-change reds, select package issuer, and remove the selected
+     source push -> name-dependent MethodCall edge in the same cutover. Identify
+     the exact merged-parser terminal. Shared legacy code awaits its caller-zero.
+  5. Close selected-C Text contents/lifetime/alias/mutation-Fault/cleanup evidence.
+     Update owner README and reference in the implementing slice; use existing
+     focused tests and ingress/pointer guards, one quick build, no CI waiting.
+Stop:
+  If a route lacks source-owned continuation evidence, resolve that exact mapping
+  in this card before code. Do not infer it from physical plans, narrow fixtures,
+  resurrect killed origins, or declare production completion from local green.
+
+Read-only worker and main source inspection establish this design gap; no new
+Rust/runtime evidence is claimed. Existing three-file D WIP is preserved.
