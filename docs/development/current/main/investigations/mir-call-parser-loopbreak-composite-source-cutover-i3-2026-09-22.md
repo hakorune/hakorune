@@ -1,10 +1,10 @@
 ---
-Status: design_stop__2026-09-22__T4cSourceResultAuthorityRecheck
+Status: fast__2026-09-22__T4bExactI64RepresentationGuard
 Task: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-physical-i2-2026-09-22.md
-Implementation permission: false; read-only source-result authority audit only
-NextCard: MIR-CALL-PARSER-LOOPBREAK-COMPOSITE-SOURCE-CUTOVER-I3__t4a_source_result_authority_recheck
+Implementation permission: true; existing source-route representation guard only
+NextCard: none__task4c_publication_acceptance
 ---
 
 # Parser composite LoopBreak production cutover I3
@@ -105,23 +105,25 @@ existing result proof correctly emits an empty requirement.  The T4b field
 rename remains a mechanical clarification, but it does not prove the
 selected parser contract.
 
-The active mode is consequently `design_stop`.  No publication take, source
-route ordinal widening, caller switch, VM repair, fallback, or old-edge
-deletion is permitted until the existing owners answer one bounded question:
-does this selected route require a distinct ABI/type requirement for actual
-argument ordinal `1`, or is the result-publication contract correctly
-`ExactI64/[]` for the literal-`0` call?  The next queue is:
+The read-only audit reconciles the route contract.  The physical publication bridge already lowers every source
+argument site with `lower_all`; it does not consume the ordinal list.  No
+distinct ABI/type authority for ordinal `1` exists in this owner.  The
+selected route therefore needs the existing result owner's `ExactI64`
+representation, while preserving whatever sealed formal ordinal list it
+issues, including `[]` for this literal-`0` call.  No publication take, caller
+switch, VM repair, fallback, or old-edge deletion is part of this slice.
 
-1. **T4a authority recheck:** census the exact `starts_with/3` proof and its
-   call-site substitution, including the condition-only-unknown rule; decide
-   whether the existing route's hard-coded `[1]` is an ABI requirement or a
-   stale result tuple.
-2. **T4b guard decision:** only after T4a, add or revise the focused guard in
-   the existing result/publication owner.  If no existing owner can issue the
-   formal requirement, keep this family at `NoSafeSlice`.
-3. **T4c publication acceptance:** take the real composite handoff and drain
+The accepted bounded implementation is representation-only validation in the
+existing source-route/facts owners.  It removes the stale fixed `[1]` policy;
+it does not rewrite the result proof, mint a new ABI receipt, or discard the
+ordinal list.  The next queue is:
+
+1. **T4b representation guard:** replace the fixed ordinal checks in the
+   existing LoopCond/LoopTrue/LoopBreak/composite source facts with the sealed
+   `ExactI64` representation check; retain focused positive/negative guards.
+2. **T4c publication acceptance:** take the real composite handoff and drain
    its residual owner only after T4a/T4b are green.
-4. **T5 caller switch**, then **R0 caller-zero and old-edge retirement**.
+3. **T5 caller switch**, then **R0 caller-zero and old-edge retirement**.
 
 Warning cleanup remains paused at I147 (`unused_imports=17`); `dead_code` is
 owner debt and is not a reason to keep this authority decision unresolved.
@@ -324,7 +326,31 @@ the row until the corrected T4a/T4b queue at the end of this card is green.
 
 ## Current superseding status — 2026-09-22
 
-The card is in `design_stop`.  The bottom-most queue correction is the current
-authority: T4a source-result audit, T4b guard decision, T4c publication, T5
-caller switch, then R0 retirement.  Earlier `[1]` acceptance wording is
-historical and must not be used as a production or cutover claim.
+The source-result audit is complete.  The card is now in `fast` for the
+representation-only guard slice above.  Earlier `[1]` acceptance wording is
+historical and must not be used as an ABI or production cutover claim.
+
+## T4b representation guard completion — 2026-09-22
+
+The fixed ordinal policy is removed from the existing source-route and
+LoopCond/LoopTrue/LoopBreak/composite facts owners.  Their guard now requires
+only the sealed `ExactI64` result representation; the publication handoff
+continues to carry the result owner's formal ordinal list unchanged.  The
+physical bridge remains the sole argument consumer and checks full source
+arity before `lower_all`.
+
+Focused evidence is green:
+
+- `normal_callable_loop_source_route`: **19/19**;
+- `normal_callable_loop_source_facts::`: **16/16**;
+- merged parser inventory/publication probe: **1/1**, observing
+  `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3` with
+  `ExactI64/[]`, one-shot take, and duplicate-take rejection;
+- merged parser boundary suite: **3/3**;
+- `cargo fmt --all`, `git diff --check`, and the current-state pointer guard
+  pass; the existing quick-profile warning baseline remains 545.
+
+This closes only T4b's representation guard.  The actual composite LoopBreak
+consumer still must take the selected handoff and drain the residual owner in
+T4c.  Caller switch (T5), caller-zero proof, and old-edge deletion (R0) remain
+queued; warning cleanup stays paused at I147.

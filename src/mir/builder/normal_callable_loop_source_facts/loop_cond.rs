@@ -222,7 +222,7 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
             );
         }
         if self.source_target.core_method_items().is_empty()
-            && !self.source_target.has_exact_callee_i64_requirement(&[1])
+            && !self.source_target.has_exact_i64_result()
         {
             return Err(
                 "[freeze:contract][callable-loop/loop-cond/result-requirement-mismatch]".to_owned(),

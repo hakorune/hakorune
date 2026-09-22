@@ -191,5 +191,54 @@ fn merged_parser_static_inventory_probe() {
             index_of_published, 0,
             "index_of loop items must stay unpublished (Bound receivers)"
         );
+
+        let selected_site = inventory
+            .calls()
+            .filter(|row| row.call().caller() == &parse_key)
+            .filter(|row| row.call().method() == "starts_with")
+            .filter(|row| {
+                row.call().site().node().segments().iter().any(|segment| {
+                    matches!(
+                        segment,
+                        crate::mir::resolved_semantics::SourcePathSegmentV1::LoopBody(_)
+                    )
+                })
+            })
+            .find_map(|row| {
+                inventory
+                    .target(&parse_key, row.call().site())
+                    .map(|target| (row.call().site().clone(), target.target().clone()))
+            })
+            .expect("merged parser must expose a selected LoopBody static row");
+        let (selected_site, expected_target) = selected_site;
+        assert_eq!(expected_target.owner(), "ParserStringUtilsBox");
+
+        let targets = inventory.into_targets();
+        let results = crate::mir::callable_result_representation::
+            VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets)
+            .expect("merged parser result catalog");
+        let mut owner = crate::mir::callable_result_representation::
+            VerifiedStaticCallResultPublicationOwnerV1::issue(declarations, &targets, &results)
+            .expect("merged parser publication owner");
+        let handoff = owner
+            .selected_handoff_for_source(&parse_key, &selected_site)
+            .expect("selected starts_with row must have a publication handoff");
+        assert_eq!(handoff.target(), &expected_target);
+        assert!(handoff.required_callee_i64_arguments().is_empty());
+        assert!(matches!(
+            owner
+                .take_for_source(declarations, &parse_key, &selected_site)
+                .expect("selected starts_with row must be consumable"),
+            crate::mir::callable_result_representation::StaticCallResultPublicationTakeV1::Selected(
+                _
+            )
+        ));
+        assert!(matches!(
+            owner.take_for_source(declarations, &parse_key, &selected_site),
+            Err(
+                crate::mir::callable_result_representation::
+                    StaticCallResultPublicationOwnerTakeErrorV1::RowAlreadyConsumed { .. }
+            )
+        ));
     });
 }

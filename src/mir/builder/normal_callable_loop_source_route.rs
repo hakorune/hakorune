@@ -223,15 +223,13 @@ impl CallableLoopSourceTargetRelationV1 {
         self.requirement.as_ref()
     }
 
-    /// Whether the selected publication row for this site carries the exact
-    /// i64 representation with the given required-argument ordinals.
-    pub(in crate::mir::builder) fn has_exact_callee_i64_requirement(
-        &self,
-        ordinals: &[u32],
-    ) -> bool {
+    /// Whether the selected publication row carries the exact i64 result
+    /// representation issued by the source-result owner.  The formal ordinal
+    /// list is data carried by that owner; this route does not impose an ABI
+    /// policy for a particular ordinal.
+    pub(in crate::mir::builder) fn has_exact_i64_result(&self) -> bool {
         self.requirement.as_ref().is_some_and(|requirement| {
             requirement.representation() == &VerifiedCallableResultRepresentationV1::ExactI64
-                && requirement.required_callee_i64_arguments() == ordinals
         })
     }
 
@@ -422,7 +420,7 @@ impl CallableLoopSourceTargetProbeV1 {
                     actual: relation.call_site().clone(),
                 });
             }
-            if !relation.has_exact_callee_i64_requirement(&[1]) {
+            if !relation.has_exact_i64_result() {
                 return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
             }
         }
@@ -480,7 +478,7 @@ impl CallableLoopSourceTargetProbeV1 {
                 });
             }
             if let Some(relation) = selected_by_site.remove(item.call_site()) {
-                if !relation.has_exact_callee_i64_requirement(&[1]) {
+                if !relation.has_exact_i64_result() {
                     return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
                 }
                 dispositions.push(CallableLoopSourceItemDispositionV1::SelectedStatic(

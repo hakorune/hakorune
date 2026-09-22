@@ -272,7 +272,7 @@ fn source_target_requirement_copies_selected_handoff_evidence() {
 }
 
 #[test]
-fn source_target_relation_accepts_only_exact_i64_ordinal_one() {
+fn source_target_relation_accepts_exact_i64_without_ordinal_policy() {
     let site = requirement_site();
     let target = requirement_target();
     let exact = |ordinals: &[u32]| CallableLoopSourceTargetRequirementV1 {
@@ -282,12 +282,11 @@ fn source_target_relation_accepts_only_exact_i64_ordinal_one() {
 
     let selected =
         CallableLoopSourceTargetRelationV1::new(site.clone(), target.clone(), Some(exact(&[1])));
-    assert!(selected.has_exact_callee_i64_requirement(&[1]));
-    assert!(!selected.has_exact_callee_i64_requirement(&[0]));
+    assert!(selected.has_exact_i64_result());
 
     let wrong_ordinals =
         CallableLoopSourceTargetRelationV1::new(site.clone(), target.clone(), Some(exact(&[0, 2])));
-    assert!(!wrong_ordinals.has_exact_callee_i64_requirement(&[1]));
+    assert!(wrong_ordinals.has_exact_i64_result());
 
     let wrong_representation = CallableLoopSourceTargetRelationV1::new(
         site.clone(),
@@ -299,10 +298,10 @@ fn source_target_relation_accepts_only_exact_i64_ordinal_one() {
             required_callee_i64_arguments: vec![1].into_boxed_slice(),
         }),
     );
-    assert!(!wrong_representation.has_exact_callee_i64_requirement(&[1]));
+    assert!(!wrong_representation.has_exact_i64_result());
 
     let missing_evidence = CallableLoopSourceTargetRelationV1::new(site, target, None);
-    assert!(!missing_evidence.has_exact_callee_i64_requirement(&[1]));
+    assert!(!missing_evidence.has_exact_i64_result());
 }
 
 /// Everything `issue_with_source_relations` needs from one resolved armed
@@ -478,7 +477,7 @@ fn issue_with_source_relations_co_seals_the_single_selected_relation() {
     .expect("single selected relation must co-seal");
     let relation = token.source_target().expect("co-sealed relation");
     assert_eq!(relation.call_site(), &call_site);
-    assert!(relation.has_exact_callee_i64_requirement(&[1]));
+    assert!(relation.has_exact_i64_result());
 }
 
 #[test]
@@ -723,7 +722,7 @@ fn issue_with_source_relations_accepts_core_method_only_family() {
     let relation = token.source_target().expect("core method relation");
     assert!(relation.target().is_none());
     assert_eq!(relation.core_method_items().len(), 2);
-    assert!(!relation.has_exact_callee_i64_requirement(&[1]));
+    assert!(!relation.has_exact_i64_result());
 }
 
 #[test]
