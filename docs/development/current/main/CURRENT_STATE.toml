@@ -5,7 +5,7 @@ current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION
 current_execution_cohort = "mir_call_parser_array_push_b3_loopcond_carrier_relation_d2"
 current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2__NoConnectedSemanticProgramIssuer"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "NoSafeSlice__B3LoopCondHasNoConnectedSemanticProgramIssuer__FamilySchedulerReselectionRequired"
+current_design_stop = "FrontierPause__NoReadyPromoteStopDeleteAfterOrderedFamilyReselection_2026-09-23"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -19,15 +19,18 @@ latest_card = "mir-call-parser-array-push-b3-loopcond-carrier-relation-d2"
 latest_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md"
 latest_card_summary = """
 B2 source-to-physical carrier projection and its negative matrix are closed.
-B3 D0/D1 accepted the value/origin branch-state rule, but D2 established
-NoSafeSlice: LoopCondRecipe has no portable carrier/join keys, GenericLoop's
-relation is route-specific, and the existing portable semantic-program issuer
-is not connected to this source product. B3 I0 stays unauthorized; the shared
-MethodCall delete set is empty. Return selection to the family scheduler.
+B3 D0/D1 accepted the value/origin branch-state rule; D2 is NoSafeSlice because
+LoopCondRecipe lacks portable carrier/join keys and no connected semantic-
+program issuer co-seals them. B3 I0 is unauthorized and the shared MethodCall
+delete set is empty. Scheduler reselection found no ready action: fixed EXE
+acceptance closed; M7-S has no exclusive delete set; M10 co-seal is NoSafeSlice,
+transfer/boundary/If/Exit prerequisites are closed, and S6C caller-zero has no
+selected production consumer/delete set; parser recursive-result/composite
+loop candidates remain NoSafeSlice. Overall MirBuilder goal stays active.
 """
 next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md"
-next_execution_card = "none__family_scheduler_reselect_after_b3_no_safe_slice"
+next_execution_card = "none__frontier_pause__no_ready_promote_stop_delete_2026-09-23"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

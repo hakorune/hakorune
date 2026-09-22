@@ -2,7 +2,7 @@
 Status: design_stop__no_connected_semantic_program_issuer
 Task: MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2
 Parent: mir-call-parser-array-push-b3-branch-continuation-d1-2026-09-23
-NextCard: none__family_scheduler_select_after_b3_no_safe_slice
+NextCard: none__frontier_pause_no_ready_candidate_after_scheduler_2026-09-23
 Implementation permission: false; this D2 resolves to family-local NoSafeSlice. Do not edit code, add fixtures, allocate MIR, create a semantic receipt, or switch a caller.
 ---
 
@@ -75,12 +75,18 @@ pair products after issuance. All violate the semantic-program boundary. The
 exact I0 remains unauthorized, and the production/old-edge delta for this B3
 candidate is zero.
 
-This is a family-local disposition, not a repository-wide stop. Return
-selection to the existing family scheduler and choose another already
-inventoried action; do not reopen a parked lane or append another B3 suffix.
-Reopen this candidate only after an accepted existing semantic-program issuer
-can represent the exact source→Core→Recipe/JoinSig→carrier/join relation as one
-issuance, with a named physical consumer and old-edge disposition.
+This is a family-local disposition. The 2026-09-23 scheduler pass found no
+ready Promote/Stop/Delete candidate in the existing ordered queue: fixed EXE
+acceptance is closed; M7-S has no remaining exclusive delete set; M10's
+semantic co-seal is `NoSafeSlice`, its transfer/boundary/selected If/Exit
+prerequisites are closed, and its S6C caller-zero branch has no selected
+production consumer/delete set. The recursive String-result and parser
+composite-loop rows also remain `NoSafeSlice`. The current pointer records an
+explicit frontier pause; this does not close the overall MirBuilder goal.
+Do not reopen a parked lane or append another B3 suffix. Reopen this candidate
+only after an accepted existing semantic-program issuer can represent the
+exact source→Core→Recipe/JoinSig→carrier/join relation as one issuance, with a
+named physical consumer and old-edge disposition.
 
 Finite state disposition:
 

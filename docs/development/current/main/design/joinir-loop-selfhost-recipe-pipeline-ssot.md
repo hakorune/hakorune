@@ -1693,7 +1693,7 @@ LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0/I0       [closed]
 CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-D0/I0    [closed]
 LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0        [accepted design-only]
 LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0            [accepted design-only]
-LOOP-S6C-COMMON-V2-PRESESSION-I0                  [accepted design-only; next execution]
+LOOP-S6C-COMMON-V2-PRESESSION-I0                  [accepted design-only; parked caller-zero, no production consumer/delete set]
 ```
 
 The first child is narrower than the parent common-V2 contract:
@@ -1715,8 +1715,10 @@ operation and If/Exit control remain separate products, and a passive union
 receipt proves their disjointness. The S6C adapter alone proves exact
 `13 + 1 + 1 = 15` coverage. Transport R0 is accepted as source-level
 design-only; no code or session effect is implied here. The I0 issuer contract
-is now fixed as design-only; its caller-zero implementation is the next bounded
-execution slice:
+remains accepted design-only; its caller-zero implementation is parked. The
+family scheduler cannot select it until one already-inventoried production
+consumer and its exclusive old-edge delete set are named in the same bounded
+series. The following is the design target, not an execution pointer:
 
 ```text
 LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0
