@@ -1,10 +1,10 @@
 ---
-Status: design_stop__B2_source_generic_loop_carrier_sync
+Status: fast__B2_source_generic_loop_relation
 Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
-NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-D0 (same card; I0 cutover pending)
-Implementation permission: design/taskification only; close task 1 below before selecting fast mode
+NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 (same card; source relation before D)
+Implementation permission: task 1 accepted; implement source relation and scoped publication in tasks 2-4
 ---
 
 # Parser String result authority: corrected decision and task queue
@@ -13,7 +13,7 @@ Implementation permission: design/taskification only; close task 1 below before 
 
 - **Current decision:** B2 Array retention/discharge is implemented; D exposed a source GenericLoop carrier synchronization gap. The scoped carrier/origin design and ordered tasks below replace the induction-only proposal.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** close the existing dynamic-origin owner transfer contract (task 1), then co-seal source carrier slots, connect branch/loop publication and finish D cutover. Text lifetime/Fault stays separate.
+- **Next ordered task:** task 1 and declaration retention are closed; co-seal carrier slots, connect branch/loop publication and finish D cutover. Text lifetime/Fault stays separate.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -774,8 +774,8 @@ Decision: retain the existing GenericLoop/Select/PHI owners; bind exact source i
 Source authority + canonical issuer: resolver local/variable/assignment sites -> pre_effect -> CallableGenericLoopV1SemanticRecipeIssuerV1 co-seal; existing carrier and join owners allocate/publish physical values.
 Non-authority: names, Builder caches, MIR-inferred binding/origin, arbitrary BindingRef/ValueId setters, or restored consumption records.
 Fail-fast boundary: validate complete source/slot correspondence before skeleton allocation; reject stale/foreign publication and residual consumption before finalized publication.
-Smallest next slice: settle existing dynamic-origin transfer at branch and loop joins (task 1), then implement the source relation and scoped consumer together with existing owners.
-Non-claims: design/taskification only; uncommitted D is not verified or activated, and no runtime acceptance or retirement credit is claimed.
+Smallest next slice: preserve resolver local declarations through the body-only partition, then co-seal exact source carrier relations in the existing Recipe issuer.
+Non-claims: uncommitted D remains unverified; no runtime acceptance or retirement credit before the listed gates.
 
 Current-change failure: natural `Scan.run(s)` with local Named Array, `i=0`,
 `loop(i<1){arr.push("text");i=i+1}` and `return i` fails strict dominance.
@@ -853,16 +853,46 @@ owner proves the same formal origin for every reaching incoming and their exact
 values. Missing/different or invalidated incoming means origin unavailable, not
 an unconditional loop rejection; a consumer requiring origin retains its named
 failure. Foreign/stale evidence rejects. Do not infer cyclic header provenance
-from PHIs or mechanically retag an old origin with a new ValueId. **Still to close
-in task 1:** exact source-backed header/backedge transfer and finish API in that
-existing owner, including bootstrap before body lowering. No general branch/join
-API exists today. This is an internal design dependency, not external waiting.
+from PHIs or mechanically retag an old origin with a new ValueId.
+
+Task 1 accepted Decision (2026-09-22): co-seal an identity-or-kill transfer per
+exact source assignment and existing Recipe continuation. In current GenericLoop,
+`exact_source_assignment_rebind` always uses ordinary `rebind` (kill); no source
+preserve receipt is consumed there. An unchanged binding is identity. Sequence
+composes these transfers; each branch uses its own entry snapshot. Meet only
+incoming paths authorized by the existing continuation/exit owner. Return/break
+paths do not enter the backedge meet; continue does. No new CFG reachability
+solver or AST-name classifier is introduced.
+
+Before body lowering, header origin is entry origin iff every reaching backedge
+preserves it; if a kill reaches any backedge, header origin is unavailable.
+With no backedge, entry alone determines header origin. This finite source
+transfer solves bootstrap without consulting future MIR. Apply the same rule to
+zero-iteration/header-false and break exit values; Return has no loop successor.
+An origin-dependent use after a kill is an intentional missing-capability stop,
+not permission to resurrect the initial formal from the historical value index.
+The repair must classify any newly observed rejection against this contract.
+
+The existing dynamic-loop prepare/open/operation/close family provides the
+Enter/Backedge and exact-assignment verification pattern, but is not connected as
+a second GenericLoop physical owner. Do not promote its dedicated preserving-add
+contract from similar syntax. Any future preserve transfer requires that exact
+source/operation owner and is outside this ordinary-rebind repair.
+
+The existing dynamic-origin owner will expose scoped entry/header/branch/exit
+projection plus finish: validate owner/slot/site and exact entry, install the
+precomputed header disposition, record observed identity/kill transitions, then
+check every reaching backedge/exit and residual row before publication. Values
+and active origins move together; historical entries and consumption remain
+monotonic. A transfer/execution mismatch is a named reject, never a retry.
+Worker review and main source readback close the design dependency; no runtime
+or compiler test was run for this design decision.
 
 #### Ordered tasks and closeout
 
 | Order | Task / existing owner | Observable completion |
 | --- | --- | --- |
-| 1 (next, design) | Close dynamic-origin transfer in `normal_callable_dynamic_origin` with the source Recipe issuer | Specify entry/header/backedge/join/exit transfer for unchanged origin, ordinary invalidation, one-sided termination and missing origin. Classify any changed rejection before implementation; no newly accepted origin or silently narrowed source cohort. Record accepted contract here, then select fast mode. |
+| 1 (design accepted above) | Close dynamic-origin transfer in `normal_callable_dynamic_origin` with the source Recipe issuer | Specify entry/header/backedge/join/exit transfer for unchanged origin, ordinary invalidation, one-sided termination and missing origin. Classify any changed rejection before implementation; no newly accepted origin or silently narrowed source cohort. Identity/kill and continuation-aware meet are accepted above; implementation evidence remains tasks 2-3. |
 | 2 | Co-seal declaration scope, target memberships and Recipe slots in `normal_callable_loop_handoff` / `normal_callable_loop_source_facts/generic` | Every admitted assignment belongs once; induction, extra carriers and scoped locals stay distinct. Missing/foreign/duplicate/shadowing evidence rejects before physical allocation. |
 | 3 | Connect scoped publication in ledger/source port, `generic_loop_composer`, carriers and both If owners | Natural zero/one/multiple iterations, extra carrier, branch read-after-write, one/both terminal branches and local shadowing preserve exact values and origin disposition. Consumption never rolls back. Existing Select/PHI/exit owners stay sole. |
 | 4 | Finish D via production package issuer and published-view tests | Literal/substring2/multiple push with optimization off/on passes strict MIR verification and retained C-frame checks; value demand remains rejected. Identify the exact next merged-parser source terminal before updating its receipt. Retire selected source push -> generic MethodCall ingress in the same change. |
@@ -880,4 +910,33 @@ Delete accounting remains exact: task 4 removes the selected caller edge into
 name/type MethodCall dispatch. Shared `effect_emission.rs` push/set/insert code
 remains until its other callers switch/Stop and caller-zero is established.
 Do not count this dependency repair as whole-function or LegacyCallV0 deletion.
-This turn ends at the requested design/taskification boundary; preserve D WIP.
+The design-only checkpoint is b0e3215f97; the goal continuation now selects task 2. Preserve D WIP until its current-change reds are resolved.
+
+
+Task 2 first implementation boundary:
+Change: retain exact resolver local declaration (site + ordinal + BindingRef)
+through Ready/ReadyWithBodyOnly -> pre_effect; remove the selected partition's
+loss of declaration scope. No route or runtime behavior is promoted here.
+Contract: projector remains the source owner, Facts contain no physical values,
+and unused locals retain their lexical scope without becoming loop carriers.
+Done: source-derived body-only/local/outer-binding fixtures retain exact origins;
+foreign/duplicate declarations reject; existing handoff cohorts and pointer guard
+pass. Recipe slot co-seal and physical synchronization remain subsequent work.
+Stop: if declaration identity must be guessed from names or physical values,
+return to design rather than adding a fallback.
+
+
+Task 2 declaration-retention receipt: the projector now retains exact local
+statement/ordinal/BindingRef across Ready and body-only partition into pre-effect.
+Unread locals retain scope without adding use rows. The shared LoopTrue product
+was mechanically migrated to retain the same data; no route was activated.
+Validation was moved unchanged to its responsibility module before extending the
+735-line source owner; changed source/test files are now <=678 lines.
+Focused quick build **4m32s**, **542 warnings**: handoff **9** (3 new), Generic
+Facts/structural lease **16**, raw child-entry including LoopTrue **12** = **37
+pass**. Logs: `/tmp/b2-declaration-final.log`,
+`/tmp/b2-declaration-source-facts.log`, `/tmp/b2-declaration-child-entry.log`.
+Initial mechanical compile errors were current-change failures and corrected
+before this run. Formatting, pointer/ingress guards and diff check pass.
+README/reference are synchronized. Next is task 2's Recipe slot co-seal, then
+scoped publication; the uncommitted D dominance/merged-parser reds remain open.

@@ -577,6 +577,15 @@ physical ABI, selected backend, Call schema, fallback, and retry remain owned
 by their existing boundaries.
 
 `normal_callable_loop_handoff.rs` owns the L0-R0 source-coverage projection.
+Its declaration transport retains each loop-local resolver binding with its exact
+`SourceBindingSiteV1::Local` statement and ordinal across the Ready/body-only
+partition and into pre-effect. Branch locals and unread locals retain scope;
+unread locals do not acquire use rows or carriers. The shared LoopTrue schedule
+carries the same declarations without changing route selection. Source path/row
+validation lives in `normal_callable_loop_handoff_validation.rs`; declaration
+projection lives in `normal_callable_loop_handoff_declarations.rs`. Neither
+module owns physical values or repairs SSA. Recipe slot association and scoped
+carrier publication are separate consumers, still pending in the active card.
 It no longer treats `(condition reads, body reads, rebinds) = (1,1,1)` as a
 semantic contract or discards exact relations into a count receipt. One
 non-`Clone` schedule groups exact source sites by resolver `BindingRefV1` and

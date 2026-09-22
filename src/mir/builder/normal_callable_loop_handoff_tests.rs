@@ -82,7 +82,7 @@ fn seals_exact_condition_body_and_assignment_roles() {
                 CallableLoopBindingRoleV1::BodyRebind,
             ),
         ],
-        BTreeSet::new(),
+        std::collections::BTreeMap::new(),
     )
     .unwrap();
     let receipt = schedule
@@ -130,28 +130,28 @@ fn rejects_foreign_duplicate_and_nested_receipts() {
             binding(foreign, 0),
             CallableLoopBindingRoleV1::ConditionRead,
         )],
-        BTreeSet::new(),
+        std::collections::BTreeMap::new(),
     )
     .is_err());
     assert!(VerifiedCallableSemanticLoopBindingScheduleV1::seal(
         owner_id,
         loop_site.clone(),
         vec![receipt(), receipt()],
-        BTreeSet::new(),
+        std::collections::BTreeMap::new(),
     )
     .is_err());
     assert!(VerifiedCallableSemanticLoopBindingScheduleV1::seal(
         owner_id,
         loop_site.clone(),
         Vec::new(),
-        BTreeSet::new(),
+        std::collections::BTreeMap::new(),
     )
     .is_err());
     assert!(VerifiedCallableSemanticLoopBindingScheduleV1::seal(
         owner_id,
         loop_site.clone(),
         vec![receipt()],
-        BTreeSet::new(),
+        std::collections::BTreeMap::new(),
     )
     .is_err());
     let nested = SourcePathV1::from_node(&loop_site)
@@ -167,7 +167,7 @@ fn rejects_foreign_duplicate_and_nested_receipts() {
             binding(owner_id, 0),
             CallableLoopBindingRoleV1::BodyRead,
         )],
-        BTreeSet::new(),
+        std::collections::BTreeMap::new(),
     )
     .is_err());
 }
@@ -223,7 +223,15 @@ fn variable_reads_are_rows_not_fixed_counts_or_cross_binding_repair() {
         owner_id,
         loop_site.clone(),
         receipts,
-        BTreeSet::from([iteration_local]),
+        BTreeMap::from([(
+            iteration_local,
+            SourceBindingSiteV1::Local {
+                statement: SourcePathV1::from_node(&loop_site)
+                    .child(SourcePathSegmentV1::LoopBody(0))
+                    .stmt(),
+                ordinal: 0,
+            },
+        )]),
     )
     .expect("variable exact reads are admitted by relation");
     assert_eq!(schedule.receipt_count(), 5);
@@ -250,7 +258,7 @@ fn variable_reads_are_rows_not_fixed_counts_or_cross_binding_repair() {
         owner_id,
         loop_site.clone(),
         cross_binding,
-        BTreeSet::new(),
+        std::collections::BTreeMap::new(),
     )
     .is_err());
     assert!(VerifiedCallableSemanticLoopBindingScheduleV1::seal(
@@ -273,7 +281,15 @@ fn variable_reads_are_rows_not_fixed_counts_or_cross_binding_repair() {
                 CallableLoopBindingRoleV1::BodyRebind,
             ),
         ],
-        BTreeSet::from([binding(foreign, 9)]),
+        BTreeMap::from([(
+            binding(foreign, 9),
+            SourceBindingSiteV1::Local {
+                statement: SourcePathV1::from_node(&loop_site)
+                    .child(SourcePathSegmentV1::LoopBody(0))
+                    .stmt(),
+                ordinal: 0
+            }
+        )]),
     )
     .is_err());
 }
@@ -468,4 +484,195 @@ fn production_esc_json_keeps_body_only_rebinds_in_one_source_product() {
                 .iter()
                 .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRebind)
     }));
+}
+
+fn source_pre_effect(
+    source: &str,
+    loop_index: usize,
+) -> CallableSemanticLoopHandoffPreEffectReceiptV1 {
+    let function = parsed_method(source, "Probe", "run");
+    let syntax = CallableFunctionSyntaxViewV1::from_function_ast(&function).unwrap();
+    let mut resolver = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
+        .resolve_selected_callable_forests(&[syntax.function()])
+        .unwrap()
+    else {
+        panic!("declaration fixture must resolve")
+    };
+    let forest = forests.into_vec().pop().unwrap();
+    let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
+        &function,
+        &forest,
+        syntax.function().root_profile(),
+    )
+    .unwrap();
+    let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+        &function,
+        &forest,
+        &projection,
+    )
+    .unwrap();
+    let state = super::super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source(input).unwrap();
+    let path = SourcePathV1::root_body(loop_index);
+    let product = match state
+        .loop_binding_source_projection()
+        .project_disposition(path.node())
+        .unwrap()
+    {
+        CallableLoopBindingProjectionDispositionV1::Ready(ready) => {
+            CallableLoopReadyBodyOnlyProductV1::without_body_only(ready)
+        }
+        CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(product) => product,
+        other => panic!("unexpected source disposition: {other:?}"),
+    };
+    product
+        .consume_pre_effect(
+            &path.node(),
+            &path.child(SourcePathSegmentV1::LoopCondition).node(),
+            &path.child(SourcePathSegmentV1::LoopBodyRoot).node(),
+        )
+        .unwrap()
+}
+
+#[test]
+fn source_body_only_partition_retains_branch_and_unread_local_declarations() {
+    let receipt = source_pre_effect(
+        r#"
+static box Probe {
+    run(n) {
+        local i = 0
+        local sum = 0
+        loop(i < n) {
+            local inner = 1
+            inner = inner + 1
+            sum = sum + inner
+            if i < 1 {
+                local temp = 2
+                temp = temp + 1
+                sum = sum + temp
+            }
+            local unused = 42
+            i = i + 1
+        }
+        return sum
+    }
+}
+"#,
+        2,
+    );
+    let path = SourcePathV1::root_body(2);
+    let expected = BTreeSet::from([
+        SourceBindingSiteV1::Local {
+            statement: path.child(SourcePathSegmentV1::LoopBody(0)).stmt(),
+            ordinal: 0,
+        },
+        SourceBindingSiteV1::Local {
+            statement: path
+                .child(SourcePathSegmentV1::LoopBody(3))
+                .child(SourcePathSegmentV1::IfThen(0))
+                .stmt(),
+            ordinal: 0,
+        },
+        SourceBindingSiteV1::Local {
+            statement: path.child(SourcePathSegmentV1::LoopBody(4)).stmt(),
+            ordinal: 0,
+        },
+    ]);
+    assert_eq!(
+        receipt
+            .local_declarations()
+            .values()
+            .cloned()
+            .collect::<BTreeSet<_>>(),
+        expected
+    );
+    assert_eq!(receipt.body_only_rows().len(), 3);
+    // Two rebound locals keep their exact declarations; the pre-loop sum does
+    // not become a local, and unread `unused` does not become a carrier row.
+    assert_eq!(
+        receipt
+            .body_only_rows()
+            .iter()
+            .filter(|row| receipt.local_declarations().contains_key(&row.binding()))
+            .count(),
+        2
+    );
+    assert_eq!(
+        receipt
+            .local_declarations()
+            .keys()
+            .filter(
+                |binding| !receipt.rows().iter().any(|row| row.binding() == **binding)
+                    && !receipt
+                        .body_only_rows()
+                        .iter()
+                        .any(|row| row.binding() == **binding)
+            )
+            .count(),
+        1
+    );
+}
+
+#[test]
+fn source_ready_path_retains_local_declaration_without_body_only_rows() {
+    let receipt = source_pre_effect(
+        r#"
+static box Probe {
+    run(n) {
+        local i = 0
+        loop(i < n) {
+            local step = 1
+            i = i + step
+        }
+        return i
+    }
+}
+"#,
+        1,
+    );
+    assert!(receipt.body_only_rows().is_empty());
+    let local = receipt
+        .rows()
+        .iter()
+        .find(|row| row.class() == CallableLoopReadyBindingClassV1::IterationLocal)
+        .unwrap();
+    assert_eq!(
+        receipt.local_declarations().get(&local.binding()),
+        Some(&SourceBindingSiteV1::Local {
+            statement: SourcePathV1::root_body(1)
+                .child(SourcePathSegmentV1::LoopBody(0))
+                .stmt(),
+            ordinal: 0,
+        })
+    );
+}
+
+#[test]
+fn local_declaration_projection_rejects_foreign_and_duplicate_bindings() {
+    let owner = owner();
+    let loop_path = SourcePathV1::root_body(0);
+    let site = loop_path.child(SourcePathSegmentV1::LoopBody(0)).node();
+    let other_site = loop_path.child(SourcePathSegmentV1::LoopBody(1)).node();
+    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+    let foreign = issuer.issue().unwrap();
+    let variables = BTreeMap::new();
+    let assignments = BTreeMap::new();
+    let foreign_locals =
+        BTreeMap::from([(site.clone(), vec![binding(foreign, 0)].into_boxed_slice())]);
+    assert!(
+        CallableLoopSourceProjectionV1::new(owner, &foreign_locals, &variables, &assignments)
+            .local_declarations(&loop_path.node())
+            .unwrap_err()
+            .contains("foreign-local-declaration")
+    );
+    let duplicate = BTreeMap::from([
+        (site, vec![binding(owner, 0)].into_boxed_slice()),
+        (other_site, vec![binding(owner, 0)].into_boxed_slice()),
+    ]);
+    assert!(
+        CallableLoopSourceProjectionV1::new(owner, &duplicate, &variables, &assignments)
+            .local_declarations(&loop_path.node())
+            .unwrap_err()
+            .contains("duplicate-local-declaration-binding")
+    );
 }

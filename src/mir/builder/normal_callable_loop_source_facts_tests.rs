@@ -1,5 +1,4 @@
 use std::cell::RefCell;
-use std::collections::BTreeSet;
 use std::rc::Rc;
 
 use super::{CallableGenericLoopSourceFactsDispositionV1, CallableGenericLoopSourceFactsIssuerV1};
@@ -124,7 +123,7 @@ fn schedule(
                 CallableLoopBindingRoleV1::BodyRebind,
             ),
         ],
-        BTreeSet::new(),
+        std::collections::BTreeMap::new(),
     )
     .expect("complete carrier schedule")
 }

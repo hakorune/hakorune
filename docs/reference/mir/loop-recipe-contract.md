@@ -1,5 +1,20 @@
 # Portable Loop Recipe Contract
 
+## Callable loop declaration scope
+
+Decision: the source handoff retains exact local declaration statement, ordinal
+and resolver BindingRef through Ready/ReadyWithBodyOnly and pre-effect. Partitioning
+body-only rebinds must not erase whether the binding was declared within the loop.
+Branch-local declarations retain their source path. Unread locals retain lexical
+scope but do not become observed-use rows or loop carriers; pre-loop bindings
+remain distinct. Foreign bindings, duplicate declaration identity or a declaration
+outside this loop's direct lexical body reject before physical work.
+
+This product is source evidence only: it grants no PHI, carrier, dynamic-origin
+preservation, runtime representation or route authority. Source loop carrier and
+branch value synchronization must consume this relation through the existing
+Recipe/physical owners; declaration retention alone does not complete that work.
+
 ## Callable source Local completion handoff — `MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0`
 
 Decision: implemented for the selected callable GenericLoop source edge. The

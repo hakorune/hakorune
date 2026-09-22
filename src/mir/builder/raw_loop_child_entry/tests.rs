@@ -113,7 +113,7 @@ fn callable_handoff(
                 CallableLoopBindingRoleV1::BodyRebind,
             ),
         ],
-        std::collections::BTreeSet::new(),
+        std::collections::BTreeMap::new(),
     )
     .unwrap()
 }

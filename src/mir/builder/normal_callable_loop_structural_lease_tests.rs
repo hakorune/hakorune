@@ -1,5 +1,3 @@
-use std::collections::BTreeSet;
-
 use super::{CallableGenericLoopSourceFactsIssuerV1, CallableLoopStructuralLeaseIssuerV1};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
@@ -102,7 +100,7 @@ fn schedule(
                 CallableLoopBindingRoleV1::BodyRebind,
             ),
         ],
-        BTreeSet::new(),
+        std::collections::BTreeMap::new(),
     )
     .expect("complete carrier schedule")
 }

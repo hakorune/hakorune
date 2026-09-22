@@ -49,23 +49,13 @@ impl<'a> CallableLoopSourceProjectionV1<'a> {
                 ));
             }
         }
-        let observed_bindings = receipts
-            .iter()
-            .map(CallableLoopBindingReceiptV1::binding)
-            .collect::<std::collections::BTreeSet<_>>();
-        let iteration_locals = self
-            .locals
-            .iter()
-            .filter(|(site, _)| is_direct_loop_body_descendant(&loop_site, site))
-            .flat_map(|(_, bindings)| bindings.iter().copied())
-            .filter(|binding| observed_bindings.contains(binding))
-            .collect();
+        let local_declarations = self.local_declarations(&loop_site)?;
         Ok(CallableLoopBindingProjectionDispositionV1::Ready(
             VerifiedCallableSemanticLoopBindingScheduleV1::seal_loop_true(
                 self.owner,
                 loop_site,
                 receipts,
-                iteration_locals,
+                local_declarations,
             )?,
         ))
     }
@@ -76,8 +66,14 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
         owner: FunctionOwnerIdV1,
         loop_site: SourceNodeSiteV1,
         receipts: Vec<CallableLoopBindingReceiptV1>,
-        iteration_locals: std::collections::BTreeSet<BindingRefV1>,
+        local_declarations: BTreeMap<BindingRefV1, SourceBindingSiteV1>,
     ) -> Result<Self, String> {
+        let iteration_locals = declarations::observed_iteration_locals(
+            owner,
+            &loop_site,
+            &receipts,
+            &local_declarations,
+        )?;
         let receipts_by_binding =
             validate_projection_rows(owner, &loop_site, &receipts, &iteration_locals)?;
         let mut carrier_count = 0;
@@ -121,6 +117,7 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
             owner,
             loop_site,
             rows: rows.into_boxed_slice(),
+            local_declarations,
         })
     }
 }
