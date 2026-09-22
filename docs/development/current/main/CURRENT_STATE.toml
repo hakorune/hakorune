@@ -1,11 +1,11 @@
 date = "2026-09-22"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-SOURCE-EVIDENCE-D0"
-current_execution_cohort = "mir_call_parser_array_push_source_evidence_d0"
-current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-SOURCE-EVIDENCE-D0__PreRouteAuthorityCycle"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-ROUTE-EVIDENCE-I0"
+current_execution_cohort = "mir_call_parser_array_push_route_evidence_i0"
+current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-ROUTE-EVIDENCE-I0__PreRouteEvidenceImplementation"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "NoSafeSlice__PreRouteSourceEvidenceBeforeRouteAdmission"
+current_design_stop = "Accepted__PreRouteSourceEvidenceAndRouteAdmission"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -22,19 +22,18 @@ Source BindingRef carrier projection WIP removed the first natural ArrayPush dom
 The two-push source fixture now stops earlier at the existing
 GenericLoopV0/GenericLoopV1 raw overlap; source issuer requires exact V1.
 The raw overlap census is 9/9 green and is semantically real because both
-existing lowerers accept MethodCall. A read-only owner audit found the current
-carrier relation depends on the selected receipt, so route admission cannot
-consume it first. The next design must split pre-route source evidence and
-same-session route admission; raw precedence stays neutral.
-No fallback, production switch, or runtime Text/Fault claim is made. Uncommitted
-carrier/NamedArray WIP is preserved as handoff only.
+existing lowerers accept MethodCall. The accepted implementation slice now
+splits pre-route structural source evidence from same-session source route
+admission; raw precedence stays neutral. No fallback, production switch, or
+runtime Text/Fault claim is made. Uncommitted carrier/NamedArray WIP is
+preserved as handoff only.
 Earlier S1/String/B1 receipts and the parser ExactI64 handoff remain recorded in
 the parent card. Runtime ABI, canonical acceptance, production cutover, old-edge
 retirement, Windows lifecycle and warning cleanup remain separate non-claims.
 """
-next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-SOURCE-EVIDENCE-D0"
+next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-ROUTE-EVIDENCE-I0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-route-overlap-d0-2026-09-22.md"
-next_execution_card = "none__DesignStop__PreRouteAuthorityCycle"
+next_execution_card = "MIR-CALL-PARSER-ARRAY-PUSH-ROUTE-EVIDENCE-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-route-overlap-d0-2026-09-22.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

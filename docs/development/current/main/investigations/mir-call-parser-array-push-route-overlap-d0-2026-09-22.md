@@ -1,10 +1,10 @@
 ---
-Status: design_stop__pre_route_source_evidence
+Status: fast__source_route_evidence
 Task: MIR-CALL-PARSER-ARRAY-PUSH-ROUTE-OVERLAP-D0
 Date: 2026-09-22
 Parent: mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 (after overlap decision)
-Implementation permission: design and read-only census only; separate pre-route source evidence from route admission before changing the existing GenericLoop owner
+Implementation permission: split pre-route structural source evidence and source-only route admission in the existing GenericLoop owner; preserve raw overlap, runtime ABI, production cutover and unrelated D WIP
 Classification: BoxShape route-authority decision; no new semantic receipt
 ---
 
@@ -205,6 +205,29 @@ identity match. This co-seal is the constructor boundary that prevents a token
 from being paired with evidence borrowed from another source session. The
 product is discarded before effects on any mismatch.
 
+### Route admission constructor decision
+
+Keep `RecipeFirstRouteSelectionV1` and its raw
+`verify_located_generic_loop_v1` unchanged. The source owner receives a
+private structural aggregate named `CallableGenericLoopSourceRouteAdmissionV1`;
+it is not a `Verified*` or `Prepared*` language-semantic receipt and is not
+visible to raw route execution. Its sealed route kind is:
+
+```text
+Exact(VerifiedLocatedGenericLoopV1SelectionV1)
+SourceOverlap(opaque source-overlap seal)
+```
+
+The sole constructor consumes the same `PlanBuildOutcome`, raw selection,
+`PreparedCallableGenericLoopSourceEvidenceV1`, and a source-session key made
+from the owner plus the exact parent/condition/body source sites. It delegates
+the `[V1]` case to the existing exact verifier. It creates `SourceOverlap` only
+for raw `[V0,V1]` after the move-only evidence, continuation rows, carrier
+relation, and source-item dispositions all match that session. Every other
+route set, absent V1, or mismatched key is rejected before `claim_all` or
+Builder effects. The aggregate retains raw selection and evidence together;
+there is no later pairing by name, method count, MIR value, or bool flag.
+
 ## Ordered task queue
 
 1. **Census** — add or reuse one structural test helper that records the finite
@@ -214,10 +237,9 @@ product is discarded before effects on any mismatch.
    identity, exact continuation rows, carrier inputs, and source-item
    dispositions issued before route selection. Split the current 690-line
    GenericLoop source owner before it approaches the 760-line design threshold.
-3. **Route admission design** — place the evidence-backed `[V1]`/`[V0,V1]`
-   decision in the existing registry/source owner without a bool, retry, or
-   arbitrary empty token; bind raw selection, planner outcome, and evidence in
-   one constructor boundary.
+3. **Route admission design** — accepted above: the source-only structural
+   admission aggregate binds raw selection, planner outcome, evidence, and
+   session key in one constructor; raw registry precedence stays neutral.
 4. **MIR-CALL-PARSER-ARRAY-PUSH-ROUTE-EVIDENCE-I0** — implement only after
    tasks 2–3 are accepted. Preserve raw route observability, keep all failures
    pre-effect, and split before 760 lines; 800 is a hard stop.
@@ -230,11 +252,11 @@ product is discarded before effects on any mismatch.
 
 ## Stop conditions and acceptance
 
-The raw-overlap decision is resolved, but the authority-cycle design stop is
-still open. Before its pre-route product and admission constructor are accepted,
-do not add a new `Verified*`/`Prepared*` semantic product, source fallback,
-route retry, or backend-specific exception. Do not claim the ArrayPush row or
-delete its old edge from a local green test.
+The raw-overlap and authority-cycle decisions above are accepted for the next
+bounded implementation slice. The structural evidence aggregate is not a new
+language-semantic receipt. Do not add a different `Verified*`/`Prepared*`
+semantic product, source fallback, route retry, or backend-specific exception.
+Do not claim the ArrayPush row or delete its old edge from a local green test.
 
 Acceptance for this D0 is the named decision, finite table, preserved negative
 route evidence, and a pointer/card update. It is not production cutover. The
