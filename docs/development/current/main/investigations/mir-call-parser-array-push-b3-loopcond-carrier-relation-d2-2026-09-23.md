@@ -1,9 +1,9 @@
 ---
-Status: design_stop__loopcond_recipe_carrier_relation
+Status: design_stop__no_connected_semantic_program_issuer
 Task: MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2
 Parent: mir-call-parser-array-push-b3-branch-continuation-d1-2026-09-23
-NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B3-IF-LOOPCOND-I0
-Implementation permission: false; read-only owner/relation design only. Do not edit code, add fixtures, allocate MIR, create a semantic receipt, or switch a caller.
+NextCard: none__family_scheduler_select_after_b3_no_safe_slice
+Implementation permission: false; this D2 resolves to family-local NoSafeSlice. Do not edit code, add fixtures, allocate MIR, create a semantic receipt, or switch a caller.
 ---
 
 # LoopCond Recipe carrier relation D2
@@ -11,38 +11,84 @@ Implementation permission: false; read-only owner/relation design only. Do not e
 ## Six-line brief
 
 ```text
-Decision: determine how the existing LoopCond source product co-seals exact
-source BindingRefs with Recipe-owned carrier keys and GeneralIf join outputs.
-Source authority + canonical issuer: existing resolver loop/pre-effect
-relations and existing LoopCond Facts/Recipe issuer; no new semantic receipt.
+Decision: determine whether an already-connected canonical Recipe/JoinSig
+issuer can co-seal exact LoopCond BindingRefs, carrier keys, and GeneralIf joins.
+Source authority + canonical issuer: resolver/pre-effect rows are the source
+authority; no canonical key issuer is connected to this LoopCond product.
 Non-authority: AST rescans, identifier names, MIR phi shape, declaration order,
 the GenericLoop-only carrier relation, and physical name maps as identity.
 Fail-fast boundary: missing/duplicate/foreign/shadowed binding, carrier, or
 join output must reject before physical block or PHI allocation.
-Smallest next slice: specify one existing-product relation and make the current
-name-keyed PHI owner consume it without a second carrier table or solver.
+Smallest next slice: close this B3 candidate as NoSafeSlice and return selection
+to the family scheduler; do not open its I0 or invent a key issuer here.
 Non-claims: no value/origin branch implementation yet, tail push, runtime
 Text/Fault, serializer, VM/AOT parity, or shared MethodCall retirement.
 ```
 
 ## Confirmed current boundary
 
-`CallableSemanticLoopHandoffPreEffectReceiptV1` already carries exact
-BindingRefs, source assignment receipts, and declaration scope.
-`SourceLoopCondPhysicalInputV1` retains that pre-effect product and the selected
-LoopCond Facts/Recipe, but it does not carry a BindingRef-to-carrier relation.
-The current physical consumer collects carrier names from AST and
+`CallableSemanticLoopHandoffPreEffectReceiptV1` carries exact BindingRefs,
+source assignment receipts, and declaration scope. The local
+`LoopCondRecipe<T>` contains only `RecipeBody` and `Vec<T>`; its
+`LoopCondBreakContinueItem::GeneralIf(NoExitBlockRecipe)` retains structural
+body/statement references, not semantic carrier or join-output keys.
+`SourceLoopCondPhysicalInputV1` aggregates the pre-effect receipt, selected
+planner Facts/Recipe, source forest, item/target relations, and source port,
+but has no source-bound portable Core, carrier-key relation, or JoinSig
+continuation. The current physical consumer collects carrier names from AST and
 `LoopCondBreakContinuePhiMaterializer::prepare()` consumes `&[String]`, using
 those names for entry values, header/step/after PHIs, and final values. The
 source port is the plain `CallableLoopSourceExpressionPortV1`; the existing
-GenericLoop `CallableLoopCarrierRelationV1` is a different admitted product
-and cannot be borrowed as proof for LoopCond.
+GenericLoop `CallableLoopCarrierRelationV1` is issued from GenericLoop facts
+and cannot be borrowed as proof for LoopCond. Portable `LoopBindingKeyV1`,
+`LoopCarrierKeyV1`, `VerifiedLoopCoreProductV1`, and
+`VerifiedLoopContinuationContractV1` exist in `loop_recipe_contract`, but the
+caller-zero `CallableSingleLoopRecipeCoSealV1` path is a separate admitted
+profile and is not connected to this LoopCond source product. A matching owner
+or loop shape does not authorize pairing them.
 
 The missing relation is needed before I0 can safely attach a GeneralIf join
 ValueId to a source BindingRef. A name-keyed join followed by a name lookup in
 the ledger would create a new identity authority. The physical binding may
-remain a label, but the source binding must arrive through an existing
-co-sealed relation.
+remain a label, but the source binding must arrive through one canonical
+semantic-program issuance that co-seals source context, source-bound Core,
+Recipe-owned keys/relations, and JoinSig continuation before physicalization.
+No such issuer is currently connected to this LoopCond route. Adding a detached
+relation to `SourceLoopCondPhysicalInputV1` would make that aggregate issue
+semantic meaning it does not own.
+
+## D2 result: NoSafeSlice for this candidate
+
+The read-only audit distinguishes three existing products; none can issue the
+required tuple in this route:
+
+| product | current authority | why it cannot issue the LoopCond tuple |
+| --- | --- | --- |
+| `LoopCondRecipe<T>` / `LoopCondBreakContinueFacts` | local planner composer | stores structural recipe items only; no Recipe carrier keys or JoinSig continuation |
+| `CallableLoopCarrierRelationV1` | GenericLoop source admission | tied to `GenericLoopV1Facts` and its route admission; not a LoopCond product |
+| `VerifiedLoopRecipeCoSealV1` / `VerifiedCallableSemanticProgramV1` | portable callable-loop issuer | owns portable Recipe/Core/JoinSig/continuation for its admitted profile, but this LoopCond route does not consume or co-issue it |
+
+Therefore D2 cannot honestly specify “wire the existing key” or make the
+current name-keyed physical maps key-based by adapter. Doing so would either
+invent Recipe authority in the physical input, borrow an unrelated issuer, or
+pair products after issuance. All violate the semantic-program boundary. The
+exact I0 remains unauthorized, and the production/old-edge delta for this B3
+candidate is zero.
+
+This is a family-local disposition, not a repository-wide stop. Return
+selection to the existing family scheduler and choose another already
+inventoried action; do not reopen a parked lane or append another B3 suffix.
+Reopen this candidate only after an accepted existing semantic-program issuer
+can represent the exact source→Core→Recipe/JoinSig→carrier/join relation as one
+issuance, with a named physical consumer and old-edge disposition.
+
+Finite state disposition:
+
+| state | authority | pre-effect behavior | terminal | fallback |
+| --- | --- | --- | --- | --- |
+| ConnectedCanonicalProgram | none observed for this LoopCond route | not selectable | no terminal issued | none |
+| NoSafeSlice | D2 source/type audit | do not allocate or lower B3 | retain this named design stop | no GenericLoop/name-map/AST recovery |
+| RawCompatibilityLoopCond | existing raw route only | outside selected source-backed B3 claim | existing raw owner | unchanged compatibility behavior |
 
 ## Finite LoopCond source inventory
 
@@ -64,10 +110,10 @@ obtain identities from the same resolver ledger and exact source contexts.
 
 ## Ordered D2 tasks
 
-1. **Name the existing producer.** Identify which existing LoopCond source
-   product can own the relation. It must be issued from the already co-sealed
-   pre-effect source rows plus the selected Facts/Recipe; do not introduce a
-   detached `Verified*` or `Prepared*` receipt.
+1. **Name the existing producer.** Resolved negatively: no producer connected
+   to this LoopCond route owns the required portable key and continuation tuple.
+   The source/pre-effect rows provide BindingRefs, but the local LoopCond
+   Recipe does not issue keys and the separate portable issuer is not paired.
 
 2. **Fix carrier key origin.** Use Recipe-owned carrier keys/slots. Map exact
    assignment/read sites for `i` and `last` to their existing BindingRefs and
@@ -91,11 +137,10 @@ obtain identities from the same resolver ledger and exact source contexts.
    rows must fail before physical allocation using an existing owner terminal
    or a precisely named owner-local check in a later implementation slice.
 
-7. **D2 exit.** Open the I0 only when one source→Facts/Recipe→carrier key→
-   GeneralIf join→LoopCond header/backedge/after→physical owner relation is
-   finite and checked, and the exact caller plus explicit retain/delete set are
-   recorded. Otherwise keep `NoSafeSlice` local to this family and select an
-   already-inventoried action under the family scheduler.
+7. **D2 exit.** NoSafeSlice is established for this candidate. Keep I0
+   suspended, production callers unchanged, and the delete set empty. Select
+   another already-inventoried action under the family scheduler before
+   implementation; do not infer that this family-local result blocks the repo.
 
 ## Preserved D1 decision and implementation boundary
 
