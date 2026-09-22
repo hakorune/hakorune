@@ -1,5 +1,5 @@
 ---
-Status: StringBox source-issuer D0 selected under source-contract design; compatibility retained
+Status: frontier_pause__NoReadyR7Owner__2026-09-23
 Date: 2026-09-14
 Decision: MIR-CALL-R7-STRINGBOX-SOURCE-ISSUER-D0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -608,10 +608,10 @@ meaning and existing fallback remain unchanged. This is WSL/Linux evidence;
 the native Windows AOT I1 proof remains the separate revision-scoped result
 at `59e9a30b1f`.
 
-Next blocker: choose the remaining shared C/AOT compatibility owner through a
-new design stop with a finite caller/terminal/delete-set. Deferred non-Loop
-snapshot reacquisition, Read/Write/Carrier cleanup, and ordinary-new writer
-work remain in their existing owners.
+R7 frontier pause — 2026-09-23: no remaining owner has a ready Promote/Stop/Delete tuple (live consumer, successor/terminal, same-series production deletion).
+Remaining candidates are sealed as `NoSafeSlice`, supported Retain, closed, or deferred to their owning lanes.
+Do not repeat the inventory or reopen retained lanes; resume only after a changed caller/contract supplies the complete tuple.
+Aggregate R7 retirement remains open.
 
 ## Ordered queue
 

@@ -23,7 +23,8 @@ B3 D0/D1 accepted the value/origin branch-state rule; D2 is NoSafeSlice because
 LoopCondRecipe lacks portable carrier/join keys and no connected semantic-
 program issuer co-seals them. B3 I0 is unauthorized and the shared MethodCall
 delete set is empty. Scheduler reselection found no ready action: fixed EXE
-acceptance closed; M7-S has no exclusive delete set; M10 co-seal is NoSafeSlice,
+acceptance closed; M7-S has no exclusive delete set; R7's finite remaining
+owners are closed, retained, deferred, or NoSafeSlice; M10 co-seal is NoSafeSlice,
 transfer/boundary/If/Exit prerequisites are closed, and S6C caller-zero has no
 selected production consumer/delete set; parser recursive-result/composite
 loop candidates remain NoSafeSlice. Overall MirBuilder goal stays active.
