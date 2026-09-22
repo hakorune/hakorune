@@ -1,10 +1,10 @@
 ---
-Status: fast__B2_source_generic_loop_relation
+Status: design_stop__B2_selected_route_mapping
 Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 (same card; source relation before D)
-Implementation permission: task 1 accepted; implement source relation and scoped publication in tasks 2-4
+Implementation permission: design/taskification only; preserve WIP; reopen tasks 2-4 after route mapping below
 ---
 
 # Parser String result authority: corrected decision and task queue
@@ -13,7 +13,7 @@ Implementation permission: task 1 accepted; implement source relation and scoped
 
 - **Current decision:** B2 Array retention/discharge is implemented; D exposed a source GenericLoop carrier synchronization gap. The scoped carrier/origin design and ordered tasks below replace the induction-only proposal.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** task 1 and declaration retention are closed; co-seal carrier slots, connect branch/loop publication and finish D cutover. Text lifetime/Fault stays separate.
+- **Next ordered task:** correct GenericLoop/LoopCond source selection correspondence, then resume carrier co-seal and scoped publication. Four new fixture failures remain open; Text lifetime/Fault stays separate.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -799,16 +799,16 @@ failure (`/tmp/b2-cutover-merged.log`); identify the exact later source site bef
 updating that receipt. Preserve the uncommitted issuer/test changes; stage 4
 `319a2d7102` remains the last verified pushed checkpoint.
 
-#### Closed scope and remaining owner decision
+#### Proposed scope and corrected selection boundary
 
 This census covers: `CallableGenericLoopV1SemanticRecipeIssuerV1 -> source-port
 composer -> existing carrier/join owners -> callable ledger publication`;
-includes the rows below; excludes raw/Compatibility, LoopCond/LoopTrue, new
+the rows below describe required consumer behavior, not proof of selected source admission. Excludes raw/Compatibility, LoopTrue, new
 nested-loop support, runtime append/Fault and platform work. Read-only worker
 `b2_cutover_ssa_audit` supplied the full admitted-shape and origin-state audit;
-main readback confirmed the producer, adapter, composer and branch owner.
+main readback confirmed those consumers. The later selector audit below supersedes the claim that both If forms are admitted through GenericLoop.
 
-| Admitted relation / transition | Required treatment |
+| Relation / transition (selection must be established) | Required treatment |
 | --- | --- |
 | Unique induction Carrier | Exact increment AssignmentTarget site -> BodyRebind -> BindingRef must match the unique source Carrier. |
 | BodyOnlyRebind of pre-loop binding | Allocate an extra slot through the existing carrier owner; do not discard because it is absent from the condition. |
@@ -820,7 +820,7 @@ main readback confirmed the producer, adapter, composer and branch owner.
 | Nested loop, missing increment placement, non-RecipeOnly | Preserve current explicit rejection; do not manufacture a binding to admit them. |
 
 At the canonical Recipe issuer, co-seal pre_effect with located body and exact
-assignment-target sites, recursively through the already-admitted If branches.
+assignment-target sites, recursively only for branches proved reachable through the selected route. Consumer support alone does not prove admission.
 Group by BindingRef, retaining declaration scope and all target memberships.
 The Recipe producer issues opaque slots; Facts keep source identity/roles only,
 without ValueId or Recipe keys. Extend the existing carrier-target product so
@@ -885,16 +885,16 @@ precomputed header disposition, record observed identity/kill transitions, then
 check every reaching backedge/exit and residual row before publication. Values
 and active origins move together; historical entries and consumption remain
 monotonic. A transfer/execution mismatch is a named reject, never a retry.
-Worker review and main source readback close the design dependency; no runtime
-or compiler test was run for this design decision.
+The identity/kill policy remains accepted; the later selector correction reopens
+source-to-Recipe correspondence. No runtime evidence follows from this policy.
 
 #### Ordered tasks and closeout
 
 | Order | Task / existing owner | Observable completion |
 | --- | --- | --- |
 | 1 (design accepted above) | Close dynamic-origin transfer in `normal_callable_dynamic_origin` with the source Recipe issuer | Specify entry/header/backedge/join/exit transfer for unchanged origin, ordinary invalidation, one-sided termination and missing origin. Classify any changed rejection before implementation; no newly accepted origin or silently narrowed source cohort. Identity/kill and continuation-aware meet are accepted above; implementation evidence remains tasks 2-3. |
-| 2 | Co-seal declaration scope, target memberships and Recipe slots in `normal_callable_loop_handoff` / `normal_callable_loop_source_facts/generic` | Every admitted assignment belongs once; induction, extra carriers and scoped locals stay distinct. Missing/foreign/duplicate/shadowing evidence rejects before physical allocation. |
-| 3 | Connect scoped publication in ledger/source port, `generic_loop_composer`, carriers and both If owners | Natural zero/one/multiple iterations, extra carrier, branch read-after-write, one/both terminal branches and local shadowing preserve exact values and origin disposition. Consumption never rolls back. Existing Select/PHI/exit owners stay sole. |
+| 2 (after route mapping) | Co-seal declaration scope, target memberships and Recipe slots in `normal_callable_loop_handoff` / `normal_callable_loop_source_facts/generic` | Every admitted assignment belongs once; induction, extra carriers and scoped locals stay distinct. Missing/foreign/duplicate/shadowing evidence rejects before physical allocation. |
+| 3 (after route mapping) | Connect scoped publication in ledger/source port, `generic_loop_composer`, carriers and selected branch owners | Natural zero/one/multiple iterations, extra carrier, branch read-after-write, one/both terminal branches and local shadowing preserve exact values and origin disposition. Consumption never rolls back. Existing Select/PHI/exit owners stay sole. |
 | 4 | Finish D via production package issuer and published-view tests | Literal/substring2/multiple push with optimization off/on passes strict MIR verification and retained C-frame checks; value demand remains rejected. Identify the exact next merged-parser source terminal before updating its receipt. Retire selected source push -> generic MethodCall ingress in the same change. |
 | 5 (next execution contract) | Existing append runtime/C owner | Verify Text contents, retained lifetime, alias visibility, mutation Fault and cleanup through selected C execution. NoValue alone proves no successful mutation; no full parser/runtime claim before this evidence. |
 
@@ -910,20 +910,17 @@ Delete accounting remains exact: task 4 removes the selected caller edge into
 name/type MethodCall dispatch. Shared `effect_emission.rs` push/set/insert code
 remains until its other callers switch/Stop and caller-zero is established.
 Do not count this dependency repair as whole-function or LegacyCallV0 deletion.
-The design-only checkpoint is b0e3215f97; the goal continuation now selects task 2. Preserve D WIP until its current-change reds are resolved.
+The design-only checkpoint is b0e3215f97; task 2 WIP is preserved at the design stop below. Preserve D WIP until its current-change reds are resolved.
 
 
-Task 2 first implementation boundary:
-Change: retain exact resolver local declaration (site + ordinal + BindingRef)
-through Ready/ReadyWithBodyOnly -> pre_effect; remove the selected partition's
-loss of declaration scope. No route or runtime behavior is promoted here.
-Contract: projector remains the source owner, Facts contain no physical values,
-and unused locals retain their lexical scope without becoming loop carriers.
-Done: source-derived body-only/local/outer-binding fixtures retain exact origins;
-foreign/duplicate declarations reject; existing handoff cohorts and pointer guard
-pass. Recipe slot co-seal and physical synchronization remain subsequent work.
-Stop: if declaration identity must be guessed from names or physical values,
-return to design rather than adding a fallback.
+Task 2 remaining implementation boundary:
+Change: co-seal exact assignment target membership, declaration coverage and
+BindingRef -> Recipe-local slot in the existing semantic Recipe issuer.
+Contract: the source induction must match the planner increment site; pre-loop
+rebinds receive slots, local rebinds retain scope without becoming carriers.
+Done: natural-source induction/extra/local/shadow witnesses and coverage/owner
+negatives pass before physical allocation. Slot publication remains task 3.
+Stop: do not resolve binding identity from a diagnostic name or physical value.
 
 
 Task 2 declaration-retention receipt: the projector now retains exact local
@@ -940,3 +937,56 @@ Initial mechanical compile errors were current-change failures and corrected
 before this run. Formatting, pointer/ingress guards and diff check pass.
 README/reference are synchronized. Next is task 2's Recipe slot co-seal, then
 scoped publication; the uncommitted D dominance/merged-parser reds remain open.
+
+
+Task 3 connection audit: one read-only worker confirmed the existing name-map
+collision sites. Key the existing state/collection owners by BindingRef for source
+and String for raw; opaque slots identify loop carriers only, not every local.
+Migrate these three tuples without adding a PHI/Select owner:
+- `direct_associated` Local/Assignment -> definition publication: retain the
+  exact declaration/target BindingRef with its value.
+- `associated_source/direct_if -> dispatch/if_join -> steps/join_payload`:
+  exact pre/then/else maps and key-preserving join results; source snapshots must
+  not merge Builder name caches. Project joins onto pre-scope BindingRefs to
+  exclude branch locals while preserving same-name outer bindings.
+- `conditional_update` branch updates -> existing Select emitter: preserve the
+  update key through result publication. Reuse the existing per-row PHI and
+  Select emission; diagnostic labels never become binding lookup keys.
+The existing carrier allocator/finalizer receives the co-sealed slot relation;
+retire source `post_body_map.get(label)` and name-only carrier discovery as its
+callers switch. No synthetic renaming, new shadowing rejection or second solver.
+
+
+#### Selector premise correction and next bounded design (2026-09-22)
+
+Decision: retain the existing selector; separate selected GenericLoop carrier work from LoopCond branch evidence.
+Source authority + canonical issuer: resolver BindingRef/sites -> existing source Facts issuer -> existing route selector -> selected semantic Recipe issuer.
+Non-authority: composer support, diagnostic names, forced Generic selection, or a fixture bypassing LoopCond projection.
+Fail-fast boundary: source-to-selected-Recipe correspondence must close before resuming physical publication or production activation.
+Smallest next slice: map the current induction/extra/local/If/exit obligations to their selected owner and source projection, in this card.
+Non-claims: four new tests are red; slot co-seal, SSA repair, D cutover and runtime acceptance are not complete.
+
+Read-only worker `b2_cutover_ssa_audit` and main readback found that the new
+pure assignment If fixture selects ConditionalUpdate: `break_continue_item`
+counts the update; `facts/loop_builder::loop_cond_break_continue_requires_recipe_owner`
+retains that owner; `registry/predicates::pred_generic_loop_v1` excludes it.
+The source issuer dispatches it to LoopCond. ProjectionMissing is a static
+prediction for this fixture, not an observed error: the helper currently panics
+with only `GenericLoop source fixture`. Adding effect calls does not establish
+Generic selection; GeneralIf is counted too. The earlier worker claim that
+consumer support proved Generic admission is explicitly withdrawn.
+
+| Next task | Exit evidence / stop condition |
+| --- | --- |
+| Route mapping first | Identify selected owner, projection, continuation and publication caller for each required shape. Direct Local/Assignment has existing natural Generic evidence; extra-carrier/shadow variants still need verification. If is a LoopCond obligation; neither remove it from coverage nor force it into Generic. No new selector or fallback. |
+| Resume task 2 | Use naturally selected Generic sources for induction/extra/local/shadow co-seal; preserve a separate If selection/projection check. All four current test failures must be repaired and rerun, with observed dispositions. |
+| Resume task 3 | Implement exact BindingRef/value/active-origin publication only after the selected continuation mapping is closed. Test zero/one/multiple iterations and source-visible scope; verify shared If owners through their actual selected caller. |
+| Finish task 4 | Repair D dominance, identify merged-parser's exact later terminal, switch selected caller and remove its old name-dependent ingress; prove remaining callers before wider deletion. |
+| Execute task 5 | Text contents/lifetime/alias/Fault/cleanup through selected C; keep runtime completion separate from MIR green. |
+
+Observed WIP receipt: `/tmp/b2-carrier-relation-final.log`, quick build 5m16s,
+16 existing tests pass / 4 new tests fail before carrier validation. Classified
+current-change fixture-selection failures, not baseline debt; D dominance and
+merged-parser assertion failures remain independently open. No Cargo rerun or
+implementation occurred during this design closeout. Preserve all WIP, including
+issuer activation and published-view tests; do not commit it as verified code.
