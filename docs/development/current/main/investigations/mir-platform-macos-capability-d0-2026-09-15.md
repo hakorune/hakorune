@@ -91,6 +91,11 @@ macOS version or x86_64 host.  It is also not a temporary-input lifetime
 result: the CAPI compiler failed before that path could run.  No code or
 fallback change is authorized by this census.
 
+The follow-up owner-audit row is
+[`MIR-PLATFORM-MACOS-CAPI-CLANG-D0`](mir-platform-macos-capi-clang-compile-gap-d0-2026-09-22.md).
+The integration test's later Darwin library-name path is intentionally kept
+separate: it cannot be classified until the clang compile boundary is passed.
+
 ## Census boundary
 
 このcensusが覆う境界: `macos-latest` runner checkout -> focused suite
@@ -117,10 +122,10 @@ measurement, and any fix.
 
 1. Keep the focused manual job as the reusable macOS census entry; do not
    dispatch another run until the CAPI compile-gap owner is selected.
-2. Open one design-only bounded row for the clang-incompatible C include
-   graph.  Its first decision is whether an existing C owner can provide a
-   portable translation unit; nested-function syntax must not be papered over
-   with a platform fallback or a silent skip.
+2. Continue in the design-only owner-audit row
+   `MIR-PLATFORM-MACOS-CAPI-CLANG-D0`.  Its first decision is whether an
+   existing C owner can provide a portable translation unit; nested-function
+   syntax must not be papered over with a platform fallback or a silent skip.
 3. Each confirmed gap becomes a bounded row following the Windows
    capability-D0 type: `BackendCapabilityMissing` until the per-capability
    owner is named and proven; fake fallback prohibited.
