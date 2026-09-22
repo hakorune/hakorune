@@ -19,7 +19,7 @@ impl super::super::PlanNormalizer {
 
         match ast {
             ASTNode::Variable { name, .. } => {
-                if let Some(value_id) = port.exact_source_variable_value(&input)? {
+                if let Some(value_id) = port.exact_source_variable_value(&input, phi_bindings)? {
                     return Ok((value_id, vec![]));
                 }
                 if let Some(value_id) = Self::lookup_variable_value(builder, phi_bindings, name) {
@@ -29,7 +29,7 @@ impl super::super::PlanNormalizer {
                 }
             }
             ASTNode::Me { .. } | ASTNode::This { .. } => {
-                if let Some(value_id) = port.exact_source_variable_value(&input)? {
+                if let Some(value_id) = port.exact_source_variable_value(&input, phi_bindings)? {
                     return Ok((value_id, vec![]));
                 }
                 let bound_me = Self::lookup_variable_value(builder, phi_bindings, "me");

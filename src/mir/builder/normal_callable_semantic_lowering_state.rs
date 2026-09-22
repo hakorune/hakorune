@@ -537,6 +537,38 @@ impl CallableSemanticLoweringState {
             })
     }
 
+    pub(super) fn source_read_binding(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Result<BindingRefV1, String> {
+        self.variables
+            .get(site)
+            .copied()
+            .or_else(|| self.assignments.get(site).copied())
+            .ok_or_else(|| {
+                format!(
+                    "{} site={:?}",
+                    freeze("missing-variable-site"),
+                    site.segments()
+                )
+            })
+    }
+
+    pub(super) fn publish_source_loop_final_value(
+        &mut self,
+        binding: BindingRefV1,
+        value: ValueId,
+    ) -> Result<(), String> {
+        if binding.owner() != self.owner {
+            return Err(freeze("loop-final-binding-owner-mismatch"));
+        }
+        if !self.values.contains_key(&binding) {
+            return Err(freeze("loop-final-binding-before-materialization"));
+        }
+        self.values.insert(binding, value);
+        Ok(())
+    }
+
     pub(super) fn rebind(&mut self, site: &SourceNodeSiteV1, value: ValueId) -> Result<(), String> {
         let binding = self
             .assignments

@@ -124,6 +124,7 @@ pub(in crate::mir::builder) trait LoopPlanExpressionPortV1:
     fn exact_source_variable_value<'input>(
         &self,
         _input: &Self::ExprInput<'input>,
+        _physical_bindings: &std::collections::BTreeMap<String, ValueId>,
     ) -> Result<Option<ValueId>, String>
     where
         Self: 'input,

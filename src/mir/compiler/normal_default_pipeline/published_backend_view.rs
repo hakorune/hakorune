@@ -21,13 +21,13 @@ pub(crate) use row_refs::{
 
 mod c_transport;
 mod c_transport_v2;
-mod map_body_index;
-mod map_original_demand;
-mod map_named_allocations;
-mod map_value_domains;
-mod map_projection;
 mod compiled_entry_contract;
 mod lifecycle;
+mod map_body_index;
+mod map_named_allocations;
+mod map_original_demand;
+mod map_projection;
+mod map_value_domains;
 mod physical_abi;
 mod physical_program;
 mod physical_program_json;
@@ -36,16 +36,18 @@ pub(super) use lifecycle::is_lifecycle_instruction;
 pub(crate) use lifecycle::PublishedObjectStorageProfileV1;
 
 #[cfg(test)]
+pub(crate) use c_transport::PublishedCallKindV1;
+#[cfg(test)]
 pub(crate) use c_transport::PublishedStaticMethodCFrameV1;
 pub(crate) use compiled_entry_contract::{
     CompiledEntryContractV1, CompiledEntryFormalKindV1, CompiledEntryRootResultV1,
 };
-#[cfg(test)]
-pub(crate) use c_transport::PublishedCallKindV1;
-pub(crate) use physical_abi::{PublishedLifecyclePhysicalAbiInputV1, PublishedLifecycleRuntimeRequirementsV1};
-pub(crate) use physical_program::PublishedLifecyclePhysicalFunctionRoleV1;
-pub(crate) use physical_program::ordinary_callable_key;
+pub(crate) use physical_abi::{
+    PublishedLifecyclePhysicalAbiInputV1, PublishedLifecycleRuntimeRequirementsV1,
+};
 pub(crate) use physical_program::ordinary_call_receiver;
+pub(crate) use physical_program::ordinary_callable_key;
+pub(crate) use physical_program::PublishedLifecyclePhysicalFunctionRoleV1;
 pub(crate) use physical_program_json::emit_lifecycle_physical_abi_json;
 
 /// The only route decisions a backend may observe for the selected published
@@ -172,8 +174,7 @@ impl std::error::Error for PublishedMirBackendViewErrorV1 {}
 pub(crate) struct PublishedMirBackendView<'module> {
     module: &'module MirModule,
     retained_root: Option<&'module MirFunction>,
-    retained_handoff:
-        Option<&'module crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
+    retained_handoff: Option<&'module crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
     route: PublishedStaticMethodRouteV1,
     static_method_calls: Vec<PublishedStaticMethodCallRef<'module>>,
     free_function_calls: Vec<PublishedFreeFunctionCallRef<'module>>,
@@ -240,12 +241,14 @@ impl<'module> PublishedMirBackendView<'module> {
                         continue;
                     }
                     // V2 frame and C validate the exact Map physical input.
-                    if matches!(instruction,
+                    if matches!(
+                        instruction,
                         MirInstruction::MapLiteralEntryWrite { .. }
-                        | MirInstruction::NewBox {
-                            target: crate::mir::ConstructionTarget::IntrinsicMap, ..
-                        })
-                    {
+                            | MirInstruction::NewBox {
+                                target: crate::mir::ConstructionTarget::IntrinsicMap,
+                                ..
+                            }
+                    ) {
                         has_intrinsic_maps = true;
                         continue;
                     }
@@ -433,10 +436,9 @@ impl<'module> PublishedMirBackendView<'module> {
                     .expect("sorted MIR block id must remain present");
                 for (instruction_index, instruction) in block.all_instructions().enumerate() {
                     match instruction {
-                        MirInstruction::Call(call)
-                            if is_selected_global_callee(&call.callee) => {
-                                has_canonical_selected_call = true;
-                            }
+                        MirInstruction::Call(call) if is_selected_global_callee(&call.callee) => {
+                            has_canonical_selected_call = true;
+                        }
                         MirInstruction::LegacyCallV0 { .. } if legacy_site.is_none() => {
                             legacy_site = Some((
                                 function_name.clone(),
@@ -729,5 +731,10 @@ fn free_function_key(target: &CanonicalGlobalTargetV1) -> Option<CanonicalSameMo
 #[cfg(test)]
 mod script_physical_input_tests;
 
-pub(crate) use c_transport_v2::{FrameHeader as PublishedStaticFrameHeaderV2, PublishedStaticMethodCFrameV2};
+pub(crate) use c_transport_v2::{
+    FrameHeader as PublishedStaticFrameHeaderV2, PublishedStaticMethodCFrameV2,
+};
 pub(crate) use map_named_allocations::NamedAllocationConsumer;
+
+#[cfg(test)]
+mod named_array_source_tests;

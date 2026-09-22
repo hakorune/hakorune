@@ -293,6 +293,27 @@ fn rejects_foreign_owner_before_slot_issuance() {
     });
 }
 
+#[test]
+fn source_carrier_projection_rejects_missing_physical_label() {
+    with_receipt(&direct_source(), |receipt| {
+        receipt
+            .into_semantic_recipe()
+            .unwrap()
+            .with_source_relation_view_once(|view| {
+                let binding = view.carrier_relation().induction_binding().unwrap();
+                let error = view
+                    .carrier_relation()
+                    .physical_value_for_binding(binding, &BTreeMap::new())
+                    .unwrap_err();
+                assert!(
+                    error.contains("source-carrier-physical-missing"),
+                    "unexpected missing physical carrier error: {error}"
+                );
+            })
+            .unwrap();
+    });
+}
+
 pub(in crate::mir::builder) fn source_final_values_for_test(
 ) -> crate::mir::builder::control_flow::plan::CoreLoopFinalValuesV1 {
     with_receipt(&direct_source(), |receipt| {

@@ -1,5 +1,5 @@
 ---
-Status: fast__source_binding_carrier_projection
+Status: closeout__source_binding_carrier_projection_core
 Task: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0
 Parent: mir-call-parser-array-push-route-overlap-d0-2026-09-22
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-NEGATIVE-I0
@@ -49,9 +49,9 @@ adapter may publish the final induction value through the existing callable
 ledger owner after the plan has verified and lowered; it may not publish a new
 semantic result.
 
-The working tree already contains an uncommitted WIP in the following files.
-It is preserved as the starting material for this slice and is not silently
-counted as landed evidence:
+The source-projection checkpoint lands the following implementation files;
+the negative matrix remains a separate bounded card and is not silently
+counted as complete:
 
 ```text
 src/mir/builder/normal_callable_loop_physical_adapter.rs
@@ -63,9 +63,10 @@ src/mir/builder/control_flow/plan/expression_port.rs
 src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs
 ```
 
-The named `named_array_source_tests` file is also WIP. Keep it separate from
-this card's commit until the source fixture and the negative matrix are both
-observed.
+The named `named_array_source_tests` file is part of the checkpoint because
+the source fixture and its value-demanded negative are now observed. The
+remaining duplicate/missing-row/shape/finish negatives are tracked by
+`MIR-CALL-PARSER-ARRAY-PUSH-B2-NEGATIVE-I0`.
 
 ## B2 bounded task queue
 
@@ -114,3 +115,22 @@ match. Do not add a fresh `BindingRef -> ValueId` table, a MIR scan, an
 unconditional `Ok(None)`, or a source-to-runtime serializer claim. The finish
 line is one source owner, one physical port, one existing ArrayPush handoff,
 all named positive/negative evidence, and a reusable guard.
+
+## Source-projection checkpoint
+
+The checkpoint evidence is:
+
+* `named_array_source_reaches_retained_typed_write_and_c_frame` passes literal,
+  substring, and two-push source rows with optimization both off and on;
+* `named_array_value_demand_rejects_before_published_consumer` passes before
+  the published consumer is reached;
+* `source_carrier_projection_rejects_missing_physical_label` rejects a missing
+  physical carrier; and
+* `physical_adapter_rejects_relation_owner_mismatch_before_builder_effect`
+  remains green for the foreign-owner boundary.
+
+The new reusable gate
+`rust_mirbuilder_generic_loop_source_carrier_projection_b2_guard.sh`, the
+existing source-route guard, the pointer guard, and `git diff --check` pass.
+The remaining negative inventory is intentionally open in the next card; this
+checkpoint makes no production caller-switch or old-edge-retirement claim.

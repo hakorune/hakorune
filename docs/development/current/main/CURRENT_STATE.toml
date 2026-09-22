@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0"
-current_execution_cohort = "mir_call_parser_array_push_b2_i0"
-current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0__BindingRefCarrierProjectionAndNamedArray"
+current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B2-NEGATIVE-I0"
+current_execution_cohort = "mir_call_parser_array_push_b2_negative_i0"
+current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B2-NEGATIVE-I0__NamedArrayNegativeMatrix"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "Accepted__SourceBindingRefCarrierProjectionAndNamedArrayCoSeal"
+current_design_stop = "Accepted__ExistingNamedArrayOwnerNegativeMatrix"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,22 +14,23 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-parser-array-push-b2-i0-2026-09-23.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-parser-array-push-b2-negative-i0-2026-09-23.md"
 latest_card = "mir-call-parser-array-push-b2-i0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b2-i0-2026-09-23.md"
 latest_card_summary = """
-The route-admission I0 is closed at the focused-evidence boundary: source
-missing/duplicate/value-demanded negatives and the existing foreign-owner
-negative pass, and the reusable route-shape guard is green. Raw V0/V1
-precedence remains neutral. The next bounded slice is B2-I0: consume the
-existing source relation for BindingRef carrier projection, retained ArrayPush,
-and final induction publication. Uncommitted carrier/NamedArray WIP is
-preserved and is not yet a production switch or runtime ownership claim.
+The B2 source-projection checkpoint is landed at the focused source-to-physical
+boundary: the relation-aware BindingRef carrier projection, exact retained
+ArrayPush handoff, final induction publication, named-array positive/value
+demand tests, missing-physical-carrier negative, and reusable guard all pass.
+Raw V0/V1 precedence remains neutral. The next bounded slice is the named
+negative matrix for foreign session/site, duplicate or missing source item,
+receiver/arity drift, and residual ledger rows. No production caller switch,
+runtime ownership claim, or old-edge deletion is implied.
 """
 next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-B2-NEGATIVE-I0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b2-i0-2026-09-23.md"
-next_execution_card = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b2-i0-2026-09-23.md"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b2-negative-i0-2026-09-23.md"
+next_execution_card = "MIR-CALL-PARSER-ARRAY-PUSH-B2-NEGATIVE-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b2-negative-i0-2026-09-23.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

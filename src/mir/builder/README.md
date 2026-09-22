@@ -664,6 +664,28 @@ the condition/body reads and rebind. This proves the selected Rust adapter
 seam only; it does not claim full package discovery, OBJ/EXE output, or loop
 route retirement.
 
+### GenericLoop source carrier projection and retained ArrayPush B2
+
+The B2 source edge keeps resolver `BindingRefV1` as the only carrier identity.
+`CallableLoopSourceExpressionPortWithRelationV1` consumes the exact source read
+from the callable ledger, asks the existing `CallableLoopCarrierRelationV1`
+for a matching carrier, and projects through the physical binding map already
+owned by the normalizer. Named `ArrayPush` rows are consumed at their exact
+statement site by the same port and become the retained typed write; no label,
+method name, or MIR scan may select an array. The physical adapter publishes
+the final induction value through the existing callable ledger only after
+verification and lowering, then the ledger finish rejects residual rows.
+
+`named_array_source_reaches_retained_typed_write_and_c_frame` covers literal,
+substring, and two-push source rows with optimization both off and on.
+`named_array_value_demand_rejects_before_published_consumer`,
+`source_carrier_projection_rejects_missing_physical_label`, and the existing
+foreign-owner adapter test cover the bounded fail-fast edges. This B2 row proves
+source-to-physical transport and the existing C-frame shape; it does not claim
+runtime Text ownership, publication caller switching, compatibility parity, or
+old-edge retirement. The reusable structural gate is
+`rust_mirbuilder_generic_loop_source_carrier_projection_b2_guard.sh`.
+
 ### Callable Loop Local completion handoff R0
 
 `direct_associated.rs` invokes one optional source-port completion capability

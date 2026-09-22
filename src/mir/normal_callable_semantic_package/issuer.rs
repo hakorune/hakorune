@@ -39,7 +39,9 @@ mod app_main_relation;
 mod direct_call_co_seal;
 
 use self::direct_call_co_seal::validate_cataloged_source_co_seal_v1;
-use super::core_method_source::issue_source_core_method_calls_v1;
+use super::core_method_source::{
+    issue_source_core_method_calls_v1, issue_source_core_method_calls_with_named_arrays_v1,
+};
 
 use super::declared_instance_locator::{
     issue_declared_instance_call_package_locator_v1, DeclaredInstanceCallPackageLocatorIssueV1,
@@ -459,10 +461,15 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         .map_err(|error| NormalCallableSemanticPackageIssueV1::LoopBreakSource { _error: error })?;
     let selected = issue_selected_callable_batch_map_v1(&catalog, &batch)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::SelectedMapping { _error: error })?;
-    let source_core_method_calls = issue_source_core_method_calls_v1(&catalog, &batch, &selected)
-        .map_err(|error| {
-        NormalCallableSemanticPackageIssueV1::CoreMethodSource { _error: error }
-    })?;
+    let source_core_method_calls = match brand_catalog {
+        Some(brands) => {
+            issue_source_core_method_calls_with_named_arrays_v1(&catalog, &batch, &selected, brands)
+        }
+        // Without the declaration authority, this entry cannot issue a
+        // conditional Named receiver contract. Production supplies the catalog.
+        None => issue_source_core_method_calls_v1(&catalog, &batch, &selected),
+    }
+    .map_err(|error| NormalCallableSemanticPackageIssueV1::CoreMethodSource { _error: error })?;
     validate_cataloged_source_co_seal_v1(&catalog, &batch, &selected)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
     app_main_relation::validate_app_main_root_owner_relation_v1(&catalog, &batch)

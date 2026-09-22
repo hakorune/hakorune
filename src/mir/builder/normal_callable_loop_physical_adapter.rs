@@ -36,7 +36,19 @@ impl CallableGenericLoopV1PhysicalAdapterV1 {
                             .to_owned(),
                     );
                 }
-                let port = CallableLoopSourceExpressionPortV1::new(callable_ledger);
+                if view.session().owner() != view.owner()
+                    || view.parent_source().site() != Some(view.session().parent())
+                    || view.condition_source().site() != Some(view.session().condition())
+                    || view.body_source().site() != Some(view.session().body())
+                    || view.source_items().len() != view.source_dispositions().len()
+                {
+                    return Err(
+                        "[freeze:contract][callable-loop/source-evidence-session-mismatch]"
+                            .to_owned(),
+                    );
+                }
+                let port = CallableLoopSourceExpressionPortV1::new(callable_ledger)
+                    .with_carrier_bindings(view.carrier_relation());
                 let condition = port.expr(&view.generic().condition, view.condition_source())?;
                 let body = port.body(&view.generic().body.body, view.body_source())?;
                 let context =
@@ -51,9 +63,19 @@ impl CallableGenericLoopV1PhysicalAdapterV1 {
                 .map_err(|error| format!("[freeze:contract][callable-loop/recipe] {error}"))?;
                 PlanVerifier::verify(&plan)
                     .map_err(|error| format!("[freeze:contract][callable-loop/verify] {error}"))?;
-                PlanLowerer::lower(builder, plan, &context)
+                let lowered = PlanLowerer::lower(builder, plan, &context)
                     .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
-                    .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned())
+                    .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned())?;
+                let induction = view
+                    .carrier_relation()
+                    .induction_binding()
+                    .map_err(|error| {
+                        format!("[freeze:contract][callable-loop/final-binding] {error}")
+                    })?;
+                callable_ledger
+                    .borrow_mut()
+                    .publish_source_loop_final_value(induction, lowered)?;
+                Ok(lowered)
             })
             .map_err(|error: CallableGenericLoopV1SemanticRecipeViewRejectV1| {
                 format!("[freeze:contract][callable-loop/semantic-view] {error:?}")
