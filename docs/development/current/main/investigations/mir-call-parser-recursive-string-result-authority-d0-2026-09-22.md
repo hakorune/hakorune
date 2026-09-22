@@ -1,9 +1,9 @@
 ---
-Status: design_stop__2026-09-22__RecursiveStringResultOwner
+Status: closed__NoSafeSlice__2026-09-22__RecursiveStringResultOwner
 Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
-NextCard: none__recursive_string_result_authority_decision
+NextCard: none__frontier_pause__no_ready_semantic_candidate
 Implementation permission: false; design-only owner selection
 ---
 
@@ -94,3 +94,31 @@ Foreign/Duplicate/Residual -> named rejection -> no retry or fallback
 
 No warning cohort, backend, VM, compatibility, or shared LegacyCallV0 work is
 selected by this design card.
+
+## D0 decision and frontier pause — 2026-09-22
+
+The existing-owner comparison is complete.  The solver/catalog/publication
+chain can issue and consume the typed `RecursiveDependency` terminal, but no
+existing owner proves a bounded recursive measure and also supplies a
+String/OwnedText representation, effect, ABI, and physical consumer.  The
+OwnedText T3 card is explicitly parked without a selected physical caller.
+
+The selected decision is therefore:
+
+```text
+NoSafeSlice__ResultFamilyOwnerAbsent
+  -> keep TargetOnly(RecursiveDependency) before effects
+  -> do not issue a String result or switch the parser caller
+```
+
+This D0 is closed as a family-local park.  Reopen only when an accepted owner
+design names the source issuer, termination proof, representation/effect/ABI,
+consumer, and selected old-edge delete set.  A future implementation card must
+then carry positive/negative, foreign/duplicate, one-shot, residual, physical,
+caller-switch, and retirement evidence together.
+
+The scheduler has no other ready semantic Promote, Stop, or Delete row in this
+authorized lane.  The Windows lifecycle capability card remains explicitly
+`deferred__user_selected_later`, so it is not reopened as a substitute.  The
+current pointer records this as a frontier pause; warning cleanup stays paused
+at I147 and no code, fixture, fallback, VM, or backend change is authorized.
