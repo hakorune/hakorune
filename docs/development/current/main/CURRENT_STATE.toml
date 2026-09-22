@@ -25,7 +25,9 @@ The real parse/2 -> starts_with/3 Selected ExactI64 handoff retains ordinals [].
 Full parser acceptance now stops at StringHelpers.split_lines/1 loop-local
 arr.push(s.substring(last,i)): source method item outside selected family.
 B2 passive construction source transport is verified: new tests 3, ledger 20.
-B2-I0 mapping is accepted: source Named Array obligation -> module-level
+B2-I0 stage 1 source contract is verified: new 7, existing 7+7+20+3 tests.
+Extended source issuer is not yet selected by the production package; lowering
+state rejects unretained obligations. Next: source Named Array -> module-level
 FinalizedRootHandoff retention -> typed NoValue write -> exact backend discharge.
 The Absent/Script-empty root and diagnostic/compatibility/JSON exits must not
 drop obligations. Passive metadata detects missing authority; it never grants it.

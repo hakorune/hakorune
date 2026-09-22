@@ -157,6 +157,12 @@ impl CallableSemanticLoweringState {
         >,
         loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
     ) -> Result<Self, String> {
+        if source_core_method_calls
+            .values()
+            .any(|row| row.contract().named_array_requirement().is_some())
+        {
+            return Err(freeze("named-array-artifact-retention-required"));
+        }
         let source_loop_bridge = source_loop_bridge::CallableLoopSourceBridgeV1::from_input(input)?;
         let dynamic_origins = match dynamic_source {
             Some(source) => CallableDynamicOriginLoweringStateV1::from_shared_source(source),

@@ -27,6 +27,7 @@ use crate::mir::core_method_result_kind::{CoreMethodEffectV1, CORE_METHOD_MANIFE
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResolverCoreMethodCallableContractRejectV1 {
     ForeignCallOwner,
+    NamedArrayRequirementMismatch,
     ForeignSourceRow,
     MissingSourceSite(SourceExprSiteV1),
     Loop(ResolvedLoopRegionLookupErrorV1),
@@ -84,9 +85,16 @@ pub(crate) struct VerifiedResolverCoreMethodCallableContractV1 {
     frame: LoopExecutionFrameKeyV1,
     placement: ResolvedLoopPlacementV1,
     target: VerifiedCoreMethodInstanceTargetV1,
+    named_array: Option<super::NamedArrayConstructionRequirementV1>,
 }
 
 impl VerifiedResolverCoreMethodCallableContractV1 {
+    pub(crate) fn named_array_requirement(
+        &self,
+    ) -> Option<&super::NamedArrayConstructionRequirementV1> {
+        self.named_array.as_ref()
+    }
+
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
@@ -138,6 +146,41 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
         membership: &VerifiedCallableLoopMembershipV1,
         placement: ResolvedLoopPlacementV1,
         target: VerifiedCoreMethodInstanceTargetV1,
+    ) -> Result<
+        VerifiedResolverCoreMethodCallableContractV1,
+        ResolverCoreMethodCallableContractRejectV1,
+    > {
+        Self::issue_with_requirement(ledger, call, membership, placement, target, None)
+    }
+
+    pub(crate) fn issue_named_array(
+        ledger: &CallableSemanticSourceLedgerView<'_>,
+        call: &VerifiedResolvedMethodCallSourceV1,
+        membership: &VerifiedCallableLoopMembershipV1,
+        placement: ResolvedLoopPlacementV1,
+        target: VerifiedCoreMethodInstanceTargetV1,
+        requirement: super::NamedArrayConstructionRequirementV1,
+    ) -> Result<
+        VerifiedResolverCoreMethodCallableContractV1,
+        ResolverCoreMethodCallableContractRejectV1,
+    > {
+        Self::issue_with_requirement(
+            ledger,
+            call,
+            membership,
+            placement,
+            target,
+            Some(requirement),
+        )
+    }
+
+    fn issue_with_requirement(
+        ledger: &CallableSemanticSourceLedgerView<'_>,
+        call: &VerifiedResolvedMethodCallSourceV1,
+        membership: &VerifiedCallableLoopMembershipV1,
+        placement: ResolvedLoopPlacementV1,
+        target: VerifiedCoreMethodInstanceTargetV1,
+        named_array: Option<super::NamedArrayConstructionRequirementV1>,
     ) -> Result<
         VerifiedResolverCoreMethodCallableContractV1,
         ResolverCoreMethodCallableContractRejectV1,
@@ -252,6 +295,25 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
             }
         }
 
+        match (&named_array, target.schema()) {
+            (None, CoreMethodHomeSchemaV1::StringBoxText) => {}
+            (Some(requirement), CoreMethodHomeSchemaV1::ArrayTextAppend)
+                if requirement.owner() == ledger.owner()
+                    && requirement.call() == call.site()
+                    && call
+                        .arguments()
+                        .first()
+                        .is_some_and(|arg| arg.site() == requirement.argument())
+                    && receiver
+                        == ResolvedMethodCallReceiverSourceV1::Lexical(
+                            ResolvedLexicalRefV1::Local(requirement.binding()),
+                        ) => {}
+            _ => {
+                return Err(
+                    ResolverCoreMethodCallableContractRejectV1::NamedArrayRequirementMismatch,
+                )
+            }
+        }
         verify_target(&target, call)?;
 
         Ok(VerifiedResolverCoreMethodCallableContractV1 {
@@ -265,6 +327,7 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
             frame: membership.frame().clone(),
             placement,
             target,
+            named_array,
         })
     }
 }
@@ -274,7 +337,9 @@ fn required_target_placement(
 ) -> Result<ResolvedLoopPlacementV1, ResolverCoreMethodCallableContractRejectV1> {
     match (target.row().row().op, target.row().arity()) {
         (CoreMethodOp::StringLen, 0) => Ok(ResolvedLoopPlacementV1::Condition),
-        (CoreMethodOp::StringSubstring, 2) => Ok(ResolvedLoopPlacementV1::Body),
+        (CoreMethodOp::StringSubstring, 2) | (CoreMethodOp::ArrayPush, 1) => {
+            Ok(ResolvedLoopPlacementV1::Body)
+        }
         (op, arity) => {
             Err(ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch { op, arity })
         }
@@ -288,20 +353,31 @@ fn verify_target(
     if target.manifest_brand() != CORE_METHOD_MANIFEST_BRAND_V2 {
         return Err(ResolverCoreMethodCallableContractRejectV1::TargetManifestBrandMismatch);
     }
-    if target.schema() != CoreMethodHomeSchemaV1::StringBoxText {
-        return Err(ResolverCoreMethodCallableContractRejectV1::TargetSchemaMismatch);
-    }
-    if target.receiver() != CoreMethodHomeReceiverRelationV1::StringBoxReceiver {
+    let (receiver, effect, receiver_name, abi_profile) = match target.schema() {
+        CoreMethodHomeSchemaV1::StringBoxText => (
+            CoreMethodHomeReceiverRelationV1::StringBoxReceiver,
+            CoreMethodEffectV1::PureRead,
+            "StringBox",
+            CoreMethodHomeAbiProfileV1::StringBoxTextV1,
+        ),
+        CoreMethodHomeSchemaV1::ArrayTextAppend => (
+            CoreMethodHomeReceiverRelationV1::NamedArrayReceiver,
+            CoreMethodEffectV1::MutatesShape,
+            "ArrayBox",
+            CoreMethodHomeAbiProfileV1::NamedArrayTextV1,
+        ),
+    };
+    if target.receiver() != receiver {
         return Err(ResolverCoreMethodCallableContractRejectV1::TargetReceiverMismatch);
     }
     if target.execution_policy() != CoreMethodHomeExecutionPolicyV1::NonSuspendingNonControl {
         return Err(ResolverCoreMethodCallableContractRejectV1::TargetPolicyMismatch);
     }
     let row = target.row().row();
-    if row.effect != CoreMethodEffectV1::PureRead {
+    if row.effect != effect {
         return Err(ResolverCoreMethodCallableContractRejectV1::TargetEffectMismatch);
     }
-    if row.receiver_box != "StringBox" {
+    if row.receiver_box != receiver_name {
         return Err(ResolverCoreMethodCallableContractRejectV1::TargetReceiverMismatch);
     }
     if row.canonical != call.selector() && !row.aliases.contains(&call.selector()) {
@@ -311,16 +387,19 @@ fn verify_target(
     }
     match (row.op, target.row().arity(), target.result()) {
         (CoreMethodOp::StringLen, 0, CoreMethodHomeResultRelationV1::I64ToCaller)
-        | (CoreMethodOp::StringSubstring, 2, CoreMethodHomeResultRelationV1::TextToCaller) => {}
+        | (CoreMethodOp::StringSubstring, 2, CoreMethodHomeResultRelationV1::TextToCaller)
+        | (CoreMethodOp::ArrayPush, 1, CoreMethodHomeResultRelationV1::NoValue) => {}
         (op, arity, _) => {
             return Err(
                 ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch { op, arity },
             )
         }
     }
-    let expected_parameters = match row.op {
-        CoreMethodOp::StringLen => 0,
-        CoreMethodOp::StringSubstring => 2,
+    use super::CoreMethodHomeParameterRelationV1 as Parameter;
+    let expected_parameters: &[Parameter] = match row.op {
+        CoreMethodOp::StringLen => &[],
+        CoreMethodOp::StringSubstring => &[Parameter::I64Parameter, Parameter::I64Parameter],
+        CoreMethodOp::ArrayPush => &[Parameter::TextRetainedByReceiver],
         op => {
             return Err(
                 ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch {
@@ -330,12 +409,10 @@ fn verify_target(
             )
         }
     };
-    if target.parameters().len() != expected_parameters {
+    if target.parameters() != expected_parameters {
         return Err(ResolverCoreMethodCallableContractRejectV1::TargetParameterMismatch);
     }
-    if target.abi_profile() != CoreMethodHomeAbiProfileV1::StringBoxTextV1
-        || target.target_brand().ordinal() == 0
-    {
+    if target.abi_profile() != abi_profile || target.target_brand().ordinal() == 0 {
         return Err(ResolverCoreMethodCallableContractRejectV1::TargetSchemaMismatch);
     }
     Ok(())

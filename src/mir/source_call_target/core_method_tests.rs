@@ -20,7 +20,7 @@ use super::{
 
 const FIXTURE: &str = include_str!("../../../apps/tests/scan_with_init_typed_ok_min.hako");
 
-fn batch(source: &str, ordinal: u32) -> VerifiedResolvedCallableSemanticBatchV1 {
+pub(super) fn batch(source: &str, ordinal: u32) -> VerifiedResolvedCallableSemanticBatchV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         source,
         ParserBuildConfig::default(),

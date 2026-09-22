@@ -2,6 +2,23 @@
 
 This module owns disconnected, pre-Builder source-call target proofs.
 
+## Conditional named Array source contract
+
+`issue_source_bound_core_method_calls_with_named_arrays_v1` extends the existing
+CoreMethod issuer with loop-body push/1 contracts. It seals existing Text
+producers first, then joins the push's exact argument site to either a String
+literal or a same-owner Text-result contract. Constructor evidence comes from
+the resolver New/initializer/binding rows, with ordinary/brand exclusions and
+whole-callable receiver-reassignment rejection. Value-use of push rejects.
+
+The result owns a `NamedArrayConstructionRequirementV1`, not proof of a builtin
+runtime receiver. The target schema requires a retained Text argument,
+MutatesShape and NoValue. The ordinary resolver issuer cannot issue this schema
+without its constructor requirement. This extended entry is not yet selected
+by the production package: finalized artifact retention and backend discharge
+must land first. Existing lowering-state installation rejects such rows before
+Builder effects rather than allowing legacy dispatch to lose the obligation.
+
 ## S6C source-bound CoreMethod relation I0
 
 `VerifiedSourceBoundS6CCallRelationV1` is the fixed, non-Clone relation for

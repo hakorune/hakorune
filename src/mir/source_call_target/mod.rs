@@ -7,6 +7,8 @@
 
 mod callable_receiver_policy;
 mod core_method;
+mod named_array_method;
+pub(crate) use named_array_method::issue_source_bound_core_method_calls_with_named_arrays_v1;
 mod current_owner;
 mod dynamic_member;
 mod error;
@@ -115,3 +117,6 @@ mod test_support;
 mod tests;
 #[cfg(test)]
 mod whole_source_inventory_tests;
+
+#[cfg(test)]
+mod named_array_method_tests;

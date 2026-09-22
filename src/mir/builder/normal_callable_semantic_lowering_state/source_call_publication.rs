@@ -87,6 +87,9 @@ impl CallableSemanticLoweringState {
         {
             return Err(freeze("core-method-call-shape"));
         }
+        if contract.named_array_requirement().is_some() {
+            return Err(freeze("named-array-artifact-retention-required"));
+        }
         let target = contract.target();
         let generated = target.row().row();
         if target.row().arity() != arity
@@ -102,6 +105,9 @@ impl CallableSemanticLoweringState {
             _ => return Err(freeze("core-method-call-receiver")),
         };
         let result_type = match target.result() {
+            crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::NoValue => {
+                return Err(freeze("no-value-source-call-used-as-value"));
+            }
             crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller => {
                 crate::mir::MirType::Integer
             }

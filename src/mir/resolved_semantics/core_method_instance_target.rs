@@ -1,7 +1,8 @@
 //! Generated CoreMethod target/Home capability for the bounded Loop cohort.
 //!
 //! The generated manifest row is the semantic source. This module only adds
-//! the explicit StringBox/Text Home contract and a one-shot target issuer;
+//! explicit StringBox/Text and conditional Named Array/Text Home contracts
+//! through one target issuer;
 //! it does not inspect AST/MIR, source sites, Recipe keys, or physical IDs.
 
 use std::collections::BTreeSet;
@@ -20,27 +21,32 @@ static NEXT_CORE_METHOD_TARGET_BRAND: AtomicU64 = AtomicU64::new(1);
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CoreMethodHomeSchemaV1 {
     StringBoxText,
+    ArrayTextAppend,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CoreMethodHomeReceiverRelationV1 {
     StringBoxReceiver,
+    NamedArrayReceiver,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CoreMethodHomeParameterRelationV1 {
     I64Parameter,
+    TextRetainedByReceiver,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CoreMethodHomeResultRelationV1 {
     I64ToCaller,
     TextToCaller,
+    NoValue,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CoreMethodHomeAbiProfileV1 {
     StringBoxTextV1,
+    NamedArrayTextV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -89,6 +95,19 @@ impl CoreMethodInstanceTargetIssuerV1 {
     pub(crate) fn string_box_text(
         manifest_brand: CoreMethodManifestBrandV2,
     ) -> Result<Self, CoreMethodInstanceTargetRejectV1> {
+        Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::StringBoxText)
+    }
+
+    pub(crate) fn array_text_append(
+        manifest_brand: CoreMethodManifestBrandV2,
+    ) -> Result<Self, CoreMethodInstanceTargetRejectV1> {
+        Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::ArrayTextAppend)
+    }
+
+    fn with_schema(
+        manifest_brand: CoreMethodManifestBrandV2,
+        schema: CoreMethodHomeSchemaV1,
+    ) -> Result<Self, CoreMethodInstanceTargetRejectV1> {
         if manifest_brand != CORE_METHOD_MANIFEST_BRAND_V2 {
             return Err(CoreMethodInstanceTargetRejectV1::ManifestBrandMismatch);
         }
@@ -97,7 +116,7 @@ impl CoreMethodInstanceTargetIssuerV1 {
             .brand();
         Ok(Self {
             manifest_brand,
-            schema: CoreMethodHomeSchemaV1::StringBoxText,
+            schema,
             relation_brand,
             issued: BTreeSet::new(),
         })
@@ -125,15 +144,23 @@ impl CoreMethodInstanceTargetIssuerV1 {
         if row.lowering_tier().is_design_only() {
             return Err(CoreMethodInstanceTargetRejectV1::DesignOnlyRow);
         }
-        if self.schema != CoreMethodHomeSchemaV1::StringBoxText {
-            return Err(CoreMethodInstanceTargetRejectV1::UnsupportedHomeSchema);
-        }
-
         let generated = row.row();
-        if generated.receiver_box != "StringBox" {
+        let (receiver_name, effect, abi_profile) = match self.schema {
+            CoreMethodHomeSchemaV1::StringBoxText => (
+                "StringBox",
+                CoreMethodEffectV1::PureRead,
+                CoreMethodHomeAbiProfileV1::StringBoxTextV1,
+            ),
+            CoreMethodHomeSchemaV1::ArrayTextAppend => (
+                "ArrayBox",
+                CoreMethodEffectV1::MutatesShape,
+                CoreMethodHomeAbiProfileV1::NamedArrayTextV1,
+            ),
+        };
+        if generated.receiver_box != receiver_name {
             return Err(CoreMethodInstanceTargetRejectV1::ReceiverMismatch);
         }
-        if generated.effect != CoreMethodEffectV1::PureRead {
+        if generated.effect != effect {
             return Err(CoreMethodInstanceTargetRejectV1::EffectMismatch);
         }
 
@@ -160,6 +187,17 @@ impl CoreMethodInstanceTargetIssuerV1 {
                     ]
                     .into_boxed_slice(),
                     CoreMethodHomeResultRelationV1::TextToCaller,
+                )
+            }
+            (CoreMethodOp::ArrayPush, 1) => {
+                if generated.result_kind != CoreMethodResultKindV1::NoValue {
+                    return Err(CoreMethodInstanceTargetRejectV1::ResultMismatch);
+                }
+                (
+                    CoreMethodHomeReceiverRelationV1::NamedArrayReceiver,
+                    vec![CoreMethodHomeParameterRelationV1::TextRetainedByReceiver]
+                        .into_boxed_slice(),
+                    CoreMethodHomeResultRelationV1::NoValue,
                 )
             }
             (op, arity) => {
@@ -193,7 +231,7 @@ impl CoreMethodInstanceTargetIssuerV1 {
             receiver,
             parameters,
             result,
-            abi_profile: CoreMethodHomeAbiProfileV1::StringBoxTextV1,
+            abi_profile,
             execution_policy: CoreMethodHomeExecutionPolicyV1::NonSuspendingNonControl,
         })
     }

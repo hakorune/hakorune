@@ -219,7 +219,12 @@ constructor and dependent writes must remain associated through finalization;
 the selected backend must discharge that requirement before executable output.
 An unknown/incompatible provider or missing retained evidence rejects rather
 than falling back or treating the requirement as an unconditional Array fact.
-This design decision does not claim that the specialization is implemented.
+The source contract issuer is implemented for loop-body push with an
+unreassigned local receiver and literal Text or a same-owner selected Text
+producer. Value-use of push and constructor arguments/field overrides reject
+this bounded contract. The extended issuer is not yet activated by the
+production package; finalized obligation retention and backend discharge remain
+required before typed execution.
 
 
 The compiler's resolver retains named-construction syntax as a passive source

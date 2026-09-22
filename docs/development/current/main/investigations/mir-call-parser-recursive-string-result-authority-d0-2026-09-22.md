@@ -641,7 +641,9 @@ Use the existing function metadata boundary for a passive detection projection
 (allocation destination plus dependent write identities), while authoritative
 source rows stay in the finalized handoff. It survives clone/semantic refresh;
 it never grants receiver semantics. Following typed-array claim coverage,
-preflight requires exact one-to-one marker/retained-row/physical-input coverage.
+preflight requires exact one-to-one write-marker/retained-row/physical-write
+coverage. Several push rows may share one exact construction/binding; that
+shared allocation is validated once, not rejected as duplicate source issuance.
 Bare-module backend and the shared JSON root builder reject undischarged rows
 in both profiles. Selected C internal body projection may use the retained
 published view during preflight; that projection is not an executable artifact
@@ -656,3 +658,24 @@ the published source-backed entry; an earlier diagnostic stop is dependency
 evidence only. No whole-crate/Windows CI wait is introduced. Update owning
 README/reference and reuse lane guards; close the selected old edge in this
 same bounded series (maximum five implementation commits, no per-case cards).
+
+
+B2-I0 stage 1 (source contract, verified): existing target and
+resolver contract owners now carry ArrayTextAppend/NoValue under a move-only
+Named Array requirement. The extended CoreMethod source entry joins existing
+Text rows before parents, excludes ordinary/brand ownership, and rejects
+receiver reassignment, value demand and unsupported Text evidence. Production
+package activation waits for retention; lowering-state install explicitly
+rejects unretained Array obligations before Builder effects. This is the first
+implementation stage of the accepted series, not caller-switch completion.
+Quick-profile verification: new Named Array contracts **7/7**, existing source
+CoreMethod **7/7**, target/Home **7/7**, ledger **20/20**, lowering-state map-local
+**3/3**. Logs: `/tmp/b2-contract-test.log` and
+`/tmp/b2-contract-regression-{0,1,2,3}.log`. The initial test-helper compile error
+(Result tested as Option) is corrected; a zero-match module filter was discarded
+and rerun using the binary's actual `map_local::tests` path. No unresolved red
+remains in this focused scope. Ingress/pointer guards, formatting and diff check
+pass. This is implementation commit 1 of the bounded series; next connect
+artifact retention before package activation. No baseline, physical execution,
+production switch or deletion credit is claimed. The state parent is 754 lines;
+place new responsibility in its existing child modules before further growth.

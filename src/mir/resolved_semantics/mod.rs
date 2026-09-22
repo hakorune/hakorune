@@ -35,6 +35,10 @@ mod enum_match_demand;
 mod enum_variant_demand;
 mod explicit_extern_call;
 mod expression_source;
+mod named_array_requirement;
+pub(crate) use named_array_requirement::{
+    NamedArrayConstructionRequirementV1, NamedArrayRequirementIssueV1,
+};
 mod function_root;
 mod function_view;
 pub(crate) mod generic_g0;

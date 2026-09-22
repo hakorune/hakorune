@@ -55,6 +55,7 @@ pub(crate) enum SourceBoundCoreMethodTargetIssueV1 {
     DuplicateSite(SourceExprSiteV1),
     CatalogCollision(SourceExprSiteV1),
     ForeignCaller(CanonicalSameModuleCallableKeyV1),
+    NamedArray(crate::mir::resolved_semantics::NamedArrayRequirementIssueV1),
 }
 
 /// Issue all loop-local StringBox CoreMethod contracts for one resolver owner.
@@ -158,7 +159,7 @@ fn supported_placement(op: CoreMethodOp, arity: u32) -> Option<ResolvedLoopPlace
     }
 }
 
-fn nearest_loop<'a>(
+pub(super) fn nearest_loop<'a>(
     candidates: Vec<&'a crate::mir::resolved_semantics::SourceStmtSiteV1>,
 ) -> Result<
     Option<&'a crate::mir::resolved_semantics::SourceStmtSiteV1>,

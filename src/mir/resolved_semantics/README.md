@@ -459,6 +459,21 @@ Lambda syntax is borrowed through an AST-derived view and never cloned into a
 semantic product. A child declaration uses a child-local `BindingId`; raw IDs
 may repeat across owners without aliasing.
 
+## Named Array conditional requirement
+
+`named_array_requirement.rs` co-seals exact New/initializer/BindingRef and method
+source rows with the package's ordinary and brand declaration inventories.
+It retains the constructor, caller and Text argument sites under the same
+function owner. Only a zero-argument construction without field overrides and
+an unreassigned local receiver can enter this bounded contract. User/brand
+ownership remains outside builtin specialization. Literal Text or an existing
+same-owner Text-result call is required; source paths alone do not prove Text.
+
+The existing CoreMethod target/contract adds ArrayTextAppend with a retained
+Text parameter, MutatesShape and NoValue. This is conditional on the move-only
+Named Array requirement; it grants no physical provider or backend authority.
+The String target schema and existing S6C consumers remain unchanged.
+
 ## Loop CoreMethod/Home target I0
 
 `core_method_instance_target.rs` is the separate manifest-backed issuer for
