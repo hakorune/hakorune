@@ -176,14 +176,44 @@ raw `[V1]` or `[V0,V1]`; other routes, V1 absence, and incomplete evidence stay
 pre-effect rejects. The raw registry schedule and its neutral overlap tests do
 not change.
 
+### Pre-route product contract to settle
+
+The candidate product is structural transport, not a new semantic receipt:
+
+```text
+PreparedCallableGenericLoopSourceEvidenceV1
+  owner + exact parent/condition/body source contexts
+  same planner outcome's GenericLoopV1Facts
+  consumed CallableSemanticLoopHandoffPreEffectReceiptV1
+  CallableLoopCarrierRelationV1 issued from that pre-effect + V1 facts
+  ordered source items and source-target dispositions from the same probe
+  continuation/source-port coverage and session identity
+```
+
+Its issuer runs before route admission and has no Builder, physical `ValueId`,
+or selected route token. `carrier_relation::issue` must be split to consume
+the existing pre-effect/source context/V1 facts directly; it must not receive
+the later selected receipt. The source-target probe is consumed into ordered
+dispositions at the same boundary, so an empty or foreign probe cannot be
+reused by another route.
+
+The subsequent source admission consumes this move-only product together with
+the exact `PlanBuildOutcome` and raw `RecipeFirstRouteSelectionV1`. It may issue
+the existing V1 route token for `[V1]` or the source-authorized `[V0,V1]` case
+only when the product's owner, source sites, continuation rows and facts
+identity match. This co-seal is the constructor boundary that prevents a token
+from being paired with evidence borrowed from another source session. The
+product is discarded before effects on any mismatch.
+
 ## Ordered task queue
 
 1. **Census** — add or reuse one structural test helper that records the finite
    table above and the raw overlap-family rows. No new source receipt is issued.
-2. **MIR-CALL-PARSER-ARRAY-PUSH-SOURCE-EVIDENCE-D0** — specify the source-session identity, exact
-   continuation rows, carrier inputs, and source-item dispositions that can be
-   issued before route selection. Split the current 690-line GenericLoop source
-   owner before it approaches the 760-line design threshold.
+2. **MIR-CALL-PARSER-ARRAY-PUSH-SOURCE-EVIDENCE-D0** — accept the
+   `PreparedCallableGenericLoopSourceEvidenceV1` contract above: source-session
+   identity, exact continuation rows, carrier inputs, and source-item
+   dispositions issued before route selection. Split the current 690-line
+   GenericLoop source owner before it approaches the 760-line design threshold.
 3. **Route admission design** — place the evidence-backed `[V1]`/`[V0,V1]`
    decision in the existing registry/source owner without a bool, retry, or
    arbitrary empty token; bind raw selection, planner outcome, and evidence in
@@ -191,10 +221,10 @@ not change.
 4. **MIR-CALL-PARSER-ARRAY-PUSH-ROUTE-EVIDENCE-I0** — implement only after
    tasks 2–3 are accepted. Preserve raw route observability, keep all failures
    pre-effect, and split before 760 lines; 800 is a hard stop.
-4. **Focused evidence** — prove literal, substring, and two-push source rows
+5. **Focused evidence** — prove literal, substring, and two-push source rows
    for optimize off/on; prove value-demand rejection, missing carrier,
    duplicate/foreign route, and the existing raw overlap corpus remain rejects.
-5. **Return to B2** — only after one exact source route is selected, resume
+6. **Return to B2** — only after one exact source route is selected, resume
    BindingRef carrier projection and conditional NamedArray construction/
    receiver/NoValue co-seal. Then consume the existing ArrayElementWrite row.
 
