@@ -168,6 +168,8 @@ fn final_bindings(
         ));
     }
     plan.final_values
+        .raw_rows()
+        .unwrap()
         .iter()
         .zip(after_phis)
         .map(|((name, _), (value, inputs))| {

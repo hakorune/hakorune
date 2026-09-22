@@ -35,7 +35,9 @@ use crate::mir::builder::raw_loop_child_entry::PreparedCallableGenericLoopSource
 
 #[path = "generic/carrier_relation.rs"]
 mod carrier_relation;
-use carrier_relation::{CallableLoopCarrierRelationRejectV1, CallableLoopCarrierRelationV1};
+pub(in crate::mir::builder) use carrier_relation::{
+    CallableLoopCarrierRelationRejectV1, CallableLoopCarrierRelationV1, CallableLoopCarrierSlotV1,
+};
 
 use super::loop_cond;
 use super::loop_cond::CallableLoopCondSourceFactsV1;
@@ -683,3 +685,6 @@ mod structural_lease_tests;
 #[cfg(test)]
 #[path = "generic/carrier_relation_tests.rs"]
 mod carrier_relation_tests;
+
+#[cfg(test)]
+pub(in crate::mir::builder) use carrier_relation_tests::source_final_values_for_test;

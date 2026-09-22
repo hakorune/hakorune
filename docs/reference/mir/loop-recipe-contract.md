@@ -26,16 +26,18 @@ The one-shot source relation view borrows this product from the same Recipe.
 Physical slot consumption and branch/header/exit publication remain separate
 implementation work; this check does not prove SSA synchronization or cutover.
 
-## Accepted source loop completion transport (implementation pending)
+## Source loop completion transport (publication connection pending)
 
-Decision: the existing CoreLoopPlan final-values product will distinguish Raw
+Decision: the existing CoreLoopPlan final-values product distinguishes Raw
 name-cache rows from Source rows as exclusive variants. Source keeps its owner,
 loop site and Recipe slot/BindingRef with each physical value through remapping;
-labels grant no lookup authority. The existing completion owner publishes to the
-same callable ledger once, only after all Lower validation succeeds. Plan clones
+labels grant no lookup authority. The completion hook is placed after all Lower validation; current contexts
+reject Source rows until the scoped callable-ledger connection is implemented. Plan clones
 are transport copies, not another publication right. Missing source capability,
 foreign/duplicate/stale rows or incomplete slots reject without Raw downgrade.
-This design does not claim carrier/branch synchronization or production cutover.
+The source constructor consumes the existing semantic Recipe view and requires
+exact slot coverage. Raw-only consumers reject Source instead of using labels.
+This transport does not claim carrier/branch synchronization or production cutover.
 
 ## Callable source Local completion handoff — `MIR-CALLABLE-LOOP-LOCAL-COMPLETION-HANDOFF-R0`
 

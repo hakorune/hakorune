@@ -210,9 +210,9 @@ fn find_unremapped_value_id_plan(
                     return Some(hit);
                 }
             }
-            for (_k, v) in &loop_plan.final_values {
-                if let Some(&new) = value_map.get(v) {
-                    return Some((*v, new, "Loop.final_values"));
+            for (_label, v) in loop_plan.final_values.diagnostic_values() {
+                if let Some(&new) = value_map.get(&v) {
+                    return Some((v, new, "Loop.final_values"));
                 }
             }
             find_unremapped_value_id_frag(&loop_plan.frag, value_map)

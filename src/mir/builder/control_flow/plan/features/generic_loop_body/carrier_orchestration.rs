@@ -35,7 +35,7 @@ impl GenericLoopV1CarrierOrchestration {
         loop_var: &str,
         loop_var_init: ValueId,
         loop_var_current: ValueId,
-    ) {
+    ) -> Result<(), String> {
         finalize_generic_loop_v1_carriers(
             builder,
             loop_plan,
@@ -45,7 +45,7 @@ impl GenericLoopV1CarrierOrchestration {
             loop_var_current,
             &self.post_body_map,
             self.body_has_continue_edge,
-        );
+        )
     }
 
     #[cfg(test)]

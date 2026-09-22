@@ -285,12 +285,16 @@ fn legacy_semantic_digest(plan: &CorePlan) -> String {
         .expect("legacy sum after PHI");
     let i_final = loop_plan
         .final_values
+        .raw_rows()
+        .unwrap()
         .iter()
         .find(|(name, _)| name == "i")
         .expect("legacy i final")
         .1;
     let sum_final = loop_plan
         .final_values
+        .raw_rows()
+        .unwrap()
         .iter()
         .find(|(name, _)| name == "sum")
         .expect("legacy sum final")

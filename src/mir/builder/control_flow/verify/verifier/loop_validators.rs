@@ -139,7 +139,7 @@ pub(super) fn verify_loop(
     }
 
     // Verify final_values
-    for (i, (name, val)) in loop_plan.final_values.iter().enumerate() {
+    for (i, (name, val)) in loop_plan.final_values.diagnostic_values().enumerate() {
         if name.is_empty() {
             return Err(primitives::err(
                 "V6",
@@ -147,7 +147,7 @@ pub(super) fn verify_loop(
                 format!("final_values[{}] at depth {} has empty name", i, depth),
             ));
         }
-        primitives::verify_value_id_basic(*val, depth, &format!("final_values[{}]", i))?;
+        primitives::verify_value_id_basic(val, depth, &format!("final_values[{}]", i))?;
     }
 
     // Verify EdgeArgs layout (V13)

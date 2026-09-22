@@ -644,9 +644,9 @@ fn lower_nested_loop_depth1_item(
             &pre_loop_map,
             &post_loop_map,
             &mut plan,
-        );
+        )?;
 
-        apply_loop_final_values_to_bindings(builder, current_bindings, &plan);
+        apply_loop_final_values_to_bindings(builder, current_bindings, &plan)?;
         super::loop_cond_bc::sync_carrier_bindings(builder, current_bindings, carrier_phis);
         return Ok(vec![plan]);
     }
@@ -658,7 +658,7 @@ fn lower_nested_loop_depth1_item(
             body_recipe,
             LOOP_COND_ERR,
         )?;
-        apply_loop_final_values_to_bindings(builder, current_bindings, &plan);
+        apply_loop_final_values_to_bindings(builder, current_bindings, &plan)?;
         super::loop_cond_bc::sync_carrier_bindings(builder, current_bindings, carrier_phis);
         return Ok(vec![plan]);
     }
@@ -668,7 +668,7 @@ fn lower_nested_loop_depth1_item(
     let any_err = match lower_nested_loop_depth1_any(builder, condition, inner_body, LOOP_COND_ERR)
     {
         Ok(plan) => {
-            apply_loop_final_values_to_bindings(builder, current_bindings, &plan);
+            apply_loop_final_values_to_bindings(builder, current_bindings, &plan)?;
             super::loop_cond_bc::sync_carrier_bindings(builder, current_bindings, carrier_phis);
             return Ok(vec![plan]);
         }
@@ -678,7 +678,7 @@ fn lower_nested_loop_depth1_item(
     else {
         return Err(any_err);
     };
-    apply_loop_final_values_to_bindings(builder, current_bindings, &plan);
+    apply_loop_final_values_to_bindings(builder, current_bindings, &plan)?;
     super::loop_cond_bc::sync_carrier_bindings(builder, current_bindings, carrier_phis);
     Ok(vec![plan])
 }

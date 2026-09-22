@@ -305,3 +305,17 @@ Source binding / carrier correspondence (co-seal verified; physical publication 
   Labels are emission observations, not lookup authority. Existing carrier and
   join owners still need scoped physical publication; this prerequisite does
   not claim that synchronization, source-to-MIR cutover or runtime acceptance.
+
+
+Loop final-value transport:
+- `plan/loop_final_values.rs` owns the exclusive Raw/Source transport used by
+  CoreLoopPlan. Source rows are constructed from the co-sealed Recipe view and
+  exact slot/value inventory; raw adapters cannot read them as name rows.
+- The existing freshener remaps row values while retaining owner/site/slot/
+  BindingRef. Plan verification examines both variants. Cloning is not authority
+  to publish again.
+- Lower checks source completion capability before physical work and calls the
+  publication hook only after its final value-definition check. Current contexts
+  reject Source completion; scoped ledger publication is still the next task.
+- `source_final_values` tests cover real plan remap, slot coverage and rejection
+  before Builder effects. The existing raw plan corpus remains parity evidence.

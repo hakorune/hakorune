@@ -111,7 +111,7 @@ pub(in crate::mir::builder) fn alloc_generic_loop_v0_skeleton(
         block_effects,
         phis: Vec::new(),
         frag,
-        final_values,
+        final_values: final_values.into(),
         step_mode,
         has_explicit_step,
     };

@@ -292,3 +292,52 @@ fn rejects_foreign_owner_before_slot_issuance() {
         );
     });
 }
+
+pub(in crate::mir::builder) fn source_final_values_for_test(
+) -> crate::mir::builder::control_flow::plan::CoreLoopFinalValuesV1 {
+    with_receipt(&direct_source(), |receipt| {
+        receipt
+            .into_semantic_recipe()
+            .unwrap()
+            .with_source_relation_view_once(|view| {
+                let values = view
+                    .carrier_relation()
+                    .carriers()
+                    .iter()
+                    .enumerate()
+                    .map(|(i, row)| (row.slot(), crate::mir::ValueId::new(100 + i as u32)))
+                    .collect::<Vec<_>>();
+                crate::mir::builder::control_flow::plan::CoreLoopFinalValuesV1::from_source_view(
+                    &view, &values,
+                )
+                .unwrap()
+            })
+            .unwrap()
+    })
+}
+
+#[test]
+fn source_final_values_reject_missing_and_duplicate_slots() {
+    with_receipt(&direct_source(), |receipt| {
+        receipt
+            .into_semantic_recipe()
+            .unwrap()
+            .with_source_relation_view_once(|view| {
+                use crate::mir::builder::control_flow::plan::CoreLoopFinalValuesV1;
+                assert!(CoreLoopFinalValuesV1::from_source_view(&view, &[])
+                    .unwrap_err()
+                    .contains("slot-coverage"));
+                let slot = view.carrier_relation().induction();
+                assert!(CoreLoopFinalValuesV1::from_source_view(
+                    &view,
+                    &[
+                        (slot, crate::mir::ValueId::new(100)),
+                        (slot, crate::mir::ValueId::new(101))
+                    ]
+                )
+                .unwrap_err()
+                .contains("duplicate-slot"));
+            })
+            .unwrap()
+    });
+}

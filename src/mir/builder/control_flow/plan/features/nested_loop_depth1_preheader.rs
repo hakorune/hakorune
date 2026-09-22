@@ -121,7 +121,7 @@ mod tests {
             ],
             phis: vec![dummy_phi(preheader_bb, 200)],
             frag: Frag::new(header_bb),
-            final_values: vec![("i".to_string(), ValueId(200))],
+            final_values: vec![("i".to_string(), ValueId(200))].into(),
             step_mode,
             has_explicit_step,
         }

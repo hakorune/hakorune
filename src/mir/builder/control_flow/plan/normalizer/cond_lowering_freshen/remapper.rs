@@ -147,11 +147,9 @@ fn remap_loop_plan(
         .collect();
 
     // Remap final_values (references to outer scope, remap only)
-    loop_plan.final_values = loop_plan
+    loop_plan
         .final_values
-        .into_iter()
-        .map(|(k, v)| (k, remap_value_id(value_map, v)))
-        .collect();
+        .remap_values(|value| remap_value_id(value_map, value));
 
     // Remap frag
     loop_plan.frag = remap_frag_with_values(builder, block_map, value_map, loop_plan.frag);

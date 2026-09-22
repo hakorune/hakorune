@@ -13,13 +13,14 @@ pub(super) fn extend_nested_loop_carriers(
     pre_loop_map: &BTreeMap<String, crate::mir::ValueId>,
     post_loop_map: &BTreeMap<String, crate::mir::ValueId>,
     plan: &mut LoweredRecipe,
-) {
+) -> Result<(), String> {
     let CorePlan::Loop(loop_plan) = plan else {
-        return; // no-op for non-Loop plans
+        return Ok(()); // no-op for non-Loop plans
     };
     // Collect existing final_values names to avoid duplicates
     let existing_names: std::collections::BTreeSet<String> = loop_plan
         .final_values
+        .raw_rows()?
         .iter()
         .map(|(name, _)| name.clone())
         .collect();
@@ -68,6 +69,10 @@ pub(super) fn extend_nested_loop_carriers(
             next_val,
             format!("nested_outer_carrier_{}", var),
         ));
-        loop_plan.final_values.push((var.clone(), phi_dst));
+        loop_plan
+            .final_values
+            .raw_rows_mut()?
+            .push((var.clone(), phi_dst));
     }
+    Ok(())
 }

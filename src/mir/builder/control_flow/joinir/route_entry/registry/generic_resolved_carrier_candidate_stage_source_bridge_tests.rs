@@ -155,17 +155,23 @@ fn project_plan(plan: &CorePlan) -> PlanProjectionV1 {
     PlanProjectionV1 {
         outer_final_names: outer
             .final_values
+            .raw_rows()
+            .unwrap()
             .iter()
             .map(|(name, _)| name.clone())
             .collect(),
         outer_phi_tags: outer.phis.iter().map(|phi| phi.tag.clone()).collect(),
         nested_final_names: nested
             .final_values
+            .raw_rows()
+            .unwrap()
             .iter()
             .map(|(name, _)| name.clone())
             .collect(),
         outer_final_j: outer
             .final_values
+            .raw_rows()
+            .unwrap()
             .iter()
             .find(|(name, _)| name == "j")
             .map(|(_, value)| *value),

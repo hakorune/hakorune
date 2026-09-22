@@ -67,7 +67,7 @@ mod tests {
                 "test_phi".to_string(),
             )],
             frag: Frag::new(header_bb),
-            final_values: vec![("i".to_string(), ValueId(102))],
+            final_values: vec![("i".to_string(), ValueId(102))].into(),
             step_mode,
             has_explicit_step,
         }
@@ -528,7 +528,7 @@ mod tests {
                 wires: vec![],
                 branches: vec![],
             },
-            final_values: vec![("i".to_string(), ValueId(103))],
+            final_values: vec![("i".to_string(), ValueId(103))].into(),
             step_mode,
             has_explicit_step,
         };

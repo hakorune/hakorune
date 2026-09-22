@@ -482,7 +482,7 @@ where
         block_effects,
         phis,
         frag,
-        final_values,
+        final_values: final_values.into(),
         step_mode,
         has_explicit_step,
     }))

@@ -86,9 +86,9 @@ pub(in crate::mir::builder) fn finalize_generic_loop_v1_carriers(
     loop_var_current: crate::mir::ValueId,
     post_body_map: &BTreeMap<String, crate::mir::ValueId>,
     body_has_continue_edge: bool,
-) {
+) -> Result<(), String> {
     let mut phis = loop_plan.phis.clone();
-    let mut final_values = loop_plan.final_values.clone();
+    let mut final_values = loop_plan.final_values.raw_rows()?.to_vec();
     if body_has_continue_edge {
         phis.push(CorePhiInfo {
             block: loop_plan.step_bb,
@@ -145,6 +145,7 @@ pub(in crate::mir::builder) fn finalize_generic_loop_v1_carriers(
         publish_emission_cache(builder, var, phi_dst);
     }
     loop_plan.phis = phis;
-    loop_plan.final_values = final_values;
+    loop_plan.final_values = final_values.into();
     publish_emission_cache(builder, loop_var.to_string(), loop_var_current);
+    Ok(())
 }

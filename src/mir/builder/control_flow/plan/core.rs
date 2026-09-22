@@ -109,8 +109,8 @@ pub(in crate::mir::builder) struct CoreLoopPlan {
     /// Edge CFG fragment (generalized terminator structure)
     pub frag: Frag,
 
-    /// Final values for variable_map update (after loop exit)
-    pub final_values: Vec<(String, ValueId)>,
+    /// Exclusive raw-cache or exact-source final values (after loop exit)
+    pub final_values: super::CoreLoopFinalValuesV1,
 
     /// Loop step placement (ExtractToStepBb / InlineInBody)
     pub step_mode: LoopStepMode,

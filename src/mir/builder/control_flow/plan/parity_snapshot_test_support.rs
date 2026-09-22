@@ -304,7 +304,11 @@ fn normalize_loop(loop_plan: &CoreLoopPlan) -> Result<NormalizedLoopV1, &'static
             wires: loop_plan.frag.wires.clone(),
             branches: loop_plan.frag.branches.clone(),
         },
-        final_values: loop_plan.final_values.clone(),
+        final_values: loop_plan
+            .final_values
+            .raw_rows()
+            .expect("raw parity fixture")
+            .to_vec(),
         step_mode: loop_plan.step_mode,
         has_explicit_step: loop_plan.has_explicit_step,
     })

@@ -73,7 +73,7 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
         &facts.loop_var,
         skeleton.loop_var_init,
         skeleton.loop_var_current,
-    );
+    )?;
 
     Ok(())
 }

@@ -1,10 +1,10 @@
 ---
-Status: fast__B2_final_value_transport
+Status: fast__B2_keyed_carrier_publication
 Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 (same card; source relation before D)
-Implementation permission: task 3 transport BoxShape only; source activation awaits scoped publication verification; preserve D WIP
+Implementation permission: task 3 keyed carrier allocation per accepted mapping; source activation awaits scoped publication verification; preserve D WIP
 ---
 
 # Parser String result authority: corrected decision and task queue
@@ -13,7 +13,7 @@ Implementation permission: task 3 transport BoxShape only; source activation awa
 
 - **Current decision:** B2 Array retention/discharge is implemented; D exposed a source GenericLoop carrier synchronization gap. The scoped carrier/origin design and ordered tasks below replace the induction-only proposal.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** task 3 exclusive final-value transport through existing remap/verify/completion; then keyed carrier allocation and scoped ledger publication. D failures and Text lifetime/Fault remain open.
+- **Next ordered task:** final-value transport is verified (94 focused tests); connect exact carrier allocation and scoped ledger publication. D failures, branch integration and Text lifetime/Fault remain open.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -493,36 +493,14 @@ a closed implementation mapping; no Array semantic receipt is authorized. Requir
 README/reference updates belong to the corresponding implementation slice.
 
 
-### MIR-CALL-PARSER-ARRAY-PUSH-B2-SOURCE — landed prerequisite
+### B2-SOURCE landed prerequisite
 
-Change: extend the existing resolver expression inventory with passive New
-rows, retaining class syntax and exact ordered argument/field-initializer sites.
-Old semantic authority: none; no constructor/provider selection is performed.
-Contract: the existing shadow traversal and seal own observations. Initializer
-BindingRef joins by the same exact site. Reject duplicate rows at seal. Neither
-class spelling nor this observation establishes builtin identity or effects.
-Done: resolver-ledger tests retain nested child coverage and local binding
-relations; duplicate source rows reject; existing ledger tests remain green.
-Update resolver README and source contract reference in this same slice.
-Stop: any need to choose a provider, issue Array receiver semantics, activate
-push or change source acceptance belongs to B2 design, not this prerequisite.
-
-Premise correction: selected C named allocation dispatch emits
-`nyash.array.birth_h` directly, whose kernel export constructs ArrayBox without
-UnifiedBoxRegistry. Runtime registry capture is therefore not a prerequisite
-of this lane. Preserve named-construction semantics from the reference; the C
-selector alone is not source authority. Subsequent B2 design must co-seal source
-constructor classification and selected consumer capability. Provider support
-on other lanes remains outside this migration, not an env-read dependency.
-
-
-B2-SOURCE receipt: quick build 5m24s; new construction tests **3/3**, existing
-callable ledger **20/20** on the same rebuilt binary. Logs:
-`/tmp/b2-source-test.log`, `/tmp/b2-ledger-test.log`. Natural parsed New with
-nested construction and a non-construction argument, ordered field child
-coverage, and duplicate-site rejection pass. Changed Rust files are below 760
-lines. Formatting, pointer guard and diff checks pass. Source observations are
-now retained; no Array receiver semantics, caller cutover or deletion claimed.
+Resolver New observations retain class syntax and ordered child sites without
+issuing constructor/provider semantics; duplicate rows reject. New tests3 and
+ledger20 passed (quick5m24s); detail remains in Git at `9887d6213a` and logs
+`/tmp/b2-source-test.log`, `/tmp/b2-ledger-test.log`.
+Selected C allocation uses `nyash.array.birth_h`, not UnifiedBoxRegistry;
+runtime registry capture is not required, but source/consumer co-seal still is.
 
 ### B2 remaining contract: conditional Named Array requirement
 
@@ -990,3 +968,23 @@ that obligation or importing the raw ConditionalUpdateIf arm. Task 4 cutover and
 selected old-edge deletion remain mandatory; task 5 runtime proof stays separate.
 No Cargo or runtime probe was run for this design; worker review and static
 readback are design evidence only. Preserved D WIP is not included in this change.
+
+
+Task 3 transport receipt: CoreLoopPlan now carries exclusive Raw/Source final
+values through its actual remapper/verifier/lowerer. Source construction consumes
+the co-sealed Recipe view and rejects missing/duplicate slots. Raw consumers
+reject Source; default completion rejects before physical work. The publication
+hook is after the final typed-definition verification, but no context activates
+source ledger publication yet. Existing raw results and source admission remain.
+The accepted-plan corpus was separated without test removal (689 + 116 lines);
+all changed transport Rust files are <=690 lines. No production source cutover.
+Quick build **5m00s**, **542 warnings**. **94 distinct focused tests pass**:
+source22, child12, freshener4, corpus6, exact accumulated parity19, verifier25,
+lowerer6. The initial new4 are included in these cohorts, not counted twice.
+Logs: `/tmp/b2-final-values-final.log`, `/tmp/b2-final-values-cohort-{0..3}.log`,
+`/tmp/b2-final-values-parity-{0..18}.log`, `/tmp/b2-final-values-tail-{0,1}.log`.
+Initial mechanical compile errors were fixed; the zero-test parity filter was
+replaced with actual full paths and `--exact`. The interrupted intermediate
+build has no evidence credit. Formatting, ingress/pointer guards and diff check
+pass. Preserved D WIP remains excluded. Next: exact slot-keyed carrier entry,
+backedge and finalization in existing owners, then the scoped ledger connection.

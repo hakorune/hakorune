@@ -164,7 +164,7 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_source(
         block_effects,
         phis: phi_closure.phis().to_vec(),
         frag,
-        final_values: phi_closure.final_values().to_vec(),
+        final_values: phi_closure.final_values().to_vec().into(),
         step_mode,
         has_explicit_step,
     }))

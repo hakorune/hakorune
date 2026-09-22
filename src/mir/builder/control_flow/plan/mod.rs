@@ -32,6 +32,10 @@
 // 分割されたデータ構造定義。plan/mod.rs 配下でのみ使う内部層。
 mod call_source;
 mod core;
+mod loop_final_values;
+pub(in crate::mir::builder) use loop_final_values::{
+    CoreLoopFinalValuesV1, SourceLoopFinalValuesV1,
+};
 mod domain;
 mod effect;
 mod exit;

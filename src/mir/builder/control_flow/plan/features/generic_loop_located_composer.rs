@@ -227,7 +227,7 @@ pub(in crate::mir::builder) fn compose_located_generic_loop_v1<'plan>(
                 &loop_var,
                 skeleton.loop_var_init,
                 skeleton.loop_var_current,
-            );
+            )?;
             Ok::<CorePlan, String>(CorePlan::Loop(skeleton.plan))
         })?
     };

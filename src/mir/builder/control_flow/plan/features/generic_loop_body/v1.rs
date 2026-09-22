@@ -298,7 +298,7 @@ fn lower_body_stmt_v1(
             condition, body, ..
         } => {
             let nested = lower_nested_loop_plan(builder, condition, body, ctx)?;
-            apply_loop_final_values_to_bindings(builder, phi_bindings, &nested);
+            apply_loop_final_values_to_bindings(builder, phi_bindings, &nested)?;
             Ok(vec![nested])
         }
         ASTNode::Break { .. } | ASTNode::Continue { .. } | ASTNode::Return { .. } => {

@@ -272,7 +272,7 @@ mod tests {
             ],
             phis: vec![],
             frag: Frag::new(header_bb),
-            final_values: vec![],
+            final_values: vec![].into(),
             step_mode,
             has_explicit_step,
         };
@@ -352,7 +352,7 @@ mod tests {
             ],
             phis: vec![],
             frag: Frag::new(header_bb),
-            final_values: vec![],
+            final_values: vec![].into(),
             step_mode,
             has_explicit_step,
         };
@@ -385,7 +385,7 @@ mod tests {
 
         let result = super::loop_completion::finalize_loop_variables(
             &mut builder,
-            &[("i".to_string(), final_value)],
+            &vec![("i".to_string(), final_value)].into(),
             after_bb,
             &ctx,
         )

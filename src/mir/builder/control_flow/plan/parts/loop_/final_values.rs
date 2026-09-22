@@ -8,14 +8,15 @@ pub(in crate::mir::builder) fn apply_loop_final_values_to_bindings(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
     plan: &LoweredRecipe,
-) {
+) -> Result<(), String> {
     let CorePlan::Loop(loop_plan) = plan else {
-        return;
+        return Ok(());
     };
-    for (name, value_id) in &loop_plan.final_values {
+    for (name, value_id) in loop_plan.final_values.raw_rows()? {
         publish_emission_cache(builder, name.clone(), *value_id);
         if current_bindings.contains_key(name) {
             current_bindings.insert(name.clone(), *value_id);
         }
     }
+    Ok(())
 }

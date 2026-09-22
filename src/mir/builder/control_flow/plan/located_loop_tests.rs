@@ -247,7 +247,7 @@ fn loop_plan(
         ],
         phis: vec![],
         frag: Frag::new(header),
-        final_values: vec![],
+        final_values: vec![].into(),
         step_mode: LoopStepMode::ExtractToStepBb,
         has_explicit_step: false,
     })

@@ -90,7 +90,7 @@ pub fn emit_loop_frag(
 /// - Step 8: Returns Void value
 pub fn finalize_loop_variables(
     builder: &mut MirBuilder,
-    final_values: &[(String, ValueId)],
+    final_values: &crate::mir::builder::control_flow::plan::CoreLoopFinalValuesV1,
     after_bb: BasicBlockId,
     ctx: &dyn PlanLoweringContext,
 ) -> Result<Option<ValueId>, String> {
@@ -101,9 +101,13 @@ pub fn finalize_loop_variables(
     let debug = ctx.debug_enabled();
 
     // Step 6: Update variable_map for final values
-    for (name, value_id) in final_values {
-        publish_emission_cache(builder, name.clone(), *value_id);
+    if let crate::mir::builder::control_flow::plan::CoreLoopFinalValuesV1::Raw(rows) = final_values
+    {
+        for (name, value_id) in rows {
+            publish_emission_cache(builder, name.clone(), *value_id);
+        }
     }
+    // Source rows publish through the context only after the caller's final verification.
 
     // Step 7: Setup after_bb for subsequent AST lowering
     builder.start_new_block(after_bb)?;

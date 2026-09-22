@@ -272,7 +272,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v2_nested_minimal(
         block_effects,
         phis,
         frag,
-        final_values,
+        final_values: final_values.into(),
         step_mode,
         has_explicit_step,
     };

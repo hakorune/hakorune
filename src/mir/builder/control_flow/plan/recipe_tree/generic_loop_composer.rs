@@ -211,13 +211,17 @@ impl RecipeComposer {
             .map_err(|error| Freeze::contract(&error))?;
             builder.function_state.variable_ctx.variable_map =
                 carrier_orchestration.post_body_map().clone();
-            carrier_orchestration.finalize(
-                builder,
-                &mut skeleton.plan,
-                &generic_loop_v1.loop_var,
-                skeleton.loop_var_init,
-                skeleton.loop_var_current,
-            );
+            carrier_orchestration
+                .finalize(
+                    builder,
+                    &mut skeleton.plan,
+                    &generic_loop_v1.loop_var,
+                    skeleton.loop_var_init,
+                    skeleton.loop_var_current,
+                )
+                .map_err(|error| {
+                    crate::mir::builder::control_flow::plan::planner::Freeze::contract(&error)
+                })?;
             Ok(CorePlan::Loop(skeleton.plan))
         })
     }
