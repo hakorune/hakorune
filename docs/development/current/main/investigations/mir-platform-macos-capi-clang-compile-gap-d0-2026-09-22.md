@@ -53,6 +53,25 @@ that native MSVC-targeting clang rejects the extension
 (`tools/checks/windows_harness_c_export_smoke.sh`). That is corroborating
 static evidence, not macOS execution evidence.
 
+## Static owner inventory — 2026-09-22
+
+Starting at the 38 indented includes inside
+`compile_doc_compat_pure`, the recursive include closure contains 110
+`*.inc` files. A static signature scan finds 795 `auto` helper declarations
+(777 distinct names). The largest state-coupled groups are
+`hako_llvmc_ffi_same_module_method_views.inc` (52),
+`hako_llvmc_ffi_lowering_plan_metadata.inc` (47),
+`hako_llvmc_ffi_compiler_state.inc` (37),
+`hako_llvmc_ffi_same_module_function_emit.inc` (30), and
+`hako_llvmc_ffi_pure_compile_generic_lowering.inc` (28).
+
+This inventory rules out treating the failure as one isolated helper or one
+Darwin spelling switch. The canonical compiled owner is still the single
+`hako_llvmc_ffi.c` translation unit; the existing include partitions are
+state-coupled implementation slices, not independent ABI owners. A portable
+file-scope seam therefore needs an explicit state/issuer design before any
+mechanical rewrite is authorized.
+
 ## Boundary inventory
 
 Includes: the C compiler -> `hako_llvmc_ffi.c` -> pure compile include graph
