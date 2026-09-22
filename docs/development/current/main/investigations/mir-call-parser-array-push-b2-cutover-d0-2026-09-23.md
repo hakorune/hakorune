@@ -1,8 +1,8 @@
 ---
-Status: design_stop__selected_arraypush_generic_ingress_census
+Status: closeout__selected_arraypush_ingress_delete_set_empty
 Task: MIR-CALL-PARSER-ARRAY-PUSH-B2-CUTOVER-D0
 Parent: mir-call-parser-array-push-b2-negative-i0-2026-09-23
-NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-CUTOVER-I0
+NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B3-IF-LOOPCOND-D0
 Implementation permission: false; design and finite census only. Do not switch a caller, add a semantic receipt, or delete shared MethodCall code in this card.
 ---
 
@@ -107,6 +107,42 @@ wrapper.
    fallback or a permissive `Ok(None)`. The successor I0 may implement one
    already-mapped edge only after the authority chain and delete set are closed.
 
+## Read-only D0 census and decision
+
+The six positive rows are the three source bodies in
+`published_backend_view/named_array_source_tests.rs`—literal text, a
+`substring(0, 1)` result, and two literal pushes—under optimization off and on.
+Each row reaches the existing package issuer, the exact
+`CallableLoopSourceExpressionPortWithRelationV1::exact_source_statement_call`
+take, `CoreEffectPlan::NamedArrayPush`, one retained `ArrayElementWrite`, the
+named-array validation, and the existing C-frame query. No row enters the
+generic MethodCall emitter. The value-demand negative remains terminal before
+the published consumer.
+
+The missing-row branch is also bounded. `take_source_array_push` returns
+`Ok(None)` only when the exact site has no named-array row (or the source port
+is the raw/default port); that is the legitimate generic MethodCall family for
+unselected calls. A present named row with wrong method or arity is a named
+`named-array-call-shape` error, and package finish rejects an unconsumed row or
+unemitted write. The installed brand-catalog package issuer is the only
+production source of the selected row, so this census found no production path
+that silently loses a selected ArrayPush row.
+
+The generic MethodCall helper has three shared normalizer callers: the raw
+facade, LoopCond utility, and GenericLoop direct-associated body. Its physical
+known-array writer is shared by `effect_emission.rs`, `unified_emitter.rs`,
+and `boxcall_emit.rs`. Because those callers serve raw and unrelated methods,
+there is no exclusive physical delete candidate for the selected B2 cohort.
+The D0 delete decision is therefore
+`DeleteSetEmpty__SharedMethodCallStillLive`; no wrapper or synthetic caller is
+created to make deletion appear non-empty.
+
+The next real source candidate is `StringHelpers.split_lines`: its push inside
+the Loop's `If` is outside the straight-line B2 body, while its substring tail
+push is outside the Loop entirely. Both remain excluded here and are handed to
+`MIR-CALL-PARSER-ARRAY-PUSH-B3-IF-LOOPCOND-D0` for a separate source/LoopCond
+authority decision.
+
 ## Required evidence and explicit stops
 
 The D0 design must name the exact focused tests and guards from B2, plus a
@@ -116,6 +152,6 @@ all reds as current-change, known baseline debt, or informational census.
 
 Do not add `Verified*`/`Prepared*` semantics, a second physical carrier map,
 new receiver/name classifiers, a runtime serializer claim, a production
-caller switch, or a deletion merely to improve the deletion ratio. If no
-exclusive old edge exists after the census, retain the shared MethodCall path
-and close D0 with an explicit empty delete set.
+caller switch, or a deletion merely to improve the deletion ratio. This D0
+closes with the explicit empty delete set above; the successor is design-only
+until the LoopCond/If source owner is named.

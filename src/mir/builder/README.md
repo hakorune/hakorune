@@ -691,8 +691,10 @@ state tests for call-shape drift, duplicate consumption, missing source rows,
 and missing physical emission, plus the adapter session-drift terminal. The
 session mutation used for that last test is `#[cfg(test)]` only; production has
 no mutation hook. The next design census treats the NamedArrayPush ingress as
-already selected and separately inventories the shared generic MethodCall edge;
-it does not claim a new caller switch or a deletion.
+already selected and records the shared generic MethodCall delete set as empty;
+it does not claim a new caller switch or a deletion. The next bounded design is
+the nested Loop-If ArrayPush in `StringHelpers.split_lines`; its post-Loop tail
+push stays separate until a source statement owner is chosen.
 
 ### Callable Loop Local completion handoff R0
 
