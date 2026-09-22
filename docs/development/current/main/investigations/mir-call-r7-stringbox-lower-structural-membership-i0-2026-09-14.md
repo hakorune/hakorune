@@ -131,6 +131,14 @@ this probe; the structural guard and source inspection remain the evidence for
 the type-tag branch until the selected static-call boundary has an accepted
 owner or terminal.
 
+The probe used the existing direct-canary environment
+(`NYASH_DISABLE_NY_COMPILER=1`, `HAKO_DISABLE_NY_COMPILER=1`, and
+`NYASH_USING_AST=1`). Repeating it through the legacy Rust parser therefore
+does not avoid the boundary: the same static-call terminal is reached during
+the imported Hako execution. This rules out compiler-selection drift as the
+cause. Enabling VM fallback would bypass the selected fail-fast contract and
+is not valid acceptance evidence, so it remains unopened.
+
 ## Recovery result and next baseline (2026-09-14)
 
 The compatibility-root recovery I0 is closed in
