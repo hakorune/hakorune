@@ -91,27 +91,31 @@ issued the existing target inventory and result catalog, and selected
 were:
 
 - target: `ParserStringUtilsBox.starts_with/3`;
+- source witness: `parser_program_box.hako:164` (`starts_with("" + s, 0, ...)`);
 - result disposition: `ExactI64 { required_i64_arguments: [] }`;
 - call-row result: absent (`None`);
 - publication handoff: present only with `required_callee_i64_arguments == []`.
 
 Therefore the repository currently does **not** expose a sealed formal
 `[1]` for this row.  The prior claim that the same call row retained formal
-`[1]` and call-site `[]` came from a different proof/fixture and cannot be
-used for this merged parser acceptance.  The T4b field rename remains a
-mechanical clarification, but it does not prove the selected parser contract.
+`[1]` and call-site `[]` came from a different substitution fixture where the
+callee returned its second parameter.  `starts_with/3` returns only literal
+`0`/`1`; its `i` parameter is used only in conditions/indexing, so the
+existing result proof correctly emits an empty requirement.  The T4b field
+rename remains a mechanical clarification, but it does not prove the
+selected parser contract.
 
 The active mode is consequently `design_stop`.  No publication take, source
 route ordinal widening, caller switch, VM repair, fallback, or old-edge
-deletion is permitted until the existing source-result owner answers one
-bounded question: whether `starts_with/3`'s formal `i` is intentionally
-unobservable under the current result-proof rule, or whether an existing
-source-proof owner can issue that formal requirement without inventing a new
-authority.  The next queue is:
+deletion is permitted until the existing owners answer one bounded question:
+does this selected route require a distinct ABI/type requirement for actual
+argument ordinal `1`, or is the result-publication contract correctly
+`ExactI64/[]` for the literal-`0` call?  The next queue is:
 
 1. **T4a authority recheck:** census the exact `starts_with/3` proof and its
-   call-site substitution, including the condition-only-unknown rule; record
-   the accepted formal contract or a named typed rejection.
+   call-site substitution, including the condition-only-unknown rule; decide
+   whether the existing route's hard-coded `[1]` is an ABI requirement or a
+   stale result tuple.
 2. **T4b guard decision:** only after T4a, add or revise the focused guard in
    the existing result/publication owner.  If no existing owner can issue the
    formal requirement, keep this family at `NoSafeSlice`.
