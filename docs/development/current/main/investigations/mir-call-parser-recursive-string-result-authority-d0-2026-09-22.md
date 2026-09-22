@@ -4,7 +4,7 @@ Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 (same card; source relation before D)
-Implementation permission: behavior-preserving typed V2 operation-verifier split only; preserve D WIP and source admission
+Implementation permission: conditional NamedArray source/Core co-seal and existing package-to-ArrayElementWrite handoff only; preserve runtime ABI, production cutover and unrelated D WIP
 ---
 
 # Parser String result authority: corrected decision and task queue
@@ -987,14 +987,14 @@ Loop-contract is 164 pass plus the parent-reproduced
 source_bound_core_rejects_derived_carrier_and_duplicate_effect_mismatch red;
 clean b985b86539 reproduces it, so known baseline debt. No new route is claimed.
 
-Next bounded design/task: conditionally issue NamedArrayReference only when the
-retained source construction requirement is present. Co-seal the source owner,
-construction site, receiver binding and NoValue write site in the existing
-common Core/JoinSig, then require the existing package collector to consume
-exactly one ArrayElementWrite row. Reject missing construction, foreign owner,
-duplicate construction, value-demand, reassignment and residual rows before
-any physical allocation/write observation. Reuse the existing writer and
-NamedArrayEmissionCollectorV1; do not add a new class authority, infer from
-ArrayBox names/handles, or activate the production caller until the selected
-natural source fixture reaches the exact writer and the old method-name edge
-can be retired.
+Next bounded design/task: repair source GenericLoop carrier projection before NamedArray co-seal. Exact source reads consume ledger coverage, then the same
+resolver BindingRef must project to the existing loop carrier; a body-only ValueId must never flow into header/exit. Source authority + issuer are resolver
+BindingRef/loop schedule and the existing source port/carrier owner; names, ledger ValueIds,
+MIR repair, dumps, and ArrayBox nominal types are not. Reject
+missing BindingRef-to-carrier or post-body-step correspondence before
+ArrayElementWrite allocation. Pass the scoped relation through source lowering, preserve induction/extra-carrier separation, and cover zero-iteration,
+continue/break/return, shadow/rebind and nested-loop rejection. Natural
+ArrayPush fixtures (literal, substring, two pushes, optimize off/on) must show
+no dominance error and one writer row. Only then co-seal construction/receiver/
+NoValue in existing Core/JoinSig and consume one collector row; residual,
+foreign, duplicate, value-demand and reassignment remain rejects. No caller switch, old-edge deletion, or runtime Text/Fault claim precedes that evidence.

@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0"
 current_execution_cohort = "mir_call_parser_array_push_b2_i0"
-current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0__NamedArrayLogicalClassPending"
+current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B2-I0__SourceBindingRefCarrierProjectionPending"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "Accepted__NamedArrayLogicalClassCoSeal"
+current_design_stop = "Accepted__SourceBindingRefCarrierProjectionBeforeNamedArray"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -33,9 +33,11 @@ and runtime evidence remain pending; explicit physical witnesses do not replace 
 Stage 4 connects retained-view serialization and exact allocation query in the
 existing static V2 invocation: 37 focused tests pass, one pre-existing external
 C-driver test ignored, quick 4m18s, warnings 543. No real C-query execution claimed.
-D issuer/test changes are uncommitted: value-demand rejection passes, natural
-literal push fails dominance. MIR confirms body %11 is read by header and exit;
-body increment also reads init0 instead of the existing loop carrier.
+D issuer/test changes are uncommitted: value-demand rejection passes, while the
+natural ArrayPush fixture fails dominance. MIR confirms a body-defined ValueId is
+read by header/exit and the step reads the initializer instead of the loop
+carrier. The next bounded task is BindingRef-keyed source-to-carrier projection;
+NamedArray construction/receiver/NoValue co-seal follows only after it is green.
 Design queue fixes source BindingRef/slot co-seal and branch/loop publication.
 Origin identity/kill policy accepted; concrete source continuation mapping remains open.
 Declaration scope retained: 37 focused tests pass, quick 4m32s, warnings 542.
@@ -61,8 +63,6 @@ next_execution_card_path = "docs/development/current/main/investigations/mir-cal
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
-accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
-accepted_free_function_execution_card = "MIR-CALL-FREE-FUNCTION-PUBLICATION-I0 (landed at 042cd56aa2; existing FreeFunction key preserved through Atomic Publish and typed kind=3 selected-C ingress; mixed source-to-exe result 3; known whole-lib red remains separate)"
 parked_declared_instance_selected_c_task = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0 (ParkedSealed__PublishedTargetAndBackendCoverageMissing; language me.method retained)"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_wasm_hako_backend_task = "WASM-HAKO-W0-PUBLISHED-MIR-INGRESS-I0 (ParkedSealed__WasmCanonicalReaderAndHakoIngressMissing; post-R6 migration, not an R7 prerequisite; the Rust LegacyCallV0 reader must stop or quarantine before R7; implementation_permission=false; Rust fate=StopNow__FreezeBeforeR7__HakoDefaultAtW2__RetireAtW3)"
