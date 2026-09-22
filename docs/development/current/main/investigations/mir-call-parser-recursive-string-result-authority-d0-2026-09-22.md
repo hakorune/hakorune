@@ -1,10 +1,10 @@
 ---
-Status: design_stop__B2_scoped_physical_publication
+Status: fast__B2_final_value_transport
 Task: MIR-CALL-PARSER-RECURSIVE-STRING-RESULT-AUTHORITY-D0
 Date: 2026-09-22
 Parent: mir-call-parser-loopbreak-composite-source-cutover-i3-2026-09-22.md
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 (same card; source relation before D)
-Implementation permission: task 2 verified; next is task 3 scoped physical publication design; preserve D WIP
+Implementation permission: task 3 transport BoxShape only; source activation awaits scoped publication verification; preserve D WIP
 ---
 
 # Parser String result authority: corrected decision and task queue
@@ -13,7 +13,7 @@ Implementation permission: task 2 verified; next is task 3 scoped physical publi
 
 - **Current decision:** B2 Array retention/discharge is implemented; D exposed a source GenericLoop carrier synchronization gap. The scoped carrier/origin design and ordered tasks below replace the induction-only proposal.
 - **Current implementation status:** B1 catalog 92, publisher 5, Loop route 20, source Bool Call-to-Branch 1, and merged dependency/inventory 2 tests pass. Complete parser acceptance is still open.
-- **Next ordered task:** task 2 co-seal is verified (33 focused tests); close task 3 physical/branch publication mapping before implementation. D dominance/merged-parser failures and Text lifetime/Fault remain open.
+- **Next ordered task:** task 3 exclusive final-value transport through existing remap/verify/completion; then keyed carrier allocation and scoped ledger publication. D failures and Text lifetime/Fault remain open.
 - **Production stop line:** no ArrayPush activation from manifest metadata alone; no Bool/String runtime ABI completion claim from MIR evidence.
 - **Retirement finish line:** source statement caller switch and removal of its selected name-dependent edge in the same bounded series; shared legacy retirement remains T5/R0.
 
@@ -359,59 +359,12 @@ admission, but does not earn shared legacy-retirement credit. T5/R0 remain
 explicit production switch/deletion work after required acceptance.
 
 
-### S1 closeout receipt (2026-09-22)
+### Landed S1/B1 checkpoint history
 
-Final quick-profile build: catalog **90/90**; the same rebuilt binary ran
-publisher **5/5**, ingress **4/4**, and exact merged-route module **2/2**.
-Logs: `/tmp/string-s1-closeout.log` and `/tmp/string-s1-closeout-{0,1,2}.log`.
-The two merged tests verify the exact Bool dependency terminal and retained
-selected I64 inventory, not successful parser compilation. The old assertion
-red is superseded by a source-identity-pinned dependency test; the original
-String projection defect is fixed. All current-change reds observed in this
-slice are resolved or explicitly represented by that open acceptance boundary.
-
-Ingress guard, StringBox membership guard, pointer guard and diff check pass.
-README/reference match the implemented normal-result contract. S1 replaces
-String-as-non-I64 classification only for proved forms and uses one publisher;
-no shared legacy edge was deleted. B1 is the next accepted source-to-MIR slice,
-followed by outstanding canonical acceptance/runtime ownership/cutover/R0.
-
-
-### B1 implementation checkpoint
-
-The touched semantic lowering state was already 902 lines at S1 HEAD.
-Behavior-preserving commit `2f2f683122` extracted source call publication and
-consumption to `normal_callable_semantic_lowering_state/source_call_publication.rs`
-(parent 748 lines, extracted file 164). Quick library type-check passed; this
-separate commit does not widen a result contract. B1 modifies that extracted
-owner, with the same inventory fields retained in its parent.
-
-B1 result/catalog, unconditional String/Bool projection, Bool MIR publisher
-and four composite admission/consumption checks are implemented in the working
-tree. Quick library type-check passed; focused test verification is active.
-Full source-to-MIR Bool condition evidence and canonical parser recheck are
-still required before closeout. No executable Bool ABI or parser completion
-is claimed.
-
-
-B1 interim evidence: catalog **91/91**, existing publisher **5/5**, and existing
-Loop route tests **19/19** pass. Merged static inventory passes; full lifecycle
-now stops at `LoopCondRouteRejected(SourceCallOutsideSelectedFamily)` for
-`[Body(5), LoopBody(1), IfThen(0)]`, replacing the earlier is_space Bool terminal.
-The old dependency assertion is a current-change test failure, not baseline
-credit. Worker readback places this after successful LoopCond selection: the
-method item has neither a selected static relation nor a matching CoreMethod
-row. Owner/receiver classification is still unproven; diagnostic context has
-been added and requires the next build.
-
-A temporary attempt to inspect skip_ws in the rejected compilation's partial
-module failed because that function was unavailable there. That assertion was
-removed; it proves no Bool destination/branch property. Required next work:
-obtain source-owned Bool Call-to-Branch evidence from a completed compilation,
-add explicit direct-I64/composite-negative and publisher Bool tests, identify
-the new source item, and pin its classified terminal. B1 remains uncommitted
-and open; do not count the forward terminal movement as full acceptance.
-
+S1 catalog90/publisher5/ingress4/merged2 passed; this was MIR dependency evidence,
+not full parser/runtime acceptance. B1's interim reds were superseded by its
+closeout below. Source publication extraction `2f2f683122` preserved behavior.
+Detailed interim experiments and receipts remain in Git at `231ef5f9e0`.
 
 ### B1 integration / next-owner audit (2026-09-22)
 
@@ -996,3 +949,44 @@ Focused source/lease **21** + raw child-entry **12** = **33 pass**, quick **4m08
 If terminal is SourceIdentityMissing. Formatting, ingress/pointer guards and
 diff check pass. Source files <=744 lines. Task 3 publication remains design;
 D issuer/published-view WIP is excluded from this verified co-seal change.
+
+
+#### Task 3 physical transport Decision (2026-09-22)
+
+Decision: reuse existing skeleton/carrier/PHI/exit/completion owners; replace source name lookup with co-sealed keys and an exclusive final-values product.
+Source authority + canonical issuer: existing semantic Recipe owns slot/BindingRef; existing physical owners allocate values; callable ledger publishes once after Lower verification.
+Non-authority: diagnostic labels, separate stale ValueId sidecars, plan clone, raw Select support or historical origin index.
+Fail-fast boundary: full owner/site/slot inventory before allocation and after remap; no Source-to-Raw downgrade or missing-slot default.
+Smallest next slice: BoxShape migration of CoreLoopPlan.final_values and all its current consumers; no source route activation in that slice.
+Non-claims: transport alone does not repair SSA, authorize origin preservation, admit LoopCond shapes, or retire source dispatch.
+
+One read-only worker audited the downstream tail; main read source port/ledger,
+remapper and final validation. The finite change sequence is:
+
+| Existing owner | Required change / verification |
+| --- | --- |
+| CoreLoopPlan.final_values | Whole-product exclusive Raw(name/value rows) or Source(owner, loop site, slot/BindingRef/value/diagnostic-label rows). Mixed authority rows are unrepresentable; source relation is borrowed from its existing issuer, not inferred. Transport is not a new semantic receipt. |
+| cond_lowering_freshen remapper/verifier, loop_lowering, loop_completion, parts/loop_/final_values | Remap values in the same product, retain source identity unchanged, validate and dispatch by variant. Audit every current caller; the initial search finds 46 plan files, not a repository-wide zero-caller proof. Raw adapters preserve behavior. Missing source capability rejects. |
+| skeletons/generic_loop + generic_loop_body/carriers | Separate name lookup from shared allocation. Raw wrapper supplies names; source supplies exact BindingRef entry values and opaque slots. Keep existing representation owner and PHI constructors. |
+| carrier_orchestration + parts/exit | Keep the same key through header/body/backedge/final rows. Continue/Break PhiArgs and EdgeArgs already use ValueId and need no new schema. Missing post-body slot rejects; no fallback to name/header. |
+| source port + callable ledger + dynamic-origin owner | Scope values and active_origins together. Validate current exact values before snapshot/restore; keep consumed sites, completed locals, receipts and historical origin index monotonic. Source locals never replace same-name outer bindings. |
+| PlanLoweringContext + source context | Borrow the same source port/ledger in the adapter callback for exact completion; raw context rejects Source completion. No registry, new issuer, or second physical owner. |
+
+Source completion must occur **after** `verify_typed_values_are_defined` in
+`loop_lowering`, which currently follows `finalize_loop_variables`. Validate all
+rows before any ledger write; commit once for the active owner/site scope.
+A plan clone/freshen copies transport, never publication permission. On error,
+the existing unpublished function transaction owns discard; no retry/fallback.
+Ordinary assignment still kills active origin. Apply the previously accepted
+identity/kill rule only with existing Recipe continuation evidence; no PHI-based
+origin inference or rollback of source consumption.
+
+Transport BoxShape is first; raw parity plus remap and wrong-context negatives
+must pass before source wiring. Then exact carrier allocation/scoped publication
+must pass natural zero/one/multiple iterations, extra-carrier/local-shadow and
+strict D SSA tests. Shared branch state remains in task 3: establish source
+admission and continuation coverage before its semantic change, without dropping
+that obligation or importing the raw ConditionalUpdateIf arm. Task 4 cutover and
+selected old-edge deletion remain mandatory; task 5 runtime proof stays separate.
+No Cargo or runtime probe was run for this design; worker review and static
+readback are design evidence only. Preserved D WIP is not included in this change.
