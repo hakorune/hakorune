@@ -389,3 +389,21 @@ full merged `ParserProgramBox.parse/2 -> ParserStringUtilsBox.starts_with/3`
 source-to-MIR invocation has completed; that canonical acceptance remains
 the next T4c evidence step.  T5 caller switch and R0 caller-zero/deletion
 remain unopened, and the I147 warning cohort stays paused.
+
+## Canonical merged-parser recheck — 2026-09-22
+
+The existing full-source lifecycle test still passes at its named terminal,
+`static-result-ingress/target-only/RecursiveDependency`.  The merged source
+inventory separately observes and selects the `starts_with/3` LoopBody row,
+but the lifecycle does not reach its physical consumer because an earlier
+target-only dependency terminates the package first.  This is dependency
+evidence, not T4c publication acceptance.  The target-only row must remain a
+typed fail-fast terminal; filtering it, adding a fallback, or switching the
+caller would invalidate the accepted package boundary.
+
+T4c therefore remains open for a bounded bridge decision: reconcile the
+existing target-only terminal with the selected composite acceptance using
+the current result/publication authority, or record a named `NoSafeSlice` if
+no existing owner can carry that dependency.  No new result receipt,
+synthetic fixture, VM route, T5 switch, or R0 deletion is authorized by this
+recheck.
