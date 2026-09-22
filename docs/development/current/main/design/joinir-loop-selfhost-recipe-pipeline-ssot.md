@@ -1802,9 +1802,23 @@ implementation may add only these caller-zero projections; Builder/session,
 lifecycle, Text residence, route, fallback/retry, production callers, and
 publication remain closed.
 
-S6D entry is a design stop, not an automatic caller-zero producer. Its exact
-current task is
-[`JOINIR-LOOP-M8-LOOPCOND-EXITS-S6D`](../investigations/joinir-loop-m8-loopcond-exits-s6d-2026-09-23.md): identify typed predicate values, a connected Recipe/JoinSig issuer, a named production consumer, and an old-edge deletion in the same bounded series. Until that tuple is established, S6D has no Recipe producer or production-selection claim.
+S6D D0 result (2026-09-23): `NoSafeSlice` for the current LoopCond cohort.
+The source projection records condition sites and branch exits, but not typed
+predicate values/effects; the local planner Recipe uses AST/StmtRef structure
+and has no portable Recipe keys or JoinSig continuation. No connected issuer
+co-seals those products for this route, and the existing raw LoopCond consumer
+has no selected replacement caller plus exclusive old-edge deletion in one
+bounded series. Reopen only when one existing semantic-program issuer can
+co-seal the exact source-to-Recipe/JoinSig relation and name that same-series
+consumer/cutover/delete tuple. The current compatibility route remains intact;
+S6D has no Recipe producer or production-selection claim.
+
+The next ordered M8 row, S6E, is not ready: the normalized Generic corpus is
+inventoried, but route observations and checked dispositions are incomplete.
+Its observation front currently stops at the GenericLoop carrier-type design
+boundary in `generic-loop-source-to-portable-recipe-ssot.md`; do not count an
+unobserved case as a decline or repeat the corpus census. S6G remains closed
+until the ordered producer rows and all-route coverage are complete.
 
 ### M10 pre-cutover authority seal — caller-zero only
 
