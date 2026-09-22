@@ -1,10 +1,10 @@
 ---
-Status: design_stop__generic_route_overlap
+Status: design_stop__pre_route_source_evidence
 Task: MIR-CALL-PARSER-ARRAY-PUSH-ROUTE-OVERLAP-D0
 Date: 2026-09-22
 Parent: mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md
 NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 (after overlap decision)
-Implementation permission: design and census only; do not relax source route exclusivity, weaken the natural ArrayPush fixture, add a fallback, or switch a production caller
+Implementation permission: design and read-only census only; separate pre-route source evidence from route admission before changing the existing GenericLoop owner
 Classification: BoxShape route-authority decision; no new semantic receipt
 ---
 
@@ -99,38 +99,98 @@ Record for each row:
 | B | `arr.push(s.substring(0, 1))` | release, optimize off/on | pending census | pending census | pending census | source route boundary |
 | C | two literal pushes | release, optimize off/on | observed present | observed present | `[V0,V1]` | named overlap stop |
 
-The census must also run the existing raw overlap fixtures so a source fix does
-not change their expected V0-only, V1-only, or genuine-overlap classifications.
-No route may be selected from the number of calls or the ArrayBox spelling.
+The existing route census was executed on the changed tree:
 
-## Decision to make
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib \
+  'mir::builder::control_flow::joinir::route_entry::registry::generic_selection_matrix_tests' \
+  -- --nocapture
+result: 9 passed, 0 failed, 542 warnings
+```
 
-Choose exactly one of these existing-owner outcomes after the census:
+The `generic_both_fixture_records_overlap_without_deciding_precedence` row
+still records `[GenericLoopV0, GenericLoopV1]`. The V0 lowerer and V1 direct
+body lowerer both accept ordinary `MethodCall` statements, so this is a real
+raw semantic overlap, not an accidental source-only extraction discrepancy.
+The source two-push acceptance red is therefore a current design blocker, not
+known baseline debt; the first literal and substring rows passed before the
+third row stopped at route selection.
 
-1. **Overlap is accidental extraction overlap.** Extend the existing
-   `GenericLoopV0`/`GenericLoopV1` shape policy so a V1-owned body cannot emit a
-   V0 product. The shared registry then produces `[V1]` for the admitted source
-   shape while preserving raw V0 fixtures and genuine ambiguity rejection.
-2. **Overlap is semantically real.** Keep the raw overlap and add an explicit
-   source-aware route decision to the existing Facts/Recipe owner, carrying a
-   co-sealed source continuation requirement. The source issuer may consume the
-   resulting token only when the V1 source contract is complete; it may not
-   filter the raw schedule or retry V0.
+## Accepted decision — source admission over a real raw overlap
 
-The decision must name the counterexample that remains rejected. A one-line
-`routes.contains(V1)` preference, a method-name check, or an unconditional
-`Ok(None)` is not a decision and is forbidden.
+Keep the raw V0/V1 overlap unchanged. Do not change global V0/V1 precedence,
+because raw compatibility fixtures intentionally observe both products and
+V0 remains a valid physical lowerer for ordinary method effects. Instead,
+extend the existing source GenericLoop Facts/Recipe owner with an explicit
+source route evidence check. The evidence is co-sealed from the same source
+BindingRef/continuation mapping and the already-issued V1 carrier relation;
+it is not inferred from method name, call count, MIR, or `ArrayBox` spelling.
+
+The source issuer may consume the existing V1 route token when:
+
+```text
+raw route set contains V1 (including the exact [V1] case or the admitted
+source-overlap case [V0,V1])
+and the source continuation/BindingRef/carrier relation is complete
+and every admitted statement has a V1 source port mapping
+```
+
+It must reject before Builder effects when V1 is absent, when V0/V1 overlap is
+present without the source evidence, or when any source item is missing,
+foreign, duplicated, value-demanded, or reassigned. The raw schedule remains
+observable; the source evidence is an admission contract, not a filter or a
+retry of V0. Existing route selection tests must continue to prove that raw
+overlap has no global winner.
+
+The counterexample that remains rejected is the same two-route shape without a
+complete source carrier/continuation mapping. A `routes.contains(V1)` shortcut,
+method-name preference, unconditional `Ok(None)`, or issuer-side V0 drop is
+not this decision and remains forbidden.
+
+## Authority-cycle audit — implementation remains stopped
+
+The read-only owner audit on 2026-09-23 found this current dependency order:
+
+```text
+issue_once
+  -> verify_located_generic_loop_v1 (currently exact [V1] only)
+  -> Ready
+  -> claim_all / consume_pre_effect
+  -> CallableGenericLoopV1SemanticRecipeIssuerV1
+  -> carrier_relation::issue
+```
+
+`carrier_relation::issue` currently receives the selected source Facts receipt,
+so it cannot be used as evidence to create the route token that is required to
+create that receipt. Adding an overlap exception with a bool or an empty seal
+would allow evidence from a different source session to be paired. This is a
+design blocker, not a reason to relax the exact-selection check.
+
+The next design must therefore define one move-only pre-route product from the
+same source context, planner `GenericLoopV1Facts`, and pre-effect binding rows.
+It must include exact source-item/continuation coverage and the existing carrier
+relation inputs without requiring the selected route token. A later source
+admission step co-seals that product with the raw `RecipeFirstRouteSelectionV1`
+and the same planner outcome. Only the resulting source admission may accept
+raw `[V1]` or `[V0,V1]`; other routes, V1 absence, and incomplete evidence stay
+pre-effect rejects. The raw registry schedule and its neutral overlap tests do
+not change.
 
 ## Ordered task queue
 
 1. **Census** — add or reuse one structural test helper that records the finite
    table above and the raw overlap-family rows. No new source receipt is issued.
-2. **Authority decision** — inspect V0/V1 extraction, `v1_shape_blocks_v0`,
-   `pred_generic_loop_v0`, `pred_generic_loop_v1`, and route selection together;
-   write the selected outcome and negative counterexample in this card.
-3. **Small implementation** — edit only the selected existing overlap/Facts
-   owner. Preserve the source issuer's exact-selection check and keep all route
-   failures pre-effect. Split a file before 760 lines; 800 is a hard stop.
+2. **MIR-CALL-PARSER-ARRAY-PUSH-SOURCE-EVIDENCE-D0** — specify the source-session identity, exact
+   continuation rows, carrier inputs, and source-item dispositions that can be
+   issued before route selection. Split the current 690-line GenericLoop source
+   owner before it approaches the 760-line design threshold.
+3. **Route admission design** — place the evidence-backed `[V1]`/`[V0,V1]`
+   decision in the existing registry/source owner without a bool, retry, or
+   arbitrary empty token; bind raw selection, planner outcome, and evidence in
+   one constructor boundary.
+4. **MIR-CALL-PARSER-ARRAY-PUSH-ROUTE-EVIDENCE-I0** — implement only after
+   tasks 2–3 are accepted. Preserve raw route observability, keep all failures
+   pre-effect, and split before 760 lines; 800 is a hard stop.
 4. **Focused evidence** — prove literal, substring, and two-push source rows
    for optimize off/on; prove value-demand rejection, missing carrier,
    duplicate/foreign route, and the existing raw overlap corpus remain rejects.
@@ -140,14 +200,14 @@ The decision must name the counterexample that remains rejected. A one-line
 
 ## Stop conditions and acceptance
 
-Stop before code if the census cannot distinguish accidental extraction overlap
-from a real semantic overlap. Do not add a new `Verified*`/`Prepared*` product,
-source fallback, route retry, or backend-specific exception. Do not claim the
-ArrayPush row or delete its old edge from a local green test.
+The raw-overlap decision is resolved, but the authority-cycle design stop is
+still open. Before its pre-route product and admission constructor are accepted,
+do not add a new `Verified*`/`Prepared*` semantic product, source fallback,
+route retry, or backend-specific exception. Do not claim the ArrayPush row or
+delete its old edge from a local green test.
 
 Acceptance for this D0 is the named decision, finite table, preserved negative
 route evidence, and a pointer/card update. It is not production cutover. The
 existing uncommitted carrier-projection and NamedArray test WIP remains a
 handoff artifact until this decision is accepted; it is not a receipt or a
 caller switch.
-
