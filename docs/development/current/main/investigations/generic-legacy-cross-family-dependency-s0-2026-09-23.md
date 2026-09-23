@@ -1,5 +1,5 @@
 ---
-Status: design_stop__edge_classification_contract_open
+Status: fast__c1_edge_write_landed__c2_c6_pending
 Task: GENERIC-LEGACY-CROSS-FAMILY-DEPENDENCY-S0
 Date: 2026-09-23
 Parent: JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E
@@ -132,3 +132,34 @@ test-evidence-retire:
   producer+observation cohort) and does not unblock Row F —
   `LOOP-PRODUCTION-SELECTION-D0` remains gated on the M10 seal
   series and M8 all-route coverage.
+
+## Landed writes (2026-09-23) — C1 old AST/facts authority
+
+- Counting method (documented, deterministic): anchored module-path
+  tokens only — `generic_loop_canon::<rel>`,
+  `canon::generic_loop::<rel>`, `generic_loop::<rel>` attributed to
+  `plan::generic_loop` (prefix `plan::` or bare token inside
+  `plan/**`; `canon::`/`skeletons::` prefixes excluded), the two
+  `policies/generic_loop_*` stems, plus `mod <stem>` declarations
+  restricted to the true parent module file. Bare-stem fallback was
+  rejected (non-discriminating for `utils`/`error`/`tests` stems).
+  Callers inside the 147-file legacy-Generic candidate set are
+  excluded — edge records measure the boundary, not internal edges.
+- C1 census result (83 files): **64 generic-only** (zero outside
+  production callers; test callers recorded where present) /
+  **8 neutralize-first** (outside production callers must be
+  disconnected at M10b before R1 deletion) / **11 shared-retain**
+  (`plan/generic_loop/located_representation/**` held as the
+  located-handoff candidate subtree for M11-R1).
+- Outside production callers recorded: `plan/generic_loop/mod` 15,
+  `generic_loop_canon/mod` 5 (shared `facts/extractors/*` +
+  `plan/facts/loop_continue_only_facts` call
+  `generic_loop_canon::canon_update_for_loop_var`),
+  `plan/generic_loop/facts{,/extract}` 4+2, `facts_types` 3,
+  `facts/canon/generic_loop.rs` 1 (parent `facts/canon.rs` decl),
+  both `policies/generic_loop_*` 1 each.
+- Guard: `generic_legacy_corpus_universe_guard_test.py` 6/6 OK;
+  no guard vocabulary change needed (`_check_edge` requires
+  non-sentinel fields only).
+- Remaining cohorts C2–C6 stay unwritten (zero edge rows); they are
+  the next bounded write slices under this row.
