@@ -50,7 +50,7 @@ parked_wasm_hako_backend_task = "WASM-HAKO-W0-PUBLISHED-MIR-INGRESS-I0 (ParkedSe
 parked_macos_platform_capability_task = "MIR-PLATFORM-MACOS-CAPABILITY-D0 (census and CAPI owner audit complete; macos-26-arm64 provider PASS, CAPI BackendCapabilityMissing at clang compile; NoSafeSlice__NoPhysicalLoweringContextOwner; implementation_permission=false; reopen only after a physical lowering-context owner is accepted; see docs/development/current/main/investigations/mir-platform-macos-capability-d0-2026-09-15.md and docs/development/current/main/investigations/mir-platform-macos-capi-clang-compile-gap-d0-2026-09-22.md)"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
+current_update_policy = "docs/development/RULES.md"
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"

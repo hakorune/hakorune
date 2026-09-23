@@ -159,7 +159,7 @@ public_contract_owners > 0:
 
 Before adding another precursor row, classify the intended semantic Promote
 vertical as one responsibility with the tuple below. Stop/Delete instead use
-the [action-specific entry contract](current-docs-update-policy-ssot.md#implementation-entry-and-retirement-conditions).
+the [construction/retirement proof timing](../../../RULES.md#4-建設と旧経路退役の証明タイミング).
 A finite caller set may share one owner; it is not competing authority.
 
 ```text

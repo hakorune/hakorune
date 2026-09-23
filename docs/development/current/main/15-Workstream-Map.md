@@ -7,7 +7,7 @@ Related:
   - docs/development/current/main/CURRENT_STATE.toml
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
-  - docs/development/current/main/design/current-docs-update-policy-ssot.md
+  - docs/development/RULES.md
 ---
 
 # Workstream Map
@@ -29,7 +29,7 @@ Related:
 2. the file named by `latest_workstream_card`
 3. the file named by `latest_card_path`
 4. the file named by `method_anchor`
-5. `docs/development/current/main/design/current-docs-update-policy-ssot.md`
+5. `docs/development/RULES.md`
 
 ## Immediate Sequence
 
@@ -37,8 +37,9 @@ Related:
 2. Read `work_mode` before choosing an action.
 3. When `work_mode = "design_stop"`, perform only the selected census/design
    row and stop before code, fixtures, caller switch, or old-path deletion.
-4. When `work_mode = "fast"`, implement only the named bounded production
-   cell, switch its caller, delete its selected old edge, and prove parity.
+4. When `work_mode = "fast"`, implement only the named bounded slice. Keep
+   construction closeout distinct from production cutover and old-edge
+   retirement; apply the active card and RULES exit conditions.
 5. When `work_mode = "closeout"`, classify evidence and synchronize the
    owning docs/guard/commit without widening the implementation.
 

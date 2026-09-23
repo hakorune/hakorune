@@ -22,7 +22,7 @@ Non-claims: no physical traversal proven, production switch, old-edge deletion, 
 ## Corrected entry premise and target choice
 
 The former requirement for an already-connected LoopCond issuer was circular.
-The [entry policy](../design/current-docs-update-policy-ssot.md#implementation-entry-and-retirement-conditions)
+The [construction/retirement rule](../../../RULES.md#4-建設と旧経路退役の証明タイミング)
 allows naming owners and consumers to implement/connect; implementation,
 tests, production switch and caller-zero are migration outputs. A shared
 MethodCall owner may remain while the selected old responsibility is retired.

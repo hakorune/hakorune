@@ -6,7 +6,7 @@ Related:
   - CURRENT_TASK.md
   - docs/development/current/main/10-Now.md
   - docs/development/current/main/investigations/docs-pointer-inventory-2026-06-09.md
-  - docs/development/current/main/design/current-docs-update-policy-ssot.md
+  - docs/development/RULES.md
 
 # Restart Quick Resume
 
@@ -18,59 +18,12 @@ git status -sb
 bash tools/checks/current_state_pointer_guard.sh
 ```
 
-Run heavier gates only when the next slice is ready:
+重いgateはactive cardが要求したときだけ実行する。Cargoのjob数・同時実行・
+profileの規則は[開発ルール](../../RULES.md#6-テストと計算資源)に従う。
 
-```bash
-bash tools/checks/dev_gate.sh quick
-# standalone check only when the gate did not already cover it
-CARGO_BUILD_JOBS=4 cargo check
-```
-
-同じcheckoutの別terminalやbackground terminalでCargoを重ねて起動しない。
-開始前に既存の `cargo`/`rustc` が終わっていることを確認し、Cargoは常に1本ずつ
-実行する。`dev_gate.sh` も子Cargoを最大4 jobへ制限する。`--release`、
-`--nocapture`、`RUSTFLAGS`切替の扱いとOOM停止線は
-[`agent-current-entry-contract-ssot.md`](design/agent-current-entry-contract-ssot.md#local-cargo-resource-safety-contract)
-に従う。
-
-`Waiting for background terminal` は完了ではない。再起動・強制終了後は、まず
-次を実行して残存プロセスが空になるまで新しい Cargo を起動しない。
-
-```bash
-git status -sb
-ps -eo pid,ppid,stat,etime,pcpu,pmem,args | rg '[c]argo|[r]ustc|[s]ccache|[r]ustdoc' || true
-```
-
-focused test の `0 passed` / `0 tests` は green の証拠ではなく、filter の誤りとして
-完全な test path を `--exact` で選び直す。warning を隠すための
-`RUSTFLAGS=-Awarnings` 再試行や `--nocapture` の常用も行わない。
-
-### Observed forced-termination pattern (2026-08-18)
-
-The interrupted run printed a very large warning transcript from
-`cargo test -q ... -- --nocapture`, matched zero tests, and then remained in
-`Waiting for background terminal` while several background terminals were
-still active. A second Cargo command with a different `RUSTFLAGS` was also
-queued. The host kernel log later confirmed `global_oom` and
-`Out of memory: Killed process ... (codex)` while Cargo/rustc workers were
-resident (Codex anonymous RSS was about 10.3 GiB). The forced termination was
-therefore host-level OOM, not a Rust panic or an application-code test crash.
-
-Prevent recurrence with this fixed sequence:
-
-1. Run one focused library target with `CARGO_BUILD_JOBS=4 cargo test
-   --profile quick --lib <filter>` and omit `--nocapture`.
-2. Treat `0 passed`/`0 tests` as a filter error; rerun the complete test path
-   with `--exact` only after confirming the name.
-3. Never start a second Cargo command, warning-suppression retry, or
-   `--release` build while another top-level Cargo process is active.
-4. After interruption, inspect `cargo`/`rustc` processes and wait or stop
-   redundant children before resuming. Only an empty process check permits
-   the next Cargo invocation.
-
-Use `--release` only for an active card's final evidence. Day-to-day
-iteration uses `--profile quick`; its parallel code generation is the
-repository's intended fast path.
+中断後は`cargo`/`rustc` processが終了したことを確かめてから再開する。
+focused testが0件ならfilterを見直す。資源と検証の詳細は
+[開発ルール](../../RULES.md#6-テストと計算資源)に集約している。
 
 ## Current Lane
 
@@ -92,9 +45,9 @@ repository's intended fast path.
 - when `work_mode = "design_stop"`, pause implementation and resolve the named design dependency in the frontier card; goal status follows the session contract
 - read `latest_card_path` before editing
 - apply the phase-specific proof timing in
-  [`current-docs-update-policy-ssot.md`](design/current-docs-update-policy-ssot.md#asymmetric-construction-and-retirement-rigor):
-  build after the bounded mapping is fixed; require caller-zero and acceptance
-  before old-edge removal
+  [開発ルール](../../RULES.md#4-建設と旧経路退役の証明タイミング): start
+  construction after the bounded mapping is fixed; require caller-zero and
+  acceptance before old-edge removal
 - continue only the exact `current_blocker_token` and `latest_card_path` from
   `CURRENT_STATE.toml`; this mirror does not select or rename executable rows
 - read `method_anchor` for the in-place production replacement law

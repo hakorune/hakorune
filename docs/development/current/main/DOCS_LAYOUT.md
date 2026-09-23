@@ -25,19 +25,21 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
 
 ## Operational rule map
 
-| Question | Sole rule owner |
-| --- | --- |
-| Where do I start? | local ignored `AGENTS.md`; tracked entry contract below |
-| What is selected now? | `CURRENT_STATE.toml` and its active card; state, not reusable policy |
-| When may migration start, and when may old code be deleted? | [Entry and retirement conditions](design/current-docs-update-policy-ssot.md#implementation-entry-and-retirement-conditions) |
-| What follows NoSafeSlice or an internal design gap? | [Family-local action scheduler](design/agent-current-entry-contract-ssot.md#family-local-action-scheduler) |
-| When do I use a worker or reset a repeated premise? | [Worker contract](design/agent-current-entry-contract-ssot.md#worker-consultation-contract) / [premise reset](design/agent-current-entry-contract-ssot.md#premise-reset-circuit-breaker) |
-| What counts as a useful documentation update? | [Docs loop breaker](design/current-docs-update-policy-ssot.md#docs-loop-breaker-policy) |
-| Where should a document live? | this file |
+開発の進め方（スライス、詰まったとき、文書の種類、完了の定義）は
+[`docs/development/RULES.md`](../../RULES.md) が唯一の正本。
 
-`CURRENT_TASK.md`, restart/Now mirrors, and local `AGENTS.md` route to these
-owners. They do not add independent stop conditions. Current cards apply the
-rules to evidence; a card's mistaken inference does not override the rules.
+| Question | Owner |
+| --- | --- |
+| 進め方のルールは？ | [`docs/development/RULES.md`](../../RULES.md) |
+| 今どこを進めている？ | `CURRENT_STATE.toml` と `CURRENT_TASK.md` |
+| family scheduler / worker / optional NekoCode の補助手順は？ | `design/agent-current-entry-contract-ssot.md` |
+| 文書をどこに置く？ | this file |
+
+`design/current-docs-update-policy-ssot.md`の作業モード・建設と退役の証明条件は
+[`docs/development/RULES.md`](../../RULES.md)に移行済み。同policyの文書lifecycle・registry・
+specialized validation clausesは個別移行まで有効。`design/agent-current-entry-contract-ssot.md`はcurrent-entryと
+work-modeの旧規則を持たない一方、family-local scheduler、worker consultationとoptional NekoCodeの補助手順を
+保持する。RULESと食い違う場合はRULESを優先する。
 
 ## Current Ownership Contract
 
@@ -47,7 +49,9 @@ rules to evidence; a card's mistaken inference does not override the rules.
   - backend role is selected by `CURRENT_STATE.toml` and the active card;
     never freeze a current VM/AOT/JIT priority here
   - do not embed historical command tables or fixed phase roadmaps; keep only compact pointers to tracked archive/reference docs
-  - tracked contract:
+  - tracked operational rules:
+    `docs/development/RULES.md`
+  - worker and optional-tool supporting procedures:
     `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
   - optional tool procedures belong in that tracked contract; measured tool feedback
     belongs in `investigations/`, not the local router
@@ -133,10 +137,16 @@ rules to evidence; a card's mistaken inference does not override the rules.
   - COREPLAN-FOUND-000/001 owner for the first selected CorePlan foundation
     family; keeps remaining compatibility normalizer work as BoxShape-only
     lego-ization before any accepted-shape expansion
+- `docs/development/RULES.md`
+  - sole owner of work-mode selection, slice execution, validation, and
+    construction-versus-retirement proof timing
+- `design/agent-current-entry-contract-ssot.md`
+  - supporting family-local scheduler, worker-consultation, and optional
+    NekoCode procedures; old
+    current-entry/work-mode rules are superseded by `docs/development/RULES.md`
 - `design/current-docs-update-policy-ssot.md`
-  - current docs update policy and mirror-thinning contract
-  - sole procedural owner of action-specific implementation entry versus
-    retirement conditions; agent routers and pipeline cards reference it
+  - remaining docs-lifecycle, registry, and specialized validation policy;
+    its work-mode and construction/retirement clauses are superseded by RULES
 - `design/mirbuilder-inplace-replacement-policy-ssot.md`
   - active Rust MirBuilder migration law: one live production Builder,
     responsibility-by-responsibility caller switch, immediate selected old-path
@@ -347,7 +357,7 @@ Rule:
 - do not let `05-Restart-Quick-Resume.md` or `15-Workstream-Map.md` regrow into landed-history ledgers either.
 - if a block already has a better owner, replace it with a short summary plus a link.
 - new or materially revised active design SSOTs start with the five-field
-  Current Capsule defined by `current-docs-update-policy-ssot.md`; archived
+  Current Capsule defined by the owning current policy; archived
   history and landed reference pages are exempt.
 - new task names use a shallow `FAMILY-SLICE-STAGE` form. Parentage and order
   belong in card metadata/queues rather than recursively appended suffixes.
@@ -466,11 +476,9 @@ Rule:
 - 小さい棚卸しや guard 文言修正は Ghost Task として commit message に残す。
 - 新しい numbered row は lane 変更、実装境界変更、durable keeper/nonkeeper、
   新 contract / ABI / verifier / measurement policy の時だけ作る。
-- active executionは
-  `design/current-docs-update-policy-ssot.md` の Lightweight Execution Card
-  Lawに従い、transition / responsibility / atomic delete / preserve /
-  acceptance / hard stop の六項目だけを残す。land後は手順を短いcloseoutへ
-  置換し、rolling cardへ積み重ねない。
+- active executionの簡潔な記録は、作業範囲・acceptance・parked items・
+  non-claims・実行結果をactive cardに置く。旧Lightweight Execution Card
+  Lawを新規の作業選択ルールとして再利用しない。
 
 ### `docs/development/current/main/phases/`（Phaseログ）
 

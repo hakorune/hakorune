@@ -10,9 +10,10 @@ navigation-only viewであり、文書を掲載してもauthorityには昇格さ
 
 ## Read First Now
 
+- development rules: `docs/development/RULES.md`
 - current-state SSOT: `docs/development/current/main/CURRENT_STATE.toml`
 - root restart anchor: `CURRENT_TASK.md`
-- agent current-entry contract: `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
+- family scheduler, worker, and optional-tool procedures: `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
 - one-screen work order: `docs/development/current/main/15-Workstream-Map.md`
 - canonical rough task order: `docs/development/current/main/design/kernel-implementation-phase-plan-ssot.md`
 - current axis / artifact / task placement: `docs/development/current/main/design/kernel-replacement-axis-ssot.md`
@@ -85,7 +86,7 @@ navigation-only viewであり、文書を掲載してもauthorityには昇格さ
 - Policy: compiler expressivity first（selfhost workaround を止める）: `docs/development/current/main/design/compiler-expressivity-first-policy.md`
 - AI-verifiable development North Star（正しい高性能コードへの検証済み収束反復を最小化する長期方針）: `docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md`
 - Local patch prevention（同じ失敗クラス2回パッチで stop-the-line / docs-first audit）: `docs/development/current/main/design/local-patch-prevention-ssot.md`
-- Agent current-entry contract（`AGENTS.md` は local instruction entry、current-state は `CURRENT_STATE.toml` 優先）: `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
+- Family scheduler / worker / NekoCode procedures: `docs/development/current/main/design/agent-current-entry-contract-ssot.md`
 - Policy: lego composability first（完成品キット増殖を止める）: `docs/development/current/main/design/lego-composability-policy.md`
 - Selfhost parser/mirbuilder migration order（single-developer 進行順SSOT）: `docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md`
 - De-Rust compiler thin-rust roadmap（selfhost closeout 後の境界縮退SSOT）: `docs/development/current/main/design/de-rust-compiler-thin-rust-roadmap-ssot.md`

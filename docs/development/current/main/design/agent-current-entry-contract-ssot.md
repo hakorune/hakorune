@@ -1,7 +1,7 @@
 ---
-Status: SSOT
+Status: Supporting reference; current-entry and work-mode clauses superseded
 Date: 2026-09-04
-Scope: `AGENTS.md` の current-first 読み順と historical section の扱い。
+Scope: worker consultation と optional NekoCode の補助手順。旧current-entry規則は歴史資料。
 Related:
   - AGENTS.md
   - docs/development/current/main/CURRENT_STATE.toml
@@ -13,6 +13,10 @@ Related:
 ---
 
 # Agent Current Entry Contract
+
+> [!IMPORTANT]
+> **規則移行（2026-09-23）**: current entry・work mode・slice運用の正本は [`docs/development/RULES.md`](../../../RULES.md)。
+> この文書は family-local scheduler、worker consultation、optional NekoCode の補助手順に限って参照し、旧entry規則は適用しない。
 
 ## Current Capsule
 
@@ -85,7 +89,7 @@ they never select it. All restart mirrors and guards must follow this field.
 | Closeout | the selected slice has been edited and tested | classify evidence, update owning docs, commit/push or retain blocker | all Done items observable; otherwise the row remains active |
 
 Apply the action-specific
-[entry and retirement conditions](current-docs-update-policy-ssot.md#implementation-entry-and-retirement-conditions).
+[entry and retirement conditions](../../../RULES.md#4-建設と旧経路退役の証明タイミング).
 For semantic changes, state the source -> Facts -> Recipe -> failure mapping.
 For Stop, name the existing boundary, callers and terminal rejection; no new
 semantic issuer is required. A worker report, local green test or compatibility

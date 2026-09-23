@@ -351,7 +351,7 @@ JSON selected-C route. Zero-call physical admission is a separate concern.
 ### Exact reopen trigger
 
 No further broad census is permitted. Apply the action-specific
-[entry/retirement contract](current-docs-update-policy-ssot.md#implementation-entry-and-retirement-conditions).
+[construction/retirement proof timing](../../../RULES.md#4-建設と旧経路退役の証明タイミング).
 The following tuple is for semantic Promote. Stop instead uses an existing
 boundary owner, its callers and settled rejection/isolation contract; Delete
 requires caller-zero at physical removal, possibly after same-series cutover.

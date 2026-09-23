@@ -43,13 +43,14 @@ retire_when = "generated navigation replaces this view"
 
 [[documents]]
 path = "agent-current-entry-contract-ssot.md"
-role = "authority"
+role = "supporting"
 owner = "INDEX.md"
-precedence_parent = "AGENTS.md"
+precedence_parent = "docs/development/RULES.md"
+classification_basis = "DOCS_LAYOUT: family-local scheduler, worker consultation, and optional NekoCode procedures; entry/work-mode rules are superseded"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "root agent entry contract is replaced explicitly"
+superseded_by = "docs/development/RULES.md"
+retire_when = "worker and optional-tool procedures move to a dedicated supporting reference"
 
 [[documents]]
 path = "current-docs-archive-policy-ssot.md"
@@ -99,10 +100,11 @@ path = "current-docs-update-policy-ssot.md"
 role = "authority"
 owner = "INDEX.md"
 precedence_parent = "CURRENT_STATE.toml"
+classification_basis = "DOCS_LAYOUT:RULES supersedes work-mode and entry/retirement clauses; remaining docs-lifecycle policies stay active"
 sidecars = []
 supersedes = []
-superseded_by = ""
-retire_when = "current documentation update policy is replaced explicitly"
+superseded_by = "docs/development/RULES.md"
+retire_when = "remaining docs-lifecycle clauses and linked guard contracts are migrated"
 
 [[documents]]
 path = "mirbuilder-final-pipeline-ssot.md"

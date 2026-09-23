@@ -6,7 +6,7 @@ Related:
   - docs/development/current/main/CURRENT_STATE.toml
   - CURRENT_TASK.md
   - docs/development/current/main/05-Restart-Quick-Resume.md
-  - docs/development/current/main/design/current-docs-update-policy-ssot.md
+  - docs/development/RULES.md
 ---
 
 # Now

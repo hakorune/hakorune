@@ -1,8 +1,9 @@
 ---
-Status: SSOT
+Status: Active for unmigrated docs-lifecycle clauses; work-mode and entry rules superseded
 Date: 2026-09-01
 Scope: current docs update policy for restart/current-lane pointers.
 Related:
+  - docs/development/RULES.md
   - AGENTS.md
   - docs/development/current/main/design/agent-current-entry-contract-ssot.md
   - docs/development/current/main/CURRENT_STATE.toml
@@ -17,6 +18,10 @@ Related:
 ---
 
 # Current Docs Update Policy
+
+> [!IMPORTANT]
+> **規則移行（2026-09-23）**: lane選択・作業モード・スライス運用・建設と退役の証明条件は [`docs/development/RULES.md`](../../../RULES.md) が正本。
+> この文書は具体的な文書lifecycle・registry・specialized validation clausesだけを個別移行まで所有する。旧lane taxonomyやper-turn sequenceは選択規則として使わず、RULESと競合する箇所ではRULESを優先する。
 
 ## Current Capsule
 

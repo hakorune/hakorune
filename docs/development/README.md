@@ -24,7 +24,9 @@
 - 設計ディスカッション
 
 ## 🎯 重要な参照先
-- **進行状況**: `current/CURRENT_TASK.md`
+- **開発ルール**: [`RULES.md`](RULES.md)
+- **進行状況**: [`current/main/CURRENT_STATE.toml`](current/main/CURRENT_STATE.toml) とそのactive card
+- **ドキュメントの置き場所**: [`current/main/DOCS_LAYOUT.md`](current/main/DOCS_LAYOUT.md)
 - **開発計画**: `roadmap/phases/`
 - **技術提案**: `proposals/`
 - **ドキュメントのステータス/入口ポリシー**: `doc-status-policy.md`

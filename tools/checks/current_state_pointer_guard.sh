@@ -15,7 +15,6 @@ STATE_DOC="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
 CURRENT_TASK_DOC="$ROOT_DIR/CURRENT_TASK.md"
 NOW_DOC="$ROOT_DIR/docs/development/current/main/10-Now.md"
 RESTART_DOC="$ROOT_DIR/docs/development/current/main/05-Restart-Quick-Resume.md"
-POLICY_DOC="$ROOT_DIR/docs/development/current/main/design/current-docs-update-policy-ssot.md"
 PHASE137X_README="$ROOT_DIR/docs/development/current/main/phases/phase-137x/README.md"
 PHASE137X_TASKBOARD="$ROOT_DIR/docs/development/current/main/phases/phase-137x/137x-91-task-board.md"
 STALE_PATTERNS_FILE="$ROOT_DIR/tools/checks/current_state_stale_pointer_patterns.txt"
@@ -31,7 +30,6 @@ guard_require_files "$TAG" \
   "$CURRENT_TASK_DOC" \
   "$NOW_DOC" \
   "$RESTART_DOC" \
-  "$POLICY_DOC" \
   "$PHASE137X_README" \
   "$PHASE137X_TASKBOARD" \
   "$STALE_PATTERNS_FILE" \
