@@ -1,11 +1,11 @@
 ---
-Status: design_stop__exact_terminal_source_identity_unresolved
+Status: closed__2026-09-23__RetiredVmCompatibilityRoute
 Task: GENERIC-POST-SELECTION-STATIC-CALL-SITE-IDENTITY-D0
 Date: 2026-09-23
 Parent: generic-legacy-observation-front-g0-premise-recheck-2026-09-23.md
 PreviousCard: generic-loop-source-facts-accessor-compile-repair-i0-2026-09-23.md
-NextCard: none__design_decision_required
-Implementation permission: false; one exact terminal/source-identity audit only. No source edit, diagnostic behavior change, fixture, receipt, route, caller switch, or fallback.
+NextCard: generic-loop-mainline-source-front-d0-2026-09-23.md
+Implementation permission: false; closed by route classification only. No source edit, diagnostic behavior change, fixture, receipt, route, caller switch, or fallback.
 ---
 
 # Generic post-selection static-call source identity D0
@@ -13,13 +13,19 @@ Implementation permission: false; one exact terminal/source-identity audit only.
 ## Six-line brief
 
 ```text
-Decision: the pinned G0 front's current named static-call stop is not correlated to the earlier Loop tags; identify its existing source context before selecting any semantic repair.
-Source authority + canonical issuer: existing RawInvocationSourceContextV1 / SourceExprSiteV1 transport and StaticResultPublicationIngressPortV1; exact result issuance remains VerifiedStaticCallResultPublicationOwnerV1.
-Non-authority: target name/arity, planner tags, the unrelated int_to_str canary, AST or method-name reconstruction, RawLegacy success, or VM behavior.
-Fail-fast boundary: UnissuedStaticCallRetirementV1::GenericCompatibility occurs after inline-helper decline and before argument lowering; keep it there unless an exact existing Selected handoff is proven.
-Smallest next slice: for the one pinned run's first legacy-fallback-retired occurrence, determine (caller, SourceExprSiteV1, target, ingress state) or name the exact existing Unavailable reason.
-Non-claims: no LoopRecipe/carrier defect, no publication/result expansion, no production cutover, VM restoration, fallback, backend parity, or legacy retirement.
+Decision: the pinned G0 failure belongs to explicit `--backend vm`, which dispatches to retired Legacy VM Keep and constructs a Compatibility AST root; close this caller/site D0 as a non-selected route, without attributing its terminal to GenericLoop.
+Source authority + canonical issuer: the selected compiler front is MIR's existing parser/materializer outcome; only `SourceBacked` may enter the callable source lifecycle and its existing semantic owners.
+Non-authority: the retired VM Keep terminal, target name/arity, planner tags, the unrelated `int_to_str` canary, AST/method-name reconstruction, or backend name alone.
+Fail-fast boundary: retain `UnissuedStaticCallRetirementV1::GenericCompatibility` on VM Keep; do not add diagnostics, restore fallback, or publish semantic authority on that route.
+Smallest next slice: design one exact mainline MIR front that proves its materializer outcome and GenericLoop terminal before any route repair.
+Non-claims: no LoopRecipe/carrier defect, source caller/site identity, publication/result expansion, production cutover, VM restoration, fallback, backend parity, or legacy retirement.
 ```
+
+The proposed caller/site diagnostic follow-up is superseded. Its unresolved
+caller/site does not block the selected compiler lane: the pinned wrapper
+selects the retired VM Keep override, whose post-macro request seals the AST as
+`Compatibility`. The raw port and exact `Unavailable` subtype remain unknown
+and are intentionally out of scope; do not infer or instrument them.
 
 ## Fixed observation boundary
 
@@ -33,91 +39,52 @@ first terminal: [freeze:contract][static-call/legacy-fallback-retired] owner=Str
 result:         exit 1; wrapper expected exit 4
 ```
 
+The script hardcodes `--backend vm`. `dispatch.rs` labels that backend
+"Legacy VM Keep/Debug Override (explicit only)"; `route_orchestrator.rs`
+selects `BootstrapRustVmKeep`; `keep/vm.rs::compile_post_macro_program`
+uses `NormalCompileRequestV1::for_vm_keep_post_macro`; that request seals its
+AST with `PreparedNormalDefaultProgramRootV1::seal`, which creates
+`Compatibility(ast)`. This is not the selected MIR source-backed lifecycle.
+
 `LoopCondContinueOnly` and shadow-adoption tags appeared earlier, but the
-terminal message has no caller or source site. The fixture itself contains an
-integer loop; output order is not a same-callable relation. Do not label this
-`InLoopTerminal` or join it to
-`StringHelpers.int_to_str/1 Body(0).Initializer(0)` without exact identity
-evidence.
+terminal message has no caller or source site. Output order is not a
+same-callable relation. Do not label this `InLoopTerminal` or join it to
+`StringHelpers.int_to_str/1 Body(0).Initializer(0)` without identity evidence.
+The VM terminal is retained as a historical retired-route observation only;
+the old wrapper remains unaccepted and is not required to exit 4 for the
+selected compiler lane.
 
-The terminal owner is
-`src/mir/builder/method_call_handlers.rs::UnissuedStaticCallRetirementV1::GenericCompatibility`
-at `handle_static_method_call_with_descent`. It is reached only after inline
-record-helper lowering declines and before `completion.lower_all(self)`, so
-arguments and physical Call effects have not run. Both current-owner policy
-paths can reach it only after publication ingress reports `Unavailable`.
-`RawLegacyChildLoweringPortV1` returns `Unavailable` unconditionally; the
-located ingress can also report it for absent context, unlocated compatibility,
-or non-static cataloged lineage. Exact cataloged static rows instead pass
-through the existing declaration/target/result catalogs and one-shot
-publication handoff.
+## Finite result and handoff
 
-## Design task
-
-Audit only the fixed terminal occurrence and the existing source-transport
-seams. Produce one of these finite results:
-
-| Result | Required evidence | Consequence |
+| Result | Evidence | Consequence |
 | --- | --- | --- |
-| `CatalogedStatic(caller, site, target)` | Exact `CanonicalSameModuleCallableKeyV1`, `SourceExprSiteV1`, target, and the ingress/owner product for this same occurrence. | Reuse the existing source-bound result/publication owner and physical handoff; a later implementation row must name that exact tuple and its physical success receipt. |
-| `CompatibilityUnavailable(reason)` | Exact input port and one existing reason: raw-legacy port, absent context, unlocated compatibility, or non-static cataloged lineage. | Keep the named pre-effect retirement terminal. Decide whether this occurrence belongs to the selected G0 front; do not create semantic authority to force admission. |
-| `SourceContractError(error)` | Existing source-backed missing/foreign/location/catalog error at the same occurrence. | Keep the typed fail-fast boundary and route only to that existing owner. |
-| `NoSafeSlice(reason)` | Existing transport cannot expose a same-occurrence caller/site or a finite unavailable reason without inventing a matcher/authority. | Seal this observation; choose another already-inventoried family rather than broadening this lane. |
+| `RetiredVmCompatibilityRoute` | The fixed command selects VM Keep, and that request uses a Compatibility AST root. | Close this occurrence as non-selected. Keep its pre-effect stop; do not add diagnostics or repair VM. |
 
-The audit must compare the result against the known admitted row
-`StringHelpers.int_to_str/1 Body(0).Initializer(0) ->`
-`CurrentOwnerStatic(StringHelpers.to_i64/1)`, but equality must be established
-from identity, not inferred from the common target. If the fixed wrapper only
-reports the target, state exactly which existing context is unavailable and
-whether an observational-only follow-up is possible from already-carried
-context. Do not add that diagnostic in this D0.
-
-## Canonical owner and rejection contract
-
-If the exact occurrence is a cataloged static row, reuse the existing chain:
-
-```text
-VerifiedSameModuleCallableDeclarationCatalogV1
-+ VerifiedSourceStaticCallTargetCatalogV1
-+ VerifiedSameModuleCallableResultCatalogV1
-  -> VerifiedStaticCallResultPublicationOwnerV1 one-shot take
-  -> VerifiedStaticCallResultPublicationHandoffV1
-  -> lower_selected_static_result_publication_v1
-  -> CompletedUnifiedValueCallEmissionV1
-  -> PreparedStaticCallResultPublicationV1
-```
-
-No new issuer, `Verified*`/`Prepared*` product, result family, ValueId
-source, or duplicate publication owner is allowed. The handoff may be consumed
-only for its exact caller/site/target and only after the physical call receipt.
-Missing, foreign, unlocated, wrong-namespace, target-only, or unavailable
-context cannot become `Selected`; it stops before argument/Builder effects.
-The terminal never retries another route. VM remains a retired route.
+The exact raw-port subtype, caller/site, and relationship to the known
+`int_to_str/1` row remain unknown. No semantic or engineering decision depends
+on resolving them for this retired route. For any future selected MIR
+source-backed occurrence, the former identity contract still applies:
+exact caller, `SourceExprSiteV1`, target, and existing ingress/product must
+match before reusing the existing publication owner.
 
 ## D0 acceptance and handoff
 
-- Record the exact caller/site/target and ingress state for this one terminal,
-  or close as `NoSafeSlice` with the precise missing existing product.
-- Reconcile explicitly whether the known `int_to_str/1` row is this occurrence.
-- Keep the existing `GenericCompatibility` rejection before argument descent;
-  do not count the wrapper as passing (it must still exit `4`).
-- Select exactly one bounded successor: a behavior-preserving diagnostic
-  projection of already-carried caller/site/ingress context into this named
-  terminal. If this exact path carries no such context, close as
-  `NoSafeSlice` and return to the family scheduler; do not synthesize it or
-  jump directly to result publication.
-- Update the G0 front card and current pointer with the classification.
-
-The G0 wrapper remains unaccepted until it exits `4` with its required Loop
-tag. This D0 does not authorize serial P1 route observations, S6E production,
-source-to-Recipe expansion, production selection, or old-edge deletion.
+- Record the wrapper as a retired VM compatibility observation, not a Generic
+  production acceptance or a Loop failure.
+- Do not require the VM wrapper to exit 4, add a caller/site projection, or
+  restore a compatibility fallback.
+- Hand off only to
+  [`GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0`](generic-loop-mainline-source-front-d0-2026-09-23.md),
+  which must prove the MIR materializer outcome and selected GenericLoop
+  terminal separately.
+- No serial P1 route observation, S6E producer, source-to-Recipe expansion,
+  production selection, or old-edge deletion is authorized by this closure.
 
 ## Worker audit
 
-Two read-only workers independently confirmed that the terminal diagnostic
-does not contain caller/site identity and that its occurrence cannot be joined
-to the printed Loop function or known `int_to_str/1` row from current evidence.
-The second audit traced the existing ingress: `RawLegacyChildLoweringPortV1`
-returns `Unavailable`; cataloged static callers use the existing
-`StaticResultPublicationIngressPortV1` and publication handoff. Neither
-worker edited files or ran Cargo.
+Read-only audits confirmed the diagnostic lacks caller/site and cannot be
+joined to the printed Loop function or `int_to_str/1` row. They established
+the route-level result: VM Keep is an explicit retired lane and its request
+seals Compatibility AST. MIR is the selected entry, but its materializer has
+both `SourceBacked` and `Compatibility` outcomes, so the backend name alone is
+not proof. Workers made no edits and ran no Cargo/tests.

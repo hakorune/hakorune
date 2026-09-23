@@ -32,17 +32,18 @@ but route observations and checked dispositions are incomplete. The
 source-facts compile repair landed and the quick binary builds. The pinned
 `generic_loop_continue_strict_shadow_vm` front at
 `fa80c9ccc2461b58e99a3c6b2c1bb5d52e74e74f` exits 1 after Loop planner/shadow
-tags at the named retired static-call terminal for
-`StringHelpers.to_i64/1`; caller and `SourceExprSiteV1` are not in the
-diagnostic. This is a post-selection, uncorrelated static-call terminal, not
-proof of a GenericLoop carrier failure or a passing front. The current bounded
-task is
-[`GENERIC-POST-SELECTION-STATIC-CALL-SITE-IDENTITY-D0`](../investigations/generic-post-selection-static-call-site-identity-d0-2026-09-23.md),
-which reuses existing source-transport and publication owners and does not
-issue authority. Do not repeat the corpus census, select the Aug-07 S0
-schedule again, or count an unobserved case as a decline. S6E producer work
-remains closed until the exact front exits 4; this is not a prerequisite for
-S6A.
+tags at `StringHelpers.to_i64/1`. That wrapper hardcodes `--backend vm`, which
+dispatches to retired Legacy VM Keep and seals a Compatibility AST root; its
+terminal is outside the selected source-backed compiler lane. Caller/site
+identity is intentionally unresolved for that retired observation. The next
+bounded task is
+[`GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0`](../investigations/generic-loop-mainline-source-front-d0-2026-09-23.md):
+design one exact MIR front that proves its actual materializer outcome and
+same-run GenericLoop terminal. The backend name alone does not prove
+`SourceBacked`; the materializer also returns explicit `Compatibility`. Do not
+repeat the corpus census, select the Aug-07 S0 schedule again, or count an
+unobserved case as a decline. S6E producer work remains closed pending a
+selected source-backed front; this is not a prerequisite for S6A.
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
