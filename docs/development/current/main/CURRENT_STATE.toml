@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "GENERIC-LEGACY-ROUTE-OBSERVATION-P1"
-current_execution_cohort = "generic_legacy_serial_route_observation"
-current_blocker_token = "GENERIC-LEGACY-ROUTE-OBSERVATION-P1__CorpusFullyObserved_FrontierPause"
+current_execution_row = "GENERIC-LEGACY-DISPOSITION-D0"
+current_execution_cohort = "generic_legacy_disposition_classification"
+current_blocker_token = "GENERIC-LEGACY-DISPOSITION-D0__ClassificationContractDesignOpen"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "FrontierPause__P1CorpusFullyObserved__FamilySchedulerReselectionRequired_2026-09-23"
+current_design_stop = "DispositionClassification__ContractDesign__CardOnly_2026-09-23"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,29 +14,27 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/generic-legacy-route-observation-p1-batch10-2026-09-23.md"
-latest_card = "generic-legacy-route-observation-p1-batch10"
-latest_card_path = "docs/development/current/main/investigations/generic-legacy-route-observation-p1-batch10-2026-09-23.md"
+current_execution_design = "docs/development/current/main/investigations/generic-legacy-disposition-d0-2026-09-23.md"
+latest_card = "generic-legacy-disposition-d0"
+latest_card_path = "docs/development/current/main/investigations/generic-legacy-disposition-d0-2026-09-23.md"
 latest_card_summary = """
-P1 serial route observation complete: all 398 P0-normalized corpus
-rows observed (40 accepted / 196 rejected / 162 failed-before-loop).
-Batches 6-9 covered the 198-row selfhost-subset cohort (9 accepted /
-81 rejected / 108 pre-loop): batch 6 at 50dee7a92e recorded the first
-nondeterminism (if_else_return{,_var} intermittent void @main),
-batches 7-9 (c6434e6ad7/b80659301e/9e277c5b4a) showed the
-local_expr/fini/box_member cleanup family uniformly refused at
-ResolverDeferred TryCatch at non-loop sites, plus 12 recorded
-expected-output mismatches. Batch 10 at f5514cf608 closed the 5 edge
-rows (release-adopt smoke+alias accepted; strict-shadow+alias
-pre-loop at to_i64 baseline debt; fixture-inventory rejected). Row F
-stays blocked on M10 pre-cutover items; the next row is a
-family-scheduler reselection — GENERIC-LEGACY-DISPOSITION-D0 owns
-disposition classification. Strict-shadow and the
-inplace-replacement guard reds remain recorded baseline debt.
+P1 serial route observation complete: all 398 corpus rows observed
+(40 accepted / 196 rejected / 162 failed-before-loop) across batches
+849daed591..f5514cf608. Family scheduler selected
+GENERIC-LEGACY-DISPOSITION-D0 (ordered successor, named by every P1
+non-claim). D0 design card opened: first write cohort is the 40
+accepted rows (the closeout-blocking class), classified from landed
+P1 evidence only; rejected/pre-loop cohorts follow; the two
+nondeterministic if_else_return rows hold unclassified behind a named
+repair row. First classification write requires a same-commit corpus
+guard vocabulary update under work_mode=fast (card is design_stop
+card-only). Row F stays blocked on M10 pre-cutover items;
+strict-shadow and inplace-replacement guard reds remain baseline
+debt.
 """
-next_design_card = "GENERIC-LEGACY-ROUTE-OBSERVATION-P1"
-next_design_card_path = "docs/development/current/main/investigations/generic-legacy-route-observation-p1-batch9-2026-09-23.md"
-next_execution_card = "none__design_only__serial_route_observation_batch"
+next_design_card = "GENERIC-LEGACY-DISPOSITION-D0"
+next_design_card_path = "docs/development/current/main/investigations/generic-legacy-disposition-d0-2026-09-23.md"
+next_execution_card = "none__design_only__disposition_classification_cohort"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
