@@ -1,5 +1,5 @@
 ---
-Status: design_stop__serial_route_observation_open
+Status: landed__2026-09-23
 Task: GENERIC-LEGACY-ROUTE-OBSERVATION-P1
 Date: 2026-09-23
 Parent: JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E
@@ -101,4 +101,80 @@ batch. Non-claims identical.
 
 ## Observation log
 
-(pending — filled serially)
+Binary: `target/debug/hakorune` (`--features vm-reference`), HEAD
+`9622b1ca5c`, 2026-09-23. All 42 cases observed serially in manifest
+order; no timeouts, no signals. Same classification rule as batches 1-3.
+
+| case | tsv | A_rc | A_tail | B_outcome | B_evidence | state | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| parse_program2_if_return_var_min | 69 | 0 | `7` | canonical-main | `define i64 @main()` | accepted | expected `7` |
+| parse_program2_if_return_local_min | 70 | 0 | `7` | canonical-main | `define i64 @main()` | accepted | expected `7` |
+| parse_program2_if_fallthrough_join_min | 71 | 0 | `1` | canonical-main | `define i64 @main()` | accepted | expected `1` |
+| parse_program2_if_else_return_min | 72 | 0 | (empty) | canonical-main | `define i64 @main()` | accepted | expected `__EMPTY__` |
+| parse_program2_if_else_return_var_min | 73 | 0 | (empty) | canonical-main | `define i64 @main()` | accepted | expected `__EMPTY__` |
+| parse_program2_if_else_return_local_min | 74 | 0 | (empty) | canonical-main | `define i64 @main()` | accepted | expected `__EMPTY__` |
+| parse_program2_if_else_if_return_min | 75 | 0 | (empty) | canonical-main | `define i64 @main()` | accepted | expected `__EMPTY__` |
+| parse_using_min | 76 | 1 | VM err `canonical-call` | named-reject | `qualified-preflight actual=Loop` site=Body(3) | rejected | expected `a.b` |
+| parse_stmt_skipws_min | 77 | 1 | VM err `canonical-call` | named-reject | `qualified-preflight actual=Loop` site=Body(3) | rejected | expected `1` |
+| parse_program2_nested_loop_min | 78 | 0 | `2` | named-reject | `callable-loop-handoff/nested-loop-profile-not-admitted` | rejected | expected `2` on compat lane |
+| parse_program2_nested_loop_if_return_min | 79 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_return_min | 80 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_return_var_min | 81 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_return_local_min | 82 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_return_var_min | 83 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_return_local_min | 84 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_if_return_min | 85 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_if_else_return_min | 86 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_fallthrough_join_min | 87 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_fallthrough_join_min | 88 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_fallthrough_join_return_var_min | 89 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_fallthrough_join_return_local_min | 90 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_min | 91 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_fallthrough_join_else_return_blockexpr_var_min | 92 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_fallthrough_join_else_return_local_min | 93 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_fallthrough_join_return_blockexpr_min | 94 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_fallthrough_join_return_blockexpr_local_min | 95 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_fallthrough_join_return_blockexpr_local2_min | 96 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_fallthrough_join_return_var_blockexpr_min | 97 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_fallthrough_join_return_local_blockexpr_min | 98 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_fallthrough_join_return_blockexpr_blockexpr_min | 99 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parse_program2_nested_loop_if_else_fallthrough_join_return_blockexpr_var_min | 100 | 0 | (empty) | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `__EMPTY__` |
+| parser_stmt_equals_min | 101 | 1 | `[static-call/legacy-fallback-retired] ParserStmtBox.equals/1` | named-reject | `mir/main-qualified-recipe/relation-missing` | failed-before-loop | expected-fail fixture (rc=1, EMPTY); static call never admitted |
+| parse_program2_loop_min | 102 | 0 | `1` | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `1` on compat lane |
+| parse_program2_loop_if_fallthrough_join_min | 103 | 0 | `1` | named-reject | `route-not-front-selected LoopCondRouteRejected(SourceItemsMissing)` site=Body(1) | rejected | expected `1` |
+| parse_program2_loop_if_return_min | 104 | 0 | (empty) | named-reject | `route-not-front-selected GenericLoopV1NotSelected` site=Body(1) | rejected | expected `__EMPTY__` |
+| parse_program2_loop_if_return_var_min | 105 | 0 | (empty) | named-reject | `route-not-front-selected GenericLoopV1NotSelected` site=Body(1) | rejected | expected `__EMPTY__` |
+| parse_program2_loop_if_return_local_min | 106 | 0 | (empty) | canonical-main | `define i64 @main()` | accepted | expected `__EMPTY__` |
+| parse_program2_loop_continue_if_min | 107 | 0 | `1` | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `1` on compat lane |
+| parse_program2_loop_if_else_return_min | 108 | 0 | (empty) | named-reject | `callable-loop-handoff/carrier-cardinality` | rejected | expected `__EMPTY__` |
+| parse_program2_loop_if_else_return_var_min | 109 | 0 | (empty) | named-reject | `callable-loop-handoff/carrier-cardinality` | rejected | expected `__EMPTY__` |
+| parse_program2_loop_if_else_return_local_min | 110 | 0 | (empty) | named-reject | `callable-loop-handoff/carrier-cardinality` | rejected | expected `__EMPTY__` |
+
+## Result
+
+- 8/42 `accepted`: the seven `parse_program2_if_*return*`/
+  `fallthrough_join` variants (tsv:69-75) and
+  `parse_program2_loop_if_return_local_min` (tsv:106) compile to
+  canonical `define i64 @main()`; all also ran green to their expected
+  compat-lane outputs.
+- 33/42 `rejected`: `callable-loop-handoff/nested-loop-profile-not-
+  admitted` is the dominant terminal (25 cases — every
+  `nested_loop_*` body variant, `loop_min`, `loop_continue_if`),
+  `callable-loop-handoff/carrier-cardinality` (3),
+  qualified preflight `Loop` statement (2),
+  `route-not-front-selected` (`LoopCondRouteRejected` 1,
+  `GenericLoopV1NotSelected` 2).
+- 1/42 `failed-before-loop`: `parser_stmt_equals_min` stops at
+  `mir/main-qualified-recipe/relation-missing` (and at the retired
+  `ParserStmtBox.equals/1` static call on the compat lane); this is a
+  manifest expected-fail row (`__EMPTY__`, `allowed_rc=1`).
+- 0 `timeout`, 0 left `unobserved`.
+- Compat-lane context: 35/42 ran green to the exact expected output
+  (including all 28 `__EMPTY__` rows), so this batch is the first
+  large block where the compat lane routinely completes while the
+  callable lane still refuses nested-loop and carrier shapes.
+- New refuse families first recorded here:
+  `nested-loop-profile-not-admitted`, `carrier-cardinality`, and
+  `mir/main-qualified-recipe/relation-missing` (pre-loop owner).
+- No fixture, source, corpus-universe, receipt, or route change was
+  made. `observation_state` is the only manifest column touched.
