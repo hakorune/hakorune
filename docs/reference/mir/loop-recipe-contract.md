@@ -655,6 +655,26 @@ inventory per unit and lets the existing family selector open `NoCandidate`
 only when every route row is a typed pre-effect decline. No second selector,
 route/cursor selection, production caller, retry, or fallback was added.
 
+Reference receipt — `SELFHOST-LOOP-PORTABLE-WIRE-S7A` (2026-09-24): the
+`.hako` subtree `lang/src/mir/builder/loop_recipe/` now owns the caller-zero
+`.hako` side of the `LoopRecipeArtifactV1` wire. Its single-file entry
+`emit_loop_recipe_wire.hako` assembles one fixed minimal artifact from named
+string-fragment locals in serde field order and prints it as one compact
+JSON line; the emission is checked in at
+`fixtures/hako_loop_recipe_wire_v1.json` and exercised by
+`wire_parity_tests.rs`, which decodes, verifies, and normalizes it through
+`LoopRecipeNormalizerV1` and asserts `normalize_artifact` /
+`normalize_semantic` / `normalize_source_bound` equality with the same
+artifact assembled by Rust. Malformed fields, wrong `schema_version`,
+unknown keys, unknown producer ids, and non-canonical key order remain
+typed rejects. The wire fixture's `direct_accum_v1` provenance is the
+claimed schema family only. No `.hako` producer cohort, Facts, JoinSig,
+verifier, CFG/PHI, physical MIR, production caller, or hostbridge was
+added; `tools/checks/hako_mirbuilder_no_hostbridge.sh` now also covers the
+subtree. The D1 amendment records the current executable `.hako` subset
+boundary (no method calls, no Map/Array literals) under which the
+DTO/emitter split is deferred.
+
 Reference receipt — `LOOP-JOINSIG-NESTED-SHADOW-S0` (2026-08-06): visible
 carrier projection now walks the verified Recipe parent chain from the target
 loop toward the root, keeps the first `LoopBindingKeyV1` for each binding, and

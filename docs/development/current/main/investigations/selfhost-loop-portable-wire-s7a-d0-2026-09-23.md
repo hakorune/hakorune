@@ -1,13 +1,14 @@
 ---
-Status: design__2026-09-23__d0_wire_contract
+Status: landed__2026-09-24__d1_wire_subset_amendment
 Task: SELFHOST-LOOP-PORTABLE-WIRE-S7A
 Date: 2026-09-23
 Parent: JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G (landed)
 PreviousCard: joinir-loop-m8-all19-closeout-s6g-d0-2026-09-23.md
 NextCard: frontier-pause__family_scheduler_reselection
-Implementation permission: false; name the owners to extend and fix the
-bounded implementation slice only. No code, no fixture, no
-route/caller change, no new semantic receipt from this card.
+Implementation permission: landed under D1 amendment below; the semantic
+contract (caller-zero `.hako` V1 wire + stdout entry + Rust parity
+harness) is unchanged; only the file layout was revised to the current
+executable `.hako` subset.
 ---
 
 # SELFHOST-LOOP-PORTABLE-WIRE-S7A — D0 portable-wire design
@@ -257,3 +258,70 @@ When this card is accepted, `work_mode` moves to `fast` for the
 bounded implementation slice named above (one wire slice, one commit
 family): `.hako` wire subtree + stdout entry + Rust wire-parity
 harness + focused tests + subtree README + doc closeout.
+
+## D1 amendment — executable `.hako` subset boundary (landed 2026-09-24)
+
+Implementation found that the D0 premise "the `.hako` transport
+convention exists and is proven by `emit_mir_json_v0.hako`" is stale on
+current HEAD. Measured on `target/debug/hakorune` (2026-09-24) and
+`hakorune-compat`:
+
+- `me.*` calls, `OwnerBox.method(...)`, instance-box calls, and
+  top-level `fn` calls all fail compilation with
+  `[freeze:contract][static-call/legacy-fallback-retired]` or fail the
+  VM with `[vm-reference/legacy-call/global-stopped]` /
+  `[vm-reference/canonical-call]`.
+- `%{}`/`[]` literals and `new MapBox()` lower to `NewBox`
+  `IntrinsicMap`/`IntrinsicArray`, unimplemented in the VM.
+- `env.get` is retired the same way, so the Phase-0 compat entry
+  `lang/src/mir/builder/compat/emit_mir_json_v0.hako` itself no longer
+  runs (`phase29bq_hako_mirbuilder_phase0_pin_vm.sh` is baseline red).
+- The executable subset is `static box Main { main() }` with scalar /
+  string locals, `+` concat, loop/if, print, return.
+
+Revised layout (same semantic contract): the subtree keeps
+`emit_loop_recipe_wire.hako` + `README.md`; the artifact is assembled
+from named string-fragment locals in fixed serde order inside
+`Main.main()`. The DTO-box/emitter-box split sketched in §2 is deferred
+to the first row whose card names an executable mechanism for `.hako`
+method calls — every S7B producer cohort that needs maps, arrays, or
+method calls hits this same boundary and must name its mechanism rather
+than assuming the v0 transport still runs.
+
+The `.hako` emission was captured by running
+`./target/debug/hakorune --backend vm lang/src/mir/builder/loop_recipe/emit_loop_recipe_wire.hako`
+and is checked in at
+`src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_v1.json`.
+
+## Landed evidence (2026-09-24)
+
+```text
+lang/src/mir/builder/loop_recipe/emit_loop_recipe_wire.hako — single-file
+  caller-zero entry; emits the fixed minimal LoopRecipeArtifactV1 as one
+  compact JSON line (schema_version/provenance/source_binding/recipe in
+  serde field order, tagged kinds in snake_case)
+lang/src/mir/builder/loop_recipe/README.md — owner boundary, non-goals,
+  executable-subset boundary, regeneration command
+src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_v1.json —
+  checked-in stdout emission (one line; structurally equal to
+  fixtures/accum_direct_v1.json)
+src/mir/loop_recipe_contract/wire_parity_tests.rs — 10 tests:
+  decode_and_verify + normalize_artifact/normalize_semantic/
+  normalize_source_bound equality vs a Rust-assembled artifact;
+  single-line/V1/producer round-trip; deterministic normalization;
+  typed rejects (wrong schema_version, unknown field, missing field,
+  unknown producer_id, noncanonical binding order, truncated JSON)
+tools/checks/hako_mirbuilder_no_hostbridge.sh — grep roots extended to
+  lang/src/mir/builder/loop_recipe
+```
+
+Gates: `cargo test --lib mir::loop_recipe_contract` 198/198 green
+(includes the 10 wire-parity tests);
+`bash tools/checks/hako_mirbuilder_no_hostbridge.sh` OK;
+`bash tools/checks/current_state_pointer_guard.sh` OK.
+
+Non-claims retained: caller-zero only; no `.hako` producer cohort,
+Facts, verifier, CFG/PHI, physical MIR, production routing, hostbridge,
+or V2 wire; the wire fixture's `direct_accum_v1` provenance is the
+claimed schema family, not a Rust DirectAccum production receipt; no M9
+parity claim (S7G owns that).

@@ -144,6 +144,12 @@ mod s6c_text_eq_site_contract_tests;
 #[path = "source_bound_core_tests.rs"]
 mod source_bound_core_tests;
 
+// S7A caller-zero wire-parity harness: `.hako` emission vs Rust-assembled
+// artifact through the same decode/verify/normalize owner.
+#[cfg(test)]
+#[path = "wire_parity_tests.rs"]
+mod wire_parity_tests;
+
 mod generic_g0_demand;
 
 mod generic_g0;

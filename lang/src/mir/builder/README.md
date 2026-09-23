@@ -7,6 +7,9 @@ Authority home
   `lang/src/mir/builder/compat/program_json_v0_entry.hako`.
 - Canonical legacy AST-JSON compat entry:
   `lang/src/mir/builder/compat/emit_mir_json_v0.hako`.
+- Caller-zero portable LoopRecipe wire subtree (S7A):
+  `lang/src/mir/builder/loop_recipe/` (see its README; currently one
+  stdout entry under the executable-subset boundary).
 - Canonical workspace namespace: `lang.mir.builder.*`.
 - Legacy `lang/src/compiler/mirbuilder/` entries may forward here during the
   compatibility drain. This directory must not import the legacy compiler-tree
