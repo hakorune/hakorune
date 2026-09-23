@@ -48,7 +48,7 @@ fn normal_default_ingress_retires_explicit_methodize_before_mutation() {
     crate::test_support::with_env_var("HAKO_MIR_BUILDER_METHODIZE", "1", || {
         let mut builder = MirBuilder::new();
         let error = builder
-            .prepare_normal_default_module(false)
+            .prepare_normal_default_module()
             .expect_err("retired explicit methodize must fail at normal ingress");
         assert!(error.contains("[rust-methodize/retired]"));
         assert!(builder.current_module.is_none());
@@ -61,7 +61,7 @@ fn module_ingress_accepts_canonical_unset_and_zero() {
         crate::test_support::with_env_vars(&[("HAKO_MIR_BUILDER_METHODIZE", value)], || {
             let mut builder = MirBuilder::new();
             builder
-                .prepare_normal_default_module(false)
+                .prepare_normal_default_module()
                 .expect("canonical methodize selector should prepare");
             assert!(builder.current_module.is_some());
         });
@@ -73,7 +73,7 @@ fn invalid_methodize_selector_rejects_before_normal_module_mutation() {
     crate::test_support::with_env_var("HAKO_MIR_BUILDER_METHODIZE", "garbage", || {
         let mut builder = MirBuilder::new();
         let error = builder
-            .prepare_normal_default_module(false)
+            .prepare_normal_default_module()
             .expect_err("invalid methodize selector must fail at ingress");
         assert!(error.contains("mir/methodize/ingress"));
         assert!(builder.current_module.is_none());

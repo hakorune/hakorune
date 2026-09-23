@@ -1,0 +1,17 @@
+// Phase 29ca P3: generic loop v0.1 continue always-false guard variant
+// Expect: return 3 — the continue arm never fires
+
+static box Main {
+    main() {
+        local i = 0
+        local n = 3
+        loop(i < n) {
+            if i == 5 {
+                i = i + 1
+                continue
+            }
+            i = i + 1
+        }
+        return i
+    }
+}

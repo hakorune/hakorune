@@ -73,6 +73,20 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
         self.lower_body(builder, body)
     }
 
+    /// Selected Main0 Continue roots carry the verified recipe product into
+    /// the installed package's canonical draft handoff.  The adapter opens
+    /// the sole physical session, seals one `main` draft, and admits it to
+    /// the invocation collector; raw and compatibility ports never consume
+    /// this product.
+    fn lower_app_main0_continue_root_v1(
+        &mut self,
+        _builder: &mut super::MirBuilder,
+        _identity: &crate::parser::CallableDeclarationIdentityV1,
+        _product: crate::mir::compiler::main0_continue_recipe_coseal::VerifiedMain0ContinueRecipeProductV1,
+    ) -> Result<(), String> {
+        Err("[freeze:contract][mir/main0-continue-root/raw-port]".to_owned())
+    }
+
     /// Lower one source-backed App Main static child.  The package adapter
     /// overrides this with its typed same-cohort admission; raw ports retain
     /// their compatibility-only direct child terminal.
@@ -342,15 +356,16 @@ impl super::MirBuilder {
         )
     }
 
-    pub(super) fn prepare_normal_default_module(
-        &mut self,
-        entry_safepoint: bool,
-    ) -> Result<(), String> {
+    /// Prepare the normal/default module shell without opening the legacy
+    /// `main` wrapper.  Pre-wrapper route selection must classify the
+    /// source-backed App Main root before any entry block, hint scope, or
+    /// Safepoint exists; the selected canonical route publishes its own
+    /// finished `main` draft through the collector instead.
+    pub(super) fn prepare_normal_default_module(&mut self) -> Result<(), String> {
         crate::config::env::validate_builder_methodize_ingress_v1()
             .map_err(|error| format!("[mir/methodize/ingress] {error}"))?;
-        self.prepare_module_with_callable_main_policy(
+        self.prepare_module_catalog_with_callable_main_policy(
             super::module_compat_policy::CallableMainCompatibilityPolicyV1::Omitted,
-            entry_safepoint,
         )
     }
 
@@ -358,6 +373,14 @@ impl super::MirBuilder {
         &mut self,
         callable_main_policy: super::module_compat_policy::CallableMainCompatibilityPolicyV1,
         entry_safepoint: bool,
+    ) -> Result<(), String> {
+        self.prepare_module_catalog_with_callable_main_policy(callable_main_policy)?;
+        self.open_module_main_wrapper(entry_safepoint)
+    }
+
+    fn prepare_module_catalog_with_callable_main_policy(
+        &mut self,
+        callable_main_policy: super::module_compat_policy::CallableMainCompatibilityPolicyV1,
     ) -> Result<(), String> {
         self.comp_ctx.clear_callable_declaration_catalog();
         self.comp_ctx.callable_main_compatibility_policy = callable_main_policy;
@@ -368,6 +391,31 @@ impl super::MirBuilder {
 
         let mut module = MirModule::new("main".to_string());
         module.metadata.source_file = self.current_source_file();
+        self.current_module = Some(module);
+        // A module boundary owns no function scope: the legacy wrapper sets
+        // these when it opens, and the canonical route installs them inside
+        // its own draft-seal session.
+        self.function_state.current_function = None;
+        self.function_state.current_block = None;
+        self.comp_ctx.current_slot_registry = None;
+
+        Ok(())
+    }
+
+    /// Open the legacy `main` wrapper function.  Only a route that lowers
+    /// the root body through the raw/legacy terminals may call this; the
+    /// selected canonical route must reach the collector drain without it.
+    pub(in crate::mir::builder) fn open_module_main_wrapper(
+        &mut self,
+        entry_safepoint: bool,
+    ) -> Result<(), String> {
+        if self.function_state.current_function.is_some()
+            || self.function_state.current_block.is_some()
+        {
+            return Err(
+                "[freeze:contract][mir/main-wrapper/already-open]".to_owned(),
+            );
+        }
         let main_signature = FunctionSignature {
             name: "main".to_string(),
             params: vec![],
@@ -379,7 +427,6 @@ impl super::MirBuilder {
         let mut main_function = self.new_function_with_metadata(main_signature, entry_block);
         main_function.metadata.is_entry_point = true;
 
-        self.current_module = Some(module);
         // Phase 136 Step 3/7: Use scope_ctx as SSOT
         self.function_state.current_function = Some(main_function);
         self.function_state.current_block = Some(entry_block);
@@ -403,6 +450,57 @@ impl super::MirBuilder {
         }
 
         Ok(())
+    }
+
+    /// Finalize the module after the selected canonical root draft was
+    /// published through the collector drain.  The `main` function already
+    /// carries its finished Return/PHI/CFG from the DraftSeal, so this
+    /// disposition owns only module-level sealing and root validation: it
+    /// never inserts a raw Return, re-infers the return type, or repairs
+    /// PHI rows on the draft.  `current_function` must be empty — a live
+    /// wrapper means the canonical route leaked a second root.
+    pub(super) fn finalize_module_with_canonical_root_v1(
+        &mut self,
+        validate_root: impl FnOnce(
+            &crate::mir::MirFunction,
+        )
+            -> Result<crate::mir::function::RootOrdinaryNewObservation, String>,
+    ) -> Result<MirModule, String> {
+        if self.function_state.current_function.is_some()
+            || self.function_state.current_block.is_some()
+        {
+            return Err(
+                "[freeze:contract][mir/finalize-canonical/unfinished-function]".to_owned(),
+            );
+        }
+        let mut module = self
+            .current_module
+            .take()
+            .ok_or_else(|| "[freeze:contract][mir/finalize-canonical/module-missing]".to_owned())?;
+
+        super::module_finalization_declaration_metadata::
+            PreparedModuleFinalizationDeclarationMetadataV1::prepare(&self.comp_ctx)
+            .commit_into(&mut module)?;
+        crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);
+        crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module)?;
+        crate::mir::direct_state_plan::refresh_module_direct_state_plans(&mut module);
+        for function in module.functions.values_mut() {
+            crate::mir::builder::ssa::phi_input_materializer::materialize_all_phi_inputs(
+                function,
+                "finalize_canonical_module",
+            )?;
+        }
+
+        let root = module
+            .functions
+            .get_mut(super::main_pending_draft::MainDraftIdentityV1::root().symbol())
+            .ok_or_else(|| {
+                "[freeze:contract][mir/finalize-canonical/root-definition-missing]".to_owned()
+            })?;
+        let observation = validate_root(root)?;
+        root.install_root_ordinary_new_observation(observation)?;
+        self.function_state = Default::default();
+        Ok(module)
     }
 
     /// Finalize MIR module after a typed or responsibility-local lowering owner.

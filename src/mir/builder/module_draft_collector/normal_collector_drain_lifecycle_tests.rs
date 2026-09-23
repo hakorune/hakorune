@@ -503,3 +503,82 @@ fn normal_drain_rejects_unconsumed_static_publication_before_commit() {
     assert_eq!(collector.symbol_count(), 1);
     assert!(module.function_names().is_empty());
 }
+
+fn collect_main(collector: &mut ModuleDraftCollectorV1) {
+    collector
+        .prepare_admission(
+            FunctionDraftKeyV1::Main,
+            "main".to_owned(),
+            0,
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+        )
+        .unwrap()
+        .seal(draft("main"))
+        .unwrap()
+        .collect();
+}
+
+#[test]
+fn main_draft_drains_once_through_normal_lifecycle() {
+    let mut collector = ModuleDraftCollectorV1::with_brand(brand());
+    collect_main(&mut collector);
+    let mut module = MirModule::new("main-root".into());
+    collector
+        .prepare_normal_collector_drain(&mut module, brand())
+        .unwrap()
+        .commit();
+    assert!(module.functions.contains_key("main"));
+    assert_eq!(module.functions.len(), 1);
+}
+
+#[test]
+fn main_draft_rejects_duplicate_admission_and_legacy_policy() {
+    // A second canonical admission under the same key rejects at prepare
+    // time; the selected root publishes exactly once per invocation.
+    let mut collector = ModuleDraftCollectorV1::with_brand(brand());
+    collect_main(&mut collector);
+    assert!(matches!(
+        collector.prepare_admission(
+            FunctionDraftKeyV1::Main,
+            "main".to_owned(),
+            0,
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+        ),
+        Err(super::super::ModuleDraftAdmissionErrorV1::DuplicateKey(_))
+    ));
+    // A different key carrying the same symbol collides on the index.
+    assert!(matches!(
+        collector.prepare_admission(
+            FunctionDraftKeyV1::LegacySymbol("main".to_owned()),
+            "main".to_owned(),
+            0,
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+        ),
+        Err(super::super::ModuleDraftAdmissionErrorV1::DuplicateSymbol(_))
+    ));
+
+    // The Main key may not ride the legacy replacement policy at drain time.
+    let mut collector = ModuleDraftCollectorV1::with_brand(brand());
+    collector
+        .prepare_admission(
+            FunctionDraftKeyV1::Main,
+            "main".to_owned(),
+            0,
+            DraftPublicationPolicyV1::LegacyReplaceWholePair,
+        )
+        .unwrap()
+        .seal(draft("main"))
+        .unwrap()
+        .collect();
+    let mut module = MirModule::new("main-root".into());
+    let rejected = collector
+        .prepare_normal_collector_drain(&mut module, brand())
+        .unwrap_err();
+    assert!(matches!(
+        rejected.error(),
+        NormalCollectorDrainLifecycleErrorV1::NonLegacyKey { .. }
+    ));
+    let (collector, _) = rejected.into_parts();
+    assert_eq!(collector.symbol_count(), 1);
+    assert!(module.function_names().is_empty());
+}

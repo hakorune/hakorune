@@ -528,3 +528,95 @@ modules and tests registered, `CARGO_BUILD_JOBS=4 cargo test --profile quick
 and emitted 543 library warnings. The suite covers the issuer against synthetic
 AST plus embedded resolver input; exact parser-to-MIR, runtime, LLVM, and CI
 acceptance remain unproven.
+
+## Production lifecycle handoff checkpoint — 2026-09-23
+
+The canonical Main0 route is now wired into the real production lifecycle.
+The sole production root-lowering funnel
+(`program_root_lowering.rs::lower_prepared_program_root_with_callable_mode_v1`,
+reached only via `lower_program_root_after_catalog_install_v1`) classifies
+the App Main root before the legacy wrapper opens:
+
+- `module_lifecycle.rs`: `prepare_normal_default_module()` prepares the
+  catalog/module shell only; `open_module_main_wrapper(entry_safepoint)`
+  is called solely on the decline and raw-compatibility arms. The
+  canonical disposition `finalize_module_with_canonical_root_v1` rejects
+  live builder function state, materializes PHI inputs, runs final root
+  validation, installs `RootOrdinaryNewObservation`, and never appends a
+  raw Return or infers a return type from a wrapper value.
+- `program_root_lowering/main0_continue_route.rs` owns the
+  observation-only selection; `ProgramRootCompletionV1` distinguishes
+  `WrapperBody(ValueId)` from `CanonicalMainDraft`, and a verified product
+  reaching a non-App-Main terminal freezes
+  (`canonical-product-terminal-drift`).
+- `decls.rs::build_selected_main0_continue_root_with_port_v1` lowers
+  static children through the existing typed admission and transports the
+  product into
+  `normal_callable_semantic_loan_port/main0_root.rs::
+  lower_app_main0_continue_root_v1`, which consumes the one-shot root
+  loan inside its callback and produces one `ReadyFunctionDraftSealV1`.
+- `module_lowering_invocation_resolved_loan.rs::
+  complete_main0_continue_root_draft_v1` admits the seal under
+  `FunctionDraftKeyV1::Main` with `CanonicalRejectDuplicate`;
+  `normal_collector_drain_lifecycle.rs` accepts that arm only for the
+  canonical policy plus `Inserted` disposition and keeps the existing
+  invocation-brand/symbol-integrity checks.
+
+Focused lifecycle evidence:
+
+```text
+cargo test --profile quick --lib main0_continue_canonical_root
+  / non_profile_app_main_declines_selection
+  / main_draft_drains_once / main_draft_rejects_duplicate
+PASS: 4 passed, 0 failed — the real fixture traverses
+  prepare -> install -> selection -> canonical handoff -> collector
+  -> drain -> canonical finalize -> OrdinaryNew validation.
+```
+
+Production runtime acceptance (`--backend vm`, vm-reference quick build):
+
+```text
+phase29ca_generic_loop_continue_min.hako              RC: 4  (expected 4)
+phase29ca_generic_loop_continue_bound2_guard1.hako    RC: 2  (expected 2)
+phase29ca_generic_loop_continue_upper_bound_continue  RC: -1 (i64::MAX as i32)
+phase29ca_generic_loop_continue_upper_bound_normal    RC: -1 (i64::MAX as i32)
+phase29ca_generic_loop_continue_zero_iter.hako        RC: 0  (expected 0)
+phase29ca_generic_loop_continue_guard_never.hako      RC: 3  (expected 3)
+phase29ca_generic_loop_continue_renamed_locals.hako   RC: 4  (expected 4)
+tools/smokes/v2/.../generic_loop_continue_release_adopt_vm.sh: PASS (exit=4)
+```
+
+`--dump-mir` on the selected fixture emits one `define i64 @main()`, one
+loop-header PHI pair with continue (bb3) and normal (bb4) backedges, and a
+single `ret %3` in the exit block — no wrapper-generated duplicate Return.
+
+Caller-zero for the selected profile's raw body/raw finish edges: the
+`Installed` arm selects before opening the wrapper; the `Compatibility`
+arm cannot select (no installed semantic package); the only other root
+entry, `lower_program_root_with_callable_port_v1`, is RawCompatibility-
+fixed with zero production callers (test seam only). Retained users:
+non-selected profiles and non-installed callers keep the wrapper/raw-
+finish path — the shared edges are not deletable.
+
+Red classification: the strict-shadow gate
+(`generic_loop_continue_strict_shadow_vm.sh`) fails with
+`[freeze:contract][static-call/legacy-fallback-retired]
+StringHelpers.to_i64/1` inside the strict derust lane — reproduced
+identically on the parent commit (baseline debt, unrelated to this
+route). The broader builder suite shows 16 failures here vs 18 on the
+baseline parent; every failure reproduces on the parent
+(`program_root_work_plan` source-transfer tests, source-backed package
+stage expectations, static-result ingress, plus the known
+`HAKO_MIR_BUILDER_METHODIZE` env race). Zero new failures from this
+change.
+
+Enabler fix: `analysis/bounded_body_snapshot_v0/mod.rs` gated the
+`strict_json_tree_v0` re-export behind `#[cfg(test)]`, which broke the
+`--features vm-reference` build required for runtime acceptance; the gate
+is widened to `#[cfg(any(test, feature = "vm-reference"))]`.
+
+Non-claims: LLVM/AOT artifact admission for this fixture still fails on
+`root_completion` availability (baseline; plain App Main roots carry no
+call/new/map completion), strict-lane execution remains baseline-broken
+above, and wider Main profiles/other loop cohorts stay on the legacy
+path.

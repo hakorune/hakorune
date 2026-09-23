@@ -478,7 +478,7 @@ impl ModuleBuilderInvocationSessionV1 {
                 |builder, binding, callable_loop_root_scope| {
             (|| {
                 builder
-                    .prepare_normal_default_module(runtime_inputs.entry_safepoint_enabled())
+                    .prepare_normal_default_module()
                     .map_err(|error| {
                         NormalDefaultRootCatalogLifecycleErrorV1::PrepareModule(error.into())
                     })?;

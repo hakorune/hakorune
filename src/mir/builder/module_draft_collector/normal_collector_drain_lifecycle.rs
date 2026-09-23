@@ -262,6 +262,17 @@ impl SealedNormalCollectorDrainReceiptV1 {
                             CollectedDraftReplacementDispositionV1::Inserted
                                 | CollectedDraftReplacementDispositionV1::ReplacedWholePair { .. }
                         ) => {}
+                FunctionDraftKeyV1::Main
+                    if admission.policy == DraftPublicationPolicyV1::CanonicalRejectDuplicate
+                        && matches!(
+                            &admission.replacement,
+                            CollectedDraftReplacementDispositionV1::Inserted
+                        ) =>
+                {
+                    // One selected canonical root per invocation.  The shared
+                    // symbol index and module preflight below own duplicate
+                    // detection; there is no canonical callable key to add.
+                }
                 FunctionDraftKeyV1::CatalogedBoxMethod(canonical_key)
                 | FunctionDraftKeyV1::CatalogedConstructor(canonical_key)
                     if admission.policy == DraftPublicationPolicyV1::CanonicalRejectDuplicate

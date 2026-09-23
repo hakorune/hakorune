@@ -1,0 +1,17 @@
+// Phase 29ca P3: generic loop v0.1 continue upper-bound variant (continue arm)
+// Expect: return i64::MAX — the continue increment reaches the bound without overflow
+
+static box Main {
+    main() {
+        local i = 9223372036854775806
+        local n = 9223372036854775807
+        loop(i < n) {
+            if i == 9223372036854775806 {
+                i = i + 1
+                continue
+            }
+            i = i + 1
+        }
+        return i
+    }
+}

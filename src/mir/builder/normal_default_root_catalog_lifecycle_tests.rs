@@ -834,3 +834,93 @@ fn map_lifecycle_stop_precedes_catalog_install_and_body_allocation() {
         rejected.discard();
     }
 }
+
+#[test]
+fn main0_continue_canonical_root_publishes_one_main_through_collector() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        include_str!("../../../apps/tests/phase29ca_generic_loop_continue_min.hako"),
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("selected Main0 continue fixture lowers through the canonical root route");
+    let (_, module, validate) = completed.into_parts();
+    let main = module.get_function("main").expect("canonical root main");
+    // One physical Main: exactly one function owns the root symbol and
+    // exactly one function is marked as the module entry point.
+    assert_eq!(
+        module
+            .functions
+            .keys()
+            .filter(|name| name.as_str() == "main")
+            .count(),
+        1
+    );
+    assert_eq!(
+        module
+            .functions
+            .values()
+            .filter(|function| function.metadata.is_entry_point)
+            .count(),
+        1
+    );
+    // The canonical draft sealed its own Return inside the session; raw
+    // finish must not have appended a second one.
+    let returns = main
+        .blocks
+        .values()
+        .filter(|block| {
+            matches!(
+                &block.terminator,
+                Some(crate::mir::MirInstruction::Return { value: Some(_) })
+            )
+        })
+        .count();
+    assert_eq!(returns, 1, "canonical main owns exactly one value Return");
+    // PHI on the loop backedge proves the canonical physicalizer ran; the
+    // legacy wrapper never produced a PHI for this fixture.
+    assert!(main.blocks.values().any(|block| {
+        block.instructions
+            .iter()
+            .any(|instruction| matches!(instruction, crate::mir::MirInstruction::Phi { .. }))
+    }));
+    validate(&module).expect("canonical main passes final root validation");
+}
+
+#[test]
+fn non_profile_app_main_declines_selection_and_keeps_legacy_wrapper() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    // Observation-only selection must leave the one-shot loan intact for the
+    // legacy wrapper when the bounded If/Continue profile does not match.
+    let source = callable_source(
+        "static box Main { main() { return 7 } }",
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("declined App Main still lowers through the legacy wrapper route");
+    let (_, module, validate) = completed.into_parts();
+    let main = module.get_function("main").expect("legacy wrapper main");
+    assert_eq!(
+        main.blocks
+            .values()
+            .filter(|block| {
+                matches!(
+                    &block.terminator,
+                    Some(crate::mir::MirInstruction::Return { value: Some(_) })
+                )
+            })
+            .count(),
+        1
+    );
+    validate(&module).expect("declined App Main passes final root validation");
+}

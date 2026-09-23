@@ -42,6 +42,8 @@ mod canonical_route;
 mod cataloged_instance_scope;
 #[path = "normal_callable_semantic_loan_port/generic_g0.rs"]
 mod generic_g0;
+#[path = "normal_callable_semantic_loan_port/main0_root.rs"]
+mod main0_root;
 #[path = "normal_callable_semantic_loan_port/main_root.rs"]
 mod main_root;
 #[path = "normal_callable_semantic_loan_port/ordinary_new.rs"]
@@ -367,6 +369,15 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         body: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
         main_root::lower_app_main_root_body_v1(self, builder, expected_identity, body)
+    }
+
+    fn lower_app_main0_continue_root_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        expected_identity: &crate::parser::CallableDeclarationIdentityV1,
+        product: crate::mir::compiler::main0_continue_recipe_coseal::VerifiedMain0ContinueRecipeProductV1,
+    ) -> Result<(), String> {
+        main0_root::lower_app_main0_continue_root_v1(self, builder, expected_identity, product)
     }
 
     fn lower_app_main_static_child(

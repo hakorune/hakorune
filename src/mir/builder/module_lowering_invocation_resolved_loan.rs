@@ -1,7 +1,8 @@
 //! Resolved selected-normal completion with one package signature sibling loan.
 
 use super::super::calls::{LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1};
-use super::super::module_draft_collector::DraftPublicationPolicyV1;
+use super::super::main_pending_draft::MainDraftIdentityV1;
+use super::super::module_draft_collector::{DraftPublicationPolicyV1, FunctionDraftKeyV1};
 use super::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1, ResolvedChildDraftAdmissionV1};
 use crate::mir::normal_callable_semantic_package::ResolvedCallablePhysicalSignatureLoanV1;
 use crate::mir::MirFunction;
@@ -32,6 +33,34 @@ impl PendingDraftTerminal for LegacyFunctionPendingSessionV1<'_> {
 }
 
 impl ModuleLoweringPortV1<'_> {
+    /// Admit one selected canonical `main` draft into this invocation's
+    /// collector.  The draft arrives already sealed by the DraftSeal owner;
+    /// this terminal only pairs it with the `Main` key under the
+    /// reject-duplicate policy, marks the module entry point, and lets the
+    /// drain's shared symbol preflight reject any second publication.
+    pub(in crate::mir::builder) fn complete_main0_continue_root_draft_v1(
+        &mut self,
+        pending: PendingFunctionSessionCloseV1<'_>,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        let identity = MainDraftIdentityV1::root();
+        pending.complete_with(|mut draft| {
+            draft.metadata.is_entry_point = true;
+            let prepared = self
+                .prepare_draft_admission(
+                    FunctionDraftKeyV1::Main,
+                    identity.symbol().to_owned(),
+                    identity.arity(),
+                    DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+                )
+                .map_err(ModuleLoweringPortChildErrorV1::Admission)?;
+            prepared
+                .seal(draft)
+                .map_err(ModuleLoweringPortChildErrorV1::Admission)?
+                .collect();
+            Ok(())
+        })
+    }
+
     /// Consume a package-owned physical-signature sibling loan while the
     /// resolved draft closes. The module/collector never retains the loan.
     pub(in crate::mir::builder) fn complete_resolved_child_with_physical_loan<'loan>(
