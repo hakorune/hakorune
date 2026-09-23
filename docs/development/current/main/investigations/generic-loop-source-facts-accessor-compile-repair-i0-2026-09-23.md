@@ -1,9 +1,9 @@
 ---
-Status: fast__current_change_compile_red_repair
+Status: closed__2026-09-23__build_green_front_named_terminal
 Task: GENERIC-LOOP-SOURCE-FACTS-ACCESSOR-COMPILE-REPAIR-I0
 Date: 2026-09-23
 Parent: generic-legacy-observation-front-g0-premise-recheck-2026-09-23.md
-NextCard: generic-legacy-observation-front-g0-premise-recheck-2026-09-23.md
+NextCard: generic-post-selection-static-call-site-identity-d0-2026-09-23.md
 Implementation permission: one behavior-preserving source projection repair in the existing Generic source-facts owner, then one pinned G0 smoke; no fixture, route, authority, or production-selection changes.
 ---
 
@@ -51,7 +51,7 @@ The same bounded series then runs only:
 ```text
 CARGO_BUILD_JOBS=4 cargo build --profile quick --bin hakorune
 NYASH_BIN=target/quick/hakorune HAKO_BIN=target/quick/hakorune \
-  tools/smokes/v2/profiles/integration/joinir/generic_loop_continue_strict_shadow_vm.sh
+  bash tools/smokes/v2/profiles/integration/joinir/generic_loop_continue_strict_shadow_vm.sh
 ```
 
 The smoke is pinned to `generic_loop_continue_strict_shadow_vm`, fixture
@@ -65,9 +65,31 @@ The smoke is pinned to `generic_loop_continue_strict_shadow_vm`, fixture
   command, exit status, and first owner/terminal in the G0 card.
 - A passing front means exit `4` plus the accepted Loop tag. A tag followed by
   nonzero exit is not a pass.
-- Classify a pre-loop owner, an in-loop owner, and environment unavailability
-  separately using the outcome table in the G0 card. Only a passing front
-  permits selection of serial P1 route observations.
+- A post-selection static-call terminal whose caller/site is not correlated is
+  not a passing front or an in-loop GenericLoop failure. It selects only the
+  source-identity design stop; no route observation follows.
 - Run `bash tools/checks/current_state_pointer_guard.sh` and
   `git diff --check`; update the G0 card and pointer to the observed next
   action. No full acceptance suite or CI wait is required here.
+
+## Closeout evidence
+
+- Source repair landed at `fa80c9ccc2461b58e99a3c6b2c1bb5d52e74e74f`:
+  production projections now borrow `pre_effect` from the existing
+  `route_admission().evidence()` owner; the test-only accessor and receipt
+  identity remain unchanged.
+- `rustfmt --check src/mir/builder/normal_callable_loop_source_facts/generic.rs`
+  and `git diff --check` passed.
+- `CARGO_BUILD_JOBS=4 cargo build --profile quick --bin hakorune` passed on
+  that source, Rust 1.89.0, in 3m08s. The build reported 1,683 warnings; this
+  task made no warning-suppression or warning-cohort change.
+- At the same SHA, the pinned wrapper exited 1 (not the expected 4). It was
+  invoked through `bash` at `2026-09-23T14:13:39+09:00`; its first named terminal was
+  `[freeze:contract][static-call/legacy-fallback-retired] owner=StringHelpers
+  method=to_i64 arity=1`. Loop planner/shadow tags appeared earlier, but the
+  diagnostic has no caller or `SourceExprSiteV1`; the worker audit did not
+  correlate this terminal with the printed Loop function or the known
+  `StringHelpers.int_to_str/1` site.
+- Therefore this repair row closes its build obligation only. The pinned front
+  remains unaccepted and is handed to the exact source-identity design stop;
+  there is no LoopRecipe, publication, production-switch, or fallback claim.
