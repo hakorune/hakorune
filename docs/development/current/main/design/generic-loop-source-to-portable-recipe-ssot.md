@@ -35,15 +35,22 @@ source-facts compile repair landed and the quick binary builds. The pinned
 tags at `StringHelpers.to_i64/1`. That wrapper hardcodes `--backend vm`, which
 dispatches to retired Legacy VM Keep and seals a Compatibility AST root; its
 terminal is outside the selected source-backed compiler lane. Caller/site
-identity is intentionally unresolved for that retired observation. The next
-bounded task is
+identity remains unresolved for that retired observation. The former proposal
+to make a same-run observation the next prerequisite is superseded by
 [`GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0`](../investigations/generic-loop-mainline-source-front-d0-2026-09-23.md):
-design one exact MIR front that proves its actual materializer outcome and
-same-run GenericLoop terminal. The backend name alone does not prove
-`SourceBacked`; the materializer also returns explicit `Compatibility`. Do not
-repeat the corpus census, select the Aug-07 S0 schedule again, or count an
-unobserved case as a decline. S6E producer work remains closed pending a
-selected source-backed front; this is not a prerequisite for S6A.
+`NoExistingObserver` records missing exact-run evidence, not missing source or
+consumer authority and not an external wait. The active design is tasked to
+select one whole-callable production cohort, its existing portable owners, the
+caller/route and old edge to retire, and its acceptance in one migration
+series. The source issuer has distinct GenericV1, LoopCond, and LoopTrue paths;
+do not assign a route from a fixture name or treat the Continue fixture as
+proof of GenericV1. Its exact same-run result remains acceptance evidence, not
+an entry condition for internal design. Do not repeat the corpus census or
+select the Aug-07 S0 schedule again. S6E producer work remains closed pending
+the bounded migration mapping; this is not a prerequisite for S6A. A finite
+screen found no ready production tuple among nearby examples: the positive
+GenericV1 and CallableSingleLoop tests hand-build AST/source context and do
+not establish a production whole-callable caller or deletion set.
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a

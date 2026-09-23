@@ -20,12 +20,18 @@ latest_card_path = "docs/development/current/main/investigations/generic-loop-ma
 latest_card_summary = """
 NoExistingObserver records missing exact-run evidence, not absent source or
 consumer authority. The prior external-wait/frontier-pause inference is
-withdrawn. E now resolves an internal whole-callable migration mapping:
-source-backed GenericV1 currently lowers through CorePlan; portable Generic
-G0 is a distinct bounded profile. Select the existing callable admission seam,
-settle portable control/prelude/tail/ABI coverage and planned Outside-edge
-removal, then obtain same-run acceptance in that migration series. No new
-observer lane or implementation permission; tests/caller-zero are outputs.
+withdrawn. E now resolves an internal route-specific whole-callable migration
+mapping:
+Existing source-backed GenericV1, LoopCond, and LoopTrue consumers are
+distinct; portable Generic G0 is another bounded profile. The Continue fixture
+has a LoopCondContinueOnly route candidate, but its exact MIR route and issuer
+disposition are unobserved, so neither its VM tag nor fixture name selects the
+GenericV1 edge. The finite candidate screen found no ready production tuple;
+nearby positive tests hand-build AST/source context. Choose one real production
+caller/route/consumer and its old edge, then map the whole callable to portable
+control/prelude/tail/ABI coverage.
+No new observer lane or implementation permission; same-run tests and
+caller-zero are migration outputs.
 """
 next_design_card = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0"
 next_design_card_path = "docs/development/current/main/investigations/generic-loop-mainline-source-front-d0-2026-09-23.md"

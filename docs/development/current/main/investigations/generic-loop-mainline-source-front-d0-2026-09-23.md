@@ -13,12 +13,12 @@ Implementation permission: false; existing E source/caller/consumer/retirement d
 ## Six-line brief
 
 ```
-Decision: retain NoExistingObserver as missing exact-run evidence; withdraw owner-absence/external-wait inference and resolve E's whole-callable replacement contract internally.
-Source authority + canonical issuer: existing preparation/materializer/parser admission and resolver-issued source/type/control relations; current GenericV1 Facts -> claim_all -> semantic Recipe is an existing source-backed CorePlan path, not the portable target.
+Decision: retain NoExistingObserver as missing exact-run evidence; withdraw owner-absence/external-wait inference and resolve E's route-specific whole-callable replacement contract internally.
+Source authority + canonical issuer: existing preparation/materializer/parser admission, resolver relations, route selection, and that route's existing source issuer; GenericV1, LoopCond, and LoopTrue consumers are distinct, and the selected route must be named.
 Non-authority: backend/fixture names, VM results, trace tags, AST-bearing Recipe wrappers, another generic_g0 product, or the fixed 11-entry receipt cannot prove this cohort's portable admission.
 Fail-fast boundary: preserve missing/foreign admission, Facts/route rejects and whole-session discard; no selected failure may retry through Outside, raw lowering, or Compatibility.
-Smallest next slice: map one whole callable's source membership, initializer/input, If/Continue/backedge, After/result/effect/ABI and completion to existing portable owners; name its admission switch, selected old edge and acceptance in the same bounded series.
-Non-claims: no exact fixture outcome, implementation-ready mapping, portable If/Exit coverage, production switch, caller-zero, M8/M9/M10b completion, or retirement is established here.
+Smallest next slice: select one actual source-backed callable/route/issuer cohort, map its whole-function source/control/result/effect/ABI to portable owners, and name that cohort's old edge, cutover and acceptance in the same bounded series.
+Non-claims: no exact fixture route or outcome, implementation-ready mapping, portable If/Exit coverage, production switch, caller-zero, M8/M9/M10b completion, or retirement is established here.
 ```
 
 Boundary: selected MIR preparation -> cataloged whole-callable admission ->
@@ -67,6 +67,43 @@ normal_callable_semantic_loan_port.rs:656-659. The
 explicitly distinguishes legacy Builder RecipeBody/RecipeBlock from canonical
 LoopRecipeV1. Do not relabel the source-V1 wrapper or widen G0 by name.
 
+### Route/cohort distinction still open
+
+The Continue fixture is useful for spelling out whole-callable obligations,
+but its route is not established by its name or the old VM smoke. The route
+registry has a distinct `LoopCondContinueOnly` candidate
+(`control_flow/joinir/route_entry/registry/mod.rs:149-152`), while the
+source-facts issuer handles exact GenericV1, LoopCondBreakContinue, and
+LoopTrue dispositions (`normal_callable_loop_source_facts/generic/issuer.rs:54-184`)
+and has no explicit `LoopCondContinueOnly` branch. GenericV1 candidate
+suppression does not establish exclusivity against that candidate
+(`control_flow/joinir/route_entry/registry/selection.rs:194-205`). The old
+Compatibility VM planner output is not authority for mainline MIR
+`raw_execution_routes` or source-issuer disposition. Therefore the fixture
+cannot yet be paired with the GenericV1 adapter/composer or used to name that
+path as its selected old edge.
+
+Canonical/Outside dispatch at normal_callable_semantic_loan_port.rs:619-684
+is the whole-callable candidate seam. The selected family-specific physical
+consumer must be named from the chosen source cohort; do not infer it from the
+fixture. If the Continue fixture is retained as the cohort, resolve its route
+candidate and typed issuer outcome before claiming a portable mapping or
+deletion tuple. This is internal design work, not a requirement to add an
+observer before design can proceed.
+
+A finite screen of nearby positive examples found no ready production tuple.
+The GenericV1 positive test at
+normal_callable_loop_source_facts_tests.rs:460-569 manually creates its
+source context, Builder and root scope; it is not the whole-callable
+production invocation. The CallableSingleLoop positive test at
+compiler/callable_single_loop_static_fixture_tests.rs:48-90 also uses an
+artificial AST; its real `string_helpers.hako` method has recursive calls,
+Text and substring behavior, so the fixture is not interchangeable. The
+canonical CallableSingleLoop route at compiler/canonical_route.rs:59-60 is a
+separate selector. Do not treat either test as a production migration tuple.
+No external dependency was found; selecting the first real source profile is
+still internal design work.
+
 ## One bounded source-to-portable design
 
 The existing fixture apps/tests/phase29ca_generic_loop_continue_min.hako
@@ -75,7 +112,8 @@ Its manifest row remains unobserved / P0-INVENTORY-ONLY /
 nonproduction-future-evidence with no target/deletion mapping. Do not edit
 that record into a runtime or migration claim.
 
-The first open mapping is one complete source-defined callable shape:
+The current example for spelling out whole-callable obligations is not yet
+the selected production cohort. Its source obligations are:
 
 | Source obligation | Required correspondence before implementation |
 | --- | --- |
@@ -90,31 +128,53 @@ its typed rejection. The table describes the obligation, not a fabricated
 BindingRef/key or an accepted implementation mapping. Do not require a new
 observer or completed tests to begin resolving it.
 
+The migration tuple is not ready until this table has one selected row in
+every column:
+
+| Tuple element | Required decision | Current state |
+| --- | --- | --- |
+| Production unit | Exact real callable, caller, and source owner/site; exclude manually assembled test ASTs. | Unselected. |
+| Source route | Exact accepted route and existing resolver/source issuer disposition. | GenericV1, LoopCond, and LoopTrue owners differ; Continue fixture is not assigned. |
+| Whole-function product | Co-sealed prelude/input, loop facts and transfers, After/tail, effects, ABI, and Completion. | No complete selected-cohort mapping. |
+| Portable consumer | Existing LoopRecipe/JoinSig and common session through function Completion/publication, with only the coverage required by this profile. | If and Exit are rejected today; required rows depend on chosen source semantics. |
+| Cutover/deletion | One canonical/Outside admission switch and that cohort's exact family-specific CorePlan edge to remove; list retained readers. | Candidate seam known; family edge and caller set unresolved. |
+| Acceptance | Same production invocation through publication, normal and typed-negative cases, discard/fresh reuse, and selected-caller old-edge zero. | Planned output; not an entry prerequisite. |
+
 ## Ordered tasks within existing E
 
-1. **Close the mapping above — next internal design work.** Use the existing
+1. **Select the first real production source profile — current internal
+   design work.** Name one existing production caller/callable, exact source
+   route and issuer disposition, whole-callable prelude/loop/After/tail owner,
+   portable consumer contract, and finite caller-local old edge. Test-only
+   manually built ASTs do not satisfy this tuple. Do not use the Continue
+   fixture's historical VM result to infer its mainline route. If it is
+   selected, resolve its `LoopCondContinueOnly` candidate against the source
+   issuer first. If no existing issuer can co-seal the chosen source profile,
+   record the missing existing owner and one bounded design row; do not mint a
+   receipt, add fallback, or treat missing after-change evidence as a blocker.
+2. **Close the whole-callable mapping.** Use the existing
    resolver/semantic-program owner and Recipe/JoinSig owners; settle exact
    cohort membership, input/carrier relations, control, result/effect/ABI and
    whole-callable prelude/tail/Completion. Select a lossless common demand
    input before any physical mutation. Reject owner/key pairing, AST
    reconstruction and old route policy as substitute semantic issuers.
-2. **Close required common coverage in the existing plan.** Reconcile this
-   mapping with the existing LOOP-PHYSICAL-ALWAYS-COVERAGE-I0 ->
-   LOOP-PHYSICAL-IF-COVERAGE-I0 -> LOOP-PHYSICAL-EXIT-COVERAGE-I0 and common
-   session prerequisites in the
+3. **Close only the common coverage required by the selected profile.** Use
+   the existing ordered ALWAYS/IF/EXIT coverage owners and the common-session
+   prerequisites in the
    [Loop pipeline owner](../design/joinir-loop-selfhost-recipe-pipeline-ssot.md).
-   Those rows are not reopened or implementation-authorized by this list.
-   Use one common CFG/SSA/PHI owner; preserve unsupported-shape rejection
-   until its source/JoinSig mapping is accepted.
-3. **Switch the selected whole-callable cohort and remove its old edge in
-   the same bounded series.** The intended seam is the canonical/Outside
-   dispatch in normal_callable_semantic_loan_port.rs, before old callable
-   body lowering. The planned removed path for that cohort is Outside ->
-   lower_*_with_source_v1 -> RawInvocation lower_loop -> source GenericV1
-   adapter/composer. Do not route its prefix through the old Builder then
-   open a fresh common function mid-loop. Any required new transport must
-   consume existing source products, not issue meaning.
-4. **Close acceptance and selected-edge retirement.** Obtain same-invocation
+   Do not require IF/EXIT for a predicate-only cohort, and do not skip them if
+   the chosen source shape needs those semantics. These rows are not reopened
+   or implementation-authorized by this list. Use one common CFG/SSA/PHI
+   owner; keep unsupported shapes typed fail-fast until their source/JoinSig
+   mapping is accepted.
+4. **Switch the selected whole-callable cohort and remove its old edge in
+   the same bounded series.** The seam is canonical/Outside dispatch in
+   normal_callable_semantic_loan_port.rs, before old callable body lowering.
+   Name the family-specific current consumer only after task 1 closes. Do not
+   route the prefix through old Builder then open a fresh common function
+   mid-loop. Any transport must consume existing source products, not issue
+   meaning.
+5. **Close acceptance and selected-edge retirement.** Obtain same-invocation
    source/demand/session/Completion/publication evidence, success and typed
    failure coverage, and selected-caller old-edge zero. Keep shared owners
    until their other readers are resolved. This bounded closeout does not
@@ -140,8 +200,9 @@ The future acceptance must prove:
 - one production preparation/materialization invocation supplies the exact
   bytes/lineage, admitted callable/site and portable product consumed by the
   common session through Completion and publication;
-- expected normal result and control order, and missing/foreign/duplicate
-  identity/control rejection; the source's expected result 4 remains unrun;
+- expected normal result and control order for the selected cohort, and
+  missing/foreign/duplicate identity/control rejection. The Continue fixture's
+  expected result 4 is not assigned to this cohort until its route is resolved;
 - failure discards the entire unpublished session, fresh reuse succeeds and
   selected failure cannot retry through the old path;
 - the selected caller no longer uses its CorePlan skeleton/PHI path, while
@@ -158,7 +219,16 @@ This slice is not Fast path because source cohort -> portable whole-callable
 demand -> caller switch/deletion is still open. The read-only worker verified
 the live source/CorePlan path, the distinct G0 profile, common If/Exit rejects,
 fresh-session boundary and retained callers. The primary agent checked the
-preparation/admission and entry policy and integrated this single Decision.
-No worker changed files or ran builds/tests; no runtime evidence is claimed.
+preparation/admission and entry policy. A second bounded read-only route audit
+found that the Continue fixture has a `LoopCondContinueOnly` candidate, but
+its mainline raw route and issuer disposition remain unobserved; the existing
+source issuer has no explicit branch for that candidate. The Compatibility VM
+planner tag does not settle the MIR route, so the fixture is not assigned to
+the GenericV1 adapter or deletion edge. A further finite candidate screen
+found no complete production tuple: nearby GenericV1 and CallableSingleLoop
+positive cases hand-build their source/AST context and do not prove whole-
+callable production admission or cutover. These findings are reflected in
+task 1 and the tuple table. No worker changed files or ran builds/tests; no
+runtime evidence is claimed.
 Design checks passed: current_state_pointer_guard.sh, CURRENT_STATE TOML and
 changed-card relative-link validation, and git diff --check. No Cargo/CI run.
