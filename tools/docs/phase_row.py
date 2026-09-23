@@ -66,9 +66,19 @@ def load_state() -> State:
 
 
 def replace_scalar(text: str, key: str, value: str) -> str:
-    pattern = rf'^{re.escape(key)}\s*=\s*"[^"]*"\s*$'
-    replacement = f'{key} = "{value}"'
-    new, count = re.subn(pattern, replacement, text, count=1, flags=re.M)
+    # CURRENT_STATE uses both single-line strings and multiline basic strings
+    # for pointer summaries. Match either form so dry-run previews don't fail
+    # on the repository's current multiline latest_card_summary.
+    pattern = rf'^{re.escape(key)}\s*=\s*(?:"""[\s\S]*?"""|"[^"\n]*")\s*$'
+    if "\n" in value:
+        if '"""' in value:
+            raise SystemExit(f"multiline scalar contains unsupported triple quote: {key}")
+        escaped = value.replace("\\", "\\\\")
+        replacement = f'{key} = """{escaped}"""'
+    else:
+        escaped = value.replace("\\", "\\\\").replace('"', '\\"')
+        replacement = f'{key} = "{escaped}"'
+    new, count = re.subn(pattern, lambda _match: replacement, text, count=1, flags=re.M)
     if count != 1:
         raise SystemExit(f"failed to update CURRENT_STATE scalar: {key}")
     return new
