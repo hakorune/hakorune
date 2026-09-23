@@ -9,17 +9,14 @@
 
 use super::super::canonical_ssa::{CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2};
 use super::super::trivial_ssa::emit_resolved_header;
-use super::topology::{ReadyLoopEntryRowV1, ReadyLoopEntryV1};
-use crate::ast::{ASTNode, LiteralValue};
-use crate::mir::builder::emission::constant;
+use super::topology::ReadyLoopEntryV1;
+use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::loop_physical_prepare::{
     VerifiedCallableFunctionLoweringInputV1, VerifiedCallablePreludeCapabilityV1,
 };
 use crate::mir::loop_recipe_contract::VerifiedLoopInitializedLocalInputSourceSetV1;
-use crate::mir::resolved_semantics::{
-    BindingKindV1, BindingOriginV1, OwnedExprSiteV1, SourceBindingSiteV1,
-};
+use crate::mir::resolved_semantics::{BindingKindV1, BindingOriginV1, SourceBindingSiteV1};
 use crate::mir::{BasicBlockId, MirType, ValueId};
 use hakorune_mir_core::MirValueKind;
 
@@ -233,67 +230,34 @@ pub(super) fn materialize_callable_prelude_v1(
         )
         .map_err(CallablePreludeMaterializationRejectV1::ResultDeclaration)?;
 
-    let mut entry_rows = Vec::with_capacity(input_relations.rows().len());
-    for input_relation in input_relations.rows() {
-        let initializer_site =
-            OwnedExprSiteV1::new(input.owner(), input_relation.initializer().clone());
-        let initializer = input
-            .input()
-            .source()
-            .expr_at(&initializer_site)
-            .map_err(|error| {
-                CallablePreludeMaterializationRejectV1::InputInitializerNavigation(
-                    error.to_string(),
-                )
-            })?;
-        let initial_value = match initializer.node() {
-            ASTNode::Literal {
-                value: LiteralValue::Integer(value),
-                ..
-            } => value,
-            _ => return Err(CallablePreludeMaterializationRejectV1::InputInitializerUnsupported),
-        };
-        let input_binding = input
-            .input()
-            .function()
-            .declaration_binding(input_relation.declaration())
-            .ok_or(CallablePreludeMaterializationRejectV1::InputBindingMissing)?;
-        if input_binding != input_relation.source_binding() {
-            return Err(CallablePreludeMaterializationRejectV1::InputBindingMismatch);
+    let entry = super::initialized_local_input_materializer::materialize_initialized_local_inputs_v1(
+        builder,
+        session,
+        input.owner(),
+        input.input(),
+        input_relations,
+        preheader,
+    )
+    .map_err(|error| match error {
+        super::initialized_local_input_materializer::InitializedLocalInputMaterializationRejectV1::OwnerMismatch => {
+            CallablePreludeMaterializationRejectV1::OwnerMismatch
         }
-        let input_record = input
-            .input()
-            .function()
-            .binding(input_binding)
-            .ok_or(CallablePreludeMaterializationRejectV1::InputBindingMissing)?;
-        let BindingKindV1::Local { .. } = input_record.kind() else {
-            return Err(CallablePreludeMaterializationRejectV1::InputBindingMismatch);
-        };
-        if !matches!(
-            input_record.origin(),
-            BindingOriginV1::Source(site) if *site == *input_relation.declaration()
-        ) {
-            return Err(CallablePreludeMaterializationRejectV1::InputBindingMismatch);
+        super::initialized_local_input_materializer::InitializedLocalInputMaterializationRejectV1::InputBindingMissing => {
+            CallablePreludeMaterializationRejectV1::InputBindingMissing
         }
-        let input_value = constant::emit_integer(builder, *initial_value)
-            .map_err(CallablePreludeMaterializationRejectV1::InputDeclaration)?;
-        session
-            .identity
-            .publish_declaration(
-                input_relation.declaration(),
-                input_record.kind(),
-                input_record.diagnostic_name(),
-                preheader,
-                input_value,
-            )
-            .map_err(CallablePreludeMaterializationRejectV1::InputDeclaration)?;
-        entry_rows.push(ReadyLoopEntryRowV1::new(
-            input_relation.recipe_value(),
-            input_binding,
-            input_value,
-        ));
-    }
-    let entry = ReadyLoopEntryV1::from_rows(input.owner(), preheader, entry_rows);
+        super::initialized_local_input_materializer::InitializedLocalInputMaterializationRejectV1::InputBindingMismatch => {
+            CallablePreludeMaterializationRejectV1::InputBindingMismatch
+        }
+        super::initialized_local_input_materializer::InitializedLocalInputMaterializationRejectV1::InputInitializerNavigation(error) => {
+            CallablePreludeMaterializationRejectV1::InputInitializerNavigation(error)
+        }
+        super::initialized_local_input_materializer::InitializedLocalInputMaterializationRejectV1::InputInitializerUnsupported => {
+            CallablePreludeMaterializationRejectV1::InputInitializerUnsupported
+        }
+        super::initialized_local_input_materializer::InitializedLocalInputMaterializationRejectV1::InputDeclaration(error) => {
+            CallablePreludeMaterializationRejectV1::InputDeclaration(error)
+        }
+    })?;
     Ok(CallablePreludeMaterializationReceiptV1 {
         owner: input.owner(),
         preheader,

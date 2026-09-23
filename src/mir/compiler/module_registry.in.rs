@@ -129,6 +129,10 @@ mod main0_continue_root_selection_tests;
 // Caller-zero until the same Main0 production caller switch; recheck at the
 // canonical-root handoff slice.
 #[allow(dead_code)]
+pub(in crate::mir) mod main0_continue_semantic_program;
+// Caller-zero until the same Main0 production caller switch; recheck at the
+// canonical-root handoff slice.
+#[allow(dead_code)]
 pub(crate) mod main0_continue_source_map;
 // Caller-zero until the same Main0 production caller switch; recheck at the
 // canonical-root handoff slice.

@@ -52,6 +52,10 @@ mod normal_callable_loop_source_port; // source-aware GenericLoop expression cap
 mod normal_callable_loop_source_route; // callable source-owned LoopCond route token
 mod normal_callable_package_bridge; // Builder-private package install boundary
 mod normal_callable_prepared_operation; // Builder-free full-demand ingress
+// Caller-zero until the Main0 canonical-root handoff wires the installed App
+// Main caller; recheck at the production-switch slice.
+#[allow(dead_code)]
+mod normal_main0_continue_prepared_operation; // Builder-free Main0 full-demand ingress
 mod normal_callable_semantic_loan_port; // Thin installed-package port adapter
 mod normal_callable_semantic_lowering_state; // Callable BindingRef-to-ValueId projection
 pub(in crate::mir) use normal_callable_semantic_lowering_state::validate_map_local_annotation;

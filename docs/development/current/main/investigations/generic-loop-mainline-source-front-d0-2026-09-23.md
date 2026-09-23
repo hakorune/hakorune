@@ -418,6 +418,60 @@ conditionally, canonical Main draft via the existing session/DraftSeal,
 collector drain `Main` admission, finished-root disposition bypassing raw
 finish, root validation) is unchanged and still open.
 
+## Main0 Continue physicalization checkpoint — 2026-09-23
+
+The verified product now reaches one canonical draft seal through the
+existing physical owners, following the callable chain's shape
+(ingress -> demand -> session emit -> DraftSeal) with no prelude and no
+second return authority:
+
+- `loop_recipe_physicalizer/initialized_local_input_materializer.rs` —
+  the initialized-local entry-seed materialization was extracted out of
+  `callable_canary.rs` so both profiles share one entry-seed owner.
+  `callable_canary` now delegates; its canary/late-failure/mutation tests
+  still pass.
+- `compiler/main0_continue_semantic_program.rs` — consumes the whole
+  `VerifiedMain0ContinueRecipeProductV1` once and issues
+  `PreparedMain0ContinueOperationDemandV1`, forbidding independent
+  re-pairing of operation/effect/context/continuation rows.
+- `builder/normal_main0_continue_prepared_operation.rs` — ingress and
+  source-context validation, then transports
+  `PreparedMain0ContinueOperationProgramV1` into the physicalizer.
+- `loop_recipe_physicalizer/main0_continue_lowerer.rs` — opens the
+  canonical session, installs resolver bindings, materializes `i`/`n`,
+  allocates loop segments, emits compare/assign/continue through the
+  common operation dispatcher, resolves the canonical `i` at the tail,
+  claims the `return i` completion, marks both the `continue` site and
+  the `return` site in canonical identity coverage (the initial
+  `exits=1/2` mismatch was the missing continue claim), and returns one
+  `ReadyFunctionDraftSealV1`. DraftSeal stays the sole owner projecting
+  the final MIR `Return` terminator. Profile close pins observed
+  coverage counts `(14 operations, 7 pure, 5 reads, 2 writes)` as a
+  tripwire. Direct-call capability is installed with `required=false`
+  because this profile has no direct call.
+
+Focused evidence:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib main0_continue_lowerer
+PASS: 1 passed, 8345 filtered out.
+cargo test --lib <physicalizer suite>
+PASS: 23 passed, 0 failed (callable canary, generic G0, segment
+allocator/dispatcher/After, Main0 lowerer).
+```
+
+The test drives the real installed package path (`.hako` text -> parse ->
+resolve -> install -> `begin_lowering`), observes selection, consumes the
+loan once, issues semantic demand, lowers physically, and commits the seal
+into a `MirFunction` asserting entry/header/body/after blocks, a loop Add
+feeding a header PHI backedge, and a value-bearing `Return` terminator.
+
+Non-claims: the lowerer is exercised directly, not through the production
+App Main lifecycle. The remaining handoff work (prepare split so the
+wrapper opens conditionally, collector drain `Main` admission,
+finished-root disposition bypassing raw finish, root validation,
+caller switch, and caller-zero proof for the retired path) stays open.
+
 ## Review and validation
 
 Two read-only workers covered independent uncertainties: complete legacy

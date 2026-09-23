@@ -20,6 +20,13 @@ mod compare_result_ledger;
 mod generic_lowerer;
 #[cfg(test)]
 mod generic_production_canary_tests;
+mod initialized_local_input_materializer;
+// Caller-zero until the Main0 canonical-root handoff wires the installed App
+// Main caller; recheck at the production-switch slice.
+#[allow(dead_code)]
+mod main0_continue_lowerer;
+#[cfg(test)]
+mod main0_continue_lowerer_tests;
 mod operation_dispatcher;
 mod operation_emitter;
 mod operation_ledger;
@@ -36,6 +43,10 @@ mod topology;
 pub(in crate::mir::builder) use callable_lowerer::lower_callable_single_loop_function_draft_v1;
 pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_pending_v1;
 pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft_v1;
+// Caller-zero re-export until the Main0 canonical-root handoff wires the
+// installed App Main caller; recheck at the production-switch slice.
+#[allow(unused_imports)]
+pub(in crate::mir::builder) use main0_continue_lowerer::lower_main0_continue_function_draft_v1;
 pub(super) use operation_dispatcher::LoopOperationDispatchServicesV1;
 #[cfg(test)]
 pub(super) use segment_allocator::allocate_for_layout;
