@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "GENERIC-LEGACY-ROUTE-OBSERVATION-P1"
 current_execution_cohort = "generic_legacy_serial_route_observation"
-current_blocker_token = "GENERIC-LEGACY-ROUTE-OBSERVATION-P1__SerialSelfhostSubsetBatch1Open"
+current_blocker_token = "GENERIC-LEGACY-ROUTE-OBSERVATION-P1__SerialSelfhostSubsetBatch2Open"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "SerialRouteObservation__SelfhostSubsetBatch1__ObservationOnly_2026-09-23"
+current_design_stop = "SerialRouteObservation__SelfhostSubsetBatch2__ObservationOnly_2026-09-23"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/generic-legacy-route-observation-p1-batch6-2026-09-23.md"
-latest_card = "generic-legacy-route-observation-p1-batch6"
-latest_card_path = "docs/development/current/main/investigations/generic-legacy-route-observation-p1-batch6-2026-09-23.md"
+current_execution_design = "docs/development/current/main/investigations/generic-legacy-route-observation-p1-batch7-2026-09-23.md"
+latest_card = "generic-legacy-route-observation-p1-batch7"
+latest_card_path = "docs/development/current/main/investigations/generic-legacy-route-observation-p1-batch7-2026-09-23.md"
 latest_card_summary = """
 P1 batches landed: batch 1 at 849daed591 (12 generic-fixture; 9
 rejected/3 pre-loop), batch 2 at fa44524d9b (41 phase29bq; 6 accepted
@@ -25,15 +25,17 @@ incl. one canonical loop case, 25 rejected, 10 pre-loop), batch 3 at
 pre-loop), batch 4 at 3e20b17e53 (42 selfhost tsv:69-110; 8 accepted,
 33 rejected, 1 pre-loop), batch 5 at d888419d6e (43 selfhost
 tsv:111-181; 0 accepted, 23 rejected, 20 pre-loop). The 126-case
-selfhost fast-gate cohort is fully observed. Batch 6 opens the
-selfhost-subset cohort: first 45 rows (subset tsv:6-50), same two
-invocations each, per-row subset expected values, observation_state
+selfhost fast-gate cohort is fully observed. Batch 6 at 50dee7a92e
+(45 subset rows tsv:6-50; 9 accepted, 28 rejected, 8 pre-loop) also
+recorded the first nondeterminism evidence: if_else_return{,_var}
+intermittently emit legacy void @main. Batch 7 continues: subset
+tsv:51-100 (49 rows), same two invocations each, observation_state
 only. Row F stays blocked on M10 pre-cutover items and M8/S6E
 coverage; strict-shadow and the inplace-replacement guard reds
 remain recorded baseline debt.
 """
 next_design_card = "GENERIC-LEGACY-ROUTE-OBSERVATION-P1"
-next_design_card_path = "docs/development/current/main/investigations/generic-legacy-route-observation-p1-batch6-2026-09-23.md"
+next_design_card_path = "docs/development/current/main/investigations/generic-legacy-route-observation-p1-batch7-2026-09-23.md"
 next_execution_card = "none__design_only__serial_route_observation_batch"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
