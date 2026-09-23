@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "GENERIC-LEGACY-ROUTE-OBSERVATION-P1"
 current_execution_cohort = "generic_legacy_serial_route_observation"
-current_blocker_token = "GENERIC-LEGACY-ROUTE-OBSERVATION-P1__SerialSelfhostSubsetBatch4Open"
+current_blocker_token = "GENERIC-LEGACY-ROUTE-OBSERVATION-P1__CorpusFullyObserved_FrontierPause"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "SerialRouteObservation__SelfhostSubsetBatch4__ObservationOnly_2026-09-23"
+current_design_stop = "FrontierPause__P1CorpusFullyObserved__FamilySchedulerReselectionRequired_2026-09-23"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,29 +14,25 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/generic-legacy-route-observation-p1-batch9-2026-09-23.md"
-latest_card = "generic-legacy-route-observation-p1-batch9"
-latest_card_path = "docs/development/current/main/investigations/generic-legacy-route-observation-p1-batch9-2026-09-23.md"
+current_execution_design = "docs/development/current/main/investigations/generic-legacy-route-observation-p1-batch10-2026-09-23.md"
+latest_card = "generic-legacy-route-observation-p1-batch10"
+latest_card_path = "docs/development/current/main/investigations/generic-legacy-route-observation-p1-batch10-2026-09-23.md"
 latest_card_summary = """
-P1 batches landed: batch 1 at 849daed591 (12 generic-fixture; 9
-rejected/3 pre-loop), batch 2 at fa44524d9b (41 phase29bq; 6 accepted
-incl. one canonical loop case, 25 rejected, 10 pre-loop), batch 3 at
-9622b1ca5c (41 selfhost tsv:4-68; 1 accepted, 24 rejected, 16
-pre-loop), batch 4 at 3e20b17e53 (42 selfhost tsv:69-110; 8 accepted,
-33 rejected, 1 pre-loop), batch 5 at d888419d6e (43 selfhost
-tsv:111-181; 0 accepted, 23 rejected, 20 pre-loop). The 126-case
-selfhost fast-gate cohort is fully observed. Batch 6 at 50dee7a92e
-(45 subset rows tsv:6-50; 9 accepted, 28 rejected, 8 pre-loop) also
-recorded the first nondeterminism evidence: if_else_return{,_var}
-intermittently emit legacy void @main. Batch 7 at c6434e6ad7 (49 subset
-rows tsv:51-100; 0 accepted, 37 rejected, 12 pre-loop — all twins
-reproduced). Batch 8 at b80659301e (60 subset
-rows tsv:101-160; 0 accepted, 15 rejected, 45 pre-loop; first
-expected-output mismatches recorded). Batch 9 closes the subset
-cohort: last 44 rows (tsv:161-204), same two invocations each,
-observation_state only. Row F stays blocked on M10 pre-cutover items and M8/S6E
-coverage; strict-shadow and the inplace-replacement guard reds
-remain recorded baseline debt.
+P1 serial route observation complete: all 398 P0-normalized corpus
+rows observed (40 accepted / 196 rejected / 162 failed-before-loop).
+Batches 6-9 covered the 198-row selfhost-subset cohort (9 accepted /
+81 rejected / 108 pre-loop): batch 6 at 50dee7a92e recorded the first
+nondeterminism (if_else_return{,_var} intermittent void @main),
+batches 7-9 (c6434e6ad7/b80659301e/9e277c5b4a) showed the
+local_expr/fini/box_member cleanup family uniformly refused at
+ResolverDeferred TryCatch at non-loop sites, plus 12 recorded
+expected-output mismatches. Batch 10 at f5514cf608 closed the 5 edge
+rows (release-adopt smoke+alias accepted; strict-shadow+alias
+pre-loop at to_i64 baseline debt; fixture-inventory rejected). Row F
+stays blocked on M10 pre-cutover items; the next row is a
+family-scheduler reselection — GENERIC-LEGACY-DISPOSITION-D0 owns
+disposition classification. Strict-shadow and the
+inplace-replacement guard reds remain recorded baseline debt.
 """
 next_design_card = "GENERIC-LEGACY-ROUTE-OBSERVATION-P1"
 next_design_card_path = "docs/development/current/main/investigations/generic-legacy-route-observation-p1-batch9-2026-09-23.md"
