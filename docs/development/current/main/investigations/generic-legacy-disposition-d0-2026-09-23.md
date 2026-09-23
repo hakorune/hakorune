@@ -79,12 +79,15 @@ Disposition vocabulary (fixed by manifest contract):
    - Smoke-script/alias rows whose own gate is green →
      `portable-owner`, `target_owner` = the script's recorded
      production-route gate.
-   - `parse_program2_if_else_return{,_var}` (2 rows): intermittent
-     legacy `void @main` emission → hold unclassified behind a named
-     nondeterminism repair row; do not manufacture a stable
-     disposition. These two rows keep the "unclassified accepted"
-     counter nonzero and are the card's recorded hold-back until the
-     repair row lands.
+   - `if_else_return{,_var}` (4 corpus rows covering the same 2
+     fixtures — fast-gate `selfhost_parse_program2_if_else_return
+     {,_var}_min` and their subset twins both resolve to
+     `phase29bq_selfhost_blocker_parse_program2_if_else_return
+     {,_var}_min.hako`): intermittent legacy `void @main` emission →
+     hold unclassified behind a named nondeterminism repair row; do
+     not manufacture a stable disposition. These four rows keep the
+     "unclassified accepted" counter nonzero and are the card's
+     recorded hold-back until the repair row lands.
    - A-side expected-output mismatches (batches 7-9) do not alter the
      B-axis disposition; they are recorded evidence for the repair
      row, not a disposition input.
@@ -144,7 +147,7 @@ the guard as green evidence.
 ## Closeout rule carried forward
 
 Row contract: accepted cases use only `portable-owner` or
-`accepted-typed-reject`; `unclassified accepted count = 0`. The two
+`accepted-typed-reject`; `unclassified accepted count = 0`. The four
 held nondeterminism rows are the named exception — S6E cannot close
 while they are unclassified, and M10b stays blocked on unclassified
 Generic fixtures per the Loop selfhost pipeline SSOT. Future evidence

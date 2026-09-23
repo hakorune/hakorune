@@ -50,6 +50,8 @@ ACCEPTANCE = {"unknown", "accepted", "rejected"}
 CASE_CORPORA = {"phase29bq", "selfhost", "generic-fixture", "generic-smoke"}
 CASE_MODES = {"fast-gate", "selfhost-subset", "fixture-inventory", "release-adopt", "strict-shadow", "compat-alias"}
 CASE_DECISION = "P0-INVENTORY-ONLY"
+D0_DECISION = "D0-DISPOSITION-CHECKED"
+D0_DISPOSITIONS = {"portable-owner", "accepted-typed-reject"}
 CASE_RETENTION = "GENERIC-LEGACY-CORPUS-UNIVERSE-P0"
 UNKNOWN = "unknown"
 FRONT_STATES = {"loop-reached", "failed-before-loop", "timeout", "spawn-error"}
@@ -91,21 +93,13 @@ def _check_case(record: Record, root: pathlib.Path, ids: set[str]) -> None:
         raise _fail(root, record.line, f"invalid current acceptance {value['current_acceptance']!r}")
     if value["disposition"] not in DISPOSITIONS:
         raise _fail(root, record.line, f"invalid disposition {value['disposition']!r}")
-    if value["decision"] != CASE_DECISION:
-        raise _fail(root, record.line, "P0 case decision must remain inventory-only")
     if value["retention_row"] != CASE_RETENTION:
         raise _fail(root, record.line, "P0 case retention row drift")
-    if value["current_acceptance"] == "accepted":
-        raise _fail(root, record.line, "P0 must not claim an accepted case")
-    if value["disposition"] != "nonproduction-future-evidence":
-        raise _fail(root, record.line, "P0 cases must retain future evidence only")
     if value["nested_bypass"] not in {SENTINEL, UNKNOWN}:
-        raise _fail(root, record.line, "P0 nested-bypass state must be unknown or sentinel")
+        raise _fail(root, record.line, "nested-bypass state must be unknown or sentinel")
     if value["parity_gate"] != "not-run":
-        raise _fail(root, record.line, "P0 parity gate must remain not-run")
-    for field in (
-        "observed_route",
-        "target_owner",
+        raise _fail(root, record.line, "parity gate must remain not-run")
+    edge_fields = (
         "symbol",
         "current_role",
         "production_callers",
@@ -114,9 +108,30 @@ def _check_case(record: Record, root: pathlib.Path, ids: set[str]) -> None:
         "cutover_action",
         "retire_row",
         "replacement_owner",
-    ):
-        if value[field] != SENTINEL:
-            raise _fail(root, record.line, f"P0 case field {field} must be {SENTINEL!r}")
+    )
+    if value["decision"] == CASE_DECISION:
+        if value["current_acceptance"] == "accepted":
+            raise _fail(root, record.line, "P0 must not claim an accepted case")
+        if value["disposition"] != "nonproduction-future-evidence":
+            raise _fail(root, record.line, "P0 cases must retain future evidence only")
+        for field in ("observed_route", "target_owner", *edge_fields):
+            if value[field] != SENTINEL:
+                raise _fail(root, record.line, f"P0 case field {field} must be {SENTINEL!r}")
+    elif value["decision"] == D0_DECISION:
+        if value["observation_state"] != "accepted":
+            raise _fail(root, record.line, "D0 checked cases require an accepted observation")
+        if value["current_acceptance"] != "accepted":
+            raise _fail(root, record.line, "D0 checked cases must record accepted acceptance")
+        if value["disposition"] not in D0_DISPOSITIONS:
+            raise _fail(root, record.line, "D0 checked cases must use portable-owner or accepted-typed-reject")
+        for field in ("observed_route", "target_owner"):
+            if value[field] in {SENTINEL, ""}:
+                raise _fail(root, record.line, f"D0 checked case field {field} must name the authority")
+        for field in edge_fields:
+            if value[field] != SENTINEL:
+                raise _fail(root, record.line, f"D0 case edge field {field} must be {SENTINEL!r}")
+    else:
+        raise _fail(root, record.line, f"unknown case decision {value['decision']!r}")
     alias = value["alias_of"]
     if alias != SENTINEL and alias not in ids:
         raise _fail(root, record.line, f"alias target is not a canonical case: {alias}")

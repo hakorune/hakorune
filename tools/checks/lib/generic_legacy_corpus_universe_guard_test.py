@@ -34,7 +34,7 @@ class GenericLegacyCorpusGuardTest(unittest.TestCase):
 
     def test_current_manifest_is_closed_inventory_shape(self):
         records = guard.validate_manifest(MANIFEST, ROOT)
-        self.assertEqual(sum(item.values["record_kind"] == "case" for item in records), 389)
+        self.assertEqual(sum(item.values["record_kind"] == "case" for item in records), 398)
         self.assertEqual(sum(item.values["alias_of"] != "-" for item in records if item.values["record_kind"] == "case"), 4)
 
     def test_front_receipt_is_a_named_pre_loop_failure(self):
