@@ -1,11 +1,11 @@
 ---
-Status: design_stop__main0_continue_target_selected__2026-09-23
+Status: fast__main0_continue_semantic_program_decision_accepted__2026-09-23
 Task: GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0
 Date: 2026-09-23
 Parent: generic-post-selection-static-call-site-identity-d0-2026-09-23.md
 PreviousCard: generic-legacy-observation-front-g0-premise-recheck-2026-09-23.md
-NextCard: none__close_main0_semantic_program_in_this_card
-Implementation permission: false; target and root lifecycle strategy are selected. Close the source semantic-program contract below before code, fixtures, or production selection.
+NextCard: implement_main0_continue_semantic_program_and_selected_cutover
+Implementation permission: true for this card's exact Main0 Continue profile, its canonical Main publication, and removal of that profile's raw body/raw finish edge in the same bounded series.
 ---
 
 # Main0 Continue source-to-portable migration
@@ -133,20 +133,69 @@ belong to the existing compiler source/normal package and portable producer
 owners. The issuer must consume the source context, source-bound Core,
 input/item/carrier relations and its own JoinSig continuation together.
 
+## Accepted source result and numeric contract
+
+The source result stays **unannotated**. `Main.main/0` is an ordinary method;
+its explicit `return` produces a source value, while omission of `: T` is not
+static return-type inference. The selected issuer therefore does not invent
+`: i64` or use `MirType::Integer` as proof. It proves the selected tail's
+source result representation from the same source-owned value/control graph,
+then hands the existing Main entry-result owner `Integer` via its existing
+`VerifiedNormalMainThunkResultV1::Integer` case. This is an entry-result
+classification, not a new language type or ABI type.
+
+The exact Main0 issuer owns the missing co-seal: both local `BindingRef`s and
+their literal initializers; the invariant bound; `Less` and `Equal` operand
+relations; both distinct `Add(1)`/local-write sites; the then-branch Continue
+target; the no-else fallthrough; the ordinary backedge; and the tail Return of
+the same carrier after loop exit. It also proves complete source coverage and
+the absence of calls, allocation, field/external mutation, or other effects.
+This is a bounded source effect/result contract, not a MIR `EffectMask` or
+backend observation.
+
+The selected syntax accepts only plain `Integer` literals and the existing
+dynamic `Integer(i64)` value lane. The tokenizer parses integer literals into
+`i64`; `Integer + Integer` and same-kind Integer comparison have existing
+source semantics. Both updates execute only while `carrier < invariant_bound`.
+Since the bound is itself a representable Integer value, each executed
+`carrier + 1` is representable (`carrier < bound <= i64::MAX`); no general
+overflow, wrapping, termination, or exact-width policy is introduced. The
+tail representation is `InlineI64` only as a proved physical carrier. The
+existing completion owner separately seals one explicit value Return with
+the declaration still `Unannotated`; actual physical Completion and DraftSeal
+are produced and checked at function finish.
+
+Reuse the existing Main result/entry contract and `VerifiedFunctionCompletion`
+owner, extending their input only to consume this same-source Main0 result
+projection. Do not reuse Generic G0's two-parameter/four-literal numeric
+product, the CallableSingleLoop product, an annotation-only `ExactTrivialReturnAbi`,
+or a second Main thunk/publication route. A missing, conflicting, foreign, or
+uncovered source/result/control product rejects before physical opening.
+
+Evidence anchors: plain integer tokens are parsed to `i64` in
+`crates/hakorune_frontend_parser/src/tokenizer/lex_number.rs`; the AST stores
+`LiteralValue::Integer(i64)` in `crates/hakorune_frontend_ast/src/literal.rs`;
+the runtime dynamic Integer lane and same-kind comparisons live in
+`docs/reference/language/types.md`; `Main.main/0` explicit-return and
+unannotated-result semantics are in
+`docs/reference/language/function-exit-and-entry-result.md`; the existing
+source-entry `Integer` mapping is
+`src/mir/compiler/normal_source_plan/main_thunk_plan.rs` (`seal_result`).
+These authorities establish literal/value and entry-result meaning; the new
+bounded issuer still has to establish their exact same-source relation.
+
 ## Ordered work and exit conditions
 
 1. **Done: select the target and root strategy.** No more candidate search or
    observation-only census is needed for this responsibility.
-2. **Current: close Main0 semantic-program admission.** Fix the exact
-   compiler-side source issuer and normal-package handoff, scalar Integer
-   representation/result ABI, local-only effect, complete source-role/control
-   coverage, and Completion. For unit steps, `carrier < bound` over valid
-   signed Integer values makes `carrier + 1` fit; both update sites need that
-   source guarantee. Do not infer fixed-width annotation semantics from
-   `MirType::Integer`. Close the one-loan branch and finished-root protocol
-   against the owners above. Output one accepted mapping and a bounded
-   implementation brief in this card, not another target-selection task.
-3. **Implement the source/Recipe contract and required common control.**
+2. **Done: accept Main0 semantic-program admission.** The exact source issuer
+   is the one-shot App Main loan from the installed parser/package batch plus
+   its `ResolvedFunctionLoweringInputV1` Core. It issues one complete
+   source-indexed program co-seal for membership, value/control/effect/result
+   and JoinSig continuation. The source result remains Unannotated; its
+   Integer entry-result representation is passed to the existing Main result
+   owner. The numeric range proof is local to this exact source profile.
+3. **Current: implement the source/Recipe contract and required common control.**
    Reuse the existing semantic-family selector and recursive Loop algebra;
    old route IDs remain migration evidence. Implement exact source Facts,
    same-parent Core/input/control/Completion co-seal and the needed common
@@ -160,10 +209,12 @@ input/item/carrier relations and its own JoinSig continuation together.
    selected source invocation through publication, not a hand-built AST or
    caller-zero Recipe test. Record selected old-edge zero and retained users.
 
-Entry requires settled contracts and a deletion/test plan. The new code,
-after-change PASS and resulting caller-zero are outputs. No CI/person wait
-has been identified. `design_stop` remains for task 2; this target decision
-does not silently authorize code while its semantic-program contract is open.
+Entry requires the accepted source/result/effect/control mapping and a
+deletion/acceptance plan, now recorded above. The new code, after-change PASS
+and resulting caller-zero are outputs, not entry conditions. Implementation
+is limited to this selected profile and must preserve the one-shot source
+loan, one physical Main and one outer publication. No CI/person wait has been
+identified.
 
 Planned admission outcomes must remain separate: complete source membership
 is a candidate for canonical selection; an out-of-profile source stays on its
@@ -177,6 +228,10 @@ and cannot re-enter the nonselected path.
 - Unchanged fixture: expected result `4`; a bound `2`, guard `1` variant must
   return `2`, catching an incorrect extra normal update that would yield `3`.
   Result `4` alone does not prove Continue evaluation order.
+- Upper-bound cases must exercise both distinct increment sites without
+  overflow: with `carrier = i64::MAX - 1`, `bound = i64::MAX`, one case takes
+  the Continue branch and one falls through the normal update; both return
+  `i64::MAX`.
 - Zero-iteration and always-false guard cases; renamed locals preserve the
   same membership. Changed bound writes, another assignment target, else,
   Break, nested Loop, body Return, calls or non-unit steps are outside this
