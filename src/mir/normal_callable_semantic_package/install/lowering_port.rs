@@ -52,20 +52,51 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         if self.main_root_consumed {
             return Err(NormalCallableSemanticPackageInstallIssueV1::MainRootAlreadyConsumed);
         }
+        let batch_slot = self.app_main_root_batch_slot(expected_key, expected_identity)?;
+        self.main_root_consumed = true;
+        self.with_app_main_root_source_view(batch_slot, expected_identity, callback)
+    }
 
+    /// Observe the same App Main root input without consuming the one-shot
+    /// loan.
+    ///
+    /// Pre-wrapper route selection uses this read-only borrow to classify the
+    /// source; the selected branch still performs the single consumption via
+    /// `with_app_main_root_lowering_input`, and a non-selected source leaves
+    /// the legacy hook's consumption intact.  The identical slot resolution
+    /// and source validation run here so the observed input is exactly the
+    /// one a later consumption would lend.
+    pub(crate) fn observe_app_main_root_source_v1<R>(
+        &self,
+        expected_key: &CanonicalSameModuleCallableKeyV1,
+        expected_identity: &CallableDeclarationIdentityV1,
+        callback: impl for<'source> FnOnce(
+            ResolvedFunctionLoweringInputV1<'source>,
+            crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV1,
+        ) -> R,
+    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
+        if self.main_root_consumed {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::MainRootAlreadyConsumed);
+        }
+        let batch_slot = self.app_main_root_batch_slot(expected_key, expected_identity)?;
+        self.with_app_main_root_source_view(batch_slot, expected_identity, callback)
+    }
+
+    fn app_main_root_batch_slot(
+        &self,
+        expected_key: &CanonicalSameModuleCallableKeyV1,
+        expected_identity: &CallableDeclarationIdentityV1,
+    ) -> Result<u32, NormalCallableSemanticPackageInstallIssueV1> {
         if expected_key.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod {
             return Err(NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch);
         }
-        let parser_identity = expected_identity.clone();
-
-        let batch_slot = self
-            .installed
+        self.installed
             .batch
             .with_declaration_semantics(|batch| {
                 let mut declarations = batch
                     .declarations()
                     .iter()
-                    .filter(|declaration| declaration.identity().same_as(&parser_identity));
+                    .filter(|declaration| declaration.identity().same_as(expected_identity));
                 let declaration = declarations
                     .next()
                     .ok_or(NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch)?;
@@ -85,11 +116,19 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                 }
                 Ok(declaration.batch_slot())
             })
-            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)??;
+            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)?
+    }
 
-        self.main_root_consumed = true;
-        let result = self
-            .installed
+    fn with_app_main_root_source_view<R>(
+        &self,
+        batch_slot: u32,
+        expected_identity: &CallableDeclarationIdentityV1,
+        callback: impl for<'source> FnOnce(
+            ResolvedFunctionLoweringInputV1<'source>,
+            crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV1,
+        ) -> R,
+    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
+        self.installed
             .batch
             .with_lowering_input_and_source_identity(batch_slot, |input, source_identity| {
                 let owner = input.owner();
@@ -98,7 +137,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                         NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch,
                     );
                 };
-                if !source_identity.identity().same_as(&parser_identity)
+                if !source_identity.identity().same_as(expected_identity)
                     || source_identity.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod
                     || source_identity.owner() != owner
                     || input.forest().roots() != std::slice::from_ref(&owner)
@@ -112,8 +151,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                 }
                 Ok(callback(input, source_identity))
             })
-            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)??;
-        Ok(result)
+            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)?
     }
 
     pub(crate) fn ordinary_box_is_covered(&self, class: &str) -> bool {

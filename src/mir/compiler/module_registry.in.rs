@@ -122,6 +122,13 @@ mod main0_continue_recipe_coseal_tests;
 // Caller-zero until the same Main0 production caller switch; recheck at the
 // canonical-root handoff slice.
 #[allow(dead_code)]
+pub(crate) mod main0_continue_root_selection;
+#[cfg(test)]
+#[path = "main0_continue_root_selection_tests.rs"]
+mod main0_continue_root_selection_tests;
+// Caller-zero until the same Main0 production caller switch; recheck at the
+// canonical-root handoff slice.
+#[allow(dead_code)]
 pub(crate) mod main0_continue_source_map;
 // Caller-zero until the same Main0 production caller switch; recheck at the
 // canonical-root handoff slice.

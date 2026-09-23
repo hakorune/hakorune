@@ -373,6 +373,51 @@ outer-publication count proof, no legacy retirement, and no zero-fallback
 production proof. The remaining task-queue items (shared seal wiring, V1/V2
 collapse) stay open.
 
+## Pre-wrapper selection seam — 2026-09-23
+
+The pre-wrapper selection mechanism for the canonical-root handoff is
+implemented and tested against the real parse/resolve/install path.
+
+Decision: selection observes the App Main root input through a read-only
+borrow; the one-shot loan stays unconsumed so whichever downstream branch
+runs still performs the single consumption. A facts decline is the only
+quiet outcome (the source is not this profile and the legacy path keeps its
+loan); once facts admit the shape, any ledger/facts disagreement is a hard
+contract failure, not a decline.
+
+Implementation:
+
+- `install/lowering_port.rs` — `with_app_main_root_lowering_input` was split
+  into shared slot resolution + source validation helpers, and a new
+  `observe_app_main_root_source_v1` borrows the identical input without
+  setting `main_root_consumed`. Observation after consumption rejects with
+  `MainRootAlreadyConsumed`.
+- `compiler/main0_continue_root_selection.rs` — `select_main0_continue_
+  source_v1` runs facts -> map -> co-seal inside the observation and returns
+  `Selected(VerifiedMain0ContinueRecipeProductV1)` or `Unselected`; map and
+  co-seal failures after admission reject.
+
+Focused evidence:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib main0_continue_root_selection
+PASS: 2 passed, 8343 filtered out; quick build/test completed in 4m29s.
+```
+
+Both tests build the installed package from real `.hako` text via
+`parse_normal_callable_program_with_build_config` + macro transform +
+`issue_normal_callable_semantic_package_v1` + `prepare_install().commit()` +
+`begin_lowering`, so parser admission of the on-disk fixture shape and the
+whole facts/map/co-seal chain are exercised through the real package path.
+The selected case also proves the loan remains consumable exactly once after
+selection, and the decline case proves the legacy loan is preserved.
+
+Non-claims: no lifecycle wiring yet — nothing calls the selection in
+production. The remaining handoff work (prepare split so the wrapper opens
+conditionally, canonical Main draft via the existing session/DraftSeal,
+collector drain `Main` admission, finished-root disposition bypassing raw
+finish, root validation) is unchanged and still open.
+
 ## Review and validation
 
 Two read-only workers covered independent uncertainties: complete legacy
