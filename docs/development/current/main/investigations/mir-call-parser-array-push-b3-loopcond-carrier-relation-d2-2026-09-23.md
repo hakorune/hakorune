@@ -12,10 +12,10 @@ Implementation permission: false; design/taskification only. Do not edit compile
 
 ```text
 Decision: continue the selected B3 migration for StringHelpers.split_lines/1 through the current LoopCond/GeneralIf owner.
-Source authority + canonical issuer: imported declaration identity and same-function resolver ledger; extend source projection and one semantic-program issuance.
-Non-authority: method names as selectors, post-hoc AST/MIR pairing, physical phi/name maps as source identity, and unrelated GenericLoop receipts.
+Source authority + canonical issuer: imported declaration identity and same-function resolver ledger; CoreMethodContractBox owns operation outcomes; extend source_bound_core.rs V1 owner family to V2.
+Non-authority: standalone V2 Recipe/Join closure, S6C/DynamicFullLoop profile products, method names, AST/MIR pairing, and physical phi/name maps.
 Fail-fast boundary: exact i/last BindingRefs, branch join, ArrayPush/substring operation rows and complete consumption reject before physical allocation.
-Smallest next slice: D2 fixes B3 operation/type/effect and Recipe/JoinSig carrier mapping; then connect it to the current sole LoopCond/GeneralIf physical owner.
+Smallest next slice: D2 defines source-owned Normal/Fault and mutation-on-Fault facts, projection checks, and exact carrier/call rows; keep design_stop if any contract requires guessing.
 Non-claims: no physical traversal proven, production switch, old-edge deletion, tail push/function-return completion, serializer, or backend parity.
 ```
 
@@ -151,16 +151,44 @@ PureRead effect label alone is not a Fault/outcome proof. The B3 source row
 must carry any exact call outcome/failure contract too; missing Fault authority
 cannot be replaced by “no fault” inferred from result/effect kind.
 
-The typed LoopRecipe V2 schema already expresses CallSlot, If, Loop,
-Text/Dynamic values and externally bound call outcomes. `CallSlot` permits a
-missing value result, which matches ArrayPush's NoValue shape, but the current
-portable producer is profile-limited. Extend that existing Recipe/Core/JoinSig
-owner to issue B3's several call sites and two outer carrier relations. The
-separate DynamicFullLoop fault-cut owner requires exactly two result-bearing
-calls and cannot be borrowed unchanged for the resultless mutating push. The
-bounded design must say which existing call-outcome owner is extended to cover
-both substring results and ArrayPush mutation/failure before issuing the
-co-seal.
+The V2 Recipe schema/verifier and V2 JoinSig closure exist, but there is no
+generic source-bound V2 semantic-program issuer that binds them to resolver
+BindingRefs, CoreMethod source rows, and operation outcomes. The nearest
+generic co-seal seam is `src/mir/loop_recipe_contract/source_bound_core.rs`,
+which currently issues a V1 `VerifiedLoopCoreProductV1`; extend this owner
+family to V2 rather than treating the separate V2 artifact and Join closure as
+one authority. The S6C co-seal issuer is fixed to its own profile/cardinality,
+and the DynamicFullLoop fault-cut owner requires exactly two result-bearing
+calls, so neither is a reusable B3 owner. Do not attach detached semantic
+receipts to `SourceLoopCondPhysicalInputV1`.
+
+The operation source is `lang/src/runtime/meta/core_method_contract_box.hako`
+(`CoreMethodContractBox`), projected through its generated manifest and
+verified in the resolver CoreMethod callable contract. The current owner
+specifies semantic law, result kind, and effect, but no per-operation
+Normal/Fault outcome or mutation-on-Fault relation. The next design task must
+derive and name the source-level outcome facts for the two distinct
+`StringSubstring/2` sites and the one `ArrayPush/1` site from their observable
+contract. In particular, preserve substring evaluation/failure semantics and
+define whether ArrayPush can fault, how a failure is represented, and whether
+mutation can already have occurred. `NoValue` + `MutatesShape` does not answer
+those questions; neither may a runtime status integer be mistaken for the
+language result. If the source owner cannot express the existing behavior
+without guessing, keep D2 stopped and name that missing owner/contract.
+
+The B3 V2 product must then co-seal one selected function owner and resolver
+source context, the V2 Recipe artifact and Join closure derived from that same
+Recipe, exact Recipe binding/carrier keys ↔ resolver BindingRefs for `i`,
+`last`, `ch`, `s`, `n`, and `arr`, the three exact call-site rows with
+receiver/arguments/result-presence and outcome facts, and the `if`/loop
+continuation relations. The exact rows are `s.substring(i, i+1)` → `ch`,
+`s.substring(last, i)` → push argument, and `arr.push(text)` → no Recipe value
+result. The two substring calls remain separate rows despite sharing one
+CoreMethod operation. Reject duplicate, missing, foreign, shadow, and residual
+bindings, source sites, calls, effects, and continuation rows before physical
+allocation. Output one move-only semantic product consumed by the existing
+LoopCond/GeneralIf physical owner; no second PHI solver or route-specific
+semantic authority.
 
 `SourceLoopCondPhysicalInputV1` still transports planner Facts/Recipe, forest,
 source-call rows, one target relation and a plain source port; it has no
@@ -185,8 +213,8 @@ design task, not an external wait or permission to mint default Pure.
 | Task | Work | Done evidence |
 | --- | --- | --- |
 | D1 — caller and asserted boundary | Closed by source audit for caller only: imported `StringHelpers.split_lines/1` enters the non-Main cataloged-static-method batch. The existing natural-import test asserts a named stop at the nested push; current dynamic first terminal and Dynamic/Ordinary admission are not re-observed. | Exact declaration/caller; test assertion distinguished from an executed receipt; physicalizer success unclaimed. |
-| D2 — carrier and operation mapping (next) | Fix resolver-owned roles/sites for `i`, `last`, `ch`, `s`, `n`, `arr`; exact substring and ArrayPush typed operation/effect sources; branch/loop continuation keys and residual policy. For the nested push, design required row-or-named-reject behavior across the issuer's five soft omissions; I1 will observe which actual resolver disposition occurs. Name a source-backed Fault/outcome owner for the resultless mutation; do not infer non-faulting from result/effect. | Full finite source inventory and assignment rows mapped; result/effect/Fault authority named; push coverage explicit; no implicit else, optional omission, or source row left unclassified. |
-| D3 — one semantic issuance | Name existing source-bound Core and Recipe/JoinSig issuer seams; co-seal source context, carrier relations, branch join, loop continuation and operation/effect rows before any physical ID. | One owner and exact input/output tuple, duplicate/foreign/shadow/missing/residual rejection boundary, selected physical consumer relation. |
+| D2 — operation outcome + carrier mapping (next) | Resolve the language-visible Normal/Fault and mutation-on-Fault contract for both distinct `StringSubstring/2` sites and `ArrayPush/1`, using `CoreMethodContractBox` as the source owner; specify generated projection and resolver verification. Map exact BindingRefs for `i`, `last`, `ch`, `s`, `n`, `arr`, branch/loop continuation, and required push row-or-named-reject behavior across the five issuer soft omissions. | Source-owned outcome facts have observable definitions; result/effect/outcome agree across source, generated projection, and resolver contract; full finite row inventory has no implicit else, optional omission, or unclassified source row. |
+| D3 — generic V2 source-bound issuance | Extend the `source_bound_core.rs` owner family to co-seal V2 Recipe artifact + same-Recipe Join closure + same resolver context/BindingRefs + complete call/effect/outcome/continuation rows. Keep S6C and DynamicFullLoop profile issuers unchanged; transport only the resulting move-only product to the existing physical owner. | One canonical issuer and exact input/output tuple; duplicate/foreign/shadow/missing/residual rejection before physical IDs; one selected physical consumer; no detached receipt in `SourceLoopCondPhysicalInputV1`. |
 | I1 — connect selected LoopCond/GeneralIf owner | At entry, observe actual Dynamic/Ordinary admission, package-issued source rows, and first terminal on the natural imported source. Then extend current physical owner to consume Recipe keys/relations; preserve the raw facade for unrelated shapes. If the test's expected stop is stale, reconcile it before using it as a baseline. | Natural imported source reaches existing publication through current sole physical owner; positive/negative evidence; no AST/name re-discovery or weakened coverage. |
 | I2 — selected cutover and retirement | After mandatory M8/M9/M10 production-entry prerequisites, switch this exact static-method loop membership to the co-sealed path; remove its old selection/rejection/re-entry edge in the same bounded series. | No selected-membership fallback; selected old responsibility caller-zero; shared owners retained only for named remaining callers. |
 | C — closeout | Record dynamic receipt, guards, module README/reference and pointer; classify reds. | Terminal evidence, selected-edge deletion and required acceptance recorded; loop-only success is not full function or serializer completion. |

@@ -25,12 +25,16 @@ The natural-import test asserts SourceCallOutsideSelectedFamily at nested
 ArrayPush, but that is not a fresh dynamic observation. Static tracing shows
 the loop inventories three call sites and the push can be omitted by five
 named-array soft conditions; the live issuer disposition and current first
-terminal are unverified. Next D2 settles carrier/operation/effect/Fault and
-row-or-reject mapping; D3 co-seals source/Core/Recipe/JoinSig; I1 observes the
-live rows and connects the existing LoopCond/GeneralIf owner; I2 switches this
-method and retires only its old selection/rejection edge. No compiler
-implementation, fixture, production switch or deletion is claimed. M8 S6D and
-later M8/M9/M10 obligations stay separate.
+terminal are unverified. Worker audits confirmed that V2 Recipe verification
+and Join closure exist separately, but no generic resolver-bound V2 issuer
+exists; `source_bound_core.rs` is the V1 co-seal extension seam. The source
+CoreMethodContractBox has result/effect/law facts but no per-operation
+Normal/Fault or mutation-on-Fault facts for two substring sites and ArrayPush.
+D2 must settle those facts and projection; D3 defines one V2 source-bound
+co-seal; I1 observes live rows and connects the existing LoopCond/GeneralIf
+owner; I2 switches this method and retires only its old selection/rejection
+edge. No compiler implementation, fixture, production switch or deletion is
+claimed. M8 S6D and later M8/M9/M10 obligations stay separate.
 """
 next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md"
