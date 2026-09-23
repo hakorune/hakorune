@@ -31,6 +31,8 @@ mod ids;
 mod input_source;
 mod join_sig;
 // Canonical draft builder: single key allocator + source-anchor co-recorder.
+// Caller-zero outside the Main0 Continue consumer until the shared seal
+// wiring lands; recheck at the next producer migration slice.
 #[allow(dead_code)]
 mod recipe_draft;
 mod join_sig_branch;

@@ -111,13 +111,20 @@ pub(in crate::mir) mod loop_break_source_projection;
 pub(in crate::mir) mod loop_break_composite_source_projection;
 pub(in crate::mir) mod loop_break_composite_body_role;
 pub(crate) mod loop_physical_prepare;
+// Caller-zero Main0 Continue co-seal issuer; sole owner is this row's source
+// front. Recheck at the Main0 canonical-root handoff / production caller
+// switch slice (active card generic-loop-mainline-source-front-d0).
 #[allow(dead_code)]
 pub(crate) mod main0_continue_recipe_coseal;
 #[cfg(test)]
 #[path = "main0_continue_recipe_coseal_tests.rs"]
 mod main0_continue_recipe_coseal_tests;
+// Caller-zero until the same Main0 production caller switch; recheck at the
+// canonical-root handoff slice.
 #[allow(dead_code)]
 pub(crate) mod main0_continue_source_map;
+// Caller-zero until the same Main0 production caller switch; recheck at the
+// canonical-root handoff slice.
 #[allow(dead_code)]
 pub(crate) mod main0_continue_syntax_facts;
 #[cfg(test)]
