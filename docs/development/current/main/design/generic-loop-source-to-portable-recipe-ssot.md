@@ -39,18 +39,19 @@ identity remains unresolved for that retired observation. The former proposal
 to make a same-run observation the next prerequisite is superseded by
 [`GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0`](../investigations/generic-loop-mainline-source-front-d0-2026-09-23.md):
 `NoExistingObserver` records missing exact-run evidence, not missing source or
-consumer authority and not an external wait. The active design is tasked to
-select one whole-callable production cohort, its existing portable owners, the
-caller/route and old edge to retire, and its acceptance in one migration
-series. The source issuer has distinct GenericV1, LoopCond, and LoopTrue paths;
-do not assign a route from a fixture name or treat the Continue fixture as
-proof of GenericV1. Its exact same-run result remains acceptance evidence, not
-an entry condition for internal design. Do not repeat the corpus census or
-select the Aug-07 S0 schedule again. S6E producer work remains closed pending
-the bounded migration mapping; this is not a prerequisite for S6A. A finite
-screen found no ready production tuple among nearby examples: the positive
-GenericV1 and CallableSingleLoop tests hand-build AST/source context and do
-not establish a production whole-callable caller or deletion set.
+consumer authority and not an external wait. E has now selected the existing
+Main0 Continue source profile for design. Complete Facts/registry review
+resolves its old route to LoopCondContinueOnly: Facts construction suppresses
+Generic V0/V1, and the source issuer lacks the ContinueOnly arm. This is a
+conditional static result, not a runtime admission receipt. The old caller is
+Main-root raw body dispatch, not cataloged-static Outside or the GenericV1
+adapter. The accepted strategy selects before legacy wrapper creation and
+hands one canonical Main draft to existing normal/default publication.
+Close that profile's semantic-program/input/control/result/effect/ABI and
+finished-root contract in the active card, then implement/cut over/remove its
+selected raw edges in the same series. Do not repeat target selection or the
+corpus census. Same-run acceptance and caller-zero are migration outputs.
+S6E/S6G/M9 and whole shared-owner retirement remain open.
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a

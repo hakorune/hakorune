@@ -2,10 +2,10 @@ date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0"
-current_execution_cohort = "generic_loop_source_to_portable_migration"
-current_blocker_token = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0__WholeCallablePortableMappingOpen"
+current_execution_cohort = "app_main0_continue_to_portable_migration"
+current_blocker_token = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0__Main0SemanticProgramOpen"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0__WholeCallablePortableMappingOpen"
+current_design_stop = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0__Main0SemanticProgramOpen"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,20 +18,17 @@ current_execution_design = "docs/development/current/main/investigations/generic
 latest_card = "generic-loop-mainline-source-front-d0"
 latest_card_path = "docs/development/current/main/investigations/generic-loop-mainline-source-front-d0-2026-09-23.md"
 latest_card_summary = """
-NoExistingObserver records missing exact-run evidence, not absent source or
-consumer authority. The prior external-wait/frontier-pause inference is
-withdrawn. E now resolves an internal route-specific whole-callable migration
-mapping:
-Existing source-backed GenericV1, LoopCond, and LoopTrue consumers are
-distinct; portable Generic G0 is another bounded profile. The Continue fixture
-has a LoopCondContinueOnly route candidate, but its exact MIR route and issuer
-disposition are unobserved, so neither its VM tag nor fixture name selects the
-GenericV1 edge. The finite candidate screen found no ready production tuple;
-nearby positive tests hand-build AST/source context. Choose one real production
-caller/route/consumer and its old edge, then map the whole callable to portable
-control/prelude/tail/ABI coverage.
-No new observer lane or implementation permission; same-run tests and
-caller-zero are migration outputs.
+E has selected the existing Main0 Continue source profile as its design target.
+Static Facts construction resolves the old route to LoopCondContinueOnly;
+the source issuer lacks that arm. Actual compiler admission remains unobserved.
+The old caller is Main-root raw body dispatch, not cataloged-static Outside
+or the GenericV1 adapter. Accepted root strategy: select before the legacy
+wrapper opens, produce one canonical main draft, and retain the current
+collector/final-validation/outer-publication chain.
+Next close this profile's source semantic-program admission, Integer result/
+effect/ABI, one-shot source loan and finished-root handoff in the same card.
+Do not repeat target selection or require after-change PASS/caller-zero at
+entry. No compiler implementation, production switch or deletion is claimed.
 """
 next_design_card = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0"
 next_design_card_path = "docs/development/current/main/investigations/generic-loop-mainline-source-front-d0-2026-09-23.md"

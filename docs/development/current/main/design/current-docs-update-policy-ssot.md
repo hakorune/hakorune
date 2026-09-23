@@ -109,10 +109,17 @@ A planned delete-set may be the shared owner's old implementation edge after
 all affected callers switch together; it need not be private to one caller.
 
 `design_stop` pauses code/fixture/production changes while the missing design
-is resolved. Name the specific uncertainty and close it in the existing owner
-card, using one independent worker for difficult design. Missing internal
-implementation is not an external dependency. If a parked row requires its
-own outputs to reopen, correct that premise rather than repeat its census.
+is resolved. First select a real caller and old responsibility as the bounded
+design target; that selection does not require an already-complete successor
+and does not grant implementation permission. Then close its specific missing
+contract in the existing owner card, using an independent worker for difficult
+design. Record the accepted target and next unresolved contract so a restart
+does not repeat target selection. Settled source/control/result/effect/ABI and
+a planned consumer, deletion and acceptance permit implementation; actual
+physical completion, after-change test results and caller-zero are later
+outputs. Missing internal implementation is not an external dependency. If a
+parked row requires its own outputs to reopen, correct that premise rather
+than repeat its census.
 External wait requires a concrete dependency outside the authorized work,
 the decision or resource needed from its owner, and why no authorized internal
 step can resolve it. Apply the [family scheduler](agent-current-entry-contract-ssot.md#family-local-action-scheduler)

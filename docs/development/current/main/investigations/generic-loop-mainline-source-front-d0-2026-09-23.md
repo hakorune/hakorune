@@ -1,234 +1,203 @@
 ---
-Status: design_stop__whole_callable_portable_mapping_open__2026-09-23
+Status: design_stop__main0_continue_target_selected__2026-09-23
 Task: GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0
 Date: 2026-09-23
 Parent: generic-post-selection-static-call-site-identity-d0-2026-09-23.md
 PreviousCard: generic-legacy-observation-front-g0-premise-recheck-2026-09-23.md
-NextCard: none__resolve_mapping_in_this_card
-Implementation permission: false; existing E source/caller/consumer/retirement design only. No code, fixture, diagnostic, receipt, route, or production switch.
+NextCard: none__close_main0_semantic_program_in_this_card
+Implementation permission: false; target and root lifecycle strategy are selected. Close the source semantic-program contract below before code, fixtures, or production selection.
 ---
 
-# Generic Loop source-front and migration mapping D0
+# Main0 Continue source-to-portable migration
 
 ## Six-line brief
 
 ```
-Decision: retain NoExistingObserver as missing exact-run evidence; withdraw owner-absence/external-wait inference and resolve E's route-specific whole-callable replacement contract internally.
-Source authority + canonical issuer: existing preparation/materializer/parser admission, resolver relations, route selection, and that route's existing source issuer; GenericV1, LoopCond, and LoopTrue consumers are distinct, and the selected route must be named.
-Non-authority: backend/fixture names, VM results, trace tags, AST-bearing Recipe wrappers, another generic_g0 product, or the fixed 11-entry receipt cannot prove this cohort's portable admission.
-Fail-fast boundary: preserve missing/foreign admission, Facts/route rejects and whole-session discard; no selected failure may retry through Outside, raw lowering, or Compatibility.
-Smallest next slice: select one actual source-backed callable/route/issuer cohort, map its whole-function source/control/result/effect/ABI to portable owners, and name that cohort's old edge, cutover and acceptance in the same bounded series.
-Non-claims: no exact fixture route or outcome, implementation-ready mapping, portable If/Exit coverage, production switch, caller-zero, M8/M9/M10b completion, or retirement is established here.
+Decision: select the existing Main0 Continue source profile for E; select pre-wrapper admission and one canonical main draft in the existing normal/default invocation. This is BoxCount design, not an already-working refactor.
+Source authority + canonical issuer: the same prepared source/parser identity and installed callable package/batch lend Main's resolver input once; compiler source projection owns Facts, the portable producer owns Recipe keys, and existing JoinSig/Completion owners retain control meaning.
+Non-authority: fixture/backend names, legacy route IDs, VM output, diagnostic tags, physical MIR types/effects, and another G0 or CallableSingleLoop product cannot issue this profile's meaning.
+Fail-fast boundary: missing/foreign/duplicate source, control, ABI or tail/result contracts reject before physical work; actual Completion/DraftSeal is produced and checked at finish. Later failure discards the unpublished invocation, with no retry through raw Main or Compatibility.
+Smallest next slice: close this selected Main0 source semantic-program admission: exact membership, initialized inputs, control/result/effect/ABI, one source loan, and finished-root handoff. Do not search for another already-complete tuple.
+Non-claims: no runtime admission/first-terminal proof, new Facts/Recipe implementation, common If/Continue physical coverage, production cutover, old-edge deletion, or M8/M9/M10b completion.
 ```
 
-Boundary: selected MIR preparation -> cataloged whole-callable admission ->
-source-backed GenericV1/CorePlan responsibility -> planned portable common
-session -> Completion/publication; includes selected caller-local retirement;
-excludes VM restoration, other source Loop families, B3/R7 reopening and
-whole shared-owner deletion.
+Boundary: selected MIR source preparation -> same-package Main0 admission ->
+whole-function portable lowering -> canonical finished root -> existing module
+validation/publication. Includes that profile's raw body and raw finish edges;
+excludes other Main profiles, VM restoration, B3/R7 reopening and whole shared
+owner deletion. This is a finite design target, not an all-family census.
 
-## Corrected premise
+## Target selection is closed
 
-The observation-only audit at ca4c8f7298 remains useful: the exact continue
-fixture has no recorded same-run proof of prepared bytes/lineage,
-SourceBacked/admission, and its first Loop owner/site/terminal. It does not
-prove that a source issuer or physical consumer is absent.
+Use the unchanged source at
+`apps/tests/phase29ca_generic_loop_continue_min.hako` as the first acceptance
+input. Its declaration is `Main.main/0`; its four root statements are two
+initialized locals, one predicate Loop and the carrier's tail Return.
+Selection must use the source-owned App Main identity and exact membership,
+never the pathname, spelling of local names, or the values `0/4/1`.
 
-The prior requirement that an existing production owner first gain an
-observation path was circular. Such implementation and after-change evidence
-may be outputs of an authorized migration. The further inference that there
-was no internal work and only external change could unblock the goal is
-withdrawn. Apply the existing
-[entry policy](../design/current-docs-update-policy-ssot.md#implementation-entry-and-retirement-conditions);
-no new policy, observer card or semantic receipt is needed.
+The first design domain is a single App Main0 with no helper declarations,
+top-level runtime work, parameters, captures or calls: two Integer-literal
+initialized locals; `carrier < invariant_bound`; a no-else `carrier == Integer literal` guard
+whose body increments that carrier by one and continues to this Loop; a
+normal increment by one; and a tail Return of the carrier. Initial values,
+bound and comparison literal are source data. Unit steps are an explicit
+bounded arithmetic restriction, not a general integer-operator claim.
 
-The former A-I audit found no immediately ready implementation tuple. That
-does not exhaust internal design. This card now selects the missing E
-migration mapping; the other parked families remain unchanged.
+This selects work even though its new issuer/consumer is not implemented.
+The source-backed old path has an unsupported disposition here, so adding
+support is BoxCount. Do not describe it as behavior-preserving BoxShape or
+repair the old route first and count that as portable migration.
 
-## Existing owners and the actual gap
+### Static classification, not a runtime receipt
 
-| Boundary | Static evidence at ca4c8f7298 | Consequence |
-| --- | --- | --- |
-| Preparation/admission | src/runner/modes/mir.rs:16-97 and common_util/normal_callable.rs:84-145 preserve prepared code/imports/lineage, actual byte digest, parser invocation and admission witness, then branch SourceBacked/Compatibility. | Owners exist. Exact fixture execution is still unobserved. |
-| Whole-callable selection | src/mir/builder/normal_callable_semantic_loan_port.rs:619-684 selects canonical plans; Outside calls lower_normal_cataloged_static_box_method_with_source_v1. | This is the candidate cutover seam before lowering the selected callable through the old body path. |
-| Existing GenericV1 path | raw_loop_child_port.rs:52-115 retains source/ledger; normal_callable_loop_source_facts/generic/issuer.rs:30-116 issues source Facts; raw_loop_child_entry.rs:490-501 claims them and calls CallableGenericLoopV1PhysicalAdapterV1::lower. | A non-test source caller and consumer already exist. This is structural reachability, not a same-run fixture receipt. |
-| Existing physical consumer | normal_callable_loop_physical_adapter.rs:50-77 uses source ports -> RecipeComposer -> PlanVerifier -> PlanLowerer -> final-value ledger. normal_callable_loop_source_facts/generic.rs:183-260 retains AST/PlanBuildOutcome/CanonicalLoopFacts; control_flow/plan/recipe_tree/generic_loop_composer.rs:122-171 uses the old skeleton/carrier machinery. | Reaching this consumer does not prove migration to portable LoopRecipeV1. |
-| Portable target | loop_recipe_contract/physical_layout.rs:403-407 rejects If and Exit. resolved_lowering/loop_recipe_physicalizer/generic_lowerer.rs:67-88,205-217 owns a fresh function and its tail/finish. | Control coverage and whole-callable entry/finish must be resolved; inserting this fresh-function consumer inside an already-mutated raw Loop is invalid. |
+The following evidence is from source at `5b250d051e`. Given this unchanged
+Loop AST and successful Facts/planner processing, the legacy selection is
+exactly `[LoopCondContinueOnly]`:
 
-Source paths without a prefix in the last three rows are under
-src/mir/builder/, except loop_recipe_contract/physical_layout.rs under src/mir/.
-
-The existing portable G0 profile is a nested Loop with two exact-i64
-parameters and an annotated i64 return. It excludes If/Break/Continue;
-cataloged methods also reject GenericG0 at
-normal_callable_semantic_loan_port.rs:656-659. The
-[Generic owner](../design/generic-loop-source-to-portable-recipe-ssot.md#decision)
-explicitly distinguishes legacy Builder RecipeBody/RecipeBlock from canonical
-LoopRecipeV1. Do not relabel the source-V1 wrapper or widen G0 by name.
-
-### Route/cohort distinction still open
-
-The Continue fixture is useful for spelling out whole-callable obligations,
-but its route is not established by its name or the old VM smoke. The route
-registry has a distinct `LoopCondContinueOnly` candidate
-(`control_flow/joinir/route_entry/registry/mod.rs:149-152`), while the
-source-facts issuer handles exact GenericV1, LoopCondBreakContinue, and
-LoopTrue dispositions (`normal_callable_loop_source_facts/generic/issuer.rs:54-184`)
-and has no explicit `LoopCondContinueOnly` branch. GenericV1 candidate
-suppression does not establish exclusivity against that candidate
-(`control_flow/joinir/route_entry/registry/selection.rs:194-205`). The old
-Compatibility VM planner output is not authority for mainline MIR
-`raw_execution_routes` or source-issuer disposition. Therefore the fixture
-cannot yet be paired with the GenericV1 adapter/composer or used to name that
-path as its selected old edge.
-
-Canonical/Outside dispatch at normal_callable_semantic_loan_port.rs:619-684
-is the whole-callable candidate seam. The selected family-specific physical
-consumer must be named from the chosen source cohort; do not infer it from the
-fixture. If the Continue fixture is retained as the cohort, resolve its route
-candidate and typed issuer outcome before claiming a portable mapping or
-deletion tuple. This is internal design work, not a requirement to add an
-observer before design can proceed.
-
-A finite screen of nearby positive examples found no ready production tuple.
-The GenericV1 positive test at
-normal_callable_loop_source_facts_tests.rs:460-569 manually creates its
-source context, Builder and root scope; it is not the whole-callable
-production invocation. The CallableSingleLoop positive test at
-compiler/callable_single_loop_static_fixture_tests.rs:48-90 also uses an
-artificial AST; its real `string_helpers.hako` method has recursive calls,
-Text and substring behavior, so the fixture is not interchangeable. The
-canonical CallableSingleLoop route at compiler/canonical_route.rs:59-60 is a
-separate selector. Do not treat either test as a production migration tuple.
-No external dependency was found; selecting the first real source profile is
-still internal design work.
-
-## One bounded source-to-portable design
-
-The existing fixture apps/tests/phase29ca_generic_loop_continue_min.hako
-is a counterexample and future acceptance input, not an admission authority.
-Its manifest row remains unobserved / P0-INVENTORY-ONLY /
-nonproduction-future-evidence with no target/deletion mapping. Do not edit
-that record into a runtime or migration claim.
-
-The current example for spelling out whole-callable obligations is not yet
-the selected production cohort. Its source obligations are:
-
-| Source obligation | Required correspondence before implementation |
+| Decision | Evidence under `src/mir/builder/` |
 | --- | --- |
-| local i = 0 and n = 4 | Resolver owner/site/BindingRef and source type/numeric representation -> full callable prelude/entry bindings; do not substitute G0 parameters or infer from physical ValueIds. |
-| loop(i < n) | Source predicate inputs/result and carrier -> Recipe Header/body/After with JoinSig-authorized transfers. |
-| if i == 1, then i = i + 1; continue | Exact branch/update sites -> common If plus item-keyed Continue to this loop's Header with its updated carrier. The continue arm must skip the later update. |
-| ordinary i = i + 1 | Normal body update -> exactly one backedge carrying that value; no duplicated update, re-selection, or physical inference. |
-| return i after the loop | Source After binding/result/effect/ABI -> outer callable Completion and draft publication. This is not an in-loop LoopExit::Return or an inferred G0 return annotation. |
+| Continue-only conditional shape accepts | `control_flow/facts/loop_cond_continue_only.rs:25-115,171-224`; its gate in `control_flow/plan/loop_cond_unified_helpers.rs:14-31` is enabled. |
+| LoopContinueOnly does not accept | `control_flow/plan/facts/loop_continue_only_facts.rs:85-123,206-231` requires a literal bound and another updated carrier. This source has neither. |
+| Generic V0/V1 cannot overlap | `control_flow/plan/facts/loop_builder.rs:189-204` suppresses both Facts when ContinueOnly Facts exist. The earlier audit read registry suppression without this producer decision. |
+| Other registry routes do not win | Full registry/predicate/suppression review: `control_flow/joinir/route_entry/registry/{mod,predicates,selection}.rs`. Break, Return, nested-loop, explicit-else, literal-true and scan shapes are absent; BreakContinue is absent or suppressed. |
+| Source issuer lacks this arm | `normal_callable_loop_source_facts/generic/issuer.rs:54-184` accepts exact GenericV1/V0+V1, BreakContinue and LoopTrue. If reached, this route returns `RouteNotFrontSelected(GenericLoopV1NotSelected)`. |
 
-Each row needs one source issuer, one existing portable consumer contract and
-its typed rejection. The table describes the obligation, not a fabricated
-BindingRef/key or an accepted implementation mapping. Do not require a new
-observer or completed tests to begin resolving it.
+Earlier Main admission and the first terminal of a real compiler invocation
+remain unobserved. `NoExistingObserver` means that missing evidence, not an
+absent source owner or an external dependency. The manifest stays unobserved;
+the classification above does not rewrite it into a runtime PASS.
 
-The migration tuple is not ready until this table has one selected row in
-every column:
+## Actual caller and root strategy
 
-| Tuple element | Required decision | Current state |
-| --- | --- | --- |
-| Production unit | Exact real callable, caller, and source owner/site; exclude manually assembled test ASTs. | Unselected. |
-| Source route | Exact accepted route and existing resolver/source issuer disposition. | GenericV1, LoopCond, and LoopTrue owners differ; Continue fixture is not assigned. |
-| Whole-function product | Co-sealed prelude/input, loop facts and transfers, After/tail, effects, ABI, and Completion. | No complete selected-cohort mapping. |
-| Portable consumer | Existing LoopRecipe/JoinSig and common session through function Completion/publication, with only the coverage required by this profile. | If and Exit are rejected today; required rows depend on chosen source semantics. |
-| Cutover/deletion | One canonical/Outside admission switch and that cohort's exact family-specific CorePlan edge to remove; list retained readers. | Candidate seam known; family edge and caller set unresolved. |
-| Acceptance | Same production invocation through publication, normal and typed-negative cases, discard/fresh reuse, and selected-caller old-edge zero. | Planned output; not an entry prerequisite. |
+The old responsibility is the selected Main profile's dispatch through
+`normal_callable_semantic_loan_port/main_root.rs:253-254`:
+`inner.lower_body(builder, body)`. The general cataloged-static
+`CanonicalCallableRouteV1::Outside` seam is a different caller. The GenericV1
+adapter and `route_loop_cond_continue_only` are not established consumers of
+this source-backed invocation and are not this row's deletion set.
 
-## Ordered tasks within existing E
+Accepted structural Decision: keep one existing normal/default invocation,
+one physical `main`, and one outer publication. Split module-shell preparation
+from legacy root opening; select from the installed source package before
+opening a function. The selected profile uses the existing canonical function
+session and DraftSeal. It hands one finished root to the existing collector
+and validation chain. This is a plan to extend those owners, not a claim that
+their current APIs already accept the new input.
 
-1. **Select the first real production source profile — current internal
-   design work.** Name one existing production caller/callable, exact source
-   route and issuer disposition, whole-callable prelude/loop/After/tail owner,
-   portable consumer contract, and finite caller-local old edge. Test-only
-   manually built ASTs do not satisfy this tuple. Do not use the Continue
-   fixture's historical VM result to infer its mainline route. If it is
-   selected, resolve its `LoopCondContinueOnly` candidate against the source
-   issuer first. If no existing issuer can co-seal the chosen source profile,
-   record the missing existing owner and one bounded design row; do not mint a
-   receipt, add fallback, or treat missing after-change evidence as a blocker.
-2. **Close the whole-callable mapping.** Use the existing
-   resolver/semantic-program owner and Recipe/JoinSig owners; settle exact
-   cohort membership, input/carrier relations, control, result/effect/ABI and
-   whole-callable prelude/tail/Completion. Select a lossless common demand
-   input before any physical mutation. Reject owner/key pairing, AST
-   reconstruction and old route policy as substitute semantic issuers.
-3. **Close only the common coverage required by the selected profile.** Use
-   the existing ordered ALWAYS/IF/EXIT coverage owners and the common-session
-   prerequisites in the
-   [Loop pipeline owner](../design/joinir-loop-selfhost-recipe-pipeline-ssot.md).
-   Do not require IF/EXIT for a predicate-only cohort, and do not skip them if
-   the chosen source shape needs those semantics. These rows are not reopened
-   or implementation-authorized by this list. Use one common CFG/SSA/PHI
-   owner; keep unsupported shapes typed fail-fast until their source/JoinSig
-   mapping is accepted.
-4. **Switch the selected whole-callable cohort and remove its old edge in
-   the same bounded series.** The seam is canonical/Outside dispatch in
-   normal_callable_semantic_loan_port.rs, before old callable body lowering.
-   Name the family-specific current consumer only after task 1 closes. Do not
-   route the prefix through old Builder then open a fresh common function
-   mid-loop. Any transport must consume existing source products, not issue
-   meaning.
-5. **Close acceptance and selected-edge retirement.** Obtain same-invocation
-   source/demand/session/Completion/publication evidence, success and typed
-   failure coverage, and selected-caller old-edge zero. Keep shared owners
-   until their other readers are resolved. This bounded closeout does not
-   waive the wider M8/M9/M10b acceptance.
+| Existing owner | Required change in this migration |
+| --- | --- |
+| `normal_default_root_catalog_lifecycle.rs` and `module_lifecycle.rs:359-405` | Separate module/catalog preparation from legacy wrapper creation. Preserve catalog clearing/install order; select before entry blocks, hints or Safepoint are emitted. Nonselected inputs retain their existing path. |
+| `normal_callable_semantic_package/install/lowering_port.rs:43-121` | Use the same installed batch and parser identity. The Main loan is one-shot: selection and either downstream branch share that one consumption; never probe it and then take it again in the old Main hook. |
+| `calls::CanonicalFunctionLoweringSessionV1`, `CanonicalSsaFunctionSessionV2`, DraftSeal | Lower the entire selected Main, including initializers and tail, into one fresh unpublished draft. Settle source header/result/effect/continuation contracts before opening it; produce physical completion and DraftSeal at finish. |
+| `module_draft_collector/normal_collector_drain_lifecycle.rs:255-305` | Add exact canonical Main admission with `CanonicalRejectDuplicate` and the same invocation brand. Current normal drain rejects Main as `NonLegacyKey`; do not accept arbitrary keys or overwrite a root. |
+| `module_lifecycle.rs:422-619` | Add a finished-canonical-root disposition which consumes the draft without raw Return insertion, return-type inference or PHI repair, including the later all-functions repair loop. Share applicable module metadata/validation, not competing function-finish authority. |
+| `normal_default_root_final_validation.rs` | Preserve same-package App Main registration, `RootValidation::OrdinaryNew`, object-definition and static-result residual checks, package `finish()`, and artifact/source validators. No `Absent`/empty default substitutes. |
 
-Task 1 is the current action. Tasks 2-4 are the migration dependency/exit plan,
-not independent observer work or authorization to implement before mapping
-closure. A settled mapping, planned deletion and test design permit fast entry;
-after-change PASS and resulting caller-zero are closeout outputs.
+Paths in this table are under `src/mir/builder/`, except the package port under
+`src/mir/`. The existing compiler normal/default finish -> source validation ->
+backend view/callback -> invocation external commit remains the publication
+owner (`src/mir/compiler/normal_default_pipeline.rs:527-548`).
 
-## Retained readers and acceptance
+Rejected alternatives: adopting the supposedly empty old wrapper requires a
+new proof for its region/slot/hint/Safepoint state and still leaves raw finish
+authority; inserting a fresh function in `main_root` is too late. The separate
+canonical Main transaction creates a two-function source+thunk module and
+has another publication route. Its failure discipline is a useful precedent,
+but neither its extra thunk nor its module publication belongs in this slice.
 
-Retain nonselected cataloged Outside callers; RawLegacyChildLoweringPortV1
-(raw_loop_child_port.rs:34-49); raw loops without callable handoff
-(raw_loop_child_entry.rs:254-263,607-612); and the separate LoopBreak,
-composite, LoopCond and LoopTrue source consumers (same file:312-468).
-The shared Generic V0/V1 registry, Composer and PlanLowerer are not deleted
-by selecting this cohort. Whole-scheduler/retry/family retirement still follows
-the current-symbol manifest and full prerequisites of M10b.
+## Source-to-Recipe obligations for the selected target
 
-The future acceptance must prove:
+| Source role | Required semantic mapping and existing owner |
+| --- | --- |
+| Two initialized locals | Same resolver `BindingRef`, declaration and initializer sites -> complete initialized-local input relations. Carry the bound unchanged; do not replace its read with a constant inferred from physical MIR. |
+| `carrier < bound` | Source Integer representation -> existing V1 I64 reads and Less/Bool predicate. Both operands keep their exact source bindings. |
+| Equality and then update | Existing V1 Equal and Add/Write operations, with distinct branch and assignment sites. The producer alone issues their Recipe keys. |
+| Same-loop Continue | Resolver exit target -> item-keyed JoinSig Continue carrying the updated carrier to Header. The absent else means logical Fallthrough to the normal update, not a synthetic source node. |
+| Normal update | Separate read/Add/Write source sites -> ordinary backedge. It is not executed after the Continue arm. |
+| Tail Return | The same Core's JoinSig After binding -> source Return, Integer result/ABI, Completion and DraftSeal. It is outside the Loop and is not `LoopExit::Return`. |
+| Function effects | Source coverage proves local writes/control only, with no calls, allocation or external mutation. Do not issue semantic effect from MIR `EffectMask`. |
 
-- one production preparation/materialization invocation supplies the exact
-  bytes/lineage, admitted callable/site and portable product consumed by the
-  common session through Completion and publication;
-- expected normal result and control order for the selected cohort, and
-  missing/foreign/duplicate identity/control rejection. The Continue fixture's
-  expected result 4 is not assigned to this cohort until its route is resolved;
-- failure discards the entire unpublished session, fresh reuse succeeds and
-  selected failure cannot retry through the old path;
-- the selected caller no longer uses its CorePlan skeleton/PHI path, while
-  the retained readers keep their own contracts.
+The V1 algebra and `join_sig_branch.rs` already express these logical control
+roles. Their physical coverage is missing: `join_sig/transfer_view_v1.rs`
+exposes boundary edges only; `physical_layout.rs:403-407` rejects If/Exit.
+Extend the existing JoinSig view with exact branch/exit-item evidence and
+the existing common physicalizer; do not duplicate a route-local CFG/PHI
+owner or silently coerce through V2. This target needs If and Continue;
+Always, Break and in-loop Return are not its entry prerequisites.
 
-No broad corpus re-census, VM repair or existing observer requirement is
-needed to perform task 1. No concrete external CI/person/resource dependency
-has been identified. If task 1 finds a missing source contract, name and
-resolve it with its existing owner; do not convert it into external wait.
+`CallableSingleLoop` requires a call prelude; G0 requires its own typed
+parameters/result and nested loops. Neither product can be relabelled as
+this Main. The missing source projection and one semantic-program issuance
+belong to the existing compiler source/normal package and portable producer
+owners. The issuer must consume the source context, source-bound Core,
+input/item/carrier relations and its own JoinSig continuation together.
 
-## Worker and validation
+## Ordered work and exit conditions
 
-This slice is not Fast path because source cohort -> portable whole-callable
-demand -> caller switch/deletion is still open. The read-only worker verified
-the live source/CorePlan path, the distinct G0 profile, common If/Exit rejects,
-fresh-session boundary and retained callers. The primary agent checked the
-preparation/admission and entry policy. A second bounded read-only route audit
-found that the Continue fixture has a `LoopCondContinueOnly` candidate, but
-its mainline raw route and issuer disposition remain unobserved; the existing
-source issuer has no explicit branch for that candidate. The Compatibility VM
-planner tag does not settle the MIR route, so the fixture is not assigned to
-the GenericV1 adapter or deletion edge. A further finite candidate screen
-found no complete production tuple: nearby GenericV1 and CallableSingleLoop
-positive cases hand-build their source/AST context and do not prove whole-
-callable production admission or cutover. These findings are reflected in
-task 1 and the tuple table. No worker changed files or ran builds/tests; no
-runtime evidence is claimed.
-Design checks passed: current_state_pointer_guard.sh, CURRENT_STATE TOML and
-changed-card relative-link validation, and git diff --check. No Cargo/CI run.
+1. **Done: select the target and root strategy.** No more candidate search or
+   observation-only census is needed for this responsibility.
+2. **Current: close Main0 semantic-program admission.** Fix the exact
+   compiler-side source issuer and normal-package handoff, scalar Integer
+   representation/result ABI, local-only effect, complete source-role/control
+   coverage, and Completion. For unit steps, `carrier < bound` over valid
+   signed Integer values makes `carrier + 1` fit; both update sites need that
+   source guarantee. Do not infer fixed-width annotation semantics from
+   `MirType::Integer`. Close the one-loan branch and finished-root protocol
+   against the owners above. Output one accepted mapping and a bounded
+   implementation brief in this card, not another target-selection task.
+3. **Implement the source/Recipe contract and required common control.**
+   Reuse the existing semantic-family selector and recursive Loop algebra;
+   old route IDs remain migration evidence. Implement exact source Facts,
+   same-parent Core/input/control/Completion co-seal and the needed common
+   If/Continue coverage. Keep the existing coverage owners and separate
+   BoxCount from prerequisite behavior-preserving owner splits.
+4. **Switch and retire in the same migration series.** Integrate before the
+   legacy wrapper, admit one canonical Main draft, and remove the selected
+   profile's raw body and raw finish edges. Do not first wire a new
+   ContinueOnly source arm into old CorePlan as a substitute milestone.
+5. **Close production acceptance and deletion evidence.** Use the actual
+   selected source invocation through publication, not a hand-built AST or
+   caller-zero Recipe test. Record selected old-edge zero and retained users.
+
+Entry requires settled contracts and a deletion/test plan. The new code,
+after-change PASS and resulting caller-zero are outputs. No CI/person wait
+has been identified. `design_stop` remains for task 2; this target decision
+does not silently authorize code while its semantic-program contract is open.
+
+Planned admission outcomes must remain separate: complete source membership
+is a candidate for canonical selection; an out-of-profile source stays on its
+existing path before selection; missing required evidence is unresolved;
+foreign/duplicate/conflicting evidence is rejected. None of the latter states
+may become an empty candidate. Once selected, failures discard the invocation
+and cannot re-enter the nonselected path.
+
+## Acceptance and retained scope
+
+- Unchanged fixture: expected result `4`; a bound `2`, guard `1` variant must
+  return `2`, catching an incorrect extra normal update that would yield `3`.
+  Result `4` alone does not prove Continue evaluation order.
+- Zero-iteration and always-false guard cases; renamed locals preserve the
+  same membership. Changed bound writes, another assignment target, else,
+  Break, nested Loop, body Return, calls or non-unit steps are outside this
+  first profile, with explicit preselection disposition.
+- Missing/foreign/duplicate source, control, input, ABI or Completion;
+  double consumption and residual sites reject. Later lower/DraftSeal/drain/
+  validation failures publish nothing; a fresh invocation remains usable.
+- Success contains one physical Main and one outer publication. Selected
+  source cannot reach raw body/raw finish. Real source-to-MIR and selected
+  executable result evidence are required before production closeout.
+
+Shared raw body dispatch, other Main profiles, GenericV1/LoopCond/LoopTrue
+consumers, registry/Composer/PlanLowerer and all nonselected callers remain.
+Removing this caller-local responsibility does not authorize whole-symbol
+deletion or close the wider M8/M9/M10b requirements.
+
+## Review and validation
+
+Two read-only workers covered independent uncertainties: complete legacy
+classification/source issuer, then Main's fresh-function/publication seam.
+The primary checked source/Recipe/input/JoinSig contracts and integrated the
+one-target/one-root Decision. No worker edited files or ran compiler probes.
+Validation for this docs slice: pointer guard, TOML/link checks and
+`git diff --check`; no Rust/LLVM/CI acceptance is claimed.
