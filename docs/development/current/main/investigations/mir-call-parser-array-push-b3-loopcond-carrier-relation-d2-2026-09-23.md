@@ -1,5 +1,5 @@
 ---
-Status: design_stop__b3_source_type_effect_and_coseal_mapping_open
+Status: NoSafeSlice__B3SelectedRuntimeAndOperationOutcomeAuthorityMissing
 Task: MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2
 Parent: mir-call-parser-array-push-b3-branch-continuation-d1-2026-09-23
 NextCard: same-card__resolve_b3_carrier_effect_and_coseal_mapping
@@ -218,6 +218,68 @@ missing contract.
    generated code, receipts, fixtures, or tests while `work_mode` is
    `design_stop`.
 
+### D2 decision — `NoSafeSlice` (2026-09-23, static owner audit)
+
+The selected B3 mapping cannot be sealed from current source authorities.
+Stop this family before the BindingRef/co-seal design is promoted; do not
+infer either operation's outcome from its result/effect label or raw ABI.
+
+For both `StringSubstring/2` sites, `CoreMethodContractBox` owns
+`StringValue + PureRead + CodePointHalfOpenClamped`, but the selected target
+does not identify one production implementation. The runtime export
+`nyash.string.substring_hii` may call a host-registered Hako callback, use a
+byte-range fallback, or return a hook-miss handle according to runtime policy.
+No tracked production callback registration settles that choice. The fallback
+uses byte length/ranges and does not establish the declared code-point law;
+the returned handle/status has no source-level Normal-String/Fault mapping.
+The same missing relation applies independently to `ch = s.substring(i,i+1)`
+and the push argument `s.substring(last,i)`.
+
+For `ArrayPush/1`, the existing source row proves `NoValue + MutatesShape`.
+There is a conditional normal case: if the selected constructor is the Core
+Array `AnyDefault` provider and the substring yields retained Text, the fresh
+array accepts Text and commits one append with visible Void result. The current
+named-construction requirement does not co-seal that selected provider or its
+default-storage contract. Existing adapters also disagree on failed append
+interpretation: one converts nonpositive status to handled Void, while the raw
+ABI collapses failure into an integer sentinel. No source owner defines
+Fault-versus-terminal-versus-no-op semantics or mutation commit timing.
+
+The missing authorities are therefore finite:
+
+1. A selected production substring route whose implementation conforms to
+   `CodePointHalfOpenClamped`, plus the existing source owner's exact mapping
+   from its runtime result/failure to Normal String or Fault.
+2. A source-bound named-construction/provider fact selecting Array
+   `AnyDefault`, plus the source-visible ArrayPush failure and commit rule for
+   that selected transport.
+
+Evidence anchors: the substring law is declared in
+`lang/src/runtime/meta/core_method_contract_box.hako` and projected by
+`src/mir/generated/core_method_contract_rows.rs`; the target relation is in
+`src/mir/resolved_semantics/core_method_instance_target.rs` and the route
+descriptor in `src/mir/generated/generic_method_route_descriptors.rs`. Runtime
+dispatch is in `crates/nyash_kernel/src/exports/string_helpers.rs`, while the
+fallback byte-range plan is in
+`crates/nyash_kernel/src/exports/string_view/substring_plan.rs`. The existing
+ArrayPush construction requirement is
+`src/mir/resolved_semantics/named_array_requirement.rs`; an available Rust
+birth chain (`ArrayBoxBirth -> nyash.array.birth_h -> ArrayBox::new()`) is not
+proof that this source row selected that provider. The visible/ABI append
+paths are `lang/src/runtime/collections/array_core_box.hako`,
+`crates/nyash_kernel/src/plugin/array_slot_append.rs`, and
+`src/boxes/array/ops/capacity.rs`.
+
+This is `NoSafeSlice`, not a claim that the existing code misexecutes a
+particular B3 input. Reopen D2 only when tracked route/provider evidence and
+those source outcome mappings exist for both distinct substring sites and the
+push row. Then complete the exact BindingRef/non-null proof, all finite issuer
+dispositions, and the one projection check before D3. Until then, do not mint
+a new outcome receipt, widen `CoreMethodContractBox` by guess, or add a second
+runtime policy owner. The B3 family returns to the scheduler; its acceptance,
+V2 co-seal, physical connection, production switch and old-edge deletion stay
+open.
+
 The B3 V2 product must then co-seal one selected function owner and resolver
 source context, the V2 Recipe artifact and Join closure derived from that same
 Recipe, exact Recipe binding/carrier keys ↔ resolver BindingRefs for `i`,
@@ -255,7 +317,7 @@ design task, not an external wait or permission to mint default Pure.
 | Task | Work | Done evidence |
 | --- | --- | --- |
 | D1 — caller and asserted boundary | Closed by source audit for caller only: imported `StringHelpers.split_lines/1` enters the non-Main cataloged-static-method batch. The existing natural-import test asserts a named stop at the nested push; current dynamic first terminal and Dynamic/Ordinary admission are not re-observed. | Exact declaration/caller; test assertion distinguished from an executed receipt; physicalizer success unclaimed. |
-| D2 — selected outcome + carrier mapping (next) | Read-only route/outcome census for both distinct substring sites; settle ArrayPush rejection/commit semantics from its source owner; map exact `s`, `n`, `arr`, `i`, `last`, `ch` BindingRefs, the dominating non-null proof for `s`, branch/loop continuation, and one exact push row or named reject across the five issuer omissions. Specify (do not implement) the single generated projection/resolver check. If the selected substring law or source-visible push failure contract has no existing authority, record `NoSafeSlice` and name that owner. | One source-owned meaning with explicit preconditions and failure/commit behavior; selected substring target matches its law or has a named stop; projection/verifier equality is specified; finite rows have no implicit else or optional omission. |
+| D2 — selected outcome + carrier mapping | Static audit found no selected production substring route/outcome authority and no source-owned ArrayPush provider/failure/commit mapping. This D2 therefore closes as family-local `NoSafeSlice` at the operation-authority boundary; BindingRef mapping and projection design are deferred until the named owners exist. | Reopen only when the two missing authorities above are observable. Then finish exact BindingRefs, `s`'s dominating non-null proof, finite issuer dispositions and one projection check before D3. No production behavior or physical success is claimed. |
 | D3 — generic V2 source-bound issuance | Extend the `source_bound_core.rs` owner family to co-seal V2 Recipe artifact + same-Recipe Join closure + same resolver context/BindingRefs + complete call/effect/outcome/continuation rows. Keep S6C and DynamicFullLoop profile issuers unchanged; transport only the resulting move-only product to the existing physical owner. | One canonical issuer and exact input/output tuple; duplicate/foreign/shadow/missing/residual rejection before physical IDs; one selected physical consumer; no detached receipt in `SourceLoopCondPhysicalInputV1`. |
 | I1 — connect selected LoopCond/GeneralIf owner | At entry, observe actual Dynamic/Ordinary admission, package-issued source rows, and first terminal on the natural imported source. Then extend current physical owner to consume Recipe keys/relations; preserve the raw facade for unrelated shapes. If the test's expected stop is stale, reconcile it before using it as a baseline. | Natural imported source reaches existing publication through current sole physical owner; positive/negative evidence; no AST/name re-discovery or weakened coverage. |
 | I2 — selected cutover and retirement | After mandatory M8/M9/M10 production-entry prerequisites, switch this exact static-method loop membership to the co-sealed path; remove its old selection/rejection/re-entry edge in the same bounded series. | No selected-membership fallback; selected old responsibility caller-zero; shared owners retained only for named remaining callers. |

@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2"
-current_execution_cohort = "mir_call_parser_array_push_b3_loopcond_carrier_relation_d2"
-current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2__B3OperationEffectAndCosealMappingOpen"
+current_execution_row = "GENERIC-LEGACY-OBSERVATION-FRONT-G0"
+current_execution_cohort = "generic_legacy_observation_front_g0_premise_recheck"
+current_blocker_token = "GENERIC-LEGACY-OBSERVATION-FRONT-G0__PinnedStrictShadowVmCasePremiseRecheck"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "DesignMappingOpen__B3CallerOperationEffectCoseal_2026-09-23"
+current_design_stop = "ObservationFrontPremiseRecheck__generic_loop_continue_strict_shadow_vm"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,37 +14,27 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md"
-latest_card = "mir-call-parser-array-push-b3-loopcond-carrier-relation-d2"
-latest_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md"
+current_execution_design = "docs/development/current/main/investigations/generic-legacy-observation-front-g0-premise-recheck-2026-09-23.md"
+latest_card = "generic-legacy-observation-front-g0-premise-recheck"
+latest_card_path = "docs/development/current/main/investigations/generic-legacy-observation-front-g0-premise-recheck-2026-09-23.md"
 latest_card_summary = """
-D2 corrects the circular connected-issuer entry condition and selects the
-existing B3 natural source, StringHelpers.split_lines/1, for migration. Imported
-static box batches compile declared methods without runtime call-use filtering.
-The natural-import test asserts SourceCallOutsideSelectedFamily at nested
-ArrayPush, but that is not a fresh dynamic observation. Static tracing shows
-the loop inventories three call sites and the push can be omitted by five
-named-array soft conditions; the live issuer disposition and current first
-terminal are unverified. Worker audits confirmed that V2 Recipe verification
-and Join closure exist separately, but no generic resolver-bound V2 issuer
-exists; `source_bound_core.rs` is the V1 co-seal extension seam. The source
-CoreMethodContractBox owns operation law/result/effect but has no per-operation
-Fault or mutation-commit facts. Hako visible policy and Rust surface catalog
-classify push as Void, but internal Rust/ABI statuses are not source outcomes.
-The selected substring hook-versus-byte-fallback route and codepoint-law match
-are unproven; ArrayPush rejection and commit timing are unresolved. D2 is now ordered as a read-only
-route/outcome census, exact BindingRef mapping (including `s`'s dominating
-early-return proof), and a specified projection check. If existing source
-authority cannot settle either operation, retain design_stop and name the
-missing owner. D3 extends the V1 co-seal seam to one V2 product; I1 observes
-live rows and connects the existing LoopCond/GeneralIf owner; I2 switches this
-method and retires only its selected old edge. No compiler implementation,
-fixture, production switch or deletion is claimed. M8 S6D and later M8/M9/M10
-obligations stay separate.
+D2 for B3 `StringHelpers.split_lines/1` closed as family-local
+`NoSafeSlice`: the selected production substring route/source outcome and
+ArrayPush provider/failure/commit authority are missing. No BindingRef map,
+co-seal, physical success, production switch, or old-edge deletion is claimed.
+The family scheduler selected the next existing M8 candidate, one-case
+`GENERIC-LEGACY-OBSERVATION-FRONT-G0` premise recheck for
+`generic_loop_continue_strict_shadow_vm` under `vm-strict-planner-direct-v1`.
+Reconcile the old pre-Loop receipt with later handoff/source-Facts evidence;
+if no current exact-case result exists, use only the pinned one-case front.
+Require Loop-reached or a named pre-Loop terminal before serial route
+observations. No corpus recensus, S6E producer, S6G, or M9 parity is selected.
+The Aug-07 S0 schedule task is already landed as pre-effect evidence and is
+not reselected. No source, fixture, or semantic receipt changes are authorized.
 """
-next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md"
-next_execution_card = "none__design_only__b3_operation_effect_coseal_mapping_open"
+next_design_card = "GENERIC-LEGACY-OBSERVATION-FRONT-G0"
+next_design_card_path = "docs/development/current/main/investigations/generic-legacy-observation-front-g0-premise-recheck-2026-09-23.md"
+next_execution_card = "none__design_only__one_case_observation_front_premise_recheck"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

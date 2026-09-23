@@ -1,6 +1,6 @@
 # Generic callable-semantic Loop handoff S0 (pre-effect envelope)
 
-Status: `active implementation row`
+Status: `closed__pre_effect_handoff_landed; no Recipe, physical, or production claim`
 
 Parent: `GENERIC-CALLABLE-SEMANTIC-LOOP-HANDOFF-D0`
 
