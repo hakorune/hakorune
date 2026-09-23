@@ -2348,3 +2348,31 @@ not semantic Pure or allocation freedom. The [String ABI](../abi/nyrt_c_abi_v0.m
 retains exact-byte/length and zero-handle contract checks; host-fatal allocation
 failure is not turned into a fabricated language Fault. This opcode's logical
 admission does not enable a new source/physical consumer or complete Array push.
+
+## Main0 Continue recipe draft + bounded If/Continue physicalization receipt (2026-09-23)
+
+`LoopRecipeDraftV1` (`loop_recipe_contract/recipe_draft.rs`) is the shared
+assembler for canonical preorder Recipe keys. Producers push admitted source
+items and the draft allocates loop/block/item/binding/value/carrier/exit
+keys while co-recording binding, effect, initialized-input, and
+operation-evidence relations, eliminating hand-numbered correspondence
+tables. Reopen guards (`RootLoopReopened`, `ConditionBlockReopened`,
+`ConditionBlockMismatch`, `BodyReopened`, `ConditionReopened`,
+`ElseBlockReopened`) fail fast at the assembler; semantic verification stays
+with `LoopRecipeVerifierV1`.
+
+Producer id `main0_continue_v1` (`compiler/main0_continue_recipe_coseal.rs`)
+is the first consumer. `physical_layout.rs` now physicalizes the bounded
+same-loop `If`/`Continue` branch shape: an `If` item with a fallthrough arm
+and a `Continue` exit arm targeting the owning loop yields a two-way
+predicate transfer, with branch coverage accounted against JoinSig rows.
+`LoopPhysicalLayoutRejectV1::UnsupportedIf` is retired since `If` is now
+admitted; `UnsupportedExit` remains for exits outside the bounded arm pair.
+Known boundary: a `break` inside an `if` still rejects at layout
+(`BranchExitMismatch`) even though JoinSig can carry Break/Continue arm
+pairs — that shape is a later explicit profile.
+
+Focused evidence: `main0_continue_*` tests (facts/map/co-seal/selection/
+lowerer), `physical_layout` branch-coverage tests, and the 23-test
+`loop_recipe_physicalizer` suite pass under `--profile quick`. Caller-zero:
+no production caller, no legacy-path retirement, no runtime acceptance yet.

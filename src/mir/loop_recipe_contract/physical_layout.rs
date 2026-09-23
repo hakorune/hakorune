@@ -129,7 +129,6 @@ pub(crate) enum LoopPhysicalLayoutRejectV1 {
     DuplicateBlock(LoopBlockKeyV1),
     DuplicateItem(LoopItemKeyV1),
     UnsupportedAlways(LoopNodeKeyV1),
-    UnsupportedIf(LoopItemKeyV1),
     UnsupportedExit(LoopItemKeyV1),
     BranchConditionMismatch(LoopItemKeyV1),
     BranchContinuationMismatch(LoopItemKeyV1),
@@ -603,6 +602,11 @@ fn branch_arm_finish(
             ))
         }
         LoopJoinBranchArmTransferRefV1::Exit(exit) => {
+            // Bounded boundary: a branch-arm exit is admitted only when it is
+            // a `continue` back to the owning loop. JoinSig itself can carry
+            // Break/Continue arm pairs, so a `break` inside an `if` (e.g. the
+            // variable-accum-break profile) still cannot physicalize through
+            // this layout and rejects here by design.
             if exit.role != LoopJoinEdgeRoleV1::Continue || exit.target_loop != owner_loop {
                 return Err(LoopPhysicalLayoutRejectV1::BranchExitMismatch(if_item));
             }

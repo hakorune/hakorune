@@ -135,6 +135,10 @@ pub(in crate::mir) mod main0_continue_semantic_program;
 #[allow(dead_code)]
 pub(crate) mod main0_continue_source_map;
 // Caller-zero until the same Main0 production caller switch; recheck at the
+// canonical-root handoff slice. Sole sealer of the source map product.
+#[allow(dead_code)]
+pub(crate) mod main0_continue_source_map_issue;
+// Caller-zero until the same Main0 production caller switch; recheck at the
 // canonical-root handoff slice.
 #[allow(dead_code)]
 pub(crate) mod main0_continue_syntax_facts;

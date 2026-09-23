@@ -35,7 +35,7 @@ use crate::mir::compiler::main0_continue_recipe_coseal::{
 };
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::function::MirParamDecl;
-use crate::mir::loop_recipe_contract::{LoopConditionV1, LoopOperationV1, LoopValueClassV1, LoopValueKeyV1};
+use crate::mir::loop_recipe_contract::{LoopConditionV1, LoopOperationV1, LoopValueClassV1};
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
 use crate::mir::resolved_control_flow::{
     verify_function_completion_v1, DeclaredFunctionResultContractV1, VerifiedFunctionCompletionV1,
@@ -100,7 +100,6 @@ struct ReadyMain0ContinueProfileCloseV1 {
     pure_count: usize,
     read_count: usize,
     write_count: usize,
-    condition_key: LoopValueKeyV1,
 }
 
 impl ReadyMain0ContinueProfileCloseV1 {
@@ -122,7 +121,6 @@ impl ReadyMain0ContinueProfileCloseV1 {
                 "main0 profile close coverage mismatch: observed={observed:?}"
             ));
         }
-        let _ = self.condition_key;
         Ok(())
     }
 }
@@ -206,7 +204,6 @@ fn consume_main0_continue_tail_completion_v1(
     ready: ReadyLoopAfterContinuationV1,
     condition_read: CanonicalBindingReadReceiptV1,
     profile_counts: (usize, usize, usize, usize),
-    condition_key: LoopValueKeyV1,
     tail: &VerifiedMain0ContinueTailV1,
     control: &VerifiedMain0ContinueControlSourceV1,
     terminal: &VerifiedMain0ContinueTerminalV1,
@@ -285,7 +282,6 @@ fn consume_main0_continue_tail_completion_v1(
             pure_count: profile_counts.1,
             read_count: profile_counts.2,
             write_count: profile_counts.3,
-            condition_key,
         },
     })
 }
@@ -397,7 +393,7 @@ pub(in crate::mir::builder) fn lower_main0_continue_function_draft_v1(
         if segment_receipt.rows().len() != physical_layout.coverage().segment_count() {
             return Err("[freeze:contract][main0-loop/incomplete-segments]".to_owned());
         }
-        let condition_block = match physical_layout
+        let (condition_block, condition_key) = match physical_layout
             .program()
             .demand()
             .operation_effect()
@@ -408,19 +404,20 @@ pub(in crate::mir::builder) fn lower_main0_continue_function_draft_v1(
             .first()
             .map(|node| node.condition)
         {
-            Some(LoopConditionV1::Predicate { block, .. }) => block,
+            Some(LoopConditionV1::Predicate { block, value }) => (block, value),
             _ => return Err("[freeze:contract][main0-loop/condition-missing]".to_owned()),
         };
-        let condition_key = physical_layout
+        // The recipe's declared predicate value must be the compare emitted
+        // in the condition block; this is the only place the pair is pinned.
+        if !physical_layout
             .program()
             .operation_rows()
             .iter()
             .filter(|row| row.block() == condition_block)
-            .find_map(|row| match row.operation() {
-                LoopOperationV1::CompareI64 { result, .. } => Some(result),
-                _ => None,
-            })
-            .ok_or_else(|| "[freeze:contract][main0-loop/condition-missing]".to_owned())?;
+            .any(|row| matches!(row.operation(), LoopOperationV1::CompareI64 { result, .. } if result == condition_key))
+        {
+            return Err("[freeze:contract][main0-loop/condition-key]".to_owned());
+        }
         let plan = prepare_loop_segment_operation_dispatch_v1(
             physical_layout,
             make_entry(),
@@ -457,7 +454,6 @@ pub(in crate::mir::builder) fn lower_main0_continue_function_draft_v1(
             ready_after,
             condition_read,
             profile_counts,
-            condition_key,
             &tail,
             &control,
             &terminal,

@@ -978,3 +978,28 @@ materialization still checks exact bytes/length and treats a zero handle as a
 contract failure. Source authority requires the later common Core to match the
 resolver literal's exact site/value; logical wire validation does not issue it.
 Fixed Dynamic/S6C physical profiles remain outside this new operation's admission.
+
+## Main0 Continue source front and recipe draft (caller-zero, 2026-09-23)
+
+`recipe_draft.rs` owns `LoopRecipeDraftV1`: the canonical preorder key
+allocator that records each pushed item's source anchor once and emits the
+recipe plus binding, effect, initialized-input, and operation-evidence
+relations as one construction byproduct. It replaces the hand-numbered item
+tables used by earlier fixed-shape producers. The draft is an assembler only;
+`LoopRecipeVerifierV1` remains the sole semantic authority. Reopen guards are
+symmetric: root loop, condition block, body block, condition seal, and else
+block each reject a second open/seal instead of silently replacing state.
+
+The first consumer is the caller-zero Main0 Continue source front
+(`compiler/main0_continue_*`), producer id `main0_continue_v1`, for the
+selected `Main.main/0` profile `local i, local n, loop(i<n) { if i==1
+{i+=1; continue} i+=1 } return i`. The chain is AST-free facts -> ledger
+join map (`main0_continue_source_map` schema + `main0_continue_source_map_issue`
+sole sealer) -> `main0_continue_recipe_coseal` (draft -> artifact -> verify
+-> source claim -> Core -> inputs -> JoinSig -> continuation -> evidence) ->
+observation-only root selection -> prepared operation demand -> the shared
+physical lowerer producing one `ReadyFunctionDraftSealV1`. `n` is a
+loop-available carrier because JoinSig requires loop-body reads to be
+carrier-backed. This row owns no Builder route, production caller, retry,
+fallback, or legacy deletion; the Main0 canonical-root handoff remains a
+later explicit slice.

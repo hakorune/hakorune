@@ -15,9 +15,9 @@ use super::main0_continue_recipe_coseal::{
     VerifiedMain0ContinueRecipeProductV1,
 };
 use super::main0_continue_source_map::{
-    issue_main0_continue_source_map_v1, Main0ContinueSourceMapRejectV1,
-    VerifiedMain0ContinueSourceMapV1,
+    Main0ContinueSourceMapRejectV1, VerifiedMain0ContinueSourceMapV1,
 };
+use super::main0_continue_source_map_issue::issue_main0_continue_source_map_v1;
 use super::main0_continue_syntax_facts::{
     issue_main0_continue_syntax_facts_from_ledger_v1, Main0ContinueSyntaxFactsRejectV1,
 };

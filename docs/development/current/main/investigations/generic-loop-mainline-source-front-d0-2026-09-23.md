@@ -472,6 +472,50 @@ wrapper opens conditionally, collector drain `Main` admission,
 finished-root disposition bypassing raw finish, root validation,
 caller switch, and caller-zero proof for the retired path) stays open.
 
+## Review-fix checkpoint — 2026-09-23
+
+Reviewer feedback resolved in this slice:
+
+- `main0_continue_source_map.rs` (769 lines) was split at the
+  responsibility boundary: the row schema and sealed product stay in
+  `main0_continue_source_map.rs` (344 lines) and the ledger join moved to
+  `main0_continue_source_map_issue.rs` (493 lines), which is the sole
+  sealer via `VerifiedMain0ContinueSourceMapV1::seal`.
+- Owner docs updated per the landed-producer mandate:
+  `loop_recipe_contract/README.md`, `docs/reference/mir/
+  loop-recipe-contract.md`, `src/mir/compiler/README.md`,
+  `src/mir/loop_structural_facts/README.md`, and
+  `src/mir/builder/resolved_lowering/README.md`.
+- `LoopPhysicalLayoutRejectV1::UnsupportedIf` removed; `If` is admitted.
+- `LoopRecipeDraftV1` guards made symmetric: `open_condition_block`
+  records the condition block and rejects reopen
+  (`ConditionBlockReopened`), `seal_condition` requires the opened
+  condition block (`ConditionBlockMismatch`), and `open_body_block`
+  rejects `BodyReopened`. Three focused tests cover the new rejects.
+- The trivially-true `debug_assert_eq!` in `push_loop_item` removed.
+- `ReadyMain0ContinueProfileCloseV1.condition_key` dropped; the predicate
+  value is now pinned to the condition-block compare at the extraction
+  site (`[main0-loop/condition-key]`), where the pair actually co-seals.
+- Known boundary recorded at `branch_arm_finish`: branch-arm exits admit
+  only `continue` to the owning loop; a `break` inside `if` still rejects
+  (`BranchExitMismatch`) even though JoinSig carries Break/Continue arm
+  pairs — a later explicit profile.
+- `callable_canary` delegation note: the shared materializer adds one
+  `input_relations.owner() == owner` consistency check — benign hardening
+  inside the BoxShape extraction, recorded in the resolved_lowering
+  README.
+
+Focused evidence:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib main0_continue
+PASS: 15 passed, 0 failed.
+cargo test --profile quick --lib loop_recipe_physicalizer
+PASS: 23 passed, 0 failed.
+cargo test --profile quick --lib physical_layout / transfer_view / recipe_draft
+PASS: 6 + 4 + 3 passed, 0 failed.
+```
+
 ## Review and validation
 
 Two read-only workers covered independent uncertainties: complete legacy

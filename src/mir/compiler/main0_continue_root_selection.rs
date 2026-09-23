@@ -23,9 +23,8 @@ use super::main0_continue_recipe_coseal::{
     issue_main0_continue_recipe_v1, Main0ContinueCoSealRejectV1,
     VerifiedMain0ContinueRecipeProductV1,
 };
-use super::main0_continue_source_map::{
-    issue_main0_continue_source_map_v1, Main0ContinueSourceMapRejectV1,
-};
+use super::main0_continue_source_map::Main0ContinueSourceMapRejectV1;
+use super::main0_continue_source_map_issue::issue_main0_continue_source_map_v1;
 use super::main0_continue_syntax_facts::issue_main0_continue_syntax_facts_from_ledger_v1;
 
 /// Result of observing the installed App Main root for the Main0 Continue

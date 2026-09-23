@@ -1236,3 +1236,30 @@ build-id, symbols, source commit, and canonical corpus, then publishes JSON
 through one temporary-file rename only after full closure.
 Raw PMU events and fallback are forbidden. This evidence can name only a later
 PC-attribution candidate; it cannot change this compiler boundary.
+
+## Main0 Continue physical lowerer (caller-zero, 2026-09-23)
+
+`loop_recipe_physicalizer/main0_continue_lowerer.rs` is the bounded physical
+consumer for the selected Main0 Continue product. It opens the canonical
+SSA/CFG/PHI session, materializes the initialized locals through the shared
+`initialized_local_input_materializer.rs` entry-seed owner (extracted from
+`callable_canary`; the delegation adds one `input_relations.owner() == owner`
+consistency check, a benign hardening recorded here), allocates loop
+segments, emits operations through the common dispatcher, prepares the
+recursive After, and consumes the `return i` tail through the existing
+Completion/identity ledgers. Both the `continue` site and the `return` site
+are marked in canonical identity coverage; DraftSeal remains the sole owner
+projecting the final MIR `Return`. The recipe's declared predicate value is
+pinned to the compare emitted in the condition block, and profile close pins
+the observed coverage counts `(14 operations, 7 pure, 5 reads, 2 writes)`.
+Direct-call capability is installed with `required=false`.
+
+The builder-side transport is
+`builder/normal_main0_continue_prepared_operation.rs`: ingress +
+source-context validation, then one `PreparedMain0ContinueOperationProgramV1`
+consumed by the lowerer. The focused test drives the real installed package
+path (parse/resolve/install -> selection -> one-shot loan consumption ->
+demand -> session emit -> `ReadyFunctionDraftSealV1` -> committed
+`MirFunction` with loop PHI backedge and value-bearing Return). Caller-zero:
+no production caller invokes the lowerer yet; the canonical-root handoff,
+collector-drain admission, and finished-root disposition remain open.

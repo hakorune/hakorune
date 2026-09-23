@@ -1195,3 +1195,27 @@ identity/profile/read-parse witness. AST/name/ordinal/digest re-pairing,
 default/empty carrier, parser rescan, fallback, and `HandoffConsumed` are
 forbidden. A future Source-only A issuer must replace the named discard with
 its own one-shot consumer before any A/Recipe/physical claim.
+
+## Main0 Continue source front (caller-zero, 2026-09-23)
+
+The bounded `Main.main/0` Continue profile
+(`apps/tests/phase29ca_generic_loop_continue_min.hako`: `local i, local n,
+loop(i<n) { if i==1 { i+=1; continue } i+=1 } return i`) has a source front
+in this subtree. `main0_continue_syntax_facts.rs` issues AST-free admission
+facts; `main0_continue_source_map.rs` owns the row schema and sealed
+`VerifiedMain0ContinueSourceMapV1`, while `main0_continue_source_map_issue.rs`
+is the sole sealer joining facts to the resolver ledger (Continue is verified
+via `ResolvedControlTransferV1::Continue` against the resolver-issued loop
+`RegionId`, the tail via resolver exits; residual calls/exits/variable refs
+reject). `main0_continue_recipe_coseal.rs` consumes the map once and drives
+`LoopRecipeDraftV1` through verify -> source claim -> Core -> initialized
+inputs -> JoinSig -> continuation -> evidence as one co-seal.
+`main0_continue_root_selection.rs` observes the installed App Main root
+source without consuming the one-shot loan, and
+`main0_continue_semantic_program.rs` issues the prepared operation demand.
+
+This front owns no Builder route, physical IDs, ABI, production caller,
+retry, fallback, or legacy deletion. Focused evidence: the `main0_continue`
+suites (12 coseal + 2 root-selection + 1 lowerer) pass under
+`--profile quick`; the selection and lowerer tests exercise the real
+parse/resolve/install package path.

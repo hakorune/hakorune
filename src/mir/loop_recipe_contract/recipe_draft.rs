@@ -39,6 +39,7 @@ use super::source_bound_core::{
 struct DraftLoopV1 {
     parent: Option<LoopNodeKeyV1>,
     source: SourceStmtSiteV1,
+    condition_block: Option<LoopBlockKeyV1>,
     condition: Option<LoopConditionV1>,
     body: Option<LoopBlockKeyV1>,
 }
@@ -49,6 +50,9 @@ pub(crate) enum LoopRecipeDraftRejectV1 {
     MissingLoopBody { loop_key: LoopNodeKeyV1 },
     MissingLoopCondition { loop_key: LoopNodeKeyV1 },
     ConditionReopened { loop_key: LoopNodeKeyV1 },
+    ConditionBlockReopened { loop_key: LoopNodeKeyV1 },
+    ConditionBlockMismatch { loop_key: LoopNodeKeyV1, block: LoopBlockKeyV1 },
+    BodyReopened { loop_key: LoopNodeKeyV1 },
     UnknownLoop { loop_key: LoopNodeKeyV1 },
     UnknownBlock { block: LoopBlockKeyV1 },
     UnknownItem { item: LoopItemKeyV1 },
@@ -191,6 +195,7 @@ impl LoopRecipeDraftV1 {
         self.loops.push(DraftLoopV1 {
             parent,
             source,
+            condition_block: None,
             condition: None,
             body: None,
         });
@@ -207,19 +212,25 @@ impl LoopRecipeDraftV1 {
     ) -> Result<LoopNodeKeyV1, LoopRecipeDraftRejectV1> {
         let owner_loop = self.block_owner(block)?;
         let loop_key = self.open_loop(Some(owner_loop), source)?;
-        let item = self.push_item(block, LoopRecipeItemV1::Loop { loop_key })?;
-        debug_assert_eq!(item.raw() as usize + 1, self.items.len());
+        self.push_item(block, LoopRecipeItemV1::Loop { loop_key })?;
         Ok(loop_key)
     }
 
     /// Open the predicate block of a loop condition.  `seal_condition` fixes
-    /// the resulting predicate value once it is emitted.
+    /// the resulting predicate value once it is emitted.  A loop has exactly
+    /// one condition block; reopening rejects instead of silently replacing
+    /// it.
     pub(crate) fn open_condition_block(
         &mut self,
         loop_key: LoopNodeKeyV1,
     ) -> Result<LoopBlockKeyV1, LoopRecipeDraftRejectV1> {
-        self.loop_row(loop_key)?;
-        Ok(self.open_block(loop_key))
+        let row = self.loop_row(loop_key)?;
+        if row.condition_block.is_some() {
+            return Err(LoopRecipeDraftRejectV1::ConditionBlockReopened { loop_key });
+        }
+        let block = self.open_block(loop_key);
+        self.loops[loop_key.raw() as usize].condition_block = Some(block);
+        Ok(block)
     }
 
     pub(crate) fn seal_condition(
@@ -232,6 +243,9 @@ impl LoopRecipeDraftV1 {
         let row = self.loop_row(loop_key)?;
         if row.condition.is_some() {
             return Err(LoopRecipeDraftRejectV1::ConditionReopened { loop_key });
+        }
+        if row.condition_block != Some(block) {
+            return Err(LoopRecipeDraftRejectV1::ConditionBlockMismatch { loop_key, block });
         }
         self.loops[loop_key.raw() as usize].condition =
             Some(LoopConditionV1::Predicate { block, value });
@@ -250,11 +264,16 @@ impl LoopRecipeDraftV1 {
         Ok(())
     }
 
+    /// Open the loop body block.  A loop has exactly one body; reopening
+    /// rejects instead of orphaning the first block.
     pub(crate) fn open_body_block(
         &mut self,
         loop_key: LoopNodeKeyV1,
     ) -> Result<LoopBlockKeyV1, LoopRecipeDraftRejectV1> {
-        self.loop_row(loop_key)?;
+        let row = self.loop_row(loop_key)?;
+        if row.body.is_some() {
+            return Err(LoopRecipeDraftRejectV1::BodyReopened { loop_key });
+        }
         let block = self.open_block(loop_key);
         self.loops[loop_key.raw() as usize].body = Some(block);
         Ok(block)
@@ -669,5 +688,84 @@ impl LoopRecipeDraftV1 {
             .filter(|row| row.key == value)
             .map(|_| ())
             .ok_or(LoopRecipeDraftRejectV1::UnknownValue { value })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::resolved_semantics::{
+        FunctionOwnerIssuerV1, SourcePathSegmentV1, SourcePathV1,
+    };
+
+    fn owner() -> FunctionOwnerIdV1 {
+        FunctionOwnerIssuerV1::new_for_compilation()
+            .expect("brand")
+            .issue()
+            .expect("slot")
+    }
+
+    fn loop_site() -> SourceStmtSiteV1 {
+        SourcePathV1::function_body()
+            .child(SourcePathSegmentV1::LoopBody(0))
+            .stmt()
+    }
+
+    fn predicate_site() -> SourceExprSiteV1 {
+        SourcePathV1::function_body()
+            .child(SourcePathSegmentV1::LoopCondition)
+            .expr()
+    }
+
+    #[test]
+    fn root_loop_rejects_second_open() {
+        let mut draft = LoopRecipeDraftV1::new(owner());
+        draft.open_root_loop(loop_site()).expect("first open");
+        assert_eq!(
+            draft.open_root_loop(loop_site()),
+            Err(LoopRecipeDraftRejectV1::RootLoopReopened)
+        );
+    }
+
+    #[test]
+    fn condition_block_rejects_reopen_and_foreign_seal() {
+        let mut draft = LoopRecipeDraftV1::new(owner());
+        let loop_key = draft.open_root_loop(loop_site()).expect("root loop");
+        let condition_block = draft
+            .open_condition_block(loop_key)
+            .expect("condition block");
+        assert_eq!(
+            draft.open_condition_block(loop_key),
+            Err(LoopRecipeDraftRejectV1::ConditionBlockReopened { loop_key })
+        );
+        let foreign = draft.open_body_block(loop_key).expect("body block");
+        let (_, value) = draft
+            .push_const_i64(condition_block, 1, &predicate_site())
+            .expect("predicate const");
+        assert_eq!(
+            draft.seal_condition(loop_key, foreign, value),
+            Err(LoopRecipeDraftRejectV1::ConditionBlockMismatch {
+                loop_key,
+                block: foreign,
+            })
+        );
+        draft
+            .seal_condition(loop_key, condition_block, value)
+            .expect("seal with the opened condition block");
+        assert_eq!(
+            draft.seal_condition(loop_key, condition_block, value),
+            Err(LoopRecipeDraftRejectV1::ConditionReopened { loop_key })
+        );
+    }
+
+    #[test]
+    fn body_block_rejects_reopen() {
+        let mut draft = LoopRecipeDraftV1::new(owner());
+        let loop_key = draft.open_root_loop(loop_site()).expect("root loop");
+        draft.open_body_block(loop_key).expect("body block");
+        assert_eq!(
+            draft.open_body_block(loop_key),
+            Err(LoopRecipeDraftRejectV1::BodyReopened { loop_key })
+        );
     }
 }
