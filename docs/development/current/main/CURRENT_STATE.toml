@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "SELFHOST-LOOP-PORTABLE-WIRE-S7A"
-current_execution_cohort = "loop_s7_portable_wire"
-current_blocker_token = "SELFHOST-LOOP-PORTABLE-WIRE-S7A__WireLanded_FrontierPause"
+current_execution_row = "SELFHOST-LOOP-M8A-RECURRENCE-PARITY-S7B1"
+current_execution_cohort = "loop_s7b_wire_coverage"
+current_blocker_token = "SELFHOST-LOOP-M8A-RECURRENCE-PARITY-S7B1__CohortDesignOpen"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "FrontierPause__S7APortableWireLanded__FamilySchedulerReselectionRequired_2026-09-24"
+current_design_stop = "S7B1Cohort__M8ARecurrenceWireCoverage__CardOnly_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,31 +14,31 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/selfhost-loop-portable-wire-s7a-d0-2026-09-23.md"
-latest_card = "selfhost-loop-portable-wire-s7a"
-latest_card_path = "docs/development/current/main/investigations/selfhost-loop-portable-wire-s7a-d0-2026-09-23.md"
+current_execution_design = "docs/development/current/main/investigations/selfhost-loop-m8a-recurrence-parity-s7b1-d0-2026-09-24.md"
+latest_card = "selfhost-loop-m8a-recurrence-parity-s7b1"
+latest_card_path = "docs/development/current/main/investigations/selfhost-loop-m8a-recurrence-parity-s7b1-d0-2026-09-24.md"
 latest_card_summary = """
-S7A portable wire landed caller-zero under a D1 amendment. The new
-.hako subtree lang/src/mir/builder/loop_recipe/ owns the
-LoopRecipeArtifactV1 wire: emit_loop_recipe_wire.hako assembles one
-fixed minimal artifact from string-fragment locals in serde field
-order and prints one compact JSON line; the emission is checked in
-at fixtures/hako_loop_recipe_wire_v1.json and exercised by
-wire_parity_tests.rs (10 tests: decode+verify+all 3 normalizations
-equal vs Rust-assembled artifact, deterministic normalization,
-typed rejects for malformed/version/unknown-key/unknown-producer/
-noncanonical-order/truncation). loop_recipe_contract suite 198/198;
-no-hostbridge guard extended and green. D1 boundary recorded: the
-current executable .hako subset has no method calls and no
-Map/Array literals, so the DTO/emitter split is deferred and every
-S7B cohort must name its mechanism. Non-claims: caller-zero; no
-.hako producer cohort/Facts/JoinSig/verifier/CFG/PHI/physical MIR;
-no production caller or routing; no hostbridge; no V2 wire; no M9
-parity claim; no Row F unblock; no legacy deletion.
+S7B1 wire-coverage cohort D0 card open (caller-zero). Bounded
+slice: a second .hako stdout entry under
+lang/src/mir/builder/loop_recipe/ emitting the canonical M8A
+LoopRecipeArtifactV1 (provenance variable_accum_recurrence_v1,
+bounded profile i<4 / acc+=i / i+=1) as one compact JSON line;
+checked-in emission fixture; parity harness extended to compare
+against the real Rust producer product
+(produce_variable_accum_recurrence_recipe_v1) under all three
+normalizations. Mechanism decision resolved in-card per S7A D1:
+input-driven .hako producer is impossible in the current
+executable subset (no method calls/Map/Array/env.get), so S7B
+rows deliver portable wire coverage per recipe family — the
+"same producer" half of M9 stays deferred until a .hako
+execution-mechanism row lands in its owning lane. Non-claims:
+no .hako producer/Facts/JoinSig port/verifier/CFG/PHI/physical
+MIR, no input reading, no hostbridge, no V2 wire, no M9 parity
+claim, no Row F unblock, no legacy deletion.
 """
-next_design_card = "SELFHOST-LOOP-PORTABLE-WIRE-S7A"
-next_design_card_path = "docs/development/current/main/investigations/selfhost-loop-portable-wire-s7a-d0-2026-09-23.md"
-next_execution_card = "none__design_only__family_scheduler_reselection"
+next_design_card = "SELFHOST-LOOP-M8A-RECURRENCE-PARITY-S7B1"
+next_design_card_path = "docs/development/current/main/investigations/selfhost-loop-m8a-recurrence-parity-s7b1-d0-2026-09-24.md"
+next_execution_card = "none__design_only__s7b1_cohort_card"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
