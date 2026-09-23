@@ -1,11 +1,11 @@
 ---
-Status: design_stop__one_case_observation_front_recheck
+Status: design_stop__premise_reconciled_build_red_blocks_front
 Task: GENERIC-LEGACY-OBSERVATION-FRONT-G0
 Date: 2026-09-23
 Parent: JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E
 PreviousCard: mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md
 NextCard: same-row__serial_route_observation_only_after_loop_reached
-Implementation permission: false; reconcile one existing observation front only. No source, fixture, corpus, or semantic-receipt changes.
+Implementation permission: false for this observation card. The selected prerequisite compile repair is owned by `generic-loop-source-facts-accessor-compile-repair-i0-2026-09-23.md`; no corpus, fixture, route, or semantic-receipt changes are authorized here.
 ---
 
 # Generic legacy observation front G0 — one-case premise recheck
@@ -34,13 +34,24 @@ front      = tools/smokes/v2/profiles/integration/joinir/generic_loop_continue_s
 ```
 
 The script expects exit `4` and either the strict-shadow Loop tag or the
-planner-first `LoopSimpleWhile` tag. Those tags describe this observation
-front only; neither selects a production backend or proves a portable Recipe.
-The earlier G0 record naming a raw-structured pre-Loop stop must be reconciled
-with later source handoff, static-call publication, and callable-loop
-source-Facts/Recipe/physical-adapter evidence. In particular,
-`StringHelpers.int_to_str/1` reaching its first Loop is a distinct canary and
-cannot stand in for this exact case.
+planner-first `LoopSimpleWhile` tag. The latest immutable exact-case evidence
+is the Aug-07 S3 receipt: Generic Loop selection reaches carrier
+representation, then exits `1` at `MissingTransientType { init: ValueId(3) }`.
+The later note at `docs/reference/mir/generic-loop-stage-matrix.md:1267-1275` reports planner/
+shadow tags before the same error. Neither is a passing front or a pre-Loop
+terminal. Both predate the Sep-22/23 source and carrier changes and have no
+tested current HEAD SHA.
+
+At current HEAD `b48ecd9fb2c20be0d6eb4e7eec35b00f59300941`, the authorized
+fresh front cannot yet run: `CARGO_BUILD_JOBS=4 cargo build --profile quick
+--bin hakorune` exits 101 with four E0599 errors because production source
+views call the `#[cfg(test)]`-only `CallableGenericLoopSourceFactsReceiptV1::pre_effect`
+helper. This is classified as a current-change compile red and is selected
+first by the linked I0 repair card. It is not a G0 runtime outcome.
+
+When build recovery lands, re-run only the pinned direct-VM case.
+`StringHelpers.int_to_str/1` reaching its first Loop remains a distinct
+canary and cannot stand in for this exact case.
 
 The Aug-07 callable handoff S0 schedule already exists in
 `src/mir/builder/normal_callable_loop_handoff.rs` and its focused tests. Its
@@ -53,9 +64,9 @@ missing S6E Recipe/route observation.
 1. Read the existing normalized-case entry, G0 front receipt, fixed smoke,
    and subsequent exact-case evidence. Trace the present front to its first
    terminal; do not infer the result from a newer but different canary.
-2. If no current exact-case receipt exists, use only the pinned one-case front
-   above. Record either `LoopReached` or the exact pre-Loop owner and terminal.
-   Preserve failure as unclassified when the terminal cannot be named.
+2. After the selected compile-repair card passes, use only the pinned one-case
+   front above. Record its exact SHA, command, exit status, and first owner.
+   The old receipts are historical and do not substitute for this run.
 3. Do not classify the case as a route disposition here. If the front reaches
    Loop, the scheduler may select the next serial
    `GENERIC-LEGACY-ROUTE-OBSERVATION-P1` action. If it does not, keep S6E at
@@ -66,20 +77,24 @@ missing S6E Recipe/route observation.
 | Outcome | Evidence | Allowed next step |
 | --- | --- | --- |
 | `LoopReached` | Current exact-case front exits 4 with one accepted Loop tag; SHA/profile and time are recorded in the owning card. | Select the next serial P1 route observation for the fixed corpus; no broad parallel census. |
-| `PreLoopTerminal(owner)` | The exact current front stops before Loop at a named owner. | Keep the case unclassified; task only that owner through its existing authority. |
-| `ObservationUnavailable` | No current exact-case run/receipt and the pinned front cannot be run under the selected environment. | Record the concrete missing capability and remain in design stop; do not call it Declined or use another backend. |
+| `PreLoopTerminal(owner)` | The exact current front stops before the Generic Loop route is selected at a named owner. | Keep the case unclassified; task only that owner through its existing authority. |
+| `InLoopTerminal(owner)` | The exact current front selects/enters Generic Loop, then exits nonzero at a named carrier or lowering owner. | Keep the case unclassified; task only the named owner. A printed Loop/planner tag with nonzero exit is not `LoopReached`. |
+| `BuildRed(owner)` | The compiler cannot produce the current binary and names a source owner. | Route to a separate current-change compile-repair card; do not label this `ObservationUnavailable` or a smoke result. |
+| `ObservationUnavailable` | After a successful current build, the pinned front cannot run because of a concrete environment capability. | Record the missing capability and remain in design stop; do not call it Declined or use another backend. |
 
-Acceptance is one current exact-case result or one exact named pre-Loop
-terminal, with the old G0 observation explicitly reconciled. If that is not
-available, the missing evidence stays open. Do not count this one-case result
-as S6E producer completion or as all-route coverage. After the front is
+Acceptance is one current exact-case result in the table above, with the old
+G0/S3 observations explicitly reconciled. The current result is presently
+`BuildRed(owner)` and the selected next card repairs only that compile red.
+Do not count an in-loop error or a printed tag as LoopReached, or this one-case
+result as S6E producer completion/all-route coverage. After the front is
 `LoopReached`, serial P1 observation and checked dispositions remain separate
 tasks; S6G, M9, and M10 stay closed until their existing owner contracts pass.
 
 ## Worker consultation
 
-Three read-only reviews found: B3 has no safe operation-outcome slice; the
-old callable-loop S0 schedule is already implemented and its task frontmatter
-is stale; and the authorized S6E successor is the exact strict-shadow VM case
-above. The reviews did not execute a build or test and did not issue a
-semantic receipt.
+Two current read-only reviews agree that the old pre-Loop premise is
+superseded by the S3 in-loop carrier failure, but no exact-case receipt is
+current for HEAD. Both also found that the card needed a distinct
+`InLoopTerminal(owner)` outcome. The current quick build then exposed the
+separate `BuildRed(owner)` prerequisite documented above. The Aug-07 S0
+schedule remains implemented pre-effect evidence only; it is not reselected.

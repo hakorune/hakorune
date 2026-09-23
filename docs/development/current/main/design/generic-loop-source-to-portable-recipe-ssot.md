@@ -28,15 +28,21 @@ existing Recipe/Core algebra. `LoopRouteId` is migration evidence, not Recipe
 meaning; `AccumConstLoop`/`DirectAccumV1` receipts and the natural
 `LoopSimpleWhile` fixture are not conflated.
 Generic residual S6E remains gated: the normalized corpus inventory exists,
-but route observations and checked dispositions are incomplete. The next
-bounded action is the one-case
+but route observations and checked dispositions are incomplete. The current
+G0 observation front is blocked by a current-change compile error in the
+production Generic source-facts views (the `#[cfg(test)]`-only pre-effect
+convenience accessor is called from non-test code). The bounded prerequisite
+is [`GENERIC-LOOP-SOURCE-FACTS-ACCESSOR-COMPILE-REPAIR-I0`](../investigations/generic-loop-source-facts-accessor-compile-repair-i0-2026-09-23.md),
+then the one-case
 [`GENERIC-LEGACY-OBSERVATION-FRONT-G0` premise recheck](../investigations/generic-legacy-observation-front-g0-premise-recheck-2026-09-23.md)
 for `generic_loop_continue_strict_shadow_vm`; it reconciles the older
-pre-Loop receipt with later source-handoff evidence. Do not repeat the corpus
-census, select the already-landed Aug-07 S0 schedule again, or count an
-unobserved case as a decline. S6E producer work remains closed until this
-front reaches Loop or returns one exact named pre-Loop terminal. This is not a
-prerequisite for S6A.
+pre-Loop receipt with later source-handoff evidence. The outcome must
+distinguish a passing exit-4 Loop front, a named pre-Loop terminal, a named
+in-Loop terminal, build red, and environment unavailability. Do not repeat
+the corpus census, select the already-landed Aug-07 S0 schedule again, or
+count an unobserved case as a decline. S6E producer work remains closed until
+this front passes; any named terminal is routed only to its existing owner.
+This is not a prerequisite for S6A.
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a
@@ -1205,7 +1211,8 @@ new accepted shape. A failed fast gate is stashed rather than committed.
 | Row | Sole input -> output | Done | Stop / non-claim |
 | --- | --- | --- | --- |
 | `GENERIC-LEGACY-CORPUS-UNIVERSE-P0` | active phase29bq, selfhost subset, four Generic smokes, and Generic-named fixtures -> one normalized case universe | case/mode keys unique; compatibility stems alias a canonical case; names never imply a route | no runtime selection claim and no deletion |
-| `GENERIC-LEGACY-OBSERVATION-FRONT-G0` | one case through a fixed direct VM front -> Loop-reached receipt or named pre-Loop owner failure | the older immutable G0 receipt names the raw-structured pre-Loop owner; S0-I0/S1/S2/S3 later repair transport and body-item sites. Recheck only `generic_loop_continue_strict_shadow_vm` under `vm-strict-planner-direct-v1` using the linked premise-recheck card before P1. | keep the exact case unclassified until its current front reaches Loop or a named terminal is recorded; no full corpus census, route disposition, or producer claim from stale evidence. |
+| `GENERIC-LOOP-SOURCE-FACTS-ACCESSOR-COMPILE-REPAIR-I0` | existing route-admission evidence -> production source-facts views | repair the `#[cfg(test)]` accessor compile red through the existing evidence owner; quick bin build green | no new receipt, authority, route selection, or caller switch |
+| `GENERIC-LEGACY-OBSERVATION-FRONT-G0` | one case through a fixed direct VM front -> exact terminal classification | after current build recovery, recheck only `generic_loop_continue_strict_shadow_vm` under `vm-strict-planner-direct-v1`; distinguish passing exit-4 Loop, named pre-Loop, named in-Loop, build red, and environment unavailable | no full corpus census, route disposition, or producer claim; P1 only after a passing front |
 | `GENERIC-LEGACY-ROUTE-OBSERVATION-P1` | green front receipt + normalized universe -> serial route/bypass/RC/output observations | every required release/strict/planner-required run is observed; timeout or pre-Loop failure stays unclassified | no parallel full census and no manufactured result |
 | `GENERIC-LEGACY-DISPOSITION-D0` | observed normalized universe -> checked disposition | accepted cases use only portable owner or accepted typed reject; nonaccepted cases may retain future evidence; unclassified accepted count zero | future evidence cannot retire currently accepted input; failed/unobserved cases block closeout |
 | `GENERIC-LEGACY-CROSS-FAMILY-DEPENDENCY-S0` | Generic candidate files + repository caller graph -> Generic-only / neutralize-first / M11 / M12 or named JoinModule ownership | shared `UpdateCanon`, `RecipeBody/RecipeBlock`, located handoff, separate `join_ir/lowering`, and `NYASH_JOINIR_LOWER_GENERIC` are assigned outside R1 | do not wholesale-delete `generic_loop_canon/**`, a name-matched subtree, or its environment reference |
