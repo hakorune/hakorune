@@ -91,6 +91,10 @@ repository's intended fast path.
 - handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
 - when `work_mode = "design_stop"`, pause implementation and resolve the named design dependency in the frontier card; goal status follows the session contract
 - read `latest_card_path` before editing
+- apply the phase-specific proof timing in
+  [`current-docs-update-policy-ssot.md`](design/current-docs-update-policy-ssot.md#asymmetric-construction-and-retirement-rigor):
+  build after the bounded mapping is fixed; require caller-zero and acceptance
+  before old-edge removal
 - continue only the exact `current_blocker_token` and `latest_card_path` from
   `CURRENT_STATE.toml`; this mirror does not select or rename executable rows
 - read `method_anchor` for the in-place production replacement law

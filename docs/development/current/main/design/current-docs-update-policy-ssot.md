@@ -98,6 +98,29 @@ names the exact old responsibility/edge; it need not cover the entire shared
 file or schema. Do not delete supported callers merely to manufacture zero.
 Keep selected old-edge retirement in the same bounded series.
 
+### Asymmetric construction and retirement rigor
+
+Apply the proof at the phase where it is needed; do not make implementation
+wait for evidence that only the implementation can produce.
+
+- **Construction / Promote:** once the entry row fixes the source authority and
+  issuer, result/control/effect/ABI mapping, named consumer and affected
+  callers, fail-fast boundary, intended old edge, and acceptance, implement
+  within the selected `fast` slice. Focused positive and negative tests are
+  produced with the implementation and may guide corrections inside that
+  bounded mapping. Do not require physical completion, post-change test
+  results, production caller-zero, or retirement evidence before starting.
+- **Cutover / retirement:** keep the stronger proof at the irreversible edge.
+  Before physically deleting an old branch, show that its callers have switched
+  or stopped in this same bounded series and that the selected edge has zero
+  remaining callers. Preserve shared code still used by other callers; run the
+  selected acceptance and guard before closeout.
+- A green focused test proves only its covered behavior. It does not by itself
+  prove production selection, caller cutover, retirement, or overall
+  completion. This rule changes proof timing, not semantic authority: it does
+  not permit guessed source meaning, a new unconsumed receipt, weaker
+  fail-fast behavior, or skipping source-to-Recipe co-sealing.
+
 Public API retention and caller-local migration are separate decisions. `pub`,
 a public re-export, and exported C symbols establish reachability; absent
 `publish = false` only means publication is not disabled in the manifest. Neither
