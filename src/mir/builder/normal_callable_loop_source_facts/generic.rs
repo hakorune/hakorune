@@ -421,7 +421,7 @@ impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
             condition_source: evidence.condition_source(),
             body_source: evidence.body_source(),
             session: evidence.session(),
-            pre_effect: self.receipt.pre_effect(),
+            pre_effect: evidence.pre_effect(),
             carrier_relation: evidence.carrier_relation(),
             source_items: evidence.source_items(),
             source_dispositions: evidence.source_dispositions(),
@@ -460,7 +460,7 @@ impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
             condition_source: evidence.condition_source(),
             body_source: evidence.body_source(),
             session: evidence.session(),
-            pre_effect: receipt.pre_effect(),
+            pre_effect: evidence.pre_effect(),
             carrier_relation: evidence.carrier_relation(),
             source_items: evidence.source_items(),
             source_dispositions: evidence.source_dispositions(),
@@ -486,10 +486,11 @@ impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
         let Some(generic) = facts.facts.generic_loop_v1() else {
             return Err(CallableGenericLoopV1SemanticRecipeViewRejectV1::GenericFactsMissing);
         };
+        let evidence = receipt.route_admission().evidence();
         let view = CallableGenericLoopV1SemanticViewV1 {
             owner: receipt.owner,
-            _loop_site: receipt.pre_effect().loop_site(),
-            pre_effect: receipt.pre_effect(),
+            _loop_site: evidence.pre_effect().loop_site(),
+            pre_effect: evidence.pre_effect(),
             facts,
             _generic: generic,
             _selection: receipt.route_admission().selection(),
