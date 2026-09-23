@@ -269,15 +269,17 @@ suppress that warning cohort. The physicalizer tests were moved to
 split threshold. This is unit evidence for common physical control only. The
 selected source issuer, Main co-seal, canonical-root handoff, production
 switch, old-edge retirement, and runtime acceptance remain unfinished. The
-implementation files and this checkpoint are uncommitted.
+physicalizer is committed at `e671cf390e`; Main0 source Facts, mapping, Recipe
+co-seal, RecipeDraft, and tests are committed at `4b80242fa7`.
 
-After a restart in this checkout, read `CURRENT_STATE.toml` and this card,
-check `git status -sb`, then inspect running `cargo`/`rustc` processes before
-starting another Cargo command. If no Cargo process remains, continue step 3
-by issuing the exact Main0 source facts, portable Recipe/Core, initialized
-inputs, and JoinSig continuation together from the same App Main source loan;
-do not repeat this already-passing test unless later changes affect the
-physicalizer.
+After a restart, read `CURRENT_STATE.toml` and this card, check `git status -sb`,
+and inspect running `cargo`/`rustc` processes before starting another Cargo
+command. The Main0 modules now compile and their 12 focused tests pass. They use
+synthetic AST input plus the embedded resolver; they do not prove parser
+admission of the on-disk fixture or production caller selection. Next, connect
+the verified product to the canonical-root handoff from the same installed
+batch source loan. Keep pre-wrapper selection and one outer publication; do not
+repeat the focused tests unless these owners change.
 
 ## Producer-architecture feedback tasks — 2026-09-23
 
@@ -377,5 +379,9 @@ Two read-only workers covered independent uncertainties: complete legacy
 classification/source issuer, then Main's fresh-function/publication seam.
 The primary checked source/Recipe/input/JoinSig contracts and integrated the
 one-target/one-root Decision. No worker edited files or ran compiler probes.
-The focused common If/Continue physicalizer unit test above passes. No
-source-to-MIR/runtime/LLVM/CI acceptance is claimed.
+The focused common If/Continue physicalizer test passes. With the Main0
+modules and tests registered, `CARGO_BUILD_JOBS=4 cargo test --profile quick
+--lib main0_continue_recipe_coseal_tests::` passed 12/12 in a 4m37s quick build
+and emitted 543 library warnings. The suite covers the issuer against synthetic
+AST plus embedded resolver input; exact parser-to-MIR, runtime, LLVM, and CI
+acceptance remain unproven.
