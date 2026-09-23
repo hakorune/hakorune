@@ -1,9 +1,9 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E"
 current_execution_cohort = "loop_m8_generic_residual_producer_cohort"
-current_blocker_token = "JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E__ProducerCohortDesignOpen"
+current_blocker_token = "JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E__ProducerCohortLanded"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "GenericResidual__ProducerCohortContract__CardOnly_2026-09-23"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -18,26 +18,27 @@ current_execution_design = "docs/development/current/main/investigations/joinir-
 latest_card = "joinir-loop-m8-generic-residual-s6e"
 latest_card_path = "docs/development/current/main/investigations/joinir-loop-m8-generic-residual-s6e-d0-2026-09-23.md"
 latest_card_summary = """
-S6E Generic residual producer-cohort design open. Bounded profile:
-single-induction integer-progression GenericLoopV1 —
+S6E Generic residual producer cohort landed caller-zero. Bounded
+profile: single-induction integer-progression GenericLoopV1 —
 loop(i <op> bound) { body-local integer decls/rebinds; terminal
-carrier step }, op in {Less, LessEqual, Equal}; exactly one carrier
-equal to the induction variable. Owners named: compiler
-generic_residual_projection + typed_map{,_issue} (AST-free,
-ledger-verified), loop_route_policy generic_residual demand (winner
-cursor == GenericLoopV1 position 18; V0 overlap is typed
-Unresolved), producer_id GenericResidualV1, caller-zero
-generic_residual_producer emitting verified Recipe + JoinSig +
-receipt. S6D landed caller-zero at b0fe3bf6a2 (loop_cond 20/20,
-producer 42/42, loop_true 48/48, main0 63/63). Non-claims: no
-production caller, no V0/G0 provenance, no corpus-coverage claim,
-no S6G/Row F unblock. Baseline debt unchanged:
+carrier step }, op in {Less, LessEqual, Equal}. Landed: AST-free
+generic_residual projection, role-keyed typed source map with
+ordered body rows and residual boundary checks, policy demand
+(exact GenericLoopV1 winner at cursor 18; V0 overlap is typed
+Unresolved), LoopRecipeProducerIdV1::GenericResidualV1, and
+produce_generic_residual_recipe_v1 emitting verified Recipe +
+JoinSig + retained receipt. Mapping correction: bound variable is
+a read-only second carrier; body-locals are per-iteration SSA
+values (JoinSig seeds bindings from carriers only). Gates:
+generic_residual 18/18, producer 54/54, loop_true 49/49, main0
+63/63. Non-claims: no production caller, no V0/G0 provenance, no
+corpus coverage, no S6G/Row F unblock. Baseline debt unchanged:
 record_value_publish + strict-shadow + inplace guard.
 """
 next_design_card = "JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E"
 next_design_card_path = "docs/development/current/main/investigations/joinir-loop-m8-generic-residual-s6e-d0-2026-09-23.md"
-next_execution_card = "none__design_only__s6e_producer_cohort_card"
-next_execution_card_path = "none"
+next_execution_card = "JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E"
+next_execution_card_path = "docs/development/current/main/investigations/joinir-loop-m8-generic-residual-s6e-d0-2026-09-23.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

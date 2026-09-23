@@ -1,10 +1,10 @@
 ---
-Status: open__2026-09-23__producer_cohort_design
+Status: landed__2026-09-23__caller_zero_producer_cohort
 Task: JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E
 Date: 2026-09-23
 Parent: JOINIR-LOOP-M8-LOOPCOND-EXITS-S6D (landed)
 PreviousCard: joinir-loop-m8-loopcond-exits-s6d-d0-2026-09-23.md
-NextCard: same-row__bounded_producer_cohort_implementation
+NextCard: frontier-pause__family_scheduler_reselection
 Implementation permission: false; name the owners to extend and fix the
 bounded implementation slice only. No code, no manifest write, no
 route/caller change, no new semantic receipt from this card.
@@ -208,3 +208,59 @@ Missing (the row's deliverable):
 When this card is accepted, `work_mode` moves to `fast` for the
 bounded implementation slice named above (one producer cohort, one
 commit family).
+
+## Landed evidence (2026-09-23)
+
+The caller-zero producer cohort is landed:
+
+- `loop_structural_facts/generic_residual_source.rs` —
+  `VerifiedGenericResidualSourceShapeV1` /
+  `VerifiedGenericResidualSourceProjectionV1` /
+  `GenericResidualBodyStatementV1` (site-only, AST-free).
+- `compiler/generic_residual_projection.rs` —
+  `issue_generic_residual_source_projection_v1`: resolves the root
+  loop condition, ordered body statements (decl/rebind/terminal
+  step), and rejects LoopTrue conditions, non-decl/non-rebind body
+  statements, missing terminal steps, and foreign owners.
+- `compiler/generic_residual_typed_map{,_issue}.rs` —
+  `VerifiedGenericResidualTypedSourceMapV1` +
+  `issue_generic_residual_typed_source_map_v1`: role-keyed co-seal
+  over the projection — carrier decl (Parameter or pre-loop Local),
+  condition compare triple, ordered `GenericResidualBodyRowV1`
+  (Declaration | Rebind), terminal carrier step, plus residual
+  variable-ref / assignment-target / exit boundary checks.
+- `loop_route_policy/generic_residual.rs` —
+  `issue_generic_residual_policy_demand_v1` consumes the frozen
+  19-route schedule; admits only the exact `GenericLoopV1` winner at
+  cursor 18; a V0-overlap winner (17) and a missing candidate are
+  typed demand rejects.
+- `loop_recipe_contract/producer_id.rs` —
+  `LoopRecipeProducerIdV1::GenericResidualV1`
+  (`"generic_residual_v1"`); no `GenericG0`/`GenericLoopV0` reuse.
+- `loop_recipe_contract/generic_residual_producer.rs` —
+  `produce_generic_residual_recipe_v1`: frame-key match, portable
+  `VerifiedLoopRecipeV1`, shared `VerifiedLoopJoinSigV1`, retained
+  policy receipt; caller-zero.
+
+Focused gates (all green): `generic_residual` 18/18 (6 projection +
+12 producer/map tests), `producer` 54/54, `loop_true` 49/49,
+`main0` 63/63. `loop_cond`
+`program_block_with_exit_signals_prefers_recipe_only` fails on the
+parent commit too — known baseline debt, not this change.
+
+Mapping correction recorded during implementation (the card's
+literal item sketch was refined by the Recipe/JoinSig algebra, not
+by a profile change): the JoinSig elaborator seeds readable/writable
+bindings from carriers only, so (a) a variable bound becomes a
+read-only second carrier with its own input entry value, and (b)
+body-local `local`/`rebind` rows are emitted as per-iteration SSA
+value flow (`ConstI64`/`BinaryI64`), never `WriteBinding` to a
+non-carrier binding and never a fabricated input. The fixture
+`loop(i < limit) { local tmp = 0; i = i + 1 }` yields 2 bindings /
+2 carriers / 2 inputs / 8 items / 0 exits.
+
+Non-claims stand: caller-zero only; no production caller, no route
+registry or selector wiring, no `GenericLoopV0`/`GenericG0`
+provenance, no family-admission widening, no physical/CFG/PHI or
+runtime acceptance, no corpus-coverage claim, no S6G closeout, no
+Row F unblock, no legacy deletion.

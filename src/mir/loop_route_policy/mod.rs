@@ -28,6 +28,7 @@ mod generic_g0_observation;
 mod generic_g0_observation_tests;
 #[cfg(test)]
 mod generic_g0_tests;
+mod generic_residual;
 mod loop_cond_break_continue;
 mod loop_cond_break_continue_observation;
 #[cfg(test)]
@@ -86,6 +87,11 @@ pub(crate) use generic_g0_observation::{
     GenericG0ObservationContextV1, GenericG0ObservationDeclineV1, GenericG0ObservationEvidenceV1,
     GenericG0ObservationRejectV1, GenericG0ObservationUnresolvedV1,
     VerifiedGenericG0FamilyCandidateV1,
+};
+#[allow(unused_imports)]
+pub(crate) use generic_residual::{
+    issue_generic_residual_policy_demand_v1, GenericResidualPolicyDemandRejectV1,
+    VerifiedGenericResidualPolicyDemandV1, VerifiedGenericResidualPolicyReceiptV1,
 };
 pub(crate) use loop_cond_break_continue_observation::LoopCondFamilyObservationV1;
 #[allow(unused_imports)]
