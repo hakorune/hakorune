@@ -1,10 +1,10 @@
 ---
-Status: design_stop__serial_route_observation_open
+Status: landed__2026-09-23
 Task: GENERIC-LEGACY-ROUTE-OBSERVATION-P1
 Date: 2026-09-23
 Parent: JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E
 PreviousCard: generic-loop-mainline-derived-predicate-front-d0-2026-09-23.md
-NextCard: same-row__serial_observation_until_bounded_batch_recorded
+NextCard: same-row__next_serial_batch_selected_by_family_scheduler
 Implementation permission: false; record route/bypass/RC/output for the
 bounded serial batch only. No source, fixture, corpus-universe,
 semantic-receipt, producer, selector, or route changes.
@@ -128,4 +128,41 @@ remains the only row that may check dispositions.
 
 ## Observation log
 
-(pending — filled serially)
+Binary: `target/debug/hakorune` (`--features vm-reference`), HEAD
+`5e1b4e4909`, 2026-09-23. All 12 cases observed serially in manifest
+order; no timeouts, no spawn errors.
+
+| case_id | tsv:line | A_rc | A_stdout_tail | B_outcome | B_evidence | observation_state | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| general_if | 29 | 0 | `4` | named-reject | `[callable-loop/route-not-front-selected] LoopCondRouteRejected(SourceItemsMissing)` site=Body(2) | rejected | compat lane prints expected `4`; callable front refuses the loop shape |
+| nested_if_min | 30 | 0 | `10` | named-reject | same `route-not-front-selected` `SourceItemsMissing` site=Body(2) | rejected | expected `10` on compat lane |
+| generic_loop_v1_recipe_nested_if_min | 31 | 0 | `0` | named-reject | `[mir/main-import-view/selected-header-missing]` | failed-before-loop | multi-box file (Helper+Main); root import view cannot select a header — never reaches the loop route |
+| generic_loop_v1_recipe_nested_if_loop_min | 32 | 0 | `2` | named-reject | `[callable-loop-handoff/nested-loop-profile-not-admitted]` | rejected | expected `2` |
+| generic_loop_v1_recipe_nested_if_loop_else_min | 33 | 0 | `20` | named-reject | same nested-loop handoff reject | rejected | expected `20` |
+| generic_loop_v1_recipe_then_only_empty_join_min | 34 | 0 | `3` | named-reject | `[mir/callable-main/qualified-preflight] UnsupportedFirstFamilyShape actual=Loop statement_not_in_first_family site=Body(2)` | rejected | expected `3` |
+| generic_loop_v1_recipe_loop_if_loop_callguard_min | 35 | 0 | `10` | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `10` |
+| generic_loop_v1_recipe_loop_if_loop_pure_min | 36 | 0 | `10` | named-reject | `nested-loop-profile-not-admitted` | rejected | expected `10` |
+| generic_loop_v1_local_def_continue_min | 122 | 1 | VM error `MIR interp: unimplemented instruction: NewBox IntrinsicArray` | named-reject | `[mir/callable-main/qualified-preflight] expression_not_in_first_family actual=ArrayLiteral site=Body(0).Initializer(0)` | failed-before-loop | both axes stop at Body(0), before the loop |
+| generic_loop_v1_nested_min | 123 | 1 | `[freeze:contract][raw-compat/runtime-box-fate-retired/static]` | named-reject | `[mir/normal-root/consume] SourcePolicy(MainMustBeStatic)` | failed-before-loop | non-static Main; root policy rejects before loop |
+| loop_header_shortcircuit_generic_loop_v0_min | 159 | 0 | `0` | named-reject | `qualified-preflight statement_not_in_first_family actual=Loop site=Body(2)` | rejected | expected `0` |
+| generic_loop_v1_if_cond_prelude_loop_min | 169 | 0 | `3` | named-reject | `[mir/callable-semantic-package/issue] LoopBreakSource Composite(Projection(Forest(ForestLookup)))` | rejected | expected `3` |
+
+## Result
+
+- 9/12 `rejected`: the callable source front evaluated each case and
+  issued a typed refuse — 2 at route selection
+  (`route-not-front-selected`), 4 at the nested-loop handoff, 2 at
+  qualified preflight (`statement_not_in_first_family`), and 1 at the
+  semantic-package issuer (`LoopBreakSource`). No case matched a Main0
+  selection arm — expected: all
+  carry `print`, `if`/`else`, nested loops, array literals, or calls
+  outside the three bounded profiles.
+- 3/12 `failed-before-loop`: `recipe_nested_if_min` (multi-box import
+  view), `local_def_continue_min` (array literal + missing VM `NewBox`
+  interp), `nested_min` (non-static Main). Each names its owner.
+- 0/12 `accepted`, `timeout`, or left `unobserved`.
+- The VM compat lane produced the manifest `expected` output and
+  `allowed_rc`-consistent exit for the 9 runnable cases; compat output
+  is recorded as runtime context only and is not route authority.
+- No fixture, source, corpus-universe, receipt, or route change was
+  made. `observation_state` is the only manifest column touched.
