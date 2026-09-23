@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "GENERIC-LEGACY-IFELSE-RETURN-NONDETERMINISM-D0"
 current_execution_cohort = "generic_legacy_nondeterminism_repair"
-current_blocker_token = "GENERIC-LEGACY-IFELSE-RETURN-NONDETERMINISM-D0__RepairDesignOpen"
+current_blocker_token = "GENERIC-LEGACY-IFELSE-RETURN-NONDETERMINISM-D0__RepairLanded_FrontierPause"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "NondeterminismRepair__IfElseReturnVoidMain__CardOnly_2026-09-23"
+current_design_stop = "FrontierPause__IfElseReturnRepairLanded_D0CorpusFullyClassified__FamilySchedulerReselectionRequired_2026-09-23"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,23 +18,22 @@ current_execution_design = "docs/development/current/main/investigations/generic
 latest_card = "generic-legacy-ifelse-return-nondeterminism-d0"
 latest_card_path = "docs/development/current/main/investigations/generic-legacy-ifelse-return-nondeterminism-d0-2026-09-23.md"
 latest_card_summary = """
-D0 disposition classification landed: f91e5ba82c classified the 36
-accepted rows portable-owner (D0-DISPOSITION-CHECKED); 197ea80fa4
-classified 196 rejected (D0-TYPED-REJECT) + 162 pre-loop
-(D0-PRE-LOOP-EVIDENCE). 394/398 corpus rows carry a checked decision;
-unclassified accepted = 4, held behind the named nondeterminism
-repair row: if_else_return{,_var} intermittently emit legacy void
-@main on the callable lane (3/8 reproduced at 197ea80fa4). Repair
-design card opened; next slice under fast is reproduce -> name the
-ordering source -> minimal determinism fix + repeat-run guard ->
-classify the 4 held rows. Row F stays blocked; strict-shadow and
-inplace-replacement guard reds remain baseline debt (guard test count
-repaired 389->398 in the D0 slice).
+If-else-return nondeterminism repair landed at e6178e7335:
+infer_return_type_from_phi iterated the blocks HashMap and a
+synthesized Void tail could beat concrete branch returns; now all
+Return candidates are scanned in block-id order with concrete types
+preferred. Repeat-run guard 20x2 green; regression test added; the
+4 held corpus rows classified D0-DISPOSITION-CHECKED /
+portable-owner. 398/398 rows carry a checked decision (40/196/162);
+unclassified accepted = 0, so D0's classification contract is met.
+Frontier pause: family reselection required (D0 closeout vs S0).
+Baseline debt unchanged: record_value_publish test fails at parent
+with raw-compat retired error; strict-shadow/inplace guard reds.
 """
 next_design_card = "GENERIC-LEGACY-IFELSE-RETURN-NONDETERMINISM-D0"
 next_design_card_path = "docs/development/current/main/investigations/generic-legacy-ifelse-return-nondeterminism-d0-2026-09-23.md"
-next_execution_card = "GENERIC-LEGACY-IFELSE-RETURN-NONDETERMINISM-D0"
-next_execution_card_path = "docs/development/current/main/investigations/generic-legacy-ifelse-return-nondeterminism-d0-2026-09-23.md"
+next_execution_card = "none__design_only__family_scheduler_reselection"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

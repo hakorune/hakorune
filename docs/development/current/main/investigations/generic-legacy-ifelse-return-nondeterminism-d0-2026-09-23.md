@@ -1,13 +1,12 @@
 ---
-Status: design_stop__nondeterminism_repair_design_open
+Status: landed__repair_green_and_held_rows_classified
 Task: GENERIC-LEGACY-IFELSE-RETURN-NONDETERMINISM-D0
 Date: 2026-09-23
 Parent: generic-legacy-disposition-d0-2026-09-23.md
 PreviousCard: generic-legacy-disposition-d0-2026-09-23.md
-NextCard: same-row__repair_landing_or_no_safe_slice
-Implementation permission: false; fix the investigation boundary and
-bounded repair slice only. No source/fixture/route/manifest change
-from this card.
+NextCard: family_scheduler__GENERIC-LEGACY-DISPOSITION-D0_closeout_or_S0
+Implementation permission: closed; the bounded repair slice landed at
+e6178e7335 and the 4 held corpus rows are classified.
 ---
 
 # Generic legacy if-else-return nondeterminism repair D0
@@ -86,3 +85,42 @@ reproduction (HEAD 197ea80fa4, target/debug/hakorune):
 - If the source cannot be named: card closes `NoSafeSlice` with the
   named owner, the 4 rows stay held, and S6E stays open — do not
   convert to Declined/Rejected by vote.
+
+## Landed evidence (e6178e7335)
+
+- Root cause (named owner): `infer_return_type_from_phi` in
+  `src/mir/builder/return_type_strategy.rs` iterated
+  `function.blocks` (a `HashMap`) and kept the first Return
+  terminator's type. The synthesized void tail block could be
+  visited before the concrete integer-returning branch blocks, so
+  the same fixture intermittently emitted `define void @main()`.
+- Fix: collect every `Return` terminator, sort candidates by
+  `BasicBlockId`, and prefer concrete non-`Void`/non-`Unknown`
+  types — `Void`/`Unknown` is kept only as a fallback via
+  `get_or_insert`. No route, admission, or fixture change.
+- Regression coverage:
+  `return_type_strategy_tests::if_else_return_main_infers_integer_signature`
+  (Ring0-initialized compile of a static Main with integer returns
+  in both branches; asserts `MirType::Integer`).
+- Repeat-run guard:
+  `tools/checks/generic_ifelse_return_signature_determinism_guard.sh`
+  — `OK 20x2 runs, canonical i64 @main every time` for both
+  fixtures. Earlier isolation loop: 30/30 deterministic on each
+  fixture.
+- Held-row classification landed in the same commit: all 4 rows now
+  `decision=D0-DISPOSITION-CHECKED`, `disposition=portable-owner`,
+  `current_acceptance=accepted`, `observed_route=canonical-main`,
+  `target_owner=canonical-main`. Corpus decision totals are now
+  40 `D0-DISPOSITION-CHECKED` / 196 `D0-TYPED-REJECT` /
+  162 `D0-PRE-LOOP-EVIDENCE`; zero rows remain P0-INVENTORY-ONLY.
+- Gates: corpus universe guard tests 6/6 OK; current-state pointer
+  guard OK; `cargo test --features vm-reference main0` 63/63 PASS
+  (no regression in the shared inference path).
+- Known baseline debt (not this slice): the pre-existing test
+  `record_value_publish_is_a_void_script_result` fails identically
+  at parent `5f0f831b3d` with
+  `[freeze:contract][raw-compat/runtime-box-fate-retired/instance]`
+  — retired raw-compat debt, left for a separate named row.
+- Non-claims kept: no legacy fallback restored, no production
+  switch, no cutover, no corpus re-census beyond the 4 held rows,
+  no S6E/S0 closeout claim.

@@ -1,5 +1,5 @@
 ---
-Status: landed__2026-09-23__with_named_holdback
+Status: landed__2026-09-23__holdback_resolved_all_classified
 Task: GENERIC-LEGACY-DISPOSITION-D0
 Date: 2026-09-23
 Parent: JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E
@@ -167,10 +167,20 @@ closeout.
   failed-before-loop rows classified `D0-PRE-LOOP-EVIDENCE` /
   `nonproduction-future-evidence` with the named blocking owner.
   Guard gained both decision tokens in the same commit.
-- Result: 394/398 rows carry a checked decision. Unclassified
-  accepted = **4** — the two `if_else_return{,_var}` fixtures and
-  their fast-gate/subset twin rows, held `P0-INVENTORY-ONLY` behind
-  the named nondeterminism repair row (`void @main` intermittent
-  legacy emission on the callable lane). D0 cannot close until that
-  repair row lands; S0 follows after D0 closure per the ordered row
+- Result at that point: 394/398 rows carry a checked decision.
+  Unclassified accepted = **4** — the two `if_else_return{,_var}`
+  fixtures and their fast-gate/subset twin rows, held
+  `P0-INVENTORY-ONLY` behind the named nondeterminism repair row.
+- `e6178e7335` — holdback resolved: `infer_return_type_from_phi`
+  iterated a `HashMap` and let a synthesized Void tail win over
+  concrete branch returns; the fix collects all Return candidates
+  in block-id order and prefers concrete types (repeat-run guard
+  20x2 green; regression test added). The 4 held rows are now
+  classified `D0-DISPOSITION-CHECKED` / `portable-owner` /
+  `canonical-main`. See
+  `generic-legacy-ifelse-return-nondeterminism-d0-2026-09-23.md`.
+- Final: **398/398 rows carry a checked decision** (40
+  `D0-DISPOSITION-CHECKED` / 196 `D0-TYPED-REJECT` / 162
+  `D0-PRE-LOOP-EVIDENCE`); unclassified accepted = 0. D0's own
+  classification contract is met; S0 follows per the ordered row
   map.
