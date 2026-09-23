@@ -1,5 +1,5 @@
 ---
-Status: design_stop__serial_route_observation_open
+Status: landed__2026-09-23
 Task: GENERIC-LEGACY-ROUTE-OBSERVATION-P1
 Date: 2026-09-23
 Parent: JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E
@@ -88,4 +88,68 @@ batch. Non-claims identical.
 
 ## Observation log
 
-(pending — filled serially)
+Binary: `target/debug/hakorune` (`--features vm-reference`), HEAD
+`50dee7a92e`, 2026-09-23. All 49 rows observed serially in subset-
+manifest line order; no timeouts, no signals. `exp` is the subset
+manifest expected value. Every fixture twins an already-observed
+fast-gate row; the serial invocations reproduced the twins' outcomes
+verbatim, recorded here per row.
+
+| sub | case | A_rc | A_tail | B_evidence | state |
+| --- | --- | --- | --- | --- | --- |
+| 51-67 | nested_loop_{if_else_return_local, if_else_if_return, if_else_if_else_return, if_fallthrough_join, if_else_fallthrough_join{,_return_var,_return_local,_else_return_blockexpr{,_var,_local},_return_blockexpr{,_local,_local2,_var_blockexpr,_local_blockexpr,_blockexpr,_var}}} (17 rows) | 0 | (empty) | `callable-loop-handoff/nested-loop-profile-not-admitted` | rejected |
+| 68 | scan_methods_nested_loop_no_break_or_continue | 1 | VM err `canonical-call` | `qualified-preflight actual=UnaryOp` site=Body(5) Init | failed-before-loop |
+| 69 | scan_methods_nested_loop_no_break_or_continue_pure | 0 | `0` | `nested-loop-profile-not-admitted` | rejected |
+| 70 | scan_methods_loop | 1 | `[static-call/legacy-fallback-retired] ParserStringUtilsBox.starts_with/3` | `semantic-package LoopBreakSource ForestBinding UnsupportedAncestor` | rejected |
+| 71 | scan_all_boxes_empty_then | 0 | `0` | `callable-loop/recipe source-unsupported-body-statement` | rejected |
+| 72 | scan_all_boxes_program_stmt | 0 | `0` | `route-not-front-selected CarrierRelation(DeclarationCoverage)` site=Body(2) | rejected |
+| 73 | scan_all_boxes_stmt_if_nested_program | 0 | `4` | `CarrierRelation(TargetCoverage)` site=Body(2) | rejected |
+| 74 | scan_all_boxes_return_in_debug_guard | 0 | `3` | `CarrierRelation(DeclarationCoverage)` site=Body(2) | rejected |
+| 75 | using_module_roots | 1 | `[static-call/legacy-fallback-retired] ModuleRootsSmokeBox.value/0` | `mir/main-import-view/selected-header-missing` | failed-before-loop |
+| 76 | using_module_roots_multi | 1 | same retired call | `mir/main-import-view/selected-header-missing` | failed-before-loop |
+| 77 | using_module_roots_priority | 1 | `[static-call/legacy-fallback-retired] ModuleRootsPriorityBox.value/0` | `mir/main-import-view/selected-header-missing` | failed-before-loop |
+| 78 | extract_body_brace_return | 1 | `[static-call/legacy-fallback-retired] ExtractMini.run/0` | `mir/main-import-view/selected-header-missing` | failed-before-loop |
+| 79 | find_matching_brace_return_continue | 1 | printed `OK` then VM err `canonical-call` | `qualified-preflight actual=Print` site=Body(4) | failed-before-loop |
+| 80 | generic_loop_print | 1 | VM err `canonical-call` | `callable-loop/recipe source-unsupported-body-statement` | rejected |
+| 81 | localssa_block_insts_end | 0 | `0` | `LoopTrueRouteRejected(SourceItemOutsideLoop)` site=Body(2) | rejected |
+| 82 | loop_cond_if_assign | 0 | `2` | `LoopCondRouteRejected(SourceItemsMissing)` site=Body(1) | rejected |
+| 83 | module_roots_loop | 1 | VM err `canonical-call` | `qualified-preflight actual=Loop` site=Body(8) | rejected |
+| 84 | parse_map | 1 | `[static-call/legacy-fallback-retired] ParserLiteralBox.parse_map/3` | `composite/source-target SourceItemDispositionMissing` in LoopBody | rejected |
+| 85 | guard_prog_numeric_parse_loop | 1 | VM err `canonical-call` | `qualified-preflight actual=Loop` site=Body(5) | rejected |
+| 86 | parse_program2_nested_loop | 0 | `2` | `nested-loop-profile-not-admitted` | rejected |
+| 87 | prelude1_ws_loop | 1 | VM err `canonical-call` | `qualified-preflight actual=BinaryOp` site=Body(6) IfCondition | failed-before-loop |
+| 88 | prelude2_depth_ws_loop | 1 | VM err `canonical-call` | `qualified-preflight actual=Print` site=Body(7) nested IfThen | failed-before-loop |
+| 89 | ws_loopcount_continue | 1 | VM err `canonical-call` | `qualified-preflight actual=Loop` site=Body(5) | rejected |
+| 91 | parse_stmt_skipws | 1 | VM err `canonical-call` | `qualified-preflight actual=Loop` site=Body(3) | rejected |
+| 92 | parse_string2 | 1 | `generic_loop_v1 skeleton failed: MissingTransientType` | `composite/source-target SourceItemDispositionMissing` in LoopBody IfThen | rejected |
+| 93 | parse_term2 | 1 | `[static-call/legacy-fallback-retired] ParserExprBox.parse_unary2/3` | `composite/source-target SourceItemDispositionMissing` in LoopBody | rejected |
+| 94 | parse_try | 1 | VM err `canonical-call` | `qualified-preflight actual=Loop` site=Body(3) | rejected |
+| 95 | parse_using | 1 | VM err `canonical-call` | `qualified-preflight actual=Loop` site=Body(3) | rejected |
+| 96 | peek_parse | 1 | `[static-call/legacy-fallback-retired] ParserPeekBox.parse/3` | `callable-loop-handoff/incomplete-binding-coverage` | rejected |
+| 97 | decode_escapes_if_idx12 | 1 | VM err `canonical-call` | `qualified-preflight actual=Loop` site=Body(4) | rejected |
+| 98 | decode_escapes_loop | 1 | `[raw-compat/runtime-box-fate-retired/static]` | `mir/normal-root/consume MainMustBeStatic` | failed-before-loop |
+| 99 | parse_loop | 1 | `[static-call/legacy-fallback-retired] env.get/1` | `mir/main-import-view/selected-header-missing` | failed-before-loop |
+| 100 | parse_string2_real | 1 | `[static-call/legacy-fallback-retired] Main.parse_like/0` | `mir/main-import-view/selected-header-missing` | failed-before-loop |
+
+## Result
+
+- 0/49 `accepted`: no canonical admits in this chunk.
+- 37/49 `rejected`: `callable-loop-handoff` (`nested-loop-profile-not-
+  admitted` 19, `incomplete-binding-coverage` 1), qualified preflight
+  on `Loop` statements (7), `route-not-front-selected`
+  (`CarrierRelation` 3, `LoopTrueRouteRejected` 1,
+  `LoopCondRouteRejected` 1), `callable-loop/recipe
+  source-unsupported-body-statement` (2), `composite/source-target`
+  call-site refuses (3), semantic-package `LoopBreakSource` (1).
+- 12/49 `failed-before-loop`: `mir/main-import-view/selected-header-
+  missing` (6), `MainMustBeStatic` (1), qualified preflight on
+  non-`Loop` items — `UnaryOp`/`BinaryOp`/`Print` (5).
+- 0 `timeout`, 0 left `unobserved`.
+- 26/49 ran green to expected subset output on the compat lane;
+  every B-side outcome matched the already-observed fast-gate twin
+  verbatim — the two manifests classify the same fixtures identically
+  under the same two fronts.
+- No nondeterminism appeared in this chunk (no canonical admits to
+  vary).
+- No fixture, source, corpus-universe, receipt, or route change was
+  made. `observation_state` is the only manifest column touched.
