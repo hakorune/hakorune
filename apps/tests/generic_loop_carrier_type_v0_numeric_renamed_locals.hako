@@ -1,0 +1,13 @@
+// Generic Loop v0 carrier-type derived-predicate renamed-locals variant.
+// Same shape with renamed bindings; membership must not depend on names.
+static box Main {
+    main() {
+        local acc = 0
+        local extra = 0
+        local limit = 3
+        loop(acc + extra <= limit) {
+            acc = acc + 1
+        }
+        return acc
+    }
+}

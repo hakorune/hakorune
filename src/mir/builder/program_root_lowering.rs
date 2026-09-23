@@ -39,6 +39,8 @@ use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicat
 mod main0_continue_route;
 #[path = "program_root_lowering/main0_in_body_step_route.rs"]
 mod main0_in_body_step_route;
+#[path = "program_root_lowering/main0_derived_predicate_route.rs"]
+mod main0_derived_predicate_route;
 #[path = "program_root_lowering/main0_root_route.rs"]
 pub(super) mod main0_root_route;
 

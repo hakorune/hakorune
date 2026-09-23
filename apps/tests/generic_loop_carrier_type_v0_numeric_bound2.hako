@@ -1,0 +1,13 @@
+// Generic Loop v0 carrier-type derived-predicate bound variant.
+// Bound local n = 2: the loop runs while j + m <= 2 and returns j = 3.
+static box Main {
+    main() {
+        local j = 0
+        local m = 0
+        local n = 2
+        loop(j + m <= n) {
+            j = j + 1
+        }
+        return j
+    }
+}

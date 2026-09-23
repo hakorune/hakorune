@@ -124,6 +124,9 @@ impl super::MirBuilder {
             super::program_root_lowering::main0_root_route::SelectedMain0RootProductV1::InBodyStep(
                 product,
             ) => port.lower_app_main0_in_body_step_root_v1(self, &root_identity, product),
+            super::program_root_lowering::main0_root_route::SelectedMain0RootProductV1::DerivedPredicate(
+                product,
+            ) => port.lower_app_main0_derived_predicate_root_v1(self, &root_identity, product),
         }
         .map_err(CallableMainCompatibilityLoweringErrorV1::Lowering)
     }

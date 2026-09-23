@@ -17,6 +17,7 @@ pub(crate) enum LoopRecipeProducerIdV1 {
     VariableAccumBreakV1,
     Main0ContinueV1,
     Main0InBodyStepV1,
+    Main0DerivedPredicateV1,
 }
 
 impl LoopRecipeProducerIdV1 {
@@ -31,6 +32,7 @@ impl LoopRecipeProducerIdV1 {
             Self::VariableAccumBreakV1 => "variable_accum_break_v1",
             Self::Main0ContinueV1 => "main0_continue_v1",
             Self::Main0InBodyStepV1 => "main0_in_body_step_v1",
+            Self::Main0DerivedPredicateV1 => "main0_derived_predicate_v1",
         }
     }
 }

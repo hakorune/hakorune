@@ -162,6 +162,26 @@ pub(crate) mod main0_in_body_step_source_map;
 pub(crate) mod main0_in_body_step_source_map_issue;
 #[allow(dead_code)]
 pub(crate) mod main0_in_body_step_syntax_facts;
+// Third bounded Main0 profile (derived predicate); same canonical-root
+// handoff and production caller switch as the landed profiles.
+#[allow(dead_code)]
+pub(crate) mod main0_derived_predicate_recipe_coseal;
+#[cfg(test)]
+#[path = "main0_derived_predicate_recipe_coseal_tests.rs"]
+mod main0_derived_predicate_recipe_coseal_tests;
+#[allow(dead_code)]
+pub(crate) mod main0_derived_predicate_root_selection;
+#[cfg(test)]
+#[path = "main0_derived_predicate_root_selection_tests.rs"]
+mod main0_derived_predicate_root_selection_tests;
+#[allow(dead_code)]
+pub(in crate::mir) mod main0_derived_predicate_semantic_program;
+#[allow(dead_code)]
+pub(crate) mod main0_derived_predicate_source_map;
+#[allow(dead_code)]
+pub(crate) mod main0_derived_predicate_source_map_issue;
+#[allow(dead_code)]
+pub(crate) mod main0_derived_predicate_syntax_facts;
 #[cfg(test)]
 pub(crate) mod loop_true_break_continue_observation;
 #[allow(dead_code)]

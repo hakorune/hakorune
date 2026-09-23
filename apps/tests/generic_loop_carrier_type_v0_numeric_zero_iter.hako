@@ -1,0 +1,14 @@
+// Generic Loop v0 carrier-type derived-predicate zero-iteration variant.
+// Operand m = 9 exceeds bound n = 3: the predicate is false on entry and
+// the loop returns j = 0 without a single iteration.
+static box Main {
+    main() {
+        local j = 0
+        local m = 9
+        local n = 3
+        loop(j + m <= n) {
+            j = j + 1
+        }
+        return j
+    }
+}

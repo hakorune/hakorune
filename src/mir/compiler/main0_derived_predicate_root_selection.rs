@@ -1,0 +1,82 @@
+//! Caller-zero pre-wrapper selection for the Main0 derived-predicate
+//! profile.
+//!
+//! The installed package lends the App Main root input through a one-shot
+//! loan. Route selection must classify that source before the legacy
+//! wrapper `main` function opens, without consuming the loan: this module
+//! borrows the same input through the observation API, runs the
+//! facts/map/co-seal chain, and returns the owned semantic-program product
+//! when the exact profile is admitted. Whichever downstream branch runs
+//! still performs the single loan consumption.
+//!
+//! A facts decline is the only quiet outcome: it means the source is simply
+//! not this profile, and the legacy path keeps its unconsumed loan. Once
+//! the facts admit the shape, any later disagreement between the resolver
+//! ledger and the admitted facts is a hard contract failure and rejects.
+
+use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
+use crate::mir::normal_callable_semantic_package::{
+    NormalCallableSemanticPackageInstallIssueV1, NormalCallableSemanticPackagePortV1,
+};
+use crate::parser::CallableDeclarationIdentityV1;
+
+use super::main0_derived_predicate_recipe_coseal::{
+    issue_main0_derived_predicate_recipe_v1, Main0DerivedPredicateCoSealRejectV1,
+    VerifiedMain0DerivedPredicateRecipeProductV1,
+};
+use super::main0_derived_predicate_source_map::Main0DerivedPredicateSourceMapRejectV1;
+use super::main0_derived_predicate_source_map_issue::issue_main0_derived_predicate_source_map_v1;
+use super::main0_derived_predicate_syntax_facts::issue_main0_derived_predicate_syntax_facts_from_ledger_v1;
+
+/// Result of observing the installed App Main root for the Main0
+/// derived-predicate profile.
+#[derive(Debug)]
+pub(crate) enum Main0DerivedPredicateSourceSelectionV1 {
+    /// The exact profile was admitted and the complete co-sealed semantic
+    /// program product is owned by the selected canonical-root path.
+    Selected(VerifiedMain0DerivedPredicateRecipeProductV1),
+    /// The installed App Main root is not this profile. The one-shot loan is
+    /// still unconsumed; the existing wrapper path keeps it.
+    Unselected,
+}
+
+/// Hard selection failures. Profile mismatch is not an error; these cover
+/// loan mechanics and post-admission contract disagreements only.
+#[derive(Debug)]
+pub(crate) enum Main0DerivedPredicateSourceSelectionRejectV1 {
+    RootLoan(NormalCallableSemanticPackageInstallIssueV1),
+    SourceMap(Main0DerivedPredicateSourceMapRejectV1),
+    CoSeal(Main0DerivedPredicateCoSealRejectV1),
+}
+
+/// Classify the installed App Main root source for the Main0
+/// derived-predicate profile without consuming the one-shot loan.
+///
+/// `expected_key` and `expected_identity` are the catalog's source-backed
+/// App Main relation rows; the port re-validates them against the batch so
+/// a foreign or mismatched root rejects instead of silently declining.
+pub(crate) fn select_main0_derived_predicate_source_v1(
+    port: &NormalCallableSemanticPackagePortV1<'_>,
+    expected_key: &CanonicalSameModuleCallableKeyV1,
+    expected_identity: &CallableDeclarationIdentityV1,
+) -> Result<Main0DerivedPredicateSourceSelectionV1, Main0DerivedPredicateSourceSelectionRejectV1>
+{
+    port.observe_app_main_root_source_v1(expected_key, expected_identity, |input, _identity| {
+        let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else {
+            // No resolver ledger means this source cannot be the selected
+            // profile; leave the loan unconsumed for the existing path.
+            return Ok(Main0DerivedPredicateSourceSelectionV1::Unselected);
+        };
+        let facts = match issue_main0_derived_predicate_syntax_facts_from_ledger_v1(input, &ledger)
+        {
+            Ok(facts) => facts,
+            Err(_) => return Ok(Main0DerivedPredicateSourceSelectionV1::Unselected),
+        };
+        let map = issue_main0_derived_predicate_source_map_v1(&ledger, facts)
+            .map_err(Main0DerivedPredicateSourceSelectionRejectV1::SourceMap)?;
+        let product = issue_main0_derived_predicate_recipe_v1(&ledger, map)
+            .map_err(Main0DerivedPredicateSourceSelectionRejectV1::CoSeal)?;
+        Ok(Main0DerivedPredicateSourceSelectionV1::Selected(product))
+    })
+    .map_err(Main0DerivedPredicateSourceSelectionRejectV1::RootLoan)?
+}

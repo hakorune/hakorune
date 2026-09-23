@@ -1434,12 +1434,13 @@ The sole production root-lowering funnel,
 root *before* the legacy wrapper opens. `program_root_lowering/
 main0_root_route.rs` performs the observation-only selection against the
 installed semantic package; a selected `SelectedMain0RootProductV1`
-(`Continue` or `InBodyStep`) transports into
+(`Continue`, `InBodyStep`, or `DerivedPredicate`) transports into
 `decls.rs::build_selected_main0_root_with_port_v1`, which hands the
 one-shot root loan and product to the matching
 `normal_callable_semantic_loan_port/main0_root.rs` adapter
 (`lower_app_main0_continue_root_v1` /
-`lower_app_main0_in_body_step_root_v1`).
+`lower_app_main0_in_body_step_root_v1` /
+`lower_app_main0_derived_predicate_root_v1`).
 Each adapter consumes the loan inside its callback, runs the verified
 ingress/session/lowerer, and admits one `ReadyFunctionDraftSealV1` under
 `FunctionDraftKeyV1::Main` through the profile-neutral
@@ -1464,8 +1465,12 @@ callers keep the retained wrapper path.
 Production acceptance for the selected profiles runs through `--backend vm`
 with the expected results recorded on the active cards:
 `apps/tests/phase29ca_generic_loop_continue_min.hako` (Main0 Continue, bound/
-guard, upper-bound, zero-iteration, guard-never, and renamed-locals variants)
-and `apps/tests/phase29cb_generic_loop_in_body_step_min.hako` (Main0
-in-body-step, bound, zero-iteration, and renamed-locals variants). Emitted
+guard, upper-bound, zero-iteration, guard-never, and renamed-locals variants),
+`apps/tests/phase29cb_generic_loop_in_body_step_min.hako` (Main0
+in-body-step, bound, zero-iteration, and renamed-locals variants), and
+`apps/tests/generic_loop_carrier_type_v0_numeric_min.hako` (Main0
+derived-predicate: `j + m <= n` compare over three distinct locals — carried
+`j`, read-only operand `m`, bound `n` — bound, zero-iteration, and
+renamed-locals variants). Emitted
 MIR has one `define @main`, one loop-header PHI with its backedges, and one
 value-return terminator.

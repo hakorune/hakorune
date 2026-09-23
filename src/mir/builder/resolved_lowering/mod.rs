@@ -74,7 +74,7 @@ pub(in crate::mir::builder) use common_v2_session::{
 };
 pub(in crate::mir::builder) use loop_recipe_physicalizer::{
     lower_callable_single_loop_function_draft_v1, lower_main0_continue_function_draft_v1,
-    lower_main0_in_body_step_function_draft_v1,
+    lower_main0_derived_predicate_function_draft_v1, lower_main0_in_body_step_function_draft_v1,
 };
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_physical_entry_draft_seal;
