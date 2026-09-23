@@ -161,5 +161,41 @@ test-evidence-retire:
 - Guard: `generic_legacy_corpus_universe_guard_test.py` 6/6 OK;
   no guard vocabulary change needed (`_check_edge` requires
   non-sentinel fields only).
-- Remaining cohorts C2–C6 stay unwritten (zero edge rows); they are
-  the next bounded write slices under this row.
+- Remaining cohorts C3–C6 stay unwritten; they are the next bounded
+  write slices under this row.
+
+## Landed writes (2026-09-23) — C2 ordered route authority
+
+- Cohort: all 58 files under `joinir/route_entry/registry/**` —
+  the Generic V0/V1 route rows plus the shared ordered-route
+  machinery they are embedded in (the split is exactly what S0
+  exists to classify).
+- Result: **25 generic-only** (24 `generic_*_tests.rs` +
+  `handlers/generic.rs` V0/V1 handler), **2 neutralize-first**
+  (`execution_witness.rs`, `legacy_receipt.rs` — ledger C4
+  retry/fallback debt deleted at `M10b-I0-R0`), **30 shared-retain**
+  (13 files carry Generic rows/mentions → `M10b-I0-R0`; 17 files
+  carry no Generic content → `retained`; `legacy_observer.rs` →
+  `M12` for the non-Generic route retirements).
+- Shared-retain split: 13 files carry Generic rows/mentions →
+  `retire_row=M10b-I0-R0` (Generic edges disconnected at cutover,
+  file retained); 17 files carry no Generic content → `retained`
+  (no retirement row; assigned outside all retire rows — new
+  `retire_row` value, vocabulary-only, guard unchanged).
+- Sole outside-boundary production edge into C2:
+  `loop_recipe_contract/route_id.rs` references `GENERIC_LOOP_V0/V1`
+  constants in `types.rs` — recorded on the shared `types.rs`
+  record (shared-retain/M10b). Facade `registry/mod.rs` absorbs
+  174 prod + 27 test symbol-level references; per-file edges funnel
+  through it, so symbol-level probes (`route_generic_loop_v{0,1}`,
+  `pred_generic_loop_v{0,1}`, `RouteExecutionWitnessV1`,
+  `LegacyGeneric*V1`) were counted separately and show zero
+  outside-boundary callers.
+- `handlers/generic.rs` records `prod=0`: its only callers are
+  inside the registry boundary (`handlers.rs` wrappers), which the
+  shared `handlers.rs`/`selection.rs`/`mod.rs` records neutralize
+  at M10b — the file then dies caller-zero at R1.
+- Guard: 6/6 OK. Cumulative edge rows: 141 (83 C1 + 58 C2).
+- `retire_row` vocabulary in use:
+  `GENERIC-LEGACY-DEAD-CODE-R1` | `M10b-I0-R0` | `M11-R1` | `M12` |
+  `retained`.
