@@ -1,5 +1,5 @@
 ---
-Status: design_stop__mainline_source_front_unproven
+Status: closed__NoSafeSlice__NoExistingObserver__2026-09-23
 Task: GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0
 Date: 2026-09-23
 Parent: generic-post-selection-static-call-site-identity-d0-2026-09-23.md
@@ -79,10 +79,49 @@ same fixture and define MIR-specific route/result assertions. If it does not,
 record the single missing owner and stop. Do not add a diagnostic or broaden
 the corpus to make the outcome look complete.
 
+## Decision and closeout
+
+Outcome: `NoExistingObserver(owner, missing_product)`.
+
+The missing owner is the same-invocation seam between mainline MIR prepared
+source/materialization/admission and the first GenericLoop terminal. The
+missing product is one observation binding all of:
+
+```text
+exact prepared bytes + merged root lineage
+  -> materializer outcome = SourceBacked
+  -> source-admission witness
+  -> first GenericLoop terminal/owner
+```
+
+Existing evidence does not form that tuple. `execute_mir_mode` in
+`src/runner/modes/mir.rs:12-93` prepares the source and lineage, materializes,
+then branches explicitly between `SourceBacked` and `Compatibility`.
+`normal_callable.rs:64-145` owns those outcomes. The source-hint tests at
+`source_hint_normal_tests.rs:25-112` and materializer tests at
+`normal_callable.rs:160-210` use different source inputs; Generic G0 tests
+exercise separately issued products. The pinned fixture is selected by the
+VM smoke wrapper, which is not this MIR path.
+
+The fixture's shape makes `SourceBacked` plausible, but source shape and
+backend name do not prove the exact materializer result. No code, test,
+fixture, smoke, diagnostic, or semantic receipt was added, and no build or
+test was run.
+
+The next action returns to the family-local scheduler. Rows A-D are already
+closed, paused, or family-local `NoSafeSlice`; E now closes as this
+`NoSafeSlice`; F onward require missing prerequisites/coverage. The R7 owner
+matrix also records no ready Promote/Stop/Delete tuple. Therefore the current
+state is an explicit frontier pause with no executable successor. Do not
+repeat this observation census or widen the fixture. Reopen only when an
+existing production owner gains a same-invocation observation path, or a
+tracked changed caller/owner premise makes another inventoried family ready.
+
 ## Worker consultation
 
-Two read-only audits confirmed that `--backend mir` can still choose either
-materializer outcome and that no current receipt proves the exact fixture's
-MIR outcome. They found no exact fixture evidence tying the earlier VM
-`to_i64/1` terminal to the GenericLoop. No code, test, fixture, or build was
-run or changed by the workers.
+Read-only audits confirmed that `--backend mir` can choose either materializer
+outcome, and the exact fixture has no existing receipt proving its MIR outcome
+and GenericLoop terminal together. A separate fixture audit found the same
+finite missing product. They found no evidence tying the earlier VM
+`to_i64/1` terminal to this GenericLoop. No worker changed files or ran tests
+or builds.
