@@ -2,10 +2,10 @@ date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0"
-current_execution_cohort = "generic_loop_mainline_source_front"
-current_blocker_token = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0__NoSafeSlice_NoExistingObserver_FrontierPause"
+current_execution_cohort = "generic_loop_source_to_portable_migration"
+current_blocker_token = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0__WholeCallablePortableMappingOpen"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0__NoSafeSlice_NoExistingObserver_FrontierPause"
+current_design_stop = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0__WholeCallablePortableMappingOpen"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,14 +18,14 @@ current_execution_design = "docs/development/current/main/investigations/generic
 latest_card = "generic-loop-mainline-source-front-d0"
 latest_card_path = "docs/development/current/main/investigations/generic-loop-mainline-source-front-d0-2026-09-23.md"
 latest_card_summary = """
-The Generic source-facts compile repair is closed and the quick build passes.
-The pinned G0 failure is explicit retired VM Keep Compatibility, not selected
-source evidence. The exact MIR source-front D0 closed
-NoSafeSlice__NoExistingObserver: no existing same-run observer binds prepared
-bytes/lineage, SourceBacked admission, and the first GenericLoop terminal.
-Rows A-D are closed/paused/NoSafeSlice, E is sealed, F onward depend on missing
-coverage, and R7 has no ready action tuple: explicit frontier pause; no code,
-instrumentation, receipt, fallback, S6E producer, parity, or production switch.
+NoExistingObserver records missing exact-run evidence, not absent source or
+consumer authority. The prior external-wait/frontier-pause inference is
+withdrawn. E now resolves an internal whole-callable migration mapping:
+source-backed GenericV1 currently lowers through CorePlan; portable Generic
+G0 is a distinct bounded profile. Select the existing callable admission seam,
+settle portable control/prelude/tail/ABI coverage and planned Outside-edge
+removal, then obtain same-run acceptance in that migration series. No new
+observer lane or implementation permission; tests/caller-zero are outputs.
 """
 next_design_card = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0"
 next_design_card_path = "docs/development/current/main/investigations/generic-loop-mainline-source-front-d0-2026-09-23.md"
