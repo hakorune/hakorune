@@ -12,10 +12,10 @@ Implementation permission: false; design/taskification only. Do not edit compile
 
 ```text
 Decision: continue the selected B3 migration for StringHelpers.split_lines/1 through the current LoopCond/GeneralIf owner.
-Source authority + canonical issuer: imported declaration identity and same-function resolver ledger; CoreMethodContractBox owns operation outcomes; extend source_bound_core.rs V1 owner family to V2.
-Non-authority: standalone V2 Recipe/Join closure, S6C/DynamicFullLoop profile products, method names, AST/MIR pairing, and physical phi/name maps.
+Source authority + canonical issuer: imported declaration identity and resolver ledger own call identity; CoreMethodContractBox owns compiler-callable operation law/result/effect and is the only outcome path to assess; source_bound_core.rs is the V1-to-V2 co-seal seam.
+Non-authority: raw ABI status/Rust object-API returns as source outcomes, standalone V2 Recipe/Join, S6C/DynamicFullLoop products, method names, and physical phi/name maps.
 Fail-fast boundary: exact i/last BindingRefs, branch join, ArrayPush/substring operation rows and complete consumption reject before physical allocation.
-Smallest next slice: D2 defines source-owned Normal/Fault and mutation-on-Fault facts, projection checks, and exact carrier/call rows; keep design_stop if any contract requires guessing.
+Smallest next slice: D2 resolves source-visible outcomes, non-null s provenance, selected substring route/law, and ArrayPush rejection/commit behavior; keep design_stop if any contract requires guessing.
 Non-claims: no physical traversal proven, production switch, old-edge deletion, tail push/function-return completion, serializer, or backend parity.
 ```
 
@@ -102,7 +102,7 @@ not implied.
 | Function/method membership | imported static declaration identity, selected ordinary callable admission, same resolver function owner and source ledger; resolve Dynamic-vs-Ordinary before claiming this route |
 | `i`, `last` | exact resolver BindingRefs: `i` declaration/read/condition/increment across header and backedge; `last` declaration/read, branch write, implicit-else incoming value, loop continuation and after value |
 | `ch` | exact loop-body local and comparison read; kill at iteration boundary; never export as outer carrier |
-| `s`, `n`, `arr` | exact parameter/local BindingRefs and roles. `s`/`n` read-only; `arr` is mutated only by the selected exact ArrayPush row |
+| `s`, `n`, `arr` | exact parameter/local BindingRefs and roles. `s`/`n` read-only; prove non-null `s` at the loop from the earlier `if s == null { return arr }` source path; `arr` is fresh and mutated only by the exact ArrayPush row |
 | substring calls | source call sites, receiver/argument relations, selected result type and Fault/effect contract; preserve evaluation and failure behavior on both `ch` read and push argument |
 | ArrayPush | named-array source row tied to exact `arr`, exact nearest-loop/IfThen statement, substring text argument and operation result/effect; never select by method spelling alone |
 | GeneralIf | then branch maps `last` to `i+1`; implicit else maps `last` to incoming value; one Recipe-keyed join output returns to the same `last` BindingRef |
@@ -162,19 +162,61 @@ and the DynamicFullLoop fault-cut owner requires exactly two result-bearing
 calls, so neither is a reusable B3 owner. Do not attach detached semantic
 receipts to `SourceLoopCondPhysicalInputV1`.
 
-The operation source is `lang/src/runtime/meta/core_method_contract_box.hako`
-(`CoreMethodContractBox`), projected through its generated manifest and
-verified in the resolver CoreMethod callable contract. The current owner
-specifies semantic law, result kind, and effect, but no per-operation
-Normal/Fault outcome or mutation-on-Fault relation. The next design task must
-derive and name the source-level outcome facts for the two distinct
-`StringSubstring/2` sites and the one `ArrayPush/1` site from their observable
-contract. In particular, preserve substring evaluation/failure semantics and
-define whether ArrayPush can fault, how a failure is represented, and whether
-mutation can already have occurred. `NoValue` + `MutatesShape` does not answer
-those questions; neither may a runtime status integer be mistaken for the
-language result. If the source owner cannot express the existing behavior
-without guessing, keep D2 stopped and name that missing owner/contract.
+`CoreMethodContractBox` is the existing compiler-callable semantic owner for
+operation law, result and effect; the generated manifest is a projection and
+the resolver target/callable verifier consumes its typed row. D2 may add
+outcome facts only to that existing path, without adding a second policy to
+`ArrayVisiblePolicyBox`, `ArraySurfaceSpec`, or `CollectionMethodPolicyBox`.
+The Hako `ArrayVisiblePolicyBox` and Rust `ArraySurfaceSpec` classify the
+visible `ArrayBox.push` result as Void/NoValue. The Rust `ArrayBox::push` helper
+returns an internal status String which `invoke_surface` discards; these API
+layers must not be conflated. `CollectionMethod` owns route vocabulary, not
+outcomes.
+
+The current compiler row has no per-operation Normal/Fault or
+mutation-on-Fault relation. For the two `StringSubstring/2` sites, the source
+contract is StringValue/PureRead/CodePointHalfOpenClamped, but the ABI returns a
+handle/status integer and `substring_fast_route` can dispatch through a host
+hook or use a byte-range fallback. Static inspection does not establish which
+runtime route is selected for the production caller or that the fallback
+implements the compiler row's codepoint law. D2 must identify the selected
+call target and state the exact source-observable outcome/failure contract;
+don't project a 0/hook-miss code into a source Fault without an owning rule.
+
+For `ArrayPush/1`, the source result is Void/NoValue and effect is MutatesShape,
+but neither fact defines rejection behavior. The surface catalog can raise an
+element-contract error; the Hako adapter treats nonpositive raw append status
+as handled/no-result, and the kernel helper returns an integer status/length.
+The B3 receiver is a fresh ArrayBox and the pushed value is Text, which should
+exclude ordinary element-contract rejection, but does not define how a rejected
+append is represented or whether mutation may precede a Fault. D2 must decide
+whether that boundary is a source Fault, terminal ABI failure, or explicitly
+specified normal no-op, and if it is a Fault, fix its commit timing. If existing
+owners cannot establish this without guessing, remain stopped and name the
+missing contract.
+
+### D2 decision sequence
+
+1. Trace the selected `StringSubstring/2` runtime route and its failure/value
+   behavior from the source contract to the production target. Keep the two
+   source sites distinct (`ch` and the push argument). If source inspection
+   cannot identify the selected target or show that its behavior matches
+   `CodePointHalfOpenClamped`, record `NoSafeSlice` and name the missing route
+   or law authority; do not infer it from an ABI status or an unselected
+   fallback.
+2. Resolve `ArrayPush/1` rejection and commit timing from its source-visible
+   owner. Choose only a contract backed by that owner: language Fault,
+   terminal implementation failure, or an explicitly specified normal no-op.
+   If none is specified, keep the row open and identify the missing authority.
+3. Map the exact resolver `BindingRef`s for `s`, `n`, `arr`, `i`, `last`, and
+   `ch`; prove `s` non-null at the loop from the dominating early return. Map
+   the three operation sites and every branch/loop continuation, including
+   the five named-array issuer omission conditions as either one exact push
+   row or a named reject.
+4. Specify the one generated-manifest/resolver check that will enforce the
+   accepted operation outcome relation. D2 is design-only: do not add fields,
+   generated code, receipts, fixtures, or tests while `work_mode` is
+   `design_stop`.
 
 The B3 V2 product must then co-seal one selected function owner and resolver
 source context, the V2 Recipe artifact and Join closure derived from that same
@@ -213,17 +255,18 @@ design task, not an external wait or permission to mint default Pure.
 | Task | Work | Done evidence |
 | --- | --- | --- |
 | D1 — caller and asserted boundary | Closed by source audit for caller only: imported `StringHelpers.split_lines/1` enters the non-Main cataloged-static-method batch. The existing natural-import test asserts a named stop at the nested push; current dynamic first terminal and Dynamic/Ordinary admission are not re-observed. | Exact declaration/caller; test assertion distinguished from an executed receipt; physicalizer success unclaimed. |
-| D2 — operation outcome + carrier mapping (next) | Resolve the language-visible Normal/Fault and mutation-on-Fault contract for both distinct `StringSubstring/2` sites and `ArrayPush/1`, using `CoreMethodContractBox` as the source owner; specify generated projection and resolver verification. Map exact BindingRefs for `i`, `last`, `ch`, `s`, `n`, `arr`, branch/loop continuation, and required push row-or-named-reject behavior across the five issuer soft omissions. | Source-owned outcome facts have observable definitions; result/effect/outcome agree across source, generated projection, and resolver contract; full finite row inventory has no implicit else, optional omission, or unclassified source row. |
+| D2 — selected outcome + carrier mapping (next) | Read-only route/outcome census for both distinct substring sites; settle ArrayPush rejection/commit semantics from its source owner; map exact `s`, `n`, `arr`, `i`, `last`, `ch` BindingRefs, the dominating non-null proof for `s`, branch/loop continuation, and one exact push row or named reject across the five issuer omissions. Specify (do not implement) the single generated projection/resolver check. If the selected substring law or source-visible push failure contract has no existing authority, record `NoSafeSlice` and name that owner. | One source-owned meaning with explicit preconditions and failure/commit behavior; selected substring target matches its law or has a named stop; projection/verifier equality is specified; finite rows have no implicit else or optional omission. |
 | D3 — generic V2 source-bound issuance | Extend the `source_bound_core.rs` owner family to co-seal V2 Recipe artifact + same-Recipe Join closure + same resolver context/BindingRefs + complete call/effect/outcome/continuation rows. Keep S6C and DynamicFullLoop profile issuers unchanged; transport only the resulting move-only product to the existing physical owner. | One canonical issuer and exact input/output tuple; duplicate/foreign/shadow/missing/residual rejection before physical IDs; one selected physical consumer; no detached receipt in `SourceLoopCondPhysicalInputV1`. |
 | I1 — connect selected LoopCond/GeneralIf owner | At entry, observe actual Dynamic/Ordinary admission, package-issued source rows, and first terminal on the natural imported source. Then extend current physical owner to consume Recipe keys/relations; preserve the raw facade for unrelated shapes. If the test's expected stop is stale, reconcile it before using it as a baseline. | Natural imported source reaches existing publication through current sole physical owner; positive/negative evidence; no AST/name re-discovery or weakened coverage. |
 | I2 — selected cutover and retirement | After mandatory M8/M9/M10 production-entry prerequisites, switch this exact static-method loop membership to the co-sealed path; remove its old selection/rejection/re-entry edge in the same bounded series. | No selected-membership fallback; selected old responsibility caller-zero; shared owners retained only for named remaining callers. |
 | C — closeout | Record dynamic receipt, guards, module README/reference and pointer; classify reds. | Terminal evidence, selected-edge deletion and required acceptance recorded; loop-only success is not full function or serializer completion. |
 
-The concrete internal design work D2/D3 is available now. The exact downstream
-function terminal and return of `arr` remain a separate owner boundary: this
-card claims only the selected loop relation. The post-loop tail push is excluded
-until its own source statement owner and effect contract are selected; do not
-silently drop it or count it as loop completion.
+D3's owner seam and finite co-seal tuple are identified, but they are not an
+accepted implementation design until D2 settles the operation contracts. The
+exact downstream function terminal and return of `arr` remain a separate owner
+boundary: this card claims only the selected loop relation. The post-loop tail
+push is excluded until its own source statement owner and effect contract are
+selected; do not silently drop it or count it as loop completion.
 
 ## Acceptance to be specified for implementation
 
@@ -235,6 +278,9 @@ silently drop it or count it as loop completion.
   handling is in the selected acceptance scope.
 - Alpha-renamed locals preserve behavior; nested If/exit identities and
   `ch` iteration scope match exact resolver sites.
+- Missing or foreign non-null proof for `s`, incompatible substring law/route,
+  and an ambiguous ArrayPush failure/commit outcome reject before physical
+  allocation; ABI handles/statuses never satisfy source-result checks.
 - Missing/duplicate/foreign/shadow binding, wrong branch/loop target, substring
   result mismatch, ArrayPush row mismatch, mixed co-seal and any unconsumed
   source/effect row reject before physical allocation.
