@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G"
-current_execution_cohort = "loop_m8_all19_closeout"
-current_blocker_token = "JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G__CloseoutLanded_FrontierPause"
+current_execution_row = "SELFHOST-LOOP-PORTABLE-WIRE-S7A"
+current_execution_cohort = "loop_s7_portable_wire"
+current_blocker_token = "SELFHOST-LOOP-PORTABLE-WIRE-S7A__WireDesignOpen"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "FrontierPause__S6GAllRouteCloseoutLanded__FamilySchedulerReselectionRequired_2026-09-23"
+current_design_stop = "PortableWire__HakoArtifactWireContract__CardOnly_2026-09-23"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,29 +14,26 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/joinir-loop-m8-all19-closeout-s6g-d0-2026-09-23.md"
-latest_card = "joinir-loop-m8-all19-closeout-s6g"
-latest_card_path = "docs/development/current/main/investigations/joinir-loop-m8-all19-closeout-s6g-d0-2026-09-23.md"
+current_execution_design = "docs/development/current/main/investigations/selfhost-loop-portable-wire-s7a-d0-2026-09-23.md"
+latest_card = "selfhost-loop-portable-wire-s7a"
+latest_card_path = "docs/development/current/main/investigations/selfhost-loop-portable-wire-s7a-d0-2026-09-23.md"
 latest_card_summary = """
-S6G all-route closeout landed caller-zero.
-loop_route_policy/all_route_observation.rs seals
-VerifiedLoopAllRouteObservationSetV1 (exactly 19 rows, canonical
-order; RecipeBacked only for the 8 attested routes, at most one
-backed row per unit, else PreEffectDeclined) and
-WholeUnitLoopCoverageProofV1 (lease identity co-sealed). The S2
-selector now requires the proof: NoCandidate opens only for zero
-candidates + fully declined set; backed-without-candidate and
-foreign coverage are typed rejects; stale Unresolved arm removed.
-Parity receipt extended to all 19 routes (7 portable + 1 V2 + 11
-legacy_only). Focused: all_route 11, loop_route_policy 91,
-loop_recipe 224, producer 55, generic_residual 18; guard ok.
-Non-claims: caller-zero; no production caller/route connection;
-no M9; no Row F unblock by itself (M10 seal series remains);
-parity_gate stays not-run; no legacy deletion.
+S7A portable-wire D0 card open. Bounded slice (caller-zero): new
+.hako subtree lang/src/mir/builder/loop_recipe/ owning the
+LoopRecipeArtifactV1 JSON wire DTO + deterministic emitter + stdout
+entry; Rust test-only harness decodes + verifies + normalizes the
+.hako emission and asserts normalize_artifact equality vs the
+Rust-assembled artifact. V1 wire only (V2 joins with the S7B
+ScanWithInit cohort); no Program(JSON v0) producer input at this
+row — cohort ingress is per-cohort in S7B1..B5. Non-claims: no
+.hako producer cohort/Facts/JoinSig/verifier/CFG/PHI, no production
+caller, no hostbridge, no language widening, no M9 parity claim
+(S7G owns all19 normalized parity), no Row F unblock, no legacy
+deletion.
 """
-next_design_card = "JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G"
-next_design_card_path = "docs/development/current/main/investigations/joinir-loop-m8-all19-closeout-s6g-d0-2026-09-23.md"
-next_execution_card = "none__design_only__family_scheduler_reselection"
+next_design_card = "SELFHOST-LOOP-PORTABLE-WIRE-S7A"
+next_design_card_path = "docs/development/current/main/investigations/selfhost-loop-portable-wire-s7a-d0-2026-09-23.md"
+next_execution_card = "none__design_only__s7a_wire_card"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
