@@ -1813,7 +1813,8 @@ The separately selected Call migration is B3
 `StringHelpers.split_lines/1`, tracked by the
 [active B3 D2 card](../investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md).
 Its natural imported static-method batch and named nested-ArrayPush stop are
-identified; current LoopCond physical success remains unproven. The card names
+asserted by the existing test, but the current dynamic first terminal is not
+re-observed; LoopCond physical success remains unproven. The card names
 the source/operation/effect mapping, co-seal, existing LoopCond/GeneralIf
 consumer, and selected old-edge retirement tasks. Do not require an already
 connected issuer to reopen design, and do not use scalar S6D producer evidence
