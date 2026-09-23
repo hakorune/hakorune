@@ -28,6 +28,7 @@ mod generic_g0_observation;
 mod generic_g0_observation_tests;
 #[cfg(test)]
 mod generic_g0_tests;
+mod loop_cond_break_continue;
 mod loop_cond_break_continue_observation;
 #[cfg(test)]
 mod loop_cond_break_continue_observation_tests;
@@ -87,6 +88,11 @@ pub(crate) use generic_g0_observation::{
     VerifiedGenericG0FamilyCandidateV1,
 };
 pub(crate) use loop_cond_break_continue_observation::LoopCondFamilyObservationV1;
+#[allow(unused_imports)]
+pub(crate) use loop_cond_break_continue::{
+    issue_loop_cond_break_continue_policy_demand_v1, LoopCondBreakContinuePolicyDemandRejectV1,
+    VerifiedLoopCondBreakContinuePolicyDemandV1, VerifiedLoopCondBreakContinuePolicyReceiptV1,
+};
 #[cfg(test)]
 pub(crate) use loop_cond_break_continue_observation::{
     issue_loop_cond_family_observation_v1, LoopCondObservationContextV1,

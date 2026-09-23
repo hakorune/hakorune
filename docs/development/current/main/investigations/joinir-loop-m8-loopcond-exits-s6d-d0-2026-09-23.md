@@ -1,5 +1,5 @@
 ---
-Status: design_stop__card_only__owners_named
+Status: landed__2026-09-23__producer_cohort_caller_zero
 Task: JOINIR-LOOP-M8-LOOPCOND-EXITS-S6D
 Date: 2026-09-23
 Parent: JOINIR-LOOP-M8-LOOPV0-SCANS-S6C (closed)
@@ -19,7 +19,7 @@ Decision: one caller-zero LoopCond producer cohort: a policy demand over the exi
 Source authority + canonical issuer: `loop_route_policy::issue_loop_cond_break_continue_policy_demand_v1` is the sole policy-demand issuer over `VerifiedLoopCondBreakContinueSourceProjectionV1`; `loop_recipe_contract::produce_loop_cond_break_continue_recipe_v1` is the sole Recipe issuer for this profile.
 Non-authority: AST/name lookup, family re-selection, `family_selection` dispatch, physical IDs, Item key reissue, retry/fallback, legacy generic composer reuse, production callers.
 Fail-fast boundary: exact policy frame key match against the source projection; missing predicate/effect mapping or unmatched projection is a typed producer reject, not Option/skip.
-Smallest next slice: `VerifiedLoopCondBreakContinuePolicyDemandV1`/`ReceiptV1` + `LoopRecipeProducerIdV1::LoopCondBreakContinueV1` + `loop_cond_break_continue_producer.rs` emitting `VerifiedLoopRecipeV1` + `VerifiedLoopJoinSigV1` + policy receipt, caller-zero.
+Smallest next slice: `VerifiedLoopCondBreakContinueTypedSourceMapV1` (projection + role-keyed predicate rows, ledger-joined) + `VerifiedLoopCondBreakContinuePolicyDemandV1`/`ReceiptV1` + `LoopRecipeProducerIdV1::LoopCondBreakContinueV1` + `loop_cond_break_continue_producer.rs` emitting `VerifiedLoopRecipeV1` + `VerifiedLoopJoinSigV1` + policy receipt, caller-zero.
 Non-claims: no production selection, no `route_loop` connection, no S6E/S6G work, no Row F unblock claim, no legacy deletion, no caller-zero-retirement claim.
 ```
 
@@ -74,10 +74,16 @@ Existing, reusable authority:
 
 Missing (the row's deliverable):
 
+- `VerifiedLoopCondBreakContinueTypedSourceMapV1` in `compiler/` —
+  the typed predicate/effect + portable co-seal mapping the D0 named
+  missing: the sealed projection plus role-keyed rows for the carrier
+  declaration and both condition compare triples (lhs binding read,
+  `SyntaxBinaryOperatorV1`, rhs literal shape), verified against the
+  resolver ledger by the same syntax-observer input that issued the
+  projection. Mirrors `main0_derived_predicate_source_map{,_issue}.rs`.
 - `VerifiedLoopCondBreakContinuePolicyDemandV1` /
   `VerifiedLoopCondBreakContinuePolicyReceiptV1` in `loop_route_policy`
-  — the typed predicate/effect policy demand over the source projection
-  (the D0-identified gap).
+  — the typed predicate/effect policy demand over the typed map.
 - `LoopRecipeProducerIdV1::LoopCondBreakContinueV1`.
 - `src/mir/loop_recipe_contract/loop_cond_break_continue_producer.rs`:
   `produce_loop_cond_break_continue_recipe_v1` →
@@ -89,11 +95,22 @@ Missing (the row's deliverable):
 
 | File | Change | Owner boundary |
 | --- | --- | --- |
-| `loop_route_policy/loop_cond_break_continue_observation.rs` or sibling | add `issue_loop_cond_break_continue_policy_demand_v1` + demand/receipt types | typed predicate/effect demand over the existing projection only; no re-observation, no family re-selection |
+| `compiler/loop_cond_break_continue_typed_map.rs` (new) | role-keyed row schema + `VerifiedLoopCondBreakContinueTypedSourceMapV1` | rows only: carrier decl, loop/branch compare triples, exit sites; no Recipe/route/physical IDs |
+| `compiler/loop_cond_break_continue_typed_map_issue.rs` (new) | `issue_loop_cond_break_continue_typed_source_map_v1(input, projection)` | sole sealer; syntax observation via `input.source()`, binding/exit verification via resolver records; typed rejects only |
+| `loop_route_policy/loop_cond_break_continue.rs` (new) | `issue_loop_cond_break_continue_policy_demand_v1(typed_map, schedule)` + demand/receipt | mirrors `loop_true_break_continue.rs`; frozen-schedule evaluation + winner cursor == `LoopCondBreakContinue` position; no re-observation |
 | `loop_recipe_contract/producer_id.rs` | add `LoopCondBreakContinueV1` | one new variant + id string |
-| `loop_recipe_contract/loop_cond_break_continue_producer.rs` (new, ≤800 lines) | `produce_loop_cond_break_continue_recipe_v1` + product type | consumes demand once; frame-key match; emits verified portable Recipe + JoinSig + receipt; typed rejects only |
-| `loop_recipe_contract/mod.rs`, `loop_route_policy/mod.rs` | module/export wiring | re-export only |
-| focused tests beside the producer | positive product shape + typed reject paths | caller-zero evidence only |
+| `loop_recipe_contract/loop_cond_break_continue_producer.rs` (new, ≤800 lines) | `produce_loop_cond_break_continue_recipe_v1` + product type | consumes demand once; frame-key match; predicate block (carrier read + const + CompareI64) + body If{break,continue} + one carrier; verified Recipe + JoinSig + receipt; typed rejects only |
+| `loop_recipe_contract/mod.rs`, `loop_route_policy/mod.rs`, `compiler/mod.rs` (or registry) | module/export wiring | re-export only |
+| focused tests beside each new file | positive product shape + typed reject paths | caller-zero evidence only |
+
+The bounded fixture shape (from
+`loop_cond_break_continue_projection_tests::positive_function`):
+`local flag = 1; loop(flag < 2) { if (flag == 1) { break } else { continue } }`.
+The bounded slice accepts only `Variable <op> Integer` compare
+conditions with op in `{Less, LessEqual, Equal}` (the
+`LoopCompareI64OpV1` vocabulary) on the same declared binding; any
+other operand/operator/declaration shape is a typed map reject — no
+widening in this row.
 
 ## Fail-fast boundary
 
@@ -122,3 +139,28 @@ Missing (the row's deliverable):
 
 When this card is accepted, `work_mode` moves to `fast` for the bounded
 implementation slice named above (one producer cohort, one commit family).
+
+## Landed (2026-09-23)
+
+- `compiler/loop_cond_break_continue_typed_map{,_issue}.rs`:
+  `VerifiedLoopCondBreakContinueTypedSourceMapV1` co-seals the sealed
+  projection with the carrier declaration and both typed compare triples
+  (`Variable <op> Integer`, op in `{Less, LessEqual, Equal}` on the same
+  declared binding), ledger-verified; residual variable-ref and
+  residual-exit checks keep the bounded boundary.
+- `loop_route_policy/loop_cond_break_continue.rs`:
+  `issue_loop_cond_break_continue_policy_demand_v1` over the typed map +
+  frozen schedule; winner cursor must be the `LoopCondBreakContinue`
+  position in `CANONICAL_LOOP_ROUTE_ORDER_V1`.
+- `loop_recipe_contract/producer_id.rs`: `LoopCondBreakContinueV1`.
+- `loop_recipe_contract/loop_cond_break_continue_producer.rs`:
+  `produce_loop_cond_break_continue_recipe_v1` emits a predicate-loop
+  portable Recipe (condition block: carrier read + const + CompareI64;
+  body block: branch compare + If{break-exit, continue-exit}), verifies
+  it, binds the root source claim, and elaborates the shared JoinSig —
+  caller-zero, no selector/verifier/CFG/PHI/physicalizer authority added.
+- Evidence: `cargo test --features vm-reference` —
+  `loop_cond_break_continue` 20/20 (4 new producer tests incl. typed
+  reject paths), `producer` 42/42, `loop_true` 48/48, `main0` 63/63.
+- Non-claims hold: no production caller, no `route_loop` connection,
+  S6E/S6G and Row F unaffected.

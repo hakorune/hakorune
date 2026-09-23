@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 pub(crate) enum LoopRecipeProducerIdV1 {
     DirectAccumV1,
     LoopTrueBreakContinueV1,
+    LoopCondBreakContinueV1,
     NestedPredicateV1,
     GenericG0,
     CallableSingleLoopV1,
@@ -25,6 +26,7 @@ impl LoopRecipeProducerIdV1 {
         match self {
             Self::DirectAccumV1 => "direct_accum_v1",
             Self::LoopTrueBreakContinueV1 => "loop_true_break_continue_v1",
+            Self::LoopCondBreakContinueV1 => "loop_cond_break_continue_v1",
             Self::NestedPredicateV1 => "nested_predicate_v1",
             Self::GenericG0 => "generic_g0",
             Self::CallableSingleLoopV1 => "callable_single_loop_v1",

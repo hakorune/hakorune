@@ -36,6 +36,7 @@ mod join_sig;
 #[allow(dead_code)]
 mod recipe_draft;
 mod join_sig_branch;
+mod loop_cond_break_continue_producer;
 mod loop_true_break_continue_producer;
 mod normalize;
 mod operation_carrier_demand;
@@ -97,6 +98,10 @@ mod nested_predicate_tests;
 #[cfg(test)]
 #[path = "join_sig_branch_tests.rs"]
 mod join_sig_branch_tests;
+
+#[cfg(test)]
+#[path = "loop_cond_break_continue_producer_tests.rs"]
+mod loop_cond_break_continue_producer_tests;
 
 #[cfg(test)]
 #[path = "loop_true_break_continue_producer_tests.rs"]
@@ -266,6 +271,11 @@ pub(crate) use join_sig::{
     LoopJoinPortBindingV1, LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1,
     LoopJoinSigRejectReasonV1, LoopJoinSigV1, LoopJoinSigV2, VerifiedLoopAfterBindingV1,
     VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1, VerifiedLoopJoinSigV2,
+};
+#[allow(unused_imports)]
+pub(crate) use loop_cond_break_continue_producer::{
+    produce_loop_cond_break_continue_recipe_v1, LoopCondBreakContinueRecipeProducerRejectV1,
+    VerifiedLoopCondBreakContinueRecipeProductV1,
 };
 #[allow(unused_imports)]
 pub(crate) use loop_true_break_continue_producer::{

@@ -103,6 +103,8 @@ pub(in crate::mir) mod generic_g0_top_level_declaration_header;
 pub(in crate::mir) mod located;
 #[cfg(test)]
 pub(crate) mod loop_cond_break_continue_observation;
+pub(in crate::mir) mod loop_cond_break_continue_typed_map;
+pub(in crate::mir) mod loop_cond_break_continue_typed_map_issue;
 #[allow(dead_code)]
 pub(in crate::mir) mod loop_cond_break_continue_projection;
 #[allow(dead_code)]
