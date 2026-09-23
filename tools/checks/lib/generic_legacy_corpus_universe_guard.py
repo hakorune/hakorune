@@ -51,6 +51,8 @@ CASE_CORPORA = {"phase29bq", "selfhost", "generic-fixture", "generic-smoke"}
 CASE_MODES = {"fast-gate", "selfhost-subset", "fixture-inventory", "release-adopt", "strict-shadow", "compat-alias"}
 CASE_DECISION = "P0-INVENTORY-ONLY"
 D0_DECISION = "D0-DISPOSITION-CHECKED"
+D0_TREJ_DECISION = "D0-TYPED-REJECT"
+D0_PLE_DECISION = "D0-PRE-LOOP-EVIDENCE"
 D0_DISPOSITIONS = {"portable-owner", "accepted-typed-reject"}
 CASE_RETENTION = "GENERIC-LEGACY-CORPUS-UNIVERSE-P0"
 UNKNOWN = "unknown"
@@ -127,6 +129,32 @@ def _check_case(record: Record, root: pathlib.Path, ids: set[str]) -> None:
         for field in ("observed_route", "target_owner"):
             if value[field] in {SENTINEL, ""}:
                 raise _fail(root, record.line, f"D0 checked case field {field} must name the authority")
+        for field in edge_fields:
+            if value[field] != SENTINEL:
+                raise _fail(root, record.line, f"D0 case edge field {field} must be {SENTINEL!r}")
+    elif value["decision"] == D0_TREJ_DECISION:
+        if value["observation_state"] != "rejected":
+            raise _fail(root, record.line, "D0 typed-reject cases require a rejected observation")
+        if value["current_acceptance"] != "rejected":
+            raise _fail(root, record.line, "D0 typed-reject cases must record rejected acceptance")
+        if value["disposition"] != "accepted-typed-reject":
+            raise _fail(root, record.line, "D0 typed-reject cases must use accepted-typed-reject")
+        for field in ("observed_route", "target_owner"):
+            if value[field] in {SENTINEL, ""}:
+                raise _fail(root, record.line, f"D0 typed-reject field {field} must name the authority")
+        for field in edge_fields:
+            if value[field] != SENTINEL:
+                raise _fail(root, record.line, f"D0 case edge field {field} must be {SENTINEL!r}")
+    elif value["decision"] == D0_PLE_DECISION:
+        if value["observation_state"] != "failed-before-loop":
+            raise _fail(root, record.line, "D0 pre-loop cases require a failed-before-loop observation")
+        if value["current_acceptance"] != "rejected":
+            raise _fail(root, record.line, "D0 pre-loop cases must record rejected acceptance")
+        if value["disposition"] != "nonproduction-future-evidence":
+            raise _fail(root, record.line, "D0 pre-loop cases must retain future evidence only")
+        for field in ("observed_route", "target_owner"):
+            if value[field] in {SENTINEL, ""}:
+                raise _fail(root, record.line, f"D0 pre-loop field {field} must name the blocking authority")
         for field in edge_fields:
             if value[field] != SENTINEL:
                 raise _fail(root, record.line, f"D0 case edge field {field} must be {SENTINEL!r}")
