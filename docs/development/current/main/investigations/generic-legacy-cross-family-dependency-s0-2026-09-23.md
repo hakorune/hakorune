@@ -1,11 +1,11 @@
 ---
-Status: fast__all_cohorts_classified__edge_inventory_complete
+Status: landed__2026-09-23__edge_inventory_complete
 Task: GENERIC-LEGACY-CROSS-FAMILY-DEPENDENCY-S0
 Date: 2026-09-23
 Parent: JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E
 PreviousCard: generic-legacy-disposition-d0-2026-09-23.md (via
   generic-legacy-ifelse-return-nondeterminism-d0-2026-09-23.md)
-NextCard: same-row__first_edge_write_cohort
+NextCard: family_scheduler__next_ordered_row
 Implementation permission: false; fix the edge-record inventory
 boundary, classification buckets, and bounded write slice only. No
 manifest write, no caller-graph edit, no source/fixture/route change,

@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "GENERIC-LEGACY-CROSS-FAMILY-DEPENDENCY-S0"
 current_execution_cohort = "generic_legacy_cross_family_dependency"
-current_blocker_token = "GENERIC-LEGACY-CROSS-FAMILY-DEPENDENCY-S0__EdgeClassificationDesignOpen"
+current_blocker_token = "GENERIC-LEGACY-CROSS-FAMILY-DEPENDENCY-S0__EdgeInventoryComplete_FrontierPause"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "CrossFamilyDependency__EdgeClassificationContract__CardOnly_2026-09-23"
+current_design_stop = "FrontierPause__S0EdgeInventoryComplete__FamilySchedulerReselectionRequired_2026-09-23"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,21 +18,21 @@ current_execution_design = "docs/development/current/main/investigations/generic
 latest_card = "generic-legacy-cross-family-dependency-s0"
 latest_card_path = "docs/development/current/main/investigations/generic-legacy-cross-family-dependency-s0-2026-09-23.md"
 latest_card_summary = """
-Family reselection resolved to GENERIC-LEGACY-CROSS-FAMILY-DEPENDENCY-S0
-(next rung in the GENERIC-LEGACY ladder after D0; Row F stays blocked
-on the M10 seal series + M8 all-route coverage). Card opened: classify
-every legacy Generic edge by caller graph into Generic-only /
-neutralize-first / M11 / M12 / named JoinModule buckets via sealed
-record_kind=edge manifest records; per-file granularity; C1 old
-AST/facts authority (~85 files) is the first bounded write cohort.
-Classification only: no deletion, no case-row rewrite, no S6E/Row-F
-closeout claim. Baseline debt unchanged: record_value_publish +
-strict-shadow + inplace guard reds.
+S0 edge classification complete (78aede8a5f card; writes
+05f713694e/59d2a0955e/798551e8de): 270 edge rows cover all 180
+legacy-Generic candidate files via anchored module-path caller
+counts. Buckets: 105 generic-only-R1, 24 neutralize-first-M10b, 11
+migrate-fixtures-then-retire, 31 shared-retain-M11, 14 M10b, 6 M12,
+79 retained. UpdateCanon proven shared (non-Generic extractor
+callers) -> canon update/types/mod reclassified M12; every
+contract-named shared item assigned outside R1. No deletions.
+Frontier pause: family reselection required. Baseline debt
+unchanged: record_value_publish + strict-shadow + inplace guard.
 """
 next_design_card = "GENERIC-LEGACY-CROSS-FAMILY-DEPENDENCY-S0"
 next_design_card_path = "docs/development/current/main/investigations/generic-legacy-cross-family-dependency-s0-2026-09-23.md"
-next_execution_card = "GENERIC-LEGACY-CROSS-FAMILY-DEPENDENCY-S0"
-next_execution_card_path = "docs/development/current/main/investigations/generic-legacy-cross-family-dependency-s0-2026-09-23.md"
+next_execution_card = "none__design_only__family_scheduler_reselection"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
