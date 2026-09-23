@@ -295,3 +295,38 @@ and legacy deletion remain separate rows.
 The implementation commit updates this README, the loop SSOT, reference
 matrix, workstream, and current mirrors together as the required
 post-implementation reference receipt.
+
+## M8 all19 closeout S6G receipt (2026-09-23)
+
+`all_route_observation.rs` seals the caller-zero whole-unit coverage products
+the S2 selector algebra anticipated. `issue_all_route_observation_set_v1`
+accepts exactly 19 rows in `CANONICAL_LOOP_ROUTE_ORDER_V1` order; each row is
+`RecipeBacked{backing}` only where the closed `ATTESTED_RECIPE_BACKED_V1`
+inventory attests a landed cohort (eight routes: S6A/S6B/S6C-V2/DirectAccum/
+NestedPredicate/LoopTrue/LoopCond/S6E GenericResidual), otherwise
+`PreEffectDeclined{reason}`. At most one row may be `RecipeBacked` per unit —
+a second backed row, an unattested backing, a missing/duplicate/out-of-order
+route, or a wrong row count is a typed reject, never a silent skip.
+`issue_whole_unit_loop_coverage_proof_v1` co-seals a complete set with the
+five lease identity fields (owner, origin, source kind, site, frame) so a
+foreign or mismatched proof fails `matches_lease` inside the selector.
+
+`select_canonical_loop_family_v1` now takes the proof as a second argument
+and the outcome algebra is closed:
+
+```text
+1 Candidate + 4 Declined            -> Selected (retains the coverage proof)
+2+ Candidates                       -> Rejected(Overlap)
+0 Candidates + all-declined proof   -> NoCandidate(proof)
+0 Candidates + backed proof         -> Rejected(CoverageBackedWithoutCandidate)
+foreign coverage identity           -> Rejected(CoverageIdentityMismatch)
+```
+
+The stale `Unresolved(OutOfWindow)` arm is removed: window input without a
+coverage proof can no longer reach the selector, so every call resolves
+through the sealed proof. `NoCandidate` is opened only here and only under a
+fully pre-effect-declined set; the selected-family/backed-route forward
+correspondence is not re-derived because no authoritative family-to-route
+map exists and inventing one would make route IDs semantic authority. The
+selector still creates no route, Recipe, Builder, MIR, or physical product
+and the production caller remains zero.

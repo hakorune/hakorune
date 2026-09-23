@@ -51,7 +51,8 @@ Close that profile's semantic-program/input/control/result/effect/ABI and
 finished-root contract in the active card, then implement/cut over/remove its
 selected raw edges in the same series. Do not repeat target selection or the
 corpus census. Same-run acceptance and caller-zero are migration outputs.
-S6E/S6G/M9 and whole shared-owner retirement remain open.
+S6E and the M8 all19 closeout S6G are landed caller-zero; M9 and whole
+shared-owner retirement remain open.
 
 This document fixes the complete Generic G0 path and its legacy retirement
 boundary before implementation resumes. It is a design contract, not a

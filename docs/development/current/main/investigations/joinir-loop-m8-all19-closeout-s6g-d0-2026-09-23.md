@@ -1,5 +1,5 @@
 ---
-Status: design__2026-09-23__d0_closeout_contract
+Status: landed__2026-09-23__caller_zero
 Task: JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G
 Date: 2026-09-23
 Parent: JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E (landed)
@@ -223,3 +223,86 @@ When this card is accepted, `work_mode` moves to `fast` for the
 bounded implementation slice named above (one closeout slice, one
 commit family): observation set + coverage proof + `NoCandidate` arm
 + parity receipt extension + focused tests + doc closeout.
+
+## Landed evidence (2026-09-23)
+
+Implementation (caller-zero):
+
+- `loop_route_policy/all_route_observation.rs` —
+  `LoopRouteObservationOutcomeV1` (`RecipeBacked` |
+  `PreEffectDeclined`), `LoopRouteRecipeBackingV1`
+  (`PortableProducer(LoopRecipeProducerIdV1)` | `ScanWithInitV2`),
+  `VerifiedLoopAllRouteObservationSetV1`,
+  `issue_all_route_observation_set_v1`, `WholeUnitLoopCoverageProofV1`,
+  `issue_whole_unit_loop_coverage_proof_v1`. The closed
+  `ATTESTED_RECIPE_BACKED_V1` table attests the eight backed routes
+  (cursors 0/4/7/10/11/12/13/18); any other `RecipeBacked` claim is a
+  typed `UnattestedRecipeBacking` reject. At most one backed row per
+  set (`MultipleRecipeBacked`); exact 19-row canonical order enforced
+  positionally (`RowCountMismatch` / `RouteOrderMismatch`); the raw
+  cursor appears only in reject diagnostics, never as selection.
+- `family_selector.rs` — the S2 selector now takes
+  `WholeUnitLoopCoverageProofV1` as a second argument. New algebra:
+  foreign coverage identity -> `Rejected(CoverageIdentityMismatch)`;
+  `2+` candidates -> `Rejected(Overlap)`; `0` candidates with a backed
+  row -> `Rejected(CoverageBackedWithoutCandidate)`; `0` candidates
+  with a fully pre-effect-declined set -> `NoCandidate(proof)`;
+  `1` candidate -> `Selected` (retains the proof on
+  `CanonicalLoopFamilySelectionV1::unit_coverage`). The stale
+  `Unresolved(OutOfWindow)` arm and `OutOfWindow` reason were removed
+  because a window without a coverage proof can no longer reach the
+  selector — every call resolves through the sealed proof.
+- Forward correspondence note: the selector does not re-check that a
+  selected family tag matches the backed route row. No authoritative
+  family-to-route map exists (five tags vs 19 routes, `GenericG0`
+  family has no attested route) and inventing one would make route
+  IDs semantic selection authority.
+- `generic_g0_demand.rs` — destructures the five-field
+  `into_parts()` and ignores `unit_coverage`; G0 demand semantics
+  unchanged.
+- `producer_id_migration_tests.rs` — parity receipt extended to all
+  19 routes: 7 `portable_producer`, 1 `portable_v2_producer`
+  (`ScanWithInit`), 11 `legacy_only` (including `GenericLoopV0`); a
+  canonical-order exhaustiveness test and a `GenericG0`-absence test
+  added; roundtrip list extended to the four newest producer ids.
+
+Cursor 0/4/7 attestation gate (verified at slice time, recorded not
+re-derived): `loop_break_plan_subset_min.hako` matches the S6B
+`VariableAccumBreakV1` bounded profile (accumulator + predicate
+`break` + induction step); `loop_simple_while_inline_explicit_step_
+min.hako` matches S6A `VariableAccumRecurrenceV1` (accumulator
+recurrence + induction step); `scan_with_init_typed_ok_min.hako`
+matches the S6C V2 forward ScanWithInit cohort (scan return +
+`-1` fallback). Correspondence held for all three rows.
+
+Focused evidence:
+
+```text
+all_route_observation     11/11
+loop_route_policy         91/91  (includes family_selector + generic_g0)
+producer_id_migration      4/4
+loop_recipe              224/224
+producer                  55/55
+generic_residual          18/18
+pointer guard              ok
+```
+
+Pre-existing baseline debt repaired in this slice (both reproduced on
+unmodified parent files, fixed as mechanical test repairs only):
+
+- `policy_evidence::tests::evidence_vocabulary_is_closed_and_round_
+  trips_each_disposition` — `03a39d9bd3` inserted a decline row at
+  index 2 without shifting the assertion indices; indices shifted.
+- `source_bound_core_tests::source_bound_core_rejects_derived_
+  carrier_and_duplicate_effect_mismatch` — `df45146e48` widened
+  `is_loop_statement_site` to accept `Body(_)` so the fixture's
+  `Body(0)` site stopped being anchor-empty; the non-loop site is now
+  `IfThen(0)`, preserving the test's `SourceBoundDerivedAnchorEmpty`
+  intent.
+
+Non-claims held: caller-zero only; no production caller or
+`route_loop` connection; no second selector; no route/cursor semantic
+selection; no `Option`/retry/fallback; no M9 parity; no Row F unblock
+by itself (M10 seal series still gates `LOOP-PRODUCTION-SELECTION-
+D0`); no corpus re-census; `parity_gate` stays `not-run`; no legacy
+deletion; no `GenericLoopV0`/`GenericG0` provenance minting.

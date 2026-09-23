@@ -173,7 +173,7 @@ fn source_bound_core_rejects_derived_carrier_and_duplicate_effect_mismatch() {
         LoopBindingEffectAnchorV1::DerivedCarrierEntry {
             owner,
             source_loop: SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
-                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::IfThen(0),
             ])),
             carrier: LoopCarrierKeyV1::new(2),
         },

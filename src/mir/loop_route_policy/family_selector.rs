@@ -1,9 +1,14 @@
 //! Caller-zero semantic selector for a complete five-row family window.
 //!
 //! The assembler owns row-level validity.  This module receives only its
-//! `Ready` product, counts Candidate/Declined rows, and moves the one selected
-//! typed candidate without creating a route, Recipe, Builder, or MIR product.
+//! `Ready` product plus the sealed whole-unit coverage proof, counts
+//! Candidate/Declined rows, and moves the one selected typed candidate
+//! without creating a route, Recipe, Builder, or MIR product. The M8
+//! all19 closeout opens `NoCandidate` here: it is returned only when the
+//! window holds no candidate AND the retained all-route set is entirely
+//! pre-effect declined.
 
+use super::all_route_observation::WholeUnitLoopCoverageProofV1;
 use super::direct_accum_observation::{
     DirectAccumFamilyObservationV1, VerifiedDirectAccumFamilyCandidateV1,
 };
@@ -58,7 +63,8 @@ impl CanonicalLoopFamilyCandidateV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CanonicalLoopFamilySelectionReasonV1 {
     Overlap,
-    OutOfWindow,
+    CoverageIdentityMismatch,
+    CoverageBackedWithoutCandidate,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -67,6 +73,7 @@ pub(crate) struct CanonicalLoopFamilySelectionV1 {
     mode: LoopFamilyAdmissionModeV1,
     coverage: LoopFamilyAdmissionCoverageV1,
     candidate: CanonicalLoopFamilyCandidateV1,
+    unit_coverage: WholeUnitLoopCoverageProofV1,
 }
 
 impl CanonicalLoopFamilySelectionV1 {
@@ -86,6 +93,10 @@ impl CanonicalLoopFamilySelectionV1 {
         &self.candidate
     }
 
+    pub(crate) const fn unit_coverage(&self) -> &WholeUnitLoopCoverageProofV1 {
+        &self.unit_coverage
+    }
+
     pub(crate) fn into_parts(
         self,
     ) -> (
@@ -93,8 +104,15 @@ impl CanonicalLoopFamilySelectionV1 {
         LoopFamilyAdmissionModeV1,
         LoopFamilyAdmissionCoverageV1,
         CanonicalLoopFamilyCandidateV1,
+        WholeUnitLoopCoverageProofV1,
     ) {
-        (self.lease, self.mode, self.coverage, self.candidate)
+        (
+            self.lease,
+            self.mode,
+            self.coverage,
+            self.candidate,
+            self.unit_coverage,
+        )
     }
 }
 
@@ -122,14 +140,24 @@ impl CanonicalLoopFamilySelectionFailureV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum CanonicalLoopFamilySelectionOutcomeV1 {
     Selected(CanonicalLoopFamilySelectionV1),
+    NoCandidate(WholeUnitLoopCoverageProofV1),
     Rejected(CanonicalLoopFamilySelectionFailureV1),
-    Unresolved(CanonicalLoopFamilySelectionFailureV1),
 }
 
 pub(crate) fn select_canonical_loop_family_v1(
     window: VerifiedLoopFamilyAdmissionWindowV1,
+    unit_coverage: WholeUnitLoopCoverageProofV1,
 ) -> CanonicalLoopFamilySelectionOutcomeV1 {
     let (lease, rows, mode, coverage) = window.into_parts();
+    if !unit_coverage.matches_lease(&lease) {
+        return CanonicalLoopFamilySelectionOutcomeV1::Rejected(
+            CanonicalLoopFamilySelectionFailureV1 {
+                lease,
+                rows,
+                reason: CanonicalLoopFamilySelectionReasonV1::CoverageIdentityMismatch,
+            },
+        );
+    }
     let candidate_count = count_candidates(&rows);
     if candidate_count > 1 {
         return CanonicalLoopFamilySelectionOutcomeV1::Rejected(
@@ -141,11 +169,14 @@ pub(crate) fn select_canonical_loop_family_v1(
         );
     }
     if candidate_count == 0 {
-        return CanonicalLoopFamilySelectionOutcomeV1::Unresolved(
+        if unit_coverage.observation_set().all_pre_effect_declined() {
+            return CanonicalLoopFamilySelectionOutcomeV1::NoCandidate(unit_coverage);
+        }
+        return CanonicalLoopFamilySelectionOutcomeV1::Rejected(
             CanonicalLoopFamilySelectionFailureV1 {
                 lease,
                 rows,
-                reason: CanonicalLoopFamilySelectionReasonV1::OutOfWindow,
+                reason: CanonicalLoopFamilySelectionReasonV1::CoverageBackedWithoutCandidate,
             },
         );
     }
@@ -163,6 +194,7 @@ pub(crate) fn select_canonical_loop_family_v1(
         mode,
         coverage,
         candidate,
+        unit_coverage,
     })
 }
 

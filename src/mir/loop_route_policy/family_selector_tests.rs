@@ -1,13 +1,15 @@
 use super::family_admission_tests::{all_declined, candidate_fixture, fixture, FixtureIdentity};
 use super::{
-    assemble_loop_family_admission_window_v1, select_canonical_loop_family_v1,
+    assemble_loop_family_admission_window_v1, issue_all_route_observation_set_v1,
+    issue_whole_unit_loop_coverage_proof_v1, select_canonical_loop_family_v1,
     CanonicalLoopFamilySelectionOutcomeV1, CanonicalLoopFamilySelectionReasonV1,
-    CanonicalLoopFamilySelectionV1, GenericG0FamilyObservationV1, GenericG0ObservationContextV1,
-    LoopCondFamilyObservationV1, LoopCondObservationContextV1,
+    CanonicalLoopFamilySelectionV1, GenericG0ObservationContextV1,
+    LoopAllRouteObservationRowV1, LoopCondFamilyObservationV1, LoopCondObservationContextV1,
     LoopFamilyAdmissionAssemblyOutcomeV1, LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionModeV1,
-    LoopFamilyObservationRowV1, LoopFamilyTagV1, LoopTrueFamilyObservationV1,
-    LoopTrueObservationContextV1, NestedPredicateFamilyObservationV1,
-    NestedPredicateObservationContextV1,
+    LoopFamilyObservationRowV1, LoopFamilyTagV1, LoopRouteObservationOutcomeV1,
+    LoopRoutePolicySourceDeclineReasonV1, LoopRouteRecipeBackingV1, LoopTrueObservationContextV1,
+    NestedPredicateObservationContextV1, WholeUnitLoopCoverageProofV1,
+    CANONICAL_LOOP_ROUTE_ORDER_V1,
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::generic_g0_observation::issue_generic_g0_source_attempt_with_window_for_test;
@@ -26,6 +28,56 @@ use crate::mir::loop_structural_facts::{
     NestedPredicateSourceIdentityV1,
 };
 use crate::mir::resolved_semantics::VerifiedLoopFamilyWindowLeaseV1;
+use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
+use crate::mir::loop_recipe_contract::LoopRecipeProducerIdV1;
+
+fn unit_coverage_for(
+    lease: &VerifiedLoopFamilyWindowLeaseV1,
+    backed: Option<(LoopRouteId, LoopRouteRecipeBackingV1)>,
+) -> WholeUnitLoopCoverageProofV1 {
+    let rows = CANONICAL_LOOP_ROUTE_ORDER_V1
+        .iter()
+        .map(|route| LoopAllRouteObservationRowV1 {
+            route: *route,
+            outcome: match backed {
+                Some((backed_route, backing)) if *route == backed_route => {
+                    LoopRouteObservationOutcomeV1::RecipeBacked(backing)
+                }
+                _ => LoopRouteObservationOutcomeV1::PreEffectDeclined(
+                    LoopRoutePolicySourceDeclineReasonV1::PreEffectDeclined,
+                ),
+            },
+        })
+        .collect::<Box<[_]>>();
+    let set = issue_all_route_observation_set_v1(rows).expect("observation set seals");
+    issue_whole_unit_loop_coverage_proof_v1(set, lease)
+}
+
+fn backed_route_for(tag: LoopFamilyTagV1) -> (LoopRouteId, LoopRouteRecipeBackingV1) {
+    let portable = LoopRouteRecipeBackingV1::PortableProducer;
+    match tag {
+        LoopFamilyTagV1::DirectAccum => (
+            LoopRouteId::AccumConstLoop,
+            portable(LoopRecipeProducerIdV1::DirectAccumV1),
+        ),
+        LoopFamilyTagV1::NestedPredicate => (
+            LoopRouteId::NestedLoopMinimal,
+            portable(LoopRecipeProducerIdV1::NestedPredicateV1),
+        ),
+        LoopFamilyTagV1::LoopTrueBreakContinue => (
+            LoopRouteId::LoopTrueBreakContinue,
+            portable(LoopRecipeProducerIdV1::LoopTrueBreakContinueV1),
+        ),
+        LoopFamilyTagV1::LoopCondBreakContinue => (
+            LoopRouteId::LoopCondBreakContinue,
+            portable(LoopRecipeProducerIdV1::LoopCondBreakContinueV1),
+        ),
+        LoopFamilyTagV1::GenericG0 => (
+            LoopRouteId::GenericLoopV1,
+            portable(LoopRecipeProducerIdV1::GenericResidualV1),
+        ),
+    }
+}
 
 fn identity_from_lease(lease: &VerifiedLoopFamilyWindowLeaseV1) -> FixtureIdentity {
     FixtureIdentity {
@@ -267,13 +319,14 @@ pub(crate) fn generic_selection_for_test() -> CanonicalLoopFamilySelectionV1 {
 pub(crate) fn generic_source_unit_and_selection_for_test(
 ) -> (VerifiedResolvedSourceUnitV1, CanonicalLoopFamilySelectionV1) {
     let (unit, lease, identity, candidate) = generic_candidate_fixture_with_unit();
+    let unit_coverage = unit_coverage_for(&lease, Some(backed_route_for(LoopFamilyTagV1::GenericG0)));
     let mut rows = all_declined(&identity).into_vec();
     rows[0] = candidate;
     let window = match assemble_loop_family_admission_window_v1(lease, rows.into_boxed_slice()) {
         LoopFamilyAdmissionAssemblyOutcomeV1::Ready(window) => window,
         _ => panic!("generic candidate window must be ready"),
     };
-    match select_canonical_loop_family_v1(window) {
+    match select_canonical_loop_family_v1(window, unit_coverage) {
         CanonicalLoopFamilySelectionOutcomeV1::Selected(selection) => (unit, selection),
         _ => panic!("generic candidate must be selected"),
     }
@@ -289,13 +342,14 @@ fn assert_selected(
     expected: LoopFamilyTagV1,
 ) {
     let (lease, identity, candidate) = factory();
+    let unit_coverage = unit_coverage_for(&lease, Some(backed_route_for(expected)));
     let mut rows = all_declined(&identity).into_vec();
     rows[slot] = candidate;
     let window = match assemble_loop_family_admission_window_v1(lease, rows.into_boxed_slice()) {
         LoopFamilyAdmissionAssemblyOutcomeV1::Ready(window) => window,
         _ => panic!("one candidate plus four declines must be ready"),
     };
-    match select_canonical_loop_family_v1(window) {
+    match select_canonical_loop_family_v1(window, unit_coverage) {
         CanonicalLoopFamilySelectionOutcomeV1::Selected(selection) => {
             assert_eq!(selection.candidate().tag(), expected);
             assert_eq!(selection.mode(), LoopFamilyAdmissionModeV1::Release);
@@ -331,42 +385,24 @@ fn each_family_candidate_is_selected_from_a_ready_window() {
 }
 
 #[test]
-fn five_declined_rows_are_unresolved_and_retain_all_evidence() {
+fn five_declined_rows_with_all_route_coverage_are_no_candidate() {
     let (lease, identity) = fixture();
     let owner = identity.owner;
+    let unit_coverage = unit_coverage_for(&lease, None);
     let window = match assemble_loop_family_admission_window_v1(lease, all_declined(&identity)) {
         LoopFamilyAdmissionAssemblyOutcomeV1::Ready(window) => window,
         _ => panic!("five declined rows must be ready for selector"),
     };
-    match select_canonical_loop_family_v1(window) {
-        CanonicalLoopFamilySelectionOutcomeV1::Unresolved(failure) => {
+    match select_canonical_loop_family_v1(window, unit_coverage) {
+        CanonicalLoopFamilySelectionOutcomeV1::NoCandidate(proof) => {
+            assert_eq!(proof.owner(), owner);
+            assert!(proof.observation_set().all_pre_effect_declined());
             assert_eq!(
-                failure.reason(),
-                CanonicalLoopFamilySelectionReasonV1::OutOfWindow
+                proof.observation_set().rows().len(),
+                CANONICAL_LOOP_ROUTE_ORDER_V1.len()
             );
-            assert_eq!(failure.lease().owner(), owner);
-            assert!(matches!(
-                failure.rows().direct_accum(),
-                super::DirectAccumFamilyObservationV1::Declined { .. }
-            ));
-            assert!(matches!(
-                failure.rows().nested_predicate(),
-                NestedPredicateFamilyObservationV1::Declined { .. }
-            ));
-            assert!(matches!(
-                failure.rows().loop_true(),
-                LoopTrueFamilyObservationV1::Declined { .. }
-            ));
-            assert!(matches!(
-                failure.rows().loop_cond(),
-                LoopCondFamilyObservationV1::Declined { .. }
-            ));
-            assert!(matches!(
-                failure.rows().generic_g0(),
-                GenericG0FamilyObservationV1::Declined { .. }
-            ));
         }
-        _ => panic!("five declined rows must remain unresolved"),
+        _ => panic!("five declined rows plus all-route coverage must be NoCandidate"),
     }
 }
 
@@ -407,13 +443,14 @@ fn overlap_rejects_without_dropping_the_consumed_window() {
             _ => unreachable!(),
         },
     );
+    let unit_coverage = unit_coverage_for(&lease, None);
     let window = super::VerifiedLoopFamilyAdmissionWindowV1::from_parts_for_test(
         lease,
         rows,
         LoopFamilyAdmissionModeV1::Release,
         LoopFamilyAdmissionCoverageV1::Complete,
     );
-    match select_canonical_loop_family_v1(window) {
+    match select_canonical_loop_family_v1(window, unit_coverage) {
         CanonicalLoopFamilySelectionOutcomeV1::Rejected(failure) => {
             assert_eq!(
                 failure.reason(),
@@ -436,13 +473,14 @@ fn overlap_rejects_without_dropping_the_consumed_window() {
 #[test]
 fn selected_generic_window_is_consumed_into_one_demand_lease() {
     let (lease, identity, generic) = generic_candidate_fixture();
+    let unit_coverage = unit_coverage_for(&lease, Some(backed_route_for(LoopFamilyTagV1::GenericG0)));
     let mut rows = all_declined(&identity).into_vec();
     rows[0] = generic;
     let window = match assemble_loop_family_admission_window_v1(lease, rows.into_boxed_slice()) {
         LoopFamilyAdmissionAssemblyOutcomeV1::Ready(window) => window,
         _ => panic!("one Generic candidate plus four declines must be ready"),
     };
-    let selection = match select_canonical_loop_family_v1(window) {
+    let selection = match select_canonical_loop_family_v1(window, unit_coverage) {
         CanonicalLoopFamilySelectionOutcomeV1::Selected(selection) => selection,
         _ => panic!("one Generic candidate must be selected"),
     };
@@ -469,13 +507,15 @@ fn selected_generic_window_is_consumed_into_one_demand_lease() {
 #[test]
 fn demand_rejects_a_selected_non_generic_family() {
     let (lease, identity, direct) = candidate_fixture();
+    let unit_coverage =
+        unit_coverage_for(&lease, Some(backed_route_for(LoopFamilyTagV1::DirectAccum)));
     let mut rows = all_declined(&identity).into_vec();
     rows[2] = direct;
     let window = match assemble_loop_family_admission_window_v1(lease, rows.into_boxed_slice()) {
         LoopFamilyAdmissionAssemblyOutcomeV1::Ready(window) => window,
         _ => panic!("one DirectAccum candidate plus four declines must be ready"),
     };
-    let selection = match select_canonical_loop_family_v1(window) {
+    let selection = match select_canonical_loop_family_v1(window, unit_coverage) {
         CanonicalLoopFamilySelectionOutcomeV1::Selected(selection) => selection,
         _ => panic!("one DirectAccum candidate must be selected"),
     };

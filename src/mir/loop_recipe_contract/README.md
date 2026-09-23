@@ -629,6 +629,15 @@ physicalizer dispatches on producer ID. There is still no Generic Recipe
 producer or production consumer, and a post-loop function tail must not be
 inserted into `LoopRecipeV1`.
 
+The M8 all19 closeout S6G extended that test-only receipt to all 19
+canonical routes: seven `portable_producer` rows (S6A/S6B recurrence and
+break, DirectAccum, NestedPredicate, LoopTrue, LoopCond, and the S6E
+`generic_residual_v1` row for `GenericLoopV1`), one `portable_v2_producer`
+row for `ScanWithInit`, and eleven `legacy_only` typed declines including
+`GenericLoopV0`. `GenericG0` is asserted absent from every route mapping so
+it cannot be re-minted as legacy Generic provenance. The receipt stays
+outside the portable artifact and selects nothing.
+
 ## LoopTrue S2 producer
 
 `produce_loop_true_break_continue_recipe_v1` is the caller-zero S2 producer

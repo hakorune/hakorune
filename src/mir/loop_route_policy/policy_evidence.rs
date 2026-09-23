@@ -73,15 +73,15 @@ mod tests {
             LoopRoutePolicyEvidenceV1::SourceDeclined(_)
         ));
         assert!(matches!(
-            evidence[2],
+            evidence[3],
             LoopRoutePolicyEvidenceV1::Candidate(_)
         ));
         assert!(matches!(
-            evidence[3],
+            evidence[4],
             LoopRoutePolicyEvidenceV1::PolicyBlocked(_)
         ));
         assert!(matches!(
-            evidence[4],
+            evidence[5],
             LoopRoutePolicyEvidenceV1::GenericDebt(_)
         ));
     }

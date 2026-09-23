@@ -1,9 +1,9 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G"
 current_execution_cohort = "loop_m8_all19_closeout"
-current_blocker_token = "JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G__CloseoutDesignOpen"
+current_blocker_token = "JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G__CloseoutLanded"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "AllRouteCloseout__CoverageContract__CardOnly_2026-09-23"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -18,27 +18,26 @@ current_execution_design = "docs/development/current/main/investigations/joinir-
 latest_card = "joinir-loop-m8-all19-closeout-s6g"
 latest_card_path = "docs/development/current/main/investigations/joinir-loop-m8-all19-closeout-s6g-d0-2026-09-23.md"
 latest_card_summary = """
-S6G all-route closeout D0 card open. Bounded slice (caller-zero):
-VerifiedLoopAllRouteObservationSetV1 (one typed outcome per
-canonical route — RecipeBacked{producer_id} or PreEffectDeclined,
-exactly 19 rows, canonical order) + WholeUnitLoopCoverageProofV1 +
-CanonicalLoopFamilySelectionOutcomeV1::NoCandidate arm on the same
-S2 selector + producer_id_migration parity receipt extended to all
-19 routes. Card-fixed inventory: 8 RecipeBacked routes (S6A/B/C
-fixture-attested plus cursor-pinned DirectAccum/NestedPredicate/
-LoopTrue/LoopCond/GenericResidual) and 11 typed declines
-(IfPhiJoin, continue/early-exit, scan-family minus ScanWithInit,
-LoopCond sub-shapes, GenericLoopV0). Accepted corpus parity =
-inventory-level owner->producer resolution over the 40
-D0-DISPOSITION-CHECKED rows; parity_gate stays not-run, no census
-repeat. Non-claims: no production caller, no second selector, no
-M9, no Row F unblock by itself (M10 seal series remains), no
-legacy deletion.
+S6G all-route closeout landed caller-zero.
+loop_route_policy/all_route_observation.rs seals
+VerifiedLoopAllRouteObservationSetV1 (exactly 19 rows, canonical
+order; RecipeBacked only for the 8 attested routes, at most one
+backed row per unit, else PreEffectDeclined) and
+WholeUnitLoopCoverageProofV1 (lease identity co-sealed). The S2
+selector now requires the proof: NoCandidate opens only for zero
+candidates + fully declined set; backed-without-candidate and
+foreign coverage are typed rejects; stale Unresolved arm removed.
+Parity receipt extended to all 19 routes (7 portable + 1 V2 + 11
+legacy_only). Focused: all_route 11, loop_route_policy 91,
+loop_recipe 224, producer 55, generic_residual 18; guard ok.
+Non-claims: caller-zero; no production caller/route connection;
+no M9; no Row F unblock by itself (M10 seal series remains);
+parity_gate stays not-run; no legacy deletion.
 """
 next_design_card = "JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G"
 next_design_card_path = "docs/development/current/main/investigations/joinir-loop-m8-all19-closeout-s6g-d0-2026-09-23.md"
-next_execution_card = "none__design_only__s6g_closeout_card"
-next_execution_card_path = "none"
+next_execution_card = "JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G"
+next_execution_card_path = "docs/development/current/main/investigations/joinir-loop-m8-all19-closeout-s6g-d0-2026-09-23.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

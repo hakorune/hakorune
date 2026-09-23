@@ -93,7 +93,7 @@ impl VerifiedGenericRecipeDemandG0 {
 pub(crate) fn issue_generic_g0_recipe_demand_v1(
     selection: CanonicalLoopFamilySelectionV1,
 ) -> Result<VerifiedGenericRecipeDemandG0, GenericG0RecipeDemandIssueV1> {
-    let (window_lease, mode, coverage, candidate) = selection.into_parts();
+    let (window_lease, mode, coverage, candidate, _unit_coverage) = selection.into_parts();
     let candidate = candidate
         .into_generic_g0()
         .map_err(|candidate| GenericG0RecipeDemandIssueV1::SelectedOtherFamily(candidate.tag()))?;

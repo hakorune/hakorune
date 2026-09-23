@@ -3,6 +3,9 @@
 //! `evaluate` is structural validation/sealing only; `policy` is the M3-E pure
 //! evaluator. See `README.md` for the authority boundary.
 
+mod all_route_observation;
+#[cfg(test)]
+mod all_route_observation_tests;
 #[cfg(test)]
 mod adapter;
 mod direct_accum_observation;
@@ -46,6 +49,13 @@ mod policy;
 mod policy_evidence;
 mod schema;
 
+#[allow(unused_imports)]
+pub(crate) use all_route_observation::{
+    issue_all_route_observation_set_v1, issue_whole_unit_loop_coverage_proof_v1,
+    LoopAllRouteObservationRowV1, LoopAllRouteObservationSetRejectV1,
+    LoopRouteObservationOutcomeV1, LoopRouteRecipeBackingV1,
+    VerifiedLoopAllRouteObservationSetV1, WholeUnitLoopCoverageProofV1,
+};
 #[allow(unused_imports)]
 pub(crate) use direct_accum_observation::{
     issue_direct_accum_family_observation_v1, DirectAccumFamilyObservationV1,

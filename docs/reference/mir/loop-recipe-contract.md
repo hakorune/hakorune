@@ -644,6 +644,17 @@ profile mappings and marks legacy Generic V0/V1 as `legacy_only`. No selector,
 registry, route-order, verifier dispatch, physicalizer dispatch, or production
 caller changed.
 
+Reference receipt — `JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G` (2026-09-23): the
+parity receipt now classifies all 19 canonical routes — seven
+`portable_producer` rows (including `generic_residual_v1` for
+`GenericLoopV1`), one `portable_v2_producer` row (`ScanWithInit`), and eleven
+`legacy_only` typed declines including `GenericLoopV0`. The companion
+caller-zero `VerifiedLoopAllRouteObservationSetV1` /
+`WholeUnitLoopCoverageProofV1` in `loop_route_policy` seals the same
+inventory per unit and lets the existing family selector open `NoCandidate`
+only when every route row is a typed pre-effect decline. No second selector,
+route/cursor selection, production caller, retry, or fallback was added.
+
 Reference receipt — `LOOP-JOINSIG-NESTED-SHADOW-S0` (2026-08-06): visible
 carrier projection now walks the verified Recipe parent chain from the target
 loop toward the root, keeps the first `LoopBindingKeyV1` for each binding, and
