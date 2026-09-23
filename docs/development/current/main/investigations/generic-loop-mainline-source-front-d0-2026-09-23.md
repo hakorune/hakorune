@@ -279,6 +279,98 @@ inputs, and JoinSig continuation together from the same App Main source loan;
 do not repeat this already-passing test unless later changes affect the
 physicalizer.
 
+## Producer-architecture feedback tasks — 2026-09-23
+
+User feedback on the existing portable-Recipe producers was checked against
+the code and is recorded here as the standing task queue for this family.
+
+Verified findings:
+
+- Fixed-template producers: `variable_accum_break_producer.rs:161-420`
+  hand-numbers items 0..19 and values 0..16 and hardcodes deltas 10/1; the
+  matching Facts reject `delta() != 10` at
+  `loop_structural_facts/variable_accum_break.rs:590`. `generic_g0/recipe.rs`
+  and `callable_single_loop_recipe.rs` use the same fixed-key tables. The
+  README rule "do not turn 19 legacy routes into 19 recipe variants" is being
+  satisfied only in name.
+- Duplicated wiring and double verification: `verify(recipe.clone())` then
+  `verify_artifact` re-verifies the same recipe in
+  `direct_accum_producer.rs:62-80`,
+  `variable_accum_break_producer.rs:108-150`, and
+  `callable_single_loop_recipe_coseal.rs`. The early `verify` exists only
+  because `VerifiedLoopRootSourceV1::into_root_claim` correctly requires a
+  verified recipe as the root-key authority.
+- Dual bookkeeping: producers know each item's source site while building the
+  recipe, discard it, then rebuild the same correspondence by hand in
+  `effect_relations()` / `operation_evidence()` tables that Core re-verifies.
+- Debt inventory: `loop_recipe_contract` alone is ~25.4k lines; `src/mir` has
+  273 `allow(dead_code)` sites and ~205 caller-zero comments. V1/V2 schema,
+  recipe_view, and transfer_view families are still duplicated.
+
+Task queue (priority order, from the same feedback):
+
+1. A+B (this slice, bounded): add a `LoopRecipeDraftV1` builder inside
+   `loop_recipe_contract` that allocates canonical preorder keys and records
+   each pushed item's source anchor once, emitting the recipe plus binding,
+   effect, input, and operation-evidence relations as one byproduct. Facts
+   keep admission judgment only. The Main0 Continue issuer is the first
+   consumer; it must not become another hand-numbered template.
+2. C (follow-up): one shared seal entry (verify -> claim -> artifact ->
+   JoinSig -> Core -> inputs -> continuation) replacing the per-producer
+   wiring, with typestate where cheap. Removing the second recipe
+   verification needs a `verify_artifact` path that accepts an already
+   verified recipe; do that when the shared seal is introduced, not before.
+3. D+E (defer to retirement stage): collapse V1/V2 schema/view duplication
+   behind one schema with verifier profiles; consider exposing JoinSig as a
+   derived view instead of a stored product.
+
+## Main0 Continue co-seal checkpoint — 2026-09-23
+
+Task-queue item 1 (A+B, bounded) is implemented. The canonical draft builder
+`loop_recipe_contract/recipe_draft.rs` allocates all preorder Recipe keys and
+records each pushed item's source anchor once, emitting the recipe plus
+binding, effect, initialized-input, and operation-evidence relations as one
+construction byproduct. `LoopRecipeVerifierV1` remains the sole semantic
+authority; the draft only assembles.
+
+The first consumer is the Main0 Continue source front for the selected
+`Main.main/0` profile (`apps/tests/phase29ca_generic_loop_continue_min.hako`,
+expected result `4`):
+
+- `compiler/main0_continue_syntax_facts.rs` — AST-free admission facts for
+  the exact `local i, local n, loop(i<n){ if i==1 {i+=1; continue} i+=1 }
+  return i` shape; no Recipe keys, selectors, or physical IDs.
+- `compiler/main0_continue_source_map.rs` — joins the verified facts to the
+  resolver ledger: declaration bindings, condition/guard/step reads and
+  writes, Continue validated via `ResolvedControlTransferV1::Continue`
+  against the resolver-issued loop `RegionId`, terminal return validated via
+  resolver exits. Residual refs/exits/calls, duplicates, foreign sites, and
+  mismatched operators reject.
+- `compiler/main0_continue_recipe_coseal.rs` — consumes the map once, builds
+  the recipe through `LoopRecipeDraftV1` (no hand-numbered tables; `n` is a
+  loop-available carrier because JoinSig requires loop-body reads to be
+  carrier-backed), then issues artifact -> verify -> source claim ->
+  source-bound Core -> initialized inputs -> JoinSig -> continuation ->
+  operation/effect evidence as one semantic-program admission.
+
+Focused evidence:
+
+```text
+cargo test --lib main0_continue
+PASS: 12 passed, 0 failed, 8331 filtered out.
+```
+
+Coverage includes positive co-seal, recipe shape/counts, product ownership
+after source-unit drop, and negative facts/map/co-seal rows (else arm,
+missing Continue, foreign ledger, non-Less operator, wrong tail read,
+missing map row, extra root statement, second loop, non-literal guard).
+
+Non-claims: this is unit/logical evidence only. No production caller switch,
+no Main0 runtime or source-to-MIR acceptance, no physical Main handoff, no
+outer-publication count proof, no legacy retirement, and no zero-fallback
+production proof. The remaining task-queue items (shared seal wiring, V1/V2
+collapse) stay open.
+
 ## Review and validation
 
 Two read-only workers covered independent uncertainties: complete legacy

@@ -15,6 +15,7 @@ pub(crate) enum LoopRecipeProducerIdV1 {
     CallableSingleLoopV1,
     VariableAccumRecurrenceV1,
     VariableAccumBreakV1,
+    Main0ContinueV1,
 }
 
 impl LoopRecipeProducerIdV1 {
@@ -27,6 +28,7 @@ impl LoopRecipeProducerIdV1 {
             Self::CallableSingleLoopV1 => "callable_single_loop_v1",
             Self::VariableAccumRecurrenceV1 => "variable_accum_recurrence_v1",
             Self::VariableAccumBreakV1 => "variable_accum_break_v1",
+            Self::Main0ContinueV1 => "main0_continue_v1",
         }
     }
 }

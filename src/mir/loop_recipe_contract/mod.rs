@@ -30,6 +30,9 @@ mod error;
 mod ids;
 mod input_source;
 mod join_sig;
+// Canonical draft builder: single key allocator + source-anchor co-recorder.
+#[allow(dead_code)]
+mod recipe_draft;
 mod join_sig_branch;
 mod loop_true_break_continue_producer;
 mod normalize;
@@ -293,6 +296,10 @@ pub(crate) use physical_layout::{
 };
 #[allow(unused_imports)]
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
+#[allow(unused_imports)]
+pub(crate) use recipe_draft::{
+    LoopRecipeDraftProductV1, LoopRecipeDraftRejectV1, LoopRecipeDraftV1,
+};
 #[allow(unused_imports)]
 pub(crate) use s6c_prephysical_ingress::{
     issue_s6c_prephysical_ingress_v2, S6CPrephysicalCompletionParityRefV2,

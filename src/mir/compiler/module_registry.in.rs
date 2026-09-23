@@ -111,6 +111,15 @@ pub(in crate::mir) mod loop_break_source_projection;
 pub(in crate::mir) mod loop_break_composite_source_projection;
 pub(in crate::mir) mod loop_break_composite_body_role;
 pub(crate) mod loop_physical_prepare;
+#[allow(dead_code)]
+pub(crate) mod main0_continue_recipe_coseal;
+#[cfg(test)]
+#[path = "main0_continue_recipe_coseal_tests.rs"]
+mod main0_continue_recipe_coseal_tests;
+#[allow(dead_code)]
+pub(crate) mod main0_continue_source_map;
+#[allow(dead_code)]
+pub(crate) mod main0_continue_syntax_facts;
 #[cfg(test)]
 pub(crate) mod loop_true_break_continue_observation;
 #[allow(dead_code)]
