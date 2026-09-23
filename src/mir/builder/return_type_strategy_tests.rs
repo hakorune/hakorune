@@ -116,6 +116,36 @@ fn known_return_definition_typeop_policy_is_exact() {
 }
 
 #[test]
+fn if_else_return_main_infers_integer_signature() {
+    // Regression: `function.blocks` is a HashMap, so a multi-return function
+    // must not take the first Return terminator in iteration order — the
+    // synthesized void tail must not beat the concrete branch returns.
+    let source = r#"
+        static box Main {
+            main() {
+                local v = 7
+                if v == 0 {
+                    return 0
+                } else {
+                    return 0
+                }
+            }
+        }
+    "#;
+    let _ = std::panic::catch_unwind(|| {
+        crate::runtime::ring0::init_global_ring0(crate::runtime::ring0::default_ring0())
+    });
+    let result = MirCompiler::with_options(false)
+        .compile_with_source(
+            NyashParser::parse_from_string(source).expect("if-else-return source parses"),
+            Some("if-else-return-min.hako"),
+        )
+        .expect("if-else-return source must finalize");
+    let main = result.module.functions.get("main").expect("main MIR");
+    assert_eq!(main.signature.return_type, MirType::Integer);
+}
+
+#[test]
 fn record_value_publish_is_a_void_script_result() {
     let source = r#"
         record Pair {

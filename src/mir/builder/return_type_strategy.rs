@@ -43,91 +43,118 @@ pub(super) fn infer_return_type_from_phi(
         return None;
     }
 
+    // `function.blocks` is a HashMap: iteration order is nondeterministic.
+    // Collect every Return terminator in a fixed block-id order, then let a
+    // concrete (non-Void/Unknown) result win over a resolved Void/Unknown so
+    // multi-return functions infer the same type on every run.
+    let mut candidates: Vec<(crate::mir::BasicBlockId, ValueId)> = function
+        .blocks
+        .iter()
+        .filter_map(|(bid, bb)| match &bb.terminator {
+            Some(MirInstruction::Return { value: Some(value) }) => Some((*bid, *value)),
+            _ => None,
+        })
+        .collect();
+    candidates.sort_by_key(|(bid, _)| bid.0);
+
     let mut inferred = None;
-    for (_bid, bb) in function.blocks.iter() {
-        if let Some(MirInstruction::Return { value: Some(value) }) = &bb.terminator {
-            if let Some(mt) = builder
-                .function_state
-                .type_ctx
-                .value_types
-                .get(value)
-                .cloned()
-            {
+    for (_bid, value) in candidates {
+        if let Some(mt) = builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&value)
+            .cloned()
+        {
+            if matches!(mt, MirType::Void | MirType::Unknown) {
+                inferred.get_or_insert(mt);
+            } else {
                 inferred = Some(mt);
                 break;
             }
+            continue;
+        }
 
-            let hint = if primary_hint::is_primary_target(&function.signature.name) {
-                primary_hint::extract_phi_type_hint(function, *value)
-            } else {
-                None
-            };
-            if hint.is_none() {
-                if let Some(mt) = resolve_known_return_definition_type(
-                    function,
-                    *value,
-                    &builder.function_state.type_ctx.value_types,
-                ) {
-                    if crate::config::env::builder_p3d_debug() {
-                        crate::runtime::get_global_ring0().log.debug(&format!(
-                            "[lifecycle/p3d] {} type inferred via known return definition: {:?}",
-                            function.signature.name, mt
-                        ));
-                    }
-                    inferred = Some(mt);
-                    break;
+        let hint = if primary_hint::is_primary_target(&function.signature.name) {
+            primary_hint::extract_phi_type_hint(function, value)
+        } else {
+            None
+        };
+        let mut resolved = hint;
+        if resolved.is_none() {
+            if let Some(mt) = resolve_known_return_definition_type(
+                function,
+                value,
+                &builder.function_state.type_ctx.value_types,
+            ) {
+                if crate::config::env::builder_p3d_debug() {
+                    crate::runtime::get_global_ring0().log.debug(&format!(
+                        "[lifecycle/p3d] {} type inferred via known return definition: {:?}",
+                        function.signature.name, mt
+                    ));
                 }
+                resolved = Some(mt);
             }
-            if hint.is_none() {
-                let phi_resolver = crate::mir::phi_core::phi_type_resolver::PhiTypeResolver::new(
-                    function,
-                    &builder.function_state.type_ctx.value_types,
-                );
-                if let Some(mt) = phi_resolver.resolve(*value) {
-                    if crate::config::env::builder_p4_debug() {
-                        crate::runtime::get_global_ring0().log.debug(&format!(
-                            "[lifecycle/p4] {} type inferred via PhiTypeResolver: {:?}",
-                            function.signature.name, mt
-                        ));
-                    }
-                    inferred = Some(mt);
-                    break;
-                }
-            }
-            if hint.is_none()
-                && primary_hint::is_uniform_phi_fallback_target(&function.signature.name)
-            {
-                if let Some(mt) = uniform_phi::resolve_from_phi(
-                    function,
-                    *value,
-                    &builder.function_state.type_ctx.value_types,
-                ) {
-                    if crate::config::env::builder_p3c_debug() {
-                        crate::runtime::get_global_ring0().log.debug(&format!(
-                            "[lifecycle/p3c] {} type inferred via GenericTypeResolver: {:?}",
-                            function.signature.name, mt
-                        ));
-                    }
-                    inferred = Some(mt);
-                    break;
-                }
-            }
-
-            #[cfg(debug_assertions)]
-            panic!(
-                "[phase84-5] Type inference failed for {:?} in function {}\n\
-                 This should not happen after Phase 84-4 completion.\n\
-                 Please check: PhiTypeResolver, BoxCall type registration, CopyTypePropagator",
-                value, function.signature.name
+        }
+        if resolved.is_none() {
+            let phi_resolver = crate::mir::phi_core::phi_type_resolver::PhiTypeResolver::new(
+                function,
+                &builder.function_state.type_ctx.value_types,
             );
+            if let Some(mt) = phi_resolver.resolve(value) {
+                if crate::config::env::builder_p4_debug() {
+                    crate::runtime::get_global_ring0().log.debug(&format!(
+                        "[lifecycle/p4] {} type inferred via PhiTypeResolver: {:?}",
+                        function.signature.name, mt
+                    ));
+                }
+                resolved = Some(mt);
+            }
+        }
+        if resolved.is_none()
+            && primary_hint::is_uniform_phi_fallback_target(&function.signature.name)
+        {
+            if let Some(mt) = uniform_phi::resolve_from_phi(
+                function,
+                value,
+                &builder.function_state.type_ctx.value_types,
+            ) {
+                if crate::config::env::builder_p3c_debug() {
+                    crate::runtime::get_global_ring0().log.debug(&format!(
+                        "[lifecycle/p3c] {} type inferred via GenericTypeResolver: {:?}",
+                        function.signature.name, mt
+                    ));
+                }
+                resolved = Some(mt);
+            }
+        }
 
-            #[cfg(not(debug_assertions))]
-            {
-                crate::runtime::get_global_ring0().log.warn(&format!(
-                    "[phase84-5/warning] Type inference failed for {:?} in {}, using Unknown sentinel",
+        match resolved {
+            Some(mt) if !matches!(mt, MirType::Void | MirType::Unknown) => {
+                inferred = Some(mt);
+                break;
+            }
+            Some(mt) => {
+                inferred.get_or_insert(mt);
+            }
+            None => {
+                #[cfg(debug_assertions)]
+                panic!(
+                    "[phase84-5] Type inference failed for {:?} in function {}\n\
+                     This should not happen after Phase 84-4 completion.\n\
+                     Please check: PhiTypeResolver, BoxCall type registration, CopyTypePropagator",
                     value, function.signature.name
-                ));
-                inferred = Some(MirType::Unknown);
+                );
+
+                #[cfg(not(debug_assertions))]
+                {
+                    crate::runtime::get_global_ring0().log.warn(&format!(
+                        "[phase84-5/warning] Type inference failed for {:?} in {}, using Unknown sentinel",
+                        value, function.signature.name
+                    ));
+                    inferred = Some(MirType::Unknown);
+                    break;
+                }
             }
         }
     }
