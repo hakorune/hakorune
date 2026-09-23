@@ -1802,20 +1802,23 @@ implementation may add only these caller-zero projections; Builder/session,
 lifecycle, Text residence, route, fallback/retry, production callers, and
 publication remain closed.
 
-S6D design correction (2026-09-23): source projection still lacks typed
-predicate/effect and portable co-seal mapping. The former requirement for an
-already-connected issuer was circular: implementation-entry permits naming
-owners/consumers to extend. The selected design is one scalar initialized-local
-carrier, header compare, add/write, and explicit Break/Continue, with an exact
-After return. The step is an explicit profile extension, not existing projector
-coverage. Existing strict S6D observations remain required. See the
-[active D2 tasks](../investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md)
-for real caller/old-edge selection, source typing/effect, and callable boundary
-API decisions. Those internal design tasks precede implementation; no producer
-or production selection is claimed. M8 S6D stays producer/observation-only;
-a later bounded production Promote must satisfy M10 requirements and remove
-the selected cohort's old edge together with its caller switch. Shared legacy
-owners need not disappear to permit that design.
+S6D D0 result remains scoped to its own M8 producer/observation row: the
+source projection lacks typed predicate/effect and portable co-seal mapping.
+The requirement for an already-connected issuer was circular under the
+implementation-entry policy; that row may name owners to extend, while
+connection/tests/caller-zero are migration outputs. It does not authorize a
+production switch by itself.
+
+The separately selected Call migration is B3
+`StringHelpers.split_lines/1`, tracked by the
+[active B3 D2 card](../investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md).
+Its natural imported static-method batch and named nested-ArrayPush stop are
+identified; current LoopCond physical success remains unproven. The card names
+the source/operation/effect mapping, co-seal, existing LoopCond/GeneralIf
+consumer, and selected old-edge retirement tasks. Do not require an already
+connected issuer to reopen design, and do not use scalar S6D producer evidence
+as B3 production coverage. Production Promote still observes the separate M10
+requirements and retires its selected cohort edge with the caller switch.
 
 The next ordered M8 row, S6E, is not ready: the normalized Generic corpus is
 inventoried, but route observations and checked dispositions are incomplete.

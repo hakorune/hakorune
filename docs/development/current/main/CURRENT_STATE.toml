@@ -3,9 +3,9 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2"
 current_execution_cohort = "mir_call_parser_array_push_b3_loopcond_carrier_relation_d2"
-current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2__ScalarCallerTypingCompletionMappingOpen"
+current_blocker_token = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2__B3OperationEffectAndCosealMappingOpen"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "DesignMappingOpen__ScalarLoopCondCallerTypeAndCompletion_2026-09-23"
+current_design_stop = "DesignMappingOpen__B3CallerOperationEffectCoseal_2026-09-23"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,20 +18,20 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-parser-array-push-b3-loopcond-carrier-relation-d2"
 latest_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md"
 latest_card_summary = """
-Worker-assisted D2 corrects the circular connected-issuer entry condition.
-Existing implementation gaps remain, but named owners may be extended; caller
-switch and caller-zero are outputs. Design scalar LoopCond first (one I64
-carrier, step, explicit Break/Continue), then B3 String/Array GeneralIf joins.
-Next D1 names the real caller/terminal/old-edge tuple and production ordering;
-D2 fixes source typing/effect authority; D3 fixes initialized-local ingress and
-After-return completion APIs. These internal design tasks are available now.
-M8 S6D remains producer/observation only; later production Promote must satisfy
-existing M10 prerequisites and retire the selected cohort edge in its series.
-No compiler implementation, fixture, production switch or deletion is claimed.
+D2 corrects the circular connected-issuer entry condition and selects the
+existing B3 natural source, StringHelpers.split_lines/1, for migration. Imported
+static box batches compile declared methods without runtime call-use filtering.
+The merged-parser acceptance pins this method at SourceCallOutsideSelectedFamily
+inside the nested push; physical LoopCond success is not proven. Next D2 fixes
+exact carrier/operation/effect mapping; D3 co-seals source/Core/Recipe/JoinSig;
+I1 connects the existing LoopCond/GeneralIf owner; I2 switches this method and
+retires only its old selection/rejection edge. No compiler implementation,
+fixture, production switch or deletion is claimed. M8 S6D and later M8/M9/M10
+obligations stay separate.
 """
 next_design_card = "MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-parser-array-push-b3-loopcond-carrier-relation-d2-2026-09-23.md"
-next_execution_card = "none__design_only__scalar_caller_typing_completion_mapping_open"
+next_execution_card = "none__design_only__b3_operation_effect_coseal_mapping_open"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

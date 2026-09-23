@@ -1,9 +1,9 @@
 ---
-Status: design_stop__scalar_loopcond_mapping_selected_for_design
+Status: design_stop__b3_source_type_effect_and_coseal_mapping_open
 Task: MIR-CALL-PARSER-ARRAY-PUSH-B3-LOOPCOND-CARRIER-RELATION-D2
 Parent: mir-call-parser-array-push-b3-branch-continuation-d1-2026-09-23
-NextCard: same-card__resolve_scalar_caller_type_and_completion_mapping
-Implementation permission: false; design/taskification only. Tasks D1-D3 below must close before selecting implementation. No compiler, fixture, receipt, or production switch is authorized by this record.
+NextCard: same-card__resolve_b3_carrier_effect_and_coseal_mapping
+Implementation permission: false; design/taskification only. Do not edit compiler code, fixtures, receipts, or production selection until the source/effect/co-seal mapping is settled.
 ---
 
 # LoopCond Recipe carrier relation D2
@@ -11,154 +11,193 @@ Implementation permission: false; design/taskification only. Tasks D1-D3 below m
 ## Six-line brief
 
 ```text
-Decision: design scalar LoopCond in existing owners first; B3 String/Array joins follow separately.
-Source authority + canonical issuer: same-function resolver ledger and source view; extend compiler projection and existing callable Recipe/semantic-program issuers.
-Non-authority: names, AST rescans in physical lowering, MIR-derived types/effects, unrelated GenericLoop receipts, and post-hoc product pairing.
-Fail-fast boundary: exact source/type/exit/coverage and co-seal relations must reject before physical allocation; no retry after selected membership.
-Smallest next slice: D1 below names the real scalar caller cohort and its old edge; D2/D3 settle typing/effect and completion APIs before implementation.
-Non-claims: no landed scalar producer, production cutover, old-edge removal, B3 completion, String/Fault ABI, tail push, or backend parity.
+Decision: continue the selected B3 migration for StringHelpers.split_lines/1 through the current LoopCond/GeneralIf owner.
+Source authority + canonical issuer: imported declaration identity and same-function resolver ledger; extend source projection and one semantic-program issuance.
+Non-authority: method names as selectors, post-hoc AST/MIR pairing, physical phi/name maps as source identity, and unrelated GenericLoop receipts.
+Fail-fast boundary: exact i/last BindingRefs, branch join, ArrayPush/substring operation rows and complete consumption reject before physical allocation.
+Smallest next slice: D2 fixes B3 operation/type/effect and Recipe/JoinSig carrier mapping; then connect it to the current sole LoopCond/GeneralIf physical owner.
+Non-claims: no physical traversal proven, production switch, old-edge deletion, tail push/function-return completion, serializer, or backend parity.
 ```
 
-## Corrected entry premise (2026-09-23)
+## Corrected entry premise and target choice
 
-The read-only worker `loop_issuer_design` confirmed the implementation gaps
-below, but found the previous entry condition circular. The
-[entry policy](../design/current-docs-update-policy-ssot.md#implementation-entry-and-retirement-conditions)
-allows a **named consumer to implement or connect**. Connection, new tests and
-resulting caller-zero are migration outputs. A shared MethodCall writer may
-remain while one selected old responsibility/edge is removed. Its whole-file
-retirement is not a prerequisite for this design.
+The former requirement for an already-connected LoopCond issuer was circular.
+The [entry policy](../design/current-docs-update-policy-ssot.md#implementation-entry-and-retirement-conditions)
+allows naming owners and consumers to implement/connect; implementation,
+tests, production switch and caller-zero are migration outputs. A shared
+MethodCall owner may remain while the selected old responsibility is retired.
 
-This supersedes this card's earlier global frontier-pause recommendation and
-its requirement for an already-connected LoopCond issuer. It does not turn
-missing implementation into a completed mapping. The earlier premise-reset
-count audit remains narrowly valid: B3, S6D and parser forest ancestry were
-different responsibilities, not three consecutive identical failures. That
-count does not override the entry policy or prevent resolving internal design.
+Read-only source-route audit selected B3 over the proposed call-free scalar
+profile for this migration. The scalar profile would be a new callable
+admission shape: it has no natural source caller in the observed static-child
+cohort, and `normal_callable_loop_source_route.rs` rejects empty source-call
+relations before the existing LoopCond physical consumer. It cannot prove
+retirement of the live B3 source boundary. M8 S6D producer/observation remains
+its own ordered workstream row; it is not a prerequisite invented for B3.
 
-B3 currently has exact source BindingRefs and structural LoopCond/GeneralIf
-Recipe items, but lacks the co-issued carrier/join relation needed for safe
-branch-state restoration. A detached relation in
-`SourceLoopCondPhysicalInputV1` cannot supply that meaning. The separate
-portable owner has useful schemas and consumer seams, not a ready B3 contract.
-
-## Selected design order and boundary
-
-Choose the scalar LoopCond profile below for the first design. Names and
-literal values are witnesses, not dispatch selectors:
+The exact natural source target is
+`lang/src/shared/common/string_helpers.hako::StringHelpers.split_lines/1`.
+The imported static box method batch enumerates every declared method without
+runtime call-use filtering. Its production compiler path is:
 
 ```text
-local i = <I64 literal>
-loop (i < <I64 literal>) {
-    i = i + <I64 literal>
-    if (i == <I64 literal>) { break } else { continue }
-}
-return i
+ProgramDeferredStaticBoxLifecycleV1::lower_normal_with_port_v1
+ -> PreparedNonMainStaticBoxMethodBatchV1::lower_root_with_port_v1
+ -> NormalCallableSemanticPackagePortAdapterV1::lower_cataloged_static_box_method
+ -> canonical route / source lowering
+ -> LoopCond source entry
 ```
 
-One initialized-local carrier, one scalar write, two comparisons, an explicit
-Break/Continue branch and an exact return read. Require the existing source-
-declared I64 result ABI on the enclosing function (omitted from the snippet);
-do not infer a default result ABI. Exclude calls, String/Array,
-nested loops, shadowing, GeneralIf and nonlocal exits. Membership comes from
-resolver identities and exact sites, never `i` or these textual examples.
+Evidence seams: `src/mir/builder/program_root_lowering.rs`,
+`nonmain_static_box_method_batch.rs`, and
+`normal_callable_semantic_loan_port.rs`. The source declaration has the exact
+LoopCond body: outer carriers `i` and `last`; local `ch`; `s`/`n` reads; a
+nested `ArrayPush(s.substring(last, i))` in the `ch == "\n"` branch; and
+`last = i + 1` in that branch. The post-loop tail push and returned `arr` are
+outside the selected loop row.
 
-The existing strict S6D witness has only an If in the body. With pure predicates
-and no write, a taken Continue cannot terminate. The step-bearing profile is
-an explicit proposed extension, not an assertion that the old projector already
-accepts it. Retain the strict witness's observation contract; do not silently
-reclassify it. The design includes terminating Continue and Break evidence
-without demanding termination proof for all admitted programs.
+This compiler caller is real even though repository search finds no runtime
+call to `StringHelpers.split_lines/1`: the static method batch compiles declared
+members from imported boxes. `lower_cataloged_static_box_method` has a leading
+Dynamic semantic path and then the Ordinary canonical route; the exact B3
+source's selected semantic disposition still needs an observed receipt and
+must not be guessed from the Rust type name.
 
-M8 S6D remains producer/observation scope. The later callable production
-extension below is a separate Promote row, subject to existing M10 semantic-
-program and production-entry requirements. S6D producer green is not permission
-to select a production route, claim all-family coverage, or skip M8/M9 gates.
-If that ordering prevents the exact caller switch, D1 must record the precise
-remaining prerequisite; it must not label a producer-only row a cutover.
+## Current terminal and planned old responsibility
 
-## Owner mapping to settle
+The existing natural-import acceptance
+`normal_default_root_catalog_merged_route_tests::merged_parser_program_source_stops_at_named_publication_boundary`
+materializes a merged parser program and stops at
+`function=StringHelpers.split_lines/1`, source site
+`[Body(5), LoopBody(1), IfThen(0)]`, with
+`SourceCallOutsideSelectedFamily`. This proves source-to-named-stop reachability;
+it does **not** prove the current LoopCond PHI consumer was reached. Do not
+rewrite this receipt as a physicalization success.
 
-| Stage | Existing owner / extension seam | Required relation |
+The intended existing physical owner remains the LoopCond/GeneralIf chain:
+`raw_loop_child_entry` → `loop_cond_bc_source` → `lower_loop_cond_source_item`
+→ `lower_if_join_source` / `lower_if_join_state_core` and the current loop
+carrier materializer. D2 must specify how the one source-bound semantic
+issuance reaches that owner; it must not create another PHI/Join solver.
+
+Planned selected delete-set, after that connection is implemented and selected:
+for `split_lines/1`'s admitted loop, remove the AST/name-based outer-carrier
+discovery, branch join name-to-BindingRef recovery, and its
+`SourceCallOutsideSelectedFamily` rejection/re-entry for the exact nested
+ArrayPush/substring source rows. Preserve the raw/shared LoopCond and
+MethodCall owners for other callers. The exact current source route and terminal
+must be checked at implementation entry; whole-file/shared-writer deletion is
+not implied.
+
+## Exact source authority and mapping still required
+
+| Relation | Authority and required treatment |
+| --- | --- |
+| Function/method membership | imported static declaration identity, selected ordinary callable admission, same resolver function owner and source ledger; resolve Dynamic-vs-Ordinary before claiming this route |
+| `i`, `last` | exact resolver BindingRefs: `i` declaration/read/condition/increment across header and backedge; `last` declaration/read, branch write, implicit-else incoming value, loop continuation and after value |
+| `ch` | exact loop-body local and comparison read; kill at iteration boundary; never export as outer carrier |
+| `s`, `n`, `arr` | exact parameter/local BindingRefs and roles. `s`/`n` read-only; `arr` is mutated only by the selected exact ArrayPush row |
+| substring calls | source call sites, receiver/argument relations, selected result type and Fault/effect contract; preserve evaluation and failure behavior on both `ch` read and push argument |
+| ArrayPush | named-array source row tied to exact `arr`, exact nearest-loop/IfThen statement, substring text argument and operation result/effect; never select by method spelling alone |
+| GeneralIf | then branch maps `last` to `i+1`; implicit else maps `last` to incoming value; one Recipe-keyed join output returns to the same `last` BindingRef |
+| loop continuation | key relations for `i` and `last` at header, body, step/backedge, break/after and final state; all source rows consumed once |
+
+D1 already fixed branch-state semantics: reset only current values and active
+origins at branch entry; reads, assignments, calls, locals, consumed source rows,
+emission ports and historical origins are monotonic because both branches are
+compiled once. Do not roll back the whole callable ledger.
+
+### Existing operation authority and the remaining relation gap
+
+The exact static operation owners exist. The package issuer
+`src/mir/normal_callable_semantic_package/core_method_source.rs` invokes
+`src/mir/source_call_target/core_method.rs` and
+`named_array_method.rs` with the brand catalog. The ArrayPush issuer ties an
+`ArrayBox.push` to nearest-loop Body placement, an exact constructed named-array
+requirement, retained Text argument, and the manifest ArrayPush/1 target. The
+manifest projection in `src/mir/core_method_result_kind.rs` gives these source
+operations:
+
+| source operation | existing result/effect authority | placement in `split_lines` |
 | --- | --- | --- |
-| Source membership | `compiler/loop_cond_break_continue_projection.rs` | same `ResolvedFunctionLoweringInputV1` / `FunctionSourceViewV1` and ledger; declaration, initializer, reads, write, loop/if and resolved exits |
-| AST-free Facts | `loop_structural_facts/loop_cond_break_continue_source.rs` | BindingRef, exact sites, source literals/operators, scope/exit targets and full coverage; no Recipe keys or physical IDs |
-| Source type/effect | compiler source-semantic validation; exact helper unresolved in D2 | prove I64 initializer/read/add/write closure and Bool comparisons using existing source arithmetic semantics; no default Pure or MIR signature inference |
-| Recipe | existing `loop_recipe_contract` producer owner | deterministic role-to-key issuance; Predicate block, ReadBinding/ConstI64/CompareI64/BinaryI64/WriteBinding, If, Break/Continue |
-| Co-seal | `compiler/callable_single_loop_recipe_coseal.rs`, `compiler/callable_semantic_program.rs` | one source context, source-bound Core, operation/effect and initialized-local relations, Recipe and that Core's JoinSig continuation |
-| Physical consumption | `normal_callable_semantic_loan_port/canonical_route.rs` through prepared operation and `resolved_lowering/loop_recipe_physicalizer/callable_lowerer.rs` | consume the co-sealed relations in the existing SSA session, segment allocator/dispatcher and publication owner; no second physicalizer/PHI solver |
+| `s.length()` | StringLen/0: I64Value, PureRead, CodePointCount | before loop; its `n` result is a loop-invariant input, not a loop call row |
+| `s.substring(i, i+1)` | StringSubstring/2: StringValue, PureRead, CodePointHalfOpenClamped | LoopBody local `ch` initializer |
+| `s.substring(last, i)` | same StringSubstring/2 contract | IfThen push argument |
+| `arr.push(text)` | ArrayPush/1: NoValue, MutatesShape, TextRetainedByReceiver | one nested IfThen statement, with exact `arr` construction requirement |
 
-Paths above are relative to `src/mir/`, except physical paths relative to
-`src/mir/builder/`. Names identify existing extension seams, not landed APIs
-for the new profile. Recipe V1 can express the scalar operations; this alone
-does not establish typing/effect, callable admission or completion contracts.
+These contracts prove source operation meaning at their issuing owner. They do
+not yet bind the loop-contained call rows, their values, `i/last/ch/arr`
+BindingRefs, the branch join, and loop continuation to one portable loop
+program. In particular, ArrayPush shape mutation is not a carrier rebind, and a
+PureRead effect label alone is not a Fault/outcome proof. The B3 source row
+must carry any exact call outcome/failure contract too; missing Fault authority
+cannot be replaced by “no fault” inferred from result/effect kind.
 
-Continue transfers the post-write carrier to the header. Break transfers it
-to After. A false header transfers its current carrier to After. The return
-reads the same source BindingRef through the After relation. The current
-callable wrapper's prelude-call/separate-tail profile must gain a real
-initialized-local/After-return boundary variant: no fake prelude or empty
-receipt. Physical selection must consume the specified predicate relation,
-not find the first `CompareI64`; tail completion must not assume header read.
+The typed LoopRecipe V2 schema already expresses CallSlot, If, Loop,
+Text/Dynamic values and externally bound call outcomes. `CallSlot` permits a
+missing value result, which matches ArrayPush's NoValue shape, but the current
+portable producer is profile-limited. Extend that existing Recipe/Core/JoinSig
+owner to issue B3's several call sites and two outer carrier relations. The
+separate DynamicFullLoop fault-cut owner requires exactly two result-bearing
+calls and cannot be borrowed unchanged for the resultless mutating push. The
+bounded design must say which existing call-outcome owner is extended to cover
+both substring results and ArrayPush mutation/failure before issuing the
+co-seal.
+
+`SourceLoopCondPhysicalInputV1` still transports planner Facts/Recipe, forest,
+source-call rows, one target relation and a plain source port; it has no
+co-sealed carrier-key relation, operation/effect Core or JoinSig continuation.
+The package rows are currently projected into `take_source_core_method_call`
+and `take_source_array_push` by the source port. D2/D3 must define how those
+same source-issued rows enter one semantic issuance and how that same issued
+relation reaches the existing LoopCond/GeneralIf physical owner. No second
+wire, reconstructed contract, name lookup, or detached authority in the
+physical input.
+
+Facts may carry resolver BindingRefs, exact source sites, source operation
+contracts and complete coverage only. Recipe producers issue binding/carrier/
+value/item keys. The semantic-program issuance must co-seal the same source
+context, source-bound Core, operation/effect relations, Recipe and that Core's
+JoinSig continuation before physical lowering. No name, MIR ValueId, BlockId or
+EffectMask inference. Missing source type/effect/Fault issuer is an internal
+design task, not an external wait or permission to mint default Pure.
 
 ## Ordered tasks and observable exits
 
 | Task | Work | Done evidence |
 | --- | --- | --- |
-| D1 — real callers and old edge (next) | Enumerate the finite existing normal-callable entry cohort, exact source witness, canonical selection and current raw destination. Reconcile the separate production row with M10 prerequisites. | Named caller/terminal/delete tuple and remaining prerequisites; no invented production claim from a new fixture alone. |
-| D2 — scalar meaning | Name the existing source-semantic owner and helper to reuse, extend, or implement, with the exact typing/arithmetic/effect input/reject contract for initializer, add, comparisons and write. | Source-derived I64/Bool/effect mapping, including overflow/Fault semantics and full source-row coverage; no synthetic Pure/default authority. |
-| D3 — callable boundary | Specify initialized-local ingress, source If transfer and exact After-to-return relation in existing co-seal/completion/ABI APIs. | Concrete API/type seams, owner-issued continuation and one-shot residual checks; accepted six-line implementation brief plus module/reference contract. |
-| I1 — S6D producer/observation | Only after D1-D3: extend projection/Facts and Recipe/Core/JoinSig co-seal for the selected scalar grammar. | Focused positive/negative source-to-product evidence and existing strict-profile regression; explicitly no production completion. |
-| I2 — production Promote | After applicable production prerequisites: extend the existing physical consumer and switch all named cohort callers; retire their old edge in the same bounded series. | Source-to-selected-publication result, no raw retry, selected caller-edge zero and retained legacy inputs unchanged. |
-| C — closeout | Record evidence, reusable guard, README/reference and pointer; classify all reds. | Actual selection/cutover/delete receipt, not merely a logical producer or local test. |
+| D1 — production caller/terminal | Closed by source audit: imported `StringHelpers.split_lines/1` enters the non-Main cataloged-static-method batch; natural merged-parser test pins its named source terminal. At implementation entry, observe Dynamic/Ordinary admission and revalidate the first terminal. | Exact declaration/caller and current terminal above; no claim that the physicalizer already succeeds. |
+| D2 — carrier and operation mapping (next) | Fix resolver-owned roles/sites for `i`, `last`, `ch`, `s`, `n`, `arr`; exact substring and ArrayPush typed operation/effect sources; branch/loop continuation keys and residual policy. Reuse/extend existing source-operation owners where their contract is exact. | Full finite source inventory, all four call sites and assignment rows mapped; result/effect authority named, Fault/outcome source resolved for resultless ArrayPush; no implicit else or operation row omitted. |
+| D3 — one semantic issuance | Name existing source-bound Core and Recipe/JoinSig issuer seams; co-seal source context, carrier relations, branch join, loop continuation and operation/effect rows before any physical ID. | One owner and exact input/output tuple, duplicate/foreign/shadow/missing/residual rejection boundary, selected physical consumer relation. |
+| I1 — connect selected LoopCond/GeneralIf owner | Extend current physical owner to consume Recipe keys/relations for this source; preserve the raw facade for unrelated shapes. | Natural imported source reaches existing publication through current sole physical owner; positive/negative evidence; no AST/name re-discovery. |
+| I2 — selected cutover and retirement | After mandatory M8/M9/M10 production-entry prerequisites, switch this exact static-method loop membership to the co-sealed path; remove its old selection/rejection/re-entry edge in the same bounded series. | No selected-membership fallback; selected old responsibility caller-zero; shared owners retained only for named remaining callers. |
+| C — closeout | Record dynamic receipt, guards, module README/reference and pointer; classify reds. | Terminal evidence, selected-edge deletion and required acceptance recorded; loop-only success is not full function or serializer completion. |
 
-D1-D3 are internal design work available now. They are not a wait for another
-agent or for missing code to appear. No unresolved API/typing/caller choice is
-silently treated as accepted. Implementing I1/I2 is outside this design-only
-turn and remains gated by the mapping above.
+The concrete internal design work D2/D3 is available now. The exact downstream
+function terminal and return of `arr` remain a separate owner boundary: this
+card claims only the selected loop relation. The post-loop tail push is excluded
+until its own source statement owner and effect contract are selected; do not
+silently drop it or count it as loop completion.
 
-### Planned retirement, not observed deletion
+## Acceptance to be specified for implementation
 
-Candidate old responsibility: for the exact selected callable grammar,
-canonical `Outside` routing into compatibility/raw body lowering and its
-LoopCond planner/AST carrier collection. D1 must identify the actual caller
-branch and selected destination before this becomes a deletion instruction.
-Relevant seams include `control_flow/plan/normalizer/mod.rs`,
-`control_flow/plan/recipe_tree/loop_cond_composer.rs`, and source child
-`raw_loop_child_entry.rs` → `control_flow/plan/features/loop_cond_bc_source.rs`
-(all relative to `src/mir/builder/`).
+- Natural imported `StringHelpers.split_lines/1` source from declaration through
+  the existing selected function publication terminal, with the nested push
+  and branch join consumed by the exact selected loop owner.
+- Compare zero, one and multiple newline paths, including implicit else
+  preservation of `last`; check resulting array contents once function-tail
+  handling is in the selected acceptance scope.
+- Alpha-renamed locals preserve behavior; nested If/exit identities and
+  `ch` iteration scope match exact resolver sites.
+- Missing/duplicate/foreign/shadow binding, wrong branch/loop target, substring
+  result mismatch, ArrayPush row mismatch, mixed co-seal and any unconsumed
+  source/effect row reject before physical allocation.
+- Selected membership failure is terminal and cannot fall back into the old
+  name collector; unrelated supported LoopCond/MethodCall shapes remain live.
 
-Remove that cohort's old selection/retry edge when its replacement is selected.
-Retain shared classifiers and MethodCall implementations still used by other
-supported shapes. A source guard and executed negative path must show selected
-membership cannot retry through the raw owner. Whole-schema retirement and
-repository-wide caller-zero are separate later claims.
+## Non-claims
 
-### Acceptance matrix to implement
-
-- Initial zero-iteration return; Continue at least once then Break; multiple
-  iterations ending via false header. Check the returned carrier value.
-- Alpha-renaming preserves behavior; Break and Continue target the same exact
-  resolved loop. Exercise the real entry and selected publication terminal.
-- Reject missing/duplicate/foreign binding or product, wrong exit target,
-  predicate class drift, shadowing, mixed co-seal and residual source/effect
-  rows before physical allocation. Grammar exclusion must remain distinct
-  from invalid selected membership; the latter is terminal, never fallback.
-- Preserve original strict S6D observations and supported legacy inputs.
-  A new focused fixture is not a replacement for required existing acceptance.
-
-## B3 follows the scalar design, not bundled into it
-
-`StringHelpers.split_lines` still needs `i` and `last` outer carrier relations,
-GeneralIf then-write/implicit-else identity for `last`, and iteration-local
-`ch` non-escape. `arr`, `s`, `n` are read-only in the selected loop. Its nested
-ArrayPush row and substring operation need their existing source-owned
-operation receipts in the same issuance. Scalar success does not prove these.
-
-Preserve D1: branch reset touches only current ledger values and active
-origins; reads/assignments/calls/materialized locals/consumed rows/emission
-ports/historical origins remain monotonic. Both branches compile once.
-B3 implementation remains unauthorized until its own mapping closes. The
-post-loop tail push, runtime Text/Fault ownership, serializer and backend
-parity remain outside this card. Shared MethodCall whole-writer deletion is
-neither claimed nor a prerequisite for selected-edge migration.
+No current physicalizer success, production switch, old-edge deletion, full
+static-box/library caller-zero, tail push, function-return completion, Text or
+Array serializer, backend parity, or overall MirBuilder completion is claimed.
+M8 S6D, M8 S6E/S6G and later M9/M10 obligations remain under their owner SSOTs.
