@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "GENERIC-LOOP-MAINLINE-DERIVED-PREDICATE-SOURCE-FRONT-D0"
 current_execution_cohort = "app_main0_continue_to_portable_migration"
-current_blocker_token = "GENERIC-LOOP-MAINLINE-DERIVED-PREDICATE-SOURCE-FRONT-D0__DerivedPredicateStaticClassificationOpen"
+current_blocker_token = "GENERIC-LOOP-MAINLINE-DERIVED-PREDICATE-SOURCE-FRONT-D0__AppMain0BoundedCohortExhausted_FrontierPause"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "none__Main0SemanticProgramDecisionAccepted"
+current_design_stop = "FrontierPause__AppMain0BoundedCohortExhausted__FamilySchedulerReselectionRequired_2026-09-23"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,25 +18,21 @@ current_execution_design = "docs/development/current/main/investigations/generic
 latest_card = "generic-loop-mainline-derived-predicate-front-d0"
 latest_card_path = "docs/development/current/main/investigations/generic-loop-mainline-derived-predicate-front-d0-2026-09-23.md"
 latest_card_summary = """
-In-body-step D0 landed at 897ac4ba8c (second pre-wrapper Main0 arm;
-runtime RC 3 plus bound/zero-iteration/renamed variants; release gate
-PASS; selected-profile raw reachability zero; strict-shadow red is
-baseline StringHelpers.to_i64 debt). The next authorized row is the
-third bounded App-Main0 profile in the same cohort: apps/tests/
-generic_loop_carrier_type_v0_numeric_min.hako (expected RC 4), a
-zero-branch predicate loop whose compare LHS is one Add over the
-carrier and a read-only local, under <=. Open items inside the card:
-static old-route classification (fixture comment claims GenericLoopV0;
-callable lane unobserved), a condition-read validator sibling tracing
-compare.left through the Add to the carrier read, an honest i64-lane
-parity note for predicate arithmetic, and a new release-adopt gate.
-Row F (LOOP-PRODUCTION-SELECTION-D0) remains blocked: M10 pre-cutover
-items are open and M8/S6E is incomplete.
+Derived-predicate D0 landed at 0adb0fb8af (third pre-wrapper Main0
+arm; runtime RC 4 plus bound/zero-iteration/renamed variants; new
+release-adopt gate PASS; MIR shows one i64 @main with three header
+PHIs, the derived j+m Add, icmp Le, and a single ret; selected-profile
+raw body/finish reachability zero by construction). This was the last
+corpus-native App-Main0 bounded profile in the cohort; Row F
+(LOOP-PRODUCTION-SELECTION-D0) stays blocked on open M10 pre-cutover
+items and incomplete M8/S6E, so the next row is a family-scheduler
+reselection rather than another in-cohort card. Strict-shadow and the
+inplace-replacement guard reds remain recorded baseline debt.
 """
-next_design_card = "none__accepted_decision"
-next_design_card_path = "none__accepted_decision"
-next_execution_card = "GENERIC-LOOP-MAINLINE-DERIVED-PREDICATE-SOURCE-FRONT-D0"
-next_execution_card_path = "docs/development/current/main/investigations/generic-loop-mainline-derived-predicate-front-d0-2026-09-23.md"
+next_design_card = "GENERIC-LOOP-MAINLINE-DERIVED-PREDICATE-SOURCE-FRONT-D0"
+next_design_card_path = "docs/development/current/main/investigations/generic-loop-mainline-derived-predicate-front-d0-2026-09-23.md"
+next_execution_card = "none__frontier_pause__app_main0_bounded_cohort_exhausted_2026-09-23"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
