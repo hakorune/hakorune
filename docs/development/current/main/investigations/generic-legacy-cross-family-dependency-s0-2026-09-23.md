@@ -1,5 +1,5 @@
 ---
-Status: fast__c1_edge_write_landed__c2_c6_pending
+Status: fast__all_cohorts_classified__edge_inventory_complete
 Task: GENERIC-LEGACY-CROSS-FAMILY-DEPENDENCY-S0
 Date: 2026-09-23
 Parent: JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E
@@ -199,3 +199,56 @@ test-evidence-retire:
 - `retire_row` vocabulary in use:
   `GENERIC-LEGACY-DEAD-CODE-R1` | `M10b-I0-R0` | `M11-R1` | `M12` |
   `retained`.
+
+## Landed writes (2026-09-23) — C3/C4/C5/C6
+
+- C3 mutating composer/lowerer + C4 nested mutation bypasses
+  (35 unique files: `recipe_tree/generic_loop_composer.rs`,
+  `skeletons/generic_loop.rs`, `features/generic_loop_*`,
+  `features/generic_loop_body/**`, `features/nested_loop_depth1*`,
+  `plan/nested_loop_depth1/**`):
+  20 generic-only / 15 neutralize-first. Outside production callers
+  recorded on `features/generic_loop_context` (3, incl.
+  `raw_loop_child_entry` + `normal_callable_loop_physical_adapter`),
+  `generic_loop_body/mod` (2), `features/nested_loop_depth1` (8,
+  loop_cond_* + loop_true features), `plan/nested_loop_depth1/mod`
+  (10), `nested_loop_depth1_preheader` (3), plus parent `mod.rs`
+  declaration edges.
+- C5 recent test-only source evidence (11 files:
+  `resolved_semantics/generic_resolved_carrier_*`,
+  `loop_structural_facts/generic_resolved_carrier_*`): all are
+  `#[cfg(test)]`-gated witnesses (incl. the `#[path]`-wired
+  `generic_resolved_carrier_source_lease` test module); classified
+  `migrate-fixtures-then-retire` → `GENERIC-LEGACY-DEAD-CODE-R1`,
+  owner `generic_g0 parity evidence`. Test callers recorded
+  (cfg-gated `mod` decls + `explicit_parameter_type_map.rs` test
+  import).
+- C6 shared infrastructure (83 new rows + 5 reclassifications):
+  - `UpdateCanon` is genuinely shared: `generic_loop_canon/types.rs`
+    (definition), `update/{mod,literal_step,literal_match}.rs`, and
+    `generic_loop_canon/mod.rs` reclassified from C1 buckets to
+    `shared-retain`/`M12` — non-Generic extractors
+    (`facts/extractors/{mod,if_phi_join,common_helpers/increment}`,
+    `plan/facts/loop_continue_only_facts`) call
+    `canon_update_for_loop_var`, so the UpdateCanon portion cannot
+    die at Generic R1.
+  - `plan/parts/associated_source{,/**}` (20 files): the located
+    handoff → `shared-retain`/`M11-R1`.
+  - `join_ir/lowering/**` (56 files): separate lowering →
+    `shared-retain`/`retained`.
+  - `recipes/body.rs` + `recipe_tree/block.rs`
+    (RecipeBody/RecipeBlock), `loop_route_policy/mod.rs`,
+    `loop_accum_physicalizer*` → `shared-retain`/`retained`.
+  - `config/env/joinir_dev.rs` hosts `NYASH_JOINIR_LOWER_GENERIC`
+    (120 prod callers) → `shared-retain`/`M10b-I0-R0` (the Generic
+    flag is removed at cutover; the env registry file is retained).
+- Final edge inventory: **270 rows**, every legacy-Generic candidate
+  file (180) carries an edge record; buckets: 105 generic-only-R1,
+  24 neutralize-first-M10b, 11 migrate-fixtures-then-retire-R1,
+  31 shared-retain-M11, 14 shared-retain-M10b, 6 shared-retain-M12,
+  79 shared-retain-retained.
+- The row's Done condition is met in the manifest: every shared item
+  named by the contract (`UpdateCanon`, `RecipeBody/RecipeBlock`,
+  located handoff, `join_ir/lowering`,
+  `NYASH_JOINIR_LOWER_GENERIC`) is assigned outside R1. No file was
+  deleted; case rows untouched; guard 6/6 OK.
