@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E"
-current_execution_cohort = "loop_m8_generic_residual_producer_cohort"
-current_blocker_token = "JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E__ProducerCohortLanded_FrontierPause"
+current_execution_row = "JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G"
+current_execution_cohort = "loop_m8_all19_closeout"
+current_blocker_token = "JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G__CloseoutDesignOpen"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "FrontierPause__S6EProducerCohortLanded__FamilySchedulerReselectionRequired_2026-09-23"
+current_design_stop = "AllRouteCloseout__CoverageContract__CardOnly_2026-09-23"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,30 +14,30 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/joinir-loop-m8-generic-residual-s6e-d0-2026-09-23.md"
-latest_card = "joinir-loop-m8-generic-residual-s6e"
-latest_card_path = "docs/development/current/main/investigations/joinir-loop-m8-generic-residual-s6e-d0-2026-09-23.md"
+current_execution_design = "docs/development/current/main/investigations/joinir-loop-m8-all19-closeout-s6g-d0-2026-09-23.md"
+latest_card = "joinir-loop-m8-all19-closeout-s6g"
+latest_card_path = "docs/development/current/main/investigations/joinir-loop-m8-all19-closeout-s6g-d0-2026-09-23.md"
 latest_card_summary = """
-S6E Generic residual producer cohort landed caller-zero. Bounded
-profile: single-induction integer-progression GenericLoopV1 —
-loop(i <op> bound) { body-local integer decls/rebinds; terminal
-carrier step }, op in {Less, LessEqual, Equal}. Landed: AST-free
-generic_residual projection, role-keyed typed source map with
-ordered body rows and residual boundary checks, policy demand
-(exact GenericLoopV1 winner at cursor 18; V0 overlap is typed
-Unresolved), LoopRecipeProducerIdV1::GenericResidualV1, and
-produce_generic_residual_recipe_v1 emitting verified Recipe +
-JoinSig + retained receipt. Mapping correction: bound variable is
-a read-only second carrier; body-locals are per-iteration SSA
-values (JoinSig seeds bindings from carriers only). Gates:
-generic_residual 18/18, producer 54/54, loop_true 49/49, main0
-63/63. Non-claims: no production caller, no V0/G0 provenance, no
-corpus coverage, no S6G/Row F unblock. Baseline debt unchanged:
-record_value_publish + strict-shadow + inplace guard.
+S6G all-route closeout D0 card open. Bounded slice (caller-zero):
+VerifiedLoopAllRouteObservationSetV1 (one typed outcome per
+canonical route — RecipeBacked{producer_id} or PreEffectDeclined,
+exactly 19 rows, canonical order) + WholeUnitLoopCoverageProofV1 +
+CanonicalLoopFamilySelectionOutcomeV1::NoCandidate arm on the same
+S2 selector + producer_id_migration parity receipt extended to all
+19 routes. Card-fixed inventory: 8 RecipeBacked routes (S6A/B/C
+fixture-attested plus cursor-pinned DirectAccum/NestedPredicate/
+LoopTrue/LoopCond/GenericResidual) and 11 typed declines
+(IfPhiJoin, continue/early-exit, scan-family minus ScanWithInit,
+LoopCond sub-shapes, GenericLoopV0). Accepted corpus parity =
+inventory-level owner->producer resolution over the 40
+D0-DISPOSITION-CHECKED rows; parity_gate stays not-run, no census
+repeat. Non-claims: no production caller, no second selector, no
+M9, no Row F unblock by itself (M10 seal series remains), no
+legacy deletion.
 """
-next_design_card = "JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E"
-next_design_card_path = "docs/development/current/main/investigations/joinir-loop-m8-generic-residual-s6e-d0-2026-09-23.md"
-next_execution_card = "none__design_only__family_scheduler_reselection"
+next_design_card = "JOINIR-LOOP-M8-ALL19-CLOSEOUT-S6G"
+next_design_card_path = "docs/development/current/main/investigations/joinir-loop-m8-all19-closeout-s6g-d0-2026-09-23.md"
+next_execution_card = "none__design_only__s6g_closeout_card"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
