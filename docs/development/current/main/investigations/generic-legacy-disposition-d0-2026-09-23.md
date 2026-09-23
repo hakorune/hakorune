@@ -1,5 +1,5 @@
 ---
-Status: design_stop__disposition_classification_design_open
+Status: landed__2026-09-23__with_named_holdback
 Task: GENERIC-LEGACY-DISPOSITION-D0
 Date: 2026-09-23
 Parent: JOINIR-LOOP-M8-GENERIC-RESIDUAL-S6E
@@ -153,3 +153,24 @@ while they are unclassified, and M10b stays blocked on unclassified
 Generic fixtures per the Loop selfhost pipeline SSOT. Future evidence
 cannot retire currently accepted input; failed/unobserved cases block
 closeout.
+
+## Landed writes (2026-09-23)
+
+- `f91e5ba82c` — first cohort: 36 accepted rows classified
+  `D0-DISPOSITION-CHECKED` / `portable-owner` with named
+  `observed_route`+`target_owner` (main0-continue /
+  main0-in-body-step / main0-derived-predicate / callable-loop /
+  canonical-main / release-adopt); guard gained the D0 vocabulary in
+  the same commit; guard test count repaired 389→398.
+- `197ea80fa4` — follow-on cohorts: 196 rejected rows classified
+  `D0-TYPED-REJECT` / `accepted-typed-reject`; 162
+  failed-before-loop rows classified `D0-PRE-LOOP-EVIDENCE` /
+  `nonproduction-future-evidence` with the named blocking owner.
+  Guard gained both decision tokens in the same commit.
+- Result: 394/398 rows carry a checked decision. Unclassified
+  accepted = **4** — the two `if_else_return{,_var}` fixtures and
+  their fast-gate/subset twin rows, held `P0-INVENTORY-ONLY` behind
+  the named nondeterminism repair row (`void @main` intermittent
+  legacy emission on the callable lane). D0 cannot close until that
+  repair row lands; S0 follows after D0 closure per the ordered row
+  map.

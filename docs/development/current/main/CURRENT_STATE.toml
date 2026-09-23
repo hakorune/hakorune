@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "GENERIC-LEGACY-DISPOSITION-D0"
-current_execution_cohort = "generic_legacy_disposition_classification"
-current_blocker_token = "GENERIC-LEGACY-DISPOSITION-D0__ClassificationContractDesignOpen"
+work_mode = "design_stop"
+current_execution_row = "GENERIC-LEGACY-IFELSE-RETURN-NONDETERMINISM-D0"
+current_execution_cohort = "generic_legacy_nondeterminism_repair"
+current_blocker_token = "GENERIC-LEGACY-IFELSE-RETURN-NONDETERMINISM-D0__RepairDesignOpen"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "DispositionClassification__ContractDesign__CardOnly_2026-09-23"
+current_design_stop = "NondeterminismRepair__IfElseReturnVoidMain__CardOnly_2026-09-23"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,28 +14,27 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/generic-legacy-disposition-d0-2026-09-23.md"
-latest_card = "generic-legacy-disposition-d0"
-latest_card_path = "docs/development/current/main/investigations/generic-legacy-disposition-d0-2026-09-23.md"
+current_execution_design = "docs/development/current/main/investigations/generic-legacy-ifelse-return-nondeterminism-d0-2026-09-23.md"
+latest_card = "generic-legacy-ifelse-return-nondeterminism-d0"
+latest_card_path = "docs/development/current/main/investigations/generic-legacy-ifelse-return-nondeterminism-d0-2026-09-23.md"
 latest_card_summary = """
-P1 serial route observation complete: all 398 corpus rows observed
-(40 accepted / 196 rejected / 162 failed-before-loop) across batches
-849daed591..f5514cf608. Family scheduler selected
-GENERIC-LEGACY-DISPOSITION-D0 (ordered successor, named by every P1
-non-claim). D0 design card opened: first write cohort is the 40
-accepted rows (the closeout-blocking class), classified from landed
-P1 evidence only; rejected/pre-loop cohorts follow; the two
-nondeterministic if_else_return rows hold unclassified behind a named
-repair row. First classification write requires a same-commit corpus
-guard vocabulary update under work_mode=fast (card is design_stop
-card-only). Row F stays blocked on M10 pre-cutover items;
-strict-shadow and inplace-replacement guard reds remain baseline
-debt.
+D0 disposition classification landed: f91e5ba82c classified the 36
+accepted rows portable-owner (D0-DISPOSITION-CHECKED); 197ea80fa4
+classified 196 rejected (D0-TYPED-REJECT) + 162 pre-loop
+(D0-PRE-LOOP-EVIDENCE). 394/398 corpus rows carry a checked decision;
+unclassified accepted = 4, held behind the named nondeterminism
+repair row: if_else_return{,_var} intermittently emit legacy void
+@main on the callable lane (3/8 reproduced at 197ea80fa4). Repair
+design card opened; next slice under fast is reproduce -> name the
+ordering source -> minimal determinism fix + repeat-run guard ->
+classify the 4 held rows. Row F stays blocked; strict-shadow and
+inplace-replacement guard reds remain baseline debt (guard test count
+repaired 389->398 in the D0 slice).
 """
-next_design_card = "GENERIC-LEGACY-DISPOSITION-D0"
-next_design_card_path = "docs/development/current/main/investigations/generic-legacy-disposition-d0-2026-09-23.md"
-next_execution_card = "GENERIC-LEGACY-DISPOSITION-D0"
-next_execution_card_path = "docs/development/current/main/investigations/generic-legacy-disposition-d0-2026-09-23.md"
+next_design_card = "GENERIC-LEGACY-IFELSE-RETURN-NONDETERMINISM-D0"
+next_design_card_path = "docs/development/current/main/investigations/generic-legacy-ifelse-return-nondeterminism-d0-2026-09-23.md"
+next_execution_card = "none__design_only__nondeterminism_repair"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
