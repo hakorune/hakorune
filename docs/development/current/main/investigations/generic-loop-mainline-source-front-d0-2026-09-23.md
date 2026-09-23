@@ -1,10 +1,10 @@
 ---
-Status: fast__main0_continue_semantic_program_decision_accepted__2026-09-23
+Status: closed__Implementation__Main0ContinueCanonicalRootLanded__2026-09-23
 Task: GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0
 Date: 2026-09-23
 Parent: generic-post-selection-static-call-site-identity-d0-2026-09-23.md
 PreviousCard: generic-legacy-observation-front-g0-premise-recheck-2026-09-23.md
-NextCard: implement_main0_continue_semantic_program_and_selected_cutover
+NextCard: next bounded profile or LOOP-PRODUCTION-SELECTION-D0 per the authorized queue; selected by CURRENT_STATE
 Implementation permission: true for this card's exact Main0 Continue profile, its canonical Main publication, and removal of that profile's raw body/raw finish edge in the same bounded series.
 ---
 

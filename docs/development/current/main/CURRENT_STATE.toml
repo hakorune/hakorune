@@ -1,9 +1,9 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0"
+current_execution_row = "GENERIC-LOOP-MAINLINE-IN-BODY-STEP-SOURCE-FRONT-D0"
 current_execution_cohort = "app_main0_continue_to_portable_migration"
-current_blocker_token = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0__Main0ContinueSourceProgramImplementation"
+current_blocker_token = "GENERIC-LOOP-MAINLINE-IN-BODY-STEP-SOURCE-FRONT-D0__InBodyStepStaticClassificationOpen"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "none__Main0SemanticProgramDecisionAccepted"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -14,33 +14,29 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/generic-loop-mainline-source-front-d0-2026-09-23.md"
-latest_card = "generic-loop-mainline-source-front-d0"
-latest_card_path = "docs/development/current/main/investigations/generic-loop-mainline-source-front-d0-2026-09-23.md"
+current_execution_design = "docs/development/current/main/investigations/generic-loop-mainline-in-body-step-front-d0-2026-09-23.md"
+latest_card = "generic-loop-mainline-in-body-step-front-d0"
+latest_card_path = "docs/development/current/main/investigations/generic-loop-mainline-in-body-step-front-d0-2026-09-23.md"
 latest_card_summary = """
-E has selected the existing Main0 Continue source profile as its design target.
-Static Facts construction resolves the old route to LoopCondContinueOnly;
-the source issuer lacks that arm. Actual compiler admission remains unobserved.
-The old caller is Main-root raw body dispatch, not cataloged-static Outside
-or the GenericV1 adapter. Accepted root strategy: select before the legacy
-wrapper opens, produce one canonical main draft, and retain the current
-collector/final-validation/outer-publication chain.
-Source/result/effect/control mapping is now accepted: keep Main.main's result
-Unannotated, prove its Integer(i64) carrier from the same source graph, and
-feed the existing Main entry-result owner. Implement the source program,
-common If/Continue physicalization, pre-wrapper canonical-root handoff,
-production switch, and selected raw body/raw finish retirement in this card.
-The common JoinSig branch-transfer view and bounded If/Continue physicalizer
-are implemented, with exact branch-row consumption;
-its focused test passed (1 passed, 8330 filtered). The physicalizer's tests
-were split into a sibling file to keep production source under the line limit.
-Source Facts/Recipe co-seal, canonical-root handoff, production switch,
-retirement, and runtime acceptance remain open.
+Row E landed at 993fd3c943 (Main0 Continue canonical root through the
+production lifecycle; runtime RC 4 plus six variants; release gate PASS;
+selected-profile raw reachability zero; strict-shadow red is baseline
+StringHelpers.to_i64 debt). The next authorized row is the second bounded
+App-Main0 profile in the same cohort: apps/tests/
+phase29cb_generic_loop_in_body_step_min.hako (expected RC 3), a
+zero-branch predicate loop with one extra initialized local and one extra
+body write. Open items inside the card: static old-route classification
+(expected LoopSimpleWhile/in-body-step, with the Generic V0/V1 source
+issuer lacking the arm), zero-branch lowering verification against the
+profile-specific landed lowerer, and the deferred
+LOOP-PHYSICAL-ALWAYS-COVERAGE-I0 dependency check. Row F
+(LOOP-PRODUCTION-SELECTION-D0) remains blocked: three M10 pre-cutover
+items are open and M8/S6E is incomplete.
 """
 next_design_card = "none__accepted_decision"
 next_design_card_path = "none__accepted_decision"
-next_execution_card = "GENERIC-LOOP-MAINLINE-SOURCE-FRONT-D0"
-next_execution_card_path = "docs/development/current/main/investigations/generic-loop-mainline-source-front-d0-2026-09-23.md"
+next_execution_card = "GENERIC-LOOP-MAINLINE-IN-BODY-STEP-SOURCE-FRONT-D0"
+next_execution_card_path = "docs/development/current/main/investigations/generic-loop-mainline-in-body-step-front-d0-2026-09-23.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
