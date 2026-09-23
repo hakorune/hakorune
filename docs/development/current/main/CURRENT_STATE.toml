@@ -30,7 +30,12 @@ Unannotated, prove its Integer(i64) carrier from the same source graph, and
 feed the existing Main entry-result owner. Implement the source program,
 common If/Continue physicalization, pre-wrapper canonical-root handoff,
 production switch, and selected raw body/raw finish retirement in this card.
-No compiler implementation or runtime acceptance is yet claimed.
+The common JoinSig branch-transfer view and bounded If/Continue physicalizer
+are implemented, with exact branch-row consumption;
+its focused test passed (1 passed, 8330 filtered). The physicalizer's tests
+were split into a sibling file to keep production source under the line limit.
+Source Facts/Recipe co-seal, canonical-root handoff, production switch,
+retirement, and runtime acceptance remain open.
 """
 next_design_card = "none__accepted_decision"
 next_design_card_path = "none__accepted_decision"

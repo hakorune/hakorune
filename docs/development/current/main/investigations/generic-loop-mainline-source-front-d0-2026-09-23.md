@@ -248,11 +248,42 @@ consumers, registry/Composer/PlanLowerer and all nonselected callers remain.
 Removing this caller-local responsibility does not authorize whole-symbol
 deletion or close the wider M8/M9/M10b requirements.
 
+## In-progress implementation checkpoint — 2026-09-23
+
+The first common physical-control step is implemented:
+`join_sig/transfer_view_v1.rs` exposes the exact verified branch and exit-item
+relation, and `physical_layout.rs` consumes it for the bounded same-loop
+If/Continue shape. Layout now rejects a branch row that no Recipe item
+consumes. The focused test proves the Continue arm returns to the loop header,
+the fallthrough arm reaches the normal continuation, and an extra branch row
+is rejected:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib if_continue_layout_splits_the_source_block_and_targets_the_loop_header
+PASS: 1 passed, 8330 filtered out; quick build/test completed in 4m48s.
+```
+
+The command emitted 543 library warnings; this checkpoint does not classify or
+suppress that warning cohort. The physicalizer tests were moved to
+`physical_layout_tests.rs` so the production module stays below the 760-line
+split threshold. This is unit evidence for common physical control only. The
+selected source issuer, Main co-seal, canonical-root handoff, production
+switch, old-edge retirement, and runtime acceptance remain unfinished. The
+implementation files and this checkpoint are uncommitted.
+
+After a restart in this checkout, read `CURRENT_STATE.toml` and this card,
+check `git status -sb`, then inspect running `cargo`/`rustc` processes before
+starting another Cargo command. If no Cargo process remains, continue step 3
+by issuing the exact Main0 source facts, portable Recipe/Core, initialized
+inputs, and JoinSig continuation together from the same App Main source loan;
+do not repeat this already-passing test unless later changes affect the
+physicalizer.
+
 ## Review and validation
 
 Two read-only workers covered independent uncertainties: complete legacy
 classification/source issuer, then Main's fresh-function/publication seam.
 The primary checked source/Recipe/input/JoinSig contracts and integrated the
 one-target/one-root Decision. No worker edited files or ran compiler probes.
-Validation for this docs slice: pointer guard, TOML/link checks and
-`git diff --check`; no Rust/LLVM/CI acceptance is claimed.
+The focused common If/Continue physicalizer unit test above passes. No
+source-to-MIR/runtime/LLVM/CI acceptance is claimed.

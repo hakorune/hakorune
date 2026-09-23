@@ -8,8 +8,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use super::ids::{LoopBlockKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
 use super::join_sig::{
-    LoopJoinEdgeRoleV1, LoopJoinLogicalTransferRejectV1, LoopJoinLogicalTransferViewV1,
-    LoopJoinPortV1,
+    LoopJoinBranchArmTransferRefV1, LoopJoinEdgeRoleV1, LoopJoinLogicalTransferRejectV1,
+    LoopJoinLogicalTransferViewV1, LoopJoinPortV1,
 };
 use super::operation_physical_demand::PreparedLoopOperationProgramV1;
 use super::physical_transfer::{
@@ -131,6 +131,13 @@ pub(crate) enum LoopPhysicalLayoutRejectV1 {
     UnsupportedAlways(LoopNodeKeyV1),
     UnsupportedIf(LoopItemKeyV1),
     UnsupportedExit(LoopItemKeyV1),
+    BranchConditionMismatch(LoopItemKeyV1),
+    BranchContinuationMismatch(LoopItemKeyV1),
+    BranchExitMismatch(LoopItemKeyV1),
+    BranchCoverage {
+        expected: Box<[(LoopNodeKeyV1, LoopItemKeyV1)]>,
+        consumed: Box<[(LoopNodeKeyV1, LoopItemKeyV1)]>,
+    },
     ScheduleOrderMismatch {
         expected: Box<[LoopItemKeyV1]>,
         found: Box<[LoopItemKeyV1]>,
@@ -234,6 +241,7 @@ struct LayoutBuilder<'a> {
     visited_loops: BTreeSet<LoopNodeKeyV1>,
     visited_blocks: BTreeSet<LoopBlockKeyV1>,
     visited_items: BTreeSet<LoopItemKeyV1>,
+    visited_branches: BTreeSet<(LoopNodeKeyV1, LoopItemKeyV1)>,
     operation_items: Vec<LoopItemKeyV1>,
 }
 
@@ -251,6 +259,7 @@ impl<'a> LayoutBuilder<'a> {
             visited_loops: BTreeSet::new(),
             visited_blocks: BTreeSet::new(),
             visited_items: BTreeSet::new(),
+            visited_branches: BTreeSet::new(),
             operation_items: Vec::new(),
         }
     }
@@ -265,6 +274,18 @@ impl<'a> LayoutBuilder<'a> {
         ),
         LoopPhysicalLayoutRejectV1,
     > {
+        let expected_branches = self
+            .transfers
+            .branches()
+            .iter()
+            .map(|branch| (branch.owner_loop, branch.if_item))
+            .collect::<BTreeSet<_>>();
+        if expected_branches != self.visited_branches {
+            return Err(LoopPhysicalLayoutRejectV1::BranchCoverage {
+                expected: expected_branches.into_iter().collect(),
+                consumed: self.visited_branches.into_iter().collect(),
+            });
+        }
         if self.visited_loops.len() != self.recipe.loops.len()
             || self.visited_blocks.len() != self.recipe.blocks.len()
             || self.visited_items.len() != self.recipe.items.len()
@@ -340,6 +361,7 @@ impl<'a> LayoutBuilder<'a> {
             condition_block,
             LoopPhysicalSegmentRoleV1::Header,
             predicate,
+            None,
         )?;
         let condition_entry = LoopPhysicalSegmentKeyV1::new(loop_key, condition_block, 0);
         let backedge = bind_backedge(backedge, LoopPhysicalTargetV1::Segment(condition_entry))
@@ -349,6 +371,7 @@ impl<'a> LayoutBuilder<'a> {
             node.body,
             LoopPhysicalSegmentRoleV1::Body,
             backedge,
+            None,
         )
     }
 
@@ -358,6 +381,7 @@ impl<'a> LayoutBuilder<'a> {
         block_key: LoopBlockKeyV1,
         role: LoopPhysicalSegmentRoleV1,
         finish_transfer: LoopPhysicalTransferV1,
+        expected_exit: Option<LoopItemKeyV1>,
     ) -> Result<(), LoopPhysicalLayoutRejectV1> {
         if !self.visited_blocks.insert(block_key) {
             return Err(LoopPhysicalLayoutRejectV1::DuplicateBlock(block_key));
@@ -371,7 +395,8 @@ impl<'a> LayoutBuilder<'a> {
         let items = block.items.clone();
         let mut ordinal = 0;
         let mut operations = Vec::new();
-        for item in items {
+        let mut consumed_exit = None;
+        for (index, item) in items.iter().copied().enumerate() {
             if !self.visited_items.insert(item) {
                 return Err(LoopPhysicalLayoutRejectV1::DuplicateItem(item));
             }
@@ -400,16 +425,125 @@ impl<'a> LayoutBuilder<'a> {
                     ordinal += 1;
                     self.build_loop(child, LoopPhysicalTargetV1::Segment(resume))?;
                 }
-                Some(LoopRecipeItemV1::If { .. }) => {
-                    return Err(LoopPhysicalLayoutRejectV1::UnsupportedIf(item));
+                Some(LoopRecipeItemV1::If {
+                    condition,
+                    then_block,
+                    else_block,
+                }) => {
+                    let branch = self
+                        .transfers
+                        .require_branch(loop_key, item)
+                        .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
+                    if !self.visited_branches.insert((loop_key, item)) {
+                        return Err(LoopPhysicalLayoutRejectV1::BranchCoverage {
+                            expected: vec![(loop_key, item)].into_boxed_slice(),
+                            consumed: self.visited_branches.iter().copied().collect(),
+                        });
+                    }
+                    if branch.condition != condition {
+                        return Err(LoopPhysicalLayoutRejectV1::BranchConditionMismatch(item));
+                    }
+                    let continuation = items
+                        .get(index + 1)
+                        .map(|_| LoopPhysicalSegmentKeyV1::new(loop_key, block_key, ordinal + 1));
+                    let expected_continuation = items.get(index + 1).copied().map(|next| {
+                        super::join_sig::LoopJoinNextItemV1 {
+                            block: block_key,
+                            item: next,
+                        }
+                    });
+                    let then_finish = branch_arm_finish(
+                        branch.then_arm,
+                        loop_key,
+                        item,
+                        expected_continuation,
+                        continuation,
+                        self,
+                    )?;
+                    let else_finish = branch_arm_finish(
+                        branch.else_arm,
+                        loop_key,
+                        item,
+                        expected_continuation,
+                        continuation,
+                        self,
+                    )?;
+                    if then_block == block_key
+                        || else_block.is_some_and(|block| block == block_key || block == then_block)
+                    {
+                        return Err(LoopPhysicalLayoutRejectV1::BranchContinuationMismatch(item));
+                    }
+                    let then_target = LoopPhysicalSegmentKeyV1::new(loop_key, then_block, 0);
+                    let else_target = match else_block {
+                        Some(block) => LoopPhysicalTargetV1::Segment(
+                            LoopPhysicalSegmentKeyV1::new(loop_key, block, 0),
+                        ),
+                        None => match else_finish {
+                            BranchArmFinishV1::Fallthrough(target) => target,
+                            BranchArmFinishV1::Exit { .. } => {
+                                return Err(LoopPhysicalLayoutRejectV1::BranchExitMismatch(item));
+                            }
+                        },
+                    };
+                    if else_block.is_none()
+                        && !matches!(
+                            branch.else_arm,
+                            LoopJoinBranchArmTransferRefV1::Fallthrough { .. }
+                        )
+                    {
+                        return Err(LoopPhysicalLayoutRejectV1::BranchExitMismatch(item));
+                    }
+                    self.segments.push(PreparedLoopControlSegmentV1 {
+                        key: LoopPhysicalSegmentKeyV1::new(loop_key, block_key, ordinal),
+                        role,
+                        operations: operations.into_boxed_slice(),
+                        transfer: LoopPhysicalTransferV1::Predicate {
+                            condition,
+                            on_true: then_target,
+                            on_false: else_target,
+                        },
+                    });
+                    operations = Vec::new();
+                    ordinal += 1;
+                    self.build_block(
+                        loop_key,
+                        then_block,
+                        LoopPhysicalSegmentRoleV1::Body,
+                        then_finish.transfer(),
+                        then_finish.exit_item(),
+                    )?;
+                    if let Some(else_block) = else_block {
+                        self.build_block(
+                            loop_key,
+                            else_block,
+                            LoopPhysicalSegmentRoleV1::Body,
+                            else_finish.transfer(),
+                            else_finish.exit_item(),
+                        )?;
+                    }
                 }
                 Some(LoopRecipeItemV1::Exit { .. }) => {
-                    return Err(LoopPhysicalLayoutRejectV1::UnsupportedExit(item));
+                    if expected_exit != Some(item)
+                        || items.last().copied() != Some(item)
+                        || consumed_exit.replace(item).is_some()
+                    {
+                        return Err(LoopPhysicalLayoutRejectV1::UnsupportedExit(item));
+                    }
                 }
                 None => {
                     return Err(LoopPhysicalLayoutRejectV1::MissingBlock(block_key));
                 }
             }
+        }
+        if expected_exit != consumed_exit {
+            return Err(LoopPhysicalLayoutRejectV1::BranchExitMismatch(
+                expected_exit.unwrap_or_else(|| {
+                    items
+                        .last()
+                        .copied()
+                        .unwrap_or(LoopItemKeyV1::new(u32::MAX))
+                }),
+            ));
         }
         self.segments.push(PreparedLoopControlSegmentV1 {
             key: LoopPhysicalSegmentKeyV1::new(loop_key, block_key, ordinal),
@@ -418,6 +552,68 @@ impl<'a> LayoutBuilder<'a> {
             transfer: finish_transfer,
         });
         Ok(())
+    }
+}
+
+#[derive(Clone, Copy)]
+enum BranchArmFinishV1 {
+    Fallthrough(LoopPhysicalTargetV1),
+    Exit {
+        transfer: LoopPhysicalTransferV1,
+        item: LoopItemKeyV1,
+    },
+}
+
+impl BranchArmFinishV1 {
+    fn transfer(&self) -> LoopPhysicalTransferV1 {
+        match self {
+            Self::Fallthrough(target) => LoopPhysicalTransferV1::Jump { target: *target },
+            Self::Exit { transfer, .. } => *transfer,
+        }
+    }
+
+    fn exit_item(&self) -> Option<LoopItemKeyV1> {
+        match self {
+            Self::Fallthrough(_) => None,
+            Self::Exit { item, .. } => Some(*item),
+        }
+    }
+}
+
+fn branch_arm_finish(
+    arm: LoopJoinBranchArmTransferRefV1<'_>,
+    owner_loop: LoopNodeKeyV1,
+    if_item: LoopItemKeyV1,
+    expected_continuation: Option<super::join_sig::LoopJoinNextItemV1>,
+    continuation_target: Option<LoopPhysicalSegmentKeyV1>,
+    builder: &LayoutBuilder<'_>,
+) -> Result<BranchArmFinishV1, LoopPhysicalLayoutRejectV1> {
+    match arm {
+        LoopJoinBranchArmTransferRefV1::Fallthrough { continuation, .. } => {
+            if Some(continuation) != expected_continuation {
+                return Err(LoopPhysicalLayoutRejectV1::BranchContinuationMismatch(
+                    if_item,
+                ));
+            }
+            let target = continuation_target.ok_or(
+                LoopPhysicalLayoutRejectV1::BranchContinuationMismatch(if_item),
+            )?;
+            Ok(BranchArmFinishV1::Fallthrough(
+                LoopPhysicalTargetV1::Segment(target),
+            ))
+        }
+        LoopJoinBranchArmTransferRefV1::Exit(exit) => {
+            if exit.role != LoopJoinEdgeRoleV1::Continue || exit.target_loop != owner_loop {
+                return Err(LoopPhysicalLayoutRejectV1::BranchExitMismatch(if_item));
+            }
+            let entry = builder.entry_key(exit.target_loop)?;
+            Ok(BranchArmFinishV1::Exit {
+                transfer: LoopPhysicalTransferV1::Jump {
+                    target: LoopPhysicalTargetV1::Segment(entry),
+                },
+                item: exit.exit_item,
+            })
+        }
     }
 }
 
@@ -445,255 +641,5 @@ fn require_ports(
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::mir::compiler::callable_single_loop_operation_effect::callable_operation_demand_parts_for_test;
-    use crate::mir::loop_recipe_contract::generic_g0::generic_operation_demand_parts_for_test;
-    use crate::mir::loop_recipe_contract::join_sig::{
-        LoopJoinBoundaryTransferRefV1, LoopJoinEdgeRoleV1, LoopJoinPortV1,
-    };
-    use crate::mir::loop_recipe_contract::VerifiedLoopOperationPhysicalDemandV1;
-
-    fn transfer(
-        loop_key: LoopNodeKeyV1,
-        from: LoopJoinPortV1,
-        to: LoopJoinPortV1,
-        role: LoopJoinEdgeRoleV1,
-        condition: Option<(LoopBlockKeyV1, LoopValueKeyV1)>,
-    ) -> LoopJoinBoundaryTransferRefV1<'static> {
-        LoopJoinBoundaryTransferRefV1 {
-            loop_key,
-            from,
-            to,
-            role,
-            condition,
-            payload: &[],
-        }
-    }
-
-    fn callable_layout() -> PreparedLoopPhysicalLayoutV1 {
-        let (effect, context, continuation) = callable_operation_demand_parts_for_test();
-        VerifiedLoopOperationPhysicalDemandV1::issue(context, effect, continuation)
-            .expect("callable demand")
-            .prepare_all()
-            .expect("callable program")
-            .prepare_physical_layout()
-            .expect("callable layout")
-    }
-
-    fn generic_layout() -> PreparedLoopPhysicalLayoutV1 {
-        let (effect, context, continuation) = generic_operation_demand_parts_for_test();
-        VerifiedLoopOperationPhysicalDemandV1::issue(context, effect, continuation)
-            .expect("generic demand")
-            .prepare_all()
-            .expect("generic program")
-            .prepare_physical_layout()
-            .expect("generic layout")
-    }
-
-    #[test]
-    fn callable_layout_keeps_one_segment_per_logical_block() {
-        let layout = callable_layout();
-        assert_eq!(layout.coverage().item_count(), 7);
-        assert_eq!(layout.coverage().operation_count(), 7);
-        assert_eq!(layout.coverage().segment_count(), 2);
-        assert_eq!(layout.entry_segment(), layout.segments()[0].key());
-        assert_eq!(
-            layout.segments()[0].role(),
-            LoopPhysicalSegmentRoleV1::Header
-        );
-        assert_eq!(layout.segments()[1].role(), LoopPhysicalSegmentRoleV1::Body);
-        assert_eq!(
-            layout.segments()[0].operations(),
-            [
-                LoopItemKeyV1::new(0),
-                LoopItemKeyV1::new(1),
-                LoopItemKeyV1::new(2),
-            ]
-        );
-        assert_eq!(layout.segments()[1].operations().len(), 4);
-        assert!(matches!(
-            layout.segments()[0].transfer(),
-            LoopPhysicalTransferV1::Predicate { .. }
-        ));
-    }
-
-    #[test]
-    fn generic_layout_splits_parent_around_nested_loop_and_resumes() {
-        let layout = generic_layout();
-        let root = LoopNodeKeyV1::new(0);
-        let child = LoopNodeKeyV1::new(1);
-        let root_condition = LoopPhysicalSegmentKeyV1::new(root, LoopBlockKeyV1::new(0), 0);
-        let root_before_child = LoopPhysicalSegmentKeyV1::new(root, LoopBlockKeyV1::new(1), 0);
-        let child_condition = LoopPhysicalSegmentKeyV1::new(child, LoopBlockKeyV1::new(2), 0);
-        let child_body = LoopPhysicalSegmentKeyV1::new(child, LoopBlockKeyV1::new(3), 0);
-        let root_resume = LoopPhysicalSegmentKeyV1::new(root, LoopBlockKeyV1::new(1), 1);
-        assert_eq!(layout.coverage().item_count(), 16);
-        assert_eq!(layout.coverage().operation_count(), 15);
-        assert_eq!(layout.coverage().segment_count(), 5);
-        assert_eq!(layout.entry_segment(), layout.segments()[0].key());
-        assert_eq!(
-            layout.segments()[0].role(),
-            LoopPhysicalSegmentRoleV1::Header
-        );
-        assert_eq!(layout.segments()[1].role(), LoopPhysicalSegmentRoleV1::Body);
-        assert_eq!(
-            layout.segments()[2].role(),
-            LoopPhysicalSegmentRoleV1::Header
-        );
-        assert_eq!(layout.segments()[0].key(), root_condition);
-        assert_eq!(layout.segments()[1].key(), root_before_child);
-        assert_eq!(layout.segments()[2].key(), child_condition);
-        assert_eq!(layout.segments()[3].key(), child_body);
-        assert_eq!(layout.segments()[4].key(), root_resume);
-        assert_eq!(layout.segments()[1].operations(), [LoopItemKeyV1::new(3)]);
-        assert_eq!(
-            layout.segments()[4].operations(),
-            [
-                LoopItemKeyV1::new(12),
-                LoopItemKeyV1::new(13),
-                LoopItemKeyV1::new(14),
-                LoopItemKeyV1::new(15),
-            ]
-        );
-        assert!(matches!(
-            layout.segments()[1].transfer(),
-            LoopPhysicalTransferV1::OpenNestedLoop {
-                loop_key,
-                entry
-            } if loop_key == child && entry == child_condition
-        ));
-        assert!(matches!(
-            layout.segments()[2].transfer(),
-            LoopPhysicalTransferV1::Predicate {
-                on_false: LoopPhysicalTargetV1::Segment(target), ..
-            } if target == root_resume
-        ));
-    }
-
-    #[test]
-    fn predicate_transfer_binder_rejects_role_port_loop_and_condition_drift() {
-        let loop_key = LoopNodeKeyV1::new(0);
-        let condition = Some((LoopBlockKeyV1::new(0), LoopValueKeyV1::new(1)));
-        let true_target = LoopPhysicalSegmentKeyV1::new(loop_key, LoopBlockKeyV1::new(0), 0);
-        let false_target = LoopPhysicalTargetV1::OpenRootAfter;
-
-        assert!(matches!(
-            super::super::physical_transfer::bind_predicate(
-                transfer(
-                    loop_key,
-                    LoopJoinPortV1::Header,
-                    LoopJoinPortV1::Body,
-                    LoopJoinEdgeRoleV1::Backedge,
-                    condition,
-                ),
-                transfer(
-                    loop_key,
-                    LoopJoinPortV1::Header,
-                    LoopJoinPortV1::After,
-                    LoopJoinEdgeRoleV1::PredicateFalse,
-                    condition,
-                ),
-                true_target,
-                false_target,
-            ),
-            Err(LoopPhysicalTransferBindingRejectV1::RoleMismatch { .. })
-        ));
-        assert!(matches!(
-            super::super::physical_transfer::bind_predicate(
-                transfer(
-                    loop_key,
-                    LoopJoinPortV1::Header,
-                    LoopJoinPortV1::Body,
-                    LoopJoinEdgeRoleV1::PredicateTrue,
-                    condition,
-                ),
-                transfer(
-                    loop_key,
-                    LoopJoinPortV1::Body,
-                    LoopJoinPortV1::After,
-                    LoopJoinEdgeRoleV1::PredicateFalse,
-                    condition,
-                ),
-                true_target,
-                false_target,
-            ),
-            Err(LoopPhysicalTransferBindingRejectV1::PortMismatch { .. })
-        ));
-        assert!(matches!(
-            super::super::physical_transfer::bind_predicate(
-                transfer(
-                    loop_key,
-                    LoopJoinPortV1::Header,
-                    LoopJoinPortV1::Body,
-                    LoopJoinEdgeRoleV1::PredicateTrue,
-                    condition,
-                ),
-                transfer(
-                    LoopNodeKeyV1::new(1),
-                    LoopJoinPortV1::Header,
-                    LoopJoinPortV1::After,
-                    LoopJoinEdgeRoleV1::PredicateFalse,
-                    condition,
-                ),
-                true_target,
-                false_target,
-            ),
-            Err(LoopPhysicalTransferBindingRejectV1::LoopMismatch { .. })
-        ));
-        assert!(matches!(
-            super::super::physical_transfer::bind_predicate(
-                transfer(
-                    loop_key,
-                    LoopJoinPortV1::Header,
-                    LoopJoinPortV1::Body,
-                    LoopJoinEdgeRoleV1::PredicateTrue,
-                    condition,
-                ),
-                transfer(
-                    loop_key,
-                    LoopJoinPortV1::Header,
-                    LoopJoinPortV1::After,
-                    LoopJoinEdgeRoleV1::PredicateFalse,
-                    Some((LoopBlockKeyV1::new(0), LoopValueKeyV1::new(2))),
-                ),
-                true_target,
-                false_target,
-            ),
-            Err(LoopPhysicalTransferBindingRejectV1::ConditionMismatch { .. })
-        ));
-    }
-
-    #[test]
-    fn nested_and_backedge_binders_reject_wrong_loop_or_role() {
-        let loop_key = LoopNodeKeyV1::new(0);
-        let segment = LoopPhysicalSegmentKeyV1::new(loop_key, LoopBlockKeyV1::new(0), 0);
-        assert!(matches!(
-            super::super::physical_transfer::bind_backedge(
-                transfer(
-                    loop_key,
-                    LoopJoinPortV1::Body,
-                    LoopJoinPortV1::Header,
-                    LoopJoinEdgeRoleV1::Enter,
-                    None,
-                ),
-                LoopPhysicalTargetV1::Segment(segment),
-            ),
-            Err(LoopPhysicalTransferBindingRejectV1::RoleMismatch { .. })
-        ));
-        assert!(matches!(
-            super::super::physical_transfer::bind_nested_loop(
-                transfer(
-                    loop_key,
-                    LoopJoinPortV1::Preheader,
-                    LoopJoinPortV1::Header,
-                    LoopJoinEdgeRoleV1::Enter,
-                    None,
-                ),
-                LoopNodeKeyV1::new(1),
-                segment,
-            ),
-            Err(LoopPhysicalTransferBindingRejectV1::LoopMismatch { .. })
-        ));
-    }
-}
+#[path = "physical_layout_tests.rs"]
+mod tests;
