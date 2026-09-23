@@ -44,6 +44,20 @@ pub(crate) struct Main0InitialLocalFactV1 {
 }
 
 impl Main0InitialLocalFactV1 {
+    /// Construct one row for a sibling Main0 profile observer. The shape
+    /// fields are the same neutral source sites the continue observer emits.
+    pub(crate) const fn from_parts(
+        statement_site: SourceStmtSiteV1,
+        initializer_site: SourceExprSiteV1,
+        shape: SourceLiteralShapeV1,
+    ) -> Self {
+        Self {
+            statement_site,
+            initializer_site,
+            shape,
+        }
+    }
+
     pub(crate) fn statement_site(&self) -> &SourceStmtSiteV1 {
         &self.statement_site
     }
@@ -70,6 +84,26 @@ pub(crate) struct Main0ConditionFactsV1 {
 }
 
 impl Main0ConditionFactsV1 {
+    /// Construct one row for a sibling Main0 profile observer.
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) const fn from_parts(
+        site: SourceExprSiteV1,
+        lhs_site: SourceExprSiteV1,
+        lhs_shape: SourceExprShapeV1,
+        rhs_site: SourceExprSiteV1,
+        rhs_shape: SourceExprShapeV1,
+        operator: SyntaxBinaryOperatorV1,
+    ) -> Self {
+        Self {
+            site,
+            lhs_site,
+            lhs_shape,
+            rhs_site,
+            rhs_shape,
+            operator,
+        }
+    }
+
     pub(crate) fn site(&self) -> &SourceExprSiteV1 {
         &self.site
     }
@@ -154,6 +188,32 @@ pub(crate) struct Main0StepFactsV1 {
 }
 
 impl Main0StepFactsV1 {
+    /// Construct one row for a sibling Main0 profile observer.
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) const fn from_parts(
+        statement_site: SourceStmtSiteV1,
+        target_site: SourceExprSiteV1,
+        target_shape: SourceExprShapeV1,
+        value_site: SourceExprSiteV1,
+        lhs_site: SourceExprSiteV1,
+        lhs_shape: SourceExprShapeV1,
+        rhs_site: SourceExprSiteV1,
+        rhs_shape: SourceLiteralShapeV1,
+        operator: SyntaxBinaryOperatorV1,
+    ) -> Self {
+        Self {
+            statement_site,
+            target_site,
+            target_shape,
+            value_site,
+            lhs_site,
+            lhs_shape,
+            rhs_site,
+            rhs_shape,
+            operator,
+        }
+    }
+
     pub(crate) fn statement_site(&self) -> &SourceStmtSiteV1 {
         &self.statement_site
     }
@@ -199,6 +259,19 @@ pub(crate) struct Main0TailReturnFactV1 {
 }
 
 impl Main0TailReturnFactV1 {
+    /// Construct one row for a sibling Main0 profile observer.
+    pub(crate) const fn from_parts(
+        statement_site: SourceStmtSiteV1,
+        value_site: SourceExprSiteV1,
+        value_shape: SourceExprShapeV1,
+    ) -> Self {
+        Self {
+            statement_site,
+            value_site,
+            value_shape,
+        }
+    }
+
     pub(crate) fn statement_site(&self) -> &SourceStmtSiteV1 {
         &self.statement_site
     }

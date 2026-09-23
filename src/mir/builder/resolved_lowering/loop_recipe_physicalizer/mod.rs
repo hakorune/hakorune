@@ -27,6 +27,12 @@ mod initialized_local_input_materializer;
 mod main0_continue_lowerer;
 #[cfg(test)]
 mod main0_continue_lowerer_tests;
+// Caller-zero until the same Main0 canonical-root handoff wires the second
+// profile; recheck at the production-switch slice.
+#[allow(dead_code)]
+mod main0_in_body_step_lowerer;
+#[cfg(test)]
+mod main0_in_body_step_lowerer_tests;
 mod operation_dispatcher;
 mod operation_emitter;
 mod operation_ledger;
@@ -47,6 +53,9 @@ pub(in crate::mir::builder) use generic_lowerer::lower_generic_g0_function_draft
 // installed App Main caller; recheck at the production-switch slice.
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use main0_continue_lowerer::lower_main0_continue_function_draft_v1;
+// Caller-zero re-export for the second bounded Main0 profile; same handoff.
+#[allow(unused_imports)]
+pub(in crate::mir::builder) use main0_in_body_step_lowerer::lower_main0_in_body_step_function_draft_v1;
 pub(super) use operation_dispatcher::LoopOperationDispatchServicesV1;
 #[cfg(test)]
 pub(super) use segment_allocator::allocate_for_layout;

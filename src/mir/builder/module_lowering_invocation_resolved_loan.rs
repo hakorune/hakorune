@@ -38,7 +38,8 @@ impl ModuleLoweringPortV1<'_> {
     /// this terminal only pairs it with the `Main` key under the
     /// reject-duplicate policy, marks the module entry point, and lets the
     /// drain's shared symbol preflight reject any second publication.
-    pub(in crate::mir::builder) fn complete_main0_continue_root_draft_v1(
+    /// Profile-neutral: every bounded Main0 route seals the same root key.
+    pub(in crate::mir::builder) fn complete_main0_root_draft_v1(
         &mut self,
         pending: PendingFunctionSessionCloseV1<'_>,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {

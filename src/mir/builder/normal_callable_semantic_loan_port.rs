@@ -380,6 +380,15 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         main0_root::lower_app_main0_continue_root_v1(self, builder, expected_identity, product)
     }
 
+    fn lower_app_main0_in_body_step_root_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        expected_identity: &crate::parser::CallableDeclarationIdentityV1,
+        product: crate::mir::compiler::main0_in_body_step_recipe_coseal::VerifiedMain0InBodyStepRecipeProductV1,
+    ) -> Result<(), String> {
+        main0_root::lower_app_main0_in_body_step_root_v1(self, builder, expected_identity, product)
+    }
+
     fn lower_app_main_static_child(
         &mut self,
         builder: &mut MirBuilder,

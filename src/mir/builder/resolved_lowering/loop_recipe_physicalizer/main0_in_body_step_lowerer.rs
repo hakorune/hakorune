@@ -1,16 +1,13 @@
-//! Physical lowerer for the bounded Main0 Continue profile.
-//!
-//! Caller-zero owner: this module is wired by the Main0 canonical-root
-//! handoff slice; until the installed App Main route selects it, no
-//! production caller exists (recheck at the production-switch slice).
+//! Physical lowerer for the bounded Main0 in-body-step profile.
 //!
 //! The source ingress and common operation demand have already been issued
 //! before this module runs. This consumer only projects those products into
 //! the existing canonical SSA/CFG/PHI session and closes the normal draft
 //! seal. It does not inspect names, re-resolve source, or create a second
-//! physical owner. The profile has no callable prelude: loop carriers are
-//! seeded from the initialized-local input relations, and the tail is the
-//! post-loop `return <carrier>` outside the loop.
+//! physical owner. The profile has no callable prelude and no explicit
+//! in-loop transfer: loop carriers are seeded from the initialized-local
+//! input relations, the body falls through to the loop back-edge, and the
+//! tail is the post-loop `return <carrier>` outside the loop.
 
 use super::initialized_local_input_materializer::materialize_initialized_local_inputs_v1;
 use super::operation_ledger::LoopOperationValueLedgerV1;
@@ -22,7 +19,7 @@ use super::topology::ReadyLoopEntryV1;
 use super::{LoopOperationDispatchServicesV1, LoopPhysicalServicesV1};
 use crate::ast::ASTNode;
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
-use crate::mir::builder::normal_main0_continue_prepared_operation::PreparedMain0ContinueOperationProgramV1;
+use crate::mir::builder::normal_main0_in_body_step_prepared_operation::PreparedMain0InBodyStepOperationProgramV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::{
     finish_profile_close, CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2,
 };
@@ -30,8 +27,8 @@ use crate::mir::builder::resolved_lowering::draft_seal::ReadyFunctionDraftSealV1
 use crate::mir::builder::MirBuilder;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::compiler::main0_continue_recipe_coseal::{
-    VerifiedMain0ContinueControlSourceV1, VerifiedMain0ContinueTailV1,
+use crate::mir::compiler::main0_in_body_step_recipe_coseal::{
+    VerifiedMain0InBodyStepControlSourceV1, VerifiedMain0InBodyStepTailV1,
 };
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::function::MirParamDecl;
@@ -48,16 +45,16 @@ use crate::mir::BasicBlockId;
 /// JoinSig After binding sealed in the co-seal, so the only physical ABI
 /// claim here is the fixed I64 trivial return.
 #[derive(Debug)]
-struct VerifiedMain0ContinueTerminalV1 {
+struct VerifiedMain0InBodyStepTerminalV1 {
     owner: FunctionOwnerIdV1,
     target_function: RegionId,
     abi: ExactTrivialReturnAbiV1,
 }
 
-impl VerifiedMain0ContinueTerminalV1 {
+impl VerifiedMain0InBodyStepTerminalV1 {
     fn issue(
         input: ResolvedFunctionLoweringInputV1<'_>,
-        tail: &VerifiedMain0ContinueTailV1,
+        tail: &VerifiedMain0InBodyStepTailV1,
         completion: &VerifiedFunctionCompletionV1,
     ) -> Result<Self, String> {
         if completion.owner() != input.owner() || tail.owner() != input.owner() {
@@ -92,7 +89,7 @@ impl VerifiedMain0ContinueTerminalV1 {
 }
 
 #[derive(Debug)]
-struct ReadyMain0ContinueProfileCloseV1 {
+struct ReadyMain0InBodyStepProfileCloseV1 {
     owner: FunctionOwnerIdV1,
     terminal_block: BasicBlockId,
     after_predecessor_count: usize,
@@ -102,13 +99,13 @@ struct ReadyMain0ContinueProfileCloseV1 {
     write_count: usize,
 }
 
-impl ReadyMain0ContinueProfileCloseV1 {
+impl ReadyMain0InBodyStepProfileCloseV1 {
     fn finish(self, owner: FunctionOwnerIdV1, terminal_block: BasicBlockId) -> Result<(), String> {
         if self.owner != owner || self.terminal_block != terminal_block {
-            return Err("main0 profile close owner/terminal mismatch".into());
+            return Err("main0 in-body-step profile close owner/terminal mismatch".into());
         }
         if self.after_predecessor_count != 1 {
-            return Err("main0 profile close after-predecessor mismatch".into());
+            return Err("main0 in-body-step profile close after-predecessor mismatch".into());
         }
         let observed = (
             self.operation_count,
@@ -116,9 +113,12 @@ impl ReadyMain0ContinueProfileCloseV1 {
             self.read_count,
             self.write_count,
         );
-        if observed != (14, 7, 5, 2) {
+        // 9 ops = cond read + bound const + compare + step read + delta
+        // const + add + carrier write + effect const + effect write;
+        // 5 pure (2 const + compare + add + effect const), 2 reads, 2 writes.
+        if observed != (9, 5, 2, 2) {
             return Err(format!(
-                "main0 profile close coverage mismatch: observed={observed:?}"
+                "main0 in-body-step profile close coverage mismatch: observed={observed:?}"
             ));
         }
         Ok(())
@@ -126,91 +126,26 @@ impl ReadyMain0ContinueProfileCloseV1 {
 }
 
 #[derive(Debug)]
-struct ReadyMain0ContinueTailCompletionV1 {
+struct ReadyMain0InBodyStepTailCompletionV1 {
     block: BasicBlockId,
-    profile_close: ReadyMain0ContinueProfileCloseV1,
-}
-
-/// Read the condition's carrier read back through the canonical identity to
-/// prove the emitted Header PHI read matches the source-bound read row. The
-/// Main0 profile keeps the condition compare in the recipe's condition block;
-/// body compares (the `i == 1` guard) are excluded by that block key.
-/// Shared with the sibling in-body-step lowerer.
-pub(super) fn validate_main0_condition_read_relation_v1(
-    completed: &super::segment_dispatcher::CompletedLoopSegmentProgramV1,
-    condition_block: crate::mir::loop_recipe_contract::LoopBlockKeyV1,
-) -> Result<CanonicalBindingReadReceiptV1, String> {
-    let condition_input = completed
-        .layout
-        .program()
-        .operation_rows()
-        .iter()
-        .filter(|row| row.block() == condition_block)
-        .filter_map(|row| match row.operation() {
-            LoopOperationV1::CompareI64 { left, .. } => Some(left),
-            _ => None,
-        })
-        .collect::<Vec<_>>();
-    let condition_input = match condition_input.as_slice() {
-        [condition] => *condition,
-        _ => return Err("[freeze:contract][main0-loop/condition-read]".to_owned()),
-    };
-    let read_rows = completed
-        .layout
-        .program()
-        .read_binding_rows()
-        .map_err(|_| "[freeze:contract][main0-loop/condition-read]".to_owned())?;
-    let source_row = match read_rows
-        .iter()
-        .filter(|row| row.result() == condition_input)
-        .collect::<Vec<_>>()
-        .as_slice()
-    {
-        [row] => *row,
-        _ => return Err("[freeze:contract][main0-loop/condition-read]".to_owned()),
-    };
-    let read = match completed
-        .dispatch
-        .receipts()
-        .iter()
-        .filter_map(|receipt| match receipt {
-            super::operation_dispatcher::LoopOperationDispatchReceiptV1::Read(read)
-                if read.result() == condition_input =>
-            {
-                Some(*read)
-            }
-            _ => None,
-        })
-        .collect::<Vec<_>>()
-        .as_slice()
-    {
-        [read] => *read,
-        _ => return Err("[freeze:contract][main0-loop/condition-read]".to_owned()),
-    };
-    let canonical = read.canonical();
-    if canonical.owner() != completed.layout.program().demand().context().owner()
-        || read.item() != source_row.item()
-        || canonical.binding() != source_row.source_binding()
-    {
-        return Err("[freeze:contract][main0-loop/condition-binding]".to_owned());
-    }
-    Ok(canonical)
+    profile_close: ReadyMain0InBodyStepProfileCloseV1,
 }
 
 /// Consume the sealed After receipt exactly once at the Main0 boundary. The
 /// tail `return <carrier>` is claimed through the existing
 /// Completion/identity ledgers; no raw Return is inserted and no second
-/// completion authority is created.
-fn consume_main0_continue_tail_completion_v1(
+/// completion authority is created. The profile has no explicit in-loop
+/// transfer site, so no `mark_return` beyond the tail is needed.
+fn consume_main0_in_body_step_tail_completion_v1(
     ready: ReadyLoopAfterContinuationV1,
     condition_read: CanonicalBindingReadReceiptV1,
     profile_counts: (usize, usize, usize, usize),
-    tail: &VerifiedMain0ContinueTailV1,
-    control: &VerifiedMain0ContinueControlSourceV1,
-    terminal: &VerifiedMain0ContinueTerminalV1,
+    tail: &VerifiedMain0InBodyStepTailV1,
+    control: &VerifiedMain0InBodyStepControlSourceV1,
+    terminal: &VerifiedMain0InBodyStepTerminalV1,
     builder: &mut MirBuilder,
     session: &mut CanonicalSsaFunctionSessionV2<'_>,
-) -> Result<ReadyMain0ContinueTailCompletionV1, String> {
+) -> Result<ReadyMain0InBodyStepTailCompletionV1, String> {
     let owner = ready.owner();
     let after_predecessor_count = ready.predecessor_count();
     if tail.owner() != owner || control.owner() != owner || terminal.owner != owner {
@@ -261,10 +196,6 @@ fn consume_main0_continue_tail_completion_v1(
         .map_err(|error| format!("[freeze:contract][main0-loop/condition-after] {error}"))?;
 
     session
-        .identity
-        .mark_return(ResolvedExitSiteV1::Statement(control.continue_site().clone()))
-        .map_err(|error| format!("[freeze:contract][main0-loop/mark-continue] {error}"))?;
-    session
         .completion
         .claim_explicit_return(tail.statement(), terminal.target_function, after, value)
         .map_err(|error| format!("[freeze:contract][main0-loop/completion] {error}"))?;
@@ -273,9 +204,9 @@ fn consume_main0_continue_tail_completion_v1(
         .mark_return(ResolvedExitSiteV1::Statement(tail.statement().clone()))
         .map_err(|error| format!("[freeze:contract][main0-loop/mark-return] {error}"))?;
 
-    Ok(ReadyMain0ContinueTailCompletionV1 {
+    Ok(ReadyMain0InBodyStepTailCompletionV1 {
         block: after,
-        profile_close: ReadyMain0ContinueProfileCloseV1 {
+        profile_close: ReadyMain0InBodyStepProfileCloseV1 {
             owner,
             terminal_block: after,
             after_predecessor_count,
@@ -287,13 +218,13 @@ fn consume_main0_continue_tail_completion_v1(
     })
 }
 
-/// Physical entry for the selected Main0 Continue product. The prepared
-/// program is consumed once; the whole function — initialized locals, loop,
-/// Continue transfer, normal update, and tail return — is emitted into this
-/// one unpublished draft and sealed as `ReadyFunctionDraftSealV1`.
-pub(in crate::mir::builder) fn lower_main0_continue_function_draft_v1(
+/// Physical entry for the selected Main0 in-body-step product. The prepared
+/// program is consumed once; the whole function — initialized locals,
+/// predicate loop, carrier step, effect write, and tail return — is emitted
+/// into this one unpublished draft and sealed as `ReadyFunctionDraftSealV1`.
+pub(in crate::mir::builder) fn lower_main0_in_body_step_function_draft_v1(
     outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
-    program: PreparedMain0ContinueOperationProgramV1<'_>,
+    program: PreparedMain0InBodyStepOperationProgramV1<'_>,
     physical_name: String,
 ) -> Result<ReadyFunctionDraftSealV1, String> {
     let (input, input_relations, operation_program, tail, control) = program.into_parts();
@@ -308,7 +239,7 @@ pub(in crate::mir::builder) fn lower_main0_continue_function_draft_v1(
     }
     let completion = verify_function_completion_v1(input)
         .map_err(|error| format!("[freeze:contract][main0-loop/completion] {error:?}"))?;
-    let terminal = VerifiedMain0ContinueTerminalV1::issue(input, &tail, &completion)
+    let terminal = VerifiedMain0InBodyStepTerminalV1::issue(input, &tail, &completion)
         .map_err(|error| format!("[freeze:contract][main0-loop/terminal] {error}"))?;
     let physical_layout = operation_program
         .prepare_physical_layout()
@@ -437,7 +368,11 @@ pub(in crate::mir::builder) fn lower_main0_continue_function_draft_v1(
             plan.emit_all(values, &mut services)
                 .map_err(|error| format!("[freeze:contract][main0-loop/dispatch] {error:?}"))?
         };
-        let condition_read = validate_main0_condition_read_relation_v1(&completed, condition_block)
+        let condition_read =
+            super::main0_continue_lowerer::validate_main0_condition_read_relation_v1(
+                &completed,
+                condition_block,
+            )
             .map_err(|error| format!("{error}"))?;
         let profile_counts = profile_counts_from_dispatch(&completed.dispatch);
         let prepared_after = prepare_recursive_after_v1(completed, builder).map_err(|error| {
@@ -451,7 +386,7 @@ pub(in crate::mir::builder) fn lower_main0_continue_function_draft_v1(
                 &mut session.phis,
             )
             .map_err(|error| format!("[freeze:contract][main0-loop/after] {error:?}"))?;
-        let terminal_receipt = consume_main0_continue_tail_completion_v1(
+        let terminal_receipt = consume_main0_in_body_step_tail_completion_v1(
             ready_after,
             condition_read,
             profile_counts,

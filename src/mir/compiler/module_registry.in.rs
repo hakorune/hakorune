@@ -142,6 +142,26 @@ pub(crate) mod main0_continue_source_map_issue;
 // canonical-root handoff slice.
 #[allow(dead_code)]
 pub(crate) mod main0_continue_syntax_facts;
+// Second bounded Main0 profile (in-body-step); same canonical-root handoff
+// and production caller switch as the continue profile.
+#[allow(dead_code)]
+pub(crate) mod main0_in_body_step_recipe_coseal;
+#[cfg(test)]
+#[path = "main0_in_body_step_recipe_coseal_tests.rs"]
+mod main0_in_body_step_recipe_coseal_tests;
+#[allow(dead_code)]
+pub(crate) mod main0_in_body_step_root_selection;
+#[cfg(test)]
+#[path = "main0_in_body_step_root_selection_tests.rs"]
+mod main0_in_body_step_root_selection_tests;
+#[allow(dead_code)]
+pub(in crate::mir) mod main0_in_body_step_semantic_program;
+#[allow(dead_code)]
+pub(crate) mod main0_in_body_step_source_map;
+#[allow(dead_code)]
+pub(crate) mod main0_in_body_step_source_map_issue;
+#[allow(dead_code)]
+pub(crate) mod main0_in_body_step_syntax_facts;
 #[cfg(test)]
 pub(crate) mod loop_true_break_continue_observation;
 #[allow(dead_code)]

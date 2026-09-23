@@ -7,7 +7,7 @@ use crate::ast::ASTNode;
 use hakorune_mir_builder::BoxCompilationContext;
 
 use super::main_expansion::VerifiedRawRootExpansionV1;
-use crate::mir::compiler::main0_continue_recipe_coseal::VerifiedMain0ContinueRecipeProductV1;
+use main0_root_route::SelectedMain0RootProductV1;
 use super::module_draft_collector::ModuleDraftCollectorV1;
 use super::module_invocation_identity::ModuleInvocationBrandV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
@@ -37,6 +37,10 @@ use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicat
 
 #[path = "program_root_lowering/main0_continue_route.rs"]
 mod main0_continue_route;
+#[path = "program_root_lowering/main0_in_body_step_route.rs"]
+mod main0_in_body_step_route;
+#[path = "program_root_lowering/main0_root_route.rs"]
+pub(super) mod main0_root_route;
 
 /// Scoped candidate context for one deferred non-Main static Box.
 ///
@@ -358,12 +362,12 @@ impl MirBuilder {
             NormalCallableSemanticPackageMode::Installed(package_port) => {
                 let mut work = work;
                 let constructor_manifest = work.constructor_demand_manifest.take();
-                // Pre-wrapper route selection: the canonical Main0 route
+                // Pre-wrapper route selection: a canonical Main0 route
                 // publishes its own `main` draft, so the legacy wrapper
-                // opens only when the profile declines.
-                let main0_continue_product =
-                    self.select_main0_continue_root_product_v1(&package_port, expansion)?;
-                if main0_continue_product.is_none() {
+                // opens only when every bounded profile declines.
+                let main0_product =
+                    self.select_main0_root_product_v1(&package_port, expansion)?;
+                if main0_product.is_none() {
                     self.open_module_main_wrapper(runtime_inputs.entry_safepoint_enabled())?;
                 }
                 let mut loan = NormalCallableSemanticPackagePortAdapterV1::new(
@@ -379,7 +383,7 @@ impl MirBuilder {
                     materialization,
                     runtime_inputs,
                     declaration_facts,
-                    main0_continue_product,
+                    main0_product,
                     &mut loan,
                 )?;
                 loan.complete()?;
@@ -532,7 +536,7 @@ impl MirBuilder {
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         declaration_facts: PreparedNormalProgramDeclarationFactsV1,
-        main0_continue_product: Option<VerifiedMain0ContinueRecipeProductV1>,
+        main0_product: Option<SelectedMain0RootProductV1>,
         callables: &mut Port,
     ) -> Result<ProgramRootCompletionV1, String>
     where
@@ -554,7 +558,7 @@ impl MirBuilder {
             materialization,
             runtime_inputs,
             work_plan_admission,
-            main0_continue_product,
+            main0_product,
             callables,
         )
     }
@@ -590,7 +594,7 @@ impl MirBuilder {
         materialization: &NormalEntryMaterializationSourceReceiptV1,
         runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
         work_plan_admission: ProgramRootWorkPlanAdmissionV1,
-        main0_continue_product: Option<VerifiedMain0ContinueRecipeProductV1>,
+        main0_product: Option<SelectedMain0RootProductV1>,
         callables: &mut Port,
     ) -> Result<ProgramRootCompletionV1, String>
     where
@@ -599,7 +603,7 @@ impl MirBuilder {
         // A verified canonical product may only reach the App Main terminal;
         // dropping it on any other schedule would silently abandon the
         // selected route's one-shot receipt.
-        if main0_continue_product.is_some()
+        if main0_product.is_some()
             && !matches!(
                 work.terminal,
                 ProgramRootTerminalScheduleV1::VerifiedAppMain
@@ -643,9 +647,9 @@ impl MirBuilder {
             (
                 ProgramRootTerminalScheduleV1::VerifiedAppMain,
                 VerifiedRawRootExpansionV1::App(main),
-            ) => match main0_continue_product {
+            ) => match main0_product {
                 Some(product) => self
-                    .build_selected_main0_continue_root_with_port_v1(callables, main, product)
+                    .build_selected_main0_root_with_port_v1(callables, main, product)
                     .map(|()| ProgramRootCompletionV1::CanonicalMainDraft)
                     .map_err(|error| error.to_string()),
                 None => self

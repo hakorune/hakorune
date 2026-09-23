@@ -91,16 +91,16 @@ impl super::MirBuilder {
         )
     }
 
-    /// Selected Main0 Continue root terminal.  Static children still lower
-    /// through the existing typed admission; the root itself is consumed by
-    /// the adapter's canonical draft handoff, which seals one `main` draft
-    /// and admits it to the invocation collector.  No wrapper body lowering
+    /// Selected Main0 root terminal.  Static children still lower through
+    /// the existing typed admission; the root itself is consumed by the
+    /// adapter's canonical draft handoff, which seals one `main` draft and
+    /// admits it to the invocation collector.  No wrapper body lowering
     /// runs on this route.
-    pub(in crate::mir::builder) fn build_selected_main0_continue_root_with_port_v1<Port>(
+    pub(in crate::mir::builder) fn build_selected_main0_root_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
         main: &VerifiedMainExpansionV1<'_>,
-        product: crate::mir::compiler::main0_continue_recipe_coseal::VerifiedMain0ContinueRecipeProductV1,
+        product: super::program_root_lowering::main0_root_route::SelectedMain0RootProductV1,
     ) -> Result<(), CallableMainCompatibilityLoweringErrorV1>
     where
         Port: RootCallableCapturePortV1,
@@ -117,8 +117,15 @@ impl super::MirBuilder {
                     "[freeze:contract][mir/main0-root/identity-missing]".to_owned(),
                 )
             })?;
-        port.lower_app_main0_continue_root_v1(self, &root_identity, product)
-            .map_err(CallableMainCompatibilityLoweringErrorV1::Lowering)
+        match product {
+            super::program_root_lowering::main0_root_route::SelectedMain0RootProductV1::Continue(
+                product,
+            ) => port.lower_app_main0_continue_root_v1(self, &root_identity, product),
+            super::program_root_lowering::main0_root_route::SelectedMain0RootProductV1::InBodyStep(
+                product,
+            ) => port.lower_app_main0_in_body_step_root_v1(self, &root_identity, product),
+        }
+        .map_err(CallableMainCompatibilityLoweringErrorV1::Lowering)
     }
 
     pub(in crate::mir::builder) fn build_verified_static_main_box_raw_compat_with_port_v1(

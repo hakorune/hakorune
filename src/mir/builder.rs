@@ -56,6 +56,9 @@ mod normal_callable_prepared_operation; // Builder-free full-demand ingress
 // Main caller; recheck at the production-switch slice.
 #[allow(dead_code)]
 mod normal_main0_continue_prepared_operation; // Builder-free Main0 full-demand ingress
+// Caller-zero second bounded Main0 profile; same canonical-root handoff.
+#[allow(dead_code)]
+mod normal_main0_in_body_step_prepared_operation; // Builder-free Main0 full-demand ingress
 mod normal_callable_semantic_loan_port; // Thin installed-package port adapter
 mod normal_callable_semantic_lowering_state; // Callable BindingRef-to-ValueId projection
 pub(in crate::mir) use normal_callable_semantic_lowering_state::validate_map_local_annotation;
