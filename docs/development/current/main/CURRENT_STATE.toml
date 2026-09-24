@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "SELFHOST-LOOP-M8E-GENERIC-PARITY-S7B5"
-current_execution_cohort = "loop_s7b_wire_coverage"
-current_blocker_token = "SELFHOST-LOOP-M8E-GENERIC-PARITY-S7B5__WireCoverageLanded_FrontierPause"
+current_execution_row = "SELFHOST-LOOP-PORTABLE-ALL19-PARITY-S7G"
+current_execution_cohort = "loop_s7_wire_closeout"
+current_blocker_token = "SELFHOST-LOOP-PORTABLE-ALL19-PARITY-S7G__CohortDesignOpen"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "FrontierPause__S7B5M8EGenericWireCoverageLanded__FamilySchedulerReselectionRequired_2026-09-24"
+current_design_stop = "S7GCohort__All19NormalizedParityCloseout__CardOnly_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,36 +14,37 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/selfhost-loop-m8e-generic-parity-s7b5-d0-2026-09-24.md"
-latest_card = "selfhost-loop-m8e-generic-parity-s7b5"
-latest_card_path = "docs/development/current/main/investigations/selfhost-loop-m8e-generic-parity-s7b5-d0-2026-09-24.md"
+current_execution_design = "docs/development/current/main/investigations/selfhost-loop-portable-all19-parity-s7g-d0-2026-09-24.md"
+latest_card = "selfhost-loop-portable-all19-parity-s7g"
+latest_card_path = "docs/development/current/main/investigations/selfhost-loop-portable-all19-parity-s7g-d0-2026-09-24.md"
 latest_card_summary = """
-S7B5 M8E wire-coverage cohort landed caller-zero — Generic
-residual row, completing all five S7B producer cohorts.
-loop_recipe/emit_m8e_generic_wire.hako emits the canonical
-artifact (generic_residual_v1, body_item(0); 8 items incl.
-two boundary-binding reads + body-local SSA const + carrier
-step; 2 bindings, inputs [0,1], 2 carriers, no exits) as one
-compact JSON line; checked in at
-fixtures/hako_loop_recipe_wire_m8e_v1.json (byte-identical
-to fresh emission). generic_residual_recipe promoted to
-pub(super); producer-test helpers (typed_map/target_cursor/
-schedule_with_winner/demand) promoted to pub(super).
-wire_parity_tests.rs gains 5 M8E tests (36 total): all three
-V1 normalizations equal vs the typed-map-carried
-VerifiedLoopRootSourceV1 + recipe issuer rebuild, real
-produce_generic_residual_recipe_v1 semantic anchor via its
-own demand issuer, two-carrier coverage asserts,
-determinism, drift reject. loop_recipe_contract 224/224,
-generic_residual 18/18, route_policy 91/91, guards green.
-All five S7B producer wire cohorts (M8A-M8E) now covered;
-S7G all-route closeout remains. Producer half of M9 stays
-deferred. Non-claims: caller-zero; no producer port/Facts/
-verifier/CFG-PHI/physical MIR/input/hostbridge/V2 artifact;
-no M9 parity claim; no Row F unblock; no legacy deletion.
+S7G all19 normalized parity closeout D0 card open — the last
+parity row of the S7 wire ladder. Decision: complete attested
+wire coverage (two unwired attested-backed routes get
+caller-zero .hako emitters — NestedLoopMinimal via existing
+nested_predicate_v1 golden + pub(crate) projection issuer,
+LoopTrueBreakContinue via producer demand issuer with
+pub(super) promotions), upgrade the S7A DirectAccum arm to a
+live-producer semantic anchor (direct_accum_product_for_test,
+already pub(crate)), and add a test-only all-route parity
+census pinning each of the 19 canonical routes as
+WireBackedParity (8 routes) or TypedDeclined (11 routes),
+cross-checked against ATTESTED_RECIPE_BACKED_V1 and the
+producer_id_migration RECEIPTS. New census module because
+wire_parity_tests.rs is past the 800-line cap. S7G-class
+heavy gates (release/quick + row-named parity). Explicit
+deferred record: the .hako producer half and M9 Done's
+route-ID/prefix-reason/JoinSig wire parity are unreachable
+until a named .hako execution-mechanism row lands. Rejected:
+census-only (gap with no owning row), declined-route
+emitters (no producer -> no artifact), new sealed census
+product (no consumer), literal M9 Done. Non-claims:
+caller-zero; no producer port/verifier/CFG-PHI/physical
+MIR/input/hostbridge; no production selection; no Row F
+unblock; no legacy deletion.
 """
-next_design_card = "SELFHOST-LOOP-M8E-GENERIC-PARITY-S7B5"
-next_design_card_path = "docs/development/current/main/investigations/selfhost-loop-m8e-generic-parity-s7b5-d0-2026-09-24.md"
+next_design_card = "SELFHOST-LOOP-PORTABLE-ALL19-PARITY-S7G"
+next_design_card_path = "docs/development/current/main/investigations/selfhost-loop-portable-all19-parity-s7g-d0-2026-09-24.md"
 next_execution_card = "none__design_only__family_scheduler_reselection"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
