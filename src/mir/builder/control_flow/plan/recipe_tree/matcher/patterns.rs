@@ -68,28 +68,6 @@ pub(super) fn verify_loop_break_recipe(
     Ok(())
 }
 
-pub(super) fn verify_generic_loop_v1_recipe(
-    generic_loop: &crate::mir::builder::control_flow::plan::generic_loop::facts_types::GenericLoopV1Facts,
-) -> Result<(), Freeze> {
-    use super::super::verified::check_block_contract;
-    use crate::mir::builder::control_flow::plan::recipe_tree::BlockContractKind;
-
-    let Some(recipe) = generic_loop.body_exit_allowed.as_ref() else {
-        return Err(Freeze::unsupported(
-            "generic_loop_v1: cannot build recipe for body",
-        ));
-    };
-
-    check_block_contract(
-        &recipe.arena,
-        &recipe.block,
-        BlockContractKind::ExitAllowed,
-        "generic_loop_v1",
-    )
-    .map(|_| ())
-    .map_err(|e| Freeze::contract("[generic_loop_v1] recipe verification failed").with_hint(&e))
-}
-
 /// Recipe-first verification for if-phi-join.
 pub(super) fn verify_if_phi_join_recipe(
     if_phi_join_facts: &crate::mir::builder::control_flow::facts::IfPhiJoinFacts,

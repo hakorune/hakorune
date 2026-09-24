@@ -442,7 +442,7 @@ fn run_injected_checkpoint(
     let function_name = "Injected.run/0".to_string();
     let session_name = function_name.clone();
     let body = Vec::new();
-    builder.with_function_lowering_session(&session_name, body.clone(), move |builder| {
+    builder.with_function_lowering_session(&session_name, body.clone(), None, move |builder| {
         if checkpoint == InjectedCheckpoint::BeforeSkeleton {
             return Err("injected:before_skeleton".into());
         }
@@ -503,7 +503,7 @@ fn every_fallible_checkpoint_restores_caller_and_publishes_nothing() {
 fn primary_and_cleanup_errors_are_both_preserved() {
     let mut builder = seeded_builder();
     let error = builder
-        .with_function_lowering_session("Injected.cleanup/0", Vec::new(), |builder| {
+        .with_function_lowering_session("Injected.cleanup/0", Vec::new(), None, |builder| {
             builder.metadata_ctx.push_region(RegionId(800));
             builder.metadata_ctx.push_region(RegionId(801));
             Err("injected:primary".to_string())
@@ -528,6 +528,7 @@ fn static_and_instance_drafts_commit_only_after_caller_restore() {
             Vec::new(),
             Vec::new(),
             DeclarationAttrs::default(),
+            None,
         )
         .unwrap();
     assert_outer_state(&builder);
@@ -548,6 +549,7 @@ fn static_and_instance_drafts_commit_only_after_caller_restore() {
             Vec::new(),
             Vec::new(),
             DeclarationAttrs::default(),
+            None,
         )
         .unwrap();
     assert_outer_state(&builder);
@@ -568,6 +570,7 @@ fn static_and_instance_drafts_commit_only_after_caller_restore() {
             Vec::new(),
             Vec::new(),
             DeclarationAttrs::default(),
+            None,
         )
         .unwrap();
     assert_outer_state(&builder);
@@ -583,7 +586,7 @@ fn static_and_instance_drafts_commit_only_after_caller_restore() {
 fn child_entry_resets_captured_function_owned_state_before_restoring_outer_state() {
     let mut builder = seeded_builder();
     let error = builder
-        .with_function_lowering_session("Injected.child_entry/0", Vec::new(), |child| {
+        .with_function_lowering_session("Injected.child_entry/0", Vec::new(), None, |child| {
             assert_child_entry_is_reset(child);
 
             child

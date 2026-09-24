@@ -6,7 +6,7 @@
 //! Outside terminal.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
+use crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1;
 use crate::mir::builder::module_lowering_invocation::ModuleLoweringPortV1;
 use crate::mir::builder::normal_callable_loop_source_route::{
     CallableLoopSourceTargetProbeV1, CallableLoopSourceTargetRelationV1,
@@ -72,7 +72,7 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
             .unwrap_or_else(|| "<unknown>".to_owned());
         let debug = crate::config::env::joinir_dev::debug_enabled();
         let in_static_box = builder.comp_ctx.current_static_box.is_some();
-        let policy = GenericLoopFactsPolicyFrameV1::from_environment();
+        let policy = LoopFactsPolicyFrameV1::from_environment();
         let prepared = PreparedLocatedRawLoopChildEntryV1::prepare_with_method_source_observation(
             source,
             loop_node,
@@ -102,6 +102,9 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
                     policy,
                     root_scope,
                     callable_ledger,
+                    Some(self.source_input.ok_or_else(|| {
+                        "[freeze:contract][raw-loop-child-entry/source-input-missing]".to_owned()
+                    })?),
                     source_target_for_loop(
                         self.module_port,
                         declarations,
@@ -307,29 +310,28 @@ mod tests {
         assert_eq!(after, before, "fail-fast must not create partial MIR");
     }
 
-    /// A resolver-cataloged loop left deliberately unarmed (unsupported
-    /// ancestor) keeps the ordinary GenericLoop boundary even when a sibling
-    /// armed the callable source bridge. Strict + planner_required mode: the
-    /// located source-port composer only admits RecipeOnly bodies in this
-    /// slice, so the same unarmed site reaches the named RecipeOnly terminal
-    /// instead of the GenericLoop lowering boundary.
+    /// A resolver-cataloged nested loop with no admitted callable Facts stays
+    /// at the source-facts terminal. It must not re-enter the compatibility
+    /// GenericLoop route, regardless of the planner diagnostic mode.
     #[test]
-    fn unarmed_nested_loop_keeps_generic_loop_boundary() {
-        crate::test_support::with_env_vars(&crate::test_support::JOINIR_DEFAULT_MODE, || {
-            lower_unarmed_nested_loop()
-                .expect("unarmed nested loop must keep the GenericLoop boundary");
-        });
-        crate::test_support::with_env_vars(
-            &crate::test_support::JOINIR_STRICT_PLANNER_MODE,
-            || {
+    fn unarmed_nested_loop_stops_at_source_facts_without_compatibility_reentry() {
+        for (mode, expected_terminal) in [
+            (
+                &crate::test_support::JOINIR_DEFAULT_MODE,
+                "[callable-loop/facts-absent]",
+            ),
+            (
+                &crate::test_support::JOINIR_STRICT_PLANNER_MODE,
+                "[callable-loop/facts-rejected]",
+            ),
+        ] {
+            crate::test_support::with_env_vars(mode, || {
                 let error = lower_unarmed_nested_loop()
-                    .expect_err("strict planner_required keeps the named RecipeOnly boundary");
-                assert!(
-                    error.contains("callable-loop source port requires RecipeOnly body"),
-                    "{error}"
-                );
-            },
-        );
+                    .expect_err("unarmed nested loop must stop at its source owner");
+                assert!(error.contains(expected_terminal), "{error}");
+                assert!(!error.contains("route_loop"), "{error}");
+            });
+        }
     }
 
     /// Lower the if-nested (resolver-cataloged but unarmed) loop of the mixed
@@ -428,6 +430,7 @@ static function mixed_loop(x: i64): i64 {
             site: nested_site,
             body_kind: None,
         });
+        port.source_input = Some(input);
 
         let before = builder
             .function_state

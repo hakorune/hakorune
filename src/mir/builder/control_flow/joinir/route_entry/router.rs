@@ -18,21 +18,21 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
+use std::rc::Rc;
 
 use crate::mir::loop_route_detection::LoopRouteKind;
 
-// Phase 273 P1: Import Plan components (facts/recipe outcome -> verifier -> lowerer)
-use super::registry;
-use super::runtime_adjacent_shadow_guard;
-use crate::mir::builder::control_flow::lower::expectations;
-use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
-use crate::mir::builder::control_flow::lower::{
-    loop_body_has_nested_loop, router_shadow_pre_plan_guard_error, try_build_outcome, CorePlan,
-    Freeze, PlanBuildOutcome, PlanLowerer,
+// M10b-I0-R0: the frozen entry consumes only resolver products and the
+// caller-zero spine/admission/physicalizer edges landed under P1/P2.
+use crate::mir::builder::control_flow::lower::Freeze;
+use crate::mir::builder::emission::constant::emit_void;
+use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::lower_loop_node_physical_admission_v1;
+use crate::mir::compiler::loop_node_physical_admission::issue_loop_node_physical_admission_v1;
+use crate::mir::compiler::loop_node_winner_spine::{
+    issue_loop_node_winner_recipe_v1, LoopNodeWinnerSpineOutcomeV1,
 };
-use crate::mir::builder::control_flow::verify::diagnostics::planner_reject_detail;
-use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{self, FlowboxVia};
-use crate::mir::builder::control_flow::verify::PlanVerifier;
+use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+use crate::mir::numeric_substrate::NumericTarget;
 
 /// Context passed to loop route detection/lowering functions.
 pub(crate) struct LoopRouteContext<'a> {
@@ -109,281 +109,127 @@ impl<'a> LoopRouteContext<'a> {
     }
 }
 
-// Phase 29ai P5: Plan extractor routing moved to `plan::single_planner`.
-
-/// Route loops via plan/composer SSOT.
-///
-/// Returns Ok(Some(value_id)) if a plan matched and lowered successfully.
-/// Returns Ok(None) if no plan matched.
-/// Returns Err if a plan matched but lowering failed.
-///
-/// # Router Architecture (Plan/Composer SSOT)
-///
-/// The plan line (Extractor → Normalizer → Verifier → Lowerer) is the
-/// operational SSOT for loop routing (Phase 273+).
-///
-/// Plan-based architecture (Phase 273 P1-P3):
-/// - try_build_outcome() → facts/recipe outcome (pure extraction, no builder)
-/// - PlanVerifier::verify() → fail-fast validation
-/// - PlanLowerer::lower() → MIR emission (route-agnostic, emit_frag SSOT)
-///
-/// SSOT entry points:
-/// - `scan_with_init`: `src/mir/builder/control_flow/plan/normalizer.rs`
-/// - `split_scan`: `src/mir/builder/control_flow/plan/normalizer.rs`
-pub(super) fn lower_verified_core_plan(
-    builder: &mut MirBuilder,
-    ctx: &LoopRouteContext,
-    strict_or_dev: bool,
-    facts: Option<&CanonicalLoopFacts>,
-    core_plan: CorePlan,
-    via: FlowboxVia,
-) -> Result<Option<ValueId>, String> {
-    if !matches!(&core_plan, CorePlan::Loop(_)) {
-        return Err(
-            Freeze::contract("selected Loop route produced a non-Loop CorePlan root").to_string(),
-        );
-    }
-    PlanVerifier::verify(&core_plan)?;
-    flowbox_tags::emit_flowbox_adopt_tag_from_coreplan(strict_or_dev, &core_plan, facts, via);
-    PlanLowerer::lower(builder, core_plan, ctx)
-}
-
-fn enforce_shadow_adopt_pre_plan_guard(
-    ctx: &LoopRouteContext,
-    strict_or_dev: bool,
-    outcome: &PlanBuildOutcome,
-) -> Result<(), String> {
-    let Some(err) = router_shadow_pre_plan_guard_error(ctx, outcome) else {
-        return Ok(());
-    };
-    flowbox_tags::emit_flowbox_freeze_tag_from_facts(
-        strict_or_dev,
-        "unstructured",
-        outcome.facts.as_ref(),
-    );
-    if crate::config::env::joinir_dev::debug_enabled() {
-        let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!("{}", err));
-    }
-    Err(err)
-}
-
-fn freeze_expected_plan(
-    strict_or_dev: bool,
-    facts: Option<&CanonicalLoopFacts>,
-    tag: &'static str,
-    message: &'static str,
-) -> String {
-    flowbox_tags::emit_flowbox_freeze_contract(strict_or_dev, tag, facts, message)
-}
-
-fn release_allows_nested_recipe_first(outcome: &PlanBuildOutcome) -> bool {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return false;
-    };
-
-    if facts.facts.nested_loop_minimal().is_some() {
-        return true;
-    }
-    if facts.facts.generic_loop_v1().is_some() || facts.facts.generic_loop_v0().is_some() {
-        return true;
-    }
-
-    if facts.facts.loop_cond_continue_only().is_some() {
-        return true;
-    }
-
-    if !(facts.exit_usage.has_break && facts.exit_usage.has_continue) || facts.exit_usage.has_return
-    {
-        return false;
-    }
-    let Some(loop_cond) = facts.facts.loop_cond_break_continue() else {
-        return false;
-    };
-    loop_cond.release_allowed()
-}
-
-fn issue_live_preflight_frame_from_outcome<'frame>(
-    ctx: &LoopRouteContext<'frame>,
-    outcome: &'frame PlanBuildOutcome,
-    selection: registry::RecipeFirstRouteSelectionV1,
-    strict_or_dev: bool,
-    planner_required: bool,
-) -> registry::LivePreflightFrameV1<'frame> {
-    let has_body_local = outcome
-        .facts
-        .as_ref()
-        .and_then(|facts| facts.facts.loop_break_body_local())
-        .is_some();
-    let env = registry::RouterEnv {
-        strict_or_dev,
-        planner_required,
-        has_body_local,
-    };
-    let release_recipe_first_allowed = if !loop_body_has_nested_loop(ctx.body) {
-        true
-    } else {
-        release_allows_nested_recipe_first(outcome)
-    };
-    let recipe_first_allowed = strict_or_dev || release_recipe_first_allowed;
-    registry::issue_live_preflight_frame(
-        ctx,
-        outcome.facts.as_ref(),
-        selection,
-        env,
-        outcome.recipe_contract.is_some(),
-        recipe_first_allowed,
-    )
-}
-
-#[cfg(test)]
-pub(crate) fn test_issue_live_preflight_frame<'frame>(
-    ctx: &LoopRouteContext<'frame>,
-    outcome: &'frame PlanBuildOutcome,
-    strict_or_dev: bool,
-    planner_required: bool,
-) -> registry::LivePreflightFrameV1<'frame> {
-    issue_live_preflight_frame_from_outcome(
-        ctx,
-        outcome,
-        registry::select_recipe_first_routes(outcome.facts.as_ref()),
-        strict_or_dev,
-        planner_required,
-    )
-}
-
+// M10b-I0-R0: frozen located-source entry.
+//
+// One fixed order with no re-decision:
+//   parser-issued FunctionDeclaration -> resolved source unit -> exact loop
+//   membership -> one policy winner -> verified recipe -> one physical
+//   admission -> one canonical physicalizer -> outer publication.
+//
+// Every failure is a typed terminal Freeze. There is no ordered schedule,
+// no retry, no `Ok(None)` tail, and no second physical owner.
 pub(crate) fn route_loop(
     builder: &mut MirBuilder,
     ctx: &LoopRouteContext,
 ) -> Result<Option<ValueId>, String> {
-    use super::super::trace;
-
-    // Phase 29ai P5: Single entrypoint for plan extraction (router has no rule table).
-    let outcome = try_build_outcome(ctx)?;
-    let shadow_guard_report =
-        runtime_adjacent_shadow_guard::observe_after_try_build_outcome_before_registry(&outcome);
-    debug_assert!(shadow_guard_report.runtime_authority_is_rust_astnode);
-    debug_assert!(!shadow_guard_report.programjson_runtime_route_authority);
-    debug_assert!(!shadow_guard_report.runtime_route_switch);
-    debug_assert!(!shadow_guard_report.recipe_matcher_input_authority);
-    debug_assert!(!shadow_guard_report.writes_downstream);
-    debug_assert!(!shadow_guard_report.runtime_fallback);
-    let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
-        || crate::config::env::joinir_dev_enabled();
-    let planner_required =
-        strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
-    let selection = registry::select_recipe_first_routes(outcome.facts.as_ref());
-    let allow_shadow_fallback = outcome.recipe_contract.is_none();
-    let debug_enabled = crate::config::env::joinir_dev::debug_enabled();
-    let trace_entry_route = |route: &str| {
-        if debug_enabled {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[plan/trace:entry_route] ctx=loop_router route={}",
-                route
-            ));
-        }
-    };
-    let trace_legacy_selected = |route: &str| {
-        if debug_enabled {
-            let ring0 = crate::runtime::get_global_ring0();
-            let _ = ring0.io.stderr_write(
-                format!("[plan/trace:loop_legacy_selected] route={}\n", route).as_bytes(),
-            );
-        }
+    // Source authority: the FunctionDeclaration recorded at function entry.
+    // A missing declaration means the walked loop has no canonical source
+    // identity — a contract freeze, never a silent skip.
+    let Some(declaration) = builder
+        .function_state
+        .compilation
+        .fn_declaration_ast
+        .clone()
+    else {
+        return Err(Freeze::contract(
+            "route_loop requires a parser-issued FunctionDeclaration in the lowering session",
+        )
+        .to_string());
     };
 
-    if strict_or_dev && planner_required {
-        if debug_enabled {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[plan/trace:entry_candidates_gate] strict_or_dev={} planner_required={} debug_enabled={}",
-                strict_or_dev, planner_required, debug_enabled
-            ));
-        }
-        let candidates = selection.diagnostic_effective_names();
-        if debug_enabled {
-            let list = if candidates.is_empty() {
-                "none".to_string()
-            } else {
-                candidates.join(",")
-            };
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[plan/trace:entry_candidates] ctx=loop_router candidates={}",
-                list
-            ));
-            let resolver_shadow = registry::collect_b_lite_shadow_report(&selection);
-            let _ = ring0
-                .io
-                .stderr_write(format!("{}\n", resolver_shadow.trace_line()).as_bytes());
-        }
-        if candidates.len() > 1 {
-            return Err(Freeze::contract(&format!(
-                "entry_ambiguous: candidates={}",
-                candidates.join(",")
-            ))
-            .to_string());
-        }
-    }
-
-    let exhausted_candidate_names = selection.diagnostic_effective_names();
-    let frame = issue_live_preflight_frame_from_outcome(
-        ctx,
-        &outcome,
-        selection,
-        strict_or_dev,
-        planner_required,
-    );
-    let legacy = registry::observe_all_route_preflight_v1(frame).into_legacy_execution();
-    if let Some(success) = legacy.try_execute_if_allowed(builder, ctx)? {
-        trace_legacy_selected(success.route.as_str());
-        trace_entry_route("recipe_first");
-        return Ok(Some(success.value));
-    }
-
-    // recipe-first paths are handled by registry above.
-
-    // Phase-1: recipe-first paths return above; reaching here means no recipe-first match.
-    // Phase-2: shadow pre-plan is guard-only (no adopt path in router).
-    // Phase-3: release also returns above when recipe-first matched (shadow guard skipped).
-    if strict_or_dev && allow_shadow_fallback {
-        enforce_shadow_adopt_pre_plan_guard(ctx, strict_or_dev, &outcome)?;
-    }
-
-    if strict_or_dev && expectations::should_expect_plan(&outcome, ctx) {
-        return Err(freeze_expected_plan(
-            strict_or_dev,
-            outcome.facts.as_ref(),
-            "planner_none",
-            "planner returned None for expected loop facts",
-        ));
-    }
-
-    // No route matched - return None (caller will handle error)
-    let candidate_text = if exhausted_candidate_names.is_empty() {
-        "none".to_string()
+    // Resolve the function's source unit once; sibling loops share it.
+    let unit = if let Some(unit) = &builder
+        .function_state
+        .compilation
+        .resolved_loop_source_unit
+    {
+        Rc::clone(unit)
     } else {
-        exhausted_candidate_names.join(",")
-    };
-    planner_reject_detail::set_last_plan_reject_detail_if_absent(format!(
-        "route_exhausted func={} loop_kind={} facts_present={} candidates={}",
-        ctx.func_name,
-        ctx.route_kind.semantic_label(),
-        outcome.facts.is_some(),
-        candidate_text
-    ));
-
-    if ctx.debug {
-        trace::trace().debug(
-            "route",
-            &format!(
-                "route=none (no route matched) func='{}' loop_kind={} (exhausted: plan+joinir)",
-                ctx.func_name,
-                ctx.route_kind.semantic_label()
-            ),
+        let unit = Rc::new(
+            VerifiedResolvedSourceUnitV1::resolve_function(declaration)
+                .map_err(|error| error.to_string())?,
         );
+        builder
+            .function_state
+            .compilation
+            .resolved_loop_source_unit = Some(Rc::clone(&unit));
+        unit
+    };
+    let input = unit
+        .root_function_input()
+        .map_err(|error| error.to_string())?;
+
+    // Exact membership: the walked loop must equal exactly one resolver-
+    // inventoried Loop statement by structure. Zero or two matches are
+    // terminal — no index, span, or ordinal re-derivation.
+    let mut matched = None;
+    for site in input.function().loop_sites() {
+        let located = input
+            .source()
+            .exact_stmt(site)
+            .map_err(|error| error.to_string())?;
+        let ASTNode::Loop {
+            condition, body, ..
+        } = located.node()
+        else {
+            return Err(Freeze::contract(
+                "resolver loop inventory projected a non-Loop statement",
+            )
+            .to_string());
+        };
+        if condition.as_ref() == ctx.condition && body.as_slice() == ctx.body {
+            if matched.replace(located).is_some() {
+                return Err(Freeze::contract(
+                    "ambiguous loop membership: two resolver sites match one walked loop",
+                )
+                .to_string());
+            }
+        }
     }
-    trace_entry_route("none");
-    Ok(None)
+    let Some(loop_stmt) = matched else {
+        return Err(Freeze::contract(
+            "walked loop is absent from the resolver loop inventory",
+        )
+        .to_string());
+    };
+
+    // One policy winner -> one verified recipe.
+    let issued = match issue_loop_node_winner_recipe_v1(input, loop_stmt, NumericTarget::host()) {
+        LoopNodeWinnerSpineOutcomeV1::Issued(issued) => issued,
+        LoopNodeWinnerSpineOutcomeV1::Declined(_) => {
+            return Err(Freeze::contract(
+                "loop winner selection declined: zero selected family candidates",
+            )
+            .to_string())
+        }
+        LoopNodeWinnerSpineOutcomeV1::Unresolved(failure)
+        | LoopNodeWinnerSpineOutcomeV1::Rejected(failure) => {
+            return Err(Freeze::contract(&format!(
+                "loop winner spine terminal: {failure:?}"
+            ))
+            .to_string())
+        }
+    };
+
+    // One physical admission -> one canonical physicalizer.
+    let admission = issue_loop_node_physical_admission_v1(input, issued).map_err(|error| {
+        Freeze::contract(&format!("loop node physical admission terminal: {error:?}")).to_string()
+    })?;
+    let continuation = lower_loop_node_physical_admission_v1(builder, input, admission)?;
+
+    // Outer publication: the walk adopts post-loop values by resolver
+    // binding name and continues at the sealed root After block.
+    for (binding, value) in continuation.writebacks() {
+        let record = input.function().binding(*binding).ok_or_else(|| {
+            Freeze::contract("loop writeback binding unknown to resolver inventory").to_string()
+        })?;
+        builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .insert(record.diagnostic_name().to_owned(), *value);
+    }
+    builder.function_state.current_block = Some(continuation.root_after());
+    let result = emit_void(builder)?;
+    Ok(Some(result))
 }

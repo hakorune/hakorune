@@ -1,17 +1,14 @@
 use super::{
-    CallableLoopSourceItemBindingV1, CallableLoopSourceItemDispositionV1,
-    CallableLoopSourceRouteRejectV1, CallableLoopSourceRouteTokenV1,
-    CallableLoopSourceTargetProbeV1, CallableLoopSourceTargetRelationV1,
-    CallableLoopSourceTargetRequirementV1,
+    CallableLoopRouteMatchV1, CallableLoopSourceItemBindingV1,
+    CallableLoopSourceItemDispositionV1, CallableLoopSourceRouteRejectV1,
+    CallableLoopSourceRouteTokenV1, CallableLoopSourceTargetProbeV1,
+    CallableLoopSourceTargetRelationV1, CallableLoopSourceTargetRequirementV1,
 };
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
-use crate::mir::builder::control_flow::joinir::route_entry::registry::{
-    select_recipe_first_routes, RecipeFirstRouteSelectionV1,
-};
 use crate::mir::builder::control_flow::plan::single_planner::{
     self, CallableLoopFactsPlannerInputV1,
 };
-use crate::mir::builder::control_flow::plan::{GenericLoopFactsPolicyFrameV1, PlanBuildOutcome};
+use crate::mir::builder::control_flow::plan::{LoopFactsPolicyFrameV1, PlanBuildOutcome};
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::callable_result_representation::{
     VerifiedCallableResultRepresentationV1, VerifiedStaticCallResultPublicationDemandV1,
@@ -104,7 +101,7 @@ fn source_loop_cond_route_token_requires_exclusive_registry_route() {
     else {
         panic!("fixture root must be a loop")
     };
-    let policy = GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
+    let policy = LoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
     let outcome = single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
         condition,
         body,
@@ -113,9 +110,9 @@ fn source_loop_cond_route_token_requires_exclusive_registry_route() {
         false,
     ))
     .expect("planner outcome");
-    let selection = select_recipe_first_routes(outcome.facts.as_ref());
+    let selection = CallableLoopRouteMatchV1::issue(outcome.facts.as_ref().expect("facts"));
     assert_eq!(
-        selection.raw_execution_routes(),
+        selection.matched_routes(),
         [crate::mir::loop_recipe_contract::route_id::LoopRouteId::LoopCondBreakContinue]
     );
     let projection = issue_loop_cond_break_continue_source_forest_projection_v1(input, &root)
@@ -133,7 +130,7 @@ fn source_loop_cond_route_token_requires_exclusive_registry_route() {
     assert_eq!(token.owner(), input.owner());
     assert_eq!(token.parent_site(), &root.site().node().clone());
     assert_eq!(token.projection().member_sites().len(), 1);
-    assert_eq!(token.selection().raw_execution_routes().len(), 1);
+    assert_eq!(token.selection().matched_routes().len(), 1);
     assert!(token.outcome().facts.is_some());
 }
 
@@ -151,7 +148,7 @@ fn source_loop_cond_route_token_rejects_missing_projection() {
     else {
         panic!("fixture root must be a loop")
     };
-    let policy = GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
+    let policy = LoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
     let outcome = single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
         condition,
         body,
@@ -160,7 +157,7 @@ fn source_loop_cond_route_token_rejects_missing_projection() {
         false,
     ))
     .expect("planner outcome");
-    let selection = select_recipe_first_routes(outcome.facts.as_ref());
+    let selection = CallableLoopRouteMatchV1::issue(outcome.facts.as_ref().expect("facts"));
     let reject = CallableLoopSourceRouteTokenV1::issue(
         input.owner(),
         root.site().node().clone(),
@@ -188,7 +185,7 @@ fn source_loop_cond_route_token_rejects_physical_transfer_without_target() {
     else {
         panic!("fixture root must be a loop")
     };
-    let policy = GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
+    let policy = LoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
     let outcome = single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
         condition,
         body,
@@ -197,7 +194,7 @@ fn source_loop_cond_route_token_rejects_physical_transfer_without_target() {
         false,
     ))
     .expect("planner outcome");
-    let selection = select_recipe_first_routes(outcome.facts.as_ref());
+    let selection = CallableLoopRouteMatchV1::issue(outcome.facts.as_ref().expect("facts"));
     let projection = issue_loop_cond_break_continue_source_forest_projection_v1(input, &root)
         .expect("forest projection");
     let token = CallableLoopSourceRouteTokenV1::issue(
@@ -313,7 +310,7 @@ struct ArmedLoopCondParts {
     function_origin: FunctionOriginV1,
     source_kind: SemanticOwnerSourceKindV1,
     outcome: PlanBuildOutcome,
-    selection: RecipeFirstRouteSelectionV1,
+    selection: CallableLoopRouteMatchV1,
     projection: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     items: Box<[CallableLoopSourceItemBindingV1]>,
     call_sites: Box<[SourceExprSiteV1]>,
@@ -354,7 +351,7 @@ fn armed_loop_cond_parts(source: &str) -> ArmedLoopCondParts {
     else {
         panic!("fixture root must be a loop")
     };
-    let policy = GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
+    let policy = LoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true);
     let outcome = single_planner::try_build_source_outcome(CallableLoopFactsPlannerInputV1::new(
         condition,
         body,
@@ -363,9 +360,9 @@ fn armed_loop_cond_parts(source: &str) -> ArmedLoopCondParts {
         false,
     ))
     .expect("planner outcome");
-    let selection = select_recipe_first_routes(outcome.facts.as_ref());
+    let selection = CallableLoopRouteMatchV1::issue(outcome.facts.as_ref().expect("facts"));
     assert_eq!(
-        selection.raw_execution_routes(),
+        selection.matched_routes(),
         [crate::mir::loop_recipe_contract::route_id::LoopRouteId::LoopCondBreakContinue]
     );
     let projection = issue_loop_cond_break_continue_source_forest_projection_v1(input, &root)

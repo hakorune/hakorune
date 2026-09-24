@@ -473,6 +473,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         let function_name = format!(
             "{}.{}",
@@ -512,6 +513,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                         body,
                         uses,
                         attrs,
+                        declaration,
                     )
                 },
             )?;

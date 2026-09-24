@@ -20,6 +20,7 @@ pub(in crate::mir::builder) mod loop_step_shape;
 #[cfg(test)]
 pub(in crate::mir::builder) mod loop_tests;
 pub(in crate::mir::builder) mod loop_types;
+mod policy;
 
 // Flattened from expr/
 pub(in crate::mir::builder) mod expr_generic_loop;
@@ -43,13 +44,8 @@ pub(in crate::mir::builder) mod scan_shapes;
 pub(in crate::mir::builder) mod skeleton_facts;
 pub(in crate::mir::builder) mod string_is_integer_facts;
 
-#[cfg(test)]
-pub(in crate::mir::builder) use super::generic_loop::facts::extract::observe_generic_loop_carrier_observation;
-#[cfg(test)]
-pub(in crate::mir::builder) use super::generic_loop::facts_types::GenericLoopCarrierObservationV1;
+pub(in crate::mir) use policy::LoopFactsPolicyFrameV1;
 pub(in crate::mir::builder) use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
-#[cfg(test)]
-pub(in crate::mir::builder) use loop_builder::try_build_live_loop_facts;
 #[cfg(test)]
 pub(in crate::mir::builder) use loop_builder::try_build_loop_facts;
 pub(in crate::mir::builder) use loop_builder::try_build_loop_facts_with_ctx;

@@ -57,6 +57,7 @@ impl RawBoxMethodChildPortV1 for RecordingOrdinaryPortV1 {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         self.static_methods.push(function_name.clone());
         self.static_context_active
@@ -76,6 +77,7 @@ impl RawBoxMethodChildPortV1 for RecordingOrdinaryPortV1 {
             body,
             uses,
             attrs,
+            declaration,
         )
     }
 
@@ -90,6 +92,7 @@ impl RawBoxMethodChildPortV1 for RecordingOrdinaryPortV1 {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         self.instance_methods.push(function_name.clone());
         if self.fail_instance_method.as_deref() == Some(function_name.as_str()) {
@@ -108,6 +111,7 @@ impl RawBoxMethodChildPortV1 for RecordingOrdinaryPortV1 {
             body,
             uses,
             attrs,
+            declaration,
         )
     }
 }
@@ -156,6 +160,7 @@ impl RootCallableCapturePortV1 for RecordingOrdinaryPortV1 {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         self.instance_keys.push((
             canonical_key.namespace(),
@@ -172,6 +177,7 @@ impl RootCallableCapturePortV1 for RecordingOrdinaryPortV1 {
             body,
             uses,
             attrs,
+            declaration,
         )
     }
 }

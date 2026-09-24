@@ -22,6 +22,7 @@ pub(super) fn lower_normal_top_level_function(
     body: Vec<ASTNode>,
     uses: Vec<String>,
     attrs: DeclarationAttrs,
+    declaration: Option<ASTNode>,
 ) -> Result<(), String> {
     let key = SelectedNormalCallableKeyV1::TopLevel(admission.source_key().clone());
     let lineage =
@@ -64,6 +65,7 @@ pub(super) fn lower_normal_top_level_function(
                                 uses,
                                 attrs,
                                 transport,
+                                declaration,
                             )
                             .map_err(|error| error.to_string())
                     },

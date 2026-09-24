@@ -82,23 +82,5 @@ pub(crate) fn pred_loop_cond_return_in_body(facts: &CanonicalLoopFacts) -> bool 
     let scan = ScanFamilyPresence::from_facts(facts);
     !scan.blocks_return_or_generic()
 }
-pred_accessor!(pred_generic_loop_v0, generic_loop_v0);
-pub(crate) fn pred_generic_loop_v1(facts: &CanonicalLoopFacts) -> bool {
-    if facts.facts.generic_loop_v1().is_none() {
-        return false;
-    }
-    if pred_loop_break_recipe(facts) {
-        return false;
-    }
-    if pred_loop_simple_while(facts) {
-        return false;
-    }
-    if pred_loop_cond_break_continue(facts) {
-        return false;
-    }
-    let scan = ScanFamilyPresence::from_facts(facts);
-    if scan.blocks_return_or_generic() {
-        return false;
-    }
-    true
-}
+// M10b-I0-R0: pred_generic_loop_v0/v1 retired with the ordered scheduler —
+// the GenericLoop fact arms they read were deleted with the generic subtree.

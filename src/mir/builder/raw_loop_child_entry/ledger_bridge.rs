@@ -1,9 +1,10 @@
 use super::PreparedLocatedRawLoopChildEntryV1;
-use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
+use crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1;
 use crate::mir::builder::module_invocation_session::UnpublishedCallableLoopRootScopeV1;
 use crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetProbeV1;
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::MirBuilder;
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::ValueId;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -15,9 +16,10 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         function_name: &str,
         debug: bool,
         in_static_box: bool,
-        policy: GenericLoopFactsPolicyFrameV1,
+        policy: LoopFactsPolicyFrameV1,
         callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
         callable_ledger: &Rc<RefCell<CallableSemanticLoweringState>>,
+        source_input: Option<ResolvedFunctionLoweringInputV1<'_>>,
         source_target_probe: CallableLoopSourceTargetProbeV1,
     ) -> Result<ValueId, String> {
         self.lower_v1_with_optional_root_scope(
@@ -28,6 +30,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             policy,
             Some(callable_loop_root_scope),
             Some(callable_ledger),
+            source_input,
             source_target_probe,
         )
     }

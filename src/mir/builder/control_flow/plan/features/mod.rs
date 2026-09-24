@@ -15,18 +15,6 @@ pub(in crate::mir::builder) mod coreloop_frame;
 
 pub(in crate::mir::builder) mod carrier_merge;
 pub(in crate::mir::builder) mod exit_if_map;
-pub(in crate::mir::builder) mod generic_loop_body;
-pub(in crate::mir::builder) mod generic_loop_context;
-pub(in crate::mir::builder) mod generic_loop_handoff;
-pub(in crate::mir::builder) mod generic_loop_located_composer;
-#[cfg(test)]
-mod generic_loop_p0c_tests;
-pub(in crate::mir::builder) mod generic_loop_pipeline;
-pub(in crate::mir::builder) mod generic_loop_step;
-#[cfg(test)]
-mod generic_loop_whole_parity_tests;
-pub(in crate::mir::builder) mod loop_break_composite_source;
-pub(in crate::mir::builder) mod loop_break_source;
 pub(in crate::mir::builder) mod loop_cond_continue_with_return_pipeline;
 pub(in crate::mir::builder) mod loop_cond_return_in_body_cleanup;
 pub(in crate::mir::builder) mod loop_cond_return_in_body_join;
@@ -34,13 +22,12 @@ pub(in crate::mir::builder) mod loop_cond_return_in_body_phi_materializer;
 pub(in crate::mir::builder) mod loop_cond_return_in_body_pipeline;
 pub(in crate::mir::builder) mod loop_cond_return_in_body_verifier;
 pub(in crate::mir::builder) mod loop_true_break_continue_cleanup;
+pub(in crate::mir::builder) mod loop_break_composite_source;
+pub(in crate::mir::builder) mod loop_break_source;
 pub(in crate::mir::builder) mod loop_true_break_continue_phi_materializer;
 pub(in crate::mir::builder) mod loop_true_break_continue_pipeline;
 pub(in crate::mir::builder) mod loop_true_break_continue_source;
 pub(in crate::mir::builder) mod loop_true_break_continue_verifier;
-pub(in crate::mir::builder) mod nested_loop_depth1;
-pub(in crate::mir::builder) mod nested_loop_depth1_preheader;
-pub(in crate::mir::builder) mod nested_loop_depth1_route;
 pub(in crate::mir::builder) mod step_mode;
 
 // Flattened from loop_cond_break_continue_pipeline/

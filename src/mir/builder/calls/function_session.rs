@@ -59,7 +59,14 @@ pub(in crate::mir::builder) struct CanonicalFunctionLoweringSessionV1<'builder> 
 }
 
 enum FunctionBodyCaptureV1 {
-    Legacy(Vec<ASTNode>),
+    /// Legacy compatibility lowering: the parser-issued body plus, when the
+    /// caller still holds it, the whole FunctionDeclaration node. The
+    /// declaration feeds the M10b route_loop resolver unit; `None` keeps the
+    /// route on the recorded typed terminal.
+    Legacy {
+        body: Vec<ASTNode>,
+        declaration: Option<ASTNode>,
+    },
     CanonicalClosedFamily,
 }
 
@@ -167,10 +174,15 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
         let requires_resolved_authority =
             matches!(&body_capture, FunctionBodyCaptureV1::CanonicalClosedFamily);
         let context = builder.prepare_lowering_context(function_name);
-        builder.function_state.compilation.fn_body_ast = match body_capture {
-            FunctionBodyCaptureV1::Legacy(body) => Some(body),
-            FunctionBodyCaptureV1::CanonicalClosedFamily => None,
-        };
+        match body_capture {
+            FunctionBodyCaptureV1::Legacy { body, declaration } => {
+                builder.function_state.compilation.fn_body_ast = Some(body);
+                builder.function_state.compilation.fn_declaration_ast = declaration;
+            }
+            FunctionBodyCaptureV1::CanonicalClosedFamily => {
+                builder.function_state.compilation.fn_body_ast = None;
+            }
+        }
         Self {
             builder,
             context: Some(context),
@@ -402,7 +414,7 @@ impl MirBuilder {
         let mut session = CanonicalFunctionLoweringSessionV1::open(
             self,
             function_name,
-            FunctionBodyCaptureV1::Legacy(Vec::new()),
+            FunctionBodyCaptureV1::Legacy { body: Vec::new(), declaration: None },
         );
         let outcome =
             std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| operation(session.builder)));
@@ -453,12 +465,16 @@ impl MirBuilder {
         &mut self,
         function_name: &str,
         body_snapshot: Vec<ASTNode>,
+        declaration: Option<ASTNode>,
         operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
     ) -> Result<(), String> {
         CanonicalFunctionLoweringSessionV1::open(
             self,
             function_name,
-            FunctionBodyCaptureV1::Legacy(body_snapshot),
+            FunctionBodyCaptureV1::Legacy {
+                body: body_snapshot,
+                declaration,
+            },
         )
         .run(operation)
         .map_err(|error| error.to_string())
@@ -468,12 +484,16 @@ impl MirBuilder {
         &mut self,
         function_name: &str,
         body_snapshot: Vec<ASTNode>,
+        declaration: Option<ASTNode>,
         operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
     ) -> Result<(), CanonicalFunctionSessionErrorV1> {
         CanonicalFunctionLoweringSessionV1::open(
             self,
             function_name,
-            FunctionBodyCaptureV1::Legacy(body_snapshot),
+            FunctionBodyCaptureV1::Legacy {
+                body: body_snapshot,
+                declaration,
+            },
         )
         .run(operation)
     }

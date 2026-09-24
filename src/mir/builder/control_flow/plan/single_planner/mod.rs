@@ -4,7 +4,7 @@
 //! Contract: keep `Result<_, String>` to preserve existing behavior/messages.
 
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
+use crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1;
 
 use super::planner::PlanBuildOutcome;
 
@@ -28,7 +28,7 @@ pub(in crate::mir::builder) fn try_build_outcome(
 /// this entry never re-reads ambient environment state.
 pub(in crate::mir::builder) fn try_build_outcome_with_policy(
     ctx: &LoopRouteContext,
-    policy: GenericLoopFactsPolicyFrameV1,
+    policy: LoopFactsPolicyFrameV1,
 ) -> Result<PlanBuildOutcome, String> {
     rules::try_build_outcome_with_policy(ctx, policy)
 }

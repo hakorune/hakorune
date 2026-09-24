@@ -4,7 +4,7 @@ fn box_compilation_session_preserves_the_existing_partial_type_context_action() 
     builder.comp_ctx.compilation_context = Some(BoxCompilationContext::new());
 
     let error = builder
-        .with_function_lowering_session("Injected.box_context/0", Vec::new(), |child| {
+        .with_function_lowering_session("Injected.box_context/0", Vec::new(), None, |child| {
             assert!(child.function_state.type_ctx.value_types.is_empty());
             assert!(child.function_state.type_ctx.value_kinds.is_empty());
             assert!(child.function_state.type_ctx.value_origin_newbox.is_empty());
@@ -77,6 +77,7 @@ fn panic_backstop_restores_without_publishing() {
         let _ = builder.with_function_lowering_session(
             "Injected.panic/0",
             Vec::new(),
+            None,
             |_builder| -> Result<MirFunction, String> {
                 panic!("injected panic");
             },

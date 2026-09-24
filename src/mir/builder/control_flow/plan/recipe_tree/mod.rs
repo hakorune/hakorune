@@ -44,7 +44,6 @@ mod split_scan_builder;
 // Composer modules attach route-specific methods to RecipeComposer.
 mod accum_const_loop_composer;
 mod bool_predicate_scan_composer;
-mod generic_loop_composer;
 mod if_phi_join_composer;
 mod loop_break_composer;
 mod loop_cond_composer;

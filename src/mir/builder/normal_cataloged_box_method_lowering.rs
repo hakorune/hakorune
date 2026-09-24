@@ -33,6 +33,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         let lineage = RawInvocationRootLineageV1::Cataloged(admission.source_key().clone());
         self.lower_normal_cataloged_static_box_method_with_source_v1(
@@ -45,6 +46,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             uses,
             attrs,
             RawInvocationSourceTransportV1::root((), lineage),
+            declaration,
         )
     }
 
@@ -60,6 +62,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         uses: Vec<String>,
         attrs: DeclarationAttrs,
         source: RawInvocationSourceTransportV1<()>,
+        declaration: Option<ASTNode>,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         let name = admission.physical_symbol().to_owned();
         builder.observe_legacy_method_lowering_v1(&name, &body, None);
@@ -73,6 +76,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                 body,
                 uses,
                 attrs,
+                declaration,
             )
         })?;
         self.module_port
@@ -90,6 +94,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         let lineage = RawInvocationRootLineageV1::Cataloged(admission.source_key().clone());
         self.lower_normal_cataloged_instance_box_method_with_source_v1(
@@ -102,6 +107,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             uses,
             attrs,
             RawInvocationSourceTransportV1::root((), lineage),
+            declaration,
         )
     }
 
@@ -117,6 +123,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         uses: Vec<String>,
         attrs: DeclarationAttrs,
         source: RawInvocationSourceTransportV1<()>,
+        declaration: Option<ASTNode>,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         let name = admission.physical_symbol().to_owned();
         let box_name = admission.source_key().owner().to_owned();
@@ -134,6 +141,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                 body,
                 uses,
                 attrs,
+                declaration,
             )
         })?;
         self.module_port
@@ -285,6 +293,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
         target_capability: Option<
             &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
         >,
@@ -307,6 +316,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                 .capture_legacy_function_pending_session_v1(
                     &session_name,
                     body.clone(),
+                    declaration,
                     move |builder| {
                         let prepared = builder.build_instance_method_draft_with_port_v1(
                             &mut child_port,

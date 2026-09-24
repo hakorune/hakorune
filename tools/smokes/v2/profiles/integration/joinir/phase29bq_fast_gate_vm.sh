@@ -176,8 +176,14 @@ run_bq_gates() {
   run_step "hako_mirbuilder_no_hostbridge" "$LOG_HAKO_MIRBUILDER_NO_HOSTBRIDGE" \
     "$ROOT_DIR/checks/hako_mirbuilder_no_hostbridge.sh" || return 1
 
-  run_step "phase29bq_fast_gate_cases" "$LOG_BQ_LIST" \
-    run_planner_first_list_gate "$LIST_FILE" "phase29bq_fast_gate_cases" "${RUN_TIMEOUT_SECS:-10}" || return 1
+  # phase29bq_fast_gate_cases list step retired (M10b-I0-R0): the VM-lane
+  # per-row contract was pinned to the retired ordered-scheduler route. Each
+  # row's canonical contract now lives in
+  #   phase29bq_portable_owner_source_backed_cases.tsv    (accepted rows)
+  #   phase29bq_typed_terminal_source_backed_cases.tsv    (typed-reject rows)
+  # verified by the two --backend mir gates; the TSV remains the corpus
+  # inventory consumed by generic_legacy_corpus_universe_guard.
+  # --only <case_id> still resolves rows for manual debugging.
 
   run_step "phase29bq_hako_mirbuilder_phase0_pin_vm" "$LOG_HAKO_MIRBUILDER_PHASE0_PIN" \
     "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase0_pin_vm.sh" || return 1

@@ -325,6 +325,7 @@ impl MirBuilder {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: crate::ast::DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         self.lower_static_method_as_function_typed(
             func_name,
@@ -334,6 +335,7 @@ impl MirBuilder {
             body,
             uses,
             attrs,
+            declaration,
         )
         .map_err(|error| error.to_string())
     }
@@ -349,6 +351,7 @@ impl MirBuilder {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: crate::ast::DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), super::function_session::CanonicalFunctionSessionErrorV1> {
         // Phase 200-C: Store fn_body for capture analysis
         if crate::config::env::joinir_dev::debug_enabled() {
@@ -377,6 +380,7 @@ impl MirBuilder {
         self.with_legacy_function_lowering_session_typed(
             &session_name,
             body.clone(),
+            declaration,
             move |builder| {
                 let mut port = RawLegacyChildLoweringPortV1;
                 let prepared = builder.build_static_method_draft_with_port_v1(
@@ -407,6 +411,7 @@ impl MirBuilder {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: crate::ast::DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         let params = normalize_instance_method_params(&func_name, params);
         let param_decls = normalize_instance_method_param_decls(&func_name, param_decls);
@@ -434,21 +439,26 @@ impl MirBuilder {
             }
         }
         let session_name = func_name.clone();
-        self.with_function_lowering_session(&session_name, body.clone(), move |builder| {
-            let mut port = RawLegacyChildLoweringPortV1;
-            let prepared = builder.build_instance_method_draft_with_port_v1(
-                &mut port,
-                func_name,
-                box_name,
-                params,
-                param_decls,
-                return_type_name,
-                body,
-                uses,
-                attrs,
-            )?;
-            builder.finalize_port_aware_draft_for_legacy_v1(prepared)
-        })
+        self.with_function_lowering_session(
+            &session_name,
+            body.clone(),
+            declaration,
+            move |builder| {
+                let mut port = RawLegacyChildLoweringPortV1;
+                let prepared = builder.build_instance_method_draft_with_port_v1(
+                    &mut port,
+                    func_name,
+                    box_name,
+                    params,
+                    param_decls,
+                    return_type_name,
+                    body,
+                    uses,
+                    attrs,
+                )?;
+                builder.finalize_port_aware_draft_for_legacy_v1(prepared)
+            },
+        )
     }
 
     /// Replays one exact instance-method entry and hands off its live root
@@ -466,6 +476,7 @@ impl MirBuilder {
             &'suffix [ASTNode],
         ) -> Result<(crate::mir::ValueId, R), String>,
     ) -> Result<R, String> {
+        let declaration_snapshot = declaration.clone();
         let ASTNode::FunctionDeclaration {
             name,
             params,
@@ -500,7 +511,11 @@ impl MirBuilder {
         let body_snapshot = body.clone();
         let mut observed = None;
 
-        self.with_function_lowering_session(&session_name, body_snapshot, |builder| {
+        self.with_function_lowering_session(
+            &session_name,
+            body_snapshot,
+            Some(declaration_snapshot),
+            |builder| {
             builder.create_method_skeleton(func_name, box_name, &params, &body)?;
             builder.set_current_function_declared_signature(
                 mir_method_param_decls_from_source(box_name, &params, &param_decls),

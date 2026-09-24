@@ -26,7 +26,6 @@ pub(in crate::mir::builder) enum LoopCondBreakAcceptKind {
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct LoopCondBreakContinueFacts {
     pub accept_kind: LoopCondBreakAcceptKind,
-    pub propagate_nested_carriers: bool,
     pub condition: ASTNode,
     pub recipe: LoopCondBreakContinueRecipe,
     pub has_handled_guard_break: bool,

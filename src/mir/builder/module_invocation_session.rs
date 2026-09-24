@@ -184,12 +184,12 @@ impl BuilderInvocationConfigV1 {
     /// rereading process environment after the invocation has started.
     pub(in crate::mir) fn generic_loop_facts_policy_v1(
         &self,
-    ) -> crate::mir::builder::GenericLoopFactsPolicyFrameV1 {
+    ) -> crate::mir::builder::LoopFactsPolicyFrameV1 {
         let emit = self.emit_debug_policy;
         let strict = emit.joinir_strict_enabled();
         let strict_or_dev = strict || emit.joinir_dev_enabled();
         let planner_required = strict_or_dev && emit.joinir_planner_required_enabled();
-        crate::mir::builder::GenericLoopFactsPolicyFrameV1::from_values(
+        crate::mir::builder::LoopFactsPolicyFrameV1::from_values(
             strict,
             strict_or_dev,
             emit.joinir_debug_enabled(),

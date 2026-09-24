@@ -23,9 +23,6 @@ use crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::Lo
 use crate::mir::builder::control_flow::facts::loop_cond_return_in_body::LoopCondReturnInBodyFacts;
 use crate::mir::builder::control_flow::facts::stmt_view::LoopSourceProjectionV1;
 use crate::mir::builder::control_flow::facts::IfPhiJoinFacts;
-use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
-    GenericLoopV0Facts, GenericLoopV1Facts,
-};
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakBodyLocalFacts;
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBreakFacts;
 use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::LoopTrueBreakContinueFacts;
@@ -43,8 +40,6 @@ pub(in crate::mir::builder) struct LoopFacts {
     pub loop_char_map: Option<LoopCharMapFacts>,
     pub loop_array_join: Option<LoopArrayJoinFacts>,
     pub string_is_integer: Option<StringIsIntegerFacts>,
-    pub generic_loop_v0: Option<GenericLoopV0Facts>,
-    pub generic_loop_v1: Option<GenericLoopV1Facts>,
     pub if_phi_join: Option<IfPhiJoinFacts>,
     pub loop_continue_only: Option<LoopContinueOnlyFacts>,
     pub loop_true_early_exit: Option<LoopTrueEarlyExitFacts>,
@@ -146,13 +141,6 @@ impl LoopFacts {
         self.loop_true_break_continue.as_ref()
     }
 
-    pub fn generic_loop_v0(&self) -> Option<&GenericLoopV0Facts> {
-        self.generic_loop_v0.as_ref()
-    }
-
-    pub fn generic_loop_v1(&self) -> Option<&GenericLoopV1Facts> {
-        self.generic_loop_v1.as_ref()
-    }
 }
 
 #[derive(Debug, Clone)]

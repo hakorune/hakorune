@@ -5,7 +5,7 @@ use super::{
     PreparedLocatedRawLoopChildEntryV1, RawLoopChildEntryDispositionV1,
 };
 use crate::ast::{ASTNode, DeclarationAttrs, Span};
-use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
+use crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1;
 use crate::mir::builder::normal_callable_loop_handoff::{
     CallableLoopBindingReceiptV1, CallableLoopBindingRoleV1, CallableLoopSourceProjectionV1,
     VerifiedCallableSemanticLoopBindingScheduleV1,
@@ -293,7 +293,7 @@ fn body_only_product_rejects_before_builder_effect_when_facts_are_absent() {
             "outside-terminal/0",
             false,
             false,
-            GenericLoopFactsPolicyFrameV1::from_values(false, false, false, false, false, true),
+            LoopFactsPolicyFrameV1::from_values(false, false, false, false, false, true),
         )
         .expect_err("body-only product must reject absent Facts before effects");
 
@@ -513,9 +513,10 @@ fn armed_loop_cond_edge_lowers_through_the_source_port() {
                 "caller",
                 false,
                 false,
-                GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
+                LoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
                 &mut scope,
                 &edge.ledger,
+                None,
                 crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetProbeV1::from_parts(
                     vec![armed_source_target(edge.call_site)].into_boxed_slice(),
                     Box::new([]),
@@ -565,9 +566,10 @@ fn armed_loop_cond_edge_rejects_missing_source_target() {
                 "caller",
                 false,
                 false,
-                GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
+                LoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
                 &mut scope,
                 &edge.ledger,
+                None,
                 crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetProbeV1::from_parts(
                     Box::new([]),
                     vec![edge.call_site.clone()].into_boxed_slice(),
@@ -622,9 +624,10 @@ fn armed_loop_cond_edge_rejects_items_outside_the_selected_family() {
                 "caller",
                 false,
                 false,
-                GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
+                LoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
                 &mut scope,
                 &edge.ledger,
+                None,
                 crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetProbeV1::empty(),
             )
             .expect_err("no selected obligation must stay a named terminal")

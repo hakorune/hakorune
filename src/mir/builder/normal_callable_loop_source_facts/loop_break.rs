@@ -22,12 +22,9 @@ use crate::mir::resolved_semantics::{
     FunctionOriginV1, FunctionOwnerIdV1, SemanticOwnerSourceKindV1,
 };
 
-use super::super::control_flow::joinir::route_entry::registry::{
-    certify_direct_loop_break_terminality, DirectLoopBreakTerminalityV1,
-};
 use super::super::control_flow::plan::planner::PlanBuildOutcome;
 use super::super::control_flow::plan::single_planner::{self, CallableLoopFactsPlannerInputV1};
-use super::super::control_flow::plan::GenericLoopFactsPolicyFrameV1;
+use super::super::control_flow::plan::LoopFactsPolicyFrameV1;
 use super::super::normal_callable_loop_handoff::CallableLoopReadyBodyOnlyProductV1;
 use super::super::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1;
 use super::super::normal_callable_loop_source_route::{
@@ -53,8 +50,8 @@ pub(in crate::mir) enum CallableLoopBreakSourceFactsIssueV1 {
 }
 
 /// One source-aligned direct LoopBreak candidate retained for the later
-/// physical consumer. The planner outcome and terminality proof are existing
-/// products; this type only keeps them paired with the resolver projection.
+/// physical consumer. The planner outcome is an existing product; this type
+/// only keeps it paired with the resolver projection.
 #[derive(Debug)]
 pub(in crate::mir) struct VerifiedCallableLoopBreakSourceCandidateV1 {
     owner: FunctionOwnerIdV1,
@@ -62,7 +59,6 @@ pub(in crate::mir) struct VerifiedCallableLoopBreakSourceCandidateV1 {
     source_kind: SemanticOwnerSourceKindV1,
     projection: VerifiedLoopBreakSourceProjectionV1,
     outcome: PlanBuildOutcome,
-    terminality: DirectLoopBreakTerminalityV1,
 }
 
 impl VerifiedCallableLoopBreakSourceCandidateV1 {
@@ -149,7 +145,6 @@ impl<'source, 'ledger> SourceLoopBreakPhysicalInputV1<'source, 'ledger> {
             source_kind,
             projection,
             outcome,
-            terminality,
         } = candidate;
         let parent_site = parent_source.site().cloned().ok_or_else(|| {
             "[freeze:contract][callable-loop/loop-break/parent-site-missing]".to_owned()
@@ -166,13 +161,6 @@ impl<'source, 'ledger> SourceLoopBreakPhysicalInputV1<'source, 'ledger> {
         if source_ledger.borrow().owner() != owner {
             return Err(
                 "[freeze:contract][callable-loop/loop-break/source-port-owner-mismatch]".to_owned(),
-            );
-        }
-        if terminality.route()
-            != crate::mir::loop_recipe_contract::route_id::LoopRouteId::LoopBreakRecipe
-        {
-            return Err(
-                "[freeze:contract][callable-loop/loop-break/terminality-route-mismatch]".to_owned(),
             );
         }
         let condition_site = condition_source.site().ok_or_else(|| {
@@ -568,13 +556,38 @@ fn source_loop_parts<'source>(
     Ok((condition.node().clone(), body.statements().to_vec()))
 }
 
+/// Direct three-site LoopBreak topology gate: the loop body is exactly the
+/// break-if / carrier-update / step sites in order with no scope-box children.
+fn has_direct_loop_break_topology(
+    facts: &super::super::control_flow::plan::facts::LoopFacts,
+) -> bool {
+    let Some(loop_break) = facts.loop_break() else {
+        return false;
+    };
+    let Some(topology) = loop_break.source_topology.as_ref() else {
+        return false;
+    };
+    let break_if = topology.break_if();
+    let carrier_update = topology.carrier_update();
+    let step = topology.step();
+    facts.source_receipt().raw_body_statement_count() == Some(3)
+        && break_if.raw_body_index() == 0
+        && carrier_update.raw_body_index() == 1
+        && step.raw_body_index() == 2
+        && break_if.raw_body_index() != carrier_update.raw_body_index()
+        && carrier_update.raw_body_index() != step.raw_body_index()
+        && break_if.scope_box_children().is_empty()
+        && carrier_update.scope_box_children().is_empty()
+        && step.scope_box_children().is_empty()
+}
+
 /// Observe every resolver loop in one callable and retain only the direct
 /// source-backed LoopBreak candidates. Empty/unsupported shapes are explicit
 /// non-candidates; missing resolver/planner evidence is never collapsed into
 /// `None`.
 pub(in crate::mir) fn issue_callable_loop_break_source_facts_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
-    policy: GenericLoopFactsPolicyFrameV1,
+    policy: LoopFactsPolicyFrameV1,
 ) -> CallableLoopBreakSourceFactsDispositionV1 {
     let owner = input.owner();
     let ledger = match input.forest().callable_source_ledger(owner) {
@@ -687,13 +700,7 @@ pub(in crate::mir) fn issue_callable_loop_break_source_facts_v1(
         let Some(facts) = outcome.facts.as_ref() else {
             continue;
         };
-        let Some(loop_break) = facts.facts.loop_break() else {
-            continue;
-        };
-        let Some(terminality) = certify_direct_loop_break_terminality(&facts.facts) else {
-            continue;
-        };
-        if loop_break.source_topology.is_none() {
+        if !has_direct_loop_break_topology(&facts.facts) {
             continue;
         }
         candidates.push(VerifiedCallableLoopBreakSourceCandidateV1 {
@@ -702,7 +709,6 @@ pub(in crate::mir) fn issue_callable_loop_break_source_facts_v1(
             source_kind: projection.source_kind(),
             projection,
             outcome,
-            terminality,
         });
     }
 

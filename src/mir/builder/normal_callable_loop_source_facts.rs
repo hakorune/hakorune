@@ -1,8 +1,8 @@
 //! Source-aware callable-loop Facts/Recipe issuer modules.
 //!
-//! The GenericLoop and route-specific source products remain owned by their
-//! existing issuers. This facade only exposes those owners and keeps tests at
-//! the original module boundary; it does not add a semantic route.
+//! The route-specific source products remain owned by their existing issuers.
+//! This facade only exposes those owners and keeps tests at the original
+//! module boundary; it does not add a semantic route.
 
 #[path = "normal_callable_loop_source_facts/composite.rs"]
 mod composite;

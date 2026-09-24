@@ -1,16 +1,7 @@
-//! Generic loop v0 module (facts + normalizer SSOT)
+//! M10b-I0-R0 decl shell.
 //!
-//! SSOT: docs/development/current/main/design/plan-dir-shallowing-ssot.md
-//! Flattened: facts/ and facts/body_check/ moved to generic_loop/ root
-
-pub(in crate::mir::builder) mod body_check;
-pub(in crate::mir::builder) mod body_check_extractors;
-pub(in crate::mir::builder) mod body_check_shape_detectors;
-#[cfg(test)]
-pub(in crate::mir::builder) mod body_check_tests;
-pub(in crate::mir::builder) mod carrier_representation;
-pub(in crate::mir::builder) mod facts;
-pub(in crate::mir::builder) mod facts_helpers;
-pub(in crate::mir::builder) mod facts_types;
-pub(in crate::mir::builder) mod located_representation;
-pub(in crate::mir::builder) mod normalizer;
+//! The ordered-scheduler GenericLoop subtree (facts/extract/facts_types,
+//! body_check, normalizer, carrier_representation, located_representation)
+//! retired with the `route_loop` switch. This shell keeps the module slot
+//! reserved for the M11 located-representation re-home; it declares no
+//! children and owns no route authority.

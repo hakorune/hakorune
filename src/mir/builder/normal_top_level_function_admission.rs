@@ -119,6 +119,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         let source_root =
             super::raw_invocation_source_transport::RawInvocationRootLineageV1::TopLevel(
@@ -137,6 +138,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                 (),
                 source_root,
             ),
+            declaration,
         )
     }
 
@@ -152,6 +154,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         uses: Vec<String>,
         attrs: DeclarationAttrs,
         source_transport: super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
+        declaration: Option<ASTNode>,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         if params.len() != admission.physical_arity() {
             return Err(ModuleLoweringPortChildErrorV1::Admission(
@@ -178,6 +181,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                         body,
                         uses,
                         attrs,
+                        declaration,
                     )
                 },
             )?;

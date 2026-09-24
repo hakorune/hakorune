@@ -60,6 +60,7 @@ pub(in crate::mir::builder) trait RawCompatibilityChildTerminalPortV1 {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String>;
 
     fn lower_raw_compat_instance_child(
@@ -73,6 +74,7 @@ pub(in crate::mir::builder) trait RawCompatibilityChildTerminalPortV1 {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String>;
 
     fn lower_raw_compat_app_main_static_child(
@@ -92,6 +94,7 @@ pub(in crate::mir::builder) trait RawCompatibilityChildTerminalPortV1 {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String>;
 }
 
@@ -106,6 +109,7 @@ impl RawCompatibilityChildTerminalPortV1 for RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         require_script_root_source(self)?;
         let (symbol, arity) = shape.take();
@@ -125,6 +129,7 @@ impl RawCompatibilityChildTerminalPortV1 for RawInvocationChildPortV1<'_, '_> {
                 body,
                 uses,
                 attrs,
+                declaration,
             )
             .map_err(|error: ModuleLoweringPortChildErrorV1| error.to_string())?;
         self.commit_legacy_nested_box_method_symbol_pending_v1(pending, symbol, arity)
@@ -142,6 +147,7 @@ impl RawCompatibilityChildTerminalPortV1 for RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         require_script_root_source(self)?;
         let (symbol, arity) = shape.take();
@@ -162,6 +168,7 @@ impl RawCompatibilityChildTerminalPortV1 for RawInvocationChildPortV1<'_, '_> {
                 body,
                 uses,
                 attrs,
+                declaration,
             )
             .map_err(|error: ModuleLoweringPortChildErrorV1| error.to_string())?;
         self.commit_legacy_nested_box_method_symbol_pending_v1(pending, symbol, arity)
@@ -184,7 +191,7 @@ impl RawCompatibilityChildTerminalPortV1 for RawInvocationChildPortV1<'_, '_> {
                 child.arity(),
             ));
         }
-        let (symbol, params, param_decls, return_type_name, body, uses, attrs) =
+        let (symbol, params, param_decls, return_type_name, body, uses, attrs, declaration) =
             child.to_owned_lowering().into_parts();
         self.lower_raw_compat_static_child(
             builder,
@@ -195,6 +202,7 @@ impl RawCompatibilityChildTerminalPortV1 for RawInvocationChildPortV1<'_, '_> {
             body,
             uses,
             attrs,
+            Some(declaration),
         )
         .map_err(|error| format!("{error} (child={symbol})"))
     }
@@ -209,6 +217,7 @@ impl RawCompatibilityChildTerminalPortV1 for RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         require_script_root_source(self)?;
         if !receipt.policy().is_required() {
@@ -227,6 +236,7 @@ impl RawCompatibilityChildTerminalPortV1 for RawInvocationChildPortV1<'_, '_> {
             body,
             uses,
             attrs,
+            declaration,
         )
     }
 }

@@ -141,7 +141,7 @@ fn collect_seed(invocation: &mut ModuleLoweringInvocationV1<'_>, symbol: &str) {
     invocation
         .with_module_port(|builder, port| {
             let pending =
-                port.capture_legacy_pending(builder, symbol, Vec::new(), |_| Ok(draft(symbol)))?;
+                port.capture_legacy_pending(builder, symbol, Vec::new(), None, |_| Ok(draft(symbol)))?;
             port.commit_legacy_pending(
                 pending,
                 LegacyChildDraftAdmissionV1::legacy_symbol(symbol.into(), 0),
@@ -181,7 +181,7 @@ fn pending_capture_ends_before_header_loan_and_commit() {
     invocation
         .with_module_port(|builder, port| {
             let pending = port
-                .capture_legacy_pending(builder, "inner/0", Vec::new(), |_| Ok(draft("inner/0")))
+                .capture_legacy_pending(builder, "inner/0", Vec::new(), None, |_| Ok(draft("inner/0")))
                 .unwrap();
 
             port.with_headers(|headers| {
@@ -220,7 +220,7 @@ fn rejected_commit_restores_parent_without_collector_delta() {
 
     let result = invocation.with_module_port(|builder, port| {
         let pending = port
-            .capture_legacy_pending(builder, "inner/0", Vec::new(), |_| Ok(draft("inner/0")))
+            .capture_legacy_pending(builder, "inner/0", Vec::new(), None, |_| Ok(draft("inner/0")))
             .unwrap();
         port.commit_legacy_pending(
             pending,
@@ -245,6 +245,7 @@ fn capture_failure_never_reaches_commit_terminal() {
             builder,
             "failed/0",
             Vec::new(),
+            None,
             move |_| -> Result<MirFunction, String> { Err("nested body failure".to_owned()) },
         );
         captured.map(|pending| {
@@ -268,7 +269,7 @@ fn raw_capture_commit_failure_matrix_preserves_prefix_and_reuse() {
     collect_seed(&mut invocation, "prefix/0");
 
     let primary = invocation.with_module_port(|builder, port| {
-        port.capture_legacy_pending(builder, "primary/0", Vec::new(), |_| {
+        port.capture_legacy_pending(builder, "primary/0", Vec::new(), None, |_| {
             Err("raw primary".to_owned())
         })
         .map(drop)
@@ -282,7 +283,7 @@ fn raw_capture_commit_failure_matrix_preserves_prefix_and_reuse() {
     assert_parent_and_prefix(&mut invocation, &["prefix/0"]);
 
     let cleanup = invocation.with_module_port(|builder, port| {
-        port.capture_legacy_pending(builder, "cleanup/0", Vec::new(), |builder| {
+        port.capture_legacy_pending(builder, "cleanup/0", Vec::new(), None, |builder| {
             builder.recursion_depth = 1;
             Ok(draft("cleanup/0"))
         })
@@ -297,7 +298,7 @@ fn raw_capture_commit_failure_matrix_preserves_prefix_and_reuse() {
     assert_parent_and_prefix(&mut invocation, &["prefix/0"]);
 
     let admission = invocation.with_module_port(|builder, port| {
-        let pending = port.capture_legacy_pending(builder, "admission/0", Vec::new(), |_| {
+        let pending = port.capture_legacy_pending(builder, "admission/0", Vec::new(), None, |_| {
             Ok(draft("admission/0"))
         })?;
         port.commit_legacy_pending(
@@ -313,7 +314,7 @@ fn raw_capture_commit_failure_matrix_preserves_prefix_and_reuse() {
 
     let panic = catch_unwind(AssertUnwindSafe(|| {
         let _ = invocation.with_module_port(|builder, port| {
-            port.capture_legacy_pending(builder, "panic/0", Vec::new(), |_| {
+            port.capture_legacy_pending(builder, "panic/0", Vec::new(), None, |_| {
                 panic!("raw child panic")
             })
             .map(drop)
@@ -395,6 +396,7 @@ fn port_aware_capture_failure_restores_parent_without_collection() {
                 body,
                 Vec::new(),
                 DeclarationAttrs::default(),
+                None,
             )
             .map(|pending| {
                 drop(pending);

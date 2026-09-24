@@ -10,6 +10,8 @@ RECURSIVE="$BUILDER_DIR/recursive_child_lowering.rs"
 RAW_LOOP="$BUILDER_DIR/raw_loop_child_entry.rs"
 RAW_LOOP_PORT="$BUILDER_DIR/raw_loop_child_port.rs"
 LOAN_PORT="$BUILDER_DIR/normal_callable_semantic_loan_port.rs"
+SOURCE_SCOPE="$BUILDER_DIR/normal_callable_semantic_loan_port/source_scope.rs"
+CATALOGED_INSTANCE_SCOPE="$BUILDER_DIR/normal_callable_semantic_loan_port/cataloged_instance_scope.rs"
 ROOT_LOWERING="$BUILDER_DIR/program_root_lowering.rs"
 DEMAND_ISSUER="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/issuer.rs"
 DEMAND_ROOT="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe"
@@ -20,7 +22,7 @@ EMITTER_ABI="$BUILDER_DIR/resolved_lowering/selected_dynamic_physical_abi.rs"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$RECURSIVE" "$RAW_LOOP" "$RAW_LOOP_PORT" "$LOAN_PORT" "$ROOT_LOWERING" \
+guard_require_files "$TAG" "$RECURSIVE" "$RAW_LOOP" "$RAW_LOOP_PORT" "$LOAN_PORT" "$SOURCE_SCOPE" "$CATALOGED_INSTANCE_SCOPE" "$ROOT_LOWERING" \
   "$DEMAND_ISSUER" "$A_PRIME_ISSUER" "$ROUTING" "$EMITTER_DIR/mod.rs" \
   "$EMITTER_DIR/tests.rs"
 
@@ -31,7 +33,7 @@ guard_expect_fixed_in_file "$TAG" \
   "with_selected_lowering_input" "$LOAN_PORT" \
   "selected lowering must borrow the package-owned semantic input"
 guard_expect_fixed_in_file "$TAG" \
-  "input.semantic()" "$LOAN_PORT" \
+  "input.semantic()" "$SOURCE_SCOPE" \
   "the package semantic variant must be consumed at the lowering boundary"
 guard_expect_fixed_in_file "$TAG" \
   "lower_loop_or_freeze_v1" "$RAW_LOOP" \
@@ -46,19 +48,24 @@ guard_expect_fixed_in_file "$TAG" \
   "issue_selected_a_prime_i64_physical_demand" "$A_PRIME_ISSUER" \
   "the selected A-prime demand must have one named issuer"
 
-# The ordinary compatibility AST/JoinIR terminal remains explicit. The
-# selected Dynamic branch must not call it; its package adapter handoff is the
-# sole selected-Dynamic production owner.
-old_callers=()
+# The ordinary compatibility AST/JoinIR terminal remains explicit. Both
+# compatibility feeders reach the same route entry; route_loop owns its
+# current selected winner and physicalizer. The selected Dynamic branch must
+# not use either edge; its package adapter handoff remains its sole owner.
+compatibility_callers=()
+saw_raw_loop_entry=0
+saw_raw_loop_port=0
 while IFS= read -r file; do
   [[ -z "$file" ]] && continue
   case "$file" in
-    "$RAW_LOOP"|*_tests.rs) continue ;;
+    "$ROUTING"|*_tests.rs) continue ;;
   esac
-  old_callers+=("$file")
-done < <(rg -l --glob '*.rs' -F 'lower_with_existing_route_v1(' "$BUILDER_DIR" || true)
-if [[ "${#old_callers[@]}" -ne 1 || "${old_callers[0]:-}" != "$RAW_LOOP_PORT" ]]; then
-  guard_fail "$TAG" "ordinary compatibility physical edge drifted; expected exactly raw_loop_child_port.rs"
+  compatibility_callers+=("$file")
+  [[ "$file" == "$RAW_LOOP" ]] && saw_raw_loop_entry=1
+  [[ "$file" == "$RAW_LOOP_PORT" ]] && saw_raw_loop_port=1
+done < <(rg -l --glob '*.rs' -F 'lower_loop_or_freeze_v1(' "$BUILDER_DIR" || true)
+if [[ "${#compatibility_callers[@]}" -ne 2 || "$saw_raw_loop_entry" -ne 1 || "$saw_raw_loop_port" -ne 1 ]]; then
+  guard_fail "$TAG" "compatibility route-entry callers drifted; expected raw_loop_child_entry.rs and raw_loop_child_port.rs"
 fi
 
 # W6-E opens one selected-Dynamic production handoff in the package adapter.
@@ -68,10 +75,10 @@ if [[ "$handoff_count" -ne 1 ]]; then
   guard_fail "$TAG" "selected Dynamic package-adapter handoff must have one production caller: found $handoff_count"
 fi
 guard_expect_fixed_in_file "$TAG" \
-  'dynamic-instance-route' "$LOAN_PORT" \
+  'dynamic-instance-route' "$CATALOGED_INSTANCE_SCOPE" \
   "cataloged instance/Dynamic mismatch must fail before the ordinary route"
 
-for file in "$RECURSIVE" "$RAW_LOOP" "$RAW_LOOP_PORT" "$LOAN_PORT" "$ROOT_LOWERING" "$DEMAND_ISSUER" "$A_PRIME_ISSUER" "$ROUTING"; do
+for file in "$RECURSIVE" "$RAW_LOOP" "$RAW_LOOP_PORT" "$LOAN_PORT" "$SOURCE_SCOPE" "$CATALOGED_INSTANCE_SCOPE" "$ROOT_LOWERING" "$DEMAND_ISSUER" "$A_PRIME_ISSUER" "$ROUTING"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "pre-cutover authority file reached 800-line boundary: ${file#"$ROOT_DIR/"}=$lines"

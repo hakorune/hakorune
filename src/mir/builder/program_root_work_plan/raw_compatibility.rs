@@ -111,6 +111,7 @@ impl PreparedProgramRootTopLevelFunctionPartsV1 {
             self.body,
             self.uses,
             self.attrs,
+            Some(self.declaration),
         )
     }
 }

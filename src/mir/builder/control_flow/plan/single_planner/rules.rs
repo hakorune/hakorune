@@ -9,7 +9,7 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBodyLocalShape;
 use crate::mir::builder::control_flow::plan::planner::{self, PlanBuildOutcome, PlannerContext};
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
-use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
+use crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1;
 use crate::mir::builder::control_flow::verify::diagnostics::planner_reject_detail;
 
 use super::input::CallableLoopFactsPlannerInputV1;
@@ -21,7 +21,7 @@ struct PlannerGate {
 }
 
 impl PlannerGate {
-    fn from_policy(policy: GenericLoopFactsPolicyFrameV1) -> Self {
+    fn from_policy(policy: LoopFactsPolicyFrameV1) -> Self {
         Self {
             strict_or_dev: policy.strict_or_dev(),
             planner_required: policy.planner_required(),
@@ -111,13 +111,13 @@ fn planner_candidate_present(outcome: &PlanBuildOutcome) -> bool {
 }
 
 pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutcome, String> {
-    let policy = GenericLoopFactsPolicyFrameV1::from_environment();
+    let policy = LoopFactsPolicyFrameV1::from_environment();
     try_build_outcome_with_policy(ctx, policy)
 }
 
 pub(super) fn try_build_outcome_with_policy(
     ctx: &LoopRouteContext,
-    policy: GenericLoopFactsPolicyFrameV1,
+    policy: LoopFactsPolicyFrameV1,
 ) -> Result<PlanBuildOutcome, String> {
     try_build_outcome_with_policy_parts(ctx.condition, ctx.body, ctx.func_name, ctx.debug, policy)
 }
@@ -140,13 +140,13 @@ fn try_build_outcome_with_policy_parts(
     body: &[ASTNode],
     function_name: &str,
     debug_enabled: bool,
-    policy: GenericLoopFactsPolicyFrameV1,
+    policy: LoopFactsPolicyFrameV1,
 ) -> Result<PlanBuildOutcome, String> {
     use crate::mir::builder::control_flow::joinir::trace;
 
     let gate = PlannerGate::from_policy(policy);
 
-    let planner_ctx = PlannerContext::from_generic_loop_policy(policy);
+    let planner_ctx = PlannerContext::from_loop_facts_policy(policy);
     let mut outcome = planner::build_plan_with_facts_ctx(&planner_ctx, condition, body)
         .map_err(|freeze| freeze.to_string())?;
     let planner_present = planner_candidate_present(&outcome);

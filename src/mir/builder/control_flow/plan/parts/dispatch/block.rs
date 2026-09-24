@@ -140,8 +140,7 @@ fn render_raw_source_error(error: PartsAssociatedSourceErrorV1, error_prefix: &s
         PartsAssociatedSourceErrorV1::ItemIndexOutOfBounds { index, len } => format!(
             "[freeze:contract][recipe] item_index_out_of_bounds: ctx={error_prefix} index={index} len={len}"
         ),
-        PartsAssociatedSourceErrorV1::ForeignRawBlock
-        | PartsAssociatedSourceErrorV1::ForeignLocatedBlock => format!(
+        PartsAssociatedSourceErrorV1::ForeignRawBlock => format!(
             "[freeze:contract][recipe] foreign_associated_source_block: ctx={error_prefix}"
         ),
         // These variants are only produced by the located callable-loop

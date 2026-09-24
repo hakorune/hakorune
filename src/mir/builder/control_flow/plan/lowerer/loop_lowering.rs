@@ -96,9 +96,7 @@ impl super::PlanLowerer {
         use super::super::PlanBuildSession;
         use crate::mir::builder::control_flow::joinir::trace;
 
-        if let super::super::CoreLoopFinalValuesV1::Source(source) = &loop_plan.final_values {
-            ctx.validate_source_loop_completion(source)?;
-        }
+
         // Phase 29bq+: Create session for structural lock
         let mut session = PlanBuildSession::new();
 
@@ -220,9 +218,6 @@ impl super::PlanLowerer {
             builder,
             "loop_lowerer:after_finalize_loop_variables",
         )?;
-        if let super::super::CoreLoopFinalValuesV1::Source(source) = &final_values {
-            ctx.publish_source_loop_completion(source)?;
-        }
         Ok(out)
     }
 

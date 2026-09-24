@@ -187,9 +187,6 @@ impl RecipeMatcher {
             verify_loop_cond_return_in_body_recipe
         );
 
-        // Phase C18: generic_loop_v1 recipe verification (planner_required only)
-        verify_route!(facts.facts.generic_loop_v1(), verify_generic_loop_v1_recipe);
-
         Ok(Some(RecipeContract {
             kind: RecipeContractKind::LoopWithExit {
                 has_break,

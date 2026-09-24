@@ -37,6 +37,7 @@ struct OwnedRawStaticMainFunctionPartsV1 {
     body: Vec<ASTNode>,
     uses: Vec<String>,
     attrs: DeclarationAttrs,
+    declaration: ASTNode,
 }
 
 impl OwnedRawStaticMainFunctionPartsV1 {
@@ -60,9 +61,11 @@ impl OwnedRawStaticMainFunctionPartsV1 {
             body: body.clone(),
             uses: uses.clone(),
             attrs: attrs.clone(),
+            declaration: source.clone(),
         })
     }
 
+    #[allow(clippy::type_complexity)]
     fn into_parts(
         self,
     ) -> (
@@ -72,6 +75,7 @@ impl OwnedRawStaticMainFunctionPartsV1 {
         Vec<ASTNode>,
         Vec<String>,
         DeclarationAttrs,
+        ASTNode,
     ) {
         (
             self.params,
@@ -80,6 +84,7 @@ impl OwnedRawStaticMainFunctionPartsV1 {
             self.body,
             self.uses,
             self.attrs,
+            self.declaration,
         )
     }
 }
@@ -131,7 +136,7 @@ impl PreparedRawStaticMainBoxCompatibilityV1 {
             root,
         } = self;
         for helper in helpers {
-            let (params, param_decls, return_type_name, body, uses, attrs) =
+            let (params, param_decls, return_type_name, body, uses, attrs, declaration) =
                 helper.parts.into_parts();
             port.lower_static_box_method(
                 builder,
@@ -142,6 +147,7 @@ impl PreparedRawStaticMainBoxCompatibilityV1 {
                 body,
                 uses,
                 attrs,
+                Some(declaration),
             )?;
         }
 
@@ -155,7 +161,8 @@ impl PreparedRawStaticMainBoxCompatibilityV1 {
                 ))
             }
             RawStaticMainRootDispositionV1::Function(parts) => {
-                let (params, param_decls, return_type_name, body, uses, attrs) = parts.into_parts();
+                let (params, param_decls, return_type_name, body, uses, attrs, declaration) =
+                    parts.into_parts();
                 builder.lower_static_main_function_parts_with_port_v1(
                     port,
                     &box_name,
@@ -170,6 +177,7 @@ impl PreparedRawStaticMainBoxCompatibilityV1 {
                     body,
                     uses,
                     attrs,
+                    Some(declaration),
                 )
             }
         }

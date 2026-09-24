@@ -27,6 +27,7 @@ struct PreparedInstanceBoxMethodV1 {
     body: Vec<ASTNode>,
     uses: Vec<String>,
     attrs: DeclarationAttrs,
+    declaration: ASTNode,
 }
 
 impl PreparedInstanceBoxMethodBatchV1 {
@@ -59,6 +60,7 @@ impl PreparedInstanceBoxMethodBatchV1 {
                     body: body.clone(),
                     uses: uses.clone(),
                     attrs: attrs.clone(),
+                    declaration: method.clone(),
                 })
             })
             .collect();
@@ -89,6 +91,7 @@ impl PreparedInstanceBoxMethodBatchV1 {
                     method.body,
                     method.uses,
                     method.attrs,
+                    method.declaration,
                 ),
             )?;
         }
@@ -136,6 +139,7 @@ impl PreparedInstanceBoxMethodBatchV1 {
                 method.body,
                 method.uses,
                 method.attrs,
+                Some(method.declaration),
             )?;
         }
         Ok(())

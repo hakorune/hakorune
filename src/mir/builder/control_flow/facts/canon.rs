@@ -4,4 +4,3 @@
 
 pub(in crate::mir::builder) mod cond;
 pub(in crate::mir::builder) mod cond_block_view;
-pub(in crate::mir::builder) mod generic_loop;

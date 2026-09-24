@@ -36,6 +36,7 @@ struct PreparedInstanceBoxConstructorV1 {
     body: Vec<ASTNode>,
     uses: Vec<String>,
     attrs: DeclarationAttrs,
+    declaration: ASTNode,
 }
 
 impl PreparedInstanceBoxConstructorBatchV1 {
@@ -69,6 +70,7 @@ impl PreparedInstanceBoxConstructorBatchV1 {
                     body: body.clone(),
                     uses: uses.clone(),
                     attrs: attrs.clone(),
+                    declaration: constructor.clone(),
                 })
             })
             .collect();
@@ -133,6 +135,7 @@ impl PreparedInstanceBoxConstructorBatchV1 {
                 constructor.body,
                 constructor.uses,
                 constructor.attrs,
+                Some(constructor.declaration),
             )?;
         }
         Ok(())
@@ -172,6 +175,7 @@ impl PreparedInstanceBoxConstructorBatchV1 {
                 constructor.body,
                 constructor.uses,
                 constructor.attrs,
+                Some(constructor.declaration),
             )?;
         }
         Ok(())
@@ -217,6 +221,7 @@ impl PreparedInstanceBoxConstructorBatchV1 {
                 constructor.body,
                 constructor.uses,
                 constructor.attrs,
+                Some(constructor.declaration),
             )?;
         }
         Ok(())

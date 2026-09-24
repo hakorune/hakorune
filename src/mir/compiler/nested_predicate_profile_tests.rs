@@ -2,7 +2,6 @@ use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1
 use super::nested_predicate_producer_tests::nested_function;
 use super::nested_predicate_profile::CanonicalNestedPredicatePlanV1;
 use super::VerifiedResolvedSourceUnitV1;
-use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 
 fn nested_plan() -> CanonicalNestedPredicatePlanV1<'static> {
     let unit = Box::leak(Box::new(
@@ -90,21 +89,7 @@ fn compile_resolved_nested_predicate_reuses_one_compiler_after_commit() {
 }
 
 #[test]
-fn nested_effective_legacy_winner_and_canonical_digest_are_fixed() {
-    let crate::ast::ASTNode::FunctionDeclaration { body, .. } = nested_function() else {
-        panic!("nested fixture root must be a function");
-    };
-    let crate::ast::ASTNode::Loop {
-        condition, body, ..
-    } = &body[1]
-    else {
-        panic!("nested fixture body must contain the root loop");
-    };
-
-    let legacy_winner = crate::mir::builder::loop_route_effective_winner_for_test(condition, body)
-        .expect("legacy facts/registry projection");
-    assert_eq!(legacy_winner, Some(LoopRouteId::NestedLoopMinimal));
-
+fn nested_canonical_digest_is_fixed() {
     let plan = nested_plan();
     let recipe = plan.emission().recipe().as_recipe();
     let join_sig = plan.emission().join_sig().as_sig();

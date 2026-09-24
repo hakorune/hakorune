@@ -6,7 +6,6 @@
 //! creates a second Recipe/JoinSig.
 
 use crate::ast::{ASTNode, LiteralValue};
-use crate::mir::builder::control_flow::joinir::route_entry::registry::RecipeFirstRouteSelectionV1;
 use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::LoopTrueBreakContinueFacts;
 use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 use crate::mir::builder::normal_callable_loop_handoff::{
@@ -15,8 +14,9 @@ use crate::mir::builder::normal_callable_loop_handoff::{
 use crate::mir::builder::normal_callable_loop_source_facts::CallableGenericLoopSourceFactsRouteErrorV1;
 use crate::mir::builder::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1;
 use crate::mir::builder::normal_callable_loop_source_route::{
-    CallableLoopSourceItemBindingV1, CallableLoopSourceRouteRejectV1,
-    CallableLoopSourceTargetProbeV1, CallableLoopSourceTargetRelationV1,
+    CallableLoopRouteMatchV1, CallableLoopSourceItemBindingV1,
+    CallableLoopSourceRouteRejectV1, CallableLoopSourceTargetProbeV1,
+    CallableLoopSourceTargetRelationV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
@@ -44,7 +44,7 @@ pub(in crate::mir::builder) struct SourceLoopTruePhysicalInputV1<'source, 'ledge
     body: Vec<ASTNode>,
     pre_effect: CallableSemanticLoopHandoffPreEffectReceiptV1,
     outcome: PlanBuildOutcome,
-    selection: RecipeFirstRouteSelectionV1,
+    selection: CallableLoopRouteMatchV1,
     projection: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
     source_target: CallableLoopSourceTargetRelationV1,
@@ -90,7 +90,7 @@ impl SourceLoopTruePhysicalInputV1<'_, '_> {
         &self.outcome
     }
 
-    pub(in crate::mir::builder) fn selection(&self) -> &RecipeFirstRouteSelectionV1 {
+    pub(in crate::mir::builder) fn selection(&self) -> &CallableLoopRouteMatchV1 {
         &self.selection
     }
 
@@ -209,7 +209,7 @@ impl SourceLoopTruePhysicalInputV1<'_, '_> {
                 "[freeze:contract][callable-loop/loop-true/recipe-source-mismatch]".to_owned(),
             );
         }
-        if self.selection.raw_execution_routes() != [LoopRouteId::LoopTrueBreakContinue] {
+        if self.selection.matched_routes() != [LoopRouteId::LoopTrueBreakContinue] {
             return Err(
                 "[freeze:contract][callable-loop/loop-true/route-selection-mismatch]".to_owned(),
             );
@@ -240,7 +240,7 @@ pub(in crate::mir::builder) struct CallableLoopTrueSourceFactsV1<'source> {
     body: Vec<ASTNode>,
     binding_product: CallableLoopReadyBodyOnlyProductV1,
     outcome: PlanBuildOutcome,
-    selection: RecipeFirstRouteSelectionV1,
+    selection: CallableLoopRouteMatchV1,
     projection: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
     source_target: CallableLoopSourceTargetRelationV1,
@@ -336,7 +336,7 @@ pub(super) fn issue<'source>(
     function_origin: Option<FunctionOriginV1>,
     source_kind: Option<SemanticOwnerSourceKindV1>,
     outcome: PlanBuildOutcome,
-    selection: RecipeFirstRouteSelectionV1,
+    selection: CallableLoopRouteMatchV1,
     projection: Option<VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
     source_target_probe: CallableLoopSourceTargetProbeV1,
@@ -356,10 +356,10 @@ pub(super) fn issue<'source>(
             CallableLoopSourceRouteRejectV1::SourceParentMissing,
         )
     })?;
-    if selection.raw_execution_routes() != [LoopRouteId::LoopTrueBreakContinue] {
+    if selection.matched_routes() != [LoopRouteId::LoopTrueBreakContinue] {
         return Err(
             CallableGenericLoopSourceFactsRouteErrorV1::NonGenericOrOverlapping {
-                routes: selection.raw_execution_routes().into(),
+                routes: selection.matched_routes().into(),
             },
         );
     }

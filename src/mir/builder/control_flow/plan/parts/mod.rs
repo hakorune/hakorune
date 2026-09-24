@@ -57,13 +57,7 @@ pub(in crate::mir::builder) use associated_source::callable_loop_source_items::{
 pub(in crate::mir::builder) use associated_source::callable_loop_source_lowering::lower_callable_loop_source_parts_block;
 pub(in crate::mir::builder) use associated_source::direct_if::lower_if_join_input as lower_direct_if_join_input;
 pub(in crate::mir::builder) use associated_source::dispatch::PartsAssociatedBlockModeV1;
-pub(in crate::mir::builder) use associated_source::located_lowering::prepare_located_generic_loop_parts_execution_v1;
-pub(in crate::mir::builder) use associated_source::located_lowering::{
-    PreparedLocatedGenericLoopPartsBodyV1, PreparedLocatedGenericLoopPartsExecutionV1,
-};
 pub(in crate::mir::builder) use loop_::LoopBodyContractKind;
 
-#[cfg(test)]
-mod associated_source_tests;
 #[cfg(test)]
 mod wiring_tests;

@@ -6,7 +6,6 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts;
-use crate::mir::builder::control_flow::joinir::route_entry::registry::RecipeFirstRouteSelectionV1;
 use crate::mir::builder::control_flow::plan::LoopPlanExpressionPortV1;
 use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
@@ -15,9 +14,9 @@ use crate::mir::builder::normal_callable_loop_handoff::CallableSemanticLoopHando
 use crate::mir::builder::normal_callable_loop_source_facts::CallableGenericLoopSourceFactsRouteErrorV1;
 use crate::mir::builder::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1;
 use crate::mir::builder::normal_callable_loop_source_route::{
-    CallableLoopSourceItemBindingV1, CallableLoopSourceRouteRejectV1,
-    CallableLoopSourceRouteTokenV1, CallableLoopSourceTargetProbeV1,
-    CallableLoopSourceTargetRelationV1,
+    CallableLoopRouteMatchV1, CallableLoopSourceItemBindingV1,
+    CallableLoopSourceRouteRejectV1, CallableLoopSourceRouteTokenV1,
+    CallableLoopSourceTargetProbeV1, CallableLoopSourceTargetRelationV1,
 };
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
@@ -45,7 +44,7 @@ pub(in crate::mir::builder) struct SourceLoopCondPhysicalInputV1<'source, 'ledge
     body: Vec<ASTNode>,
     pre_effect: CallableSemanticLoopHandoffPreEffectReceiptV1,
     outcome: PlanBuildOutcome,
-    selection: RecipeFirstRouteSelectionV1,
+    selection: CallableLoopRouteMatchV1,
     projection: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
     source_target: CallableLoopSourceTargetRelationV1,
@@ -91,7 +90,7 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
         &self.outcome
     }
 
-    pub(in crate::mir::builder) fn selection(&self) -> &RecipeFirstRouteSelectionV1 {
+    pub(in crate::mir::builder) fn selection(&self) -> &CallableLoopRouteMatchV1 {
         &self.selection
     }
 
@@ -244,7 +243,7 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                 "[freeze:contract][callable-loop/loop-cond/recipe-source-mismatch]".to_owned(),
             );
         }
-        if self.selection.raw_execution_routes()
+        if self.selection.matched_routes()
             != [crate::mir::loop_recipe_contract::route_id::LoopRouteId::LoopCondBreakContinue]
         {
             return Err(
@@ -543,7 +542,7 @@ pub(super) fn issue<'source>(
     function_origin: Option<FunctionOriginV1>,
     source_kind: Option<SemanticOwnerSourceKindV1>,
     outcome: PlanBuildOutcome,
-    selection: RecipeFirstRouteSelectionV1,
+    selection: CallableLoopRouteMatchV1,
     projection: Option<VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
     source_target_probe: CallableLoopSourceTargetProbeV1,

@@ -4,18 +4,10 @@ use super::cond_lowering_if_plan::lower_cond_to_if_plans;
 use super::cond_lowering_if_plan_port::lower_cond_expr_to_if_plans_input;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::test_support::{
-    with_default_and_strict_modes, GenericLoopTestModeV1,
-};
-use crate::mir::builder::control_flow::plan::generic_loop::located_representation::VerifiedLocatedGenericLoopBodyRepresentationV1;
 use crate::mir::builder::control_flow::plan::{
-    CoreCallSourceV1, CoreEffectPlan, CoreIfJoin, CorePlan, LocatedLoopPlanExpressionPortV1,
-    RawLoopPlanExpressionPortV1,
+    CoreCallSourceV1, CoreEffectPlan, CoreIfJoin, CorePlan, RawLoopPlanExpressionPortV1,
 };
 use crate::mir::builder::MirBuilder;
-use crate::mir::callable_result_representation::{
-    actual_parser_add_fixture, VerifiedCallableResultLegacySourceViewV1,
-};
 use crate::mir::MirType;
 use std::collections::BTreeMap;
 
@@ -120,51 +112,6 @@ fn raw_join_bearing_and_or_facade_matches_explicit_port_core() {
         facade_builder.function_state.type_ctx.value_types,
         core_builder.function_state.type_ctx.value_types
     );
-}
-
-#[test]
-fn borrowed_located_loop_condition_preserves_exact_call_sites() {
-    with_default_and_strict_modes(|mode| {
-        if mode != GenericLoopTestModeV1::Default {
-            return;
-        }
-        let plan = actual_parser_add_fixture::plan();
-        let caller = actual_parser_add_fixture::caller(&plan);
-        let source = VerifiedCallableResultLegacySourceViewV1::verify(&plan, &caller)
-            .expect("located source view");
-        let root = source.root_body();
-        let loop_root = source.body_stmt(&root, 4).expect("actual Loop at Body(4)");
-        let port = LocatedLoopPlanExpressionPortV1::new(source);
-        let representation =
-            VerifiedLocatedGenericLoopBodyRepresentationV1::verify_located_loop(&port, loop_root)
-                .expect("strict O0 representation");
-        let bound = representation
-            .bind_lowering_port(&port)
-            .expect("same port binds");
-        let condition = bound.condition();
-
-        let mut builder = MirBuilder::new();
-        let text = builder.alloc_typed(MirType::String);
-        let pos = builder.alloc_typed(MirType::Integer);
-        let bindings = BTreeMap::from([("text".to_owned(), text), ("pos".to_owned(), pos)]);
-        let plans = lower_cond_expr_to_if_plans_input(
-            &port,
-            condition,
-            &mut builder,
-            &bindings,
-            vec![CorePlan::Seq(Vec::new())],
-            Some(vec![CorePlan::Seq(Vec::new())]),
-            Vec::new(),
-            "T0-R0-C0 located condition",
-        )
-        .expect("located exact condition lowers");
-        let mut sources = Vec::new();
-        collect_call_sources(&plans, &mut sources);
-        assert_eq!(sources.len(), 3);
-        assert!(sources
-            .iter()
-            .all(|source| matches!(source, CoreCallSourceV1::LocatedMethodCall(_))));
-    });
 }
 
 fn int(value: i64) -> ASTNode {

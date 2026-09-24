@@ -51,7 +51,6 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_else_guard_br
                     &mut carrier_updates,
                     &then_recipe.body,
                     item,
-                    false, // No carrier propagation inside blocks
                 )?;
                 if plans.iter().any(|plan| {
                     matches!(plan, CorePlan::Exit(_))
@@ -125,7 +124,6 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_else_guard_br
             &mut carrier_updates,
             &recipe.body,
             item,
-            false, // No carrier propagation inside else guard blocks
         )?;
         // NOTE: Unlike lower_loop_cond_recipe_block, we ALLOW exits here
         // because else body contains guard breaks (ExitIf items).

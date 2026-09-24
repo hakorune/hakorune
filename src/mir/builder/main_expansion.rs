@@ -66,6 +66,7 @@ pub(in crate::mir::builder) struct OwnedVerifiedMainRootLoweringV1 {
     body: Vec<ASTNode>,
     uses: Vec<String>,
     attrs: DeclarationAttrs,
+    declaration: ASTNode,
 }
 
 #[derive(Debug)]
@@ -82,6 +83,7 @@ impl VerifiedMainRootBodyV1<'_> {
 }
 
 impl OwnedVerifiedMainRootLoweringV1 {
+    #[allow(clippy::type_complexity)]
     pub(in crate::mir::builder) fn into_parts(
         self,
     ) -> (
@@ -93,6 +95,7 @@ impl OwnedVerifiedMainRootLoweringV1 {
         Vec<ASTNode>,
         Vec<String>,
         DeclarationAttrs,
+        ASTNode,
     ) {
         (
             self.box_name,
@@ -103,6 +106,7 @@ impl OwnedVerifiedMainRootLoweringV1 {
             self.body,
             self.uses,
             self.attrs,
+            self.declaration,
         )
     }
 }
@@ -146,6 +150,7 @@ pub(in crate::mir::builder) struct OwnedVerifiedMainStaticChildLoweringV1 {
     body: Vec<ASTNode>,
     uses: Vec<String>,
     attrs: DeclarationAttrs,
+    declaration: ASTNode,
 }
 
 #[derive(Debug)]
@@ -194,6 +199,7 @@ impl VerifiedMainStaticChildV1<'_> {
             body: self.parts.body.to_vec(),
             uses: self.parts.uses.to_vec(),
             attrs: self.parts.attrs.clone(),
+            declaration: self.source.clone(),
         }
     }
 }
@@ -209,6 +215,7 @@ impl OwnedVerifiedMainStaticChildLoweringV1 {
         Vec<ASTNode>,
         Vec<String>,
         DeclarationAttrs,
+        ASTNode,
     ) {
         (
             self.symbol,
@@ -218,6 +225,7 @@ impl OwnedVerifiedMainStaticChildLoweringV1 {
             self.body,
             self.uses,
             self.attrs,
+            self.declaration,
         )
     }
 }
@@ -467,6 +475,7 @@ impl<'src> VerifiedMainExpansionV1<'src> {
             body: self.root.parts.body.to_vec(),
             uses: self.root.parts.uses.to_vec(),
             attrs: self.root.parts.attrs.clone(),
+            declaration: self.root.source.clone(),
         }
     }
 }

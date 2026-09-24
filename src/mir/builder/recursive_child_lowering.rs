@@ -5,13 +5,6 @@
 //! into shorter recursive frames. It is not a semantic issuer: it does not
 //! invent source identity, targets, or fallback policy. The small legacy port
 //! below remains a separate compatibility facade.
-use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
-use crate::mir::resolved_semantics::{ScriptResolverDeferredV1, SourceNodeSiteV1};
-use crate::mir::{MirBuilder, ValueId};
-use std::cell::RefCell;
-use std::rc::Rc;
-#[path = "recursive_child_lowering_loop_true.rs"]
-mod loop_true_projection;
 use super::calls::LegacyFunctionPendingSessionV1;
 use super::control_flow::cleanup::CleanupExitPolicyV1;
 use super::function_signature_lookup::FunctionSignatureLookupV1;
@@ -34,10 +27,17 @@ use super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawInvocationSourceTransportV1,
     RawSourceTransportPortV1,
 };
+use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
+use crate::mir::resolved_semantics::{ScriptResolverDeferredV1, SourceNodeSiteV1};
+use crate::mir::{MirBuilder, ValueId};
 use crate::parser::CallableMethodSourceObservationV1;
+use std::cell::RefCell;
+use std::rc::Rc;
 #[path = "recursive_child_lowering/instance_capture.rs"]
 mod instance_capture;
 mod legacy_port;
+#[path = "recursive_child_lowering_loop_true.rs"]
+mod loop_true_projection;
 #[path = "recursive_child_lowering/pending_helpers.rs"]
 mod pending_helpers;
 #[path = "raw_ordinary_new_claim.rs"]
@@ -110,6 +110,7 @@ pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
         _body: Vec<ASTNode>,
         _uses: Vec<String>,
         _attrs: DeclarationAttrs,
+        _declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         Err("[freeze:contract][raw-box-method/loose-static-input]".to_owned())
     }
@@ -119,8 +120,18 @@ pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
         builder: &mut MirBuilder,
         input: super::nested_box_method_source::NestedBoxMethodLoweringInputV1,
     ) -> Result<(), String> {
-        let (_, function_name, kind, params, param_decls, return_type_name, body, uses, attrs) =
-            input.into_parts();
+        let (
+            _,
+            function_name,
+            kind,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+            declaration,
+        ) = input.into_parts();
         match kind {
             super::nested_box_method_source::NestedBoxMethodKindV1::Static => self
                 .lower_static_box_method(
@@ -132,6 +143,7 @@ pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
                     body,
                     uses,
                     attrs,
+                    Some(declaration),
                 ),
             super::nested_box_method_source::NestedBoxMethodKindV1::Instance { owner } => self
                 .lower_instance_box_method(
@@ -144,6 +156,7 @@ pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
                     body,
                     uses,
                     attrs,
+                    Some(declaration),
                 ),
         }
     }
@@ -159,6 +172,7 @@ pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
         _body: Vec<ASTNode>,
         _uses: Vec<String>,
         _attrs: DeclarationAttrs,
+        _declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         Err("[freeze:contract][raw-box-method/loose-instance-input]".to_owned())
     }
@@ -223,6 +237,11 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     pub(in crate::mir::builder) active_source: Option<RawInvocationSourceContextV1>,
     pub(in crate::mir::builder) semantic_ledger: Option<Rc<RefCell<ScriptSemanticLoweringState>>>,
     pub(in crate::mir::builder) callable_ledger: Option<Rc<RefCell<CallableSemanticLoweringState>>>,
+    /// Borrowed only for the matching callable source-scope callback. This is
+    /// the original resolver input used to issue exact loop membership; it is
+    /// copied as a view into nested frames and restored when that scope exits.
+    pub(in crate::mir::builder) source_input:
+        Option<crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'port>>,
     pub(in crate::mir::builder) ordinary_new_claim_ledger:
         Option<Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>>,
     pub(in crate::mir::builder) map_read_consumer:
@@ -330,6 +349,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             active_source: None,
             semantic_ledger: None,
             callable_ledger: None,
+            source_input: None,
             ordinary_new_claim_ledger: None,
             map_read_consumer: None,
             generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1::new(),
@@ -353,6 +373,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             active_source: self.active_source.clone(),
             semantic_ledger: self.semantic_ledger.clone(),
             callable_ledger: self.callable_ledger.clone(),
+            source_input: self.source_input,
             ordinary_new_claim_ledger: self.ordinary_new_claim_ledger.clone(),
             map_read_consumer: self.map_read_consumer.clone(),
             generic_loop_diagnostic: self.generic_loop_diagnostic.reborrow(),
@@ -555,6 +576,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<LegacyFunctionPendingSessionV1<'builder>, ModuleLoweringPortChildErrorV1> {
         let body_snapshot = body.clone();
         let session_name = function_name.clone();
@@ -564,6 +586,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
                 .capture_legacy_function_pending_session_v1(
                     &session_name,
                     body_snapshot,
+                    declaration,
                     move |builder| {
                         let prepared: PortAwarePreparedDraftBodyV1 = builder
                             .build_static_method_draft_with_port_v1(

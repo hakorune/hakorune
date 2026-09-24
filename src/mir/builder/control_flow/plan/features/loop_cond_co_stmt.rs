@@ -6,7 +6,7 @@ use crate::mir::builder::control_flow::plan::features::carrier_merge::{
     lower_assignment_stmt, lower_local_init_stmt,
 };
 use crate::mir::builder::control_flow::plan::features::exit_if_map::lower_if_exit_stmt;
-use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
+
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::parts::conditional_update::try_lower_general_if_recipe_authority;
@@ -20,7 +20,7 @@ use crate::mir::{Effect, EffectMask};
 use std::collections::BTreeMap;
 
 use super::loop_cond_co_continue_if::{lower_continue_if_group_prelude, lower_continue_if_no_else};
-use super::loop_cond_co_group_if::{lower_continue_if_nested_loop, lower_group_if};
+use super::loop_cond_co_group_if::lower_group_if;
 use super::loop_cond_co_helpers::{get_body_stmt, sync_carrier_bindings};
 
 const LOOP_COND_CONTINUE_ONLY_ERR: &str = "[normalizer] loop_cond_continue_only";
@@ -130,29 +130,9 @@ pub(super) fn lower_continue_only_stmt(
             then_body,
             else_body.as_ref(),
         ),
-        ContinueOnlyStmtRecipe::ContinueIfNestedLoop {
-            inner_loop_prelude_span,
-            inner_loop_prelude_items,
-            inner_loop_body,
-            inner_loop_stmt,
-            inner_loop_postlude_span,
-            inner_loop_postlude_items,
-            if_stmt,
-        } => lower_continue_if_nested_loop(
-            builder,
-            current_bindings,
-            carrier_phis,
-            carrier_step_phis,
-            carrier_updates,
-            if_stmt,
-            body,
-            *inner_loop_prelude_span,
-            inner_loop_prelude_items,
-            inner_loop_body,
-            inner_loop_stmt,
-            *inner_loop_postlude_span,
-            inner_loop_postlude_items,
-        ),
+        ContinueOnlyStmtRecipe::ContinueIfNestedLoop { .. } => Err(format!(
+            "[freeze:contract][recipe] nested loop has no physical owner: ctx={LOOP_COND_CONTINUE_ONLY_ERR}"
+        )),
     }
 }
 
@@ -292,20 +272,9 @@ pub(super) fn lower_stmt_ast(
         ASTNode::Break { .. } | ASTNode::Return { .. } => Err(format!(
             "{LOOP_COND_CONTINUE_ONLY_ERR}: break/return out-of-scope"
         )),
-        ASTNode::Loop {
-            condition, body, ..
-        } => {
-            // Phase 29bq: Allow nested loops in group-if body (e.g., hex-parsing loop in _decode_escapes)
-            let plan = lower_nested_loop_depth1_any(
-                builder,
-                condition,
-                body,
-                LOOP_COND_CONTINUE_ONLY_ERR,
-            )?;
-            // Sync bindings after nested loop (loop may modify carrier variables)
-            sync_carrier_bindings(builder, current_bindings, carrier_phis);
-            Ok(vec![plan])
-        }
+        ASTNode::Loop { .. } => Err(format!(
+            "[freeze:contract][recipe] nested loop has no physical owner: ctx={LOOP_COND_CONTINUE_ONLY_ERR}"
+        )),
         ASTNode::LoopRange { .. } => {
             // LoopRange has a different structure; delegate to nested_loop_depth1 via a match.
             // For now, reject as unsupported; can be expanded if needed.

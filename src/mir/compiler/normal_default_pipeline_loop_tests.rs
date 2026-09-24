@@ -233,6 +233,127 @@ fn normal_package_generic_g0_helper_reaches_existing_exe_emitter() {
 }
 
 #[test]
+#[ignore = "requires LLVM18, target/release/ny-llvmc, and lifecycle-kernel archive"]
+fn accepted_variable_recurrence_fixtures_reach_exe_with_final_values() {
+    std::thread::Builder::new()
+        .name("accepted-var-exe-acceptance".to_owned())
+        .stack_size(32 * 1024 * 1024)
+        .spawn(|| {
+            crate::test_support::with_env_vars(
+                &[
+                    ("NYASH_MACRO_DISABLE", Some("1")),
+                    ("NYASH_NY_LLVM_COMPILER", Some("target/release/ny-llvmc")),
+                    ("NYASH_DISABLE_PLUGINS", Some("1")),
+                ],
+                || {
+                    let runtime = Path::new("target/release");
+                    let required_files = [
+                        runtime.join("libnyash_lifecycle_kernel.a"),
+                        Path::new("target/release/ny-llvmc").to_path_buf(),
+                        Path::new("target/release/libhako_llvmc_ffi.so").to_path_buf(),
+                    ];
+                    let llvm18_available =
+                        ["llvm-config-18", "llc-18", "opt-18"]
+                            .into_iter()
+                            .all(|tool| {
+                                Command::new(tool)
+                                    .arg("--version")
+                                    .output()
+                                    .is_ok_and(|output| output.status.success())
+                            });
+                    assert!(
+                        required_files.iter().all(|path| path.is_file()) && llvm18_available,
+                        "explicit VAR EXE acceptance requires LLVM18, target/release/ny-llvmc, its FFI library, and the lifecycle-kernel archive"
+                    );
+                    crate::runtime::ring0::ensure_global_ring0_initialized();
+                    let directory = tempfile::tempdir().expect("EXE acceptance temp directory");
+                    let executable = directory.path().join("variable-recurrence");
+                    let cases = [
+                        (
+                            "accepted fixture",
+                            include_str!("../../../apps/tests/loop_simple_while_inline_explicit_step_min.hako"),
+                            "6",
+                        ),
+                        (
+                            "renamed bindings with bound 3 and step 2",
+                            r#"static box Main {
+  main() {
+    local cursor = 0
+    local total = 0
+    loop(cursor < 3) {
+      total = total + cursor
+      cursor = cursor + 2
+    }
+    print(total * 10 + cursor)
+    return 0
+  }
+}"#,
+                            "24",
+                        ),
+                        (
+                            "zero iterations retain both initial values",
+                            r#"static box Main {
+  main() {
+    local cursor = 0
+    local total = 7
+    loop(cursor < 0) {
+      total = total + cursor
+      cursor = cursor + 2
+    }
+    print(total * 10 + cursor)
+    return 0
+  }
+}"#,
+                            "70",
+                        ),
+                    ];
+                    for (label, source, expected_stdout) in cases {
+                        let mut compiler = MirCompiler::with_options(true);
+                        let mut callbacks = 0;
+                        compiler
+                            .compile_normal_with_published(
+                                published_request(source),
+                                |view, verification| {
+                                    callbacks += 1;
+                                    assert!(verification.is_ok(), "{label}: {verification:?}");
+                                    assert!(view.module().functions.contains_key("main"));
+                                    let emitted = crate::host_providers::llvm_codegen::emit_published_view_exe(
+                                        view,
+                                        executable.to_str().expect("UTF-8 executable path"),
+                                        runtime.to_str(),
+                                        None,
+                                    )
+                                    .map_err(|error| format!("exe={error}"))?;
+                                    assert!(
+                                        emitted,
+                                        "{label}: the existing typed EXE route must own publication"
+                                    );
+                                    let output = Command::new(&executable)
+                                        .env("NYASH_NYRT_SILENT_RESULT", "1")
+                                        .env("HAKO_NYRT_PLUGIN_HOST", "off")
+                                        .output()
+                                        .map_err(|error| error.to_string())?;
+                                    assert_eq!(output.status.code(), Some(0), "{label}: {output:?}");
+                                    assert_eq!(
+                                        String::from_utf8_lossy(&output.stdout).trim(),
+                                        expected_stdout,
+                                        "{label}"
+                                    );
+                                    Ok::<(), String>(())
+                                },
+                            )
+                            .unwrap_or_else(|error| panic!("{label}: {error}"));
+                        assert_eq!(callbacks, 1, "{label}: one publication callback");
+                    }
+                },
+            )
+        })
+        .expect("spawn VAR EXE acceptance with the compiler test stack")
+        .join()
+        .expect("VAR EXE acceptance thread");
+}
+
+#[test]
 fn normal_ingress_routes_app_main_static_loop_child_through_callable_consumer() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {

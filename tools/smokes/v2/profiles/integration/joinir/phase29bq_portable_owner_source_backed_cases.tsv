@@ -1,0 +1,29 @@
+# fixture	expected	allowed_rc	case_id	reason
+# Source-backed (--backend mir) acceptance for portable-owner corpus rows
+# migrated off phase29bq_fast_gate_cases.tsv (M10b-I0-R0).
+# Columns differ from the VM list gate: no planner_tag — retired-machinery
+# tags are not emitted on the source-backed lane; output+rc is the contract.
+# Held rows remaining on the VM gate (see R0 card, gate-migration scoping):
+#   selfhost_parse_program2_loop_if_return_local_min  (accepted->typed-freeze on mir)
+#   cond_truthiness_value                             (if/else local-write gating divergence)
+#   cond_truthiness_null                              (lane-formatted error text)
+# Also carries the main0-* release_adopt contracts (rc + empty output,
+# no tags) previously pinned by generic_loop_*_release_adopt_vm.sh:
+#   carrier_type_v0_numeric_min rc=4 / continue_min rc=4 / in_body_step_min rc=3
+# The matching *_strict_shadow_vm.sh scripts pin retired planner envs
+# (HAKO_JOINIR_STRICT+PLANNER_REQUIRED) and are obsolete candidates.
+apps/tests/loop_simple_while_inline_explicit_step_min.hako	6	0	loop_simple_while_inline_explicit_step_min	loop_simple_while explicit-step source pin (callable-loop / VAR)
+apps/tests/generic_loop_carrier_type_v0_numeric_min.hako	__EMPTY__	4	generic_loop_carrier_type_v0_numeric_min	main0-derived-predicate release-adopt contract (rc=4, no output)
+apps/tests/phase29ca_generic_loop_continue_min.hako	__EMPTY__	4	phase29ca_generic_loop_continue_min	main0-continue release-adopt contract (rc=4, no output)
+apps/tests/phase29cb_generic_loop_in_body_step_min.hako	__EMPTY__	3	phase29cb_generic_loop_in_body_step_min	main0-in-body-step release-adopt contract (rc=3, no output)
+apps/tests/phase29bq_selfhost_blocker_parse_program2_if_return_min.hako	7	0	selfhost_parse_program2_if_return_min	selfhost parse_program2 if-return minimal (no loops)
+apps/tests/phase29bq_selfhost_blocker_parse_program2_if_return_var_min.hako	7	0	selfhost_parse_program2_if_return_var_min	selfhost parse_program2 if-return var minimal
+apps/tests/phase29bq_selfhost_blocker_parse_program2_if_return_local_min.hako	7	0	selfhost_parse_program2_if_return_local_min	selfhost parse_program2 if-return local minimal
+apps/tests/phase29bq_selfhost_blocker_parse_program2_if_fallthrough_join_min.hako	1	0	selfhost_parse_program2_if_fallthrough_join_min	selfhost parse_program2 if-fallthrough join minimal
+apps/tests/phase29bq_selfhost_blocker_parse_program2_if_else_return_min.hako	__EMPTY__	0	selfhost_parse_program2_if_else_return_min	selfhost parse_program2 if-else-return minimal
+apps/tests/phase29bq_selfhost_blocker_parse_program2_if_else_return_var_min.hako	__EMPTY__	0	selfhost_parse_program2_if_else_return_var_min	selfhost parse_program2 if-else-return var minimal
+apps/tests/phase29bq_selfhost_blocker_parse_program2_if_else_return_local_min.hako	__EMPTY__	0	selfhost_parse_program2_if_else_return_local_min	selfhost parse_program2 if-else-return local minimal
+apps/tests/phase29bq_selfhost_blocker_parse_program2_if_else_if_return_min.hako	__EMPTY__	0	selfhost_parse_program2_if_else_if_return_min	selfhost parse_program2 if-else-if return minimal
+apps/tests/phase29bq_blockexpr_basic_min.hako	0	0	blockexpr_basic_min	BlockExpr `{...}` as expression (B2-5)
+apps/tests/phase29bq_blockexpr_return_min.hako	__EMPTY__	0	blockexpr_return_min	BlockExpr `{...}` as return expr (B2)
+apps/tests/phase29bq_stageb_blockexpr_return_min.hako	__EMPTY__	0	stageb_blockexpr_return_min	Stage-B Program JSON v0: BlockExpr return

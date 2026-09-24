@@ -30,6 +30,7 @@ struct PreparedNonMainStaticBoxMethodV1 {
     body: Vec<ASTNode>,
     uses: Vec<String>,
     attrs: DeclarationAttrs,
+    declaration: ASTNode,
 }
 
 impl PreparedNonMainStaticBoxMethodBatchV1 {
@@ -42,6 +43,7 @@ impl PreparedNonMainStaticBoxMethodBatchV1 {
             .filter_map(|entry| {
                 let method_name = entry.name().to_owned();
                 let method = entry.declaration().clone();
+                let declaration = method.clone();
                 let ASTNode::FunctionDeclaration {
                     params,
                     param_decls,
@@ -64,6 +66,7 @@ impl PreparedNonMainStaticBoxMethodBatchV1 {
                     body,
                     uses,
                     attrs,
+                    declaration,
                 })
             })
             .collect();
@@ -94,6 +97,7 @@ impl PreparedNonMainStaticBoxMethodBatchV1 {
                     method.body,
                     method.uses,
                     method.attrs,
+                    method.declaration,
                 ),
             )?;
         }
@@ -119,6 +123,7 @@ impl PreparedNonMainStaticBoxMethodBatchV1 {
                 method.body,
                 method.uses,
                 method.attrs,
+                Some(method.declaration),
             )?;
         }
         Ok(())
@@ -165,6 +170,7 @@ impl PreparedNonMainStaticBoxMethodBatchV1 {
                 method.body,
                 method.uses,
                 method.attrs,
+                Some(method.declaration),
             )?;
         }
         Ok(())

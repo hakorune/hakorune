@@ -72,5 +72,4 @@ fn loopfacts_keeps_loop_cond_owner_for_multi_candidate_conditional_update() {
         loop_cond.accept_kind,
         LoopCondBreakAcceptKind::ConditionalUpdate
     );
-    assert!(facts.generic_loop_v1.is_none());
 }

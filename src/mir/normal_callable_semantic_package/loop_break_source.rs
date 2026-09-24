@@ -7,7 +7,7 @@
 
 use crate::mir::builder::{
     issue_callable_loop_break_source_facts_v1, CallableLoopBreakSourceFactsDispositionV1,
-    CallableLoopBreakSourceFactsIssueV1, GenericLoopFactsPolicyFrameV1,
+    CallableLoopBreakSourceFactsIssueV1, LoopFactsPolicyFrameV1,
     VerifiedCallableLoopBreakCompositeSourceFactsV1, VerifiedCallableLoopBreakSourceFactsV1,
 };
 use crate::mir::callable_semantic_batch::{
@@ -92,6 +92,16 @@ impl LoopBreakSourcePackageLoanV1 {
         match self {
             Self::Candidate(facts) => facts.take_candidate_for_site(site),
             Self::CompositeCandidate(_) | Self::SupportedNonCandidate { .. } => None,
+        }
+    }
+
+    pub(in crate::mir) fn has_candidate_for_site(&self, site: &SourceStmtSiteV1) -> bool {
+        match self {
+            Self::Candidate(facts) => facts
+                .candidates()
+                .iter()
+                .any(|candidate| candidate.projection().loop_site() == site),
+            Self::CompositeCandidate(_) | Self::SupportedNonCandidate { .. } => false,
         }
     }
 
@@ -222,7 +232,7 @@ impl VerifiedLoopBreakSourcePackageV1 {
 
 pub(super) fn issue_loop_break_source_package_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
-    policy: GenericLoopFactsPolicyFrameV1,
+    policy: LoopFactsPolicyFrameV1,
 ) -> Result<VerifiedLoopBreakSourcePackageV1, LoopBreakSourcePackageIssueV1> {
     let declarations = batch.declarations().collect::<Vec<_>>();
     let expected = declarations

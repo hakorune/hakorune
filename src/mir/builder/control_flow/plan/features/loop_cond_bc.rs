@@ -202,7 +202,6 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
                     &break_phi_dsts,
                     &facts.recipe.body,
                     &facts.recipe.items,
-                    facts.propagate_nested_carriers,
                 )
             })?
         }
@@ -220,7 +219,6 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
                 &break_phi_dsts,
                 &facts.recipe.body,
                 &facts.recipe.items,
-                facts.propagate_nested_carriers,
             )?
         }
     };
@@ -347,7 +345,6 @@ fn lower_loop_cond_body_items(
     break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
     body: &RecipeBody,
     items: &[crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem],
-    propagate_nested: bool,
 ) -> Result<Vec<LoweredRecipe>, String> {
     let mut carrier_updates = BTreeMap::new();
     let mut body_plans = Vec::new();
@@ -361,7 +358,6 @@ fn lower_loop_cond_body_items(
             &mut carrier_updates,
             body,
             item,
-            propagate_nested,
         )
         .map_err(|err| format!("{err} [loop_cond_item idx={idx} kind={item:?}]"))?;
         body_plans.append(&mut plans);

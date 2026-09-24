@@ -131,7 +131,7 @@ impl<'package, 'loan, 'port, 'collector, 'target>
         &mut self,
         key: SelectedNormalCallableKeyV1,
         execute: impl FnOnce(
-            &mut RawInvocationChildPortV1<'port, 'collector>,
+            &mut RawInvocationChildPortV1<'_, 'collector>,
             super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
         ) -> Result<R, String>,
     ) -> Result<R, String> {
@@ -408,7 +408,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         builder: &mut MirBuilder,
         child: &VerifiedMainStaticChildV1<'_>,
     ) -> Result<(), String> {
-        let (_symbol, params, param_decls, return_type_name, body, uses, attrs) =
+        let (_symbol, params, param_decls, return_type_name, body, uses, attrs, declaration) =
             child.to_owned_lowering().into_parts();
         let target_binding = self.target_binding.as_ref();
         let inner = &mut *self.inner;
@@ -476,6 +476,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                                 uses,
                                 attrs,
                                 transport,
+                                Some(declaration),
                             )
                             .map_err(|error| error.to_string())
                     },
@@ -496,6 +497,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         self.inner
             .lower_normal_instance_constructor_v1(
@@ -507,6 +509,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                 body,
                 uses,
                 attrs,
+                declaration,
             )
             .map_err(|error| error.to_string())
     }
@@ -523,6 +526,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         if !ticket.source_id().same_as(source_key.source_id()) {
             return Err(
@@ -554,6 +558,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                                 body,
                                 uses,
                                 attrs,
+                                declaration,
                             )
                             .map_err(|error| error.to_string())
                     },
@@ -573,6 +578,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         generic_g0::lower_normal_top_level_function(
             self,
@@ -584,6 +590,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
             body,
             uses,
             attrs,
+            declaration,
         )
     }
 
@@ -598,6 +605,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         let target_binding = self.target_binding.as_ref();
         let inner = &mut *self.inner;
@@ -712,6 +720,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                                     uses,
                                     attrs,
                                     transport,
+                                    declaration,
                                 )
                                 .map_err(|error| error.to_string())
                             },
@@ -734,6 +743,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         let target_capability = self
             .target_binding
@@ -754,6 +764,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                             body,
                             uses,
                             attrs,
+                            declaration,
                             target_capability,
                         )
                         .map_err(|error| error.to_string())

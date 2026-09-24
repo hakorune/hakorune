@@ -12,7 +12,6 @@ mod body_block;
 mod debug;
 mod final_values;
 mod loop_v0;
-mod nested_depth1;
 mod vars;
 
 #[cfg(test)]
@@ -44,7 +43,3 @@ pub(in crate::mir::builder) use body_block::lower_loop_with_body_block;
 pub(in crate::mir::builder) use final_values::apply_loop_final_values_to_bindings;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use loop_v0::{lower_loop_v0, lower_loop_v0_core};
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use nested_depth1::{
-    lower_nested_loop_depth1_stmt_only, try_lower_nested_loop_depth1_stmt_only_fastpath,
-};

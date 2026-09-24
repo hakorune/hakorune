@@ -2,7 +2,7 @@ use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDecl
 use crate::mir::builder::{
     issue_source_backed_same_module_callable_catalog_v1, CanonicalSameModuleCallableKeyV1,
     CatalogedBoxMethodPhysicalHeaderProjectionV1, ConsumedNormalRootCallableSourceV1,
-    GenericLoopFactsPolicyFrameV1, SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
+    LoopFactsPolicyFrameV1, SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
     SourceBackedCallableCatalogIssueV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 #[cfg(test)]
@@ -412,7 +412,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         resolver,
         source,
         brand_catalog,
-        GenericLoopFactsPolicyFrameV1::from_environment(),
+        LoopFactsPolicyFrameV1::from_environment(),
     )
 }
 
@@ -420,7 +420,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     resolver: &mut FunctionSemanticResolverSessionV1,
     source: ConsumedNormalRootCallableSourceV1,
     brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
-    loop_policy: GenericLoopFactsPolicyFrameV1,
+    loop_policy: LoopFactsPolicyFrameV1,
 ) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
     let instance_constructors =
         issue_instance_constructor_semantic_batch_v1(resolver, source.source(), brand_catalog)

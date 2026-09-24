@@ -396,10 +396,16 @@ impl ModuleLoweringPortV1<'_> {
         builder: &'builder mut MirBuilder,
         function_name: &str,
         body_snapshot: Vec<ASTNode>,
+        declaration: Option<ASTNode>,
         lower: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
     ) -> Result<LegacyFunctionPendingSessionV1<'builder>, ModuleLoweringPortChildErrorV1> {
         builder
-            .capture_legacy_function_pending_session_v1(function_name, body_snapshot, lower)
+            .capture_legacy_function_pending_session_v1(
+                function_name,
+                body_snapshot,
+                declaration,
+                lower,
+            )
             .map_err(ModuleLoweringPortChildErrorV1::Session)
     }
 }

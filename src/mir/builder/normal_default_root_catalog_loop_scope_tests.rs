@@ -32,24 +32,27 @@ fn source_backed_root(source: &str) -> PreparedNormalDefaultProgramRootV1 {
     PreparedNormalDefaultProgramRootV1::from_callable_source(source)
 }
 
+/// Compatibility-mode loops carry no parser-issued `FunctionDeclaration`, so
+/// they cannot satisfy the route_loop lowering-session contract after the
+/// registry retirement. This is the accepted non-corpus compatibility
+/// boundary: the loop must end at the named freeze, never at a silent
+/// fallback or partial MIR.
 #[test]
 fn compatibility_loop_uses_legacy_child_terminal_without_callable_scope() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
-    let completed = session()
+    let rejected = session()
         .complete_normal_default_program_root_catalog_lifecycle(
             compatibility_root("local i = 0 loop(i < 1) { i = i + 1 } return i"),
             CallableMainMaterializationPolicyV1::Omitted,
             NormalRuntimeInputSnapshotV1::empty(),
         )
-        .expect("compatibility Loop must reach its existing legacy terminal");
-    let (_, module, _) = completed.into_parts();
-    assert!(module.functions.iter().any(|(_, function)| {
-        function.signature.name == "main"
-            || function
-                .blocks
-                .values()
-                .any(|block| block.instructions.iter().any(|_| true))
-    }));
+        .expect_err("compatibility Loop must reach its named route_loop terminal");
+    let error = rejected.error().to_string();
+    assert!(
+        error.contains("route_loop requires a parser-issued FunctionDeclaration"),
+        "{error}"
+    );
+    rejected.discard();
 }
 
 #[test]
@@ -72,7 +75,10 @@ fn source_backed_loop_keeps_invocation_scope_and_ledger_route() {
                 )
                 .expect_err("source-backed Loop must reach its existing recipe boundary");
             let error = rejected.error().to_string();
-            assert!(error.contains("[callable-loop/recipe]"), "{error}");
+            // The generic callable arm retired with the ordered registry, so
+            // generic-profile loops now stop at the callable facts terminal —
+            // still behind the invocation scope and ledger route.
+            assert!(error.contains("[callable-loop/facts-rejected]"), "{error}");
             assert!(!error.contains("callable-ledger-missing"), "{error}");
             assert!(rejected.session.builder().current_module.is_some());
             rejected.discard();

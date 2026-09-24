@@ -119,7 +119,7 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
         builder: &mut super::MirBuilder,
         child: &VerifiedMainStaticChildV1<'_>,
     ) -> Result<(), String> {
-        let (symbol, params, param_decls, return_type_name, body, uses, attrs) =
+        let (symbol, params, param_decls, return_type_name, body, uses, attrs, declaration) =
             child.to_owned_lowering().into_parts();
         self.lower_static_box_method(
             builder,
@@ -130,6 +130,7 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
             body,
             uses,
             attrs,
+            Some(declaration),
         )
     }
 
@@ -146,6 +147,7 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
         _body: Vec<ASTNode>,
         _uses: Vec<String>,
         _attrs: DeclarationAttrs,
+        _declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         Err("[freeze:contract][mir/top-level-function-admission/raw-port]".to_owned())
     }
@@ -163,6 +165,7 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
         _body: Vec<ASTNode>,
         _uses: Vec<String>,
         _attrs: DeclarationAttrs,
+        _declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         Err("[freeze:contract][mir/instance-constructor-admission/raw-port]".to_owned())
     }
@@ -182,6 +185,7 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
         _body: Vec<ASTNode>,
         _uses: Vec<String>,
         _attrs: DeclarationAttrs,
+        _declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         Err("[freeze:contract][mir/instance-constructor-demand/raw-port]".to_owned())
     }
@@ -197,6 +201,7 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         self.lower_static_box_method(
             builder,
@@ -207,6 +212,7 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
             body,
             uses,
             attrs,
+            declaration,
         )
     }
 
@@ -221,6 +227,7 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         let function_name = admission.physical_symbol().to_owned();
         let owner = admission.source_key().owner().to_owned();
@@ -238,6 +245,7 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
             body,
             uses,
             attrs,
+            declaration,
         )
     }
 
@@ -255,6 +263,7 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         let _ = (canonical_key, method);
         self.lower_instance_box_method(
@@ -267,6 +276,7 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
             body,
             uses,
             attrs,
+            declaration,
         )
     }
 }
@@ -282,6 +292,7 @@ impl RootCallableCapturePortV1 for RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         self.lower_normal_top_level_function_v1(
             builder,
@@ -292,6 +303,7 @@ impl RootCallableCapturePortV1 for RawInvocationChildPortV1<'_, '_> {
             body,
             uses,
             attrs,
+            declaration,
         )
         .map_err(|error| error.to_string())
     }
@@ -306,6 +318,7 @@ impl RootCallableCapturePortV1 for RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         self.lower_normal_instance_constructor_v1(
             builder,
@@ -316,6 +329,7 @@ impl RootCallableCapturePortV1 for RawInvocationChildPortV1<'_, '_> {
             body,
             uses,
             attrs,
+            declaration,
         )
         .map_err(|error| error.to_string())
     }
@@ -330,6 +344,7 @@ impl RootCallableCapturePortV1 for RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         self.lower_normal_cataloged_static_box_method_v1(
             builder,
@@ -340,6 +355,7 @@ impl RootCallableCapturePortV1 for RawInvocationChildPortV1<'_, '_> {
             body,
             uses,
             attrs,
+            declaration,
         )
         .map_err(|error| error.to_string())
     }
@@ -354,6 +370,7 @@ impl RootCallableCapturePortV1 for RawInvocationChildPortV1<'_, '_> {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         self.lower_normal_cataloged_instance_box_method_v1(
             builder,
@@ -364,6 +381,7 @@ impl RootCallableCapturePortV1 for RawInvocationChildPortV1<'_, '_> {
             body,
             uses,
             attrs,
+            declaration,
         )
         .map_err(|error| error.to_string())
     }

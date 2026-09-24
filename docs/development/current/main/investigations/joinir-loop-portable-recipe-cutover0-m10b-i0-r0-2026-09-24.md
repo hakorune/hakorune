@@ -13,6 +13,19 @@ Contract source: `joinir-loop-selfhost-recipe-pipeline-ssot.md` M10b row —
 
 # M10b-I0-R0 — atomic portable-recipe cutover design
 
+## Current prerequisite — accepted VAR correction (2026-09-24)
+
+P1/P2-E are landed; R0 remains uncommitted. First close
+[M10b-I0-R0-VAR](mir-call-variable-accum-recurrence-production-i0-2026-09-24.md):
+preserve the accepted recurrence via its existing callable source owner.
+The old CallableSingleLoopV1 attribution and blanket VAR exclusion below
+are superseded. No sixth node family is selected; VAR acceptance gates R0.
+The accepted VAR route and focused execution are now present in the shared
+worktree, while wrong-owner/site/frame acceptance and the broader R0 gate
+remain open. A 2026-09-25 source-shape audit found direct overlap and forced
+producer/admission negatives unconstructible without synthetic authority; keep
+their fail-fast branches and do not manufacture those fixtures.
+
 ## Six-line brief
 
 ```text
@@ -254,6 +267,11 @@ returns to design — it does not grow a profile adapter.
   --backend vm` emitted `loop_legacy_selected route=generic_loop_v1`,
   proving Compatibility-mode main-body loops execute through
   `route_loop` + the ordered scheduler today.
+- The unarmed nested callable-loop fixture now supplies the exact original
+  resolver input and pins its source-owner terminal in both default and strict
+  planner modes: `raw_loop_child_port::tests::unarmed_nested_loop_stops_at_source_facts_without_compatibility_reentry`
+  passes 1/1. It expects `facts-absent` / `facts-rejected` respectively and
+  rejects compatibility-route re-entry.
 - Caller-zero checks (`rg`): `select_canonical_loop_family_v1` and the
   window/coverage issuers have no production caller; `route_loop` has
   exactly one; `collect_candidates` is caller-zero outside registry.
@@ -431,14 +449,12 @@ AST fixtures are the authoritative probe input.
   provenance consistent with the M12 contract ("retained route rows
   are data-only source policy"); it is not a second winner — the
   family selector already picked the family.
-- **Corpus boundary precision**: the sole accepted `acc+=i`-shape
-  corpus fixture (`loop_simple_while_inline_explicit_step_min.hako`)
-  resolves to `callable-loop` -> `CallableSingleLoopV1` (Installed
-  mode, callable ledger). The Compatibility-mode reach of that shape
-  (`route_loop -> generic_loop_v1` today) is outside the corpus
-  census; post-switch it Freezes by the recorded boundary. Residual
-  regression risk on non-corpus Compatibility programs is real but
-  accepted by D0 and checked by the R0 corpus/backend parity gate.
+- **Corpus boundary correction (2026-09-24)**: the accepted
+  `loop_simple_while_inline_explicit_step_min.hako` recurrence was
+  incorrectly attributed to `CallableSingleLoopV1`. The existing VAR
+  source projector matches its static shape; its callable production
+  bridge and execution evidence remain pending under `M10b-I0-R0-VAR`.
+  Preserve output 6/exit 0; do not reclassify it as typed-freeze.
 - **Function-level arms are only 3**: `CanonicalLoopFamilyPlanV1` has
   DirectAccum/NestedPredicate/GenericG0 arms only — LoopTrue/LoopCond
   window families have no function-level production arm. At node
@@ -775,3 +791,182 @@ Next slice: R0 atomic `route_loop` switch — wire the named production
 caller (loop stmt site -> spine -> admission -> lowerer -> writebacks +
 `select_block(root_after)`), then retire the deletion-manifest legacy
 path for the selected boundary.
+
+## R0 deletion disposition record (recorded during landing)
+
+The working diff removes 163 files vs the frozen manifest's 22 `file`
+rows. Post-hoc audit classifies the 141 manifest-external deletions:
+
+- **M11-scope, discharged early** (recorded disposition change,
+  user-approved): `plan/generic_loop/located_representation/*` (9) and
+  `plan/parts/associated_source/located_*` + `associated_source_tests.rs`
+  (6). The new `route_loop` spine already feeds resolver-inventoried
+  `SourceStmtSiteV1` (located source) into the StructuralFacts/Recipe
+  path — the M11 "feed" half is discharged by the spine, and these files
+  are the "covered shadow entries" M11 was chartered to retire. Verbatim
+  restore is impossible without resurrecting manifest delete-set rows
+  (`facts::extract`, `facts_types`), which they import.
+- **retained-row, husk-equivalent**: `registry/live_preflight_frame.rs`.
+  The manifest marked the file retained, but its only meaningful edge is
+  the C05 `try_execute_route_execution_witness` Ok(None) continuation —
+  and `execution_witness.rs` is itself a manifest file-delete row. After
+  C05 the file is an empty husk; physical deletion is equivalent.
+- **R1 generic-only dead files, folded into the R0 working diff**
+  (~120): `plan/generic_loop/` non-located children,
+  `plan/nested_loop_depth1/` children, `features/generic_loop_body/`
+  subtree, registry scheduler machinery + its test files, and the
+  callable generic-arm files (`normal_callable_loop_physical_adapter`,
+  `generic/carrier_relation*`, `generic/source_admission*`). The SSOT
+  allows physical removal in the immediately-following caller-zero R1;
+  recording here keeps the manifest-vs-diff audit honest. Commit
+  splitting is decided at commit time.
+- **All deletions were caller-zero** (lib + tests compile green without
+  them); no live caller was deleted to make the manifest green.
+
+M11 residual scope after this record: prove the old located handoff has
+zero production callers and enumerate any remaining shadow entries.
+
+### Caller-zero re-audit (2026-09-24, read-only, post-flip)
+
+Independent re-verification of the current deletion set and remaining
+callers. No new deletions; audit only.
+
+- **Staged deletions = 163**, matching this record exactly. All within
+  recorded categories (registry scheduler subtree, `generic_loop`
+  subtrees across `facts/canon`/`plan`/`recipe_tree`/`skeletons`,
+  `located_representation` M11 husk, `associated_source` located files,
+  callable generic-arm, `features/generic_loop_body`, policies).
+- **Unstaged deletions = 10** (in-flight caller-zero fold, not staged):
+  `plan/nested_loop_plan*.rs` (6), `parts/loop_/nested_depth1.rs`,
+  `cond_lowering_freshen/final_values_tests.rs`, and two callable
+  source-route test files. These files were manifest *callers* of the
+  A11/A18/A19 edges, not delete rows; their fold is the recorded
+  caller-zero-R1 consequence. Verified caller-zero (`nested_loop_plan`,
+  `NestedLoopPlan`, `nested_depth1` — zero live refs, parent decls
+  already removed; lib compiles green).
+- **Symbol census**: all retired symbols zero-referenced —
+  `select_recipe_first_routes`, `observe_all_route_preflight_v1`,
+  `try_execute_if_allowed`, `route_generic_loop_v{0,1}`,
+  `pred_generic_loop_v{0,1}`, `LoopPhiMaterializerV1`,
+  `lower_with_existing_route_v1`,
+  `CallableGenericLoopSourceRouteAdmissionV1`,
+  `verify_located_generic_loop_v1`, `GenericLoopFactsPolicyFrameV1`,
+  `compose_generic_loop_v1_recipe`, `GenericLoopSkeleton`,
+  `apply_nested_loop_preheader_freshness`,
+  `try_extract_nested_loop_depth1_facts`,
+  `lower_nested_loop_depth1_any`, `loop_legacy_selected`. Residual
+  matches are retirement comments, error strings, or the intentional
+  empty decl shells (`plan/generic_loop/mod.rs`,
+  `plan/nested_loop_depth1/mod.rs`).
+- **Retained correctly**: `registry/mod.rs` (route_id facade only),
+  `registry/predicates.rs` (live caller:
+  `CallableLoopRouteMatchV1::issue` — data-only exclusivity matcher for
+  retained non-generic arms), `route_loop` (fixed order, no `Ok(None)`
+  tail, no ENTRIES loop, no retry), `plan/facts/expr_generic_loop.rs`
+  (purity helper, unrelated to deleted `facts/canon/generic_loop`).
+- **Single-owner invariants hold**: `issue_loop_node_winner_recipe_v1`
+  has exactly one production caller (`router.rs`); the canonical
+  physicalizer is the single `loop_node_lowerer.rs`.
+- **Minor doc drift (not fixed here)**: `facts/canon.rs` doc comment
+  still lists `generic_loop` among Facts-owned modules though the
+  module is deleted.
+- **VM-gate row disposition landed (2026-09-24)**: all 179
+  `phase29bq_fast_gate_cases.tsv` rows are dispositioned — 12 portable
+  rows on the accept gate (plus 3 `main0-*` rows from other surfaces,
+  15 total), 164 on the new typed-terminal gate, 3 held (`not-run`);
+  see "Gate migration landed" below.
+
+### Gate-migration scoping (2026-09-24, read-only probes)
+
+The 40 `D0-DISPOSITION-CHECKED` portable-owner rows map onto gates as
+follows: 15 rows live in `phase29bq_fast_gate_cases.tsv` (14
+canonical-main + the callable-loop VAR pin); 12 `main0-*` fixture rows
+live in the phase29ca/cb `*_release_adopt_vm.sh` / `strict_shadow_vm.sh`
+scripts; the rest are selfhost-corpus/subset twins or script rows.
+
+phase29bq portable-owner rows probed on the source-backed lane
+(`--backend mir`, `NYASH_DISABLE_PLUGINS=1`, current `target/quick`
+build):
+
+- **12/15 preserve fixture+output+rc** (migrated, see below): VAR row
+  prints `6` rc=0; 8 no-loop `selfhost_parse_program2_if_*` rows
+  (`7`/`1`/`__EMPTY__`, rc=0); `blockexpr_basic_min` (`0`),
+  `blockexpr_return_min` (`__EMPTY__`), `stageb_blockexpr_return_min`
+  (`__EMPTY__`).
+- **`selfhost_parse_program2_loop_if_return_local_min` — held**:
+  expected `__EMPTY__` rc=0 on VM (flowbox shadow adopt); mir lane
+  emits typed freeze `LoopCondRouteRejected(SourceItemsMissing)` rc=1.
+  Classification flips accepted→rejected; cannot migrate while
+  preserving classification.
+- **`cond_truthiness_null_min` — held**: same terminal (`Type error:
+  Void in boolean context`, rc=1) but the error text is lane-formatted
+  (`[vm] VM error:` vs mir `[vm/error]`). Literal expected-output
+  preservation is impossible; whether classification+rc preservation
+  suffices is a gate-contract decision, not an implementer choice.
+- **`cond_truthiness_value_min` — held, blocker class**: expected
+  `12345`, mir lane emits `1X2X3XX45X`. Probes show the source-backed
+  canonical-main path executes **local-variable writes inside if/else
+  arms unconditionally** (both arms' writes land in source order),
+  while `print`/`return` arms gate correctly (`if false { print("BAD")
+  }` prints nothing; `if false { return 1 }` is skipped; `if c {
+  out+="T" } else { out+="F" }` yields `TF`). The row cannot migrate
+  with preserved expected output until the canonical-main if/else
+  local-write gating is owned and fixed — a semantic slice outside
+  this gate migration.
+- **Non-portable rows**: the remaining ~140 TSV rows are
+  `D0-TYPED-REJECT`/`D0-PRE-LOOP-EVIDENCE` corpus, not portable-owner.
+  Loop-carrying ones now freeze on the VM compat lane (`zero family
+  candidates`) — their gate disposition is a separate R0-owner
+  decision and is not covered by the portable-owner migration.
+
+### Gate migration landed (2026-09-24, narrow)
+
+- Successor gate:
+  `tools/smokes/v2/profiles/integration/joinir/phase29bq_portable_owner_source_backed_gate_mir.sh`
+  + `phase29bq_portable_owner_source_backed_cases.tsv` (15 rows,
+  fixture/expected/allowed_rc preserved; no planner-tag column —
+  retired-machinery tags are not emitted on the source-backed lane)
+  + `tools/smokes/v2/lib/joinir_source_backed_gate.sh` (hermetic
+  `--backend mir` runner; explicitly neutralizes
+  `HAKO_JOINIR_STRICT`/`HAKO_JOINIR_PLANNER_REQUIRED`, whose
+  combination forces the retired planner admission and freezes the
+  source-backed route).
+- Registered in `tools/smokes/v2/suites/integration/joinir-bq.txt`.
+- Verified: 15/15 PASS on `target/quick` build (full list + `--only`
+  spot check).
+- Coverage carried: the 12 phase29bq TSV portable-owner rows plus the
+  3 `main0-*` `_min` fixtures whose release-adopt contracts (rc +
+  empty output, no tags) were pinned by the unregistered
+  `generic_loop_{carrier_type,continue,in_body_step}_release_adopt_vm.sh`
+  scripts (all preserve on mir: rc 4/4/3, empty output).
+- `phase29bq_fast_gate_cases.tsv` stays byte-identical to HEAD as the
+  corpus inventory (consumed by `generic_legacy_corpus_universe_guard`,
+  which validates `source_surface` line references 1:1). Its list
+  execution step is retired from `phase29bq_fast_gate_vm.sh`; each
+  row's live contract is named by the manifest `parity_gate` column.
+- Typed-terminal successor gate:
+  `tools/smokes/v2/profiles/integration/joinir/phase29bq_typed_terminal_source_backed_gate_mir.sh`
+  + `phase29bq_typed_terminal_source_backed_cases.tsv` (164 rows;
+  contract = nonzero exit + pinned `[authority/terminal]` marker on
+  `--backend mir`). Registered in `joinir-bq.txt`; verified 164/164
+  PASS on `target/quick`. These are the `D0-TYPED-REJECT` /
+  `D0-PRE-LOOP-EVIDENCE` rows whose VM-lane acceptance came from the
+  retired ordered-scheduler route; per-row terminal markers were
+  censused before pinning.
+- `generic-loop-legacy-disposition-v1.tsv`: `parity_gate` set to
+  `phase29bq_typed_terminal_source_backed_gate_mir` for the 164 rows;
+  the 3 held rows keep `not-run`.
+- `generic_legacy_corpus_universe_guard.py`: `parity_gate` allowed set
+  extended from `not-run`-only to the two named source-backed gates.
+- `generic-loop-legacy-disposition-v1.tsv`: `parity_gate` set to the
+  new gate name for the 27 corpus rows whose fixtures/contracts are
+  now gated (12 primary + 8 `selfhost::` twins + 3 `main0-*` fixtures
+  + 4 `release_adopt` script rows).
+- Held on the VM gate pending named decisions: the 3 phase29bq rows
+  above. The sibling `*_strict_shadow_vm.sh` scripts pin
+  `HAKO_JOINIR_STRICT`+`HAKO_JOINIR_PLANNER_REQUIRED` — the retired
+  planner lane itself — and are obsolete candidates (red on both lanes
+  post-flip), not portable contracts. The remaining `main0-*` corpus
+  fixture rows (bound2/renamed_locals/zero_iter/guard_never/
+  upper_bound_*) were never gate-pinned; their parity evidence is a
+  separate step. R0 remains open.

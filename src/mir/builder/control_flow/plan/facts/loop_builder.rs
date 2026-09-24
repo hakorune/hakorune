@@ -18,16 +18,10 @@ use super::nested_loop_profile::CLUSTER_PROFILES;
 use super::scan_shapes::{scan_condition_observation, ConditionShape, StepShape};
 use super::skeleton_facts::try_extract_loop_skeleton_facts;
 use super::string_is_integer_facts::try_extract_string_is_integer_facts;
-use crate::mir::builder::control_flow::facts::loop_cond_break_continue::{
-    LoopCondBreakAcceptKind, LoopCondBreakContinueFacts,
-};
+use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts;
 use crate::mir::builder::control_flow::facts::loop_cond_continue_only::try_extract_loop_cond_continue_only_facts;
 use crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::try_extract_loop_cond_continue_with_return_facts;
 use crate::mir::builder::control_flow::facts::loop_cond_return_in_body::try_extract_loop_cond_return_in_body_facts;
-use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::{
-    try_extract_generic_loop_v0_facts_with_policy, try_extract_generic_loop_v1_with_policy,
-};
-use crate::mir::builder::control_flow::plan::generic_loop::facts::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::control_flow::plan::loop_break::facts::try_extract_loop_break_body_local_facts;
 use crate::mir::builder::control_flow::plan::loop_break::facts::try_extract_loop_break_facts_with_projection;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_entry::{
@@ -36,7 +30,6 @@ use crate::mir::builder::control_flow::plan::loop_cond::break_continue_entry::{
 };
 use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::try_extract_loop_true_break_continue_facts;
 use crate::mir::builder::control_flow::plan::planner::{Freeze, PlannerContext};
-use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 
 use super::loop_condition_shape::try_extract_condition_shape;
 use super::loop_scan_with_init::try_extract_scan_with_init_facts_with_projection;
@@ -44,32 +37,14 @@ use super::loop_source_receipt::LoopSourceReceiptV1;
 use super::loop_split_scan::try_extract_split_scan_facts_with_projection;
 use super::loop_step_shape::try_extract_step_shape;
 use super::loop_types::LoopFacts;
-#[cfg(test)]
-use crate::mir::builder::control_flow::joinir::route_entry::registry::live_ordered_terminality::{
-    bind_live_loop_facts_v1, LiveLoopFactsV1,
-};
 
 #[cfg(test)]
 pub(in crate::mir::builder) fn try_build_loop_facts(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<LoopFacts>, Freeze> {
-    let policy = GenericLoopFactsPolicyFrameV1::from_environment();
+    let policy = super::policy::LoopFactsPolicyFrameV1::from_environment();
     try_build_loop_facts_inner(condition, body, policy)
-}
-
-/// Builds facts while retaining the exact live source frame that produced them.
-///
-/// This opaque pair has no parts accessor. A later registry transaction is the
-/// only planned consumer; production callers remain zero in this foundation.
-#[cfg(test)]
-pub(in crate::mir::builder) fn try_build_live_loop_facts<'src>(
-    condition: &'src ASTNode,
-    body: &'src [ASTNode],
-) -> Result<Option<LiveLoopFactsV1<'src>>, Freeze> {
-    let policy = GenericLoopFactsPolicyFrameV1::from_environment();
-    try_build_loop_facts_inner(condition, body, policy)
-        .map(|facts| facts.map(|facts| bind_live_loop_facts_v1(condition, body, facts)))
 }
 
 pub(in crate::mir::builder) fn try_build_loop_facts_with_ctx(
@@ -77,13 +52,13 @@ pub(in crate::mir::builder) fn try_build_loop_facts_with_ctx(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<LoopFacts>, Freeze> {
-    try_build_loop_facts_inner(condition, body, _ctx.generic_loop_policy())
+    try_build_loop_facts_inner(condition, body, _ctx.loop_facts_policy())
 }
 
 fn try_build_loop_facts_inner(
     condition: &ASTNode,
     body: &[ASTNode],
-    generic_loop_policy: GenericLoopFactsPolicyFrameV1,
+    loop_facts_policy: super::policy::LoopFactsPolicyFrameV1,
 ) -> Result<Option<LoopFacts>, Freeze> {
     // Phase 29ai P4/P7: keep Facts conservative; only return Some when we can
     // build a concrete route fact set (no guesses / no hardcoded names).
@@ -143,66 +118,6 @@ fn try_build_loop_facts_inner(
     let loop_cond_continue_with_return =
         try_extract_loop_cond_continue_with_return_facts(condition, body)?;
     let loop_cond_return_in_body = try_extract_loop_cond_return_in_body_facts(condition, body)?;
-    // Phase 29bq: Skip generic_loop_v0/v1 extraction when loop_cond_* routes matched.
-    // generic_loop_v0 would freeze on shapes like ExitIfTree that loop_cond_break_continue
-    // can handle. By skipping when we have a specific match, we avoid the freeze.
-    let keep_loop_cond_break_continue = loop_cond_break_continue
-        .as_ref()
-        .is_some_and(loop_cond_break_continue_requires_recipe_owner);
-    // Keep the probe result, including a successful `None`, so a source-aware
-    // caller can later reuse the exact same extraction attempt for final Facts
-    // without re-reading policy or re-running the generic extractor.
-    let generic_loop_v1_probe =
-        if loop_cond_break_continue.is_some() && !keep_loop_cond_break_continue {
-            Some(try_extract_generic_loop_v1_with_policy(
-                condition,
-                body,
-                generic_loop_policy,
-            )?)
-        } else {
-            None
-        };
-    let has_generic_v1_recipe_hint = generic_loop_v1_probe.as_ref().is_some_and(Option::is_some);
-    let loop_cond_break_continue = if has_generic_v1_recipe_hint && !keep_loop_cond_break_continue {
-        None
-    } else {
-        loop_cond_break_continue
-    };
-    let loop_cond_break_blocks_generic = loop_cond_break_continue.as_ref().is_some_and(|facts| {
-        if matches!(
-            facts.accept_kind,
-            LoopCondBreakAcceptKind::NestedLoopOnly | LoopCondBreakAcceptKind::ProgramBlockNoExit
-        ) {
-            return false;
-        }
-        let effect_only = facts.recipe.items.iter().all(|item| {
-            matches!(
-                item,
-                LoopCondBreakContinueItem::Stmt(_)
-                    | LoopCondBreakContinueItem::GeneralIf(_)
-                    | LoopCondBreakContinueItem::ProgramBlock { .. }
-                    | LoopCondBreakContinueItem::NestedLoopDepth1 { .. }
-            )
-        });
-        !effect_only
-    });
-    let loop_cond_any_matched = loop_cond_break_blocks_generic
-        || loop_cond_continue_only.is_some()
-        || loop_cond_continue_with_return.is_some()
-        || loop_cond_return_in_body.is_some();
-    let generic_loop_v0 = if loop_cond_any_matched {
-        None
-    } else {
-        try_extract_generic_loop_v0_facts_with_policy(condition, body, generic_loop_policy)?
-    };
-    let generic_loop_v1 = if loop_cond_any_matched {
-        None
-    } else if let Some(probe) = generic_loop_v1_probe {
-        probe.map(|extraction| extraction.into_facts())
-    } else {
-        try_extract_generic_loop_v1_with_policy(condition, body, generic_loop_policy)?
-            .map(|extraction| extraction.into_facts())
-    };
     let if_phi_join =
         try_extract_if_phi_join_facts_with_projection(condition, body, &source_projection)?;
     let loop_continue_only =
@@ -237,8 +152,6 @@ fn try_build_loop_facts_inner(
         || loop_char_map.is_some()
         || loop_array_join.is_some()
         || string_is_integer.is_some()
-        || generic_loop_v0.is_some()
-        || generic_loop_v1.is_some()
         || if_phi_join.is_some()
         || loop_continue_only.is_some()
         || loop_true_early_exit.is_some()
@@ -278,8 +191,6 @@ fn try_build_loop_facts_inner(
         loop_char_map,
         loop_array_join,
         string_is_integer,
-        generic_loop_v0,
-        generic_loop_v1,
         if_phi_join: if_phi_join,
         loop_continue_only: loop_continue_only,
         loop_true_early_exit,
@@ -294,27 +205,13 @@ fn try_build_loop_facts_inner(
         loop_break,
         loop_break_body_local,
     };
-    if generic_loop_policy.debug_enabled() {
+    if loop_facts_policy.debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
             "[plan/trace:facts_summary] ctx=loop_facts has_any=1"
         ));
     }
     Ok(Some(facts))
-}
-
-fn loop_cond_break_continue_requires_recipe_owner(facts: &LoopCondBreakContinueFacts) -> bool {
-    if matches!(
-        facts.accept_kind,
-        LoopCondBreakAcceptKind::ConditionalUpdate | LoopCondBreakAcceptKind::ElseOnlyBreak
-    ) {
-        return true;
-    }
-    facts.continue_branches.len() > 1
-        && facts
-            .continue_branches
-            .iter()
-            .any(|sig| sig.has_assignment || sig.has_local)
 }
 
 /// Table-driven cluster facts extraction (SSOT: nested_loop_profile::CLUSTER_PROFILES).

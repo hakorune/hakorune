@@ -93,6 +93,7 @@ pub(super) struct PreparedProgramRootTopLevelFunctionPartsV1 {
     body: Vec<ASTNode>,
     uses: Vec<String>,
     attrs: DeclarationAttrs,
+    declaration: ASTNode,
 }
 #[derive(Debug)]
 pub(super) struct PreparedProgramDeferredStaticBoxWorkV1 {
@@ -482,6 +483,7 @@ impl PreparedProgramRootTopLevelFunctionPartsV1 {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: ASTNode,
     ) -> Self {
         Self {
             name,
@@ -491,6 +493,7 @@ impl PreparedProgramRootTopLevelFunctionPartsV1 {
             body,
             uses,
             attrs,
+            declaration,
         }
     }
     fn lower_raw_with_port_v1<Port>(
@@ -510,6 +513,7 @@ impl PreparedProgramRootTopLevelFunctionPartsV1 {
             self.body,
             self.uses,
             self.attrs,
+            Some(self.declaration),
         )
     }
     fn lower_normal_with_port_v1<Port>(
@@ -530,6 +534,7 @@ impl PreparedProgramRootTopLevelFunctionPartsV1 {
             self.body,
             self.uses,
             self.attrs,
+            Some(self.declaration),
         )
     }
 }
@@ -634,6 +639,7 @@ fn classify_statement(
                 body.clone(),
                 uses.clone(),
                 attrs.clone(),
+                statement.clone(),
             );
             let work = match work_plan_admission {
                 ProgramRootWorkPlanAdmissionV1::RawCompatibility => {

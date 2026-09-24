@@ -229,6 +229,7 @@ fn assert_retired_body(body: Vec<ASTNode>, label: &str) {
                     body,
                     Vec::new(),
                     DeclarationAttrs::default(),
+                    None,
                 )
                 .map(drop)
                 .map_err(|error| error.to_string())
@@ -260,6 +261,7 @@ fn assert_unarmed_body(body: Vec<ASTNode>, label: &str) {
                     body,
                     Vec::new(),
                     DeclarationAttrs::default(),
+                    None,
                 )
                 .map_err(|error| error.to_string())
             })?

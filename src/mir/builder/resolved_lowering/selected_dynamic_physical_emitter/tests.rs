@@ -575,6 +575,7 @@ fn package_adapter_selected_dynamic_production_branch_uses_same_candidate_collec
                 Vec::new(),
                 Vec::new(),
                 crate::ast::DeclarationAttrs::default(),
+                None,
             )
             .expect("selected adapter production branch");
         // This focused fixture loans one selected row from a larger package;

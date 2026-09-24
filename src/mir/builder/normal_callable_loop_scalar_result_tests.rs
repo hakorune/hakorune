@@ -1,4 +1,6 @@
 use super::*;
+use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
+use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1;
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
 #[test]

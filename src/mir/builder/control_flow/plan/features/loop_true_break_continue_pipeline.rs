@@ -10,7 +10,7 @@ use crate::mir::builder::control_flow::plan::features::loop_true_break_continue_
 };
 use crate::mir::builder::control_flow::plan::features::loop_true_break_continue_phi_materializer::LoopTrueBreakContinuePhiMaterializer;
 use crate::mir::builder::control_flow::plan::features::loop_true_break_continue_verifier::verify_loop_true_break_continue_phi_closure;
-use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
+
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::loop_cond::true_break_continue::{
     LoopTrueBreakContinueFacts, LoopTrueBreakContinueLowering,
@@ -223,23 +223,10 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_inner(
                         )?,
                     }
                 }
-                LoopTrueItem::NestedLoopDepth1(r) => {
-                    let Some(stmt) = recipe.body.get_ref(*r) else {
-                        return Err(format!(
-                            "{LOOP_TRUE_ERR}: NestedLoopDepth1 recipe idx out of range"
-                        ));
-                    };
-                    let ASTNode::Loop {
-                        condition, body, ..
-                    } = stmt
-                    else {
-                        return Err(format!(
-                            "{LOOP_TRUE_ERR}: NestedLoopDepth1 recipe expects Loop node"
-                        ));
-                    };
-                    let plan =
-                        lower_nested_loop_depth1_any(builder, &condition, &body, LOOP_TRUE_ERR)?;
-                    vec![plan]
+                LoopTrueItem::NestedLoopDepth1(_) => {
+                    return Err(format!(
+                        "[freeze:contract][recipe] nested_loop_depth1 item has no physical owner: ctx={LOOP_TRUE_ERR}"
+                    ));
                 }
                 LoopTrueItem::GeneralIf(r) => {
                     let Some(stmt) = recipe.body.get_ref(*r) else {

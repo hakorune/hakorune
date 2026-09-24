@@ -549,7 +549,7 @@ The selected execution frontier now moves to
 `MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0` as a design stop. The physical
 negative-test proof row closed at `5a117a96a2`; its valid base and named-reject
 guard are reusable evidence. Before any Loop production switch, census the
-callable `None -> lower_non_callable_loop_legacy_v1` callers and prove an
+callable `None -> lower_non_callable_loop_route_v1` callers and prove an
 exclusive old-edge delete-set. The shared non-callable/legacy route remains
 outside that census; no implementation, fallback, or retry is authorized by
 this pointer transition.
@@ -572,7 +572,7 @@ Fail-fast boundary: caller/owner census before any branch deletion; callable
           Script path keeps its existing JoinIR owner.
 Smallest next slice: read-only enumerate constructors of
           RawInvocationChildPortV1, the callable-ledger arm, and every
-          lower_non_callable_loop_legacy_v1 edge; record production caller,
+          lower_non_callable_loop_route_v1 edge; record production caller,
           terminal, and an exclusive delete-set or ParkedSealed outcome.
 Non-claims: no production switch, callable-None deletion, new source
           relation, fallback/retry, OBJ/EXE, or performance result.

@@ -4,8 +4,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
 use crate::mir::builder::control_flow::plan::features::exit_if_map::lower_if_exit_stmt_with_break_phi_args;
-use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
-use crate::mir::builder::control_flow::plan::nested_loop_depth1::try_lower_nested_loop_depth1;
+
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::parts::conditional_update::try_lower_general_if;
 use crate::mir::builder::control_flow::plan::parts::entry::apply_loop_final_values_to_bindings;
@@ -79,34 +78,10 @@ pub(in crate::mir::builder) fn lower_loop_cond_stmt(
             then_body,
             else_body.as_ref(),
         ),
-        ASTNode::Loop {
-            condition, body, ..
-        } => {
-            for (name, value_id) in current_bindings.iter() {
-                parts::var_map_scope::publish_emission_cache(builder, name.clone(), *value_id);
-            }
-            // Prefer the recipe-first nested-loop lowering path when possible.
-            // Keep the unified nested_loop_depth1 path as a fallback to avoid acceptance loss.
-            let any_err =
-                match lower_nested_loop_depth1_any(builder, condition, body, LOOP_COND_ERR) {
-                    Ok(plan) => {
-                        apply_loop_final_values_to_bindings(builder, current_bindings, &plan)?;
-                        super::loop_cond_bc::sync_carrier_bindings(
-                            builder,
-                            current_bindings,
-                            carrier_phis,
-                        );
-                        return Ok(vec![plan]);
-                    }
-                    Err(err) => err,
-                };
-            let Some(plan) = try_lower_nested_loop_depth1(builder, condition, body, LOOP_COND_ERR)?
-            else {
-                return Err(any_err);
-            };
-            super::loop_cond_bc::sync_carrier_bindings(builder, current_bindings, carrier_phis);
-            Ok(vec![plan])
-        }
+        ASTNode::Loop { .. } => Err(format!(
+            "[freeze:contract][recipe] nested loop has no physical owner: ctx={}",
+            LOOP_COND_ERR
+        )),
         ASTNode::Break { .. } => {
             if !is_last {
                 return Err(direct_exit_reject(

@@ -143,8 +143,17 @@ impl super::MirBuilder {
                 .map_err(|error| CallableMainCompatibilityLoweringErrorV1::Lowering(error))?;
         }
         let root = main.to_owned_root_lowering();
-        let (box_name, callable_symbol, params, param_decls, return_type_name, body, uses, attrs) =
-            root.into_parts();
+        let (
+            box_name,
+            callable_symbol,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+            declaration,
+        ) = root.into_parts();
         if materialization.policy().is_required() {
             port.lower_raw_compat_main_materialization(
                 self,
@@ -155,6 +164,7 @@ impl super::MirBuilder {
                 body.clone(),
                 uses.clone(),
                 attrs.clone(),
+                Some(declaration.clone()),
             )
             .map_err(CallableMainCompatibilityLoweringErrorV1::Lowering)?;
         }
@@ -172,6 +182,7 @@ impl super::MirBuilder {
             body,
             uses,
             attrs,
+            Some(declaration),
         )
     }
 
@@ -186,8 +197,17 @@ impl super::MirBuilder {
     where
         Port: RootCallableCapturePortV1,
     {
-        let (box_name, callable_symbol, params, param_decls, return_type_name, body, uses, attrs) =
-            root.into_parts();
+        let (
+            box_name,
+            callable_symbol,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+            declaration,
+        ) = root.into_parts();
         self.lower_static_main_function_parts_with_port_v1(
             port,
             &box_name,
@@ -202,6 +222,7 @@ impl super::MirBuilder {
             body,
             uses,
             attrs,
+            Some(declaration),
         )
     }
 
@@ -220,6 +241,7 @@ impl super::MirBuilder {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: crate::ast::DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1>
     where
         Port: RootCallableCapturePortV1,
@@ -249,6 +271,7 @@ impl super::MirBuilder {
                     body.clone(),
                     uses.clone(),
                     attrs.clone(),
+                    declaration.clone(),
                 )?;
                 trace_callable_main_materialization(self, params.len(), body.len(), false);
             } else if use_legacy_materialization_policy
@@ -272,6 +295,7 @@ impl super::MirBuilder {
                     body.clone(),
                     uses.clone(),
                     attrs.clone(),
+                    declaration.clone(),
                 )?;
                 trace_callable_main_materialization(self, params.len(), body.len(), false);
             }
@@ -346,6 +370,7 @@ impl super::MirBuilder {
                 ));
             }
             self.function_state.compilation.fn_body_ast = Some(body.clone());
+            self.function_state.compilation.fn_declaration_ast = declaration.clone();
             self.set_current_function_runes(&attrs);
             self.set_current_function_declared_capability_uses(&uses);
 
@@ -359,6 +384,8 @@ impl super::MirBuilder {
 
             // Phase 200-C: Clear fn_body_ast after main() lowering
             self.function_state.compilation.fn_body_ast = None;
+            self.function_state.compilation.fn_declaration_ast = None;
+            self.function_state.compilation.resolved_loop_source_unit = None;
 
             self.function_state.variable_ctx.variable_map = saved_var_map;
             lowered.map_err(CallableMainCompatibilityLoweringErrorV1::from)

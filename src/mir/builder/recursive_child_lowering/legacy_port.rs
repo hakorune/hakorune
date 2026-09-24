@@ -101,6 +101,7 @@ impl RawBoxMethodChildPortV1 for RawLegacyChildLoweringPortV1 {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         builder.lower_static_method_as_function(
             function_name,
@@ -110,6 +111,7 @@ impl RawBoxMethodChildPortV1 for RawLegacyChildLoweringPortV1 {
             body,
             uses,
             attrs,
+            declaration,
         )
     }
 
@@ -124,6 +126,7 @@ impl RawBoxMethodChildPortV1 for RawLegacyChildLoweringPortV1 {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: Option<ASTNode>,
     ) -> Result<(), String> {
         builder.lower_method_as_function(
             function_name,
@@ -134,6 +137,7 @@ impl RawBoxMethodChildPortV1 for RawLegacyChildLoweringPortV1 {
             body,
             uses,
             attrs,
+            declaration,
         )
     }
 }

@@ -28,7 +28,7 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
     ordinary_new_claim_ledger: Rc<OrdinaryNewClaimLedgerV1>,
     loop_break_take: Option<LoopBreakSourcePackageTakeHandle<'_>>,
     execute: impl FnOnce(
-        &mut RawInvocationChildPortV1<'port, 'collector>,
+        &mut RawInvocationChildPortV1<'_, 'collector>,
         RawInvocationSourceTransportV1<()>,
     ) -> Result<R, String>,
 ) -> Result<R, String> {
@@ -60,10 +60,10 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
     )
 }
 
-pub(super) fn with_callable_source_scope<'port, 'collector, R>(
+pub(super) fn with_callable_source_scope<'port, 'collector, 'source, R>(
     inner: &mut RawInvocationChildPortV1<'port, 'collector>,
     lineage: RawInvocationRootLineageV1,
-    input: ResolvedFunctionLoweringInputV1<'_>,
+    input: ResolvedFunctionLoweringInputV1<'source>,
     dynamic_source: Option<Rc<crate::mir::builder::VerifiedSourceBackedDynamicCallableV1>>,
     core_method_calls: BTreeMap<
         crate::mir::resolved_semantics::SourceExprSiteV1,
@@ -76,7 +76,7 @@ pub(super) fn with_callable_source_scope<'port, 'collector, R>(
     ordinary_new_claim_ledger: Rc<OrdinaryNewClaimLedgerV1>,
     loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
     execute: impl FnOnce(
-        &mut RawInvocationChildPortV1<'port, 'collector>,
+        &mut RawInvocationChildPortV1<'_, 'collector>,
         RawInvocationSourceTransportV1<()>,
     ) -> Result<R, String>,
 ) -> Result<R, String> {
@@ -88,16 +88,14 @@ pub(super) fn with_callable_source_scope<'port, 'collector, R>(
         loop_break_source,
     )?;
     let state = Rc::new(RefCell::new(state));
-    let script_ledger = inner.semantic_ledger.take();
-    let parent_callable = inner.callable_ledger.replace(state.clone());
-    let parent_ordinary_new_claim_ledger = inner
-        .ordinary_new_claim_ledger
-        .replace(ordinary_new_claim_ledger);
-    let result = inner
+    let mut scoped_inner = inner.reborrow();
+    scoped_inner.semantic_ledger = None;
+    scoped_inner.callable_ledger = Some(state.clone());
+    scoped_inner.source_input = Some(input);
+    scoped_inner.ordinary_new_claim_ledger = Some(ordinary_new_claim_ledger);
+    let result = scoped_inner
         .with_callable_method_source_observation(observation, |inner| execute(inner, transport));
-    inner.callable_ledger = parent_callable;
-    inner.ordinary_new_claim_ledger = parent_ordinary_new_claim_ledger;
-    inner.semantic_ledger = script_ledger;
+    drop(scoped_inner);
     match result {
         Ok(value) => {
             let rows = Rc::try_unwrap(state)

@@ -1,6 +1,6 @@
 use super::PreparedLocatedRawLoopChildEntryV1;
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
+use crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1;
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1,
@@ -198,9 +198,10 @@ fn armed_loop_true_edge_lowers_through_the_source_port() {
                 "caller",
                 false,
                 false,
-                GenericLoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
+                LoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
                 &mut scope,
                 &edge.ledger,
+                None,
                 crate::mir::builder::normal_callable_loop_source_route::
                     CallableLoopSourceTargetProbeV1::from_parts(
                         vec![armed_source_target(edge.call_site)].into_boxed_slice(),

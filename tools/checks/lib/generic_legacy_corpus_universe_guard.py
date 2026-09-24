@@ -54,6 +54,13 @@ D0_DECISION = "D0-DISPOSITION-CHECKED"
 D0_TREJ_DECISION = "D0-TYPED-REJECT"
 D0_PLE_DECISION = "D0-PRE-LOOP-EVIDENCE"
 D0_DISPOSITIONS = {"portable-owner", "accepted-typed-reject"}
+# parity_gate names the live gate that verifies the row's canonical-lane
+# contract; "not-run" remains for held / not-yet-migrated rows.
+PARITY_GATES = {
+    "not-run",
+    "phase29bq_portable_owner_source_backed_gate_mir",
+    "phase29bq_typed_terminal_source_backed_gate_mir",
+}
 CASE_RETENTION = "GENERIC-LEGACY-CORPUS-UNIVERSE-P0"
 UNKNOWN = "unknown"
 FRONT_STATES = {"loop-reached", "failed-before-loop", "timeout", "spawn-error"}
@@ -99,8 +106,8 @@ def _check_case(record: Record, root: pathlib.Path, ids: set[str]) -> None:
         raise _fail(root, record.line, "P0 case retention row drift")
     if value["nested_bypass"] not in {SENTINEL, UNKNOWN}:
         raise _fail(root, record.line, "nested-bypass state must be unknown or sentinel")
-    if value["parity_gate"] != "not-run":
-        raise _fail(root, record.line, "parity gate must remain not-run")
+    if value["parity_gate"] not in PARITY_GATES:
+        raise _fail(root, record.line, f"unknown parity gate {value['parity_gate']!r}")
     edge_fields = (
         "symbol",
         "current_role",

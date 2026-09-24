@@ -18,7 +18,7 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             binding_product,
             function_name,
             debug,
-            in_static_box,
+            in_static_box: _,
             policy,
             function_origin,
             source_kind,
@@ -47,142 +47,71 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
                 )
             }
         };
-        if outcome.facts.is_none() {
+        let Some(facts) = outcome.facts.as_ref() else {
             return CallableGenericLoopSourceFactsDispositionV1::FactsAbsent;
-        }
+        };
 
-        let selection = select_recipe_first_routes(outcome.facts.as_ref());
-        // The raw registry remains neutral.  Source evidence is issued only
-        // for the two GenericLoop shapes admitted by this owner; LoopCond and
-        // LoopTrue keep their existing independent source consumers below.
-        if matches!(
-            selection.raw_execution_routes(),
-            [crate::mir::loop_recipe_contract::route_id::LoopRouteId::GenericLoopV1]
-                | [
-                    crate::mir::loop_recipe_contract::route_id::LoopRouteId::GenericLoopV0,
-                    crate::mir::loop_recipe_contract::route_id::LoopRouteId::GenericLoopV1
-                ]
-        ) {
-            let Some(generic) = outcome
-                .facts
-                .as_ref()
-                .and_then(|facts| facts.facts.generic_loop_v1())
-            else {
-                return CallableGenericLoopSourceFactsDispositionV1::FactsAbsent;
-            };
-            let evidence = match super::PreparedCallableGenericLoopSourceEvidenceV1::issue(
+        // Data-only route match. This is not a scheduler: it records which
+        // retained family predicates the canonical facts report so the
+        // callable arms can demand exact exclusivity. A suppressed route's
+        // suppressor is itself matched, so `matched == [route]` holds exactly
+        // when the route is the sole surviving candidate — identical to the
+        // retired ordered selection's raw-execution check.
+        let selection = CallableLoopRouteMatchV1::issue(facts);
+        if selection.matched_routes() == [LoopRouteId::LoopCondBreakContinue] {
+            return match loop_cond::issue(
                 owner,
                 parent_source,
-                condition_source.clone(),
-                body_source.clone(),
+                condition_source,
+                body_source,
+                condition,
+                body,
                 binding_product,
-                generic,
+                function_origin,
+                source_kind,
+                outcome,
+                selection,
+                source_projection,
                 source_items,
                 source_target_probe,
             ) {
-                Ok(evidence) => evidence,
+                Ok(source_facts) => {
+                    CallableGenericLoopSourceFactsDispositionV1::LoopCondReady(source_facts)
+                }
                 Err(error) => {
-                    return CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
-                        CallableGenericLoopSourceFactsRouteErrorV1::SourceEvidenceRejected(
-                            format!("{error:?}").into_boxed_str(),
-                        ),
-                    )
+                    CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error)
                 }
             };
-            let route_admission = match super::CallableGenericLoopSourceRouteAdmissionV1::issue(
-                selection, evidence,
+        }
+        if selection.matched_routes() == [LoopRouteId::LoopTrueBreakContinue] {
+            return match loop_true::issue(
+                owner,
+                parent_source,
+                condition_source,
+                body_source,
+                condition,
+                body,
+                binding_product,
+                function_origin,
+                source_kind,
+                outcome,
+                selection,
+                source_projection,
+                source_items,
+                source_target_probe,
             ) {
-                Ok(admission) => admission,
+                Ok(source_facts) => {
+                    CallableGenericLoopSourceFactsDispositionV1::LoopTrueReady(source_facts)
+                }
                 Err(error) => {
-                    return CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
-                        error,
-                    )
+                    CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error)
                 }
             };
-            return CallableGenericLoopSourceFactsDispositionV1::Ready(
-                CallableGenericLoopSourceFactsV1 {
-                    owner,
-                    parent_source,
-                    condition_source,
-                    body_source,
-                    condition,
-                    body,
-                    policy,
-                    debug,
-                    in_static_box,
-                    outcome,
-                    route_admission,
-                },
-            );
         }
-
-        match selection.verify_located_generic_loop_v1() {
-            Ok(_) => unreachable!("GenericLoop route handled above"),
-            Err(error) => {
-                if selection
-                    .verify_located_loop_cond_break_continue_v1()
-                    .is_ok()
-                {
-                    return match loop_cond::issue(
-                        owner,
-                        parent_source,
-                        condition_source,
-                        body_source,
-                        condition,
-                        body,
-                        binding_product,
-                        function_origin,
-                        source_kind,
-                        outcome,
-                        selection,
-                        source_projection,
-                        source_items,
-                        source_target_probe,
-                    ) {
-                        Ok(source_facts) => {
-                            CallableGenericLoopSourceFactsDispositionV1::LoopCondReady(source_facts)
-                        }
-                        Err(error) => {
-                            CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
-                                error,
-                            )
-                        }
-                    };
-                }
-                if selection
-                    .verify_located_loop_true_break_continue_v1()
-                    .is_ok()
-                {
-                    return match loop_true::issue(
-                        owner,
-                        parent_source,
-                        condition_source,
-                        body_source,
-                        condition,
-                        body,
-                        binding_product,
-                        function_origin,
-                        source_kind,
-                        outcome,
-                        selection,
-                        source_projection,
-                        source_items,
-                        source_target_probe,
-                    ) {
-                        Ok(source_facts) => {
-                            CallableGenericLoopSourceFactsDispositionV1::LoopTrueReady(source_facts)
-                        }
-                        Err(error) => {
-                            CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
-                                error,
-                            )
-                        }
-                    };
-                }
-                return CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
-                    route_error(error),
-                );
-            }
-        }
+        CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
+            CallableGenericLoopSourceFactsRouteErrorV1::NonGenericOrOverlapping {
+                routes: selection.matched_routes().into(),
+            },
+        )
     }
 }

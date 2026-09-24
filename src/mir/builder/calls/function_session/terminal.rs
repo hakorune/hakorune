@@ -206,7 +206,10 @@ impl MirBuilder {
         CanonicalFunctionLoweringSessionV1::open(
             self,
             function_name,
-            super::FunctionBodyCaptureV1::Legacy(Vec::new()),
+            super::FunctionBodyCaptureV1::Legacy {
+                body: Vec::new(),
+                declaration: None,
+            },
         )
         .capture_pending(operation)
     }
@@ -220,12 +223,16 @@ impl MirBuilder {
         &mut self,
         function_name: &str,
         body_snapshot: Vec<ASTNode>,
+        declaration: Option<ASTNode>,
         operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
     ) -> Result<LegacyFunctionPendingSessionV1<'_>, CanonicalFunctionSessionErrorV1> {
         CanonicalFunctionLoweringSessionV1::open(
             self,
             function_name,
-            super::FunctionBodyCaptureV1::Legacy(body_snapshot),
+            super::FunctionBodyCaptureV1::Legacy {
+                body: body_snapshot,
+                declaration,
+            },
         )
         .capture_pending(operation)
         .map(|pending| LegacyFunctionPendingSessionV1 {
@@ -418,7 +425,7 @@ mod tests {
         let pending = CanonicalFunctionLoweringSessionV1::open(
             &mut builder,
             "pending/0",
-            FunctionBodyCaptureV1::Legacy(Vec::<ASTNode>::new()),
+            FunctionBodyCaptureV1::Legacy { body: Vec::<ASTNode>::new(), declaration: None },
         )
         .capture_pending(|_| Ok(draft("pending/0", 0)))
         .unwrap();
@@ -434,7 +441,7 @@ mod tests {
         let pending = CanonicalFunctionLoweringSessionV1::open(
             &mut builder,
             "pending/0",
-            FunctionBodyCaptureV1::Legacy(Vec::<ASTNode>::new()),
+            FunctionBodyCaptureV1::Legacy { body: Vec::<ASTNode>::new(), declaration: None },
         )
         .capture_pending(|_| Ok(draft("pending/0", 0)))
         .unwrap();
@@ -451,7 +458,7 @@ mod tests {
             let _pending = CanonicalFunctionLoweringSessionV1::open(
                 &mut builder,
                 "pending/0",
-                FunctionBodyCaptureV1::Legacy(Vec::<ASTNode>::new()),
+                FunctionBodyCaptureV1::Legacy { body: Vec::<ASTNode>::new(), declaration: None },
             )
             .capture_pending(|_| Ok(draft("pending/0", 0)))
             .unwrap();
@@ -464,7 +471,7 @@ mod tests {
     fn legacy_pending_capture_keeps_legacy_authority_distinct_from_resolved() {
         let mut builder = MirBuilder::new();
         let pending = builder
-            .capture_legacy_function_pending_session_v1("Legacy.f/0", Vec::new(), |_| {
+            .capture_legacy_function_pending_session_v1("Legacy.f/0", Vec::new(), None, |_| {
                 Ok(draft("Legacy.f/0", 0))
             })
             .unwrap();
@@ -579,7 +586,7 @@ mod tests {
         let pending = CanonicalFunctionLoweringSessionV1::open(
             &mut builder,
             "legacy/0",
-            FunctionBodyCaptureV1::Legacy(Vec::new()),
+            FunctionBodyCaptureV1::Legacy { body: Vec::new(), declaration: None },
         );
         pending.builder.enter_function_for_test("legacy/0".into());
 

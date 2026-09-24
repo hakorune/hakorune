@@ -189,7 +189,7 @@ mod identity_separation_tests;
 mod if_materialization_tests;
 #[cfg(test)]
 mod if_tests;
-mod loop_recipe_physicalizer;
+pub(in crate::mir::builder) mod loop_recipe_physicalizer;
 
 pub(in crate::mir::builder::resolved_lowering) use canonical_compare_writer::{
     CanonicalLoopCompareI64WriterV1, PreparedCanonicalLoopCompareI64V1,

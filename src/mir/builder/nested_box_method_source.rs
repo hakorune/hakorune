@@ -23,6 +23,7 @@ pub(in crate::mir::builder) struct NestedBoxMethodLoweringInputV1 {
     body: Vec<ASTNode>,
     uses: Vec<String>,
     attrs: DeclarationAttrs,
+    declaration: ASTNode,
 }
 
 pub(in crate::mir::builder) enum NestedBoxMethodKindV1 {
@@ -41,6 +42,7 @@ impl NestedBoxMethodLoweringInputV1 {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: ASTNode,
     ) -> Self {
         Self {
             method_key,
@@ -52,6 +54,7 @@ impl NestedBoxMethodLoweringInputV1 {
             body,
             uses,
             attrs,
+            declaration,
         }
     }
 
@@ -66,6 +69,7 @@ impl NestedBoxMethodLoweringInputV1 {
         body: Vec<ASTNode>,
         uses: Vec<String>,
         attrs: DeclarationAttrs,
+        declaration: ASTNode,
     ) -> Self {
         Self {
             method_key,
@@ -77,9 +81,11 @@ impl NestedBoxMethodLoweringInputV1 {
             body,
             uses,
             attrs,
+            declaration,
         }
     }
 
+    #[allow(clippy::type_complexity)]
     pub(in crate::mir::builder) fn into_parts(
         self,
     ) -> (
@@ -92,6 +98,7 @@ impl NestedBoxMethodLoweringInputV1 {
         Vec<ASTNode>,
         Vec<String>,
         DeclarationAttrs,
+        ASTNode,
     ) {
         (
             self.method_key,
@@ -103,6 +110,7 @@ impl NestedBoxMethodLoweringInputV1 {
             self.body,
             self.uses,
             self.attrs,
+            self.declaration,
         )
     }
 }
@@ -136,8 +144,18 @@ pub(in crate::mir::builder) fn lower_nested_box_method_v1(
     builder: &mut MirBuilder,
     input: NestedBoxMethodLoweringInputV1,
 ) -> Result<(), String> {
-    let (method_key, function_name, kind, params, param_decls, return_type_name, body, uses, attrs) =
-        input.into_parts();
+    let (
+        method_key,
+        function_name,
+        kind,
+        params,
+        param_decls,
+        return_type_name,
+        body,
+        uses,
+        attrs,
+        declaration,
+    ) = input.into_parts();
     let source = PreparedNestedBoxMethodSourceV1::from_located_parent(
         port.current_source_context_v1(),
         method_key,
@@ -157,6 +175,7 @@ pub(in crate::mir::builder) fn lower_nested_box_method_v1(
                         body,
                         uses,
                         attrs,
+                        Some(declaration),
                     )
                 })
                 .map_err(|error| error.to_string())?;
@@ -180,6 +199,7 @@ pub(in crate::mir::builder) fn lower_nested_box_method_v1(
                         body,
                         uses,
                         attrs,
+                        Some(declaration),
                     )
                 })
                 .map_err(|error| error.to_string())?;

@@ -7,14 +7,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::expression_port::{
-    LocatedLoopPlanBodyInputV1, LocatedLoopPlanExprInputV1, LocatedLoopPlanExpressionPortV1,
-    LocatedLoopPlanStmtInputV1, RawLoopPlanExpressionPortV1,
-};
-use crate::mir::builder::control_flow::plan::generic_loop::located_representation::{
-    VerifiedLocatedRecipeBlockLoweringViewV1, VerifiedLocatedRecipeItemLoweringViewV1,
-    VerifiedStmtWrappedJoinIfLoweringViewV1,
-};
+use crate::mir::builder::control_flow::plan::expression_port::RawLoopPlanExpressionPortV1;
 use crate::mir::builder::control_flow::plan::recipe_tree::{
     BlockContractKind, ExitKind, IfContractKind, LoopKindV0, LoopV0Features, RecipeBlock,
     RecipeBodies, RecipeItem,
@@ -33,7 +26,6 @@ pub(in crate::mir::builder) enum PartsAssociatedSourceErrorV1 {
         index: usize,
     },
     ForeignRawBlock,
-    ForeignLocatedBlock,
     /// The located source port rejected a child/statement projection.
     SourcePortProjection(String),
     /// A `Synthetic` carrier reached the located callable-loop spine.
@@ -64,12 +56,6 @@ pub(in crate::mir::builder) mod direct_if;
 pub(in crate::mir::builder) mod dispatch;
 #[cfg(test)]
 mod dispatch_tests;
-#[cfg(test)]
-mod located_hook_tests;
-pub(super) mod located_lowering;
-#[cfg(test)]
-mod located_parity_tests;
-pub(super) mod located_preflight;
 pub(super) mod raw_lowering;
 #[cfg(test)]
 mod raw_parity_tests;
@@ -382,101 +368,5 @@ impl<'source> PartsAssociatedSourceV1 for RawPartsAssociatedSourceV1<'source> {
             RawLoopPlanExpressionPortV1::new(),
             item,
         ))
-    }
-}
-
-pub(in crate::mir::builder) struct LocatedPartsAssociatedSourceV1<'view, 'plan> {
-    port: &'view LocatedLoopPlanExpressionPortV1<'plan>,
-}
-
-impl<'view, 'plan> LocatedPartsAssociatedSourceV1<'view, 'plan> {
-    pub(in crate::mir::builder) fn new(
-        root: &VerifiedLocatedRecipeBlockLoweringViewV1<'view, 'plan>,
-    ) -> Self {
-        Self {
-            port: root.expression_port(),
-        }
-    }
-
-    fn require_own_block(
-        &self,
-        block: &VerifiedLocatedRecipeBlockLoweringViewV1<'view, 'plan>,
-    ) -> Result<(), PartsAssociatedSourceErrorV1> {
-        if std::ptr::eq(self.port, block.expression_port()) {
-            Ok(())
-        } else {
-            Err(PartsAssociatedSourceErrorV1::ForeignLocatedBlock)
-        }
-    }
-}
-
-impl sealed::Sealed for LocatedPartsAssociatedSourceV1<'_, '_> {}
-
-impl<'view, 'plan: 'view> PartsAssociatedSourceV1 for LocatedPartsAssociatedSourceV1<'view, 'plan> {
-    type PortHandle = &'view LocatedLoopPlanExpressionPortV1<'plan>;
-    type BlockInput = VerifiedLocatedRecipeBlockLoweringViewV1<'view, 'plan>;
-    type StmtInput = LocatedLoopPlanStmtInputV1<'plan, 'view>;
-    type ConditionInput = LocatedLoopPlanExprInputV1<'plan, 'view>;
-    type BodyInput = LocatedLoopPlanBodyInputV1<'plan, 'view>;
-    type WrappedJoinInput = VerifiedStmtWrappedJoinIfLoweringViewV1<'view, 'plan>;
-    type LoopInput = Infallible;
-
-    fn block_len(&self, block: &Self::BlockInput) -> Result<usize, PartsAssociatedSourceErrorV1> {
-        self.require_own_block(block)?;
-        Ok(block.len())
-    }
-
-    fn item(
-        &self,
-        block: &Self::BlockInput,
-        index: usize,
-    ) -> Result<
-        VerifiedPartsAssociatedItemV1<
-            Self::PortHandle,
-            Self::StmtInput,
-            Self::ConditionInput,
-            Self::BodyInput,
-            Self::BlockInput,
-            Self::WrappedJoinInput,
-            Self::LoopInput,
-        >,
-        PartsAssociatedSourceErrorV1,
-    > {
-        self.require_own_block(block)?;
-        let item = block
-            .item(index)
-            .ok_or(PartsAssociatedSourceErrorV1::ItemIndexOutOfBounds {
-                index,
-                len: block.len(),
-            })?;
-        let item = match item {
-            VerifiedLocatedRecipeItemLoweringViewV1::OpaqueStmt { source } => {
-                PartsAssociatedRecipeItemV1::OpaqueStmt { source }
-            }
-            VerifiedLocatedRecipeItemLoweringViewV1::OpaqueExit { source, kind } => {
-                PartsAssociatedRecipeItemV1::OpaqueExit { source, kind }
-            }
-            VerifiedLocatedRecipeItemLoweringViewV1::ExplicitIfV2 {
-                source,
-                condition,
-                then_body,
-                else_body,
-                contract,
-                then_block,
-                else_block,
-            } => PartsAssociatedRecipeItemV1::ExplicitIfV2 {
-                source,
-                condition,
-                then_body,
-                else_body,
-                contract,
-                then_block,
-                else_block,
-            },
-            VerifiedLocatedRecipeItemLoweringViewV1::StmtWrappedJoinIf { bridge } => {
-                PartsAssociatedRecipeItemV1::StmtWrappedJoinIf { bridge }
-            }
-        };
-        Ok(VerifiedPartsAssociatedItemV1::new(self.port, item))
     }
 }

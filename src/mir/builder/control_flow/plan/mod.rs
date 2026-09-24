@@ -33,9 +33,7 @@
 mod call_source;
 mod core;
 mod loop_final_values;
-pub(in crate::mir::builder) use loop_final_values::{
-    CoreLoopFinalValuesV1, SourceLoopFinalValuesV1,
-};
+pub(in crate::mir::builder) use loop_final_values::CoreLoopFinalValuesV1;
 mod domain;
 mod effect;
 mod exit;
@@ -47,8 +45,7 @@ mod located_loop_error;
 // MIR lowering の中核インフラ
 pub(in crate::mir::builder) mod branchn;
 pub(in crate::mir::builder) mod facts;
-pub(in crate::mir) use generic_loop::facts::GenericLoopFactsPolicyFrameV1;
-pub(in crate::mir::builder) use generic_loop::facts_types::GenericLoopV1Facts;
+pub(in crate::mir) use facts::LoopFactsPolicyFrameV1;
 pub(in crate::mir::builder) mod lowerer;
 pub(in crate::mir::builder) mod lowering_context;
 mod normalizer;
@@ -91,14 +88,7 @@ pub(in crate::mir::builder) mod loop_physical_input;
 // Phase 29bq P2: loop(true) break/continue coverage
 mod loop_true_break_continue;
 // Phase 12: Unified nested loop depth1 module (consolidates 4 variants)
-mod nested_loop_depth1;
 // Phase 29bq+: Shared nested loop plan lowering helper
-mod nested_loop_plan;
-mod nested_loop_plan_break_continue;
-mod nested_loop_plan_bridge;
-mod nested_loop_plan_continue_with_return;
-mod nested_loop_plan_recipe_adoption;
-mod nested_loop_plan_recipe_adoption_policy;
 
 // Layer 6: Data Structures (データ構造)
 // CorePlan の構成要素

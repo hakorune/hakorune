@@ -67,7 +67,7 @@ fn expansion_separates_root_children_and_compat_identity() {
         vec!["Main.alpha/0", "Main.zeta/2"]
     );
     let zeta = &expansion.static_children()[1];
-    let (symbol, params, param_decls, result, body, uses, attrs) =
+    let (symbol, params, param_decls, result, body, uses, attrs, _declaration) =
         zeta.to_owned_lowering().into_parts();
     assert_eq!(symbol, "Main.zeta/2");
     assert_eq!(params, vec!["p0".to_owned(), "p1".to_owned()]);
@@ -76,7 +76,7 @@ fn expansion_separates_root_children_and_compat_identity() {
     assert!(body.is_empty());
     assert!(uses.is_empty());
     assert_eq!(attrs, DeclarationAttrs::default());
-    let (box_name, callable_symbol, params, param_decls, result, body, uses, attrs) =
+    let (box_name, callable_symbol, params, param_decls, result, body, uses, attrs, _declaration) =
         expansion.to_owned_root_lowering().into_parts();
     assert_eq!(box_name, "Main");
     assert_eq!(callable_symbol.as_deref(), Some("Main.main/1"));

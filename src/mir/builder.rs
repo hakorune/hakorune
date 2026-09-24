@@ -38,8 +38,7 @@ mod normal_callable_dynamic_operation_source; // source-backed Dynamic Loop oper
 mod normal_callable_dynamic_origin; // source-backed Dynamic -> existing physical receipts
 mod normal_callable_dynamic_source; // source-backed untyped formal/Loop carrier authority
 mod normal_callable_loop_handoff; // callable Loop source/BindingRef S0 handoff
-mod normal_callable_loop_physical_adapter; // callable GenericLoopV1 source Recipe consumer
-mod normal_callable_loop_source_facts; // callable source-aware Facts/Recipe Ready issuer
+mod normal_callable_loop_source_facts; // callable source-aware Facts Ready issuer
 #[cfg(test)]
 pub(in crate::mir) use normal_callable_loop_source_facts::issue_composite_source_candidate_v1;
 pub(in crate::mir) use normal_callable_loop_source_facts::{
@@ -48,7 +47,7 @@ pub(in crate::mir) use normal_callable_loop_source_facts::{
     VerifiedCallableLoopBreakCompositeSourceFactsV1, VerifiedCallableLoopBreakSourceCandidateV1,
     VerifiedCallableLoopBreakSourceFactsV1,
 };
-mod normal_callable_loop_source_port; // source-aware GenericLoop expression capability
+mod normal_callable_loop_source_port; // source-aware callable-loop expression capability
 mod normal_callable_loop_source_route; // callable source-owned LoopCond route token
 mod normal_callable_package_bridge; // Builder-private package install boundary
 mod normal_callable_prepared_operation; // Builder-free full-demand ingress
@@ -68,7 +67,7 @@ pub(in crate::mir) use normal_callable_semantic_lowering_state::validate_map_loc
 mod function_fault_frame; // Shared physical frame; source owners select the role
 mod normal_callable_semantic_source; // Co-sealed selected callable source authority
 mod normal_callable_semantic_source_lookup; // Exact legacy source-site/view lookup during cutover
-pub(in crate::mir) use control_flow::plan::GenericLoopFactsPolicyFrameV1;
+pub(in crate::mir) use control_flow::plan::LoopFactsPolicyFrameV1;
 mod normal_cataloged_box_method_lowering;
 mod ordinary_new_admission;
 mod variable_read;
@@ -397,9 +396,8 @@ mod raw_expansion_receipt_ledger_p0; // ROUTEINV-P0b-RAWLEDGER-P0 proof matrix
 #[cfg(test)]
 mod raw_expansion_receipt_ledger_tests; // ROUTEINV-P0b-RAWLEDGER-S0 fixtures
 mod raw_expression_dispatch; // single raw AST expression dispatcher
-#[allow(dead_code)]
 mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
-mod raw_loop_child_port; // CALLABLE-LOOP-ORDINARY-BRIDGE-S0 behavior-neutral port boundary
+mod raw_loop_child_port; // single located-source Loop child-entry boundary
 #[allow(dead_code)]
 mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
 #[allow(dead_code)]
@@ -445,119 +443,6 @@ mod static_result_publication_ingress;
 mod variable_context; // Phase 136 follow-up (Step 5/7): VariableContext extraction // Method call handler separation (Phase 3) // call(expr)
                       // include lowering removed (using is handled in runner)
 mod control_flow; // thin wrappers to centralize control-flow entrypoints
-#[cfg(test)]
-pub(crate) use control_flow::joinir::route_entry::registry::{
-    execute_legacy_policy_parity_v1, LegacyPolicyAttemptDispositionV1, LegacyPolicyParityReceiptV1,
-};
-
-/// Test-only bridge for the Nested parity oracle. It projects the existing
-/// facts/registry winner without entering any legacy route or touching a
-/// Builder.
-#[cfg(test)]
-pub(crate) fn loop_route_effective_winner_for_test(
-    condition: &crate::ast::ASTNode,
-    body: &[crate::ast::ASTNode],
-) -> Result<Option<crate::mir::loop_recipe_contract::route_id::LoopRouteId>, String> {
-    let facts = control_flow::plan::facts::try_build_loop_facts(condition, body)
-        .map_err(|error| error.to_string())?;
-    let Some(facts) = facts else {
-        return Ok(None);
-    };
-    let canonical = control_flow::lower::normalize::canonicalize_loop_facts(facts);
-    let selection =
-        control_flow::joinir::route_entry::registry::select_recipe_first_routes(Some(&canonical));
-    Ok(control_flow::joinir::route_entry::registry::effective_route_for_test(&selection))
-}
-
-#[cfg(test)]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum LegacyGenericCarrierSummaryV1 {
-    CompleteNoRecursive,
-    CompleteRecursive(Box<[String]>),
-    Unavailable(String),
-    Ambiguous(String),
-}
-
-#[cfg(test)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum LegacyGenericFactsStatusV1 {
-    Available,
-    Absent,
-    Frozen(&'static str),
-}
-
-#[cfg(test)]
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct LegacyGenericLoopObservationV1 {
-    pub(crate) status: LegacyGenericFactsStatusV1,
-    pub(crate) v0_present: bool,
-    pub(crate) v1_present: bool,
-    pub(crate) carrier: Option<LegacyGenericCarrierSummaryV1>,
-    pub(crate) raw_schedule: Box<[crate::mir::loop_recipe_contract::route_id::LoopRouteId]>,
-}
-
-/// Test-only adapter at the legacy facts owner. It exposes a value summary so
-/// sibling test seams never name private LoopFacts or canonicalize a winner.
-#[cfg(test)]
-pub(crate) fn observe_legacy_generic_loop_for_test(
-    condition: &crate::ast::ASTNode,
-    body: &[crate::ast::ASTNode],
-) -> LegacyGenericLoopObservationV1 {
-    let facts = match control_flow::plan::facts::try_build_loop_facts(condition, body) {
-        Ok(Some(facts)) => facts,
-        Ok(None) => {
-            return LegacyGenericLoopObservationV1 {
-                status: LegacyGenericFactsStatusV1::Absent,
-                v0_present: false,
-                v1_present: false,
-                carrier: None,
-                raw_schedule: Box::new([]),
-            }
-        }
-        Err(freeze) => {
-            return LegacyGenericLoopObservationV1 {
-                status: LegacyGenericFactsStatusV1::Frozen(freeze.tag),
-                v0_present: false,
-                v1_present: false,
-                carrier: None,
-                raw_schedule: Box::new([]),
-            }
-        }
-    };
-    let v0_present = facts.generic_loop_v0().is_some();
-    let carrier = facts.generic_loop_v1().map(|facts| {
-        use control_flow::plan::facts::GenericLoopCarrierObservationV1;
-
-        match &facts.carrier_observation {
-            GenericLoopCarrierObservationV1::CompleteNoRecursiveCarrier => {
-                LegacyGenericCarrierSummaryV1::CompleteNoRecursive
-            }
-            GenericLoopCarrierObservationV1::CompleteRecursiveCarrier(bindings) => {
-                LegacyGenericCarrierSummaryV1::CompleteRecursive(
-                    bindings.clone().into_boxed_slice(),
-                )
-            }
-            GenericLoopCarrierObservationV1::Unavailable(reason) => {
-                LegacyGenericCarrierSummaryV1::Unavailable(reason.clone())
-            }
-            GenericLoopCarrierObservationV1::Ambiguous(reason) => {
-                LegacyGenericCarrierSummaryV1::Ambiguous(reason.clone())
-            }
-        }
-    });
-    let v1_present = carrier.is_some();
-    let canonical = control_flow::lower::normalize::canonicalize_loop_facts(facts);
-    let selection =
-        control_flow::joinir::route_entry::registry::select_recipe_first_routes(Some(&canonical));
-    LegacyGenericLoopObservationV1 {
-        status: LegacyGenericFactsStatusV1::Available,
-        v0_present,
-        v1_present,
-        carrier,
-        raw_schedule: selection.raw_execution_routes().to_vec().into_boxed_slice(),
-    }
-}
-
 #[cfg(test)]
 pub(crate) fn reset_loop_physical_effect_probe() {
     control_flow::reset_loop_physical_effect_probe();

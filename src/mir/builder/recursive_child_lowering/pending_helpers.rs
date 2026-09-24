@@ -51,6 +51,7 @@ impl RawInvocationChildPortV1<'_, '_> {
                     lowering.body,
                     lowering.uses,
                     lowering.attrs,
+                    Some(lowering.declaration),
                 )
             },
         )?;

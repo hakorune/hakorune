@@ -2,19 +2,13 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_exit_allowed_block_recipe;
-use crate::mir::builder::control_flow::plan::features::carriers;
 use crate::mir::builder::control_flow::plan::features::exit_if_map::lower_if_exit_stmt_with_break_phi_args;
-use crate::mir::builder::control_flow::plan::features::nested_loop_depth1::lower_nested_loop_depth1_any;
-use crate::mir::builder::control_flow::plan::nested_loop_depth1::try_lower_nested_loop_depth1;
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::parts::conditional_update::lower_conditional_update_if_assume_with_break_phi_args_recipe_first;
-use crate::mir::builder::control_flow::plan::parts::entry::apply_loop_final_values_to_bindings;
 use crate::mir::builder::control_flow::plan::LoopPlanExpressionPortV1;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
-use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::{
-    LoopCondBreakContinueItem, NestedLoopDepth1Recipe,
-};
-use crate::mir::builder::control_flow::recipes::{refs::StmtRef, RecipeBody};
+use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
+use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
@@ -84,7 +78,6 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
     carrier_updates: &mut BTreeMap<String, crate::mir::ValueId>,
     body: &RecipeBody,
     item: &LoopCondBreakContinueItem,
-    propagate_nested_carriers: bool,
 ) -> Result<Vec<LoweredRecipe>, String> {
     if let Some(exit_if) = item.as_exit_if() {
         if let Some(exit_allowed_block) = exit_if.exit_allowed_block {
@@ -254,16 +247,9 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
                     verified,
                     LOOP_COND_ERR,
                 )?;
-                return Ok(plans
-                    .into_iter()
-                    .map(|plan| {
-                        super::nested_loop_depth1_preheader::apply_nested_loop_preheader_freshness(
-                            builder, plan,
-                        )
-                    })
-                    .collect());
+                return Ok(plans);
             }
-            let plans = lower_loop_cond_stmt(
+            lower_loop_cond_stmt(
                 builder,
                 current_bindings,
                 carrier_phis,
@@ -272,15 +258,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
                 carrier_updates,
                 false,
                 stmt,
-            )?;
-            Ok(plans
-                .into_iter()
-                .map(|plan| {
-                    super::nested_loop_depth1_preheader::apply_nested_loop_preheader_freshness(
-                        builder, plan,
-                    )
-                })
-                .collect())
+            )
         }
         LoopCondBreakContinueItem::ContinueIfWithElse {
             if_stmt,
@@ -342,19 +320,10 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
                 LOOP_COND_ERR,
             )
         }
-        LoopCondBreakContinueItem::NestedLoopDepth1 { loop_stmt, nested } => {
-            lower_nested_loop_depth1_item(
-                builder,
-                current_bindings,
-                carrier_phis,
-                carrier_step_phis,
-                break_phi_dsts,
-                body,
-                *loop_stmt,
-                nested,
-                propagate_nested_carriers,
-            )
-        }
+        LoopCondBreakContinueItem::NestedLoopDepth1 { .. } => Err(format!(
+            "[freeze:contract][recipe] nested_loop_depth1 item has no physical owner: ctx={}",
+            LOOP_COND_ERR
+        )),
         LoopCondBreakContinueItem::ElseOnlyReturnIf {
             if_stmt,
             cond_view,
@@ -539,146 +508,4 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
             item
         )),
     }
-}
-
-/// Lower NestedLoopDepth1 item variant.
-fn lower_nested_loop_depth1_item(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
-    _carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    _break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    body: &RecipeBody,
-    loop_stmt: StmtRef,
-    nested: &NestedLoopDepth1Recipe,
-    propagate_nested_carriers: bool,
-) -> Result<Vec<LoweredRecipe>, String> {
-    let payload_stmt_only = nested
-        .body
-        .as_ref()
-        .filter(|_| nested.cond_view.prelude_stmts.is_empty());
-
-    let (condition, inner_body) = if let Some(body_recipe) = payload_stmt_only {
-        let recipe_body = body_recipe
-            .arena
-            .get(body_recipe.block.body_id)
-            .ok_or_else(|| {
-                format!(
-                    "[freeze:contract][recipe] invalid_body_id: ctx={}",
-                    LOOP_COND_ERR
-                )
-            })?;
-        (&nested.cond_view.tail_expr, recipe_body.body.as_slice())
-    } else {
-        let stmt = get_stmt(body, loop_stmt)?;
-        let ASTNode::Loop {
-            condition,
-            body: inner_body,
-            ..
-        } = stmt
-        else {
-            return Err(format!("{LOOP_COND_ERR}: nested_loop is not loop"));
-        };
-        (condition.as_ref(), inner_body.as_slice())
-    };
-
-    for (name, value_id) in current_bindings.iter() {
-        parts::var_map_scope::publish_emission_cache(builder, name.clone(), *value_id);
-    }
-
-    // Only propagate nested carriers for NestedLoopOnly patterns
-    if propagate_nested_carriers {
-        // Collect outer carriers (variables from outer scope that inner loop uses)
-        let outer_carriers = carriers::collect_outer_from_body(builder, inner_body).vars;
-        if crate::config::env::is_joinir_debug() {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0.log.debug(&format!(
-                "[joinir/nested_loop] outer_carriers={:?}",
-                outer_carriers
-            ));
-        }
-        let pre_loop_map = builder.function_state.variable_ctx.variable_map.clone();
-
-        let mut plan = if let Some(body_recipe) = payload_stmt_only {
-            parts::entry::lower_nested_loop_depth1_stmt_only(
-                builder,
-                &nested.cond_view,
-                body_recipe,
-                LOOP_COND_ERR,
-            )?
-        } else {
-            // Prefer the recipe-first nested-loop lowering path when possible.
-            // Keep the unified nested_loop_depth1 path as a fallback to avoid acceptance loss.
-            match lower_nested_loop_depth1_any(builder, condition, inner_body, LOOP_COND_ERR) {
-                Ok(plan) => plan,
-                Err(any_err) => match try_lower_nested_loop_depth1(
-                    builder,
-                    condition,
-                    inner_body,
-                    LOOP_COND_ERR,
-                )? {
-                    Some(plan) => plan,
-                    None => return Err(any_err),
-                },
-            }
-        };
-
-        let post_loop_map = builder.function_state.variable_ctx.variable_map.clone();
-
-        if crate::config::env::is_joinir_debug() {
-            let ring0 = crate::runtime::get_global_ring0();
-            for var in &outer_carriers {
-                let pre_val = pre_loop_map.get(var);
-                let post_val = post_loop_map.get(var);
-                ring0.log.debug(&format!(
-                    "[joinir/nested_loop] var={} pre={:?} post={:?}",
-                    var, pre_val, post_val
-                ));
-            }
-        }
-
-        // Extend nested loop with outer carrier PHIs
-        super::loop_cond_bc_nested_carriers::extend_nested_loop_carriers(
-            builder,
-            &outer_carriers,
-            &pre_loop_map,
-            &post_loop_map,
-            &mut plan,
-        )?;
-
-        apply_loop_final_values_to_bindings(builder, current_bindings, &plan)?;
-        super::loop_cond_bc::sync_carrier_bindings(builder, current_bindings, carrier_phis);
-        return Ok(vec![plan]);
-    }
-
-    if let Some(body_recipe) = payload_stmt_only {
-        let plan = parts::entry::lower_nested_loop_depth1_stmt_only(
-            builder,
-            &nested.cond_view,
-            body_recipe,
-            LOOP_COND_ERR,
-        )?;
-        apply_loop_final_values_to_bindings(builder, current_bindings, &plan)?;
-        super::loop_cond_bc::sync_carrier_bindings(builder, current_bindings, carrier_phis);
-        return Ok(vec![plan]);
-    }
-
-    // Prefer the recipe-first nested-loop lowering path when possible.
-    // Keep the unified nested_loop_depth1 path as a fallback to avoid acceptance loss.
-    let any_err = match lower_nested_loop_depth1_any(builder, condition, inner_body, LOOP_COND_ERR)
-    {
-        Ok(plan) => {
-            apply_loop_final_values_to_bindings(builder, current_bindings, &plan)?;
-            super::loop_cond_bc::sync_carrier_bindings(builder, current_bindings, carrier_phis);
-            return Ok(vec![plan]);
-        }
-        Err(err) => err,
-    };
-    let Some(plan) = try_lower_nested_loop_depth1(builder, condition, inner_body, LOOP_COND_ERR)?
-    else {
-        return Err(any_err);
-    };
-    apply_loop_final_values_to_bindings(builder, current_bindings, &plan)?;
-    super::loop_cond_bc::sync_carrier_bindings(builder, current_bindings, carrier_phis);
-    Ok(vec![plan])
 }

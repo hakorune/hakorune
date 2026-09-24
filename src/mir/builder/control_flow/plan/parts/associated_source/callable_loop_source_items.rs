@@ -20,7 +20,7 @@ use crate::mir::builder::control_flow::plan::facts::exit_only_block::{
     try_build_exit_allowed_block_recipe, ExitAllowedBlockRecipe,
 };
 use crate::mir::builder::control_flow::plan::features::loop_cond_bc_item::lower_loop_cond_item_input;
-use crate::mir::builder::control_flow::plan::features::nested_loop_depth1_preheader::apply_nested_loop_preheader_freshness;
+
 use crate::mir::builder::control_flow::plan::recipe_tree::IfContractKind;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
@@ -122,10 +122,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_source_item<'view, 'ledger: 'view
                 carrier_updates,
                 error_prefix,
             )?;
-            Ok(plans
-                .into_iter()
-                .map(|plan| apply_nested_loop_preheader_freshness(builder, plan))
-                .collect())
+            Ok(plans)
         }
         LoopCondBreakContinueItem::GeneralIf(recipe) => {
             // `GeneralIf` carries no `StmtRef`; the issued recipe body is the

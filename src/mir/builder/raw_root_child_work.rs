@@ -32,6 +32,7 @@ pub(in crate::mir) struct RawRootStaticChildWorkV1 {
     body: Vec<ASTNode>,
     uses: Vec<String>,
     attrs: DeclarationAttrs,
+    declaration: ASTNode,
 }
 
 #[derive(Debug)]
@@ -43,6 +44,7 @@ pub(in crate::mir::builder) struct RawRootStaticChildLoweringPartsV1 {
     pub(super) body: Vec<ASTNode>,
     pub(super) uses: Vec<String>,
     pub(super) attrs: DeclarationAttrs,
+    pub(super) declaration: ASTNode,
 }
 
 impl RawRootStaticChildWorkV1 {
@@ -58,6 +60,7 @@ impl RawRootStaticChildWorkV1 {
             body,
             uses,
             attrs,
+            declaration,
         } = self;
         let function_name = locator.symbol().to_owned();
         (
@@ -71,6 +74,7 @@ impl RawRootStaticChildWorkV1 {
                 body,
                 uses,
                 attrs,
+                declaration,
             },
         )
     }
@@ -172,6 +176,7 @@ impl OwnedRawSourceV1 {
             body: body.clone(),
             uses: uses.clone(),
             attrs: attrs.clone(),
+            declaration: declaration.clone(),
         })
     }
 }

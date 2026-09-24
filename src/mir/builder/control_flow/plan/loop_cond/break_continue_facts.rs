@@ -313,7 +313,6 @@ pub(in crate::mir::builder) fn try_extract_loop_cond_break_continue_facts_inner(
 
     Ok(Some(LoopCondBreakContinueFacts {
         accept_kind,
-        propagate_nested_carriers: accept_kind == LoopCondBreakAcceptKind::NestedLoopOnly,
         condition: condition.clone(),
         recipe,
         has_handled_guard_break,

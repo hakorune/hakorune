@@ -15,7 +15,6 @@ use crate::mir::builder::control_flow::plan::expression_port::ExactSourceMethodC
 use crate::mir::builder::control_flow::plan::{
     CoreCallSourceV1, LoopPlanExpressionPortErrorV1, LoopPlanExpressionPortV1,
 };
-use crate::mir::builder::normal_callable_loop_source_facts::CallableLoopCarrierRelationV1;
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use crate::mir::builder::stmts::{CompletedLocalBindingV1, CompletedLocalStatementV1};
@@ -54,32 +53,13 @@ pub(super) enum CallableLoopSourceBodyInputV1<'input> {
 /// One callback-scoped source/ledger capability.  The `Rc` is borrowed from
 /// the invocation owner; this type never clones or retains it.
 #[derive(Debug, Clone, Copy)]
-pub(super) struct CallableLoopSourceExpressionPortWithRelationV1<'ledger, 'relation> {
+pub(super) struct CallableLoopSourceExpressionPortV1<'ledger> {
     ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
-    carrier_relation: Option<&'relation CallableLoopCarrierRelationV1>,
 }
 
-pub(super) type CallableLoopSourceExpressionPortV1<'ledger> =
-    CallableLoopSourceExpressionPortWithRelationV1<'ledger, 'ledger>;
-
-impl<'ledger> CallableLoopSourceExpressionPortWithRelationV1<'ledger, 'ledger> {
+impl<'ledger> CallableLoopSourceExpressionPortV1<'ledger> {
     pub(super) const fn new(ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>) -> Self {
-        Self {
-            ledger,
-            carrier_relation: None,
-        }
-    }
-}
-
-impl<'ledger, 'relation> CallableLoopSourceExpressionPortWithRelationV1<'ledger, 'relation> {
-    pub(super) fn with_carrier_bindings(
-        self,
-        carrier_relation: &'relation CallableLoopCarrierRelationV1,
-    ) -> CallableLoopSourceExpressionPortWithRelationV1<'ledger, 'relation> {
-        CallableLoopSourceExpressionPortWithRelationV1 {
-            ledger: self.ledger,
-            carrier_relation: Some(carrier_relation),
-        }
+        Self { ledger }
     }
 
     pub(super) fn expr<'input>(
@@ -167,9 +147,9 @@ impl<'ledger, 'relation> CallableLoopSourceExpressionPortWithRelationV1<'ledger,
     }
 }
 
-impl Sealed for CallableLoopSourceExpressionPortWithRelationV1<'_, '_> {}
+impl Sealed for CallableLoopSourceExpressionPortV1<'_> {}
 
-impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortWithRelationV1<'_, '_> {
+impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
     type ExprInput<'input>
         = CallableLoopSourceExprInputV1<'input>
     where
@@ -368,7 +348,7 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortWithRelationV1
     fn exact_source_variable_value<'input>(
         &self,
         input: &Self::ExprInput<'input>,
-        physical_bindings: &BTreeMap<String, ValueId>,
+        _physical_bindings: &BTreeMap<String, ValueId>,
     ) -> Result<Option<ValueId>, String>
     where
         Self: 'input,
@@ -380,15 +360,7 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortWithRelationV1
             return Ok(None);
         }
         let site = Self::exact_site(Self::source_of_expr(input))?;
-        let binding = self.ledger.borrow().source_read_binding(&site)?;
         let source_value = self.ledger.borrow_mut().read_variable(&site)?;
-        if let Some(relation) = self.carrier_relation {
-            if let Some(carrier_value) =
-                relation.physical_value_for_binding(binding, physical_bindings)?
-            {
-                return Ok(Some(carrier_value));
-            }
-        }
         Ok(Some(source_value))
     }
 

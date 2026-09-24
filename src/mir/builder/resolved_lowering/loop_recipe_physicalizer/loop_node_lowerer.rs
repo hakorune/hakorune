@@ -55,14 +55,33 @@ pub(in crate::mir::builder) fn lower_loop_node_physical_admission_v1<'source>(
     input: ResolvedFunctionLoweringInputV1<'source>,
     admission: VerifiedLoopNodePhysicalAdmissionV1,
 ) -> Result<LoopNodeWinnerPhysicalContinuationV1, String> {
+    lower_loop_node_physical_admission_inner(builder, input, admission, None)
+}
+
+/// Callable ingress supplies the already-materialized values from the exact
+/// BindingRef ledger. Names remain diagnostic and are not used to establish
+/// the VAR entry relation.
+pub(in crate::mir::builder) fn lower_loop_node_physical_admission_with_callable_entry_values_v1(
+    builder: &mut MirBuilder,
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    admission: VerifiedLoopNodePhysicalAdmissionV1,
+    entry_values: &[(BindingRefV1, ValueId)],
+) -> Result<LoopNodeWinnerPhysicalContinuationV1, String> {
+    lower_loop_node_physical_admission_inner(builder, input, admission, Some(entry_values))
+}
+
+fn lower_loop_node_physical_admission_inner<'source>(
+    builder: &mut MirBuilder,
+    input: ResolvedFunctionLoweringInputV1<'source>,
+    admission: VerifiedLoopNodePhysicalAdmissionV1,
+    callable_entry_values: Option<&[(BindingRefV1, ValueId)]>,
+) -> Result<LoopNodeWinnerPhysicalContinuationV1, String> {
     let (layout, inputs) = admission.into_parts();
     let owner: FunctionOwnerIdV1 = layout.program().demand().context().owner();
     let preheader = builder
         .function_state
         .current_block
-        .ok_or_else(|| {
-            "[freeze:contract][loop_node_physicalize/no_current_block]".to_owned()
-        })?;
+        .ok_or_else(|| "[freeze:contract][loop_node_physicalize/no_current_block]".to_owned())?;
 
     let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
     let mut cfg = CanonicalCfgSessionV1::new_for_owner(owner);
@@ -70,25 +89,53 @@ pub(in crate::mir::builder) fn lower_loop_node_physical_admission_v1<'source>(
 
     // Entry input publication: one `publish_declaration_exact` per resolver
     // input row at the preheader, with the walk's materialized value.
+    if let Some(entries) = callable_entry_values {
+        let expected = inputs
+            .rows()
+            .iter()
+            .map(|row| row.source_binding())
+            .collect::<std::collections::BTreeSet<_>>();
+        let actual = entries
+            .iter()
+            .map(|(binding, _)| *binding)
+            .collect::<std::collections::BTreeSet<_>>();
+        if expected != actual || actual.len() != entries.len() {
+            return Err(
+                "[freeze:contract][loop_node_physicalize/callable-entry-binding-set]".to_owned(),
+            );
+        }
+    }
     let mut rows = Vec::with_capacity(inputs.rows().len());
     for input_row in inputs.rows() {
         let binding = input_row.source_binding();
-        let record = input.function().binding(binding).ok_or_else(|| {
-            format!(
-                "[freeze:contract][loop_node_physicalize/input_binding_unknown] binding={binding:?}"
-            )
-        })?;
-        let value = *builder
-            .function_state
-            .variable_ctx
-            .variable_map
-            .get(record.diagnostic_name())
-            .ok_or_else(|| {
-                format!(
-                    "[freeze:contract][loop_node_physicalize/input_value_missing] name={}",
-                    record.diagnostic_name()
-                )
-            })?;
+        let value = match callable_entry_values {
+            Some(entries) => entries
+                .iter()
+                .find_map(|(candidate, value)| (*candidate == binding).then_some(*value))
+                .ok_or_else(|| {
+                    format!(
+                        "[freeze:contract][loop_node_physicalize/callable-entry-value-missing] binding={binding:?}"
+                    )
+                })?,
+            None => {
+                let record = input.function().binding(binding).ok_or_else(|| {
+                    format!(
+                        "[freeze:contract][loop_node_physicalize/input_binding_unknown] binding={binding:?}"
+                    )
+                })?;
+                *builder
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .get(record.diagnostic_name())
+                    .ok_or_else(|| {
+                        format!(
+                            "[freeze:contract][loop_node_physicalize/input_value_missing] name={}",
+                            record.diagnostic_name()
+                        )
+                    })?
+            }
+        };
         let published = identity
             .publish_declaration_exact(input_row.declaration(), binding, preheader, value)
             .map_err(|error| {
@@ -105,16 +152,16 @@ pub(in crate::mir::builder) fn lower_loop_node_physical_admission_v1<'source>(
 
     let segment_receipt = {
         let mut services = LoopPhysicalServicesV1::new(builder, &mut cfg);
-        allocate_for_layout(&layout, &ready_entry, &mut services)
-            .map_err(|error| format!("[freeze:contract][loop_node_physicalize/segments] {error:?}"))?
+        allocate_for_layout(&layout, &ready_entry, &mut services).map_err(|error| {
+            format!("[freeze:contract][loop_node_physicalize/segments] {error:?}")
+        })?
     };
     let dispatch = prepare_loop_segment_operation_dispatch_v1(layout, ready_entry, segment_receipt)
         .map_err(|error| {
             format!("[freeze:contract][loop_node_physicalize/dispatch_preflight] {error:?}")
         })?;
     let completed = {
-        let mut services =
-            LoopOperationDispatchServicesV1::new(builder, &mut identity, &mut phis);
+        let mut services = LoopOperationDispatchServicesV1::new(builder, &mut identity, &mut phis);
         dispatch
             .emit_all(LoopOperationValueLedgerV1::default(), &mut services)
             .map_err(|error| {
