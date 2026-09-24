@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "SELFHOST-LOOP-M8C-SCANS-PARITY-S7B3"
+current_execution_row = "SELFHOST-LOOP-M8D-LOOPCOND-PARITY-S7B4"
 current_execution_cohort = "loop_s7b_wire_coverage"
-current_blocker_token = "SELFHOST-LOOP-M8C-SCANS-PARITY-S7B3__WireCoverageLanded_FrontierPause"
+current_blocker_token = "SELFHOST-LOOP-M8D-LOOPCOND-PARITY-S7B4__CohortDesignOpen"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "FrontierPause__S7B3M8CScansV2WireCoverageLanded__FamilySchedulerReselectionRequired_2026-09-24"
+current_design_stop = "S7B4Cohort__M8DLoopCondV1WireCoverage__CardOnly_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,35 +14,34 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/selfhost-loop-m8c-scans-parity-s7b3-d0-2026-09-24.md"
-latest_card = "selfhost-loop-m8c-scans-parity-s7b3"
-latest_card_path = "docs/development/current/main/investigations/selfhost-loop-m8c-scans-parity-s7b3-d0-2026-09-24.md"
+current_execution_design = "docs/development/current/main/investigations/selfhost-loop-m8d-loopcond-parity-s7b4-d0-2026-09-24.md"
+latest_card = "selfhost-loop-m8d-loopcond-parity-s7b4"
+latest_card_path = "docs/development/current/main/investigations/selfhost-loop-m8d-loopcond-parity-s7b4-d0-2026-09-24.md"
 latest_card_summary = """
-S7B3 M8C wire-coverage cohort landed caller-zero — first
-LoopRecipeArtifactV2 row.
-loop_recipe/emit_m8c_scans_wire.hako emits the canonical V2
-artifact (schema_version 2, scan_with_init_v2, body_item(1);
-15 items incl. call_slot x2 + text_eq + If + Exit; return
-exit) as one compact JSON line; checked in at
-fixtures/hako_loop_recipe_wire_m8c_v2.json (byte-identical to
-fresh emission). LoopRecipeNormalizerV2 named as V2
-decode/verify/normalize owner; ScanWithInitV2 producer-id
-variant added; build_recipe pub(super) + read-view as_recipe;
-issue_facts_and_loop_source sibling. wire_parity_tests.rs
-gains 6 M8C tests (26 total): all three V2 normalizations
-equal vs producer-issuer artifact, real
-produce_s6c_scan_with_init_recipe_v2 semantic anchor, V2
-round-trip, determinism, drift + wrong-version rejects.
-loop_recipe_contract 214/214, s6c 14/14, producer_id 4/4,
-route_policy 91/91, guards green; 3 mir::builder s6c failures
-are baseline debt (reproduced on parent). Producer half of M9
-stays deferred. Non-claims: caller-zero; no producer port/
-Facts/verifier/CFG-PHI/physical MIR/input/hostbridge/V1
-artifact for this family; no M9 parity claim; no Row F
-unblock; no legacy deletion.
+S7B4 wire-coverage cohort D0 card open (caller-zero) — M8D
+LoopCond break/continue row, back on LoopRecipeArtifactV1.
+Bounded slice: a fifth .hako stdout entry under
+lang/src/mir/builder/loop_recipe/ emitting the canonical M8D
+artifact (provenance loop_cond_break_continue_v1 — variant
+already exists; bounded profile flag=1; loop(flag<2){
+if flag==1 {break} else {continue}} at body_item(1); 9 items,
+4 blocks, 7 values, first continue-exit + populated else_block
+coverage) as one compact JSON line; checked-in fixture;
+parity harness rebuilds through the producer's own issuer
+chain — typed source map into_parts carries the
+resolver-bound VerifiedLoopRootSourceV1 (no
+bind_resolved_loop_root_v1 hop) plus loop/branch conditions
+into loop_cond_break_continue_recipe (pub(super) promotion) —
+and anchors normalize_semantic on the real
+produce_loop_cond_break_continue_recipe_v1 product via its
+own demand issuer (producer-test helpers promoted to
+pub(super)). Non-claims: no .hako producer/Facts/JoinSig port/
+verifier/CFG-PHI/physical MIR/demand construction, no input
+reading, no hostbridge, no V2 artifact for this family, no M9
+parity claim, no Row F unblock, no legacy deletion.
 """
-next_design_card = "SELFHOST-LOOP-M8C-SCANS-PARITY-S7B3"
-next_design_card_path = "docs/development/current/main/investigations/selfhost-loop-m8c-scans-parity-s7b3-d0-2026-09-24.md"
+next_design_card = "SELFHOST-LOOP-M8D-LOOPCOND-PARITY-S7B4"
+next_design_card_path = "docs/development/current/main/investigations/selfhost-loop-m8d-loopcond-parity-s7b4-d0-2026-09-24.md"
 next_execution_card = "none__design_only__family_scheduler_reselection"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
