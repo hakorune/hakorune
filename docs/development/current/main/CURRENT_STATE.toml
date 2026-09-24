@@ -40,11 +40,17 @@ The in-place replacement guard, generic corpus guard, pointer guard, and
 source-route admission guard all pass; the old-symbol census on the committed
 tree is clean, route_loop has exactly one caller, and LoopPhiMaterializerV1 is
 zero-referenced. The broad lifecycle run still has five pinned baseline
-failures and one D2 informational terminal. The M11 residual shadow
-enumeration is recorded in the R0 card: the located_loop and coreloop
-composer husks are caller-zero but contract-pinned by callable_result and
-coreplan guards, so their removal is the M11 row's own bounded work. M11 and
-M12 remain open under their own rows; do not downgrade the corpus.
+failures and one D2 informational terminal. M11-A retired the caller-zero
+coreloop composer husks (`composer/coreloop_v2_nested_minimal.rs`,
+`composer/coreloop_gates.rs`) and re-pointed the two varmap role
+inventories to the live 12-site census; the red-baseline receipt absorbed
+the two removed unit tests. Remaining M11 work is the located_loop husk
+cluster, which is contract-pinned by the callable_result_i0 guard chain
+(`check_loop0_s0a`) and needs a surgical guard re-point before deletion —
+recorded in the R0 card. The cargo-lib red-baseline receipt is stale at
+HEAD beyond this delta (observed 7969/167/56 vs receipt 7381/133/29) and
+needs its own audit before re-baselining. M12 remains open under its own
+row; do not downgrade the corpus.
 """
 next_design_card = "none__accepted_decision"
 next_design_card_path = "none__accepted_decision"

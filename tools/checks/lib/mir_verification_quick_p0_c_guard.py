@@ -41,19 +41,11 @@ VARMAP_ROOTS = (
 )
 VARMAP_TEST_ONLY_SITES = frozenset(
     {
-        *(f"src/mir/builder/control_flow/plan/composer/coreloop_v2_nested_minimal.rs#{n}" for n in range(1, 5)),
-        "src/mir/builder/control_flow/plan/features/generic_loop_body/nested_depth_observer_tests.rs#1",
-        "src/mir/builder/control_flow/plan/features/generic_loop_located_composer_tests.rs#1",
-        "src/mir/builder/control_flow/plan/features/generic_loop_whole_parity_tests.rs#1",
         *(f"src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs#{n}" for n in range(1, 5)),
         *(f"src/mir/builder/control_flow/plan/normalizer/tests.rs#{n}" for n in range(1, 4)),
-        "src/mir/builder/control_flow/plan/parts/associated_source/located_hook_tests.rs#1",
-        "src/mir/builder/control_flow/plan/parts/associated_source/located_parity_tests.rs#1",
     }
 )
-VARMAP_DISCONNECTED_SITES = frozenset(
-    {"src/mir/builder/control_flow/plan/features/generic_loop_located_composer.rs#1"}
-)
+VARMAP_DISCONNECTED_SITES = frozenset()
 VARMAP_CANONICAL_SITES = frozenset(
     {"src/mir/builder/control_flow/plan/parts/var_map_scope.rs#1"}
 )

@@ -1103,8 +1103,6 @@ mir::builder::control_flow::lower::normalize::canonicalize::tests::canonical_pre
 mir::builder::control_flow::lower::normalize::canonicalize::tests::canonical_projects_empty_exit_kinds_present
 mir::builder::control_flow::lower::normalize::canonicalize::tests::canonical_projects_skeleton_and_exit_usage
 mir::builder::control_flow::plan::call_source::tests::visitor_covers_all_call_variants_and_nested_effects
-mir::builder::control_flow::plan::composer::coreloop_v2_nested_minimal::tests::coreloop_v2_composes_nested_minimal
-mir::builder::control_flow::plan::composer::coreloop_v2_nested_minimal::tests::coreloop_v2_rejects_value_join
 mir::builder::control_flow::plan::expression_port_tests::foreign_located_expression_is_rejected_by_the_port
 mir::builder::control_flow::plan::expression_port_tests::located_loop_body_item_projection_is_compact_and_port_owned
 mir::builder::control_flow::plan::expression_port_tests::located_non_call_leaf_creates_no_call_source

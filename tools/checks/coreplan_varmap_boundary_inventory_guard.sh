@@ -77,18 +77,10 @@ insert_sites = [site for site in sites if site[3] == "insert"]
 remove_or_clear = [site for site in sites if site[3] in ("remove", "clear")]
 site_ids = {f"{path}#{ordinal}" for path, ordinal, _line, _op in insert_sites}
 test_only_sites = {
-    *(f"src/mir/builder/control_flow/plan/composer/coreloop_v2_nested_minimal.rs#{n}" for n in range(1, 5)),
-    "src/mir/builder/control_flow/plan/features/generic_loop_body/nested_depth_observer_tests.rs#1",
-    "src/mir/builder/control_flow/plan/features/generic_loop_located_composer_tests.rs#1",
-    "src/mir/builder/control_flow/plan/features/generic_loop_whole_parity_tests.rs#1",
     *(f"src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs#{n}" for n in range(1, 5)),
     *(f"src/mir/builder/control_flow/plan/normalizer/tests.rs#{n}" for n in range(1, 4)),
-    "src/mir/builder/control_flow/plan/parts/associated_source/located_hook_tests.rs#1",
-    "src/mir/builder/control_flow/plan/parts/associated_source/located_parity_tests.rs#1",
 }
-disconnected_sites = {
-    "src/mir/builder/control_flow/plan/features/generic_loop_located_composer.rs#1",
-}
+disconnected_sites = set()
 canonical_sites = {
     "src/mir/builder/control_flow/plan/parts/var_map_scope.rs#1",
 }
@@ -96,22 +88,7 @@ canonical_sites = {
 # live site, but a new path or ordinal must first be classified in a bounded
 # row; changing this guard is not a substitute for that inventory decision.
 known_live_sites = {
-    *(f"src/mir/builder/control_flow/plan/features/generic_loop_body/v1.rs#{n}" for n in range(1, 6)),
-    *(f"src/mir/builder/control_flow/plan/features/carrier_merge.rs#{n}" for n in range(1, 4)),
-    "src/mir/builder/control_flow/plan/features/generic_loop_pipeline.rs#1",
-    "src/mir/builder/control_flow/plan/features/loop_cond_bc.rs#1",
-    "src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs#1",
-    "src/mir/builder/control_flow/plan/features/loop_cond_bc_item_stmt.rs#1",
-    *(f"src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs#{n}" for n in range(1, 4)),
-    "src/mir/builder/control_flow/plan/features/loop_cond_co_pipeline.rs#1",
-    "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs#1",
-    "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs#1",
-    *(f"src/mir/builder/control_flow/plan/features/loop_true_break_continue_pipeline.rs#{n}" for n in range(1, 3)),
-    "src/mir/builder/control_flow/plan/lowerer/loop_completion.rs#1",
-    *(f"src/mir/builder/control_flow/plan/normalizer/cond_lowering_prelude.rs#{n}" for n in range(1, 6)),
     "src/mir/builder/control_flow/plan/parts/associated_source/raw_lowering.rs#1",
-    *(f"src/mir/builder/control_flow/plan/parts/dispatch/if_join.rs#{n}" for n in range(1, 3)),
-    "src/mir/builder/control_flow/plan/parts/if_general.rs#1",
     *(f"src/mir/builder/control_flow/plan/parts/loop_/loop_v0.rs#{n}" for n in range(1, 4)),
 }
 known_sites = test_only_sites | disconnected_sites | canonical_sites | known_live_sites
@@ -149,7 +126,7 @@ print(
     f"raw={len(site_ids)} test_only={len(site_ids & test_only_sites)} "
     f"disconnected={len(site_ids & disconnected_sites)} live={len(live_sites)} "
     f"canonical={len(live_sites & canonical_sites)} reseal={len(reseal_sites)} "
-    "(baseline=51/16/1/34/1/33)"
+    "(baseline=12/7/0/5/1/4)"
 )
 print("[coreplan-varmap-boundary] variable_map_remove_clear_sites=0")
 PY

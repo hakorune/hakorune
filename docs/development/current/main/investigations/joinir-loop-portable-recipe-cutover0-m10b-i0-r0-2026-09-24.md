@@ -839,13 +839,37 @@ M11 residual enumeration (2026-09-25, post-`6e88441c0b` tree):
     `VerifiedLocatedCoreLoopPlanV1` are re-exported at `plan/mod.rs:170-173`
     under `#[allow(unused_imports)]` with zero production callers, but the
     `callable_result_i0_*` guard family pins them as the recorded
-    callable-result loop-claim contract surface.
+    callable-result loop-claim contract surface.  M11-B owner: the
+    `check_loop0_s0a` chain in
+    `tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0*.py`
+    interleaves the dead seal artifact pins with live
+    schedule/batch/ledger pins, so removal is a surgical guard re-point,
+    not a bulk delete.
   - `plan/composer/coreloop_v2_nested_minimal.rs` +
     `composer/coreloop_gates.rs`: caller-zero (self + `composer/mod.rs`
-    only), but pinned by `coreplan_varmap_boundary_inventory_guard.sh` and
-    `mir_verification_quick_p0_c_guard.py`.
-  Physical removal therefore requires the M11 row to retire or re-point those
-  guard contracts first — keep the named owners, do not hide them.
+    only) — **retired in M11-A** (this branch): files deleted,
+    `composer/mod.rs` decls/re-export removed, and the two varmap role
+    inventories (`coreplan_varmap_boundary_inventory_guard.sh`,
+    `mir_verification_quick_p0_c_guard.py`) re-pointed to the live
+    12-site inventory (raw=12 test_only=7 disconnected=0 live=5
+    canonical=1 reseal=4).  The same re-point dropped the
+    `generic_loop_located_composer*` / `nested_depth_observer_tests` /
+    `generic_loop_whole_parity_tests` / `located_hook_tests` /
+    `located_parity_tests` site entries that were already stale after the
+    R0 file deletions.  Dormant pin noted for the record:
+    `rust_lifecycle_mirbuilder_plan_composer_projection_policy_guard.sh`
+    is unregistered (no dev_gate/guard_rows/CI surface) and its frozen
+    decision fixture still names `coreloop_gates.rs`; it needs re-pointing
+    only if it is ever re-activated.
+  - `cargo_lib_red_baseline` receipt absorbed the two removed composer unit
+    tests (expected_passed 7381→7379, inventory sha re-hashed).  The
+    receipt is independently stale at HEAD — observed quick-lib run is
+    7969 passed / 167 failed / 56 ignored against receipt 7381/133/29, and
+    two failing tests emit multi-line `[llvm-mem2reg/error]` noise that the
+    checker's single-line `FAILED` parser cannot extract, so the step stays
+    red in this environment until a dedicated audit row re-baselines the
+    whole suite.  No composer/coreloop test appears in the observed
+    failure set.
 - `facts/canon.rs` doc drift recorded earlier is moot: the file was deleted
   with the canon subtree; `facts/expr_generic_loop.rs` remains a live purity
   helper.
@@ -1013,6 +1037,7 @@ build):
   retired-file anchors, `rg -P` removal (PCRE2 unavailable), baseline
   count corrections, and the `wire_parity_tests` 800-line split.
 - Post-landing green: `cargo build --profile quick`, `cargo check --tests`,
+  `cargo build --release --bin hakorune` (7m02s, warnings only),
   winner-spine 7/7, physical-admission 5/5, raw-entry 16/16, wire parity
   36/36, variable-accum 28/28; portable-owner gate 15/15, typed-terminal
   gate 164/164; in-place replacement guard, corpus guard, pointer guard,
