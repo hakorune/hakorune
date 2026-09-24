@@ -1,5 +1,5 @@
 ---
-Status: open__design_stop__manifest_boundary_fixed
+Status: landed__2026-09-24__manifest_frozen
 Task: GENERIC-M10B-DELETION-MANIFEST-S0
 Date: 2026-09-24
 Parent: LOOP-PRODUCTION-SELECTION-D0 (Decision recorded)
@@ -118,6 +118,56 @@ manifest_row_id  symbol  file  delete_category(1-8)  edge_kind
   TSV's non-M10b buckets.
 - No M10b activation: this row ends at a checked manifest plus its
   landed record; the atomic commit is `M10b-I0-R0`'s own card.
+
+## Landed writes (2026-09-24) — manifest frozen
+
+`design/fixtures/generic-m10b-deletion-manifest-v1.tsv`: 44 rows —
+24 neutralize-first file rows (A01–A24), 14 shared-retain edge rows
+(B01–B14), 6 symbol-level edge rows (C01–C06 covering the route_loop
+switch edges, the ordered scheduler entry, V0/V1 predicate/handler
+edges, the Ok(None) decline continuation, and the
+`pub use generic_loop_canon::*` AST-helper facade).
+
+Live re-derivation against HEAD found the following drift vs the
+disposition TSV (recorded in the TOTALS trailer):
+
+- `joinir_dev.rs` lives at `src/config/env/joinir_dev.rs`, not
+  `src/mir/config/env/joinir_dev.rs` (disposition path error; the file
+  has no history under the mir path). Flag-scoped count: 4 production
+  readers of `lower_generic_enabled` in `join_ir/lowering/*` + 2 test
+  readers of the env name.
+- `route_entry::registry` anchoring replaces the bare `registry::`
+  token: `registry/mod` outside callers are 9 prod + 1 test (was
+  174/27 under the old token class).
+- `plan::nested_loop_depth1` anchoring: `nld1_mod` 10 -> 5 prod;
+  `feat_nld1` 8 -> 7 prod.
+- Symbol-attributed recounts: `gl_facts_extract` 2 -> 3 prod / 4 -> 1
+  test; `gl_facts_mod` 4 -> 3 prod / 4 -> 0 test; `gl_facts_types`
+  3 -> 4 prod; `gl_mod` 15 -> 7 prod / 4 -> 1 test; `reg_dlbt`,
+  `reg_arp`, `reg_legacy_rec`, `reg_selection` moved off zero.
+- Per-row sums: 75 outside production caller edges, 9 test caller
+  edges (A05/A22 subtree rows intentionally overlap their children).
+
+Structural findings recorded for M10b execution:
+
+- `plan/generic_loop/mod.rs` and `plan/nested_loop_depth1/mod.rs`
+  survive M10b as decl shells — they host M11 (`located_representation`)
+  and R1 (`generic-only`) children; their M10b edge is the parent-decl
+  and outside-caller disconnect only.
+- `handlers/generic.rs` (inside `handlers.rs`'s module dir) carries the
+  V0/V1 route bodies the `*_at_attempt` wrappers delegate to; it dies
+  with the handler table.
+- `live_preflight_frame.rs` is `retained`, not delete-set: its
+  `try_execute_if_allowed` Ok(None) continuation (C05) is the named
+  error-to-None edge the winner must not reproduce — the frame file
+  itself stays.
+- `route_loop` (`router.rs:255`, invoked at `routing.rs:552`) is the
+  single switch point; C01 pins every scheduler call edge inside its
+  body.
+
+Gates: `git diff --check` clean, `current_state_pointer_guard.sh` ok.
+The manifest self-check (re-running the recorded rg token classes on
+the committed tree) is part of M10b's entry audit.
 
 ## Exit
 

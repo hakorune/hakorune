@@ -1,11 +1,11 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "GENERIC-M10B-DELETION-MANIFEST-S0"
 current_execution_cohort = "loop_m10b_manifest"
-current_blocker_token = "GENERIC-M10B-DELETION-MANIFEST-S0__ManifestBoundaryFixed"
+current_blocker_token = "GENERIC-M10B-DELETION-MANIFEST-S0__ManifestFrozen"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "GenericM10bDeletionManifestS0__BoundaryFixed_2026-09-24"
+current_design_stop = "GenericM10bDeletionManifestS0__ManifestFrozen_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -18,25 +18,27 @@ current_execution_design = "docs/development/current/main/investigations/generic
 latest_card = "generic-m10b-deletion-manifest-s0"
 latest_card_path = "docs/development/current/main/investigations/generic-m10b-deletion-manifest-s0-2026-09-24.md"
 latest_card_summary = """
-GENERIC-M10B-DELETION-MANIFEST-S0 opened (design_stop): manifest
-boundary fixed — freeze the 38 `retire_row = M10b-I0-R0`
-disposition edge rows plus symbol-level category-3/7 rows as a
-checked manifest
-(`design/fixtures/generic-m10b-deletion-manifest-v1.tsv`) with
-live per-symbol production/test caller counts, classified into
-the SSOT's seven delete categories + env-flag host. Disposition
-TSV is inventory evidence, not deletion authority; drift between
-it and live source is a fail-fast stop. Entry evidence:
-LOOP-PRODUCTION-SELECTION-D0 boundary decision (all in-boundary
-M10 seal rows closed). Next slice: bounded freeze under fast,
-then M10b-I0-R0 consumes the checked manifest. Non-claims: no
-deletion, no route_loop edit, no switch, no new receipt —
-read-only freeze only.
+GENERIC-M10B-DELETION-MANIFEST-S0 landed: checked deletion manifest
+frozen at design/fixtures/generic-m10b-deletion-manifest-v1.tsv —
+44 rows (24 neutralize-first files, 14 shared-retain edges, 6
+symbol-level edges) with live outside caller names/counts
+re-derived at freeze (75 prod + 9 test edges). Recorded drift vs
+the disposition TSV: joinir_dev real path src/config/env/ (flag
+scope 4 prod readers), registry/mod 174->9 under
+route_entry::registry anchoring, nld1_mod 10->5, feat_nld1 8->7,
+facts subtree symbol-attributed recounts. Structural pins:
+plan/generic_loop/mod.rs + plan/nested_loop_depth1/mod.rs survive
+as decl shells (M11/R1 children); live_preflight_frame.rs is
+retained — its Ok(None) decline edge is the named C05 anti-pattern
+the winner must not reproduce; route_loop (router.rs:255) is the
+single switch point with all scheduler edges pinned in C01. Gates:
+diff-check + pointer guard green. Next: M10b-I0-R0 consumes this
+manifest for the atomic cutover.
 """
 next_design_card = "GENERIC-M10B-DELETION-MANIFEST-S0"
 next_design_card_path = "docs/development/current/main/investigations/generic-m10b-deletion-manifest-s0-2026-09-24.md"
-next_execution_card = "none__design_only__decision_recorded__next_slice_generic_m10b_deletion_manifest_s0"
-next_execution_card_path = "none"
+next_execution_card = "GENERIC-M10B-DELETION-MANIFEST-S0"
+next_execution_card_path = "docs/development/current/main/investigations/generic-m10b-deletion-manifest-s0-2026-09-24.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
