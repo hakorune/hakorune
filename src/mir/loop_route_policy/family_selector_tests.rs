@@ -12,10 +12,10 @@ use super::{
     CANONICAL_LOOP_ROUTE_ORDER_V1,
 };
 use crate::ast::ASTNode;
-use crate::mir::compiler::generic_g0_observation::issue_generic_g0_source_attempt_with_window_for_test;
-use crate::mir::compiler::loop_cond_break_continue_observation::issue_loop_cond_source_attempt_for_test;
-use crate::mir::compiler::loop_true_break_continue_observation::issue_loop_true_source_attempt_for_test;
-use crate::mir::compiler::nested_predicate_observation::issue_nested_predicate_source_attempt_for_test;
+use crate::mir::compiler::generic_g0_observation::issue_generic_g0_source_attempt_with_window_v1;
+use crate::mir::compiler::loop_cond_break_continue_observation::issue_loop_cond_source_attempt_v1;
+use crate::mir::compiler::loop_true_break_continue_observation::issue_loop_true_source_attempt_v1;
+use crate::mir::compiler::nested_predicate_observation::issue_nested_predicate_source_attempt_v1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_route_policy::{
     issue_loop_cond_family_observation_v1, issue_loop_true_family_observation_v1,
@@ -117,7 +117,7 @@ fn nested_candidate_fixture() -> (
         identity.site.clone(),
         identity.frame.clone(),
     );
-    let attempt = issue_nested_predicate_source_attempt_for_test(
+    let attempt = issue_nested_predicate_source_attempt_v1(
         input,
         loop_stmt,
         source,
@@ -164,7 +164,7 @@ fn loop_true_candidate_fixture() -> (
         identity.site.clone(),
         identity.frame.clone(),
     );
-    let attempt = issue_loop_true_source_attempt_for_test(
+    let attempt = issue_loop_true_source_attempt_v1(
         input,
         loop_stmt,
         source,
@@ -211,7 +211,7 @@ fn loop_cond_candidate_fixture() -> (
         identity.site.clone(),
         identity.frame.clone(),
     );
-    let attempt = issue_loop_cond_source_attempt_for_test(
+    let attempt = issue_loop_cond_source_attempt_v1(
         input,
         loop_stmt,
         source,
@@ -284,7 +284,7 @@ function generic_g0(i: i64, j: i64): i64 {
         identity.site.clone(),
         identity.frame.clone(),
     );
-    let attempt = issue_generic_g0_source_attempt_with_window_for_test(
+    let attempt = issue_generic_g0_source_attempt_with_window_v1(
         input,
         loop_stmt,
         source,

@@ -1,9 +1,8 @@
-//! Test-only adapter from NestedPredicate source projection to neutral S1 input.
+//! Adapter from NestedPredicate source projection to neutral S1 input.
 //!
 //! This is the only compiler-side translation point. The route policy never
 //! imports `NestedPredicateProjectionRejectV1` or the resolver forest errors.
 
-#![cfg(test)]
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::located::LocatedStmtV1;
@@ -21,7 +20,7 @@ use crate::mir::resolved_semantics::{
     ResolvedLoopSourceForestRejectV1, VerifiedResolvedLoopSourceV1,
 };
 
-pub(crate) fn issue_nested_predicate_source_attempt_for_test<'source>(
+pub(crate) fn issue_nested_predicate_source_attempt_v1<'source>(
     input: ResolvedFunctionLoweringInputV1<'source>,
     loop_stmt: LocatedStmtV1<'source>,
     source: VerifiedResolvedLoopSourceV1,

@@ -23,8 +23,7 @@ pub(crate) struct LoopTrueObservationContextV1 {
 struct LoopTrueObservationContextSealV1;
 
 impl LoopTrueObservationContextV1 {
-    #[cfg(test)]
-    pub(crate) fn for_test(
+    pub(crate) const fn issue(
         identity: LoopTrueSourceIdentityV1,
         mode: Option<LoopTrueObservationModeV1>,
         coverage: LoopTrueObservationCoverageV1,
@@ -35,6 +34,15 @@ impl LoopTrueObservationContextV1 {
             coverage,
             _seal: LoopTrueObservationContextSealV1,
         }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn for_test(
+        identity: LoopTrueSourceIdentityV1,
+        mode: Option<LoopTrueObservationModeV1>,
+        coverage: LoopTrueObservationCoverageV1,
+    ) -> Self {
+        Self::issue(identity, mode, coverage)
     }
 
     pub(crate) fn identity(&self) -> &LoopTrueSourceIdentityV1 {
@@ -107,6 +115,15 @@ impl VerifiedLoopTrueFamilyCandidateV1 {
 
     pub(crate) const fn evidence(&self) -> &LoopTrueObservationEvidenceV1 {
         &self.evidence
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedLoopTrueBreakContinueSourceProjectionV1,
+        LoopTrueObservationEvidenceV1,
+    ) {
+        (self.observation, self.evidence)
     }
 }
 

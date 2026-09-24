@@ -4,7 +4,7 @@ use super::{
     NestedPredicateObservationRejectV1, NestedPredicateObservationUnresolvedV1,
 };
 use crate::ast::ASTNode;
-use crate::mir::compiler::nested_predicate_observation::issue_nested_predicate_source_attempt_for_test;
+use crate::mir::compiler::nested_predicate_observation::issue_nested_predicate_source_attempt_v1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_structural_facts::{
     NestedPredicateObservationCoverageV1, NestedPredicateObservationModeV1,
@@ -37,7 +37,7 @@ fn prepared(
         root.site().clone(),
         source.frame_key(),
     );
-    let attempt = issue_nested_predicate_source_attempt_for_test(
+    let attempt = issue_nested_predicate_source_attempt_v1(
         input,
         root,
         source,

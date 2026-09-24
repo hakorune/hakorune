@@ -448,3 +448,104 @@ AST fixtures are the authoritative probe input.
   `LoopFamilyTagV1`, `GenericG0PolicyProfileV1::G1+`, or a new family
   arm; S6E/S6G cards explicitly deny window widening. The five
   families are the complete selectable domain at node level.
+
+## P1 implementation record (2026-09-24)
+
+### Landed construction
+
+- Five attempt-issuer adapters promoted: `#![cfg(test)]` removed and
+  `*_for_test` renamed to `issue_*_source_attempt_v1` /
+  `issue_generic_g0_source_attempt_with_window_v1` in
+  `src/mir/compiler/{direct_accum,nested_predicate,loop_true_break_
+  continue,loop_cond_break_continue,generic_g0}_observation.rs`; all
+  34 call sites updated; module gates lifted in
+  `module_registry.in.rs`.
+- Production observation contexts: `*ObservationContextV1::issue`
+  added to the five `loop_route_policy/*_observation.rs` modules;
+  `for_test` remains `#[cfg(test)]` and delegates.
+- `Verified*FamilyCandidateV1::into_parts` added to the four
+  non-G0 candidates (G0 already had one) so the selected family can
+  hand its sealed observation/projection to its demand issuer.
+- Spine: `src/mir/compiler/loop_node_winner_spine.rs` —
+  `issue_loop_node_winner_recipe_v1(input, loop_stmt, numeric)`
+  performs lease -> five attempts -> five rows -> window assembly ->
+  whole-unit coverage -> `select_canonical_loop_family_v1` ->
+  family demand -> family producer -> `LoopNodeWinnerRecipeV1`.
+  Outcome vocabulary: `Issued` / `Declined(proof)` /
+  `Unresolved(stage evidence)` / `Rejected(stage evidence)`.
+- `loop_route_policy/mod.rs`: the window assembler, selector,
+  LoopTrue/LoopCond observation issuers, and candidate types are
+  ungated from `#[cfg(test)]` — the spine is their first
+  production-visible (still caller-zero) consumer.
+
+### Per-family demand/producer wiring (verified against landings)
+
+- DirectAccum: `Candidate(observation)` ->
+  `issue_direct_accum_route_admission_v1` -> handoff ->
+  `admission.into_policy_winner()` + `observation.into_parts()` ->
+  `issue_selected_loop_recipe_demand_v1(winner, facts, source)` ->
+  `produce_direct_accum_recipe_v1`. `VerifiedSelectedLoopRecipeDemandV1`
+  is consumed ONLY by this producer; inside the family chain it is a
+  demand product, not the excluded 19-route selection shape.
+- NestedPredicate: `Candidate(projection)` ->
+  `produce_nested_predicate_recipe_v1` (no separate demand type).
+- LoopTrue: `Candidate(projection)` -> spine-built family schedule
+  (`LoopTrueBreakContinue` = Candidate, others
+  `SourceDeclined(ExcludedByVerifiedSingletonObservation)`) ->
+  `issue_loop_true_break_continue_policy_demand_v1` ->
+  `produce_loop_true_break_continue_recipe_v1`.
+- LoopCond: `Candidate(projection)` ->
+  `issue_loop_cond_break_continue_typed_source_map_v1(input, proj)` ->
+  same schedule shape (`LoopCondBreakContinue` = Candidate) ->
+  `issue_loop_cond_break_continue_policy_demand_v1` ->
+  `produce_loop_cond_break_continue_recipe_v1`.
+- GenericG0: `issue_generic_g0_recipe_demand_v1(selection)` consumes
+  the sealed selection before `into_parts` ->
+  `produce_generic_g0_recipe_v1`.
+
+### Coverage-set construction (fixed by this implementation)
+
+`RecipeBacked` marks only the canonical route the single family
+candidate owns per the empirical table (AccumConstLoop/
+NestedLoopMinimal/LoopTrueBreakContinue/LoopCondBreakContinue with
+their attested producer ids); `GenericG0` marks NO route row because
+S6G places the G0 profile outside the canonical route inventory.
+Zero or 2+ candidates produce an all-`PreEffectDeclined` set (the
+selector still returns `NoCandidate`/`Overlap` respectively).
+`CoverageBackedWithoutCandidate` stays a defensive typed arm for
+foreign coverage proofs, unreachable from this spine's own
+construction.
+
+### Empirical finding: GenericG0 unreachable through the node window
+
+Every G0-admissible source shape (nested loop in a loop body) makes
+the DirectAccum projector hit `SourceNavigation` — it tries
+`child_expr_from_stmt(.., AssignmentTarget)` on the nested Loop
+statement before any shape check. The row becomes
+`Unresolved`, the window cannot assemble `Ready`, and the spine
+terminates `Unresolved(WindowAssemble)`. Both a standalone
+`function` and a `static box` method transcription reproduce it.
+`Selected(GenericG0)` is therefore unreachable at node level today;
+the G0 production path stays the function-level
+`CanonicalLoopFamilyPlanV1::GenericG0` arm plus
+`issue_generic_g0_recipe_demand_from_observation_v1`, which bypasses
+the five-row window by design. The spine's G0 arm is retained: it is
+the designed path for any future source where all five arms resolve.
+
+### Focused tests (`loop_node_winner_spine_tests.rs`, 7 tests)
+
+- Positive `Issued`: DirectAccum, NestedPredicate, LoopTrue,
+  LoopCond canonical fixtures.
+- `generic_g0_box_method_fixture` records the empirical Unresolved
+  terminal; `generic_g0_standalone_function_is_typed_terminal`
+  asserts it.
+- `family_less_variable_accum_declines` asserts the D0-boundary
+  `Declined` terminal for `acc += i`.
+
+### Baseline red (known debt, not current-change)
+
+`mir::compiler::loop_candidate_abort_p0::loop_effect_then_later_
+failure_discards_candidate_and_reuses_live_compiler` stack-overflows
+in debug; reproduced identically at `cb2adda501` (pre-P1). Classified
+`known baseline debt`; the test exercises `compile_normal`, not the
+caller-zero spine.

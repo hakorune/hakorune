@@ -7,7 +7,7 @@ use super::{
     LoopFamilyAdmissionModeV1, LoopFamilyObservationRowV1, LoopFamilyTagV1,
     LoopTrueObservationContextV1, NestedPredicateObservationContextV1,
 };
-use crate::mir::compiler::direct_accum_observation::issue_direct_accum_source_attempt_for_test;
+use crate::mir::compiler::direct_accum_observation::issue_direct_accum_source_attempt_v1;
 use crate::mir::compiler::direct_accum_projection::direct_accum_function_for_test;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_structural_facts::{
@@ -90,7 +90,7 @@ pub(crate) fn candidate_fixture() -> (
         identity.site.clone(),
         identity.frame.clone(),
     );
-    let attempt = issue_direct_accum_source_attempt_for_test(
+    let attempt = issue_direct_accum_source_attempt_v1(
         input,
         loop_stmt,
         source,

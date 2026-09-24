@@ -57,7 +57,6 @@ pub(in crate::mir) mod common_v2_physical_function_entry_input;
 pub(in crate::mir) mod common_v2_physical_function_skeleton;
 #[allow(dead_code)]
 pub(in crate::mir) mod direct_accum_capability;
-#[cfg(test)]
 pub(crate) mod direct_accum_observation;
 #[allow(dead_code)]
 pub(in crate::mir) mod direct_accum_prefix;
@@ -74,7 +73,6 @@ mod dynamic_full_body_source_tests;
 #[allow(dead_code)]
 pub(in crate::mir) mod external_commit;
 pub(in crate::mir) mod function_input;
-#[cfg(test)]
 pub(crate) mod generic_g0_observation;
 pub(in crate::mir) mod generic_g0_capability;
 #[cfg(test)]
@@ -101,10 +99,13 @@ pub(in crate::mir) mod generic_g0_result_abi;
 pub(in crate::mir) mod generic_g0_top_level_declaration_header;
 #[allow(dead_code)]
 pub(in crate::mir) mod located;
-#[cfg(test)]
 pub(crate) mod loop_cond_break_continue_observation;
 #[cfg(test)]
 mod loop_family_window_probe_tests;
+#[allow(dead_code)]
+pub(crate) mod loop_node_winner_spine;
+#[cfg(test)]
+mod loop_node_winner_spine_tests;
 pub(in crate::mir) mod loop_cond_break_continue_typed_map;
 pub(in crate::mir) mod loop_cond_break_continue_typed_map_issue;
 #[allow(dead_code)]
@@ -190,7 +191,6 @@ pub(crate) mod main0_derived_predicate_source_map;
 pub(crate) mod main0_derived_predicate_source_map_issue;
 #[allow(dead_code)]
 pub(crate) mod main0_derived_predicate_syntax_facts;
-#[cfg(test)]
 pub(crate) mod loop_true_break_continue_observation;
 #[allow(dead_code)]
 pub(in crate::mir) mod loop_true_break_continue_projection;
@@ -204,7 +204,6 @@ pub(crate) mod pinned_text_residence_backend_projection;
 mod module_session;
 #[allow(dead_code)]
 pub(in crate::mir) mod nested_predicate_effect_plan;
-#[cfg(test)]
 pub(crate) mod nested_predicate_observation;
 #[allow(dead_code)]
 pub(in crate::mir) mod nested_predicate_physical_input;

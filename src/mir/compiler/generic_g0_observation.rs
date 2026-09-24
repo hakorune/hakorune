@@ -1,10 +1,9 @@
-//! Test-only adapter from Generic G0 source projection to neutral S1 input.
+//! Adapter from Generic G0 source projection to neutral S1 input.
 //!
 //! This is the only source-error translation point for the current caller-zero
 //! row. It consumes the existing S0A/S0B/S0C products once and never enters a
 //! selector, Recipe producer, Builder, MIR, retry, or fallback path.
 
-#![cfg(test)]
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::generic_g0_projection::handoff::{
@@ -27,7 +26,7 @@ use crate::mir::resolved_semantics::{
     VerifiedLoopFamilyWindowLeaseV1, VerifiedResolvedLoopSourceV1,
 };
 
-pub(crate) fn issue_generic_g0_source_attempt_for_test<'source>(
+pub(crate) fn issue_generic_g0_source_attempt_v1<'source>(
     input: ResolvedFunctionLoweringInputV1<'source>,
     loop_stmt: LocatedStmtV1<'source>,
     source: VerifiedResolvedLoopSourceV1,
@@ -55,7 +54,7 @@ pub(crate) fn issue_generic_g0_source_attempt_for_test<'source>(
             );
         }
     };
-    issue_generic_g0_source_attempt_with_window_for_test(
+    issue_generic_g0_source_attempt_with_window_v1(
         input,
         loop_stmt,
         source,
@@ -66,7 +65,7 @@ pub(crate) fn issue_generic_g0_source_attempt_for_test<'source>(
     )
 }
 
-pub(crate) fn issue_generic_g0_source_attempt_with_window_for_test<'source>(
+pub(crate) fn issue_generic_g0_source_attempt_with_window_v1<'source>(
     input: ResolvedFunctionLoweringInputV1<'source>,
     loop_stmt: LocatedStmtV1<'source>,
     source: VerifiedResolvedLoopSourceV1,

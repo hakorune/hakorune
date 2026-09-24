@@ -23,8 +23,7 @@ pub(crate) struct NestedPredicateObservationContextV1 {
 struct NestedPredicateObservationContextSealV1;
 
 impl NestedPredicateObservationContextV1 {
-    #[cfg(test)]
-    pub(crate) fn for_test(
+    pub(crate) const fn issue(
         identity: NestedPredicateSourceIdentityV1,
         mode: Option<NestedPredicateObservationModeV1>,
         coverage: NestedPredicateObservationCoverageV1,
@@ -35,6 +34,15 @@ impl NestedPredicateObservationContextV1 {
             coverage,
             _seal: NestedPredicateObservationContextSealV1,
         }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn for_test(
+        identity: NestedPredicateSourceIdentityV1,
+        mode: Option<NestedPredicateObservationModeV1>,
+        coverage: NestedPredicateObservationCoverageV1,
+    ) -> Self {
+        Self::issue(identity, mode, coverage)
     }
 
     pub(crate) fn identity(&self) -> &NestedPredicateSourceIdentityV1 {
@@ -107,6 +115,15 @@ impl VerifiedNestedPredicateFamilyCandidateV1 {
 
     pub(crate) const fn evidence(&self) -> &NestedPredicateObservationEvidenceV1 {
         &self.evidence
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedNestedLoopSourceProjectionV1,
+        NestedPredicateObservationEvidenceV1,
+    ) {
+        (self.observation, self.evidence)
     }
 }
 

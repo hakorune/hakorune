@@ -29,8 +29,7 @@ pub(crate) struct GenericG0ObservationContextV1 {
 struct GenericG0ObservationContextSealV1;
 
 impl GenericG0ObservationContextV1 {
-    #[cfg(test)]
-    pub(crate) fn for_test(
+    pub(crate) const fn issue(
         identity: GenericG0SourceIdentityV1,
         mode: Option<GenericG0ObservationModeV1>,
         coverage: GenericG0ObservationCoverageV1,
@@ -41,6 +40,15 @@ impl GenericG0ObservationContextV1 {
             coverage,
             _seal: GenericG0ObservationContextSealV1,
         }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn for_test(
+        identity: GenericG0SourceIdentityV1,
+        mode: Option<GenericG0ObservationModeV1>,
+        coverage: GenericG0ObservationCoverageV1,
+    ) -> Self {
+        Self::issue(identity, mode, coverage)
     }
 
     pub(crate) fn identity(&self) -> &GenericG0SourceIdentityV1 {

@@ -1,10 +1,8 @@
-//! Test-only adapter from the DirectAccum source projector to neutral S1 input.
+//! Adapter from the DirectAccum source projector to neutral S1 input.
 //!
 //! This file is deliberately outside the policy module. It is the only place
 //! that translates compiler projection errors into AST-free source-attempt
 //! reasons; the policy observer never imports those compiler error enums.
-
-#![cfg(test)]
 
 use super::direct_accum_projection::{
     issue_direct_accum_facts_from_source_v1, DirectAccumProjectionRejectV1,
@@ -19,7 +17,7 @@ use crate::mir::loop_structural_facts::{
 };
 use crate::mir::resolved_semantics::VerifiedResolvedLoopSourceV1;
 
-pub(crate) fn issue_direct_accum_source_attempt_for_test<'source>(
+pub(crate) fn issue_direct_accum_source_attempt_v1<'source>(
     input: ResolvedFunctionLoweringInputV1<'source>,
     loop_stmt: LocatedStmtV1<'source>,
     source: VerifiedResolvedLoopSourceV1,

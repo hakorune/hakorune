@@ -72,7 +72,6 @@ pub(crate) use loop_cond_break_continue_source::{
     VerifiedLoopCondBreakContinueSourceProjectionV1, VerifiedLoopCondBreakContinueSourceShapeV1,
     VerifiedLoopCondSourceExitV1,
 };
-#[cfg(test)]
 pub(crate) use loop_true_break_continue_observation::map_loop_true_source_binding_reject;
 pub(crate) use loop_true_break_continue_observation::{
     LoopTrueObservationCoverageV1, LoopTrueObservationModeV1, LoopTrueSourceAttemptOutcomeV1,

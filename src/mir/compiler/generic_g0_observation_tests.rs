@@ -1,4 +1,4 @@
-use super::generic_g0_observation::issue_generic_g0_source_attempt_for_test;
+use super::generic_g0_observation::issue_generic_g0_source_attempt_v1;
 use crate::ast::ASTNode;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_structural_facts::{
@@ -45,7 +45,7 @@ fn attempt(
         .function()
         .resolved_loop_source(loop_stmt.site())
         .expect("root source");
-    issue_generic_g0_source_attempt_for_test(
+    issue_generic_g0_source_attempt_v1(
         input,
         loop_stmt,
         source,
@@ -128,7 +128,7 @@ fn foreign_resolver_source_is_rejected_before_projection() {
         .function()
         .resolved_loop_source(loop_b.site())
         .expect("source B");
-    let attempt = issue_generic_g0_source_attempt_for_test(
+    let attempt = issue_generic_g0_source_attempt_v1(
         input_a,
         loop_b,
         source_b,

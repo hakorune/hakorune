@@ -3,7 +3,7 @@ use super::generic_g0_observation::{
     GenericG0ObservationContextV1, GenericG0ObservationRejectV1, GenericG0ObservationUnresolvedV1,
 };
 use crate::ast::ASTNode;
-use crate::mir::compiler::generic_g0_observation::issue_generic_g0_source_attempt_for_test;
+use crate::mir::compiler::generic_g0_observation::issue_generic_g0_source_attempt_v1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_structural_facts::{
     GenericG0ObservationCoverageV1, GenericG0ObservationModeV1,
@@ -48,7 +48,7 @@ fn attempt(
         .function()
         .resolved_loop_source(loop_stmt.site())
         .expect("root source");
-    issue_generic_g0_source_attempt_for_test(
+    issue_generic_g0_source_attempt_v1(
         input,
         loop_stmt,
         source,

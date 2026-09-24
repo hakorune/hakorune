@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "M10b-I0-R0"
 current_execution_cohort = "loop_m10b_cutover"
-current_blocker_token = "M10b-I0-P1__NodeWinnerRecipeSpine__InProgress"
+current_blocker_token = "M10b-I0-P2__CanonicalPhysicalizerEdge__Next"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "JoinirLoopPortableRecipeCutover0M10bI0R0__DecisionAccepted__P1SpineConstruction_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -38,7 +38,19 @@ ScanWithInit, GenericResidual) have no admitting family arm — resolved
 by the landed LOOP-PRODUCTION-SELECTION-D0 boundary: they are caller-
 zero parked families outside the selected boundary, so their shapes
 typed-decline to terminal Freeze by design (all 40 portable-owner
-corpus rows resolve to selected profiles). P1 spine resumes (fast).
+corpus rows resolve to selected profiles).
+P1 spine landed (caller-zero): five attempt adapters promoted to
+production, observation contexts gained `issue` ctors, and
+`loop_node_winner_spine.rs` performs lease -> five attempts -> five
+rows -> window -> coverage -> select_canonical_loop_family_v1 ->
+family demand -> producer -> LoopNodeWinnerRecipeV1 with typed
+Issued/Declined/Unresolved/Rejected terminals. Per-family demand
+wiring verified; coverage marks only the selected family's owned
+canonical route (GenericG0 marks none — outside route inventory per
+S6G). Empirical: G0-admissible nested shapes trip DirectAccum
+SourceNavigation -> Unresolved terminal, so Selected(GenericG0) is
+unreachable at node level (G0 production stays function-level).
+7 focused tests green. Next: M10b-I0-P2 canonical physicalizer edge.
 """
 next_design_card = "M10b-I0-R0"
 next_design_card_path = "docs/development/current/main/investigations/joinir-loop-portable-recipe-cutover0-m10b-i0-r0-2026-09-24.md"

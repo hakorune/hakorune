@@ -6,12 +6,12 @@
 //! the 19-row coverage set. This is caller-zero reconnaissance: it
 //! issues no Recipe, touches no Builder, and selects nothing.
 
-use super::direct_accum_observation::issue_direct_accum_source_attempt_for_test;
+use super::direct_accum_observation::issue_direct_accum_source_attempt_v1;
 use super::function_input::ResolvedFunctionLoweringInputV1;
-use super::generic_g0_observation::issue_generic_g0_source_attempt_for_test;
-use super::loop_cond_break_continue_observation::issue_loop_cond_source_attempt_for_test;
-use super::loop_true_break_continue_observation::issue_loop_true_source_attempt_for_test;
-use super::nested_predicate_observation::issue_nested_predicate_source_attempt_for_test;
+use super::generic_g0_observation::issue_generic_g0_source_attempt_v1;
+use super::loop_cond_break_continue_observation::issue_loop_cond_source_attempt_v1;
+use super::loop_true_break_continue_observation::issue_loop_true_source_attempt_v1;
+use super::nested_predicate_observation::issue_nested_predicate_source_attempt_v1;
 use super::VerifiedResolvedSourceUnitV1;
 use crate::ast::ASTNode;
 use crate::mir::loop_structural_facts::{
@@ -157,35 +157,35 @@ fn generic_g0_label(outcome: &GenericG0SourceAttemptOutcomeV1) -> &'static str {
 fn row(unit: &VerifiedResolvedSourceUnitV1, function: ASTNode) -> FamilyRow {
     let probe = probe_input(unit, function);
     let input = probe.input;
-    let direct = issue_direct_accum_source_attempt_for_test(
+    let direct = issue_direct_accum_source_attempt_v1(
         input,
         probe.loop_stmt(),
         probe.loop_source(),
         Some(DirectAccumObservationModeV1::Release),
         DirectAccumObservationCoverageV1::Complete,
     );
-    let nested = issue_nested_predicate_source_attempt_for_test(
+    let nested = issue_nested_predicate_source_attempt_v1(
         input,
         probe.loop_stmt(),
         probe.loop_source(),
         Some(NestedPredicateObservationModeV1::Release),
         NestedPredicateObservationCoverageV1::Complete,
     );
-    let loop_true = issue_loop_true_source_attempt_for_test(
+    let loop_true = issue_loop_true_source_attempt_v1(
         input,
         probe.loop_stmt(),
         probe.loop_source(),
         Some(LoopTrueObservationModeV1::Release),
         LoopTrueObservationCoverageV1::Complete,
     );
-    let loop_cond = issue_loop_cond_source_attempt_for_test(
+    let loop_cond = issue_loop_cond_source_attempt_v1(
         input,
         probe.loop_stmt(),
         probe.loop_source(),
         Some(LoopCondObservationModeV1::Release),
         LoopCondObservationCoverageV1::Complete,
     );
-    let generic = issue_generic_g0_source_attempt_for_test(
+    let generic = issue_generic_g0_source_attempt_v1(
         input,
         probe.loop_stmt(),
         probe.loop_source(),

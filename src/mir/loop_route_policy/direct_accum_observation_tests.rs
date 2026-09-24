@@ -4,7 +4,7 @@ use super::{
     DirectAccumObservationRejectV1, DirectAccumObservationUnresolvedV1,
 };
 use crate::ast::ASTNode;
-use crate::mir::compiler::direct_accum_observation::issue_direct_accum_source_attempt_for_test;
+use crate::mir::compiler::direct_accum_observation::issue_direct_accum_source_attempt_v1;
 use crate::mir::compiler::direct_accum_projection::direct_accum_function_for_test;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_structural_facts::{
@@ -36,7 +36,7 @@ fn prepared(
         loop_stmt.site().clone(),
         source.frame_key(),
     );
-    let attempt = issue_direct_accum_source_attempt_for_test(
+    let attempt = issue_direct_accum_source_attempt_v1(
         input,
         loop_stmt,
         source,

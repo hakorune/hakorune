@@ -1,9 +1,8 @@
-//! Test-only adapter from LoopCond source projection to neutral S1 input.
+//! Adapter from LoopCond source projection to neutral S1 input.
 //!
 //! This is the only compiler-side translation point. Route policy never sees
 //! `LoopCondBreakContinueProjectionRejectV1` or resolver/compiler products.
 
-#![cfg(test)]
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::located::LocatedStmtV1;
@@ -17,7 +16,7 @@ use crate::mir::loop_structural_facts::{
 };
 use crate::mir::resolved_semantics::VerifiedResolvedLoopSourceV1;
 
-pub(crate) fn issue_loop_cond_source_attempt_for_test<'source>(
+pub(crate) fn issue_loop_cond_source_attempt_v1<'source>(
     input: ResolvedFunctionLoweringInputV1<'source>,
     loop_stmt: LocatedStmtV1<'source>,
     source: VerifiedResolvedLoopSourceV1,

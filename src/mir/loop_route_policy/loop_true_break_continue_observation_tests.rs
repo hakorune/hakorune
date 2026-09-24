@@ -4,7 +4,7 @@ use super::{
     LoopTrueObservationUnresolvedV1,
 };
 use crate::ast::{ASTNode, LiteralValue, Span};
-use crate::mir::compiler::loop_true_break_continue_observation::issue_loop_true_source_attempt_for_test;
+use crate::mir::compiler::loop_true_break_continue_observation::issue_loop_true_source_attempt_v1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_structural_facts::{
     LoopTrueObservationCoverageV1, LoopTrueObservationModeV1, LoopTrueSourceAttemptOutcomeV1,
@@ -45,7 +45,7 @@ fn prepared(
         root.site().clone(),
         source.frame_key(),
     );
-    let attempt = issue_loop_true_source_attempt_for_test(
+    let attempt = issue_loop_true_source_attempt_v1(
         input,
         root,
         source,

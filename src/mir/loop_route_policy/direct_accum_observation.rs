@@ -23,8 +23,7 @@ pub(crate) struct DirectAccumObservationContextV1 {
 struct DirectAccumObservationContextSealV1;
 
 impl DirectAccumObservationContextV1 {
-    #[cfg(test)]
-    pub(crate) fn for_test(
+    pub(crate) const fn issue(
         identity: DirectAccumSourceIdentityV1,
         mode: Option<DirectAccumObservationModeV1>,
         coverage: DirectAccumObservationCoverageV1,
@@ -35,6 +34,15 @@ impl DirectAccumObservationContextV1 {
             coverage,
             _seal: DirectAccumObservationContextSealV1,
         }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn for_test(
+        identity: DirectAccumSourceIdentityV1,
+        mode: Option<DirectAccumObservationModeV1>,
+        coverage: DirectAccumObservationCoverageV1,
+    ) -> Self {
+        Self::issue(identity, mode, coverage)
     }
 
     pub(crate) fn identity(&self) -> &DirectAccumSourceIdentityV1 {
@@ -107,6 +115,15 @@ impl VerifiedDirectAccumFamilyCandidateV1 {
 
     pub(crate) const fn evidence(&self) -> &DirectAccumObservationEvidenceV1 {
         &self.evidence
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedDirectAccumSingletonObservationV1,
+        DirectAccumObservationEvidenceV1,
+    ) {
+        (self.observation, self.evidence)
     }
 }
 
