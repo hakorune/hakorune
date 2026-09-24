@@ -259,3 +259,79 @@ returns to design — it does not grow a profile adapter.
   `builder.rs:448-559` test bridges are compile-blocking on scheduler
   removal and are therefore part of the atomic diff, recorded here so
   the flip commit plans them explicitly.
+
+## P1 recon notes (recorded 2026-09-24, before spine construction)
+
+### Verified inventory
+
+- Five per-family `Verified*SourceAttemptV1` issuers exist ONLY as
+  `#![cfg(test)]` adapters in `src/mir/compiler/{direct_accum,nested_
+  predicate,loop_true_break_continue,loop_cond_break_continue,
+  generic_g0}_observation.rs` — each wraps a production projector
+  (`issue_*_facts_from_source_v1`, `pub(crate)`, not test-gated) and
+  maps its reject enums to `Declined`/`Unresolved`/`Rejected` attempt
+  outcomes. P1 promotes (or production-twins) these five.
+- `select_canonical_loop_family_v1(window, unit_coverage)` at
+  `loop_route_policy/family_selector.rs:147` — outcome =
+  `Selected | NoCandidate(all declined) | Rejected(Overlap |
+  CoverageIdentityMismatch | CoverageBackedWithoutCandidate)`.
+- `issue_all_route_observation_set_v1` (`all_route_observation.rs:138`)
+  seals exactly 19 canonical-order rows; **at most one**
+  `RecipeBacked` row (`MultipleRecipeBacked` reject). The caller must
+  produce all 19 route outcomes — no real-source driver exists yet;
+  S6G tests hand-build rows.
+- `ATTESTED_RECIPE_BACKED_V1` (same file) maps 8 routes to producers:
+  `LoopBreakRecipe`->VariableAccumBreakV1, `LoopSimpleWhile`->
+  VariableAccumRecurrenceV1, `ScanWithInit`->ScanWithInitV2,
+  `AccumConstLoop`->DirectAccumV1, `NestedLoopMinimal`->
+  NestedPredicateV1, `LoopTrueBreakContinue`->LoopTrueBreakContinueV1,
+  `LoopCondBreakContinue`->LoopCondBreakContinueV1, `GenericLoopV1`->
+  GenericResidualV1.
+
+### Open questions P1 must resolve (bounded)
+
+- **Family<->route correspondence**: the window has 5 families
+  (`DirectAccum, NestedPredicate, LoopTrueBreakContinue,
+  LoopCondBreakContinue, GenericG0`) but 8 attested routes. Which
+  family admits `LoopBreakRecipe` (VariableAccumBreak),
+  `LoopSimpleWhile` (VariableAccumRecurrence), and `ScanWithInit`
+  (ScanWithInitV2)? Resolve empirically: run the five attempt issuers
+  against each attested fixture's loop site; record the mapping as a
+  named table in the spine module — never guess.
+- **Route-row production**: for each loop site, the 19 route rows must
+  be produced truthfully — `RecipeBacked` only for the row the
+  selected family owns (per the correspondence table),
+  `PreEffectDeclined(reason)` for all others. The route-set and the
+  family window independently detect overlap; they must never
+  disagree.
+- **Per-family node demand**: the winner `Selected(family)` -> family
+  Recipe demand -> producer. The Generic demand precedent is
+  `VerifiedGenericRecipeDemandV1` (function-level); node-level demand
+  types for DirectAccum/NestedPredicate/LoopTrue/LoopCond are the
+  construction surface. `VerifiedSelectedLoopRecipeDemandV1`
+  (19-route) stays excluded.
+- **Builder-side bridge**: `VerifiedResolvedFunctionV1` /
+  `ResolvedFunctionLoweringInputV1` reach the node level today only
+  through the callable ledger (`normal_callable_semantic_lowering_
+  state`, `normal_callable_dynamic_source.rs:346`). In Compatibility
+  mode there is no ledger; `resolved_binding_state`
+  (`function_lowering_state.rs:190`) is the candidate install point.
+  Whether P1's spine runs at compiler level (against
+  `ResolvedFunctionLoweringInputV1`, then bridged) or directly in the
+  builder is fixed when the first spine test is written — record the
+  choice in this card.
+- **`LoopRoutePolicySourceDeclineReasonV1` vocabulary**: confirm the
+  per-route decline reasons cover "family owns another route" and
+  "no portable owner" without inventing new reason kinds.
+
+### P1 Done boundary (bounded)
+
+- Spine function(s) caller-zero: located loop site + resolved
+  function -> lease -> five attempts -> five rows -> window ->
+  coverage -> selector -> `Selected(family)`/typed decline -> family
+  demand -> producer -> `VerifiedLoopRecipe`.
+- The family<->route correspondence table recorded + enforced.
+- Focused positive (per attested fixture family) and negative
+  (foreign lease, missing row, dual candidate, unsealed mode) tests.
+- No `route_loop` edit, no production caller, no manifest deletion —
+  all inside R0.
