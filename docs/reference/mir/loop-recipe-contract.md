@@ -675,6 +675,24 @@ subtree. The D1 amendment records the current executable `.hako` subset
 boundary (no method calls, no Map/Array literals) under which the
 DTO/emitter split is deferred.
 
+Reference receipt — `SELFHOST-LOOP-M8A-RECURRENCE-PARITY-S7B1`
+(2026-09-24): the first S7B wire-coverage cohort adds
+`loop_recipe/emit_m8a_recurrence_wire.hako`, which emits the canonical
+M8A `LoopRecipeArtifactV1` — `variable_accum_recurrence_v1` provenance,
+source path `body_item(2)`, bound 4, `acc += i`, `i += 1` — as one
+compact JSON line. The emission is checked in at
+`fixtures/hako_loop_recipe_wire_m8a_v1.json`; the parity harness now
+rebuilds the same artifact through the producer's own issuer calls
+(resolver facts -> `bind_resolved_loop_root_v1` ->
+`recurrence_recipe(bound, delta)` -> provenance) and asserts all three
+normalizations equal, plus `normalize_semantic` equality with the real
+`produce_variable_accum_recurrence_recipe_v1` product and a
+foreign-provenance drift negative. `recurrence_recipe` is `pub(super)`
+so the harness reuses the producer's recipe issuer. The producer half
+of the M9 Change clause stays deferred behind a named `.hako`
+execution-mechanism row; no producer port, Facts, verifier, physical
+MIR, production caller, hostbridge, or V2 wire was added.
+
 Reference receipt — `LOOP-JOINSIG-NESTED-SHADOW-S0` (2026-08-06): visible
 carrier projection now walks the verified Recipe parent chain from the target
 loop toward the root, keeps the first `LoopBindingKeyV1` for each binding, and

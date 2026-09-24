@@ -1,0 +1,110 @@
+// emit_m8a_recurrence_wire.hako
+// S7B1 wire-coverage cohort: canonical stdout entry for the M8A recurrence
+// family's LoopRecipeArtifactV1 (provenance variable_accum_recurrence_v1).
+//
+// Emits the canonical M8A artifact as a single compact JSON line. The target
+// is the artifact the Rust producer produce_variable_accum_recurrence_recipe_v1
+// yields for the bounded source profile
+//   main() { local i = 0; local acc = 0; loop(i < 4) { acc = acc + i;
+//            i = i + 1 }; print(acc); return 0 }
+// (loop at root body item index 2; bound 4; step +1; acc += i).
+// Caller-zero: nothing invokes this entry from production routing.
+//
+// Boundary note (S7A D1, carried by the S7B1 card): the current executable
+// `.hako` subset admits only scalar/string locals, `+` concat, loop/if, print,
+// and return inside `Main.main()`. The artifact is therefore assembled here
+// from named string-fragment locals in fixed serde field order. This entry is
+// a wire-coverage emitter, not a producer: it reads no input and claims no
+// Facts/RoutePolicy/JoinSig port (see README.md).
+//
+// Field names and tagged kinds mirror src/mir/loop_recipe_contract/schema.rs
+// (serde, `tag = "kind"`, snake_case). Emission order is the serde field
+// order; no map-key iteration exists on this path, so bytes are
+// deterministic.
+
+static box Main {
+  main() {
+    // ---- operations ---------------------------------------------------
+    local op_const_4    = "{\"kind\":\"const_i64\",\"result\":3,\"value\":4}"
+    local op_read_i     = "{\"kind\":\"read_binding\",\"binding\":0,\"result\":2}"
+    local op_cmp_less   = "{\"kind\":\"compare_i64\",\"op\":\"less\",\"left\":2,\"right\":3,\"result\":4}"
+    local op_read_acc   = "{\"kind\":\"read_binding\",\"binding\":1,\"result\":5}"
+    local op_read_i2    = "{\"kind\":\"read_binding\",\"binding\":0,\"result\":6}"
+    local op_add_acc_i  = "{\"kind\":\"binary_i64\",\"op\":\"add\",\"left\":5,\"right\":6,\"result\":7}"
+    local op_write_acc  = "{\"kind\":\"write_binding\",\"binding\":1,\"value\":7}"
+    local op_read_i3    = "{\"kind\":\"read_binding\",\"binding\":0,\"result\":8}"
+    local op_const_1    = "{\"kind\":\"const_i64\",\"result\":9,\"value\":1}"
+    local op_add_i_1    = "{\"kind\":\"binary_i64\",\"op\":\"add\",\"left\":8,\"right\":9,\"result\":10}"
+    local op_write_i    = "{\"kind\":\"write_binding\",\"binding\":0,\"value\":10}"
+
+    // ---- item rows ------------------------------------------------------
+    local items = "[" +
+      "{\"key\":0,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_4 + "}}," +
+      "{\"key\":1,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_i + "}}," +
+      "{\"key\":2,\"item\":{\"kind\":\"operation\",\"operation\":" + op_cmp_less + "}}," +
+      "{\"key\":3,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_acc + "}}," +
+      "{\"key\":4,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_i2 + "}}," +
+      "{\"key\":5,\"item\":{\"kind\":\"operation\",\"operation\":" + op_add_acc_i + "}}," +
+      "{\"key\":6,\"item\":{\"kind\":\"operation\",\"operation\":" + op_write_acc + "}}," +
+      "{\"key\":7,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_i3 + "}}," +
+      "{\"key\":8,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_1 + "}}," +
+      "{\"key\":9,\"item\":{\"kind\":\"operation\",\"operation\":" + op_add_i_1 + "}}," +
+      "{\"key\":10,\"item\":{\"kind\":\"operation\",\"operation\":" + op_write_i + "}}" +
+      "]"
+
+    // ---- loop node / blocks ---------------------------------------------
+    local condition = "{\"kind\":\"predicate\",\"block\":0,\"value\":4}"
+    local loops = "[" +
+      "{\"key\":0,\"parent\":null,\"condition\":" + condition + ",\"body\":1}" +
+      "]"
+    local blocks = "[" +
+      "{\"key\":0,\"owner_loop\":0,\"items\":[0,1,2]}," +
+      "{\"key\":1,\"owner_loop\":0,\"items\":[3,4,5,6,7,8,9,10]}" +
+      "]"
+
+    // ---- bindings / values / carriers ------------------------------------
+    local bindings = "[" +
+      "{\"key\":0,\"label\":\"induction\",\"class\":\"i64\"}," +
+      "{\"key\":1,\"label\":\"accumulator\",\"class\":\"i64\"}" +
+      "]"
+    local values = "[" +
+      "{\"key\":0,\"class\":\"i64\"},{\"key\":1,\"class\":\"i64\"}," +
+      "{\"key\":2,\"class\":\"i64\"},{\"key\":3,\"class\":\"i64\"}," +
+      "{\"key\":4,\"class\":\"bool\"},{\"key\":5,\"class\":\"i64\"}," +
+      "{\"key\":6,\"class\":\"i64\"},{\"key\":7,\"class\":\"i64\"}," +
+      "{\"key\":8,\"class\":\"i64\"},{\"key\":9,\"class\":\"i64\"}," +
+      "{\"key\":10,\"class\":\"i64\"}" +
+      "]"
+    local carriers = "[" +
+      "{\"key\":0,\"owner_loop\":0,\"binding\":0,\"class\":\"i64\",\"entry_value\":0}," +
+      "{\"key\":1,\"owner_loop\":0,\"binding\":1,\"class\":\"i64\",\"entry_value\":1}" +
+      "]"
+
+    // ---- recipe ------------------------------------------------------------
+    local recipe = "{\"root_loop\":0," +
+      "\"loops\":" + loops + "," +
+      "\"blocks\":" + blocks + "," +
+      "\"items\":" + items + "," +
+      "\"bindings\":" + bindings + "," +
+      "\"values\":" + values + "," +
+      "\"inputs\":[0,1]," +
+      "\"carriers\":" + carriers + "," +
+      "\"exits\":[]}"
+
+    // ---- provenance / source_binding ----------------------------------------
+    local provenance = "{\"producer_id\":\"variable_accum_recurrence_v1\"}"
+    local owner = "{\"kind\":\"function_body\",\"compilation_unit_ordinal\":0,\"function_ordinal\":0}"
+    local path = "{\"steps\":[{\"kind\":\"body_item\",\"index\":2}]}"
+    local source_binding = "{\"owner\":" + owner + "," +
+      "\"loops\":[{\"loop_key\":0,\"path\":" + path + "}]}"
+
+    // ---- artifact -------------------------------------------------------------
+    local artifact = "{\"schema_version\":1," +
+      "\"provenance\":" + provenance + "," +
+      "\"source_binding\":" + source_binding + "," +
+      "\"recipe\":" + recipe + "}"
+
+    print(artifact)
+    return 0
+  }
+}

@@ -106,7 +106,7 @@ pub(crate) fn produce_variable_accum_recurrence_recipe_v1(
     })
 }
 
-fn recurrence_recipe(bound: i64, delta: i64) -> LoopRecipeV1 {
+pub(super) fn recurrence_recipe(bound: i64, delta: i64) -> LoopRecipeV1 {
     let loop_key = LoopNodeKeyV1::new(0);
     let condition_block = LoopBlockKeyV1::new(0);
     let body_block = LoopBlockKeyV1::new(1);
