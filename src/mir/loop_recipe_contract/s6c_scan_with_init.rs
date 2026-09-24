@@ -220,7 +220,13 @@ pub(crate) struct S6CVerifiedRecipeReadViewV2<'a> {
     recipe: &'a VerifiedLoopRecipeV2,
 }
 
-impl S6CVerifiedRecipeReadViewV2<'_> {
+impl<'a> S6CVerifiedRecipeReadViewV2<'a> {
+    /// Read-only escape for the producer-owned recipe; callers receive a
+    /// borrow, never the `VerifiedLoopRecipeV2` itself.
+    pub(crate) fn as_recipe(self) -> &'a LoopRecipeV2 {
+        self.recipe.as_recipe()
+    }
+
     pub(crate) fn root_loop(self) -> LoopNodeKeyV1 {
         self.recipe.root_loop()
     }
@@ -392,7 +398,7 @@ fn fixed_roles() -> VerifiedS6CScanWithInitRecipeRolesV2 {
     }
 }
 
-fn build_recipe() -> LoopRecipeV2 {
+pub(super) fn build_recipe() -> LoopRecipeV2 {
     let b = LoopBindingKeyV1::new(0);
     let v = |raw| LoopValueKeyV1::new(raw);
     let i = |raw| LoopItemKeyV1::new(raw);

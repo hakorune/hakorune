@@ -11,23 +11,36 @@ Owner boundary
   canonical M8B `variable_accum_break_v1` artifact for the bounded
   profile `loop(i < 10) { if(i == 5) { sum += 10; break }; sum += 1;
   i += 1 }` at root body item index 2 — covering the `If` item, the
-  `Exit` item, and a non-empty `exits` table with one break row.
+  `Exit` item, and a non-empty `exits` table with one break row;
+  `emit_m8c_scans_wire.hako` (S7B3) emits the canonical M8C
+  `LoopRecipeArtifactV2` (`schema_version` 2, `scan_with_init_v2`
+  provenance) for the bounded `find_ok` profile
+  (`apps/tests/scan_with_init_typed_ok_min.hako`) with the loop at
+  body item index 1 — the first V2 wire row, covering `call_slot`,
+  `text_eq`, `text` value class, and a `return` exit kind.
   Each entry assembles its artifact from named
   string-fragment locals in fixed serde field order and prints it as
   one compact JSON line to stdout. Field names and tagged kinds mirror
-  `src/mir/loop_recipe_contract/schema.rs` exactly.
+  `src/mir/loop_recipe_contract/schema.rs` (V1) and `schema_v2.rs`
+  (V2) exactly.
 - The Rust decode/verify/normalize owner remains
   `LoopRecipeNormalizerV1` (`src/mir/loop_recipe_contract/normalize.rs`);
   the parity harness lives in
   `src/mir/loop_recipe_contract/wire_parity_tests.rs` and consumes the
   checked-in emissions at
   `src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_v1.json`,
-  `hako_loop_recipe_wire_m8a_v1.json`, and
-  `hako_loop_recipe_wire_m8b_v1.json`. The M8A arm compares against
+  `hako_loop_recipe_wire_m8a_v1.json`,
+  `hako_loop_recipe_wire_m8b_v1.json`, and
+  `hako_loop_recipe_wire_m8c_v2.json`. The M8A arm compares against
   the artifact the real Rust producer
   `produce_variable_accum_recurrence_recipe_v1` yields for the same
   bounded source profile; the M8B arm compares against
-  `produce_variable_accum_break_recipe_v1` likewise.
+  `produce_variable_accum_break_recipe_v1` likewise; the M8C arm
+  compares against the artifact rebuilt through the M8C producer's
+  own issuer calls (`build_recipe` -> `bind_verified_artifact`) and
+  anchors `normalize_semantic` on the real
+  `produce_s6c_scan_with_init_recipe_v2` product via
+  `LoopRecipeNormalizerV2`.
 
 Non-goals (must not grow here)
 - No producer cohort, Facts, RoutePolicy, JoinSig elaboration, verifier,
@@ -41,8 +54,9 @@ Non-goals (must not grow here)
   `lang/src/selfhost/mir_builder/**` (scaffold). No hostbridge or host
   callback; `tools/checks/hako_mirbuilder_no_hostbridge.sh` covers this
   subtree.
-- No `LoopRecipeArtifactV2` wiring (V2 belongs to the S7B ScanWithInit
-  cohort row).
+- The `LoopRecipeArtifactV2` row landed at S7B3 as wire coverage only:
+  `emit_m8c_scans_wire.hako` emits the canonical artifact; no `.hako`
+  V2 producer, Facts, or verifier exists here.
 
 Executable-subset boundary (S7A D1 finding)
 - On current HEAD the plain `.hako` execution paths (`--backend vm`,
@@ -75,6 +89,9 @@ Regenerating the checked-in emissions
 ./target/debug/hakorune --backend vm \
   lang/src/mir/builder/loop_recipe/emit_m8b_break_wire.hako \
   > src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_m8b_v1.json
+./target/debug/hakorune --backend vm \
+  lang/src/mir/builder/loop_recipe/emit_m8c_scans_wire.hako \
+  > src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_m8c_v2.json
 ```
 Each emission is one compact JSON line; the harness compares
 `decode_and_verify` + `normalize_*` products, not raw formatting.

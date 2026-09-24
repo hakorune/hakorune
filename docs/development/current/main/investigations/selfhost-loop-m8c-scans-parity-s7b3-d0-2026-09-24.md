@@ -1,13 +1,12 @@
 ---
-Status: design__2026-09-24__d0_wire_coverage_cohort
+Status: landed__2026-09-24__wire_coverage_cohort
 Task: SELFHOST-LOOP-M8C-SCANS-PARITY-S7B3
 Date: 2026-09-24
 Parent: SELFHOST-LOOP-M8B-EXITS-JOINS-PARITY-S7B2 (landed)
 PreviousCard: selfhost-loop-m8b-exits-joins-parity-s7b2-d0-2026-09-24.md
 NextCard: frontier-pause__family_scheduler_reselection
-Implementation permission: false; name the owners to extend and fix the
-bounded implementation slice only. No code, no fixture, no
-route/caller change, no new semantic receipt from this card.
+Implementation permission: landed as designed; the wire-coverage cohort
+contract and all non-claims are unchanged.
 ---
 
 # SELFHOST-LOOP-M8C-SCANS-PARITY-S7B3 — D0 wire-coverage cohort design
@@ -226,3 +225,71 @@ one commit): `ScanWithInitV2` producer-id variant +
 `.hako` M8C entry + checked-in emission fixture + parity-harness
 extension + README/manifest/reference sync + focused tests + doc
 closeout.
+
+## Landed evidence (2026-09-24)
+
+```text
+lang/src/mir/builder/loop_recipe/emit_m8c_scans_wire.hako —
+  single-file caller-zero entry; emits the canonical M8C
+  LoopRecipeArtifactV2 (schema_version 2, provenance
+  scan_with_init_v2, source path body_item(1); 15 items incl. two
+  call_slot ops, one text_eq, If at key 8, Exit at key 10; 3 blocks;
+  15 values incl. text/bool classes; 3 inputs; 1 carrier; one
+  return exit carrying value 11) as one compact JSON line in serde
+  field order — verified byte-identical to the Rust-issuer artifact
+src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_m8c_v2.json —
+  checked-in stdout emission (one line; byte-identical to a fresh
+  ./target/debug/hakorune --backend vm run)
+src/mir/loop_recipe_contract/normalize.rs — LoopRecipeNormalizerV2 +
+  LoopRecipeDecodeErrorV2 + LoopRecipeSourceBoundViewV2 sibling, the
+  named V2 decode/verify/normalize owner (V1 path untouched)
+src/mir/loop_recipe_contract/producer_id.rs — ScanWithInitV2 variant
+  (wire key "scan_with_init_v2"); producer_id_migration_tests.rs
+  receipt row updated to Some(ScanWithInitV2) and the pinned
+  roundtrip list extended
+src/mir/loop_recipe_contract/s6c_scan_with_init.rs — build_recipe
+  promoted to pub(super) (same precedent as recurrence_recipe /
+  break_recipe); S6CVerifiedRecipeReadViewV2::as_recipe read-only
+  accessor for the producer-product semantic anchor
+src/mir/loop_recipe_contract/s6c_scan_with_init_tests.rs —
+  issue_facts_and_loop_source pub(super) sibling returning the
+  resolver-owned VerifiedResolvedLoopSourceV1 alongside facts
+src/mir/loop_recipe_contract/wire_parity_tests.rs — 6 new M8C tests
+  (26 wire-parity total): decode_and_verify + all three V2
+  normalizations equal vs the artifact rebuilt through the
+  producer's own issuer calls (build_recipe -> verify ->
+  bind_resolved_loop_root_v1 + into_root_claim_v2 ->
+  bind_verified_artifact, compilation_unit_ordinal 0); real
+  produce_s6c_scan_with_init_recipe_v2 product normalize_semantic
+  anchor; V2 provenance/schema round-trip; call_slot/text_eq/If/
+  Exit coverage asserts; determinism; foreign-provenance drift;
+  wrong-schema_version typed reject
+src/mir/loop_route_policy/all_route_observation.rs —
+  ScanWithInitV2 backing doc refreshed for the new provenance
+  variant
+lang/src/mir/hako_module.toml — exports
+  builder.loop_recipe.emit_m8c_scans_wire
+lang/src/mir/builder/loop_recipe/README.md — M8C entry row, V2
+  reservation retired as landed wire coverage, regeneration commands
+```
+
+Gates: `cargo test --lib mir::loop_recipe_contract` 214/214 green;
+`cargo test --lib loop_recipe_contract::s6c` 14/14 green;
+`cargo test --lib producer_id_migration` 4/4 green;
+`cargo test --lib loop_route_policy` 91/91 green;
+`bash tools/checks/hako_mirbuilder_no_hostbridge.sh` OK;
+`bash tools/checks/current_state_pointer_guard.sh` OK.
+
+Baseline debt (pre-existing, reproduced on parent 7905cca74a):
+three `mir::builder::*` tests fail with
+`selected child coverage: ObjectDefinitionsNotConsumed`
+(`pinned_text_invocation_binding`, `common_v2_s6c_substring_
+callout_admission`, `s6c_substring_v9_issuer`) — outside this
+slice's change surface; recorded, not fixed here.
+
+Non-claims retained: caller-zero; no `.hako` producer, Facts/
+RoutePolicy/JoinSig port, verifier, CFG/PHI, physical MIR,
+production caller, hostbridge, input reading, or V1 artifact for
+this family; `scan_with_init_v2` names the claimed schema family,
+not a `.hako` production receipt or selector input; no M9 parity
+claim (S7G); no Row F unblock; no legacy deletion.

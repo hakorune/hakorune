@@ -299,7 +299,10 @@ pub(crate) use loop_true_break_continue_producer::{
     VerifiedLoopTrueBreakContinueRecipeProductV1,
 };
 #[allow(unused_imports)]
-pub(crate) use normalize::{LoopRecipeDecodeErrorV1, LoopRecipeNormalizerV1};
+pub(crate) use normalize::{
+    LoopRecipeDecodeErrorV1, LoopRecipeDecodeErrorV2, LoopRecipeNormalizerV1,
+    LoopRecipeNormalizerV2,
+};
 #[allow(unused_imports)]
 pub(crate) use operation_carrier_demand::PreparedLoopDerivedCarrierSeedRowV1;
 #[allow(unused_imports)]

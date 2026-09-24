@@ -11,6 +11,7 @@ use crate::mir::loop_structural_facts::{
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
 use crate::mir::resolved_semantics::{
     CoreMethodInstanceTargetIssuerV1, FunctionSemanticResolverSessionV1,
+    VerifiedResolvedLoopSourceV1,
 };
 use crate::mir::source_call_target::issue_source_bound_s6c_call_relation_v1;
 use crate::parser::{NyashParser, ParserBuildConfig};
@@ -31,6 +32,19 @@ pub(super) fn issue_facts(
     source: &str,
     ordinal: u32,
 ) -> crate::mir::loop_structural_facts::VerifiedS6CScanWithInitFactsV1 {
+    issue_facts_and_loop_source(source, ordinal).0
+}
+
+/// The same issuance chain as `issue_facts`, additionally returning the
+/// resolver-owned resolved Loop source token so wire-level callers can run
+/// `bind_resolved_loop_root_v1` + `into_root_claim_v2` without re-parsing.
+pub(super) fn issue_facts_and_loop_source(
+    source: &str,
+    ordinal: u32,
+) -> (
+    crate::mir::loop_structural_facts::VerifiedS6CScanWithInitFactsV1,
+    VerifiedResolvedLoopSourceV1,
+) {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         source,
         ParserBuildConfig::default(),
@@ -51,7 +65,7 @@ pub(super) fn issue_facts(
         .with_lowering_input(0, verify_function_completion_v1)
         .unwrap()
         .unwrap();
-    let coseal = batch
+    let (coseal, loop_source) = batch
         .with_declaration_semantics(|view| {
             let row = &view.declarations()[0];
             let loop_site = row.function().only_loop_site().unwrap();
@@ -72,13 +86,22 @@ pub(super) fn issue_facts(
                 let calls =
                     issue_source_bound_s6c_call_relation_v1(&ledger, typed, length, substring)
                         .unwrap();
-                issue_s6c_exit_tail_source_coseal_v1(&ledger, calls, completion)
+                let loop_source = ledger
+                    .resolved_loop_source(&loop_site)
+                    .expect("resolver loop source")
+                    .into_parts()
+                    .0;
+                (
+                    issue_s6c_exit_tail_source_coseal_v1(&ledger, calls, completion),
+                    loop_source,
+                )
             })
             .unwrap()
         })
         .unwrap();
-    issue_s6c_scan_with_init_facts_v1(coseal.expect("Exit/Tail source co-seal"))
-        .expect("closed S6C Facts")
+    let facts = issue_s6c_scan_with_init_facts_v1(coseal.expect("Exit/Tail source co-seal"))
+        .expect("closed S6C Facts");
+    (facts, loop_source)
 }
 
 #[test]

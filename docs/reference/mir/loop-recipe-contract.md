@@ -713,6 +713,29 @@ the M9 Change clause stays deferred behind a named `.hako`
 execution-mechanism row; no producer port, Facts, verifier, physical
 MIR, production caller, hostbridge, or V2 wire was added.
 
+Reference receipt — `SELFHOST-LOOP-M8C-SCANS-PARITY-S7B3`
+(2026-09-24): the third S7B wire-coverage cohort is the first V2 row.
+`loop_recipe/emit_m8c_scans_wire.hako` emits the canonical M8C
+`LoopRecipeArtifactV2` — `schema_version` 2, `scan_with_init_v2`
+provenance, source path `body_item(1)` — as one compact JSON line,
+covering `call_slot`, `text_eq`, `text`/`bool` value classes, and a
+`return` exit kind for the bounded `find_ok` profile. The emission is
+checked in at `fixtures/hako_loop_recipe_wire_m8c_v2.json`.
+`LoopRecipeNormalizerV2` in `normalize.rs` is the named V2
+decode/verify/normalize owner (V1 path untouched);
+`LoopRecipeProducerIdV1` gains the `ScanWithInitV2` variant in the
+shared provenance vocabulary. The parity harness rebuilds the artifact
+through the producer's own issuer calls (`build_recipe` ->
+`LoopRecipeVerifierV2::verify` -> `bind_resolved_loop_root_v1` +
+`into_root_claim_v2` -> `bind_verified_artifact`) and asserts all three
+V2 normalizations equal, plus `normalize_semantic` equality with the
+real `produce_s6c_scan_with_init_recipe_v2` product, a
+foreign-provenance drift negative, and a wrong-`schema_version` typed
+reject. `build_recipe` is `pub(super)` and the product read view
+exposes `as_recipe()`. No producer port, Facts, verifier, physical
+MIR, production caller, hostbridge, or V1 artifact for this family
+was added.
+
 Reference receipt — `LOOP-JOINSIG-NESTED-SHADOW-S0` (2026-08-06): visible
 carrier projection now walks the verified Recipe parent chain from the target
 loop toward the root, keeps the first `LoopBindingKeyV1` for each binding, and

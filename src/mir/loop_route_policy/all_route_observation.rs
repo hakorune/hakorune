@@ -23,7 +23,7 @@ use super::schema::CANONICAL_LOOP_ROUTE_ORDER_V1;
 ///
 /// `PortableProducer` names a `LoopRecipeV1` producer id; `ScanWithInitV2`
 /// names the S6C forward ScanWithInit cohort, whose product rides the V2
-/// wire and carries no `LoopRecipeProducerIdV1`.
+/// wire. Its wire provenance is `LoopRecipeProducerIdV1::ScanWithInitV2`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LoopRouteRecipeBackingV1 {
     PortableProducer(LoopRecipeProducerIdV1),

@@ -1,9 +1,9 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "SELFHOST-LOOP-M8C-SCANS-PARITY-S7B3"
 current_execution_cohort = "loop_s7b_wire_coverage"
-current_blocker_token = "SELFHOST-LOOP-M8C-SCANS-PARITY-S7B3__CohortDesignOpen"
+current_blocker_token = "SELFHOST-LOOP-M8C-SCANS-PARITY-S7B3__WireCoverageLanded"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "S7B3Cohort__M8CScansV2WireCoverage__CardOnly_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -18,30 +18,33 @@ current_execution_design = "docs/development/current/main/investigations/selfhos
 latest_card = "selfhost-loop-m8c-scans-parity-s7b3"
 latest_card_path = "docs/development/current/main/investigations/selfhost-loop-m8c-scans-parity-s7b3-d0-2026-09-24.md"
 latest_card_summary = """
-S7B3 wire-coverage cohort D0 card open (caller-zero) — first
-LoopRecipeArtifactV2 row. Bounded slice: a fourth .hako stdout
-entry under lang/src/mir/builder/loop_recipe/ emitting the
-canonical M8C V2 artifact (schema_version 2, provenance
-scan_with_init_v2; bounded profile find_ok loop at
-body_item(1); 15 items, 3 blocks, 15 values, first
-call_slot/text_eq/text-class/return-exit coverage) as one
-compact JSON line; checked-in fixture; new
-LoopRecipeNormalizerV2 sibling named as V2 decode/normalize
-owner; parity harness compares against the artifact rebuilt
-through the producer's own issuer calls (build_recipe ->
-bind_resolved_loop_root_v1 + into_root_claim_v2 ->
-bind_verified_artifact) plus a semantic anchor on the real
-produce_s6c_scan_with_init_recipe_v2 product. One
-LoopRecipeProducerIdV1 variant (ScanWithInitV2) added; no V2
-producer enum invented. Non-claims: no .hako producer/Facts/
-JoinSig port/verifier/CFG-PHI/physical MIR, no input reading,
-no hostbridge, no V1 artifact for this family, no M9 parity
-claim, no Row F unblock, no legacy deletion.
+S7B3 M8C wire-coverage cohort landed caller-zero — first
+LoopRecipeArtifactV2 row.
+loop_recipe/emit_m8c_scans_wire.hako emits the canonical V2
+artifact (schema_version 2, scan_with_init_v2, body_item(1);
+15 items incl. call_slot x2 + text_eq + If + Exit; return
+exit) as one compact JSON line; checked in at
+fixtures/hako_loop_recipe_wire_m8c_v2.json (byte-identical to
+fresh emission). LoopRecipeNormalizerV2 named as V2
+decode/verify/normalize owner; ScanWithInitV2 producer-id
+variant added; build_recipe pub(super) + read-view as_recipe;
+issue_facts_and_loop_source sibling. wire_parity_tests.rs
+gains 6 M8C tests (26 total): all three V2 normalizations
+equal vs producer-issuer artifact, real
+produce_s6c_scan_with_init_recipe_v2 semantic anchor, V2
+round-trip, determinism, drift + wrong-version rejects.
+loop_recipe_contract 214/214, s6c 14/14, producer_id 4/4,
+route_policy 91/91, guards green; 3 mir::builder s6c failures
+are baseline debt (reproduced on parent). Producer half of M9
+stays deferred. Non-claims: caller-zero; no producer port/
+Facts/verifier/CFG-PHI/physical MIR/input/hostbridge/V1
+artifact for this family; no M9 parity claim; no Row F
+unblock; no legacy deletion.
 """
 next_design_card = "SELFHOST-LOOP-M8C-SCANS-PARITY-S7B3"
 next_design_card_path = "docs/development/current/main/investigations/selfhost-loop-m8c-scans-parity-s7b3-d0-2026-09-24.md"
-next_execution_card = "none__design_only__s7b3_cohort_card"
-next_execution_card_path = "none"
+next_execution_card = "SELFHOST-LOOP-M8C-SCANS-PARITY-S7B3"
+next_execution_card_path = "docs/development/current/main/investigations/selfhost-loop-m8c-scans-parity-s7b3-d0-2026-09-24.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

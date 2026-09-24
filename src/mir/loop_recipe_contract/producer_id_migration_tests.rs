@@ -56,7 +56,7 @@ const RECEIPTS: &[LegacyRouteParityReceiptV1] = &[
     },
     LegacyRouteParityReceiptV1 {
         legacy_route: LoopRouteId::ScanWithInit,
-        producer_id: None,
+        producer_id: Some(LoopRecipeProducerIdV1::ScanWithInitV2),
         disposition: "portable_v2_producer",
     },
     LegacyRouteParityReceiptV1 {
@@ -186,6 +186,7 @@ fn producer_id_wire_keys_roundtrip_without_legacy_route_names() {
         LoopRecipeProducerIdV1::Main0InBodyStepV1,
         LoopRecipeProducerIdV1::Main0DerivedPredicateV1,
         LoopRecipeProducerIdV1::GenericResidualV1,
+        LoopRecipeProducerIdV1::ScanWithInitV2,
     ] {
         let json = serde_json::to_string(&producer_id).expect("producer id encodes");
         let decoded: LoopRecipeProducerIdV1 =
