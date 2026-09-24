@@ -240,7 +240,7 @@ impl RecipeEmitterV1 {
     }
 }
 
-fn generic_residual_recipe(
+pub(super) fn generic_residual_recipe(
     carrier: BindingRefV1,
     condition: &GenericResidualTypedCompareV1,
     body_rows: &[GenericResidualBodyRowV1],

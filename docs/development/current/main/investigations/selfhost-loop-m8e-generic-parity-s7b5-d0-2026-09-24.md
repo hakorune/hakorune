@@ -1,13 +1,12 @@
 ---
-Status: design__2026-09-24__d0_wire_coverage_cohort
+Status: landed__2026-09-24__wire_coverage_cohort
 Task: SELFHOST-LOOP-M8E-GENERIC-PARITY-S7B5
 Date: 2026-09-24
 Parent: SELFHOST-LOOP-M8D-LOOPCOND-PARITY-S7B4 (landed)
 PreviousCard: selfhost-loop-m8d-loopcond-parity-s7b4-d0-2026-09-24.md
 NextCard: frontier-pause__family_scheduler_reselection
-Implementation permission: false; name the owners to extend and fix the
-bounded implementation slice only. No code, no fixture, no
-route/caller change, no new semantic receipt from this card.
+Implementation permission: landed as designed; the wire-coverage cohort
+contract and all non-claims are unchanged.
 ---
 
 # SELFHOST-LOOP-M8E-GENERIC-PARITY-S7B5 — D0 wire-coverage cohort design
@@ -223,3 +222,59 @@ one commit): `generic_residual_recipe` visibility + producer-test
 helper reuse + `.hako` M8E entry + checked-in emission fixture +
 parity-harness extension + README/manifest/reference sync +
 focused tests + doc closeout.
+
+## Landed evidence (2026-09-24)
+
+```text
+lang/src/mir/builder/loop_recipe/emit_m8e_generic_wire.hako —
+  single-file caller-zero entry; emits the canonical M8E
+  LoopRecipeArtifactV1 (schema_version 1, provenance
+  generic_residual_v1, source path body_item(0); 8 items incl.
+  two boundary-binding reads in the condition block, a body-local
+  const declaration, and the carrier step + write; 2 blocks;
+  9 values; 2 bindings; inputs [0,1]; 2 carriers; no exits) as
+  one compact JSON line in serde field order — verified
+  byte-identical to the Rust-issuer artifact
+src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_m8e_v1.json —
+  checked-in stdout emission (one line; byte-identical to a fresh
+  ./target/debug/hakorune --backend vm run)
+src/mir/loop_recipe_contract/generic_residual_producer.rs —
+  generic_residual_recipe promoted to pub(super) (same precedent
+  as recurrence_recipe / break_recipe / build_recipe /
+  loop_cond_break_continue_recipe)
+src/mir/loop_recipe_contract/generic_residual_producer_tests.rs —
+  typed_map / target_cursor / schedule_with_winner / demand
+  promoted to pub(super) so the harness reuses the producer's
+  own issuer chain (resolver unit -> projection -> typed map ->
+  policy demand)
+src/mir/loop_recipe_contract/wire_parity_tests.rs — 5 new M8E
+  tests (36 wire-parity total): decode_and_verify + all three V1
+  normalizations equal vs the artifact rebuilt through the
+  producer's own issuer calls (typed_map into_parts ->
+  VerifiedLoopRootSourceV1 + carrier/condition/body_rows/
+  carrier_step -> generic_residual_recipe -> verify ->
+  into_root_claim -> GenericResidualV1 provenance); real
+  produce_generic_residual_recipe_v1 product normalize_semantic
+  anchor via its own demand issuer; V1 provenance/schema
+  round-trip; two-binding/two-carrier coverage asserts;
+  determinism; foreign-provenance drift
+lang/src/mir/hako_module.toml — exports
+  builder.loop_recipe.emit_m8e_generic_wire
+lang/src/mir/builder/loop_recipe/README.md — M8E entry row,
+  fixture list, regeneration command
+```
+
+Gates: `cargo test --lib mir::loop_recipe_contract` 224/224 green;
+`cargo test --lib generic_residual` 18/18 green;
+`cargo test --lib loop_route_policy` 91/91 green;
+`bash tools/checks/hako_mirbuilder_no_hostbridge.sh` OK;
+`bash tools/checks/current_state_pointer_guard.sh` OK.
+
+Non-claims retained: caller-zero; no `.hako` producer, Facts/
+RoutePolicy/JoinSig port, verifier, CFG/PHI, physical MIR,
+production caller, hostbridge, input reading, demand/schedule
+construction on the `.hako` side, or V2 artifact for this family;
+`generic_residual_v1` names the claimed schema family, not a
+`.hako` production receipt or selector input; no Generic residual
+coverage widening; no M9 parity claim (S7G); no Row F unblock; no
+legacy deletion.

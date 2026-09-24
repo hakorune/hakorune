@@ -762,6 +762,33 @@ producer port, Facts/RoutePolicy/JoinSig port, verifier, physical
 MIR, production caller, hostbridge, or V2 artifact for this family
 was added.
 
+Reference receipt — `SELFHOST-LOOP-M8E-GENERIC-PARITY-S7B5`
+(2026-09-24): the fifth and last S7B producer cohort lands on V1.
+`loop_recipe/emit_m8e_generic_wire.hako` emits the canonical M8E
+`LoopRecipeArtifactV1` — `generic_residual_v1` provenance, source
+path `body_item(0)` — as one compact JSON line for the bounded
+`generic_residual_function_for_test` profile
+(`generic_residual_projection(i, limit) { loop(i < limit)
+{ local tmp = 0; i = i + 1 } }`), covering the first bound-as-
+second-carrier-binding wire surface (two bindings, inputs `[0,1]`,
+two carriers) plus a body-local SSA declaration with no boundary
+write, and no exits. The emission is checked in at
+`fixtures/hako_loop_recipe_wire_m8e_v1.json`. The parity harness
+rebuilds the artifact through the producer's own issuer chain —
+the typed source map's `into_parts` carries the resolver-bound
+`VerifiedLoopRootSourceV1` plus carrier/condition/body_rows/
+carrier_step into `generic_residual_recipe` (now `pub(super)`),
+then `verify` -> `into_root_claim` -> `GenericResidualV1`
+provenance — and asserts all three normalizations equal, plus
+`normalize_semantic` equality with the real
+`produce_generic_residual_recipe_v1` product issued through its
+own policy-demand chain (producer-test helpers promoted to
+`pub(super)`), plus a foreign-provenance drift negative. No
+producer port, Facts/RoutePolicy/JoinSig port, verifier, physical
+MIR, production caller, hostbridge, or V2 artifact for this family
+was added. All five S7B producer wire cohorts are now covered
+(M8A–M8E); the all-route parity closeout row S7G remains.
+
 Reference receipt — `LOOP-JOINSIG-NESTED-SHADOW-S0` (2026-08-06): visible
 carrier projection now walks the verified Recipe parent chain from the target
 loop toward the root, keeps the first `LoopBindingKeyV1` for each binding, and
