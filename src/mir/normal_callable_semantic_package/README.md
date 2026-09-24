@@ -627,6 +627,13 @@ the clean Return/Jump and frame ownership but creates no unused Fault terminal.
 Home releases or terminal Call ingress still require their Fault path. Finishing
 does not discard unmapped recorded bindings to repair an emission mistake.
 
+An AppMain with no selected New, Map, receiver, or capture obligation can still
+carry a scalar root result. For an exact integer-literal return, the existing
+source Completion and `TerminalIntegerLiteralReturnV1` are retained together;
+the ordinary return surface consumes that relation even when no Home exit is
+opened. Artifact validation still checks the emitted constant and Return before
+the finalized handoff derives the I64 entry result.
+
 RootHomeExitProgress retains installed bindings, exact exit site, object ID and
 bound ValueId through emission. The existing ledger indexes this progress by
 FunctionOwnerIdV1, so AppMain and selected ordinary children cannot overwrite

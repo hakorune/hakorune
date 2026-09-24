@@ -3,9 +3,9 @@
 //! authority is issued here.
 use super::local_flow::{OrdinaryObservation, PrefixLocalFlow};
 use super::{
-    BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLexicalRefV1,
-    ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
-    SourceStmtSiteV1,
+    BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, HomePrefixUnavailableV1, OwnedExprSiteV1,
+    ResolvedLexicalRefV1, ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1,
+    SourceExprSiteV1, SourceStmtSiteV1,
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -128,6 +128,58 @@ impl TerminalIntegerLiteralReturnV1 {
     pub(crate) const fn value(&self) -> i64 {
         self.value
     }
+}
+
+/// Issue the exact scalar root result for an AppMain with no selected Home
+/// obligations. This uses the same verified completion and source loan as the
+/// caller; it does not scan or reinterpret unrelated prefix statements.
+pub(crate) fn issue_terminal_integer_literal_return_from_completion_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+) -> Result<Option<TerminalIntegerLiteralReturnV1>, HomePrefixUnavailableV1> {
+    if completion.owner() != input.owner() {
+        return Err(HomePrefixUnavailableV1::SourceMismatch);
+    }
+    let Some(return_site) = completion.explicit_site() else {
+        return Ok(None);
+    };
+    let body = input
+        .source()
+        .root_body()
+        .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)?;
+    let mut exact = None;
+    for index in 0..body.statements().len() {
+        let statement = input
+            .source()
+            .body_stmt(&body, index)
+            .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)?;
+        if statement.site() == return_site {
+            if exact.replace(statement).is_some() {
+                return Err(HomePrefixUnavailableV1::SourceMismatch);
+            }
+        }
+    }
+    let Some(statement) = exact else {
+        return Err(HomePrefixUnavailableV1::SourceMismatch);
+    };
+    if !matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) {
+        return Ok(None);
+    }
+    let value = input
+        .source()
+        .child_expr_from_stmt(&statement, ExprChildRoleV1::ReturnValue)
+        .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)?;
+    let Some(ResolvedLiteralSourceV1::Integer(integer)) =
+        input.function().expression_source().literal(value.site())
+    else {
+        return Ok(None);
+    };
+    Ok(Some(TerminalIntegerLiteralReturnV1::issue(
+        input.owner(),
+        return_site.clone(),
+        value.site().clone(),
+        *integer,
+    )))
 }
 
 /// Exact source relation for a Completion-backed explicit bare return.

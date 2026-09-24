@@ -78,6 +78,7 @@ pub(crate) use map_flow::{
     ArrayElementSource, MapDestinationV1, MapEntryBorrowKindV1, MapEntryStoreClassV1, MapHomeEntry,
     MapHomeFlow, MapHomeObservation, MapValueSource, RootHomeFlow,
 };
+pub(crate) use terminal_relation::issue_terminal_integer_literal_return_from_completion_v1;
 use terminal_relation::{
     map_literal_keys, return_scalar, terminal_map_get, terminal_returned_source, ReturnScalar,
 };

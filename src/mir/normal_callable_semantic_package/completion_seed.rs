@@ -157,11 +157,11 @@ impl VerifiedCallableCompletionSeedCohortV1 {
         &mut self,
         declaration: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'_>,
         selected: &VerifiedSelectedCallableBatchMapV1,
-        completion: VerifiedFunctionCompletionV1,
+        completion: Rc<VerifiedFunctionCompletionV1>,
         terminal_relation: Option<TerminalRelationV1>,
     ) -> Result<(), CallablePhysicalHeaderIssueV1> {
         let batch_slot = declaration.batch_slot();
-        let result = validate_result(&completion, declaration.owner(), batch_slot)?;
+        let result = validate_result(completion.as_ref(), declaration.owner(), batch_slot)?;
         let role = selected
             .role_for_batch_slot(batch_slot)
             .ok_or(CallablePhysicalHeaderIssueV1::SelectedBatchSlotUnavailable)?;
@@ -171,7 +171,7 @@ impl VerifiedCallableCompletionSeedCohortV1 {
             identity: declaration.identity().clone(),
             role,
             result,
-            completion: Rc::new(completion),
+            completion,
             terminal_relation: terminal_relation.map(Rc::new),
         });
         Ok(())

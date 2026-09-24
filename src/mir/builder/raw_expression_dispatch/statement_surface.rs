@@ -659,6 +659,9 @@ where
     }
     match &statement {
         ASTNode::Return { value: Some(_), .. } => {
+            if let Some(value) = port.emit_terminal_integer_literal_return(builder)? {
+                return Ok(value);
+            }
             let input = RawLegacyValueReturnInputV1::new(statement);
             drive_value_return_statement_v1(builder, port, input, |builder, port, input| {
                 let source = port.prepare_expression_child_source_v1(

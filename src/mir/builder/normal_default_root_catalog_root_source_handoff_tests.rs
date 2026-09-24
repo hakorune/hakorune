@@ -223,3 +223,107 @@ fn ordinary_result_survives_real_lowering_and_artifact_handoff() {
         Some(crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64)
     );
 }
+
+#[test]
+fn scalar_app_main_keeps_its_source_integer_result_through_artifact_handoff() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        "static box Main { main() { return 0 } }",
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("source-backed scalar AppMain must lower");
+    let (_, module, validate) = completed.into_artifact_parts();
+    let root = module.functions.get("main").expect("main root");
+    let return_value = root
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .find_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Return { value: Some(value) } => Some(*value),
+            _ => None,
+        })
+        .expect("source return 0 emits a physical result");
+    assert!(
+        root.blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .any(|instruction| matches!(
+                instruction,
+                crate::mir::MirInstruction::Const {
+                    dst,
+                    value: crate::mir::ConstValue::Integer(0),
+                } if *dst == return_value
+            )),
+        "the physical return value must match the source integer literal"
+    );
+    let handoff = validate(&module)
+        .expect("artifact validation")
+        .expect("scalar AppMain source handoff");
+    let root_source = handoff.root_source().expect("exact root terminal source");
+    let terminal = root_source
+        .terminal_integer_literal()
+        .expect("source-issued integer literal relation");
+    assert_eq!(terminal.value(), 0);
+    assert!(matches!(
+        handoff.root_result(),
+        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { owner })
+            if owner == terminal.owner()
+    ));
+}
+
+#[test]
+fn scalar_app_main_artifact_rejects_physical_literal_drift() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        "static box Main { main() { return 0 } }",
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("source-backed scalar AppMain must lower");
+    let (_, mut module, validate) = completed.into_artifact_parts();
+    let root = module.functions.get_mut("main").expect("main root");
+    let return_value = root
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .find_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Return { value: Some(value) } => Some(*value),
+            _ => None,
+        })
+        .expect("source return 0 emits a physical result");
+    let mut changed = false;
+    for block in root.blocks.values_mut() {
+        for instruction in &mut block.instructions {
+            if matches!(
+                instruction,
+                crate::mir::MirInstruction::Const {
+                    dst,
+                    value: crate::mir::ConstValue::Integer(0),
+                } if *dst == return_value
+            ) {
+                *instruction = crate::mir::MirInstruction::Const {
+                    dst: return_value,
+                    value: crate::mir::ConstValue::Integer(9),
+                };
+                changed = true;
+            }
+        }
+    }
+    assert!(
+        changed,
+        "source result is backed by its exact integer constant"
+    );
+    let error = validate(&module).expect_err("physical result drift must reject");
+    assert!(error.contains("literal-physical-drift"), "{error}");
+}

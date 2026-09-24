@@ -51,6 +51,11 @@ uninitialized bindings, arbitrary expressions and typed-integer literals stay
 `ReturnValueNotCovered` with no relation. The relation carries no physical
 value, ABI, Recipe key or backend authority.
 
+For a no-Home AppMain scalar result, the same source owner can issue an exact
+integer-literal relation from the verified Completion's explicit Return site.
+This path reads only that site and its sealed literal row; it does not walk or
+reclassify unrelated prefix statements.
+
 ## Ordinary-New caller-prefix facts
 
 `home_prefix_local_flow` owns the prefix's private local-state table and one

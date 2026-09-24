@@ -434,6 +434,7 @@ impl OrdinaryNewClaimLedgerV1 {
 #[derive(Debug)]
 pub(crate) enum OrdinaryNewCoSealIssueV1 {
     CompletionSeed(super::physical_header::CallablePhysicalHeaderIssueV1),
+    RootTerminalSource(HomePrefixUnavailableV1),
     BatchLoan,
     SourceNavigation {
         site: OwnedExprSiteV1,

@@ -22,7 +22,9 @@ use crate::mir::function::ObjectDestructionDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     issue_new_home_prefixes_v1, SelectedNewArgumentUnavailableV1, TerminalRelationV1,
 };
-use crate::mir::resolved_semantics::{BindingKindV1, OwnedExprSiteV1, SourceExprSiteV1};
+use crate::mir::resolved_semantics::{
+    BindingKindV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
+};
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_cohort_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -148,14 +150,49 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let new_sites: BTreeMap<_, _> = candidates.iter().map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
                 let child_new_ready = seed_eligible && !new_sites.is_empty()
                     && issue_new_home_prefixes_v1(input, &new_sites).values().all(Result::is_ok);
-                if seed_eligible && !has_map && !child_new_ready && (is_app_main || owner_loan.is_none()) {
-                    let completion = crate::mir::resolved_control_flow::verify_function_completion_v1(input)
-                        .map_err(|issue| OrdinaryNewCoSealIssueV1::CompletionSeed(
+                let seed_completion = seed_eligible
+                    && !has_map
+                    && !child_new_ready
+                    && (is_app_main || owner_loan.is_none());
+                let app_main_integer_result = is_app_main
+                    && candidates.is_empty()
+                    && !has_map
+                    && owner_loan.is_none()
+                    && !function
+                        .declaration_sites()
+                        .any(|site| matches!(site, SourceBindingSiteV1::Receiver))
+                    && input
+                        .forest()
+                        .ordered_capture_demands(input.owner())
+                        .is_empty();
+                if seed_completion || app_main_integer_result {
+                    let completion = Rc::new(
+                        crate::mir::resolved_control_flow::verify_function_completion_v1(input)
+                            .map_err(|issue| OrdinaryNewCoSealIssueV1::CompletionSeed(
                             super::super::physical_header::CallablePhysicalHeaderIssueV1::Completion {
                                 _batch_slot: batch_slot, _issue: issue,
-                            }))?;
-                    seeds.push_completion(declaration, selected, completion, None)
+                            }))?,
+                    );
+                    if app_main_integer_result {
+                        if let Some(relation) = crate::mir::resolved_semantics::home_new_prefix::issue_terminal_integer_literal_return_from_completion_v1(
+                            input,
+                            completion.as_ref(),
+                        )
+                        .map_err(OrdinaryNewCoSealIssueV1::RootTerminalSource)?
+                        {
+                            root_completion = Some(Ok(Rc::clone(&completion)));
+                            root_terminal_relation = Some(TerminalRelationV1::IntegerLiteral(relation));
+                        }
+                    }
+                    if seed_completion {
+                        seeds.push_completion(
+                            declaration,
+                            selected,
+                            Rc::clone(&completion),
+                            None,
+                        )
                         .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
+                    }
                 }
                 let (home_prefixes, argument_observations) = if owner_loan.is_some() || (is_app_main && (!new_sites.is_empty() || has_map)) || (seed_eligible && (has_map || child_new_ready)) {
                     let mut staged_reads = BTreeMap::new();
@@ -240,7 +277,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 )?;
                                 let relation = terminal_relation
                                     .filter(|row| retain_child_terminal_relation(row, has_map));
-                                seeds.push_completion(declaration, selected, completion, relation)
+                                seeds.push_completion(declaration, selected, Rc::new(completion), relation)
                                     .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                             }
                             (prefixes, observations)
