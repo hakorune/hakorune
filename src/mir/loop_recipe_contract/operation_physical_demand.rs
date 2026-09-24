@@ -9,6 +9,9 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use super::continuation::VerifiedLoopContinuationContractV1;
 use super::ids::LoopItemKeyV1;
+use super::internal_declaration::{
+    LoopInternalDeclarationRejectV1, VerifiedLoopInternalDeclarationSetV1,
+};
 use super::operation_carrier_demand::PreparedLoopDerivedCarrierSeedRowV1;
 use super::operation_effect::VerifiedLoopOperationEffectProductV1;
 use super::semantic_context::VerifiedLoopSemanticContextV1;
@@ -47,6 +50,7 @@ pub(crate) enum LoopOperationPhysicalDemandRejectV1 {
     WriteBindingEffectMissing { item: LoopItemKeyV1 },
     WriteBindingSourceShape { item: LoopItemKeyV1 },
     CarrierSeedUnavailable { item: LoopItemKeyV1 },
+    InternalDeclaration(LoopInternalDeclarationRejectV1),
 }
 
 /// Complete Builder-free Loop input. The index is only an item-to-evidence
@@ -56,6 +60,7 @@ pub(crate) struct VerifiedLoopOperationPhysicalDemandV1 {
     context: VerifiedLoopSemanticContextV1,
     operation_effect: VerifiedLoopOperationEffectProductV1,
     continuation: VerifiedLoopContinuationContractV1,
+    declarations: VerifiedLoopInternalDeclarationSetV1,
     index: LoopOperationPhysicalIndexV1,
 }
 
@@ -117,10 +122,14 @@ impl VerifiedLoopOperationPhysicalDemandV1 {
                 });
             }
         }
+        let declarations =
+            VerifiedLoopInternalDeclarationSetV1::issue(&operation_effect, context.loop_site())
+                .map_err(LoopOperationPhysicalDemandRejectV1::InternalDeclaration)?;
         Ok(Self {
             context,
             operation_effect,
             continuation,
+            declarations,
             index: LoopOperationPhysicalIndexV1 { evidence_by_item },
         })
     }
@@ -133,6 +142,7 @@ impl VerifiedLoopOperationPhysicalDemandV1 {
             context,
             operation_effect,
             continuation,
+            declarations,
             index,
         } = self;
         let recipe = operation_effect.core().recipe().as_recipe();
@@ -165,6 +175,7 @@ impl VerifiedLoopOperationPhysicalDemandV1 {
                 context,
                 operation_effect,
                 continuation,
+                declarations,
                 index,
             },
             schedule: schedule.into_boxed_slice(),
@@ -251,5 +262,12 @@ impl VerifiedLoopOperationPhysicalDemandV1 {
 
     pub(crate) fn continuation(&self) -> &VerifiedLoopContinuationContractV1 {
         &self.continuation
+    }
+
+    /// Loop-internal source declarations the dispatcher must adopt before
+    /// their producing item emits. Derived once at demand issue; empty for
+    /// recipes whose locals are all covered by the entry input set.
+    pub(crate) fn declarations(&self) -> &VerifiedLoopInternalDeclarationSetV1 {
+        &self.declarations
     }
 }

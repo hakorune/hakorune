@@ -72,6 +72,9 @@ pub(super) enum LoopOperationDispatchPreflightRejectV1 {
         item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
         value: LoopValueKeyV1,
     },
+    DeclarationPlacementMissing {
+        item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
+    },
     ScheduleCountMismatch {
         expected: usize,
         found: usize,
@@ -85,6 +88,10 @@ pub(super) enum LoopOperationDispatchPhysicalFailureV1 {
     Read(LoopReadBindingEmissionRejectV1),
     CarrierSeed(LoopDerivedCarrierSeedEmissionRejectV1),
     Write(LoopWriteBindingEmissionRejectV1),
+    Declaration {
+        item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
+        error: String,
+    },
     ValueAlreadyPublished(LoopValueKeyV1),
     ReceiptCountMismatch { expected: usize, found: usize },
 }

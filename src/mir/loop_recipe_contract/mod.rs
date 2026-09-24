@@ -38,6 +38,7 @@ mod join_sig;
 #[allow(dead_code)]
 mod recipe_draft;
 mod generic_residual_producer;
+mod internal_declaration;
 mod join_sig_branch;
 mod loop_cond_break_continue_producer;
 mod loop_true_break_continue_producer;
@@ -189,6 +190,10 @@ mod operation_effect_tests;
 mod operation_effect_parity;
 
 #[cfg(test)]
+#[path = "internal_declaration_tests.rs"]
+mod internal_declaration_tests;
+
+#[cfg(test)]
 #[path = "operation_physical_demand_tests.rs"]
 mod operation_physical_demand_tests;
 
@@ -283,6 +288,11 @@ pub(crate) use ids::{
 pub(crate) use input_source::{
     issue_initialized_local_input_source_set_v1, LoopInitializedLocalInputSourceRelationV1,
     LoopInitializedLocalInputSourceSetRejectV1, VerifiedLoopInitializedLocalInputSourceSetV1,
+};
+#[allow(unused_imports)]
+pub(crate) use internal_declaration::{
+    LoopInternalDeclarationModeV1, LoopInternalDeclarationRejectV1,
+    VerifiedLoopInternalDeclarationSetV1, VerifiedLoopInternalDeclarationV1,
 };
 #[allow(unused_imports)]
 pub(crate) use join_sig::{

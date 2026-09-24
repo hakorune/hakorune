@@ -21,7 +21,8 @@ use super::operation_target::{LoopOperationTargetRejectV1, VerifiedLoopOperation
 use super::segment_topology::LoopPhysicalSegmentBlockReceiptV1;
 use super::topology::ReadyLoopEntryV1;
 use crate::mir::loop_recipe_contract::{
-    LoopItemKeyV1, LoopOperationV1, LoopPhysicalSegmentKeyV1, PreparedLoopPhysicalLayoutV1,
+    LoopInternalDeclarationModeV1, LoopItemKeyV1, LoopOperationV1, LoopPhysicalSegmentKeyV1,
+    PreparedLoopPhysicalLayoutV1,
 };
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -62,8 +63,26 @@ impl PreparedLoopSegmentOperationDispatchPlanV1 {
             targets,
         } = self;
         let operation_count = layout.program().coverage().operation_count();
+        let declarations = layout.program().demand().declarations();
         let mut receipts = Vec::with_capacity(rows.len());
         for (row, target) in rows.iter().zip(targets.iter()) {
+            let item = dispatch_row_item(row);
+            for declaration in declarations.for_item(item) {
+                match declaration.mode() {
+                    LoopInternalDeclarationModeV1::Activate => {
+                        services
+                            .identity
+                            .activate_declaration_exact(
+                                declaration.site(),
+                                declaration.binding(),
+                            )
+                            .map_err(|error| {
+                                LoopOperationDispatchPhysicalFailureV1::Declaration { item, error }
+                            })?;
+                    }
+                    LoopInternalDeclarationModeV1::PublishWithEntry { .. } => {}
+                }
+            }
             let receipt = emit_prepared_operation_family_at_target_v1(
                 row.clone(),
                 *target,
@@ -71,6 +90,31 @@ impl PreparedLoopSegmentOperationDispatchPlanV1 {
                 services,
             )
             .map_err(map_dispatch_reject)?;
+            for declaration in declarations.for_item(item) {
+                let LoopInternalDeclarationModeV1::PublishWithEntry { value } = declaration.mode()
+                else {
+                    continue;
+                };
+                let physical = state.get(value).ok_or(
+                    LoopOperationDispatchPhysicalFailureV1::Declaration {
+                        item,
+                        error: format!(
+                            "[freeze:contract][loop_dispatch/declaration_entry_missing] value={value:?}"
+                        ),
+                    },
+                )?;
+                services
+                    .identity
+                    .publish_declaration_exact(
+                        declaration.site(),
+                        declaration.binding(),
+                        target.physical_block(),
+                        physical,
+                    )
+                    .map_err(|error| {
+                        LoopOperationDispatchPhysicalFailureV1::Declaration { item, error }
+                    })?;
+            }
             receipts.push(receipt);
         }
         if receipts.len() != operation_count {
@@ -238,6 +282,15 @@ pub(super) fn prepare_loop_segment_operation_dispatch_v1(
         segments.push(segment);
     }
 
+    for declaration in program.demand().declarations().rows() {
+        if !segments_by_item.contains_key(&declaration.producing_item()) {
+            return Err(
+                LoopOperationDispatchPreflightRejectV1::DeclarationPlacementMissing {
+                    item: declaration.producing_item(),
+                },
+            );
+        }
+    }
     if rows.len() != program.coverage().operation_count() {
         return Err(
             LoopOperationDispatchPreflightRejectV1::ScheduleCountMismatch {
@@ -323,6 +376,15 @@ fn issue_target_for_segment_row(
         PreparedLoopOperationDispatchV1::Write(row) => (row.owner(), row.item()),
     };
     VerifiedLoopOperationTargetBlockV1::issue_for_segment(owner, item, segment, entry, receipt)
+}
+
+fn dispatch_row_item(row: &PreparedLoopOperationDispatchV1) -> LoopItemKeyV1 {
+    match row {
+        PreparedLoopOperationDispatchV1::Pure(row) => row.item(),
+        PreparedLoopOperationDispatchV1::Read(row) => row.item(),
+        PreparedLoopOperationDispatchV1::CarrierSeed(row) => row.item(),
+        PreparedLoopOperationDispatchV1::Write(row) => row.item(),
+    }
 }
 
 fn map_dispatch_reject(

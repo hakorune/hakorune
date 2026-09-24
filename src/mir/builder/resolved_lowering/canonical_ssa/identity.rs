@@ -132,6 +132,26 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         Ok(binding)
     }
 
+    /// Activate an exact resolver-issued declaration without a value. The
+    /// loop-internal declaration lane uses this before the producing
+    /// write claims its assignment; no name or kind is consulted.
+    pub(in crate::mir::builder::resolved_lowering) fn activate_declaration_exact(
+        &mut self,
+        site: &SourceBindingSiteV1,
+        expected_binding: BindingRefV1,
+    ) -> Result<BindingRefV1, String> {
+        let binding = self
+            .ledger
+            .adopt_declaration_exact(site, expected_binding)?;
+        if !self.active.insert(binding) {
+            return Err(format!(
+                "[freeze:contract][canonical_binding_ssa/duplicate_active] binding={binding:?}"
+            ));
+        }
+        self.ledger.mark_declaration(site)?;
+        Ok(binding)
+    }
+
     pub(in crate::mir::builder::resolved_lowering) fn variable_value(
         &mut self,
         builder: &mut MirBuilder,

@@ -694,3 +694,45 @@ target).
 
 Next slice: P2-D segment_dispatcher emit hook for in-loop declaration
 publication (nested `j`), then P2-E admission issuer + physicalize edge.
+
+## P2-D landed — loop-internal declaration publication hook
+
+`loop_recipe_contract/internal_declaration.rs` derives
+`VerifiedLoopInternalDeclarationSetV1` once inside
+`VerifiedLoopOperationPhysicalDemandV1::issue` (root loop site from
+`context.loop_site()` — resolver-issued, not re-derived from evidence).
+A `Local` declaration is internal iff its statement path strictly
+extends the root loop's path. Two adoption modes, both anchored to a
+Recipe item:
+
+- `Activate` — the local's first physical touch is a `WriteBinding` op;
+  the dispatcher calls `activate_declaration_exact` (new identity API,
+  no caller-supplied name/kind) before that item emits and the exact
+  write path initializes it.
+- `PublishWithEntry { value }` — the local is a `DerivedCarrierEntry`
+  binding (nested `j`): its carrier `entry_value` is a Recipe-produced
+  value (`local j = 0` -> item3 `ConstI64`), so the dispatcher calls
+  `publish_declaration_exact` with the ledger's physical value after
+  the producing item emits. This makes the carrier-seed row's
+  `read_entry(j)` at the inner preheader succeed (active+initialized).
+
+Typed rejects: `ProducerMissing`, `ProducerNotWrite`,
+`CarrierMissing`, `EntryProducerMissing` (input-only entry values are
+entry-set business, not internal), `DeclarationPlacementMissing`
+(preflight: producing item must be a scheduled operation item).
+
+Key correction vs the P2 sketch: "earliest evidence item" is wrong as
+the adoption anchor — `j`'s earliest evidence is an inner-loop
+`ReadBinding` (item5); the real anchor is the carrier `entry_value`
+producer in the parent body. Internal-ness is judged against the
+demand's root loop site, not the producing item's owner loop.
+
+Focused gate: `internal_declaration` — 4/4 ok (nested `j` Local site +
+segment prefix, PublishWithEntry mode + carrier entry + const producer,
+per-item scoping; DirectAccum/LoopTrue/LoopCond -> empty set);
+`operation_physical_demand segment_dispatcher physical_layout
+operation_effect` — 26/26 ok.
+
+Next slice: P2-E admission issuer (demand -> program -> layout + input
+set + decl rows) + Builder physicalize edge (CFG/SSA/PHI + variable_map
+bridge).

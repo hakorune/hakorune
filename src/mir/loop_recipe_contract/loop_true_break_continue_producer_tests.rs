@@ -134,7 +134,7 @@ pub(super) fn demand_for(
     .unwrap()
 }
 
-fn product() -> VerifiedLoopTrueBreakContinueRecipeProductV1 {
+pub(crate) fn product() -> VerifiedLoopTrueBreakContinueRecipeProductV1 {
     let unit = unit();
     let input = unit.root_function_input().unwrap();
     produce_loop_true_break_continue_recipe_v1(demand_for(input), input.function()).unwrap()
