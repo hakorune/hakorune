@@ -1,5 +1,5 @@
 ---
-Status: implementation_partial__reference_execution_pass__exe_aot_acceptance_open
+Status: landed__b579959a3d__r0_acceptance_green__residual_m11_m12_open
 Task: M10b-I0-R0-VAR
 Date: 2026-09-24
 Scope: preserve the accepted callable recurrence during the R0 cutover
@@ -112,8 +112,8 @@ ledger; follow that ownership boundary.
 | 1 | Same-source loan and selection seam | Existing scope lends exact input; site-keyed attempt consumption; no-match/overlap separated; foreign, missing and duplicate input rejected before physical effects. | Implemented; focused owner tests pass. |
 | 2 | Neutral product admission | Consuming VAR product API; callable ingress reuses common demand/layout checks; both input bindings and root continuation preserved. | Implemented; lifecycle test passes. |
 | 3 | Callable physical consumption | Shared physicalizer reads existing callable values, accounts for precise source operations, publishes both writebacks and leaves tail/publication with existing owners. | Implemented; base and bounded source probes pass. |
-| 4 | Production acceptance and selected-edge removal | Unchanged real fixture and finite semantic variants reach the selected executable terminal; no VAR retry into old route; retained-owner regressions and failure cleanup pass. | Partial: accepted fixture and two-value variants pass MIR/EXE; fallback count is zero; accounting rejects missing entry values and duplicate read/write consumption. The selected VAR dispatch also rejects an absent callable ledger before Builder effects or fallback. Issuer-boundary terminals now cover unlocated parent source, non-loop site, and foreign expected owner; overlap and forced producer/admission terminals are unconstructible under this profile (audit below) and remain fail-closed defensive branches. |
-| 5 | Return to R0 | Record tested SHA/commands and owner mapping; recheck changed delete-set callers; finish R0-required acceptance/retirement, then residual M11/M12. | Not started. |
+| 4 | Production acceptance and selected-edge removal | Unchanged real fixture and finite semantic variants reach the selected executable terminal; no VAR retry into old route; retained-owner regressions and failure cleanup pass. | Done: accepted fixture and two-value variants pass MIR/EXE; fallback count is zero; accounting rejects missing entry values and duplicate read/write consumption. The selected VAR dispatch also rejects an absent callable ledger before Builder effects or fallback. Issuer-boundary terminals now cover unlocated parent source, non-loop site, and foreign expected owner; overlap and forced producer/admission terminals are unconstructible under this profile (audit below) and remain fail-closed defensive branches. Landed at `b579959a3d`. |
+| 5 | Return to R0 | Record tested SHA/commands and owner mapping; recheck changed delete-set callers; finish R0-required acceptance/retirement, then residual M11/M12. | R0 landed at `6e88441c0b` (route flip + ordered-scheduler retirement); stale-guard re-pin and `wire_parity_tests` 800-line split landed at `a97f564250`. Delete-set census on the committed tree is clean (residual matches are retirement comments only), winner-spine 7/7, physical-admission 5/5, raw-entry 16/16, wire parity 36/36, variable-accum 28/28 green; portable-owner 15/15 and typed-terminal 164/164 gates green; in-place replacement + corpus + pointer + source-route admission guards pass. Residual M11/M12 remain separate rows. |
 
 Tasks 1-3 are one bounded construction series; source-contract changes and
 their focused tests land together. Task 4 is required before R0 closeout.
@@ -333,16 +333,15 @@ unconstructible under the accepted source profile and are not required as
 synthetic tests. Wrong owner/site/frame and incomplete-coverage evidence is
 now present at the issuer boundary (unlocated source, non-loop site, foreign
 owner) and at the projection level (foreign owner/frame/site, incomplete
-observation). What remains open for Task 4 is the broader R0 acceptance it
-gates — the full parity/census run — so Task 4 is not closed.
+observation). The broader R0 acceptance this row gated has since landed and
+is green (Task 5 record), so Task 4 is closed.
 The accepted VAR row no longer reaches the shared legacy fallback; that helper
-remains needed by other shapes. Do not close global R0 or claim global
-caller-zero until its separate selected delete-set and required acceptance are
-verified.
+remains needed by other shapes. Global M11/M12 rows remain separate and are
+not closed by this card.
 
 Design was audited at HEAD `1aa7ac25b3` plus the shared R0 work on 2026-09-24.
-The implementation and execution receipt above remain uncommitted shared-tree
-changes. The accepted corpus row is unchanged; the VAR row itself removes no
-global legacy route, fixture, or other family. The separate R0 route/registry
-retirement draft is present in the same worktree and is not certified by this
-child-card receipt.
+The implementation and execution receipt above are now landed: R0 flip and
+ordered-scheduler retirement at `6e88441c0b`, this VAR callable connection at
+`b579959a3d`, and the stale-guard re-pin plus `wire_parity_tests` 800-line
+split at `a97f564250`. The accepted corpus row is unchanged; the VAR row
+itself removes no global legacy route, fixture, or other family.

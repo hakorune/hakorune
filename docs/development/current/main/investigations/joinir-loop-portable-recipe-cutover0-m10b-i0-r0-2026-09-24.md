@@ -1,5 +1,5 @@
 ---
-Status: open__gap_resolved_by_d0_boundary__p1_resumes__2026-09-24
+Status: landed__6e88441c0b__m11_residual_shadow_enumeration_open
 Task: M10b-I0-R0 (JOINIR-LOOP-PORTABLE-RECIPE-CUTOVER0-I0-R0)
 Date: 2026-09-24
 Parent: GENERIC-M10B-DELETION-MANIFEST-S0 (landed, manifest frozen)
@@ -15,14 +15,14 @@ Contract source: `joinir-loop-selfhost-recipe-pipeline-ssot.md` M10b row —
 
 ## Current prerequisite — accepted VAR correction (2026-09-24)
 
-P1/P2-E are landed; R0 remains uncommitted. First close
+P1/P2-E are landed; R0 landed at `6e88441c0b` after closing
 [M10b-I0-R0-VAR](mir-call-variable-accum-recurrence-production-i0-2026-09-24.md):
-preserve the accepted recurrence via its existing callable source owner.
+the accepted recurrence is preserved via its existing callable source owner
+(`b579959a3d`), and stale guard pins were re-aligned to the post-flip
+canonical callers at `a97f564250`.
 The old CallableSingleLoopV1 attribution and blanket VAR exclusion below
-are superseded. No sixth node family is selected; VAR acceptance gates R0.
-The accepted VAR route and focused execution are now present in the shared
-worktree, while wrong-owner/site/frame acceptance and the broader R0 gate
-remain open. A 2026-09-25 source-shape audit found direct overlap and forced
+are superseded. No sixth node family is selected; VAR acceptance gated R0
+and is green. A 2026-09-25 source-shape audit found direct overlap and forced
 producer/admission negatives unconstructible without synthetic authority; keep
 their fail-fast branches and do not manufacture those fixtures.
 
@@ -826,6 +826,37 @@ rows. Post-hoc audit classifies the 141 manifest-external deletions:
 M11 residual scope after this record: prove the old located handoff has
 zero production callers and enumerate any remaining shadow entries.
 
+M11 residual enumeration (2026-09-25, post-`6e88441c0b` tree):
+
+- Old located handoff — discharged: `plan/generic_loop/located_representation/*`
+  and `plan/parts/associated_source/located_*` carry zero references; the
+  deleted symbols (`verify_located_generic_loop_v1`, located input/body
+  composers) have no residual caller.
+- Shadow entry candidates — caller-zero but contract-pinned, so removal is
+  the M11 row's own bounded work, not a free deletion:
+  - `plan/located_loop.rs` (254) + `located_loop_error.rs` (14) +
+    `located_loop_tests.rs` (594): `LocatedCoreLoopExecutionSessionV1` /
+    `VerifiedLocatedCoreLoopPlanV1` are re-exported at `plan/mod.rs:170-173`
+    under `#[allow(unused_imports)]` with zero production callers, but the
+    `callable_result_i0_*` guard family pins them as the recorded
+    callable-result loop-claim contract surface.
+  - `plan/composer/coreloop_v2_nested_minimal.rs` +
+    `composer/coreloop_gates.rs`: caller-zero (self + `composer/mod.rs`
+    only), but pinned by `coreplan_varmap_boundary_inventory_guard.sh` and
+    `mir_verification_quick_p0_c_guard.py`.
+  Physical removal therefore requires the M11 row to retire or re-point those
+  guard contracts first — keep the named owners, do not hide them.
+- `facts/canon.rs` doc drift recorded earlier is moot: the file was deleted
+  with the canon subtree; `facts/expr_generic_loop.rs` remains a live purity
+  helper.
+- Not shadow — retained production: `plan/expression_port.rs`
+  `LocatedLoopPlan*` types and `LocatedLoopPlanExpressionPortV1` are consumed
+  by the canonical source-backed path (`normal_callable_loop_source_port.rs`,
+  `normal_callable_loop_source_facts/{composite_physical,loop_cond}.rs`,
+  `plan/normalizer/cond_lowering_*`); `parts/associated_source/` non-located
+  children (callable_loop_source drivers, dispatch, block_driver,
+  raw_lowering) remain live.
+
 ### Caller-zero re-audit (2026-09-24, read-only, post-flip)
 
 Independent re-verification of the current deletion set and remaining
@@ -969,4 +1000,28 @@ build):
   post-flip), not portable contracts. The remaining `main0-*` corpus
   fixture rows (bound2/renamed_locals/zero_iter/guard_never/
   upper_bound_*) were never gate-pinned; their parity evidence is a
-  separate step. R0 remains open.
+  separate step.
+
+### Landed record (2026-09-25)
+
+- `6e88441c0b` — atomic `route_loop` flip to the frozen located-source
+  pipeline plus the ordered-scheduler/registry retirement (the 163-file
+  delete set audited above).
+- `b579959a3d` — the VAR callable connection (M10b-I0-R0-VAR).
+- `a97f564250` — stale-guard re-pin to post-flip canonical callers
+  (`loop_node_winner_spine.rs`, projection/capability files), removal of
+  retired-file anchors, `rg -P` removal (PCRE2 unavailable), baseline
+  count corrections, and the `wire_parity_tests` 800-line split.
+- Post-landing green: `cargo build --profile quick`, `cargo check --tests`,
+  winner-spine 7/7, physical-admission 5/5, raw-entry 16/16, wire parity
+  36/36, variable-accum 28/28; portable-owner gate 15/15, typed-terminal
+  gate 164/164; in-place replacement guard, corpus guard, pointer guard,
+  and source-route admission guard all pass. Old-symbol census on the
+  committed tree is clean (residual matches are retirement comments or
+  intentional empty decl shells). `route_loop` has exactly one caller
+  (`routing.rs`), `issue_loop_node_winner_recipe_v1` has exactly one
+  production caller (`router.rs`), and `LoopPhiMaterializerV1` is
+  zero-referenced.
+- Remaining open: the M11 residual scope recorded above (prove the old
+  located handoff has zero production callers and enumerate any remaining
+  shadow entries), then M12, each under its own row — not this card.

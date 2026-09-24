@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "M10b-I0-R0-VAR"
 current_execution_cohort = "callable_variable_accum_recurrence_connection"
-current_blocker_token = "M10b-I0-R0-VAR__ExecutableAndRegressionAcceptanceOpen"
+current_blocker_token = "M10b-I0-R0__Landed__M11M12ResidualOpen"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "none__CallableVariableRecurrenceDecisionAccepted_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -18,43 +18,33 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-variable-accum-recurrence-production-i0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-variable-accum-recurrence-production-i0-2026-09-24.md"
 latest_card_summary = """
-P1 and P2-E are landed at 1aa7ac25b3. The shared worktree contains uncommitted
-VAR implementation plus the separate M10b-I0-R0 route/registry-retirement
-draft; neither is committed or pushed. VAR lends the exact resolved input,
-checks Integer literal initializers, uses the existing producer/common
-admission/physicalizer, consumes exact source rows, and writes back both
-BindingRefs. The accepted fixture prints 6/exit 0 under the freshly built
-quick vm-reference binary. Its selected published EXE test executes the
-accepted fixture and two finite variants, printing 6/24/70 with exit 0; the
-manual test fails if LLVM/runtime prerequisites are absent. The G0 in-body-step
-fixture returns 3 as expected.
-Focused R0 checks pass: winner spine 7, physical admission 5, raw entry 12,
-compatibility terminal 1, and source-backed LoopCond witness 1. The VAR route
-witness is VAR=1/fallback=0. A test-only fault after physicalization and source
-consumption proves failed-invocation discard and fresh reuse (2 VAR lifecycle
-tests pass). VAR accounting has named missing-entry-value and duplicate
-read/write-consumption checks (2/2 pass). A direct selected-VAR raw-entry test
-proves missing callable ledger reaches its named terminal before Builder
-effects or fallback (1/1 pass). A source-shape audit found overlap and forced
-producer/admission actual-dispatch negatives unconstructible without synthetic
-authority; keep the fail-fast branches and valid-source no-overlap witness.
-Wrong-owner/site/frame and incomplete-coverage acceptance remain open. Focused
-Rust tests still report 845 workspace warnings, primarily
-from the broad R0 refactor. The phase29bq VM-gate rows are dispositioned:
-12 portable rows plus 3 main0-* rows run on
-phase29bq_portable_owner_source_backed_gate_mir (15/15 green), and 164
-retired-machinery rows run on
-phase29bq_typed_terminal_source_backed_gate_mir (164/164 green); 3 rows
-stay held with parity_gate=not-run. The fast-gate list step is retired
-and the TSV remains the corpus-guard inventory. Full named-terminal
-and R0 acceptance/census remain open; the
-broad lifecycle run has five pinned baseline failures and one D2 informational
-terminal. Do not close global R0/M11/M12 or downgrade the corpus.
-The unarmed nested source-loop test now passes 1/1 with default/strict named
-terminals and no compatibility re-entry. The precutover and R0 supersession
-guards plus pointer guard pass. Unscoped full-lib quick runs are an informational
-census only (168-214 failures across parallel/serial invocations); they do not
-pass R0's still-open quick/release acceptance.
+P1/P2-E landed at 1aa7ac25b3. M10b-I0-R0-VAR landed at b579959a3d and the R0
+atomic flip + ordered-scheduler retirement landed at 6e88441c0b; the stale
+guard re-pin and wire_parity_tests 800-line split landed at a97f564250. VAR
+lends the exact resolved input, checks Integer literal initializers, uses the
+existing producer/common admission/physicalizer, consumes exact source rows,
+and writes back both BindingRefs. The accepted fixture prints 6/exit 0 under
+the quick vm-reference binary; the published EXE test runs the fixture plus
+two finite variants printing 6/24/70 with exit 0.
+Focused checks on the committed tree: winner spine 7/7, physical admission
+5/5, raw entry 16/16, wire parity 36/36, variable-accum 28/28. The VAR route
+witness is VAR=1/fallback=0; test-only fault injection proves failed-invocation
+discard and fresh reuse. Issuer-boundary terminals cover unlocated parent
+source, non-loop site, and foreign expected owner (3/3). The phase29bq VM-gate
+rows are dispositioned: 15 portable rows on
+phase29bq_portable_owner_source_backed_gate_mir (15/15 green), 164
+retired-machinery rows on phase29bq_typed_terminal_source_backed_gate_mir
+(164/164 green); 3 rows stay held with parity_gate=not-run. The fast-gate list
+step is retired and the TSV remains the corpus-guard inventory.
+The in-place replacement guard, generic corpus guard, pointer guard, and
+source-route admission guard all pass; the old-symbol census on the committed
+tree is clean, route_loop has exactly one caller, and LoopPhiMaterializerV1 is
+zero-referenced. The broad lifecycle run still has five pinned baseline
+failures and one D2 informational terminal. The M11 residual shadow
+enumeration is recorded in the R0 card: the located_loop and coreloop
+composer husks are caller-zero but contract-pinned by callable_result and
+coreplan guards, so their removal is the M11 row's own bounded work. M11 and
+M12 remain open under their own rows; do not downgrade the corpus.
 """
 next_design_card = "none__accepted_decision"
 next_design_card_path = "none__accepted_decision"
