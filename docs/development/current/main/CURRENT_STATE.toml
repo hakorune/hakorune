@@ -1,9 +1,9 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "M10b-I0-R0-VAR"
-current_execution_cohort = "callable_variable_accum_recurrence_connection"
-current_blocker_token = "M10b-I0-R0__Landed__M11M12ResidualOpen"
+current_execution_row = "M12-R2A"
+current_execution_cohort = "loop_legacy_family_disposition"
+current_blocker_token = "M12-R2A__Landed__R2B-R2C-Open"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "none__CallableVariableRecurrenceDecisionAccepted_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -14,50 +14,27 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-variable-accum-recurrence-production-i0-2026-09-24.md"
-latest_card = "mir-call-variable-accum-recurrence-production-i0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-variable-accum-recurrence-production-i0-2026-09-24.md"
+current_execution_design = "docs/development/current/main/investigations/joinir-loop-legacy-family-disposition-r2a-2026-09-25.md"
+latest_card = "joinir-loop-legacy-family-disposition-r2a"
+latest_card_path = "docs/development/current/main/investigations/joinir-loop-legacy-family-disposition-r2a-2026-09-25.md"
 latest_card_summary = """
-P1/P2-E landed at 1aa7ac25b3. M10b-I0-R0-VAR landed at b579959a3d and the R0
-atomic flip + ordered-scheduler retirement landed at 6e88441c0b; the stale
-guard re-pin and wire_parity_tests 800-line split landed at a97f564250. VAR
-lends the exact resolved input, checks Integer literal initializers, uses the
-existing producer/common admission/physicalizer, consumes exact source rows,
-and writes back both BindingRefs. The accepted fixture prints 6/exit 0 under
-the quick vm-reference binary; the published EXE test runs the fixture plus
-two finite variants printing 6/24/70 with exit 0.
-Focused checks on the committed tree: winner spine 7/7, physical admission
-5/5, raw entry 16/16, wire parity 36/36, variable-accum 28/28. The VAR route
-witness is VAR=1/fallback=0; test-only fault injection proves failed-invocation
-discard and fresh reuse. Issuer-boundary terminals cover unlocated parent
-source, non-loop site, and foreign expected owner (3/3). The phase29bq VM-gate
-rows are dispositioned: 15 portable rows on
-phase29bq_portable_owner_source_backed_gate_mir (15/15 green), 164
-retired-machinery rows on phase29bq_typed_terminal_source_backed_gate_mir
-(164/164 green); 3 rows stay held with parity_gate=not-run. The fast-gate list
-step is retired and the TSV remains the corpus-guard inventory.
-The in-place replacement guard, generic corpus guard, pointer guard, and
-source-route admission guard all pass; the old-symbol census on the committed
-tree is clean, route_loop has exactly one caller, and LoopPhiMaterializerV1 is
-zero-referenced. The broad lifecycle run still has five pinned baseline
-failures and one D2 informational terminal. M11-A retired the caller-zero
-coreloop composer husks (`composer/coreloop_v2_nested_minimal.rs`,
-`composer/coreloop_gates.rs`) and re-pointed the two varmap role
-inventories to the live 12-site census. M11-B retired the located_loop
-husk cluster (`plan/located_loop{,_error,_tests}.rs`); the recorded
-callable_result_i0 contract pins turned out to live in dormant,
-existence-only guard code that was already stale post-R0, so no active
-contract broke — re-activation rows own the re-point. The red-baseline
-receipt absorbed twelve removed unit tests across M11-A/B. The
-cargo-lib red-baseline receipt is stale at HEAD beyond this delta
-(observed 7969/167/56 vs receipt 7381/133/29) and needs its own audit
-before re-baselining. M12 remains open under its own row; do not
-downgrade the corpus.
+M12-R2A landed the legacy family disposition manifest
+(design/fixtures/loop-legacy-family-disposition-r2a-v1.tsv). The sealed
+generic_residual chain and the oracle-only composer/pipeline/PHI wrapper
+chain are classified for R2B; the variable-accum-break cohort, the
+wired-live synthetic 19-row schedule, the issuer route-vector selection,
+and facts-layer Recipe-key minting are decision-required rows. Family-name
+dispatch moved to CanonicalLoopFamily* seams rather than reaching zero.
+Prior landed: M10b-I0-R0-VAR `b579959a3d`, R0 flip `6e88441c0b`, guard
+re-pin + wire_parity split `a97f564250`, M11-A `9f55aea31b`, M11-B
+`8dff99ef22`. The cargo-lib red-baseline receipt is stale at HEAD
+(observed 7969/167/56 vs receipt 7381/133/29 lineage) and needs its own
+audit row; do not downgrade the corpus. R2B/R2C/R2G remain open.
 """
 next_design_card = "none__accepted_decision"
 next_design_card_path = "none__accepted_decision"
-next_execution_card = "M10b-I0-R0-VAR"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-variable-accum-recurrence-production-i0-2026-09-24.md"
+next_execution_card = "M12-R2A"
+next_execution_card_path = "docs/development/current/main/investigations/joinir-loop-legacy-family-disposition-r2a-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
