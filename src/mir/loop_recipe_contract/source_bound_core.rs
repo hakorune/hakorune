@@ -190,7 +190,20 @@ impl VerifiedLoopCoreProductV1 {
             .replace_outer_condition_with_computed_left_for_test()
     }
 
-    pub(super) fn into_parts(
+    /// Consume the Core and release the verified Recipe/JoinSig pair for
+    /// consumers outside this module tree.  The source claim and relations
+    /// stay private to the co-seal boundary; physical edges never reach
+    /// this seam because they consume the whole operation/effect product.
+    pub(crate) fn into_recipe_sig(self) -> (VerifiedLoopRecipeV1, VerifiedLoopJoinSigV1) {
+        let (_owner, recipe, join_sig, _claim, _bindings, _effects) = self.into_parts();
+        (recipe, join_sig)
+    }
+
+    /// Split the co-sealed Core into its owned parts.  Physical edges consume
+    /// the whole Core through `VerifiedLoopOperationEffectProductV1`; the
+    /// bounded Recipe/JoinSig extraction exists only for retirement-track
+    /// legacy consumers that still carry the recipe envelope by value.
+    pub(crate) fn into_parts(
         self,
     ) -> (
         FunctionOwnerIdV1,

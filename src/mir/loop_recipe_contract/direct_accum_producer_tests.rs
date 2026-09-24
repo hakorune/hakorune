@@ -72,9 +72,13 @@ fn function() -> ASTNode {
     }
 }
 
-pub(super) fn demand() -> VerifiedSelectedLoopRecipeDemandV1 {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function()).unwrap();
-    let input = unit.root_function_input().unwrap();
+pub(super) fn unit() -> VerifiedResolvedSourceUnitV1 {
+    VerifiedResolvedSourceUnitV1::resolve_function(function()).unwrap()
+}
+
+pub(super) fn demand_for(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+) -> VerifiedSelectedLoopRecipeDemandV1 {
     let body = input.source().root_body().unwrap();
     let loop_stmt = input.source().body_stmt(&body, 1).unwrap();
     let facts = issue_direct_accum_facts_v1(input, &loop_stmt).unwrap();
@@ -92,12 +96,17 @@ pub(super) fn demand() -> VerifiedSelectedLoopRecipeDemandV1 {
 }
 
 pub(crate) fn direct_accum_product_for_test() -> super::VerifiedDirectAccumRecipeProductV1 {
-    produce_direct_accum_recipe_v1(demand()).expect("direct accum product")
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function()).unwrap();
+    let input = unit.root_function_input().unwrap();
+    produce_direct_accum_recipe_v1(demand_for(input), input.function())
+        .expect("direct accum product")
 }
 
 #[test]
 fn direct_accum_producer_emits_verified_recipe_and_join_sig() {
-    let product = produce_direct_accum_recipe_v1(demand()).unwrap();
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function()).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let product = produce_direct_accum_recipe_v1(demand_for(input), input.function()).unwrap();
     assert_eq!(product.recipe().root_loop().raw(), 0);
     assert_eq!(product.join_sig().as_sig().loops.len(), 1);
     assert_eq!(product.join_sig().as_sig().loops[0].edges.len(), 4);
@@ -105,11 +114,11 @@ fn direct_accum_producer_emits_verified_recipe_and_join_sig() {
 
 #[test]
 fn producer_rejects_identity_only_payload_without_retry() {
-    let demand = demand();
-    let (winner, _facts, source) = demand.into_parts();
-    let site = source.into_parts().2;
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function()).unwrap();
     let input = unit.root_function_input().unwrap();
+    let demand = demand_for(input);
+    let (winner, _facts, source) = demand.into_parts();
+    let site = source.into_parts().2;
     let source = input.function().resolved_loop_source(&site).unwrap();
     let frame = source.frame_key();
     let facts =
@@ -121,7 +130,7 @@ fn producer_rejects_identity_only_payload_without_retry() {
         );
     let demand = issue_selected_loop_recipe_demand_v1(winner, facts, source).unwrap();
     assert!(matches!(
-        produce_direct_accum_recipe_v1(demand),
+        produce_direct_accum_recipe_v1(demand, input.function()),
         Err(DirectAccumRecipeProducerRejectV1::FactsPayload(
             DirectAccumFactsPayloadRejectV1::NotDirectAccum
         ))

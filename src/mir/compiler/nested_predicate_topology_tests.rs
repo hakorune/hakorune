@@ -5,15 +5,22 @@ use super::nested_predicate_topology::{
     NestedPhysicalEdgeRoleV1, NestedPhysicalExpansionStepV1, NestedPhysicalNodeRefV1,
     NestedPhysicalStageV1,
 };
+use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_recipe_contract::{LoopJoinEdgeRoleV1, LoopNodeKeyV1};
+
+fn nested_product() -> super::nested_predicate_producer::VerifiedNestedPredicateRecipeProductV1 {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function()).unwrap();
+    let input = unit.root_function_input().unwrap();
+    produce_nested_predicate_recipe_v1(projection_for(input), input.function())
+        .expect("nested producer")
+}
 
 const ROOT: LoopNodeKeyV1 = LoopNodeKeyV1::new(0);
 const CHILD: LoopNodeKeyV1 = LoopNodeKeyV1::new(1);
 
 #[test]
 fn nested_topology_seals_two_standard5_port_sets_and_resume() {
-    let product = produce_nested_predicate_recipe_v1(projection_for(nested_function()))
-        .expect("nested producer");
+    let product = nested_product();
     let input =
         issue_nested_predicate_physical_emission_input_v1(product).expect("nested emission input");
     let topology = input.topology();
@@ -33,8 +40,7 @@ fn nested_topology_seals_two_standard5_port_sets_and_resume() {
 
 #[test]
 fn nested_topology_expands_root_backedge_through_child_resume() {
-    let product = produce_nested_predicate_recipe_v1(projection_for(nested_function()))
-        .expect("nested producer");
+    let product = nested_product();
     let input =
         issue_nested_predicate_physical_emission_input_v1(product).expect("nested emission input");
     let topology = input.topology();
@@ -59,8 +65,7 @@ fn nested_topology_expands_root_backedge_through_child_resume() {
 
 #[test]
 fn nested_topology_drops_child_j_at_parent_resume() {
-    let product = produce_nested_predicate_recipe_v1(projection_for(nested_function()))
-        .expect("nested producer");
+    let product = nested_product();
     let input =
         issue_nested_predicate_physical_emission_input_v1(product).expect("nested emission input");
     let topology = input.topology();
@@ -107,8 +112,7 @@ fn nested_topology_drops_child_j_at_parent_resume() {
 
 #[test]
 fn nested_topology_seals_source_roles_and_symbolic_predecessors() {
-    let product = produce_nested_predicate_recipe_v1(projection_for(nested_function()))
-        .expect("nested producer");
+    let product = nested_product();
     let input =
         issue_nested_predicate_physical_emission_input_v1(product).expect("nested emission input");
     let topology = input.topology();
@@ -122,8 +126,7 @@ fn nested_topology_seals_source_roles_and_symbolic_predecessors() {
 
 #[test]
 fn nested_emission_input_preserves_recipe_and_join_sig_with_topology() {
-    let product = produce_nested_predicate_recipe_v1(projection_for(nested_function()))
-        .expect("nested producer");
+    let product = nested_product();
     let input =
         issue_nested_predicate_physical_emission_input_v1(product).expect("nested emission input");
     assert_eq!(input.recipe().as_recipe().loops.len(), 2);

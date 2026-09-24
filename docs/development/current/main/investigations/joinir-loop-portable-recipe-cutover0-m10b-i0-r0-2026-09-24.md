@@ -549,3 +549,120 @@ failure_discards_candidate_and_reuses_live_compiler` stack-overflows
 in debug; reproduced identically at `cb2adda501` (pre-P1). Classified
 `known baseline debt`; the test exercises `compile_normal`, not the
 caller-zero spine.
+
+## P2 accepted design — caller-zero canonical physicalizer edge
+
+Design authority fixed before implementation (design-boundary rule: the
+physical input is co-sealed at Recipe issuance, not reassembled downstream
+from owner/loop keys).
+
+1. **Sole physical owner**: the existing canonical segment pipeline
+   (`src/mir/builder/resolved_lowering/loop_recipe_physicalizer/`) is the
+   only Builder-mutating edge. The node-level addition is one Builder-free
+   admission issuer (compiler layer: demand -> prepared operation program
+   -> prepared physical layout -> entry-seed input set -> internal-decl
+   rows) plus one thin physicalize edge
+   (`builder/resolved_lowering/`) that borrows `CanonicalCfgSessionV1`,
+   `ResolvedSsaIdentityStateV2`, and `PhiTxn` — no second authority.
+
+2. **Physical-ready products**: the four in-boundary producers
+   (DirectAccum, NestedPredicate, LoopTrue, LoopCond) are migrated to
+   issue `VerifiedLoopOperationEffectProductV1` (core: source claim +
+   `VerifiedLoopRecipeBindingRelationV1` + `VerifiedLoopBindingEffectRelationV1`;
+   plus per-op `LoopOperationSourceEvidenceV1`) and
+   `VerifiedLoopInitializedLocalInputSourceSetV1` at Recipe issuance.
+   `function: &VerifiedResolvedFunctionV1` is threaded into the producers
+   to mint `BindingOriginV1::Source` decl sites and `InitializedLocal`
+   relations — the resolver function is the decl/init authority; Facts are
+   NOT extended (Facts never carry Recipe keys). GenericG0 is already
+   physical-ready and stays function-level.
+
+3. **Continuation**: the admission issuer mints
+   `VerifiedLoopContinuationContractV1::from_after(owner,
+   sig.require_after_binding(root))`; the root After resolves to
+   `LoopPhysicalTargetV1::OpenRootAfter`, returned to the caller as the
+   single continuation point.
+
+4. **Bounded layout extensions** (`physical_layout.rs`):
+   - `entry_key`: `LoopConditionV1::Always` resolves entry via the
+     `BodyEntry` edge (today: `UnsupportedAlways`).
+   - `build_loop`: Always loops skip the predicate/backedge requirement;
+     the body-tail finish becomes `Backedge` when the edge exists and a
+     dead-tail skip when the body ends in an If whose arms both Exit
+     (no continuation reach — today `BackedgeMissing`).
+   - `branch_arm_finish`: `LoopJoinEdgeRoleV1::Break` is admitted as
+     `Jump { after_targets[exit.target_loop] }` via a per-build
+     `after_targets` map (root -> `OpenRootAfter`).
+   - Still typed-rejected (outside in-boundary scope): body-level Exit
+     items, Return arms, foreign-target Continue.
+
+5. **Declaration publication**: input rows
+   `publish_declaration_exact` at the loop preheader with values adopted
+   from the walk's `variable_map` (source name from the resolver binding
+   record — missing lane is typed terminal). Loop-internal declarations
+   (binding_relations minus input bindings, e.g. nested `j`) publish via
+   a post-item emit observer in `segment_dispatcher` when the producing
+   item is emitted — required by `read_entry`/`define_assignment`/PHI.
+
+6. **Builder bridge**: the edge constructs
+   `ResolvedSsaIdentityStateV2::new(input.function())`,
+   `CanonicalCfgSessionV1::new()`, `PhiTxn::begin(..)` once per node;
+   the walk's current block is adopted as the preheader (canonical
+   `seal_block` accepts foreign blocks; predecessors derive from the real
+   graph). Success returns `LoopNodeWinnerPhysicalContinuationV1
+   { root_after }`; the caller resumes the walk there and writes back
+   `variable_map` for declared bindings — the outer owner still performs
+   the only publication.
+
+7. **Typed terminal boundary**: every admission failure (uncovered
+   vocabulary, missing decl/init relation, unsupported edge shape, seal
+   mismatch, missing variable_map lane) is `Rejected`/Freeze — zero
+   fallback, zero legacy-composer invocation for an issued profile.
+
+8. **Family reach**: in-boundary = DirectAccum, NestedPredicate,
+   LoopTrue, LoopCond. GenericG0 stays function-level (empirically
+   unreachable through the node window — recorded above). Family-less
+   routes remain `Declined`/`CoverageBackedWithoutCandidate` per the
+   landed D0 selection boundary.
+
+## P2-B landed — four producers emit physical-ready products
+
+All four in-boundary producers now issue the co-sealed semantic product
+at Recipe issuance (`&VerifiedResolvedFunctionV1` threaded as the
+decl/init authority; Facts unchanged, no Recipe keys in Facts):
+
+- `produce_direct_accum_recipe_v1(demand, function)` —
+  `{policy_receipt, operations, inputs}`; inputs = `i`/`sum`
+  `InitializedLocal` relations; operations = carrier seed + compare +
+  two writes with per-op source evidence.
+- `produce_loop_true_break_continue_recipe_v1(demand, function)` —
+  inputs = `flag`; operations = const + compare + if-exit evidence.
+- `produce_loop_cond_break_continue_recipe_v1(demand, function)` —
+  inputs = `i`; operations = compare(predicate) + if/exit evidence.
+- `produce_nested_predicate_recipe_v1(projection, function)` —
+  inputs = `i`/`sum`; internal decl `j` is a binding relation without
+  an input row (published at its producing item via the P2-D emit
+  hook); operations = root/child seeds + compares + writes.
+
+Shared helper `loop_recipe_contract/binding_declaration.rs`
+(`resolve_loop_binding_declaration_v1`) maps a binding -> decl site +
+initializer literal through `function.declaration_binding` /
+`expression_source().initializer()` — no name inspection.
+
+`VerifiedLoopCoreProductV1::into_recipe_sig()` (pub(crate)) added so
+the legacy adapters (`physical_input.rs::from_direct_accum`, nested
+topology/emission input) still unwrap recipe+join_sig from the
+co-sealed core without exposing the private source-claim type.
+
+Focused gate: `cargo test --lib -- direct_accum_producer_tests
+loop_true_break_continue_producer_tests
+loop_cond_break_continue_producer_tests
+nested_predicate_producer_tests nested_predicate_topology_tests
+nested_predicate_physical_input_tests nested_predicate_effect_plan_tests
+nested_predicate_effect_adapter_tests` — 28/28 ok;
+`wire_route_parity_tests wire_parity_tests
+loop_node_winner_spine_tests loop_family_window` — 73/73 ok.
+`cargo test --lib --no-run` green.
+
+Next slice: P2-C layout extensions (Always entry/BodyEntry,
+conditional backedge, dead-tail, Break-arm exits).

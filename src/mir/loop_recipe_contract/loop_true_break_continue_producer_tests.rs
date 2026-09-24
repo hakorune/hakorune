@@ -80,9 +80,13 @@ fn positive_function() -> ASTNode {
     }
 }
 
-pub(super) fn projection() -> VerifiedLoopTrueBreakContinueSourceProjectionV1 {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(positive_function()).unwrap();
-    let input = unit.root_function_input().unwrap();
+pub(super) fn unit() -> VerifiedResolvedSourceUnitV1 {
+    VerifiedResolvedSourceUnitV1::resolve_function(positive_function()).unwrap()
+}
+
+pub(super) fn projection_for(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+) -> VerifiedLoopTrueBreakContinueSourceProjectionV1 {
     let body = input.source().root_body().unwrap();
     let loop_stmt = input.source().body_stmt(&body, 1).unwrap();
     let source = input
@@ -99,7 +103,9 @@ fn target_cursor() -> usize {
         .unwrap()
 }
 
-pub(super) fn demand() -> crate::mir::loop_route_policy::VerifiedLoopTrueBreakContinuePolicyDemandV1 {
+pub(super) fn demand_for(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+) -> crate::mir::loop_route_policy::VerifiedLoopTrueBreakContinuePolicyDemandV1 {
     let observations = CANONICAL_LOOP_ROUTE_ORDER_V1
         .iter()
         .enumerate()
@@ -122,14 +128,16 @@ pub(super) fn demand() -> crate::mir::loop_route_policy::VerifiedLoopTrueBreakCo
         })
         .collect::<Box<[_]>>();
     issue_loop_true_break_continue_policy_demand_v1(
-        projection(),
+        projection_for(input),
         freeze_loop_route_schedule_v1(CANONICAL_LOOP_ROUTE_ORDER_V1.into(), observations).unwrap(),
     )
     .unwrap()
 }
 
 fn product() -> VerifiedLoopTrueBreakContinueRecipeProductV1 {
-    produce_loop_true_break_continue_recipe_v1(demand()).unwrap()
+    let unit = unit();
+    let input = unit.root_function_input().unwrap();
+    produce_loop_true_break_continue_recipe_v1(demand_for(input), input.function()).unwrap()
 }
 
 #[test]
@@ -201,6 +209,8 @@ fn producer_is_deterministic_and_retains_policy_frame_receipt() {
     let second = product();
     assert_eq!(first.recipe().as_recipe(), second.recipe().as_recipe());
     assert_eq!(first.join_sig().as_sig(), second.join_sig().as_sig());
-    let frame = projection().root_frame_key().clone();
+    let unit = unit();
+    let input = unit.root_function_input().unwrap();
+    let frame = projection_for(input).root_frame_key().clone();
     assert!(first.policy_receipt().frame_key().matches(&frame));
 }

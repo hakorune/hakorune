@@ -8,11 +8,14 @@ use super::nested_predicate_topology::{
     issue_nested_predicate_physical_emission_input_v1, NestedPhysicalNodeRefV1,
     NestedPhysicalPortRefV1, NestedPhysicalStageV1, NestedPortAliasV1,
 };
+use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_semantics::{loop_execution_frame_key_for_test, FunctionOwnerIssuerV1};
 use crate::mir::BasicBlockId;
 
 fn emission_input() -> super::nested_predicate_topology::VerifiedNestedPhysicalEmissionInputV1 {
-    let product = produce_nested_predicate_recipe_v1(projection_for(nested_function()))
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function()).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let product = produce_nested_predicate_recipe_v1(projection_for(input), input.function())
         .expect("nested producer");
     issue_nested_predicate_physical_emission_input_v1(product).expect("nested emission input")
 }

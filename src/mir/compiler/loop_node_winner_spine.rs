@@ -356,14 +356,14 @@ pub(crate) fn issue_loop_node_winner_recipe_v1<'source>(
     let (_, _, _, candidate, _) = selection.into_parts();
     match candidate {
         CanonicalLoopFamilyCandidateV1::DirectAccum(candidate) => {
-            issue_direct_accum_recipe(candidate).map_or_else(
+            issue_direct_accum_recipe(input, candidate).map_or_else(
                 |failure| Outcome::Rejected(failure),
                 |product| Outcome::Issued(LoopNodeWinnerRecipeV1::DirectAccum(product)),
             )
         }
         CanonicalLoopFamilyCandidateV1::NestedPredicate(candidate) => {
             let (projection, _) = candidate.into_parts();
-            produce_nested_predicate_recipe_v1(projection).map_or_else(
+            produce_nested_predicate_recipe_v1(projection, input.function()).map_or_else(
                 |reject| {
                     Outcome::Rejected(LoopNodeWinnerSpineFailureV1::NestedPredicateProducer(
                         reject,
@@ -373,7 +373,7 @@ pub(crate) fn issue_loop_node_winner_recipe_v1<'source>(
             )
         }
         CanonicalLoopFamilyCandidateV1::LoopTrue(candidate) => {
-            issue_loop_true_recipe(candidate).map_or_else(
+            issue_loop_true_recipe(input, candidate).map_or_else(
                 |failure| Outcome::Rejected(failure),
                 |product| Outcome::Issued(LoopNodeWinnerRecipeV1::LoopTrue(product)),
             )
@@ -469,7 +469,8 @@ fn family_backed_route(rows: &VerifiedLoopFamilyAdmissionRowsV1) -> Option<LoopR
     if count == 1 { backed } else { None }
 }
 
-fn issue_direct_accum_recipe(
+fn issue_direct_accum_recipe<'source>(
+    input: ResolvedFunctionLoweringInputV1<'source>,
     candidate: crate::mir::loop_route_policy::VerifiedDirectAccumFamilyCandidateV1,
 ) -> Result<VerifiedDirectAccumRecipeProductV1, LoopNodeWinnerSpineFailureV1> {
     let (observation, _) = candidate.into_parts();
@@ -480,11 +481,12 @@ fn issue_direct_accum_recipe(
     let (facts, source) = observation.into_parts();
     let demand = issue_selected_loop_recipe_demand_v1(winner, facts, source)
         .map_err(LoopNodeWinnerSpineFailureV1::DirectAccumDemand)?;
-    produce_direct_accum_recipe_v1(demand)
+    produce_direct_accum_recipe_v1(demand, input.function())
         .map_err(LoopNodeWinnerSpineFailureV1::DirectAccumProducer)
 }
 
-fn issue_loop_true_recipe(
+fn issue_loop_true_recipe<'source>(
+    input: ResolvedFunctionLoweringInputV1<'source>,
     candidate: crate::mir::loop_route_policy::VerifiedLoopTrueFamilyCandidateV1,
 ) -> Result<VerifiedLoopTrueBreakContinueRecipeProductV1, LoopNodeWinnerSpineFailureV1> {
     let (projection, _) = candidate.into_parts();
@@ -492,7 +494,7 @@ fn issue_loop_true_recipe(
         .map_err(LoopNodeWinnerSpineFailureV1::LoopTrueSchedule)?;
     let demand = issue_loop_true_break_continue_policy_demand_v1(projection, schedule)
         .map_err(LoopNodeWinnerSpineFailureV1::LoopTrueDemand)?;
-    produce_loop_true_break_continue_recipe_v1(demand)
+    produce_loop_true_break_continue_recipe_v1(demand, input.function())
         .map_err(LoopNodeWinnerSpineFailureV1::LoopTrueProducer)
 }
 
@@ -507,7 +509,7 @@ fn issue_loop_cond_recipe<'source>(
         .map_err(LoopNodeWinnerSpineFailureV1::LoopCondSchedule)?;
     let demand = issue_loop_cond_break_continue_policy_demand_v1(map, schedule)
         .map_err(LoopNodeWinnerSpineFailureV1::LoopCondDemand)?;
-    produce_loop_cond_break_continue_recipe_v1(demand)
+    produce_loop_cond_break_continue_recipe_v1(demand, input.function())
         .map_err(LoopNodeWinnerSpineFailureV1::LoopCondProducer)
 }
 

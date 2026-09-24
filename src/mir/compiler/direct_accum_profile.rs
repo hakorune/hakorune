@@ -151,7 +151,7 @@ pub(crate) fn issue_direct_accum_plan_from_handoff_v1<'source>(
     let demand = issue_selected_loop_recipe_demand_v1(winner, facts, source)
         .map_err(DirectAccumProfileRejectV1::Demand)?;
     let recipe =
-        produce_direct_accum_recipe_v1(demand).map_err(DirectAccumProfileRejectV1::Recipe)?;
+        produce_direct_accum_recipe_v1(demand, input.function()).map_err(DirectAccumProfileRejectV1::Recipe)?;
     Ok(CanonicalDirectAccumPlanV1 {
         input,
         loop_stmt,
@@ -193,7 +193,7 @@ pub(crate) fn admit_direct_accum_profile_v1<'source>(
     let demand = issue_selected_loop_recipe_demand_v1(winner, facts, source)
         .map_err(DirectAccumProfileRejectV1::Demand)?;
     let recipe =
-        produce_direct_accum_recipe_v1(demand).map_err(DirectAccumProfileRejectV1::Recipe)?;
+        produce_direct_accum_recipe_v1(demand, input.function()).map_err(DirectAccumProfileRejectV1::Recipe)?;
     let prefix = issue_direct_accum_prefix_input_v1(input, &loop_stmt)
         .map_err(DirectAccumProfileRejectV1::Prefix)?;
     Ok(CanonicalDirectAccumPlanV1 {

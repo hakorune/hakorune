@@ -17,7 +17,9 @@ pub(crate) struct VerifiedLoopPhysicalInputV1 {
 
 impl VerifiedLoopPhysicalInputV1 {
     pub(crate) fn from_direct_accum(product: VerifiedDirectAccumRecipeProductV1) -> Self {
-        let (recipe, join_sig) = product.into_parts();
+        let (operations, _inputs) = product.into_parts();
+        let (core, _evidence) = operations.into_parts();
+        let (_owner, recipe, join_sig, _claim, _bindings, _effects) = core.into_parts();
         Self { recipe, join_sig }
     }
 

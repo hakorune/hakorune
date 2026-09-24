@@ -10,11 +10,13 @@
 //! It adds no public API, no production caller, and no new semantic receipt.
 
 use super::direct_accum_producer::direct_accum_recipe;
-use super::direct_accum_producer_tests::{demand as direct_accum_demand, direct_accum_product_for_test};
+use super::direct_accum_producer_tests::{demand_for as direct_accum_demand_for, direct_accum_product_for_test};
 use super::loop_true_break_continue_producer::{
     loop_true_break_continue_recipe, produce_loop_true_break_continue_recipe_v1,
 };
-use super::loop_true_break_continue_producer_tests::demand as loop_true_demand;
+use super::loop_true_break_continue_producer_tests::{
+    demand_for as loop_true_demand_for, unit as loop_true_unit,
+};
 use super::normalize::LoopRecipeNormalizerV1;
 use super::producer_id::LoopRecipeProducerIdV1;
 use super::producer_id_migration_tests::RECEIPTS;
@@ -27,7 +29,7 @@ use super::{LoopRecipeNormalizerV2, LOOP_RECIPE_SCHEMA_VERSION_V2};
 use crate::mir::compiler::nested_predicate_producer::{
     nested_recipe, produce_nested_predicate_recipe_v1,
 };
-use crate::mir::compiler::{nested_function_for_p3_test, nested_projection_for_test};
+use crate::mir::compiler::{nested_function_for_p3_test, nested_projection_for_test, VerifiedResolvedSourceUnitV1};
 use crate::mir::loop_route_policy::{
     LoopRouteRecipeBackingV1, ATTESTED_RECIPE_BACKED_V1, CANONICAL_LOOP_ROUTE_ORDER_V1,
 };
@@ -61,8 +63,11 @@ const ACCUM_DIRECT_GOLDEN: &str = include_str!("fixtures/accum_direct_v1.json");
 /// projection `into_parts` -> forest binding + shape -> `nested_recipe` ->
 /// verify -> `into_source_binding` -> `NestedPredicateV1` provenance.
 fn nested_rust_artifact() -> LoopRecipeArtifactV1 {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function_for_p3_test())
+        .expect("nested function resolves");
+    let input = unit.root_function_input().expect("nested function input");
     let (forest_binding, shape, _frame_key) =
-        nested_projection_for_test(nested_function_for_p3_test()).into_parts();
+        nested_projection_for_test(input).into_parts();
     let recipe = nested_recipe(&shape);
     let verified_for_source =
         LoopRecipeVerifierV1::verify(recipe.clone()).expect("recipe verifies");
@@ -106,9 +111,13 @@ fn nested_hako_emission_verifies_and_matches_rust_producer_artifact() {
 fn nested_reconstructed_artifact_matches_real_producer_product() {
     let reconstructed = LoopRecipeVerifierV1::verify_artifact(nested_rust_artifact())
         .expect("reconstructed verifies");
-    let product = produce_nested_predicate_recipe_v1(nested_projection_for_test(
-        nested_function_for_p3_test(),
-    ))
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function_for_p3_test())
+        .expect("nested function resolves");
+    let input = unit.root_function_input().expect("nested function input");
+    let product = produce_nested_predicate_recipe_v1(
+        nested_projection_for_test(input),
+        input.function(),
+    )
     .expect("real nested producer seals");
     assert_eq!(
         LoopRecipeNormalizerV1::normalize_semantic(reconstructed.recipe())
@@ -155,7 +164,9 @@ fn nested_golden_stays_a_decode_and_verify_witness() {
 /// -> resolver-bound root source + shape -> recipe issuer -> verify ->
 /// `into_root_claim` -> `LoopTrueBreakContinueV1` provenance.
 fn loop_true_rust_artifact() -> LoopRecipeArtifactV1 {
-    let (_receipt, projection) = loop_true_demand().into_parts();
+    let unit = loop_true_unit();
+    let input = unit.root_function_input().expect("loop-true function input");
+    let (_receipt, projection) = loop_true_demand_for(input).into_parts();
     let (source_root, shape, _frame_key) = projection.into_parts();
     let recipe = loop_true_break_continue_recipe(&shape);
     let verified_for_source =
@@ -199,8 +210,13 @@ fn loop_true_hako_emission_verifies_and_matches_rust_producer_artifact() {
 fn loop_true_reconstructed_artifact_matches_real_producer_product() {
     let reconstructed = LoopRecipeVerifierV1::verify_artifact(loop_true_rust_artifact())
         .expect("reconstructed verifies");
-    let product =
-        produce_loop_true_break_continue_recipe_v1(loop_true_demand()).expect("producer seals");
+    let unit = loop_true_unit();
+    let input = unit.root_function_input().expect("loop-true function input");
+    let product = produce_loop_true_break_continue_recipe_v1(
+        loop_true_demand_for(input),
+        input.function(),
+    )
+    .expect("producer seals");
     assert_eq!(
         LoopRecipeNormalizerV1::normalize_semantic(reconstructed.recipe())
             .expect("reconstructed normalize_semantic"),
@@ -243,7 +259,9 @@ const HAKO_WIRE_ACCUM_DIRECT: &str =
 /// `direct_accum_recipe` -> verify -> resolver-bound root claim ->
 /// `DirectAccumV1` provenance.
 fn direct_accum_rust_artifact() -> LoopRecipeArtifactV1 {
-    let (_winner, facts, source) = direct_accum_demand().into_parts();
+    let unit = super::direct_accum_producer_tests::unit();
+    let input = unit.root_function_input().expect("direct accum function input");
+    let (_winner, facts, source) = direct_accum_demand_for(input).into_parts();
     let shape = facts.into_direct_accum_v1().expect("direct accum payload");
     let source_root =
         crate::mir::loop_structural_facts::bind_resolved_loop_root_v1(source)

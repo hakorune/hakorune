@@ -97,10 +97,8 @@ pub(crate) fn nested_function() -> ASTNode {
 }
 
 pub(crate) fn projection_for(
-    tree: ASTNode,
+    input: super::function_input::ResolvedFunctionLoweringInputV1<'_>,
 ) -> super::nested_predicate_projection::VerifiedNestedLoopSourceProjectionV1 {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(tree).unwrap();
-    let input = unit.root_function_input().expect("root input");
     let body = input.source().root_body().expect("function body");
     let root = input.source().body_stmt(&body, 1).expect("root loop");
     issue_nested_predicate_source_projection_v1(input, &root).expect("source projection")
@@ -108,7 +106,9 @@ pub(crate) fn projection_for(
 
 #[test]
 fn nested_producer_emits_verified_recipe_and_joinsig() {
-    let product = produce_nested_predicate_recipe_v1(projection_for(nested_function()))
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function()).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let product = produce_nested_predicate_recipe_v1(projection_for(input), input.function())
         .expect("nested producer");
     assert_eq!(product.recipe().as_recipe().loops.len(), 2);
     assert_eq!(product.join_sig().as_sig().loops.len(), 2);
@@ -117,7 +117,9 @@ fn nested_producer_emits_verified_recipe_and_joinsig() {
 
 #[test]
 fn nested_producer_splits_one_source_handoff_for_topology() {
-    let product = produce_nested_predicate_recipe_v1(projection_for(nested_function()))
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function()).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let product = produce_nested_predicate_recipe_v1(projection_for(input), input.function())
         .expect("nested producer");
     let (recipe, join_sig, handoff) = product.into_topology_input();
     assert_eq!(recipe.as_recipe().loops.len(), 2);
@@ -139,7 +141,9 @@ fn nested_producer_splits_one_source_handoff_for_topology() {
 
 #[test]
 fn nested_producer_matches_existing_recipe_and_joinsig_oracle() {
-    let product = produce_nested_predicate_recipe_v1(projection_for(nested_function()))
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function()).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let product = produce_nested_predicate_recipe_v1(projection_for(input), input.function())
         .expect("nested producer");
     let json: serde_json::Value = serde_json::from_str(include_str!(
         "../loop_recipe_contract/fixtures/nested_predicate_v1.json"
@@ -167,8 +171,10 @@ fn nested_producer_rejects_nonzero_root_initializer() {
         unreachable!();
     };
     initial_values[0] = Some(Box::new(integer(1)));
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(tree).unwrap();
+    let input = unit.root_function_input().unwrap();
     assert!(matches!(
-        produce_nested_predicate_recipe_v1(projection_for(tree)),
+        produce_nested_predicate_recipe_v1(projection_for(input), input.function()),
         Err(NestedPredicateRecipeProducerRejectV1::RootInitializerValue { index: 0, value: 1 })
     ));
 }
@@ -186,8 +192,10 @@ fn nested_producer_rejects_nonzero_child_initializer() {
         unreachable!();
     };
     root_body[1] = assign("j", 1);
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(tree).unwrap();
+    let input = unit.root_function_input().unwrap();
     assert!(matches!(
-        produce_nested_predicate_recipe_v1(projection_for(tree)),
+        produce_nested_predicate_recipe_v1(projection_for(input), input.function()),
         Err(NestedPredicateRecipeProducerRejectV1::ChildInitializerValue { value: 1 })
     ));
 }

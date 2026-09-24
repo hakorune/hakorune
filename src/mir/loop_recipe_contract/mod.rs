@@ -1,6 +1,8 @@
 //! Neutral selfhost-portable recursive Loop recipe contract.
 
 mod continuation;
+// Shared resolver-function declaration lookup for physical-ready producers.
+mod binding_declaration;
 // Caller-zero common V2 operation/control/coverage projections.
 mod common_v2_issuers;
 // Caller-zero typed source-backed After boundary; no allocation or CFG.
@@ -258,6 +260,10 @@ pub(crate) use common_v2_string_len_target_plan::{
 pub(crate) use common_v2_substring_target_plan::{
     issue_s6c_v2_substring_call_target_plan_v1, PreparedLoopV2SubstringCallTargetPlanV1,
     SubstringCallTargetPlanRejectV1,
+};
+#[allow(unused_imports)]
+pub(crate) use binding_declaration::{
+    resolve_loop_binding_declaration_v1, ResolvedLoopBindingDeclarationV1,
 };
 #[allow(unused_imports)]
 pub(crate) use continuation::VerifiedLoopContinuationContractV1;

@@ -252,7 +252,7 @@ fn claims_for(unit: &VerifiedResolvedSourceUnitV1) -> VerifiedNestedBindingExecu
     let root = input.source().body_stmt(&body, 1).expect("root loop");
     let projection = issue_nested_predicate_source_projection_v1(input, &root)
         .expect("nested source projection");
-    let product = produce_nested_predicate_recipe_v1(projection).expect("nested recipe product");
+    let product = produce_nested_predicate_recipe_v1(projection, input.function()).expect("nested recipe product");
     issue_nested_binding_execution_claims_v1(input.function(), product.source_handoff())
         .expect("nested execution claims")
 }

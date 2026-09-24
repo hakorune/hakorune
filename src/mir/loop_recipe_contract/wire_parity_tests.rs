@@ -1041,7 +1041,9 @@ fn m8c_wire_with_v1_schema_version_is_typed_reject() {
 use super::loop_cond_break_continue_producer::{
     loop_cond_break_continue_recipe, produce_loop_cond_break_continue_recipe_v1,
 };
-use super::loop_cond_break_continue_producer_tests::{demand as m8d_demand, typed_map as m8d_typed_map};
+use super::loop_cond_break_continue_producer_tests::{
+    demand_for as m8d_demand_for, typed_map_for as m8d_typed_map_for, unit as m8d_unit,
+};
 
 const HAKO_M8D_WIRE_EMISSION: &str =
     include_str!("fixtures/hako_loop_recipe_wire_m8d_v1.json");
@@ -1053,8 +1055,10 @@ const HAKO_M8D_WIRE_EMISSION: &str =
 /// map-carried `VerifiedLoopRootSourceV1::into_root_claim` — with
 /// `LoopCondBreakContinueV1` provenance.
 fn m8d_rust_artifact() -> LoopRecipeArtifactV1 {
+    let unit = m8d_unit();
+    let input = unit.root_function_input().expect("m8d function input");
     let (source_root, _projection, _carrier, loop_condition, branch_condition, _frame) =
-        m8d_typed_map().into_parts();
+        m8d_typed_map_for(input).into_parts();
     let recipe = loop_cond_break_continue_recipe(&loop_condition, &branch_condition);
     let verified_recipe =
         LoopRecipeVerifierV1::verify(recipe.clone()).expect("m8d recipe verifies");
@@ -1097,8 +1101,10 @@ fn m8d_hako_emission_verifies_and_matches_rust_producer_artifact() {
 fn m8d_reconstructed_artifact_matches_real_producer_product() {
     let reconstructed = LoopRecipeVerifierV1::verify_artifact(m8d_rust_artifact())
         .expect("m8d artifact verifies");
-    let product =
-        produce_loop_cond_break_continue_recipe_v1(m8d_demand()).expect("real producer seals");
+    let unit = m8d_unit();
+    let input = unit.root_function_input().expect("m8d function input");
+    let product = produce_loop_cond_break_continue_recipe_v1(m8d_demand_for(input), input.function())
+        .expect("real producer seals");
     assert_eq!(
         LoopRecipeNormalizerV1::normalize_semantic(reconstructed.recipe())
             .expect("reconstructed normalize_semantic"),

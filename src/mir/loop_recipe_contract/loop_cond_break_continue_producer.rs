@@ -1,20 +1,35 @@
 //! Caller-zero LoopCond Recipe producer.
 //!
-//! This profile consumes the sealed policy demand, emits the existing
-//! portable Recipe envelope, verifies it, and delegates logical
-//! elaboration to the one shared JoinSig owner. It does not inspect
-//! syntax or allocate physical IDs.
+//! This profile consumes the sealed policy demand, emits the portable Recipe
+//! envelope, verifies it, and delegates logical elaboration to the one shared
+//! JoinSig owner. The product co-seals the source-bound Core, per-operation
+//! evidence, and the initialized-local input set so the canonical physical
+//! edge needs no second semantic pass. It does not inspect syntax or
+//! allocate physical IDs.
 
 use crate::mir::compiler::loop_cond_break_continue_typed_map::LoopCondTypedCompareV1;
 use crate::mir::compiler::callable_single_loop_source_shapes::SyntaxBinaryOperatorV1;
 use crate::mir::loop_route_policy::VerifiedLoopCondBreakContinuePolicyDemandV1;
+use crate::mir::resolved_semantics::{
+    BindingOriginV1, BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceExprSiteV1,
+    SourceStmtSiteV1, VerifiedResolvedFunctionV1,
+};
 
+use super::binding_declaration::resolve_loop_binding_declaration_v1;
 use super::error::LoopRecipeRejectReasonV1;
 use super::ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopExitKeyV1, LoopItemKeyV1,
     LoopNodeKeyV1, LoopValueKeyV1,
 };
-use super::join_sig::{LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, VerifiedLoopJoinSigV1};
+use super::input_source::{
+    issue_initialized_local_input_source_set_v1, LoopInitializedLocalInputSourceRelationV1,
+    LoopInitializedLocalInputSourceSetRejectV1, VerifiedLoopInitializedLocalInputSourceSetV1,
+};
+use super::join_sig::{LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1};
+use super::operation_effect::{
+    LoopOperationEffectRejectV1, LoopOperationSourceEvidenceV1,
+    VerifiedLoopOperationEffectProductV1,
+};
 use super::producer_id::LoopRecipeProducerIdV1;
 use super::schema::{
     LoopCompareI64OpV1, LoopConditionV1, LoopExitKindV1, LoopNodeV1, LoopOperationV1,
@@ -22,29 +37,49 @@ use super::schema::{
     LoopRecipeExitV1, LoopRecipeItemRowV1, LoopRecipeItemV1, LoopRecipeProvenanceV1, LoopRecipeV1,
     LoopRecipeValueV1, LoopValueClassV1,
 };
-use super::verify::{verify_source_bound_recipe_v1, LoopRecipeVerifierV1, VerifiedLoopRecipeV1};
+use super::source_bound_core::{
+    issue_source_bound_core_from_artifact_v1, LoopBindingEffectAnchorV1,
+    LoopBindingEffectRelationV1, LoopBindingEffectRoleV1, LoopRecipeBindingRelationV1,
+};
+use super::verify::LoopRecipeVerifierV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum LoopCondBreakContinueRecipeProducerRejectV1 {
     PolicyFrameMismatch,
+    BindingDeclaration(BindingRefV1),
+    BindingInitializer(BindingRefV1),
     Recipe(LoopRecipeRejectReasonV1),
     JoinSig(LoopJoinSigRejectReasonV1),
+    Core(LoopRecipeRejectReasonV1),
+    Inputs(LoopInitializedLocalInputSourceSetRejectV1),
+    Operations(LoopOperationEffectRejectV1),
 }
 
+/// Physical-ready caller-zero product: the policy receipt stays attached for
+/// the family edge while the operation/effect Core and input set carry every
+/// source relation the canonical physicalizer needs.
 #[derive(Debug)]
 pub(crate) struct VerifiedLoopCondBreakContinueRecipeProductV1 {
     policy_receipt: crate::mir::loop_route_policy::VerifiedLoopCondBreakContinuePolicyReceiptV1,
-    recipe: VerifiedLoopRecipeV1,
-    join_sig: VerifiedLoopJoinSigV1,
+    operations: VerifiedLoopOperationEffectProductV1,
+    inputs: VerifiedLoopInitializedLocalInputSourceSetV1,
 }
 
 impl VerifiedLoopCondBreakContinueRecipeProductV1 {
-    pub(crate) fn recipe(&self) -> &VerifiedLoopRecipeV1 {
-        &self.recipe
+    pub(crate) fn recipe(&self) -> &super::verify::VerifiedLoopRecipeV1 {
+        self.operations.core().recipe()
     }
 
-    pub(crate) fn join_sig(&self) -> &VerifiedLoopJoinSigV1 {
-        &self.join_sig
+    pub(crate) fn join_sig(&self) -> &super::join_sig::VerifiedLoopJoinSigV1 {
+        self.operations.core().join_sig()
+    }
+
+    pub(crate) fn operations(&self) -> &VerifiedLoopOperationEffectProductV1 {
+        &self.operations
+    }
+
+    pub(crate) fn inputs(&self) -> &VerifiedLoopInitializedLocalInputSourceSetV1 {
+        &self.inputs
     }
 
     pub(crate) fn policy_receipt(
@@ -57,21 +92,22 @@ impl VerifiedLoopCondBreakContinueRecipeProductV1 {
         self,
     ) -> (
         crate::mir::loop_route_policy::VerifiedLoopCondBreakContinuePolicyReceiptV1,
-        VerifiedLoopRecipeV1,
-        VerifiedLoopJoinSigV1,
+        VerifiedLoopOperationEffectProductV1,
+        VerifiedLoopInitializedLocalInputSourceSetV1,
     ) {
-        (self.policy_receipt, self.recipe, self.join_sig)
+        (self.policy_receipt, self.operations, self.inputs)
     }
 }
 
 pub(crate) fn produce_loop_cond_break_continue_recipe_v1(
     demand: VerifiedLoopCondBreakContinuePolicyDemandV1,
+    function: &VerifiedResolvedFunctionV1,
 ) -> Result<
     VerifiedLoopCondBreakContinueRecipeProductV1,
     LoopCondBreakContinueRecipeProducerRejectV1,
 > {
     let (policy_receipt, map) = demand.into_parts();
-    let (source_root, projection, _carrier, loop_condition, branch_condition, _frame_key) =
+    let (source_root, projection, carrier, loop_condition, branch_condition, _frame_key) =
         map.into_parts();
     if !policy_receipt
         .frame_key()
@@ -79,6 +115,10 @@ pub(crate) fn produce_loop_cond_break_continue_recipe_v1(
     {
         return Err(LoopCondBreakContinueRecipeProducerRejectV1::PolicyFrameMismatch);
     }
+    let shape = projection.shape();
+    let loop_site = shape.loop_site.clone();
+    let compare_site = shape.branch_condition_site.clone();
+    let loop_compare_site = shape.loop_condition_site.clone();
     let recipe = loop_cond_break_continue_recipe(&loop_condition, &branch_condition);
     let verified_for_source = LoopRecipeVerifierV1::verify(recipe.clone())
         .map_err(LoopCondBreakContinueRecipeProducerRejectV1::Recipe)?;
@@ -88,15 +128,122 @@ pub(crate) fn produce_loop_cond_break_continue_recipe_v1(
         source_binding,
         recipe,
     );
-    let verified_recipe = verify_source_bound_recipe_v1(artifact)
+    let verified_artifact = LoopRecipeVerifierV1::verify_artifact(artifact.clone())
         .map_err(LoopCondBreakContinueRecipeProducerRejectV1::Recipe)?;
+    let verified_recipe = verified_artifact.into_recipe();
     let join_sig = LoopJoinSigElaboratorV1::elaborate(&verified_recipe)
         .map_err(LoopCondBreakContinueRecipeProducerRejectV1::JoinSig)?;
+    let binding = carrier.binding;
+    let owner = binding.owner();
+    let declaration = resolve_loop_binding_declaration_v1(function, binding)
+        .ok_or(LoopCondBreakContinueRecipeProducerRejectV1::BindingDeclaration(binding))?;
+    let initializer = declaration.initializer.clone().ok_or(
+        LoopCondBreakContinueRecipeProducerRejectV1::BindingInitializer(binding),
+    )?;
+    let binding_rows = vec![LoopRecipeBindingRelationV1::new(
+        LoopBindingKeyV1::new(0),
+        binding,
+        LoopValueClassV1::I64,
+        BindingOriginV1::Source(declaration.declaration.clone()),
+    )];
+    let effects = effect_relations(owner, &loop_site, &loop_condition, &branch_condition, binding);
+    let core =
+        issue_source_bound_core_from_artifact_v1(artifact, join_sig, owner, binding_rows, effects)
+            .map_err(LoopCondBreakContinueRecipeProducerRejectV1::Core)?;
+    let input_rows = vec![LoopInitializedLocalInputSourceRelationV1::new(
+        declaration.declaration,
+        initializer,
+        binding,
+        LoopValueKeyV1::new(0),
+        LoopValueClassV1::I64,
+    )];
+    let input_set = issue_initialized_local_input_source_set_v1(&core, input_rows)
+        .map_err(LoopCondBreakContinueRecipeProducerRejectV1::Inputs)?;
+    let operation_rows = operation_evidence(
+        owner,
+        &loop_site,
+        &loop_compare_site,
+        &compare_site,
+        &loop_condition,
+        &branch_condition,
+        binding,
+    );
+    let operations = VerifiedLoopOperationEffectProductV1::issue(core, operation_rows)
+        .map_err(LoopCondBreakContinueRecipeProducerRejectV1::Operations)?;
     Ok(VerifiedLoopCondBreakContinueRecipeProductV1 {
         policy_receipt,
-        recipe: verified_recipe,
-        join_sig,
+        operations,
+        inputs: input_set,
     })
+}
+
+fn effect_relations(
+    owner: FunctionOwnerIdV1,
+    loop_site: &SourceStmtSiteV1,
+    loop_condition: &LoopCondTypedCompareV1,
+    branch_condition: &LoopCondTypedCompareV1,
+    binding: BindingRefV1,
+) -> Vec<LoopBindingEffectRelationV1> {
+    let key = LoopBindingKeyV1::new(0);
+    let expr = |site: &SourceExprSiteV1| {
+        LoopBindingEffectAnchorV1::Expr(OwnedExprSiteV1::new(owner, site.clone()))
+    };
+    vec![
+        LoopBindingEffectRelationV1::new(
+            LoopBindingEffectRoleV1::DerivedCarrierEntry,
+            key,
+            binding,
+            LoopValueClassV1::I64,
+            LoopBindingEffectAnchorV1::DerivedCarrierEntry {
+                owner,
+                source_loop: loop_site.clone(),
+                carrier: LoopCarrierKeyV1::new(0),
+            },
+        ),
+        LoopBindingEffectRelationV1::new(
+            LoopBindingEffectRoleV1::SourceRead { ordinal: 0 },
+            key,
+            binding,
+            LoopValueClassV1::I64,
+            expr(&loop_condition.read_site),
+        ),
+        LoopBindingEffectRelationV1::new(
+            LoopBindingEffectRoleV1::SourceRead { ordinal: 1 },
+            key,
+            binding,
+            LoopValueClassV1::I64,
+            expr(&branch_condition.read_site),
+        ),
+    ]
+}
+
+fn operation_evidence(
+    owner: FunctionOwnerIdV1,
+    loop_site: &SourceStmtSiteV1,
+    loop_compare_site: &SourceExprSiteV1,
+    branch_compare_site: &SourceExprSiteV1,
+    loop_condition: &LoopCondTypedCompareV1,
+    branch_condition: &LoopCondTypedCompareV1,
+    binding: BindingRefV1,
+) -> Vec<LoopOperationSourceEvidenceV1> {
+    let row = |item: u32, block: u32, site: SourceExprSiteV1, source_binding| {
+        LoopOperationSourceEvidenceV1::new(
+            LoopItemKeyV1::new(item),
+            LoopBindingEffectAnchorV1::Expr(OwnedExprSiteV1::new(owner, site)),
+            loop_site.clone(),
+            LoopNodeKeyV1::new(0),
+            LoopBlockKeyV1::new(block),
+            source_binding,
+        )
+    };
+    vec![
+        row(0, 0, loop_condition.read_site.clone(), Some(binding)),
+        row(1, 0, loop_condition.bound_site.clone(), None),
+        row(2, 0, loop_compare_site.clone(), None),
+        row(3, 1, branch_condition.read_site.clone(), Some(binding)),
+        row(4, 1, branch_condition.bound_site.clone(), None),
+        row(5, 1, branch_compare_site.clone(), None),
+    ]
 }
 
 fn compare_op(operator: SyntaxBinaryOperatorV1) -> LoopCompareI64OpV1 {

@@ -15,7 +15,7 @@ fn claims() -> super::nested_predicate_effect_plan::VerifiedNestedBindingExecuti
     let root = input.source().body_stmt(&body, 1).expect("root loop");
     let projection = issue_nested_predicate_source_projection_v1(input, &root)
         .expect("nested source projection");
-    let product = produce_nested_predicate_recipe_v1(projection).expect("nested recipe product");
+    let product = produce_nested_predicate_recipe_v1(projection, input.function()).expect("nested recipe product");
     issue_nested_binding_execution_claims_v1(input.function(), product.source_handoff())
         .expect("nested execution claims")
 }
@@ -96,7 +96,7 @@ fn effect_claims_reject_a_foreign_resolved_function_owner() {
     let root = input.source().body_stmt(&body, 1).expect("root loop");
     let projection = issue_nested_predicate_source_projection_v1(input, &root)
         .expect("nested source projection");
-    let product = produce_nested_predicate_recipe_v1(projection).expect("nested recipe product");
+    let product = produce_nested_predicate_recipe_v1(projection, input.function()).expect("nested recipe product");
 
     let foreign_unit = VerifiedResolvedSourceUnitV1::resolve_function(nested_function())
         .expect("foreign nested function resolves");

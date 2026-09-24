@@ -19,11 +19,14 @@ use crate::mir::loop_route_policy::{
     LoopRouteSuppressionDispositionV1, CANONICAL_LOOP_ROUTE_ORDER_V1,
 };
 
-pub(super) fn typed_map() -> VerifiedLoopCondBreakContinueTypedSourceMapV1 {
-    let unit =
-        VerifiedResolvedSourceUnitV1::resolve_function(crate::mir::compiler::loop_cond_function_for_test())
-            .expect("fixture resolves");
-    let input = unit.root_function_input().expect("function input");
+pub(super) fn unit() -> VerifiedResolvedSourceUnitV1 {
+    VerifiedResolvedSourceUnitV1::resolve_function(crate::mir::compiler::loop_cond_function_for_test())
+        .expect("fixture resolves")
+}
+
+pub(super) fn typed_map_for(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+) -> VerifiedLoopCondBreakContinueTypedSourceMapV1 {
     let body = input.source().root_body().expect("function body");
     let loop_stmt = input.source().body_stmt(&body, 1).expect("root loop");
     let source = input
@@ -71,18 +74,20 @@ pub(super) fn schedule_with_winner(
     freeze_loop_route_schedule_v1(CANONICAL_LOOP_ROUTE_ORDER_V1.into(), observations).unwrap()
 }
 
-pub(super) fn demand()
-    -> crate::mir::loop_route_policy::VerifiedLoopCondBreakContinuePolicyDemandV1
-{
+pub(super) fn demand_for(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+) -> crate::mir::loop_route_policy::VerifiedLoopCondBreakContinuePolicyDemandV1 {
     issue_loop_cond_break_continue_policy_demand_v1(
-        typed_map(),
+        typed_map_for(input),
         schedule_with_winner(Some(target_cursor())),
     )
     .unwrap()
 }
 
 fn product() -> VerifiedLoopCondBreakContinueRecipeProductV1 {
-    produce_loop_cond_break_continue_recipe_v1(demand()).unwrap()
+    let unit = unit();
+    let input = unit.root_function_input().unwrap();
+    produce_loop_cond_break_continue_recipe_v1(demand_for(input), input.function()).unwrap()
 }
 
 #[test]
@@ -179,14 +184,18 @@ fn producer_is_deterministic_and_retains_policy_frame_receipt() {
     let second = product();
     assert_eq!(first.recipe().as_recipe(), second.recipe().as_recipe());
     assert_eq!(first.join_sig().as_sig(), second.join_sig().as_sig());
-    let frame = typed_map().root_frame_key().clone();
+    let unit = unit();
+    let input = unit.root_function_input().unwrap();
+    let frame = typed_map_for(input).root_frame_key().clone();
     assert!(first.policy_receipt().frame_key().matches(&frame));
 }
 
 #[test]
 fn demand_rejects_schedule_without_loop_cond_candidate() {
+    let unit = unit();
+    let input = unit.root_function_input().unwrap();
     let result = issue_loop_cond_break_continue_policy_demand_v1(
-        typed_map(),
+        typed_map_for(input),
         schedule_with_winner(None),
     );
     assert!(result.is_err(), "no LoopCond candidate must not be admitted");
@@ -194,9 +203,11 @@ fn demand_rejects_schedule_without_loop_cond_candidate() {
 
 #[test]
 fn demand_rejects_wrong_winner_cursor() {
+    let unit = unit();
+    let input = unit.root_function_input().unwrap();
     let wrong = (target_cursor() + 1) % CANONICAL_LOOP_ROUTE_ORDER_V1.len();
     let result = issue_loop_cond_break_continue_policy_demand_v1(
-        typed_map(),
+        typed_map_for(input),
         schedule_with_winner(Some(wrong)),
     );
     assert!(result.is_err(), "a different winning cursor must not seal");

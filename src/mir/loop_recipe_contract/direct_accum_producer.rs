@@ -1,26 +1,46 @@
 //! Caller-zero Direct Accum producer for the portable Loop recipe contract.
 //!
 //! This module consumes one already-selected semantic demand. It does not
-//! inspect syntax, select routes, or allocate physical identities.
+//! inspect syntax, select routes, or allocate physical identities. The
+//! product co-seals the source-bound Core (source claim, binding/effect
+//! relations), the per-operation evidence rows, and the initialized-local
+//! input set so the canonical physical edge needs no second semantic pass.
 
 use crate::mir::loop_structural_facts::{
-    DirectAccumFactsPayloadRejectV1, DirectAccumStructuralShapeV1, LoopRootSourceBindingRejectV1,
-    VerifiedSelectedLoopRecipeDemandV1,
+    DirectAccumFactsPayloadRejectV1, DirectAccumStructuralShapeV1, DirectAccumUpdateShapeV1,
+    LoopRootSourceBindingRejectV1, VerifiedSelectedLoopRecipeDemandV1,
+};
+use crate::mir::resolved_semantics::{
+    BindingOriginV1, BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceStmtSiteV1,
+    VerifiedResolvedFunctionV1,
 };
 
+use super::binding_declaration::resolve_loop_binding_declaration_v1;
 use super::error::LoopRecipeRejectReasonV1;
 use super::ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopItemKeyV1, LoopNodeKeyV1,
     LoopValueKeyV1,
 };
-use super::join_sig::{LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1, VerifiedLoopJoinSigV1};
+use super::input_source::{
+    issue_initialized_local_input_source_set_v1, LoopInitializedLocalInputSourceRelationV1,
+    LoopInitializedLocalInputSourceSetRejectV1, VerifiedLoopInitializedLocalInputSourceSetV1,
+};
+use super::join_sig::{LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1};
+use super::operation_effect::{
+    LoopOperationEffectRejectV1, LoopOperationSourceEvidenceV1,
+    VerifiedLoopOperationEffectProductV1,
+};
 use super::producer_id::LoopRecipeProducerIdV1;
 use super::schema::{
     LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopOperationV1, LoopRecipeArtifactV1,
     LoopRecipeBindingV1, LoopRecipeBlockV1, LoopRecipeCarrierV1, LoopRecipeItemRowV1,
     LoopRecipeItemV1, LoopRecipeProvenanceV1, LoopRecipeV1, LoopRecipeValueV1, LoopValueClassV1,
 };
-use super::verify::{LoopRecipeVerifierV1, VerifiedLoopRecipeV1};
+use super::source_bound_core::{
+    issue_source_bound_core_from_artifact_v1, LoopBindingEffectAnchorV1,
+    LoopBindingEffectRelationV1, LoopBindingEffectRoleV1, LoopRecipeBindingRelationV1,
+};
+use super::verify::LoopRecipeVerifierV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum DirectAccumRecipeProducerRejectV1 {
@@ -29,38 +49,60 @@ pub(crate) enum DirectAccumRecipeProducerRejectV1 {
     InductionRoleMismatch,
     AccumulatorRoleMismatch,
     SourceBinding(LoopRootSourceBindingRejectV1),
+    BindingDeclaration(BindingRefV1),
+    BindingInitializer(BindingRefV1),
     Recipe(LoopRecipeRejectReasonV1),
     JoinSig(LoopJoinSigRejectReasonV1),
+    Core(LoopRecipeRejectReasonV1),
+    Inputs(LoopInitializedLocalInputSourceSetRejectV1),
+    Operations(LoopOperationEffectRejectV1),
 }
 
+/// Physical-ready caller-zero product: the operation/effect Core and the
+/// initialized-local input set are co-sealed with the verified Recipe.
 #[derive(Debug)]
 pub(crate) struct VerifiedDirectAccumRecipeProductV1 {
-    recipe: VerifiedLoopRecipeV1,
-    join_sig: VerifiedLoopJoinSigV1,
+    operations: VerifiedLoopOperationEffectProductV1,
+    inputs: VerifiedLoopInitializedLocalInputSourceSetV1,
 }
 
 impl VerifiedDirectAccumRecipeProductV1 {
-    pub(crate) fn recipe(&self) -> &VerifiedLoopRecipeV1 {
-        &self.recipe
+    pub(crate) fn recipe(&self) -> &super::verify::VerifiedLoopRecipeV1 {
+        self.operations.core().recipe()
     }
 
-    pub(crate) fn join_sig(&self) -> &VerifiedLoopJoinSigV1 {
-        &self.join_sig
+    pub(crate) fn join_sig(&self) -> &super::join_sig::VerifiedLoopJoinSigV1 {
+        self.operations.core().join_sig()
     }
 
-    pub(crate) fn into_parts(self) -> (VerifiedLoopRecipeV1, VerifiedLoopJoinSigV1) {
-        (self.recipe, self.join_sig)
+    pub(crate) fn operations(&self) -> &VerifiedLoopOperationEffectProductV1 {
+        &self.operations
+    }
+
+    pub(crate) fn inputs(&self) -> &VerifiedLoopInitializedLocalInputSourceSetV1 {
+        &self.inputs
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedLoopOperationEffectProductV1,
+        VerifiedLoopInitializedLocalInputSourceSetV1,
+    ) {
+        (self.operations, self.inputs)
     }
 }
 
 pub(crate) fn produce_direct_accum_recipe_v1(
     demand: VerifiedSelectedLoopRecipeDemandV1,
+    function: &VerifiedResolvedFunctionV1,
 ) -> Result<VerifiedDirectAccumRecipeProductV1, DirectAccumRecipeProducerRejectV1> {
     let (_winner, facts, source) = demand.into_parts();
     let shape = facts
         .into_direct_accum_v1()
         .map_err(DirectAccumRecipeProducerRejectV1::FactsPayload)?;
     validate_roles(&shape)?;
+    let loop_site = source.site().clone();
     let source_root = crate::mir::loop_structural_facts::bind_resolved_loop_root_v1(source)
         .map_err(DirectAccumRecipeProducerRejectV1::SourceBinding)?;
     let recipe = direct_accum_recipe(&shape);
@@ -72,14 +114,26 @@ pub(crate) fn produce_direct_accum_recipe_v1(
         source_binding,
         recipe,
     );
-    let verified_artifact = LoopRecipeVerifierV1::verify_artifact(artifact)
+    let verified_artifact = LoopRecipeVerifierV1::verify_artifact(artifact.clone())
         .map_err(DirectAccumRecipeProducerRejectV1::Recipe)?;
     let verified_recipe = verified_artifact.into_recipe();
     let join_sig = LoopJoinSigElaboratorV1::elaborate(&verified_recipe)
         .map_err(DirectAccumRecipeProducerRejectV1::JoinSig)?;
+    let owner = shape.induction.owner();
+    let binding_rows = binding_relations(function, &shape)?;
+    let effects = effect_relations(owner, &loop_site, &shape);
+    let core =
+        issue_source_bound_core_from_artifact_v1(artifact, join_sig, owner, binding_rows, effects)
+            .map_err(DirectAccumRecipeProducerRejectV1::Core)?;
+    let input_rows = input_relations(function, &shape)?;
+    let input_set = issue_initialized_local_input_source_set_v1(&core, input_rows)
+        .map_err(DirectAccumRecipeProducerRejectV1::Inputs)?;
+    let operation_rows = operation_evidence(owner, &loop_site, &shape);
+    let operations = VerifiedLoopOperationEffectProductV1::issue(core, operation_rows)
+        .map_err(DirectAccumRecipeProducerRejectV1::Operations)?;
     Ok(VerifiedDirectAccumRecipeProductV1 {
-        recipe: verified_recipe,
-        join_sig,
+        operations,
+        inputs: input_set,
     })
 }
 
@@ -96,6 +150,162 @@ fn validate_roles(
         return Err(DirectAccumRecipeProducerRejectV1::AccumulatorRoleMismatch);
     }
     Ok(())
+}
+
+fn declaration_site(
+    function: &VerifiedResolvedFunctionV1,
+    binding: BindingRefV1,
+) -> Result<super::binding_declaration::ResolvedLoopBindingDeclarationV1, DirectAccumRecipeProducerRejectV1>
+{
+    resolve_loop_binding_declaration_v1(function, binding)
+        .ok_or(DirectAccumRecipeProducerRejectV1::BindingDeclaration(binding))
+}
+
+fn binding_relations(
+    function: &VerifiedResolvedFunctionV1,
+    shape: &DirectAccumStructuralShapeV1,
+) -> Result<Vec<LoopRecipeBindingRelationV1>, DirectAccumRecipeProducerRejectV1> {
+    [
+        (LoopBindingKeyV1::new(0), shape.induction),
+        (LoopBindingKeyV1::new(1), shape.accumulator),
+    ]
+    .into_iter()
+    .map(|(recipe_binding, source_binding)| {
+        Ok(LoopRecipeBindingRelationV1::new(
+            recipe_binding,
+            source_binding,
+            LoopValueClassV1::I64,
+            BindingOriginV1::Source(declaration_site(function, source_binding)?.declaration),
+        ))
+    })
+    .collect()
+}
+
+fn input_relations(
+    function: &VerifiedResolvedFunctionV1,
+    shape: &DirectAccumStructuralShapeV1,
+) -> Result<Vec<LoopInitializedLocalInputSourceRelationV1>, DirectAccumRecipeProducerRejectV1> {
+    [
+        (LoopValueKeyV1::new(0), shape.induction),
+        (LoopValueKeyV1::new(1), shape.accumulator),
+    ]
+    .into_iter()
+    .map(|(recipe_value, source_binding)| {
+        let declaration = declaration_site(function, source_binding)?;
+        let initializer = declaration.initializer.clone().ok_or(
+            DirectAccumRecipeProducerRejectV1::BindingInitializer(source_binding),
+        )?;
+        Ok(LoopInitializedLocalInputSourceRelationV1::new(
+            declaration.declaration,
+            initializer,
+            source_binding,
+            recipe_value,
+            LoopValueClassV1::I64,
+        ))
+    })
+    .collect()
+}
+
+fn update_effects(
+    owner: FunctionOwnerIdV1,
+    update: &DirectAccumUpdateShapeV1,
+    recipe_binding: LoopBindingKeyV1,
+    read_ordinal: u32,
+) -> [LoopBindingEffectRelationV1; 2] {
+    let expr = |site: &crate::mir::resolved_semantics::SourceExprSiteV1| {
+        LoopBindingEffectAnchorV1::Expr(OwnedExprSiteV1::new(owner, site.clone()))
+    };
+    [
+        LoopBindingEffectRelationV1::new(
+            LoopBindingEffectRoleV1::SourceRead {
+                ordinal: read_ordinal,
+            },
+            recipe_binding,
+            update.binding,
+            LoopValueClassV1::I64,
+            expr(&update.lhs_site),
+        ),
+        LoopBindingEffectRelationV1::new(
+            LoopBindingEffectRoleV1::SourceWrite { ordinal: 0 },
+            recipe_binding,
+            update.binding,
+            LoopValueClassV1::I64,
+            expr(&update.target_site),
+        ),
+    ]
+}
+
+fn effect_relations(
+    owner: FunctionOwnerIdV1,
+    loop_site: &SourceStmtSiteV1,
+    shape: &DirectAccumStructuralShapeV1,
+) -> Vec<LoopBindingEffectRelationV1> {
+    let induction = LoopBindingKeyV1::new(0);
+    let accumulator = LoopBindingKeyV1::new(1);
+    let carrier = |carrier: u32, recipe_binding, source_binding| {
+        LoopBindingEffectRelationV1::new(
+            LoopBindingEffectRoleV1::DerivedCarrierEntry,
+            recipe_binding,
+            source_binding,
+            LoopValueClassV1::I64,
+            LoopBindingEffectAnchorV1::DerivedCarrierEntry {
+                owner,
+                source_loop: loop_site.clone(),
+                carrier: LoopCarrierKeyV1::new(carrier),
+            },
+        )
+    };
+    let mut effects = vec![
+        carrier(0, induction, shape.induction),
+        carrier(1, accumulator, shape.accumulator),
+        LoopBindingEffectRelationV1::new(
+            LoopBindingEffectRoleV1::SourceRead { ordinal: 0 },
+            induction,
+            shape.induction,
+            LoopValueClassV1::I64,
+            LoopBindingEffectAnchorV1::Expr(OwnedExprSiteV1::new(
+                owner,
+                shape.condition_lhs_site.clone(),
+            )),
+        ),
+    ];
+    effects.extend(update_effects(owner, &shape.update, accumulator, 0));
+    effects.extend(update_effects(owner, &shape.step, induction, 1));
+    effects
+}
+
+fn operation_evidence(
+    owner: FunctionOwnerIdV1,
+    loop_site: &SourceStmtSiteV1,
+    shape: &DirectAccumStructuralShapeV1,
+) -> Vec<LoopOperationSourceEvidenceV1> {
+    let row =
+        |item: u32, block: u32, site: crate::mir::resolved_semantics::SourceExprSiteV1, binding| {
+            LoopOperationSourceEvidenceV1::new(
+                LoopItemKeyV1::new(item),
+                LoopBindingEffectAnchorV1::Expr(OwnedExprSiteV1::new(owner, site)),
+                loop_site.clone(),
+                LoopNodeKeyV1::new(0),
+                LoopBlockKeyV1::new(block),
+                binding,
+            )
+        };
+    let update_rows = |start: u32, update: &DirectAccumUpdateShapeV1| {
+        [
+            row(start, 1, update.lhs_site.clone(), Some(update.binding)),
+            row(start + 1, 1, update.rhs_site.clone(), None),
+            row(start + 2, 1, update.value_site.clone(), None),
+            row(start + 3, 1, update.target_site.clone(), Some(update.binding)),
+        ]
+    };
+    let mut rows = vec![
+        row(0, 0, shape.condition_site.clone(), None),
+        row(1, 0, shape.condition_lhs_site.clone(), Some(shape.induction)),
+        row(2, 0, shape.condition_site.clone(), None),
+    ];
+    rows.extend(update_rows(3, &shape.update));
+    rows.extend(update_rows(7, &shape.step));
+    rows
 }
 
 pub(super) fn direct_accum_recipe(shape: &DirectAccumStructuralShapeV1) -> LoopRecipeV1 {

@@ -151,7 +151,7 @@ fn issue_nested_predicate_plan_v1<'source>(
 ) -> Result<CanonicalNestedPredicatePlanV1<'source>, CanonicalLoweringErrorV1> {
     let projection = issue_nested_predicate_source_projection_v1(input, &loop_stmt)
         .map_err(|error| nested_projection_error(input, error))?;
-    let product = produce_nested_predicate_recipe_v1(projection)
+    let product = produce_nested_predicate_recipe_v1(projection, input.function())
         .map_err(|error| nested_recipe_error(input, error))?;
     let claims =
         issue_nested_binding_execution_claims_v1(input.function(), product.source_handoff())
