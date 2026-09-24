@@ -736,3 +736,42 @@ operation_effect` — 26/26 ok.
 Next slice: P2-E admission issuer (demand -> program -> layout + input
 set + decl rows) + Builder physicalize edge (CFG/SSA/PHI + variable_map
 bridge).
+
+## P2-E landed — admission issuer + caller-zero Builder physicalize edge
+
+`compiler/loop_node_physical_admission.rs` issues
+`VerifiedLoopNodePhysicalAdmissionV1` Builder-free: the `Issued` winner's
+resolver context (site + window-lease frame) is re-verified against the
+function input (`resolved_loop_source_context`, site must re-resolve
+identically), the root carrier's JoinSig After binding is required once
+(`RootCarrierMissing`/`AfterBinding` rejects), then the sole demand ->
+program -> layout chain runs plus the recipe's entry input set. The
+`GenericG0` arm is `FunctionLevelFamily` — function-level only, never a
+node-edge fallback. No re-selection, no second demand issuer.
+
+`builder/resolved_lowering/loop_recipe_physicalizer/loop_node_lowerer.rs`
+is the thin Builder bridge (caller-zero, `#[allow(dead_code)]`): one
+`ResolvedSsaIdentityStateV2` + `CanonicalCfgSessionV1` + `PhiTxn` per
+node, entry input rows published with `publish_declaration_exact` at the
+walk's current block using the `variable_map` value resolved by
+resolver binding `diagnostic_name` (missing name/value/binding -> typed
+terminal, no fallback), then the shared
+allocator -> dispatcher -> recursive-after pipeline. Returns
+`LoopNodeWinnerPhysicalContinuationV1` = sealed root After + per-binding
+writebacks read through the same identity (`read_entry` at root After);
+the outer walk stays the only `variable_map` writer and publisher.
+
+`IssuedLoopNodeWinnerV1` gained `into_parts()` and a `#[cfg(test)]`
+`for_test` ctor for admission coverage; production issuance stays inside
+the spine.
+
+Focused gate: `loop_node_physical_admission` — 5/5 ok (DirectAccum
+layout+inputs+empty decls, nested `j` PublishWithEntry row carried
+through demand, LoopTrue/LoopCond layouts, G0 -> FunctionLevelFamily).
+Regression: 186 family/spine/demand/layout/dispatcher tests +
+25 physicalizer tests all green.
+
+Next slice: R0 atomic `route_loop` switch — wire the named production
+caller (loop stmt site -> spine -> admission -> lowerer -> writebacks +
+`select_block(root_after)`), then retire the deletion-manifest legacy
+path for the selected boundary.

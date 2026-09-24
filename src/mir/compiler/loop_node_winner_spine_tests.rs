@@ -152,9 +152,8 @@ fn direct_accum_fixture_issues_recipe() {
     let function = parsed_method(ACCUM_CONST, "Main", "accum");
     let outcome = run(function);
     assert!(
-        matches!(outcome, LoopNodeWinnerSpineOutcomeV1::Issued(
-            LoopNodeWinnerRecipeV1::DirectAccum(_)
-        )),
+        matches!(&outcome, LoopNodeWinnerSpineOutcomeV1::Issued(issued)
+            if matches!(issued.recipe(), LoopNodeWinnerRecipeV1::DirectAccum(_))),
         "accum fixture must issue a DirectAccum recipe, got: {outcome:?}"
     );
 }
@@ -164,9 +163,8 @@ fn nested_predicate_fixture_issues_recipe() {
     let function = super::nested_function_for_p3_test();
     let outcome = run(function);
     assert!(
-        matches!(outcome, LoopNodeWinnerSpineOutcomeV1::Issued(
-            LoopNodeWinnerRecipeV1::NestedPredicate(_)
-        )),
+        matches!(&outcome, LoopNodeWinnerSpineOutcomeV1::Issued(issued)
+            if matches!(issued.recipe(), LoopNodeWinnerRecipeV1::NestedPredicate(_))),
         "nested fixture must issue a NestedPredicate recipe, got: {outcome:?}"
     );
 }
@@ -176,9 +174,8 @@ fn loop_true_fixture_issues_recipe() {
     let function = parsed_method(LOOP_TRUE, "Main", "loop_true_projection");
     let outcome = run(function);
     assert!(
-        matches!(outcome, LoopNodeWinnerSpineOutcomeV1::Issued(
-            LoopNodeWinnerRecipeV1::LoopTrue(_)
-        )),
+        matches!(&outcome, LoopNodeWinnerSpineOutcomeV1::Issued(issued)
+            if matches!(issued.recipe(), LoopNodeWinnerRecipeV1::LoopTrue(_))),
         "loop-true fixture must issue a LoopTrue recipe, got: {outcome:?}"
     );
 }
@@ -188,9 +185,8 @@ fn loop_cond_fixture_issues_recipe() {
     let function = parsed_method(LOOP_COND, "Main", "loop_cond_projection");
     let outcome = run(function);
     assert!(
-        matches!(outcome, LoopNodeWinnerSpineOutcomeV1::Issued(
-            LoopNodeWinnerRecipeV1::LoopCond(_)
-        )),
+        matches!(&outcome, LoopNodeWinnerSpineOutcomeV1::Issued(issued)
+            if matches!(issued.recipe(), LoopNodeWinnerRecipeV1::LoopCond(_))),
         "loop-cond fixture must issue a LoopCond recipe, got: {outcome:?}"
     );
 }

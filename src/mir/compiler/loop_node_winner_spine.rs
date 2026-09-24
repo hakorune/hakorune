@@ -70,7 +70,8 @@ use crate::mir::loop_structural_facts::{
 };
 use crate::mir::numeric_substrate::NumericTarget;
 use crate::mir::resolved_semantics::{
-    LoopFamilyWindowLeaseIssueV1, ResolvedLoopRegionLookupErrorV1,
+    LoopExecutionFrameKeyV1, LoopFamilyWindowLeaseIssueV1, ResolvedLoopRegionLookupErrorV1,
+    SourceStmtSiteV1,
 };
 
 /// Unified caller-zero recipe product. Exactly one family producer issues
@@ -82,6 +83,60 @@ pub(crate) enum LoopNodeWinnerRecipeV1 {
     LoopTrue(VerifiedLoopTrueBreakContinueRecipeProductV1),
     LoopCond(VerifiedLoopCondBreakContinueRecipeProductV1),
     GenericG0(VerifiedGenericRecipeProductG0),
+}
+
+/// One issued winner recipe plus the resolver context the physical
+/// admission issuer co-seals with it. `site` is the selected loop's
+/// resolver statement site and `frame` the window lease's execution
+/// frame — both minted before family selection, never re-derived.
+#[derive(Debug)]
+pub(crate) struct IssuedLoopNodeWinnerV1 {
+    site: SourceStmtSiteV1,
+    frame: LoopExecutionFrameKeyV1,
+    recipe: LoopNodeWinnerRecipeV1,
+}
+
+impl IssuedLoopNodeWinnerV1 {
+    pub(crate) fn site(&self) -> &SourceStmtSiteV1 {
+        &self.site
+    }
+
+    pub(crate) fn frame(&self) -> &LoopExecutionFrameKeyV1 {
+        &self.frame
+    }
+
+    pub(crate) fn recipe(&self) -> &LoopNodeWinnerRecipeV1 {
+        &self.recipe
+    }
+
+    pub(crate) fn into_recipe(self) -> LoopNodeWinnerRecipeV1 {
+        self.recipe
+    }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        SourceStmtSiteV1,
+        LoopExecutionFrameKeyV1,
+        LoopNodeWinnerRecipeV1,
+    ) {
+        (self.site, self.frame, self.recipe)
+    }
+
+    /// Test-only construction for admission issuer coverage; production
+    /// issuance stays inside `issue_loop_node_winner_recipe_v1`.
+    #[cfg(test)]
+    pub(crate) fn for_test(
+        site: SourceStmtSiteV1,
+        frame: LoopExecutionFrameKeyV1,
+        recipe: LoopNodeWinnerRecipeV1,
+    ) -> Self {
+        Self {
+            site,
+            frame,
+            recipe,
+        }
+    }
 }
 
 /// Typed terminal failure at one spine stage. Carries the stage's own
@@ -112,7 +167,7 @@ pub(crate) enum LoopNodeWinnerSpineFailureV1 {
 /// three are the typed terminal vocabulary the R0 switch freezes on.
 #[derive(Debug)]
 pub(crate) enum LoopNodeWinnerSpineOutcomeV1 {
-    Issued(LoopNodeWinnerRecipeV1),
+    Issued(IssuedLoopNodeWinnerV1),
     Declined(WholeUnitLoopCoverageProofV1),
     Unresolved(LoopNodeWinnerSpineFailureV1),
     Rejected(LoopNodeWinnerSpineFailureV1),
@@ -346,19 +401,30 @@ pub(crate) fn issue_loop_node_winner_recipe_v1<'source>(
             }
         };
         return match produce_generic_g0_recipe_v1(demand) {
-            Ok(product) => Outcome::Issued(LoopNodeWinnerRecipeV1::GenericG0(product)),
+            Ok(product) => Outcome::Issued(IssuedLoopNodeWinnerV1 {
+                site,
+                frame,
+                recipe: LoopNodeWinnerRecipeV1::GenericG0(product),
+            }),
             Err(reject) => Outcome::Rejected(LoopNodeWinnerSpineFailureV1::GenericG0Producer(
                 reject,
             )),
         };
     }
 
+    let issued = |recipe: LoopNodeWinnerRecipeV1| {
+        Outcome::Issued(IssuedLoopNodeWinnerV1 {
+            site: site.clone(),
+            frame: frame.clone(),
+            recipe,
+        })
+    };
     let (_, _, _, candidate, _) = selection.into_parts();
     match candidate {
         CanonicalLoopFamilyCandidateV1::DirectAccum(candidate) => {
             issue_direct_accum_recipe(input, candidate).map_or_else(
                 |failure| Outcome::Rejected(failure),
-                |product| Outcome::Issued(LoopNodeWinnerRecipeV1::DirectAccum(product)),
+                |product| issued(LoopNodeWinnerRecipeV1::DirectAccum(product)),
             )
         }
         CanonicalLoopFamilyCandidateV1::NestedPredicate(candidate) => {
@@ -369,19 +435,19 @@ pub(crate) fn issue_loop_node_winner_recipe_v1<'source>(
                         reject,
                     ))
                 },
-                |product| Outcome::Issued(LoopNodeWinnerRecipeV1::NestedPredicate(product)),
+                |product| issued(LoopNodeWinnerRecipeV1::NestedPredicate(product)),
             )
         }
         CanonicalLoopFamilyCandidateV1::LoopTrue(candidate) => {
             issue_loop_true_recipe(input, candidate).map_or_else(
                 |failure| Outcome::Rejected(failure),
-                |product| Outcome::Issued(LoopNodeWinnerRecipeV1::LoopTrue(product)),
+                |product| issued(LoopNodeWinnerRecipeV1::LoopTrue(product)),
             )
         }
         CanonicalLoopFamilyCandidateV1::LoopCond(candidate) => {
             issue_loop_cond_recipe(input, candidate).map_or_else(
                 |failure| Outcome::Rejected(failure),
-                |product| Outcome::Issued(LoopNodeWinnerRecipeV1::LoopCond(product)),
+                |product| issued(LoopNodeWinnerRecipeV1::LoopCond(product)),
             )
         }
         CanonicalLoopFamilyCandidateV1::GenericG0(_) => {

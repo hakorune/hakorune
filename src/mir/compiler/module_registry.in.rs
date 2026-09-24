@@ -106,6 +106,12 @@ mod loop_family_window_probe_tests;
 pub(crate) mod loop_node_winner_spine;
 #[cfg(test)]
 mod loop_node_winner_spine_tests;
+// Caller-zero until the R0 route switch wires the physicalize edge;
+// recheck at the production-switch slice.
+#[allow(dead_code)]
+pub(crate) mod loop_node_physical_admission;
+#[cfg(test)]
+mod loop_node_physical_admission_tests;
 pub(in crate::mir) mod loop_cond_break_continue_typed_map;
 pub(in crate::mir) mod loop_cond_break_continue_typed_map_issue;
 #[allow(dead_code)]
