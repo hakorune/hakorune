@@ -43,14 +43,16 @@ zero-referenced. The broad lifecycle run still has five pinned baseline
 failures and one D2 informational terminal. M11-A retired the caller-zero
 coreloop composer husks (`composer/coreloop_v2_nested_minimal.rs`,
 `composer/coreloop_gates.rs`) and re-pointed the two varmap role
-inventories to the live 12-site census; the red-baseline receipt absorbed
-the two removed unit tests. Remaining M11 work is the located_loop husk
-cluster, which is contract-pinned by the callable_result_i0 guard chain
-(`check_loop0_s0a`) and needs a surgical guard re-point before deletion —
-recorded in the R0 card. The cargo-lib red-baseline receipt is stale at
-HEAD beyond this delta (observed 7969/167/56 vs receipt 7381/133/29) and
-needs its own audit before re-baselining. M12 remains open under its own
-row; do not downgrade the corpus.
+inventories to the live 12-site census. M11-B retired the located_loop
+husk cluster (`plan/located_loop{,_error,_tests}.rs`); the recorded
+callable_result_i0 contract pins turned out to live in dormant,
+existence-only guard code that was already stale post-R0, so no active
+contract broke — re-activation rows own the re-point. The red-baseline
+receipt absorbed twelve removed unit tests across M11-A/B. The
+cargo-lib red-baseline receipt is stale at HEAD beyond this delta
+(observed 7969/167/56 vs receipt 7381/133/29) and needs its own audit
+before re-baselining. M12 remains open under its own row; do not
+downgrade the corpus.
 """
 next_design_card = "none__accepted_decision"
 next_design_card_path = "none__accepted_decision"

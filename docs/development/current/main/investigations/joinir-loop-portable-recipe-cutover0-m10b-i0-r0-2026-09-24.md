@@ -837,14 +837,22 @@ M11 residual enumeration (2026-09-25, post-`6e88441c0b` tree):
   - `plan/located_loop.rs` (254) + `located_loop_error.rs` (14) +
     `located_loop_tests.rs` (594): `LocatedCoreLoopExecutionSessionV1` /
     `VerifiedLocatedCoreLoopPlanV1` are re-exported at `plan/mod.rs:170-173`
-    under `#[allow(unused_imports)]` with zero production callers, but the
-    `callable_result_i0_*` guard family pins them as the recorded
-    callable-result loop-claim contract surface.  M11-B owner: the
-    `check_loop0_s0a` chain in
-    `tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0*.py`
-    interleaves the dead seal artifact pins with live
-    schedule/batch/ledger pins, so removal is a surgical guard re-point,
-    not a bulk delete.
+    under `#[allow(unused_imports)]` with zero production callers —
+    **retired in M11-B** (this branch): files deleted, `plan/mod.rs`
+    decls/re-exports removed, and the red-baseline receipt absorbed the
+    ten removed unit tests (expected_passed 7379→7369).  The recorded
+    contract-pin concern resolved as follows on inspection: the
+    `callable_result_i0_*` family in `tools/checks/lib/` is dormant —
+    `mirbuilder_inplace_replacement_guard.sh` lists the py files in
+    `guard_require_files` existence checks but never executes them, and
+    no dev_gate/guard_rows/CI surface runs them either; several of those
+    checks were already stale post-R0 (they read the deleted
+    `generic_loop/located_representation/` subtree).  Their
+    located-artifact pins now join that dormant drift; any row that
+    re-activates the family owns the re-point.  The live
+    schedule/batch/ledger claims in `callable_result_representation/`
+    are untouched — `ClaimedCallableResultLoopBatchV1` stays consumed by
+    `lowerer/emission_port.rs`.
   - `plan/composer/coreloop_v2_nested_minimal.rs` +
     `composer/coreloop_gates.rs`: caller-zero (self + `composer/mod.rs`
     only) — **retired in M11-A** (this branch): files deleted,

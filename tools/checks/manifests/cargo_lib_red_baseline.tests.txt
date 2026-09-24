@@ -1327,16 +1327,6 @@ mir::builder::control_flow::plan::generic_loop::located_representation::tests::n
 mir::builder::control_flow::plan::generic_loop::located_representation::tests::recipe_body_id_and_cardinality_are_co_sealed
 mir::builder::control_flow::plan::generic_loop::located_representation::tests::recipe_contract_domains_do_not_overlap
 mir::builder::control_flow::plan::generic_loop::located_representation::tests::strict_exit_allowed_seals_explicit_and_wrapped_if_items
-mir::builder::control_flow::plan::located_loop_tests::caller_absent_from_activation_plan_rejects_before_domain_lookup
-mir::builder::control_flow::plan::located_loop_tests::claimed_loop_execution_session_starts_active_and_rejects_early_finish
-mir::builder::control_flow::plan::located_loop_tests::empty_loop_domain_rejects_without_borrowing_sibling_rows
-mir::builder::control_flow::plan::located_loop_tests::malformed_core_loop_rejects_before_location_sealing
-mir::builder::control_flow::plan::located_loop_tests::missing_duplicate_and_unexpected_occurrences_are_distinct
-mir::builder::control_flow::plan::located_loop_tests::non_loop_and_foreign_plan_or_caller_pairings_reject
-mir::builder::control_flow::plan::located_loop_tests::required_source_site_stamped_unlocated_is_missing
-mir::builder::control_flow::plan::located_loop_tests::same_caller_loop_roots_keep_disjoint_activation_domains
-mir::builder::control_flow::plan::located_loop_tests::source_schedule_is_independent_from_core_plan_traversal_order
-mir::builder::control_flow::plan::located_loop_tests::unrelated_unlocated_effect_does_not_fabricate_a_source_occurrence
 mir::builder::control_flow::plan::loop_accum_physicalizer_tests::candidate_abort_after_late_physicalizer_failure_allows_fresh_reuse
 mir::builder::control_flow::plan::loop_accum_physicalizer_tests::candidate_rejection_discards_physicalized_loop_before_fresh_reuse
 mir::builder::control_flow::plan::loop_accum_physicalizer_tests::direct_accum_borrowing_seam_leaves_owner_commit_to_caller

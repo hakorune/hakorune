@@ -38,8 +38,6 @@ mod domain;
 mod effect;
 mod exit;
 pub(in crate::mir::builder) mod expression_port;
-mod located_loop;
-mod located_loop_error;
 
 // Layer 1: Core Infrastructure (基盤)
 // MIR lowering の中核インフラ
@@ -166,19 +164,10 @@ pub(in crate::mir::builder) use self::expression_port::LoopPlanExpressionPortErr
 pub(in crate::mir::builder) use self::expression_port::{
     LoopPlanExpressionPortV1, RawLoopPlanExpressionPortV1,
 };
-#[allow(unused_imports)]
-pub(in crate::mir::builder) use self::located_loop::{
-    LocatedCoreLoopExecutionSessionErrorV1, LocatedCoreLoopExecutionSessionV1,
-    VerifiedLocatedCoreLoopPlanV1,
-};
-pub(in crate::mir::builder) use self::located_loop_error::LocatedCoreLoopPlanErrorV1;
-
 // Domain types
 pub(in crate::mir::builder) use self::domain::LoopBreakStepPlacement;
 
 #[cfg(test)]
 mod expression_port_tests;
-#[cfg(test)]
-mod located_loop_tests;
 #[cfg(test)]
 pub(in crate::mir::builder) mod parity_snapshot_test_support;
