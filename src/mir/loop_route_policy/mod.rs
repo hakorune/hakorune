@@ -55,6 +55,7 @@ pub(crate) use all_route_observation::{
     LoopAllRouteObservationRowV1, LoopAllRouteObservationSetRejectV1,
     LoopRouteObservationOutcomeV1, LoopRouteRecipeBackingV1,
     VerifiedLoopAllRouteObservationSetV1, WholeUnitLoopCoverageProofV1,
+    ATTESTED_RECIPE_BACKED_V1,
 };
 #[allow(unused_imports)]
 pub(crate) use direct_accum_observation::{

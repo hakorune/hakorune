@@ -1,0 +1,94 @@
+// emit_loop_true_wire.hako
+// S7G all19 closeout: canonical stdout entry for the
+// LoopTrueBreakContinue family's LoopRecipeArtifactV1 (provenance
+// loop_true_break_continue_v1).
+//
+// Emits the artifact the live Rust producer
+// produce_loop_true_break_continue_recipe_v1 yields for the bounded
+// `positive_function` profile (loop(true) with an `if` break/else
+// continue branch, loop at root body item index 1): an `always`
+// condition, three blocks (branch condition, then, else), an `if` item,
+// break and continue exit rows, one `loop_true_branch_condition`
+// binding/carrier, one input.
+// Caller-zero: nothing invokes this entry from production routing.
+//
+// Boundary note (S7A D1, carried by the S7B1..S7B5 cards): the current
+// executable `.hako` subset admits only scalar/string locals, `+` concat,
+// loop/if, print, and return inside `Main.main()`. The artifact is
+// therefore assembled here from named string-fragment locals in fixed
+// serde field order. This entry is a wire-coverage emitter, not a
+// producer: it reads no input and claims no Facts/RoutePolicy/JoinSig
+// port (see README.md).
+//
+// Field names and tagged kinds mirror src/mir/loop_recipe_contract/
+// schema.rs (serde, `tag = "kind"`, snake_case). Emission order is the
+// serde field order; no map-key iteration exists on this path, so bytes
+// are deterministic.
+
+static box Main {
+  main() {
+    // ---- items ------------------------------------------------------------
+    local item_read    = "{\"key\":0,\"item\":{\"kind\":\"operation\",\"operation\":{\"kind\":\"read_binding\",\"binding\":0,\"result\":1}}}"
+    local item_const   = "{\"key\":1,\"item\":{\"kind\":\"operation\",\"operation\":{\"kind\":\"const_i64\",\"result\":2,\"value\":1}}}"
+    local item_cmp     = "{\"key\":2,\"item\":{\"kind\":\"operation\",\"operation\":{\"kind\":\"compare_i64\",\"op\":\"equal\",\"left\":1,\"right\":2,\"result\":3}}}"
+    local item_if      = "{\"key\":3,\"item\":{\"kind\":\"if\",\"condition\":3,\"then_block\":1,\"else_block\":2}}"
+    local item_break   = "{\"key\":4,\"item\":{\"kind\":\"exit\",\"exit\":0}}"
+    local item_cont    = "{\"key\":5,\"item\":{\"kind\":\"exit\",\"exit\":1}}"
+    local items = "[" + item_read + "," + item_const + "," + item_cmp + "," +
+      item_if + "," + item_break + "," + item_cont + "]"
+
+    // ---- loop node / blocks ------------------------------------------------
+    local condition = "{\"kind\":\"always\"}"
+    local loops = "[" +
+      "{\"key\":0,\"parent\":null,\"condition\":" + condition + ",\"body\":0}" +
+      "]"
+    local blocks = "[" +
+      "{\"key\":0,\"owner_loop\":0,\"items\":[0,1,2,3]}," +
+      "{\"key\":1,\"owner_loop\":0,\"items\":[4]}," +
+      "{\"key\":2,\"owner_loop\":0,\"items\":[5]}" +
+      "]"
+
+    // ---- bindings / values / carriers / exits --------------------------------
+    local bindings = "[" +
+      "{\"key\":0,\"label\":\"loop_true_branch_condition\",\"class\":\"i64\"}" +
+      "]"
+    local values = "[" +
+      "{\"key\":0,\"class\":\"i64\"},{\"key\":1,\"class\":\"i64\"}," +
+      "{\"key\":2,\"class\":\"i64\"},{\"key\":3,\"class\":\"bool\"}" +
+      "]"
+    local carriers = "[" +
+      "{\"key\":0,\"owner_loop\":0,\"binding\":0,\"class\":\"i64\",\"entry_value\":0}" +
+      "]"
+    local exits = "[" +
+      "{\"key\":0,\"owner_loop\":0,\"kind\":{\"kind\":\"break\",\"target_loop\":0}}," +
+      "{\"key\":1,\"owner_loop\":0,\"kind\":{\"kind\":\"continue\",\"target_loop\":0}}" +
+      "]"
+
+    // ---- recipe ------------------------------------------------------------
+    local recipe = "{\"root_loop\":0," +
+      "\"loops\":" + loops + "," +
+      "\"blocks\":" + blocks + "," +
+      "\"items\":" + items + "," +
+      "\"bindings\":" + bindings + "," +
+      "\"values\":" + values + "," +
+      "\"inputs\":[0]," +
+      "\"carriers\":" + carriers + "," +
+      "\"exits\":" + exits + "}"
+
+    // ---- provenance / source_binding ----------------------------------------
+    local provenance = "{\"producer_id\":\"loop_true_break_continue_v1\"}"
+    local owner = "{\"kind\":\"function_body\",\"compilation_unit_ordinal\":0,\"function_ordinal\":0}"
+    local path = "{\"steps\":[{\"kind\":\"body_item\",\"index\":1}]}"
+    local source_binding = "{\"owner\":" + owner + "," +
+      "\"loops\":[{\"loop_key\":0,\"path\":" + path + "}]}"
+
+    // ---- artifact -------------------------------------------------------------
+    local artifact = "{\"schema_version\":1," +
+      "\"provenance\":" + provenance + "," +
+      "\"source_binding\":" + source_binding + "," +
+      "\"recipe\":" + recipe + "}"
+
+    print(artifact)
+    return 0
+  }
+}

@@ -69,6 +69,29 @@ Owner boundary
   `normalize_semantic` on the real
   `produce_generic_residual_recipe_v1` product issued through its
   own policy-demand chain.
+- The S7G all19 closeout module
+  `src/mir/loop_recipe_contract/wire_route_parity_tests.rs` adds three
+  more arms covering the remaining attested-backed routes —
+  `AccumConstLoop` (`emit_direct_accum_wire.hako` ->
+  `hako_loop_recipe_wire_accum_direct_v1.json`, the live producer's
+  `induction`/`accumulator` role-label artifact at `body_item(1)`),
+  `NestedLoopMinimal` (`emit_nested_predicate_wire.hako` ->
+  `hako_loop_recipe_wire_nested_v1.json`, the live producer's
+  `root_0`/`root_1`/`child_0` role-label artifact) and
+  `LoopTrueBreakContinue` (`emit_loop_true_wire.hako` ->
+  `hako_loop_recipe_wire_loop_true_v1.json`) — each rebuilt through
+  the producer's own issuer calls and anchored
+  `normalize_semantic` on the real producer product, plus one
+  all-route coverage census pinning every canonical route as
+  wire-backed parity or typed decline against the sealed
+  `ATTESTED_RECIPE_BACKED_V1` attestation and the
+  `producer_id_migration` `RECEIPTS` inventory. The S7A substrate
+  emission (`hako_loop_recipe_wire_v1.json`) stays pinned to the
+  older-era `accum_direct_v1` golden (source-name labels,
+  `body_item(0)`) as the wire-transport witness; it is not the
+  AccumConstLoop cohort artifact. The `nested_predicate_v1`
+  golden remains a decode-and-verify witness for the same
+  reason.
 
 Non-goals (must not grow here)
 - No producer cohort, Facts, RoutePolicy, JoinSig elaboration, verifier,
@@ -126,6 +149,15 @@ Regenerating the checked-in emissions
 ./target/debug/hakorune --backend vm \
   lang/src/mir/builder/loop_recipe/emit_m8e_generic_wire.hako \
   > src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_m8e_v1.json
+./target/debug/hakorune --backend vm \
+  lang/src/mir/builder/loop_recipe/emit_direct_accum_wire.hako \
+  > src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_accum_direct_v1.json
+./target/debug/hakorune --backend vm \
+  lang/src/mir/builder/loop_recipe/emit_nested_predicate_wire.hako \
+  > src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_nested_v1.json
+./target/debug/hakorune --backend vm \
+  lang/src/mir/builder/loop_recipe/emit_loop_true_wire.hako \
+  > src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_loop_true_v1.json
 ```
 Each emission is one compact JSON line; the harness compares
 `decode_and_verify` + `normalize_*` products, not raw formatting.

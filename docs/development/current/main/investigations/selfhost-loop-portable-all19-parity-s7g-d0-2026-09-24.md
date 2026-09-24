@@ -1,13 +1,12 @@
 ---
-Status: design__2026-09-24__d0_all19_normalized_parity_closeout
+Status: landed__2026-09-24__all19_normalized_parity_closeout
 Task: SELFHOST-LOOP-PORTABLE-ALL19-PARITY-S7G
 Date: 2026-09-24
 Parent: SELFHOST-LOOP-M8E-GENERIC-PARITY-S7B5 (landed)
 PreviousCard: selfhost-loop-m8e-generic-parity-s7b5-d0-2026-09-24.md
 NextCard: frontier-pause__family_scheduler_reselection
-Implementation permission: false; name the owners to extend and fix the
-bounded implementation slice only. No code, no fixture, no
-route/caller change, no new semantic receipt from this card.
+Implementation permission: landed with the D1 adjustment recorded
+below; the closeout contract and all non-claims are unchanged.
 ---
 
 # SELFHOST-LOOP-PORTABLE-ALL19-PARITY-S7G — D0 all19 normalized parity closeout design
@@ -193,3 +192,97 @@ When this card is accepted, `work_mode` moves to `fast` for the
 bounded closeout slice named above: two emitters + two fixtures +
 two parity arms + DirectAccum anchor + all19 census + doc closeout,
 one commit, then frontier pause.
+
+## D1 implementation finding (role labels / older-era goldens)
+
+The D0 card assumed the `nested_predicate_v1` and `accum_direct_v1`
+goldens equal the live producers' products. They do not: both goldens
+are older-era witnesses carrying *source-name* labels (`i`/`sum`/`j`)
+and `body_item(0)` paths, while the live producers emit *role* labels
+(`root_0`/`root_1`/`child_0`, `induction`/`accumulator`) and
+`body_item(1)` paths for their bounded profiles. `normalize_semantic`
+preserves labels, so a golden-vs-product equality claim fails.
+
+Adjustment landed within the same contract: the `.hako` cohort
+emissions carry the **live-producer artifacts** (role labels,
+`body_item(1)`), rebuilt through each producer's own issuer chain in
+the harness (`nested_recipe` promoted to `pub(crate)`;
+`direct_accum_recipe` and `direct_accum_producer_tests::demand`
+promoted to `pub(super)`). The S7A substrate emission stays pinned to
+the older `accum_direct_v1` golden as the wire-transport witness —
+its landed claim is transport, not producer parity — and is not in
+the census; `AccumConstLoop` instead gets its own cohort fixture
+(`hako_loop_recipe_wire_accum_direct_v1.json` +
+`emit_direct_accum_wire.hako`, a third emitter beyond the two the
+card estimated). The `nested_predicate_v1` golden remains a
+decode-and-verify witness. This preserves every landed S7A claim
+while giving all eight attested-backed routes uniform
+live-producer-anchored parity.
+
+## Landed evidence (2026-09-24)
+
+```text
+lang/src/mir/builder/loop_recipe/emit_direct_accum_wire.hako —
+  live-producer AccumConstLoop artifact (direct_accum_v1,
+  body_item(1), role labels induction/accumulator; 11 items,
+  2 blocks, 11 values, 2 carriers)
+lang/src/mir/builder/loop_recipe/emit_nested_predicate_wire.hako —
+  live-producer NestedLoopMinimal artifact (nested_predicate_v1;
+  2 loops, parent/child; role labels root_0/root_1/child_0;
+  body_item(1) + loop_body_item(2) paths; 20 items, 4 blocks,
+  inputs [0,3], 3 carriers)
+lang/src/mir/builder/loop_recipe/emit_loop_true_wire.hako —
+  live-producer LoopTrueBreakContinue artifact
+  (loop_true_break_continue_v1; `always` condition; 3 blocks;
+  if + break/continue exits; body_item(1))
+fixtures/hako_loop_recipe_wire_{accum_direct,nested,loop_true}_v1.json —
+  checked-in emissions, each byte-identical to a fresh
+  ./target/debug/hakorune --backend vm run
+src/mir/loop_recipe_contract/wire_route_parity_tests.rs (new,
+  15 tests) — three parity arms (each: emission decodes+verifies
+  and matches the issuer-rebuilt artifact under all three V1
+  normalizations; rebuilt artifact's normalize_semantic equals
+  the real producer product issued through its own demand/
+  projection chain; single-line provenance/shape asserts), two
+  witness pins (S7A substrate emission still equals the
+  accum_direct golden; nested golden still decodes+verifies),
+  and the all19 census: every canonical route pinned exactly
+  once in canonical order as V1Parity/V2Parity (8 wire-backed)
+  or TypedDeclined (11), cross-checked against
+  ATTESTED_RECIPE_BACKED_V1 (now pub(crate), re-exported) and
+  the migration RECEIPTS (now pub(crate))
+src/mir/compiler/nested_predicate_producer.rs — nested_recipe
+  promoted to pub(crate)
+src/mir/loop_recipe_contract/{direct_accum,loop_true_break_continue}_
+  producer{,_tests}.rs — recipe issuers / demand helpers promoted
+  to pub(super) (same precedent as the S7B arms)
+src/mir/compiler/module_registry.in.rs — re-export
+  nested_projection_for_test alongside nested_function_for_p3_test
+lang/src/mir/hako_module.toml — three new exports
+lang/src/mir/builder/loop_recipe/README.md — S7G section,
+  fixture list, regeneration commands, role-label boundary note
+```
+
+Gates: `cargo test --lib mir::loop_recipe_contract` 239/239 green
+(15 S7G tests included); `cargo test --lib loop_route_policy`
+91/91; `cargo test --lib producer_id_migration` 4/4;
+`cargo test --release --lib mir::loop_recipe_contract` green
+(S7G-class release gate);
+`bash tools/checks/hako_mirbuilder_no_hostbridge.sh` OK;
+`bash tools/checks/current_state_pointer_guard.sh` OK;
+`git diff --check` clean. Baseline debt observed, not caused by
+this slice: `dev_gate.sh quick` fails inside the naming-charter
+guard on pre-existing `stage_a_route.rs` "Stage-A" wording (file
+untouched by this change; `tools/bin/hako` exec bit also missing
+in the worktree), and `mirbuilder_inplace_replacement_guard.sh`
+fails on the clean tree expecting a removed
+`recursive_child_lowering.rs`.
+
+Non-claims retained: caller-zero; no `.hako` producer/Facts/
+RoutePolicy/JoinSig port/verifier/CFG-PHI/physical MIR/production
+caller/hostbridge/input reading; route names stay census keys,
+never wire data; no new `Verified*`/`Prepared*` product (census is
+test-only); no literal M9 Done claim (route-ID/prefix-reason/
+JoinSig wire parity stays deferred behind a named `.hako`
+execution-mechanism row); no production selection; no Row F
+unblock; no legacy deletion.

@@ -72,7 +72,7 @@ fn function() -> ASTNode {
     }
 }
 
-fn demand() -> VerifiedSelectedLoopRecipeDemandV1 {
+pub(super) fn demand() -> VerifiedSelectedLoopRecipeDemandV1 {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function()).unwrap();
     let input = unit.root_function_input().unwrap();
     let body = input.source().root_body().unwrap();

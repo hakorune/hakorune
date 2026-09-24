@@ -139,7 +139,7 @@ fn validate_shape(
     Ok(())
 }
 
-fn nested_recipe(shape: &VerifiedNestedLoopSourceShapeV1) -> LoopRecipeV1 {
+pub(crate) fn nested_recipe(shape: &VerifiedNestedLoopSourceShapeV1) -> LoopRecipeV1 {
     let loop_root = LoopNodeKeyV1::new(0);
     let loop_child = LoopNodeKeyV1::new(1);
     let block_root_condition = LoopBlockKeyV1::new(0);

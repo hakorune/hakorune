@@ -63,7 +63,7 @@ pub(crate) enum LoopAllRouteObservationSetRejectV1 {
 /// Routes whose bounded source profile is covered by a landed portable
 /// cohort. Every other route must arrive as `PreEffectDeclined`; a
 /// `RecipeBacked` claim outside this table is a typed reject.
-const ATTESTED_RECIPE_BACKED_V1: &[(LoopRouteId, LoopRouteRecipeBackingV1)] = &[
+pub(crate) const ATTESTED_RECIPE_BACKED_V1: &[(LoopRouteId, LoopRouteRecipeBackingV1)] = &[
     (
         LoopRouteId::LoopBreakRecipe,
         LoopRouteRecipeBackingV1::PortableProducer(LoopRecipeProducerIdV1::VariableAccumBreakV1),

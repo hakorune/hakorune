@@ -150,6 +150,14 @@ mod source_bound_core_tests;
 #[path = "wire_parity_tests.rs"]
 mod wire_parity_tests;
 
+// S7G caller-zero all-route wire-parity census: remaining attested-route
+// arms (nested, loop-true), the DirectAccum live-producer anchor, and one
+// coverage class per canonical route cross-checked against the sealed
+// attestation and migration inventories.
+#[cfg(test)]
+#[path = "wire_route_parity_tests.rs"]
+mod wire_route_parity_tests;
+
 mod generic_g0_demand;
 
 mod generic_g0;

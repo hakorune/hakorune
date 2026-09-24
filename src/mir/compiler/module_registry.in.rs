@@ -223,7 +223,10 @@ pub(in crate::mir) mod variable_accum_recurrence_projection;
 #[cfg(test)]
 mod variable_accum_recurrence_projection_tests;
 #[cfg(test)]
-pub(crate) use nested_predicate_producer_tests::nested_function as nested_function_for_p3_test;
+pub(crate) use nested_predicate_producer_tests::{
+    nested_function as nested_function_for_p3_test,
+    projection_for as nested_projection_for_test,
+};
 #[cfg(test)]
 mod loop_true_break_continue_projection_tests;
 #[cfg(test)]

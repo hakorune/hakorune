@@ -98,7 +98,7 @@ fn validate_roles(
     Ok(())
 }
 
-fn direct_accum_recipe(shape: &DirectAccumStructuralShapeV1) -> LoopRecipeV1 {
+pub(super) fn direct_accum_recipe(shape: &DirectAccumStructuralShapeV1) -> LoopRecipeV1 {
     let loop_key = LoopNodeKeyV1::new(0);
     let condition_block = LoopBlockKeyV1::new(0);
     let body_block = LoopBlockKeyV1::new(1);

@@ -94,7 +94,7 @@ pub(crate) fn produce_loop_true_break_continue_recipe_v1(
     })
 }
 
-fn loop_true_break_continue_recipe(
+pub(super) fn loop_true_break_continue_recipe(
     shape: &VerifiedLoopTrueBreakContinueSourceShapeV1,
 ) -> LoopRecipeV1 {
     let loop_key = LoopNodeKeyV1::new(0);

@@ -12,13 +12,13 @@ use super::producer_id::LoopRecipeProducerIdV1;
 use super::route_id::LoopRouteId;
 
 #[derive(Debug, PartialEq, Eq)]
-struct LegacyRouteParityReceiptV1 {
-    legacy_route: LoopRouteId,
-    producer_id: Option<LoopRecipeProducerIdV1>,
-    disposition: &'static str,
+pub(crate) struct LegacyRouteParityReceiptV1 {
+    pub(crate) legacy_route: LoopRouteId,
+    pub(crate) producer_id: Option<LoopRecipeProducerIdV1>,
+    pub(crate) disposition: &'static str,
 }
 
-const RECEIPTS: &[LegacyRouteParityReceiptV1] = &[
+pub(crate) const RECEIPTS: &[LegacyRouteParityReceiptV1] = &[
     LegacyRouteParityReceiptV1 {
         legacy_route: LoopRouteId::LoopBreakRecipe,
         producer_id: Some(LoopRecipeProducerIdV1::VariableAccumBreakV1),

@@ -1,0 +1,142 @@
+// emit_nested_predicate_wire.hako
+// S7G all19 closeout: canonical stdout entry for the NestedLoopMinimal
+// family's LoopRecipeArtifactV1 (provenance nested_predicate_v1).
+//
+// Emits the artifact the live Rust producer
+// produce_nested_predicate_recipe_v1 yields for the bounded
+// `nested_function` profile (nested_loop_minimal with a root
+// loop(i < 3) containing `local j; j = 0;` and the child
+// loop(j < 3) accumulation; root loop at root body item index 1, child
+// loop at loop body item index 2). The recipe uses role labels
+// `root_0`/`root_1`/`child_0` — this is the live-producer artifact, not
+// the older-era nested_predicate_v1 golden (source-name labels) that
+// remains a decode-and-verify witness.
+// Caller-zero: nothing invokes this entry from production routing.
+//
+// Boundary note (S7A D1, carried by the S7B1..S7B5 cards): the current
+// executable `.hako` subset admits only scalar/string locals, `+` concat,
+// loop/if, print, and return inside `Main.main()`. The artifact is
+// therefore assembled here from named string-fragment locals in fixed
+// serde field order. This entry is a wire-coverage emitter, not a
+// producer: it reads no input and claims no Facts/RoutePolicy/JoinSig
+// port (see README.md).
+//
+// Field names and tagged kinds mirror src/mir/loop_recipe_contract/
+// schema.rs (serde, `tag = "kind"`, snake_case). Emission order is the
+// serde field order; no map-key iteration exists on this path, so bytes
+// are deterministic.
+
+static box Main {
+  main() {
+    // ---- operations ---------------------------------------------------
+    local op_read_root0_a   = "{\"kind\":\"read_binding\",\"binding\":0,\"result\":1}"
+    local op_const_three_a  = "{\"kind\":\"const_i64\",\"result\":2,\"value\":3}"
+    local op_cmp_less_a     = "{\"kind\":\"compare_i64\",\"op\":\"less\",\"left\":1,\"right\":2,\"result\":4}"
+    local op_const_zero     = "{\"kind\":\"const_i64\",\"result\":5,\"value\":0}"
+    local op_read_child0_a  = "{\"kind\":\"read_binding\",\"binding\":2,\"result\":6}"
+    local op_const_three_b  = "{\"kind\":\"const_i64\",\"result\":8,\"value\":3}"
+    local op_cmp_less_b     = "{\"kind\":\"compare_i64\",\"op\":\"less\",\"left\":6,\"right\":8,\"result\":7}"
+    local op_read_root1_a   = "{\"kind\":\"read_binding\",\"binding\":1,\"result\":9}"
+    local op_const_one_a    = "{\"kind\":\"const_i64\",\"result\":10,\"value\":1}"
+    local op_add_root1      = "{\"kind\":\"binary_i64\",\"op\":\"add\",\"left\":9,\"right\":10,\"result\":11}"
+    local op_write_root1    = "{\"kind\":\"write_binding\",\"binding\":1,\"value\":11}"
+    local op_read_child0_b  = "{\"kind\":\"read_binding\",\"binding\":2,\"result\":12}"
+    local op_const_one_b    = "{\"kind\":\"const_i64\",\"result\":13,\"value\":1}"
+    local op_add_child0     = "{\"kind\":\"binary_i64\",\"op\":\"add\",\"left\":12,\"right\":13,\"result\":14}"
+    local op_write_child0   = "{\"kind\":\"write_binding\",\"binding\":2,\"value\":14}"
+    local op_read_root0_b   = "{\"kind\":\"read_binding\",\"binding\":0,\"result\":15}"
+    local op_const_one_c    = "{\"kind\":\"const_i64\",\"result\":16,\"value\":1}"
+    local op_add_root0      = "{\"kind\":\"binary_i64\",\"op\":\"add\",\"left\":15,\"right\":16,\"result\":17}"
+    local op_write_root0    = "{\"kind\":\"write_binding\",\"binding\":0,\"value\":17}"
+
+    // ---- item rows ------------------------------------------------------
+    local items = "[" +
+      "{\"key\":0,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_root0_a + "}}," +
+      "{\"key\":1,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_three_a + "}}," +
+      "{\"key\":2,\"item\":{\"kind\":\"operation\",\"operation\":" + op_cmp_less_a + "}}," +
+      "{\"key\":3,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_zero + "}}," +
+      "{\"key\":4,\"item\":{\"kind\":\"loop\",\"loop_key\":1}}," +
+      "{\"key\":5,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_child0_a + "}}," +
+      "{\"key\":6,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_three_b + "}}," +
+      "{\"key\":7,\"item\":{\"kind\":\"operation\",\"operation\":" + op_cmp_less_b + "}}," +
+      "{\"key\":8,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_root1_a + "}}," +
+      "{\"key\":9,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_one_a + "}}," +
+      "{\"key\":10,\"item\":{\"kind\":\"operation\",\"operation\":" + op_add_root1 + "}}," +
+      "{\"key\":11,\"item\":{\"kind\":\"operation\",\"operation\":" + op_write_root1 + "}}," +
+      "{\"key\":12,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_child0_b + "}}," +
+      "{\"key\":13,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_one_b + "}}," +
+      "{\"key\":14,\"item\":{\"kind\":\"operation\",\"operation\":" + op_add_child0 + "}}," +
+      "{\"key\":15,\"item\":{\"kind\":\"operation\",\"operation\":" + op_write_child0 + "}}," +
+      "{\"key\":16,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_root0_b + "}}," +
+      "{\"key\":17,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_one_c + "}}," +
+      "{\"key\":18,\"item\":{\"kind\":\"operation\",\"operation\":" + op_add_root0 + "}}," +
+      "{\"key\":19,\"item\":{\"kind\":\"operation\",\"operation\":" + op_write_root0 + "}}" +
+      "]"
+
+    // ---- loop nodes / blocks ---------------------------------------------
+    local condition_root  = "{\"kind\":\"predicate\",\"block\":0,\"value\":4}"
+    local condition_child = "{\"kind\":\"predicate\",\"block\":2,\"value\":7}"
+    local loops = "[" +
+      "{\"key\":0,\"parent\":null,\"condition\":" + condition_root + ",\"body\":1}," +
+      "{\"key\":1,\"parent\":0,\"condition\":" + condition_child + ",\"body\":3}" +
+      "]"
+    local blocks = "[" +
+      "{\"key\":0,\"owner_loop\":0,\"items\":[0,1,2]}," +
+      "{\"key\":1,\"owner_loop\":0,\"items\":[3,4,16,17,18,19]}," +
+      "{\"key\":2,\"owner_loop\":1,\"items\":[5,6,7]}," +
+      "{\"key\":3,\"owner_loop\":1,\"items\":[8,9,10,11,12,13,14,15]}" +
+      "]"
+
+    // ---- bindings / values / carriers ------------------------------------
+    local bindings = "[" +
+      "{\"key\":0,\"label\":\"root_0\",\"class\":\"i64\"}," +
+      "{\"key\":1,\"label\":\"root_1\",\"class\":\"i64\"}," +
+      "{\"key\":2,\"label\":\"child_0\",\"class\":\"i64\"}" +
+      "]"
+    local values = "[" +
+      "{\"key\":0,\"class\":\"i64\"},{\"key\":1,\"class\":\"i64\"}," +
+      "{\"key\":2,\"class\":\"i64\"},{\"key\":3,\"class\":\"i64\"}," +
+      "{\"key\":4,\"class\":\"bool\"},{\"key\":5,\"class\":\"i64\"}," +
+      "{\"key\":6,\"class\":\"i64\"},{\"key\":7,\"class\":\"bool\"}," +
+      "{\"key\":8,\"class\":\"i64\"},{\"key\":9,\"class\":\"i64\"}," +
+      "{\"key\":10,\"class\":\"i64\"},{\"key\":11,\"class\":\"i64\"}," +
+      "{\"key\":12,\"class\":\"i64\"},{\"key\":13,\"class\":\"i64\"}," +
+      "{\"key\":14,\"class\":\"i64\"},{\"key\":15,\"class\":\"i64\"}," +
+      "{\"key\":16,\"class\":\"i64\"},{\"key\":17,\"class\":\"i64\"}" +
+      "]"
+    local carriers = "[" +
+      "{\"key\":0,\"owner_loop\":0,\"binding\":0,\"class\":\"i64\",\"entry_value\":0}," +
+      "{\"key\":1,\"owner_loop\":0,\"binding\":1,\"class\":\"i64\",\"entry_value\":3}," +
+      "{\"key\":2,\"owner_loop\":1,\"binding\":2,\"class\":\"i64\",\"entry_value\":5}" +
+      "]"
+
+    // ---- recipe ------------------------------------------------------------
+    local recipe = "{\"root_loop\":0," +
+      "\"loops\":" + loops + "," +
+      "\"blocks\":" + blocks + "," +
+      "\"items\":" + items + "," +
+      "\"bindings\":" + bindings + "," +
+      "\"values\":" + values + "," +
+      "\"inputs\":[0,3]," +
+      "\"carriers\":" + carriers + "," +
+      "\"exits\":[]}"
+
+    // ---- provenance / source_binding ----------------------------------------
+    local provenance = "{\"producer_id\":\"nested_predicate_v1\"}"
+    local owner = "{\"kind\":\"function_body\",\"compilation_unit_ordinal\":0,\"function_ordinal\":0}"
+    local path_root  = "{\"steps\":[{\"kind\":\"body_item\",\"index\":1}]}"
+    local path_child = "{\"steps\":[{\"kind\":\"body_item\",\"index\":1},{\"kind\":\"loop_body_item\",\"index\":2}]}"
+    local source_binding = "{\"owner\":" + owner + "," +
+      "\"loops\":[{\"loop_key\":0,\"path\":" + path_root + "}," +
+      "{\"loop_key\":1,\"path\":" + path_child + "}]}"
+
+    // ---- artifact -------------------------------------------------------------
+    local artifact = "{\"schema_version\":1," +
+      "\"provenance\":" + provenance + "," +
+      "\"source_binding\":" + source_binding + "," +
+      "\"recipe\":" + recipe + "}"
+
+    print(artifact)
+    return 0
+  }
+}

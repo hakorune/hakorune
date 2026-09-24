@@ -1,9 +1,9 @@
 date = "2026-09-23"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "SELFHOST-LOOP-PORTABLE-ALL19-PARITY-S7G"
 current_execution_cohort = "loop_s7_wire_closeout"
-current_blocker_token = "SELFHOST-LOOP-PORTABLE-ALL19-PARITY-S7G__CohortDesignOpen"
+current_blocker_token = "SELFHOST-LOOP-PORTABLE-ALL19-PARITY-S7G__All19ParityLanded"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "S7GCohort__All19NormalizedParityCloseout__CardOnly_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -18,35 +18,41 @@ current_execution_design = "docs/development/current/main/investigations/selfhos
 latest_card = "selfhost-loop-portable-all19-parity-s7g"
 latest_card_path = "docs/development/current/main/investigations/selfhost-loop-portable-all19-parity-s7g-d0-2026-09-24.md"
 latest_card_summary = """
-S7G all19 normalized parity closeout D0 card open — the last
-parity row of the S7 wire ladder. Decision: complete attested
-wire coverage (two unwired attested-backed routes get
-caller-zero .hako emitters — NestedLoopMinimal via existing
-nested_predicate_v1 golden + pub(crate) projection issuer,
-LoopTrueBreakContinue via producer demand issuer with
-pub(super) promotions), upgrade the S7A DirectAccum arm to a
-live-producer semantic anchor (direct_accum_product_for_test,
-already pub(crate)), and add a test-only all-route parity
-census pinning each of the 19 canonical routes as
-WireBackedParity (8 routes) or TypedDeclined (11 routes),
-cross-checked against ATTESTED_RECIPE_BACKED_V1 and the
-producer_id_migration RECEIPTS. New census module because
-wire_parity_tests.rs is past the 800-line cap. S7G-class
-heavy gates (release/quick + row-named parity). Explicit
-deferred record: the .hako producer half and M9 Done's
-route-ID/prefix-reason/JoinSig wire parity are unreachable
-until a named .hako execution-mechanism row lands. Rejected:
-census-only (gap with no owning row), declined-route
-emitters (no producer -> no artifact), new sealed census
-product (no consumer), literal M9 Done. Non-claims:
-caller-zero; no producer port/verifier/CFG-PHI/physical
-MIR/input/hostbridge; no production selection; no Row F
-unblock; no legacy deletion.
+S7G all19 normalized parity closeout landed caller-zero — the
+last parity row of the S7 wire ladder. Three new .hako
+emitters cover the remaining attested-backed routes:
+emit_direct_accum_wire (AccumConstLoop live-producer
+artifact, role labels induction/accumulator, body_item(1)),
+emit_nested_predicate_wire (NestedLoopMinimal, first
+parent/child two-loop wire surface, role labels
+root_0/root_1/child_0), emit_loop_true_wire
+(LoopTrueBreakContinue, always-condition + if + break/
+continue exits). D1 finding recorded: the nested_predicate
+and accum_direct goldens are older-era source-name-label
+witnesses, not live-producer products — emissions therefore
+carry the live artifacts and the goldens keep
+decode/transport-witness status only (S7A substrate
+unchanged). wire_route_parity_tests.rs (new, 15 tests): 3
+issuer-rebuild parity arms anchored normalize_semantic on
+real producer products + 2 witness pins + all19 census
+pinning every canonical route as V1Parity/V2Parity (8) or
+TypedDeclined (11), cross-checked vs
+ATTESTED_RECIPE_BACKED_V1 and migration RECEIPTS (both
+promoted pub(crate)). Gates: loop_recipe_contract 239/239
+debug + release, route_policy 91/91, migration 4/4,
+no-hostbridge + pointer guard + diff-check green; dev_gate
+quick naming-charter and replacement-guard failures are
+pre-existing baseline debt (verified on clean tree).
+Literal M9 Done stays deferred behind a named .hako
+execution-mechanism row. Non-claims: caller-zero; no
+producer port/verifier/CFG-PHI/physical MIR/input/
+hostbridge; no production selection; no Row F unblock; no
+legacy deletion.
 """
 next_design_card = "SELFHOST-LOOP-PORTABLE-ALL19-PARITY-S7G"
 next_design_card_path = "docs/development/current/main/investigations/selfhost-loop-portable-all19-parity-s7g-d0-2026-09-24.md"
-next_execution_card = "none__design_only__family_scheduler_reselection"
-next_execution_card_path = "none"
+next_execution_card = "SELFHOST-LOOP-PORTABLE-ALL19-PARITY-S7G"
+next_execution_card_path = "docs/development/current/main/investigations/selfhost-loop-portable-all19-parity-s7g-d0-2026-09-24.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

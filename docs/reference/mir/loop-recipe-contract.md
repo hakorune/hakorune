@@ -789,6 +789,35 @@ MIR, production caller, hostbridge, or V2 artifact for this family
 was added. All five S7B producer wire cohorts are now covered
 (M8A–M8E); the all-route parity closeout row S7G remains.
 
+Reference receipt — `SELFHOST-LOOP-PORTABLE-ALL19-PARITY-S7G`
+(2026-09-24): the all19 normalized parity closeout lands. Three new
+caller-zero `.hako` emitters cover the remaining attested-backed
+routes: `emit_direct_accum_wire.hako` (AccumConstLoop, live-producer
+artifact — role labels `induction`/`accumulator`, `body_item(1)`),
+`emit_nested_predicate_wire.hako` (NestedLoopMinimal, live-producer
+artifact — role labels `root_0`/`root_1`/`child_0`, first
+parent/child two-loop wire surface), and `emit_loop_true_wire.hako`
+(LoopTrueBreakContinue, `always` condition + if/break/continue).
+Each parity arm rebuilds the artifact through the producer's own
+issuer calls — `direct_accum_recipe`/`nested_recipe`/
+`loop_true_break_continue_recipe` promoted for harness reach — and
+anchors `normalize_semantic` on the real producer product issued
+through its own demand/projection chain. A new test-only module
+`wire_route_parity_tests.rs` holds the arms plus the all19 census:
+every canonical route is pinned exactly once, in canonical order,
+as `V1Parity`/`V2Parity` (8 wire-backed routes) or `TypedDeclined`
+(11), cross-checked against the sealed `ATTESTED_RECIPE_BACKED_V1`
+table and the migration `RECEIPTS` inventory (both promoted to
+`pub(crate)`). Two older-era goldens keep witness status only: the
+S7A substrate emission stays pinned to `accum_direct_v1`
+(source-name labels, `body_item(0)`) as wire-transport evidence,
+and `nested_predicate_v1` remains a decode-and-verify witness —
+neither is a live-producer parity anchor. The literal M9 Done claim
+(route-ID/prefix-reason/JoinSig wire parity and the `.hako`
+producer half) stays deferred behind a named `.hako`
+execution-mechanism row; no production caller, selector, verifier,
+physical MIR, or hostbridge was added.
+
 Reference receipt — `LOOP-JOINSIG-NESTED-SHADOW-S0` (2026-08-06): visible
 carrier projection now walks the verified Recipe parent chain from the target
 loop toward the root, keeps the first `LoopBindingKeyV1` for each binding, and

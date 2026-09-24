@@ -80,7 +80,7 @@ fn positive_function() -> ASTNode {
     }
 }
 
-fn projection() -> VerifiedLoopTrueBreakContinueSourceProjectionV1 {
+pub(super) fn projection() -> VerifiedLoopTrueBreakContinueSourceProjectionV1 {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(positive_function()).unwrap();
     let input = unit.root_function_input().unwrap();
     let body = input.source().root_body().unwrap();
@@ -99,7 +99,7 @@ fn target_cursor() -> usize {
         .unwrap()
 }
 
-fn demand() -> crate::mir::loop_route_policy::VerifiedLoopTrueBreakContinuePolicyDemandV1 {
+pub(super) fn demand() -> crate::mir::loop_route_policy::VerifiedLoopTrueBreakContinuePolicyDemandV1 {
     let observations = CANONICAL_LOOP_ROUTE_ORDER_V1
         .iter()
         .enumerate()
