@@ -14,6 +14,7 @@ builder.compat.program_json_v0_entry = "builder/compat/program_json_v0_entry.hak
 builder.compat.emit_mir_json_v0 = "builder/compat/emit_mir_json_v0.hako"
 builder.loop_recipe.emit_loop_recipe_wire = "builder/loop_recipe/emit_loop_recipe_wire.hako"
 builder.loop_recipe.emit_m8a_recurrence_wire = "builder/loop_recipe/emit_m8a_recurrence_wire.hako"
+builder.loop_recipe.emit_m8b_break_wire = "builder/loop_recipe/emit_m8b_break_wire.hako"
 builder.func_body.basic_lower_box = "builder/func_body/basic_lower_box.hako"
 builder.func_body.extern_call_box = "builder/func_body/extern_call_box.hako"
 builder.func_body.cli_entry_box = "builder/func_body/cli_entry_box.hako"

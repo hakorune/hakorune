@@ -158,7 +158,7 @@ pub(crate) fn produce_variable_accum_break_recipe_v1(
     })
 }
 
-fn break_recipe(loop_bound: i64, branch_bound: i64) -> LoopRecipeV1 {
+pub(super) fn break_recipe(loop_bound: i64, branch_bound: i64) -> LoopRecipeV1 {
     let l0 = LoopNodeKeyV1::new(0);
     let b0 = LoopBlockKeyV1::new(0);
     let b1 = LoopBlockKeyV1::new(1);

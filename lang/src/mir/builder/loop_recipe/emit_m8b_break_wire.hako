@@ -1,0 +1,138 @@
+// emit_m8b_break_wire.hako
+// S7B2 wire-coverage cohort: canonical stdout entry for the M8B exits/joins
+// family's LoopRecipeArtifactV1 (provenance variable_accum_break_v1).
+//
+// Emits the canonical M8B artifact as a single compact JSON line. The target
+// is the artifact the Rust producer produce_variable_accum_break_recipe_v1
+// yields for the bounded source profile
+//   main() { local sum = 0; local i = 0; loop(i < 10) { if(i == 5) {
+//            sum = sum + 10; break }; sum = sum + 1; i = i + 1 }; return sum }
+// (loop at root body item index 2; loop bound 10; branch bound 5; one If
+// item, one Exit item, one break exit row). Caller-zero: nothing invokes
+// this entry from production routing.
+//
+// Boundary note (S7A D1, carried by the S7B1/S7B2 cards): the current
+// executable `.hako` subset admits only scalar/string locals, `+` concat,
+// loop/if, print, and return inside `Main.main()`. The artifact is therefore
+// assembled here from named string-fragment locals in fixed serde field
+// order. This entry is a wire-coverage emitter, not a producer: it reads no
+// input and claims no Facts/RoutePolicy/JoinSig port (see README.md).
+//
+// Field names and tagged kinds mirror src/mir/loop_recipe_contract/schema.rs
+// (serde, `tag = "kind"`, snake_case). Emission order is the serde field
+// order; no map-key iteration exists on this path, so bytes are
+// deterministic.
+
+static box Main {
+  main() {
+    // ---- operations ---------------------------------------------------
+    local op_const_10a  = "{\"kind\":\"const_i64\",\"result\":3,\"value\":10}"
+    local op_read_i     = "{\"kind\":\"read_binding\",\"binding\":0,\"result\":2}"
+    local op_cmp_less   = "{\"kind\":\"compare_i64\",\"op\":\"less\",\"left\":2,\"right\":3,\"result\":4}"
+    local op_read_i2    = "{\"kind\":\"read_binding\",\"binding\":0,\"result\":5}"
+    local op_const_5    = "{\"kind\":\"const_i64\",\"result\":6,\"value\":5}"
+    local op_cmp_eq     = "{\"kind\":\"compare_i64\",\"op\":\"equal\",\"left\":5,\"right\":6,\"result\":7}"
+    local op_read_sum   = "{\"kind\":\"read_binding\",\"binding\":1,\"result\":8}"
+    local op_const_10b  = "{\"kind\":\"const_i64\",\"result\":9,\"value\":10}"
+    local op_add_sum10  = "{\"kind\":\"binary_i64\",\"op\":\"add\",\"left\":8,\"right\":9,\"result\":10}"
+    local op_write_sum1 = "{\"kind\":\"write_binding\",\"binding\":1,\"value\":10}"
+    local op_read_sum2  = "{\"kind\":\"read_binding\",\"binding\":1,\"result\":11}"
+    local op_const_1a   = "{\"kind\":\"const_i64\",\"result\":12,\"value\":1}"
+    local op_add_sum1   = "{\"kind\":\"binary_i64\",\"op\":\"add\",\"left\":11,\"right\":12,\"result\":13}"
+    local op_write_sum2 = "{\"kind\":\"write_binding\",\"binding\":1,\"value\":13}"
+    local op_read_i3    = "{\"kind\":\"read_binding\",\"binding\":0,\"result\":14}"
+    local op_const_1b   = "{\"kind\":\"const_i64\",\"result\":15,\"value\":1}"
+    local op_add_i1     = "{\"kind\":\"binary_i64\",\"op\":\"add\",\"left\":14,\"right\":15,\"result\":16}"
+    local op_write_i    = "{\"kind\":\"write_binding\",\"binding\":0,\"value\":16}"
+
+    // ---- item rows ------------------------------------------------------
+    local item_if   = "{\"key\":6,\"item\":{\"kind\":\"if\",\"condition\":7,\"then_block\":2,\"else_block\":null}}"
+    local item_exit = "{\"key\":11,\"item\":{\"kind\":\"exit\",\"exit\":0}}"
+    local items = "[" +
+      "{\"key\":0,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_10a + "}}," +
+      "{\"key\":1,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_i + "}}," +
+      "{\"key\":2,\"item\":{\"kind\":\"operation\",\"operation\":" + op_cmp_less + "}}," +
+      "{\"key\":3,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_i2 + "}}," +
+      "{\"key\":4,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_5 + "}}," +
+      "{\"key\":5,\"item\":{\"kind\":\"operation\",\"operation\":" + op_cmp_eq + "}}," +
+      item_if + "," +
+      "{\"key\":7,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_sum + "}}," +
+      "{\"key\":8,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_10b + "}}," +
+      "{\"key\":9,\"item\":{\"kind\":\"operation\",\"operation\":" + op_add_sum10 + "}}," +
+      "{\"key\":10,\"item\":{\"kind\":\"operation\",\"operation\":" + op_write_sum1 + "}}," +
+      item_exit + "," +
+      "{\"key\":12,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_sum2 + "}}," +
+      "{\"key\":13,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_1a + "}}," +
+      "{\"key\":14,\"item\":{\"kind\":\"operation\",\"operation\":" + op_add_sum1 + "}}," +
+      "{\"key\":15,\"item\":{\"kind\":\"operation\",\"operation\":" + op_write_sum2 + "}}," +
+      "{\"key\":16,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_i3 + "}}," +
+      "{\"key\":17,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_1b + "}}," +
+      "{\"key\":18,\"item\":{\"kind\":\"operation\",\"operation\":" + op_add_i1 + "}}," +
+      "{\"key\":19,\"item\":{\"kind\":\"operation\",\"operation\":" + op_write_i + "}}" +
+      "]"
+
+    // ---- loop node / blocks ---------------------------------------------
+    local condition = "{\"kind\":\"predicate\",\"block\":0,\"value\":4}"
+    local loops = "[" +
+      "{\"key\":0,\"parent\":null,\"condition\":" + condition + ",\"body\":1}" +
+      "]"
+    local blocks = "[" +
+      "{\"key\":0,\"owner_loop\":0,\"items\":[0,1,2]}," +
+      "{\"key\":1,\"owner_loop\":0,\"items\":[3,4,5,6,12,13,14,15,16,17,18,19]}," +
+      "{\"key\":2,\"owner_loop\":0,\"items\":[7,8,9,10,11]}" +
+      "]"
+
+    // ---- bindings / values / carriers ------------------------------------
+    local bindings = "[" +
+      "{\"key\":0,\"label\":\"induction\",\"class\":\"i64\"}," +
+      "{\"key\":1,\"label\":\"accumulator\",\"class\":\"i64\"}" +
+      "]"
+    local values = "[" +
+      "{\"key\":0,\"class\":\"i64\"},{\"key\":1,\"class\":\"i64\"}," +
+      "{\"key\":2,\"class\":\"i64\"},{\"key\":3,\"class\":\"i64\"}," +
+      "{\"key\":4,\"class\":\"bool\"},{\"key\":5,\"class\":\"i64\"}," +
+      "{\"key\":6,\"class\":\"i64\"},{\"key\":7,\"class\":\"bool\"}," +
+      "{\"key\":8,\"class\":\"i64\"},{\"key\":9,\"class\":\"i64\"}," +
+      "{\"key\":10,\"class\":\"i64\"},{\"key\":11,\"class\":\"i64\"}," +
+      "{\"key\":12,\"class\":\"i64\"},{\"key\":13,\"class\":\"i64\"}," +
+      "{\"key\":14,\"class\":\"i64\"},{\"key\":15,\"class\":\"i64\"}," +
+      "{\"key\":16,\"class\":\"i64\"}" +
+      "]"
+    local carriers = "[" +
+      "{\"key\":0,\"owner_loop\":0,\"binding\":0,\"class\":\"i64\",\"entry_value\":0}," +
+      "{\"key\":1,\"owner_loop\":0,\"binding\":1,\"class\":\"i64\",\"entry_value\":1}" +
+      "]"
+
+    // ---- exits ------------------------------------------------------------
+    local exits = "[" +
+      "{\"key\":0,\"owner_loop\":0,\"kind\":{\"kind\":\"break\",\"target_loop\":0}}" +
+      "]"
+
+    // ---- recipe ------------------------------------------------------------
+    local recipe = "{\"root_loop\":0," +
+      "\"loops\":" + loops + "," +
+      "\"blocks\":" + blocks + "," +
+      "\"items\":" + items + "," +
+      "\"bindings\":" + bindings + "," +
+      "\"values\":" + values + "," +
+      "\"inputs\":[0,1]," +
+      "\"carriers\":" + carriers + "," +
+      "\"exits\":" + exits + "}"
+
+    // ---- provenance / source_binding ----------------------------------------
+    local provenance = "{\"producer_id\":\"variable_accum_break_v1\"}"
+    local owner = "{\"kind\":\"function_body\",\"compilation_unit_ordinal\":0,\"function_ordinal\":0}"
+    local path = "{\"steps\":[{\"kind\":\"body_item\",\"index\":2}]}"
+    local source_binding = "{\"owner\":" + owner + "," +
+      "\"loops\":[{\"loop_key\":0,\"path\":" + path + "}]}"
+
+    // ---- artifact -------------------------------------------------------------
+    local artifact = "{\"schema_version\":1," +
+      "\"provenance\":" + provenance + "," +
+      "\"source_binding\":" + source_binding + "," +
+      "\"recipe\":" + recipe + "}"
+
+    print(artifact)
+    return 0
+  }
+}

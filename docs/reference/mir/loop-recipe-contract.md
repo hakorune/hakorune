@@ -693,6 +693,26 @@ of the M9 Change clause stays deferred behind a named `.hako`
 execution-mechanism row; no producer port, Facts, verifier, physical
 MIR, production caller, hostbridge, or V2 wire was added.
 
+Reference receipt — `SELFHOST-LOOP-M8B-EXITS-JOINS-PARITY-S7B2`
+(2026-09-24): the second S7B wire-coverage cohort adds
+`loop_recipe/emit_m8b_break_wire.hako`, which emits the canonical
+M8B `LoopRecipeArtifactV1` — `variable_accum_break_v1` provenance,
+source path `body_item(2)`, loop bound 10, branch bound 5 — as one
+compact JSON line. It is the first wire family carrying `If` and
+`Exit` item kinds plus a non-empty `exits` table (one `break` row
+targeting loop 0). The emission is checked in at
+`fixtures/hako_loop_recipe_wire_m8b_v1.json`; the parity harness
+rebuilds the same artifact through the producer's own issuer calls
+(resolver facts -> `bind_resolved_loop_root_v1` ->
+`break_recipe(loop_bound, branch_bound)` -> provenance) and asserts
+all three normalizations equal, plus `normalize_semantic` equality
+with the real `produce_variable_accum_break_recipe_v1` product and a
+foreign-provenance drift negative. `break_recipe` is `pub(super)` so
+the harness reuses the producer's recipe issuer. The producer half of
+the M9 Change clause stays deferred behind a named `.hako`
+execution-mechanism row; no producer port, Facts, verifier, physical
+MIR, production caller, hostbridge, or V2 wire was added.
+
 Reference receipt — `LOOP-JOINSIG-NESTED-SHADOW-S0` (2026-08-06): visible
 carrier projection now walks the verified Recipe parent chain from the target
 loop toward the root, keeps the first `LoopBindingKeyV1` for each binding, and

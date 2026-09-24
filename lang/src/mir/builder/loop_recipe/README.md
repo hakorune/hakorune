@@ -7,7 +7,12 @@ Owner boundary
   `direct_accum_v1` artifact; `emit_m8a_recurrence_wire.hako` (S7B1)
   emits the canonical M8A `variable_accum_recurrence_v1` artifact for
   the bounded profile `loop(i < 4) { acc = acc + i; i = i + 1 }` at
-  root body item index 2. Each entry assembles its artifact from named
+  root body item index 2; `emit_m8b_break_wire.hako` (S7B2) emits the
+  canonical M8B `variable_accum_break_v1` artifact for the bounded
+  profile `loop(i < 10) { if(i == 5) { sum += 10; break }; sum += 1;
+  i += 1 }` at root body item index 2 — covering the `If` item, the
+  `Exit` item, and a non-empty `exits` table with one break row.
+  Each entry assembles its artifact from named
   string-fragment locals in fixed serde field order and prints it as
   one compact JSON line to stdout. Field names and tagged kinds mirror
   `src/mir/loop_recipe_contract/schema.rs` exactly.
@@ -16,11 +21,13 @@ Owner boundary
   the parity harness lives in
   `src/mir/loop_recipe_contract/wire_parity_tests.rs` and consumes the
   checked-in emissions at
-  `src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_v1.json`
-  and `hako_loop_recipe_wire_m8a_v1.json`. The M8A arm compares against
+  `src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_v1.json`,
+  `hako_loop_recipe_wire_m8a_v1.json`, and
+  `hako_loop_recipe_wire_m8b_v1.json`. The M8A arm compares against
   the artifact the real Rust producer
   `produce_variable_accum_recurrence_recipe_v1` yields for the same
-  bounded source profile.
+  bounded source profile; the M8B arm compares against
+  `produce_variable_accum_break_recipe_v1` likewise.
 
 Non-goals (must not grow here)
 - No producer cohort, Facts, RoutePolicy, JoinSig elaboration, verifier,
@@ -65,6 +72,9 @@ Regenerating the checked-in emissions
 ./target/debug/hakorune --backend vm \
   lang/src/mir/builder/loop_recipe/emit_m8a_recurrence_wire.hako \
   > src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_m8a_v1.json
+./target/debug/hakorune --backend vm \
+  lang/src/mir/builder/loop_recipe/emit_m8b_break_wire.hako \
+  > src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_m8b_v1.json
 ```
 Each emission is one compact JSON line; the harness compares
 `decode_and_verify` + `normalize_*` products, not raw formatting.

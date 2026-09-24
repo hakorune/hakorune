@@ -1,13 +1,12 @@
 ---
-Status: design__2026-09-24__d0_wire_coverage_cohort
+Status: landed__2026-09-24__wire_coverage_cohort
 Task: SELFHOST-LOOP-M8B-EXITS-JOINS-PARITY-S7B2
 Date: 2026-09-24
 Parent: SELFHOST-LOOP-M8A-RECURRENCE-PARITY-S7B1 (landed)
 PreviousCard: selfhost-loop-m8a-recurrence-parity-s7b1-d0-2026-09-24.md
 NextCard: frontier-pause__family_scheduler_reselection
-Implementation permission: false; name the owners to extend and fix the
-bounded implementation slice only. No code, no fixture, no
-route/caller change, no new semantic receipt from this card.
+Implementation permission: landed as designed; the wire-coverage cohort
+contract and all non-claims are unchanged.
 ---
 
 # SELFHOST-LOOP-M8B-EXITS-JOINS-PARITY-S7B2 — D0 wire-coverage cohort design
@@ -154,3 +153,46 @@ When this card is accepted, `work_mode` moves to `fast` for the bounded
 implementation slice named above (one wire-coverage slice, one commit):
 `.hako` M8B entry + checked-in emission fixture + parity-harness
 extension + README/manifest sync + focused tests + doc closeout.
+
+## Landed evidence (2026-09-24)
+
+```text
+lang/src/mir/builder/loop_recipe/emit_m8b_break_wire.hako —
+  single-file caller-zero entry; emits the canonical M8B
+  LoopRecipeArtifactV1 (provenance variable_accum_break_v1, source
+  path body_item(2), loop bound 10, branch bound 5; 20 items, 3
+  blocks, 17 values, 2 bindings, 2 carriers, one If item, one Exit
+  item, one break exit row targeting loop 0) as one compact JSON
+  line in serde field order
+src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_m8b_v1.json —
+  checked-in stdout emission (one line; verified byte-identical to a
+  fresh ./target/debug/hakorune --backend vm run)
+src/mir/loop_recipe_contract/wire_parity_tests.rs — 5 new M8B tests
+  (20 total): decode_and_verify + all three normalizations equal vs
+  the artifact assembled through the real producer's issuer calls
+  (attempt facts -> bind_resolved_loop_root_v1 ->
+  break_recipe(loop_bound, branch_bound) -> VariableAccumBreakV1
+  provenance); reconstructed artifact matches the real
+  produce_variable_accum_break_recipe_v1 product under
+  normalize_semantic; If/Exit item and break exit row round-trip;
+  deterministic normalization; foreign-provenance drift assert_ne
+src/mir/loop_recipe_contract/variable_accum_break_producer.rs —
+  break_recipe promoted to pub(super) so the harness reuses the
+  producer's own recipe issuer (no row duplication)
+lang/src/mir/hako_module.toml — exports
+  builder.loop_recipe.emit_m8b_break_wire
+lang/src/mir/builder/loop_recipe/README.md — M8B entry row, deferred
+  producer half, regeneration commands for all three fixtures
+```
+
+Gates: `cargo test --lib mir::loop_recipe_contract` 208/208 green;
+`cargo test --lib variable_accum_break` 6/6 green;
+`bash tools/checks/hako_mirbuilder_no_hostbridge.sh` OK;
+`bash tools/checks/current_state_pointer_guard.sh` OK.
+
+Non-claims retained: caller-zero; no `.hako` producer, Facts/
+RoutePolicy/JoinSig port, verifier, CFG/PHI, physical MIR, production
+caller, hostbridge, input reading, or V2 wire; the
+`variable_accum_break_v1` provenance names the claimed schema family,
+not a `.hako` production receipt; no M9 parity claim (S7G); no Row F
+unblock; no legacy deletion.
