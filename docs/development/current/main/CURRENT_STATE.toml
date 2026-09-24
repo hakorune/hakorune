@@ -1,11 +1,11 @@
 date = "2026-09-24"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "M10b-I0-R0"
 current_execution_cohort = "loop_m10b_cutover"
-current_blocker_token = "M10b-I0-P1__FamilyRouteCoverageGap__DesignStop"
+current_blocker_token = "M10b-I0-P1__NodeWinnerRecipeSpine__InProgress"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
-current_design_stop = "JoinirLoopPortableRecipeCutover0M10bI0P1__FamilyRouteCoverageGapDecision_2026-09-24"
+current_design_stop = "JoinirLoopPortableRecipeCutover0M10bI0R0__DecisionAccepted__P1SpineConstruction_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -32,16 +32,17 @@ typed terminal. Decomposition: P1 caller-zero winner+recipe spine,
 P2 caller-zero physicalizer edge, then R0 atomic flip + 44-row
 manifest deletion. Non-claims: no switch/deletion in this card; no
 legacy 19-route demand or frozen-schedule winner as authority.
-Reopened design question (design_stop): caller-zero family-window
-probe shows 4 of 8 attested portable routes (VariableAccumRecurrence,
-VariableAccumBreak, ScanWithInit, GenericResidual) have no admitting
-family arm — a window-only switch would turn currently-accepted
-`route_loop` programs into terminal Freeze; family coverage
-authority must be named before P1 spine construction resumes.
+Reopened-and-resolved: caller-zero family-window probe shows 4 of 8
+attested portable routes (VariableAccumRecurrence, VariableAccumBreak,
+ScanWithInit, GenericResidual) have no admitting family arm — resolved
+by the landed LOOP-PRODUCTION-SELECTION-D0 boundary: they are caller-
+zero parked families outside the selected boundary, so their shapes
+typed-decline to terminal Freeze by design (all 40 portable-owner
+corpus rows resolve to selected profiles). P1 spine resumes (fast).
 """
 next_design_card = "M10b-I0-R0"
 next_design_card_path = "docs/development/current/main/investigations/joinir-loop-portable-recipe-cutover0-m10b-i0-r0-2026-09-24.md"
-next_execution_card = "none"
+next_execution_card = "M10b-I0-R0"
 next_execution_card_path = "docs/development/current/main/investigations/joinir-loop-portable-recipe-cutover0-m10b-i0-r0-2026-09-24.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

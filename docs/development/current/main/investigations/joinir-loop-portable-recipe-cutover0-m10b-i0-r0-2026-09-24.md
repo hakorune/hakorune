@@ -1,5 +1,5 @@
 ---
-Status: open__design_stop__family_route_coverage_gap__2026-09-24
+Status: open__gap_resolved_by_d0_boundary__p1_resumes__2026-09-24
 Task: M10b-I0-R0 (JOINIR-LOOP-PORTABLE-RECIPE-CUTOVER0-I0-R0)
 Date: 2026-09-24
 Parent: GENERIC-M10B-DELETION-MANIFEST-S0 (landed, manifest frozen)
@@ -33,11 +33,13 @@ Source authority + canonical issuer: the loop node's located source
   CFG/Binding-SSA physicalizer chain (`loop_recipe_physicalizer`).
 Non-authority: the registry ordered schedule (`select_recipe_first_routes`,
   `observe_all_route_preflight_v1`, `try_execute_if_allowed`, handlers,
-  `ENTRIES`/`dispatch_entry`), `VerifiedSelectedLoopRecipeDemandV1` /
-  `evaluate_frozen_loop_route_schedule_v1` / `VerifiedLoopPolicyWinnerV1`
-  (legacy 19-route winner shapes), `LoopRouteKind` six-kind admission,
-  `planner_reject_detail`, `Ok(None)` route tail, CorePlan composers,
-  and any retry/`Option`-skip/re-decision edge.
+  `ENTRIES`/`dispatch_entry`), `VerifiedSelectedLoopRecipeDemandV1`
+  (legacy 19-route unified demand shape), `LoopRouteKind` six-kind
+  admission, `planner_reject_detail`, `Ok(None)` route tail, CorePlan
+  composers, and any retry/`Option`-skip/re-decision edge.
+  `evaluate_frozen_loop_route_schedule_v1`/`VerifiedLoopPolicyWinnerV1`
+  are retained demand-level provenance inside the per-family demand
+  issuers — not the switch winner and not deleted.
 Fail-fast boundary: zero or two `Selected` family candidates, a missing
   lease/facts/coverage/window co-seal, a Recipe/JoinSig/effect-relation
   failure, or a physicalizer reject is one terminal typed Freeze —
@@ -368,25 +370,81 @@ AST fixtures are the authoritative probe input.
 - All five families admit their own canonical profiles — the window
   arms work end-to-end from `ResolvedFunctionLoweringInputV1` +
   located stmt + reissued `VerifiedResolvedLoopSourceV1`.
-- **Coverage gap (decision-required): 4 of 8 attested portable routes
-  have no admitting family** — `VariableAccumRecurrence`,
-  `VariableAccumBreak`, `ScanWithInit`, `GenericResidual`. Producers
-  and wire parity exist (S7B), but no family observation accepts their
-  shapes.
+- **4 of 8 attested portable routes have no admitting family** —
+  `VariableAccumRecurrence`, `VariableAccumBreak`, `ScanWithInit`,
+  `GenericResidual`. Producers and wire parity exist (S7B), but no
+  family observation accepts their shapes.
+- **Resolution: this is the recorded D0 selected-boundary semantics,
+  not a design hole.** `loop-production-selection-d0-2026-09-24.md`
+  (landed) names the winner `select_canonical_loop_family_v1`, lists
+  all 8 attested producers as "caller-zero coverage artifacts and
+  parked families — none selected", and states "Loop sources outside
+  the selected profiles hit the existing typed-decline outcomes and
+  `Freeze` — terminal failure, not fallback" (lines 115-153). All 40
+  `portable-owner` corpus rows resolve to selected profiles; no
+  accepted row needs a family-less route. The probe CONFIRMS the
+  boundary rather than contradicting it.
 - Selector tripwire confirmed by contract: with 0 family candidates,
   `select_canonical_loop_family_v1` returns `NoCandidate` only when
   the whole-unit route set is `all_pre_effect_declined`; if any route
   row is `RecipeBacked` (as these four routes would mark), the outcome
   is `Rejected(CoverageBackedWithoutCandidate)` — typed terminal, not
-  silent.
-- Production consequence: `loop(i<4){acc+=i}` is currently accepted
-  via `route_loop -> generic_loop_v1`. A window-only switch turns it
-  into a terminal `Freeze` — an accepted-program regression. **R0 is
-  blocked until the family<->route gap is resolved by design**: either
-  the GenericG0 family grows the additional generic profiles (G1+),
-  new families enter the window, or these routes are proven to never
-  reach the node-level path. Guessing is prohibited; the resolution
-  must name the owner per route.
+  silent. For a family-less loop shape the honest route row is backed,
+  so the terminal is `CoverageBackedWithoutCandidate` — which IS the
+  designed Freeze for out-of-boundary profiles.
+- **Non-authority correction**: `evaluate_frozen_loop_route_schedule_v1`
+  + `VerifiedLoopPolicyWinnerV1` are NOT deleted legacy — they are
+  retained caller-zero machinery consumed INSIDE the per-family policy
+  demand issuers (`issue_generic_residual_policy_demand_v1`,
+  `issue_loop_cond_break_continue_policy_demand_v1`,
+  `issue_loop_true_break_continue_policy_demand_v1`,
+  `issue_direct_accum_route_admission_v1`), where the winner-cursor
+  check is demand-level provenance, not the switch winner. The deleted
+  authorities remain the registry scheduler edges pinned in manifest
+  C01 (`select_recipe_first_routes`, `observe_all_route_preflight_v1`,
+  `try_execute_if_allowed`, handlers, `Ok(None)` tail). The switch
+  winner stays `select_canonical_loop_family_v1` per D0.
 - `Unresolved(SourceNavigation)` observed on the DirectAccum arm for
   the G0 nested fixture — a third outcome class the spine must carry
   (not Candidate, not Declined).
+
+### Worker-audit reconciliation (read-only census, 2026-09-24)
+
+- **"Correspondence table" scope fix (S6G anti-map rule)**: S6G
+  records "no authoritative family-to-route map exists (five tags vs
+  19 routes) and inventing one would make route IDs semantic selection
+  authority". The P1 Done phrase "correspondence table recorded +
+  enforced" therefore means ONLY the empirical admission table above
+  plus per-family demand wiring (five arms, each Selected(family) ->
+  its own demand issuer). Route IDs are never used to dispatch; the
+  route row's `RecipeBacked` marking stays migration coverage, not
+  selection.
+- **Frozen-schedule demand provenance is retained, cursor-checked**:
+  every landed per-family demand issuer
+  (`issue_generic_residual_policy_demand_v1`,
+  `issue_loop_cond_break_continue_policy_demand_v1`,
+  `issue_loop_true_break_continue_policy_demand_v1`,
+  `issue_direct_accum_route_admission_v1`) internally calls
+  `evaluate_frozen_loop_route_schedule_v1` and requires the winner at
+  its own canonical cursor (e.g. GenericLoopV1 = position 18,
+  WrongWinnerCursor typed reject on overlap). This is data-only
+  provenance consistent with the M12 contract ("retained route rows
+  are data-only source policy"); it is not a second winner — the
+  family selector already picked the family.
+- **Corpus boundary precision**: the sole accepted `acc+=i`-shape
+  corpus fixture (`loop_simple_while_inline_explicit_step_min.hako`)
+  resolves to `callable-loop` -> `CallableSingleLoopV1` (Installed
+  mode, callable ledger). The Compatibility-mode reach of that shape
+  (`route_loop -> generic_loop_v1` today) is outside the corpus
+  census; post-switch it Freezes by the recorded boundary. Residual
+  regression risk on non-corpus Compatibility programs is real but
+  accepted by D0 and checked by the R0 corpus/backend parity gate.
+- **Function-level arms are only 3**: `CanonicalLoopFamilyPlanV1` has
+  DirectAccum/NestedPredicate/GenericG0 arms only — LoopTrue/LoopCond
+  window families have no function-level production arm. At node
+  level their caller-zero producers gain a consumer only through the
+  P1 spine.
+- **No documented growth path**: no doc plans a sixth
+  `LoopFamilyTagV1`, `GenericG0PolicyProfileV1::G1+`, or a new family
+  arm; S6E/S6G cards explicitly deny window widening. The five
+  families are the complete selectable domain at node level.
