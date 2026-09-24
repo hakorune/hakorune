@@ -19,7 +19,7 @@ use crate::mir::loop_route_policy::{
     LoopRouteSuppressionDispositionV1, CANONICAL_LOOP_ROUTE_ORDER_V1,
 };
 
-fn typed_map() -> VerifiedLoopCondBreakContinueTypedSourceMapV1 {
+pub(super) fn typed_map() -> VerifiedLoopCondBreakContinueTypedSourceMapV1 {
     let unit =
         VerifiedResolvedSourceUnitV1::resolve_function(crate::mir::compiler::loop_cond_function_for_test())
             .expect("fixture resolves");
@@ -37,14 +37,16 @@ fn typed_map() -> VerifiedLoopCondBreakContinueTypedSourceMapV1 {
         .expect("typed source map")
 }
 
-fn target_cursor() -> usize {
+pub(super) fn target_cursor() -> usize {
     CANONICAL_LOOP_ROUTE_ORDER_V1
         .iter()
         .position(|route| *route == LoopRouteId::LoopCondBreakContinue)
         .unwrap()
 }
 
-fn schedule_with_winner(winner: Option<usize>) -> crate::mir::loop_route_policy::FrozenLoopRouteScheduleV1 {
+pub(super) fn schedule_with_winner(
+    winner: Option<usize>,
+) -> crate::mir::loop_route_policy::FrozenLoopRouteScheduleV1 {
     let observations = CANONICAL_LOOP_ROUTE_ORDER_V1
         .iter()
         .enumerate()
@@ -69,7 +71,9 @@ fn schedule_with_winner(winner: Option<usize>) -> crate::mir::loop_route_policy:
     freeze_loop_route_schedule_v1(CANONICAL_LOOP_ROUTE_ORDER_V1.into(), observations).unwrap()
 }
 
-fn demand() -> crate::mir::loop_route_policy::VerifiedLoopCondBreakContinuePolicyDemandV1 {
+pub(super) fn demand()
+    -> crate::mir::loop_route_policy::VerifiedLoopCondBreakContinuePolicyDemandV1
+{
     issue_loop_cond_break_continue_policy_demand_v1(
         typed_map(),
         schedule_with_winner(Some(target_cursor())),

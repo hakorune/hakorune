@@ -17,7 +17,14 @@ Owner boundary
   provenance) for the bounded `find_ok` profile
   (`apps/tests/scan_with_init_typed_ok_min.hako`) with the loop at
   body item index 1 — the first V2 wire row, covering `call_slot`,
-  `text_eq`, `text` value class, and a `return` exit kind.
+  `text_eq`, `text` value class, and a `return` exit kind;
+  `emit_m8d_loopcond_wire.hako` (S7B4) emits the canonical M8D
+  `loop_cond_break_continue_v1` artifact for the bounded
+  `loop_cond_function_for_test` profile (`local flag = 1;
+  loop(flag < 2) { if flag == 1 { break } else { continue } }`)
+  with the loop at body item index 1 — the first wire row covering
+  a `continue` exit kind and an `If` item with a populated
+  `else_block`.
   Each entry assembles its artifact from named
   string-fragment locals in fixed serde field order and prints it as
   one compact JSON line to stdout. Field names and tagged kinds mirror
@@ -30,8 +37,9 @@ Owner boundary
   checked-in emissions at
   `src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_v1.json`,
   `hako_loop_recipe_wire_m8a_v1.json`,
-  `hako_loop_recipe_wire_m8b_v1.json`, and
-  `hako_loop_recipe_wire_m8c_v2.json`. The M8A arm compares against
+  `hako_loop_recipe_wire_m8b_v1.json`,
+  `hako_loop_recipe_wire_m8c_v2.json`, and
+  `hako_loop_recipe_wire_m8d_v1.json`. The M8A arm compares against
   the artifact the real Rust producer
   `produce_variable_accum_recurrence_recipe_v1` yields for the same
   bounded source profile; the M8B arm compares against
@@ -40,7 +48,12 @@ Owner boundary
   own issuer calls (`build_recipe` -> `bind_verified_artifact`) and
   anchors `normalize_semantic` on the real
   `produce_s6c_scan_with_init_recipe_v2` product via
-  `LoopRecipeNormalizerV2`.
+  `LoopRecipeNormalizerV2`; the M8D arm rebuilds the artifact
+  through the producer's own issuer chain — the typed source map's
+  `VerifiedLoopRootSourceV1` + `loop_cond_break_continue_recipe`
+  (`pub(super)`) — and anchors `normalize_semantic` on the real
+  `produce_loop_cond_break_continue_recipe_v1` product issued
+  through its own policy-demand chain.
 
 Non-goals (must not grow here)
 - No producer cohort, Facts, RoutePolicy, JoinSig elaboration, verifier,
@@ -92,6 +105,9 @@ Regenerating the checked-in emissions
 ./target/debug/hakorune --backend vm \
   lang/src/mir/builder/loop_recipe/emit_m8c_scans_wire.hako \
   > src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_m8c_v2.json
+./target/debug/hakorune --backend vm \
+  lang/src/mir/builder/loop_recipe/emit_m8d_loopcond_wire.hako \
+  > src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_m8d_v1.json
 ```
 Each emission is one compact JSON line; the harness compares
 `decode_and_verify` + `normalize_*` products, not raw formatting.

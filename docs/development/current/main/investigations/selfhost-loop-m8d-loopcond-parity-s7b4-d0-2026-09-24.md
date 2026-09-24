@@ -1,13 +1,12 @@
 ---
-Status: design__2026-09-24__d0_wire_coverage_cohort
+Status: landed__2026-09-24__wire_coverage_cohort
 Task: SELFHOST-LOOP-M8D-LOOPCOND-PARITY-S7B4
 Date: 2026-09-24
 Parent: SELFHOST-LOOP-M8C-SCANS-PARITY-S7B3 (landed)
 PreviousCard: selfhost-loop-m8c-scans-parity-s7b3-d0-2026-09-24.md
 NextCard: frontier-pause__family_scheduler_reselection
-Implementation permission: false; name the owners to extend and fix the
-bounded implementation slice only. No code, no fixture, no
-route/caller change, no new semantic receipt from this card.
+Implementation permission: landed as designed; the wire-coverage cohort
+contract and all non-claims are unchanged.
 ---
 
 # SELFHOST-LOOP-M8D-LOOPCOND-PARITY-S7B4 — D0 wire-coverage cohort design
@@ -227,3 +226,56 @@ one commit): `loop_cond_break_continue_recipe` visibility +
 producer-test helper reuse + `.hako` M8D entry + checked-in
 emission fixture + parity-harness extension + README/manifest/
 reference sync + focused tests + doc closeout.
+
+## Landed evidence (2026-09-24)
+
+```text
+lang/src/mir/builder/loop_recipe/emit_m8d_loopcond_wire.hako —
+  single-file caller-zero entry; emits the canonical M8D
+  LoopRecipeArtifactV1 (schema_version 1, provenance
+  loop_cond_break_continue_v1, source path body_item(1); 9 items
+  incl. two compares (less/equal), If at key 6 with else_block 3,
+  Exit items at keys 7-8; 4 blocks; 7 values; 1 binding; 1 input;
+  1 carrier; two exit rows — break then continue, both targeting
+  loop 0) as one compact JSON line in serde field order — verified
+  byte-identical to the Rust-issuer artifact
+src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_m8d_v1.json —
+  checked-in stdout emission (one line; byte-identical to a fresh
+  ./target/debug/hakorune --backend vm run)
+src/mir/loop_recipe_contract/loop_cond_break_continue_producer.rs —
+  loop_cond_break_continue_recipe promoted to pub(super) (same
+  precedent as recurrence_recipe / break_recipe / build_recipe)
+src/mir/loop_recipe_contract/loop_cond_break_continue_producer_tests.rs —
+  typed_map / target_cursor / schedule_with_winner / demand promoted
+  to pub(super) so the harness reuses the producer's own issuer
+  chain (resolver unit -> projection -> typed map -> policy demand)
+  rather than re-implementing policy evidence
+src/mir/loop_recipe_contract/wire_parity_tests.rs — 5 new M8D tests
+  (31 wire-parity total): decode_and_verify + all three V1
+  normalizations equal vs the artifact rebuilt through the
+  producer's own issuer calls (typed_map into_parts ->
+  VerifiedLoopRootSourceV1 + loop_cond_break_continue_recipe ->
+  verify -> into_root_claim -> LoopCondBreakContinueV1 provenance);
+  real produce_loop_cond_break_continue_recipe_v1 product
+  normalize_semantic anchor via its own demand issuer; V1
+  provenance/schema round-trip; continue-exit + else_block coverage
+  asserts; determinism; foreign-provenance drift
+lang/src/mir/hako_module.toml — exports
+  builder.loop_recipe.emit_m8d_loopcond_wire
+lang/src/mir/builder/loop_recipe/README.md — M8D entry row, fixture
+  list, regeneration command
+```
+
+Gates: `cargo test --lib mir::loop_recipe_contract` 219/219 green;
+`cargo test --lib loop_cond_break_continue` 20/20 green;
+`cargo test --lib loop_route_policy` 91/91 green;
+`bash tools/checks/hako_mirbuilder_no_hostbridge.sh` OK;
+`bash tools/checks/current_state_pointer_guard.sh` OK.
+
+Non-claims retained: caller-zero; no `.hako` producer, Facts/
+RoutePolicy/JoinSig port, verifier, CFG/PHI, physical MIR,
+production caller, hostbridge, input reading, demand/schedule
+construction on the `.hako` side, or V2 artifact for this family;
+`loop_cond_break_continue_v1` names the claimed schema family,
+not a `.hako` production receipt or selector input; no M9 parity
+claim (S7G); no Row F unblock; no legacy deletion.

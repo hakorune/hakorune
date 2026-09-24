@@ -110,7 +110,7 @@ fn compare_op(operator: SyntaxBinaryOperatorV1) -> LoopCompareI64OpV1 {
     }
 }
 
-fn loop_cond_break_continue_recipe(
+pub(super) fn loop_cond_break_continue_recipe(
     loop_condition: &LoopCondTypedCompareV1,
     branch_condition: &LoopCondTypedCompareV1,
 ) -> LoopRecipeV1 {

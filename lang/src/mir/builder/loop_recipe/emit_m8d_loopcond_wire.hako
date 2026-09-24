@@ -1,0 +1,113 @@
+// emit_m8d_loopcond_wire.hako
+// S7B4 wire-coverage cohort: canonical stdout entry for the M8D LoopCond
+// break/continue family's LoopRecipeArtifactV1 (provenance
+// loop_cond_break_continue_v1).
+//
+// Emits the canonical M8D artifact as a single compact JSON line. The target
+// is the artifact the Rust producer produce_loop_cond_break_continue_recipe_v1
+// yields for the bounded source profile fixed by loop_cond_function_for_test:
+//   main() { local flag = 1; loop(flag < 2) { if(flag == 1) { break }
+//            else { continue } }; return 0 }
+// (loop at root body item index 1; loop condition `flag < 2`; branch
+// condition `flag == 1`; one If item with a populated else_block; two Exit
+// items; two exit rows — break then continue). Caller-zero: nothing invokes
+// this entry from production routing.
+//
+// Boundary note (S7A D1, carried by the S7B1/S7B2/S7B3 cards): the current
+// executable `.hako` subset admits only scalar/string locals, `+` concat,
+// loop/if, print, and return inside `Main.main()`. The artifact is therefore
+// assembled here from named string-fragment locals in fixed serde field
+// order. This entry is a wire-coverage emitter, not a producer: it reads no
+// input and claims no Facts/RoutePolicy/JoinSig port (see README.md).
+//
+// Field names and tagged kinds mirror src/mir/loop_recipe_contract/schema.rs
+// (serde, `tag = "kind"`, snake_case). Emission order is the serde field
+// order; no map-key iteration exists on this path, so bytes are
+// deterministic.
+
+static box Main {
+  main() {
+    // ---- operations ---------------------------------------------------
+    local op_read_flag_a = "{\"kind\":\"read_binding\",\"binding\":0,\"result\":1}"
+    local op_const_2     = "{\"kind\":\"const_i64\",\"result\":2,\"value\":2}"
+    local op_cmp_less    = "{\"kind\":\"compare_i64\",\"op\":\"less\",\"left\":1,\"right\":2,\"result\":3}"
+    local op_read_flag_b = "{\"kind\":\"read_binding\",\"binding\":0,\"result\":4}"
+    local op_const_1     = "{\"kind\":\"const_i64\",\"result\":5,\"value\":1}"
+    local op_cmp_eq      = "{\"kind\":\"compare_i64\",\"op\":\"equal\",\"left\":4,\"right\":5,\"result\":6}"
+
+    // ---- item rows ------------------------------------------------------
+    local item_if        = "{\"key\":6,\"item\":{\"kind\":\"if\",\"condition\":6,\"then_block\":2,\"else_block\":3}}"
+    local item_exit_brk  = "{\"key\":7,\"item\":{\"kind\":\"exit\",\"exit\":0}}"
+    local item_exit_cont = "{\"key\":8,\"item\":{\"kind\":\"exit\",\"exit\":1}}"
+    local items = "[" +
+      "{\"key\":0,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_flag_a + "}}," +
+      "{\"key\":1,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_2 + "}}," +
+      "{\"key\":2,\"item\":{\"kind\":\"operation\",\"operation\":" + op_cmp_less + "}}," +
+      "{\"key\":3,\"item\":{\"kind\":\"operation\",\"operation\":" + op_read_flag_b + "}}," +
+      "{\"key\":4,\"item\":{\"kind\":\"operation\",\"operation\":" + op_const_1 + "}}," +
+      "{\"key\":5,\"item\":{\"kind\":\"operation\",\"operation\":" + op_cmp_eq + "}}," +
+      item_if + "," +
+      item_exit_brk + "," +
+      item_exit_cont +
+      "]"
+
+    // ---- loop node / blocks ---------------------------------------------
+    local condition = "{\"kind\":\"predicate\",\"block\":0,\"value\":3}"
+    local loops = "[" +
+      "{\"key\":0,\"parent\":null,\"condition\":" + condition + ",\"body\":1}" +
+      "]"
+    local blocks = "[" +
+      "{\"key\":0,\"owner_loop\":0,\"items\":[0,1,2]}," +
+      "{\"key\":1,\"owner_loop\":0,\"items\":[3,4,5,6]}," +
+      "{\"key\":2,\"owner_loop\":0,\"items\":[7]}," +
+      "{\"key\":3,\"owner_loop\":0,\"items\":[8]}" +
+      "]"
+
+    // ---- bindings / values / carriers ------------------------------------
+    local bindings = "[" +
+      "{\"key\":0,\"label\":\"loop_cond_carrier\",\"class\":\"i64\"}" +
+      "]"
+    local values = "[" +
+      "{\"key\":0,\"class\":\"i64\"},{\"key\":1,\"class\":\"i64\"}," +
+      "{\"key\":2,\"class\":\"i64\"},{\"key\":3,\"class\":\"bool\"}," +
+      "{\"key\":4,\"class\":\"i64\"},{\"key\":5,\"class\":\"i64\"}," +
+      "{\"key\":6,\"class\":\"bool\"}" +
+      "]"
+    local carriers = "[" +
+      "{\"key\":0,\"owner_loop\":0,\"binding\":0,\"class\":\"i64\",\"entry_value\":0}" +
+      "]"
+
+    // ---- exits ------------------------------------------------------------
+    local exits = "[" +
+      "{\"key\":0,\"owner_loop\":0,\"kind\":{\"kind\":\"break\",\"target_loop\":0}}," +
+      "{\"key\":1,\"owner_loop\":0,\"kind\":{\"kind\":\"continue\",\"target_loop\":0}}" +
+      "]"
+
+    // ---- recipe ------------------------------------------------------------
+    local recipe = "{\"root_loop\":0," +
+      "\"loops\":" + loops + "," +
+      "\"blocks\":" + blocks + "," +
+      "\"items\":" + items + "," +
+      "\"bindings\":" + bindings + "," +
+      "\"values\":" + values + "," +
+      "\"inputs\":[0]," +
+      "\"carriers\":" + carriers + "," +
+      "\"exits\":" + exits + "}"
+
+    // ---- provenance / source_binding ----------------------------------------
+    local provenance = "{\"producer_id\":\"loop_cond_break_continue_v1\"}"
+    local owner = "{\"kind\":\"function_body\",\"compilation_unit_ordinal\":0,\"function_ordinal\":0}"
+    local path = "{\"steps\":[{\"kind\":\"body_item\",\"index\":1}]}"
+    local source_binding = "{\"owner\":" + owner + "," +
+      "\"loops\":[{\"loop_key\":0,\"path\":" + path + "}]}"
+
+    // ---- artifact -------------------------------------------------------------
+    local artifact = "{\"schema_version\":1," +
+      "\"provenance\":" + provenance + "," +
+      "\"source_binding\":" + source_binding + "," +
+      "\"recipe\":" + recipe + "}"
+
+    print(artifact)
+    return 0
+  }
+}

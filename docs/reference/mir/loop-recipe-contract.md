@@ -736,6 +736,32 @@ exposes `as_recipe()`. No producer port, Facts, verifier, physical
 MIR, production caller, hostbridge, or V1 artifact for this family
 was added.
 
+Reference receipt — `SELFHOST-LOOP-M8D-LOOPCOND-PARITY-S7B4`
+(2026-09-24): the fourth S7B wire-coverage cohort returns to V1.
+`loop_recipe/emit_m8d_loopcond_wire.hako` emits the canonical M8D
+`LoopRecipeArtifactV1` — `loop_cond_break_continue_v1` provenance,
+source path `body_item(1)` — as one compact JSON line for the
+bounded `loop_cond_function_for_test` profile (`local flag = 1;
+loop(flag < 2) { if flag == 1 { break } else { continue } }`),
+covering the first `continue` exit kind and the first `If` item
+with a populated `else_block` (two exit rows: break then continue).
+The emission is checked in at
+`fixtures/hako_loop_recipe_wire_m8d_v1.json`. The parity harness
+rebuilds the artifact through the producer's own issuer chain —
+the typed source map's `into_parts` carries the resolver-bound
+`VerifiedLoopRootSourceV1` plus both typed compares into
+`loop_cond_break_continue_recipe` (now `pub(super)`), then
+`verify` -> `into_root_claim` -> `LoopCondBreakContinueV1`
+provenance — and asserts all three normalizations equal, plus
+`normalize_semantic` equality with the real
+`produce_loop_cond_break_continue_recipe_v1` product issued
+through its own policy-demand chain (producer-test helpers
+`typed_map`/`schedule_with_winner`/`demand` promoted to
+`pub(super)`), plus a foreign-provenance drift negative. No
+producer port, Facts/RoutePolicy/JoinSig port, verifier, physical
+MIR, production caller, hostbridge, or V2 artifact for this family
+was added.
+
 Reference receipt — `LOOP-JOINSIG-NESTED-SHADOW-S0` (2026-08-06): visible
 carrier projection now walks the verified Recipe parent chain from the target
 loop toward the root, keeps the first `LoopBindingKeyV1` for each binding, and
