@@ -666,3 +666,31 @@ loop_node_winner_spine_tests loop_family_window` — 73/73 ok.
 
 Next slice: P2-C layout extensions (Always entry/BodyEntry,
 conditional backedge, dead-tail, Break-arm exits).
+
+## P2-C landed — layout extensions for Always / break-arm / dead tail
+
+`physical_layout.rs` now admits the in-boundary vocabulary:
+
+- `entry_key` branches on the recipe's own `LoopConditionV1`: Predicate
+  resolves the condition-block segment (unchanged); `Always` requires the
+  `BodyEntry` edge (Header->Body ports) and resolves `{loop, body, 0}`.
+- `build_loop` registers `after_targets[loop_key] = after_target` before
+  descending, then classifies the body tail: an existing `Backedge` edge
+  binds to the loop entry (condition segment for predicate loops, body
+  segment for Always); a missing `Backedge` edge enters `DeadTail` mode.
+- `DeadTail` is admitted only when the body's final item is an `if` whose
+  arms both exit (no reachable continuation); any reachable tail without
+  a backedge rejects as `BackedgeMissing` — never a synthetic transfer.
+- `branch_arm_finish` admits `Break` exits as
+  `Jump { after_targets[exit.target_loop] }` (root -> `OpenRootAfter`,
+  nested break -> ancestor resume segment); `Continue` still requires the
+  owning loop and jumps to its entry. `Return` arms and foreign-target
+  continues stay typed-rejected.
+
+Focused gate: `physical_layout` — 10/10 ok (new: Always entry via
+BodyEntry, break->OpenRootAfter, continue->body entry, dead-tail skip;
+negative: Return arm, reachable tail, missing BodyEntry, unvisited break
+target).
+
+Next slice: P2-D segment_dispatcher emit hook for in-loop declaration
+publication (nested `j`), then P2-E admission issuer + physicalize edge.

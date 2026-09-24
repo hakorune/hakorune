@@ -15,7 +15,7 @@ use super::operation_physical_demand::PreparedLoopOperationProgramV1;
 use super::physical_transfer::{
     bind_backedge, bind_nested_loop, bind_predicate, LoopPhysicalTransferBindingRejectV1,
 };
-use super::schema::{LoopRecipeItemV1, LoopRecipeV1};
+use super::schema::{LoopConditionV1, LoopRecipeItemV1, LoopRecipeV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct LoopPhysicalSegmentKeyV1 {
@@ -130,6 +130,7 @@ pub(crate) enum LoopPhysicalLayoutRejectV1 {
     DuplicateItem(LoopItemKeyV1),
     UnsupportedAlways(LoopNodeKeyV1),
     UnsupportedExit(LoopItemKeyV1),
+    BackedgeMissing(LoopNodeKeyV1),
     BranchConditionMismatch(LoopItemKeyV1),
     BranchContinuationMismatch(LoopItemKeyV1),
     BranchExitMismatch(LoopItemKeyV1),
@@ -242,6 +243,7 @@ struct LayoutBuilder<'a> {
     visited_items: BTreeSet<LoopItemKeyV1>,
     visited_branches: BTreeSet<(LoopNodeKeyV1, LoopItemKeyV1)>,
     operation_items: Vec<LoopItemKeyV1>,
+    after_targets: BTreeMap<LoopNodeKeyV1, LoopPhysicalTargetV1>,
 }
 
 impl<'a> LayoutBuilder<'a> {
@@ -260,6 +262,7 @@ impl<'a> LayoutBuilder<'a> {
             visited_items: BTreeSet::new(),
             visited_branches: BTreeSet::new(),
             operation_items: Vec::new(),
+            after_targets: BTreeMap::new(),
         }
     }
 
@@ -313,14 +316,39 @@ impl<'a> LayoutBuilder<'a> {
             LoopJoinPortV1::Preheader,
             LoopJoinPortV1::Header,
         )?;
-        let predicate = self
-            .transfers
-            .require(loop_key, LoopJoinEdgeRoleV1::PredicateTrue)
-            .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
-        let Some((block, _)) = predicate.condition else {
-            return Err(LoopPhysicalLayoutRejectV1::UnsupportedAlways(loop_key));
-        };
-        Ok(LoopPhysicalSegmentKeyV1::new(loop_key, block, 0))
+        let node = self
+            .recipe
+            .loops
+            .iter()
+            .find(|row| row.key == loop_key)
+            .ok_or(LoopPhysicalLayoutRejectV1::MissingLoop(loop_key))?;
+        match node.condition {
+            LoopConditionV1::Predicate { .. } => {
+                let predicate = self
+                    .transfers
+                    .require(loop_key, LoopJoinEdgeRoleV1::PredicateTrue)
+                    .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
+                let Some((block, _)) = predicate.condition else {
+                    return Err(LoopPhysicalLayoutRejectV1::UnsupportedAlways(loop_key));
+                };
+                Ok(LoopPhysicalSegmentKeyV1::new(loop_key, block, 0))
+            }
+            LoopConditionV1::Always => {
+                let body_entry = self
+                    .transfers
+                    .require(loop_key, LoopJoinEdgeRoleV1::BodyEntry)
+                    .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
+                require_ports(
+                    body_entry.loop_key,
+                    body_entry.role,
+                    body_entry.from,
+                    body_entry.to,
+                    LoopJoinPortV1::Header,
+                    LoopJoinPortV1::Body,
+                )?;
+                Ok(LoopPhysicalSegmentKeyV1::new(loop_key, node.body, 0))
+            }
+        }
     }
 
     fn build_loop(
@@ -337,41 +365,63 @@ impl<'a> LayoutBuilder<'a> {
             .iter()
             .find(|row| row.key == loop_key)
             .ok_or(LoopPhysicalLayoutRejectV1::MissingLoop(loop_key))?;
-        let predicate_true = self
-            .transfers
-            .require(loop_key, LoopJoinEdgeRoleV1::PredicateTrue)
-            .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
-        let predicate_false = self
-            .transfers
-            .require(loop_key, LoopJoinEdgeRoleV1::PredicateFalse)
-            .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
-        let backedge = self
+        self.after_targets.insert(loop_key, after_target);
+        let body_entry = LoopPhysicalSegmentKeyV1::new(loop_key, node.body, 0);
+        let entry = match node.condition {
+            LoopConditionV1::Predicate { .. } => {
+                let predicate_true = self
+                    .transfers
+                    .require(loop_key, LoopJoinEdgeRoleV1::PredicateTrue)
+                    .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
+                let predicate_false = self
+                    .transfers
+                    .require(loop_key, LoopJoinEdgeRoleV1::PredicateFalse)
+                    .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
+                let Some((condition_block, _)) = predicate_true.condition else {
+                    return Err(LoopPhysicalLayoutRejectV1::UnsupportedAlways(loop_key));
+                };
+                let predicate =
+                    bind_predicate(predicate_true, predicate_false, body_entry, after_target)
+                        .map_err(LoopPhysicalLayoutRejectV1::TransferBinding)?;
+                self.build_block(
+                    loop_key,
+                    condition_block,
+                    LoopPhysicalSegmentRoleV1::Header,
+                    BlockTailV1::Finish(predicate),
+                    None,
+                )?;
+                LoopPhysicalSegmentKeyV1::new(loop_key, condition_block, 0)
+            }
+            LoopConditionV1::Always => {
+                let body_entry_edge = self
+                    .transfers
+                    .require(loop_key, LoopJoinEdgeRoleV1::BodyEntry)
+                    .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
+                require_ports(
+                    body_entry_edge.loop_key,
+                    body_entry_edge.role,
+                    body_entry_edge.from,
+                    body_entry_edge.to,
+                    LoopJoinPortV1::Header,
+                    LoopJoinPortV1::Body,
+                )?;
+                body_entry
+            }
+        };
+        let tail = match self
             .transfers
             .require(loop_key, LoopJoinEdgeRoleV1::Backedge)
-            .map_err(LoopPhysicalLayoutRejectV1::Transfer)?;
-        let Some((condition_block, _)) = predicate_true.condition else {
-            return Err(LoopPhysicalLayoutRejectV1::UnsupportedAlways(loop_key));
+        {
+            Ok(backedge) => BlockTailV1::Finish(
+                bind_backedge(backedge, LoopPhysicalTargetV1::Segment(entry))
+                    .map_err(LoopPhysicalLayoutRejectV1::TransferBinding)?,
+            ),
+            Err(LoopJoinLogicalTransferRejectV1::MissingBoundary { .. }) => {
+                BlockTailV1::DeadTail { loop_key }
+            }
+            Err(reject) => return Err(LoopPhysicalLayoutRejectV1::Transfer(reject)),
         };
-        let body_entry = LoopPhysicalSegmentKeyV1::new(loop_key, node.body, 0);
-        let predicate = bind_predicate(predicate_true, predicate_false, body_entry, after_target)
-            .map_err(LoopPhysicalLayoutRejectV1::TransferBinding)?;
-        self.build_block(
-            loop_key,
-            condition_block,
-            LoopPhysicalSegmentRoleV1::Header,
-            predicate,
-            None,
-        )?;
-        let condition_entry = LoopPhysicalSegmentKeyV1::new(loop_key, condition_block, 0);
-        let backedge = bind_backedge(backedge, LoopPhysicalTargetV1::Segment(condition_entry))
-            .map_err(LoopPhysicalLayoutRejectV1::TransferBinding)?;
-        self.build_block(
-            loop_key,
-            node.body,
-            LoopPhysicalSegmentRoleV1::Body,
-            backedge,
-            None,
-        )
+        self.build_block(loop_key, node.body, LoopPhysicalSegmentRoleV1::Body, tail, None)
     }
 
     fn build_block(
@@ -379,7 +429,7 @@ impl<'a> LayoutBuilder<'a> {
         loop_key: LoopNodeKeyV1,
         block_key: LoopBlockKeyV1,
         role: LoopPhysicalSegmentRoleV1,
-        finish_transfer: LoopPhysicalTransferV1,
+        tail: BlockTailV1,
         expected_exit: Option<LoopItemKeyV1>,
     ) -> Result<(), LoopPhysicalLayoutRejectV1> {
         if !self.visited_blocks.insert(block_key) {
@@ -395,7 +445,9 @@ impl<'a> LayoutBuilder<'a> {
         let mut ordinal = 0;
         let mut operations = Vec::new();
         let mut consumed_exit = None;
+        let mut last_was_if = false;
         for (index, item) in items.iter().copied().enumerate() {
+            last_was_if = false;
             if !self.visited_items.insert(item) {
                 return Err(LoopPhysicalLayoutRejectV1::DuplicateItem(item));
             }
@@ -504,11 +556,12 @@ impl<'a> LayoutBuilder<'a> {
                     });
                     operations = Vec::new();
                     ordinal += 1;
+                    last_was_if = true;
                     self.build_block(
                         loop_key,
                         then_block,
                         LoopPhysicalSegmentRoleV1::Body,
-                        then_finish.transfer(),
+                        BlockTailV1::Finish(then_finish.transfer()),
                         then_finish.exit_item(),
                     )?;
                     if let Some(else_block) = else_block {
@@ -516,7 +569,7 @@ impl<'a> LayoutBuilder<'a> {
                             loop_key,
                             else_block,
                             LoopPhysicalSegmentRoleV1::Body,
-                            else_finish.transfer(),
+                            BlockTailV1::Finish(else_finish.transfer()),
                             else_finish.exit_item(),
                         )?;
                     }
@@ -544,14 +597,33 @@ impl<'a> LayoutBuilder<'a> {
                 }),
             ));
         }
+        let transfer = match tail {
+            BlockTailV1::Finish(transfer) => transfer,
+            BlockTailV1::DeadTail { loop_key } => {
+                // Bounded dead-tail admission: a loop without a Backedge edge
+                // is physicalizable only when the body's final item is an
+                // `if` whose arms both exit (no reachable continuation). The
+                // arm blocks already carry the only exits, so the trailing
+                // segment is skipped instead of minting a synthetic transfer.
+                if !operations.is_empty() || !last_was_if {
+                    return Err(LoopPhysicalLayoutRejectV1::BackedgeMissing(loop_key));
+                }
+                return Ok(());
+            }
+        };
         self.segments.push(PreparedLoopControlSegmentV1 {
             key: LoopPhysicalSegmentKeyV1::new(loop_key, block_key, ordinal),
             role,
             operations: operations.into_boxed_slice(),
-            transfer: finish_transfer,
+            transfer,
         });
         Ok(())
     }
+}
+
+enum BlockTailV1 {
+    Finish(LoopPhysicalTransferV1),
+    DeadTail { loop_key: LoopNodeKeyV1 },
 }
 
 #[derive(Clone, Copy)]
@@ -602,21 +674,37 @@ fn branch_arm_finish(
             ))
         }
         LoopJoinBranchArmTransferRefV1::Exit(exit) => {
-            // Bounded boundary: a branch-arm exit is admitted only when it is
-            // a `continue` back to the owning loop. JoinSig itself can carry
-            // Break/Continue arm pairs, so a `break` inside an `if` (e.g. the
-            // variable-accum-break profile) still cannot physicalize through
-            // this layout and rejects here by design.
-            if exit.role != LoopJoinEdgeRoleV1::Continue || exit.target_loop != owner_loop {
-                return Err(LoopPhysicalLayoutRejectV1::BranchExitMismatch(if_item));
+            // Bounded boundary: a branch-arm `continue` jumps back to the
+            // owning loop's entry (condition block for predicate loops, body
+            // for `loop(true)`); a branch-arm `break` jumps to the after
+            // target recorded for its target loop (the root's OpenRootAfter
+            // or an ancestor's resume segment). Return arms and
+            // foreign-target continues stay typed-rejected.
+            match exit.role {
+                LoopJoinEdgeRoleV1::Continue if exit.target_loop == owner_loop => {
+                    let entry = builder.entry_key(exit.target_loop)?;
+                    Ok(BranchArmFinishV1::Exit {
+                        transfer: LoopPhysicalTransferV1::Jump {
+                            target: LoopPhysicalTargetV1::Segment(entry),
+                        },
+                        item: exit.exit_item,
+                    })
+                }
+                LoopJoinEdgeRoleV1::Break => {
+                    let target = builder
+                        .after_targets
+                        .get(&exit.target_loop)
+                        .copied()
+                        .ok_or(LoopPhysicalLayoutRejectV1::BranchExitMismatch(
+                            if_item,
+                        ))?;
+                    Ok(BranchArmFinishV1::Exit {
+                        transfer: LoopPhysicalTransferV1::Jump { target },
+                        item: exit.exit_item,
+                    })
+                }
+                _ => Err(LoopPhysicalLayoutRejectV1::BranchExitMismatch(if_item)),
             }
-            let entry = builder.entry_key(exit.target_loop)?;
-            Ok(BranchArmFinishV1::Exit {
-                transfer: LoopPhysicalTransferV1::Jump {
-                    target: LoopPhysicalTargetV1::Segment(entry),
-                },
-                item: exit.exit_item,
-            })
         }
     }
 }

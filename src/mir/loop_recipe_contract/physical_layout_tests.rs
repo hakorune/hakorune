@@ -442,3 +442,262 @@ fn nested_and_backedge_binders_reject_wrong_loop_or_role() {
         Err(LoopPhysicalTransferBindingRejectV1::LoopMismatch { .. })
     ));
 }
+
+// ---------------------------------------------------------------------------
+// Always / break-arm boundary (M10b-I0-P2-C): `loop(true)` bodies carry no
+// PredicateTrue/Backedge edges; the body ends in an `if` whose arms both exit
+// (Break -> after target, Continue -> loop entry). The trailing segment is a
+// dead tail and is skipped by construction.
+// ---------------------------------------------------------------------------
+
+fn always_loop_fixture(
+    then_exit_role: LoopJoinEdgeRoleV1,
+) -> (LoopRecipeV1, LoopJoinLogicalTransferViewV1<'static>) {
+    let loop_key = LoopNodeKeyV1::new(0);
+    let body_block = LoopBlockKeyV1::new(0);
+    let then_block = LoopBlockKeyV1::new(1);
+    let else_block = LoopBlockKeyV1::new(2);
+    let if_item = LoopItemKeyV1::new(0);
+    let then_exit = LoopItemKeyV1::new(1);
+    let else_exit = LoopItemKeyV1::new(2);
+    let recipe = LoopRecipeV1 {
+        root_loop: loop_key,
+        loops: vec![super::super::schema::LoopNodeV1 {
+            key: loop_key,
+            parent: None,
+            condition: super::super::schema::LoopConditionV1::Always,
+            body: body_block,
+        }],
+        blocks: vec![
+            super::super::schema::LoopRecipeBlockV1 {
+                key: body_block,
+                owner_loop: loop_key,
+                items: vec![if_item],
+            },
+            super::super::schema::LoopRecipeBlockV1 {
+                key: then_block,
+                owner_loop: loop_key,
+                items: vec![then_exit],
+            },
+            super::super::schema::LoopRecipeBlockV1 {
+                key: else_block,
+                owner_loop: loop_key,
+                items: vec![else_exit],
+            },
+        ],
+        items: vec![
+            super::super::schema::LoopRecipeItemRowV1 {
+                key: if_item,
+                item: LoopRecipeItemV1::If {
+                    condition: LoopValueKeyV1::new(0),
+                    then_block,
+                    else_block: Some(else_block),
+                },
+            },
+            super::super::schema::LoopRecipeItemRowV1 {
+                key: then_exit,
+                item: LoopRecipeItemV1::Exit {
+                    exit: super::super::ids::LoopExitKeyV1::new(0),
+                },
+            },
+            super::super::schema::LoopRecipeItemRowV1 {
+                key: else_exit,
+                item: LoopRecipeItemV1::Exit {
+                    exit: super::super::ids::LoopExitKeyV1::new(1),
+                },
+            },
+        ],
+        bindings: Vec::new(),
+        values: Vec::new(),
+        inputs: Vec::new(),
+        carriers: Vec::new(),
+        exits: Vec::new(),
+    };
+    let boundaries = vec![
+        transfer(
+            loop_key,
+            LoopJoinPortV1::Preheader,
+            LoopJoinPortV1::Header,
+            LoopJoinEdgeRoleV1::Enter,
+            None,
+        ),
+        transfer(
+            loop_key,
+            LoopJoinPortV1::Header,
+            LoopJoinPortV1::Body,
+            LoopJoinEdgeRoleV1::BodyEntry,
+            None,
+        ),
+    ];
+    let branch = LoopJoinBranchTransferRefV1 {
+        owner_loop: loop_key,
+        if_item,
+        condition: LoopValueKeyV1::new(0),
+        then_arm: LoopJoinBranchArmTransferRefV1::Exit(LoopJoinBranchExitRefV1 {
+            exit_item: then_exit,
+            role: then_exit_role,
+            target_loop: loop_key,
+            payload: &[],
+        }),
+        else_arm: LoopJoinBranchArmTransferRefV1::Exit(LoopJoinBranchExitRefV1 {
+            exit_item: else_exit,
+            role: LoopJoinEdgeRoleV1::Continue,
+            target_loop: loop_key,
+            payload: &[],
+        }),
+    };
+    let transfers = LoopJoinLogicalTransferViewV1::for_test(boundaries, vec![branch]);
+    (recipe, transfers)
+}
+
+#[test]
+fn always_loop_skips_dead_tail_and_routes_break_and_continue_arms() {
+    let (recipe, transfers) = always_loop_fixture(LoopJoinEdgeRoleV1::Break);
+    let body_entry = LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(0), 0);
+    let then_segment = LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(1), 0);
+    let else_segment = LoopPhysicalSegmentKeyV1::new(LoopNodeKeyV1::new(0), LoopBlockKeyV1::new(2), 0);
+    let mut builder = LayoutBuilder::new(&recipe, &transfers);
+    assert_eq!(builder.entry_key(LoopNodeKeyV1::new(0)), Ok(body_entry));
+    builder
+        .build_loop(LoopNodeKeyV1::new(0), LoopPhysicalTargetV1::OpenRootAfter)
+        .expect("Always loop with break/continue arms lays out");
+    let (segments, visited_items, _operations) = builder.finish().expect("exact coverage");
+    assert_eq!(visited_items.len(), 3);
+    assert_eq!(segments.len(), 3);
+    assert!(matches!(
+        segments[0].transfer(),
+        LoopPhysicalTransferV1::Predicate {
+            condition,
+            on_true,
+            on_false: LoopPhysicalTargetV1::Segment(on_false),
+        } if condition == LoopValueKeyV1::new(0) && on_true == then_segment && on_false == else_segment
+    ));
+    assert!(matches!(
+        segments[1].transfer(),
+        LoopPhysicalTransferV1::Jump {
+            target: LoopPhysicalTargetV1::OpenRootAfter
+        }
+    ));
+    assert!(matches!(
+        segments[2].transfer(),
+        LoopPhysicalTransferV1::Jump {
+            target: LoopPhysicalTargetV1::Segment(target)
+        } if target == body_entry
+    ));
+}
+
+#[test]
+fn always_loop_rejects_return_arm_and_reachable_dead_tail() {
+    let (recipe, transfers) = always_loop_fixture(LoopJoinEdgeRoleV1::Return);
+    let mut builder = LayoutBuilder::new(&recipe, &transfers);
+    assert!(matches!(
+        builder.build_loop(LoopNodeKeyV1::new(0), LoopPhysicalTargetV1::OpenRootAfter),
+        Err(LoopPhysicalLayoutRejectV1::BranchExitMismatch(_))
+    ));
+
+    // A reachable tail (an operation after the `if`) without a Backedge edge
+    // has no way to continue or exit: typed terminal, never a synthetic jump.
+    let (mut recipe, transfers) = always_loop_fixture(LoopJoinEdgeRoleV1::Break);
+    let tail_item = LoopItemKeyV1::new(3);
+    recipe.blocks[0].items.push(tail_item);
+    recipe.items.push(super::super::schema::LoopRecipeItemRowV1 {
+        key: tail_item,
+        item: LoopRecipeItemV1::Operation {
+            operation: super::super::schema::LoopOperationV1::ConstI64 {
+                result: LoopValueKeyV1::new(1),
+                value: 1,
+            },
+        },
+    });
+    let mut builder = LayoutBuilder::new(&recipe, &transfers);
+    assert!(matches!(
+        builder.build_loop(LoopNodeKeyV1::new(0), LoopPhysicalTargetV1::OpenRootAfter),
+        Err(LoopPhysicalLayoutRejectV1::BackedgeMissing(_))
+    ));
+}
+
+#[test]
+fn always_loop_rejects_missing_body_entry_edge() {
+    let (recipe, _transfers) = always_loop_fixture(LoopJoinEdgeRoleV1::Break);
+    let loop_key = LoopNodeKeyV1::new(0);
+    let boundaries = vec![transfer(
+        loop_key,
+        LoopJoinPortV1::Preheader,
+        LoopJoinPortV1::Header,
+        LoopJoinEdgeRoleV1::Enter,
+        None,
+    )];
+    let branch = LoopJoinBranchTransferRefV1 {
+        owner_loop: loop_key,
+        if_item: LoopItemKeyV1::new(0),
+        condition: LoopValueKeyV1::new(0),
+        then_arm: LoopJoinBranchArmTransferRefV1::Exit(LoopJoinBranchExitRefV1 {
+            exit_item: LoopItemKeyV1::new(1),
+            role: LoopJoinEdgeRoleV1::Break,
+            target_loop: loop_key,
+            payload: &[],
+        }),
+        else_arm: LoopJoinBranchArmTransferRefV1::Exit(LoopJoinBranchExitRefV1 {
+            exit_item: LoopItemKeyV1::new(2),
+            role: LoopJoinEdgeRoleV1::Continue,
+            target_loop: loop_key,
+            payload: &[],
+        }),
+    };
+    let transfers = LoopJoinLogicalTransferViewV1::for_test(boundaries, vec![branch]);
+    let mut builder = LayoutBuilder::new(&recipe, &transfers);
+    assert!(matches!(
+        builder.build_loop(loop_key, LoopPhysicalTargetV1::OpenRootAfter),
+        Err(LoopPhysicalLayoutRejectV1::Transfer(
+            LoopJoinLogicalTransferRejectV1::MissingBoundary {
+                role: LoopJoinEdgeRoleV1::BodyEntry,
+                ..
+            }
+        ))
+    ));
+}
+
+#[test]
+fn break_arm_targeting_an_unvisited_loop_is_typed_terminal() {
+    let (recipe, _transfers) = always_loop_fixture(LoopJoinEdgeRoleV1::Break);
+    let loop_key = LoopNodeKeyV1::new(0);
+    let boundaries = vec![
+        transfer(
+            loop_key,
+            LoopJoinPortV1::Preheader,
+            LoopJoinPortV1::Header,
+            LoopJoinEdgeRoleV1::Enter,
+            None,
+        ),
+        transfer(
+            loop_key,
+            LoopJoinPortV1::Header,
+            LoopJoinPortV1::Body,
+            LoopJoinEdgeRoleV1::BodyEntry,
+            None,
+        ),
+    ];
+    let branch = LoopJoinBranchTransferRefV1 {
+        owner_loop: loop_key,
+        if_item: LoopItemKeyV1::new(0),
+        condition: LoopValueKeyV1::new(0),
+        then_arm: LoopJoinBranchArmTransferRefV1::Exit(LoopJoinBranchExitRefV1 {
+            exit_item: LoopItemKeyV1::new(1),
+            role: LoopJoinEdgeRoleV1::Break,
+            target_loop: LoopNodeKeyV1::new(9),
+            payload: &[],
+        }),
+        else_arm: LoopJoinBranchArmTransferRefV1::Exit(LoopJoinBranchExitRefV1 {
+            exit_item: LoopItemKeyV1::new(2),
+            role: LoopJoinEdgeRoleV1::Continue,
+            target_loop: loop_key,
+            payload: &[],
+        }),
+    };
+    let transfers = LoopJoinLogicalTransferViewV1::for_test(boundaries, vec![branch]);
+    let mut builder = LayoutBuilder::new(&recipe, &transfers);
+    assert!(matches!(
+        builder.build_loop(loop_key, LoopPhysicalTargetV1::OpenRootAfter),
+        Err(LoopPhysicalLayoutRejectV1::BranchExitMismatch(_))
+    ));
+}
