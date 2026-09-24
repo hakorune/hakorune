@@ -1,5 +1,5 @@
 ---
-Status: open__design_stop__2026-09-24
+Status: open__design_stop__family_route_coverage_gap__2026-09-24
 Task: M10b-I0-R0 (JOINIR-LOOP-PORTABLE-RECIPE-CUTOVER0-I0-R0)
 Date: 2026-09-24
 Parent: GENERIC-M10B-DELETION-MANIFEST-S0 (landed, manifest frozen)
@@ -290,14 +290,12 @@ returns to design — it does not grow a profile adapter.
 
 ### Open questions P1 must resolve (bounded)
 
-- **Family<->route correspondence**: the window has 5 families
-  (`DirectAccum, NestedPredicate, LoopTrueBreakContinue,
-  LoopCondBreakContinue, GenericG0`) but 8 attested routes. Which
-  family admits `LoopBreakRecipe` (VariableAccumBreak),
-  `LoopSimpleWhile` (VariableAccumRecurrence), and `ScanWithInit`
-  (ScanWithInitV2)? Resolve empirically: run the five attempt issuers
-  against each attested fixture's loop site; record the mapping as a
-  named table in the spine module — never guess.
+- **Family<->route correspondence**: RESOLVED empirically (see "P1
+  empirical probe results" below) — **none**: the five family arms
+  admit only their own canonical profiles; `LoopBreakRecipe`,
+  `LoopSimpleWhile`, `ScanWithInit`, and `GenericLoopV1`->residual are
+  family-less. This reopens the winner-coverage design question before
+  spine construction (see Findings).
 - **Route-row production**: for each loop site, the 19 route rows must
   be produced truthfully — `RecipeBacked` only for the row the
   selected family owns (per the correspondence table),
@@ -335,3 +333,60 @@ returns to design — it does not grow a profile adapter.
   (foreign lease, missing row, dual candidate, unsealed mode) tests.
 - No `route_loop` edit, no production caller, no manifest deletion —
   all inside R0.
+
+## P1 empirical probe results (caller-zero census, 2026-09-24)
+
+Probe: `src/mir/compiler/loop_family_window_probe_tests.rs` — resolves
+each representative fixture via `VerifiedResolvedSourceUnitV1`, locates
+the top-level loop, reissues `VerifiedResolvedLoopSourceV1` per arm
+(non-Clone), and runs all five `*_for_test` attempt issuers in
+`Release` mode + `Complete` coverage (`NumericTarget::host()` for G0).
+Diagnostic only; no production caller.
+
+### Measured family<->route mapping
+
+| Attested route / fixture | DirectAccum | NestedPred | LoopTrue | LoopCond | GenericG0 |
+|---|---|---|---|---|---|
+| `AccumConstLoop` (.hako `accum()`) | **Candidate** | Declined | Declined | Declined | Declined |
+| `NestedLoopMinimal` (`nested_function()` AST) | Declined | **Candidate** | Declined | Declined | Declined |
+| `LoopTrueBreakContinue` (.hako) | Declined | Declined | **Candidate** | Declined | Declined |
+| `LoopCondBreakContinue` (.hako + `positive_function()` AST) | Declined | Declined | Declined | **Candidate** | Declined |
+| `generic_g0` TYPED nested fn (`loop_route_policy/generic_g0_observation_tests.rs` fixture) | Unresolved(SourceNavigation) | Declined | Declined | Declined | **Candidate** |
+| `LoopSimpleWhile`->`VariableAccumRecurrence` (`acc+=i`) | Declined | Declined | Declined | Declined | Declined |
+| `LoopBreakRecipe`->`VariableAccumBreak` | Declined | Declined | Declined | Declined | Declined |
+| `ScanWithInit`->`ScanWithInitV2` | Declined | Declined | Declined | Declined | Declined |
+| `GenericLoopV1`->`GenericResidual` (`.hako` + `positive_function()` AST) | Declined | Declined | Declined | Declined | Declined |
+
+Probe artifact note: the `.hako` transcription of `nested_function()`
+(`local j` with no initializer) declined on all arms while the
+canonical AST fixture produced `NestedPredicate Candidate` — the
+parser materializes a different shape than the AST builder. Canonical
+AST fixtures are the authoritative probe input.
+
+### Findings
+
+- All five families admit their own canonical profiles — the window
+  arms work end-to-end from `ResolvedFunctionLoweringInputV1` +
+  located stmt + reissued `VerifiedResolvedLoopSourceV1`.
+- **Coverage gap (decision-required): 4 of 8 attested portable routes
+  have no admitting family** — `VariableAccumRecurrence`,
+  `VariableAccumBreak`, `ScanWithInit`, `GenericResidual`. Producers
+  and wire parity exist (S7B), but no family observation accepts their
+  shapes.
+- Selector tripwire confirmed by contract: with 0 family candidates,
+  `select_canonical_loop_family_v1` returns `NoCandidate` only when
+  the whole-unit route set is `all_pre_effect_declined`; if any route
+  row is `RecipeBacked` (as these four routes would mark), the outcome
+  is `Rejected(CoverageBackedWithoutCandidate)` — typed terminal, not
+  silent.
+- Production consequence: `loop(i<4){acc+=i}` is currently accepted
+  via `route_loop -> generic_loop_v1`. A window-only switch turns it
+  into a terminal `Freeze` — an accepted-program regression. **R0 is
+  blocked until the family<->route gap is resolved by design**: either
+  the GenericG0 family grows the additional generic profiles (G1+),
+  new families enter the window, or these routes are proven to never
+  reach the node-level path. Guessing is prohibited; the resolution
+  must name the owner per route.
+- `Unresolved(SourceNavigation)` observed on the DirectAccum arm for
+  the G0 nested fixture — a third outcome class the spine must carry
+  (not Candidate, not Declined).
