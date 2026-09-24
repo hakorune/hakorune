@@ -13,11 +13,10 @@
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::loop_node_winner_spine::{IssuedLoopNodeWinnerV1, LoopNodeWinnerRecipeV1};
 use crate::mir::loop_recipe_contract::{
-    LoopJoinSigRejectReasonV1, LoopOperationPhysicalDemandRejectV1,
-    LoopPhysicalLayoutRejectV1, PreparedLoopPhysicalLayoutV1,
-    VerifiedLoopContinuationContractV1, VerifiedLoopInitializedLocalInputSourceSetV1,
-    VerifiedLoopOperationEffectProductV1, VerifiedLoopOperationPhysicalDemandV1,
-    VerifiedLoopSemanticContextV1,
+    LoopJoinSigRejectReasonV1, LoopOperationPhysicalDemandRejectV1, LoopPhysicalLayoutRejectV1,
+    PreparedLoopPhysicalLayoutV1, VerifiedLoopContinuationContractV1,
+    VerifiedLoopInitializedLocalInputSourceSetV1, VerifiedLoopOperationEffectProductV1,
+    VerifiedLoopOperationPhysicalDemandV1, VerifiedLoopSemanticContextV1,
 };
 use crate::mir::resolved_semantics::ResolvedLoopRegionLookupErrorV1;
 
@@ -108,6 +107,36 @@ pub(crate) fn issue_loop_node_physical_admission_v1(
         input.function().source_kind(),
         site,
         frame,
+        scope_region,
+    );
+    issue_admission_from_products(context, operations, inputs)
+}
+
+/// Admit the already-produced callable recurrence through the same operation
+/// demand and physical layout boundary used by node winners. The exact source
+/// site/context comes from the callable's installed resolver input; this does
+/// not mint a node-family winner or select a route.
+pub(crate) fn issue_variable_accum_recurrence_physical_admission_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: crate::mir::resolved_semantics::SourceStmtSiteV1,
+    product: crate::mir::loop_recipe_contract::VerifiedVariableAccumRecurrenceRecipeProductV1,
+) -> Result<VerifiedLoopNodePhysicalAdmissionV1, LoopNodePhysicalAdmissionRejectV1> {
+    use LoopNodePhysicalAdmissionRejectV1 as Reject;
+
+    let (operations, inputs) = product.into_parts();
+    let (loop_source, scope_region) = input
+        .function()
+        .resolved_loop_source_context(&site)
+        .map_err(Reject::LoopContext)?;
+    if loop_source.site() != &site {
+        return Err(Reject::LoopContextSiteMismatch);
+    }
+    let context = VerifiedLoopSemanticContextV1::from_parts(
+        input.owner(),
+        input.function().function_origin(),
+        input.function().source_kind(),
+        site,
+        loop_source.frame_key(),
         scope_region,
     );
     issue_admission_from_products(context, operations, inputs)

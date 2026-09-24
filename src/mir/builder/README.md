@@ -1,5 +1,28 @@
 # MIR Builder (`src/mir/builder/`)
 
+## Callable VariableAccumRecurrence production connection (2026-09-24)
+
+The selected `loop_simple_while_inline_explicit_step_min.hako` callable now
+uses the original resolver input and exact Loop membership to issue the
+existing `VariableAccumRecurrenceV1` Recipe. The source projector requires
+both initializers to be Integer literals before it can claim I64. Exact-site
+read/write evidence supplies BindingRef entry values to the shared physical
+admission and canonical loop physicalizer; the callable ledger consumes the
+operation sites once and receives both final writebacks. Retained owner overlap
+is checked before competing candidates are taken, and a selected VAR product
+does not retry through the raw node path.
+
+The bounded source-backed MIR reference execution was verified with the
+existing `vm-reference` feature: the unchanged fixture printed `6`, exit `0`;
+renamed bindings with a different finite bound/step and a zero-iteration case
+were exercised as temporary probes. This is not EXE/AOT acceptance: the
+selected artifact attempt currently stops at the recorded ordinary-new root
+completion boundary. The source-backed lifecycle test asserts that this
+accepted row invokes the VAR consumer once and the shared legacy fallback zero
+times; that fallback remains available to other, unmatched shapes. Full
+retained-owner regression and failure-cleanup evidence remain open in the
+active card.
+
 Pointers:
 - final production pipeline north star:
   - `docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md`
@@ -610,59 +633,37 @@ throwaway Verified schedule, while `RawLoopChildEntry` consumes `Outside` only
 as a typed terminal. No ordinary JoinIR consumer, Builder effect, fallback,
 retry, or source-to-Recipe relation is opened by this transport slice.
 
-### Callable Loop source-aware Facts issuer I0 / route-neutral planner I0
+### Callable Loop source-aware Facts issuer I0 / route-neutral planner I0 (retired)
 
-`normal_callable_loop_source_facts.rs` is the named source/Facts seam. It
-accepts only the private move-only
-`PreparedCallableGenericLoopSourceFactsPayloadV1` assembled by
-`PreparedLocatedRawLoopChildEntryV1`; AST and source contexts are not supplied
-as independent peer arguments. The issuer passes one captured
-`GenericLoopFactsPolicyFrameV1` through the existing planner, including the
-GenericLoop V0 extractor and body validator, then selects from that retained
-`PlanBuildOutcome` exactly once. It accepts only exact `[GenericLoopV1]` and
-returns a private `Ready` aggregate or a typed terminal.
+The `normal_callable_loop_source_facts.rs` issuer seam, the
+`CallableGenericLoopV1PhysicalAdapterV1`, and their focused adapter tests
+retired with the M10b-I0-R0 `route_loop` switch. The production route is the
+frozen located-source pipeline in
+`control_flow/joinir/route_entry/router.rs`: resolver source unit, exact loop
+membership, node winner spine, physical admission, canonical physicalizer,
+writebacks — no ordered scheduler, retry, or fallback.
 
-The route-neutral planner I0 now gives the issuer one
-`CallableLoopFactsPlannerInputV1`: borrowed condition/body, the captured policy
-frame, and diagnostic-only function/debug fields. The source issuer does not
-construct `LoopRouteContext`, call `choose_route_kind`, read `in_static_box`,
-or enter the registry. The legacy Context callers and the source caller share
-one planner kernel; no second Facts/Recipe extraction is introduced.
+### Callable variable-accum recurrence ingress M10b-I0-R0-VAR
 
-The raw `Ready` branch is now the one production caller. It claims the
-source-facts result exactly once, moves it into the private
-`CallableGenericLoopV1SemanticRecipeV1`, and hands that Recipe to the named
-`CallableGenericLoopV1PhysicalAdapterV1`. The adapter composes the retained
-Facts through the route-neutral source context and lowers once; a source-aware
-reject is terminal and never returns to `lower_loop_or_freeze_v1`. This bounded
-I0 still has no ordinary Outside consumer, publication, retry, fallback, or
-registry suffix. The raw port currently proves only the same prepared
-raw-root lineage; it does not claim opaque parser-invocation identity. A
-parser witness must be added in a separate design slice before stronger
-identity claims are allowed.
+The accepted callable recurrence now uses the same installed resolved input
+and exact Loop membership to issue `VariableAccumRecurrenceV1` Facts, then the
+existing Recipe producer, common physical admission, and canonical loop
+physicalizer. Both initializer expressions must be source Integer literals.
+The consumer reads entry values by resolver `BindingRefV1`, accounts for exact
+source read/write sites once, and publishes both verified continuation values
+to the existing callable ledger. A missing entry value has the named
+`variable-accum/entry-value-missing` terminal; duplicate or mismatched rows
+reject before publication. A selected VAR row never retries through the raw
+legacy loop fallback. Other unmatched shapes retain their independently owned
+dispatch.
 
-The first Ready source-aware consumer is now wired through the existing raw
-invocation edge. `CallableLoopSourceExpressionPortV1` borrows the active
-`CallableSemanticLoweringState` for the adapter callback and pairs each
-condition/body input with its existing `RawInvocationSourceContextV1` site.
-Variable reads and assignment rebinds use the ledger's exact site accessors;
-an unlocated or missing site is a terminal contract error before the
-composer, lowerer, or Builder effects. The moved semantic Recipe is consumed
-once through `with_source_relation_view_once`; the observation-only view stays
-available for diagnostics and does not authorize a second consumer. The
-selected slice remains non-nested `RecipeOnly` Ready: Outside, legacy,
-fallback/retry, OBJ/EXE, and route retirement are not claimed here.
-
-The focused production-adapter evidence is
-`source_aware_adapter_consumes_real_callable_ledger_once` in
-`normal_callable_loop_source_facts_tests.rs`. It resolves a real callable
-source forest, installs only the existing instance-entry values, issues the
-source Facts/Recipe once, and lets the source Local arm publish completion
-through the borrowed port before the next BindingRef read. The same test
-covers literal loop bounds `0`, `1`, and `3`, then finishes the ledger after
-the condition/body reads and rebind. This proves the selected Rust adapter
-seam only; it does not claim full package discovery, OBJ/EXE output, or loop
-route retirement.
+The active VAR card records source-backed MIR and published EXE evidence,
+including renamed bindings/step and zero iterations. The missing-value and
+duplicate read/write accounting tests are in
+`normal_callable_semantic_lowering_state/loop_recipe_accounting_tests.rs`.
+The remaining named-terminal matrix and broad R0 acceptance are still open;
+this row does not authorize closing the global cutover or deleting shared
+fallback readers.
 
 ### GenericLoop source carrier projection and retained ArrayPush B2
 

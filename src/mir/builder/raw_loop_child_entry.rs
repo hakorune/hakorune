@@ -17,6 +17,7 @@ use super::normal_callable_loop_handoff::{
     CallableLoopBindingProjectionDispositionV1, CallableLoopOutsideReasonV1,
     CallableLoopReadyBodyOnlyProductV1,
 };
+use super::normal_callable_loop_source_facts::issue_callable_variable_accum_recurrence;
 use super::normal_callable_loop_source_facts::{
     CallableGenericLoopSourceFactsDispositionV1, CallableGenericLoopSourceFactsIssuerV1,
     CallableGenericLoopSourceFactsRouteErrorV1,
@@ -29,6 +30,12 @@ use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use crate::mir::builder::control_flow::plan::LoopFactsPolicyFrameV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::parser::CallableMethodSourceObservationV1;
+
+#[cfg(test)]
+#[path = "raw_loop_child_entry/test_route_observation.rs"]
+pub(in crate::mir::builder) mod test_route_observation;
+#[path = "raw_loop_child_entry/variable_accum.rs"]
+mod variable_accum;
 
 #[path = "raw_loop_child_entry/ledger_bridge.rs"]
 mod ledger_bridge;
@@ -267,6 +274,28 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             None => return lower_non_callable_loop_route_v1(builder, condition, body),
         };
         let owner = binding_product.owner();
+        let variable_accum_recurrence = match source_input {
+            Some(input) => issue_callable_variable_accum_recurrence(input, owner, parent_source)
+                .map_err(|error| {
+                    format!("[freeze:contract][callable-loop/variable-accum-recurrence] {error:?}")
+                })?,
+            None => None,
+        };
+        if variable_accum_recurrence.is_some() {
+            if let (Some(callable_ledger), Some(parent_site)) =
+                (callable_ledger, parent_source.site())
+            {
+                let state = callable_ledger.borrow();
+                if state.has_loop_break_source_candidate(parent_site)
+                    || state.has_loop_break_composite_source_candidate(parent_site)
+                {
+                    return Err(
+                        "[freeze:contract][callable-loop/variable-accum-recurrence/owner-overlap]"
+                            .to_owned(),
+                    );
+                }
+            }
+        }
         let (function_origin, source_kind, mut source_projection, source_items) =
             if let Some(callable_ledger) = callable_ledger {
                 let Some(parent_site) = parent_source.site() else {
@@ -304,11 +333,16 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             match (callable_ledger, parent_source.site()) {
                 (Some(callable_ledger), Some(parent_site)) => {
                     let mut state = callable_ledger.borrow_mut();
-                    let direct = state.take_loop_break_source_candidate(parent_site)?;
-                    let composite = if direct.is_none() {
-                        state.take_loop_break_composite_source_candidate(parent_site)?
+                    let (direct, composite) = if variable_accum_recurrence.is_some() {
+                        (None, None)
                     } else {
-                        None
+                        let direct = state.take_loop_break_source_candidate(parent_site)?;
+                        let composite = if direct.is_none() {
+                            state.take_loop_break_composite_source_candidate(parent_site)?
+                        } else {
+                            None
+                        };
+                        (direct, composite)
                     };
                     (direct, composite)
                 }
@@ -424,7 +458,30 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 source_items,
                 source_target_probe,
             )?;
-        match CallableGenericLoopSourceFactsIssuerV1::issue_once(payload) {
+        match CallableGenericLoopSourceFactsIssuerV1::issue_once(payload, variable_accum_recurrence) {
+            CallableGenericLoopSourceFactsDispositionV1::VariableAccumRecurrenceReady(product) => {
+                #[cfg(test)]
+                test_route_observation::record_variable_accum();
+                let source_input = source_input.ok_or_else(|| {
+                    "[freeze:contract][callable-loop/variable-accum-recurrence/source-input-missing]"
+                        .to_owned()
+                })?;
+                let callable_ledger = callable_ledger.ok_or_else(|| {
+                    "[freeze:contract][callable-loop/variable-accum-recurrence/callable-ledger-missing]"
+                        .to_owned()
+                })?;
+                let parent_site = parent_source.site().ok_or_else(|| {
+                    "[freeze:contract][callable-loop/variable-accum-recurrence/parent-site-missing]"
+                        .to_owned()
+                })?;
+                variable_accum::lower(
+                    builder,
+                    source_input,
+                    crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(parent_site.clone()),
+                    product,
+                    callable_ledger,
+                )
+            }
             CallableGenericLoopSourceFactsDispositionV1::LoopCondReady(source_facts) => {
                 let source_ledger = callable_ledger.ok_or_else(|| {
                     "[freeze:contract][callable-loop/loop-cond/source-port-ledger-missing]"
@@ -620,6 +677,8 @@ fn lower_non_callable_loop_route_v1(
     condition: ASTNode,
     body: Vec<ASTNode>,
 ) -> Result<ValueId, String> {
+    #[cfg(test)]
+    test_route_observation::record_non_callable_route();
     super::control_flow::joinir::routing::lower_loop_or_freeze_v1(builder, condition, body)
 }
 
@@ -680,3 +739,6 @@ mod loop_true_tests;
 #[cfg(test)]
 #[path = "raw_loop_child_entry/tests.rs"]
 mod tests;
+#[cfg(test)]
+#[path = "raw_loop_child_entry/variable_accum_tests.rs"]
+mod variable_accum_tests;

@@ -419,10 +419,11 @@ fn initializer(
     source: &super::source_view::FunctionSourceViewV1<'_>,
     statement: &LocatedStmtV1<'_>,
 ) -> Result<SourceExprSiteV1, VariableAccumRecurrenceProjectionRejectV1> {
-    source
+    let initializer = source
         .child_expr_from_stmt(statement, ExprChildRoleV1::LocalInitializer(0))
-        .map(|expr| expr.site().clone())
-        .map_err(|_| VariableAccumRecurrenceProjectionRejectV1::SourceNavigation)
+        .map_err(|_| VariableAccumRecurrenceProjectionRejectV1::SourceNavigation)?;
+    integer(initializer.node())?;
+    Ok(initializer.site().clone())
 }
 
 fn ensure_single_local(

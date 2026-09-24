@@ -31,6 +31,8 @@ mod normal_callable_semantic_receiver_crosswalk;
 #[path = "normal_callable_semantic_observation.rs"]
 mod observation;
 
+#[path = "normal_callable_semantic_lowering_state/loop_recipe_accounting.rs"]
+mod loop_recipe_accounting;
 /// Physical values materialized while lowering one callable body.
 ///
 /// Semantic identity remains owned by `VerifiedResolvedFunctionV1`; this state
@@ -382,6 +384,15 @@ impl CallableSemanticLoweringState {
             .as_mut()
             .map(|loan| Ok(loan.take_candidate_for_site(&statement_site)))
             .unwrap_or(Ok(None))
+    }
+
+    pub(super) fn has_loop_break_source_candidate(&self, site: &SourceNodeSiteV1) -> bool {
+        let statement_site =
+            crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
+        self.loop_break_source
+            .as_ref()
+            .map(|loan| loan.has_candidate_for_site(&statement_site))
+            .unwrap_or(false)
     }
 
     /// Consume one composite LoopBreak candidate by its exact source site.

@@ -1,5 +1,30 @@
 # Portable Loop Recipe Contract
 
+## Callable VariableAccumRecurrence source ingress (bounded, 2026-09-25)
+
+The accepted callable recurrence uses the existing
+`VariableAccumRecurrenceV1` Facts/Recipe producer. Its source authority is the
+installed callable's original resolved input, exact Loop membership, and
+resolver-issued BindingRefs. Both initial values must be source Integer
+literal expressions before the Facts may classify them as I64; MIR types or
+current physical values do not supply that claim.
+
+The callable edge reuses common physical admission and the canonical loop
+physicalizer. It obtains both entry values by exact BindingRef, consumes the
+Recipe's source read/write sites once in the callable ledger, and applies both
+verified continuation writebacks. No variable spelling, diagnostic text, or
+second resolver grants authority. The accepted fixture's selected
+`--backend mir` execution prints `6` and exits `0` with `vm-reference` enabled.
+The published EXE acceptance also runs renamed bindings with bound `3` and
+step `2` (output `24`) and a zero-iteration case (output `70`); all three cases
+exit `0`, and both carried values are checked in the variants. The scoped
+callable ledger consumes read/write source sites once. Missing entry values
+reject at the named `variable-accum/entry-value-missing` terminal, and repeated
+read or write consumption rejects before publication. This bounded connection
+does not retire the old route for other shapes or close the R0 deletion set;
+the remaining named-terminal matrix and broad R0 acceptance are tracked in the
+active implementation card.
+
 ## Callable loop declaration scope
 
 Decision: the source handoff retains exact local declaration statement, ordinal

@@ -1157,22 +1157,35 @@ publication, or backend widening. Self edges, mutual recursion, and SCC
 authority remain rejected. The next callable task is the behavior-neutral
 P0c-MR-G0 inventory extraction.
 
-## M8 S6A variable-accum recurrence (caller-zero)
+## M8 S6A variable-accum recurrence source facts and M10b callable ingress
 
 `variable_accum_recurrence_projection.rs` is the sole source-view adapter for
 the bounded `acc = acc + i; i = i + 1` family. It consumes the resolver ledger
 and exact Loop membership, while `loop_structural_facts` owns the one atomic
-AST-free Facts product. `variable_accum_recurrence_producer.rs` then projects
-that Candidate into the existing Recipe/JoinSig/Core/input/effect owners.
-No Recipe kind, route selector, Builder/MIR effect, or physical caller is
-introduced. The normal `Main.main` resolver ingress and typed C/D/U/R
-disposition are now closed for the bounded S6A ingress. Focused coverage
-includes Candidate, Declined, incomplete-evidence Unresolved, and
-foreign-owner Rejected. Duplicate binding-role and source-site coherence
-negatives now map to typed Rejected outcomes; source identity remains a
-resolver-owned rejection. The Facts owner stays below 800 lines through a
-separate validation module. S6A is closed with no selector, physical caller,
-or Builder/MIR effect.
+AST-free Facts product. `variable_accum_recurrence_producer.rs` projects that
+Candidate into the existing Recipe/JoinSig/Core/input/effect owners. Both
+initializers must be source Integer literals; MIR types and current physical
+values cannot supply that claim. Existing S6A coverage includes Candidate,
+Declined, incomplete-evidence Unresolved, foreign-owner Rejected,
+duplicate-role rejection, and source-site coherence.
+
+M10b-I0-R0-VAR now connects this existing product through the installed
+callable's exact source input and Loop membership. `raw_loop_child_entry` asks
+the retained LoopCond/LoopTrue/GenericLoop owners first; the VAR arm is selected
+only when those routes are absent, and overlap is a named terminal. The
+consumer obtains both entry values through exact `BindingRefV1`, reuses common
+physical admission and the canonical physicalizer, accounts for each source
+read/write site once, and publishes both continuation values through the
+callable ledger. A missing entry value rejects as
+`variable-accum/entry-value-missing`; the selected row never retries through
+the shared raw legacy fallback.
+
+Source-backed MIR evidence keeps the accepted fixture output `6`. The selected
+published EXE test also verifies renamed bindings with bound 3/step 2 (`24`)
+and zero iterations (`70`), checking both final values; all three exit `0`.
+Exact missing-value and duplicate read/write-consumption tests live with the
+callable ledger owner. The broader named-terminal matrix and R0 acceptance/
+retirement remain open, so this bounded connection is not global caller-zero.
 
 ## Canonical Script Source-only A carrier I0
 

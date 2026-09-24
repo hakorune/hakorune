@@ -68,12 +68,16 @@ pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsDispositionV1<'so
     FactsAbsent,
     FactsRejected(Box<str>),
     RouteNotFrontSelected(CallableGenericLoopSourceFactsRouteErrorV1),
+    VariableAccumRecurrenceReady(
+        crate::mir::loop_recipe_contract::VerifiedVariableAccumRecurrenceRecipeProductV1,
+    ),
     LoopCondReady(CallableLoopCondSourceFactsV1<'source>),
     LoopTrueReady(CallableLoopTrueSourceFactsV1<'source>),
 }
 
 #[path = "generic/issuer.rs"]
 mod issuer;
+pub(in crate::mir::builder) use issuer::issue_callable_variable_accum_recurrence;
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use issuer::CallableGenericLoopSourceFactsIssuerV1;
 

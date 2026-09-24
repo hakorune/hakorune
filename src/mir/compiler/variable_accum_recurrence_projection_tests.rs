@@ -46,6 +46,14 @@ fn assignment(target: &str, left: &str, right: ASTNode) -> ASTNode {
 }
 
 fn function(condition: BinaryOperator) -> ASTNode {
+    function_with_initializers(condition, Some(integer(0)), Some(integer(0)))
+}
+
+fn function_with_initializers(
+    condition: BinaryOperator,
+    induction_initializer: Option<ASTNode>,
+    accumulator_initializer: Option<ASTNode>,
+) -> ASTNode {
     ASTNode::FunctionDeclaration {
         name: "main".into(),
         params: Vec::new(),
@@ -54,13 +62,13 @@ fn function(condition: BinaryOperator) -> ASTNode {
         body: vec![
             ASTNode::Local {
                 variables: vec!["i".into()],
-                initial_values: vec![Some(Box::new(integer(0)))],
+                initial_values: vec![induction_initializer.map(Box::new)],
                 declared_type_names: vec![Some("i64".into())],
                 span: Span::unknown(),
             },
             ASTNode::Local {
                 variables: vec!["acc".into()],
-                initial_values: vec![Some(Box::new(integer(0)))],
+                initial_values: vec![accumulator_initializer.map(Box::new)],
                 declared_type_names: vec![Some("i64".into())],
                 span: Span::unknown(),
             },
@@ -132,9 +140,19 @@ fn normal_main_program(condition: BinaryOperator) -> ASTNode {
 }
 
 fn input_for(condition: BinaryOperator) -> ResolvedFunctionLoweringInputV1<'static> {
+    input_with_initializers(condition, Some(integer(0)), Some(integer(0)))
+}
+
+fn input_with_initializers(
+    condition: BinaryOperator,
+    induction_initializer: Option<ASTNode>,
+    accumulator_initializer: Option<ASTNode>,
+) -> ResolvedFunctionLoweringInputV1<'static> {
     let unit = Box::leak(Box::new(
-        crate::mir::compiler::VerifiedResolvedSourceUnitV1::resolve_function(function(condition))
-            .expect("recurrence fixture resolves"),
+        crate::mir::compiler::VerifiedResolvedSourceUnitV1::resolve_function(
+            function_with_initializers(condition, induction_initializer, accumulator_initializer),
+        )
+        .expect("recurrence fixture resolves"),
     ));
     unit.root_function_input().expect("root input")
 }
@@ -200,6 +218,50 @@ fn variable_recurrence_rejects_non_less_condition_before_recipe() {
         error,
         VariableAccumRecurrenceProjectionRejectV1::ConditionShape
     );
+}
+
+#[test]
+fn variable_recurrence_declines_initializers_without_integer_source_representation() {
+    let string = ASTNode::Literal {
+        value: LiteralValue::String("not-an-integer".into()),
+        span: Span::unknown(),
+    };
+    let float = ASTNode::Literal {
+        value: LiteralValue::Float(1.5),
+        span: Span::unknown(),
+    };
+    let nonliteral = ASTNode::BinaryOp {
+        operator: BinaryOperator::Add,
+        left: Box::new(integer(0)),
+        right: Box::new(integer(0)),
+        span: Span::unknown(),
+    };
+
+    for (induction, accumulator) in [
+        (Some(string), Some(integer(0))),
+        (Some(integer(0)), Some(float)),
+        (Some(integer(0)), Some(nonliteral)),
+        (None, Some(integer(0))),
+        (Some(integer(0)), None),
+    ] {
+        let input = input_with_initializers(BinaryOperator::Less, induction, accumulator);
+        let ledger = CallableSemanticSourceLedgerView::from_forest(input.forest(), input.owner())
+            .expect("ledger");
+        let membership = ledger.only_loop_site().expect("one loop");
+        let attempt = issue_variable_accum_recurrence_source_attempt_v1(
+            input,
+            &ledger,
+            membership,
+            VariableAccumRecurrenceObservationCoverageV1::Complete,
+        );
+        assert!(
+            matches!(
+                attempt.outcome(),
+                VariableAccumRecurrenceSourceAttemptOutcomeV1::Declined(_)
+            ),
+            "non-integer or absent initial value must not issue I64 Facts"
+        );
+    }
 }
 
 #[test]
@@ -340,6 +402,48 @@ fn variable_recurrence_facts_reject_incoherent_condition_site() {
         error,
         VariableAccumRecurrenceFactsIssueV1::SourceSiteConflict
     );
+}
+
+#[test]
+fn variable_recurrence_facts_reject_foreign_scope_frame() {
+    let input = input_for(BinaryOperator::Less);
+    let ledger = CallableSemanticSourceLedgerView::from_forest(input.forest(), input.owner())
+        .expect("ledger");
+    let membership = ledger.only_loop_site().expect("one loop");
+    let facts =
+        issue_variable_accum_recurrence_facts_from_membership_v1(input, &ledger, membership)
+            .expect("source-owned facts");
+
+    let foreign_input = input_for(BinaryOperator::Less);
+    let foreign_ledger = CallableSemanticSourceLedgerView::from_forest(
+        foreign_input.forest(),
+        foreign_input.owner(),
+    )
+    .expect("foreign ledger");
+    let foreign_membership = foreign_ledger.only_loop_site().expect("foreign loop");
+    let foreign_facts = issue_variable_accum_recurrence_facts_from_membership_v1(
+        foreign_input,
+        &foreign_ledger,
+        foreign_membership,
+    )
+    .expect("foreign source-owned facts");
+    let foreign_scope_region = foreign_facts.scope_region();
+
+    let (source, owner, _scope_region, bindings, inputs, condition, update, step, coverage) =
+        facts.into_parts();
+    let error = issue_variable_accum_recurrence_facts_v1(
+        owner,
+        source,
+        foreign_scope_region,
+        bindings,
+        inputs,
+        condition,
+        update,
+        step,
+        coverage,
+    )
+    .expect_err("facts must not combine a source with another owner's frame");
+    assert_eq!(error, VariableAccumRecurrenceFactsIssueV1::ForeignFrame);
 }
 
 #[test]

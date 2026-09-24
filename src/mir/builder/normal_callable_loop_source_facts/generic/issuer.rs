@@ -7,6 +7,9 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
     /// is the sole production caller; no old-route fallback is owned here.
     pub(in crate::mir::builder) fn issue_once<'source>(
         payload: PreparedCallableGenericLoopSourceFactsPayloadV1<'source>,
+        variable_accum_recurrence: Option<
+            crate::mir::loop_recipe_contract::VerifiedVariableAccumRecurrenceRecipeProductV1,
+        >,
     ) -> CallableGenericLoopSourceFactsDispositionV1<'source> {
         let PreparedCallableGenericLoopSourceFactsPayloadV1 {
             parent_source,
@@ -48,7 +51,14 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             }
         };
         let Some(facts) = outcome.facts.as_ref() else {
-            return CallableGenericLoopSourceFactsDispositionV1::FactsAbsent;
+            return match variable_accum_recurrence {
+                Some(product) => {
+                    CallableGenericLoopSourceFactsDispositionV1::VariableAccumRecurrenceReady(
+                        product,
+                    )
+                }
+                None => CallableGenericLoopSourceFactsDispositionV1::FactsAbsent,
+            };
         };
 
         // Data-only route match. This is not a scheduler: it records which
@@ -58,6 +68,18 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
         // when the route is the sole surviving candidate — identical to the
         // retired ordered selection's raw-execution check.
         let selection = CallableLoopRouteMatchV1::issue(facts);
+        if let Some(product) = variable_accum_recurrence {
+            if !selection.matched_routes().is_empty() {
+                return CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(
+                    CallableGenericLoopSourceFactsRouteErrorV1::VariableAccumRecurrenceOverlap {
+                        routes: selection.matched_routes().into(),
+                    },
+                );
+            }
+            return CallableGenericLoopSourceFactsDispositionV1::VariableAccumRecurrenceReady(
+                product,
+            );
+        }
         if selection.matched_routes() == [LoopRouteId::LoopCondBreakContinue] {
             return match loop_cond::issue(
                 owner,
@@ -113,5 +135,72 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
                 routes: selection.matched_routes().into(),
             },
         )
+    }
+}
+
+pub(in crate::mir::builder) fn issue_callable_variable_accum_recurrence(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    expected_owner: FunctionOwnerIdV1,
+    parent_source: &RawInvocationSourceContextV1,
+) -> Result<
+    Option<crate::mir::loop_recipe_contract::VerifiedVariableAccumRecurrenceRecipeProductV1>,
+    CallableGenericLoopSourceFactsRouteErrorV1,
+> {
+    use crate::mir::loop_structural_facts::VariableAccumRecurrenceSourceAttemptOutcomeV1 as Outcome;
+    use CallableGenericLoopSourceFactsRouteErrorV1 as Reject;
+
+    let Some(site) = parent_source.site() else {
+        return Err(Reject::VariableAccumRecurrenceSourceUnavailable(
+            "parent-source-site-missing".into(),
+        ));
+    };
+    let site = crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
+    if input.owner() != expected_owner {
+        return Err(Reject::VariableAccumRecurrenceSourceUnavailable(
+            "resolved-input-owner-mismatch".into(),
+        ));
+    }
+    let ledger = input
+        .forest()
+        .callable_source_ledger(expected_owner)
+        .map_err(|error| {
+            Reject::VariableAccumRecurrenceSourceUnavailable(format!("{error:?}").into())
+        })?;
+    let membership = ledger.resolved_loop_source(&site).map_err(|error| {
+        Reject::VariableAccumRecurrenceSourceUnavailable(format!("{error:?}").into())
+    })?;
+    let attempt = crate::mir::compiler::variable_accum_recurrence_projection::
+        issue_variable_accum_recurrence_source_attempt_v1(
+            input,
+            &ledger,
+            membership,
+            crate::mir::loop_structural_facts::VariableAccumRecurrenceObservationCoverageV1::Complete,
+        );
+    let (outcome, identity, coverage) = attempt.into_parts();
+    if identity.owner() != expected_owner
+        || identity.site() != &site
+        || identity.function_origin() != input.function().function_origin()
+        || identity.source_kind() != input.function().source_kind()
+    {
+        return Err(Reject::VariableAccumRecurrenceSiteMismatch);
+    }
+    if coverage
+        != crate::mir::loop_structural_facts::VariableAccumRecurrenceObservationCoverageV1::Complete
+    {
+        return Err(Reject::VariableAccumRecurrenceUnresolved(
+            crate::mir::loop_structural_facts::VariableAccumRecurrenceSourceUnresolvedV1::IncompleteCoverage,
+        ));
+    }
+    match outcome {
+        Outcome::Candidate(facts) => {
+            crate::mir::loop_recipe_contract::produce_variable_accum_recurrence_recipe_v1(facts)
+                .map(Some)
+                .map_err(|error| {
+                    Reject::VariableAccumRecurrenceProducer(format!("{error:?}").into())
+                })
+        }
+        Outcome::Declined(_) => Ok(None),
+        Outcome::Unresolved(reason) => Err(Reject::VariableAccumRecurrenceUnresolved(reason)),
+        Outcome::Rejected(reason) => Err(Reject::VariableAccumRecurrenceRejected(reason)),
     }
 }

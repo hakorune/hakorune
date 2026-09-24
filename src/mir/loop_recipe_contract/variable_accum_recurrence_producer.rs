@@ -62,6 +62,15 @@ impl VerifiedVariableAccumRecurrenceRecipeProductV1 {
     pub(crate) fn inputs(&self) -> &VerifiedLoopInitializedLocalInputSourceSetV1 {
         &self.inputs
     }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        VerifiedLoopOperationEffectProductV1,
+        VerifiedLoopInitializedLocalInputSourceSetV1,
+    ) {
+        (self.operations, self.inputs)
+    }
 }
 
 pub(crate) fn produce_variable_accum_recurrence_recipe_v1(
