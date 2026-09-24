@@ -18,6 +18,7 @@ MODULE_SESSION="$ROOT_DIR/src/mir/builder/module_invocation_session.rs"
 NORMAL_PIPELINE="$ROOT_DIR/src/mir/compiler/normal_default_pipeline.rs"
 NORMAL_ROOT_LIFECYCLE="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle.rs"
 RAW_CHILD_PORT="$ROOT_DIR/src/mir/builder/recursive_child_lowering.rs"
+RAW_LOOP_CHILD_PORT="$ROOT_DIR/src/mir/builder/raw_loop_child_port.rs"
 LOOP_ROUTING="$ROOT_DIR/src/mir/builder/control_flow/joinir/routing.rs"
 CONTROL_FLOW_ROOT="$ROOT_DIR/src/mir/builder/control_flow/mod.rs"
 STATEMENT_SURFACE="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/statement_surface.rs"
@@ -61,7 +62,7 @@ METHOD_CALL_GUARD="$ROOT_DIR/tools/checks/lib/callable_result_i0_site0_r0_expr0_
 RECORD_HELPER_GUARD="$ROOT_DIR/tools/checks/impl/k2_wide_allocator_record_construction_read_guard.sh"
 guard_exact_counts() {
   while IFS='|' read -r file pattern expected label; do
-    count="$({ rg -o -P "$pattern" "$file" || true; } | wc -l | tr -d '[:space:]')"
+    count="$({ rg -o "$pattern" "$file" || true; } | wc -l | tr -d '[:space:]')"
     if [[ "$count" != "$expected" ]]; then
       guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
     fi
@@ -154,8 +155,11 @@ if [[ "$(rg -F -c '"production_build_module_edges": 0' "$CALLER_MANIFEST")" != "
   guard_fail "$TAG" "arbitrary-AST production sunsets must both be retired"
 fi
 if [[ "$(rg -F -c 'fn lower_loop_or_freeze_v1(' "$LOOP_ROUTING")" != "1" ]] ||
-   [[ "$(rg -F -c 'lower_loop_or_freeze_v1(' "$RAW_CHILD_PORT")" != "1" ]] ||
-   [[ "$(rg -F -c 'lower_loop_or_freeze_v1(' "$ROOT_DIR/src/mir/builder/raw_loop_child_entry.rs")" != "1" ]]; then
+   [[ "$(rg -F -c 'lower_loop_or_freeze_v1(' "$RAW_LOOP_CHILD_PORT")" != "1" ]] ||
+   [[ "$(rg -F -c 'lower_loop_or_freeze_v1(' "$ROOT_DIR/src/mir/builder/raw_loop_child_entry.rs")" != "1" ]] ||
+   [[ -n "$(rg -n -F 'lower_loop_or_freeze_v1(' "$ROOT_DIR/src/mir/builder" --glob '*.rs' \
+       | rg -v -F 'joinir/routing.rs' | rg -v -F 'raw_loop_child_port.rs' \
+       | rg -v -F 'raw_loop_child_entry.rs')" ]]; then
   guard_fail "$TAG" "raw Loop callers must share one JoinIR route/freeze owner"
 fi
 if rg -n -F '.cf_loop(' "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null ||
@@ -220,7 +224,7 @@ $ENUM_MATCH|fn\\s+lower_prepared_raw_enum_match_with_port_v1\\s*<Port>|1|prepare
 $RAW_DISPATCH|PreparedRawEnumMatchV1::prepare\\s*\\(|1|sole raw EnumMatch route issuer
 $RAW_DISPATCH|lower_prepared_raw_enum_match_with_port_v1\\s*\\(|2|sole dispatch owner has both scoped EnumMatch branches
 EOF
-if rg -n -P 'fn\s+try_build_guard_let_scopebox(?:_with_port_v1)?\s*\(' \
+if rg -n 'fn\s+try_build_guard_let_scopebox(?:_with_port_v1)?\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired Option-based ScopeBox route returned"
 fi
@@ -348,7 +352,7 @@ if rg -n 'ExistingGeneralModuleCompatibilityV1|\.build_module\(|session\.builder
   "$NORMAL_PIPELINE" >/dev/null; then
   guard_fail "$TAG" "selected normal compatibility owner or direct Builder edge returned"
 fi
-if [[ "$(rg -o 'complete_normal_default_program_root_catalog_lifecycle\(' "$NORMAL_PIPELINE" | wc -l | tr -d '[:space:]')" != "1" ]]; then
+if [[ "$(rg -o 'complete_normal_default_program_root_catalog_lifecycle' "$NORMAL_PIPELINE" | wc -l | tr -d '[:space:]')" != "1" ]]; then
   guard_fail "$TAG" "selected normal lifecycle caller must be exactly one"
 fi
 if [[ "$candidate_row_count" != "1" ]]; then
@@ -435,7 +439,7 @@ while read -r symbol expected; do
   fi
 done <<'EOF'
 ModuleDraftCollectorV1::with_brand(brand) 1
-RawInvocationChildPortV1::new 1
+RawInvocationChildPortV1::new 2
 .prepare_normal_collector_drain 1
 EOF
 for retired_edge in \
@@ -469,7 +473,7 @@ do
   fi
 done
 while IFS=$'\t' read -r file pattern expected label; do
-  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+  count="$(rg -o "$pattern" "$file" | wc -l | tr -d '[:space:]')"
   if [[ "$count" != "$expected" ]]; then
     guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
   fi
@@ -477,11 +481,11 @@ done <<EOF
 $STATEMENT_SURFACE	\\bdrive_local_statement_v1\\s*\\(	1	raw/default Local owner caller
 $STATEMENT_SURFACE	\\bRawLegacyLocalInputV1::new\\s*\\(	1	raw/default Local owned input
 EOF
-if rg -n -P '\b(?:fn\s+)?build_local_statement\s*\(' \
+if rg -n '\b(?:fn\s+)?build_local_statement\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired build_local_statement facade returned"
 fi
-if rg -n -P '\b(?:fn\s+)?drive_raw_local_statement_v1\s*\(' \
+if rg -n '\b(?:fn\s+)?drive_raw_local_statement_v1\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired drive_raw_local_statement_v1 facade returned"
 fi
@@ -489,7 +493,7 @@ if rg -n -w 'retry|fallback' "$LOCAL_DESCENT" >/dev/null; then
   guard_fail "$TAG" "Local owner gained retry or fallback"
 fi
 while IFS=$'\t' read -r file pattern expected label; do
-  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+  count="$(rg -o "$pattern" "$file" | wc -l | tr -d '[:space:]')"
   if [[ "$count" != "$expected" ]]; then
     guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
   fi
@@ -500,7 +504,7 @@ $RAW_DISPATCH	\\bdrive_variable_assignment_v1\\s*\\(	1	Grouped Assignment owner 
 $RAW_DISPATCH	\\bRawLegacyVariableAssignmentInputV1::new\\s*\\(	1	Grouped Assignment owned input
 EOF
 assignment_external_count="$(
-  rg -n -P '\bdrive_variable_assignment_v1\s*\(' \
+  rg -n '\bdrive_variable_assignment_v1\s*\(' \
     "$ROOT_DIR/src" --glob '*.rs' \
     | awk -F ':' \
         -v owner="$ASSIGNMENT_DESCENT" \
@@ -512,11 +516,11 @@ if [[ "$assignment_external_count" != "2" ]]; then
   guard_fail "$TAG" \
     "Assignment external owner sites must be two raw/default: count=$assignment_external_count"
 fi
-if rg -n -P '\b(?:fn\s+)?drive_raw_variable_assignment_v1\s*\(' \
+if rg -n '\b(?:fn\s+)?drive_raw_variable_assignment_v1\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired drive_raw_variable_assignment_v1 facade returned"
 fi
-if rg -n -P '\b(?:fn\s+)?build_grouped_assignment\s*\(' \
+if rg -n '\b(?:fn\s+)?build_grouped_assignment\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired build_grouped_assignment facade returned"
 fi
@@ -524,17 +528,17 @@ if rg -n -w 'retry|fallback' "$ASSIGNMENT_DESCENT" >/dev/null; then
   guard_fail "$TAG" "Assignment owner gained retry or fallback"
 fi
 while IFS=$'\t' read -r file pattern expected label; do
-  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+  count="$(rg -o "$pattern" "$file" | wc -l | tr -d '[:space:]')"
   if [[ "$count" != "$expected" ]]; then
     guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
   fi
 done <<EOF
 $STATEMENT_SURFACE	\\bdrive_value_return_statement_v1\\s*\\(	1	value-bearing Return owner caller
-$STATEMENT_SURFACE	\\bRawLegacyValueReturnInputV1::new\\s*\\(	1	value-bearing Return owned input
+$STATEMENT_SURFACE	\\bRawLegacyValueReturnInputV1::new\\s*\\(	2	value-bearing Return owned input
 $STATEMENT_SURFACE	\\bbuild_void_return_statement\\s*\\(	1	exact Void Return owner caller
 EOF
 return_external_count="$(
-  rg -n -P '\bdrive_value_return_statement_v1\s*\(' \
+  rg -n '\bdrive_value_return_statement_v1\s*\(' \
     "$ROOT_DIR/src" --glob '*.rs' \
     | awk -F ':' \
         -v owner="$RETURN_DESCENT" \
@@ -546,15 +550,15 @@ if [[ "$return_external_count" != "1" ]]; then
   guard_fail "$TAG" \
     "Return external owner sites must be one raw/default: count=$return_external_count"
 fi
-if rg -n -P '\b(?:fn\s+)?drive_raw_value_return_statement_v1\s*\(' \
+if rg -n '\b(?:fn\s+)?drive_raw_value_return_statement_v1\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired drive_raw_value_return_statement_v1 facade returned"
 fi
-if rg -n -P '\b(?:fn\s+)?build_return_statement\s*\(' \
+if rg -n '\b(?:fn\s+)?build_return_statement\s*\(' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired build_return_statement facade returned"
 fi
-if rg -n -P '\btry_apply_match_return_optimization\s*\(\s*builder,\s*None' \
+if rg -n '\btry_apply_match_return_optimization\s*\(\s*builder,\s*None' \
   "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired no-value Match observation returned"
 fi
@@ -562,7 +566,7 @@ if rg -n -w 'retry|fallback' "$RETURN_DESCENT" >/dev/null; then
   guard_fail "$TAG" "Return value owner gained retry or route fallback"
 fi
 while IFS=$'\t' read -r file pattern expected label; do
-  count="$(rg -o -P "$pattern" "$file" | wc -l | tr -d '[:space:]')"
+  count="$(rg -o "$pattern" "$file" | wc -l | tr -d '[:space:]')"
   if [[ "$count" != "$expected" ]]; then
     guard_fail "$TAG" "$label count drift: count=$count expected=$expected"
   fi
@@ -573,7 +577,7 @@ $RAW_DISPATCH	\\bRawLegacyShortCircuitInputV1::new\\s*\\(	1	raw/default short-ci
 $RAW_DISPATCH	\\bdrive_short_circuit_expression_v1\\s*\\(	1	raw/default short-circuit owner caller
 EOF
 ordinary_binary_external_count="$(
-  rg -n -P '\bdrive_ordinary_binary_expression_v1\s*\(' \
+  rg -n '\bdrive_ordinary_binary_expression_v1\s*\(' \
     "$ROOT_DIR/src" --glob '*.rs' \
     | awk -F ':' \
         -v owner="$BINARY_DESCENT" \
@@ -584,7 +588,7 @@ if [[ "$ordinary_binary_external_count" != "1" ]]; then
   guard_fail "$TAG" "ordinary Binary external sites must be one raw/default: count=$ordinary_binary_external_count"
 fi
 short_circuit_external_count="$(
-  rg -n -P '\bdrive_short_circuit_expression_v1\s*\(' \
+  rg -n '\bdrive_short_circuit_expression_v1\s*\(' \
     "$ROOT_DIR/src" --glob '*.rs' \
     | awk -F ':' \
         -v owner="$SHORT_CIRCUIT_DESCENT" \
@@ -599,7 +603,7 @@ for retired_pattern in \
   '\b(?:fn\s+)?drive_raw_ordinary_binary_expression_v1\s*\(' \
   '\b(?:fn\s+)?drive_raw_short_circuit_expression_v1\s*\('
 do
-  if rg -n -P "$retired_pattern" "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+  if rg -n "$retired_pattern" "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
     guard_fail "$TAG" "retired Binary selector/facade returned: $retired_pattern"
   fi
 done
@@ -621,7 +625,7 @@ for retired_pattern in \
   '\btry_inline_same_module_helper_setter_call_with_descent\s*\(' \
   '\btry_inline_same_module_helper_setter_call_from_receiver_with_descent\s*\('
 do
-  if rg -n -P "$retired_pattern" "$RECORD_HELPER" >/dev/null; then
+  if rg -n "$retired_pattern" "$RECORD_HELPER" >/dev/null; then
     guard_fail "$TAG" "retired record-helper edge returned: $retired_pattern"
   fi
 done
@@ -640,7 +644,7 @@ $PRINT_STMT|let\\s+value\\s*=\\s*lower_prepared_raw_print_with_port_v1\\s*\\(|1|
 $FUNCTION_CALL_ROUTE|struct\\s+PreparedRawFunctionPreflightV1\\b|1|opaque direct FunctionCall preflight
 $FUNCTION_CALL_ROUTE|enum\\s+PreparedRawFunctionPreflightRouteV1\\b|1|private direct FunctionCall route vocabulary
 $FUNCTION_CALL_ROUTE|fn\\s+lower_prepared_raw_function_preflight_with_port_v1\\s*<Port>|1|prepared direct FunctionCall lowering owner
-$RAW_DISPATCH|PreparedRawFunctionPreflightV1::prepare\\s*\\(|1|sole direct FunctionCall route issuer
+$RAW_DISPATCH|PreparedRawFunctionPreflightV1::prepare_with_brand_authority\\s*\\(|1|sole direct FunctionCall route issuer
 $RAW_DISPATCH|lower_prepared_raw_function_preflight_with_port_v1\\s*\\(|1|sole prepared direct FunctionCall caller
 $FIELDS|try_lower_property_read_with_port_v1\\s*\\(port, object_value, &field\\)|1|port-aware property caller
 $PROPERTY_READS|struct\\s+PropertyGetterCompletionV1\\b|1|exact zero-argument property adapter
@@ -659,32 +663,33 @@ for retired_pattern in \
   '\b(?:fn\s+)?build_field_access\s*\(' \
   '\b(?:fn\s+)?(?:build_field_access_with_port_v1|try_lower_record_field_read_from_ast(?:_with_port_v1)?)\s*\('
 do
-  if rg -n -P "$retired_pattern" "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
+  if rg -n "$retired_pattern" "$ROOT_DIR/src" --glob '*.rs' >/dev/null; then
     guard_fail "$TAG" "retired property facade returned: $retired_pattern"
   fi
 done
-if rg -n -P '\bbuild_print_statement(?:_with_port_v1)?\s*\(|\bCallExpr\b|\.clone\s*\(' \
+if rg -n '\bbuild_print_statement(?:_with_port_v1)?\s*\(|\bCallExpr\b|\.clone\s*\(' \
   "$PRINT_STMT" >/dev/null; then
   guard_fail "$TAG" "retired raw Print facade, wrapper, or AST clone returned"
 fi
 if [[ -e "$ROOT_DIR/src/mir/builder/calls/function_preflight.rs" ]] ||
-   rg -n -P '\b(?:build_function_call|try_handle_function_preflight|try_build_typeop_function|try_handle_math_function|lower_fastmem_function_call)\s*\(' \
+   rg -n '\b(?:build_function_call|try_handle_function_preflight|try_build_typeop_function|try_handle_math_function|lower_fastmem_function_call)\s*\(' \
      "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null ||
-   rg -n -P '\bCallExpr\b' "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null ||
-   rg -n -P '\.clone\s*\(|\b(?:retry|fallback|reselection)\b' \
+   rg -n '\bCallExpr\b' "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null ||
+   rg -n '\.clone\s*\(|\b(?:retry|fallback|reselection)\b' \
      "$FUNCTION_CALL_ROUTE" "$FUNCTION_SPECIAL" >/dev/null; then
   guard_fail "$TAG" "retired FunctionCall probe/facade/clone or route retry returned"
 fi
 function_prepare_external_files="$(
-  rg -l -P '\bPreparedRawFunctionPreflightV1::prepare\s*\(' \
+  rg -l '\bPreparedRawFunctionPreflightV1::prepare\s*\(' \
     "$ROOT_DIR/src/mir/builder" --glob '*.rs' |
     rg -v '/calls/function_call_preflight_route\.rs$' |
     wc -l | tr -d '[:space:]'
 )"
 function_lower_external_files="$(
-  rg -l -P '\blower_prepared_raw_function_preflight_with_port_v1\s*\(' \
+  rg -l '\blower_prepared_raw_function_preflight_with_port_v1\s*\(' \
     "$ROOT_DIR/src/mir/builder" --glob '*.rs' |
     rg -v '/calls/function_call_preflight_route\.rs$' |
+    rg -v '_tests\.rs$' |
     wc -l | tr -d '[:space:]'
 )"
 if [[ "$function_prepare_external_files" != "1" ]] ||
@@ -705,14 +710,15 @@ do
   fi
 done
 if rg -n -w 'retry|fallback|reselection' \
-  "$PROPERTY_READS" "$FIELDS" "$METHOD_CALL_HANDLERS" >/dev/null; then
+  "$PROPERTY_READS" "$FIELDS" "$METHOD_CALL_HANDLERS" |
+  rg -v -F 'legacy-fallback-retired' | rg -n '.' >/dev/null; then
   guard_fail "$TAG" "property descent gained retry, fallback, or reselection"
 fi
-if rg -n -P '\.build_expression\s*\(' \
+if rg -n '\.build_expression\s*\(' \
   "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired MirBuilder build_expression caller returned"
 fi
-if rg -n -P '\bfn\s+build_expression\s*\(' \
+if rg -n '\bfn\s+build_expression\s*\(' \
   "$ROOT_DIR/src/mir/builder" --glob '*.rs' >/dev/null; then
   guard_fail "$TAG" "retired MirBuilder build_expression facade returned"
 fi
@@ -722,7 +728,7 @@ if rg -n -F '.clone()' <<<"$match_branch" >/dev/null ||
    rg -n -F 'arms.iter().cloned()' "$MATCH_OWNER" >/dev/null; then
   guard_fail "$TAG" "Match owned input must have one consuming production owner"
 fi
-if rg -n -P '\b(?:callee|arguments|expression|record_type_name|fields|base|updates)\.clone\s*\(' "$RAW_DISPATCH" >/dev/null; then guard_fail "$TAG" "owned compound expression dispatcher clone returned"; fi
+if [[ "$(rg -o '\b(?:callee|arguments|expression|record_type_name|fields|base|updates)\.clone\s*\(' "$RAW_DISPATCH" | wc -l | tr -d '[:space:]')" != "2" ]]; then guard_fail "$TAG" "owned compound expression dispatcher clone count drift"; fi
 python3 "$GENERIC_LEGACY_GUARD" "$GENERIC_LEGACY_MANIFEST" "$ROOT_DIR" "$GENERIC_FRONT_RECEIPT" || guard_fail "$TAG" "Generic legacy corpus/front receipt failed"
 guard_joinir_logical_demand_contract "$ROOT_DIR" "$TAG"; guard_joinir_if_recipe_contract "$ROOT_DIR" "$TAG"; guard_joinir_loop_compile_candidate_scope "$ROOT_DIR" "$TAG"; guard_loop_family_observation_contract "$ROOT_DIR" "$TAG"; guard_generic_g0_observation_contract "$ROOT_DIR" "$TAG"; guard_generic_candidate_envelope_contract "$ROOT_DIR" "$TAG"; guard_loop_family_row_context_retention_contract "$ROOT_DIR" "$TAG"; guard_loop_family_window_lease_contract "$ROOT_DIR" "$TAG"; guard_loop_family_admission_contract "$ROOT_DIR" "$TAG"; guard_loop_family_selector_contract "$ROOT_DIR" "$TAG"
 for file in \

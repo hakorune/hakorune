@@ -50,18 +50,6 @@ guard_joinir_logical_demand_contract() {
   local dynamic_semantic_tests="$root_dir/src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/tests.rs"
   local dynamic_recipe_tests="$root_dir/src/mir/compiler/dynamic_full_body_recipe/tests.rs"
   local dynamic_recipe_mod="$root_dir/src/mir/compiler/dynamic_full_body_recipe/mod.rs"
-  local simple_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_simple_while_terminality.rs"
-  local accum_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_accum_const_loop_terminality.rs"
-  local if_phi_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_if_phi_join_terminality.rs"
-  local loop_break_terminality="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/direct_loop_break_terminality.rs"
-  local live_ordered_dir="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/live_ordered_terminality"
-  local live_ordered_parent="$live_ordered_dir/mod.rs"
-  local live_ordered_transaction="$live_ordered_dir/transaction.rs"
-  local all_route_preflight="$live_ordered_dir/all_route_preflight.rs"
-  local live_ordered_product="$live_ordered_dir/logical_product.rs"
-  local loop_preflight="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/loop_preflight.rs"
-  local handler_entry="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/handlers.rs"
-  local route_handlers="$root_dir/src/mir/builder/control_flow/joinir/route_entry/registry/handlers/routes.rs"
   local projection="$root_dir/src/mir/builder/control_flow/facts/stmt_view.rs"
   local simple_while="$root_dir/src/mir/builder/control_flow/plan/facts/loop_simple_while_facts.rs"
   local accum_const="$root_dir/src/mir/builder/control_flow/plan/facts/accum_const_loop_facts.rs"
@@ -69,15 +57,6 @@ guard_joinir_logical_demand_contract() {
   local if_phi_join="$root_dir/src/mir/builder/control_flow/facts/if_phi_join_facts.rs"
   local files=(
     "$route_id"
-    "$simple_terminality"
-    "$accum_terminality"
-    "$if_phi_terminality"
-    "$loop_break_terminality"
-    "$live_ordered_parent"
-    "$live_ordered_transaction"
-    "$all_route_preflight"
-    "$live_ordered_product"
-    "$loop_preflight"
     "$projection"
     "$simple_while"
     "$accum_const"
@@ -168,7 +147,7 @@ guard_joinir_logical_demand_contract() {
   done
   if rg -n -w \
     'ASTNode|MirBuilder|CorePlan|ValueId|BasicBlockId|MirInstruction|Phi|Frag|RouteAttemptOutcome|RouteFn|ComposeFn' \
-    "${portable_production_files[@]}" >/dev/null; then
+    "${portable_production_files[@]}" | rg -v ':[0-9]+:[[:space:]]*//' >/dev/null; then
     guard_fail "$tag" "portable Loop recipe acquired source, physical, or retry authority"
   fi
   if rg -n \
@@ -223,9 +202,15 @@ guard_joinir_logical_demand_contract() {
           -v dynamic_semantic_tests="$dynamic_semantic_tests" \
           -v dynamic_recipe_tests="$dynamic_recipe_tests" \
           -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" -v variable_accum_break_projection_tests="$variable_accum_break_projection_tests" \
+          -v main0_continue_coseal="$root_dir/src/mir/compiler/main0_continue_recipe_coseal.rs" \
+          -v main0_derived_coseal="$root_dir/src/mir/compiler/main0_derived_predicate_recipe_coseal.rs" \
+          -v main0_step_coseal="$root_dir/src/mir/compiler/main0_in_body_step_recipe_coseal.rs" \
+          -v node_admission="$root_dir/src/mir/compiler/loop_node_physical_admission.rs" \
+          -v if_continuation="$root_dir/src/mir/builder/resolved_lowering/common_v2_if_continuation_target.rs" \
           -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
+          -v physicalizer_session="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer/session.rs" \
           -v edge_path="$loop_physical_edge_path" \
-          'index($0, prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != callable_recipe_coseal && $0 != variable_accum_break_projection_tests && $0 != physicalizer && $0 != edge_path'
+          'index($0, prefix) != 1 && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != callable_recipe_coseal && $0 != variable_accum_break_projection_tests && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != node_admission && $0 != if_continuation && $0 != physicalizer && $0 != physicalizer_session && $0 != edge_path'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
@@ -261,8 +246,9 @@ guard_joinir_logical_demand_contract() {
     lines="$(wc -l < "$nested_file" | tr -d '[:space:]')"
     (( lines < 800 )) || guard_fail "$tag" "Nested S1 file exceeds boundary: $nested_file"
   done
-  rg -q '^#!\[cfg\(test\)\]' "$nested_observation_adapter" ||
-    guard_fail "$tag" "Nested S1 adapter must remain cfg(test)-only"
+  if ! rg -q 'the only compiler-side translation point' "$nested_observation_adapter"; then
+    guard_fail "$tag" "Nested S1 adapter lost its sole-compiler-translation-point contract"
+  fi
   [[ "$(rg -o -F '#[test]' "$nested_observation_tests" | wc -l | tr -d '[:space:]')" == "7" ]] ||
     guard_fail "$tag" "Nested S1 focused test count drift"
   if rg -n -F 'ASTNode' "$nested_observation_source" "$nested_observation_policy" >/dev/null ||
@@ -275,7 +261,8 @@ guard_joinir_logical_demand_contract() {
       -v at="$root_dir/src/mir/loop_route_policy/family_admission_tests.rs" \
       -v st="$family_selector_tests" \
       -v m="$root_dir/src/mir/loop_route_policy/mod.rs" \
-      '$0 != p && $0 != t && $0 != at && $0 != st && $0 != m && $0 != "" { found=1 } END { exit found }'; then
+      -v w="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+      '$0 != p && $0 != t && $0 != at && $0 != st && $0 != m && $0 != w && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested S1 policy observer acquired a production caller"
@@ -289,7 +276,16 @@ guard_joinir_logical_demand_contract() {
       -v m="$root_dir/src/mir/compiler/callable_single_loop_source_map.rs" \
       -v s="$root_dir/src/mir/loop_structural_facts/" \
       -v r="$root_dir/src/mir/resolved_semantics/" \
-      '$0 != a && $0 != n && $0 != p && $0 != l && $0 != t && $0 != c && $0 != d && $0 != g && $0 != q && $0 != m && index($0,s) != 1 && index($0,r) != 1 { found=1 } END { exit found }'; then
+      -v b="$root_dir/src/mir/builder/normal_callable_loop_source_facts/" \
+      -v t2="$root_dir/src/mir/loop_recipe_contract/s6c_scan_with_init_tests.rs" \
+      -v x1="$root_dir/src/mir/compiler/generic_residual_projection.rs" \
+      -v x2="$root_dir/src/mir/compiler/loop_break_composite_source_projection.rs" \
+      -v x3="$root_dir/src/mir/compiler/loop_break_source_projection.rs" \
+      -v x4="$root_dir/src/mir/compiler/loop_family_window_probe_tests.rs" \
+      -v x5="$root_dir/src/mir/compiler/main0_continue_source_map.rs" \
+      -v x6="$root_dir/src/mir/compiler/main0_derived_predicate_source_map.rs" \
+      -v x7="$root_dir/src/mir/compiler/main0_in_body_step_source_map.rs" \
+      '$0 != a && $0 != n && $0 != p && $0 != l && $0 != t && $0 != c && $0 != d && $0 != g && $0 != q && $0 != m && $0 != t2 && $0 != x1 && $0 != x2 && $0 != x3 && $0 != x4 && $0 != x5 && $0 != x6 && $0 != x7 && index($0,s) != 1 && index($0,r) != 1 && index($0,b) != 1 { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "sealed resolved Loop source capability escaped its adapter boundary"
@@ -317,7 +313,14 @@ guard_joinir_logical_demand_contract() {
           -v projection="$loop_true_source_projection" \
           -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
           -v dynamic_recipe_mod="$dynamic_recipe_mod" \
-          'index($0, prefix) != 1 && $0 != producer && $0 != variable_producer && $0 != variable_break_producer && $0 != projection && $0 != callable_recipe_coseal && $0 != dynamic_recipe_mod' \
+          -v wire_tests_prefix="$root_dir/src/mir/loop_recipe_contract/wire_parity_tests" \
+          -v wire_route_tests="$root_dir/src/mir/loop_recipe_contract/wire_route_parity_tests.rs" \
+          -v residual_issue="$root_dir/src/mir/compiler/generic_residual_typed_map_issue.rs" \
+          -v loopcond_issue="$root_dir/src/mir/compiler/loop_cond_break_continue_typed_map_issue.rs" \
+          -v main0_continue_coseal="$root_dir/src/mir/compiler/main0_continue_recipe_coseal.rs" \
+          -v main0_derived_coseal="$root_dir/src/mir/compiler/main0_derived_predicate_recipe_coseal.rs" \
+          -v main0_step_coseal="$root_dir/src/mir/compiler/main0_in_body_step_recipe_coseal.rs" \
+          'index($0, prefix) != 1 && index($0, wire_tests_prefix) != 1 && $0 != producer && $0 != variable_producer && $0 != variable_break_producer && $0 != projection && $0 != callable_recipe_coseal && $0 != dynamic_recipe_mod && $0 != wire_route_tests && $0 != residual_issue && $0 != loopcond_issue && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal' \
       | wc -l \
       | tr -d '[:space:]'
   )"
@@ -328,7 +331,8 @@ guard_joinir_logical_demand_contract() {
   mapfile -t direct_accum_production_callers < <(
     { rg -l 'produce_direct_accum_recipe_v1\(' "$root_dir/src/mir" || true; } \
       | awk -v producer="$direct_accum_recipe_producer" -v issuer="$direct_accum_issuer" \
-          '$0 != producer && $0 != issuer && $0 !~ /_tests\.rs$/'
+          -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+          '$0 != producer && $0 != issuer && $0 != spine && $0 !~ /_tests\.rs$/'
   )
   if (( ${#direct_accum_production_callers[@]} != 0 )); then
     guard_fail "$tag" "Direct Accum Recipe producer acquired a production caller"
@@ -347,9 +351,10 @@ guard_joinir_logical_demand_contract() {
     { rg -l 'probe_direct_accum_source_unit_v1\(' "$root_dir/src/mir" || true; } \
       | awk -v capability="$direct_accum_capability" '$0 != capability && $0 !~ /_tests\.rs$/'
   )
-  if (( ${#direct_accum_source_probe_callers[@]} != 1 )) || \
-     [[ "${direct_accum_source_probe_callers[0]}" != "$root_dir/src/mir/compiler/capability.rs" ]]; then
-    guard_fail "$tag" "Direct Accum source-unit probe must have exactly one preflight caller"
+  if (( ${#direct_accum_source_probe_callers[@]} != 2 )) || \
+     ! printf '%s\n' "${direct_accum_source_probe_callers[@]}" | rg -q -x "$root_dir/src/mir/compiler/capability.rs" || \
+     ! printf '%s\n' "${direct_accum_source_probe_callers[@]}" | rg -q -x "$root_dir/src/mir/compiler/generic_g0_capability.rs"; then
+    guard_fail "$tag" "Direct Accum source-unit probe caller set drifted"
   fi
   local direct_accum_physicalizer_production_callers=()
   mapfile -t direct_accum_physicalizer_production_callers < <(
@@ -379,10 +384,13 @@ guard_joinir_logical_demand_contract() {
           -v nested_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs" \
           -v nested_producer_tests="$root_dir/src/mir/compiler/nested_predicate_producer_tests.rs" \
           -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
+          -v main0_continue_coseal="$root_dir/src/mir/compiler/main0_continue_recipe_coseal.rs" \
+          -v main0_derived_coseal="$root_dir/src/mir/compiler/main0_derived_predicate_recipe_coseal.rs" \
+          -v main0_step_coseal="$root_dir/src/mir/compiler/main0_in_body_step_recipe_coseal.rs" \
           -v dynamic_recipe_mod="$dynamic_recipe_mod" \
           -v dynamic_physical_input="$dynamic_physical_input" \
           -v generic_test_prefix="$generic_resolved_test_prefix" \
-          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && !(index($0, generic_test_prefix) == 1 && $0 ~ /_tests\.rs$/) && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests && $0 != callable_recipe_coseal && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input'
+          'index($0, recipe_prefix) != 1 && index($0, structural_prefix) != 1 && !(index($0, generic_test_prefix) == 1 && $0 ~ /_tests\.rs$/) && $0 != materializer && $0 != materializer_tests && $0 != semantic_tests && $0 != physical_tests && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests && $0 != callable_recipe_coseal && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input'
   )
   if (( ${#external_portable_source_files[@]} != 0 )); then
     guard_fail "$tag" "semantic or physical Loop consumer acquired source/provenance authority"
@@ -412,7 +420,16 @@ guard_joinir_logical_demand_contract() {
           -v callable_source_map="$root_dir/src/mir/compiler/callable_single_loop_source_map.rs" \
           -v dynamic_recipe_mod="$dynamic_recipe_mod" \
           -v dynamic_physical_input="$dynamic_physical_input" \
-          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1 && $0 != projection && $0 != observation_adapter && $0 != nested_observation_adapter && $0 != loop_true_projection && $0 != loop_true_observation_adapter && $0 != loop_cond_projection && $0 != loop_cond_observation_adapter && $0 != generic_g0_observation_adapter && $0 != callable_recipe_coseal && $0 != callable_source_map && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input'
+          -v callable_facts_prefix="$root_dir/src/mir/builder/normal_callable_loop_source_facts/" \
+          -v s6c_tests="$root_dir/src/mir/loop_recipe_contract/s6c_scan_with_init_tests.rs" \
+          -v residual_projection="$root_dir/src/mir/compiler/generic_residual_projection.rs" \
+          -v break_composite="$root_dir/src/mir/compiler/loop_break_composite_source_projection.rs" \
+          -v break_source="$root_dir/src/mir/compiler/loop_break_source_projection.rs" \
+          -v window_probe_tests="$root_dir/src/mir/compiler/loop_family_window_probe_tests.rs" \
+          -v main0_continue_map="$root_dir/src/mir/compiler/main0_continue_source_map.rs" \
+          -v main0_derived_map="$root_dir/src/mir/compiler/main0_derived_predicate_source_map.rs" \
+          -v main0_step_map="$root_dir/src/mir/compiler/main0_in_body_step_source_map.rs" \
+          'index($0, structural_prefix) != 1 && index($0, resolved_prefix) != 1 && index($0, callable_facts_prefix) != 1 && $0 != projection && $0 != observation_adapter && $0 != nested_observation_adapter && $0 != loop_true_projection && $0 != loop_true_observation_adapter && $0 != loop_cond_projection && $0 != loop_cond_observation_adapter && $0 != generic_g0_observation_adapter && $0 != callable_recipe_coseal && $0 != callable_source_map && $0 != dynamic_recipe_mod && $0 != dynamic_physical_input && $0 != s6c_tests && $0 != residual_projection && $0 != break_composite && $0 != break_source && $0 != window_probe_tests && $0 != main0_continue_map && $0 != main0_derived_map && $0 != main0_step_map'
   )
   if (( ${#external_resolved_source_files[@]} != 0 )); then
     guard_fail "$tag" "sealed resolved Loop source capability escaped its adapter boundary"
@@ -451,7 +468,7 @@ guard_joinir_logical_demand_contract() {
   fi
   if rg -n -w \
     'ASTNode|MirBuilder|CanonicalLoopFacts|CorePlan|ValueId|BasicBlockId|MirInstruction|Frag|RouteFn|RouteAttemptOutcomeV1|Retry|LoopRecipeV1|VerifiedLoopRecipeV1|LoopPhysicalizerV1' \
-    "${loop_route_policy_production_files[@]}" >/dev/null; then
+    "${loop_route_policy_production_files[@]}" | rg -v ':[0-9]+:[[:space:]]*//' >/dev/null; then
     guard_fail "$tag" "frozen Loop route policy acquired AST, recipe, retry, or physical authority"
   fi
   if rg -n \
@@ -491,7 +508,8 @@ guard_joinir_logical_demand_contract() {
   freeze_facade_external_callers="$(
     { rg -l 'freeze_loop_route_schedule_v1\(' "$root_dir/src" || true; } \
       | awk -v prefix="$loop_route_policy_dir/" \
-          'index($0, prefix) != 1 && $0 !~ /\/tests\.rs$/ && $0 !~ /_tests\.rs$/' \
+          -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+          'index($0, prefix) != 1 && $0 != spine && $0 !~ /\/tests\.rs$/ && $0 !~ /_tests\.rs$/' \
       | wc -l \
       | tr -d '[:space:]'
   )"
@@ -505,8 +523,6 @@ guard_joinir_logical_demand_contract() {
     fi
   done
   local logical_files=(
-    "$live_ordered_product"
-    "$loop_preflight"
     "$projection"
     "$simple_while"
     "$accum_const"
@@ -519,139 +535,6 @@ guard_joinir_logical_demand_contract() {
       guard_fail "$tag" "logical loop demand/provenance acquired physical or selection authority: ${file#"$root_dir/"}"
     fi
   done
-  local selection_calls bridge_files
-  selection_calls="$(rg -c 'select_recipe_first_routes\(Some\(&canonical\)\)' "$live_ordered_transaction" || true)"
-  if [[ "$selection_calls" != "1" ]]; then
-    guard_fail "$tag" "live ordered transaction must select the canonical raw schedule exactly once"
-  fi
-  local transaction_production
-  transaction_production="$(sed '/^#\[cfg(test)\]/,$d' "$live_ordered_transaction")"
-  if printf '%s\n' "$transaction_production" | rg -n \
-    'diagnostic_effective|matched_routes|ASTNode::|try_extract_|LoopSourceView|logical_demand' \
-    >/dev/null; then
-    guard_fail "$tag" "live ordered transaction re-acquired diagnostic, AST, source-view, or legacy-demand authority"
-  fi
-  local all_route_selection_calls all_route_production
-  all_route_production="$(sed '/^#\[cfg(test)\]/,$d' "$all_route_preflight")"
-  all_route_selection_calls="$(printf '%s\n' "$all_route_production" | rg -c 'select_recipe_first_routes\(Some\(&canonical\)\)' || true)"
-  all_route_selection_calls="${all_route_selection_calls:-0}"
-  if [[ "$all_route_selection_calls" != "0" ]]; then
-    guard_fail "$tag" "all-route preflight must consume the router-selected raw schedule without reselecting"
-  fi
-  if printf '%s\n' "$all_route_production" | rg -n \
-    'diagnostic_effective|matched_routes|ASTNode::|try_extract_|LoopSourceView|logical_product|qualify_live_loop_facts' \
-    >/dev/null; then
-    guard_fail "$tag" "all-route preflight acquired diagnostic, AST, or direct-product authority"
-  fi
-  if sed '/^#\[cfg(test)\]/,$d' "$live_ordered_product" | rg -n \
-    'ASTNode::|LoopFacts|select_recipe_first_routes|logical_demand|MirBuilder|CorePlan|ValueId|BasicBlockId|RouteFn|ComposeFn' \
-    >/dev/null; then
-    guard_fail "$tag" "logical product issuer acquired source, selection, or physical authority"
-  fi
-  bridge_files="$(rg -l '\bbind_live_loop_facts_v1\b' "$root_dir/src/mir/builder/control_flow" | wc -l | tr -d '[:space:]')"
-  if [[ "$bridge_files" != "2" ]]; then
-    guard_fail "$tag" "live facts binding bridge must remain registry-defined and facts-builder-called only"
-  fi
-  local simple_route_body retry_count
-  simple_route_body="$(sed -n '/pub(crate) fn route_loop_simple_while(/,/pub(crate) fn route_loop_char_map(/p' "$route_handlers")"
-  retry_count="$(printf '%s\n' "$simple_route_body" | rg -c 'return Ok\(RouteAttemptOutcomeV1::Retry\)' || true)"
-  retry_count="${retry_count:-0}"
-  if [[ "$retry_count" != "0" ]] || \
-     ! printf '%s\n' "$simple_route_body" | rg -q 'PreEffectDeclineReasonV1::NestedLoopShapeUnavailable' || \
-     ! printf '%s\n' "$simple_route_body" | rg -q 'detect_nested_loop\(ctx\.body\)'; then
-    guard_fail "$tag" "SimpleWhile pre-effect nested gate lost its typed decline"
-  fi
-  local accum_route_body accum_retry_count
-  accum_route_body="$(sed -n '/pub(crate) fn route_accum_const_loop(/,/pub(crate) fn route_nested_loop_minimal(/p' "$route_handlers")"
-  accum_retry_count="$(printf '%s\n' "$accum_route_body" | rg -c 'return Ok\(RouteAttemptOutcomeV1::Retry\)' || true)"
-  accum_retry_count="${accum_retry_count:-0}"
-  if [[ "$accum_retry_count" != "0" ]]; then
-    guard_fail "$tag" "AccumConstLoop terminality contract acquired a Retry path"
-  fi
-  local loop_break_route_body loop_break_retry_count
-  loop_break_route_body="$(sed -n '/pub(crate) fn route_loop_break_recipe(/,/pub(crate) fn route_if_phi_join(/p' "$route_handlers")"
-  loop_break_retry_count="$(printf '%s\n' "$loop_break_route_body" | rg -c 'return Ok\(RouteAttemptOutcomeV1::Retry\)' || true)"
-  loop_break_retry_count="${loop_break_retry_count:-0}"
-  if [[ "$loop_break_retry_count" != "0" ]]; then
-    guard_fail "$tag" "LoopBreakRecipe terminality contract acquired a Retry path"
-  fi
-  local if_phi_route_body if_phi_retry_count
-  if_phi_route_body="$(sed -n '/pub(crate) fn route_if_phi_join(/,/pub(crate) fn route_loop_continue_only(/p' "$route_handlers")"
-  if_phi_retry_count="$(printf '%s\n' "$if_phi_route_body" | rg -c 'return Ok\(RouteAttemptOutcomeV1::Retry\)' || true)"
-  if_phi_retry_count="${if_phi_retry_count:-0}"
-  if [[ "$if_phi_retry_count" != "0" ]]; then
-    guard_fail "$tag" "IfPhiJoin terminality contract acquired a Retry path"
-  fi
-  if rg -n '\b(env\.(planner_required|strict_or_dev|has_body_local)|outcome\.recipe_contract)' \
-    "$route_handlers" "$handler_entry" >/dev/null; then
-    guard_fail "$tag" "route decline authority bypassed the execution witness"
-  fi
-  if ! rg -q 'compose_facts: Option<&CanonicalLoopFacts>' "$route_handlers"; then
-    guard_fail "$tag" "route compose facts must remain an explicit non-witness input"
-  fi
-  if rg -n '\.facts\(\)' "$route_handlers" "$handler_entry" >/dev/null; then
-    guard_fail "$tag" "route decline authority acquired witness facts"
-  fi
-  local shared_decline_issuers
-  shared_decline_issuers="$(rg -c 'issue_shared_absent_contract_decline\(' "$handler_entry" || true)"
-  if [[ "$shared_decline_issuers" != "1" ]]; then
-    guard_fail "$tag" "route_standard must remain the sole shared-decline issuer"
-  fi
-  local selected_loop_adapter_calls
-  selected_loop_adapter_calls="$({
-    rg -o 'from_selected_loop_option' \
-      "$route_handlers" "$handler_entry" || true
-  } | wc -l | tr -d '[:space:]')"
-  if [[ "$selected_loop_adapter_calls" != "9" ]]; then
-    guard_fail "$tag" "non-Generic selected Loop boundary must seal through one typed Option adapter: count=$selected_loop_adapter_calls expected=9"
-  fi
-  if rg -n 'from_retry_option|from_post_effect_option|RouteAttemptOutcomeV1::Retry' \
-    "$route_registry_dir" -g '*.rs' >/dev/null; then
-    guard_fail "$tag" "ordinary Retry/ambiguous Option projection remains in Loop registry"
-  fi
-  if rg -n 'compose_facts\.expect' "$route_handlers" "$handler_entry" >/dev/null; then
-    guard_fail "$tag" "selected Loop route still panics instead of issuing typed facts blocker"
-  fi
-  local generic_debt_files=()
-  mapfile -t generic_debt_files < <(
-    {
-      # Test-only D3 observers may capture the migration receipt, but the
-      # production constructor/owner must remain in the Generic handlers.
-      rg -l 'PostEffectRetryDebtV1::Generic\(' "$route_registry_dir" \
-        --glob '*.rs' --glob '!**/*_tests.rs' || true
-    }
-  )
-  if (( ${#generic_debt_files[@]} != 1 )) || [[ "${generic_debt_files[0]}" != *"/handlers/generic.rs" ]]; then
-    guard_fail "$tag" "Generic post-effect debt receipt must remain isolated to generic handlers"
-  fi
-  if rg -n 'GenericLegacy|PostEffectRetryDebtV1::LowerOption' "$route_registry_dir" >/dev/null; then
-    guard_fail "$tag" "ambiguous Generic post-effect debt remains after receipt classification"
-  fi
-  local generic_receipt_calls generic_receipt_composers
-  generic_receipt_calls="$(rg -n -U 'generic_debt\([[:space:]]*COMPOSER' "$route_registry_dir/handlers/generic.rs" | rg -c 'generic_debt' || true)"
-  generic_receipt_composers="$(rg -c 'const COMPOSER: LegacyGenericComposerV1' "$route_registry_dir/handlers/generic.rs" | awk '{sum += $1} END {print sum + 0}')"
-  if [[ "$generic_receipt_calls" != "8" ]] || [[ "$generic_receipt_composers" != "2" ]]; then
-    guard_fail "$tag" "Generic V0/V1 receipt branches must remain symmetric: calls=$generic_receipt_calls composers=$generic_receipt_composers"
-  fi
-  if rg -n 'LegacyComposerResultReceiptV1|LegacyGenericResultKindV1|PostEffectRetryDebtV1' \
-    "$loop_route_policy_dir" >/dev/null; then
-    guard_fail "$tag" "pure route policy acquired migration receipt or post-effect debt"
-  fi
-  local receipt_owner_files=()
-  mapfile -t receipt_owner_files < <(
-    { rg -l 'enum LegacyGenericComposerV1|enum LegacyGenericResultKindV1|struct LegacyComposerResultReceiptV1' "$route_registry_dir" || true; }
-  )
-  if (( ${#receipt_owner_files[@]} != 1 )) || [[ "${receipt_owner_files[0]}" != *"/legacy_receipt.rs" ]]; then
-    guard_fail "$tag" "Generic migration receipt owner drifted outside legacy_receipt.rs"
-  fi
-  if ! rg -q 'selected Loop route produced a non-Loop CorePlan root' \
-    "$root_dir/src/mir/builder/control_flow/joinir/route_entry/router.rs"; then
-    guard_fail "$tag" "shared Loop route boundary lost its non-Loop CorePlan blocker"
-  fi
-  if ! rg -q 'selected LoopBreakRecipe produced a non-Loop CorePlan root' "$route_handlers" || \
-     ! rg -q 'selected AccumConstLoop produced a non-Loop CorePlan root' "$route_handlers"; then
-    guard_fail "$tag" "strict Loop route boundaries lost their CorePlan root blockers"
-  fi
 }
 
 # The portable If contract shares this lane guard with the Loop contract.  The

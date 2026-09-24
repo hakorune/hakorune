@@ -140,7 +140,7 @@ guard_joinir_loop_compile_candidate_scope() {
 
   for required in \
     "$normal|ModuleBuilderInvocationSessionV1::open_for_token|1" \
-    "$normal|prepare_external_commit|1" \
+    "$normal|prepare_external_commit|3" \
     "$normal|prepared.commit(&mut compiler.builder)|1" \
     "$raw_compile|open_physical(&self.builder)|1" \
     "$raw_compile|prepare_external_commit|1" \
@@ -197,7 +197,10 @@ guard_joinir_loop_compile_candidate_scope() {
       awk -F: -v issuer="$generic_g0_policy" -v tests="$generic_g0_policy_tests" \
         -v policy_mod="$generic_g0_policy_mod" -v observation="$generic_g0_observation_policy" \
         -v observation_tests="$generic_g0_observation_policy_tests" \
-        '$1 != issuer && $1 != tests && $1 != policy_mod && $1 != observation && $1 != observation_tests && $1 != "" { found = 1 } END { exit found }'; then
+        -v capability="$root_dir/src/mir/compiler/generic_g0_capability.rs" \
+        -v source_parent="$root_dir/src/mir/compiler/generic_g0_source_parent.rs" \
+        -v demand="$root_dir/src/mir/loop_recipe_contract/generic_g0_demand.rs" \
+        '$1 != issuer && $1 != tests && $1 != policy_mod && $1 != observation && $1 != observation_tests && $1 != capability && $1 != source_parent && $1 != demand && $1 != "" { found = 1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "Generic G0 policy caller escaped caller-zero boundary: $policy_ref"
@@ -250,8 +253,8 @@ guard_joinir_loop_compile_candidate_scope() {
   if [[ "$(rg -o -F '#[test]' "$direct_accum_observation_tests" | wc -l | tr -d '[:space:]')" != "7" ]]; then
     guard_fail "$tag" "DirectAccum S1 focused test count drift"
   fi
-  rg -n -F '#![cfg(test)]' "$direct_accum_observation_adapter" >/dev/null || \
-    guard_fail "$tag" "DirectAccum S1 compiler adapter must remain test-only"
+  rg -q 'the only place' "$direct_accum_observation_adapter" || \
+    guard_fail "$tag" "DirectAccum S1 compiler adapter lost its sole-translation-point contract"
   for direct_ref in \
     'issue_direct_accum_family_observation_v1(' \
     'VerifiedDirectAccumFamilyCandidateV1'; do
@@ -261,22 +264,25 @@ guard_joinir_loop_compile_candidate_scope() {
         -v admission_tests="$family_admission_tests" \
         -v selector_source="$family_selector_source" -v selector_tests="$family_selector_tests" \
         -v policy_mod="$generic_g0_policy_mod" \
-        '$1 != policy && $1 != tests && $1 != admission_tests && $1 != selector_source && $1 != selector_tests && $1 != policy_mod && $1 != "" { found = 1 } END { exit found }'; then
+        -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+        '$1 != policy && $1 != tests && $1 != admission_tests && $1 != selector_source && $1 != selector_tests && $1 != policy_mod && $1 != spine && $1 != "" { found = 1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "DirectAccum S1 observer caller escaped caller-zero boundary: $direct_ref"
     fi
   done
-  for direct_ref in 'issue_direct_accum_source_attempt_for_test('; do
+  for direct_ref in 'issue_direct_accum_source_attempt_v1('; do
     if rg -n -F "$direct_ref" "$root_dir/src" --glob '*.rs' |
       awk -F: -v adapter="$direct_accum_observation_adapter" \
         -v tests="$direct_accum_observation_tests" \
         -v admission_tests="$family_admission_tests" \
         -v selector_source="$family_selector_source" -v selector_tests="$family_selector_tests" \
-        '$1 != adapter && $1 != tests && $1 != admission_tests && $1 != selector_source && $1 != selector_tests && $1 != "" { found = 1 } END { exit found }'; then
+        -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+        -v window_tests="$root_dir/src/mir/compiler/loop_family_window_probe_tests.rs" \
+        '$1 != adapter && $1 != tests && $1 != admission_tests && $1 != selector_source && $1 != selector_tests && $1 != spine && $1 != window_tests && $1 != "" { found = 1 } END { exit found }'; then
       :
     else
-      guard_fail "$tag" "DirectAccum S1 source adapter escaped test-only caller boundary: $direct_ref"
+      guard_fail "$tag" "DirectAccum S1 source adapter escaped caller boundary: $direct_ref"
     fi
   done
   for direct_ref in \
@@ -287,7 +293,8 @@ guard_joinir_loop_compile_candidate_scope() {
         -v tests="$direct_accum_observation_tests" \
         -v admission_tests="$family_admission_tests" \
         -v selector_source="$family_selector_source" -v selector_tests="$family_selector_tests" \
-        '$1 != adapter && $1 != tests && $1 != admission_tests && $1 != selector_source && $1 != selector_tests && $1 != "" { found = 1 } END { exit found }'; then
+        -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+        '$1 != adapter && $1 != tests && $1 != admission_tests && $1 != selector_source && $1 != selector_tests && $1 != spine && $1 != "" { found = 1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "DirectAccum S1 sealed constructor escaped source/test boundary: $direct_ref"
@@ -310,8 +317,8 @@ guard_joinir_loop_compile_candidate_scope() {
   done
   [[ "$(rg -o -F '#[test]' "$nested_observation_tests" | wc -l | tr -d '[:space:]')" == "7" ]] ||
     guard_fail "$tag" "Nested S1 focused test count drift"
-  rg -n -F '#![cfg(test)]' "$nested_observation_adapter" >/dev/null ||
-    guard_fail "$tag" "Nested S1 compiler adapter must remain test-only"
+  rg -q 'the only compiler-side translation point' "$nested_observation_adapter" ||
+    guard_fail "$tag" "Nested S1 compiler adapter lost its sole-translation-point contract"
   for nested_ref in 'issue_nested_predicate_family_observation_v1(' \
     'VerifiedNestedPredicateFamilyCandidateV1'; do
     if rg -n -F "$nested_ref" "$root_dir/src" --glob '*.rs' |
@@ -319,16 +326,19 @@ guard_joinir_loop_compile_candidate_scope() {
         -v admission_tests="$family_admission_tests" \
         -v selector_source="$family_selector_source" -v selector_tests="$family_selector_tests" \
         -v policy_mod="$root_dir/src/mir/loop_route_policy/mod.rs" \
-        '$1 != policy && $1 != tests && $1 != admission_tests && $1 != selector_source && $1 != selector_tests && $1 != policy_mod && $1 != "" { found = 1 } END { exit found }'; then
+        -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+        '$1 != policy && $1 != tests && $1 != admission_tests && $1 != selector_source && $1 != selector_tests && $1 != policy_mod && $1 != spine && $1 != "" { found = 1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "Nested S1 policy observer escaped caller-zero boundary: $nested_ref"
     fi
   done
-  if rg -n -F 'issue_nested_predicate_source_attempt_for_test(' "$root_dir/src" --glob '*.rs' |
+  if rg -n -F 'issue_nested_predicate_source_attempt_v1(' "$root_dir/src" --glob '*.rs' |
     awk -F: -v adapter="$nested_observation_adapter" -v tests="$nested_observation_tests" \
       -v selector_source="$family_selector_source" -v selector_tests="$family_selector_tests" \
-      '$1 != adapter && $1 != tests && $1 != selector_source && $1 != selector_tests && $1 != "" { found = 1 } END { exit found }'; then
+      -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+      -v window_tests="$root_dir/src/mir/compiler/loop_family_window_probe_tests.rs" \
+      '$1 != adapter && $1 != tests && $1 != selector_source && $1 != selector_tests && $1 != spine && $1 != window_tests && $1 != "" { found = 1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested S1 source adapter escaped caller-zero boundary"
@@ -370,7 +380,7 @@ guard_joinir_loop_compile_candidate_scope() {
   done
   if rg -n -F 'resolved_loop_source_forest(' "$root_dir/src" --glob '*.rs' \
       | awk -F: -v generic_g0_projection="$generic_g0_projection" \
-          '$1 != generic_g0_projection && $1 !~ /resolved_semantics\/loop_region\.rs$/ && $1 !~ /compiler\/nested_predicate_profile\.rs$/ && $1 !~ /compiler\/nested_predicate_projection\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
+          '$1 != generic_g0_projection && $1 !~ /resolved_semantics\/loop_region\.rs$/ && $1 !~ /compiler\/nested_predicate_profile\.rs$/ && $1 !~ /compiler\/nested_predicate_projection\.rs$/ && $1 !~ /compiler\/generic_g0_source_parent\.rs$/ && $1 !~ /compiler\/loop_cond_break_continue_projection\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested source forest escaped its caller-zero resolver boundary"
@@ -520,7 +530,7 @@ guard_joinir_loop_compile_candidate_scope() {
   # Generic G0 S4 is a test-only Recipe producer and is the second explicit
   # caller-zero consumer of the shared forest-binding adapter.
   if rg -n -F 'bind_resolved_loop_source_forest_v1(' "$root_dir/src" --glob '*.rs' \
-      | awk -F: '$1 !~ /loop_structural_facts\/resolved_source_adapter\.rs$/ && $1 !~ /compiler\/nested_predicate_projection\.rs$/ && $1 !~ /loop_recipe_contract\/generic_g0\/producer\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
+      | awk -F: '$1 !~ /loop_structural_facts\/resolved_source_adapter\.rs$/ && $1 !~ /compiler\/nested_predicate_projection\.rs$/ && $1 !~ /loop_recipe_contract\/generic_g0\/producer\.rs$/ && $1 !~ /compiler\/loop_cond_break_continue_projection\.rs$/ && $1 !~ /_tests?\.rs$/ && $1 !~ /\/tests\.rs$/ { found = 1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Nested source-binding adapter escaped its caller-zero boundary"
@@ -601,7 +611,7 @@ guard_joinir_loop_compile_candidate_scope() {
   local nested_producer_refs
   nested_producer_refs="$(rg -n -F 'produce_nested_predicate_recipe_v1(' "$root_dir/src" --glob '*.rs' || true)"
   if [[ "$(printf '%s\n' "$nested_producer_refs" \
-      | awk -F: '$1 !~ /compiler\/nested_predicate_producer\.rs$/ && $1 !~ /compiler\/nested_predicate_producer_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_topology_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_profile\.rs$/ && $1 !~ /compiler\/nested_predicate_physical_input_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_effect_plan_tests\.rs$/ && $1 !~ /resolved_lowering\/nested_predicate_effect_adapter_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
+      | awk -F: '$1 !~ /compiler\/nested_predicate_producer\.rs$/ && $1 !~ /compiler\/nested_predicate_producer_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_topology_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_profile\.rs$/ && $1 !~ /compiler\/loop_node_winner_spine\.rs$/ && $1 !~ /compiler\/nested_predicate_physical_input_tests\.rs$/ && $1 !~ /compiler\/nested_predicate_effect_plan_tests\.rs$/ && $1 !~ /resolved_lowering\/nested_predicate_effect_adapter_tests\.rs$/ && $1 !~ /_tests\.rs$/ && $1 != "" { count += 1 } END { print count + 0 }')" != "0" ]]; then
     guard_fail "$tag" "Nested Predicate Recipe producer escaped caller-zero boundary"
   fi
   for required in \

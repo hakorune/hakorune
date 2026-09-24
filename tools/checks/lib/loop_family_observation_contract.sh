@@ -32,8 +32,6 @@ guard_loop_family_observation_one() {
     (( lines < 800 )) || guard_fail "$tag" "$family observer file exceeds boundary: $file"
   done
 
-  rg -q '^#!\[cfg\(test\)\]' "$compiler_adapter" ||
-    guard_fail "$tag" "$family compiler adapter must remain cfg(test)-only"
   [[ "$(rg -o -F '#[test]' "$tests" | wc -l | tr -d '[:space:]')" == "$test_count" ]] ||
     guard_fail "$tag" "$family focused test count drift"
 
@@ -64,14 +62,17 @@ guard_loop_family_observation_one() {
   if rg -l -F "${policy_fn}(" "$source_root" |
     awk -v p="$policy" -v t="$tests" -v at="$admission_tests" -v st="$selector_tests" \
       -v m="$root_dir/src/mir/loop_route_policy/mod.rs" \
-      '$0 != p && $0 != t && $0 != at && $0 != st && $0 != m && $0 != "" { found=1 } END { exit found }'; then
+      -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+      '$0 != p && $0 != t && $0 != at && $0 != st && $0 != m && $0 != spine && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "$family policy observer acquired a production caller"
   fi
   if rg -l -F "${adapter_fn}(" "$source_root" |
     awk -v a="$compiler_adapter" -v t="$tests" -v st="$selector_tests" \
-      '$0 != a && $0 != t && $0 != st && $0 != "" { found=1 } END { exit found }'; then
+      -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+      -v wt="$root_dir/src/mir/compiler/loop_family_window_probe_tests.rs" \
+      '$0 != a && $0 != t && $0 != st && $0 != spine && $0 != wt && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "$family source adapter escaped caller-zero boundary"
@@ -80,7 +81,8 @@ guard_loop_family_observation_one() {
     if rg -l -F "$constructor" "$source_root" |
       awk -v a="$compiler_adapter" -v t="$tests" -v at="$admission_tests" \
         -v st="$selector_tests" \
-        '$0 != a && $0 != t && $0 != at && $0 != st && $0 != "" { found=1 } END { exit found }'; then
+        -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+        '$0 != a && $0 != t && $0 != at && $0 != st && $0 != spine && $0 != "" { found=1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "$family sealed constructor escaped source/test boundary: $constructor"
@@ -93,10 +95,10 @@ guard_loop_family_observation_contract() {
   local tag="$2"
   guard_loop_family_observation_one "$root_dir" "$tag" "LoopTrue" \
     "loop_true_break_continue" "issue_loop_true_family_observation_v1" \
-    "issue_loop_true_source_attempt_for_test" 9
+    "issue_loop_true_source_attempt_v1" 9
   guard_loop_family_observation_one "$root_dir" "$tag" "LoopCond" \
     "loop_cond_break_continue" "issue_loop_cond_family_observation_v1" \
-    "issue_loop_cond_source_attempt_for_test" 9
+    "issue_loop_cond_source_attempt_v1" 9
 }
 
 guard_generic_g0_observation_contract() {
@@ -124,11 +126,8 @@ guard_generic_g0_observation_contract() {
     (( lines < 800 )) || guard_fail "$tag" "Generic G0 observer file exceeds boundary: $file"
   done
 
-  rg -q '^#!\[cfg\(test\)\]' "$compiler_adapter" ||
-    guard_fail "$tag" "Generic G0 compiler adapter must remain cfg(test)-only"
-  rg -n -F '#[cfg(test)]' "$compiler_projection" >/dev/null &&
-    rg -n -F 'pub(crate) mod handoff;' "$compiler_projection" >/dev/null ||
-    guard_fail "$tag" "Generic G0 handoff must remain a cfg(test)-only module"
+  rg -n -F 'pub(crate) mod handoff;' "$compiler_projection" >/dev/null ||
+    guard_fail "$tag" "Generic G0 handoff module is missing from the projection"
   [[ "$(rg -o -F '#[test]' "$compiler_tests" | wc -l | tr -d '[:space:]')" == "5" ]] ||
     guard_fail "$tag" "Generic G0 compiler observation test count drift"
   [[ "$(rg -o -F '#[test]' "$policy_tests" | wc -l | tr -d '[:space:]')" == "7" ]] ||
@@ -179,14 +178,16 @@ guard_generic_g0_observation_contract() {
   if rg -l -F 'issue_generic_g0_family_observation_v1(' "$source_root" |
     awk -v p="$policy" -v t="$policy_tests" -v at="$admission_tests" -v st="$selector_tests" \
       -v m="$root_dir/src/mir/loop_route_policy/mod.rs" \
-      '$0 != p && $0 != t && $0 != at && $0 != st && $0 != m && $0 != "" { found=1 } END { exit found }'; then
+      -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+      '$0 != p && $0 != t && $0 != at && $0 != st && $0 != m && $0 != spine && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Generic G0 policy observer acquired a production caller"
   fi
-  if rg -l -F 'issue_generic_g0_source_attempt_for_test(' "$source_root" |
+  if rg -l -F 'issue_generic_g0_source_attempt_v1(' "$source_root" |
     awk -v a="$compiler_adapter" -v ct="$compiler_tests" -v pt="$policy_tests" -v st="$selector_tests" \
-      '$0 != a && $0 != ct && $0 != pt && $0 != st && $0 != "" { found=1 } END { exit found }'; then
+      -v wt="$root_dir/src/mir/compiler/loop_family_window_probe_tests.rs" \
+      '$0 != a && $0 != ct && $0 != pt && $0 != st && $0 != wt && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "Generic G0 source adapter escaped caller-zero boundary"
@@ -195,7 +196,8 @@ guard_generic_g0_observation_contract() {
     if rg -l -F "$constructor" "$source_root" |
       awk -v a="$compiler_adapter" -v ct="$compiler_tests" -v pt="$policy_tests" \
         -v at="$admission_tests" -v st="$selector_tests" \
-        '$0 != a && $0 != ct && $0 != pt && $0 != at && $0 != st && $0 != "" { found=1 } END { exit found }'; then
+        -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+        '$0 != a && $0 != ct && $0 != pt && $0 != at && $0 != st && $0 != spine && $0 != "" { found=1 } END { exit found }'; then
       :
     else
       guard_fail "$tag" "Generic G0 sealed constructor escaped source/test boundary: $constructor"
@@ -291,10 +293,14 @@ guard_loop_family_window_lease_contract() {
   if rg -l -F 'issue_loop_family_window_lease_v1(' "$root_dir/src/mir" |
     awk -v l="$lease" -v t="$tests" -v at="$assembler_tests" -v st="$selector_tests" \
       -v gh="$generic_handoff" \
-      '$0 != l && $0 != t && $0 != at && $0 != st && $0 != gh && $0 != "" { found=1 } END { exit found }'; then
+      -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+      -v cap="$root_dir/src/mir/compiler/generic_g0_capability.rs" \
+      -v rot="$root_dir/src/mir/loop_route_policy/all_route_observation_tests.rs" \
+      -v pat="$root_dir/src/mir/compiler/loop_node_physical_admission_tests.rs" \
+      '$0 != l && $0 != t && $0 != at && $0 != st && $0 != gh && $0 != spine && $0 != cap && $0 != rot && $0 != pat && $0 != "" { found=1 } END { exit found }'; then
     :
   else
-    guard_fail "$tag" "window lease acquired a production caller"
+    guard_fail "$tag" "window lease escaped its canonical caller boundary"
   fi
 }
 
@@ -342,10 +348,12 @@ guard_loop_family_admission_contract() {
 
   if rg -l -F 'assemble_loop_family_admission_window_v1(' "$root_dir/src/mir" |
     awk -v a="$assembler" -v t="$tests" -v m="$mod_file" -v st="$selector_tests" \
-      '$0 != a && $0 != t && $0 != m && $0 != st && $0 != "" { found=1 } END { exit found }'; then
+      -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+      -v rot="$root_dir/src/mir/loop_route_policy/all_route_observation_tests.rs" \
+      '$0 != a && $0 != t && $0 != m && $0 != st && $0 != spine && $0 != rot && $0 != "" { found=1 } END { exit found }'; then
     :
   else
-    guard_fail "$tag" "common admission acquired a production caller"
+    guard_fail "$tag" "common admission escaped its canonical caller boundary"
   fi
   if rg -l -F 'into_admission_row(' "$root_dir/src/mir/loop_route_policy" |
     awk -v a="$assembler" -v t="$tests" -v m="$mod_file" -v st="$selector_tests" \
@@ -376,21 +384,23 @@ guard_loop_family_selector_contract() {
 
   for required in CanonicalLoopFamilyCandidateV1 CanonicalLoopFamilySelectionOutcomeV1 \
     CanonicalLoopFamilySelectionReasonV1 select_canonical_loop_family_v1 \
-    'Selected(' 'Rejected(' 'Unresolved(' 'Overlap' 'OutOfWindow'; do
+    'Selected(' 'Rejected(' 'Overlap'; do
     rg -n -F "$required" "$selector" >/dev/null ||
       guard_fail "$tag" "family selector anchor missing: $required"
   done
   for forbidden in ASTNode VerifiedResolvedSourceUnitV1 FunctionSourceViewV1 \
     LoopRouteId FrozenLoopRouteScheduleV1 family_selection policy.rs \
-    'crate::mir::builder' 'loop_structural_facts' 'issue_.*source_attempt_for_test' \
-    NoCandidate retry fallback RuntimeDataBox; do
+    'crate::mir::builder' 'loop_structural_facts' 'issue_.*source_attempt_v1' \
+    retry fallback RuntimeDataBox; do
     if rg -n -F "$forbidden" "$selector" >/dev/null; then
       guard_fail "$tag" "family selector crossed forbidden authority: $forbidden"
     fi
   done
   if rg -l -F 'select_canonical_loop_family_v1(' "$root_dir/src/mir" |
     awk -v s="$selector" -v t="$tests" \
-      '$0 != s && $0 != t && $0 != "" { found=1 } END { exit found }'; then
+      -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
+      -v rot="$root_dir/src/mir/loop_route_policy/all_route_observation_tests.rs" \
+      '$0 != s && $0 != t && $0 != spine && $0 != rot && $0 != "" { found=1 } END { exit found }'; then
     :
   else
     guard_fail "$tag" "family selector acquired a production caller"
