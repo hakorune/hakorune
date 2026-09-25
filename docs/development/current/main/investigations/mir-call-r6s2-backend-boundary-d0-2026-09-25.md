@@ -1,6 +1,6 @@
 # MIR-CALL-R6S2-BACKEND-BOUNDARY-D0 — backend boundary selection
 
-Status: selected__2026-09-25
+Status: accepted__2026-09-25
 Date: 2026-09-25
 Parent: MIR-CALL-R6S1-GLOBAL-PRODUCER-COHORT-S1 (landed 2026-09-25)
 Owner card:
@@ -47,11 +47,74 @@ Constraints (from the migration program): no `CallV2`, no new receipt,
 no fallback/retry, typed consume or `UnsupportedBeforeArtifact` only,
 one boundary per row, finite caller list before implementation.
 
+## Decision (accepted 2026-09-25)
+
+**`PublishedMirBackendView` admission scan stops consuming
+`LegacyCallV0{Callee::Global}`** — the one site still treating a legacy
+row as canonical on the published route.
+
+- Source authority + canonical issuer:
+  `src/mir/compiler/normal_default_pipeline/published_backend_view.rs`
+  `try_new` (:299-345) and `try_new_selected_normal` (:440-470); the
+  view is the sole admission projection for the published backend
+  route. Terminals already exist:
+  `PublishedStaticMethodRouteV1::UnsupportedBeforeObject` and
+  `PublishedMirBackendViewErrorV1::SelectedNormalUsesLegacyCallV0`.
+- Slice: in `try_new`, a `LegacyCallV0` whose callee is
+  `Some(Callee::Global(_))` sets `has_non_lifecycle_unsupported` and is
+  not validated or pushed into published call rows (typed `Call` Global
+  unchanged). In `try_new_selected_normal`, a `LegacyCallV0{Global}`
+  site raises `SelectedNormalUsesLegacyCallV0` unconditionally — not
+  only when mixed with a typed selected call. Other legacy callee kinds
+  (Method via `mir_json_v0` boxcall, Value via unified-off
+  `emit_value_unified`) keep their existing compat classification —
+  they still mint from quarantined ingress.
+- Fail-fast boundary: `UnsupportedBeforeObject` at view admission;
+  `SelectedNormalUsesLegacyCallV0` for selected admission. Both are
+  pre-artifact; no JSON, name, registry, args[0], fallback, or retry.
+- Finite callers: `try_new`/`try_new_selected_normal` callers —
+  `compile_normal_with_published`
+  (`normal_default_pipeline.rs:569-658`, selected admission at :617),
+  `host_providers/llvm_codegen/published_mir_object.rs:39,140`,
+  `emit_published_view_body` chain, `runner/modes/mir.rs:107-147`,
+  `runner/product/llvm/mir_compiler.rs:56-68`, and test fixtures.
+- Verification: flip
+  `published_backend_view_selected_admission_tests.rs:60`
+  (`keeps_legacy_only…` expects `SelectedNormalUsesLegacyCallV0`);
+  `published_backend_view_tests.rs` legacy-Global fixtures expect
+  `UnsupportedBeforeObject`; published-object/pipeline tests green;
+  `mir_call_d1b_*` guard registration for the S2 row.
+- Smallest next slice: `MIR-CALL-R6S2-PUBLISHED-VIEW-GLOBAL-STOP-S2`.
+- Non-claims: no JSON-emit boundary fix (canonical-v1 transparent
+  serialization of a residual legacy callee is a later S row); no
+  `legacy_callsite_reject_code` widening (shared with compat boxcall);
+  no analysis-reader sweep (compat-tolerant by design); MirInterpreter
+  and WASM/AOT already stop every legacy callee kind.
+
+## Worker census record (read-only)
+
+- Execution backends already stopped: `mir_interpreter` rejects every
+  `LegacyCallV0` arm with named tags before legacy dispatch and admits
+  only typed `Callee::Global`; WASM `reject_legacy_call_readers` stops
+  Global/Extern/Method; AOT inherits WASM.
+- Remaining live `LegacyCallV0` minters: `emit_value_unified`
+  (`Callee::Value`, `NYASH_BUILDER_UNIFIED_CALL=0` only) and
+  `mir_json_v0` boxcall (`Callee::Method`, receiverless). Global has no
+  live minter — flip is provably behavior-safe.
+- `published_backend_view.rs:354` `Some(_) | None => {}` keeps legacy
+  Method/Extern/Value/`None` on `ExplicitCompatibility`; the slice does
+  not touch it.
+- Residual real crossing noted for a later S row: canonical-v1 JSON
+  emit serializes a residual `LegacyCallV0` callee as `mir_call`
+  (`emitters/calls.rs`), and `reject_selected_dynamic_legacy_callsites`
+  only covers `callee:None` + Closure.
+
 ## Exit
 
-- [ ] One accepted bounded boundary with source authority, canonical
+- [x] One accepted bounded boundary with source authority, canonical
   issuer, fail-fast boundary, finite callers, and verification named —
   or `NoSafeSlice` with reopen trigger.
-- [ ] Reader classification: producer-adjacent vs quarantined-ingress
+- [x] Reader classification: producer-adjacent vs quarantined-ingress
   for every `LegacyCallV0` match site listed above.
-- [ ] Named next execution row, or an explicit pause.
+- [x] Named next execution row:
+  `MIR-CALL-R6S2-PUBLISHED-VIEW-GLOBAL-STOP-S2`.

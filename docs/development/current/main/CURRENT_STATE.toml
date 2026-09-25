@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-R6S2-BACKEND-BOUNDARY-D0"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-R6S2-PUBLISHED-VIEW-GLOBAL-STOP-S2"
 current_execution_cohort = "mir_call_r6_queue"
-current_blocker_token = "R6S2-BoundarySelection-Open__Gate1-AcceptanceRed__CallR7-FrontierPause"
-current_design_stop = "S1_Global_landed__S2_boundary_unselected__design_stop"
+current_blocker_token = "R6S2-PublishedViewGlobalStop-Open__Gate1-AcceptanceRed__CallR7-FrontierPause"
+current_design_stop = "none__S2_boundary_accepted__bounded_implementation_authorized"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,21 +14,21 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mir-call-r6s2-backend-boundary-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-r6s2-backend-boundary-d0-2026-09-25.md"
+latest_card = "mir-call-r6s2-published-view-global-stop-s2"
+latest_card_path = "docs/development/current/main/investigations/mir-call-r6s2-published-view-global-stop-s2-2026-09-25.md"
 latest_card_summary = """
-R6-S1 Global producer cohort landed: Callee::Global promoted to typed
-MirInstruction::call, ordinary-new no-claim birth edge stopped with a
-named terminal, emit_global_unified + name_const deleted; no
-production path mints LegacyCallV0{Global}. All other S1 cohorts were
-declined in the D0 — S1 series exhausted. Next: select one bounded
-R6-S2 backend boundary (typed consume or UnsupportedBeforeArtifact
-before codegen) or record NoSafeSlice.
+R6-S2 backend-boundary D0 accepted: PublishedMirBackendView admission
+stops consuming LegacyCallV0{Callee::Global} — the only site still
+treating a legacy row as canonical on the published route. try_new
+routes it to UnsupportedBeforeObject; try_new_selected_normal raises
+SelectedNormalUsesLegacyCallV0 unconditionally for Global. Other
+legacy kinds keep ExplicitCompatibility (v0 boxcall/unified-off Value
+still mint). Execution row selected.
 """
-next_design_card = "MIR-CALL-R6S2-BACKEND-BOUNDARY-D0"
+next_design_card = "none__S2_boundary_accepted__no_design_stop"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-r6s2-backend-boundary-d0-2026-09-25.md"
-next_execution_card = "none__design_stop__S2_boundary_selection_required"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-r6s2-backend-boundary-d0-2026-09-25.md"
+next_execution_card = "MIR-CALL-R6S2-PUBLISHED-VIEW-GLOBAL-STOP-S2"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-r6s2-published-view-global-stop-s2-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
