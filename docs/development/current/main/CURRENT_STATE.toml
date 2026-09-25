@@ -1,33 +1,33 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-R7-CANONICALIZE-LEGACY-GLOBAL-NOOP-ARM-DELETE-S9"
-current_execution_cohort = "mir_call_r6_queue"
-current_blocker_token = "GlobalNoopArmDelete-Open__CalleeDrivenCatchAll__Gate1-AcceptanceRed"
-current_design_stop = "none__caller_zero_d4_accepted__bounded_deletion_authorized"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-UNIFIED-SELFHOST-RESUME-D0"
+current_execution_cohort = "unified_selfhost_resume"
+current_blocker_token = "SelfhostResumeD0-Open__R7FrontierNoSafeSlice__LaneEntryCensus"
+current_design_stop = "unified_selfhost_resume_d0__row_h_first_slice_census"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-active_lane = "MirBuilder Call compatibility retirement"
+active_lane = "MirBuilder unified selfhost resume"
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mir-call-r7-canonicalize-legacy-global-noop-arm-delete-s9"
-latest_card_path = "docs/development/current/main/investigations/mir-call-r7-canonicalize-legacy-global-noop-arm-delete-s9-2026-09-25.md"
+latest_card = "mirbuilder-unified-selfhost-resume-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-unified-selfhost-resume-d0-2026-09-25.md"
 latest_card_summary = """
-Caller-zero D4 accepted bounded: the canonicalize
-LegacyCallV0{Global} no-op arm is observably identical to the
-LegacyCallV0{..} catch-all below it (interpreter reject_legacy_call
-and published-view named errors stay as residual boundaries). S9
-deletes the arm + dead Callee import; existing mcl Global fixtures
-already pin the passthrough.
+Call/R7 bounded-deletion frontier exhausted: S6-S9 deleted every dead
+canonicalize repair arm; the D4 census classifies the residual
+LegacyCallV0 surface as fail-fast boundaries, compat owners, and
+variant-lifetime readers (NoSafeSlice; reopen on v0 wire or llvmlite
+retirement). Row H census begins: first actionable step toward
+MIRBUILDER-FACT-OWNER-PARITY-TEMPLATE-PILOT-SELECTION-001.
 """
-next_design_card = "none__caller_zero_d4_accepted__no_design_stop"
+next_design_card = "MIRBUILDER-UNIFIED-SELFHOST-RESUME-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d3-2026-09-25.md"
-next_execution_card = "MIR-CALL-R7-CANONICALIZE-LEGACY-GLOBAL-NOOP-ARM-DELETE-S9"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-r7-canonicalize-legacy-global-noop-arm-delete-s9-2026-09-25.md"
+next_execution_card = "none__awaiting_selfhost_resume_d0_selection"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-unified-selfhost-resume-d0-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
