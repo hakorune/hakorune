@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-V0-BOXCALL-DEPRECATION-D0"
+current_execution_row = "MIR-CALL-V0-BOXCALL-MINT-PROMOTE-D0"
 current_execution_cohort = "mir_call_r6_queue"
-current_blocker_token = "BoxcallDeprecation-Open__R7-NoSafeSlice__Gate1-AcceptanceRed"
-current_design_stop = "S4_value_mint_landed__boxcall_deprecation_unselected__design_stop"
+current_blocker_token = "BoxcallMintPromote-Open__WireDeprec-NoSafeSlice__Gate1-AcceptanceRed"
+current_design_stop = "boxcall_wire_NoSafeSlice__carrier_promote_evidence_owed__design_stop"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,22 +14,20 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mir-call-v0-boxcall-deprecation-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-v0-boxcall-deprecation-d0-2026-09-25.md"
+latest_card = "mir-call-v0-boxcall-mint-promote-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-v0-boxcall-mint-promote-d0-2026-09-25.md"
 latest_card_summary = """
-S4 landed: emit_value_unified mints MirInstruction::call{Value} under
-the unified-off corridor — v0 wire byte-parity pinned, named stops at
-[vm-reference/canonical-call] and UnsupportedBeforeObject, and two
-S1-era legacy-shape assertions repaired to the canonical carrier. The
-v0 boxcall parser is now the sole LegacyCallV0 minter; R7 stays
-NoSafeSlice until the wire deprecation decision. Next: boxcall
-deprecation D0 — bounded retirement or NoSafeSlice with the owning
-product gate named.
+Boxcall deprecation D0 closed NoSafeSlice: the v0 boxcall wire is
+owned by the Phase-0 env.mirbuilder.emit contract + vm-hako lane +
+LLVM JSON allowlists — retirement is a product decision. The sole
+LegacyCallV0 minter (module.rs:439-475) is structurally promotable,
+but callsite_canonicalize reads LegacyCallV0{Method} exclusively —
+carrier promote needs its own evidence. Next: mint-promote D0.
 """
-next_design_card = "MIR-CALL-V0-BOXCALL-DEPRECATION-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-v0-boxcall-deprecation-d0-2026-09-25.md"
-next_execution_card = "none__design_stop__boxcall_deprecation_decision_required"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-v0-boxcall-deprecation-d0-2026-09-25.md"
+next_design_card = "MIR-CALL-V0-BOXCALL-MINT-PROMOTE-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-v0-boxcall-mint-promote-d0-2026-09-25.md"
+next_execution_card = "none__design_stop__boxcall_mint_promote_evidence_required"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-v0-boxcall-mint-promote-d0-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
