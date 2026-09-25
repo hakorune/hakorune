@@ -10,7 +10,9 @@ use crate::mir::callable_result_representation::StaticCallResultPublicationTakeV
 use crate::mir::compiler::capability::CanonicalLoweringPreflightV1;
 use crate::mir::compiler::normal_source_plan::VerifiedNormalMainRoleV1;
 use crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1;
-use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceExprSiteV1};
+use crate::mir::resolved_semantics::{
+    FunctionOwnerIdV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
+};
 use crate::mir::{MirBuilder, ValueId};
 use crate::parser::CallableDeclarationIdentityV1;
 
@@ -220,7 +222,14 @@ pub(super) fn lower_app_main_root_body_v1(
                             builder,
                             CallableEntryShapeV1::Static { parameter_count },
                         )?;
-                        let value = if input.function().method_calls().next().is_some() {
+                        // The canonical qualified-methods route only serves
+                        // qualified (unbound-receiver) calls; lexical receiver
+                        // calls like `pair.sum()` stay on the lifecycle/
+                        // ordinary_new owner path below.
+                        let value = if input.function().method_calls().any(|(_, call)| {
+                            call.receiver()
+                                == ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
+                        }) {
                             let canonical_result = (|| {
                                 let plan = CanonicalLoweringPreflightV1::
                                     verify_normal_main0_function_with_qualified_methods_v1(

@@ -323,3 +323,9 @@ id = "rawlegacy-nested-main-retire"
 label = "RawLegacy nested Main pre-effect retirement"
 profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/rawlegacy_nested_main_retire_guard.sh"]
+
+[[rows]]
+id = "mirbuilder-qualified-route-scope"
+label = "qualified-methods canonical route scope guard (QualifiedUnbound only)"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/mirbuilder_qualified_route_scope_guard.sh"]

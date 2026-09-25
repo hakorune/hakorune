@@ -741,6 +741,21 @@ fn direct_i64_field_return_reaches_completed_entry_contract() {
 }
 
 #[test]
+fn lexical_receiver_method_call_main_stays_off_qualified_route() {
+    // EXE-ACCEPTANCE-S0: `pair.sum()` has a lexical receiver; the canonical
+    // qualified-methods route only serves QualifiedUnbound receivers, so this
+    // main must compile on the lifecycle/ordinary_new route.
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let source = "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } sum(): i64 { return me.left + me.right } } static box Main { main() { local pair = new Pair(10, 20) return pair.sum() } }";
+        let mut compiler = MirCompiler::with_options(false);
+        compiler
+            .compile_normal_with_published(published_request(source), |_view, _| Ok(()))
+            .unwrap();
+    });
+}
+
+#[test]
 fn explicit_bare_return_retains_unit_source_before_physical_stop() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {

@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D0"
+current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D1"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ExeAcceptanceD0-Open__Gate1-2of9Red__OwnerTupleSelection"
-current_design_stop = "exe_acceptance_owner_selection_d0__gate1_fail_class_census"
+current_blocker_token = "ExeAcceptanceD1-Open__Gate1-3of11Red__ClassSelection"
+current_design_stop = "exe_acceptance_owner_selection_d1__post_s0_class_selection"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,19 +14,19 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-exe-acceptance-owner-selection-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d0-2026-09-25.md"
+latest_card = "mirbuilder-exe-acceptance-owner-selection-d1"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d1-2026-09-25.md"
 latest_card_summary = """
-Unified selfhost resume D0 accepted: row H follows the unified resume
-order gates 1-4; gate 1 (real-apps-exe-boundary, last receipt 2/9) is
-the first actionable work. Gates 2-4 stay queued. Next: select one of
-the nine typed fail classes with a complete authority/caller/delete
-tuple; acceptance = suite entry flips green on rerun.
+EXE acceptance S0 landed: qualified-route predicate narrowed to
+QualifiedUnbound receivers; method_min green (suite 3/8). D1 open:
+select one bounded class from the remaining 8-entry terminal map;
+ordinary-new lane blockers (birth_param, binary_trees) are the
+highest-weight candidate family.
 """
-next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d3-2026-09-25.md"
-next_execution_card = "none__awaiting_exe_acceptance_d0_selection"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d0-2026-09-25.md"
+next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D1"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d1-2026-09-25.md"
+next_execution_card = "none__awaiting_exe_acceptance_d1_selection"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d1-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -41,7 +41,6 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-25: R6-S0/S1 landed — callable-key projection owner + transport v0/v1 split; Global cohort typed promote, emit_global_unified+name_const deleted.",
-  "2026-09-25: R6-S2/S3 landed — published-view legacy-Global admission stop (SelectedNormalUsesLegacyCallV0) + selected-Dynamic carrier stop (call-legacy-carrier).",
-  "2026-09-25: S4 landed — unified-off Value mint promoted to MirInstruction::call{Value}; sole LegacyCallV0 minter is now the v0 boxcall parser; R7 stays NoSafeSlice.",
+  "2026-09-25: R6-S4..S9 landed — all LegacyCallV0 ingress minters promoted to typed Call; callsite_canonicalize dead arms (Method/Closure/array-write/Global noop) deleted; R7 bounded frontier exhausted.",
+  "2026-09-25: EXE-ACCEPTANCE-S0 landed — qualified-route predicate narrowed to QualifiedUnbound receivers; typed_object_method_min green (suite 3 pass/8 fail); next D1 class selection.",
 ]
