@@ -194,6 +194,27 @@ mod tests {
     }
 
     #[test]
+    fn canonical_value_call_rejects_at_global_only_boundary() {
+        let mut interp = MirInterpreter::new();
+        let instruction = MirInstruction::call(
+            None,
+            Callee::Value(ValueId::new(42)),
+            Vec::new(),
+            EffectMask::PURE,
+        );
+
+        let error = interp
+            .execute_instruction(&instruction)
+            .expect_err("canonical Value call must stop before dynamic dispatch");
+        assert!(
+            error
+                .to_string()
+                .contains("[vm-reference/canonical-call] only Global targets are admitted"),
+            "{error}"
+        );
+    }
+
+    #[test]
     fn legacy_method_call_rejects_before_method_dispatch() {
         let mut interp = MirInterpreter::new();
         let instruction = MirInstruction::LegacyCallV0 {

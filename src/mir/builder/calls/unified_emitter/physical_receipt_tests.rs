@@ -365,14 +365,38 @@ fn receipt_requirement_rejects_unified_disabled_without_legacy_fallback() {
             call_destinations(&ordinary_builder),
             vec![Some(ordinary_destination)]
         );
-        let legacy_func = ordinary_builder
+        match emitted_callee(&ordinary_builder) {
+            Callee::Global(target) => {
+                assert_eq!(target.display_name(), "physical_receipt_probe/0");
+            }
+            other => panic!("compatibility facade must emit a Global callee, got {other:?}"),
+        }
+    });
+}
+
+#[test]
+fn ordinary_value_call_under_disabled_profile_mints_canonical_value_callee() {
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "off", || {
+        let mut ordinary_builder = builder_with_entry("physical_receipt_value_parity/0");
+        let destination = ordinary_builder.alloc_value_for_test();
+        ordinary_builder
+            .emit_unified_call(
+                Some(destination),
+                CallTarget::Value(ValueId::new(42)),
+                vec![ValueId::new(7)],
+            )
+            .expect("ordinary compatibility facade emits value calls");
+        assert_eq!(
+            call_destinations(&ordinary_builder),
+            vec![Some(destination)]
+        );
+        match emitted_callee(&ordinary_builder) {
+            Callee::Value(value) => assert_eq!(value, ValueId::new(42)),
+            other => panic!("compatibility facade must emit a Value callee, got {other:?}"),
+        }
+        assert!(ordinary_builder
             .current_function_instructions()
             .iter()
-            .find_map(|instruction| match instruction {
-                MirInstruction::LegacyCallV0 { func, .. } => Some(*func),
-                _ => None,
-            })
-            .expect("legacy facade must emit one Call");
-        assert_ne!(legacy_func, ValueId::INVALID);
+            .all(|instruction| !matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
     });
 }

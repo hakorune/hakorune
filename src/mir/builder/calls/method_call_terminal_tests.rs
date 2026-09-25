@@ -327,7 +327,7 @@ fn static_global_receipt_rejects_disabled_unified_without_legacy_retry() {
             .expect("ordinary static terminal keeps legacy compatibility");
         assert!(instructions(&ordinary_builder)
             .iter()
-            .any(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
+            .any(|instruction| matches!(instruction, MirInstruction::Call(_))));
     });
 }
 

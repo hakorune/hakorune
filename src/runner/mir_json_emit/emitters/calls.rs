@@ -151,6 +151,32 @@ mod tests {
     }
 
     #[test]
+    fn v0_value_call_wire_is_identical_across_typed_and_legacy_carriers() {
+        let typed = emit_call(
+            &Some(ValueId::new(3)),
+            &ValueId::INVALID,
+            Some(&Callee::Value(ValueId::new(7))),
+            &[ValueId::new(1)],
+            &EffectMask::IO,
+            compatibility_v0(false),
+        )
+        .expect("typed Value call must emit");
+        let legacy = emit_call(
+            &Some(ValueId::new(3)),
+            &ValueId::new(7),
+            Some(&Callee::Value(ValueId::new(7))),
+            &[ValueId::new(1)],
+            &EffectMask::IO,
+            compatibility_v0(false),
+        )
+        .expect("legacy-carried Value call must emit");
+        assert_eq!(
+            serde_json::to_string(&typed).expect("typed wire serializes"),
+            serde_json::to_string(&legacy).expect("legacy wire serializes"),
+        );
+    }
+
+    #[test]
     fn v0_legacy_call_preserves_explicit_numeric_func_decoration() {
         let v = emit_call(
             &None,

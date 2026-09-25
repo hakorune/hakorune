@@ -689,12 +689,18 @@ def dispatch_extended_row(row, state: dict, card: dict, root: Path, api) -> None
 
 def _r6_dispatch(row) -> bool:
     import mir_call_d1b_active_surface_dispatch_helpers_r6 as r6
-    return row in {r6.R6S2_PUBLISHED_VIEW_GLOBAL_STOP_S2_ROW, r6.R6S3_SELECTED_DYNAMIC_LEGACY_STOP_S3_ROW}
+    return row in {
+        r6.R6S2_PUBLISHED_VIEW_GLOBAL_STOP_S2_ROW,
+        r6.R6S3_SELECTED_DYNAMIC_LEGACY_STOP_S3_ROW,
+        r6.UNIFIED_OFF_VALUE_MINT_PROMOTE_S4_ROW,
+    }
 
 
 def _r6_run(row, state: dict, root: Path, api) -> None:
     import mir_call_d1b_active_surface_dispatch_helpers_r6 as r6
     if row == r6.R6S2_PUBLISHED_VIEW_GLOBAL_STOP_S2_ROW:
         r6.check_r6s2_published_view_global_stop_s2(state, root, api)
+    elif row == r6.UNIFIED_OFF_VALUE_MINT_PROMOTE_S4_ROW:
+        r6.check_unified_off_value_mint_promote_s4(state, root, api)
     else:
         r6.check_r6s3_selected_dynamic_legacy_stop_s3(state, root, api)

@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-INGRESS-MINTER-RETIRE-D0"
+current_execution_row = "MIR-CALL-V0-BOXCALL-DEPRECATION-D0"
 current_execution_cohort = "mir_call_r6_queue"
-current_blocker_token = "R7-NoSafeSlice__IngressMinterSelection-Open__Gate1-AcceptanceRed"
-current_design_stop = "R7_nosafeslice_ingress_minters_live__retire_boundary_unselected__design_stop"
+current_blocker_token = "BoxcallDeprecation-Open__R7-NoSafeSlice__Gate1-AcceptanceRed"
+current_design_stop = "S4_value_mint_landed__boxcall_deprecation_unselected__design_stop"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,22 +14,22 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mir-call-ingress-minter-retire-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-ingress-minter-retire-d0-2026-09-25.md"
+latest_card = "mir-call-v0-boxcall-deprecation-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-v0-boxcall-deprecation-d0-2026-09-25.md"
 latest_card_summary = """
-R7 caller-zero D0 closed NoSafeSlice: the LegacyCallV0 type and func
-slot stay alive because two quarantined ingress minters still mint it
-(unified-off Callee::Value opt-out; v0 boxcall receiverless Method in
-release mode). Every deletion candidate has live production readers;
-reopen trigger is both minters retired. Next: select one bounded
-ingress-minter retirement boundary (unified-off corridor or v0
-boxcall release ingress) with caller-switch evidence — the only path
-that unblocks R7.
+S4 landed: emit_value_unified mints MirInstruction::call{Value} under
+the unified-off corridor — v0 wire byte-parity pinned, named stops at
+[vm-reference/canonical-call] and UnsupportedBeforeObject, and two
+S1-era legacy-shape assertions repaired to the canonical carrier. The
+v0 boxcall parser is now the sole LegacyCallV0 minter; R7 stays
+NoSafeSlice until the wire deprecation decision. Next: boxcall
+deprecation D0 — bounded retirement or NoSafeSlice with the owning
+product gate named.
 """
-next_design_card = "MIR-CALL-INGRESS-MINTER-RETIRE-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-ingress-minter-retire-d0-2026-09-25.md"
-next_execution_card = "none__design_stop__ingress_minter_selection_required"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-ingress-minter-retire-d0-2026-09-25.md"
+next_design_card = "MIR-CALL-V0-BOXCALL-DEPRECATION-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-v0-boxcall-deprecation-d0-2026-09-25.md"
+next_execution_card = "none__design_stop__boxcall_deprecation_decision_required"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-v0-boxcall-deprecation-d0-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -44,7 +44,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-25: R6-S0 landed — callable-key projection owner src/mir/ssot/callable_key.rs (S0-A) + transport v0/v1 emitter split (S0-B).",
-  "2026-09-25: R6-S1 Global cohort landed — typed MirInstruction::call promote, ordinary-new birth edge stop, emit_global_unified+name_const deleted; S1 series exhausted (other cohorts declined in D0).",
-  "2026-09-25: R6-S2 backend-boundary selection D0 opened (design_stop) — pick one typed-consume-or-UnsupportedBeforeArtifact boundary or NoSafeSlice.",
+  "2026-09-25: R6-S0/S1 landed — callable-key projection owner + transport v0/v1 split; Global cohort typed promote, emit_global_unified+name_const deleted.",
+  "2026-09-25: R6-S2/S3 landed — published-view legacy-Global admission stop (SelectedNormalUsesLegacyCallV0) + selected-Dynamic carrier stop (call-legacy-carrier).",
+  "2026-09-25: S4 landed — unified-off Value mint promoted to MirInstruction::call{Value}; sole LegacyCallV0 minter is now the v0 boxcall parser; R7 stays NoSafeSlice.",
 ]

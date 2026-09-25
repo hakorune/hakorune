@@ -17,12 +17,13 @@ impl UnifiedCallEmitterBox {
     ) -> Result<(), String> {
         let mut args = args;
         crate::mir::builder::ssa::local::finalize_args(builder, &mut args)?;
-        builder.emit_instruction(MirInstruction::LegacyCallV0 {
+        // R6-S4: the unified-off corridor emits the same canonical mint
+        // as unified-on; MirCall is the sole call carrier.
+        builder.emit_instruction(MirInstruction::call(
             dst,
-            func: func_val,
-            callee: Some(Callee::Value(func_val)),
+            Callee::Value(func_val),
             args,
-            effects: EffectMask::IO,
-        })
+            EffectMask::IO,
+        ))
     }
 }

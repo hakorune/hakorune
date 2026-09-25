@@ -1,6 +1,6 @@
 # MIR-CALL-INGRESS-MINTER-RETIRE-D0 — ingress minter retirement selection
 
-Status: selected__2026-09-25
+Status: accepted__2026-09-25
 Date: 2026-09-25
 Parent: MIR-CALL-R7-CALLER-ZERO-D0 (closed NoSafeSlice 2026-09-25)
 Owner card:
@@ -58,11 +58,51 @@ Candidate B — v0 `boxcall` receiverless Method ingress:
   canonical emission paths.
 - No fallback/retry; named stop only; finite caller list first.
 
+## Decision (accepted 2026-09-25)
+
+**Promote `emit_value_unified` to the canonical mint** — minter #1
+retires its legacy product: `compat_entrypoints.rs` emits
+`MirInstruction::call(dst, Callee::Value(func_val), args, IO)` instead
+of `LegacyCallV0`. Full-corridor retirement is NOT bounded (the `=0`
+flag's named owner is the `env.mirbuilder.emit` Phase-0 wire contract,
+a product-level feature); retiring the legacy mint inside it is.
+
+- Source authority + canonical issuer:
+  `src/mir/builder/calls/unified_emitter/compat_entrypoints.rs:20-26`,
+  sole caller `emit.rs:189-193` (`emit_legacy_call` Value arm); the
+  canonical mint is `MirInstruction::call` — identical to the
+  unified-on `CallTarget::Value` output.
+- Wire parity: v0 emit is callee-driven
+  (`calls_compat_v0.rs:141-145` — `Callee::Value` →
+  `{"op":"call","callee":{"type":"Value","value":v}}`); `func` is never
+  emitted when a callee exists → byte-identical v0/v1 wire.
+- Fail-fast boundary: typed `Call{Value}` hits
+  `[vm-reference/canonical-call] only Global targets are admitted`
+  (interpreter) and `UnsupportedBeforeObject` (published view,
+  `Some(Callee::Value(_)) if canonical_call`) — same terminal class as
+  the legacy row; interpreter tag string changes, flagged residual.
+- Finite callers: `emit.rs:189-193` only; reachable producer
+  `effect_emission.rs:221` (`CoreEffectPlan::ValueCall`);
+  `exprs_call.rs` already stops `CallTarget::Value` before descent
+  under `=0`.
+- `=0` production consumers: `env.mirbuilder.emit` guard +
+  `vm_hako_caps` reference lane — neither exercises value calls; no
+  suite manifest runs a `=0` value-call fixture.
+- Smallest next slice:
+  `MIR-CALL-UNIFIED-OFF-VALUE-MINT-PROMOTE-S4`.
+- Non-claims: does NOT retire `=0`/`emit_legacy_call`/`func` slot/
+  `LegacyCallV0` type — the boxcall ingress minter keeps them alive
+  (R7 reopen trigger unchanged: boxcall is the only v0-ingestable
+  method carrier, coupled to Phase-0 wire contract + vm-hako
+  reference validators — a wire-format deprecation requiring a
+  product decision, not a bounded slice).
+
 ## Exit
 
-- [ ] One accepted bounded ingress-minter retirement with source
+- [x] One accepted bounded ingress-minter retirement with source
   authority, caller-switch evidence, named terminal, finite callers,
   and verification — or `NoSafeSlice` with reopen trigger.
-- [ ] For each candidate: production-lane reachability evidence
+- [x] For each candidate: production-lane reachability evidence
   (which env/mode/format actually reaches it).
-- [ ] Named next execution row, or an explicit pause.
+- [x] Named next execution row:
+  `MIR-CALL-UNIFIED-OFF-VALUE-MINT-PROMOTE-S4`.

@@ -137,3 +137,96 @@ def check_r6s3_selected_dynamic_legacy_stop_s3(
     print(f"[{api.TAG}] row={row} delegated=r6s3-selected-dynamic-stop")
 
 
+UNIFIED_OFF_VALUE_MINT_PROMOTE_S4_ROW = (
+    "MIR-CALL-UNIFIED-OFF-VALUE-MINT-PROMOTE-S4"
+)
+UNIFIED_OFF_VALUE_MINT_PROMOTE_S4_CARD_REL = Path(
+    "docs/development/current/main/investigations/"
+    "mir-call-unified-off-value-mint-promote-s4-2026-09-25.md"
+)
+
+
+def check_unified_off_value_mint_promote_s4(
+    state: dict, root: Path, api
+) -> None:
+    """Pin the S4 unified-off Value mint promote surface."""
+    row = UNIFIED_OFF_VALUE_MINT_PROMOTE_S4_ROW
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{row} must be fast or closeout")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if not str(state.get("current_design_stop", "")).startswith("none"):
+        api.fail(f"{row} must clear current_design_stop")
+    if not str(state.get("next_design_card", "")).startswith("none"):
+        api.fail(f"{row} must not open a second design card")
+    expected_next = row if mode == "fast" else "none"
+    if not str(state.get("next_execution_card", "")).startswith(expected_next):
+        api.fail(f"{row} next_execution_card drifted")
+    card_rel = str(UNIFIED_OFF_VALUE_MINT_PROMOTE_S4_CARD_REL)
+    if state.get("next_execution_card_path") != card_rel:
+        api.fail(f"{row} next_execution_card_path drifted")
+    if state.get("latest_card_path") != card_rel:
+        api.fail(f"{row} latest_card_path drifted")
+
+    card_text = (root / card_rel).read_text(encoding="utf-8")
+    for token in (row, "Callee::Value", "canonical-call"):
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+
+    compat = (
+        root / "src/mir/builder/calls/unified_emitter/compat_entrypoints.rs"
+    ).read_text(encoding="utf-8")
+    for token in ("MirInstruction::call(", "Callee::Value(func_val)"):
+        if token not in compat:
+            api.fail(f"{row} typed Value mint lost {token}")
+    if "LegacyCallV0" in compat:
+        api.fail(f"{row} legacy Value mint re-entered compat_entrypoints")
+
+    receipt_tests = (
+        root
+        / "src/mir/builder/calls/unified_emitter/physical_receipt_tests.rs"
+    ).read_text(encoding="utf-8")
+    if "ordinary_value_call_under_disabled_profile_mints_canonical_value_callee" not in (
+        receipt_tests
+    ):
+        api.fail(f"{row} unified-off Value mint pin missing")
+
+    interpreter = (
+        root / "src/backend/mir_interpreter/handlers/calls/mod.rs"
+    ).read_text(encoding="utf-8")
+    for token in (
+        "canonical_value_call_rejects_at_global_only_boundary",
+        "[vm-reference/canonical-call] only Global targets are admitted",
+    ):
+        if token not in interpreter:
+            api.fail(f"{row} interpreter canonical Value stop pin missing")
+
+    emit_tests = (
+        root / "src/runner/mir_json_emit/emitters/calls.rs"
+    ).read_text(encoding="utf-8")
+    if "v0_value_call_wire_is_identical_across_typed_and_legacy_carriers" not in (
+        emit_tests
+    ):
+        api.fail(f"{row} v0 wire parity pin missing")
+
+    v0_module = (root / "src/runner/mir_json_v0/module.rs").read_text(
+        encoding="utf-8"
+    )
+    if "boxcall" not in v0_module:
+        api.fail(f"{row} quarantined v0 boxcall ingress was removed")
+
+    for rel in (
+        "src/mir/builder/calls/unified_emitter/compat_entrypoints.rs",
+        "src/mir/builder/calls/unified_emitter/physical_receipt_tests.rs",
+        "src/backend/mir_interpreter/handlers/calls/mod.rs",
+        "src/runner/mir_json_emit/emitters/calls.rs",
+    ):
+        path = root / rel
+        if not path.is_file():
+            api.fail(f"{row} implementation owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
+    print(f"[{api.TAG}] row={row} delegated=unified-off-value-mint-promote")
+
+
