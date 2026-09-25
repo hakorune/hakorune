@@ -144,7 +144,7 @@ pub(super) fn issue_birth_formal_contracts(
 fn classify_declaration(parameter: &ParamDecl) -> BirthFormalDeclarationClassV1 {
     match parameter.declared_type_name.as_deref() {
         None => BirthFormalDeclarationClassV1::Unannotated,
-        Some(source) if ExactTrivialParameterAbiV1::classify(source).is_some() => {
+        Some(source) if ExactTrivialParameterAbiV1::classify(source) == Some(ExactTrivialParameterAbiV1::I64) => {
             BirthFormalDeclarationClassV1::ExactI64
         }
         Some(source) if ExactTextFormalAbiV1::classify(source).is_some() => {

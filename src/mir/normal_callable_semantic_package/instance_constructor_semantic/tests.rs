@@ -86,6 +86,20 @@ fn birth_formal_contracts_preserve_unused_and_uncovered_source_without_specializ
 }
 
 #[test]
+fn birth_formal_usize_declaration_stays_explicit_unsupported_not_exact_i64() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Page { value: i64\nbirth(value: usize) { me.value = value } }",
+    )
+    .unwrap();
+    let contract = &package.instance_constructors().rows()[0].formal_contracts()[0];
+    assert_eq!(
+        contract.declaration(),
+        BirthFormalDeclarationClassV1::ExplicitUnsupported,
+        "usize is admitted by the parameter contract, but the birth i64 formal lane must not alias it"
+    );
+}
+
+#[test]
 fn birth_handoff_rejects_retained_formal_contract_drift() {
     let mut package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Pair { birth(left, right) {} }",

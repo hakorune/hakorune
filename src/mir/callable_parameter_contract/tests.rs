@@ -121,6 +121,34 @@ box InstanceApi {
 }
 
 #[test]
+fn usize_parameter_projects_exact_trivial_not_unsupported_or_handle() {
+    let batch = batch(
+        "static box Api { run(count: usize, pos: i64) { return pos } }",
+        7,
+    );
+    let catalog = issue_callable_parameter_contract_v1(&batch).unwrap();
+    let declaration = catalog.declarations().next().unwrap();
+    assert_eq!(
+        declaration
+            .parameters()
+            .iter()
+            .map(|row| row.kind())
+            .collect::<Vec<_>>(),
+        [
+            CallableParameterContractKindV1::ExactTrivial(
+                crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::USIZE
+            ),
+            CallableParameterContractKindV1::ExactTrivial(
+                crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64
+            ),
+        ]
+    );
+    assert!(declaration.parameters().iter().all(|row| {
+        row.home_demand() == crate::mir::resolved_semantics::HomeDemandV1::Trivial
+    }));
+}
+
+#[test]
 fn absent_ordinary_type_is_opaque_handle_not_exact_trivial() {
     let batch = batch("static box Api { run(value) { return value } }", 8);
     let catalog = issue_callable_parameter_contract_v1(&batch).unwrap();

@@ -1,27 +1,64 @@
-//! Exact source-spelling authority for the first trivial parameter ABI row.
+//! Exact source-spelling authority for trivial parameter ABI rows.
 //!
 //! This module classifies source declarations only. It does not admit a
 //! function, allocate parameter values, or validate runtime arguments.
+//!
+//! Scope note: `usize` is admitted here as a parameter-only exact spelling
+//! (it executes on the `i64`/`MirType::Integer` lane per
+//! usize-semantic-foundation-ssot). The shared `ExactTrivialScalarAbiV1`
+//! stays `i64`-only so `: usize` return annotations and usize literals keep
+//! their existing rejections.
 
-use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 use crate::mir::function::MirParamDecl;
 use crate::mir::MirType;
 
+/// Parameter-scoped scalar spelling. Deliberately separate from
+/// `ExactTrivialScalarAbiV1` so the return ABI stays i64-only.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ExactTrivialParameterScalarV1 {
+    I64,
+    Usize,
+}
+
+impl ExactTrivialParameterScalarV1 {
+    const fn mir_type(self) -> MirType {
+        MirType::Integer
+    }
+
+    const fn source_type_name(self) -> &'static str {
+        match self {
+            Self::I64 => "i64",
+            Self::Usize => "usize",
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct ExactTrivialParameterAbiV1 {
-    scalar: ExactTrivialScalarAbiV1,
+    scalar: ExactTrivialParameterScalarV1,
 }
 
 impl ExactTrivialParameterAbiV1 {
     pub(crate) const I64: Self = Self {
-        scalar: ExactTrivialScalarAbiV1::I64,
+        scalar: ExactTrivialParameterScalarV1::I64,
+    };
+
+    pub(crate) const USIZE: Self = Self {
+        scalar: ExactTrivialParameterScalarV1::Usize,
     };
 
     pub(crate) const fn classify(source_type_name: &str) -> Option<Self> {
-        match ExactTrivialScalarAbiV1::classify(source_type_name) {
-            Some(scalar) => Some(Self { scalar }),
+        match source_type_name.as_bytes() {
+            b"i64" => Some(Self::I64),
+            b"usize" => Some(Self::USIZE),
             _ => None,
         }
+    }
+
+    /// True when this is the exact `i64` spelling. Consumption sites that
+    /// require an i64-typed parameter must test this, not `is_some()`.
+    pub(crate) const fn is_i64(self) -> bool {
+        matches!(self.scalar, ExactTrivialParameterScalarV1::I64)
     }
 
     pub(crate) const fn mir_type(self) -> MirType {
@@ -47,25 +84,31 @@ mod tests {
     use crate::mir::MirType;
 
     #[test]
-    fn accepts_only_exact_i64_source_spelling() {
+    fn accepts_exact_i64_and_usize_source_spellings() {
         assert_eq!(
             ExactTrivialParameterAbiV1::classify("i64"),
             Some(ExactTrivialParameterAbiV1::I64)
         );
-        for rejected in ["int", "Integer", "IntegerBox", "I64", " i64", "i64 "] {
+        assert_eq!(
+            ExactTrivialParameterAbiV1::classify("usize"),
+            Some(ExactTrivialParameterAbiV1::USIZE)
+        );
+        for rejected in ["int", "Integer", "IntegerBox", "I64", " i64", "u64"] {
             assert_eq!(ExactTrivialParameterAbiV1::classify(rejected), None);
         }
     }
 
     #[test]
-    fn exact_i64_projects_to_existing_integer_representation() {
-        assert_eq!(ExactTrivialParameterAbiV1::I64.mir_type(), MirType::Integer);
-        assert_eq!(ExactTrivialParameterAbiV1::I64.source_type_name(), "i64");
+    fn usize_projects_to_the_integer_lane_without_i64_alias() {
+        assert_eq!(ExactTrivialParameterAbiV1::USIZE.mir_type(), MirType::Integer);
+        assert_eq!(ExactTrivialParameterAbiV1::USIZE.source_type_name(), "usize");
+        assert!(!ExactTrivialParameterAbiV1::USIZE.is_i64());
+        assert!(ExactTrivialParameterAbiV1::I64.is_i64());
         assert_eq!(
-            ExactTrivialParameterAbiV1::I64.mir_param_decl("value"),
+            ExactTrivialParameterAbiV1::USIZE.mir_param_decl("value"),
             crate::mir::function::MirParamDecl {
                 name: "value".to_string(),
-                declared_type_name: Some("i64".to_string()),
+                declared_type_name: Some("usize".to_string()),
                 implicit_receiver: false,
             }
         );

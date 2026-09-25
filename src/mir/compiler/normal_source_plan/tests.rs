@@ -678,6 +678,10 @@ fn instance_scalar_variants_reject_widening_without_retry() {
         i64_parameter_return_function("untyped", None, "p0"),
         GeneralFunctionPlanStageV1::Source,
     ));
+    cases.push((
+        i64_parameter_return_function("usize_param", Some("usize"), "p0"),
+        GeneralFunctionPlanStageV1::Source,
+    ));
 
     for (method, expected_stage) in cases {
         let name = match &method {

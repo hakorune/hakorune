@@ -462,6 +462,12 @@ fn classify_instance_function(
                     GeneralFunctionSignatureStopV1::ParameterDeclarations,
                 ));
             };
+            if abi != ExactTrivialParameterAbiV1::I64 {
+                return Err(signature_error(
+                    key,
+                    GeneralFunctionSignatureStopV1::ParameterDeclarations,
+                ));
+            }
             let [ASTNode::Return {
                 value: Some(value), ..
             }] = declaration.body()
