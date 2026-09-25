@@ -307,6 +307,16 @@ impl<'module> PublishedMirBackendView<'module> {
                     };
 
                     match callee {
+                        // R6-S2: the retired Global cohort cannot
+                        // re-enter the canonical published route
+                        // through the legacy carrier.  A row still
+                        // carrying a `func` name carrier falls through
+                        // to the existing named validation error.
+                        Some(Callee::Global(_))
+                            if !canonical_call && func == ValueId::INVALID =>
+                        {
+                            has_non_lifecycle_unsupported = true;
+                        }
                         Some(Callee::Global(target)) => {
                             if let Some(key) = static_method_key(target) {
                                 let published_key =
@@ -428,6 +438,10 @@ impl<'module> PublishedMirBackendView<'module> {
         let view = Self::try_new(module)?;
         let mut has_canonical_selected_call = false;
         let mut legacy_site = None;
+        // R6-S2: a legacy Global row is a retired edge on the selected
+        // corridor and stops unconditionally, even without a typed
+        // sibling; other legacy kinds keep the mixed-shape rule.
+        let mut legacy_global = false;
         for (function_name, function) in &module.functions {
             let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
             block_ids.sort();
@@ -441,25 +455,30 @@ impl<'module> PublishedMirBackendView<'module> {
                         MirInstruction::Call(call) if is_selected_global_callee(&call.callee) => {
                             has_canonical_selected_call = true;
                         }
-                        MirInstruction::LegacyCallV0 { .. } if legacy_site.is_none() => {
-                            legacy_site = Some((
-                                function_name.clone(),
-                                block_id.as_u32(),
-                                u32::try_from(instruction_index).map_err(|_| {
-                                    PublishedMirBackendViewErrorV1::SelectedNormalUsesLegacyCallV0 {
-                                        function: function_name.clone(),
-                                        block_id: block_id.as_u32(),
-                                        instruction_index: u32::MAX,
-                                    }
-                                })?,
-                            ));
+                        MirInstruction::LegacyCallV0 { callee, .. } => {
+                            if matches!(callee, Some(Callee::Global(_))) {
+                                legacy_global = true;
+                            }
+                            if legacy_site.is_none() {
+                                legacy_site = Some((
+                                    function_name.clone(),
+                                    block_id.as_u32(),
+                                    u32::try_from(instruction_index).map_err(|_| {
+                                        PublishedMirBackendViewErrorV1::SelectedNormalUsesLegacyCallV0 {
+                                            function: function_name.clone(),
+                                            block_id: block_id.as_u32(),
+                                            instruction_index: u32::MAX,
+                                        }
+                                    })?,
+                                ));
+                            }
                         }
                         _ => {}
                     }
                 }
             }
         }
-        if has_canonical_selected_call {
+        if legacy_global || has_canonical_selected_call {
             if let Some((function, block_id, instruction_index)) = legacy_site {
                 return Err(
                     PublishedMirBackendViewErrorV1::SelectedNormalUsesLegacyCallV0 {

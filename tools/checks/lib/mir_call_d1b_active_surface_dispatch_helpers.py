@@ -677,9 +677,80 @@ def check_r6s1_global_producer_cohort_s1(state: dict, root: Path, api) -> None:
     print(f"[{api.TAG}] row={row} delegated=r6s1-global-cohort")
 
 
+R6S2_PUBLISHED_VIEW_GLOBAL_STOP_S2_ROW = (
+    "MIR-CALL-R6S2-PUBLISHED-VIEW-GLOBAL-STOP-S2"
+)
+R6S2_PUBLISHED_VIEW_GLOBAL_STOP_S2_CARD_REL = Path(
+    "docs/development/current/main/investigations/"
+    "mir-call-r6s2-published-view-global-stop-s2-2026-09-25.md"
+)
+
+
+def check_r6s2_published_view_global_stop_s2(state: dict, root: Path, api) -> None:
+    """Pin the R6-S2 published-view legacy-Global stop surface."""
+    row = R6S2_PUBLISHED_VIEW_GLOBAL_STOP_S2_ROW
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{row} must be fast or closeout")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if not str(state.get("current_design_stop", "")).startswith("none"):
+        api.fail(f"{row} must clear current_design_stop")
+    if not str(state.get("next_design_card", "")).startswith("none"):
+        api.fail(f"{row} must not open a second design card")
+    expected_next = row if mode == "fast" else "none"
+    if not str(state.get("next_execution_card", "")).startswith(expected_next):
+        api.fail(f"{row} next_execution_card drifted")
+    card_rel = str(R6S2_PUBLISHED_VIEW_GLOBAL_STOP_S2_CARD_REL)
+    if state.get("next_execution_card_path") != card_rel:
+        api.fail(f"{row} next_execution_card_path drifted")
+    if state.get("latest_card_path") != card_rel:
+        api.fail(f"{row} latest_card_path drifted")
+
+    card_text = (root / card_rel).read_text(encoding="utf-8")
+    for token in (row, "SelectedNormalUsesLegacyCallV0", "UnsupportedBeforeObject"):
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+
+    view = (
+        root
+        / "src/mir/compiler/normal_default_pipeline/published_backend_view.rs"
+    ).read_text(encoding="utf-8")
+    if "!canonical_call && func == ValueId::INVALID" not in view:
+        api.fail(f"{row} try_new lost the legacy-Global stop arm")
+    if "legacy_global" not in view:
+        api.fail(f"{row} selected admission lost the Global stop flag")
+    if view.count("SelectedNormalUsesLegacyCallV0") < 3:
+        api.fail(f"{row} selected admission lost its named terminal")
+
+    tests = (
+        root / "src/mir/function/published_backend_view_tests.rs"
+    ).read_text(encoding="utf-8")
+    if "published_view_stops_legacy_global_before_object" not in tests:
+        api.fail(f"{row} legacy-Global view stop pin missing")
+    admission_tests = (
+        root
+        / "src/mir/function/published_backend_view_selected_admission_tests.rs"
+    ).read_text(encoding="utf-8")
+    if "selected_normal_admission_stops_legacy_only_global_input" not in (
+        admission_tests
+    ):
+        api.fail(f"{row} selected admission stop pin missing")
+
+    rel = "src/mir/compiler/normal_default_pipeline/published_backend_view.rs"
+    path = root / rel
+    if not path.is_file():
+        api.fail(f"{row} implementation owner is missing: {rel}")
+    if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+        api.fail(f"{row} implementation owner reached 800 lines: {rel}")
+    print(f"[{api.TAG}] row={row} delegated=r6s2-published-view-global-stop")
+
+
 def dispatch_extended_row(row, state: dict, card: dict, root: Path, api) -> None:
     """Extended dispatch for rows added after the primary chain filled."""
     if row == R6S1_GLOBAL_PRODUCER_COHORT_S1_ROW:
         check_r6s1_global_producer_cohort_s1(state, root, api)
+    elif row == R6S2_PUBLISHED_VIEW_GLOBAL_STOP_S2_ROW:
+        check_r6s2_published_view_global_stop_s2(state, root, api)
     else:
         api.fail(f"unsupported current row for this stable guard: {row!r}")

@@ -6,7 +6,7 @@ fn static_key() -> CanonicalSameModuleCallableKeyV1 {
     CanonicalSameModuleCallableKeyV1::test_static_box_method("MathBox", "sum", 2)
 }
 
-fn static_function(key: &CanonicalSameModuleCallableKeyV1, func: ValueId) -> MirFunction {
+fn static_function(key: &CanonicalSameModuleCallableKeyV1) -> MirFunction {
     let mut function = MirFunction::new(
         FunctionSignature {
             name: key.mir_symbol_projection(),
@@ -23,13 +23,34 @@ fn static_function(key: &CanonicalSameModuleCallableKeyV1, func: ValueId) -> Mir
         .blocks
         .get_mut(&BasicBlockId::new(0))
         .expect("entry block")
-        .add_instruction(MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId::new(10)),
-            func,
-            callee: Some(Callee::Global(target)),
-            args: vec![ValueId::new(1), ValueId::new(2)],
-            effects: EffectMask::PURE,
-        });
+        .add_instruction(MirInstruction::call(
+            Some(ValueId::new(10)),
+            Callee::Global(target),
+            vec![ValueId::new(1), ValueId::new(2)],
+            EffectMask::PURE,
+        ));
+    function
+}
+
+fn legacy_static_function(
+    key: &CanonicalSameModuleCallableKeyV1,
+    func: ValueId,
+) -> MirFunction {
+    let mut function = static_function(key);
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry block");
+    block.instructions[0] = MirInstruction::LegacyCallV0 {
+        dst: Some(ValueId::new(10)),
+        func,
+        callee: Some(Callee::Global(
+            key.canonical_global_target_v1()
+                .expect("static key must project to global target"),
+        )),
+        args: vec![ValueId::new(1), ValueId::new(2)],
+        effects: EffectMask::PURE,
+    };
     function
 }
 
@@ -95,13 +116,12 @@ fn free_key() -> CanonicalSameModuleCallableKeyV1 {
     CanonicalSameModuleCallableKeyV1::free_function("helper", 1)
 }
 
-fn free_function(key: &CanonicalSameModuleCallableKeyV1, func: ValueId) -> MirFunction {
-    free_function_with_args(key, func, vec![ValueId::new(1)])
+fn free_function(key: &CanonicalSameModuleCallableKeyV1) -> MirFunction {
+    free_function_with_args(key, vec![ValueId::new(1)])
 }
 
 fn free_function_with_args(
     key: &CanonicalSameModuleCallableKeyV1,
-    func: ValueId,
     args: Vec<ValueId>,
 ) -> MirFunction {
     let mut function = MirFunction::new(
@@ -120,13 +140,31 @@ fn free_function_with_args(
         .blocks
         .get_mut(&BasicBlockId::new(0))
         .expect("entry block")
-        .add_instruction(MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId::new(10)),
-            func,
-            callee: Some(Callee::Global(target)),
+        .add_instruction(MirInstruction::call(
+            Some(ValueId::new(10)),
+            Callee::Global(target),
             args,
-            effects: EffectMask::PURE,
-        });
+            EffectMask::PURE,
+        ));
+    function
+}
+
+fn legacy_free_function(key: &CanonicalSameModuleCallableKeyV1, func: ValueId) -> MirFunction {
+    let mut function = free_function(key);
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry block");
+    block.instructions[0] = MirInstruction::LegacyCallV0 {
+        dst: Some(ValueId::new(10)),
+        func,
+        callee: Some(Callee::Global(
+            key.canonical_global_target_v1()
+                .expect("free key must project to global target"),
+        )),
+        args: vec![ValueId::new(1)],
+        effects: EffectMask::PURE,
+    };
     function
 }
 
@@ -135,7 +173,7 @@ fn published_static_method_is_typed_and_definition_backed() {
     let key = static_key();
     let mut module = MirModule::new("typed".to_owned());
     module
-        .add_cataloged_box_method(key.clone(), static_function(&key, ValueId::INVALID))
+        .add_cataloged_box_method(key.clone(), static_function(&key))
         .expect("publish relation");
 
     let view = PublishedMirBackendView::try_new(&module).expect("typed view");
@@ -150,7 +188,7 @@ fn c_frame_keeps_exact_site_and_one_way_symbol_projection() {
     let key = static_key();
     let mut module = MirModule::new("typed-c".to_owned());
     module
-        .add_cataloged_box_method(key.clone(), static_function(&key, ValueId::INVALID))
+        .add_cataloged_box_method(key.clone(), static_function(&key))
         .expect("publish relation");
 
     let view = PublishedMirBackendView::try_new(&module).expect("typed view");
@@ -171,7 +209,7 @@ fn published_free_function_is_typed_and_definition_backed() {
     let key = free_key();
     let mut module = MirModule::new("free-function".to_owned());
     module
-        .add_cataloged_box_method(key.clone(), free_function(&key, ValueId::INVALID))
+        .add_cataloged_box_method(key.clone(), free_function(&key))
         .expect("publish relation");
 
     let view = PublishedMirBackendView::try_new(&module).expect("typed free-function view");
@@ -193,7 +231,7 @@ fn published_free_function_rejects_legacy_carrier_and_wrong_arity() {
     let key = free_key();
     let mut legacy = MirModule::new("free-function-legacy".to_owned());
     legacy
-        .add_cataloged_box_method(key.clone(), free_function(&key, ValueId::new(9)))
+        .add_cataloged_box_method(key.clone(), legacy_free_function(&key, ValueId::new(9)))
         .expect("publish relation");
     assert!(matches!(
         PublishedMirBackendView::try_new(&legacy).unwrap_err(),
@@ -201,7 +239,7 @@ fn published_free_function_rejects_legacy_carrier_and_wrong_arity() {
     ));
 
     let mut wrong_arity = MirModule::new("free-function-arity".to_owned());
-    let function = free_function_with_args(&key, ValueId::INVALID, Vec::new());
+    let function = free_function_with_args(&key, Vec::new());
     wrong_arity
         .add_cataloged_box_method(key, function)
         .expect("publish relation");
@@ -215,7 +253,7 @@ fn published_free_function_rejects_legacy_carrier_and_wrong_arity() {
 fn published_free_function_rejects_missing_definition() {
     let key = free_key();
     let mut module = MirModule::new("free-function-missing-definition".to_owned());
-    module.add_function(free_function(&key, ValueId::INVALID));
+    module.add_function(free_function(&key));
 
     assert!(matches!(
         PublishedMirBackendView::try_new(&module).unwrap_err(),
@@ -223,7 +261,7 @@ fn published_free_function_rejects_missing_definition() {
     ));
 }
 
-fn builtin_print_function(func: ValueId, dst: Option<ValueId>, args: Vec<ValueId>) -> MirFunction {
+fn builtin_print_function(dst: Option<ValueId>, args: Vec<ValueId>) -> MirFunction {
     let mut function = MirFunction::new(
         FunctionSignature {
             name: "main".to_owned(),
@@ -237,13 +275,32 @@ fn builtin_print_function(func: ValueId, dst: Option<ValueId>, args: Vec<ValueId
         .blocks
         .get_mut(&BasicBlockId::new(0))
         .expect("entry block")
-        .add_instruction(MirInstruction::LegacyCallV0 {
+        .add_instruction(MirInstruction::call(
             dst,
-            func,
-            callee: Some(Callee::Global(CanonicalGlobalTargetV1::builtin_print())),
+            Callee::Global(CanonicalGlobalTargetV1::builtin_print()),
             args,
-            effects: EffectMask::IO,
-        });
+            EffectMask::IO,
+        ));
+    function
+}
+
+fn legacy_builtin_print_function(
+    func: ValueId,
+    dst: Option<ValueId>,
+    args: Vec<ValueId>,
+) -> MirFunction {
+    let mut function = builtin_print_function(dst, args.clone());
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry block");
+    block.instructions[0] = MirInstruction::LegacyCallV0 {
+        dst,
+        func,
+        callee: Some(Callee::Global(CanonicalGlobalTargetV1::builtin_print())),
+        args,
+        effects: EffectMask::IO,
+    };
     function
 }
 
@@ -251,7 +308,6 @@ fn builtin_print_function(func: ValueId, dst: Option<ValueId>, args: Vec<ValueId
 fn published_builtin_print_is_typed_and_has_no_definition_lookup() {
     let mut module = MirModule::new("builtin-print".to_owned());
     module.add_function(builtin_print_function(
-        ValueId::INVALID,
         None,
         vec![ValueId::new(1)],
     ));
@@ -273,7 +329,7 @@ fn published_builtin_print_is_typed_and_has_no_definition_lookup() {
 #[test]
 fn published_builtin_print_rejects_legacy_function_carrier() {
     let mut module = MirModule::new("builtin-print-legacy".to_owned());
-    module.add_function(builtin_print_function(
+    module.add_function(legacy_builtin_print_function(
         ValueId::new(9),
         None,
         vec![ValueId::new(1)],
@@ -290,7 +346,6 @@ fn published_builtin_print_rejects_legacy_function_carrier() {
 fn published_builtin_print_rejects_destination_and_wrong_arity() {
     let mut with_destination = MirModule::new("builtin-print-dst".to_owned());
     with_destination.add_function(builtin_print_function(
-        ValueId::INVALID,
         Some(ValueId::new(2)),
         vec![ValueId::new(1)],
     ));
@@ -300,7 +355,7 @@ fn published_builtin_print_rejects_destination_and_wrong_arity() {
     ));
 
     let mut wrong_arity = MirModule::new("builtin-print-arity".to_owned());
-    wrong_arity.add_function(builtin_print_function(ValueId::INVALID, None, Vec::new()));
+    wrong_arity.add_function(builtin_print_function(None, Vec::new()));
     assert!(matches!(
         PublishedMirBackendView::try_new(&wrong_arity).unwrap_err(),
         PublishedMirBackendViewErrorV1::BuiltinPrintArityMismatch { .. }
@@ -317,7 +372,7 @@ fn selected_static_method_keeps_other_families_on_compatibility_routes() {
     let key = static_key();
     let mut module = MirModule::new("mixed".to_owned());
     module
-        .add_cataloged_box_method(key.clone(), static_function(&key, ValueId::INVALID))
+        .add_cataloged_box_method(key.clone(), static_function(&key))
         .expect("publish relation");
 
     let mut legacy = MirFunction::new(
@@ -348,11 +403,32 @@ fn selected_static_method_keeps_other_families_on_compatibility_routes() {
 }
 
 #[test]
+fn published_view_stops_legacy_global_before_object() {
+    // R6-S2: a clean legacy Global row (no func carrier) cannot re-enter
+    // the canonical published route; it stops before object generation.
+    let key = static_key();
+    let mut module = MirModule::new("legacy-global".to_owned());
+    module
+        .add_cataloged_box_method(
+            key.clone(),
+            legacy_static_function(&key, ValueId::INVALID),
+        )
+        .expect("publish relation");
+
+    let view = PublishedMirBackendView::try_new(&module).expect("legacy global view");
+    assert_eq!(
+        view.route(),
+        PublishedStaticMethodRouteV1::UnsupportedBeforeObject
+    );
+    assert!(view.static_method_calls().is_empty());
+}
+
+#[test]
 fn selected_static_method_rejects_legacy_function_carrier() {
     let key = static_key();
     let mut module = MirModule::new("legacy-carrier".to_owned());
     module
-        .add_cataloged_box_method(key.clone(), static_function(&key, ValueId::new(9)))
+        .add_cataloged_box_method(key.clone(), legacy_static_function(&key, ValueId::new(9)))
         .expect("publish relation");
 
     let error = PublishedMirBackendView::try_new(&module).unwrap_err();
@@ -367,7 +443,7 @@ fn cataloged_publication_rejects_duplicate_and_preserves_first_definition() {
     let key = static_key();
     let mut module = MirModule::new("duplicate-cataloged".to_owned());
     module
-        .add_cataloged_box_method(key.clone(), static_function(&key, ValueId::INVALID))
+        .add_cataloged_box_method(key.clone(), static_function(&key))
         .expect("first publication");
     let original_entry = module
         .get_function(&key.mir_symbol_projection())
@@ -375,7 +451,7 @@ fn cataloged_publication_rejects_duplicate_and_preserves_first_definition() {
         .entry_block;
 
     let duplicate = module
-        .add_cataloged_box_method(key.clone(), static_function(&key, ValueId::new(9)))
+        .add_cataloged_box_method(key.clone(), legacy_static_function(&key, ValueId::new(9)))
         .unwrap_err();
     assert!(matches!(
         duplicate,
@@ -399,7 +475,7 @@ fn cataloged_publication_rejects_duplicate_and_preserves_first_definition() {
 fn cataloged_publication_rejects_symbol_and_arity_drift() {
     let key = static_key();
 
-    let mut wrong_symbol = static_function(&key, ValueId::INVALID);
+    let mut wrong_symbol = static_function(&key);
     wrong_symbol.signature.name = "other/2".to_owned();
     let mut symbol_module = MirModule::new("cataloged-symbol-drift".to_owned());
     assert!(matches!(
@@ -407,7 +483,7 @@ fn cataloged_publication_rejects_symbol_and_arity_drift() {
         Err(CanonicalCallableDefinitionPublicationErrorV1::KeySymbolMismatch { .. })
     ));
 
-    let mut wrong_arity = static_function(&key, ValueId::INVALID);
+    let mut wrong_arity = static_function(&key);
     wrong_arity.signature.params.pop();
     let mut arity_module = MirModule::new("cataloged-arity-drift".to_owned());
     assert!(matches!(
@@ -423,7 +499,7 @@ fn published_view_rejects_missing_symbol_and_arity_definition_rows() {
 
     let mut missing = MirModule::new("view-definition-missing".to_owned());
     missing
-        .add_cataloged_box_method(key.clone(), static_function(&key, ValueId::INVALID))
+        .add_cataloged_box_method(key.clone(), static_function(&key))
         .expect("publish relation");
     missing.functions.remove(&symbol);
     assert!(matches!(
@@ -433,7 +509,7 @@ fn published_view_rejects_missing_symbol_and_arity_definition_rows() {
 
     let mut wrong_symbol = MirModule::new("view-definition-symbol-drift".to_owned());
     wrong_symbol
-        .add_cataloged_box_method(key.clone(), static_function(&key, ValueId::INVALID))
+        .add_cataloged_box_method(key.clone(), static_function(&key))
         .expect("publish relation");
     let wrong_signature = FunctionSignature {
         name: "wrong/2".to_owned(),
@@ -455,7 +531,7 @@ fn published_view_rejects_missing_symbol_and_arity_definition_rows() {
 
     let mut wrong_arity = MirModule::new("view-definition-arity-drift".to_owned());
     wrong_arity
-        .add_cataloged_box_method(key.clone(), static_function(&key, ValueId::INVALID))
+        .add_cataloged_box_method(key.clone(), static_function(&key))
         .expect("publish relation");
     wrong_arity
         .functions
@@ -476,7 +552,7 @@ fn published_view_rejects_static_call_definition_arity_and_result_drift() {
     let symbol = key.mir_symbol_projection();
 
     let mut missing = MirModule::new("static-call-definition-missing".to_owned());
-    missing.add_function(static_function(&key, ValueId::INVALID));
+    missing.add_function(static_function(&key));
     assert!(matches!(
         PublishedMirBackendView::try_new(&missing).unwrap_err(),
         PublishedMirBackendViewErrorV1::StaticCallDefinitionMissing { .. }
@@ -484,9 +560,9 @@ fn published_view_rejects_static_call_definition_arity_and_result_drift() {
 
     let mut wrong_arity = MirModule::new("static-call-arity-drift".to_owned());
     wrong_arity
-        .add_cataloged_box_method(key.clone(), static_function(&key, ValueId::INVALID))
+        .add_cataloged_box_method(key.clone(), static_function(&key))
         .expect("publish relation");
-    if let MirInstruction::LegacyCallV0 { args, .. } = &mut wrong_arity
+    if let MirInstruction::Call(call) = &mut wrong_arity
         .functions
         .get_mut(&symbol)
         .expect("published definition")
@@ -495,7 +571,7 @@ fn published_view_rejects_static_call_definition_arity_and_result_drift() {
         .expect("entry block")
         .instructions[0]
     {
-        args.pop();
+        call.args.pop();
     } else {
         panic!("static helper must begin with a call");
     }
@@ -506,7 +582,7 @@ fn published_view_rejects_static_call_definition_arity_and_result_drift() {
 
     let mut wrong_result = MirModule::new("static-call-result-drift".to_owned());
     wrong_result
-        .add_cataloged_box_method(key.clone(), static_function(&key, ValueId::INVALID))
+        .add_cataloged_box_method(key.clone(), static_function(&key))
         .expect("publish relation");
     wrong_result
         .functions
@@ -526,7 +602,7 @@ fn published_view_rejects_free_function_result_drift() {
     let symbol = key.mir_symbol_projection();
     let mut module = MirModule::new("free-function-result-drift".to_owned());
     module
-        .add_cataloged_box_method(key.clone(), free_function(&key, ValueId::INVALID))
+        .add_cataloged_box_method(key.clone(), free_function(&key))
         .expect("publish relation");
     module
         .functions
@@ -620,7 +696,7 @@ fn mixed_same_module_instance_takes_unsupported_precedence() {
     module
         .add_cataloged_box_method(
             static_key.clone(),
-            static_function(&static_key, ValueId::INVALID),
+            static_function(&static_key),
         )
         .expect("publish static relation");
     module

@@ -57,16 +57,21 @@ fn selected_normal_admission_accepts_canonical_typed_calls_only() {
 }
 
 #[test]
-fn selected_normal_admission_keeps_legacy_only_input_on_existing_route() {
+fn selected_normal_admission_stops_legacy_only_global_input() {
+    // R6-S2: a pure legacy module carrying the retired Global cohort
+    // cannot re-enter the selected corridor even without a typed sibling.
     let key = static_key();
     let mut module = MirModule::new("selected-normal-legacy-only".to_owned());
     module
-        .add_cataloged_box_method(key.clone(), static_function(&key, ValueId::INVALID))
+        .add_cataloged_box_method(key.clone(), legacy_static_function(&key, ValueId::INVALID))
         .expect("publish relation");
 
-    let view = PublishedMirBackendView::try_new_selected_normal(&module)
-        .expect("legacy-only selected view");
-    assert_eq!(view.route(), PublishedStaticMethodRouteV1::CanonicalTyped);
+    let error = PublishedMirBackendView::try_new_selected_normal(&module)
+        .expect_err("legacy Global must stop");
+    assert!(matches!(
+        error,
+        PublishedMirBackendViewErrorV1::SelectedNormalUsesLegacyCallV0 { .. }
+    ));
 }
 
 #[test]
