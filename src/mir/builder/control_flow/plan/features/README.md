@@ -18,32 +18,20 @@ Naming / navigation:
 - reusable “lego parts” live here (`plan/features/*`) and must stay kind-agnostic.
 
 Pipeline:
-- generic_loop pipeline applies features in fixed order:
-  - step/cond (`features/generic_loop_step.rs`)
-  - body (`features/generic_loop_body.rs`)
-  - carriers finalize (v1)
-- entry: `features/generic_loop_pipeline.rs` (skeleton in → CorePlan out)
-- GenericLoopV1 accepts the narrow `generic_loop_context.rs` seam. Legacy
-  callers may lend `LoopRouteContext`; source-backed callers use the
-  route-neutral context and have no nested route-reclassification capability.
-  The source first cohort rejects nested/BlockExpr-prelude lowering before
-  Builder effects.
-- loop pipelines:
-  - loop_true_break_continue: `features/loop_true_break_continue_pipeline.rs`
-  - loop_cond_break_continue: `features/loop_cond_break_continue_pipeline.rs`
+- Oracle `features/*_pipeline.rs` entries were retired with the ordered
+  scheduler / oracle chain (R0 + M12-R2B). Live loop lowering is source-backed
+  via `loop_true_break_continue_source.rs`, `loop_cond_bc_source.rs`, and the
+  `loop_break_*_source.rs` lowerers feeding the retained
+  `loop_true_break_continue_*` / `loop_cond_bc_*` helpers.
 - `if_join::apply_if_joins` preserves every reaching `CoreIfJoin` incoming and
   delegates edge repair only to `ssa::phi_input_materializer::for_pred`;
   `pre_val` substitution and branch dropping are forbidden.
 - LoopTrueBreakContinue carrier preparation rejects a carrier missing from
   `variable_ctx.variable_map` before allocating any carrier PHI destination.
-- scan/split pipelines:
-  - scan_with_init: `features/scan_with_init_pipeline.rs` + `features/scan_with_init_ops.rs`
-  - split_scan: `features/split_scan_pipeline.rs` + `features/split_scan_ops.rs`
-  - split-specific emit/match: `features/split_emit.rs`
 - loop_true_early_exit route:
   - semantic route: `loop_true_early_exit`
-  - current implementation: `recipe_tree/loop_true_early_exit_{builder,composer}.rs`
+  - current implementation: `recipe_tree/loop_true_early_exit_builder.rs`
   - note: no dedicated `features/*` pipeline file remains
 
 Exit-branch helper:
-- `features/exit_branch.rs`: shared “exit branch” extractor/lowerer (prelude + ExitKind) used by `exit_if_map` and BranchN/match (SSOT: `docs/development/current/main/design/exit-branch-feature-ssot.md`).
+- `plan/parts/exit_branch.rs` (moved out of features): shared “exit branch” extractor/lowerer (prelude + ExitKind) used by `exit_if_map` and BranchN/match (SSOT: `docs/development/current/main/design/exit-branch-feature-ssot.md`).

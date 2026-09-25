@@ -97,7 +97,8 @@ COREPLAN-CONTINUE-PARTIAL-CARRIER-PHI-001
 ここでは “現役の入口” と “移行中の互換 lane” の順序だけを SSOT として固定する。
 
 Rule:
-- **Primary**: RecipeComposer/RecipeTree 経路（Recipe-first）。
+- **Primary**: RecipeTree builder/matcher 経路（Recipe-first）。旧 `RecipeComposer`
+  compose_* facade は oracle-only の duplicate facade で M12-R2B に退役済み。
 - **Compatibility-only**: PlanNormalizer 経路（transition-only residue）。新規に依存を増やさない。
 
 Allowed Normalizer residue（現状の限定リスト）:

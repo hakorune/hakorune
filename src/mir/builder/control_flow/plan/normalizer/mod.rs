@@ -48,35 +48,7 @@ mod tests;
 #[cfg(test)]
 mod value_join_demo_if2;
 
-use super::{CoreEffectPlan, LoweredRecipe};
-use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakContinueFacts;
-use crate::mir::builder::control_flow::facts::loop_cond_continue_only::LoopCondContinueOnlyFacts;
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::MirBuilder;
+use super::CoreEffectPlan;
 
 /// Phase 273 P1: PlanNormalizer - facts/recipe contract → CorePlan 変換 (SSOT)
 pub(in crate::mir::builder) struct PlanNormalizer;
-
-impl PlanNormalizer {
-    // Delegators to pipeline lowerers (unified loop_cond_* normalizers)
-
-    pub(in crate::mir::builder) fn normalize_loop_cond_break_continue(
-        builder: &mut MirBuilder,
-        facts: LoopCondBreakContinueFacts,
-        ctx: &LoopRouteContext,
-    ) -> Result<LoweredRecipe, String> {
-        crate::mir::builder::control_flow::plan::features::loop_cond_bc::lower_loop_cond_break_continue(
-            builder, facts, ctx,
-        )
-    }
-
-    pub(in crate::mir::builder) fn normalize_loop_cond_continue_only(
-        builder: &mut MirBuilder,
-        facts: LoopCondContinueOnlyFacts,
-        ctx: &LoopRouteContext,
-    ) -> Result<LoweredRecipe, String> {
-        crate::mir::builder::control_flow::plan::features::loop_cond_co_pipeline::lower_loop_cond_continue_only(
-            builder, facts, ctx,
-        )
-    }
-}

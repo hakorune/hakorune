@@ -105,13 +105,47 @@ green.
 
 ## Next
 
-`JOINIR-LOOP-DUPLICATE-FACADE-RETIRE-R2B` (continued): execute the
-Section B oracle chain deletions (`RecipeComposer::compose_*` +
-`loop_accum_legacy_oracle_support.rs` + non-source `*_pipeline.rs`
-families and their `*_phi_materializer`/`*_verifier`/`*_cleanup`/`*_join`
-companions — proven reachable only through the `#[cfg(test)]`
-semantic-parity module), re-point the red-baseline receipt for every
-removed test file, and update the varmap / in-place guards if any pinned
-site dies. Section C decision rows (19-row schedule disposition, issuer
-route-vector selection, DirectAccum facts-layer key minting) resolve
-before their delete.
+`JOINIR-LOOP-DUPLICATE-FACADE-RETIRE-R2B` (continued): Section B
+oracle chain landed. Deleted: all 11 `recipe_tree/*_composer.rs`
+duplicate facades + the `RecipeComposer` struct, the
+`loop_accum_legacy_oracle_support.rs` oracle + its
+`accum_semantic_parity_tests` parent (semantic/physical parity tests,
+resolved-snapshot tests, both digest supports, binding-SSA candidate
+tests), the `features/loop_cond_co_*` continue-only pipeline cluster
+(9 files), `loop_cond_continue_with_return_*` cluster (5 files +
+README dir), `loop_cond_return_in_body_*` cluster (5 files),
+`loop_true_break_continue_pipeline.rs`, the `loop_cond_bc.rs`
+`lower_loop_cond_break_continue` oracle entry + dead helpers, and the
+two `PlanNormalizer::normalize_loop_cond_*` dead delegators.
+Retained-rehome: `loop_accum_physical_role_plan_tests.rs`,
+`loop_accum_binding_ssa_{session,operation,emitter,failure}_tests.rs`,
+and `loop_recipe_producer_facade_tests.rs` now hang directly under
+`loop_phi_materializer::tests`. Retained live helpers confirmed:
+`loop_true_break_continue_{cleanup,phi_materializer,verifier,source}`,
+`loop_cond_bc_*` (source uses them), `PlanNormalizer` struct.
+Red-baseline receipt: 30 removed test names deleted from inventory, 9
+re-homed names re-pathed, expected_passed 7344->7314, inventory sha
+refreshed (receipt remains stale vs observed = known baseline debt).
+`joinir_logical_demand_contract.sh` re-pinned (deleted-file allowlist
+vars + cfg(test)/digest/candidate checks removed). `REGISTRY.md` and
+`features/README.md` re-pointed to the source-backed lane;
+`recipe-tree-and-parts-ssot.md` primary rule updated. Dormant stale
+pins recorded-not-touched: `coreplan_active_v0_inventory_guard.sh`
+(COMPOSER file pin), `callable_result_i0_*loop0*.py` family,
+`mir_verification_quick_p0_c_guard.py`, `rust_lifecycle_*` guards,
+`tools/rust_lifecycle/*.py` inventories, phase-296x cards, rust-lifecycle
+fixture JSONs. Verify: `cargo check --profile quick --lib`/`--tests`
+green; `loop_phi_materializer` focused 26/26; wider
+normalizer/recipe_tree/loop_cond/route-policy/wire-parity run 268/270
+with both failures already in `failures.txt` (known-red);
+in-place replacement guard + pointer guard green.
+
+## Next
+
+`JOINIR-LOOP-MUTATION-DISPATCH-RETIRE-R2C`: Section C decision rows —
+synthetic 19-row `family_route_schedule`/`freeze_loop_route_schedule_v1`
+production schedule, `generic/issuer.rs` `matched_routes()` last
+LoopRouteId behavior-selection site, `direct_accum_effect_plan.rs`
+Facts-layer `LoopBindingKeyV1` minting, VariableAccumBreak
+production-owner vs attestation mismatch. Resolve dispositions before
+deletion.

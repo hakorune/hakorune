@@ -18,16 +18,19 @@ current_execution_design = "docs/development/current/main/investigations/joinir-
 latest_card = "joinir-loop-legacy-family-disposition-r2a"
 latest_card_path = "docs/development/current/main/investigations/joinir-loop-legacy-family-disposition-r2a-2026-09-25.md"
 latest_card_summary = """
-M12-R2B (partial) retired the caller-zero generic_residual chain:
-producer/demand/projection/typed-map/facts modules, `GenericResidualV1`
-producer id, the `GenericLoopV1` attestation row, M8E wire
-emitter+fixture+parity arm, and residual probes are deleted;
-`GenericLoopV1` is a typed-declined census row (7 backed / 12 declined).
-Red-baseline receipt absorbed 25 removed tests (7369->7344); the receipt
-is independently stale at HEAD and needs its own audit row. R2B continues
-with the Section B oracle composer/pipeline/PHI chain; Section C decision
-rows (19-row schedule, issuer route-vector, facts-layer key minting) and
-R2C/R2G remain open. Prior landed: R2A manifest `682acbc2ca`,
+M12-R2B retired the oracle-only duplicate-facade chain: the
+generic_residual family + M8E wire arm (part1) and the Section B oracle
+chain (part2) — all 11 `recipe_tree/*_composer.rs` + `RecipeComposer`,
+`loop_accum_legacy_oracle_support.rs` + semantic/physical parity,
+resolved-snapshot, digest-support, binding-SSA candidate tests, the
+`loop_cond_co_*`, `loop_cond_continue_with_return_*`,
+`loop_cond_return_in_body_*` clusters, `loop_true_break_continue_pipeline`,
+the `loop_cond_bc.rs` oracle entry, and both `normalize_loop_cond_*`
+delegators. Binding-SSA/role-plan/facade proofs re-homed under
+`loop_phi_materializer::tests` (26/26 green). Receipt absorbed 30 removed
++ 9 re-pathed names (expected_passed 7344->7314); receipt stays
+independently stale (known baseline debt). Section C decision rows and
+R2C/R2G remain open. Prior landed: R2A `682acbc2ca`, R2B-p1 `898875877f`,
 M10b-I0-R0-VAR `b579959a3d`, R0 flip `6e88441c0b`, guard re-pin +
 wire_parity split `a97f564250`, M11-A `9f55aea31b`, M11-B `8dff99ef22`.
 """

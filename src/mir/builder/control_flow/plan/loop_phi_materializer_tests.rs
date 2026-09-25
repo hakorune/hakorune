@@ -14,8 +14,10 @@ use crate::mir::MirInstruction;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
 
-#[path = "loop_accum_semantic_parity_tests.rs"]
-mod accum_semantic_parity_tests;
+#[path = "loop_accum_physical_role_plan_tests.rs"]
+mod physical_role_plan_tests;
+#[path = "loop_accum_binding_ssa_session_tests.rs"]
+mod binding_ssa_session_tests;
 #[path = "loop_recipe_producer_facade_tests.rs"]
 mod recipe_producer_facade_tests;
 

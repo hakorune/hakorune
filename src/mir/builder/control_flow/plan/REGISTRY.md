@@ -165,21 +165,10 @@ not authorize a second Recipe, route, or fallback.
 - Canon (analysis-only) lives in `src/mir/builder/control_flow/generic_loop_canon/`; the former plan-side forwarding shelf is retired.
 - Skeletons (blocks/frags) live in `src/mir/builder/control_flow/plan/skeletons/`.
 - Features (delta apply) live in `src/mir/builder/control_flow/plan/features/`.
-- `generic_loop_v0/v1`: skeleton=`plan/skeletons/generic_loop.rs`, pipeline=`plan/features/generic_loop_pipeline.rs` (body=`features/generic_loop_body.rs` → cond=`features/generic_loop_step.rs::apply_generic_loop_condition` (pre-body map) → step=`features/generic_loop_step.rs::apply_generic_loop_step` (post-body map) → carriers finalize[v1]).
-- `loop_true_break_continue`: pipeline=`plan/features/loop_true_break_continue_pipeline.rs` (skeleton=`plan/skeletons/loop_true.rs`, exit=`features/exit_if_map.rs` + `features/exit_branch.rs` (`ContinueWithPhiArgs`), nested=`features/nested_loop_depth1.rs` with depth1 loop(true)/loop(cond) support).
-- source-backed LoopTrue handoff: `features/loop_true_break_continue_source.rs` consumes `SourceLoopTruePhysicalInputV1` through the existing LoopTrue skeleton/phi/cleanup/verifier and associated-source Parts; the raw caller is `raw_loop_child_entry.rs`, and the literal-true binding contract is `normal_callable_loop_handoff_loop_true.rs` (no second Recipe/route owner).
-- `loop_cond_break_continue`: pipeline=`plan/features/loop_cond_break_continue_pipeline.rs` (exit-map=`features/exit_if_map.rs`, join=`features/conditional_update_join.rs`, carrier=`features/carrier_merge.rs`).
-- `loop_cond_continue_only`: pipeline=`plan/features/loop_cond_continue_only_pipeline.rs` (continue-if recipe + carrier join, no ExitIfMap dependency).
-- `loop_cond_continue_with_return`: pipeline=`plan/features/loop_cond_continue_with_return_pipeline.rs` (continue-if + hetero-return-if + CoreIfJoin merge).
-- `loop_cond_return_in_body`: pipeline=`plan/features/loop_cond_return_in_body_pipeline.rs` (return-in-body + CoreIfJoin merge).
-- `coreloop_skeleton`: template=`plan/features/coreloop_skeleton/` (SSOT template for Standard5 loop structure with carrier PHI management; pipelines reuse via `build_coreloop_frame` / `build_header_step_phis` / `build_continue_with_phi_args`).
-- `scan_with_init`: skeleton=`plan/skeletons/scan_with_init.rs`, pipeline=`plan/features/scan_with_init_pipeline.rs` (ops=`features/scan_with_init_ops.rs`).
-- `split_scan`: skeleton=`plan/skeletons/split_scan.rs`, pipeline=`plan/features/split_scan_pipeline.rs` (ops=`features/split_scan_ops.rs`, emit/match=`features/split_emit.rs`).
-- `loop_true_early_exit`: skeleton=`plan/skeletons/loop_true.rs`, recipe=`plan/recipe_tree/loop_true_early_exit_{builder,composer}.rs` (semantic route=`loop_true_early_exit`; no dedicated feature pipeline file remains).
-- scan/split pipeline order (SSOT): skeleton → ops → (split_emit for split) → if_join (join args/phis) → edgecfg_stubs (branches) → carrier_merge (final_values).
+- Oracle `features/*_pipeline.rs` entries (generic_loop / loop_true_break_continue / loop_cond_break_continue / loop_cond_continue_only / loop_cond_continue_with_return / loop_cond_return_in_body / scan_with_init / split_scan) and the `recipe_tree/*_composer.rs` facade methods were retired with the ordered scheduler / oracle chain (R0 + M12-R2B). Live loop lowering is source-backed: `raw_loop_child_entry.rs` → source lowerers (`features/loop_true_break_continue_source.rs`, `features/loop_cond_bc_source.rs`, `loop_break_*_source.rs`) → retained helpers (`loop_true_break_continue_{cleanup,phi_materializer,verifier}`, `loop_cond_bc_*`).
+- `loop_true_early_exit`: skeleton=`plan/skeletons/loop_true.rs`, recipe=`plan/recipe_tree/loop_true_early_exit_builder.rs` (semantic route=`loop_true_early_exit`).
 - loop phis are attached via `features/loop_carriers.rs::with_loop_carriers` (ops must not set `phis` directly).
-- carrier collection is centralized in `features/carriers.rs` (pipelines pass carrier lists to carrier_merge/conditional_update_join).
-- legacy scan/split logic moved: normalizer logic → `features/scan_with_init_ops.rs` / `features/split_scan_ops.rs` (pipeline entry only).
+- carrier collection is centralized in `features/carriers.rs`.
 - JoinFeature (if-join PHI insertion) is `src/mir/builder/control_flow/plan/features/if_join.rs`.
 - “continue 経路の合流” は plan rule を増やして個別対応せず、CorePlan の primitive（例: `ContinueWithPhiArgs`）へ寄せる。
 - `continue` の飛び先が “常に step_bb” だと箱ごとに例外が増えるため、ContinueTarget slot（`continue_target_bb`）を土台として先に入れる（SSOT: `docs/development/current/main/design/coreloop-continue-target-slot-ssot.md`）。

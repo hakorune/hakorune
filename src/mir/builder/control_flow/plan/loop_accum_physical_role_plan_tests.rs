@@ -46,7 +46,30 @@ struct PhysicalAllocationV1 {
 }
 
 fn direct_verified_recipe() -> LoopRecipeArtifactV1 {
-    serde_json::from_str(super::super::DIRECT_GOLDEN).expect("direct recipe golden")
+    serde_json::from_str(super::DIRECT_GOLDEN).expect("direct recipe golden")
+}
+
+fn block(
+    recipe: &crate::mir::loop_recipe_contract::LoopRecipeV1,
+    key: crate::mir::loop_recipe_contract::LoopBlockKeyV1,
+) -> &crate::mir::loop_recipe_contract::LoopRecipeBlockV1 {
+    recipe
+        .blocks
+        .iter()
+        .find(|candidate| candidate.key == key)
+        .expect("recipe block")
+}
+
+fn item(
+    recipe: &crate::mir::loop_recipe_contract::LoopRecipeV1,
+    key: LoopItemKeyV1,
+) -> &LoopRecipeItemV1 {
+    &recipe
+        .items
+        .iter()
+        .find(|candidate| candidate.key == key)
+        .expect("recipe item")
+        .item
 }
 
 fn direct_role_plan(
@@ -99,10 +122,10 @@ fn direct_role_plan(
         },
         root.body,
     ] {
-        let block = super::block(recipe, block_key);
+        let block = block(recipe, block_key);
         for item_key in &block.items {
             if matches!(
-                super::item(recipe, *item_key),
+                item(recipe, *item_key),
                 LoopRecipeItemV1::Operation { .. }
             ) {
                 operation_keys.push(*item_key);
@@ -136,7 +159,7 @@ impl PhysicalAllocationV1 {
         let operation_results =
             plan.operation_keys
                 .iter()
-                .filter_map(|item_key| match super::item(recipe, *item_key) {
+                .filter_map(|item_key| match item(recipe, *item_key) {
                     LoopRecipeItemV1::Operation { operation } => match operation {
                         LoopOperationV1::ReadBinding { .. }
                         | LoopOperationV1::WriteBinding { .. } => None,
@@ -211,9 +234,9 @@ fn direct_candidate_reservation_is_alpha_stable_and_does_not_emit() {
 
 #[test]
 fn direct_phi_handle_defines_before_read_and_aborts_cleanly() {
-    let sig = super::super::direct_verified_sig();
+    let sig = super::direct_verified_sig();
     let mut builder = standard5_builder();
-    let map = super::super::direct_materializer_input(&sig);
+    let map = super::direct_materializer_input(&sig);
     let handle = LoopPhiMaterializationHandleV1::begin(&mut builder, &sig, map)
         .expect("begin PHI transaction");
     assert_eq!(handle.destination_values().len(), 2);
