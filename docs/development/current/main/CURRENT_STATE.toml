@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "QUICKLIB-RED-BASELINE-AUDIT"
 current_execution_cohort = "quicklib_baseline_audit"
-current_blocker_token = "M12-R2G__SoleAuthorityCloseoutLanded__QuicklibRebaselineAuditOpen"
+current_blocker_token = "M12-R2G__SoleAuthorityCloseoutLanded__QuicklibRebaselineAuditLanded"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "none__CallableVariableRecurrenceDecisionAccepted_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -30,8 +30,10 @@ All disposition Section C rows closed (C01/C03 retired at R2C,
 C02/C04/C05 resolved here). Focused 29/29 + lib/tests compile green;
 wider callable run reds reproduce at HEAD (baseline debt). Prior:
 R2A `682acbc2ca`, R2B `898875877f`/`7449dac218`,
-R2C `ce91387634`/`d2fd3b91da`/`916a4a4f36`. Open: full quick-lib
-re-baseline audit (receipt stale at HEAD).
+R2C `ce91387634`/`d2fd3b91da`/`916a4a4f36`. QUICKLIB-RED-BASELINE-AUDIT
+landed: receipt re-baselined at HEAD (inventory 8092, failed 167);
+all 41 new reds reproduce at lane base `3071d6ff8c` = baseline debt,
+7 names greened and dropped; verifier KNOWN BASELINE green.
 """
 next_design_card = "none__accepted_decision"
 next_design_card_path = "none__accepted_decision"

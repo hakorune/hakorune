@@ -272,3 +272,23 @@ other 5 (`source_loop_bridge` x3, `callable_parameter_contract`,
 `main_static_child_port_consumes_all_role_rows_once`) reproduce
 identically at HEAD with this diff stashed — known baseline debt, not
 this slice.
+
+## QUICKLIB-RED-BASELINE-AUDIT landing (receipt re-baselined at HEAD)
+
+`cargo_lib_red_baseline` receipt was stale: inventory drifted to 965
+added / 342 removed names vs the checked-in `tests.txt`, and the live
+failure set was 167 vs the pinned 133. Re-baselined at `b50e8b9a56`:
+`tests.txt`/`failures.txt` rewritten from the observed `--list`/
+`--test-threads=1` run, manifest updated to passed=7869 failed=167
+ignored=56 with fresh hashes.
+
+Red classification: all 41 newly-red names reproduce identically at
+lane base `3071d6ff8c` (41/41 failed, 0 passed) — confirmed baseline
+debt from earlier lanes, none introduced by M11/M12 work. The 7
+receipt names that are now green (`generic_loop_whole_parity` x2,
+`program_root_work_plan` x2, `backend_core_ops` diet ledger x2,
+`source_bound_core` evidence test) are improvements, dropped from
+`failures.txt`.
+
+Verify: `python3 tools/checks/lib/cargo_lib_red_baseline.py` prints
+KNOWN BASELINE passed=7869 failed=167 — verifier green at HEAD.
