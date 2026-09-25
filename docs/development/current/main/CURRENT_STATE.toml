@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-R7-CALLER-ZERO-D0"
+current_execution_row = "MIR-CALL-INGRESS-MINTER-RETIRE-D0"
 current_execution_cohort = "mir_call_r6_queue"
-current_blocker_token = "R7-CallerZeroSelection-Open__Gate1-AcceptanceRed__CallR7-FrontierPause"
-current_design_stop = "S3_selected_dynamic_landed__R7_caller_zero_unselected__design_stop"
+current_blocker_token = "R7-NoSafeSlice__IngressMinterSelection-Open__Gate1-AcceptanceRed"
+current_design_stop = "R7_nosafeslice_ingress_minters_live__retire_boundary_unselected__design_stop"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,23 +14,22 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mir-call-r7-caller-zero-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d0-2026-09-25.md"
+latest_card = "mir-call-ingress-minter-retire-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-ingress-minter-retire-d0-2026-09-25.md"
 latest_card_summary = """
-R6-S3 selected-Dynamic legacy stop landed: every LegacyCallV0 carrier
-now stops at reject_selected_dynamic_legacy_callsites with
-call-legacy-carrier on the ny_llvmc artifact lane; shared predicate
-stays narrow; per-variant + terminator + typed-accept pins green;
-guard token extended; helpers split into _r6 module to hold the 800
-line bound. R6 stages S0–S3 complete. Next: R7 caller-zero census —
-select one bounded deletion set with writer/reissuer/reader zero
-evidence (Global variant arms, func slot, or repair assets) or record
-NoSafeSlice; quarantined ingress minters stay until their own rows.
+R7 caller-zero D0 closed NoSafeSlice: the LegacyCallV0 type and func
+slot stay alive because two quarantined ingress minters still mint it
+(unified-off Callee::Value opt-out; v0 boxcall receiverless Method in
+release mode). Every deletion candidate has live production readers;
+reopen trigger is both minters retired. Next: select one bounded
+ingress-minter retirement boundary (unified-off corridor or v0
+boxcall release ingress) with caller-switch evidence — the only path
+that unblocks R7.
 """
-next_design_card = "MIR-CALL-R7-CALLER-ZERO-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d0-2026-09-25.md"
-next_execution_card = "none__design_stop__R7_caller_zero_selection_required"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d0-2026-09-25.md"
+next_design_card = "MIR-CALL-INGRESS-MINTER-RETIRE-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-ingress-minter-retire-d0-2026-09-25.md"
+next_execution_card = "none__design_stop__ingress_minter_selection_required"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-ingress-minter-retire-d0-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

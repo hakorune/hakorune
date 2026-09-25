@@ -1,6 +1,6 @@
 # MIR-CALL-R7-CALLER-ZERO-D0 — caller-zero retirement selection
 
-Status: selected__2026-09-25
+Status: closed__nosafeslice__2026-09-25
 Date: 2026-09-25
 Parent: MIR-CALL-R6S3-SELECTED-DYNAMIC-LEGACY-STOP-S3 (landed 2026-09-25)
 Owner card:
@@ -56,11 +56,62 @@ deletion set inside the approved scope. Do not widen a census finding
 into an undeclared aggregate deletion. Quarantined ingress minters stay
 until their own migration rows select them.
 
+## Decision (closed 2026-09-25): NoSafeSlice
+
+No bounded deletion set satisfies writer/reissuer/reader zero. The
+`LegacyCallV0` type, its `func` slot, and every repair path are kept
+alive by two deliberately quarantined ingress minters:
+
+- `emit_value_unified` → `Callee::Value` under
+  `NYASH_BUILDER_UNIFIED_CALL=0`
+  (`calls/unified_emitter/compat_entrypoints.rs:12-27`,
+  `emit.rs:189-193`, flag `call_unified.rs:12-19` — supported opt-out).
+- `mir_json_v0` `boxcall` → `Callee::Method` receiverless
+  (`mir_json_v0/module.rs:439-475`; strict/dev pre-rejects at
+  `selfhost/json.rs:101-146`, release/default keeps it and
+  `json_artifact/mir_loader.rs` ingests unconditionally).
+
+Per-candidate verdicts (worker census):
+
+- A (Global variant arms): writers/reissuers caller-zero, but ≥5
+  production owner files read legacy-Global specifically
+  (`global_call_route_plan`, `ordered_map_origin_plan`,
+  `generic_method_route_plan/*`, route metadata) plus all the named
+  stops — deleting Global-specific arms converts fail-fast stops into
+  silent fallthroughs. Contract change, not cleanup.
+- B (`func` slot): load-bearing for the Value minter, `callee:None`
+  rendering/validation, published-view named carrier errors.
+- C (repair paths): `callsite_canonicalize` (runs on every compiled
+  module, 4+ schedule sites), `array_element_write`, `builder_emit`,
+  `edge_rematerialization`, `joinir_id_remapper*` — all live/shared.
+- D (`emit_legacy_call`): live compat dispatcher emitting canonical
+  instructions; only its Value arm reaches the minter. Not dead code.
+
+Reopen trigger (observable): when BOTH quarantined ingress minters are
+retired (unified-off corridor closed AND v0-boxcall release-mode
+ingress stopped), the reader census flips — rerun this D0 and bounded
+deletion slices become safe. Until then R7 aggregate deletions remain
+frontier-paused; do not reopen by removing live readers.
+
+Surviving required readers (by owner): compat ingress writers
+(`compat_entrypoints`, `mir_json_v0/module`), reissuers
+(`callsite_canonicalize`, `array_element_write`, `builder_emit`,
+`edge_rematerialization`, `joinir_id_remapper*`), analysis/metadata
+(`global_call_route_plan`, `generic_method_route_plan/*`,
+`ordered_map_origin_plan`, `same_module_body_shape`, string-corridor,
+`query`, `value_consumer`, `value_representation_fact`, ssa),
+contract/view (`published_backend_view`, `backend_capability`),
+transport (`mir_json_emit`), backend stops, structural accessors.
+~250 test files construct/match the variant — updated with the type
+when it eventually dies, not production blockers.
+
 ## Exit
 
-- [ ] One accepted bounded deletion set with caller-zero evidence
-  (writer/reissuer/reader per production lane), authority, and
-  verification named — or `NoSafeSlice` with reopen trigger.
-- [ ] Per-asset classification: caller-zero vs still-minted vs
+- [x] One accepted bounded deletion set with caller-zero evidence —
+  or `NoSafeSlice` with reopen trigger. → NoSafeSlice recorded.
+- [x] Per-asset classification: caller-zero vs still-minted vs
   compat-read.
-- [ ] Named next execution row, or an explicit pause.
+- [x] Named next execution row: the next design row selects one
+  bounded ingress-minter retirement boundary
+  (`MIR-CALL-INGRESS-MINTER-RETIRE-D0`), the only path that unblocks
+  R7.
