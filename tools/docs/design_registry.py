@@ -139,7 +139,10 @@ def validate(
                 break
             seen.add(current)
             current = row_by_path[current].get("precedence_parent", "")
-    readme = DESIGN_INDEX.parent.joinpath("README.md").read_text(encoding="utf-8")
+    readme_path = DESIGN_INDEX.parent.joinpath("README.md")
+    readme = (
+        readme_path.read_text(encoding="utf-8") if readme_path.is_file() else ""
+    )
     if "INDEX.md" not in readme or "navigation-only" not in readme:
         violations.append("design README must identify INDEX.md and navigation-only role")
     return violations
@@ -175,8 +178,8 @@ def _load_toml_file(path: Path, what: str) -> dict:
 
 
 def load_v1(registry_dir: Path = REGISTRY_DIR) -> Registry:
-    """Passive V1 manifest/shard reader (S0). Structural failures raise
-    typed errors; production callers remain zero until C0."""
+    """V1 manifest/shard reader — the sole production authority since
+    C0. Structural failures raise typed errors (no V0 fallback)."""
     manifest = _load_toml_file(registry_dir / "manifest.toml", "manifest")
     unknown = set(manifest) - V1_MANIFEST_FIELDS
     if unknown:
@@ -282,13 +285,11 @@ def _toml_value(value: object) -> str:
 
 
 def _normalize_row(row: dict) -> dict:
-    """Project a row onto the complete V1 schema; absent fields become
-    explicit empty fields (never invented values)."""
+    """Project a complete row onto the V1 schema field order. Callers
+    must supply every field explicitly — no values are filled in."""
     normalized: dict = {}
     for key in V1_ROW_FIELDS:
-        value = row.get(key)
-        if value is None:
-            value = [] if key in {"sidecars", "supersedes"} else ""
+        value = row[key]
         if key in {"sidecars", "supersedes"} and not isinstance(value, list):
             raise RegistryMalformed(
                 f"row field {key} must be a list, got "
@@ -314,18 +315,29 @@ def _direct_files() -> set[str]:
 
 
 def _rewrite_shard(registry_dir: Path, nid: str, documents: list[dict]) -> None:
-    """Rewrite exactly one shard file with deterministic spelling."""
+    """Rewrite exactly one shard file, atomically (tmp + rename) with
+    deterministic spelling."""
     rows = [row for row in documents if shard_key(row["path"]) == nid]
-    (registry_dir / "shards" / f"{nid}.toml").write_text(
-        emit_shard(nid, rows), encoding="utf-8"
-    )
+    target = registry_dir / "shards" / f"{nid}.toml"
+    tmp = target.with_suffix(".toml.tmp")
+    tmp.write_text(emit_shard(nid, rows), encoding="utf-8")
+    tmp.replace(target)
 
 
 def helper_add(registry_dir: Path, row: dict) -> str:
     """H0 helper add: insert one complete row into its canonical shard.
-    All fields are caller-supplied; nothing is inferred."""
-    registry = load_v1(registry_dir)
+    Every V1 field must be supplied explicitly (empty is explicit, not
+    inferred); extra or missing keys are rejected."""
+    missing = [key for key in V1_ROW_FIELDS if key not in row]
+    extra = set(row) - set(V1_ROW_FIELDS)
+    if missing or extra:
+        raise RegistryMalformed(
+            f"row schema mismatch: missing={missing} extra={sorted(extra)}"
+        )
     path = row["path"]
+    if not path or not isinstance(path, str):
+        raise RegistryMalformed(f"row path must be a non-empty string: {path!r}")
+    registry = load_v1(registry_dir)
     if path in set(registry.paths()):
         raise RegistryMalformed(f"design registry already contains: {path}")
     normalized = _normalize_row(row)
@@ -376,7 +388,14 @@ def main(argv: list[str] | None = None) -> int:
             )
     upd = sub.add_parser("update", help="update fields of one V1 row")
     upd.add_argument("path")
-    upd.add_argument("--set", action="append", default=[], metavar="KEY=VALUE")
+    upd.add_argument(
+        "--set", action="append", default=[], metavar="KEY=VALUE",
+        help="scalar fields only; use --sidecar/--supersedes for lists",
+    )
+    upd.add_argument("--sidecar", action="append", default=None,
+                     help="replace sidecars list (repeatable)")
+    upd.add_argument("--supersede", action="append", default=None,
+                     help="replace supersedes list (repeatable)")
     args = parser.parse_args(argv)
 
     if args.command == "check":
@@ -407,6 +426,10 @@ def main(argv: list[str] | None = None) -> int:
             if not key:
                 raise RegistryMalformed(f"bad --set item: {item!r}")
             updates[key.replace("-", "_")] = value
+        if args.sidecar is not None:
+            updates["sidecars"] = args.sidecar
+        if args.supersede is not None:
+            updates["supersedes"] = args.supersede
         nid = helper_update(REGISTRY_DIR, args.path, updates)
         print(f"updated {args.path} -> shards/{nid}.toml")
         return 0

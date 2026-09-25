@@ -1,19 +1,20 @@
-//! Loop Route Router - plan/composer entry routing for loop lowering.
-//!
-//! Phase 29ap P12: Legacy loop table removed (plan/composer SSOT only)
+//! Loop Route Router - frozen located-source entry (M10b-I0-R0).
 //!
 //! # Architecture
 //!
-//! - single_planner derives facts/recipe outcome (SSOT)
-//! - composer provides strict/dev pre-plan guards + explicit compose helpers
-//! - PlanLowerer emits MIR from CorePlan (emit_frag SSOT)
+//! `route_loop` runs one fixed order with no re-decision:
+//!   parser-issued source -> resolved source unit -> exact loop
+//!   membership -> winner spine (`issue_loop_node_winner_recipe_v1`) ->
+//!   physical admission (`issue_loop_node_physical_admission_v1`) ->
+//!   `lower_loop_node_physical_admission_v1` emits MIR.
+//!
+//! The retired plan/composer ordering machinery is gone; there is no
+//! fallback route selection in this file.
 //!
 //! # Adding New Loop Routes
 //!
-//! 1. Add Facts/Planner extraction in plan layer
-//! 2. Normalize/verify in plan normalizer/verifier
-//! 3. Compose CorePlan in composer (shadow/release adopt as needed)
-//! 4. Keep router unchanged (it only delegates to plan/composer)
+//! Extend the winner-spine/admission contract under `src/mir/compiler/`;
+//! the router only threads resolver products through the fixed order.
 
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;

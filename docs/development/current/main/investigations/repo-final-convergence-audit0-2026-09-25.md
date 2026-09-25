@@ -60,3 +60,14 @@ reopen trigger; pointer may return to closeout mode.
 
 Residual (baseline debt, owners named above): `naming_charter_guard`
 red on `stage_a_route.rs:114` + dormant `\/` rg check at line 809.
+
+Cleanup notes for a later bounded row (not blocking):
+
+- `LoopRouteContext` retains fields dead to `route_loop` post-M10b
+  (`route_kind` — still computed per loop via `choose_route_kind`,
+  `fn_body`, `debug`, `in_static_box`, `step_tree_max_loop_depth`);
+  only `condition`/`body` are read by the frozen entry.
+- `--backend vm` (deprecated legacy lane) freezes on loop fixtures at
+  callable-main lowering — deliberate cutover; source-backed gates run
+  `--backend mir`. The claimed gate counts need a `vm-reference`-
+  enabled build to re-verify locally.

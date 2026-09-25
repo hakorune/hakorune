@@ -481,3 +481,13 @@ Review closeout fixes applied after rejection: `helper_update`/
 `supersedes` (was: string silently emitted then char-iterated by
 `validate`); G0 receipt's Temporary-evidence row corrected to the
 actual stash state.
+
+Round 2: `registry/README.md` rewritten post-cutover (was still
+claiming passive V0 authority + a removed `generate`/`--source v1`
+CLI); `design/README.md` authority owner corrected to `registry/`;
+`helper_add` requires the complete 9-field row (no silent fill, no
+bare KeyError), `update` gained `--sidecar`/`--supersedes` list flags,
+shard writes are atomic (tmp+rename), `validate()` no longer crashes
+on a missing `design/README.md`, and `router.rs`'s module header now
+documents the M10b frozen entry instead of the retired plan/composer
+architecture.

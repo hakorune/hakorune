@@ -2,8 +2,10 @@
 
 `docs/development/current/main/design/` は、長期参照する設計図（SSOT 寄り）を置く場所。
 
-Membership / role / precedence の唯一のownerは `INDEX.md`。このREADMEは
-navigation-only viewであり、文書を掲載してもauthorityには昇格させない。
+Membership / role / precedence の唯一のownerは `registry/`（V1 sharded
+manifest + shards）。`INDEX.md` は navigation index でauthorityを持たない。
+このREADMEは navigation-only viewであり、文書を掲載してもauthorityには
+昇格させない。
 
 - 原則: “Phaseの作業ログ/完了報告” は `../phases/` に置く。
 - 原則: “不具合調査ログ” は `../investigations/` に置く。

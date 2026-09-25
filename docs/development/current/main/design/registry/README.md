@@ -1,13 +1,12 @@
-# Design Registry V1 — sharded storage (passive)
+# Design Registry V1 — sharded storage
 
-This directory is the **V1 physical storage** for the design authority
-registry. It is generated deterministically from the embedded V0 block
-in `../INDEX.md` by `tools/docs/design_registry.py generate`.
+This directory is the **sole authority** for the design registry
+(membership, role, precedence, sidecars, retirement of direct files in
+`docs/development/current/main/design/`). `../INDEX.md` is a navigation
+index only — it does not grant authority.
 
-Status: **passive / pre-cutover**. The production authority remains the
-V0 embedded block in `../INDEX.md` until row `DESIGN-REGISTRY-V1-C0`.
-Do not edit `manifest.toml` or `shards/*.toml` by hand — regenerate
-from V0 instead.
+Status: **production** (V1 cutover landed at `DESIGN-REGISTRY-V1-C0`;
+the V0 embedded block was physically removed at R0).
 
 ## Layout
 
@@ -22,21 +21,27 @@ Shards are physical storage only. No semantic property (role, owner,
 precedence, sidecars, retirement) chooses a shard, and a shard cannot
 infer missing fields.
 
-SSOT: `../design-registry-v1-sharded-manifest-ssot.md`
-Taskboard: `../investigations/design-registry-v1-sharded-manifest-task-2026-07-14.md`
+Do not edit `manifest.toml` or `shards/*.toml` by hand — use the
+maintainer helper below, which rewrites only the canonical shard with
+deterministic ordering.
 
 ## Maintainer helper
 
 `tools/docs/design_registry.py` is the single helper:
 
 ```bash
-python3 tools/docs/design_registry.py check --source v1   # validate V1
+python3 tools/docs/design_registry.py check               # validate V1
 python3 tools/docs/design_registry.py locate <path>       # canonical shard
 python3 tools/docs/design_registry.py add --path ... --role ... \
     --owner ... --retire-when ...                          # writes one shard
-python3 tools/docs/design_registry.py update <path> --set key=value
+python3 tools/docs/design_registry.py update <path> --set key=value \
+    [--sidecar S ...] [--supersedes S ...]
 ```
 
-`add`/`update` rewrite only the selected shard with deterministic
-ordering; no policy fields are inferred. `update` cannot change `path`
-(rename = remove + add).
+`add` requires all mandatory fields; scalar fields left empty are
+explicit `""`, never inferred. `update --set` accepts scalar fields
+only; use `--sidecar`/`--supersedes` for the list fields. `update`
+cannot change `path` (rename = remove + add).
+
+SSOT: `../design-registry-v1-sharded-manifest-ssot.md`
+Taskboard: `../investigations/design-registry-v1-sharded-manifest-task-2026-07-14.md`
