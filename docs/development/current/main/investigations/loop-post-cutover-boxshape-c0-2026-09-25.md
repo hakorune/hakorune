@@ -110,4 +110,11 @@ Verify: per-file caller sweep over `src/`, `lang/src/`, `tools/`
 excluding test-named callers; `mod.rs` rows resolved through parent
 `mod` declarations; `#[path]` inclusions resolved to parent modules;
 cfg(test)-gated modules checked individually.
-`cargo check --profile quick --lib` unaffected (docs-only change).
+
+## Orphan retire landing
+
+The 7 retire-candidate rows (`control_flow/facts/canon/generic_loop/**`)
+were deleted as the manifest's delete list — pure re-export shims, never
+compiled (no `mod` declaration, no `#[path]` include). Stale `canon.rs`
+doc line corrected in the same commit. `cargo check --profile quick
+--lib` green.
