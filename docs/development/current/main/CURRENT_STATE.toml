@@ -1,9 +1,9 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-ROOT-MODULE-SURFACE0-G0"
-current_execution_cohort = "mir_root_module_surface"
-current_blocker_token = "RootSurfaceGuardLanded__G0Deps-ContextCensus-AuthorityRole-JoinModule-Open"
+current_execution_row = "MIR-CONTEXT-OWNER-CENSUS0-D0"
+current_execution_cohort = "mir_context_owner_census"
+current_blocker_token = "RootTopologyClosed__ContextOwnerCensus-Running__AuthorityRole-JoinModule-Open"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "none__CallableVariableRecurrenceDecisionAccepted_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -14,9 +14,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-root-module-surface0-g0-2026-09-25.md"
-latest_card = "mir-root-module-surface0-g0"
-latest_card_path = "docs/development/current/main/investigations/mir-root-module-surface0-g0-2026-09-25.md"
+current_execution_design = "docs/development/current/main/investigations/mir-context-owner-census0-d0-2026-09-25.md"
+latest_card = "mir-context-owner-census0-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-context-owner-census0-d0-2026-09-25.md"
 latest_card_summary = """
 M12 lane complete (`682acbc2ca`..`b50e8b9a56`: R2A manifest, R2B
 oracle/residual retirement, R2C Facts-key/schedule/attestation fixes,
@@ -33,14 +33,17 @@ the four-box split. `MIR-TOPOLOGY-REBASE0-P0` landed `646f363ff1`: 285-row root-
 inventory. `MIR-ROOT-MODULE-SURFACE0-G0` landed: facade guard extended
 with manifest-backed module-declaration check (215 decls pinned,
 `mir_root_module_manifest.txt`; allowlist `ConstructionTarget` drift
-repaired). Next: `MIR-CONTEXT-OWNER-CENSUS0-D0` /
+repaired). `MIR-CONTEXT-OWNER-CENSUS0-D0` landed: 50 context fields
+classified (14 module catalogs / 3 env / 21 session / 9 scratch);
+CompilationContext catalog block named as the SPLIT0-S0 candidate seam.
+Next: `MIR-CONTEXT-OWNER-SPLIT0-S0` if census proves a safe seam, else
 `MIR-AUTHORITY-ROLE-MANIFEST0-D0` / `MIR-LEGACY-JOINMODULE-DISPOSITION0-D0`
 ahead of `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
 """
 next_design_card = "none__accepted_decision"
 next_design_card_path = "none__accepted_decision"
-next_execution_card = "MIR-ROOT-MODULE-SURFACE0-G0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-root-module-surface0-g0-2026-09-25.md"
+next_execution_card = "MIR-CONTEXT-OWNER-CENSUS0-D0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-context-owner-census0-d0-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
