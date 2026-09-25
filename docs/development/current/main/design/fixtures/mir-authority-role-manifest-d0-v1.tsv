@@ -1,0 +1,177 @@
+# MIR-AUTHORITY-ROLE-MANIFEST0-D0 — authority-role census
+# columns: path	role	owner	evidence
+# roles: meaning | substrate | host/backend | oracle | quarantine
+# scope: src/** (src/mir expanded to second level), lang/**,
+#        named compat/bootstrap/tooling roots below.
+# exclusions (non-source roots, own owners or transient):
+#   target/, build/, dist/, tmp/, logs/, artifacts/, sessions/,
+#   docs/ (docs topology has own owner), .git/, .devin/, .github/,
+#   .claude/, .cargo/, .nekocode/, node_modules/
+# rule: every in-scope root has exactly one role; unnamed middle
+#   ownership is zero; unknown external callers are a non-claim;
+#   no default fallback is implied by any row.
+src/	meaning	src/mir root census + module README	crate root wiring + root-level semantic helpers
+src/abi	substrate	src/mir root census + module README	runtime ABI shims / return-proof wire facts
+src/analysis	meaning	src/mir root census + module README	program analysis / declaration catalogs
+src/ast	meaning	src/mir root census + module README	AST definitions
+src/backend	host/backend	src/mir root census + module README	aot/codegen backends
+src/benchmarks	oracle	src/mir root census + module README	benchmark harness
+src/bid	substrate	src/mir root census + module README	box-id registry / plugin metadata loader
+src/bin	host/backend	src/mir root census + module README	executable entry points
+src/box_callable	substrate	src/mir root census + module README	callable-box registry/providers
+src/box_factory	substrate	src/mir root census + module README	builtin box construction
+src/boxes	substrate	src/mir root census + module README	builtin box runtime implementations
+src/cli	host/backend	src/mir root census + module README	CLI surface
+src/config	host/backend	src/mir root census + module README	env/config ingestion surface
+src/core	substrate	src/mir root census + module README	core runtime boxes / instance lifecycle
+src/debug	substrate	src/mir root census + module README	debug hub / logging substrate
+src/grammar	meaning	src/mir root census + module README	grammar declarations
+src/host_providers	host/backend	src/mir root census + module README	host provider implementations
+src/llvm_py	host/backend	src/mir root census + module README	LLVM python bridge codegen
+src/macro	meaning	src/mir root census + module README	macro / derive support
+src/messaging	substrate	src/mir root census + module README	message bus
+src/parser	meaning	src/mir root census + module README	parser
+src/providers	substrate	src/mir root census + module README	ring1 capability providers
+src/ring0	substrate	src/mir root census + module README	ring0 layer guard / minimal runtime
+src/runner	host/backend	src/mir root census + module README	build/run orchestration surface
+src/runtime	substrate	src/mir root census + module README	VM/runtime substrate
+src/semantics	meaning	src/mir root census + module README	semantic contracts
+src/stage1	quarantine	src/mir root census + module README	phase-1 compat bootstrap boundary (program_json_v0)
+src/stdlib	substrate	src/mir root census + module README	Rust stdlib box impls
+src/syntax	meaning	src/mir root census + module README	surface syntax / sugar
+src/tests	oracle	src/mir root census + module README	in-tree test modules
+src/tokenizer	meaning	src/mir root census + module README	tokenizer
+src/transport	substrate	src/mir root census + module README	in-process transport
+src/type_abi	substrate	src/mir root census + module README	type ABI catalog for box calls
+src/using	meaning	src/mir root census + module README	using/import resolution policy
+src/wasm_test	oracle	src/mir root census + module README	wasm test harness
+src/mir/analysis	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir	meaning	src/mir root census + module README	mir root-level modules (180 .rs files; MIR-TOPOLOGY-REBASE0-P0 inventory)
+src/mir/array_string_len_window_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/array_text_combined_region_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/array_text_edit_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/array_text_loop_session_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/array_text_loopcarry_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/array_text_observer_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/array_text_observer_region_contract	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/array_text_residence_session_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/basic_block	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/builder	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/callable_parameter_contract	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/callable_result_representation	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/callable_semantic_batch	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/checked_callout	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/compiler	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/contracts	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/control_tree	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/definitions	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/direct_array_access_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/dynamic_carrier_contract	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/dynamic_invocation_contract	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/dynamic_operator_contract	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/exact_numeric_backend_capability	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/exact_numeric_field_contracts	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/exact_numeric_value_facts	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/extern_call_route_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/fastmem_access_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/function	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/generated	meaning	src/mir root census + module README	generated semantic descriptor tables
+src/mir/generic_method_route_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/global_call_route_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/if_recipe_contract	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/instruction	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/instruction_kinds	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/join_ir	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/loop_canonicalizer	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/loop_recipe_contract	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/loop_route_detection	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/loop_route_policy	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/loop_structural_facts	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/lowerers	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/map_repr_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/normal_callable_semantic_package	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/numeric_substrate	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/optimizer	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/optimizer_passes	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/ownership_ssa	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/passes	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/phi_core	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/placement_effect	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/policies	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/printer	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/region	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/resolved_control_flow	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/resolved_region_flow	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/resolved_semantics	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/resolved_value_profile	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/route_decision	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/semantic_refresh	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/source_call_target	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/source_core_receiver	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/ssot	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/string_corridor_placement	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/string_corridor_relation	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/string_kernel_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/sum_placement	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/sum_variant_project_seed_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/sum_variant_tag_seed_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/type_contracts	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/type_propagation	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/typed_object_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/user_box_method_route_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/userbox_known_receiver_method_seed_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/userbox_local_scalar_seed_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/userbox_loop_micro_seed_plan	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/utils	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+src/mir/verification	meaning	src/mir root census + module README	mir semantic authority (P0 root-module census)
+lang/	meaning	lang/README.md	selfhost package root (hako_module.toml)
+lang/src	meaning	lang/src package root	selfhost .hako root modules
+lang/src/compat	quarantine	lang/src module README	compat bootstrap codegen
+lang/src/compiler	meaning	lang/src module README	selfhost compiler (.hako)
+lang/src/externs	substrate	lang/src module README	externcall normalize surface
+lang/src/hako_alloc	meaning	lang/src module README	selfhost allocator library
+lang/src/llvm_ir	host/backend	lang/src module README	selfhost LLVM IR emit
+lang/src/mir	meaning	lang/src module README	selfhost MIR builder
+lang/src/opt	meaning	lang/src module README	selfhost optimizer
+lang/src/runner	host/backend	lang/src module README	selfhost runner entry
+lang/src/runtime	substrate	lang/src module README	selfhost runtime
+lang/src/selfhost	meaning	lang/src module README	selfhost sources
+lang/src/shared	meaning	lang/src module README	shared selfhost libraries/adapters
+lang/src/tools	host/backend	lang/src module README	loader/runner/vm front tooling
+lang/src/using	meaning	lang/src module README	using resolution (.hako)
+lang/src/vm	substrate	lang/src module README	selfhost VM
+lang/build	host/backend	lang/build	build runner tooling
+lang/c-abi	substrate	lang/c-abi	C ABI glue for selfhost
+lang/generated	quarantine	lang/generated	generated sources (regenerable)
+apps/	oracle	named root (this manifest)	apps/tests + benchmark fixtures
+archive/	quarantine	named root (this manifest)	retired material archive
+benchmarks/	oracle	named root (this manifest)	benchmark fixtures
+crates/hakorune_backend_aot	host/backend	named root (this manifest)	extracted aot backend crate
+crates/hakorune_box_core	substrate	named root (this manifest)	extracted box core crate
+crates/hakorune_frontend_ast	meaning	named root (this manifest)	extracted frontend ast crate
+crates/hakorune_frontend_grammar	meaning	named root (this manifest)	extracted frontend grammar crate
+crates/hakorune_frontend_parser	meaning	named root (this manifest)	extracted frontend parser crate
+crates/hakorune_mir_builder	meaning	named root (this manifest)	extracted mir builder crate
+crates/hakorune_mir_core	meaning	named root (this manifest)	extracted mir core crate
+crates/hakorune_mir_defs	meaning	named root (this manifest)	extracted mir defs crate
+crates/hakorune_mir_joinir	meaning	named root (this manifest)	extracted joinir crate
+crates/hakorune_mir_json_emit	meaning	named root (this manifest)	extracted mir json emit crate
+crates/hakorune_mir_plans	meaning	named root (this manifest)	extracted mir plans crate
+crates/nyash-llvm-compiler	host/backend	named root (this manifest)	llvm compiler crate
+crates/nyash_c_core	substrate	named root (this manifest)	C core crate
+crates/nyash_kernel	substrate	named root (this manifest)	kernel crate
+crates/nyash_lifecycle_kernel	substrate	named root (this manifest)	lifecycle kernel crate
+crates/nyash_tlv	substrate	named root (this manifest)	TLV wire crate
+dev/	oracle	named root (this manifest)	dev harnesses (cranelift/selfhosting)
+engines/	host/backend	named root (this manifest)	cranelift-jit engine
+examples/	oracle	named root (this manifest)	example programs as fixtures
+grammar/	meaning	named root (this manifest)	language grammar contract/registry
+hello_windows/	oracle	named root (this manifest)	platform smoke sample
+include/	substrate	named root (this manifest)	C ABI public headers
+local_tests/	oracle	named root (this manifest)	local test corpus
+plugins/	substrate	named root (this manifest)	builtin plugin box impls
+projects/	quarantine	named root (this manifest)	nyash-wasm demo project (unmaintained)
+spec/	meaning	named root (this manifest)	mir spec corpus
+tests/	oracle	named root (this manifest)	integration tests
+tools/	oracle	named root (this manifest)	check/guard tooling (evidence producers)
+wasm_demo/	oracle	named root (this manifest)	wasm demo fixtures
