@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIR-CALL-R7-CANONICALIZE-LEGACY-METHOD-ARM-DELETE-S6"
+current_execution_row = "MIR-CALL-R7-LEGACY-ARRAY-WRITE-CANON-DELETE-S7"
 current_execution_cohort = "mir_call_r6_queue"
-current_blocker_token = "CanonMethodArmDelete-Open__IngressMintersZero__Gate1-AcceptanceRed"
-current_design_stop = "none__caller_zero_d1_accepted__bounded_deletion_authorized"
+current_blocker_token = "ArrayWriteCanonDelete-Open__IngressMintersZero__Gate1-AcceptanceRed"
+current_design_stop = "none__caller_zero_d2_accepted__bounded_deletion_authorized"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,20 +14,20 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mir-call-r7-canonicalize-legacy-method-arm-delete-s6"
-latest_card_path = "docs/development/current/main/investigations/mir-call-r7-canonicalize-legacy-method-arm-delete-s6-2026-09-25.md"
+latest_card = "mir-call-r7-legacy-array-write-canon-delete-s7"
+latest_card_path = "docs/development/current/main/investigations/mir-call-r7-legacy-array-write-canon-delete-s7-2026-09-25.md"
 latest_card_summary = """
-Caller-zero D1 accepted bounded: the canonicalize
-LegacyCallV0{Method} repair arm is input-zero on every schedule site
-(all run pre-projection on the original module) — S6 deletes the arm,
-its value_types/known_user_boxes plumbing, and helpers.rs. Residual
-legacy rows still hit downstream named-stops; a no-laundering pin
-proves it. Closure/Global no-op arms stay for a later slice.
+Caller-zero D2 accepted bounded: canonicalize_legacy_array_write_calls
+only matched LegacyCallV0{Method{ArrayBox}} — a carrier no production
+ingress mints (the llvmlite projection runs post-refresh on a clone).
+S7 deletes the function + its semantic_refresh call site; the existing
+reject_residual_calls named-stop then rejects residual rows instead of
+silently upgrading them.
 """
-next_design_card = "none__caller_zero_d1_accepted__no_design_stop"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d1-2026-09-25.md"
-next_execution_card = "MIR-CALL-R7-CANONICALIZE-LEGACY-METHOD-ARM-DELETE-S6"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-r7-canonicalize-legacy-method-arm-delete-s6-2026-09-25.md"
+next_design_card = "none__caller_zero_d2_accepted__no_design_stop"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d2-2026-09-25.md"
+next_execution_card = "MIR-CALL-R7-LEGACY-ARRAY-WRITE-CANON-DELETE-S7"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-r7-legacy-array-write-canon-delete-s7-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

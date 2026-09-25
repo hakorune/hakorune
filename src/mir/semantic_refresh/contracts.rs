@@ -113,8 +113,6 @@ fn refresh_active_contract_carriers(
         crate::mir::type_contracts::weak_field::refresh_function(function, &weak_specs)?;
         crate::mir::type_contracts::typed_array::refresh_source_rows(function)
             .map_err(|reason| carrier_validation_error("typed_array", function, reason))?;
-        crate::mir::array_element_write::canonicalize_legacy_array_write_calls(function)
-            .map_err(|reason| carrier_validation_error("array_write", function, reason))?;
         crate::mir::array_element_write::refresh_function_array_write_witnesses(function)
             .map_err(|reason| carrier_validation_error("array_write", function, reason))?;
         crate::mir::type_contracts::typed_array::refresh_function(function)

@@ -102,73 +102,6 @@ pub(crate) fn refresh_function_array_write_witnesses(
     Ok(())
 }
 
-pub(crate) fn canonicalize_legacy_array_write_calls(
-    function: &mut MirFunction,
-) -> Result<(), String> {
-    let mut next_site = function
-        .blocks
-        .values()
-        .flat_map(|block| block.instructions.iter())
-        .filter_map(|instruction| match instruction {
-            MirInstruction::ArrayElementWrite { site_id, .. } => Some(site_id.0 + 1),
-            _ => None,
-        })
-        .max()
-        .unwrap_or(0);
-    for instruction in function
-        .blocks
-        .values_mut()
-        .flat_map(|block| block.instructions.iter_mut())
-    {
-        let MirInstruction::LegacyCallV0 {
-            dst,
-            callee:
-                Some(Callee::Method {
-                    box_name,
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            ..
-        } = instruction
-        else {
-            continue;
-        };
-        if box_name != "ArrayBox" {
-            continue;
-        }
-        let Some(method_id) =
-            crate::boxes::array::ArrayMethodId::from_name_and_arity(method, args.len())
-        else {
-            continue;
-        };
-        let (kind, index, value) = match method_id {
-            crate::boxes::array::ArrayMethodId::Push => {
-                (ArrayElementWriteKind::Push, None, args[0])
-            }
-            crate::boxes::array::ArrayMethodId::Set => {
-                (ArrayElementWriteKind::Set, Some(args[0]), args[1])
-            }
-            crate::boxes::array::ArrayMethodId::Insert => {
-                (ArrayElementWriteKind::Insert, Some(args[0]), args[1])
-            }
-            _ => continue,
-        };
-        *instruction = self::instruction(
-            ArrayWriteSiteId::new(next_site),
-            *dst,
-            kind,
-            ArrayWriteProducerKind::LegacyCanonicalized,
-            *receiver,
-            index,
-            value,
-        )?;
-        next_site += 1;
-    }
-    Ok(())
-}
-
 pub(crate) fn validate_function_array_write_witnesses(
     function: &MirFunction,
 ) -> Result<(), String> {
@@ -527,6 +460,43 @@ fn reject_residual_calls(function: &MirFunction) -> Result<(), String> {
 mod tests {
     use super::*;
     use crate::mir::{BasicBlockId, FunctionSignature, MirType};
+
+    #[test]
+    fn residual_legacy_array_push_call_rejects_instead_of_upgrading() {
+        // R7-S6/S7: the legacy repair path is deleted; a residual
+        // LegacyCallV0{ArrayBox.push} must hit the residual named-stop.
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::WRITE,
+            },
+            BasicBlockId::new(0),
+        );
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry block");
+        block.instructions.push(MirInstruction::LegacyCallV0 {
+            dst: None,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "ArrayBox".to_string(),
+                method: "push".to_string(),
+                receiver: Some(ValueId::new(0)),
+                certainty:
+                    crate::mir::definitions::call_unified::TypeCertainty::Known,
+                box_kind:
+                    crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(1)],
+            effects: EffectMask::WRITE,
+        });
+        let error = refresh_function_array_write_witnesses(&mut function)
+            .expect_err("residual legacy array write must reject");
+        assert!(error.contains(RESIDUAL_CALL_TAG), "{error}");
+    }
 
     #[test]
     fn owner_enforces_kind_index_shape() {
