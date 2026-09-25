@@ -1,6 +1,9 @@
 # Design Registry V1 Sharded Manifest Taskboard
 
-Status: Parked BoxShape series — taskized through clean, cutover, V0 retirement, and lane return
+Status: SELECTED BoxShape series (DESIGN-REGISTRY-V1 lane, selected
+2026-09-25 via SELECT0 pointer commit; current row
+`DESIGN-REGISTRY-V1-P0`; return target
+`REPO-FINAL-CONVERGENCE-AUDIT0-G0`)
 
 Decision: deterministic sharded manifest V1
 
