@@ -24,3 +24,19 @@ infer missing fields.
 
 SSOT: `../design-registry-v1-sharded-manifest-ssot.md`
 Taskboard: `../investigations/design-registry-v1-sharded-manifest-task-2026-07-14.md`
+
+## Maintainer helper
+
+`tools/docs/design_registry.py` is the single helper:
+
+```bash
+python3 tools/docs/design_registry.py check --source v1   # validate V1
+python3 tools/docs/design_registry.py locate <path>       # canonical shard
+python3 tools/docs/design_registry.py add --path ... --role ... \
+    --owner ... --retire-when ...                          # writes one shard
+python3 tools/docs/design_registry.py update <path> --set key=value
+```
+
+`add`/`update` rewrite only the selected shard with deterministic
+ordering; no policy fields are inferred. `update` cannot change `path`
+(rename = remove + add).

@@ -121,13 +121,17 @@ def load_v0(index_path: Path = DESIGN_INDEX) -> Registry:
     )
 
 
-def validate(registry: Registry, direct_files: set[str]) -> list[str]:
+def validate(
+    registry: Registry, direct_files: set[str], expected_schema: int = 0
+) -> list[str]:
     """Warning-mode validation. Violation strings and order are the V0
     parity contract — do not reorder."""
     violations: list[str] = []
     rows = registry.documents
-    if registry.schema_version != 0:
-        violations.append("design registry schema_version must be 0")
+    if registry.schema_version != expected_schema:
+        violations.append(
+            f"design registry schema_version must be {expected_schema}"
+        )
     if registry.mode not in {"warning", "strict"}:
         violations.append("design registry mode must be warning or strict")
     paths = registry.paths()
@@ -360,34 +364,113 @@ def generate_v1(out_dir: Path, registry: Registry | None = None) -> list[Path]:
     return written
 
 
+def _direct_files() -> set[str]:
+    return {
+        p.name for p in DESIGN_DIR.iterdir() if p.is_file()
+    }
+
+
+def _rewrite_shard(registry_dir: Path, nid: str, documents: list[dict]) -> None:
+    """Rewrite exactly one shard file with deterministic spelling."""
+    rows = [row for row in documents if shard_key(row["path"]) == nid]
+    (registry_dir / "shards" / f"{nid}.toml").write_text(
+        emit_shard(nid, rows), encoding="utf-8"
+    )
+
+
+def helper_add(registry_dir: Path, row: dict) -> str:
+    """H0 helper add: insert one complete row into its canonical shard.
+    All fields are caller-supplied; nothing is inferred."""
+    registry = load_v1(registry_dir)
+    path = row["path"]
+    if path in set(registry.paths()):
+        raise RegistryMalformed(f"design registry already contains: {path}")
+    normalized = _normalize_row(row)
+    nid = shard_key(path)
+    documents = registry.documents + [normalized]
+    _rewrite_shard(registry_dir, nid, documents)
+    return nid
+
+
+def helper_update(registry_dir: Path, path: str, updates: dict) -> str:
+    """H0 helper update: rewrite fields of one existing row in place.
+    `path` itself cannot change (that is remove + add)."""
+    registry = load_v1(registry_dir)
+    if "path" in updates and updates["path"] != path:
+        raise RegistryMalformed("update cannot change path; use add")
+    row = next((r for r in registry.documents if r.get("path") == path), None)
+    if row is None:
+        raise RegistryNotFound(f"design registry row is missing: {path}")
+    unknown = set(updates) - set(V1_ROW_FIELDS)
+    if unknown:
+        raise RegistryMalformed(f"unknown row fields: {sorted(unknown)}")
+    row.update(updates)
+    nid = shard_key(path)
+    _rewrite_shard(registry_dir, nid, registry.documents)
+    return nid
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
-    sub.add_parser("check", help="load + validate the production V0 registry")
+    chk = sub.add_parser("check", help="load + validate a registry source")
+    chk.add_argument("--source", choices=["v0", "v1"], default="v0")
     gen = sub.add_parser(
         "generate", help="emit V1 manifest+shards (temporary dir unless --output)"
     )
     gen.add_argument("--output", type=Path, default=None)
+    loc = sub.add_parser("locate", help="print the canonical shard for a path")
+    loc.add_argument("path")
+    add = sub.add_parser("add", help="add one complete row to the V1 store")
+    for key in V1_ROW_FIELDS:
+        required = key in {"path", "role", "owner", "retire_when"}
+        if key in {"sidecars", "supersedes"}:
+            add.add_argument(f"--{key.replace('_', '-')}", nargs="*", default=[])
+        else:
+            add.add_argument(
+                f"--{key.replace('_', '-')}", required=required, default=""
+            )
+    upd = sub.add_parser("update", help="update fields of one V1 row")
+    upd.add_argument("path")
+    upd.add_argument("--set", action="append", default=[], metavar="KEY=VALUE")
     args = parser.parse_args(argv)
 
     if args.command == "check":
-        registry = load_v0()
-        direct_files = {
-            p.name for p in (ROOT / "docs/development/current/main/design").iterdir()
-            if p.is_file()
-        }
-        violations = validate(registry, direct_files)
+        registry = load_v0() if args.source == "v0" else load_v1()
+        expected = 0 if args.source == "v0" else V1_SCHEMA_VERSION
+        violations = validate(registry, _direct_files(), expected)
         for violation in violations:
             print(violation)
         print(
-            f"design-registry check: {len(registry.documents)} rows, "
-            f"{len(violations)} violations"
+            f"design-registry check ({args.source}): "
+            f"{len(registry.documents)} rows, {len(violations)} violations"
         )
         return 1 if violations and registry.mode == "strict" else 0
     if args.command == "generate":
         out_dir = args.output or Path(tempfile.mkdtemp(prefix="design-registry-v1-"))
         written = generate_v1(out_dir)
         print(f"generated {len(written)} files under {out_dir}")
+        return 0
+    if args.command == "locate":
+        nid = shard_key(args.path)
+        print(f"{args.path} -> shards/{nid}.toml")
+        return 0
+    if args.command == "add":
+        row = {
+            key: getattr(args, key) for key in V1_ROW_FIELDS
+        }
+        nid = helper_add(REGISTRY_DIR, row)
+        print(f"added {row['path']} -> shards/{nid}.toml")
+        return 0
+    if args.command == "update":
+        updates: dict = {}
+        for item in args.set:
+            key, _, value = item.partition("=")
+            if not key:
+                raise RegistryMalformed(f"bad --set item: {item!r}")
+            updates[key.replace("-", "_")] = value
+        nid = helper_update(REGISTRY_DIR, args.path, updates)
+        print(f"updated {args.path} -> shards/{nid}.toml")
         return 0
     return 2
 
