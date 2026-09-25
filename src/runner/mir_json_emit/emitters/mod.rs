@@ -1,6 +1,7 @@
 mod array_write;
 mod basic;
 mod calls;
+mod calls_compat_v0;
 mod control_flow;
 mod fastmem;
 mod fields;

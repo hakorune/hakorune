@@ -1,6 +1,6 @@
 # MIR-CALL-R6S0-TRANSPORT-EMITTER-SPLIT-S0 — R6-S0 sibling split row
 
-Status: selected__2026-09-25
+Status: landed__2026-09-25
 Date: 2026-09-25
 Parent: MIR-CALL-R6S0-BOUNDARY-SELECTION-D0 (accepted; S0-A landed)
 Owner card:
@@ -57,10 +57,26 @@ to `design_stop`.
 
 ## Exit
 
-- [ ] `emitters/calls.rs` keeps only the v1 canonical writer +
-  dispatch; `calls_compat_v0.rs` owns the v0 projection + hint table.
-- [ ] Emitted JSON is byte-identical before/after on a v0-profile and a
-  v1-profile fixture (diff evidence).
-- [ ] `cargo check --profile quick` clean; focused mir_json_emit tests
-  pass; baseline reds classified.
-- [ ] Pointer guards green; no file crosses 800 lines.
+- [x] `emitters/calls.rs` (304 lines incl. tests) keeps only the v1
+  canonical writer + profile dispatch; `calls_compat_v0.rs` (225
+  lines) owns the v0 `boxcall`/`externcall`/`call` projection +
+  `dst_type` hint table + `emit_call_with_callee_v0`/
+  `emit_call_with_optional_func`/`emit_externcall_with_name`.
+  `emit_new_box`/`emit_new_closure` (non-call emitters) stay in
+  `calls.rs`; sole caller `emitters/mod.rs` unchanged (2 sites).
+- [x] Emitted JSON unchanged: all 155 `mir_json_emit` tests pass
+  untouched, including byte-shape assertions on v0 boxcall/externcall/
+  legacy-func/print-route and v1 mir_call arms; v0 code moved verbatim
+  (dead `is_canonical_v1` early-returns retained verbatim inside the
+  compat owner).
+- [x] `cargo check --lib --profile quick` clean; no warnings in touched
+  files; no baseline red deltas.
+- [x] Guards green: `current_state_pointer_guard`,
+  `mir_root_facade_guard` (modules=215), `mir_root_import_hygiene_guard`,
+  `git diff --check`, `repository_artifact_lifecycle_inventory
+  --check --strict` (re-pinned). Max file 304 lines.
+
+R6-S0 boundary S0 complete (S0-A + S0-B). Remaining queue: R6-S1
+canonical producer cohort selection (requires per-row
+Promote/Stop/Delete tuple), R6-S2 backend boundary, R6-S3 quarantine,
+R7 caller-zero retirement.

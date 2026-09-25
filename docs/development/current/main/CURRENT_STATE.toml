@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-R6S0-TRANSPORT-EMITTER-SPLIT-S0"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-R6S1-COHORT-SELECTION-D0"
 current_execution_cohort = "mir_call_r6_queue"
-current_blocker_token = "R6S0-S0B-Open__Gate1-AcceptanceRed__CallR7-FrontierPause"
-current_design_stop = "none__S0-A_boundary_accepted__bounded_implementation_authorized"
+current_blocker_token = "R6S1-CohortSelection-Open__Gate1-AcceptanceRed__CallR7-FrontierPause"
+current_design_stop = "R6S1-CohortSelection__NoSafeSlice-Allowed__NoImplementationPermission"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,21 +14,20 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mir-call-r6s0-transport-emitter-split-s0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-r6s0-transport-emitter-split-s0-2026-09-25.md"
+latest_card = "mir-call-r6s1-cohort-selection-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-r6s1-cohort-selection-d0-2026-09-25.md"
 latest_card_summary = """
-MIR-CALL-R6S0-TRANSPORT-EMITTER-SPLIT-S0 selected: second half of
-accepted R6-S0 boundary. Split emitters/calls.rs into a v1 canonical
-writer + dispatch and calls_compat_v0.rs owning the v0
-boxcall/externcall projection + dst_type hint table; emitted JSON must
-stay byte-identical; no parse-side, Stage-A, or validator moves. S0-A
-sibling (callable-key projection to src/mir/ssot/callable_key.rs)
-landed 2026-09-25.
+R6-S0 complete (S0-A callable-key projection + S0-B transport emitter
+split, both landed 2026-09-25). Next is
+MIR-CALL-R6S1-COHORT-SELECTION-D0: select one canonical producer
+cohort with a complete source-authority / mandatory-MirCall /
+typed-consumer / in-series delete-set tuple, or record NoSafeSlice per
+cohort. Design stop; no implementation permission.
 """
-next_design_card = "none__S0-A_accepted__no_design_stop"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-r6s0-boundary-selection-d0-2026-09-25.md"
-next_execution_card = "MIR-CALL-R6S0-TRANSPORT-EMITTER-SPLIT-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-r6s0-transport-emitter-split-s0-2026-09-25.md"
+next_design_card = "MIR-CALL-R6S1-COHORT-SELECTION-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-r6s1-cohort-selection-d0-2026-09-25.md"
+next_execution_card = "none__design_stop"
+next_execution_card_path = "none__design_stop"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -45,5 +44,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-25: DESIGN-REGISTRY-V1 complete (seam, sharded store, cutover, V0 retire); return to REPO-FINAL-CONVERGENCE-AUDIT0-G0.",
   "2026-09-25: G0 closed — disposition matrix + dedicated guard green, hygiene fixed, source-backed gates 15+164 pass; recheck closed.",
-  "2026-09-25: R6-S0 boundary selected (S0-A) and landed — callee->callable-key+receiver projection owned once by src/mir/ssot/callable_key.rs; next sibling split S0-B (transport emitter).",
+  "2026-09-25: R6-S0 boundary selected (S0-A) and landed — callable-key projection to src/mir/ssot/callable_key.rs; sibling S0-B transport emitter split landed same day; next R6-S1 cohort selection (design_stop).",
 ]
