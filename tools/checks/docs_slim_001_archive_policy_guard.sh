@@ -20,7 +20,7 @@ STMT_GUARD="tools/checks/k2_wide_clean_stage1_lowering_stmt_split_guard.sh"
 SELF_SCRIPT="tools/checks/docs_slim_001_archive_policy_guard.sh"
 ARTIFACT_INVENTORY="tools/docs/repository_artifact_lifecycle_inventory.py"
 ARTIFACT_MANIFEST="tools/checks/manifests/repository_artifact_lifecycle_v0.json"
-DESIGN_REGISTRY="docs/development/current/main/design/INDEX.md"
+DESIGN_REGISTRY="docs/development/current/main/design/registry/manifest.toml"
 PHASE_RELOCATOR="tools/docs/archive_unreachable_phase_clusters.py"
 PARTIAL_PHASE_RELOCATOR="tools/docs/archive_unreachable_partial_phase_clusters.py"
 
@@ -96,7 +96,7 @@ fi
 rm -f /tmp/docs_slim_guard_hits.$$
 
 python3 "$ARTIFACT_INVENTORY" --check
-guard_expect_in_file "$TAG" 'design-registry-v0:begin' "$DESIGN_REGISTRY" "typed design registry must exist"
+guard_expect_in_file "$TAG" 'shard_algorithm = "sha256-utf8-first-nybble-v1"' "$DESIGN_REGISTRY" "typed design registry V1 manifest must exist"
 guard_expect_in_file "$TAG" 'mode = "warning"' "$DESIGN_REGISTRY" "design registry rollout must remain explicit"
 guard_expect_in_file "$TAG" 'ensure_clean_worktree' "$PHASE_RELOCATOR" "phase relocation must require a clean worktree"
 guard_expect_in_file "$TAG" 'reachable_incoming_edge_count' "$PARTIAL_PHASE_RELOCATOR" "partial relocation must reject reachable incoming edges"

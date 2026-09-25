@@ -409,3 +409,22 @@ begin with `CLEAN0`; do not jump to loader implementation.
   `design/registry/{README.md,manifest.toml,shards/{0..f}.toml}` (18
   files). V0 remains the only production authority; inventory
   `design_direct` count unchanged (872) since registry/ is a subdir.
+
+### H0/C0 landing — helper + atomic production cutover (2026-09-25)
+
+- **H0** (`7ad94f946e`): `design_registry.py` helper surface —
+  `check --source`, `locate`, `add`, `update`. Mutation writes only
+  the canonical shard with deterministic ordering; path change and
+  unknown fields rejected; no policy inferred.
+- **C0**: production authority switched to V1 in one change:
+  - `load_registry()` → `load_v1()`; V1 failure is terminal (typed
+    error → violation string, empty registry — never retries V0).
+  - `check` default source flipped to `v1`.
+  - `docs_slim_001_archive_policy_guard.sh` now requires
+    `registry/manifest.toml` + `shard_algorithm =
+    "sha256-utf8-first-nybble-v1"` instead of the v0 marker.
+  - `design/INDEX.md` declares the manifest the authority; the
+    embedded V0 block is inert pending R0 removal.
+  - V0 production loader calls: 0 (`load_v0` remains for parity
+    tooling only). Inventory `design_registry` section byte-identical
+    under V1 (676 rows, violations `[]`); `docs-slim-001` guard green.

@@ -7,13 +7,20 @@ Scope: design root membership, role, precedence, sidecar, and retirement registr
 
 # Design Authority Registry
 
-This file is the sole membership and precedence owner for direct files in
-`docs/development/current/main/design/`. The language charter remains the
-normative language-law precedence owner; this registry only classifies design
-artifacts and their relationships.
+The authority registry lives in `registry/manifest.toml` plus
+`registry/shards/{0..f}.toml` (V1 sharded storage; see
+`registry/README.md`). This file is the navigation index for direct
+files in `docs/development/current/main/design/` — it does not grant
+authority. The language charter remains the normative language-law
+precedence owner; the registry only classifies design artifacts and
+their relationships.
 
 `README.md` is a navigation view. It does not grant authority. During warning
 rollout, unregistered files remain in place and the baseline may only decrease.
+
+The embedded `design-registry-v0` block below is retired (inert since
+DESIGN-REGISTRY-V1-C0); its physical removal is row R0. Consumers must
+read `registry/manifest.toml` via `tools/docs/design_registry.py`.
 
 <!-- design-registry-v0:begin -->
 ```toml

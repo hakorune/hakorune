@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Typed Design Authority Registry loader seam (DESIGN-REGISTRY-V1 L0).
+"""Typed Design Authority Registry loader (DESIGN-REGISTRY-V1).
 
 One in-memory representation with typed, fail-fast structural errors.
-V0 (embedded INDEX.md block) is the only production source; a passive
-V1 manifest/shard reader is added by S0 and cut over by C0.
+V1 (`design/registry/manifest.toml` + `shards/{0..f}.toml`) is the sole
+production authority since C0; the V0 embedded-block reader remains
+for parity tooling until R0 removes it.
 """
 
 from __future__ import annotations
@@ -180,23 +181,16 @@ def validate(
 
 
 def load_registry(direct_files: set[str]) -> tuple[dict, list[str]]:
-    """Production entry point — V0 adapter only. Returns the legacy
-    `(registry_dict, violations)` shape for consumer parity."""
+    """Production entry point — V1 manifest/shards are the sole
+    authority (C0). Returns the legacy `(registry_dict, violations)`
+    shape for consumer parity. V1 failure is terminal: no V0 retry."""
     try:
-        registry = load_v0()
-    except RegistryNotFound as exc:
+        registry = load_v1()
+    except RegistryLoadError as exc:
         return {"mode": "warning", "unregistered_baseline": 0, "documents": []}, [
             str(exc)
         ]
-    except RegistryBlockMissing as exc:
-        return {"mode": "warning", "unregistered_baseline": 0, "documents": []}, [
-            str(exc)
-        ]
-    except RegistryMalformed as exc:
-        return {"mode": "warning", "unregistered_baseline": 0, "documents": []}, [
-            str(exc)
-        ]
-    violations = validate(registry, direct_files)
+    violations = validate(registry, direct_files, V1_SCHEMA_VERSION)
     return registry.raw, violations
 
 
@@ -414,7 +408,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
     chk = sub.add_parser("check", help="load + validate a registry source")
-    chk.add_argument("--source", choices=["v0", "v1"], default="v0")
+    chk.add_argument("--source", choices=["v0", "v1"], default="v1")
     gen = sub.add_parser(
         "generate", help="emit V1 manifest+shards (temporary dir unless --output)"
     )
