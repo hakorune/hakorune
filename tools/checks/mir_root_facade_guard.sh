@@ -7,10 +7,11 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 MIR_ROOT="$ROOT_DIR/src/mir/mod.rs"
 ALLOWLIST="$ROOT_DIR/tools/checks/mir_root_facade_allowlist.txt"
+MODULE_MANIFEST="$ROOT_DIR/tools/checks/mir_root_module_manifest.txt"
 CONTRACT="$ROOT_DIR/docs/development/current/main/design/mir-root-facade-contract-ssot.md"
 
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$MIR_ROOT" "$ALLOWLIST" "$CONTRACT"
+guard_require_files "$TAG" "$MIR_ROOT" "$ALLOWLIST" "$MODULE_MANIFEST" "$CONTRACT"
 
 echo "[$TAG] checking MIR root facade export allowlist"
 
@@ -117,4 +118,119 @@ if extra or missing:
     )
 
 print(f"[{tag}] ok exports={len(actual)}")
+PY
+
+echo "[$TAG] checking MIR root module declaration manifest"
+
+python3 - "$ROOT_DIR" "$MIR_ROOT" "$MODULE_MANIFEST" <<'PY'
+import pathlib
+import re
+import sys
+
+tag = "mir-root-facade-guard"
+root = pathlib.Path(sys.argv[1]).resolve()
+mir_root = pathlib.Path(sys.argv[2]).resolve()
+manifest_path = pathlib.Path(sys.argv[3]).resolve()
+
+
+def fail(message: str) -> None:
+    print(f"[{tag}] ERROR: {message}", file=sys.stderr)
+    sys.exit(1)
+
+
+def load_manifest() -> dict[str, tuple[str, str]]:
+    rows: dict[str, tuple[str, str]] = {}
+    for lineno, raw in enumerate(
+        manifest_path.read_text(encoding="utf-8").splitlines(), 1
+    ):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split("\t")
+        if len(parts) != 3:
+            fail(f"bad manifest row at line {lineno}: {line}")
+        name, vis, gate = parts
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+            fail(f"bad manifest module name at line {lineno}: {name}")
+        if vis not in ("pub", "pub(crate)", "private"):
+            fail(f"bad manifest visibility at line {lineno}: {vis}")
+        if gate not in ("none", "test", "feature", "path-test"):
+            fail(f"bad manifest gate at line {lineno}: {gate}")
+        if name in rows:
+            fail(f"duplicate manifest module at line {lineno}: {name}")
+        rows[name] = (vis, gate)
+    if not rows:
+        fail("module manifest is empty")
+    return rows
+
+
+def parse_module_decls() -> dict[str, tuple[str, str]]:
+    lines = mir_root.read_text(encoding="utf-8").splitlines()
+    decls: dict[str, tuple[str, str]] = {}
+    pending: list[str] = []
+    for raw in lines:
+        line = raw.strip()
+        if line.startswith("#["):
+            pending.append(line)
+            continue
+        match = re.match(
+            r"(?:(pub)(?:\(crate\))?\s+)?mod\s+([A-Za-z_][A-Za-z0-9_]*)\s*[;{]",
+            line,
+        )
+        if match:
+            name = match.group(2)
+            vis = "private"
+            if match.group(1) == "pub":
+                vis = "pub(crate)" if "pub(crate)" in line else "pub"
+            attrs = " ".join(pending)
+            gate = "none"
+            if "#[cfg(test)]" in attrs and "#[path" in attrs:
+                gate = "path-test"
+            elif "#[cfg(test)]" in attrs:
+                gate = "test"
+            elif "#[cfg(feature" in attrs:
+                gate = "feature"
+            if name in decls:
+                fail(f"duplicate module declaration in src/mir/mod.rs: {name}")
+            decls[name] = (vis, gate)
+            pending = []
+            continue
+        if line and not line.startswith("//"):
+            pending = []
+    return decls
+
+
+manifest = load_manifest()
+actual = parse_module_decls()
+
+for name in sorted(set(actual) - set(manifest)):
+    print(
+        f"[{tag}] ERROR: root module declaration not in manifest: {name}",
+        file=sys.stderr,
+    )
+for name in sorted(set(manifest) - set(actual)):
+    print(
+        f"[{tag}] ERROR: manifest module missing from src/mir/mod.rs: {name}",
+        file=sys.stderr,
+    )
+mismatched = [
+    name
+    for name in sorted(set(actual) & set(manifest))
+    if actual[name] != manifest[name]
+]
+for name in mismatched:
+    print(
+        f"[{tag}] ERROR: module {name} is {actual[name]} but manifest "
+        f"expects {manifest[name]}",
+        file=sys.stderr,
+    )
+if set(actual) != set(manifest) or mismatched:
+    rel_manifest = manifest_path.relative_to(root).as_posix()
+    rel_contract = "docs/development/current/main/design/mir-root-facade-contract-ssot.md"
+    fail(
+        "MIR root module surface drift detected; update "
+        f"{rel_manifest} only with a phase card and {rel_contract} gate rationale"
+    )
+
+print(f"[{tag}] ok modules={len(actual)}")
 PY

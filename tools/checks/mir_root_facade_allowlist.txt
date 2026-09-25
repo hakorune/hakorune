@@ -20,6 +20,7 @@ ClosureBodyId
 CompareOp
 ContractRefreshBoundary
 ConstValue
+ConstructionTarget
 EdgeArgs
 Effect
 EffectMask
