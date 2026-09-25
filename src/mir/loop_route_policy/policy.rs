@@ -1,129 +1,67 @@
-//! Pure left-to-right evaluation of frozen Loop policy evidence.
+//! Policy-owned route admission for the singleton DirectAccum profile.
 //!
-//! The evaluator does not inspect route IDs. Declined evidence is consumed
-//! internally; only Qualified, Blocked, or Exhausted escape. A qualified
-//! result carries the frozen row cursor as opaque migration provenance.
+//! The admission token is sealed directly from the source-side singleton
+//! observation: the canonical family candidate was already selected upstream,
+//! so no route schedule, raw cursor, or winner evaluation exists here. The
+//! issuer performs no route/family dispatch.
 
-use super::policy_evidence::{
-    LoopGenericDebtKeyV1, LoopRouteCandidateFactsV1, LoopRoutePolicyBlockReasonV1,
-    LoopRoutePolicyEvidenceV1, LoopRoutePolicySourceDeclineReasonV1,
-};
-use super::schema::{
-    FrozenLoopRouteObservationV1, FrozenLoopRouteScheduleRejectV1, FrozenLoopRouteScheduleV1,
-    LoopGlobalEntryDispositionV1, LoopModeReleaseSnapshotV1, LoopReleaseAdmissionObservationV1,
-    LoopRouteSourceDispositionV1, LoopRouteSuppressionDispositionV1, CANONICAL_LOOP_ROUTE_ORDER_V1,
-};
-use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::loop_structural_facts::VerifiedDirectAccumSingletonObservationV1;
 use crate::mir::resolved_semantics::LoopExecutionFrameKeyV1;
 
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct LoopQualifiedV1 {
-    facts: LoopRouteCandidateFactsV1,
-    winner: VerifiedLoopPolicyWinnerV1,
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct VerifiedLoopPolicyWinnerV1 {
-    raw_cursor: usize,
-    frame_key: LoopExecutionFrameKeyV1,
-    seal: LoopQualifiedSealV1,
-}
-
 /// Policy-owned admission brand for the DirectAccum profile.
 ///
-/// The lowerer never inspects a route cursor. This brand is issued only after
-/// the frozen policy winner is checked against the canonical Accum row.
+/// The lowerer never inspects a route cursor. This brand is issued only from
+/// the sealed source-side singleton observation.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedDirectAccumRouteAdmissionV1 {
-    winner: VerifiedLoopPolicyWinnerV1,
-    receipt: VerifiedDirectAccumPolicyReceiptV1,
+    frame_key: LoopExecutionFrameKeyV1,
+    _seal: DirectAccumRouteAdmissionSealV1,
 }
 
-/// Typed evidence that the DirectAccum winner came from the policy-owned
-/// frozen schedule. The plan retains this receipt after consuming the winner
-/// for Recipe demand, so policy provenance is not silently discarded.
+#[derive(Debug, PartialEq, Eq)]
+struct DirectAccumRouteAdmissionSealV1;
+
+/// Typed evidence that the DirectAccum admission was issued by the policy
+/// owner. The plan retains this receipt after the admission is consumed for
+/// Recipe demand, so policy provenance is not silently discarded.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedDirectAccumPolicyReceiptV1 {
     frame_key: LoopExecutionFrameKeyV1,
-    _schedule_seal: DirectAccumPolicyScheduleSealV1,
+    _seal: DirectAccumPolicyReceiptSealV1,
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) enum DirectAccumRouteAdmissionRejectV1 {
-    WrongWinnerCursor { expected: usize, actual: usize },
-    Schedule(FrozenLoopRouteScheduleRejectV1),
-    PolicyBlocked(LoopPolicyBlockedReasonV1),
-    Exhausted,
-}
-
-#[derive(Debug, PartialEq, Eq)]
-struct DirectAccumPolicyScheduleSealV1;
+struct DirectAccumPolicyReceiptSealV1;
 
 /// One-shot handoff retaining the source/facts continuation after policy
-/// admission. The physicalizer never sees the schedule or raw cursor.
+/// admission. The physicalizer never sees a schedule or raw cursor.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedDirectAccumPolicyHandoffV1 {
     admission: VerifiedDirectAccumRouteAdmissionV1,
     observation: VerifiedDirectAccumSingletonObservationV1,
 }
 
-impl LoopQualifiedV1 {
-    pub(crate) fn into_parts(self) -> (LoopRouteCandidateFactsV1, VerifiedLoopPolicyWinnerV1) {
-        (self.facts, self.winner)
-    }
-}
-
-impl VerifiedLoopPolicyWinnerV1 {
-    #[cfg(test)]
-    pub(crate) fn raw_cursor_for_test(&self) -> usize {
-        self.raw_cursor
-    }
-
-    pub(crate) fn into_raw_cursor(self) -> usize {
-        self.raw_cursor
-    }
-
+impl VerifiedDirectAccumRouteAdmissionV1 {
     pub(crate) fn frame_key(&self) -> &LoopExecutionFrameKeyV1 {
         &self.frame_key
     }
 
-    pub(crate) fn into_direct_accum_v1(
-        self,
-    ) -> Result<VerifiedDirectAccumRouteAdmissionV1, DirectAccumRouteAdmissionRejectV1> {
-        let expected = CANONICAL_LOOP_ROUTE_ORDER_V1
-            .iter()
-            .position(|route| *route == LoopRouteId::AccumConstLoop)
-            .expect("canonical route order contains AccumConstLoop");
-        if self.raw_cursor != expected {
-            return Err(DirectAccumRouteAdmissionRejectV1::WrongWinnerCursor {
-                expected,
-                actual: self.raw_cursor,
-            });
+    /// Consume the admission; retains the policy receipt as provenance.
+    pub(crate) fn into_receipt(self) -> VerifiedDirectAccumPolicyReceiptV1 {
+        VerifiedDirectAccumPolicyReceiptV1 {
+            frame_key: self.frame_key,
+            _seal: DirectAccumPolicyReceiptSealV1,
         }
-        let frame_key = self.frame_key.clone();
-        Ok(VerifiedDirectAccumRouteAdmissionV1 {
-            winner: self,
-            receipt: VerifiedDirectAccumPolicyReceiptV1 {
-                frame_key,
-                _schedule_seal: DirectAccumPolicyScheduleSealV1,
-            },
-        })
     }
 }
 
-impl VerifiedDirectAccumRouteAdmissionV1 {
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        VerifiedLoopPolicyWinnerV1,
-        VerifiedDirectAccumPolicyReceiptV1,
-    ) {
-        (self.winner, self.receipt)
-    }
-
-    pub(crate) fn into_policy_winner(self) -> VerifiedLoopPolicyWinnerV1 {
-        self.winner
+#[cfg(test)]
+pub(crate) fn direct_accum_route_admission_for_test(
+    frame_key: LoopExecutionFrameKeyV1,
+) -> VerifiedDirectAccumRouteAdmissionV1 {
+    VerifiedDirectAccumRouteAdmissionV1 {
+        frame_key,
+        _seal: DirectAccumRouteAdmissionSealV1,
     }
 }
 
@@ -144,315 +82,17 @@ impl VerifiedDirectAccumPolicyHandoffV1 {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-struct LoopQualifiedSealV1;
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum LoopPolicyBlockedReasonV1 {
-    Policy(LoopRoutePolicyBlockReasonV1),
-    GenericDebt(LoopGenericDebtKeyV1),
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) enum LoopRoutePolicyEvaluationV1 {
-    Qualified(LoopQualifiedV1),
-    Blocked(LoopPolicyBlockedReasonV1),
-    Exhausted,
-}
-
-pub(crate) fn evaluate_frozen_loop_route_schedule_v1(
-    schedule: &FrozenLoopRouteScheduleV1,
-    frame_key: &LoopExecutionFrameKeyV1,
-) -> LoopRoutePolicyEvaluationV1 {
-    for row in schedule.rows() {
-        let raw_cursor = row.raw_cursor();
-        if matches!(
-            row.suppression(),
-            LoopRouteSuppressionDispositionV1::SuppressedBy(_)
-        ) {
-            continue;
-        }
-        if matches!(row.source(), LoopRouteSourceDispositionV1::Unavailable(_)) {
-            continue;
-        }
-        match row.policy_evidence() {
-            LoopRoutePolicyEvidenceV1::SourceDeclined(_) => continue,
-            LoopRoutePolicyEvidenceV1::Candidate(facts) => {
-                return LoopRoutePolicyEvaluationV1::Qualified(LoopQualifiedV1 {
-                    facts,
-                    winner: VerifiedLoopPolicyWinnerV1 {
-                        raw_cursor,
-                        frame_key: frame_key.clone(),
-                        seal: LoopQualifiedSealV1,
-                    },
-                });
-            }
-            LoopRoutePolicyEvidenceV1::PolicyBlocked(reason) => {
-                return LoopRoutePolicyEvaluationV1::Blocked(LoopPolicyBlockedReasonV1::Policy(
-                    reason,
-                ));
-            }
-            LoopRoutePolicyEvidenceV1::GenericDebt(key) => {
-                return LoopRoutePolicyEvaluationV1::Blocked(
-                    LoopPolicyBlockedReasonV1::GenericDebt(key),
-                );
-            }
-        }
-    }
-    LoopRoutePolicyEvaluationV1::Exhausted
-}
-
-/// Consumes the source-side singleton proof and lets policy own the complete
-/// canonical matrix. No caller can inject a route id or raw cursor here.
+/// Consumes the source-side singleton proof and seals the policy-owned
+/// admission for the same frame. No caller can inject a route id or a raw
+/// cursor here.
 pub(crate) fn issue_direct_accum_route_admission_v1(
     observation: VerifiedDirectAccumSingletonObservationV1,
-) -> Result<VerifiedDirectAccumPolicyHandoffV1, DirectAccumRouteAdmissionRejectV1> {
-    let frame_key = observation.frame_key();
-    let observations = CANONICAL_LOOP_ROUTE_ORDER_V1
-        .iter()
-        .map(|route| {
-            let evidence = if *route == LoopRouteId::AccumConstLoop {
-                LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable)
-            } else {
-                LoopRoutePolicyEvidenceV1::SourceDeclined(
-                    LoopRoutePolicySourceDeclineReasonV1::ExcludedByVerifiedSingletonObservation,
-                )
-            };
-            FrozenLoopRouteObservationV1::new(
-                LoopRouteSuppressionDispositionV1::Retained,
-                LoopModeReleaseSnapshotV1::Release {
-                    admission: LoopReleaseAdmissionObservationV1::Allowed,
-                },
-                LoopGlobalEntryDispositionV1::Allowed,
-                LoopRouteSourceDispositionV1::Available,
-                evidence,
-            )
-        })
-        .collect::<Box<[_]>>();
-    let schedule = super::evaluate::freeze_loop_route_schedule_v1(
-        CANONICAL_LOOP_ROUTE_ORDER_V1.into(),
-        observations,
-    )
-    .map_err(DirectAccumRouteAdmissionRejectV1::Schedule)?;
-    let winner = match evaluate_frozen_loop_route_schedule_v1(&schedule, &frame_key) {
-        LoopRoutePolicyEvaluationV1::Qualified(qualified) => qualified.into_parts().1,
-        LoopRoutePolicyEvaluationV1::Blocked(reason) => {
-            return Err(DirectAccumRouteAdmissionRejectV1::PolicyBlocked(reason));
-        }
-        LoopRoutePolicyEvaluationV1::Exhausted => {
-            return Err(DirectAccumRouteAdmissionRejectV1::Exhausted);
-        }
-    };
-    let admission = winner
-        .into_direct_accum_v1()
-        .map_err(DirectAccumRouteAdmissionRejectV1::from);
-    Ok(VerifiedDirectAccumPolicyHandoffV1 {
-        admission: admission?,
+) -> VerifiedDirectAccumPolicyHandoffV1 {
+    VerifiedDirectAccumPolicyHandoffV1 {
+        admission: VerifiedDirectAccumRouteAdmissionV1 {
+            frame_key: observation.frame_key(),
+            _seal: DirectAccumRouteAdmissionSealV1,
+        },
         observation,
-    })
-}
-
-#[cfg(test)]
-pub(crate) fn issue_policy_winner_for_test(candidate_cursor: usize) -> VerifiedLoopPolicyWinnerV1 {
-    let frame_key = crate::mir::resolved_semantics::loop_execution_frame_key_for_test();
-    issue_policy_winner_for_test_with_frame(candidate_cursor, &frame_key)
-}
-
-#[cfg(test)]
-pub(crate) fn issue_policy_winner_for_test_with_frame(
-    candidate_cursor: usize,
-    frame_key: &LoopExecutionFrameKeyV1,
-) -> VerifiedLoopPolicyWinnerV1 {
-    let observations = super::schema::CANONICAL_LOOP_ROUTE_ORDER_V1
-        .iter()
-        .enumerate()
-        .map(|(cursor, _)| {
-            let evidence = if cursor == candidate_cursor {
-                LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable)
-            } else {
-                LoopRoutePolicyEvidenceV1::SourceDeclined(
-                    super::policy_evidence::LoopRoutePolicySourceDeclineReasonV1::PreEffectDeclined,
-                )
-            };
-            super::schema::FrozenLoopRouteObservationV1::new(
-                super::schema::LoopRouteSuppressionDispositionV1::Retained,
-                super::schema::LoopModeReleaseSnapshotV1::Release {
-                    admission: super::schema::LoopReleaseAdmissionObservationV1::Allowed,
-                },
-                super::schema::LoopGlobalEntryDispositionV1::Allowed,
-                super::schema::LoopRouteSourceDispositionV1::Available,
-                evidence,
-            )
-        })
-        .collect::<Box<[_]>>();
-    let schedule = super::evaluate::freeze_loop_route_schedule_v1(
-        super::schema::CANONICAL_LOOP_ROUTE_ORDER_V1.into(),
-        observations,
-    )
-    .expect("policy winner test fixture seals");
-    let LoopRoutePolicyEvaluationV1::Qualified(qualified) =
-        evaluate_frozen_loop_route_schedule_v1(&schedule, frame_key)
-    else {
-        panic!("policy winner test fixture must qualify");
-    };
-    qualified.into_parts().1
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{
-        evaluate_frozen_loop_route_schedule_v1, LoopPolicyBlockedReasonV1,
-        LoopRoutePolicyEvaluationV1,
-    };
-    use crate::mir::loop_route_policy::schema::{
-        FrozenLoopRouteObservationV1, LoopGlobalEntryDispositionV1, LoopModeReleaseSnapshotV1,
-        LoopReleaseAdmissionObservationV1, LoopRouteSourceDispositionV1,
-        LoopRouteSuppressionDispositionV1, CANONICAL_LOOP_ROUTE_ORDER_V1,
-    };
-    use crate::mir::loop_route_policy::{
-        LoopGenericDebtKeyV1, LoopRouteCandidateFactsV1, LoopRoutePolicyBlockReasonV1,
-        LoopRoutePolicyEvidenceV1, LoopRoutePolicySourceDeclineReasonV1,
-    };
-
-    fn observations_with(
-        evidence_at: usize,
-        evidence: LoopRoutePolicyEvidenceV1,
-    ) -> Box<[FrozenLoopRouteObservationV1]> {
-        CANONICAL_LOOP_ROUTE_ORDER_V1
-            .iter()
-            .enumerate()
-            .map(|(cursor, _)| {
-                let evidence = if cursor == evidence_at {
-                    evidence
-                } else {
-                    LoopRoutePolicyEvidenceV1::SourceDeclined(
-                        LoopRoutePolicySourceDeclineReasonV1::SuppressedByEarlierCandidate,
-                    )
-                };
-                FrozenLoopRouteObservationV1::new(
-                    LoopRouteSuppressionDispositionV1::Retained,
-                    LoopModeReleaseSnapshotV1::Release {
-                        admission: LoopReleaseAdmissionObservationV1::Allowed,
-                    },
-                    LoopGlobalEntryDispositionV1::Allowed,
-                    LoopRouteSourceDispositionV1::Available,
-                    evidence,
-                )
-            })
-            .collect()
-    }
-
-    fn schedule(
-        evidence_at: usize,
-        evidence: LoopRoutePolicyEvidenceV1,
-    ) -> super::FrozenLoopRouteScheduleV1 {
-        super::super::evaluate::freeze_loop_route_schedule_v1(
-            CANONICAL_LOOP_ROUTE_ORDER_V1.into(),
-            observations_with(evidence_at, evidence),
-        )
-        .expect("synthetic policy evidence seals")
-    }
-
-    #[test]
-    fn all_declined_rows_exhaust_without_resume_state() {
-        let schedule = schedule(
-            0,
-            LoopRoutePolicyEvidenceV1::SourceDeclined(
-                LoopRoutePolicySourceDeclineReasonV1::SuppressedByEarlierCandidate,
-            ),
-        );
-        assert_eq!(
-            evaluate_frozen_loop_route_schedule_v1(
-                &schedule,
-                &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
-            ),
-            LoopRoutePolicyEvaluationV1::Exhausted
-        );
-    }
-
-    #[test]
-    fn declined_then_candidate_stops_at_first_candidate() {
-        let schedule = schedule(
-            3,
-            LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable),
-        );
-        let LoopRoutePolicyEvaluationV1::Qualified(qualified) =
-            evaluate_frozen_loop_route_schedule_v1(
-                &schedule,
-                &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
-            )
-        else {
-            panic!("declined rows must stop at the first candidate");
-        };
-        let (facts, winner) = qualified.into_parts();
-        assert_eq!(facts, LoopRouteCandidateFactsV1::SourceAvailable);
-        assert_eq!(winner.into_raw_cursor(), 3);
-    }
-
-    #[test]
-    fn winner_capability_is_absent_from_non_qualified_results() {
-        let blocked = schedule(
-            4,
-            LoopRoutePolicyEvidenceV1::PolicyBlocked(
-                LoopRoutePolicyBlockReasonV1::PolicyAndTerminalityUnavailable,
-            ),
-        );
-        assert!(matches!(
-            evaluate_frozen_loop_route_schedule_v1(
-                &blocked,
-                &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
-            ),
-            LoopRoutePolicyEvaluationV1::Blocked(_)
-        ));
-
-        let exhausted = schedule(
-            0,
-            LoopRoutePolicyEvidenceV1::SourceDeclined(
-                LoopRoutePolicySourceDeclineReasonV1::SuppressedByEarlierCandidate,
-            ),
-        );
-        assert_eq!(
-            evaluate_frozen_loop_route_schedule_v1(
-                &exhausted,
-                &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
-            ),
-            LoopRoutePolicyEvaluationV1::Exhausted
-        );
-    }
-
-    #[test]
-    fn declined_then_blocked_stops_without_suffix() {
-        let schedule = schedule(
-            4,
-            LoopRoutePolicyEvidenceV1::PolicyBlocked(
-                LoopRoutePolicyBlockReasonV1::PolicyAndTerminalityUnavailable,
-            ),
-        );
-        assert!(matches!(
-            evaluate_frozen_loop_route_schedule_v1(
-                &schedule,
-                &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
-            ),
-            LoopRoutePolicyEvaluationV1::Blocked(LoopPolicyBlockedReasonV1::Policy(
-                LoopRoutePolicyBlockReasonV1::PolicyAndTerminalityUnavailable
-            ))
-        ));
-    }
-
-    #[test]
-    fn generic_debt_is_an_opaque_blocked_m4_key() {
-        let schedule = schedule(
-            17,
-            LoopRoutePolicyEvidenceV1::GenericDebt(LoopGenericDebtKeyV1::GenericPostEffectDebt),
-        );
-        assert!(matches!(
-            evaluate_frozen_loop_route_schedule_v1(
-                &schedule,
-                &crate::mir::resolved_semantics::loop_execution_frame_key_for_test(),
-            ),
-            LoopRoutePolicyEvaluationV1::Blocked(LoopPolicyBlockedReasonV1::GenericDebt(
-                LoopGenericDebtKeyV1::GenericPostEffectDebt
-            ))
-        ));
     }
 }

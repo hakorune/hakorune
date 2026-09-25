@@ -1,4 +1,4 @@
-//! Closed pre-effect evidence for the pure Loop route policy.
+//! Closed decline vocabulary for all-route observation provenance.
 //!
 //! This DTO is an observation boundary. It does not select a route, inspect
 //! the legacy receipt, or expose a recipe/Builder operation.
@@ -13,76 +13,26 @@ pub(crate) enum LoopRoutePolicySourceDeclineReasonV1 {
     ExcludedByVerifiedSingletonObservation,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum LoopRouteCandidateFactsV1 {
-    SourceAvailable,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum LoopRoutePolicyBlockReasonV1 {
-    GlobalEntryBlocked,
-    ReleaseNestedLoopGate,
-    PolicyAndTerminalityUnavailable,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum LoopGenericDebtKeyV1 {
-    GenericPostEffectDebt,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum LoopRoutePolicyEvidenceV1 {
-    SourceDeclined(LoopRoutePolicySourceDeclineReasonV1),
-    Candidate(LoopRouteCandidateFactsV1),
-    PolicyBlocked(LoopRoutePolicyBlockReasonV1),
-    GenericDebt(LoopGenericDebtKeyV1),
-}
-
 #[cfg(test)]
 mod tests {
-    use super::{
-        LoopGenericDebtKeyV1, LoopRouteCandidateFactsV1, LoopRoutePolicyBlockReasonV1,
-        LoopRoutePolicyEvidenceV1, LoopRoutePolicySourceDeclineReasonV1,
-    };
-    use crate::mir::loop_route_policy::LoopRouteSourceUnavailableV1;
+    use super::LoopRoutePolicySourceDeclineReasonV1;
+    use super::super::schema::LoopRouteSourceUnavailableV1;
 
     #[test]
-    fn evidence_vocabulary_is_closed_and_round_trips_each_disposition() {
-        let evidence = [
-            LoopRoutePolicyEvidenceV1::SourceDeclined(
-                LoopRoutePolicySourceDeclineReasonV1::SuppressedByEarlierCandidate,
+    fn decline_vocabulary_is_closed() {
+        let reasons = [
+            LoopRoutePolicySourceDeclineReasonV1::SuppressedByEarlierCandidate,
+            LoopRoutePolicySourceDeclineReasonV1::Unavailable(
+                LoopRouteSourceUnavailableV1::FactsAbsent,
             ),
-            LoopRoutePolicyEvidenceV1::SourceDeclined(
-                LoopRoutePolicySourceDeclineReasonV1::Unavailable(
-                    LoopRouteSourceUnavailableV1::FactsAbsent,
-                ),
-            ),
-            LoopRoutePolicyEvidenceV1::SourceDeclined(
-                LoopRoutePolicySourceDeclineReasonV1::ExcludedByVerifiedSingletonObservation,
-            ),
-            LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable),
-            LoopRoutePolicyEvidenceV1::PolicyBlocked(
-                LoopRoutePolicyBlockReasonV1::PolicyAndTerminalityUnavailable,
-            ),
-            LoopRoutePolicyEvidenceV1::GenericDebt(LoopGenericDebtKeyV1::GenericPostEffectDebt),
+            LoopRoutePolicySourceDeclineReasonV1::PreEffectDeclined,
+            LoopRoutePolicySourceDeclineReasonV1::ExcludedByVerifiedSingletonObservation,
         ];
 
-        assert_eq!(evidence.len(), 6);
+        assert_eq!(reasons.len(), 4);
         assert!(matches!(
-            evidence[0],
-            LoopRoutePolicyEvidenceV1::SourceDeclined(_)
-        ));
-        assert!(matches!(
-            evidence[3],
-            LoopRoutePolicyEvidenceV1::Candidate(_)
-        ));
-        assert!(matches!(
-            evidence[4],
-            LoopRoutePolicyEvidenceV1::PolicyBlocked(_)
-        ));
-        assert!(matches!(
-            evidence[5],
-            LoopRoutePolicyEvidenceV1::GenericDebt(_)
+            reasons[1],
+            LoopRoutePolicySourceDeclineReasonV1::Unavailable(_)
         ));
     }
 }

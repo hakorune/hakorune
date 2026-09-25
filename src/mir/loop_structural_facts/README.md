@@ -171,9 +171,10 @@ the closed `Body` / `ScopeBody` / `LoopBody` statement lineage are portable in
 this slice. Lambda and Program owners, every other ancestor, and orphan
 body-root markers fail with typed rejection.
 
-`selected_demand.rs` is the next neutral handoff. It consumes one opaque policy
-winner, one AST-free structural identity witness, and one exact resolved-source
-capability, then returns a non-Clone selected demand. It performs identity
+`selected_demand.rs` is the next neutral handoff. It consumes one policy-owned
+`VerifiedDirectAccumRouteAdmissionV1`, one AST-free structural identity
+witness, and one exact resolved-source capability, then returns a non-Clone
+selected demand plus the retained policy receipt. It performs identity
 checking only; it does not create a Recipe, select a family, or touch PHI/SSA.
 Direct Accum is caller-zero evidence. Nested source-bound is not claimed until
 the resolver forest is consumed by the caller-zero D1 adapter and its recipe
@@ -217,8 +218,8 @@ The Direct Accum S0 projection keeps the AST-bearing observation in
 AST-free `DirectAccumStructuralShapeV1` product. `VerifiedResolvedFunctionV1`
 resolves its exact expression sites to `BindingRefV1`; names and raw indices
 are never re-resolved. A source-issued `LoopExecutionFrameKeyV1` is carried by
-the winner, facts, and source capability so selected demand rejects a foreign
-execution frame before sealing.
+the route admission, facts, and source capability so selected demand rejects a
+foreign execution frame before sealing.
 
 The DirectAccum pilot separates shape from route exclusivity:
 

@@ -149,3 +149,45 @@ LoopRouteId behavior-selection site, `direct_accum_effect_plan.rs`
 Facts-layer `LoopBindingKeyV1` minting, VariableAccumBreak
 production-owner vs attestation mismatch. Resolve dispositions before
 deletion.
+
+## M12-R2C landings (Facts key mint + schedule/winner retirement)
+
+R2C part1 (`ce91387634`): `VerifiedDirectAccumBindingEffectPlanV1` no
+longer mints `LoopBindingKeyV1`; Facts entries carry only
+role/site/source-binding. `CanonicalDirectAccumBindingPort` now consumes
+owned `VerifiedLoopRecipeBindingRelationV1` rows and resolves keys
+solely through them — Recipe stays the only key issuer.
+`direct_accum_physical_input_with_relations` is the single input
+assembly; the old wrapper/`entries()`/`from_direct_accum` were removed.
+Focused run 46/46 green.
+
+R2C part2 (this commit): the synthetic 19-row
+`family_route_schedule`/`freeze_loop_route_schedule_v1` +
+`VerifiedLoopPolicyWinnerV1` ceremony retired. `evaluate.rs`,
+`adapter.rs`, `tests.rs`, `loop_true_break_continue_tests.rs`, and the
+test-only `family_selection.rs` marker deleted. `policy.rs` now issues
+`VerifiedDirectAccumPolicyHandoffV1` directly from
+`VerifiedDirectAccumSingletonObservationV1` — no route id, raw cursor,
+or winner crosses the boundary. LoopTrue/LoopCond demands seal directly
+from their source projection/typed map (infallible issuers).
+`issue_selected_loop_recipe_demand_v1` consumes the admission and
+returns `(demand, policy_receipt)`; the spine drops the receipt while
+`direct_accum_profile` retains it as provenance. `schema.rs` retains
+only `CANONICAL_LOOP_ROUTE_*` vocabulary + `LoopRouteSourceUnavailableV1`
+for `all_route_observation`; `policy_evidence.rs` retains only
+`LoopRoutePolicySourceDeclineReasonV1`. The winner-cursor/frame checks
+were tautological over the synthetic schedule (hidden synthetic
+authority), so their removal preserves behavior.
+`joinir_logical_demand_contract.sh` re-pinned: deleted-file require
+list, `mod adapter` check, freeze/evaluate caller checks replaced with
+a retired-name absence check, DirectAccum issuer call count 2->1
+(deleted test-only `admit_direct_accum_profile_v1`). Receipt: 24 stale
+names removed, `policy_evidence` test renamed
+(`decline_vocabulary_is_closed`), expected_passed 7314->7291,
+inventory/failures sha refreshed. Verify: `cargo check --lib`/`--tests`
+green; focused route-policy/facts/direct-accum/producer run 286 green,
+1 failure (`qualified_call_map_argument_reaches_the_named_capability_boundary`)
+is pre-existing baseline red also present in the HEAD full-run receipt.
+Known unrelated reds: `naming_charter_guard` (env rg regex parse +
+Stage-A wording at HEAD), `mir_root_facade_guard` (`ConstructionTarget`
+allowlist drift at HEAD) — both untouched by this slice.

@@ -310,8 +310,8 @@ guard_joinir_logical_demand_contract() {
       | wc -l \
       | tr -d '[:space:]'
   )"
-  if [[ "$direct_accum_issuer_calls" != "2" ]]; then
-    guard_fail "$tag" "Direct Accum issuer call count drift: count=$direct_accum_issuer_calls expected=2"
+  if [[ "$direct_accum_issuer_calls" != "1" ]]; then
+    guard_fail "$tag" "Direct Accum issuer call count drift: count=$direct_accum_issuer_calls expected=1"
   fi
   local direct_accum_source_probe_callers=()
   mapfile -t direct_accum_source_probe_callers < <(
@@ -406,14 +406,11 @@ guard_joinir_logical_demand_contract() {
     "$loop_route_policy_dir/README.md" \
     "$loop_route_policy_dir/mod.rs" \
     "$loop_route_policy_dir/schema.rs" \
-    "$loop_route_policy_dir/evaluate.rs" \
     "$loop_route_policy_dir/loop_true_break_continue.rs" \
     "$loop_route_policy_dir/policy.rs" \
-    "$loop_route_policy_dir/policy_evidence.rs" \
-    "$loop_route_policy_dir/adapter.rs" \
-    "$loop_route_policy_dir/tests.rs"
+    "$loop_route_policy_dir/policy_evidence.rs"
   if (( ${#loop_route_policy_files[@]} == 0 )); then
-    guard_fail "$tag" "frozen Loop route policy subtree has no Rust files"
+    guard_fail "$tag" "Loop route policy subtree has no Rust files"
   fi
   local loop_route_policy_production_files=()
   for file in "${loop_route_policy_files[@]}"; do
@@ -422,14 +419,10 @@ guard_joinir_logical_demand_contract() {
       guard_fail "$tag" "file exceeds boundary: ${file#"$root_dir/"} lines=$lines"
     fi
     case "$file" in
-      "$loop_route_policy_dir/adapter.rs"|"$loop_route_policy_dir/tests.rs"|"$loop_route_policy_dir"/*_tests.rs) ;;
+      "$loop_route_policy_dir"/*_tests.rs) ;;
       *) loop_route_policy_production_files+=("$file") ;;
     esac
   done
-  if ! rg -q -U '#\[cfg\(test\)\][[:space:]]*\nmod adapter;' \
-    "$loop_route_policy_dir/mod.rs"; then
-    guard_fail "$tag" "Loop route migration adapter must remain cfg(test)-only"
-  fi
   if rg -n -w \
     'ASTNode|MirBuilder|CanonicalLoopFacts|CorePlan|ValueId|BasicBlockId|MirInstruction|Frag|RouteFn|RouteAttemptOutcomeV1|Retry|LoopRecipeV1|VerifiedLoopRecipeV1|LoopPhysicalizerV1' \
     "${loop_route_policy_production_files[@]}" | rg -v ':[0-9]+:[[:space:]]*//' >/dev/null; then
@@ -445,40 +438,21 @@ guard_joinir_logical_demand_contract() {
     "${loop_route_policy_production_files[@]}" >/dev/null; then
     guard_fail "$tag" "opaque Loop route provenance acquired dispatch authority"
   fi
-  local pure_policy_external_callers=()
-  mapfile -t pure_policy_external_callers < <(
-    { rg -l 'evaluate_frozen_loop_route_schedule_v1\(' "$root_dir/src" || true; } \
-      | awk -v prefix="$loop_route_policy_dir/" 'index($0, prefix) != 1'
-  )
-  if (( ${#pure_policy_external_callers[@]} != 0 )); then
-    guard_fail "$tag" "pure Loop policy evaluator acquired a production caller"
+  # M12-R2C part 2 retired the synthetic 19-row schedule and the winner
+  # ceremony. These names must stay absent from src/ so the deleted authority
+  # cannot be reintroduced.
+  local retired_schedule_hits
+  retired_schedule_hits="$(
+    { rg -l -g '*.rs' 'evaluate_frozen_loop_route_schedule_v1|freeze_loop_route_schedule_v1|FrozenLoopRouteScheduleV1|FrozenLoopRouteRowV1|VerifiedLoopPolicyWinnerV1' \
+      "$root_dir/src" || true; } | wc -l | tr -d '[:space:]'
+  )"
+  if [[ "$retired_schedule_hits" != "0" ]]; then
+    guard_fail "$tag" "retired frozen Loop schedule/winner authority reappeared in src/"
   fi
   if rg -n -U \
     '#\[derive\([^]]*Clone[^]]*\)\][[:space:]]*\npub\(crate\) struct (FrozenLoopRouteScheduleV1|FrozenLoopRouteRowV1)' \
     "$loop_route_policy_dir/schema.rs" >/dev/null; then
     guard_fail "$tag" "frozen Loop route schedule or row became Clone"
-  fi
-  local freeze_facade_definitions freeze_facade_external_callers
-  freeze_facade_definitions="$(
-    rg -c 'freeze_loop_route_schedule_v1\(' \
-      "$loop_route_policy_dir/mod.rs" \
-      "$loop_route_policy_dir/schema.rs" \
-      "$loop_route_policy_dir/evaluate.rs" || true
-  )"
-  freeze_facade_definitions="$(printf '%s\n' "$freeze_facade_definitions" | awk -F: '{sum += $NF} END {print sum + 0}')"
-  if [[ "$freeze_facade_definitions" != "1" ]]; then
-    guard_fail "$tag" "frozen Loop route facade must have exactly one production definition"
-  fi
-  freeze_facade_external_callers="$(
-    { rg -l 'freeze_loop_route_schedule_v1\(' "$root_dir/src" || true; } \
-      | awk -v prefix="$loop_route_policy_dir/" \
-          -v spine="$root_dir/src/mir/compiler/loop_node_winner_spine.rs" \
-          'index($0, prefix) != 1 && $0 != spine && $0 !~ /\/tests\.rs$/ && $0 !~ /_tests\.rs$/' \
-      | wc -l \
-      | tr -d '[:space:]'
-  )"
-  if [[ "$freeze_facade_external_callers" != "0" ]]; then
-    guard_fail "$tag" "caller-zero frozen Loop route facade acquired a production caller"
   fi
   for file in "${files[@]}"; do
     lines="$(wc -l < "$file" | tr -d '[:space:]')"

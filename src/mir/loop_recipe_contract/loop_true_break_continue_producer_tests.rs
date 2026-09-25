@@ -12,14 +12,7 @@ use crate::mir::compiler::loop_true_break_continue_projection::{
     VerifiedLoopTrueBreakContinueSourceProjectionV1,
 };
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
-use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
-use crate::mir::loop_route_policy::{
-    freeze_loop_route_schedule_v1, issue_loop_true_break_continue_policy_demand_v1,
-    FrozenLoopRouteObservationV1, LoopGlobalEntryDispositionV1, LoopModeReleaseSnapshotV1,
-    LoopReleaseAdmissionObservationV1, LoopRouteCandidateFactsV1, LoopRoutePolicyEvidenceV1,
-    LoopRoutePolicySourceDeclineReasonV1, LoopRouteSourceDispositionV1,
-    LoopRouteSuppressionDispositionV1, CANONICAL_LOOP_ROUTE_ORDER_V1,
-};
+use crate::mir::loop_route_policy::issue_loop_true_break_continue_policy_demand_v1;
 
 fn variable(name: &str) -> ASTNode {
     ASTNode::Variable {
@@ -96,42 +89,10 @@ pub(super) fn projection_for(
     issue_loop_true_break_continue_source_projection_v1(input, &loop_stmt, source).unwrap()
 }
 
-fn target_cursor() -> usize {
-    CANONICAL_LOOP_ROUTE_ORDER_V1
-        .iter()
-        .position(|route| *route == LoopRouteId::LoopTrueBreakContinue)
-        .unwrap()
-}
-
 pub(super) fn demand_for(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
 ) -> crate::mir::loop_route_policy::VerifiedLoopTrueBreakContinuePolicyDemandV1 {
-    let observations = CANONICAL_LOOP_ROUTE_ORDER_V1
-        .iter()
-        .enumerate()
-        .map(|(index, _)| {
-            FrozenLoopRouteObservationV1::new(
-                LoopRouteSuppressionDispositionV1::Retained,
-                LoopModeReleaseSnapshotV1::Release {
-                    admission: LoopReleaseAdmissionObservationV1::Allowed,
-                },
-                LoopGlobalEntryDispositionV1::Allowed,
-                LoopRouteSourceDispositionV1::Available,
-                if index == target_cursor() {
-                    LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable)
-                } else {
-                    LoopRoutePolicyEvidenceV1::SourceDeclined(
-                        LoopRoutePolicySourceDeclineReasonV1::PreEffectDeclined,
-                    )
-                },
-            )
-        })
-        .collect::<Box<[_]>>();
-    issue_loop_true_break_continue_policy_demand_v1(
-        projection_for(input),
-        freeze_loop_route_schedule_v1(CANONICAL_LOOP_ROUTE_ORDER_V1.into(), observations).unwrap(),
-    )
-    .unwrap()
+    issue_loop_true_break_continue_policy_demand_v1(projection_for(input))
 }
 
 pub(crate) fn product() -> VerifiedLoopTrueBreakContinueRecipeProductV1 {

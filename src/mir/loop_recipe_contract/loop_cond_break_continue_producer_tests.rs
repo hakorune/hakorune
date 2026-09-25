@@ -10,14 +10,7 @@ use crate::mir::compiler::loop_cond_break_continue_projection::issue_loop_cond_b
 use crate::mir::compiler::loop_cond_break_continue_typed_map::VerifiedLoopCondBreakContinueTypedSourceMapV1;
 use crate::mir::compiler::loop_cond_break_continue_typed_map_issue::issue_loop_cond_break_continue_typed_source_map_v1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
-use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
-use crate::mir::loop_route_policy::{
-    freeze_loop_route_schedule_v1, issue_loop_cond_break_continue_policy_demand_v1,
-    FrozenLoopRouteObservationV1, LoopGlobalEntryDispositionV1, LoopModeReleaseSnapshotV1,
-    LoopReleaseAdmissionObservationV1, LoopRouteCandidateFactsV1, LoopRoutePolicyEvidenceV1,
-    LoopRoutePolicySourceDeclineReasonV1, LoopRouteSourceDispositionV1,
-    LoopRouteSuppressionDispositionV1, CANONICAL_LOOP_ROUTE_ORDER_V1,
-};
+use crate::mir::loop_route_policy::issue_loop_cond_break_continue_policy_demand_v1;
 
 pub(super) fn unit() -> VerifiedResolvedSourceUnitV1 {
     VerifiedResolvedSourceUnitV1::resolve_function(crate::mir::compiler::loop_cond_function_for_test())
@@ -40,48 +33,10 @@ pub(super) fn typed_map_for(
         .expect("typed source map")
 }
 
-pub(super) fn target_cursor() -> usize {
-    CANONICAL_LOOP_ROUTE_ORDER_V1
-        .iter()
-        .position(|route| *route == LoopRouteId::LoopCondBreakContinue)
-        .unwrap()
-}
-
-pub(super) fn schedule_with_winner(
-    winner: Option<usize>,
-) -> crate::mir::loop_route_policy::FrozenLoopRouteScheduleV1 {
-    let observations = CANONICAL_LOOP_ROUTE_ORDER_V1
-        .iter()
-        .enumerate()
-        .map(|(index, _)| {
-            FrozenLoopRouteObservationV1::new(
-                LoopRouteSuppressionDispositionV1::Retained,
-                LoopModeReleaseSnapshotV1::Release {
-                    admission: LoopReleaseAdmissionObservationV1::Allowed,
-                },
-                LoopGlobalEntryDispositionV1::Allowed,
-                LoopRouteSourceDispositionV1::Available,
-                if Some(index) == winner {
-                    LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable)
-                } else {
-                    LoopRoutePolicyEvidenceV1::SourceDeclined(
-                        LoopRoutePolicySourceDeclineReasonV1::PreEffectDeclined,
-                    )
-                },
-            )
-        })
-        .collect::<Box<[_]>>();
-    freeze_loop_route_schedule_v1(CANONICAL_LOOP_ROUTE_ORDER_V1.into(), observations).unwrap()
-}
-
 pub(super) fn demand_for(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
 ) -> crate::mir::loop_route_policy::VerifiedLoopCondBreakContinuePolicyDemandV1 {
-    issue_loop_cond_break_continue_policy_demand_v1(
-        typed_map_for(input),
-        schedule_with_winner(Some(target_cursor())),
-    )
-    .unwrap()
+    issue_loop_cond_break_continue_policy_demand_v1(typed_map_for(input))
 }
 
 pub(crate) fn product() -> VerifiedLoopCondBreakContinueRecipeProductV1 {
@@ -190,25 +145,3 @@ fn producer_is_deterministic_and_retains_policy_frame_receipt() {
     assert!(first.policy_receipt().frame_key().matches(&frame));
 }
 
-#[test]
-fn demand_rejects_schedule_without_loop_cond_candidate() {
-    let unit = unit();
-    let input = unit.root_function_input().unwrap();
-    let result = issue_loop_cond_break_continue_policy_demand_v1(
-        typed_map_for(input),
-        schedule_with_winner(None),
-    );
-    assert!(result.is_err(), "no LoopCond candidate must not be admitted");
-}
-
-#[test]
-fn demand_rejects_wrong_winner_cursor() {
-    let unit = unit();
-    let input = unit.root_function_input().unwrap();
-    let wrong = (target_cursor() + 1) % CANONICAL_LOOP_ROUTE_ORDER_V1.len();
-    let result = issue_loop_cond_break_continue_policy_demand_v1(
-        typed_map_for(input),
-        schedule_with_winner(Some(wrong)),
-    );
-    assert!(result.is_err(), "a different winning cursor must not seal");
-}

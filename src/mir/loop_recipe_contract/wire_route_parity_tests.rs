@@ -260,7 +260,7 @@ const HAKO_WIRE_ACCUM_DIRECT: &str =
 fn direct_accum_rust_artifact() -> LoopRecipeArtifactV1 {
     let unit = super::direct_accum_producer_tests::unit();
     let input = unit.root_function_input().expect("direct accum function input");
-    let (_winner, facts, source) = direct_accum_demand_for(input).into_parts();
+    let (facts, source) = direct_accum_demand_for(input).into_parts();
     let shape = facts.into_direct_accum_v1().expect("direct accum payload");
     let source_root =
         crate::mir::loop_structural_facts::bind_resolved_loop_root_v1(source)

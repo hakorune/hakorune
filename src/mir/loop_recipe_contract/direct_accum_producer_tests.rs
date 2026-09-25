@@ -6,7 +6,7 @@ use super::direct_accum_producer::{
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::direct_accum_projection::issue_direct_accum_facts_v1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
-use crate::mir::loop_route_policy::issue_policy_winner_for_test_with_frame;
+use crate::mir::loop_route_policy::direct_accum_route_admission_for_test;
 use crate::mir::loop_structural_facts::{
     issue_selected_loop_recipe_demand_v1, DirectAccumFactsPayloadRejectV1,
     VerifiedSelectedLoopRecipeDemandV1,
@@ -88,11 +88,12 @@ pub(super) fn demand_for(
         .unwrap();
     let frame = source.frame_key();
     issue_selected_loop_recipe_demand_v1(
-        issue_policy_winner_for_test_with_frame(4, &frame),
+        direct_accum_route_admission_for_test(frame),
         facts,
         source,
     )
     .unwrap()
+    .0
 }
 
 pub(crate) fn direct_accum_product_for_test() -> super::VerifiedDirectAccumRecipeProductV1 {
@@ -117,7 +118,7 @@ fn producer_rejects_identity_only_payload_without_retry() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function()).unwrap();
     let input = unit.root_function_input().unwrap();
     let demand = demand_for(input);
-    let (winner, _facts, source) = demand.into_parts();
+    let (_facts, source) = demand.into_parts();
     let site = source.into_parts().2;
     let source = input.function().resolved_loop_source(&site).unwrap();
     let frame = source.frame_key();
@@ -128,7 +129,13 @@ fn producer_rejects_identity_only_payload_without_retry() {
             site,
             frame.clone(),
         );
-    let demand = issue_selected_loop_recipe_demand_v1(winner, facts, source).unwrap();
+    let demand = issue_selected_loop_recipe_demand_v1(
+        direct_accum_route_admission_for_test(frame),
+        facts,
+        source,
+    )
+    .unwrap()
+    .0;
     assert!(matches!(
         produce_direct_accum_recipe_v1(demand, input.function()),
         Err(DirectAccumRecipeProducerRejectV1::FactsPayload(

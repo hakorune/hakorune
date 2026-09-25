@@ -1,22 +1,15 @@
-//! Owned, caller-zero M3-C snapshot plus M3-E policy evidence for Loop rows.
-//!
-//! `evaluate` is structural validation/sealing only; `policy` is the M3-E pure
-//! evaluator. See `README.md` for the authority boundary.
+//! Owned, caller-zero route-policy admission plus family observation for Loop
+//! rows. See `README.md` for the authority boundary.
 
 mod all_route_observation;
 #[cfg(test)]
 mod all_route_observation_tests;
-#[cfg(test)]
-mod adapter;
 mod direct_accum_observation;
 #[cfg(test)]
 mod direct_accum_observation_tests;
-mod evaluate;
 mod family_admission;
 #[cfg(test)]
 mod family_admission_tests;
-#[cfg(test)]
-mod family_selection;
 mod family_selector;
 #[cfg(test)]
 mod family_selector_tests;
@@ -39,8 +32,6 @@ mod loop_true_break_continue;
 mod loop_true_break_continue_observation;
 #[cfg(test)]
 mod loop_true_break_continue_observation_tests;
-#[cfg(test)]
-mod loop_true_break_continue_tests;
 mod nested_predicate_observation;
 #[cfg(test)]
 mod nested_predicate_observation_tests;
@@ -64,7 +55,10 @@ pub(crate) use direct_accum_observation::{
     DirectAccumObservationUnresolvedV1, VerifiedDirectAccumFamilyCandidateV1,
 };
 #[allow(unused_imports)]
-pub(crate) use evaluate::freeze_loop_route_schedule_v1;
+pub(crate) use loop_cond_break_continue::{
+    issue_loop_cond_break_continue_policy_demand_v1,
+    VerifiedLoopCondBreakContinuePolicyDemandV1, VerifiedLoopCondBreakContinuePolicyReceiptV1,
+};
 pub(crate) use family_admission::{
     assemble_loop_family_admission_window_v1, LoopFamilyAdmissionAssemblyOutcomeV1,
     LoopFamilyAdmissionFailureEvidenceV1, LoopFamilyAdmissionIssueV1, LoopFamilyObservationRowV1,
@@ -72,11 +66,6 @@ pub(crate) use family_admission::{
 };
 pub(crate) use family_admission::{
     LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionModeV1, LoopFamilyTagV1,
-};
-#[cfg(test)]
-pub(crate) use family_selection::{
-    select_canonical_family_for_test, CanonicalFamilySelectionOutcomeV1,
-    CanonicalFamilySelectorInputV1, FamilySelectionUnresolvedV1, GenericFamilyEvidenceV1,
 };
 pub(crate) use family_selector::{
     select_canonical_loop_family_v1, CanonicalLoopFamilySelectionFailureV1,
@@ -98,19 +87,14 @@ pub(crate) use generic_g0_observation::{
 };
 pub(crate) use loop_cond_break_continue_observation::LoopCondFamilyObservationV1;
 #[allow(unused_imports)]
-pub(crate) use loop_cond_break_continue::{
-    issue_loop_cond_break_continue_policy_demand_v1, LoopCondBreakContinuePolicyDemandRejectV1,
-    VerifiedLoopCondBreakContinuePolicyDemandV1, VerifiedLoopCondBreakContinuePolicyReceiptV1,
+pub(crate) use loop_true_break_continue::{
+    issue_loop_true_break_continue_policy_demand_v1,
+    VerifiedLoopTrueBreakContinuePolicyDemandV1, VerifiedLoopTrueBreakContinuePolicyReceiptV1,
 };
 pub(crate) use loop_cond_break_continue_observation::{
     issue_loop_cond_family_observation_v1, LoopCondObservationContextV1,
     LoopCondObservationDeclineV1, LoopCondObservationRejectV1, LoopCondObservationUnresolvedV1,
     VerifiedLoopCondFamilyCandidateV1,
-};
-#[allow(unused_imports)]
-pub(crate) use loop_true_break_continue::{
-    issue_loop_true_break_continue_policy_demand_v1, LoopTrueBreakContinuePolicyDemandRejectV1,
-    VerifiedLoopTrueBreakContinuePolicyDemandV1, VerifiedLoopTrueBreakContinuePolicyReceiptV1,
 };
 pub(crate) use loop_true_break_continue_observation::LoopTrueFamilyObservationV1;
 pub(crate) use loop_true_break_continue_observation::{
@@ -126,29 +110,15 @@ pub(crate) use nested_predicate_observation::{
     NestedPredicateObservationUnresolvedV1, VerifiedNestedPredicateFamilyCandidateV1,
 };
 #[cfg(test)]
-pub(crate) use policy::issue_policy_winner_for_test_with_frame;
+pub(crate) use policy::direct_accum_route_admission_for_test;
 #[allow(unused_imports)]
 pub(crate) use policy::{
-    evaluate_frozen_loop_route_schedule_v1, issue_direct_accum_route_admission_v1,
-    DirectAccumRouteAdmissionRejectV1, LoopPolicyBlockedReasonV1, LoopQualifiedV1,
-    LoopRoutePolicyEvaluationV1, VerifiedDirectAccumPolicyHandoffV1,
+    issue_direct_accum_route_admission_v1, VerifiedDirectAccumPolicyHandoffV1,
     VerifiedDirectAccumPolicyReceiptV1, VerifiedDirectAccumRouteAdmissionV1,
-    VerifiedLoopPolicyWinnerV1,
 };
 #[allow(unused_imports)]
-pub(crate) use policy_evidence::{
-    LoopGenericDebtKeyV1, LoopRouteCandidateFactsV1, LoopRoutePolicyBlockReasonV1,
-    LoopRoutePolicyEvidenceV1, LoopRoutePolicySourceDeclineReasonV1,
-};
+pub(crate) use policy_evidence::LoopRoutePolicySourceDeclineReasonV1;
 #[allow(unused_imports)]
 pub(crate) use schema::{
-    FrozenLoopRouteObservationV1, FrozenLoopRouteRowV1, FrozenLoopRouteScheduleRejectV1,
-    FrozenLoopRouteScheduleV1, LoopGlobalEntryDispositionV1, LoopModeReleaseSnapshotV1,
-    LoopPlannerContractObservationV1, LoopReleaseAdmissionObservationV1,
-    LoopRouteSourceDispositionV1, LoopRouteSourceUnavailableV1, LoopRouteSuppressionCauseV1,
-    LoopRouteSuppressionDispositionV1, CANONICAL_LOOP_ROUTE_COUNT_V1,
-    CANONICAL_LOOP_ROUTE_ORDER_V1,
+    CANONICAL_LOOP_ROUTE_COUNT_V1, CANONICAL_LOOP_ROUTE_ORDER_V1,
 };
-
-#[cfg(test)]
-mod tests;

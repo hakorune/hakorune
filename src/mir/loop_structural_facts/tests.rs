@@ -8,7 +8,7 @@ use crate::mir::loop_recipe_contract::{
     LoopRecipeVerifierV1, LoopRecipeVerifierV2, LoopSourcePathStepV1, LoopSourcePathV1,
     VerifiedLoopRecipeV1,
 };
-use crate::mir::loop_route_policy::issue_policy_winner_for_test_with_frame;
+use crate::mir::loop_route_policy::direct_accum_route_admission_for_test;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, SemanticOwnerSourceKindV1,
     SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
@@ -149,14 +149,13 @@ fn selected_demand_consumes_matching_policy_facts_and_source_once() {
         frame_key.clone(),
     );
 
-    let demand = issue_selected_loop_recipe_demand_v1(
-        issue_policy_winner_for_test_with_frame(4, &frame_key),
+    let (demand, _receipt) = issue_selected_loop_recipe_demand_v1(
+        direct_accum_route_admission_for_test(frame_key),
         facts,
         source,
     )
     .expect("matching selected demand must seal");
-    let (winner, _facts, source) = demand.into_parts();
-    assert_eq!(winner.into_raw_cursor(), 4);
+    let (_facts, source) = demand.into_parts();
     let (origin, owner, resolved_site) = source.into_parts();
     assert_eq!(origin.compilation_unit_ordinal(), 0);
     assert_eq!(origin.function_ordinal(), 0);
@@ -181,7 +180,7 @@ fn selected_demand_rejects_facts_source_identity_mismatch() {
 
     assert_eq!(
         issue_selected_loop_recipe_demand_v1(
-            issue_policy_winner_for_test_with_frame(4, &frame_key),
+            direct_accum_route_admission_for_test(frame_key),
             facts,
             source,
         ),
@@ -205,7 +204,7 @@ fn selected_demand_rejects_foreign_execution_frame() {
 
     assert_eq!(
         issue_selected_loop_recipe_demand_v1(
-            issue_policy_winner_for_test_with_frame(4, &foreign_frame),
+            direct_accum_route_admission_for_test(foreign_frame),
             facts,
             source,
         ),

@@ -3,7 +3,9 @@
 //! This module joins ownership only. It does not construct a Recipe, inspect
 //! AST/facts, select a route, or touch physical MIR/PHI/SSA state.
 
-use crate::mir::loop_route_policy::VerifiedLoopPolicyWinnerV1;
+use crate::mir::loop_route_policy::{
+    VerifiedDirectAccumPolicyReceiptV1, VerifiedDirectAccumRouteAdmissionV1,
+};
 use crate::mir::resolved_semantics::{
     FunctionOriginV1, LoopExecutionFrameKeyV1, SemanticOwnerSourceKindV1, SourceStmtSiteV1,
     VerifiedResolvedLoopSourceV1,
@@ -65,7 +67,6 @@ pub(crate) enum DirectAccumSingletonObservationRejectV1 {
 /// One-way handoff accepted by the caller-zero Recipe producer facade.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedSelectedLoopRecipeDemandV1 {
-    winner: VerifiedLoopPolicyWinnerV1,
     facts: VerifiedLoopStructuralFactsV1,
     source: VerifiedResolvedLoopSourceV1,
     _seal: VerifiedSelectedLoopRecipeDemandSealV1,
@@ -87,11 +88,10 @@ impl VerifiedSelectedLoopRecipeDemandV1 {
     pub(crate) fn into_parts(
         self,
     ) -> (
-        VerifiedLoopPolicyWinnerV1,
         VerifiedLoopStructuralFactsV1,
         VerifiedResolvedLoopSourceV1,
     ) {
-        (self.winner, self.facts, self.source)
+        (self.facts, self.source)
     }
 }
 
@@ -199,14 +199,21 @@ impl VerifiedDirectAccumSingletonObservationV1 {
     }
 }
 
-/// Consumes one policy winner, one structural identity witness, and one exact
-/// resolved-source capability. No route/family dispatch is possible here.
+/// Consumes one route-admission token, one structural identity witness, and
+/// one exact resolved-source capability. No route/family dispatch is possible
+/// here. Returns the admission's retained policy receipt as provenance.
 pub(crate) fn issue_selected_loop_recipe_demand_v1(
-    winner: VerifiedLoopPolicyWinnerV1,
+    admission: VerifiedDirectAccumRouteAdmissionV1,
     facts: VerifiedLoopStructuralFactsV1,
     source: VerifiedResolvedLoopSourceV1,
-) -> Result<VerifiedSelectedLoopRecipeDemandV1, SelectedLoopDemandRejectV1> {
-    if !winner.frame_key().matches(&facts.frame_key)
+) -> Result<
+    (
+        VerifiedSelectedLoopRecipeDemandV1,
+        VerifiedDirectAccumPolicyReceiptV1,
+    ),
+    SelectedLoopDemandRejectV1,
+> {
+    if !admission.frame_key().matches(&facts.frame_key)
         || !source.frame_key().matches(&facts.frame_key)
     {
         return Err(SelectedLoopDemandRejectV1::ExecutionFrameMismatch);
@@ -219,12 +226,14 @@ pub(crate) fn issue_selected_loop_recipe_demand_v1(
         return Err(SelectedLoopDemandRejectV1::FactsSourceIdentityMismatch);
     }
 
-    Ok(VerifiedSelectedLoopRecipeDemandV1 {
-        winner,
-        facts,
-        source,
-        _seal: VerifiedSelectedLoopRecipeDemandSealV1,
-    })
+    Ok((
+        VerifiedSelectedLoopRecipeDemandV1 {
+            facts,
+            source,
+            _seal: VerifiedSelectedLoopRecipeDemandSealV1,
+        },
+        admission.into_receipt(),
+    ))
 }
 
 #[cfg(test)]

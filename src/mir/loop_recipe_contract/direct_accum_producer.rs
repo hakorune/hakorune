@@ -97,7 +97,7 @@ pub(crate) fn produce_direct_accum_recipe_v1(
     demand: VerifiedSelectedLoopRecipeDemandV1,
     function: &VerifiedResolvedFunctionV1,
 ) -> Result<VerifiedDirectAccumRecipeProductV1, DirectAccumRecipeProducerRejectV1> {
-    let (_winner, facts, source) = demand.into_parts();
+    let (facts, source) = demand.into_parts();
     let shape = facts
         .into_direct_accum_v1()
         .map_err(DirectAccumRecipeProducerRejectV1::FactsPayload)?;

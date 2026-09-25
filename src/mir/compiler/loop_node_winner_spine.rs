@@ -37,20 +37,18 @@ use crate::mir::loop_recipe_contract::{
 };
 use crate::mir::loop_route_policy::{
     assemble_loop_family_admission_window_v1,
-    freeze_loop_route_schedule_v1, issue_all_route_observation_set_v1,
+    issue_all_route_observation_set_v1,
     issue_direct_accum_route_admission_v1, issue_loop_cond_break_continue_policy_demand_v1,
     issue_loop_true_break_continue_policy_demand_v1, issue_whole_unit_loop_coverage_proof_v1,
     select_canonical_loop_family_v1, CanonicalLoopFamilyCandidateV1,
     CanonicalLoopFamilySelectionFailureV1, CanonicalLoopFamilySelectionOutcomeV1,
-    DirectAccumObservationContextV1, DirectAccumRouteAdmissionRejectV1,
-    FrozenLoopRouteScheduleRejectV1, FrozenLoopRouteObservationV1, GenericG0ObservationContextV1,
+    DirectAccumObservationContextV1, GenericG0ObservationContextV1,
     LoopAllRouteObservationRowV1, LoopAllRouteObservationSetRejectV1,
-    LoopCondBreakContinuePolicyDemandRejectV1, LoopCondObservationContextV1,
+    LoopCondObservationContextV1,
     LoopFamilyAdmissionAssemblyOutcomeV1, LoopFamilyAdmissionFailureEvidenceV1,
-    LoopFamilyObservationRowV1, LoopRouteCandidateFactsV1, LoopRouteObservationOutcomeV1,
-    LoopRoutePolicyEvidenceV1, LoopRoutePolicySourceDeclineReasonV1, LoopRouteRecipeBackingV1,
-    LoopRouteSourceDispositionV1, LoopRouteSuppressionDispositionV1, LoopTrueObservationContextV1,
-    LoopGlobalEntryDispositionV1, LoopModeReleaseSnapshotV1, LoopReleaseAdmissionObservationV1,
+    LoopFamilyObservationRowV1, LoopRouteObservationOutcomeV1,
+    LoopRoutePolicySourceDeclineReasonV1, LoopRouteRecipeBackingV1,
+    LoopTrueObservationContextV1,
     NestedPredicateObservationContextV1, VerifiedLoopFamilyAdmissionRowsV1,
     WholeUnitLoopCoverageProofV1, CANONICAL_LOOP_ROUTE_ORDER_V1,
     issue_direct_accum_family_observation_v1, issue_generic_g0_family_observation_v1,
@@ -58,7 +56,6 @@ use crate::mir::loop_route_policy::{
     issue_nested_predicate_family_observation_v1,
     DirectAccumFamilyObservationV1, GenericG0FamilyObservationV1, LoopCondFamilyObservationV1,
     LoopTrueFamilyObservationV1, NestedPredicateFamilyObservationV1,
-    FrozenLoopRouteScheduleV1, LoopTrueBreakContinuePolicyDemandRejectV1,
 };
 use crate::mir::loop_structural_facts::{
     issue_selected_loop_recipe_demand_v1, DirectAccumObservationCoverageV1,
@@ -148,16 +145,11 @@ pub(crate) enum LoopNodeWinnerSpineFailureV1 {
     WindowAssemble(LoopFamilyAdmissionFailureEvidenceV1),
     CoverageSet(LoopAllRouteObservationSetRejectV1),
     Selection(CanonicalLoopFamilySelectionFailureV1),
-    DirectAccumAdmission(DirectAccumRouteAdmissionRejectV1),
     DirectAccumDemand(SelectedLoopDemandRejectV1),
     DirectAccumProducer(DirectAccumRecipeProducerRejectV1),
     NestedPredicateProducer(NestedPredicateRecipeProducerRejectV1),
-    LoopTrueSchedule(FrozenLoopRouteScheduleRejectV1),
-    LoopTrueDemand(LoopTrueBreakContinuePolicyDemandRejectV1),
     LoopTrueProducer(LoopTrueBreakContinueRecipeProducerRejectV1),
     LoopCondTypedMap(LoopCondTypedSourceMapRejectV1),
-    LoopCondSchedule(FrozenLoopRouteScheduleRejectV1),
-    LoopCondDemand(LoopCondBreakContinuePolicyDemandRejectV1),
     LoopCondProducer(LoopCondBreakContinueRecipeProducerRejectV1),
     GenericG0Demand(GenericG0RecipeDemandIssueV1),
     GenericG0Producer(GenericG0RecipeProducerRejectV1),
@@ -540,13 +532,12 @@ fn issue_direct_accum_recipe<'source>(
     candidate: crate::mir::loop_route_policy::VerifiedDirectAccumFamilyCandidateV1,
 ) -> Result<VerifiedDirectAccumRecipeProductV1, LoopNodeWinnerSpineFailureV1> {
     let (observation, _) = candidate.into_parts();
-    let handoff = issue_direct_accum_route_admission_v1(observation)
-        .map_err(LoopNodeWinnerSpineFailureV1::DirectAccumAdmission)?;
+    let handoff = issue_direct_accum_route_admission_v1(observation);
     let (admission, observation) = handoff.into_parts();
-    let winner = admission.into_policy_winner();
     let (facts, source) = observation.into_parts();
-    let demand = issue_selected_loop_recipe_demand_v1(winner, facts, source)
-        .map_err(LoopNodeWinnerSpineFailureV1::DirectAccumDemand)?;
+    let (demand, _policy_receipt) =
+        issue_selected_loop_recipe_demand_v1(admission, facts, source)
+            .map_err(LoopNodeWinnerSpineFailureV1::DirectAccumDemand)?;
     produce_direct_accum_recipe_v1(demand, input.function())
         .map_err(LoopNodeWinnerSpineFailureV1::DirectAccumProducer)
 }
@@ -556,10 +547,7 @@ fn issue_loop_true_recipe<'source>(
     candidate: crate::mir::loop_route_policy::VerifiedLoopTrueFamilyCandidateV1,
 ) -> Result<VerifiedLoopTrueBreakContinueRecipeProductV1, LoopNodeWinnerSpineFailureV1> {
     let (projection, _) = candidate.into_parts();
-    let schedule = family_route_schedule(LoopRouteId::LoopTrueBreakContinue)
-        .map_err(LoopNodeWinnerSpineFailureV1::LoopTrueSchedule)?;
-    let demand = issue_loop_true_break_continue_policy_demand_v1(projection, schedule)
-        .map_err(LoopNodeWinnerSpineFailureV1::LoopTrueDemand)?;
+    let demand = issue_loop_true_break_continue_policy_demand_v1(projection);
     produce_loop_true_break_continue_recipe_v1(demand, input.function())
         .map_err(LoopNodeWinnerSpineFailureV1::LoopTrueProducer)
 }
@@ -571,41 +559,8 @@ fn issue_loop_cond_recipe<'source>(
     let (projection, _) = candidate.into_parts();
     let map = issue_loop_cond_break_continue_typed_source_map_v1(input, projection)
         .map_err(LoopNodeWinnerSpineFailureV1::LoopCondTypedMap)?;
-    let schedule = family_route_schedule(LoopRouteId::LoopCondBreakContinue)
-        .map_err(LoopNodeWinnerSpineFailureV1::LoopCondSchedule)?;
-    let demand = issue_loop_cond_break_continue_policy_demand_v1(map, schedule)
-        .map_err(LoopNodeWinnerSpineFailureV1::LoopCondDemand)?;
+    let demand = issue_loop_cond_break_continue_policy_demand_v1(map);
     produce_loop_cond_break_continue_recipe_v1(demand, input.function())
         .map_err(LoopNodeWinnerSpineFailureV1::LoopCondProducer)
 }
 
-/// Frozen-schedule provenance for one family demand: the family's owned
-/// canonical route is the single `Candidate` row; every other row is a typed
-/// source decline. The demand issuer evaluates this schedule internally and
-/// cursor-checks the winner — retained provenance, never a second selector.
-fn family_route_schedule(
-    owned_route: LoopRouteId,
-) -> Result<FrozenLoopRouteScheduleV1, FrozenLoopRouteScheduleRejectV1> {
-    let observations = CANONICAL_LOOP_ROUTE_ORDER_V1
-        .iter()
-        .map(|route| {
-            let evidence = if *route == owned_route {
-                LoopRoutePolicyEvidenceV1::Candidate(LoopRouteCandidateFactsV1::SourceAvailable)
-            } else {
-                LoopRoutePolicyEvidenceV1::SourceDeclined(
-                    LoopRoutePolicySourceDeclineReasonV1::ExcludedByVerifiedSingletonObservation,
-                )
-            };
-            FrozenLoopRouteObservationV1::new(
-                LoopRouteSuppressionDispositionV1::Retained,
-                LoopModeReleaseSnapshotV1::Release {
-                    admission: LoopReleaseAdmissionObservationV1::Allowed,
-                },
-                LoopGlobalEntryDispositionV1::Allowed,
-                LoopRouteSourceDispositionV1::Available,
-                evidence,
-            )
-        })
-        .collect::<Box<[_]>>();
-    freeze_loop_route_schedule_v1(CANONICAL_LOOP_ROUTE_ORDER_V1.into(), observations)
-}

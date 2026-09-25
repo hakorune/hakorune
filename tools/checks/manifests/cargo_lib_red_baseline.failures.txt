@@ -85,7 +85,6 @@ mir::global_call_route_plan::tests::runtime_methods::collection_builders::refres
 mir::global_call_route_plan::tests::static_string_array::refresh_module_global_call_routes_rejects_non_static_array_factory
 mir::global_call_route_plan::tests::void_side_effect::refresh_module_semantic_metadata_accepts_void_side_effect_array_push_body
 mir::loop_recipe_contract::source_bound_core_tests::source_bound_core_rejects_derived_carrier_and_duplicate_effect_mismatch
-mir::loop_route_policy::policy_evidence::tests::evidence_vocabulary_is_closed_and_round_trips_each_disposition
 mir::resolved_semantics::owner_forest_tests::resolver_seals_receiver_read_as_structural_upvar
 mir::resolved_semantics::shadow::tests::accepted_vocabulary_is_closed_and_reviewable
 mir::type_contracts::local_slot::tests::contract_initializer_evaluates_call_once

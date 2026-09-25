@@ -1,32 +1,29 @@
-# Frozen Loop Route Policy Rows
+# Loop Route Policy
 
-This module is the neutral M3-C/M3-E boundary for one owned snapshot of the
-legacy Loop route schedule and explicit policy evidence. Its legacy schedule
-facade and LoopTrue fixture remain caller-zero; resolved DirectAccum and
-NestedPredicate handoffs are separate live lanes, while the future Generic
-family selector remains caller-zero.
+This module owns the family observation/assembler/selector boundary plus the
+profile-specific policy admissions for Loop rows. Resolved DirectAccum,
+NestedPredicate, LoopTrue, LoopCond, and GenericG0 handoffs are live lanes.
 
 Authority is deliberately narrow:
 
 ```text
-owned route IDs + owned typed observations/evidence
-  -> canonical schedule validation
-  -> FrozenLoopRouteScheduleV1 + LoopRoutePolicyEvidenceV1
+owned typed observations/evidence
+  -> five-family admission window
+  -> canonical family selection
+  -> profile-specific policy demand/admission (no route cursor)
 ```
 
-`FrozenLoopRouteScheduleV1` owns exactly the 19 canonical route IDs in raw
-cursor order. Each `FrozenLoopRouteRowV1` owns its cursor, an opaque
-parity/provenance route ID, typed suppression evidence, one mode/release
-snapshot, one global-entry disposition, and one source disposition. The
-schedule and its rows are non-`Clone`; consumers receive read-only views only.
-A fresh schedule can be issued only from canonical row zero. There is no suffix
-or resume constructor.
+The M12-R2C part 2 retirement removed the synthetic 19-row
+`FrozenLoopRouteScheduleV1` and the `VerifiedLoopPolicyWinnerV1` ceremony:
+family selection happens upstream in `family_selector.rs`, so the profile
+admissions seal directly from their source-side observations and carry no
+route ID, raw cursor, or winner. `CANONICAL_LOOP_ROUTE_ORDER_V1` remains only
+as all-route coverage/provenance vocabulary for `all_route_observation.rs`;
+it is not a semantic order and must not drive lowering.
 
-This module does not own or perform route predicates, suppression evaluation,
-winner selection, retry, recipe construction, AST observation, Builder
-mutation, composition, lowering, or physical ID allocation. `evaluate.rs`
-performs structural validation and row sealing; `policy.rs` performs the pure
-M3-E audit and emits only Qualified, Blocked, or Exhausted.
+This module does not own or perform route predicates, winner selection, retry,
+recipe construction, AST observation, Builder mutation, composition, lowering,
+or physical ID allocation.
 
 M8 S6A does not add code or a selector here. Its
 `VariableAccumRecurrenceV1` producer remains a caller-zero provenance path
@@ -82,26 +79,19 @@ their products. Its After envelope owns the logical tail and exact return ABI;
 P0 owns executable completion/DraftSeal. This policy module does not gain a
 Recipe or physical authority.
 
-The migration fixture adapter is test-only. Its M3-F parity submodule may invoke
-the legacy execution witness as an oracle, but it has no production caller; the
-production facade `freeze_loop_route_schedule_v1` remains caller-zero.
-
-The legacy DirectAccum pilot retains one narrower migration/live handoff:
+The DirectAccum pilot's live handoff is:
 
 ```text
 VerifiedDirectAccumSingletonObservationV1
-  -> policy-owned 19-row matrix
-  -> freeze/evaluate
+  -> issue_direct_accum_route_admission_v1
   -> VerifiedDirectAccumPolicyHandoffV1
 ```
 
-Only the policy module constructs that matrix. Non-Accum rows use the typed
-singleton-exclusion evidence issued by the source certificate; Generic debt is
-never silently projected to `None`. The handoff retains the source observation
-for the next Recipe stage while hiding route IDs, raw cursors, and the frozen
-schedule from physical lowerers. The handoff is profile-specific and must not
-be mistaken for the future family selector; its resolved DirectAccum production
-lane is a separate live owner.
+The admission seals directly from the source-side singleton observation; there
+is no intermediate schedule, raw cursor, or winner evaluation. The handoff
+retains the source observation for the next Recipe stage and is
+profile-specific — it must not be mistaken for the family selector, which
+already ran upstream in the production spine.
 
 ## DirectAccum S1 family observation
 
@@ -120,8 +110,8 @@ identity/mode/coverage context and emits only `Candidate`, `Declined`,
 Recipe/JoinSig, Builder/MIR, retry/fallback, or production caller. The next
 design boundary is LoopTrue.
 
-This observer is intentionally separate from `policy.rs`, `family_selection.rs`,
-and the legacy schedule. It does not read AST or `LoopRouteId`, issue a winner,
+This observer is intentionally separate from `policy.rs` and the family
+selector. It does not read AST or `LoopRouteId`, issue a winner,
 Recipe/JoinSig/BindingKey, call Builder/MIR, retry/fallback, or open a
 production caller. The seven focused tests and shared recursive guard fix this
 boundary. The NestedPredicate S1 implementation is landed in its dedicated
@@ -197,29 +187,28 @@ The LoopTrue branch cohort has a separate policy-demand box:
 
 ```text
 VerifiedLoopTrueBreakContinueSourceProjectionV1
-  + owned FrozenLoopRouteScheduleV1 (consumed once)
+  -> issue_loop_true_break_continue_policy_demand_v1
   -> VerifiedLoopTrueBreakContinuePolicyDemandV1
 ```
 
-Its private brand accepts only the canonical `LoopTrueBreakContinue` winner
-and the matching source frame. The demand retains only a policy receipt and
-the source projection; it does not retain a raw cursor, schedule, route ID,
-Recipe, JoinSig, retry, or physical capability. The implementation is
-caller-zero and exists solely as the S1 handoff to the later Recipe cohort.
+The demand seals directly from the verified source projection and retains only
+a policy receipt and that projection; no raw cursor, schedule, route ID,
+Recipe, JoinSig, retry, or physical capability crosses this boundary. The
+LoopCond cohort follows the same shape from its typed source map.
 
-At M12, migration-only schedule adapters and opaque route receipts retire after
-M10/M11 cut over and remove the old physical route edges. Any retained
-source-policy rows must remain data-only inputs to the common recursive recipe.
+At M12, migration-only schedule adapters and opaque route receipts retired:
+the synthetic 19-row schedule and winner cursor were removed, and the profile
+demands/admissions now seal directly from their upstream-selected inputs.
 
 ## D4-S3 family-selection boundary
 
-D4-S3 closes the future authority without changing this module's existing
-19-route schedule/evidence APIs. `CANONICAL_LOOP_ROUTE_ORDER_V1`, raw cursors,
-and `evaluate_frozen_loop_route_schedule_v1` remain legacy migration
-provenance; they are not the canonical NestedPredicate/DirectAccum/Generic
-family selector. The resolved DirectAccum and NestedPredicate lanes already
-have live family-specific handoffs, so this module is not globally
-caller-zero; the Generic resolved-carrier selector remains caller-zero.
+D4-S3 closes the future authority. `CANONICAL_LOOP_ROUTE_ORDER_V1` remains
+migration provenance vocabulary for the all-route coverage proof only; it is
+not the canonical NestedPredicate/DirectAccum/Generic family selector and the
+19-route schedule/evaluator APIs are retired. The resolved DirectAccum and
+NestedPredicate lanes already have live family-specific handoffs, so this
+module is not globally caller-zero; the Generic resolved-carrier selector
+remains caller-zero.
 
 The next product is the separate resolver-branded, non-`Clone`
 `VerifiedLoopFamilyAdmissionWindowV1` containing one identity-only source
@@ -240,10 +229,11 @@ coverage seal, and unresolved family rows. D4-S3-S1 is also closed outside
 this module as nine private source-backed fixture/mode matrix sets with typed
 NoStandaloneRow/planner-freeze/reject separation; neither row calls or
 implements the future selector. The next private row is the pure selector
-consumer, and the existing legacy schedule/evidence APIs remain unchanged.
+consumer.
 
-D4-S3-S2 remains a historical `#[cfg(test)]` marker in
-`family_selection.rs`; it is not the canonical selector and is not promoted.
+The historical `#[cfg(test)]` `family_selection.rs` marker was removed in
+M12-R2C part 2 together with the synthetic schedule machinery; it was never
+the canonical selector.
 The next implementation adds a separate `family_selector.rs` consuming only
 the common assembler's Ready window. Production selector, Recipe/key,
 Builder/MIR, retry/fallback, and Generic caller remain zero until that new
@@ -276,8 +266,7 @@ The selected product retains the resolver lease, common mode/coverage, family
 tag, and typed candidate. Failure products retain the consumed lease and all
 five rows. The selector contains no source lookup, AST/resolver issuer,
 route/schedule access, Recipe/JoinSig, Builder/MIR, retry, fallback, or
-production call. The historical `family_selection.rs` marker remains
-test-only and is not promoted.
+production call.
 
 Three focused selector tests cover all five candidate variants, retained
 `OutOfWindow` evidence, and overlap retention. The shared selector guard checks

@@ -327,16 +327,13 @@ mod tests {
             .into_direct_accum_singleton_observation_v1(source)
             .expect("DirectAccum singleton observation must seal");
         let handoff =
-            crate::mir::loop_route_policy::issue_direct_accum_route_admission_v1(observation)
-                .expect("singleton policy admission must seal");
+            crate::mir::loop_route_policy::issue_direct_accum_route_admission_v1(observation);
         let (admission, observation) = handoff.into_parts();
-        let winner = admission.into_policy_winner();
-        assert_eq!(winner.raw_cursor_for_test(), 10);
         let (facts, source) = observation.into_parts();
         crate::mir::loop_structural_facts::issue_selected_loop_recipe_demand_v1(
-            winner, facts, source,
+            admission, facts, source,
         )
-        .expect("Direct Accum facts/source/winner frame must seal");
+        .expect("Direct Accum facts/source/admission frame must seal");
     }
 
     pub(crate) fn direct_accum_function_for_test() -> ASTNode {
