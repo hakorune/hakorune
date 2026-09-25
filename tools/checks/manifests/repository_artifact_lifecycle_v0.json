@@ -10,7 +10,7 @@
     "phase_296x_direct": 1035,
     "private": 0,
     "src": 4811,
-    "tools": 7420
+    "tools": 7421
   },
   "design_registry": {
     "authority_registry_decided": true,
@@ -1935,7 +1935,7 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 5548,
+    "reachable_count": 5547,
     "root_count": 3896,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
@@ -1945,8 +1945,8 @@
       "fixed_current_entry": 4,
       "reference_src_tools": 3270
     },
-    "unreachable_count": 3942,
-    "unreachable_pending_count": 2553,
+    "unreachable_count": 3943,
+    "unreachable_pending_count": 2554,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0

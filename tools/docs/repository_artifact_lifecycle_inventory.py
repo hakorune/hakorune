@@ -17,6 +17,7 @@ from archive_unreachable_phase_clusters import (
     archive_target_for_source,
     bounded_cluster_batch,
 )
+import design_registry
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -39,18 +40,6 @@ MARKDOWN_LINK = re.compile(r"\[[^\]]*\]\(([^)\s#?]+)")
 STATUS_LINE = re.compile(r"(?im)^(?:##\s*)?Status\s*:?\s*(.+)$")
 CLOSED_WORDS = ("complete", "closed", "landed", "historical", "superseded")
 ACTIVE_WORDS = ("active", "implementation", "design consultation")
-DESIGN_ROLES = {
-    "authority",
-    "navigation",
-    "supporting",
-    "status-ledger",
-    "superseded",
-}
-DESIGN_REGISTRY_BLOCK = re.compile(
-    r"<!-- design-registry-v0:begin -->\s*```toml\s*(.*?)\s*```\s*"
-    r"<!-- design-registry-v0:end -->",
-    re.DOTALL,
-)
 
 
 def parse_args() -> argparse.Namespace:
@@ -531,63 +520,10 @@ def design_registry_inventory() -> dict[str, object]:
 def read_design_registry(
     direct_files: set[str],
 ) -> tuple[dict[str, object], list[str]]:
-    violations: list[str] = []
-    if not DESIGN_INDEX.is_file():
-        return {"mode": "warning", "unregistered_baseline": 0, "documents": []}, [
-            "design registry INDEX.md is missing"
-        ]
-    match = DESIGN_REGISTRY_BLOCK.search(DESIGN_INDEX.read_text(encoding="utf-8"))
-    if not match:
-        return {"mode": "warning", "unregistered_baseline": 0, "documents": []}, [
-            "design registry typed block is missing"
-        ]
-    registry = tomllib.loads(match.group(1))
-    if registry.get("schema_version") != 0:
-        violations.append("design registry schema_version must be 0")
-    if registry.get("mode") not in {"warning", "strict"}:
-        violations.append("design registry mode must be warning or strict")
-    rows = registry.get("documents", [])
-    paths = [row.get("path", "") for row in rows]
-    if len(paths) != len(set(paths)):
-        violations.append("design registry contains duplicate paths")
-    sidecar_owners: dict[str, str] = {}
-    row_by_path = {row.get("path", ""): row for row in rows}
-    for row in rows:
-        path = row.get("path", "")
-        role = row.get("role", "")
-        if path not in direct_files:
-            violations.append(f"registered design file is missing: {path}")
-        if role not in DESIGN_ROLES:
-            violations.append(f"invalid design role for {path}: {role}")
-        if not row.get("owner"):
-            violations.append(f"design row owner is missing: {path}")
-        if not row.get("retire_when"):
-            violations.append(f"design row retire_when is missing: {path}")
-        if role == "superseded" and not row.get("superseded_by"):
-            violations.append(f"superseded_by is required: {path}")
-        for sidecar in row.get("sidecars", []):
-            if sidecar not in direct_files:
-                violations.append(f"design sidecar is missing: {path} -> {sidecar}")
-            if sidecar in row_by_path:
-                violations.append(f"design sidecar also has a document row: {sidecar}")
-            previous_owner = sidecar_owners.setdefault(sidecar, path)
-            if previous_owner != path:
-                violations.append(
-                    f"design sidecar has multiple owners: {sidecar}"
-                )
-    for path in paths:
-        seen: set[str] = set()
-        current = path
-        while current in row_by_path:
-            if current in seen:
-                violations.append(f"design precedence cycle includes: {current}")
-                break
-            seen.add(current)
-            current = row_by_path[current].get("precedence_parent", "")
-    readme = (DESIGN_INDEX.parent / "README.md").read_text(encoding="utf-8")
-    if "INDEX.md" not in readme or "navigation-only" not in readme:
-        violations.append("design README must identify INDEX.md and navigation-only role")
-    return registry, violations
+    # DESIGN-REGISTRY-V1 L0: route through the typed loader seam. The
+    # V0 embedded block remains the only production source; output
+    # shape and violation order are the parity contract.
+    return design_registry.load_registry(direct_files)
 
 
 def card_status(path: Path) -> str:
