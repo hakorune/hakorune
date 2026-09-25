@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-UNIFIED-SELFHOST-RESUME-D0"
+current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "SelfhostResumeD0-Open__R7FrontierNoSafeSlice__LaneEntryCensus"
-current_design_stop = "unified_selfhost_resume_d0__row_h_first_slice_census"
+current_blocker_token = "ExeAcceptanceD0-Open__Gate1-2of9Red__OwnerTupleSelection"
+current_design_stop = "exe_acceptance_owner_selection_d0__gate1_fail_class_census"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,20 +14,19 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-unified-selfhost-resume-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-unified-selfhost-resume-d0-2026-09-25.md"
+latest_card = "mirbuilder-exe-acceptance-owner-selection-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d0-2026-09-25.md"
 latest_card_summary = """
-Call/R7 bounded-deletion frontier exhausted: S6-S9 deleted every dead
-canonicalize repair arm; the D4 census classifies the residual
-LegacyCallV0 surface as fail-fast boundaries, compat owners, and
-variant-lifetime readers (NoSafeSlice; reopen on v0 wire or llvmlite
-retirement). Row H census begins: first actionable step toward
-MIRBUILDER-FACT-OWNER-PARITY-TEMPLATE-PILOT-SELECTION-001.
+Unified selfhost resume D0 accepted: row H follows the unified resume
+order gates 1-4; gate 1 (real-apps-exe-boundary, last receipt 2/9) is
+the first actionable work. Gates 2-4 stay queued. Next: select one of
+the nine typed fail classes with a complete authority/caller/delete
+tuple; acceptance = suite entry flips green on rerun.
 """
-next_design_card = "MIRBUILDER-UNIFIED-SELFHOST-RESUME-D0"
+next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D0"
 next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d3-2026-09-25.md"
-next_execution_card = "none__awaiting_selfhost_resume_d0_selection"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-unified-selfhost-resume-d0-2026-09-25.md"
+next_execution_card = "none__awaiting_exe_acceptance_d0_selection"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d0-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
