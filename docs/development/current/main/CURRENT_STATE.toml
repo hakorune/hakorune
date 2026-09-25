@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "SELFHOST-RESUME-ENTRY-RECHECK0-P0"
-current_execution_cohort = "selfhost_resume_entry"
-current_blocker_token = "SelfhostEntryRecheck-Open__CallR7-FrontierPause__B3D2-NoSafeSlice"
-current_design_stop = "none__CallableVariableRecurrenceDecisionAccepted_2026-09-24"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-R6S0-BOUNDARY-SELECTION-D0"
+current_execution_cohort = "mir_call_r6_queue"
+current_blocker_token = "R6S0-BoundarySelection-Open__Gate1-AcceptanceRed__CallR7-FrontierPause"
+current_design_stop = "R6S0-BoundarySelection__NoSafeSlice-Allowed__NoImplementationPermission"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -13,30 +13,28 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md"
-latest_card = "repo-final-convergence-audit0"
-latest_card_path = "docs/development/current/main/investigations/repo-final-convergence-audit0-2026-09-25.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
+latest_card = "selfhost-resume-entry-recheck0-p0"
+latest_card_path = "docs/development/current/main/investigations/selfhost-resume-entry-recheck0-p0-2026-09-25.md"
 latest_card_summary = """
-REPO-FINAL-CONVERGENCE-AUDIT0-G0 closed (2026-09-25): 34-record
-disposition matrix + repo_final_convergence_guard.sh registered and
-green; import-hygiene wildcard imports fixed; acceptance set green;
-source-backed gates 15/15 + 164/164 pass on a vm-reference build.
-11-entry EXE suite 2/9 — all typed fail-fast terminals in the selfhost
-emit lane, owned by MIRBUILDER-FINAL-ACCEPTANCE-SCOPE (baseline debt).
-G0 closes the repo-structure cleanup lane only; MirBuilder overall
-continues. Next: reconcile Call/R7 and B3 residuals against selfhost
-resume gates 1-4 and select the next bounded owner.
+SELFHOST-RESUME-ENTRY-RECHECK0-P0 closed: gate-1 NOT satisfied —
+Call/R7 frontier-paused, B3 NoSafeSlice, EXE corpus 2/9 red (owned by
+MIRBUILDER-FINAL-ACCEPTANCE-SCOPE). Selected next row:
+MIR-CALL-R6S0-BOUNDARY-SELECTION-D0 (the only unblocked gate-1 design
+step). Alternatives recorded: two B3 authority D0s, EXE
+owner-selection D0, LANGV1 reopen. design_stop: select the R6-S0 split
+boundary or record NoSafeSlice; no implementation permission.
 """
-next_design_card = "none__accepted_decision"
-next_design_card_path = "none__accepted_decision"
-next_execution_card = "SELFHOST-RESUME-ENTRY-RECHECK0-P0"
-next_execution_card_path = "docs/development/current/main/investigations/selfhost-resume-entry-recheck0-p0-2026-09-25.md"
+next_design_card = "MIR-CALL-R6S0-BOUNDARY-SELECTION-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-r6s0-boundary-selection-d0-2026-09-25.md"
+next_execution_card = "none__design_stop"
+next_execution_card_path = "none__design_stop"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 parked_declared_instance_selected_c_task = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0 (ParkedSealed__PublishedTargetAndBackendCoverageMissing; language me.method retained)"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
-parked_wasm_hako_backend_task = "WASM-HAKO-W0-PUBLISHED-MIR-INGRESS-I0 (ParkedSealed__WasmCanonicalReaderAndHakoIngressMissing; post-R6 migration, not an R7 prerequisite; the Rust LegacyCallV0 reader must stop or quarantine before R7; implementation_permission=false; Rust fate=StopNow__FreezeBeforeR7__HakoDefaultAtW2__RetireAtW3)"
+parked_wasm_hako_backend_task = "WASM-HAKO-W0-PUBLISHED-MIR-INGRESS-I0 (ParkedSealed__WasmCanonicalReaderAndHakoIngressMissing; post-R6 migration, not an R7 prerequisite; Rust LegacyCallV0 WASM Global/Extern reader stops landed at 833eb87a80/3c7f5ea5bc, remaining reader classes still owed before R7; implementation_permission=false; Rust fate=StopNow__FreezeBeforeR7__HakoDefaultAtW2__RetireAtW3)"
 parked_macos_platform_capability_task = "MIR-PLATFORM-MACOS-CAPABILITY-D0 (census and CAPI owner audit complete; macos-26-arm64 provider PASS, CAPI BackendCapabilityMissing at clang compile; NoSafeSlice__NoPhysicalLoweringContextOwner; implementation_permission=false; reopen only after a physical lowering-context owner is accepted; see docs/development/current/main/investigations/mir-platform-macos-capability-d0-2026-09-15.md and docs/development/current/main/investigations/mir-platform-macos-capi-clang-compile-gap-d0-2026-09-22.md)"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
@@ -47,5 +45,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-10/13: Receiver/callee/FieldGet/schema, Pair, selected-C rows, and published ownership evidence recorded; retained compatibility frontier at design stop D1.",
   "2026-09-25: DESIGN-REGISTRY-V1 complete (seam, sharded store, cutover, V0 retire); return to REPO-FINAL-CONVERGENCE-AUDIT0-G0.",
-  "2026-09-25: G0 closed — disposition matrix + dedicated guard green, hygiene fixed, source-backed gates 15+164 pass; next SELFHOST-RESUME-ENTRY-RECHECK0-P0.",
+  "2026-09-25: G0 closed — disposition matrix + dedicated guard green, hygiene fixed, source-backed gates 15+164 pass; recheck closed, next MIR-CALL-R6S0-BOUNDARY-SELECTION-D0.",
 ]

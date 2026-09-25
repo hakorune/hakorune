@@ -2,9 +2,9 @@
   "counts": {
     "checks": 3823,
     "design_direct": 872,
-    "docs": 13735,
+    "docs": 13736,
     "docs_development_archive": 2792,
-    "docs_development_current": 9511,
+    "docs_development_current": 9512,
     "main_direct": 170,
     "phase_296x_archive": 2315,
     "phase_296x_direct": 1035,
@@ -852,7 +852,7 @@
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 2,
-      "docs/development/current/main/CURRENT_STATE.toml": 4,
+      "docs/development/current/main/CURRENT_STATE.toml": 3,
       "docs/development/current/main/DOCS_LAYOUT.md": 67,
       "docs/development/current/main/design/README.md": 132
     },
@@ -949,7 +949,7 @@
   "document_reachability": {
     "ambiguous_basename_count": 15,
     "archived_in_place_count": 1389,
-    "document_count": 9511,
+    "document_count": 9512,
     "nested_archive_first_batch": {
       "archive_target_collision_count": 0,
       "cluster_count": 1364,
@@ -1935,7 +1935,7 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 5564,
+    "reachable_count": 5565,
     "root_count": 3899,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {

@@ -22,12 +22,15 @@ This task is deliberately parked until:
 MIRBUILDER-FIRST-PRODUCTION-CUTOVER
 ```
 
-is the milestone closed by `H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0`, not a second
-switch task. That row must have a named production caller, delete the selected
-old route, and leave retry/fallback at zero. This gate must not become a
-prerequisite for the current Dynamic semantic lane. It must close before
-`HAKO-CALLABLE-RESULT-ISSUER-CUTOVER-I0` or any broader `.hako` selfhost
-producer activation.
+is the milestone closed by the Loop production cutover
+`M10b-I0-R0` (`6e88441c0b`, receipt:
+`docs/development/current/main/investigations/joinir-loop-portable-recipe-cutover0-m10b-i0-r0-2026-09-24.md`),
+not a second switch task. That row had a named production caller, deleted the
+selected old route, and left retry/fallback at zero. The gate still stays
+parked behind unified resume order gates 1–2 (Call/R7 residual and the
+language-v1 conformance matrix); the milestone name alone does not unblock it.
+It must close before `HAKO-CALLABLE-RESULT-ISSUER-CUTOVER-I0` or any broader
+`.hako` selfhost producer activation.
 
 ## Execution contract
 
