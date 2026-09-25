@@ -1,0 +1,291 @@
+# MIR-TOPOLOGY-REBASE0-P0 root-module inventory (src/mir/mod.rs)
+# columns: decl_kind	name	visibility	owner_family	caller_class	lifecycle	evidence
+# caller_class: production = non-test file outside module references the path;
+#   facade-reexport = surfaced via mod.rs pub use; brace = named in crate::mir::{...} imports;
+#   test-only = only test callers; none = no external reference found
+# lifecycle: durable|temporary(seed/pilot)|bootstrap-compat|internal|internal-test
+mod	a_prime_i64_formal_representation	pub(crate)	a-prime	production	durable	src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/formal_header.rs
+mod	a_prime_i64_physical_receipt	pub(crate)	a-prime	production	durable	src/box_callable/provider_admission/call_metadata.rs
+mod	agg_local_scalarization	pub	mir-core	production	durable	src/runner/mir_json_emit/agg_local.rs
+mod	analysis	pub	mir-core	production	durable	src/mir/policies/balanced_depth_scan/extract.rs
+mod	aot_plan_import	cfg-feature	mir-core	production	durable	src/lib.rs
+mod	array_element_write	pub(crate)	array-routes	production	durable	src/backend/mir_interpreter/handlers/array_write.rs
+mod	array_getset_micro_seed_plan	pub	array-routes	production	temporary	src/runner/mir_json_emit/route_json.rs
+mod	array_receiver_proof	pub(crate)	array-routes	production	durable	src/mir/string_dead_text_region_plan.rs
+mod	array_record_autouse_eligibility	pub	array-routes	production	durable	src/mir/array_record_materialization_boundary.rs
+mod	array_record_backend_capability	pub(crate)	array-routes	production	durable	src/mir/backend_capability.rs
+mod	array_record_materialization_boundary	pub	array-routes	production	durable	src/mir/array_record_packed_autouse_pilot.rs
+mod	array_record_packed_autouse_pilot	pub	array-routes	production	temporary	src/mir/hako_alloc_huge_page_packed_store_pilot.rs
+mod	array_record_storage_plan	pub	array-routes	production	durable	src/boxes/array/inline_record_plan_probe.rs
+mod	array_rmw_add1_leaf_seed_plan	pub	array-routes	production	temporary	src/mir/exact_seed_backend_route.rs
+mod	array_rmw_window_plan	pub	array-routes	production	durable	src/mir/array_getset_micro_seed_plan.rs
+mod	array_string_len_window_plan	pub	array-routes	production	durable	src/mir/array_text_loop_session_plan.rs
+mod	array_string_store_micro_seed_plan	pub	array-routes	production	temporary	src/mir/exact_seed_backend_route.rs
+mod	array_text_combined_region_plan	pub	array-text-routes	production	durable	src/mir/semantic_refresh.rs
+mod	array_text_edit_plan	pub	array-text-routes	production	durable	src/mir/semantic_refresh.rs
+mod	array_text_loop_session_plan	pub	array-text-routes	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	array_text_loopcarry_plan	pub	array-text-routes	facade-reexport	durable	mod.rs pub use exports: refresh_function_array_text_loopcarry_len_store_routes, refresh_module_array_text_loopcarry_len_store_routes
+mod	array_text_observer_plan	pub	array-text-routes	production	durable	src/mir/semantic_refresh.rs
+mod	array_text_observer_region_contract	pub	array-text-routes	production	durable	sibling super::/self:: import: src/mir/array_text_combined_region_plan.rs
+mod	array_text_residence_session_plan	pub	array-text-routes	facade-reexport	durable	mod.rs pub use exports: refresh_function_array_text_residence_session_routes, refresh_module_array_text_residence_session_routes
+mod	array_text_state_residence_plan	pub	array-text-routes	production	durable	src/runner/mir_json_emit/route_json.rs
+mod	backend_capability	pub(crate)	backend-capability	production	durable	src/backend/wasm_v2/mod.rs
+mod	basic_block	pub	mir-core	production	durable	src/mir/pinned_text_residence_lifecycle.rs
+mod	boxed_sum_abi_plan	pub	mir-core	production	durable	src/runner/mir_json_emit/emitters/sum.rs
+mod	builder	pub	mir-core	production	durable	src/runner/json_v0_bridge/lowering/loop_.rs
+mod	callable_parameter_contract	pub(crate)	callable	production	durable	src/mir/normal_callable_semantic_package/model.rs
+mod	callable_result_representation	pub(crate)	callable	production	durable	src/mir/builder/normal_script_direct_static_result_bundle.rs
+mod	callable_semantic_batch	pub(crate)	callable	production	durable	src/mir/normal_callable_semantic_package/direct_call_co_seal.rs
+mod	canonical_direct_call	pub(crate)	canonical-pipeline	production	durable	src/mir/normal_callable_semantic_package/issuer.rs
+mod	canonical_direct_call_contract	pub(crate)	canonical-pipeline	production	durable	src/mir/canonical_direct_call.rs
+mod	canonical_direct_static_call_backend_capability	pub(crate)	canonical-pipeline	production	durable	src/mir/backend_capability.rs
+mod	canonical_direct_static_call_capability	pub(crate)	canonical-pipeline	production	durable	src/mir/backend_capability.rs
+mod	canonical_physical_drain	pub(crate)	canonical-pipeline	production	durable	src/mir/compiler/canonical_drain_manifest.rs
+mod	canonical_recursive_callable_module_backend_capability	pub(crate)	canonical-pipeline	production	durable	src/mir/backend_capability.rs
+mod	canonical_recursive_callable_module_capability	pub(crate)	canonical-pipeline	production	durable	src/mir/canonical_recursive_callable_module_backend_capability.rs
+mod	compile_timing	pub(crate)	mir-core	production	durable	src/mir/basic_block.rs
+mod	compiler	private	compiler	production	internal	src/mir/resolved_region_flow/analyzer.rs
+inline_mod	compile_target_capability	pub	mir-core	production	durable	src/box_callable/provider_admission/call_metadata.rs
+use	pub(crate) use super::compiler::target_capability::APrimeI64TargetStorageLayoutV1;	pub(crate)	facade-export	facade-reexport	durable	root facade export
+use	pub use super::compiler::target_capability::{ PinnedTextCompileTargetCapabilityIssueV1, PinnedTextCompileTargetCapabilityIssuerV1, PinnedTextCompileTargetCapabilityV1, PinnedTextCompileTargetProfileV1, };	pub	facade-export	facade-reexport	durable	root facade export
+mod	edge_args	pub	mir-core	production	durable	src/bin/rc_insertion_selfcheck/cases/jump.rs
+mod	finalized_root_handoff	pub(crate)	mir-core	production	durable	src/mir/builder/normal_default_root_final_validation.rs
+mod	linear_metadata_slot	pub(crate)	linear	production	durable	src/mir/a_prime_i64_physical_receipt.rs
+mod	named_array_obligation	pub(crate)	named-obligation	production	durable	src/runner/mir_json_emit/root.rs
+mod	normal_callable_semantic_package	pub(crate)	callable-package	production	durable	src/mir/compiler/common_v2_physical_function_entry_input.rs
+mod	raw_finalization_contract	pub(crate)	raw-contract	production	durable	src/mir/builder/raw_root_physical/finalization_terminal.rs
+mod	raw_physical_drain	pub(crate)	raw-contract	production	durable	src/mir/compiler/raw_root_finalization.rs
+mod	raw_root_body_recipe	pub(crate)	raw-contract	production	durable	src/mir/compiler/raw_root_eligibility.rs
+mod	raw_vm_reference_contract	pub(crate)	raw-contract	production	durable	src/runner/reference/normal_file_vm_frontdoor/tests.rs
+mod	shared_loop_source_window	cfg-test	shared-test	internal-test	internal-test	cfg(test) module declaration — the module IS the test harness
+mod	test_support	cfg-test	test-support	production	internal-test	src/runner/mir_json_emit/io.rs
+fn	test_global_target	cfg-test	test-support	production	internal-test	src/backend/wasm/tests.rs
+use	pub(crate) use compiler::canonical_core_dispatch::{ CanonicalCallableDispatchStageV1, CanonicalCoreDispatchStageV1, CanonicalCoreInvocationFailureReportV1, CanonicalCoreSourcePlanCompileRequestV1, NormalSourcePlanReceiptV1, VerifiedCanonicalCoreSourcePlanAdmissionV1, };	pub(crate)	facade-export	facade-reexport	durable	root facade export
+use	pub(crate) use compiler::canonical_script_source_a_input::CanonicalScriptSourceAInputTransportV1;	pub(crate)	facade-export	facade-reexport	durable	root facade export
+use	pub(crate) use compiler::canonical_source_identity::CanonicalSourceBytesDigestV1;	pub(crate)	facade-export	facade-reexport	durable	root facade export
+use	pub(crate) use compiler::normal_source_plan;	pub(crate)	facade-export	facade-reexport	durable	root facade export
+use	pub(crate) use compiler::source_entry_vm_reference::RawVmReferenceRunReportV1;	pub(crate)	facade-export	facade-reexport	durable	root facade export
+use	pub(crate) use compiler::source_entry_vm_runner_adapter::RawVmReferenceInvocationFailureReportV1;	pub(crate)	facade-export	facade-reexport	durable	root facade export
+use	pub(crate) use raw_vm_reference_contract::{ RawPublishedCompileRequestV1, RawVmReferenceInvocationV1, RawVmReferenceSupportProfileV1, };	pub(crate)	facade-export	facade-reexport	durable	root facade export
+use	pub(crate) use raw_vm_reference_contract::{ RawVmReferenceCallableMainProfileV1, RawVmReferenceExecutionProfileV1, RawVmReferenceImportProfileV1, RawVmReferenceSourceProfileV1, };	pub(crate)	facade-export	facade-reexport	durable	root facade export
+mod	checked_callout	pub(crate)	mir-core	production	durable	src/runner/mir_json_v0/checked_callout.rs
+mod	concat_const_suffix_micro_seed_plan	pub	mir-core	production	temporary	src/runner/mir_json_emit/metadata_seed.rs
+mod	constructor_call_route_plan	pub	constructor	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	contracts	pub	mir-core	production	durable	src/backend/mir_interpreter/exec/diagnostics.rs
+mod	core_method_op	pub	mir-core	production	durable	src/box_callable/provider_admission/seal.rs
+mod	core_method_result_kind	pub(crate)	mir-core	production	durable	src/box_callable/provider_admission/seal.rs
+mod	declared_type_storage	pub(crate)	mir-core	production	durable	src/mir/direct_state_plan.rs
+mod	decoded_utf8_byte_len_backend_capability	pub(crate)	mir-core	production	durable	src/mir/backend_capability.rs
+mod	definitions	pub	mir-core	production	durable	src/backend/mir_interpreter/handlers/calls/mod.rs
+mod	diagnostics	pub	mir-core	production	durable	src/mir/builder/builder_emit.rs
+mod	direct_array_access_plan	pub	direct-routes	production	durable	src/runner/mir_json_emit/proof_envelope.rs
+mod	direct_array_extent_fact	pub	direct-routes	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	direct_exact_hotcore_call_plan	pub	direct-routes	production	durable	src/mir/route_decision/mod.rs
+mod	direct_state_plan	pub	direct-routes	production	durable	src/mir/builder/module_lifecycle.rs
+mod	dynamic_carrier_contract	pub(crate)	dynamic-carrier	production	durable	src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/invocation_carrier_lifecycle.rs
+mod	dynamic_invocation_contract	pub(crate)	dynamic-carrier	production	durable	src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/invocation_carrier_lifecycle.rs
+mod	dynamic_operator_contract	pub(crate)	dynamic-carrier	none	durable	sealed prepared contract (bea8a285fe) — owns Dynamic Add/Less envelope; no production consumer wired yet; not deletion authority
+mod	effect	pub	effect	facade-reexport	durable	mod.rs pub use exports: Effect, EffectMask
+mod	effect_capability_plan	pub	effect	production	durable	src/mir/rune_plan_refresh.rs
+mod	effect_summary	pub	effect	brace-import	durable	crate::mir::{...} import
+mod	escape_barrier	pub	mir-core	production	durable	src/mir/verification/fastmem/escape.rs
+mod	exact_numeric_backend_capability	pub(crate)	exact-numeric	production	durable	src/mir/backend_capability.rs
+mod	exact_numeric_field_contracts	pub(crate)	exact-numeric	production	durable	src/mir/semantic_refresh/contracts.rs
+mod	exact_numeric_unification	pub(crate)	exact-numeric	production	durable	src/mir/exact_numeric_value_facts/compare_routes.rs
+mod	exact_numeric_value_facts	pub	exact-numeric	production	durable	src/backend/mir_interpreter/exec/exact_numeric_ops/tests.rs
+mod	exact_seed_backend_route	pub	exact-numeric	production	durable	src/runner/mir_json_emit/metadata_seed.rs
+mod	exact_text_parameter_abi	pub(crate)	exact-numeric	production	durable	src/mir/normal_callable_semantic_package/instance_constructor_semantic/formal_contract.rs
+mod	exact_trivial_parameter_abi	pub(crate)	exact-numeric	production	durable	src/mir/callable_parameter_contract/model.rs
+mod	exact_trivial_return_abi	pub(crate)	exact-numeric	production	durable	src/mir/resolved_value_profile/product.rs
+mod	exact_trivial_scalar_abi	pub(crate)	exact-numeric	production	durable	src/mir/normal_callable_semantic_package/model.rs
+mod	extern_call_route_plan	pub	extern	production	durable	src/runner/mir_json_emit/io.rs
+mod	fastmem_access_plan	pub	fastmem	production	durable	src/runner/mir_json_emit/proof_envelope.rs
+mod	fastmem_layout_contract	pub	fastmem	production	durable	src/mir/fastmem_access_plan/head_access.rs
+mod	fastmem_table_length_fact	pub	fastmem	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	fastpath_required_diagnostic	pub	mir-core	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	function	pub	mir-core	production	durable	src/runner/mir_json_emit/local_contracts.rs
+mod	generated	pub(crate)	mir-core	production	durable	src/mir/generic_method_route_plan/model.rs
+mod	generic_method_route_facts	pub(crate)	generic-routes	production	durable	src/mir/fastpath_required_diagnostic.rs
+mod	generic_method_route_plan	pub	generic-routes	production	durable	src/mir/generated/generic_method_route_descriptors.rs
+mod	global_call_route_plan	pub	global-call	production	durable	src/runner/mir_json_emit/route_json.rs
+mod	hako_alloc_aligned_small_packed_store_pilot	pub	hako-alloc-pilot	production	temporary	src/mir/verification/hako_alloc_metadata.rs
+mod	hako_alloc_huge_page_packed_store_pilot	pub	hako-alloc-pilot	production	temporary	src/mir/verification/hako_alloc_metadata.rs
+mod	hotcore_method_summary	pub	hotcore	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	if_recipe_contract	pub(crate)	if-recipe	production	durable	src/mir/resolved_value_profile/recipe_mapper.rs
+mod	indexof_search_micro_seed_plan	pub	indexof	production	temporary	src/mir/array_text_state_residence_plan.rs
+mod	inline_leaf	pub(crate)	inline	production	durable	src/mir/inline_plan.rs
+mod	inline_plan	pub	inline	production	durable	src/mir/rune_plan_refresh.rs
+mod	instance_constructor_abi	pub(crate)	instance	production	durable	src/mir/builder/normal_instance_constructor_admission.rs
+mod	instruction	pub	instruction	production	durable	src/runner/mir_json_emit/emitters/mod.rs
+mod	instruction_introspection	pub	instruction	production	durable	src/mir/contracts/backend_core_ops/tests.rs
+mod	instruction_kinds	pub	instruction	production	durable	src/mir/instruction/tests.rs
+mod	loop_api	pub	loop	production	durable	src/mir/builder/ops/logical_shortcircuit.rs
+mod	loop_canonicalizer	pub	loop	production	durable	src/mir/builder/control_flow/joinir/parity_checker.rs
+mod	loop_recipe_contract	pub(crate)	loop	production	durable	src/mir/compiler/main0_in_body_step_semantic_program.rs
+mod	loop_route_policy	pub(crate)	loop	production	durable	src/mir/loop_structural_facts/selected_demand.rs
+mod	loop_structural_facts	pub(crate)	loop	production	durable	src/mir/normal_callable_semantic_package/s6c_child.rs
+mod	map_lookup_fusion_plan	pub	map-routes	production	durable	src/runner/mir_json_emit/route_json.rs
+mod	map_missing_empty_route_plan	pub	map-routes	production	durable	src/mir/route_decision/mod.rs
+mod	map_repr_plan	pub	map-routes	facade-reexport	durable	mod.rs pub use exports: refresh_function_map_repr_plans, refresh_module_map_repr_plans
+mod	module_invocation_identity	pub(crate)	module	production	durable	src/box_callable/provider_admission/seal.rs
+mod	module_invocation_identity_idkernel_p0	cfg-test	module	internal-test	internal-test	cfg(test) module declaration — the module IS the test harness
+mod	module_invocation_policy	pub(crate)	module	production	durable	src/mir/builder/route_owned_invocation_inventory.rs
+mod	module_invocation_policy_tests	cfg-test	module	internal-test	internal-test	cfg(test) module declaration — the module IS the test harness
+mod	naming	pub	naming	production	durable	src/backend/mir_interpreter/mod.rs
+mod	numeric_substrate	pub(crate)	numeric	production	durable	src/backend/mir_interpreter/exec/numeric_contracts.rs
+mod	optimizer	pub	optimizer	production	durable	src/mir/optimizer_passes/reorder.rs
+mod	ordered_map_origin_plan	pub	ordered-map	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	parameter_entry_backend_capability	pub(crate)	parameter	production	durable	src/mir/backend_capability.rs
+mod	policies	pub	mir-core	production	durable	src/box_callable/provider_admission/call_metadata.rs
+mod	range_index_fact	pub	mir-core	production	durable	src/mir/direct_array_access_plan/tests.rs
+mod	record_value_backend_capability	pub(crate)	record	production	durable	src/mir/backend_capability.rs
+mod	return_exit_backend_capability	pub(crate)	return	production	durable	src/mir/backend_capability.rs
+mod	route_decision	pub	route	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	same_module_definition_plan	pub	same-module	production	durable	src/runner/mir_json_emit/route_metadata.rs
+mod	source_packed_array_autouse_pilot	pub	source	production	temporary	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	source_packed_array_direct_read_consumption	pub	source	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	span_access_plan	pub	span	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	ssot	pub	mir-core	production	durable	src/runner/json_v0_bridge/lowering/merge.rs
+mod	strict_json_tree_backend_capability	pub(crate)	strict	production	durable	src/mir/backend_capability.rs
+mod	type_contracts	pub(crate)	type	production	durable	src/backend/mir_interpreter/mod.rs
+mod	types	pub	mir-core	production	durable	src/backend/mir_interpreter/handlers/type_ops.rs
+mod	utils	pub	mir-core	production	durable	src/mir/builder/stmts/block_driver.rs
+mod	cfg_extractor	pub	mir-core	production	durable	src/runner/mir_json_emit/root.rs
+mod	control_form	pub	control-form	production	durable	src/mir/builder/control_flow/edgecfg/api/verify.rs
+mod	control_tree	pub	control-form	production	durable	src/mir/builder.rs
+mod	function_emission	pub	mir-core	production	durable	src/mir/aot_plan_import.rs
+mod	join_ir	pub	joinir	production	durable	src/mir/join_ir_ops.rs
+mod	join_ir_ops	pub	joinir	production	durable	src/mir/passes/simplify_cfg.rs
+mod	local_fastpath_fact	pub	local	production	durable	src/mir/map_repr_plan/mod.rs
+mod	local_slot_backend_capability	pub(crate)	local	production	durable	src/mir/backend_capability.rs
+mod	loop_form	pub	loop	production	durable	src/mir/join_ir/lowering/loop_form_intake.rs
+mod	loop_route_detection	pub	loop	production	durable	src/mir/loop_canonicalizer/canonicalizer.rs
+mod	optimizer_passes	pub	optimizer	production	durable	src/mir/optimizer/core.rs
+mod	optimizer_stats	pub	optimizer	production	durable	src/mir/optimizer_passes/boxfield.rs
+mod	ownership_backend_capability	pub(crate)	ownership	production	durable	src/mir/backend_capability.rs
+mod	ownership_ssa	pub(crate)	ownership	production	durable	src/runner/mir_json_emit/ownership_ssa.rs
+mod	passes	pub	mir-core	production	durable	src/runner/product/llvm/method_id_injector.rs
+mod	phi_core	pub	phi	production	durable	src/runner/json_v0_bridge/lowering/loop_.rs
+mod	phi_query	pub(crate)	phi	production	durable	src/mir/passes/escape.rs
+mod	pinned_text_access_plan	pub(crate)	pinned-text	production	durable	src/runner/mir_json_emit/tests.rs
+mod	pinned_text_residence_lifecycle	pub(crate)	pinned-text	production	durable	src/runner/mir_json_emit/emitters/basic.rs
+mod	placement_effect	pub	mir-core	production	durable	src/runner/mir_json_emit/placement_effect.rs
+mod	printer	pub	mir-core	facade-reexport	durable	mod.rs pub use exports: MirPrinter
+mod	printer_helpers	private	mir-core	production	internal	src/mir/instruction/display.rs
+mod	query	pub	mir-core	production	durable	src/mir/ssot/loop_common.rs
+mod	raw_layout	pub(crate)	raw-contract	production	durable	src/mir/fastmem_layout_contract.rs
+mod	receiver_snapshot_publication_plan	pub	receiver	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	record_layout_plan	pub	record	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	record_state_residence_plan	pub	record	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	region	pub	region	production	durable	src/mir/builder/script_physical_exit/entry_session.rs
+mod	resolved_control_flow	pub(crate)	resolved-contracts	production	durable	src/mir/normal_callable_semantic_package/dynamic_admission.rs
+mod	resolved_region_flow	pub(crate)	resolved-contracts	production	durable	src/mir/builder/resolved_lowering/branch_transaction.rs
+mod	resolved_semantics	pub(crate)	resolved-contracts	production	durable	src/runner/mir_json_emit/root.rs
+mod	resolved_value_profile	pub(crate)	resolved-contracts	production	durable	src/mir/canonical_direct_call.rs
+mod	route_dependency_graph	pub(crate)	route	production	durable	sibling super:: import: src/mir/route_fixpoint.rs
+mod	route_fixpoint	pub	route	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	route_value_type_publication	pub	route	production	durable	src/mir/builder/resolved_lowering/common_v2_session/s6c_substring_callout_materializer.rs
+mod	rune_plan_refresh	pub	mir-core	production	durable	src/runner/json_v0_bridge/lowering.rs
+mod	same_module_body_shape	pub(crate)	same-module	production	durable	src/mir/global_call_route_plan.rs
+mod	same_module_fusion_plan	pub	same-module	production	durable	src/runner/mir_json_emit/route_metadata.rs
+mod	semantic_refresh	pub	semantic-refresh	production	durable	src/backend/mir_interpreter/mod.rs
+mod	slot_registry	pub	slot	production	durable	src/mir/builder/instance_box_declaration_metadata.rs
+mod	source_call_target	pub(crate)	source	production	durable	src/mir/callable_result_representation/call_proof.rs
+mod	source_core_receiver	pub(crate)	source	production	durable	src/mir/callable_result_representation/call_proof.rs
+mod	spanned_instruction	private	spanned	facade-reexport	internal	mod.rs pub use exports: SpannedInstruction
+mod	static_data_plan	pub	static	production	durable	src/mir/builder/program_static_table_metadata.rs
+mod	static_table_backend_capability	pub(crate)	static	production	durable	src/mir/backend_capability.rs
+mod	storage_class	pub	storage	production	durable	src/mir/printer/tests.rs
+mod	string_corridor	pub	string-corridor	production	durable	src/mir/string_corridor_compat.rs
+mod	string_corridor_compat	pub(crate)	string-corridor	production	bootstrap-compat	sibling super:: import: src/mir/string_corridor.rs
+mod	string_corridor_names	pub(crate)	string-corridor	production	bootstrap-compat	src/mir/string_corridor_compat.rs
+mod	string_corridor_placement	pub	string-corridor	production	durable	src/runner/mir_json_emit/metadata.rs
+mod	string_corridor_recognizer	pub(crate)	string-corridor	production	durable	src/mir/string_dead_text_region_plan.rs
+mod	string_corridor_relation	pub	string-corridor	production	durable	src/mir/printer/tests.rs
+mod	string_dead_text_call_shape	pub(crate)	string-corridor	production	durable	src/mir/string_dead_text_region_plan.rs
+mod	string_dead_text_region_plan	pub	string-corridor	facade-reexport	durable	mod.rs pub use exports: refresh_function_string_dead_text_region_plans, refresh_module_string_dead_text_region_plans
+mod	string_direct_set_window_plan	pub	string-corridor	facade-reexport	durable	mod.rs pub use exports: refresh_function_string_direct_set_window_routes, refresh_module_string_direct_set_window_routes
+mod	string_kernel_plan	pub	string-corridor	production	durable	src/runner/mir_json_emit/plans.rs
+mod	substring_views_micro_seed_plan	pub	substring	production	temporary	src/runner/mir_json_emit/metadata_seed.rs
+mod	sum_placement	pub	sum-routes	production	durable	src/mir/sum_placement_selection.rs
+mod	sum_placement_layout	pub	sum-routes	production	durable	src/mir/agg_local_scalarization.rs
+mod	sum_placement_selection	pub	sum-routes	production	durable	src/mir/sum_placement_layout.rs
+mod	sum_variant_project_seed_plan	pub	sum-routes	production	temporary	src/runner/mir_json_emit/metadata_seed.rs
+mod	sum_variant_tag_seed_plan	pub	sum-routes	production	temporary	src/runner/mir_json_emit/metadata_seed.rs
+mod	thin_entry	pub	thin-entry	production	durable	src/mir/agg_local_scalarization.rs
+mod	thin_entry_selection	pub	thin-entry	production	durable	src/mir/agg_local_scalarization.rs
+mod	type_propagation	pub	type	production	durable	src/mir/builder/calls/lowering.rs
+mod	typed_array_backend_capability	pub(crate)	typed	production	durable	src/host_providers/llvm_codegen/published_mir_object.rs
+mod	typed_object_plan	pub	typed	production	durable	src/mir/semantic_refresh/contracts.rs
+mod	user_box_method_publication	pub	userbox-routes	production	durable	sibling super::/self:: import: src/mir/semantic_refresh.rs
+mod	user_box_method_route_plan	pub	userbox-routes	production	durable	src/runner/mir_json_emit/route_json.rs
+mod	userbox_known_receiver_method_seed_plan	pub	userbox-routes	production	temporary	src/runner/mir_json_emit/route_json.rs
+mod	userbox_local_scalar_seed_plan	pub	userbox-routes	production	temporary	src/runner/mir_json_emit/metadata_seed.rs
+mod	userbox_loop_micro_seed_plan	pub	userbox-routes	production	temporary	src/runner/mir_json_emit/route_json.rs
+mod	value_consumer	pub	value	production	durable	src/mir/string_direct_set_window_plan.rs
+mod	value_id	pub	value	production	durable	src/mir/builder/control_flow/edgecfg/api/compose/if_.rs
+mod	value_kind	pub	value	production	durable	src/mir/builder/module_completion_candidate.rs
+mod	value_origin	pub	value	production	durable	src/mir/range_index_fact.rs
+mod	value_representation_fact	pub	value	brace-import	durable	crate::mir::{...} import
+mod	verification	pub	verification	production	durable	src/backend/mir_interpreter/exec/diagnostics.rs
+mod	verification_types	pub	verification	production	durable	src/backend/mir_interpreter/exec/diagnostics.rs
+mod	weak_field_backend_capability	pub(crate)	weak	production	durable	src/mir/backend_capability.rs
+use	pub use basic_block::BasicBlock;	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use builder::MirBuilder;	pub	facade-export	facade-reexport	durable	root facade export
+use	pub(crate) use compiler::selected_dynamic_w6_activation::StaticArtifactReceiptConsumedFenceV1;	pub(crate)	facade-export	facade-reexport	durable	root facade export
+use	pub(crate) use compiler::NormalPublishedCompileOutcome;	pub(crate)	facade-export	facade-reexport	durable	root facade export
+use	pub(crate) use compiler::{ emit_lifecycle_physical_abi_json, PublishedLifecyclePhysicalAbiInputV1, PublishedLifecycleRuntimeRequirementsV1, };	pub(crate)	facade-export	facade-reexport	durable	root facade export
+use	pub use compiler::{ CanonicalLoweringErrorV1, MirCompileResult, MirCompiler, NormalCompileRequestV1, NormalProgramCompileRequestErrorV1, RejectedNormalProgramCompileRequestV1, ResolvedCallableModuleLoweringInputV1, ResolvedModuleLoweringInputV1, VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub(crate) use compiler::{ RejectedPostMacroWholeFileProgramV1, VerifiedPostMacroWholeFileProgramV1, };	pub(crate)	facade-export	facade-reexport	durable	root facade export
+use	pub use edge_args::EdgeArgs;	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use hakorune_mir_core::{BasicBlockId, BindingId, LocalSlotId};	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use agg_local_scalarization::{ refresh_function_agg_local_scalarization_routes, refresh_module_agg_local_scalarization_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use array_getset_micro_seed_plan::{ refresh_function_array_getset_micro_seed_route, refresh_module_array_getset_micro_seed_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use array_rmw_add1_leaf_seed_plan::{ refresh_function_array_rmw_add1_leaf_seed_route, refresh_module_array_rmw_add1_leaf_seed_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use array_rmw_window_plan::{ refresh_function_array_rmw_window_routes, refresh_module_array_rmw_window_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use array_string_len_window_plan::{ refresh_function_array_string_len_window_routes, refresh_module_array_string_len_window_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use array_string_store_micro_seed_plan::{ refresh_function_array_string_store_micro_seed_route, refresh_module_array_string_store_micro_seed_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use array_text_combined_region_plan::{ refresh_function_array_text_combined_region_routes, refresh_module_array_text_combined_region_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use array_text_edit_plan::{ refresh_function_array_text_edit_routes, refresh_module_array_text_edit_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use array_text_loopcarry_plan::{ refresh_function_array_text_loopcarry_len_store_routes, refresh_module_array_text_loopcarry_len_store_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use array_text_observer_plan::{ refresh_function_array_text_observer_routes, refresh_module_array_text_observer_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use array_text_residence_session_plan::{ refresh_function_array_text_residence_session_routes, refresh_module_array_text_residence_session_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use array_text_state_residence_plan::{ refresh_function_array_text_state_residence_route, refresh_module_array_text_state_residence_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use concat_const_suffix_micro_seed_plan::{ refresh_function_concat_const_suffix_micro_seed_route, refresh_module_concat_const_suffix_micro_seed_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use definitions::Callee; // Unified call definitions	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use effect::{Effect, EffectMask};	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use exact_seed_backend_route::{ refresh_function_exact_seed_backend_route, refresh_module_exact_seed_backend_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use function::{ ClosureBodyId, FunctionSignature, MirEnumDecl, MirEnumVariantDecl, MirFunction, MirModule, UserBoxFieldDecl, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use generic_method_route_plan::{ refresh_function_generic_method_routes, refresh_module_generic_method_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use instruction::{ ArrayElementWriteKind, ArrayWriteProducerKind, ArrayWriteSiteId, ConstructionTarget, MirInstruction, WeakFieldWriteSiteId, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use map_lookup_fusion_plan::{ refresh_function_map_lookup_fusion_routes, refresh_module_map_lookup_fusion_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use map_repr_plan::{refresh_function_map_repr_plans, refresh_module_map_repr_plans};	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use optimizer::MirOptimizer;	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use placement_effect::{ refresh_function_placement_effect_routes, refresh_module_placement_effect_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use printer::MirPrinter;	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use semantic_refresh::{ refresh_and_validate_for_boundary, refresh_function_semantic_metadata, refresh_function_string_corridor_metadata, refresh_module_semantic_metadata, refresh_owned_for_boundary, ContractRefreshBoundary, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use spanned_instruction::SpannedInstruction;	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use storage_class::{refresh_function_storage_class_facts, refresh_module_storage_class_facts};	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use string_corridor::{ refresh_function_string_corridor_facts, refresh_module_string_corridor_facts, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use string_corridor_placement::{ refresh_function_string_corridor_candidates, refresh_module_string_corridor_candidates, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use string_corridor_relation::{ refresh_function_string_corridor_relations, refresh_module_string_corridor_relations, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use string_dead_text_region_plan::{ refresh_function_string_dead_text_region_plans, refresh_module_string_dead_text_region_plans, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use string_direct_set_window_plan::{ refresh_function_string_direct_set_window_routes, refresh_module_string_direct_set_window_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use string_kernel_plan::{ derive_string_kernel_plan, infer_string_kernel_text_consumer, refresh_function_string_kernel_plans, refresh_module_string_kernel_plans, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use substring_views_micro_seed_plan::{ refresh_function_substring_views_micro_seed_route, refresh_module_substring_views_micro_seed_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use sum_placement::{refresh_function_sum_placement_facts, refresh_module_sum_placement_facts};	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use sum_placement_layout::{ refresh_function_sum_placement_layouts, refresh_module_sum_placement_layouts, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use sum_placement_selection::{ refresh_function_sum_placement_selections, refresh_module_sum_placement_selections, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use sum_variant_project_seed_plan::{ refresh_function_sum_variant_project_seed_route, refresh_module_sum_variant_project_seed_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use sum_variant_tag_seed_plan::{ refresh_function_sum_variant_tag_seed_route, refresh_module_sum_variant_tag_seed_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use thin_entry::{ refresh_function_thin_entry_candidates, refresh_module_thin_entry_candidates, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use thin_entry_selection::{ refresh_function_thin_entry_selections, refresh_module_thin_entry_selections, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use types::{ BarrierOp, BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, WeakRefOp, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use user_box_method_route_plan::{ refresh_function_user_box_method_routes, refresh_module_user_box_method_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use userbox_known_receiver_method_seed_plan::refresh_module_userbox_known_receiver_method_seed_routes;	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use userbox_local_scalar_seed_plan::{ refresh_function_userbox_local_scalar_seed_route, refresh_module_userbox_local_scalar_seed_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use userbox_loop_micro_seed_plan::{ refresh_function_userbox_loop_micro_seed_route, refresh_module_userbox_loop_micro_seed_routes, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use value_consumer::{ refresh_function_value_consumer_facts, refresh_module_value_consumer_facts, };	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use value_id::ValueId;	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use verification::MirVerifier;	pub	facade-export	facade-reexport	durable	root facade export
+use	pub use verification_types::VerificationError;	pub	facade-export	facade-reexport	durable	root facade export
