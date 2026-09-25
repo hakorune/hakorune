@@ -77,11 +77,32 @@ equivalent-evidence; the manifest only proposes — deletion is the later
   false-positives. Stale `canon.rs` doc line claiming Facts owns
   `generic_loop` is cleanup for the retire slice.
 
-Move/delete manifest: delete list = the 7 orphan rows above (bounded,
-single-cluster retirement). The later BoxShape split series may still
-regroup durable modules into neutral contract / source producers /
-route policy / physical facades, but that is a file-move series only —
-this census names no other semantic removal.
+Move/delete manifest:
+`design/fixtures/loop-post-cutover-move-manifest-c0-v1.tsv` assigns each
+of the 605 rows a target home and action. Result: 598 keep, 7 deleted
+(orphan shims, landed `f8f76d5ade`), 0 pending moves.
+
+Target-home audit found the post-M12 tree already satisfies the SSOT
+four-box split:
+
+- neutral Recipe contract → `src/mir/loop_recipe_contract` (93 rows)
+- source Facts → `src/mir/loop_structural_facts` (19 rows)
+- source producers → `src/mir/builder/**` loop modules (279 rows;
+  `pub(in crate::mir::builder)` seals producer internals — moving them
+  out would widen visibility, not a behavior-preserving shape change)
+- route/migration policy → `loop_route_policy` + `loop_route_detection`
+  + `loop_canonicalizer` (68 rows)
+- physical lowering facade → `resolved_lowering/loop_recipe_physicalizer`
+  (31 rows) + `src/mir/compiler/loop_*` terminal artifacts (98 rows;
+  compiler/ is the established per-family terminal home, shared with
+  `canonical_*` / `common_v2_*` peers per disposition D10)
+- callable semantic package components (s6c/loop family) stay in
+  `normal_callable_semantic_package` — `pub(super)` sibling coupling;
+  the package is the family home.
+
+Consolidating producer/compiler loop files into four new top-level dirs
+was rejected: it would widen sealed visibility and churn 400+ files
+without changing any authority boundary.
 
 Scope reconciliation (corrected during census):
 

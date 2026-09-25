@@ -1,0 +1,613 @@
+# LOOP-POST-CUTOVER-BOXSHAPE-C0 move/delete manifest
+# columns: file | class | target_home | action
+# action: keep = already in role-correct home; deleted = orphan shim retired in this row
+# constraint: pub(in crate::mir::builder) seals producer internals to the builder home;
+#   moving them out would widen visibility — not a behavior-preserving shape change.
+lang/src/mir/builder/loop_recipe/README.md	durable-production	bootstrap wire emitters (lang/src/mir/builder/loop_recipe)	keep
+lang/src/mir/builder/loop_recipe/emit_direct_accum_wire.hako	bootstrap-compatibility	bootstrap wire emitters (lang/src/mir/builder/loop_recipe)	keep
+lang/src/mir/builder/loop_recipe/emit_loop_recipe_wire.hako	bootstrap-compatibility	bootstrap wire emitters (lang/src/mir/builder/loop_recipe)	keep
+lang/src/mir/builder/loop_recipe/emit_loop_true_wire.hako	bootstrap-compatibility	bootstrap wire emitters (lang/src/mir/builder/loop_recipe)	keep
+lang/src/mir/builder/loop_recipe/emit_m8a_recurrence_wire.hako	bootstrap-compatibility	bootstrap wire emitters (lang/src/mir/builder/loop_recipe)	keep
+lang/src/mir/builder/loop_recipe/emit_m8c_scans_wire.hako	bootstrap-compatibility	bootstrap wire emitters (lang/src/mir/builder/loop_recipe)	keep
+lang/src/mir/builder/loop_recipe/emit_m8d_loopcond_wire.hako	bootstrap-compatibility	bootstrap wire emitters (lang/src/mir/builder/loop_recipe)	keep
+lang/src/mir/builder/loop_recipe/emit_nested_predicate_wire.hako	bootstrap-compatibility	bootstrap wire emitters (lang/src/mir/builder/loop_recipe)	keep
+src/mir/builder/control_flow/cleanup/policies/loop_simple_while_subset_policy.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/edgecfg/api/compose/loop_.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/edgecfg/api/compose/tests/loop_.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/facts/canon/generic_loop/condition.rs	retire-candidate	source-producers (src/mir/builder — MirBuilder producer home)	deleted (f8f76d5ade — orphan shims, never compiled)
+src/mir/builder/control_flow/facts/canon/generic_loop/step.rs	retire-candidate	source-producers (src/mir/builder — MirBuilder producer home)	deleted (f8f76d5ade — orphan shims, never compiled)
+src/mir/builder/control_flow/facts/canon/generic_loop/step/extract.rs	retire-candidate	source-producers (src/mir/builder — MirBuilder producer home)	deleted (f8f76d5ade — orphan shims, never compiled)
+src/mir/builder/control_flow/facts/canon/generic_loop/step/placement.rs	retire-candidate	source-producers (src/mir/builder — MirBuilder producer home)	deleted (f8f76d5ade — orphan shims, never compiled)
+src/mir/builder/control_flow/facts/canon/generic_loop/step/placement/matcher.rs	retire-candidate	source-producers (src/mir/builder — MirBuilder producer home)	deleted (f8f76d5ade — orphan shims, never compiled)
+src/mir/builder/control_flow/facts/canon/generic_loop/types.rs	retire-candidate	source-producers (src/mir/builder — MirBuilder producer home)	deleted (f8f76d5ade — orphan shims, never compiled)
+src/mir/builder/control_flow/facts/canon/generic_loop/update.rs	retire-candidate	source-producers (src/mir/builder — MirBuilder producer home)	deleted (f8f76d5ade — orphan shims, never compiled)
+src/mir/builder/control_flow/facts/extractors/loop_simple_while.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/facts/loop_cond_break_continue.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/facts/loop_cond_continue_only.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/facts/loop_cond_continue_with_return.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/facts/loop_cond_return_in_body.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/facts/loop_cond_return_in_body/tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/facts/route_shape_recognizers/infinite_loop.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/README.md	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/condition/bound.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/condition/candidates.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/condition/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/step_extract/complex_step.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/step_extract/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/step_extract/next_step.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/step_extract/shared.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/step_extract/var_step.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/step_placement/facts.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/step_placement/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/step_placement/plan.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/types.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/update/literal_match.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/update/literal_step.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/generic_loop_canon/update/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/joinir/loop_context.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/joinir/merge/loop_header_phi_info.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/joinir/route_entry/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/joinir/route_entry/registry/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/joinir/route_entry/router.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/joinir/route_entry/runtime_adjacent_shadow_guard.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/accum_const_loop_facts.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_array_join_facts.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_break_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_builder.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_char_map_facts.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_condition_shape.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_continue_only_facts.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_scan_with_init.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_simple_while_facts.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_source_receipt.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_split_scan.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_step_shape.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_tests_parts/invariants.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_tests_parts/multi_candidate.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_tests_parts/planner_ctx.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_tests_parts/scan_with_init.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_tests_parts/split_scan.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_true_early_exit_facts.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/loop_types.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/nested_loop_minimal_facts.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/facts/nested_loop_profile.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/carrier_merge.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/carriers.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/carriers/continue_only.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/coreloop_frame.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_break_composite_source.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_break_source.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_carriers.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_cond_bc.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_cond_bc_cleanup.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_cond_bc_continue_if.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/breaks.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/guard_break.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns/returns.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_cond_bc_item_stmt.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_cond_bc_nested_carriers.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_cond_bc_source.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_cond_bc_verifier.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_true_break_continue_source.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/features/loop_true_break_continue_verifier.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/generic_loop/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_accum_binding_port.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_accum_binding_ssa_emitter_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_accum_binding_ssa_failure_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_accum_binding_ssa_operation_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_accum_caller_zero.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_accum_physical_role_plan_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_accum_physicalizer/session.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_accum_physicalizer_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/README.md	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_helpers.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_shape_matchers.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_shape_matchers/body_local_common.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_shape_matchers/body_local_digit_matcher.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/body_local_facts_shape_matchers/body_local_trim_matcher.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/body_local_subset.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/core.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/helpers_break_if.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/helpers_common.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/helpers_condition.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/helpers_local.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/helpers_loop.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/helpers_realworld.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/parse_integer.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/read_digits.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/realworld.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/step_before_break.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/trim_whitespace_helpers.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/facts/types.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_break/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/break_continue_accept.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/break_continue_classify.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/break_continue_entry.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/break_continue_facts.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/break_continue_facts_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/break_continue_helpers.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/break_continue_item.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/break_continue_tree.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_cond.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_else.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_exit.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/break_continue_validator_prelude.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/true_break_continue.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond/true_break_continue_helpers.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_final_values.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_phi_materializer.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_phi_materializer_test_support.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_phi_materializer_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_physical_edge_path.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_physical_input.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_recipe_producer_facade_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_true_break_continue/README.md	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_true_break_continue/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/loop_true_break_continue/recipe.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/lowerer/loop_completion.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/lowerer/loop_lowering.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/lowerer/loop_preparation.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/lowerer/loop_validation.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/normalizer/cond_lowering_loop_header.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/normalizer/cond_lowering_loop_header_port.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/normalizer/cond_lowering_loop_header_port_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/normalizer/loop_body_lowering_associated_input.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/normalizer/loop_body_lowering_associated_input_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_driver_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_items.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_items_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_lowering.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_testkit.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/parts/loop_/analysis.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/parts/loop_/body_block.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/parts/loop_/debug.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/parts/loop_/final_values.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/parts/loop_/loop_v0.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/parts/loop_/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/parts/loop_/vars.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/accum_const_loop_builder.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/array_join_builder.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/block.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/bool_predicate_scan_builder.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/char_map_builder.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/common.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/contracts.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/if_phi_join_builder.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/join_scope.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/loop_break_builder.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/loop_continue_only_builder.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/loop_simple_while_builder.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/loop_true_early_exit_builder.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/matcher/loop_cond.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/matcher/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/matcher/patterns.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/matcher/utils.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/scan_with_init_builder.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/split_scan_builder.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/recipe_tree/verified.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/skeletons/loop_true.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/steps/carrier_collect.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/recipes/loop_cond_break_continue.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/recipes/loop_cond_continue_only.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/recipes/loop_cond_continue_with_return.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/recipes/loop_cond_return_in_body.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/recipes/loop_cond_shared.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/verify/coreloop_body_contract.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/verify/verifier/loop_body_validators.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/control_flow/verify/verifier/loop_validators.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/generic_loop_admission_observation.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/loop_api_impl.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_dynamic_loop_prepare.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_dynamic_loop_prepare_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_dynamic_loop_rebind.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_handoff.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_handoff_declarations.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_handoff_loop_true.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_handoff_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_handoff_validation.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_scalar_result_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_source_facts.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_source_facts/composite.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_source_facts/composite_physical.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_source_facts/generic.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_source_facts/generic/issuer.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_source_facts/loop_break.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_source_facts/loop_cond.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_source_facts/loop_true.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_source_port.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_source_route.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_source_route_items.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_callable_loop_source_route_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/normal_default_root_catalog_loop_scope_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/raw_loop_child_entry.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/raw_loop_child_entry/ledger_bridge.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/raw_loop_child_entry/loop_true_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/raw_loop_child_entry/test_route_observation.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/raw_loop_child_entry/tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/raw_loop_child_entry/variable_accum.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/raw_loop_child_entry/variable_accum_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/raw_loop_child_port.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/recursive_child_lowering_loop_true.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/canonical_ssa/session/generic_g0_entry_adoption.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/canonical_ssa/session/s6c_textref_plan.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_after_block_allocation.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_condition_bool_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_if_continuation_target.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_if_continuation_target_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_initial_index_seed_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_return_read_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_s6c_operand_issuer_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_s6c_substring_callout_admission.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_s6c_text_content_root_admission.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_s6c_text_cursor_preheader.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_s6c_textref_entry_bridge.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_segment_block_allocation.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_session/condition_bool.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_session/initial_index_seed.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_session/length_call.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_session/mod.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_session/return_read.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_session/s6c_cursor_cfg.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_session/s6c_operand_issuer.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_session/s6c_scalar_equality_leaf.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_session/s6c_substring_callout_materializer.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_session/s6c_substring_v9_issuer.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_session/s6c_text_eq_occurrence.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_session/session_length.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/common_v2_session/session_segments.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/direct_accum_adapter.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/direct_accum_lowerer.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/dynamic_loop_discard_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/dynamic_loop_phi.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/dynamic_loop_phi_close.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/dynamic_loop_phi_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/dynamic_loop_rebind_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/generic_g0_physical_emitter_session.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_canary.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_lowerer.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_production_canary_tests.rs	test-oracle	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/carrier_emitter.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/compare_i64_operands.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/compare_i64_writer.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/compare_i64_writer_tests.rs	test-oracle	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/compare_result_ledger.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/generic_lowerer.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/generic_production_canary_tests.rs	test-oracle	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/initialized_local_input_materializer.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/loop_node_lowerer.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_continue_lowerer.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_continue_lowerer_tests.rs	test-oracle	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_derived_predicate_lowerer.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_derived_predicate_lowerer_tests.rs	test-oracle	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_in_body_step_lowerer.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_in_body_step_lowerer_tests.rs	test-oracle	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_dispatcher.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_emitter.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_ledger.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_target.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_type.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/pure_operation_emitter.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/recursive_after.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/segment_allocator.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/segment_dispatcher.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/segment_topology.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/tail_completion.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/topology.rs	durable-production	physical-lowering-facade (resolved_lowering/loop_recipe_physicalizer)	keep
+src/mir/builder/resolved_lowering/nested_predicate_adapter.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/nested_predicate_effect_adapter_tests.rs	test-oracle	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/nested_predicate_lowerer.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/builder/resolved_lowering/nested_predicate_physicalizer.rs	durable-production	source-producers (src/mir/builder — MirBuilder producer home)	keep
+src/mir/compiler/callable_loop_physical_canary.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/callable_single_loop_operation_effect.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/callable_single_loop_prelude_arguments.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/callable_single_loop_recipe.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/callable_single_loop_recipe_coseal.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/callable_single_loop_recipe_coseal_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/callable_single_loop_recipe_shape.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/callable_single_loop_source_map.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/callable_single_loop_source_map_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/callable_single_loop_source_shapes.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/callable_single_loop_static_fixture_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/callable_single_loop_syntax_facts.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/callable_single_loop_syntax_facts_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/capability/resolved_owner_header.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/direct_accum_capability.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/direct_accum_observation.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/direct_accum_prefix.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/direct_accum_profile.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/direct_accum_projection.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_capability.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_capability_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_completion.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_function_effect.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_numeric_projection_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_observation.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_observation_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_physical_entry_facts.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_physical_function_effect.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_physical_function_entry_input.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_physical_operation_cohort.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_physical_operation_cohort/emitter_admission.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_physical_operation_cohort/emitter_admission_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_physical_operation_mapping.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_physical_prepare.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_physical_shell_facts.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_projection/handoff.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_projection/mod.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_projection/numeric.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_projection_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_result_abi.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_source_parent.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_source_parent/physical_emitter_source_parts.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_source_parent_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_storage_lane_source.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/generic_g0_top_level_declaration_header.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_break_composite_body_role.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_break_composite_source_projection.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_break_source_projection.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_candidate_abort_p0.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_cond_break_continue_observation.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_cond_break_continue_projection.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_cond_break_continue_projection_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_cond_break_continue_typed_map.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_cond_break_continue_typed_map_issue.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_family_window_probe_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_node_physical_admission.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_node_physical_admission_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_node_winner_spine.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_node_winner_spine_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_physical_prepare.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_physical_prepare_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_true_break_continue_observation.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_true_break_continue_projection.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/loop_true_break_continue_projection_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/main0_derived_predicate_recipe_coseal.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/main0_derived_predicate_recipe_coseal_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/main0_derived_predicate_root_selection.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/main0_derived_predicate_root_selection_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/main0_derived_predicate_semantic_program.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/main0_derived_predicate_source_map.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/main0_derived_predicate_source_map_issue.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/main0_derived_predicate_syntax_facts.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/nested_predicate_effect_plan.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/nested_predicate_effect_plan_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/nested_predicate_observation.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/nested_predicate_physical_input.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/nested_predicate_physical_input_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/nested_predicate_producer.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/nested_predicate_producer_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/nested_predicate_profile.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/nested_predicate_profile_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/nested_predicate_projection.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/nested_predicate_projection_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/nested_predicate_source_handoff.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/nested_predicate_topology.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/nested_predicate_topology_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/normal_default_pipeline_loop_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/resolved_callable_module.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/resolved_callable_module_input.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/resolved_callable_module_preflight.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/resolved_callable_module_preflight_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/resolved_callable_module_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/resolved_direct_accum_cutover.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/resolved_direct_accum_hardening_p0.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/resolved_generic_g0_cutover.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/resolved_nested_predicate_cutover.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/variable_accum_recurrence_projection.rs	durable-production	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/compiler/variable_accum_recurrence_projection_tests.rs	test-oracle	compile-terminal-artifacts (src/mir/compiler, per-family peer home)	keep
+src/mir/loop_api.rs	durable-production	mir-root API (src/mir/loop_api.rs, loop_form.rs)	keep
+src/mir/loop_canonicalizer/canonicalizer.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/canonicalizer_tests/basic.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/canonicalizer_tests/continue_pattern.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/canonicalizer_tests/escape_skip.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/canonicalizer_tests/mod.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/canonicalizer_tests/parse_array.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/canonicalizer_tests/parse_number.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/canonicalizer_tests/parse_object.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/canonicalizer_tests/parse_string.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/canonicalizer_tests/skip_whitespace.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/canonicalizer_tests/trim_leading.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/canonicalizer_tests/trim_trailing.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/capability_guard.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/mod.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/route_shape_recognizer.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_canonicalizer/skeleton_types.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_form.rs	durable-production	mir-root API (src/mir/loop_api.rs, loop_form.rs)	keep
+src/mir/loop_recipe_contract/binding_declaration.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_after_boundary.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_condition_operand_inventory.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_condition_operand_inventory_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_condition_producer.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_condition_producer_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_continuation_relation.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_initial_index_seed.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_initial_index_seed_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_issuers.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_issuers_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_layout_input.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_predicate_branch_plan.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_return_read_co_seal.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_segment_allocation.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/common_v2_string_len_target_plan.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/continuation.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/direct_accum_producer.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/direct_accum_producer_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/error.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/generic_g0/after.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/generic_g0/mod.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/generic_g0/operation_effect.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/generic_g0/producer.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/generic_g0/producer_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/generic_g0/recipe.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/generic_g0/relations.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/generic_g0_demand.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/ids.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/input_source.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/internal_declaration.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/internal_declaration_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig/flow.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig/mod.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig/model.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig/port.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig/recipe_view.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig/recipe_view_v2.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig/transfer_view_v1.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig/transfer_view_v2.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig/v2.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig/v2_collection_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig/visibility.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig_after_binding_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig_branch.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig_branch_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/join_sig_nested_shadow_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/loop_cond_break_continue_producer.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/loop_cond_break_continue_producer_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/loop_true_break_continue_producer.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/loop_true_break_continue_producer_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/mod.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/nested_predicate_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/normalize.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/operation_carrier_demand.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/operation_effect.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/operation_effect_parity.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/operation_effect_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/operation_physical_demand.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/operation_physical_demand_ledger.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/operation_physical_demand_rows.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/operation_physical_demand_schedule.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/operation_physical_demand_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/physical_input.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/physical_layout.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/physical_layout_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/physical_transfer.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/producer_id.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/producer_id_migration_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/recipe_draft.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/route_id.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/schema.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/schema_v2.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/semantic_context.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/source_binding.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/source_bound_core.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/source_bound_core_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/typed_schema_v2.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/typed_schema_v2_dynamic_operation_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/typed_schema_v2_operations.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/typed_schema_v2_structure.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/typed_schema_v2_structure_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/typed_schema_v2_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/typed_schema_v2_text_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/variable_accum_recurrence_producer.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/verify.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/verify_keys.rs	durable-production	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/wire_parity_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/wire_parity_tests/m8a_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/wire_parity_tests/m8c_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/wire_parity_tests/m8d_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_recipe_contract/wire_route_parity_tests.rs	test-oracle	neutral-recipe-contract (src/mir/loop_recipe_contract)	keep
+src/mir/loop_route_detection/classify.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/features.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/kind.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/mod.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/body_local/carrier.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/body_local/condition.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/body_local/digitpos.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/body_local/digitpos_detector.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/body_local/mod.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/body_local/trim_detector.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/break_condition.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/condition_scope/mod.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/condition_scope/var_analyzer.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/function_scope/analyzers/mod.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/function_scope/analyzers/tests/mod.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/function_scope/analyzers/tests/v1.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/function_scope/analyzers/v1.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/function_scope/analyzers/v2.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/function_scope/helpers.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/function_scope/mod.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/function_scope/types.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/locals/mod.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/locals/mutable_accumulator.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/locals/pinned.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/mod.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/support/trim.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_detection/tests.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/all_route_observation.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/all_route_observation_tests.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/direct_accum_observation.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/direct_accum_observation_tests.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/family_admission.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/family_admission_tests.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/family_selector.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/family_selector_tests.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/generic_g0.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/generic_g0_observation.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/generic_g0_observation_tests.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/generic_g0_tests.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/loop_cond_break_continue.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/loop_cond_break_continue_observation.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/loop_cond_break_continue_observation_tests.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/loop_true_break_continue.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/loop_true_break_continue_observation.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/loop_true_break_continue_observation_tests.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/mod.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/nested_predicate_observation.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/nested_predicate_observation_tests.rs	test-oracle	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/policy.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/policy_evidence.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_route_policy/schema.rs	durable-production	route-migration-policy (src/mir/loop_route_{policy,detection}, loop_canonicalizer)	keep
+src/mir/loop_structural_facts/direct_accum_effect_plan.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/direct_accum_exclusivity.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/direct_accum_observation.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/generic_g0/mod.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/generic_g0_observation.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/generic_resolved_carrier_facts_snapshot.rs	test-oracle	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/loop_cond_break_continue_observation.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/loop_cond_break_continue_source.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/loop_true_break_continue_observation.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/loop_true_break_continue_source.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/mod.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/nested_predicate_observation.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/nested_predicate_source.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/resolved_source_adapter.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/selected_demand.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/tests.rs	test-oracle	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/types.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/variable_accum_recurrence.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/loop_structural_facts/variable_accum_recurrence_validation.rs	durable-production	source-facts (src/mir/loop_structural_facts)	keep
+src/mir/normal_callable_semantic_package/loop_break_source.rs	durable-production	callable-semantic-package (s6c/loop family components)	keep
+src/mir/normal_callable_semantic_package/loop_break_source_tests.rs	test-oracle	callable-semantic-package (s6c/loop family components)	keep
+src/mir/normal_callable_semantic_package/s6c_child.rs	durable-production	callable-semantic-package (s6c/loop family components)	keep
+src/mir/normal_callable_semantic_package/s6c_child_tests.rs	test-oracle	callable-semantic-package (s6c/loop family components)	keep
+src/mir/normal_callable_semantic_package/s6c_effects.rs	durable-production	callable-semantic-package (s6c/loop family components)	keep
+src/mir/normal_callable_semantic_package/s6c_storage_header.rs	durable-production	callable-semantic-package (s6c/loop family components)	keep
+src/mir/shared_loop_source_window_tests.rs	test-oracle	mir-root API (src/mir/loop_api.rs, loop_form.rs)	keep
+# LOOP-POST-CUTOVER-BOXSHAPE-C0 module census
+# generated post-M12 (base e53c0693c5); evidence = first named caller / declaration / test parent
+# row = file path; class = durable-production|bootstrap-compatibility|test-oracle|retire-candidate
