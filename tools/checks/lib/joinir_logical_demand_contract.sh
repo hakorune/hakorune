@@ -8,7 +8,7 @@ guard_joinir_logical_demand_contract() {
   local producer_id="$portable_recipe_dir/producer_id.rs"
   local loop_structural_facts_dir="$root_dir/src/mir/loop_structural_facts"
   local direct_accum_recipe_producer="$portable_recipe_dir/direct_accum_producer.rs"
-  local variable_accum_recipe_producer="$portable_recipe_dir/variable_accum_recurrence_producer.rs"; local variable_accum_break_recipe_producer="$portable_recipe_dir/variable_accum_break_producer.rs"
+  local variable_accum_recipe_producer="$portable_recipe_dir/variable_accum_recurrence_producer.rs";
   # The compiler-owned DirectAccum profile is the sole disconnected issuer of
   # the portable producer. It is not a downstream production consumer; the
   # guard must distinguish this issuer from an accidental route caller.
@@ -36,7 +36,7 @@ guard_joinir_logical_demand_contract() {
   local loop_accum_emitter_tests="$root_dir/src/mir/builder/control_flow/plan/loop_accum_binding_ssa_emitter_tests.rs"
   local loop_recipe_producer_tests="$root_dir/src/mir/builder/control_flow/plan/loop_recipe_producer_facade_tests.rs"
   local nested_predicate_producer="$root_dir/src/mir/compiler/nested_predicate_producer.rs"
-  local nested_predicate_producer_tests="$root_dir/src/mir/compiler/nested_predicate_producer_tests.rs"; local variable_accum_break_projection_tests="$root_dir/src/mir/compiler/variable_accum_break_projection_tests.rs"
+  local nested_predicate_producer_tests="$root_dir/src/mir/compiler/nested_predicate_producer_tests.rs";
   local loop_physical_edge_path="$root_dir/src/mir/builder/control_flow/plan/loop_physical_edge_path.rs"
   # The accepted Dynamic physical-input co-seal is the only named consumer
   # outside the portable contract subtree. Its two fixture files are test
@@ -65,7 +65,7 @@ guard_joinir_logical_demand_contract() {
     "$loop_phi_materializer" "$loop_phi_materializer_tests" \
     "$loop_accum_physical_role_tests" \
     "$loop_accum_binding_ssa_tests" "$loop_accum_emitter_tests" \
-    "$loop_physical_edge_path" "$direct_accum_issuer" "$direct_accum_capability" "$variable_accum_recipe_producer" "$variable_accum_break_recipe_producer" \
+    "$loop_physical_edge_path" "$direct_accum_issuer" "$direct_accum_capability" "$variable_accum_recipe_producer" \
     "$direct_accum_projection" "$direct_accum_observation_adapter" \
     "$loop_true_source_projection" "$loop_true_observation_adapter" \
     "$loop_cond_source_projection" "$loop_cond_observation_adapter" "$nested_observation_source" \
@@ -170,7 +170,7 @@ guard_joinir_logical_demand_contract() {
           -v dynamic_physical_input="$dynamic_physical_input" \
           -v dynamic_semantic_tests="$dynamic_semantic_tests" \
           -v dynamic_recipe_tests="$dynamic_recipe_tests" \
-          -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" -v variable_accum_break_projection_tests="$variable_accum_break_projection_tests" \
+          -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
           -v main0_continue_coseal="$root_dir/src/mir/compiler/main0_continue_recipe_coseal.rs" \
           -v main0_derived_coseal="$root_dir/src/mir/compiler/main0_derived_predicate_recipe_coseal.rs" \
           -v main0_step_coseal="$root_dir/src/mir/compiler/main0_in_body_step_recipe_coseal.rs" \
@@ -179,7 +179,7 @@ guard_joinir_logical_demand_contract() {
           -v physicalizer="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs" \
           -v physicalizer_session="$root_dir/src/mir/builder/control_flow/plan/loop_accum_physicalizer/session.rs" \
           -v edge_path="$loop_physical_edge_path" \
-          'index($0, prefix) != 1 && $0 != materializer && $0 != materializer_tests  && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != callable_recipe_coseal && $0 != variable_accum_break_projection_tests && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != node_admission && $0 != if_continuation && $0 != physicalizer && $0 != physicalizer_session && $0 != edge_path'
+          'index($0, prefix) != 1 && $0 != materializer && $0 != materializer_tests  && $0 != physical_role_tests && $0 != binding_ssa_tests && $0 != producer_tests && $0 != nested_producer && $0 != nested_producer_tests && $0 != nested_topology && $0 != nested_topology_tests && $0 != nested_physical_input && $0 != nested_physical_input_tests && $0 != dynamic_physical_input && $0 != dynamic_semantic_tests && $0 != dynamic_recipe_tests && $0 != callable_recipe_coseal && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal && $0 != node_admission && $0 != if_continuation && $0 != physicalizer && $0 != physicalizer_session && $0 != edge_path'
   )
   if (( ${#join_sig_external_files[@]} != 0 )); then
     guard_fail "$tag" "caller-zero logical JoinSig symbols escaped the contract subtree"
@@ -277,7 +277,7 @@ guard_joinir_logical_demand_contract() {
   local structural_binding_callers
   structural_binding_callers="$(
     { rg -l 'bind_resolved_loop_root_v1\(' "$root_dir/src/mir" || true; } \
-      | awk -v prefix="$loop_structural_facts_dir/" -v producer="$direct_accum_recipe_producer" -v variable_producer="$variable_accum_recipe_producer" -v variable_break_producer="$variable_accum_break_recipe_producer" \
+      | awk -v prefix="$loop_structural_facts_dir/" -v producer="$direct_accum_recipe_producer" -v variable_producer="$variable_accum_recipe_producer" \
           -v projection="$loop_true_source_projection" \
           -v callable_recipe_coseal="$root_dir/src/mir/compiler/callable_single_loop_recipe_coseal.rs" \
           -v dynamic_recipe_mod="$dynamic_recipe_mod" \
@@ -287,7 +287,7 @@ guard_joinir_logical_demand_contract() {
           -v main0_continue_coseal="$root_dir/src/mir/compiler/main0_continue_recipe_coseal.rs" \
           -v main0_derived_coseal="$root_dir/src/mir/compiler/main0_derived_predicate_recipe_coseal.rs" \
           -v main0_step_coseal="$root_dir/src/mir/compiler/main0_in_body_step_recipe_coseal.rs" \
-          'index($0, prefix) != 1 && index($0, wire_tests_prefix) != 1 && $0 != producer && $0 != variable_producer && $0 != variable_break_producer && $0 != projection && $0 != callable_recipe_coseal && $0 != dynamic_recipe_mod && $0 != wire_route_tests && $0 != loopcond_issue && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal' \
+          'index($0, prefix) != 1 && index($0, wire_tests_prefix) != 1 && $0 != producer && $0 != variable_producer && $0 != projection && $0 != callable_recipe_coseal && $0 != dynamic_recipe_mod && $0 != wire_route_tests && $0 != loopcond_issue && $0 != main0_continue_coseal && $0 != main0_derived_coseal && $0 != main0_step_coseal' \
       | wc -l \
       | tr -d '[:space:]'
   )"

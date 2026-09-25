@@ -14,7 +14,6 @@ builder.compat.program_json_v0_entry = "builder/compat/program_json_v0_entry.hak
 builder.compat.emit_mir_json_v0 = "builder/compat/emit_mir_json_v0.hako"
 builder.loop_recipe.emit_loop_recipe_wire = "builder/loop_recipe/emit_loop_recipe_wire.hako"
 builder.loop_recipe.emit_m8a_recurrence_wire = "builder/loop_recipe/emit_m8a_recurrence_wire.hako"
-builder.loop_recipe.emit_m8b_break_wire = "builder/loop_recipe/emit_m8b_break_wire.hako"
 builder.loop_recipe.emit_m8c_scans_wire = "builder/loop_recipe/emit_m8c_scans_wire.hako"
 builder.loop_recipe.emit_m8d_loopcond_wire = "builder/loop_recipe/emit_m8d_loopcond_wire.hako"
 builder.loop_recipe.emit_direct_accum_wire = "builder/loop_recipe/emit_direct_accum_wire.hako"

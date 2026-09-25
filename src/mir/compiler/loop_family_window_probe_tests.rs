@@ -256,25 +256,6 @@ static box Main {
 }
 "#;
 
-const VARIABLE_ACCUM_BREAK: &str = r#"
-static box Main {
-    main(): i64 {
-        local sum: i64 = 0
-        local i: i64 = 0
-        loop(i < 10) {
-            if (i == 5) {
-                sum = sum + 10
-                break
-            } else {
-                continue
-            }
-            sum = sum + 1
-            i = i + 1
-        }
-        return 0
-    }
-}
-"#;
 
 const NESTED_MINIMAL: &str = r#"
 static box Main {
@@ -347,11 +328,6 @@ fn probe_accum_const_loop() {
 #[test]
 fn probe_variable_accum_recurrence() {
     report("LoopSimpleWhile/VariableAccumRecurrence", VARIABLE_ACCUM_RECURRENCE, "main");
-}
-
-#[test]
-fn probe_variable_accum_break() {
-    report("LoopBreakRecipe/VariableAccumBreak", VARIABLE_ACCUM_BREAK, "main");
 }
 
 #[test]

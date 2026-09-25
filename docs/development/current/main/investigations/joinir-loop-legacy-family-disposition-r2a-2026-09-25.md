@@ -140,15 +140,12 @@ normalizer/recipe_tree/loop_cond/route-policy/wire-parity run 268/270
 with both failures already in `failures.txt` (known-red);
 in-place replacement guard + pointer guard green.
 
-## Next
+## Next (discharged)
 
-`JOINIR-LOOP-MUTATION-DISPATCH-RETIRE-R2C`: Section C decision rows —
-synthetic 19-row `family_route_schedule`/`freeze_loop_route_schedule_v1`
-production schedule, `generic/issuer.rs` `matched_routes()` last
-LoopRouteId behavior-selection site, `direct_accum_effect_plan.rs`
-Facts-layer `LoopBindingKeyV1` minting, VariableAccumBreak
-production-owner vs attestation mismatch. Resolve dispositions before
-deletion.
+`JOINIR-LOOP-MUTATION-DISPATCH-RETIRE-R2C` completed: C03 key mint
+removed (part1), C01 schedule/winner retired (part2), C02
+`matched_routes()` confirmed data-only exact membership (retained),
+VariableAccumBreak chain retired (part3).
 
 ## M12-R2C landings (Facts key mint + schedule/winner retirement)
 
@@ -191,3 +188,47 @@ is pre-existing baseline red also present in the HEAD full-run receipt.
 Known unrelated reds: `naming_charter_guard` (env rg regex parse +
 Stage-A wording at HEAD), `mir_root_facade_guard` (`ConstructionTarget`
 allowlist drift at HEAD) — both untouched by this slice.
+
+## M12-R2C part3 landing (VariableAccumBreak attestation-vs-owner resolution)
+
+Decision: retire, not promote. The `VariableAccumBreakV1` chain stayed
+caller-zero/test-only since S6B while `ATTESTED_RECIPE_BACKED_V1` claimed
+`LoopBreakRecipe` was `PortableProducer(VariableAccumBreakV1)`-backed;
+production `loop_break` lowering never consumed it (sole owner stays the
+`loop_break_source` package path). Promoting it would have required
+fabricating a production edge with no caller, so the attestation was the
+false authority and the whole chain was removed:
+
+- Deleted: `variable_accum_break_producer.rs`, `variable_accum_break.rs`
+  (facts), `variable_accum_break_projection.rs` (+`_tests.rs`),
+  `wire_parity_tests/m8b_tests.rs`,
+  `fixtures/hako_loop_recipe_wire_m8b_v1.json`,
+  `lang/.../emit_m8b_break_wire.hako` (+`hako_module.toml` row), probe
+  fixture/fn in `loop_family_window_probe_tests.rs`.
+- `LoopRecipeProducerIdV1::VariableAccumBreakV1` variant removed; the
+  `ATTESTED_RECIPE_BACKED_V1` `LoopBreakRecipe` row removed;
+  `producer_id_migration` RECEIPTS flips `LoopBreakRecipe` to
+  `legacy_only` (portable_producer count 6->5, legacy_only 12->13);
+  `ROUTE_WIRE_COVERAGE_V1` arm -> `TypedDeclined`.
+- `LoopRouteId::LoopBreakRecipe` stays in the canonical route vocabulary
+  as a typed-declined census row (migration provenance only).
+- `m8d_tests` foreign-provenance negative re-pointed to `generic_g0`.
+- `joinir_logical_demand_contract.sh` un-pinned from the deleted files;
+  module READMEs, `docs/reference/mir/loop-recipe-contract.md`, and the
+  R2A disposition TSV (A07-A10 -> retired) updated.
+- Receipt: 6 stale names removed from tests.txt, expected_passed
+  7291->7280 (6 projection + 5 m8b pass-side tests deleted), inventory
+  sha refreshed.
+
+Verify: `cargo check --lib`/`--tests` green; focused
+recipe-contract/route-policy/probe run 301/301 green; pointer guard,
+in-place replacement guard, layer dependency, no-fallback,
+route-detector, varmap guards green.
+
+## Next
+
+`JOINIR-LOOP-SOLE-AUTHORITY-CLOSEOUT-R2G` (M12-R2G): sole-authority
+closeout — confirm no duplicate physical owner or publication path
+remains, produce residual counts/evidence, close the remaining
+route/family/producer authority questions (C04 `LoopRouteId`
+diagnostic-only fate, C05 selector/canonical dispatch disposition).

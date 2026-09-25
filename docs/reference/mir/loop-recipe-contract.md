@@ -719,24 +719,14 @@ execution-mechanism row; no producer port, Facts, verifier, physical
 MIR, production caller, hostbridge, or V2 wire was added.
 
 Reference receipt — `SELFHOST-LOOP-M8B-EXITS-JOINS-PARITY-S7B2`
-(2026-09-24): the second S7B wire-coverage cohort adds
-`loop_recipe/emit_m8b_break_wire.hako`, which emits the canonical
-M8B `LoopRecipeArtifactV1` — `variable_accum_break_v1` provenance,
-source path `body_item(2)`, loop bound 10, branch bound 5 — as one
-compact JSON line. It is the first wire family carrying `If` and
-`Exit` item kinds plus a non-empty `exits` table (one `break` row
-targeting loop 0). The emission is checked in at
-`fixtures/hako_loop_recipe_wire_m8b_v1.json`; the parity harness
-rebuilds the same artifact through the producer's own issuer calls
-(resolver facts -> `bind_resolved_loop_root_v1` ->
-`break_recipe(loop_bound, branch_bound)` -> provenance) and asserts
-all three normalizations equal, plus `normalize_semantic` equality
-with the real `produce_variable_accum_break_recipe_v1` product and a
-foreign-provenance drift negative. `break_recipe` is `pub(super)` so
-the harness reuses the producer's recipe issuer. The producer half of
-the M9 Change clause stays deferred behind a named `.hako`
-execution-mechanism row; no producer port, Facts, verifier, physical
-MIR, production caller, hostbridge, or V2 wire was added.
+(2026-09-24): retired at M12-R2C. The M8B `variable_accum_break_v1`
+cohort (emitter `emit_m8b_break_wire.hako`, fixture
+`hako_loop_recipe_wire_m8b_v1.json`, parity arm, producer
+`produce_variable_accum_break_recipe_v1`) was removed with the whole
+caller-zero `VariableAccumBreak` chain after the all-route audit found
+its `LoopBreakRecipe` attestation never matched a production owner.
+`LoopBreakRecipe` is now a typed-declined row in the canonical route
+census and the `producer_id_migration` receipt marks it `legacy_only`.
 
 Reference receipt — `SELFHOST-LOOP-M8C-SCANS-PARITY-S7B3`
 (2026-09-24): the third S7B wire-coverage cohort is the first V2 row.
@@ -2025,52 +2015,15 @@ production selection, retry/fallback retirement, or legacy deletion is open.
 The R0 and S6A implementation commits must each update this reference and the
 module README; M10b cutover requires a final reference update.
 
-## M8 S6B variable-accum break/fallthrough implementation receipt (2026-08-08)
+## M8 S6B variable-accum break/fallthrough implementation receipt (2026-08-08) — retired
 
-Decision: accepted; `JOINIR-LOOP-M8-LOOPV0-EXITS-JOINS-S6B` is closed as a
-caller-zero source-to-Recipe slice.
-
-The resolver-backed observer consumes the natural
-`apps/tests/loop_break_plan_subset_min.hako` source shape and seals one atomic
-`VerifiedVariableAccumBreakFactsV1`. It keeps condition, branch, terminal
-update, normal update, induction step, two initializer relations, exact
-resolver sites, and complete coverage together. It does not mint Recipe keys,
-JoinSig edges, physical IDs, or re-read syntax in the producer.
-
-The deterministic producer uses the existing recursive algebra and the shared
-mixed-fallthrough JoinSig contract:
-
-```text
-bindings                         = 2
-external input relations        = 2
-logical blocks                   = 3
-Recipe item rows                 = 20
-  operation rows                 = 18
-  control rows                   = If(1) + Break(1)
-values                           = 17
-carriers                         = 2
-break exits                      = 1
-Core binding-effect relations   = 10
-item-source operation rows      = 18
-```
-
-The branch row is `If(I6)`: its terminal arm is `Exit(I11)` with the visible
-terminal payload, while the omitted source `else` is the independent logical
-`Fallthrough` arm. The normal body then updates `sum` and `i` before the
-existing logical backedge. The control statement anchors are retained in
-`VariableAccumBreakControlSourceReceiptV1`; they are not incorrectly counted
-as operation-source evidence. The producer receipt is
-`variable_accum_break_v1` and is not a route selector or physical dispatch
-identity.
-
-The focused six-test matrix proves the exact candidate and normalized
-Recipe/JoinSig/Core product, deterministic counts and arm preservation,
-incomplete evidence as `Unresolved`, fully observed unsupported/explicit-else
-shapes as `Declined`, and foreign owner as `Rejected`. No AST rewrite, name
-lookup, Builder/MIR/CFG/PHI effect, completion/tail claim, selector,
-retry/fallback, production caller, or legacy deletion is opened. This
-reference and both module READMEs must be updated again for any later physical
-or production activation.
+Retired at M12-R2C. The `VariableAccumBreakV1` observer/producer chain was
+caller-zero and test-only while `ATTESTED_RECIPE_BACKED_V1` claimed it backed
+`LoopBreakRecipe` — an owner/attestation mismatch. The Facts observer,
+projection, producer, M8B wire arm, and `variable_accum_break_v1` producer id
+were removed; `LoopBreakRecipe` stays in the canonical route vocabulary as a
+typed-declined row. Production `loop_break` lowering keeps its own sole owner
+path.
 
 ## Initialized-local input relation set R0 implementation receipt (2026-08-08)
 

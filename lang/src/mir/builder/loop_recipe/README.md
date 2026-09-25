@@ -7,11 +7,7 @@ Owner boundary
   `direct_accum_v1` artifact; `emit_m8a_recurrence_wire.hako` (S7B1)
   emits the canonical M8A `variable_accum_recurrence_v1` artifact for
   the bounded profile `loop(i < 4) { acc = acc + i; i = i + 1 }` at
-  root body item index 2; `emit_m8b_break_wire.hako` (S7B2) emits the
-  canonical M8B `variable_accum_break_v1` artifact for the bounded
-  profile `loop(i < 10) { if(i == 5) { sum += 10; break }; sum += 1;
-  i += 1 }` at root body item index 2 — covering the `If` item, the
-  `Exit` item, and a non-empty `exits` table with one break row;
+  root body item index 2;
   `emit_m8c_scans_wire.hako` (S7B3) emits the canonical M8C
   `LoopRecipeArtifactV2` (`schema_version` 2, `scan_with_init_v2`
   provenance) for the bounded `find_ok` profile
@@ -37,13 +33,11 @@ Owner boundary
   checked-in emissions at
   `src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_v1.json`,
   `hako_loop_recipe_wire_m8a_v1.json`,
-  `hako_loop_recipe_wire_m8b_v1.json`,
   `hako_loop_recipe_wire_m8c_v2.json`, and
   `hako_loop_recipe_wire_m8d_v1.json`. The M8A arm compares against
   the artifact the real Rust producer
   `produce_variable_accum_recurrence_recipe_v1` yields for the same
-  bounded source profile; the M8B arm compares against
-  `produce_variable_accum_break_recipe_v1` likewise; the M8C arm
+  bounded source profile; the M8C arm
   compares against the artifact rebuilt through the M8C producer's
   own issuer calls (`build_recipe` -> `bind_verified_artifact`) and
   anchors `normalize_semantic` on the real
@@ -53,7 +47,12 @@ Owner boundary
   `VerifiedLoopRootSourceV1` + `loop_cond_break_continue_recipe`
   (`pub(super)`) — and anchors `normalize_semantic` on the real
   `produce_loop_cond_break_continue_recipe_v1` product issued
-  through its own policy-demand chain. The M8E generic-residual
+  through its own policy-demand chain. The M8B variable-accum-break
+  emitter, fixture, and parity arm were retired at M12-R2C with the
+  caller-zero `VariableAccumBreak` producer chain (its
+  `LoopBreakRecipe` attestation never matched the production owner);
+  `LoopBreakRecipe` is a typed-declined row in the canonical route
+  census. The M8E generic-residual
   emitter, fixture, and parity arm were retired at M12-R2B with the
   caller-zero `GenericResidual` producer chain; `GenericLoopV1` is a
   typed-declined row in the canonical route census.
@@ -125,9 +124,6 @@ Regenerating the checked-in emissions
 ./target/debug/hakorune --backend vm \
   lang/src/mir/builder/loop_recipe/emit_m8a_recurrence_wire.hako \
   > src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_m8a_v1.json
-./target/debug/hakorune --backend vm \
-  lang/src/mir/builder/loop_recipe/emit_m8b_break_wire.hako \
-  > src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_m8b_v1.json
 ./target/debug/hakorune --backend vm \
   lang/src/mir/builder/loop_recipe/emit_m8c_scans_wire.hako \
   > src/mir/loop_recipe_contract/fixtures/hako_loop_recipe_wire_m8c_v2.json

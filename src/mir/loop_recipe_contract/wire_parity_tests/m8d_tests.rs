@@ -147,7 +147,7 @@ fn m8d_wire_with_foreign_provenance_is_semantic_drift() {
     *value
         .get_mut("provenance")
         .and_then(|p| p.get_mut("producer_id"))
-        .expect("producer_id") = serde_json::json!("variable_accum_break_v1");
+        .expect("producer_id") = serde_json::json!("generic_g0");
     let json = serde_json::to_string(&value).expect("encodes");
     let drifted = LoopRecipeNormalizerV1::decode_and_verify(&json)
         .expect("drifted artifact still decodes and verifies");

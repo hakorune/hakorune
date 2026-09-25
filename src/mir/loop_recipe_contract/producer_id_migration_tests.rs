@@ -21,8 +21,8 @@ pub(crate) struct LegacyRouteParityReceiptV1 {
 pub(crate) const RECEIPTS: &[LegacyRouteParityReceiptV1] = &[
     LegacyRouteParityReceiptV1 {
         legacy_route: LoopRouteId::LoopBreakRecipe,
-        producer_id: Some(LoopRecipeProducerIdV1::VariableAccumBreakV1),
-        disposition: "portable_producer",
+        producer_id: None,
+        disposition: "legacy_only",
     },
     LegacyRouteParityReceiptV1 {
         legacy_route: LoopRouteId::IfPhiJoin,
@@ -124,7 +124,7 @@ fn legacy_route_parity_is_external_and_non_selecting() {
             .iter()
             .filter(|receipt| receipt.disposition == "portable_producer")
             .count(),
-        6
+        5
     );
     assert_eq!(
         RECEIPTS
@@ -138,7 +138,7 @@ fn legacy_route_parity_is_external_and_non_selecting() {
             .iter()
             .filter(|receipt| receipt.disposition == "legacy_only")
             .count(),
-        12
+        13
     );
     assert!(RECEIPTS.iter().any(|receipt| {
         receipt.legacy_route == LoopRouteId::GenericLoopV0 && receipt.producer_id.is_none()
@@ -180,7 +180,6 @@ fn producer_id_wire_keys_roundtrip_without_legacy_route_names() {
         LoopRecipeProducerIdV1::GenericG0,
         LoopRecipeProducerIdV1::CallableSingleLoopV1,
         LoopRecipeProducerIdV1::VariableAccumRecurrenceV1,
-        LoopRecipeProducerIdV1::VariableAccumBreakV1,
         LoopRecipeProducerIdV1::Main0ContinueV1,
         LoopRecipeProducerIdV1::Main0InBodyStepV1,
         LoopRecipeProducerIdV1::Main0DerivedPredicateV1,

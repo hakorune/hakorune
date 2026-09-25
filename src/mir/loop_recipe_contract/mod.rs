@@ -86,7 +86,6 @@ mod source_binding;
 mod source_bound_core;
 mod typed_schema_v2;
 mod typed_schema_v2_structure;
-mod variable_accum_break_producer;
 mod variable_accum_recurrence_producer;
 mod verify;
 
@@ -417,11 +416,6 @@ pub(crate) use source_bound_core::{
 pub(crate) use typed_schema_v2::{
     LoopRecipeV2RejectReason, LoopRecipeVerifierV2, VerifiedLoopRecipeArtifactV2,
     VerifiedLoopRecipeV2,
-};
-#[allow(unused_imports)]
-pub(crate) use variable_accum_break_producer::{
-    produce_variable_accum_break_recipe_v1, VariableAccumBreakControlSourceReceiptV1,
-    VariableAccumBreakRecipeProducerRejectV1, VerifiedVariableAccumBreakRecipeProductV1,
 };
 #[allow(unused_imports)]
 pub(crate) use variable_accum_recurrence_producer::{

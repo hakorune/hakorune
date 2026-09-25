@@ -220,8 +220,6 @@ pub(in crate::mir) mod nested_predicate_source_handoff;
 #[allow(dead_code)]
 pub(in crate::mir) mod nested_predicate_topology;
 #[allow(dead_code)]
-pub(in crate::mir) mod variable_accum_break_projection;
-#[allow(dead_code)]
 pub(in crate::mir) mod variable_accum_recurrence_projection;
 #[cfg(test)]
 mod variable_accum_recurrence_projection_tests;

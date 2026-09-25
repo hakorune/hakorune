@@ -20,30 +20,22 @@ use super::schema::{
     LoopRecipeSourceBindingV1, LoopRecipeSourceOwnerV1, LoopRecipeV1, LoopRecipeValueV1,
     LoopSourcePathStepV1, LoopSourcePathV1, LoopValueClassV1, LOOP_RECIPE_SCHEMA_VERSION_V1,
 };
-use super::variable_accum_break_producer::{
-    break_recipe, produce_variable_accum_break_recipe_v1,
-};
 use super::variable_accum_recurrence_producer::{
     produce_variable_accum_recurrence_recipe_v1, recurrence_recipe,
 };
 use super::verify::LoopRecipeVerifierV1;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::compiler::variable_accum_break_projection::issue_variable_accum_break_source_attempt_v1;
 use crate::mir::compiler::variable_accum_recurrence_projection::issue_variable_accum_recurrence_facts_from_membership_v1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::loop_structural_facts::{
-    bind_resolved_loop_root_v1, VariableAccumBreakObservationCoverageV1,
-    VariableAccumBreakSourceAttemptOutcomeV1, VerifiedVariableAccumBreakFactsV1,
-    VerifiedVariableAccumRecurrenceFactsV1,
+    bind_resolved_loop_root_v1, VerifiedVariableAccumRecurrenceFactsV1,
 };
 use crate::mir::resolved_semantics::CallableSemanticSourceLedgerView;
 
 const HAKO_WIRE_EMISSION: &str = include_str!("fixtures/hako_loop_recipe_wire_v1.json");
 const HAKO_M8A_WIRE_EMISSION: &str =
     include_str!("fixtures/hako_loop_recipe_wire_m8a_v1.json");
-const HAKO_M8B_WIRE_EMISSION: &str =
-    include_str!("fixtures/hako_loop_recipe_wire_m8b_v1.json");
 const ACCUM_DIRECT_GOLDEN: &str = include_str!("fixtures/accum_direct_v1.json");
 
 /// The same minimal artifact the `.hako` entry assembles from its named
@@ -375,8 +367,7 @@ fn hako_wire_truncated_json_is_typed_reject() {
 
 #[path = "wire_parity_tests/m8a_tests.rs"]
 mod m8a_tests;
-#[path = "wire_parity_tests/m8b_tests.rs"]
-mod m8b_tests;
+
 #[path = "wire_parity_tests/m8c_tests.rs"]
 mod m8c_tests;
 #[path = "wire_parity_tests/m8d_tests.rs"]

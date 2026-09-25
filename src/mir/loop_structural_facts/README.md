@@ -39,32 +39,14 @@ full C/D/U/R envelope, duplicate-role rejection, and source-site negatives are
 closed. Bounds and deltas are general `I64` literals with exact source anchors;
 the fixture values `4` and `1` are not hard-coded policy.
 
-## M8 S6B variable-accum break/fallthrough boundary
+## M8 S6B variable-accum break/fallthrough boundary — retired
 
-`VariableAccumBreakV1` is the single source-family observer for the natural
-`loop_break_plan_subset_min.hako` shape: `i < 10`, an `if i == 5` arm with
-`sum = sum + 10; break`, implicit normal fallthrough, `sum = sum + 1`, and
-`i = i + 1`. Private condition/branch/update observations are co-sealed into
-one AST-free `VerifiedVariableAccumBreakFactsV1`; no partial observation is a
-second authority. Facts retain resolver-issued source sites, frame, two
-distinct bindings, two initializer/input relations, and complete body-role
-coverage, but never mint Recipe/JoinSig/physical keys.
-
-The bounded source receipt is intentionally split between logical control and
-operation evidence. The normalized existing Recipe has 2 bindings, 2 inputs,
-3 blocks, 20 item rows (18 operation rows plus one `If` and one `Break`), 17
-values, two carriers, and one break exit. The common source relation counts
-are 2 input rows, 2 binding rows, 10 Core binding-effect rows, and 18
-item-source operation rows. `If` and `Break` anchors remain in a small
-control-source receipt rather than being misclassified as operations.
-
-Source disposition is typed and ordered: identity/owner conflicts are
-`Rejected`, unavailable resolver or coverage evidence is `Unresolved`, and a
-fully observed non-matching operator/body/else shape is `Declined`. Exact
-shape alone yields `Candidate`. `NoSafeSlice` remains a development status,
-not a fifth source outcome. The producer and JoinSig tests are caller-zero;
-there is no Builder/MIR/CFG/PHI, selector, retry/fallback, production route,
-callable tail, or legacy-deletion authority in S6B.
+The `VariableAccumBreakV1` observer chain (Facts, projection, producer,
+wire arm) was retired at M12-R2C: it stayed caller-zero/test-only while
+`ATTESTED_RECIPE_BACKED_V1` claimed it backed `LoopBreakRecipe`, an
+owner/attestation mismatch. `LoopBreakRecipe` is now a typed-declined row
+in the canonical route census; production `loop_break` lowering keeps its
+own sole owner path.
 
 ## M8 S6C ScanWithInit frontier
 

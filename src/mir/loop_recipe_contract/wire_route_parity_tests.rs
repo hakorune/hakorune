@@ -36,7 +36,6 @@ use crate::mir::loop_route_policy::{
 
 const HAKO_WIRE_V1: &str = include_str!("fixtures/hako_loop_recipe_wire_v1.json");
 const HAKO_WIRE_M8A: &str = include_str!("fixtures/hako_loop_recipe_wire_m8a_v1.json");
-const HAKO_WIRE_M8B: &str = include_str!("fixtures/hako_loop_recipe_wire_m8b_v1.json");
 const HAKO_WIRE_M8C: &str = include_str!("fixtures/hako_loop_recipe_wire_m8c_v2.json");
 const HAKO_WIRE_M8D: &str = include_str!("fixtures/hako_loop_recipe_wire_m8d_v1.json");
 const HAKO_WIRE_NESTED: &str =
@@ -358,10 +357,7 @@ enum RouteWireCoverageV1 {
 }
 
 const ROUTE_WIRE_COVERAGE_V1: &[(LoopRouteId, RouteWireCoverageV1)] = &[
-    (
-        LoopRouteId::LoopBreakRecipe,
-        RouteWireCoverageV1::V1Parity(HAKO_WIRE_M8B, LoopRecipeProducerIdV1::VariableAccumBreakV1),
-    ),
+    (LoopRouteId::LoopBreakRecipe, RouteWireCoverageV1::TypedDeclined),
     (LoopRouteId::IfPhiJoin, RouteWireCoverageV1::TypedDeclined),
     (LoopRouteId::LoopContinueOnly, RouteWireCoverageV1::TypedDeclined),
     (
