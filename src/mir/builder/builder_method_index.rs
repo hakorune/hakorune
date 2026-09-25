@@ -1,5 +1,18 @@
 use super::function_signature_lookup::FunctionSignatureLookupV1;
 use super::MirBuilder;
+use std::collections::HashMap;
+
+/// Module-scope method tail index owned by this module.
+///
+/// `index` maps a `.method/arity` tail key to sorted candidate function
+/// names; `source_len` is the function-count snapshot used for
+/// invalidation. Module-lifetime catalog state, written only by the
+/// rebuild path below.
+#[derive(Debug, Default)]
+pub(crate) struct MethodTailIndexV1 {
+    pub index: HashMap<String, Vec<String>>,
+    pub source_len: usize,
+}
 
 fn method_tail_key(method: &str, arity: usize) -> String {
     format!(".{method}/{arity}")
@@ -39,9 +52,9 @@ impl MirBuilder {
     // Method tail index (performance helper)
     // ----------------------
     fn rebuild_method_tail_index(&mut self) {
-        self.comp_ctx.method_tail_index.clear();
+        self.comp_ctx.method_tail_index.index.clear();
         let Some(module) = self.current_module.as_ref() else {
-            self.comp_ctx.method_tail_index_source_len = 0;
+            self.comp_ctx.method_tail_index.source_len = 0;
             return;
         };
         let source_len = module.functions.len();
@@ -58,24 +71,25 @@ impl MirBuilder {
                     let tail = &name[dot..];
                     self.comp_ctx
                         .method_tail_index
+                        .index
                         .entry(tail.to_string())
                         .or_insert_with(Vec::new)
                         .push(name);
                 }
             }
         }
-        for candidates in self.comp_ctx.method_tail_index.values_mut() {
+        for candidates in self.comp_ctx.method_tail_index.index.values_mut() {
             candidates.sort();
         }
-        self.comp_ctx.method_tail_index_source_len = source_len;
+        self.comp_ctx.method_tail_index.source_len = source_len;
     }
 
     fn ensure_method_tail_index(&mut self) {
         let need_rebuild = match self.current_module {
             Some(ref refmod) => {
-                self.comp_ctx.method_tail_index_source_len != refmod.functions.len()
+                self.comp_ctx.method_tail_index.source_len != refmod.functions.len()
             }
-            None => self.comp_ctx.method_tail_index_source_len != 0,
+            None => self.comp_ctx.method_tail_index.source_len != 0,
         };
         if need_rebuild {
             self.rebuild_method_tail_index();
@@ -87,6 +101,7 @@ impl MirBuilder {
         let tail = method_tail_key(method, arity);
         self.comp_ctx
             .method_tail_index
+            .index
             .get(&tail)
             .cloned()
             .unwrap_or_default()
@@ -97,6 +112,7 @@ impl MirBuilder {
         self.ensure_method_tail_index();
         self.comp_ctx
             .method_tail_index
+            .index
             .get(tail.as_ref())
             .cloned()
             .unwrap_or_default()

@@ -15,8 +15,8 @@
  * - field_origin_class: Field origin tracking
  * - field_origin_by_box: Class-level field origin
  * - callable_declaration_catalog: Complete same-module callable declarations
- * - method_tail_index: Method tail index
- * - method_tail_index_source_len: Source length snapshot
+ * - method_tail_index: Method tail index catalog (index + source-length
+ *   invalidation snapshot), owned by builder_method_index
  * - type_registry: Type registry box
  * - current_slot_registry: Function scope slot registry
  * - plugin_method_sigs: Plugin method signatures
@@ -178,10 +178,9 @@ pub(crate) struct CompilationContext {
     pub using_import_boxes: HashMap<String, String>,
 
     /// Fast lookup: method+arity tail → candidate function names (e.g., ".str/0" → ["JsonNode.str/0", ...])
-    pub method_tail_index: HashMap<String, Vec<String>>,
-
-    /// Source size snapshot to detect when to rebuild the tail index
-    pub method_tail_index_source_len: usize,
+    /// Owned as one catalog by `builder_method_index` (index + source-length
+    /// invalidation snapshot).
+    pub method_tail_index: super::builder_method_index::MethodTailIndexV1,
 
     /// 🎯 箱理論: 型情報管理の一元化（TypeRegistryBox）
     /// NYASH_USE_TYPE_REGISTRY=1 で有効化（段階的移行用）
@@ -223,8 +222,7 @@ impl CompilationContext {
             field_origin_class: HashMap::new(),
             field_origin_by_box: HashMap::new(),
             using_import_boxes: HashMap::new(),
-            method_tail_index: HashMap::new(),
-            method_tail_index_source_len: 0,
+            method_tail_index: super::builder_method_index::MethodTailIndexV1::default(),
             type_registry: TypeRegistry::new(),
             current_slot_registry: None,
             plugin_method_sigs: HashMap::new(),
@@ -302,8 +300,8 @@ impl CompilationContext {
             && self.property_registry.is_empty()
             && self.field_origin_class.is_empty()
             && self.field_origin_by_box.is_empty()
-            && self.method_tail_index.is_empty()
-            && self.method_tail_index_source_len == 0
+            && self.method_tail_index.index.is_empty()
+            && self.method_tail_index.source_len == 0
             && match route {
                 super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1::Script
                 | super::raw_root_environment_install::RawRootEnvironmentInstallRouteV1::App => {
@@ -328,8 +326,8 @@ impl CompilationContext {
         debug_assert!(self.property_registry.is_empty());
         debug_assert!(self.field_origin_class.is_empty());
         debug_assert!(self.field_origin_by_box.is_empty());
-        debug_assert!(self.method_tail_index.is_empty());
-        debug_assert_eq!(self.method_tail_index_source_len, 0);
+        debug_assert!(self.method_tail_index.index.is_empty());
+        debug_assert_eq!(self.method_tail_index.source_len, 0);
         self.callable_declaration_catalog =
             Some(CallableDeclarationCatalogStorageV1::Exclusive(catalog));
         if matches!(
@@ -513,13 +511,13 @@ impl CompilationContext {
 
     /// Get method tail index candidates
     pub fn get_method_tail_candidates(&self, tail: &str) -> Option<&[String]> {
-        self.method_tail_index.get(tail).map(|v| v.as_slice())
+        self.method_tail_index.index.get(tail).map(|v| v.as_slice())
     }
 
     /// Rebuild method tail index if needed
     pub fn maybe_rebuild_method_tail_index(&mut self, current_source_len: usize) -> bool {
-        if self.method_tail_index_source_len != current_source_len {
-            self.method_tail_index_source_len = current_source_len;
+        if self.method_tail_index.source_len != current_source_len {
+            self.method_tail_index.source_len = current_source_len;
             true
         } else {
             false
@@ -529,6 +527,7 @@ impl CompilationContext {
     /// Add method tail index entry
     pub fn add_method_tail_entry(&mut self, tail: String, full_name: String) {
         self.method_tail_index
+            .index
             .entry(tail)
             .or_insert_with(Vec::new)
             .push(full_name);
@@ -536,8 +535,8 @@ impl CompilationContext {
 
     /// Clear method tail index
     pub fn clear_method_tail_index(&mut self) {
-        self.method_tail_index.clear();
-        self.method_tail_index_source_len = 0;
+        self.method_tail_index.index.clear();
+        self.method_tail_index.source_len = 0;
     }
 
     /// Get plugin method signature

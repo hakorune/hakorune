@@ -107,6 +107,6 @@ fn clearing_method_tail_index_resets_freshness_witness() {
 
     ctx.clear_method_tail_index();
 
-    assert_eq!(ctx.method_tail_index_source_len, 0);
+    assert_eq!(ctx.method_tail_index.source_len, 0);
     assert!(ctx.get_method_tail_candidates(".run/1").is_none());
 }

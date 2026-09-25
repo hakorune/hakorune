@@ -61,3 +61,28 @@ environment snapshots, and session/scratch state share one struct.
 behavior-neutral; the catalog block (14 fields, all module-lifetime,
 written at module ingress, read through narrow accessors) is the
 named candidate. No field was moved; classification only.
+
+## SPLIT0-S0 landing — method tail index owner split
+
+The smallest proven seam — the `method_tail_index` /
+`method_tail_index_source_len` pair — was consolidated into one
+`MethodTailIndexV1` catalog owned by `builder_method_index.rs` (the
+module that already owns all rebuild/lookup logic):
+
+- `src/mir/builder/builder_method_index.rs`: new `pub(crate) struct
+  MethodTailIndexV1 { index, source_len }`.
+- `src/mir/builder/compilation_context.rs`: two fields replaced by one
+  `method_tail_index: MethodTailIndexV1`; accessors
+  (`get_method_tail_candidates`, `maybe_rebuild_method_tail_index`,
+  `add_method_tail_entry`, `clear_method_tail_index`) and the vacancy /
+  preflight witnesses updated in place; public method surface unchanged.
+- `src/mir/builder/compilation_context/tests.rs`: freshness witness
+  reads `.source_len` through the new owner.
+- Census fixture now 49 fields (the pair is one catalog row:
+  `builder_method_index owner (split S0)`).
+
+No caller signature changed; `module_lifecycle.rs` still uses the
+unchanged `clear_method_tail_index` accessor. Verification:
+`cargo check --profile quick --lib` and `--tests` green; focused
+`method_tail` tests 3/3 ok. `reference_delta = 0` (no reference
+contract touched).
