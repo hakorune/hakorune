@@ -225,10 +225,50 @@ recipe-contract/route-policy/probe run 301/301 green; pointer guard,
 in-place replacement guard, layer dependency, no-fallback,
 route-detector, varmap guards green.
 
-## Next
+## Next (discharged)
 
 `JOINIR-LOOP-SOLE-AUTHORITY-CLOSEOUT-R2G` (M12-R2G): sole-authority
 closeout — confirm no duplicate physical owner or publication path
 remains, produce residual counts/evidence, close the remaining
 route/family/producer authority questions (C04 `LoopRouteId`
 diagnostic-only fate, C05 selector/canonical dispatch disposition).
+Landed below; the lane sequence `R2A -> R2B -> R2C -> R2G` is complete.
+Follow-up row `QUICKLIB-RED-BASELINE-AUDIT` (outside this card's
+disposition scope): full quick-lib red-baseline audit —
+`quick_lib_baseline_v1` receipt is stale at HEAD (pre-existing reds not
+fully inventoried).
+
+## M12-R2G landing (sole-authority closeout — callable seam + LoopRouteId fate)
+
+C02/C04/C05 resolved. `matched_routes()` was the last production site
+where `LoopRouteId` picked behavior (issuer.rs sole-route equality +
+token exclusivity checks). `CallableLoopRouteMatchV1` now mints a typed
+`CallableLoopSoleFamilyV1` tag via `sole_family()`; all six production
+checks (issuer dispatch arms, LoopCond token `issue`/`into_physical_parts`,
+loop_true/loop_cond preflight guards) consume the typed tag, and
+`matched_routes()` remains only for census/overlap diagnostics and error
+payloads. `LoopRouteId` survives as data-only vocabulary:
+`CANONICAL_LOOP_ROUTE_ORDER_V1`/`ATTESTED_RECIPE_BACKED_V1` census rows,
+`producer_id_migration` RECEIPTS, and the winner-spine
+`family_backed_route` coverage labelling — none dispatch. The
+caller-zero `registry::route_id` compatibility facade was removed.
+`family_selector.rs` canonical seam
+(`select_canonical_loop_family_v1` -> typed
+`CanonicalLoopFamilyCandidateV1`) is the accepted family dispatch —
+honest record: family-name dispatch moved to the membership seam rather
+than reaching zero.
+
+Residual audit: `issue_loop_node_winner_recipe_v1` has one production
+caller (`route_entry/router.rs:197`) feeding one physical admission
+(`loop_node_physical_admission.rs`); the retained producers are one per
+selected family (D03). No duplicate loop recipe-production or physical
+owner path remains in this lane. Disposition manifest: all Section C
+rows closed (C01/C03 retired at R2C, C02/C04/C05 resolved/retained here).
+
+Verify: `cargo check --lib`/`--tests` green (1658 warnings, -1 for the
+removed facade); focused `normal_callable_loop` run 29/29 green. Wider
+`callable` lane run: 1016 green / 16 red — 11 in `failures.txt`, the
+other 5 (`source_loop_bridge` x3, `callable_parameter_contract`,
+`main_static_child_port_consumes_all_role_rows_once`) reproduce
+identically at HEAD with this diff stashed — known baseline debt, not
+this slice.

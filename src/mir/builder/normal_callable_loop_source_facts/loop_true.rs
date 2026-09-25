@@ -14,12 +14,11 @@ use crate::mir::builder::normal_callable_loop_handoff::{
 use crate::mir::builder::normal_callable_loop_source_facts::CallableGenericLoopSourceFactsRouteErrorV1;
 use crate::mir::builder::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1;
 use crate::mir::builder::normal_callable_loop_source_route::{
-    CallableLoopRouteMatchV1, CallableLoopSourceItemBindingV1,
+    CallableLoopRouteMatchV1, CallableLoopSoleFamilyV1, CallableLoopSourceItemBindingV1,
     CallableLoopSourceRouteRejectV1, CallableLoopSourceTargetProbeV1,
     CallableLoopSourceTargetRelationV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
-use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::loop_structural_facts::VerifiedLoopCondBreakContinueSourceForestProjectionV1;
 use crate::mir::resolved_semantics::{
     FunctionOriginV1, FunctionOwnerIdV1, SemanticOwnerSourceKindV1, SourceNodeSiteV1,
@@ -209,7 +208,8 @@ impl SourceLoopTruePhysicalInputV1<'_, '_> {
                 "[freeze:contract][callable-loop/loop-true/recipe-source-mismatch]".to_owned(),
             );
         }
-        if self.selection.matched_routes() != [LoopRouteId::LoopTrueBreakContinue] {
+        if self.selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue)
+        {
             return Err(
                 "[freeze:contract][callable-loop/loop-true/route-selection-mismatch]".to_owned(),
             );
@@ -356,7 +356,7 @@ pub(super) fn issue<'source>(
             CallableLoopSourceRouteRejectV1::SourceParentMissing,
         )
     })?;
-    if selection.matched_routes() != [LoopRouteId::LoopTrueBreakContinue] {
+    if selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue) {
         return Err(
             CallableGenericLoopSourceFactsRouteErrorV1::NonGenericOrOverlapping {
                 routes: selection.matched_routes().into(),

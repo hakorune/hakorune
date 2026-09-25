@@ -80,7 +80,7 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
                 product,
             );
         }
-        if selection.matched_routes() == [LoopRouteId::LoopCondBreakContinue] {
+        if selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
             return match loop_cond::issue(
                 owner,
                 parent_source,
@@ -105,7 +105,7 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
                 }
             };
         }
-        if selection.matched_routes() == [LoopRouteId::LoopTrueBreakContinue] {
+        if selection.sole_family() == Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue) {
             return match loop_true::issue(
                 owner,
                 parent_source,

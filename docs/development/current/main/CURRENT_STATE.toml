@@ -1,9 +1,9 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "M12-R2G"
-current_execution_cohort = "loop_legacy_family_disposition"
-current_blocker_token = "M12-R2C__VariableAccumRetired__R2G-Closeout-Open"
+current_execution_row = "QUICKLIB-RED-BASELINE-AUDIT"
+current_execution_cohort = "quicklib_baseline_audit"
+current_blocker_token = "M12-R2G__SoleAuthorityCloseoutLanded__QuicklibRebaselineAuditOpen"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "none__CallableVariableRecurrenceDecisionAccepted_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -18,24 +18,24 @@ current_execution_design = "docs/development/current/main/investigations/joinir-
 latest_card = "joinir-loop-legacy-family-disposition-r2a"
 latest_card_path = "docs/development/current/main/investigations/joinir-loop-legacy-family-disposition-r2a-2026-09-25.md"
 latest_card_summary = """
-M12-R2C complete: part1 (`ce91387634`) removed Facts-layer
-`LoopBindingKeyV1` minting; part2 (`d2fd3b91da`) retired the synthetic
-19-row schedule + `VerifiedLoopPolicyWinnerV1` ceremony; part3 (this
-commit) resolved the VariableAccumBreak owner/attestation mismatch by
-retiring the caller-zero chain — producer, Facts observer, projection,
-M8B wire arm + emitter, `VariableAccumBreakV1` producer id, and the
-`LoopBreakRecipe` row in `ATTESTED_RECIPE_BACKED_V1`. `LoopBreakRecipe`
-stays a typed-declined canonical route (`legacy_only` receipt;
-portable_producer count 6->5). `joinir_logical_demand_contract.sh`
-un-pinned; READMEs/reference/disposition TSV (A07-A10) updated; receipt
-expected_passed 7291->7280. Focused run 301/301 green; all named guards
-green. Open: sole-authority closeout R2G + full quick-lib re-baseline
-audit (receipt stale at HEAD). Prior landed: R2A `682acbc2ca`, R2B
-`898875877f`/`7449dac218`, M11-A `9f55aea31b`, M11-B `8dff99ef22`.
+M12-R2G closeout: typed `CallableLoopSoleFamilyV1` replaced route-id
+dispatch at the callable seam (`sole_family()`; issuer arms + token
+issue/parts + preflight guards consume the tag). `LoopRouteId` survives
+as data-only census/error/migration vocabulary; caller-zero
+`registry::route_id` facade removed. Residual audit: one recipe issuer
+(router.rs:197 -> winner spine -> physical admission); retained
+producers = one per selected family; canonical seam
+(`select_canonical_loop_family_v1`) is the accepted family dispatch.
+All disposition Section C rows closed (C01/C03 retired at R2C,
+C02/C04/C05 resolved here). Focused 29/29 + lib/tests compile green;
+wider callable run reds reproduce at HEAD (baseline debt). Prior:
+R2A `682acbc2ca`, R2B `898875877f`/`7449dac218`,
+R2C `ce91387634`/`d2fd3b91da`/`916a4a4f36`. Open: full quick-lib
+re-baseline audit (receipt stale at HEAD).
 """
 next_design_card = "none__accepted_decision"
 next_design_card_path = "none__accepted_decision"
-next_execution_card = "M12-R2G"
+next_execution_card = "QUICKLIB-RED-BASELINE-AUDIT"
 next_execution_card_path = "docs/development/current/main/investigations/joinir-loop-legacy-family-disposition-r2a-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

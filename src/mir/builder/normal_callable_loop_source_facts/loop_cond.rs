@@ -14,7 +14,7 @@ use crate::mir::builder::normal_callable_loop_handoff::CallableSemanticLoopHando
 use crate::mir::builder::normal_callable_loop_source_facts::CallableGenericLoopSourceFactsRouteErrorV1;
 use crate::mir::builder::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1;
 use crate::mir::builder::normal_callable_loop_source_route::{
-    CallableLoopRouteMatchV1, CallableLoopSourceItemBindingV1,
+    CallableLoopRouteMatchV1, CallableLoopSoleFamilyV1, CallableLoopSourceItemBindingV1,
     CallableLoopSourceRouteRejectV1, CallableLoopSourceRouteTokenV1,
     CallableLoopSourceTargetProbeV1, CallableLoopSourceTargetRelationV1,
 };
@@ -243,8 +243,7 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                 "[freeze:contract][callable-loop/loop-cond/recipe-source-mismatch]".to_owned(),
             );
         }
-        if self.selection.matched_routes()
-            != [crate::mir::loop_recipe_contract::route_id::LoopRouteId::LoopCondBreakContinue]
+        if self.selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue)
         {
             return Err(
                 "[freeze:contract][callable-loop/loop-cond/route-selection-mismatch]".to_owned(),

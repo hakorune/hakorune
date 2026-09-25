@@ -13,7 +13,9 @@ use crate::mir::builder::control_flow::plan::single_planner::{
     self, CallableLoopFactsPlannerInputV1,
 };
 use crate::mir::builder::normal_callable_loop_handoff::CallableLoopReadyBodyOnlyProductV1;
-use crate::mir::builder::normal_callable_loop_source_route::CallableLoopRouteMatchV1;
+use crate::mir::builder::normal_callable_loop_source_route::{
+    CallableLoopRouteMatchV1, CallableLoopSoleFamilyV1,
+};
 use crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceRouteRejectV1;
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use crate::mir::builder::raw_loop_child_entry::PreparedCallableGenericLoopSourceFactsPayloadV1;

@@ -76,13 +76,25 @@ mod items;
 
 pub(in crate::mir::builder) use items::*;
 
+/// Sole surviving callable family derived from the matched route census.
+///
+/// This typed tag is the family-selection authority at the callable
+/// membership seam; `LoopRouteId` stays diagnostic vocabulary and is never
+/// a dispatch key.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum CallableLoopSoleFamilyV1 {
+    LoopCondBreakContinue,
+    LoopTrueBreakContinue,
+}
+
 /// Data-only callable route match issued from canonical loop facts.
 ///
 /// This product records which non-generic route predicates the retained
 /// policy surface reports for one loop. It is not a scheduler: it owns no
-/// entry order, execution, or fallback — consumers compare the matched set
-/// against their sole accepted route. The GenericLoop routes are absent by
-/// construction; their fact arms retired with the ordered registry.
+/// entry order, execution, or fallback — consumers select on the typed
+/// `sole_family()` tag and read the matched set only for diagnostics. The
+/// GenericLoop routes are absent by construction; their fact arms retired
+/// with the ordered registry.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) struct CallableLoopRouteMatchV1 {
     matched: Box<[LoopRouteId]>,
@@ -154,9 +166,25 @@ impl CallableLoopRouteMatchV1 {
         }
     }
 
-    /// Matched route candidates in canonical entry order.
+    /// Matched route candidates in canonical entry order. Diagnostic only;
+    /// family selection reads `sole_family()`.
     pub(in crate::mir::builder) fn matched_routes(&self) -> &[LoopRouteId] {
         &self.matched
+    }
+
+    /// The sole surviving callable family when exactly one retained family
+    /// predicate matched. `None` on zero matches or overlap — callers stop
+    /// typed instead of falling back.
+    pub(in crate::mir::builder) fn sole_family(&self) -> Option<CallableLoopSoleFamilyV1> {
+        match self.matched.as_ref() {
+            [LoopRouteId::LoopCondBreakContinue] => {
+                Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue)
+            }
+            [LoopRouteId::LoopTrueBreakContinue] => {
+                Some(CallableLoopSoleFamilyV1::LoopTrueBreakContinue)
+            }
+            _ => None,
+        }
     }
 }
 
@@ -191,7 +219,7 @@ impl CallableLoopSourceRouteTokenV1 {
         if facts.facts.loop_cond_break_continue().is_none() {
             return Err(CallableLoopSourceRouteRejectV1::LoopCondFactsMissing);
         }
-        if selection.matched_routes() != [LoopRouteId::LoopCondBreakContinue] {
+        if selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
             return Err(CallableLoopSourceRouteRejectV1::RouteNotExclusive {
                 routes: selection.matched_routes().into(),
             });
@@ -340,7 +368,7 @@ impl CallableLoopSourceRouteTokenV1 {
         if source_items.is_empty() {
             return Err(CallableLoopSourceRouteRejectV1::SourceItemsMissing);
         }
-        if selection.matched_routes() != [LoopRouteId::LoopCondBreakContinue] {
+        if selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
             return Err(CallableLoopSourceRouteRejectV1::RouteNotExclusive {
                 routes: selection.matched_routes().into(),
             });
