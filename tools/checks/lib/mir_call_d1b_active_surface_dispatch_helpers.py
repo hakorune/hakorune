@@ -697,6 +697,7 @@ def _r6_dispatch(row) -> bool:
         r6.CANONICALIZE_LEGACY_METHOD_ARM_DELETE_S6_ROW,
         r6.LEGACY_ARRAY_WRITE_CANON_DELETE_S7_ROW,
         r6.CANONICALIZE_LEGACY_CLOSURE_ARM_DELETE_S8_ROW,
+        r6.CANONICALIZE_LEGACY_GLOBAL_NOOP_ARM_DELETE_S9_ROW,
     }
 
 
@@ -716,6 +717,10 @@ def _r6_run(row, state: dict, root: Path, api) -> None:
         r6.check_legacy_array_write_canon_delete_s7(state, root, api)
     elif row == r6.CANONICALIZE_LEGACY_CLOSURE_ARM_DELETE_S8_ROW:
         r6.check_canonicalize_legacy_closure_arm_delete_s8(
+            state, root, api
+        )
+    elif row == r6.CANONICALIZE_LEGACY_GLOBAL_NOOP_ARM_DELETE_S9_ROW:
+        r6.check_canonicalize_legacy_global_noop_arm_delete_s9(
             state, root, api
         )
     else:

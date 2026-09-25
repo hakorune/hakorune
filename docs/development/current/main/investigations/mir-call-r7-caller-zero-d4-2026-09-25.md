@@ -44,14 +44,71 @@ bounded for the next deletion?
 
 ## Evidence
 
-(recorded during census)
+- A. `callsite_canonicalize` `LegacyCallV0{Some(Callee::Global)}` arm
+     returns `0`; the immediately following `LegacyCallV0{..} => 0`
+     arm catches the same rows — the Global arm is a literal no-op
+     duplicate (src/mir/passes/callsite_canonicalize/pass.rs:64-71).
+     Bounded delete, behavior-identical.
+- B. `src/backend/mir_interpreter/exec/block.rs:168` routes
+     `LegacyCallV0` to `reject_legacy_call`
+     (src/backend/mir_interpreter/handlers/calls/mod.rs:11) — a named
+     fail-fast stop, not a repair. The `--backend vm` lane hands the
+     built module straight to `MirInterpreter`
+     (src/runner/modes/common_util/vm_execution.rs:94-95) with no
+     admission gate upstream, so this arm is the last residual-row
+     boundary on that lane. KEEP.
+- C. published-view `func != INVALID` arms produce named errors
+     (`StaticCallUsesLegacyFunctionCarrier`,
+     `FreeFunctionCallUsesLegacyFunctionCarrier`,
+     `BuiltinPrintUsesLegacyFunctionCarrier`) — fail-fast boundaries
+     for residual old-form carriers. KEEP.
+- D. `MirInstruction::LegacyCallV0` + `func` slot are still minted by
+     `project_module_to_legacy_calls` (llvmlite ExplicitCompatibility
+     owner) and consumed by v0 compat emission + fixtures.
+     NOT caller-zero.
+- ~140 production files match `LegacyCallV0` in generic pass/analysis
+     arms (DCE/CSE/value-uses/route plans) — shared structural
+     readers required for match exhaustiveness while the variant
+     exists. Out of retirement scope.
+- Worker census (e08b4135, spot-checked): the interpreter arms
+     (`exec/block.rs:168`, `handlers/mod.rs:180`,
+     `reject_legacy_call`) are the SOLE deny boundary on every VM lane
+     — `compile_normal` bypasses published-view admission and the
+     verifier gate classifies `LegacyCallV0` as `Kept`, not
+     `LoweredAway`. KEEP verdicts above confirmed.
+- Flagged inconsistency (owner note, not this slice):
+     `llvmlite_emit_obj_lib` mints `LegacyCallV0{ArrayBox.push/set/
+     insert}` via `project_module_to_legacy_calls`, but its own egress
+     (`emit_mir_json_for_harness` → MirJsonExport refresh →
+     `reject_residual_calls`) rejects exactly those shapes post-S7.
+     The llvmlite-compat lane is functionally dead on those inputs;
+     its disposition belongs to the llvmlite feature retirement, not
+     R7 cleanup.
 
-## Six-line Decision
+## Six-line Decision (accepted 2026-09-25)
 
-(recorded during census)
+```text
+Decision: delete the redundant callsite_canonicalize
+          LegacyCallV0{Global} no-op arm — it is observably identical
+          to the LegacyCallV0{..} catch-all that follows it.
+Source authority + canonical issuer: typed Global calls are issued by
+          production builders (R6-S1); residual legacy rows of any
+          callee shape pass through untouched.
+Non-authority: the Global no-op arm — dead structure with zero
+          behavioral content.
+Fail-fast boundary: interpreter reject_legacy_call, published-view
+          named errors, and selected admission gates remain the
+          residual-row boundaries; none are touched.
+Smallest next slice:
+          MIR-CALL-R7-CANONICALIZE-LEGACY-GLOBAL-NOOP-ARM-DELETE-S9 —
+          pass.rs arm deletion + a residual Global passthrough pin.
+Non-claims: does not remove the LegacyCallV0 catch-all arm, the
+          interpreter/published-view boundaries, compat owners, or
+          the variant itself.
+```
 
 ## Exit
 
-- [ ] Bounded next slice selected, or `NoSafeSlice` with observable
-      reopen trigger.
-- [ ] Guard/pointer/workstream synced.
+- [x] Bounded next slice selected —
+      `MIR-CALL-R7-CANONICALIZE-LEGACY-GLOBAL-NOOP-ARM-DELETE-S9`.
+- [x] Guard/pointer/workstream synced.

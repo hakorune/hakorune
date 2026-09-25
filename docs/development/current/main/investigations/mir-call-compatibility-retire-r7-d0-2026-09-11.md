@@ -613,6 +613,26 @@ Remaining candidates are sealed as `NoSafeSlice`, supported Retain, closed, or d
 Do not repeat the inventory or reopen retained lanes; resume only after a changed caller/contract supplies the complete tuple.
 Aggregate R7 retirement remains open.
 
+R7 frontier refresh — 2026-09-25 (S4–S9 sequence): all production
+`LegacyCallV0` ingress minters retired (S4 Value, S5 boxcall), so the
+caller-zero evidence changed and four bounded deletions landed:
+S6 canonicalize Method arm + helpers, S7 `canonicalize_legacy_array_write_calls`
++ refresh call site, S8 canonicalize Closure arm, S9 canonicalize Global
+no-op arm. The D4 worker census (recorded in
+`mir-call-r7-caller-zero-d4-2026-09-25.md`) confirms the remaining
+`LegacyCallV0` surface is: the interpreter `reject_legacy_call` terminal
+(sole VM-lane deny boundary — `compile_normal` bypasses admission and the
+verifier classifies the variant `Kept`), published-view `func`-slot named
+errors, selected admission gates, the llvmlite ExplicitCompatibility
+projection + v0 compat emission owners, the variant/`func` slot itself
+(variant-lifetime contract), and ~140 shared structural readers. No
+further bounded deletion set exists; this lane is `NoSafeSlice` until a
+changed caller/contract supplies a complete tuple. Observable reopen
+triggers: v0 wire retirement, llvmlite-compat lane disposition (note:
+post-S7 the projection's minted rows self-reject at its own egress
+`reject_residual_calls` — the lane is functionally dead on those
+inputs), or any new production `LegacyCallV0` mint.
+
 ## Ordered queue
 
 | Order | Task | Entry / finish condition |

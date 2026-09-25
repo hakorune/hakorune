@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use crate::ast::ASTNode;
 use crate::mir::function::ClosureBodyId;
-use crate::mir::{Callee, MirInstruction, MirModule};
+use crate::mir::{MirInstruction, MirModule};
 
 use super::receiver_operand::rewrite_cfg_stable_receiver_operands;
 
@@ -60,13 +60,9 @@ fn canonicalize_callsite_instruction(
             body.clear();
             1
         }
-        // A typed Global is already an admitted target.  This post-pass is
-        // deliberately not a second resolver: it must not parse a display
-        // name, append an arity, or turn a Global into a Method.
-        MirInstruction::LegacyCallV0 {
-            callee: Some(Callee::Global(_)),
-            ..
-        } => 0,
+        // Residual legacy rows are never rewritten here: this post-pass is
+        // deliberately not a second resolver and does not launder retired
+        // carriers.  Downstream named-stops own the rejection.
         MirInstruction::LegacyCallV0 { .. } => 0,
         _ => 0,
     }

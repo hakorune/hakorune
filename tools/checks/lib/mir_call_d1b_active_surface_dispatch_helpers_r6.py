@@ -525,3 +525,66 @@ def check_canonicalize_legacy_closure_arm_delete_s8(
     print(f"[{api.TAG}] row={row} delegated=canonicalize-legacy-closure-arm-delete")
 
 
+CANONICALIZE_LEGACY_GLOBAL_NOOP_ARM_DELETE_S9_ROW = (
+    "MIR-CALL-R7-CANONICALIZE-LEGACY-GLOBAL-NOOP-ARM-DELETE-S9"
+)
+CANONICALIZE_LEGACY_GLOBAL_NOOP_ARM_DELETE_S9_CARD_REL = Path(
+    "docs/development/current/main/investigations/"
+    "mir-call-r7-canonicalize-legacy-global-noop-arm-delete-s9-2026-09-25.md"
+)
+
+
+def check_canonicalize_legacy_global_noop_arm_delete_s9(
+    state: dict, root: Path, api
+) -> None:
+    """Pin the S9 legacy Global no-op arm deletion surface."""
+    row = CANONICALIZE_LEGACY_GLOBAL_NOOP_ARM_DELETE_S9_ROW
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{row} must be fast or closeout")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if not str(state.get("current_design_stop", "")).startswith("none"):
+        api.fail(f"{row} must clear current_design_stop")
+    if not str(state.get("next_design_card", "")).startswith("none"):
+        api.fail(f"{row} must not open a second design card")
+    expected_next = row if mode == "fast" else "none"
+    if not str(state.get("next_execution_card", "")).startswith(
+        expected_next
+    ):
+        api.fail(f"{row} next_execution_card drifted")
+    card_rel = str(CANONICALIZE_LEGACY_GLOBAL_NOOP_ARM_DELETE_S9_CARD_REL)
+    if state.get("next_execution_card_path") != card_rel:
+        api.fail(f"{row} next_execution_card_path drifted")
+    if state.get("latest_card_path") != card_rel:
+        api.fail(f"{row} latest_card_path drifted")
+
+    card_text = (root / card_rel).read_text(encoding="utf-8")
+    for token in (row, "Callee::Global", "passthrough"):
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+
+    owner_rel = "src/mir/passes/callsite_canonicalize/pass.rs"
+    owner_text = (root / owner_rel).read_text(encoding="utf-8")
+    if "Callee" in owner_text:
+        api.fail(f"{row} deleted Global arm or callee import remains")
+    if "MirInstruction::LegacyCallV0 { .. } => 0" not in owner_text:
+        api.fail(f"{row} legacy catch-all passthrough arm lost")
+    tests_rel = "src/mir/passes/callsite_canonicalize/tests/mcl.rs"
+    tests_text = (root / tests_rel).read_text(encoding="utf-8")
+    for pin in (
+        "mcl5_keeps_typed_global_callee_without_suffix_repair",
+        "mcl6_keeps_typed_global_target_without_runtime_method_repair",
+    ):
+        if pin not in tests_text:
+            api.fail(f"{row} Global passthrough pin lost: {pin}")
+
+    for rel in (owner_rel, tests_rel):
+        path = root / rel
+        if not path.is_file():
+            api.fail(f"{row} implementation owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
+    print(f"[{api.TAG}] row={row} delegated=canonicalize-legacy-global-noop-arm-delete")
+
+
