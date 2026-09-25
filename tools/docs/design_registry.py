@@ -8,8 +8,11 @@ V1 manifest/shard reader is added by S0 and cut over by C0.
 
 from __future__ import annotations
 
+import argparse
+import hashlib
 from dataclasses import dataclass, field
 import re
+import tempfile
 import tomllib
 from pathlib import Path
 
@@ -33,16 +36,33 @@ V0_BLOCK = re.compile(
     re.DOTALL,
 )
 
-REQUIRED_ROW_FIELDS = (
+V1_SCHEMA_VERSION = 1
+V1_SHARD_ALGORITHM = "sha256-utf8-first-nybble-v1"
+V1_SHARD_IDS = tuple("0123456789abcdef")
+
+# Complete V1 row schema — every field is explicit, including empty
+# fields ("" / []). Order is the deterministic emission order.
+V1_ROW_FIELDS = (
     "path",
     "role",
     "owner",
     "precedence_parent",
+    "classification_basis",
     "sidecars",
     "supersedes",
     "superseded_by",
     "retire_when",
 )
+
+V1_MANIFEST_FIELDS = {
+    "schema_version",
+    "mode",
+    "unregistered_baseline",
+    "shard_algorithm",
+    "shards",
+}
+
+V1_SHARD_FIELDS = {"schema_version", "shard_id", "documents"}
 
 
 class RegistryLoadError(Exception):
@@ -174,3 +194,203 @@ def load_registry(direct_files: set[str]) -> tuple[dict, list[str]]:
         ]
     violations = validate(registry, direct_files)
     return registry.raw, violations
+
+
+def shard_key(path: str) -> str:
+    """Canonical V1 placement: first lowercase hex nybble of
+    sha256(utf-8 path). Pure function of the exact registered path."""
+    return hashlib.sha256(path.encode("utf-8")).hexdigest()[0]
+
+
+def _load_toml_file(path: Path, what: str) -> dict:
+    if not path.is_file():
+        raise RegistryNotFound(f"design registry {what} is missing: {path}")
+    try:
+        return tomllib.loads(path.read_text(encoding="utf-8"))
+    except tomllib.TOMLDecodeError as exc:
+        raise RegistryMalformed(f"design registry {what} TOML is malformed: {exc}")
+
+
+def load_v1(registry_dir: Path = REGISTRY_DIR) -> Registry:
+    """Passive V1 manifest/shard reader (S0). Structural failures raise
+    typed errors; production callers remain zero until C0."""
+    manifest = _load_toml_file(registry_dir / "manifest.toml", "manifest")
+    unknown = set(manifest) - V1_MANIFEST_FIELDS
+    if unknown:
+        raise RegistryMalformed(
+            f"design registry manifest has unknown fields: {sorted(unknown)}"
+        )
+    if manifest.get("schema_version") != V1_SCHEMA_VERSION:
+        raise RegistryMalformed("design registry manifest schema_version must be 1")
+    if manifest.get("shard_algorithm") != V1_SHARD_ALGORITHM:
+        raise RegistryMalformed(
+            f"design registry shard_algorithm must be {V1_SHARD_ALGORITHM}"
+        )
+    expected_shards = [f"shards/{nid}.toml" for nid in V1_SHARD_IDS]
+    if manifest.get("shards") != expected_shards:
+        raise RegistryMalformed(
+            "design registry manifest shards must be the exact ordered set 0..f"
+        )
+    documents: list[dict] = []
+    seen_paths: set[str] = set()
+    for nid in V1_SHARD_IDS:
+        shard = _load_toml_file(
+            registry_dir / "shards" / f"{nid}.toml", f"shard {nid}"
+        )
+        unknown = set(shard) - V1_SHARD_FIELDS
+        if unknown:
+            raise RegistryMalformed(
+                f"design registry shard {nid} has unknown fields: {sorted(unknown)}"
+            )
+        if shard.get("schema_version") != V1_SCHEMA_VERSION:
+            raise RegistryMalformed(f"design registry shard {nid} schema_version must be 1")
+        if shard.get("shard_id") != nid:
+            raise RegistryMalformed(
+                f"design registry shard id mismatch: expected {nid}, got {shard.get('shard_id')!r}"
+            )
+        rows = shard.get("documents", [])
+        shard_paths = [row.get("path", "") for row in rows]
+        if shard_paths != sorted(shard_paths):
+            raise RegistryMalformed(
+                f"design registry shard {nid} rows are not ordered by path"
+            )
+        for row in rows:
+            missing = [key for key in V1_ROW_FIELDS if key not in row]
+            if missing:
+                raise RegistryMalformed(
+                    f"design registry shard {nid} row {row.get('path', '')!r} "
+                    f"lacks fields: {missing}"
+                )
+            path = row["path"]
+            if shard_key(path) != nid:
+                raise RegistryMalformed(
+                    f"design registry path in wrong shard: {path} (in {nid})"
+                )
+            if path in seen_paths:
+                raise RegistryMalformed(f"design registry duplicate path: {path}")
+            seen_paths.add(path)
+            documents.append(row)
+    return Registry(
+        schema_version=V1_SCHEMA_VERSION,
+        mode=manifest.get("mode", ""),
+        unregistered_baseline=manifest.get("unregistered_baseline", 0),
+        documents=documents,
+        source="v1",
+        raw={
+            "schema_version": V1_SCHEMA_VERSION,
+            "mode": manifest.get("mode", ""),
+            "unregistered_baseline": manifest.get("unregistered_baseline", 0),
+            "documents": documents,
+        },
+    )
+
+
+def _toml_escape(text: str) -> str:
+    return (
+        text.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\t", "\\t")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+    )
+
+
+def _toml_value(value: object) -> str:
+    if isinstance(value, str):
+        return f'"{_toml_escape(value)}"'
+    if isinstance(value, int):
+        return str(value)
+    if isinstance(value, list):
+        return "[" + ", ".join(_toml_value(item) for item in value) + "]"
+    raise RegistryMalformed(f"unspelled registry field type: {type(value).__name__}")
+
+
+def _normalize_row(row: dict) -> dict:
+    """Project a row onto the complete V1 schema; absent fields become
+    explicit empty fields (never invented values)."""
+    normalized: dict = {}
+    for key in V1_ROW_FIELDS:
+        value = row.get(key)
+        if value is None:
+            value = [] if key in {"sidecars", "supersedes"} else ""
+        normalized[key] = value
+    return normalized
+
+
+def emit_manifest(registry: Registry) -> str:
+    lines = [
+        f"schema_version = {V1_SCHEMA_VERSION}",
+        f'mode = "{_toml_escape(registry.mode)}"',
+        f"unregistered_baseline = {registry.unregistered_baseline}",
+        f'shard_algorithm = "{V1_SHARD_ALGORITHM}"',
+        "shards = [",
+    ]
+    lines += [f'  "shards/{nid}.toml",' for nid in V1_SHARD_IDS]
+    lines.append("]")
+    return "\n".join(lines) + "\n"
+
+
+def emit_shard(nid: str, rows: list[dict]) -> str:
+    lines = [f"schema_version = {V1_SCHEMA_VERSION}", f'shard_id = "{nid}"', ""]
+    for row in sorted(rows, key=lambda r: r["path"]):
+        lines.append("[[documents]]")
+        lines += [f"{key} = {_toml_value(row[key])}" for key in V1_ROW_FIELDS]
+        lines.append("")
+    return "\n".join(lines).rstrip("\n") + "\n"
+
+
+def generate_v1(out_dir: Path, registry: Registry | None = None) -> list[Path]:
+    """Deterministic V0->V1 migration generator (G0). Writes the
+    manifest plus the exact shard set under `out_dir`. Callers choose
+    the destination; tracked writes are an explicit command."""
+    if registry is None:
+        registry = load_v0()
+    buckets: dict[str, list[dict]] = {nid: [] for nid in V1_SHARD_IDS}
+    for row in registry.documents:
+        normalized = _normalize_row(row)
+        buckets[shard_key(normalized["path"])].append(normalized)
+    shards_dir = out_dir / "shards"
+    shards_dir.mkdir(parents=True, exist_ok=True)
+    written = [out_dir / "manifest.toml"]
+    written[0].write_text(emit_manifest(registry), encoding="utf-8")
+    for nid in V1_SHARD_IDS:
+        shard_path = shards_dir / f"{nid}.toml"
+        shard_path.write_text(emit_shard(nid, buckets[nid]), encoding="utf-8")
+        written.append(shard_path)
+    return written
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    sub = parser.add_subparsers(dest="command", required=True)
+    sub.add_parser("check", help="load + validate the production V0 registry")
+    gen = sub.add_parser(
+        "generate", help="emit V1 manifest+shards (temporary dir unless --output)"
+    )
+    gen.add_argument("--output", type=Path, default=None)
+    args = parser.parse_args(argv)
+
+    if args.command == "check":
+        registry = load_v0()
+        direct_files = {
+            p.name for p in (ROOT / "docs/development/current/main/design").iterdir()
+            if p.is_file()
+        }
+        violations = validate(registry, direct_files)
+        for violation in violations:
+            print(violation)
+        print(
+            f"design-registry check: {len(registry.documents)} rows, "
+            f"{len(violations)} violations"
+        )
+        return 1 if violations and registry.mode == "strict" else 0
+    if args.command == "generate":
+        out_dir = args.output or Path(tempfile.mkdtemp(prefix="design-registry-v1-"))
+        written = generate_v1(out_dir)
+        print(f"generated {len(written)} files under {out_dir}")
+        return 0
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

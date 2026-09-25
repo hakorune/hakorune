@@ -1,0 +1,497 @@
+schema_version = 1
+shard_id = "0"
+
+[[documents]]
+path = "allocator-provider-activation-safety-diagnostic-owner-ssot.md"
+role = "status-ledger"
+owner = "mimalloc-hako-port-purpose-ssot.md"
+precedence_parent = "mimalloc-hako-port-purpose-ssot.md"
+classification_basis = "C2-MF:allocator-provider-activation; M82 activation-safety diagnostic owner/guard hygiene row"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this ledger/inventory row is replaced by an explicit durable owner; owned sidecars retire with it"
+
+[[documents]]
+path = "allocator-provider-diagnostic-inactive-actions-ssot.md"
+role = "status-ledger"
+owner = "mimalloc-hako-port-purpose-ssot.md"
+precedence_parent = "mimalloc-hako-port-purpose-ssot.md"
+classification_basis = "C2-MF:allocator-provider-diagnostic; M93B provider diagnostic inactive-action code-side guard"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this ledger/inventory row is replaced by an explicit durable owner; owned sidecars retire with it"
+
+[[documents]]
+path = "allocator-provider-runtime-diagnostic-module-boundaries-ssot.md"
+role = "supporting"
+owner = "allocator-replacement-hook-boundary-ssot.md"
+precedence_parent = "allocator-replacement-hook-boundary-ssot.md"
+classification_basis = "C2-singleton-al: M98B allocator provider runtime diagnostic module boundaries"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review replaces or supersedes this support note"
+
+[[documents]]
+path = "allocator-provider-selection-decision-ssot.md"
+role = "status-ledger"
+owner = "mimalloc-hako-port-purpose-ssot.md"
+precedence_parent = "mimalloc-hako-port-purpose-ssot.md"
+classification_basis = "C2-MF:allocator-provider-selection; M78 selection decision diagnostic shape (base)"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this ledger/inventory row is replaced by an explicit durable owner; owned sidecars retire with it"
+
+[[documents]]
+path = "atomic-tls-gc-truthful-native-seam-inventory.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "INDEX.md"
+classification_basis = "README:Read First Now"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "binding-ssa-first-control-lowering-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "mirbuilder-final-pipeline-ssot.md"
+classification_basis = "README:現役の設計図（入口）; canonical resolved-source local-value/control lowering authority"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "canonical control lowering adopts an explicitly accepted replacement authority"
+
+[[documents]]
+path = "compiler-pipeline-thinning-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "INDEX.md"
+classification_basis = "README:現役の設計図（入口）"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "coreloop-composer-v0-v1-boundary-ssot.md"
+role = "supporting"
+owner = "coreplan-skeleton-feature-model.md"
+precedence_parent = "coreplan-skeleton-feature-model.md"
+classification_basis = "C2-singleton-al: CoreLoopComposer v0/v1 responsibility boundary (value_join_needed selection)"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review replaces or supersedes this support note"
+
+[[documents]]
+path = "coreloop-continue-target-slot-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "INDEX.md"
+classification_basis = "README:現役の設計図（入口）"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "coreplan-purity-stage2-ssot.md"
+role = "status-ledger"
+owner = "coreplan-skeleton-feature-model.md"
+precedence_parent = "coreplan-skeleton-feature-model.md"
+classification_basis = "C2-singleton-al: CorePlan purity Stage-2 (release-default CorePlan sole structural SSOT target)"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+
+[[documents]]
+path = "coreplan-unknown-loop-strategy-ssot.md"
+role = "authority"
+owner = "coreplan-skeleton-feature-model.md"
+precedence_parent = "coreplan-skeleton-feature-model.md"
+classification_basis = "C2-singleton-al: CorePlan/JoinIR unknown-loop decompose-and-compose strategy law"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "declared-uses-capability-plan-mapping-ssot.md"
+role = "supporting"
+owner = "rune-profile-effect-capability-plan-ssot.md"
+precedence_parent = "rune-profile-effect-capability-plan-ssot.md"
+classification_basis = "C2-singleton-al: USES-002A declared `uses` metadata -> MIR CapabilityPlan mapping"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review replaces or supersedes this support note"
+
+[[documents]]
+path = "design-registry-v1-sharded-manifest-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "current-docs-archive-policy-ssot.md"
+classification_basis = "README:現役の設計図（入口）; deterministic sharded Design Registry V1 storage, parity, cutover, and V0 retirement boundary"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "design registry storage adopts an explicitly accepted replacement schema"
+
+[[documents]]
+path = "feature-helper-boundary-ssot.md"
+role = "authority"
+owner = "coreplan-skeleton-feature-model.md"
+precedence_parent = "coreplan-skeleton-feature-model.md"
+classification_basis = "C2-singleton-al: plan/features helper boundary (join/exit/phi/carrier single-location rule)"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "flowbox-tag-coverage-map-ssot.md"
+role = "status-ledger"
+owner = "coreplan-skeleton-feature-model.md"
+precedence_parent = "coreplan-skeleton-feature-model.md"
+classification_basis = "C2-singleton-al: FlowBox tag coverage map"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+
+[[documents]]
+path = "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-pilot-ssot.md"
+role = "supporting"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-MF:hako-alloc-allocator; MIMAP-552A presentation extension chain pilot (reshape-only, provisional outcome unchanged)"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this proof/pilot row is explicitly replaced; owned sidecars retire with it"
+
+[[documents]]
+path = "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-pilot-ssot.md"
+role = "supporting"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-MF:hako-alloc-allocator; MIMAP-492A presentation extension chain pilot (reshape-only, provisional outcome unchanged)"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this proof/pilot row is explicitly replaced; owned sidecars retire with it"
+
+[[documents]]
+path = "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-only-conclusion-pilot-ssot.md"
+role = "supporting"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-MF:hako-alloc-allocator; MIMAP-474A presentation-only conclusion pilot"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this proof/pilot row is explicitly replaced; owned sidecars retire with it"
+
+[[documents]]
+path = "hako-alloc-provider-activation-dry-run-unsupported-behavior-ssot.md"
+role = "supporting"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-MF:hako-alloc-provider; MIMAP-378A dry-run unsupported activation behavior proof (activation closed)"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this proof/pilot row is explicitly replaced; owned sidecars retire with it"
+
+[[documents]]
+path = "hako-alloc-provider-call-external-api-adapter-closeout-ssot.md"
+role = "status-ledger"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-MF:hako-alloc-provider; MIMAP-404A multi-base closeout of the adapter inventory/preflight pack (400A/402A); independent row per Q1 precedent"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this ledger/inventory row is replaced by an explicit durable owner; owned sidecars retire with it"
+
+[[documents]]
+path = "hako-alloc-provider-call-modeled-open-pilot-ssot.md"
+role = "supporting"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-MF:hako-alloc-provider; MIMAP-386A modeled provider-call-open pilot"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this proof/pilot row is explicitly replaced; owned sidecars retire with it"
+
+[[documents]]
+path = "hako-alloc-segment-allocation-modeled-ledger-release-span-facts-ssot.md"
+role = "status-ledger"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-content-review:hako-alloc-segment/segment-map-and-release; scalar/model inventory-ledger-matrix-prerequisite row recording deterministic modeled state, not execution authority"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "a replacement row records superseded_by at C3 and its owned sidecars retire with it"
+
+[[documents]]
+path = "hako-alloc-segment-arena-backing-readiness-inventory-ssot.md"
+role = "status-ledger"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-content-review:hako-alloc-segment/segment-arena-backing-and-residence; scalar/model inventory-ledger-matrix-prerequisite row recording deterministic modeled state, not execution authority"
+sidecars = ["hako-alloc-segment-arena-backing-readiness-closeout-ssot.md", "hako-alloc-segment-arena-backing-readiness-diagnostics-ssot.md"]
+supersedes = []
+superseded_by = ""
+retire_when = "a replacement row records superseded_by at C3 and its owned sidecars retire with it"
+
+[[documents]]
+path = "hako-alloc-segment-map-local-free-reuse-bridge-ssot.md"
+role = "supporting"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-content-review:hako-alloc-segment/segment-map-and-release; proof/pilot/bridge row connecting lanes or proving a scalar capability, not a mutable ledger"
+sidecars = ["hako-alloc-segment-map-local-free-reuse-bridge-closeout-ssot.md"]
+supersedes = []
+superseded_by = ""
+retire_when = "this proof row is explicitly replaced and its owned sidecars retire with it"
+
+[[documents]]
+path = "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-token-pilot-ssot.md"
+role = "supporting"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-content-review:hako-alloc-segment/segment-map-and-release; proof/pilot/bridge row connecting lanes or proving a scalar capability, not a mutable ledger"
+sidecars = ["hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-token-pilot-closeout-ssot.md"]
+supersedes = []
+superseded_by = ""
+retire_when = "this proof row is explicitly replaced and its owned sidecars retire with it"
+
+[[documents]]
+path = "hako-module-cache-build-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "INDEX.md"
+classification_basis = "C2-singleton-al: module-level objectification + link + 3-layer cache design fixed"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "local-patch-prevention-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "INDEX.md"
+classification_basis = "README:現役の設計図（入口）"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "loop-common-physical-demand-and-session-ssot.md"
+role = "authority"
+owner = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+precedence_parent = "joinir-loop-selfhost-recipe-pipeline-ssot.md"
+classification_basis = "CURRENT_STATE: accepted post-Recipe physical demand/session boundary"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "common Loop physical demand/session authority is replaced explicitly"
+
+[[documents]]
+path = "mimalloc-first-executable-slice-ssot.md"
+role = "status-ledger"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-singleton-mz: MIMAP-006 first-executable slice selection"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+
+[[documents]]
+path = "mimalloc-post-huge-unreserve-closeout-ssot.md"
+role = "status-ledger"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-singleton-mz: MIMAP-035A facade huge-unreserve success/fail-fast closeout (base not in design root)"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+
+[[documents]]
+path = "mimalloc-replacement-front-fidelity-ssot.md"
+role = "authority"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-singleton-mz: fidelity guard: a fast replacement front is not a keeper unless fast *through* a mimalloc-shaped route; normative acceptance law"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "mimalloc-secure-entropy-inventory-ssot.md"
+role = "status-ledger"
+owner = "mimalloc-capability-taskboard-ssot.md"
+precedence_parent = "mimalloc-capability-taskboard-ssot.md"
+classification_basis = "C2-singleton-mz: MIMAP-049A read-only secure-entropy/randomness inventory"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+
+[[documents]]
+path = "mir-commonality-taxonomy-ssot.md"
+role = "authority"
+owner = "mir-cleanup-policy-ssot.md"
+precedence_parent = "mir-cleanup-policy-ssot.md"
+classification_basis = "C2-singleton-mz: normative shared-boundary taxonomy (escape / allowlist-gate / owner) fixing what may be commonized"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "normalized-dev-removal-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "INDEX.md"
+classification_basis = "README:Diagnostics / Contracts（入口）"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "phi-carrier-join-id-vocabulary-decision.md"
+role = "status-ledger"
+owner = "phi-lifecycle-ssot.md"
+precedence_parent = "phi-lifecycle-ssot.md"
+classification_basis = "C2-singleton-mz: decision record: `CarrierVar.join_id` not a live lifecycle producer"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this ledger/inventory is replaced by an explicit durable owner"
+
+[[documents]]
+path = "purge-lifecycle-ladder-map-ssot.md"
+role = "status-ledger"
+owner = "mimalloc-hako-port-implementation-plan-ssot.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2-MF:purge-lifecycle-ladder; navigation map of the M192-M213 purge/lifecycle/reclaim ladder (prevents seam bypass)"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this ledger/inventory row is replaced by an explicit durable owner; owned sidecars retire with it"
+
+[[documents]]
+path = "pyvm-retreat-ssot.md"
+role = "superseded"
+owner = "INDEX.md"
+precedence_parent = "INDEX.md"
+classification_basis = "C2-singleton-mz: Historical; Moved to `design/archive/pyvm-retreat-ssot.md`"
+sidecars = []
+supersedes = []
+superseded_by = "archive/pyvm-retreat-ssot.md"
+retire_when = "C3 supersession review retires this stub after reachable-reference closure"
+
+[[documents]]
+path = "random-capability-preflight-ssot.md"
+role = "authority"
+owner = "random-capability-failfast-ssot.md"
+precedence_parent = "random-capability-failfast-ssot.md"
+classification_basis = "C2-singleton-mz: unsupported-random route preflight (RANDOM-CAP-002)"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "rust-kernel-export-surface-strata-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "INDEX.md"
+classification_basis = "README:現役の設計図（入口）"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "rustc-semir-adapter-tool-preflight-contract.md"
+role = "supporting"
+owner = "rustc-semir-internal-adapter-boundary.md"
+precedence_parent = "rustc-semir-internal-adapter-boundary.md"
+classification_basis = "C2-singleton-mz: (Design) rustc adapter tool-boundary preflight support"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review replaces or supersedes this support note"
+
+[[documents]]
+path = "rustc-semir-binding-context-adapter-harness-design.md"
+role = "supporting"
+owner = "rustc-semir-internal-adapter-boundary.md"
+precedence_parent = "rustc-semir-internal-adapter-boundary.md"
+classification_basis = "C2-singleton-mz: (Design) first rustc semantic-adapter harness design support"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review replaces or supersedes this support note"
+
+[[documents]]
+path = "selfhost-bootstrap-route-evidence-and-legacy-lanes.md"
+role = "superseded"
+owner = "selfhost-bootstrap-route-ssot.md"
+precedence_parent = "selfhost-bootstrap-route-ssot.md"
+classification_basis = "C2-MF:selfhost-bootstrap-route; historical moved-to-archive tombstone (Status: Historical)"
+sidecars = []
+supersedes = []
+superseded_by = "archive/selfhost-bootstrap-route-evidence-and-legacy-lanes.md"
+retire_when = "tombstone removed after references to the old path are closed"
+
+[[documents]]
+path = "strict-nested-loop-guard-ssot.md"
+role = "authority"
+owner = "planner-entry-guards-ssot.md"
+precedence_parent = "planner-entry-guards-ssot.md"
+classification_basis = "C2-singleton-mz: JoinIR composer `strict_nested_loop_guard` contract"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "usize-semantic-foundation-ssot.md"
+role = "authority"
+owner = "type-system-policy-ssot.md"
+precedence_parent = "type-system-policy-ssot.md"
+classification_basis = "C2-singleton-mz: exact `usize`/pointer-sized unsigned semantics before mimalloc migration"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "variable-context-lifecycle-gap-inventory.md"
+role = "status-ledger"
+owner = "phi-lifecycle-ssot.md"
+precedence_parent = "phi-lifecycle-ssot.md"
+classification_basis = "C2-singleton-mz: MirBuilder `VariableContext` lifecycle migration gap inventory"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "this ledger/inventory is replaced by an explicit durable owner"

@@ -1,0 +1,22 @@
+schema_version = 1
+mode = "warning"
+unregistered_baseline = 77
+shard_algorithm = "sha256-utf8-first-nybble-v1"
+shards = [
+  "shards/0.toml",
+  "shards/1.toml",
+  "shards/2.toml",
+  "shards/3.toml",
+  "shards/4.toml",
+  "shards/5.toml",
+  "shards/6.toml",
+  "shards/7.toml",
+  "shards/8.toml",
+  "shards/9.toml",
+  "shards/a.toml",
+  "shards/b.toml",
+  "shards/c.toml",
+  "shards/d.toml",
+  "shards/e.toml",
+  "shards/f.toml",
+]

@@ -143,6 +143,44 @@ Record the post-D0 baseline:
 
 Exit: every production and guard consumer has an owner and retirement row.
 
+### P0 landing — baseline at lane selection (2026-09-25)
+
+Measured via `repository_artifact_lifecycle_inventory` design_registry
+section (sole production parser) plus direct INDEX.md inspection:
+
+```text
+INDEX.md lines:                    7,670
+embedded [[documents]] rows:         676 (all paths unique)
+direct design files (top-level):     872 (851 .md + 21 non-md)
+owned sidecars:                      119
+unregistered files:                   77  (= baseline 77, warning mode,
+                                           zero violations)
+seed union count:                    175
+INDEX.md marker pair: design-registry-v0:begin / design-registry-v0:end
+```
+
+V0 marker readers (exact):
+
+- `tools/docs/repository_artifact_lifecycle_inventory.py` — sole
+  production parser (`read_design_registry`, `DESIGN_REGISTRY_BLOCK`).
+- `tools/checks/docs_slim_001_archive_policy_guard.sh` — asserts the
+  `design-registry-v0:begin` marker.
+
+Consumer/guard entrypoints: the inventory's `design_registry`
+section feeds `--check --strict` (violation: unregistered > baseline,
+strict-mode leftovers); the archive-policy guard asserts the marker
+only. No other tool parses the embedded block.
+
+Normalized inventory ordering: deterministic serialized JSON
+(`serialized()`); violations list order is stable.
+
+Warning-mode behavior: unregistered files remain in place; the
+baseline may only decrease; strict mode is not active.
+
+CLEAN0 evidence: worktree cleaned via named stash
+`wip/other-worker-docs before design-registry-v1` (2 unrelated
+investigation files); pointer guard green.
+
 ## L0 — Typed loader seam with V0 adapter
 
 Introduce one typed in-memory registry representation and loader interface.
@@ -345,3 +383,29 @@ Stop the series if any occurs:
 
 None while another lane is active. When this series is explicitly selected,
 begin with `CLEAN0`; do not jump to loader implementation.
+
+### L0/S0/G0/P1/I0 landing — typed seam + passive V1 storage (2026-09-25)
+
+- **L0** (`911ede962d`): `tools/docs/design_registry.py` owns the typed
+  `Registry` dataclass and fail-fast structural errors
+  (`RegistryNotFound`/`RegistryBlockMissing`/`RegistryMalformed`).
+  `repository_artifact_lifecycle_inventory.read_design_registry` now
+  routes through `design_registry.load_registry`; V0 embedded block
+  remains sole production source. Inventory `design_registry` section
+  is byte-identical after the swap (676 rows, `violations=[]`); only
+  drift was the new tool file itself.
+- **S0**: `load_v1()` passive manifest/shard reader — rejects unknown
+  fields, non-1 schema, wrong algorithm, inexact shard set, shard id
+  mismatch, unordered rows, incomplete row schema, wrong-shard rows,
+  and duplicate paths. Zero production callers.
+- **G0**: `generate_v1()` deterministic V0→V1 emitter +
+  `design_registry.py generate` CLI (temp dir default; `--output` for
+  explicit writes). Re-run is byte-identical (`diff -r` clean).
+- **P1**: normalized parity proven — 676 rows equal under
+  `_normalize_row` (absent `classification_basis` → `""` in 3 rows,
+  explicit-empty not invented), mode/baseline equal, and the shared
+  `validate()` produces identical `violations=[]` on both sources.
+- **I0**: passive V1 storage landed at
+  `design/registry/{README.md,manifest.toml,shards/{0..f}.toml}` (18
+  files). V0 remains the only production authority; inventory
+  `design_direct` count unchanged (872) since registry/ is a subdir.
