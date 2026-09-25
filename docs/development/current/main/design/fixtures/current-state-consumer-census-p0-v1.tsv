@@ -1,0 +1,45 @@
+# CURRENT-STATE-CONSUMER-CENSUS0-P0 — key x reader census
+# columns: key	role	executable_readers	representative_readers	disposition
+# scope: 38 keys x readers under tools/, src/, CURRENT_TASK.md naming
+#        CURRENT_STATE.toml (docs prose mentions excluded; parser skips
+#        multi-line string bodies — reference_delta inside latest_card_summary
+#        is prose, not a key).
+# floor: pointer guard enforces <=80 lines / <=40 top-level fields;
+#        the file is already at that floor (79 lines, 38 keys).
+date	live-pointer	1	tools/docs/phase_row.py	retain (read by guards/tools)
+development_branch_ssot	informational	0	-	retain candidate — verify zero-reader in LIVE-SCHEMA0-D0
+work_mode	live-pointer	25	CURRENT_TASK.md; tools/checks/frontend_parsed_box_source_seal_r6_s3b_c_s1_guard.sh; tools/checks/mir_call_ingress_schema_lifecycle_guard.sh	retain (read by guards/tools)
+current_execution_row	live-pointer	57	CURRENT_TASK.md; tools/checks/frontend_parsed_box_source_seal_r6_s3b_c_s1_guard.sh; tools/checks/mir_call_ingress_schema_lifecycle_guard.sh	retain (read by guards/tools)
+current_execution_cohort	informational	0	-	retain candidate — verify zero-reader in LIVE-SCHEMA0-D0
+current_blocker_token	live-pointer	353	CURRENT_TASK.md; tools/rust_lifecycle/mirbuilder_minimal_path_mainline_readiness_resolver.py; tools/rust_lifecycle/mirbuilder_next_hako_adoption_candidate_selection.py	retain (read by guards/tools)
+guard_followup	informational	0	-	retain candidate — verify zero-reader in LIVE-SCHEMA0-D0
+current_design_stop	live-pointer	17	tools/checks/mir_call_ingress_schema_lifecycle_guard.sh; tools/checks/lib/mir_declared_instance_exact_binding_value_accessor_s0_guard.py; tools/checks/lib/mir_call_d1b_declared_instance_relation_guard	retain (read by guards/tools)
+finite_product_goal	informational	0	-	retain candidate — verify zero-reader in LIVE-SCHEMA0-D0
+mirbuilder_north_star	live-pointer	2	CURRENT_TASK.md; tools/checks/current_state_pointer_guard.sh	retain (read by guards/tools)
+active_lane	live-pointer	3	CURRENT_TASK.md; tools/checks/k2_wide_phase296x_mimalloc_benchmark_lane_lock_guard.sh; tools/checks/current_state_pointer_guard.sh	retain (read by guards/tools)
+active_phase	live-pointer	3	tools/checks/k2_wide_phase296x_mimalloc_benchmark_lane_lock_guard.sh; tools/docs/repository_artifact_lifecycle_inventory.py; tools/checks/current_state_pointer_guard.sh	retain (read by guards/tools)
+phase_status	live-pointer	4	tools/checks/k2_wide_mimap022c_next_row_selection_guard.sh; tools/docs/repository_artifact_lifecycle_inventory.py; tools/checks/k2_wide_mimap022a_next_row_selection_guard.sh	retain (read by guards/tools)
+method_anchor	live-pointer	4	CURRENT_TASK.md; tools/checks/k2_wide_phase296x_mimalloc_benchmark_lane_lock_guard.sh; tools/docs/repository_artifact_lifecycle_inventory.py	retain (read by guards/tools)
+taskboard	live-pointer	218	tools/checks/k2_wide_phase296x_mimalloc_provider_package_cli_package_closeout_guard.sh; tools/checks/k2_wide_phase296x_directarray_family_next_order_taskboard_guard.sh; tools/checks/k2_wide_phase296x_	retain (read by guards/tools)
+latest_workstream_card	live-pointer	4	CURRENT_TASK.md; tools/rust_lifecycle/mirbuilder_minimal_execution_path_frontier_resolution.py; tools/docs/repository_artifact_lifecycle_inventory.py	retain (read by guards/tools)
+current_execution_design	live-pointer	2	tools/checks/lib/mir_call_d1b_active_surface_guard.py; tools/checks/current_state_pointer_guard.sh	retain (read by guards/tools)
+latest_card	live-pointer	382	tools/rust_lifecycle/mirbuilder_minimal_path_mainline_readiness_resolver.py; tools/rust_lifecycle/mirbuilder_next_hako_adoption_candidate_selection.py; tools/rust_lifecycle/mirbuilder_minimal_executio	retain (read by guards/tools)
+latest_card_path	live-pointer	84	CURRENT_TASK.md; tools/rust_lifecycle/mirbuilder_minimal_path_mainline_readiness_resolver.py; tools/rust_lifecycle/mirbuilder_next_hako_adoption_candidate_selection.py	retain (read by guards/tools)
+next_design_card	live-pointer	5	tools/checks/lib/mir_declared_instance_receiver_value_owner_d0_guard.py; tools/checks/lib/mir_declared_instance_locator_value_crosswalk_d0_guard.py; tools/checks/lib/mir_call_d1b_active_surface_guard.	retain (read by guards/tools)
+next_design_card_path	informational	0	-	retain candidate — verify zero-reader in LIVE-SCHEMA0-D0
+next_execution_card	live-pointer	14	tools/checks/mir_call_ingress_schema_lifecycle_guard.sh; tools/checks/frontend_parsed_box_source_seal_r6_s3b_c_i0_d0_guard.sh; tools/checks/lib/mir_declared_instance_exact_binding_value_accessor_s0_gu	retain (read by guards/tools)
+next_execution_card_path	live-pointer	5	tools/checks/lib/mir_call_d1b_declared_instance_relation_guard.py; tools/checks/lib/mir_call_d1b_operator_retirement_guard.py; tools/checks/lib/mir_call_d1b_extern_route_spec_boxshape_guard.py	retain (read by guards/tools)
+active_mirbuilder_compile_time_performance_task	informational	0	-	retain candidate — verify zero-reader in LIVE-SCHEMA0-D0
+repo_hygiene_punchlist	informational	0	-	retain candidate — verify zero-reader in LIVE-SCHEMA0-D0
+parked_mirbuilder_test_inventory_retirement_task	parked-pointer	0	-	retain (parked-family pointer floor)
+parked_declared_instance_selected_c_task	parked-pointer	0	-	retain (parked-family pointer floor)
+parked_mirbuilder_hako_mimalloc_promotion_gate	parked-pointer	0	-	retain (parked-family pointer floor)
+parked_wasm_hako_backend_task	parked-pointer	0	-	retain (parked-family pointer floor)
+parked_macos_platform_capability_task	parked-pointer	0	-	retain (parked-family pointer floor)
+parked_llvmlite_graduation_task	parked-pointer	0	-	retain (parked-family pointer floor)
+final_convergence_cleanup_ssot	informational	0	-	retain candidate — verify zero-reader in LIVE-SCHEMA0-D0
+current_update_policy	live-pointer	2	tools/docs/repository_artifact_lifecycle_inventory.py; tools/checks/current_state_pointer_guard.sh	retain (read by guards/tools)
+pre_perf_gate	live-pointer	1	tools/checks/current_state_pointer_guard.sh	retain (read by guards/tools)
+pre_perf_gate_status	live-pointer	1	tools/checks/current_state_pointer_guard.sh	retain (read by guards/tools)
+optimization_return_lane	live-pointer	1	tools/checks/current_state_pointer_guard.sh	retain (read by guards/tools)
+landed_tail	live-pointer	5	tools/docs/phase_row.py; tools/checks/current_state_pointer_guard.sh; tools/checks/rust_lifecycle_source_selfhost_next_route_family_selection_policy_guard.sh	retain (read by guards/tools)
