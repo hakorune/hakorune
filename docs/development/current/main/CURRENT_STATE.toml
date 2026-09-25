@@ -1,9 +1,9 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "REPO-FINAL-CONVERGENCE-AUDIT0-G0"
-current_execution_cohort = "repo_final_convergence"
-current_blocker_token = "RegistryV1-Selected__P0Baseline-Open__FinalAudit-Gated"
+current_execution_row = "SELFHOST-RESUME-ENTRY-RECHECK0-P0"
+current_execution_cohort = "selfhost_resume_entry"
+current_blocker_token = "SelfhostEntryRecheck-Open__CallR7-FrontierPause__B3D2-NoSafeSlice"
 current_design_stop = "none__CallableVariableRecurrenceDecisionAccepted_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,25 +13,24 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/repo-final-convergence-audit0-2026-09-25.md"
+current_execution_design = "docs/development/current/main/design/selfhost-parser-mirbuilder-migration-order-ssot.md"
 latest_card = "repo-final-convergence-audit0"
 latest_card_path = "docs/development/current/main/investigations/repo-final-convergence-audit0-2026-09-25.md"
 latest_card_summary = """
-DESIGN-REGISTRY-V1 lane complete (`911ede962d`..`940eb3652d`):
-typed seam + V1 sharded store (676 rows, sha256-nybble shards),
-atomic C0 cutover, V0 block retired (INDEX.md 7676->45 lines).
-All counters zero; inventory section byte-identical throughout.
-Named baseline debt: naming_charter_guard Stage-A wording red from
-unrelated commit `5e4a5e596c`; dormant rg slash-escape check in same guard.
-Return target `REPO-FINAL-CONVERGENCE-AUDIT0-G0`: 9-axis audit of
-pipeline authority, MIR root surface, role manifest, context owners,
-live pointers, design registry, temporary evidence, JoinModule
-disposition, docs parity.
+REPO-FINAL-CONVERGENCE-AUDIT0-G0 closed (2026-09-25): 34-record
+disposition matrix + repo_final_convergence_guard.sh registered and
+green; import-hygiene wildcard imports fixed; acceptance set green;
+source-backed gates 15/15 + 164/164 pass on a vm-reference build.
+11-entry EXE suite 2/9 — all typed fail-fast terminals in the selfhost
+emit lane, owned by MIRBUILDER-FINAL-ACCEPTANCE-SCOPE (baseline debt).
+G0 closes the repo-structure cleanup lane only; MirBuilder overall
+continues. Next: reconcile Call/R7 and B3 residuals against selfhost
+resume gates 1-4 and select the next bounded owner.
 """
 next_design_card = "none__accepted_decision"
 next_design_card_path = "none__accepted_decision"
-next_execution_card = "REPO-FINAL-CONVERGENCE-AUDIT0-G0"
-next_execution_card_path = "docs/development/current/main/investigations/repo-final-convergence-audit0-2026-09-25.md"
+next_execution_card = "SELFHOST-RESUME-ENTRY-RECHECK0-P0"
+next_execution_card_path = "docs/development/current/main/investigations/selfhost-resume-entry-recheck0-p0-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -46,7 +45,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-09/10: Map/Birth physical cohorts and receiver lane closed; whole-Map/R7 parked; C measurement closed.",
   "2026-09-10/13: Receiver/callee/FieldGet/schema, Pair, selected-C rows, and published ownership evidence recorded; retained compatibility frontier at design stop D1.",
   "2026-09-25: DESIGN-REGISTRY-V1 complete (seam, sharded store, cutover, V0 retire); return to REPO-FINAL-CONVERGENCE-AUDIT0-G0.",
+  "2026-09-25: G0 closed — disposition matrix + dedicated guard green, hygiene fixed, source-backed gates 15+164 pass; next SELFHOST-RESUME-ENTRY-RECHECK0-P0.",
 ]

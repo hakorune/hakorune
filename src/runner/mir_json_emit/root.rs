@@ -410,7 +410,10 @@ mod tests {
 
     #[test]
     fn both_json_profiles_reject_unretained_named_array_requirement() {
-        use crate::mir::*;
+        use crate::mir::{
+            ArrayWriteSiteId, BasicBlockId, EffectMask, FunctionSignature, MirFunction,
+            MirModule, MirType, ValueId,
+        };
         let mut module = MirModule::new("obligation".into());
         let mut function = MirFunction::new(
             FunctionSignature {

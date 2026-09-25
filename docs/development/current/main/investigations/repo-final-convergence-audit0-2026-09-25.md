@@ -69,5 +69,84 @@ Cleanup notes for a later bounded row (not blocking):
   only `condition`/`body` are read by the frozen entry.
 - `--backend vm` (deprecated legacy lane) freezes on loop fixtures at
   callable-main lowering — deliberate cutover; source-backed gates run
-  `--backend mir`. The claimed gate counts need a `vm-reference`-
-  enabled build to re-verify locally.
+  `--backend mir`. Verified on a `vm-reference`-enabled build below.
+
+## G0 completion evidence (2026-09-25, second pass)
+
+The required matrix and dedicated guard now exist and pass:
+
+- Matrix: `repo-final-convergence-audit0-g0-disposition.toml` — 34
+  records; every record carries the required ten fields; unknown
+  fields, duplicate paths, unclassified records, and missing evidence
+  are rejected by the guard. Records reuse the existing authority-role
+  manifest, context census, JoinModule disposition, consumer census,
+  facade manifests, registry store, parity fixtures, and this card as
+  evidence — no second semantic ledger.
+- Guard: `tools/checks/repo_final_convergence_guard.sh` — validates the
+  matrix schema and the pinned claims (one pipeline-order authority,
+  `compiler-pipeline-ssot.md` historical, `src/mir/mod.rs` durable
+  facade, current-entry parity set, explicit loop/JoinModule
+  dispositions, durable registry store), cross-checks the referenced
+  TSV receipts for unclassified rows, verifies guard-index
+  registration, and delegates pointer parity to
+  `current_state_pointer_guard.sh`. Registered in
+  `docs/tools/check-scripts-index.md`.
+- Import hygiene: the two 2026-09-22 wildcard imports were replaced
+  with explicit imports
+  (`named_array_emission_tests.rs` — 12 named symbols,
+  `runner/mir_json_emit/root.rs` — 8 named symbols);
+  `mir_root_import_hygiene_guard.sh` ok; `cargo check --tests` clean.
+
+Acceptance set (all green):
+
+```text
+bash tools/checks/current_state_pointer_guard.sh          ok
+bash tools/checks/mir_root_facade_guard.sh                ok exports=129 modules=215
+bash tools/checks/mir_root_import_hygiene_guard.sh        ok
+bash tools/checks/repo_final_convergence_guard.sh         ok 34 records
+python3 tools/docs/repository_artifact_lifecycle_inventory.py --check --strict   current
+git diff --check                                          ok
+```
+
+Post-cutover execution evidence (NYASH_BIN=target/quick/hakorune,
+`vm-reference` feature enabled):
+
+```text
+phase29bq_portable_owner_source_backed_gate_mir.sh   PASS  (15/15)
+phase29bq_typed_terminal_source_backed_gate_mir.sh   PASS  (164/164)
+real-apps-exe-boundary suite (11 fixed entries)      2 pass / 9 fail
+```
+
+EXE suite failures are all typed fail-fast terminals in the selfhost
+emit lane (no crash, no fallback): `[freeze:contract]` classes
+`mir/main-import-view/selected-header-missing`,
+`mir/callable-main/qualified-preflight` (UnsupportedFirstFamilyShape),
+`callable-loop/facts-absent`, `callable-semantic-package/issue`
+(ParameterContract / NamedArray TextSourceMissing), and one phase84-5
+type-inference panic. None is caused by this slice (import-only
+change). Owner: `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` — the queued
+closeout owner in `mirbuilder-inplace-replacement-current.md`, which
+pins this exact manifest revision for evaluation; the suite is a
+fixed selection for that owner, not a claim of current green.
+
+## G0 closeout — closed
+
+G0 is complete: the matrix, dedicated guard, import-hygiene fix, and
+post-cutover evidence all hold. This closes the repo-structure cleanup
+lane only; MirBuilder overall continues under the unified resume order.
+
+Named residuals assigned to existing owners (not this audit):
+
+- Call/R7 aggregate writer/reader/reissuer/re-entry deletion: open,
+  family-local frontier pause; staged R6-S0..R7 queue remains unopened
+  until an exact boundary is selected.
+- B3 D2: `NoSafeSlice` — production substring route/codepoint outcome
+  and ArrayPush provider/failure/commit authorities missing.
+- Selfhost resume gates 2–4 (language-v1 conformance matrix,
+  `MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0`,
+  `MIRBUILDER-FACT-OWNER-PARITY-TEMPLATE-PILOT-SELECTION-001`): queued.
+
+Next execution row: `SELFHOST-RESUME-ENTRY-RECHECK0-P0` — reconcile the
+Call/R7 and B3 residuals against the selfhost resume entry conditions
+(`selfhost-parser-mirbuilder-migration-order-ssot.md` unified resume
+order) and select the next bounded owner.

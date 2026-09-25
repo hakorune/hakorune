@@ -1,16 +1,16 @@
 {
   "counts": {
-    "checks": 3822,
+    "checks": 3823,
     "design_direct": 872,
-    "docs": 13733,
+    "docs": 13735,
     "docs_development_archive": 2792,
-    "docs_development_current": 9509,
+    "docs_development_current": 9511,
     "main_direct": 170,
     "phase_296x_archive": 2315,
     "phase_296x_direct": 1035,
     "private": 0,
     "src": 4811,
-    "tools": 7421
+    "tools": 7422
   },
   "design_registry": {
     "authority_registry_decided": true,
@@ -949,7 +949,7 @@
   "document_reachability": {
     "ambiguous_basename_count": 15,
     "archived_in_place_count": 1389,
-    "document_count": 9509,
+    "document_count": 9511,
     "nested_archive_first_batch": {
       "archive_target_collision_count": 0,
       "cluster_count": 1364,
@@ -1935,18 +1935,18 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 5523,
-    "root_count": 3897,
+    "reachable_count": 5564,
+    "root_count": 3899,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1035,
       "current_pointer": 4,
       "design_authority": 273,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3271
+      "reference_src_tools": 3273
     },
-    "unreachable_count": 3986,
-    "unreachable_pending_count": 2597,
+    "unreachable_count": 3947,
+    "unreachable_pending_count": 2558,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0

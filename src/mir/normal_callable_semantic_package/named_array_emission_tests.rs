@@ -2,7 +2,11 @@
 //! test input, not proof that the production Array route has switched.
 use super::*;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
-use crate::mir::*;
+use crate::mir::{
+    ArrayElementWriteKind, ArrayWriteProducerKind, ArrayWriteSiteId, BasicBlockId,
+    ConstructionTarget, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirModule,
+    MirType, ValueId,
+};
 use std::collections::BTreeMap;
 
 type Rows = BTreeMap<
