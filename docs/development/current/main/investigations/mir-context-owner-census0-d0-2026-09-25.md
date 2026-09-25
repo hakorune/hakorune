@@ -86,3 +86,21 @@ unchanged `clear_method_tail_index` accessor. Verification:
 `cargo check --profile quick --lib` and `--tests` green; focused
 `method_tail` tests 3/3 ok. `reference_delta = 0` (no reference
 contract touched).
+
+## MIR-CONTEXT-OWNER-SPLIT0-R0 landing — caller/guard/reference parity closeout
+
+- Caller parity: all accessors unchanged; only
+  `compilation_context/tests.rs` reads `.source_len` via the new owner.
+  `cargo check --profile quick --lib`/`--tests` green,
+  `method_tail` tests 3/3 ok.
+- Guard parity: `tools/checks/mir_context_owner_split_guard.sh` pins
+  the `MethodTailIndexV1` owner in `builder_method_index.rs`, the
+  single `CompilationContext` field of that type, and rejects any
+  reintroduced `method_tail_index_source_len` under `src/`. Registered
+  in `docs/tools/check-scripts-index.md`.
+- Reference parity: `reference_delta = 0`; owner README line added to
+  `src/mir/builder/README.md` context map.
+- Residual seam: the remaining `CompilationContext` catalog fields
+  (13 census rows, module-lifetime, accessor-read) stay parked behind
+  the census until a next owner can be named;
+  `MIR-CRATE-BOUNDARY-RECHECK0-P0` follows.

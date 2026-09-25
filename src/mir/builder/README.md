@@ -868,6 +868,7 @@ be narrowed or rewritten. The exact task order is in
 - `src/mir/builder/compilation_context.rs`
   - コンパイル全体のレジストリ（Box/型レジストリ、reserved ids 等）。
   - `ASTNode` / `FunctionSlotRegistry` / `TypeRegistry` がまだ混在しているため packaging は保留中。
+  - method tail index は `builder_method_index.rs` の `MethodTailIndexV1` が owner（MIR-CONTEXT-OWNER-SPLIT0）。
 - `crates/hakorune_mir_builder/src/context.rs`
   - 上記 Context を束ねる入れ物（`MirBuilder` はここを介して状態へアクセスする）。
 
