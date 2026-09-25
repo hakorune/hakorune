@@ -6,7 +6,7 @@ list_command = ["cargo", "test", "--profile", "quick", "--lib", "--", "--list"]
 environment = { RUST_MIN_STACK = "16777216", CARGO_BUILD_JOBS = "4", CARGO_INCREMENTAL = "0" }
 expected_status = "FAILED"
 expected_exit_code = 101
-expected_passed = 7369
+expected_passed = 7344
 expected_failed = 133
 expected_ignored = 29
 expected_measured = 0

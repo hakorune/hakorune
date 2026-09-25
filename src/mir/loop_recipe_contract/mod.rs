@@ -37,7 +37,6 @@ mod join_sig;
 // wiring lands; recheck at the next producer migration slice.
 #[allow(dead_code)]
 mod recipe_draft;
-mod generic_residual_producer;
 mod internal_declaration;
 mod join_sig_branch;
 mod loop_cond_break_continue_producer;
@@ -102,10 +101,6 @@ mod nested_predicate_tests;
 #[cfg(test)]
 #[path = "join_sig_branch_tests.rs"]
 mod join_sig_branch_tests;
-
-#[cfg(test)]
-#[path = "generic_residual_producer_tests.rs"]
-mod generic_residual_producer_tests;
 
 #[cfg(test)]
 #[path = "loop_cond_break_continue_producer_tests.rs"]
@@ -306,11 +301,6 @@ pub(crate) use join_sig::{
     LoopJoinPortBindingV1, LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1,
     LoopJoinSigRejectReasonV1, LoopJoinSigV1, LoopJoinSigV2, VerifiedLoopAfterBindingV1,
     VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1, VerifiedLoopJoinSigV2,
-};
-#[allow(unused_imports)]
-pub(crate) use generic_residual_producer::{
-    produce_generic_residual_recipe_v1, GenericResidualRecipeProducerRejectV1,
-    VerifiedGenericResidualRecipeProductV1,
 };
 #[allow(unused_imports)]
 pub(crate) use loop_cond_break_continue_producer::{

@@ -53,29 +53,28 @@ fn unit_coverage_for(
     issue_whole_unit_loop_coverage_proof_v1(set, lease)
 }
 
-fn backed_route_for(tag: LoopFamilyTagV1) -> (LoopRouteId, LoopRouteRecipeBackingV1) {
+fn backed_route_for(tag: LoopFamilyTagV1) -> Option<(LoopRouteId, LoopRouteRecipeBackingV1)> {
     let portable = LoopRouteRecipeBackingV1::PortableProducer;
     match tag {
-        LoopFamilyTagV1::DirectAccum => (
+        LoopFamilyTagV1::DirectAccum => Some((
             LoopRouteId::AccumConstLoop,
             portable(LoopRecipeProducerIdV1::DirectAccumV1),
-        ),
-        LoopFamilyTagV1::NestedPredicate => (
+        )),
+        LoopFamilyTagV1::NestedPredicate => Some((
             LoopRouteId::NestedLoopMinimal,
             portable(LoopRecipeProducerIdV1::NestedPredicateV1),
-        ),
-        LoopFamilyTagV1::LoopTrueBreakContinue => (
+        )),
+        LoopFamilyTagV1::LoopTrueBreakContinue => Some((
             LoopRouteId::LoopTrueBreakContinue,
             portable(LoopRecipeProducerIdV1::LoopTrueBreakContinueV1),
-        ),
-        LoopFamilyTagV1::LoopCondBreakContinue => (
+        )),
+        LoopFamilyTagV1::LoopCondBreakContinue => Some((
             LoopRouteId::LoopCondBreakContinue,
             portable(LoopRecipeProducerIdV1::LoopCondBreakContinueV1),
-        ),
-        LoopFamilyTagV1::GenericG0 => (
-            LoopRouteId::GenericLoopV1,
-            portable(LoopRecipeProducerIdV1::GenericResidualV1),
-        ),
+        )),
+        // GenericG0 is a semantic family outside the canonical route
+        // inventory (S6G): it marks no route row.
+        LoopFamilyTagV1::GenericG0 => None,
     }
 }
 
@@ -319,7 +318,7 @@ pub(crate) fn generic_selection_for_test() -> CanonicalLoopFamilySelectionV1 {
 pub(crate) fn generic_source_unit_and_selection_for_test(
 ) -> (VerifiedResolvedSourceUnitV1, CanonicalLoopFamilySelectionV1) {
     let (unit, lease, identity, candidate) = generic_candidate_fixture_with_unit();
-    let unit_coverage = unit_coverage_for(&lease, Some(backed_route_for(LoopFamilyTagV1::GenericG0)));
+    let unit_coverage = unit_coverage_for(&lease, backed_route_for(LoopFamilyTagV1::GenericG0));
     let mut rows = all_declined(&identity).into_vec();
     rows[0] = candidate;
     let window = match assemble_loop_family_admission_window_v1(lease, rows.into_boxed_slice()) {
@@ -342,7 +341,7 @@ fn assert_selected(
     expected: LoopFamilyTagV1,
 ) {
     let (lease, identity, candidate) = factory();
-    let unit_coverage = unit_coverage_for(&lease, Some(backed_route_for(expected)));
+    let unit_coverage = unit_coverage_for(&lease, backed_route_for(expected));
     let mut rows = all_declined(&identity).into_vec();
     rows[slot] = candidate;
     let window = match assemble_loop_family_admission_window_v1(lease, rows.into_boxed_slice()) {
@@ -473,7 +472,7 @@ fn overlap_rejects_without_dropping_the_consumed_window() {
 #[test]
 fn selected_generic_window_is_consumed_into_one_demand_lease() {
     let (lease, identity, generic) = generic_candidate_fixture();
-    let unit_coverage = unit_coverage_for(&lease, Some(backed_route_for(LoopFamilyTagV1::GenericG0)));
+    let unit_coverage = unit_coverage_for(&lease, backed_route_for(LoopFamilyTagV1::GenericG0));
     let mut rows = all_declined(&identity).into_vec();
     rows[0] = generic;
     let window = match assemble_loop_family_admission_window_v1(lease, rows.into_boxed_slice()) {
@@ -508,7 +507,7 @@ fn selected_generic_window_is_consumed_into_one_demand_lease() {
 fn demand_rejects_a_selected_non_generic_family() {
     let (lease, identity, direct) = candidate_fixture();
     let unit_coverage =
-        unit_coverage_for(&lease, Some(backed_route_for(LoopFamilyTagV1::DirectAccum)));
+        unit_coverage_for(&lease, backed_route_for(LoopFamilyTagV1::DirectAccum));
     let mut rows = all_declined(&identity).into_vec();
     rows[2] = direct;
     let window = match assemble_loop_family_admission_window_v1(lease, rows.into_boxed_slice()) {

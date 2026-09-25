@@ -111,8 +111,8 @@ pub(crate) const RECEIPTS: &[LegacyRouteParityReceiptV1] = &[
     },
     LegacyRouteParityReceiptV1 {
         legacy_route: LoopRouteId::GenericLoopV1,
-        producer_id: Some(LoopRecipeProducerIdV1::GenericResidualV1),
-        disposition: "portable_producer",
+        producer_id: None,
+        disposition: "legacy_only",
     },
 ];
 
@@ -124,7 +124,7 @@ fn legacy_route_parity_is_external_and_non_selecting() {
             .iter()
             .filter(|receipt| receipt.disposition == "portable_producer")
             .count(),
-        7
+        6
     );
     assert_eq!(
         RECEIPTS
@@ -138,14 +138,13 @@ fn legacy_route_parity_is_external_and_non_selecting() {
             .iter()
             .filter(|receipt| receipt.disposition == "legacy_only")
             .count(),
-        11
+        12
     );
     assert!(RECEIPTS.iter().any(|receipt| {
         receipt.legacy_route == LoopRouteId::GenericLoopV0 && receipt.producer_id.is_none()
     }));
     assert!(RECEIPTS.iter().any(|receipt| {
-        receipt.legacy_route == LoopRouteId::GenericLoopV1
-            && receipt.producer_id == Some(LoopRecipeProducerIdV1::GenericResidualV1)
+        receipt.legacy_route == LoopRouteId::GenericLoopV1 && receipt.producer_id.is_none()
     }));
 }
 
@@ -185,7 +184,6 @@ fn producer_id_wire_keys_roundtrip_without_legacy_route_names() {
         LoopRecipeProducerIdV1::Main0ContinueV1,
         LoopRecipeProducerIdV1::Main0InBodyStepV1,
         LoopRecipeProducerIdV1::Main0DerivedPredicateV1,
-        LoopRecipeProducerIdV1::GenericResidualV1,
         LoopRecipeProducerIdV1::ScanWithInitV2,
     ] {
         let json = serde_json::to_string(&producer_id).expect("producer id encodes");

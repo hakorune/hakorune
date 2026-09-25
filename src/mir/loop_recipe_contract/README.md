@@ -630,13 +630,15 @@ producer or production consumer, and a post-loop function tail must not be
 inserted into `LoopRecipeV1`.
 
 The M8 all19 closeout S6G extended that test-only receipt to all 19
-canonical routes: seven `portable_producer` rows (S6A/S6B recurrence and
-break, DirectAccum, NestedPredicate, LoopTrue, LoopCond, and the S6E
-`generic_residual_v1` row for `GenericLoopV1`), one `portable_v2_producer`
-row for `ScanWithInit`, and eleven `legacy_only` typed declines including
-`GenericLoopV0`. `GenericG0` is asserted absent from every route mapping so
-it cannot be re-minted as legacy Generic provenance. The receipt stays
-outside the portable artifact and selects nothing.
+canonical routes: six `portable_producer` rows (S6A/S6B recurrence and
+break, DirectAccum, NestedPredicate, LoopTrue, and LoopCond), one
+`portable_v2_producer` row for `ScanWithInit`, and twelve `legacy_only`
+typed declines including `GenericLoopV0` and `GenericLoopV1` — the S6E
+`generic_residual_v1` producer row was retired at M12-R2B with the
+caller-zero GenericResidual chain. `GenericG0` is asserted absent from
+every route mapping so it cannot be re-minted as legacy Generic
+provenance. The receipt stays outside the portable artifact and selects
+nothing.
 
 ## LoopTrue S2 producer
 

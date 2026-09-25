@@ -19,7 +19,6 @@ pub(crate) enum LoopRecipeProducerIdV1 {
     Main0ContinueV1,
     Main0InBodyStepV1,
     Main0DerivedPredicateV1,
-    GenericResidualV1,
     /// The S6C forward ScanWithInit cohort, whose product rides the V2
     /// wire. Names the claimed schema family only.
     ScanWithInitV2,
@@ -39,7 +38,6 @@ impl LoopRecipeProducerIdV1 {
             Self::Main0ContinueV1 => "main0_continue_v1",
             Self::Main0InBodyStepV1 => "main0_in_body_step_v1",
             Self::Main0DerivedPredicateV1 => "main0_derived_predicate_v1",
-            Self::GenericResidualV1 => "generic_residual_v1",
             Self::ScanWithInitV2 => "scan_with_init_v2",
         }
     }

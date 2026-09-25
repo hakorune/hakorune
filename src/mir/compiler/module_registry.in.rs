@@ -116,10 +116,6 @@ pub(in crate::mir) mod loop_cond_break_continue_typed_map;
 pub(in crate::mir) mod loop_cond_break_continue_typed_map_issue;
 #[allow(dead_code)]
 pub(in crate::mir) mod loop_cond_break_continue_projection;
-pub(in crate::mir) mod generic_residual_typed_map;
-pub(in crate::mir) mod generic_residual_typed_map_issue;
-#[allow(dead_code)]
-pub(in crate::mir) mod generic_residual_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod loop_break_source_projection;
 #[allow(dead_code)]
@@ -242,10 +238,6 @@ pub(crate) use loop_true_break_continue_projection_tests::positive_function as l
 mod loop_cond_break_continue_projection_tests;
 #[cfg(test)]
 pub(crate) use loop_cond_break_continue_projection_tests::positive_function as loop_cond_function_for_test;
-#[cfg(test)]
-mod generic_residual_projection_tests;
-#[cfg(test)]
-pub(crate) use generic_residual_projection_tests::positive_function as generic_residual_function_for_test;
 #[cfg(test)]
 mod nested_predicate_effect_plan_tests;
 #[cfg(test)]

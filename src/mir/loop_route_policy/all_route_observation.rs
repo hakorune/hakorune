@@ -98,10 +98,6 @@ pub(crate) const ATTESTED_RECIPE_BACKED_V1: &[(LoopRouteId, LoopRouteRecipeBacki
             LoopRecipeProducerIdV1::LoopCondBreakContinueV1,
         ),
     ),
-    (
-        LoopRouteId::GenericLoopV1,
-        LoopRouteRecipeBackingV1::PortableProducer(LoopRecipeProducerIdV1::GenericResidualV1),
-    ),
 ];
 
 #[derive(Debug, PartialEq, Eq)]

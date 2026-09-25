@@ -381,5 +381,3 @@ mod m8b_tests;
 mod m8c_tests;
 #[path = "wire_parity_tests/m8d_tests.rs"]
 mod m8d_tests;
-#[path = "wire_parity_tests/m8e_tests.rs"]
-mod m8e_tests;

@@ -302,8 +302,9 @@ post-implementation reference receipt.
 the S2 selector algebra anticipated. `issue_all_route_observation_set_v1`
 accepts exactly 19 rows in `CANONICAL_LOOP_ROUTE_ORDER_V1` order; each row is
 `RecipeBacked{backing}` only where the closed `ATTESTED_RECIPE_BACKED_V1`
-inventory attests a landed cohort (eight routes: S6A/S6B/S6C-V2/DirectAccum/
-NestedPredicate/LoopTrue/LoopCond/S6E GenericResidual), otherwise
+inventory attests a landed cohort (seven routes after the M12-R2B
+GenericResidual retirement: S6A/S6B/S6C-V2/DirectAccum/
+NestedPredicate/LoopTrue/LoopCond), otherwise
 `PreEffectDeclined{reason}`. At most one row may be `RecipeBacked` per unit —
 a second backed row, an unattested backing, a missing/duplicate/out-of-order
 route, or a wrong row count is a typed reject, never a silent skip.

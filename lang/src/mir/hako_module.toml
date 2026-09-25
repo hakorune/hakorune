@@ -17,7 +17,6 @@ builder.loop_recipe.emit_m8a_recurrence_wire = "builder/loop_recipe/emit_m8a_rec
 builder.loop_recipe.emit_m8b_break_wire = "builder/loop_recipe/emit_m8b_break_wire.hako"
 builder.loop_recipe.emit_m8c_scans_wire = "builder/loop_recipe/emit_m8c_scans_wire.hako"
 builder.loop_recipe.emit_m8d_loopcond_wire = "builder/loop_recipe/emit_m8d_loopcond_wire.hako"
-builder.loop_recipe.emit_m8e_generic_wire = "builder/loop_recipe/emit_m8e_generic_wire.hako"
 builder.loop_recipe.emit_direct_accum_wire = "builder/loop_recipe/emit_direct_accum_wire.hako"
 builder.loop_recipe.emit_nested_predicate_wire = "builder/loop_recipe/emit_nested_predicate_wire.hako"
 builder.loop_recipe.emit_loop_true_wire = "builder/loop_recipe/emit_loop_true_wire.hako"

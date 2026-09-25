@@ -82,9 +82,36 @@ excludes: callable_result_representation claims, non-Loop mir surfaces,
   `current_state_pointer_guard.sh`, generic corpus front receipt
   (398/4/270).
 
+## M12-R2B partial landing (residual chain)
+
+Section A rows A01-A06 landed: the sealed `generic_residual` chain
+(`loop_route_policy/generic_residual.rs`,
+`loop_recipe_contract/generic_residual_producer.rs`,
+`compiler/generic_residual_projection.rs`,
+`compiler/generic_residual_typed_map{,_issue}.rs`,
+`loop_structural_facts/generic_residual_source.rs`,
+`LoopRecipeProducerIdV1::GenericResidualV1`) is deleted with its tests,
+the `ATTESTED_RECIPE_BACKED_V1` `GenericLoopV1` row, the M8E wire
+emitter (`emit_m8e_generic_wire.hako` + module registration + fixture
+`hako_loop_recipe_wire_m8e_v1.json` + `m8e_tests`), the residual probe
+rows, and the stale allowlist pins in `joinir_logical_demand_contract.sh`.
+`GenericLoopV1` stays a `legacy_only`/typed-declined census row;
+wire-backed attestation is now 7 routes / 12 declines. The red-baseline
+receipt absorbs 25 removed unit tests (expected_passed 7369->7344; the
+removed names were already absent from the stale receipt inventory).
+`cargo check --profile quick --lib`/`--tests` green; focused
+route/parity/family/probe tests 29/29 green; in-place replacement guard
+green.
+
 ## Next
 
-`JOINIR-LOOP-DUPLICATE-FACADE-RETIRE-R2B`: execute Section A residual chain +
-Section B oracle chain deletions (bounded, per-commit buildable), re-point the
-red-baseline receipt for every removed test file, and update the varmap /
-in-place guards if any pinned site dies.
+`JOINIR-LOOP-DUPLICATE-FACADE-RETIRE-R2B` (continued): execute the
+Section B oracle chain deletions (`RecipeComposer::compose_*` +
+`loop_accum_legacy_oracle_support.rs` + non-source `*_pipeline.rs`
+families and their `*_phi_materializer`/`*_verifier`/`*_cleanup`/`*_join`
+companions — proven reachable only through the `#[cfg(test)]`
+semantic-parity module), re-point the red-baseline receipt for every
+removed test file, and update the varmap / in-place guards if any pinned
+site dies. Section C decision rows (19-row schedule disposition, issuer
+route-vector selection, DirectAccum facts-layer key minting) resolve
+before their delete.

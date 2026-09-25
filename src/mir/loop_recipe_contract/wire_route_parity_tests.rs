@@ -39,7 +39,6 @@ const HAKO_WIRE_M8A: &str = include_str!("fixtures/hako_loop_recipe_wire_m8a_v1.
 const HAKO_WIRE_M8B: &str = include_str!("fixtures/hako_loop_recipe_wire_m8b_v1.json");
 const HAKO_WIRE_M8C: &str = include_str!("fixtures/hako_loop_recipe_wire_m8c_v2.json");
 const HAKO_WIRE_M8D: &str = include_str!("fixtures/hako_loop_recipe_wire_m8d_v1.json");
-const HAKO_WIRE_M8E: &str = include_str!("fixtures/hako_loop_recipe_wire_m8e_v1.json");
 const HAKO_WIRE_NESTED: &str =
     include_str!("fixtures/hako_loop_recipe_wire_nested_v1.json");
 const HAKO_WIRE_LOOP_TRUE: &str =
@@ -425,10 +424,7 @@ const ROUTE_WIRE_COVERAGE_V1: &[(LoopRouteId, RouteWireCoverageV1)] = &[
         RouteWireCoverageV1::TypedDeclined,
     ),
     (LoopRouteId::GenericLoopV0, RouteWireCoverageV1::TypedDeclined),
-    (
-        LoopRouteId::GenericLoopV1,
-        RouteWireCoverageV1::V1Parity(HAKO_WIRE_M8E, LoopRecipeProducerIdV1::GenericResidualV1),
-    ),
+    (LoopRouteId::GenericLoopV1, RouteWireCoverageV1::TypedDeclined),
 ];
 
 #[test]

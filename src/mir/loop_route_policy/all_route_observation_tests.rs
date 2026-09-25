@@ -114,10 +114,6 @@ fn attested_backed_routes_seal() {
                 LoopRecipeProducerIdV1::LoopCondBreakContinueV1,
             ),
         ),
-        (
-            LoopRouteId::GenericLoopV1,
-            LoopRouteRecipeBackingV1::PortableProducer(LoopRecipeProducerIdV1::GenericResidualV1),
-        ),
     ] {
         let set = seal(rows_with_backed(route, backing));
         assert!(!set.all_pre_effect_declined());
@@ -165,7 +161,7 @@ fn unattested_backing_is_a_typed_reject() {
     assert_eq!(
         issue_all_route_observation_set_v1(rows_with_backed(
             LoopRouteId::GenericLoopV0,
-            LoopRouteRecipeBackingV1::PortableProducer(LoopRecipeProducerIdV1::GenericResidualV1),
+            LoopRouteRecipeBackingV1::PortableProducer(LoopRecipeProducerIdV1::DirectAccumV1),
         )),
         Err(LoopAllRouteObservationSetRejectV1::UnattestedRecipeBacking {
             route: LoopRouteId::GenericLoopV0,

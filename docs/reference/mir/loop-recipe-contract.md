@@ -788,31 +788,18 @@ MIR, production caller, hostbridge, or V2 artifact for this family
 was added.
 
 Reference receipt — `SELFHOST-LOOP-M8E-GENERIC-PARITY-S7B5`
-(2026-09-24): the fifth and last S7B producer cohort lands on V1.
-`loop_recipe/emit_m8e_generic_wire.hako` emits the canonical M8E
-`LoopRecipeArtifactV1` — `generic_residual_v1` provenance, source
-path `body_item(0)` — as one compact JSON line for the bounded
-`generic_residual_function_for_test` profile
-(`generic_residual_projection(i, limit) { loop(i < limit)
-{ local tmp = 0; i = i + 1 } }`), covering the first bound-as-
-second-carrier-binding wire surface (two bindings, inputs `[0,1]`,
-two carriers) plus a body-local SSA declaration with no boundary
-write, and no exits. The emission is checked in at
-`fixtures/hako_loop_recipe_wire_m8e_v1.json`. The parity harness
-rebuilds the artifact through the producer's own issuer chain —
-the typed source map's `into_parts` carries the resolver-bound
-`VerifiedLoopRootSourceV1` plus carrier/condition/body_rows/
-carrier_step into `generic_residual_recipe` (now `pub(super)`),
-then `verify` -> `into_root_claim` -> `GenericResidualV1`
-provenance — and asserts all three normalizations equal, plus
-`normalize_semantic` equality with the real
-`produce_generic_residual_recipe_v1` product issued through its
-own policy-demand chain (producer-test helpers promoted to
-`pub(super)`), plus a foreign-provenance drift negative. No
-producer port, Facts/RoutePolicy/JoinSig port, verifier, physical
-MIR, production caller, hostbridge, or V2 artifact for this family
-was added. All five S7B producer wire cohorts are now covered
-(M8A–M8E); the all-route parity closeout row S7G remains.
+(2026-09-24, retired M12-R2B): the fifth and last S7B producer
+cohort landed on V1 — `emit_m8e_generic_wire.hako` emitted the
+canonical M8E `generic_residual_v1` artifact for the bounded
+`generic_residual_function_for_test` profile, checked in at
+`fixtures/hako_loop_recipe_wire_m8e_v1.json` and parity-anchored on
+`produce_generic_residual_recipe_v1`. The chain was caller-zero
+migration evidence and was retired at
+`JOINIR-LOOP-LEGACY-FAMILY-ADAPTER-RETIRE0-R2` slice R2B: the
+emitter, fixture, parity arm, `GenericResidualV1` producer id,
+demand/projection/typed-map/facts modules, and the
+`GenericLoopV1` attestation row are deleted; `GenericLoopV1`
+remains in the canonical route census as a typed-declined row.
 
 Reference receipt — `SELFHOST-LOOP-PORTABLE-ALL19-PARITY-S7G`
 (2026-09-24): the all19 normalized parity closeout lands. Three new
@@ -830,8 +817,9 @@ anchors `normalize_semantic` on the real producer product issued
 through its own demand/projection chain. A new test-only module
 `wire_route_parity_tests.rs` holds the arms plus the all19 census:
 every canonical route is pinned exactly once, in canonical order,
-as `V1Parity`/`V2Parity` (8 wire-backed routes) or `TypedDeclined`
-(11), cross-checked against the sealed `ATTESTED_RECIPE_BACKED_V1`
+as `V1Parity`/`V2Parity` (7 wire-backed routes after the M12-R2B
+GenericResidual retirement) or `TypedDeclined`
+(12), cross-checked against the sealed `ATTESTED_RECIPE_BACKED_V1`
 table and the migration `RECEIPTS` inventory (both promoted to
 `pub(crate)`). Two older-era goldens keep witness status only: the
 S7A substrate emission stays pinned to `accum_direct_v1`

@@ -1,9 +1,9 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "M12-R2A"
+current_execution_row = "M12-R2B"
 current_execution_cohort = "loop_legacy_family_disposition"
-current_blocker_token = "M12-R2A__Landed__R2B-R2C-Open"
+current_blocker_token = "M12-R2B__ResidualChainRetired__OracleChain-R2C-R2G-Open"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "none__CallableVariableRecurrenceDecisionAccepted_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -18,22 +18,22 @@ current_execution_design = "docs/development/current/main/investigations/joinir-
 latest_card = "joinir-loop-legacy-family-disposition-r2a"
 latest_card_path = "docs/development/current/main/investigations/joinir-loop-legacy-family-disposition-r2a-2026-09-25.md"
 latest_card_summary = """
-M12-R2A landed the legacy family disposition manifest
-(design/fixtures/loop-legacy-family-disposition-r2a-v1.tsv). The sealed
-generic_residual chain and the oracle-only composer/pipeline/PHI wrapper
-chain are classified for R2B; the variable-accum-break cohort, the
-wired-live synthetic 19-row schedule, the issuer route-vector selection,
-and facts-layer Recipe-key minting are decision-required rows. Family-name
-dispatch moved to CanonicalLoopFamily* seams rather than reaching zero.
-Prior landed: M10b-I0-R0-VAR `b579959a3d`, R0 flip `6e88441c0b`, guard
-re-pin + wire_parity split `a97f564250`, M11-A `9f55aea31b`, M11-B
-`8dff99ef22`. The cargo-lib red-baseline receipt is stale at HEAD
-(observed 7969/167/56 vs receipt 7381/133/29 lineage) and needs its own
-audit row; do not downgrade the corpus. R2B/R2C/R2G remain open.
+M12-R2B (partial) retired the caller-zero generic_residual chain:
+producer/demand/projection/typed-map/facts modules, `GenericResidualV1`
+producer id, the `GenericLoopV1` attestation row, M8E wire
+emitter+fixture+parity arm, and residual probes are deleted;
+`GenericLoopV1` is a typed-declined census row (7 backed / 12 declined).
+Red-baseline receipt absorbed 25 removed tests (7369->7344); the receipt
+is independently stale at HEAD and needs its own audit row. R2B continues
+with the Section B oracle composer/pipeline/PHI chain; Section C decision
+rows (19-row schedule, issuer route-vector, facts-layer key minting) and
+R2C/R2G remain open. Prior landed: R2A manifest `682acbc2ca`,
+M10b-I0-R0-VAR `b579959a3d`, R0 flip `6e88441c0b`, guard re-pin +
+wire_parity split `a97f564250`, M11-A `9f55aea31b`, M11-B `8dff99ef22`.
 """
 next_design_card = "none__accepted_decision"
 next_design_card_path = "none__accepted_decision"
-next_execution_card = "M12-R2A"
+next_execution_card = "M12-R2B"
 next_execution_card_path = "docs/development/current/main/investigations/joinir-loop-legacy-family-disposition-r2a-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

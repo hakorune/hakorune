@@ -324,18 +324,6 @@ static box Main {
 }
 "#;
 
-const GENERIC_RESIDUAL: &str = r#"
-static box Main {
-    generic_residual_projection(i: i64, limit: i64): i64 {
-        loop(i < limit) {
-            local tmp = 0
-            i = i + 1
-        }
-        return i
-    }
-}
-"#;
-
 const SCAN_WITH_INIT: &str = r#"
 static box Main {
     find_ok(s: StringBox, ch: StringBox): i64 {
@@ -379,11 +367,6 @@ fn probe_loop_true_break_continue() {
 #[test]
 fn probe_loop_cond_break_continue() {
     report("LoopCondBreakContinue", LOOP_COND, "loop_cond_projection");
-}
-
-#[test]
-fn probe_generic_residual() {
-    report("GenericLoopV1/GenericResidual", GENERIC_RESIDUAL, "generic_residual_projection");
 }
 
 #[test]
@@ -435,18 +418,6 @@ fn probe_generic_g0_canonical() {
     let row = row(&unit, function);
     eprintln!(
         "[probe] GenericG0(canonical): accum={} nested={} true={} cond={} g0={}",
-        row.direct_accum, row.nested_predicate, row.loop_true, row.loop_cond, row.generic_g0
-    );
-}
-
-#[test]
-fn probe_generic_residual_canonical_ast() {
-    let function = super::generic_residual_projection_tests::positive_function();
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function.clone())
-        .expect("canonical residual fixture resolves");
-    let row = row(&unit, function);
-    eprintln!(
-        "[probe] GenericResidual(canonical-ast): accum={} nested={} true={} cond={} g0={}",
         row.direct_accum, row.nested_predicate, row.loop_true, row.loop_cond, row.generic_g0
     );
 }
