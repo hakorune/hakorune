@@ -8,9 +8,11 @@
 
 use hakorune_mir_defs::{
     CanonicalBuiltinGlobalV1, CanonicalGlobalTargetV1, CanonicalSameModuleCallableKeyV1,
-    CanonicalSameModuleGlobalTargetV1, SameModuleCallableNamespaceV1,
 };
 
+use crate::mir::ssot::callable_key::{
+    expected_physical_arity, free_function_key, static_method_key,
+};
 use crate::mir::{ArrayElementWriteKind, Callee, MirFunction, MirInstruction, MirModule, ValueId};
 
 mod row_refs;
@@ -690,42 +692,6 @@ fn validate_free_function_call<'module>(
     }
     debug_assert_eq!(symbol, &key.mir_symbol_projection());
     Ok(published_key)
-}
-
-fn expected_physical_arity(key: &CanonicalSameModuleCallableKeyV1) -> usize {
-    match key.namespace() {
-        SameModuleCallableNamespaceV1::FreeFunction => key.arity() as usize,
-        SameModuleCallableNamespaceV1::StaticBoxMethod => key.arity() as usize,
-        SameModuleCallableNamespaceV1::InstanceBoxMethod
-        | SameModuleCallableNamespaceV1::BirthConstructor => key.arity() as usize + 1,
-    }
-}
-
-fn static_method_key(target: &CanonicalGlobalTargetV1) -> Option<CanonicalSameModuleCallableKeyV1> {
-    let CanonicalGlobalTargetV1::SameModule(CanonicalSameModuleGlobalTargetV1::StaticBoxMethod {
-        owner,
-        method,
-        arity,
-    }) = target
-    else {
-        return None;
-    };
-    Some(CanonicalSameModuleCallableKeyV1::static_box_method(
-        owner, method, *arity,
-    ))
-}
-
-fn free_function_key(target: &CanonicalGlobalTargetV1) -> Option<CanonicalSameModuleCallableKeyV1> {
-    let CanonicalGlobalTargetV1::SameModule(CanonicalSameModuleGlobalTargetV1::FreeFunction {
-        name,
-        arity,
-    }) = target
-    else {
-        return None;
-    };
-    Some(CanonicalSameModuleCallableKeyV1::free_function(
-        name, *arity,
-    ))
 }
 
 #[cfg(test)]

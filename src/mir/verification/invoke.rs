@@ -316,26 +316,10 @@ fn check_frame_entry(function: &MirFunction, errors: &mut Vec<VerificationError>
 fn cataloged_edge_key(
     call: &crate::mir::definitions::MirCall,
 ) -> Option<(hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, usize)> {
-    use hakorune_mir_defs::{
-        CanonicalGlobalTargetV1 as Global, CanonicalSameModuleCallableKeyV1 as Key,
-        CanonicalSameModuleGlobalTargetV1 as SameModule, SameModuleCallableNamespaceV1,
-    };
-    match &call.callee {
-        Callee::Global(Global::SameModule(SameModule::StaticBoxMethod {
-            owner,
-            method,
-            arity,
-        })) => Some((Key::static_box_method(owner, method, *arity), 0)),
-        Callee::Global(Global::SameModule(SameModule::FreeFunction { name, arity })) => {
-            Some((Key::free_function(name, *arity), 0))
-        }
-        Callee::SameModuleInstance { key, .. }
-            if key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod =>
-        {
-            Some((key.clone(), 1))
-        }
-        _ => None,
-    }
+    use crate::mir::ssot::callable_key::{ordinary_call_receiver, ordinary_callable_key};
+    let key = ordinary_callable_key(&call.callee).ok()?;
+    let receiver_filled = ordinary_call_receiver(&call.callee).ok()?.is_some() as usize;
+    Some((key, receiver_filled))
 }
 
 /// Resolve the edge to its cataloged callee definition; `None` keeps the

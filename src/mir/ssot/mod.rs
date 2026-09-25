@@ -1,4 +1,5 @@
 pub mod binop_lower;
+pub mod callable_key;
 pub mod cf_common;
 pub mod closure_call;
 pub mod extern_call;
