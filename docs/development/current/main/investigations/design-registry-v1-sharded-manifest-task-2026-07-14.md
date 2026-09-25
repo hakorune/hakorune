@@ -442,3 +442,35 @@ begin with `CLEAN0`; do not jump to loader implementation.
 - Counters: embedded markers 0, V0 production loader calls 0,
   combined tracked registry files 0, INDEX.md 45 lines, missing/extra
   shards 0, duplicate paths 0, wrong-shard rows 0.
+
+### CLOSE0/RETURN0 — gate receipt and lane return (2026-09-25)
+
+Gates:
+
+```text
+python3 tools/docs/design_registry.py check                      → 676 rows, 0 violations
+python3 tools/docs/...inventory.py --check                       → inventory current
+bash tools/checks/docs_slim_001_archive_policy_guard.sh          → ok
+bash tools/checks/current_state_pointer_guard.sh                 → ok
+tools/checks/dev_gate.sh quick                                   → 1 red
+```
+
+Final counters: embedded markers 0, V0 production loader calls 0,
+combined tracked registry files 0, INDEX.md 45 lines, missing/extra
+shards 0, duplicate paths 0, wrong-shard rows 0.
+
+dev_gate red classification — **known baseline debt, not this lane**:
+
+- `naming_charter_guard` fails on `stage_a_route.rs:114` wording
+  (`"unknown Stage-A capture fixture"`), introduced by unrelated
+  commit `5e4a5e596c` (Sep 14, different worker). This lane touched no
+  `src/` file.
+- The same guard has a dormant-check bug: line 809's `rg` pattern
+  `BIN=\"\\$ROOT_DIR/...` expands to an invalid `\/` escape, so rg
+  exits 2 and the check silently never runs. Pre-existing; recorded
+  for a separate fix.
+
+RETURN0: lane complete; pointer returns to
+`REPO-FINAL-CONVERGENCE-AUDIT0-G0`. Named stash
+`wip/other-worker-docs before design-registry-v1` remains for
+explicit restore by its owner.

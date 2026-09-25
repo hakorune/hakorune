@@ -1,8 +1,8 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "DESIGN-REGISTRY-V1-P0"
-current_execution_cohort = "design_registry_v1"
+current_execution_row = "REPO-FINAL-CONVERGENCE-AUDIT0-G0"
+current_execution_cohort = "repo_final_convergence"
 current_blocker_token = "RegistryV1-Selected__P0Baseline-Open__FinalAudit-Gated"
 current_design_stop = "none__CallableVariableRecurrenceDecisionAccepted_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -13,45 +13,25 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/design-registry-v1-sharded-manifest-task-2026-07-14.md"
-latest_card = "design-registry-v1-sharded-manifest-task"
-latest_card_path = "docs/development/current/main/investigations/design-registry-v1-sharded-manifest-task-2026-07-14.md"
+current_execution_design = "docs/development/current/main/investigations/repo-final-convergence-audit0-2026-09-25.md"
+latest_card = "repo-final-convergence-audit0"
+latest_card_path = "docs/development/current/main/investigations/repo-final-convergence-audit0-2026-09-25.md"
 latest_card_summary = """
-M12 lane complete (`682acbc2ca`..`b50e8b9a56`); baseline re-pinned
-`e53c0693c5` (inventory 8092, failed 167 = debt). C0 closed
-(`25a030b5f3`/`f8f76d5ade`/`94ffe5e5cc`): 605-row loop census, 7 orphan
-shims deleted. `MIR-TOPOLOGY-REBASE0-P0` `646f363ff1` +
-`MIR-ROOT-MODULE-SURFACE0-G0`: 215 module decls + 129 exports pinned.
-`MIR-CONTEXT-OWNER-CENSUS0-D0`/`SPLIT0-S0`/`SPLIT0-R0` landed:
-CompilationContext named mixed seam; method_tail_index pair
-consolidated into `MethodTailIndexV1` (builder_method_index owner),
-`mir_context_owner_split_guard.sh` registered, reference_delta=0.
-`MIR-CRATE-BOUNDARY-RECHECK0-P0`: packaging stays parked on the mixed
-context (blocker + removal_when on card).
-`MIR-AUTHORITY-ROLE-MANIFEST0-D0` landed: 165-root role census
-(109 meaning / 25 substrate / 14 host-backend / 12 oracle /
-5 quarantine). `MIR-LEGACY-JOINMODULE-DISPOSITION0-D0` landed: 33-row
-receipt, all retain (join_ir/lowering oracle-only; normalized_shadow
-strict/dev-gated; default_fallback=none).
-`CURRENT-STATE-CONSUMER-CENSUS0-P0` landed: 37 keys classified
-(23 live-pointer / 6 parked / 8 informational zero-reader); file
-already at the guard-enforced floor (79 lines / 37 keys).
-`CURRENT-STATE-LIVE-SCHEMA0-D0` accepted: 36-key live schema;
-`CURRENT-STATE-LIVE-CUTOVER0-I0-R0` landed: `guard_followup` removed
-atomically (historical CI receipt, zero readers; value preserved in
-git history + archive index). 36 keys remain at floor.
-DESIGN-REGISTRY-V1 lane selected (SELECT0): prior lane =
-cleanup step-3/5 rows; return target = `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
-CLEAN0 green via named stash `wip/other-worker-docs before
-design-registry-v1` (2 unrelated investigation files).
-V0 registry remains the sole active authority during migration.
-Next: V1 lane P0 baseline -> ... -> C0 cutover -> R0 V0 retire ->
-`REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
+DESIGN-REGISTRY-V1 lane complete (`911ede962d`..`940eb3652d`):
+typed seam + V1 sharded store (676 rows, sha256-nybble shards),
+atomic C0 cutover, V0 block retired (INDEX.md 7676->45 lines).
+All counters zero; inventory section byte-identical throughout.
+Named baseline debt: naming_charter_guard Stage-A wording red from
+unrelated commit `5e4a5e596c`; dormant rg slash-escape check in same guard.
+Return target `REPO-FINAL-CONVERGENCE-AUDIT0-G0`: 9-axis audit of
+pipeline authority, MIR root surface, role manifest, context owners,
+live pointers, design registry, temporary evidence, JoinModule
+disposition, docs parity.
 """
 next_design_card = "none__accepted_decision"
 next_design_card_path = "none__accepted_decision"
-next_execution_card = "DESIGN-REGISTRY-V1-P0"
-next_execution_card_path = "docs/development/current/main/investigations/design-registry-v1-sharded-manifest-task-2026-07-14.md"
+next_execution_card = "REPO-FINAL-CONVERGENCE-AUDIT0-G0"
+next_execution_card_path = "docs/development/current/main/investigations/repo-final-convergence-audit0-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -66,7 +46,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-05: Birth Call checkpoint closed; C EXE30 and llvmlite compatibility remain open.",
   "2026-09-09/10: Map/Birth physical cohorts and receiver lane closed; whole-Map/R7 parked; C measurement closed.",
   "2026-09-10/13: Receiver/callee/FieldGet/schema, Pair, selected-C rows, and published ownership evidence recorded; retained compatibility frontier at design stop D1.",
+  "2026-09-25: DESIGN-REGISTRY-V1 complete (seam, sharded store, cutover, V0 retire); return to REPO-FINAL-CONVERGENCE-AUDIT0-G0.",
 ]
