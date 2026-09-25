@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D2"
+current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-MAIN-IMPORT-STRING-RESULT-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "design_stop__owner_selection_d2__post_usize_class_map"
-current_design_stop = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D2"
+current_blocker_token = "design_stop__main_import_string_result_d0__result_authority"
+current_design_stop = "MIRBUILDER-EXE-ACCEPTANCE-MAIN-IMPORT-STRING-RESULT-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,19 +14,19 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-exe-acceptance-owner-selection-d2"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"
+latest_card = "mirbuilder-exe-acceptance-main-import-string-result-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-main-import-string-result-d0-2026-09-25.md"
 latest_card_summary = """
-EXACT-USIZE-S0 landed — usize admitted parameter-scoped
-(ExactTrivialParameterScalarV1{I64,Usize}; shared return ABI stays
-i64); both usize-family entries moved past UnsupportedDeclaredType
-to downstream named terminals. Suite 4 pass / 7 fail. D2 selects
-the next bounded class: main-import-view x2 vs
-birth-global-legacy-stopped x2 vs singletons.
+OWNER-SELECTION-D2 closed NoSafeSlice — ranked the remaining 7 red
+entries; main-import-view non-i64 qualified-result authority (2
+entries, one edge, downstream ExactString authority exists) selected
+as the highest-information design target. This D0 decides whether
+admitting ExactString/ExactBool results through the
+qualified-import header + publication gates is a bounded slice.
 """
-next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D2"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d2-2026-09-25.md"
-next_execution_card = "none__owner_selection_d2_open"
+next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-MAIN-IMPORT-STRING-RESULT-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-main-import-string-result-d0-2026-09-25.md"
+next_execution_card = "none__main_import_string_result_d0_open"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
