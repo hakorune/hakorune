@@ -175,9 +175,16 @@ impl MirBuilder {
                 self.emit_extern_call_with_effects(&iface, &method, args, dst, EffectMask::IO)
             }
             CallTarget::Global(target) => {
-                super::unified_emitter::UnifiedCallEmitterBox::emit_global_unified(
-                    self, dst, target, args,
-                )
+                // R6-S1 (Global cohort): emit the typed carrier
+                // directly; the legacy func/name-const edge is retired.
+                let mut args = args;
+                crate::mir::builder::ssa::local::finalize_args(self, &mut args)?;
+                self.emit_instruction(MirInstruction::call(
+                    dst,
+                    crate::mir::Callee::Global(target),
+                    args,
+                    EffectMask::IO,
+                ))
             }
             CallTarget::Value(func_val) => {
                 super::unified_emitter::UnifiedCallEmitterBox::emit_value_unified(
@@ -266,7 +273,6 @@ impl MirBuilder {
 
     // ✅ 箱化完了:
     // - emit_unified_call_impl → UnifiedCallEmitterBox::emit_unified_call_impl (unified_emitter.rs)
-    // - emit_global_unified → UnifiedCallEmitterBox::emit_global_unified (unified_emitter.rs)
     // - emit_value_unified → UnifiedCallEmitterBox::emit_value_unified (unified_emitter.rs)
     // - apply_static_runtime_guard → CalleeGuardBox::apply_static_runtime_guard (guard.rs)
 }

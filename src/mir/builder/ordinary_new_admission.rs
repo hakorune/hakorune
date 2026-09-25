@@ -4,7 +4,7 @@
 //! semantic admission; the selected direct-body Raw cohort enters through the
 //! package-claim port before this physical consumer runs.
 
-use super::{CallTarget, Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
+use super::{Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
 use crate::ast::ASTNode;
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
@@ -13,7 +13,6 @@ use crate::mir::builder::recursive_child_lowering::{
 use crate::mir::definitions::call_unified::Callee;
 use crate::mir::normal_callable_semantic_package::OrdinaryNewConstructorDispositionV1;
 use crate::mir::slot_registry::resolve_slot_by_type_name;
-use hakorune_mir_defs::CanonicalGlobalTargetV1;
 #[path = "ordinary_new_admission/selected.rs"]
 pub(in crate::mir::builder) mod selected;
 
@@ -92,16 +91,17 @@ where
                 .is_some_and(|module| module.functions.contains_key(&lowered)),
         });
         if use_lowered {
-            let mut argv: Vec<ValueId> = Vec::with_capacity(1 + arity);
-            argv.push(dst);
-            argv.extend(arg_values.iter().copied());
-            let target = CanonicalGlobalTargetV1::new_static_box_method(
-                class.into(),
-                "birth".into(),
-                arity as u32,
-            )
-            .map_err(|error| format!("[freeze:contract][ordinary-new/birth/{error:?}]"))?;
-            builder.emit_legacy_call(None, CallTarget::Global(target), argv)?;
+            // R6-S1 (Global cohort): this edge used to mint
+            // `LegacyCallV0{Global(StaticBoxMethod(<Class>.birth/N))}`
+            // with argv=N+1 — arity-malformed for the typed carrier,
+            // and `Callee::BirthConstructor` needs the absent
+            // `OrdinaryNewAdmissionClaimV1`. Stop instead of guessing.
+            return Err(
+                "[freeze:contract][ordinary-new/birth-global-legacy-stopped] \
+                 lowered <Class>.birth/N on this lane lost its legacy carrier; \
+                 a typed edge requires ordinary-new claim authority"
+                    .to_string(),
+            );
         } else {
             let is_user_box = builder.comp_ctx.user_defined_boxes.contains_key(class);
             let allow_builtin_birth = crate::config::env::builder_birth_inject_builtins();

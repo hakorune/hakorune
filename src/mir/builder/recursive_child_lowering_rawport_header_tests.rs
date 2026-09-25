@@ -158,7 +158,11 @@ fn explicit_header_authority_survives_unified_call_post_success() {
 }
 
 #[test]
-fn headerport_birth_presence_matches_legacy_newbox_branch() {
+fn headerport_birth_presence_stops_both_raw_lanes_before_legacy_writer() {
+    // R6-S1 (Global cohort): a lowered `<Class>.birth/N` symbol on the
+    // unclaimed raw lanes used to mint `LegacyCallV0{Global}` with a
+    // malformed arity.  Both lanes must now stop with the same named
+    // terminal instead of guessing.
     let birth = MirFunction::new(
         FunctionSignature {
             name: "Prefix.birth/1".to_owned(),
@@ -173,15 +177,19 @@ fn headerport_birth_presence_matches_legacy_newbox_branch() {
     legacy.current_module = Some(MirModule::new("legacy-birth-module".to_owned()));
     legacy.current_module.as_mut().unwrap().add_function(birth);
     let mut legacy_port = RawLegacyChildLoweringPortV1;
-    let legacy_value = drive_legacy_expression_v1(
+    let legacy_error = drive_legacy_expression_v1(
         &mut legacy,
         &mut legacy_port,
         new_expr("Prefix", vec![int(7)]),
     )
-    .unwrap();
+    .expect_err("legacy lane birth edge must stop with the named terminal");
+    assert!(
+        legacy_error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
+        "{legacy_error}"
+    );
     let mut port_builder = MirBuilder::new();
     port_builder.enter_function_for_test("headerport_birth/0".to_owned());
-    let invocation_value = {
+    let invocation_error = {
         let mut invocation =
             ModuleLoweringInvocationV1::with_collector(&mut port_builder, birth_collector());
         let value = invocation.with_module_port(|builder, module_port| {
@@ -194,10 +202,13 @@ fn headerport_birth_presence_matches_legacy_newbox_branch() {
             )
         });
         drop(invocation);
-        value.unwrap()
+        value.expect_err("invocation-port lane birth edge must stop with the named terminal")
     };
-    assert_eq!(legacy_value, invocation_value);
-    assert_eq!(instructions(&legacy), instructions(&port_builder));
+    assert!(
+        invocation_error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
+        "{invocation_error}"
+    );
+    assert_eq!(legacy_error, invocation_error);
     assert!(port_builder.current_module.is_none());
 }
 

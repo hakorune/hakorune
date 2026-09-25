@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from mir_call_d1b_active_surface_dispatch_helpers import (
-    check_boxshape_maintenance,
+    check_boxshape_maintenance, dispatch_extended_row,
     check_generic_export_positive_proof_r0, GENERIC_EXPORT_POSITIVE_PROOF_R0_ROW,
     check_legacy_reader_stop_r0,
     check_t3_cleanup,
@@ -796,4 +796,4 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
     elif isinstance(row, str) and row.startswith("DEV-GATE-COREPLAN-VARMAP-RESEAL-"):
         dispatch_coreplan_varmap_reseal_row(row, state, card, root, api)
     else:
-        api.fail(f"unsupported current row for this stable guard: {row!r}")
+        dispatch_extended_row(row, state, card, root, api)

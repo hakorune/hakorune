@@ -603,3 +603,83 @@ def dispatch_coreplan_varmap_reseal_row(
         expected_direct_sites_token=expected_direct_sites_token,
         allowed_files=_coreplan_varmap_reseal_allowed_files(target_paths[0]),
     )
+
+
+R6S1_GLOBAL_PRODUCER_COHORT_S1_ROW = "MIR-CALL-R6S1-GLOBAL-PRODUCER-COHORT-S1"
+R6S1_GLOBAL_PRODUCER_COHORT_S1_CARD_REL = Path(
+    "docs/development/current/main/investigations/"
+    "mir-call-r6s1-global-producer-cohort-s1-2026-09-25.md"
+)
+
+
+def check_r6s1_global_producer_cohort_s1(state: dict, root: Path, api) -> None:
+    """Pin the landed R6-S1 Global producer cohort surface."""
+    row = R6S1_GLOBAL_PRODUCER_COHORT_S1_ROW
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{row} must be fast or closeout")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if not str(state.get("current_design_stop", "")).startswith("none"):
+        api.fail(f"{row} must clear current_design_stop")
+    if not str(state.get("next_design_card", "")).startswith("none"):
+        api.fail(f"{row} must not open a second design card")
+    expected_next = row if mode == "fast" else "none"
+    if not str(state.get("next_execution_card", "")).startswith(expected_next):
+        api.fail(f"{row} next_execution_card drifted")
+    card_rel = str(R6S1_GLOBAL_PRODUCER_COHORT_S1_CARD_REL)
+    if state.get("next_execution_card_path") != card_rel:
+        api.fail(f"{row} next_execution_card_path drifted")
+    if state.get("latest_card_path") != card_rel:
+        api.fail(f"{row} latest_card_path drifted")
+
+    card_text = (root / card_rel).read_text(encoding="utf-8")
+    for token in (row, "birth-global-legacy-stopped", "Callee::Global"):
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+
+    emit = (root / "src/mir/builder/calls/emit.rs").read_text(encoding="utf-8")
+    for token in ("Callee::Global(target)", "MirInstruction::call(", "EffectMask::IO"):
+        if token not in emit:
+            api.fail(f"{row} typed Global arm lost {token}")
+    if "emit_global_unified" in emit:
+        api.fail(f"{row} legacy Global writer re-entered emit.rs")
+
+    admission = (root / "src/mir/builder/ordinary_new_admission.rs").read_text(
+        encoding="utf-8"
+    )
+    if "birth-global-legacy-stopped" not in admission:
+        api.fail(f"{row} legacy Global birth edge lost its named stop terminal")
+    if "emit_legacy_call(None, CallTarget::Global" in admission:
+        api.fail(f"{row} no-claim legacy Global birth writer re-entered")
+
+    compat = (
+        root / "src/mir/builder/calls/unified_emitter/compat_entrypoints.rs"
+    ).read_text(encoding="utf-8")
+    if "emit_global_unified" in compat:
+        api.fail(f"{row} deleted compat writer emit_global_unified re-entered")
+    if (root / "src/mir/builder/name_const.rs").exists():
+        api.fail(f"{row} deleted name_const owner re-entered")
+    builder = (root / "src/mir/builder.rs").read_text(encoding="utf-8")
+    if "mod name_const" in builder:
+        api.fail(f"{row} deleted name_const module declaration re-entered")
+
+    for rel in (
+        "src/mir/builder/calls/emit.rs",
+        "src/mir/builder/ordinary_new_admission.rs",
+        "src/mir/builder/calls/unified_emitter/compat_entrypoints.rs",
+    ):
+        path = root / rel
+        if not path.is_file():
+            api.fail(f"{row} implementation owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
+    print(f"[{api.TAG}] row={row} delegated=r6s1-global-cohort")
+
+
+def dispatch_extended_row(row, state: dict, card: dict, root: Path, api) -> None:
+    """Extended dispatch for rows added after the primary chain filled."""
+    if row == R6S1_GLOBAL_PRODUCER_COHORT_S1_ROW:
+        check_r6s1_global_producer_cohort_s1(state, root, api)
+    else:
+        api.fail(f"unsupported current row for this stable guard: {row!r}")

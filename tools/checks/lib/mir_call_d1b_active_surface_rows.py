@@ -626,8 +626,10 @@ def check_ordinary_new_i0(state: dict, card: dict, root: Path) -> None:
         fail("ordinary-new claimed Birth still uses the legacy Call writer")
     if "Callee::Global" not in claimed or "EffectMask::IO" not in claimed:
         fail("ordinary-new claimed Birth lost its typed target or physical effect projection")
-    if "emit_legacy_call(None, CallTarget::Global(target), argv)" not in admission_text:
-        fail("ordinary-new no-claim compatibility writer was removed unexpectedly")
+    if "emit_legacy_call(None, CallTarget::Global(target), argv)" in admission_text:
+        fail("ordinary-new no-claim legacy Global birth writer re-entered after R6-S1 retirement")
+    if "birth-global-legacy-stopped" not in admission_text:
+        fail("ordinary-new legacy Global birth edge lost its named stop terminal")
     if row.get("status") == "landed":
         check_test_coverage(root, row)
         base = require_text(row.get("coverage_base_commit"), "ordinary-new coverage_base_commit")

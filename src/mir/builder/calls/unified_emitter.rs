@@ -4,8 +4,7 @@
  * 責務:
  * - emit_unified_call: 統一Call発行の公開API
  * - emit_unified_call_impl: コア実装（CallTarget → MirCall変換）
- * - emit_global_unified: Global関数呼び出し
- * - emit_value_unified: 第一級関数呼び出し
+ * - emit_value_unified: 第一級関数呼び出し（compat入口）
  */
 
 use super::call_unified;

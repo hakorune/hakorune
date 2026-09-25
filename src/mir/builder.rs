@@ -548,7 +548,6 @@ pub(in crate::mir) mod emission; // emission::*（Const/Compare/Branch の薄い
 pub(crate) use emission::copy_emitter;
 mod emit_guard; // EmitGuardBox（emit直前の最終関所）
 mod metadata; // MetadataPropagationBox（type/originの伝播）
-mod name_const; // NameConstBox（関数名Const生成）
 mod observe; // P0: dev-only observability helpers（ssa/resolve）
 mod origin; // P0: origin inference（me/Known）と PHI 伝播（軽量）
 mod plugin_sigs; // plugin signature loader
