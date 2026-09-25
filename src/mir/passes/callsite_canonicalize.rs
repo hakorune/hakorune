@@ -10,16 +10,14 @@
 //!   `NewClosure{body=[...], body_id=None} -> NewClosure{body=[], body_id=Some(id)}`.
 //! - NCL-2 fixes closure-call shape boundary:
 //!   only `dst=Some(_) + args=[]` is canonicalized to `NewClosure`.
-//! - UCM-1 canonicalizes known user-box receiver methods onto
-//!   `Call(callee=Method{certainty=Known, box_kind=UserDefined})` so later
-//!   thin-entry consumers can bind physical entries without backend-local
-//!   receiver guessing.
+//! - UCM-1 is retired (R7-S6): no production ingress mints
+//!   `LegacyCallV0` anymore, so the user-box receiver repair arm was
+//!   dead on every input and has been deleted. Residual legacy rows are
+//!   rejected by the backend named-stops, not repaired here.
 //! - Stage1 Program(JSON) BuildBox routing now lives in MIR-owned
 //!   `global_call_routes` metadata. This pass no longer rewrites BuildBox
 //!   authority calls to the Stage1 extern helper.
 
-#[path = "callsite_canonicalize/helpers.rs"]
-mod helpers;
 #[path = "callsite_canonicalize/pass.rs"]
 mod pass;
 #[path = "callsite_canonicalize/receiver_operand.rs"]

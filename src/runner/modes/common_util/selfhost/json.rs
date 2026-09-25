@@ -262,10 +262,10 @@ mod tests {
             .instructions;
         assert!(matches!(
             &insts[0],
-            MirInstruction::LegacyCallV0 {
-                callee: Some(Callee::Method { method, .. }),
+            MirInstruction::Call(crate::mir::definitions::MirCall {
+                callee: Callee::Method { method, .. },
                 ..
-            } if method == "id"
+            }) if method == "id"
         ));
     }
 

@@ -318,3 +318,84 @@ def check_v0_boxcall_mint_promote_s5(
     print(f"[{api.TAG}] row={row} delegated=v0-boxcall-mint-promote")
 
 
+CANONICALIZE_LEGACY_METHOD_ARM_DELETE_S6_ROW = (
+    "MIR-CALL-R7-CANONICALIZE-LEGACY-METHOD-ARM-DELETE-S6"
+)
+CANONICALIZE_LEGACY_METHOD_ARM_DELETE_S6_CARD_REL = Path(
+    "docs/development/current/main/investigations/"
+    "mir-call-r7-canonicalize-legacy-method-arm-delete-s6-2026-09-25.md"
+)
+
+
+def check_canonicalize_legacy_method_arm_delete_s6(
+    state: dict, root: Path, api
+) -> None:
+    """Pin the S6 canonicalize legacy Method arm deletion surface."""
+    row = CANONICALIZE_LEGACY_METHOD_ARM_DELETE_S6_ROW
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{row} must be fast or closeout")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if not str(state.get("current_design_stop", "")).startswith("none"):
+        api.fail(f"{row} must clear current_design_stop")
+    if not str(state.get("next_design_card", "")).startswith("none"):
+        api.fail(f"{row} must not open a second design card")
+    expected_next = row if mode == "fast" else "none"
+    if not str(state.get("next_execution_card", "")).startswith(
+        expected_next
+    ):
+        api.fail(f"{row} next_execution_card drifted")
+    card_rel = str(CANONICALIZE_LEGACY_METHOD_ARM_DELETE_S6_CARD_REL)
+    if state.get("next_execution_card_path") != card_rel:
+        api.fail(f"{row} next_execution_card_path drifted")
+    if state.get("latest_card_path") != card_rel:
+        api.fail(f"{row} latest_card_path drifted")
+
+    card_text = (root / card_rel).read_text(encoding="utf-8")
+    for token in (row, "callsite_canonicalize", "LegacyCallV0"):
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+
+    pass_rel = "src/mir/passes/callsite_canonicalize/pass.rs"
+    pass_text = (root / pass_rel).read_text(encoding="utf-8")
+    for token in (
+        "known_user_box_name_from_value",
+        "collect_known_user_boxes",
+        "method_call(",
+        "value_types",
+    ):
+        if token in pass_text:
+            api.fail(f"{row} deleted arm plumbing remains: {token}")
+    for token in (
+        "Callee::Closure",
+        "Callee::Global",
+        "rewrite_cfg_stable_receiver_operands",
+    ):
+        if token not in pass_text:
+            api.fail(f"{row} retained arm lost: {token}")
+
+    helpers_path = root / "src/mir/passes/callsite_canonicalize/helpers.rs"
+    if helpers_path.exists():
+        api.fail(f"{row} helpers.rs must be deleted")
+
+    ucm_tests = (
+        root / "src/mir/passes/callsite_canonicalize/tests/ucm.rs"
+    ).read_text(encoding="utf-8")
+    if "ucm1_residual_legacy_method_call_is_never_silently_rewritten" not in (
+        ucm_tests
+    ):
+        api.fail(f"{row} no-laundering pin missing")
+
+    for rel in (
+        pass_rel,
+        "src/mir/passes/callsite_canonicalize/tests/ucm.rs",
+    ):
+        path = root / rel
+        if not path.is_file():
+            api.fail(f"{row} implementation owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
+    print(f"[{api.TAG}] row={row} delegated=canonicalize-legacy-method-arm-delete")
+
+

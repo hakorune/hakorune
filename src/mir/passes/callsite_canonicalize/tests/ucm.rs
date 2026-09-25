@@ -1,7 +1,11 @@
 use super::*;
 
 #[test]
-fn ucm1_rewrites_runtime_data_union_method_call_to_known_user_box_method() {
+fn ucm1_residual_legacy_method_call_is_never_silently_rewritten() {
+    // R7-S6: the user-box receiver repair arm is deleted. A residual
+    // LegacyCallV0{Method} row must fall through untouched — downstream
+    // named-stops reject it; this pass must not launder it into a
+    // canonical Call.
     let mut module = MirModule::new("ucm1_method".to_string());
     module
         .metadata
@@ -51,7 +55,7 @@ fn ucm1_rewrites_runtime_data_union_method_call_to_known_user_box_method() {
     module.add_function(func);
 
     let rewritten = canonicalize_callsites(&mut module);
-    assert_eq!(rewritten, 1);
+    assert_eq!(rewritten, 0);
 
     let inst = &module
         .get_function("ucm1_method/0")
@@ -62,22 +66,19 @@ fn ucm1_rewrites_runtime_data_union_method_call_to_known_user_box_method() {
         .instructions[0];
     assert!(matches!(
         inst,
-        MirInstruction::Call(call)
-            if call.dst == Some(ValueId(3))
-                && matches!(
-                    &call.callee,
-                    Callee::Method {
-                        box_name,
-                        method,
-                        receiver: Some(receiver),
-                        certainty: TypeCertainty::Known,
-                        box_kind: CalleeBoxKind::UserDefined,
-                    } if box_name == "Counter"
-                        && method == "step"
-                        && *receiver == ValueId(1)
-                )
-                && call.args.is_empty()
-                && call.effects == EffectMask::PURE
+        MirInstruction::LegacyCallV0 {
+            dst: Some(ValueId(3)),
+            callee: Some(Callee::Method {
+                box_name,
+                method,
+                receiver: Some(receiver),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            ..
+        } if box_name == "RuntimeDataBox"
+            && method == "step"
+            && *receiver == ValueId(1)
     ));
 }
 

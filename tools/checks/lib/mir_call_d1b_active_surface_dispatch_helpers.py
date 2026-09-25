@@ -694,6 +694,7 @@ def _r6_dispatch(row) -> bool:
         r6.R6S3_SELECTED_DYNAMIC_LEGACY_STOP_S3_ROW,
         r6.UNIFIED_OFF_VALUE_MINT_PROMOTE_S4_ROW,
         r6.V0_BOXCALL_MINT_PROMOTE_S5_ROW,
+        r6.CANONICALIZE_LEGACY_METHOD_ARM_DELETE_S6_ROW,
     }
 
 
@@ -705,5 +706,9 @@ def _r6_run(row, state: dict, root: Path, api) -> None:
         r6.check_unified_off_value_mint_promote_s4(state, root, api)
     elif row == r6.V0_BOXCALL_MINT_PROMOTE_S5_ROW:
         r6.check_v0_boxcall_mint_promote_s5(state, root, api)
+    elif row == r6.CANONICALIZE_LEGACY_METHOD_ARM_DELETE_S6_ROW:
+        r6.check_canonicalize_legacy_method_arm_delete_s6(
+            state, root, api
+        )
     else:
         r6.check_r6s3_selected_dynamic_legacy_stop_s3(state, root, api)
