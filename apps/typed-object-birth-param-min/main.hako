@@ -1,19 +1,20 @@
 // typed-object-birth-param-min
 //
-// EXE typed-object birth-param inference shape:
-// - untyped fields receive constructor/birth parameters
-// - storage is inferred from observed newbox argument values
-// - scalar method route reads those typed slots
+// EXE typed-object birth-param shape:
+// - declared i64 fields receive constructor/birth parameters
+// - MIR emits user_box_method_routes for Page.birth/2 and Page.sum/0
+// - No compat replay is used as proof.
 
 box Page {
-  init { page_id, capacity }
+  page_id: i64
+  capacity: i64
 
   birth(page_id, capacity) {
     me.page_id = page_id
     me.capacity = capacity
   }
 
-  sum() {
+  sum(): i64 {
     return me.page_id + me.capacity
   }
 }

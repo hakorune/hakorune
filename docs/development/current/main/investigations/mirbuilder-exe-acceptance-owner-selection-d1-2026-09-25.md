@@ -70,8 +70,9 @@ Non-authority: issuer.rs:82-102 parameter contract (usize = BoxCount),
 Fail-fast boundary: all 8 terminals are already named stops or a
           debug-assertions panic on the same edge; none are silent.
 Smallest next slice:
-          MIRBUILDER-EXE-ACCEPTANCE-UNTYPED-STORAGE-AUTHORITY-D0
-          (design) — not an implementation slice.
+          MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0 (design,
+          materializes the SSOT-named owner) — not an implementation
+          slice.
 Non-claims: does not select usize params, NamedArray, String-result
           ABI, loop Facts, or the newbox toolchain question.
 ```

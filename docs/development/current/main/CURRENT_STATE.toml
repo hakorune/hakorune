@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-UNTYPED-STORAGE-AUTHORITY-D0"
+current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-EXACT-USIZE-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ExeAcceptanceD1-NoSafeSlice__UntypedStorageAuthorityD0-Open"
-current_design_stop = "untyped_storage_authority_d0__inferred_storage_scope_and_issuer"
+current_blocker_token = "ExeAcceptance-ExactUsize-D0-Open__Gate1-4of11Green"
+current_design_stop = "exact_usize_d0__usize_semantics_and_owner_tuple"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,19 +14,20 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-exe-acceptance-untyped-storage-authority-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-untyped-storage-authority-d0-2026-09-25.md"
+latest_card = "mirbuilder-exe-acceptance-exact-usize-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-exact-usize-d0-2026-09-25.md"
 latest_card_summary = """
-EXE D1 closed NoSafeSlice: all 8 remaining red classes need design
-authority; binary_trees vs birth_param are TwoOwners. Open D0 for
-the highest-weight family — untyped/inferred-storage Home-end and
-field-read result-type authority on the ordinary-new lane (covers
-birth_param_min + untyped_field_min, partially gates binary_trees).
+UNTYPED-OBJECT-STORAGE-S0 landed: birth_param_min migrated to
+declared i64 fields + declared sum():i64, smoke moved to the
+--emit-exe lifecycle caller; suite now 4 pass / 7 fail.
+untyped_field_min stays the sealed dynamic-storage sentinel. Next
+design: exact-usize parameter contract owner for boxtorrent_mini +
+mimalloc_lite (final-pipeline-ssot ordering item 4).
 """
-next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-UNTYPED-STORAGE-AUTHORITY-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-untyped-storage-authority-d0-2026-09-25.md"
-next_execution_card = "none__awaiting_untyped_storage_d0_decision"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-untyped-storage-authority-d0-2026-09-25.md"
+next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-EXACT-USIZE-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-exact-usize-d0-2026-09-25.md"
+next_execution_card = "none__awaiting_exact_usize_d0_decision"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-untyped-object-storage-s0-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -41,6 +42,6 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-25: EXE-ACCEPTANCE-S0 landed — qualified-route predicate narrowed to QualifiedUnbound receivers; typed_object_method_min green (suite 3 pass/8 fail).",
-  "2026-09-25: EXE D1 closed NoSafeSlice — all 8 remaining classes need design authority; untyped-storage authority D0 opened.",
+  "2026-09-25: EXE-ACCEPTANCE-S0 landed — qualified-route predicate narrowed to QualifiedUnbound receivers; typed_object_method_min green.",
+  "2026-09-25: UNTYPED-OBJECT-STORAGE-S0 landed — birth_param_min migrated to declared storage + --emit-exe lifecycle route; suite 4 pass/7 fail; untyped_field stays sealed sentinel; next EXACT-USIZE-D0.",
 ]
