@@ -465,3 +465,63 @@ def check_legacy_array_write_canon_delete_s7(
     print(f"[{api.TAG}] row={row} delegated=legacy-array-write-canon-delete")
 
 
+CANONICALIZE_LEGACY_CLOSURE_ARM_DELETE_S8_ROW = (
+    "MIR-CALL-R7-CANONICALIZE-LEGACY-CLOSURE-ARM-DELETE-S8"
+)
+CANONICALIZE_LEGACY_CLOSURE_ARM_DELETE_S8_CARD_REL = Path(
+    "docs/development/current/main/investigations/"
+    "mir-call-r7-canonicalize-legacy-closure-arm-delete-s8-2026-09-25.md"
+)
+
+
+def check_canonicalize_legacy_closure_arm_delete_s8(
+    state: dict, root: Path, api
+) -> None:
+    """Pin the S8 legacy closure repair-arm deletion surface."""
+    row = CANONICALIZE_LEGACY_CLOSURE_ARM_DELETE_S8_ROW
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{row} must be fast or closeout")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if not str(state.get("current_design_stop", "")).startswith("none"):
+        api.fail(f"{row} must clear current_design_stop")
+    if not str(state.get("next_design_card", "")).startswith("none"):
+        api.fail(f"{row} must not open a second design card")
+    expected_next = row if mode == "fast" else "none"
+    if not str(state.get("next_execution_card", "")).startswith(
+        expected_next
+    ):
+        api.fail(f"{row} next_execution_card drifted")
+    card_rel = str(CANONICALIZE_LEGACY_CLOSURE_ARM_DELETE_S8_CARD_REL)
+    if state.get("next_execution_card_path") != card_rel:
+        api.fail(f"{row} next_execution_card_path drifted")
+    if state.get("latest_card_path") != card_rel:
+        api.fail(f"{row} latest_card_path drifted")
+
+    card_text = (root / card_rel).read_text(encoding="utf-8")
+    for token in (row, "Callee::Closure", "no-laundering"):
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+
+    owner_rel = "src/mir/passes/callsite_canonicalize/pass.rs"
+    owner_text = (root / owner_rel).read_text(encoding="utf-8")
+    for token in ("Callee::Closure", "classify_closure_call_shape",
+                  "ClosureCallShape"):
+        if token in owner_text:
+            api.fail(f"{row} deleted closure repair remains: {token}")
+    tests_rel = "src/mir/passes/callsite_canonicalize/tests/ncl.rs"
+    tests_text = (root / tests_rel).read_text(encoding="utf-8")
+    pin = "ncl0_residual_legacy_closure_call_is_never_silently_rewritten"
+    if pin not in tests_text:
+        api.fail(f"{row} no-laundering pin lost: {pin}")
+
+    for rel in (owner_rel, tests_rel):
+        path = root / rel
+        if not path.is_file():
+            api.fail(f"{row} implementation owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
+    print(f"[{api.TAG}] row={row} delegated=canonicalize-legacy-closure-arm-delete")
+
+

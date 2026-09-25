@@ -2,7 +2,6 @@ use std::collections::BTreeMap;
 
 use crate::ast::ASTNode;
 use crate::mir::function::ClosureBodyId;
-use crate::mir::ssot::closure_call::{classify_closure_call_shape, ClosureCallShape};
 use crate::mir::{Callee, MirInstruction, MirModule};
 
 use super::receiver_operand::rewrite_cfg_stable_receiver_operands;
@@ -61,31 +60,6 @@ fn canonicalize_callsite_instruction(
             body.clear();
             1
         }
-        MirInstruction::LegacyCallV0 {
-            dst,
-            callee:
-                Some(Callee::Closure {
-                    params,
-                    captures,
-                    me_capture,
-                }),
-            args,
-            ..
-        } => match classify_closure_call_shape(*dst, args) {
-            ClosureCallShape::CanonicalCtor => {
-                let rewritten = MirInstruction::NewClosure {
-                    dst: (*dst).expect("canonical closure ctor must have dst"),
-                    params: params.clone(),
-                    body_id: None,
-                    body: vec![],
-                    captures: captures.clone(),
-                    me: *me_capture,
-                };
-                *inst = rewritten;
-                1
-            }
-            ClosureCallShape::MissingDst | ClosureCallShape::RuntimeArgs => 0,
-        },
         // A typed Global is already an admitted target.  This post-pass is
         // deliberately not a second resolver: it must not parse a display
         // name, append an arity, or turn a Global into a Method.

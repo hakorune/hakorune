@@ -4,8 +4,9 @@
 //! - `MirInstruction::BoxCall` / `MirInstruction::ExternCall` are retired.
 //! - unresolved `callee=None` calls are no longer repaired here; ingress owns
 //!   target resolution and this pass consumes typed Call targets only.
-//! - NCL-0 keeps closure creation canonical as `NewClosure`:
-//!   `Call(callee=Closure, dst=Some(_)) -> NewClosure`.
+//! - NCL-0 is retired (R7-S8): no production ingress mints
+//!   `LegacyCallV0{Closure}`; lambdas mint `NewClosure` directly and
+//!   residual rows hit the backend named-stops, not this pass.
 //! - NCL-1 keeps `NewClosure` thin by externalizing inline bodies:
 //!   `NewClosure{body=[...], body_id=None} -> NewClosure{body=[], body_id=Some(id)}`.
 //! - NCL-2 fixes closure-call shape boundary:

@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-R7-LEGACY-ARRAY-WRITE-CANON-DELETE-S7"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-R7-CALLER-ZERO-D4"
 current_execution_cohort = "mir_call_r6_queue"
-current_blocker_token = "ArrayWriteCanonDelete-Open__IngressMintersZero__Gate1-AcceptanceRed"
-current_design_stop = "none__caller_zero_d2_accepted__bounded_deletion_authorized"
+current_blocker_token = "CallerZeroD4-Open__ClosureArmLanded__NextSliceSelection"
+current_design_stop = "caller_zero_d4__next_bounded_deletion_census"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,20 +14,19 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mir-call-r7-legacy-array-write-canon-delete-s7"
-latest_card_path = "docs/development/current/main/investigations/mir-call-r7-legacy-array-write-canon-delete-s7-2026-09-25.md"
+latest_card = "mir-call-r7-caller-zero-d4"
+latest_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d4-2026-09-25.md"
 latest_card_summary = """
-Caller-zero D2 accepted bounded: canonicalize_legacy_array_write_calls
-only matched LegacyCallV0{Method{ArrayBox}} — a carrier no production
-ingress mints (the llvmlite projection runs post-refresh on a clone).
-S7 deletes the function + its semantic_refresh call site; the existing
-reject_residual_calls named-stop then rejects residual rows instead of
-silently upgrading them.
+S8 landed: dead canonicalize LegacyCallV0{Closure} arm + shape
+imports deleted; residual rows hit backend named-stops and the ncl0
+pin now proves no-laundering. D4 census picks the next bounded
+LegacyCallV0 deletion (Global no-op arm, interpreter dispatch arm,
+func-slot readers) or records NoSafeSlice.
 """
-next_design_card = "none__caller_zero_d2_accepted__no_design_stop"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d2-2026-09-25.md"
-next_execution_card = "MIR-CALL-R7-LEGACY-ARRAY-WRITE-CANON-DELETE-S7"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-r7-legacy-array-write-canon-delete-s7-2026-09-25.md"
+next_design_card = "MIR-CALL-R7-CALLER-ZERO-D4"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d3-2026-09-25.md"
+next_execution_card = "none__awaiting_caller_zero_d4_selection"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d4-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

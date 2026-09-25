@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn ncl0_rewrites_call_closure_to_newclosure() {
+fn ncl0_residual_legacy_closure_call_is_never_silently_rewritten() {
     let mut module = MirModule::new("ncl0".to_string());
     let signature = FunctionSignature {
         name: "ncl0/0".to_string(),
@@ -30,8 +30,10 @@ fn ncl0_rewrites_call_closure_to_newclosure() {
     block.set_terminator(MirInstruction::Return { value: None });
     module.add_function(func);
 
+    // R7-S8: the legacy closure repair arm is deleted; a residual
+    // LegacyCallV0{Closure} row must pass through untouched.
     let rewritten = canonicalize_callsites(&mut module);
-    assert_eq!(rewritten, 1);
+    assert_eq!(rewritten, 0);
 
     let inst = &module
         .get_function("ncl0/0")
@@ -42,19 +44,11 @@ fn ncl0_rewrites_call_closure_to_newclosure() {
         .instructions[0];
     assert!(matches!(
         inst,
-        MirInstruction::NewClosure {
-            dst,
-            params,
-            body_id,
-            body,
-            captures,
-            me
+        MirInstruction::LegacyCallV0 {
+            dst: Some(dst),
+            callee: Some(Callee::Closure { .. }),
+            ..
         } if *dst == ValueId(9)
-            && params == &vec!["x".to_string()]
-            && *body_id == None
-            && body.is_empty()
-            && captures == &vec![("outer".to_string(), ValueId(3))]
-            && *me == Some(ValueId(4))
     ));
 }
 
