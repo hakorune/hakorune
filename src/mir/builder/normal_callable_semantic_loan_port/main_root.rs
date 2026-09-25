@@ -10,8 +10,10 @@ use crate::mir::callable_result_representation::StaticCallResultPublicationTakeV
 use crate::mir::compiler::capability::CanonicalLoweringPreflightV1;
 use crate::mir::compiler::normal_source_plan::VerifiedNormalMainRoleV1;
 use crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1;
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
-    FunctionOwnerIdV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
+    FunctionOwnerIdV1, ResolvedMethodCallReceiverSourceV1, SourceBindingSiteV1,
+    SourceExprSiteV1,
 };
 use crate::mir::{MirBuilder, ValueId};
 use crate::parser::CallableDeclarationIdentityV1;
@@ -218,17 +220,34 @@ pub(super) fn lower_app_main_root_body_v1(
                                 "[freeze:contract][mir/callable-main/current-function-missing]"
                                     .to_owned()
                             })?;
+                        // The wrapper route realizes declared source
+                        // parameters as the injector's published locals,
+                        // not physical formals: derive the declared names
+                        // from the owner product (the same authority the
+                        // ledger installs entry bindings against) and
+                        // adopt the published values.
+                        let declared_parameter_names =
+                            declared_parameter_names_v1(input)?;
+                        let arity0 = declared_parameter_names.is_empty();
                         inner.adopt_callable_entry_values_v1(
                             builder,
-                            CallableEntryShapeV1::Static { parameter_count },
+                            if arity0 {
+                                CallableEntryShapeV1::Static { parameter_count }
+                            } else {
+                                CallableEntryShapeV1::StaticInjectedLocals {
+                                    parameter_names: declared_parameter_names,
+                                }
+                            },
                         )?;
                         // The canonical qualified-methods route only serves
                         // arity-0 mains with qualified (unbound-receiver)
                         // calls; `main(args)` and lexical receiver calls like
                         // `pair.sum()` stay on the lifecycle/ordinary_new
                         // owner path below (the publication lane owns the
-                        // qualified static calls there).
-                        let value = if parameter_count == 0
+                        // qualified static calls there).  The arity check
+                        // uses the DECLARED parameter count — the wrapper's
+                        // physical formals are always 0 on this route.
+                        let value = if arity0
                             && input.function().method_calls().any(|(_, call)| {
                                 call.receiver()
                                     == ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
@@ -273,6 +292,45 @@ pub(super) fn lower_app_main_root_body_v1(
             )
         })
         .map_err(super::package_issue)?
+}
+
+/// Declared source parameter names in `Parameter{index}` order, taken
+/// from the resolved owner product — the same authority the callable
+/// ledger installs entry bindings against.  On the app-main wrapper
+/// route these are realized as the injector's published `variable_map`
+/// locals (`decls.rs` argv materialization), never as physical formals.
+fn declared_parameter_names_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+) -> Result<Box<[String]>, String> {
+    let owner = input
+        .forest()
+        .owner(input.owner())
+        .ok_or_else(|| "[freeze:contract][mir/callable-main/owner-product-missing]".to_owned())?;
+    let mut parameter_ordinals = owner
+        .declaration_sites()
+        .filter_map(|site| match site {
+            SourceBindingSiteV1::Parameter { index } => Some(*index),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    parameter_ordinals.sort_unstable();
+    parameter_ordinals
+        .into_iter()
+        .map(|index| {
+            let binding = owner
+                .declaration_binding(&SourceBindingSiteV1::Parameter { index })
+                .ok_or_else(|| {
+                    "[freeze:contract][mir/callable-main/parameter-binding-missing]".to_owned()
+                })?;
+            owner
+                .binding(binding)
+                .map(|record| record.diagnostic_name().to_owned())
+                .ok_or_else(|| {
+                    "[freeze:contract][mir/callable-main/parameter-record-missing]".to_owned()
+                })
+        })
+        .collect::<Result<Vec<_>, String>>()
+        .map(Vec::into_boxed_slice)
 }
 
 fn verify_raw_callable_owner_v1(

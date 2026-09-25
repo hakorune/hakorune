@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-MAIN-WRAPPER-PARAM-ENTRY-D0"
+current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D3"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "design_stop__main_wrapper_param_entry_d0__param_materialization_authority"
-current_design_stop = "MIRBUILDER-EXE-ACCEPTANCE-MAIN-WRAPPER-PARAM-ENTRY-D0"
+current_blocker_token = "ExeAcceptanceD3-Open__Gate1-4of11Green__BirthGlobalX3"
+current_design_stop = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D3"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,22 +14,21 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-exe-acceptance-main-wrapper-param-entry-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-main-wrapper-param-entry-d0-2026-09-25.md"
+latest_card = "mirbuilder-exe-acceptance-owner-selection-d3"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d3-2026-09-25.md"
 latest_card_summary = """
-MAIN-IMPORT-ARITY-SCOPE-S0 landed — qualified relation issue and
-route diversion scoped to arity-0 app mains; suite terminals moved
-(json_stream->loop-cond-item-unsupported, boxtorrent->birth-global-
-legacy-stopped). Probes exposed the next latent boundary for every
-main(args): entry-shape-mismatch (wrapper main has 0 formals; source
-params are injected locals while the ledger requires declared
-Parameters). This D0 decides who binds source params to physical
-values on the wrapper route (injected-local adoption vs cataloged
-Main.main/N).
+MAIN-WRAPPER-PARAM-ENTRY-S0 landed — declared source parameters of
+main(args) adopt the injector's published locals via a new
+StaticInjectedLocals entry shape; the qualified-route diversion now
+checks declared arity (the prior physical-formal check was vacuous).
+main(args) reaches body lowering + publication; remaining terminal is
+the published-view integer-return contract for String statics.
+Suite still 4/7; dominant remaining class is
+ordinary-new/birth-global-legacy-stopped x3. D3 selects next class.
 """
-next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-MAIN-WRAPPER-PARAM-ENTRY-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-main-wrapper-param-entry-d0-2026-09-25.md"
-next_execution_card = "none__main_wrapper_param_entry_d0_open"
+next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D3"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d3-2026-09-25.md"
+next_execution_card = "none__owner_selection_d3_open"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -45,7 +44,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-25: MAIN-IMPORT-ARITY-SCOPE-S0 landed — relation issue + diversion scoped to arity-0 mains; json_stream->loop-cond, boxtorrent->birth-global; latent entry-shape-mismatch exposed for main(args); next MAIN-WRAPPER-PARAM-ENTRY-D0.",
+  "2026-09-25: MAIN-WRAPPER-PARAM-ENTRY-S0 landed — declared params of main(args) adopt injector locals via StaticInjectedLocals; diversion uses declared arity; suite 4/7, dominant class birth-global-legacy-stopped x3; next OWNER-SELECTION-D3.",
+  "2026-09-25: MAIN-IMPORT-ARITY-SCOPE-S0 landed — relation issue + diversion scoped to arity-0 mains; json_stream->loop-cond, boxtorrent->birth-global; latent entry-shape-mismatch exposed for main(args).",
   "2026-09-25: EXE-ACCEPTANCE-S0 landed — qualified-route predicate narrowed to QualifiedUnbound receivers; typed_object_method_min green.",
-  "2026-09-25: UNTYPED-OBJECT-STORAGE-S0 + EXACT-USIZE-S0 landed — birth_param_min migrated to declared storage + emit-exe; usize admitted parameter-scoped; suite 4/7.",
 ]

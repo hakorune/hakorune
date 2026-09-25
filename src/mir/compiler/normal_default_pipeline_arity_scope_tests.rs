@@ -2,12 +2,17 @@ use super::*;
 
 #[test]
 fn arity_bearing_main_with_qualified_call_stays_off_canonical_route() {
-    // MAIN-IMPORT-ARITY-SCOPE-S0: `main(args)` can never consume a row of
-    // the arity-0-only qualified-method relation, so the relation is not
-    // issued and the canonical diversion is not entered. The first owned
-    // stop on the lifecycle route is the pre-existing wrapper boundary
-    // `entry-shape-mismatch` (script `args` arrive as injected locals, not
-    // formals); `main-import-view` must never appear for arity!=0 mains.
+    // MAIN-IMPORT-ARITY-SCOPE-S0 + MAIN-WRAPPER-PARAM-ENTRY-S0:
+    // `main(args)` can never consume a row of the arity-0-only
+    // qualified-method relation, so the relation is not issued; entry
+    // adoption binds the declared `args` parameter to the injector's
+    // published local (StaticInjectedLocals), and the diversion gate
+    // checks the DECLARED arity so the canonical qualified route is not
+    // entered.  The body lowers through `inner.lower_body` and the
+    // String-returning qualified callee reaches the publication lane;
+    // the first owned stop is the published backend view's integer-only
+    // static-callee contract (`StaticMethodRequiresIntegerReturn`), which
+    // is a separate downstream family.
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let source = "static box Helpers { payload() { return \"hi\" } } static box Main { main(args) { local s = Helpers.payload() return 0 } }";
@@ -23,8 +28,16 @@ fn arity_bearing_main_with_qualified_call_stays_off_canonical_route() {
             "arity!=0 main must not issue the arity-0 relation: {error}"
         );
         assert!(
-            error.contains("entry-shape-mismatch"),
-            "expected the wrapper entry-adoption boundary, got: {error}"
+            !error.contains("entry-shape-mismatch"),
+            "declared params must adopt the injector's locals: {error}"
+        );
+        assert!(
+            !error.contains("qualified-preflight"),
+            "declared arity must keep main(args) off the canonical route: {error}"
+        );
+        assert!(
+            error.contains("StaticMethodRequiresIntegerReturn"),
+            "expected the published-view integer-return boundary, got: {error}"
         );
     });
 }

@@ -22,14 +22,25 @@ fi
 # both arity-0-scoped. An arity-bearing app main can never consume a row.
 MODEL="$ROOT_DIR/src/mir/normal_callable_semantic_package/model.rs"
 ARITY_PIN_TEST="$ROOT_DIR/src/mir/compiler/normal_default_pipeline_arity_scope_tests.rs"
+ENTRY_PORT="$ROOT_DIR/src/mir/builder/normal_callable_binding_materialization_port.rs"
 rg -q 'caller\.arity\(\) != 0' "$MODEL"
-rg -q 'parameter_count == 0' "$MAIN_ROOT"
+
+# MAIN-WRAPPER-PARAM-ENTRY-S0: declared source parameters adopt the
+# injector's published `variable_map` locals via StaticInjectedLocals, and
+# the diversion gate checks the DECLARED arity (wrapper physical formals
+# are structurally 0, so a physical-formal check would be vacuous).
+rg -q 'StaticInjectedLocals' "$ENTRY_PORT"
+rg -q 'callable-entry/injected-local-missing' "$ENTRY_PORT"
+rg -q 'declared_parameter_names_v1' "$MAIN_ROOT"
+rg -q 'if arity0' "$MAIN_ROOT"
 
 # Lexical-receiver and arity regression pins must stay in place.
 rg -q 'lexical_receiver_method_call_main_stays_off_qualified_route' "$PIN_TEST"
 rg -q 'arity_bearing_main_with_qualified_call_stays_off_canonical_route' "$ARITY_PIN_TEST"
+rg -q 'injected_locals_snapshot_follows_declared_name_order' "$ENTRY_PORT"
+rg -q 'injected_locals_missing_name_fails_named_boundary' "$ENTRY_PORT"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST"; do
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2
