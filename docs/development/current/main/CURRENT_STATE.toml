@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-R6S3-COMPAT-QUARANTINE-D0"
+current_execution_row = "MIR-CALL-R7-CALLER-ZERO-D0"
 current_execution_cohort = "mir_call_r6_queue"
-current_blocker_token = "R6S3-QuarantineSelection-Open__Gate1-AcceptanceRed__CallR7-FrontierPause"
-current_design_stop = "S2_published_view_landed__S3_boundary_unselected__design_stop"
+current_blocker_token = "R7-CallerZeroSelection-Open__Gate1-AcceptanceRed__CallR7-FrontierPause"
+current_design_stop = "S3_selected_dynamic_landed__R7_caller_zero_unselected__design_stop"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,23 +14,23 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mir-call-r6s3-compat-quarantine-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-r6s3-compat-quarantine-d0-2026-09-25.md"
+latest_card = "mir-call-r7-caller-zero-d0"
+latest_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d0-2026-09-25.md"
 latest_card_summary = """
-R6-S2 published-view Global stop landed: try_new routes clean
-LegacyCallV0{Global} rows to UnsupportedBeforeObject (func-carrier
-rows keep named errors) and try_new_selected_normal raises
-SelectedNormalUsesLegacyCallV0 unconditionally for Global; fixtures
-split into typed production-shape helpers and explicit legacy
-constructors; new stop pins green; stable guard registered via
-dispatch_extended_row. Next: select one bounded R6-S3 outer
-compatibility-quarantine boundary (v1 JSON emit crossing, selected
-dynamic callsite coverage, or NoSafeSlice).
+R6-S3 selected-Dynamic legacy stop landed: every LegacyCallV0 carrier
+now stops at reject_selected_dynamic_legacy_callsites with
+call-legacy-carrier on the ny_llvmc artifact lane; shared predicate
+stays narrow; per-variant + terminator + typed-accept pins green;
+guard token extended; helpers split into _r6 module to hold the 800
+line bound. R6 stages S0–S3 complete. Next: R7 caller-zero census —
+select one bounded deletion set with writer/reissuer/reader zero
+evidence (Global variant arms, func slot, or repair assets) or record
+NoSafeSlice; quarantined ingress minters stay until their own rows.
 """
-next_design_card = "MIR-CALL-R6S3-COMPAT-QUARANTINE-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-r6s3-compat-quarantine-d0-2026-09-25.md"
-next_execution_card = "none__design_stop__S3_boundary_selection_required"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-r6s3-compat-quarantine-d0-2026-09-25.md"
+next_design_card = "MIR-CALL-R7-CALLER-ZERO-D0"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d0-2026-09-25.md"
+next_execution_card = "none__design_stop__R7_caller_zero_selection_required"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d0-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

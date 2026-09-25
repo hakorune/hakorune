@@ -455,7 +455,7 @@ if not (window.index("into_verified_module") < window.index("reject_selected_dyn
 definition_start = llvm.index("fn reject_selected_dynamic_legacy_callsites")
 definition_end = llvm.index("struct LlvmExecutionOutcome", definition_start)
 definition = llvm[definition_start:definition_end]
-for token in ("block.instructions", "block.terminator", "legacy_callsite_reject_code"):
+for token in ("block.instructions", "block.terminator", "legacy_callsite_reject_code", "call-legacy-carrier"):
     if token not in definition:
         raise SystemExit(f"selected legacy scanner lost {token}")
 for relative in (

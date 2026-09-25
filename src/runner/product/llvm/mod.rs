@@ -334,20 +334,14 @@ fn reject_selected_dynamic_legacy_callsites(module: &crate::mir::MirModule) -> R
     for (function_name, function) in &module.functions {
         for (block_id, block) in &function.blocks {
             for (instruction_index, instruction) in block.instructions.iter().enumerate() {
-                if let Some(reason) =
-                    crate::mir::contracts::backend_core_ops::legacy_callsite_reject_code(
-                        instruction,
-                    )
-                {
+                if let Some(reason) = selected_dynamic_callsite_reject_code(instruction) {
                     return Err(format!(
                         "selected Dynamic legacy callsite rejected: function={function_name} block={block_id:?} instruction={instruction_index} reason={reason}"
                     ));
                 }
             }
             if let Some(terminator) = block.terminator.as_ref() {
-                if let Some(reason) =
-                    crate::mir::contracts::backend_core_ops::legacy_callsite_reject_code(terminator)
-                {
+                if let Some(reason) = selected_dynamic_callsite_reject_code(terminator) {
                     return Err(format!(
                         "selected Dynamic legacy callsite rejected: function={function_name} block={block_id:?} terminator reason={reason}"
                     ));
@@ -356,6 +350,18 @@ fn reject_selected_dynamic_legacy_callsites(module: &crate::mir::MirModule) -> R
         }
     }
     Ok(())
+}
+
+fn selected_dynamic_callsite_reject_code(
+    instruction: &crate::mir::MirInstruction,
+) -> Option<&'static str> {
+    // R6-S3: on the selected Dynamic artifact lane every legacy carrier
+    // is a retired edge; the shared predicate keeps its narrow shape
+    // codes first so existing reasons stay stable for the compat lanes.
+    crate::mir::contracts::backend_core_ops::legacy_callsite_reject_code(instruction).or_else(|| {
+        matches!(instruction, crate::mir::MirInstruction::LegacyCallV0 { .. })
+            .then_some("call-legacy-carrier")
+    })
 }
 
 struct LlvmExecutionOutcome {
@@ -536,6 +542,113 @@ mod tests {
     #[test]
     fn selected_legacy_callsite_scan_accepts_canonical_method() {
         let module = crate::mir::MirModule::new("selected".to_owned());
+        assert!(reject_selected_dynamic_legacy_callsites(&module).is_ok());
+    }
+
+    fn module_with_instruction(instruction: crate::mir::MirInstruction) -> crate::mir::MirModule {
+        let mut module = crate::mir::MirModule::new("selected".to_owned());
+        let entry = crate::mir::BasicBlockId::new(0);
+        let mut function = crate::mir::MirFunction::new(
+            crate::mir::FunctionSignature {
+                name: "selected".to_owned(),
+                params: vec![],
+                return_type: crate::mir::MirType::Void,
+                effects: crate::mir::EffectMask::PURE,
+            },
+            entry,
+        );
+        function
+            .blocks
+            .get_mut(&entry)
+            .unwrap()
+            .instructions
+            .push(instruction);
+        module.add_function(function);
+        module
+    }
+
+    fn legacy_call(callee: crate::mir::Callee) -> crate::mir::MirInstruction {
+        crate::mir::MirInstruction::LegacyCallV0 {
+            dst: None,
+            func: crate::mir::ValueId::INVALID,
+            callee: Some(callee),
+            args: vec![],
+            effects: crate::mir::EffectMask::PURE,
+        }
+    }
+
+    #[test]
+    fn selected_legacy_callsite_scan_rejects_every_legacy_carrier() {
+        // R6-S3: quarantined ingress must not launder into the selected
+        // Dynamic artifact lane; every legacy callee carrier stops.
+        let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::test_instance_box_method(
+            "Counter", "step", 1,
+        );
+        for callee in [
+            crate::mir::Callee::Value(crate::mir::ValueId::new(1)),
+            crate::mir::Callee::Method {
+                box_name: "ArrayBox".to_owned(),
+                method: "push".to_owned(),
+                receiver: None,
+                certainty: hakorune_mir_defs::TypeCertainty::Known,
+                box_kind: hakorune_mir_defs::CalleeBoxKind::RuntimeData,
+            },
+            crate::mir::Callee::Global(hakorune_mir_defs::CanonicalGlobalTargetV1::builtin_print()),
+            crate::mir::Callee::Extern("host_fn".to_owned()),
+            crate::mir::Callee::Constructor {
+                box_type: "Counter".to_owned(),
+            },
+            crate::mir::Callee::SameModuleInstance {
+                key: key.clone(),
+                receiver: crate::mir::ValueId::new(1),
+            },
+            crate::mir::Callee::BirthConstructor {
+                key,
+                receiver: crate::mir::ValueId::new(1),
+            },
+        ] {
+            let module = module_with_instruction(legacy_call(callee));
+            let error = reject_selected_dynamic_legacy_callsites(&module)
+                .expect_err("legacy carrier must stop");
+            assert!(error.contains("call-legacy-carrier"), "{error}");
+        }
+    }
+
+    #[test]
+    fn selected_legacy_callsite_scan_rejects_legacy_carrier_in_terminator() {
+        let mut module = crate::mir::MirModule::new("selected".to_owned());
+        let entry = crate::mir::BasicBlockId::new(0);
+        let mut function = crate::mir::MirFunction::new(
+            crate::mir::FunctionSignature {
+                name: "selected".to_owned(),
+                params: vec![],
+                return_type: crate::mir::MirType::Void,
+                effects: crate::mir::EffectMask::PURE,
+            },
+            entry,
+        );
+        function
+            .blocks
+            .get_mut(&entry)
+            .unwrap()
+            .terminator =
+            Some(legacy_call(crate::mir::Callee::Extern("host_fn".to_owned())));
+        module.add_function(function);
+
+        let error =
+            reject_selected_dynamic_legacy_callsites(&module).expect_err("legacy terminator stops");
+        assert!(error.contains("call-legacy-carrier"), "{error}");
+        assert!(error.contains("terminator"), "{error}");
+    }
+
+    #[test]
+    fn selected_legacy_callsite_scan_accepts_typed_call_rows() {
+        let module = module_with_instruction(crate::mir::MirInstruction::call(
+            Some(crate::mir::ValueId::new(2)),
+            crate::mir::Callee::Global(hakorune_mir_defs::CanonicalGlobalTargetV1::builtin_print()),
+            vec![crate::mir::ValueId::new(1)],
+            crate::mir::EffectMask::IO,
+        ));
         assert!(reject_selected_dynamic_legacy_callsites(&module).is_ok());
     }
 }
