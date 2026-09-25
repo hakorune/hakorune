@@ -1,10 +1,9 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "CURRENT-STATE-LIVE-SCHEMA0-D0"
-current_execution_cohort = "current_state_live_schema"
-current_blocker_token = "LiveSchemaD0-Accepted__CutoverI0R0-Open__FinalAudit-Gated"
-guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
+current_execution_row = "CURRENT-STATE-LIVE-CUTOVER0-I0-R0"
+current_execution_cohort = "current_state_live_cutover"
+current_blocker_token = "LiveCutoverI0R0-Landed__RegistryCutover-Open__FinalAudit-Gated"
 current_design_stop = "none__CallableVariableRecurrenceDecisionAccepted_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -38,14 +37,14 @@ strict/dev-gated; default_fallback=none).
 (23 live-pointer / 6 parked / 8 informational zero-reader); file
 already at the guard-enforced floor (79 lines / 37 keys).
 `CURRENT-STATE-LIVE-SCHEMA0-D0` accepted: 36-key live schema;
-`guard_followup` named for removal (historical receipt, zero readers);
-archive index stays the non-authoritative history destination.
-Next: `CURRENT-STATE-LIVE-CUTOVER0-I0-R0`
--> Design Registry consumer/cutover -> `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
+`CURRENT-STATE-LIVE-CUTOVER0-I0-R0` landed: `guard_followup` removed
+atomically (historical CI receipt, zero readers; value preserved in
+git history + archive index). 36 keys remain at floor.
+Next: Design Registry consumer/cutover -> `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
 """
 next_design_card = "none__accepted_decision"
 next_design_card_path = "none__accepted_decision"
-next_execution_card = "CURRENT-STATE-LIVE-SCHEMA0-D0"
+next_execution_card = "CURRENT-STATE-LIVE-CUTOVER0-I0-R0"
 next_execution_card_path = "docs/development/current/main/investigations/current-state-live-schema0-d0-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

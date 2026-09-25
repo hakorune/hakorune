@@ -1,16 +1,16 @@
 {
   "counts": {
-    "checks": 3819,
+    "checks": 3822,
     "design_direct": 872,
-    "docs": 13515,
+    "docs": 13714,
     "docs_development_archive": 2792,
-    "docs_development_current": 9292,
+    "docs_development_current": 9490,
     "main_direct": 170,
     "phase_296x_archive": 2315,
     "phase_296x_direct": 1035,
     "private": 0,
-    "src": 4931,
-    "tools": 7410
+    "src": 4811,
+    "tools": 7420
   },
   "design_registry": {
     "authority_registry_decided": true,
@@ -851,16 +851,16 @@
     "registered_count": 676,
     "registry_mode": "warning",
     "seed_reference_counts": {
-      "AGENTS.md": 8,
-      "docs/development/current/main/CURRENT_STATE.toml": 4,
+      "AGENTS.md": 2,
+      "docs/development/current/main/CURRENT_STATE.toml": 3,
       "docs/development/current/main/DOCS_LAYOUT.md": 67,
       "docs/development/current/main/design/README.md": 132
     },
     "seed_union_count": 175,
     "status_counts": {
       "active_like": 134,
-      "closed": 21,
-      "other_or_missing": 696
+      "closed": 23,
+      "other_or_missing": 694
     },
     "unregistered": [
       "allocator-hook-activation-proof-v0.toml",
@@ -949,7 +949,7 @@
   "document_reachability": {
     "ambiguous_basename_count": 15,
     "archived_in_place_count": 1389,
-    "document_count": 9292,
+    "document_count": 9490,
     "nested_archive_first_batch": {
       "archive_target_collision_count": 0,
       "cluster_count": 1364,
@@ -1935,18 +1935,18 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 5533,
-    "root_count": 3897,
+    "reachable_count": 5548,
+    "root_count": 3896,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1035,
-      "current_pointer": 5,
-      "design_authority": 274,
+      "current_pointer": 4,
+      "design_authority": 273,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3271
+      "reference_src_tools": 3270
     },
-    "unreachable_count": 3759,
-    "unreachable_pending_count": 2370,
+    "unreachable_count": 3942,
+    "unreachable_pending_count": 2553,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0

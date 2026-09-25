@@ -69,7 +69,21 @@ Decision only — no key added, renamed, or removed in this row.
 authority; the pointer guard remains the sole schema enforcer
 (<=80 lines, <=40 top-level fields).
 
+## CURRENT-STATE-LIVE-CUTOVER0-I0-R0 landing
+
+- `guard_followup` removed atomically from `CURRENT_STATE.toml`
+  (historical CI receipt; zero readers; value preserved by git history
+  and the archive index). 36 keys remain at the guard floor.
+- Consumers verified: `current_state_pointer_guard.sh` ok;
+  `repository_artifact_lifecycle_inventory.py --check --strict` green
+  after re-pin (`--write` — new census/card files added this lane).
+- Baseline-debt classification: `mir_root_import_hygiene_guard.sh`
+  reports `use crate::mir::*` in `src/runner/mir_json_emit/root.rs:413`
+  and `named_array_emission_tests.rs:5` — both pre-existing at
+  `HEAD~10` (verified via `git show`), untouched by this lane;
+  recorded here as known baseline debt, not reopened by this row.
+
 ## Next
 
-`CURRENT-STATE-LIVE-CUTOVER0-I0-R0` — atomically remove
-`guard_followup` and re-run the pointer guard + consumers.
+Design Registry consumer/cutover row (parked lane), then
+`REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
