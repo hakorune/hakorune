@@ -54,7 +54,7 @@ reopen trigger; pointer may return to closeout mode.
 | Context owners | pass | `mir_context_owner_split_guard` ok; `MethodTailIndexV1` seam holds |
 | Live pointers | pass | pointer guard ok; 36-key schema; landed_tail ≤3 |
 | Design Registry | pass | V1 sole authority; `check` 676 rows / 0 violations; markers 0, V0 calls 0, INDEX.md 45 lines, wrong-shard/dup 0 |
-| Temporary evidence | pass | stash `wip/other-worker-docs before design-registry-v1` = stash@{0}, named, owned by other worker — restore deferred to owner |
+| Temporary evidence | pass | stash `wip/other-worker-docs before design-registry-v1` inspected and restored (popped at RETURN0): the two investigation-doc corrections are back in the worktree, verified accurate vs code, and committed with the review closeout. Remaining stash list is the other worker's `baseline reconcile` + `wip/h2-s2-s1-r1` — untouched |
 | JoinModule disposition | pass | all `JoinModule` references confined to `join_ir/lowering` (oracle/shadow per D0 receipt); no new production callers |
 | Documentation parity | pass | INDEX.md rewritten, `registry/README.md`, taskboard rows, `check-scripts-index.md` helper row added |
 

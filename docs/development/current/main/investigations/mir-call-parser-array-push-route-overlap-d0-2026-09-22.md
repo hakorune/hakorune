@@ -1,10 +1,10 @@
 ---
-Status: fast__source_route_evidence
+Status: superseded_by_M10b_I0_R0__no_current_arraypush_cutover_claim
 Task: MIR-CALL-PARSER-ARRAY-PUSH-ROUTE-OVERLAP-D0
 Date: 2026-09-22
 Parent: mir-call-parser-recursive-string-result-authority-d0-2026-09-22.md
-NextCard: MIR-CALL-PARSER-ARRAY-PUSH-B2-I0 (after overlap decision)
-Implementation permission: split pre-route structural source evidence and source-only route admission in the existing GenericLoop owner; preserve raw overlap, runtime ABI, production cutover and unrelated D WIP
+NextCard: M10b-I0-R0 (superseding route owner)
+Implementation permission: superseded. Do not resume the registry-backed GenericLoop source-route admission; this does not authorize ArrayPush publication or a fixture disposition change.
 Classification: BoxShape route-authority decision; no new semantic receipt
 ---
 
@@ -321,8 +321,14 @@ shortcuts. This closes the focused-negative I0 evidence row only. The raw
 registry remains neutral and the uncommitted carrier/NamedArray WIP remains a
 handoff artifact.
 
-Next bounded slice: `MIR-CALL-PARSER-ARRAY-PUSH-B2-I0`, described in the next
-card. B2 may consume the existing source relation view and physical adapter WIP
-for BindingRef carrier projection and retained NamedArray construction; it may
-not switch production callers, publish a new backend result, or delete an old
-edge until its own acceptance is complete.
+The registry-backed `CallableGenericLoopSourceRouteAdmissionV1` and its
+focused source-admission tests were retired by the R0 route-selection change
+listed in deletion-manifest row B01. The current selected owner is
+`route_loop -> issue_loop_node_winner_recipe_v1`; the former `[V1]` and
+`[V0,V1]` raw registry schedules no longer define the source admission
+contract. The old I0 test results above remain historical evidence only.
+
+This supersession does not close the ArrayPush semantic/result row, authorize
+its production switch, or downgrade its accepted corpus status. Reopen that
+work only through a current selected owner and its exact source/result/effect
+contract; do not restore the deleted registry admission as a parallel route.

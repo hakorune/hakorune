@@ -472,5 +472,12 @@ dev_gate red classification — **known baseline debt, not this lane**:
 
 RETURN0: lane complete; pointer returns to
 `REPO-FINAL-CONVERGENCE-AUDIT0-G0`. Named stash
-`wip/other-worker-docs before design-registry-v1` remains for
-explicit restore by its owner.
+`wip/other-worker-docs before design-registry-v1` was inspected and
+popped at RETURN0 — the two investigation-doc corrections returned to
+the worktree and were committed with the review closeout.
+
+Review closeout fixes applied after rejection: `helper_update`/
+`_normalize_row`/`load_v1` now fail fast on non-list `sidecars`/
+`supersedes` (was: string silently emitted then char-iterated by
+`validate`); G0 receipt's Temporary-evidence row corrected to the
+actual stash state.

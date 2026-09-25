@@ -224,6 +224,19 @@ def load_v1(registry_dir: Path = REGISTRY_DIR) -> Registry:
                     f"design registry shard {nid} row {row.get('path', '')!r} "
                     f"lacks fields: {missing}"
                 )
+            for key in V1_ROW_FIELDS:
+                want_list = key in {"sidecars", "supersedes"}
+                value = row[key]
+                if want_list and not isinstance(value, list):
+                    raise RegistryMalformed(
+                        f"design registry shard {nid} row {row.get('path', '')!r} "
+                        f"field {key} must be a list"
+                    )
+                if not want_list and not isinstance(value, str):
+                    raise RegistryMalformed(
+                        f"design registry shard {nid} row {row.get('path', '')!r} "
+                        f"field {key} must be a string"
+                    )
             path = row["path"]
             if shard_key(path) != nid:
                 raise RegistryMalformed(
@@ -276,6 +289,11 @@ def _normalize_row(row: dict) -> dict:
         value = row.get(key)
         if value is None:
             value = [] if key in {"sidecars", "supersedes"} else ""
+        if key in {"sidecars", "supersedes"} and not isinstance(value, list):
+            raise RegistryMalformed(
+                f"row field {key} must be a list, got "
+                f"{type(value).__name__}: {value!r}"
+            )
         normalized[key] = value
     return normalized
 
@@ -329,6 +347,12 @@ def helper_update(registry_dir: Path, path: str, updates: dict) -> str:
     unknown = set(updates) - set(V1_ROW_FIELDS)
     if unknown:
         raise RegistryMalformed(f"unknown row fields: {sorted(unknown)}")
+    for key in ("sidecars", "supersedes"):
+        if key in updates and not isinstance(updates[key], list):
+            raise RegistryMalformed(
+                f"row field {key} must be a list, got "
+                f"{type(updates[key]).__name__}: {updates[key]!r}"
+            )
     row.update(updates)
     nid = shard_key(path)
     _rewrite_shard(registry_dir, nid, registry.documents)

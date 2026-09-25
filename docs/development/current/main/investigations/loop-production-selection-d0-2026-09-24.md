@@ -15,6 +15,19 @@ Contract source: `mirbuilder-final-pipeline-ssot.md` return task —
 
 # LOOP-PRODUCTION-SELECTION-D0 — production selection design
 
+## Boundary correction — 2026-09-24
+
+`M10b-I0-R0-VAR` supersedes this card's `CallableSingleLoopV1` attribution
+for `loop_simple_while_inline_explicit_step_min.hako`. Preserve its accepted
+output; connect the existing VariableAccumRecurrenceV1 owner through the
+callable source loan. The bridge and focused MIR/EXE execution now exist in
+the shared worktree; its named-terminal acceptance is still partial, so the
+former "all accepted rows already have a connected owner" conclusion remains
+withdrawn until the card's remaining acceptance closes.
+The five-family node selector is unchanged; this is a bounded callable edge.
+See [accepted design and tasks](mir-call-variable-accum-recurrence-production-i0-2026-09-24.md).
+The original census below is historical where this correction applies.
+
 ## Six-line brief
 
 ```text
@@ -90,11 +103,12 @@ resolution):
 | `main0-continue` | 9 | canonical-main / release-adopt | `Main0ContinueV1` — production-connected via `src/mir/builder/program_root_lowering/main0_continue_route.rs` |
 | `main0-in-body-step` | 3 | canonical-main / release-adopt | `Main0InBodyStepV1` — production-connected via `main0_in_body_step_route.rs` |
 | `main0-derived-predicate` | 4 | canonical-main | `Main0DerivedPredicateV1` — production-connected via `main0_derived_predicate_route.rs` |
-| `callable-loop` | 1 | callable-loop | `CallableSingleLoopV1` — existing production edge |
+| `callable-loop` | 1 | callable-loop | Correction: `VariableAccumRecurrenceV1`; callable production bridge pending under `M10b-I0-R0-VAR` |
 | `canonical-main` | 23 | canonical-main | 21 rows carry no loop (`StepTree root` / blockexpr/if fixtures) — canonical-main callable route owns them without any loop producer. 2 rows (`selfhost_parse_program2_loop_if_return_local_min` apps + phase29bq twin) observe `[flowbox/adopt box_kind=Loop features=return via=shadow]`; the legacy loop path already emits an accepted typed reject (`callable-loop-handoff`/`callable-loop` sibling rows), and the canonical-main route owns them — no loop-cohort gap |
 
-M10b Stop clause check: every accepted row resolves to an implemented
-portable owner or an accepted typed reject. No corpus row resolves to
+M10b Stop clause correction: the accepted recurrence row requires the VAR
+bridge before R0 closeout. The remaining recorded inventory resolves to its
+own retained owner/rejection. No other corpus row was attributed to
 `GenericResidual`, `LoopTrueBreakContinue`, `ScanWithInit`, or any other
 caller-zero-only family.
 
@@ -110,9 +124,11 @@ Production-connected today:
 - `program_root_lowering` routes: `main0_continue_route.rs`,
   `main0_in_body_step_route.rs`, `main0_derived_predicate_route.rs`
   (consume `VerifiedMain0*RecipeProductV1`).
-- Callable loop edge (`CallableSingleLoopV1`).
+- Accepted recurrence callable edge: VAR connection pending; the former
+  `CallableSingleLoopV1` attribution was incorrect.
 
-Caller-zero (coverage artifacts and parked families — none selected):
+Caller-zero implementation inventory (VAR is now selected but pending;
+other coverage-only families retain their existing disposition):
 
 - The 8 attested recipe-backed producers (S7G wire parity evidence):
   `VariableAccumRecurrenceV1`, `LoopBreakRecipe` family,
@@ -131,13 +147,15 @@ Caller-zero (coverage artifacts and parked families — none selected):
 **Selected winner boundary**: the profiles that already carry production —
 `DirectAccum`, `NestedPredicate`, `GenericG0` (plan arms),
 `Main0ContinueV1`, `Main0InBodyStepV1`, `Main0DerivedPredicateV1`
-(program-root routes), `CallableSingleLoopV1` (callable edge), plus the
+(program-root routes), the selected but not yet connected
+`VariableAccumRecurrenceV1` callable edge, plus the
 non-loop `canonical-main` corpus rows that never enter the loop path.
-This boundary covers all 40 `portable-owner` corpus rows and all
-accepted typed rejects stay typed rejects.
+The target boundary preserves all 40 `portable-owner` corpus rows; its VAR
+connection is not yet proved. Accepted typed rejects retain their dispositions.
 
-**First unmet dependency by full task ID**: none inside the selected
-boundary. In literal seal order the first unmet row is
+**First unmet dependency by full task ID**: `M10b-I0-R0-VAR`. Its
+callable connection and acceptance must close before R0 closeout. The
+previous seal-only census identified the first outside-boundary unmet row as
 `LOOP-S6C-COMMON-V2-PRESESSION-I0` (parked; requires a named production
 consumer the selected boundary does not have), followed by
 `LOOP-PHYSICAL-ALWAYS-COVERAGE-I0` (no closure evidence; sole consumer
