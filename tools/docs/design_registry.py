@@ -3,8 +3,7 @@
 
 One in-memory representation with typed, fail-fast structural errors.
 V1 (`design/registry/manifest.toml` + `shards/{0..f}.toml`) is the sole
-production authority since C0; the V0 embedded-block reader remains
-for parity tooling until R0 removes it.
+authority. The V0 embedded-block reader was removed in R0.
 """
 
 from __future__ import annotations
@@ -12,8 +11,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 from dataclasses import dataclass, field
-import re
-import tempfile
 import tomllib
 from pathlib import Path
 
@@ -30,12 +27,6 @@ DESIGN_ROLES = {
     "status-ledger",
     "superseded",
 }
-
-V0_BLOCK = re.compile(
-    r"<!-- design-registry-v0:begin -->\s*```toml\s*(.*?)\s*```\s*"
-    r"<!-- design-registry-v0:end -->",
-    re.DOTALL,
-)
 
 V1_SCHEMA_VERSION = 1
 V1_SHARD_ALGORITHM = "sha256-utf8-first-nybble-v1"
@@ -76,10 +67,6 @@ class RegistryNotFound(RegistryLoadError):
     pass
 
 
-class RegistryBlockMissing(RegistryLoadError):
-    pass
-
-
 class RegistryMalformed(RegistryLoadError):
     pass
 
@@ -93,33 +80,11 @@ class Registry:
     mode: str
     unregistered_baseline: int
     documents: list[dict]
-    source: str = "v0"
+    source: str = "v1"
     raw: dict = field(default_factory=dict)
 
     def paths(self) -> list[str]:
         return [row.get("path", "") for row in self.documents]
-
-
-def load_v0(index_path: Path = DESIGN_INDEX) -> Registry:
-    """Parse the embedded V0 block. Structural failures raise typed
-    errors; semantic rule violations are produced by `validate`."""
-    if not index_path.is_file():
-        raise RegistryNotFound("design registry INDEX.md is missing")
-    match = V0_BLOCK.search(index_path.read_text(encoding="utf-8"))
-    if not match:
-        raise RegistryBlockMissing("design registry typed block is missing")
-    try:
-        data = tomllib.loads(match.group(1))
-    except tomllib.TOMLDecodeError as exc:
-        raise RegistryMalformed(f"design registry TOML is malformed: {exc}")
-    return Registry(
-        schema_version=data.get("schema_version", -1),
-        mode=data.get("mode", ""),
-        unregistered_baseline=data.get("unregistered_baseline", 0),
-        documents=data.get("documents", []),
-        source="v0",
-        raw=data,
-    )
 
 
 def validate(
@@ -315,19 +280,6 @@ def _normalize_row(row: dict) -> dict:
     return normalized
 
 
-def emit_manifest(registry: Registry) -> str:
-    lines = [
-        f"schema_version = {V1_SCHEMA_VERSION}",
-        f'mode = "{_toml_escape(registry.mode)}"',
-        f"unregistered_baseline = {registry.unregistered_baseline}",
-        f'shard_algorithm = "{V1_SHARD_ALGORITHM}"',
-        "shards = [",
-    ]
-    lines += [f'  "shards/{nid}.toml",' for nid in V1_SHARD_IDS]
-    lines.append("]")
-    return "\n".join(lines) + "\n"
-
-
 def emit_shard(nid: str, rows: list[dict]) -> str:
     lines = [f"schema_version = {V1_SCHEMA_VERSION}", f'shard_id = "{nid}"', ""]
     for row in sorted(rows, key=lambda r: r["path"]):
@@ -335,27 +287,6 @@ def emit_shard(nid: str, rows: list[dict]) -> str:
         lines += [f"{key} = {_toml_value(row[key])}" for key in V1_ROW_FIELDS]
         lines.append("")
     return "\n".join(lines).rstrip("\n") + "\n"
-
-
-def generate_v1(out_dir: Path, registry: Registry | None = None) -> list[Path]:
-    """Deterministic V0->V1 migration generator (G0). Writes the
-    manifest plus the exact shard set under `out_dir`. Callers choose
-    the destination; tracked writes are an explicit command."""
-    if registry is None:
-        registry = load_v0()
-    buckets: dict[str, list[dict]] = {nid: [] for nid in V1_SHARD_IDS}
-    for row in registry.documents:
-        normalized = _normalize_row(row)
-        buckets[shard_key(normalized["path"])].append(normalized)
-    shards_dir = out_dir / "shards"
-    shards_dir.mkdir(parents=True, exist_ok=True)
-    written = [out_dir / "manifest.toml"]
-    written[0].write_text(emit_manifest(registry), encoding="utf-8")
-    for nid in V1_SHARD_IDS:
-        shard_path = shards_dir / f"{nid}.toml"
-        shard_path.write_text(emit_shard(nid, buckets[nid]), encoding="utf-8")
-        written.append(shard_path)
-    return written
 
 
 def _direct_files() -> set[str]:
@@ -407,12 +338,7 @@ def helper_update(registry_dir: Path, path: str, updates: dict) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
-    chk = sub.add_parser("check", help="load + validate a registry source")
-    chk.add_argument("--source", choices=["v0", "v1"], default="v1")
-    gen = sub.add_parser(
-        "generate", help="emit V1 manifest+shards (temporary dir unless --output)"
-    )
-    gen.add_argument("--output", type=Path, default=None)
+    chk = sub.add_parser("check", help="load + validate the V1 registry")
     loc = sub.add_parser("locate", help="print the canonical shard for a path")
     loc.add_argument("path")
     add = sub.add_parser("add", help="add one complete row to the V1 store")
@@ -430,21 +356,15 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.command == "check":
-        registry = load_v0() if args.source == "v0" else load_v1()
-        expected = 0 if args.source == "v0" else V1_SCHEMA_VERSION
-        violations = validate(registry, _direct_files(), expected)
+        registry = load_v1()
+        violations = validate(registry, _direct_files(), V1_SCHEMA_VERSION)
         for violation in violations:
             print(violation)
         print(
-            f"design-registry check ({args.source}): "
+            f"design-registry check: "
             f"{len(registry.documents)} rows, {len(violations)} violations"
         )
         return 1 if violations and registry.mode == "strict" else 0
-    if args.command == "generate":
-        out_dir = args.output or Path(tempfile.mkdtemp(prefix="design-registry-v1-"))
-        written = generate_v1(out_dir)
-        print(f"generated {len(written)} files under {out_dir}")
-        return 0
     if args.command == "locate":
         nid = shard_key(args.path)
         print(f"{args.path} -> shards/{nid}.toml")

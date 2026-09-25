@@ -428,3 +428,17 @@ begin with `CLEAN0`; do not jump to loader implementation.
   - V0 production loader calls: 0 (`load_v0` remains for parity
     tooling only). Inventory `design_registry` section byte-identical
     under V1 (676 rows, violations `[]`); `docs-slim-001` guard green.
+
+### R0 landing — V0 physical retirement (2026-09-25)
+
+- `design/INDEX.md` reduced to 45 lines (≤200): navigation index +
+  authority pointer + role vocabulary. Embedded `design-registry-v0`
+  block and marker parsing physically removed.
+- `design_registry.py`: `load_v0`, `V0_BLOCK`, `RegistryBlockMissing`,
+  `generate_v1`/`emit_manifest`, and `check --source v0` removed —
+  V1 is the only readable source.
+- `design_registry` inventory section byte-identical post-removal
+  (676 rows, `violations=[]`).
+- Counters: embedded markers 0, V0 production loader calls 0,
+  combined tracked registry files 0, INDEX.md 45 lines, missing/extra
+  shards 0, duplicate paths 0, wrong-shard rows 0.

@@ -1935,7 +1935,7 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 5548,
+    "reachable_count": 5522,
     "root_count": 3897,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
@@ -1945,8 +1945,8 @@
       "fixed_current_entry": 4,
       "reference_src_tools": 3271
     },
-    "unreachable_count": 3960,
-    "unreachable_pending_count": 2571,
+    "unreachable_count": 3986,
+    "unreachable_pending_count": 2597,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0
