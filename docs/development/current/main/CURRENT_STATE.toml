@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "LOOP-POST-CUTOVER-BOXSHAPE-C0"
 current_execution_cohort = "loop_post_cutover_boxshape"
-current_blocker_token = "M12-Complete__QuicklibRebaselined__PostCutoverC0-Census-Open"
+current_blocker_token = "M12-Complete__C0-CensusLanded-NoRetireCandidates__BoxShape-Move-Series-Next"
 guard_followup = "Run 34759102231 at 8e7179bb7e completed successfully on 2026-09-13T13:38:30Z (22:38:30 JST): Windows Rust/provider job 27m25s, Check hakorune 2m19s, provider lifetime 23m18s PASS, CAPI lifetime 7s PASS, cache restore 8s. This closes native Windows provider/CAPI temporary-input close/reopen evidence; native Windows lifecycle close/reopen remains unproven. The earlier 34753858020 CAPI red and 34756966289 timeout remain historical evidence. Manual dispatch defaults to the Windows scope; a later scope=windows run may measure warmed performance but is not required for this receipt."
 current_design_stop = "none__CallableVariableRecurrenceDecisionAccepted_2026-09-24"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -18,22 +18,16 @@ current_execution_design = "docs/development/current/main/investigations/loop-po
 latest_card = "loop-post-cutover-boxshape-c0"
 latest_card_path = "docs/development/current/main/investigations/loop-post-cutover-boxshape-c0-2026-09-25.md"
 latest_card_summary = """
-M12-R2G closeout: typed `CallableLoopSoleFamilyV1` replaced route-id
-dispatch at the callable seam (`sole_family()`; issuer arms + token
-issue/parts + preflight guards consume the tag). `LoopRouteId` survives
-as data-only census/error/migration vocabulary; caller-zero
-`registry::route_id` facade removed. Residual audit: one recipe issuer
-(router.rs:197 -> winner spine -> physical admission); retained
-producers = one per selected family; canonical seam
-(`select_canonical_loop_family_v1`) is the accepted family dispatch.
-All disposition Section C rows closed (C01/C03 retired at R2C,
-C02/C04/C05 resolved here). Focused 29/29 + lib/tests compile green;
-wider callable run reds reproduce at HEAD (baseline debt). Prior:
-R2A `682acbc2ca`, R2B `898875877f`/`7449dac218`,
-R2C `ce91387634`/`d2fd3b91da`/`916a4a4f36`. QUICKLIB-RED-BASELINE-AUDIT
-landed: receipt re-baselined at HEAD (inventory 8092, failed 167);
-all 41 new reds reproduce at lane base `3071d6ff8c` = baseline debt,
-7 names greened and dropped; verifier KNOWN BASELINE green.
+M12 lane complete (`682acbc2ca`..`b50e8b9a56`: R2A manifest, R2B
+oracle/residual retirement, R2C Facts-key/schedule/attestation fixes,
+R2G typed callable family dispatch + sole-authority audit). Baseline
+receipt re-pinned `e53c0693c5` (inventory 8092, failed 167; all 41 new
+reds reproduce at lane base = debt, 7 greened). C0 census landed: 475
+loop-module rows — 362 durable-production, 106 test-oracle, 7
+bootstrap-compatibility (hako wire emitters), 0 retire-candidates.
+Next: BoxShape move-only series regrouping durable modules into
+neutral contract / source producers / route policy / physical facades,
+then `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
 """
 next_design_card = "none__accepted_decision"
 next_design_card_path = "none__accepted_decision"

@@ -1,0 +1,478 @@
+# LOOP-POST-CUTOVER-BOXSHAPE-C0 module census
+# row = file path; class = durable-production|bootstrap-compatibility|test-oracle|retire-candidate
+# generated at e53c0693c5+ (post-M12); evidence = first named caller or test parent
+lang/src/mir/builder/loop_recipe/README.md	durable-production	module README — owner documentation
+lang/src/mir/builder/loop_recipe/emit_direct_accum_wire.hako	bootstrap-compatibility	lang/src/mir/builder/loop_recipe emitter — frozen portable wire surface; exercised by wire parity tests + hako_module.toml
+lang/src/mir/builder/loop_recipe/emit_loop_recipe_wire.hako	bootstrap-compatibility	lang/src/mir/builder/loop_recipe emitter — frozen portable wire surface; exercised by wire parity tests + hako_module.toml
+lang/src/mir/builder/loop_recipe/emit_loop_true_wire.hako	bootstrap-compatibility	lang/src/mir/builder/loop_recipe emitter — frozen portable wire surface; exercised by wire parity tests + hako_module.toml
+lang/src/mir/builder/loop_recipe/emit_m8a_recurrence_wire.hako	bootstrap-compatibility	lang/src/mir/builder/loop_recipe emitter — frozen portable wire surface; exercised by wire parity tests + hako_module.toml
+lang/src/mir/builder/loop_recipe/emit_m8c_scans_wire.hako	bootstrap-compatibility	lang/src/mir/builder/loop_recipe emitter — frozen portable wire surface; exercised by wire parity tests + hako_module.toml
+lang/src/mir/builder/loop_recipe/emit_m8d_loopcond_wire.hako	bootstrap-compatibility	lang/src/mir/builder/loop_recipe emitter — frozen portable wire surface; exercised by wire parity tests + hako_module.toml
+lang/src/mir/builder/loop_recipe/emit_nested_predicate_wire.hako	bootstrap-compatibility	lang/src/mir/builder/loop_recipe emitter — frozen portable wire surface; exercised by wire parity tests + hako_module.toml
+src/mir/builder/control_flow/cleanup/policies/loop_simple_while_subset_policy.rs	durable-production	production caller: src/mir/builder/control_flow/plan/facts/loop_simple_while_facts.rs +2 more
+src/mir/builder/control_flow/edgecfg/api/compose/loop_.rs	durable-production	production caller: src/llvm_py/builders/function_lower_prepass.py +1773 more
+src/mir/builder/control_flow/edgecfg/api/compose/tests/loop_.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/facts/canon/generic_loop	durable-production	production caller: src/mir/compiler/README.md +147 more
+src/mir/builder/control_flow/facts/extractors/loop_simple_while.rs	durable-production	production caller: src/mir/builder/README.md +64 more
+src/mir/builder/control_flow/facts/loop_cond_break_continue.rs	durable-production	production caller: lang/src/compiler/lib/planner_rule_label_formatter.hako +84 more
+src/mir/builder/control_flow/facts/loop_cond_continue_only.rs	durable-production	production caller: src/mir/builder/normal_callable_loop_source_route.rs +27 more
+src/mir/builder/control_flow/facts/loop_cond_continue_with_return.rs	durable-production	production caller: src/mir/builder/control_flow/facts/mod.rs +60 more
+src/mir/builder/control_flow/facts/loop_cond_return_in_body	durable-production	production caller: src/mir/builder/normal_callable_loop_source_route.rs +42 more
+src/mir/builder/control_flow/facts/loop_cond_return_in_body.rs	durable-production	production caller: src/mir/loop_recipe_contract/route_id.rs +41 more
+src/mir/builder/control_flow/facts/route_shape_recognizers/infinite_loop.rs	durable-production	production caller: src/mir/loop_route_detection/classify.rs +3 more
+src/mir/builder/control_flow/generic_loop_canon	durable-production	production caller: src/mir/builder/control_flow/FOLDERIZATION_MAP.md +21 more
+src/mir/builder/control_flow/joinir/loop_context.rs	durable-production	production caller: src/mir/builder/control_flow/joinir/mod.rs +10 more
+src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs	durable-production	production caller: src/mir/builder/control_flow/joinir/merge/README.md +10 more
+src/mir/builder/control_flow/joinir/merge/loop_header_phi_info.rs	durable-production	production caller: src/mir/builder/control_flow/joinir/merge/header_phi_prebuild.rs +21 more
+src/mir/builder/control_flow/joinir/route_entry/mod.rs	durable-production	module declaration for route_entry — declared in src/mir/builder/control_flow/joinir/mod.rs
+src/mir/builder/control_flow/joinir/route_entry/registry/mod.rs	durable-production	module declaration for registry — declared in src/mir/builder/control_flow/joinir/route_entry/mod.rs
+src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs	durable-production	production caller: src/runtime/allocator_provider_toml_helpers.rs +44 more
+src/mir/builder/control_flow/joinir/route_entry/router.rs	durable-production	production caller: src/backend/mir_interpreter/mod.rs +88 more
+src/mir/builder/control_flow/joinir/route_entry/runtime_adjacent_shadow_guard.rs	durable-production	production caller: src/mir/builder/control_flow/joinir/route_entry/mod.rs +3 more
+src/mir/builder/control_flow/plan/facts/accum_const_loop_facts.rs	durable-production	production caller: src/mir/builder/control_flow/verify/verifier/cond_profile.rs +10 more
+src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs	durable-production	production caller: tools/checks/fixtures/blockexpr_producer_inventory_v1.json +4 more
+src/mir/builder/control_flow/plan/facts/loop_array_join_facts.rs	durable-production	production caller: lang/src/compiler/lib/loop_array_join_facts.hako +8 more
+src/mir/builder/control_flow/plan/facts/loop_break_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/facts/loop_builder.rs	durable-production	production caller: src/mir/phi_core/phi_builder_box.rs +20 more
+src/mir/builder/control_flow/plan/facts/loop_char_map_facts.rs	durable-production	production caller: src/mir/builder/control_flow/plan/facts/loop_types.rs +7 more
+src/mir/builder/control_flow/plan/facts/loop_condition_shape.rs	durable-production	production caller: lang/src/compiler/lib/loop_condition_shape.hako +17 more
+src/mir/builder/control_flow/plan/facts/loop_continue_only_facts.rs	durable-production	production caller: lang/src/compiler/lib/loop_continue_only_facts.hako +5 more
+src/mir/builder/control_flow/plan/facts/loop_scan_with_init.rs	durable-production	production caller: src/mir/builder/control_flow/plan/facts/loop_builder.rs +5 more
+src/mir/builder/control_flow/plan/facts/loop_simple_while_facts.rs	durable-production	production caller: src/mir/builder/control_flow/plan/facts/loop_builder.rs +10 more
+src/mir/builder/control_flow/plan/facts/loop_source_receipt.rs	durable-production	production caller: src/mir/builder/control_flow/plan/facts/loop_types.rs +3 more
+src/mir/builder/control_flow/plan/facts/loop_split_scan.rs	durable-production	production caller: src/mir/builder/control_flow/plan/facts/mod.rs +2 more
+src/mir/builder/control_flow/plan/facts/loop_step_shape.rs	durable-production	production caller: lang/src/compiler/lib/loop_step_shape.hako +6 more
+src/mir/builder/control_flow/plan/facts/loop_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/facts/loop_tests_parts	durable-production	production caller: tools/checks/lib/mir_call_d1b_test_inventory_guard.py +2 more
+src/mir/builder/control_flow/plan/facts/loop_true_early_exit_facts.rs	durable-production	production caller: src/mir/builder/control_flow/plan/facts/loop_types.rs +7 more
+src/mir/builder/control_flow/plan/facts/loop_types.rs	durable-production	production caller: src/mir/builder/control_flow/plan/REGISTRY.md +9 more
+src/mir/builder/control_flow/plan/facts/nested_loop_minimal_facts.rs	durable-production	production caller: src/mir/builder/control_flow/plan/facts/loop_types.rs +3 more
+src/mir/builder/control_flow/plan/facts/nested_loop_profile.rs	durable-production	production caller: src/mir/builder/control_flow/plan/REGISTRY.md +5 more
+src/mir/builder/control_flow/plan/features/carrier_merge.rs	durable-production	production caller: src/runner/stage1_bridge/embedded_stage1_modules_snapshot.json +20 more
+src/mir/builder/control_flow/plan/features/carriers	durable-production	production caller: src/runtime/dynamic_v2_lease.rs +278 more
+src/mir/builder/control_flow/plan/features/carriers.rs	durable-production	production caller: src/runtime/dynamic_v2_lease.rs +277 more
+src/mir/builder/control_flow/plan/features/coreloop_frame.rs	durable-production	production caller: src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs +8 more
+src/mir/builder/control_flow/plan/features/loop_break_composite_source.rs	durable-production	production caller: src/mir/builder/raw_loop_child_entry.rs +10 more
+src/mir/builder/control_flow/plan/features/loop_break_source.rs	durable-production	production caller: src/mir/normal_callable_semantic_package/issuer.rs +20 more
+src/mir/builder/control_flow/plan/features/loop_carriers.rs	durable-production	production caller: src/mir/builder/normal_callable_dynamic_source.rs +11 more
+src/mir/builder/control_flow/plan/features/loop_cond_bc.rs	durable-production	production caller: src/mir/builder/raw_loop_child_entry.rs +40 more
+src/mir/builder/control_flow/plan/features/loop_cond_bc_cleanup.rs	durable-production	production caller: src/mir/builder/control_flow/plan/features/loop_cond_bc_source.rs +14 more
+src/mir/builder/control_flow/plan/features/loop_cond_bc_continue_if.rs	durable-production	production caller: src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs +4 more
+src/mir/builder/control_flow/plan/features/loop_cond_bc_else_patterns	durable-production	production caller: src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs +7 more
+src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs	durable-production	production caller: src/mir/builder/control_flow/plan/features/mod.rs +25 more
+src/mir/builder/control_flow/plan/features/loop_cond_bc_item_stmt.rs	durable-production	production caller: src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs +11 more
+src/mir/builder/control_flow/plan/features/loop_cond_bc_nested_carriers.rs	durable-production	production caller: src/mir/builder/control_flow/plan/features/mod.rs +3 more
+src/mir/builder/control_flow/plan/features/loop_cond_bc_phi_materializer.rs	durable-production	production caller: src/mir/builder/control_flow/plan/features/loop_cond_bc_source.rs +6 more
+src/mir/builder/control_flow/plan/features/loop_cond_bc_source.rs	durable-production	production caller: src/mir/builder/raw_loop_child_entry.rs +3 more
+src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs	durable-production	production caller: tools/checks/fixtures/mirbuilder_fsession_direct_access_pre_s0b_v1.json +8 more
+src/mir/builder/control_flow/plan/features/loop_cond_bc_verifier.rs	durable-production	production caller: src/mir/builder/control_flow/plan/features/mod.rs +3 more
+src/mir/builder/control_flow/plan/features/loop_true_break_continue_cleanup.rs	durable-production	production caller: src/mir/builder/control_flow/plan/features/loop_true_break_continue_source.rs +5 more
+src/mir/builder/control_flow/plan/features/loop_true_break_continue_phi_materializer.rs	durable-production	production caller: src/mir/builder/control_flow/plan/features/loop_true_break_continue_verifier.rs +6 more
+src/mir/builder/control_flow/plan/features/loop_true_break_continue_source.rs	durable-production	production caller: src/mir/compiler/loop_true_break_continue_projection.rs +6 more
+src/mir/builder/control_flow/plan/features/loop_true_break_continue_verifier.rs	durable-production	production caller: tools/checks/manifests/cargo_lib_red_baseline.tests.txt +3 more
+src/mir/builder/control_flow/plan/generic_loop	durable-production	production caller: src/mir/builder.rs +147 more
+src/mir/builder/control_flow/plan/loop_accum_binding_port.rs	durable-production	production caller: src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs +1 more
+src/mir/builder/control_flow/plan/loop_accum_binding_ssa_emitter_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/loop_accum_binding_ssa_failure_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/loop_accum_binding_ssa_operation_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/loop_accum_caller_zero.rs	durable-production	production caller: src/mir/builder/control_flow/plan/mod.rs +1 more
+src/mir/builder/control_flow/plan/loop_accum_physical_role_plan_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/loop_accum_physicalizer	durable-production	production caller: src/mir/builder/resolved_lowering/direct_accum_lowerer.rs +5 more
+src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs	durable-production	production caller: src/mir/builder/resolved_lowering/direct_accum_adapter.rs +5 more
+src/mir/builder/control_flow/plan/loop_accum_physicalizer_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/loop_break	durable-production	production caller: src/mir/builder.rs +119 more
+src/mir/builder/control_flow/plan/loop_break/facts/helpers_loop.rs	durable-production	production caller: src/mir/builder/control_flow/plan/loop_break/facts/core.rs +5 more
+src/mir/builder/control_flow/plan/loop_cond	durable-production	production caller: src/parser/statements/control_flow.rs +304 more
+src/mir/builder/control_flow/plan/loop_cond_unified_helpers.rs	durable-production	production caller: src/mir/builder/control_flow/facts/loop_cond_continue_with_return.rs +8 more
+src/mir/builder/control_flow/plan/loop_final_values.rs	durable-production	production caller: src/mir/builder/control_flow/plan/mod.rs +4 more
+src/mir/builder/control_flow/plan/loop_phi_materializer.rs	durable-production	production caller: src/mir/builder/control_flow/plan/mod.rs +3 more
+src/mir/builder/control_flow/plan/loop_phi_materializer_test_support.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/loop_phi_materializer_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/loop_physical_edge_path.rs	durable-production	production caller: src/mir/builder/control_flow/plan/mod.rs +2 more
+src/mir/builder/control_flow/plan/loop_physical_input.rs	durable-production	production caller: src/mir/builder/resolved_lowering/direct_accum_lowerer.rs +3 more
+src/mir/builder/control_flow/plan/loop_recipe_producer_facade_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/loop_true_break_continue	durable-production	production caller: lang/src/compiler/lib/planner_rule_label_formatter.hako +52 more
+src/mir/builder/control_flow/plan/lowerer/loop_completion.rs	durable-production	production caller: src/mir/builder/control_flow/plan/lowerer/loop_lowering.rs +2 more
+src/mir/builder/control_flow/plan/lowerer/loop_lowering.rs	durable-production	production caller: src/mir/builder/builder_emit.rs +17 more
+src/mir/builder/control_flow/plan/lowerer/loop_preparation.rs	durable-production	production caller: src/mir/builder/control_flow/plan/lowerer/mod.rs +4 more
+src/mir/builder/control_flow/plan/lowerer/loop_validation.rs	durable-production	production caller: tools/checks/fixtures/mirbuilder_fsession_direct_access_pre_s0b_v1.json +2 more
+src/mir/builder/control_flow/plan/normalizer/cond_lowering_loop_header.rs	durable-production	production caller: tools/checks/fixtures/mirbuilder_fsession_direct_access_pre_s0b_v1.json +7 more
+src/mir/builder/control_flow/plan/normalizer/cond_lowering_loop_header_port.rs	durable-production	production caller: src/mir/builder/control_flow/plan/normalizer/cond_lowering_loop_header.rs +4 more
+src/mir/builder/control_flow/plan/normalizer/cond_lowering_loop_header_port_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs	durable-production	production caller: tools/rust_lifecycle/mirbuilder_loop_cond_return_in_body_phi_materializer_current_bindings_mutation_frame.py +22 more
+src/mir/builder/control_flow/plan/normalizer/loop_body_lowering_associated_input.rs	durable-production	production caller: src/mir/builder/control_flow/plan/parts/exit.rs +9 more
+src/mir/builder/control_flow/plan/normalizer/loop_body_lowering_associated_input_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source.rs	durable-production	production caller: src/mir/builder/raw_loop_child_entry/ledger_bridge.rs +28 more
+src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_driver_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_items.rs	durable-production	production caller: src/mir/builder/control_flow/plan/REGISTRY.md +3 more
+src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_items_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_lowering.rs	durable-production	production caller: src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_items.rs +4 more
+src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_testkit.rs	durable-production	production caller: src/mir/builder/control_flow/plan/parts/associated_source.rs
+src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/control_flow/plan/parts/loop_	durable-production	production caller: lang/src/compiler/mirbuilder/mir_json_v0_shape_box_helpers.hako +1774 more
+src/mir/builder/control_flow/plan/parts/loop_/loop_v0.rs	durable-production	production caller: src/mir/loop_recipe_contract/route_id.rs +46 more
+src/mir/builder/control_flow/plan/recipe_tree	durable-production	production caller: src/mir/builder/normal_callable_loop_source_facts/loop_break.rs +86 more
+src/mir/builder/control_flow/plan/recipe_tree/accum_const_loop_builder.rs	durable-production	production caller: src/mir/builder/control_flow/plan/recipe_tree/mod.rs +1 more
+src/mir/builder/control_flow/plan/recipe_tree/loop_break_builder.rs	durable-production	production caller: src/mir/builder/control_flow/plan/recipe_tree/mod.rs +2 more
+src/mir/builder/control_flow/plan/recipe_tree/loop_continue_only_builder.rs	durable-production	production caller: src/mir/builder/control_flow/plan/recipe_tree/mod.rs +1 more
+src/mir/builder/control_flow/plan/recipe_tree/loop_simple_while_builder.rs	durable-production	production caller: src/mir/builder/control_flow/plan/recipe_tree/mod.rs +1 more
+src/mir/builder/control_flow/plan/recipe_tree/loop_true_early_exit_builder.rs	durable-production	production caller: src/mir/builder/control_flow/plan/REGISTRY.md +4 more
+src/mir/builder/control_flow/plan/recipe_tree/matcher/loop_cond.rs	durable-production	production caller: src/parser/statements/control_flow.rs +303 more
+src/mir/builder/control_flow/plan/skeletons/loop_true.rs	durable-production	production caller: lang/src/compiler/lib/planner_rule_label_formatter.hako +137 more
+src/mir/builder/control_flow/plan/steps/carrier_collect.rs	durable-production	production caller: src/mir/builder/control_flow/plan/steps/mod.rs +1 more
+src/mir/builder/control_flow/plan/steps/loop_wiring_standard5.rs	durable-production	production caller: src/mir/builder/control_flow/plan/steps/mod.rs
+src/mir/builder/control_flow/recipes/loop_cond_break_continue.rs	durable-production	production caller: src/mir/loop_recipe_contract/mod.rs +84 more
+src/mir/builder/control_flow/recipes/loop_cond_continue_only.rs	durable-production	production caller: src/mir/loop_recipe_contract/route_id.rs +27 more
+src/mir/builder/control_flow/recipes/loop_cond_continue_with_return.rs	durable-production	production caller: lang/src/compiler/mirbuilder/program_json_canonical_loop_facts_input_snapshot.hako +60 more
+src/mir/builder/control_flow/recipes/loop_cond_return_in_body.rs	durable-production	production caller: lang/src/compiler/mirbuilder/program_json_canonical_loop_facts_input_snapshot.hako +41 more
+src/mir/builder/control_flow/recipes/loop_cond_shared.rs	durable-production	production caller: src/mir/builder/control_flow/FOLDERIZATION_MAP.md +12 more
+src/mir/builder/control_flow/verify/coreloop_body_contract.rs	durable-production	production caller: src/mir/builder/control_flow/plan/lowerer/body_processing.rs +2 more
+src/mir/builder/control_flow/verify/verifier/loop_body_validators.rs	durable-production	production caller: src/mir/builder/control_flow/verify/verifier/position_validators.rs +3 more
+src/mir/builder/control_flow/verify/verifier/loop_validators.rs	durable-production	production caller: src/mir/builder/control_flow/verify/verifier/core.rs +3 more
+src/mir/builder/generic_loop_admission_observation.rs	durable-production	production caller: src/mir/builder.rs +4 more
+src/mir/builder/loop_api_impl.rs	durable-production	production caller: src/mir/loop_api.rs +4 more
+src/mir/builder/normal_callable_dynamic_loop_prepare.rs	durable-production	production caller: src/mir/builder/README.md +7 more
+src/mir/builder/normal_callable_dynamic_loop_prepare_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/normal_callable_dynamic_loop_rebind.rs	durable-production	production caller: src/mir/builder.rs +2 more
+src/mir/builder/normal_callable_loop_handoff.rs	durable-production	production caller: src/mir/builder.rs +14 more
+src/mir/builder/normal_callable_loop_handoff_declarations.rs	durable-production	production caller: src/mir/builder/README.md +1 more
+src/mir/builder/normal_callable_loop_handoff_loop_true.rs	durable-production	production caller: src/mir/builder/normal_callable_loop_handoff.rs
+src/mir/builder/normal_callable_loop_handoff_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/normal_callable_loop_handoff_validation.rs	durable-production	production caller: src/mir/builder/README.md +1 more
+src/mir/builder/normal_callable_loop_scalar_result_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/normal_callable_loop_source_facts	durable-production	production caller: src/mir/builder.rs +14 more
+src/mir/builder/normal_callable_loop_source_facts.rs	durable-production	production caller: src/mir/builder.rs +13 more
+src/mir/builder/normal_callable_loop_source_facts/loop_break.rs	durable-production	production caller: src/runner/json_v0_bridge/lowering/loop_runtime.rs +118 more
+src/mir/builder/normal_callable_loop_source_facts/loop_cond.rs	durable-production	production caller: src/parser/statements/control_flow.rs +303 more
+src/mir/builder/normal_callable_loop_source_facts/loop_true.rs	durable-production	production caller: tools/dev/direct_loop_progression_sweep.sh +137 more
+src/mir/builder/normal_callable_loop_source_port.rs	durable-production	production caller: src/mir/builder.rs +12 more
+src/mir/builder/normal_callable_loop_source_route.rs	durable-production	production caller: src/mir/builder.rs +11 more
+src/mir/builder/normal_callable_loop_source_route_items.rs	durable-production	production caller: src/mir/builder/normal_callable_loop_source_route.rs
+src/mir/builder/normal_callable_loop_source_route_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/normal_default_root_catalog_loop_scope_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/raw_loop_child_entry	durable-production	production caller: src/mir/builder.rs +15 more
+src/mir/builder/raw_loop_child_entry.rs	durable-production	production caller: src/mir/builder.rs +14 more
+src/mir/builder/raw_loop_child_entry/loop_true_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/raw_loop_child_port.rs	durable-production	production caller: tools/checks/mirbuilder_inplace_replacement_guard.sh +4 more
+src/mir/builder/recursive_child_lowering_loop_true.rs	durable-production	production caller: src/mir/builder/recursive_child_lowering.rs
+src/mir/builder/resolved_lowering/direct_accum_adapter.rs	durable-production	production caller: src/mir/builder/resolved_lowering/direct_accum_lowerer.rs +2 more
+src/mir/builder/resolved_lowering/direct_accum_lowerer.rs	durable-production	production caller: src/mir/builder/resolved_lowering/mod.rs +3 more
+src/mir/builder/resolved_lowering/dynamic_loop_discard_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/resolved_lowering/dynamic_loop_phi.rs	durable-production	production caller: src/mir/builder/README.md +7 more
+src/mir/builder/resolved_lowering/dynamic_loop_phi_close.rs	durable-production	production caller: src/mir/builder/resolved_lowering/mod.rs
+src/mir/builder/resolved_lowering/dynamic_loop_phi_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/resolved_lowering/dynamic_loop_rebind_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer	durable-production	production caller: tools/checks/loop_physical_transfer_authority_guard.sh +15 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_canary.rs	durable-production	production caller: tools/checks/manifests/mir_function_metadata_consumer_manifest_v1.json +4 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_lowerer.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs +1 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_production_canary_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/carrier_emitter.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs +2 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/compare_i64_operands.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs +1 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/compare_i64_writer.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs +2 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/compare_i64_writer_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/compare_result_ledger.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs +1 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/generic_lowerer.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs +7 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/generic_production_canary_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/initialized_local_input_materializer.rs	durable-production	production caller: src/mir/builder/resolved_lowering/README.md +5 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/loop_node_lowerer.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_continue_lowerer.rs	durable-production	production caller: src/mir/builder/resolved_lowering/README.md +3 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_continue_lowerer_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_derived_predicate_lowerer.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs +1 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_derived_predicate_lowerer_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_in_body_step_lowerer.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs +1 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/main0_in_body_step_lowerer_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs	durable-production	module declaration for loop_recipe_physicalizer — declared in src/mir/builder/resolved_lowering/mod.rs
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_dispatcher.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/tail_completion.rs +6 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_emitter.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_dispatcher.rs +5 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_ledger.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_dispatcher.rs +14 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_target.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/segment_dispatcher.rs +6 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_type.rs	durable-production	production caller: src/mir/builder/resolved_lowering/trivial_ssa/mod.rs +13 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/pure_operation_emitter.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs +1 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/recursive_after.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_lowerer.rs +11 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/segment_allocator.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_lowerer.rs +9 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/segment_dispatcher.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_lowerer.rs +10 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/segment_topology.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/operation_target.rs +5 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/tail_completion.rs	durable-production	production caller: src/mir/builder/resolved_lowering/loop_recipe_physicalizer/callable_lowerer.rs +6 more
+src/mir/builder/resolved_lowering/loop_recipe_physicalizer/topology.rs	durable-production	production caller: src/mir/compiler/loop_physical_prepare.rs +129 more
+src/mir/builder/resolved_lowering/nested_predicate_adapter.rs	durable-production	production caller: src/mir/builder/resolved_lowering/mod.rs +2 more
+src/mir/builder/resolved_lowering/nested_predicate_effect_adapter_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/builder/resolved_lowering/nested_predicate_lowerer.rs	durable-production	production caller: src/mir/builder/resolved_lowering/mod.rs +1 more
+src/mir/builder/resolved_lowering/nested_predicate_physicalizer.rs	durable-production	production caller: src/mir/builder/resolved_lowering/mod.rs +1 more
+src/mir/compiler/callable_loop_physical_canary.rs	durable-production	production caller: src/mir/compiler/module_registry.in.rs +1 more
+src/mir/compiler/callable_single_loop_operation_effect.rs	durable-production	production caller: src/mir/builder/normal_callable_prepared_operation.rs +9 more
+src/mir/compiler/callable_single_loop_prelude_arguments.rs	durable-production	production caller: src/mir/compiler/README.md +2 more
+src/mir/compiler/callable_single_loop_recipe.rs	durable-production	production caller: src/mir/compiler/README.md +16 more
+src/mir/compiler/callable_single_loop_recipe_coseal.rs	durable-production	production caller: src/mir/builder/normal_callable_prepared_operation.rs +14 more
+src/mir/compiler/callable_single_loop_recipe_coseal_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/callable_single_loop_recipe_shape.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/callable_single_loop_source_map.rs	durable-production	production caller: src/mir/compiler/callable_single_loop_operation_effect.rs +7 more
+src/mir/compiler/callable_single_loop_source_map_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/callable_single_loop_source_shapes.rs	durable-production	production caller: src/mir/loop_recipe_contract/loop_cond_break_continue_producer.rs +25 more
+src/mir/compiler/callable_single_loop_static_fixture_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/callable_single_loop_syntax_facts.rs	durable-production	production caller: src/mir/compiler/callable_single_loop_operation_effect.rs +6 more
+src/mir/compiler/callable_single_loop_syntax_facts_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/capability/resolved_owner_header.rs	durable-production	production caller: src/mir/builder.rs +19 more
+src/mir/compiler/direct_accum_capability.rs	durable-production	production caller: src/mir/builder/normal_callable_semantic_loan_port/canonical_route.rs +6 more
+src/mir/compiler/direct_accum_observation.rs	durable-production	production caller: src/mir/compiler/README.md +10 more
+src/mir/compiler/direct_accum_prefix.rs	durable-production	production caller: src/mir/builder/resolved_lowering/direct_accum_lowerer.rs +3 more
+src/mir/compiler/direct_accum_profile.rs	durable-production	production caller: src/mir/compiler/module_registry.in.rs +11 more
+src/mir/compiler/direct_accum_projection.rs	durable-production	production caller: src/mir/compiler/source_bound_package_p0.rs +11 more
+src/mir/compiler/generic_g0_capability.rs	durable-production	production caller: src/mir/compiler/mod.rs +8 more
+src/mir/compiler/generic_g0_capability_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/generic_g0_completion.rs	durable-production	production caller: src/mir/compiler/module_registry.in.rs +2 more
+src/mir/compiler/generic_g0_function_effect.rs	durable-production	production caller: src/mir/compiler/generic_g0_source_parent.rs +4 more
+src/mir/compiler/generic_g0_numeric_projection_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/generic_g0_observation.rs	durable-production	production caller: src/mir/loop_route_policy/README.md +13 more
+src/mir/compiler/generic_g0_observation_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/generic_g0_physical_entry_facts.rs	durable-production	production caller: src/mir/compiler/module_registry.in.rs +2 more
+src/mir/compiler/generic_g0_physical_function_effect.rs	durable-production	production caller: src/mir/compiler/generic_g0_physical_shell_facts.rs +4 more
+src/mir/compiler/generic_g0_physical_function_entry_input.rs	durable-production	production caller: src/mir/builder/resolved_lowering/generic_g0_physical_emitter_session.rs +9 more
+src/mir/compiler/generic_g0_physical_operation_cohort	durable-production	production caller: src/mir/builder/calls/function_session.rs +12 more
+src/mir/compiler/generic_g0_physical_operation_cohort.rs	durable-production	production caller: src/mir/compiler/module_registry.in.rs +11 more
+src/mir/compiler/generic_g0_physical_operation_mapping.rs	durable-production	production caller: src/mir/compiler/generic_g0_physical_operation_cohort.rs +4 more
+src/mir/compiler/generic_g0_physical_prepare.rs	durable-production	production caller: src/mir/builder/resolved_lowering/README.md +2 more
+src/mir/compiler/generic_g0_physical_shell_facts.rs	durable-production	production caller: src/mir/compiler/README.md +2 more
+src/mir/compiler/generic_g0_projection	durable-production	production caller: src/mir/compiler/generic_g0_capability.rs +10 more
+src/mir/compiler/generic_g0_projection_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/generic_g0_result_abi.rs	durable-production	production caller: tools/checks/manifests/chronic_measurement_observations_v1.json +5 more
+src/mir/compiler/generic_g0_source_parent	durable-production	production caller: src/mir/compiler/generic_g0_physical_entry_facts.rs +19 more
+src/mir/compiler/generic_g0_source_parent.rs	durable-production	production caller: src/mir/compiler/README.md +18 more
+src/mir/compiler/generic_g0_source_parent_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/generic_g0_storage_lane_source.rs	durable-production	production caller: src/mir/compiler/generic_g0_source_parent.rs +5 more
+src/mir/compiler/generic_g0_top_level_declaration_header.rs	durable-production	production caller: src/mir/compiler/generic_g0_source_parent.rs +8 more
+src/mir/compiler/loop_break_composite_body_role.rs	durable-production	production caller: src/mir/builder/normal_callable_loop_source_facts/composite.rs +3 more
+src/mir/compiler/loop_break_composite_source_projection.rs	durable-production	production caller: src/mir/builder/normal_callable_loop_source_facts/composite.rs +5 more
+src/mir/compiler/loop_break_source_projection.rs	durable-production	production caller: src/mir/compiler/module_registry.in.rs +4 more
+src/mir/compiler/loop_candidate_abort_p0.rs	durable-production	production caller: src/mir/compiler/mod.rs +4 more
+src/mir/compiler/loop_cond_break_continue_observation.rs	durable-production	production caller: src/mir/compiler/module_registry.in.rs +8 more
+src/mir/compiler/loop_cond_break_continue_projection.rs	durable-production	production caller: src/mir/builder/normal_callable_loop_source_facts/loop_break.rs +10 more
+src/mir/compiler/loop_cond_break_continue_projection_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/loop_cond_break_continue_typed_map.rs	durable-production	production caller: src/mir/loop_route_policy/loop_cond_break_continue.rs +5 more
+src/mir/compiler/loop_cond_break_continue_typed_map_issue.rs	durable-production	production caller: src/mir/compiler/module_registry.in.rs +2 more
+src/mir/compiler/loop_family_window_probe_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/loop_node_physical_admission.rs	durable-production	production caller: src/mir/builder/raw_loop_child_entry/variable_accum.rs +7 more
+src/mir/compiler/loop_node_physical_admission_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/loop_node_winner_spine.rs	durable-production	production caller: src/mir/compiler/loop_node_physical_admission.rs +6 more
+src/mir/compiler/loop_node_winner_spine_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/loop_physical_prepare.rs	durable-production	production caller: src/mir/compiler/callable_loop_physical_canary.rs +7 more
+src/mir/compiler/loop_physical_prepare_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/loop_true_break_continue_observation.rs	durable-production	production caller: src/mir/compiler/loop_node_winner_spine.rs +7 more
+src/mir/compiler/loop_true_break_continue_projection.rs	durable-production	production caller: src/mir/compiler/loop_true_break_continue_observation.rs +8 more
+src/mir/compiler/loop_true_break_continue_projection_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/main0_derived_predicate_recipe_coseal.rs	durable-production	production caller: src/mir/builder/normal_main0_derived_predicate_prepared_operation.rs +11 more
+src/mir/compiler/main0_derived_predicate_recipe_coseal_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/main0_derived_predicate_root_selection.rs	durable-production	production caller: src/mir/compiler/module_registry.in.rs +2 more
+src/mir/compiler/main0_derived_predicate_root_selection_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/main0_derived_predicate_semantic_program.rs	durable-production	production caller: src/mir/builder/normal_main0_derived_predicate_prepared_operation.rs +2 more
+src/mir/compiler/main0_derived_predicate_source_map.rs	durable-production	production caller: src/mir/compiler/main0_derived_predicate_recipe_coseal.rs +4 more
+src/mir/compiler/main0_derived_predicate_source_map_issue.rs	durable-production	production caller: src/mir/compiler/main0_derived_predicate_source_map.rs +2 more
+src/mir/compiler/main0_derived_predicate_syntax_facts.rs	durable-production	production caller: src/mir/compiler/main0_derived_predicate_source_map_issue.rs +2 more
+src/mir/compiler/nested_predicate_effect_plan.rs	durable-production	production caller: src/mir/builder/resolved_lowering/nested_predicate_physicalizer.rs +7 more
+src/mir/compiler/nested_predicate_effect_plan_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/nested_predicate_observation.rs	durable-production	production caller: src/mir/compiler/README.md +10 more
+src/mir/compiler/nested_predicate_physical_input.rs	durable-production	production caller: src/mir/builder/resolved_lowering/nested_predicate_physicalizer.rs +6 more
+src/mir/compiler/nested_predicate_physical_input_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/nested_predicate_producer.rs	durable-production	production caller: src/mir/compiler/nested_predicate_profile.rs +7 more
+src/mir/compiler/nested_predicate_producer_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/nested_predicate_profile.rs	durable-production	production caller: src/mir/builder/resolved_lowering/mod.rs +10 more
+src/mir/compiler/nested_predicate_profile_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/nested_predicate_projection.rs	durable-production	production caller: src/mir/compiler/README.md +9 more
+src/mir/compiler/nested_predicate_projection_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/nested_predicate_source_handoff.rs	durable-production	production caller: src/mir/compiler/nested_predicate_producer.rs +5 more
+src/mir/compiler/nested_predicate_topology.rs	durable-production	production caller: src/mir/compiler/nested_predicate_physical_input.rs +8 more
+src/mir/compiler/nested_predicate_topology_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/normal_default_pipeline_loop_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/resolved_callable_module.rs	durable-production	production caller: src/mir/builder/canonical_root_completion.rs +25 more
+src/mir/compiler/resolved_callable_module_input.rs	durable-production	production caller: tools/checks/lib/resolved_callable_l0.py +2 more
+src/mir/compiler/resolved_callable_module_preflight.rs	durable-production	production caller: src/mir/compiler/mod.rs +4 more
+src/mir/compiler/resolved_callable_module_preflight_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/resolved_callable_module_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/compiler/resolved_direct_accum_cutover.rs	durable-production	production caller: src/mir/compiler/mod.rs +6 more
+src/mir/compiler/resolved_direct_accum_hardening_p0.rs	durable-production	production caller: src/mir/compiler/mod.rs +4 more
+src/mir/compiler/resolved_generic_g0_cutover.rs	durable-production	production caller: src/mir/compiler/README.md +3 more
+src/mir/compiler/resolved_nested_predicate_cutover.rs	durable-production	production caller: tools/checks/joinir_nested_resolved_fallback_guard.sh +5 more
+src/mir/compiler/variable_accum_recurrence_projection.rs	durable-production	production caller: src/mir/compiler/module_registry.in.rs +5 more
+src/mir/compiler/variable_accum_recurrence_projection_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_api.rs	durable-production	production caller: tools/checks/fixtures/canonical_ssa_seam_inventory_v1.json +8 more
+src/mir/loop_canonicalizer/canonicalizer.rs	durable-production	production caller: src/runner/modes/common_util/core_bridge.rs +28 more
+src/mir/loop_canonicalizer/canonicalizer_tests/basic.rs	durable-production	production caller: tools/llvmlite_harness.py +321 more
+src/mir/loop_canonicalizer/canonicalizer_tests/continue_pattern.rs	durable-production	production caller: src/mir/loop_canonicalizer/canonicalizer_tests/mod.rs +1 more
+src/mir/loop_canonicalizer/canonicalizer_tests/escape_skip.rs	durable-production	production caller: src/mir/builder.rs +9 more
+src/mir/loop_canonicalizer/canonicalizer_tests/mod.rs	test-oracle	module declaration for canonicalizer_tests — declared in src/mir/loop_canonicalizer/mod.rs
+src/mir/loop_canonicalizer/canonicalizer_tests/parse_array.rs	durable-production	production caller: src/runner/mir_json_v0/module.rs +16 more
+src/mir/loop_canonicalizer/canonicalizer_tests/parse_number.rs	durable-production	production caller: src/mir/builder.rs +17 more
+src/mir/loop_canonicalizer/canonicalizer_tests/parse_object.rs	durable-production	production caller: src/mir/builder/control_flow/joinir/routing.rs +7 more
+src/mir/loop_canonicalizer/canonicalizer_tests/parse_string.rs	durable-production	production caller: lang/src/compiler/pipeline_v2/using_resolver_box.hako +30 more
+src/mir/loop_canonicalizer/canonicalizer_tests/skip_whitespace.rs	durable-production	production caller: src/mir/loop_canonicalizer/route_shape_recognizer.rs +25 more
+src/mir/loop_canonicalizer/canonicalizer_tests/trim_leading.rs	durable-production	production caller: src/mir/builder/control_flow/facts/route_shape_recognizers/skip_whitespace.rs +3 more
+src/mir/loop_canonicalizer/canonicalizer_tests/trim_trailing.rs	durable-production	production caller: src/mir/builder/control_flow/facts/route_shape_recognizers/skip_whitespace.rs +3 more
+src/mir/loop_canonicalizer/capability_guard.rs	durable-production	production caller: src/mir/builder/control_flow/joinir/mod.rs +11 more
+src/mir/loop_canonicalizer/mod.rs	durable-production	module declaration for loop_canonicalizer — declared in src/mir/mod.rs
+src/mir/loop_canonicalizer/route_shape_recognizer.rs	durable-production	production caller: src/mir/builder/control_flow/FOLDERIZATION_MAP.md +8 more
+src/mir/loop_canonicalizer/skeleton_types.rs	durable-production	production caller: src/mir/loop_canonicalizer/mod.rs +2 more
+src/mir/loop_form.rs	durable-production	production caller: src/runner/stage1_bridge/embedded_stage1_modules_snapshot.json +21 more
+src/mir/loop_recipe_contract/binding_declaration.rs	durable-production	production caller: src/mir/compiler/nested_predicate_producer.rs +4 more
+src/mir/loop_recipe_contract/common_v2_after_boundary.rs	durable-production	production caller: src/mir/loop_recipe_contract/common_v2_predicate_branch_plan.rs +2 more
+src/mir/loop_recipe_contract/common_v2_condition_operand_inventory.rs	durable-production	production caller: src/mir/loop_recipe_contract/mod.rs +2 more
+src/mir/loop_recipe_contract/common_v2_condition_operand_inventory_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/common_v2_condition_producer.rs	durable-production	production caller: src/mir/loop_recipe_contract/common_v2_condition_operand_inventory.rs +2 more
+src/mir/loop_recipe_contract/common_v2_condition_producer_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/common_v2_continuation_relation.rs	durable-production	production caller: src/mir/loop_recipe_contract/mod.rs +2 more
+src/mir/loop_recipe_contract/common_v2_initial_index_seed.rs	durable-production	production caller: src/mir/builder/resolved_lowering/mod.rs +4 more
+src/mir/loop_recipe_contract/common_v2_initial_index_seed_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/common_v2_issuers.rs	durable-production	production caller: src/mir/loop_recipe_contract/README.md +8 more
+src/mir/loop_recipe_contract/common_v2_issuers_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/common_v2_layout_input.rs	durable-production	production caller: src/mir/loop_recipe_contract/common_v2_issuers.rs +5 more
+src/mir/loop_recipe_contract/common_v2_predicate_branch_plan.rs	durable-production	production caller: src/mir/loop_recipe_contract/common_v2_issuers.rs +4 more
+src/mir/loop_recipe_contract/common_v2_return_read_co_seal.rs	durable-production	production caller: src/mir/loop_recipe_contract/common_v2_issuers.rs +1 more
+src/mir/loop_recipe_contract/common_v2_segment_allocation.rs	durable-production	production caller: src/mir/loop_recipe_contract/mod.rs
+src/mir/loop_recipe_contract/common_v2_string_len_target_plan.rs	durable-production	production caller: src/mir/loop_recipe_contract/mod.rs
+src/mir/loop_recipe_contract/continuation.rs	durable-production	production caller: src/runtime/text_eq_residence_scope.rs +308 more
+src/mir/loop_recipe_contract/direct_accum_producer.rs	durable-production	production caller: src/mir/loop_recipe_contract/physical_input.rs +3 more
+src/mir/loop_recipe_contract/direct_accum_producer_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/error.rs	durable-production	production caller: tools/papers/build.sh +1980 more
+src/mir/loop_recipe_contract/generic_g0/after.rs	durable-production	production caller: src/abi/nyrt_shim.rs +1756 more
+src/mir/loop_recipe_contract/generic_g0/mod.rs	durable-production	module declaration for generic_g0 — declared in src/mir/loop_recipe_contract/mod.rs
+src/mir/loop_recipe_contract/generic_g0/operation_effect.rs	durable-production	production caller: src/mir/builder/normal_callable_prepared_operation.rs +36 more
+src/mir/loop_recipe_contract/generic_g0/producer.rs	durable-production	production caller: src/macro/README.md +470 more
+src/mir/loop_recipe_contract/generic_g0/producer_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/generic_g0/recipe.rs	durable-production	production caller: src/host_providers/llvm_codegen.rs +1143 more
+src/mir/loop_recipe_contract/generic_g0/relations.rs	durable-production	production caller: tools/hako_check/inspect_shape.py +169 more
+src/mir/loop_recipe_contract/generic_g0_demand.rs	durable-production	production caller: src/mir/loop_structural_facts/README.md +4 more
+src/mir/loop_recipe_contract/ids.rs	durable-production	production caller: src/llvm_py/utils/resolver_helpers.py +661 more
+src/mir/loop_recipe_contract/input_source.rs	durable-production	production caller: src/runtime/allocator_provider_activation_decision.rs +34 more
+src/mir/loop_recipe_contract/internal_declaration.rs	durable-production	production caller: src/mir/loop_recipe_contract/operation_physical_demand.rs +2 more
+src/mir/loop_recipe_contract/internal_declaration_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/join_sig/flow.rs	durable-production	production caller: src/llvm_py/pyvm/vm.py +1168 more
+src/mir/loop_recipe_contract/join_sig/mod.rs	durable-production	module declaration for join_sig — declared in src/mir/loop_recipe_contract/mod.rs
+src/mir/loop_recipe_contract/join_sig/model.rs	durable-production	production caller: src/backend/mir_interpreter/handlers/boxes.rs +803 more
+src/mir/loop_recipe_contract/join_sig/port.rs	durable-production	production caller: src/array_receiver_representation_source.rs +6493 more
+src/mir/loop_recipe_contract/join_sig/recipe_view.rs	durable-production	production caller: src/mir/loop_recipe_contract/README.md +7 more
+src/mir/loop_recipe_contract/join_sig/recipe_view_v2.rs	durable-production	production caller: src/mir/loop_recipe_contract/join_sig/mod.rs +1 more
+src/mir/loop_recipe_contract/join_sig/transfer_view_v1.rs	durable-production	production caller: src/mir/loop_recipe_contract/join_sig/mod.rs +2 more
+src/mir/loop_recipe_contract/join_sig/transfer_view_v2.rs	durable-production	production caller: src/mir/loop_recipe_contract/join_sig/v2.rs +1 more
+src/mir/loop_recipe_contract/join_sig/v2.rs	durable-production	production caller: tools/rust_lifecycle/mirbuilder_strict_converter_emission_native_seed_candidate_selection_rerun_003.py +1268 more
+src/mir/loop_recipe_contract/join_sig/v2_collection_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/join_sig/visibility.rs	durable-production	production caller: src/runtime/object_identity.rs +117 more
+src/mir/loop_recipe_contract/join_sig_after_binding_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/join_sig_branch.rs	durable-production	production caller: src/mir/loop_recipe_contract/README.md +4 more
+src/mir/loop_recipe_contract/join_sig_branch_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/join_sig_nested_shadow_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/loop_cond_break_continue_producer.rs	durable-production	production caller: src/mir/loop_recipe_contract/mod.rs +1 more
+src/mir/loop_recipe_contract/loop_cond_break_continue_producer_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/loop_true_break_continue_producer.rs	durable-production	production caller: src/mir/loop_recipe_contract/mod.rs +2 more
+src/mir/loop_recipe_contract/loop_true_break_continue_producer_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/mod.rs	durable-production	module declaration for loop_recipe_contract — declared in src/mir/mod.rs
+src/mir/loop_recipe_contract/nested_predicate_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/normalize.rs	durable-production	production caller: tools/generic_method_route_descriptor_codegen.py +654 more
+src/mir/loop_recipe_contract/operation_carrier_demand.rs	durable-production	production caller: src/mir/loop_recipe_contract/operation_physical_demand_ledger.rs +2 more
+src/mir/loop_recipe_contract/operation_effect.rs	durable-production	production caller: src/mir/builder/normal_callable_prepared_operation.rs +37 more
+src/mir/loop_recipe_contract/operation_effect_parity.rs	durable-production	production caller: src/mir/loop_recipe_contract/mod.rs +1 more
+src/mir/loop_recipe_contract/operation_effect_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/operation_physical_demand.rs	durable-production	production caller: src/mir/loop_recipe_contract/operation_physical_demand_ledger.rs +13 more
+src/mir/loop_recipe_contract/operation_physical_demand_ledger.rs	durable-production	production caller: src/mir/loop_recipe_contract/operation_physical_demand.rs +1 more
+src/mir/loop_recipe_contract/operation_physical_demand_rows.rs	durable-production	production caller: src/mir/loop_recipe_contract/operation_physical_demand.rs +2 more
+src/mir/loop_recipe_contract/operation_physical_demand_schedule.rs	durable-production	production caller: src/mir/loop_recipe_contract/operation_physical_demand.rs
+src/mir/loop_recipe_contract/operation_physical_demand_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/physical_input.rs	durable-production	production caller: src/mir/compiler/module_registry.in.rs +37 more
+src/mir/loop_recipe_contract/physical_layout.rs	durable-production	production caller: src/mir/loop_recipe_contract/physical_transfer.rs +15 more
+src/mir/loop_recipe_contract/physical_layout_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/physical_transfer.rs	durable-production	production caller: src/mir/loop_recipe_contract/physical_layout.rs +4 more
+src/mir/loop_recipe_contract/producer_id.rs	durable-production	production caller: src/mir/loop_recipe_contract/schema.rs +29 more
+src/mir/loop_recipe_contract/producer_id_migration_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/recipe_draft.rs	durable-production	production caller: src/mir/loop_recipe_contract/mod.rs +2 more
+src/mir/loop_recipe_contract/route_id.rs	durable-production	production caller: src/llvm_py/generated/generic_method_route_registry.py +97 more
+src/mir/loop_recipe_contract/schema.rs	durable-production	production caller: tools/perf/s6c_native_hwcounter_acquisition.py +1319 more
+src/mir/loop_recipe_contract/schema_v2.rs	durable-production	production caller: src/mir/loop_recipe_contract/s6c_scan_with_init_logical_consumer.rs +31 more
+src/mir/loop_recipe_contract/semantic_context.rs	durable-production	production caller: src/mir/loop_recipe_contract/mod.rs +1 more
+src/mir/loop_recipe_contract/source_binding.rs	durable-production	production caller: src/mir/loop_recipe_contract/s6c_prephysical_ingress.rs +150 more
+src/mir/loop_recipe_contract/source_bound_core.rs	durable-production	production caller: src/mir/loop_recipe_contract/direct_accum_producer.rs +24 more
+src/mir/loop_recipe_contract/source_bound_core_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/typed_schema_v2.rs	durable-production	production caller: src/mir/loop_recipe_contract/s6c_scan_with_init.rs +9 more
+src/mir/loop_recipe_contract/typed_schema_v2_dynamic_operation_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/typed_schema_v2_operations.rs	durable-production	production caller: src/mir/loop_recipe_contract/typed_schema_v2.rs
+src/mir/loop_recipe_contract/typed_schema_v2_structure.rs	durable-production	production caller: src/mir/loop_recipe_contract/typed_schema_v2.rs +3 more
+src/mir/loop_recipe_contract/typed_schema_v2_structure_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/typed_schema_v2_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/typed_schema_v2_text_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/variable_accum_recurrence_producer.rs	durable-production	production caller: src/mir/loop_recipe_contract/mod.rs +3 more
+src/mir/loop_recipe_contract/verify.rs	durable-production	production caller: tools/archive/manual-smokes/test_phase133_console_llvm.sh +1099 more
+src/mir/loop_recipe_contract/verify_keys.rs	durable-production	production caller: src/mir/loop_recipe_contract/verify.rs
+src/mir/loop_recipe_contract/wire_parity_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/wire_parity_tests/m8a_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/wire_parity_tests/m8c_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/wire_parity_tests/m8d_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_recipe_contract/wire_route_parity_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_route_detection/classify.rs	durable-production	production caller: tools/hako_check/state_explain.py +582 more
+src/mir/loop_route_detection/features.rs	durable-production	production caller: src/parser/mod.rs +359 more
+src/mir/loop_route_detection/kind.rs	durable-production	production caller: src/cli/args.rs +4016 more
+src/mir/loop_route_detection/mod.rs	durable-production	module declaration for loop_route_detection — declared in src/mir/mod.rs
+src/mir/loop_route_detection/support/body_local/carrier.rs	durable-production	production caller: src/backend/vm_types.rs +1104 more
+src/mir/loop_route_detection/support/body_local/condition.rs	durable-production	production caller: src/mir/direct_array_access_plan.rs +1329 more
+src/mir/loop_route_detection/support/body_local/digitpos.rs	durable-production	production caller: src/mir/loop_route_detection/support/body_local/README.md +4 more
+src/mir/loop_route_detection/support/body_local/digitpos_detector.rs	durable-production	production caller: src/mir/loop_route_detection/support/body_local/README.md +3 more
+src/mir/loop_route_detection/support/body_local/mod.rs	durable-production	module declaration for body_local — declared in src/mir/loop_route_detection/support/mod.rs
+src/mir/loop_route_detection/support/body_local/trim_detector.rs	durable-production	production caller: src/mir/loop_route_detection/support/body_local/mod.rs +3 more
+src/mir/loop_route_detection/support/break_condition.rs	durable-production	production caller: src/mir/loop_route_detection/support/README.md +26 more
+src/mir/loop_route_detection/support/condition_scope/mod.rs	durable-production	module declaration for condition_scope — declared in src/mir/loop_route_detection/support/mod.rs
+src/mir/loop_route_detection/support/condition_scope/var_analyzer.rs	durable-production	production caller: src/mir/loop_route_detection/support/condition_scope/mod.rs +2 more
+src/mir/loop_route_detection/support/function_scope/analyzers/mod.rs	durable-production	module declaration for analyzers — declared in src/mir/loop_route_detection/support/function_scope/mod.rs
+src/mir/loop_route_detection/support/function_scope/analyzers/tests/mod.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_route_detection/support/function_scope/analyzers/tests/v1.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_route_detection/support/function_scope/analyzers/tests/v2.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_route_detection/support/function_scope/analyzers/v1.rs	durable-production	production caller: src/lib.rs +1527 more
+src/mir/loop_route_detection/support/function_scope/analyzers/v2.rs	durable-production	production caller: lang/src/vm/boxes/mini_vm_prints.hako +1268 more
+src/mir/loop_route_detection/support/function_scope/helpers.rs	durable-production	production caller: tools/selfhost_exe_stageb.sh +1134 more
+src/mir/loop_route_detection/support/function_scope/mod.rs	durable-production	module declaration for function_scope — declared in src/mir/loop_route_detection/support/mod.rs
+src/mir/loop_route_detection/support/function_scope/types.rs	durable-production	production caller: src/mir/semantic_refresh.rs +700 more
+src/mir/loop_route_detection/support/locals/mod.rs	durable-production	module declaration for locals — declared in src/mir/loop_route_detection/support/mod.rs
+src/mir/loop_route_detection/support/locals/mutable_accumulator.rs	durable-production	production caller: src/mir/loop_route_detection/support/README.md +6 more
+src/mir/loop_route_detection/support/locals/pinned.rs	durable-production	production caller: src/runtime/leak_tracker.rs +246 more
+src/mir/loop_route_detection/support/mod.rs	durable-production	module declaration for support — declared in src/mir/loop_route_detection/mod.rs
+src/mir/loop_route_detection/support/trim.rs	durable-production	production caller: tools/rust_lifecycle/extract_variable_context_explicit_carrier_snapshot_facts.py +263 more
+src/mir/loop_route_detection/tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_route_policy/all_route_observation.rs	durable-production	production caller: src/mir/loop_route_policy/README.md +5 more
+src/mir/loop_route_policy/all_route_observation_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_route_policy/direct_accum_observation.rs	durable-production	production caller: src/mir/loop_route_policy/mod.rs +10 more
+src/mir/loop_route_policy/direct_accum_observation_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_route_policy/family_admission.rs	durable-production	production caller: src/mir/loop_route_policy/README.md +14 more
+src/mir/loop_route_policy/family_admission_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_route_policy/family_selector.rs	durable-production	production caller: src/mir/loop_route_policy/mod.rs +6 more
+src/mir/loop_route_policy/family_selector_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_route_policy/generic_g0.rs	durable-production	production caller: tools/checks/rust_mirbuilder_generic_g0_production_terminal_i1_guard.sh +80 more
+src/mir/loop_route_policy/generic_g0_observation.rs	durable-production	production caller: src/mir/loop_route_policy/README.md +13 more
+src/mir/loop_route_policy/generic_g0_observation_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_route_policy/generic_g0_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_route_policy/loop_cond_break_continue.rs	durable-production	production caller: lang/src/compiler/lib/planner_rule_label_formatter.hako +84 more
+src/mir/loop_route_policy/loop_cond_break_continue_observation.rs	durable-production	production caller: tools/checks/lib/loop_family_observation_contract.sh +8 more
+src/mir/loop_route_policy/loop_cond_break_continue_observation_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_route_policy/loop_true_break_continue.rs	durable-production	production caller: lang/src/compiler/lib/planner_rule_label_formatter.hako +51 more
+src/mir/loop_route_policy/loop_true_break_continue_observation.rs	durable-production	production caller: src/mir/loop_structural_facts/mod.rs +7 more
+src/mir/loop_route_policy/loop_true_break_continue_observation_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_route_policy/mod.rs	durable-production	module declaration for loop_route_policy — declared in src/mir/mod.rs
+src/mir/loop_route_policy/nested_predicate_observation.rs	durable-production	production caller: src/mir/loop_route_policy/mod.rs +10 more
+src/mir/loop_route_policy/nested_predicate_observation_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_route_policy/policy.rs	durable-production	production caller: tools/hakorune_emit_mir.sh +2155 more
+src/mir/loop_route_policy/policy_evidence.rs	durable-production	production caller: src/mir/loop_route_policy/mod.rs +15 more
+src/mir/loop_route_policy/schema.rs	durable-production	production caller: tools/perf/s6c_pinned_corridor_exact_bench.py +1320 more
+src/mir/loop_structural_facts/direct_accum_effect_plan.rs	durable-production	production caller: src/mir/loop_structural_facts/mod.rs
+src/mir/loop_structural_facts/direct_accum_exclusivity.rs	durable-production	production caller: src/mir/loop_structural_facts/selected_demand.rs +1 more
+src/mir/loop_structural_facts/direct_accum_observation.rs	durable-production	production caller: src/mir/loop_route_policy/mod.rs +10 more
+src/mir/loop_structural_facts/generic_g0/mod.rs	durable-production	module declaration for generic_g0 — declared in src/mir/loop_structural_facts/mod.rs
+src/mir/loop_structural_facts/generic_g0_observation.rs	durable-production	production caller: src/mir/loop_structural_facts/README.md +13 more
+src/mir/loop_structural_facts/generic_resolved_carrier_facts_snapshot.rs	test-oracle	#[cfg(test)] module in loop_structural_facts/mod.rs:11 — test snapshot helper
+src/mir/loop_structural_facts/loop_cond_break_continue_observation.rs	durable-production	production caller: src/mir/loop_structural_facts/mod.rs +8 more
+src/mir/loop_structural_facts/loop_cond_break_continue_source.rs	durable-production	production caller: src/mir/builder/raw_loop_child_entry.rs +8 more
+src/mir/loop_structural_facts/loop_true_break_continue_observation.rs	durable-production	production caller: src/mir/compiler/module_registry.in.rs +7 more
+src/mir/loop_structural_facts/loop_true_break_continue_source.rs	durable-production	production caller: src/mir/compiler/loop_true_break_continue_observation.rs +7 more
+src/mir/loop_structural_facts/mod.rs	durable-production	module declaration for loop_structural_facts — declared in src/mir/mod.rs
+src/mir/loop_structural_facts/nested_predicate_observation.rs	durable-production	production caller: src/mir/compiler/module_registry.in.rs +10 more
+src/mir/loop_structural_facts/nested_predicate_source.rs	durable-production	production caller: src/mir/compiler/generic_g0_capability.rs +16 more
+src/mir/loop_structural_facts/resolved_source_adapter.rs	durable-production	production caller: src/mir/loop_structural_facts/mod.rs +3 more
+src/mir/loop_structural_facts/selected_demand.rs	durable-production	production caller: src/mir/builder/resolved_lowering/if_recipe_adapter.rs +4 more
+src/mir/loop_structural_facts/tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
+src/mir/loop_structural_facts/types.rs	durable-production	production caller: src/lib.rs +700 more
+src/mir/loop_structural_facts/variable_accum_recurrence.rs	durable-production	production caller: src/mir/loop_recipe_contract/mod.rs +20 more
+src/mir/loop_structural_facts/variable_accum_recurrence_validation.rs	durable-production	production caller: src/mir/loop_structural_facts/README.md +1 more
+src/mir/shared_loop_source_window_tests.rs	test-oracle	cfg(test)/parity test surface for retained machinery
