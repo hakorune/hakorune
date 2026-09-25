@@ -135,7 +135,9 @@ fn direct_accum_preflight_issues_one_whole_function_plan() {
         .resolved_loop_source(loop_stmt.site())
         .expect("loop source");
     assert!(receipt.frame_key().matches(&source.frame_key()));
-    assert_eq!(effect_plan.entries().len(), 5);
+    for role in crate::mir::loop_structural_facts::DirectAccumBindingEffectRoleV1::ALL {
+        let _ = effect_plan.entry(role);
+    }
     assert!(completion.is_implicit_void());
 }
 

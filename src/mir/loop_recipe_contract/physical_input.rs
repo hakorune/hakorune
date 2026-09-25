@@ -6,7 +6,9 @@
 
 use super::direct_accum_producer::VerifiedDirectAccumRecipeProductV1;
 use super::join_sig::{VerifiedLoopAfterBindingV1, VerifiedLoopJoinSigV1};
-use super::source_bound_core::VerifiedLoopCoreProductV1;
+use super::source_bound_core::{
+    VerifiedLoopCoreProductV1, VerifiedLoopRecipeBindingRelationV1,
+};
 use super::verify::VerifiedLoopRecipeV1;
 
 #[derive(Debug)]
@@ -16,11 +18,16 @@ pub(crate) struct VerifiedLoopPhysicalInputV1 {
 }
 
 impl VerifiedLoopPhysicalInputV1 {
-    pub(crate) fn from_direct_accum(product: VerifiedDirectAccumRecipeProductV1) -> Self {
+    /// Extracts the verified Recipe/JoinSig pair plus the Recipe-layer binding
+    /// relations, which remain the sole owner of the `LoopBindingKeyV1` ->
+    /// `BindingRefV1` mapping for the resolved identity adapter.
+    pub(crate) fn from_direct_accum_with_relations(
+        product: VerifiedDirectAccumRecipeProductV1,
+    ) -> (Self, Box<[VerifiedLoopRecipeBindingRelationV1]>) {
         let (operations, _inputs) = product.into_parts();
         let (core, _evidence) = operations.into_parts();
-        let (_owner, recipe, join_sig, _claim, _bindings, _effects) = core.into_parts();
-        Self { recipe, join_sig }
+        let (_owner, recipe, join_sig, _claim, bindings, _effects) = core.into_parts();
+        (Self { recipe, join_sig }, bindings)
     }
 
     pub(crate) fn recipe(&self) -> &VerifiedLoopRecipeV1 {

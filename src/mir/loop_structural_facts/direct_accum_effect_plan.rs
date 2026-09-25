@@ -5,7 +5,6 @@
 //! lowering can borrow it without reversing the layer boundary.
 
 use super::types::DirectAccumStructuralShapeV1;
-use crate::mir::loop_recipe_contract::LoopBindingKeyV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, LoopExecutionFrameKeyV1, SourceExprSiteV1,
 };
@@ -32,19 +31,16 @@ impl DirectAccumBindingEffectRoleV1 {
 }
 
 /// One role-keyed source claim prepared for the resolved identity adapter.
+/// Recipe binding keys stay in the Recipe layer; this plan only pins the
+/// source `BindingRefV1` each role must resolve against.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct DirectAccumBindingEffectEntryV1 {
     role: DirectAccumBindingEffectRoleV1,
-    recipe_binding: LoopBindingKeyV1,
     site: SourceExprSiteV1,
     binding: BindingRefV1,
 }
 
 impl DirectAccumBindingEffectEntryV1 {
-    pub(crate) fn recipe_binding(&self) -> LoopBindingKeyV1 {
-        self.recipe_binding
-    }
-
     pub(crate) fn site(&self) -> &SourceExprSiteV1 {
         &self.site
     }
@@ -78,31 +74,26 @@ impl VerifiedDirectAccumBindingEffectPlanV1 {
             entries: [
                 DirectAccumBindingEffectEntryV1 {
                     role: DirectAccumBindingEffectRoleV1::ConditionInductionRead,
-                    recipe_binding: LoopBindingKeyV1::new(0),
                     site: shape.condition_lhs_site.clone(),
                     binding: shape.condition_binding,
                 },
                 DirectAccumBindingEffectEntryV1 {
                     role: DirectAccumBindingEffectRoleV1::UpdateAccumulatorRead,
-                    recipe_binding: LoopBindingKeyV1::new(1),
                     site: shape.update.lhs_site.clone(),
                     binding: shape.update.binding,
                 },
                 DirectAccumBindingEffectEntryV1 {
                     role: DirectAccumBindingEffectRoleV1::StepInductionRead,
-                    recipe_binding: LoopBindingKeyV1::new(0),
                     site: shape.step.lhs_site.clone(),
                     binding: shape.step.binding,
                 },
                 DirectAccumBindingEffectEntryV1 {
                     role: DirectAccumBindingEffectRoleV1::UpdateAccumulatorWrite,
-                    recipe_binding: LoopBindingKeyV1::new(1),
                     site: shape.update.target_site.clone(),
                     binding: shape.update.binding,
                 },
                 DirectAccumBindingEffectEntryV1 {
                     role: DirectAccumBindingEffectRoleV1::StepInductionWrite,
-                    recipe_binding: LoopBindingKeyV1::new(0),
                     site: shape.step.target_site.clone(),
                     binding: shape.step.binding,
                 },
@@ -117,10 +108,6 @@ impl VerifiedDirectAccumBindingEffectPlanV1 {
 
     pub(crate) fn frame_key(&self) -> &LoopExecutionFrameKeyV1 {
         &self.frame_key
-    }
-
-    pub(crate) fn entries(&self) -> &[DirectAccumBindingEffectEntryV1; 5] {
-        &self.entries
     }
 
     pub(crate) fn entry(

@@ -9,7 +9,8 @@ use crate::mir::builder::control_flow::plan::loop_accum_physicalizer::{
     physicalize_direct_accum_v1_with_port, DirectAccumBindingPortV1, LoopResultDispositionV1,
 };
 use crate::mir::builder::control_flow::plan::loop_physical_input::{
-    direct_accum_physical_input, LoopPhysicalRoleV1, VerifiedLoopBindingProjectionV1,
+    direct_accum_physical_input_with_relations, LoopPhysicalRoleV1,
+    VerifiedLoopBindingProjectionV1,
     VerifiedLoopInputProjectionV1, VerifiedLoopPhysicalRolePlanV1,
 };
 use crate::mir::builder::emission::constant::emit_integer;
@@ -124,11 +125,13 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
             .recipe
             .take()
             .ok_or_else(|| "[freeze:contract][direct_accum/recipe_reconsumed]".to_string())?;
-        let physical_input = direct_accum_physical_input(recipe);
+        let (physical_input, binding_relations) =
+            direct_accum_physical_input_with_relations(recipe);
         let final_carrier_keys = direct_accum_final_carrier_keys(&physical_input)?;
         let mut port = CanonicalDirectAccumBindingPort::new(
             &mut self.session.identity,
             &self.effect_plan,
+            binding_relations,
             self.input.owner(),
             self.effect_plan.frame_key(),
         )?;
@@ -207,11 +210,15 @@ impl<'builder, 'source> CanonicalDirectAccumSsaLowererV1<'builder, 'source> {
                 value,
             )?;
             let expected = self
-                .effect_plan
-                .entries()
+                .recipe
+                .as_ref()
+                .ok_or_else(|| "[freeze:contract][direct_accum/recipe_missing]".to_string())?
+                .operations()
+                .core()
+                .binding_relations()
                 .iter()
-                .find(|entry| entry.recipe_binding() == binding_key)
-                .map(|entry| entry.binding())
+                .find(|relation| relation.recipe_binding() == binding_key)
+                .map(|relation| relation.source_binding())
                 .ok_or_else(|| {
                     format!(
                         "[freeze:contract][direct_accum/input_binding_missing] key={binding_key:?}"

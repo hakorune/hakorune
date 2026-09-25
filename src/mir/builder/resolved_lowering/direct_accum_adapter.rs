@@ -11,7 +11,9 @@ use crate::mir::builder::control_flow::plan::loop_accum_physicalizer::DirectAccu
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_cfg::VerifiedPredecessorsV1;
 use crate::mir::builder::MirBuilder;
-use crate::mir::loop_recipe_contract::LoopBindingKeyV1;
+use crate::mir::loop_recipe_contract::{
+    LoopBindingKeyV1, VerifiedLoopRecipeBindingRelationV1,
+};
 use crate::mir::loop_structural_facts::{
     DirectAccumBindingEffectRoleV1, VerifiedDirectAccumBindingEffectPlanV1,
 };
@@ -26,6 +28,9 @@ pub(in crate::mir::builder::resolved_lowering) struct CanonicalDirectAccumBindin
 > {
     identity: &'plan mut ResolvedSsaIdentityStateV2<'source>,
     plan: &'plan VerifiedDirectAccumBindingEffectPlanV1,
+    /// Recipe-owned key -> binding relations; the only `LoopBindingKeyV1`
+    /// resolver in this adapter.
+    relations: Box<[VerifiedLoopRecipeBindingRelationV1]>,
     claimed: BTreeSet<DirectAccumBindingEffectRoleV1>,
 }
 
@@ -33,6 +38,7 @@ impl<'plan, 'source> CanonicalDirectAccumBindingPort<'plan, 'source> {
     pub(in crate::mir::builder::resolved_lowering) fn new(
         identity: &'plan mut ResolvedSsaIdentityStateV2<'source>,
         plan: &'plan VerifiedDirectAccumBindingEffectPlanV1,
+        relations: Box<[VerifiedLoopRecipeBindingRelationV1]>,
         owner: FunctionOwnerIdV1,
         frame_key: &LoopExecutionFrameKeyV1,
     ) -> Result<Self, String> {
@@ -45,6 +51,7 @@ impl<'plan, 'source> CanonicalDirectAccumBindingPort<'plan, 'source> {
         Ok(Self {
             identity,
             plan,
+            relations,
             claimed: BTreeSet::new(),
         })
     }
@@ -53,11 +60,10 @@ impl<'plan, 'source> CanonicalDirectAccumBindingPort<'plan, 'source> {
         &self,
         key: LoopBindingKeyV1,
     ) -> Result<BindingRefV1, String> {
-        self.plan
-            .entries()
+        self.relations
             .iter()
-            .find(|entry| entry.recipe_binding() == key)
-            .map(|entry| entry.binding())
+            .find(|relation| relation.recipe_binding() == key)
+            .map(|relation| relation.source_binding())
             .ok_or_else(|| format!("[freeze:contract][direct_accum/binding_missing] key={key:?}"))
     }
 
@@ -88,16 +94,12 @@ impl<'plan, 'source> CanonicalDirectAccumBindingPort<'plan, 'source> {
     fn claim_read(
         &mut self,
         role: DirectAccumBindingEffectRoleV1,
-        expected_key: LoopBindingKeyV1,
         builder: &mut MirBuilder,
         phis: &mut PhiTxn,
         binding: BindingRefV1,
         block: BasicBlockId,
     ) -> Result<ValueId, String> {
-        let site = self
-            .check_entry(role, expected_key, binding)?
-            .site()
-            .clone();
+        let site = self.check_entry(role, binding)?.site().clone();
         self.identity.claim_variable_use_binding(&site, binding)?;
         let value = self.identity.read_entry(builder, phis, block, binding)?;
         self.claimed.insert(role);
@@ -107,15 +109,11 @@ impl<'plan, 'source> CanonicalDirectAccumBindingPort<'plan, 'source> {
     fn claim_write(
         &mut self,
         role: DirectAccumBindingEffectRoleV1,
-        expected_key: LoopBindingKeyV1,
         binding: BindingRefV1,
         block: BasicBlockId,
         value: ValueId,
     ) -> Result<(), String> {
-        let site = self
-            .check_entry(role, expected_key, binding)?
-            .site()
-            .clone();
+        let site = self.check_entry(role, binding)?.site().clone();
         self.identity
             .define_assignment_exact(&site, binding, block, value)?;
         self.claimed.insert(role);
@@ -125,7 +123,6 @@ impl<'plan, 'source> CanonicalDirectAccumBindingPort<'plan, 'source> {
     fn check_entry(
         &self,
         role: DirectAccumBindingEffectRoleV1,
-        expected_key: LoopBindingKeyV1,
         binding: BindingRefV1,
     ) -> Result<&crate::mir::loop_structural_facts::DirectAccumBindingEffectEntryV1, String> {
         if self.claimed.contains(&role) {
@@ -134,7 +131,7 @@ impl<'plan, 'source> CanonicalDirectAccumBindingPort<'plan, 'source> {
             ));
         }
         let entry = self.plan.entry(role);
-        if entry.recipe_binding() != expected_key || entry.binding() != binding {
+        if entry.binding() != binding {
             return Err(format!(
                 "[freeze:contract][direct_accum/effect_mismatch] role={role:?}"
             ));
@@ -176,7 +173,6 @@ impl DirectAccumBindingPortV1 for CanonicalDirectAccumBindingPort<'_, '_> {
     ) -> Result<ValueId, String> {
         self.claim_read(
             DirectAccumBindingEffectRoleV1::ConditionInductionRead,
-            LoopBindingKeyV1::new(0),
             builder,
             phis,
             binding,
@@ -193,7 +189,6 @@ impl DirectAccumBindingPortV1 for CanonicalDirectAccumBindingPort<'_, '_> {
     ) -> Result<ValueId, String> {
         self.claim_read(
             DirectAccumBindingEffectRoleV1::UpdateAccumulatorRead,
-            LoopBindingKeyV1::new(1),
             builder,
             phis,
             binding,
@@ -210,7 +205,6 @@ impl DirectAccumBindingPortV1 for CanonicalDirectAccumBindingPort<'_, '_> {
     ) -> Result<ValueId, String> {
         self.claim_read(
             DirectAccumBindingEffectRoleV1::StepInductionRead,
-            LoopBindingKeyV1::new(0),
             builder,
             phis,
             binding,
@@ -226,7 +220,6 @@ impl DirectAccumBindingPortV1 for CanonicalDirectAccumBindingPort<'_, '_> {
     ) -> Result<(), String> {
         self.claim_write(
             DirectAccumBindingEffectRoleV1::UpdateAccumulatorWrite,
-            LoopBindingKeyV1::new(1),
             binding,
             block,
             value,
@@ -241,7 +234,6 @@ impl DirectAccumBindingPortV1 for CanonicalDirectAccumBindingPort<'_, '_> {
     ) -> Result<(), String> {
         self.claim_write(
             DirectAccumBindingEffectRoleV1::StepInductionWrite,
-            LoopBindingKeyV1::new(0),
             binding,
             block,
             value,
@@ -280,12 +272,17 @@ mod tests {
             .resolved_loop_source(loop_stmt.site())
             .expect("source");
         let profile = issue_direct_accum_plan_v1(input, loop_stmt, completion).expect("profile");
-        let (input, _loop_stmt, _receipt, _prefix, _recipe, plan, _completion) =
+        let (input, _loop_stmt, _receipt, _prefix, recipe, plan, _completion) =
             profile.into_parts();
+        let (_physical_input, relations) =
+            crate::mir::loop_recipe_contract::VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(
+                recipe,
+            );
         let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
         let port = CanonicalDirectAccumBindingPort::new(
             &mut identity,
             &plan,
+            relations,
             input.owner(),
             &source.frame_key(),
         )
@@ -293,9 +290,7 @@ mod tests {
 
         for role in DirectAccumBindingEffectRoleV1::ALL {
             let entry = plan.entry(role);
-            let expected_key = entry.recipe_binding();
-            let expected_binding = entry.binding();
-            port.check_entry(role, expected_key, expected_binding)
+            port.check_entry(role, entry.binding())
                 .expect("exact role mapping");
         }
         assert_eq!(
@@ -320,12 +315,17 @@ mod tests {
             .resolved_loop_source(loop_stmt.site())
             .expect("source");
         let profile = issue_direct_accum_plan_v1(input, loop_stmt, completion).expect("profile");
-        let (input, _loop_stmt, _receipt, _prefix, _recipe, plan, _completion) =
+        let (input, _loop_stmt, _receipt, _prefix, recipe, plan, _completion) =
             profile.into_parts();
+        let (_physical_input, relations) =
+            crate::mir::loop_recipe_contract::VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(
+                recipe,
+            );
         let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
         let mut port = CanonicalDirectAccumBindingPort::new(
             &mut identity,
             &plan,
+            relations,
             input.owner(),
             &source.frame_key(),
         )
@@ -333,8 +333,6 @@ mod tests {
         let role = DirectAccumBindingEffectRoleV1::ConditionInductionRead;
         let entry = plan.entry(role);
         port.claimed.insert(role);
-        assert!(port
-            .check_entry(role, entry.recipe_binding(), entry.binding())
-            .is_err());
+        assert!(port.check_entry(role, entry.binding()).is_err());
     }
 }

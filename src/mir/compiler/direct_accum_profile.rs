@@ -225,23 +225,31 @@ mod tests {
         let completion = verify_function_completion_v1(input).expect("completion");
         let profile =
             issue_direct_accum_plan_v1(input, loop_stmt, completion).expect("DirectAccum plan");
-        let (_input, _loop, _receipt, _prefix, _recipe, effect_plan, _completion) =
+        let (_input, _loop, _receipt, _prefix, recipe, effect_plan, _completion) =
             profile.into_parts();
-        assert_eq!(effect_plan.entries().len(), 5);
         for role in DirectAccumBindingEffectRoleV1::ALL {
             let _ = effect_plan.entry(role);
         }
+        let relations = recipe.operations().core().binding_relations();
         assert_eq!(
             effect_plan
                 .entry(DirectAccumBindingEffectRoleV1::ConditionInductionRead)
-                .recipe_binding(),
-            LoopBindingKeyV1::new(0)
+                .binding(),
+            relations
+                .iter()
+                .find(|relation| relation.recipe_binding() == LoopBindingKeyV1::new(0))
+                .expect("induction binding relation")
+                .source_binding()
         );
         assert_eq!(
             effect_plan
                 .entry(DirectAccumBindingEffectRoleV1::UpdateAccumulatorWrite)
-                .recipe_binding(),
-            LoopBindingKeyV1::new(1)
+                .binding(),
+            relations
+                .iter()
+                .find(|relation| relation.recipe_binding() == LoopBindingKeyV1::new(1))
+                .expect("accumulator binding relation")
+                .source_binding()
         );
     }
 

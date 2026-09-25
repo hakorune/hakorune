@@ -173,10 +173,13 @@ impl VerifiedLoopPhysicalRolePlanV1 {
     }
 }
 
-pub(in crate::mir::builder) fn direct_accum_physical_input(
+pub(in crate::mir::builder) fn direct_accum_physical_input_with_relations(
     product: crate::mir::loop_recipe_contract::VerifiedDirectAccumRecipeProductV1,
-) -> VerifiedLoopPhysicalInputV1 {
-    VerifiedLoopPhysicalInputV1::from_direct_accum(product)
+) -> (
+    VerifiedLoopPhysicalInputV1,
+    Box<[crate::mir::loop_recipe_contract::VerifiedLoopRecipeBindingRelationV1]>,
+) {
+    VerifiedLoopPhysicalInputV1::from_direct_accum_with_relations(product)
 }
 
 #[cfg(test)]
