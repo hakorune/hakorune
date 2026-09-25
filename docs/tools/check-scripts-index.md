@@ -154,6 +154,7 @@ Do not add a dedicated shell guard for every inventory or selection row.
 | `python3 tools/checks/llvm_llvmlite_keep0_inventory_guard.py` | G3 frozen keep-lane inventory guard: exact tracked/support roots, G0/G2/shared-smoke row IDs, fixture/golden classifications, artifact gaps, restore entries, and nullable archive fields; no source deletion or route change. |
 | `tools/checks/run_row_guard.sh` | Manifest-backed row guard runner using `tools/checks/guard_rows.toml` and `tools/checks/lib/manifest_runner.py`. |
 | `tools/checks/run_proof_app.sh` | Manifest-backed proof app runner using `tools/checks/proof_apps.toml` and `tools/checks/lib/manifest_runner.py`. |
+| `python3 tools/docs/design_registry.py` | Design authority registry V1 helper: `check` / `locate` / `add` / `update` against `design/registry/manifest.toml` + deterministic `shards/{0..f}.toml`; no policy inference. |
 
 > The detailed row-by-row surface is intentionally not a human navigation list.
 > Use `python3 tools/docs/guard_surface_inventory.py --check` for the
