@@ -230,3 +230,91 @@ def check_unified_off_value_mint_promote_s4(
     print(f"[{api.TAG}] row={row} delegated=unified-off-value-mint-promote")
 
 
+V0_BOXCALL_MINT_PROMOTE_S5_ROW = (
+    "MIR-CALL-V0-BOXCALL-MINT-PROMOTE-S5"
+)
+V0_BOXCALL_MINT_PROMOTE_S5_CARD_REL = Path(
+    "docs/development/current/main/investigations/"
+    "mir-call-v0-boxcall-mint-promote-s5-2026-09-25.md"
+)
+
+
+def check_v0_boxcall_mint_promote_s5(
+    state: dict, root: Path, api
+) -> None:
+    """Pin the S5 v0 boxcall mint promote surface."""
+    row = V0_BOXCALL_MINT_PROMOTE_S5_ROW
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{row} must be fast or closeout")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if not str(state.get("current_design_stop", "")).startswith("none"):
+        api.fail(f"{row} must clear current_design_stop")
+    if not str(state.get("next_design_card", "")).startswith("none"):
+        api.fail(f"{row} must not open a second design card")
+    expected_next = row if mode == "fast" else "none"
+    if not str(state.get("next_execution_card", "")).startswith(expected_next):
+        api.fail(f"{row} next_execution_card drifted")
+    card_rel = str(V0_BOXCALL_MINT_PROMOTE_S5_CARD_REL)
+    if state.get("next_execution_card_path") != card_rel:
+        api.fail(f"{row} next_execution_card_path drifted")
+    if state.get("latest_card_path") != card_rel:
+        api.fail(f"{row} latest_card_path drifted")
+
+    card_text = (root / card_rel).read_text(encoding="utf-8")
+    for token in (row, "Callee::Method", "boxcall"):
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+
+    v0_module = (root / "src/runner/mir_json_v0/module.rs").read_text(
+        encoding="utf-8"
+    )
+    for token in ("\"boxcall\"", "method_call("):
+        if token not in v0_module:
+            api.fail(f"{row} v0 boxcall ingress lost {token}")
+    if "LegacyCallV0" in v0_module:
+        api.fail(f"{row} legacy carrier mint re-entered mir_json_v0/module")
+
+    v0_tests = (root / "src/runner/mir_json_v0/tests.rs").read_text(
+        encoding="utf-8"
+    )
+    for token in (
+        "boxcall_mints_canonical_method_call_carrier",
+        "boxcall_without_optional_fields_uses_runtime_data_defaults",
+    ):
+        if token not in v0_tests:
+            api.fail(f"{row} parser pin missing: {token}")
+
+    interpreter = (
+        root / "src/backend/mir_interpreter/handlers/calls/mod.rs"
+    ).read_text(encoding="utf-8")
+    for token in (
+        "canonical_method_call_rejects_at_global_only_boundary",
+        "[vm-reference/canonical-call] only Global targets are admitted",
+    ):
+        if token not in interpreter:
+            api.fail(f"{row} interpreter canonical Method stop pin missing")
+
+    emit_tests = (
+        root / "src/runner/mir_json_emit/emitters/calls.rs"
+    ).read_text(encoding="utf-8")
+    if "compatibility_profile_without_methodize_keeps_boxcall" not in (
+        emit_tests
+    ):
+        api.fail(f"{row} v0 boxcall wire projection pin missing")
+
+    for rel in (
+        "src/runner/mir_json_v0/module.rs",
+        "src/runner/mir_json_v0/tests.rs",
+        "src/backend/mir_interpreter/handlers/calls/mod.rs",
+        "src/runner/mir_json_emit/emitters/calls.rs",
+    ):
+        path = root / rel
+        if not path.is_file():
+            api.fail(f"{row} implementation owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
+    print(f"[{api.TAG}] row={row} delegated=v0-boxcall-mint-promote")
+
+

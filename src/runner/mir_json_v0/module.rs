@@ -1,6 +1,6 @@
 use crate::mir::{
     function::{FunctionSignature, MirFunction, MirModule},
-    BasicBlock, BasicBlockId, Callee, EffectMask, MirInstruction, MirType, ValueId, WeakRefOp,
+    BasicBlock, BasicBlockId, EffectMask, MirInstruction, MirType, ValueId, WeakRefOp,
 };
 use crate::runner::mir_json::common as mirjson_common;
 use serde_json::Value;
@@ -454,21 +454,20 @@ pub(super) fn lower_functions(functions: &[Value], module: &mut MirModule) -> Re
                             .and_then(Value::as_str)
                             .unwrap_or("RuntimeDataBox")
                             .to_string();
-                        block_ref.add_instruction(MirInstruction::LegacyCallV0 {
-                            dst: dst_opt,
-                            func: ValueId::INVALID,
-                            callee: Some(Callee::Method {
+                        // R6-S5: boxcall ingress mints the canonical carrier;
+                        // the wire spelling stays a compatibility contract.
+                        block_ref.add_instruction(
+                            crate::mir::ssot::method_call::method_call(
+                                dst_opt,
+                                ValueId::new(box_id),
                                 box_name,
                                 method,
-                                receiver: Some(ValueId::new(box_id)),
-                                certainty:
-                                    crate::mir::definitions::call_unified::TypeCertainty::Union,
-                                box_kind:
-                                    crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
-                            }),
-                            args,
-                            effects: EffectMask::READ,
-                        });
+                                args,
+                                EffectMask::READ,
+                                crate::mir::definitions::call_unified::TypeCertainty::Union,
+                                crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+                            ),
+                        );
                         if let Some(dv) = dst_opt {
                             max_value_id = max_value_id.max(dv.as_u32() + 1);
                         }

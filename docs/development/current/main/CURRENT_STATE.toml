@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-V0-BOXCALL-MINT-PROMOTE-D0"
+current_execution_row = "MIR-CALL-R7-CALLER-ZERO-D1"
 current_execution_cohort = "mir_call_r6_queue"
-current_blocker_token = "BoxcallMintPromote-Open__WireDeprec-NoSafeSlice__Gate1-AcceptanceRed"
-current_design_stop = "boxcall_wire_NoSafeSlice__carrier_promote_evidence_owed__design_stop"
+current_blocker_token = "CallerZeroD1-Open__IngressMintersZero__Gate1-AcceptanceRed"
+current_design_stop = "caller_zero_recensus__both_ingress_minters_retired__design_stop"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call compatibility retirement"
@@ -14,20 +14,21 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mir-call-v0-boxcall-mint-promote-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-call-v0-boxcall-mint-promote-d0-2026-09-25.md"
+latest_card = "mir-call-r7-caller-zero-d1"
+latest_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d1-2026-09-25.md"
 latest_card_summary = """
-Boxcall deprecation D0 closed NoSafeSlice: the v0 boxcall wire is
-owned by the Phase-0 env.mirbuilder.emit contract + vm-hako lane +
-LLVM JSON allowlists — retirement is a product decision. The sole
-LegacyCallV0 minter (module.rs:439-475) is structurally promotable,
-but callsite_canonicalize reads LegacyCallV0{Method} exclusively —
-carrier promote needs its own evidence. Next: mint-promote D0.
+S5 landed: the v0 boxcall arm now mints canonical
+Call{Callee::Method} via ssot method_call; mir_json_v0/module.rs is
+LegacyCallV0-free and no production ingress minter remains (the
+llvmlite lane keeps its documented ExplicitCompatibility projection).
+Wire `boxcall` stays a v0 contract; interpreter stop becomes the
+canonical-call tag. The D0 caller-zero reopen trigger has fired, so
+this card reopens the R7 caller-zero deletion census.
 """
-next_design_card = "MIR-CALL-V0-BOXCALL-MINT-PROMOTE-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-v0-boxcall-mint-promote-d0-2026-09-25.md"
-next_execution_card = "none__design_stop__boxcall_mint_promote_evidence_required"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-v0-boxcall-mint-promote-d0-2026-09-25.md"
+next_design_card = "MIR-CALL-R7-CALLER-ZERO-D1"
+next_design_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d1-2026-09-25.md"
+next_execution_card = "none__design_stop__caller_zero_recensus_required"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-r7-caller-zero-d1-2026-09-25.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

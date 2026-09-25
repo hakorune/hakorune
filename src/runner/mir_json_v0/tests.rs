@@ -1,5 +1,6 @@
 use super::parse_mir_v0_to_module;
-use crate::mir::{BasicBlockId, MirInstruction, ValueId};
+use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+use crate::mir::{BasicBlockId, Callee, EffectMask, MirInstruction, ValueId};
 
 fn single_block_json(instructions: &str) -> String {
     format!(
@@ -244,4 +245,71 @@ fn intrinsic_target_cannot_reenter_legacy_named_wire() {
         {"op":"ret","value":1}]}]}]}"#;
     let error = parse_mir_v0_to_module(input).unwrap_err();
     assert!(error.contains("construction-target-unsupported"), "{error}");
+}
+
+#[test]
+fn boxcall_mints_canonical_method_call_carrier() {
+    // R6-S5: the `boxcall` wire spelling stays accepted, but the parsed row
+    // must be the canonical carrier — the parser no longer mints
+    // LegacyCallV0 for any instruction.
+    let json = single_block_json(
+        r#"{"op":"boxcall","box":1,"box_name":"StringBox","method":"concat","args":[7,8],"dst":9}"#,
+    );
+    let module = parse_mir_v0_to_module(&json).expect("boxcall must parse");
+    let block = module
+        .get_function("main")
+        .unwrap()
+        .get_block(BasicBlockId::new(0))
+        .unwrap();
+    assert!(
+        !block
+            .instructions
+            .iter()
+            .any(|i| matches!(i, MirInstruction::LegacyCallV0 { .. })),
+        "parser must not mint LegacyCallV0"
+    );
+    let MirInstruction::Call(call) = &block.instructions[0] else {
+        panic!("boxcall must mint canonical Call, got {:?}", block.instructions[0]);
+    };
+    assert_eq!(call.dst, Some(ValueId::new(9)));
+    assert_eq!(call.args, vec![ValueId::new(7), ValueId::new(8)]);
+    assert_eq!(call.effects, EffectMask::READ);
+    let Callee::Method {
+        box_name,
+        method,
+        receiver,
+        certainty,
+        box_kind,
+    } = &call.callee
+    else {
+        panic!("boxcall callee must be Method, got {:?}", call.callee);
+    };
+    assert_eq!(box_name, "StringBox");
+    assert_eq!(method, "concat");
+    assert_eq!(*receiver, Some(ValueId::new(1)));
+    assert_eq!(*certainty, TypeCertainty::Union);
+    assert_eq!(*box_kind, CalleeBoxKind::RuntimeData);
+}
+
+#[test]
+fn boxcall_without_optional_fields_uses_runtime_data_defaults() {
+    let json = single_block_json(r#"{"op":"boxcall","box":3,"method":"get","args":[]}"#);
+    let module = parse_mir_v0_to_module(&json).expect("boxcall must parse");
+    let block = module
+        .get_function("main")
+        .unwrap()
+        .get_block(BasicBlockId::new(0))
+        .unwrap();
+    let MirInstruction::Call(call) = &block.instructions[0] else {
+        panic!("boxcall must mint canonical Call, got {:?}", block.instructions[0]);
+    };
+    assert_eq!(call.dst, None);
+    let Callee::Method {
+        box_name, receiver, ..
+    } = &call.callee
+    else {
+        panic!("boxcall callee must be Method, got {:?}", call.callee);
+    };
+    assert_eq!(box_name, "RuntimeDataBox");
+    assert_eq!(*receiver, Some(ValueId::new(3)));
 }

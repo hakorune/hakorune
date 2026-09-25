@@ -215,6 +215,35 @@ mod tests {
     }
 
     #[test]
+    fn canonical_method_call_rejects_at_global_only_boundary() {
+        // R6-S5: v0 boxcall ingress now mints this canonical carrier; it must
+        // still stop at the Global-only interpreter boundary.
+        let mut interp = MirInterpreter::new();
+        let instruction = MirInstruction::call(
+            None,
+            Callee::Method {
+                box_name: "ArrayBox".to_owned(),
+                method: "get".to_owned(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            },
+            vec![ValueId::new(1)],
+            EffectMask::READ,
+        );
+
+        let error = interp
+            .execute_instruction(&instruction)
+            .expect_err("canonical Method call must stop before dynamic dispatch");
+        assert!(
+            error
+                .to_string()
+                .contains("[vm-reference/canonical-call] only Global targets are admitted"),
+            "{error}"
+        );
+    }
+
+    #[test]
     fn legacy_method_call_rejects_before_method_dispatch() {
         let mut interp = MirInterpreter::new();
         let instruction = MirInstruction::LegacyCallV0 {
