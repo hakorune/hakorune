@@ -1,6 +1,6 @@
 # MIRBUILDER-EXE-ACCEPTANCE-MAIN-IMPORT-STRING-RESULT-D0
 
-Status: selected__2026-09-25
+Status: accepted__2026-09-25
 Date: 2026-09-25
 Parent: MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D2
   (closed NoSafeSlice; this family ranked highest-information)
@@ -71,3 +71,76 @@ result-representation axis is i64-only at three coordinated points.
       the six-line brief.
 - [ ] Next S-card emitted OR NoSafeSlice with reopen triggers;
       pointers synced.
+
+## Decision (accepted 2026-09-25): bounded — arity-scope the qualified relation + diversion
+
+Worker `5c215875` emission-path verification + main-investigator
+spot-checks (`main_root.rs:215-264`, `capability.rs:278-279`,
+`static_result_publication_physical_bridge.rs:21-55`,
+`static_result_publication_ingress.rs:142-151`):
+
+```text
+Decision: Option B — scope the main-import qualified relation and
+          the route diversion to arity-0 app mains (the canonical
+          NormalMainQualifiedMethods contract is `params.is_empty()`);
+          arity!=0 mains stay on inner.lower_body where the existing
+          static result publication owner already serves qualified
+          static calls with proven representations (ExactString ->
+          MirType::String commit).
+Source authority + canonical issuer: relation = membership/
+          argument-site authority only; result representation =
+          VerifiedSameModuleCallableResultCatalogV1 via
+          VerifiedStaticCallResultPublicationOwnerV1 (already issued
+          in the same lifecycle scope; drain enforces
+          StaticResultPublicationResidual).
+Non-authority: physical_header (i64 co-seal) must NOT be widened;
+          no new ABI enum; no representation guessing.
+Fail-fast boundary: arity-0 main + non-i64 qualified callee keeps
+          `selected-header-*`; publication lane keeps `target-only`/
+          `no-exact-static-target`; residual-rows unchanged for
+          arity-0.
+Smallest next slice:
+          MIRBUILDER-EXE-ACCEPTANCE-MAIN-IMPORT-ARITY-SCOPE-S0 —
+          (1) model.rs relation issue returns Ok(None) when the app
+          main arity != 0; (2) main_root.rs diversion predicate gains
+          parameter_count == 0; pins + scope guard.
+Non-claims: no app-green claim (json_stream/boxtorrent will hit
+          downstream lanes); no result generalization beyond
+          solver-proven dispositions; no signature-ABI change;
+          arity-0 non-i64 qualified calls unchanged.
+```
+
+### Why not Option A (relation carries representation)
+
+Requires widening `ExactTrivialScalarAbiV1`, the arity-0
+NormalMainQualifiedMethods role, and the trivial-SSA InlineI64
+grammar — 4+ coordinated authorities — and still cannot serve
+`main(args)`. Rejected.
+
+### Expected post-slice terminals (predictions, verify at rerun)
+
+- json_stream: `agg.ingest(Main.sampleStream())` lowers via
+  publication lane -> String commit; next boundary likely inside
+  `ingest` body (loop/substring lanes).
+- boxtorrent: `local source = Main.samplePayload()` same lane; next
+  boundary inside callee/instance lanes.
+- Arity-0 qualified-route consumers (`method_min` etc.) unchanged.
+
+### Post-S0 finding (premise correction, recorded honestly)
+
+The route-scope half of the decision held: `main(args)` no longer
+issues the qualified relation nor diverts into the canonical route.
+But the premise "`inner.lower_body` serves `main(args)`" was partly
+wrong: the installed lane had NEVER lowered an arity-bearing app
+main. The wrapper `main()` is a 0-formal function and source params
+are materialized as injected locals (`decls.rs:302-363`), while the
+callable ledger requires `entry.parameters().len()` == declared
+`Parameter` bindings — `entry-shape-mismatch` fires for every
+`main(args)` (verified even with no qualified calls present).
+
+The authority gap: who binds a source `Parameter` of an arity-bearing
+app main to its physical value on the wrapper route — (W) the entry
+adoption port snapshots the injector's locals (decls.rs remains sole
+physical owner), or (C) `Main.main/N` becomes a real cataloged
+function the wrapper calls. Follow-up card:
+MIRBUILDER-EXE-ACCEPTANCE-MAIN-WRAPPER-PARAM-ENTRY-D0.

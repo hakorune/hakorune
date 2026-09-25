@@ -328,6 +328,29 @@ fn app_main_qualified_receiver_relation_retains_exact_catalog_row() {
 }
 
 #[test]
+fn app_main_qualified_receiver_relation_skips_arity_bearing_main() {
+    let source = final_source(
+        "static box Helpers { run(value: i64): i64 { return value } }\n\
+         static box Main { main(args) { local x = Helpers.run(2)\nreturn 0 } }",
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(113).unwrap();
+    let package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
+        .expect("arity-bearing App Main package");
+    let imports = crate::mir::source_call_target::VerifiedStaticImportAliasViewV1::seal(
+        package.declaration_catalog(),
+        std::iter::empty::<(String, String)>(),
+    )
+    .expect("empty invocation import view");
+    assert!(
+        package
+            .issue_app_main_qualified_receiver_catalog_relation(&imports)
+            .expect("relation issue")
+            .is_none(),
+        "the arity-0 canonical route is the sole row consumer; `main(args)` rows are unconsumable"
+    );
+}
+
+#[test]
 fn app_main_qualified_receiver_relation_resolves_imported_alias_in_shared_view() {
     let source = final_source(
         "static box Helpers { run(value: i64): i64 { return value } }\n\

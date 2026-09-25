@@ -223,13 +223,17 @@ pub(super) fn lower_app_main_root_body_v1(
                             CallableEntryShapeV1::Static { parameter_count },
                         )?;
                         // The canonical qualified-methods route only serves
-                        // qualified (unbound-receiver) calls; lexical receiver
-                        // calls like `pair.sum()` stay on the lifecycle/
-                        // ordinary_new owner path below.
-                        let value = if input.function().method_calls().any(|(_, call)| {
-                            call.receiver()
-                                == ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
-                        }) {
+                        // arity-0 mains with qualified (unbound-receiver)
+                        // calls; `main(args)` and lexical receiver calls like
+                        // `pair.sum()` stay on the lifecycle/ordinary_new
+                        // owner path below (the publication lane owns the
+                        // qualified static calls there).
+                        let value = if parameter_count == 0
+                            && input.function().method_calls().any(|(_, call)| {
+                                call.receiver()
+                                    == ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
+                            })
+                        {
                             let canonical_result = (|| {
                                 let plan = CanonicalLoweringPreflightV1::
                                     verify_normal_main0_function_with_qualified_methods_v1(
