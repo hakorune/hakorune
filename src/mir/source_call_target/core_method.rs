@@ -78,9 +78,10 @@ pub(crate) fn issue_source_bound_core_method_calls_v1(
             continue;
         };
         let call_arity = call.arity();
-        let Some(expected_placement) = supported_placement(manifest_row.op, call_arity) else {
+        let allowed = allowed_placements(manifest_row.op, call_arity);
+        if allowed.is_empty() {
             continue;
-        };
+        }
         let candidates = loop_sites
             .iter()
             .filter_map(|loop_site| {
@@ -94,10 +95,12 @@ pub(crate) fn issue_source_bound_core_method_calls_v1(
             .collect::<Result<Vec<_>, _>>()?
             .into_iter()
             .filter_map(|(loop_site, placement)| {
-                (placement == Some(expected_placement)).then_some(loop_site)
+                placement
+                    .filter(|placement| allowed.contains(placement))
+                    .map(|placement| (loop_site, placement))
             })
             .collect::<Vec<_>>();
-        let Some(loop_site) = nearest_loop(candidates)? else {
+        let Some((loop_site, placement)) = nearest_loop(candidates)? else {
             continue;
         };
         let membership = ledger
@@ -121,7 +124,7 @@ pub(crate) fn issue_source_bound_core_method_calls_v1(
             ledger,
             call,
             &membership,
-            expected_placement,
+            placement,
             target,
         ) {
             Ok(contract) => contract,
@@ -151,23 +154,29 @@ fn issue_manifest_row(op: CoreMethodOp, arity: u32) -> Option<CoreMethodManifest
     issue_core_method_manifest_row_ref_v2(op, arity)
 }
 
-fn supported_placement(op: CoreMethodOp, arity: u32) -> Option<ResolvedLoopPlacementV1> {
+/// Bounded Loop placements admitted for one (op, arity) row. A member of
+/// this set is exact vocabulary — the issued contract records the site's
+/// actual resolved placement; an op absent here stays unarmed.
+fn allowed_placements(op: CoreMethodOp, arity: u32) -> &'static [ResolvedLoopPlacementV1] {
     match (op, arity) {
-        (CoreMethodOp::StringLen, 0) => Some(ResolvedLoopPlacementV1::Condition),
-        (CoreMethodOp::StringSubstring, 2) => Some(ResolvedLoopPlacementV1::Body),
-        _ => None,
+        (CoreMethodOp::StringLen, 0) => &[ResolvedLoopPlacementV1::Condition],
+        (CoreMethodOp::StringSubstring, 2) => &[
+            ResolvedLoopPlacementV1::Body,
+            ResolvedLoopPlacementV1::Condition,
+        ],
+        _ => &[],
     }
 }
 
-pub(super) fn nearest_loop<'a>(
-    candidates: Vec<&'a crate::mir::resolved_semantics::SourceStmtSiteV1>,
+pub(super) fn nearest_loop<'a, T>(
+    candidates: Vec<(&'a crate::mir::resolved_semantics::SourceStmtSiteV1, T)>,
 ) -> Result<
-    Option<&'a crate::mir::resolved_semantics::SourceStmtSiteV1>,
+    Option<(&'a crate::mir::resolved_semantics::SourceStmtSiteV1, T)>,
     SourceBoundCoreMethodTargetIssueV1,
 > {
     let Some(max_depth) = candidates
         .iter()
-        .map(|site| site.node().segments().len())
+        .map(|(site, _)| site.node().segments().len())
         .max()
     else {
         return Ok(None);
@@ -175,7 +184,7 @@ pub(super) fn nearest_loop<'a>(
     let candidate_count = candidates.len();
     let mut nearest = candidates
         .into_iter()
-        .filter(|site| site.node().segments().len() == max_depth);
+        .filter(|(site, _)| site.node().segments().len() == max_depth);
     let Some(first) = nearest.next() else {
         return Ok(None);
     };

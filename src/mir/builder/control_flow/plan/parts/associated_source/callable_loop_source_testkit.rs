@@ -169,6 +169,24 @@ pub(super) fn real_ledger(
 pub(super) fn real_core_method_ledger(
     source: &str,
 ) -> (Rc<RefCell<CallableSemanticLoweringState>>, Vec<ASTNode>) {
+    let (state, body, _) = real_core_method_ledger_with_placements(source, 2);
+    (state, body)
+}
+
+/// `real_core_method_ledger` variant that also returns each armed call's
+/// sealed placement so tests can pin the bounded (op,arity) vocabulary.
+#[allow(clippy::type_complexity)]
+pub(super) fn real_core_method_ledger_with_placements(
+    source: &str,
+    expected_rows: usize,
+) -> (
+    Rc<RefCell<CallableSemanticLoweringState>>,
+    Vec<ASTNode>,
+    BTreeMap<
+        crate::mir::resolved_semantics::SourceExprSiteV1,
+        crate::mir::resolved_semantics::ResolvedLoopPlacementV1,
+    >,
+) {
     let program = NyashParser::parse_from_string(source).expect("core-method fixture parses");
     let ASTNode::Program { mut statements, .. } = program else {
         panic!("core-method fixture must be a program")
@@ -195,9 +213,13 @@ pub(super) fn real_core_method_ledger(
     let rows = issue_source_bound_core_method_calls_v1(&ledger).expect("core-method source rows");
     assert_eq!(
         rows.len(),
-        2,
-        "fixture must issue length and substring rows"
+        expected_rows,
+        "fixture must issue the pinned core-method rows"
     );
+    let placements = rows
+        .iter()
+        .map(|(site, row)| (site.clone(), row.contract().placement()))
+        .collect::<BTreeMap<_, _>>();
     let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
         &function,
         &forest,
@@ -217,7 +239,7 @@ pub(super) fn real_core_method_ledger(
             crate::mir::normal_callable_semantic_package::unconditional_test_rows(rows),
         )
         .expect("core-method callable ledger");
-    (Rc::new(RefCell::new(state)), body)
+    (Rc::new(RefCell::new(state)), body, placements)
 }
 
 pub(super) fn function_body_source() -> RawInvocationSourceContextV1 {

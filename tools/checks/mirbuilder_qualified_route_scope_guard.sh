@@ -278,7 +278,33 @@ rg -q 'sole_family_ignores_owner_less_loop_break_recipe' "$DEAD_ROUTE_TESTS"
 rg -q 'loop_simple_while_overlap_keeps_sole_family_none' "$DEAD_ROUTE_TESTS"
 rg -q 'trim_header_dead_route_does_not_hide_loop_cond_sole_family' "$DEAD_ROUTE_TESTS"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS" "$ROUTE_PREDICATES" "$CALLABLE_ROUTE" "$DEAD_ROUTE_TESTS"; do
+# MIRBUILDER-EXE-ACCEPTANCE-COND-SUBSTRING-COVERAGE-S2: the source-side
+# CoreMethod placement arm is an allowed SET per (op, arity); StringLen/0
+# stays Condition-only, StringSubstring/2 admits Body+Condition, and every
+# other (op, arity) stays unarmed. The sealed contract keeps the site's
+# actual resolved placement, the verifier mirrors the same set, and
+# named-array push stays Body-only — no new physical path, no probe
+# coverage change, no receiver widening.
+CORE_METHOD_SRC="$ROOT_DIR/src/mir/source_call_target/core_method.rs"
+NAMED_ARRAY_SRC="$ROOT_DIR/src/mir/source_call_target/named_array_method.rs"
+NAMED_ARRAY_METHOD_TESTS="$ROOT_DIR/src/mir/source_call_target/named_array_method_tests.rs"
+CONTRACT_ISSUER="$ROOT_DIR/src/mir/resolved_semantics/resolver_core_method_callable_contract.rs"
+LEDGER_CONTRACT_TESTS="$ROOT_DIR/src/mir/resolved_semantics/callable_source_ledger_contract_tests.rs"
+rg -q 'fn allowed_placements' "$CORE_METHOD_SRC"
+rg -q 'allowed\.contains\(placement\)' "$CORE_METHOD_SRC"
+rg -q '\(CoreMethodOp::StringLen, 0\) => &\[ResolvedLoopPlacementV1::Condition\]' "$CORE_METHOD_SRC"
+rg -q 'fn allowed_target_placements' "$CONTRACT_ISSUER"
+rg -q '\(CoreMethodOp::ArrayPush, 1\) => &\[ResolvedLoopPlacementV1::Body\]' "$CONTRACT_ISSUER"
+rg -q 'allowed\.contains\(&placement\)' "$CONTRACT_ISSUER"
+rg -q '== Some\(ResolvedLoopPlacementV1::Body\)' "$NAMED_ARRAY_SRC"
+rg -q 'fn real_core_method_ledger_with_placements' "$TESTKIT"
+rg -q 'condition_position_substring_contracts_and_consumes_exact_row' "$ITEMS_TESTS"
+rg -q 'body_position_length_stays_unarmed' "$ITEMS_TESTS"
+rg -q 'resolver_callable_contract_co_seals_condition_substring_and_generated_target' "$LEDGER_CONTRACT_TESTS"
+rg -q 'resolver_callable_contract_rejects_body_length_placement' "$LEDGER_CONTRACT_TESTS"
+rg -q 'condition_position_push_stays_unarmed' "$NAMED_ARRAY_METHOD_TESTS"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS" "$ROUTE_PREDICATES" "$CALLABLE_ROUTE" "$DEAD_ROUTE_TESTS" "$CORE_METHOD_SRC" "$NAMED_ARRAY_SRC" "$NAMED_ARRAY_METHOD_TESTS" "$CONTRACT_ISSUER" "$LEDGER_CONTRACT_TESTS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2

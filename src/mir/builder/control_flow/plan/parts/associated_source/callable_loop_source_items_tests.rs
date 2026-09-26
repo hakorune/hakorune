@@ -10,7 +10,8 @@ use std::rc::Rc;
 
 use super::callable_loop_source_testkit::{
     cataloged_body_source, drive_item, function_body_source, integer, located_body,
-    real_core_method_ledger, real_ledger, test_builder, variable,
+    real_core_method_ledger, real_core_method_ledger_with_placements, real_ledger, test_builder,
+    variable,
 };
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
@@ -151,6 +152,76 @@ fn source_item_method_calls_consume_exact_core_method_rows() {
         builder.function_state.type_ctx.get_type(substring.0),
         Some(&MirType::String)
     );
+}
+
+#[test]
+fn condition_position_substring_contracts_and_consumes_exact_row() {
+    // `StringSubstring/2` at `Condition` is inside the bounded arm
+    // vocabulary: the issued contract seals `placement == Condition` and the
+    // same expression port consumes the exact row in the condition region.
+    let (ledger, body, placements) = real_core_method_ledger_with_placements(
+        "function t(text) { loop(text.substring(0, 1) == \" \" && text.length() < 2) { local i = 0 } }",
+        2,
+    );
+    assert!(
+        placements.values().all(|placement| *placement
+            == crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Condition),
+        "both armed calls sit in the condition: {placements:?}"
+    );
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let function_body = port
+        .body(&body, &function_body_source())
+        .expect("located function body");
+    let loop_stmt = port
+        .body_stmt(&function_body, 0)
+        .expect("located loop statement");
+    let condition = port
+        .child_expr_from_stmt(&loop_stmt, ExprChildRoleV1::LoopCondition)
+        .expect("located loop condition");
+    let equality = port
+        .child_expr(&condition, ExprChildRoleV1::BinaryLeft)
+        .expect("located equality arm");
+    let substring = port
+        .child_expr(&equality, ExprChildRoleV1::BinaryLeft)
+        .expect("located substring call");
+    let (mut builder, parameter) = core_method_test_builder(&ledger);
+    let _scope = LexicalScopeGuard::new(&mut builder);
+
+    let (_, substring_effects) =
+        PlanNormalizer::lower_value_input(&port, substring, &mut builder, &BTreeMap::new())
+            .expect("condition substring lowers through source port");
+    let substring = substring_effects
+        .iter()
+        .find_map(|effect| match effect {
+            CoreEffectPlan::MethodCall {
+                dst: Some(dst),
+                object,
+                method,
+                args,
+                ..
+            } if method == "substring" => Some((*dst, *object, args.len())),
+            _ => None,
+        })
+        .expect("substring method effect");
+    assert_eq!(substring.1, parameter);
+    assert_eq!(substring.2, 2);
+    assert_eq!(
+        builder.function_state.type_ctx.get_type(substring.0),
+        Some(&MirType::String)
+    );
+}
+
+#[test]
+fn body_position_length_stays_unarmed() {
+    // `StringLen/0` remains `Condition`-only: a body-position `length` call
+    // issues no contract row and arms nothing.
+    let (_, _, placements) = real_core_method_ledger_with_placements(
+        "function t(text) { loop(text.length() < 2) { local n = text.length() } }",
+        1,
+    );
+    assert_eq!(placements.len(), 1);
+    assert!(placements.values().all(|placement| *placement
+        == crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Condition));
 }
 
 #[test]

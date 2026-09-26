@@ -266,16 +266,7 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
             }
         }
 
-        let expected_placement = required_target_placement(&target)?;
-        if placement != expected_placement {
-            return Err(
-                ResolverCoreMethodCallableContractRejectV1::TargetPlacementMismatch {
-                    op: target.row().row().op,
-                    expected: expected_placement,
-                    actual: placement,
-                },
-            );
-        }
+        verify_target_placement(&target, placement)?;
         for site in std::iter::once(call.site())
             .chain(std::iter::once(call.receiver_site()))
             .chain(call.arguments().iter().map(|argument| argument.site()))
@@ -332,18 +323,44 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
     }
 }
 
-fn required_target_placement(
-    target: &VerifiedCoreMethodInstanceTargetV1,
-) -> Result<ResolvedLoopPlacementV1, ResolverCoreMethodCallableContractRejectV1> {
-    match (target.row().row().op, target.row().arity()) {
-        (CoreMethodOp::StringLen, 0) => Ok(ResolvedLoopPlacementV1::Condition),
-        (CoreMethodOp::StringSubstring, 2) | (CoreMethodOp::ArrayPush, 1) => {
-            Ok(ResolvedLoopPlacementV1::Body)
-        }
-        (op, arity) => {
-            Err(ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch { op, arity })
-        }
+/// Bounded Loop placements admitted for one target (op, arity). This set
+/// is the verify-side mirror of the arm vocabulary: the sealed placement
+/// must be a member, and the contract records the site's actual resolved
+/// placement. `expected` on a mismatch reports the admitted placements.
+fn allowed_target_placements(op: CoreMethodOp, arity: u32) -> &'static [ResolvedLoopPlacementV1] {
+    match (op, arity) {
+        (CoreMethodOp::StringLen, 0) => &[ResolvedLoopPlacementV1::Condition],
+        (CoreMethodOp::StringSubstring, 2) => &[
+            ResolvedLoopPlacementV1::Body,
+            ResolvedLoopPlacementV1::Condition,
+        ],
+        (CoreMethodOp::ArrayPush, 1) => &[ResolvedLoopPlacementV1::Body],
+        _ => &[],
     }
+}
+
+fn verify_target_placement(
+    target: &VerifiedCoreMethodInstanceTargetV1,
+    placement: ResolvedLoopPlacementV1,
+) -> Result<(), ResolverCoreMethodCallableContractRejectV1> {
+    let op = target.row().row().op;
+    let arity = target.row().arity();
+    let allowed = allowed_target_placements(op, arity);
+    let Some(expected) = allowed.first().copied() else {
+        return Err(
+            ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch { op, arity },
+        );
+    };
+    if !allowed.contains(&placement) {
+        return Err(
+            ResolverCoreMethodCallableContractRejectV1::TargetPlacementMismatch {
+                op,
+                expected,
+                actual: placement,
+            },
+        );
+    }
+    Ok(())
 }
 
 fn verify_target(

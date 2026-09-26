@@ -80,6 +80,14 @@ fn text_literal_is_a_source_witness_without_a_synthetic_call() {
 }
 
 #[test]
+fn condition_position_push_stays_unarmed() {
+    // `ArrayPush/1` remains `Body`-only: a condition-position `push` is
+    // skipped before any named-array requirement is consulted.
+    let text = "static box Main { run(s) { local arr = new ArrayBox() local i = 0 loop(arr.push(\"text\") == 0) { i = i + 1 } return 0 } }";
+    assert!(rows(text).unwrap().is_empty());
+}
+
+#[test]
 fn selected_array_contract_rejects_reassignment_value_demand_and_non_text() {
     for (body, expected) in [
         (

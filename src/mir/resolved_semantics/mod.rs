@@ -336,6 +336,8 @@ mod callable_catalog_tests;
 #[cfg(test)]
 mod callable_header_source_unit_tests;
 #[cfg(test)]
+mod callable_source_ledger_contract_tests;
+#[cfg(test)]
 mod callable_source_ledger_tests;
 #[cfg(test)]
 mod declared_instance_contract_tests;

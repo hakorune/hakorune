@@ -42,10 +42,10 @@ pub(crate) fn issue_source_bound_core_method_calls_with_named_arrays_v1(
                 .map_err(E::LoopLookup)?
                 == Some(ResolvedLoopPlacementV1::Body)
             {
-                candidates.push(loop_site);
+                candidates.push((loop_site, ()));
             }
         }
-        let Some(loop_site) = nearest_loop(candidates)? else {
+        let Some((loop_site, ())) = nearest_loop(candidates)? else {
             continue;
         };
         let text_source = call
