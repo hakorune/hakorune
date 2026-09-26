@@ -233,7 +233,7 @@ mod tests {
         let program = NyashParser::parse_from_string(
             r#"
 static function nested_scope_loop(x: i64): i64 {
-    if x == 1 {
+    fastmem Contract {
         loop(x < 2) {
             x = x + 1
         }
@@ -266,7 +266,7 @@ static function mixed_loop(x: i64): i64 {
     loop(x < 10) {
         x = x + 1
     }
-    if x == 1 {
+    fastmem Contract {
         loop(x < 2) {
             x = x + 1
         }
@@ -300,7 +300,7 @@ static function mixed_loop(x: i64): i64 {
         let unarmed_site = sites
             .iter()
             .find(|site| site.node().segments().len() == 2)
-            .expect("if-nested loop site")
+            .expect("fastmem-nested loop site")
             .clone();
         let mut bridge = CallableLoopSourceBridgeV1::from_input(input)
             .expect("mixed loop bridge")
@@ -345,7 +345,7 @@ static function mixed_loop(x: i64): i64 {
         let unarmed_site = sites
             .iter()
             .find(|site| site.node().segments().len() == 2)
-            .expect("if-nested loop site")
+            .expect("fastmem-nested loop site")
             .clone();
         let mut state = CallableSemanticLoweringState::from_exact_source(input)
             .expect("mixed loop callable state");

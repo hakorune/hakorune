@@ -1,9 +1,9 @@
 date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-SUITE-RED-DISPOSITION-D21"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-ARMED-ROUTE-STALE-CONTRACT-PIN-RESYNC-S9"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ExeAcceptanceD21-Decided__SuiteRedsExternallySealed"
+current_blocker_token = "ArmedRouteS9-Landed__LifecycleBaselineDebtCensus"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -14,33 +14,31 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-exe-acceptance-suite-red-disposition-d21"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-suite-red-disposition-d21-2026-09-27.md"
+latest_card = "mirbuilder-armed-route-stale-contract-pin-resync-s9"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-armed-route-stale-contract-pin-resync-s9-2026-09-27.md"
 latest_card_summary = """
-D21 decided: post-S8 `real-apps-exe-boundary` receipt is 4 pass /
-7 fail and every red terminates at a named stop inside an existing
-sealed/parked lineage or the confirmed environment/toolchain debt —
-D5-sealed coverage forks (B3-ArrayPush, parked DeclaredInstance),
-D5-inventoried NamedArray source demand, the D0/D18 handle-field
-newbox-admission family (`unsupported_newbox_type`), and the
-D0/D1 environment/toolchain debt for `newbox_min`
-(`no_lowering_variant`; verified green under
-`PATH=/usr/lib/llvm-18/bin` — reopen = runner provisioning).
-`JsonStreamAggregator.ingest/1`'s
-family-selection decline is the ledger-free `VmHakoPostMacro`/
-Compatibility lane (all five spine families contract-decline;
-GenericG0 is nested-only) — the D17-recorded non-callable boundary,
-not a Gate-1 defect; the armed EXE lane compiles `ingest` fully.
-No in-lane bounded slice exists; gate-1 stays externally-blocked
-on the owning lineages' reopen triggers.
+S9 landed (test-only BoxShape): two stale contract pins on the
+armed lane's test surface re-synced to the landed vocabulary —
+(a) `source_loop_bridge` fixtures moved the unarmed nested loop
+from an `if` body (admitted by 440c16216d's conditional-path
+grammar) to a `fastmem Contract { }` body (`FastMemBody` stays
+`UnsupportedAncestor`); (b) `parser_scan_package` pinned the
+designed `static-result-ingress/no-exact-static-target` terminal
+(`target-unavailable` was retired by 3e7f4a1d7f; the
+`using`-imported `ParserCommonUtilsBox.i2s` sites have no
+same-module exact-target row — the honest blocker). Focused:
+bridge 5/5 green; lifecycle module 43 pass / 8 residual reds
+verified baseline-identical on parent HEAD and classified as a
+follow-up disposition family (stale premise vs. live regression
+census). No production diff; Gate-1 suite receipt unchanged.
 NOTE: EXE/VM smokes need `NYASH_BIN=target/debug/hakorune`;
 bare runs use stale `target/release` and report phantom
 terminals.
 """
-next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-SUITE-RED-DISPOSITION-D21"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-suite-red-disposition-d21-2026-09-27.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-ARMED-ROUTE-STALE-CONTRACT-PIN-RESYNC-S9"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-armed-route-stale-contract-pin-resync-s9-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -55,7 +53,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-27: STALE-CONTRACT-PIN-RESYNC-S9 landed — test-only resync of two armed-route contract pins (if-nested unarmed fixtures moved to fastmem ancestor; static-result-ingress pin moved target-unavailable → no-exact-static-target); bridge 5/5 green; 8 lifecycle-module residual reds verified baseline-identical on parent HEAD and queued as their own disposition census.",
   "2026-09-27: SUITE-RED-DISPOSITION-D21 decided — post-S8 Gate-1 receipt is 4/11 pass (5/11 under opt-18 PATH — newbox_min toolchain debt verified green); all seven EXE reds map to sealed lineages or the confirmed env debt (D5 coverage forks B3/DeclaredInstance, NamedArray demand, D0/D18 handle-field newbox admission for json, toolchain provisioning for newbox_min); ingest/1 family-selection decline is the D17-recorded ledger-free compatibility boundary; no in-lane bounded slice; gate-1 externally blocked.",
   "2026-09-27: LOOP-CARRIER-BINDING-PUBLICATION-S8 landed — carrier header/final phis publish into CallableSemanticLoweringState.values[binding] (the authority armed reads resolve); binding_names index + invalidate_rebind on publication; branch-first state cores snapshot/restore the values projection and publish CoreIfJoin dsts; document consume reports verify_document_module's result per D19; emit-mir-json green with 65 retained phis; find/3 wrong-code closed; next named blocker ingest/1 loop family-selection decline on the VM/EXE lane.",
-  "2026-09-26: MERGE-PHI-DOMINANCE-D20 decided — SSA family is a loop-carrier binding desync: phis emitted+patched for all failing functions but carrier reads resolve via binding-id SSA store, not variable_map; prune_unused_phi_instructions/DCE strips dead phi dsts; find/3 verify-clean wrong-code; next LOOP-CARRIER-BINDING-PUBLICATION-S8.",
 ]

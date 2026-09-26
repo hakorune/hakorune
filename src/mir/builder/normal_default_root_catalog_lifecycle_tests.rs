@@ -700,7 +700,7 @@ fn parser_scan_package_passes_callable_source_handoff_without_fallback() {
         rejected
             .error()
             .to_string()
-            .contains("static-result-ingress/target-unavailable"),
+            .contains("static-result-ingress/no-exact-static-target"),
         "unexpected next blocker: {}",
         rejected.error()
     );
