@@ -88,13 +88,13 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
                 let consume_publication = source
                     .site()
                     .map(|site| {
-                        callable_ledger
-                            .borrow()
-                            .has_loop_break_composite_source_candidate(site)
+                        let state = callable_ledger.borrow();
+                        state.has_loop_break_composite_source_candidate(site)
+                            || state.source_loop_items(site).is_some()
                     })
                     .unwrap_or(false);
                 let declarations = builder.comp_ctx.callable_declaration_catalog().ok();
-                prepared.lower_v1_with_root_scope_and_callable_ledger(
+                let value = prepared.lower_v1_with_root_scope_and_callable_ledger(
                     builder,
                     &function_name,
                     debug,
@@ -113,7 +113,17 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
                         callable_ledger,
                         consume_publication,
                     )?,
-                )
+                )?;
+                if callable_ledger
+                    .borrow()
+                    .has_pending_source_static_result_publications()
+                {
+                    return Err(
+                        "[freeze:contract][callable-loop/static-publication/residual-after-lower]"
+                            .to_owned(),
+                    );
+                }
+                Ok(value)
             }
             None => prepared.lower_v1(builder, &function_name, debug, in_static_box, policy),
         }

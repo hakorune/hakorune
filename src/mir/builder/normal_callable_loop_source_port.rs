@@ -437,11 +437,10 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
         );
         locator
             .take_exact_relation(&expected_site, |relation| {
-                if relation.target_key().name() != method
-                    || relation.target_key().arity() != arity
+                if relation.target_key().name() != method || relation.target_key().arity() != arity
                 {
                     return Err(
-                        "[freeze:contract][declared-instance/locator/key-mismatch]".to_owned(),
+                        "[freeze:contract][declared-instance/locator/key-mismatch]".to_owned()
                     );
                 }
                 self.ledger

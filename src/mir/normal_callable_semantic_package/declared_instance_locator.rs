@@ -215,11 +215,7 @@ impl<'a> DeclaredInstanceCallLocatorScopeV1<'a> {
         }
         let relation_ordinal = usize::try_from(row.relation_row_ordinal())
             .map_err(|_| DeclaredInstanceCallLocatorTakeErrorV1::RelationMismatch)?;
-        if self
-            .consumed
-            .borrow()
-            .contains(&row.relation_row_ordinal())
-        {
+        if self.consumed.borrow().contains(&row.relation_row_ordinal()) {
             return Err(DeclaredInstanceCallLocatorTakeErrorV1::AlreadyTaken);
         }
         let Some(relation_row) = relation.rows().get(relation_ordinal) else {

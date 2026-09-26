@@ -354,8 +354,7 @@ impl super::super::PlanNormalizer {
                                 call_source.clone(),
                                 "[normalizer]",
                                 "[normalizer] me.method() without bound receiver".to_string(),
-                                "[normalizer] this.method() without current_static_box"
-                                    .to_string(),
+                                "[normalizer] this.method() without current_static_box".to_string(),
                             )?);
                         }
                         ASTNode::FieldAccess { .. }

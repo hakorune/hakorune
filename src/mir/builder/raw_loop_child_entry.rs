@@ -386,8 +386,11 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                         debug,
                         in_static_box,
                     );
-                return crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower(
-                    builder, plan, &context,
+                return crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_with_source_publication(
+                    builder,
+                    plan,
+                    &context,
+                    std::rc::Rc::clone(callable_ledger),
                 )
                 .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
                 .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned());
@@ -510,8 +513,11 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                         debug,
                         in_static_box,
                     );
-                crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower(
-                    builder, plan, &context,
+                crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_with_source_publication(
+                    builder,
+                    plan,
+                    &context,
+                    std::rc::Rc::clone(source_ledger),
                 )
                 .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
                 .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned())
@@ -537,8 +543,11 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                         debug,
                         in_static_box,
                     );
-                crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower(
-                    builder, plan, &context,
+                crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_with_source_publication(
+                    builder,
+                    plan,
+                    &context,
+                    std::rc::Rc::clone(source_ledger),
                 )
                 .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
                 .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned())

@@ -116,8 +116,14 @@ Non-claims: VM `ingest/1` ledger-less spine (unchanged);
 
 ## Exit
 
-- [ ] Unconsumed publication rows identified by call site and
-  intended consumer.
-- [ ] Existing owner vs unclaimed gap classified.
-- [ ] One bounded S-card emitted, or NoSafeSlice with the
-  missing authority named.
+- [x] Unconsumed publication rows identified by call site and
+  intended consumer — `[Body(2), LoopBody(0), Initializer(0)]`
+  `JsonLine.find/3`; intended consumer is the sole
+  `take_static_result_publication_ingress_v1` ->
+  `lower_selected_static_result_publication_v1` chain.
+- [x] Existing owner vs unclaimed gap classified — owner exists
+  (`VerifiedStaticCallResultPublicationOwnerV1` on
+  `ModuleDraftCollectorV1`); the gap is port reachability, not
+  an unclaimed authority.
+- [x] One bounded S-card emitted — S4
+  `MIRBUILDER-EXE-ACCEPTANCE-SELECTED-STATIC-CALL-LOOP-PUBLICATION-S4`.
