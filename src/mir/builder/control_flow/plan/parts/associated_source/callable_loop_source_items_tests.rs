@@ -8,9 +8,9 @@ use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::rc::Rc;
 
-use super::callable_loop_source_items::lower_loop_cond_source_item;
 use super::callable_loop_source_testkit::{
-    function_body_source, integer, real_core_method_ledger, real_ledger, test_builder, variable,
+    drive_item, function_body_source, integer, located_body, real_core_method_ledger, real_ledger,
+    test_builder, variable,
 };
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
@@ -21,59 +21,16 @@ use crate::mir::builder::control_flow::plan::facts::exit_only_block::try_build_e
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, IfMode};
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;
-use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePlan};
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
-use crate::mir::builder::normal_callable_loop_source_port::{
-    CallableLoopSourceBodyInputV1, CallableLoopSourceExpressionPortV1,
-};
+use crate::mir::builder::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1;
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::{MirType, ValueId};
-
-/// Drive one issued item through the located dispatcher under the pinned
-/// default JoinIR mode, sharing `builder`/`bindings` across calls exactly
-/// like the future sibling's per-item loop. The pin acquires the
-/// non-reentrant process state lock; callers must not nest another env scope.
-fn drive_item(
-    ledger: &Rc<RefCell<CallableSemanticLoweringState>>,
-    body: &CallableLoopSourceBodyInputV1<'_>,
-    builder: &mut MirBuilder,
-    bindings: &mut BTreeMap<String, ValueId>,
-    item_index: usize,
-    item: &LoopCondBreakContinueItem,
-) -> Result<Vec<LoweredRecipe>, String> {
-    let port = CallableLoopSourceExpressionPortV1::new(ledger);
-    let mut carrier_updates = BTreeMap::new();
-    let empty = BTreeMap::new();
-    crate::test_support::with_env_vars(&crate::test_support::JOINIR_DEFAULT_MODE, || {
-        lower_loop_cond_source_item(
-            port,
-            body,
-            item_index,
-            item,
-            builder,
-            bindings,
-            &empty,
-            &empty,
-            &empty,
-            &mut carrier_updates,
-            "callable-loop-parts/test",
-        )
-    })
-}
-
-fn located_body<'a>(
-    ledger: &Rc<RefCell<CallableSemanticLoweringState>>,
-    body: &'a [ASTNode],
-) -> CallableLoopSourceBodyInputV1<'a> {
-    let port = CallableLoopSourceExpressionPortV1::new(ledger);
-    port.body(body, &function_body_source())
-        .expect("located body")
-}
 
 fn core_method_test_builder(
     ledger: &Rc<RefCell<CallableSemanticLoweringState>>,

@@ -11,12 +11,14 @@ use super::callable_loop_source::{
     CallableLoopSourcePartsAssociatedSourceV1, CallableLoopSourcePartsBlockV1,
     CallableLoopSourcePartsLoopV0V1,
 };
+use super::callable_loop_source_items::lower_loop_cond_source_item;
 use super::callable_loop_source_lowering::lower_callable_loop_source_parts_block;
 use super::dispatch::PartsAssociatedBlockModeV1;
 use super::{PartsAssociatedRecipeItemV1, PartsAssociatedSourceErrorV1, PartsAssociatedSourceV1};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::recipe_tree::{RecipeBlock, RecipeBodies};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
+use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 use crate::mir::builder::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
 use crate::mir::builder::normal_callable_loop_source_port::{
     CallableLoopSourceBodyInputV1, CallableLoopSourceExprInputV1,
@@ -323,6 +325,47 @@ pub(super) fn drive_block(
             )
         })?;
     Ok((plans, bindings))
+}
+
+/// Drive one issued LoopCond item through the located dispatcher under the
+/// pinned default JoinIR mode, sharing `builder`/`bindings` across calls
+/// exactly like the driver's per-item loop. Same non-reentrant pin contract
+/// as `drive_block`.
+pub(super) fn drive_item(
+    ledger: &Rc<RefCell<CallableSemanticLoweringState>>,
+    body: &CallableLoopSourceBodyInputV1<'_>,
+    builder: &mut MirBuilder,
+    bindings: &mut BTreeMap<String, ValueId>,
+    item_index: usize,
+    item: &LoopCondBreakContinueItem,
+) -> Result<Vec<LoweredRecipe>, String> {
+    let port = CallableLoopSourceExpressionPortV1::new(ledger);
+    let mut carrier_updates = BTreeMap::new();
+    let empty = BTreeMap::new();
+    crate::test_support::with_env_vars(&crate::test_support::JOINIR_DEFAULT_MODE, || {
+        lower_loop_cond_source_item(
+            port,
+            body,
+            item_index,
+            item,
+            builder,
+            bindings,
+            &empty,
+            &empty,
+            &empty,
+            &mut carrier_updates,
+            "callable-loop-parts/test",
+        )
+    })
+}
+
+pub(super) fn located_body<'a>(
+    ledger: &Rc<RefCell<CallableSemanticLoweringState>>,
+    body: &'a [ASTNode],
+) -> CallableLoopSourceBodyInputV1<'a> {
+    let port = CallableLoopSourceExpressionPortV1::new(ledger);
+    port.body(body, &function_body_source())
+        .expect("located body")
 }
 
 pub(super) fn drive_recipe(

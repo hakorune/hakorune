@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D5"
+current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D6"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ExeAcceptanceD5-Open__Gate1-4of11Green__SourceCallOutsideSelectedFamilyX3"
-current_design_stop = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D5"
+current_blocker_token = "ExeAcceptanceD6-Open__Gate1-4of11Green__IncompleteConsumptionReceiverSite"
+current_design_stop = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D6"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,26 +14,21 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-exe-acceptance-owner-selection-d5"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d5-2026-09-25.md"
+latest_card = "mirbuilder-exe-acceptance-owner-selection-d6"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d6-2026-09-25.md"
 latest_card_summary = """
-LOOP-COND-NO-EXIT-S0 landed — a disjoint `loop_cond_no_exit` Facts
-extractor covers conditional loops whose bodies carry zero exit
-signals; it reissues `LoopCondBreakContinueFacts` with the new
-`NoExitBody` accept kind and reuses the existing recipe + physical
-owner (no new route). All three `facts-absent` entries advanced to
-`callable-loop/route-not-front-selected` —
-`SourceItemsMissing` (call-free body), `SourceCallOutsideSelectedFamily`
-(instance/builtin calls hold no issued coverage row), and
-`StaticResultPublicationResidual(UnconsumedSelected)` for
-singleton-covered static calls — named terminals of the
-route-coverage authority, not the Facts layer. Suite 4/7 unchanged;
-dominant class is now loop-source call coverage x3. D5 selects the
-next class.
+LOOP-COND-COND-UPDATE-S0 landed — the located-source LoopCond parts
+driver owns `ConditionalUpdateIf`: else parity keyed on
+body-or-exit presence, CondBlockView seal, branch body/exit verify,
+then the existing `try_lower_conditional_update_if_input` facade.
+json_stream_aggregator advanced past `loop-cond-item-unsupported` to
+`incomplete-consumption` (Receiver site of `me.ingestLine` in the
+loop body — D5 fork B / parked DeclaredInstance direction). Suite
+4/7 unchanged, no green regression. Next: OWNER-SELECTION-D6.
 """
-next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D5"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d5-2026-09-25.md"
-next_execution_card = "none__owner_selection_d5_open"
+next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D6"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d6-2026-09-25.md"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -49,7 +44,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-25: LOOP-COND-COND-UPDATE-S0 landed — ConditionalUpdateIf arm in the located-source LoopCond parts driver via try_lower_conditional_update_if_input; json advanced to callable-semantic-lowering/incomplete-consumption (Receiver site); suite 4/7; next OWNER-SELECTION-D6.",
   "2026-09-25: LOOP-COND-NO-EXIT-S0 landed — disjoint loop_cond_no_exit Facts extractor + NoExitBody accept kind; facts-absent x3 advanced to route-coverage terminals (SourceItemsMissing/SourceCallOutsideSelectedFamily/UnconsumedSelected); suite 4/7; next OWNER-SELECTION-D5.",
   "2026-09-25: ORDINARY-NEW-BIRTH-SITE-INDEX-S0 landed — destination-less verified Birth recipe index covers non-initializer `new` sites; birth-global-legacy-stopped x3 cleared, all three now stop at callable-loop/facts-absent; suite 4/7.",
-  "2026-09-25: MAIN-WRAPPER-PARAM-ENTRY-S0 landed — declared params of main(args) adopt injector locals via StaticInjectedLocals; diversion uses declared arity; suite 4/7, dominant class birth-global-legacy-stopped x3; next OWNER-SELECTION-D3.",
 ]

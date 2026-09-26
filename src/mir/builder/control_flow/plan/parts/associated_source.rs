@@ -46,6 +46,8 @@ pub(in crate::mir::builder) mod callable_loop_source;
 mod callable_loop_source_driver_tests;
 pub(super) mod callable_loop_source_items;
 #[cfg(test)]
+mod callable_loop_source_items_cond_update_tests;
+#[cfg(test)]
 mod callable_loop_source_items_tests;
 pub(in crate::mir::builder) mod callable_loop_source_lowering;
 #[cfg(test)]

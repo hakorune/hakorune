@@ -97,7 +97,31 @@ rg -q 'pipeline_pins_no_exit_body_kind' "$NO_EXIT"
 rg -q 'pipeline_keeps_exit_bearing_body_on_sibling' "$NO_EXIT"
 rg -q 'rejects_conditional_update_if' "$NO_EXIT"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM"; do
+# MIRBUILDER-EXE-ACCEPTANCE-LOOP-COND-COND-UPDATE-S0: the located-source
+# parts driver owns ConditionalUpdateIf. The arm seals the issued recipe
+# against the located carriers (else parity keyed on body-or-exit presence,
+# CondBlockView match, branch body/exit shape) and reuses the existing
+# port-aware conditional-update/Select owner — no facade changes, no new
+# recipe variant, no fallback arm.
+ITEMS_SRC="$ROOT_DIR/src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_items.rs"
+COND_UPDATE_TESTS="$ROOT_DIR/src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_items_cond_update_tests.rs"
+COND_UPDATE_FACADE="$ROOT_DIR/src/mir/builder/control_flow/plan/parts/conditional_update.rs"
+rg -q 'LoopCondBreakContinueItem::ConditionalUpdateIf' "$ITEMS_SRC"
+rg -q 'else_body.is_some() || else_exit.is_some()' "$ITEMS_SRC"
+rg -q 'require_condition_view_match\(cond_view' "$ITEMS_SRC"
+rg -q 'fn verify_cond_update_branch_recipe' "$ITEMS_SRC"
+rg -q 'try_lower_conditional_update_if_input' "$ITEMS_SRC"
+rg -q 'loop-cond-item-conditional-update-unsupported' "$ITEMS_SRC"
+rg -q 'fn try_lower_conditional_update_if_input' "$COND_UPDATE_FACADE"
+rg -q 'source_item_lowers_conditional_update_if_through_located_branches' "$COND_UPDATE_TESTS"
+rg -q 'source_item_lowers_conditional_update_if_with_tail_break' "$COND_UPDATE_TESTS"
+rg -q 'source_item_lowers_conditional_update_if_with_tail_continue' "$COND_UPDATE_TESTS"
+rg -q 'source_item_lowers_conditional_update_if_with_exit_only_else' "$COND_UPDATE_TESTS"
+rg -q 'source_item_rejects_conditional_update_if_else_parity_drift' "$COND_UPDATE_TESTS"
+rg -q 'source_item_rejects_conditional_update_if_exit_parity_drift' "$COND_UPDATE_TESTS"
+rg -q 'source_item_rejects_conditional_update_if_unsupported_shape' "$COND_UPDATE_TESTS"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2

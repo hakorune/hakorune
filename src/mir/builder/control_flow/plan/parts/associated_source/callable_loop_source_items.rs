@@ -21,7 +21,7 @@ use crate::mir::builder::control_flow::plan::facts::exit_only_block::{
 };
 use crate::mir::builder::control_flow::plan::features::loop_cond_bc_item::lower_loop_cond_item_input;
 
-use crate::mir::builder::control_flow::plan::recipe_tree::IfContractKind;
+use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, IfContractKind};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::control_flow::recipes::loop_cond_break_continue::LoopCondBreakContinueItem;
 use crate::mir::builder::normal_callable_loop_source_port::{
@@ -230,10 +230,125 @@ pub(in crate::mir::builder) fn lower_loop_cond_source_item<'view, 'ledger: 'view
                 else_block,
             )
         }
+        LoopCondBreakContinueItem::ConditionalUpdateIf {
+            if_stmt,
+            cond_view,
+            then_body,
+            then_exit,
+            else_body,
+            else_exit,
+        } => {
+            // `else_body`/`else_exit` are both `None` only when the source
+            // `if` has no else at all; an else holding just a tail exit
+            // records `else_body = None` + `else_exit = Some(..)`.
+            let source = port
+                .body_stmt(body, if_stmt.index())
+                .map_err(|error| error.render())?;
+            let ASTNode::If {
+                else_body: ast_else_body,
+                ..
+            } = port.stmt_syntax(&source)
+            else {
+                return Err(render_source_error(
+                    PartsAssociatedSourceErrorV1::RecipeBodyMismatch,
+                    error_prefix,
+                ));
+            };
+            if (else_body.is_some() || else_exit.is_some()) != ast_else_body.is_some() {
+                return Err(render_source_error(
+                    PartsAssociatedSourceErrorV1::RecipeBodyMismatch,
+                    error_prefix,
+                ));
+            }
+            let condition = port
+                .child_expr_from_stmt(&source, ExprChildRoleV1::IfCondition)
+                .map_err(|error| error.render())?;
+            require_condition_view_match(cond_view, port.expr_syntax(&condition))
+                .map_err(|error| render_source_error(error, error_prefix))?;
+            let then_carrier = port
+                .child_body_from_stmt(&source, BodyChildRoleV1::IfThen)
+                .map_err(|error| error.render())?;
+            let else_carrier = ast_else_body
+                .as_ref()
+                .map(|_| port.child_body_from_stmt(&source, BodyChildRoleV1::IfElse))
+                .transpose()
+                .map_err(|error| error.render())?;
+            verify_cond_update_branch_recipe(
+                &port,
+                &then_carrier,
+                then_body.is_some(),
+                *then_exit,
+                error_prefix,
+            )?;
+            if let Some(else_carrier) = &else_carrier {
+                verify_cond_update_branch_recipe(
+                    &port,
+                    else_carrier,
+                    else_body.is_some(),
+                    *else_exit,
+                    error_prefix,
+                )?;
+            }
+            super::super::conditional_update::try_lower_conditional_update_if_input(
+                &port,
+                builder,
+                current_bindings,
+                carrier_phis,
+                carrier_step_phis,
+                carrier_updates,
+                Some(break_phi_dsts),
+                condition,
+                &then_carrier,
+                else_carrier.as_ref(),
+                error_prefix,
+            )?
+            .ok_or_else(|| {
+                format!("{SOURCE_PARTS_ERR} loop-cond-item-conditional-update-unsupported: ctx={error_prefix}")
+            })
+        }
         _ => Err(format!(
             "{SOURCE_PARTS_ERR} loop-cond-item-unsupported: ctx={error_prefix}"
         )),
     }
+}
+
+/// Verify the recipe's recorded branch expectations against the located
+/// branch carrier: the tail Break/Continue must equal `recipe_exit`, and a
+/// `None` body recipe must cover a located branch that holds no statements
+/// besides that tail exit.
+fn verify_cond_update_branch_recipe(
+    port: &CallableLoopSourceExpressionPortV1<'_>,
+    carrier: &CallableLoopSourceBodyInputV1<'_>,
+    recipe_has_body: bool,
+    recipe_exit: Option<ExitKind>,
+    error_prefix: &str,
+) -> Result<(), String> {
+    let statements = port.body_statements(carrier);
+    let derived_exit = match statements.last() {
+        Some(ASTNode::Break { .. }) => Some(ExitKind::Break { depth: 1 }),
+        Some(ASTNode::Continue { .. }) => Some(ExitKind::Continue { depth: 1 }),
+        _ => None,
+    };
+    let exit_matches = matches!(
+        (derived_exit, recipe_exit),
+        (None, None)
+            | (
+                Some(ExitKind::Break { depth: 1 }),
+                Some(ExitKind::Break { depth: 1 })
+            )
+            | (
+                Some(ExitKind::Continue { depth: 1 }),
+                Some(ExitKind::Continue { depth: 1 })
+            )
+    );
+    let non_exit_len = statements.len() - usize::from(derived_exit.is_some());
+    if !exit_matches || recipe_has_body != (non_exit_len > 0) {
+        return Err(render_source_error(
+            PartsAssociatedSourceErrorV1::RecipeBodyMismatch,
+            error_prefix,
+        ));
+    }
+    Ok(())
 }
 
 /// Drive the issued `BodyLoweringPolicy::ExitAllowed` body recipe against the
