@@ -71,9 +71,111 @@ call.
 - Excludes: implementation; reopening the D5-sealed coverage forks;
   backend toolchain; inference panic family; NamedArray family.
 
+## Census answers
+
+1. **Owner:** `VerifiedStaticCallResultPublicationOwnerV1` rows keyed
+   `(caller, site)`. Issuance (`whole_source_inventory.rs` `seal_qualified`
+   + `issue`) has **no caller-namespace filter** for `Qualified`
+   receivers — `JsonLine.stringField` inside `ingestLine`
+   (`InstanceBoxMethod` caller, `Variable(JsonLine)` unshadowed
+   receiver) already has a row, almost certainly `Selected`
+   (`stringField` returns `ExactString`). The sole physical consumer
+   `lower_selected_static_result_publication_v1` is already wired
+   behind `member_route.rs` `StaticReceiver`
+   (`member_route.rs:125-133`). The missing edge is **consumption
+   gating only**: `classify_source_context_v1`
+   (`static_result_publication_ingress.rs:142-156`) classifies
+   `Cataloged` callers as `Cataloged` only when
+   `caller.namespace() == StaticBoxMethod`; instance-method callers
+   fall to `Unavailable` → `handle_static_method_call_with_descent`
+   → `legacy-fallback-retired`.
+2. **Loop vs ordinary:** the loop route drains identical rows
+   caller-agnostically for any `Cataloged` root
+   (`raw_loop_child_port.rs:152-227`,
+   `target_for_source`/`selected_static_result_handoff_for_source`) —
+   that is why `JsonLine.find` inside `ingest`'s loop works.
+   `ingestLine` IS a source-backed callable (callable ledger
+   installed via `with_cataloged_callable_source_scope`), but its
+   ordinary body statements are driven by
+   `drive_located_invocation_body_v1` → the raw recursive dispatcher
+   → `member_route` `StaticReceiver`, where the ingress gate returns
+   `Unavailable`. Difference = **route's consumption gate**, not
+   selection state.
+3. **`me.ingestLine` coverage:** resolved — `ingest`'s `finish`
+   already passed (ME-RECEIVER-SITE-S0 evidence); the singleton
+   anchor covered the loop items and `JsonLine.find`'s publication
+   was consumed. `UnconsumedSelected` is not pending for `ingest`.
+   After H1, `ingestLine`'s `stringField` row will be consumed by
+   the same physical bridge (`TargetOnly`/`Selected` consumption is
+   drain-safe against `StaticResultPublicationResidual`).
+4. **Why the gate exists:** the same ingress is probed
+   unconditionally at the head of every `me.method` resolution
+   (`static_current_owner_policy.rs:39-49`), BEFORE the
+   DeclaredInstance receiver ingress (`:78-87`), and
+   `NoExactStaticTarget` is a hard error there. Instance callers
+   never hold `CurrentOwner` static rows
+   (`whole_source_inventory.rs:343-354`), so admitting them at that
+   probe would freeze every working `me.method` in instance bodies.
+   The gate is **caller-scoped where it should be probe-scoped**:
+   the `StaticReceiver` route plan probe is already reached only for
+   `Variable`-receiver static sites, which never collide with the
+   me-call probe. The "receiver-bearing sibling" in the test
+   (`static_result_publication_ingress.rs:324-337`) is the
+   `DeclaredInstanceReceiverIngressV1`/`CanonicalInstance` lane —
+   `me`/`this` only, `JsonLine.stringField` never reaches it.
+
+## Decision
+
+```text
+Decision: H1 — admit non-StaticBoxMethod Cataloged callers into the
+  static-result-publication ingress only when the probed
+  (owner, method, arity) resolves through the declaration catalog to a
+  same-module StaticBoxMethod declaration.
+Source authority + canonical issuer:
+  VerifiedWholeSourceStaticCallTargetInventoryV1
+  -> VerifiedStaticCallResultPublicationOwnerV1 rows keyed
+  (caller, site); physical emission via existing
+  lower_selected_static_result_publication_v1 bridge.
+Non-authority: classify_source_context_v1's blanket caller-namespace
+  gate; handle_static_method_call_with_descent legacy lane stays
+  retired for non-Math.
+Fail-fast boundary: NoExactStaticTarget (declared but row-absent) and
+  TargetOnly remain named terminals; Selected rows consumed by the
+  existing bridge and drain-audited by StaticResultPublicationResidual.
+Smallest next slice: in classify_source_context_v1, admit a Cataloged
+  non-StaticBoxMethod caller when
+  declarations.declaration_for(StaticBoxMethod, owner, method, arity)
+  resolves — the ingress's currently-ignored _owner/_method/
+  _argument_count params become the discriminator. The me-call probe
+  passes owner="<source-owned>", which never resolves, so the
+  DeclaredInstance sibling stays protected without a probe flag;
+  Math/builtin owners never resolve either, so Math keeps
+  Unavailable -> compatibility on every caller.
+Non-claims: no instance-call (DeclaredInstance) admission change; no
+  loop-route change; no coverage-fork reopen (B3/ordinary-instance
+  stay D5-sealed); RawStructuredChildScopePortV1 forwarder inherits
+  the same rule with no leak; local test green is not a production
+  claim.
+```
+
+Design note: the refined mechanism replaces a probe-origin flag with
+declaration-gating, which is the honest ownership boundary — the
+claim-ingress owns exactly the same-module-declared static targets.
+Two protections hold by construction:
+
+- `me.method` probe (`static_current_owner_policy.rs:43-49`) passes
+  `owner="<source-owned>"`; `declaration_for` never resolves that
+  owner, so instance callers keep `Unavailable` -> DeclaredInstance,
+  while StaticBoxMethod callers keep the namespace clause and their
+  `CurrentOwner` rows (StaticCurrentOwner lane untouched).
+- `Math.x`/builtins never resolve `declaration_for`, so they keep
+  `Unavailable` -> `handle_static_method_call_with_descent` ->
+  `qualified_math_compatibility_owner` on every caller — no
+  `NoExactStaticTarget` regression for Math in instance bodies.
+
 ## Exit
 
-- [ ] Decision recorded (bounded slice OR sealed NoSafeSlice with
+- [x] Decision recorded (bounded slice OR sealed NoSafeSlice with
       reopen triggers) with the six-line brief.
-- [ ] Next S-card emitted OR the named design card opened;
+- [x] Next S-card emitted OR the named design card opened;
       pointers synced.

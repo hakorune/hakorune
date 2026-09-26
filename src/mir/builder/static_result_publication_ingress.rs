@@ -5,6 +5,12 @@
 //! a site with no exact target is `NoExactStaticTarget`; source loss/drift is
 //! a typed error.
 //! No terminal, AST matcher, or target resolver lives here.
+//!
+//! Cataloged admission is caller-namespace-agnostic once the probed
+//! (owner, method, arity) resolves to a same-module `StaticBoxMethod`
+//! declaration; probes that cannot resolve that declaration (builtin owners
+//! such as `Math`, the `"<source-owned>"` me-call probe) stay `Unavailable`
+//! and keep their sibling lanes.
 
 use std::fmt;
 
@@ -94,9 +100,13 @@ impl fmt::Display for StaticResultPublicationIngressErrorV1 {
 
 pub(in crate::mir::builder) trait StaticResultPublicationIngressPortV1 {
     /// Classify and, only for an exact Cataloged source site, consume one
-    /// existing publication handoff.  `declarations == None` is inspected
-    /// only after the source context has selected the Cataloged state; it is
-    /// never a wildcard that turns source loss into `Unavailable`.
+    /// existing publication handoff.  A non-`StaticBoxMethod` Cataloged
+    /// caller is admitted only when `declarations` resolves the probed
+    /// (owner, method, argument_count) to a same-module `StaticBoxMethod`
+    /// declaration; `declarations == None` never upgrades such a caller and
+    /// is inspected as an error only after the source context has already
+    /// selected the Cataloged state — it is never a wildcard that turns
+    /// source loss into `Unavailable`.
     fn take_static_result_publication_ingress_v1(
         &mut self,
         declarations: Option<&VerifiedSameModuleCallableDeclarationCatalogV1>,
@@ -109,6 +119,10 @@ pub(in crate::mir::builder) trait StaticResultPublicationIngressPortV1 {
 fn classify_source_context_v1(
     source: Option<&RawInvocationSourceContextV1>,
     source_backed: bool,
+    declarations: Option<&VerifiedSameModuleCallableDeclarationCatalogV1>,
+    owner: &str,
+    method: &str,
+    argument_count: usize,
 ) -> Result<StaticResultPublicationSourceClassV1, StaticResultPublicationIngressErrorV1> {
     let Some(source) = source else {
         if source_backed {
@@ -143,7 +157,18 @@ fn classify_source_context_v1(
             root: RawInvocationRootLineageV1::Cataloged(caller),
             site,
             ..
-        } if caller.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod => {
+        } if caller.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod
+            || declarations.is_some_and(|catalog| {
+                catalog
+                    .declaration_for(
+                        SameModuleCallableNamespaceV1::StaticBoxMethod,
+                        owner,
+                        method,
+                        argument_count,
+                    )
+                    .is_some()
+            }) =>
+        {
             Ok(StaticResultPublicationSourceClassV1::Cataloged {
                 caller: caller.clone(),
                 site: SourceExprSiteV1::from_node(site.clone()),
@@ -202,6 +227,10 @@ impl StaticResultPublicationIngressPortV1 for RawInvocationChildPortV1<'_, '_> {
         let source = classify_source_context_v1(
             self.current_source_context_v1().as_ref(),
             self.callable_ledger.is_some(),
+            declarations,
+            owner,
+            method,
+            argument_count,
         )?;
         match source {
             StaticResultPublicationSourceClassV1::Unavailable => {
@@ -267,8 +296,9 @@ mod tests {
 
     #[test]
     fn source_classification_enumerates_all_ingress_boundaries() {
+        let absent = None;
         assert_eq!(
-            classify_source_context_v1(None, false).unwrap(),
+            classify_source_context_v1(None, false, absent, "Owner", "m", 0).unwrap(),
             StaticResultPublicationSourceClassV1::Unavailable
         );
         let compatibility = RawInvocationSourceContextV1::UnlocatedCompatibility {
@@ -276,7 +306,8 @@ mod tests {
             expected_lineage: None,
         };
         assert_eq!(
-            classify_source_context_v1(Some(&compatibility), false).unwrap(),
+            classify_source_context_v1(Some(&compatibility), false, absent, "Owner", "m", 0)
+                .unwrap(),
             StaticResultPublicationSourceClassV1::Unavailable
         );
         let lost = RawInvocationSourceContextV1::UnlocatedCompatibility {
@@ -284,7 +315,7 @@ mod tests {
             expected_lineage: Some(RawInvocationRootLineageV1::Cataloged(caller())),
         };
         assert_eq!(
-            classify_source_context_v1(Some(&lost), true),
+            classify_source_context_v1(Some(&lost), true, absent, "Owner", "m", 0),
             Err(StaticResultPublicationIngressErrorV1::SourceLocationLost)
         );
         let located = RawInvocationSourceContextV1::Located {
@@ -293,7 +324,7 @@ mod tests {
             body_kind: None,
         };
         assert!(matches!(
-            classify_source_context_v1(Some(&located), true).unwrap(),
+            classify_source_context_v1(Some(&located), true, absent, "Owner", "m", 0).unwrap(),
             StaticResultPublicationSourceClassV1::Cataloged { .. }
         ));
         let foreign = RawInvocationSourceContextV1::Located {
@@ -308,31 +339,120 @@ mod tests {
             body_kind: None,
         };
         assert_eq!(
-            classify_source_context_v1(Some(&foreign), false).unwrap(),
+            classify_source_context_v1(Some(&foreign), false, absent, "Owner", "m", 0).unwrap(),
             StaticResultPublicationSourceClassV1::Unavailable
         );
         assert_eq!(
-            classify_source_context_v1(None, true),
+            classify_source_context_v1(None, true, absent, "Owner", "m", 0),
             Err(StaticResultPublicationIngressErrorV1::SourceContextMissing)
         );
         assert_eq!(
-            classify_source_context_v1(Some(&foreign), true),
+            classify_source_context_v1(Some(&foreign), true, absent, "Owner", "m", 0),
             Err(StaticResultPublicationIngressErrorV1::ForeignLineage)
         );
     }
 
-    #[test]
-    fn declared_instance_cataloged_source_stays_outside_static_ingress() {
-        let located = RawInvocationSourceContextV1::Located {
+    fn json_line_declarations() -> VerifiedSameModuleCallableDeclarationCatalogV1 {
+        let root = crate::parser::NyashParser::parse_from_string(
+            "static box JsonLine { stringField(a, b) { return \"x\" } }",
+        )
+        .expect("fixture program must parse");
+        VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root)
+            .expect("fixture declaration catalog must seal")
+    }
+
+    fn instance_caller_source() -> RawInvocationSourceContextV1 {
+        RawInvocationSourceContextV1::Located {
             root: RawInvocationRootLineageV1::Cataloged(instance_caller()),
             site: site(),
             body_kind: None,
-        };
+        }
+    }
+
+    #[test]
+    fn instance_caller_is_admitted_for_declaration_resolved_static_target() {
+        let declarations = json_line_declarations();
+        let located = instance_caller_source();
+
+        assert!(
+            matches!(
+                classify_source_context_v1(
+                    Some(&located),
+                    true,
+                    Some(&declarations),
+                    "JsonLine",
+                    "stringField",
+                    2,
+                )
+                .unwrap(),
+                StaticResultPublicationSourceClassV1::Cataloged { .. }
+            ),
+            "a qualified same-module static call inside an instance method must reach the publication owner"
+        );
+    }
+
+    #[test]
+    fn instance_caller_declines_non_declaration_targets() {
+        let declarations = json_line_declarations();
+        let located = instance_caller_source();
 
         assert_eq!(
-            classify_source_context_v1(Some(&located), true).unwrap(),
+            classify_source_context_v1(
+                Some(&located),
+                true,
+                Some(&declarations),
+                "Math",
+                "floor",
+                1,
+            )
+            .unwrap(),
             StaticResultPublicationSourceClassV1::Unavailable,
-            "a declared instance me.method must retain its receiver-bearing sibling"
+            "builtin owners stay on the compatibility lane"
+        );
+        assert_eq!(
+            classify_source_context_v1(
+                Some(&located),
+                true,
+                Some(&declarations),
+                "JsonLine",
+                "undeclared",
+                0,
+            )
+            .unwrap(),
+            StaticResultPublicationSourceClassV1::Unavailable,
+            "undeclared same-name methods keep the retired-fallback terminal"
+        );
+    }
+
+    #[test]
+    fn me_call_probe_keeps_instance_callers_outside_static_ingress() {
+        let declarations = json_line_declarations();
+        let located = instance_caller_source();
+
+        assert_eq!(
+            classify_source_context_v1(
+                Some(&located),
+                true,
+                Some(&declarations),
+                "<source-owned>",
+                "stringField",
+                2,
+            )
+            .unwrap(),
+            StaticResultPublicationSourceClassV1::Unavailable,
+            "the me.method probe never resolves <source-owned>, so the DeclaredInstance sibling keeps the site"
+        );
+    }
+
+    #[test]
+    fn instance_caller_declines_when_declarations_are_unavailable() {
+        let located = instance_caller_source();
+
+        assert_eq!(
+            classify_source_context_v1(Some(&located), true, None, "JsonLine", "stringField", 2,)
+                .unwrap(),
+            StaticResultPublicationSourceClassV1::Unavailable,
+            "an unresolvable target stays outside this ingress rather than guessing"
         );
     }
 }

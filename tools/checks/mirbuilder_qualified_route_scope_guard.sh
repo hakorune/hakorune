@@ -144,7 +144,24 @@ rg -q 'source_item_consumes_this_receiver_site_for_method_call' "$ITEMS_TESTS"
 rg -q 'port_declines_receiver_value_for_non_receiver_expression' "$ITEMS_TESTS"
 rg -q 'source_item_rejects_duplicate_me_receiver_site_consumption' "$ITEMS_TESTS"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT"; do
+# MIRBUILDER-EXE-ACCEPTANCE-INSTANCE-STATIC-INGRESS-S0: the static-result
+# publication ingress admits a `Cataloged` non-StaticBoxMethod caller only
+# when the probed (owner, method, arity) resolves through the declaration
+# catalog (`declaration_for` -> StaticBoxMethod). The me-call probe keeps
+# `"<source-owned>"` (never resolves -> DeclaredInstance sibling preserved)
+# and Math/builtin owners keep `Unavailable` -> compatibility.
+STATIC_INGRESS="$ROOT_DIR/src/mir/builder/static_result_publication_ingress.rs"
+STATIC_OWNER_POLICY="$ROOT_DIR/src/mir/builder/method_call_handlers/static_current_owner_policy.rs"
+rg -q 'declaration_for' "$STATIC_INGRESS"
+rg -q 'SameModuleCallableNamespaceV1::StaticBoxMethod' "$STATIC_INGRESS"
+rg -q 'caller\.namespace\(\) == SameModuleCallableNamespaceV1::StaticBoxMethod' "$STATIC_INGRESS"
+rg -q '"<source-owned>"' "$STATIC_OWNER_POLICY"
+rg -q 'fn instance_caller_is_admitted_for_declaration_resolved_static_target' "$STATIC_INGRESS"
+rg -q 'fn instance_caller_declines_non_declaration_targets' "$STATIC_INGRESS"
+rg -q 'fn me_call_probe_keeps_instance_callers_outside_static_ingress' "$STATIC_INGRESS"
+rg -q 'fn instance_caller_declines_when_declarations_are_unavailable' "$STATIC_INGRESS"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2
