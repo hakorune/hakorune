@@ -242,7 +242,26 @@ rg -q 'nested_program_items_drop_the_program_body_root' "$ITEM_SITE"
 rg -q 'program_items_keep_the_explicit_program_root' "$ITEM_SITE"
 rg -q 'nested_program_local_registers_rootless_statement_site' "$MAP_LOCAL_TESTS"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS"; do
+# MIRBUILDER-EXE-ACCEPTANCE-COMPOSITE-RETURN-EXIT-S0: the composite
+# LoopBreak lane is the sole physical owner for return-in-body
+# `loop(cond){…return…}`; `validate_exit_ledger` admits a root carrying a
+# root-targeted `Break` OR an `ExplicitReturn`/`Return{target_function}`
+# record, and an exit-free root still fails `RootExitMissing` (tolerated
+# as "no candidate" by the package issuer — never a fallback).
+COMPOSITE_PROJECTION="$ROOT_DIR/src/mir/compiler/loop_break_composite_source_projection.rs"
+LOOP_BREAK_FACTS="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_facts/loop_break.rs"
+rg -q 'RootExitMissing' "$COMPOSITE_PROJECTION"
+if rg -n 'RootBreakMissing' "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS"; then
+  echo "[$TAG] composite root-exit reject regressed to break-only" >&2
+  exit 1
+fi
+rg -q 'ResolvedControlTransferV1::Return \{ \.\. \}' "$COMPOSITE_PROJECTION"
+rg -q 'ResolvedExitOriginV1::ExplicitReturn' "$COMPOSITE_PROJECTION"
+rg -q 'RootExitMissing' "$LOOP_BREAK_FACTS"
+rg -q 'return_in_body_projection_is_admitted_by_composite_owner' "$COMPOSITE_PROJECTION"
+rg -q 'exit_free_loop_declines_with_root_exit_missing' "$COMPOSITE_PROJECTION"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2

@@ -2516,3 +2516,25 @@ Focused evidence: `main0_continue_*` tests (facts/map/co-seal/selection/
 lowerer), `physical_layout` branch-coverage tests, and the 23-test
 `loop_recipe_physicalizer` suite pass under `--profile quick`. Caller-zero:
 no production caller, no legacy-path retirement, no runtime acceptance yet.
+
+## Composite LoopBreak return-exit admission receipt (2026-09-25)
+
+`MIRBUILDER-EXE-ACCEPTANCE-COMPOSITE-RETURN-EXIT-S0`: the composite
+LoopBreak lane is the sole physical owner for return-in-body
+`loop(cond){…return…}` (no break/continue). `validate_exit_ledger`
+(`compiler/loop_break_composite_source_projection.rs`) now counts a
+root-targeted `Break` OR an `ExplicitReturn`/`Return{target_function}`
+record as root exit evidence; the reject is renamed `RootBreakMissing` ->
+`RootExitMissing`. The downstream chain already carried Return:
+`issue_statement_role` maps `Return` to `Exit{record}`,
+`build_body_block` emits `RecipeItem::Exit{ExitKind::Return}` plus
+`IfV2{ExitOnly{ExitIf}}`, and `(ExitAllowed, OpaqueExit)` lowers through
+`lower_opaque_exit` -> `CoreExitPlan::Return`. Exit-free roots (no
+Break/Return evidence) still fail `RootExitMissing` and reach the typed
+`Declined` boundary — `ingest`/`trim`-style `loop(cond){stmts}` bodies
+remain unowned pending their own card. Continue-only roots are not
+admitted. No new family, no second owner, no fallback arm; focused pins:
+`return_in_body_projection_is_admitted_by_composite_owner`,
+`exit_free_loop_declines_with_root_exit_missing`, plus the
+composite-return guard section in
+`tools/checks/mirbuilder_qualified_route_scope_guard.sh`.

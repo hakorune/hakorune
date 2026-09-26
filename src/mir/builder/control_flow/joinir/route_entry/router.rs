@@ -197,10 +197,15 @@ pub(crate) fn route_loop(
     // One policy winner -> one verified recipe.
     let issued = match issue_loop_node_winner_recipe_v1(input, loop_stmt, NumericTarget::host()) {
         LoopNodeWinnerSpineOutcomeV1::Issued(issued) => issued,
-        LoopNodeWinnerSpineOutcomeV1::Declined(_) => {
-            return Err(Freeze::contract(
-                "loop winner selection declined: zero selected family candidates",
-            )
+        LoopNodeWinnerSpineOutcomeV1::Declined(proof) => {
+            return Err(Freeze::contract(&format!(
+                "loop winner selection declined: zero selected family candidates fn={} site={:?} cond={:?} owner={:?} origin={:?}",
+                ctx.func_name,
+                proof.site(),
+                ctx.condition,
+                proof.owner(),
+                proof.origin()
+            ))
             .to_string())
         }
         LoopNodeWinnerSpineOutcomeV1::Unresolved(failure)

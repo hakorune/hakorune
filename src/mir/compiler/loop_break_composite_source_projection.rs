@@ -3,6 +3,12 @@
 //! This is the same-owner extension selected by the I1 design audit. It
 //! retains the resolver-owned loop forest, exit ledger, and ordered body
 //! inventory without issuing a Recipe or touching a physical lowering route.
+//!
+//! Admission requires explicit exit evidence under the root: a root-targeted
+//! `Break` or an `ExplicitReturn`/`Return{target_function}` record
+//! (`RootExitMissing` otherwise). Return-in-body `loop(cond){…return…}`
+//! shares this owner — the composite recipe already emits `ExitKind::Return`
+//! for the `ExitAllowed` body contract.
 
 use std::collections::BTreeSet;
 
@@ -36,7 +42,7 @@ pub(crate) enum LoopBreakCompositeSourceProjectionRejectV1 {
     BodyRole(LoopBreakCompositeBodyRoleRejectV1),
     DuplicateExit,
     ExitOutsideRoot,
-    RootBreakMissing,
+    RootExitMissing,
     RootBreakTargetMismatch,
 }
 
@@ -187,7 +193,7 @@ fn validate_exit_ledger(
 ) -> Result<(), LoopBreakCompositeSourceProjectionRejectV1> {
     let root_segments = loop_stmt.site().node().segments();
     let mut seen = BTreeSet::new();
-    let mut root_break_count = 0usize;
+    let mut root_exit_count = 0usize;
     let root_region = function
         .loop_region_bundle(loop_stmt.site())
         .map_err(|_| LoopBreakCompositeSourceProjectionRejectV1::RootBreakTargetMismatch)?
@@ -200,18 +206,22 @@ fn validate_exit_ledger(
         if !exit.site().node().segments().starts_with(root_segments) {
             return Err(LoopBreakCompositeSourceProjectionRejectV1::ExitOutsideRoot);
         }
-        if exit.record().origin() == ResolvedExitOriginV1::ExplicitBreak {
-            if exit.record().transfer()
-                == (ResolvedControlTransferV1::Break {
-                    target_loop: root_region,
-                })
-            {
-                root_break_count += 1;
+        let root_exit = match exit.record().transfer() {
+            ResolvedControlTransferV1::Break { target_loop } => {
+                exit.record().origin() == ResolvedExitOriginV1::ExplicitBreak
+                    && target_loop == root_region
             }
+            ResolvedControlTransferV1::Return { .. } => {
+                exit.record().origin() == ResolvedExitOriginV1::ExplicitReturn
+            }
+            ResolvedControlTransferV1::Continue { .. } => false,
+        };
+        if root_exit {
+            root_exit_count += 1;
         }
     }
-    if root_break_count == 0 {
-        return Err(LoopBreakCompositeSourceProjectionRejectV1::RootBreakMissing);
+    if root_exit_count == 0 {
+        return Err(LoopBreakCompositeSourceProjectionRejectV1::RootExitMissing);
     }
     Ok(())
 }
@@ -433,6 +443,182 @@ mod tests {
                 .expect("root loop source for candidate"),
         )
         .expect("one-member structured candidate");
+    }
+
+    fn return_in_body_loop() -> ASTNode {
+        ASTNode::FunctionDeclaration {
+            name: "return_in_body_loop_projection".into(),
+            params: Vec::new(),
+            param_decls: Vec::new(),
+            return_type_name: None,
+            body: vec![
+                ASTNode::Local {
+                    variables: vec!["i".into()],
+                    initial_values: vec![Some(Box::new(ASTNode::Literal {
+                        value: LiteralValue::Integer(0),
+                        span: Span::unknown(),
+                    }))],
+                    declared_type_names: vec![None],
+                    span: Span::unknown(),
+                },
+                ASTNode::Loop {
+                    condition: Box::new(ASTNode::BinaryOp {
+                        operator: BinaryOperator::Less,
+                        left: Box::new(variable("i")),
+                        right: Box::new(ASTNode::Literal {
+                            value: LiteralValue::Integer(3),
+                            span: Span::unknown(),
+                        }),
+                        span: Span::unknown(),
+                    }),
+                    body: vec![
+                        ASTNode::If {
+                            condition: Box::new(ASTNode::BinaryOp {
+                                operator: BinaryOperator::Equal,
+                                left: Box::new(variable("i")),
+                                right: Box::new(ASTNode::Literal {
+                                    value: LiteralValue::Integer(1),
+                                    span: Span::unknown(),
+                                }),
+                                span: Span::unknown(),
+                            }),
+                            then_body: vec![ASTNode::Return {
+                                value: Some(Box::new(ASTNode::Literal {
+                                    value: LiteralValue::Integer(0),
+                                    span: Span::unknown(),
+                                })),
+                                span: Span::unknown(),
+                            }],
+                            else_body: None,
+                            span: Span::unknown(),
+                        },
+                        ASTNode::Assignment {
+                            target: Box::new(variable("i")),
+                            value: Box::new(ASTNode::BinaryOp {
+                                operator: BinaryOperator::Add,
+                                left: Box::new(variable("i")),
+                                right: Box::new(ASTNode::Literal {
+                                    value: LiteralValue::Integer(1),
+                                    span: Span::unknown(),
+                                }),
+                                span: Span::unknown(),
+                            }),
+                            span: Span::unknown(),
+                        },
+                    ],
+                    span: Span::unknown(),
+                },
+                ASTNode::Return {
+                    value: Some(Box::new(ASTNode::Literal {
+                        value: LiteralValue::Integer(1),
+                        span: Span::unknown(),
+                    })),
+                    span: Span::unknown(),
+                },
+            ],
+            uses: Vec::new(),
+            contracts: Vec::new(),
+            is_static: true,
+            is_override: false,
+            attrs: DeclarationAttrs::default(),
+            span: Span::unknown(),
+        }
+    }
+
+    fn exit_free_loop() -> ASTNode {
+        ASTNode::FunctionDeclaration {
+            name: "exit_free_loop_projection".into(),
+            params: Vec::new(),
+            param_decls: Vec::new(),
+            return_type_name: None,
+            body: vec![
+                ASTNode::Local {
+                    variables: vec!["i".into()],
+                    initial_values: vec![Some(Box::new(ASTNode::Literal {
+                        value: LiteralValue::Integer(0),
+                        span: Span::unknown(),
+                    }))],
+                    declared_type_names: vec![None],
+                    span: Span::unknown(),
+                },
+                ASTNode::Loop {
+                    condition: Box::new(ASTNode::BinaryOp {
+                        operator: BinaryOperator::Less,
+                        left: Box::new(variable("i")),
+                        right: Box::new(ASTNode::Literal {
+                            value: LiteralValue::Integer(3),
+                            span: Span::unknown(),
+                        }),
+                        span: Span::unknown(),
+                    }),
+                    body: vec![ASTNode::Assignment {
+                        target: Box::new(variable("i")),
+                        value: Box::new(ASTNode::BinaryOp {
+                            operator: BinaryOperator::Add,
+                            left: Box::new(variable("i")),
+                            right: Box::new(ASTNode::Literal {
+                                value: LiteralValue::Integer(1),
+                                span: Span::unknown(),
+                            }),
+                            span: Span::unknown(),
+                        }),
+                        span: Span::unknown(),
+                    }],
+                    span: Span::unknown(),
+                },
+            ],
+            uses: Vec::new(),
+            contracts: Vec::new(),
+            is_static: true,
+            is_override: false,
+            attrs: DeclarationAttrs::default(),
+            span: Span::unknown(),
+        }
+    }
+
+    #[test]
+    fn return_in_body_projection_is_admitted_by_composite_owner() {
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(return_in_body_loop())
+            .expect("resolved return-in-body fixture");
+        let input = unit.root_function_input().expect("root input");
+        let root_body = input.source().root_body().expect("root body");
+        let loop_stmt = input.source().body_stmt(&root_body, 1).expect("root loop");
+        let resolved = input
+            .function()
+            .resolved_loop_source(loop_stmt.site())
+            .expect("root loop source");
+        let projection =
+            issue_loop_break_composite_source_projection_v1(input, &loop_stmt, resolved)
+                .expect("return-in-body composite projection");
+        assert_eq!(projection.forest().member_sites().len(), 1);
+        assert_eq!(projection.forest().exits().len(), 1);
+        assert!(projection.body_roles().root().contains_control());
+        crate::mir::builder::issue_composite_source_candidate_v1(
+            input,
+            &loop_stmt,
+            input
+                .function()
+                .resolved_loop_source(loop_stmt.site())
+                .expect("root loop source for candidate"),
+        )
+        .expect("return-in-body composite candidate");
+    }
+
+    #[test]
+    fn exit_free_loop_declines_with_root_exit_missing() {
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(exit_free_loop())
+            .expect("resolved exit-free fixture");
+        let input = unit.root_function_input().expect("root input");
+        let root_body = input.source().root_body().expect("root body");
+        let loop_stmt = input.source().body_stmt(&root_body, 1).expect("root loop");
+        let resolved = input
+            .function()
+            .resolved_loop_source(loop_stmt.site())
+            .expect("root loop source");
+        assert_eq!(
+            issue_loop_break_composite_source_projection_v1(input, &loop_stmt, resolved),
+            Err(LoopBreakCompositeSourceProjectionRejectV1::RootExitMissing)
+        );
     }
 
     #[test]
