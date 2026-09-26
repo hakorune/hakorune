@@ -90,7 +90,7 @@ which is the D0/D1-confirmed environment/toolchain debt:
 | binary_trees | `SourceCallOutsideSelectedFamily` (`builder.make`, `positive.itemCheck` on param/local receivers) | D5 fork (b): ordinary user-box instance calls — no coverage issuer exists; parked DeclaredInstance lineage |
 | mimalloc_lite | `SourceCallOutsideSelectedFamily` (`seedBlocks`) | D5 fork (a) |
 | allocator_stress | `CoreMethodSource NamedArray(TextSourceMissing)` | D5-inventoried NamedArray source-demand family (B3 vocabulary) |
-| typed_object_newbox_min | `no_lowering_variant` | environment/toolchain debt — resolved `opt` = LLVM 14.0.0 while `opt-18` (18.1.8) exists at `/usr/lib/llvm-18/bin/opt`; D0 recorded `environment/toolchain debt (resolved opt too old)`, D1 confirmed `newbox_min = EnvironmentDebt`: verify with `opt-18` before treating as semantic work |
+| typed_object_newbox_min | `no_lowering_variant` | environment/toolchain debt — **verified**: identical-source rerun under `PATH=/usr/lib/llvm-18/bin:$PATH` (resolved `opt`/`llc` = LLVM 18.1.8) **passes**; D0 recorded `environment/toolchain debt (resolved opt too old)`, D1 confirmed `newbox_min = EnvironmentDebt`. Reopen trigger = toolchain provisioning (`opt-18` ahead of `opt` on the runner PATH), not semantic work |
 | typed_object_untyped_field | `unsupported terminator Invoke` | D0 `NoSafeSlice` untyped-storage sentinel |
 | json_stream_aggregator | `unsupported_newbox_type` (`new JsonStreamAggregator` — handle-typed fields, construction-ineligible per D18) | D0/D18 ordinary-new eligibility family: "box-typed fields, nested construction reclamation ... its own family" |
 
@@ -105,6 +105,16 @@ deliberately outside the selected family; the freeze is the
 designed fail-fast, and widening coverage is each fork's own card —
 D5 already sealed both forks family-local: "reopen only through
 their own cards".
+
+Toolchain verification note (D1 requirement, executed): with
+`PATH=/usr/lib/llvm-18/bin:$PATH` the suite effectively reports
+5/11 — `newbox_min` passes (`no_lowering_variant` was the stale
+resolved `opt` = LLVM 14; `resolve_opt_tool` probes `["opt",
+"opt-18"]` in that order, so the unversioned stale binary wins when
+both exist), while `unsupported_newbox_type` and `unsupported
+terminator Invoke` fail identically, confirming them as
+env-independent semantic families. The env fix is runner PATH
+provisioning, not a lane/code slice.
 
 ### Q3 — bounded in-lane slice?
 
@@ -147,11 +157,13 @@ Fail-fast boundary: SourceCallOutsideSelectedFamily,
 Smallest next slice: none in-lane. Reopen only through the owning
   records: B3-D2 (ArrayPush + NamedArray authorities), parked
   DeclaredInstance admission, D0 handle-field newbox admission
-  (unsupported_newbox_type only), toolchain verification with
-  opt-18 for newbox_min per D1; a ledger-free single-loop family
+  (unsupported_newbox_type only), runner toolchain provisioning
+  for newbox_min (opt-18 ahead of opt — verified green under
+  PATH=/usr/lib/llvm-18/bin); a ledger-free single-loop family
   is that spine's own card.
-Non-claims: gate-1 stays unsatisfied (4/11 — 3 apps + probe);
-  no VM claim for ingest/1; no newbox admission claim; the sealed
+Non-claims: gate-1 stays unsatisfied (4/11 — 3 apps + probe —
+  default env; 5/11 verified under opt-18 PATH); no VM claim
+  for ingest/1; no newbox admission claim; the sealed
   forks' reopen conditions are not asserted met; overall
   MirBuilder is not complete.
 ```
