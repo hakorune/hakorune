@@ -147,6 +147,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
                 }
             }
         },
+        None,
         error_prefix,
     )
 }
@@ -158,6 +159,9 @@ pub(in crate::mir::builder) fn lower_loop_v0(
 /// construction, PHIs, and the fallthrough backedge stay in this one owner.
 /// `body_stmts` is the already-issued recipe body — carrier collection reads
 /// names off the co-sealed AST, never a fresh source lookup.
+/// `source_port` selects the carrier publication authority: `None` keeps the
+/// raw `variable_map` lane, `Some` additionally publishes each header/final
+/// carrier value into the callable ledger that located source reads resolve.
 pub(in crate::mir::builder) fn lower_loop_v0_core<LowerCond, LowerBody>(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
@@ -165,6 +169,11 @@ pub(in crate::mir::builder) fn lower_loop_v0_core<LowerCond, LowerBody>(
     cond_tail_expr: &crate::ast::ASTNode,
     lower_cond: LowerCond,
     lower_body: LowerBody,
+    source_port: Option<
+        crate::mir::builder::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1<
+            '_,
+        >,
+    >,
     error_prefix: &str,
 ) -> Result<LoweredRecipe, String>
 where
@@ -266,6 +275,10 @@ where
             .variable_ctx
             .variable_map
             .insert(name.clone(), *value_id);
+        if let Some(port) = source_port {
+            port.publish_loop_carrier_value(name, *value_id)
+                .map_err(|error| contract_err(&format!("carrier-header-publish: {error}")))?;
+        }
     }
 
     // Header short-circuit lowering; the caller chooses the raw CondBlockView
@@ -460,6 +473,10 @@ where
             .variable_ctx
             .variable_map
             .insert(name.clone(), *after_phi_dst);
+        if let Some(port) = source_port {
+            port.publish_loop_carrier_value(name, *after_phi_dst)
+                .map_err(|error| contract_err(&format!("carrier-final-publish: {error}")))?;
+        }
         if current_bindings.contains_key(name) {
             current_bindings.insert(name.clone(), *after_phi_dst);
         }

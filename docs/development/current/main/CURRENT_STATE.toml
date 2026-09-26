@@ -1,9 +1,9 @@
-date = "2026-09-26"
+date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-LOOP-CARRIER-BINDING-PUBLICATION-S8"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ExeAcceptanceD20-Decided__LoopCarrierBindingDesync"
+current_blocker_token = "ExeAcceptanceS8-Landed__LoopFamilySelectionIngestDecline"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,18 +17,23 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mirbuilder-exe-acceptance-loop-carrier-binding-publication-s8"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-loop-carrier-binding-publication-s8-2026-09-26.md"
 latest_card_summary = """
-D20 decided: the SSA dominance family is a loop-carrier binding
-desync, not missing phi emission. Carrier header/step/after phis
-are emitted and patched for every failing function (both the
-callable LoopCond port and the legacy-port JoinIR route funnel
-into `lower_loop_generalized`), but carrier reads resolve through
-the binding-id SSA store (`binding_ctx`/BindingId) rather than
-the `variable_map` entries `finalize_loop_variables` publishes —
-phi dsts are dead on arrival and
-`prune_unused_phi_instructions`/DCE strips them. `find/3` is the
-verify-clean wrong-code case (entry-value replay, dead update
-statement). S8 wires carrier publication into the read authority
-the lowering actually resolves.
+S8 landed: carrier header/final phis now publish into the callable
+semantic ledger (`CallableSemanticLoweringState.values[binding]`)
+that armed lanes resolve — `binding_names` resolves carrier names
+to exactly one materialized binding, `dynamic_origins` rebind
+invalidation runs before each publication, and the branch-first
+state cores snapshot/restore the `values` projection the same way
+they already did for name maps. `lower_loop_v0_core` takes
+`Option<source_port>`; the raw facade keeps `variable_map`-only
+behavior. Document consume reports `verify_document_module`'s
+result (D19 residual wiring: sealed-corridor domain drift is
+corridor admission, not document validity). emit-mir-json on
+apps/json-stream-aggregator writes the module with 65 retained
+phis; `find/3` binds header phi dsts (wrong-code closed).
+Next named blocker: `JsonStreamAggregator.ingest/1`'s
+`loop(start < n)` declines every loop family candidate on the
+VM/EXE lane (zero selected family candidates) — family-selection
+question upstream of carrier publication.
 NOTE: EXE/VM smokes need `NYASH_BIN=target/debug/hakorune`;
 bare runs use stale `target/release` and report phantom
 terminals.
@@ -51,7 +56,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-27: LOOP-CARRIER-BINDING-PUBLICATION-S8 landed — carrier header/final phis publish into CallableSemanticLoweringState.values[binding] (the authority armed reads resolve); binding_names index + invalidate_rebind on publication; branch-first state cores snapshot/restore the values projection and publish CoreIfJoin dsts; document consume reports verify_document_module's result per D19; emit-mir-json green with 65 retained phis; find/3 wrong-code closed; next named blocker ingest/1 loop family-selection decline on the VM/EXE lane.",
   "2026-09-26: MERGE-PHI-DOMINANCE-D20 decided — SSA family is a loop-carrier binding desync: phis emitted+patched for all failing functions but carrier reads resolve via binding-id SSA store, not variable_map; prune_unused_phi_instructions/DCE strips dead phi dsts; find/3 verify-clean wrong-code; next LOOP-CARRIER-BINDING-PUBLICATION-S8.",
   "2026-09-26: DOCUMENT-CALL-EDGE-POLICY-S7 landed — MirVerifier gains verify_document_module (Document call-edge policy: canonical relation+arity only); compile_normal_for_mir_json consumes into_document_parts + document verify; published view reclassifies non-Integer-return cataloged calls as UnsupportedBeforeObject outside corridor rows (*RequiresIntegerReturn removed); EXE advances past StaticMethodRequiresIntegerReturn and call-argument-type-drift to SSA merge/Phi dominance drift; next MERGE-PHI-DOMINANCE-D20.",
-  "2026-09-26: NAMED-ARRAY-DOCUMENT-PUBLICATION-S5 landed — source-backed emit-mir-json publishes via into_artifact_parts -> FinalizedRootHandoffV1 -> bind_finalized_root_handoff -> build_published_body_root; named-array retained marker+row discharged; EXE advances to ordinary-new/local-commit/artifact-unowned-lifecycle-site (RetainedUnavailable claim sites emit bare Call{BirthConstructor}); D18 decided document publication consumes non-artifact finishing + sole seal, not object admission; next ORDINARY-NEW-LIFECYCLE-D18->S6.",
 ]

@@ -22,7 +22,8 @@ use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceCon
 use crate::mir::builder::stmts::{CompletedLocalBindingV1, CompletedLocalStatementV1};
 use crate::mir::normal_callable_semantic_package::DeclaredInstanceCallLocatorScopeV1;
 use crate::mir::resolved_semantics::{
-    BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1, OwnedExprSiteV1, SourceExprSiteV1,
+    BindingRefV1, BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1, OwnedExprSiteV1,
+    SourceExprSiteV1,
 };
 use crate::mir::ValueId;
 
@@ -96,6 +97,35 @@ impl<'ledger> CallableLoopSourceExpressionPortV1<'ledger> {
             statements,
             source: source.clone(),
         })
+    }
+
+    /// Publishes a loop-carrier physical value into the callable ledger so
+    /// source reads observe the same reaching definition the phi spine emits.
+    /// `name` is the carrier name the AST carrier collection already produced;
+    /// the ledger resolves it through resolver-owned binding records instead
+    /// of a second name authority.
+    pub(super) fn publish_loop_carrier_value(
+        &self,
+        name: &str,
+        value: ValueId,
+    ) -> Result<(), String> {
+        self.ledger
+            .borrow_mut()
+            .publish_source_loop_final_value_named(name, value)
+    }
+
+    /// Captures the ledger `values` projection for the speculative
+    /// branch-then-condition transaction the shared `if` state cores run.
+    /// The port forwards to the ledger so `values` stays the sole physical
+    /// authority; no second store is snapshot here.
+    pub(super) fn source_values_snapshot(&self) -> BTreeMap<BindingRefV1, ValueId> {
+        self.ledger.borrow().source_values_snapshot()
+    }
+
+    /// Restores the `values` projection captured by `source_values_snapshot`.
+    /// Branch-side rebinds roll back; consumption receipts stay monotone.
+    pub(super) fn restore_source_values(&self, snapshot: BTreeMap<BindingRefV1, ValueId>) {
+        self.ledger.borrow_mut().restore_source_values(snapshot);
     }
 
     fn child_expr_input<'input>(

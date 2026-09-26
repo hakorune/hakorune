@@ -76,6 +76,7 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_source(
         BTreeMap::new()
     };
 
+    let port = *input.source_port();
     for (name, value_id) in &carrier_phis {
         current_bindings.insert(name.clone(), *value_id);
         crate::mir::builder::control_flow::plan::parts::var_map_scope::publish_emission_cache(
@@ -83,9 +84,10 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_source(
             name.clone(),
             *value_id,
         );
+        port.publish_loop_carrier_value(name, *value_id)
+            .map_err(|error| format!("{LOOP_TRUE_SOURCE_ERR}/carrier-header-publish: {error}"))?;
     }
 
-    let port = *input.source_port();
     let body_carrier = port
         .body(input.body(), input.body_source())
         .map_err(|error| format!("{LOOP_TRUE_SOURCE_ERR}/body-input: {error}"))?;
@@ -147,6 +149,11 @@ pub(in crate::mir::builder) fn lower_loop_true_break_continue_source(
         requires_fallthrough,
         LOOP_TRUE_SOURCE_ERR,
     )?;
+
+    for (name, value_id) in phi_closure.final_values() {
+        port.publish_loop_carrier_value(name, *value_id)
+            .map_err(|error| format!("{LOOP_TRUE_SOURCE_ERR}/carrier-final-publish: {error}"))?;
+    }
 
     let (step_mode, has_explicit_step) = step_mode::inline_in_body_no_explicit_step();
     Ok(CorePlan::Loop(CoreLoopPlan {

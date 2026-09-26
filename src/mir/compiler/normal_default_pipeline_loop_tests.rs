@@ -518,3 +518,162 @@ fn optimized_pair_root_with_callable_loop_child_reaches_physical_abi() {
             .expect("optimized Pair-plus-Loop module must reach physical ABI");
     });
 }
+
+/// Resolves `value` through `Copy` chains and reports whether it reaches the
+/// destination of any `Phi` instruction in `function`.  The callable-source
+/// loop lanes publish carrier phis into the ledger the source reads resolve,
+/// so carrier reads must reach a phi dst — never replay the pre-loop value.
+fn resolves_to_phi_dst(
+    function: &crate::mir::MirFunction,
+    value: crate::mir::ValueId,
+) -> bool {
+    let phi_dsts: std::collections::BTreeSet<crate::mir::ValueId> = function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Phi { dst, .. } => Some(*dst),
+            _ => None,
+        })
+        .collect();
+    let copy_sources: std::collections::BTreeMap<crate::mir::ValueId, crate::mir::ValueId> = function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Copy { dst, src } => Some((*dst, *src)),
+            _ => None,
+        })
+        .collect();
+    let mut current = value;
+    for _ in 0..8 {
+        if phi_dsts.contains(&current) {
+            return true;
+        }
+        let Some(src) = copy_sources.get(&current) else {
+            return false;
+        };
+        current = *src;
+    }
+    false
+}
+
+#[test]
+fn callable_source_return_in_body_loop_reads_bind_header_phi_dst() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        // find/3 shape: a carrier read inside the loop body must resolve the
+        // header phi dst — the baseline replayed the pre-loop entry value.
+        // The method call under the loop is what arms the callable-source
+        // route (SourceItems); the composite return-in-body arm then owns it.
+        let source = "static box Main { main() { return 0 } find(text, n: i64): i64 { local pos = 0 loop(pos < n) { local sub = text.substring(pos, pos + 1) if sub == \"x\" { return pos } pos = pos + 1 } return -1 } }";
+        let mut compiler = MirCompiler::with_options(false);
+        let result = compiler
+            .compile_normal(published_request(source))
+            .expect("callable source find-shape compile");
+        assert!(
+            result.verification_result.is_ok(),
+            "{:?}",
+            result.verification_result
+        );
+        let helper = result
+            .module
+            .functions
+            .get("Main.find/2")
+            .expect("Main.find definition");
+        let header_phi_dsts: Vec<crate::mir::ValueId> = helper
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .filter_map(|instruction| match instruction {
+                crate::mir::MirInstruction::Phi { dst, .. } => Some(*dst),
+                _ => None,
+            })
+            .collect();
+        assert!(
+            !header_phi_dsts.is_empty(),
+            "carrier publication must keep the header phi spine"
+        );
+        // `i == 2` compare and `return i` inside the body must reach a phi dst.
+        let const_dsts: std::collections::BTreeSet<crate::mir::ValueId> = helper
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .filter_map(|instruction| match instruction {
+                crate::mir::MirInstruction::Const { dst, .. } => Some(*dst),
+                _ => None,
+            })
+            .collect();
+        let mut compare_operands = Vec::new();
+        let mut non_const_returns = Vec::new();
+        for block in helper.blocks.values() {
+            for instruction in block.all_instructions() {
+                match instruction {
+                    crate::mir::MirInstruction::Compare { lhs, rhs, .. } => {
+                        compare_operands.push(*lhs);
+                        compare_operands.push(*rhs);
+                    }
+                    crate::mir::MirInstruction::Return { value: Some(value) }
+                        if !const_dsts.contains(value) =>
+                    {
+                        non_const_returns.push(*value);
+                    }
+                    _ => {}
+                }
+            }
+        }
+        assert!(
+            compare_operands
+                .iter()
+                .any(|value| resolves_to_phi_dst(helper, *value)),
+            "the in-body carrier compare must resolve a phi dst: {compare_operands:?}"
+        );
+        assert!(
+            non_const_returns
+                .iter()
+                .any(|value| resolves_to_phi_dst(helper, *value)),
+            "the in-body `return i` must resolve a phi dst, not replay the \
+             entry value: {non_const_returns:?}"
+        );
+    });
+}
+
+#[test]
+fn callable_source_loop_exit_read_binds_after_phi_dst() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        // Post-loop carrier read: `return matched` after the loop must bind
+        // the after-merge phi dst — not the body's last writer, not the
+        // init.  index_of shape: an if/else inside the body rebinds the
+        // carrier, so the join publication must reach the ledger too.
+        let source = "static box Main { main() { return 0 } count_at(text, n: i64): i64 { local i = 0 local matched = 0 loop(i < n) { local c = text.substring(i, i + 1) if c == \"x\" { matched = matched + 1 } else { matched = 0 } i = i + 1 } return matched } }";
+        let mut compiler = MirCompiler::with_options(false);
+        let result = compiler
+            .compile_normal(published_request(source))
+            .expect("callable source count-shape compile");
+        assert!(
+            result.verification_result.is_ok(),
+            "{:?}",
+            result.verification_result
+        );
+        let helper = result
+            .module
+            .functions
+            .get("Main.count_at/2")
+            .expect("Main.count_at definition");
+        let mut returned = None;
+        for block in helper.blocks.values() {
+            for instruction in block.all_instructions() {
+                if let crate::mir::MirInstruction::Return { value: Some(value) } = instruction {
+                    returned = Some(*value);
+                }
+            }
+        }
+        let returned = returned.expect("count_at must return");
+        assert!(
+            resolves_to_phi_dst(helper, returned),
+            "post-loop carrier read must bind the after-phi dst, got %{:?}",
+            returned
+        );
+    });
+}

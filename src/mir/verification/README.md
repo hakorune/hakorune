@@ -7,7 +7,8 @@ This directory owns MIR verifier checks that run from
 
 | Entry | Owner | Purpose | Gate |
 | --- | --- | --- | --- |
-| `MirVerifier::verify_module` | MIR verifier | module contracts plus per-function MIR checks | disabled only by `NYASH_STAGEB_DEV_VERIFY=0` |
+| `MirVerifier::verify_module` | MIR verifier | module contracts plus per-function MIR checks; cataloged call edges enforce the sealed-corridor Integer-domain rule | disabled only by `NYASH_STAGEB_DEV_VERIFY=0` |
+| `MirVerifier::verify_document_module` | MIR verifier | document publication verify — canonical structure and arity only; the cataloged call-edge Integer-domain arm is corridor admission, not document validity | used by `compile_normal_for_mir_json`; its result is what the document consume callback reports |
 | `MirVerifier::verify_function` | MIR verifier | function-local MIR correctness | used directly by VM verifier gate |
 | `runner::modes::common_util::verifier_gate` | runner | optional VM / VM-Hako verifier enforcement | `NYASH_VM_VERIFY_MIR=1` |
 | `builder/control_flow/verify` | CorePlan verifier | verifies CorePlan before lowering | always-on for verified plan paths |

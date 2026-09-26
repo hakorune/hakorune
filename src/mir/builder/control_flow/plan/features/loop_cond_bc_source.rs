@@ -91,12 +91,14 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue_source(
     let carrier_step_phis = phi_materializer.carrier_step_phis().clone();
     let break_phi_dsts = phi_materializer.break_phi_dsts().clone();
 
+    let port = *input.source_port();
     let mut current_bindings = builder.function_state.variable_ctx.variable_map.clone();
     for (name, value_id) in phi_materializer.phi_bindings() {
         current_bindings.insert(name.clone(), value_id);
+        port.publish_loop_carrier_value(&name, value_id)
+            .map_err(|error| format!("{LOOP_COND_ERR}/carrier-header-publish: {error}"))?;
     }
 
-    let port = *input.source_port();
     let condition_input = port
         .expr(input.condition(), input.condition_source())
         .map_err(|error| format!("{LOOP_COND_ERR}: source condition input: {error}"))?;
@@ -219,6 +221,11 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue_source(
     block_effects.push((after_bb, vec![]));
 
     let continue_target = phi_materializer.continue_target();
+
+    for (name, value_id) in phi_closure.final_values() {
+        port.publish_loop_carrier_value(name, *value_id)
+            .map_err(|error| format!("{LOOP_COND_ERR}/carrier-final-publish: {error}"))?;
+    }
 
     let (step_mode, has_explicit_step) = step_mode::inline_in_body_no_explicit_step();
 

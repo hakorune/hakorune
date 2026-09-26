@@ -229,10 +229,15 @@ impl<'view, 'ledger: 'view>
             }
         };
         let mut condition = Some(condition);
+        let pre_values = port.source_values_snapshot();
+        let mut continuing_values = None;
         let mut lower_branch =
             |branch: ExitIfBranchV1,
              builder: &mut MirBuilder,
              bindings: &mut BTreeMap<String, ValueId>| {
+                if matches!(branch, ExitIfBranchV1::Else) {
+                    port.restore_source_values(pre_values.clone());
+                }
                 let (block, mode) = match branch {
                     ExitIfBranchV1::Then => (&then_block, then_mode),
                     ExitIfBranchV1::Else => (
@@ -245,7 +250,7 @@ impl<'view, 'ledger: 'view>
                         else_mode,
                     ),
                 };
-                lower_callable_loop_source_parts_block(
+                let plans = lower_callable_loop_source_parts_block(
                     port,
                     block,
                     mode,
@@ -256,12 +261,21 @@ impl<'view, 'ledger: 'view>
                     self.break_phi_dsts,
                     self.carrier_updates,
                     self.error_prefix,
-                )
+                )?;
+                match (policy, branch) {
+                    (ExitIfStatePolicyV1::ElseOnlyExit, ExitIfBranchV1::Then)
+                    | (ExitIfStatePolicyV1::ThenOnlyExit, ExitIfBranchV1::Else) => {
+                        continuing_values = Some(port.source_values_snapshot());
+                    }
+                    _ => {}
+                }
+                Ok(plans)
             };
         let mut lower_condition = |builder: &mut MirBuilder,
                                    bindings: &mut BTreeMap<String, ValueId>,
                                    then_plans,
                                    else_plans| {
+            port.restore_source_values(pre_values.clone());
             lower_cond_expr_to_if_plans_input(
                 &port,
                 condition.take().ok_or_else(|| {
@@ -278,7 +292,7 @@ impl<'view, 'ledger: 'view>
                 self.error_prefix,
             )
         };
-        lower_exit_if_state_core(
+        let plans = lower_exit_if_state_core(
             self.builder,
             self.current_bindings,
             policy,
@@ -286,7 +300,11 @@ impl<'view, 'ledger: 'view>
             self.error_prefix,
             &mut lower_branch,
             &mut lower_condition,
-        )
+        )?;
+        if let Some(values) = continuing_values {
+            port.restore_source_values(values);
+        }
+        Ok(plans)
     }
 
     fn lower_stmt_wrapped_join_if(
@@ -369,6 +387,7 @@ impl<'view, 'ledger: 'view>
                     error_prefix,
                 )
             },
+            Some(port),
             error_prefix,
         )?;
         Ok(vec![plan])
@@ -598,10 +617,14 @@ impl CallableLoopSourcePartsLoweringHooksV1<'_> {
         branch_mode: PartsAssociatedBlockModeV1,
     ) -> Result<Vec<LoweredRecipe>, String> {
         let mut condition = Some(condition);
+        let pre_values = port.source_values_snapshot();
         let mut lower_branch =
             |branch: JoinIfBranchV1,
              builder: &mut MirBuilder,
              bindings: &mut BTreeMap<String, ValueId>| {
+                if matches!(branch, JoinIfBranchV1::Else) {
+                    port.restore_source_values(pre_values.clone());
+                }
                 let block = match branch {
                     JoinIfBranchV1::Then => &then_block,
                     JoinIfBranchV1::Else => else_block.as_ref().ok_or_else(|| {
@@ -636,7 +659,17 @@ impl CallableLoopSourcePartsLoweringHooksV1<'_> {
                                    then_plans,
                                    else_plans,
                                    joins: Vec<CoreIfJoin>| {
-            lower_cond_expr_to_if_plans_input(
+            port.restore_source_values(pre_values.clone());
+            // `joins` is already empty when the core classified
+            // `no_join_continuation`; the name-map gate below mirrors
+            // `should_update_binding` so the ledger receives exactly the
+            // continuation values `current_bindings` receives.
+            let join_publishes: Vec<(String, ValueId)> = joins
+                .iter()
+                .filter(|join| bindings.contains_key(&join.name))
+                .map(|join| (join.name.clone(), join.dst))
+                .collect();
+            let plans = lower_cond_expr_to_if_plans_input(
                 &port,
                 condition.take().ok_or_else(|| {
                     format!(
@@ -650,7 +683,13 @@ impl CallableLoopSourcePartsLoweringHooksV1<'_> {
                 else_plans,
                 joins,
                 self.error_prefix,
-            )
+            )?;
+            for (name, dst) in join_publishes {
+                port.publish_loop_carrier_value(&name, dst).map_err(|error| {
+                    format!("{SOURCE_PARTS_ERR}/join-publish: ctx={}: {error}", self.error_prefix)
+                })?;
+            }
+            Ok(plans)
         };
         let should_update =
             |name: &str, bindings: &BTreeMap<String, ValueId>| bindings.contains_key(name);

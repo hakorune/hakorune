@@ -702,20 +702,26 @@ impl MirCompiler {
                         NormalPublishedCompileOutcome::ExplicitCompatibility(result),
                     ));
                 }
-                super::MirVerifier::new_strict()
-                    .verify_document_module(&result.module)
-                    .map_err(|errors| {
-                        errors
-                            .iter()
-                            .map(ToString::to_string)
-                            .collect::<Vec<_>>()
-                            .join("; ")
-                    })?;
+                // The document lane reports its own verification: the
+                // sealed-corridor domain arm inside `verification_result` is
+                // corridor admission, which document publication does not
+                // enforce (CATALOGED-CALL-EDGE-DOMAIN-D19).  Every other arm —
+                // arity drift, structural/lifecycle checks — is covered by the
+                // strict document verify here.
+                let document_verification = super::MirVerifier::new_strict()
+                    .verify_document_module(&result.module);
+                document_verification.as_ref().map_err(|errors| {
+                    errors
+                        .iter()
+                        .map(ToString::to_string)
+                        .collect::<Vec<_>>()
+                        .join("; ")
+                })?;
                 let prepared = session
                     .prepare_external_commit()
                     .map_err(|error| error.to_string())?;
                 let view = view.bind_finalized_root_handoff(retained_root.as_ref())?;
-                let output = consume(&view, &result.verification_result)?;
+                let output = consume(&view, &document_verification)?;
                 Ok((prepared, NormalPublishedCompileOutcome::Consumed(output)))
             },
         )
