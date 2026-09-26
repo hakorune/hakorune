@@ -96,6 +96,14 @@ rg -q 'fn build_loop_cond_break_continue_recipe' "$BC_ITEM"
 rg -q 'pipeline_pins_no_exit_body_kind' "$NO_EXIT"
 rg -q 'pipeline_keeps_exit_bearing_body_on_sibling' "$NO_EXIT"
 rg -q 'rejects_conditional_update_if' "$NO_EXIT"
+# S10: the extractor defers the VariableAccumRecurrence family (exact
+# two-assignment accumulator-over-induction recurrence) so LCBC never
+# mints a competing fact for the VAR-owned loop.
+rg -q 'fn claims_variable_accum_family' "$NO_EXIT"
+rg -q 'RejectReason::VariableAccumFamily' "$NO_EXIT"
+rg -q 'VariableAccumFamily => "variable_accum_family"' "$REJECT_REASON"
+rg -q 'defers_variable_accum_recurrence_family' "$NO_EXIT"
+rg -q 'pipeline_defers_variable_accum_family' "$NO_EXIT"
 
 # MIRBUILDER-EXE-ACCEPTANCE-LOOP-COND-COND-UPDATE-S0: the located-source
 # parts driver owns ConditionalUpdateIf. The arm seals the issued recipe

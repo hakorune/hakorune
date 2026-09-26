@@ -18,7 +18,10 @@ use super::MAX_NESTED_LOOPS;
 ///
 /// Returns true if all sub-expressions were successfully processed,
 /// false if an unsupported expression type was encountered.
-pub(super) fn collect_vars_from_expr(ast: &ASTNode, vars: &mut BTreeSet<String>) -> bool {
+pub(in crate::mir::builder) fn collect_vars_from_expr(
+    ast: &ASTNode,
+    vars: &mut BTreeSet<String>,
+) -> bool {
     match ast {
         ASTNode::Variable { name, .. } => {
             vars.insert(name.clone());
