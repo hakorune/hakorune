@@ -1,8 +1,8 @@
 # MIRBUILDER-EXE-ACCEPTANCE-MERGE-PHI-DOMINANCE-D20
-## Census: Loop-Carried Merge Without Phi — StringHelpers Function Family (D20)
+## Census: Loop-Carried Phi Spine Emitted But Reads Bypass Phi Dst — Binding Authority Desync (D20)
 
 Date: 2026-09-26
-Status: in census
+Status: decision recorded — next slice S8
 Family: callable / gate1 / Gate 1 unified lane / SSA dominance /
   EXE acceptance
 Row reference: workstream row H (Gate 1 unified selfhost lane)
@@ -46,58 +46,154 @@ completion (landed S6), VM-lane behavior, object/instance admission.
 - Loop-carried bindings in these functions (`i`, `pos`, `acc`, `out`,
   `last`) are precisely the values named in the violations.
 
-## The authority question
+## The authority question — resolved
 
 Is the non-Phi merge an **accepted MIR dialect** the document must
 serialize as-is, or a **missing-Phi lowering defect**?
 
-Evidence so far:
+**Answer: a lowering defect — specifically a binding-authority
+desync, not a missing-phi-emission defect and not an accepted
+dialect.** The measured facts below resolve every census question.
 
-- `NYASH_MIR_NO_PHI` is opt-in; the default dialect is PHI-ON and the
-  strict verifier requires Phi at merges (verification_flags.rs).
-- Edge-copy is a real dialect
-  (`builder_emit.rs:193` guards non-dominating `Copy` emission under
-  strict/dev+planner_required), and `verify_allow_no_phi()` +
-  `skip_phi_checks` exist to tolerate it — but only under an explicit
-  non-strict + env policy, never by default.
-- The module built for this app mixes conventions: other functions
-  with `loop(...)` in `main.hako` itself pass the same checks, so at
-  least one armed lane DOES insert loop-carried Phis correctly.
-- Whether `StringHelpers` functions lowered through a different lane
-  (different box membership, `me.` receiver, static-method body
-  shape) or the same lane under a different source shape is the open
-  question — the merge convention is decided inside lowering, not by
-  verification.
+## Measured shape (instrumented census, all diagnostics reverted)
 
-## Census questions to close
+### Lane census — all loops funnel into `lower_loop_generalized`
 
-1. Which route arm lowered each of the 7 functions' `loop(cond)` —
-   same armed LoopCond lane as `main.hako`'s loops, or a sibling?
-2. Does the emitted merge carry an edge-copy convention the module
-   flags as no-phi, or is the header/join Phi simply absent?
-3. Who owns the Phi/edge-copy decision for LoopCond joins — the
-   normalizer's join emission, or a separate recipe contract?
-4. Prior green evidence: did any acceptance gate previously compile
-   these `StringHelpers` functions through the strict verifier, or
-   is this the first strict traversal of this box?
+Two entry ports reach the same generalized lowerer
+(`CorePlan::Loop` → `PlanLowerer` → `lower_loop_generalized`,
+`lowerer/loop_lowering.rs`):
 
-## Options (to be weighed after census)
+- **Lane-A (callable child port)**: `RawInvocationChildPortV1::lower_loop`
+  → `issue_once` → `LoopCondReady`/`LoopTrueReady` →
+  `lower_loop_cond_break_continue_source` /
+  `lower_loop_true_break_continue_source` → `PlanLowerer::
+  lower_with_source_publication`.
+  Dispatched: `int_to_str` ✗, `json_quote` ✗, `trim` ✓,
+  `split_lines` ✓, `ingest/1` ✓.
+- **Lane-B (legacy child port)**: `RawLegacyChildLoweringPortV1::
+  lower_loop` → `lower_loop_or_freeze_v1` → `try_cf_loop_joinir`
+  (structure-only routing, default ON) → JoinIR recipe → `CoreLoopPlan`.
+  Never reached `issue_once`: `to_i64` ✗, `skip_ws` ✗,
+  `last_index_of` ✗, `index_of` ✗, `read_digits` ✗, `find/3`
+  (semantically broken, verify-clean).
 
-- (A) Missing-Phi defect in one lane's join emission — fix at the
-  emission owner; no verifier change.
-- (B) The lane legitimately emits edge-copy convention; document
-  verification must consult the module's declared merge convention —
-  requires an explicit convention record, not an env toggle.
-- (C) Mixed: header Phis emitted for some bindings but not for
-  values joining at loop exit/early-return merges — a partial
-  coverage defect.
+### Phi spine IS emitted — instrumented counts
+
+- `loop_plan.phis` non-empty for **every** function:
+  `to_i64`=6..24, `int_to_str`=6, `json_quote`=9, `find/3`=3,
+  `trim`=9..18, `skip_ws`=3, `read_digits`=6, `index_of`=6,
+  `last_index_of`=6, `ingest`=6, `starts_with`=3,
+  `is_numeric_str`=3, `intField`=3.
+- `LoopCondBreakContinuePhiMaterializer` allocates header/step/
+  after phis; `insert_provisional_phis` + `patch_all_phis` emit real
+  `MirInstruction::Phi` (emitted counts >0 at loop-lower end) and
+  `validate_no_unpatched_phis_after_patch` passes — every phi input
+  is patched.
+- Functions enter the module with phis intact
+  (`add_cataloged_callable`: `to_i64`=24, `int_to_str`=6,
+  `find/3`=3).
+
+### The defect — reads never bind to phi dsts
+
+- `finalize_loop_variables` publishes `final_values` into
+  `variable_ctx.variable_map` (`out → %38`, `v → %41` for
+  `int_to_str`) and `pre_loop_map` restore runs first — the
+  name→ValueId publication is correct.
+- **But carrier reads resolve through a second authority** — the
+  binding-id SSA store (`binding_ctx` name→BindingId → per-binding
+  value), which the carrier publication never updates. Observed:
+  the header condition reads the pre-loop `%1` (init), body reads
+  replay the initializer, and `int_to_str`'s exit `Return %49` reads
+  the body's last-writer `ch + out` instead of the after-phi `%38`.
+- Consequence: the emitted phi subgraph (header↔step mutual-use) is
+  structurally valid but semantically dead — no read references the
+  phi dsts. `CarriersOnly` edge args stay empty throughout.
+- `JsonLine.find/3` is the verify-clean instance: its reads bind to
+  entry-defined values (dominance-legal), so the loop replays the
+  initial `start`/`end` forever — `i = i + 1` is consumed as carrier
+  metadata but never transported. Silent wrong-code, infinite-loop
+  semantics.
+
+### The stripper — why phis are absent at verify time
+
+- `finalize_module_with_canonical_root_v1`
+  (`builder/module_lifecycle.rs:530`) runs
+  `ssa::phi_input_materializer::materialize_all_phi_inputs` on every
+  function → `prune_unused_phi_instructions` removes phis whose dst
+  has zero uses — the after-phis (`%38`, `%41`) die first because no
+  read binds to them. `NYASH_MIR_DISABLE_OPT=1` leaves exactly the
+  mutually-used header/step phis and still fails verification with
+  the same dominance/merge residuals.
+- With the optimizer enabled, DCE/jump-merge additionally collapses
+  the surviving phis — the optimizer is an unmasking amplifier, not
+  the root cause.
+
+### Answers to the original census questions
+
+1. Route arms: Lane-A armed LoopCond for `int_to_str`/`json_quote`;
+   Lane-B JoinIR recipe for the other five — both converge on
+   `lower_loop_generalized` and share the defect.
+2. The emitted merge is neither declared edge-copy nor wired phi:
+   phis exist but carrier reads bypass their dsts.
+3. Phi/emission owner: `LoopCondBreakContinuePhiMaterializer` +
+   `loop_lowering` phi lifecycle (intact). The open authority is the
+   **read/binding publication contract** — `variable_map`
+   publication vs `binding_ctx` BindingId-SSA resolution.
+4. Prior green: `main.hako`-local loops pass because their reads
+   happened to bind dominance-legal values (see `find/3` — passing
+   is not proof of correctness); this is the first strict traversal
+   of `StringHelpers` loop carriers end-to-end.
+
+## Six-line brief
+
+```text
+Decision: lower-layer binding desync — carrier phis are emitted
+  but loop header/body/exit reads resolve through the binding-id
+  SSA store that the carrier publication path never updates; fix
+  belongs at the read/binding authority boundary.
+Source authority + canonical issuer: the phi materializer +
+  `finalize_loop_variables`/`publish_emission_cache` (variable_map)
+  vs `binding_ctx`/BindingId-SSA read resolution — one owner must
+  publish carrier phis where reads actually resolve.
+Non-authority: strict verifier (correct), NYASH_MIR_NO_PHI /
+  edge-copy dialect (not the emitted convention), optimizer/DCE
+  (unmasking only), .hako source, legacy LoopBuilder (removed).
+Fail-fast boundary: a read resolving a loop carrier through the
+  non-phi binding store while an emitted phi owns that carrier.
+Smallest next slice (S8): pin the intended read authority —
+  census which resolver each carrier read uses (variable_map vs
+  binding_ctx) in one minimal loop-carrier function, then wire
+  carrier publication (header phi for body reads, after phi for
+  exit reads, backedge transport for the step edge) into that
+  resolver for both lanes.
+Non-claims: no verifier weakening, no LoopBuilder revival, no new
+  dialect declaration, no overall MirBuilder completion claim.
+```
+
+## Smallest next slice — S8 (bounded)
+
+1. One minimal source probe (single-carrier `loop(cond)` +
+   post-loop read) reproducing the desync as a focused negative
+   test — assert header/after phi dsts are the values reads resolve.
+2. Census the actual read resolver for the failing reads
+   (`build_variable_access`/variable_map vs `binding_ctx`/
+   `MirBindingSsaAdapterV1::read_binding`) — one authority chosen.
+3. Wire carrier publication into that authority for Lane-A and
+   Lane-B alike — both end in `lower_loop_generalized`.
+4. Positive pins: header phi inputs (preheader init + backedge
+   step), after-merge phi feeding exit reads, `find/3`-shape carrier
+   actually transported (no more dead update statement).
+5. Negative pins: merge block reading a bare predecessor value;
+   empty `CarriersOnly` backedge when a carrier exists.
+6. Re-run `NYASH_BIN=target/debug/hakorune` EXE smoke — expect the
+   SSA family to close or surface the next residual.
 
 ## Non-claims
 
-- No claim this is a verifier defect: the strict checks implement
-  the PHI-ON default contract correctly.
-- No claim the fix is "insert Phis": if the lane's contract is
-  edge-copy, the defect is the missing convention declaration, and
-  silently adding Phis would mask it.
-- No weakening of strict verification as the fix.
+- Not a verifier defect: strict dominance/merge checks implement
+  the PHI-ON contract correctly and caught real wrong-code.
+- The fix is not "insert phis": phis are already emitted; the
+  missing authority is read-side carrier binding.
+- No weakening of strict verification, no no-phi env dialect as
+  the answer, no fallback route.
 - VM `ingest/1` ledger-less spine; Gates 2–4; overall completion.

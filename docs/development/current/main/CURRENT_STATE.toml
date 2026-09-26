@@ -1,9 +1,9 @@
 date = "2026-09-26"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-MERGE-PHI-DOMINANCE-D20"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-LOOP-CARRIER-BINDING-PUBLICATION-S8"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ExeAcceptanceS7-Landed__MergePhiDominanceDrift"
+current_blocker_token = "ExeAcceptanceD20-Decided__LoopCarrierBindingDesync"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -14,29 +14,29 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-exe-acceptance-merge-phi-dominance-d20"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-merge-phi-dominance-d20-2026-09-26.md"
+latest_card = "mirbuilder-exe-acceptance-loop-carrier-binding-publication-s8"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-loop-carrier-binding-publication-s8-2026-09-26.md"
 latest_card_summary = """
-S6+S7 landed — `--emit-mir-json` is document publication:
-`into_document_parts` (non-artifact finishing + sole
-finalized-handoff seal + named-array discharge) replaces object
-admission, and `MirVerifier::verify_document_module` checks
-canonical structure/arity under an explicit Document call-edge
-policy while `verify_module` keeps the Sealed Integer-domain
-corridor contract. Published view reclassified: non-Integer-return
-cataloged calls never enter corridor rows — they mark
-`UnsupportedBeforeObject` (`*RequiresIntegerReturn` variants
-removed). EXE advanced past `StaticMethodRequiresIntegerReturn` and
-`call-argument-type-drift` to SSA dominance drift (merge blocks
-using predecessor-defined values without Phi) — next family.
+D20 decided: the SSA dominance family is a loop-carrier binding
+desync, not missing phi emission. Carrier header/step/after phis
+are emitted and patched for every failing function (both the
+callable LoopCond port and the legacy-port JoinIR route funnel
+into `lower_loop_generalized`), but carrier reads resolve through
+the binding-id SSA store (`binding_ctx`/BindingId) rather than
+the `variable_map` entries `finalize_loop_variables` publishes —
+phi dsts are dead on arrival and
+`prune_unused_phi_instructions`/DCE strips them. `find/3` is the
+verify-clean wrong-code case (entry-value replay, dead update
+statement). S8 wires carrier publication into the read authority
+the lowering actually resolves.
 NOTE: EXE/VM smokes need `NYASH_BIN=target/debug/hakorune`;
 bare runs use stale `target/release` and report phantom
 terminals.
 """
-next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-MERGE-PHI-DOMINANCE-D20"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-merge-phi-dominance-d20-2026-09-26.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-EXE-ACCEPTANCE-LOOP-CARRIER-BINDING-PUBLICATION-S8"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-loop-carrier-binding-publication-s8-2026-09-26.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -51,7 +51,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-26: MERGE-PHI-DOMINANCE-D20 decided — SSA family is a loop-carrier binding desync: phis emitted+patched for all failing functions but carrier reads resolve via binding-id SSA store, not variable_map; prune_unused_phi_instructions/DCE strips dead phi dsts; find/3 verify-clean wrong-code; next LOOP-CARRIER-BINDING-PUBLICATION-S8.",
   "2026-09-26: DOCUMENT-CALL-EDGE-POLICY-S7 landed — MirVerifier gains verify_document_module (Document call-edge policy: canonical relation+arity only); compile_normal_for_mir_json consumes into_document_parts + document verify; published view reclassifies non-Integer-return cataloged calls as UnsupportedBeforeObject outside corridor rows (*RequiresIntegerReturn removed); EXE advances past StaticMethodRequiresIntegerReturn and call-argument-type-drift to SSA merge/Phi dominance drift; next MERGE-PHI-DOMINANCE-D20.",
   "2026-09-26: NAMED-ARRAY-DOCUMENT-PUBLICATION-S5 landed — source-backed emit-mir-json publishes via into_artifact_parts -> FinalizedRootHandoffV1 -> bind_finalized_root_handoff -> build_published_body_root; named-array retained marker+row discharged; EXE advances to ordinary-new/local-commit/artifact-unowned-lifecycle-site (RetainedUnavailable claim sites emit bare Call{BirthConstructor}); D18 decided document publication consumes non-artifact finishing + sole seal, not object admission; next ORDINARY-NEW-LIFECYCLE-D18->S6.",
-  "2026-09-26: SELECTED-STATIC-CALL-LOOP-PUBLICATION-S4 landed — every armed loop-source lane takes its Selected static-publication handoff via ModuleLoweringPortV1, installs it into the callable ledger, and lowers through PlanLowerer::lower_with_source_publication (SourcePublication emission port = sole physical consumer); post-lower residual check rejects taken-but-unemitted handoffs; EXE advances to named-array/retained-source-required at diagnostic compile_normal; VM ingest unchanged; next NAMED-ARRAY-RETENTION-D17.",
 ]
