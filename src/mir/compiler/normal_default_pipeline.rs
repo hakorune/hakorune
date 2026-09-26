@@ -660,11 +660,12 @@ impl MirCompiler {
     }
 
     /// Consume the finalized module through the sole document-publication
-    /// contract.  The artifact final-validation and finalized handoff bind
-    /// run exactly as the backend consume entry — the retained source
-    /// handoff discharges named-array obligations — but no backend-cohort
-    /// admission (route classification, lifecycle admission, selected
-    /// consumer) gates the MIR JSON document.
+    /// contract.  The non-artifact finishing validation and the sole
+    /// finalized-root-handoff seal run — the retained source handoff
+    /// discharges named-array obligations — but no object-compilation
+    /// admission (artifact lifecycle ownership, route classification,
+    /// lifecycle admission, selected consumer) gates the MIR JSON
+    /// document.
     pub(crate) fn compile_normal_for_mir_json<R>(
         &mut self,
         request: NormalCompileRequestV1,
@@ -679,7 +680,7 @@ impl MirCompiler {
         NormalDefaultPublishedPipelineV1::compile(
             self,
             request,
-            |completed| completed.into_artifact_parts(),
+            |completed| completed.into_document_parts(),
             |result, session, retained_root| {
                 let view = if selected_normal_admission {
                     published_backend_view::PublishedMirBackendView::try_new_selected_normal(
@@ -702,7 +703,7 @@ impl MirCompiler {
                     ));
                 }
                 super::MirVerifier::new_strict()
-                    .verify_module(&result.module)
+                    .verify_document_module(&result.module)
                     .map_err(|errors| {
                         errors
                             .iter()

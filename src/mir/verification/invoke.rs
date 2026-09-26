@@ -9,9 +9,23 @@ mod map;
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction};
 
+/// Which admission question a caller asks of the cataloged call-edge
+/// domain rule. `Sealed` enforces the Integer-domain corridor ABI —
+/// the contract selected consumers transport. `Document` verifies
+/// canonical structure only: document publication serializes the
+/// same edges without claiming the corridor.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum CatalogedCallEdgePolicyV1 {
+    Sealed,
+    Document,
+}
+
 /// Declaration references survive publication; a backend must never recover
 /// a missing field from a diagnostic name or the receiver's physical origin.
-pub(super) fn check_module(module: &crate::mir::MirModule) -> Result<(), Vec<VerificationError>> {
+pub(super) fn check_module(
+    module: &crate::mir::MirModule,
+    edge_policy: CatalogedCallEdgePolicyV1,
+) -> Result<(), Vec<VerificationError>> {
     let mut errors = Vec::new();
     for function in module.functions.values() {
         for (id, block) in &function.blocks {
@@ -36,7 +50,7 @@ pub(super) fn check_module(module: &crate::mir::MirModule) -> Result<(), Vec<Ver
                     _ => None,
                 };
                 if let Some(call) = call {
-                    check_call_edge(module, function, *id, call, &mut errors);
+                    check_call_edge(module, function, *id, call, edge_policy, &mut errors);
                 }
                 if let MirInstruction::Invoke { operation, .. } = instruction {
                     match operation {
@@ -347,6 +361,7 @@ fn check_call_edge(
     function: &MirFunction,
     block: BasicBlockId,
     call: &crate::mir::definitions::MirCall,
+    edge_policy: CatalogedCallEdgePolicyV1,
     errors: &mut Vec<VerificationError>,
 ) {
     let Some((callee, receiver_params)) = cataloged_call_target(module, call) else {
@@ -355,6 +370,14 @@ fn check_call_edge(
     let params = &callee.signature.params;
     if call.args.len() + receiver_params != params.len() {
         errors.push(error(block, "call-argument-type-drift"));
+        return;
+    }
+    // The Integer-domain argument rule binds the sealed corridor: a
+    // selected consumer spells every argument `i64` and only the
+    // admitted MapBox pair may leave that domain. A document caller
+    // serializes the same edges without claiming that corridor, so it
+    // verifies arity above and never enforces the domain below.
+    if matches!(edge_policy, CatalogedCallEdgePolicyV1::Document) {
         return;
     }
     for (index, (argument, parameter)) in call

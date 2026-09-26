@@ -1,9 +1,9 @@
 date = "2026-09-26"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-ORDINARY-NEW-LIFECYCLE-D18"
+current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-MERGE-PHI-DOMINANCE-D20"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ExeAcceptanceS5-Landed__ArtifactUnownedLifecycleSite"
+current_blocker_token = "ExeAcceptanceS7-Landed__MergePhiDominanceDrift"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -14,29 +14,27 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-exe-acceptance-ordinary-new-lifecycle-d18"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-ordinary-new-lifecycle-d18-2026-09-26.md"
+latest_card = "mirbuilder-exe-acceptance-merge-phi-dominance-d20"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-merge-phi-dominance-d20-2026-09-26.md"
 latest_card_summary = """
-S5 landed — source-backed `--emit-mir-json` now publishes via
-`into_artifact_parts` -> `FinalizedRootHandoffV1` ->
-`bind_finalized_root_handoff` -> `build_published_body_root`,
-so `me.users.push(user)` named-array retention discharges.
-EXE advanced to
-`ordinary-new/local-commit/artifact-unowned-lifecycle-site`:
-`new UserStats(user)`/`new JsonStreamAggregator()` are
-claim-issued but construction-ineligible (`RetainedUnavailable`),
-and their designed raw-lane executor emits bare
-`Call{BirthConstructor}` — correctly refused by
-`into_artifact_parts`, which is object-compilation admission.
-D18 decided: document publication consumes the non-artifact
-finishing validation + sole finalized-handoff seal, not the
-artifact cohort; S6 implements `into_document_parts`.
+S6+S7 landed — `--emit-mir-json` is document publication:
+`into_document_parts` (non-artifact finishing + sole
+finalized-handoff seal + named-array discharge) replaces object
+admission, and `MirVerifier::verify_document_module` checks
+canonical structure/arity under an explicit Document call-edge
+policy while `verify_module` keeps the Sealed Integer-domain
+corridor contract. Published view reclassified: non-Integer-return
+cataloged calls never enter corridor rows — they mark
+`UnsupportedBeforeObject` (`*RequiresIntegerReturn` variants
+removed). EXE advanced past `StaticMethodRequiresIntegerReturn` and
+`call-argument-type-drift` to SSA dominance drift (merge blocks
+using predecessor-defined values without Phi) — next family.
 NOTE: EXE/VM smokes need `NYASH_BIN=target/debug/hakorune`;
 bare runs use stale `target/release` and report phantom
 terminals.
 """
-next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-ORDINARY-NEW-LIFECYCLE-D18"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-ordinary-new-lifecycle-d18-2026-09-26.md"
+next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-MERGE-PHI-DOMINANCE-D20"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-merge-phi-dominance-d20-2026-09-26.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -53,7 +51,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-26: DOCUMENT-CALL-EDGE-POLICY-S7 landed — MirVerifier gains verify_document_module (Document call-edge policy: canonical relation+arity only); compile_normal_for_mir_json consumes into_document_parts + document verify; published view reclassifies non-Integer-return cataloged calls as UnsupportedBeforeObject outside corridor rows (*RequiresIntegerReturn removed); EXE advances past StaticMethodRequiresIntegerReturn and call-argument-type-drift to SSA merge/Phi dominance drift; next MERGE-PHI-DOMINANCE-D20.",
   "2026-09-26: NAMED-ARRAY-DOCUMENT-PUBLICATION-S5 landed — source-backed emit-mir-json publishes via into_artifact_parts -> FinalizedRootHandoffV1 -> bind_finalized_root_handoff -> build_published_body_root; named-array retained marker+row discharged; EXE advances to ordinary-new/local-commit/artifact-unowned-lifecycle-site (RetainedUnavailable claim sites emit bare Call{BirthConstructor}); D18 decided document publication consumes non-artifact finishing + sole seal, not object admission; next ORDINARY-NEW-LIFECYCLE-D18->S6.",
   "2026-09-26: SELECTED-STATIC-CALL-LOOP-PUBLICATION-S4 landed — every armed loop-source lane takes its Selected static-publication handoff via ModuleLoweringPortV1, installs it into the callable ledger, and lowers through PlanLowerer::lower_with_source_publication (SourcePublication emission port = sole physical consumer); post-lower residual check rejects taken-but-unemitted handoffs; EXE advances to named-array/retained-source-required at diagnostic compile_normal; VM ingest unchanged; next NAMED-ARRAY-RETENTION-D17.",
-  "2026-09-26: DECLARED-INSTANCE-LOOP-LOCATOR-S3 landed — armed locator scope (Copy over shared RefCell consumed set) threaded into all callable-loop source lanes; loop-body me.method consumes its exact row and emits canonical Callee::SameModuleInstance via shared me_this_method_call_effect; armed lanes never dynamic-fallback; EXE advances to StaticResultPublicationResidual(UnconsumedSelected{JsonLine.find/3 @ loop-body initializer}); VM ingest unchanged; next SELECTED-STATIC-CALL-COVERAGE-D16.",
 ]

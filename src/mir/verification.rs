@@ -63,12 +63,37 @@ impl MirVerifier {
         }
     }
 
-    /// Verify an entire MIR module
+    /// Verify an entire MIR module under the sealed-corridor call-edge
+    /// policy — the cataloged Integer-domain argument rule applies.
     pub fn verify_module(&mut self, module: &MirModule) -> Result<(), Vec<VerificationError>> {
+        self.verify_module_with_call_edge_policy(module, invoke::CatalogedCallEdgePolicyV1::Sealed)
+    }
+
+    /// Verify the module as a publication document: the same canonical
+    /// structure is checked, but the cataloged call-edge Integer-domain
+    /// rule is skipped — a document serializes the edges without
+    /// claiming the sealed corridor they name.
+    pub fn verify_document_module(
+        &mut self,
+        module: &MirModule,
+    ) -> Result<(), Vec<VerificationError>> {
+        self.verify_module_with_call_edge_policy(
+            module,
+            invoke::CatalogedCallEdgePolicyV1::Document,
+        )
+    }
+
+    /// Verify an entire MIR module under an explicit cataloged
+    /// call-edge policy.
+    fn verify_module_with_call_edge_policy(
+        &mut self,
+        module: &MirModule,
+        edge_policy: invoke::CatalogedCallEdgePolicyV1,
+    ) -> Result<(), Vec<VerificationError>> {
         self.errors.clear();
 
         // Canonical Fault control is not a compatibility/dev verification lane.
-        collect_errors!(self.errors, invoke::check_module(module));
+        collect_errors!(self.errors, invoke::check_module(module, edge_policy));
         for function in module.functions.values() {
             collect_errors!(
                 self.errors,

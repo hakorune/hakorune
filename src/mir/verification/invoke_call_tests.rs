@@ -302,6 +302,70 @@ fn cataloged_call_rejects_proven_non_scalar_argument() {
 }
 
 #[test]
+fn document_policy_admits_proven_non_scalar_argument_on_cataloged_edge() {
+    // Document publication serializes cataloged call edges without
+    // claiming the sealed corridor: a proven `String` argument stays
+    // honest document data instead of drifting on the Integer-domain
+    // rule, while the same edge still fails under `verify_module`.
+    for arg_type in [
+        crate::mir::MirType::String,
+        crate::mir::MirType::Box("MapBox".into()),
+    ] {
+        let mut module = call_module(cataloged_callee(crate::mir::MirType::Integer));
+        module
+            .functions
+            .get_mut("invoke_control_test")
+            .unwrap()
+            .metadata
+            .value_types
+            .insert(ValueId::new(1), arg_type.clone());
+        let errors = MirVerifier::new().verify_module(&module).unwrap_err();
+        assert!(
+            format!("{errors:?}").contains("call-argument-type-drift"),
+            "{arg_type:?}: {errors:?}"
+        );
+        MirVerifier::new()
+            .verify_document_module(&module)
+            .unwrap_or_else(|errors| panic!("{arg_type:?}: {errors:?}"));
+    }
+}
+
+#[test]
+fn document_policy_keeps_arity_drift_on_cataloged_edge() {
+    // Canonical structure is not corridor data: the arity relation
+    // between a cataloged call and its published definition is still
+    // enforced for the document.
+    let mut module = call_module(cataloged_callee(crate::mir::MirType::Integer));
+    {
+        let function = module.functions.get_mut("invoke_control_test").unwrap();
+        let MirInstruction::Invoke {
+            operation: InvokeOperation::Call { call, .. },
+            ..
+        } = function
+            .blocks
+            .get_mut(&BasicBlockId::new(1))
+            .unwrap()
+            .terminator
+            .as_mut()
+            .unwrap()
+        else {
+            unreachable!()
+        };
+        call.args.clear();
+    }
+    for verify in [
+        MirVerifier::verify_module,
+        MirVerifier::verify_document_module,
+    ] {
+        let errors = verify(&mut MirVerifier::new(), &module).unwrap_err();
+        assert!(
+            format!("{errors:?}").contains("call-argument-type-drift"),
+            "{errors:?}"
+        );
+    }
+}
+
+#[test]
 fn cataloged_call_accepts_i64_argument_contract() {
     for typed in [true, false] {
         let mut module = call_module(cataloged_callee(crate::mir::MirType::Integer));

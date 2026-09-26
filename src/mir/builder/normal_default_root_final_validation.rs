@@ -216,6 +216,94 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
     }
 }
 
+impl CompletedNormalDefaultRootCatalogLifecycleV1 {
+    /// Document publication finishing: the same consuming shape as
+    /// `into_artifact_parts` minus object-compilation admission. The
+    /// non-artifact finishing validation and the sole finalized-handoff
+    /// seal still run — a `RetainedUnavailable` claim stays claim-owned
+    /// and is never promoted or rebound into lifecycle bindings.
+    pub(in crate::mir) fn into_document_parts(
+        self,
+    ) -> (
+        ModuleBuilderInvocationSessionV1,
+        MirModule,
+        impl FnOnce(
+            &MirModule,
+        ) -> Result<
+            Option<crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
+            String,
+        >,
+    ) {
+        let validate = move |module: &MirModule| {
+            let mut callables = self.callables;
+            let named_arrays = match callables.as_mut() {
+                Some(cohort) => cohort.take_named_array_emissions(),
+                None => Box::new([]),
+            };
+            let mut root_validation = self.root_validation;
+            root_validation.validate(module, false)?;
+            let mut birth_keys = BTreeSet::new();
+            for (key, validation) in self.construction {
+                if key.namespace()
+                    != hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor
+                    || !birth_keys.insert(key.clone())
+                {
+                    return Err(fault("foreign-or-duplicate-birth-key"));
+                }
+                let definition = module
+                    .canonical_callable_definition_symbol(&key)
+                    .and_then(|symbol| module.functions.get(symbol))
+                    .ok_or_else(|| {
+                        "[freeze:contract][construction/finished-definition-missing]".to_owned()
+                    })?;
+                validation.validate_after_compiler_finishing(definition)?;
+            }
+            let handoff = match root_validation {
+                RootValidation::OrdinaryNew { key, ledger } => ledger
+                    .seal_finalized_root_birth_handoff(key, &birth_keys, callables)
+                    .map(Some),
+                RootValidation::Script { key, entry, source } => {
+                    use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
+                    Ok(match source.into_array_artifact(entry)? {
+                        Some(array) => Some(FinalizedRootHandoffV1::ScriptArray {
+                            named_arrays: Box::new([]),
+                            root_key: key,
+                            array,
+                            callables,
+                        }),
+                        None => callables.map(|callables| FinalizedRootHandoffV1::Module {
+                            callables: Some(callables),
+                            named_arrays: Box::new([]),
+                        }),
+                    })
+                }
+                RootValidation::Absent => Ok(callables.map(|callables| {
+                    crate::mir::finalized_root_handoff::FinalizedRootHandoffV1::Module {
+                        callables: Some(callables),
+                        named_arrays: Box::new([]),
+                    }
+                })),
+            }?;
+            match handoff {
+                Some(handoff) => {
+                    let handoff = handoff.with_named_arrays(named_arrays)?;
+                    handoff.validate_named_arrays(module)?;
+                    Ok(Some(handoff))
+                }
+                None if named_arrays.is_empty() => {
+                    crate::mir::normal_callable_semantic_package::validate_named_array_coverage(
+                        module,
+                        &[],
+                    )?;
+                    Ok(None)
+                }
+                None => Err(crate::mir::named_array_obligation::fault("handoff-missing")),
+            }
+        };
+        (self.session, self.module, validate)
+    }
+}
+
 fn has_lifecycle(function: &crate::mir::MirFunction) -> bool {
     function
         .blocks

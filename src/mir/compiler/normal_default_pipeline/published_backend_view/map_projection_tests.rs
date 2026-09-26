@@ -1,5 +1,6 @@
 //! Complete private projection witnesses; not C/source capability evidence.
 use super::*;
+use crate::mir::function::PublishedStaticMethodRouteV1;
 use crate::mir::boxed_sum_abi_plan::{refresh_module_boxed_sum_abi_plans, BoxedSumPayloadStorage};
 use crate::mir::{MirEnumDecl, MirEnumVariantDecl};
 
@@ -250,7 +251,16 @@ fn map_literal_complete_actions_use_checked_canonical_call_and_formal() {
         .unwrap()
         .signature
         .return_type = MirType::String;
-    assert!(PublishedMirBackendView::try_new(&module).is_err());
+    // The projection's `Domain::I64` claim on checked call sites is
+    // protected by construction: a non-Integer-result call never
+    // enters the corridor row vocabulary — it marks the module
+    // `UnsupportedBeforeObject` instead.
+    let drifted = PublishedMirBackendView::try_new(&module).expect("classified view");
+    assert_eq!(
+        drifted.route(),
+        PublishedStaticMethodRouteV1::UnsupportedBeforeObject
+    );
+    assert!(drifted.static_method_calls().is_empty());
 }
 
 #[test]

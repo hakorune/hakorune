@@ -10,9 +10,9 @@ fn arity_bearing_main_with_qualified_call_stays_off_canonical_route() {
     // checks the DECLARED arity so the canonical qualified route is not
     // entered.  The body lowers through `inner.lower_body` and the
     // String-returning qualified callee reaches the publication lane;
-    // the first owned stop is the published backend view's integer-only
-    // static-callee contract (`StaticMethodRequiresIntegerReturn`), which
-    // is a separate downstream family.
+    // the first owned stop is the published backend view classifying
+    // the non-Integer-result call family as `UnsupportedBeforeObject`,
+    // which is a separate downstream family.
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let source = "static box Helpers { payload() { return \"hi\" } } static box Main { main(args) { local s = Helpers.payload() return 0 } }";
@@ -36,8 +36,8 @@ fn arity_bearing_main_with_qualified_call_stays_off_canonical_route() {
             "declared arity must keep main(args) off the canonical route: {error}"
         );
         assert!(
-            error.contains("StaticMethodRequiresIntegerReturn"),
-            "expected the published-view integer-return boundary, got: {error}"
+            error.contains("UnsupportedBeforeObject"),
+            "expected the published-view unsupported-route boundary, got: {error}"
         );
     });
 }

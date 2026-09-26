@@ -590,10 +590,100 @@ fn published_view_rejects_static_call_definition_arity_and_result_drift() {
         .expect("published definition")
         .signature
         .return_type = MirType::Void;
-    assert!(matches!(
-        PublishedMirBackendView::try_new(&wrong_result).unwrap_err(),
-        PublishedMirBackendViewErrorV1::StaticMethodRequiresIntegerReturn { .. }
-    ));
+    // A cataloged call whose result leaves the checked Integer domain
+    // has no selected-C consumer: the module classifies
+    // `UnsupportedBeforeObject`, never `CanonicalTyped`, and the call
+    // stays off the corridor row vocabulary.
+    let view = PublishedMirBackendView::try_new(&wrong_result).expect("classified view");
+    assert_eq!(
+        view.route(),
+        PublishedStaticMethodRouteV1::UnsupportedBeforeObject
+    );
+    assert!(view.static_method_calls().is_empty());
+}
+
+#[test]
+fn non_integer_static_result_marks_module_unsupported_before_object() {
+    // A String-returning cataloged static call is honest document
+    // data, never a corridor row: the row vocabulary keeps its
+    // Integer invariant while the module route records that this
+    // canonical call family has no selected-C consumer.
+    let key = static_key();
+    let symbol = key.mir_symbol_projection();
+    let mut module = MirModule::new("string-result-unsupported".to_owned());
+    module
+        .add_cataloged_box_method(key.clone(), static_function(&key))
+        .expect("publish relation");
+    module
+        .functions
+        .get_mut(&symbol)
+        .expect("published definition")
+        .signature
+        .return_type = MirType::String;
+    module.add_function(canonical_value_function());
+
+    let view = PublishedMirBackendView::try_new(&module).expect("document view");
+    assert_eq!(
+        view.route(),
+        PublishedStaticMethodRouteV1::UnsupportedBeforeObject
+    );
+    assert!(view.static_method_calls().is_empty());
+}
+
+#[test]
+fn non_integer_static_result_keeps_sibling_integer_rows() {
+    // The classification is per call, not per module: an Integer
+    // sibling stays a checked corridor row even when a String call
+    // takes the module route to `UnsupportedBeforeObject`.
+    let key = static_key();
+    let symbol = key.mir_symbol_projection();
+    let other = CanonicalSameModuleCallableKeyV1::test_static_box_method("MathBox", "id", 1);
+    let mut module = MirModule::new("mixed-result-domains".to_owned());
+    module
+        .add_cataloged_box_method(key.clone(), static_function(&key))
+        .expect("publish string relation");
+    module
+        .functions
+        .get_mut(&symbol)
+        .expect("published definition")
+        .signature
+        .return_type = MirType::String;
+    module
+        .add_cataloged_box_method(other.clone(), {
+            let mut function = MirFunction::new(
+                FunctionSignature {
+                    name: other.mir_symbol_projection(),
+                    params: vec![MirType::Integer],
+                    return_type: MirType::Integer,
+                    effects: EffectMask::PURE,
+                },
+                BasicBlockId::new(0),
+            );
+            function
+                .blocks
+                .get_mut(&BasicBlockId::new(0))
+                .expect("entry block")
+                .add_instruction(MirInstruction::call(
+                    Some(ValueId::new(20)),
+                    Callee::Global(
+                        other
+                            .canonical_global_target_v1()
+                            .expect("static key projects to global target"),
+                    ),
+                    vec![ValueId::new(11)],
+                    EffectMask::PURE,
+                ));
+            function
+        })
+        .expect("publish integer relation");
+
+    let view = PublishedMirBackendView::try_new(&module).expect("document view");
+    assert_eq!(
+        view.route(),
+        PublishedStaticMethodRouteV1::UnsupportedBeforeObject
+    );
+    assert_eq!(view.static_method_calls().len(), 1);
+    assert_eq!(view.static_method_calls()[0].key(), &other);
 }
 
 #[test]
@@ -610,10 +700,12 @@ fn published_view_rejects_free_function_result_drift() {
         .expect("published definition")
         .signature
         .return_type = MirType::Void;
-    assert!(matches!(
-        PublishedMirBackendView::try_new(&module).unwrap_err(),
-        PublishedMirBackendViewErrorV1::FreeFunctionRequiresIntegerReturn { .. }
-    ));
+    let view = PublishedMirBackendView::try_new(&module).expect("classified view");
+    assert_eq!(
+        view.route(),
+        PublishedStaticMethodRouteV1::UnsupportedBeforeObject
+    );
+    assert!(view.free_function_calls().is_empty());
 }
 
 #[test]

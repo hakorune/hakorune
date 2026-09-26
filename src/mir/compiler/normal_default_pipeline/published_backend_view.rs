@@ -105,10 +105,6 @@ pub(crate) enum PublishedMirBackendViewErrorV1 {
         expected: usize,
         actual: usize,
     },
-    StaticMethodRequiresIntegerReturn {
-        function: String,
-        key: CanonicalSameModuleCallableKeyV1,
-    },
     FreeFunctionCallDefinitionMissing {
         function: String,
         key: CanonicalSameModuleCallableKeyV1,
@@ -123,10 +119,6 @@ pub(crate) enum PublishedMirBackendViewErrorV1 {
         key: CanonicalSameModuleCallableKeyV1,
         expected: usize,
         actual: usize,
-    },
-    FreeFunctionRequiresIntegerReturn {
-        function: String,
-        key: CanonicalSameModuleCallableKeyV1,
     },
     BuiltinPrintUsesLegacyFunctionCarrier {
         function: String,
@@ -319,30 +311,49 @@ impl<'module> PublishedMirBackendView<'module> {
                         }
                         Some(Callee::Global(target)) => {
                             if let Some(key) = static_method_key(target) {
-                                let published_key =
+                                let (published_key, definition) =
                                     validate_static_call(module, function_name, key, func, args)?;
-                                static_method_calls.push(PublishedStaticMethodCallRef {
-                                    function_name: function_name.as_str(),
-                                    block_id: block_id.as_u32(),
-                                    instruction_index: instruction_index as u32,
-                                    key: published_key,
-                                    args,
-                                });
+                                // A cataloged call whose result is not the
+                                // checked Integer domain has no selected-C
+                                // consumer. It is not a corridor row — the
+                                // row vocabulary keeps the Integer invariant —
+                                // and it marks the module unsupported before
+                                // object work rather than an error or a
+                                // compatibility fallback.
+                                if definition.signature.return_type
+                                    == crate::mir::MirType::Integer
+                                {
+                                    static_method_calls.push(PublishedStaticMethodCallRef {
+                                        function_name: function_name.as_str(),
+                                        block_id: block_id.as_u32(),
+                                        instruction_index: instruction_index as u32,
+                                        key: published_key,
+                                        args,
+                                    });
+                                } else {
+                                    has_non_lifecycle_unsupported = true;
+                                }
                             } else if let Some(key) = free_function_key(target) {
-                                let published_key = validate_free_function_call(
+                                let (published_key, definition) = validate_free_function_call(
                                     module,
                                     function_name,
                                     key,
                                     func,
                                     args,
                                 )?;
-                                free_function_calls.push(PublishedFreeFunctionCallRef {
-                                    function_name: function_name.as_str(),
-                                    block_id: block_id.as_u32(),
-                                    instruction_index: instruction_index as u32,
-                                    key: published_key,
-                                    args,
-                                });
+                                if definition.signature.return_type
+                                    == crate::mir::MirType::Integer
+                                {
+                                    free_function_calls.push(PublishedFreeFunctionCallRef {
+                                        function_name: function_name.as_str(),
+                                        block_id: block_id.as_u32(),
+                                        instruction_index: instruction_index as u32,
+                                        key: published_key,
+                                        args,
+                                    });
+                                } else {
+                                    has_non_lifecycle_unsupported = true;
+                                }
                             } else if is_builtin_print_target(target) {
                                 validate_builtin_print_call(function_name, dst, func, args)?;
                                 builtin_print_calls.push(PublishedBuiltinPrintCallRef {
@@ -603,7 +614,10 @@ fn validate_static_call<'module>(
     key: CanonicalSameModuleCallableKeyV1,
     func: ValueId,
     args: &'module [ValueId],
-) -> Result<&'module CanonicalSameModuleCallableKeyV1, PublishedMirBackendViewErrorV1> {
+) -> Result<
+    (&'module CanonicalSameModuleCallableKeyV1, &'module MirFunction),
+    PublishedMirBackendViewErrorV1,
+> {
     if func != ValueId::INVALID {
         return Err(
             PublishedMirBackendViewErrorV1::StaticCallUsesLegacyFunctionCarrier {
@@ -642,16 +656,8 @@ fn validate_static_call<'module>(
             },
         );
     };
-    if function.signature.return_type != crate::mir::MirType::Integer {
-        return Err(
-            PublishedMirBackendViewErrorV1::StaticMethodRequiresIntegerReturn {
-                function: function_name.to_owned(),
-                key,
-            },
-        );
-    }
     debug_assert_eq!(symbol, &key.mir_symbol_projection());
-    Ok(published_key)
+    Ok((published_key, function))
 }
 
 fn validate_free_function_call<'module>(
@@ -660,7 +666,10 @@ fn validate_free_function_call<'module>(
     key: CanonicalSameModuleCallableKeyV1,
     func: ValueId,
     args: &'module [ValueId],
-) -> Result<&'module CanonicalSameModuleCallableKeyV1, PublishedMirBackendViewErrorV1> {
+) -> Result<
+    (&'module CanonicalSameModuleCallableKeyV1, &'module MirFunction),
+    PublishedMirBackendViewErrorV1,
+> {
     if func != ValueId::INVALID {
         return Err(
             PublishedMirBackendViewErrorV1::FreeFunctionCallUsesLegacyFunctionCarrier {
@@ -701,16 +710,8 @@ fn validate_free_function_call<'module>(
             },
         );
     };
-    if function.signature.return_type != crate::mir::MirType::Integer {
-        return Err(
-            PublishedMirBackendViewErrorV1::FreeFunctionRequiresIntegerReturn {
-                function: function_name.to_owned(),
-                key,
-            },
-        );
-    }
     debug_assert_eq!(symbol, &key.mir_symbol_projection());
-    Ok(published_key)
+    Ok((published_key, function))
 }
 
 #[cfg(test)]
