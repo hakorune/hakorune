@@ -658,6 +658,67 @@ impl MirCompiler {
             },
         )
     }
+
+    /// Consume the finalized module through the sole document-publication
+    /// contract.  The artifact final-validation and finalized handoff bind
+    /// run exactly as the backend consume entry — the retained source
+    /// handoff discharges named-array obligations — but no backend-cohort
+    /// admission (route classification, lifecycle admission, selected
+    /// consumer) gates the MIR JSON document.
+    pub(crate) fn compile_normal_for_mir_json<R>(
+        &mut self,
+        request: NormalCompileRequestV1,
+        consume: impl for<'module> FnOnce(
+            &published_backend_view::PublishedMirBackendView<'module>,
+            &Result<(), Vec<crate::mir::VerificationError>>,
+        ) -> Result<R, String>,
+    ) -> Result<NormalPublishedCompileOutcome<R>, String> {
+        super::validate_builder_operator_call_ingress_once_v1()
+            .map_err(|error| error.to_string())?;
+        let selected_normal_admission = request.uses_selected_published_admission();
+        NormalDefaultPublishedPipelineV1::compile(
+            self,
+            request,
+            |completed| completed.into_artifact_parts(),
+            |result, session, retained_root| {
+                let view = if selected_normal_admission {
+                    published_backend_view::PublishedMirBackendView::try_new_selected_normal(
+                        &result.module,
+                    )
+                } else {
+                    published_backend_view::PublishedMirBackendView::try_new(&result.module)
+                }
+                .map_err(|error| error.to_string())?;
+                if view.route()
+                    == published_backend_view::PublishedStaticMethodRouteV1::ExplicitCompatibility
+                {
+                    crate::mir::named_array_obligation::reject_unretained_module(&result.module)?;
+                    let prepared = session
+                        .prepare_external_commit()
+                        .map_err(|error| error.to_string())?;
+                    return Ok((
+                        prepared,
+                        NormalPublishedCompileOutcome::ExplicitCompatibility(result),
+                    ));
+                }
+                super::MirVerifier::new_strict()
+                    .verify_module(&result.module)
+                    .map_err(|errors| {
+                        errors
+                            .iter()
+                            .map(ToString::to_string)
+                            .collect::<Vec<_>>()
+                            .join("; ")
+                    })?;
+                let prepared = session
+                    .prepare_external_commit()
+                    .map_err(|error| error.to_string())?;
+                let view = view.bind_finalized_root_handoff(retained_root.as_ref())?;
+                let output = consume(&view, &result.verification_result)?;
+                Ok((prepared, NormalPublishedCompileOutcome::Consumed(output)))
+            },
+        )
+    }
 }
 
 #[cfg(test)]

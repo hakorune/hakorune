@@ -49,6 +49,21 @@ pub fn emit_mir_json_string_for_harness_bin(
     serialize_mir_json_root(&root)
 }
 
+/// Emit the canonical MIR JSON document through the published view.
+///
+/// The named-array discharge runs inside `build_published_body_root` via
+/// `validated_named_arrays`; obligation markers stay metadata-only and
+/// never reach the document.  This is the document-publication emit for
+/// source-backed `--emit-mir-json`; compatibility modules keep
+/// `emit_mir_json_for_harness`.
+pub(crate) fn emit_mir_json_for_published_view(
+    view: &crate::mir::function::PublishedMirBackendView<'_>,
+    path: &std::path::Path,
+) -> Result<(), String> {
+    let root = super::root::build_published_body_root(view)?;
+    write_mir_json_root(path, &root)
+}
+
 /// Emit the reference lane's canonical v1 root as one owned Value.
 ///
 /// This is deliberately separate from the compatibility/harness string

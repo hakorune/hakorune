@@ -47,10 +47,10 @@ use decls::{
     collect_sorted_user_box_decl_values, collect_source_packed_array_autouse_pilot_plan_values,
     collect_static_data_plan_values, collect_typed_object_plan_values,
 };
-pub(crate) use io::emit_canonical_v1_value_for_reference;
 #[cfg(test)]
 pub(crate) use io::emit_mir_json_string_for_unpublished_candidate;
 pub(crate) use io::emit_published_view_body;
+pub(crate) use io::{emit_canonical_v1_value_for_reference, emit_mir_json_for_published_view};
 pub use io::{
     emit_mir_json_for_harness, emit_mir_json_for_harness_bin,
     emit_mir_json_for_selected_dynamic_candidate, emit_mir_json_string_for_harness_bin,

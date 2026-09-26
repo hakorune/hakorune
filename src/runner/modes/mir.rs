@@ -78,6 +78,11 @@ impl NyashRunner {
                 process::exit(1);
             }
         };
+        let source_backed = matches!(
+            transformed,
+            crate::runner::modes::common_util::normal_callable::
+                NormalCallableMaterializationOutcomeV1::SourceBacked(_)
+        );
         let request = match transformed {
             crate::runner::modes::common_util::normal_callable::
                 NormalCallableMaterializationOutcomeV1::SourceBacked(source) => {
@@ -98,7 +103,52 @@ impl NyashRunner {
         let mut mir_compiler = MirCompiler::with_options(!self.config.no_optimize);
         let groups = self.config.as_groups();
         // Preserve JSON's explicit precedence when both artifact options exist.
-        let compilation = if let Some(exe_out) = groups
+        let compilation = if let Some(json_out) = groups
+            .emit
+            .emit_mir_json
+            .as_deref()
+            .filter(|_| source_backed)
+        {
+            // Source-backed MIR JSON emit is a document publication: the
+            // artifact contract discharges named-array obligations through
+            // the retained handoff; backend-cohort admission stays off this
+            // lane.  A compatibility-classified module falls back to the
+            // harness writer below, unchanged.
+            let emitted = mir_compiler.compile_normal_for_mir_json(request, |view, verification| {
+                if let Err(errors) = verification {
+                    let details = errors.iter().map(ToString::to_string).collect::<Vec<_>>();
+                    return Err(crate::runner::modes::common_util::verifier_gate::build_direct_emit_verify_lines(
+                        "mir", "emit-mir-json/direct-verify", &details,
+                    ).join("\n"));
+                }
+                if groups.debug.verify_mir {
+                    println!("🔍 Verifying MIR...");
+                    println!("✅ MIR verification passed!");
+                }
+                if groups.debug.dump_mir {
+                    let mut printer = if groups.debug.mir_verbose {
+                        MirPrinter::verbose()
+                    } else { MirPrinter::new() };
+                    printer.set_show_effects_inline(groups.debug.mir_verbose_effects);
+                    println!("🚀 MIR Output for {}:", filename);
+                    println!("{}", printer.print_module(view.module()));
+                }
+                crate::runner::mir_json_emit::emit_mir_json_for_published_view(
+                    view,
+                    std::path::Path::new(json_out),
+                )
+            });
+            match emitted {
+                Ok(crate::mir::NormalPublishedCompileOutcome::Consumed(())) => {
+                    println!("MIR JSON written: {}", json_out);
+                    process::exit(0);
+                }
+                Ok(crate::mir::NormalPublishedCompileOutcome::ExplicitCompatibility(result)) => {
+                    Ok(result)
+                }
+                Err(error) => Err(error),
+            }
+        } else if let Some(exe_out) = groups
             .emit
             .emit_exe
             .as_deref()
