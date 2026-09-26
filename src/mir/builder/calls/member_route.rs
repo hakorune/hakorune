@@ -23,7 +23,7 @@ use super::method_call_descent::{
 use super::receiver_binding::ReceiverNormalizationPlan;
 use super::script_direct_static_physical_bridge::lower_claimed_script_direct_static_v1;
 use super::{
-    lower_selected_static_result_publication_v1,
+    lower_selected_static_result_publication_v1, lower_target_only_static_result_publication_v1,
     lower_target_only_static_result_publication_with_expected_sites_v1,
 };
 use crate::ast::ASTNode;
@@ -132,11 +132,13 @@ impl MirBuilder {
                                 )
                             }
                             Ok(StaticResultPublicationIngressV1::TargetOnly(target)) => {
-                                Err(format!(
-                                    "[freeze:contract][static-result-ingress/target-only/{:?}] {}",
-                                    target.reason(),
-                                    target.target().mir_symbol_projection()
-                                ))
+                                let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
+                                lower_target_only_static_result_publication_v1(
+                                    self,
+                                    &mut descent,
+                                    target.target().clone(),
+                                    arguments.len(),
+                                )
                             }
                             Ok(StaticResultPublicationIngressV1::NoExactStaticTarget) => Err(
                                 "[freeze:contract][static-result-ingress/no-exact-static-target]"

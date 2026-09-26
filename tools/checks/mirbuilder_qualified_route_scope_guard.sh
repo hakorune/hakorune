@@ -161,7 +161,22 @@ rg -q 'fn instance_caller_declines_non_declaration_targets' "$STATIC_INGRESS"
 rg -q 'fn me_call_probe_keeps_instance_callers_outside_static_ingress' "$STATIC_INGRESS"
 rg -q 'fn instance_caller_declines_when_declarations_are_unavailable' "$STATIC_INGRESS"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY"; do
+# MIRBUILDER-EXE-ACCEPTANCE-TARGET-ONLY-EMISSION-S0: the member_route
+# `StaticReceiver` arm consumes `StaticResultPublicationIngressV1::TargetOnly`
+# through the existing `lower_target_only_static_result_publication_v1`
+# physical bridge (source-proven exact target -> static global target value
+# terminal; no result publication). The me-call probe's TargetOnly arm in
+# `static_current_owner_policy.rs` stays a named error (deliberately excluded
+# sibling).
+MEMBER_ROUTE="$ROOT_DIR/src/mir/builder/calls/member_route.rs"
+CALLS_MOD="$ROOT_DIR/src/mir/builder/calls/mod.rs"
+PHYSICAL_BRIDGE="$ROOT_DIR/src/mir/builder/calls/static_result_publication_physical_bridge.rs"
+rg -q 'lower_target_only_static_result_publication_v1' "$MEMBER_ROUTE"
+rg -q 'lower_target_only_static_result_publication_v1' "$CALLS_MOD"
+rg -q 'fn lower_target_only_static_result_publication_v1' "$PHYSICAL_BRIDGE"
+rg -q 'static-result-ingress/target-only' "$STATIC_OWNER_POLICY"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2

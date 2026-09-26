@@ -76,6 +76,76 @@ while its result representation is `Unavailable`.
 - Others stay queued: F3b `UnconsumedSelected` consumption, F3c
   `SourceItemsMissing`, D5-sealed coverage forks.
 
+## Census answers
+
+1. **Physical consumer exists and is already production-wired in a
+   sibling lane.** `lower_target_only_static_result_publication_v1`
+   (plain variant, `physical_bridge.rs:135-163`) takes exactly the
+   member_route arm's shape (`builder`, `descent`, `target_key`,
+   `source_argument_count`) and emits
+   `emit_static_global_target_value_terminal_v1` with no result
+   claim. Its `with_expected_sites` sibling is ALREADY production
+   for the qualified-main lane (`member_route.rs:108-113`), so
+   TargetOnly→physical emission is the designed semantics; the plain
+   variant is currently exercised only by
+   `me_method_canonical_cutover_tests.rs:184`.
+2. **Why `stringField` is `Unavailable`:** its returns are
+   `line.substring(start, end)` (param receiver — no provable
+   `SourceCoreReceiverFactV1` → `prove_core_string_method` →
+   `unavailable_target`) and `""` literal — mixed `ExactString`/
+   `Unknown` → disposition `Unavailable` → `TargetOnly`. Param
+   receiver-fact unprovability is the catalog's honest contract —
+   hako params carry no declared types, so only provable receivers
+   publish results. `intField` (`StringHelpers.to_i64` — cross-
+   module `using` call, outside the same-module target inventory)
+   is `TargetOnly` for the same reason; `find` (i64 arithmetic
+   returns) is likely `Selected`; `boolField` (bool literals) is
+   disposition-dependent. Conclusion: `ingestLine` cannot finish
+   while `TargetOnly` is a dead-end — H2a is the only viable edge.
+3. **One-meaning preserved:** the row's exact `(caller, site)` →
+   target identity is source-proven; emitting `GlobalCall` with an
+   unpublished (Unknown) result is the same physical meaning the
+   retired lane produced — minus the name-based target guess. The
+   `static-target-only` named terminals
+   (`source-arity`/`target-projection`/`physical-arity`) already pin
+   the fault surface.
+4. **Drain semantics:** `UnconsumedTargetOnly` exists as a finish
+   error, but `take_for_source` marks the row consumed on take
+   (`:381-384`) — drain pressure is on take-consumption, not
+   physical emission. Wiring emission does not weaken the audit.
+5. **me-call probe arm:** `static_current_owner_policy.rs:61-67`
+   holds the same `TargetOnly`→error shape for `CurrentOwner` rows
+   in `StaticBoxMethod` callers. It is deliberately EXCLUDED —
+   `me.method` has a downstream sibling the `StaticReceiver` probe
+   lacks, no production site needs it yet, and one edge stays one
+   edge. Reopen if a `me.method` `TargetOnly` terminal surfaces.
+
+## Decision
+
+```text
+Decision: H2a — at the member_route StaticReceiver arm, wire
+  StaticResultPublicationIngressV1::TargetOnly to the existing
+  lower_target_only_static_result_publication_v1 physical lowerer.
+Source authority + canonical issuer:
+  StaticCallResultTargetOnlyV1 row (source-proven exact target) ->
+  emit_static_global_target_value_terminal_v1; result stays
+  unpublished (no PreparedStaticCallResultPublicationV1 commit).
+Non-authority: the qualified-main expected-sites variant is a
+  different handoff shape and stays where it is; the me-call probe's
+  TargetOnly arm stays a named error (deliberately excluded sibling).
+Fail-fast boundary: static-target-only/source-arity,
+  target-projection, physical-arity propagate; NoExactStaticTarget
+  stays a hard named terminal; row already consumed by take.
+Smallest next slice: replace the member_route.rs:134-140 TargetOnly
+  error arm with lower_target_only_static_result_publication_v1
+  (builder, descent, *target.target(), arguments.len()). No new
+  issuer/terminal; the existing error string is retired in place.
+Non-claims: does not prove stringField's result (H2b untouched);
+  downstream JsonLine callees (substring/StringHelpers) may hit
+  their own known terminals; me-call probe TargetOnly unchanged;
+  test green is not a production claim.
+```
+
 ## Boundary
 
 - Includes: owner census for `static-result-ingress/target-only` on
@@ -89,7 +159,7 @@ while its result representation is `Unavailable`.
 
 ## Exit
 
-- [ ] Decision recorded (bounded slice OR sealed NoSafeSlice with
+- [x] Decision recorded (bounded slice OR sealed NoSafeSlice with
       reopen triggers) with the six-line brief.
-- [ ] Next S-card emitted OR the named design card opened;
+- [x] Next S-card emitted OR the named design card opened;
       pointers synced.

@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D8"
+current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D9"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ExeAcceptanceD8-Open__Gate1-4of11Green__StaticResultIngressTargetOnly"
-current_design_stop = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D8"
+current_blocker_token = "ExeAcceptanceD9-Open__Gate1-4of11Green__OrdinaryNewArgumentSourceUnavailable"
+current_design_stop = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D9"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,21 +14,23 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-exe-acceptance-owner-selection-d8"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d8-2026-09-25.md"
+latest_card = "mirbuilder-exe-acceptance-owner-selection-d9"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d9-2026-09-25.md"
 latest_card_summary = """
-INSTANCE-STATIC-INGRESS-S0 landed — the claim-ingress classifier
-admits a `Cataloged` non-StaticBoxMethod caller when the probed
-(owner, method, arity) resolves via `declaration_for` to a same-module
-static-box declaration; the me-call probe (`<source-owned>`) and Math
-stay `Unavailable` by construction. json_stream_aggregator advanced
-past `legacy-fallback-retired` to `static-result-ingress/target-only`
-(`JsonLine.stringField/2` row consumed; result representation
-unproven). Suite failures all baseline-identical. Next:
-OWNER-SELECTION-D8.
+TARGET-ONLY-EMISSION-S0 landed — the member_route StaticReceiver
+TargetOnly arm emits through the existing
+lower_target_only_static_result_publication_v1 physical bridge;
+`JsonLine.stringField/2` lowered and json advanced past
+`static-result-ingress/target-only` to
+`ordinary-new/argument-source-unavailable`: a claimed
+`local stats = new UserStats(user)` (statsFor :111) whose
+`argument_rows()` is `Err` — the coseal fallback discards the
+argument observations `scan_new_home_flow` already computes, and
+handle-typed args sit outside `SelectedNewArgumentKindV1`.
+Suite failures all baseline-identical. Next: OWNER-SELECTION-D9.
 """
-next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D8"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d8-2026-09-25.md"
+next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D9"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d9-2026-09-25.md"
 next_execution_card = "none__design_stop"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -36,7 +38,7 @@ repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygi
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 parked_declared_instance_selected_c_task = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0 (ParkedSealed__PublishedTargetAndBackendCoverageMissing; language me.method retained)"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
-parked_wasm_hako_backend_task = "WASM-HAKO-W0-PUBLISHED-MIR-INGRESS-I0 (ParkedSealed__WasmCanonicalReaderAndHakoIngressMissing; post-R6 migration, not an R7 prerequisite; Rust LegacyCallV0 WASM Global/Extern reader stops landed at 833eb87a80/3c7f5ea5bc, remaining reader classes still owed before R7; implementation_permission=false; Rust fate=StopNow__FreezeBeforeR7__HakoDefaultAtW2__RetireAtW3)"
+parked_wasm_hako_backend_task = "WASM-HAKO-W0-PUBLISHED-MIR-INGRESS-I0 (ParkedSealed__WasmCanonicalReaderAndHakoIngressMissing; post-R6 migration, not an R7 prerequisite; Rust LegacyCallV0 WASM Global/Extern reader stops landed at 833eb87a80/3c7f5ea5bc, remaining reader classes still owed before R7; implementation_permission=false; reopen only after a physical lowering-context owner is accepted; see docs/development/current/main/investigations/mir-platform-macos-capability-d0-2026-09-15.md and docs/development/current/main/investigations/mir-platform-macos-capi-clang-compile-gap-d0-2026-09-22.md)"
 parked_macos_platform_capability_task = "MIR-PLATFORM-MACOS-CAPABILITY-D0 (census and CAPI owner audit complete; macos-26-arm64 provider PASS, CAPI BackendCapabilityMissing at clang compile; NoSafeSlice__NoPhysicalLoweringContextOwner; implementation_permission=false; reopen only after a physical lowering-context owner is accepted; see docs/development/current/main/investigations/mir-platform-macos-capability-d0-2026-09-15.md and docs/development/current/main/investigations/mir-platform-macos-capi-clang-compile-gap-d0-2026-09-22.md)"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
@@ -45,7 +47,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-25: TARGET-ONLY-EMISSION-S0 landed — member_route StaticReceiver TargetOnly arm emits via lower_target_only_static_result_publication_v1; json advanced to ordinary-new/argument-source-unavailable (statsFor new UserStats(user)); suite failures baseline-identical; next OWNER-SELECTION-D9.",
   "2026-09-25: INSTANCE-STATIC-INGRESS-S0 landed — declaration-gated claim-ingress admits Cataloged instance callers for declaration-resolved same-module static targets; json advanced to static-result-ingress/target-only (JsonLine.stringField/2); suite failures baseline-identical; next OWNER-SELECTION-D8.",
   "2026-09-25: ME-RECEIVER-SITE-S0 landed — located Me/This MethodCall receivers consume the registered Receiver site via exact_source_receiver_value; json advanced to static-call/legacy-fallback-retired (JsonLine.stringField/2 in ingestLine); suite 4/7; next OWNER-SELECTION-D7.",
-  "2026-09-25: LOOP-COND-COND-UPDATE-S0 landed — ConditionalUpdateIf arm in the located-source LoopCond parts driver via try_lower_conditional_update_if_input; json advanced to callable-semantic-lowering/incomplete-consumption (Receiver site); suite 4/7; next OWNER-SELECTION-D6.",
 ]
