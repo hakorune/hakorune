@@ -261,7 +261,24 @@ rg -q 'RootExitMissing' "$LOOP_BREAK_FACTS"
 rg -q 'return_in_body_projection_is_admitted_by_composite_owner' "$COMPOSITE_PROJECTION"
 rg -q 'exit_free_loop_declines_with_root_exit_missing' "$COMPOSITE_PROJECTION"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS"; do
+# MIRBUILDER-EXE-ACCEPTANCE-DEAD-ROUTE-SOLE-FAMILY-S1: `LoopBreakRecipe`
+# is TypedDeclined wire vocabulary (retired plan-lane pipeline) — matched
+# rows stay provenance-only. Live front-selectable routes must not be
+# suppressed by `pred_loop_break_recipe`, and `sole_family()` filters only
+# that one owner-less id; every other live route still contends.
+ROUTE_PREDICATES="$ROOT_DIR/src/mir/builder/control_flow/joinir/route_entry/registry/predicates.rs"
+CALLABLE_ROUTE="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_route.rs"
+DEAD_ROUTE_TESTS="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_route_dead_route_tests.rs"
+if rg -n '!pred_loop_break_recipe' "$ROUTE_PREDICATES"; then
+  echo "[$TAG] dead LoopBreakRecipe route suppresses a live route again" >&2
+  exit 1
+fi
+rg -q 'route != LoopRouteId::LoopBreakRecipe' "$CALLABLE_ROUTE"
+rg -q 'sole_family_ignores_owner_less_loop_break_recipe' "$DEAD_ROUTE_TESTS"
+rg -q 'loop_simple_while_overlap_keeps_sole_family_none' "$DEAD_ROUTE_TESTS"
+rg -q 'trim_header_dead_route_does_not_hide_loop_cond_sole_family' "$DEAD_ROUTE_TESTS"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS" "$ROUTE_PREDICATES" "$CALLABLE_ROUTE" "$DEAD_ROUTE_TESTS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2

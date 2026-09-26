@@ -1,10 +1,10 @@
 date = "2026-09-26"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D13"
+current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-SOURCE-CALL-COVERAGE-D14"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ExeAcceptanceS0-Landed__CompositeReturnExit__LoopWinnerZeroCandidates-ExitFree"
-current_design_stop = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D13"
+current_blocker_token = "ExeAcceptanceS1-Landed__SourceCallOutsideSelectedFamily-LoopCondition"
+current_design_stop = "MIRBUILDER-EXE-ACCEPTANCE-SOURCE-CALL-COVERAGE-D14"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,22 +14,27 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-exe-acceptance-owner-selection-d13"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d13-2026-09-26.md"
+latest_card = "mirbuilder-exe-acceptance-source-call-coverage-d14"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-source-call-coverage-d14-2026-09-26.md"
 latest_card_summary = """
-COMPOSITE-RETURN-EXIT-S0 landed — `starts_with/3`
-return-in-body loop now lowers via the composite LoopBreak
-owner (`RootBreakMissing`→`RootExitMissing`). Next terminals
-(debug binary): EXE `StringHelpers.trim/1` exit-free
-`loop(i<n && …)`, VM `JsonStreamAggregator.ingest/1`
-exit-free `loop(start<n)` — D13 opened for exit-free
-`loop(cond)` ownership census.
+DEAD-ROUTE-SOLE-FAMILY-S1 landed — TypedDeclined
+`LoopBreakRecipe` (owner-less, retired plan-lane pipeline)
+no longer suppresses `pred_loop_cond_break_continue` /
+`pred_loop_true_break_continue` and is filtered from
+`sole_family` contention; `LoopSimpleWhile` (V1Parity)
+overlap still yields sole=None (S0 boundary preserved).
+`StringHelpers.trim/1` front-selects `LoopCondBreakContinue`
+and reaches the honest D5 terminal
+`SourceCallOutsideSelectedFamily` — the two `s.substring`
+call sites inside `LoopCondition`. VM `ingest/1` unchanged
+(ledger-less spine, recorded non-claim). D14 censuses
+condition-position call coverage authority.
 NOTE: EXE/VM smokes need `NYASH_BIN=target/debug/hakorune`;
 bare runs use stale `target/release` and report phantom
 terminals (e.g. `selected-header-missing`).
 """
-next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D13"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d13-2026-09-26.md"
+next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-SOURCE-CALL-COVERAGE-D14"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-source-call-coverage-d14-2026-09-26.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -46,7 +51,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-26: DEAD-ROUTE-SOLE-FAMILY-S1 landed — TypedDeclined LoopBreakRecipe stopped suppressing live route predicates and sole_family contention; trim/1 front-selects LoopCondBreakContinue, EXE advances to SourceCallOutsideSelectedFamily (LoopCondition s.substring sites, D5 family); VM ingest unchanged (ledger-less); suite unchanged; next SOURCE-CALL-COVERAGE-D14.",
   "2026-09-26: COMPOSITE-RETURN-EXIT-S0 landed — validate_exit_ledger counts Return{target_function} as root exit evidence (RootBreakMissing→RootExitMissing); starts_with/3 return-in-body loop lowers via composite LoopBreak owner; json advanced to exit-free loop winner declines (EXE StringHelpers.trim/1, VM JsonStreamAggregator.ingest/1); binary_trees baseline-identical via stash; next OWNER-SELECTION-D13.",
   "2026-09-25: NESTED-PROGRAM-ITEM-SITE-S0 landed — body_item_site collapses nested Program body root to rootless [stmt, ProgramBody(i)] matching every walk-registered map; absolute [ProgramBodyRoot] stays rootful; json advanced to loop winner selection declined (zero selected family candidates); suite failures baseline-identical; next OWNER-SELECTION-D12.",
-  "2026-09-25: ENV-DIRECT-RECEIVER-S0 landed — bare env.<method> receivers classify into existing EnvMethod route before static resolution (get_env_method_spec authority, variable_map gate, named error); json advanced to callable-semantic-lowering/placement-local-missing (bare-block local dbg); suite failures baseline-identical; next OWNER-SELECTION-D11.",
 ]

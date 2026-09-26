@@ -175,8 +175,19 @@ impl CallableLoopRouteMatchV1 {
     /// The sole surviving callable family when exactly one retained family
     /// predicate matched. `None` on zero matches or overlap — callers stop
     /// typed instead of falling back.
+    ///
+    /// `LoopBreakRecipe` is owner-less vocabulary: its wire coverage is
+    /// `TypedDeclined` (the plan-lane pipeline retired), so a matched row is
+    /// provenance only and cannot contend for the sole family. Other route
+    /// IDs keep contending — a live-vocabulary overlap still yields `None`.
     pub(in crate::mir::builder) fn sole_family(&self) -> Option<CallableLoopSoleFamilyV1> {
-        match self.matched.as_ref() {
+        match self
+            .matched
+            .iter()
+            .filter(|route| **route != LoopRouteId::LoopBreakRecipe)
+            .collect::<Vec<_>>()
+            .as_slice()
+        {
             [LoopRouteId::LoopCondBreakContinue] => {
                 Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue)
             }
@@ -392,6 +403,10 @@ fn is_under_parent(site: &SourceNodeSiteV1, parent: &SourceNodeSiteV1) -> bool {
 #[cfg(test)]
 #[path = "normal_callable_loop_source_route_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "normal_callable_loop_source_route_dead_route_tests.rs"]
+mod dead_route_tests;
 
 #[cfg(test)]
 #[path = "normal_callable_loop_scalar_result_tests.rs"]

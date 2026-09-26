@@ -49,7 +49,10 @@ impl ScanFamilyPresence {
 
 pred_accessor!(pred_nested_loop_minimal, nested_loop_minimal);
 pub(crate) fn pred_loop_true_break_continue(facts: &CanonicalLoopFacts) -> bool {
-    facts.facts.loop_true_break_continue.is_some() && !pred_loop_break_recipe(facts)
+    // `LoopBreakRecipe` is TypedDeclined wire vocabulary (its plan-lane
+    // pipeline retired): plan-level `loop_break` facts are provenance only
+    // and must not suppress this live route.
+    facts.facts.loop_true_break_continue.is_some()
 }
 pub(crate) fn pred_loop_cond_break_continue(facts: &CanonicalLoopFacts) -> bool {
     let scan = ScanFamilyPresence::from_facts(facts);
@@ -58,7 +61,10 @@ pub(crate) fn pred_loop_cond_break_continue(facts: &CanonicalLoopFacts) -> bool 
     };
     let prefer_return_in_body = loop_cond_break_continue.is_return_only_body()
         && facts.facts.loop_cond_return_in_body().is_some();
-    !prefer_return_in_body && !pred_loop_break_recipe(facts) && !scan.blocks_loop_cond_break()
+    // `LoopBreakRecipe` is TypedDeclined wire vocabulary (its plan-lane
+    // pipeline retired): plan-level `loop_break` facts are provenance only
+    // and must not suppress this live route.
+    !prefer_return_in_body && !scan.blocks_loop_cond_break()
 }
 pub(crate) fn pred_loop_cond_continue_only(facts: &CanonicalLoopFacts) -> bool {
     facts.facts.loop_cond_continue_only().is_some() && !pred_loop_continue_only(facts)
