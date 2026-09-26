@@ -250,7 +250,7 @@ pub(super) fn branch_has_exit_or_loop(body: &[ASTNode]) -> bool {
 }
 
 /// Phase 29bq BoxCount: detect ParserExprBox.parse_string2 loop(cond) shape.
-pub(super) fn matches_parse_string2_shape(body: &[ASTNode]) -> bool {
+pub(in crate::mir::builder) fn matches_parse_string2_shape(body: &[ASTNode]) -> bool {
     if body.len() != 7 {
         return false;
     }

@@ -32,6 +32,7 @@ pub(in crate::mir::builder) mod exit_only_block;
 pub(in crate::mir::builder) mod feature_facts;
 pub(in crate::mir::builder) mod loop_array_join_facts;
 pub(in crate::mir::builder) mod loop_char_map_facts;
+pub(in crate::mir::builder) mod loop_cond_no_exit_facts;
 pub(in crate::mir::builder) mod loop_continue_only_facts;
 pub(in crate::mir::builder) mod loop_simple_while_facts;
 pub(in crate::mir::builder) mod loop_true_early_exit_facts;

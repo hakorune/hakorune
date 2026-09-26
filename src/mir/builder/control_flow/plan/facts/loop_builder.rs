@@ -10,6 +10,7 @@ use super::bool_predicate_scan_facts::try_extract_bool_predicate_scan_facts_with
 use super::feature_facts::try_extract_loop_feature_facts;
 use super::loop_array_join_facts::try_extract_loop_array_join_facts_with_projection;
 use super::loop_char_map_facts::try_extract_loop_char_map_facts_with_projection;
+use super::loop_cond_no_exit_facts::try_extract_loop_cond_no_exit_facts;
 use super::loop_continue_only_facts::try_extract_loop_continue_only_facts_with_projection;
 use super::loop_simple_while_facts::try_extract_loop_simple_while_facts_with_projection;
 use super::loop_true_early_exit_facts::try_extract_loop_true_early_exit_facts_with_projection;
@@ -113,6 +114,12 @@ fn try_build_loop_facts_inner(
         }
         // Fall back to base if no cluster matched
         selected.or(try_extract_loop_cond_break_continue_facts(condition, body)?)
+    };
+    // Disjoint sibling: bodies with zero exit signals. Runs only when
+    // loop_cond_break_continue (cluster + base) rejected the shape.
+    let loop_cond_break_continue = match loop_cond_break_continue {
+        Some(facts) => Some(facts),
+        None => try_extract_loop_cond_no_exit_facts(condition, body)?,
     };
     let loop_cond_continue_only = try_extract_loop_cond_continue_only_facts(condition, body)?;
     let loop_cond_continue_with_return =

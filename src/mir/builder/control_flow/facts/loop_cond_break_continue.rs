@@ -21,6 +21,7 @@ pub(in crate::mir::builder) enum LoopCondBreakAcceptKind {
     MixedIf,
     NestedLoopOnly,
     ProgramBlockNoExit,
+    NoExitBody,
 }
 
 #[derive(Debug, Clone)]
@@ -39,7 +40,9 @@ impl LoopCondBreakContinueFacts {
     pub(in crate::mir::builder) fn release_allowed(&self) -> bool {
         !matches!(
             self.accept_kind,
-            LoopCondBreakAcceptKind::NestedLoopOnly | LoopCondBreakAcceptKind::ProgramBlockNoExit
+            LoopCondBreakAcceptKind::NestedLoopOnly
+                | LoopCondBreakAcceptKind::ProgramBlockNoExit
+                | LoopCondBreakAcceptKind::NoExitBody
         )
     }
 

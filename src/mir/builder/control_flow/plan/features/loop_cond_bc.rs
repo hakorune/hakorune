@@ -24,6 +24,7 @@ pub(super) const fn pin_accept_kind_contract(kind: LoopCondBreakAcceptKind) {
         LoopCondBreakAcceptKind::MixedIf => (),
         LoopCondBreakAcceptKind::NestedLoopOnly => (),
         LoopCondBreakAcceptKind::ProgramBlockNoExit => (),
+        LoopCondBreakAcceptKind::NoExitBody => (),
     }
 }
 

@@ -42,7 +42,7 @@ enum IfStmtKind {
 }
 
 /// Build a recipe for the loop body.
-pub(super) fn build_loop_cond_break_continue_recipe(
+pub(in crate::mir::builder) fn build_loop_cond_break_continue_recipe(
     body: &[ASTNode],
     allow_nested: bool,
     allow_extended: bool,

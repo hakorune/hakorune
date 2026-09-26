@@ -63,7 +63,41 @@ rg -q 'birth_site_index_covers_field_assign_and_return_position_sites' "$COSEAL_
 rg -q 'birth_site_index_skips_builtin_and_missing_birth_classes' "$COSEAL_TESTS"
 rg -q 'birth_site_take_enforces_class_arity_and_is_affine' "$COSEAL_TESTS"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE"; do
+# MIRBUILDER-EXE-ACCEPTANCE-LOOP-COND-NO-EXIT-S0: the no-exit extractor is a
+# disjoint sibling of loop_cond_break_continue. It feeds the existing
+# LoopCondBreakContinueFacts with NoExitBody; the canonical issuer, route
+# match, and located-source lowerer stay the sole owner chain.
+NO_EXIT="$ROOT_DIR/src/mir/builder/control_flow/plan/facts/loop_cond_no_exit_facts.rs"
+LOOP_BUILDER="$ROOT_DIR/src/mir/builder/control_flow/plan/facts/loop_builder.rs"
+LOOP_COND_FACTS="$ROOT_DIR/src/mir/builder/control_flow/facts/loop_cond_break_continue.rs"
+REJECT_REASON="$ROOT_DIR/src/mir/builder/control_flow/plan/facts/reject_reason.rs"
+LOOP_COND_BC="$ROOT_DIR/src/mir/builder/control_flow/plan/features/loop_cond_bc.rs"
+BC_ITEM="$ROOT_DIR/src/mir/builder/control_flow/plan/loop_cond/break_continue_item.rs"
+rg -q 'fn try_extract_loop_cond_no_exit_facts' "$NO_EXIT"
+rg -q 'LoopCondBreakAcceptKind::NoExitBody' "$NO_EXIT"
+rg -q 'continue_branches: Vec::new()' "$NO_EXIT"
+rg -q 'body_exit_allowed: None' "$NO_EXIT"
+rg -q 'BodyLoweringPolicy::RecipeOnly' "$NO_EXIT"
+# Bounded vocabulary only: Stmt / ProgramBlock / GeneralIf.
+rg -q 'LoopCondBreakContinueItem::ProgramBlock' "$NO_EXIT"
+rg -q 'LoopCondBreakContinueItem::GeneralIf' "$NO_EXIT"
+# Disjoint wiring: runs only when the exit-bearing extractor rejected.
+rg -q 'None => try_extract_loop_cond_no_exit_facts' "$LOOP_BUILDER"
+# No second issuer, no fallback to the legacy route.
+if rg -n 'lower_loop_or_freeze_v1|LoopRouteContext' "$NO_EXIT"; then
+  echo "[$TAG] no-exit extractor reached into a fallback route" >&2
+  exit 1
+fi
+rg -q 'NoExitBody' "$LOOP_COND_FACTS"
+rg -q 'ExitSignalPresent => "exit_signal_present"' "$REJECT_REASON"
+rg -q 'fn for_loop_cond_no_exit' "$REJECT_REASON"
+rg -q 'LoopCondBreakAcceptKind::NoExitBody => \(\)' "$LOOP_COND_BC"
+rg -q 'fn build_loop_cond_break_continue_recipe' "$BC_ITEM"
+rg -q 'pipeline_pins_no_exit_body_kind' "$NO_EXIT"
+rg -q 'pipeline_keeps_exit_bearing_body_on_sibling' "$NO_EXIT"
+rg -q 'rejects_conditional_update_if' "$NO_EXIT"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2

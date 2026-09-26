@@ -76,6 +76,9 @@ pub enum RejectReason {
     ContinueOnly => "continue_only",
     ExitAllowedRecipeBuildFailed => "exit_allowed_recipe_build_failed",
 
+    // loop_cond_no_exit
+    ExitSignalPresent => "exit_signal_present",
+
     // Phase 29ca (generic_loop)
     InBodyStepWithContinue => "in_body_step_with_continue",
     NoValidLoopVarCandidates => "no_valid_loop_var_candidates",
@@ -259,6 +262,18 @@ pub mod handoff_tables {
             RejectReason::NoExitIf => HandoffTarget::OutOfScope,
             RejectReason::ContinueOnly => HandoffTarget::LoopCondContinueOnly,
             // Phase 5 reasons (fallback)
+            _ => HandoffTarget::OutOfScope,
+        }
+    }
+
+    /// Handoff table for loop_cond_no_exit
+    ///
+    /// Exit-signal bodies belong to loop_cond_break_continue; every other
+    /// rejection stays OutOfScope (FactsAbsent remains the named terminal).
+    pub fn for_loop_cond_no_exit(reason: RejectReason) -> HandoffTarget {
+        match reason {
+            RejectReason::ConditionIsTrue => HandoffTarget::LoopTrueBreakContinue,
+            RejectReason::ExitSignalPresent => HandoffTarget::LoopCondBreakContinue,
             _ => HandoffTarget::OutOfScope,
         }
     }
