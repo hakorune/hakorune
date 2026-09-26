@@ -95,7 +95,11 @@ pub(in crate::mir::builder) use static_result_publication_physical_bridge::{
 #[cfg(test)]
 mod me_method_canonical_cutover_tests;
 #[cfg(test)]
+mod member_route_descent_testkit;
+#[cfg(test)]
 mod member_route_descent_tests;
+#[cfg(test)]
+mod member_route_env_direct_tests;
 #[cfg(test)]
 mod method_call_descent_tests;
 #[cfg(test)]

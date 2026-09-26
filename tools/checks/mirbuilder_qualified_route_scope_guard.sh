@@ -209,7 +209,25 @@ rg -q 'Kind::Handle' "$PHYS_ABI"
 rg -q 'OrdinaryNewTrivialArgumentKindV1::Handle' "$EMIT_VALID"
 rg -q 'ordinary_new_claim_records_parameter_handle_argument' "$BRAND_TESTS"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS"; do
+# MIRBUILDER-EXE-ACCEPTANCE-ENV-DIRECT-RECEIVER-S0: bare `env.<method>`
+# receivers classify into the existing `EnvMethod` route inside
+# `plan_member_call_route` BEFORE static-receiver resolution, gated on the
+# same `get_env_method_spec` authority the located lanes use. A bound
+# `env` local keeps the Standard route (variable_map gate) and unknown
+# methods fail with a named error — never a StaticReceiver probe.
+ENV_DIRECT_TESTS="$ROOT_DIR/src/mir/builder/calls/member_route_env_direct_tests.rs"
+DESCENT_TESTKIT="$ROOT_DIR/src/mir/builder/calls/member_route_descent_testkit.rs"
+DESCENT_TESTS="$ROOT_DIR/src/mir/builder/calls/member_route_descent_tests.rs"
+rg -q 'name == "env"' "$MEMBER_ROUTE"
+rg -q 'variable_map' "$MEMBER_ROUTE"
+rg -q 'get_env_method_spec\("env", method\)' "$MEMBER_ROUTE"
+rg -q 'env method not supported' "$MEMBER_ROUTE"
+rg -q 'env_direct_receiver_uses_env_terminal_and_emits_extern_call' "$ENV_DIRECT_TESTS"
+rg -q 'env_direct_receiver_rejects_unknown_method_with_named_error' "$ENV_DIRECT_TESTS"
+rg -q 'bound_env_receiver_keeps_standard_route' "$ENV_DIRECT_TESTS"
+rg -q 'env_route_keeps_receiver_syntax_only_and_descends_arguments' "$DESCENT_TESTS"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2

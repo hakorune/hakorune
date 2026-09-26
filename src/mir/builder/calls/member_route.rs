@@ -41,6 +41,34 @@ impl MirBuilder {
         object: &ASTNode,
         method: &str,
     ) -> Result<MemberCallRoutePlan, String> {
+        // A bare `env.<method>` receiver uses the same `get_env_method_spec`
+        // authority as the located lanes; it must classify before static
+        // receiver resolution, which would otherwise claim `env` as a box.
+        if let ASTNode::Variable { name, .. } = object {
+            if name == "env"
+                && !self
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .contains_key(name.as_str())
+            {
+                let Some((iface_name, method_name, effects, returns)) =
+                    super::extern_calls::get_env_method_spec("env", method)
+                else {
+                    return Err(format!(
+                        "[member-call-route] env method not supported: {method}"
+                    ));
+                };
+                return Ok(MemberCallRoutePlan::EnvMethod {
+                    spec: EnvMethodSpec {
+                        iface_name,
+                        method_name,
+                        effects,
+                        returns,
+                    },
+                });
+            }
+        }
         if let Some(box_name) = self.resolve_static_receiver_box_name(object) {
             return Ok(MemberCallRoutePlan::StaticReceiver { box_name });
         }
