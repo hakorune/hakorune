@@ -6,6 +6,7 @@
 //! selected-C admission gate is deliberately downstream and does not appear
 //! in this product.
 
+use std::cell::RefCell;
 use std::collections::BTreeSet;
 
 use crate::mir::builder::{SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1};
@@ -72,7 +73,7 @@ pub(super) struct SealedDeclaredInstanceCallLocatorCatalogV1 {
 /// Borrow-only view of the package locator.  The view does not own, clone, or
 /// reinterpret any semantic product; it only keeps the install/Builder seam
 /// callback-scoped until a downstream physical admission is designed.
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub(in crate::mir) struct DeclaredInstanceCallLocatorViewV1<'a> {
     disposition: &'a DeclaredInstanceCallPackageLocatorDispositionV1,
     relation: Option<&'a VerifiedDeclaredInstanceCallRelationCatalogV1>,
@@ -158,19 +159,22 @@ pub(in crate::mir) enum DeclaredInstanceCallLocatorTakeErrorV1 {
     RelationMismatch,
 }
 
-/// Non-`Clone` exactly-once view used by one installed lowering callback.
-/// Locator rows are consumed, while the receiver `ValueId` is only read from
-/// the callable state and may therefore be reused by repeated `me.method`
-/// sites with the same binding.
+/// `Copy` exactly-once view used by installed lowering callbacks.  The
+/// consumed ledger lives behind a shared `RefCell` so each row is marked
+/// exactly once no matter which armed lane (body or loop) reaches a
+/// `me.method` site first.  Locator rows are consumed, while the receiver
+/// `ValueId` is only read from the callable state and may therefore be
+/// reused by repeated `me.method` sites with the same binding.
+#[derive(Debug, Clone, Copy)]
 pub(in crate::mir) struct DeclaredInstanceCallLocatorScopeV1<'a> {
     view: DeclaredInstanceCallLocatorViewV1<'a>,
-    consumed: &'a mut BTreeSet<u32>,
+    consumed: &'a RefCell<BTreeSet<u32>>,
 }
 
 impl<'a> DeclaredInstanceCallLocatorScopeV1<'a> {
     pub(super) fn new(
         view: DeclaredInstanceCallLocatorViewV1<'a>,
-        consumed: &'a mut BTreeSet<u32>,
+        consumed: &'a RefCell<BTreeSet<u32>>,
     ) -> Self {
         Self { view, consumed }
     }
@@ -184,17 +188,11 @@ impl<'a> DeclaredInstanceCallLocatorScopeV1<'a> {
     }
 
     pub(in crate::mir) fn reborrow(&mut self) -> DeclaredInstanceCallLocatorScopeV1<'_> {
-        DeclaredInstanceCallLocatorScopeV1 {
-            view: DeclaredInstanceCallLocatorViewV1 {
-                disposition: self.view.disposition,
-                relation: self.view.relation,
-            },
-            consumed: &mut *self.consumed,
-        }
+        *self
     }
 
     pub(in crate::mir) fn take_exact_relation<R>(
-        &mut self,
+        &self,
         expected_site: &OwnedExprSiteV1,
         callback: impl FnOnce(DeclaredInstanceCallRelationViewV1<'_>) -> Result<R, String>,
     ) -> Result<R, DeclaredInstanceCallLocatorTakeErrorV1> {
@@ -217,7 +215,11 @@ impl<'a> DeclaredInstanceCallLocatorScopeV1<'a> {
         }
         let relation_ordinal = usize::try_from(row.relation_row_ordinal())
             .map_err(|_| DeclaredInstanceCallLocatorTakeErrorV1::RelationMismatch)?;
-        if self.consumed.contains(&row.relation_row_ordinal()) {
+        if self
+            .consumed
+            .borrow()
+            .contains(&row.relation_row_ordinal())
+        {
             return Err(DeclaredInstanceCallLocatorTakeErrorV1::AlreadyTaken);
         }
         let Some(relation_row) = relation.rows().get(relation_ordinal) else {
@@ -228,7 +230,11 @@ impl<'a> DeclaredInstanceCallLocatorScopeV1<'a> {
         {
             return Err(DeclaredInstanceCallLocatorTakeErrorV1::RelationMismatch);
         }
-        if !self.consumed.insert(row.relation_row_ordinal()) {
+        if !self
+            .consumed
+            .borrow_mut()
+            .insert(row.relation_row_ordinal())
+        {
             return Err(DeclaredInstanceCallLocatorTakeErrorV1::AlreadyTaken);
         }
         callback(DeclaredInstanceCallRelationViewV1 {

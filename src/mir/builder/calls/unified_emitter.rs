@@ -55,6 +55,32 @@ pub(in crate::mir::builder) fn emit_canonical_instance_value_terminal_v1(
     }
 }
 
+/// Emit one canonical same-module instance-method call into a caller-owned
+/// destination slot (`None` for statement-position effects).  Statement and
+/// value shapes share this terminal so locator-backed call sites keep one
+/// callee authority on every lane.
+pub(in crate::mir::builder) fn emit_canonical_instance_call_at_v1(
+    builder: &mut MirBuilder,
+    dst: Option<ValueId>,
+    key: CanonicalSameModuleCallableKeyV1,
+    receiver: ValueId,
+    arguments: Vec<ValueId>,
+) -> Result<(), String> {
+    let call = call_unified::create_mir_call(
+        dst,
+        Callee::SameModuleInstance { key, receiver },
+        arguments,
+    );
+    physical_terminal::emit_finalized_generic_call_v1(
+        builder,
+        call,
+        None,
+        None,
+        UnifiedCallSignaturePublicationV1::Existing,
+    )?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod array_write_timing_tests;
 mod compat_entrypoints;

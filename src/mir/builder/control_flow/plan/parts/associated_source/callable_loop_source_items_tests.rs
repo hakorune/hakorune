@@ -89,7 +89,7 @@ fn source_item_method_calls_consume_exact_core_method_rows() {
     let (ledger, body) = real_core_method_ledger(
         "function t(text) { loop(text.length() < 2) { local piece = text.substring(0, 1) } }",
     );
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let function_body = port
         .body(&body, &function_body_source())
         .expect("located function body");
@@ -168,7 +168,7 @@ fn condition_position_substring_contracts_and_consumes_exact_row() {
             == crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Condition),
         "both armed calls sit in the condition: {placements:?}"
     );
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let function_body = port
         .body(&body, &function_body_source())
         .expect("located function body");
@@ -259,7 +259,7 @@ fn source_item_lowers_program_block_if_through_the_exit_allowed_singleton() {
     let (ledger, body) = real_ledger(
         "function t() { loop(true) { local i = 0; if i == 0 { break } else { i = i + 1 } } }",
     );
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let function_carrier = port
         .body(&body, &function_body_source())
         .expect("located function body");
@@ -533,7 +533,7 @@ fn source_item_consumes_me_receiver_site_for_method_call() {
     // MethodCall proves the site-consumption path ran.
     let (ledger, body) =
         real_ledger("function t() { local i = 0; loop(i < 2) { me.bump(7); i = i + 1 } }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let function_carrier = port
         .body(&body, &cataloged_body_source())
         .expect("located function body");
@@ -571,7 +571,7 @@ fn source_item_consumes_me_receiver_site_for_value_call() {
     // `MethodCall` with a result `dst`.
     let (ledger, body) =
         real_ledger("function t() { local i = 0; loop(i < 2) { local x = me.size(); i = i + 1 } }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let function_carrier = port
         .body(&body, &cataloged_body_source())
         .expect("located function body");
@@ -610,7 +610,7 @@ fn source_item_rejects_duplicate_me_receiver_site_consumption() {
     // the named reject, never a silent re-read.
     let (ledger, body) =
         real_ledger("function t() { local i = 0; loop(i < 2) { me.bump(7); i = i + 1 } }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let function_carrier = port
         .body(&body, &cataloged_body_source())
         .expect("located function body");
@@ -639,7 +639,7 @@ fn source_item_consumes_this_receiver_site_for_method_call() {
     // is the pin.
     let (ledger, body) =
         real_ledger("function t() { local i = 0; loop(i < 2) { this.bump(7); i = i + 1 } }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let function_carrier = port
         .body(&body, &cataloged_body_source())
         .expect("located function body");
@@ -676,7 +676,7 @@ fn port_declines_receiver_value_for_non_receiver_expression() {
     // expressions; any other expression returns `Ok(None)` so the existing
     // receiver resolution path keeps owning it.
     let (ledger, _body) = real_ledger("function t() { local i = 0 }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let node = variable("x");
     let input = port.synthetic_expr(&node);
     let result = port

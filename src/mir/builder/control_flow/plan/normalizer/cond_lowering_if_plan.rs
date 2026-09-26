@@ -193,7 +193,8 @@ fn effect_defines_value(effect: &CoreEffectPlan) -> bool {
         CoreEffectPlan::MethodCall { dst, .. }
         | CoreEffectPlan::GlobalCall { dst, .. }
         | CoreEffectPlan::ValueCall { dst, .. }
-        | CoreEffectPlan::ExternCall { dst, .. } => dst.is_some(),
+        | CoreEffectPlan::ExternCall { dst, .. }
+        | CoreEffectPlan::DeclaredInstanceCall { dst, .. } => dst.is_some(),
         CoreEffectPlan::NewBox { .. }
         | CoreEffectPlan::VariantMake { .. }
         | CoreEffectPlan::BinOp { .. }

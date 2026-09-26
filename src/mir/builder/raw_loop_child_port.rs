@@ -102,6 +102,7 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
                     policy,
                     root_scope,
                     callable_ledger,
+                    self.declared_instance_locator,
                     Some(self.source_input.ok_or_else(|| {
                         "[freeze:contract][raw-loop-child-entry/source-input-missing]".to_owned()
                     })?),

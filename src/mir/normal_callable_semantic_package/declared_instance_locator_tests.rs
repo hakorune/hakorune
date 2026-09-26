@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::collections::BTreeSet;
 
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
@@ -97,12 +98,12 @@ fn locator_scope_lends_exact_relation_once_and_rejects_second_take() {
         .expect("one locator row")
         .call_site()
         .clone();
-    let mut consumed = BTreeSet::new();
+    let consumed = RefCell::new(BTreeSet::new());
     let view = DeclaredInstanceCallLocatorViewV1::new(
         disposition,
         package.batch().declared_instance_call_source(),
     );
-    let mut scope = DeclaredInstanceCallLocatorScopeV1::new(view, &mut consumed);
+    let scope = DeclaredInstanceCallLocatorScopeV1::new(view, &consumed);
 
     let binding = scope
         .take_exact_relation(&site, |relation| {
@@ -117,7 +118,7 @@ fn locator_scope_lends_exact_relation_once_and_rejects_second_take() {
         scope.take_exact_relation(&site, |_| Ok(())),
         Err(DeclaredInstanceCallLocatorTakeErrorV1::AlreadyTaken)
     );
-    assert_eq!(consumed.len(), 1);
+    assert_eq!(consumed.borrow().len(), 1);
 }
 
 #[test]
@@ -126,29 +127,29 @@ fn locator_scope_reports_no_root_and_missing_site_without_consumption() {
     let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().expect("owner issuer");
     let owner = issuer.issue().expect("test owner");
     let site = OwnedExprSiteV1::new(owner, SourcePathV1::function_body().expr());
-    let mut consumed = BTreeSet::new();
+    let consumed = RefCell::new(BTreeSet::new());
     let view = DeclaredInstanceCallLocatorViewV1::new(
         package.declared_instance_call_locators(),
         package.batch().declared_instance_call_source(),
     );
-    let mut scope = DeclaredInstanceCallLocatorScopeV1::new(view, &mut consumed);
+    let scope = DeclaredInstanceCallLocatorScopeV1::new(view, &consumed);
 
     assert_eq!(
         scope.take_exact_relation(&site, |_| Ok(())),
         Err(DeclaredInstanceCallLocatorTakeErrorV1::NoRoot)
     );
-    assert!(consumed.is_empty());
+    assert!(consumed.borrow().is_empty());
 
     let package = issue("box Counter { call() { return me.value() } value() { return 1 } }");
-    let mut consumed = BTreeSet::new();
+    let consumed = RefCell::new(BTreeSet::new());
     let view = DeclaredInstanceCallLocatorViewV1::new(
         package.declared_instance_call_locators(),
         package.batch().declared_instance_call_source(),
     );
-    let mut scope = DeclaredInstanceCallLocatorScopeV1::new(view, &mut consumed);
+    let scope = DeclaredInstanceCallLocatorScopeV1::new(view, &consumed);
     assert_eq!(
         scope.take_exact_relation(&site, |_| Ok(())),
         Err(DeclaredInstanceCallLocatorTakeErrorV1::SiteUnavailable)
     );
-    assert!(consumed.is_empty());
+    assert!(consumed.borrow().is_empty());
 }

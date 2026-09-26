@@ -11,15 +11,18 @@ use std::rc::Rc;
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::expression_port::sealed::Sealed;
-use crate::mir::builder::control_flow::plan::expression_port::ExactSourceMethodCallV1;
+use crate::mir::builder::control_flow::plan::expression_port::{
+    ExactSourceDeclaredInstanceCallV1, ExactSourceMethodCallV1,
+};
 use crate::mir::builder::control_flow::plan::{
     CoreCallSourceV1, LoopPlanExpressionPortErrorV1, LoopPlanExpressionPortV1,
 };
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use crate::mir::builder::stmts::{CompletedLocalBindingV1, CompletedLocalStatementV1};
+use crate::mir::normal_callable_semantic_package::DeclaredInstanceCallLocatorScopeV1;
 use crate::mir::resolved_semantics::{
-    BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1, SourceExprSiteV1,
+    BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1, OwnedExprSiteV1, SourceExprSiteV1,
 };
 use crate::mir::ValueId;
 
@@ -51,15 +54,24 @@ pub(super) enum CallableLoopSourceBodyInputV1<'input> {
 }
 
 /// One callback-scoped source/ledger capability.  The `Rc` is borrowed from
-/// the invocation owner; this type never clones or retains it.
+/// the invocation owner; this type never clones or retains it.  The optional
+/// declared-instance locator is the same package-owned scope the body lane
+/// uses — the port only re-lends it, never owns a second locator.
 #[derive(Debug, Clone, Copy)]
 pub(super) struct CallableLoopSourceExpressionPortV1<'ledger> {
     ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
+    declared_instance_locator: Option<DeclaredInstanceCallLocatorScopeV1<'ledger>>,
 }
 
 impl<'ledger> CallableLoopSourceExpressionPortV1<'ledger> {
-    pub(super) const fn new(ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>) -> Self {
-        Self { ledger }
+    pub(super) const fn new(
+        ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
+        declared_instance_locator: Option<DeclaredInstanceCallLocatorScopeV1<'ledger>>,
+    ) -> Self {
+        Self {
+            ledger,
+            declared_instance_locator,
+        }
     }
 
     pub(super) fn expr<'input>(
@@ -401,6 +413,54 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
             method,
             arity,
         )
+    }
+
+    fn exact_source_declared_instance_call_v1<'input>(
+        &self,
+        input: &Self::ExprInput<'input>,
+        method: &str,
+        arity: u32,
+    ) -> Result<Option<ExactSourceDeclaredInstanceCallV1>, String>
+    where
+        Self: 'input,
+    {
+        let Some(locator) = self.declared_instance_locator else {
+            return Ok(None);
+        };
+        if !matches!(self.expr_syntax(input), ASTNode::MethodCall { .. }) {
+            return Ok(None);
+        }
+        let site = Self::exact_site(Self::source_of_expr(input))?;
+        let expected_site = OwnedExprSiteV1::new(
+            self.ledger.borrow().owner(),
+            SourceExprSiteV1::from_node(site),
+        );
+        locator
+            .take_exact_relation(&expected_site, |relation| {
+                if relation.target_key().name() != method
+                    || relation.target_key().arity() != arity
+                {
+                    return Err(
+                        "[freeze:contract][declared-instance/locator/key-mismatch]".to_owned(),
+                    );
+                }
+                self.ledger
+                    .borrow_mut()
+                    .take_exact_receiver_value(
+                        expected_site.owner(),
+                        relation.receiver_site().node(),
+                        relation.receiver_binding(),
+                    )
+                    .map_err(|error| error.to_string())
+                    .map(|receiver| {
+                        ExactSourceDeclaredInstanceCallV1::new(
+                            relation.target_key().clone(),
+                            receiver,
+                        )
+                    })
+            })
+            .map_err(|error| format!("[freeze:contract][declared-instance/locator/{error:?}]"))
+            .map(Some)
     }
 
     fn exact_source_receiver_value<'input>(

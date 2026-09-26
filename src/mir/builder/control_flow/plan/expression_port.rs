@@ -26,7 +26,7 @@ pub(in crate::mir::builder) enum LoopPlanExpressionPortErrorV1 {
 
 mod source_method;
 pub(in crate::mir::builder) use source_method::{
-    ExactSourceMethodCallV1, ExactSourceStatementCallV1,
+    ExactSourceDeclaredInstanceCallV1, ExactSourceMethodCallV1, ExactSourceStatementCallV1,
 };
 
 impl LoopPlanExpressionPortErrorV1 {
@@ -180,6 +180,25 @@ pub(in crate::mir::builder) trait LoopPlanExpressionPortV1:
         _method: &str,
         _arity: u32,
     ) -> Result<Option<ExactSourceMethodCallV1>, String>
+    where
+        Self: 'input,
+    {
+        Ok(None)
+    }
+
+    /// Consume one package-issued declared-instance (`me.method`) locator row
+    /// for this exact call site and return the canonical target plus its
+    /// already-bound receiver value.  The receiver source site is consumed
+    /// inside this take, so a `Some` result must not be followed by
+    /// `exact_source_receiver_value` for the same site.  Unarmed ports return
+    /// `None`; an armed port without a matching row reports the locator's
+    /// typed error rather than falling back to dynamic dispatch.
+    fn exact_source_declared_instance_call_v1<'input>(
+        &self,
+        _input: &Self::ExprInput<'input>,
+        _method: &str,
+        _arity: u32,
+    ) -> Result<Option<ExactSourceDeclaredInstanceCallV1>, String>
     where
         Self: 'input,
     {

@@ -130,13 +130,14 @@ EXPR_PORT="$ROOT_DIR/src/mir/builder/control_flow/plan/expression_port.rs"
 LOOP_SRC_PORT="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_port.rs"
 ASSOC_INPUT="$ROOT_DIR/src/mir/builder/control_flow/plan/normalizer/loop_body_lowering_associated_input.rs"
 HELPERS_LOWER="$ROOT_DIR/src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs"
+NORMALIZER_COMMON="$ROOT_DIR/src/mir/builder/control_flow/plan/normalizer/common.rs"
 ITEMS_TESTS="$ROOT_DIR/src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_items_tests.rs"
 TESTKIT="$ROOT_DIR/src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_testkit.rs"
 rg -q 'fn exact_source_receiver_value' "$EXPR_PORT"
 rg -q 'fn exact_source_receiver_value' "$LOOP_SRC_PORT"
 rg -q 'source_read_binding' "$LOOP_SRC_PORT"
-rg -q 'exact_source_receiver_value' "$ASSOC_INPUT"
-rg -q 'exact_source_receiver_value' "$HELPERS_LOWER"
+rg -q 'me_this_method_call_effect' "$ASSOC_INPUT"
+rg -q 'exact_source_receiver_value' "$NORMALIZER_COMMON"
 rg -q 'fn cataloged_body_source' "$TESTKIT"
 rg -q 'source_item_consumes_me_receiver_site_for_method_call' "$ITEMS_TESTS"
 rg -q 'source_item_consumes_me_receiver_site_for_value_call' "$ITEMS_TESTS"
@@ -304,7 +305,35 @@ rg -q 'resolver_callable_contract_co_seals_condition_substring_and_generated_tar
 rg -q 'resolver_callable_contract_rejects_body_length_placement' "$LEDGER_CONTRACT_TESTS"
 rg -q 'condition_position_push_stays_unarmed' "$NAMED_ARRAY_METHOD_TESTS"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS" "$ROUTE_PREDICATES" "$CALLABLE_ROUTE" "$DEAD_ROUTE_TESTS" "$CORE_METHOD_SRC" "$NAMED_ARRAY_SRC" "$NAMED_ARRAY_METHOD_TESTS" "$CONTRACT_ISSUER" "$LEDGER_CONTRACT_TESTS"; do
+# MIRBUILDER-EXE-ACCEPTANCE-DECLARED-INSTANCE-LOOP-LOCATOR-S3: callable loop
+# source lanes carry the package-issued declared-instance locator so a
+# loop-body `me.method` site consumes its exact relation row and emits the
+# canonical `Callee::SameModuleInstance` — the same physical meaning the
+# body lane produces. The locator scope stays `Copy` via a shared
+# `RefCell` consumed set; the port hook `exact_source_declared_instance_call_v1`
+# defaults to `Ok(None)` for unarmed ports; statement and value positions
+# share one `me_this_method_call_effect` precedence (armed locator ->
+# exact receiver -> bound/static fallback); `CoreEffectPlan::DeclaredInstanceCall`
+# delegates to the sole canonical emitter; armed lanes never fall back to
+# dynamic `MethodCall`.
+DECLARED_INSTANCE_LOCATOR="$ROOT_DIR/src/mir/normal_callable_semantic_package/declared_instance_locator.rs"
+CORE_EFFECT_PLAN="$ROOT_DIR/src/mir/builder/control_flow/plan/effect.rs"
+SOURCE_METHOD_PORT="$ROOT_DIR/src/mir/builder/control_flow/plan/expression_port/source_method.rs"
+UNIFIED_EMITTER="$ROOT_DIR/src/mir/builder/calls/unified_emitter.rs"
+LOOP_DECLARED_TESTS="$ROOT_DIR/src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_declared_instance_tests.rs"
+rg -q 'consumed: &.a RefCell<BTreeSet<u32>>' "$DECLARED_INSTANCE_LOCATOR"
+rg -q 'declared_instance_locator: Option<DeclaredInstanceCallLocatorScopeV1' "$LOOP_SRC_PORT"
+rg -q 'fn exact_source_declared_instance_call_v1' "$EXPR_PORT"
+rg -q 'fn exact_source_declared_instance_call_v1' "$LOOP_SRC_PORT"
+rg -q 'ExactSourceDeclaredInstanceCallV1' "$SOURCE_METHOD_PORT"
+rg -q 'DeclaredInstanceCall \{' "$CORE_EFFECT_PLAN"
+rg -q 'fn me_this_method_call_effect' "$NORMALIZER_COMMON"
+rg -q 'fn emit_canonical_instance_call_at_v1' "$UNIFIED_EMITTER"
+rg -q 'armed_loop_body_me_call_consumes_the_exact_locator_row' "$LOOP_DECLARED_TESTS"
+rg -q 'armed_locator_rejects_a_foreign_method_key_without_fallback' "$LOOP_DECLARED_TESTS"
+rg -q 'unarmed_port_projects_no_declared_instance_call' "$LOOP_DECLARED_TESTS"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS" "$ROUTE_PREDICATES" "$CALLABLE_ROUTE" "$DEAD_ROUTE_TESTS" "$CORE_METHOD_SRC" "$NAMED_ARRAY_SRC" "$NAMED_ARRAY_METHOD_TESTS" "$CONTRACT_ISSUER" "$LEDGER_CONTRACT_TESTS" "$DECLARED_INSTANCE_LOCATOR" "$CORE_EFFECT_PLAN" "$SOURCE_METHOD_PORT" "$UNIFIED_EMITTER" "$LOOP_DECLARED_TESTS" "$ASSOC_INPUT" "$NORMALIZER_COMMON"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2

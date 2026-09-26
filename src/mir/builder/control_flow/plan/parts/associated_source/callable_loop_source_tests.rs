@@ -29,7 +29,7 @@ use crate::mir::resolved_semantics::SourcePathSegmentV1;
 #[test]
 fn projects_stmt_and_exit_items_with_located_sites() {
     let (ledger, _) = real_ledger("function t() { local x = 1 }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let body = vec![local("x", integer(1)), break_node()];
     let recipe = try_build_exit_allowed_block_recipe(&body, true).expect("exit-allowed recipe");
     let carrier = port
@@ -60,7 +60,7 @@ fn projects_stmt_and_exit_items_with_located_sites() {
 #[test]
 fn projects_explicit_if_with_exact_child_carriers() {
     let (ledger, _) = real_ledger("function t() { local x = 1 }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let condition = less_than(variable("i"), integer(3));
     let body = vec![if_node(
         condition.clone(),
@@ -119,7 +119,7 @@ fn projects_explicit_if_with_exact_child_carriers() {
 #[test]
 fn projects_loop_v0_with_located_body_block() {
     let (ledger, _) = real_ledger("function t() { local x = 1 }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let condition = less_than(variable("i"), integer(3));
     let body = vec![loop_node(
         condition.clone(),
@@ -149,7 +149,7 @@ fn projects_loop_v0_with_located_body_block() {
 #[test]
 fn rejects_block_from_a_foreign_arena() {
     let (ledger, _) = real_ledger("function t() { local x = 1 }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let body_a = vec![local("x", integer(1))];
     let body_b = vec![local("y", integer(2))];
     let recipe_a = try_build_exit_allowed_block_recipe(&body_a, true).expect("recipe a");
@@ -179,7 +179,7 @@ fn rejects_block_from_a_foreign_arena() {
 #[test]
 fn rejects_body_carrier_that_disagrees_with_the_recipe_body() {
     let (ledger, _) = real_ledger("function t() { local x = 1 }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let recipe_body = vec![local("x", integer(1))];
     let other_body = vec![local("y", integer(1)), local("z", integer(2))];
     let recipe = try_build_exit_allowed_block_recipe(&recipe_body, true).expect("recipe");
@@ -201,7 +201,7 @@ fn rejects_body_carrier_that_disagrees_with_the_recipe_body() {
 #[test]
 fn rejects_statement_carrier_that_disagrees_with_the_recipe_body() {
     let (ledger, _) = real_ledger("function t() { local x = 1 }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let recipe_body = vec![local("x", integer(1))];
     let carrier_body = vec![local("y", integer(1))];
     let recipe = try_build_exit_allowed_block_recipe(&recipe_body, true).expect("recipe");
@@ -221,7 +221,7 @@ fn rejects_statement_carrier_that_disagrees_with_the_recipe_body() {
 #[test]
 fn rejects_synthetic_carriers_on_the_located_spine() {
     let (ledger, _) = real_ledger("function t() { local x = 1 }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let body = vec![local("x", integer(1))];
     let recipe = try_build_exit_allowed_block_recipe(&body, true).expect("recipe");
     assert_eq!(
@@ -249,7 +249,7 @@ fn rejects_synthetic_carriers_on_the_located_spine() {
 #[test]
 fn singleton_requires_the_exact_statement() {
     let (ledger, _) = real_ledger("function t() { local x = 1 }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let stmt = local("x", integer(1));
     let recipe =
         try_build_no_exit_block_recipe(std::slice::from_ref(&stmt), true).expect("no-exit recipe");
@@ -281,7 +281,7 @@ fn singleton_requires_the_exact_statement() {
 #[test]
 fn rejects_a_condition_view_that_disagrees_with_the_ast() {
     let (ledger, _) = real_ledger("function t() { local x = 1 }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let body = vec![if_node(
         less_than(variable("i"), integer(3)),
         vec![break_node()],
@@ -308,7 +308,7 @@ fn rejects_a_condition_view_that_disagrees_with_the_ast() {
 #[test]
 fn rejects_unlocated_statement_vocab_as_source_projection_error() {
     let (ledger, _) = real_ledger("function t() { local x = 1 }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let call = ASTNode::FunctionCall {
         name: "helper".to_owned(),
         arguments: vec![],

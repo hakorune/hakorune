@@ -202,6 +202,7 @@ fn armed_loop_true_edge_lowers_through_the_source_port() {
                 &mut scope,
                 &edge.ledger,
                 None,
+                None,
                 crate::mir::builder::normal_callable_loop_source_route::
                     CallableLoopSourceTargetProbeV1::from_parts(
                         vec![armed_source_target(edge.call_site)].into_boxed_slice(),

@@ -64,6 +64,7 @@ fn visit_effects<'a>(
 fn visit_effect<'a>(effect: &'a CoreEffectPlan, visitor: &mut impl FnMut(&'a CoreCallSourceV1)) {
     match effect {
         CoreEffectPlan::NamedArrayPush { source, .. }
+        | CoreEffectPlan::DeclaredInstanceCall { source, .. }
         | CoreEffectPlan::MethodCall { source, .. }
         | CoreEffectPlan::GlobalCall { source, .. }
         | CoreEffectPlan::ValueCall { source, .. }

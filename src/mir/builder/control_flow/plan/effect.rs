@@ -21,6 +21,18 @@ pub(in crate::mir::builder) enum CoreEffectPlan {
         value: ValueId,
         emission: crate::mir::normal_callable_semantic_package::NamedArrayWriteEmissionPortV1,
     },
+    /// Canonical declared-instance call from a locator-backed `me.method`
+    /// source site.  The target key and receiver come from the same
+    /// package-issued relation the body lane consumes; physical emission
+    /// delegates to `emit_canonical_instance_value_terminal_v1`, never to
+    /// dynamic dispatch.
+    DeclaredInstanceCall {
+        dst: Option<ValueId>,
+        key: crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+        receiver: ValueId,
+        args: Vec<ValueId>,
+        source: CoreCallSourceV1,
+    },
     /// Method call (args are ValueIds, not Strings!)
     ///
     /// Phase 273 P2: dst is Option for void methods, effects for side effects

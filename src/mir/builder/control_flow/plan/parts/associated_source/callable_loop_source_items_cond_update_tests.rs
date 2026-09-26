@@ -85,7 +85,7 @@ fn source_item_lowers_conditional_update_if_with_tail_break() {
     let (ledger, body) = real_ledger(
         "function t() { loop(true) { local i = 0; local j = 0; if i == 0 { j = 1; break } } }",
     );
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let function_carrier = port
         .body(&body, &function_body_source())
         .expect("located function body");
@@ -160,7 +160,7 @@ fn source_item_lowers_conditional_update_if_with_tail_continue() {
     let (ledger, body) = real_ledger(
         "function t() { loop(true) { local i = 0; local j = 0; if i == 0 { j = 1; continue } } }",
     );
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let function_carrier = port
         .body(&body, &function_body_source())
         .expect("located function body");
@@ -233,7 +233,7 @@ fn source_item_lowers_conditional_update_if_with_exit_only_else() {
     let (ledger, body) = real_ledger(
         "function t() { loop(true) { local i = 0; local j = 0; if i == 0 { j = 1 } else { break } } }",
     );
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let function_carrier = port
         .body(&body, &function_body_source())
         .expect("located function body");

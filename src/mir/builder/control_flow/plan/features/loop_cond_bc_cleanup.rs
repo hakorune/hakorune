@@ -140,7 +140,8 @@ fn collect_defined_values_from_effect(effect: &CoreEffectPlan, out: &mut BTreeSe
         CoreEffectPlan::MethodCall { dst, .. }
         | CoreEffectPlan::GlobalCall { dst, .. }
         | CoreEffectPlan::ValueCall { dst, .. }
-        | CoreEffectPlan::ExternCall { dst, .. } => {
+        | CoreEffectPlan::ExternCall { dst, .. }
+        | CoreEffectPlan::DeclaredInstanceCall { dst, .. } => {
             if let Some(dst) = dst {
                 out.insert(*dst);
             }

@@ -80,6 +80,10 @@ impl VerifiedCallableLoopBreakSourceCandidateV1 {
         source_items: Box<[CallableLoopSourceItemBindingV1]>,
         source_target_probe: CallableLoopSourceTargetProbeV1,
         source_ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
+        declared_instance_locator: Option<
+            crate::mir::normal_callable_semantic_package::
+                DeclaredInstanceCallLocatorScopeV1<'ledger>,
+        >,
     ) -> Result<SourceLoopBreakPhysicalInputV1<'source, 'ledger>, String> {
         SourceLoopBreakPhysicalInputV1::from_candidate(
             self,
@@ -94,6 +98,7 @@ impl VerifiedCallableLoopBreakSourceCandidateV1 {
             source_items,
             source_target_probe,
             source_ledger,
+            declared_instance_locator,
         )
     }
 }
@@ -138,6 +143,10 @@ impl<'source, 'ledger> SourceLoopBreakPhysicalInputV1<'source, 'ledger> {
         source_items: Box<[CallableLoopSourceItemBindingV1]>,
         source_target_probe: CallableLoopSourceTargetProbeV1,
         source_ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
+        declared_instance_locator: Option<
+            crate::mir::normal_callable_semantic_package::
+                DeclaredInstanceCallLocatorScopeV1<'ledger>,
+        >,
     ) -> Result<Self, String> {
         let VerifiedCallableLoopBreakSourceCandidateV1 {
             owner,
@@ -195,7 +204,10 @@ impl<'source, 'ledger> SourceLoopBreakPhysicalInputV1<'source, 'ledger> {
             forest_projection,
             source_items,
             source_target,
-            source_port: CallableLoopSourceExpressionPortV1::new(source_ledger),
+            source_port: CallableLoopSourceExpressionPortV1::new(
+                source_ledger,
+                declared_instance_locator,
+            ),
         })
     }
 

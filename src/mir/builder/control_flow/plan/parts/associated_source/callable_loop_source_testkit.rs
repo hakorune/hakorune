@@ -340,7 +340,7 @@ pub(super) fn drive_block(
     block: &CallableLoopSourcePartsBlockV1<'_>,
     mode: PartsAssociatedBlockModeV1,
 ) -> Result<(Vec<LoweredRecipe>, BTreeMap<String, ValueId>), String> {
-    let port = CallableLoopSourceExpressionPortV1::new(ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(ledger, None);
     let mut builder = test_builder(ledger);
     let _scope = LexicalScopeGuard::new(&mut builder);
     let mut bindings = BTreeMap::new();
@@ -376,7 +376,7 @@ pub(super) fn drive_item(
     item_index: usize,
     item: &LoopCondBreakContinueItem,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    let port = CallableLoopSourceExpressionPortV1::new(ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(ledger, None);
     let mut carrier_updates = BTreeMap::new();
     let empty = BTreeMap::new();
     crate::test_support::with_env_vars(&crate::test_support::JOINIR_DEFAULT_MODE, || {
@@ -400,7 +400,7 @@ pub(super) fn located_body<'a>(
     ledger: &Rc<RefCell<CallableSemanticLoweringState>>,
     body: &'a [ASTNode],
 ) -> CallableLoopSourceBodyInputV1<'a> {
-    let port = CallableLoopSourceExpressionPortV1::new(ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(ledger, None);
     port.body(body, &function_body_source())
         .expect("located body")
 }
@@ -412,7 +412,7 @@ pub(super) fn drive_recipe(
     recipe_block: &RecipeBlock,
     mode: PartsAssociatedBlockModeV1,
 ) -> Result<(Vec<LoweredRecipe>, BTreeMap<String, ValueId>), String> {
-    let port = CallableLoopSourceExpressionPortV1::new(ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(ledger, None);
     let carrier = port
         .body(body, &function_body_source())
         .expect("located body");

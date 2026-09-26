@@ -409,6 +409,27 @@ fn find_unremapped_value_id_effect(
                 .copied()
                 .map(|new| (*value, new, "Effect::FieldSet.value"))
         }
+        CoreEffectPlan::DeclaredInstanceCall {
+            dst,
+            receiver,
+            args,
+            ..
+        } => {
+            if let Some(d) = dst {
+                if let Some(&new) = value_map.get(d) {
+                    return Some((*d, new, "Effect::DeclaredInstanceCall.dst"));
+                }
+            }
+            if let Some(&new) = value_map.get(receiver) {
+                return Some((*receiver, new, "Effect::DeclaredInstanceCall.receiver"));
+            }
+            for a in args {
+                if let Some(&new) = value_map.get(a) {
+                    return Some((*a, new, "Effect::DeclaredInstanceCall.arg"));
+                }
+            }
+            None
+        }
         CoreEffectPlan::MethodCall {
             dst, object, args, ..
         } => {

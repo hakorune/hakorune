@@ -196,6 +196,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             None,
             None,
             None,
+            None,
             CallableLoopSourceTargetProbeV1::empty(),
         )
     }
@@ -218,6 +219,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             Some(callable_loop_root_scope),
             None,
             None,
+            None,
             CallableLoopSourceTargetProbeV1::empty(),
         )
     }
@@ -236,6 +238,9 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                     super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState,
                 >,
             >,
+        >,
+        declared_instance_locator: Option<
+            crate::mir::normal_callable_semantic_package::DeclaredInstanceCallLocatorScopeV1<'_>,
         >,
         source_input: Option<
             crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
@@ -369,6 +374,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                     source_items,
                     source_target_probe,
                     callable_ledger,
+                    declared_instance_locator,
                 )?;
                 let plan = crate::mir::builder::control_flow::plan::features::
                     loop_break_source::lower_loop_break_source(builder, &physical_input)?;
@@ -403,6 +409,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                         source_items,
                         source_target_probe,
                         callable_ledger,
+                        declared_instance_locator,
                     )?;
                     let plan = crate::mir::builder::control_flow::plan::features::
                         loop_break_composite_source::lower_loop_break_composite_source(
@@ -487,7 +494,8 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                     "[freeze:contract][callable-loop/loop-cond/source-port-ledger-missing]"
                         .to_owned()
                 })?;
-                let physical_input = source_facts.into_physical_input(source_ledger)?;
+                let physical_input =
+                    source_facts.into_physical_input(source_ledger, declared_instance_locator)?;
                 physical_input.validate_for_source_port()?;
                 physical_input.preflight_source_port()?;
                 let plan = crate::mir::builder::control_flow::plan::features::loop_cond_bc_source::lower_loop_cond_break_continue_source(
@@ -513,7 +521,8 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                     "[freeze:contract][callable-loop/loop-true/source-port-ledger-missing]"
                         .to_owned()
                 })?;
-                let physical_input = source_facts.into_physical_input(source_ledger)?;
+                let physical_input =
+                    source_facts.into_physical_input(source_ledger, declared_instance_locator)?;
                 physical_input.validate_for_source_port()?;
                 let plan = crate::mir::builder::control_flow::plan::features::
                     loop_true_break_continue_source::lower_loop_true_break_continue_source(

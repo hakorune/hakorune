@@ -6,7 +6,7 @@
 use super::{loop_body_lowering, PlanNormalizer};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::builder::calls::extern_calls;
-use crate::mir::builder::control_flow::plan::normalizer::common::lower_me_this_method_effect;
+use crate::mir::builder::control_flow::plan::normalizer::common::me_this_method_call_effect;
 use crate::mir::builder::control_flow::plan::{
     CoreCallSourceV1, CoreEffectPlan, CoreExitPlan, CorePlan, LoopPlanExpressionPortV1,
     LoweredRecipe,
@@ -241,32 +241,23 @@ where
             });
         }
         ASTNode::Me { .. } | ASTNode::This { .. } => {
-            if let Some(object_id) = port
-                .exact_source_receiver_value(&receiver)
-                .map_err(|error| format!("{error_prefix}: {error}"))?
-            {
-                effects.push(CoreEffectPlan::MethodCall {
-                    source,
-                    dst: None,
-                    object: object_id,
-                    method: method.clone(),
-                    args: arg_ids,
-                    effects: EffectMask::PURE.add(crate::mir::Effect::Io),
-                });
-            } else {
-                effects.push(lower_me_this_method_effect(
-                    builder,
-                    phi_bindings,
-                    port.expr_syntax(&receiver),
-                    source,
-                    method,
-                    arg_ids,
-                    arguments.len(),
-                    None,
-                    format!("{error_prefix}: me.method without bound receiver"),
-                    format!("{error_prefix}: this.method without static box"),
-                )?);
-            }
+            let receiver_ast = port.expr_syntax(&receiver);
+            effects.push(me_this_method_call_effect(
+                port,
+                receiver_ast,
+                move || Ok(receiver),
+                builder,
+                phi_bindings,
+                &input,
+                method,
+                arg_ids,
+                arguments.len(),
+                None,
+                source,
+                error_prefix,
+                format!("{error_prefix}: me.method without bound receiver"),
+                format!("{error_prefix}: this.method without static box"),
+            )?);
         }
         _ => {
             let (object_id, mut object_effects) =

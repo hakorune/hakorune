@@ -58,6 +58,34 @@ impl ExactSourceMethodCallV1 {
     }
 }
 
+/// Exact source projection for one resolver-issued declared-instance
+/// (`me.method`) locator row.  It carries the canonical same-module target
+/// key and the exact receiver value already bound by the ledger; the
+/// normalizer must never fall back to dynamic method dispatch once this
+/// projection exists.
+#[derive(Debug, Clone)]
+pub(in crate::mir::builder) struct ExactSourceDeclaredInstanceCallV1 {
+    key: CanonicalSameModuleCallableKeyV1,
+    receiver: ValueId,
+}
+
+impl ExactSourceDeclaredInstanceCallV1 {
+    pub(in crate::mir::builder) const fn new(
+        key: CanonicalSameModuleCallableKeyV1,
+        receiver: ValueId,
+    ) -> Self {
+        Self { key, receiver }
+    }
+
+    pub(in crate::mir::builder) const fn key(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.key
+    }
+
+    pub(in crate::mir::builder) const fn receiver(&self) -> ValueId {
+        self.receiver
+    }
+}
+
 #[derive(Debug)]
 pub(in crate::mir::builder) enum ExactSourceStatementCallV1 {
     ArrayPush {

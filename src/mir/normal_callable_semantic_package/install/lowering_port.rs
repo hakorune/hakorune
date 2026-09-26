@@ -417,7 +417,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
             .row(batch_slot)
             .ok_or(NormalCallableSemanticPackageInstallIssueV1::PhysicalSignatureUnavailable)?;
         let installed = self.installed;
-        let locator_consumed = &mut self.declared_instance_consumed;
+        let locator_consumed = &self.declared_instance_consumed;
         let result = installed.with_selected_lowering_input(&key, |selected| {
             if selected.selected_key() != &key {
                 return Err(
@@ -544,7 +544,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         let locator_count = self
             .installed
             .with_declared_instance_call_locators(|view| view.row_count());
-        if self.declared_instance_consumed.len() != locator_count {
+        if self.declared_instance_consumed.borrow().len() != locator_count {
             return Err(
                 NormalCallableSemanticPackageInstallIssueV1::DeclaredInstanceLocatorNotConsumed,
             );

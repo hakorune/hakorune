@@ -79,6 +79,11 @@ fn collect_definition_value_ids_recursive(plan: &LoweredRecipe, defs: &mut BTree
 
 fn collect_effect_definitions(effect: &CoreEffectPlan, defs: &mut BTreeSet<ValueId>) {
     match effect {
+        CoreEffectPlan::DeclaredInstanceCall { dst, .. } => {
+            if let Some(d) = dst {
+                defs.insert(*d);
+            }
+        }
         CoreEffectPlan::MethodCall { dst, .. } => {
             if let Some(d) = dst {
                 defs.insert(*d);

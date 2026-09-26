@@ -144,6 +144,25 @@ impl super::PlanLowerer {
                     .named_array_write_obligations
                     .push(marker);
             }
+            CoreEffectPlan::DeclaredInstanceCall {
+                dst,
+                key,
+                receiver,
+                args,
+                source: _,
+            } => {
+                let receiver = builder.local_recv(*receiver);
+                let args: Vec<ValueId> =
+                    args.iter().copied().map(|a| builder.local_arg(a)).collect();
+                crate::mir::builder::calls::unified_emitter::
+                    emit_canonical_instance_call_at_v1(
+                        builder,
+                        *dst,
+                        key.clone(),
+                        receiver,
+                        args,
+                    )?;
+            }
             CoreEffectPlan::MethodCall {
                 dst,
                 object,

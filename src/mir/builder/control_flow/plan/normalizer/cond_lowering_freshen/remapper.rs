@@ -160,6 +160,17 @@ fn remap_loop_plan(
 /// Remap an effect plan in place
 fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut CoreEffectPlan) {
     match effect {
+        CoreEffectPlan::DeclaredInstanceCall {
+            dst,
+            key: _,
+            receiver,
+            args,
+            source: _,
+        } => {
+            *dst = dst.map(|d| remap_value_id(value_map, d));
+            *receiver = remap_value_id(value_map, *receiver);
+            *args = remap_value_ids(value_map, args);
+        }
         CoreEffectPlan::MethodCall {
             dst,
             object,

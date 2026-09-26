@@ -73,7 +73,7 @@ fn driver_lowers_exit_if_under_exit_allowed_mode() {
     // located `LoopBody` child exactly like production does.
     let (ledger, body) =
         real_ledger("function t() { loop(true) { local tmp = 0; if tmp == 0 { break } } }");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let function_carrier = port
         .body(&body, &function_body_source())
         .expect("located body");
@@ -160,7 +160,7 @@ fn driver_rejects_a_loop_v0_block_expr_condition_before_effects() {
     let (ledger, body) =
         real_ledger("function t() { local tmp = 0; loop(tmp < 3) { tmp = tmp + 1 } }");
     let recipe = try_build_no_exit_block_recipe(&body, true).expect("no-exit recipe");
-    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
     let carrier = port
         .body(&body, &function_body_source())
         .expect("located body");

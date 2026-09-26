@@ -320,7 +320,7 @@ pub(crate) struct NormalCallableSemanticPackagePortV1<'package> {
     pub(super) installed: &'package InstalledNormalCallableSemanticPackageV1,
     pub(super) direct_call_loans: Option<super::direct_call_loan::DirectCallDispositionLoansV1>,
     consumed: BTreeSet<SelectedNormalCallableKeyV1>,
-    declared_instance_consumed: BTreeSet<u32>,
+    declared_instance_consumed: RefCell<BTreeSet<u32>>,
     s6c_child_consumed: bool,
     main_root_consumed: bool,
 }
@@ -350,7 +350,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         &mut self,
         callback: impl for<'view> FnOnce(DeclaredInstanceCallLocatorScopeV1<'view>) -> R,
     ) -> R {
-        let consumed = &mut self.declared_instance_consumed;
+        let consumed = &self.declared_instance_consumed;
         self.installed.with_declared_instance_call_locators(|view| {
             callback(DeclaredInstanceCallLocatorScopeV1::new(view, consumed))
         })
@@ -643,7 +643,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
             installed: self,
             direct_call_loans,
             consumed: BTreeSet::new(),
-            declared_instance_consumed: BTreeSet::new(),
+            declared_instance_consumed: RefCell::new(BTreeSet::new()),
             s6c_child_consumed: false,
             main_root_consumed: false,
         })

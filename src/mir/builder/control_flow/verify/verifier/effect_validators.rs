@@ -56,6 +56,28 @@ pub(super) fn verify_effect(
             }
         }
 
+        CoreEffectPlan::DeclaredInstanceCall {
+            dst,
+            receiver,
+            args,
+            ..
+        } => {
+            if let Some(dst_val) = dst {
+                primitives::verify_value_id_basic(
+                    *dst_val,
+                    depth,
+                    "DeclaredInstanceCall.dst",
+                )?;
+            }
+            primitives::verify_value_id_basic(*receiver, depth, "DeclaredInstanceCall.receiver")?;
+            for (i, arg) in args.iter().enumerate() {
+                primitives::verify_value_id_basic(
+                    *arg,
+                    depth,
+                    &format!("DeclaredInstanceCall.args[{}]", i),
+                )?;
+            }
+        }
         CoreEffectPlan::MethodCall {
             dst,
             object,

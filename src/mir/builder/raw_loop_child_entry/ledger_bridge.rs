@@ -19,6 +19,9 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         policy: LoopFactsPolicyFrameV1,
         callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
         callable_ledger: &Rc<RefCell<CallableSemanticLoweringState>>,
+        declared_instance_locator: Option<
+            crate::mir::normal_callable_semantic_package::DeclaredInstanceCallLocatorScopeV1<'_>,
+        >,
         source_input: Option<ResolvedFunctionLoweringInputV1<'_>>,
         source_target_probe: CallableLoopSourceTargetProbeV1,
     ) -> Result<ValueId, String> {
@@ -30,6 +33,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             policy,
             Some(callable_loop_root_scope),
             Some(callable_ledger),
+            declared_instance_locator,
             source_input,
             source_target_probe,
         )

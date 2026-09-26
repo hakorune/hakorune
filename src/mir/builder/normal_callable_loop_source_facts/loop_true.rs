@@ -253,6 +253,10 @@ impl<'source> CallableLoopTrueSourceFactsV1<'source> {
             crate::mir::builder::normal_callable_semantic_lowering_state::
                 CallableSemanticLoweringState,
         >>,
+        declared_instance_locator: Option<
+            crate::mir::normal_callable_semantic_package::
+                DeclaredInstanceCallLocatorScopeV1<'ledger>,
+        >,
     ) -> Result<SourceLoopTruePhysicalInputV1<'source, 'ledger>, String> {
         let Self {
             owner,
@@ -304,7 +308,10 @@ impl<'source> CallableLoopTrueSourceFactsV1<'source> {
             .map_err(|error| {
                 format!("[freeze:contract][callable-loop/loop-true/pre-effect] {error}")
             })?;
-        let source_port = CallableLoopSourceExpressionPortV1::new(source_ledger);
+        let source_port = CallableLoopSourceExpressionPortV1::new(
+            source_ledger,
+            declared_instance_locator,
+        );
         Ok(SourceLoopTruePhysicalInputV1 {
             owner,
             parent_site,

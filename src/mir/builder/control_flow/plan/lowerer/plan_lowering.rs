@@ -241,6 +241,10 @@ impl super::PlanLowerer {
 
 fn effect_defined_value(effect: &CoreEffectPlan) -> Option<(ValueId, &'static str)> {
     match effect {
+        CoreEffectPlan::DeclaredInstanceCall { dst: Some(v), .. } => {
+            Some((*v, "DeclaredInstanceCall"))
+        }
+        CoreEffectPlan::DeclaredInstanceCall { dst: None, .. } => None,
         CoreEffectPlan::MethodCall { dst: Some(v), .. } => Some((*v, "MethodCall")),
         CoreEffectPlan::MethodCall { dst: None, .. } => None,
         CoreEffectPlan::GlobalCall { dst: Some(v), .. } => Some((*v, "GlobalCall")),

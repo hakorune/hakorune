@@ -100,6 +100,7 @@ fn candidate_without_callable_ledger_is_terminal_before_builder_effects() {
             LoopFactsPolicyFrameV1::from_values(false, false, false, false, false, true),
             None,
             None,
+            None,
             Some(input),
             crate::mir::builder::normal_callable_loop_source_route::
                 CallableLoopSourceTargetProbeV1::empty(),

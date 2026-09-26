@@ -342,6 +342,9 @@ fn normalize_effect(effect: &CoreEffectPlan) -> Result<NormalizedEffectV1, &'sta
         CoreEffectPlan::NamedArrayPush { .. } => {
             return Err("source-owned Array push has no raw parity arm")
         }
+        CoreEffectPlan::DeclaredInstanceCall { .. } => {
+            return Err("locator-backed declared instance call has no raw parity arm")
+        }
         CoreEffectPlan::MapLiteralEntryWrite {
             receiver,
             key,

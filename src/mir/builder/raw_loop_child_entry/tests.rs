@@ -517,6 +517,7 @@ fn armed_loop_cond_edge_lowers_through_the_source_port() {
                 &mut scope,
                 &edge.ledger,
                 None,
+                None,
                 crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetProbeV1::from_parts(
                     vec![armed_source_target(edge.call_site)].into_boxed_slice(),
                     Box::new([]),
@@ -569,6 +570,7 @@ fn armed_loop_cond_edge_rejects_missing_source_target() {
                 LoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
                 &mut scope,
                 &edge.ledger,
+                None,
                 None,
                 crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetProbeV1::from_parts(
                     Box::new([]),
@@ -627,6 +629,7 @@ fn armed_loop_cond_edge_rejects_items_outside_the_selected_family() {
                 LoopFactsPolicyFrameV1::from_values(true, true, false, true, true, true),
                 &mut scope,
                 &edge.ledger,
+                None,
                 None,
                 crate::mir::builder::normal_callable_loop_source_route::CallableLoopSourceTargetProbeV1::empty(),
             )

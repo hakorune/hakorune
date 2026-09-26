@@ -60,6 +60,10 @@ impl<'source, 'ledger> SourceLoopBreakCompositePhysicalInputV1<'source, 'ledger>
         source_items: Box<[CallableLoopSourceItemBindingV1]>,
         source_target_probe: CallableLoopSourceTargetProbeV1,
         source_ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
+        declared_instance_locator: Option<
+            crate::mir::normal_callable_semantic_package::
+                DeclaredInstanceCallLocatorScopeV1<'ledger>,
+        >,
     ) -> Result<Self, String> {
         let (projection, recipe) = candidate.into_parts();
         let parent_site = parent_source.site().cloned().ok_or_else(|| {
@@ -112,7 +116,10 @@ impl<'source, 'ledger> SourceLoopBreakCompositePhysicalInputV1<'source, 'ledger>
             recipe,
             source_items,
             source_dispositions,
-            source_port: CallableLoopSourceExpressionPortV1::new(source_ledger),
+            source_port: CallableLoopSourceExpressionPortV1::new(
+                source_ledger,
+                declared_instance_locator,
+            ),
         })
     }
 
@@ -226,6 +233,10 @@ impl VerifiedCallableLoopBreakCompositeSourceCandidateV1 {
         source_items: Box<[CallableLoopSourceItemBindingV1]>,
         source_target_probe: CallableLoopSourceTargetProbeV1,
         source_ledger: &'ledger Rc<RefCell<CallableSemanticLoweringState>>,
+        declared_instance_locator: Option<
+            crate::mir::normal_callable_semantic_package::
+                DeclaredInstanceCallLocatorScopeV1<'ledger>,
+        >,
     ) -> Result<SourceLoopBreakCompositePhysicalInputV1<'source, 'ledger>, String> {
         SourceLoopBreakCompositePhysicalInputV1::from_candidate(
             self,
@@ -239,6 +250,7 @@ impl VerifiedCallableLoopBreakCompositeSourceCandidateV1 {
             source_items,
             source_target_probe,
             source_ledger,
+            declared_instance_locator,
         )
     }
 }

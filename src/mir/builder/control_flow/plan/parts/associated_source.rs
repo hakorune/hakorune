@@ -43,6 +43,8 @@ mod sealed {
 pub(super) mod block_driver;
 pub(in crate::mir::builder) mod callable_loop_source;
 #[cfg(test)]
+mod callable_loop_source_declared_instance_tests;
+#[cfg(test)]
 mod callable_loop_source_driver_tests;
 pub(super) mod callable_loop_source_items;
 #[cfg(test)]
