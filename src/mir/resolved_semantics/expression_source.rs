@@ -282,6 +282,12 @@ impl ResolvedExpressionSourceInventoryV1 {
         self.constructions.get(site)
     }
 
+    pub(crate) fn constructions(
+        &self,
+    ) -> impl Iterator<Item = &ResolvedNewExpressionSourceV1> {
+        self.constructions.values()
+    }
+
     pub(crate) fn binaries(&self) -> impl Iterator<Item = &ResolvedBinaryExpressionSourceV1> {
         self.binaries.values()
     }

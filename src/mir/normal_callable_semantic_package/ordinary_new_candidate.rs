@@ -81,68 +81,10 @@ impl OrdinaryNewCandidate {
                     error,
                 })? {
                 Some(row) => {
-                    if row.box_name() != class.as_ref()
-                        || usize::try_from(row.source_arity()).ok() != Some(arity)
-                    {
-                        return Err(OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
-                            site,
-                            class,
-                            arity,
-                        });
-                    }
-                    let abi = InstanceConstructorAbiV1::issue(arity).map_err(|error| {
-                        OrdinaryNewCoSealIssueV1::ConstructorAbi {
-                            site: site.clone(),
-                            class: class.clone(),
-                            error,
-                        }
-                    })?;
-                    let target = row
-                        .published_birth_key()
-                        .filter(|key| {
-                            key.namespace() == SameModuleCallableNamespaceV1::BirthConstructor
-                                && key.owner() == row.box_name()
-                                && key.arity() == row.source_arity()
-                        })
-                        .ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthTargetInvalid {
-                            site: site.clone(),
-                            class: class.clone(),
-                            arity,
-                        })?
-                        .clone();
-                    row.birth_completion()
-                        .filter(|completion| {
-                            row.forest().roots() == [completion.owner()]
-                                && !completion.returns_value()
-                        })
-                        .ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthCompletionNotUnit {
-                            site: site.clone(),
-                            class: class.clone(),
-                        })?;
-                    let effect = row
-                        .birth_effect()
-                        .filter(|effect| {
-                            *effect == DeclaredInstanceCallSemanticEffectV1::OpaqueObservable
-                        })
-                        .ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthEffectUnsupported {
-                            site: site.clone(),
-                            class: class.clone(),
-                        })?;
-                    let birth_abi =
-                        BirthAbiHandoffV1::issue(row, target.clone(), abi).map_err(|_| {
-                            OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
-                                site: site.clone(),
-                                class: class.clone(),
-                                arity,
-                            }
-                        })?;
-                    birth_handoff = Some(birth_abi);
-                    OrdinaryNewConstructorDispositionV1::Birth(VerifiedOrdinaryNewBirthRecipeV1 {
-                        source_id: row.source_id().clone(),
-                        target,
-                        effect,
-                        abi,
-                    })
+                    let (recipe, handoff) =
+                        verified_birth_recipe_for_site_v1(&site, class.as_ref(), arity, row)?;
+                    birth_handoff = Some(handoff);
+                    OrdinaryNewConstructorDispositionV1::Birth(recipe)
                 }
                 None => no_birth_constructor_disposition(&site, &class, arity)?,
             };
@@ -160,4 +102,73 @@ impl OrdinaryNewCandidate {
             birth_handoff,
         }))
     }
+}
+
+/// Verify one constructor row into the `Birth` recipe + ABI handoff for a
+/// `new` site.  Shared by the local-initializer claim census and the
+/// destination-less birth-site index; it issues no site authority itself.
+pub(super) fn verified_birth_recipe_for_site_v1(
+    site: &OwnedExprSiteV1,
+    class: &str,
+    arity: usize,
+    row: &VerifiedInstanceConstructorSemanticRowV1,
+) -> Result<(VerifiedOrdinaryNewBirthRecipeV1, BirthAbiHandoffV1), OrdinaryNewCoSealIssueV1> {
+    if row.box_name() != class || usize::try_from(row.source_arity()).ok() != Some(arity) {
+        return Err(OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
+            site: site.clone(),
+            class: class.into(),
+            arity,
+        });
+    }
+    let abi = InstanceConstructorAbiV1::issue(arity).map_err(|error| {
+        OrdinaryNewCoSealIssueV1::ConstructorAbi {
+            site: site.clone(),
+            class: class.into(),
+            error,
+        }
+    })?;
+    let target = row
+        .published_birth_key()
+        .filter(|key| {
+            key.namespace() == SameModuleCallableNamespaceV1::BirthConstructor
+                && key.owner() == row.box_name()
+                && key.arity() == row.source_arity()
+        })
+        .ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthTargetInvalid {
+            site: site.clone(),
+            class: class.into(),
+            arity,
+        })?
+        .clone();
+    row.birth_completion()
+        .filter(|completion| {
+            row.forest().roots() == [completion.owner()] && !completion.returns_value()
+        })
+        .ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthCompletionNotUnit {
+            site: site.clone(),
+            class: class.into(),
+        })?;
+    let effect = row
+        .birth_effect()
+        .filter(|effect| *effect == DeclaredInstanceCallSemanticEffectV1::OpaqueObservable)
+        .ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthEffectUnsupported {
+            site: site.clone(),
+            class: class.into(),
+        })?;
+    let handoff = BirthAbiHandoffV1::issue(row, target.clone(), abi).map_err(|_| {
+        OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
+            site: site.clone(),
+            class: class.into(),
+            arity,
+        }
+    })?;
+    Ok((
+        VerifiedOrdinaryNewBirthRecipeV1 {
+            source_id: row.source_id().clone(),
+            target,
+            effect,
+            abi,
+        },
+        handoff,
+    ))
 }

@@ -131,6 +131,7 @@ pub(crate) use ordinary_new_coseal::{
     OrdinaryNewConstructorDispositionV1, OrdinaryNewTrivialArgumentKindV1,
     OrdinaryNewTrivialArgumentV1, PreparedTerminalI64AddReturnV1, PreparedTerminalI64FieldReturnV1,
     PreparedTerminalMapGetReturnV1, RootCallDispositionV1, RootInstanceCallDispositionRowV1,
+    VerifiedOrdinaryNewBirthRecipeV1,
 };
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{

@@ -89,6 +89,22 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
         String,
     >;
 
+    /// Destination-less verified `Birth` recipe for a `new` site outside the
+    /// local-commit claim lane.  `Ok(None)` keeps the caller's existing
+    /// terminal; it never substitutes a claim.
+    fn try_take_ordinary_new_birth_recipe(
+        &mut self,
+        _class: &str,
+        _argument_count: usize,
+    ) -> Result<
+        Option<
+            crate::mir::normal_callable_semantic_package::VerifiedOrdinaryNewBirthRecipeV1,
+        >,
+        String,
+    > {
+        Ok(None)
+    }
+
     fn complete_ordinary_new_expression(
         &mut self,
         class: &str,
@@ -564,6 +580,35 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         ledger
             .try_take(&site, class, argument_count)
             .map_err(|error| format!("[freeze:contract][raw-ordinary-new/claim] {error:?}"))
+    }
+
+    fn try_take_ordinary_new_birth_recipe(
+        &mut self,
+        class: &str,
+        argument_count: usize,
+    ) -> Result<
+        Option<
+            crate::mir::normal_callable_semantic_package::VerifiedOrdinaryNewBirthRecipeV1,
+        >,
+        String,
+    > {
+        let Some(ledger) = self.ordinary_new_claim_ledger.as_ref() else {
+            return Ok(None);
+        };
+        let (Some(owner), Some(node)) =
+            (self.callable_owner_v1(), self.current_source_site_v1())
+        else {
+            return Ok(None);
+        };
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+            owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node),
+        );
+        ledger
+            .take_birth_site_recipe(&site, class, argument_count)
+            .map_err(|error| {
+                format!("[freeze:contract][raw-ordinary-new/birth-site] {error:?}")
+            })
     }
 }
 

@@ -538,6 +538,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
             .consume(ticket)
             .map_err(|error| error.to_string())?;
         let inner = &mut *self.inner;
+        let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
         self.package.with_instance_constructor_lowering_input(
             &source_id,
             |input, kind, construction| {
@@ -547,6 +548,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     &source_id,
                     kind,
                     construction,
+                    ordinary_new_claim_ledger,
                     |inner| {
                         inner
                             .lower_normal_instance_constructor_v1(

@@ -149,6 +149,21 @@ impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
             .map(Some)
             .map_err(package_issue)
     }
+
+    fn try_take_ordinary_new_birth_recipe(
+        &mut self,
+        class: &str,
+        argument_count: usize,
+    ) -> Result<
+        Option<
+            crate::mir::normal_callable_semantic_package::VerifiedOrdinaryNewBirthRecipeV1,
+        >,
+        String,
+    > {
+        self.check_new_ledger_identity()?;
+        self.inner
+            .try_take_ordinary_new_birth_recipe(class, argument_count)
+    }
 }
 
 impl NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_> {

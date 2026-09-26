@@ -469,3 +469,100 @@ fn installed_home_precedes_checked_and_failed_validation_preserves_progress() {
     // Revalidation keeps checking the graph even when its progress is Checked.
     assert!(ledger.validate_new_emissions(fixture.owner, &bad).is_err());
 }
+
+#[test]
+fn birth_site_index_covers_field_assign_and_return_position_sites() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Inner { v: i64\nbirth(v) { me.v = v } }\n\
+         box Outer { init { inner }\nbirth() { me.inner = new Inner(7) } }\n\
+         static box Maker { make() { return new Inner(3) } }\n\
+         static box Main { main() { local o = new Outer()\nlocal f = Maker.make()\nreturn 0 } }",
+    )
+    .unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let claims = ledger.pending_claims_for_test();
+    let index = ledger.birth_site_index.borrow();
+    assert_eq!(index.len(), 2, "field-assign + return-position sites only");
+    for (site, recipe) in index.iter() {
+        assert_eq!(recipe.target_ref().owner(), "Inner");
+        assert_eq!(recipe.target_ref().arity(), 1);
+        assert!(
+            !matches!(
+                site.site().node().segments(),
+                [
+                    SourcePathSegmentV1::Body(_),
+                    SourcePathSegmentV1::Initializer(_)
+                ]
+            ),
+            "the index never admits local-initializer sites"
+        );
+        assert!(
+            !claims.contains_key(site),
+            "claim sites stay exclusively on the claim lane"
+        );
+    }
+    drop(index);
+    drop(claims);
+}
+
+#[test]
+fn birth_site_index_skips_builtin_and_missing_birth_classes() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Bare { v: i64 }\n\
+         box Outer { init { a, b }\nbirth() { me.a = new Bare()\nme.b = new MapBox() } }\n\
+         static box Main { main() { local o = new Outer()\nreturn 0 } }",
+    )
+    .unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    assert!(
+        ledger.birth_site_index.borrow().is_empty(),
+        "bare/no-birth and builtin classes keep their existing terminals"
+    );
+}
+
+#[test]
+fn birth_site_take_enforces_class_arity_and_is_affine() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Inner { v: i64\nbirth(v) { me.v = v } }\n\
+         box Outer { init { inner }\nbirth() { me.inner = new Inner(7) } }\n\
+         static box Main { main() { local o = new Outer()\nreturn 0 } }",
+    )
+    .unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let site = ledger
+        .birth_site_index
+        .borrow()
+        .keys()
+        .next()
+        .expect("one indexed site")
+        .clone();
+    assert_eq!(
+        ledger.take_birth_site_recipe(&site, "Inner", 0),
+        Err(OrdinaryNewClaimTakeErrorV1::Mismatch)
+    );
+    assert_eq!(
+        ledger.take_birth_site_recipe(&site, "Other", 1),
+        Err(OrdinaryNewClaimTakeErrorV1::Mismatch)
+    );
+    let recipe = ledger
+        .take_birth_site_recipe(&site, "Inner", 1)
+        .unwrap()
+        .expect("verified recipe");
+    assert_eq!(recipe.target_ref().owner(), "Inner");
+    assert_eq!(
+        ledger.take_birth_site_recipe(&site, "Inner", 1),
+        Ok(None),
+        "the take is affine"
+    );
+    let missing = OwnedExprSiteV1::new(
+        site.owner(),
+        SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(9),
+        ])),
+    );
+    assert_eq!(
+        ledger.take_birth_site_recipe(&missing, "Inner", 1),
+        Ok(None),
+        "absence is never an error"
+    );
+}

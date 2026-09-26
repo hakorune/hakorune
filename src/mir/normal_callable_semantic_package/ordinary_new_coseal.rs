@@ -17,6 +17,7 @@ use std::{
 pub(crate) use self::birth_abi_handoff::BirthAbiHandoffV1;
 use super::instance_constructor_semantic::{
     InstanceConstructorBirthLookupErrorV1, VerifiedInstanceConstructorSemanticBatchV1,
+    VerifiedInstanceConstructorSemanticRowV1,
 };
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::instance_constructor_abi::{
@@ -206,6 +207,11 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     root_instance_call_expected: RefCell<BTreeSet<FunctionOwnerIdV1>>,
     field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
     birth_abi_handoffs: RefCell<BTreeMap<OwnedExprSiteV1, BirthAbiHandoffV1>>,
+    // Destination-less verified `Birth` recipes for `new` sites outside the
+    // local-commit claim lane (non-`[Body, Initializer]` positions). An entry
+    // admits only the typed `Callee::BirthConstructor` edge at that site; it
+    // issues no destination, home, or lifecycle authority.
+    birth_site_index: RefCell<BTreeMap<OwnedExprSiteV1, VerifiedOrdinaryNewBirthRecipeV1>>,
     terminal_relation: Option<TerminalRelationV1>,
     terminal_relation_index: BTreeMap<FunctionOwnerIdV1, Rc<TerminalRelationV1>>,
     terminal_integer_literal_value: RefCell<Option<crate::mir::ValueId>>,
@@ -298,6 +304,7 @@ impl OrdinaryNewClaimLedgerV1 {
             root_instance_call_expected: RefCell::new(BTreeSet::new()),
             field_reads: RefCell::new(BTreeMap::new()),
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),
+            birth_site_index: RefCell::new(BTreeMap::new()),
             terminal_relation: None,
             terminal_relation_index: BTreeMap::new(),
             terminal_integer_literal_value: RefCell::new(None),
@@ -370,6 +377,35 @@ impl OrdinaryNewClaimLedgerV1 {
             claims
                 .remove(site)
                 .expect("claim remained present after the checked lookup"),
+        ))
+    }
+
+    /// Affine take of a verified `Birth` recipe for a non-`[Body,
+    /// Initializer]` `new` site.  The index admits no destination or lifecycle
+    /// authority; a missing entry is `Ok(None)` and leaves the caller's
+    /// existing terminal unchanged.
+    pub(crate) fn take_birth_site_recipe(
+        &self,
+        site: &OwnedExprSiteV1,
+        class: &str,
+        arity: usize,
+    ) -> Result<Option<VerifiedOrdinaryNewBirthRecipeV1>, OrdinaryNewClaimTakeErrorV1> {
+        {
+            let index = self.birth_site_index.borrow();
+            let Some(recipe) = index.get(site) else {
+                return Ok(None);
+            };
+            if recipe.target_ref().owner() != class
+                || usize::try_from(recipe.target_ref().arity()).ok() != Some(arity)
+            {
+                return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
+            }
+        }
+        Ok(Some(
+            self.birth_site_index
+                .borrow_mut()
+                .remove(site)
+                .expect("birth-site recipe remained present after the checked lookup"),
         ))
     }
 

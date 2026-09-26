@@ -464,6 +464,20 @@ where
         self.child
             .try_take_ordinary_new_claim(class, argument_count)
     }
+
+    fn try_take_ordinary_new_birth_recipe(
+        &mut self,
+        class: &str,
+        argument_count: usize,
+    ) -> Result<
+        Option<
+            crate::mir::normal_callable_semantic_package::VerifiedOrdinaryNewBirthRecipeV1,
+        >,
+        String,
+    > {
+        self.child
+            .try_take_ordinary_new_birth_recipe(class, argument_count)
+    }
 }
 
 impl<Port> RecordLiteralSourceDemandPortV1 for RawStructuredChildScopePortV1<'_, Port>

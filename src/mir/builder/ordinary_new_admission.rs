@@ -21,14 +21,13 @@ pub(in crate::mir::builder) fn lower_ordinary_raw_new_with_port_v1<Port>(
     port: &mut Port,
     class: &str,
     arguments: Vec<ASTNode>,
-    claim: Option<crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1>,
+    constructor: Option<OrdinaryNewConstructorDispositionV1>,
 ) -> Result<ValueId, String>
 where
     Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1 + RawOrdinaryNewClaimPortV1,
 {
     // Unavailable source profiles retain their existing pre-artifact fence;
     // this is not a retry after selected emission failure.
-    let constructor = claim.map(|claim| claim.constructor());
     if let Some(OrdinaryNewConstructorDispositionV1::Birth(recipe)) = constructor.as_ref() {
         let physical_arity = arguments.len().checked_add(1).ok_or_else(|| {
             "[freeze:contract][ordinary-new/abi/physical-arity-overflow]".to_owned()

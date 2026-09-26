@@ -5,17 +5,20 @@
 //! ledger and completion-seed cohort.  No admission shape is decided here
 //! beyond what the sealed inputs already carry.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
 use super::super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1;
 use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
-use super::candidate::OrdinaryNewCandidate;
+use super::candidate::{verified_birth_recipe_for_site_v1, OrdinaryNewCandidate};
 use super::coseal_helpers::{
     convert_selected_new_arguments, is_direct_local_initializer, retain_child_terminal_relation,
 };
 use super::{field_reads, terminal_home};
-use super::{OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1};
+use super::{
+    OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1,
+    VerifiedOrdinaryNewBirthRecipeV1,
+};
 use crate::ast::ASTNode;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::function::ObjectDestructionDispositionV1;
@@ -23,7 +26,8 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     issue_new_home_prefixes_v1, SelectedNewArgumentUnavailableV1, TerminalRelationV1,
 };
 use crate::mir::resolved_semantics::{
-    BindingKindV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
+    BindingKindV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
+    VerifiedResolvedFunctionV1,
 };
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_cohort_v1(
@@ -349,6 +353,48 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             });
         }
     }
+    // Destination-less birth-recipe index for `new` sites outside the
+    // local-commit claim lane.  `constructions` records every `new`
+    // regardless of position; this walk only admits a site whose class is
+    // covered and whose `birth_for` row passes the same verification as a
+    // claim candidate.  A site that admits nothing keeps its existing
+    // downstream terminal — the index never issues a new error.
+    let mut birth_site_index = BTreeMap::new();
+    let claimed_sites: BTreeSet<OwnedExprSiteV1> =
+        claims.iter().map(|claim| claim.site().clone()).collect();
+    for declaration in batch.declarations() {
+        let owner = declaration.owner();
+        batch
+            .with_lowering_input(declaration.batch_slot(), |input| {
+                collect_birth_site_index_v1(
+                    input.function(),
+                    owner,
+                    batch,
+                    instance_constructors,
+                    &claimed_sites,
+                    &mut birth_site_index,
+                )
+            })
+            .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
+    }
+    batch
+        .with_normal_program_source_loan(|loan| -> Result<(), OrdinaryNewCoSealIssueV1> {
+            for row in instance_constructors.rows() {
+                let input = row.lowering_input(loan.program()).map_err(|_| {
+                    OrdinaryNewCoSealIssueV1::BatchLoan
+                })?;
+                collect_birth_site_index_v1(
+                    input.function(),
+                    input.owner(),
+                    batch,
+                    instance_constructors,
+                    &claimed_sites,
+                    &mut birth_site_index,
+                )?;
+            }
+            Ok(())
+        })
+        .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
     let names = batch
         .ordinary_box_coverage()
         .rows()
@@ -356,6 +402,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         .map(|row| row.name().to_owned().into_boxed_str())
         .collect();
     let mut ledger = OrdinaryNewClaimLedgerV1::issue(claims.into_boxed_slice(), names);
+    ledger.birth_site_index = std::cell::RefCell::new(birth_site_index);
     ledger.root_completion = root_completion;
     ledger.field_reads = std::cell::RefCell::new(field_reads);
     ledger.birth_abi_handoffs = std::cell::RefCell::new(birth_abi_handoffs);
@@ -363,4 +410,54 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.app_main_identity = app_main_identity.cloned();
     let seeds = seeds.finish();
     Ok((ledger, seeds))
+}
+
+/// Admit one `new` construction site into the destination-less birth index
+/// when — and only when — a verified `Birth` recipe exists for it.  Missing
+/// coverage, a missing `birth` row, lookup errors, and verification failures
+/// all produce no entry: the index is additive-only and never replaces the
+/// existing downstream terminal.
+fn collect_birth_site_index_v1(
+    function: &VerifiedResolvedFunctionV1,
+    owner: FunctionOwnerIdV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    claimed_sites: &BTreeSet<OwnedExprSiteV1>,
+    index: &mut BTreeMap<OwnedExprSiteV1, VerifiedOrdinaryNewBirthRecipeV1>,
+) -> Result<(), OrdinaryNewCoSealIssueV1> {
+    for construction in function.expression_source().constructions() {
+        if is_direct_local_initializer(construction.site().node().segments()) {
+            continue;
+        }
+        let site = OwnedExprSiteV1::new(owner, construction.site().clone());
+        if claimed_sites.contains(&site) {
+            continue;
+        }
+        let Ok(coverage_row) = batch
+            .ordinary_box_coverage()
+            .row_for(construction.class())
+        else {
+            continue;
+        };
+        let Some(box_source) = coverage_row else {
+            continue;
+        };
+        let Ok(Some(birth_row)) =
+            instance_constructors.birth_for(box_source, construction.arguments().len())
+        else {
+            continue;
+        };
+        let Ok((recipe, _)) = verified_birth_recipe_for_site_v1(
+            &site,
+            construction.class(),
+            construction.arguments().len(),
+            birth_row,
+        ) else {
+            continue;
+        };
+        if index.insert(site.clone(), recipe).is_some() {
+            return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
+        }
+    }
+    Ok(())
 }

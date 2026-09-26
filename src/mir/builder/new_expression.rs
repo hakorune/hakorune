@@ -15,6 +15,8 @@ pub(in crate::mir::builder) struct PreparedRawNewExpressionV1 {
     route: PreparedRawNewExpressionRouteV1,
     ordinary_claim:
         Option<crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1>,
+    ordinary_birth_recipe:
+        Option<crate::mir::normal_callable_semantic_package::VerifiedOrdinaryNewBirthRecipeV1>,
     selected_ordinary_claim: bool,
     field_initializers: Vec<(String, ASTNode)>,
     _seal: PreparedRawNewExpressionSealV1,
@@ -77,6 +79,7 @@ impl PreparedRawNewExpressionV1 {
             class,
             route,
             ordinary_claim: None,
+            ordinary_birth_recipe: None,
             selected_ordinary_claim: false,
             field_initializers,
             _seal: PreparedRawNewExpressionSealV1,
@@ -110,6 +113,11 @@ impl PreparedRawNewExpressionV1 {
             None => false,
         };
         self.ordinary_claim = claim;
+        self.ordinary_birth_recipe = if self.ordinary_claim.is_none() {
+            port.try_take_ordinary_new_birth_recipe(&self.class, arguments.len())?
+        } else {
+            None
+        };
         self.selected_ordinary_claim = selected;
         Ok(())
     }
@@ -129,6 +137,7 @@ impl MirBuilder {
             class,
             route,
             ordinary_claim,
+            ordinary_birth_recipe,
             selected_ordinary_claim,
             field_initializers,
             _seal: _,
@@ -189,12 +198,17 @@ impl MirBuilder {
                 )?
             }
             PreparedRawNewExpressionRouteV1::Ordinary { arguments } => {
+                let constructor = ordinary_claim
+                    .map(|claim| claim.constructor())
+                    .or(ordinary_birth_recipe.map(
+                        crate::mir::normal_callable_semantic_package::OrdinaryNewConstructorDispositionV1::Birth,
+                    ));
                 super::ordinary_new_admission::lower_ordinary_raw_new_with_port_v1(
                     self,
                     port,
                     &class,
                     arguments,
-                    ordinary_claim,
+                    constructor,
                 )?
             }
         };
