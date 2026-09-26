@@ -54,9 +54,76 @@ issuance, `CallableSemanticLoweringState` locals population, and
 the callable lane's site locator. Does not touch the env route
 (landed), the ordinary-new lane, or static-result ingress.
 
+## Census results (main-investigator, 2026-09-25)
+
+1. **Failing statement identified** (temporary freeze-site
+   instrumentation, reverted): `local dbg = env.get(...)` inside the
+   bare `{ }` (`ASTNode::Program`) at `Body(2)` of
+   `StringHelpers.starts_with`. Queried site:
+   `[Body(2), ProgramBodyRoot, ProgramBody(0)]`; registered
+   declaration key: `[Body(2), ProgramBody(0)]`.
+2. **Walk coverage exists**: `resolve_program_block`
+   (resolved_semantics/shadow/stmt.rs) descends into nested
+   `ASTNode::Program` bodies and registers locals — under the
+   rootless item-site convention `[stmt_site, ProgramBody(i)]`
+   (pinned: `standalone_program_has_exact_lexical_lifetime_...`,
+   `program_block_inside_loop_...`). The scope/region origins are
+   rootful `[stmt, ProgramBodyRoot]`; item sites deliberately drop
+   the root segment.
+3. **The gap is site identity, not coverage**: the lane projects
+   body items via `raw_invocation_source_item_site::body_item_site`,
+   which keeps `Program` "explicitly rootful" — designed for the
+   absolute program root `[ProgramBodyRoot]` where no parent
+   statement site exists. For a nested program it emits
+   `[stmt, ProgramBodyRoot, ProgramBody(i)]`, diverging from every
+   walk-registered map (`locals`, `variables`, `initializers`,
+   `resolved_exits`, `statement_sites`) — all rootless.
+   Both encodings project to the same AST node; they are two
+   spellings of one statement.
+4. **Consumers of rootful nested-program sites: none.** All
+   `ProgramBodyRoot` pins in builder code/tests are the absolute
+   2-segment `[ProgramBodyRoot, ProgramBody(i)]` script-root form.
+   Every lane consumer that looks up walk-registered maps wants
+   rootless — the rootful nested form is simply unreachable
+   vocabulary at the map boundary.
+
+## Decision (accepted 2026-09-25)
+
+```text
+Decision: normalize nested-Program item sites to the rootless
+          canonical form at the single lane-side producer.
+Source authority + canonical issuer:
+          `raw_invocation_source_item_site::body_item_site` — the
+          one item-site projection used by `body_statement` and
+          `child_statement`. Walk-side `SourceNodeSiteV1`
+          registration (rootless `[stmt, ProgramBody(i)]`) is the
+          canonical identity it must match.
+Non-authority: shadow `stmt_body_item_path` (already canonical),
+          `append_root_path` (the body-ROOT site `[stmt,
+          ProgramBodyRoot]` stays rootful — the walk's scope
+          origin uses the same shape), any per-consumer site
+          rewrite.
+Fail-fast boundary: absolute `[ProgramBodyRoot]` (len==1, script
+          root) keeps the rootful item form — unchanged; other
+          body kinds keep their existing rootless behavior; a
+          body-root site whose last segment is not the kind's
+          root segment falls through to `child(item)` as today.
+Smallest next slice:
+          MIRBUILDER-EXE-ACCEPTANCE-NESTED-PROGRAM-ITEM-SITE-S0 —
+          extend `is_rootless_item_site_kind` handling so a
+          `Program` body root with a parent (site.len() > 1) drops
+          `ProgramBodyRoot` at the item level; pins: nested
+          Program item site = `[Body(2), ProgramBody(0)]`,
+          absolute stays `[ProgramBodyRoot, ProgramBody(i)]`,
+          end-to-end `local` inside `{ }` resolves placement.
+Non-claims: no walk/declaration-inventory change, no scope-origin
+          change, no other rootful body kinds (Lambda/Try/Catch)
+          — unprobed, named boundaries if they surface.
+```
+
 ## Exit
 
-- [ ] Failing statement identified + whether the declaration
-      walk covers bare-block locals named (or NoSafeSlice with
-      reopen trigger).
-- [ ] One bounded S-card emitted; pointers synced.
+- [x] Failing statement identified; declaration walk covers
+      bare-block locals — the gap is lane-side site spelling.
+- [x] One bounded S-card emitted:
+      MIRBUILDER-EXE-ACCEPTANCE-NESTED-PROGRAM-ITEM-SITE-S0.

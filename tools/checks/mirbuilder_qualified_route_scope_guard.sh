@@ -227,7 +227,22 @@ rg -q 'env_direct_receiver_rejects_unknown_method_with_named_error' "$ENV_DIRECT
 rg -q 'bound_env_receiver_keeps_standard_route' "$ENV_DIRECT_TESTS"
 rg -q 'env_route_keeps_receiver_syntax_only_and_descends_arguments' "$DESCENT_TESTS"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS"; do
+# MIRBUILDER-EXE-ACCEPTANCE-NESTED-PROGRAM-ITEM-SITE-S0: the single
+# lane-side item-site producer `body_item_site` collapses a NESTED
+# Program body root (`[stmt, ..., ProgramBodyRoot]`) to the rootless
+# `[stmt, ..., ProgramBody(i)]` spelling every walk-registered map
+# (locals/variables/initializers) keys on. Only the absolute
+# `[ProgramBodyRoot]` script root (len == 1) keeps the rootful item
+# form — no consumer-side rewrite, no walk change.
+ITEM_SITE="$ROOT_DIR/src/mir/builder/raw_invocation_source_item_site.rs"
+MAP_LOCAL_TESTS="$ROOT_DIR/src/mir/builder/normal_callable_semantic_lowering_state/map_local_tests.rs"
+rg -q 'fn is_rootless_item_site' "$ITEM_SITE"
+rg -q 'kind == SourceBodyKindV1::Program && site\.segments\(\)\.len\(\) > 1' "$ITEM_SITE"
+rg -q 'nested_program_items_drop_the_program_body_root' "$ITEM_SITE"
+rg -q 'program_items_keep_the_explicit_program_root' "$ITEM_SITE"
+rg -q 'nested_program_local_registers_rootless_statement_site' "$MAP_LOCAL_TESTS"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2

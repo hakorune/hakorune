@@ -4,17 +4,18 @@ use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::resolved_semantics::{
     CallableFunctionSyntaxViewV1, FunctionSemanticResolverSessionV1,
-    ResolveSelectedCallableForestsOutcomeV1, SourcePathV1,
+    ResolveSelectedCallableForestsOutcomeV1, SourcePathSegmentV1, SourcePathV1,
 };
 use crate::mir::source_call_target::issue_source_bound_core_method_calls_v1;
 use crate::mir::ValueId;
 use crate::parser::NyashParser;
 
 fn fixture() -> CallableSemanticLoweringState {
-    let program = NyashParser::parse_from_string(
-        "function caller() { local first = 1 local second = 2 return first }",
-    )
-    .expect("fixture parses");
+    fixture_from("function caller() { local first = 1 local second = 2 return first }")
+}
+
+fn fixture_from(source: &str) -> CallableSemanticLoweringState {
+    let program = NyashParser::parse_from_string(source).expect("fixture parses");
     let crate::ast::ASTNode::Program { mut statements, .. } = program else {
         panic!("fixture must be a program")
     };
@@ -123,6 +124,25 @@ fn local_initializer_lookup_uses_exact_declaration_and_preserves_binding() {
         .local_initializer(site, usize::MAX)
         .unwrap_err()
         .contains("placement-local-missing"));
+}
+
+#[test]
+fn nested_program_local_registers_rootless_statement_site() {
+    // A `local` inside a bare `{ }` block registers under the rootless
+    // `[stmt, ProgramBody(i)]` spelling — the same key `body_item_site`
+    // emits on the lowering lane after the nested-program collapse.
+    let state = fixture_from("function caller() { { local inner = 1 } return 0 }");
+    let nested = SourcePathV1::root_body(0)
+        .child(SourcePathSegmentV1::ProgramBody(0))
+        .node();
+    let bindings = state
+        .locals
+        .get(&nested)
+        .expect("nested-program local registers rootless");
+    assert_eq!(bindings.len(), 1);
+    state
+        .local_initializer(&nested, 0)
+        .expect("nested-program local resolves its initializer");
 }
 
 #[test]

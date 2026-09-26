@@ -2,7 +2,9 @@
 //!
 //! A `child_body` receipt names the body root. A body driver then needs the
 //! canonical site of one item in that body. Nested body kinds are rootless at
-//! the item level; `Program` stays explicitly rootful.
+//! the item level; `Program` stays explicitly rootful only at the absolute
+//! program root — a nested program body keeps a parent statement site, so its
+//! items collapse `ProgramBodyRoot` like every other nested body kind.
 
 use crate::mir::resolved_semantics::{SourceBodyKindV1, SourceNodeSiteV1, SourcePathV1};
 
@@ -19,6 +21,17 @@ fn is_rootless_item_site_kind(kind: SourceBodyKindV1) -> bool {
     )
 }
 
+fn is_rootless_item_site(kind: SourceBodyKindV1, site: &SourceNodeSiteV1) -> bool {
+    if site.segments().last() != kind.root_segment().as_ref() {
+        return false;
+    }
+    // A nested program body keeps a parent statement site; its items use the
+    // same rootless spelling the declaration walk registers. Only the
+    // absolute `[ProgramBodyRoot]` script root stays explicitly rootful.
+    is_rootless_item_site_kind(kind)
+        || (kind == SourceBodyKindV1::Program && site.segments().len() > 1)
+}
+
 pub(in crate::mir::builder) fn body_item_site(
     kind: SourceBodyKindV1,
     site: &SourceNodeSiteV1,
@@ -27,7 +40,7 @@ pub(in crate::mir::builder) fn body_item_site(
     if kind == SourceBodyKindV1::Function {
         return SourcePathV1::root_body(index).node();
     }
-    if is_rootless_item_site_kind(kind) && site.segments().last() == kind.root_segment().as_ref() {
+    if is_rootless_item_site(kind, site) {
         let mut segments = site.segments().to_vec();
         let _ = segments.pop();
         segments.push(kind.item_segment(index as u32));
@@ -88,6 +101,23 @@ mod tests {
             &[
                 SourcePathSegmentV1::ProgramBodyRoot,
                 SourcePathSegmentV1::ProgramBody(3),
+            ]
+        );
+    }
+
+    #[test]
+    fn nested_program_items_drop_the_program_body_root() {
+        // A nested `{ }` block keeps a parent statement site; its items use
+        // the rootless spelling the declaration walk registers.
+        let root = SourcePathV1::root_body(2)
+            .child(SourcePathSegmentV1::ProgramBodyRoot)
+            .node();
+        let item = body_item_site(SourceBodyKindV1::Program, &root, 0);
+        assert_eq!(
+            item.segments(),
+            &[
+                SourcePathSegmentV1::Body(2),
+                SourcePathSegmentV1::ProgramBody(0),
             ]
         );
     }

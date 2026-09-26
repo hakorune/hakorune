@@ -1,10 +1,10 @@
 date = "2026-09-25"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D11"
+current_execution_row = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D12"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ExeAcceptanceD11-Open__Gate1-4of11Green__PlacementLocalMissing-BareBlockLocal"
-current_design_stop = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D11"
+current_blocker_token = "ExeAcceptanceD11-Landed__Gate1-4of11Green__LoopWinnerZeroCandidates"
+current_design_stop = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D12"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,21 +14,20 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-exe-acceptance-owner-selection-d11"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d11-2026-09-25.md"
+latest_card = "mirbuilder-exe-acceptance-owner-selection-d12"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d12-2026-09-25.md"
 latest_card_summary = """
-ENV-DIRECT-RECEIVER-S0 landed — bare `env.<method>` receivers
-now classify into the existing `EnvMethod` route before static
-resolution (spec-table authority, variable_map gate for bound
-locals, named error for unknown methods). json advanced past
-`env.get/1` and reached
-`callable-semantic-lowering/placement-local-missing` —
-`local dbg` inside a bare `{ }` block is absent from the
-declaration-site inventory. D11 censuses bare-block local
-declaration coverage and site identity.
+NESTED-PROGRAM-ITEM-SITE-S0 landed — `body_item_site` collapses
+a nested `Program` body root (`len() > 1`) to the rootless
+`[stmt, ProgramBody(i)]` spelling every walk-registered map
+keys on; absolute `[ProgramBodyRoot]` stays rootful. json
+advanced past `placement-local-missing` and now reaches
+`loop winner selection declined: zero selected family
+candidates` — D12 censuses the failing loop and its family
+reject reasons.
 """
-next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D11"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d11-2026-09-25.md"
+next_design_card = "MIRBUILDER-EXE-ACCEPTANCE-OWNER-SELECTION-D12"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-owner-selection-d12-2026-09-25.md"
 next_execution_card = "none__design_stop"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -45,7 +44,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-25: NESTED-PROGRAM-ITEM-SITE-S0 landed — body_item_site collapses nested Program body root to rootless [stmt, ProgramBody(i)] matching every walk-registered map; absolute [ProgramBodyRoot] stays rootful; json advanced to loop winner selection declined (zero selected family candidates); suite failures baseline-identical; next OWNER-SELECTION-D12.",
   "2026-09-25: ENV-DIRECT-RECEIVER-S0 landed — bare env.<method> receivers classify into existing EnvMethod route before static resolution (get_env_method_spec authority, variable_map gate, named error); json advanced to callable-semantic-lowering/placement-local-missing (bare-block local dbg); suite failures baseline-identical; next OWNER-SELECTION-D11.",
   "2026-09-25: ORDINARY-NEW-HANDLE-ARG-S0 landed — Handle selected-argument kind + observation-preserving fallback coseal with declared parameter contracts; json advanced to static-result-ingress/no-exact-static-target (env.get/1 in imported StringHelpers); suite failures baseline-identical; next OWNER-SELECTION-D10.",
-  "2026-09-25: TARGET-ONLY-EMISSION-S0 landed — member_route StaticReceiver TargetOnly arm emits via lower_target_only_static_result_publication_v1; json advanced to ordinary-new/argument-source-unavailable (statsFor new UserStats(user)); suite failures baseline-identical; next OWNER-SELECTION-D9.",
 ]
