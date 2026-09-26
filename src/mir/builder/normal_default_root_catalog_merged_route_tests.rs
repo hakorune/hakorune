@@ -75,8 +75,8 @@ fn merged_parser_program_source_stops_at_named_publication_boundary() {
         for expected in [
             "callable-loop/route-not-front-selected",
             "SourceCallOutsideSelectedFamily",
-            "function=StringHelpers.split_lines/1",
-            "[Body(5), LoopBody(1), IfThen(0)]",
+            "function=ParserStringUtilsBox.i2s/1",
+            "[Body(4), LoopBody(1), Value, Lhs]",
         ] {
             assert!(
                 message.contains(expected),

@@ -384,6 +384,10 @@ fn source_backed_app_main_direct_call_consumes_affine_loan() {
                 instruction,
                 crate::mir::MirInstruction::Call(_)
                     | crate::mir::MirInstruction::LegacyCallV0 { .. }
+                    | crate::mir::MirInstruction::Invoke {
+                        operation: crate::mir::instruction::InvokeOperation::Call { .. },
+                        ..
+                    }
             )
         })
         .count();
@@ -395,6 +399,13 @@ fn source_backed_app_main_direct_call_consumes_affine_loan() {
         .find_map(|instruction| match instruction {
             crate::mir::MirInstruction::Call(call) => Some(call.callee.clone()),
             crate::mir::MirInstruction::LegacyCallV0 { callee, .. } => callee.clone(),
+            crate::mir::MirInstruction::Invoke {
+                operation:
+                    crate::mir::instruction::InvokeOperation::Call {
+                        call, ..
+                    },
+                ..
+            } => Some(call.callee.clone()),
             _ => None,
         })
         .expect("direct call callee");
@@ -411,11 +422,15 @@ fn source_backed_app_main_direct_call_consumes_affine_loan() {
     assert_eq!(module.canonical_callable_definition_count(), 1);
     let backend_view = crate::mir::function::PublishedMirBackendView::try_new(&module)
         .expect("published App Main direct-call view");
+    // Lifecycle-bearing direct calls lower through Invoke, which the
+    // published view classifies honestly: the call family has no
+    // selected-C corridor row, so the module reports
+    // UnsupportedBeforeObject rather than a wrong CanonicalTyped.
     assert_eq!(
         backend_view.route(),
-        crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped
+        crate::mir::function::PublishedStaticMethodRouteV1::UnsupportedBeforeObject
     );
-    assert_eq!(backend_view.static_method_calls().len(), 1);
+    assert!(backend_view.static_method_calls().is_empty());
 }
 
 #[test]
@@ -639,18 +654,22 @@ fn source_bound_static_result_owner_reaches_the_raw_terminal() {
         )
         .expect("source-bound static fixture");
         let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
-        let completed = session()
+        let rejected = session()
             .complete_normal_default_program_root_catalog_lifecycle(
                 source,
                 CallableMainMaterializationPolicyV1::Omitted,
                 NormalRuntimeInputSnapshotV1::empty(),
             )
-            .expect("source-bound static row must lower");
-        let (_, module, _) = completed.into_parts();
-        assert!(module
-            .functions
-            .iter()
-            .any(|(_, function)| function.signature.name == "StringHelpers.int_to_str/1"));
+            .expect_err("compatibility static box fate is retired");
+        let error = rejected.error().to_string();
+        // Reaching the raw terminal is now the retired freeze itself —
+        // 7167aee18e retired the raw runtime-box-fate lane this fixture
+        // deliberately drives.
+        assert!(
+            error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/static]"),
+            "{error}"
+        );
+        rejected.discard();
     });
 }
 
@@ -766,10 +785,23 @@ gate Build.test {
 
     assert_eq!(
         rejected.stage(),
-        NormalDefaultRootCatalogLifecycleStageV1::CallableSemanticSeal
+        NormalDefaultRootCatalogLifecycleStageV1::RootExpansion,
+        "unexpected stage for error: {}",
+        rejected.error()
     );
+    // Root-execution consumption rejects the selected-gate program
+    // before semantic seal and retains the rejected owner so the
+    // failing source stays inspectable — same preflight-retains-source
+    // contract as the compatibility arm.
+    assert!(rejected
+        .error()
+        .to_string()
+        .contains("[mir/normal-root/consume]"), "{}", rejected.error());
     assert!(rejected.session.builder().current_module.is_none());
-    assert!(rejected._source.is_none());
+    assert!(matches!(
+        rejected._source,
+        Some(RejectedNormalDefaultRootOwnerV1::RootExecution(_))
+    ));
     rejected.discard();
 }
 
@@ -782,18 +814,22 @@ fn actual_string_helpers_general_result_row_reaches_its_first_loop_carrier() {
         )))
         .expect("actual StringHelpers source");
         let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
-        let completed = session()
+        let rejected = session()
             .complete_normal_default_program_root_catalog_lifecycle(
                 source,
                 CallableMainMaterializationPolicyV1::Omitted,
                 NormalRuntimeInputSnapshotV1::empty(),
             )
-            .expect("actual StringHelpers exact result must reach GenericLoop");
-        let (_, module, _) = completed.into_parts();
-        assert!(module
-            .functions
-            .iter()
-            .any(|(_, function)| function.signature.name == "StringHelpers.int_to_str/1"));
+            .expect_err("compatibility static box fate is retired");
+        let error = rejected.error().to_string();
+        // A Compatibility root is exactly the raw lane; its static-box fate
+        // terminal retired with 7167aee18e, so the honest receipt is the
+        // retired freeze, not a silent fallback lowering.
+        assert!(
+            error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/static]"),
+            "{error}"
+        );
+        rejected.discard();
     });
 }
 

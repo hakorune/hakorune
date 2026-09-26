@@ -75,10 +75,14 @@ fn source_backed_loop_keeps_invocation_scope_and_ledger_route() {
                 )
                 .expect_err("source-backed Loop must reach its existing recipe boundary");
             let error = rejected.error().to_string();
-            // The generic callable arm retired with the ordered registry, so
-            // generic-profile loops now stop at the callable facts terminal —
-            // still behind the invocation scope and ledger route.
-            assert!(error.contains("[callable-loop/facts-rejected]"), "{error}");
+            // Call-free loop bodies bind no method-call source items, so the
+            // armed LoopCond route stops at SourceItemsMissing — still behind
+            // the invocation scope and ledger route, never at a fallback.
+            assert!(
+                error.contains("[callable-loop/route-not-front-selected]"),
+                "{error}"
+            );
+            assert!(error.contains("SourceItemsMissing"), "{error}");
             assert!(!error.contains("callable-ledger-missing"), "{error}");
             assert!(rejected.session.builder().current_module.is_some());
             rejected.discard();
