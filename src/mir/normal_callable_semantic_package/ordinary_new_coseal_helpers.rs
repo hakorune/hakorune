@@ -33,6 +33,9 @@ pub(super) fn convert_selected_new_arguments(
                         SelectedNewArgumentKindV1::Local { binding } => {
                             OrdinaryNewTrivialArgumentKindV1::Local { binding: *binding }
                         }
+                        SelectedNewArgumentKindV1::Handle { binding } => {
+                            OrdinaryNewTrivialArgumentKindV1::Handle { binding: *binding }
+                        }
                     };
                     OrdinaryNewTrivialArgumentV1::new(
                         observation.new_site().owner(),

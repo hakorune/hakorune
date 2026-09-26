@@ -23,7 +23,8 @@ use crate::ast::ASTNode;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::function::ObjectDestructionDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    issue_new_home_prefixes_v1, SelectedNewArgumentUnavailableV1, TerminalRelationV1,
+    issue_new_home_prefixes_v1, issue_new_home_prefixes_with_arguments_v1,
+    SelectedNewArgumentUnavailableV1, TerminalRelationV1,
 };
 use crate::mir::resolved_semantics::{
     BindingKindV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
@@ -294,10 +295,22 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                     }));
                             }
                             root_completion = Some(Err(error));
-                            (issue_new_home_prefixes_v1(input, &new_sites), BTreeMap::new())
+                            issue_new_home_prefixes_with_arguments_v1(
+                                input, &new_sites,
+                                parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
+                                    .flat_map(|row| row.parameters.iter())
+                                    .map(|row| (row.ordinal, row.binding, row.kind)),
+                            )
                         }
                     }
-                } else { (issue_new_home_prefixes_v1(input, &new_sites), BTreeMap::new()) };
+                } else {
+                    issue_new_home_prefixes_with_arguments_v1(
+                        input, &new_sites,
+                        parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
+                            .flat_map(|row| row.parameters.iter())
+                            .map(|row| (row.ordinal, row.binding, row.kind)),
+                    )
+                };
                 Ok((candidates, home_prefixes, argument_observations))
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;

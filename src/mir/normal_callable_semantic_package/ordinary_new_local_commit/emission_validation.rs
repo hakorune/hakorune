@@ -219,7 +219,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     } if *dst == value && actual == expected)
                 })
                 .count(),
-            OrdinaryNewTrivialArgumentKindV1::Local { .. } => return Ok(()),
+            OrdinaryNewTrivialArgumentKindV1::Local { .. }
+            | OrdinaryNewTrivialArgumentKindV1::Handle { .. } => return Ok(()),
         };
         if matching != 1 {
             return Err(freeze("argument-literal-drift"));

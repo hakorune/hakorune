@@ -107,6 +107,10 @@ pub(crate) fn issue_new_home_prefixes_v1(
     .0
 }
 
+#[path = "home_new_prefix_arguments.rs"]
+mod arguments;
+pub(crate) use arguments::issue_new_home_prefixes_with_arguments_v1;
+
 /// One source walk supplies both New-failure prefixes and terminal ownership.
 /// The caller must take the terminal from the Completion verified on this input.
 pub(crate) fn scan_new_home_flow<E>(

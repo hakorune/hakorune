@@ -176,7 +176,40 @@ rg -q 'lower_target_only_static_result_publication_v1' "$CALLS_MOD"
 rg -q 'fn lower_target_only_static_result_publication_v1' "$PHYSICAL_BRIDGE"
 rg -q 'static-result-ingress/target-only' "$STATIC_OWNER_POLICY"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE"; do
+# MIRBUILDER-EXE-ACCEPTANCE-ORDINARY-NEW-HANDLE-ARG-S0: handle-typed
+# ordinary-new arguments are one vocabulary on the selected lane —
+# OrdinaryObservation::Handle maps to SelectedNewArgumentKindV1::Handle,
+# the fallback coseal keeps the walk's argument observations AND the
+# declared parameter contracts, and selected emission materializes
+# Handle like Local (exact binding + source-site observation; no name
+# lookup). A non-trivial argument still fails ArgumentNotTrivial at the
+# issued-claim precheck — no decline-to-raw route.
+SEL_ARG="$ROOT_DIR/src/mir/resolved_semantics/selected_new_arguments.rs"
+LOCAL_FLOW="$ROOT_DIR/src/mir/resolved_semantics/home_prefix_local_flow.rs"
+NEW_PREFIX="$ROOT_DIR/src/mir/resolved_semantics/home_new_prefix.rs"
+NEW_PREFIX_ARGS="$ROOT_DIR/src/mir/resolved_semantics/home_new_prefix_arguments.rs"
+ORD_ARGS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_arguments.rs"
+COSEAL_HELPERS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal_helpers.rs"
+SEL_EMIT="$ROOT_DIR/src/mir/builder/ordinary_new_admission/selected.rs"
+PHYS_ABI="$ROOT_DIR/src/mir/compiler/normal_default_pipeline/published_backend_view/physical_abi.rs"
+EMIT_VALID="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_local_commit/emission_validation.rs"
+BRAND_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/brand_catalog_tests.rs"
+rg -q 'Handle \{ binding: BindingRefV1 \}' "$SEL_ARG"
+rg -q 'Handle \{ binding: BindingRefV1 \}' "$ORD_ARGS"
+rg -q 'Self::Handle\(root\) => Some\(SelectedNewArgumentKindV1::Handle \{ binding: root \}\)' "$LOCAL_FLOW"
+rg -q 'fn issue_new_home_prefixes_with_arguments_v1' "$NEW_PREFIX_ARGS"
+rg -q 'issue_new_home_prefixes_with_arguments_v1' "$NEW_PREFIX"
+rg -q 'issue_new_home_prefixes_with_arguments_v1' "$COSEAL_ISSUE"
+rg -q 'parameter_contracts\.iter\(\)\.filter\(\|row\| row\.batch_slot == batch_slot\)' "$COSEAL_ISSUE"
+rg -q 'OrdinaryNewTrivialArgumentKindV1::Handle \{ binding: \*binding \}' "$COSEAL_HELPERS"
+rg -q 'OrdinaryNewTrivialArgumentKindV1::Handle \{ binding \}' "$SEL_EMIT"
+rg -q 'value_for_exact_binding' "$SEL_EMIT"
+rg -q 'observe_variable_site' "$SEL_EMIT"
+rg -q 'Kind::Handle' "$PHYS_ABI"
+rg -q 'OrdinaryNewTrivialArgumentKindV1::Handle' "$EMIT_VALID"
+rg -q 'ordinary_new_claim_records_parameter_handle_argument' "$BRAND_TESTS"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2

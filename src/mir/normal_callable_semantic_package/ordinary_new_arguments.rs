@@ -10,6 +10,7 @@ pub(crate) enum OrdinaryNewTrivialArgumentKindV1 {
     Integer(i64),
     Bool(bool),
     Local { binding: BindingRefV1 },
+    Handle { binding: BindingRefV1 },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

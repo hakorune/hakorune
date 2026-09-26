@@ -145,7 +145,8 @@ fn materialize_arguments(
             OrdinaryNewTrivialArgumentKindV1::Bool(value) => {
                 crate::mir::builder::emission::constant::emit_bool(builder, *value)
             }
-            OrdinaryNewTrivialArgumentKindV1::Local { binding } => {
+            OrdinaryNewTrivialArgumentKindV1::Local { binding }
+            | OrdinaryNewTrivialArgumentKindV1::Handle { binding } => {
                 let value = state
                     .value_for_exact_binding(claim.site().owner(), *binding)
                     .map_err(|_| freeze("argument-binding-unavailable"))?;

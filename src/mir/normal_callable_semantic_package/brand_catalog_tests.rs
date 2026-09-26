@@ -226,8 +226,7 @@ fn ordinary_new_unknown_home_prefix_is_not_an_empty_cleanup_plan() {
     let claim_rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
     let claims: Vec<_> = claim_rows.values().collect();
     assert_eq!(claims.len(), 1);
-    assert!(matches!(claims[0].home_prefix(),
-        Err(crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1::EntryDemandMissing)));
+    assert!(claims[0].home_prefix().is_ok());
 
     let package = issue_with_brand_catalog(
         "box Page { birth(value) { } } static box Main { main() { local first = new Page(0) local second = new Page(first) return 0 } }"
@@ -236,8 +235,46 @@ fn ordinary_new_unknown_home_prefix_is_not_an_empty_cleanup_plan() {
     let claims: Vec<_> = claim_rows.values().collect();
     assert_eq!(claims.len(), 2);
     assert!(claims[0].home_prefix().is_ok());
-    assert!(matches!(claims[1].home_prefix(),
-        Err(crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1::ArgumentNotCovered(_))));
+    assert!(claims[1].home_prefix().is_ok());
+}
+
+#[test]
+fn ordinary_new_claim_records_parameter_handle_argument() {
+    use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1;
+    use crate::mir::resolved_semantics::SourceBindingSiteV1;
+    let package = issue_with_brand_catalog(
+        "box Page { birth(value) { } } static box Main { helper(value) { local item = new Page(value) return 0 } main() { return 0 } }"
+    ).expect("parameter handle argument claim");
+    let claim_rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
+    let claims: Vec<_> = claim_rows.values().collect();
+    assert_eq!(claims.len(), 1);
+    assert!(claims[0].home_prefix().is_ok());
+    let rows = claims[0]
+        .argument_rows()
+        .expect("declared parameter installs as a handle observation");
+    let [row] = rows else {
+        panic!("one argument row, got {rows:?}")
+    };
+    let OrdinaryNewTrivialArgumentKindV1::Handle { binding } = row.kind() else {
+        panic!(
+            "parameter argument must be a Handle row, got {:?}",
+            row.kind()
+        )
+    };
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.owner() == claims[0].site().owner())
+        .expect("exact owner");
+    let parameter = package
+        .batch()
+        .with_lowering_input(declaration.batch_slot(), |input| {
+            input
+                .function()
+                .declaration_binding(&SourceBindingSiteV1::Parameter { index: 0 })
+        })
+        .expect("lowering input");
+    assert_eq!(Some(*binding), parameter);
 }
 
 #[test]

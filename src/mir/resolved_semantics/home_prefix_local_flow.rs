@@ -50,7 +50,7 @@ impl OrdinaryObservation {
             Self::Integer(value) => Some(SelectedNewArgumentKindV1::Integer(value)),
             Self::Bool(value) => Some(SelectedNewArgumentKindV1::Bool(value)),
             Self::TrivialLocal(binding, _) => Some(SelectedNewArgumentKindV1::Local { binding }),
-            Self::Handle(_) => None,
+            Self::Handle(root) => Some(SelectedNewArgumentKindV1::Handle { binding: root }),
         }
     }
 }
