@@ -19,9 +19,13 @@ latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-
 latest_card_summary = """
 D21 decided: post-S8 `real-apps-exe-boundary` receipt is 4 pass /
 7 fail and every red terminates at a named stop inside an existing
-sealed/parked lineage — D5-sealed coverage forks (B3-ArrayPush,
-parked DeclaredInstance), D5-inventoried NamedArray source demand,
-and the D0/D18 newbox-admission family. `JsonStreamAggregator.ingest/1`'s
+sealed/parked lineage or the confirmed environment/toolchain debt —
+D5-sealed coverage forks (B3-ArrayPush, parked DeclaredInstance),
+D5-inventoried NamedArray source demand, the D0/D18 handle-field
+newbox-admission family (`unsupported_newbox_type`), and the
+D0/D1 environment/toolchain debt for `newbox_min`
+(`no_lowering_variant`; reopen = opt-18 verification).
+`JsonStreamAggregator.ingest/1`'s
 family-selection decline is the ledger-free `VmHakoPostMacro`/
 Compatibility lane (all five spine families contract-decline;
 GenericG0 is nested-only) — the D17-recorded non-callable boundary,
@@ -50,7 +54,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-27: SUITE-RED-DISPOSITION-D21 decided — post-S8 Gate-1 receipt is 4/11 pass; all seven EXE reds map to existing sealed lineages (D5 coverage forks B3-ArrayPush/DeclaredInstance, NamedArray demand, D0/D18 newbox admission); ingest/1 family-selection decline is the D17-recorded ledger-free compatibility boundary, not an armed-lane defect; no in-lane bounded slice; gate-1 externally blocked.",
+  "2026-09-27: SUITE-RED-DISPOSITION-D21 decided — post-S8 Gate-1 receipt is 4/11 pass; all seven EXE reds map to sealed lineages or the confirmed env/toolchain debt (D5 coverage forks B3/DeclaredInstance, NamedArray demand, D0/D18 handle-field newbox admission for json, D0/D1 toolchain debt for newbox_min); ingest/1 family-selection decline is the D17-recorded ledger-free compatibility boundary, not an armed-lane defect; no in-lane bounded slice; gate-1 externally blocked.",
   "2026-09-27: LOOP-CARRIER-BINDING-PUBLICATION-S8 landed — carrier header/final phis publish into CallableSemanticLoweringState.values[binding] (the authority armed reads resolve); binding_names index + invalidate_rebind on publication; branch-first state cores snapshot/restore the values projection and publish CoreIfJoin dsts; document consume reports verify_document_module's result per D19; emit-mir-json green with 65 retained phis; find/3 wrong-code closed; next named blocker ingest/1 loop family-selection decline on the VM/EXE lane.",
   "2026-09-26: MERGE-PHI-DOMINANCE-D20 decided — SSA family is a loop-carrier binding desync: phis emitted+patched for all failing functions but carrier reads resolve via binding-id SSA store, not variable_map; prune_unused_phi_instructions/DCE strips dead phi dsts; find/3 verify-clean wrong-code; next LOOP-CARRIER-BINDING-PUBLICATION-S8.",
 ]

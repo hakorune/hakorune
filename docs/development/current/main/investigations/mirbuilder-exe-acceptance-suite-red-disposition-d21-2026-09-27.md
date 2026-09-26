@@ -2,7 +2,7 @@
 ## Census: post-S8 Gate-1 suite red disposition (D21)
 
 Status: decided — no in-lane bounded slice; all reds owned by existing
-  sealed/parked lineages
+  sealed/parked lineages or the confirmed environment/toolchain debt
 Date: 2026-09-27
 Parent: MIRBUILDER-EXE-ACCEPTANCE-LOOP-CARRIER-BINDING-PUBLICATION-S8
   (landed — carrier header/final phis publish into
@@ -50,8 +50,10 @@ The decline is on the **ledger-free lane**, not the armed EXE lane.
 (`compile_bridge.rs`) which builds the `Compatibility(ast)` program
 root — no callable ledger is installed, so the loop lowers through
 `lower_non_callable_loop_route_v1` -> `route_loop` -> winner spine
-(`issue_loop_node_winner_recipe_v1` ->
-`select_canonical_loop_family_v1`, router.rs:202). All five spine
+(`issue_loop_node_winner_recipe_v1` at router.rs:198 ->
+`select_canonical_loop_family_v1` called at
+`loop_node_winner_spine.rs:370`, defined at
+`family_selector.rs:147`). All five spine
 families contract-decline this shape (single `loop(cond)` with a
 four-statement body holding a local decl, a nested if, an instance
 call, and the carrier update):
@@ -79,15 +81,16 @@ blocker.
 ### Q2 — post-S8 red map: who owns each of the seven?
 
 Zero unowned failures. Every red terminates at a named typed stop
-inside an existing sealed/parked lineage:
+inside an existing sealed/parked lineage — except `newbox_min`,
+which is the D0/D1-confirmed environment/toolchain debt:
 
-| app | terminal | owning lineage |
+| app | terminal | owning record |
 |---|---|---|
 | boxtorrent_mini | `SourceCallOutsideSelectedFamily` (`free_stack.push` on field-read local) | D5 fork (a): B3-ArrayPush lineage — `NoSafeSlice__B3SelectedRuntimeAndOperationOutcomeAuthorityMissing` |
 | binary_trees | `SourceCallOutsideSelectedFamily` (`builder.make`, `positive.itemCheck` on param/local receivers) | D5 fork (b): ordinary user-box instance calls — no coverage issuer exists; parked DeclaredInstance lineage |
 | mimalloc_lite | `SourceCallOutsideSelectedFamily` (`seedBlocks`) | D5 fork (a) |
 | allocator_stress | `CoreMethodSource NamedArray(TextSourceMissing)` | D5-inventoried NamedArray source-demand family (B3 vocabulary) |
-| typed_object_newbox_min | `no_lowering_variant` | D0/backend pure-lane newbox coverage gap |
+| typed_object_newbox_min | `no_lowering_variant` | environment/toolchain debt — resolved `opt` = LLVM 14.0.0 while `opt-18` (18.1.8) exists at `/usr/lib/llvm-18/bin/opt`; D0 recorded `environment/toolchain debt (resolved opt too old)`, D1 confirmed `newbox_min = EnvironmentDebt`: verify with `opt-18` before treating as semantic work |
 | typed_object_untyped_field | `unsupported terminator Invoke` | D0 `NoSafeSlice` untyped-storage sentinel |
 | json_stream_aggregator | `unsupported_newbox_type` (`new JsonStreamAggregator` — handle-typed fields, construction-ineligible per D18) | D0/D18 ordinary-new eligibility family: "box-typed fields, nested construction reclamation ... its own family" |
 
@@ -108,11 +111,13 @@ their own cards".
 None. Gate-1's lane authority covers the callable source route
 through document publication and MIR emission; every remaining red
 stops either (a) inside a sealed coverage fork the route contract
-names by design, or (b) past MIR emission at backend-cohort
-admission (`ny-llvmc` newbox/lowering-variant), or (c) in the
-untyped-storage `NoSafeSlice` sentinel. Per the family scheduler the
-in-lane inventory is exhausted; the reds reopen through their
-owning cards, not here.
+names by design, (b) past MIR emission at backend-cohort newbox
+admission (`unsupported_newbox_type`), (c) in the untyped-storage
+`NoSafeSlice` sentinel (`unsupported terminator Invoke`), or
+(d) at the D0/D1-confirmed environment/toolchain debt
+(`no_lowering_variant` — stale resolved `opt`). Per the family
+scheduler the in-lane inventory is exhausted; the reds reopen
+through their owning cards or the toolchain fix, not here.
 
 ## Decision
 
@@ -120,30 +125,35 @@ owning cards, not here.
 Decision: no bounded slice exists in the Gate-1 failure set — the
   ingest/1 family-selection decline is the D17-recorded ledger-free
   compatibility boundary (non-callable Script owner), and all seven
-  EXE reds are owned by existing sealed/parked lineages. Gate-1
-  stays externally-blocked on those lineages' own reopen triggers.
+  EXE reds are owned by existing sealed/parked lineages or the
+  confirmed environment/toolchain debt. Gate-1 stays
+  externally-blocked on those records' own reopen triggers.
 Source authority + canonical issuer: suite red map -> D5-sealed
   coverage forks (B3-ArrayPush, parked DeclaredInstance),
-  D5-inventoried NamedArray source demand, D0/D18 newbox-admission
-  family; VM spine decline -> ledger-free VmHakoPostMacro/
+  D5-inventoried NamedArray source demand, D0/D18 handle-field
+  newbox-admission family, and the D0/D1 environment/toolchain debt
+  for newbox_min; VM spine decline -> ledger-free VmHakoPostMacro/
   Compatibility owner per the final-pipeline SSOT.
 Non-authority: this lane does not reopen B3/DeclaredInstance/
   NamedArray or newbox-admission cards, does not extend the loop
-  coverage contract, does not weaken family selection, and does not
-  cross VM/EXE lanes without a production caller census.
+  coverage contract, does not weaken family selection, does not
+  reclassify the newbox_min toolchain debt as semantic work, and
+  does not cross VM/EXE lanes without a production caller census.
 Fail-fast boundary: SourceCallOutsideSelectedFamily,
   NamedArray(TextSourceMissing), no_lowering_variant,
   unsupported terminator Invoke, unsupported_newbox_type, and the
   winner-spine NoCandidate decline all remain named terminals —
   no fallback, no silent no-op.
 Smallest next slice: none in-lane. Reopen only through the owning
-  lineage cards: B3-D2 (ArrayPush + NamedArray authorities), parked
-  DeclaredInstance admission, D0 handle-field newbox admission; a
-  ledger-free single-loop family is that spine's own card.
-Non-claims: gate-1 stays unsatisfied (4/11 + probe); no VM claim
-  for ingest/1; no newbox admission claim; the sealed forks' reopen
-  conditions are not asserted met; overall MirBuilder is not
-  complete.
+  records: B3-D2 (ArrayPush + NamedArray authorities), parked
+  DeclaredInstance admission, D0 handle-field newbox admission
+  (unsupported_newbox_type only), toolchain verification with
+  opt-18 for newbox_min per D1; a ledger-free single-loop family
+  is that spine's own card.
+Non-claims: gate-1 stays unsatisfied (4/11 — 3 apps + probe);
+  no VM claim for ingest/1; no newbox admission claim; the sealed
+  forks' reopen conditions are not asserted met; overall
+  MirBuilder is not complete.
 ```
 
 ## Boundary
