@@ -9,8 +9,8 @@ use std::collections::BTreeMap;
 use std::rc::Rc;
 
 use super::callable_loop_source_testkit::{
-    drive_item, function_body_source, integer, located_body, real_core_method_ledger, real_ledger,
-    test_builder, variable,
+    cataloged_body_source, drive_item, function_body_source, integer, located_body,
+    real_core_method_ledger, real_ledger, test_builder, variable,
 };
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
@@ -451,6 +451,167 @@ fn source_item_rejects_program_block_stmt_only_as_unlocated() {
         error.contains("program-block-stmt-only-unlocated"),
         "{error}"
     );
+}
+
+#[test]
+fn source_item_consumes_me_receiver_site_for_method_call() {
+    // `me.bump(7)` inside the loop body: the located Stmt arm must consume
+    // the registered `Receiver` site through the source port. The test
+    // builder never binds `me` in `variable_map`, so a name-based resolve
+    // would fail with `me.method without bound receiver`; an emitted
+    // MethodCall proves the site-consumption path ran.
+    let (ledger, body) =
+        real_ledger("function t() { local i = 0; loop(i < 2) { me.bump(7); i = i + 1 } }");
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let function_carrier = port
+        .body(&body, &cataloged_body_source())
+        .expect("located function body");
+    let loop_stmt = port
+        .body_stmt(&function_carrier, 1)
+        .expect("located loop stmt");
+    let carrier = port
+        .child_body_from_stmt(&loop_stmt, BodyChildRoleV1::LoopBody)
+        .expect("located loop body");
+    let mut builder = test_builder(&ledger);
+    let _scope = LexicalScopeGuard::new(&mut builder);
+    let mut bindings = BTreeMap::new();
+    let plans = drive_item(
+        &ledger,
+        &carrier,
+        &mut builder,
+        &mut bindings,
+        0,
+        &LoopCondBreakContinueItem::Stmt(StmtRef::new(0)),
+    )
+    .expect("me.bump lowers through the consumed receiver site");
+    assert!(
+        plans.iter().any(|plan| matches!(
+            plan,
+            CorePlan::Effect(CoreEffectPlan::MethodCall { dst: None, .. })
+        )),
+        "expected a method call plan, got {plans:?}"
+    );
+}
+
+#[test]
+fn source_item_consumes_me_receiver_site_for_value_call() {
+    // Value position: `local x = me.size()` routes through the MethodCall
+    // value arm; the same receiver-site consumption must fire and emit a
+    // `MethodCall` with a result `dst`.
+    let (ledger, body) =
+        real_ledger("function t() { local i = 0; loop(i < 2) { local x = me.size(); i = i + 1 } }");
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let function_carrier = port
+        .body(&body, &cataloged_body_source())
+        .expect("located function body");
+    let loop_stmt = port
+        .body_stmt(&function_carrier, 1)
+        .expect("located loop stmt");
+    let carrier = port
+        .child_body_from_stmt(&loop_stmt, BodyChildRoleV1::LoopBody)
+        .expect("located loop body");
+    let mut builder = test_builder(&ledger);
+    let _scope = LexicalScopeGuard::new(&mut builder);
+    let mut bindings = BTreeMap::new();
+    let plans = drive_item(
+        &ledger,
+        &carrier,
+        &mut builder,
+        &mut bindings,
+        0,
+        &LoopCondBreakContinueItem::Stmt(StmtRef::new(0)),
+    )
+    .expect("local x = me.size() lowers through the consumed receiver site");
+    assert!(
+        plans.iter().any(|plan| matches!(
+            plan,
+            CorePlan::Effect(CoreEffectPlan::MethodCall { dst: Some(_), .. })
+        )),
+        "expected a result method call plan, got {plans:?}"
+    );
+    assert!(bindings.contains_key("x"));
+}
+
+#[test]
+fn source_item_rejects_duplicate_me_receiver_site_consumption() {
+    // Driving the same `me.bump(7)` item twice attempts to consume the same
+    // `Receiver` site twice; the ledger's exactly-once contract must surface
+    // the named reject, never a silent re-read.
+    let (ledger, body) =
+        real_ledger("function t() { local i = 0; loop(i < 2) { me.bump(7); i = i + 1 } }");
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let function_carrier = port
+        .body(&body, &cataloged_body_source())
+        .expect("located function body");
+    let loop_stmt = port
+        .body_stmt(&function_carrier, 1)
+        .expect("located loop stmt");
+    let carrier = port
+        .child_body_from_stmt(&loop_stmt, BodyChildRoleV1::LoopBody)
+        .expect("located loop body");
+    let mut builder = test_builder(&ledger);
+    let _scope = LexicalScopeGuard::new(&mut builder);
+    let mut bindings = BTreeMap::new();
+    let item = LoopCondBreakContinueItem::Stmt(StmtRef::new(0));
+    drive_item(&ledger, &carrier, &mut builder, &mut bindings, 0, &item)
+        .expect("first me.bump lowers");
+    let error = drive_item(&ledger, &carrier, &mut builder, &mut bindings, 0, &item)
+        .expect_err("second consumption of the same receiver site rejects");
+    assert!(error.contains("duplicate-variable-consumption"), "{error}");
+}
+
+#[test]
+fn source_item_consumes_this_receiver_site_for_method_call() {
+    // `this` in a plain callable resolves to the receiver binding too, so
+    // its `Receiver` site is registered and consumed through the port the
+    // same way as `me` — a `MethodCall` plan with the materialized receiver
+    // is the pin.
+    let (ledger, body) =
+        real_ledger("function t() { local i = 0; loop(i < 2) { this.bump(7); i = i + 1 } }");
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let function_carrier = port
+        .body(&body, &cataloged_body_source())
+        .expect("located function body");
+    let loop_stmt = port
+        .body_stmt(&function_carrier, 1)
+        .expect("located loop stmt");
+    let carrier = port
+        .child_body_from_stmt(&loop_stmt, BodyChildRoleV1::LoopBody)
+        .expect("located loop body");
+    let mut builder = test_builder(&ledger);
+    let _scope = LexicalScopeGuard::new(&mut builder);
+    let mut bindings = BTreeMap::new();
+    let plans = drive_item(
+        &ledger,
+        &carrier,
+        &mut builder,
+        &mut bindings,
+        0,
+        &LoopCondBreakContinueItem::Stmt(StmtRef::new(0)),
+    )
+    .expect("this.bump lowers through the consumed receiver site");
+    assert!(
+        plans.iter().any(|plan| matches!(
+            plan,
+            CorePlan::Effect(CoreEffectPlan::MethodCall { dst: None, .. })
+        )),
+        "expected a method call plan, got {plans:?}"
+    );
+}
+
+#[test]
+fn port_declines_receiver_value_for_non_receiver_expression() {
+    // The `exact_source_receiver_value` hook only intercepts `Me`/`This`
+    // expressions; any other expression returns `Ok(None)` so the existing
+    // receiver resolution path keeps owning it.
+    let (ledger, _body) = real_ledger("function t() { local i = 0 }");
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger);
+    let node = variable("x");
+    let input = port.synthetic_expr(&node);
+    let result = port
+        .exact_source_receiver_value(&input)
+        .expect("non-receiver expression declines cleanly");
+    assert!(result.is_none());
 }
 
 #[test]

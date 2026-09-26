@@ -240,18 +240,34 @@ where
                 effects: EffectMask::PURE.add(crate::mir::Effect::Io),
             });
         }
-        ASTNode::Me { .. } | ASTNode::This { .. } => effects.push(lower_me_this_method_effect(
-            builder,
-            phi_bindings,
-            port.expr_syntax(&receiver),
-            source,
-            method,
-            arg_ids,
-            arguments.len(),
-            None,
-            format!("{error_prefix}: me.method without bound receiver"),
-            format!("{error_prefix}: this.method without static box"),
-        )?),
+        ASTNode::Me { .. } | ASTNode::This { .. } => {
+            if let Some(object_id) = port
+                .exact_source_receiver_value(&receiver)
+                .map_err(|error| format!("{error_prefix}: {error}"))?
+            {
+                effects.push(CoreEffectPlan::MethodCall {
+                    source,
+                    dst: None,
+                    object: object_id,
+                    method: method.clone(),
+                    args: arg_ids,
+                    effects: EffectMask::PURE.add(crate::mir::Effect::Io),
+                });
+            } else {
+                effects.push(lower_me_this_method_effect(
+                    builder,
+                    phi_bindings,
+                    port.expr_syntax(&receiver),
+                    source,
+                    method,
+                    arg_ids,
+                    arguments.len(),
+                    None,
+                    format!("{error_prefix}: me.method without bound receiver"),
+                    format!("{error_prefix}: this.method without static box"),
+                )?);
+            }
+        }
         _ => {
             let (object_id, mut object_effects) =
                 PlanNormalizer::lower_value_input(port, receiver, builder, phi_bindings)?;

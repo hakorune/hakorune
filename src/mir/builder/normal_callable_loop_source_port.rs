@@ -403,6 +403,30 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
         )
     }
 
+    fn exact_source_receiver_value<'input>(
+        &self,
+        input: &Self::ExprInput<'input>,
+    ) -> Result<Option<ValueId>, String>
+    where
+        Self: 'input,
+    {
+        if !matches!(
+            self.expr_syntax(input),
+            ASTNode::Me { .. } | ASTNode::This { .. }
+        ) {
+            return Ok(None);
+        }
+        let site = Self::exact_site(Self::source_of_expr(input))?;
+        if self.ledger.borrow().source_read_binding(&site).is_err() {
+            // Unregistered receivers (e.g. `this` inside a static box)
+            // keep their existing resolution path; there is no site to
+            // consume.
+            return Ok(None);
+        }
+        let receiver_value = self.ledger.borrow_mut().read_variable(&site)?;
+        Ok(Some(receiver_value))
+    }
+
     fn exact_source_assignment_rebind<'input>(
         &self,
         target: &Self::ExprInput<'input>,

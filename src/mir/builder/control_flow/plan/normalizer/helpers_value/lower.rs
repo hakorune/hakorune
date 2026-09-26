@@ -337,19 +337,33 @@ impl super::super::PlanNormalizer {
                             });
                         }
                         ASTNode::Me { .. } | ASTNode::This { .. } => {
-                            let effect = lower_me_this_method_effect(
-                                builder,
-                                phi_bindings,
-                                object.as_ref(),
-                                call_source.clone(),
-                                method,
-                                arg_ids,
-                                arguments.len(),
-                                Some(result_id),
-                                "[normalizer] me.method() without bound receiver".to_string(),
-                                "[normalizer] this.method() without current_static_box".to_string(),
-                            )?;
-                            arg_effects.push(effect);
+                            let receiver = port
+                                .child_expr(&input, ExprChildRoleV1::Receiver)
+                                .map_err(|error| error.render())?;
+                            if let Some(object_id) = port.exact_source_receiver_value(&receiver)? {
+                                arg_effects.push(CoreEffectPlan::MethodCall {
+                                    source: call_source.clone(),
+                                    dst: Some(result_id),
+                                    object: object_id,
+                                    method: method.clone(),
+                                    args: arg_ids,
+                                    effects: EffectMask::PURE.add(Effect::Io),
+                                });
+                            } else {
+                                arg_effects.push(lower_me_this_method_effect(
+                                    builder,
+                                    phi_bindings,
+                                    object.as_ref(),
+                                    call_source.clone(),
+                                    method,
+                                    arg_ids,
+                                    arguments.len(),
+                                    Some(result_id),
+                                    "[normalizer] me.method() without bound receiver".to_string(),
+                                    "[normalizer] this.method() without current_static_box"
+                                        .to_string(),
+                                )?);
+                            }
                         }
                         ASTNode::FieldAccess { .. }
                         | ASTNode::ThisField { .. }

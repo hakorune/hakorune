@@ -185,6 +185,21 @@ pub(in crate::mir::builder) trait LoopPlanExpressionPortV1:
     {
         Ok(None)
     }
+
+    /// Consume one exact `Me`/`This` receiver source site and return the
+    /// materialized receiver value.  `Ok(None)` means the receiver carries
+    /// no registered variable site (e.g. `this` in a static box) and the
+    /// caller keeps its existing resolution.  Raw ports return `None` and
+    /// retain name-based receiver lookup.
+    fn exact_source_receiver_value<'input>(
+        &self,
+        _input: &Self::ExprInput<'input>,
+    ) -> Result<Option<ValueId>, String>
+    where
+        Self: 'input,
+    {
+        Ok(None)
+    }
 }
 
 #[derive(Debug, Default)]

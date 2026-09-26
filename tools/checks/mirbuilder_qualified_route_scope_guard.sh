@@ -121,7 +121,30 @@ rg -q 'source_item_rejects_conditional_update_if_else_parity_drift' "$COND_UPDAT
 rg -q 'source_item_rejects_conditional_update_if_exit_parity_drift' "$COND_UPDATE_TESTS"
 rg -q 'source_item_rejects_conditional_update_if_unsupported_shape' "$COND_UPDATE_TESTS"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE"; do
+# MIRBUILDER-EXE-ACCEPTANCE-ME-RECEIVER-SITE-S0: located `Me`/`This`
+# MethodCall receivers consume their registered `Receiver` site through the
+# source port (`exact_source_receiver_value`); unregistered receivers keep
+# the existing `lower_me_this_method_effect` path — site registration is
+# the check, never a name fallback.
+EXPR_PORT="$ROOT_DIR/src/mir/builder/control_flow/plan/expression_port.rs"
+LOOP_SRC_PORT="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_port.rs"
+ASSOC_INPUT="$ROOT_DIR/src/mir/builder/control_flow/plan/normalizer/loop_body_lowering_associated_input.rs"
+HELPERS_LOWER="$ROOT_DIR/src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs"
+ITEMS_TESTS="$ROOT_DIR/src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_items_tests.rs"
+TESTKIT="$ROOT_DIR/src/mir/builder/control_flow/plan/parts/associated_source/callable_loop_source_testkit.rs"
+rg -q 'fn exact_source_receiver_value' "$EXPR_PORT"
+rg -q 'fn exact_source_receiver_value' "$LOOP_SRC_PORT"
+rg -q 'source_read_binding' "$LOOP_SRC_PORT"
+rg -q 'exact_source_receiver_value' "$ASSOC_INPUT"
+rg -q 'exact_source_receiver_value' "$HELPERS_LOWER"
+rg -q 'fn cataloged_body_source' "$TESTKIT"
+rg -q 'source_item_consumes_me_receiver_site_for_method_call' "$ITEMS_TESTS"
+rg -q 'source_item_consumes_me_receiver_site_for_value_call' "$ITEMS_TESTS"
+rg -q 'source_item_consumes_this_receiver_site_for_method_call' "$ITEMS_TESTS"
+rg -q 'port_declines_receiver_value_for_non_receiver_expression' "$ITEMS_TESTS"
+rg -q 'source_item_rejects_duplicate_me_receiver_site_consumption' "$ITEMS_TESTS"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2

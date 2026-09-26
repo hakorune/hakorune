@@ -228,6 +228,21 @@ pub(super) fn function_body_source() -> RawInvocationSourceContextV1 {
     }
 }
 
+/// Cataloged-callable function body source: bare `me.method(...)` statements
+/// are only locatable under `Cataloged`/`TopLevel`/`InstanceConstructor`
+/// roots, matching how the real pipeline carries selected callable bodies.
+pub(super) fn cataloged_body_source() -> RawInvocationSourceContextV1 {
+    RawInvocationSourceContextV1::Located {
+        root: RawInvocationRootLineageV1::Cataloged(
+            crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_instance_box_method(
+                "T", "t", 0,
+            ),
+        ),
+        site: SourcePathV1::function_body().node(),
+        body_kind: Some(SourceBodyKindV1::Function),
+    }
+}
+
 pub(super) fn stmt_segments(input: &CallableLoopSourceStmtInputV1<'_>) -> Vec<SourcePathSegmentV1> {
     match input {
         CallableLoopSourceStmtInputV1::Located { source, .. } => {
