@@ -1,6 +1,6 @@
 # MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S2
 
-Status: active
+Status: landed
 Date: 2026-09-27
 Parent: MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-D2 (closed, decision
 accepted) — implements the boundary pins from
@@ -49,3 +49,28 @@ it deletes nothing and changes no runtime behavior.
 - No straight-line row minting (loop placement is the designed
   coverage split).
 - Gate 1 completion is not claimed.
+
+## Landed evidence (2026-09-27)
+
+- `claimed_loop_push_rejects_on_unretained_plain_lane`: the
+  production four-push `holder_source` shape on `compile_normal`
+  (plain `into_parts` finishing) stops at
+  `[freeze:contract][named-array/retained-source-required]` —
+  typed, not silent; matches the probe observed on the default
+  `mir` lane and `--backend llvm`.
+- `straight_line_field_resident_push_stays_on_generic_write`: a
+  non-loop `a.push(1)` on `me.free_stack` compiles on
+  `compile_normal`, emits one generic `ArrayElementWrite`, and
+  records zero `named_array_write_obligations` — pinning the
+  issuer's loop-placement coverage split (no row minted → no
+  residual-row leak).
+- `src/mir/source_call_target/README.md`: lane disposition table +
+  empty membership delete-set verdict recorded.
+- Focused suite 10/10 green (`named_array_source_tests`); wider
+  `named_array` filter 31/31 green. No code path changed.
+- Row 3 verdict for D22: armed-lane cutover complete, membership
+  delete-set empty; runtime-owner positive execution remains
+  dependency evidence on queued upstream families (outer `new`
+  admission, lifecycle admission, static-result ingress foreign
+  lineage — the first observed app terminal). Next selected design
+  row: `MIRBUILDER-GATE1-STATIC-RESULT-INGRESS-LINEAGE-D0`.

@@ -34,6 +34,20 @@ integer-producing rebinds, integer arithmetic/unary minus, or a same-owner
 missing/ambiguous provider, reassigned alias, value-position call, non-integer
 argument — rejects as a typed `NamedArrayFieldResidenceIssueV1`.
 
+Lane disposition for claimed sites (D2, `mirbuilder-gate1-field-array-i64-
+push-d2-2026-09-27.md`): contract rows are minted only for `push` call sites
+inside an armed loop body (`resolved_loop_placement == Body`); a straight-
+line field-resident push mints no row and stays on the shared generic
+`array.write` path — a designed coverage split, not a residual-row leak.
+Consumed rows become retained markers that only the document/artifact
+finishing discharges (finalized handoff `validate_named_arrays`); the plain
+`compile_normal` finishing and the `ExplicitCompatibility` route
+typed-reject them (`named-array/retained-source-required`). The
+membership-scoped delete-set is empty: every omission `continue`/`Ok(None)`
+and every generic reconstruction arm is shared with the Text family,
+uncovered populations, and raw/legacy lanes. Family-level retirement needs a
+caller-zero census across all field-resident and Text sites — deferred.
+
 ## S6C source-bound CoreMethod relation I0
 
 `VerifiedSourceBoundS6CCallRelationV1` is the fixed, non-Clone relation for

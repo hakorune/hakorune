@@ -1,10 +1,10 @@
 date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S2"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-GATE1-STATIC-RESULT-INGRESS-LINEAGE-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Gate1FieldArrayI64PushS2__CutoverDispositionPinsOpen"
-current_design_stop = "none"
+current_blocker_token = "Gate1StaticResultIngressLineageD0__ForeignLineageAdmissionDecisionOpen"
+current_design_stop = "S2 landed cutover/retirement disposition (membership delete-set empty, armed-lane cutover complete); the first observed app terminal on both lanes is static-result-ingress/foreign-lineage at Main.main — design which non-Cataloged root lineages (Main/ScriptRoot/TopLevel/InstanceConstructor/NestedBoxMethod) may admit static result publication and how their caller key derives, before any admission change"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,24 +14,25 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-field-array-i64-push-d2-2026-09-27.md"
-latest_card = "mirbuilder-gate1-field-array-i64-push-d2"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-field-array-i64-push-d2-2026-09-27.md"
+latest_card = "mirbuilder-gate1-field-array-i64-push-s2"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-field-array-i64-push-s2-2026-09-27.md"
 latest_card_summary = """
-Field-array D2 decision accepted: armed-lane cutover for the four
-seedBlocks pushes is already complete (contract -> retained write ->
-handoff discharge, sole owner); the membership-scoped delete-set is
-empty — every candidate seam (issuer omission continues, route-item
-uncovered boundary, generic statement reconstruction) is shared and
-retained. Lane dispositions settled: into_parts + ExplicitCompatibility
-typed-reject retained markers; straight-line sites mint no rows
-(loop-placement split); runtime owner is the published/EXE lane whose
-in-tree execution waits on queued upstream families. Bounded S2
-emitted for boundary pins only — no deletions, no switch.
+Field-array series row 3 closed: D2 accepted (armed-lane cutover
+complete, membership delete-set empty — all seams shared and
+retained; runtime owner = published/EXE lane blocked upstream) and
+S2 landed the boundary pins — claimed loop pushes typed-reject on
+the unretained plain lane (`named-array/retained-source-required`),
+straight-line field-resident pushes stay on the generic write with
+zero obligations (loop-placement split). Focused 10/10 + named_array
+31/31 green; no code paths changed. Runtime-owner positive execution
+is dependency evidence on queued upstream families; the first
+observed app terminal `static-result-ingress/foreign-lineage` is
+selected next as `MIRBUILDER-GATE1-STATIC-RESULT-INGRESS-LINEAGE-D0`.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S2"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-field-array-i64-push-s2-2026-09-27.md"
+next_design_card = "MIRBUILDER-GATE1-STATIC-RESULT-INGRESS-LINEAGE-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-field-array-i64-push-s2-2026-09-27.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -46,7 +47,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-27: MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S2 landed — cutover/retirement disposition pinned: claimed loop pushes typed-reject on unretained plain lane, straight-line sites stay generic with zero obligations; membership delete-set empty, armed-lane cutover complete; focused 10/10 + named_array 31/31; next observed terminal static-result-ingress foreign-lineage selected as D0 design.",
   "2026-09-27: MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-D2 decision accepted — armed-lane cutover already complete; membership delete-set empty (all seams shared, retained); lane dispositions settled (into_parts/ExplicitCompatibility typed-reject, straight-line no-row split, published/EXE runtime owner upstream-blocked); bounded S2 pins emitted; no code or deletion.",
   "2026-09-27: MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S1 landed — provider construction stores inside the single construction-store owner: `new <builtin>` coverage-only RHS arm + two-phase field-type/demand (i64/usize + <Class> provider + Handle) + ordinary-new-port lowering into the sole canonical Invoke FieldSet; focused artifact-lane green (6 FieldSets/4 providers/both opts), 78+12 pins green; boxtorrent first terminal unchanged (static-result-ingress); D2 cutover/retirement design selected.",
-  "2026-09-27: MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-D1 decision accepted — provider construction stores admitted inside the single construction-store owner: coverage-only `new <builtin>` RHS arm + two-phase field-type/demand check + statement-surface port route into the sole canonical Invoke FieldSet; has_stored_field_initializer demoted to informational; `init {}`/user-box providers/release work out; bounded S1 emitted; no code, switch, or retirement.",
 ]

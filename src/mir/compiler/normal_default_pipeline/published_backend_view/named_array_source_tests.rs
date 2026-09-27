@@ -384,3 +384,50 @@ fn provider_construction_store_rejects_foreign_shapes() {
         });
     });
 }
+
+/// D2 lane disposition: claimed loop pushes are contract-owned — the plain
+/// `compile_normal` finishing deliberately never discharges retained markers
+/// (`let _callables`, `5a2dea9b3c`) and must stop at the typed rejection,
+/// never silently dropping the obligation or re-routing to generic emission.
+#[test]
+fn claimed_loop_push_rejects_on_unretained_plain_lane() {
+    run_on_test_thread("field-resident-plain-lane-reject", || {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        field_resident_env(|| {
+        let result = MirCompiler::with_options(false)
+            .compile_normal(published_request(&holder_source(holder_seed_body())));
+        let error = match result {
+            Err(error) => error,
+            Ok(_) => panic!("retained markers must reject on the unretained lane"),
+        };
+        assert!(
+            error.contains("named-array/retained-source-required"),
+            "unexpected rejection: {error}"
+        );
+        });
+    });
+}
+
+/// D2 coverage split: a field-resident push outside any loop body mints no
+/// contract row (issuer `resolved_loop_placement == Body` gate), so the
+/// shared generic writer owns it — the plain lane compiles it with zero
+/// retained obligations. The split is designed, not a residual-row leak.
+#[test]
+fn straight_line_field_resident_push_stays_on_generic_write() {
+    run_on_test_thread("field-resident-straight-line-generic", || {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        field_resident_env(|| {
+        let seed = "local a = me.free_stack a.push(1) return 0";
+        let result = MirCompiler::with_options(false)
+            .compile_normal(published_request(&holder_source(seed)))
+            .expect("straight-line push stays on the generic coverage split");
+        let writes = result.module.functions.values().flat_map(|f| f.blocks.values())
+            .flat_map(|b| b.all_instructions()).filter(|i| matches!(i,
+                MirInstruction::ArrayElementWrite { kind: ArrayElementWriteKind::Push, .. })).count();
+        assert_eq!(writes, 1, "generic array write emits the push");
+        let obligations: usize = result.module.functions.values()
+            .map(|f| f.metadata.named_array_write_obligations.len()).sum();
+        assert_eq!(obligations, 0, "no retained marker is minted outside a loop body");
+        });
+    });
+}
