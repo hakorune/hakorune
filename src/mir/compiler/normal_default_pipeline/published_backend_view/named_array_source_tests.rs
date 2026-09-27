@@ -282,3 +282,105 @@ fn field_resident_push_rejects_near_miss_family() {
         });
     });
 }
+
+/// Production `field: ArrayBox = new ArrayBox()` decl-init shape: the
+/// generated provider stores are plan stores, so the same residence
+/// family reaches the sole canonical `Invoke FieldSet` emission on the
+/// artifact lane instead of stopping at `artifact-source-unavailable`.
+fn holder_decl_source(seed_body: &str) -> String {
+    format!(
+        "box Holder {{ free_stack: ArrayBox = new ArrayBox() block_used: ArrayBox = new ArrayBox() use_counts: ArrayBox = new ArrayBox() requested_sizes: ArrayBox = new ArrayBox() capacity: i64 = 0 reserved: usize = 0 birth() {{ }} seed() {{ {seed_body} }} }} static box Main {{ main() {{ return 1 }} }}"
+    )
+}
+
+#[test]
+fn provider_construction_store_reaches_artifact_lane() {
+    run_on_test_thread("provider-construction-store", || {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        field_resident_env(|| {
+        for optimize in [false, true] {
+            let mut calls = 0;
+            MirCompiler::with_options(optimize).compile_normal_with_published(
+                published_request(&holder_decl_source(holder_seed_body())),
+                |view, verification| -> Result<(), String> {
+                    calls += 1;
+                    assert!(verification.is_ok(), "{verification:?}");
+                    assert_eq!(view.validated_named_arrays()?.len(), 4);
+                    let writes = view.module().functions.values().flat_map(|f| f.blocks.values())
+                        .flat_map(|b| b.all_instructions()).filter(|i| matches!(i,
+                            MirInstruction::ArrayElementWrite { kind: ArrayElementWriteKind::Push, dst: None, index: None, .. })).count();
+                    assert_eq!(writes, 4);
+                    let provider_allocations: usize = view.module().functions.values()
+                        .map(|f| f.metadata.named_array_field_allocations.len()).sum();
+                    assert_eq!(provider_allocations, 4, "all four field providers recorded");
+                    // The six generated stores commit through the sole
+                    // canonical FieldSet emission — four providers plus the
+                    // declared i64 and usize scalar initializers.
+                    let field_sets = view.module().functions.values().flat_map(|f| f.blocks.values())
+                        .flat_map(|b| b.all_instructions()).filter(|i| matches!(i,
+                            MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::FieldSet { .. }, .. })).count();
+                    assert_eq!(field_sets, 6, "generated stores are plan FieldSets");
+                    Ok(())
+                },
+            ).unwrap_or_else(|error| panic!("optimize={optimize}: {error:?}"));
+            assert_eq!(calls, 1);
+        }
+        });
+    });
+}
+
+/// Provider-store admission stays bounded: a wrong declared class, a
+/// user-box provider, a scalar field carrying `new`, an argumented
+/// provider, or an unsupported initializer all stay typed plan rejections
+/// surfaced through the artifact validator.
+#[test]
+fn provider_construction_store_rejects_foreign_shapes() {
+    run_on_test_thread("provider-construction-foreign", || {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        field_resident_env(|| {
+        let cases: &[(&str, &str)] = &[
+            // Declared ArrayBox but the provider constructs StringBox.
+            (
+                "box Holder { free_stack: ArrayBox = new StringBox() birth() { } seed() { } } static box Main { main() { return 1 } }",
+                "FieldContractUnsupported",
+            ),
+            // The provider class has to be builtin — a user box fails the
+            // arm, and `unowned-birth-call` stays the outer guard.
+            (
+                "box Inner { value: i64 = 0 birth() { } } box Holder { inner: Inner = new Inner() birth() { } seed() { } } static box Main { main() { return 1 } }",
+                "FieldContractUnsupported",
+            ),
+            // An i64 field cannot carry a provider `new` store.
+            (
+                "box Holder { capacity: i64 birth() { me.capacity = new ArrayBox() } seed() { } } static box Main { main() { return 1 } }",
+                "FieldContractUnsupported",
+            ),
+            // Provider `new` must be bare: arguments are foreign.
+            (
+                "box Holder { free_stack: ArrayBox = new ArrayBox(4) birth() { } seed() { } } static box Main { main() { return 1 } }",
+                "FieldContractUnsupported",
+            ),
+            // An arbitrary declared-initializer expression is not a
+            // supported store shape.
+            (
+                "box Holder { capacity: i64 = [1] birth() { } seed() { } } static box Main { main() { return 1 } }",
+                "BodyCoverageUnsupported",
+            ),
+        ];
+        for (source, expected) in cases {
+            let result = MirCompiler::with_options(false).compile_normal_with_published(
+                published_request(source),
+                |_, _| -> Result<(), String> { Ok(()) },
+            );
+            let error = match result {
+                Err(error) => format!("{error:?}"),
+                Ok(_) => panic!("{expected}: foreign provider shape must reject"),
+            };
+            assert!(
+                error.contains(expected),
+                "{expected}: unexpected rejection: {error}"
+            );
+        }
+        });
+    });
+}

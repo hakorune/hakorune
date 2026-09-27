@@ -594,22 +594,30 @@ cannot recover AST arguments or infer an executable ABI.
 
 `instance_construction` issues its AST-free plan in the exact constructor/Box
 loan. Direct Plain stores and lexical receiver relations join declaration-ordered
-explicit i64 fields. Store Normal has an exact commit cutpoint; allocation Normal
-creates an unpublished outer-storage reclaim obligation. Constructor identity
-and exact owned New site stay in NewEmissionProgress until Birth-fault
+explicit i64/usize fields and, for a field whose store is a bare `new` of a
+builtin class, the provider's `value_site` (a coverage-only arm — the existing
+new-expression owner produces the value; the plan emits only the canonical
+FieldSet around it). Store Normal has an exact commit cutpoint; allocation
+Normal creates an unpublished outer-storage reclaim obligation. Constructor
+identity and exact owned New site stay in NewEmissionProgress until Birth-fault
 ReclaimUnpublished emission; final validation checks that operation against its
-source origin, never cleanup-block placement. Trivial fields are not empty-cleanup
-proof. Selected stores also retain receiver and parameter-RHS sites/bindings;
+source origin, never cleanup-block placement. Trivial fields are not
+empty-cleanup proof; provider fields carry the existing Handle home demand.
+Selected stores also retain receiver and parameter-RHS sites/bindings;
 consumers use the exact binding observer, not assignment AST recovery.
 
-Only empty NoBirthZero and exhaustively initialized scalar Birth bodies have
-this construction eligibility. Missing initialization, other field demands,
-acquisition/structured bodies and overrides are explicit unavailable outcomes,
-not invalid-source or zero-filled success. NoBirth retains explicit absence;
-a Box alone cannot recover consumed constructor identity. Parser-sealed
-StoredFieldInitializer triggers survive normalization: excluded defaults cannot
-become eligible handwritten stores, and nonselected build-gate triggers do not
-participate. Runtime Fault CFG/reclaim and physical admission remain separate.
+Only empty NoBirthZero and exhaustively initialized scalar+provider Birth
+bodies have this construction eligibility — i64/usize fields behind literal or
+parameter stores, and builtin-class fields behind bare `new` stores. A
+user-box provider, a declared type that disagrees with its store's class,
+missing initialization, other field demands, acquisition/structured bodies
+and overrides are explicit unavailable outcomes, not invalid-source or
+zero-filled success. NoBirth retains explicit absence; a Box alone cannot
+recover consumed constructor identity. Parser-sealed StoredFieldInitializer
+triggers survive normalization and keep their source role, while the
+generated stores they expand to satisfy the same arm rules as handwritten
+stores — an excluded default expression still rejects through its RHS arm.
+Runtime Fault CFG/reclaim and physical admission remain separate.
 
 ## Root results, cleanup and finishing
 

@@ -320,11 +320,6 @@ fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
             U::FieldContractUnsupported,
         ),
         (
-            "box Page { value: i64 = 1\nbirth() {} }",
-            U::FieldContractUnsupported,
-        ),
-        ("box Page { value: i64 = 1 }", U::FieldContractUnsupported),
-        (
             "box Page { value: i64\nbirth() { me.value = [1] } }",
             U::BodyCoverageUnsupported,
         ),
@@ -334,7 +329,7 @@ fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
         ),
         (
             "box Page { value: i64\nbirth() { me.value = new Page() } }",
-            U::BodyCoverageUnsupported,
+            U::FieldContractUnsupported,
         ),
         (
             "box Page { value: i64\nbirth() { me.value = fn() { return 1 } } }",
@@ -378,6 +373,37 @@ fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
         let actual = batch.construction_for(parent, arity).unwrap();
         if actual != &Err(expected) {
             failures.push(format!("{source}: expected {expected:?}, got {actual:?}"));
+        }
+    }
+    // Declared initializers on supported scalar shapes now lower through the
+    // same LiteralI64 arm instead of rejecting on the sealed trigger alone.
+    for source in [
+        "box Page { value: i64 = 1\nbirth() {} }",
+        "box Page { value: i64 = 1 }",
+    ] {
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog(source)
+            .unwrap_or_else(|error| panic!("source {source}: {error:?}"));
+        let batch = &package.instance_constructors;
+        let parent = batch.box_sources.row_for("Page").unwrap().unwrap();
+        let arity = batch
+            .rows
+            .iter()
+            .find(|row| row.kind() == ConstructorSourceKindV1::Birth)
+            .map_or(0, |row| row.source_arity() as usize);
+        let actual = batch.construction_for(parent, arity).unwrap();
+        let Ok(plan) = actual else {
+            failures.push(format!("{source}: decl-init scalar must be eligible, got {actual:?}"));
+            continue;
+        };
+        let [store] = plan.stores() else {
+            failures.push(format!("{source}: expected one store, got {:?}", plan.stores()));
+            continue;
+        };
+        if !matches!(
+            store.rhs(),
+            super::super::instance_construction::ConstructionStoreRhsV1::LiteralI64(1)
+        ) {
+            failures.push(format!("{source}: expected LiteralI64 store, got {store:?}"));
         }
     }
     assert!(failures.is_empty(), "{}", failures.join("\n"));

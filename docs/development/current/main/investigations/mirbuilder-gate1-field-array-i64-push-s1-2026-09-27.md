@@ -1,6 +1,6 @@
 # MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S1
 
-Status: active
+Status: landed
 Date: 2026-09-27
 Parent: MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-D1 (closed,
   decision accepted) — implements the accepted relation from
@@ -83,3 +83,63 @@ store lane and without changing ordinary-new eligibility.
    bounded acceptance in this slice.
 6. `current_state_pointer_guard` + `mirbuilder_qualified_route_scope_
    guard` green; every edited file < 800 lines.
+
+## Landed evidence (2026-09-27)
+
+- `instance_construction.rs`: `ConstructionStoreRhsV1::
+  ProviderConstruction{site,class}` admitted for a bare `new` of a
+  builtin class (`CoreBoxId` member, zero args, zero field
+  initializers); `has_stored_field_initializer` demoted to
+  informational; per-field check runs two-phase — `i64`/`usize` ->
+  literal/parameter, `<Class>` -> provider of the same named class,
+  untyped -> provider; `field_demands[ordinal] = Handle` for
+  provider fields only.
+- `normal_callable_construction_state.rs`: `install_construction`
+  accepts `Handle` exactly where the ordinal's store is the provider
+  arm; `emit_construction_store(builder, taken, provider_value)`
+  consumes the port-produced ValueId with `provider-value-missing` /
+  `provider-value-foreign` guards.
+- `statement_surface.rs` Assignment arm: on `ProviderConstruction`
+  the `new` lowers inside the assignment-value child source (the
+  same site-accounting discipline the generic field-store path uses)
+  through `drive_legacy_expression_v1`, which routes the existing
+  ordinary-new port — provider recording (`named_array_field_
+  allocations` + `named_array_field_provider_recording`) fires
+  unchanged — then the sole canonical `Invoke FieldSet` wraps it.
+  First attempt without the child-source context failed
+  `incomplete-consumption` (provider sites unrecorded); the fix is
+  the context discipline, not a second recording path.
+- `usize` scalar admitted alongside `i64` — required by the actual
+  `HakoAllocPage` field set (`block_size/capacity/free_top/
+  alloc_count/free_count/...: usize`). Object-typed PARAMETER stores
+  (e.g. `handle: HakoAllocHandle` in the result box) remain outside;
+  they map to the queued untyped/object-storage row.
+- Focused green: `provider_construction_store_reaches_artifact_lane`
+  — production decl-init shape compiles on `compile_normal_with_
+  published` for both optimizations: 6 canonical `Invoke FieldSet`
+  stores (4 providers + i64 + usize decl-init), 4 recorded provider
+  allocations, 4 validated named arrays. `provider_construction_
+  store_rejects_foreign_shapes` — StringBox provider on ArrayBox
+  field, user-box provider, `new` on i64 field, argumented `new`,
+  `[1]` decl-init — all typed `FieldContractUnsupported` /
+  `BodyCoverageUnsupported` via the artifact validator.
+- `construction_plan_keeps_unavailable_dependencies_out_of_empty_
+  cleanup` updated: `value: i64 = 1` decl-init (explicit and
+  synthesized birth) now eligible via `LiteralI64`; `new Page()` ->
+  `FieldContractUnsupported`; all other arms unchanged. Full
+  construction/ordinary-new/named-array suites: 78 + 12 pins green;
+  3 observed reds are all entries of `cargo_lib_red_baseline.
+  failures.txt` (pre-existing debt, classified).
+- `apps/boxtorrent-mini --emit-mir-json` (and default backend):
+  first terminal is still `static-result-ingress/foreign-lineage`
+  at `Main.main` — the `using` static-result family, reached before
+  artifact validation; unchanged and correctly outside this slice.
+  The construction-store terminal is no longer the blocker for the
+  `HakoAllocPage` field inventory itself.
+
+Next selected successor (D22 series row 3):
+`MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-D2` — selected caller cutover
++ retirement design:
+runtime owner acceptance plan, exact delete-set and caller-zero
+census for this membership's omission/reconstruction seams; shared
+arms retained for other callers.

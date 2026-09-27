@@ -456,7 +456,35 @@ where
         }
         node @ ASTNode::Assignment { .. } => {
             if let Some(store) = port.take_construction_store_v1()? {
-                let rhs = port.emit_construction_store_v1(builder, store)?;
+                let rhs = if matches!(
+                    store.rhs(),
+                    crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::ProviderConstruction { .. }
+                ) {
+                    let ASTNode::Assignment { value, .. } = &node else {
+                        unreachable!("assignment arm sees non-assignment node")
+                    };
+                    let value_node = value.as_ref().clone();
+                    // The provider `new` must lower inside the assignment-value
+                    // child source so emission-side site accounting binds the
+                    // exact provider site — the same discipline the generic
+                    // field-store path uses for its RHS.
+                    let builder_reborrow = &mut *builder;
+                    let value = with_write_target_source_v1(
+                        port,
+                        &node,
+                        ExprChildRoleV1::AssignmentValue,
+                        move |port| {
+                            crate::mir::builder::recursive_child_lowering::drive_legacy_expression_v1(
+                                builder_reborrow,
+                                port,
+                                value_node,
+                            )
+                        },
+                    )?;
+                    port.emit_construction_store_v1(builder, store, Some(value))?
+                } else {
+                    port.emit_construction_store_v1(builder, store, None)?
+                };
                 return Ok(StatementSurfaceDispatch::Lowered(rhs));
             }
             let sources = match &node {

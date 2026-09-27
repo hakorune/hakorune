@@ -38,6 +38,14 @@ pub(crate) enum ConstructionStoreRhsV1 {
         site: SourceExprSiteV1,
         binding: BindingRefV1,
     },
+    /// Coverage-only: the plan records the provider `new` site; the
+    /// existing new-expression owner produces the value. Bounded to a
+    /// bare `new` of a builtin class (zero arguments, zero field
+    /// initializers — builtin classes carry no user Birth row).
+    ProviderConstruction {
+        site: SourceExprSiteV1,
+        class: Box<str>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -121,11 +129,10 @@ pub(super) fn issue_construction_plan(
     )>,
 ) -> ConstructionEligibilityV1 {
     use ConstructionUnavailableV1 as U;
-    // Parser normalization moves defaults into Birth stores. The sealed source
-    // trigger, not generated syntax or span/name heuristics, retains their role.
-    if source.has_stored_field_initializer() {
-        return Err(U::FieldContractUnsupported);
-    }
+    // Parser normalization moves declared defaults into Birth stores. The
+    // sealed source trigger retains its role at the named residence join;
+    // generated stores satisfy the same arm rules as handwritten ones.
+    let _ = source.has_stored_field_initializer();
     let ASTNode::BoxDeclaration {
         fields,
         field_decls,
@@ -159,11 +166,9 @@ pub(super) fn issue_construction_plan(
         || *is_static
         || static_init.is_some()
         || !attrs.is_empty()
-        || field_decls.iter().any(|field| {
-            field.declared_type_name.as_deref() != Some("i64")
-                || field.is_weak
-                || field.default_value.is_some()
-        })
+        || field_decls
+            .iter()
+            .any(|field| field.is_weak || field.default_value.is_some())
     {
         return Err(U::FieldContractUnsupported);
     }
@@ -218,6 +223,7 @@ pub(super) fn issue_construction_plan(
     let mut initialized = BTreeSet::new();
     let mut statements = BTreeSet::new();
     let mut expressions = BTreeSet::new();
+    let mut provider_ordinals = BTreeSet::new();
     for index in 0..body.statements().len() {
         let statement = input
             .source()
@@ -305,6 +311,23 @@ pub(super) fn issue_construction_plan(
                     _ => None,
                 })
                 .ok_or(U::BodyCoverageUnsupported)?,
+            ASTNode::New { .. } => {
+                let construction = function
+                    .expression_source()
+                    .construction(row.value_site())
+                    .ok_or(U::SourceRelationMissing)?;
+                if crate::runtime::CoreBoxId::from_name(construction.class()).is_none()
+                    || !construction.arguments().is_empty()
+                    || !construction.field_initializers().is_empty()
+                {
+                    return Err(U::FieldContractUnsupported);
+                }
+                provider_ordinals.insert(ordinal);
+                ConstructionStoreRhsV1::ProviderConstruction {
+                    site: row.value_site().clone(),
+                    class: construction.class().into(),
+                }
+            }
             _ => return Err(U::BodyCoverageUnsupported),
         };
         expressions.extend([
@@ -339,6 +362,34 @@ pub(super) fn issue_construction_plan(
     if initialized.len() != fields.len() {
         return Err(U::InitializationContractMissing);
     }
+    let mut demands = vec![HomeDemandV1::Trivial; fields.len()];
+    for (ordinal, field) in field_decls.iter().enumerate() {
+        let store = stores
+            .iter()
+            .find(|store| store.field().declaration_ordinal() as usize == ordinal)
+            .ok_or(U::InitializationContractMissing)?;
+        let supported = match field.declared_type_name.as_deref() {
+            Some("i64") | Some("usize") => matches!(
+                store.rhs(),
+                ConstructionStoreRhsV1::LiteralI64(_) | ConstructionStoreRhsV1::Parameter { .. }
+            ),
+            Some(name) => matches!(
+                store.rhs(),
+                ConstructionStoreRhsV1::ProviderConstruction { class, .. } if class.as_ref() == name
+            ),
+            None => matches!(
+                store.rhs(),
+                ConstructionStoreRhsV1::ProviderConstruction { .. }
+            ),
+        };
+        if !supported {
+            return Err(U::FieldContractUnsupported);
+        }
+        if provider_ordinals.contains(&ordinal) {
+            demands[ordinal] = HomeDemandV1::Handle;
+        }
+    }
+    plan.field_demands = demands.into_boxed_slice();
     plan.stores = stores.into_boxed_slice();
     Ok(plan)
 }

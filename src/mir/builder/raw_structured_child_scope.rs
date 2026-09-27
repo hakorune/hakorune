@@ -281,8 +281,10 @@ where
         &mut self,
         builder: &mut MirBuilder,
         store: super::normal_callable_semantic_lowering_state::construction::TakenConstructionStore,
+        provider_value: Option<ValueId>,
     ) -> Result<ValueId, String> {
-        self.child.emit_construction_store_v1(builder, store)
+        self.child
+            .emit_construction_store_v1(builder, store, provider_value)
     }
 
     fn complete_construction_stores_v1(&mut self, builder: &MirBuilder) -> Result<(), String> {

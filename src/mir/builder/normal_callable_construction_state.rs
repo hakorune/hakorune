@@ -100,6 +100,12 @@ pub(in crate::mir::builder) struct TakenConstructionStore {
     rhs: ConstructionStoreRhsV1,
 }
 
+impl TakenConstructionStore {
+    pub(in crate::mir::builder) const fn rhs(&self) -> &ConstructionStoreRhsV1 {
+        &self.rhs
+    }
+}
+
 impl ConstructionState {
     pub(super) fn finish(&self) -> Result<(), String> {
         match self {
@@ -143,7 +149,21 @@ impl CallableSemanticLoweringState {
             || plan
                 .field_demands()
                 .iter()
-                .any(|demand| *demand != HomeDemandV1::Trivial)
+                .enumerate()
+                .any(|(ordinal, demand)| {
+                    let provider = plan.stores().iter().any(|store| {
+                        store.field().declaration_ordinal() == ordinal as u32
+                            && matches!(
+                                store.rhs(),
+                                ConstructionStoreRhsV1::ProviderConstruction { .. }
+                            )
+                    });
+                    if provider {
+                        *demand != HomeDemandV1::Handle
+                    } else {
+                        *demand != HomeDemandV1::Trivial
+                    }
+                })
         {
             return Err(fault("source-or-cleanup-contract"));
         }
@@ -238,6 +258,7 @@ impl CallableSemanticLoweringState {
         &mut self,
         builder: &mut MirBuilder,
         taken: TakenConstructionStore,
+        provider_value: Option<ValueId>,
     ) -> Result<ValueId, String> {
         let source_ready = matches!(
             &self.construction,
@@ -247,6 +268,14 @@ impl CallableSemanticLoweringState {
         );
         if !source_ready {
             return Err(fault("emission-state"));
+        }
+        if provider_value.is_some()
+            && !matches!(
+                taken.rhs,
+                ConstructionStoreRhsV1::ProviderConstruction { .. }
+            )
+        {
+            return Err(fault("provider-value-foreign"));
         }
         let value = match taken.rhs {
             ConstructionStoreRhsV1::LiteralI64(value) => {
@@ -258,6 +287,9 @@ impl CallableSemanticLoweringState {
                     .map_err(|error| error.to_string())?;
                 self.observe_variable_site(site.node(), binding, value)?;
                 value
+            }
+            ConstructionStoreRhsV1::ProviderConstruction { .. } => {
+                provider_value.ok_or_else(|| fault("provider-value-missing"))?
             }
         };
         let base = taken.receiver;
