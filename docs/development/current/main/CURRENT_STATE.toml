@@ -1,10 +1,10 @@
 date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIRBUILDER-GATE1-ORDINARY-NEW-BIRTH-EDGE-AUTHORITY-D0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Gate1OrdinaryNewBirthEdgeAuthorityD0__AuthorityAlreadyCoSealed__ParkedLoopFamilyNext"
-current_design_stop = "none__birth_edge_authority_already_cosealed"
+current_blocker_token = "Gate1CallableLoopRouteFrontD0__LoopBodyCallFamilyOpen"
+current_design_stop = "birth-edge-authority D0 closed (claim Birth(recipe) already emits Callee::BirthConstructor; stale-terminal correction); the next observable boxtorrent terminal is callable-loop/route-not-front-selected SourceCallOutsideSelectedFamily at BoxTorrentManifest.chunkListText/0 [Body(4), LoopBody(1), Value, Rhs] — the `ids.get(i)` instance method call inside the loop body; census which call-site families the callable Loop consumer's route-front selection admits, whether local-handle method calls inside loop bodies have an authorized ingress, and the bounded next slice without widening the selected family into guessed meaning"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -30,12 +30,12 @@ Ordinary arm emits `NewBox` + `Callee::BirthConstructor` — proven
 by a `Store.put`-shaped fixture emitting `call_birth
 BirthConstructor{Chunk.birth/3}`. The freeze remains the designed
 fail-fast for constructor-None lanes (no claim, no birth-site
-recipe). No implementation slice emitted; the only remaining
-observable terminal is the parked callable-loop family, which needs
-explicit selection.
+recipe). No implementation slice emitted; the next observable
+terminal is the queued callable-loop family, selected as
+`MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-D0`.
 """
-next_design_card = "none"
-next_design_card_path = "none"
+next_design_card = "MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-ordinary-new-birth-edge-authority-d0-2026-09-27.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

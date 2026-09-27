@@ -178,15 +178,22 @@ the exact pattern the design boundary forbids.
   is the designed accounting (D18 documented debt, unchanged).
 - No `birth_site_index` expansion — claimed initializer sites keep
   their claim-only path.
-- No resumption of the parked `callable-loop` lane.
+- No callable-loop census claim — that family is a separate next
+  design row (`MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-D0`),
+  not part of this Decision.
 - No Gate-1 or overall MirBuilder completion claim.
 
 ## Next
 
+`MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-D0` — the queued next
+observable terminal: `callable-loop/route-not-front-selected`
+`SourceCallOutsideSelectedFamily` at
+`BoxTorrentManifest.chunkListText/0`
+`[Body(4), LoopBody(1), Value, Rhs]` — the `ids.get(i)` method call
+inside the loop body. A different family (callable Loop consumer),
+selected as the next design row by observed-terminal order.
+
 `MIRBUILDER-GATE1` workstream row H: the ordinary-new family is
 evidence-complete for `apps/boxtorrent-mini/main.hako` — argument
 source (BoundValue S0), caller coverage (D0+S0+S1), and the birth
-edge (this census) are all closed. The only remaining observable
-terminal is the parked `callable-loop/route-not-front-selected`
-family; opening it requires an explicit selection, not an implicit
-continuation of this series.
+edge (this census) are all closed.
