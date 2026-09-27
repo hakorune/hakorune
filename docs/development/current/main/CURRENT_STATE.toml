@@ -1,10 +1,10 @@
 date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "closeout"
 current_execution_row = "MIRBUILDER-GATE1-ORDINARY-NEW-BIRTH-EDGE-AUTHORITY-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Gate1OrdinaryNewBirthEdgeAuthorityD0__ClaimLaneBirthAuthorityOpen"
-current_design_stop = "argument-source S0 cleared ordinary-new/argument-source-unavailable; the next observed app terminal is ordinary-new/birth-global-legacy-stopped — a claim-lane <Class>.birth/N that declines to the Ordinary route emits through a legacy carrier that is now stopped and requires ordinary-new claim authority; design which claim authority co-seals the birth edge without restoring the carrier or widening the admission boundary"
+current_blocker_token = "Gate1OrdinaryNewBirthEdgeAuthorityD0__AuthorityAlreadyCoSealed__ParkedLoopFamilyNext"
+current_design_stop = "none__birth_edge_authority_already_cosealed"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,25 +13,29 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-ordinary-new-argument-source-d0-2026-09-27.md"
-latest_card = "mirbuilder-gate1-ordinary-new-argument-source-s0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-ordinary-new-argument-source-s0-2026-09-27.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-ordinary-new-birth-edge-authority-d0-2026-09-27.md"
+latest_card = "mirbuilder-gate1-ordinary-new-birth-edge-authority-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-ordinary-new-birth-edge-authority-d0-2026-09-27.md"
 latest_card_summary = """
-Argument-source S0 landed: inventoried call-result locals gain
-`BoundValue` provenance — `local x = <call>` whose site sits in
-method_calls()/direct_call_observations() installs
-StoredLocal::BoundValue (flow installs via
-install_inventoried_call_result), which the selected-new argument
-observation carries into BoundValue argument rows materialized
-through the same exact-binding lane as Local/Handle; physical ABI
-still rejects it like Local/Handle. Non-inventoried args stay
-ArgumentNotTrivial — no raw fallback. Tests 5/5+60/60+331(-3
-baseline); boxtorrent argument-source terminal cleared — next
-observed terminal ordinary-new/birth-global-legacy-stopped
-(claim-lane birth lacks claim authority; different family).
+Birth-edge-authority D0 closed — the recorded
+`ordinary-new/birth-global-legacy-stopped` observation was taken on
+a pre-S0 binary and does not reproduce on `881d2b14c0` (both
+--dump-mir and --emit-mir-json reach the parked
+`callable-loop/route-not-front-selected` family at
+`BoxTorrentManifest.chunkListText/0`). Census confirms the birth
+edge is already co-sealed by existing claim authority: cohort issue
+mints `Birth(VerifiedOrdinaryNewBirthRecipeV1)` (published_birth_key
++ BirthAbiHandoff), the affine `try_take` carries it, and the
+Ordinary arm emits `NewBox` + `Callee::BirthConstructor` — proven
+by a `Store.put`-shaped fixture emitting `call_birth
+BirthConstructor{Chunk.birth/3}`. The freeze remains the designed
+fail-fast for constructor-None lanes (no claim, no birth-site
+recipe). No implementation slice emitted; the only remaining
+observable terminal is the parked callable-loop family, which needs
+explicit selection.
 """
-next_design_card = "MIRBUILDER-GATE1-ORDINARY-NEW-BIRTH-EDGE-AUTHORITY-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-ordinary-new-argument-source-s0-2026-09-27.md"
+next_design_card = "none"
+next_design_card_path = "none"
 next_execution_card = "none"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -48,7 +52,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-27: MIRBUILDER-GATE1-ORDINARY-NEW-ARGUMENT-SOURCE-S0 landed — BoundValue provenance for inventoried call-result locals (StoredLocal::BoundValue install + selected/co-seal/materialize/ABI arms; physical ABI rejects same class as Local/Handle); tests 5/5+60/60+331(-3 baseline); boxtorrent argument-source terminal cleared, next ordinary-new/birth-global-legacy-stopped.",
+  "2026-09-27: MIRBUILDER-GATE1-ORDINARY-NEW-BIRTH-EDGE-AUTHORITY-D0 closed — stale-terminal correction: birth-global-legacy-stopped does not reproduce on 881d2b14c0; claim.constructor() = Birth(recipe) already emits Callee::BirthConstructor on the Ordinary arm (fixture-verified); freeze remains the designed fail-fast for constructor-None lanes; next observable terminal is the parked callable-loop family (selection required).",
+  "2026-09-27: MIRBUILDER-GATE1-ORDINARY-NEW-ARGUMENT-SOURCE-S0 landed — BoundValue provenance for inventoried call-result locals (StoredLocal::BoundValue install + selected/co-seal/materialize/ABI arms; physical ABI rejects same class as Local/Handle); tests 5/5+60/60+331(-3 baseline); boxtorrent argument-source terminal cleared.",
   "2026-09-27: MIRBUILDER-GATE1-STATIC-RESULT-CALLER-COVERAGE-S1 landed — BirthConstructor co-seal on both issuers (constructor loan join + constructors map parity, Birth kind only) + InstanceConstructor arm via published_birth_key; ingress 22/22, catalog 24/24; boxtorrent foreign-lineage cleared, next terminal ordinary-new/argument-source-unavailable.",
-  "2026-09-27: MIRBUILDER-GATE1-STATIC-RESULT-INGRESS-LINEAGE-S0 landed — Main(locator) admits via sealed declaration probe decl.key() (no symbol reconstruction); absent catalog -> DeclarationCatalogUnavailable, unresolved probe -> ForeignLineage; pins 11/11; ingress guard repaired for landed TargetOnly bridge; caller-coverage D0 selected next (observed terminal is InstanceConstructor-rooted).",
 ]
