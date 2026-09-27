@@ -100,5 +100,24 @@ text evidence, not selector/name guessing).
   `materialize/1` `store.readData(cid)` — the parked
   DeclaredInstance terminal (`route-not-front-selected`,
   `SourceCallOutsideSelectedFamily`). Recorded, not claimed.
+- Cross-app census (`--emit-mir-json`, compile only): every
+  remaining acceptance terminal funnels to the same parked
+  DeclaredInstance family — binary-trees `iterationCheck/3`
+  (`builder.make` + `itemCheck`, 4 instance-call sites),
+  mimalloc-lite `bin_size/1` (`me.word_size`/`me.max_regular_bin`),
+  allocator-stress `handles.push(heap.allocate)` (instance-call
+  result arg needs instance return provenance);
+  json-stream-aggregator compiles; the typed-object `Invoke` JSON
+  emit gap is an emit-interface artifact, not a semantic lane
+  terminal.
 - Guards: `mirbuilder_qualified_route_scope_guard.sh` green
   (StringIndexOf pins added), pointer guard green.
+
+## Next
+
+The route-front lane is exhausted on observable evidence: every
+remaining terminal is the ParkedSealed DeclaredInstance family
+(parked under `parked_declared_instance_selected_c_task`,
+`PublishedTargetAndBackendCoverageMissing`). Reopening requires an
+explicit lane selection — recorded as
+`Gate1CallableLoopFrontierPause__RemainingTerminalsParkedDeclaredInstance`.
