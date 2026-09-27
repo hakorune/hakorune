@@ -85,13 +85,11 @@ pub(crate) struct VerifiedResolverCoreMethodCallableContractV1 {
     frame: LoopExecutionFrameKeyV1,
     placement: ResolvedLoopPlacementV1,
     target: VerifiedCoreMethodInstanceTargetV1,
-    named_array: Option<super::NamedArrayConstructionRequirementV1>,
+    named_array: Option<super::NamedArrayRequirementV1>,
 }
 
 impl VerifiedResolverCoreMethodCallableContractV1 {
-    pub(crate) fn named_array_requirement(
-        &self,
-    ) -> Option<&super::NamedArrayConstructionRequirementV1> {
+    pub(crate) fn named_array_requirement(&self) -> Option<&super::NamedArrayRequirementV1> {
         self.named_array.as_ref()
     }
 
@@ -159,7 +157,7 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
         membership: &VerifiedCallableLoopMembershipV1,
         placement: ResolvedLoopPlacementV1,
         target: VerifiedCoreMethodInstanceTargetV1,
-        requirement: super::NamedArrayConstructionRequirementV1,
+        requirement: super::NamedArrayRequirementV1,
     ) -> Result<
         VerifiedResolverCoreMethodCallableContractV1,
         ResolverCoreMethodCallableContractRejectV1,
@@ -180,7 +178,7 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
         membership: &VerifiedCallableLoopMembershipV1,
         placement: ResolvedLoopPlacementV1,
         target: VerifiedCoreMethodInstanceTargetV1,
-        named_array: Option<super::NamedArrayConstructionRequirementV1>,
+        named_array: Option<super::NamedArrayRequirementV1>,
     ) -> Result<
         VerifiedResolverCoreMethodCallableContractV1,
         ResolverCoreMethodCallableContractRejectV1,
@@ -288,17 +286,24 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
 
         match (&named_array, target.schema()) {
             (None, CoreMethodHomeSchemaV1::StringBoxText) => {}
-            (Some(requirement), CoreMethodHomeSchemaV1::ArrayTextAppend)
-                if requirement.owner() == ledger.owner()
-                    && requirement.call() == call.site()
-                    && call
-                        .arguments()
-                        .first()
-                        .is_some_and(|arg| arg.site() == requirement.argument())
-                    && receiver
-                        == ResolvedMethodCallReceiverSourceV1::Lexical(
-                            ResolvedLexicalRefV1::Local(requirement.binding()),
-                        ) => {}
+            (
+                Some(requirement),
+                schema @ (CoreMethodHomeSchemaV1::ArrayTextAppend
+                | CoreMethodHomeSchemaV1::ArrayIntegerAppend),
+            ) if requirement.owner() == ledger.owner()
+                && requirement.call() == call.site()
+                && call
+                    .arguments()
+                    .first()
+                    .is_some_and(|arg| arg.site() == requirement.argument())
+                && receiver
+                    == ResolvedMethodCallReceiverSourceV1::Lexical(
+                        ResolvedLexicalRefV1::Local(requirement.binding()),
+                    )
+                && matches!(
+                    requirement,
+                    super::NamedArrayRequirementV1::Construction(_)
+                ) == (schema == CoreMethodHomeSchemaV1::ArrayTextAppend) => {}
             _ => {
                 return Err(
                     ResolverCoreMethodCallableContractRejectV1::NamedArrayRequirementMismatch,
@@ -383,6 +388,12 @@ fn verify_target(
             "ArrayBox",
             CoreMethodHomeAbiProfileV1::NamedArrayTextV1,
         ),
+        CoreMethodHomeSchemaV1::ArrayIntegerAppend => (
+            CoreMethodHomeReceiverRelationV1::NamedArrayReceiver,
+            CoreMethodEffectV1::MutatesShape,
+            "ArrayBox",
+            CoreMethodHomeAbiProfileV1::NamedArrayIntegerV1,
+        ),
     };
     if target.receiver() != receiver {
         return Err(ResolverCoreMethodCallableContractRejectV1::TargetReceiverMismatch);
@@ -416,7 +427,18 @@ fn verify_target(
     let expected_parameters: &[Parameter] = match row.op {
         CoreMethodOp::StringLen => &[],
         CoreMethodOp::StringSubstring => &[Parameter::I64Parameter, Parameter::I64Parameter],
-        CoreMethodOp::ArrayPush => &[Parameter::TextRetainedByReceiver],
+        CoreMethodOp::ArrayPush => match target.schema() {
+            CoreMethodHomeSchemaV1::ArrayTextAppend => &[Parameter::TextRetainedByReceiver],
+            CoreMethodHomeSchemaV1::ArrayIntegerAppend => &[Parameter::I64Parameter],
+            CoreMethodHomeSchemaV1::StringBoxText => {
+                return Err(
+                    ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch {
+                        op: row.op,
+                        arity: target.row().arity(),
+                    },
+                )
+            }
+        },
         op => {
             return Err(
                 ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch {

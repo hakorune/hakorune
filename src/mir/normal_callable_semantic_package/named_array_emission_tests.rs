@@ -38,8 +38,10 @@ fn rows_from(source: &str) -> Rows {
         &package.batch,
         &package.selected,
         &brands,
+        package.instance_constructors(),
     )
     .unwrap()
+    .0
 }
 
 fn port(mut rows: Rows) -> NamedArrayWriteEmissionPortV1 {
@@ -48,7 +50,10 @@ fn port(mut rows: Rows) -> NamedArrayWriteEmissionPortV1 {
     assert_eq!(calls.len(), 1);
     let (_, mut row) = calls.pop_first().unwrap();
     let requirement = row.contract().named_array_requirement().unwrap();
-    let (owner, site) = (requirement.owner(), requirement.construction().clone());
+    let (owner, site) = (
+        requirement.owner(),
+        requirement.construction().unwrap().clone(),
+    );
     row.record_named_allocation(owner, &site, ValueId::new(1))
         .unwrap();
     row.into_named_array_emission().unwrap().into_write_port()
@@ -62,6 +67,12 @@ fn emitted(port: &NamedArrayWriteEmissionPortV1) -> EmittedNamedArrayRequirement
 
 fn module(row: &EmittedNamedArrayRequirementV1) -> MirModule {
     let marker = row.marker();
+    let crate::mir::named_array_obligation::NamedArrayAllocationRefV1::LocalValue(
+        allocation,
+    ) = marker.allocation
+    else {
+        panic!("construction-family marker must bind a local allocation")
+    };
     let mut function = MirFunction::new(
         FunctionSignature {
             name: row.caller().mir_symbol_projection(),
@@ -77,7 +88,7 @@ fn module(row: &EmittedNamedArrayRequirementV1) -> MirModule {
         .unwrap()
         .instructions = vec![
         MirInstruction::NewBox {
-            dst: marker.allocation,
+            dst: allocation,
             target: ConstructionTarget::Named("ArrayBox".into()),
             args: vec![],
         },
@@ -189,7 +200,10 @@ fn two_source_writes_share_one_exact_construction() {
     let mut emitted_rows = Vec::new();
     for (index, (_, mut row)) in calls.into_iter().enumerate() {
         let requirement = row.contract().named_array_requirement().unwrap();
-        let (owner, site) = (requirement.owner(), requirement.construction().clone());
+        let (owner, site) = (
+            requirement.owner(),
+            requirement.construction().unwrap().clone(),
+        );
         row.record_named_allocation(owner, &site, ValueId::new(1))
             .unwrap();
         let port = row.into_named_array_emission().unwrap().into_write_port();

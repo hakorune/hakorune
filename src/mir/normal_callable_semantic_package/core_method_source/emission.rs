@@ -2,15 +2,17 @@
 //! replace its canonical caller, constructor site, or resolver contract.
 use super::SelectedSourceCoreMethodCallV1;
 use crate::mir::named_array_obligation::{
-    fault, validate_physical_marker, NamedArrayWriteMarkerV1,
+    fault, validate_physical_marker, NamedArrayAllocationRefV1, NamedArrayWriteMarkerV1,
 };
-use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceExprSiteV1};
+use crate::mir::resolved_semantics::{
+    FunctionOwnerIdV1, NamedArrayRequirementV1, SourceExprSiteV1,
+};
 use crate::mir::{ArrayWriteSiteId, MirModule, ValueId};
 
 #[derive(Debug)]
 pub(crate) struct NamedArrayEmissionDraftV1 {
     source: SelectedSourceCoreMethodCallV1,
-    allocation: ValueId,
+    allocation: NamedArrayAllocationRefV1,
 }
 
 #[derive(Debug)]
@@ -21,13 +23,24 @@ pub(crate) struct EmittedNamedArrayRequirementV1 {
 
 impl SelectedSourceCoreMethodCallV1 {
     pub(crate) fn into_named_array_emission(self) -> Result<NamedArrayEmissionDraftV1, String> {
-        if self.contract().named_array_requirement().is_none() {
+        let Some(requirement) = self.contract().named_array_requirement() else {
             return Err(fault("source-requirement-missing"));
-        }
+        };
+        let allocation = match requirement {
+            NamedArrayRequirementV1::Construction(_) => NamedArrayAllocationRefV1::LocalValue(
+                self.allocation
+                    .ok_or_else(|| fault("allocation-not-emitted"))?,
+            ),
+            NamedArrayRequirementV1::FieldResidence(requirement) => {
+                NamedArrayAllocationRefV1::FieldResidence {
+                    field: requirement.field(),
+                    provider_caller: requirement.provider_caller().clone(),
+                    provider_site: requirement.provider_site().clone(),
+                }
+            }
+        };
         Ok(NamedArrayEmissionDraftV1 {
-            allocation: self
-                .allocation
-                .ok_or_else(|| fault("allocation-not-emitted"))?,
+            allocation,
             source: self,
         })
     }
@@ -54,7 +67,7 @@ impl NamedArrayEmissionDraftV1 {
         {
             return Err(fault("write-source-mismatch"));
         }
-        let allocation = self.allocation;
+        let allocation = self.allocation.clone();
         Ok(EmittedNamedArrayRequirementV1 {
             source: self.source,
             marker: NamedArrayWriteMarkerV1 {
@@ -80,7 +93,7 @@ impl EmittedNamedArrayRequirementV1 {
     }
 
     pub(crate) fn marker(&self) -> NamedArrayWriteMarkerV1 {
-        self.marker
+        self.marker.clone()
     }
 
     pub(crate) fn validate<'m>(&self, module: &'m MirModule) -> Result<&'m str, String> {
@@ -97,13 +110,15 @@ impl EmittedNamedArrayRequirementV1 {
         if function.signature.name != symbol {
             return Err(fault("physical-caller-drift"));
         }
-        validate_physical_marker(function, &self.marker)?;
+        validate_physical_marker(module, function, &self.marker)?;
         Ok(symbol)
     }
 }
 
 /// Check both directions: neither markers without source nor dropped markers
 /// on a retained row can pass. Shared allocation is allowed; writes are unique.
+/// Field-resident rows also claim their birth-side provider recording so an
+/// unconsumed provider site cannot escape validation.
 pub(crate) fn validate_named_array_coverage(
     module: &MirModule,
     rows: &[EmittedNamedArrayRequirementV1],
@@ -112,6 +127,7 @@ pub(crate) fn validate_named_array_coverage(
     let mut source_calls = std::collections::BTreeSet::new();
     let mut constructions = std::collections::BTreeMap::new();
     let mut allocations = std::collections::BTreeMap::new();
+    let mut claimed_providers = std::collections::BTreeSet::new();
     for row in rows {
         let symbol = row.validate(module)?;
         let requirement = row
@@ -122,14 +138,45 @@ pub(crate) fn validate_named_array_coverage(
         if !source_calls.insert((symbol, requirement.call())) {
             return Err(fault("duplicate-source-write"));
         }
-        if constructions
-            .insert((symbol, requirement.construction()), row.marker.allocation)
-            .is_some_and(|previous| previous != row.marker.allocation)
-            || allocations
-                .insert((symbol, row.marker.allocation), requirement.construction())
-                .is_some_and(|previous| previous != requirement.construction())
-        {
-            return Err(fault("construction-allocation-mismatch"));
+        match requirement {
+            NamedArrayRequirementV1::Construction(requirement) => {
+                let NamedArrayAllocationRefV1::LocalValue(allocation) =
+                    &row.marker.allocation
+                else {
+                    return Err(fault("allocation-ref-mismatch"));
+                };
+                let construction = requirement.construction();
+                if constructions
+                    .insert((symbol, construction.clone()), *allocation)
+                    .is_some_and(|previous| previous != *allocation)
+                    || allocations
+                        .insert((symbol, *allocation), construction.clone())
+                        .is_some_and(|previous| previous != *construction)
+                {
+                    return Err(fault("construction-allocation-mismatch"));
+                }
+            }
+            NamedArrayRequirementV1::FieldResidence(requirement) => {
+                let NamedArrayAllocationRefV1::FieldResidence {
+                    field,
+                    provider_caller,
+                    provider_site,
+                } = &row.marker.allocation
+                else {
+                    return Err(fault("allocation-ref-mismatch"));
+                };
+                if *field != requirement.field()
+                    || provider_caller != requirement.provider_caller()
+                    || provider_site != requirement.provider_site()
+                {
+                    return Err(fault("provider-binding-mismatch"));
+                }
+                let provider_symbol = module
+                    .canonical_callable_definition_symbol(provider_caller)
+                    .ok_or_else(|| fault("provider-symbol-missing"))?;
+                claimed_providers
+                    .insert((provider_symbol.to_owned(), provider_site.clone()));
+            }
         }
         if !covered.insert((symbol, row.marker.write.0)) {
             return Err(fault("duplicate-retained-write"));
@@ -166,6 +213,13 @@ pub(crate) fn validate_named_array_coverage(
     if marker_count != rows.len() {
         return Err(fault("marker-cardinality"));
     }
+    for (symbol, function) in &module.functions {
+        for site in function.metadata.named_array_field_allocations.keys() {
+            if !claimed_providers.contains(&(symbol.clone(), site.clone())) {
+                return Err(fault("unclaimed-provider-binding"));
+            }
+        }
+    }
     Ok(())
 }
 
@@ -179,7 +233,7 @@ impl SelectedSourceCoreMethodCallV1 {
         let Some(requirement) = self.contract().named_array_requirement() else {
             return Ok(false);
         };
-        if requirement.construction() != site {
+        if requirement.construction() != Some(site) {
             return Ok(false);
         }
         if requirement.owner() != owner {

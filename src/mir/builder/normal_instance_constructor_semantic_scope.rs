@@ -16,10 +16,15 @@ pub(super) fn with_constructor_semantic_scope<R>(
     kind: crate::parser::ConstructorSourceKindV1,
     construction: &crate::mir::normal_callable_semantic_package::ConstructionEligibilityV1,
     ordinary_new_claim_ledger: Rc<OrdinaryNewClaimLedgerV1>,
+    named_array_field_providers: std::collections::BTreeMap<
+        crate::mir::resolved_semantics::SourceExprSiteV1,
+        hakorune_mir_defs::CanonicalFieldRefV1,
+    >,
     execute: impl FnOnce(&mut RawInvocationChildPortV1<'_, '_>) -> Result<R, String>,
 ) -> Result<R, String> {
     let mut state = CallableSemanticLoweringState::from_exact_source(input)?;
     state.install_construction(source_id, kind, construction)?;
+    state.install_named_array_field_providers(named_array_field_providers)?;
     let state = Rc::new(RefCell::new(state));
     let parent = inner.callable_ledger.replace(state.clone());
     let parent_new_ledger = inner

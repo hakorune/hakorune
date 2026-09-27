@@ -32,33 +32,67 @@ pub(crate) fn issue_source_core_method_calls_v1(
     >,
     String,
 > {
-    issue_source_core_method_calls_with_v1(
-        catalog,
-        batch,
-        selected,
-        crate::mir::source_call_target::issue_source_bound_core_method_calls_v1,
-    )
+    issue_source_core_method_calls_with_v1(catalog, batch, selected, |ledger, _shape, _key| {
+        crate::mir::source_call_target::issue_source_bound_core_method_calls_v1(ledger)
+    })
 }
+
+/// Named-Array issuance returns the selected source rows plus every
+/// birth-side provider binding sealed beside a field-resident requirement.
+/// The table is keyed by the published `birth` callable key so the physical
+/// consumer loan cannot bind a provider to a foreign constructor.
+pub(crate) type NamedArrayFieldProviderTableV1 = BTreeMap<
+    hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    BTreeMap<SourceExprSiteV1, hakorune_mir_defs::CanonicalFieldRefV1>,
+>;
 
 pub(crate) fn issue_source_core_method_calls_with_named_arrays_v1(
     catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     brands: &crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1,
+    constructors: &super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
 ) -> Result<
-    BTreeMap<
-        SelectedNormalCallableKeyV1,
-        BTreeMap<SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
-    >,
+    (
+        BTreeMap<
+            SelectedNormalCallableKeyV1,
+            BTreeMap<SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
+        >,
+        NamedArrayFieldProviderTableV1,
+    ),
     String,
 > {
-    issue_source_core_method_calls_with_v1(catalog, batch, selected, |ledger| {
-        crate::mir::source_call_target::issue_source_bound_core_method_calls_with_named_arrays_v1(
+    let field_providers = std::cell::RefCell::new(NamedArrayFieldProviderTableV1::new());
+    let issued = issue_source_core_method_calls_with_v1(catalog, batch, selected, |ledger, shape, key| {
+        let body_shape = shape.ok_or_else(|| {
+            crate::mir::source_call_target::SourceBoundCoreMethodTargetIssueV1::NamedArrayResidence(
+                crate::mir::resolved_semantics::NamedArrayFieldResidenceIssueV1::BodyShapeMissing,
+            )
+        })?;
+        let issued = crate::mir::source_call_target::issue_source_bound_core_method_calls_with_named_arrays_v1(
             ledger,
+            body_shape,
             batch.ordinary_box_coverage(),
             brands,
-        )
-    })
+            Some(constructors),
+            key.owner(),
+        )?;
+        let mut providers = field_providers.borrow_mut();
+        for row in &issued.field_providers {
+            let sites = providers.entry(row.provider.clone()).or_default();
+            if let Some(existing) = sites.get(&row.site) {
+                if *existing != row.field {
+                    return Err(crate::mir::source_call_target::SourceBoundCoreMethodTargetIssueV1::NamedArrayResidence(
+                        crate::mir::resolved_semantics::NamedArrayFieldResidenceIssueV1::ProviderShape,
+                    ));
+                }
+            } else {
+                sites.insert(row.site.clone(), row.field);
+            }
+        }
+        Ok(issued.rows)
+    })?;
+    Ok((issued, field_providers.into_inner()))
 }
 
 fn issue_source_core_method_calls_with_v1(
@@ -67,6 +101,8 @@ fn issue_source_core_method_calls_with_v1(
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     issue: impl Fn(
         &crate::mir::resolved_semantics::CallableSemanticSourceLedgerView<'_>,
+        Option<&crate::mir::resolved_semantics::VerifiedResolvedBodyShapeInventoryV1>,
+        &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
     ) -> Result<
         Box<[(SourceExprSiteV1, VerifiedSourceBoundCoreMethodCallV1)]>,
         crate::mir::source_call_target::SourceBoundCoreMethodTargetIssueV1,
@@ -96,7 +132,8 @@ fn issue_source_core_method_calls_with_v1(
                     .forest()
                     .callable_source_ledger(input.owner())
                     .map_err(|error| format!("{error:?}"))?;
-                let rows = issue(&ledger).map_err(|error| format!("{error:?}"))?;
+                let rows = issue(&ledger, input.body_shape(), catalog_key)
+                    .map_err(|error| format!("{error:?}"))?;
                 Ok::<_, String>((input.owner(), rows))
             })
             .map_err(|error| format!("{error:?}"))??;

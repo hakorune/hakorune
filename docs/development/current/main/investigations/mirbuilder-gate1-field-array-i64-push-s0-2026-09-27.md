@@ -1,6 +1,6 @@
 # MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S0
 
-Status: in-progress
+Status: landed
 Date: 2026-09-27
 Parent: MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-D0 (closed,
   decision accepted) — implements the accepted relation from
@@ -85,3 +85,70 @@ sites through the existing LoopCond coverage and writer.
   `constructor_source.rs`, `object_definition.rs`,
   `instance_constructor_semantic.rs`, `issuer.rs:425/464`, and the
   boxtorrent-mini probe.
+
+## Landed result (this slice)
+
+- `named_array_residence.rs` (new, `resolved_semantics`): claim
+  detection, bounded I64 argument predicate, relation verification,
+  `resolve_birth_provider`, `seal_field_residence_requirement`,
+  `NamedArrayFieldResidenceIssueV1` typed rejections.
+- `NamedArrayRequirementV1` generalized to `Construction |
+  FieldResidence`; `core_method_instance_target.rs` adds the
+  `ArrayIntegerAppend` schema (single integer parameter, MutatesShape,
+  NoValue); `resolver_core_method_callable_contract.rs` carries the
+  residence arm end-to-end.
+- `named_array_method.rs` issues the residence contract inside the
+  named-array arm: alias field-read claim -> caller-box field
+  declaration (canonical `CanonicalFieldRefV1`) -> owning `birth`
+  ledger `new ArrayBox()` provider -> sealed requirement. Field
+  providers are collected through `core_method_source.rs` into
+  `NamedArrayFieldProviderTableV1` and installed into constructor
+  lowering via `install.rs` + the raw-new claim port
+  (`raw_ordinary_new_claim.rs` / `raw_structured_child_scope.rs`);
+  `new_expression.rs` records the provider `NewBox` ValueId into
+  `function.metadata.named_array_field_allocations[provider_site]`.
+- `emission.rs` marker `allocation` is `NamedArrayAllocationRefV1`
+  (`LocalValue` | `FieldResidence{field, provider_caller,
+  provider_site}`); `named_array_obligation.rs::validate_physical_marker`
+  resolves field-resident rows at module level (field definition,
+  provider caller symbol, provider `NewBox` cardinality) and
+  `validate_named_array_coverage` claims each recorded provider site
+  (`unclaimed-provider-binding` guard).
+- Bounded widening recorded: a declared field type must be exactly
+  `ArrayBox`; an untyped `init`-listed field is admitted only when the
+  exact birth-side provider proves a bare `new ArrayBox()` store
+  (source layer: `named_array_method.rs`; physical layer: the same
+  rule in `named_array_obligation.rs`, where the provider `NewBox`
+  target is checked directly). Typed non-`ArrayBox` fields remain
+  outside the claim. Reason: the current construction-plan lane only
+  admits i64 `field_decls`, so a typed `ArrayBox` field cannot reach
+  this lane's positive path today; the widening keeps production
+  `field: ArrayBox = new ArrayBox()` on the strict typed check while
+  allowing the `init`-listed fixture shape the lane can actually
+  build.
+- Focused pins (all green, both optimizations):
+  `field_resident_array_i64_push_reaches_retained_typed_writes`
+  (document lane: 4 validated named arrays, 4 retained Push writes,
+  4 provider `NewBox` bindings, C-frame query consumers),
+  `field_resident_push_rejects_non_array_field`,
+  `field_resident_push_rejects_non_integer_argument`,
+  `field_resident_push_rejects_near_miss_family`
+  (ProviderMissing / WeakFieldResidence / ForeignFieldOwner /
+  ReassignedReceiver / ValueDemand / shadow construction
+  TextSourceMissing). Existing named-array suite: 27 pins green.
+- Terminal moved per acceptance #1: `apps/boxtorrent-mini
+  --emit-mir-json` no longer dies at
+  `callable-loop/route-not-front-selected` on `seedBlocks/0`; the next
+  named-family terminal is
+  `[freeze:contract][static-result-ingress/foreign-lineage]` on the
+  static-result publication ingress of `Main.main` (different family,
+  `using`-lineage boundary), and on the artifact lane the enclosing
+  object's construction-store eligibility (`FieldContractUnsupported`
+  for stored-field-initializer / non-i64 `field_decls`) still gates
+  `me.<field> = new` provider stores — both are upstream blockers for
+  their own families, not this contract's boundary.
+- `with_env_var`/`with_env_vars` nesting deadlocks under the shared
+  process-state lock; test pins take one `with_env_vars` call
+  (`NYASH_MACRO_DISABLE=1` + JOINIR mode keys cleared — macro derive
+  would otherwise inject `equals`/`toString` and trip the exact-source
+  transform, orthogonal to this seam).

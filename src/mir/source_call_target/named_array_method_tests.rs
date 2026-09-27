@@ -32,13 +32,17 @@ fn rows(
             row.with_source_ledger(|ledger| {
                 issue_source_bound_core_method_calls_with_named_arrays_v1(
                     &ledger,
+                    row.body_shape(),
                     batch.ordinary_box_coverage(),
                     &brands,
+                    None,
+                    "Main",
                 )
             })
             .unwrap()
         })
         .unwrap()
+        .map(|issued| issued.rows)
 }
 
 #[test]
@@ -58,7 +62,7 @@ fn nested_text_producer_and_array_obligation_share_source_sites() {
     let obligation = push.named_array_requirement().unwrap();
     assert_eq!(obligation.call(), push.call_site());
     assert_eq!(obligation.owner(), push.owner());
-    assert_ne!(obligation.construction(), push.call_site());
+    assert_ne!(obligation.construction(), Some(push.call_site()));
     let text = rows
         .iter()
         .find(|(site, _)| site == obligation.argument())

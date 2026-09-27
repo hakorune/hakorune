@@ -93,3 +93,192 @@ fn named_array_value_demand_rejects_before_published_consumer() {
         assert!(error.contains("ValueDemand"), "{error}");
     });
 }
+
+/// `me.<field> = new ArrayBox()` residence: four Array/I64 appends share the
+/// declared-initializer providers recorded inside `Holder.birth/1`.
+fn holder_source(seed_body: &str) -> String {
+    format!(
+        "box Holder {{ init {{ free_stack, block_used, use_counts, requested_sizes }} capacity: i64 birth() {{ me.capacity = 0 me.free_stack = new ArrayBox() me.block_used = new ArrayBox() me.use_counts = new ArrayBox() me.requested_sizes = new ArrayBox() }} seed() {{ {seed_body} }} }} static box Main {{ main() {{ return 1 }} }}"
+    )
+}
+
+fn holder_seed_body() -> &'static str {
+    "local free_stack = me.free_stack local block_used = me.block_used local use_counts = me.use_counts local requested_sizes = me.requested_sizes local i = 0 loop(i < 4) { free_stack.push(i) block_used.push(0) use_counts.push(0) requested_sizes.push(0) i = i + 1 }"
+}
+
+/// The residence family rejects with typed `NamedArrayResidence` issues — the
+/// uncovered generic route rejection is itself a valid fail-fast boundary for
+/// shapes that stay outside the claim.
+fn holder_variant_source(box_members: &str, seed_body: &str) -> String {
+    format!(
+        "box Holder {{ {box_members} seed() {{ {seed_body} }} }} static box Main {{ main() {{ return 1 }} }}"
+    )
+}
+
+#[test]
+fn field_resident_array_i64_push_reaches_retained_typed_writes() {
+    run_on_test_thread(
+        "field-resident-array-push",
+        field_resident_array_i64_push_reaches_retained_typed_writes_inner,
+    );
+}
+
+fn field_resident_array_i64_push_reaches_retained_typed_writes_inner() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    field_resident_env(field_resident_array_i64_push_reaches_retained_typed_writes_body);
+}
+
+/// Instance boxes without equals/toString would trigger DefaultDerive;
+/// the macro gate is orthogonal to this named-array seam. One process-state
+/// lock acquisition must cover both pins — nested helpers self-deadlock.
+fn field_resident_env(body: impl FnOnce()) {
+    crate::test_support::with_env_vars(
+        &[
+            ("NYASH_MACRO_DISABLE", Some("1")),
+            (crate::test_support::JOINIR_MODE_KEYS[0], None),
+            (crate::test_support::JOINIR_MODE_KEYS[1], None),
+            (crate::test_support::JOINIR_MODE_KEYS[2], None),
+            (crate::test_support::JOINIR_MODE_KEYS[3], None),
+            (crate::test_support::JOINIR_MODE_KEYS[4], None),
+            (crate::test_support::JOINIR_MODE_KEYS[5], None),
+        ],
+        body,
+    );
+}
+
+fn field_resident_array_i64_push_reaches_retained_typed_writes_body() {
+        for optimize in [false, true] {
+            let mut calls = 0;
+            // The enclosing box's construction plan only admits i64 stored
+            // fields today, so the artifact lane keeps the residence provider
+            // as `RetainedUnavailable`. The MIR-JSON document lane exercises
+            // the same named-array emission consumption, handoff validation
+            // and coverage checks without that upstream object admission.
+            MirCompiler::with_options(optimize).compile_normal_for_mir_json(
+                published_request(&holder_source(holder_seed_body())),
+                |view, verification| -> Result<(), String> {
+                    calls += 1;
+                    assert!(verification.is_ok(), "{verification:?}");
+                    assert_eq!(view.validated_named_arrays()?.len(), 4);
+                    let writes = view.module().functions.values().flat_map(|f| f.blocks.values())
+                        .flat_map(|b| b.all_instructions()).filter(|i| matches!(i,
+                            MirInstruction::ArrayElementWrite { kind: ArrayElementWriteKind::Push, dst: None, index: None, .. })).count();
+                    assert_eq!(writes, 4);
+                    let provider_allocations: usize = view.module().functions.values()
+                        .map(|f| f.metadata.named_array_field_allocations.len()).sum();
+                    assert_eq!(provider_allocations, 4, "all four field providers recorded");
+                    crate::runner::mir_json_emit::emit_published_view_body(view)?;
+                    let mut queries = 0;
+                    c_transport_v2::PublishedStaticMethodCFrameV2::from_view_with_query(view, |_, _, _| {
+                        queries += 1;
+                        Ok(Some(map_named_allocations::NamedAllocationConsumer::Array))
+                    })?;
+                    assert!(queries > 0);
+                    Ok(())
+                },
+            ).unwrap_or_else(|error| panic!("optimize={optimize}: {error:?}"));
+            assert_eq!(calls, 1);
+        }
+}
+
+#[test]
+fn field_resident_push_rejects_non_array_field() {
+    run_on_test_thread("field-resident-non-array", || {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        field_resident_env(|| {
+        let body = "local capacity = me.capacity local i = 0 loop(i < 4) { capacity.push(0) i = i + 1 }";
+        let result = MirCompiler::with_options(false).compile_normal_with_published(
+            published_request(&holder_source(body)),
+            |_, _| -> Result<(), String> { Ok(()) },
+        );
+        assert!(result.is_err(), "non-ArrayBox field push must not silently pass");
+        });
+    });
+}
+
+#[test]
+fn field_resident_push_rejects_non_integer_argument() {
+    run_on_test_thread("field-resident-non-i64", || {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        field_resident_env(|| {
+        let body = "local free_stack = me.free_stack local i = 0 loop(i < 1) { free_stack.push(\"text\") i = i + 1 }";
+        let result = MirCompiler::with_options(false).compile_normal_with_published(
+            published_request(&holder_source(body)),
+            |_, _| -> Result<(), String> { Ok(()) },
+        );
+        let error = match result {
+            Err(error) => format!("{error:?}"),
+            Ok(_) => panic!("non-integer argument must reject"),
+        };
+        assert!(
+            error.contains("IntegerSourceMissing") || error.contains("route-not-front-selected"),
+            "unexpected rejection: {error}"
+        );
+        });
+    });
+}
+
+/// The residence claim must close on typed issues for every near-miss shape:
+/// each variant exercises exactly one boundary of the accepted relation.
+#[test]
+fn field_resident_push_rejects_near_miss_family() {
+    run_on_test_thread("field-resident-near-miss", || {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        field_resident_env(|| {
+        let cases: &[(&str, &str, &str)] = &[
+            // Providerless declared field: the birth never stores the array.
+            (
+                "init { free_stack, block_used } birth() { me.block_used = new ArrayBox() }",
+                "local a = me.free_stack local i = 0 loop(i < 1) { a.push(0) i = i + 1 }",
+                "ProviderMissing",
+            ),
+            // Weak residence cannot own the array lifetime.
+            (
+                "weak free_stack init { block_used } birth() { me.free_stack = new ArrayBox() me.block_used = new ArrayBox() }",
+                "local a = me.free_stack local i = 0 loop(i < 1) { a.push(0) i = i + 1 }",
+                "WeakFieldResidence",
+            ),
+            // A foreign-instance field read is outside the owning receiver.
+            (
+                "init { free_stack, block_used } birth() { me.free_stack = new ArrayBox() me.block_used = new ArrayBox() }",
+                "local o: Holder = new Holder() local a = o.free_stack local i = 0 loop(i < 1) { a.push(0) i = i + 1 }",
+                "ForeignFieldOwner",
+            ),
+            // The alias must not be rebound between the field read and push.
+            (
+                "init { free_stack, block_used } birth() { me.free_stack = new ArrayBox() me.block_used = new ArrayBox() }",
+                "local a = me.free_stack a = me.block_used local i = 0 loop(i < 1) { a.push(0) i = i + 1 }",
+                "ReassignedReceiver",
+            ),
+            // `push` returns NoValue: a value-demanding position rejects.
+            (
+                "init { free_stack, block_used } birth() { me.free_stack = new ArrayBox() me.block_used = new ArrayBox() }",
+                "local a = me.free_stack local i = 0 loop(i < 1) { local r = a.push(0) i = i + 1 }",
+                "ValueDemand",
+            ),
+            // A same-named shadow `new ArrayBox()` alias stays in the
+            // construction family, which requires a Text argument source;
+            // an integer argument is a typed rejection, not a residence.
+            (
+                "init { free_stack, block_used } birth() { me.free_stack = new ArrayBox() me.block_used = new ArrayBox() }",
+                "local a = new ArrayBox() local i = 0 loop(i < 1) { a.push(0) i = i + 1 }",
+                "TextSourceMissing",
+            ),
+        ];
+        for (members, seed, expected) in cases {
+            let result = MirCompiler::with_options(false).compile_normal_for_mir_json(
+                published_request(&holder_variant_source(members, seed)),
+                |_, _| -> Result<(), String> { Ok(()) },
+            );
+            let error = match result {
+                Err(error) => format!("{error:?}"),
+                Ok(_) => panic!("{expected}: near-miss must reject"),
+            };
+            assert!(
+                error.contains(expected),
+                "{expected}: unexpected rejection: {error}"
+            );
+        }
+        });
+    });
+}

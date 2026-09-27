@@ -34,7 +34,7 @@ pub(crate) use instance_construction::{
 };
 pub(crate) use instance_constructor_semantic::{
     BirthFormalContractV1, BirthFormalDeclarationClassV1, BirthFormalPhysicalDispositionV1,
-    BirthFormalUseCoverageV1,
+    BirthFormalUseCoverageV1, VerifiedInstanceConstructorSemanticBatchV1,
 };
 mod issuer;
 mod loop_break_source;

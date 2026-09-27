@@ -22,6 +22,7 @@ static NEXT_CORE_METHOD_TARGET_BRAND: AtomicU64 = AtomicU64::new(1);
 pub(crate) enum CoreMethodHomeSchemaV1 {
     StringBoxText,
     ArrayTextAppend,
+    ArrayIntegerAppend,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -47,6 +48,7 @@ pub(crate) enum CoreMethodHomeResultRelationV1 {
 pub(crate) enum CoreMethodHomeAbiProfileV1 {
     StringBoxTextV1,
     NamedArrayTextV1,
+    NamedArrayIntegerV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -104,6 +106,12 @@ impl CoreMethodInstanceTargetIssuerV1 {
         Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::ArrayTextAppend)
     }
 
+    pub(crate) fn array_integer_append(
+        manifest_brand: CoreMethodManifestBrandV2,
+    ) -> Result<Self, CoreMethodInstanceTargetRejectV1> {
+        Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::ArrayIntegerAppend)
+    }
+
     fn with_schema(
         manifest_brand: CoreMethodManifestBrandV2,
         schema: CoreMethodHomeSchemaV1,
@@ -156,6 +164,11 @@ impl CoreMethodInstanceTargetIssuerV1 {
                 CoreMethodEffectV1::MutatesShape,
                 CoreMethodHomeAbiProfileV1::NamedArrayTextV1,
             ),
+            CoreMethodHomeSchemaV1::ArrayIntegerAppend => (
+                "ArrayBox",
+                CoreMethodEffectV1::MutatesShape,
+                CoreMethodHomeAbiProfileV1::NamedArrayIntegerV1,
+            ),
         };
         if generated.receiver_box != receiver_name {
             return Err(CoreMethodInstanceTargetRejectV1::ReceiverMismatch);
@@ -193,10 +206,23 @@ impl CoreMethodInstanceTargetIssuerV1 {
                 if generated.result_kind != CoreMethodResultKindV1::NoValue {
                     return Err(CoreMethodInstanceTargetRejectV1::ResultMismatch);
                 }
+                let parameter = match self.schema {
+                    CoreMethodHomeSchemaV1::ArrayTextAppend => {
+                        CoreMethodHomeParameterRelationV1::TextRetainedByReceiver
+                    }
+                    CoreMethodHomeSchemaV1::ArrayIntegerAppend => {
+                        CoreMethodHomeParameterRelationV1::I64Parameter
+                    }
+                    CoreMethodHomeSchemaV1::StringBoxText => {
+                        return Err(CoreMethodInstanceTargetRejectV1::UnsupportedOperation {
+                            op: generated.op,
+                            arity: row.arity(),
+                        });
+                    }
+                };
                 (
                     CoreMethodHomeReceiverRelationV1::NamedArrayReceiver,
-                    vec![CoreMethodHomeParameterRelationV1::TextRetainedByReceiver]
-                        .into_boxed_slice(),
+                    vec![parameter].into_boxed_slice(),
                     CoreMethodHomeResultRelationV1::NoValue,
                 )
             }

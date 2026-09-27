@@ -84,6 +84,15 @@ pub(super) struct CallableSemanticLoweringState {
     loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
     named_array_writes:
         Vec<crate::mir::normal_callable_semantic_package::NamedArrayWriteEmissionPortV1>,
+    /// Birth-side provider sites claimed by field-resident named-array
+    /// requirements: `me.<field> = new ArrayBox()` inside this constructor.
+    /// Each claimed site must be consumed exactly once by the physical `new`.
+    named_array_field_providers: BTreeMap<
+        crate::mir::resolved_semantics::SourceExprSiteV1,
+        hakorune_mir_defs::CanonicalFieldRefV1,
+    >,
+    named_array_field_allocations:
+        BTreeSet<crate::mir::resolved_semantics::SourceExprSiteV1>,
     source_core_method_calls:
         BTreeMap<crate::mir::resolved_semantics::SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
     source_static_result_publications: BTreeMap<
@@ -336,6 +345,8 @@ impl CallableSemanticLoweringState {
             loop_break_source,
             source_core_method_calls,
             named_array_writes: Vec::new(),
+            named_array_field_providers: BTreeMap::new(),
+            named_array_field_allocations: BTreeSet::new(),
             source_static_result_publications: BTreeMap::new(),
             consumed_source_static_result_publications: BTreeSet::new(),
         })

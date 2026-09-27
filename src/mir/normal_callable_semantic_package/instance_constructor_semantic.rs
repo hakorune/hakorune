@@ -153,6 +153,19 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
         &self.rows
     }
 
+    /// Published `birth` caller key for one exact constructor source id.
+    /// The key is sealed by selection; a constructor without a published
+    /// `birth` contributes no provider loan.
+    pub(crate) fn published_birth_key(
+        &self,
+        source_id: &ConstructorSourceIdV1,
+    ) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
+        self.rows
+            .iter()
+            .find(|row| row.source_id().same_as(source_id))
+            .and_then(|row| row.published_birth_key())
+    }
+
     pub(crate) fn birth_for(
         &self,
         box_source: &ParserOrdinaryBoxSourceRowV1,
@@ -186,6 +199,76 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
             }) {
                 return Err(InstanceConstructorBirthLookupErrorV1::BirthArityMismatch);
             }
+            return Ok(None);
+        };
+        if matches.next().is_some() {
+            return Err(InstanceConstructorBirthLookupErrorV1::DuplicateBirth);
+        }
+        Ok(Some(row))
+    }
+
+    /// Source-level field lookup on the owning Box's canonical definition.
+    /// Declaration order carries the ordinal; the caller must not resolve a
+    /// field by spelling alone without this canonical reference.
+    pub(crate) fn field_declaration(
+        &self,
+        source: &ParserOrdinaryBoxSourceRowV1,
+        field: &str,
+    ) -> Result<
+        Option<(
+            hakorune_mir_defs::CanonicalFieldRefV1,
+            Option<Box<str>>,
+            bool,
+        )>,
+        InstanceConstructorBirthLookupErrorV1,
+    > {
+        self.with_source_object_definition(source, |object, definition| {
+            definition
+                .fields()
+                .iter()
+                .enumerate()
+                .find(|(_, declaration)| declaration.name == field)
+                .map(|(ordinal, declaration)| {
+                    (
+                        hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
+                            object, ordinal,
+                        )
+                        .expect("field ordinal must fit u32"),
+                        declaration
+                            .declared_type_name
+                            .as_deref()
+                            .map(Box::<str>::from),
+                        declaration.is_weak,
+                    )
+                })
+        })
+    }
+
+    /// The single `birth` row for one exact Box source row, regardless of
+    /// source arity. `DuplicateBirth` and `ParentSourceMismatch` keep the
+    /// same fail-fast boundary as `birth_for`.
+    pub(crate) fn birth_row_for(
+        &self,
+        source: &ParserOrdinaryBoxSourceRowV1,
+    ) -> Result<
+        Option<&VerifiedInstanceConstructorSemanticRowV1>,
+        InstanceConstructorBirthLookupErrorV1,
+    > {
+        if !matches!(self.box_sources.row_for(source.name()),
+            Ok(Some(own)) if own.same_source_as(source))
+        {
+            return Err(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch);
+        }
+        if self.rows.iter().any(|row| {
+            row.final_box_ordinal as usize == source.final_box_ordinal()
+                && !row.box_source.same_source_as(source)
+        }) {
+            return Err(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch);
+        }
+        let mut matches = self.rows.iter().filter(|row| {
+            row.box_source.same_source_as(source) && row.kind == ConstructorSourceKindV1::Birth
+        });
+        let Some(row) = matches.next() else {
             return Ok(None);
         };
         if matches.next().is_some() {
@@ -255,6 +338,15 @@ impl VerifiedInstanceConstructorSemanticRowV1 {
 
     pub(crate) fn forest(&self) -> &VerifiedSemanticOwnerForestV1 {
         &self.forest
+    }
+
+    /// Borrows this row's sealed body-shape inventory for provider joins.
+    /// Single-root rows only; a multi-root forest yields `None`.
+    pub(crate) fn body_shape(&self) -> Option<&VerifiedResolvedBodyShapeInventoryV1> {
+        let [root] = self.forest.roots() else {
+            return None;
+        };
+        self.body_shapes.get(root)
     }
 
     pub(crate) fn birth_completion(&self) -> Option<&VerifiedFunctionCompletionV1> {

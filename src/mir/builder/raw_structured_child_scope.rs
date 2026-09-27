@@ -453,6 +453,18 @@ where
     ) -> Result<(), String> {
         self.child.complete_ordinary_new_expression(class, value)
     }
+
+    fn named_array_field_provider_recording(
+        &mut self,
+    ) -> Result<
+        Option<(
+            crate::mir::resolved_semantics::SourceExprSiteV1,
+            hakorune_mir_defs::CanonicalFieldRefV1,
+        )>,
+        String,
+    > {
+        self.child.named_array_field_provider_recording()
+    }
     fn try_take_ordinary_new_claim(
         &mut self,
         class: &str,

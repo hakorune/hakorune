@@ -479,6 +479,19 @@ Text parameter, MutatesShape and NoValue. This is conditional on the move-only
 Named Array requirement; it grants no physical provider or backend authority.
 The String target schema and existing S6C consumers remain unchanged.
 
+`named_array_residence.rs` adds the `FieldResidence` arm of
+`NamedArrayRequirementV1` plus the `ArrayIntegerAppend` schema: a `me.<field>`
+residence proven by a `me.<field> = new ArrayBox()` birth-side provider store,
+a canonical `CanonicalFieldRefV1`, the provider caller key, and the bounded I64
+argument site. Claim detection reads only resolver rows (initializer relation,
+field-access body shape, receiver binding kind); the provider join reads only
+the owning `birth` ledger's `FieldWrite`/`construction_source` evidence.
+Rejection is typed `NamedArrayFieldResidenceIssueV1` — foreign call, weak
+residence, foreign field owner, reassigned receiver, value demand, argument
+shape, missing integer source, missing/malformed provider. It mints no Recipe
+key or physical ID; the package seals caller and provider identities, and the
+physical marker resolves them at module level.
+
 ## Loop CoreMethod/Home target I0
 
 `core_method_instance_target.rs` is the separate manifest-backed issuer for

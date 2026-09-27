@@ -83,6 +83,7 @@ fn fixture() -> Fixture {
             .named_array_requirement()
             .expect("ArrayPush construction")
             .construction()
+            .expect("construction family")
             .clone();
         let mut state =
             CallableSemanticLoweringState::from_exact_source_with_dynamic_source_and_core_methods(

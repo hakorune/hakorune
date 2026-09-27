@@ -56,6 +56,7 @@ pub(crate) enum SourceBoundCoreMethodTargetIssueV1 {
     CatalogCollision(SourceExprSiteV1),
     ForeignCaller(CanonicalSameModuleCallableKeyV1),
     NamedArray(crate::mir::resolved_semantics::NamedArrayRequirementIssueV1),
+    NamedArrayResidence(crate::mir::resolved_semantics::NamedArrayFieldResidenceIssueV1),
 }
 
 /// Issue all loop-local StringBox CoreMethod contracts for one resolver owner.

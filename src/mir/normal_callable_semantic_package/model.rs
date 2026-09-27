@@ -202,6 +202,11 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
         crate::mir::builder::SelectedNormalCallableKeyV1,
         BTreeMap<crate::mir::resolved_semantics::SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
     >,
+    /// Birth-side `me.<field> = new ArrayBox()` provider bindings issued with
+    /// field-resident named-array requirements. Keyed by the owning `birth`
+    /// source identity; the lowering state consumes each site exactly once.
+    pub(super) named_array_field_providers:
+        super::core_method_source::NamedArrayFieldProviderTableV1,
     pub(super) app_main_qualified_receiver_catalog:
         Option<VerifiedQualifiedReceiverCatalogRelationV1>,
 }

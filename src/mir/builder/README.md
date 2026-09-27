@@ -679,6 +679,14 @@ verification and lowering, then the ledger finish rejects residual rows.
 
 `named_array_source_reaches_retained_typed_write_and_c_frame` covers literal,
 substring, and two-push source rows with optimization both off and on.
+`field_resident_array_i64_push_reaches_retained_typed_writes` covers four
+field-resident `ArrayBox.push(i64)` writes — `local a = me.<field>; a.push(int)`
+with the `me.<field> = new ArrayBox()` provider inside `birth` — through the
+same retained-write marker plus the birth-side provider `NewBox` binding
+recorded in `metadata.named_array_field_allocations`, on the MIR-JSON document
+lane with both optimizations. `field_resident_push_rejects_near_miss_family`
+pins typed `NamedArrayResidence` rejections for provider-missing, weak,
+foreign-owner, reassigned-alias, value-demand, and shadow-construction shapes.
 `named_array_value_demand_rejects_before_published_consumer`,
 `source_carrier_projection_rejects_missing_physical_label`, and the existing
 foreign-owner adapter test cover the bounded fail-fast edges. This B2 row proves

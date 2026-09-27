@@ -110,6 +110,20 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
         class: &str,
         value: crate::mir::ValueId,
     ) -> Result<(), String>;
+
+    /// `Some((site, field))` when the `new` site just completed is a claimed
+    /// birth-side provider for a field-resident named-array requirement.
+    /// Unscoped compatibility facades return `None` because they never carry
+    /// a callable-ledger provider claim.
+    fn named_array_field_provider_recording(
+        &mut self,
+    ) -> Result<
+        Option<(
+            crate::mir::resolved_semantics::SourceExprSiteV1,
+            hakorune_mir_defs::CanonicalFieldRefV1,
+        )>,
+        String,
+    >;
 }
 
 impl RawOrdinaryNewClaimPortV1 for super::RawLegacyChildLoweringPortV1 {
@@ -119,6 +133,17 @@ impl RawOrdinaryNewClaimPortV1 for super::RawLegacyChildLoweringPortV1 {
         _value: crate::mir::ValueId,
     ) -> Result<(), String> {
         Ok(())
+    }
+    fn named_array_field_provider_recording(
+        &mut self,
+    ) -> Result<
+        Option<(
+            crate::mir::resolved_semantics::SourceExprSiteV1,
+            hakorune_mir_defs::CanonicalFieldRefV1,
+        )>,
+        String,
+    > {
+        Ok(None)
     }
     fn try_take_ordinary_new_claim(
         &mut self,
@@ -547,6 +572,29 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             value,
         )
     }
+
+    fn named_array_field_provider_recording(
+        &mut self,
+    ) -> Result<
+        Option<(
+            crate::mir::resolved_semantics::SourceExprSiteV1,
+            hakorune_mir_defs::CanonicalFieldRefV1,
+        )>,
+        String,
+    > {
+        let Some(site) = self.current_source_site_v1() else {
+            return Ok(None);
+        };
+        let Some(ledger) = self.callable_ledger.as_ref() else {
+            return Ok(None);
+        };
+        let site = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site);
+        Ok(ledger
+            .borrow()
+            .named_array_field_provider(&site)
+            .map(|field| (site, field)))
+    }
+
     fn try_take_ordinary_new_claim(
         &mut self,
         class: &str,

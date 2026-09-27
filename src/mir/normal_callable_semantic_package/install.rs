@@ -138,6 +138,8 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
             >,
         >,
     >,
+    named_array_field_providers:
+        RefCell<super::core_method_source::NamedArrayFieldProviderTableV1>,
     app_main_qualified_receiver_catalog:
         RefCell<Option<super::model::VerifiedQualifiedReceiverCatalogRelationV1>>,
     app_main_qualified_receiver_catalog_taken: Cell<bool>,
@@ -459,6 +461,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             loop_break_source,
             declared_instance_call_locators,
             source_core_method_calls,
+            named_array_field_providers,
             app_main_qualified_receiver_catalog,
         } = self.package;
         match root_execution {
@@ -493,6 +496,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             loop_break_source: RefCell::new(loop_break_source),
             named_array_emissions,
             source_core_method_calls: RefCell::new(source_core_method_calls),
+            named_array_field_providers: RefCell::new(named_array_field_providers),
             app_main_qualified_receiver_catalog: RefCell::new(app_main_qualified_receiver_catalog),
             app_main_qualified_receiver_catalog_taken: Cell::new(false),
         }
@@ -517,6 +521,26 @@ impl InstalledNormalCallableSemanticPackageV1 {
         crate::mir::normal_callable_semantic_package::SelectedSourceCoreMethodCallV1,
     > {
         self.source_core_method_calls
+            .borrow_mut()
+            .remove(key)
+            .unwrap_or_default()
+    }
+
+    /// Exactly-once loan of the birth-side `me.<field> = new ArrayBox()`
+    /// provider sites claimed by field-resident named-array requirements.
+    /// A constructor without claimed providers gets an empty map; a second
+    /// take for the same `birth` returns the already-claimed remainder.
+    pub(crate) fn take_named_array_field_providers(
+        &self,
+        source_id: &crate::parser::ConstructorSourceIdV1,
+    ) -> std::collections::BTreeMap<
+        crate::mir::resolved_semantics::SourceExprSiteV1,
+        hakorune_mir_defs::CanonicalFieldRefV1,
+    > {
+        let Some(key) = self.instance_constructors.published_birth_key(source_id) else {
+            return Default::default();
+        };
+        self.named_array_field_providers
             .borrow_mut()
             .remove(key)
             .unwrap_or_default()

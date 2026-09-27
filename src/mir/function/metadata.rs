@@ -671,6 +671,13 @@ pub struct FunctionMetadata {
     /// Detection only: source authority remains in the finalized artifact handoff.
     pub(crate) named_array_write_obligations:
         Vec<crate::mir::named_array_obligation::NamedArrayWriteMarkerV1>,
+    /// Birth-side `me.<field> = new ArrayBox()` provider recordings keyed by
+    /// the exact assignment value site. The provider function carries them;
+    /// a field-resident write obligation claims each entry exactly once.
+    pub(crate) named_array_field_allocations: std::collections::BTreeMap<
+        crate::mir::resolved_semantics::SourceExprSiteV1,
+        crate::mir::ValueId,
+    >,
     pub typed_array_contract_sources: Vec<TypedArrayContractSource>,
     pub typed_array_element_contracts: Vec<TypedArrayElementContract>,
 

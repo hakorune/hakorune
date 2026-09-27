@@ -8,7 +8,7 @@ fn fixture() -> (MirFunction, NamedArrayWriteMarkerV1) {
             .unwrap()
             .issue()
             .unwrap(),
-        allocation: ValueId::new(1),
+        allocation: NamedArrayAllocationRefV1::LocalValue(ValueId::new(1)),
         receiver: ValueId::new(1),
         argument: ValueId::new(2),
         write: ArrayWriteSiteId(0),
@@ -24,7 +24,7 @@ fn fixture() -> (MirFunction, NamedArrayWriteMarkerV1) {
     );
     let block = function.blocks.get_mut(&function.entry_block).unwrap();
     block.instructions.push(MirInstruction::NewBox {
-        dst: marker.allocation,
+        dst: ValueId::new(1),
         target: ConstructionTarget::Named("ArrayBox".into()),
         args: vec![],
     });
@@ -43,7 +43,12 @@ fn fixture() -> (MirFunction, NamedArrayWriteMarkerV1) {
 #[test]
 fn allocation_and_write_drift_cannot_match_retained_observation() {
     let (function, marker) = fixture();
-    validate_physical_marker(&function, &marker).unwrap();
+    let module_of = |function: &MirFunction| {
+        let mut module = MirModule::new("probe".into());
+        module.functions.insert("probe".into(), function.clone());
+        module
+    };
+    validate_physical_marker(&module_of(&function), &function, &marker).unwrap();
     for mutation in 0..7 {
         let mut changed = function.clone();
         let instructions = &mut changed
@@ -82,7 +87,7 @@ fn allocation_and_write_drift_cannot_match_retained_observation() {
             _ => unreachable!(),
         }
         assert!(
-            validate_physical_marker(&changed, &marker).is_err(),
+            validate_physical_marker(&module_of(&changed), &changed, &marker).is_err(),
             "mutation {mutation}"
         );
     }

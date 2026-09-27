@@ -19,6 +19,21 @@ by the production package: finalized artifact retention and backend discharge
 must land first. Existing lowering-state installation rejects such rows before
 Builder effects rather than allowing legacy dispatch to lose the obligation.
 
+The same issuer also issues the `ArrayIntegerAppend` schema for a field-resident
+receiver: `local a = me.<field>; a.push(i64)` where `<field>` is a declared
+`ArrayBox` field of the calling Box whose `birth` stores exactly one bare
+`new ArrayBox()`. The residence claim detects the alias initializer's field
+read; the package resolves the canonical field reference and joins the owning
+`birth` ledger for the provider `new` site before sealing
+`NamedArrayFieldResidenceRequirementV1`. A declared field type must be exactly
+`ArrayBox`; an untyped `init` field is admitted only when the provider proves
+the bare `new ArrayBox()` store. Integer argument meaning is a bounded
+resolver-row predicate (integer literal, integer-initialized binding with
+integer-producing rebinds, integer arithmetic/unary minus, or a same-owner
+`I64ToCaller` contract result). Every near-miss — weak field, foreign owner,
+missing/ambiguous provider, reassigned alias, value-position call, non-integer
+argument — rejects as a typed `NamedArrayFieldResidenceIssueV1`.
+
 ## S6C source-bound CoreMethod relation I0
 
 `VerifiedSourceBoundS6CCallRelationV1` is the fixed, non-Clone relation for

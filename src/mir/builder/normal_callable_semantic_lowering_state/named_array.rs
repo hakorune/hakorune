@@ -10,6 +10,32 @@ impl CallableSemanticLoweringState {
         }
         Ok(())
     }
+
+    /// Installs the birth-side provider table claimed by field-resident
+    /// named-array requirements. Installed sites must all be consumed by
+    /// exactly one physical `new` each before `finish`.
+    pub(in crate::mir::builder) fn install_named_array_field_providers(
+        &mut self,
+        providers: BTreeMap<
+            crate::mir::resolved_semantics::SourceExprSiteV1,
+            hakorune_mir_defs::CanonicalFieldRefV1,
+        >,
+    ) -> Result<(), String> {
+        if !self.named_array_field_providers.is_empty() {
+            return Err(freeze("duplicate-field-provider-install"));
+        }
+        self.named_array_field_providers = providers;
+        Ok(())
+    }
+
+    /// `Some(field)` when the exact `new` site is a claimed birth-side
+    /// provider for a field-resident named-array requirement.
+    pub(in crate::mir::builder) fn named_array_field_provider(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<hakorune_mir_defs::CanonicalFieldRefV1> {
+        self.named_array_field_providers.get(site).copied()
+    }
     pub(in crate::mir::builder) fn finish_with_named_arrays(
         self,
     ) -> Result<
@@ -40,6 +66,8 @@ impl CallableSemanticLoweringState {
             || self.consumed_brand_constructors.len() != self.brand_constructors.constructor_count()
             || !self.source_core_method_calls.is_empty()
             || !self.source_static_result_publications.is_empty()
+            || self.named_array_field_providers.len()
+                != self.named_array_field_allocations.len()
         {
             return Err(format!(
                 "{} owner={:?} entry={} locals={}/{} variables={}/{} missing_variables={:?} assignments={}/{} lambdas={}/{} loop_break_transport_kind={:?}",
@@ -70,7 +98,7 @@ impl CallableSemanticLoweringState {
         self.source_core_method_calls.values().any(|row| {
             row.contract()
                 .named_array_requirement()
-                .is_some_and(|requirement| requirement.construction() == site)
+                .is_some_and(|requirement| requirement.construction() == Some(site))
         })
     }
 
@@ -81,6 +109,11 @@ impl CallableSemanticLoweringState {
     ) -> Result<(), String> {
         for row in self.source_core_method_calls.values_mut() {
             row.record_named_allocation(self.owner, site, destination)?;
+        }
+        if self.named_array_field_providers.contains_key(site)
+            && !self.named_array_field_allocations.insert(site.clone())
+        {
+            return Err(freeze("duplicate-field-provider-allocation"));
         }
         Ok(())
     }

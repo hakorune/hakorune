@@ -430,7 +430,7 @@ mod tests {
                     .unwrap()
                     .issue()
                     .unwrap(),
-                allocation: ValueId::new(1),
+                allocation: crate::mir::named_array_obligation::NamedArrayAllocationRefV1::LocalValue(ValueId::new(1)),
                 receiver: ValueId::new(1),
                 argument: ValueId::new(2),
                 write: ArrayWriteSiteId(0),

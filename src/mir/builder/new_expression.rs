@@ -216,6 +216,25 @@ impl MirBuilder {
         self.build_box_field_initializers_with_port_v1(port, dst, &class, field_initializers)?;
         if ordinary {
             port.complete_ordinary_new_expression(&class, dst)?;
+            if let Some((site, _field)) = port.named_array_field_provider_recording()? {
+                let function = self
+                    .function_state
+                    .current_function
+                    .as_mut()
+                    .ok_or_else(|| {
+                        "[freeze:contract][named-array/provider-function-missing]".to_owned()
+                    })?;
+                if function
+                    .metadata
+                    .named_array_field_allocations
+                    .insert(site, dst)
+                    .is_some()
+                {
+                    return Err(
+                        "[freeze:contract][named-array/provider-allocation-duplicate]".to_owned(),
+                    );
+                }
+            }
         }
         Ok(dst)
     }

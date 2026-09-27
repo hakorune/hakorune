@@ -461,13 +461,18 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         .map_err(|error| NormalCallableSemanticPackageIssueV1::LoopBreakSource { _error: error })?;
     let selected = issue_selected_callable_batch_map_v1(&catalog, &batch)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::SelectedMapping { _error: error })?;
-    let source_core_method_calls = match brand_catalog {
-        Some(brands) => {
-            issue_source_core_method_calls_with_named_arrays_v1(&catalog, &batch, &selected, brands)
-        }
+    let (source_core_method_calls, named_array_field_providers) = match brand_catalog {
+        Some(brands) => issue_source_core_method_calls_with_named_arrays_v1(
+            &catalog,
+            &batch,
+            &selected,
+            brands,
+            &instance_constructors,
+        ),
         // Without the declaration authority, this entry cannot issue a
         // conditional Named receiver contract. Production supplies the catalog.
-        None => issue_source_core_method_calls_v1(&catalog, &batch, &selected),
+        None => issue_source_core_method_calls_v1(&catalog, &batch, &selected)
+            .map(|calls| (calls, Default::default())),
     }
     .map_err(|error| NormalCallableSemanticPackageIssueV1::CoreMethodSource { _error: error })?;
     validate_cataloged_source_co_seal_v1(&catalog, &batch, &selected)
@@ -737,6 +742,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         dynamic_physical_header,
         loop_break_source,
         source_core_method_calls,
+        named_array_field_providers,
         app_main_qualified_receiver_catalog: None,
     })
 }

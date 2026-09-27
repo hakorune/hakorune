@@ -33,4 +33,16 @@ impl NormalCallableSemanticPackagePortV1<'_> {
                 format!("[freeze:contract][mir/instance-constructor-semantic/source] {error:?}")
             })?
     }
+
+    /// Exactly-once loan of the field-resident named-array provider sites
+    /// claimed against this constructor's `me.<field> = new ArrayBox()`.
+    pub(crate) fn take_named_array_field_providers(
+        &self,
+        source_id: &ConstructorSourceIdV1,
+    ) -> std::collections::BTreeMap<
+        crate::mir::resolved_semantics::SourceExprSiteV1,
+        hakorune_mir_defs::CanonicalFieldRefV1,
+    > {
+        self.installed.take_named_array_field_providers(source_id)
+    }
 }

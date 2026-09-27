@@ -2,6 +2,7 @@
 //! No target-name classification, source admission, or execution-coverage proof.
 use super::c_transport_v2::ProjectionAction;
 use super::map_body_index::{MapBodyIndex, Producer, Site, ValueKey};
+use crate::mir::named_array_obligation::NamedArrayAllocationRefV1;
 use crate::mir::{ConstructionTarget, MirInstruction, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -34,7 +35,34 @@ impl<'m> MapBodyIndex<'m> {
         crate::mir::normal_callable_semantic_package::validate_named_array_coverage(module, rows)?;
         for row in rows {
             let function = row.validate(module)?;
-            let key = (function, row.marker().allocation);
+            let key = match &row.marker().allocation {
+                NamedArrayAllocationRefV1::LocalValue(allocation) => (function, *allocation),
+                NamedArrayAllocationRefV1::FieldResidence {
+                    provider_caller,
+                    provider_site,
+                    ..
+                } => {
+                    let provider_symbol = module
+                        .canonical_callable_definition_symbol(provider_caller)
+                        .ok_or_else(|| {
+                            "[freeze:contract][named-array/provider-symbol-missing]".to_owned()
+                        })?;
+                    let allocation = module
+                        .functions
+                        .get(provider_symbol)
+                        .and_then(|provider| {
+                            provider
+                                .metadata
+                                .named_array_field_allocations
+                                .get(provider_site)
+                        })
+                        .ok_or_else(|| {
+                            "[freeze:contract][named-array/provider-allocation-missing]"
+                                .to_owned()
+                        })?;
+                    (provider_symbol, *allocation)
+                }
+            };
             let Producer::Instruction {
                 site,
                 instruction:
