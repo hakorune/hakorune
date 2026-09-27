@@ -14,7 +14,11 @@ pub(crate) struct SelectedTopLevelFunctionKeyV1 {
 }
 
 impl SelectedTopLevelFunctionKeyV1 {
-    pub(super) fn new(statement_index: usize, declared_name: &str, declared_arity: usize) -> Self {
+    pub(in crate::mir::builder) fn new(
+        statement_index: usize,
+        declared_name: &str,
+        declared_arity: usize,
+    ) -> Self {
         Self {
             statement_index,
             declared_name: declared_name.into(),
@@ -163,7 +167,10 @@ mod tests {
             .expect("selected callable catalog");
         let inventory = catalog.selected_source_inventory();
 
-        assert_eq!(catalog.len(), 2);
+        assert_eq!(catalog.len(), 3);
+        assert!(catalog
+            .declaration(&CanonicalSameModuleCallableKeyV1::free_function("helper", 1))
+            .is_some());
         assert_eq!(inventory.len(), 3);
         let top_level = inventory.top_level_function(0).expect("top-level row");
         assert_eq!(top_level.declared_name(), "helper");

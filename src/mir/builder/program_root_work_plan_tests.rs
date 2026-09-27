@@ -200,20 +200,14 @@ fn selected_top_level_functions_reject_duplicate_physical_projection() {
         statements: vec![function("same"), function("same")],
         span: Span::unknown(),
     };
-    let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root)
-        .expect("selected callable catalog");
-    let ASTNode::Program { statements, .. } = root else {
-        unreachable!()
-    };
-    let error = super::validate_selected_normal_top_level_projections(
-        &statements,
-        catalog.selected_source_inventory(),
-    )
-    .expect_err("same-name/same-arity selected functions must reject");
-    assert!(error.contains("duplicate-physical-projection"));
-    assert!(error.contains("symbol=same/0"));
-    assert!(error.contains("first_statement=0"));
-    assert!(error.contains("second_statement=1"));
+    // The canonical catalog owns the earlier rejection: two top-level
+    // declarations projecting to one `free_function` key collide at seal.
+    assert_eq!(
+        VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root).unwrap_err(),
+        crate::mir::builder::callable_declaration_catalog::SameModuleCallableDeclarationCatalogErrorV1::DuplicateCanonicalKey(
+            crate::mir::builder::callable_declaration_catalog::CanonicalSameModuleCallableKeyV1::free_function("same", 0)
+        )
+    );
 }
 
 #[test]

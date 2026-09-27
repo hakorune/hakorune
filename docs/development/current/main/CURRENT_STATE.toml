@@ -1,10 +1,10 @@
 date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-STATIC-RESULT-CALLER-COVERAGE-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-GATE1-STATIC-RESULT-CALLER-COVERAGE-S1"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Gate1StaticResultCallerCoverageD0__BirthConstructorFreeFunctionInventoryOpen"
-current_design_stop = "S0 landed the Main lineage arm (sealed catalog probe -> decl.key()); the observed boxtorrent terminal is InstanceConstructor-rooted (HakoAllocHeap field-initializer LayoutBox.class_* calls) — design whether/how BirthConstructor and FreeFunction callers enter the declaration catalog, observe_all_calls caller inventory, and result catalog so InstanceConstructor/TopLevel lineage admission becomes truthful, before any admission change"
+current_blocker_token = "Gate1StaticResultCallerCoverageS1__BirthConstructorCatalogCoSealOpen"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,26 +13,27 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-static-result-ingress-lineage-d0-2026-09-27.md"
-latest_card = "mirbuilder-gate1-static-result-ingress-lineage-s0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-result-ingress-lineage-s0-2026-09-27.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-static-result-caller-coverage-d0-2026-09-27.md"
+latest_card = "mirbuilder-gate1-static-result-caller-coverage-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-result-caller-coverage-s0-2026-09-27.md"
 latest_card_summary = """
-Static-result ingress lineage S0 landed: located `Main(locator)` +
-ledger verifies its caller through the sealed declaration probe
-`declaration_for(StaticBoxMethod, box, method, arity)` and takes with
-`decl.key()` — never the locator symbol. Absent catalog ->
-`DeclarationCatalogUnavailable`; unresolved probe -> `ForeignLineage`;
-ledger-less -> `Unavailable` (production-inert arm, rule-complete).
-Pins 11/11; member_route/me consumers unchanged; reusable guard
-repaired for the landed TargetOnly bridge consumption. The observed
-boxtorrent terminal is `InstanceConstructor`-rooted — next design row
-`MIRBUILDER-GATE1-STATIC-RESULT-CALLER-COVERAGE-D0` owns
-`BirthConstructor`/`FreeFunction` caller-inventory coverage.
+Caller-coverage D0 accepted + S0 landed: FreeFunction callers are
+already minted on the production catalog; `seal_statements` parity
+now mints `free_function` rows (same validate/duplicate discipline),
+and `TopLevel(key)` admits via `catalog.declaration(&free_function)`
+membership + `declaration_for(StaticBoxMethod,…)` target probe —
+membership failure -> `ForeignLineage`, unresolved target ->
+`Unavailable`, absent catalog -> `DeclarationCatalogUnavailable`.
+Ingress pins 16/16, catalog 22/22, work-plan dup rejection moved to
+the earlier seal boundary (validator kept as defense-in-depth; d1b
+guard ok). Remaining foreign: InstanceConstructor (S1 atomic
+co-seal+arm — owns the observed boxtorrent terminal),
+NestedBoxMethod, ScriptRoot.
 """
-next_design_card = "MIRBUILDER-GATE1-STATIC-RESULT-CALLER-COVERAGE-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-result-ingress-lineage-s0-2026-09-27.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-GATE1-STATIC-RESULT-CALLER-COVERAGE-S1"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-result-caller-coverage-s1-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -47,7 +48,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-27: MIRBUILDER-GATE1-STATIC-RESULT-CALLER-COVERAGE-D0+S0 landed — FreeFunction parity (seal_statements mints free_function rows) + TopLevel arm (caller-membership + StaticBoxMethod target probe); ingress 16/16, catalog 22/22, dup rejection moved to seal boundary (d1b guard ok); S1 = BirthConstructor co-seal+arm atomic (observed boxtorrent terminal).",
   "2026-09-27: MIRBUILDER-GATE1-STATIC-RESULT-INGRESS-LINEAGE-S0 landed — Main(locator) admits via sealed declaration probe decl.key() (no symbol reconstruction); absent catalog -> DeclarationCatalogUnavailable, unresolved probe -> ForeignLineage; pins 11/11; ingress guard repaired for landed TargetOnly bridge; caller-coverage D0 selected next (observed terminal is InstanceConstructor-rooted).",
   "2026-09-27: MIRBUILDER-GATE1-STATIC-RESULT-INGRESS-LINEAGE-D0 decision accepted — admission = verified canonical caller + inventoried caller; Main(locator) admits via sealed catalog probe decl.key(); InstanceConstructor/TopLevel stay foreign pending caller-coverage family (observed boxtorrent terminal is InstanceConstructor-rooted); NestedBoxMethod/ScriptRoot stay foreign; bounded S0 emitted.",
-  "2026-09-27: MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S2 landed — cutover/retirement disposition pinned: claimed loop pushes typed-reject on unretained plain lane, straight-line sites stay generic with zero obligations; membership delete-set empty, armed-lane cutover complete; focused 10/10 + named_array 31/31; next observed terminal static-result-ingress foreign-lineage selected as D0 design.",
 ]

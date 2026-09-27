@@ -335,7 +335,13 @@ fn excludes_non_catalog_callable_surfaces() {
         sync,
     ]);
     let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&source).unwrap();
-    assert!(catalog.is_empty());
+    // Parity with the source-backed issuer: the top-level function mints a
+    // canonical FreeFunction row, while constructor/record/sync surfaces and
+    // static members of instance boxes stay outside the catalog.
+    assert_eq!(catalog.len(), 1);
+    assert!(catalog
+        .declaration(&CanonicalSameModuleCallableKeyV1::free_function("top_level", 0))
+        .is_some());
 }
 
 #[test]

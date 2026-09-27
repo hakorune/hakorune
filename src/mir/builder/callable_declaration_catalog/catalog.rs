@@ -113,13 +113,45 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                         },
                     );
                 }
-                if let ASTNode::FunctionDeclaration { name, params, .. } = statement {
+                if let ASTNode::FunctionDeclaration {
+                    name,
+                    params,
+                    param_decls,
+                    return_type_name,
+                    body,
+                    uses,
+                    attrs,
+                    ..
+                } = statement
+                {
                     let key =
                         SelectedTopLevelFunctionKeyV1::new(statement_index, name, params.len());
                     selected_source_rows.push((
                         SelectedNormalCallableKeyV1::TopLevel(key),
                         SelectedNormalCallableSourceSiteV1::ProgramFunction { statement_index },
                     ));
+                    let arity = u32::try_from(params.len()).map_err(|_| {
+                        SameModuleCallableDeclarationCatalogErrorV1::ArityOverflow {
+                            owner: "<top-level>".to_string(),
+                            method: name.clone(),
+                        }
+                    })?;
+                    let key = CanonicalSameModuleCallableKeyV1::free_function(name, arity);
+                    validate_parameters(&key, params, param_decls)?;
+                    let row = VerifiedSameModuleCallableDeclarationV1 {
+                        key: key.clone(),
+                        params: params.clone().into_boxed_slice(),
+                        param_decls: param_decls.clone().into_boxed_slice(),
+                        return_type_name: return_type_name.clone().map(String::into_boxed_str),
+                        body: body.clone().into_boxed_slice(),
+                        uses: uses.clone().into_boxed_slice(),
+                        attrs: attrs.clone(),
+                    };
+                    if rows_by_key.insert(key.clone(), row).is_some() {
+                        return Err(
+                            SameModuleCallableDeclarationCatalogErrorV1::DuplicateCanonicalKey(key),
+                        );
+                    }
                     continue;
                 }
             }

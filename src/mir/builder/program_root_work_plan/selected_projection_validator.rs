@@ -80,7 +80,12 @@ mod tests {
         ASTNode::FunctionDeclaration {
             name: name.to_owned(),
             params: (0..arity).map(|index| format!("arg{index}")).collect(),
-            param_decls: Vec::new(),
+            param_decls: (0..arity)
+                .map(|index| crate::ast::ParamDecl {
+                    name: format!("arg{index}"),
+                    declared_type_name: None,
+                })
+                .collect(),
             return_type_name: None,
             body: Vec::new(),
             uses: Vec::new(),
@@ -116,19 +121,14 @@ mod tests {
             statements: vec![function("same", 0), function("same", 0)],
             span: Span::unknown(),
         };
-        let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root)
-            .expect("selected callable catalog");
-        let ASTNode::Program { statements, .. } = root else {
-            unreachable!()
-        };
-        let error = validate_selected_normal_top_level_projections(
-            &statements,
-            catalog.selected_source_inventory(),
-        )
-        .expect_err("duplicate selected projection");
-        assert!(error.contains("duplicate-physical-projection"));
-        assert!(error.contains("symbol=same/0"));
-        assert!(error.contains("first_statement=0"));
-        assert!(error.contains("second_statement=1"));
+        // The canonical catalog now owns the earlier rejection: two top-level
+        // declarations projecting to one `free_function` key collide at seal
+        // before the physical-projection validator can observe them.
+        assert_eq!(
+            VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root).unwrap_err(),
+            crate::mir::builder::callable_declaration_catalog::SameModuleCallableDeclarationCatalogErrorV1::DuplicateCanonicalKey(
+                crate::mir::builder::callable_declaration_catalog::CanonicalSameModuleCallableKeyV1::free_function("same", 0)
+            )
+        );
     }
 }

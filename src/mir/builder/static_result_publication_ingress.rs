@@ -110,7 +110,12 @@ pub(in crate::mir::builder) trait StaticResultPublicationIngressPortV1 {
     /// same way through its sealed locator: the probed
     /// (box_name, method_name, arity) must resolve to a same-module
     /// `StaticBoxMethod` declaration and the caller key comes from that
-    /// declaration, never from the locator symbol.
+    /// declaration, never from the locator symbol.  A located `TopLevel`
+    /// root projects its sealed occurrence key to `free_function(name,
+    /// arity)` and admits only when the catalog holds that declaration row
+    /// AND the probed (owner, method, argument_count) resolves to a
+    /// `StaticBoxMethod` declaration — the same caller-membership +
+    /// target-probe discipline.
     fn take_static_result_publication_ingress_v1(
         &mut self,
         declarations: Option<&VerifiedSameModuleCallableDeclarationCatalogV1>,
@@ -169,9 +174,46 @@ fn classify_source_context_v1(
             })
         }
         RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::TopLevel(key),
+            site,
+            ..
+        } => {
+            if !source_backed {
+                return Ok(StaticResultPublicationSourceClassV1::Unavailable);
+            }
+            let Some(declarations) = declarations else {
+                return Err(
+                    StaticResultPublicationIngressErrorV1::DeclarationCatalogUnavailable,
+                );
+            };
+            let Ok(arity) = u32::try_from(key.declared_arity()) else {
+                return Err(StaticResultPublicationIngressErrorV1::ForeignLineage);
+            };
+            let caller =
+                CanonicalSameModuleCallableKeyV1::free_function(key.declared_name(), arity);
+            let Some(declaration) = declarations.declaration(&caller) else {
+                return Err(StaticResultPublicationIngressErrorV1::ForeignLineage);
+            };
+            if declarations
+                .declaration_for(
+                    SameModuleCallableNamespaceV1::StaticBoxMethod,
+                    owner,
+                    method,
+                    argument_count,
+                )
+                .is_some()
+            {
+                Ok(StaticResultPublicationSourceClassV1::Cataloged {
+                    caller: declaration.key().clone(),
+                    site: SourceExprSiteV1::from_node(site.clone()),
+                })
+            } else {
+                Ok(StaticResultPublicationSourceClassV1::Unavailable)
+            }
+        }
+        RawInvocationSourceContextV1::Located {
             root:
                 RawInvocationRootLineageV1::ScriptRoot
-                | RawInvocationRootLineageV1::TopLevel(_)
                 | RawInvocationRootLineageV1::InstanceConstructor(_)
                 | RawInvocationRootLineageV1::NestedBoxMethod { .. },
             ..
@@ -563,6 +605,126 @@ mod tests {
                 .unwrap(),
             StaticResultPublicationSourceClassV1::Unavailable,
             "an unresolvable target stays outside this ingress rather than guessing"
+        );
+    }
+
+    fn top_level_declarations() -> VerifiedSameModuleCallableDeclarationCatalogV1 {
+        let root = crate::parser::NyashParser::parse_from_string(
+            "function helper() { return JsonLine.stringField(\"a\", \"b\") }\n\
+             static box JsonLine { stringField(a, b) { return \"x\" } }",
+        )
+        .expect("fixture program must parse");
+        VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root)
+            .expect("fixture declaration catalog must seal")
+    }
+
+    fn top_level_located(
+        name: &str,
+        arity: usize,
+    ) -> RawInvocationSourceContextV1 {
+        RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::TopLevel(
+                super::super::callable_declaration_catalog::SelectedTopLevelFunctionKeyV1::new(
+                    0, name, arity,
+                ),
+            ),
+            site: site(),
+            body_kind: None,
+        }
+    }
+
+    #[test]
+    fn top_level_lineage_admits_declared_caller_for_static_target() {
+        let declarations = top_level_declarations();
+        let located = top_level_located("helper", 0);
+
+        let class = classify_source_context_v1(
+            Some(&located),
+            true,
+            Some(&declarations),
+            "JsonLine",
+            "stringField",
+            2,
+        )
+        .unwrap();
+        let StaticResultPublicationSourceClassV1::Cataloged { caller, .. } = class else {
+            panic!("a declared TopLevel caller with a static target must classify Cataloged");
+        };
+        assert_eq!(
+            caller,
+            CanonicalSameModuleCallableKeyV1::free_function("helper", 0),
+            "the caller key must come from the sealed declaration row"
+        );
+    }
+
+    #[test]
+    fn top_level_lineage_requires_declaration_catalog() {
+        let located = top_level_located("helper", 0);
+        assert_eq!(
+            classify_source_context_v1(
+                Some(&located),
+                true,
+                None,
+                "JsonLine",
+                "stringField",
+                2,
+            ),
+            Err(StaticResultPublicationIngressErrorV1::DeclarationCatalogUnavailable),
+            "without the catalog the top-level caller cannot be verified"
+        );
+    }
+
+    #[test]
+    fn top_level_lineage_rejects_unrowed_caller() {
+        let declarations = top_level_declarations();
+        let located = top_level_located("ghost", 0);
+        assert_eq!(
+            classify_source_context_v1(
+                Some(&located),
+                true,
+                Some(&declarations),
+                "JsonLine",
+                "stringField",
+                2,
+            ),
+            Err(StaticResultPublicationIngressErrorV1::ForeignLineage),
+            "a top-level caller with no sealed declaration row stays foreign"
+        );
+    }
+
+    #[test]
+    fn top_level_lineage_declines_non_declaration_targets() {
+        let declarations = top_level_declarations();
+        let located = top_level_located("helper", 0);
+        assert_eq!(
+            classify_source_context_v1(
+                Some(&located),
+                true,
+                Some(&declarations),
+                "Math",
+                "floor",
+                1,
+            )
+            .unwrap(),
+            StaticResultPublicationSourceClassV1::Unavailable,
+            "a resolved caller still keeps non-declaration targets on sibling lanes"
+        );
+    }
+
+    #[test]
+    fn top_level_lineage_stays_unavailable_without_ledger() {
+        let located = top_level_located("helper", 0);
+        assert_eq!(
+            classify_source_context_v1(
+                Some(&located),
+                false,
+                None,
+                "JsonLine",
+                "stringField",
+                2,
+            )
+            .unwrap(),
+            StaticResultPublicationSourceClassV1::Unavailable
         );
     }
 }
