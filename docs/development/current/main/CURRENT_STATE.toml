@@ -1,9 +1,9 @@
 date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S0"
+current_execution_row = "MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S1"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Gate1FieldArrayI64PushS0__ResidenceContractLanded"
+current_blocker_token = "Gate1FieldArrayI64PushS1__ProviderStoreEligibilityOpen"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,29 +13,31 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-field-array-i64-push-d0-2026-09-27.md"
-latest_card = "mirbuilder-gate1-field-array-i64-push-s0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-field-array-i64-push-s0-2026-09-27.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-field-array-i64-push-d1-2026-09-27.md"
+latest_card = "mirbuilder-gate1-field-array-i64-push-d1"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-field-array-i64-push-d1-2026-09-27.md"
 latest_card_summary = """
-Field-array S0 landed: the field-resident residence contract +
-ArrayIntegerAppend schema is wired end-to-end — alias field-read
-claim -> canonical field declaration -> birth-ledger `new ArrayBox()`
-provider join -> `FieldResidence` allocation ref -> module-level
-physical validation + provider `NewBox` metadata binding. Focused
-positive (4 writes + 4 provider bindings, document lane, both
-optimizations) and the near-miss negative family are green; the
-27-pin named-array suite stays green. Observed terminal moved off
-`SourceCallOutsideSelectedFamily` on seedBlocks/0: document lane now
-ends at `static-result-ingress/foreign-lineage` (Main.main family),
-artifact lane at construction-store eligibility
-(`FieldContractUnsupported` for stored-field-initializer / non-i64
-field_decls) — the provider's physical home, next design row D1.
-Caller switch/retirement remain queued rows 3-4; Gates 2-4 parked.
+Field-array D1 decision accepted: provider construction stores are
+admitted inside the single construction-store owner — no second
+store lane, no ordinary-new eligibility change. `me.<field> = new
+<builtin>` becomes a coverage-only provider arm of
+ConstructionStoreRhsV1 (bare `new` of a builtin class, zero
+args/initializers, no user Birth row — the S0 provider predicate
+class); field-type gate becomes two-phase (i64 -> literal/parameter,
+<Class> -> provider of same named class, untyped -> provider
+supplies); `has_stored_field_initializer` stops being an
+unconditional reject since stores pass the same arm rules; provider
+fields carry the existing `Handle` home-demand mapping; the
+statement-surface take/emit routes the `new` through the existing
+ordinary-new port then emits the sole canonical `Invoke FieldSet`.
+Bounded S1 emitted; `init {}` fields, `new <UserBox>` providers,
+release-suffix work, caller switch, and the static-result-ingress
+family all stay outside.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-field-array-i64-push-s0-2026-09-27.md"
+next_execution_card = "MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S1"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-field-array-i64-push-s1-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -50,7 +52,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-27: MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-D1 decision accepted — provider construction stores admitted inside the single construction-store owner: coverage-only `new <builtin>` RHS arm + two-phase field-type/demand check + statement-surface port route into the sole canonical Invoke FieldSet; has_stored_field_initializer demoted to informational; `init {}`/user-box providers/release work out; bounded S1 emitted; no code, switch, or retirement.",
   "2026-09-27: MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S0 landed — field-resident Array/I64 push contract wired end-to-end: residence claim -> canonical field ref -> birth-ledger `new ArrayBox()` provider -> `FieldResidence` marker -> module-level provider validation; focused positive (4 writes + 4 provider bindings, document lane, both optimizations) and near-miss negatives green; seedBlocks `SourceCallOutsideSelectedFamily` closed, next terminals: construction-store provider-field eligibility (artifact lane) and static-result-ingress foreign-lineage (document lane); caller switch/retirement queued rows 3-4.",
   "2026-09-27: MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-D0 decision accepted — field-resident Array/I64 push owner design: residence contract + ArrayIntegerAppend schema + CanonicalFieldRefV1/provider-site physical correspondence through existing issuers; observed terminal SourceCallOutsideSelectedFamily on seedBlocks/0; S0 emitted as the bounded construction slice; no code, switch, or retirement.",
-  "2026-09-27: MIRBUILDER-REVIEW-MERGE-READINESS-R0 landed — BoxShape review remediation: three 800-line violations split and all nine files guard-registered; default-stack SIGABRT surface removed via shared 32 MiB test-thread wraps (new S8 pins + pre-existing raw/source-backed pins), full --lib suite abort-free under default env; red baseline receipt re-recorded at 7981/127/56 inventory 8164, verifier green; BindingAssignmentTarget rows unified behind one draft helper; Gate-1 stays externally blocked.",
 ]
