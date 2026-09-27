@@ -62,6 +62,7 @@ fn resolve_qmark_propagation<'ast, 'schema>(
         });
     };
     resolver.record_expression_site(path.expr());
+    resolver.record_expression_shape(statement, path.expr());
     resolver.admit_qmark_propagation(path.expr())?;
     resolver.resolve_expr(
         expression,
@@ -87,6 +88,7 @@ fn resolve_match_control<'ast, 'schema>(
         });
     };
     resolver.record_expression_site(path.expr());
+    resolver.record_expression_shape(statement, path.expr());
     resolver.admit_match_control(path.expr())?;
     resolver.resolve_expr(
         scrutinee,

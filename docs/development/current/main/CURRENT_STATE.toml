@@ -1,10 +1,10 @@
 date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-LIFECYCLE-BASELINE-CONTRACT-PIN-RESYNC-S11"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-SCRIPT-CONTROL-SHAPE-DRAFT-COVERAGE-S12"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "LifecyclePinResyncS11-Landed__Gate1ExternallyBlocked"
-current_design_stop = "armed-route lifecycle module is fully green (51/51) after S11; the S9-S11 stale-pin queue is drained and Gate-1 `real-apps-exe-boundary` remains externally blocked per D21 — every residual red is owned by a sealed lineage or the confirmed opt toolchain debt; Gates 2-4 are parked and reopen only through explicit selection"
+current_blocker_token = "ControlShapeDraftCoverageS12__AdjacentModulePinResyncS13"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,30 +14,31 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-lifecycle-baseline-contract-pin-resync-s11"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-lifecycle-baseline-contract-pin-resync-s11-2026-09-27.md"
+latest_card = "mirbuilder-script-control-shape-draft-coverage-s12"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-script-control-shape-draft-coverage-s12-2026-09-27.md"
 latest_card_summary = """
-S11 landed (test-only contract-pin resync): the six stale
-lifecycle-module pins censused in the S10 card now assert the
-honest terminals the landed contracts produce —
-`route-not-front-selected`/`SourceItemsMissing` for call-free
-loop bodies, `i2s/1` literal-receiver fronting in the merged
-parser, `raw-compat/runtime-box-fate-retired/static` for both
-Compatibility-root static-box fixtures, `Invoke{operation:Call}`
-wiring for lifecycle-bearing direct calls (module route honestly
-`UnsupportedBeforeObject`, zero corridor rows), and stage
-`RootExpansion` + `[mir/normal-root/consume]` + retained
-`RootExecution` owner for the selected-gate rejection. Lifecycle
-module 51/51 green; no production file touched; no assertion
-weakened beyond landed-contract output. Armed-route pin queue
-drained; Gate-1 suite stays externally blocked per D21; Gates
-2-4 parked pending explicit selection. NOTE: EXE/VM smokes need
+S12 landed (one production edge): script-root dispatch for the
+admitted MatchControl / QMarkPropagation statements now records
+the matching draft expression-shape row (`Other { kind }`
+catch-all) next to the resolver site inventory, closing the
+coverage gap `73db0233d7` left when it began recording the
+statement-level expression site. The `seal_shadow_body_shape`
+draft-vs-inventory invariant is unchanged — the fix is in the
+producer, not the check. match_tests + qmark_tests 5/5 green;
+nested-Match deferral and qmark failure pins unchanged.
+Adjacent residual reds were censused and split: one sibling
+live gap (`Me` seal arm lacks the designed `Upvar` receiver
+ref, efbc22b14b) routes to S13; the remaining stale pins
+(Program vocabulary, IfThen ancestry fixture, ~20
+builder-module pins) route to the S14 repin batch. Gate-1
+suite stays externally blocked per D21; Gates 2-4 parked
+pending explicit selection. NOTE: EXE/VM smokes need
 `NYASH_BIN=target/debug/hakorune`.
 """
-next_design_card = "MIRBUILDER-LIFECYCLE-BASELINE-CONTRACT-PIN-RESYNC-S11"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-lifecycle-baseline-contract-pin-resync-s11-2026-09-27.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-SCRIPT-CONTROL-SHAPE-DRAFT-COVERAGE-S12"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-script-control-shape-draft-coverage-s12-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -52,7 +53,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-27: SCRIPT-CONTROL-SHAPE-DRAFT-COVERAGE-S12 landed — script-root dispatch now records the draft expression-shape row for admitted Match/QMark statement sites, closing the 73db0233d7 coverage gap in the producer (seal invariant untouched); match/qmark 5/5 green; sibling Me-Upvar seal gap routed to S13, stale pins routed to S14.",
   "2026-09-27: LIFECYCLE-BASELINE-CONTRACT-PIN-RESYNC-S11 landed — six stale lifecycle-module pins resynced to honest landed-contract terminals (SourceItemsMissing route-not-front, i2s/1 literal-receiver fronting, raw-compat retired freeze ×2, Invoke-Call wiring + UnsupportedBeforeObject route, RootExpansion + normal-root/consume + retained owner); lifecycle module 51/51 green; test-only diff; armed-route pin queue drained; Gate-1 stays externally blocked.",
   "2026-09-27: NO-EXIT-ACCUM-FAMILY-DISJOINT-S10 landed — loop_cond_no_exit extractor defers the exact accumulator-over-induction recurrence family to the callable-seam VAR lane, restoring designed disjointness broken by a852d2a1bb; VariableAccumRecurrenceOverlap freeze resolved; extractor 13/13, variable_accum 2/2, route/facts 23/23 green.",
-  "2026-09-27: STALE-CONTRACT-PIN-RESYNC-S9 landed — test-only resync of two armed-route contract pins (if-nested unarmed fixtures moved to fastmem ancestor; static-result-ingress pin moved target-unavailable → no-exact-static-target); bridge 5/5 green; 8 lifecycle-module residual reds verified baseline-identical on parent HEAD and queued as their own disposition census.",
 ]
