@@ -793,9 +793,21 @@ multiplication, per-shape grammar negatives, hidden-call pin) and
 `normal_callable_loop_source_route_call_free_tests` (route-level coverage
 pins). Production evidence: the original corpus `SizeClassBox.bin_size/1`
 (`lang/src/hako_alloc/memory/size_class_box.hako`) compiles and emits its
-10-block MIR with loop-carrier PHIs; the `apps/mimalloc-lite` entry now
-reaches `ordinary-new/local-commit/artifact-source-unavailable`, a different
-family's named terminal. The reusable structural gate lives in
+10-block MIR with loop-carrier PHIs; the `apps/mimalloc-lite` entry then
+reached `ordinary-new/local-commit/artifact-source-unavailable`. That
+terminal is `Main.main`'s root-instance-call disposition for
+`return workload.run()`: `issue_root_instance_call_dispositions`
+(`ordinary_new_root_instance_call.rs`) owes a Ready row only when the
+callee carries a sealed declared result contract, and `MiWorkload.run`
+was unannotated (`completion_seed.rs` maps `Unannotated` to
+`result = None`). Declaring `run(): i64` completes the source contract —
+the same authority as `sum(): i64` in `typed-object-method-min`; the
+disposition deliberately never infers `i64` from MIR — and the full app
+then lowers every function (`heap.allocate`, `handles.push(heap.allocate
+(...))`, field reads, `me.*` births) on the package lane, stopping only
+at the JSON emit contract's `unsupported terminator Invoke` (a known
+emit-family gap, not a semantic-lane blocker). The reusable structural
+gate lives in
 `tools/checks/mirbuilder_qualified_route_scope_guard.sh`.
 
 `normal_callable_dynamic_operation_source.rs` owns the next source-only S0

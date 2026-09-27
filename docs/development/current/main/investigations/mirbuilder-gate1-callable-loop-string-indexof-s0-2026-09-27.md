@@ -266,11 +266,81 @@ Ordinary implementation failures inside this mapping are work to resolve.
 
 | Order | Task and completion boundary |
 | --- | --- |
-| 1 | `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0`: re-measure landed the actual terminal `ordinary-new/local-commit/artifact-source-unavailable` (`raw_ordinary_new_claim.rs` — the `new` local commit's expected root-instance-call artifact is missing). Census the owner contract, the real construction artifact authority, and the mimalloc-lite `new HakoAllocHeap()` site before selecting an S0; do not reuse the disproved bin_size attribution. |
-| 2 | D5 fork (b): source admission for parameter/local user-object calls (`store.readData`, `builder.make`, then call-result `itemCheck`). Decide Dynamic-origin versus exact nominal evidence before coverage; existing root-me locators are not proof for either parameter or returned-object receivers. |
-| 3 | Allocator call-result provenance/retention for `handles.push(heap.allocate(...))`; depends on receiver/result and lifetime decisions, not I64/Text push acceptance. |
-| 4 | Complete required app evidence: json-stream-aggregator EXE/output and typed-object JSON ingress/EXE exit 7. An emit-interface failure still blocks its registered acceptance; record its owner instead of dropping the row. |
+| 1 | DONE — `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0` landed below: the terminal is `Main.main`'s root-instance-call disposition, and the missing artifact is the callee's declared result contract (`MiWorkload.run` is unannotated). The S0 below completes the declared contract in source and re-measures. |
+| 2 | `MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-D0` (D5 fork b): census source admission for parameter/Dynamic-origin user-object calls (`store.readData`, `builder.make`, then call-result `itemCheck`). Decide Dynamic-origin versus exact nominal evidence before coverage; existing root-me locators are not proof for either parameter or returned-object receivers. Probe evidence (this card, D0 census): `new`-claim-proven local receivers already emit instance calls — the true remaining scope is parameter/Dynamic-origin receivers only. |
+| 3 | Allocator call-result provenance for `handles.push(heap.allocate(...))`: re-measure after S0 — the annotated mimalloc-lite probe emitted this shape already, so this row may shrink to evidence-only; parameter-receiver calls stay out. |
+| 4 | Complete required app evidence: json-stream-aggregator EXE/output and typed-object JSON ingress/EXE exit 7. An emit-interface failure still blocks its registered acceptance; record its owner instead of dropping the row. The observed `Invoke` terminator JSON emit gap (`--emit-mir-json` serializer) is this row's dependency, not a semantic-lane blocker. |
 | 5 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
+
+### D0 decision — `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0` (landed)
+
+```text
+Decision: the freeze is Main.main's root-instance-call disposition for
+  `return workload.run()` — `issue_root_instance_call_dispositions`
+  (`ordinary_new_root_instance_call.rs`) owes a Ready row, and the owed
+  artifact is the callee's sealed result contract, not the `new` commit.
+Source authority + canonical issuer: the declared return contract
+  `run(): i64`; `completion_seed.rs` maps `Unannotated`/`Void` to
+  `result = None`, so an unannotated callee can never mint the row.
+Non-authority: MIR/body inference of the result type is forbidden by the
+  final-pipeline SSOT ("must not infer i64 from MIR"); no direct-call
+  fallback may be manufactured (`root_call_entry.rs` invariant).
+Fail-fast boundary: unannotated or non-I64 callee stays
+  `artifact-source-unavailable`; `results.row` absent stays the same
+  named stop; no flag/Err/Ok(()) contract change to the issuer.
+Smallest next slice: `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-S0` —
+  declare `run(): i64` on `MiWorkload.run` (same contract as the
+  `sum(): i64` precedent in typed-object-method-min), re-measure the app
+  through `--emit-mir-json`, and record the next observable terminal.
+Non-claims: no unannotated-return inference authority is created here
+  (a separate design row may open it later); no claim-lane widening;
+  no InstanceReceiver-parameter or Dynamic-origin call admission;
+  no Invoke serializer / VM-lane `birth-global-legacy-stopped` claim —
+  both are downstream emit/backend families, not this terminal.
+```
+
+D0 census evidence (read-only worker + `/tmp` probes, no repo change):
+freezing owner is `Main.main` (the expected-flag set is populated only
+for the app-main batch slot; `MiWorkload.run` returns literals and is
+never flagged). Probe `box W { run(): i64 {return 7} }` + `new W()` +
+`return w.run()` lowers to Invoke emit stage; the identical unannotated
+probe reproduces `artifact-source-unavailable` exactly — the seed row
+exists and `result = None` is the sole blocker. A probe whose callee
+body itself makes an instance call (`new H()` + `h.alloc(0)` in `run`)
+still lowers, so the callee's declared contract is independent of its
+body composition. The fully annotated mimalloc-lite copy then lowers
+EVERY function — `heap.allocate`, `handles.push(heap.allocate(...))`,
+field reads, `me.*` births — and stops only at the known `Invoke`
+terminator JSON emit contract, which the queue already owns under the
+acceptance row. `bin_size/1` evidence from the landed S0 stands.
+
+### S0 implementation receipt — `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-S0` (landed)
+
+The whole slice is the source-contract completion the D0 named: declare
+`run(): i64` on `MiWorkload.run` (`apps/mimalloc-lite/main.hako:10`). No
+Rust change — the canonical issuer, disposition checks, and negative
+pins already exist; the app source was contract-incomplete, not the
+compiler.
+
+Evidence (quick-profile `./target/quick/hakorune`):
+`--emit-mir-json` on `apps/mimalloc-lite/main.hako` advances from
+`ordinary-new/local-commit/artifact-source-unavailable` to `MIR JSON
+emit contract violation: unsupported terminator Invoke` — every function
+lowers on the package lane (`return workload.run()` emits the root
+instance call; `run`'s body emits `heap.allocate`/`handles.push`/
+field reads; corpus `HakoAllocHeap.birth` with its `me.*` calls lowers).
+The remaining terminal is the JSON serializer's Invoke gap already owned
+by the acceptance row — a semantic-lane pass, not a new blocker. The
+`--backend vm` lane separately stops at
+`ordinary-new/birth-global-legacy-stopped`, a different downstream
+family (D18 lineage), unchanged by this slice. Focused pins:
+`root_instance_call_*` suite 5/5 including
+`root_instance_call_uses_selected_result_contract` (positive) and
+`root_instance_call_without_result_contract_stays_unavailable`
+(negative). Next observable frontier for Gate 1: queue row 2
+(parameter/Dynamic-origin receiver calls — `builder.make`,
+`store.readData`, `itemCheck`), since claim-proven local receivers are
+now measured as emitted. Gate 1 remains unsatisfied.
 
 The historical selected-C UserBox row owns `UnsupportedBeforeObject` /
 `RetireAfterReplacement` and remains parked. This design does not choose

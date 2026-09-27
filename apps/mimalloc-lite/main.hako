@@ -7,7 +7,7 @@
 using selfhost.hako_alloc.memory.page_heap_box as HakoAllocPageHeap
 
 box MiWorkload {
-    run() {
+    run(): i64 {
         local heap = new HakoAllocHeap()
         local handles = new ArrayBox()
 

@@ -1,10 +1,10 @@
 date = "2026-09-28"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0"
+current_execution_row = "MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
-current_design_stop = "MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0"
+current_design_stop = "MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,16 +17,16 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-StringIndexOf S0 landed; the blanket parked-DeclaredInstance frontier
-was incorrect. CALLFREE-LOOPCOND-S0 landed: bridge-issued call-free
-coverage co-seals CallFree/WithCalls on the LoopCond route token, and the
-corpus SizeClassBox.bin_size/1 now emits real MIR (loop-carrier PHIs).
-mimalloc-lite's next observable terminal is
-ordinary-new/local-commit/artifact-source-unavailable — an existing mapped
-ordinary-new lifecycle family, queued for D0 census. Gate 1 remains
-unsatisfied; instance/result and Gates 2-4 stay parked.
+ORDINARY-NEW-ARTIFACT-SOURCE D0+S0 landed. Census proved the terminal is
+Main.main's root-instance-call disposition: the owed artifact is the
+callee's declared result contract and MiWorkload.run was unannotated.
+Declaring run(): i64 completes the contract — the full app now lowers on
+the package lane (heap.allocate, call-result push args, me.* births) and
+stops only at the known Invoke JSON emit gap. Next: queue row 2,
+parameter/Dynamic-origin receiver calls (builder.make, store.readData).
+Gate 1 remains unsatisfied; selected-C and Gates 2-4 stay parked.
 """
-next_design_card = "MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0"
+next_design_card = "MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
@@ -44,7 +44,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-28: MIRBUILDER-GATE1-CALLFREE-LOOPCOND-S0 landed — bridge-issued VerifiedCallableLoopCallFreeCoverageV1 (resolver-only bounded flat scalar grammar) co-seals CallFree/WithCalls on the route token through entry/issuer/loop_cond; physical input re-validates before the existing LoopCond owner. loop_scope 6/6 incl. interpreter values + two-carrier multiplication, route suite 29/29 incl. 6 coverage pins, guard green; corpus SizeClassBox.bin_size/1 emits 10-block MIR (4 PHI) — mimalloc-lite frontier advances to ordinary-new/local-commit/artifact-source-unavailable. One baseline-debt red (program_block_with_exit_signals_prefers_recipe_only, fails on parent).",
+  "2026-09-28: MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0+S0 landed — census proved the owed artifact is the callee's declared result contract, not the `new` commit; `run(): i64` on MiWorkload.run (sum(): i64 precedent; no inference, no issuer change) makes the whole app lower on the package lane — remaining terminal is the known `Invoke` JSON emit gap (acceptance row). root_instance_call_* 5/5 green. Queue row 2 (parameter/Dynamic-origin receivers) is the next semantic frontier.",
+  "2026-09-28: MIRBUILDER-GATE1-CALLFREE-LOOPCOND-S0 landed — bridge-issued VerifiedCallableLoopCallFreeCoverageV1 (resolver-only bounded flat scalar grammar) co-seals CallFree/WithCalls on the route token through entry/issuer/loop_cond; physical input re-validates before the existing LoopCond owner. loop_scope 6/6 incl. interpreter values + two-carrier multiplication, route suite 29/29 incl. 6 coverage pins, guard green; corpus SizeClassBox.bin_size/1 emits 10-block MIR (4 PHI). One baseline-debt red (program_block_with_exit_signals_prefers_recipe_only, fails on parent).",
   "2026-09-27: MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-D0 closed — alphabet.indexOf(ch) is StringBox.indexOf/1 (catalog-unique op but runtime router has ArrayBox.indexOf and pred_chars.indexOf is param-receiver Dynamic-lane); Decision: arm only under receiver-text evidence + text needle + Body placement; new TextParameter relation; bounded S0 emitted — StringIndexOf/2, param/non-text receivers stay unarmed.",
-  "2026-09-27: MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-S0 landed — field-resident ArrayBox.get/1 issues plain CoreMethod contract (ArrayDynamicRead/NamedArrayReadV1/DynamicToCaller->MirType::Unknown; Body placement; residence claim + birth new ArrayBox provider + rebind/integer-source gates; NamedArrayResultDemandV1 parametrizes NoValue/ReadResult); tests 6/6+294 green; boxtorrent chunkListText clears, materialize stops at parked DeclaredInstance store.readData.",
 ]
