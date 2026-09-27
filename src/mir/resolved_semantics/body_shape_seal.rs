@@ -71,6 +71,9 @@ pub(crate) fn seal_shadow_body_shape(
                     Some(ResolvedLexicalRefV1::Local(receiver)) => {
                         BodyMeReceiverV1::Lexical(receiver)
                     }
+                    Some(ResolvedLexicalRefV1::Upvar(upvar)) => {
+                        BodyMeReceiverV1::Lexical(upvar.source())
+                    }
                     None if matches!(
                         root_profile,
                         SemanticOwnerRootProfileV1::DeclaredFunction {
