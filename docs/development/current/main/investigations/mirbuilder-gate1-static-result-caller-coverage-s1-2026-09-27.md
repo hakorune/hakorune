@@ -119,4 +119,6 @@ exact binding produced by a non-trivial expression (e.g.,
 `new ContentChunk(..)`). Requires a census before any
 implementation: the trivial-argument inventory is a shared
 admission boundary, and the correct fix is source-authorized
-argument provenance, not a wider kind list.
+argument provenance, not a wider kind list. The D0 accepted
+`BoundValue` provenance for inventoried call-result locals and
+emitted `MIRBUILDER-GATE1-ORDINARY-NEW-ARGUMENT-SOURCE-S0`.
