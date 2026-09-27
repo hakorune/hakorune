@@ -1,10 +1,10 @@
-date = "2026-09-27"
+date = "2026-09-28"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-S0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-GATE1-CALLFREE-LOOPCOND-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Gate1CallableLoopFrontierPause__RemainingTerminalsParkedDeclaredInstance"
-current_design_stop = "StringIndexOf S0 landed (alphabet.indexOf(ch) arms under receiver-text + text-needle evidence; production digest-shape compiles and emits RuntimeDataBox.indexOf like length/substring). Cross-app census: every remaining observable acceptance terminal funnels to the ParkedSealed DeclaredInstance family — boxtorrent materialize/1 store.readData, binary-trees iterationCheck/3 builder.make+itemCheck (4 instance-call sites), mimalloc-lite bin_size/1 me.word_size/me.max_regular_bin (me.method), allocator-stress handles.push(heap.allocate) call-result arg needing instance return provenance; json-stream-aggregator compiles; typed-object Invoke JSON-emit gap is an emit-interface artifact, not a semantic lane terminal. Reopening requires explicit lane selection; Gates 2-4 remain parked"
+current_blocker_token = "Gate1CallFreeLoopCondS0__ImplementationReady"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,26 +13,24 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-d0-2026-09-27.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-StringIndexOf S0 landed — `alphabet.indexOf(ch)` arms `StringIndexOf/1`
-(StringBoxReceiver + [TextParameter] + I64ToCaller, Body placement)
-only under receiver-text evidence (string-literal or TextToCaller
-initializer, single initializer, no rebind) and a text-producing
-needle; ArrayBox/parameter/non-text receivers, arity-2, lastIndexOf
-stay unarmed — no selector-only minting. Tests 11/11 + regressions
-(74/83/87/18/31) green; digest-shape program compiles end-to-end and
-emits RuntimeDataBox.indexOf (same WarmDirectAbi shape as
-length/substring); boxtorrent stops only at the parked
-DeclaredInstance `store.readData`. Every remaining observable
-terminal is parked — explicit lane selection required.
+StringIndexOf S0 landed; the blanket parked-DeclaredInstance frontier
+was incorrect. Original mimalloc source with the existing compiler stops
+at SourceItemsMissing in static SizeClassBox.bin_size/1 [Body(9)], a
+call-free loop. D5 F3c is the selected next implementation: source-proven
+CallFree/WithCalls coverage, flat NoExitBody binding assignments, existing
+LoopCond physical owner. The active card holds the accepted mapping,
+negative coverage and next owner queue. No implementation or new EXE PASS
+is claimed. True instance/result families remain separate; selected-C
+backend fate and Gates 2-4 stay parked. Gate 1 remains unsatisfied.
 """
-next_design_card = "MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-S0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-GATE1-CALLFREE-LOOPCOND-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -47,7 +45,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-27: MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-S0 landed — alphabet.indexOf(ch) arms StringIndexOf/1 under receiver-text + text-needle evidence (literal or TextToCaller initializer, single init, no rebind) at Body placement; new TextParameter relation; ArrayBox/param/non-text receivers, arity-2, lastIndexOf stay unarmed; tests 11/11+224 green; digest-shape compiles end-to-end (RuntimeDataBox.indexOf); boxtorrent stops only at parked DeclaredInstance store.readData — frontier pause pending explicit lane selection.",
+  "2026-09-28: CALLFREE-LOOPCOND-S0 design accepted at dbd9f7eb39; original mimalloc probe identifies SourceItemsMissing in static bin_size/1 [Body(9)], correcting the blanket DeclaredInstance park. Design will project bounded zero-call coverage from existing source inventory and reuse LoopCond. Implementation is next; Gate 1 remains unsatisfied.",
   "2026-09-27: MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-D0 closed — alphabet.indexOf(ch) is StringBox.indexOf/1 (catalog-unique op but runtime router has ArrayBox.indexOf and pred_chars.indexOf is param-receiver Dynamic-lane); Decision: arm only under receiver-text evidence + text needle + Body placement; new TextParameter relation; bounded S0 emitted — StringIndexOf/2, param/non-text receivers stay unarmed.",
   "2026-09-27: MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-S0 landed — field-resident ArrayBox.get/1 issues plain CoreMethod contract (ArrayDynamicRead/NamedArrayReadV1/DynamicToCaller->MirType::Unknown; Body placement; residence claim + birth new ArrayBox provider + rebind/integer-source gates; NamedArrayResultDemandV1 parametrizes NoValue/ReadResult); tests 6/6+294 green; boxtorrent chunkListText clears, materialize stops at parked DeclaredInstance store.readData.",
 ]

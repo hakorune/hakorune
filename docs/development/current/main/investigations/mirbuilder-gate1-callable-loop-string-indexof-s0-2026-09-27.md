@@ -1,7 +1,9 @@
 # MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-S0
 
-Status: landed
+Status: StringIndexOf S0 landed; call-free LoopCond S0 design accepted 2026-09-28
 Date: 2026-09-27
+Scope: original StringIndexOf receipt and its Gate-1 successor selection.
+Related: CURRENT_STATE.toml; workstream row H; owner-selection D5 (F3c).
 Emission: `mirbuilder-gate1-callable-loop-string-indexof-d0-2026-09-27.md`
 Decision — admit `StringBox.indexOf/1` (`StringIndexOf`, I64Value,
 pure_read, LoopBody placement) as a plain CoreMethod contract through
@@ -100,24 +102,184 @@ text evidence, not selector/name guessing).
   `materialize/1` `store.readData(cid)` — the parked
   DeclaredInstance terminal (`route-not-front-selected`,
   `SourceCallOutsideSelectedFamily`). Recorded, not claimed.
-- Cross-app census (`--emit-mir-json`, compile only): every
-  remaining acceptance terminal funnels to the same parked
-  DeclaredInstance family — binary-trees `iterationCheck/3`
+- Cross-app census (`--emit-mir-json`, compile only; attribution corrected
+  below on 2026-09-28): binary-trees `iterationCheck/3`
   (`builder.make` + `itemCheck`, 4 instance-call sites),
-  mimalloc-lite `bin_size/1` (`me.word_size`/`me.max_regular_bin`),
+  mimalloc-lite `bin_size/1` (call-free loop, not DeclaredInstance),
   allocator-stress `handles.push(heap.allocate)` (instance-call
   result arg needs instance return provenance);
-  json-stream-aggregator compiles; the typed-object `Invoke` JSON
-  emit gap is an emit-interface artifact, not a semantic lane
-  terminal.
+  json-stream-aggregator reaches MIR compilation; this is not its required
+  EXE/output acceptance. The typed-object `Invoke` JSON emit gap remains an
+  acceptance dependency: its registered smoke actually uses JSON emission.
+  Neither entry is cleared by a compile-only census.
 - Guards: `mirbuilder_qualified_route_scope_guard.sh` green
   (StringIndexOf pins added), pointer guard green.
 
-## Next
+## Next — frontier correction (2026-09-28)
 
-The route-front lane is exhausted on observable evidence: every
-remaining terminal is the ParkedSealed DeclaredInstance family
-(parked under `parked_declared_instance_selected_c_task`,
-`PublishedTargetAndBackendCoverageMissing`). Reopening requires an
-explicit lane selection — recorded as
-`Gate1CallableLoopFrontierPause__RemainingTerminalsParkedDeclaredInstance`.
+The user requested the next task design. One read-only worker checked the
+claimed receiver/owner boundary; this was not Fast path because the reported
+family conflicted with the actual source. The primary checked the original
+application once with the existing compiler, without a build or source edit.
+
+`SizeClassBox` is a static box (`size_class_box.hako:5`). The three calls in
+`bin_size/1` at lines 25, 26 and 40 are outside its loop (lines 34-37).
+The accepted `StaticCurrentOwner` policy in
+`docs/reference/language/function-call-evaluation.md` assigns these calls to
+the exact static target, never a declared-instance receiver.
+
+Observed first terminal: `LoopCondRouteRejected(SourceItemsMissing)`,
+`function=SizeClassBox.bin_size/1`, static catalog owner, site `[Body(9)]`.
+The loop contains only `scale = scale * 2` and `i = i + 1`.
+This is D5's queued F3c call-free coverage task; it disproves the previous
+blanket `RemainingTerminalsParkedDeclaredInstance` attribution.
+
+Focused evidence (informational design probe, not a new regression or PASS):
+
+```text
+HEAD: dbd9f7eb39535d3c6c600eec10a5f87b54a87534
+UTC: 2026-09-27T18:04:42Z
+NYASH_DISABLE_PLUGINS=1 timeout 30s target/debug/hakorune \
+  --emit-mir-json /tmp/hakorune-next-design-gb0l_5al/mimalloc.mir.json \
+  apps/mimalloc-lite/main.hako
+exit: 1; no MIR output
+binary SHA256: 8015638bc191a8f7a127d3aa5addb73e099fd0a0a59366a54db203f79216da09
+source SHA256: 63f688bef954d29ef91930e861b0721293789c4e74af2c6f1dae25b6ed84b772
+```
+
+Local detail: `/tmp/hakorune-next-design-gb0l_5al/{receipt.json,probe.log}`.
+The existing binary's exact build commit was not independently established;
+this receipt identifies its contents and the checked-out source separately.
+Current source also deliberately rejects an empty source-call inventory, and
+the existing call-free loop-scope test pins this rejection. No EXE/runtime or
+whole-suite completion is claimed.
+
+## Accepted next task: MIRBUILDER-GATE1-CALLFREE-LOOPCOND-S0
+
+Design accepted at `dbd9f7eb39` on 2026-09-28; implementation not performed
+in this design turn. This selects the already-queued D5 F3c source-coverage
+responsibility, not a parked DeclaredInstance/backend or Gates 2-4 lane.
+
+```text
+Decision: admit bounded flat call-free LoopCond via explicit source coverage.
+Source authority + canonical issuer: exact resolver input/ledger/body inventory;
+  CallableLoopSourceBridgeV1::from_input projects coverage, loop_cond::issue co-seals it.
+Non-authority: empty method list alone, fixture spelling, static call outside the loop, MIR.
+Fail-fast boundary: incomplete/foreign coverage rejects before physical allocation; no retry.
+Smallest next slice: CallFree/WithCalls transport through the existing LoopCond consumer.
+Non-claims: no new numeric semantics, instance admission, other loop family, or Gate-1 PASS.
+```
+
+### Change / Contract
+
+The finite production tuple is `SizeClassBox.bin_size/1 [Body(9)]` from
+`lang/src/hako_alloc/memory/size_class_box.hako:34-37`. Select a flat,
+nonempty `NoExitBody` of plain local binding assignments; cover the existing
+one-carrier regression and this two-carrier loop. There is no branch, nested
+loop, early exit, constructor, field/index write or opaque/transferred subtree
+in the selected shape. Existing scalar expression/type semantics stay intact.
+Finite S0 grammar: value = integer literal / lexical local / addition of two
+values / multiplication of two values; condition = value `<` value;
+statement = plain local `BindingRebind` to a value. All child sites must be
+covered. Other operators (including unary), statements and conditions remain
+outside this slice; this grammar admits both selected loops without a type default.
+
+Represent source call coverage explicitly as `CallFree` or `WithCalls`
+(the latter retains `CallableLoopSourceTargetRelationV1`). The proof is an
+owned projection of existing source facts, not a new result/effect authority:
+
+- Issue at `normal_callable_semantic_lowering_state/source_loop_bridge.rs`
+  while the exact `ResolvedFunctionLoweringInputV1` is available. Use its
+  branded body inventory and ledger's assignment targets, variable/literal/
+  binary rows, direct calls, method calls and complete expression-site
+  inventory. Every condition/body expression must belong to the selected
+  scalar closure; every body statement must correspond to a typed Plain
+  assignment with a `BindingRebind` target. Missing rows never prove absence.
+- Check effects and complete expression closure, including child sites:
+  ordinary binding writes are allowed only by those assignment rows;
+  calls, allocation, await/control effects and opaque parents are outside S0.
+  An empty method list cannot hide a direct call, constructor or lambda.
+- Move coverage with the existing bridge/raw payload/route token, then co-seal
+  at `normal_callable_loop_source_facts/loop_cond.rs::issue`: same owner,
+  source lineage/frame, root site, one loop member, `NoExitBody`, no exits,
+  and one-to-one flat `Stmt` Recipe/assignment correspondence. Do not pair
+  independently reconstructed products by a matching name/key.
+- `SourceLoopCondPhysicalInputV1` validates the sum and identities before
+  allocation. `WithCalls` preserves current target/result/coverage checks
+  and error order. `CallFree` requires the complete source proof and no
+  selected/uncovered/CoreMethod probe residual. It has no call-site anchor
+  or `ExactI64` call result to manufacture.
+- Reuse `control_flow/plan/features/loop_cond_bc_source.rs::
+  lower_loop_cond_break_continue_source`, its existing assignment items,
+  carrier publication, PlanVerifier and sole PlanLowerer. They do not need
+  a call target to implement this loop. No additional physical route.
+
+Admission states and failure handling:
+
+| State | Authority / behavior |
+| --- | --- |
+| BridgeAbsent / Unarmed | Preserve the existing source-bridge distinction and routing; neither becomes CallFree. |
+| Proven call-free shape | Exact source closure plus selected NoExitBody co-seal admits CallFree. |
+| Call-bearing source | Existing WithCalls selection and coverage apply unchanged; unsupported calls remain terminal. |
+| Empty methods, incomplete or unsupported source | No CallFree product; retain named source/route rejection on the armed lane. |
+| Foreign owner/site/frame, contradictory probe | Typed pre-effect rejection; no repair or fallback. |
+| Repeated take or residual consumption | Existing one-shot/finish rejection; no retry after consumption. |
+
+Selected old responsibility: remove the mandatory nonempty call-list,
+call-site anchor and call-result requirement **for this proven call-free
+shape** from route token issuance/drain and physical input validation.
+Retain those checks for WithCalls and unproven empty inputs. This is removal
+of an incorrect admission prerequisite, not deletion of the shared call owner.
+
+### Done / Stop
+
+1. If transport work grows `raw_loop_child_entry.rs` (currently 762 lines),
+   first extract its source-entry preparation by responsibility in a separate
+   BoxShape commit. Do not mix that split with semantic admission; keep all
+   source files below 800, and design splits at 760. No unrelated cleanup.
+2. Implement the source proof and transport/consumer changes together;
+   replace the selected mandatory-call prerequisite and switch the tuple in
+   this semantic slice, then prove it with focused acceptance and guards.
+   Do not require green tests before this construction. Shared call-bearing
+   checks remain; any separate physical-edge deletion requires prior caller
+   switch/stop, acceptance and caller-zero under RULES section 4.
+3. Update the existing loop-scope negative for the selected flat shape into a
+   positive, retaining invocation-scope/ledger assertions. Execute a natural
+   two-carrier source case with zero/one/multiple iterations; verify values,
+   valid PHIs and post-loop carrier use. Keep outside-loop static calls intact.
+4. Reject hidden method/direct calls in condition/RHS, construction, opaque
+   expressions, unsupported statements, missing/foreign proof, duplicate take
+   and residual target evidence. Preserve existing static/CoreMethod positives
+   and missing-ledger/uncovered-call negatives. Use the existing
+   `mirbuilder_qualified_route_scope_guard.sh`, not a new per-row guard.
+5. Record focused compiler revision/binary and the original mimalloc source's
+   next terminal. Advancing past `bin_size [Body(9)]` is the selected result;
+   later app failure is an owned dependency, not permission to widen this S0.
+   Update builder README and `docs/reference/mir/loop-recipe-contract.md`
+   with the admission distinction in the implementation commit.
+
+Return to design only if this mapping needs new source authority, statement/
+expression shapes, arithmetic/effect semantics or a second physical owner.
+Ordinary implementation failures inside this mapping are work to resolve.
+
+### Queue after this slice
+
+| Order | Task and completion boundary |
+| --- | --- |
+| 1 | Re-measure the changed mimalloc entry; select its actual next source/owner terminal. Do not reuse the disproved bin_size attribution. |
+| 2 | D5 fork (b): source admission for parameter/local user-object calls (`store.readData`, `builder.make`, then call-result `itemCheck`). Decide Dynamic-origin versus exact nominal evidence before coverage; existing root-me locators are not proof for either parameter or returned-object receivers. |
+| 3 | Allocator call-result provenance/retention for `handles.push(heap.allocate(...))`; depends on receiver/result and lifetime decisions, not I64/Text push acceptance. |
+| 4 | Complete required app evidence: json-stream-aggregator EXE/output and typed-object JSON ingress/EXE exit 7. An emit-interface failure still blocks its registered acceptance; record its owner instead of dropping the row. |
+| 5 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
+
+The historical selected-C UserBox row owns `UnsupportedBeforeObject` /
+`RetireAfterReplacement` and remains parked. This design does not choose
+`RetainTransition`. Queued instance work must name a canonical consumer and
+settle its source contract; backend fate cannot be changed by a broad family
+label. The user's design request is handled here without requiring another
+lane-choice question for the unparked call-free prerequisite.
+
+Design closeout: read-only worker premise/integration review completed;
+current-state pointer guard, qualified-route scope guard and diff check PASS.
+Only the original-source probe above was executed; no Cargo build/tests or
+EXE suite was run. The next implementation owns the focused Done evidence.
