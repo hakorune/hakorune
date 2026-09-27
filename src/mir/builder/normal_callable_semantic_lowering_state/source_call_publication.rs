@@ -114,6 +114,9 @@ impl CallableSemanticLoweringState {
             crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller => {
                 crate::mir::MirType::String
             }
+            crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::DynamicToCaller => {
+                crate::mir::MirType::Unknown
+            }
         };
         Ok(Some(ExactSourceMethodCallV1::new(
             receiver,

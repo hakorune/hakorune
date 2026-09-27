@@ -233,6 +233,15 @@ pub(crate) fn detect_field_residence_claim(
     }))
 }
 
+/// Whether the call's result may be demanded. The `push` write arm returns
+/// `NoValue`, so the call must sit in statement position; a `pure_read`
+/// result is meant to be demanded and skips that check.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum NamedArrayResultDemandV1 {
+    NoValue,
+    ReadResult,
+}
+
 /// Verifies the bounded receiver/argument relations once the package proved
 /// the field is a declared ArrayBox field of the owning Box. Provider and
 /// field identity are sealed separately; this owns only the caller-ledger
@@ -243,14 +252,16 @@ pub(crate) fn verify_field_residence_relations(
     call: &VerifiedResolvedMethodCallSourceV1,
     claim: &NamedArrayFieldResidenceClaimV1,
     integer_source: Option<&VerifiedResolverCoreMethodCallableContractV1>,
+    demand: NamedArrayResultDemandV1,
 ) -> Result<(), NamedArrayFieldResidenceIssueV1> {
     use NamedArrayFieldResidenceIssueV1 as E;
     if ledger.assignment_targets().any(|(_, target)| matches!(target, ResolvedAssignmentTargetV1::BindingRebind(actual) if *actual == claim.binding)) {
         return Err(E::ReassignedReceiver);
     }
-    if !ledger
-        .source_site_inventory()
-        .contains_statement(&SourceStmtSiteV1::from_node(call.site().node().clone()))
+    if demand == NamedArrayResultDemandV1::NoValue
+        && !ledger
+            .source_site_inventory()
+            .contains_statement(&SourceStmtSiteV1::from_node(call.site().node().clone()))
     {
         return Err(E::ValueDemand);
     }

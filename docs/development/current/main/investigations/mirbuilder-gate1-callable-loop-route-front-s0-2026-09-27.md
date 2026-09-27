@@ -1,6 +1,6 @@
 # MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-S0
 
-Status: emitted — selected for `fast` implementation
+Status: landed — see Pinned evidence
 Date: 2026-09-27
 Emission: `mirbuilder-gate1-callable-loop-route-front-d0-2026-09-27.md`
 Decision — admit `ArrayBox.get/1` (`pure_read`, LoopBody placement) as
@@ -89,21 +89,47 @@ integer-source evidence, not selector/name guessing).
 - No silent `Ok(None)` added to any production semantic path; the
   probe stays complete-or-reject.
 
-## Pinned evidence (to fill at landing)
+## Pinned evidence (landed)
 
-- focused `named_array_method`/`core_method` contract tests:
-  positive `local ids = me.chunk_ids; loop { ids.get(i) }` ->
-  `CoreMethod` disposition row covering the site; negatives per the
-  boundary above.
-- boxtorrent re-measurement: `chunkListText` expected to advance
-  past `route-not-front-selected`; `materialize`/`releaseFrom`/
-  `ingest`/`digest` remain at their own named terminals
-  (user-instance calls / `indexOf`) — recorded, not claimed.
+- Focused tests
+  (`cargo test --release core_method_source_tests`, 6/6):
+  `field_resident_array_get_issues_plain_core_method_contract`
+  (ArrayGet + `DynamicToCaller` + Body placement + no
+  requirement), `field_resident_get_rejects_receiver_rebind_and_
+  non_integer_index` (`ReassignedReceiver`,
+  `IntegerSourceMissing`), `non_resident_get_stays_unarmed`
+  (construction-alias, unaliased `me` field, Condition placement).
+  Regression: `named_array` 31/31, `source_call` 87,
+  `source_call_target` 83, `core_method` 69, `callable_contract`
+  18, `instance_constructor` 37 — all green.
+- One boundary refinement vs the emitted card:
+  `verify_field_residence_relations` gained a
+  `NamedArrayResultDemandV1` parameter — the write arm keeps
+  `NoValue` (statement-position check); the read arm passes
+  `ReadResult` so a demanded `pure_read` result is not rejected.
+  No other relation check changed.
+- boxtorrent re-measurement (`--dump-mir`, fresh binary):
+  `BoxTorrentManifest.chunkListText/0` advances past
+  `ids.get(i)`; the only uncovered site is now
+  `materialize/1` `[Body(4), LoopBody(1), Initializer(0)]` —
+  `local data = store.readData(cid)`, a user-instance call that
+  stays `SourceCallOutsideSelectedFamily` by design (parked
+  DeclaredInstance family; recorded, not claimed).
+- Guards: `mirbuilder_qualified_route_scope_guard.sh` pins
+  `ArrayDynamicRead` / `array_dynamic_read` / `DynamicToCaller` /
+  `issue_array_get_read_contract` / `NamedArrayResultDemandV1::
+  ReadResult` / `(ArrayGet,1)->[Body]` / `MirType::Unknown` /
+  the three test names; `current_state_pointer_guard.sh` ok.
 
 ## Next selected row (after landing)
 
 The user-instance callable-loop family
-(`store.readData/release/put`, `manifest.addChunk/seal`) — the
-DeclaredInstance lineage parked by the owner-selection census — or
-the `StringIndexOf` placement arm, whichever the family scheduler
-selects first; both are separate D0s.
+(`store.readData/release/put`, `manifest.addChunk/seal`) is the
+observed next terminal but remains ParkedSealed
+(`MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0` —
+published target + backend coverage missing; resume requires
+explicit selection). The queued non-parked family in the same
+route-front lane is the `StringIndexOf` placement arm
+(`alphabet.indexOf(ch)` in `ContentHash.digest` LoopBody —
+manifest row exists, placement arm absent), selected as
+`MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-D0`.

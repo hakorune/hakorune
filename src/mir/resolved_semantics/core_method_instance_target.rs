@@ -23,6 +23,7 @@ pub(crate) enum CoreMethodHomeSchemaV1 {
     StringBoxText,
     ArrayTextAppend,
     ArrayIntegerAppend,
+    ArrayDynamicRead,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -41,6 +42,7 @@ pub(crate) enum CoreMethodHomeParameterRelationV1 {
 pub(crate) enum CoreMethodHomeResultRelationV1 {
     I64ToCaller,
     TextToCaller,
+    DynamicToCaller,
     NoValue,
 }
 
@@ -49,6 +51,7 @@ pub(crate) enum CoreMethodHomeAbiProfileV1 {
     StringBoxTextV1,
     NamedArrayTextV1,
     NamedArrayIntegerV1,
+    NamedArrayReadV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -112,6 +115,12 @@ impl CoreMethodInstanceTargetIssuerV1 {
         Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::ArrayIntegerAppend)
     }
 
+    pub(crate) fn array_dynamic_read(
+        manifest_brand: CoreMethodManifestBrandV2,
+    ) -> Result<Self, CoreMethodInstanceTargetRejectV1> {
+        Self::with_schema(manifest_brand, CoreMethodHomeSchemaV1::ArrayDynamicRead)
+    }
+
     fn with_schema(
         manifest_brand: CoreMethodManifestBrandV2,
         schema: CoreMethodHomeSchemaV1,
@@ -169,6 +178,11 @@ impl CoreMethodInstanceTargetIssuerV1 {
                 CoreMethodEffectV1::MutatesShape,
                 CoreMethodHomeAbiProfileV1::NamedArrayIntegerV1,
             ),
+            CoreMethodHomeSchemaV1::ArrayDynamicRead => (
+                "ArrayBox",
+                CoreMethodEffectV1::PureRead,
+                CoreMethodHomeAbiProfileV1::NamedArrayReadV1,
+            ),
         };
         if generated.receiver_box != receiver_name {
             return Err(CoreMethodInstanceTargetRejectV1::ReceiverMismatch);
@@ -213,7 +227,8 @@ impl CoreMethodInstanceTargetIssuerV1 {
                     CoreMethodHomeSchemaV1::ArrayIntegerAppend => {
                         CoreMethodHomeParameterRelationV1::I64Parameter
                     }
-                    CoreMethodHomeSchemaV1::StringBoxText => {
+                    CoreMethodHomeSchemaV1::ArrayDynamicRead
+                    | CoreMethodHomeSchemaV1::StringBoxText => {
                         return Err(CoreMethodInstanceTargetRejectV1::UnsupportedOperation {
                             op: generated.op,
                             arity: row.arity(),
@@ -224,6 +239,16 @@ impl CoreMethodInstanceTargetIssuerV1 {
                     CoreMethodHomeReceiverRelationV1::NamedArrayReceiver,
                     vec![parameter].into_boxed_slice(),
                     CoreMethodHomeResultRelationV1::NoValue,
+                )
+            }
+            (CoreMethodOp::ArrayGet, 1) => {
+                if generated.result_kind != CoreMethodResultKindV1::Dynamic {
+                    return Err(CoreMethodInstanceTargetRejectV1::ResultMismatch);
+                }
+                (
+                    CoreMethodHomeReceiverRelationV1::NamedArrayReceiver,
+                    vec![CoreMethodHomeParameterRelationV1::I64Parameter].into_boxed_slice(),
+                    CoreMethodHomeResultRelationV1::DynamicToCaller,
                 )
             }
             (op, arity) => {

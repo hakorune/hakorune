@@ -334,6 +334,31 @@ rg -q 'resolver_callable_contract_co_seals_condition_substring_and_generated_tar
 rg -q 'resolver_callable_contract_rejects_body_length_placement' "$LEDGER_CONTRACT_TESTS"
 rg -q 'condition_position_push_stays_unarmed' "$NAMED_ARRAY_METHOD_TESTS"
 
+# MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-S0: the named-array ArrayBox
+# issuer arm also seals bounded ArrayGet/1 read contracts — LoopBody
+# placement only, gated by field-residence receiver evidence (me-field
+# alias + declared-or-untyped ArrayBox field + birth `new ArrayBox()`
+# provider + no rebind + integer-source index), minting a plain contract
+# with no write-requirement product. get/1 stays ambiguous against
+# MapBox.get/1 without that evidence; DynamicToCaller is the only new
+# result relation and maps to MirType::Unknown — no probe or route
+# selection change.
+CORE_METHOD_TARGET="$ROOT_DIR/src/mir/resolved_semantics/core_method_instance_target.rs"
+CORE_METHOD_CONSUMER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_lowering_state/source_call_publication.rs"
+CORE_METHOD_PACKAGE_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/core_method_source_tests.rs"
+rg -q 'ArrayDynamicRead' "$CORE_METHOD_TARGET"
+rg -q 'fn array_dynamic_read' "$CORE_METHOD_TARGET"
+rg -q 'DynamicToCaller' "$CORE_METHOD_TARGET"
+rg -q 'fn issue_array_get_read_contract' "$NAMED_ARRAY_SRC"
+rg -q 'NamedArrayResultDemandV1::ReadResult' "$NAMED_ARRAY_SRC"
+rg -q '\(CoreMethodOp::ArrayGet, 1\) => &\[ResolvedLoopPlacementV1::Body\]' "$CONTRACT_ISSUER"
+rg -q 'DynamicToCaller' "$CONTRACT_ISSUER"
+rg -q 'DynamicToCaller' "$CORE_METHOD_CONSUMER"
+rg -q 'MirType::Unknown' "$CORE_METHOD_CONSUMER"
+rg -q 'field_resident_array_get_issues_plain_core_method_contract' "$CORE_METHOD_PACKAGE_TESTS"
+rg -q 'field_resident_get_rejects_receiver_rebind_and_non_integer_index' "$CORE_METHOD_PACKAGE_TESTS"
+rg -q 'non_resident_get_stays_unarmed' "$CORE_METHOD_PACKAGE_TESTS"
+
 # MIRBUILDER-EXE-ACCEPTANCE-DECLARED-INSTANCE-LOOP-LOCATOR-S3: callable loop
 # source lanes carry the package-issued declared-instance locator so a
 # loop-body `me.method` site consumes its exact relation row and emits the

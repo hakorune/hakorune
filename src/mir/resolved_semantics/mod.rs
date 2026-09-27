@@ -44,7 +44,7 @@ pub(crate) use named_array_residence::{
     detect_field_residence_claim, resolve_birth_provider, seal_field_residence_requirement,
     verify_field_residence_relations, NamedArrayFieldResidenceClaimV1,
     NamedArrayFieldResidenceIssueV1, NamedArrayFieldResidenceObjectV1,
-    NamedArrayFieldResidenceRequirementV1, NamedArrayRequirementV1,
+    NamedArrayFieldResidenceRequirementV1, NamedArrayRequirementV1, NamedArrayResultDemandV1,
 };
 mod function_root;
 mod function_view;

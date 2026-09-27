@@ -14,9 +14,10 @@ use crate::mir::resolved_semantics::{
     verify_field_residence_relations, CallableSemanticSourceLedgerView,
     CoreMethodInstanceTargetIssuerV1, NamedArrayConstructionRequirementV1,
     NamedArrayFieldResidenceIssueV1, NamedArrayFieldResidenceObjectV1,
-    NamedArrayRequirementIssueV1, NamedArrayRequirementV1, ResolvedLoopPlacementV1,
-    ResolverCoreMethodCallableContractIssuerV1, SourceExprSiteV1,
+    NamedArrayRequirementIssueV1, NamedArrayRequirementV1, NamedArrayResultDemandV1,
+    ResolvedLoopPlacementV1, ResolverCoreMethodCallableContractIssuerV1, SourceExprSiteV1,
 };
+use crate::mir::resolved_semantics::CoreMethodInstanceTargetRejectV1;
 use crate::parser::{ConstructorSourceIdV1, ParserOrdinaryBoxSourceCoverageV1};
 use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalSameModuleCallableKeyV1};
 use std::collections::BTreeMap;
@@ -61,6 +62,24 @@ pub(crate) fn issue_source_bound_core_method_calls_with_named_arrays_v1(
         else {
             continue;
         };
+        if manifest.op == CoreMethodOp::ArrayGet {
+            let Some(row) = issue_array_get_read_contract(
+                ledger,
+                body_shape,
+                call,
+                ordinary,
+                brands,
+                constructors,
+                caller_box,
+            )?
+            else {
+                continue;
+            };
+            if rows.insert(site.clone(), row).is_some() {
+                return Err(E::DuplicateSite(site.clone()));
+            }
+            continue;
+        }
         if manifest.op != CoreMethodOp::ArrayPush {
             continue;
         }
@@ -217,8 +236,15 @@ fn issue_field_residence_requirement(
     {
         return Err(E::NamedArrayResidence(I::DeclarationCollision));
     }
-    verify_field_residence_relations(ledger, body_shape, call, &claim, integer_source)
-        .map_err(E::NamedArrayResidence)?;
+    verify_field_residence_relations(
+        ledger,
+        body_shape,
+        call,
+        &claim,
+        integer_source,
+        NamedArrayResultDemandV1::NoValue,
+    )
+    .map_err(E::NamedArrayResidence)?;
     let Some(birth) = constructors
         .birth_row_for(box_source)
         .map_err(|_| E::NamedArrayResidence(I::ProviderMissing))?
@@ -258,4 +284,130 @@ fn issue_field_residence_requirement(
     Ok(Some(NamedArrayRequirementV1::FieldResidence(
         requirement,
     )))
+}
+
+/// Seals one bounded field-resident Array `get` read contract.
+///
+/// `get/1` is ambiguous against `MapBox.get/1`, so selector-only issuance
+/// would guess the operation. The receiver-box proof reuses the
+/// field-residence authority: `local a = me.<field>` alias, a
+/// declared-or-untyped ArrayBox field, and the owning birth's
+/// `me.<field> = new ArrayBox()` provider store. A `pure_read` mints a plain
+/// contract — no write-requirement product and no provider row.
+/// `Ok(None)` keeps the call unarmed for the existing outside-family
+/// terminal.
+#[allow(clippy::too_many_arguments)]
+fn issue_array_get_read_contract(
+    ledger: &CallableSemanticSourceLedgerView<'_>,
+    body_shape: &crate::mir::resolved_semantics::VerifiedResolvedBodyShapeInventoryV1,
+    call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+    ordinary: &ParserOrdinaryBoxSourceCoverageV1,
+    brands: &VerifiedBrandProgramDeclarationCatalogV1,
+    constructors: Option<&VerifiedInstanceConstructorSemanticBatchV1>,
+    caller_box: &str,
+) -> Result<Option<VerifiedSourceBoundCoreMethodCallV1>, E> {
+    use NamedArrayFieldResidenceIssueV1 as I;
+    let mut candidates = Vec::new();
+    for loop_site in ledger.loop_sites() {
+        if ledger
+            .resolved_loop_placement(loop_site, call.site())
+            .map_err(E::LoopLookup)?
+            == Some(ResolvedLoopPlacementV1::Body)
+        {
+            candidates.push((loop_site, ()));
+        }
+    }
+    let Some((loop_site, ())) = nearest_loop(candidates)? else {
+        return Ok(None);
+    };
+    let Some(claim) = detect_field_residence_claim(ledger, body_shape, call)
+        .map_err(E::NamedArrayResidence)?
+    else {
+        return Ok(None);
+    };
+    if !matches!(claim.object, NamedArrayFieldResidenceObjectV1::Receiver) {
+        return Ok(None);
+    }
+    let Some(constructors) = constructors else {
+        return Err(E::NamedArrayResidence(I::ProviderMissing));
+    };
+    let Some(box_source) = ordinary
+        .row_for(caller_box)
+        .map_err(|_| E::NamedArrayResidence(I::DeclarationCollision))?
+    else {
+        return Ok(None);
+    };
+    let Some((_field, declared_type, weak)) = constructors
+        .field_declaration(box_source, &claim.field_name)
+        .map_err(|_| E::NamedArrayResidence(I::ProviderMissing))?
+    else {
+        return Ok(None);
+    };
+    // Same rule as the write arm: an untyped `init` field carries no
+    // declared type; its ArrayBox residence is proven by the provider below.
+    if declared_type.as_deref().is_some_and(|ty| ty != "ArrayBox") {
+        return Ok(None);
+    }
+    if weak {
+        return Err(E::NamedArrayResidence(I::WeakFieldResidence));
+    }
+    if ordinary
+        .row_for("ArrayBox")
+        .map_err(|_| E::NamedArrayResidence(I::DeclarationCollision))?
+        .is_some()
+        || brands.contains_name("ArrayBox")
+    {
+        return Err(E::NamedArrayResidence(I::DeclarationCollision));
+    }
+    verify_field_residence_relations(
+        ledger,
+        body_shape,
+        call,
+        &claim,
+        None,
+        NamedArrayResultDemandV1::ReadResult,
+    )
+    .map_err(E::NamedArrayResidence)?;
+    let Some(birth) = constructors
+        .birth_row_for(box_source)
+        .map_err(|_| E::NamedArrayResidence(I::ProviderMissing))?
+    else {
+        return Err(E::NamedArrayResidence(I::ProviderMissing));
+    };
+    let [birth_owner] = birth.forest().roots() else {
+        return Err(E::NamedArrayResidence(I::ProviderShape));
+    };
+    let birth_ledger = birth
+        .forest()
+        .callable_source_ledger(*birth_owner)
+        .map_err(|_| E::NamedArrayResidence(I::ProviderMissing))?;
+    let birth_body_shape = birth
+        .body_shape()
+        .ok_or(E::NamedArrayResidence(I::BodyShapeMissing))?;
+    resolve_birth_provider(&birth_ledger, birth_body_shape, &claim.field_name)
+        .map_err(E::NamedArrayResidence)?;
+    let membership = ledger
+        .resolved_loop_source(loop_site)
+        .map_err(E::LoopMembership)?;
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::ArrayGet, 1).ok_or(
+        E::Target(CoreMethodInstanceTargetRejectV1::UnsupportedOperation {
+            op: CoreMethodOp::ArrayGet,
+            arity: 1,
+        }),
+    )?;
+    let target = CoreMethodInstanceTargetIssuerV1::array_dynamic_read(
+        CORE_METHOD_MANIFEST_BRAND_V2,
+    )
+    .map_err(E::Target)?
+    .issue(row)
+    .map_err(E::Target)?;
+    let contract = ResolverCoreMethodCallableContractIssuerV1::issue(
+        ledger,
+        call,
+        &membership,
+        ResolvedLoopPlacementV1::Body,
+        target,
+    )
+    .map_err(E::Contract)?;
+    Ok(Some(VerifiedSourceBoundCoreMethodCallV1::new(contract)))
 }

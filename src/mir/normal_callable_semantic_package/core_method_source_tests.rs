@@ -4,6 +4,7 @@ use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, CompilationContext, SelectedNormalCallableKeyV1,
 };
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
+use std::collections::BTreeMap;
 
 fn package() -> VerifiedNormalCallableSemanticPackageV1 {
     let mut resolver = FunctionSemanticResolverSessionV1::new(977).unwrap();
@@ -113,4 +114,149 @@ fn same_key_from_another_package_cannot_supply_source_owner() {
             Ok(())
         })
         .unwrap();
+}
+
+type GetRows = BTreeMap<
+    SelectedNormalCallableKeyV1,
+    BTreeMap<crate::mir::resolved_semantics::SourceExprSiteV1, SelectedSourceCoreMethodCallV1>,
+>;
+
+/// The package loan omits named-array issuance without the brand catalog, so
+/// these pins exercise the same issuer the production `Some(catalog)` arm runs.
+fn field_resident_get_rows(body: &str) -> Result<GetRows, String> {
+    let source = format!(
+        r#"box Store {{
+  init {{ ids }}
+  birth() {{ me.ids = new ArrayBox() }}
+  collect() {{ {body} }}
+}}"#
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(984).unwrap();
+    let package = issue_normal_callable_semantic_package_v1(
+        &mut resolver,
+        super::resolved_selected_handoff_tests::final_source(&source),
+    )
+    .expect("package issue");
+    let ast = crate::parser::NyashParser::parse_from_string(&source).unwrap();
+    let brands = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(&ast).unwrap();
+    super::core_method_source::issue_source_core_method_calls_with_named_arrays_v1(
+        &package.catalog,
+        &package.batch,
+        &package.selected,
+        &brands,
+        package.instance_constructors(),
+    )
+    .map(|(rows, _)| rows)
+}
+
+fn collect_key() -> SelectedNormalCallableKeyV1 {
+    SelectedNormalCallableKeyV1::Cataloged(
+        CanonicalSameModuleCallableKeyV1::test_instance_box_method("Store", "collect", 0),
+    )
+}
+
+#[test]
+fn field_resident_array_get_issues_plain_core_method_contract() {
+    let rows = field_resident_get_rows(
+        r#"
+    local ids = me.ids
+    local i = 0
+    local n = ids.length()
+    loop(i < n) {
+      local x = ids.get(i)
+      i = i + 1
+    }
+    return i
+"#,
+    )
+    .expect("named-array issue");
+    let rows = rows.get(&collect_key()).expect("collect rows");
+    assert_eq!(rows.len(), 1, "only the loop-body get is armed");
+    let (_, row) = rows.iter().next().unwrap();
+    let contract = row.contract();
+    assert_eq!(
+        contract.target().row().row().op,
+        crate::mir::core_method_op::CoreMethodOp::ArrayGet
+    );
+    assert_eq!(
+        contract.target().result(),
+        crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::DynamicToCaller
+    );
+    assert_eq!(
+        contract.placement(),
+        crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Body
+    );
+    assert!(contract.named_array_requirement().is_none());
+}
+
+#[test]
+fn field_resident_get_rejects_receiver_rebind_and_non_integer_index() {
+    for (body, token) in [
+        (
+            r#"
+    local ids = me.ids
+    local i = 0
+    loop(i < 1) {
+      local x = ids.get(i)
+      ids = me.ids
+      i = i + 1
+    }
+    return i
+"#,
+            "ReassignedReceiver",
+        ),
+        (
+            r#"
+    local ids = me.ids
+    local i = 0
+    loop(i < 1) {
+      local x = ids.get("s")
+      i = i + 1
+    }
+    return i
+"#,
+            "IntegerSourceMissing",
+        ),
+    ] {
+        let error = field_resident_get_rows(body).unwrap_err();
+        assert!(error.contains(token), "{token} absent from {error}");
+    }
+}
+
+#[test]
+fn non_resident_get_stays_unarmed() {
+    for body in [
+        // Construction-alias receiver — no field-residence claim.
+        r#"
+    local ids = new ArrayBox()
+    local i = 0
+    loop(i < 1) {
+      local x = ids.get(i)
+      i = i + 1
+    }
+    return i
+"#,
+        // Unaliased `me` field access — receiver is not lexical local.
+        r#"
+    local i = 0
+    loop(i < 1) {
+      local x = me.ids.get(i)
+      i = i + 1
+    }
+    return i
+"#,
+        // Condition placement — the read arm is Body-only.
+        r#"
+    local ids = me.ids
+    local i = 0
+    loop(ids.get(i) == i) {
+      i = i + 1
+    }
+    return i
+"#,
+    ] {
+        let rows = field_resident_get_rows(body).expect("named-array issue");
+        let empty = rows.get(&collect_key()).map_or(0, |rows| rows.len());
+        assert_eq!(empty, 0, "unarmed get must not mint a contract");
+    }
 }

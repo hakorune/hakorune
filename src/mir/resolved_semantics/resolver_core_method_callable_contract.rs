@@ -285,7 +285,8 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
         }
 
         match (&named_array, target.schema()) {
-            (None, CoreMethodHomeSchemaV1::StringBoxText) => {}
+            (None, CoreMethodHomeSchemaV1::StringBoxText | CoreMethodHomeSchemaV1::ArrayDynamicRead) => {
+            }
             (
                 Some(requirement),
                 schema @ (CoreMethodHomeSchemaV1::ArrayTextAppend
@@ -340,6 +341,7 @@ fn allowed_target_placements(op: CoreMethodOp, arity: u32) -> &'static [Resolved
             ResolvedLoopPlacementV1::Condition,
         ],
         (CoreMethodOp::ArrayPush, 1) => &[ResolvedLoopPlacementV1::Body],
+        (CoreMethodOp::ArrayGet, 1) => &[ResolvedLoopPlacementV1::Body],
         _ => &[],
     }
 }
@@ -394,6 +396,12 @@ fn verify_target(
             "ArrayBox",
             CoreMethodHomeAbiProfileV1::NamedArrayIntegerV1,
         ),
+        CoreMethodHomeSchemaV1::ArrayDynamicRead => (
+            CoreMethodHomeReceiverRelationV1::NamedArrayReceiver,
+            CoreMethodEffectV1::PureRead,
+            "ArrayBox",
+            CoreMethodHomeAbiProfileV1::NamedArrayReadV1,
+        ),
     };
     if target.receiver() != receiver {
         return Err(ResolverCoreMethodCallableContractRejectV1::TargetReceiverMismatch);
@@ -416,7 +424,8 @@ fn verify_target(
     match (row.op, target.row().arity(), target.result()) {
         (CoreMethodOp::StringLen, 0, CoreMethodHomeResultRelationV1::I64ToCaller)
         | (CoreMethodOp::StringSubstring, 2, CoreMethodHomeResultRelationV1::TextToCaller)
-        | (CoreMethodOp::ArrayPush, 1, CoreMethodHomeResultRelationV1::NoValue) => {}
+        | (CoreMethodOp::ArrayPush, 1, CoreMethodHomeResultRelationV1::NoValue)
+        | (CoreMethodOp::ArrayGet, 1, CoreMethodHomeResultRelationV1::DynamicToCaller) => {}
         (op, arity, _) => {
             return Err(
                 ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch { op, arity },
@@ -430,7 +439,8 @@ fn verify_target(
         CoreMethodOp::ArrayPush => match target.schema() {
             CoreMethodHomeSchemaV1::ArrayTextAppend => &[Parameter::TextRetainedByReceiver],
             CoreMethodHomeSchemaV1::ArrayIntegerAppend => &[Parameter::I64Parameter],
-            CoreMethodHomeSchemaV1::StringBoxText => {
+            CoreMethodHomeSchemaV1::ArrayDynamicRead
+            | CoreMethodHomeSchemaV1::StringBoxText => {
                 return Err(
                     ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch {
                         op: row.op,
@@ -439,6 +449,7 @@ fn verify_target(
                 )
             }
         },
+        CoreMethodOp::ArrayGet => &[Parameter::I64Parameter],
         op => {
             return Err(
                 ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch {
