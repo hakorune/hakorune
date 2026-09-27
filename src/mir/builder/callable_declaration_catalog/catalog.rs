@@ -158,6 +158,7 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
             let ASTNode::BoxDeclaration {
                 name,
                 methods,
+                constructors,
                 is_static,
                 is_sync,
                 is_record,
@@ -268,6 +269,52 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                         .entry((map_name.to_string().into_boxed_str(), arity))
                         .or_default()
                         .push(key);
+                }
+            }
+
+            for declaration in constructors.values() {
+                let ASTNode::FunctionDeclaration {
+                    name: ctor_name,
+                    params,
+                    param_decls,
+                    return_type_name,
+                    body,
+                    uses,
+                    attrs,
+                    ..
+                } = declaration
+                else {
+                    return Err(
+                        SameModuleCallableDeclarationCatalogErrorV1::MethodMustBeFunction {
+                            owner: name.clone(),
+                            method: "constructor".to_string(),
+                        },
+                    );
+                };
+                if ctor_name != "birth" {
+                    continue;
+                }
+                let arity = u32::try_from(params.len()).map_err(|_| {
+                    SameModuleCallableDeclarationCatalogErrorV1::ArityOverflow {
+                        owner: name.clone(),
+                        method: ctor_name.clone(),
+                    }
+                })?;
+                let key = CanonicalSameModuleCallableKeyV1::birth_constructor(name, arity);
+                validate_parameters(&key, params, param_decls)?;
+                let row = VerifiedSameModuleCallableDeclarationV1 {
+                    key: key.clone(),
+                    params: params.clone().into_boxed_slice(),
+                    param_decls: param_decls.clone().into_boxed_slice(),
+                    return_type_name: return_type_name.clone().map(String::into_boxed_str),
+                    body: body.clone().into_boxed_slice(),
+                    uses: uses.clone().into_boxed_slice(),
+                    attrs: attrs.clone(),
+                };
+                if rows_by_key.insert(key.clone(), row).is_some() {
+                    return Err(
+                        SameModuleCallableDeclarationCatalogErrorV1::DuplicateCanonicalKey(key),
+                    );
                 }
             }
         }

@@ -8,8 +8,8 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::ast::ASTNode;
 use crate::mir::builder::ConsumedNormalRootCallableSourceV1;
 use crate::parser::{
-    CallableDeclarationIdentityV1, FinalCallableDeclarationModeV1,
-    FinalCallableSemanticSyntaxLoanErrorV1,
+    CallableDeclarationIdentityV1, ConstructorSourceKindV1, FinalCallableDeclarationModeV1,
+    FinalCallableSemanticSyntaxLoanErrorV1, FinalConstructorSemanticSyntaxLoanErrorV1,
 };
 
 use super::catalog::validate_parameters;
@@ -25,6 +25,9 @@ use super::{
 pub(crate) enum SourceBackedCallableCatalogIssueV1 {
     ParserSyntax {
         _error: FinalCallableSemanticSyntaxLoanErrorV1,
+    },
+    ConstructorSyntax {
+        _error: FinalConstructorSemanticSyntaxLoanErrorV1,
     },
     SourceShape,
     ArityOverflow,
@@ -298,6 +301,50 @@ pub(in crate::mir) fn issue_source_backed_same_module_callable_catalog_v1(
                     role,
                 });
             }
+
+            source
+                .source()
+                .with_constructor_semantic_syntax(|ctor_loan| {
+                    for row in ctor_loan.rows() {
+                        if row.kind() != ConstructorSourceKindV1::Birth {
+                            continue;
+                        }
+                        let ASTNode::FunctionDeclaration {
+                            params,
+                            param_decls,
+                            return_type_name,
+                            body,
+                            uses,
+                            attrs,
+                            ..
+                        } = row.declaration()
+                        else {
+                            return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
+                        };
+                        let key = CanonicalSameModuleCallableKeyV1::birth_constructor(
+                            row.box_name(),
+                            row.source_arity(),
+                        );
+                        validate_parameters(&key, params, param_decls)
+                            .map_err(|_| SourceBackedCallableCatalogIssueV1::SourceShape)?;
+                        let declaration = VerifiedSameModuleCallableDeclarationV1 {
+                            key: key.clone(),
+                            params: params.clone().into_boxed_slice(),
+                            param_decls: param_decls.clone().into_boxed_slice(),
+                            return_type_name: return_type_name.clone().map(String::into_boxed_str),
+                            body: body.clone().into_boxed_slice(),
+                            uses: uses.clone().into_boxed_slice(),
+                            attrs: attrs.clone(),
+                        };
+                        if rows_by_key.insert(key, declaration).is_some() {
+                            return Err(SourceBackedCallableCatalogIssueV1::DuplicateCanonicalKey);
+                        }
+                    }
+                    Ok(())
+                })
+                .map_err(
+                    |_error| SourceBackedCallableCatalogIssueV1::ConstructorSyntax { _error },
+                )??;
 
             let app_main_co_seal = if let Some(main) = app_relation {
                 if matched_app_static_children != main.static_children().len() {

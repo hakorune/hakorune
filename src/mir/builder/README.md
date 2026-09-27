@@ -1318,21 +1318,24 @@ source is a typed freeze and is never promoted by this P0. The reusable
 table and the no-fallback boundary.
 
 Admitted located lineages are `Cataloged` and, since the Gate-1 lineage D0,
-`Main` and `TopLevel`. A source-backed `Main(locator)` root verifies its
-caller through the sealed declaration probe `declaration_for(StaticBoxMethod,
-box_name, method_name, arity)` and takes with the declaration's sealed key —
-never the locator symbol or a rebuilt key. A `TopLevel(key)` root projects its
-sealed occurrence key to `free_function(name, arity)` and requires both the
-catalog's declaration row (parity-minted for top-level functions by
-`seal_statements`, matching the source-backed issuer) and the probed
-`StaticBoxMethod` target; caller-membership failure stays `ForeignLineage` and
-a non-declaration target stays `Unavailable`, mirroring the `Cataloged` arm.
-An absent catalog is `DeclarationCatalogUnavailable`. `InstanceConstructor`,
-`NestedBoxMethod`, and `ScriptRoot` remain foreign: `BirthConstructor` callers
-are not yet inventoried (S1 mints their catalog rows atomically with the arm —
-admission without rows would misreport `NoExactStaticTarget`), nested methods
-carry no verified caller key, and script statics belong to the sibling
-script-direct claim family.
+`Main`, `TopLevel`, and `InstanceConstructor`. A source-backed `Main(locator)`
+root verifies its caller through the sealed declaration probe
+`declaration_for(StaticBoxMethod, box_name, method_name, arity)` and takes
+with the declaration's sealed key — never the locator symbol or a rebuilt
+key. A `TopLevel(key)` root projects its sealed occurrence key to
+`free_function(name, arity)` and requires both the catalog's declaration row
+(parity-minted for top-level functions by `seal_statements`, matching the
+source-backed issuer) and the probed `StaticBoxMethod` target. An
+`InstanceConstructor(key)` root requires the parser/source-issued
+`published_birth_key()` and the catalog's `birth_constructor(owner, arity)`
+row — minted atomically by both issuers from the `constructors` map (parser
+`Birth` kind only; `Init` and `Pack` mint no canonical row) — and probes the
+same `StaticBoxMethod` target. For every arm, caller-membership failure
+stays `ForeignLineage` and a non-declaration target stays `Unavailable`,
+mirroring the `Cataloged` arm. An absent catalog is
+`DeclarationCatalogUnavailable`. `NestedBoxMethod` and `ScriptRoot` remain
+foreign: nested methods carry no verified caller key and script statics
+belong to the sibling script-direct claim family.
 
 For the bounded StaticCurrentOwner `me.method` route, this ingress runs before
 the legacy `me` header classifier. A static-box caller therefore projects the

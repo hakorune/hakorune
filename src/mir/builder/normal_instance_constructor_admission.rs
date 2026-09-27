@@ -220,7 +220,7 @@ pub(in crate::mir::builder) struct NormalInstanceConstructorSourceKeyV1 {
 }
 
 impl NormalInstanceConstructorSourceKeyV1 {
-    fn from_physical_source(
+    pub(in crate::mir::builder) fn from_physical_source(
         source_id: ConstructorSourceIdV1,
         published_birth_key: Option<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>,
         statement_index: usize,
@@ -250,6 +250,12 @@ impl NormalInstanceConstructorSourceKeyV1 {
 
     pub(in crate::mir::builder) fn source_id(&self) -> &ConstructorSourceIdV1 {
         &self.source_id
+    }
+
+    pub(in crate::mir::builder) const fn published_birth_key(
+        &self,
+    ) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
+        self.published_birth_key.as_ref()
     }
 }
 

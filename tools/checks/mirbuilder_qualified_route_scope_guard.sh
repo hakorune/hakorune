@@ -160,15 +160,16 @@ rg -q 'source_item_rejects_duplicate_me_receiver_site_consumption' "$ITEMS_TESTS
 # `"<source-owned>"` (never resolves -> DeclaredInstance sibling preserved)
 # and Math/builtin owners keep `Unavailable` -> compatibility.
 STATIC_INGRESS="$ROOT_DIR/src/mir/builder/static_result_publication_ingress.rs"
+STATIC_INGRESS_TESTS="$ROOT_DIR/src/mir/builder/static_result_publication_ingress_tests.rs"
 STATIC_OWNER_POLICY="$ROOT_DIR/src/mir/builder/method_call_handlers/static_current_owner_policy.rs"
 rg -q 'declaration_for' "$STATIC_INGRESS"
 rg -q 'SameModuleCallableNamespaceV1::StaticBoxMethod' "$STATIC_INGRESS"
 rg -q 'caller\.namespace\(\) == SameModuleCallableNamespaceV1::StaticBoxMethod' "$STATIC_INGRESS"
 rg -q '"<source-owned>"' "$STATIC_OWNER_POLICY"
-rg -q 'fn instance_caller_is_admitted_for_declaration_resolved_static_target' "$STATIC_INGRESS"
-rg -q 'fn instance_caller_declines_non_declaration_targets' "$STATIC_INGRESS"
-rg -q 'fn me_call_probe_keeps_instance_callers_outside_static_ingress' "$STATIC_INGRESS"
-rg -q 'fn instance_caller_declines_when_declarations_are_unavailable' "$STATIC_INGRESS"
+rg -q 'fn instance_caller_is_admitted_for_declaration_resolved_static_target' "$STATIC_INGRESS_TESTS"
+rg -q 'fn instance_caller_declines_non_declaration_targets' "$STATIC_INGRESS_TESTS"
+rg -q 'fn me_call_probe_keeps_instance_callers_outside_static_ingress' "$STATIC_INGRESS_TESTS"
+rg -q 'fn instance_caller_declines_when_declarations_are_unavailable' "$STATIC_INGRESS_TESTS"
 
 # MIRBUILDER-EXE-ACCEPTANCE-TARGET-ONLY-EMISSION-S0: the member_route
 # `StaticReceiver` arm consumes `StaticResultPublicationIngressV1::TargetOnly`

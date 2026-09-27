@@ -5,6 +5,7 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root"
 
 ingress="src/mir/builder/static_result_publication_ingress.rs"
+ingress_tests="src/mir/builder/static_result_publication_ingress_tests.rs"
 bridge="src/mir/builder/calls/static_result_publication_physical_bridge.rs"
 member="src/mir/builder/calls/member_route.rs"
 me="src/mir/builder/method_call_handlers/static_current_owner_policy.rs"
@@ -12,6 +13,7 @@ terminal="src/mir/builder/calls/method_call_terminal.rs"
 transport="src/mir/builder/raw_invocation_source_transport"
 
 test -f "$ingress"
+test -f "$ingress_tests"
 test -f "$bridge"
 test ! -e src/mir/builder/raw_static_result_publication.rs
 
@@ -23,7 +25,7 @@ grep -q 'SourceContextMissing' "$ingress"
 grep -q 'SourceLocationLost' "$ingress"
 grep -q 'ForeignLineage' "$ingress"
 grep -q 'self.callable_ledger.is_some()' "$ingress"
-grep -q 'expected_lineage: Some(RawInvocationRootLineageV1::Cataloged' "$ingress"
+grep -q 'expected_lineage: Some(RawInvocationRootLineageV1::Cataloged' "$ingress" "$ingress_tests"
 grep -q 'StaticResultPublicationIngressV1::Selected' "$member"
 grep -q 'StaticResultPublicationIngressV1::NoExactStaticTarget' "$member"
 grep -q 'StaticResultPublicationIngressV1::Unavailable' "$member"
@@ -89,6 +91,7 @@ for source in "$transport"/*.rs; do
   test "$(wc -l < "$source")" -le 759
 done
 test "$(wc -l < "$ingress")" -lt 760
+test "$(wc -l < "$ingress_tests")" -lt 760
 test "$(wc -l < "$bridge")" -lt 760
 test "$(wc -l < "$terminal")" -lt 760
 

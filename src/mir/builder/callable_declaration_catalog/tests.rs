@@ -336,12 +336,56 @@ fn excludes_non_catalog_callable_surfaces() {
     ]);
     let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&source).unwrap();
     // Parity with the source-backed issuer: the top-level function mints a
-    // canonical FreeFunction row, while constructor/record/sync surfaces and
-    // static members of instance boxes stay outside the catalog.
-    assert_eq!(catalog.len(), 1);
+    // canonical FreeFunction row and the `birth` constructor mints a
+    // BirthConstructor row, while record/sync surfaces and static members of
+    // instance boxes stay outside the catalog.
+    assert_eq!(catalog.len(), 2);
     assert!(catalog
-        .declaration(&CanonicalSameModuleCallableKeyV1::free_function("top_level", 0))
+        .declaration(&CanonicalSameModuleCallableKeyV1::free_function(
+            "top_level",
+            0
+        ))
         .is_some());
+    assert!(catalog
+        .declaration(&CanonicalSameModuleCallableKeyV1::birth_constructor(
+            "Ordinary", 0
+        ))
+        .is_some());
+}
+
+#[test]
+fn birth_constructor_rows_carry_the_normalized_body_and_skip_other_kinds() {
+    let mut ordinary = instance_box("Holder", vec![instance_function("seed", &[], None)]);
+    let ASTNode::BoxDeclaration { constructors, .. } = &mut ordinary else {
+        unreachable!()
+    };
+    constructors.insert(
+        "birth/1".to_string(),
+        instance_function("birth", &[("seed", None)], None),
+    );
+    constructors.insert("init/0".to_string(), instance_function("init", &[], None));
+    constructors.insert("pack/0".to_string(), instance_function("pack", &[], None));
+
+    let catalog =
+        VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&program(vec![ordinary]))
+            .unwrap();
+    let key = CanonicalSameModuleCallableKeyV1::birth_constructor("Holder", 1);
+    let declaration = catalog
+        .declaration(&key)
+        .expect("the birth constructor must mint a canonical row");
+    assert_eq!(declaration.params(), &["seed".to_string()]);
+    assert_eq!(declaration.body().len(), 1, "row carries the stored body");
+    assert!(
+        catalog
+            .declaration(&CanonicalSameModuleCallableKeyV1::birth_constructor(
+                "Holder", 0
+            ))
+            .is_none(),
+        "init/pack kinds mint no row"
+    );
+    assert!(catalog.keys().all(|key| key.namespace()
+        != SameModuleCallableNamespaceV1::BirthConstructor
+        || *key == CanonicalSameModuleCallableKeyV1::birth_constructor("Holder", 1)));
 }
 
 #[test]
@@ -514,4 +558,31 @@ fn source_backed_program_runtime_has_no_app_main_companion() {
         .expect("source-backed catalog");
 
     assert!(catalog.catalog().source_backed_app_main().is_none());
+}
+
+#[test]
+fn source_backed_issuer_co_seals_birth_constructor_rows() {
+    let source = final_source("box Holder { seed: i64 birth(seed) { me.seed = seed } }");
+    let source = NormalRootExecutionConsumerV1::consume_once(source)
+        .expect("program-runtime root")
+        .into_consumed_source();
+    let catalog = super::issue_source_backed_same_module_callable_catalog_v1(&source)
+        .expect("source-backed catalog");
+
+    let key = CanonicalSameModuleCallableKeyV1::birth_constructor("Holder", 1);
+    let declaration = catalog
+        .catalog()
+        .declaration(&key)
+        .expect("the source-backed issuer must mint a birth constructor row");
+    assert_eq!(declaration.params(), &["seed".to_string()]);
+    assert!(!declaration.body().is_empty(), "row carries the body");
+    assert!(
+        catalog
+            .catalog()
+            .declaration(&CanonicalSameModuleCallableKeyV1::birth_constructor(
+                "Holder", 0
+            ))
+            .is_none(),
+        "only the declared birth arity mints a row"
+    );
 }

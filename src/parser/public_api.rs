@@ -17,7 +17,9 @@ pub(crate) use super::callable_parameter_source::{
     RejectedParserNormalRawVmSourceExtractionV1, RejectedParserNormalRootSourcePlanConsumptionV1,
     SourcePlanBoundNormalCallableSourceV1,
 };
-pub(crate) use super::constructor_source_catalog::ConstructorSourceIdV1;
+pub(crate) use super::constructor_source_catalog::{
+    ConstructorSourceIdV1, FinalConstructorSemanticSyntaxLoanErrorV1,
+};
 pub(crate) use super::normal_callable_program_source::{
     CallableMethodSourceObservationV1, FinalCallableDeclarationModeV1,
     FinalCallableProgramSourceRejectV1, FinalCallableSemanticSyntaxLoanErrorV1,
