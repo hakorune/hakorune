@@ -359,6 +359,28 @@ rg -q 'field_resident_array_get_issues_plain_core_method_contract' "$CORE_METHOD
 rg -q 'field_resident_get_rejects_receiver_rebind_and_non_integer_index' "$CORE_METHOD_PACKAGE_TESTS"
 rg -q 'non_resident_get_stays_unarmed' "$CORE_METHOD_PACKAGE_TESTS"
 
+# MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-S0: the generic StringBox
+# issuer arm seals bounded StringIndexOf/1 contracts — LoopBody placement
+# only, gated by receiver- and needle-text evidence (string literal or a
+# TextToCaller contract minted in the same issuance, single initializer,
+# no rebind). indexOf/1 is catalog-unique on StringBox but the runtime
+# router also accepts ArrayBox.indexOf/1, so the arm never mints from the
+# selector alone; parameter receivers and arity-2 stay unarmed. The
+# borrowed needle records the new TextParameter relation; I64ToCaller
+# reuses the existing Integer consumer mapping.
+SOURCE_ISSUER="$ROOT_DIR/src/mir/source_call_target/core_method.rs"
+rg -q 'fn index_of_has_text_evidence' "$SOURCE_ISSUER"
+rg -q 'fn text_source_at' "$SOURCE_ISSUER"
+rg -q 'TextParameter' "$CORE_METHOD_TARGET"
+rg -q '\(CoreMethodOp::StringIndexOf, 1\) => &\[ResolvedLoopPlacementV1::Body\]' "$SOURCE_ISSUER"
+rg -q '\(CoreMethodOp::StringIndexOf, 1\) => &\[ResolvedLoopPlacementV1::Body\]' "$CONTRACT_ISSUER"
+rg -q 'CoreMethodOp::StringIndexOf => &\[Parameter::TextParameter\]' "$CONTRACT_ISSUER"
+rg -q 'literal_receiver_index_of_arms_body_with_text_parameter' "$CORE_METHOD_PACKAGE_TESTS"
+rg -q 'substring_contract_supplies_index_of_needle_text' "$CORE_METHOD_PACKAGE_TESTS"
+rg -q 'find_alias_follows_the_same_text_evidence_gate' "$CORE_METHOD_PACKAGE_TESTS"
+rg -q 'index_of_stays_unarmed_without_text_evidence' "$CORE_METHOD_PACKAGE_TESTS"
+rg -q 'index_of_condition_placement_stays_rejected' "$CORE_METHOD_PACKAGE_TESTS"
+
 # MIRBUILDER-EXE-ACCEPTANCE-DECLARED-INSTANCE-LOOP-LOCATOR-S3: callable loop
 # source lanes carry the package-issued declared-instance locator so a
 # loop-body `me.method` site consumes its exact relation row and emits the

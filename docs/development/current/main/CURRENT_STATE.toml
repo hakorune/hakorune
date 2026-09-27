@@ -1,10 +1,10 @@
 date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Gate1CallableLoopStringIndexOfS0__TextEvidenceIndexOfContractOpen"
-current_design_stop = "none"
+current_blocker_token = "Gate1CallableLoopFrontierPause__RemainingTerminalsParkedDeclaredInstance"
+current_design_stop = "StringIndexOf S0 landed (alphabet.indexOf(ch) arms under receiver-text + text-needle evidence; production digest-shape compiles and emits RuntimeDataBox.indexOf like length/substring); every remaining observable boxtorrent terminal is the ParkedSealed DeclaredInstance family (materialize/1 store.readData and per-card releaseFrom/ingest) — the route-front lane is exhausted on observable evidence and reopening it requires explicit lane selection; Gates 2-4 remain parked pending explicit selection"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,28 +14,25 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-d0-2026-09-27.md"
-latest_card = "mirbuilder-gate1-callable-loop-string-indexof-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-d0-2026-09-27.md"
+latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-StringIndexOf D0 closed — Decision accepted: `alphabet.indexOf(ch)`
-(`ContentHash.digest` LoopBody) is `("StringBox","indexOf",1)` ->
-StringIndexOf (I64Value, PureRead). Catalog-unique op in the
-CoreMethodContractBox manifest, but the runtime router accepts
-`ArrayBox.indexOf/1` and `pred_chars.indexOf` (parameter receiver,
-Dynamic-member lane) exists — an unconditional arm is selector-only
-minting. Bounded admission: Body placement + receiver-text evidence
-(string-literal or TextToCaller-contract initializer, no rebind) +
-text-producing needle (text_source_at port of integer_source_at).
-New `TextParameter` relation (needle is borrowed, not retained).
-I64ToCaller -> MirType::Integer via existing consumer arm.
-`StringIndexOf/2`, `lastIndexOf`, param/non-text receivers stay
-unarmed; `materialize` remains at the ParkedSealed DeclaredInstance
-terminal.
+StringIndexOf S0 landed — `alphabet.indexOf(ch)` arms `StringIndexOf/1`
+(StringBoxReceiver + [TextParameter] + I64ToCaller, Body placement)
+only under receiver-text evidence (string-literal or TextToCaller
+initializer, single initializer, no rebind) and a text-producing
+needle; ArrayBox/parameter/non-text receivers, arity-2, lastIndexOf
+stay unarmed — no selector-only minting. Tests 11/11 + regressions
+(74/83/87/18/31) green; digest-shape program compiles end-to-end and
+emits RuntimeDataBox.indexOf (same WarmDirectAbi shape as
+length/substring); boxtorrent stops only at the parked
+DeclaredInstance `store.readData`. Every remaining observable
+terminal is parked — explicit lane selection required.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
+next_design_card = "MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-S0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -50,7 +47,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-27: MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-S0 landed — alphabet.indexOf(ch) arms StringIndexOf/1 under receiver-text + text-needle evidence (literal or TextToCaller initializer, single init, no rebind) at Body placement; new TextParameter relation; ArrayBox/param/non-text receivers, arity-2, lastIndexOf stay unarmed; tests 11/11+224 green; digest-shape compiles end-to-end (RuntimeDataBox.indexOf); boxtorrent stops only at parked DeclaredInstance store.readData — frontier pause pending explicit lane selection.",
   "2026-09-27: MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-D0 closed — alphabet.indexOf(ch) is StringBox.indexOf/1 (catalog-unique op but runtime router has ArrayBox.indexOf and pred_chars.indexOf is param-receiver Dynamic-lane); Decision: arm only under receiver-text evidence + text needle + Body placement; new TextParameter relation; bounded S0 emitted — StringIndexOf/2, param/non-text receivers stay unarmed.",
   "2026-09-27: MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-S0 landed — field-resident ArrayBox.get/1 issues plain CoreMethod contract (ArrayDynamicRead/NamedArrayReadV1/DynamicToCaller->MirType::Unknown; Body placement; residence claim + birth new ArrayBox provider + rebind/integer-source gates; NamedArrayResultDemandV1 parametrizes NoValue/ReadResult); tests 6/6+294 green; boxtorrent chunkListText clears, materialize stops at parked DeclaredInstance store.readData.",
-  "2026-09-27: MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-D0 closed — Decision: ids.get(i) is CoreMethod family (ArrayBox.get/1); get/1 ambiguous vs MapBox so field-residence receiver evidence (claim + birth new ArrayBox provider + rebind/integer-source relations) gates a plain contract, no write requirement; DynamicMember structurally unreachable for field-alias receivers; bounded S0 emitted (ArrayGet,1, Body placement) — clears chunkListText only.",
 ]

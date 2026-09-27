@@ -260,3 +260,249 @@ fn non_resident_get_stays_unarmed() {
         assert_eq!(empty, 0, "unarmed get must not mint a contract");
     }
 }
+
+type IndexOfRow = (
+    crate::mir::core_method_op::CoreMethodOp,
+    crate::mir::resolved_semantics::ResolvedLoopPlacementV1,
+    Vec<crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1>,
+    crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1,
+);
+
+/// The `StringIndexOf/1` arm runs inside the generic StringBox issuer — the
+/// package loan exercises the exact production path with no brand catalog.
+fn index_of_rows(param_decl: &str, body: &str, arity: usize) -> Result<Vec<IndexOfRow>, String> {
+    let source = format!(
+        r#"
+static box Scan {{
+  run({param_decl}) {{
+    local alphabet = "abc"
+{body}
+  }}
+}}
+"#
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(991).unwrap();
+    let package = issue_normal_callable_semantic_package_v1(
+        &mut resolver,
+        super::resolved_selected_handoff_tests::final_source(&source),
+    )
+    .expect("source-backed package");
+    let key = SelectedNormalCallableKeyV1::Cataloged(
+        CanonicalSameModuleCallableKeyV1::test_static_box_method("Scan", "run", arity),
+    );
+    let mut context = CompilationContext::new();
+    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let mut port = installed.begin_lowering(&context).unwrap();
+    let mut rows = Vec::new();
+    port.with_selected_lowering_input_and_core_methods(&key, |_, source_rows, _| {
+        for (_, row) in source_rows {
+            let contract = row.contract();
+            rows.push((
+                contract.target().row().row().op,
+                contract.placement(),
+                contract.target().parameters().to_vec(),
+                contract.target().result(),
+            ));
+        }
+        Ok(())
+    })
+    .map_err(|error| format!("{error:?}"))?;
+    Ok(rows)
+}
+
+#[test]
+fn literal_receiver_index_of_arms_body_with_text_parameter() {
+    let rows = index_of_rows(
+        "",
+        r#"
+    local ch = "x"
+    local i = 0
+    loop(i < 1) {
+      local idx = alphabet.indexOf(ch)
+      i = i + 1
+    }
+    return i
+"#,
+        0,
+    )
+    .expect("index-of issue");
+    assert_eq!(
+        rows,
+        vec![(
+            crate::mir::core_method_op::CoreMethodOp::StringIndexOf,
+            crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Body,
+            vec![crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::TextParameter],
+            crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::I64ToCaller,
+        )],
+        "exactly one StringIndexOf Body contract with a borrowed text needle"
+    );
+}
+
+#[test]
+fn substring_contract_supplies_index_of_needle_text() {
+    let rows = index_of_rows(
+        "",
+        r#"
+    local text = "abc"
+    local i = 0
+    loop(i < 1) {
+      local ch = text.substring(i, i + 1)
+      local idx = alphabet.indexOf(ch)
+      i = i + 1
+    }
+    return i
+"#,
+        0,
+    )
+    .expect("index-of issue");
+    let ops: Vec<_> = rows.iter().map(|row| row.0).collect();
+    assert_eq!(
+        ops,
+        vec![
+            crate::mir::core_method_op::CoreMethodOp::StringSubstring,
+            crate::mir::core_method_op::CoreMethodOp::StringIndexOf,
+        ],
+        "substring mints the TextToCaller contract the needle proof follows"
+    );
+}
+
+#[test]
+fn find_alias_follows_the_same_text_evidence_gate() {
+    for body in [
+        r#"
+    local ch = "x"
+    local i = 0
+    loop(i < 1) {
+      local idx = alphabet.find(ch)
+      i = i + 1
+    }
+    return i
+"#,
+    ] {
+        let rows = index_of_rows("", body, 0).expect("find issue");
+        assert_eq!(
+            rows.iter().map(|row| row.0).collect::<Vec<_>>(),
+            vec![crate::mir::core_method_op::CoreMethodOp::StringIndexOf],
+            "the manifest alias mints the same StringIndexOf contract"
+        );
+    }
+    // The alias never relaxes evidence — a non-text receiver stays unarmed.
+    let rows = index_of_rows(
+        "",
+        r#"
+    local arr = new ArrayBox()
+    local i = 0
+    loop(i < 1) {
+      local idx = arr.find("x")
+      i = i + 1
+    }
+    return i
+"#,
+        0,
+    )
+    .expect("find issue");
+    assert_eq!(rows.len(), 0);
+}
+
+#[test]
+fn index_of_stays_unarmed_without_text_evidence() {
+    for body in [
+        // ArrayBox receiver — the runtime router also routes
+        // `ArrayBox.indexOf/1`; it must not mint StringIndexOf.
+        r#"
+    local arr = new ArrayBox()
+    local i = 0
+    loop(i < 1) {
+      local idx = arr.indexOf("x")
+      i = i + 1
+    }
+    return i
+"#,
+        // Untyped receiver — no initializer text proof.
+        r#"
+    local arr = 7
+    local i = 0
+    loop(i < 1) {
+      local idx = arr.indexOf("x")
+      i = i + 1
+    }
+    return i
+"#,
+        // Non-text needle — `1` carries no text evidence.
+        r#"
+    local i = 0
+    loop(i < 1) {
+      local idx = alphabet.indexOf(1)
+      i = i + 1
+    }
+    return i
+"#,
+        // Rebound receiver — the literal proof covers only the
+        // initializer, not later assignments.
+        r#"
+    alphabet = "xy"
+    local i = 0
+    loop(i < 1) {
+      local idx = alphabet.indexOf("x")
+      i = i + 1
+    }
+    return i
+"#,
+        // Arity 2 — the bounded arm covers `indexOf/1` only.
+        r#"
+    local i = 0
+    loop(i < 1) {
+      local idx = alphabet.indexOf("x", 0)
+      i = i + 1
+    }
+    return i
+"#,
+        // `lastIndexOf` stays outside the armed family.
+        r#"
+    local i = 0
+    loop(i < 1) {
+      local idx = alphabet.lastIndexOf("x")
+      i = i + 1
+    }
+    return i
+"#,
+    ] {
+        let rows = index_of_rows("", body, 0).expect("index-of issue");
+        assert_eq!(rows.len(), 0, "unarmed indexOf must mint no contract");
+    }
+    // Parameter receiver — no initializer relation exists at all.
+    let rows = index_of_rows(
+        "pred_chars",
+        r#"
+    local i = 0
+    loop(i < 1) {
+      local idx = pred_chars.indexOf("x")
+      i = i + 1
+    }
+    return i
+"#,
+        1,
+    )
+    .expect("index-of issue");
+    assert_eq!(rows.len(), 0);
+}
+
+#[test]
+fn index_of_condition_placement_stays_rejected() {
+    // Body-only arm: a condition site mints no contract and stays unarmed
+    // rather than erroring — the placement filter declines before issue.
+    let rows = index_of_rows(
+        "",
+        r#"
+    local ch = "x"
+    local i = 0
+    loop(alphabet.indexOf(ch) >= 0) {
+      i = i + 1
+    }
+    return i
+"#,
+        0,
+    )
+    .expect("index-of issue");
+    assert_eq!(rows.len(), 0);
+}

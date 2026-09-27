@@ -342,6 +342,7 @@ fn allowed_target_placements(op: CoreMethodOp, arity: u32) -> &'static [Resolved
         ],
         (CoreMethodOp::ArrayPush, 1) => &[ResolvedLoopPlacementV1::Body],
         (CoreMethodOp::ArrayGet, 1) => &[ResolvedLoopPlacementV1::Body],
+        (CoreMethodOp::StringIndexOf, 1) => &[ResolvedLoopPlacementV1::Body],
         _ => &[],
     }
 }
@@ -425,7 +426,8 @@ fn verify_target(
         (CoreMethodOp::StringLen, 0, CoreMethodHomeResultRelationV1::I64ToCaller)
         | (CoreMethodOp::StringSubstring, 2, CoreMethodHomeResultRelationV1::TextToCaller)
         | (CoreMethodOp::ArrayPush, 1, CoreMethodHomeResultRelationV1::NoValue)
-        | (CoreMethodOp::ArrayGet, 1, CoreMethodHomeResultRelationV1::DynamicToCaller) => {}
+        | (CoreMethodOp::ArrayGet, 1, CoreMethodHomeResultRelationV1::DynamicToCaller)
+        | (CoreMethodOp::StringIndexOf, 1, CoreMethodHomeResultRelationV1::I64ToCaller) => {}
         (op, arity, _) => {
             return Err(
                 ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch { op, arity },
@@ -450,6 +452,7 @@ fn verify_target(
             }
         },
         CoreMethodOp::ArrayGet => &[Parameter::I64Parameter],
+        CoreMethodOp::StringIndexOf => &[Parameter::TextParameter],
         op => {
             return Err(
                 ResolverCoreMethodCallableContractRejectV1::TargetOperationMismatch {

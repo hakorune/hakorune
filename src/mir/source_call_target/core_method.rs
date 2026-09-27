@@ -5,7 +5,7 @@
 //! issuer session. This module only co-seals those authorities; it does not
 //! select by name, issue Recipe keys, or observe MIR/physical identity.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::callable_semantic_batch::{S6CCallSitePairRefV1, VerifiedS6CTypedInputRelationV1};
@@ -15,8 +15,10 @@ use crate::mir::core_method_result_kind::{
     CoreMethodManifestRowRefV2, CORE_METHOD_MANIFEST_BRAND_V2,
 };
 use crate::mir::resolved_semantics::{
-    CallableSemanticSourceLedgerView, CoreMethodHomeSchemaV1, CoreMethodInstanceTargetIssuerV1,
-    CoreMethodInstanceTargetRejectV1, ResolvedLoopPlacementV1, ResolvedLoopRegionLookupErrorV1,
+    BindingRefV1, CallableSemanticSourceLedgerView, CoreMethodHomeResultRelationV1,
+    CoreMethodHomeSchemaV1, CoreMethodInstanceTargetIssuerV1, CoreMethodInstanceTargetRejectV1,
+    ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
+    ResolvedLoopPlacementV1, ResolvedLoopRegionLookupErrorV1, ResolvedMethodCallReceiverSourceV1,
     ResolverCoreMethodCallableContractIssuerV1, ResolverCoreMethodCallableContractRejectV1,
     SourceExprSiteV1, VerifiedCoreMethodInstanceTargetV1, VerifiedResolvedMethodCallSourceV1,
     VerifiedResolverCoreMethodCallableContractV1,
@@ -81,6 +83,16 @@ pub(crate) fn issue_source_bound_core_method_calls_v1(
         let call_arity = call.arity();
         let allowed = allowed_placements(manifest_row.op, call_arity);
         if allowed.is_empty() {
+            continue;
+        }
+        // `indexOf/1` is catalog-unique on StringBox but the runtime router
+        // also accepts `ArrayBox.indexOf/1`; arming it without evidence
+        // would mint `StringIndexOf` on any lexical receiver. The bounded
+        // arm therefore requires receiver- and needle-text evidence minted
+        // from the same ledger rows — no selector-only issuance.
+        if manifest_row.op == CoreMethodOp::StringIndexOf
+            && !index_of_has_text_evidence(ledger, call, &rows)
+        {
             continue;
         }
         let candidates = loop_sites
@@ -155,6 +167,107 @@ fn issue_manifest_row(op: CoreMethodOp, arity: u32) -> Option<CoreMethodManifest
     issue_core_method_manifest_row_ref_v2(op, arity)
 }
 
+/// Bounded text evidence for `StringIndexOf/1` — receiver and needle
+/// must each resolve to a string literal or a `TextToCaller` contract
+/// minted at the exact initializer site. Parameters carry no
+/// initializer relation, so parameter receivers stay unarmed; a
+/// non-text local (e.g. `local a = new ArrayBox()`) fails the same
+/// check and the runtime router's `ArrayBox.indexOf` row never leaks
+/// into this arm.
+fn index_of_has_text_evidence(
+    ledger: &CallableSemanticSourceLedgerView<'_>,
+    call: &VerifiedResolvedMethodCallSourceV1,
+    rows: &BTreeMap<SourceExprSiteV1, VerifiedSourceBoundCoreMethodCallV1>,
+) -> bool {
+    let ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)) =
+        call.receiver()
+    else {
+        return false;
+    };
+    if binding.owner() != ledger.owner()
+        || ledger.variable_ref(call.receiver_site())
+            != Some(ResolvedLexicalRefV1::Local(binding))
+        || binding_has_rebind(ledger, binding)
+    {
+        return false;
+    }
+    let Some(initializer_site) = single_initializer_site(ledger, binding) else {
+        return false;
+    };
+    if !text_source_at(ledger, &initializer_site, rows, &mut BTreeSet::new(), 0) {
+        return false;
+    }
+    let [needle] = call.arguments() else {
+        return false;
+    };
+    text_source_at(ledger, needle.site(), rows, &mut BTreeSet::new(), 0)
+}
+
+fn single_initializer_site(
+    ledger: &CallableSemanticSourceLedgerView<'_>,
+    binding: BindingRefV1,
+) -> Option<SourceExprSiteV1> {
+    let mut initializers = ledger
+        .initializer_relations()
+        .filter(|row| row.binding() == binding);
+    let initializer = initializers.next()?;
+    if initializers.next().is_some() {
+        return None;
+    }
+    initializer.initializer_site().cloned()
+}
+
+fn binding_has_rebind(
+    ledger: &CallableSemanticSourceLedgerView<'_>,
+    binding: BindingRefV1,
+) -> bool {
+    ledger.assignment_targets().any(|(_, target)| {
+        matches!(target, ResolvedAssignmentTargetV1::BindingRebind(actual) if *actual == binding)
+    })
+}
+
+const TEXT_SOURCE_DEPTH: u32 = 8;
+
+/// Bounded text-source proof over exact resolver rows: a string literal,
+/// a `TextToCaller` contract minted at this site in the same issuance, or
+/// a local binding whose single initializer is text-producing and which
+/// is never rebound. Everything else — integers, bools, handles, unknown
+/// calls — is foreign to this family and leaves the call unarmed.
+fn text_source_at(
+    ledger: &CallableSemanticSourceLedgerView<'_>,
+    site: &SourceExprSiteV1,
+    rows: &BTreeMap<SourceExprSiteV1, VerifiedSourceBoundCoreMethodCallV1>,
+    visited: &mut BTreeSet<BindingRefV1>,
+    depth: u32,
+) -> bool {
+    if depth > TEXT_SOURCE_DEPTH {
+        return false;
+    }
+    if matches!(
+        ledger.literal_source(site),
+        Some(ResolvedLiteralSourceV1::String(_))
+    ) {
+        return true;
+    }
+    if let Some(row) = rows.get(site) {
+        return row.contract().target().result()
+            == CoreMethodHomeResultRelationV1::TextToCaller;
+    }
+    let Some(ResolvedLexicalRefV1::Local(binding)) = ledger.variable_ref(site) else {
+        return false;
+    };
+    if !visited.insert(binding) {
+        return true;
+    }
+    if binding_has_rebind(ledger, binding) {
+        return false;
+    }
+    let Some(initializer_site) = single_initializer_site(ledger, binding) else {
+        return false;
+    };
+    text_source_at(ledger, &initializer_site, rows, visited, depth + 1)
+}
+
 /// Bounded Loop placements admitted for one (op, arity) row. A member of
 /// this set is exact vocabulary — the issued contract records the site's
 /// actual resolved placement; an op absent here stays unarmed.
@@ -165,6 +278,7 @@ fn allowed_placements(op: CoreMethodOp, arity: u32) -> &'static [ResolvedLoopPla
             ResolvedLoopPlacementV1::Body,
             ResolvedLoopPlacementV1::Condition,
         ],
+        (CoreMethodOp::StringIndexOf, 1) => &[ResolvedLoopPlacementV1::Body],
         _ => &[],
     }
 }

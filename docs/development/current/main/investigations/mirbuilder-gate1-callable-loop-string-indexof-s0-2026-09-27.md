@@ -1,6 +1,6 @@
 # MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-S0
 
-Status: emitted — selected for `fast` implementation
+Status: landed
 Date: 2026-09-27
 Emission: `mirbuilder-gate1-callable-loop-string-indexof-d0-2026-09-27.md`
 Decision — admit `StringBox.indexOf/1` (`StringIndexOf`, I64Value,
@@ -27,8 +27,8 @@ text evidence, not selector/name guessing).
   (requires manifest `I64Value`, `ResultMismatch` otherwise).
 - `src/mir/source_call_target/core_method.rs`:
   `allowed_placements` `(StringIndexOf,1) -> &[Body]`; a bounded
-  private predicate `receiver_is_text_source` /
-  `argument_is_text_source` consulted only for `StringIndexOf`
+  private predicate `index_of_has_text_evidence` /
+  `text_source_at` consulted only for `StringIndexOf`
   before target issue:
   - receiver `Lexical(Local)` -> exactly one `initializer_relation`
     -> initializer site text-producing
@@ -77,11 +77,28 @@ text evidence, not selector/name guessing).
 - `x.indexOf(ch)` in loop Condition -> unarmed (placement).
 - `x.indexOf(ch, 0)` arity-2 -> unarmed (arity key).
 
-## Pinned evidence (to fill at landing)
+## Pinned evidence (landed)
 
-- focused `core_method_source_tests` positive + negatives above.
-- boxtorrent re-measurement: `ContentHash.digest` loop coverage
-  advances past `indexOf`; `materialize`/`releaseFrom`/`ingest`
-  remain at the parked DeclaredInstance terminal — recorded, not
-  claimed.
-- guards: route-scope guard + pointer guard green.
+- `core_method_source_tests` 11/11 green:
+  `literal_receiver_index_of_arms_body_with_text_parameter`
+  (op/placement/`[TextParameter]`/`I64ToCaller` pinned),
+  `substring_contract_supplies_index_of_needle_text`
+  (TextToCaller row supplies the needle proof),
+  `find_alias_follows_the_same_text_evidence_gate`,
+  `index_of_stays_unarmed_without_text_evidence`
+  (ArrayBox/integer receiver, non-text needle, rebound receiver,
+  arity-2, `lastIndexOf`, parameter receiver `pred_chars`),
+  `index_of_condition_placement_stays_rejected` (Ok, zero rows).
+- Regressions: core_method 74, source_call_target 83, source_call 87,
+  callable_contract 18, named_array 31 — all green.
+- Production: a `ContentHash.digest`-shaped program
+  (`local alphabet` literal + `text.substring` needle + loop-body
+  `alphabet.indexOf(ch)`) compiles end-to-end; emitted MIR carries
+  `indexOf` as a `RuntimeDataBox` MethodCall — the same
+  WarmDirectAbi runtime-dispatch shape `length`/`substring` emit.
+- boxtorrent re-measurement: the sole remaining stop is
+  `materialize/1` `store.readData(cid)` — the parked
+  DeclaredInstance terminal (`route-not-front-selected`,
+  `SourceCallOutsideSelectedFamily`). Recorded, not claimed.
+- Guards: `mirbuilder_qualified_route_scope_guard.sh` green
+  (StringIndexOf pins added), pointer guard green.

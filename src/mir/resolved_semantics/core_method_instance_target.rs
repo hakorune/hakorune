@@ -35,6 +35,9 @@ pub(crate) enum CoreMethodHomeReceiverRelationV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CoreMethodHomeParameterRelationV1 {
     I64Parameter,
+    /// Borrowed text argument passed to the callee — the receiver does
+    /// not retain it (distinct from `TextRetainedByReceiver`).
+    TextParameter,
     TextRetainedByReceiver,
 }
 
@@ -249,6 +252,16 @@ impl CoreMethodInstanceTargetIssuerV1 {
                     CoreMethodHomeReceiverRelationV1::NamedArrayReceiver,
                     vec![CoreMethodHomeParameterRelationV1::I64Parameter].into_boxed_slice(),
                     CoreMethodHomeResultRelationV1::DynamicToCaller,
+                )
+            }
+            (CoreMethodOp::StringIndexOf, 1) => {
+                if generated.result_kind != CoreMethodResultKindV1::I64Value {
+                    return Err(CoreMethodInstanceTargetRejectV1::ResultMismatch);
+                }
+                (
+                    CoreMethodHomeReceiverRelationV1::StringBoxReceiver,
+                    vec![CoreMethodHomeParameterRelationV1::TextParameter].into_boxed_slice(),
+                    CoreMethodHomeResultRelationV1::I64ToCaller,
                 )
             }
             (op, arity) => {
