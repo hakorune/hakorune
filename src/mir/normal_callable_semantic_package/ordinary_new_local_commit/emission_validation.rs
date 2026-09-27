@@ -220,7 +220,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 })
                 .count(),
             OrdinaryNewTrivialArgumentKindV1::Local { .. }
-            | OrdinaryNewTrivialArgumentKindV1::Handle { .. } => return Ok(()),
+            | OrdinaryNewTrivialArgumentKindV1::Handle { .. }
+            | OrdinaryNewTrivialArgumentKindV1::BoundValue { .. } => return Ok(()),
         };
         if matching != 1 {
             return Err(freeze("argument-literal-drift"));

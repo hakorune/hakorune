@@ -414,15 +414,20 @@ Package completion rejects any unconsumed ordinary claim, so source-backed
 admission has no retry or post-lowering target inference.
 
 For the selected direct-`New` scalar profile, the already-issued ordered
-integer/bool/trivial-local rows are the only argument authority. The selected
-emitter consumes and materializes those rows without raw argument descent, then
-records the non-semantic `(source row, emitted ValueId)` snapshot in the
-existing claim. The root finalizer checks that snapshot against literal
-definitions and the ordered Birth Call arguments. It rejects residual rows or
-physical value/order/Call drift; it does not reclassify source expressions.
-The selected physical consumer admits Integer/Bool actuals for its retained
-formal contract; Local actuals still stop. Source argument retention alone
-does not authorize a physical representation.
+integer/bool/trivial-local/handle/bound-value rows are the only argument
+authority. A local bound to an inventoried call carries `BoundValue`
+provenance — the exact call inventories authorize the binding, not any
+expression re-classification — and the row materializes through the same
+exact-binding lane as Local/Handle. The selected emitter consumes and
+materializes those rows without raw argument descent, then records the
+non-semantic `(source row, emitted ValueId)` snapshot in the existing
+claim. The root finalizer checks that snapshot against literal
+definitions and the ordered Birth Call arguments. It rejects residual
+rows or physical value/order/Call drift; it does not reclassify source
+expressions. The selected physical consumer admits Integer/Bool actuals
+for its retained formal contract; Local/Handle/BoundValue actuals still
+stop. Source argument retention alone does not authorize a physical
+representation.
 
 ### RawCompatibility child terminal I1 (2026-08-27)
 

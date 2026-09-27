@@ -83,6 +83,79 @@ fn selected_new_arguments_reach_birth_in_issued_order() {
 }
 
 #[test]
+fn selected_new_arguments_admit_inventoried_call_result_local() {
+    use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1;
+    let package = issue_with_brand_catalog(
+        "static box Sizes { size(v) { return v } } \
+         box Page { birth(v) { } } \
+         static box Main { build() { local h = Sizes.size(7)\nlocal p = new Page(h)\nreturn 0 } main() { return 0 } }",
+    )
+    .expect("inventoried call-result local is an admissible New argument");
+    let claim_rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
+    let claims: Vec<_> = claim_rows.values().collect();
+    assert_eq!(claims.len(), 1);
+    let rows = claims[0]
+        .argument_rows()
+        .expect("BoundValue provenance keeps argument rows complete");
+    let [row] = rows else {
+        panic!("one argument row, got {rows:?}")
+    };
+    let OrdinaryNewTrivialArgumentKindV1::BoundValue { binding } = row.kind() else {
+        panic!(
+            "call-result local must be a BoundValue row, got {:?}",
+            row.kind()
+        )
+    };
+    // The carried binding is exactly `h`'s declaration binding — the one
+    // other local initializer in `build`, not the `new` site itself.
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.owner() == claims[0].site().owner())
+        .expect("exact owner");
+    let h_binding = package
+        .batch()
+        .with_lowering_input(declaration.batch_slot(), |input| {
+            input
+                .function()
+                .expression_source()
+                .initializers()
+                .find(|row| row.initializer_site() != Some(claims[0].site().site()))
+                .expect("the call-result local initializer")
+                .binding()
+        })
+        .expect("lowering input");
+    assert_eq!(*binding, h_binding);
+}
+
+#[test]
+fn selected_new_rejects_unbound_and_call_expression_arguments() {
+    use crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1;
+    for body in [
+        "local x = 1 + 2\nlocal p = new Page(x)\nreturn 0",
+        "local p = new Page(Sizes.size(7))\nreturn 0",
+    ] {
+        let source = format!(
+            "static box Sizes {{ size(v) {{ return v }} }} \
+             box Page {{ birth(v) {{ }} }} \
+             static box Main {{ build() {{ {body} }} main() {{ return 0 }} }}"
+        );
+        let package =
+            issue_with_brand_catalog(&source).expect("non-inventoried argument stays unproven");
+        let claim_rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
+        let claims: Vec<_> = claim_rows.values().collect();
+        assert_eq!(claims.len(), 1);
+        let error = claims[0]
+            .argument_rows()
+            .expect_err("argument rows stay unavailable outside BoundValue scope");
+        assert!(
+            matches!(error, SelectedNewArgumentUnavailableV1::ArgumentNotTrivial { .. }),
+            "unexpected unavailable reason: {error:?}"
+        );
+    }
+}
+
+#[test]
 fn selected_new_rejects_nontrivial_argument_before_raw_descent() {
     let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DERIVE", "", || {

@@ -83,7 +83,7 @@ done
 if rg -F -q "CallsiteCanonicalizeScheduleSite::MirOptimizerLateCallAndInline" "$OPTIMIZER" || rg -F -q "MirOptimizerLateCallAndInline" "$SCHEDULE"; then
   fail "optimizer retained the retired callsite-canonicalize schedule"
 fi
-if rg -F -q -e "allow_legacy_target_rewrite" -e "collect_const_string_literals" -e "callee: None" "$ROOT_DIR/src/mir/passes/callsite_canonicalize/pass.rs" "$ROOT_DIR/src/mir/passes/callsite_canonicalize/schedule.rs" "$ROOT_DIR/src/mir/passes/callsite_canonicalize/helpers.rs"; then
+if rg -F -q -e "allow_legacy_target_rewrite" -e "collect_const_string_literals" -e "callee: None" "$ROOT_DIR/src/mir/passes/callsite_canonicalize/pass.rs" "$ROOT_DIR/src/mir/passes/callsite_canonicalize/schedule.rs"; then
   fail "callsite canonicalizer retained a late legacy target issuer"
 fi
 require "$PUBLISHED_BACKEND_VIEW" "try_new_selected_normal"
@@ -122,7 +122,7 @@ require "$METHOD_CALL" "Callee::Method {"
 require "$METHOD_CALL" "receiver: Some(receiver)"
 require "$PROGRAM_CALL_TARGETS" "ProgramCallTargetCatalog"
 require "$PROGRAM_CALL_TARGETS" "ambiguous-name"
-require "$ORDINARY_NEW_ADMISSION" "claim.map(|claim| claim.constructor())"
+require "$ROOT_DIR/src/mir/builder/new_expression.rs" ".map(|claim| claim.constructor())"
 require "$ORDINARY_NEW_ADMISSION" "OrdinaryNewConstructorDispositionV1::Birth(recipe)"
 require "$RAW_CHILD_LOWERING" "raw_ordinary_new_claim"
 require "$RAW_CLAIM" "trait RawOrdinaryNewClaimPortV1"
@@ -132,7 +132,7 @@ require "$ROOT_DIR/src/mir/normal_callable_semantic_package/direct_call_lifecycl
 require "$ROOT_DIR/src/mir/normal_callable_semantic_package/direct_call_lifecycle_tests.rs" "non_map_local_call_with_prior_home_rejects_instead_of_scalar_fallback"
 require "$ROOT_DIR/src/mir/compiler/normal_default_pipeline/lifecycle_admission_tests.rs" "scalar_local_then_terminal_call_reaches_published_lifecycle"
 require "$ROOT_DIR/src/mir/compiler/normal_default_pipeline/lifecycle_admission_tests.rs" "scalar_local_then_plain_return_preserves_ordinary_call_through_publication"
-require "$ROOT_DIR/src/mir/builder/ordinary_new_admission/selected.rs" "if !operations.is_empty() || call.is_some()"
+require "$ROOT_DIR/src/mir/builder/ordinary_new_admission/selected.rs" "if !operations.is_empty() || ingress.is_some()"
 require "$ROOT_DIR/src/mir/compiler/normal_default_pipeline/lifecycle_admission_tests.rs" "empty-Home Plain must not publish an orphan Fault terminal"
 require "$ORDINARY_NEW_COSEAL" "issue_ordinary_source_cohort_v1"
 require "$ORDINARY_NEW_COSEAL" "OrdinaryNewClaimLedgerV1"
@@ -203,7 +203,7 @@ require "$PRINTER_HELPERS" "pub(crate) fn format_call_target"
 require "$PRINTER_DISPLAY" "format_call_target(callee.as_ref(), *func, args)"
 require "$PRINTER_TESTS" "typed_printer_projects_callee_and_ignores_stale_func"
 require "$PRINTER_TESTS" "printer_preserves_explicit_legacy_call_rendering"
-require "$JSON_CALLS" "fn emit_call_with_callee_v0"
+require "$ROOT_DIR/src/runner/mir_json_emit/emitters/calls_compat_v0.rs" "fn emit_call_with_callee_v0"
 require "$JSON_CALLS" "v0_typed_call_variants_ignore_stale_numeric_func_decoration"
 require "$JSON_CALLS" "v0_legacy_call_preserves_explicit_numeric_func_decoration"
 require "$JSON_CALLS" "method_none_keeps_legacy_receiver_func_until_r6"
@@ -247,7 +247,7 @@ schedule_callers = [
     "src/runner/mir_json_v0.rs",
     "src/runner/json_v0_bridge/core.rs",
 ]
-if sum((root / path).read_text().count("canonicalize_for_site(") for path in schedule_callers) != 5: raise SystemExit("callsite canonicalizer schedule caller inventory drifted from five")
+if sum((root / path).read_text().count("canonicalize_for_site(") for path in schedule_callers) != 6: raise SystemExit("callsite canonicalizer schedule caller inventory drifted from six")
 array_writer = (root / "src/mir/array_element_write.rs").read_text()
 if array_writer.count("*instruction = MirInstruction::LegacyCallV0 {") != 1: raise SystemExit("ArrayElementWrite legacy projection writer count drifted from one")
 direct_call = (root / "src/mir/canonical_direct_call.rs").read_text()
@@ -748,7 +748,7 @@ for token in (
 ):
     if token not in printer_tests:
         raise SystemExit(f"printer parity tests lost {token}")
-json_calls = (root / "src/runner/mir_json_emit/emitters/calls.rs").read_text()
+json_calls = (root / "src/runner/mir_json_emit/emitters/calls_compat_v0.rs").read_text()
 typed_start = json_calls.index("fn emit_call_with_callee_v0")
 typed_end = json_calls.index("fn emit_call_with_optional_func", typed_start)
 typed_helper = json_calls[typed_start:typed_end]
@@ -773,6 +773,7 @@ if "profile," not in json_root[root_emit_start:]:
     raise SystemExit("JSON root does not pass the selected profile to emitters")
 for relative in (
     "src/runner/mir_json_emit/emitters/calls.rs",
+    "src/runner/mir_json_emit/emitters/calls_compat_v0.rs",
     "src/runner/mir_json_emit/emitters/mod.rs",
     "src/runner/mir_json_emit/helpers.rs",
 ):

@@ -27,6 +27,10 @@ enum StoredLocal {
     Consumed,
     Handle(BindingRefV1),
     Trivial(Option<SourceScalarKind>),
+    /// A binding produced by an inventoried call expression. The value
+    /// exists at later sites but carries no scalar/rooted-storage class —
+    /// it is neither a trivial local nor a Home/Map/Handle root.
+    BoundValue,
     Uninitialized,
 }
 
@@ -35,13 +39,14 @@ pub(super) enum OrdinaryObservation {
     Bool(bool),
     TrivialLocal(BindingRefV1, Option<SourceScalarKind>),
     Handle(BindingRefV1),
+    BoundValue(BindingRefV1),
 }
 
 impl OrdinaryObservation {
     pub(super) fn is_trivial(&self) -> bool {
         match self {
             Self::Integer(_) | Self::Bool(_) | Self::TrivialLocal(..) => true,
-            Self::Handle(_) => false,
+            Self::Handle(_) | Self::BoundValue(_) => false,
         }
     }
 
@@ -51,6 +56,9 @@ impl OrdinaryObservation {
             Self::Bool(value) => Some(SelectedNewArgumentKindV1::Bool(value)),
             Self::TrivialLocal(binding, _) => Some(SelectedNewArgumentKindV1::Local { binding }),
             Self::Handle(root) => Some(SelectedNewArgumentKindV1::Handle { binding: root }),
+            Self::BoundValue(binding) => {
+                Some(SelectedNewArgumentKindV1::BoundValue { binding })
+            }
         }
     }
 }
@@ -142,6 +150,7 @@ impl<'source> PrefixLocalFlow<'source> {
             }
             StoredLocal::Handle(_) | StoredLocal::Consumed => None,
             StoredLocal::Trivial(kind) => Some(OrdinaryObservation::TrivialLocal(binding, *kind)),
+            StoredLocal::BoundValue => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::Uninitialized => None,
         }
     }
@@ -204,6 +213,34 @@ impl<'source> PrefixLocalFlow<'source> {
         self.locals.insert(binding, StoredLocal::Uninitialized);
     }
 
+    /// Record a call-result local the flow cannot classify further. The
+    /// binding stays observable for `new` arguments; it joins no Home or
+    /// scalar accounting.
+    pub(super) fn install_bound_value(&mut self, binding: BindingRefV1) {
+        self.locals.insert(binding, StoredLocal::BoundValue);
+    }
+
+    /// A local bound to an inventoried call keeps a produced value at
+    /// later sites even though the flow cannot classify it. Record the
+    /// binding so `new` argument observation can describe it;
+    /// non-inventoried initializers stay unobservable.
+    pub(super) fn install_inventoried_call_result(
+        &mut self,
+        binding: BindingRefV1,
+        site: &SourceExprSiteV1,
+    ) {
+        let function = self.input.function();
+        let inventoried = function
+            .method_calls()
+            .any(|(call_site, _)| call_site == site)
+            || function
+                .direct_call_observations()
+                .any(|(call_site, _)| call_site == site);
+        if inventoried {
+            self.install_bound_value(binding);
+        }
+    }
+
     pub(super) fn install_selected_normal_home(
         &mut self,
         binding: BindingRefV1,
@@ -221,6 +258,7 @@ impl<'source> PrefixLocalFlow<'source> {
             }
             OrdinaryObservation::Bool(_) => StoredLocal::Trivial(Some(SourceScalarKind::Bool)),
             OrdinaryObservation::TrivialLocal(_, kind) => StoredLocal::Trivial(kind),
+            OrdinaryObservation::BoundValue(_) => StoredLocal::BoundValue,
         };
         self.locals.insert(binding, stored);
     }

@@ -12,6 +12,10 @@ pub(crate) enum SelectedNewArgumentKindV1 {
     Bool(bool),
     Local { binding: BindingRefV1 },
     Handle { binding: BindingRefV1 },
+    /// A binding produced by an inventoried call expression. The row
+    /// carries provenance only; class/materialization decisions stay
+    /// downstream.
+    BoundValue { binding: BindingRefV1 },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

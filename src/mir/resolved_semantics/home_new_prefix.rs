@@ -752,6 +752,7 @@ pub(crate) fn scan_new_home_flow<E>(
             } else if let Some(class) = locals.observe(site) {
                 locals.install_observed(binding, class);
             } else {
+                locals.install_inventoried_call_result(binding, site);
                 unavailable.get_or_insert_with(|| {
                     HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
                 });

@@ -11,6 +11,9 @@ pub(crate) enum OrdinaryNewTrivialArgumentKindV1 {
     Bool(bool),
     Local { binding: BindingRefV1 },
     Handle { binding: BindingRefV1 },
+    /// A binding produced by an inventoried call expression (source
+    /// provenance only; no scalar/rooted-storage class is claimed).
+    BoundValue { binding: BindingRefV1 },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

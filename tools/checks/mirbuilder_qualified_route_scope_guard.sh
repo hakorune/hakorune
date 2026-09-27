@@ -219,6 +219,26 @@ rg -q 'Kind::Handle' "$PHYS_ABI"
 rg -q 'OrdinaryNewTrivialArgumentKindV1::Handle' "$EMIT_VALID"
 rg -q 'ordinary_new_claim_records_parameter_handle_argument' "$BRAND_TESTS"
 
+# MIRBUILDER-GATE1-ORDINARY-NEW-ARGUMENT-SOURCE-S0: a local bound to an
+# inventoried call (method_calls()/direct_call_observations() site
+# membership) installs StoredLocal::BoundValue, which observes as
+# OrdinaryObservation::BoundValue and flows through the same
+# SelectedNewArgument -> OrdinaryNewTrivialArgument -> exact-binding
+# materialization lane as Local/Handle. Non-inventoried arguments
+# still fail ArgumentNotTrivial — no decline-to-raw route.
+SEL_ARG_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/brand_catalog_selected_new_argument_tests.rs"
+rg -q 'BoundValue \{ binding: BindingRefV1 \}' "$SEL_ARG"
+rg -q 'BoundValue \{ binding: BindingRefV1 \}' "$ORD_ARGS"
+rg -q 'StoredLocal::BoundValue' "$LOCAL_FLOW"
+rg -q 'OrdinaryObservation::BoundValue' "$LOCAL_FLOW"
+rg -q 'fn install_bound_value' "$LOCAL_FLOW"
+rg -q 'install_inventoried_call_result' "$NEW_PREFIX"
+rg -q 'OrdinaryNewTrivialArgumentKindV1::BoundValue \{ binding: \*binding \}' "$COSEAL_HELPERS"
+rg -q 'OrdinaryNewTrivialArgumentKindV1::BoundValue \{ binding \}' "$SEL_EMIT"
+rg -q 'Kind::BoundValue' "$PHYS_ABI"
+rg -q 'OrdinaryNewTrivialArgumentKindV1::BoundValue' "$EMIT_VALID"
+rg -q 'selected_new_arguments_admit_inventoried_call_result_local' "$SEL_ARG_TESTS"
+
 # MIRBUILDER-EXE-ACCEPTANCE-ENV-DIRECT-RECEIVER-S0: bare `env.<method>`
 # receivers classify into the existing `EnvMethod` route inside
 # `plan_member_call_route` BEFORE static-receiver resolution, gated on the

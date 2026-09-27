@@ -1,6 +1,6 @@
 # MIRBUILDER-GATE1-ORDINARY-NEW-ARGUMENT-SOURCE-S0
 
-Status: selected — implementation not yet landed
+Status: landed
 Date: 2026-09-27
 Emission: `mirbuilder-gate1-ordinary-new-argument-source-d0-2026-09-27.md`
 Decision — `BoundValue` provenance for call-result locals.
@@ -59,22 +59,38 @@ admission — exact binding membership, not AST re-classification).
 - Any home-prefix/`RetainedUnavailable`/Ordinary-route change.
 - Any runtime/VM/legacy-path change.
 
-## Pinned evidence (gate: focused test files only)
+## Pinned evidence (landed)
 
-- Flow/catalog level: `local h = Q.m(x); new Y(h)` where `Q.m`
-  sits in `method_calls()` or `direct_call_observations()` —
-  the claim's `argument_rows` is `Ok` and ordinal 0 is
-  `BoundValue { binding: h }`.
-- Negative: `new Y(me.f)` and `new Y(f(x))` still produce
-  `ArgumentNotTrivial`; a consumed `BoundValue` binding still
-  observes `None`.
-- Regression: existing `Integer`/`Bool`/`Local`/`Handle` pins
-  unchanged; the qualified-route scope guard stays green with
-  its updated pin set.
+- `selected_new_arguments_admit_inventoried_call_result_local`
+  (`brand_catalog_selected_new_argument_tests.rs`): `local h =
+  Sizes.size(7); local p = new Page(h)` — the claim's
+  `argument_rows` is `Ok` and ordinal 0 is
+  `BoundValue { binding: h }` with `h`'s exact declaration
+  binding proven against the initializers inventory.
+- `selected_new_rejects_unbound_and_call_expression_arguments`:
+  `local x = 1 + 2; new Page(x)` and `new Page(Sizes.size(7))`
+  both stay `ArgumentNotTrivial` — non-inventoried bindings and
+  call-expression arguments are not BoundValue scope.
+- `selected_new` suite 5/5, `ordinary_new` suite 60/60,
+  `normal_callable_semantic_package` 331 pass (3 pre-existing
+  baseline failures confirmed identical on HEAD).
+- `mirbuilder_qualified_route_scope_guard.sh`: green with the
+  added BoundValue vocabulary pins.
+- `mir_call_canonical_corridor_guard.sh`: stale pins realigned
+  to current files (selected.rs ingress arm, new_expression.rs
+  constructor map, calls_compat_v0.rs, six schedule callers,
+  dead helpers.rs entry); green.
+- `canonical_mir_emit_route_guard.sh` fails identically on HEAD
+  (`ordinary-new/local-commit/artifact-root-completion-unavailable`
+  on a New-free trivial app) — classified known baseline debt,
+  not this slice.
 - `apps/boxtorrent-mini/main.hako`: the
-  `ordinary-new/argument-source-unavailable` terminal must clear
-  (`put`'s claim declines to the designed Ordinary route); the
-  next named terminal is recorded, not claimed.
+  `ordinary-new/argument-source-unavailable` terminal cleared —
+  `put`'s claim declined to the designed Ordinary route. The
+  observed next terminal is
+  `[freeze:contract][ordinary-new/birth-global-legacy-stopped]`:
+  a claim-lane `<Class>.birth/N` lowered without claim authority.
+  A different family; recorded, not claimed.
 
 ## Negative/deletion proof
 
@@ -89,8 +105,12 @@ admission — exact binding membership, not AST re-classification).
 
 ## Next selected row
 
-Determined at S0 closeout by the next observed terminal on the
-boxtorrent measurement path (bisect already showed
-`callable-loop/route-not-front-selected`
-`SourceCallOutsideSelectedFamily` at `BoxTorrentManifest.
-chunkListText` behind the `new` terminal — a different family).
+`MIRBUILDER-GATE1-ORDINARY-NEW-BIRTH-EDGE-AUTHORITY-D0` —
+`ordinary-new/birth-global-legacy-stopped` census and design:
+which claim authority co-seals a birth edge when the claim's
+home prefix declined to the Ordinary route (the `put` shape),
+without restoring the legacy carrier or widening the
+admission boundary. The earlier bisect signal
+(`callable-loop/route-not-front-selected` at
+`BoxTorrentManifest.chunkListText`) remains queued behind it —
+a different family, not selected.
