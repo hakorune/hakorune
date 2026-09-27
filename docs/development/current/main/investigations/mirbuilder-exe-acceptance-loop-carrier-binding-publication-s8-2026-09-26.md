@@ -68,8 +68,11 @@ publishes — so the phi dsts are dead on arrival and
   index built from resolver-owned declaration records;
   `publish_source_loop_final_value_named` resolves a carrier name to
   exactly one materialized binding — unknown or ambiguous names
-  freeze. `publish_source_loop_final_value` now invalidates the
-  tracked dynamic origin before replacing `values[binding]`.
+  freeze. Limitation kept visible: resolution is by diagnostic
+  name, so shadowed same-name bindings freeze by design (fail-fast,
+  no guessed binding). `publish_source_loop_final_value` now
+  invalidates the tracked dynamic origin before replacing
+  `values[binding]`.
   `source_values_snapshot`/`restore_source_values` give the `values`
   projection the same transaction discipline `variable_map` already
   had; consumption receipts and `active_origins` stay monotone.

@@ -97,13 +97,7 @@ impl<'ast, 'schema> super::shadow::resolver::ShadowResolverV0<'ast, 'schema> {
         site: SourceExprSiteV1,
     ) {
         if matches!(target, crate::ast::ASTNode::Variable { .. }) {
-            self.body_shape.expressions.insert(
-                site.clone(),
-                ShadowExpressionShapeV0::Other {
-                    site,
-                    kind: "BindingAssignmentTarget".into(),
-                },
-            );
+            self.body_shape.record_binding_assignment_target(site);
         } else {
             self.record_expression_shape(target, site);
         }

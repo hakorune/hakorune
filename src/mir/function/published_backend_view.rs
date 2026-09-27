@@ -18,3 +18,7 @@ use hakorune_mir_defs::{CanonicalGlobalTargetV1, CanonicalSameModuleCallableKeyV
 #[cfg(test)]
 #[path = "published_backend_view_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "published_backend_view_drift_tests.rs"]
+mod drift_tests;

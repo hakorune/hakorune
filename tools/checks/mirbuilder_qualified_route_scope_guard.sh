@@ -356,7 +356,26 @@ rg -q 'has_pending_source_static_result_publications' "$RAW_LOOP_PORT"
 rg -q 'residual-after-lower' "$RAW_LOOP_PORT"
 test "$(rg -c 'lower_with_source_publication' "$RAW_LOOP_ENTRY")" -ge 4
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS" "$ROUTE_PREDICATES" "$CALLABLE_ROUTE" "$DEAD_ROUTE_TESTS" "$CORE_METHOD_SRC" "$NAMED_ARRAY_SRC" "$NAMED_ARRAY_METHOD_TESTS" "$CONTRACT_ISSUER" "$LEDGER_CONTRACT_TESTS" "$DECLARED_INSTANCE_LOCATOR" "$CORE_EFFECT_PLAN" "$SOURCE_METHOD_PORT" "$UNIFIED_EMITTER" "$LOOP_DECLARED_TESTS" "$ASSOC_INPUT" "$NORMALIZER_COMMON" "$RAW_LOOP_PORT" "$RAW_LOOP_ENTRY"; do
+# MIRBUILDER-EXE-ACCEPTANCE-REVIEW-LINE-BOUNDARY-R0: the S8 loop-carrier
+# ledger-publication slice pushed `normal_callable_semantic_lowering_state.rs`
+# past the hard 800-line stop, and the backend-view / lifecycle test files
+# crossed it too, without guard coverage. The ledger-publication APIs now
+# live in a dedicated submodule (same split pattern as
+# `source_call_publication` / `map_local_tests`), the backend-view drift
+# pins live in a sibling test module, and the main-selection pins live in
+# a sibling lifecycle test module — every file is registered here so the
+# boundary cannot silently regrow.
+CALLABLE_LOWERING_STATE="$ROOT_DIR/src/mir/builder/normal_callable_semantic_lowering_state.rs"
+LOOP_VALUE_PUBLICATION="$ROOT_DIR/src/mir/builder/normal_callable_semantic_lowering_state/loop_value_publication.rs"
+BACKEND_VIEW_TESTS="$ROOT_DIR/src/mir/function/published_backend_view_tests.rs"
+BACKEND_VIEW_DRIFT_TESTS="$ROOT_DIR/src/mir/function/published_backend_view_drift_tests.rs"
+BACKEND_VIEW_INTRINSIC_TESTS="$ROOT_DIR/src/mir/function/published_backend_view_intrinsic_array_tests.rs"
+ROOT_LIFECYCLE_TESTS="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle_tests.rs"
+ROOT_MAIN_SELECTION_TESTS="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_main_selection_tests.rs"
+LOOP_PIPELINE_TESTS="$ROOT_DIR/src/mir/compiler/normal_default_pipeline_loop_tests.rs"
+LOOP_SCOPE_TESTS="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_loop_scope_tests.rs"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS" "$ROUTE_PREDICATES" "$CALLABLE_ROUTE" "$DEAD_ROUTE_TESTS" "$CORE_METHOD_SRC" "$NAMED_ARRAY_SRC" "$NAMED_ARRAY_METHOD_TESTS" "$CONTRACT_ISSUER" "$LEDGER_CONTRACT_TESTS" "$DECLARED_INSTANCE_LOCATOR" "$CORE_EFFECT_PLAN" "$SOURCE_METHOD_PORT" "$UNIFIED_EMITTER" "$LOOP_DECLARED_TESTS" "$ASSOC_INPUT" "$NORMALIZER_COMMON" "$RAW_LOOP_PORT" "$RAW_LOOP_ENTRY" "$CALLABLE_LOWERING_STATE" "$LOOP_VALUE_PUBLICATION" "$BACKEND_VIEW_TESTS" "$BACKEND_VIEW_DRIFT_TESTS" "$BACKEND_VIEW_INTRINSIC_TESTS" "$ROOT_LIFECYCLE_TESTS" "$ROOT_MAIN_SELECTION_TESTS" "$LOOP_PIPELINE_TESTS" "$LOOP_SCOPE_TESTS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2

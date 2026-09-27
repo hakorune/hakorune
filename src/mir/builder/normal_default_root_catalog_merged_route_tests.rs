@@ -9,8 +9,22 @@ use crate::runner::modes::common_util::normal_callable::{
 use crate::runner::modes::common_util::source_hint::prepare_normal_source_with_imports;
 use crate::runner::NyashRunner;
 
+/// Source-backed lowering recurses deeply enough in debug builds to exceed
+/// the default 8 MiB test-thread stack; run those pins on a widened thread
+/// the same way the callable pipeline loop pins do.
+fn run_on_test_thread(name: &str, body: impl FnOnce() + Send + 'static) {
+    std::thread::Builder::new()
+        .name(name.to_owned())
+        .stack_size(32 * 1024 * 1024)
+        .spawn(body)
+        .expect("spawn test thread")
+        .join()
+        .expect("test thread panicked");
+}
+
 #[test]
 fn merged_parser_program_source_stops_at_named_publication_boundary() {
+    run_on_test_thread("merged-parser-publication-boundary", || {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     // The loop boundary reads the ambient JoinIR mode keys, so pin the
     // default mode to keep the observed terminal stable under a concurrent
@@ -86,6 +100,7 @@ fn merged_parser_program_source_stops_at_named_publication_boundary() {
         assert!(!message.contains("no-selected-handoff"));
         assert!(!message.contains("TargetOnlyDispositionMustBeUnavailable"));
         rejected.discard();
+    });
     });
 }
 

@@ -16,6 +16,19 @@ fn compatibility_root(source: &str) -> PreparedNormalDefaultProgramRootV1 {
     PreparedNormalDefaultProgramRootV1::seal(ast).expect("Program root")
 }
 
+/// Source-backed lowering recurses deeply enough in debug builds to exceed
+/// the default 8 MiB test-thread stack; run those pins on a widened thread
+/// the same way the callable pipeline loop pins do.
+fn run_on_test_thread(name: &str, body: impl FnOnce() + Send + 'static) {
+    std::thread::Builder::new()
+        .name(name.to_owned())
+        .stack_size(32 * 1024 * 1024)
+        .spawn(body)
+        .expect("spawn test thread")
+        .join()
+        .expect("test thread panicked");
+}
+
 fn source_backed_root(source: &str) -> PreparedNormalDefaultProgramRootV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         source,
@@ -57,41 +70,46 @@ fn compatibility_loop_uses_legacy_child_terminal_without_callable_scope() {
 
 #[test]
 fn source_backed_loop_keeps_invocation_scope_and_ledger_route() {
-    let root = source_backed_root(
-        "static box Scan { run(i, limit) { local x = i loop(x < limit) { x = x + 1 } return x } } static box Main { main() { return 0 } }",
-    );
-    crate::test_support::with_env_vars(
-        &[
-            ("HAKO_JOINIR_STRICT", Some("1")),
-            ("HAKO_JOINIR_PLANNER_REQUIRED", Some("1")),
-        ],
-        || {
-            crate::runtime::ring0::ensure_global_ring0_initialized();
-            let rejected = session()
-                .complete_normal_default_program_root_catalog_lifecycle(
-                    root,
-                    CallableMainMaterializationPolicyV1::Omitted,
-                    NormalRuntimeInputSnapshotV1::empty(),
-                )
-                .expect_err("source-backed Loop must reach its existing recipe boundary");
-            let error = rejected.error().to_string();
-            // Call-free loop bodies bind no method-call source items, so the
-            // armed LoopCond route stops at SourceItemsMissing — still behind
-            // the invocation scope and ledger route, never at a fallback.
-            assert!(
-                error.contains("[callable-loop/route-not-front-selected]"),
-                "{error}"
-            );
-            assert!(error.contains("SourceItemsMissing"), "{error}");
-            assert!(!error.contains("callable-ledger-missing"), "{error}");
-            assert!(rejected.session.builder().current_module.is_some());
-            rejected.discard();
-        },
-    );
+    run_on_test_thread("source-backed-loop-ledger-route", || {
+        let root = source_backed_root(
+            "static box Scan { run(i, limit) { local x = i loop(x < limit) { x = x + 1 } return x } } static box Main { main() { return 0 } }",
+        );
+        crate::test_support::with_env_vars(
+            &[
+                ("HAKO_JOINIR_STRICT", Some("1")),
+                ("HAKO_JOINIR_PLANNER_REQUIRED", Some("1")),
+            ],
+            || {
+                crate::runtime::ring0::ensure_global_ring0_initialized();
+                let rejected = session()
+                    .complete_normal_default_program_root_catalog_lifecycle(
+                        root,
+                        CallableMainMaterializationPolicyV1::Omitted,
+                        NormalRuntimeInputSnapshotV1::empty(),
+                    )
+                    .expect_err(
+                        "source-backed Loop must reach its existing recipe boundary",
+                    );
+                let error = rejected.error().to_string();
+                // Call-free loop bodies bind no method-call source items, so the
+                // armed LoopCond route stops at SourceItemsMissing — still behind
+                // the invocation scope and ledger route, never at a fallback.
+                assert!(
+                    error.contains("[callable-loop/route-not-front-selected]"),
+                    "{error}"
+                );
+                assert!(error.contains("SourceItemsMissing"), "{error}");
+                assert!(!error.contains("callable-ledger-missing"), "{error}");
+                assert!(rejected.session.builder().current_module.is_some());
+                rejected.discard();
+            },
+        );
+    });
 }
 
 #[test]
 fn source_bool_call_feeds_existing_composite_condition() {
+    run_on_test_thread("source-bool-call-composite-condition", || {
     let source = r#"static box StringHelpers {
           is_space(ch) { return ch == " " || ch == "\t" || ch == "\n" || ch == "\r" }
           skip_ws(src, i) {
@@ -179,5 +197,6 @@ fn source_bool_call_feeds_existing_composite_condition() {
         assert!(function.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| matches!(instruction,
             crate::mir::MirInstruction::Branch { condition, .. } if condition_values.contains(condition))),
             "source Bool Call must reach Branch through existing condition lowering: {function}");
+    });
     });
 }

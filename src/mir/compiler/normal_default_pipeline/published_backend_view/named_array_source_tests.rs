@@ -9,8 +9,28 @@ fn source(body: &str) -> String {
     format!("static box Scan {{ run(s) {{ local arr = new ArrayBox() local i = 0 loop(i < 1) {{ {body} i = i + 1 }} return i }} }}")
 }
 
+/// Source-backed lowering recurses deeply enough in debug builds to exceed
+/// the default 8 MiB test-thread stack; run those pins on a widened thread
+/// the same way the callable pipeline loop pins do.
+fn run_on_test_thread(name: &str, body: impl FnOnce() + Send + 'static) {
+    std::thread::Builder::new()
+        .name(name.to_owned())
+        .stack_size(32 * 1024 * 1024)
+        .spawn(body)
+        .expect("spawn test thread")
+        .join()
+        .expect("test thread panicked");
+}
+
 #[test]
 fn named_array_source_reaches_retained_typed_write_and_c_frame() {
+    run_on_test_thread(
+        "named-array-source-c-frame",
+        named_array_source_reaches_retained_typed_write_and_c_frame_inner,
+    );
+}
+
+fn named_array_source_reaches_retained_typed_write_and_c_frame_inner() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_vars(&crate::test_support::JOINIR_DEFAULT_MODE, || {
         for body in [

@@ -96,8 +96,23 @@ fn scalar_app() -> ASTNode {
     }])
 }
 
+/// Raw and legacy compiler entry points recurse deeply enough in debug
+/// builds to sit near the default 8 MiB test-thread stack boundary; run
+/// these pins on a widened thread the same way the callable pipeline loop
+/// pins do.
+fn run_on_test_thread(name: &str, body: impl FnOnce() + Send + 'static) {
+    std::thread::Builder::new()
+        .name(name.to_owned())
+        .stack_size(32 * 1024 * 1024)
+        .spawn(body)
+        .expect("spawn test thread")
+        .join()
+        .expect("test thread panicked");
+}
+
 #[test]
 fn empty_script_legacy_and_raw_have_the_same_normalized_snapshot() {
+    run_on_test_thread("parity-empty-script-snapshot", || {
     let ast = empty_script();
     let mut legacy = MirCompiler::new();
     let legacy_result = legacy
@@ -113,10 +128,12 @@ fn empty_script_legacy_and_raw_have_the_same_normalized_snapshot() {
     let raw_snapshot = snapshot_module(&raw_result.module)
         .expect("Raw empty Script must use only the PARITY0 snapshot dialect");
     assert_eq!(legacy_snapshot, raw_snapshot);
+    });
 }
 
 #[test]
 fn integer_literal_script_legacy_and_raw_have_the_same_normalized_snapshot() {
+    run_on_test_thread("parity-int-script-snapshot", || {
     let ast = literal_script(LiteralValue::Integer(7));
     let mut legacy = MirCompiler::new();
     let legacy_result = legacy
@@ -132,10 +149,12 @@ fn integer_literal_script_legacy_and_raw_have_the_same_normalized_snapshot() {
     let raw_snapshot = snapshot_module(&raw_result.module)
         .expect("Raw integer Script must use the PARITY0 snapshot dialect");
     assert_eq!(legacy_snapshot, raw_snapshot);
+    });
 }
 
 #[test]
 fn string_literal_script_legacy_and_raw_have_the_same_normalized_snapshot() {
+    run_on_test_thread("parity-string-script-snapshot", || {
     let ast = literal_script(LiteralValue::String("raw".into()));
     let mut legacy = MirCompiler::new();
     let legacy_result = legacy
@@ -149,10 +168,12 @@ fn string_literal_script_legacy_and_raw_have_the_same_normalized_snapshot() {
         snapshot_module(&legacy_result.module).unwrap(),
         snapshot_module(&raw_result.module).unwrap()
     );
+    });
 }
 
 #[test]
 fn integer_binary_script_legacy_and_raw_have_the_same_normalized_snapshot() {
+    run_on_test_thread("parity-binary-script-snapshot", || {
     let ast = binary_script(
         LiteralValue::Integer(2),
         BinaryOperator::Add,
@@ -170,28 +191,33 @@ fn integer_binary_script_legacy_and_raw_have_the_same_normalized_snapshot() {
         snapshot_module(&legacy_result.module).unwrap(),
         snapshot_module(&raw_result.module).unwrap()
     );
+    });
 }
 
 #[test]
 fn empty_app_raw_root_main_keeps_fixed_void_contract() {
-    let mut raw = MirCompiler::new();
-    let result = raw
-        .compile_raw_with_source(empty_app(), Some("parity-app.hako"))
-        .expect("Raw empty App should compile");
-    assert_eq!(
-        result.module.functions["main"].signature.return_type,
-        crate::mir::MirType::Void
-    );
+    run_on_test_thread("raw-empty-app-void-contract", || {
+        let mut raw = MirCompiler::new();
+        let result = raw
+            .compile_raw_with_source(empty_app(), Some("parity-app.hako"))
+            .expect("Raw empty App should compile");
+        assert_eq!(
+            result.module.functions["main"].signature.return_type,
+            crate::mir::MirType::Void
+        );
+    });
 }
 
 #[test]
 fn scalar_app_raw_root_main_discards_tail_but_keeps_fixed_void_contract() {
-    let mut raw = MirCompiler::new();
-    let result = raw
-        .compile_raw_with_source(scalar_app(), Some("parity-app-scalar.hako"))
-        .expect("Raw scalar App should complete BODY and ROOTBATCH");
-    assert_eq!(
-        result.module.functions["main"].signature.return_type,
-        crate::mir::MirType::Void
-    );
+    run_on_test_thread("raw-scalar-app-void-contract", || {
+        let mut raw = MirCompiler::new();
+        let result = raw
+            .compile_raw_with_source(scalar_app(), Some("parity-app-scalar.hako"))
+            .expect("Raw scalar App should complete BODY and ROOTBATCH");
+        assert_eq!(
+            result.module.functions["main"].signature.return_type,
+            crate::mir::MirType::Void
+        );
+    });
 }

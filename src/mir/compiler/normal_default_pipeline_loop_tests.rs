@@ -558,8 +558,28 @@ fn resolves_to_phi_dst(
     false
 }
 
+/// Source-bound lowering recurses deeply enough in debug builds to exceed
+/// the default 8 MiB test-thread stack; pins that drive it run on a widened
+/// thread the same way the variable-accum family does.
+fn run_on_test_thread(name: &str, body: impl FnOnce() + Send + 'static) {
+    std::thread::Builder::new()
+        .name(name.to_owned())
+        .stack_size(32 * 1024 * 1024)
+        .spawn(body)
+        .expect("spawn test thread")
+        .join()
+        .expect("test thread panicked");
+}
+
 #[test]
 fn callable_source_return_in_body_loop_reads_bind_header_phi_dst() {
+    run_on_test_thread(
+        "callable-source-return-in-body-loop",
+        callable_source_return_in_body_loop_reads_bind_header_phi_dst_inner,
+    );
+}
+
+fn callable_source_return_in_body_loop_reads_bind_header_phi_dst_inner() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         // find/3 shape: a carrier read inside the loop body must resolve the
@@ -640,6 +660,13 @@ fn callable_source_return_in_body_loop_reads_bind_header_phi_dst() {
 
 #[test]
 fn callable_source_loop_exit_read_binds_after_phi_dst() {
+    run_on_test_thread(
+        "callable-source-loop-exit-read",
+        callable_source_loop_exit_read_binds_after_phi_dst_inner,
+    );
+}
+
+fn callable_source_loop_exit_read_binds_after_phi_dst_inner() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         // Post-loop carrier read: `return matched` after the loop must bind

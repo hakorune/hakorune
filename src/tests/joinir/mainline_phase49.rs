@@ -20,10 +20,27 @@ use crate::mir::MirCompiler;
 use crate::parser::NyashParser;
 use crate::tests::helpers::joinir_env::clear_joinir_flags;
 
+/// Compiler entry recurses deeply enough in debug builds to sit near the
+/// default 8 MiB test-thread stack boundary; run these pins on a widened
+/// thread the same way the callable pipeline loop pins do.
+fn run_on_test_thread(name: &str, body: impl FnOnce() + Send + 'static) {
+    std::thread::Builder::new()
+        .name(name.to_owned())
+        .stack_size(32 * 1024 * 1024)
+        .spawn(body)
+        .expect("spawn test thread")
+        .join()
+        .expect("test thread panicked");
+}
+
 /// Phase 49-3: JoinIR Frontend mainline パイプラインが
 /// print_tokens 関数のコンパイル時にクラッシュしないことを確認
 #[test]
 fn phase49_joinir_mainline_pipeline_smoke() {
+    run_on_test_thread("phase49_joinir_mainline_pipeline_smoke", phase49_joinir_mainline_pipeline_smoke_inner);
+}
+
+fn phase49_joinir_mainline_pipeline_smoke_inner() {
     clear_joinir_flags();
     // Phase 49 mainline route は dev フラグで制御
     std::env::set_var("HAKO_JOINIR_PRINT_TOKENS_MAIN", "1");
@@ -85,6 +102,10 @@ static box Main {
 /// Phase 49-3: dev フラグ OFF 時は従来経路を使用することを確認
 #[test]
 fn phase49_joinir_mainline_fallback_without_flag() {
+    run_on_test_thread("phase49_joinir_mainline_fallback_without_flag", phase49_joinir_mainline_fallback_without_flag_inner);
+}
+
+fn phase49_joinir_mainline_fallback_without_flag_inner() {
     clear_joinir_flags();
     // dev フラグ OFF
     std::env::remove_var("HAKO_JOINIR_PRINT_TOKENS_MAIN");
@@ -139,6 +160,10 @@ static box Main {
 /// 両方が正常に完了することを確認する。
 #[test]
 fn phase49_joinir_mainline_ab_comparison() {
+    run_on_test_thread("phase49_joinir_mainline_ab_comparison", phase49_joinir_mainline_ab_comparison_inner);
+}
+
+fn phase49_joinir_mainline_ab_comparison_inner() {
     clear_joinir_flags();
     let src = r#"
 box JsonTokenizer {
@@ -224,6 +249,10 @@ static box Main {
 /// ArrayExtBox.filter 関数のコンパイル時にクラッシュしないことを確認
 #[test]
 fn phase49_joinir_array_filter_smoke() {
+    run_on_test_thread("phase49_joinir_array_filter_smoke", phase49_joinir_array_filter_smoke_inner);
+}
+
+fn phase49_joinir_array_filter_smoke_inner() {
     clear_joinir_flags();
     // Phase 49-4 mainline route は dev フラグで制御
     std::env::set_var("HAKO_JOINIR_ARRAY_FILTER_MAIN", "1");
@@ -279,6 +308,10 @@ static box Main {
 /// Phase 49-4: dev フラグ OFF 時は従来経路を使用することを確認
 #[test]
 fn phase49_joinir_array_filter_fallback() {
+    run_on_test_thread("phase49_joinir_array_filter_fallback", phase49_joinir_array_filter_fallback_inner);
+}
+
+fn phase49_joinir_array_filter_fallback_inner() {
     clear_joinir_flags();
     // dev フラグ OFF
     std::env::remove_var("HAKO_JOINIR_ARRAY_FILTER_MAIN");
@@ -331,6 +364,10 @@ static box Main {
 /// ArrayExtBox.filter版
 #[test]
 fn phase49_joinir_array_filter_ab_comparison() {
+    run_on_test_thread("phase49_joinir_array_filter_ab_comparison", phase49_joinir_array_filter_ab_comparison_inner);
+}
+
+fn phase49_joinir_array_filter_ab_comparison_inner() {
     clear_joinir_flags();
     let src = r#"
 static box ArrayExtBox {

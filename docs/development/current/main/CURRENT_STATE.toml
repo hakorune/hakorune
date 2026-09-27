@@ -1,10 +1,10 @@
 date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-ADJACENT-MODULE-CONTRACT-PIN-RESYNC-S14"
+current_execution_row = "MIRBUILDER-REVIEW-MERGE-READINESS-R0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "AdjacentModulePinResyncS14-Landed__Gate1ExternallyBlocked"
-current_design_stop = "S14 drained the adjacent-module stale-pin queue: every remaining red in the touched batch is verified baseline debt owned by sealed lineages or the confirmed toolchain/loop-winner lane; Gate-1 `real-apps-exe-boundary` stays externally blocked per D21 and Gates 2-4 are parked pending explicit selection"
+current_blocker_token = "ReviewMergeReadinessR0-Landed__Gate1ExternallyBlocked"
+current_design_stop = "R0 cleared the review merge blockers: 800-line violations split and guard-registered, default-stack SIGABRT surface removed, red baseline receipt re-recorded and verifier-green; Gate-1 `real-apps-exe-boundary` stays externally blocked per D21 and Gates 2-4 are parked pending explicit selection"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,26 +14,28 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-adjacent-module-contract-pin-resync-s14"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-adjacent-module-contract-pin-resync-s14-2026-09-27.md"
+latest_card = "mirbuilder-review-merge-readiness-r0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-review-merge-readiness-r0-2026-09-27.md"
 latest_card_summary = """
-S14 landed: the adjacent-module stale-pin queue is drained and two
-producer-side coverage gaps split out of the census are repaired —
-`resolve_named_assignment` now records the GroupedAssignmentTarget
-site plus its BindingAssignmentTarget draft shape row (same class as
-S12), and string-corridor fact inference observes the canonical typed
-`Call` carrier (Method/Global/Extern) so corridor facts/candidates
-attach again on the typed lane. Stale pins resynced across
-retired-boundary legs, bare-AST `Program` admission, enum/record
-compat terminals, grouped-assignment direct-AST fixtures, and
-env-selector races (`NYASH_MIR_UNIFIED_CALL`/`NYASH_MIR_CORE13_PURE`/
-`HAKO_MIR_BUILDER_METHODIZE` reader pins). Focused batch 750 passed /
-3 failed — all three verified baseline debt. Gate-1 suite stays
-externally blocked per D21; Gates 2-4 parked pending explicit
-selection. NOTE: EXE/VM smokes need `NYASH_BIN=target/debug/hakorune`.
+R0 landed: review-merge remediation, BoxShape only — the three
+800-line violations are split (`normal_callable_semantic_lowering_state`
+809->749 with the loop-value publication APIs moved to a dedicated
+submodule; `published_backend_view_tests` 848->493+360 drift split;
+`normal_default_root_catalog_lifecycle_tests` 1221->732+497
+main-selection split) and all nine files are registered in the
+scope guard's line list. Default-stack SIGABRT surface removed: the
+deep source-backed lowering pins run on a shared 32 MiB test thread
+(new S8 pins plus pre-existing loop-scope/merged-route/named-array/
+raw-ingress/raw-cutover/phase49 pins) — full `--lib` suite now
+completes under a default env with zero aborts. Red baseline receipt
+re-recorded: 7981/127/56, inventory 8164, verifier KNOWN BASELINE ok;
+the +5 failure names are verified session debt red before this slice.
+`BindingAssignmentTarget` shape rows now issue through one shared
+`ShadowBodyShapeDraftV0` helper. No behavior change; Gate-1 stays
+externally blocked per D21.
 """
-next_design_card = "MIRBUILDER-ADJACENT-MODULE-CONTRACT-PIN-RESYNC-S14"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-adjacent-module-contract-pin-resync-s14-2026-09-27.md"
+next_design_card = "MIRBUILDER-REVIEW-MERGE-READINESS-R0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-review-merge-readiness-r0-2026-09-27.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -50,7 +52,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-27: MIRBUILDER-REVIEW-MERGE-READINESS-R0 landed — BoxShape review remediation: three 800-line violations split and all nine files guard-registered; default-stack SIGABRT surface removed via shared 32 MiB test-thread wraps (new S8 pins + pre-existing raw/source-backed pins), full --lib suite abort-free under default env; red baseline receipt re-recorded at 7981/127/56 inventory 8164, verifier green; BindingAssignmentTarget rows unified behind one draft helper; Gate-1 stays externally blocked.",
   "2026-09-27: MIRBUILDER-ADJACENT-MODULE-CONTRACT-PIN-RESYNC-S14 landed — adjacent-module stale-pin queue drained across retired-boundary legs, Program admission wraps, enum/record compat terminals, grouped-assignment direct-AST fixtures, and UNIFIED_CALL/CORE13_PURE/METHODIZE env-selector pins; two producer-side splits landed: GroupedAssignmentTarget site+shape draft coverage in resolve_named_assignment (S12 class) and canonical Call carrier observation in string-corridor fact inference (corridor tests un-ignored, green); focused batch 750/3-failed all baseline debt; Gate-1 stays externally blocked.",
   "2026-09-27: ME-UPVAR-RECEIVER-SEAL-S13 landed — the canonical Me seal arm now accepts the designed Upvar receiver ref, mapping it to its exact parent source binding (no new variant, no fabricated binding); resolver_seals_receiver_read_as_structural_upvar green again after efbc22b14b; resolved_semantics 346/348 with only the two censused S14 stale pins left.",
-  "2026-09-27: SCRIPT-CONTROL-SHAPE-DRAFT-COVERAGE-S12 landed — script-root dispatch now records the draft expression-shape row for admitted Match/QMark statement sites, closing the 73db0233d7 coverage gap in the producer (seal invariant untouched); match/qmark 5/5 green; sibling Me-Upvar seal gap routed to S13, stale pins routed to S14.",
 ]

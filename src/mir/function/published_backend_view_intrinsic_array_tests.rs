@@ -1,5 +1,5 @@
 // Physical consumer witnesses only; source acceptance has separate host tests.
-fn intrinsic_array_module() -> MirModule {
+pub(super) fn intrinsic_array_module() -> MirModule {
     let mut function = MirFunction::new(
         FunctionSignature {
             name: "main".into(),

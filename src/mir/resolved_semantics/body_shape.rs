@@ -159,6 +159,21 @@ pub(crate) struct ShadowBodyShapeDraftV0 {
     pub(crate) assignment_sources: BTreeMap<SourceStmtSiteV1, ResolvedAssignmentSourceV1>,
 }
 
+impl ShadowBodyShapeDraftV0 {
+    /// Records the shared `BindingAssignmentTarget` row for one assignment
+    /// target site — used by AST-carried `Variable` targets and name-only
+    /// grouped targets so both keep a single shape vocabulary.
+    pub(crate) fn record_binding_assignment_target(&mut self, site: SourceExprSiteV1) {
+        self.expressions.insert(
+            site.clone(),
+            ShadowExpressionShapeV0::Other {
+                site,
+                kind: "BindingAssignmentTarget".into(),
+            },
+        );
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ShadowStatementShapeV0 {
     SequenceItem {

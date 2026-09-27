@@ -69,101 +69,126 @@ fn app_with_nonempty_helper() -> ASTNode {
     }
 }
 
+/// Raw lowering recurses deeply enough in debug builds to sit near the
+/// default 8 MiB test-thread stack boundary; run these pins on a widened
+/// thread the same way the callable pipeline loop pins do.
+fn run_on_test_thread(name: &str, body: impl FnOnce() + Send + 'static) {
+    std::thread::Builder::new()
+        .name(name.to_owned())
+        .stack_size(32 * 1024 * 1024)
+        .spawn(body)
+        .expect("spawn test thread")
+        .join()
+        .expect("test thread panicked");
+}
+
 #[test]
 fn raw_public_ingress_compiles_empty_script_without_legacy_fallback() {
-    let mut compiler = MirCompiler::new();
-    let result = compiler
-        .compile_raw_with_source(empty_script(), Some("raw-public.hako"))
-        .expect("narrow Raw ingress should compile empty Script");
+    run_on_test_thread("raw-ingress-empty-script", || {
+        let mut compiler = MirCompiler::new();
+        let result = compiler
+            .compile_raw_with_source(empty_script(), Some("raw-public.hako"))
+            .expect("narrow Raw ingress should compile empty Script");
 
-    assert_eq!(result.module.name, "main");
-    assert!(result.module.functions.contains_key("main"));
-    assert!(compiler.builder.current_module.is_none());
+        assert_eq!(result.module.name, "main");
+        assert!(result.module.functions.contains_key("main"));
+        assert!(compiler.builder.current_module.is_none());
+    });
 }
 
 #[test]
 fn raw_public_ingress_rejects_repl_before_source_binding() {
-    let mut compiler = MirCompiler::new();
-    compiler.set_repl_mode(true);
-    let error = compiler
-        .compile_raw_with_source(empty_script(), None)
-        .expect_err("NarrowV1 must reject REPL mode");
+    run_on_test_thread("raw-ingress-repl-reject", || {
+        let mut compiler = MirCompiler::new();
+        compiler.set_repl_mode(true);
+        let error = compiler
+            .compile_raw_with_source(empty_script(), None)
+            .expect_err("NarrowV1 must reject REPL mode");
 
-    assert!(error.starts_with("[raw-public/source-binding/repl-unsupported]"));
-    assert!(compiler.builder.current_module.is_none());
+        assert!(error.starts_with("[raw-public/source-binding/repl-unsupported]"));
+        assert!(compiler.builder.current_module.is_none());
+    });
 }
 
 #[test]
 fn raw_public_ingress_reuses_one_compiler_for_two_successes() {
-    let mut compiler = MirCompiler::new();
+    run_on_test_thread("raw-ingress-two-successes", || {
+        let mut compiler = MirCompiler::new();
 
-    for source_file in [Some("raw-public-1.hako"), Some("raw-public-2.hako")] {
-        let result = compiler
-            .compile_raw_with_source(empty_script(), source_file)
-            .expect("NarrowV1 should permit repeated empty Script compilation");
-        assert_eq!(result.module.name, "main");
-        assert!(compiler.builder.current_module.is_none());
-    }
+        for source_file in [Some("raw-public-1.hako"), Some("raw-public-2.hako")] {
+            let result = compiler
+                .compile_raw_with_source(empty_script(), source_file)
+                .expect("NarrowV1 should permit repeated empty Script compilation");
+            assert_eq!(result.module.name, "main");
+            assert!(compiler.builder.current_module.is_none());
+        }
+    });
 }
 
 #[test]
 fn raw_public_ingress_failure_is_discarded_before_reuse() {
-    let mut compiler = MirCompiler::new();
-    let failure = ASTNode::Program {
-        statements: vec![ASTNode::Variable {
-            name: "missing".into(),
+    run_on_test_thread("raw-ingress-failure-discard", || {
+        let mut compiler = MirCompiler::new();
+        let failure = ASTNode::Program {
+            statements: vec![ASTNode::Variable {
+                name: "missing".into(),
+                span: Span::unknown(),
+            }],
             span: Span::unknown(),
-        }],
-        span: Span::unknown(),
-    };
+        };
 
-    let error = compiler
-        .compile_raw_with_source(failure, None)
-        .expect_err("undefined Raw variable should reject");
-    assert!(error.starts_with("[raw-public/body/rejected]"));
-    assert!(error.contains("body-rejected: typed body rejection"));
-    assert!(error.len() < 160);
-    assert!(!error.contains("RejectedRawPublishedCompileV1"));
-    assert!(!error.contains("current_function"));
-    assert!(compiler.builder.current_module.is_none());
+        let error = compiler
+            .compile_raw_with_source(failure, None)
+            .expect_err("undefined Raw variable should reject");
+        assert!(error.starts_with("[raw-public/body/rejected]"));
+        assert!(error.contains("body-rejected: typed body rejection"));
+        assert!(error.len() < 160);
+        assert!(!error.contains("RejectedRawPublishedCompileV1"));
+        assert!(!error.contains("current_function"));
+        assert!(compiler.builder.current_module.is_none());
 
-    compiler
-        .compile_raw_with_source(empty_script(), None)
-        .expect("discarded Raw failure must not poison compiler reuse");
-    assert!(compiler.builder.current_module.is_none());
+        compiler
+            .compile_raw_with_source(empty_script(), None)
+            .expect("discarded Raw failure must not poison compiler reuse");
+        assert!(compiler.builder.current_module.is_none());
+    });
 }
 
 #[test]
 fn raw_public_ingress_failure_preserves_live_imports() {
-    let mut compiler = MirCompiler::new();
-    compiler
-        .builder
-        .comp_ctx
-        .using_import_boxes
-        .insert("Alias".into(), "Imported".into());
-    let before = compiler.builder.comp_ctx.using_import_boxes.clone();
-    let failure = ASTNode::Program {
-        statements: vec![ASTNode::Variable {
-            name: "missing".into(),
+    run_on_test_thread("raw-ingress-imports-preserved", || {
+        let mut compiler = MirCompiler::new();
+        compiler
+            .builder
+            .comp_ctx
+            .using_import_boxes
+            .insert("Alias".into(), "Imported".into());
+        let before = compiler.builder.comp_ctx.using_import_boxes.clone();
+        let failure = ASTNode::Program {
+            statements: vec![ASTNode::Variable {
+                name: "missing".into(),
+                span: Span::unknown(),
+            }],
             span: Span::unknown(),
-        }],
-        span: Span::unknown(),
-    };
+        };
 
-    let error = compiler
-        .compile_raw_with_source(failure, None)
-        .expect_err("undefined variable must reject without mutating live imports");
-    assert!(error.starts_with("[raw-public/body/rejected]"));
-    assert!(!error.contains("owner:"));
-    assert_eq!(compiler.builder.comp_ctx.using_import_boxes, before);
+        let error = compiler
+            .compile_raw_with_source(failure, None)
+            .expect_err("undefined variable must reject without mutating live imports");
+        assert!(error.starts_with("[raw-public/body/rejected]"));
+        assert!(!error.contains("owner:"));
+        assert_eq!(compiler.builder.comp_ctx.using_import_boxes, before);
+    });
 }
 
 #[test]
 fn raw_public_ingress_rejects_nonempty_helper_before_physical_open() {
-    let mut compiler = MirCompiler::new();
-    let error = compiler
-        .compile_raw_with_source(app_with_nonempty_helper(), None)
-        .expect_err("NarrowV1 must reject non-empty StaticHelper0");
-    assert!(error.starts_with("[raw-public/eligibility/rejected]"));
-    assert!(compiler.builder.current_module.is_none());
+    run_on_test_thread("raw-ingress-helper-reject", || {
+        let mut compiler = MirCompiler::new();
+        let error = compiler
+            .compile_raw_with_source(app_with_nonempty_helper(), None)
+            .expect_err("NarrowV1 must reject non-empty StaticHelper0");
+        assert!(error.starts_with("[raw-public/eligibility/rejected]"));
+        assert!(compiler.builder.current_module.is_none());
+    });
 }
