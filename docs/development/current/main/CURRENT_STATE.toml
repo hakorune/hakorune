@@ -1,10 +1,10 @@
 date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Gate1FieldArrayI64PushD0__ResidenceProviderOutcomeDecisionOpen"
-current_design_stop = "D22 selected internal owner design for the four HakoAllocPage.seedBlocks field-resident Array/I64 push sites; resolve residence/provider, NoValue success, failure and commit timing in existing CoreMethod issuers before implementation; no external dependency was established"
+current_blocker_token = "Gate1FieldArrayI64PushS0__ResidenceContractConstructionOpen"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,25 +13,26 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-suite-red-disposition-d21-2026-09-27.md"
-latest_card = "mirbuilder-exe-acceptance-suite-red-disposition-d21"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-suite-red-disposition-d21-2026-09-27.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-field-array-i64-push-d0-2026-09-27.md"
+latest_card = "mirbuilder-gate1-field-array-i64-push-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-field-array-i64-push-s0-2026-09-27.md"
 latest_card_summary = """
-Review R0 landed at 24e796b0f4: 7981 passed / 127 known failed / 56
-ignored, not an all-green suite. D22 corrects D21's external-wait
-premise: the remaining Gate-1 semantics need internal owner design.
-LLVM 18 is installed; the documented PATH selects it (plain opt/llc
-still select 14). D21 recorded 4/11 plus focused opt-18 newbox success.
-Next is field-resident Array/I64 push design for four seedBlocks sites
-shared by boxtorrent/mimalloc. Source residence/provider/outcome and
-physical retention must close before implementation. The D21 card
-now holds the finite owner series and downstream gate order; other
-semantic cohorts and Gates 2-4 remain queued, not activated.
+Field-array D0 closed with an accepted Decision: sibling residence
+contract (NamedArrayFieldResidenceRequirementV1 + ArrayIntegerAppend
+schema) claims a me-field ArrayBox alias push; provider is the
+generated-birth `new ArrayBox()` joined through CanonicalFieldRefV1 +
+StoredFieldInitializer membership; marker gains a FieldResidence
+allocation ref resolved module-level; I64 argument uses a bounded
+source predicate; failure is a typed NamedArrayFieldResidenceIssueV1.
+Observed terminal today: SourceCallOutsideSelectedFamily on
+seedBlocks/0 (boxtorrent probe). Next is S0: source contract +
+physical connection for the four push sites; caller switch and
+retirement stay queued rows 3-4; Gates 2-4 parked.
 """
-next_design_card = "MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-suite-red-disposition-d21-2026-09-27.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-field-array-i64-push-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -46,7 +47,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-27: MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-D0 decision accepted — field-resident Array/I64 push owner design: residence contract + ArrayIntegerAppend schema + CanonicalFieldRefV1/provider-site physical correspondence through existing issuers; observed terminal SourceCallOutsideSelectedFamily on seedBlocks/0; S0 emitted as the bounded construction slice; no code, switch, or retirement.",
   "2026-09-27: MIRBUILDER-REVIEW-MERGE-READINESS-R0 landed — BoxShape review remediation: three 800-line violations split and all nine files guard-registered; default-stack SIGABRT surface removed via shared 32 MiB test-thread wraps (new S8 pins + pre-existing raw/source-backed pins), full --lib suite abort-free under default env; red baseline receipt re-recorded at 7981/127/56 inventory 8164, verifier green; BindingAssignmentTarget rows unified behind one draft helper; Gate-1 stays externally blocked.",
   "2026-09-27: MIRBUILDER-ADJACENT-MODULE-CONTRACT-PIN-RESYNC-S14 landed — adjacent-module stale-pin queue drained across retired-boundary legs, Program admission wraps, enum/record compat terminals, grouped-assignment direct-AST fixtures, and UNIFIED_CALL/CORE13_PURE/METHODIZE env-selector pins; two producer-side splits landed: GroupedAssignmentTarget site+shape draft coverage in resolve_named_assignment (S12 class) and canonical Call carrier observation in string-corridor fact inference (corridor tests un-ignored, green); focused batch 750/3-failed all baseline debt; Gate-1 stays externally blocked.",
-  "2026-09-27: ME-UPVAR-RECEIVER-SEAL-S13 landed — the canonical Me seal arm now accepts the designed Upvar receiver ref, mapping it to its exact parent source binding (no new variant, no fabricated binding); resolver_seals_receiver_read_as_structural_upvar green again after efbc22b14b; resolved_semantics 346/348 with only the two censused S14 stale pins left.",
 ]
