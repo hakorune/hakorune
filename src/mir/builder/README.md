@@ -1317,6 +1317,18 @@ source is a typed freeze and is never promoted by this P0. The reusable
 `script_static_result_publication_ingress_guard.sh` pins the complete outcome
 table and the no-fallback boundary.
 
+Admitted located lineages are `Cataloged` and, since the Gate-1 lineage D0,
+`Main`: a source-backed `Main(locator)` root verifies its caller through the
+sealed declaration probe `declaration_for(StaticBoxMethod, box_name,
+method_name, arity)` and takes with the declaration's sealed key — never the
+locator symbol or a rebuilt key. An absent catalog is
+`DeclarationCatalogUnavailable`; an unresolved probe stays `ForeignLineage`.
+`TopLevel`, `InstanceConstructor`, `NestedBoxMethod`, and `ScriptRoot` remain
+foreign: `FreeFunction`/`BirthConstructor` callers are not inventoried by
+`observe_all_calls` (admission would misreport `NoExactStaticTarget`), nested
+methods carry no verified caller key, and script statics belong to the sibling
+script-direct claim family.
+
 For the bounded StaticCurrentOwner `me.method` route, this ingress runs before
 the legacy `me` header classifier. A static-box caller therefore projects the
 already-issued catalog key to `Global(StaticBoxMethod)` and lowers N source

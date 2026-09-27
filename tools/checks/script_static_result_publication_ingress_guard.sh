@@ -30,31 +30,46 @@ grep -q 'StaticResultPublicationIngressV1::Unavailable' "$member"
 grep -q 'handle_me_method_call_with_publication_ingress' "$member"
 grep -q 'resolve_me_call_with_publication_ingress' "$me"
 
-# Check the rejecting arm itself, not a diagnostic elsewhere in the file.
+# Check the TargetOnly arm itself, not a diagnostic elsewhere in the file.
+# member_route consumes TargetOnly through the existing physical bridge
+# (TARGET-ONLY-EMISSION-S0); the me-policy keeps the named rejection.
 python3 - "$ingress" "$member" "$me" <<'PY_GUARD'
 import pathlib
 import re
 import sys
 
-ingress, *consumers = [pathlib.Path(path) for path in sys.argv[1:]]
+ingress, member, me = [pathlib.Path(path) for path in sys.argv[1:]]
 source = ingress.read_text()
 enum = re.search(r"enum StaticResultPublicationIngressV1\s*\{(.*?)\n\}", source, re.S)
 assert enum, "publication ingress enum missing"
 for state in ("Unavailable", "NoExactStaticTarget", "TargetOnly", "Selected"):
     assert re.search(r"^\s*" + state + r"\b", enum[1], re.M), state
 assert not re.search(r"\bAbsent\b", enum[1]), "obsolete Absent ingress state"
-for path in consumers:
-    source = path.read_text()
-    arm = re.search(
-        r"Ok\(StaticResultPublicationIngressV1::TargetOnly\(target\)\)\s*=>\s*\{"
-        r"(.*?)\n\s*Ok\(StaticResultPublicationIngressV1::NoExactStaticTarget\)",
-        source, re.S,
-    )
-    assert arm, f"{path}: TargetOnly rejection arm missing"
-    assert re.search(r"^\s*(?:return\s+)?Err\(format!\(", arm[1]), path
-    for token in ("static-result-ingress/target-only/", "target.reason()", "target.target().mir_symbol_projection()"):
-        assert token in arm[1], f"{path}: missing {token}"
-    assert not re.search(r"lower_|descent\.|handle_", arm[1]), f"{path}: TargetOnly must reject before descent"
+
+source = member.read_text()
+arm = re.search(
+    r"Ok\(StaticResultPublicationIngressV1::TargetOnly\(target\)\)\s*=>\s*\{"
+    r"(.*?)\n\s*Ok\(StaticResultPublicationIngressV1::NoExactStaticTarget\)",
+    source, re.S,
+)
+assert arm, "member_route: TargetOnly consumption arm missing"
+for token in ("lower_target_only_static_result_publication_v1", "target.target().clone()"):
+    assert token in arm[1], f"member_route: missing {token}"
+assert not re.search(r"handle_static_method_call_with_descent", arm[1]), \
+    "member_route: TargetOnly must stay on the publication bridge, never the compatibility route"
+
+source = me.read_text()
+arm = re.search(
+    r"Ok\(StaticResultPublicationIngressV1::TargetOnly\(target\)\)\s*=>\s*\{"
+    r"(.*?)\n\s*Ok\(StaticResultPublicationIngressV1::NoExactStaticTarget\)",
+    source, re.S,
+)
+assert arm, "me-policy: TargetOnly rejection arm missing"
+assert re.search(r"^\s*(?:return\s+)?Err\(format!\(", arm[1]), "me-policy"
+for token in ("static-result-ingress/target-only/", "target.reason()", "target.target().mir_symbol_projection()"):
+    assert token in arm[1], f"me-policy: missing {token}"
+assert not re.search(r"lower_|descent\.|handle_", arm[1]), \
+    "me-policy: TargetOnly must reject before descent"
 PY_GUARD
 
 if rg -n 'try_emit_source_bound_static_call_result_v1|raw_static_result_publication' src/mir/builder; then

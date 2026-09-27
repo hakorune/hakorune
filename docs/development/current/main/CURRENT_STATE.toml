@@ -1,10 +1,10 @@
 date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-STATIC-RESULT-INGRESS-LINEAGE-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-GATE1-STATIC-RESULT-CALLER-COVERAGE-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Gate1StaticResultIngressLineageS0__MainLineageArmOpen"
-current_design_stop = "none"
+current_blocker_token = "Gate1StaticResultCallerCoverageD0__BirthConstructorFreeFunctionInventoryOpen"
+current_design_stop = "S0 landed the Main lineage arm (sealed catalog probe -> decl.key()); the observed boxtorrent terminal is InstanceConstructor-rooted (HakoAllocHeap field-initializer LayoutBox.class_* calls) — design whether/how BirthConstructor and FreeFunction callers enter the declaration catalog, observe_all_calls caller inventory, and result catalog so InstanceConstructor/TopLevel lineage admission becomes truthful, before any admission change"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,26 +14,25 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-static-result-ingress-lineage-d0-2026-09-27.md"
-latest_card = "mirbuilder-gate1-static-result-ingress-lineage-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-result-ingress-lineage-d0-2026-09-27.md"
+latest_card = "mirbuilder-gate1-static-result-ingress-lineage-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-result-ingress-lineage-s0-2026-09-27.md"
 latest_card_summary = """
-Static-result ingress lineage D0 accepted: admission requires a
-verified CanonicalSameModuleCallableKeyV1 (sealed payload or sealed
-catalog probe — never symbol/name reconstruction) AND an inventoried
-caller in the sealed static-call-target inventory. `Main(locator)`
-admits via `declaration_for(StaticBoxMethod, box, method, arity)` ->
-sealed `decl.key()`; `InstanceConstructor`/`TopLevel` stay foreign
-until the caller-coverage family inventories
-`BirthConstructor`/`FreeFunction` callers (the observed boxtorrent
-terminal is `InstanceConstructor`-rooted via `HakoAllocHeap` field-
-initializer `LayoutBox.class_*` calls); `NestedBoxMethod`/`ScriptRoot`
-stay foreign. Bounded S0 emitted; next design row
-`MIRBUILDER-GATE1-STATIC-RESULT-CALLER-COVERAGE-D0` recorded.
+Static-result ingress lineage S0 landed: located `Main(locator)` +
+ledger verifies its caller through the sealed declaration probe
+`declaration_for(StaticBoxMethod, box, method, arity)` and takes with
+`decl.key()` — never the locator symbol. Absent catalog ->
+`DeclarationCatalogUnavailable`; unresolved probe -> `ForeignLineage`;
+ledger-less -> `Unavailable` (production-inert arm, rule-complete).
+Pins 11/11; member_route/me consumers unchanged; reusable guard
+repaired for the landed TargetOnly bridge consumption. The observed
+boxtorrent terminal is `InstanceConstructor`-rooted — next design row
+`MIRBUILDER-GATE1-STATIC-RESULT-CALLER-COVERAGE-D0` owns
+`BirthConstructor`/`FreeFunction` caller-inventory coverage.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-GATE1-STATIC-RESULT-INGRESS-LINEAGE-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-result-ingress-lineage-s0-2026-09-27.md"
+next_design_card = "MIRBUILDER-GATE1-STATIC-RESULT-CALLER-COVERAGE-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-static-result-ingress-lineage-s0-2026-09-27.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -48,7 +47,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-27: MIRBUILDER-GATE1-STATIC-RESULT-INGRESS-LINEAGE-S0 landed — Main(locator) admits via sealed declaration probe decl.key() (no symbol reconstruction); absent catalog -> DeclarationCatalogUnavailable, unresolved probe -> ForeignLineage; pins 11/11; ingress guard repaired for landed TargetOnly bridge; caller-coverage D0 selected next (observed terminal is InstanceConstructor-rooted).",
   "2026-09-27: MIRBUILDER-GATE1-STATIC-RESULT-INGRESS-LINEAGE-D0 decision accepted — admission = verified canonical caller + inventoried caller; Main(locator) admits via sealed catalog probe decl.key(); InstanceConstructor/TopLevel stay foreign pending caller-coverage family (observed boxtorrent terminal is InstanceConstructor-rooted); NestedBoxMethod/ScriptRoot stay foreign; bounded S0 emitted.",
   "2026-09-27: MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S2 landed — cutover/retirement disposition pinned: claimed loop pushes typed-reject on unretained plain lane, straight-line sites stay generic with zero obligations; membership delete-set empty, armed-lane cutover complete; focused 10/10 + named_array 31/31; next observed terminal static-result-ingress foreign-lineage selected as D0 design.",
-  "2026-09-27: MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-S1 landed — provider construction stores inside the single construction-store owner: `new <builtin>` coverage-only RHS arm + two-phase field-type/demand (i64/usize + <Class> provider + Handle) + ordinary-new-port lowering into the sole canonical Invoke FieldSet; focused artifact-lane green (6 FieldSets/4 providers/both opts), 78+12 pins green; boxtorrent first terminal unchanged (static-result-ingress); D2 cutover/retirement design selected.",
 ]

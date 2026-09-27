@@ -106,7 +106,11 @@ pub(in crate::mir::builder) trait StaticResultPublicationIngressPortV1 {
     /// declaration; `declarations == None` never upgrades such a caller and
     /// is inspected as an error only after the source context has already
     /// selected the Cataloged state — it is never a wildcard that turns
-    /// source loss into `Unavailable`.
+    /// source loss into `Unavailable`.  A located `Main` root admits the
+    /// same way through its sealed locator: the probed
+    /// (box_name, method_name, arity) must resolve to a same-module
+    /// `StaticBoxMethod` declaration and the caller key comes from that
+    /// declaration, never from the locator symbol.
     fn take_static_result_publication_ingress_v1(
         &mut self,
         declarations: Option<&VerifiedSameModuleCallableDeclarationCatalogV1>,
@@ -139,9 +143,34 @@ fn classify_source_context_v1(
             }
         }
         RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::Main(locator),
+            site,
+            ..
+        } => {
+            if !source_backed {
+                return Ok(StaticResultPublicationSourceClassV1::Unavailable);
+            }
+            let Some(declarations) = declarations else {
+                return Err(
+                    StaticResultPublicationIngressErrorV1::DeclarationCatalogUnavailable,
+                );
+            };
+            let Some(declaration) = declarations.declaration_for(
+                SameModuleCallableNamespaceV1::StaticBoxMethod,
+                locator.box_name(),
+                locator.method_name(),
+                locator.arity(),
+            ) else {
+                return Err(StaticResultPublicationIngressErrorV1::ForeignLineage);
+            };
+            Ok(StaticResultPublicationSourceClassV1::Cataloged {
+                caller: declaration.key().clone(),
+                site: SourceExprSiteV1::from_node(site.clone()),
+            })
+        }
+        RawInvocationSourceContextV1::Located {
             root:
-                RawInvocationRootLineageV1::Main(_)
-                | RawInvocationRootLineageV1::ScriptRoot
+                RawInvocationRootLineageV1::ScriptRoot
                 | RawInvocationRootLineageV1::TopLevel(_)
                 | RawInvocationRootLineageV1::InstanceConstructor(_)
                 | RawInvocationRootLineageV1::NestedBoxMethod { .. },
@@ -328,13 +357,7 @@ mod tests {
             StaticResultPublicationSourceClassV1::Cataloged { .. }
         ));
         let foreign = RawInvocationSourceContextV1::Located {
-            root: RawInvocationRootLineageV1::Main(RawSourceLocatorV1::for_test(
-                0,
-                "Main",
-                "main",
-                "Main.main/0",
-                0,
-            )),
+            root: RawInvocationRootLineageV1::ScriptRoot,
             site: site(),
             body_kind: None,
         };
@@ -349,6 +372,93 @@ mod tests {
         assert_eq!(
             classify_source_context_v1(Some(&foreign), true, absent, "Owner", "m", 0),
             Err(StaticResultPublicationIngressErrorV1::ForeignLineage)
+        );
+    }
+
+    fn main_declarations() -> VerifiedSameModuleCallableDeclarationCatalogV1 {
+        let root = crate::parser::NyashParser::parse_from_string(
+            "static box Main { main(args) { return 0 } sample() { return \"x\" } }",
+        )
+        .expect("fixture program must parse");
+        VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root)
+            .expect("fixture declaration catalog must seal")
+    }
+
+    fn main_located(method: &str, arity: usize) -> RawInvocationSourceContextV1 {
+        RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::Main(RawSourceLocatorV1::for_test(
+                0,
+                "Main",
+                method,
+                "ignored.symbol/0",
+                arity,
+            )),
+            site: site(),
+            body_kind: None,
+        }
+    }
+
+    #[test]
+    fn main_lineage_resolves_caller_through_sealed_declaration() {
+        let declarations = main_declarations();
+        for (method, arity) in [("main", 1usize), ("sample", 0)] {
+            let located = main_located(method, arity);
+            let class = classify_source_context_v1(
+                Some(&located),
+                true,
+                Some(&declarations),
+                "LayoutBox",
+                "class_size",
+                0,
+            )
+            .unwrap();
+            let StaticResultPublicationSourceClassV1::Cataloged { caller, .. } = class else {
+                panic!("Main root must classify as Cataloged");
+            };
+            assert_eq!(
+                caller,
+                CanonicalSameModuleCallableKeyV1::test_static_box_method("Main", method, arity),
+                "the caller key must come from the sealed declaration, not the call target"
+            );
+        }
+    }
+
+    #[test]
+    fn main_lineage_requires_declaration_catalog() {
+        let located = main_located("main", 1);
+        assert_eq!(
+            classify_source_context_v1(Some(&located), true, None, "LayoutBox", "class_size", 0),
+            Err(StaticResultPublicationIngressErrorV1::DeclarationCatalogUnavailable),
+            "without the catalog the locator cannot be verified"
+        );
+    }
+
+    #[test]
+    fn main_lineage_rejects_undeclared_static_method() {
+        let declarations = main_declarations();
+        let located = main_located("ghost", 0);
+        assert_eq!(
+            classify_source_context_v1(
+                Some(&located),
+                true,
+                Some(&declarations),
+                "LayoutBox",
+                "class_size",
+                0,
+            ),
+            Err(StaticResultPublicationIngressErrorV1::ForeignLineage),
+            "a locator that names no declared static method stays foreign"
+        );
+    }
+
+    #[test]
+    fn main_lineage_stays_unavailable_without_ledger() {
+        let located = main_located("main", 1);
+        assert_eq!(
+            classify_source_context_v1(Some(&located), false, None, "LayoutBox", "class_size", 0)
+                .unwrap(),
+            StaticResultPublicationSourceClassV1::Unavailable,
+            "the ledger-less raw-root producer never reaches the catalog probe"
         );
     }
 
