@@ -264,7 +264,7 @@ fn weak_unary_operand_failure_does_not_emit_or_poison_reuse() {
 #[test]
 fn finalization_snapshots_the_canonical_literal_fact_without_a_late_repair() {
     let mut builder = MirBuilder::new();
-    builder.prepare_module().expect("module shell");
+    crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || builder.prepare_module()).expect("module shell");
     let result = builder
         .build_literal(LiteralValue::String("text".to_string()))
         .expect("String literal");

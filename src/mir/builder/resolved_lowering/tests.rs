@@ -275,7 +275,7 @@ fn function_error_discards_unpublished_canonical_draft() {
     let (input, _flow, _completion, _block_expr_count) = plan.into_parts();
 
     let mut missing_authority = MirBuilder::new();
-    missing_authority.prepare_module().unwrap();
+    crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || missing_authority.prepare_module()).unwrap();
     let error = missing_authority
         .with_resolved_function_lowering_session("missing_authority/0", |builder| {
             builder.create_function_skeleton("missing_authority/0".into(), &[], &[])?;
@@ -291,7 +291,7 @@ fn function_error_discards_unpublished_canonical_draft() {
         .contains_key("missing_authority/0"));
 
     let mut builder = MirBuilder::new();
-    builder.prepare_module().unwrap();
+    crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || builder.prepare_module()).unwrap();
     let error = builder
         .with_resolved_function_lowering_session("canonical_fixture/1", |builder| {
             builder

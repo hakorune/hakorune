@@ -4,7 +4,8 @@ use crate::mir::{MirCompiler, MirPrinter};
 #[test]
 fn mir_lowering_of_peek_expr() {
     // Build AST: peek 2 { 1 => 10, 2 => 20, else => 30 }
-    let ast = ASTNode::MatchExpr {
+    let ast = ASTNode::Program {
+        statements: vec![ASTNode::MatchExpr {
         scrutinee: Box::new(ASTNode::Literal {
             value: LiteralValue::Integer(2),
             span: Span::unknown(),
@@ -30,10 +31,15 @@ fn mir_lowering_of_peek_expr() {
             span: Span::unknown(),
         }),
         span: Span::unknown(),
+        }],
+        span: Span::unknown(),
     };
 
     let mut compiler = MirCompiler::with_options(false);
-    let res = compiler.compile(ast).expect("compile ok");
+    let res = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+        compiler.compile(ast)
+    })
+    .expect("compile ok");
     let dump = MirPrinter::new().print_module(&res.module);
     assert!(dump.contains("br "), "expected branches in MIR:\n{}", dump);
     assert!(dump.contains("phi"), "expected phi merge in MIR:\n{}", dump);

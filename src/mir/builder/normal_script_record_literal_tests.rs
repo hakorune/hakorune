@@ -1,5 +1,5 @@
 use crate::ast::{ASTNode, DeclarationAttrs, FieldDecl, LiteralValue, Span};
-use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
+use crate::mir::{MirCompiler, NormalCompileRequestV1};
 use std::collections::HashMap;
 
 fn integer(value: i64) -> ASTNode {
@@ -56,27 +56,30 @@ fn record_literal(name: &str, fields: Vec<(&str, ASTNode)>) -> ASTNode {
     }
 }
 
-fn assert_selected_parity(program: ASTNode, hint: &str) {
+fn assert_retired_compat_boundary(program: ASTNode, hint: &str) {
     let mut legacy = MirCompiler::with_options(false);
-    let legacy = legacy
+    let legacy_error = legacy
         .compile_with_source(program.clone(), Some(hint))
-        .expect("legacy compile");
-    let normal = MirCompiler::with_options(false)
+        .expect_err("legacy record literal hits the retired compat boundary");
+    assert!(
+        legacy_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/instance]"),
+        "{legacy_error}"
+    );
+    let normal_error = MirCompiler::with_options(false)
         .compile_normal(
             NormalCompileRequestV1::for_mir_mode(program, Some(hint), HashMap::new())
                 .expect("normal request"),
         )
-        .expect("normal compile");
-    assert_eq!(
-        MirPrinter::new().print_module(&normal.module),
-        MirPrinter::new().print_module(&legacy.module)
+        .expect_err("normal record literal hits the retired compat boundary");
+    assert!(
+        normal_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/instance]"),
+        "{normal_error}"
     );
-    assert_eq!(normal.verification_result, legacy.verification_result);
 }
 
 #[test]
-fn fully_explicit_record_literal_matches_legacy_with_lexical_values() {
-    assert_selected_parity(
+fn fully_explicit_record_literal_stays_on_the_retired_compat_boundary() {
+    assert_retired_compat_boundary(
         ASTNode::Program {
             statements: vec![
                 record_declaration("Pair", vec![field("left", None), field("right", None)]),
@@ -110,7 +113,7 @@ fn fully_explicit_record_literal_matches_legacy_with_lexical_values() {
 }
 
 #[test]
-fn omitted_default_record_literal_keeps_existing_lowering_parity() {
+fn omitted_default_record_literal_stays_on_the_retired_compat_boundary() {
     let program = ASTNode::Program {
         statements: vec![
             record_declaration("Pair", vec![field("value", Some(integer(9)))]),
@@ -121,7 +124,7 @@ fn omitted_default_record_literal_keeps_existing_lowering_parity() {
         ],
         span: Span::unknown(),
     };
-    assert_selected_parity(program, "script-record-defaulted.hako");
+    assert_retired_compat_boundary(program, "script-record-defaulted.hako");
 }
 
 #[test]
@@ -145,7 +148,7 @@ fn invalid_record_literal_defers_and_allows_a_fresh_normal_request() {
         "{error}"
     );
 
-    compiler
+    let fresh_error = compiler
         .compile_normal(
             NormalCompileRequestV1::for_mir_mode(
                 ASTNode::Program {
@@ -160,5 +163,9 @@ fn invalid_record_literal_defers_and_allows_a_fresh_normal_request() {
             )
             .expect("fresh normal request"),
         )
-        .expect("fresh request must not reuse a deferred Script semantic product");
+        .expect_err("fresh request must not reuse a deferred Script semantic product");
+    assert!(
+        fresh_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/instance]"),
+        "{fresh_error}"
+    );
 }

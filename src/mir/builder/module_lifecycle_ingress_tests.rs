@@ -4,7 +4,9 @@ use crate::mir::{ConstValue, MirBuilder, MirInstruction, MirType};
 #[test]
 fn mirbuilder_minimal_literal_integer_path_smoke() {
     let mut builder = MirBuilder::new();
-    builder.prepare_module().expect("module shell");
+    crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || {
+        builder.prepare_module().expect("module shell");
+    });
     let literal = builder
         .build_literal(LiteralValue::Integer(0))
         .expect("literal integer");

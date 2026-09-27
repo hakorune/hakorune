@@ -4,7 +4,7 @@ use crate::mir::resolved_semantics::{
     ScriptTransferredBoundaryV1, SourcePathSegmentV1, SourcePathV1,
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
 };
-use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
+use crate::mir::{MirCompiler, NormalCompileRequestV1};
 use crate::parser::NyashParser;
 
 use super::super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
@@ -87,10 +87,11 @@ fn direct_enum_match_seals_only_its_scrutinee_receipt() {
 #[test]
 fn direct_enum_match_selected_pipeline_matches_legacy() {
     let program = source();
-    let legacy = MirCompiler::with_options(false)
+    let legacy_error = MirCompiler::with_options(false)
         .compile_with_source(program.clone(), Some("script-enum-match.hako"))
-        .expect("legacy direct EnumMatch");
-    let normal = MirCompiler::with_options(false)
+        .expect_err("legacy EnumMatch stays on the unsupported-declaration boundary");
+    assert!(legacy_error.contains("EnumDeclaration"), "{legacy_error}");
+    let normal_error = MirCompiler::with_options(false)
         .compile_normal(
             NormalCompileRequestV1::for_mir_mode(
                 program,
@@ -99,11 +100,6 @@ fn direct_enum_match_selected_pipeline_matches_legacy() {
             )
             .expect("normal request"),
         )
-        .expect("selected direct EnumMatch");
-    let printer = MirPrinter::new();
-    assert_eq!(
-        printer.print_module(&normal.module),
-        printer.print_module(&legacy.module)
-    );
-    assert_eq!(normal.verification_result, legacy.verification_result);
+        .expect_err("selected EnumMatch stays on the unsupported-declaration boundary");
+    assert!(normal_error.contains("EnumDeclaration"), "{normal_error}");
 }

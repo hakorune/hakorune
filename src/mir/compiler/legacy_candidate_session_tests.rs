@@ -294,9 +294,12 @@ fn late_normal_lowering_failure_leaves_live_builder_unchanged_and_reusable() {
             Some("failed-candidate.hako"),
             failed_imports,
         ))
-        .expect_err("undefined runtime variable must reject the candidate");
+        .expect_err("instance Script box stays on the retired compat boundary");
 
-    assert!(error.contains("Undefined variable: missing"), "{error}");
+    assert!(
+        error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/instance]"),
+        "{error}"
+    );
     assert_eq!(
         (
             compiler.builder.repl_mode,
@@ -424,97 +427,43 @@ static box Main {
     let legacy_ast = NyashParser::parse_from_string(source).expect("legacy source");
     let candidate_ast = NyashParser::parse_from_string(source).expect("candidate source");
     let mut legacy_compiler = MirCompiler::with_options(false);
-    let legacy = legacy_compiler
+    let legacy_error = legacy_compiler
         .compile_with_source(legacy_ast, Some("numeric-parity.hako"))
-        .expect("legacy compatibility module");
+        .expect_err("legacy compatibility module stays on the retired birth-global boundary");
+    assert!(
+        legacy_error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
+        "{legacy_error}"
+    );
     let mut compiler = MirCompiler::with_options(false);
-    let candidate = compiler
+    let candidate_error = compiler
         .compile_normal(normal_request(
             candidate_ast,
             Some("numeric-parity.hako"),
             HashMap::new(),
         ))
-        .expect("normal candidate");
-
-    assert_eq!(
-        candidate.module.metadata.user_box_field_decls,
-        legacy.module.metadata.user_box_field_decls
-    );
-    assert_eq!(
-        MirPrinter::new().print_module(&candidate.module),
-        MirPrinter::new().print_module(&legacy.module)
-    );
-    assert_eq!(
-        format!("{:?}", candidate.verification_result),
-        format!("{:?}", legacy.verification_result)
-    );
-    assert_eq!(
-        candidate.module.function_names(),
-        legacy.module.function_names()
-    );
-    assert!(candidate.module.functions.contains_key("Utility.answer/0"));
-    assert!(candidate
-        .module
-        .functions
-        .contains_key("selected_top_level/0"));
-    let contract_count = |module: &crate::mir::MirModule| {
-        module
-            .functions
-            .values()
-            .map(|function| {
-                function
-                    .metadata
-                    .exact_numeric_runtime_check_contracts
-                    .len()
-            })
-            .sum::<usize>()
-    };
-    let main_instructions = legacy.module.functions["main"]
-        .blocks
-        .values()
-        .flat_map(|block| block.instructions.iter())
-        .collect::<Vec<_>>();
-    assert_eq!(
-        contract_count(&legacy.module),
-        1,
-        "main instructions: {main_instructions:#?}"
-    );
-    assert_eq!(
-        contract_count(&candidate.module),
-        contract_count(&legacy.module)
+        .expect_err("normal candidate stays on the retired birth-global boundary");
+    assert!(
+        candidate_error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
+        "{candidate_error}"
     );
 
     let optimized_legacy_ast = NyashParser::parse_from_string(source).expect("legacy source");
     let program_v0_ast = NyashParser::parse_from_string(source).expect("Program-v0 source");
     let mut optimized_legacy_compiler = MirCompiler::with_options(true);
-    let optimized_legacy = optimized_legacy_compiler
+    let optimized_legacy_error = optimized_legacy_compiler
         .compile_with_source(optimized_legacy_ast, Some("<json_v0/imports>"))
-        .expect("optimized legacy compatibility module");
+        .expect_err("optimized legacy module stays on the retired birth-global boundary");
+    assert!(
+        optimized_legacy_error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
+        "{optimized_legacy_error}"
+    );
     let mut program_v0_compiler = MirCompiler::with_options(true);
-    let program_v0 = program_v0_compiler
+    let program_v0_error = program_v0_compiler
         .compile_normal(program_v0_import_bundle_request(program_v0_ast))
-        .expect("typed Program-v0 import bundle");
-
-    assert_eq!(
-        MirPrinter::new().print_module(&program_v0.module),
-        MirPrinter::new().print_module(&optimized_legacy.module)
-    );
-    assert_eq!(
-        program_v0.module.metadata.user_box_field_decls,
-        optimized_legacy.module.metadata.user_box_field_decls
-    );
-    assert_eq!(
-        format!("{:?}", program_v0.verification_result),
-        format!("{:?}", optimized_legacy.verification_result)
-    );
-    assert!(program_v0_compiler
-        .builder
-        .comp_ctx
-        .using_import_boxes
-        .is_empty());
-    assert_eq!(
-        source_file(&program_v0_compiler).as_deref(),
-        Some("<json_v0/imports>")
+        .expect_err("Program-v0 import bundle stays on the retired birth-global boundary");
+    assert!(
+        program_v0_error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
+        "{program_v0_error}"
     );
 }
 

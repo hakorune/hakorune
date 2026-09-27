@@ -4,7 +4,7 @@ use crate::mir::builder::callable_declaration_catalog::{
     VerifiedSameModuleCallableDeclarationCatalogV1,
 };
 use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, SourcePathV1};
-use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
+use crate::mir::{MirCompiler, NormalCompileRequestV1};
 use crate::parser::NyashParser;
 
 fn loop_program() -> crate::ast::ASTNode {
@@ -25,13 +25,17 @@ fn loop_program() -> crate::ast::ASTNode {
 }
 
 fn assert_callable_materialization_parity(source: &str) {
-    let legacy = MirCompiler::with_options(false)
+    let legacy_error = MirCompiler::with_options(false)
         .compile_with_source(
             NyashParser::parse_from_string(source).unwrap(),
             Some("callable-materialization.hako"),
         )
-        .unwrap();
-    let normal = MirCompiler::with_options(false)
+        .expect_err("legacy callable batch stays on the retired compat boundary");
+    assert!(
+        legacy_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/"),
+        "{legacy_error}"
+    );
+    let normal_error = MirCompiler::with_options(false)
         .compile_normal(
             NormalCompileRequestV1::for_mir_mode(
                 NyashParser::parse_from_string(source).unwrap(),
@@ -40,12 +44,38 @@ fn assert_callable_materialization_parity(source: &str) {
             )
             .unwrap(),
         )
-        .unwrap();
-    assert_eq!(
-        MirPrinter::new().print_module(&normal.module),
-        MirPrinter::new().print_module(&legacy.module)
+        .expect_err("normal callable batch stays on the retired compat boundary");
+    assert!(
+        normal_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/"),
+        "{normal_error}"
     );
-    assert_eq!(normal.verification_result, legacy.verification_result);
+}
+
+fn assert_retired_compat_batch(source: &str, hint: &str) {
+    let legacy_error = MirCompiler::with_options(false)
+        .compile_with_source(
+            NyashParser::parse_from_string(source).unwrap(),
+            Some(hint),
+        )
+        .expect_err("legacy callable batch stays on the retired compat boundary");
+    assert!(
+        legacy_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/"),
+        "{legacy_error}"
+    );
+    let normal_error = MirCompiler::with_options(false)
+        .compile_normal(
+            NormalCompileRequestV1::for_mir_mode(
+                NyashParser::parse_from_string(source).unwrap(),
+                Some(hint),
+                std::collections::HashMap::new(),
+            )
+            .unwrap(),
+        )
+        .expect_err("normal callable batch stays on the retired compat boundary");
+    assert!(
+        normal_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/"),
+        "{normal_error}"
+    );
 }
 
 #[test]
@@ -296,28 +326,7 @@ fn mixed_nonplain_batch_keeps_selected_and_legacy_lowering_in_parity() {
     let text = "function helper() { return 1 }\n\
                     record Pair { value: i64 }\n\
                     Pair { value: 1 }";
-    let mut legacy = MirCompiler::with_options(false);
-    let legacy = legacy
-        .compile_with_source(
-            NyashParser::parse_from_string(text).unwrap(),
-            Some("callable-nonplain"),
-        )
-        .unwrap();
-    let normal = MirCompiler::with_options(false)
-        .compile_normal(
-            NormalCompileRequestV1::for_mir_mode(
-                NyashParser::parse_from_string(text).unwrap(),
-                Some("callable-nonplain"),
-                std::collections::HashMap::new(),
-            )
-            .unwrap(),
-        )
-        .unwrap();
-    assert_eq!(
-        MirPrinter::new().print_module(&normal.module),
-        MirPrinter::new().print_module(&legacy.module)
-    );
-    assert_eq!(normal.verification_result, legacy.verification_result);
+    assert_retired_compat_batch(text, "callable-nonplain");
 }
 
 #[test]
@@ -326,26 +335,5 @@ fn callable_parameter_and_local_bodies_do_not_borrow_the_script_ledger() {
                     static box Tools { add(x) { local y = x return y } }\n\
                     box Page { show(x) { local y = x return y } }\n\
                     0";
-    let mut legacy = MirCompiler::with_options(false);
-    let legacy = legacy
-        .compile_with_source(
-            NyashParser::parse_from_string(text).unwrap(),
-            Some("callable-ledger-scope"),
-        )
-        .unwrap();
-    let normal = MirCompiler::with_options(false)
-        .compile_normal(
-            NormalCompileRequestV1::for_mir_mode(
-                NyashParser::parse_from_string(text).unwrap(),
-                Some("callable-ledger-scope"),
-                std::collections::HashMap::new(),
-            )
-            .unwrap(),
-        )
-        .unwrap();
-    assert_eq!(
-        MirPrinter::new().print_module(&normal.module),
-        MirPrinter::new().print_module(&legacy.module)
-    );
-    assert_eq!(normal.verification_result, legacy.verification_result);
+    assert_retired_compat_batch(text, "callable-ledger-scope");
 }

@@ -242,13 +242,14 @@ fn p0_harness_aborts_before_resuming_child_panic_and_keeps_siblings_distinct() {
 #[test]
 fn p0_observes_legacy_prepare_module_reuse_without_claiming_isolation() {
     let mut builder = MirBuilder::new();
-    builder.prepare_module().expect("first candidate opens");
+    crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || builder.prepare_module()).expect("first candidate opens");
     let first = builder.build_literal(LiteralValue::Integer(7)).unwrap();
     assert_eq!(builder.value_type(first), Some(&MirType::Integer));
 
-    builder
-        .prepare_module()
-        .expect("second candidate entry remains legacy-successful");
+    crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || {
+        builder.prepare_module()
+    })
+    .expect("second candidate entry remains legacy-successful");
     let reused = builder.alloc_value_for_test();
 
     assert_eq!(

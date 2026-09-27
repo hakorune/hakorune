@@ -87,7 +87,7 @@ fn acyclic_late_draft_failure_keeps_candidate_publication_at_zero() {
     ]);
     let plan = VerifiedAcyclicCallableModulePlanV1::verify(&resolved).unwrap();
     let mut builder = MirBuilder::new();
-    builder.prepare_module().unwrap();
+    crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || builder.prepare_module()).unwrap();
     let mut completed = 0usize;
 
     let error = VerifiedUnpublishedCallableDraftSetV1::collect_acyclic_with(plan, |key, plan| {
@@ -125,7 +125,7 @@ fn recursive_late_draft_failure_keeps_candidate_publication_at_zero() {
     ]);
     let plan = VerifiedRecursiveCallableModulePlanV1::verify(&resolved).unwrap();
     let mut builder = MirBuilder::new();
-    builder.prepare_module().unwrap();
+    crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || builder.prepare_module()).unwrap();
     let mut completed = 0usize;
 
     let error = VerifiedUnpublishedCallableDraftSetV1::collect_recursive_with(plan, |key, plan| {

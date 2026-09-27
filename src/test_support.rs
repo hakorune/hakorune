@@ -117,6 +117,12 @@ pub fn with_env_vars<R>(updates: &[(&'static str, Option<&str>)], f: impl FnOnce
     f()
 }
 
+/// `HAKO_MIR_BUILDER_METHODIZE` pinned unset. Tests that drive module
+/// ingress pin the retired selector so a concurrent selector-mutation
+/// window cannot flip the observed route mid-run.
+pub const METHODIZE_SELECTOR_UNSET: [(&'static str, Option<&'static str>); 1] =
+    [("HAKO_MIR_BUILDER_METHODIZE", None)];
+
 /// JoinIR mode keys read by GenericLoop facts extraction and loop lowering
 /// paths.  This is the single owner of the key list; the mode presets below
 /// are derived from it so separate pin lists cannot drift.

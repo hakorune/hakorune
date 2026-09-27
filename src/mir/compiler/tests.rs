@@ -5,7 +5,6 @@ use super::{
 };
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::exact_numeric_value_facts::{ExactNumericReturnFact, ExactNumericValueFactSource};
-use crate::mir::function::ExactNumericRuntimeCheckContractKind;
 use crate::mir::string_corridor::StringCorridorOp;
 use crate::mir::string_corridor_placement::StringCorridorCandidateKind;
 use crate::mir::{

@@ -569,7 +569,7 @@ mod source_forest_tests {
         let unsupported = site(&[
             SourcePathSegmentV1::Body(0),
             SourcePathSegmentV1::LoopBody(0),
-            SourcePathSegmentV1::IfThen(0),
+            SourcePathSegmentV1::MatchArm(0),
         ]);
         let orphan = site(&[
             SourcePathSegmentV1::Body(0),
@@ -589,7 +589,7 @@ mod source_forest_tests {
             ),
             Err(ResolvedLoopSourceForestRejectV1::UnsupportedAncestry {
                 site: unsupported,
-                segment: SourcePathSegmentV1::IfThen(0),
+                segment: SourcePathSegmentV1::MatchArm(0),
             })
         );
         assert_eq!(

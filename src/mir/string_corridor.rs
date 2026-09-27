@@ -9,7 +9,11 @@
  */
 
 use super::{MirFunction, MirInstruction, MirModule, ValueId};
-use crate::mir::definitions::call_unified::Callee;
+use crate::mir::definitions::call_unified::{Callee, MirCall};
+use crate::mir::string_corridor_names::{
+    is_len_method_name, is_slice_method_name, is_stringish_box_name,
+};
+use hakorune_mir_defs::{CanonicalGlobalTargetV1, CanonicalSameModuleGlobalTargetV1};
 
 /// Canonical string corridor ops we want to reason about in MIR.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -280,12 +284,83 @@ pub fn refresh_function_string_corridor_facts(function: &mut MirFunction) {
 
 fn infer_fact_from_instruction(inst: &MirInstruction) -> Option<(ValueId, StringCorridorFact)> {
     match inst {
+        MirInstruction::Call(MirCall {
+            dst: Some(dst),
+            callee,
+            args,
+            ..
+        }) => infer_canonical_call_fact(callee, args.len()).map(|fact| (*dst, fact)),
         MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Global(name)),
             ..
         } => infer_from_canonical_global(&name.display_name()).map(|fact| (*dst, fact)),
         _ => super::string_corridor_compat::infer_compat_fact_from_instruction(inst),
+    }
+}
+
+fn infer_canonical_call_fact(callee: &Callee, arg_len: usize) -> Option<StringCorridorFact> {
+    match callee {
+        Callee::Method {
+            box_name, method, ..
+        } => infer_canonical_method_call(box_name, method, arg_len),
+        Callee::Global(target) => infer_canonical_global_target(target),
+        Callee::Extern(name) => {
+            super::string_corridor_compat::infer_compat_from_runtime_export(name)
+        }
+        _ => None,
+    }
+}
+
+fn infer_canonical_method_call(
+    box_name: &str,
+    method: &str,
+    arity: usize,
+) -> Option<StringCorridorFact> {
+    let is_runtime_data_string_facade = box_name == "RuntimeDataBox";
+    let is_stringish = is_stringish_box_name(box_name);
+    match arity {
+        0 | 1 if is_len_method_name(method) && (is_stringish || is_runtime_data_string_facade) => {
+            Some(StringCorridorFact::str_len(
+                StringCorridorCarrier::MethodCall,
+            ))
+        }
+        2 | 3 if is_slice_method_name(method)
+            && (is_stringish || is_runtime_data_string_facade) =>
+        {
+            Some(StringCorridorFact::str_slice(
+                StringCorridorCarrier::MethodCall,
+            ))
+        }
+        _ => None,
+    }
+}
+
+fn infer_canonical_global_target(target: &CanonicalGlobalTargetV1) -> Option<StringCorridorFact> {
+    if let Some(fact) = infer_from_canonical_global(target.source_name()) {
+        return Some(fact);
+    }
+    let CanonicalGlobalTargetV1::SameModule(
+        CanonicalSameModuleGlobalTargetV1::StaticBoxMethod {
+            owner,
+            method,
+            arity,
+        },
+    ) = target
+    else {
+        return None;
+    };
+    if !is_stringish_box_name(owner) {
+        return None;
+    }
+    match *arity {
+        0 if is_len_method_name(method) => Some(StringCorridorFact::str_len(
+            StringCorridorCarrier::GlobalLoweredFunction,
+        )),
+        2 if is_slice_method_name(method) => Some(StringCorridorFact::str_slice(
+            StringCorridorCarrier::GlobalLoweredFunction,
+        )),
+        _ => None,
     }
 }
 

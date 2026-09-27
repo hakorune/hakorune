@@ -1,3 +1,4 @@
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::builder::PreparedNormalDefaultProgramRootV1;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, ResolveScriptOutcomeV1, ScriptRootBindingRebindAdmissionV1,
@@ -8,26 +9,77 @@ use crate::mir::resolved_semantics::{
 use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
 use crate::parser::NyashParser;
 
+fn integer(value: i64) -> ASTNode {
+    ASTNode::Literal {
+        value: LiteralValue::Integer(value),
+        span: Span::unknown(),
+    }
+}
+
+fn variable(name: &str) -> ASTNode {
+    ASTNode::Variable {
+        name: name.to_owned(),
+        span: Span::unknown(),
+    }
+}
+
+fn local(name: &str, value: ASTNode) -> ASTNode {
+    ASTNode::Local {
+        variables: vec![name.to_owned()],
+        initial_values: vec![Some(Box::new(value))],
+        declared_type_names: vec![None],
+        span: Span::unknown(),
+    }
+}
+
+fn grouped_assignment(name: &str, value: ASTNode) -> ASTNode {
+    ASTNode::GroupedAssignmentExpr {
+        lhs: name.to_owned(),
+        rhs: Box::new(value),
+        span: Span::unknown(),
+    }
+}
+
+fn print(expr: ASTNode) -> ASTNode {
+    ASTNode::Print {
+        expression: Box::new(expr),
+        span: Span::unknown(),
+    }
+}
+
+fn grouped_rebind_program(rhs: ASTNode, include_print: bool) -> ASTNode {
+    let mut statements = vec![local("x", integer(1)), grouped_assignment("x", rhs)];
+    if include_print {
+        statements.push(print(variable("x")));
+    }
+    ASTNode::Program {
+        statements,
+        span: Span::unknown(),
+    }
+}
+
 fn assert_selected_parity(source: &str, hint: &str) {
     let program = NyashParser::parse_from_string(source).expect("assignment source");
-    let legacy = MirCompiler::with_options(false)
-        .compile_with_source(program.clone(), Some(hint))
-        .expect("legacy assignment");
-    let normal = MirCompiler::with_options(false)
-        .compile_normal(
-            NormalCompileRequestV1::for_mir_mode(
-                program,
-                Some(hint),
-                std::collections::HashMap::new(),
+    crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+        let legacy = MirCompiler::with_options(false)
+            .compile_with_source(program.clone(), Some(hint))
+            .expect("legacy assignment");
+        let normal = MirCompiler::with_options(false)
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    program,
+                    Some(hint),
+                    std::collections::HashMap::new(),
+                )
+                .expect("normal request"),
             )
-            .expect("normal request"),
-        )
-        .expect("selected assignment");
-    assert_eq!(
-        MirPrinter::new().print_module(&normal.module),
-        MirPrinter::new().print_module(&legacy.module),
-    );
-    assert_eq!(normal.verification_result, legacy.verification_result);
+            .expect("selected assignment");
+        assert_eq!(
+            MirPrinter::new().print_module(&normal.module),
+            MirPrinter::new().print_module(&legacy.module),
+        );
+        assert_eq!(normal.verification_result, legacy.verification_result);
+    });
 }
 
 fn resolved_entry(index: u32) -> VerifiedScriptRootDemandEntryV1 {
@@ -88,18 +140,52 @@ fn prior_local_variable_compound_assignment_rebinds_the_script_ledger() {
     );
 }
 
+fn assert_selected_program_parity(program: ASTNode, hint: &str) {
+    crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+        let legacy = MirCompiler::with_options(false)
+            .compile_with_source(program.clone(), Some(hint))
+            .expect("legacy assignment");
+        let normal = MirCompiler::with_options(false)
+            .compile_normal(
+                NormalCompileRequestV1::for_mir_mode(
+                    program,
+                    Some(hint),
+                    std::collections::HashMap::new(),
+                )
+                .expect("normal request"),
+            )
+            .expect("selected assignment");
+        assert_eq!(
+            MirPrinter::new().print_module(&normal.module),
+            MirPrinter::new().print_module(&legacy.module),
+        );
+        assert_eq!(normal.verification_result, legacy.verification_result);
+    });
+}
+
 #[test]
 fn prior_local_grouped_assignment_rebinds_the_script_ledger() {
-    assert_selected_parity(
-        "local x = 1\n(x = -(x + 1))\nprint(x)",
-        "script-binding-rebind-grouped.hako",
+    // The grouped `(x = ...)` statement spelling was retired from the
+    // parser; build the admitted GroupedAssignmentExpr node directly.
+    let program = grouped_rebind_program(
+        ASTNode::UnaryOp {
+            operator: UnaryOperator::Minus,
+            operand: Box::new(ASTNode::BinaryOp {
+                operator: BinaryOperator::Add,
+                left: Box::new(variable("x")),
+                right: Box::new(integer(1)),
+                span: Span::unknown(),
+            }),
+            span: Span::unknown(),
+        },
+        true,
     );
+    assert_selected_program_parity(program, "script-binding-rebind-grouped.hako");
 }
 
 #[test]
 fn grouped_assignment_resolves_as_a_complete_script_rebind() {
-    let program = NyashParser::parse_from_string("local x = 1\n(x = 2)\nprint(x)")
-        .expect("grouped binding-rebind source");
+    let program = grouped_rebind_program(integer(2), true);
     let source = PreparedNormalDefaultProgramRootV1::seal(program).expect("Program source");
     let window = VerifiedScriptRootDemandWindowV1::seal(
         vec![resolved_entry(0), rebind_entry(1), resolved_entry(2)],
@@ -149,8 +235,7 @@ fn grouped_rebind_rhs_failure_discards_its_ledger_before_fresh_reuse() {
     let error = compiler
         .compile_normal(
             NormalCompileRequestV1::for_mir_mode(
-                NyashParser::parse_from_string("local x = 1\n(x = missing)")
-                    .expect("failing grouped source"),
+                grouped_rebind_program(variable("missing"), false),
                 Some("script-binding-rebind-grouped-failure.hako"),
                 std::collections::HashMap::new(),
             )
@@ -161,8 +246,7 @@ fn grouped_rebind_rhs_failure_discards_its_ledger_before_fresh_reuse() {
     compiler
         .compile_normal(
             NormalCompileRequestV1::for_mir_mode(
-                NyashParser::parse_from_string("local x = 1\n(x = 2)\nprint(x)")
-                    .expect("fresh grouped source"),
+                grouped_rebind_program(integer(2), true),
                 Some("script-binding-rebind-grouped-reuse.hako"),
                 std::collections::HashMap::new(),
             )

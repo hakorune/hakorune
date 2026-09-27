@@ -115,14 +115,27 @@ fn test_basic_mir_compilation() {
     let mut compiler = MirCompiler::new();
 
     // Create a simple literal AST node
-    let ast = ASTNode::Literal {
-        value: LiteralValue::Integer(42),
+    let ast = ASTNode::Program {
+        statements: vec![ASTNode::Print {
+            expression: Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(42),
+                span: crate::ast::Span::unknown(),
+            }),
+            span: crate::ast::Span::unknown(),
+        }],
         span: crate::ast::Span::unknown(),
     };
 
-    // Compile to MIR
-    let result = compiler.compile(ast);
-    assert!(result.is_ok(), "Basic MIR compilation should succeed");
+    // Compile to MIR under the default unified-call selector so a concurrent
+    // selector-mutation window cannot flip the observed route mid-run.
+    let result = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+        compiler.compile(ast)
+    });
+    assert!(
+        result.is_ok(),
+        "Basic MIR compilation should succeed: {:?}",
+        result.err()
+    );
 
     let compile_result = result.unwrap();
     assert!(

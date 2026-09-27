@@ -12,15 +12,20 @@ fn test_lowering_await_expression() {
         return;
     }
     // Build AST: await 1  (semantic is nonsensical but should emit Await)
-    let ast = ASTNode::AwaitExpression {
-        expression: Box::new(ASTNode::Literal {
-            value: LiteralValue::Integer(1),
+    let ast = ASTNode::Program {
+        statements: vec![ASTNode::AwaitExpression {
+            expression: Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span: crate::ast::Span::unknown(),
+            }),
             span: crate::ast::Span::unknown(),
-        }),
+        }],
         span: crate::ast::Span::unknown(),
     };
     let mut compiler = MirCompiler::new();
-    let result = compiler.compile(ast).expect("compile should succeed");
+    let result = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+        compiler.compile(ast)
+    }).expect("compile should succeed");
     let dump = MirPrinter::new().print_module(&result.module);
     assert!(
         dump.contains("await"),
@@ -51,7 +56,9 @@ fn test_await_has_checkpoints() {
         span: Span::unknown(),
     };
     let mut compiler = MirCompiler::new();
-    let result = compiler.compile(ast).expect("compile");
+    let result = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+        compiler.compile(ast)
+    }).expect("compile");
     // Verifier should pass (await flanked by safepoints)
     assert!(
         result.verification_result.is_ok(),
@@ -92,7 +99,9 @@ fn test_rewritten_await_still_checkpoints() {
         span: Span::unknown(),
     };
     let mut compiler = MirCompiler::new();
-    let result = compiler.compile(ast).expect("compile");
+    let result = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+        compiler.compile(ast)
+    }).expect("compile");
     // Verifier should still pass (checkpoint verification includes ExternCall await)
     assert!(
         result.verification_result.is_ok(),

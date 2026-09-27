@@ -20,6 +20,15 @@ use crate::parser::NyashParser;
 #[path = "module_lifecycle_ingress_tests.rs"]
 mod module_lifecycle_ingress_tests;
 
+/// Pins the retired methodize selector unset for the ingress read so a
+/// parallel selector-mutation test cannot leak an invalid value into the
+/// window (`ScopedTestConfig` serializes pinned readers against writers).
+fn prepare_module_pinned(builder: &mut MirBuilder) -> Result<(), String> {
+    crate::test_support::with_env_vars(&crate::test_support::METHODIZE_SELECTOR_UNSET, || {
+        builder.prepare_module()
+    })
+}
+
 #[path = "module_lifecycle_failure_tests.rs"]
 mod lifecycle_failure_tests;
 
@@ -237,7 +246,7 @@ fn shared_root_kernel_lends_each_instance_method_to_one_stack_port() {
     let catalog =
         VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&root).expect("catalog");
     let mut builder = MirBuilder::new();
-    builder.prepare_module().expect("module shell");
+    prepare_module_pinned(&mut builder).expect("module shell");
     builder
         .comp_ctx
         .install_callable_declaration_catalog(catalog)
@@ -286,7 +295,7 @@ fn instance_method_batch_preserves_route_specific_admission_and_order() {
         .expect("raw method batch needs no catalog");
 
     let mut root_builder = MirBuilder::new();
-    root_builder.prepare_module().expect("root module shell");
+    prepare_module_pinned(&mut root_builder).expect("root module shell");
     root_builder
         .comp_ctx
         .install_callable_declaration_catalog(catalog)
@@ -329,7 +338,7 @@ fn instance_method_batch_preserves_prefix_on_route_failure() {
     let prefix_catalog =
         VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&prefix_root).expect("catalog");
     let mut root_builder = MirBuilder::new();
-    root_builder.prepare_module().expect("root module shell");
+    prepare_module_pinned(&mut root_builder).expect("root module shell");
     root_builder
         .comp_ctx
         .install_callable_declaration_catalog(prefix_catalog)
@@ -375,7 +384,7 @@ fn instance_box_declaration_lifecycle_preserves_prefix_and_route_terminals() {
         VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&root).expect("catalog");
 
     let mut raw_builder = MirBuilder::new();
-    raw_builder.prepare_module().expect("raw module shell");
+    prepare_module_pinned(&mut raw_builder).expect("raw module shell");
     let mut raw_port = RecordingOrdinaryPortV1 {
         record_only_instance: true,
         ..RecordingOrdinaryPortV1::default()
@@ -406,7 +415,7 @@ fn instance_box_declaration_lifecycle_preserves_prefix_and_route_terminals() {
     .expect("raw declaration lifecycle");
 
     let mut root_builder = MirBuilder::new();
-    root_builder.prepare_module().expect("root module shell");
+    prepare_module_pinned(&mut root_builder).expect("root module shell");
     root_builder
         .comp_ctx
         .install_callable_declaration_catalog(catalog)
@@ -499,9 +508,7 @@ fn instance_box_declaration_lifecycle_stops_after_exact_dirty_prefix() {
     assert!(untouched_port.instance_methods.is_empty());
 
     let mut constructor_failure = MirBuilder::new();
-    constructor_failure
-        .prepare_module()
-        .expect("constructor module shell");
+    prepare_module_pinned(&mut constructor_failure).expect("constructor module shell");
     let mut prefix_port = RecordingOrdinaryPortV1 {
         fail_instance_method: Some("Page.birth/0".to_owned()),
         record_only_instance: true,
@@ -540,7 +547,7 @@ fn verified_main_expansion_lowers_helpers_in_order_before_body() {
         panic!("verified Main source must parse a Program");
     };
     let mut builder = MirBuilder::new();
-    builder.prepare_module().expect("module shell");
+    prepare_module_pinned(&mut builder).expect("module shell");
     builder
         .comp_ctx
         .install_callable_declaration_catalog(catalog)
@@ -571,7 +578,7 @@ fn verified_and_compatibility_main_share_required_callable_order() {
         panic!("verified Main source must parse a Program");
     };
     let mut selected_builder = MirBuilder::new();
-    selected_builder.prepare_module().expect("module shell");
+    prepare_module_pinned(&mut selected_builder).expect("module shell");
     selected_builder.comp_ctx.callable_main_compatibility_policy =
         CallableMainCompatibilityPolicyV1::Required;
     selected_builder
@@ -588,9 +595,7 @@ fn verified_and_compatibility_main_share_required_callable_order() {
 
     let (box_name, methods) = parsed_static_box(source);
     let mut compatibility_builder = MirBuilder::new();
-    compatibility_builder
-        .prepare_module()
-        .expect("compatibility module shell");
+    prepare_module_pinned(&mut compatibility_builder).expect("compatibility module shell");
     compatibility_builder
         .comp_ctx
         .callable_main_compatibility_policy = CallableMainCompatibilityPolicyV1::Required;
@@ -622,7 +627,7 @@ fn verified_main_helper_failure_stops_later_helpers_and_body() {
         panic!("verified Main source must parse a Program");
     };
     let mut builder = MirBuilder::new();
-    builder.prepare_module().expect("module shell");
+    prepare_module_pinned(&mut builder).expect("module shell");
     builder
         .comp_ctx
         .install_callable_declaration_catalog(catalog)

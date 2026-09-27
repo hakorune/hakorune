@@ -515,6 +515,14 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         let site = path.expr();
+        self.record_expression_site(site.clone());
+        self.body_shape.expressions.insert(
+            site.clone(),
+            crate::mir::resolved_semantics::body_shape::ShadowExpressionShapeV0::Other {
+                site: site.clone(),
+                kind: "BindingAssignmentTarget".into(),
+            },
+        );
         let Some(binding) = self.lookup(name) else {
             if self.ancestor_is_visible(name) {
                 self.record_ancestor_capture(

@@ -6,12 +6,20 @@ use super::*;
 fn test_mir_dump() {
     let mut compiler = MirCompiler::new();
 
-    let ast = ASTNode::Literal {
-        value: LiteralValue::Integer(42),
+    let ast = ASTNode::Program {
+        statements: vec![ASTNode::Print {
+            expression: Box::new(ASTNode::Literal {
+                value: LiteralValue::Integer(42),
+                span: crate::ast::Span::unknown(),
+            }),
+            span: crate::ast::Span::unknown(),
+        }],
         span: crate::ast::Span::unknown(),
     };
 
-    let result = compiler.compile(ast).unwrap();
+    let result = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+        compiler.compile(ast)
+    }).unwrap();
     let mir_dump = compiler.dump_mir(&result.module);
 
     assert!(!mir_dump.is_empty(), "MIR dump should not be empty");
@@ -24,26 +32,31 @@ fn test_mir_dump() {
 #[test]
 fn test_lowering_is_type_function_call_in_print() {
     // Build AST: print(isType(42, "Integer"))
-    let ast = ASTNode::Print {
-        expression: Box::new(ASTNode::FunctionCall {
-            name: "isType".to_string(),
-            arguments: vec![
-                ASTNode::Literal {
-                    value: LiteralValue::Integer(42),
-                    span: crate::ast::Span::unknown(),
-                },
-                ASTNode::Literal {
-                    value: LiteralValue::String("Integer".to_string()),
-                    span: crate::ast::Span::unknown(),
-                },
-            ],
+    let ast = ASTNode::Program {
+        statements: vec![ASTNode::Print {
+            expression: Box::new(ASTNode::FunctionCall {
+                name: "isType".to_string(),
+                arguments: vec![
+                    ASTNode::Literal {
+                        value: LiteralValue::Integer(42),
+                        span: crate::ast::Span::unknown(),
+                    },
+                    ASTNode::Literal {
+                        value: LiteralValue::String("Integer".to_string()),
+                        span: crate::ast::Span::unknown(),
+                    },
+                ],
+                span: crate::ast::Span::unknown(),
+            }),
             span: crate::ast::Span::unknown(),
-        }),
+        }],
         span: crate::ast::Span::unknown(),
     };
 
     let mut compiler = MirCompiler::new();
-    let result = compiler.compile(ast).expect("compile should succeed");
+    let result = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+        compiler.compile(ast)
+    }).expect("compile should succeed");
 
     // Ensure TypeOp exists in the resulting MIR
     let has_typeop = result.module.functions.values().any(|f| {
@@ -61,24 +74,29 @@ fn test_lowering_is_type_function_call_in_print() {
 #[test]
 fn test_lowering_is_method_call_in_print() {
     // Build AST: print( (42).is("Integer") )
-    let ast = ASTNode::Print {
-        expression: Box::new(ASTNode::MethodCall {
-            object: Box::new(ASTNode::Literal {
-                value: LiteralValue::Integer(42),
+    let ast = ASTNode::Program {
+        statements: vec![ASTNode::Print {
+            expression: Box::new(ASTNode::MethodCall {
+                object: Box::new(ASTNode::Literal {
+                    value: LiteralValue::Integer(42),
+                    span: crate::ast::Span::unknown(),
+                }),
+                method: "is".to_string(),
+                arguments: vec![ASTNode::Literal {
+                    value: LiteralValue::String("Integer".to_string()),
+                    span: crate::ast::Span::unknown(),
+                }],
                 span: crate::ast::Span::unknown(),
             }),
-            method: "is".to_string(),
-            arguments: vec![ASTNode::Literal {
-                value: LiteralValue::String("Integer".to_string()),
-                span: crate::ast::Span::unknown(),
-            }],
             span: crate::ast::Span::unknown(),
-        }),
+        }],
         span: crate::ast::Span::unknown(),
     };
 
     let mut compiler = MirCompiler::new();
-    let result = compiler.compile(ast).expect("compile should succeed");
+    let result = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+        compiler.compile(ast)
+    }).expect("compile should succeed");
 
     // Ensure TypeOp exists in the resulting MIR
     let has_typeop = result.module.functions.values().any(|f| {
@@ -111,7 +129,9 @@ fn test_lowering_extern_console_log() {
     };
 
     let mut compiler = MirCompiler::new();
-    let result = compiler.compile(ast).expect("compile should succeed");
+    let result = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+        compiler.compile(ast)
+    }).expect("compile should succeed");
     let dump = MirPrinter::verbose().print_module(&result.module);
 
     assert!(
@@ -124,24 +144,29 @@ fn test_lowering_extern_console_log() {
 #[test]
 fn test_lowering_boxcall_array_push() {
     // Build AST: (new ArrayBox()).push(1)
-    let ast = ASTNode::MethodCall {
-        object: Box::new(ASTNode::New {
-            class: "ArrayBox".to_string(),
-            arguments: vec![],
-            field_initializers: vec![],
-            type_arguments: vec![],
-            span: crate::ast::Span::unknown(),
-        }),
-        method: "push".to_string(),
-        arguments: vec![ASTNode::Literal {
-            value: LiteralValue::Integer(1),
+    let ast = ASTNode::Program {
+        statements: vec![ASTNode::MethodCall {
+            object: Box::new(ASTNode::New {
+                class: "ArrayBox".to_string(),
+                arguments: vec![],
+                field_initializers: vec![],
+                type_arguments: vec![],
+                span: crate::ast::Span::unknown(),
+            }),
+            method: "push".to_string(),
+            arguments: vec![ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span: crate::ast::Span::unknown(),
+            }],
             span: crate::ast::Span::unknown(),
         }],
         span: crate::ast::Span::unknown(),
     };
 
     let mut compiler = MirCompiler::new();
-    let result = compiler.compile(ast).expect("compile should succeed");
+    let result = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+        compiler.compile(ast)
+    }).expect("compile should succeed");
     let dump = MirPrinter::new().print_module(&result.module);
     // Known Array writes converge before downstream planners observe MIR.
     assert!(

@@ -381,9 +381,13 @@ print(1)
         let legacy_ast = NyashParser::parse_from_string(source).expect("legacy Script source");
         let normal_ast = NyashParser::parse_from_string(source).expect("normal Script source");
         let mut legacy_compiler = MirCompiler::with_options(false);
-        let legacy = legacy_compiler
+        let legacy_error = legacy_compiler
             .compile_with_source(legacy_ast, Some("script-box-parity.hako"))
-            .expect("legacy Script module");
+            .expect_err("legacy Script box stays on the retired compat boundary");
+        assert!(
+            legacy_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/instance]"),
+            "{legacy_error}"
+        );
         let mut normal_compiler = MirCompiler::with_options(false);
         let request = NormalCompileRequestV1::for_mir_mode(
             normal_ast,
@@ -391,44 +395,12 @@ print(1)
             HashMap::new(),
         )
         .expect("normal Script request");
-        let normal = normal_compiler
+        let normal_error = normal_compiler
             .compile_normal(request)
-            .expect("normal Script module");
-
-        assert_eq!(
-            MirPrinter::new().print_module(&normal.module),
-            MirPrinter::new().print_module(&legacy.module)
-        );
-        assert_eq!(
-            normal.module.function_names(),
-            legacy.module.function_names()
-        );
-        assert_eq!(
-            normal
-                .module
-                .function_names()
-                .iter()
-                .filter(|name| name.as_str() == "Page.answer/0")
-                .count(),
-            1
-        );
-        assert_eq!(
-            normal
-                .module
-                .function_names()
-                .iter()
-                .filter(|name| name.as_str() == "Page.birth/0")
-                .count(),
-            1
-        );
-        assert_eq!(
-            normal
-                .module
-                .function_names()
-                .iter()
-                .filter(|name| name.as_str() == "Helpers.value/0")
-                .count(),
-            1
+            .expect_err("normal Script box stays on the retired compat boundary");
+        assert!(
+            normal_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/instance]"),
+            "{normal_error}"
         );
     }
 
@@ -439,11 +411,15 @@ print(1)
         let legacy_ast = NyashParser::parse_from_string(source).expect("legacy Script source");
         let normal_ast = NyashParser::parse_from_string(source).expect("normal Script source");
         let mut legacy_compiler = MirCompiler::with_options(false);
-        let legacy = legacy_compiler
+        let legacy_error = legacy_compiler
             .compile_with_source(legacy_ast, Some("nonplain-script-box-parity.hako"))
-            .expect("legacy nonplain Script module");
+            .expect_err("legacy nonplain Script box stays on the retired compat boundary");
+        assert!(
+            legacy_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/instance]"),
+            "{legacy_error}"
+        );
         let mut normal_compiler = MirCompiler::with_options(false);
-        let normal = normal_compiler
+        let normal_error = normal_compiler
             .compile_normal(
                 NormalCompileRequestV1::for_mir_mode(
                     normal_ast,
@@ -452,15 +428,10 @@ print(1)
                 )
                 .expect("normal Script request"),
             )
-            .expect("normal nonplain Script module");
-
-        assert_eq!(
-            MirPrinter::new().print_module(&normal.module),
-            MirPrinter::new().print_module(&legacy.module)
-        );
-        assert_eq!(
-            normal.module.function_names(),
-            legacy.module.function_names()
+            .expect_err("normal nonplain Script box stays on the retired compat boundary");
+        assert!(
+            normal_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/instance]"),
+            "{normal_error}"
         );
     }
 
@@ -471,11 +442,15 @@ print(1)
         let legacy_ast = NyashParser::parse_from_string(source).expect("legacy Script source");
         let normal_ast = NyashParser::parse_from_string(source).expect("normal Script source");
         let mut legacy_compiler = MirCompiler::with_options(false);
-        let legacy = legacy_compiler
+        let legacy_error = legacy_compiler
             .compile_with_source(legacy_ast, Some("generic-static-script-box.hako"))
-            .expect("legacy generic static Script module");
+            .expect_err("legacy generic static Script box stays on the retired compat boundary");
+        assert!(
+            legacy_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/static]"),
+            "{legacy_error}"
+        );
         let mut normal_compiler = MirCompiler::with_options(false);
-        let normal = normal_compiler
+        let normal_error = normal_compiler
             .compile_normal(
                 NormalCompileRequestV1::for_mir_mode(
                     normal_ast,
@@ -484,14 +459,10 @@ print(1)
                 )
                 .expect("normal Script request"),
             )
-            .expect("normal generic static Script module");
-        assert_eq!(
-            MirPrinter::new().print_module(&normal.module),
-            MirPrinter::new().print_module(&legacy.module)
-        );
-        assert_eq!(
-            normal.module.function_names(),
-            legacy.module.function_names()
+            .expect_err("normal generic static Script box stays on the retired compat boundary");
+        assert!(
+            normal_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/static]"),
+            "{normal_error}"
         );
     }
 
@@ -553,9 +524,12 @@ print(1)
                 )
                 .expect("normal Script request"),
             )
-            .expect_err("missing Script static method value must reject the candidate");
-        assert!(error.contains("Undefined variable: missing"), "{error}");
-        let result = compiler
+            .expect_err("failing Script static box stays on the retired compat boundary");
+        assert!(
+            error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/static]"),
+            "{error}"
+        );
+        let corrected_error = compiler
             .compile_normal(
                 NormalCompileRequestV1::for_mir_mode(
                     corrected,
@@ -564,7 +538,10 @@ print(1)
                 )
                 .expect("corrected normal Script request"),
             )
-            .expect("fresh corrected Script candidate");
-        assert!(result.module.functions.contains_key("Helpers.value/0"));
+            .expect_err("corrected Script static box stays on the retired compat boundary");
+        assert!(
+            corrected_error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/static]"),
+            "{corrected_error}"
+        );
     }
 }

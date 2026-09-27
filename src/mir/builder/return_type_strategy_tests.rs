@@ -154,18 +154,14 @@ fn record_value_publish_is_a_void_script_result() {
 
         Pair { value: 1 }
     "#;
-    let result = MirCompiler::with_options(false)
+    let error = MirCompiler::with_options(false)
         .compile_with_source(
             NyashParser::parse_from_string(source).expect("record source parses"),
             Some("record-value-void.hako"),
         )
-        .expect("record result must finalize");
-    let main = result.module.functions.get("main").expect("main MIR");
-    assert_eq!(main.signature.return_type, MirType::Void);
-    assert!(main.blocks.values().any(|block| {
-        block
-            .instructions
-            .iter()
-            .any(|instruction| matches!(instruction, MirInstruction::RecordValuePublish { .. }))
-    }));
+        .expect_err("record script stays on the retired compat boundary");
+    assert!(
+        error.contains("[freeze:contract][raw-compat/runtime-box-fate-retired/instance]"),
+        "{error}"
+    );
 }

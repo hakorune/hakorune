@@ -4,18 +4,24 @@ use super::*;
 
 #[test]
 fn test_compile_attaches_string_corridor_fact_for_string_length() {
-    let ast = ASTNode::MethodCall {
-        object: Box::new(ASTNode::Literal {
-            value: LiteralValue::String("hello".to_string()),
+    let ast = ASTNode::Program {
+        statements: vec![ASTNode::MethodCall {
+            object: Box::new(ASTNode::Literal {
+                value: LiteralValue::String("hello".to_string()),
+                span: crate::ast::Span::unknown(),
+            }),
+            method: "length".to_string(),
+            arguments: vec![],
             span: crate::ast::Span::unknown(),
-        }),
-        method: "length".to_string(),
-        arguments: vec![],
+        }],
         span: crate::ast::Span::unknown(),
     };
 
     let mut compiler = MirCompiler::new();
-    let result = compiler.compile(ast).expect("compile should succeed");
+    let result = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+        compiler.compile(ast)
+    })
+    .expect("compile should succeed");
 
     let len_fact_count = result
         .module
@@ -33,18 +39,24 @@ fn test_compile_attaches_string_corridor_fact_for_string_length() {
 
 #[test]
 fn test_compile_attaches_string_corridor_candidate_for_string_length() {
-    let ast = ASTNode::MethodCall {
-        object: Box::new(ASTNode::Literal {
-            value: LiteralValue::String("hello".to_string()),
+    let ast = ASTNode::Program {
+        statements: vec![ASTNode::MethodCall {
+            object: Box::new(ASTNode::Literal {
+                value: LiteralValue::String("hello".to_string()),
+                span: crate::ast::Span::unknown(),
+            }),
+            method: "length".to_string(),
+            arguments: vec![],
             span: crate::ast::Span::unknown(),
-        }),
-        method: "length".to_string(),
-        arguments: vec![],
+        }],
         span: crate::ast::Span::unknown(),
     };
 
     let mut compiler = MirCompiler::new();
-    let result = compiler.compile(ast).expect("compile should succeed");
+    let result = crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+        compiler.compile(ast)
+    })
+    .expect("compile should succeed");
 
     let direct_kernel_candidate_count = result
         .module

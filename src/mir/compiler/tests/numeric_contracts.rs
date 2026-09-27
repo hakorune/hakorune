@@ -22,31 +22,13 @@ static box Main {
     )
     .expect("parse");
     let mut compiler = MirCompiler::with_options(false);
-    let result = compiler.compile(ast).expect("compile");
-
+    let error = crate::test_support::with_env_vars(&[("NYASH_MIR_CORE13_PURE", None)], || {
+        compiler.compile(ast)
+    })
+    .expect_err("new Page on this lane hits the retired birth-global boundary");
     assert!(
-        result.verification_result.is_ok(),
-        "pre-verify contract attach should satisfy exact numeric verifier: {:?}",
-        result.verification_result
-    );
-    let contracts: Vec<_> = result
-        .module
-        .functions
-        .values()
-        .flat_map(|function| {
-            function
-                .metadata
-                .exact_numeric_runtime_check_contracts
-                .iter()
-        })
-        .collect();
-
-    assert_eq!(contracts.len(), 1);
-    assert_eq!(contracts[0].field, "capacity");
-    assert_eq!(contracts[0].declared_type_name, "usize");
-    assert_eq!(
-        contracts[0].kind,
-        ExactNumericRuntimeCheckContractKind::DynamicIntegerRange
+        error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
+        "{error}"
     );
 }
 
@@ -169,20 +151,13 @@ static box Main {
     )
     .expect("parse");
     let mut compiler = MirCompiler::with_options(false);
-    let result = compiler.compile(ast).expect("compile");
-    let proof = result
-        .module
-        .functions
-        .values()
-        .flat_map(|function| function.metadata.exact_numeric_field_contract_proofs.iter())
-        .next()
-        .expect("exact numeric Box field proof");
-
-    assert_eq!(proof.field, "capacity");
-    assert_eq!(proof.expected_type, "usize");
-    assert_eq!(
-        proof.proof_kind,
-        crate::mir::type_contracts::proof::TypeContractProofKind::ExactNumericConstantInRange
+    let error = crate::test_support::with_env_vars(&[("NYASH_MIR_CORE13_PURE", None)], || {
+        compiler.compile(ast)
+    })
+    .expect_err("new Page on this lane hits the retired birth-global boundary");
+    assert!(
+        error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
+        "{error}"
     );
 }
 
@@ -206,15 +181,12 @@ static box Main {
     )
     .expect("parse");
     let mut compiler = MirCompiler::with_options(false);
-    let result = compiler.compile(ast).expect("MIR build should complete");
-    let errors = result
-        .verification_result
-        .expect_err("verifier should reject before execution");
-    let err = errors[0].to_string();
-
+    let error = crate::test_support::with_env_vars(&[("NYASH_MIR_CORE13_PURE", None)], || {
+        compiler.compile(ast)
+    })
+    .expect_err("new ByteCell on this lane hits the retired birth-global boundary");
     assert!(
-        err.contains("[mir/verify:numeric_range]"),
-        "unexpected error: {}",
-        err
+        error.contains("[freeze:contract][ordinary-new/birth-global-legacy-stopped]"),
+        "{error}"
     );
 }

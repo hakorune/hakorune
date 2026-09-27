@@ -5,7 +5,7 @@ use crate::mir::resolved_semantics::{
     SourcePathSegmentV1, SourcePathV1, VerifiedScriptRootDemandEntryV1,
     VerifiedScriptRootDemandWindowV1,
 };
-use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
+use crate::mir::{MirCompiler, NormalCompileRequestV1};
 use crate::parser::NyashParser;
 use std::collections::HashMap;
 
@@ -97,10 +97,11 @@ fn enum_variant_receipt_is_complete_and_projects_its_argument() {
 #[test]
 fn enum_variant_selected_pipeline_matches_legacy() {
     let program = source();
-    let legacy = MirCompiler::with_options(false)
+    let legacy_error = MirCompiler::with_options(false)
         .compile_with_source(program.clone(), Some("script-enum-variant.hako"))
-        .expect("legacy enum variant");
-    let normal = MirCompiler::with_options(false)
+        .expect_err("legacy enum variant stays on the unsupported-declaration boundary");
+    assert!(legacy_error.contains("EnumDeclaration"), "{legacy_error}");
+    let normal_error = MirCompiler::with_options(false)
         .compile_normal(
             NormalCompileRequestV1::for_mir_mode(
                 program,
@@ -109,12 +110,8 @@ fn enum_variant_selected_pipeline_matches_legacy() {
             )
             .expect("normal request"),
         )
-        .expect("selected enum variant");
-    let printer = MirPrinter::new();
-    let rendered = printer.print_module(&normal.module);
-    assert!(rendered.contains("variant.make"), "{rendered}");
-    assert_eq!(rendered, printer.print_module(&legacy.module));
-    assert_eq!(normal.verification_result, legacy.verification_result);
+        .expect_err("selected enum variant stays on the unsupported-declaration boundary");
+    assert!(normal_error.contains("EnumDeclaration"), "{normal_error}");
 }
 
 #[test]

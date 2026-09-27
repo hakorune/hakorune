@@ -654,6 +654,7 @@ fn accepted_vocabulary_is_closed_and_reviewable() {
             "Local",
             "Outbox",
             "Nowait",
+            "Program",
             "Assignment",
             "CompoundAssignment",
             "ScopeBox",

@@ -208,6 +208,12 @@ mod tests {
 
     #[test]
     fn external_destination_bridge_accepts_matching_normalizer_type() {
+        crate::test_support::with_env_vars(&[("NYASH_MIR_UNIFIED_CALL", None)], || {
+            external_destination_bridge_accepts_matching_normalizer_type_inner()
+        });
+    }
+
+    fn external_destination_bridge_accepts_matching_normalizer_type_inner() {
         crate::runtime::ring0::ensure_global_ring0_initialized();
         let caller = CanonicalSameModuleCallableKeyV1::test_static_box_method(
             "ParserProgramBox",

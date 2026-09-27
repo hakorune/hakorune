@@ -36,7 +36,7 @@ fn enum_declaration_is_a_complete_script_transfer_boundary() {
 
 #[test]
 fn enum_declaration_completes_the_selected_script_with_void() {
-    MirCompiler::with_options(false)
+    let error = MirCompiler::with_options(false)
         .compile_normal(
             NormalCompileRequestV1::for_mir_mode(
                 NyashParser::parse_from_string("enum Choice { No, Yes }")
@@ -46,5 +46,6 @@ fn enum_declaration_completes_the_selected_script_with_void() {
             )
             .expect("normal request"),
         )
-        .expect("enum declaration must complete as selected Script Void");
+        .expect_err("bare compatibility enum stays on the unsupported-declaration boundary");
+    assert!(error.contains("EnumDeclaration"), "{error}");
 }
