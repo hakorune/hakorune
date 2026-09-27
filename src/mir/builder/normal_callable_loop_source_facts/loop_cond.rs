@@ -14,9 +14,10 @@ use crate::mir::builder::normal_callable_loop_handoff::CallableSemanticLoopHando
 use crate::mir::builder::normal_callable_loop_source_facts::CallableGenericLoopSourceFactsRouteErrorV1;
 use crate::mir::builder::normal_callable_loop_source_port::CallableLoopSourceExpressionPortV1;
 use crate::mir::builder::normal_callable_loop_source_route::{
-    CallableLoopRouteMatchV1, CallableLoopSoleFamilyV1, CallableLoopSourceItemBindingV1,
-    CallableLoopSourceRouteRejectV1, CallableLoopSourceRouteTokenV1,
-    CallableLoopSourceTargetProbeV1, CallableLoopSourceTargetRelationV1,
+    CallableLoopRouteMatchV1, CallableLoopSoleFamilyV1, CallableLoopSourceCallCoverageV1,
+    CallableLoopSourceItemBindingV1, CallableLoopSourceRouteRejectV1,
+    CallableLoopSourceRouteTokenV1, CallableLoopSourceTargetProbeV1,
+    VerifiedCallableLoopCallFreeCoverageV1,
 };
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceContextV1;
@@ -47,7 +48,7 @@ pub(in crate::mir::builder) struct SourceLoopCondPhysicalInputV1<'source, 'ledge
     selection: CallableLoopRouteMatchV1,
     projection: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
-    source_target: CallableLoopSourceTargetRelationV1,
+    source_coverage: CallableLoopSourceCallCoverageV1,
     source_port: CallableLoopSourceExpressionPortV1<'ledger>,
 }
 
@@ -104,8 +105,10 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
         &self.source_items
     }
 
-    pub(in crate::mir::builder) fn source_target(&self) -> &CallableLoopSourceTargetRelationV1 {
-        &self.source_target
+    pub(in crate::mir::builder) const fn source_coverage(
+        &self,
+    ) -> &CallableLoopSourceCallCoverageV1 {
+        &self.source_coverage
     }
 
     pub(in crate::mir::builder) const fn source_port(
@@ -170,43 +173,84 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                 "[freeze:contract][callable-loop/loop-cond/source-site-parent-mismatch]".to_owned(),
             );
         }
-        if self.source_target.core_method_items().is_empty() {
-            let target_site = self.source_target.call_site();
-            let target_matches = self
-                .source_items
-                .iter()
-                .filter(|item| item.call_site() == target_site)
-                .count();
-            if target_matches == 0 {
-                return Err(
-                    "[freeze:contract][callable-loop/loop-cond/source-target-site-missing]"
-                        .to_owned(),
-                );
-            }
-            if target_matches > 1 {
-                return Err(
-                    "[freeze:contract][callable-loop/loop-cond/source-target-site-multiple]"
-                        .to_owned(),
-                );
-            }
-        } else {
-            let core_sites = self
-                .source_target
-                .core_method_items()
-                .iter()
-                .map(|item| item.call_site())
-                .collect::<std::collections::BTreeSet<_>>();
-            if core_sites.len() != self.source_target.core_method_items().len()
-                || core_sites.len() != self.source_items.len()
-                || self
-                    .source_items
+        match &self.source_coverage {
+            CallableLoopSourceCallCoverageV1::CallFree(coverage) => {
+                if coverage.owner() != self.owner
+                    || coverage.loop_site().node() != &self.parent_site
+                {
+                    return Err(
+                        "[freeze:contract][callable-loop/loop-cond/call-free-coverage-mismatch]"
+                            .to_owned(),
+                    );
+                }
+                if coverage.condition_site().node() != condition_site {
+                    return Err(
+                        "[freeze:contract][callable-loop/loop-cond/call-free-condition-site]"
+                            .to_owned(),
+                    );
+                }
+                if !self.source_items.is_empty() {
+                    return Err(
+                        "[freeze:contract][callable-loop/loop-cond/call-free-residual-items]"
+                            .to_owned(),
+                    );
+                }
+                if !coverage
+                    .covered_statements()
                     .iter()
-                    .any(|item| !core_sites.contains(item.call_site()))
-            {
-                return Err(
-                    "[freeze:contract][callable-loop/loop-cond/core-method-item-coverage]"
-                        .to_owned(),
-                );
+                    .map(|site| site.node())
+                    .all(|node| node.segments().starts_with(self.parent_site.segments()))
+                    || !coverage.covered_expressions().iter().all(|site| {
+                        site.node()
+                            .segments()
+                            .starts_with(self.parent_site.segments())
+                    })
+                {
+                    return Err(
+                        "[freeze:contract][callable-loop/loop-cond/call-free-coverage-sites]"
+                            .to_owned(),
+                    );
+                }
+            }
+            CallableLoopSourceCallCoverageV1::WithCalls(source_target) => {
+                if source_target.core_method_items().is_empty() {
+                    let target_site = source_target.call_site();
+                    let target_matches = self
+                        .source_items
+                        .iter()
+                        .filter(|item| item.call_site() == target_site)
+                        .count();
+                    if target_matches == 0 {
+                        return Err(
+                            "[freeze:contract][callable-loop/loop-cond/source-target-site-missing]"
+                                .to_owned(),
+                        );
+                    }
+                    if target_matches > 1 {
+                        return Err(
+                            "[freeze:contract][callable-loop/loop-cond/source-target-site-multiple]"
+                                .to_owned(),
+                        );
+                    }
+                } else {
+                    let core_sites = source_target
+                        .core_method_items()
+                        .iter()
+                        .map(|item| item.call_site())
+                        .collect::<std::collections::BTreeSet<_>>();
+                    if core_sites.len() != source_target.core_method_items().len()
+                        || core_sites.len() != self.source_items.len()
+                        || self
+                            .source_items
+                            .iter()
+                            .any(|item| !core_sites.contains(item.call_site()))
+                    {
+                        return Err(
+                            "[freeze:contract][callable-loop/loop-cond/core-method-item-coverage]"
+                                .to_owned(),
+                        );
+                    }
+                }
             }
         }
         if self.source_items.iter().any(|item| {
@@ -220,12 +264,14 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                 "[freeze:contract][callable-loop/loop-cond/source-item-parent-mismatch]".to_owned(),
             );
         }
-        if self.source_target.core_method_items().is_empty()
-            && !self.source_target.has_exact_i64_result()
-        {
-            return Err(
-                "[freeze:contract][callable-loop/loop-cond/result-requirement-mismatch]".to_owned(),
-            );
+        if let CallableLoopSourceCallCoverageV1::WithCalls(source_target) = &self.source_coverage {
+            if source_target.core_method_items().is_empty() && !source_target.has_exact_i64_result()
+            {
+                return Err(
+                    "[freeze:contract][callable-loop/loop-cond/result-requirement-mismatch]"
+                        .to_owned(),
+                );
+            }
         }
         self.source_port
             .expr(&self.condition, &self.condition_source)
@@ -470,7 +516,7 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             _binding_product,
             route_token,
         } = self;
-        let (owner, parent_site, outcome, selection, projection, source_items, source_target) =
+        let (owner, parent_site, outcome, selection, projection, source_items, source_coverage) =
             route_token.into_physical_parts().map_err(|error| {
                 format!("[freeze:contract][callable-loop/loop-cond/input] {error:?}")
             })?;
@@ -530,7 +576,7 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             selection,
             projection,
             source_items,
-            source_target,
+            source_coverage,
             source_port,
         })
     }
@@ -552,6 +598,7 @@ pub(super) fn issue<'source>(
     projection: Option<VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
     source_target_probe: CallableLoopSourceTargetProbeV1,
+    call_free: Option<VerifiedCallableLoopCallFreeCoverageV1>,
 ) -> Result<CallableLoopCondSourceFactsV1<'source>, CallableGenericLoopSourceFactsRouteErrorV1> {
     let function_origin = function_origin.ok_or_else(|| {
         CallableGenericLoopSourceFactsRouteErrorV1::LoopCondRouteRejected(
@@ -578,6 +625,7 @@ pub(super) fn issue<'source>(
         projection,
         source_items,
         source_target_probe,
+        call_free,
     )
     .map_err(CallableGenericLoopSourceFactsRouteErrorV1::LoopCondRouteRejected)?;
     Ok(CallableLoopCondSourceFactsV1 {

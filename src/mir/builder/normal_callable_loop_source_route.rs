@@ -64,6 +64,15 @@ pub(in crate::mir::builder) enum CallableLoopSourceRouteRejectV1 {
     SourceCallOutsideSelectedFamily {
         call_sites: Box<[SourceExprSiteV1]>,
     },
+    /// A call-free coverage proof was issued by a different owner than the
+    /// route token; foreign proof never satisfies the local inventory.
+    SourceCoverageForeign,
+    /// A call-free coverage proof binds a different loop site than the
+    /// route token's exact parent.
+    SourceCoverageSiteMismatch,
+    /// Call evidence remains after a CallFree coverage claim — a residual
+    /// probe row or a non-empty item inventory contradicts the proof.
+    SourceCallResidualEvidence,
     SourceIdentityMissing,
     SourceParentMissing,
 }
@@ -210,7 +219,7 @@ pub(in crate::mir::builder) struct CallableLoopSourceRouteTokenV1 {
     selection: CallableLoopRouteMatchV1,
     projection: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
     source_items: Box<[CallableLoopSourceItemBindingV1]>,
-    source_target: Option<CallableLoopSourceTargetRelationV1>,
+    source_coverage: Option<CallableLoopSourceCallCoverageV1>,
 }
 
 impl CallableLoopSourceRouteTokenV1 {
@@ -250,10 +259,11 @@ impl CallableLoopSourceRouteTokenV1 {
             selection,
             projection,
             source_items: Box::new([]),
-            source_target: None,
+            source_coverage: None,
         })
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub(in crate::mir::builder) fn issue_with_source_relations(
         owner: FunctionOwnerIdV1,
         parent_site: SourceNodeSiteV1,
@@ -264,23 +274,46 @@ impl CallableLoopSourceRouteTokenV1 {
         projection: Option<VerifiedLoopCondBreakContinueSourceForestProjectionV1>,
         source_items: Box<[CallableLoopSourceItemBindingV1]>,
         source_target_probe: CallableLoopSourceTargetProbeV1,
+        call_coverage: Option<VerifiedCallableLoopCallFreeCoverageV1>,
     ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
-        if source_items.is_empty() {
-            return Err(CallableLoopSourceRouteRejectV1::SourceItemsMissing);
-        }
         if source_items
             .iter()
             .any(|item| !is_under_parent(item.call_site().node(), &parent_site))
         {
             return Err(CallableLoopSourceRouteRejectV1::SourceItemOutsideLoop);
         }
-        let source_target = source_target_probe.into_selected_relation(&source_items)?;
-        if !source_items
-            .iter()
-            .any(|item| item.call_site() == source_target.call_site())
-        {
-            return Err(CallableLoopSourceRouteRejectV1::SourceTargetSiteMismatch);
-        }
+        let source_coverage = if source_items.is_empty() {
+            // CallFree arm: only a bridge-issued complete coverage proof can
+            // stand in for the call inventory. Every unproven empty
+            // inventory keeps the previous SourceItemsMissing terminal.
+            let coverage =
+                call_coverage.ok_or(CallableLoopSourceRouteRejectV1::SourceItemsMissing)?;
+            if coverage.owner() != owner {
+                return Err(CallableLoopSourceRouteRejectV1::SourceCoverageForeign);
+            }
+            if coverage.loop_site().node() != &parent_site {
+                return Err(CallableLoopSourceRouteRejectV1::SourceCoverageSiteMismatch);
+            }
+            if source_target_probe.has_residual_evidence() {
+                return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
+            }
+            CallableLoopSourceCallCoverageV1::CallFree(coverage)
+        } else {
+            // WithCalls retains the existing selected-target contract; a
+            // call-free proof minted beside a call-bearing inventory is
+            // itself residual evidence.
+            if call_coverage.is_some() {
+                return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
+            }
+            let source_target = source_target_probe.into_selected_relation(&source_items)?;
+            if !source_items
+                .iter()
+                .any(|item| item.call_site() == source_target.call_site())
+            {
+                return Err(CallableLoopSourceRouteRejectV1::SourceTargetSiteMismatch);
+            }
+            CallableLoopSourceCallCoverageV1::WithCalls(source_target)
+        };
         let mut token = Self::issue(
             owner,
             parent_site,
@@ -291,7 +324,7 @@ impl CallableLoopSourceRouteTokenV1 {
             projection,
         )?;
         token.source_items = source_items;
-        token.source_target = Some(source_target);
+        token.source_coverage = Some(source_coverage);
         Ok(token)
     }
 
@@ -341,10 +374,20 @@ impl CallableLoopSourceRouteTokenV1 {
         &self.source_items
     }
 
+    pub(in crate::mir::builder) fn source_coverage(
+        &self,
+    ) -> Option<&CallableLoopSourceCallCoverageV1> {
+        self.source_coverage.as_ref()
+    }
+
+    /// WithCalls arm's selected target relation. `None` for CallFree
+    /// coverage or before source relations are co-sealed.
     pub(in crate::mir::builder) fn source_target(
         &self,
     ) -> Option<&CallableLoopSourceTargetRelationV1> {
-        self.source_target.as_ref()
+        self.source_coverage
+            .as_ref()
+            .and_then(CallableLoopSourceCallCoverageV1::as_with_calls)
     }
 
     /// Move the already co-sealed route product into its sole physical
@@ -361,7 +404,7 @@ impl CallableLoopSourceRouteTokenV1 {
             CallableLoopRouteMatchV1,
             VerifiedLoopCondBreakContinueSourceForestProjectionV1,
             Box<[CallableLoopSourceItemBindingV1]>,
-            CallableLoopSourceTargetRelationV1,
+            CallableLoopSourceCallCoverageV1,
         ),
         CallableLoopSourceRouteRejectV1,
     > {
@@ -372,12 +415,24 @@ impl CallableLoopSourceRouteTokenV1 {
             selection,
             projection,
             source_items,
-            source_target,
+            source_coverage,
         } = self;
-        let source_target =
-            source_target.ok_or(CallableLoopSourceRouteRejectV1::SourceTargetMissing)?;
-        if source_items.is_empty() {
-            return Err(CallableLoopSourceRouteRejectV1::SourceItemsMissing);
+        let source_coverage =
+            source_coverage.ok_or(CallableLoopSourceRouteRejectV1::SourceTargetMissing)?;
+        match &source_coverage {
+            CallableLoopSourceCallCoverageV1::CallFree(coverage) => {
+                if !source_items.is_empty() {
+                    return Err(CallableLoopSourceRouteRejectV1::SourceCallResidualEvidence);
+                }
+                if coverage.owner() != owner || coverage.loop_site().node() != &parent_site {
+                    return Err(CallableLoopSourceRouteRejectV1::SourceCoverageForeign);
+                }
+            }
+            CallableLoopSourceCallCoverageV1::WithCalls(_) => {
+                if source_items.is_empty() {
+                    return Err(CallableLoopSourceRouteRejectV1::SourceItemsMissing);
+                }
+            }
         }
         if selection.sole_family() != Some(CallableLoopSoleFamilyV1::LoopCondBreakContinue) {
             return Err(CallableLoopSourceRouteRejectV1::RouteNotExclusive {
@@ -391,7 +446,7 @@ impl CallableLoopSourceRouteTokenV1 {
             selection,
             projection,
             source_items,
-            source_target,
+            source_coverage,
         ))
     }
 }
@@ -407,6 +462,10 @@ mod tests;
 #[cfg(test)]
 #[path = "normal_callable_loop_source_route_dead_route_tests.rs"]
 mod dead_route_tests;
+
+#[cfg(test)]
+#[path = "normal_callable_loop_source_route_call_free_tests.rs"]
+mod call_free_tests;
 
 #[cfg(test)]
 #[path = "normal_callable_loop_scalar_result_tests.rs"]

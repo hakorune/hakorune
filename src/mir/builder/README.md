@@ -767,6 +767,37 @@ is caller-zero infrastructure; the production Ready path uses the semantic
 Recipe/physical adapter above and does not consume this structural lease or
 silently create a fallback.
 
+### Callable LoopCond call-free source coverage S0 (2026-09-28)
+
+An armed LoopCond whose resolver call inventory is empty is no longer stopped
+by the missing inventory alone. `CallableLoopSourceBridgeV1::from_input`
+issues `VerifiedCallableLoopCallFreeCoverageV1` only while the exact resolved
+input proves the bounded flat shape: a `Less` condition over the scalar
+closure, flat `LoopBody(i)` statements that are plain `BindingRebind`
+assignments, values limited to integer/typed-integer literals, lexical local
+reads, `Add`/`Multiply`/`Less`, no exits under the loop, and only the matching
+`Write` effects. The proof travels on the one-shot `Armed { projection,
+call_free }` take through `raw_loop_child_entry.rs` and the generic Facts
+issuer into `loop_cond::issue`, which co-seals the token's
+`CallableLoopSourceCallCoverageV1` — `CallFree` or the existing `WithCalls`
+target relation, never both. The token rejects foreign owners, foreign loop
+sites, residual call evidence, and any call item beside a CallFree claim;
+`SourceLoopCondPhysicalInputV1` re-validates owner, parent site, condition
+site, and under-loop containment before the existing
+`lower_loop_cond_break_continue_source` owner lowers it. Unproven empty
+inventories keep `SourceItemsMissing`, and a hidden call can never mint
+CallFree.
+
+Focused evidence: `loop_scope_tests` (flipped positive, two-carrier
+multiplication, per-shape grammar negatives, hidden-call pin) and
+`normal_callable_loop_source_route_call_free_tests` (route-level coverage
+pins). Production evidence: the original corpus `SizeClassBox.bin_size/1`
+(`lang/src/hako_alloc/memory/size_class_box.hako`) compiles and emits its
+10-block MIR with loop-carrier PHIs; the `apps/mimalloc-lite` entry now
+reaches `ordinary-new/local-commit/artifact-source-unavailable`, a different
+family's named terminal. The reusable structural gate lives in
+`tools/checks/mirbuilder_qualified_route_scope_guard.sh`.
+
 `normal_callable_dynamic_operation_source.rs` owns the next source-only S0
 co-seal. It combines the existing resolver ledger, source-backed Dynamic
 callable product, and R0 binding schedule to issue one move-only exact

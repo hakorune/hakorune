@@ -1,5 +1,35 @@
 # Portable Loop Recipe Contract
 
+## Callable LoopCond call-free coverage admission (bounded, 2026-09-28)
+
+A source-backed LoopCond route now distinguishes call coverage explicitly.
+The route token carries `CallableLoopSourceCallCoverageV1`, exactly one of:
+
+- `WithCalls(CallableLoopSourceTargetRelationV1)` — the existing arm; the
+  nonempty call inventory, selected target relation, call-site anchor, and
+  `ExactI64` result requirement apply unchanged.
+- `CallFree(VerifiedCallableLoopCallFreeCoverageV1)` — admitted only when the
+  loop bridge issues the resolver-owned proof: exact `Less` condition site,
+  flat `LoopBody(i)` plain `BindingRebind` statements, a scalar closure of
+  integer/typed-integer literals, lexical local reads, `Add`/`Multiply`/`Less`
+  expression rows, zero exit rows under the loop, and only the matching
+  `Write` effects. An empty call inventory without this proof still stops at
+  `SourceItemsMissing`; empty alone never proves absence of calls.
+
+The token co-seals the coverage with owner, parent site, plan outcome,
+exclusive route selection, forest projection, and the source item inventory.
+Foreign owner, foreign loop site, residual uncovered call evidence, or any
+call item beside a `CallFree` claim reject before physical transfer. The
+physical input re-validates owner/parent/condition-site containment and
+forbids items beside CallFree before the existing
+`lower_loop_cond_break_continue_source` physical owner lowers the loop. No
+second physical owner exists; no Recipe key or physical ID is minted by the
+coverage proof.
+
+Focused evidence lives in `loop_scope_tests` and
+`normal_callable_loop_source_route_call_free_tests`; the corpus witness is
+`SizeClassBox.bin_size/1`, which now lowers through this path.
+
 ## Callable VariableAccumRecurrence source ingress (bounded, 2026-09-25)
 
 The accepted callable recurrence uses the existing

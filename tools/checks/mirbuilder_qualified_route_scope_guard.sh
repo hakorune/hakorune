@@ -443,7 +443,49 @@ ROOT_MAIN_SELECTION_TESTS="$ROOT_DIR/src/mir/builder/normal_default_root_catalog
 LOOP_PIPELINE_TESTS="$ROOT_DIR/src/mir/compiler/normal_default_pipeline_loop_tests.rs"
 LOOP_SCOPE_TESTS="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_loop_scope_tests.rs"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS" "$ROUTE_PREDICATES" "$CALLABLE_ROUTE" "$DEAD_ROUTE_TESTS" "$CORE_METHOD_SRC" "$NAMED_ARRAY_SRC" "$NAMED_ARRAY_METHOD_TESTS" "$CONTRACT_ISSUER" "$LEDGER_CONTRACT_TESTS" "$DECLARED_INSTANCE_LOCATOR" "$CORE_EFFECT_PLAN" "$SOURCE_METHOD_PORT" "$UNIFIED_EMITTER" "$LOOP_DECLARED_TESTS" "$ASSOC_INPUT" "$NORMALIZER_COMMON" "$RAW_LOOP_PORT" "$RAW_LOOP_ENTRY" "$CALLABLE_LOWERING_STATE" "$LOOP_VALUE_PUBLICATION" "$BACKEND_VIEW_TESTS" "$BACKEND_VIEW_DRIFT_TESTS" "$BACKEND_VIEW_INTRINSIC_TESTS" "$ROOT_LIFECYCLE_TESTS" "$ROOT_MAIN_SELECTION_TESTS" "$LOOP_PIPELINE_TESTS" "$LOOP_SCOPE_TESTS"; do
+# MIRBUILDER-GATE1-CALLFREE-LOOPCOND-S0: a loop whose call inventory is
+# empty is admitted only beside a bridge-issued
+# VerifiedCallableLoopCallFreeCoverageV1 proof — the bridge resolver-only
+# scan seals the `<` condition site plus the flat NoExitBody statement and
+# expression rows under the loop (integer/typed literals, lexical locals,
+# Add/Multiply, plain BindingRebind writes, no exits, no residual calls).
+# The route token co-seals the coverage as CallFree/WithCalls and rejects
+# foreign owners, foreign loop sites, residual call evidence, and any
+# item beside a CallFree claim; the physical input re-verifies owner,
+# parent, condition site, and under-loop containment before the existing
+# LoopCond owner lowers. Unproven empty inventories stay
+# SourceItemsMissing; a hidden call never mints CallFree.
+ROUTE_ITEMS_SRC="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_route_items.rs"
+ROUTE_CALL_FREE_TESTS="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_route_call_free_tests.rs"
+ROUTE_TEST_SURFACE="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_route_tests.rs"
+SOURCE_LOOP_BRIDGE="$ROOT_DIR/src/mir/builder/normal_callable_semantic_lowering_state/source_loop_bridge.rs"
+LOOP_COND_FACTS_SRC="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_facts/loop_cond.rs"
+GENERIC_FACTS_ISSUER="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_facts/generic/issuer.rs"
+rg -q 'VerifiedCallableLoopCallFreeCoverageV1' "$ROUTE_ITEMS_SRC"
+rg -q 'CallFree\(VerifiedCallableLoopCallFreeCoverageV1\)' "$ROUTE_ITEMS_SRC"
+rg -q 'fn has_residual_evidence' "$ROUTE_ITEMS_SRC"
+rg -q 'fn issue_call_free_coverage' "$SOURCE_LOOP_BRIDGE"
+rg -q 'Armed \{' "$SOURCE_LOOP_BRIDGE"
+rg -q 'SourceCoverageForeign' "$CALLABLE_ROUTE"
+rg -q 'SourceCoverageSiteMismatch' "$CALLABLE_ROUTE"
+rg -q 'SourceCallResidualEvidence' "$CALLABLE_ROUTE"
+rg -q 'fn source_coverage' "$CALLABLE_ROUTE"
+rg -q 'call_free' "$GENERIC_FACTS_ISSUER"
+rg -q 'source_coverage: CallableLoopSourceCallCoverageV1' "$LOOP_COND_FACTS_SRC"
+rg -q 'call-free-coverage-mismatch' "$LOOP_COND_FACTS_SRC"
+rg -q 'call_free: Option<VerifiedCallableLoopCallFreeCoverageV1>' "$RAW_LOOP_ENTRY"
+rg -q 'source_backed_loop_keeps_invocation_scope_and_ledger_route' "$LOOP_SCOPE_TESTS"
+rg -q 'source_backed_call_free_loop_carries_two_bindings' "$LOOP_SCOPE_TESTS"
+rg -q 'source_backed_loop_outside_call_free_grammar_still_stops_at_source_items' "$LOOP_SCOPE_TESTS"
+rg -q 'source_backed_loop_with_hidden_call_never_mints_call_free' "$LOOP_SCOPE_TESTS"
+rg -q 'issue_with_source_relations_admits_verified_call_free_coverage' "$ROUTE_CALL_FREE_TESTS"
+rg -q 'issue_with_source_relations_keeps_unproven_empty_inventory_missing' "$ROUTE_CALL_FREE_TESTS"
+rg -q 'issue_with_source_relations_rejects_a_foreign_call_free_owner' "$ROUTE_CALL_FREE_TESTS"
+rg -q 'issue_with_source_relations_rejects_a_foreign_call_free_site' "$ROUTE_CALL_FREE_TESTS"
+rg -q 'issue_with_source_relations_rejects_call_free_with_residual_evidence' "$ROUTE_CALL_FREE_TESTS"
+rg -q 'issue_with_source_relations_rejects_call_free_beside_call_items' "$ROUTE_CALL_FREE_TESTS"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS" "$ROUTE_PREDICATES" "$CALLABLE_ROUTE" "$DEAD_ROUTE_TESTS" "$CORE_METHOD_SRC" "$NAMED_ARRAY_SRC" "$NAMED_ARRAY_METHOD_TESTS" "$CONTRACT_ISSUER" "$LEDGER_CONTRACT_TESTS" "$DECLARED_INSTANCE_LOCATOR" "$CORE_EFFECT_PLAN" "$SOURCE_METHOD_PORT" "$UNIFIED_EMITTER" "$LOOP_DECLARED_TESTS" "$ASSOC_INPUT" "$NORMALIZER_COMMON" "$RAW_LOOP_PORT" "$RAW_LOOP_ENTRY" "$CALLABLE_LOWERING_STATE" "$LOOP_VALUE_PUBLICATION" "$BACKEND_VIEW_TESTS" "$BACKEND_VIEW_DRIFT_TESTS" "$BACKEND_VIEW_INTRINSIC_TESTS" "$ROOT_LIFECYCLE_TESTS" "$ROOT_MAIN_SELECTION_TESTS" "$LOOP_PIPELINE_TESTS" "$LOOP_SCOPE_TESTS" "$ROUTE_ITEMS_SRC" "$ROUTE_CALL_FREE_TESTS" "$ROUTE_TEST_SURFACE" "$SOURCE_LOOP_BRIDGE" "$LOOP_COND_FACTS_SRC" "$GENERIC_FACTS_ISSUER"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2

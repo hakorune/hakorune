@@ -304,19 +304,19 @@ fn source_target_relation_accepts_exact_i64_without_ordinal_policy() {
 /// Everything `issue_with_source_relations` needs from one resolved armed
 /// loop: the planner outcome, the exclusive route selection, the issued
 /// forest projection, and the real resolver-bound item rows.
-struct ArmedLoopCondParts {
-    owner: FunctionOwnerIdV1,
-    parent_site: SourceNodeSiteV1,
-    function_origin: FunctionOriginV1,
-    source_kind: SemanticOwnerSourceKindV1,
-    outcome: PlanBuildOutcome,
-    selection: CallableLoopRouteMatchV1,
-    projection: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
-    items: Box<[CallableLoopSourceItemBindingV1]>,
-    call_sites: Box<[SourceExprSiteV1]>,
+pub(super) struct ArmedLoopCondParts {
+    pub(super) owner: FunctionOwnerIdV1,
+    pub(super) parent_site: SourceNodeSiteV1,
+    pub(super) function_origin: FunctionOriginV1,
+    pub(super) source_kind: SemanticOwnerSourceKindV1,
+    pub(super) outcome: PlanBuildOutcome,
+    pub(super) selection: CallableLoopRouteMatchV1,
+    pub(super) projection: VerifiedLoopCondBreakContinueSourceForestProjectionV1,
+    pub(super) items: Box<[CallableLoopSourceItemBindingV1]>,
+    pub(super) call_sites: Box<[SourceExprSiteV1]>,
 }
 
-fn armed_loop_cond_parts(source: &str) -> ArmedLoopCondParts {
+pub(super) fn armed_loop_cond_parts(source: &str) -> ArmedLoopCondParts {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     let program =
         crate::parser::NyashParser::parse_from_string(source).expect("loop-cond fixture parses");
@@ -395,7 +395,7 @@ fn armed_loop_cond_parts(source: &str) -> ArmedLoopCondParts {
     }
 }
 
-const ARMED_LOOP_COND_SOURCE: &str = r#"
+pub(super) const ARMED_LOOP_COND_SOURCE: &str = r#"
 static function caller(flag: i64, text: i64): i64 {
     loop(flag < 2) {
         if text.starts_with("a", 0) == 1 {
@@ -425,7 +425,9 @@ static function caller(flag: i64, text: i64): i64 {
 }
 "#;
 
-fn selected_relation(call_site: &SourceExprSiteV1) -> CallableLoopSourceTargetRelationV1 {
+pub(super) fn selected_relation(
+    call_site: &SourceExprSiteV1,
+) -> CallableLoopSourceTargetRelationV1 {
     let caller =
         CanonicalSameModuleCallableKeyV1::test_static_box_method("ParserProgramBox", "parse", 2);
     let target = CanonicalSameModuleCallableKeyV1::test_static_box_method(
@@ -470,6 +472,7 @@ fn issue_with_source_relations_co_seals_the_single_selected_relation() {
             Box::new([]),
             false,
         ),
+        None,
     )
     .expect("single selected relation must co-seal");
     let relation = token.source_target().expect("co-sealed relation");
@@ -499,6 +502,7 @@ fn issue_with_source_relations_keeps_unrelated_items_out_of_the_selected_set() {
             Box::new([]),
             false,
         ),
+        None,
     )
     .expect("one selected relation plus an unrelated item must co-seal");
     assert_eq!(
@@ -635,6 +639,7 @@ fn issue_with_source_relations_maps_a_missing_required_row_to_unselected() {
             vec![call_site.clone()].into_boxed_slice(),
             false,
         ),
+        None,
     )
     .expect_err("an exact static target without its row must not pass");
     assert_eq!(
@@ -663,6 +668,7 @@ fn issue_with_source_relations_maps_multiple_selected_relations_to_multiple() {
             Box::new([]),
             false,
         ),
+        None,
     )
     .expect_err("two selected obligations must stop as multiple");
     assert_eq!(
@@ -685,6 +691,7 @@ fn issue_with_source_relations_maps_no_obligation_to_outside_selected_family() {
         Some(parts.projection),
         parts.items,
         CallableLoopSourceTargetProbeV1::empty(),
+        None,
     )
     .expect_err("a loop with no static obligation must not mint a relation");
     assert_eq!(
@@ -714,6 +721,7 @@ fn issue_with_source_relations_accepts_core_method_only_family() {
             false,
             core_items,
         ),
+        None,
     )
     .expect("CoreMethod-only loop family must co-seal");
     let relation = token.source_target().expect("core method relation");
@@ -735,6 +743,7 @@ fn issue_with_source_relations_maps_a_handoff_disagreement_to_requirement_mismat
         Some(parts.projection),
         parts.items,
         CallableLoopSourceTargetProbeV1::from_parts(Box::new([]), Box::new([]), true),
+        None,
     )
     .expect_err("a disagreeing handoff must stay a named terminal");
     assert_eq!(
@@ -760,6 +769,7 @@ fn issue_with_source_relations_rejects_a_relation_site_outside_the_items() {
             Box::new([]),
             false,
         ),
+        None,
     )
     .expect_err("a relation bound to a foreign site must not co-seal");
     assert_eq!(

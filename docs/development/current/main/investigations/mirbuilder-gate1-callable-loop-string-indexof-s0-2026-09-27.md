@@ -156,8 +156,8 @@ whole-suite completion is claimed.
 
 ## Accepted next task: MIRBUILDER-GATE1-CALLFREE-LOOPCOND-S0
 
-Design accepted at `dbd9f7eb39` on 2026-09-28; implementation not performed
-in this design turn. This selects the already-queued D5 F3c source-coverage
+Design accepted at `dbd9f7eb39` on 2026-09-28; implementation landed in the
+same workstream turn. This selects the already-queued D5 F3c source-coverage
 responsibility, not a parked DeclaredInstance/backend or Gates 2-4 lane.
 
 ```text
@@ -266,7 +266,7 @@ Ordinary implementation failures inside this mapping are work to resolve.
 
 | Order | Task and completion boundary |
 | --- | --- |
-| 1 | Re-measure the changed mimalloc entry; select its actual next source/owner terminal. Do not reuse the disproved bin_size attribution. |
+| 1 | `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0`: re-measure landed the actual terminal `ordinary-new/local-commit/artifact-source-unavailable` (`raw_ordinary_new_claim.rs` — the `new` local commit's expected root-instance-call artifact is missing). Census the owner contract, the real construction artifact authority, and the mimalloc-lite `new HakoAllocHeap()` site before selecting an S0; do not reuse the disproved bin_size attribution. |
 | 2 | D5 fork (b): source admission for parameter/local user-object calls (`store.readData`, `builder.make`, then call-result `itemCheck`). Decide Dynamic-origin versus exact nominal evidence before coverage; existing root-me locators are not proof for either parameter or returned-object receivers. |
 | 3 | Allocator call-result provenance/retention for `handles.push(heap.allocate(...))`; depends on receiver/result and lifetime decisions, not I64/Text push acceptance. |
 | 4 | Complete required app evidence: json-stream-aggregator EXE/output and typed-object JSON ingress/EXE exit 7. An emit-interface failure still blocks its registered acceptance; record its owner instead of dropping the row. |
@@ -283,3 +283,41 @@ Design closeout: read-only worker premise/integration review completed;
 current-state pointer guard, qualified-route scope guard and diff check PASS.
 Only the original-source probe above was executed; no Cargo build/tests or
 EXE suite was run. The next implementation owns the focused Done evidence.
+
+### S0 implementation receipt (landed)
+
+Transport chain: `VerifiedCallableLoopCallFreeCoverageV1` is issued by
+`CallableLoopSourceBridgeV1::from_input` (`issue_call_free_coverage` proves
+the bounded grammar from resolver rows only), rides the one-shot
+`Armed { projection, call_free }` take through `raw_loop_child_entry.rs` and
+the generic Facts issuer, and co-seals into the token as
+`CallableLoopSourceCallCoverageV1::CallFree`; `SourceLoopCondPhysicalInputV1`
+re-validates the sum before `lower_loop_cond_break_continue_source` lowers.
+New named rejects: `SourceCoverageForeign`, `SourceCoverageSiteMismatch`,
+`SourceCallResidualEvidence`; unproven empty inventory stays
+`SourceItemsMissing`; `WithCalls` validation order is unchanged.
+
+Evidence (quick profile, `--features vm-reference`): `loop_scope_tests` 6/6 —
+the flipped positive compiles and the interpreter returns `5/1/4/9` for
+zero/one/multi-iteration `(i, limit)` pairs plus the two-carrier
+`acc = acc * 2; n = n + 1` case (`acc = 8`, PHI count ≥ 2); grammar negatives
+pin their observed named terminals (`SourceItemsMissing` for `<=` and `-`,
+`duplicate-source-site` for `+=`, `source-target-empty` for `break`); the
+hidden-call pin proves `Scan.bump` inside the loop never mints CallFree.
+`normal_callable_loop_source_route` suite 29/29 including six new
+route-level coverage pins. One pre-existing red remains:
+`program_block_with_exit_signals_prefers_recipe_only` fails identically on
+parent `3c2ffba111` — baseline debt, not this change.
+`mirbuilder_qualified_route_scope_guard.sh` registers the coverage surface
+and the new/edited files in its 800-line boundary list.
+
+Production evidence (quick-profile `./target/quick/hakorune
+--emit-mir-json`): the corpus module
+`lang/src/hako_alloc/memory/size_class_box.hako` compiles; emitted
+`SizeClassBox.bin_size/1` has 10 blocks with 4 PHI, 3 `mir_call`, 13 `binop`
+— the `Body(9)` `SourceItemsMissing` freeze is gone. Re-measuring
+`apps/mimalloc-lite` now stops at
+`ordinary-new/local-commit/artifact-source-unavailable` — an ordinary-`new`
+(`new HakoAllocHeap()`) construction-artifact terminal, a different owned
+family and the next observable frontier. Gate 1 remains unsatisfied; this S0
+does not claim it.

@@ -24,6 +24,7 @@ use super::normal_callable_loop_source_facts::{
 };
 use super::normal_callable_loop_source_route::{
     CallableLoopSourceItemBindingV1, CallableLoopSourceTargetProbeV1,
+    VerifiedCallableLoopCallFreeCoverageV1,
 };
 use super::normal_callable_semantic_lowering_state::CallableLoopSourceBridgeTakeV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
@@ -98,6 +99,11 @@ pub(in crate::mir::builder) struct PreparedCallableGenericLoopSourceFactsPayload
     >,
     pub(in crate::mir::builder) source_items: Box<[CallableLoopSourceItemBindingV1]>,
     pub(in crate::mir::builder) source_target_probe: CallableLoopSourceTargetProbeV1,
+    /// Bridge-issued call-free coverage proof. `Some` only when the loop's
+    /// call inventory is empty and the bounded scalar grammar proof held;
+    /// an unproven empty inventory arrives with `None` and keeps the
+    /// route token's `SourceItemsMissing` terminal.
+    pub(in crate::mir::builder) call_free: Option<VerifiedCallableLoopCallFreeCoverageV1>,
 }
 
 impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
@@ -301,7 +307,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 }
             }
         }
-        let (function_origin, source_kind, mut source_projection, source_items) =
+        let (function_origin, source_kind, mut source_projection, source_items, call_free) =
             if let Some(callable_ledger) = callable_ledger {
                 let Some(parent_site) = parent_source.site() else {
                     return Err(
@@ -316,8 +322,11 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 let bridge = callable_ledger
                     .borrow_mut()
                     .take_source_loop_bridge(parent_site)?;
-                let (projection, items) = match bridge {
-                    CallableLoopSourceBridgeTakeV1::Armed(projection) => {
+                let (projection, items, call_free) = match bridge {
+                    CallableLoopSourceBridgeTakeV1::Armed {
+                        projection,
+                        call_free,
+                    } => {
                         let items = callable_ledger
                             .borrow()
                             .source_loop_items(parent_site)
@@ -325,14 +334,14 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                                 "[freeze:contract][callable-loop/source-bridge/armed-items-missing]"
                                     .to_owned()
                             })?;
-                        (Some(projection), items)
+                        (Some(projection), items, call_free)
                     }
                     CallableLoopSourceBridgeTakeV1::Unarmed
-                    | CallableLoopSourceBridgeTakeV1::BridgeAbsent => (None, Box::default()),
+                    | CallableLoopSourceBridgeTakeV1::BridgeAbsent => (None, Box::default(), None),
                 };
-                (function_origin, source_kind, projection, items)
+                (function_origin, source_kind, projection, items, call_free)
             } else {
-                (None, None, None, Box::default())
+                (None, None, None, Box::default(), None)
             };
         let (loop_break_candidate, composite_loop_break_candidate) =
             match (callable_ledger, parent_source.site()) {
@@ -467,6 +476,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 source_projection,
                 source_items,
                 source_target_probe,
+                call_free,
             )?;
         match CallableGenericLoopSourceFactsIssuerV1::issue_once(payload, variable_accum_recurrence) {
             CallableGenericLoopSourceFactsDispositionV1::VariableAccumRecurrenceReady(product) => {
@@ -607,6 +617,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             None,
             Box::default(),
             CallableLoopSourceTargetProbeV1::empty(),
+            None,
         )
     }
 
@@ -627,6 +638,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         >,
         source_items: Box<[CallableLoopSourceItemBindingV1]>,
         source_target_probe: CallableLoopSourceTargetProbeV1,
+        call_free: Option<VerifiedCallableLoopCallFreeCoverageV1>,
     ) -> Result<PreparedCallableGenericLoopSourceFactsPayloadV1<'source>, String> {
         let Self {
             parent_source,
@@ -678,6 +690,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             source_projection,
             source_items,
             source_target_probe,
+            call_free,
         })
     }
 }

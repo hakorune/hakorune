@@ -9,7 +9,7 @@ use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::callable_result_representation::{
     VerifiedCallableResultRepresentationV1, VerifiedStaticCallResultPublicationHandoffV1,
 };
-use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceExprSiteV1};
+use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceExprSiteV1, SourceStmtSiteV1};
 
 /// Resolver-owned source item relation retained for the future LoopCond
 /// physical port. This copies only source sites and selector metadata; it
@@ -209,6 +209,93 @@ impl CallableLoopSourceTargetRelationV1 {
     }
 }
 
+/// Resolver-issued proof that one armed loop's complete source inventory is
+/// call-free and stays inside the accepted scalar grammar.
+///
+/// The bridge issues this only after every expression site under the loop
+/// resolves to an integer literal, a local `BindingRebind` target, a local
+/// lexical read, or an `Add`/`Multiply`/`Less` binary, and every statement
+/// under the loop is a flat `LoopBody(_)` plain binding rebind. It carries
+/// the covered sites so the route token and physical input can verify the
+/// sum and identities without re-reading source syntax.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) struct VerifiedCallableLoopCallFreeCoverageV1 {
+    owner: FunctionOwnerIdV1,
+    loop_site: SourceStmtSiteV1,
+    condition_site: SourceExprSiteV1,
+    statements: Box<[SourceStmtSiteV1]>,
+    expressions: Box<[SourceExprSiteV1]>,
+}
+
+impl VerifiedCallableLoopCallFreeCoverageV1 {
+    pub(in crate::mir::builder) fn issue(
+        owner: FunctionOwnerIdV1,
+        loop_site: SourceStmtSiteV1,
+        condition_site: SourceExprSiteV1,
+        statements: Box<[SourceStmtSiteV1]>,
+        expressions: Box<[SourceExprSiteV1]>,
+    ) -> Self {
+        Self {
+            owner,
+            loop_site,
+            condition_site,
+            statements,
+            expressions,
+        }
+    }
+
+    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(in crate::mir::builder) const fn loop_site(&self) -> &SourceStmtSiteV1 {
+        &self.loop_site
+    }
+
+    pub(in crate::mir::builder) const fn condition_site(&self) -> &SourceExprSiteV1 {
+        &self.condition_site
+    }
+
+    pub(in crate::mir::builder) fn covered_statements(&self) -> &[SourceStmtSiteV1] {
+        &self.statements
+    }
+
+    pub(in crate::mir::builder) fn covered_expressions(&self) -> &[SourceExprSiteV1] {
+        &self.expressions
+    }
+}
+
+/// Source-proven call coverage for one armed LoopCond subtree.
+///
+/// `CallFree` carries the bounded grammar proof issued beside the bridge
+/// inventory; `WithCalls` retains the existing selected-target relation.
+/// The route token owns exactly one arm — a loop never presents both.
+#[derive(Debug)]
+pub(in crate::mir::builder) enum CallableLoopSourceCallCoverageV1 {
+    CallFree(VerifiedCallableLoopCallFreeCoverageV1),
+    WithCalls(CallableLoopSourceTargetRelationV1),
+}
+
+impl CallableLoopSourceCallCoverageV1 {
+    pub(in crate::mir::builder) const fn as_with_calls(
+        &self,
+    ) -> Option<&CallableLoopSourceTargetRelationV1> {
+        match self {
+            Self::WithCalls(relation) => Some(relation),
+            Self::CallFree(_) => None,
+        }
+    }
+
+    pub(in crate::mir::builder) const fn as_call_free(
+        &self,
+    ) -> Option<&VerifiedCallableLoopCallFreeCoverageV1> {
+        match self {
+            Self::CallFree(coverage) => Some(coverage),
+            Self::WithCalls(_) => None,
+        }
+    }
+}
+
 /// One source-order disposition for a resolver-issued method item.  Static
 /// publication and bound CoreMethod rows share one batch, while their
 /// authorities remain distinct and are validated by their existing owners.
@@ -284,6 +371,16 @@ impl CallableLoopSourceTargetProbeV1 {
             requirement_mismatch,
             core_methods,
         }
+    }
+
+    /// Any classified evidence still carried by this probe. A CallFree loop
+    /// must arrive with none — a selected, uncovered, mismatched, or
+    /// CoreMethod row contradicts the call-free proof.
+    pub(in crate::mir::builder) fn has_residual_evidence(&self) -> bool {
+        !self.selected.is_empty()
+            || !self.uncovered.is_empty()
+            || self.requirement_mismatch
+            || !self.core_methods.is_empty()
     }
 
     /// Resolve the classification into the single co-sealed target relation.
