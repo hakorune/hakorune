@@ -1,10 +1,10 @@
 date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-REVIEW-MERGE-READINESS-R0"
+current_execution_row = "MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ReviewMergeReadinessR0-Landed__Gate1ExternallyBlocked"
-current_design_stop = "R0 cleared the review merge blockers: 800-line violations split and guard-registered, default-stack SIGABRT surface removed, red baseline receipt re-recorded and verifier-green; Gate-1 `real-apps-exe-boundary` stays externally blocked per D21 and Gates 2-4 are parked pending explicit selection"
+current_blocker_token = "Gate1FieldArrayI64PushD0__ResidenceProviderOutcomeDecisionOpen"
+current_design_stop = "D22 selected internal owner design for the four HakoAllocPage.seedBlocks field-resident Array/I64 push sites; resolve residence/provider, NoValue success, failure and commit timing in existing CoreMethod issuers before implementation; no external dependency was established"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,29 +13,23 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-compatibility-retire-r7-d0-2026-09-11.md"
-latest_card = "mirbuilder-review-merge-readiness-r0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-review-merge-readiness-r0-2026-09-27.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-suite-red-disposition-d21-2026-09-27.md"
+latest_card = "mirbuilder-exe-acceptance-suite-red-disposition-d21"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-suite-red-disposition-d21-2026-09-27.md"
 latest_card_summary = """
-R0 landed: review-merge remediation, BoxShape only — the three
-800-line violations are split (`normal_callable_semantic_lowering_state`
-809->749 with the loop-value publication APIs moved to a dedicated
-submodule; `published_backend_view_tests` 848->493+360 drift split;
-`normal_default_root_catalog_lifecycle_tests` 1221->732+497
-main-selection split) and all nine files are registered in the
-scope guard's line list. Default-stack SIGABRT surface removed: the
-deep source-backed lowering pins run on a shared 32 MiB test thread
-(new S8 pins plus pre-existing loop-scope/merged-route/named-array/
-raw-ingress/raw-cutover/phase49 pins) — full `--lib` suite now
-completes under a default env with zero aborts. Red baseline receipt
-re-recorded: 7981/127/56, inventory 8164, verifier KNOWN BASELINE ok;
-the +5 failure names are verified session debt red before this slice.
-`BindingAssignmentTarget` shape rows now issue through one shared
-`ShadowBodyShapeDraftV0` helper. No behavior change; Gate-1 stays
-externally blocked per D21.
+Review R0 landed at 24e796b0f4: 7981 passed / 127 known failed / 56
+ignored, not an all-green suite. D22 corrects D21's external-wait
+premise: the remaining Gate-1 semantics need internal owner design.
+LLVM 18 is installed; the documented PATH selects it (plain opt/llc
+still select 14). D21 recorded 4/11 plus focused opt-18 newbox success.
+Next is field-resident Array/I64 push design for four seedBlocks sites
+shared by boxtorrent/mimalloc. Source residence/provider/outcome and
+physical retention must close before implementation. The D21 card
+now holds the finite owner series and downstream gate order; other
+semantic cohorts and Gates 2-4 remain queued, not activated.
 """
-next_design_card = "MIRBUILDER-REVIEW-MERGE-READINESS-R0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-review-merge-readiness-r0-2026-09-27.md"
+next_design_card = "MIRBUILDER-GATE1-FIELD-ARRAY-I64-PUSH-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exe-acceptance-suite-red-disposition-d21-2026-09-27.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
