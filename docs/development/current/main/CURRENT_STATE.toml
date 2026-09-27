@@ -1,10 +1,10 @@
 date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Gate1CallableLoopStringIndexOfD0__PlacementFamilyOpen"
-current_design_stop = "route-front S0 cleared ArrayGet (ids.get(i)); the observed boxtorrent terminal is materialize/1 store.readData — ParkedSealed DeclaredInstance family (explicit selection required); the queued non-parked family in the same route-front lane is StringIndexOf: alphabet.indexOf(ch) in ContentHash.digest LoopBody, manifest row exists but no placement arm — design which placement/result relation arms it without selector-only minting"
+current_blocker_token = "Gate1CallableLoopStringIndexOfS0__TextEvidenceIndexOfContractOpen"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,29 +13,29 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-route-front-d0-2026-09-27.md"
-latest_card = "mirbuilder-gate1-callable-loop-route-front-s0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-route-front-s0-2026-09-27.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-d0-2026-09-27.md"
+latest_card = "mirbuilder-gate1-callable-loop-string-indexof-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-d0-2026-09-27.md"
 latest_card_summary = """
-Route-front S0 landed — `ArrayBox.get/1` (ArrayGet, Dynamic,
-pure_read) issues a plain CoreMethod contract through the
-named-array ArrayBox arm: `ArrayDynamicRead` schema +
-`NamedArrayReadV1` ABI + `DynamicToCaller` result (MirType::
-Unknown — no guessed physical type), gated by field-residence
-receiver evidence (`local ids = me.<field>` + untyped-or-ArrayBox
-field + exact birth `new ArrayBox()` provider + rebind/integer-
-source relations), Body placement only, no write-requirement
-product. `verify_field_residence_relations` parametrized by
-NamedArrayResultDemandV1 (NoValue write / ReadResult read).
-Tests 6/6 focused + 294 related green; route-scope guard pins the
-vocabulary. boxtorrent `chunkListText` clears; `materialize`
-stops at `store.readData` — ParkedSealed DeclaredInstance family,
-not claimed. Next queued family: StringIndexOf placement arm.
+StringIndexOf D0 closed — Decision accepted: `alphabet.indexOf(ch)`
+(`ContentHash.digest` LoopBody) is `("StringBox","indexOf",1)` ->
+StringIndexOf (I64Value, PureRead). Catalog-unique op in the
+CoreMethodContractBox manifest, but the runtime router accepts
+`ArrayBox.indexOf/1` and `pred_chars.indexOf` (parameter receiver,
+Dynamic-member lane) exists — an unconditional arm is selector-only
+minting. Bounded admission: Body placement + receiver-text evidence
+(string-literal or TextToCaller-contract initializer, no rebind) +
+text-producing needle (text_source_at port of integer_source_at).
+New `TextParameter` relation (needle is borrowed, not retained).
+I64ToCaller -> MirType::Integer via existing consumer arm.
+`StringIndexOf/2`, `lastIndexOf`, param/non-text receivers stay
+unarmed; `materialize` remains at the ParkedSealed DeclaredInstance
+terminal.
 """
-next_design_card = "MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-route-front-s0-2026-09-27.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -50,7 +50,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-27: MIRBUILDER-GATE1-CALLABLE-LOOP-STRING-INDEXOF-D0 closed — alphabet.indexOf(ch) is StringBox.indexOf/1 (catalog-unique op but runtime router has ArrayBox.indexOf and pred_chars.indexOf is param-receiver Dynamic-lane); Decision: arm only under receiver-text evidence + text needle + Body placement; new TextParameter relation; bounded S0 emitted — StringIndexOf/2, param/non-text receivers stay unarmed.",
   "2026-09-27: MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-S0 landed — field-resident ArrayBox.get/1 issues plain CoreMethod contract (ArrayDynamicRead/NamedArrayReadV1/DynamicToCaller->MirType::Unknown; Body placement; residence claim + birth new ArrayBox provider + rebind/integer-source gates; NamedArrayResultDemandV1 parametrizes NoValue/ReadResult); tests 6/6+294 green; boxtorrent chunkListText clears, materialize stops at parked DeclaredInstance store.readData.",
   "2026-09-27: MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-D0 closed — Decision: ids.get(i) is CoreMethod family (ArrayBox.get/1); get/1 ambiguous vs MapBox so field-residence receiver evidence (claim + birth new ArrayBox provider + rebind/integer-source relations) gates a plain contract, no write requirement; DynamicMember structurally unreachable for field-alias receivers; bounded S0 emitted (ArrayGet,1, Body placement) — clears chunkListText only.",
-  "2026-09-27: MIRBUILDER-GATE1-ORDINARY-NEW-BIRTH-EDGE-AUTHORITY-D0 closed — stale-terminal correction: birth-global-legacy-stopped does not reproduce on 881d2b14c0; claim.constructor() = Birth(recipe) already emits Callee::BirthConstructor on the Ordinary arm (fixture-verified); freeze remains the designed fail-fast for constructor-None lanes.",
 ]
