@@ -1,10 +1,10 @@
 date = "2026-09-27"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Gate1CallableLoopRouteFrontD0__LoopBodyCallFamilyOpen"
-current_design_stop = "birth-edge-authority D0 closed (claim Birth(recipe) already emits Callee::BirthConstructor; stale-terminal correction); the next observable boxtorrent terminal is callable-loop/route-not-front-selected SourceCallOutsideSelectedFamily at BoxTorrentManifest.chunkListText/0 [Body(4), LoopBody(1), Value, Rhs] — the `ids.get(i)` instance method call inside the loop body; census which call-site families the callable Loop consumer's route-front selection admits, whether local-handle method calls inside loop bodies have an authorized ingress, and the bounded next slice without widening the selected family into guessed meaning"
+current_blocker_token = "Gate1CallableLoopRouteFrontS0__ArrayGetReadContractOpen"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,31 +13,33 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-ordinary-new-birth-edge-authority-d0-2026-09-27.md"
-latest_card = "mirbuilder-gate1-ordinary-new-birth-edge-authority-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-ordinary-new-birth-edge-authority-d0-2026-09-27.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-route-front-d0-2026-09-27.md"
+latest_card = "mirbuilder-gate1-callable-loop-route-front-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-route-front-d0-2026-09-27.md"
 latest_card_summary = """
-Birth-edge-authority D0 closed — the recorded
-`ordinary-new/birth-global-legacy-stopped` observation was taken on
-a pre-S0 binary and does not reproduce on `881d2b14c0` (both
---dump-mir and --emit-mir-json reach the parked
-`callable-loop/route-not-front-selected` family at
-`BoxTorrentManifest.chunkListText/0`). Census confirms the birth
-edge is already co-sealed by existing claim authority: cohort issue
-mints `Birth(VerifiedOrdinaryNewBirthRecipeV1)` (published_birth_key
-+ BirthAbiHandoff), the affine `try_take` carries it, and the
-Ordinary arm emits `NewBox` + `Callee::BirthConstructor` — proven
-by a `Store.put`-shaped fixture emitting `call_birth
-BirthConstructor{Chunk.birth/3}`. The freeze remains the designed
-fail-fast for constructor-None lanes (no claim, no birth-site
-recipe). No implementation slice emitted; the next observable
-terminal is the queued callable-loop family, selected as
-`MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-D0`.
+Callable-loop route-front D0 closed — Decision accepted:
+`ids.get(i)` (boxtorrent `chunkListText` LoopBody) is a
+CoreMethod-family call, builtin `ArrayBox.get/1` (ArrayGet /
+Dynamic / pure_read / warm_direct_abi manifest row). Receiver
+`Lexical(Local)` is already admitted vocabulary; the gate is the
+op family — the named-array ArrayBox arm drops every non-ArrayPush
+op unconditionally and the generic issuer hardcodes StringBox.
+`get/1` is ambiguous vs `MapBox.get/1`, so receiver-box evidence
+is mandatory: field-residence claim + declared-type/none gate +
+birth `new ArrayBox()` provider proof + rebind/integer-source
+relations — the same authority chain `push` uses, but issuing a
+plain contract (no write-requirement product). DynamicMember is
+structurally unreachable (no formal-derived origin for `ids`);
+Static does not cover lexical method calls. Bounded S0 emitted:
+single op (ArrayGet,1), Body placement, Receiver-object residence
+only; clears `chunkListText` only — user-instance calls
+(store.*/manifest.*) and `indexOf` remain at their own named
+family terminals.
 """
-next_design_card = "MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-ordinary-new-birth-edge-authority-d0-2026-09-27.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-route-front-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -52,7 +54,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-27: MIRBUILDER-GATE1-ORDINARY-NEW-BIRTH-EDGE-AUTHORITY-D0 closed — stale-terminal correction: birth-global-legacy-stopped does not reproduce on 881d2b14c0; claim.constructor() = Birth(recipe) already emits Callee::BirthConstructor on the Ordinary arm (fixture-verified); freeze remains the designed fail-fast for constructor-None lanes; next observable terminal is the parked callable-loop family (selection required).",
+  "2026-09-27: MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-D0 closed — Decision: ids.get(i) is CoreMethod family (ArrayBox.get/1); get/1 ambiguous vs MapBox so field-residence receiver evidence (claim + birth new ArrayBox provider + rebind/integer-source relations) gates a plain contract, no write requirement; DynamicMember structurally unreachable for field-alias receivers; bounded S0 emitted (ArrayGet,1, Body placement) — clears chunkListText only.",
+  "2026-09-27: MIRBUILDER-GATE1-ORDINARY-NEW-BIRTH-EDGE-AUTHORITY-D0 closed — stale-terminal correction: birth-global-legacy-stopped does not reproduce on 881d2b14c0; claim.constructor() = Birth(recipe) already emits Callee::BirthConstructor on the Ordinary arm (fixture-verified); freeze remains the designed fail-fast for constructor-None lanes.",
   "2026-09-27: MIRBUILDER-GATE1-ORDINARY-NEW-ARGUMENT-SOURCE-S0 landed — BoundValue provenance for inventoried call-result locals (StoredLocal::BoundValue install + selected/co-seal/materialize/ABI arms; physical ABI rejects same class as Local/Handle); tests 5/5+60/60+331(-3 baseline); boxtorrent argument-source terminal cleared.",
-  "2026-09-27: MIRBUILDER-GATE1-STATIC-RESULT-CALLER-COVERAGE-S1 landed — BirthConstructor co-seal on both issuers (constructor loan join + constructors map parity, Birth kind only) + InstanceConstructor arm via published_birth_key; ingress 22/22, catalog 24/24; boxtorrent foreign-lineage cleared, next terminal ordinary-new/argument-source-unavailable.",
 ]
