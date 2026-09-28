@@ -359,6 +359,60 @@ fn body_only_rebind_moves_with_ready_remainder_and_source_evidence() {
 }
 
 #[test]
+fn write_only_rebind_moves_with_ready_remainder_as_body_only_row() {
+    let owner_id = owner();
+    let loop_site = SourcePathV1::root_body(2).node();
+    let carrier = binding(owner_id, 0);
+    let write_only = binding(owner_id, 1);
+    let condition = SourcePathV1::from_node(&loop_site)
+        .child(SourcePathSegmentV1::LoopCondition)
+        .child(SourcePathSegmentV1::Lhs)
+        .node();
+    let carrier_read = SourcePathV1::from_node(&loop_site)
+        .child(SourcePathSegmentV1::LoopBody(0))
+        .child(SourcePathSegmentV1::Value)
+        .child(SourcePathSegmentV1::Lhs)
+        .node();
+    let carrier_rebind = SourcePathV1::from_node(&loop_site)
+        .child(SourcePathSegmentV1::LoopBody(0))
+        .child(SourcePathSegmentV1::Target)
+        .node();
+    let write_only_rebind = SourcePathV1::from_node(&loop_site)
+        .child(SourcePathSegmentV1::LoopBody(1))
+        .child(SourcePathSegmentV1::IfThenBody)
+        .child(SourcePathSegmentV1::IfThen(0))
+        .child(SourcePathSegmentV1::Target)
+        .node();
+
+    let mut variables = BTreeMap::new();
+    variables.insert(condition.clone(), carrier);
+    variables.insert(carrier_read, carrier);
+    let mut assignments = BTreeMap::new();
+    assignments.insert(carrier_rebind, carrier);
+    assignments.insert(write_only_rebind.clone(), write_only);
+    let locals = BTreeMap::new();
+    let projection =
+        CallableLoopSourceProjectionV1::new(owner_id, &locals, &variables, &assignments);
+
+    let disposition = projection
+        .project_disposition(loop_site.clone())
+        .expect("write-only rebind joins the body-only outside cohort");
+    let CallableLoopBindingProjectionDispositionV1::ReadyWithBodyOnly(product) = disposition else {
+        panic!("write-only rebind must move with the Ready remainder")
+    };
+    assert_eq!(product.body_only_rows().len(), 1);
+    let row = &product.body_only_rows()[0];
+    assert_eq!(row.binding(), write_only);
+    assert_eq!(row.kind(), CallableLoopOutsideKindV1::BodyOnlyRebind);
+    assert_eq!(row.receipts().len(), 1);
+    assert_eq!(row.receipts()[0].site(), &write_only_rebind);
+    assert_eq!(
+        row.receipts()[0].role(),
+        CallableLoopBindingRoleV1::BodyRebind
+    );
+}
+
+#[test]
 fn production_skip_while_keeps_one_carrier_and_variable_operand_rows() {
     let function = parsed_skip_while();
     let syntax =

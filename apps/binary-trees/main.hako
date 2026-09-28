@@ -48,7 +48,7 @@ box BinaryTreesBench {
         me.long_lived_depth = me.max_depth
     }
 
-    run() {
+    run(): i64 {
         local builder = me.builder
         local min_depth = me.min_depth
         local max_depth = me.max_depth

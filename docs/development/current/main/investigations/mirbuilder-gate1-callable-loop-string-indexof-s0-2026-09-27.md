@@ -271,508 +271,267 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | 3 | DONE — `MIRBUILDER-GATE1-BODY-LENGTH-TEXT-EVIDENCE-S0` landed below: `StringLen/0` admits `Body` placement gated by `receiver_has_text_evidence` (TextToCaller initializer or literal); boxtorrent-mini now lowers fully (remaining terminal is the Invoke emit gap); the mixed-loop `SelectedStatic` bucket-drop hazard is fixed. New named frontier for the receiver family: binary-trees `iterationCheck` leaves `builder.make` (field-read caller argument, vetoed by universal edge proof) and `itemCheck` (call-result receiver, parked) uncovered — see `MIRBUILDER-GATE1-FIELD-ARG-AND-CALLRESULT-RECEIVER-D0`. |
 | 4 | DONE — `MIRBUILDER-GATE1-FIELD-WRITE-CLAIM-EDGE-TRANSPORT-S0` landed below: `(box, field) -> class` claims from uniform attributed `me.f = new C()` writes; binary-trees `iterationCheck` uncovered set halves to the two `itemCheck` call-result receivers; mimalloc-lite's semantic lane now completes to the shared Invoke emit gap. |
 | 5 | DONE — `MIRBUILDER-GATE1-CALLRESULT-RECEIVER-RESULTCLASS-S0` landed below: `OrdinaryNewResultClassClaimDraftV1` seals `{selected key -> class}` only when a body ends in a value `return` and every `return` row constructs `new` of one agreed ordinary box; the lexical `MethodCall` initializer arm resolves the callee through the proven-receiver join. binary-trees `iterationCheck` call coverage closes — both `itemCheck` receivers arm — and the semantic lane now stops at the loop-handoff binding contract (`sum` carrier lacks `ConditionRead`), a different owner. |
-| 6 | `MIRBUILDER-GATE1-LOOP-HANDOFF-NONCOND-CARRIER-D0` (design_stop): binary-trees `iterationCheck`'s `sum` is body-read+body-rebound but never condition-read, so `build_callable_loop_ready_rows` freezes `incomplete-binding-coverage` — the contract requires every Carrier to be read in the loop condition. Census whether a body-only accumulator class is admissible (cf. `CallableLoopOutsideKindV1::BodyOnlyRebind`) or the shape stays outside the handoff profile; no implementation before the Decision. |
-| 7 | Complete required app evidence: json-stream-aggregator EXE/output and typed-object JSON ingress/EXE exit 7. An emit-interface failure still blocks its registered acceptance; record its owner instead of dropping the row. The observed `Invoke` terminator JSON emit gap (`--emit-mir-json` serializer) is this row's dependency, not a semantic-lane blocker. |
-| 8 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
+| 6 | DONE — `MIRBUILDER-GATE1-LOOP-HANDOFF-NONCOND-CARRIER-D0`/`S0` landed below: write-only/body-rebound projected bindings flow into the existing `BodyOnlyRebind` outside cohort instead of freezing `incomplete-binding-coverage`; binary-trees' `run` loop coverage now passes. |
+| 7 | DONE — `MIRBUILDER-GATE1-ROOT-INSTANCE-CALL-UNRELEASABLE-HOME-D0`/`S0` landed below: the issuer withholds the `Ready` row when a terminal home's sealed claim can never reach `end_available`; binary-trees `Main.main` now stops at the typed `[ordinary-new/local-commit/root-call-entry-missing]` boundary (premise corrected below: the Plain-exit tolerance covers `Emitted{Plain}` only, not `Unavailable`). |
+| 8 | DONE — `MIRBUILDER-GATE1-ROOT-CALL-UNRELEASABLE-RECEIVER-D0`/`S0` landed below: `rebind_root_call_entry` tolerates the recorded `Unavailable` exit (same class as the existing non-Call-entry tolerance); binary-trees `Main.main` `--emit-mir-json` now stops at the designed `root-call-entry-unavailable` seal boundary and the non-sealing lane completes with the generic `call_method` + `Unavailable` observation. |
+| 9 | `MIRBUILDER-GATE1-INVOKE-TERMINATOR-JSON-EMIT-D0` (design_stop): the `Invoke` terminator is outside the MIR JSON emit contract — `backend_core_ops::is_supported_mir_json_terminator` + `emit_terminator` (`runner/mir_json_emit/emitters/control_flow.rs`) reject it as `unsupported terminator Invoke`. Decide who owns admitting the lifecycle Invoke shape into the published MIR JSON contract (schema, reader parity, admission scope) before app evidence can pass `--emit-mir-json`. Complete required app evidence: json-stream-aggregator EXE/output and typed-object JSON ingress/EXE exit 7. This emit-interface failure blocks their registered acceptance; the gap is this row's dependency, not a semantic-lane blocker. |
+| 10 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
 
-### D0 decision — `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0` (landed)
+### Landed slices tombstone (compressed 2026-09-28)
 
-```text
-Decision: the freeze is Main.main's root-instance-call disposition for
-  `return workload.run()` — `issue_root_instance_call_dispositions`
-  (`ordinary_new_root_instance_call.rs`) owes a Ready row, and the owed
-  artifact is the callee's sealed result contract, not the `new` commit.
-Source authority + canonical issuer: the declared return contract
-  `run(): i64`; `completion_seed.rs` maps `Unannotated`/`Void` to
-  `result = None`, so an unannotated callee can never mint the row.
-Non-authority: MIR/body inference of the result type is forbidden by the
-  final-pipeline SSOT ("must not infer i64 from MIR"); no direct-call
-  fallback may be manufactured (`root_call_entry.rs` invariant).
-Fail-fast boundary: unannotated or non-I64 callee stays
-  `artifact-source-unavailable`; `results.row` absent stays the same
-  named stop; no flag/Err/Ok(()) contract change to the issuer.
-Smallest next slice: `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-S0` —
-  declare `run(): i64` on `MiWorkload.run` (same contract as the
-  `sum(): i64` precedent in typed-object-method-min), re-measure the app
-  through `--emit-mir-json`, and record the next observable terminal.
-Non-claims: no unannotated-return inference authority is created here
-  (a separate design row may open it later); no claim-lane widening;
-  no InstanceReceiver-parameter or Dynamic-origin call admission;
-  no Invoke serializer / VM-lane `birth-global-legacy-stopped` claim —
-  both are downstream emit/backend families, not this terminal.
-```
+The following sections are retired to git. Each was committed before
+compression; full decision text and receipts remain in history
+(`git log -p -- <this file>`, landing commits `b16c3548ac` ..
+`179c6c67c7`). The queue table above retains the frontier summary.
 
-D0 census evidence (read-only worker + `/tmp` probes, no repo change):
-freezing owner is `Main.main` (the expected-flag set is populated only
-for the app-main batch slot; `MiWorkload.run` returns literals and is
-never flagged). Probe `box W { run(): i64 {return 7} }` + `new W()` +
-`return w.run()` lowers to Invoke emit stage; the identical unannotated
-probe reproduces `artifact-source-unavailable` exactly — the seed row
-exists and `result = None` is the sole blocker. A probe whose callee
-body itself makes an instance call (`new H()` + `h.alloc(0)` in `run`)
-still lowers, so the callee's declared contract is independent of its
-body composition. The fully annotated mimalloc-lite copy then lowers
-EVERY function — `heap.allocate`, `handles.push(heap.allocate(...))`,
-field reads, `me.*` births — and stops only at the known `Invoke`
-terminator JSON emit contract, which the queue already owns under the
-acceptance row. `bin_size/1` evidence from the landed S0 stands.
+- `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0/S0` — landed
+  `b16c3548ac`: declared result contract is the missing artifact;
+  `MiWorkload.run(): i64` completed in source.
+- `MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-D0/S0` — landed
+  `660dafc7b1`: universal caller-edge + claim-local `new` claims arm
+  lexical `InstanceBoxMethod` dispositions.
+- `MIRBUILDER-GATE1-CALL-RESULT-ARGUMENT-COVERAGE-D0` — landed: census
+  for call-result argument coverage; superseded by the receiver
+  provenance slices.
+- `MIRBUILDER-GATE1-BODY-LENGTH-TEXT-EVIDENCE-S0` — landed
+  `901df40d18`: `StringLen/0` Body placement behind receiver text
+  evidence; boxtorrent-mini reaches the shared Invoke emit gap.
+- `MIRBUILDER-GATE1-FIELD-ARG-AND-CALLRESULT-RECEIVER-D0` — accepted:
+  field-read argument + call-result receiver census.
+- `MIRBUILDER-GATE1-FIELD-WRITE-CLAIM-EDGE-TRANSPORT-S0` — landed
+  `43b706e07e`: `(box, field) -> class` claims from attributed
+  `me.f = new C()` writes.
+- `MIRBUILDER-GATE1-CALLRESULT-RECEIVER-RESULTCLASS-S0` — landed
+  `179c6c67c7`: `OrdinaryNewResultClassClaimDraftV1` seals
+  `{selected key -> class}` for agreed-return-`new` bodies.
 
-### S0 implementation receipt — `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-S0` (landed)
-
-The whole slice is the source-contract completion the D0 named: declare
-`run(): i64` on `MiWorkload.run` (`apps/mimalloc-lite/main.hako:10`). No
-Rust change — the canonical issuer, disposition checks, and negative
-pins already exist; the app source was contract-incomplete, not the
-compiler.
-
-Evidence (quick-profile `./target/quick/hakorune`):
-`--emit-mir-json` on `apps/mimalloc-lite/main.hako` advances from
-`ordinary-new/local-commit/artifact-source-unavailable` to `MIR JSON
-emit contract violation: unsupported terminator Invoke` — every function
-lowers on the package lane (`return workload.run()` emits the root
-instance call; `run`'s body emits `heap.allocate`/`handles.push`/
-field reads; corpus `HakoAllocHeap.birth` with its `me.*` calls lowers).
-The remaining terminal is the JSON serializer's Invoke gap already owned
-by the acceptance row — a semantic-lane pass, not a new blocker. The
-`--backend vm` lane separately stops at
-`ordinary-new/birth-global-legacy-stopped`, a different downstream
-family (D18 lineage), unchanged by this slice. Focused pins:
-`root_instance_call_*` suite 5/5 including
-`root_instance_call_uses_selected_result_contract` (positive) and
-`root_instance_call_without_result_contract_stays_unavailable`
-(negative). Next observable frontier for Gate 1: queue row 2
-(parameter/Dynamic-origin receiver calls — `builder.make`,
-`store.readData`, `itemCheck`), since claim-proven local receivers are
-now measured as emitted. Gate 1 remains unsatisfied.
-
-### D0 decision — `MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-D0` (landed)
+### D0 decision — `MIRBUILDER-GATE1-LOOP-HANDOFF-NONCOND-CARRIER-D0` (landed)
 
 ```text
-Decision: admit parameter-receiver instance calls inside armed callable
-  loops by co-sealing a caller->callee argument-provenance edge (the
-  `map_argument_edge` precedent in `direct_call_lifecycle.rs`) that joins
-  every caller argument carrying an ordinary-new claim of exactly one
-  class to the callee's `Parameter{index}` binding; admitted loop items
-  then emit `Callee::SameModuleInstance` with the already-installed
-  parameter ValueId through the same emission contract the declared-
-  instance locator arm uses.
-Source authority + canonical issuer: caller-side ordinary-new claim and
-  initializer ledger + callee `Parameter{index}` binding + selected
-  `InstanceBoxMethod` catalog key + callee result/signature contract —
-  the ordinary_new co-seal cohort (`issuer.rs` ~700) already joins the
-  same ingredient set and stays the canonical issuer family.
-Non-authority: Dynamic-origin products (binding-only, no nominal class),
-  declared-type spellings (`OpaqueHandle`/`DeclaredHandle` admit no user
-  box), MIR types, name matching, runtime dispatch.
-Fail-fast boundary: zero/multiple classes across caller edges, a rebind
-  between claim and call, ambiguous or missing target/result contract,
-  a missing caller-edge claim -> named reject; non-admitted uncovered
-  items keep `SourceCallOutsideSelectedFamily` — no silent drop.
-Smallest next slice: `MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-S0` —
-  boxtorrent-mini `materialize(store)`/`releaseFrom(store)`, whose every
-  caller argument is the direct `local store = new BoxTorrentStore()`
-  claim (single class, no field provenance needed).
-Non-claims: no call-result receivers (`positive.itemCheck` stays a
-  separate queued family — its callee result contract drops the Home
-  terminal relation today); no field-read argument provenance
-  (binary-trees `builder` is `me.builder`, an S1+ shape); no non-loop
-  param calls; no Dynamic-lane widening; no declared-type parameter
-  admission; no Invoke serializer or VM-lane claims.
+Decision: a write-only projected binding (BodyRebind receipts, zero
+  in-loop reads) satisfies the existing outside cohort criterion
+  (`has_rebind && !has_condition_read`) but is frozen earlier by the
+  shared `has_read` pre-validation — admit it into `BodyOnlyRebind`
+  outside rows alongside the `sum` shape instead of freezing.
+Source authority + canonical issuer: sealed `variables`/`assignments`
+  receipt maps feeding `CallableLoopSourceProjectionV1::project_disposition`;
+  the ready/outside split already lives there —
+  `normal_callable_loop_handoff.rs` is the sole issuer.
+Non-authority: no physical PHI/carrier minting here; this schedule is a
+  coverage proof — `consume_pre_effect` receipt is dropped after
+  validation and JoinIR `condition_bindings`/`carrier_phis` (recipe Pass
+  1 + `collect_carrier_inits` + phase_3_5 body-only-carrier remap) own
+  the physical transfer of live-after-loop bindings.
+Fail-fast boundary: ready rows keep every existing check
+  (`build_callable_loop_ready_rows` retains `!has_read`, carrier
+  completeness, `carrier-cardinality`); non-local/foreign/nested-loop
+  receipts still freeze before the split.
+Smallest next slice: `MIRBUILDER-GATE1-LOOP-HANDOFF-NONCOND-CARRIER-S0`
+  — exempt outside-eligible bindings (has BodyRebind) from the
+  pre-validation `has_read` requirement so they flow into
+  `BodyOnlyRebind` rows; pin positive (write-only binding read after
+  the loop) and negative (ready-row coverage unchanged) tests;
+  re-measure binary-trees.
+Non-claims: no change to carrier classification, iteration-local
+  consumption, or call coverage; nested-loop receipts still veto; the
+  `run` loop's other uncovered call sites, if any surface after this,
+  are a separate named frontier.
 ```
 
-Census evidence (read-only worker + source reads): the reject is
-`CallableLoopSourceTargetProbeV1::into_selected_relation`
-(`normal_callable_loop_source_route_items.rs:389-442`) — a param-receiver
-item contributes nothing to `selected` (`VerifiedSourceCallTargetCatalogV1`
-filters non-static rows at `source_call_target/model.rs:162-172`), so
-`materialize`'s loop (`ids.get` core + `store.readData` param) dies on the
-uncovered remainder. The only landed local-receiver authority is
-`issue_root_instance_call_dispositions` (app-main + terminal + zero-arg
-scoped); its receiver chain — initializer -> claim -> class -> selected
-`InstanceBoxMethod` -> result contract -> `InstanceReceiver` lane-0 —
-is the same join this family needs at the call edge. Parameter bindings
-already carry `BindingKindV1::Parameter{index}` and installed ValueIds
-(`install_entry_values`); the missing join is caller argument -> claim ->
-class -> callee param binding. No declared-type or Dynamic evidence can
-supply it today.
+Census evidence: `/tmp/probe-noncond/writeonly.hako` (`out = i` inside
+`if` in a loop, read only after exit) reproduces
+`incomplete-binding-coverage` exactly — binary-trees `run`'s loop has
+four such bindings (`depth4_iterations`, `depth4_check`,
+`depth6_iterations`, `depth6_check`). The accumulator probe
+(`sum = sum + i`) instead reaches `callable-loop/facts-absent` (a
+call-free loop takes a different route), confirming `sum`-shaped
+bindings pass the `has_read` check and flow into `ReadyWithBodyOnly`.
+Receipts are only ever minted for reads and rebinds, so the
+pre-validation `has_read` loop can only ever fire on rebind-only
+bindings — the same bindings the outside criterion then selects.
+```
 
-The historical selected-C UserBox row owns `UnsupportedBeforeObject` /
-`RetireAfterReplacement` and remains parked. This design does not choose
-`RetainTransition`. Queued instance work must name a canonical consumer and
-settle its source contract; backend fate cannot be changed by a broad family
-label. The user's design request is handled here without requiring another
-lane-choice question for the unparked call-free prerequisite.
+### S0 implementation receipt — `MIRBUILDER-GATE1-LOOP-HANDOFF-NONCOND-CARRIER-S0` (landed)
 
-Design closeout: read-only worker premise/integration review completed;
-current-state pointer guard, qualified-route scope guard and diff check PASS.
-Only the original-source probe above was executed; no Cargo build/tests or
-EXE suite was run. The next implementation owns the focused Done evidence.
+`validate_projection_rows`
+(`normal_callable_loop_handoff_validation.rs`) no longer rejects
+bindings that carry no read receipt — owner, source-site containment,
+role/source suffix, duplicate-site, and iteration-local coverage checks
+are all retained, and `build_callable_loop_ready_rows` still applies its
+own `!has_read` freeze, so only bindings the outside criterion selects
+(`has_rebind && !has_condition_read`) reach `BodyOnlyRebind` rows.
+`seal_loop_true` keeps its own `has_read` check and still refuses
+write-only bindings under the loop-true cohort. New pin
+`write_only_rebind_moves_with_ready_remainder_as_body_only_row` (11/11
+loop-handoff tests); probe `/tmp/probe-noncond/writeonly.hako` now
+advances past `incomplete-binding-coverage` to the call-free-loop route
+boundary (`route-not-front-selected`, a separate named lane).
 
-### S0 implementation receipt (landed)
+Production re-measure (`--emit-mir-json`): binary-trees `run`'s loop
+coverage passes; the lane first stopped at
+`[ordinary-new/local-commit/root-call-entry-missing]` because
+`BinaryTreesBench.run()` lacked the declared result contract
+(precedent: `MiWorkload.run(): i64`) — completed as `run(): i64` in
+source — and now reaches
+`[mir/callable-semantic-package/port] IncompleteOrdinaryNewCoverage`:
+the issued `Ready` row for `return bench.run()` is never taken because
+the sole consumer's sole entry (`prepare_root_home_exit` → per-home
+`end_available`) declines `bench` forever. Queued as row 7 D0.
+mimalloc-lite / boxtorrent-mini remain at the shared `Invoke` emit gap
+— no regression.
 
-Transport chain: `VerifiedCallableLoopCallFreeCoverageV1` is issued by
-`CallableLoopSourceBridgeV1::from_input` (`issue_call_free_coverage` proves
-the bounded grammar from resolver rows only), rides the one-shot
-`Armed { projection, call_free }` take through `raw_loop_child_entry.rs` and
-the generic Facts issuer, and co-seals into the token as
-`CallableLoopSourceCallCoverageV1::CallFree`; `SourceLoopCondPhysicalInputV1`
-re-validates the sum before `lower_loop_cond_break_continue_source` lowers.
-New named rejects: `SourceCoverageForeign`, `SourceCoverageSiteMismatch`,
-`SourceCallResidualEvidence`; unproven empty inventory stays
-`SourceItemsMissing`; `WithCalls` validation order is unchanged.
+### D0 decision — `MIRBUILDER-GATE1-ROOT-INSTANCE-CALL-UNRELEASABLE-HOME-D0` (accepted)
 
-Evidence (quick profile, `--features vm-reference`): `loop_scope_tests` 6/6 —
-the flipped positive compiles and the interpreter returns `5/1/4/9` for
-zero/one/multi-iteration `(i, limit)` pairs plus the two-carrier
-`acc = acc * 2; n = n + 1` case (`acc = 8`, PHI count ≥ 2); grammar negatives
-pin their observed named terminals (`SourceItemsMissing` for `<=` and `-`,
-`duplicate-source-site` for `+=`, `source-target-empty` for `break`); the
-hidden-call pin proves `Scan.bump` inside the loop never mints CallFree.
-`normal_callable_loop_source_route` suite 29/29 including six new
-route-level coverage pins. One pre-existing red remains:
-`program_block_with_exit_signals_prefers_recipe_only` fails identically on
-parent `3c2ffba111` — baseline debt, not this change.
-`mirbuilder_qualified_route_scope_guard.sh` registers the coverage surface
-and the new/edited files in its 800-line boundary list.
+Ledger-instrumented census (temporary probes, removed):
 
-Production evidence (quick-profile `./target/quick/hakorune
---emit-mir-json`): the corpus module
-`lang/src/hako_alloc/memory/size_class_box.hako` compiles; emitted
-`SizeClassBox.bin_size/1` has 10 blocks with 4 PHI, 3 `mir_call`, 13 `binop`
-— the `Body(9)` `SourceItemsMissing` freeze is gone. Re-measuring
-`apps/mimalloc-lite` now stops at
-`ordinary-new/local-commit/artifact-source-unavailable` — an ordinary-`new`
-(`new HakoAllocHeap()`) construction-artifact terminal, a different owned
-family and the next observable frontier. Gate 1 remains unsatisfied; this S0
-does not claim it.
-
-### S0 implementation receipt — `MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-S0` (landed)
-
-Issuer: `ordinary_new_lexical_instance_call.rs` (new) issues
-`InstanceMethod` lexical dispositions into `OrdinaryNewClaimLedgerV1`,
-co-sealing (a) claim-local receivers (`local x = new C()`; sole
-initializer, no rebind, claim class in the approved ordinary user-box
-catalog) and (b) parameter receivers proven universally: *every* package
-call edge matching the callee's selector+arity must be a lexical-receiver
-call whose argument at the bound ordinal is a local binding with exactly
-one initializer, no rebind, an ordinary-new claim, and one agreed claim
-class. Any unproven/ambiguous/rebound/non-lexical edge vetoes the
-parameter — the call stays unarmed (soft decline), so outside an armed
-loop the existing dynamic path survives and inside one the route names
-the site via `SourceCallOutsideSelectedFamily`.
-
-Transport: the ledger is shared by `Rc` into
-`CallableSemanticLoweringState` (`with_callable_source_scope`); lowering
-consults it via `lexical_instance_call_covered` /
-`take_lexical_instance_call` (one-shot per call site; bindings stay
-reusable across distinct sites). Consumers: `common.rs`
-`declared_instance_call_effect` consults the lexical map for `Variable`
-receivers only — `me`/`this` keep the strict declared-instance locator,
-and lexical misses return `Ok(None)` so unarmed core/dynamic calls are
-untouched. Both the value-position and statement-position `Variable`
-arms in the normalizer route through it; the emit stays
-`emit_canonical_instance_call_at_v1` (`SameModuleInstance`, never
-runtime dispatch).
-
-Route coverage: `CallableLoopSourceItemDispositionV1::InstanceMethod` is
-a new bucket; `source_target_for_loop` collects it, `loop_cond` physical
-validation unions core+instance items against source order, and
-`composite_physical` accepts the new arm — one item covers exactly one
-site, no static-publication obligation is inferred from lexical rows.
-
-Evidence (quick profile): new issuer suite
-`lexical_instance_call_tests` 6/6 — parameter receiver armed for both
-value (`readData`) and statement (`release`) positions with
-`InstanceBoxMethod`/`ParamStore`/arity pins and the one-shot take
-reject, claim-local receiver armed, and four unarmed pins (call-result
-argument, call-result receiver, ambiguous caller classes, rebound
-parameter). Suites: `normal_callable_loop_source_route` 29/29,
-`loop_scope_tests` 6/6, `callable_loop` 89/89, `ordinary_new` 66/66.
-
-Production evidence (quick-profile `./target/quick/hakorune
---emit-mir-json apps/boxtorrent-mini`): `materialize`/`releaseFrom` no
-longer freeze — the param-receiver `store.readData`/`store.release`
-items arm and emit canonically (earlier `ParamManifest` probe dump:
-`call_same_module_instance ParamStore.readData(%21) [recv: %20]` where
-`%20` copies param `%1`). The new frontier is `ingest`'s loop at
-`Argument(1)` — `chunk_data.length()` nested inside
-`manifest.addChunk(cid, ...)`; `chunk_data` is a call-result local, an
-argument-position core-method coverage gap owned by queue row 3, not by
-this slice. Gate 1 remains unsatisfied; this S0 does not claim it.
-
-### D0 decision — `MIRBUILDER-GATE1-CALL-RESULT-ARGUMENT-COVERAGE-D0` (landed)
+- `is_empty` reports only `root_instance_call` non-empty; the stranded
+  row is `OwnedExprSiteV1 { owner: Main.main, site: [Body(1), Value] }`
+  — exactly `bench.run()`.
+- `prepare_root_home_exit` for `Main.main` reaches the homes loop and
+  finds `bench` with `end_available = false`, so the exit is recorded
+  `Unavailable` and `return bench.run()` lowers through the regular
+  value path — the `Ready` row is therefore un-takeable by
+  construction.
 
 ```text
-Decision: the frontier is not "argument position" — item enumeration is
-  position-agnostic, so `chunk_data.length()` at Body(3)/LoopBody(4)/
-  Argument(1) is a first-class item. The real gap is the `StringLen/0`
-  placement vocabulary (`Condition` only, deliberately — `length` is
-  ambiguous across box receivers). Admit `x.length()` at Body only when
-  receiver text provenance is sealed: the receiver's sole initializer
-  site carries a `TextToCaller` core-method contract (`chunk_data =
-  data.substring(...)`), the same `index_of_has_text_evidence`/
-  `text_source_at` precedent as StringIndexOf.
-Source authority + canonical issuer: resolver
-  `issue_source_bound_core_method_calls_v1` + its mirrored placement
-  tables (`allowed_placements` core_method.rs,
-  `allowed_target_placements` resolver_core_method_callable_contract.rs)
-  + `text_source_at` evidence rows — one issuer, both tables move in
-  lockstep; no new bucket or issuer.
-Non-authority: declared-type spelling alone, name matching, Dynamic
-  lane, MIR/C input, runtime dispatch.
-Fail-fast boundary: a Body-position `length` receiver without
-  TextToCaller/text evidence stays unarmed -> the route names the site
-  (`SourceCallOutsideSelectedFamily` inside armed loops); Condition
-  placement is unchanged; the moved unarmed pins relocate, they do not
-  disappear.
-Smallest next slice: `MIRBUILDER-GATE1-BODY-LENGTH-TEXT-EVIDENCE-S0` —
-  widen (StringLen, 0) to Body placement gated by receiver text
-  provenance; move the `body_position_length_stays_unarmed` pin to a
-  text-evidence-negative form; re-measure boxtorrent-mini `ingest`.
-Non-claims: no ArrayBox.length admission (no text evidence -> veto);
-  no call-result *instance* receivers (`positive.itemCheck` stays
-  parked); no field-derived receiver provenance; the mimalloc-lite
-  `handles.push(heap.allocate(...))` outer arm is a separate family —
-  the inner `heap.allocate` is already covered by the lexical lane, but
-  NamedArray push requires a String literal or TextToCaller argument
-  site and dies at `TextSourceMissing` on the outer call.
+Decision: the issuer owes a Ready row only when the single consumer can
+  take it. `issue_root_instance_call_dispositions` must withhold the
+  row when any terminal home's `new` claim proves it can never reach
+  `end_available` — destruction != `PlainI64NoHook`, construction
+  ineligible, or home prefix unavailable. `bench` is
+  `RetainedUnavailable` because `BinaryTreesBench`'s `init`-declared
+  fields carry no i64-only destruction profile, so the root-instance-call
+  lane is structurally unavailable for `bench.run()`; the Plain-exit +
+  `root_instance_call_expected` path (`validate_call_entry`) already
+  covers this by design.
+Source authority + canonical issuer: the sealed claim's destruction /
+  construction / home-prefix products (`issue_ordinary_source_cohort_v1`)
+  joined with the root completion's `terminal_homes`; the issuer is the
+  sole authority on whether a consumable duty exists.
+Non-authority: MIR emission state, `RetainedUnavailable` progress, and
+  the physical invoke all remain consumer facts; no new product family.
+Fail-fast boundary: `root_instance_call_expected` stays set, the
+  `Plain`-exit tolerance and the strand detection in
+  `root_instance_call_is_empty` are unchanged — a Ready row that is
+  issued and not taken still freezes.
+Smallest next slice:
+  `MIRBUILDER-GATE1-ROOT-INSTANCE-CALL-UNRELEASABLE-HOME-S0` — gate row
+  insertion in `issue_root_instance_call_dispositions` on the homes'
+  sealed release profile; pin `Holder{init{inner}}`-style negative (row
+  absent, expected kept) and keep the `Pair` positive; re-measure
+  binary-trees (expected terminal: the shared Invoke emit gap).
+Non-claims: does not extend the exit lane to unreleasable homes (an
+  artifact-release family question, out of scope), does not weaken
+  coverage, does not mint keys/physical IDs, changes no consumer.
 ```
 
-Census evidence (read-only worker): `method_calls()` enumerates every
-`BodyExpressionShapeV1::MethodCall` row regardless of nesting (shadow
-resolver recurses into `Argument(n)` children); `source_target_for_loop`
-consults static/core/instance coverage per item site — argument position
-never gates coverage. `(StringLen, 0)` placement whitelist
-(`core_method.rs` `allowed_placements`) admits `Condition` only and the
-pin `body_position_length_stays_unarmed` fixes that boundary; widening
-it ungated would mint `StringLen` on any lexical `x.length()` including
-ArrayBox receivers. `text_source_at` already checks contract rows at the
-receiver's initializer site, and `StringSubstring/2` produces
-`TextToCaller`, so `chunk_data` satisfies the precedent exactly.
+### S0 receipt — `MIRBUILDER-GATE1-ROOT-INSTANCE-CALL-UNRELEASABLE-HOME-S0` (landed, premise corrected)
 
-Hazard recorded for the next slice in this file family:
-`into_selected_relation` early-returns a lone `SelectedStatic` relation
-when `selected.len() == 1`, dropping `core_methods`/`instance_methods`
-buckets — a loop mixing exactly one static call with covered method
-items would seal `WithCalls` without per-item coverage verification
-(loop_cond's full-coverage check only runs when `covered_items` is
-non-empty). Latent; not triggered by any landed fixture, but the S0 that
-widens placements must not inherit the silent drop — the union path is
-the honest relation when method buckets are non-empty.
+Implementation: `issue_root_instance_call_dispositions`
+(`ordinary_new_root_instance_call.rs`) now consults the owner's sealed
+`terminal_homes` after stamping `root_instance_call_expected`. When any
+terminal home's `new` claim can never reach `end_available`
+(destruction != `PlainI64NoHook`, `construction()` ineligible, or
+`home_prefix()` unavailable) the `Ready` row is withheld instead of
+being issued into a ledger no consumer can drain. No consumer was
+changed; no fallback was added.
 
-Design closeout: read-only worker premise/integration review completed;
-current-state pointer guard and qualified-route scope guard PASS. No
-code or fixture changes in this step.
+Focused pins (`ordinary_new_terminal_result_tests`, 6/6 green):
 
-### S0 implementation receipt — `MIRBUILDER-GATE1-BODY-LENGTH-TEXT-EVIDENCE-S0` (landed)
+- Negative: a `Holder{init{inner}}`-style receiver home that is
+  `RetainedUnavailable` produces no `root_instance_call` row while
+  `expected` stays set — `is_empty` therefore reports clean coverage.
+- Positive: the existing `Pair`-shape releasable receiver still issues
+  and consumes the row unchanged (`uses_selected_result_contract`).
 
-Issuer arm: `issue_source_bound_core_method_calls_v1` widens
-`(StringLen, 0)` to `Body` placement — gated by
-`receiver_has_text_evidence` (refactored out of
-`index_of_has_text_evidence`): the receiver must be a caller-owned local
-with exactly one initializer, no rebind, and a text-producing
-initializer site (`text_source_at`: string literal or a `TextToCaller`
-contract minted in the same issuance — `data.substring(i, end)` supplies
-it for `chunk_data`). Parameters carry no initializer and stay unarmed;
-non-text locals (`local s = 0`, `new ArrayBox()`) veto identically. The
-verify-side `allowed_target_placements` mirror moved in lockstep; the
-existing `body_position_length_stays_unarmed` pin survives unchanged as
-the parameter-receiver negative, plus two new pins: armed
-`piece.length()` (TextToCaller initializer) and unarmed non-text
-initializer.
+Production re-measure (`--emit-mir-json`, fresh binary incl. this gate):
 
-Hazard fix in the same family: `into_selected_relation` no longer drops
-`core_methods`/`instance_methods` buckets when a lone `SelectedStatic`
-relation exists — a mixed loop retains the static obligation via
-`with_covered_call_items` and still verifies every source item exactly
-once (`loop-cond/call-item-coverage` unions the relation's own call
-site into the covered set).
+```text
+binary-trees            -> [ordinary-new/local-commit/root-call-entry-missing]
+mimalloc-lite           -> MIR JSON emit contract violation: unsupported terminator Invoke
+boxtorrent-mini         -> MIR JSON emit contract violation: unsupported terminator Invoke
+allocator-stress        -> [callable-semantic-package/issue] NamedArray(TextSourceMissing)
+json-stream-aggregator  -> [callable-loop/route-not-front-selected]
+                           LoopCondRouteRejected(SourceCallOutsideSelectedFamily)
+                           JsonStreamAggregator.ingest/1 [Body(2)]
+```
 
-Verify-side pin repair in the same slice: `StringLen/0` vocabulary now
-spans both placements, so `resolver_callable_contract_rejects_body_
-length_placement` repurposed into `rejects_condition_claimed_body_
-only_target` (narrow `ArrayPush/1` `[Body]` vocabulary claimed at
-`Condition` still names `TargetPlacementMismatch` before selector/site
-checks), and `rejects_target_placement_drift` now pins the deeper
-`PlacementMismatch` (claimed `Body` vs the site's actual `Condition`).
+Premise correction to the D0 above: the D0 predicted the Plain-exit +
+`expected` tolerance would absorb the withheld call, so the expected
+terminal was the shared `Invoke` gap. That tolerance covers only
+`Emitted{Plain}` exits. With `bench` `RetainedUnavailable`, the exit is
+recorded `Unavailable` and finishing's `rebind_root_call_entry`
+(`terminal_relation == Call` requires an `Emitted` root-call entry)
+freezes with `root-call-entry-missing` before the `Invoke` serializer
+gap is reached. The token is still the designed typed failure — the
+ledger no longer strands an un-takeable `Ready` row, and the freeze
+names the missing artifact at the enclosing contract — but the
+observable terminal is `root-call-entry-missing`, not the `Invoke` gap.
+`seal_finalized_root_birth_handoff` has the same `Call => Some(entry)`
+requirement; both checks stand unmodified by design.
 
-Evidence (quick profile): `body_position_length*` 3/3 (param receiver
-unarmed, text-evidence armed, non-text unarmed);
-`resolver_callable_contract*` 9/9. Production re-measure:
-`apps/boxtorrent-mini` now lowers **fully** — `materialize`,
-`releaseFrom`, and `ingest` loops all pass; the only remaining terminal
-is the known `Invoke` terminator JSON emit gap (queue row 4's document
-lane). `apps/binary-trees` names its honest frontier: `iterationCheck`'s
-loop leaves 4 uncovered sites — `builder.make`×2 (caller argument is a
-`me.builder` field read, vetoed by the universal edge proof — the
-field-read provenance family) and `positive.itemCheck`/`negative
-.itemCheck`×2 (call-result receivers, still parked). Gate 1 remains
-unsatisfied; this S0 does not claim it.
+Boundary statement: `return bench.run()` on an `init`-field receiver
+whose destruction is `Unavailable(FieldType)` is a Gate-1-typed stop —
+this slice does not extend release semantics to unreleasable homes.
 
-### D0 decision — `MIRBUILDER-GATE1-FIELD-ARG-AND-CALLRESULT-RECEIVER-D0` (accepted)
+### D0 decision — `MIRBUILDER-GATE1-ROOT-CALL-UNRELEASABLE-RECEIVER-D0` (accepted)
 
-Census evidence (read-only worker, all claims verified in-repo):
+Census of the four gate points that see a Call terminal:
 
-- `iterationCheck(builder, depth, iterations)` loop has four uncovered
-  items in two families.
-- **Family A** — `builder.make`×2: `builder` is a callee parameter whose
-  sole caller edge `me.iterationCheck(builder, depth, iterations)`
-  passes a caller local initialized by `local builder = me.builder`
-  (FieldAccess). The field's class is provable: `birth` writes
-  `me.builder = new BinaryTreeBuilder()` at main.hako:44. Every hop
-  exists as passive facts — `ResolvedInitializerRelationV1`
-  (initializer_site), `BodyExpressionShapeV1::FieldAccess`/`Me`,
-  `assignment_sources` + `FieldWrite` targets inside birth forests,
-  `expression_source().constructions()` (records every `new` incl.
-  field-write RHS), `instance_constructors.birth_for`. No sealed product
-  carries the result: `ConstructionPlanV1` rejects user-box RHS
-  (`FieldContractUnsupported`), `NamedArrayFieldResidenceClaimV1` is
-  ArrayBox-bounded, `birth_site_index` is destination-less by contract.
-- **Family B** — `positive.itemCheck`×2: `positive` is a call-result
-  local (`builder.make(...)`). Proving it needs "callable `make` returns
-  class `TreeNode`" — both `make` returns are `new TreeNode` (lines 28,
-  36). No product records instance-callable result class:
-  `callable_result_representation` is an AST-walking solver scoped to
-  `static_declarations()` (wrong authority), `SourceResultClassV1` is
-  scalar-only, `DeclaredFunctionResultContractV1` is annotation-only and
-  `make` is unannotated. B depends on A: resolving the initializer's
-  callee key needs `builder`'s proven class.
-- Third family noted, out of scope: `me.left.itemCheck()` inside
-  `itemCheck` is a FieldAccess receiver — filtered before disposition;
-  `itemCheck` has no loop so nothing is owed.
+- `validate_root_home_exit` (`root_home.rs`): `Unavailable` → `Ok` —
+  already tolerant.
+- `rebind_root_call_entry` (`root_call_entry.rs`): `Unavailable` →
+  `root-call-entry-missing` — the lone over-firing check; its job is to
+  re-project an `Emitted{Call}` entry through finishing, but when the
+  exit is `Unavailable` there is no entry by construction.
+- `finalized_root_observation` / `artifact` gate: `Unavailable` →
+  `artifact-source-unavailable` — designed artifact stop.
+- `seal_finalized_root_birth_handoff` → `take_finalized_root_call`:
+  `Unavailable` → `root-call-entry-unavailable` — designed seal stop.
 
-Decision: two new sealed provenance products in the ordinary-new coseal
-cohort, sequenced A then B (B consumes A's output to resolve callee
-keys).
+```text
+Decision: tolerate `RootHomeExitProgress::Unavailable` at
+  `rebind_root_call_entry` — the same non-Call tolerance the function
+  already grants `Emitted{Plain}`/`Emitted{MapGet}` entries. The
+  `Call => Emitted` premise predates the S0 withhold; the truthful
+  invariant is "an entry exists iff the lifecycle lane emitted the
+  call". This corrects the finishing check, not the release family:
+  no Ready row is issued, no `RootHomeExitEntry::Call` is fabricated,
+  and the sealing lanes stay the sole rejection authority.
+Source authority + canonical issuer: the ledger's recorded `root_exits`
+  progress; `Unavailable` is the deliberate disposition implied by the
+  withheld row, not an absent duty.
+Non-authority: `take_finalized_root_call`, `seal_finalized_root_birth_handoff`,
+  the artifact-observation gate, and all physical emission paths stay
+  unchanged; the generic return lowering already emitted the invoke and
+  the return truthfully.
+Fail-fast boundary: document/artifact sealing keeps its designed typed
+  stop (`root-call-entry-unavailable` / `artifact-source-unavailable`).
+  No EXE or artifact claim is produced for this shape.
+Smallest next slice (S0): `rebind_root_call_entry` — `Unavailable` arm
+  returns `Ok(())`; focused test pins non-artifact finishing accepting
+  the recorded `Unavailable` exit on a Call terminal and the seal still
+  rejecting it.
+Non-claims: `Unavailable` is not `Emitted{Plain}`; no release semantics
+  extend to unreleasable homes; binary-trees' `--emit-mir-json` terminal
+  moves to the designed `root-call-entry-unavailable` seal boundary —
+  the plain `compile_normal` (non-sealing) lane may now complete, which
+  is honest because the module it emits carries the recorded
+  `Unavailable` observation. The direct-call sibling shape
+  (`return helper(30)` + unreleasable home) still strands its port-side
+  loan at `DirectCallLoanNotConsumed`; it is the same family but is not
+  exercised by any Gate-1 app — left as a named sibling boundary.
+```
 
-1. `OrdinaryNewFieldWriteClaimV1`-shape product (source authority: birth
-   forests' `FieldWrite` assignment rows + `constructions()`; canonical
-   issuer: the coseal cohort where `instance_constructors` and
-   `birth_for` are already in scope) records `{owner box, field name,
-   writer site, value site, class}` for `me.f = new C()` inside birth.
-   Plus a binding-level relation `{owner, binding → FieldAccess field
-   identity}` for sole-initializer field reads. The lexical issuer then
-   joins arg/local binding → field read → field claim; every caller
-   edge must still prove one agreed class (universal, not existential).
-2. Uniform-`return new D` instance-callable result-class product
-   (source authority: `BodyStatementShapeV1::Return` rows +
-   `constructions()`; AST-free; NOT `callable_result_representation`)
-   records `{callee key → class}` when all returns are `new` of one
-   agreed user-box class; `claim_local_class` gains a call-result
-   initializer arm that resolves the initializer site's callee through
-   the proven-receiver join.
-
-Non-claims: no dynamic dispatch (emit stays canonical
-`SameModuleInstance`); no declared-type or MIR-type provenance; field
-reads of `me.f` written by non-`new` values, aliased/reassigned fields,
-and multi-writer fields stay vetoed; call-result receivers whose callee
-result class is unproven (non-uniform returns, non-`new` returns,
-extern/body-lane calls) stay vetoed; the FieldAccess-receiver family
-(`me.left.itemCheck()`) stays parked.
-
-Smallest next slice — `MIRBUILDER-GATE1-FIELD-WRITE-CLAIM-EDGE-TRANSPORT-S0`:
-product (1) only, consumed at both `prove_parameter_class` (edge arg
-binding → field read → field claim) and `claim_local_class` (same
-initializer classification), with positive pin `me.f = new C()` +
-`local x = me.f` + `x.m()`/`f.m(x)` shapes and negatives for
-non-`new` field values, reassigned fields, and unproven edges. Family B
-becomes the following queue row.
-
-### S0 implementation receipt — `MIRBUILDER-GATE1-FIELD-WRITE-CLAIM-EDGE-TRANSPORT-S0` (landed)
-
-Product: `OrdinaryNewFieldWriteClaimDraftV1`
-(`ordinary_new_field_write_claim.rs`) seals `(owning box, field) ->
-class` claims. A field claims a class only when every `FieldWrite` in
-the package is an attributed `me.` write storing `new C()` of one agreed
-ordinary box — batch declarations are walked outside the program-source
-loan (owner box via the selected `InstanceBoxMethod` key), constructor
-rows inside it (owner box via `row.box_name()`). Vetoes: non-`new`
-stored values, multi-class writers, unattributed receivers (`o.f = x`
-veto the field name globally), and any function with a missing
-body-shape inventory empties the whole product. The ledger accessor
-`field_write_claim(box, field)` feeds a shared `initializer_class` in
-the lexical issuer: a sole initializer that is a `me.f` `FieldAccess`
-with a lexical `Receiver`-kind `me` resolves through the containing
-function's selected key to the owning box. `prove_parameter_class`
-(edge arguments) and `claim_local_class` (receivers) consume the same
-helper — `me.`/locator authority untouched, emit stays
-`SameModuleInstance`.
-
-Evidence (quick profile): `lexical_instance_call_*` 11/11 — new pins:
-`arms_parameter_receiver_with_field_read_edge` (binary-trees shape:
-`me.consume(inner)` edge arg `local inner = me.inner`, birth writes
-`me.inner = new Inner()`), `arms_field_read_claim_local_receiver`
-(`local inner = me.inner` receiver), `keeps_non_new_field_write_unarmed`
-(`me.inner = 7`), `vetoes_multi_class_field_writers` (`new Inner()` +
-`new Other()`), `vetoes_unattributed_field_write` (`o.inner = n` in
-main). Route 29/29, loop_scope 30/30, ordinary_new 71/71 unchanged.
-
-Production re-measure: `apps/binary-trees` `iterationCheck` drops from 4
-uncovered sites to exactly 2 — `positive.itemCheck`/`negative.itemCheck`
-(`LoopBody(2)`/`LoopBody(3)`, `Value, Rhs`) — the family-B call-result
-receiver row 5 below. `builder.make`×2 arm through the field-read edge.
-`apps/boxtorrent-mini` unchanged (Invoke emit gap); `apps/mimalloc-lite`
-now reaches the same Invoke emit gap — its semantic lane completes
-(`heap.allocate` instance call + `handles.push` NamedArray both resolve
-in-loop). Gate 1 remains unsatisfied.
-
-### S0 implementation receipt — `MIRBUILDER-GATE1-CALLRESULT-RECEIVER-RESULTCLASS-S0` (landed)
-
-Product: `OrdinaryNewResultClassClaimDraftV1`
-(`ordinary_new_result_class_claim.rs`) seals
-`{CanonicalSameModuleCallableKeyV1 -> class}` claims. A selected
-callable claims a result class only when its sealed
-`BodyStatementShapeV1` inventory exists, the last top-level statement
-is a value-bearing `return` (so no normal exit can fall past the
-observed returns), every `return` row — nested `if`/`loop` returns
-included — resolves through `constructions()` to `new` of one agreed
-class, and that class is in the package's ordinary-box coverage.
-Missing inventories, value-less returns, non-`new` return values, and
-mixed classes all leave the key unclaimed — additive evidence, never a
-fallback. The product is distinct from the AST-walking
-`callable_result_representation` authority and mints no Recipe keys or
-physical IDs. Draft issuance rides the same per-declaration
-`with_lowering_input` loan as the field-write draft in
-`issue_ordinary_source_cohort_v1`, keyed by the selected
-`InstanceBoxMethod` key for that slot.
-
-Consumer: `initializer_class` in `ordinary_new_lexical_instance_call.rs`
-gains a `MethodCall` arm — a local initialized by `recv.method(args)`
-proves its class when the receiver binding's class is proven (shared
-`binding_class`: parameter via universal caller-edge claims, local via
-its sole initializer, `me.f` field reads via the field-write claims),
-the callee resolves to one unique selected `InstanceBoxMethod` key, and
-that key carries a result-class claim. A depth cap
-(`MAX_PROVENANCE_DEPTH`) bounds the `binding_class`/`initializer_class`
-mutual recursion. `prove_parameter_class` was split into a reusable
-`parameter_class` so the callee-key resolution is shared, not
-duplicated; emit stays canonical `SameModuleInstance`.
-
-Evidence (quick profile): `lexical_instance_call_*` 15/15 — new pins:
-`arms_call_result_receiver_with_result_class` (binary-trees shape:
-`local node = maker.make(i)` + `node.check()`, callee returns `new
-Node()` on both paths), `vetoes_mixed_return_classes` (`new Node()` +
-`new Other()`), `keeps_non_new_return_unarmed` (`return n`),
-`keeps_fallthrough_result_unarmed` (callee with no `return`),
-`keeps_call_result_receiver_unarmed` retained (no result-class
-evidence). Route 29/29, loop_scope 6/6, ordinary_new 75/75 unchanged.
-
-Production re-measure (`--emit-mir-json`, the acceptance lane used by
-row 7): `apps/binary-trees` `iterationCheck` call coverage **closes** —
-both `itemCheck` call-result receivers arm through
-`BinaryTreeBuilder.make/2`'s uniform `return new TreeNode(...)` — and
-the lane advances past call-site coverage to
-`[freeze:contract][callable-loop-handoff/incomplete-binding-coverage]`:
-the `sum` accumulator is body-read+body-rebound but never
-condition-read, which the ready-row contract (`Carrier` requires
-`ConditionRead`) does not admit. Owner:
-`normal_callable_loop_handoff_validation.rs`; queued as row 6 D0 —
-whether a non-condition accumulator class is admissible is a contract
-design question, not this slice. `apps/boxtorrent-mini` and
-`apps/mimalloc-lite` both reach the shared `Invoke` emit gap — no
-regression. Bisect note: an earlier bare-run (no `--emit-mir-json`)
-measurement showed `named-array/retained-source-required` on both apps;
-that freeze reproduces deterministically on `901df40d18` (pre-family-A)
-in the direct-run lane, so it is pre-existing baseline debt of that
-lane, not a result-class regression. Gate 1 remains unsatisfied; row 6
-is the next named boundary.
+S0 landed (2026-09-28): `rebind_root_call_entry` returns `Ok(())` for a
+recorded `Unavailable` progress before destructuring `Emitted` — nothing
+is rebound, no entry is fabricated, and every other progress keeps the
+existing `root-call-entry-missing` freeze. Focused pin
+`unreleasable_root_call_receiver_passes_finishing_but_not_the_seal`
+(`ordinary_new_terminal_result_tests.rs`) lowers
+`return holder.run()` on an `init`-field receiver: draft validation,
+non-artifact finishing, and the sealing rejection
+(`root-call-entry-unavailable`) all behave per the census. binary-trees
+`--emit-mir-json` now reaches the designed seal boundary; `--dump-mir`
+completes and the emitted `Main.main` carries the truthful generic
+`call_method BinaryTreesBench.run()` invoke.

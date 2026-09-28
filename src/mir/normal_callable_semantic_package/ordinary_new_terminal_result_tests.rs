@@ -168,6 +168,97 @@ fn root_instance_call_without_result_contract_stays_unavailable() {
 }
 
 #[test]
+fn root_instance_call_stays_unissued_for_unreleasable_terminal_home() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Page { birth() { } }
+        box Holder { init { inner }
+        birth() { me.inner = new Page() }
+        run(): i64 { return 0 } }
+        static box Main { main() {
+        local holder = new Holder()
+        return holder.run() } }",
+    )
+    .expect("unreleasable receiver home source");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let owner = ledger.root_completion_for_test().owner();
+    // The terminal call is still a known instance call ...
+    assert!(ledger.root_instance_call_expected(owner));
+    // ... but `holder`'s claim is unreleasable (`init`-declared fields give
+    // `Destruction::Unavailable(FieldType)`), so `prepare_root_home_exit`
+    // can never take the row. The issuer must withhold it instead of
+    // stranding `Ready` rows.
+    assert!(ledger.root_instance_call_is_empty());
+}
+
+#[test]
+fn unreleasable_root_call_receiver_passes_finishing_but_not_the_seal() {
+    // Same shape as the withhold pin above: `holder`'s sealed claim is
+    // `Destruction::Unavailable(FieldType)`, so the issuer withholds the
+    // `Ready` row and `prepare_root_home_exit` records `Unavailable`.
+    // Non-artifact finishing must treat that recorded disposition as the
+    // deliberate absence of a physical call entry — while the sealing
+    // lane stays the sole rejection authority (`root-call-entry-unavailable`).
+    let mut package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Page { birth() { } }
+        box Holder { init { inner }
+        birth() { me.inner = new Page() }
+        run(): i64 { return 0 } }
+        static box Main { main() {
+        local holder = new Holder()
+        return holder.run() } }",
+    )
+    .expect("unreleasable receiver home source");
+    let mut loans = package.direct_call_loans.take();
+    let main = package
+        .declaration_catalog()
+        .source_backed_app_main()
+        .expect("app main");
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.identity().same_as(main.parser_identity()))
+        .expect("main declaration");
+    let mut builder = crate::mir::MirBuilder::new();
+    let mut function = package
+        .batch()
+        .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+            builder.lower_map_dependency_for_test(
+                input,
+                crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+                    main.catalog_key().clone(),
+                ),
+                main.parser_identity(),
+                identity.method_source_observation().cloned(),
+                std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                loans.as_mut(),
+            )
+        })
+        .expect("lowering input")
+        .unwrap_or_else(|e| panic!("unreleasable root call lowers generically: {e}"));
+    if let Some(loans) = loans {
+        loans.finish_empty().expect("no direct-call rows owed");
+    }
+    let ledger = &package.ordinary_new_claim_ledger;
+    let observation = ledger
+        .validate_finalized_new_root(&function)
+        .expect("draft validation tolerates the Unavailable exit");
+    function
+        .install_root_ordinary_new_observation(observation)
+        .expect("observation install");
+    ledger
+        .validate_after_compiler_finishing(&function)
+        .unwrap_or_else(|e| panic!("Unavailable exit must pass non-artifact finishing: {e}"));
+    let error = ledger
+        .seal_finalized_root_birth_handoff(
+            "Main.main/0".into(),
+            &std::collections::BTreeSet::new(),
+            None,
+        )
+        .expect_err("document sealing stays the sole rejection authority");
+    assert!(error.contains("root-call-entry-unavailable"), "{error}");
+}
+
+#[test]
 fn root_instance_call_without_result_contract_is_owner_scoped_in_inverse_order() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Page { birth() { } }

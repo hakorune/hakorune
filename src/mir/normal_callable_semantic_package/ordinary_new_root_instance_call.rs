@@ -105,6 +105,36 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(());
         };
         self.root_instance_call_expected.borrow_mut().insert(owner);
+        // The sole consumer (`prepare_root_home_exit`) can take this row only
+        // when every terminal home reaches `end_available`: an Ordinary row
+        // needs `PlainI64NoHook` destruction plus an emission-eligible claim
+        // (construction plan and home prefix both present). A home whose
+        // sealed claim can never release makes a `Ready` row un-takeable by
+        // construction — withhold it; the `Plain`-exit +
+        // `root_instance_call_expected` path already covers the call.
+        let Some(completion) = self.completion_for_owner(owner) else {
+            return Err(freeze("root-instance-call-completion"));
+        };
+        let Some(Ok(homes)) = completion.cleanup().terminal_homes() else {
+            return Err(freeze("root-instance-call-homes"));
+        };
+        {
+            let claims = self.claims.borrow();
+            let unreleasable = homes.iter().any(|binding| {
+                claims
+                    .values()
+                    .find(|claim| claim.destination == *binding)
+                    .is_some_and(|claim| {
+                        claim.destruction()
+                            != crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
+                            || claim.construction().is_err()
+                            || claim.home_prefix().is_err()
+                    })
+            });
+            if unreleasable {
+                return Ok(());
+            }
+        }
         let ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)) =
             call.receiver()
         else {

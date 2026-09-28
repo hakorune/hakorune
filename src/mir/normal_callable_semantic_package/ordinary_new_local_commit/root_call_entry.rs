@@ -178,6 +178,14 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(progress) = exits.get_mut(&owner) else {
             return Err(freeze("root-call-entry-missing"));
         };
+        // A Call terminal whose receiver home can never reach `end_available`
+        // is recorded `Unavailable` by `prepare_root_home_exit` and lowered
+        // through the generic value path — there is no entry to rebind, the
+        // same non-Call tolerance `Emitted{Plain}`/`Emitted{MapGet}` already
+        // get. The sealing lanes stay the sole rejection authority.
+        if matches!(progress, RootHomeExitProgress::Unavailable) {
+            return Ok(());
+        }
         let RootHomeExitProgress::Emitted {
             bindings, entry, ..
         } = progress

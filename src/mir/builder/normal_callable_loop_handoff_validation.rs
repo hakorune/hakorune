@@ -129,17 +129,10 @@ pub(super) fn validate_projection_rows(
             .or_default()
             .push(receipt.clone());
     }
-    for rows in receipts_by_binding.values() {
-        let has_read = rows.iter().any(|receipt| {
-            matches!(
-                receipt.role(),
-                CallableLoopBindingRoleV1::ConditionRead | CallableLoopBindingRoleV1::BodyRead
-            )
-        });
-        if !has_read {
-            return Err(freeze("incomplete-binding-coverage"));
-        }
-    }
+    // A binding with only BodyRebind receipts (write-only inside the
+    // loop, read after it) carries no in-loop read by construction. The
+    // ready-row builder keeps its own `has_read` gate; such bindings are
+    // claimed by the outside-cohort split in `project_disposition`.
     for binding in iteration_locals {
         if !receipts_by_binding.contains_key(binding) {
             return Err(freeze("unconsumed-iteration-local"));

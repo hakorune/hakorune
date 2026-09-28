@@ -404,7 +404,7 @@ fn normal_pipeline_matches_legacy_compatibility_for_general_module() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     let source = r#"
 function selected_top_level() { return 1 }
-function selected_top_level() { return 2 }
+function selected_top_level_peer() { return 2 }
 
 box Page {
   capacity: usize = 0
