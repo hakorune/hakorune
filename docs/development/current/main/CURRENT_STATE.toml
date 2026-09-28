@@ -1,10 +1,10 @@
 date = "2026-09-28"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-INVOKE-TERMINATOR-JSON-EMIT-D0"
+current_execution_row = "MIRBUILDER-GATE1-UNRELEASABLE-HOME-ARTIFACT-ADMISSION-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
-current_design_stop = "MIRBUILDER-GATE1-INVOKE-TERMINATOR-JSON-EMIT-D0"
+current_design_stop = "MIRBUILDER-GATE1-UNRELEASABLE-HOME-ARTIFACT-ADMISSION-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,17 +17,18 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-ROOT-CALL-UNRELEASABLE-RECEIVER D0+S0 landed: `rebind_root_call_entry`
-now tolerates the recorded `Unavailable` root-exit progress (same class
-as the existing `Emitted{Plain}`/`Emitted{MapGet}` non-Call-entry
-tolerance); binary-trees `--emit-mir-json` stops at the designed
-`root-call-entry-unavailable` seal boundary while the non-sealing lane
-completes with the truthful generic `call_method` + `Unavailable`
-observation. Next design stop is the `Invoke` terminator MIR JSON emit
-contract (`MIRBUILDER-GATE1-INVOKE-TERMINATOR-JSON-EMIT-D0`), the named
-dependency of the app-evidence row. Gate 1 remains unsatisfied.
+INVOKE-TERMINATOR-JSON-EMIT D0+S0 landed: an already-accepted SSOT
+decision keeps generic `mir_json_emit` closed to lifecycle `Invoke`
+(designed fail-fast, not a gap); `typed_object_untyped_field_min_exe`
+was re-pointed onto the direct `--emit-exe` physical v2 route and now
+reports the true terminal `artifact-source-unavailable` (unreleasable
+handle-field home). `typed_object_method_min_exe` PASS proves the
+physical transport carries Invoke end-to-end (exit 30). Next design
+stop: whether the artifact lane admits homes that stay `Unavailable`
+(`MIRBUILDER-GATE1-UNRELEASABLE-HOME-ARTIFACT-ADMISSION-D0`). Gate 1
+remains unsatisfied.
 """
-next_design_card = "MIRBUILDER-GATE1-INVOKE-TERMINATOR-JSON-EMIT-D0"
+next_design_card = "MIRBUILDER-GATE1-UNRELEASABLE-HOME-ARTIFACT-ADMISSION-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
@@ -45,7 +46,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-28: MIRBUILDER-GATE1-ROOT-CALL-UNRELEASABLE-RECEIVER-D0+S0 landed — rebind_root_call_entry tolerates the recorded Unavailable root-exit progress; binary-trees --emit-mir-json stops at designed root-call-entry-unavailable seal boundary, non-sealing lane completes truthfully. Focused pin: unreleasable_root_call_receiver_passes_finishing_but_not_the_seal. Next: MIRBUILDER-GATE1-INVOKE-TERMINATOR-JSON-EMIT-D0.",
-  "2026-09-28: dev_gate quick restored to PASS 67/67 under the LLVM 18 profile (NYASH_NY_LLVM_OPT_TOOL=opt-18 / NYASH_NY_LLVM_LLC_TOOL=llc-18, llvmlite venv on PATH) — naming/coreplan/metadata/manifest/codegen guards repaired, baseline re-baselined to 8048/125, run_cargo_test_filter_group made baseline-aware for known extern debt. Full wall list in repo-hygiene-audit-punchlist-2026-09-15.md.",
-  "2026-09-28: MIRBUILDER-GATE1-ROOT-INSTANCE-CALL-UNRELEASABLE-HOME-S0 landed — issue_root_instance_call_dispositions withholds the Ready row when a terminal home's sealed claim can never reach end_available (destruction!=PlainI64NoHook / construction / home-prefix); expected marker + Plain-exit tolerance unchanged, no consumer touched.",
+  "2026-09-28: MIRBUILDER-GATE1-INVOKE-TERMINATOR-JSON-EMIT-D0+S0 landed — generic mir_json_emit stays closed to lifecycle Invoke per the accepted SSOT decision; typed_object_untyped_field_min_exe re-pointed to the physical v2 route (negative Invoke pin kept), true terminal is artifact-source-unavailable; typed_object_method_min_exe PASS exit 30 proves the transport end-to-end. Next: MIRBUILDER-GATE1-UNRELEASABLE-HOME-ARTIFACT-ADMISSION-D0.",
+  "2026-09-28: dev_gate quick self-contained PASS 67/67 — LLVM 18 tool resolution unified repo-wide (env -> *-18 -> unversioned fallback in the C shim and both Rust drivers) and llvmlite moved to a resolved opt-in keep-lane dependency (typed skip when absent; uv ephemeral llvmlite==0.47.0 provisioning).",
+  "2026-09-28: MIRBUILDER-GATE1-ROOT-CALL-UNRELEASABLE-RECEIVER-D0+S0 landed — rebind_root_call_entry tolerates the recorded Unavailable root-exit progress; binary-trees --emit-mir-json stops at designed root-call-entry-unavailable seal boundary, non-sealing lane completes truthfully.",
 ]

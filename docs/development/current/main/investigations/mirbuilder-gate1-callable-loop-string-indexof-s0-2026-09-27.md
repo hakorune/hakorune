@@ -274,7 +274,8 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | 6 | DONE — `MIRBUILDER-GATE1-LOOP-HANDOFF-NONCOND-CARRIER-D0`/`S0` landed below: write-only/body-rebound projected bindings flow into the existing `BodyOnlyRebind` outside cohort instead of freezing `incomplete-binding-coverage`; binary-trees' `run` loop coverage now passes. |
 | 7 | DONE — `MIRBUILDER-GATE1-ROOT-INSTANCE-CALL-UNRELEASABLE-HOME-D0`/`S0` landed below: the issuer withholds the `Ready` row when a terminal home's sealed claim can never reach `end_available`; binary-trees `Main.main` now stops at the typed `[ordinary-new/local-commit/root-call-entry-missing]` boundary (premise corrected below: the Plain-exit tolerance covers `Emitted{Plain}` only, not `Unavailable`). |
 | 8 | DONE — `MIRBUILDER-GATE1-ROOT-CALL-UNRELEASABLE-RECEIVER-D0`/`S0` landed below: `rebind_root_call_entry` tolerates the recorded `Unavailable` exit (same class as the existing non-Call-entry tolerance); binary-trees `Main.main` `--emit-mir-json` now stops at the designed `root-call-entry-unavailable` seal boundary and the non-sealing lane completes with the generic `call_method` + `Unavailable` observation. |
-| 9 | `MIRBUILDER-GATE1-INVOKE-TERMINATOR-JSON-EMIT-D0` (design_stop): the `Invoke` terminator is outside the MIR JSON emit contract — `backend_core_ops::is_supported_mir_json_terminator` + `emit_terminator` (`runner/mir_json_emit/emitters/control_flow.rs`) reject it as `unsupported terminator Invoke`. Decide who owns admitting the lifecycle Invoke shape into the published MIR JSON contract (schema, reader parity, admission scope) before app evidence can pass `--emit-mir-json`. Complete required app evidence: json-stream-aggregator EXE/output and typed-object JSON ingress/EXE exit 7. This emit-interface failure blocks their registered acceptance; the gap is this row's dependency, not a semantic-lane blocker. |
+| 9 | DONE — `MIRBUILDER-GATE1-INVOKE-TERMINATOR-JSON-EMIT-D0`/`S0` landed below: an already-accepted SSOT decision keeps generic `mir_json_emit` closed to lifecycle `Invoke` (the emit "gap" is the designed fail-fast); `typed_object_untyped_field_min_exe` was re-pointed off `selfhost_build.sh --mir` + ny-llvmc generic ingress onto the direct `--emit-exe` physical route with the rejection kept as a negative pin. Its true terminal is now `artifact-source-unavailable` — the unreleasable-home family. |
+| 9b | `MIRBUILDER-GATE1-UNRELEASABLE-HOME-ARTIFACT-ADMISSION-D0` (design_stop): several Gate-1 apps land on `artifact-source-unavailable` because a root home's sealed claim can never reach `end_available` (binary-trees `bench` object field, untyped-field-min `Holder.items` ArrayBox handle). Decide whether/how the artifact lane admits a program whose homes stay `Unavailable` (retained-release semantics) or whether Gate-1 acceptance requires those homes to become releasable; name the owner and the physical implications before implementation. json-stream-aggregator still stops upstream at `route-not-front-selected`. |
 | 10 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
 
 ### Landed slices tombstone (compressed 2026-09-28)
@@ -535,3 +536,65 @@ non-artifact finishing, and the sealing rejection
 `--emit-mir-json` now reaches the designed seal boundary; `--dump-mir`
 completes and the emitted `Main.main` carries the truthful generic
 `call_method BinaryTreesBench.run()` invoke.
+
+## D0 resolved: MIRBUILDER-GATE1-INVOKE-TERMINATOR-JSON-EMIT-D0 (2026-09-28)
+
+A read-only worker census found the ownership question already answered
+by an accepted decision: `MIRBUILDER-INVOKE-LIFECYCLE-JSON-TERMINATOR-D0`
+(`design/mirbuilder-final-pipeline-ssot.md`) — lifecycle `Invoke`,
+`InvokeNormalResult`, and `ReturnFault` travel the
+`hako.published-lifecycle-physical-program.v2` transport; generic
+`src/runner/mir_json_emit` deliberately keeps rejecting `Invoke` as the
+fail-fast boundary. This Gate-1 D0 therefore resolves to "no contract
+change": the emit gap is a mis-attributed boundary, and the real work is
+re-pointing app acceptance at the physical transport.
+
+```text
+Decision: lifecycle Invoke does not enter generic mir_json_emit; its
+  typed rejection is the designed fail-fast (accepted SSOT D0). Gate-1
+  app evidence for Invoke-carrying apps routes through the published
+  physical v2 transport, not --emit-mir-json.
+Source authority + canonical issuer: PublishedMirBackendView ->
+  physical_program_json.rs emits hako.published-lifecycle-physical-
+  program.v2 -> LifecycleInvocationInputV1 ->
+  compile_published_lifecycle_physical_v4 -> C V4, invoked via
+  emit_published_view_exe / compile_published_view_object.
+Non-authority: generic --emit-mir-json, selfhost_build.sh --mir, and the
+  ny-llvmc generic-JSON canary reader (const/ret/print only) stay
+  harness lanes; no reader gains an `invoke` arm.
+Fail-fast boundary: generic emit keeps its typed rejection; physical-
+  route stops surface as typed upstream freezes, never emit-shape drops.
+Smallest next slice (S0): re-point typed_object_untyped_field_min_exe
+  off `selfhost_build.sh --mir` + ny-llvmc generic ingress onto the
+  direct `--emit-exe` physical route, keeping the designed-rejection leg
+  as a negative pin; plan pins re-observe through the physical document
+  vocabulary or --dump-mir. Record the relocated true terminal
+  (observed: artifact-source-unavailable — unreleasable handle-field
+  home, the same family as the landed root-call D0). Also record the
+  already-landed INVOKE-LIFECYCLE-PHYSICAL-V2-CUTOVER-I0 evidence:
+  typed_object_method_min_exe PASS (exit 30, lifecycle-v4 + llvm-c-api).
+Non-claims: no generic schema/reader change, no Invoke semantics change,
+  no Gate-1 PASS; json-stream-aggregator still stops upstream at
+  route-not-front-selected before any emit question arises.
+```
+
+Measured terminals (2026-09-28, release binary `d17246c4a2`-era):
+`typed-object-untyped-field-min` `--emit-mir-json` -> designed
+`unsupported terminator Invoke` rejection; `--emit-exe` (physical v2)
+-> `[ordinary-new/local-commit/artifact-source-unavailable]`, the real
+upstream admission boundary. `typed_object_method_min_exe` smoke PASS
+end-to-end through the physical transport (exit 30).
+
+S0 landed (2026-09-28): `typed_object_untyped_field_min_exe.sh` now pins
+the designed Invoke rejection as a negative leg (`--emit-mir-json` must
+fail with `unsupported terminator Invoke`) and runs the acceptance leg
+through the selected physical route (`--emit-exe` + lifecycle V4 +
+llvm-c-api trace pins + EXE exit 7). The unreachable generic-JSON plan
+pins were dropped; `typed_object_plans` serialization stays covered by
+the `mir_json_emit` unit tests. Observed honest terminal:
+`[ordinary-new/local-commit/artifact-source-unavailable]` — `Holder`'s
+`items` field is an ArrayBox handle, so the home can never reach
+`end_available` and the artifact gate rejects the program. That is the
+unreleasable-home family already named by the root-call rows; the
+smoke is correctly red at the true boundary instead of at a
+mis-attributed emit gap. No EXE artifact or acceptance is claimed.
