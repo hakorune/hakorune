@@ -52,6 +52,8 @@ mod completion_lookup;
 mod coseal_helpers;
 #[path = "ordinary_new_field_reads.rs"]
 mod field_reads;
+#[path = "ordinary_new_field_write_claim.rs"]
+mod field_write_claim;
 // The helper owns the exact `SourcePathSegmentV1::Initializer` admission shape.
 use coseal_helpers::no_birth_constructor_disposition;
 #[path = "ordinary_new_coseal_issue.rs"]
@@ -217,6 +219,11 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // admits only the typed `Callee::BirthConstructor` edge at that site; it
     // issues no destination, home, or lifecycle authority.
     birth_site_index: RefCell<BTreeMap<OwnedExprSiteV1, VerifiedOrdinaryNewBirthRecipeV1>>,
+    // Field-class provenance: `(owning box, field)` claims a class only
+    // when every package write to that field is an attributed `me.` write
+    // storing `new` of one agreed ordinary box. Read-only after issuance;
+    // missing/ambiguous writers simply produce no row.
+    field_write_claims: field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     terminal_relation: Option<TerminalRelationV1>,
     terminal_relation_index: BTreeMap<FunctionOwnerIdV1, Rc<TerminalRelationV1>>,
     terminal_integer_literal_value: RefCell<Option<crate::mir::ValueId>>,
@@ -311,6 +318,7 @@ impl OrdinaryNewClaimLedgerV1 {
             field_reads: RefCell::new(BTreeMap::new()),
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),
             birth_site_index: RefCell::new(BTreeMap::new()),
+            field_write_claims: BTreeMap::new(),
             terminal_relation: None,
             terminal_relation_index: BTreeMap::new(),
             terminal_integer_literal_value: RefCell::new(None),
@@ -413,6 +421,15 @@ impl OrdinaryNewClaimLedgerV1 {
                 .remove(site)
                 .expect("birth-site recipe remained present after the checked lookup"),
         ))
+    }
+
+    /// Class provenance for `me.f` reads: the agreed `new` class of field
+    /// `field` on `owner_box`, when every package write to that field is an
+    /// attributed `me.` write of one ordinary box.
+    pub(crate) fn field_write_claim(&self, owner_box: &str, field: &str) -> Option<&str> {
+        self.field_write_claims
+            .get(&(owner_box.into(), field.into()))
+            .map(|class| class.as_ref())
     }
 
     /// Consumes no source product: it only checks that the selected emitter is

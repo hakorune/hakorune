@@ -24,8 +24,9 @@ use crate::mir::normal_callable_semantic_package::physical_signature::{
 use crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::resolved_semantics::{
-    BindingKindV1, BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedAssignmentTargetV1,
-    ResolvedLexicalRefV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
+    BindingKindV1, BindingRefV1, BodyExpressionShapeV1, BodyMeReceiverV1, FunctionOwnerIdV1,
+    OwnedExprSiteV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1,
+    ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
 };
 use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 
@@ -154,7 +155,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         None => continue,
                     }
                 }
-                None => match self.claim_local_class(batch, &need)? {
+                None => match self.claim_local_class(batch, selected, &need)? {
                     Some(class) => class,
                     None => continue,
                 },
@@ -330,13 +331,13 @@ impl OrdinaryNewClaimLedgerV1 {
                                 else {
                                     return false;
                                 };
-                                self.claims
-                                    .borrow()
-                                    .get(&OwnedExprSiteV1::new(
-                                        owner,
-                                        initializer_site.clone(),
-                                    ))
-                                    .map(|claim| claim.class().into())
+                                self.initializer_class(
+                                    selected,
+                                    slot,
+                                    owner,
+                                    input,
+                                    initializer_site,
+                                )
                             }
                         }) else {
                             return false;
@@ -364,11 +365,15 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
-    /// Prove one claim-local receiver's class from its sole initializer's
-    /// ordinary-new claim inside the callee itself.
+    /// Prove one claim-local receiver's class from its sole initializer
+    /// inside the callee itself: an ordinary-new claim (`local x = new
+    /// C()`) or a `me.f` field read whose field carries a field-write
+    /// claim (`local x = me.f` where `me.f = new C()` in birth and no
+    /// other write anywhere stores another shape).
     fn claim_local_class(
         &self,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
+        selected: &VerifiedSelectedCallableBatchMapV1,
         need: &LexicalInstanceCallNeedV1,
     ) -> Result<Option<Box<str>>, String> {
         batch
@@ -386,19 +391,68 @@ impl OrdinaryNewClaimLedgerV1 {
                     return None;
                 }
                 let initializer_site = initializer.initializer_site()?;
-                let claims = self.claims.borrow();
-                let claim =
-                    claims.get(&OwnedExprSiteV1::new(need.owner, initializer_site.clone()))?;
+                let class =
+                    self.initializer_class(selected, need.callee_slot, need.owner, input, initializer_site)?;
                 if !self
                     .ordinary_box_names
                     .iter()
-                    .any(|name| name.as_ref() == claim.class())
+                    .any(|name| name.as_ref() == class.as_ref())
                 {
                     return None;
                 }
-                Some(claim.class().into())
+                Some(class)
             })
             .map_err(|_| freeze("lexical-instance-call/batch-loan"))
+    }
+
+    /// Class provenance for one sole-initializer expression site inside
+    /// the function owning it. `local x = new C()` carries the direct
+    /// claim; `local x = me.f` carries the field-write claim sealed for
+    /// (`owner_box`, `f`) — `me` must resolve to this function's lexical
+    /// receiver binding and the function must be an `InstanceBoxMethod`
+    /// so its selected key names the owning box. Anything else (call
+    /// results, literals, arithmetic, unknown receivers) proves nothing.
+    fn initializer_class(
+        &self,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        batch_slot: u32,
+        owner: FunctionOwnerIdV1,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        initializer_site: &SourceExprSiteV1,
+    ) -> Option<Box<str>> {
+        if let Some(claim) = self
+            .claims
+            .borrow()
+            .get(&OwnedExprSiteV1::new(owner, initializer_site.clone()))
+        {
+            return Some(claim.class().into());
+        }
+        let shape = input.body_shape()?;
+        let BodyExpressionShapeV1::FieldAccess { object, field, .. } =
+            shape.expression_shape(initializer_site)?
+        else {
+            return None;
+        };
+        let Some(BodyExpressionShapeV1::Me {
+            receiver: BodyMeReceiverV1::Lexical(receiver),
+            ..
+        }) = shape.expression_shape(object)
+        else {
+            return None;
+        };
+        if input.function().binding(*receiver)?.kind() != BindingKindV1::Receiver {
+            return None;
+        }
+        let owner_box = selected.keys().find_map(|selected_key| {
+            let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
+                return None;
+            };
+            (key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
+                && selected.batch_slot(selected_key) == Some(batch_slot))
+            .then(|| key.owner())
+        })?;
+        self.field_write_claim(owner_box, field.as_ref())
+            .map(|class| class.into())
     }
 
     /// Whether a lexical instance-call row is still armed for one exact call

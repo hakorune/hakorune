@@ -329,6 +329,15 @@ exclusively on the strict declared-instance locator; the issued row carries the
 exact call/receiver sites, the binding and the selected `InstanceBoxMethod`
 key — never a Callee, ValueId, dispatch strategy or runtime fallback.
 
+[Field-write claims](ordinary_new_field_write_claim.rs) extend the same sole-
+initializer join to `me.f` reads: a `(owning box, field)` pair claims a class
+only when every package write to that field name is an attributed `me.` write
+storing `new` of one agreed ordinary box. Non-`new` values, multi-class
+writers, unattributed receivers (`o.f = x` vetoes the field name globally),
+and any function whose sealed body-shape inventory is missing all veto the
+field. Both edge arguments (`f.m(x)` passing `local v = me.f`) and claim-local
+receivers (`local v = me.f` then `v.m(...)`) consume the same proof.
+
 For direct-local Map entries, a scoped callback checks the same candidate's exact
 New site/binding, construction eligibility and PlainI64NoHook destruction.
 The source walk owns availability and transfer; it keeps the acquisition site in

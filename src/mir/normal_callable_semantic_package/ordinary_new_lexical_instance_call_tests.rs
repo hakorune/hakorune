@@ -324,3 +324,222 @@ static box Main {
         "rebound parameter must not arm"
     );
 }
+
+/// Parameter receiver proven through a field-read caller edge: `run`'s
+/// `inner` is initialized by `me.inner`, and `birth`'s sole write
+/// `me.inner = new Inner()` seals the field class. The universal edge
+/// proof transports that class into `consume`'s parameter.
+#[test]
+fn lexical_instance_call_arms_parameter_receiver_with_field_read_edge() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        r#"
+box Inner {
+    birth() { }
+    work(i): i64 { return i + 1 }
+}
+box Outer {
+    init { inner }
+    birth() { me.inner = new Inner() }
+    consume(inner): i64 {
+        local i = 0
+        local out = 0
+        loop(i < 2) {
+            local v = inner.work(i)
+            out = out + v
+            i = i + 1
+        }
+        return out
+    }
+    run(): i64 {
+        local inner = me.inner
+        return me.consume(inner)
+    }
+}
+static box Main {
+    main() {
+        local o = new Outer()
+        return o.run()
+    }
+}
+"#,
+    )
+    .expect("field-read edge source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let (owner, site) = call_site_of(&package, "work");
+    let row = ledger
+        .take_lexical_instance_call(owner, &site)
+        .expect("take armed row")
+        .expect("field-read edge disposition row");
+    assert_eq!(row.target().owner(), "Inner");
+    assert_eq!(row.target().name(), "work");
+}
+
+/// Claim-local receiver via field read: `local inner = me.inner` inside
+/// `run` carries the sealed field class, so `inner.seal()` arms without
+/// any caller edge.
+#[test]
+fn lexical_instance_call_arms_field_read_claim_local_receiver() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        r#"
+box Inner {
+    birth() { }
+    seal(): i64 { return 1 }
+}
+box Outer {
+    init { inner }
+    birth() { me.inner = new Inner() }
+    run(): i64 {
+        local inner = me.inner
+        local i = 0
+        loop(i < 2) {
+            local r = inner.seal()
+            i = i + 1
+        }
+        return i
+    }
+}
+static box Main {
+    main() {
+        local o = new Outer()
+        return o.run()
+    }
+}
+"#,
+    )
+    .expect("field-read claim-local source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let (owner, site) = call_site_of(&package, "seal");
+    let row = ledger
+        .take_lexical_instance_call(owner, &site)
+        .expect("take armed row")
+        .expect("field-read claim-local disposition row");
+    assert_eq!(row.target().owner(), "Inner");
+    assert_eq!(row.target().name(), "seal");
+}
+
+/// A field written with a non-`new` value carries no class claim:
+/// `me.inner = 7` vetoes `inner`, so the loop call stays unarmed.
+#[test]
+fn lexical_instance_call_keeps_non_new_field_write_unarmed() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        r#"
+box Inner {
+    birth() { }
+    seal(): i64 { return 1 }
+}
+box Outer {
+    init { inner }
+    birth() { me.inner = 7 }
+    run(): i64 {
+        local inner = me.inner
+        local i = 0
+        loop(i < 2) {
+            local r = inner.seal()
+            i = i + 1
+        }
+        return i
+    }
+}
+static box Main {
+    main() {
+        local o = new Outer()
+        return o.run()
+    }
+}
+"#,
+    )
+    .expect("non-new field write source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let (owner, site) = call_site_of(&package, "seal");
+    assert!(
+        !ledger.lexical_instance_call_covered(owner, &site),
+        "a non-new field write must not carry a class claim"
+    );
+}
+
+/// Two writers disagreeing on the stored class veto the field:
+/// `birth` stores `new Inner()` but `swap` stores `new Other()`.
+#[test]
+fn lexical_instance_call_vetoes_multi_class_field_writers() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        r#"
+box Inner {
+    birth() { }
+    seal(): i64 { return 1 }
+}
+box Other {
+    birth() { }
+}
+box Outer {
+    init { inner }
+    birth() { me.inner = new Inner() }
+    swap() { me.inner = new Other() }
+    run(): i64 {
+        local inner = me.inner
+        local i = 0
+        loop(i < 2) {
+            local r = inner.seal()
+            i = i + 1
+        }
+        return i
+    }
+}
+static box Main {
+    main() {
+        local o = new Outer()
+        return o.run()
+    }
+}
+"#,
+    )
+    .expect("multi-class field writer source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let (owner, site) = call_site_of(&package, "seal");
+    assert!(
+        !ledger.lexical_instance_call_covered(owner, &site),
+        "disagreeing field writers must veto the field claim"
+    );
+}
+
+/// A field name written through a receiver we cannot attribute vetoes
+/// every same-named claim: `o.inner = n` in `main` is not a `me.` write,
+/// so `inner` carries no provenance even though `birth` wrote `new`.
+#[test]
+fn lexical_instance_call_vetoes_unattributed_field_write() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        r#"
+box Inner {
+    birth() { }
+    seal(): i64 { return 1 }
+}
+box Outer {
+    init { inner }
+    birth() { me.inner = new Inner() }
+    run(): i64 {
+        local inner = me.inner
+        local i = 0
+        loop(i < 2) {
+            local r = inner.seal()
+            i = i + 1
+        }
+        return i
+    }
+}
+static box Main {
+    main() {
+        local o = new Outer()
+        local n = new Inner()
+        o.inner = n
+        return o.run()
+    }
+}
+"#,
+    )
+    .expect("unattributed field write source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let (owner, site) = call_site_of(&package, "seal");
+    assert!(
+        !ledger.lexical_instance_call_covered(owner, &site),
+        "an unattributed write to the field name must veto the claim"
+    );
+}

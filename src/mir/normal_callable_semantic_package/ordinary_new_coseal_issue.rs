@@ -14,7 +14,7 @@ use super::candidate::{verified_birth_recipe_for_site_v1, OrdinaryNewCandidate};
 use super::coseal_helpers::{
     convert_selected_new_arguments, is_direct_local_initializer, retain_child_terminal_relation,
 };
-use super::{field_reads, terminal_home};
+use super::{field_reads, field_write_claim, terminal_home};
 use super::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1,
     VerifiedOrdinaryNewBirthRecipeV1,
@@ -30,6 +30,8 @@ use crate::mir::resolved_semantics::{
     BindingKindV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
     VerifiedResolvedFunctionV1,
 };
+use hakorune_mir_defs::SameModuleCallableNamespaceV1;
+use crate::mir::builder::SelectedNormalCallableKeyV1;
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_cohort_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -408,6 +410,50 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             Ok(())
         })
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
+    // Field-write claims: `me.f = new C()` writes seal a field class only
+    // when every package write to that field name is an attributed `me.`
+    // write storing `new` of one agreed ordinary box. Batch declarations
+    // are walked outside the program-source loan; constructor (birth)
+    // rows join inside it, where `lowering_input` needs the program.
+    let mut field_write_draft = field_write_claim::OrdinaryNewFieldWriteClaimDraftV1::new();
+    for declaration in batch.declarations() {
+        let owner_box = selected
+            .keys()
+            .filter_map(|selected_key| {
+                let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
+                    return None;
+                };
+                (selected.batch_slot(selected_key) == Some(declaration.batch_slot())
+                    && key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod)
+                    .then(|| key.owner())
+            })
+            .next();
+        batch
+            .with_lowering_input(declaration.batch_slot(), |input| {
+                field_write_draft.observe_function(
+                    input.function(),
+                    input.body_shape(),
+                    owner_box,
+                )
+            })
+            .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
+    }
+    batch
+        .with_normal_program_source_loan(|loan| -> Result<(), OrdinaryNewCoSealIssueV1> {
+            for row in instance_constructors.rows() {
+                let input = row
+                    .lowering_input(loan.program())
+                    .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
+                field_write_draft.observe_function(
+                    input.function(),
+                    input.body_shape(),
+                    Some(row.box_name()),
+                );
+            }
+            Ok(())
+        })
+        .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
+    let field_write_claims = field_write_draft.finish(batch.ordinary_box_coverage());
     let names = batch
         .ordinary_box_coverage()
         .rows()
@@ -415,6 +461,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         .map(|row| row.name().to_owned().into_boxed_str())
         .collect();
     let mut ledger = OrdinaryNewClaimLedgerV1::issue(claims.into_boxed_slice(), names);
+    ledger.field_write_claims = field_write_claims;
     ledger.birth_site_index = std::cell::RefCell::new(birth_site_index);
     ledger.root_completion = root_completion;
     ledger.field_reads = std::cell::RefCell::new(field_reads);

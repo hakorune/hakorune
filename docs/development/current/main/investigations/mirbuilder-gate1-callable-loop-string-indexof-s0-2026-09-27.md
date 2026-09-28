@@ -269,8 +269,10 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | 1 | DONE — `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0` landed below: the terminal is `Main.main`'s root-instance-call disposition, and the missing artifact is the callee's declared result contract (`MiWorkload.run` is unannotated). The S0 below completes the declared contract in source and re-measures. |
 | 2 | DONE — `MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-D0`/`S0` landed below: parameter receivers proven by universal caller-edge ordinary-new claims and claim-local `local x = new C()` receivers both arm lexical `InstanceBoxMethod` dispositions; boxtorrent-mini `materialize`/`releaseFrom` loops now lower through the canonical `SameModuleInstance` emitter. |
 | 3 | DONE — `MIRBUILDER-GATE1-BODY-LENGTH-TEXT-EVIDENCE-S0` landed below: `StringLen/0` admits `Body` placement gated by `receiver_has_text_evidence` (TextToCaller initializer or literal); boxtorrent-mini now lowers fully (remaining terminal is the Invoke emit gap); the mixed-loop `SelectedStatic` bucket-drop hazard is fixed. New named frontier for the receiver family: binary-trees `iterationCheck` leaves `builder.make` (field-read caller argument, vetoed by universal edge proof) and `itemCheck` (call-result receiver, parked) uncovered — see `MIRBUILDER-GATE1-FIELD-ARG-AND-CALLRESULT-RECEIVER-D0`. |
-| 4 | Complete required app evidence: json-stream-aggregator EXE/output and typed-object JSON ingress/EXE exit 7. An emit-interface failure still blocks its registered acceptance; record its owner instead of dropping the row. The observed `Invoke` terminator JSON emit gap (`--emit-mir-json` serializer) is this row's dependency, not a semantic-lane blocker. |
-| 5 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
+| 4 | DONE — `MIRBUILDER-GATE1-FIELD-WRITE-CLAIM-EDGE-TRANSPORT-S0` landed below: `(box, field) -> class` claims from uniform attributed `me.f = new C()` writes; binary-trees `iterationCheck` uncovered set halves to the two `itemCheck` call-result receivers; mimalloc-lite's semantic lane now completes to the shared Invoke emit gap. |
+| 5 | `MIRBUILDER-GATE1-CALLRESULT-RECEIVER-RESULTCLASS-S0` (D0 accepted below, depends on row 4): uniform `return new D` instance-callable result-class product (AST-free; NOT `callable_result_representation`) + `claim_local_class` call-result initializer arm. Admits `positive.itemCheck`/`negative.itemCheck` — closes binary-trees `iterationCheck` coverage. FieldAccess receivers (`me.left.itemCheck()`) stay parked. |
+| 6 | Complete required app evidence: json-stream-aggregator EXE/output and typed-object JSON ingress/EXE exit 7. An emit-interface failure still blocks its registered acceptance; record its owner instead of dropping the row. The observed `Invoke` terminator JSON emit gap (`--emit-mir-json` serializer) is this row's dependency, not a semantic-lane blocker. |
+| 7 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
 
 ### D0 decision — `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0` (landed)
 
@@ -605,3 +607,110 @@ loop leaves 4 uncovered sites — `builder.make`×2 (caller argument is a
 field-read provenance family) and `positive.itemCheck`/`negative
 .itemCheck`×2 (call-result receivers, still parked). Gate 1 remains
 unsatisfied; this S0 does not claim it.
+
+### D0 decision — `MIRBUILDER-GATE1-FIELD-ARG-AND-CALLRESULT-RECEIVER-D0` (accepted)
+
+Census evidence (read-only worker, all claims verified in-repo):
+
+- `iterationCheck(builder, depth, iterations)` loop has four uncovered
+  items in two families.
+- **Family A** — `builder.make`×2: `builder` is a callee parameter whose
+  sole caller edge `me.iterationCheck(builder, depth, iterations)`
+  passes a caller local initialized by `local builder = me.builder`
+  (FieldAccess). The field's class is provable: `birth` writes
+  `me.builder = new BinaryTreeBuilder()` at main.hako:44. Every hop
+  exists as passive facts — `ResolvedInitializerRelationV1`
+  (initializer_site), `BodyExpressionShapeV1::FieldAccess`/`Me`,
+  `assignment_sources` + `FieldWrite` targets inside birth forests,
+  `expression_source().constructions()` (records every `new` incl.
+  field-write RHS), `instance_constructors.birth_for`. No sealed product
+  carries the result: `ConstructionPlanV1` rejects user-box RHS
+  (`FieldContractUnsupported`), `NamedArrayFieldResidenceClaimV1` is
+  ArrayBox-bounded, `birth_site_index` is destination-less by contract.
+- **Family B** — `positive.itemCheck`×2: `positive` is a call-result
+  local (`builder.make(...)`). Proving it needs "callable `make` returns
+  class `TreeNode`" — both `make` returns are `new TreeNode` (lines 28,
+  36). No product records instance-callable result class:
+  `callable_result_representation` is an AST-walking solver scoped to
+  `static_declarations()` (wrong authority), `SourceResultClassV1` is
+  scalar-only, `DeclaredFunctionResultContractV1` is annotation-only and
+  `make` is unannotated. B depends on A: resolving the initializer's
+  callee key needs `builder`'s proven class.
+- Third family noted, out of scope: `me.left.itemCheck()` inside
+  `itemCheck` is a FieldAccess receiver — filtered before disposition;
+  `itemCheck` has no loop so nothing is owed.
+
+Decision: two new sealed provenance products in the ordinary-new coseal
+cohort, sequenced A then B (B consumes A's output to resolve callee
+keys).
+
+1. `OrdinaryNewFieldWriteClaimV1`-shape product (source authority: birth
+   forests' `FieldWrite` assignment rows + `constructions()`; canonical
+   issuer: the coseal cohort where `instance_constructors` and
+   `birth_for` are already in scope) records `{owner box, field name,
+   writer site, value site, class}` for `me.f = new C()` inside birth.
+   Plus a binding-level relation `{owner, binding → FieldAccess field
+   identity}` for sole-initializer field reads. The lexical issuer then
+   joins arg/local binding → field read → field claim; every caller
+   edge must still prove one agreed class (universal, not existential).
+2. Uniform-`return new D` instance-callable result-class product
+   (source authority: `BodyStatementShapeV1::Return` rows +
+   `constructions()`; AST-free; NOT `callable_result_representation`)
+   records `{callee key → class}` when all returns are `new` of one
+   agreed user-box class; `claim_local_class` gains a call-result
+   initializer arm that resolves the initializer site's callee through
+   the proven-receiver join.
+
+Non-claims: no dynamic dispatch (emit stays canonical
+`SameModuleInstance`); no declared-type or MIR-type provenance; field
+reads of `me.f` written by non-`new` values, aliased/reassigned fields,
+and multi-writer fields stay vetoed; call-result receivers whose callee
+result class is unproven (non-uniform returns, non-`new` returns,
+extern/body-lane calls) stay vetoed; the FieldAccess-receiver family
+(`me.left.itemCheck()`) stays parked.
+
+Smallest next slice — `MIRBUILDER-GATE1-FIELD-WRITE-CLAIM-EDGE-TRANSPORT-S0`:
+product (1) only, consumed at both `prove_parameter_class` (edge arg
+binding → field read → field claim) and `claim_local_class` (same
+initializer classification), with positive pin `me.f = new C()` +
+`local x = me.f` + `x.m()`/`f.m(x)` shapes and negatives for
+non-`new` field values, reassigned fields, and unproven edges. Family B
+becomes the following queue row.
+
+### S0 implementation receipt — `MIRBUILDER-GATE1-FIELD-WRITE-CLAIM-EDGE-TRANSPORT-S0` (landed)
+
+Product: `OrdinaryNewFieldWriteClaimDraftV1`
+(`ordinary_new_field_write_claim.rs`) seals `(owning box, field) ->
+class` claims. A field claims a class only when every `FieldWrite` in
+the package is an attributed `me.` write storing `new C()` of one agreed
+ordinary box — batch declarations are walked outside the program-source
+loan (owner box via the selected `InstanceBoxMethod` key), constructor
+rows inside it (owner box via `row.box_name()`). Vetoes: non-`new`
+stored values, multi-class writers, unattributed receivers (`o.f = x`
+veto the field name globally), and any function with a missing
+body-shape inventory empties the whole product. The ledger accessor
+`field_write_claim(box, field)` feeds a shared `initializer_class` in
+the lexical issuer: a sole initializer that is a `me.f` `FieldAccess`
+with a lexical `Receiver`-kind `me` resolves through the containing
+function's selected key to the owning box. `prove_parameter_class`
+(edge arguments) and `claim_local_class` (receivers) consume the same
+helper — `me.`/locator authority untouched, emit stays
+`SameModuleInstance`.
+
+Evidence (quick profile): `lexical_instance_call_*` 11/11 — new pins:
+`arms_parameter_receiver_with_field_read_edge` (binary-trees shape:
+`me.consume(inner)` edge arg `local inner = me.inner`, birth writes
+`me.inner = new Inner()`), `arms_field_read_claim_local_receiver`
+(`local inner = me.inner` receiver), `keeps_non_new_field_write_unarmed`
+(`me.inner = 7`), `vetoes_multi_class_field_writers` (`new Inner()` +
+`new Other()`), `vetoes_unattributed_field_write` (`o.inner = n` in
+main). Route 29/29, loop_scope 30/30, ordinary_new 71/71 unchanged.
+
+Production re-measure: `apps/binary-trees` `iterationCheck` drops from 4
+uncovered sites to exactly 2 — `positive.itemCheck`/`negative.itemCheck`
+(`LoopBody(2)`/`LoopBody(3)`, `Value, Rhs`) — the family-B call-result
+receiver row 5 below. `builder.make`×2 arm through the field-read edge.
+`apps/boxtorrent-mini` unchanged (Invoke emit gap); `apps/mimalloc-lite`
+now reaches the same Invoke emit gap — its semantic lane completes
+(`heap.allocate` instance call + `handles.push` NamedArray both resolve
+in-loop). Gate 1 remains unsatisfied.
