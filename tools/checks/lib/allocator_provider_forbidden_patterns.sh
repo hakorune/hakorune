@@ -18,8 +18,9 @@ allocator_provider_forbid_source_pattern() {
   local pattern="$3"
   local message="$4"
   local tmp="/tmp/${tag}.${tmp_suffix}"
+  shift 4
 
-  if rg -n "$pattern" "${ALLOCATOR_PROVIDER_FORBIDDEN_SOURCE_ROOTS[@]}" >"$tmp" 2>&1; then
+  if rg -n "$pattern" "${ALLOCATOR_PROVIDER_FORBIDDEN_SOURCE_ROOTS[@]}" "$@" >"$tmp" 2>&1; then
     cat "$tmp" >&2
     rm -f "$tmp"
     fail "$message"
@@ -36,11 +37,15 @@ allocator_provider_forbid_selection() {
 }
 
 allocator_provider_forbid_global_allocator() {
+  # cfg(test)-gated *_tests.rs files may carry a test-binary-only counting
+  # allocator (e.g. crates/nyash_kernel/src/exports/fault_tests.rs); they can
+  # never reach production, so the inactive-production sentinel skips them.
   allocator_provider_forbid_source_pattern \
     "$1" \
     global_allocator \
     "$ALLOCATOR_PROVIDER_FORBIDDEN_GLOBAL_ALLOCATOR_PATTERN" \
-    "process allocator replacement must stay inactive"
+    "process allocator replacement must stay inactive" \
+    -g '!**/*_tests.rs'
 }
 
 allocator_provider_forbid_proof_consumption() {

@@ -111,7 +111,7 @@ mod tests {
                 "program" => {
                     println!(r#"{{"version":0,"kind":"Program","body":[]}}"#);
                 }
-                other => panic!("unknown Stage-A capture fixture: {other}"),
+                other => panic!("unknown mode-A capture fixture: {other}"),
             }
             return;
         }

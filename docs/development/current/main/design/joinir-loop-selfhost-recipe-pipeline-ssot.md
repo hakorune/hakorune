@@ -40,11 +40,15 @@ Related:
   but release compatibility still shares the parser and has no independently
   owned delete-set, so broad Loop production selection remains unopened until
   that tuple exists.
-- **Reopen condition:** complete the recorded M10 semantic/transfer/session
+- **Reopen condition:** ~~complete the recorded M10 semantic/transfer/session
   prerequisites and M8/M9 coverage, then name one unchanged production
   caller, its replacement path, fail-fast terminal, and exclusive deletion
-  set. Until that tuple exists, this is a design stop and no route_loop or
-  physical effect is changed.
+  set~~ — satisfied and consumed: the M10b cutover landed at `6e88441c0b`
+  (2026-09-25), which switched `route_loop` to the frozen located-source
+  pipeline and retired the ordered scheduler subtree in one commit.
+  Remaining Loop work is post-cutover (M11 located re-home, deferred
+  fixtures); a new reopen trigger must name a live caller/authority gap,
+  not the retired pre-flip scheduler.
 - **Production stop line:** no V2 leaf, Builder session, selector, or
   publication may open without exact callable ABI and one complete
   Recipe/JoinSig-bound program envelope.
@@ -442,15 +446,14 @@ The authority split is:
 
 ## Production authority status
 
-Current production is `route_loop` -> ordered 19-route scheduler -> route
-composers/CorePlan/PlanLowerer/JoinIR merge/route PHI writers. Portable
-`VerifiedLoopRecipeV1` has zero physical production consumers through M9.
-The current JoinIR/JoinModule path remains execution authority until M10; Retry is
-scheduler-internal and exhaustion freezes; it is not a portable Recipe consumer.
+Current production is `route_loop` -> frozen located-source pipeline
+(resolver unit -> exact loop membership -> node winner spine -> physical
+admission -> canonical physicalizer -> writebacks) with typed Freeze
+terminals; the ordered 19-route scheduler subtree was retired at
+`6e88441c0b` (M10b, 2026-09-25). The pre-flip JoinIR/JoinModule path is no
+longer execution authority, and the Retry/fallback tail is gone.
 M5/M6 remain caller-zero evidence; the bounded M10a resolved DirectAccum pilot
-is closed through one canonical resolved production caller. M10a did not switch
-`route_loop` or retire the old scheduler/PHI edges. M10b is the first all-route
-consumer and retires the scheduler/fallback/remaining old PHI edges.
+is closed through one canonical resolved production caller.
 
 ```text
 Source / projection
@@ -1915,7 +1918,7 @@ lands. M10b updates the reference again for the actual production switch and
 retirements. A failed exact co-seal or transfer coverage check returns to
 design; it does not grow another profile adapter.
 
-### M10b — `JOINIR-LOOP-PORTABLE-RECIPE-CUTOVER0-I0-R0` (final; optional M10a bridge is separate)
+### M10b — `JOINIR-LOOP-PORTABLE-RECIPE-CUTOVER0-I0-R0` (landed at `6e88441c0b`, 2026-09-25; optional M10a bridge is separate)
 
 Entry row:
 : `GENERIC-M10B-DELETION-MANIFEST-S0` freezes the exact current symbols and

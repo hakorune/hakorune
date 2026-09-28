@@ -41,11 +41,14 @@ resolver_contract_consumers="$({
     --glob '*.rs' || true
 } | sort -u)"
 expected_resolver_contract_test="$ROOT_DIR/src/mir/resolved_semantics/callable_source_ledger_tests.rs"
+expected_resolver_contract_test2="$ROOT_DIR/src/mir/resolved_semantics/callable_source_ledger_contract_tests.rs"
+expected_resolver_contract_test3="$ROOT_DIR/src/mir/source_call_target/named_array_method_tests.rs"
 expected_resolver_contract_consumer="$ROOT_DIR/src/mir/source_call_target/core_method.rs"
+expected_resolver_contract_consumer2="$ROOT_DIR/src/mir/source_call_target/named_array_method.rs"
 while IFS= read -r path; do
   [[ -z "$path" ]] && continue
   case "$path" in
-    "$expected_resolver_contract_test"|"$expected_resolver_contract_consumer") ;;
+    "$expected_resolver_contract_test"|"$expected_resolver_contract_test2"|"$expected_resolver_contract_test3"|"$expected_resolver_contract_consumer"|"$expected_resolver_contract_consumer2") ;;
     *) guard_fail "$TAG" "unexpected resolver callable-contract consumer: $path" ;;
   esac
 done <<< "$resolver_contract_consumers"
@@ -64,7 +67,7 @@ fi
 while IFS= read -r path; do
   [[ -z "$path" ]] && continue
   case "$path" in
-    "$ROOT_DIR/src/mir/callable_result_representation/"*.rs) ;;
+    "$ROOT_DIR/src/mir/callable_result_representation/"*.rs|"$expected_resolver_contract_consumer"|"$expected_resolver_contract_consumer2") ;;
     *) guard_fail "$TAG" "unexpected Core result-kind lookup consumer: $path" ;;
   esac
 done <<< "$core_lookup_consumers"

@@ -161,6 +161,7 @@ ALLOWED_ROUTE_FACT_CONSUMERS = {
     "hako_llvmc_ffi_lowering_plan_metadata.inc",
     "hako_llvmc_ffi_mir_call_shell.inc",
     "hako_llvmc_ffi_mir_call_shell_extern_emit.inc",
+    "hako_llvmc_ffi_mir_call_shell_extern_rules.inc",
     "hako_llvmc_ffi_same_module_prepass.inc",
 }
 

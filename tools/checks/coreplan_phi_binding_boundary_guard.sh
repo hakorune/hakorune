@@ -14,8 +14,7 @@ INDEX="docs/tools/check-scripts-index.md"
 LOCAL_PATCH_SSOT="docs/development/current/main/design/local-patch-prevention-ssot.md"
 DEV_GATE_STEPS="tools/checks/lib/dev_gate_quick_steps.sh"
 SELF_SCRIPT="tools/checks/coreplan_phi_binding_boundary_guard.sh"
-PREHEADER="src/mir/builder/control_flow/plan/features/nested_loop_depth1_preheader.rs"
-LOOP_COND="src/mir/builder/control_flow/plan/features/loop_cond_bc.rs"
+LOOP_COND="src/mir/builder/control_flow/plan/features/loop_cond_bc_source.rs"
 
 echo "[$TAG] checking PHI / BindingState / RecipeOnly boundary"
 
@@ -29,7 +28,6 @@ guard_require_files \
   "$LOCAL_PATCH_SSOT" \
   "$DEV_GATE_STEPS" \
   "$SELF_SCRIPT" \
-  "$PREHEADER" \
   "$LOOP_COND"
 
 guard_require_exec_files "$TAG" "$SELF_SCRIPT"
@@ -125,33 +123,7 @@ PY
 python3 - <<'PY'
 from pathlib import Path
 
-path = Path("src/mir/builder/control_flow/plan/features/nested_loop_depth1_preheader.rs")
-text = path.read_text()
-prod = text.split("#[cfg(test)]", 1)[0]
-for forbidden in (
-    "capture_external_values",
-    "collect_used_values",
-    "collect_defined_values",
-    "remap_loop_uses",
-    "remap_plan_uses",
-    "CoreEffectPlan",
-    "MirType",
-    "BTreeMap",
-    "BTreeSet",
-    "alloc_typed",
-    "CoreEffectPlan::Copy",
-):
-    if forbidden in prod:
-        raise SystemExit(
-            "[coreplan-phi-binding-boundary] ERROR: nested_loop_depth1 "
-            f"preheader freshness must not allocate/copy/remap arbitrary values: {forbidden}"
-        )
-PY
-
-python3 - <<'PY'
-from pathlib import Path
-
-path = Path("src/mir/builder/control_flow/plan/features/loop_cond_bc.rs")
+path = Path("src/mir/builder/control_flow/plan/features/loop_cond_bc_source.rs")
 text = path.read_text()
 needle = "BodyLoweringPolicy::RecipeOnly"
 start = text.find(needle)
@@ -285,7 +257,6 @@ if violations:
     raise SystemExit(1)
 PY
 
-echo "[$TAG] nested_loop_preheader_hidden_value_capture=0"
 echo "[$TAG] recipe_only_whole_body_fallback=0"
 echo "[$TAG] phi_low_level_callsite_owner=phi_lifecycle"
 echo "[$TAG] phi_transaction_boundary_defined=1"

@@ -806,7 +806,7 @@ fi
 require_fixed 'HAKORUNE_BIN="$ROOT_DIR/target/release/hakorune"' "$NY_PARSER_BRIDGE_SMOKE"
 require_fixed 'LEGACY_NYASH_BIN="$ROOT_DIR/target/release/nyash"' "$NY_PARSER_BRIDGE_SMOKE"
 require_fixed 'mktemp /tmp/hakorune-bridge-smoke.' "$NY_PARSER_BRIDGE_SMOKE"
-if rg -n "nyash-bridge-smoke|BIN=\"\\$ROOT_DIR/target/release/nyash\"" "$NY_PARSER_BRIDGE_SMOKE"; then
+if rg -n 'nyash-bridge-smoke|^\s*BIN="\$ROOT_DIR/target/release/nyash"' "$NY_PARSER_BRIDGE_SMOKE"; then
   guard_fail "$TAG" "parser bridge smoke must use Hakorune-first temp and binary naming"
 fi
 require_fixed 'HAKORUNE_BIN="${HAKORUNE_BIN:-$ROOT/target/release/hakorune}"' "$PHI_TRACE_RUN"

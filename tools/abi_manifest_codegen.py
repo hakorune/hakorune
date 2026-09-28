@@ -91,6 +91,14 @@ def _load_manifest(path: Path) -> list[AbiRow]:
     return out
 
 
+def _source_label(manifest_path: Path) -> str:
+    resolved = manifest_path.resolve()
+    try:
+        return str(resolved.relative_to(ROOT))
+    except ValueError:
+        return str(resolved)
+
+
 def _render(rows: list[AbiRow], manifest_path: Path) -> str:
     header = """// GENERATED FILE - DO NOT EDIT
 // Source: {source}
@@ -98,7 +106,7 @@ def _render(rows: list[AbiRow], manifest_path: Path) -> str:
 
 using selfhost.vm.boxes.abi_adapter_registry as AbiAdapterRegistryBox
 
-""".format(source=manifest_path)
+""".format(source=_source_label(manifest_path))
 
     body_lines = ["static box AbiAdapterRegistryDefaultsBox {", "  populate(reg) {"]
     for row in rows:

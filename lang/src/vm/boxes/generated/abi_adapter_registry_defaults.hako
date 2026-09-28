@@ -1,5 +1,5 @@
 // GENERATED FILE - DO NOT EDIT
-// Source: /home/tomoaki/git/hakorune-selfhost/docs/development/current/main/design/abi-export-manifest-v0.toml
+// Source: docs/development/current/main/design/abi-export-manifest-v0.toml
 // Generator: tools/abi_manifest_codegen.py
 
 using selfhost.vm.boxes.abi_adapter_registry as AbiAdapterRegistryBox

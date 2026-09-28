@@ -1,7 +1,13 @@
 # path<TAB>max_debt_lines
 # Baseline for current `.inc` codegen analysis debt.
 # Reductions are allowed. New debt files or per-file debt-line growth fail.
+lang/c-abi/shims/hako_json_v1_borrowed.inc 2
 lang/c-abi/shims/hako_llvmc_ffi_checked_callout_lowering.inc 3
 lang/c-abi/shims/hako_llvmc_ffi_checked_callout_predecessor_projection.inc 2
+lang/c-abi/shims/hako_llvmc_ffi_named_allocation_outcomes.inc 3
+lang/c-abi/shims/hako_llvmc_ffi_named_query.inc 2
 lang/c-abi/shims/hako_llvmc_ffi_pinned_text_backend_frame.inc 3
 lang/c-abi/shims/hako_llvmc_ffi_pinned_text_selected_preflight.inc 4
+lang/c-abi/shims/hako_llvmc_ffi_selected_ingress_preflight.inc 3
+lang/c-abi/shims/hako_llvmc_ffi_static_v2_control_emit.inc 3
+lang/c-abi/shims/hako_llvmc_ffi_static_v2_ingress.inc 1

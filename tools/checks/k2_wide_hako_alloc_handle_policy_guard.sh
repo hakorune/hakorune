@@ -6,6 +6,7 @@ cd "$ROOT_DIR"
 source tools/checks/lib/cargo_test_filter_group.sh
 
 HOST_HANDLES_FILE="src/runtime/host_handles.rs"
+HOST_HANDLES_CALL_LIFETIME_FILE="src/runtime/host_handles/call_lifetime.rs"
 HOST_HANDLES_POLICY_FILE="src/runtime/host_handles_policy.rs"
 ENV_FLAGS_FILE="src/config/env/helper_boundary_flags.rs"
 
@@ -23,7 +24,7 @@ cargo test -q -p nyash_kernel string_indexof_hh_cached_pair_route_roundtrip --li
 echo "[k2-wide-hako-alloc-handle-policy] --- policy/body route lock ---"
 rg -F -q 'host_handles_policy::take_reusable_handle(policy_mode, &mut table.free)' "$HOST_HANDLES_FILE"
 rg -F -q 'host_handles_policy::issue_fresh_handle(policy_mode, &mut table.next)' "$HOST_HANDLES_FILE"
-rg -F -q 'host_handles_policy::recycle_handle(self.alloc_policy_mode(), &mut table.free, h);' "$HOST_HANDLES_FILE"
+rg -F -q 'host_handles_policy::recycle_handle(policy, &mut table.free, slot);' "$HOST_HANDLES_CALL_LIFETIME_FILE"
 rg -F -q 'host_handles_policy_lifo_reuses_last_dropped_handle' "$HOST_HANDLES_POLICY_FILE"
 rg -F -q 'host_handles_policy_none_disables_reuse' "$HOST_HANDLES_POLICY_FILE"
 rg -F -q 'HostHandleAllocPolicyMode::Lifo' "$HOST_HANDLES_POLICY_FILE"
