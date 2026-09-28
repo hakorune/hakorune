@@ -1,7 +1,7 @@
 date = "2026-09-28"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -17,21 +17,21 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-RETURN-POSITION-NEW-CLAIM S0 landed: OrdinaryNewResultClaimV1 +
-ResultNewHomePrefixV1 + LocalCommitV1::Result share the single
-ledger/emission owner; membership is proven by exact_stmt
-(Return{value} parent), never by the shared Value segment; emitted
-object must reach Return{value} exactly once. 6 semantic + 2 artifact
-tests green; `return new Point(1,2)` validates fully for child and
-Main.main. Argument/field positions stay out; retained-unavailable
-keeps artifact-source-unavailable. Next frontier: caller-side Handle
-result ABI — `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0`. Gate 1
-remains unsatisfied.
+RETURN-HANDLE-RESULT-ABI S0 landed: direct-call `local h = make(0)`
+installs the callee's canonical object as an owned caller Home —
+LocalCallResultClassV1::Handle + CallReceivedCommitV1, one
+Invoke{result:Handle} + InvokeNormalResult typed MirType::Box(class),
+exactly one HomeRelease at exit, no caller-side NewBox/Copy.
+`callable_result_classes` coverage widened to all cataloged keys so
+static-box siblings claim their class. Negatives reject; lexical
+`w.make()` stays deferred. 29/29 lifecycle tests green; zero
+current-change failures vs parent. Gate 1 remains unsatisfied.
+Next frontier: `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0`.
 """
-next_design_card = "MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0"
+next_design_card = "MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -46,7 +46,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-29: MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0+S0 landed — direct-call `local h = make(0)` installs the callee's canonical object as an owned caller Home (CallReceivedCommitV1), one Handle invoke + projection typed MirType::Box(class), exactly one HomeRelease, no caller-side NewBox/Copy; result-class claims now cover all cataloged keys. Negatives reject; lexical `w.make()` deferred. Next: MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0.",
   "2026-09-28: MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-S0 landed — destination-less result claims co-seal through the single ledger/emission owner; `return new Point(1,2)` validates fully (child + Main.main); argument/field positions stay outside; unavailable stays artifact-source-unavailable. Next: MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0.",
   "2026-09-28: MIRBUILDER-GATE1-ARTIFACT-LIFECYCLE-COVERAGE-D0+S0 landed — coverage stays universal; child owners with RetainedUnavailable commit rows freeze artifact-source-unavailable before coverage (closes the no-birth NewBox-only bypass); claimless non-initializer new keeps artifact-unowned-lifecycle-site. Next: MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-D0.",
-  "2026-09-28: MIRBUILDER-GATE1-INVOKE-TERMINATOR-JSON-EMIT-D0+S0 landed — generic mir_json_emit stays closed to lifecycle Invoke per the accepted SSOT decision; typed_object_untyped_field_min_exe re-pointed to the physical v2 route (negative Invoke pin kept), true terminal is artifact-source-unavailable; typed_object_method_min_exe PASS exit 30 proves the transport end-to-end. Next: MIRBUILDER-GATE1-UNRELEASABLE-HOME-ARTIFACT-ADMISSION-D0.",
 ]

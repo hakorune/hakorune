@@ -334,7 +334,8 @@ impl<'module> PublishedMirBackendView<'module> {
                         birth_functions.push((physical_index, function));
                     }
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
-                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. } => {
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. } => {
                         let key = function
                             .role()
                             .ordinary_target()

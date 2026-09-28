@@ -19,6 +19,11 @@ enum StoredLocal {
     Home {
         acquisition: super::OwnedExprSiteV1,
     },
+    /// A call-result handle the caller received as an owned Home. It owes
+    /// the caller's exit exactly one release like a `Home`, but its
+    /// acquisition is a call site — never a `new` site — so the
+    /// home-acquisition lookups must not surface it.
+    ReceivedHandle,
     Map,
     /// A `: MapBox` declared formal — caller-owned map storage borrowed
     /// read-only for the call. It reads like a live map but owns nothing:
@@ -140,9 +145,10 @@ impl<'source> PrefixLocalFlow<'source> {
             return None;
         };
         match self.locals.get(&binding)? {
-            StoredLocal::Home { .. } | StoredLocal::Map | StoredLocal::BorrowedMap => {
-                Some(OrdinaryObservation::Handle(binding))
-            }
+            StoredLocal::Home { .. }
+            | StoredLocal::ReceivedHandle
+            | StoredLocal::Map
+            | StoredLocal::BorrowedMap => Some(OrdinaryObservation::Handle(binding)),
             StoredLocal::Handle(root)
                 if !matches!(self.locals.get(root), Some(StoredLocal::Consumed)) =>
             {
@@ -200,6 +206,12 @@ impl<'source> PrefixLocalFlow<'source> {
     }
     pub(super) fn install_map(&mut self, binding: BindingRefV1) {
         self.locals.insert(binding, StoredLocal::Map);
+    }
+
+    /// A received call-result handle: the caller owns it as a Home but it
+    /// carries no `new` acquisition site, so it installs on its own arm.
+    pub(super) fn install_received_handle(&mut self, binding: BindingRefV1) {
+        self.locals.insert(binding, StoredLocal::ReceivedHandle);
     }
 
     pub(super) fn install_i64_call_result(&mut self, binding: BindingRefV1) {

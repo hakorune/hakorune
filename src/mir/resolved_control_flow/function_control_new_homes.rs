@@ -42,6 +42,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
+        &mut |_| Ok(false),
         &std::collections::BTreeSet::new(),
     )?;
     Ok(result.map(|(completion, prefixes, terminal, _, _)| {
@@ -81,6 +82,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     ) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1) -> Result<bool, E>,
+    local_handle_call: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1) -> Result<bool, E>,
     result_sites: &std::collections::BTreeSet<crate::mir::resolved_semantics::OwnedExprSiteV1>,
 ) -> Result<
     Result<
@@ -125,6 +127,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
             map_compatible,
             terminal_call,
             local_map_call,
+            local_handle_call,
         )?;
     match &mut completion {
         VerifiedFunctionCompletionV1::ExplicitReturn(row) => row.cleanup.attach_root_flow(homes),

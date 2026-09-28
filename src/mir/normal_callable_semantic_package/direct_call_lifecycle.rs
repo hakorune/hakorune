@@ -14,7 +14,7 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     TerminalMapGetReceiverClassV1, TerminalRelationV1, TerminalReturnedSourceV1,
 };
 use crate::mir::resolved_semantics::{
-    BodyExpressionShapeV1, ExactCallableParamAbiV1, SourceBindingSiteV1,
+    BodyExpressionShapeV1, BodyStatementShapeV1, ExactCallableParamAbiV1, SourceBindingSiteV1,
 };
 
 fn map_owned(
@@ -91,8 +91,59 @@ pub(in crate::mir::normal_callable_semantic_package) fn map_result_callee(
     )
 }
 
+/// Whether the callable's sealed body proves an owned-object result:
+/// its last statement is a `return` with a value and EVERY `return` row
+/// constructs `new` of one agreed class — the same source facts the
+/// `callable_result_classes` claim seals. The header annotation alone
+/// never decides this, and the sealed terminal relation is re-checked
+/// against this class at co-seal.
+fn construction_result_callee(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    callable: crate::mir::resolved_semantics::ResolvedCallableRefV1,
+) -> bool {
+    let mut declarations = batch
+        .declarations()
+        .filter(|declaration| declaration.owner() == callable.owner());
+    let Some(declaration) = declarations.next() else {
+        return false;
+    };
+    if declarations.next().is_some() {
+        return false;
+    }
+    let body = declaration.body_shape();
+    if !matches!(
+        body.statements().last(),
+        Some(BodyStatementShapeV1::Return {
+            value: Some(_),
+            ..
+        })
+    ) {
+        return false;
+    }
+    let mut class: Option<Box<str>> = None;
+    for statement in body.statements() {
+        let BodyStatementShapeV1::Return { value, .. } = statement else {
+            continue;
+        };
+        let Some(site) = value else {
+            return false;
+        };
+        let Some(construction_class) = declaration.construction_class(site) else {
+            return false;
+        };
+        match &class {
+            None => class = Some(construction_class),
+            Some(existing) if existing.as_ref() == construction_class.as_ref() => {}
+            Some(_) => return false,
+        }
+    }
+    class.is_some()
+}
+
 /// The callee's own terminal relation is the sole result-class evidence:
-/// a Map-source `return` yields a `Map` call result, every other admitted
+/// a Map-source `return` yields a `Map` call result, a `return new`
+/// construction yields a `Handle` call result (the caller receives the
+/// transferred object as an owned Home), and every other admitted
 /// relation stays `I64`. An `OpaqueCall` terminal proves no result class —
 /// the callee cannot publish an Invoke result kind until its return value
 /// is decomposed. Declared annotations never decide this.
@@ -101,14 +152,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn call_result_kind(
 ) -> Option<InvokeCallResultKind> {
     match terminal_relation {
         Some(TerminalRelationV1::OpaqueCall(_)) => None,
-        Some(TerminalRelationV1::Value(row))
-            if matches!(
-                row.returned(),
-                TerminalReturnedSourceV1::MapLiteral(_) | TerminalReturnedSourceV1::MapLocal(_)
-            ) =>
-        {
-            Some(InvokeCallResultKind::Map)
-        }
+        Some(TerminalRelationV1::Value(row)) => match row.returned() {
+            TerminalReturnedSourceV1::Construction(_) => Some(InvokeCallResultKind::Handle),
+            TerminalReturnedSourceV1::MapLiteral(_) | TerminalReturnedSourceV1::MapLocal(_) => {
+                Some(InvokeCallResultKind::Map)
+            }
+            _ => Some(InvokeCallResultKind::I64),
+        },
         _ => Some(InvokeCallResultKind::I64),
     }
 }
@@ -403,6 +453,40 @@ impl DirectCallDispositionLoanV1 {
         }
     }
 
+    /// A local call into an unannotated callee whose body returns one
+    /// `new` class: the header's `None` result is syntax only — the
+    /// callee's sealed terminal relation proves the Handle result class
+    /// at co-seal, and its `callable_result_classes` claim names it.
+    pub(in crate::mir::normal_callable_semantic_package) fn is_handle_result_call(
+        &self,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        site: &OwnedExprSiteV1,
+    ) -> bool {
+        if site.owner() != self.owner || input.owner() != self.owner {
+            return false;
+        }
+        match self.rows.get(site) {
+            Some(DirectCallDispositionSlotV1::Ready(row)) => {
+                row.emission.target().signature().result().is_none()
+                    && construction_result_callee(batch, row.emission.target().callable())
+                    && exact_formals(batch, parameters, row)
+                    && input
+                        .function()
+                        .direct_call_target(site.site())
+                        .is_some_and(|target| target.callable() == row.emission.target().callable())
+                    && input.function().direct_call_observations().any(
+                        |(observed_site, observation)| {
+                            observed_site == site.site()
+                                && observation.argument_sites() == row.argument_sites()
+                        },
+                    )
+            }
+            _ => false,
+        }
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn co_seal_lifecycle(
         &mut self,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -416,8 +500,13 @@ impl DirectCallDispositionLoanV1 {
             let DirectCallDispositionSlotV1::Ready(row) = slot else {
                 return Err(reject);
             };
+            // A construction-result callee leaves through the same
+            // lifecycle gates as a map-owned one: its unannotated header
+            // proves nothing, and the sealed terminal relation decides.
+            let construction_result =
+                construction_result_callee(batch, row.emission.target().callable());
             // Unavailable Map coverage is still Map-owned, never Scalar evidence.
-            if !map_owned(batch, row) {
+            if !map_owned(batch, row) && !construction_result {
                 // An unannotated target is callable only through the
                 // map-result lane; a scalar call into it has no admitted
                 // route.
@@ -514,10 +603,13 @@ impl DirectCallDispositionLoanV1 {
                 return Err(reject);
             }
             // The source scan classifies a local call by the callee's
-            // sealed header annotation: `:i64` observations carry the I64
-            // class, unannotated map-result callees carry the Map class.
+            // sealed header annotation and body facts: `:i64` observations
+            // carry the I64 class, an unannotated callee whose every
+            // `return` constructs one `new` class carries the Handle
+            // class, and other unannotated map-owned callees carry Map.
             let expected_class = match row.emission.target().signature().result() {
                 Some(ExactTrivialScalarAbiV1::I64) => LocalCallResultClassV1::I64,
+                None if construction_result => LocalCallResultClassV1::Handle,
                 None => LocalCallResultClassV1::Map,
             };
             let completion = root.call_source_completion_for_owner(self.owner);
@@ -597,6 +689,21 @@ impl DirectCallDispositionLoanV1 {
                                 map.complete()
                                     .is_some_and(|row| row.local_binding() == Some(*binding))
                             })
+                        }
+                        TerminalReturnedSourceV1::Construction(owned) => {
+                            // `return new <class>`: the callee's sealed
+                            // result claim/commit proves the transfer, and
+                            // its result-class claim names the class — no
+                            // annotation or generic JSON lane decides.
+                            owned.owner() == owner
+                                && root.result_transfer_proven(owned)
+                                && row
+                                    .emission
+                                    .target()
+                                    .published_key()
+                                    .is_some_and(|key| {
+                                        root.callable_result_class(key).is_some()
+                                    })
                         }
                         _ => false,
                     };

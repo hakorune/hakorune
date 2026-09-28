@@ -39,6 +39,13 @@ impl CallableSemanticLoweringState {
                 return Err(freeze("placement-map-result-drift"));
             }
             true
+        } else if ledger.handle_call_source(&owned).is_some() {
+            // A received call-result handle installs the invoke result
+            // itself — the caller owns that value, no Copy.
+            if !ledger.call_received_initializer_matches(&owned, binding, value) {
+                return Err(freeze("placement-handle-result-drift"));
+            }
+            true
         } else if let Some(reference) = self.variables.get(site.node()) {
             if !self.consumed_variables.contains(site.node())
                 || self.values.get(reference) != Some(&value)

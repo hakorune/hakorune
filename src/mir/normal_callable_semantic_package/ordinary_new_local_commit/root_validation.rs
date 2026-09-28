@@ -325,6 +325,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             let bindings = match row {
                 LocalCommitV1::Map(map) => map.checked_bindings()?,
+                LocalCommitV1::CallReceived(row) => row.checked_bindings()?,
                 LocalCommitV1::Ordinary(_) | LocalCommitV1::Result(_) => {
                     match row.new_emission().expect("new row carries emission") {
                         NewEmissionProgress::Emitted { bindings, .. } => bindings.as_slice(),

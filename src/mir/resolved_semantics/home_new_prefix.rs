@@ -132,6 +132,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
+        &mut |_| Ok(false),
     )
     .unwrap_or_else(|never| match never {})
     .0
@@ -165,6 +166,7 @@ pub(crate) fn scan_new_home_flow<E>(
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<
     (
         BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
@@ -759,6 +761,25 @@ pub(crate) fn scan_new_home_flow<E>(
                 local_calls.push(local_call);
                 homes.push(binding);
                 locals.install_map(binding);
+                continue;
+            }
+            if let Some(local_call) = local_call_flow::issue_local_call(
+                input,
+                statement.site(),
+                &owned,
+                declaration.clone(),
+                binding,
+                &homes,
+                local_call_flow::LocalCallResultClassV1::Handle,
+                local_handle_call,
+            )? {
+                // A received object handle installs as an owned caller
+                // Home: the callee transferred ownership at the Return
+                // edge, so this owner owes exactly one release at exit.
+                // Its acquisition is the call site, never a `new` site.
+                local_calls.push(local_call);
+                homes.push(binding);
+                locals.install_received_handle(binding);
                 continue;
             }
             if let Some(destination) = selected.get(&owned) {

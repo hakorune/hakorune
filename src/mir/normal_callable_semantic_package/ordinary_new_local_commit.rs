@@ -11,8 +11,9 @@ use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 use crate::mir::function::{RootOrdinaryNewObservation, RootOrdinaryNewUnavailable};
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    TerminalI64AddReturnV1, TerminalI64FieldReturnV1, TerminalIntegerLiteralReturnV1,
-    TerminalRelationV1, TerminalUnitReturnV1,
+    LocalCallObservationV1, LocalCallResultClassV1, TerminalI64AddReturnV1,
+    TerminalI64FieldReturnV1, TerminalIntegerLiteralReturnV1, TerminalRelationV1,
+    TerminalReturnedSourceV1, TerminalUnitReturnV1,
 };
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceNodeSiteV1,
@@ -364,6 +365,107 @@ impl NewResultCommitV1 {
     }
 }
 
+/// Caller-side commit row for `local h = <call>` where the callee's sealed
+/// terminal is `return new <class>`: the callee's canonical object changed
+/// ownership at the Return edge, and the caller installs the receiving
+/// local as an owned Home owing exactly one `HomeRelease`. The row keeps
+/// the callee's `object` identity — one object, one owner at a time — but
+/// this is a call-site acquisition, never a local `new` home.
+#[derive(Debug)]
+pub(super) struct CallReceivedCommitV1 {
+    owner: FunctionOwnerIdV1,
+    binding: BindingRefV1,
+    declaration: SourceBindingSiteV1,
+    object: hakorune_mir_defs::CanonicalObjectIdV1,
+    progress: CallReceivedProgress,
+}
+#[derive(Debug)]
+enum CallReceivedProgress {
+    Emitting,
+    Emitted {
+        result: ValueId,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+        phase: CallReceivedPhase,
+    },
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum CallReceivedPhase {
+    ExpressionCompleted,
+    Installed,
+    Checked,
+}
+impl CallReceivedCommitV1 {
+    /// The call's normal-result value before the local install — the
+    /// initializer the receiving statement binds.
+    pub(super) fn initializer(&self) -> Option<ValueId> {
+        match self.progress {
+            CallReceivedProgress::Emitted {
+                result,
+                phase: CallReceivedPhase::ExpressionCompleted,
+                ..
+            } => Some(result),
+            _ => None,
+        }
+    }
+    /// The received handle value once the local is installed — the same
+    /// value the sole `HomeRelease` reads at the caller's terminal exit.
+    pub(super) fn local(&self) -> Option<ValueId> {
+        match self.progress {
+            CallReceivedProgress::Emitted {
+                result,
+                phase: CallReceivedPhase::Installed | CallReceivedPhase::Checked,
+                ..
+            } => Some(result),
+            _ => None,
+        }
+    }
+    pub(super) fn install(&mut self, local: ValueId) {
+        match &mut self.progress {
+            CallReceivedProgress::Emitted {
+                result,
+                phase,
+                ..
+            } if *result == local && *phase == CallReceivedPhase::ExpressionCompleted => {
+                *phase = CallReceivedPhase::Installed
+            }
+            _ => unreachable!("call-received local batch preflight"),
+        }
+    }
+    pub(super) fn mark_checked(&mut self) {
+        match &mut self.progress {
+            CallReceivedProgress::Emitted { phase, .. } => {
+                *phase = CallReceivedPhase::Checked
+            }
+            _ => unreachable!("call-received emission batch validation"),
+        }
+    }
+    pub(super) fn is_complete(&self) -> bool {
+        matches!(
+            self.progress,
+            CallReceivedProgress::Emitted {
+                phase: CallReceivedPhase::Checked,
+                ..
+            }
+        )
+    }
+    pub(super) fn end_operation(&self) -> InvokeOperation {
+        InvokeOperation::HomeRelease {
+            object: self.object,
+            value: self.local().expect("installed received handle"),
+        }
+    }
+    pub(super) fn checked_bindings(&self) -> Result<&[(BasicBlockId, MirInstruction)], String> {
+        match &self.progress {
+            CallReceivedProgress::Emitted {
+                bindings,
+                phase: CallReceivedPhase::Checked,
+                ..
+            } => Ok(bindings),
+            _ => Err(freeze("artifact-handle-unchecked")),
+        }
+    }
+}
+
 // One lookup over installed physical bindings; source order remains caller-owned.
 #[derive(Debug)]
 pub(super) enum HomeLookupError {
@@ -432,7 +534,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let emission = match row {
                 LocalCommitV1::Ordinary(row) => Some(&row.emission),
                 LocalCommitV1::Result(row) => Some(&row.emission),
-                LocalCommitV1::Map(_) => None,
+                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) => None,
             };
             emission.is_some_and(|emission| {
                 matches!(emission, NewEmissionProgress::RetainedUnavailable { .. })
@@ -694,6 +796,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 LocalCommitV1::Ordinary(row) => row.emission.mark_checked(),
                 LocalCommitV1::Result(row) => row.emission.mark_result_checked(),
                 LocalCommitV1::Map(row) => row.mark_checked(),
+                LocalCommitV1::CallReceived(row) => row.mark_checked(),
             }
         }
         Ok(())
@@ -757,6 +860,109 @@ impl OrdinaryNewClaimLedgerV1 {
             .complete_expression(value)
     }
 
+    /// The sealed handle-result local call at this expression site: the
+    /// caller receives an owned transferred object at the Return edge.
+    pub(crate) fn handle_call_source(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Option<&LocalCallObservationV1> {
+        self.completion_for_owner(site.owner())
+            .and_then(|c| c.cleanup().root_flow())
+            .and_then(|flow| {
+                flow.local_calls().iter().find(|call| {
+                    call.site() == site
+                        && call.owner() == site.owner()
+                        && call.result() == LocalCallResultClassV1::Handle
+                })
+            })
+    }
+
+    /// The canonical object the callee's result claim/commit minted for a
+    /// `return new` site — the identity a caller-side received handle keeps.
+    pub(crate) fn result_object(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Option<CanonicalObjectIdV1> {
+        if let Some(LocalCommitV1::Result(row)) = self.local_commits.borrow().get(site) {
+            return Some(row.object());
+        }
+        self.result_claims
+            .borrow()
+            .get(site)
+            .map(|claim| claim.object())
+    }
+
+    /// Begin emission for a handle-result local `Call`: the sealed
+    /// local-call relation is sole membership, the callee's retained
+    /// `Value(Construction)` terminal is the sole result-kind authority,
+    /// and its minted object is the identity the received handle keeps.
+    pub(crate) fn begin_handle_call_emission(
+        &self,
+        site: &OwnedExprSiteV1,
+        callee: FunctionOwnerIdV1,
+    ) -> Result<(), String> {
+        let call = self
+            .handle_call_source(site)
+            .ok_or_else(|| freeze("handle-call-source-missing"))?;
+        if !matches!(call.declaration(), SourceBindingSiteV1::Local { .. }) {
+            return Err(freeze("handle-call-declaration-drift"));
+        }
+        let construction_site = match self.terminal_relation_for_owner(callee) {
+            Some(TerminalRelationV1::Value(row)) if row.owner() == callee => {
+                match row.returned() {
+                    TerminalReturnedSourceV1::Construction(owned)
+                        if owned.owner() == callee =>
+                    {
+                        owned.clone()
+                    }
+                    _ => return Err(freeze("handle-result-terminal-mismatch")),
+                }
+            }
+            _ => return Err(freeze("handle-result-terminal-missing")),
+        };
+        let object = self
+            .result_object(&construction_site)
+            .ok_or_else(|| freeze("handle-result-object-missing"))?;
+        let mut rows = self.local_commits.borrow_mut();
+        if rows.contains_key(site) {
+            return Err(freeze("handle-duplicate-emission"));
+        }
+        rows.insert(
+            site.clone(),
+            LocalCommitV1::CallReceived(CallReceivedCommitV1 {
+                owner: site.owner(),
+                binding: call.destination(),
+                declaration: call.declaration().clone(),
+                object,
+                progress: CallReceivedProgress::Emitting,
+            }),
+        );
+        Ok(())
+    }
+
+    pub(crate) fn record_handle_call_emission(
+        &self,
+        site: &OwnedExprSiteV1,
+        result: ValueId,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+    ) -> Result<(), String> {
+        let mut rows = self.local_commits.borrow_mut();
+        let Some(LocalCommitV1::CallReceived(row)) = rows.get_mut(site) else {
+            return Err(freeze("handle-record-without-begin"));
+        };
+        if !matches!(row.progress, CallReceivedProgress::Emitting)
+            || bindings.is_empty()
+        {
+            return Err(freeze("handle-emission-state-drift"));
+        }
+        row.progress = CallReceivedProgress::Emitted {
+            result,
+            bindings,
+            phase: CallReceivedPhase::ExpressionCompleted,
+        };
+        Ok(())
+    }
+
     /// The caller supplies exact BindingRefs from the existing callable state
     /// and values from the sole completed-local terminal. Validate the entire
     /// statement before committing any row, including ordinal and RHS identity.
@@ -798,7 +1004,10 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             if row.initializer() != Some(*initializer)
                 || (matches!(row, LocalCommitV1::Ordinary(_)) && initializer == local)
-                || (matches!(row, LocalCommitV1::Map(_)) && initializer != local)
+                || (matches!(
+                    row,
+                    LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_)
+                ) && initializer != local)
             {
                 return Err(freeze("local-initializer-mismatch"));
             }

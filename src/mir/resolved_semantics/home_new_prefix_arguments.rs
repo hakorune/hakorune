@@ -39,6 +39,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
+        &mut |_| Ok(false),
     )
     .unwrap_or_else(|never| match never {});
     (prefixes, observations, result_prefixes)

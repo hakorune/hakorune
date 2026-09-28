@@ -14,10 +14,13 @@ pub(in crate::mir::builder::ordinary_new_admission) struct Emission {
     pub(super) result: InvokeCallResultKind,
 }
 
-fn result_type(result: InvokeCallResultKind) -> MirType {
+fn result_type(result: InvokeCallResultKind, class: Option<&str>) -> Result<MirType, String> {
     match result {
-        InvokeCallResultKind::Map => MirType::Box("MapBox".to_string()),
-        _ => MirType::Integer,
+        InvokeCallResultKind::Map => Ok(MirType::Box("MapBox".to_string())),
+        InvokeCallResultKind::Handle => class
+            .map(|class| MirType::Box(class.to_string()))
+            .ok_or_else(|| freeze("handle-result-class-missing")),
+        _ => Ok(MirType::Integer),
     }
 }
 
@@ -78,7 +81,7 @@ pub(in crate::mir::builder) fn emit(
         .function_state
         .type_ctx
         .value_types
-        .insert(value, result_type(result));
+        .insert(value, result_type(result, None)?);
     emit_root_home_exit_payload(
         builder,
         state,
@@ -117,7 +120,7 @@ pub(in crate::mir::builder) fn emit_instance(
         .function_state
         .type_ctx
         .value_types
-        .insert(value, result_type(result));
+        .insert(value, result_type(result, None)?);
     emit_root_home_exit_payload(
         builder,
         state,
@@ -209,12 +212,22 @@ pub(in crate::mir::builder) fn emit_local(
     }
     let result_kind = row.result();
     let owned_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
-    if result_kind == InvokeCallResultKind::Map {
-        ledger.begin_map_call_emission(&owned_site)?;
-    }
-    let call = row
+    let lifecycle = row
         .lifecycle_emission()
-        .map_err(|_| freeze("local-call-source-mismatch"))?
+        .map_err(|_| freeze("local-call-source-mismatch"))?;
+    match result_kind {
+        InvokeCallResultKind::Map => ledger.begin_map_call_emission(&owned_site)?,
+        // The callee's canonical object moves to this owner at the Return
+        // edge; begin records it so terminal cleanup owes one HomeRelease.
+        InvokeCallResultKind::Handle => {
+            ledger.begin_handle_call_emission(
+                &owned_site,
+                lifecycle.target().callable().owner(),
+            )?
+        }
+        _ => {}
+    }
+    let call = lifecycle
         .materialize_call(None, arguments)
         .map_err(|_| freeze("local-call-projection-failed"))?;
     let frame = state.borrow_fault_frame(builder)?;
@@ -253,17 +266,31 @@ pub(in crate::mir::builder) fn emit_local(
         dst: result,
     };
     builder.emit_instruction(projection.clone())?;
+    let result_class = match result_kind {
+        InvokeCallResultKind::Handle => Some(
+            lifecycle
+                .target()
+                .published_key()
+                .and_then(|key| ledger.callable_result_class(key))
+                .ok_or_else(|| freeze("handle-result-class-missing"))?,
+        ),
+        _ => None,
+    };
     builder
         .function_state
         .type_ctx
         .value_types
-        .insert(result, result_type(result_kind));
+        .insert(result, result_type(result_kind, result_class)?);
     bindings.push((origin, invoke));
     bindings.push((normal_landing, projection));
-    if result_kind == InvokeCallResultKind::Map {
-        ledger.record_map_emission(&owned_site, result, bindings)?;
-    } else {
-        ledger.record_root_local_call_bindings(owner, owned_site, bindings)?;
+    match result_kind {
+        InvokeCallResultKind::Map => {
+            ledger.record_map_emission(&owned_site, result, bindings)?
+        }
+        InvokeCallResultKind::Handle => {
+            ledger.record_handle_call_emission(&owned_site, result, bindings)?
+        }
+        _ => ledger.record_root_local_call_bindings(owner, owned_site, bindings)?,
     }
     Ok(result)
 }

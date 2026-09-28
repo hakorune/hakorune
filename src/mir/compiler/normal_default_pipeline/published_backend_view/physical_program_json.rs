@@ -509,7 +509,10 @@ fn encode_invoke(
         }
         InvokeOperation::Call {
             call,
-            result: result_kind @ (InvokeCallResultKind::I64 | InvokeCallResultKind::Map),
+            result:
+                result_kind @ (InvokeCallResultKind::I64
+                | InvokeCallResultKind::Map
+                | InvokeCallResultKind::Handle),
         } => {
             if diagnostic_site.is_some() {
                 return Err(fault("site-on-ordinary-call"));
@@ -571,6 +574,7 @@ fn encode_invoke(
                 "call": call,
                 "result": match result_kind {
                     InvokeCallResultKind::Map => "map",
+                    InvokeCallResultKind::Handle => "handle",
                     _ => "i64",
                 },
             })

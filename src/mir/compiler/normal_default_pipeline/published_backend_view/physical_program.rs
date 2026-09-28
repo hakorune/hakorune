@@ -47,6 +47,12 @@ pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
         key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         receiver_object: Option<CanonicalObjectIdV1>,
     },
+    /// Caller-owned transferred object result (`return new` callee); the
+    /// caller holds the handle and owes exactly one release.
+    OrdinaryHandle {
+        key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        receiver_object: Option<CanonicalObjectIdV1>,
+    },
 }
 
 impl PublishedLifecyclePhysicalFunctionRoleV1 {
@@ -63,6 +69,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             Self::BirthUnit { .. } => "birth_unit",
             Self::OrdinaryI64 { .. } => "ordinary_i64",
             Self::OrdinaryMap { .. } => "ordinary_map",
+            Self::OrdinaryHandle { .. } => "ordinary_handle",
         }
     }
 
@@ -71,7 +78,10 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
     ) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
         match self {
             Self::BirthUnit { abi } => Some(abi.target()),
-            Self::Root { .. } | Self::OrdinaryI64 { .. } | Self::OrdinaryMap { .. } => None,
+            Self::Root { .. }
+            | Self::OrdinaryI64 { .. }
+            | Self::OrdinaryMap { .. }
+            | Self::OrdinaryHandle { .. } => None,
         }
     }
 
@@ -79,7 +89,9 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
         &self,
     ) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
         match self {
-            Self::OrdinaryI64 { key, .. } | Self::OrdinaryMap { key, .. } => Some(key),
+            Self::OrdinaryI64 { key, .. }
+            | Self::OrdinaryMap { key, .. }
+            | Self::OrdinaryHandle { key, .. } => Some(key),
             Self::Root { .. } | Self::BirthUnit { .. } => None,
         }
     }
@@ -91,6 +103,9 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             }
             | Self::OrdinaryMap {
                 receiver_object, ..
+            }
+            | Self::OrdinaryHandle {
+                receiver_object, ..
             } => *receiver_object,
             Self::Root { .. } | Self::BirthUnit { .. } => None,
         }
@@ -99,7 +114,9 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
     pub(crate) fn has_receiver(&self) -> bool {
         match self {
             Self::BirthUnit { .. } => true,
-            Self::OrdinaryI64 { key, .. } | Self::OrdinaryMap { key, .. } => {
+            Self::OrdinaryI64 { key, .. }
+            | Self::OrdinaryMap { key, .. }
+            | Self::OrdinaryHandle { key, .. } => {
                 key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
             }
             Self::Root { .. } => false,
@@ -373,7 +390,7 @@ impl<'module> PublishedMirBackendView<'module> {
                     (site.result, &function.signature.return_type),
                     (InvokeCallResultKind::I64, crate::mir::MirType::Integer)
                         | (
-                            InvokeCallResultKind::Map,
+                            InvokeCallResultKind::Map | InvokeCallResultKind::Handle,
                             crate::mir::MirType::Box(_) | crate::mir::MirType::Unknown,
                         )
                 )
@@ -391,6 +408,12 @@ impl<'module> PublishedMirBackendView<'module> {
                 }
                 InvokeCallResultKind::Map => {
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap {
+                        key: key.clone(),
+                        receiver_object,
+                    }
+                }
+                InvokeCallResultKind::Handle => {
+                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle {
                         key: key.clone(),
                         receiver_object,
                     }

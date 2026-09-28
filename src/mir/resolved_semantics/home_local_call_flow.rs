@@ -14,10 +14,14 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 /// Source-recorded result class of one local direct-call continuation.
 /// `Map` marks a call into an unannotated callee whose sealed terminal
 /// relation proves a Map return; `I64` marks the exact-i64 lane.
+/// `Handle` marks a call into an unannotated callee whose sealed terminal
+/// relation proves a `return new` construction — the caller receives the
+/// transferred object as an owned Home and owes exactly one release.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LocalCallResultClassV1 {
     I64,
     Map,
+    Handle,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

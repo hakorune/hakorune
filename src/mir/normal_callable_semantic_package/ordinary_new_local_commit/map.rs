@@ -224,9 +224,14 @@ impl OrdinaryNewClaimLedgerV1 {
                 }) && flow
                     .local_calls()
                     .iter()
-                    .filter(|call| call.result() == LocalCallResultClassV1::Map)
-                    .all(|call| {
-                        matches!(rows.get(call.site()), Some(LocalCommitV1::Map(row)) if row.is_complete())
+                    .filter(|call| {
+                        call.result() == LocalCallResultClassV1::Map
+                            || call.result() == LocalCallResultClassV1::Handle
+                    })
+                    .all(|call| match rows.get(call.site()) {
+                        Some(LocalCommitV1::Map(row)) => row.is_complete(),
+                        Some(LocalCommitV1::CallReceived(row)) => row.is_complete(),
+                        _ => false,
                     })
             })
     }
@@ -513,6 +518,21 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> bool {
         matches!(self.local_commits.borrow().get(site), Some(LocalCommitV1::Map(row))
             if row.binding == Some(binding) && row.initializer() == Some(value))
+    }
+    /// Placement correspondence for a received call-result handle: the
+    /// recorded CallReceived commit proves `binding` was bound to this
+    /// exact emitted result value, so the local can reuse it without a
+    /// Copy — the same no-copy receipt `map_initializer_matches` gives
+    /// the map-receive lane.
+    pub(crate) fn call_received_initializer_matches(
+        &self,
+        site: &OwnedExprSiteV1,
+        binding: BindingRefV1,
+        value: ValueId,
+    ) -> bool {
+        matches!(self.local_commits.borrow().get(site),
+            Some(LocalCommitV1::CallReceived(row))
+                if row.binding == binding && row.initializer() == Some(value))
     }
     pub(crate) fn is_installed_map_binding(&self, binding: BindingRefV1, value: ValueId) -> bool {
         self.local_commits.borrow().values().any(|row|

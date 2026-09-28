@@ -51,7 +51,8 @@ pub(super) fn issue_birth_calls_for_program(
         let owner = match function.role() {
             PublishedLifecyclePhysicalFunctionRoleV1::Root { .. } => Some(root_owner),
             PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key, .. }
-            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { key, .. } => {
+            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { key, .. }
+            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { key, .. } => {
                 let has_birth = function.blocks().iter().any(|block| {
                     block
                         .instructions()

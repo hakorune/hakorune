@@ -6,30 +6,31 @@ pub(in crate::mir::normal_callable_semantic_package) enum LocalCommitV1 {
     Ordinary(NewLocalCommitV1),
     Result(NewResultCommitV1),
     Map(MapLocalProgress),
+    CallReceived(CallReceivedCommitV1),
 }
 impl LocalCommitV1 {
     pub(super) fn ordinary(&self) -> Option<&NewLocalCommitV1> {
         match self {
             Self::Ordinary(row) => Some(row),
-            Self::Result(_) | Self::Map(_) => None,
+            Self::Result(_) | Self::Map(_) | Self::CallReceived(_) => None,
         }
     }
     pub(super) fn ordinary_mut(&mut self) -> Option<&mut NewLocalCommitV1> {
         match self {
             Self::Ordinary(row) => Some(row),
-            Self::Result(_) | Self::Map(_) => None,
+            Self::Result(_) | Self::Map(_) | Self::CallReceived(_) => None,
         }
     }
     pub(super) fn result(&self) -> Option<&NewResultCommitV1> {
         match self {
             Self::Result(row) => Some(row),
-            Self::Ordinary(_) | Self::Map(_) => None,
+            Self::Ordinary(_) | Self::Map(_) | Self::CallReceived(_) => None,
         }
     }
     pub(super) fn result_mut(&mut self) -> Option<&mut NewResultCommitV1> {
         match self {
             Self::Result(row) => Some(row),
-            Self::Ordinary(_) | Self::Map(_) => None,
+            Self::Ordinary(_) | Self::Map(_) | Self::CallReceived(_) => None,
         }
     }
     /// Shared emission-state access for ordinary and result rows — the
@@ -39,14 +40,14 @@ impl LocalCommitV1 {
         match self {
             Self::Ordinary(row) => Some(&row.emission),
             Self::Result(row) => Some(&row.emission),
-            Self::Map(_) => None,
+            Self::Map(_) | Self::CallReceived(_) => None,
         }
     }
     pub(super) fn new_emission_mut(&mut self) -> Option<&mut NewEmissionProgress> {
         match self {
             Self::Ordinary(row) => Some(&mut row.emission),
             Self::Result(row) => Some(&mut row.emission),
-            Self::Map(_) => None,
+            Self::Map(_) | Self::CallReceived(_) => None,
         }
     }
     pub(super) fn new_box_source(
@@ -55,7 +56,7 @@ impl LocalCommitV1 {
         match self {
             Self::Ordinary(row) => Some(&row.box_source),
             Self::Result(row) => Some(&row.box_source),
-            Self::Map(_) => None,
+            Self::Map(_) | Self::CallReceived(_) => None,
         }
     }
     pub(super) fn new_argument_rows(
@@ -69,7 +70,7 @@ impl LocalCommitV1 {
         match self {
             Self::Ordinary(row) => Some(&row.argument_rows),
             Self::Result(row) => Some(&row.argument_rows),
-            Self::Map(_) => None,
+            Self::Map(_) | Self::CallReceived(_) => None,
         }
     }
     pub(super) fn binding(&self) -> Option<BindingRefV1> {
@@ -78,6 +79,7 @@ impl LocalCommitV1 {
             // A returned construction installs no local destination.
             Self::Result(_) => None,
             Self::Map(row) => row.binding,
+            Self::CallReceived(row) => Some(row.binding),
         }
     }
     pub(super) fn owner(&self) -> FunctionOwnerIdV1 {
@@ -85,6 +87,7 @@ impl LocalCommitV1 {
             Self::Ordinary(row) => row.binding.owner(),
             Self::Result(row) => row.site.owner(),
             Self::Map(row) => row.owner,
+            Self::CallReceived(row) => row.owner,
         }
     }
     pub(super) fn declaration(&self) -> Option<&SourceBindingSiteV1> {
@@ -92,6 +95,7 @@ impl LocalCommitV1 {
             Self::Ordinary(row) => Some(&row.declaration),
             Self::Result(_) => None,
             Self::Map(row) => row.declaration.as_ref(),
+            Self::CallReceived(row) => Some(&row.declaration),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn is_complete(&self) -> bool {
@@ -99,6 +103,7 @@ impl LocalCommitV1 {
             Self::Ordinary(row) => row.is_complete(),
             Self::Result(row) => row.is_complete(),
             Self::Map(row) => row.is_complete(),
+            Self::CallReceived(row) => row.is_complete(),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn installs(
@@ -109,6 +114,9 @@ impl LocalCommitV1 {
             Self::Ordinary(row) => row.installs(binding),
             Self::Result(_) => false,
             Self::Map(row) => row.binding == Some(binding) && row.local().is_some(),
+            Self::CallReceived(row) => {
+                row.binding == binding && row.local().is_some()
+            }
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn installs_ordinary(
@@ -124,6 +132,7 @@ impl LocalCommitV1 {
             // value itself; no physical local binding exists to expose.
             Self::Result(_) => None,
             Self::Map(row) => row.local(),
+            Self::CallReceived(row) => row.local(),
         }
     }
     pub(super) fn ordinary_object(&self) -> Option<CanonicalObjectIdV1> {
@@ -134,6 +143,7 @@ impl LocalCommitV1 {
             Self::Ordinary(row) => row.emission.completed_initializer(),
             Self::Result(_) => None,
             Self::Map(row) => row.initializer(),
+            Self::CallReceived(row) => row.initializer(),
         }
     }
     pub(super) fn install(&mut self, local: ValueId) {
@@ -144,6 +154,7 @@ impl LocalCommitV1 {
                 unreachable!("result-position `new` claims install no local")
             }
             Self::Map(row) => row.install(local),
+            Self::CallReceived(row) => row.install(local),
         }
     }
     pub(super) fn end_available(&self) -> bool {
@@ -157,6 +168,8 @@ impl LocalCommitV1 {
             // returned object.
             Self::Result(_) => false,
             Self::Map(row) => row.local().is_some(),
+            // The caller received an owned handle; it owes one release.
+            Self::CallReceived(row) => row.local().is_some(),
         }
     }
     pub(super) fn end_operation(&self) -> InvokeOperation {
@@ -168,6 +181,7 @@ impl LocalCommitV1 {
                     map: row.local().expect("installed Map"),
                 })
             }
+            Self::CallReceived(row) => row.end_operation(),
         }
     }
     pub(super) fn at_statement(&self, owner: FunctionOwnerIdV1, site: &SourceNodeSiteV1) -> bool {
@@ -183,6 +197,9 @@ impl LocalCommitV1 {
             Self::Ordinary(row) => row.construction(),
             Self::Result(row) => row.construction(),
             Self::Map(_) => panic!("map row has no construction eligibility"),
+            Self::CallReceived(_) => {
+                panic!("call-received row has no construction eligibility")
+            }
         }
     }
 }

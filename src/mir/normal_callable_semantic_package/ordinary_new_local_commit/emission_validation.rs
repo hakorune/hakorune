@@ -41,11 +41,17 @@ impl OrdinaryNewClaimLedgerV1 {
                     self.validate_map_emission(site, function, projection)?;
                     continue;
                 }
+                LocalCommitV1::CallReceived(_) => {
+                    self.validate_call_received_emission(site, function, projection)?;
+                    continue;
+                }
             };
             let row_emission = match row {
                 LocalCommitV1::Ordinary(row) => &row.emission,
                 LocalCommitV1::Result(row) => &row.emission,
-                LocalCommitV1::Map(_) => unreachable!("map rows returned above"),
+                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) => {
+                    unreachable!("map and call-received rows returned above")
+                }
             };
             match row_emission {
                 NewEmissionProgress::RetainedUnavailable { .. } => {}
@@ -222,6 +228,84 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 _ => return Err(freeze("emission-residual")),
             }
+        }
+        Ok(())
+    }
+
+    /// A handle-result local `Call` emits exactly one `Invoke{Call{Handle}}`
+    /// whose normal result the receiving local keeps, and the caller's
+    /// terminal cleanup owes exactly one `HomeRelease` on the callee's
+    /// canonical object identity.
+    fn validate_call_received_emission(
+        &self,
+        site: &OwnedExprSiteV1,
+        function: &MirFunction,
+        projection: Option<&super::physical_boundary::FinishedBindings>,
+    ) -> Result<(), String> {
+        let call = self
+            .handle_call_source(site)
+            .ok_or_else(|| freeze("handle-call-source-missing"))?;
+        let rows = self.local_commits.borrow();
+        let Some(LocalCommitV1::CallReceived(row)) = rows.get(site) else {
+            return Err(freeze("handle-progress-missing"));
+        };
+        if row.binding != call.destination() || row.local().is_none() {
+            return Err(freeze("handle-local-incomplete"));
+        }
+        let CallReceivedProgress::Emitted {
+            result, bindings, ..
+        } = &row.progress
+        else {
+            return Err(freeze("handle-emission-incomplete"));
+        };
+        let invokes: Vec<_> = bindings
+            .iter()
+            .filter(|(_, instruction)| {
+                matches!(instruction, MirInstruction::Invoke {
+                    operation: InvokeOperation::Call {
+                        call: emitted,
+                        result: InvokeCallResultKind::Handle,
+                    },
+                    ..
+                } if emitted.args.len() == call.arguments().len())
+            })
+            .collect();
+        if invokes.len() != 1 {
+            return Err(freeze("handle-call-invoke-drift"));
+        }
+        if !bindings.iter().any(|(_, instruction)| {
+            matches!(instruction, MirInstruction::InvokeNormalResult { invoke_block, dst }
+                if *invoke_block == invokes[0].0 && *dst == *result)
+        }) {
+            return Err(freeze("handle-call-projection-drift"));
+        }
+        for (block, expected) in bindings {
+            if !super::physical_boundary::check_binding(
+                function, projection, *block, expected,
+            )? {
+                return Err(freeze("emission-binding-drift"));
+            }
+        }
+        let releases = function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .filter(|instruction| {
+                matches!(
+                    instruction,
+                    MirInstruction::Invoke {
+                        operation: InvokeOperation::HomeRelease { object, value },
+                        ..
+                    } if *object == row.object && value == result
+                )
+            })
+            .count();
+        if releases != 1 {
+            return Err(freeze(if releases == 0 {
+                "handle-release-missing"
+            } else {
+                "handle-release-duplicate"
+            }));
         }
         Ok(())
     }

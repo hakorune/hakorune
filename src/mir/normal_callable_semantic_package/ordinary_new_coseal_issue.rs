@@ -311,6 +311,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             Ok(owner_loan.is_some_and(|loan| {
                                 loan.is_map_result_call(batch, parameter_contracts, input, site)
                             }))
+                        }, &mut |site| {
+                            Ok(owner_loan.is_some_and(|loan| {
+                                loan.is_handle_result_call(batch, parameter_contracts, input, site)
+                            }))
                         }, &result_sites)? {
                         Ok((
                             completion,
@@ -559,12 +563,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
                     return None;
                 };
-                (selected.batch_slot(selected_key) == Some(declaration.batch_slot())
-                    && key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod)
+                (selected.batch_slot(selected_key) == Some(declaration.batch_slot()))
                     .then(|| key.clone())
             })
             .next();
-        let owner_box = selected_key.as_ref().map(|key| key.owner());
+        // Field-write claims belong to instance boxes; the result-class
+        // claim admits any cataloged key — a static-box sibling returning
+        // `return new <class>` names the class for the direct-call
+        // handle-result edge too.
+        let owner_box = selected_key
+            .as_ref()
+            .filter(|key| key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod)
+            .map(|key| key.owner());
         batch
             .with_lowering_input(declaration.batch_slot(), |input| {
                 field_write_draft.observe_function(

@@ -442,6 +442,14 @@ impl OrdinaryNewClaimLedgerV1 {
         ))
     }
 
+    /// Whether the callee's result-position claim either still awaits
+    /// take or already committed — the co-seal coverage arm for a
+    /// `Construction` call result uses it as the transfer proof. The
+    /// claim row itself stays affine; this peek consumes nothing.
+    pub(crate) fn result_transfer_proven(&self, site: &OwnedExprSiteV1) -> bool {
+        self.result_claims.borrow().contains_key(site) || self.has_result_new_commit(site)
+    }
+
     /// Whether a taken return-position commit row exists at this exact
     /// site. Used by the caller's completion-forwarding gate — a `Value`
     /// segment is shared by assignment/print/nowait children that hold no

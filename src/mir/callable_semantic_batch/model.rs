@@ -472,6 +472,22 @@ impl VerifiedResolvedCallableSemanticDeclarationRefV1<'_> {
     pub(crate) fn body_shape(&self) -> &VerifiedResolvedBodyShapeInventoryV1 {
         &self.row.body_shape
     }
+
+    /// The declared class of one named-construction source row, from the
+    /// callable's own resolved-expression inventory via the callable
+    /// source ledger — the sole issuer; a missing row returns `None`,
+    /// never a fallback.
+    pub(crate) fn construction_class(
+        &self,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Option<Box<str>> {
+        self.row
+            .forest
+            .callable_source_ledger(self.row.owner)
+            .ok()?
+            .construction_source(site)
+            .map(|row| row.class().into())
+    }
 }
 
 #[derive(Debug)]

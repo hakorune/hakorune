@@ -38,6 +38,10 @@ pub enum InvokeCallResultKind {
     I64,
     /// The callee transfers a live checked-Map lease into caller-owned storage.
     Map,
+    /// The callee transfers an owned object across the Return edge; the
+    /// projected ValueId is a `MirType::Box(class)` handle the caller owns
+    /// and must release exactly once.
+    Handle,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -97,6 +101,10 @@ impl InvokeOperation {
                 result: InvokeCallResultKind::Map,
                 ..
             } => Some(InvokeNormalResultKind::Map),
+            Self::Call {
+                result: InvokeCallResultKind::Handle,
+                ..
+            } => Some(InvokeNormalResultKind::Handle),
             Self::Call {
                 result: InvokeCallResultKind::Unit,
                 ..

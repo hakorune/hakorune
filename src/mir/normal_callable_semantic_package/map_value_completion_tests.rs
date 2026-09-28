@@ -305,6 +305,7 @@ fn formal_projection_missing_duplicate_and_foreign_bindings_are_unavailable() {
                     &mut |_, _| Ok(false),
                     &mut |_| Ok(false),
                     &mut |_| Ok(false),
+                    &mut |_| Ok(false),
                 )
                 .unwrap();
                 assert!(flow.maps().iter().all(|map| map.complete().is_none()));

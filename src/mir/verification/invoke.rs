@@ -176,7 +176,7 @@ fn check_function_inner(
                         Callee::Global(
                             target @ Global::SameModule(SameModule::StaticBoxMethod { .. }),
                         ),
-                        ResultKind::I64 | ResultKind::Map,
+                        ResultKind::I64 | ResultKind::Map | ResultKind::Handle,
                     ) => target
                         .arity()
                         .is_some_and(|arity| arity as usize == call.args.len()),
@@ -184,11 +184,14 @@ fn check_function_inner(
                         Callee::Global(
                             target @ Global::SameModule(SameModule::FreeFunction { .. }),
                         ),
-                        ResultKind::I64 | ResultKind::Map,
+                        ResultKind::I64 | ResultKind::Map | ResultKind::Handle,
                     ) => target
                         .arity()
                         .is_some_and(|arity| arity as usize == call.args.len()),
-                    (Callee::SameModuleInstance { key, .. }, ResultKind::I64 | ResultKind::Map) => {
+                    (
+                        Callee::SameModuleInstance { key, .. },
+                        ResultKind::I64 | ResultKind::Map | ResultKind::Handle,
+                    ) => {
                         key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
                             && key.arity() as usize == call.args.len()
                     }

@@ -281,7 +281,7 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | 9e | DONE — `MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-D0` accepted below: a bounded return-position-only result-new commit family is admitted (OrdinaryNewClaimLedgerV1 extended with a result-position variant; `TerminalReturnedSourceV1::Construction` required; selected Invoke-shape emission + bindings; ReturnHandoff-style transfer-to-caller). Argument/field positions stay rejected (`artifact-unowned-lifecycle-site`); Unavailable constructions keep `artifact-source-unavailable`. Result-ABI Handle arm is a separate downstream family — no suite app goes green on this lane alone. |
 | 9f | DONE — `MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-S0` landed below: `OrdinaryNewClaimLedgerV1` + `ResultNewHomePrefixV1` + `NewResultCommitV1` share the single ledger/emission owner; membership is proven by `exact_stmt` (`Return{value}` parent), never by the shared `Value` segment; validation requires the emitted object at `Return{value}` exactly once. Focused: 6 semantic tests + 2 artifact tests green; `return new Point(1,2)` (child and `Main.main`) now passes artifact validation entirely. Argument/field positions stay out; retained-unavailable keeps `artifact-source-unavailable`. |
 | 9g | DONE — `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0` accepted below: `InvokeCallResultKind::Handle` admitted for callees whose sealed terminal is `Value(Construction)`; `callable_result_classes` stays the sole class-name authority, `call_result_kind` the sole issuer; the caller installs the received object as an owned Home owing exactly one release (ReturnReceive precedent). S0 bounds to the direct-call lane; the lexical `w.make()` row lacks any result field and is the named sibling `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0`. No root-ABI or annotation lanes touched. |
-| 9h | NEXT — `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-S0`: direct-call `LocalCallResultClassV1::Handle` + issue arm, `call_result_kind` Construction arm, `(None, Value(Construction))` coverage arm, `emit_local` `MirType::Box(class)`, verifier pairing arm, `OrdinaryHandle` publish role + wire tag. Evidence: `local h = Work.make()` installs an owned Home; opaque/annotation-mismatch/missing-claim rejects. |
+| 9h | DONE — `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-S0` landed below: direct-call `local h = make(0)` (bare-name `FunctionCall` lane; `Work.make()` is a `Call`/lexical sibling) installs the callee's canonical object as an owned Home owing one `HomeRelease`; `InvokeCallResultKind::Handle` + `InvokeNormalResult` emit once, `MirType::Box("Point")` typed, no Copy/NewBox; negatives reject (returned-Home binding, annotated-construction mismatch); 29/29 lifecycle tests green. |
 | 10 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
 
 ### Landed slices tombstone (compressed 2026-09-28)
@@ -1106,3 +1106,63 @@ Non-claims: no lexical `w.make()` handle result this slice (the row
   argument-position families; no generic non-new call-result
   handles; no coverage narrowing; Gate 1 stays unsatisfied.
 ```
+
+### S0 landed — `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-S0` (2026-09-29)
+
+Landed the caller-side direct-call Handle result edge:
+
+- `LocalCallResultClassV1::Handle` + `issue_local_call` arm +
+  `StoredLocal::ReceivedHandle` install (observes like a live Home
+  without a `new` acquisition site); the caller's `RootHomeFlow`
+  local-call row carries the class through `scan_new_home_flow`'s
+  `local_handle_call` predicate.
+- `construction_result_callee` proves the callee from sealed body
+  facts only: last statement is a value `return`, every return
+  constructs `new` of one agreed class, and the callee's retained
+  `Value(Construction)` terminal carries the transfer — never the
+  annotation. `call_result_kind` maps `Value(Construction)` to
+  `InvokeCallResultKind::Handle`; `co_seal_lifecycle` gains the
+  `(None, Value(Construction))` coverage arm requiring
+  `owned.owner() == callee` + `result_transfer_proven` +
+  a valid `callable_result_classes` claim.
+- Result-class claim coverage widened from `InstanceBoxMethod` to
+  every cataloged callable key: a static-box sibling like
+  `Main.make` returning `return new Point(1,2)` now carries a claim
+  (the `finish` ordinary-box filter is unchanged; field-write
+  claims keep their instance-box `owner_box`).
+- `LocalCommitV1::CallReceived` + `CallReceivedCommitV1`
+  (Emitting -> ExpressionCompleted -> Installed -> Checked) records
+  the callee's `CanonicalObjectIdV1`, installs the invoke result
+  verbatim, and owes exactly one `HomeRelease{object, value}`.
+- `emit_local` Handle arm emits one `Invoke{result:Handle}` + one
+  `InvokeNormalResult`, types the received value
+  `MirType::Box(class)` from `callable_result_class(published_key)`,
+  and `local_placement` reuses the invoke result (no Copy) via
+  `call_received_initializer_matches`.
+- `validate_call_received_emission` independently re-checks the
+  artifact: exact membership, binding/install, exactly one Handle
+  invoke, one projection, one matching `HomeRelease`.
+- Publication/backend: `OrdinaryHandle` role + wire tag + i64-free
+  return-exit grouping.
+
+Evidence: `local h = make(0)` with `make(args: i64) { return new
+Point(1,2) }` lowers, verifies strictly, and validates the
+finalized root; the received value is `MirType::Box("Point")`, the
+caller exit releases the transferred canonical object exactly once,
+and no caller-side `NewBox`/`Copy` mints a second object.
+Negatives: `return <home-local>` and annotated `make(): i64`
+construction mismatches reject before artifact. Qualified
+`w.make()` (AST `Call`) stays deferred to the named lexical sibling;
+root return ABI unchanged. Focused gates: 29/29
+`direct_call_lifecycle` tests green (3 handle-result + 26 map/i64
+regressions). Full-suite diff vs parent commit: zero
+current-change failures — `birth_receiver_non_escape_...` fails
+identically at `1c717970ec` (pre-existing Upvar-seal debt from
+`38c1d2c276`); remaining reds reproduce at parent or pass in
+isolation (parallel-suite flake).
+
+Non-claims hold: no lexical receiver handle result, no root return
+ABI, no field/argument positions, no silent fallback; Gate 1 stays
+unsatisfied. Next frontier is the named sibling
+`MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0` (lexical row needs
+its own co-sealed result field).
