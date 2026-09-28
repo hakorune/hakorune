@@ -279,7 +279,9 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | 9c | DONE — `MIRBUILDER-GATE1-MIMALLOC-LITE-EXE-ROUTE-S0` landed: `mimalloc_lite_exe.sh` re-pointed off `selfhost_build.sh --exe` (generic JSON ingress) onto the direct `--emit-exe` physical route with the designed `Invoke` rejection kept as a negative pin (lifecycle-v4 + llvm-c-api trace pins). `MiWorkload` is fieldless -> `PlainI64NoHook`, so the observation gate passes; the smoke is correctly red at the true terminal `artifact-unowned-lifecycle-site` (builtin-box method Invokes the ledger does not own). allocator-stress / boxtorrent-mini / json-stream-aggregator smokes keep the same generic-ingress attribution issue for their own frontier rows. |
 | 9d | DONE — `MIRBUILDER-GATE1-ARTIFACT-LIFECYCLE-COVERAGE-D0`/`S0` landed below: coverage stays universal; a child owner carrying a `RetainedUnavailable` ordinary commit row now freezes `artifact-source-unavailable` before coverage checking (root-order parity, plus it closes the no-birth bypass where `NewBox`-only emission passed coverage entirely). Claimless non-initializer `new` keeps the designed `artifact-unowned-lifecycle-site`. mimalloc-lite's observed terminal is unchanged (allocate's `return new` sorts first). |
 | 9e | DONE — `MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-D0` accepted below: a bounded return-position-only result-new commit family is admitted (OrdinaryNewClaimLedgerV1 extended with a result-position variant; `TerminalReturnedSourceV1::Construction` required; selected Invoke-shape emission + bindings; ReturnHandoff-style transfer-to-caller). Argument/field positions stay rejected (`artifact-unowned-lifecycle-site`); Unavailable constructions keep `artifact-source-unavailable`. Result-ABI Handle arm is a separate downstream family — no suite app goes green on this lane alone. |
-| 9f | DONE — `MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-S0` landed below: `OrdinaryNewResultClaimV1` + `ResultNewHomePrefixV1` + `NewResultCommitV1` share the single ledger/emission owner; membership is proven by `exact_stmt` (`Return{value}` parent), never by the shared `Value` segment; validation requires the emitted object at `Return{value}` exactly once. Focused: 6 semantic tests + 2 artifact tests green; `return new Point(1,2)` (child and `Main.main`) now passes artifact validation entirely. Argument/field positions stay out; retained-unavailable keeps `artifact-source-unavailable`. |
+| 9f | DONE — `MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-S0` landed below: `OrdinaryNewClaimLedgerV1` + `ResultNewHomePrefixV1` + `NewResultCommitV1` share the single ledger/emission owner; membership is proven by `exact_stmt` (`Return{value}` parent), never by the shared `Value` segment; validation requires the emitted object at `Return{value}` exactly once. Focused: 6 semantic tests + 2 artifact tests green; `return new Point(1,2)` (child and `Main.main`) now passes artifact validation entirely. Argument/field positions stay out; retained-unavailable keeps `artifact-source-unavailable`. |
+| 9g | DONE — `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0` accepted below: `InvokeCallResultKind::Handle` admitted for callees whose sealed terminal is `Value(Construction)`; `callable_result_classes` stays the sole class-name authority, `call_result_kind` the sole issuer; the caller installs the received object as an owned Home owing exactly one release (ReturnReceive precedent). S0 bounds to the direct-call lane; the lexical `w.make()` row lacks any result field and is the named sibling `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0`. No root-ABI or annotation lanes touched. |
+| 9h | NEXT — `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-S0`: direct-call `LocalCallResultClassV1::Handle` + issue arm, `call_result_kind` Construction arm, `(None, Value(Construction))` coverage arm, `emit_local` `MirType::Box(class)`, verifier pairing arm, `OrdinaryHandle` publish role + wire tag. Evidence: `local h = Work.make()` installs an owned Home; opaque/annotation-mismatch/missing-claim rejects. |
 | 10 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
 
 ### Landed slices tombstone (compressed 2026-09-28)
@@ -1007,3 +1009,100 @@ Next frontier (design, scheduler-selected): a caller-side Handle
 result kind so `local h = w.make()` can name the transferred object —
 `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0`. Gate 1 stays
 unsatisfied until its actual acceptance evidence closes.
+
+### D0 decision — `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0` (accepted 2026-09-28)
+
+Census (read-only worker + direct read; boundary: `resolved_semantics`,
+`normal_callable_semantic_package`, `instruction/invoke*` +
+`verification/invoke*`, `builder/ordinary_new_admission/selected`,
+`compiler/normal_default_pipeline` — backend internals and non-
+lifecycle call lanes excluded):
+
+1. `InvokeCallResultKind = {Unit, I64, Map}`;
+   `InvokeNormalResultKind::Handle` already exists (NewBox lane) — the
+   physical projection vocabulary is present; only the call-result
+   arm is missing. ~118 `InvokeCallResultKind` hits in 37 files all
+   consume the single enum column.
+2. Sole result-class issuer: `call_result_kind`
+   (`direct_call_lifecycle.rs`) classifies ONLY from the callee's
+   sealed `terminal_relation`. Header `signature.result()` is an
+   admission check for the annotated-I64 lane, never classification —
+   the Map precedent: `None` header + sealed terminal proves the
+   class (`direct_call_lifecycle.rs` doc). `Value(Construction)`
+   today falls through to `I64` classification while the co-seal
+   coverage arm is `false` → reject; fail-closed by design (S0
+   boundary).
+3. Two caller lanes end at the same missing arm: `Work.make(...)`
+   direct (`DirectCallDispositionRowV1.result`, co-sealed) vs
+   `w.make()` lexical (`LexicalInstanceCallDispositionRowV1` carries
+   NO result field and no terminal co-seal at all — receiver-class →
+   target only). The lanes share class authority but differ in
+   transport row.
+4. Caller local-flow: `LocalCallResultClassV1 = {I64, Map}`; an
+   unrecognized `local h = <call>` lands `install_inventoried_call_
+   result` → `BoundValue` + `PrefixNotCovered` — the received object
+   never becomes an owned Home, so cleanup can never prove a release.
+5. Ownership vocabulary already anticipates this:
+   `HomeResultRelationV1::HomeToCaller`/`SharedHomeToCaller` are
+   declared-but-unused (classify_result only issues I64UnitTrivial);
+   the map lane's `ReturnReceive`/`MapDestinationV1::ReturnBoundary`
+   is the provenance precedent — caller acquires at the Return edge
+   and owes exactly one release.
+6. Publish seams enumerated: `verification/invoke.rs` callee/result
+   pairing (needs a `(Some(<handle repr>), Handle)` arm);
+   `terminal_call.rs::result_type` (`_ -> Integer` fallback would
+   silently mistype a Handle — must return `MirType::Box(class)`);
+   `physical_program.rs` `(result, return_type)` pairing →
+   `OrdinaryHandle` role; `physical_program_json.rs` wire tag;
+   `compiled_entry_contract.rs` ordinary-call scan.
+7. `callable_result_classes` already seals `{selected key -> class}`
+   for callees whose every return row constructs `new` of one agreed
+   box (row-5 lane) — the exact class-name provenance a `Handle` arm
+   needs to type `MirType::Box(class)`.
+8. `CompiledEntryRootResultV1`/`FinalizedRootResultAbiV1` are the
+   root entry's return ABI, orthogonal to a call-site result class —
+   they matter only when `Main.main` itself returns a handle (separate
+   family). `ExactTrivialScalarAbiV1` is scalar-only by design — do
+   NOT extend; `Handle` rides the `None`-header lane like `Map`.
+
+```text
+Decision: admit InvokeCallResultKind::Handle as the call-result
+  class for callees whose sealed terminal is
+  TerminalRelationV1::Value(Construction) — a transferred owned
+  object. Caller acquisition installs the received object as an
+  owned caller Home owing exactly one release (the map lane's
+  ReturnReceive is the semantic precedent; HomeToCaller is the
+  declared-but-unused result vocabulary for it); the callee owes
+  none — the result commit already forbids a callee-side End.
+Source authority + canonical issuer: the callee's sealed
+  terminal_relation (Value(Construction)) plus the existing
+  callable_result_classes claim — sole class-name authority, both
+  already issued upstream. call_result_kind remains the sole
+  result-class issuer; co_seal_lifecycle gains the coverage arm.
+Non-authority: header result annotations (Handle rides the
+  None-header lane like Map, never the ExactTrivialScalarAbiV1
+  lane); generic JSON paths; names; LexicalInstanceCallDisposition-
+  RowV1 (no result field — separate row decision named below);
+  birth_site_index.
+Fail-fast boundary: opaque/unproven call results stay rejected; the
+  existing local-call argument-shape gate is unchanged; a row/emit
+  result-class mismatch freezes; a RetainedUnavailable callee
+  freezes the caller artifact-source-unavailable — the caller never
+  silently degrades a handle to BoundValue.
+Smallest next slice (S0): direct-call lane only —
+  MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-S0. LocalCallResult-
+  ClassV1::Handle + issue arm; call_result_kind Construction→Handle
+  arm + (None, Value(Construction)) coverage arm; emit_local Handle
+  arm typing MirType::Box(class); verifier pairing arm;
+  OrdinaryHandle publish role + wire tag. Evidence target: `local h =
+  Work.make()` with `make { return new Point(1,2) }` installing an
+  owned caller Home; negatives: opaque callee reject, annotation
+  mismatch reject, missing class claim reject.
+Non-claims: no lexical `w.make()` handle result this slice (the row
+  needs its own co-sealed result field — named sibling row
+  MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0); no
+  CompiledEntryRootResultV1::Handle / FinalizedRootResultAbiV1 arm
+  (root `return <handle>` is a separate ABI family); no field/
+  argument-position families; no generic non-new call-result
+  handles; no coverage narrowing; Gate 1 stays unsatisfied.
+```
