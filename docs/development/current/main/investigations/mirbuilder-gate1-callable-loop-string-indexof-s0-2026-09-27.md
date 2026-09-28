@@ -277,7 +277,8 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | 9 | DONE — `MIRBUILDER-GATE1-INVOKE-TERMINATOR-JSON-EMIT-D0`/`S0` landed below: an already-accepted SSOT decision keeps generic `mir_json_emit` closed to lifecycle `Invoke` (the emit "gap" is the designed fail-fast); `typed_object_untyped_field_min_exe` was re-pointed off `selfhost_build.sh --mir` + ny-llvmc generic ingress onto the direct `--emit-exe` physical route with the rejection kept as a negative pin. Its true terminal is now `artifact-source-unavailable` — the unreleasable-home family. |
 | 9b | DONE — `MIRBUILDER-GATE1-UNRELEASABLE-HOME-ARTIFACT-ADMISSION-D0` landed below: `Unavailable` homes are NOT admittable — the stop is designed at three independent layers (observation `artifact-source-unavailable`, lifecycle coverage `artifact-unowned-lifecycle-site`, physical ABI `object-destruction`/`layout-field-drift`). Releasability for owning/non-`i64` fields is the parked `OWN-FIELD-CONTAINER-DEST-D0`/`VerifiedTerminalHomeDropPlanV1` family (+ tagged dynamic slot ABI for `init{}` storage) — a named Gate-1 dependency, not unilaterally reopened. binary-trees, untyped-field-min, boxtorrent-mini, and json-stream-aggregator await it. |
 | 9c | DONE — `MIRBUILDER-GATE1-MIMALLOC-LITE-EXE-ROUTE-S0` landed: `mimalloc_lite_exe.sh` re-pointed off `selfhost_build.sh --exe` (generic JSON ingress) onto the direct `--emit-exe` physical route with the designed `Invoke` rejection kept as a negative pin (lifecycle-v4 + llvm-c-api trace pins). `MiWorkload` is fieldless -> `PlainI64NoHook`, so the observation gate passes; the smoke is correctly red at the true terminal `artifact-unowned-lifecycle-site` (builtin-box method Invokes the ledger does not own). allocator-stress / boxtorrent-mini / json-stream-aggregator smokes keep the same generic-ingress attribution issue for their own frontier rows. |
-| 9d | `MIRBUILDER-GATE1-ARTIFACT-LIFECYCLE-COVERAGE-D0` (design_stop): the coverage gate requires every `requires_lifecycle_validation()` instruction to be ledger-bound; mimalloc-lite's builtin `heap.alloc`-family Invokes are unowned. Decide the coverage owner's scope — which lifecycle instructions the artifact lane must bind vs. which carry their own admission — before implementation. |
+| 9d | DONE — `MIRBUILDER-GATE1-ARTIFACT-LIFECYCLE-COVERAGE-D0`/`S0` landed below: coverage stays universal; a child owner carrying a `RetainedUnavailable` ordinary commit row now freezes `artifact-source-unavailable` before coverage checking (root-order parity, plus it closes the no-birth bypass where `NewBox`-only emission passed coverage entirely). Claimless non-initializer `new` keeps the designed `artifact-unowned-lifecycle-site`. mimalloc-lite's observed terminal is unchanged (allocate's `return new` sorts first). |
+| 9e | `MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-D0` (design_stop): non-`[Body, Initializer]` `new` sites (return/argument position, e.g. `HakoAllocPage.allocate`'s `return new HakoAllocHandle(...)`) get `birth_site_index` call-edge admission only — no lifecycle authority — so every such site is artifact-inadmissible today even for a releasable box (`return new Point(1,2)` probe). Decide whether this family gains a claim lane (its own named slice: destination-less result-new ownership) or stays rejected. |
 | 10 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
 
 ### Landed slices tombstone (compressed 2026-09-28)
@@ -679,3 +680,134 @@ dynamic slot ABI for `init{}` storage) is required before any suite
 member with an owning handle/non-`i64` field can reach
 `end_available`; loosening the observation gate alone is not a slice —
 coverage and physical-ABI gates reject downstream regardless.
+
+## D0 resolved: MIRBUILDER-GATE1-ARTIFACT-LIFECYCLE-COVERAGE-D0 (2026-09-28)
+
+A read-only worker census plus a live `HAKO_COVERAGE_DEBUG` probe pinned
+two distinct unowned-site producers in mimalloc-lite — and revealed that
+`artifact-unowned-lifecycle-site` is the CORRECT terminal for one of
+them.
+
+Measured (release binary, `apps/mimalloc-lite/main.hako`):
+`fn=HakoAllocPage.allocate/1` emits a bare
+`Call{BirthConstructor{HakoAllocHandle.birth/3}}` in block 39 — the
+`return new HakoAllocHandle(me.page_id, block_id, requested_size)` at
+`page_heap_box.hako:102`. Non-`[Body, Initializer]` `new` sites are
+outside the local-commit claim lane: `ordinary_new_coseal.rs:219-223`
+`birth_site_index` admits only the typed `Callee::BirthConstructor`
+edge and "issues no destination, home, or lifecycle authority". The
+raw lane emits the instruction but no ledger binding exists — so
+coverage correctly rejects it as genuinely unowned. Verified further
+with a minimal probe: `return new Point(1,2)` in a plain-i64,
+declared-birth box (`Maker.make/0`) hits the same freeze —
+return-position `new` is ALWAYS artifact-inadmissible today, even for
+a releasable box.
+
+Second producer (separate child): `MiWorkload.run`'s
+`local heap = new HakoAllocHeap()` is a CLAIMED initializer-site new
+whose construction claim is `RetainedUnavailable` (HakoAllocHeap has
+box-typed fields). The raw lane emits `NewBox` + bare
+`Call{BirthConstructor}`; `root_validation.rs` contributes no binding
+for `RetainedUnavailable` rows (`=> continue`). Before this slice the
+freeze surfaced as `artifact-unowned-lifecycle-site` — a mislabel, the
+site IS claimed, just unavailable. Worse, for a `NoBirthZero` box the
+raw lane emits only `NewBox` — not lifecycle-required — so a child
+holding an unreleasable no-birth home could pass coverage entirely and
+defer to the physical ABI gate. The landed row-9b decision
+("Unavailable homes are inadmissible") was enforced at the ROOT via
+the observation gate but had NO child-level equivalent:
+`validate_finalized_child_functions` went straight from
+`validate_complete` to coverage.
+
+Coverage scope question answered by existing design:
+`docs/reference/mir/INSTRUCTION_SET.md:238-245` documents "every
+lifecycle site must match its exact emitted binding" and the two-sided
+check exists to catch stray lifecycle instructions
+(`brand_catalog_new_completion_tests.rs:400-423` pins it). No
+Home-only carveout is documented; narrowing coverage would rescind a
+documented invariant — rejected.
+
+```text
+Decision: coverage stays universal — every requires_lifecycle_validation
+  instruction must be ledger-bound. Two sub-fixes follow: (a) children
+  holding RetainedUnavailable commit rows freeze
+  `artifact-source-unavailable` BEFORE coverage, matching the root's
+  observation ordering (label parity + closes the no-birth
+  coverage bypass); (b) claimless non-initializer `new` sites
+  (return/argument position) keep their designed
+  `artifact-unowned-lifecycle-site` terminal — they are truly unowned.
+Source authority + canonical issuer: the same OrdinaryNewClaimLedgerV1
+  local_commits rows — `finalized_root_observation`'s
+  NewEmissionUnavailable arm is the root-side precedent (the function
+  itself is not reusable for children: it consults root_completion and
+  root_exits, which child owners lack; the child check inspects the
+  owner's own commit rows directly).
+Non-authority: raw-lane Call{BirthConstructor} binding (would legitimize
+  an Unavailable state inside the artifact lane — contradicts 9b);
+  any coverage narrowing; birth_site_index entries (admit the call
+  edge only, never lifecycle authority).
+Fail-fast boundary: artifact-unowned-lifecycle-site remains correct for
+  genuinely unowned sites (claimless return/argument-position `new`,
+  stray lifecycle instructions). artifact-source-unavailable is the
+  terminal for claimed-but-unavailable rows.
+Smallest next slice (S0): in validate_finalized_child_functions, under
+  `artifact`, before validate_artifact_lifecycle_coverage, freeze
+  `artifact-source-unavailable` when the child owner's ordinary commit
+  rows contain RetainedUnavailable. Verified: a minimal app whose child
+  `Worker.run` holds `local h = new Holder()` (Holder has an ArrayBox
+  field -> RetainedUnavailable) now reports `artifact-source-unavailable`.
+  mimalloc-lite's observed terminal stays `artifact-unowned-lifecycle-
+  site` because `HakoAllocPage.allocate`'s claimless `return new` sorts
+  first — correct per this decision.
+Non-claims: no Unavailable admission anywhere; no new binding family;
+  non-initializer `new` claim coverage is a SEPARATE named family
+  (required for allocator-style apps that return fresh handles);
+  mimalloc-lite stays inadmissible on three grounds — claimless
+  return-new, `HakoAllocHandle.requested_size: usize` FieldType, and
+  box-typed HakoAllocHeap fields; allocator-stress/boxtorrent/
+  json-stream smokes still carry the generic-ingress attribution issue
+  for their own rows.
+```
+
+### S0 implementation receipt — `MIRBUILDER-GATE1-ARTIFACT-LIFECYCLE-COVERAGE-S0` (landed)
+
+`root_validation.rs::validate_finalized_child_functions` — under
+`artifact`, before `validate_artifact_lifecycle_coverage`, the child
+owner's `local_commits` ordinary rows are inspected; any
+`NewEmissionProgress::RetainedUnavailable` freezes
+`artifact-source-unavailable` (`freeze()` = `ordinary-new/local-commit`
+prefix, same terminal as the root's `NewEmissionUnavailable`
+observation arm).
+
+Evidence (debug binary, `--backend mir --emit-exe`):
+
+- `Worker.run` + `local h = new Holder()` where `Holder { init{items}
+  birth(){} }` → `artifact-source-unavailable` (previously mislabeled
+  `artifact-unowned-lifecycle-site`).
+- Same with `Holder` carrying NO birth → `artifact-source-unavailable`
+  (previously coverage passed silently — `NewBox` is not
+  lifecycle-required — and the child escaped to
+  `published-lifecycle-program/instruction-unsupported`; the bypass is
+  now closed).
+- Clean child (`Worker` only, `return w.run()` on `run(): i64`) → EXE
+  written; admissible path unchanged.
+- `apps/mimalloc-lite` → still `artifact-unowned-lifecycle-site`:
+  `HakoAllocPage.allocate/1`'s claimless `return new` sorts before
+  `MiWorkload.run`'s RetainedUnavailable row — the truthful first
+  terminal.
+- Focused test
+  `artifact_child_rejects_retained_unavailable_commit_before_lifecycle_coverage`
+  (both `init{items}` and `init{items}+birth` variants) — green.
+  `normal_callable_semantic_package` filter: 356 pass / 3 fail, all
+  three in `cargo_lib_red_baseline.failures.txt` — known debt.
+  `root_catalog_lifecycle` filter: 55 pass.
+
+Sequencing note: `return w.run()` only enters the armed-receiver lane
+when the callee has a declared return type (`run(): i64`); an
+unannotated `run()` stops earlier at the terminal-call
+`artifact-source-unavailable` (`raw_ordinary_new_claim.rs:198`,
+`root_instance_call_expected`) — a separate pre-existing admission
+boundary, not this slice's concern.
+
+Next design stop: row 9e
+`MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-D0`.

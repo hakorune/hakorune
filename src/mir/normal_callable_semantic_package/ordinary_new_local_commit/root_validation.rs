@@ -71,7 +71,31 @@ impl OrdinaryNewClaimLedgerV1 {
             self.validate_root_home_exit(owner, function, Some(&projection))?;
             boundary.validate_complete(function, &mut projection, &bindings)?;
             if artifact {
-                self.validate_artifact_lifecycle_coverage(owner, function, projection.recorded())?;
+                // Children share the root's inadmissibility contract: a
+                // RetainedUnavailable commit row is source-unavailable, not a
+                // stray coverage site. Mirror the root's observation ordering
+                // so the same failure class reports the same terminal.
+                if self
+                    .local_commits
+                    .borrow()
+                    .values()
+                    .filter(|row| row.owner() == owner)
+                    .any(|row| {
+                        row.ordinary().is_some_and(|row| {
+                            matches!(
+                                row.emission,
+                                NewEmissionProgress::RetainedUnavailable { .. }
+                            )
+                        })
+                    })
+                {
+                    return Err(freeze("artifact-source-unavailable"));
+                }
+                self.validate_artifact_lifecycle_coverage(
+                    owner,
+                    function,
+                    projection.recorded(),
+                )?;
             }
             *state = ChildPhysicalValidation::FinishingChecked;
         }

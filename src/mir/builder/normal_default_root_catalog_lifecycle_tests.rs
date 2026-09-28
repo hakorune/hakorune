@@ -730,3 +730,54 @@ fn parser_scan_package_passes_callable_source_handoff_without_fallback() {
     assert!(rejected._source.is_none());
     rejected.discard();
 }
+
+#[test]
+fn artifact_child_rejects_retained_unavailable_commit_before_lifecycle_coverage() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    for holder_birth in [false, true] {
+        let holder = if holder_birth {
+            "box Holder {
+  init { items }
+  birth() {
+    local items = new ArrayBox()
+    me.items = items
+  }
+}"
+        } else {
+            "box Holder {
+  init { items }
+}"
+        };
+        let source = callable_source(
+            &format!(
+                "{holder}
+box Worker {{
+  run(): i64 {{
+    local h = new Holder()
+    return 0
+  }}
+}}
+static box Main {{
+  main() {{
+    local w = new Worker()
+    return w.run()
+  }}
+}}"
+            ),
+            ParserBuildConfig::default(),
+        );
+        let completed = session()
+            .complete_normal_default_program_root_catalog_lifecycle(
+                source,
+                CallableMainMaterializationPolicyV1::Omitted,
+                NormalRuntimeInputSnapshotV1::empty(),
+            )
+            .expect("fixture must lower to a module");
+        let (_, module, validate) = completed.into_artifact_parts();
+        let error = validate(&module).unwrap_err();
+        assert!(
+            error.contains("artifact-source-unavailable"),
+            "holder_birth={holder_birth}: {error}"
+        );
+    }
+}
