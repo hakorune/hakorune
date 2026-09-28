@@ -335,7 +335,10 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
 /// placement. `expected` on a mismatch reports the admitted placements.
 fn allowed_target_placements(op: CoreMethodOp, arity: u32) -> &'static [ResolvedLoopPlacementV1] {
     match (op, arity) {
-        (CoreMethodOp::StringLen, 0) => &[ResolvedLoopPlacementV1::Condition],
+        (CoreMethodOp::StringLen, 0) => &[
+            ResolvedLoopPlacementV1::Condition,
+            ResolvedLoopPlacementV1::Body,
+        ],
         (CoreMethodOp::StringSubstring, 2) => &[
             ResolvedLoopPlacementV1::Body,
             ResolvedLoopPlacementV1::Condition,

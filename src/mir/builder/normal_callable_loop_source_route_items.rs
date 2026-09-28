@@ -187,6 +187,22 @@ impl CallableLoopSourceTargetRelationV1 {
         })
     }
 
+    /// Attach covered method items to a selected static relation for a
+    /// mixed loop. The static obligation stays on `target`; the buckets
+    /// carry the non-static coverage rows the physical validator unions
+    /// against the exact source items.
+    pub(in crate::mir::builder) fn with_covered_call_items(
+        self,
+        core_methods: Box<[CallableLoopSourceItemBindingV1]>,
+        instance_methods: Box<[CallableLoopSourceItemBindingV1]>,
+    ) -> Self {
+        Self {
+            core_methods,
+            instance_methods,
+            ..self
+        }
+    }
+
     pub(in crate::mir::builder) const fn call_site(&self) -> &SourceExprSiteV1 {
         &self.call_site
     }
@@ -464,7 +480,32 @@ impl CallableLoopSourceTargetProbeV1 {
         }
         let mut selected = Vec::from(selected);
         if let Some(relation) = selected.pop() {
-            return Ok(relation);
+            if core_methods.is_empty() && instance_methods.is_empty() {
+                return Ok(relation);
+            }
+            // A selected static row beside covered method items is a mixed
+            // loop: retain the static obligation and still verify every
+            // source item exactly once — silently dropping the buckets
+            // would seal WithCalls without coverage proof.
+            let covered = std::iter::once(relation.call_site())
+                .chain(core_methods.iter().map(|item| item.call_site()))
+                .chain(instance_methods.iter().map(|item| item.call_site()))
+                .collect::<std::collections::BTreeSet<_>>();
+            let uncovered = source_items
+                .iter()
+                .filter(|item| !covered.contains(item.call_site()))
+                .map(|item| item.call_site().clone())
+                .collect::<Vec<_>>();
+            if !uncovered.is_empty() {
+                return Err(
+                    CallableLoopSourceRouteRejectV1::SourceCallOutsideSelectedFamily {
+                        call_sites: uncovered.into_boxed_slice(),
+                    },
+                );
+            }
+            return Ok(
+                relation.with_covered_call_items(core_methods, instance_methods),
+            );
         }
         if !core_methods.is_empty() || !instance_methods.is_empty() {
             let covered = core_methods

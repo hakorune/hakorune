@@ -322,7 +322,8 @@ CONTRACT_ISSUER="$ROOT_DIR/src/mir/resolved_semantics/resolver_core_method_calla
 LEDGER_CONTRACT_TESTS="$ROOT_DIR/src/mir/resolved_semantics/callable_source_ledger_contract_tests.rs"
 rg -q 'fn allowed_placements' "$CORE_METHOD_SRC"
 rg -q 'allowed\.contains\(placement\)' "$CORE_METHOD_SRC"
-rg -q '\(CoreMethodOp::StringLen, 0\) => &\[ResolvedLoopPlacementV1::Condition\]' "$CORE_METHOD_SRC"
+rg -q 'manifest_row.op == CoreMethodOp::StringLen' "$CORE_METHOD_SRC"
+rg -q 'receiver_has_text_evidence\(ledger, call, &rows\)' "$CORE_METHOD_SRC"
 rg -q 'fn allowed_target_placements' "$CONTRACT_ISSUER"
 rg -q '\(CoreMethodOp::ArrayPush, 1\) => &\[ResolvedLoopPlacementV1::Body\]' "$CONTRACT_ISSUER"
 rg -q 'allowed\.contains\(&placement\)' "$CONTRACT_ISSUER"
@@ -331,7 +332,7 @@ rg -q 'fn real_core_method_ledger_with_placements' "$TESTKIT"
 rg -q 'condition_position_substring_contracts_and_consumes_exact_row' "$ITEMS_TESTS"
 rg -q 'body_position_length_stays_unarmed' "$ITEMS_TESTS"
 rg -q 'resolver_callable_contract_co_seals_condition_substring_and_generated_target' "$LEDGER_CONTRACT_TESTS"
-rg -q 'resolver_callable_contract_rejects_body_length_placement' "$LEDGER_CONTRACT_TESTS"
+rg -q 'resolver_callable_contract_rejects_condition_claimed_body_only_target' "$LEDGER_CONTRACT_TESTS"
 rg -q 'condition_position_push_stays_unarmed' "$NAMED_ARRAY_METHOD_TESTS"
 
 # MIRBUILDER-GATE1-CALLABLE-LOOP-ROUTE-FRONT-S0: the named-array ArrayBox
@@ -505,6 +506,20 @@ rg -q 'lexical_instance_call_keeps_call_result_receiver_unarmed' "$LEXICAL_INSTA
 rg -q 'lexical_instance_call_vetoes_ambiguous_argument_classes' "$LEXICAL_INSTANCE_CALL_TESTS"
 rg -q 'lexical_instance_call_keeps_rebound_parameter_unarmed' "$LEXICAL_INSTANCE_CALL_TESTS"
 rg -q 'fn lower_method_call_value_input' "$VALUE_METHOD_CALL_SRC"
+
+# MIRBUILDER-GATE1-BODY-LENGTH-TEXT-EVIDENCE-S0: `StringLen/0` admits Body
+# placement only beside receiver text evidence (`TextToCaller` initializer
+# or string literal — the indexOf proof shape); parameters and non-text
+# locals stay unarmed. The verify-side placement mirror moves in lockstep,
+# and a lone SelectedStatic beside method buckets keeps coverage proof —
+# no silent bucket drop.
+rg -q 'fn receiver_has_text_evidence' "$CORE_METHOD_SRC"
+rg -q 'StringLen, 0' "$CORE_METHOD_SRC"
+rg -q 'ResolvedLoopPlacementV1::Body' "$CORE_METHOD_SRC"
+rg -q 'fn allowed_target_placements' "$CONTRACT_ISSUER"
+rg -q 'body_position_length_with_text_evidence_arms' "$ITEMS_TESTS"
+rg -q 'body_position_length_without_text_evidence_stays_unarmed' "$ITEMS_TESTS"
+rg -q 'fn with_covered_call_items' "$ROUTE_ITEMS_SRC"
 
 for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS" "$ROUTE_PREDICATES" "$CALLABLE_ROUTE" "$DEAD_ROUTE_TESTS" "$CORE_METHOD_SRC" "$NAMED_ARRAY_SRC" "$NAMED_ARRAY_METHOD_TESTS" "$CONTRACT_ISSUER" "$LEDGER_CONTRACT_TESTS" "$DECLARED_INSTANCE_LOCATOR" "$CORE_EFFECT_PLAN" "$SOURCE_METHOD_PORT" "$UNIFIED_EMITTER" "$LOOP_DECLARED_TESTS" "$ASSOC_INPUT" "$NORMALIZER_COMMON" "$RAW_LOOP_PORT" "$RAW_LOOP_ENTRY" "$CALLABLE_LOWERING_STATE" "$LOOP_VALUE_PUBLICATION" "$BACKEND_VIEW_TESTS" "$BACKEND_VIEW_DRIFT_TESTS" "$BACKEND_VIEW_INTRINSIC_TESTS" "$ROOT_LIFECYCLE_TESTS" "$ROOT_MAIN_SELECTION_TESTS" "$LOOP_PIPELINE_TESTS" "$LOOP_SCOPE_TESTS" "$ROUTE_ITEMS_SRC" "$ROUTE_CALL_FREE_TESTS" "$ROUTE_TEST_SURFACE" "$SOURCE_LOOP_BRIDGE" "$LOOP_COND_FACTS_SRC" "$GENERIC_FACTS_ISSUER" "$LEXICAL_INSTANCE_CALL_SRC" "$LEXICAL_INSTANCE_CALL_TESTS" "$VALUE_METHOD_CALL_SRC"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

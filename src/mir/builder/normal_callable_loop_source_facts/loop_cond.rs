@@ -237,13 +237,14 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                         );
                     }
                 } else {
+                    // A mixed loop carries a selected static target beside
+                    // method buckets: the relation's own call site is also
+                    // coverage evidence and must be unioned in.
                     let covered_sites = covered_items
                         .map(|item| item.call_site())
+                        .chain(std::iter::once(source_target.call_site()))
                         .collect::<std::collections::BTreeSet<_>>();
-                    let covered_count = source_target.core_method_items().len()
-                        + source_target.instance_method_items().len();
-                    if covered_sites.len() != covered_count
-                        || covered_sites.len() != self.source_items.len()
+                    if covered_sites.len() != self.source_items.len()
                         || self
                             .source_items
                             .iter()

@@ -213,8 +213,9 @@ fn condition_position_substring_contracts_and_consumes_exact_row() {
 
 #[test]
 fn body_position_length_stays_unarmed() {
-    // `StringLen/0` remains `Condition`-only: a body-position `length` call
-    // issues no contract row and arms nothing.
+    // `StringLen/0` at body position requires receiver text evidence: a
+    // parameter receiver carries no initializer, so it issues no contract
+    // row and stays unarmed — only the condition-position row remains.
     let (_, _, placements) = real_core_method_ledger_with_placements(
         "function t(text) { loop(text.length() < 2) { local n = text.length() } }",
         1,
@@ -222,6 +223,31 @@ fn body_position_length_stays_unarmed() {
     assert_eq!(placements.len(), 1);
     assert!(placements.values().all(|placement| *placement
         == crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Condition));
+}
+
+#[test]
+fn body_position_length_with_text_evidence_arms() {
+    // `chunk_data`-shape: the receiver's sole initializer is a
+    // `TextToCaller`-minting `substring` call, so `piece.length()` at body
+    // position arms beside the substring row.
+    let (_, _, placements) = real_core_method_ledger_with_placements(
+        "function t(text) { local i = 0 loop(i < 2) { local piece = text.substring(0, 1) local n = piece.length() } }",
+        2,
+    );
+    assert_eq!(placements.len(), 2);
+    assert!(placements.values().all(|placement| *placement
+        == crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Body));
+}
+
+#[test]
+fn body_position_length_without_text_evidence_stays_unarmed() {
+    // A non-text local initializer (`local s = 0`) fails the evidence gate:
+    // `s.length()` at body position issues nothing and stays unarmed.
+    let (_, _, placements) = real_core_method_ledger_with_placements(
+        "function t(text) { local s = 0 loop(s < 2) { local n = s.length() } }",
+        0,
+    );
+    assert!(placements.is_empty());
 }
 
 #[test]

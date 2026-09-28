@@ -109,7 +109,18 @@ pub(crate) fn issue_source_bound_core_method_calls_v1(
             .into_iter()
             .filter_map(|(loop_site, placement)| {
                 placement
-                    .filter(|placement| allowed.contains(placement))
+                    .filter(|placement| {
+                        allowed.contains(placement)
+                            // `length/0` is ambiguous across box receivers;
+                            // a body-position site is armed only when the
+                            // receiver's initializer carries text evidence
+                            // (`TextToCaller` or a literal), the same
+                            // bounded proof `indexOf` uses. Condition
+                            // placement keeps its existing admission.
+                            && !(manifest_row.op == CoreMethodOp::StringLen
+                                && *placement == ResolvedLoopPlacementV1::Body
+                                && !receiver_has_text_evidence(ledger, call, &rows))
+                    })
                     .map(|placement| (loop_site, placement))
             })
             .collect::<Vec<_>>();
@@ -179,6 +190,27 @@ fn index_of_has_text_evidence(
     call: &VerifiedResolvedMethodCallSourceV1,
     rows: &BTreeMap<SourceExprSiteV1, VerifiedSourceBoundCoreMethodCallV1>,
 ) -> bool {
+    if !receiver_has_text_evidence(ledger, call, rows) {
+        return false;
+    }
+    let [needle] = call.arguments() else {
+        return false;
+    };
+    text_source_at(ledger, needle.site(), rows, &mut BTreeSet::new(), 0)
+}
+
+/// Bounded receiver text evidence shared by the gated placements: the
+/// receiver must be a caller-owned local binding with exactly one
+/// initializer, no rebind, and a text-producing initializer site (string
+/// literal or a `TextToCaller` contract minted in the same issuance).
+/// Parameters carry no initializer relation, so parameter receivers stay
+/// unarmed; a non-text local (e.g. `local a = new ArrayBox()`) fails the
+/// same check and the runtime router's `ArrayBox` rows never leak in.
+fn receiver_has_text_evidence(
+    ledger: &CallableSemanticSourceLedgerView<'_>,
+    call: &VerifiedResolvedMethodCallSourceV1,
+    rows: &BTreeMap<SourceExprSiteV1, VerifiedSourceBoundCoreMethodCallV1>,
+) -> bool {
     let ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)) =
         call.receiver()
     else {
@@ -194,13 +226,7 @@ fn index_of_has_text_evidence(
     let Some(initializer_site) = single_initializer_site(ledger, binding) else {
         return false;
     };
-    if !text_source_at(ledger, &initializer_site, rows, &mut BTreeSet::new(), 0) {
-        return false;
-    }
-    let [needle] = call.arguments() else {
-        return false;
-    };
-    text_source_at(ledger, needle.site(), rows, &mut BTreeSet::new(), 0)
+    text_source_at(ledger, &initializer_site, rows, &mut BTreeSet::new(), 0)
 }
 
 fn single_initializer_site(
@@ -273,7 +299,10 @@ fn text_source_at(
 /// actual resolved placement; an op absent here stays unarmed.
 fn allowed_placements(op: CoreMethodOp, arity: u32) -> &'static [ResolvedLoopPlacementV1] {
     match (op, arity) {
-        (CoreMethodOp::StringLen, 0) => &[ResolvedLoopPlacementV1::Condition],
+        (CoreMethodOp::StringLen, 0) => &[
+            ResolvedLoopPlacementV1::Condition,
+            ResolvedLoopPlacementV1::Body,
+        ],
         (CoreMethodOp::StringSubstring, 2) => &[
             ResolvedLoopPlacementV1::Body,
             ResolvedLoopPlacementV1::Condition,

@@ -268,7 +268,7 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | --- | --- |
 | 1 | DONE — `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0` landed below: the terminal is `Main.main`'s root-instance-call disposition, and the missing artifact is the callee's declared result contract (`MiWorkload.run` is unannotated). The S0 below completes the declared contract in source and re-measures. |
 | 2 | DONE — `MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-D0`/`S0` landed below: parameter receivers proven by universal caller-edge ordinary-new claims and claim-local `local x = new C()` receivers both arm lexical `InstanceBoxMethod` dispositions; boxtorrent-mini `materialize`/`releaseFrom` loops now lower through the canonical `SameModuleInstance` emitter. |
-| 3 | `MIRBUILDER-GATE1-CALL-RESULT-ARGUMENT-COVERAGE-D0`: boxtorrent-mini's new frontier — `ingest`'s loop freezes at `Argument(1)`, the `chunk_data.length()` core-method call nested inside `manifest.addChunk(cid, chunk_data.length())`. `chunk_data` is a call-result local (`data.slice(...)`), so the site needs either argument-position core-method coverage for call-result receivers or a census of what the core bucket already admits. Allocator `handles.push(heap.allocate(...))` shares the argument-position-call shape; re-measure it in the same census. Call-result *instance* receivers (`positive.itemCheck`) stay parked. |
+| 3 | DONE — `MIRBUILDER-GATE1-BODY-LENGTH-TEXT-EVIDENCE-S0` landed below: `StringLen/0` admits `Body` placement gated by `receiver_has_text_evidence` (TextToCaller initializer or literal); boxtorrent-mini now lowers fully (remaining terminal is the Invoke emit gap); the mixed-loop `SelectedStatic` bucket-drop hazard is fixed. New named frontier for the receiver family: binary-trees `iterationCheck` leaves `builder.make` (field-read caller argument, vetoed by universal edge proof) and `itemCheck` (call-result receiver, parked) uncovered — see `MIRBUILDER-GATE1-FIELD-ARG-AND-CALLRESULT-RECEIVER-D0`. |
 | 4 | Complete required app evidence: json-stream-aggregator EXE/output and typed-object JSON ingress/EXE exit 7. An emit-interface failure still blocks its registered acceptance; record its owner instead of dropping the row. The observed `Invoke` terminator JSON emit gap (`--emit-mir-json` serializer) is this row's dependency, not a semantic-lane blocker. |
 | 5 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
 
@@ -496,3 +496,112 @@ items arm and emit canonically (earlier `ParamManifest` probe dump:
 `manifest.addChunk(cid, ...)`; `chunk_data` is a call-result local, an
 argument-position core-method coverage gap owned by queue row 3, not by
 this slice. Gate 1 remains unsatisfied; this S0 does not claim it.
+
+### D0 decision — `MIRBUILDER-GATE1-CALL-RESULT-ARGUMENT-COVERAGE-D0` (landed)
+
+```text
+Decision: the frontier is not "argument position" — item enumeration is
+  position-agnostic, so `chunk_data.length()` at Body(3)/LoopBody(4)/
+  Argument(1) is a first-class item. The real gap is the `StringLen/0`
+  placement vocabulary (`Condition` only, deliberately — `length` is
+  ambiguous across box receivers). Admit `x.length()` at Body only when
+  receiver text provenance is sealed: the receiver's sole initializer
+  site carries a `TextToCaller` core-method contract (`chunk_data =
+  data.substring(...)`), the same `index_of_has_text_evidence`/
+  `text_source_at` precedent as StringIndexOf.
+Source authority + canonical issuer: resolver
+  `issue_source_bound_core_method_calls_v1` + its mirrored placement
+  tables (`allowed_placements` core_method.rs,
+  `allowed_target_placements` resolver_core_method_callable_contract.rs)
+  + `text_source_at` evidence rows — one issuer, both tables move in
+  lockstep; no new bucket or issuer.
+Non-authority: declared-type spelling alone, name matching, Dynamic
+  lane, MIR/C input, runtime dispatch.
+Fail-fast boundary: a Body-position `length` receiver without
+  TextToCaller/text evidence stays unarmed -> the route names the site
+  (`SourceCallOutsideSelectedFamily` inside armed loops); Condition
+  placement is unchanged; the moved unarmed pins relocate, they do not
+  disappear.
+Smallest next slice: `MIRBUILDER-GATE1-BODY-LENGTH-TEXT-EVIDENCE-S0` —
+  widen (StringLen, 0) to Body placement gated by receiver text
+  provenance; move the `body_position_length_stays_unarmed` pin to a
+  text-evidence-negative form; re-measure boxtorrent-mini `ingest`.
+Non-claims: no ArrayBox.length admission (no text evidence -> veto);
+  no call-result *instance* receivers (`positive.itemCheck` stays
+  parked); no field-derived receiver provenance; the mimalloc-lite
+  `handles.push(heap.allocate(...))` outer arm is a separate family —
+  the inner `heap.allocate` is already covered by the lexical lane, but
+  NamedArray push requires a String literal or TextToCaller argument
+  site and dies at `TextSourceMissing` on the outer call.
+```
+
+Census evidence (read-only worker): `method_calls()` enumerates every
+`BodyExpressionShapeV1::MethodCall` row regardless of nesting (shadow
+resolver recurses into `Argument(n)` children); `source_target_for_loop`
+consults static/core/instance coverage per item site — argument position
+never gates coverage. `(StringLen, 0)` placement whitelist
+(`core_method.rs` `allowed_placements`) admits `Condition` only and the
+pin `body_position_length_stays_unarmed` fixes that boundary; widening
+it ungated would mint `StringLen` on any lexical `x.length()` including
+ArrayBox receivers. `text_source_at` already checks contract rows at the
+receiver's initializer site, and `StringSubstring/2` produces
+`TextToCaller`, so `chunk_data` satisfies the precedent exactly.
+
+Hazard recorded for the next slice in this file family:
+`into_selected_relation` early-returns a lone `SelectedStatic` relation
+when `selected.len() == 1`, dropping `core_methods`/`instance_methods`
+buckets — a loop mixing exactly one static call with covered method
+items would seal `WithCalls` without per-item coverage verification
+(loop_cond's full-coverage check only runs when `covered_items` is
+non-empty). Latent; not triggered by any landed fixture, but the S0 that
+widens placements must not inherit the silent drop — the union path is
+the honest relation when method buckets are non-empty.
+
+Design closeout: read-only worker premise/integration review completed;
+current-state pointer guard and qualified-route scope guard PASS. No
+code or fixture changes in this step.
+
+### S0 implementation receipt — `MIRBUILDER-GATE1-BODY-LENGTH-TEXT-EVIDENCE-S0` (landed)
+
+Issuer arm: `issue_source_bound_core_method_calls_v1` widens
+`(StringLen, 0)` to `Body` placement — gated by
+`receiver_has_text_evidence` (refactored out of
+`index_of_has_text_evidence`): the receiver must be a caller-owned local
+with exactly one initializer, no rebind, and a text-producing
+initializer site (`text_source_at`: string literal or a `TextToCaller`
+contract minted in the same issuance — `data.substring(i, end)` supplies
+it for `chunk_data`). Parameters carry no initializer and stay unarmed;
+non-text locals (`local s = 0`, `new ArrayBox()`) veto identically. The
+verify-side `allowed_target_placements` mirror moved in lockstep; the
+existing `body_position_length_stays_unarmed` pin survives unchanged as
+the parameter-receiver negative, plus two new pins: armed
+`piece.length()` (TextToCaller initializer) and unarmed non-text
+initializer.
+
+Hazard fix in the same family: `into_selected_relation` no longer drops
+`core_methods`/`instance_methods` buckets when a lone `SelectedStatic`
+relation exists — a mixed loop retains the static obligation via
+`with_covered_call_items` and still verifies every source item exactly
+once (`loop-cond/call-item-coverage` unions the relation's own call
+site into the covered set).
+
+Verify-side pin repair in the same slice: `StringLen/0` vocabulary now
+spans both placements, so `resolver_callable_contract_rejects_body_
+length_placement` repurposed into `rejects_condition_claimed_body_
+only_target` (narrow `ArrayPush/1` `[Body]` vocabulary claimed at
+`Condition` still names `TargetPlacementMismatch` before selector/site
+checks), and `rejects_target_placement_drift` now pins the deeper
+`PlacementMismatch` (claimed `Body` vs the site's actual `Condition`).
+
+Evidence (quick profile): `body_position_length*` 3/3 (param receiver
+unarmed, text-evidence armed, non-text unarmed);
+`resolver_callable_contract*` 9/9. Production re-measure:
+`apps/boxtorrent-mini` now lowers **fully** — `materialize`,
+`releaseFrom`, and `ingest` loops all pass; the only remaining terminal
+is the known `Invoke` terminator JSON emit gap (queue row 4's document
+lane). `apps/binary-trees` names its honest frontier: `iterationCheck`'s
+loop leaves 4 uncovered sites — `builder.make`×2 (caller argument is a
+`me.builder` field read, vetoed by the universal edge proof — the
+field-read provenance family) and `positive.itemCheck`/`negative
+.itemCheck`×2 (call-result receivers, still parked). Gate 1 remains
+unsatisfied; this S0 does not claim it.

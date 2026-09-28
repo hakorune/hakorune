@@ -197,15 +197,31 @@ fn resolver_callable_contract_co_seals_condition_substring_and_generated_target(
 }
 
 #[test]
-fn resolver_callable_contract_rejects_body_length_placement() {
-    // `StringLen/0` remains `Condition`-only: a Body-position `length` call
-    // claimed at `Body` is a named TargetPlacementMismatch.
+fn resolver_callable_contract_rejects_condition_claimed_body_only_target() {
+    // `StringLen/0` now spans Condition + Body (the receiver text-evidence
+    // gate lives upstream in the source-call-target issuer), so the
+    // vocabulary-mismatch pin moves to a narrow target: `ArrayPush/1` is
+    // Body-only, and claiming it at `Condition` is a named
+    // TargetPlacementMismatch before any selector or site check runs.
     let tree = function(vec![
-        local("text", literal(7)),
+        local(
+            "arr",
+            ASTNode::New {
+                class: "ArrayBox".into(),
+                arguments: Vec::new(),
+                field_initializers: Vec::new(),
+                type_arguments: Vec::new(),
+                span: Span::unknown(),
+            },
+        ),
         ASTNode::Loop {
             condition: Box::new(literal(1)),
             body: vec![ASTNode::Return {
-                value: Some(Box::new(method_call(variable("text"), "length", vec![]))),
+                value: Some(Box::new(method_call(
+                    variable("arr"),
+                    "push",
+                    vec![literal(1)],
+                ))),
                 span: Span::unknown(),
             }],
             span: Span::unknown(),
@@ -217,9 +233,10 @@ fn resolver_callable_contract_rejects_body_length_placement() {
         .unwrap();
     let view = forest.callable_source_ledger(forest.roots()[0]).unwrap();
     let (_, call) = view.method_calls().next().expect("one method call");
-    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0).unwrap();
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::ArrayPush, 1).unwrap();
     let mut target_issuer =
-        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap();
+        CoreMethodInstanceTargetIssuerV1::array_integer_append(CORE_METHOD_MANIFEST_BRAND_V2)
+            .unwrap();
     let target = target_issuer.issue(row).unwrap();
     let membership = view.resolved_loop_source(&stmt(1)).unwrap();
 
@@ -228,14 +245,14 @@ fn resolver_callable_contract_rejects_body_length_placement() {
             &view,
             call,
             &membership,
-            ResolvedLoopPlacementV1::Body,
+            ResolvedLoopPlacementV1::Condition,
             target,
         )
         .unwrap_err(),
         ResolverCoreMethodCallableContractRejectV1::TargetPlacementMismatch {
-            op: CoreMethodOp::StringLen,
-            expected: ResolvedLoopPlacementV1::Condition,
-            actual: ResolvedLoopPlacementV1::Body,
+            op: CoreMethodOp::ArrayPush,
+            expected: ResolvedLoopPlacementV1::Body,
+            actual: ResolvedLoopPlacementV1::Condition,
         }
     );
 }
@@ -352,6 +369,10 @@ fn resolver_callable_contract_rejects_call_outside_selected_loop_body() {
 
 #[test]
 fn resolver_callable_contract_rejects_target_placement_drift() {
+    // A condition-position `length` call claimed at `Body` passes the
+    // widened `StringLen/0` vocabulary but still fails the deeper check:
+    // the sealed placement must equal the site's actual resolved
+    // placement.
     let tree = function(vec![
         local("text", literal(7)),
         ASTNode::Loop {
@@ -383,9 +404,9 @@ fn resolver_callable_contract_rejects_target_placement_drift() {
             target
         ),
         Err(
-            ResolverCoreMethodCallableContractRejectV1::TargetPlacementMismatch {
-                expected: ResolvedLoopPlacementV1::Condition,
-                actual: ResolvedLoopPlacementV1::Body,
+            ResolverCoreMethodCallableContractRejectV1::PlacementMismatch {
+                expected: ResolvedLoopPlacementV1::Body,
+                actual: Some(ResolvedLoopPlacementV1::Condition),
                 ..
             }
         )
