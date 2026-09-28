@@ -1,7 +1,7 @@
-date = "2026-09-28"
+date = "2026-09-29"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -26,12 +26,14 @@ exactly one HomeRelease at exit, no caller-side NewBox/Copy.
 static-box siblings claim their class. Negatives reject; lexical
 `w.make()` stays deferred. 29/29 lifecycle tests green; zero
 current-change failures vs parent. Gate 1 remains unsatisfied.
-Next frontier: `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0`.
+Lexical-lane D0 accepted (claim-local receivers, Invoke-shaped
+emission, scan-time `method_calls` membership). Next frontier:
+`MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-S0`.
 """
 next_design_card = "MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

@@ -282,6 +282,8 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | 9f | DONE — `MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-S0` landed below: `OrdinaryNewClaimLedgerV1` + `ResultNewHomePrefixV1` + `NewResultCommitV1` share the single ledger/emission owner; membership is proven by `exact_stmt` (`Return{value}` parent), never by the shared `Value` segment; validation requires the emitted object at `Return{value}` exactly once. Focused: 6 semantic tests + 2 artifact tests green; `return new Point(1,2)` (child and `Main.main`) now passes artifact validation entirely. Argument/field positions stay out; retained-unavailable keeps `artifact-source-unavailable`. |
 | 9g | DONE — `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0` accepted below: `InvokeCallResultKind::Handle` admitted for callees whose sealed terminal is `Value(Construction)`; `callable_result_classes` stays the sole class-name authority, `call_result_kind` the sole issuer; the caller installs the received object as an owned Home owing exactly one release (ReturnReceive precedent). S0 bounds to the direct-call lane; the lexical `w.make()` row lacks any result field and is the named sibling `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0`. No root-ABI or annotation lanes touched. |
 | 9h | DONE — `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-S0` landed below: direct-call `local h = make(0)` (bare-name `FunctionCall` lane; `Work.make()` is a `Call`/lexical sibling) installs the callee's canonical object as an owned Home owing one `HomeRelease`; `InvokeCallResultKind::Handle` + `InvokeNormalResult` emit once, `MirType::Box("Point")` typed, no Copy/NewBox; negatives reject (returned-Home binding, annotated-construction mismatch); 29/29 lifecycle tests green. |
+| 9i | DONE — `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0` accepted below: `local h = w.make()` (AST `Call`/`method_calls`) joins the Handle-result lane for claim-local receivers only (`local w = new W()`); the disposition row gains a co-sealed `result` at issue (issuer.rs:727 sees terminal_relation + callable_result_classes + result_contracts); a `method_calls` observation arm mints the Handle `LocalCallObservationV1` during scan; `CallReceivedCommitV1`, the verifier pairing (`Callee::SameModuleInstance × Handle`), and `OrdinaryHandle` publish carry over unchanged. Emission must be Invoke-shaped — the existing `CoreEffectPlan::DeclaredInstanceCall` emits a plain `Call` and stays the non-lifecycle path; a port-mediated emit mirroring `emit_local_lifecycle_call_v1` takes Handle rows. Parameter/nested/rebound receivers and the raw member route keep their current reject/dynamic boundary — a Handle-sealed site reaching the dynamic route freezes, never degrades. |
+| 9j | NEXT — `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-S0`: scan-side `method_calls` Handle observation arm (claim-local receiver class via candidates + `unique_instance_target` + callee body-shape construction walk); row `result` field co-sealed at disposition issue; Invoke-shaped emission + `CallReceived` install for `local h = w.make()`; unconsumed-Handle audit. Evidence: `local w = new W(); local h = w.make()` installs one owned Home with exactly one HomeRelease; negatives: parameter receiver, rebound receiver, unclassified callee. |
 | 10 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
 
 ### Landed slices tombstone (compressed 2026-09-28)
@@ -1166,3 +1168,61 @@ ABI, no field/argument positions, no silent fallback; Gate 1 stays
 unsatisfied. Next frontier is the named sibling
 `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0` (lexical row needs
 its own co-sealed result field).
+
+### D0 decision — `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0` (accepted 2026-09-29)
+
+Census findings that shaped the decision:
+
+- `LexicalInstanceCallDispositionRowV1` carries only
+  `call_site`/`receiver_site`/`receiver_binding`/`target`/
+  `target_batch_slot` — no result field, no argument sites.
+- Its take is affine but plan-lane only
+  (`LoopPlanExpressionPortV1::exact_source_declared_instance_call_v1`
+  → `CoreEffectPlan::DeclaredInstanceCall` → a **plain
+  `MirInstruction::Call`**, no Invoke/fault-frame/lifecycle hooks).
+- `issue_local_call` sees only `direct_call_observations`; a
+  `method_calls()` site falls to `install_inventoried_call_result`
+  (`BoundValue` + `PrefixNotCovered`) — the current
+  `local h = w.make()` goes out the dynamic member route.
+- At disposition-issue time (`issuer.rs:727`) `terminal_relation`,
+  `callable_result_classes`, and `result_contracts` are already
+  sealed — so the row's `result` can be co-sealed there with the
+  exact `RootInstanceCallDispositionRowV1.result` recipe; scan-time
+  classification must instead work from `candidates` + `batch`
+  (`construction_result_callee`-style walk), mirroring the
+  direct-call scan predicate.
+- Receiver provenance is bounded at scan time: only claim-local
+  receivers (`local w = new W()`, sole-initializer `candidates`
+  claim) are provable inside the per-declaration verify loop;
+  parameter receivers need cross-function claims that do not exist
+  yet at that point.
+- Reuse is total downstream: `CallReceivedCommitV1`,
+  `handle_call_source`/`begin_handle_call_emission`,
+  `call_received_initializer_matches` placement, the verifier's
+  `Callee::SameModuleInstance × Handle` pairing, and
+  `OrdinaryHandle` publish all fit unchanged.
+
+```text
+Decision: admit `local h = w.make()` handle results in the lexical
+  lane for claim-local receivers; co-seal `result` on the
+  disposition row at issue; mint the Handle LocalCallObservationV1
+  from a `method_calls` scan arm; emit Invoke-shaped (Invoke +
+  fault landing + InvokeNormalResult), never plain Call.
+Source authority + canonical issuer: `method_calls()` sealed rows +
+  `candidates` claim-local receiver class + callee body-shape
+  construction walk (scan); `call_result_kind` +
+  `callable_result_classes` at disposition issue.
+Non-authority: parameter/nested-handle/rebound receivers; raw
+  member-route dynamic dispatch; name/type-based class guesses;
+  the plain `DeclaredInstanceCall` Call path for Handle rows.
+Fail-fast boundary: a Handle-sealed site reaching the dynamic
+  member route freezes (unconsumed-Handle row audit +
+  map_demands_consumed); unproven receivers keep NotSelected.
+Smallest next slice: MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-S0
+  — scan arm + row field + Invoke emission + CallReceived install.
+  Evidence: `local w = new W(); local h = w.make()` installs one
+  owned Home with exactly one HomeRelease; negatives: parameter
+  receiver, rebound receiver, unclassified callee.
+Non-claims: no parameter/nested receivers; no raw-lane emission;
+  no root return ABI; Gate 1 stays unsatisfied.
+```
