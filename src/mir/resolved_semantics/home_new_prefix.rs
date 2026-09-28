@@ -11,8 +11,11 @@ use super::{
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::resolved_control_flow::{issue_new_fault_continuation_v1, NewFaultContinuationV1};
-use std::collections::BTreeMap;
+use crate::mir::resolved_control_flow::{
+    issue_new_fault_continuation_v1, issue_result_new_fault_continuation_v1,
+    NewFaultContinuationV1,
+};
+use std::collections::{BTreeMap, BTreeSet};
 
 #[path = "selected_new_arguments.rs"]
 mod selected_new_arguments;
@@ -61,6 +64,32 @@ impl CallerNewHomePrefixV1 {
     }
 }
 
+/// Destination-less prefix facts for a return-position `new`. The fresh
+/// object's ownership transfers to the caller at the Return edge, so this
+/// prefix carries no destination binding and no local installation — only
+/// the live prior Homes (still this frame's exit obligation), the outward
+/// fault continuation the construction unwinds through, and the covered
+/// statement inventory at the terminal point.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ResultNewHomePrefixV1 {
+    prior_homes: Box<[BindingRefV1]>,
+    outward_fault: NewFaultContinuationV1,
+    covered_statements: Box<[SourceStmtSiteV1]>,
+}
+
+impl ResultNewHomePrefixV1 {
+    pub(crate) fn prior_homes(&self) -> &[BindingRefV1] {
+        &self.prior_homes
+    }
+    pub(crate) fn required_unwind(&self) -> &OwnedExprSiteV1 {
+        self.outward_fault.site()
+    }
+    #[cfg(test)]
+    pub(crate) fn covered_statements(&self) -> &[SourceStmtSiteV1] {
+        &self.covered_statements
+    }
+}
+
 #[path = "home_prefix_local_flow.rs"]
 mod local_flow;
 pub(crate) use local_flow::SourceScalarKind;
@@ -98,6 +127,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         selected,
         std::iter::empty(),
         None,
+        &BTreeSet::new(),
         &mut |_, _, _, _, _| Ok::<_, std::convert::Infallible>(false),
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
@@ -124,6 +154,7 @@ pub(crate) fn scan_new_home_flow<E>(
         ),
     >,
     terminal: Option<&SourceStmtSiteV1>,
+    result_sites: &BTreeSet<OwnedExprSiteV1>,
     field_is_integer: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -140,6 +171,7 @@ pub(crate) fn scan_new_home_flow<E>(
         RootHomeFlow,
         Option<TerminalRelationV1>,
         BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
+        BTreeMap<OwnedExprSiteV1, Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>>,
     ),
     E,
 > {
@@ -149,6 +181,7 @@ pub(crate) fn scan_new_home_flow<E>(
     let mut local_calls = Vec::new();
     let mut terminal_relation = None;
     let mut argument_observations = BTreeMap::new();
+    let mut result_prefixes = BTreeMap::new();
     let function = input.function();
     let mut unavailable = (function
         .declaration_sites()
@@ -171,6 +204,10 @@ pub(crate) fn scan_new_home_flow<E>(
             },
             terminal_relation,
             argument_observations,
+            result_sites
+                .iter()
+                .map(|site| (site.clone(), Err(HomePrefixUnavailableV1::SourceMismatch)))
+                .collect(),
         ));
     };
     let mut locals = PrefixLocalFlow::new(input);
@@ -447,6 +484,102 @@ pub(crate) fn scan_new_home_flow<E>(
                                                 &locals,
                                             ) {
                                                 Some(returned) => {
+                                                    // `return new <class>(...)` —
+                                                    // the fresh object transfers
+                                                    // to the caller; prior Homes
+                                                    // remain this frame's exit
+                                                    // obligation. Claim-member
+                                                    // sites co-seal their
+                                                    // destination-less result
+                                                    // prefix and argument
+                                                    // observation at this point.
+                                                    if let TerminalReturnedSourceV1::Construction(
+                                                        owned,
+                                                    ) = &returned
+                                                    {
+                                                        if result_sites.contains(owned) {
+                                                            match input.source().expr_at(owned) {
+                                                                Ok(located) => {
+                                                                    match located.node() {
+                                                            ASTNode::New {
+                                                                arguments,
+                                                                field_initializers,
+                                                                ..
+                                                            } => {
+                                                                let observed_arguments = arguments.iter().enumerate().map(|(ordinal, _)| {
+                                                                let ordinal = u32::try_from(ordinal).map_err(|_| {
+                                                                    SelectedNewArgumentUnavailableV1::ArgumentOrdinalOverflow { new_site: owned.clone() }
+                                                                })?;
+                                                                let argument = input.source().child_expr_from_expr(
+                                                                    &located, ExprChildRoleV1::CallArgument(ordinal),
+                                                                ).map_err(|_| SelectedNewArgumentUnavailableV1::SourceMismatch { new_site: owned.clone() })?;
+                                                                let kind = locals.observe(argument.site()).and_then(OrdinaryObservation::into_selected_argument).ok_or_else(|| {
+                                                                    SelectedNewArgumentUnavailableV1::ArgumentNotTrivial { new_site: owned.clone(), site: argument.site().clone() }
+                                                                })?;
+                                                                Ok(SelectedNewArgumentV1::new(ordinal, argument.site().clone(), kind))
+                                                            }).collect::<Result<Vec<_>, _>>().map(|rows| rows.into_boxed_slice());
+                                                                argument_observations.insert(
+                                                                    owned.clone(),
+                                                                    SelectedNewArgumentObservationV1::new(
+                                                                        owned.clone(),
+                                                                        observed_arguments,
+                                                                    ),
+                                                                );
+                                                                if !field_initializers.is_empty() {
+                                                                    unavailable.get_or_insert_with(|| {
+                                                                        HomePrefixUnavailableV1::OverridesNotCovered(owned.site().clone())
+                                                                    });
+                                                                }
+                                                                for argument in 0..arguments.len() {
+                                                                    let arg = input.source().child_expr_from_expr(
+                                                                        &located,
+                                                                        ExprChildRoleV1::CallArgument(argument as u32),
+                                                                    );
+                                                                    match arg {
+                                                                        Ok(arg)
+                                                                            if locals
+                                                                                .observe(arg.site())
+                                                                                .and_then(
+                                                                                    OrdinaryObservation::into_selected_argument,
+                                                                                )
+                                                                                .is_some() => {}
+                                                                        Ok(arg) => {
+                                                                            unavailable.get_or_insert_with(|| {
+                                                                                HomePrefixUnavailableV1::ArgumentNotCovered(
+                                                                                    arg.site().clone(),
+                                                                                )
+                                                                            });
+                                                                        }
+                                                                        Err(_) => {
+                                                                            unavailable.get_or_insert(
+                                                                                HomePrefixUnavailableV1::SourceMismatch,
+                                                                            );
+                                                                        }
+                                                                    }
+                                                                }
+                                                                let result_prefix = match &unavailable {
+                                                                    Some(issue) => Err(issue.clone()),
+                                                                    None => issue_result_new_fault_continuation_v1(input, owned)
+                                                                        .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)
+                                                                        .map(|outward_fault| ResultNewHomePrefixV1 {
+                                                                            prior_homes: homes.iter().rev().copied().collect(),
+                                                                            outward_fault,
+                                                                            covered_statements: covered_statements.clone().into_boxed_slice(),
+                                                                        }),
+                                                                };
+                                                                result_prefixes.insert(owned.clone(), result_prefix);
+                                                            }
+                                                            _ => {
+                                                                unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+                                                            }
+                                                        }
+                                                                }
+                                                                Err(_) => {
+                                                                    unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
                                                     // A returned local/Home leaves
                                                     // with the caller: it is no
                                                     // longer this function's
@@ -780,6 +913,16 @@ pub(crate) fn scan_new_home_flow<E>(
                 .unwrap_or(HomePrefixUnavailableV1::SourceMismatch))
         });
     }
+    // A claim-member return-position `new` the terminal point never reached
+    // keeps the same unavailability as every other unwalked site — claim
+    // membership alone never fabricates coverage.
+    for site in result_sites {
+        result_prefixes.entry(site.clone()).or_insert_with(|| {
+            Err(unavailable
+                .clone()
+                .unwrap_or(HomePrefixUnavailableV1::TerminalNotCovered))
+        });
+    }
     Ok((
         results,
         RootHomeFlow {
@@ -789,5 +932,6 @@ pub(crate) fn scan_new_home_flow<E>(
         },
         terminal_relation,
         argument_observations,
+        result_prefixes,
     ))
 }

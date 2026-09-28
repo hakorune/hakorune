@@ -76,6 +76,35 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
         Err("[freeze:contract][raw-ordinary-new/no-physical-owner]".into())
     }
 
+    /// Return-position `new` claim take. The claim map is self-gating by
+    /// exact site — ports without a ledger simply answer `None`.
+    fn try_take_result_new_claim(
+        &mut self,
+        _class: &str,
+        _argument_count: usize,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1>,
+        String,
+    > {
+        Ok(None)
+    }
+
+    fn prepare_result_new_emission(
+        &mut self,
+        _builder: &crate::mir::MirBuilder,
+        _claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
+    ) -> Result<bool, String> {
+        Err("[freeze:contract][raw-ordinary-new/no-physical-owner]".into())
+    }
+
+    fn emit_result_new_claim(
+        &mut self,
+        _builder: &mut crate::mir::MirBuilder,
+        _claim: crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
+    ) -> Result<crate::mir::ValueId, String> {
+        Err("[freeze:contract][raw-ordinary-new/no-physical-owner]".into())
+    }
+
     fn validate_named_array_construction_route(&self, _named_route: bool) -> Result<(), String> {
         Ok(())
     }
@@ -499,7 +528,7 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         _builder: &crate::mir::MirBuilder,
         claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
     ) -> Result<bool, String> {
-        self.check_new_emission_scope(claim)?;
+        self.check_new_emission_scope(claim.site())?;
         self.ordinary_new_claim_ledger
             .as_ref()
             .expect("checked ledger")
@@ -511,8 +540,66 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         builder: &mut crate::mir::MirBuilder,
         claim: crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
     ) -> Result<crate::mir::ValueId, String> {
-        self.check_new_emission_scope(&claim)?;
+        self.check_new_emission_scope(claim.site())?;
         crate::mir::builder::ordinary_new_admission::selected::emit(
+            builder,
+            &mut self
+                .callable_ledger
+                .as_ref()
+                .expect("checked state")
+                .borrow_mut(),
+            self.ordinary_new_claim_ledger
+                .as_ref()
+                .expect("checked ledger"),
+            claim,
+        )
+    }
+
+    fn try_take_result_new_claim(
+        &mut self,
+        class: &str,
+        argument_count: usize,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1>,
+        String,
+    > {
+        let Some(ledger) = self.ordinary_new_claim_ledger.as_ref() else {
+            return Ok(None);
+        };
+        let Some(site) = self.current_source_site_v1() else {
+            return Ok(None);
+        };
+        let Some(owner) = self.callable_owner_v1() else {
+            return Err("[freeze:contract][raw-ordinary-new/claim-owner-missing]".to_owned());
+        };
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+            owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
+        );
+        ledger
+            .try_take_result(&site, class, argument_count)
+            .map_err(|error| format!("[freeze:contract][raw-ordinary-new/result-claim] {error:?}"))
+    }
+
+    fn prepare_result_new_emission(
+        &mut self,
+        _builder: &crate::mir::MirBuilder,
+        claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
+    ) -> Result<bool, String> {
+        self.check_new_emission_scope(claim.site())?;
+        self.ordinary_new_claim_ledger
+            .as_ref()
+            .expect("checked ledger")
+            .prepare_result_new_emission(claim)
+    }
+
+    fn emit_result_new_claim(
+        &mut self,
+        builder: &mut crate::mir::MirBuilder,
+        claim: crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
+    ) -> Result<crate::mir::ValueId, String> {
+        self.check_new_emission_scope(claim.site())?;
+        crate::mir::builder::ordinary_new_admission::selected::emit_result(
             builder,
             &mut self
                 .callable_ledger
@@ -551,26 +638,28 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         let Some(site) = self.current_source_site_v1() else {
             return Ok(());
         };
+        let owner = self
+            .callable_owner_v1()
+            .ok_or_else(|| "[freeze:contract][raw-ordinary-new/claim-owner-missing]".to_owned())?;
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+            owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
+        );
+        // Forward claim completions only: local-initializer claims keep the
+        // exact statement shape, and return-position claims forward when a
+        // taken commit row exists at this exact site (a `Value` segment is
+        // shared by assignment/print/nowait children that hold no claim).
         if !matches!(
-            site.segments(),
+            site.site().node().segments(),
             [
                 crate::mir::resolved_semantics::SourcePathSegmentV1::Body(_),
                 crate::mir::resolved_semantics::SourcePathSegmentV1::Initializer(_),
             ]
-        ) {
+        ) && !ledger.has_result_new_commit(&site)
+        {
             return Ok(());
         }
-        let owner = self
-            .callable_owner_v1()
-            .ok_or_else(|| "[freeze:contract][raw-ordinary-new/claim-owner-missing]".to_owned())?;
-        ledger.complete_new_expression(
-            &crate::mir::resolved_semantics::OwnedExprSiteV1::new(
-                owner,
-                crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
-            ),
-            class,
-            value,
-        )
+        ledger.complete_new_expression(&site, class, value)
     }
 
     fn named_array_field_provider_recording(
@@ -663,7 +752,7 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
 impl super::RawInvocationChildPortV1<'_, '_> {
     fn check_new_emission_scope(
         &self,
-        claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
+        claim_site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
     ) -> Result<(), String> {
         let state = self
             .callable_ledger
@@ -679,7 +768,7 @@ impl super::RawInvocationChildPortV1<'_, '_> {
         );
         if self.ordinary_new_claim_ledger.is_none()
             || self.callable_owner_v1() != Some(owner)
-            || &site != claim.site()
+            || &site != claim_site
         {
             return Err("[freeze:contract][raw-ordinary-new/emission-scope-mismatch]".into());
         }

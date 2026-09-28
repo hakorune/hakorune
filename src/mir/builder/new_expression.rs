@@ -10,11 +10,29 @@ use crate::mir::builder::recursive_child_lowering::{
     RawOrdinaryNewClaimPortV1,
 };
 
+/// Taken claim for the ordinary-`New` lane — a local-initializer claim or
+/// a return-position result claim. One physical emit shape; the claim kind
+/// carries the only semantic difference (destination vs transfer edge).
+pub(in crate::mir::builder) enum OrdinaryNewClaimTakeV1 {
+    Local(crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1),
+    Result(crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1),
+}
+
+impl OrdinaryNewClaimTakeV1 {
+    fn constructor(
+        self,
+    ) -> crate::mir::normal_callable_semantic_package::OrdinaryNewConstructorDispositionV1 {
+        match self {
+            Self::Local(claim) => claim.constructor(),
+            Self::Result(claim) => claim.constructor(),
+        }
+    }
+}
+
 pub(in crate::mir::builder) struct PreparedRawNewExpressionV1 {
     class: String,
     route: PreparedRawNewExpressionRouteV1,
-    ordinary_claim:
-        Option<crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1>,
+    ordinary_claim: Option<OrdinaryNewClaimTakeV1>,
     ordinary_birth_recipe:
         Option<crate::mir::normal_callable_semantic_package::VerifiedOrdinaryNewBirthRecipeV1>,
     selected_ordinary_claim: bool,
@@ -108,11 +126,24 @@ impl PreparedRawNewExpressionV1 {
         {
             return Err("[freeze:contract][ordinary-new/argument-source-unavailable]".into());
         }
-        let selected = match &claim {
-            Some(claim) => port.prepare_ordinary_new_emission(builder, claim)?,
-            None => false,
-        };
-        self.ordinary_claim = claim;
+        let mut selected = false;
+        match claim {
+            Some(claim) => {
+                selected = port.prepare_ordinary_new_emission(builder, &claim)?;
+                self.ordinary_claim = Some(OrdinaryNewClaimTakeV1::Local(claim));
+            }
+            None => {
+                // An unavailable argument co-seal stays a retained claim —
+                // truthfully unavailable rather than a hard error at take
+                // time.
+                if let Some(claim) =
+                    port.try_take_result_new_claim(&self.class, arguments.len())?
+                {
+                    selected = port.prepare_result_new_emission(builder, &claim)?;
+                    self.ordinary_claim = Some(OrdinaryNewClaimTakeV1::Result(claim));
+                }
+            }
+        }
         self.ordinary_birth_recipe = if self.ordinary_claim.is_none() {
             port.try_take_ordinary_new_birth_recipe(&self.class, arguments.len())?
         } else {
@@ -192,14 +223,18 @@ impl MirBuilder {
             PreparedRawNewExpressionRouteV1::Ordinary { arguments: _ }
                 if selected_ordinary_claim =>
             {
-                port.emit_ordinary_new_claim(
-                    self,
-                    ordinary_claim.expect("selected ordinary claim"),
-                )?
+                match ordinary_claim.expect("selected ordinary claim") {
+                    OrdinaryNewClaimTakeV1::Local(claim) => {
+                        port.emit_ordinary_new_claim(self, claim)?
+                    }
+                    OrdinaryNewClaimTakeV1::Result(claim) => {
+                        port.emit_result_new_claim(self, claim)?
+                    }
+                }
             }
             PreparedRawNewExpressionRouteV1::Ordinary { arguments } => {
                 let constructor = ordinary_claim
-                    .map(|claim| claim.constructor())
+                    .map(OrdinaryNewClaimTakeV1::constructor)
                     .or(ordinary_birth_recipe.map(
                         crate::mir::normal_callable_semantic_package::OrdinaryNewConstructorDispositionV1::Birth,
                     ));

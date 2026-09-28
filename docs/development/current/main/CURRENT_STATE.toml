@@ -1,10 +1,10 @@
 date = "2026-09-28"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-D0"
+current_execution_row = "MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
-current_design_stop = "MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-D0"
+current_design_stop = "MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,16 +17,18 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-ARTIFACT-LIFECYCLE-COVERAGE D0+S0 landed: coverage stays universal;
-children carrying RetainedUnavailable ordinary commit rows now freeze
-artifact-source-unavailable before coverage (root-order parity, and
-the no-birth NewBox-only bypass is closed). Claimless non-initializer
-`new` keeps artifact-unowned-lifecycle-site; mimalloc-lite's terminal
-is unchanged. Next design stop: whether return/argument-position `new`
-gains a claim lane (`MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-D0`).
-Gate 1 remains unsatisfied.
+RETURN-POSITION-NEW-CLAIM S0 landed: OrdinaryNewResultClaimV1 +
+ResultNewHomePrefixV1 + LocalCommitV1::Result share the single
+ledger/emission owner; membership is proven by exact_stmt
+(Return{value} parent), never by the shared Value segment; emitted
+object must reach Return{value} exactly once. 6 semantic + 2 artifact
+tests green; `return new Point(1,2)` validates fully for child and
+Main.main. Argument/field positions stay out; retained-unavailable
+keeps artifact-source-unavailable. Next frontier: caller-side Handle
+result ABI — `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0`. Gate 1
+remains unsatisfied.
 """
-next_design_card = "MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-D0"
+next_design_card = "MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
@@ -44,7 +46,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-28: MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-S0 landed — destination-less result claims co-seal through the single ledger/emission owner; `return new Point(1,2)` validates fully (child + Main.main); argument/field positions stay outside; unavailable stays artifact-source-unavailable. Next: MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0.",
   "2026-09-28: MIRBUILDER-GATE1-ARTIFACT-LIFECYCLE-COVERAGE-D0+S0 landed — coverage stays universal; child owners with RetainedUnavailable commit rows freeze artifact-source-unavailable before coverage (closes the no-birth NewBox-only bypass); claimless non-initializer new keeps artifact-unowned-lifecycle-site. Next: MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-D0.",
   "2026-09-28: MIRBUILDER-GATE1-INVOKE-TERMINATOR-JSON-EMIT-D0+S0 landed — generic mir_json_emit stays closed to lifecycle Invoke per the accepted SSOT decision; typed_object_untyped_field_min_exe re-pointed to the physical v2 route (negative Invoke pin kept), true terminal is artifact-source-unavailable; typed_object_method_min_exe PASS exit 30 proves the transport end-to-end. Next: MIRBUILDER-GATE1-UNRELEASABLE-HOME-ARTIFACT-ADMISSION-D0.",
-  "2026-09-28: dev_gate quick self-contained PASS 67/67 — LLVM 18 tool resolution unified repo-wide (env -> *-18 -> unversioned fallback in the C shim and both Rust drivers) and llvmlite moved to a resolved opt-in keep-lane dependency (typed skip when absent; uv ephemeral llvmlite==0.47.0 provisioning).",
 ]

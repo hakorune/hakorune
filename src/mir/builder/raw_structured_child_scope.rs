@@ -443,6 +443,33 @@ where
         self.child.emit_ordinary_new_claim(builder, claim)
     }
 
+    fn try_take_result_new_claim(
+        &mut self,
+        class: &str,
+        argument_count: usize,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1>,
+        String,
+    > {
+        self.child.try_take_result_new_claim(class, argument_count)
+    }
+
+    fn prepare_result_new_emission(
+        &mut self,
+        builder: &MirBuilder,
+        claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
+    ) -> Result<bool, String> {
+        self.child.prepare_result_new_emission(builder, claim)
+    }
+
+    fn emit_result_new_claim(
+        &mut self,
+        builder: &mut MirBuilder,
+        claim: crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
+    ) -> Result<ValueId, String> {
+        self.child.emit_result_new_claim(builder, claim)
+    }
+
     fn validate_named_array_construction_route(&self, named_route: bool) -> Result<(), String> {
         self.child
             .validate_named_array_construction_route(named_route)

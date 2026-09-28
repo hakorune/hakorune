@@ -24,9 +24,10 @@ use crate::mir::instance_constructor_abi::{
     InstanceConstructorAbiErrorV1, InstanceConstructorAbiV1,
 };
 use crate::mir::resolved_semantics::home_new_prefix::{
-    CallerNewHomePrefixV1, HomePrefixUnavailableV1, SelectedNewArgumentUnavailableV1,
-    TerminalI64AddReturnV1, TerminalI64FieldReturnV1, TerminalIntegerLiteralReturnV1,
-    TerminalMapGetReturnV1, TerminalRelationV1, TerminalUnitReturnV1,
+    CallerNewHomePrefixV1, HomePrefixUnavailableV1, ResultNewHomePrefixV1,
+    SelectedNewArgumentUnavailableV1, TerminalI64AddReturnV1, TerminalI64FieldReturnV1,
+    TerminalIntegerLiteralReturnV1, TerminalMapGetReturnV1, TerminalRelationV1,
+    TerminalUnitReturnV1,
 };
 use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
@@ -163,6 +164,26 @@ pub(crate) struct OrdinaryNewAdmissionClaimV1 {
     argument_rows: Result<Box<[OrdinaryNewTrivialArgumentV1]>, SelectedNewArgumentUnavailableV1>,
 }
 
+/// Bounded return-position claim for `return new <class>(...)`. The fresh
+/// object's ownership transfers to the caller at the Return edge, so the
+/// claim carries no destination binding or local declaration — the
+/// destination-less `ResultNewHomePrefixV1` stands in their place. The
+/// emitted object value must land on `Return { value }` exactly; the
+/// caller-side Handle result ABI is a separate downstream family.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct OrdinaryNewResultClaimV1 {
+    site: OwnedExprSiteV1,
+    box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
+    class: Box<str>,
+    arity: usize,
+    constructor: OrdinaryNewConstructorDispositionV1,
+    home_prefix: Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>,
+    construction: ConstructionEligibilityV1,
+    object: CanonicalObjectIdV1,
+    destruction: ObjectDestructionDispositionV1,
+    argument_rows: Result<Box<[OrdinaryNewTrivialArgumentV1]>, SelectedNewArgumentUnavailableV1>,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum OrdinaryNewClaimTakeErrorV1 {
     Unavailable,
@@ -172,6 +193,10 @@ pub(crate) enum OrdinaryNewClaimTakeErrorV1 {
 #[derive(Debug)]
 pub(crate) struct OrdinaryNewClaimLedgerV1 {
     claims: RefCell<BTreeMap<OwnedExprSiteV1, OrdinaryNewAdmissionClaimV1>>,
+    // Return-position `new` claims keyed by the exact `new` site — the
+    // bounded transfer-to-caller family inside this same ledger, not a
+    // parallel issuer.
+    result_claims: RefCell<BTreeMap<OwnedExprSiteV1, OrdinaryNewResultClaimV1>>,
     ordinary_box_names: Box<[Box<str>]>,
     local_commits: RefCell<BTreeMap<OwnedExprSiteV1, local_commit::LocalCommitV1>>,
     root_validation: RefCell<local_commit::RootNewValidation>,
@@ -299,8 +324,16 @@ impl OrdinaryNewClaimLedgerV1 {
         self.claims.borrow()
     }
 
+    #[cfg(test)]
+    pub(super) fn pending_result_claims_for_test(
+        &self,
+    ) -> std::cell::Ref<'_, BTreeMap<OwnedExprSiteV1, OrdinaryNewResultClaimV1>> {
+        self.result_claims.borrow()
+    }
+
     pub(crate) fn issue(
         claims: Box<[OrdinaryNewAdmissionClaimV1]>,
+        result_claims: Box<[OrdinaryNewResultClaimV1]>,
         ordinary_box_names: Box<[Box<str>]>,
     ) -> Self {
         Self {
@@ -309,6 +342,13 @@ impl OrdinaryNewClaimLedgerV1 {
                     .into_vec()
                     .into_iter()
                     .map(|claim| (claim.site().clone(), claim))
+                    .collect(),
+            ),
+            result_claims: RefCell::new(
+                result_claims
+                    .into_vec()
+                    .into_iter()
+                    .map(|claim| (claim.site.clone(), claim))
                     .collect(),
             ),
             ordinary_box_names,
@@ -399,6 +439,80 @@ impl OrdinaryNewClaimLedgerV1 {
             claims
                 .remove(site)
                 .expect("claim remained present after the checked lookup"),
+        ))
+    }
+
+    /// Whether a taken return-position commit row exists at this exact
+    /// site. Used by the caller's completion-forwarding gate — a `Value`
+    /// segment is shared by assignment/print/nowait children that hold no
+    /// claim, so shape alone cannot decide.
+    pub(crate) fn has_result_new_commit(&self, site: &OwnedExprSiteV1) -> bool {
+        matches!(
+            self.local_commits.borrow().get(site),
+            Some(local_commit::LocalCommitV1::Result(_))
+        )
+    }
+
+    /// Affine take of a return-position claim. Absence is `Ok(None)` —
+    /// non-return `new` positions and uncovered classes stay outside this
+    /// lane and keep their existing terminal.
+    pub(crate) fn try_take_result(
+        &self,
+        site: &OwnedExprSiteV1,
+        class: &str,
+        arity: usize,
+    ) -> Result<Option<OrdinaryNewResultClaimV1>, OrdinaryNewClaimTakeErrorV1> {
+        if !self
+            .ordinary_box_names
+            .iter()
+            .any(|name| name.as_ref() == class)
+        {
+            return Ok(None);
+        }
+        let mut claims = self.result_claims.borrow_mut();
+        let Some(claim) = claims.get(site) else {
+            return Ok(None);
+        };
+        if claim.class() != class || claim.arity() != arity {
+            return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
+        }
+        let mut commits = self.local_commits.borrow_mut();
+        if let Ok(prefix) = &claim.home_prefix {
+            if prefix.required_unwind() != site
+                || prefix
+                    .prior_homes()
+                    .iter()
+                    .any(|binding| local_commit::installed_home(&commits, *binding).is_err())
+            {
+                return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
+            }
+        }
+        let birth_target = match &claim.constructor {
+            OrdinaryNewConstructorDispositionV1::NoBirthZero => None,
+            OrdinaryNewConstructorDispositionV1::Birth(recipe) => Some(recipe.target_ref().clone()),
+        };
+        let birth_abi = self.birth_abi_handoffs.borrow_mut().remove(site);
+        if birth_abi.as_ref().map(BirthAbiHandoffV1::target) != birth_target.as_ref() {
+            return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
+        }
+        commits.insert(
+            site.clone(),
+            local_commit::LocalCommitV1::Result(local_commit::NewResultCommitV1::pending(
+                site.clone(),
+                claim.home_prefix.clone(),
+                claim.box_source().clone(),
+                claim.construction.clone(),
+                claim.object,
+                claim.destruction,
+                birth_target,
+                birth_abi,
+                claim.argument_rows.clone(),
+            )),
+        );
+        Ok(Some(
+            claims
+                .remove(site)
+                .expect("result claim remained present after the checked lookup"),
         ))
     }
 

@@ -2,6 +2,22 @@
 //! This private candidate issues no availability, transfer or physical progress.
 use super::*;
 
+/// Site-level resolution products shared by the local-initializer claim
+/// lane and the return-position result-new claim lane. Destination and
+/// declaration are deliberately absent: return-position `new` installs no
+/// local and transfers its fresh object to the caller.
+pub(super) struct OrdinaryNewSiteResolutionV1 {
+    pub(super) site: OwnedExprSiteV1,
+    pub(super) box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
+    pub(super) class: Box<str>,
+    pub(super) arity: usize,
+    pub(super) construction: ConstructionEligibilityV1,
+    pub(super) object: CanonicalObjectIdV1,
+    pub(super) destruction: ObjectDestructionDispositionV1,
+    pub(super) constructor: OrdinaryNewConstructorDispositionV1,
+    pub(super) birth_handoff: Option<BirthAbiHandoffV1>,
+}
+
 pub(super) struct OrdinaryNewCandidate {
     pub(super) site: OwnedExprSiteV1,
     pub(super) box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
@@ -17,16 +33,18 @@ pub(super) struct OrdinaryNewCandidate {
 }
 
 impl OrdinaryNewCandidate {
-    pub(super) fn resolve(
+    /// Resolve the position-independent site products: coverage, object
+    /// identity, destruction disposition, construction eligibility and the
+    /// verified `Birth` recipe/handoff. Membership position — initializer
+    /// destination or return boundary — stays the caller's concern.
+    pub(super) fn resolve_site(
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
         site: OwnedExprSiteV1,
         class: Box<str>,
         arity: usize,
-        destination: BindingRefV1,
-        declaration: SourceBindingSiteV1,
         has_overrides: bool,
-    ) -> Result<Option<Self>, OrdinaryNewCoSealIssueV1> {
+    ) -> Result<Option<OrdinaryNewSiteResolutionV1>, OrdinaryNewCoSealIssueV1> {
         let Some(box_source) = batch
             .ordinary_box_coverage()
             .row_for(class.as_ref())
@@ -88,18 +106,52 @@ impl OrdinaryNewCandidate {
                 }
                 None => no_birth_constructor_disposition(&site, &class, arity)?,
             };
-        Ok(Some(Self {
+        Ok(Some(OrdinaryNewSiteResolutionV1 {
             site,
             box_source: box_source.clone(),
             class,
             arity,
-            destination,
-            declaration,
             construction,
             object,
             destruction,
             constructor,
             birth_handoff,
+        }))
+    }
+
+    pub(super) fn resolve(
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+        site: OwnedExprSiteV1,
+        class: Box<str>,
+        arity: usize,
+        destination: BindingRefV1,
+        declaration: SourceBindingSiteV1,
+        has_overrides: bool,
+    ) -> Result<Option<Self>, OrdinaryNewCoSealIssueV1> {
+        let Some(resolution) = Self::resolve_site(
+            batch,
+            instance_constructors,
+            site,
+            class,
+            arity,
+            has_overrides,
+        )?
+        else {
+            return Ok(None);
+        };
+        Ok(Some(Self {
+            site: resolution.site,
+            box_source: resolution.box_source,
+            class: resolution.class,
+            arity: resolution.arity,
+            destination,
+            declaration,
+            construction: resolution.construction,
+            object: resolution.object,
+            destruction: resolution.destruction,
+            constructor: resolution.constructor,
+            birth_handoff: resolution.birth_handoff,
         }))
     }
 }

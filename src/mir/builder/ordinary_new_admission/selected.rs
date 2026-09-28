@@ -23,11 +23,60 @@ pub(in crate::mir::builder) fn emit(
     if state.owner() != claim.site().owner() {
         return Err(freeze("owner-or-argument-count"));
     }
-    let arguments = materialize_arguments(builder, state, &claim)?;
-    let (prior, reclaim_origin) = ledger.begin_new_emission(claim.site())?;
     let site = claim.site().clone();
     let object = claim.object();
     let class = claim.class().to_owned();
+    let arity = claim.arity();
+    let rows = claim
+        .argument_rows()
+        .map_err(|_| freeze("argument-source-unavailable"))?
+        .to_vec();
+    let constructor = claim.constructor();
+    emit_selected_new(
+        builder, state, ledger, site, object, class, arity, constructor, &rows,
+    )
+}
+
+/// Physical consumption of one return-position result claim. The emitted
+/// object value is the `Return { value }` operand the claim stands for —
+/// one emit shape, no local destination step.
+pub(in crate::mir::builder) fn emit_result(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    claim: crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
+) -> Result<ValueId, String> {
+    if state.owner() != claim.site().owner() {
+        return Err(freeze("owner-or-argument-count"));
+    }
+    let site = claim.site().clone();
+    let object = claim.object();
+    let class = claim.class().to_owned();
+    let arity = claim.arity();
+    let rows = claim
+        .argument_rows()
+        .map_err(|_| freeze("argument-source-unavailable"))?
+        .to_vec();
+    let constructor = claim.constructor();
+    emit_selected_new(
+        builder, state, ledger, site, object, class, arity, constructor, &rows,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn emit_selected_new(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    site: crate::mir::resolved_semantics::OwnedExprSiteV1,
+    object: hakorune_mir_defs::CanonicalObjectIdV1,
+    class: String,
+    arity: usize,
+    constructor: OrdinaryNewConstructorDispositionV1,
+    argument_rows: &[OrdinaryNewTrivialArgumentV1],
+) -> Result<ValueId, String> {
+    let arguments = materialize_arguments(builder, state, &site, arity, argument_rows)?;
+    let (prior, reclaim_origin) = ledger.begin_new_emission(&site)?;
     let frame = state.borrow_fault_frame(builder)?;
     let result = builder.next_value_id();
     let frame_binding = fault_frame_binding(builder, state, frame)?;
@@ -40,7 +89,6 @@ pub(in crate::mir::builder) fn emit(
         &mut bindings,
     )?;
     let allocation_fault = cleanup_chain(builder, frame, prior, outward, &mut bindings)?;
-    let constructor = claim.constructor();
     let mut reclaim = None;
     let birth_fault = if matches!(constructor, OrdinaryNewConstructorDispositionV1::Birth(_)) {
         let origin = reclaim_origin.ok_or_else(|| freeze("reclaim-origin-missing"))?;
@@ -131,12 +179,11 @@ pub(in crate::mir::builder) fn emit(
 fn materialize_arguments(
     builder: &mut MirBuilder,
     state: &mut CallableSemanticLoweringState,
-    claim: &OrdinaryNewAdmissionClaimV1,
+    site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    arity: usize,
+    rows: &[OrdinaryNewTrivialArgumentV1],
 ) -> Result<Vec<ValueId>, String> {
-    let rows = claim
-        .argument_rows()
-        .map_err(|_| freeze("argument-source-unavailable"))?;
-    validate_argument_rows_v1(claim.site().owner(), claim.site(), claim.arity(), rows)?;
+    validate_argument_rows_v1(site.owner(), site, arity, rows)?;
     rows.iter()
         .map(|row| match row.kind() {
             OrdinaryNewTrivialArgumentKindV1::Integer(value) => {
@@ -149,7 +196,7 @@ fn materialize_arguments(
             | OrdinaryNewTrivialArgumentKindV1::Handle { binding }
             | OrdinaryNewTrivialArgumentKindV1::BoundValue { binding } => {
                 let value = state
-                    .value_for_exact_binding(claim.site().owner(), *binding)
+                    .value_for_exact_binding(site.owner(), *binding)
                     .map_err(|_| freeze("argument-binding-unavailable"))?;
                 state
                     .observe_variable_site(row.site().node(), *binding, value)

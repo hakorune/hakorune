@@ -98,6 +98,59 @@ pub(crate) fn issue_new_fault_continuation_v1(
     })
 }
 
+/// Destination-less sibling of `issue_new_fault_continuation_v1` for the
+/// bounded return-position `new` claim family: the site is the `Value`
+/// child of a `Return` statement, so no initializer relation exists and
+/// none is required — the scope and outward-function target checks stay.
+pub(crate) fn issue_result_new_fault_continuation_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+) -> Result<NewFaultContinuationV1, &'static str> {
+    use crate::mir::resolved_semantics::SourcePathSegmentV1;
+    let function = input.function();
+    if input.owner() != function.owner()
+        || site.owner() != input.owner()
+        || !input
+            .forest()
+            .owner(input.owner())
+            .is_some_and(|owner| std::ptr::eq(owner, function))
+    {
+        return Err("foreign-source-owner");
+    }
+    if !matches!(
+        site.site().node().segments().last(),
+        Some(SourcePathSegmentV1::Value)
+    ) {
+        return Err("not-result-position-new");
+    }
+    let located = input
+        .source()
+        .expr_at(site)
+        .map_err(|_| "source-site-missing")?;
+    if !matches!(located.node(), ASTNode::New { .. }) {
+        return Err("source-not-new");
+    }
+    let scope = function
+        .exact_scope_containing(site.site().node())
+        .ok_or("source-scope-missing")?;
+    let roots = function.lowering_roots();
+    let target = roots.function_pair().region();
+    if scope != roots.body_pair().scope()
+        || target != function.function_region()
+        || function
+            .region(roots.body_pair().region())
+            .and_then(|row| row.parent())
+            != Some(target)
+    {
+        return Err("outward-function-target-mismatch");
+    }
+    Ok(NewFaultContinuationV1 {
+        site: site.clone(),
+        source_scope: scope,
+        target_function: target,
+    })
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum DeclaredFunctionResultContractV1 {
     Unannotated,

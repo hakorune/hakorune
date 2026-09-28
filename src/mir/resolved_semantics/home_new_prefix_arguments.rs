@@ -7,15 +7,16 @@
 
 use super::{
     scan_new_home_flow, CallerNewHomePrefixV1, HomePrefixUnavailableV1,
-    SelectedNewArgumentObservationV1,
+    ResultNewHomePrefixV1, SelectedNewArgumentObservationV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
+    result_sites: &BTreeSet<OwnedExprSiteV1>,
     parameters: impl IntoIterator<
         Item = (
             u32,
@@ -26,17 +27,19 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
 ) -> (
     BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
+    BTreeMap<OwnedExprSiteV1, Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>>,
 ) {
-    let (prefixes, _, _, observations) = scan_new_home_flow(
+    let (prefixes, _, _, observations, result_prefixes) = scan_new_home_flow(
         input,
         selected,
         parameters,
         None,
+        result_sites,
         &mut |_, _, _, _, _| Ok::<_, std::convert::Infallible>(false),
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
     )
     .unwrap_or_else(|never| match never {});
-    (prefixes, observations)
+    (prefixes, observations, result_prefixes)
 }

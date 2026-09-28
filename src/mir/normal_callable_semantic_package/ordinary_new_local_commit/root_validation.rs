@@ -325,11 +325,13 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             let bindings = match row {
                 LocalCommitV1::Map(map) => map.checked_bindings()?,
-                LocalCommitV1::Ordinary(row) => match &row.emission {
-                    NewEmissionProgress::Emitted { bindings, .. } => bindings.as_slice(),
-                    NewEmissionProgress::RetainedUnavailable { .. } => continue,
-                    _ => return Err(freeze("emission-residual")),
-                },
+                LocalCommitV1::Ordinary(_) | LocalCommitV1::Result(_) => {
+                    match row.new_emission().expect("new row carries emission") {
+                        NewEmissionProgress::Emitted { bindings, .. } => bindings.as_slice(),
+                        NewEmissionProgress::RetainedUnavailable { .. } => continue,
+                        _ => return Err(freeze("emission-residual")),
+                    }
+                }
             };
             result.extend_from_slice(bindings);
         }

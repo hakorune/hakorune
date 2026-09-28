@@ -127,4 +127,17 @@ impl NewEmissionProgress {
             *progress = EmittedLocalProgress::Checked { local };
         }
     }
+
+    /// Result-position rows install no local: validation checks the emitted
+    /// object value itself and marks it `Checked` in place.
+    pub(super) fn mark_result_checked(&mut self) {
+        if let Self::Emitted {
+            result, progress, ..
+        } = self
+        {
+            if matches!(progress, EmittedLocalProgress::ExpressionCompleted) {
+                *progress = EmittedLocalProgress::Checked { local: *result };
+            }
+        }
+    }
 }

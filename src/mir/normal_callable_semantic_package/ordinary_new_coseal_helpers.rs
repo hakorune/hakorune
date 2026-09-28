@@ -10,6 +10,7 @@ use super::{
 };
 use crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1;
 use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
+use crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     SelectedNewArgumentKindV1, SelectedNewArgumentObservationV1,
 };
@@ -86,5 +87,16 @@ pub(super) fn retain_child_terminal_relation(row: &TerminalRelationV1, has_map: 
             TerminalRelationV1::IntegerLiteral(_)
                 | TerminalRelationV1::I64Field(_)
                 | TerminalRelationV1::MapGet(_)
+        )
+        // A `return new ...` relation is the co-sealed evidence that the
+        // exact site owns a result claim, so it stays on the child contract
+        // even without a map obligation.
+        || matches!(
+            row,
+            TerminalRelationV1::Value(value)
+                if matches!(
+                    value.returned(),
+                    TerminalReturnedSourceV1::Construction(_)
+                )
         )
 }

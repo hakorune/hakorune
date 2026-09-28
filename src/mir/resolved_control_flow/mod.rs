@@ -20,7 +20,8 @@ mod source_coverage_tests;
 #[cfg(test)]
 pub(crate) use function_control::SealedFunctionExitContractV1;
 pub(crate) use function_control::{
-    issue_new_fault_continuation_v1, verify_function_completion_v1,
+    issue_new_fault_continuation_v1, issue_result_new_fault_continuation_v1,
+    verify_function_completion_v1,
     verify_function_completion_with_new_homes_and_argument_observations_v1,
     DeclaredFunctionResultContractV1, FunctionCompletionVerificationErrorV1,
     FunctionExitCoverageV1, FunctionUnitOriginV1, NewFaultContinuationV1, ReturnExitRelationV1,

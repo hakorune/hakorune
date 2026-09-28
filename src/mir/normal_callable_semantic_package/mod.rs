@@ -81,6 +81,9 @@ mod main_static_child_tests;
 #[cfg(test)]
 mod ordinary_new_emission_validation_tests;
 #[cfg(test)]
+#[path = "ordinary_new_result_claim_tests.rs"]
+mod ordinary_new_result_claim_tests;
+#[cfg(test)]
 mod physical_header_tests;
 #[cfg(test)]
 mod physical_signature_tests;
@@ -128,7 +131,8 @@ pub(crate) use model::{
 pub(crate) use ordinary_new_coseal::{
     BirthAbiHandoffV1, FinalizedBirthActualsV1, FinalizedRootResultAbiV1,
     FinalizedRootSourceHandoffV1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,
-    OrdinaryNewConstructorDispositionV1, OrdinaryNewTrivialArgumentKindV1,
+    OrdinaryNewConstructorDispositionV1, OrdinaryNewResultClaimV1,
+    OrdinaryNewTrivialArgumentKindV1,
     OrdinaryNewTrivialArgumentV1, PreparedTerminalI64AddReturnV1, PreparedTerminalI64FieldReturnV1,
     PreparedTerminalMapGetReturnV1, RootCallDispositionV1, RootInstanceCallDispositionRowV1,
     VerifiedOrdinaryNewBirthRecipeV1,

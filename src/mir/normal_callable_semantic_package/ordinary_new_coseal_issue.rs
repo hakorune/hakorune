@@ -10,25 +10,27 @@ use std::rc::Rc;
 
 use super::super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1;
 use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
-use super::candidate::{verified_birth_recipe_for_site_v1, OrdinaryNewCandidate};
+use super::candidate::{
+    verified_birth_recipe_for_site_v1, OrdinaryNewCandidate, OrdinaryNewSiteResolutionV1,
+};
 use super::coseal_helpers::{
     convert_selected_new_arguments, is_direct_local_initializer, retain_child_terminal_relation,
 };
 use super::{field_reads, field_write_claim, result_class_claim, terminal_home};
 use super::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1,
-    VerifiedOrdinaryNewBirthRecipeV1,
+    OrdinaryNewResultClaimV1, VerifiedOrdinaryNewBirthRecipeV1,
 };
 use crate::ast::ASTNode;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::function::ObjectDestructionDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     issue_new_home_prefixes_v1, issue_new_home_prefixes_with_arguments_v1,
-    SelectedNewArgumentUnavailableV1, TerminalRelationV1,
+    HomePrefixUnavailableV1, SelectedNewArgumentUnavailableV1, TerminalRelationV1,
 };
 use crate::mir::resolved_semantics::{
     BindingKindV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
-    VerifiedResolvedFunctionV1,
+    SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
 };
 use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
@@ -63,6 +65,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         })
         .transpose()?;
     let mut claims = Vec::new();
+    let mut result_claims = Vec::new();
     let mut seeds = super::super::completion_seed::VerifiedCallableCompletionSeedCohortV1::new();
     let mut root_completion = None;
     let mut field_reads = BTreeMap::new();
@@ -103,7 +106,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 continue;
             }
         }
-        let (candidates, mut home_prefixes, mut argument_observations) = batch
+        let (
+            candidates,
+            mut home_prefixes,
+            mut argument_observations,
+            result_resolutions,
+            mut result_prefixes,
+        ) = batch
             .with_lowering_input(batch_slot, |input| -> Result<_, OrdinaryNewCoSealIssueV1> {
                 let function = input.function();
                 let owner_loan = direct_call_loans.and_then(|loans| loans.get(owner));
@@ -138,6 +147,55 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         candidates.push(candidate);
                     }
                 }
+                // Return-position `new` membership: the construction is the
+                // exact `ReturnValue` child of an inventoried `Return`
+                // statement. Position is checked against the source
+                // statement, never inferred from lowered MIR. Builtin or
+                // uncovered classes stay outside this family and keep their
+                // existing terminal; argument/field positions stay rejected.
+                let mut result_resolutions = Vec::new();
+                let mut result_sites = BTreeSet::new();
+                for construction in function.expression_source().constructions() {
+                    let segments = construction.site().node().segments();
+                    let Some((SourcePathSegmentV1::Value, parent)) = segments.split_last() else {
+                        continue;
+                    };
+                    let site = OwnedExprSiteV1::new(owner, construction.site().clone());
+                    if candidates.iter().any(|row| row.site == site) || !result_sites.insert(site.clone()) {
+                        if candidates.iter().any(|row| row.site == site) {
+                            continue;
+                        }
+                        return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
+                    }
+                    let parent_site = SourceStmtSiteV1::from_node(
+                        SourceNodeSiteV1::from_segments(parent.to_vec()),
+                    );
+                    // A `Value` child of a non-statement parent (for example a
+                    // nested construction inside a field initializer) is not
+                    // return-position membership — leave the site out.
+                    let Ok(statement) = input.source().exact_stmt(&parent_site) else {
+                        result_sites.remove(&site);
+                        continue;
+                    };
+                    if !matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) {
+                        result_sites.remove(&site);
+                        continue;
+                    }
+                    if let Some(resolution) = OrdinaryNewCandidate::resolve_site(
+                        batch,
+                        instance_constructors,
+                        site.clone(),
+                        construction.class().into(),
+                        construction.arguments().len(),
+                        !construction.field_initializers().is_empty(),
+                    )? {
+                        result_resolutions.push(resolution);
+                    } else {
+                        // Uncovered (builtin) classes keep their existing
+                        // raw-lane terminal outside this family.
+                        result_sites.remove(&site);
+                    }
+                }
                 // A `%{...}` literal makes the owner a map owner; a `: MapBox`
                 // declared formal does too — the borrowed-map read terminal
                 // needs the homes-aware completion that classifies it.
@@ -157,12 +215,21 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let new_sites: BTreeMap<_, _> = candidates.iter().map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
                 let child_new_ready = seed_eligible && !new_sites.is_empty()
                     && issue_new_home_prefixes_v1(input, &new_sites).values().all(Result::is_ok);
+                // An owner whose `return` statement carries a `new`
+                // construction needs the homes-aware completion: the
+                // returned `Invoke{NewBox}` is a lifecycle instruction that
+                // consumes the attached homes flow, and the
+                // `Value(Construction)` terminal relation only comes from
+                // the verified walk — the plain seed path cannot issue it.
+                let child_result_ready = seed_eligible && !result_sites.is_empty();
                 let seed_completion = seed_eligible
                     && !has_map
                     && !child_new_ready
+                    && !child_result_ready
                     && (is_app_main || owner_loan.is_none());
                 let app_main_integer_result = is_app_main
                     && candidates.is_empty()
+                    && result_sites.is_empty()
                     && !has_map
                     && owner_loan.is_none()
                     && !function
@@ -201,7 +268,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                     }
                 }
-                let (home_prefixes, argument_observations) = if owner_loan.is_some() || (is_app_main && (!new_sites.is_empty() || has_map)) || (seed_eligible && (has_map || child_new_ready)) {
+                let (home_prefixes, argument_observations, result_prefixes) = if owner_loan.is_some() || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty())) || (seed_eligible && (has_map || child_new_ready || child_result_ready)) {
                     let mut staged_reads = BTreeMap::new();
                     let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
                         let field = terminal_home::initialized_integer_field(
@@ -244,8 +311,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             Ok(owner_loan.is_some_and(|loan| {
                                 loan.is_map_result_call(batch, parameter_contracts, input, site)
                             }))
-                        })? {
-                        Ok((completion, prefixes, mut terminal_relation, observations)) => {
+                        }, &result_sites)? {
+                        Ok((
+                            completion,
+                            prefixes,
+                            mut terminal_relation,
+                            observations,
+                            result_prefixes,
+                        )) => {
                             if is_app_main {
                                 if matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
                                     if let Some(TerminalRelationV1::I64Add(result)) = &terminal_relation {
@@ -287,7 +360,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 seeds.push_completion(declaration, selected, Rc::new(completion), relation)
                                     .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                             }
-                            (prefixes, observations)
+                            (prefixes, observations, result_prefixes)
                         }
                         Err(error) => {
                             if !is_app_main {
@@ -298,7 +371,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             }
                             root_completion = Some(Err(error));
                             issue_new_home_prefixes_with_arguments_v1(
-                                input, &new_sites,
+                                input, &new_sites, &result_sites,
                                 parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
                                     .flat_map(|row| row.parameters.iter())
                                     .map(|row| (row.ordinal, row.binding, row.kind)),
@@ -307,13 +380,19 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     }
                 } else {
                     issue_new_home_prefixes_with_arguments_v1(
-                        input, &new_sites,
+                        input, &new_sites, &result_sites,
                         parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
                             .flat_map(|row| row.parameters.iter())
                             .map(|row| (row.ordinal, row.binding, row.kind)),
                     )
                 };
-                Ok((candidates, home_prefixes, argument_observations))
+                Ok((
+                    candidates,
+                    home_prefixes,
+                    argument_observations,
+                    result_resolutions,
+                    result_prefixes,
+                ))
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
         for candidate in candidates {
@@ -367,6 +446,58 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 argument_rows,
             });
         }
+        for resolution in result_resolutions {
+            let OrdinaryNewSiteResolutionV1 {
+                site,
+                box_source,
+                class,
+                arity,
+                construction,
+                object,
+                destruction,
+                constructor,
+                birth_handoff,
+            } = resolution;
+            let argument_rows = argument_observations
+                .remove(&site)
+                .map(convert_selected_new_arguments)
+                .unwrap_or_else(|| {
+                    Err(SelectedNewArgumentUnavailableV1::SourceMismatch {
+                        new_site: site.clone(),
+                    })
+                });
+            if claims
+                .iter()
+                .any(|claim: &OrdinaryNewAdmissionClaimV1| claim.site == site)
+                || result_claims
+                    .iter()
+                    .any(|claim: &OrdinaryNewResultClaimV1| claim.site == site)
+            {
+                return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
+            }
+            // An unwalked return site stays truthfully unavailable — never
+            // fabricate a covered prefix.
+            let home_prefix = result_prefixes
+                .remove(&site)
+                .unwrap_or(Err(HomePrefixUnavailableV1::SourceMismatch));
+            if let Some(handoff) = birth_handoff {
+                if birth_abi_handoffs.insert(site.clone(), handoff).is_some() {
+                    return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
+                }
+            }
+            result_claims.push(OrdinaryNewResultClaimV1 {
+                site: site.clone(),
+                box_source,
+                class,
+                arity,
+                constructor,
+                home_prefix,
+                construction,
+                object,
+                destruction,
+                argument_rows,
+            });
+        }
     }
     // Destination-less birth-recipe index for `new` sites outside the
     // local-commit claim lane.  `constructions` records every `new`
@@ -375,8 +506,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     // claim candidate.  A site that admits nothing keeps its existing
     // downstream terminal — the index never issues a new error.
     let mut birth_site_index = BTreeMap::new();
-    let claimed_sites: BTreeSet<OwnedExprSiteV1> =
-        claims.iter().map(|claim| claim.site().clone()).collect();
+    let claimed_sites: BTreeSet<OwnedExprSiteV1> = claims
+        .iter()
+        .map(|claim| claim.site().clone())
+        .chain(result_claims.iter().map(|claim| claim.site.clone()))
+        .collect();
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         batch
@@ -472,7 +606,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         .iter()
         .map(|row| row.name().to_owned().into_boxed_str())
         .collect();
-    let mut ledger = OrdinaryNewClaimLedgerV1::issue(claims.into_boxed_slice(), names);
+    let mut ledger = OrdinaryNewClaimLedgerV1::issue(
+        claims.into_boxed_slice(),
+        result_claims.into_boxed_slice(),
+        names,
+    );
     ledger.field_write_claims = field_write_claims;
     ledger.callable_result_classes = callable_result_classes;
     ledger.birth_site_index = std::cell::RefCell::new(birth_site_index);

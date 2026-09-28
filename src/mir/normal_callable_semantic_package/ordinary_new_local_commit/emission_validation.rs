@@ -24,11 +24,30 @@ impl OrdinaryNewClaimLedgerV1 {
             .iter()
             .filter(|(_, row)| row.owner() == owner)
         {
-            let Some(row) = row.ordinary() else {
-                self.validate_map_emission(site, function, projection)?;
-                continue;
+            let (row_object, row_birth_target, row_construction, row_argument_rows) = match row {
+                LocalCommitV1::Ordinary(row) => (
+                    row.object,
+                    &row.birth_target,
+                    &row.construction,
+                    &row.argument_rows,
+                ),
+                LocalCommitV1::Result(row) => (
+                    row.object,
+                    &row.birth_target,
+                    &row.construction,
+                    &row.argument_rows,
+                ),
+                LocalCommitV1::Map(_) => {
+                    self.validate_map_emission(site, function, projection)?;
+                    continue;
+                }
             };
-            match &row.emission {
+            let row_emission = match row {
+                LocalCommitV1::Ordinary(row) => &row.emission,
+                LocalCommitV1::Result(row) => &row.emission,
+                LocalCommitV1::Map(_) => unreachable!("map rows returned above"),
+            };
+            match row_emission {
                 NewEmissionProgress::RetainedUnavailable { .. } => {}
                 NewEmissionProgress::Emitted {
                     result,
@@ -37,12 +56,50 @@ impl OrdinaryNewClaimLedgerV1 {
                     bindings,
                     ..
                 } => {
-                    let local = row
-                        .emission
-                        .local()
-                        .ok_or_else(|| freeze("emission-local-result-drift"))?;
-                    let source_arguments = row
-                        .argument_rows
+                    if let LocalCommitV1::Result(_) = row {
+                        // Result exit contract: the emitted object identity
+                        // reaches `Return { value }` exactly once — this is
+                        // the transfer edge the claim stands for.
+                        let returns = function
+                            .blocks
+                            .values()
+                            .flat_map(|block| block.all_instructions())
+                            .filter(|instruction| matches!(
+                                instruction,
+                                MirInstruction::Return {
+                                    value: Some(value),
+                                    ..
+                                } if value == result
+                            ))
+                            .count();
+                        if returns != 1 {
+                            return Err(freeze("result-return-drift"));
+                        }
+                    } else {
+                        let local = row_emission
+                            .local()
+                            .ok_or_else(|| freeze("emission-local-result-drift"))?;
+                        let copy_valid = match projection {
+                            Some(projection) => {
+                                projection.check_source_local_copy(function, local, *result)?
+                            }
+                            None => {
+                                let mut copies = function
+                                    .blocks
+                                    .values()
+                                    .flat_map(|block| block.all_instructions())
+                                    .filter(|instruction| {
+                                        matches!(instruction, MirInstruction::Copy { dst, .. } if *dst == local)
+                                    });
+                                matches!(copies.next(), Some(MirInstruction::Copy { src, .. }) if src == result)
+                                    && copies.next().is_none()
+                            }
+                        };
+                        if !copy_valid {
+                            return Err(freeze("emission-local-copy-drift"));
+                        }
+                    }
+                    let source_arguments = row_argument_rows
                         .as_ref()
                         .map_err(|_| freeze("argument-source-unavailable"))?;
                     if source_arguments.len() != arguments.len() {
@@ -60,33 +117,14 @@ impl OrdinaryNewClaimLedgerV1 {
                         }
                         self.validate_argument_definition(function, source, emitted.value)?;
                     }
-                    let copy_valid = match projection {
-                        Some(projection) => {
-                            projection.check_source_local_copy(function, local, *result)?
-                        }
-                        None => {
-                            let mut copies = function
-                                .blocks
-                                .values()
-                                .flat_map(|block| block.all_instructions())
-                                .filter(|instruction| {
-                                    matches!(instruction, MirInstruction::Copy { dst, .. } if *dst == local)
-                                });
-                            matches!(copies.next(), Some(MirInstruction::Copy { src, .. }) if src == result)
-                                && copies.next().is_none()
-                        }
-                    };
-                    if !copy_valid {
-                        return Err(freeze("emission-local-copy-drift"));
-                    }
-                    let expected_reclaim = match (&row.birth_target, &row.construction) {
+                    let expected_reclaim = match (row_birth_target, row_construction) {
                         (None, Ok(plan)) if plan.constructor().is_none() => None,
                         (Some(_), Ok(plan)) => {
                             let (constructor_source, constructor_owner) = plan
                                 .constructor()
                                 .ok_or_else(|| freeze("reclaim-origin-constructor-missing"))?;
                             if !plan.reclaims_unpublished_outer_storage()
-                                || plan.object() != row.object
+                                || plan.object() != row_object
                             {
                                 return Err(freeze("reclaim-origin-source-drift"));
                             }
@@ -98,7 +136,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         (None, None) => {}
                         (Some((constructor_source, constructor_owner)), Some(emitted)) => {
                             if emitted.origin.site != *site
-                                || emitted.origin.object != row.object
+                                || emitted.origin.object != row_object
                                 || !emitted
                                     .origin
                                     .constructor_source
@@ -170,7 +208,7 @@ impl OrdinaryNewClaimLedgerV1 {
                                         .collect::<Vec<_>>()
                         ))
                         .count();
-                    let expected_birth_calls = usize::from(row.birth_target.is_some());
+                    let expected_birth_calls = usize::from(row_birth_target.is_some());
                     if birth_calls != expected_birth_calls {
                         return Err(freeze("argument-call-drift"));
                     }

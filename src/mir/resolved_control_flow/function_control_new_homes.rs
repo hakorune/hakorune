@@ -42,8 +42,9 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
+        &std::collections::BTreeSet::new(),
     )?;
-    Ok(result.map(|(completion, prefixes, terminal, _)| {
+    Ok(result.map(|(completion, prefixes, terminal, _, _)| {
         let terminal = match terminal {
             Some(crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Add(
                 row,
@@ -80,6 +81,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     ) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1) -> Result<bool, E>,
+    result_sites: &std::collections::BTreeSet<crate::mir::resolved_semantics::OwnedExprSiteV1>,
 ) -> Result<
     Result<
         (
@@ -96,6 +98,13 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
                 crate::mir::resolved_semantics::OwnedExprSiteV1,
                 crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentObservationV1,
             >,
+            std::collections::BTreeMap<
+                crate::mir::resolved_semantics::OwnedExprSiteV1,
+                Result<
+                    crate::mir::resolved_semantics::home_new_prefix::ResultNewHomePrefixV1,
+                    crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1,
+                >,
+            >,
         ),
         FunctionCompletionVerificationErrorV1,
     >,
@@ -105,12 +114,13 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         Ok(completion) => completion,
         Err(error) => return Ok(Err(error)),
     };
-    let (prefixes, homes, terminal_relation, argument_observations) =
+    let (prefixes, homes, terminal_relation, argument_observations, result_prefixes) =
         crate::mir::resolved_semantics::home_new_prefix::scan_new_home_flow(
             input,
             selected,
             parameters,
             completion.explicit_site(),
+            result_sites,
             field_is_integer,
             map_compatible,
             terminal_call,
@@ -129,5 +139,6 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         prefixes,
         terminal_relation,
         argument_observations,
+        result_prefixes,
     )))
 }

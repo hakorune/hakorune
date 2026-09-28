@@ -6,7 +6,7 @@
 
 use super::birth_abi_handoff::BirthAbiHandoffV1;
 use super::OrdinaryNewClaimLedgerV1;
-use super::{CallerNewHomePrefixV1, HomePrefixUnavailableV1};
+use super::{CallerNewHomePrefixV1, HomePrefixUnavailableV1, ResultNewHomePrefixV1};
 use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 use crate::mir::function::{RootOrdinaryNewObservation, RootOrdinaryNewUnavailable};
 use crate::mir::instruction::InvokeOperation;
@@ -106,6 +106,28 @@ pub(super) struct NewLocalCommitV1 {
     binding: BindingRefV1,
     declaration: SourceBindingSiteV1,
     home_prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,
+    argument_rows: Result<
+        Box<[super::OrdinaryNewTrivialArgumentV1]>,
+        crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
+    >,
+    emission: NewEmissionProgress,
+}
+
+/// Destination-less commit row for a return-position `new` claim. The
+/// emitted object transfers to the caller through `Return { value }` —
+/// there is no binding, declaration, or local installation. The shared
+/// `NewEmissionProgress` state machine applies; `Checked` marks the emitted
+/// result value itself.
+#[derive(Debug)]
+pub(super) struct NewResultCommitV1 {
+    site: OwnedExprSiteV1,
+    box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
+    construction: super::ConstructionEligibilityV1,
+    object: hakorune_mir_defs::CanonicalObjectIdV1,
+    destruction: super::ObjectDestructionDispositionV1,
+    birth_target: Option<CanonicalSameModuleCallableKeyV1>,
+    birth_abi: Option<BirthAbiHandoffV1>,
+    home_prefix: Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>,
     argument_rows: Result<
         Box<[super::OrdinaryNewTrivialArgumentV1]>,
         crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
@@ -298,6 +320,50 @@ impl NewLocalCommitV1 {
     }
 }
 
+impl NewResultCommitV1 {
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn pending(
+        site: OwnedExprSiteV1,
+        home_prefix: Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>,
+        box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
+        construction: super::ConstructionEligibilityV1,
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
+        destruction: super::ObjectDestructionDispositionV1,
+        birth_target: Option<CanonicalSameModuleCallableKeyV1>,
+        birth_abi: Option<BirthAbiHandoffV1>,
+        argument_rows: Result<
+            Box<[super::OrdinaryNewTrivialArgumentV1]>,
+            crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
+        >,
+    ) -> Self {
+        Self {
+            site,
+            box_source,
+            construction,
+            object,
+            destruction,
+            birth_target,
+            birth_abi,
+            home_prefix,
+            argument_rows,
+            emission: NewEmissionProgress::Unprepared,
+        }
+    }
+
+    pub(super) const fn object(&self) -> hakorune_mir_defs::CanonicalObjectIdV1 {
+        self.object
+    }
+
+    #[cfg(test)]
+    pub(super) fn construction(&self) -> &super::ConstructionEligibilityV1 {
+        &self.construction
+    }
+
+    pub(super) fn is_complete(&self) -> bool {
+        self.emission.is_complete()
+    }
+}
+
 // One lookup over installed physical bindings; source order remains caller-owned.
 #[derive(Debug)]
 pub(super) enum HomeLookupError {
@@ -363,11 +429,13 @@ impl OrdinaryNewClaimLedgerV1 {
             return Unavailable(TerminalHomesUnavailable);
         }
         if selected.any(|row| {
-            row.ordinary().is_some_and(|row| {
-                matches!(
-                    row.emission,
-                    NewEmissionProgress::RetainedUnavailable { .. }
-                )
+            let emission = match row {
+                LocalCommitV1::Ordinary(row) => Some(&row.emission),
+                LocalCommitV1::Result(row) => Some(&row.emission),
+                LocalCommitV1::Map(_) => None,
+            };
+            emission.is_some_and(|emission| {
+                matches!(emission, NewEmissionProgress::RetainedUnavailable { .. })
             })
         }) {
             return Unavailable(NewEmissionUnavailable);
@@ -379,22 +447,82 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
+    /// Shared prepared-state computation: ABI check, reclaim origin and
+    /// prior-Home unwind operands. `prior_homes` carries the caller's
+    /// resolved `(prior_homes, required_unwind)`; `None` marks a retained
+    /// unavailable prefix.
+    fn compute_emission_prepare(
+        rows: &std::collections::BTreeMap<OwnedExprSiteV1, LocalCommitV1>,
+        site: &OwnedExprSiteV1,
+        arity: usize,
+        constructor: &super::OrdinaryNewConstructorDispositionV1,
+        construction: &super::ConstructionEligibilityV1,
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
+        prior_homes: Option<(&[BindingRefV1], &OwnedExprSiteV1)>,
+    ) -> Result<NewEmissionProgress, String> {
+        if let super::OrdinaryNewConstructorDispositionV1::Birth(recipe) = constructor {
+            let physical = arity
+                .checked_add(1)
+                .ok_or_else(|| freeze("arity-overflow"))?;
+            recipe
+                .abi()
+                .validate(arity, physical)
+                .map_err(|error| format!("[freeze:contract][ordinary-new/abi/{error:?}]"))?;
+        }
+        let reclaim = match (constructor, construction) {
+            (super::OrdinaryNewConstructorDispositionV1::NoBirthZero, _) => None,
+            (super::OrdinaryNewConstructorDispositionV1::Birth(_), Err(_)) => None,
+            (super::OrdinaryNewConstructorDispositionV1::Birth(recipe), Ok(plan)) => {
+                let (constructor_source, constructor_owner) = plan
+                    .constructor()
+                    .ok_or_else(|| freeze("reclaim-origin-constructor-missing"))?;
+                if !plan.reclaims_unpublished_outer_storage()
+                    || plan.object() != object
+                    || !constructor_source.same_as(recipe.source_id())
+                {
+                    return Err(freeze("reclaim-origin-source-drift"));
+                }
+                Some(ReclaimUnpublishedOriginV1 {
+                    site: site.clone(),
+                    constructor_source: constructor_source.clone(),
+                    constructor_owner: *constructor_owner,
+                    object: plan.object(),
+                })
+            }
+        };
+        let mut operands = Vec::new();
+        let mut available = construction.is_ok();
+        match prior_homes {
+            None => available = false,
+            Some((prior_homes, required_unwind)) => {
+                if required_unwind != site {
+                    return Err(freeze("prepare-outward-site"));
+                }
+                for binding in prior_homes {
+                    let prior = installed_home(rows, *binding).map_err(|error| match error {
+                        HomeLookupError::Missing => freeze("prior-home-not-installed"),
+                        HomeLookupError::Duplicate => freeze("duplicate-prior-home"),
+                    })?;
+                    available &= prior.end_available();
+                    operands.push(prior.end_operation());
+                }
+            }
+        }
+        Ok(if available {
+            NewEmissionProgress::Prepared { operands, reclaim }
+        } else {
+            NewEmissionProgress::RetainedUnavailable {
+                progress: UnavailableLocalProgress::PendingExpression,
+            }
+        })
+    }
+
     /// Select from retained source products before argument descent. No new
     /// source fact is issued here; prior Homes retain the issuer's order.
     pub(crate) fn prepare_new_emission(
         &self,
         claim: &super::OrdinaryNewAdmissionClaimV1,
     ) -> Result<bool, String> {
-        if let super::OrdinaryNewConstructorDispositionV1::Birth(recipe) = &claim.constructor {
-            let physical = claim
-                .arity()
-                .checked_add(1)
-                .ok_or_else(|| freeze("arity-overflow"))?;
-            recipe
-                .abi()
-                .validate(claim.arity(), physical)
-                .map_err(|error| format!("[freeze:contract][ordinary-new/abi/{error:?}]"))?;
-        }
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
             .get(claim.site())
@@ -407,72 +535,91 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("prepare-state-or-source-mismatch"));
         }
-        let reclaim = match (&claim.constructor, claim.construction()) {
-            (super::OrdinaryNewConstructorDispositionV1::NoBirthZero, _) => None,
-            (super::OrdinaryNewConstructorDispositionV1::Birth(_), Err(_)) => None,
-            (super::OrdinaryNewConstructorDispositionV1::Birth(recipe), Ok(plan)) => {
-                let (constructor_source, constructor_owner) = plan
-                    .constructor()
-                    .ok_or_else(|| freeze("reclaim-origin-constructor-missing"))?;
-                if !plan.reclaims_unpublished_outer_storage()
-                    || plan.object() != claim.object()
-                    || !constructor_source.same_as(recipe.source_id())
-                {
-                    return Err(freeze("reclaim-origin-source-drift"));
-                }
-                Some(ReclaimUnpublishedOriginV1 {
-                    site: claim.site().clone(),
-                    constructor_source: constructor_source.clone(),
-                    constructor_owner: *constructor_owner,
-                    object: plan.object(),
-                })
-            }
-        };
-        let mut operands = Vec::new();
-        let mut available = claim.construction().is_ok();
-        match claim.home_prefix() {
-            Err(_) => available = false,
-            Ok(prefix) => {
-                if prefix.required_unwind() != claim.site() {
-                    return Err(freeze("prepare-outward-site"));
-                }
-                for binding in prefix.prior_homes() {
-                    let prior = installed_home(&rows, *binding).map_err(|error| match error {
-                        HomeLookupError::Missing => freeze("prior-home-not-installed"),
-                        HomeLookupError::Duplicate => freeze("duplicate-prior-home"),
-                    })?;
-                    available &= prior.end_available();
-                    operands.push(prior.end_operation());
-                }
-            }
-        }
+        let prior_homes = claim
+            .home_prefix()
+            .ok()
+            .map(|prefix| (prefix.prior_homes(), prefix.required_unwind()));
+        let next = Self::compute_emission_prepare(
+            &rows,
+            claim.site(),
+            claim.arity(),
+            &claim.constructor,
+            claim.construction(),
+            claim.object(),
+            prior_homes,
+        )?;
+        let available = matches!(next, NewEmissionProgress::Prepared { .. });
         rows.get_mut(claim.site())
             .and_then(LocalCommitV1::ordinary_mut)
             .expect("checked ordinary row")
-            .emission = if available {
-            NewEmissionProgress::Prepared { operands, reclaim }
-        } else {
-            NewEmissionProgress::RetainedUnavailable {
-                progress: UnavailableLocalProgress::PendingExpression,
-            }
-        };
+            .emission = next;
         Ok(available)
     }
 
+    /// Return-position claims prepare through the same selected products;
+    /// the only absent facts are the destination binding and its statement.
+    pub(crate) fn prepare_result_new_emission(
+        &self,
+        claim: &super::OrdinaryNewResultClaimV1,
+    ) -> Result<bool, String> {
+        let mut rows = self.local_commits.borrow_mut();
+        let row = rows
+            .get(claim.site())
+            .and_then(LocalCommitV1::result)
+            .ok_or_else(|| freeze("prepare-without-take"))?;
+        if !matches!(row.emission, NewEmissionProgress::Unprepared)
+            || row.object != claim.object()
+            || !row.box_source.same_source_as(claim.box_source())
+        {
+            return Err(freeze("prepare-state-or-source-mismatch"));
+        }
+        let prior_homes = claim
+            .home_prefix()
+            .ok()
+            .map(|prefix| (prefix.prior_homes(), prefix.required_unwind()));
+        let mut next = Self::compute_emission_prepare(
+            &rows,
+            claim.site(),
+            claim.arity(),
+            &claim.constructor,
+            claim.construction(),
+            claim.object(),
+            prior_homes,
+        )?;
+        // A non-trivial argument co-seal is a retained claim, not a take-time
+        // freeze: the site keeps its raw-lane emission and the row records
+        // the truthful unavailable terminal.
+        if claim.argument_rows().is_err()
+            && matches!(next, NewEmissionProgress::Prepared { .. })
+        {
+            next = NewEmissionProgress::RetainedUnavailable {
+                progress: UnavailableLocalProgress::PendingExpression,
+            };
+        }
+        let available = matches!(next, NewEmissionProgress::Prepared { .. });
+        rows.get_mut(claim.site())
+            .and_then(LocalCommitV1::result_mut)
+            .expect("checked result row")
+            .emission = next;
+        Ok(available)
+    }
+
+    /// Shared begin for ordinary and result rows — the physical emission
+    /// shape is identical; only the destination handling differs.
     pub(crate) fn begin_new_emission(
         &self,
         site: &OwnedExprSiteV1,
     ) -> Result<(Vec<InvokeOperation>, Option<ReclaimUnpublishedOriginV1>), String> {
         let mut rows = self.local_commits.borrow_mut();
-        let row = rows
+        let emission = rows
             .get_mut(site)
-            .and_then(LocalCommitV1::ordinary_mut)
+            .and_then(LocalCommitV1::new_emission_mut)
             .ok_or_else(|| freeze("emit-without-take"))?;
-        if !matches!(row.emission, NewEmissionProgress::Prepared { .. }) {
+        if !matches!(emission, NewEmissionProgress::Prepared { .. }) {
             return Err(freeze("emit-without-prepare-or-duplicate"));
         }
         let NewEmissionProgress::Prepared { operands, reclaim } =
-            std::mem::replace(&mut row.emission, NewEmissionProgress::Emitting)
+            std::mem::replace(emission, NewEmissionProgress::Emitting)
         else {
             unreachable!()
         };
@@ -481,6 +628,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     /// These are validation snapshots of actual instructions, not metadata
     /// operands used for liveness. The physical instructions own every use.
+    /// Shared by ordinary and result rows.
     pub(crate) fn record_new_emission(
         &self,
         site: &OwnedExprSiteV1,
@@ -492,17 +640,21 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
             .get_mut(site)
-            .and_then(LocalCommitV1::ordinary_mut)
             .ok_or_else(|| freeze("record-without-take"))?;
-        if !matches!(row.emission, NewEmissionProgress::Emitting) || bindings.is_empty() {
-            return Err(freeze("record-without-emission-or-duplicate"));
-        }
-        let source_arguments = row
-            .argument_rows
+        let source_arguments: Vec<super::OrdinaryNewTrivialArgumentV1> = row
+            .new_argument_rows()
+            .ok_or_else(|| freeze("record-without-take"))?
             .as_ref()
-            .map_err(|_| freeze("argument-source-unavailable"))?;
+            .map_err(|_| freeze("argument-source-unavailable"))?
+            .to_vec();
         if source_arguments.len() != arguments.len() {
             return Err(freeze("argument-count-drift"));
+        }
+        let emission = row
+            .new_emission_mut()
+            .expect("new_argument_rows implies a new row");
+        if !matches!(emission, NewEmissionProgress::Emitting) || bindings.is_empty() {
+            return Err(freeze("record-without-emission-or-duplicate"));
         }
         let arguments = source_arguments
             .iter()
@@ -510,7 +662,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .zip(arguments)
             .map(|(source, value)| EmittedNewArgumentV1 { source, value })
             .collect();
-        row.emission = NewEmissionProgress::Emitted {
+        *emission = NewEmissionProgress::Emitted {
             result,
             arguments,
             reclaim: reclaim.map(
@@ -540,6 +692,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             match row {
                 LocalCommitV1::Ordinary(row) => row.emission.mark_checked(),
+                LocalCommitV1::Result(row) => row.emission.mark_result_checked(),
                 LocalCommitV1::Map(row) => row.mark_checked(),
             }
         }
@@ -592,12 +745,16 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
             .get_mut(site)
-            .and_then(LocalCommitV1::ordinary_mut)
             .ok_or_else(|| freeze("expression-without-target-take"))?;
-        if row.box_source.name() != class {
+        let Some(box_source) = row.new_box_source() else {
+            return Err(freeze("expression-without-target-take"));
+        };
+        if box_source.name() != class {
             return Err(freeze("expression-parent-mismatch"));
         }
-        row.emission.complete_expression(value)
+        row.new_emission_mut()
+            .expect("new_box_source implies a new row")
+            .complete_expression(value)
     }
 
     /// The caller supplies exact BindingRefs from the existing callable state

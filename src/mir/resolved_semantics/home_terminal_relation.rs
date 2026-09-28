@@ -221,6 +221,13 @@ pub(crate) enum TerminalReturnedSourceV1 {
     /// `return <binding>` — a borrowed self-rooted handle root (parameter
     /// or declared handle); the caller keeps ownership.
     Handle(BindingRefV1),
+    /// `return new <class>(...)` — the returned value is the fresh
+    /// construction at this exact site; the fresh object's ownership
+    /// transfers to the caller at the Return edge. This records only the
+    /// returned-source identity — the lifecycle authority is the
+    /// result-position claim row, and the physical Handle result ABI is a
+    /// separate downstream family.
+    Construction(OwnedExprSiteV1),
     /// `return "<literal>"` — a string literal value.
     StringLiteral,
     /// `return null` — the null literal value.
@@ -288,6 +295,17 @@ pub(super) fn terminal_returned_source(
             return Some(TerminalReturnedSourceV1::FloatLiteral);
         }
         _ => {}
+    }
+    if matches!(
+        input
+            .source()
+            .expr_at(&OwnedExprSiteV1::new(input.owner(), site.clone()))
+            .map(|expr| expr.node()),
+        Ok(ASTNode::New { .. })
+    ) {
+        return Some(TerminalReturnedSourceV1::Construction(
+            OwnedExprSiteV1::new(input.owner(), site.clone()),
+        ));
     }
     let OrdinaryObservation::Handle(root) = locals.observe(site)? else {
         return None;

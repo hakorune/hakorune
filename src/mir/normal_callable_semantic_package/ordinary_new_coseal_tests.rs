@@ -67,6 +67,7 @@ fn exact_claim_is_consumed_once() {
     let site = test_site();
     let ledger = OrdinaryNewClaimLedgerV1::issue(
         vec![claim(site.clone(), 0)].into_boxed_slice(),
+        Box::new([]),
         vec!["Page".into()].into_boxed_slice(),
     );
 
@@ -144,7 +145,7 @@ fn exact_claim_is_consumed_once() {
         ledger.validate_finalized_new_root(&physical).unwrap(),
         O::Unavailable(U::CompletionRejected)
     );
-    let empty = OrdinaryNewClaimLedgerV1::issue(Box::new([]), Box::new([]));
+    let empty = OrdinaryNewClaimLedgerV1::issue(Box::new([]), Box::new([]), Box::new([]));
     assert_eq!(
         empty.validate_finalized_new_root(&physical).unwrap(),
         O::NotIssued
@@ -194,6 +195,7 @@ fn nonordinary_class_does_not_consume_claim() {
     let site = test_site();
     let ledger = OrdinaryNewClaimLedgerV1::issue(
         vec![claim(site.clone(), 0)].into_boxed_slice(),
+        Box::new([]),
         vec!["Page".into()].into_boxed_slice(),
     );
 
@@ -208,6 +210,7 @@ fn mismatched_shape_preserves_claim_for_the_correct_consumer() {
     let site = test_site();
     let ledger = OrdinaryNewClaimLedgerV1::issue(
         vec![claim(site.clone(), 0)].into_boxed_slice(),
+        Box::new([]),
         vec!["Page".into()].into_boxed_slice(),
     );
 
@@ -305,6 +308,7 @@ fn ordinary_new_local_commit_rejects_drift_without_consuming_pending_installatio
     };
     let ledger = OrdinaryNewClaimLedgerV1::issue(
         vec![claim].into_boxed_slice(),
+        Box::new([]),
         vec!["Page".into(), "Other".into()].into_boxed_slice(),
     );
     let good = (destination, ordinal, ValueId(8), ValueId(9));
@@ -408,6 +412,7 @@ fn local_batch_rejection_does_not_install_an_earlier_row() {
     ];
     let ledger = OrdinaryNewClaimLedgerV1::issue(
         vec![first, second].into_boxed_slice(),
+        Box::new([]),
         vec!["Page".into()].into_boxed_slice(),
     );
     for (site, value) in [(&first_site, ValueId(8)), (&second_site, ValueId(10))] {
@@ -471,7 +476,7 @@ fn installed_home_precedes_checked_and_failed_validation_preserves_progress() {
 }
 
 #[test]
-fn birth_site_index_covers_field_assign_and_return_position_sites() {
+fn birth_site_index_covers_field_assign_sites_while_return_position_claims() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Inner { v: i64\nbirth(v) { me.v = v } }\n\
          box Outer { init { inner }\nbirth() { me.inner = new Inner(7) } }\n\
@@ -481,8 +486,13 @@ fn birth_site_index_covers_field_assign_and_return_position_sites() {
     .unwrap();
     let ledger = &package.ordinary_new_claim_ledger;
     let claims = ledger.pending_claims_for_test();
+    let result_claims = ledger.pending_result_claims_for_test();
     let index = ledger.birth_site_index.borrow();
-    assert_eq!(index.len(), 2, "field-assign + return-position sites only");
+    // `return new Inner(3)` leaves the destination-less index: the result
+    // claim lane owns it now. The field-assign site still has no claim
+    // family, so the index keeps authorizing its `Birth` call edge only.
+    assert_eq!(index.len(), 1, "field-assign sites only");
+    assert_eq!(result_claims.len(), 1, "return-position site is claimed");
     for (site, recipe) in index.iter() {
         assert_eq!(recipe.target_ref().owner(), "Inner");
         assert_eq!(recipe.target_ref().arity(), 1);
@@ -497,11 +507,24 @@ fn birth_site_index_covers_field_assign_and_return_position_sites() {
             "the index never admits local-initializer sites"
         );
         assert!(
-            !claims.contains_key(site),
+            !claims.contains_key(site) && !result_claims.contains_key(site),
             "claim sites stay exclusively on the claim lane"
         );
     }
+    let result_site = result_claims.keys().next().unwrap();
+    assert!(
+        !index.contains_key(result_site),
+        "claimed return-position sites stay out of the index"
+    );
+    assert!(
+        matches!(
+            result_site.site().node().segments().last(),
+            Some(SourcePathSegmentV1::Value)
+        ),
+        "the result claim sits on the return `Value` position"
+    );
     drop(index);
+    drop(result_claims);
     drop(claims);
 }
 

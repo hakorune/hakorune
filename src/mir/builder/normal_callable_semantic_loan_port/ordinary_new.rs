@@ -101,23 +101,27 @@ impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
             .inner
             .current_source_site_v1()
             .ok_or_else(|| "[freeze:contract][raw-ordinary-new/claim-site-missing]".to_owned())?;
-        if !matches!(
-            site.segments(),
+        let site = OwnedExprSiteV1::new(owner, SourceExprSiteV1::from_node(site));
+        // Forward claim completions only: local-initializer claims keep the
+        // exact statement shape, and return-position claims forward when a
+        // taken commit row exists at this exact site.
+        if (!matches!(
+            site.site().node().segments(),
             [
                 SourcePathSegmentV1::Body(_),
                 SourcePathSegmentV1::Initializer(_)
             ]
-        ) || !self.package.ordinary_box_is_covered(class)
+        ) && !self
+            .package
+            .ordinary_new_claim_ledger()
+            .has_result_new_commit(&site))
+            || !self.package.ordinary_box_is_covered(class)
         {
             return Ok(());
         }
         self.package
             .ordinary_new_claim_ledger()
-            .complete_new_expression(
-                &OwnedExprSiteV1::new(owner, SourceExprSiteV1::from_node(site)),
-                class,
-                value,
-            )
+            .complete_new_expression(&site, class, value)
     }
 
     fn named_array_field_provider_recording(
@@ -158,6 +162,48 @@ impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
             .take_ordinary_new_claim(&site, class, argument_count)
             .map(Some)
             .map_err(package_issue)
+    }
+
+    fn try_take_result_new_claim(
+        &mut self,
+        class: &str,
+        argument_count: usize,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1>,
+        String,
+    > {
+        let Some(owner) = self.inner.callable_owner_v1() else {
+            return Err("[freeze:contract][raw-ordinary-new/claim-owner-missing]".to_owned());
+        };
+        let Some(site) = self.inner.current_source_site_v1() else {
+            return Err("[freeze:contract][raw-ordinary-new/claim-site-missing]".to_owned());
+        };
+        if !self.package.ordinary_box_is_covered(class) {
+            return Ok(None);
+        }
+        let site = OwnedExprSiteV1::new(owner, SourceExprSiteV1::from_node(site));
+        self.package
+            .ordinary_new_claim_ledger()
+            .try_take_result(&site, class, argument_count)
+            .map_err(|error| format!("[freeze:contract][raw-ordinary-new/result-claim] {error:?}"))
+    }
+
+    fn prepare_result_new_emission(
+        &mut self,
+        builder: &MirBuilder,
+        claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
+    ) -> Result<bool, String> {
+        self.check_new_ledger_identity()?;
+        self.inner.prepare_result_new_emission(builder, claim)
+    }
+
+    fn emit_result_new_claim(
+        &mut self,
+        builder: &mut MirBuilder,
+        claim: crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
+    ) -> Result<crate::mir::ValueId, String> {
+        self.check_new_ledger_identity()?;
+        self.inner.emit_result_new_claim(builder, claim)
     }
 
     fn try_take_ordinary_new_birth_recipe(

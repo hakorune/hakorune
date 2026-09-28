@@ -295,11 +295,12 @@ fn formal_projection_missing_duplicate_and_foreign_bindings_are_unavailable() {
         package
             .batch()
             .with_lowering_input(row.batch_slot(), |input| {
-                let (_, flow, _, _) = scan_new_home_flow(
+                let (_, flow, _, _, _) = scan_new_home_flow(
                     input,
                     &std::collections::BTreeMap::new(),
                     parameters,
                     terminal,
+                    &std::collections::BTreeSet::new(),
                     &mut |_, _, _, _, _| Ok::<_, std::convert::Infallible>(false),
                     &mut |_, _| Ok(false),
                     &mut |_| Ok(false),

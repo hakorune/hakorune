@@ -278,7 +278,8 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | 9b | DONE — `MIRBUILDER-GATE1-UNRELEASABLE-HOME-ARTIFACT-ADMISSION-D0` landed below: `Unavailable` homes are NOT admittable — the stop is designed at three independent layers (observation `artifact-source-unavailable`, lifecycle coverage `artifact-unowned-lifecycle-site`, physical ABI `object-destruction`/`layout-field-drift`). Releasability for owning/non-`i64` fields is the parked `OWN-FIELD-CONTAINER-DEST-D0`/`VerifiedTerminalHomeDropPlanV1` family (+ tagged dynamic slot ABI for `init{}` storage) — a named Gate-1 dependency, not unilaterally reopened. binary-trees, untyped-field-min, boxtorrent-mini, and json-stream-aggregator await it. |
 | 9c | DONE — `MIRBUILDER-GATE1-MIMALLOC-LITE-EXE-ROUTE-S0` landed: `mimalloc_lite_exe.sh` re-pointed off `selfhost_build.sh --exe` (generic JSON ingress) onto the direct `--emit-exe` physical route with the designed `Invoke` rejection kept as a negative pin (lifecycle-v4 + llvm-c-api trace pins). `MiWorkload` is fieldless -> `PlainI64NoHook`, so the observation gate passes; the smoke is correctly red at the true terminal `artifact-unowned-lifecycle-site` (builtin-box method Invokes the ledger does not own). allocator-stress / boxtorrent-mini / json-stream-aggregator smokes keep the same generic-ingress attribution issue for their own frontier rows. |
 | 9d | DONE — `MIRBUILDER-GATE1-ARTIFACT-LIFECYCLE-COVERAGE-D0`/`S0` landed below: coverage stays universal; a child owner carrying a `RetainedUnavailable` ordinary commit row now freezes `artifact-source-unavailable` before coverage checking (root-order parity, plus it closes the no-birth bypass where `NewBox`-only emission passed coverage entirely). Claimless non-initializer `new` keeps the designed `artifact-unowned-lifecycle-site`. mimalloc-lite's observed terminal is unchanged (allocate's `return new` sorts first). |
-| 9e | `MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-D0` (design_stop): non-`[Body, Initializer]` `new` sites (return/argument position, e.g. `HakoAllocPage.allocate`'s `return new HakoAllocHandle(...)`) get `birth_site_index` call-edge admission only — no lifecycle authority — so every such site is artifact-inadmissible today even for a releasable box (`return new Point(1,2)` probe). Decide whether this family gains a claim lane (its own named slice: destination-less result-new ownership) or stays rejected. |
+| 9e | DONE — `MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-D0` accepted below: a bounded return-position-only result-new commit family is admitted (OrdinaryNewClaimLedgerV1 extended with a result-position variant; `TerminalReturnedSourceV1::Construction` required; selected Invoke-shape emission + bindings; ReturnHandoff-style transfer-to-caller). Argument/field positions stay rejected (`artifact-unowned-lifecycle-site`); Unavailable constructions keep `artifact-source-unavailable`. Result-ABI Handle arm is a separate downstream family — no suite app goes green on this lane alone. |
+| 9f | DONE — `MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-S0` landed below: `OrdinaryNewResultClaimV1` + `ResultNewHomePrefixV1` + `NewResultCommitV1` share the single ledger/emission owner; membership is proven by `exact_stmt` (`Return{value}` parent), never by the shared `Value` segment; validation requires the emitted object at `Return{value}` exactly once. Focused: 6 semantic tests + 2 artifact tests green; `return new Point(1,2)` (child and `Main.main`) now passes artifact validation entirely. Argument/field positions stay out; retained-unavailable keeps `artifact-source-unavailable`. |
 | 10 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
 
 ### Landed slices tombstone (compressed 2026-09-28)
@@ -811,3 +812,198 @@ boundary, not this slice's concern.
 
 Next design stop: row 9e
 `MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-D0`.
+
+### D0 decision — `MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-D0` (accepted)
+
+Evidence (read-only audit + worker census):
+
+1. `birth_site_index` (`collect_birth_site_index_v1`,
+   `ordinary_new_coseal_issue.rs`) deliberately skips `[Body,
+   Initializer]` sites and issues destination-less
+   `VerifiedOrdinaryNewBirthRecipeV1`. `take_birth_site_recipe`
+   (`ordinary_new_coseal.rs`) is consumed affinely in
+   `new_expression.rs` only when no local-commit claim exists, and
+   authorizes exactly the `Callee::BirthConstructor` edge — no
+   destination, home, lifecycle, ownership, or ABI authority. No
+   positive validation exists that every indexed recipe emitted its
+   edge.
+2. The terminal model has nothing to transfer:
+   `TerminalReturnedSourceV1` carries no `Construction` arm, so
+   `return new T()` fails terminal classification with
+   `ReturnValueNotCovered`. `callable_result_classes` is provenance
+   only (and `HakoAllocPage.allocate` — mixed `return null`/`return
+   new` — does not qualify at all).
+3. Emit shape is wrong for the artifact lane: the raw lane emits
+   `MirInstruction::NewBox` + bare `Call{BirthConstructor}`
+   (`ordinary_new_admission.rs`). Plain `NewBox` is NOT in the
+   published program's supported set — `Invoke{NewBox}` and
+   `Invoke{Call{BirthConstructor}}` are. `artifact-unowned-
+   lifecycle-site` is therefore the designed, correct terminal today.
+4. Result ABI is handle-free downstream:
+   `InvokeCallResultKind = {Unit, I64, Map}`,
+   `CompiledEntryRootResultV1 = {I64, Unit}`,
+   `ExactTrivialScalarAbiV1` is i64-only. `allocate(requested_size)`
+   and `make(depth, value)` are unannotated (`Unannotated` result
+   contract — not seed-rejected), but a caller edge still cannot
+   name a handle result kind; `local h = w.make()` needs a Handle
+   arm that does not exist. The lifecycle SSOT's own blessed factory
+   idiom (`constructor-birth-new-lifecycle-ssot.md` — `makeSmall(
+   page_id: PageId): HakoAllocPageModel { return new ... }`) uses a
+   declared box return type that `UnsupportedResultAnnotation`
+   rejects today — the result-ABI family is a required companion.
+5. Physical ABI gates beyond coverage: `PlainI64NoHook` requires
+   every field declared i64; birth actuals must be `Integer|Bool` —
+   `new HakoAllocHandle(me.page_id, block_id, requested_size)`
+   passes a field-read actual → `actual-kind-unavailable`.
+6. Upstream unavailability dominates both suite apps anyway:
+   `TreeNode{init{left,right,value}}` (untyped + box fields) and
+   `HakoAllocHandle.requested_size: usize` → construction
+   `Unavailable(FieldType)` → any honest commit row lands
+   `RetainedUnavailable` → `artifact-source-unavailable` (row-9d
+   ordering covers children). The claim lane unblocks no suite app
+   alone — handle-field ownership (parked
+   `OWN-FIELD-CONTAINER-DEST-D0`) and usize fields are also required.
+7. Position census: ~222 user-box `return new` in `lang/src`
+   (carrier idiom; binary-trees 2, hako_alloc several); ~136
+   `me.f = new` field-writes (field ownership — parked OWN lane);
+   argument-position constructions common (callee transfer).
+   Positions differ in ownership semantics — smearing them into one
+   claim row violates one-meaning-one-authority.
+
+```text
+Decision: admit a bounded RETURN-POSITION-ONLY claim family — a
+  result-new commit row co-sealed with the site: recipe + object
+  identity + destruction disposition + emitted values +
+  transfer-to-caller disposition + fault cleanup. The fresh object's
+  ownership transfers to the caller at the Return edge (the map
+  lane's ReturnHandoff/ReturnReceive pair is the semantic
+  precedent); this frame owes no release. Coverage stays universal —
+  the row contributes the Invoke{NewBox} +
+  Invoke{Call{BirthConstructor}} bindings for its owner.
+Source authority + canonical issuer: the existing non-initializer
+  birth-site collection (birth_site_index /
+  collect_birth_site_index_v1) is the membership source;
+  OrdinaryNewClaimLedgerV1 is the canonical issuer — extended with a
+  result-position commit variant (named, e.g.
+  OrdinaryNewResultCommitV1), not a parallel ledger.
+Non-authority: birth_site_index recipes alone (call edge only —
+  unchanged); raw-lane emission (MirInstruction::NewBox + bare Call
+  is replaced by the selected Invoke shape inside the claim, not
+  bound in place); TerminalReturnedSourceV1 stays incomplete without
+  its Construction arm (part of this family); caller-side Handle
+  result kinds (no InvokeCallResultKind/CompiledEntryRootResultV1/
+  FinalizedRootResultAbiV1 arm — separate ABI family, downstream).
+Fail-fast boundary: non-initializer `new` OUTSIDE return position
+  (argument position, `me.f = new` writes, field-decl initializers)
+  keeps `artifact-unowned-lifecycle-site`. Return-position `new` on
+  an Unavailable construction lands RetainedUnavailable →
+  `artifact-source-unavailable` (row-9d ordering). `Return{value}`
+  must carry exactly the claim's emitted object identity — mismatch
+  freezes, never best-effort.
+Smallest next slice (S0): MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-S0
+  — semantic foundation only: collect return-position sites into
+  result-new commit rows; add TerminalReturnedSourceV1::Construction
+  so terminal classification stops failing with
+  ReturnValueNotCovered; emit Invoke{NewBox} +
+  Invoke{Call{BirthConstructor}} under the claim and record bindings;
+  verify Return{value} carries the emitted object. Evidence target:
+  `Main.main { return new Point(1,2) }` (plain-i64 declared-birth
+  box) moves past `artifact-unowned-lifecycle-site` to the truthful
+  next boundary (root/caller-edge result ABI); `return new
+  <unavailable box>` reports `artifact-source-unavailable`;
+  argument-position `new` keeps `artifact-unowned-lifecycle-site`.
+Non-claims: no suite app goes green — binary-trees and mimalloc-lite
+  still fail upstream (Unavailable constructions / parked
+  OWN-FIELD-CONTAINER-DEST-D0 / usize fields / field-read birth
+  actuals). No argument- or field-position claims (distinct
+  ownership semantics). No Handle arm in any result ABI. No
+  caller-side ownership/release model for received handles (call
+  results are not Homes — allocator-style manual release). No
+  coverage narrowing. No proxy: birth_site_index entries do not
+  mint lifecycle authority by themselves.
+```
+
+Next slice: `MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-S0` — the
+semantic claim foundation above.
+
+### S0 landed — `MIRBUILDER-GATE1-RETURN-POSITION-NEW-CLAIM-S0`
+
+Implementation (one semantic issuer, one physical owner):
+
+- `OrdinaryNewSiteResolutionV1` (`ordinary_new_candidate.rs`) splits
+  position-independent resolution — ordinary-box coverage, canonical
+  object identity, destruction disposition, construction eligibility,
+  Birth recipe + ABI handoff — from the destination-bound local claim.
+- `OrdinaryNewResultClaimV1` (`ordinary_new_coseal.rs`,
+  `ordinary_new_claim_access.rs`) is the destination-less claim: exact
+  site, parser ordinary-box source row, class/arity, constructor
+  disposition, `ResultNewHomePrefixV1` (prior Homes + outward fault
+  continuation + covered statements; no destination, no local
+  declaration), canonical object, selected/trivial argument rows.
+- Membership (`ordinary_new_coseal_issue.rs`): construction rows whose
+  final segment is `Value` are admitted only when `exact_stmt` proves
+  the parent is `Return{value}` — `Value` also serves assignment,
+  compound-assign, print and nowait children, so segment shape alone
+  never decides. Nested non-statement constructions are non-membership;
+  uncovered/builtin classes keep their existing lane. Claimed sites are
+  skipped by `birth_site_index` (no double authority).
+- The ledger stays the sole owner: `result_claims` map + affine
+  `try_take_result` (exact site/class/arity, prefix-required-unwind and
+  prior-Homes consistency checked); `LocalCommitV1::Result(
+  NewResultCommitV1)` shares `NewEmissionProgress` with local rows —
+  `mark_result_checked` replaces local installation because the emitted
+  object leaves with `Return{value}`.
+- `issue_result_new_fault_continuation_v1` (`resolved_control_flow`) is
+  the destination-less sibling of the existing fault-continuation
+  issuer — identical scope/outward-target checks, no initializer
+  relation by design.
+- Owners holding result sites enter the homes-aware verify so the
+  `Value(Construction)` terminal relation and the attached homes flow
+  are co-sealed; `retain_child_terminal_relation` retains `Value` only
+  when `returned` is `Construction` — direct-call admission still
+  rejects it (`(None, Value(Construction))` is uncovered), which is the
+  designed boundary until the result-ABI family lands.
+- Builder: `PreparedRawNewExpressionV1` takes the result claim when no
+  local-initializer claim owns the site; emission reuses the selected
+  Invoke shape (`Invoke{NewBox}` + `Invoke{Call{BirthConstructor,
+  Unit}}` + bindings + optional reclaim). `complete_ordinary_new_
+  expression` forwards only when `has_result_new_commit`, so non-return
+  `Value` children stay untouched.
+- `emission_validation` gained the Result arm: the emitted object must
+  reach `Return{value}` exactly once (`result-return-drift`); the
+  shared constructor/argument/reclaim/binding checks apply unchanged.
+
+Evidence (all green):
+
+- `ordinary_new_result_claim_tests.rs` — 6 tests: positive claim +
+  `Value(Construction)` relation + birth-index exclusion + covered
+  prefix; non-trivial argument stays truthfully retained; argument-,
+  field- and assignment-position constructions mint no claim; nested
+  `if`-return `new` still mints claims but records `PrefixNotCovered`
+  (the scan does not descend branch bodies — truthful unavailability,
+  never silent fallback).
+- `ordinary_new_coseal_tests::birth_site_index_covers_field_assign_
+  sites_while_return_position_claims` — updated pin: claimed
+  return-position sites leave the destination-less index.
+- `artifact_child_accepts_return_position_new_under_its_result_claim`
+  — `Work.make { return new Point(1,2) }` lowers under the claim and
+  passes artifact validation.
+- `artifact_root_return_position_new_reaches_the_truthful_next_
+  boundary` — `Main.main { return new Point(1,2) }` validates fully;
+  `artifact-unowned-lifecycle-site` is gone for the admitted family.
+
+Boundaries kept: argument/field positions have no claim family;
+`RetainedUnavailable` children still freeze `artifact-source-
+unavailable` (row 9d); no Handle result-ABI arm, no caller-side
+received-handle ownership, no coverage narrowing.
+
+Regression: `cargo test --lib normal_callable_semantic_package` 359
+pass / 3 fail — all three are recorded baseline debt
+(`cargo_lib_red_baseline.failures.txt`); `mir::builder` filter showed
+baseline failures plus one order-flaky `array_source_binding...` row
+that passes standalone.
+
+Next frontier (design, scheduler-selected): a caller-side Handle
+result kind so `local h = w.make()` can name the transferred object —
+`MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0`. Gate 1 stays
+unsatisfied until its actual acceptance evidence closes.
