@@ -275,7 +275,9 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | 7 | DONE — `MIRBUILDER-GATE1-ROOT-INSTANCE-CALL-UNRELEASABLE-HOME-D0`/`S0` landed below: the issuer withholds the `Ready` row when a terminal home's sealed claim can never reach `end_available`; binary-trees `Main.main` now stops at the typed `[ordinary-new/local-commit/root-call-entry-missing]` boundary (premise corrected below: the Plain-exit tolerance covers `Emitted{Plain}` only, not `Unavailable`). |
 | 8 | DONE — `MIRBUILDER-GATE1-ROOT-CALL-UNRELEASABLE-RECEIVER-D0`/`S0` landed below: `rebind_root_call_entry` tolerates the recorded `Unavailable` exit (same class as the existing non-Call-entry tolerance); binary-trees `Main.main` `--emit-mir-json` now stops at the designed `root-call-entry-unavailable` seal boundary and the non-sealing lane completes with the generic `call_method` + `Unavailable` observation. |
 | 9 | DONE — `MIRBUILDER-GATE1-INVOKE-TERMINATOR-JSON-EMIT-D0`/`S0` landed below: an already-accepted SSOT decision keeps generic `mir_json_emit` closed to lifecycle `Invoke` (the emit "gap" is the designed fail-fast); `typed_object_untyped_field_min_exe` was re-pointed off `selfhost_build.sh --mir` + ny-llvmc generic ingress onto the direct `--emit-exe` physical route with the rejection kept as a negative pin. Its true terminal is now `artifact-source-unavailable` — the unreleasable-home family. |
-| 9b | `MIRBUILDER-GATE1-UNRELEASABLE-HOME-ARTIFACT-ADMISSION-D0` (design_stop): several Gate-1 apps land on `artifact-source-unavailable` because a root home's sealed claim can never reach `end_available` (binary-trees `bench` object field, untyped-field-min `Holder.items` ArrayBox handle). Decide whether/how the artifact lane admits a program whose homes stay `Unavailable` (retained-release semantics) or whether Gate-1 acceptance requires those homes to become releasable; name the owner and the physical implications before implementation. json-stream-aggregator still stops upstream at `route-not-front-selected`. |
+| 9b | DONE — `MIRBUILDER-GATE1-UNRELEASABLE-HOME-ARTIFACT-ADMISSION-D0` landed below: `Unavailable` homes are NOT admittable — the stop is designed at three independent layers (observation `artifact-source-unavailable`, lifecycle coverage `artifact-unowned-lifecycle-site`, physical ABI `object-destruction`/`layout-field-drift`). Releasability for owning/non-`i64` fields is the parked `OWN-FIELD-CONTAINER-DEST-D0`/`VerifiedTerminalHomeDropPlanV1` family (+ tagged dynamic slot ABI for `init{}` storage) — a named Gate-1 dependency, not unilaterally reopened. binary-trees, untyped-field-min, boxtorrent-mini, and json-stream-aggregator await it. |
+| 9c | DONE — `MIRBUILDER-GATE1-MIMALLOC-LITE-EXE-ROUTE-S0` landed: `mimalloc_lite_exe.sh` re-pointed off `selfhost_build.sh --exe` (generic JSON ingress) onto the direct `--emit-exe` physical route with the designed `Invoke` rejection kept as a negative pin (lifecycle-v4 + llvm-c-api trace pins). `MiWorkload` is fieldless -> `PlainI64NoHook`, so the observation gate passes; the smoke is correctly red at the true terminal `artifact-unowned-lifecycle-site` (builtin-box method Invokes the ledger does not own). allocator-stress / boxtorrent-mini / json-stream-aggregator smokes keep the same generic-ingress attribution issue for their own frontier rows. |
+| 9d | `MIRBUILDER-GATE1-ARTIFACT-LIFECYCLE-COVERAGE-D0` (design_stop): the coverage gate requires every `requires_lifecycle_validation()` instruction to be ledger-bound; mimalloc-lite's builtin `heap.alloc`-family Invokes are unowned. Decide the coverage owner's scope — which lifecycle instructions the artifact lane must bind vs. which carry their own admission — before implementation. |
 | 10 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
 
 ### Landed slices tombstone (compressed 2026-09-28)
@@ -598,3 +600,82 @@ the `mir_json_emit` unit tests. Observed honest terminal:
 unreleasable-home family already named by the root-call rows; the
 smoke is correctly red at the true boundary instead of at a
 mis-attributed emit gap. No EXE artifact or acceptance is claimed.
+
+## D0 resolved: MIRBUILDER-GATE1-UNRELEASABLE-HOME-ARTIFACT-ADMISSION-D0 (2026-09-28)
+
+A read-only worker census found the question already answered by the
+existing design at three independent layers. `Unavailable` is not a
+retained/allowed disposition — it is a bookkeeping state that only the
+non-artifact lanes tolerate. Admitting it would require defeating all
+three gates at once, and the designed path to releasability for
+handle/non-`i64` fields belongs to a named parked family, not to this
+lane.
+
+1. Observation gate — `ordinary_new_local_commit/root_validation.rs`:
+   artifact finishing requires `SourceCompleteAtFinalization` (or
+   `NoSelectedLocalNew`); `Unavailable` freezes
+   `artifact-source-unavailable`.
+2. Lifecycle coverage gate — same file: every
+   `requires_lifecycle_validation()` instruction must be ledger-bound;
+   a `RetainedUnavailable` new lowers as generic `NewBox` + bare
+   `Call{BirthConstructor}` and fails `artifact-unowned-lifecycle-site`
+   even if gate 1 were loosened.
+3. Physical ABI gate — `published_backend_view/physical_abi.rs`: every
+   referenced object must seal `PlainI64NoHook` (`object-destruction`)
+   and every field must store `I64` (`layout-field-drift`). The
+   published physical v2 profile is I64-field-only by design.
+
+Language-contract check: `docs/reference/language/lifecycle.md` owns
+scope-end release as a contractual obligation — there is no
+"process exit frees all" carve-out, and `home_release_plain_i64_v1`
+explicitly requires the published PlainI64NoHook admission (slot tags,
+names, absent hooks never establish permission). The designed terminal
+protocol `hook -> reverse field release -> structural drop`
+(`ownership-home-model-ssot.md`) exists only as the parked family
+`OWN-FIELD-CONTAINER-DEST-D0` (destination matrix, parked in the
+home-ownership task order) + `VerifiedTerminalHomeDropPlanV1` /
+`OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0` (decision accepted via the
+C′ SSOT; implementation stays parked). Untyped `init{}` storage
+additionally awaits the tagged dynamic/opaque slot ABI owner —
+`MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` already keeps
+`untyped_field_min` as a `NoSafeSlice` sentinel.
+
+```text
+Decision: the artifact lane does NOT admit homes whose root exit stays
+  Unavailable; Gate-1 acceptance requires releasable homes. The stop is
+  designed and enforced at three independent layers, so no single-gate
+  relaxation is available or wanted.
+Source authority + canonical issuer: the sealed DestructionDisposition
+  from instance_constructor_semantic/object_definition.rs (source-
+  declared field types only); RootHomeExitProgress is the sole exit
+  owner; the physical ABI gate is the final admission enforcer.
+Non-authority: generic mir_json_emit; runtime slot tags/names/absent
+  hooks; any retained-release or process-exit shortcut — none exists in
+  the language contract.
+Fail-fast boundary: artifact-source-unavailable stays; behind it sit
+  artifact-unowned-lifecycle-site and object-destruction/
+  layout-field-drift. No gate is loosened.
+Smallest next slice (S0): record the named dependency and continue
+  Gate-1 with suite members that do not require the parked family —
+  re-point mimalloc_lite_exe.sh off generic JSON ingress onto
+  --emit-exe (its MiWorkload home is fieldless -> PlainI64NoHook) and
+  record the true terminal. Measured 2026-09-28: physical route reaches
+  artifact-unowned-lifecycle-site — builtin-box method Invokes
+  (heap.alloc/...) are lifecycle instructions the ledger does not own.
+  That coverage owner is a separate frontier, named below.
+Non-claims: no retained-release admission; no field-wise release
+  implemented; no unilateral reopen of the parked
+  OWN-FIELD-CONTAINER-DEST-D0 / VerifiedTerminalHomeDropPlanV1 family;
+  no claim the 11-entry suite can close — binary-trees (bench object
+  fields), typed_object_untyped_field_min (ArrayBox handle + non-I64
+  storage), boxtorrent-mini (untyped store fields), and
+  json-stream-aggregator (upstream route-not-front-selected; agg home
+  also FieldType) all await that family or the slot-ABI owner.
+```
+
+Named Gate-1 dependency recorded: the parked
+`OWN-FIELD-CONTAINER-DEST-D0` destination matrix (plus the tagged
+dynamic slot ABI for `init{}` storage) is required before any suite
+member with an owning handle/non-`i64` field can reach
+`end_available`; loosening the observation gate alone is not a slice —
+coverage and physical-ABI gates reject downstream regardless.
