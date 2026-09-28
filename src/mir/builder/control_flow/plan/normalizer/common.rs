@@ -109,7 +109,7 @@ pub(in crate::mir::builder) fn lower_me_this_method_effect(
 /// canonical callable key and ledger-bound receiver; `None` keeps the
 /// caller's existing receiver path.  Take errors propagate so an armed
 /// locator never falls back to dynamic dispatch.
-fn declared_instance_call_effect<P>(
+pub(in crate::mir::builder) fn declared_instance_call_effect<P>(
     port: &P,
     input: &P::ExprInput<'_>,
     method: &str,

@@ -101,6 +101,13 @@ pub(super) struct CallableSemanticLoweringState {
     >,
     consumed_source_static_result_publications:
         BTreeSet<crate::mir::resolved_semantics::SourceExprSiteV1>,
+    /// Package-scoped ordinary-new claim ledger borrowed for the active
+    /// callable scope. It carries the co-sealed lexical instance-call
+    /// dispositions (claim-local and parameter receiver provenance) issued
+    /// beside the declared-instance locator. The state only re-lends it;
+    /// ownership stays with the invocation scope.
+    ordinary_new_claim_ledger:
+        Option<Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>>,
 }
 
 #[derive(Debug)]
@@ -349,7 +356,24 @@ impl CallableSemanticLoweringState {
             named_array_field_allocations: BTreeSet::new(),
             source_static_result_publications: BTreeMap::new(),
             consumed_source_static_result_publications: BTreeSet::new(),
+            ordinary_new_claim_ledger: None,
         })
+    }
+
+    /// Lend the package-scoped ordinary-new claim ledger to this callable
+    /// state for the duration of one source scope. Installed once by the
+    /// canonical scope owner; the ledger is shared, never re-issued here.
+    pub(super) fn lend_ordinary_new_claim_ledger(
+        &mut self,
+        ledger: Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+    ) {
+        self.ordinary_new_claim_ledger = Some(ledger);
+    }
+
+    pub(super) fn ordinary_new_claim_ledger(
+        &self,
+    ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>> {
+        self.ordinary_new_claim_ledger.as_ref()
     }
 
     pub(super) fn loop_binding_source_projection(

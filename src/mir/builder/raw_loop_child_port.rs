@@ -166,12 +166,23 @@ fn source_target_for_loop(
     });
     let mut selected = Vec::new();
     let mut uncovered = Vec::new();
+    let mut instance_methods = Vec::new();
     let mut requirement_mismatch = false;
     for item in items.iter() {
         let Some(caller) = caller else {
             break;
         };
         let Some(target) = module_port.target_for_source(caller, item.call_site()) else {
+            let owner = callable_ledger.borrow().owner();
+            let covered = callable_ledger
+                .borrow()
+                .ordinary_new_claim_ledger()
+                .is_some_and(|claims| {
+                    claims.lexical_instance_call_covered(owner, item.call_site())
+                });
+            if covered {
+                instance_methods.push(item.clone());
+            }
             continue;
         };
         let selected_handoff = module_port
@@ -243,11 +254,12 @@ fn source_target_for_loop(
         ));
     }
     Ok(
-        CallableLoopSourceTargetProbeV1::from_parts_with_core_methods(
+        CallableLoopSourceTargetProbeV1::from_parts_with_covered_methods(
             selected.into_boxed_slice(),
             uncovered.into_boxed_slice(),
             requirement_mismatch,
             core_methods,
+            instance_methods.into_boxed_slice(),
         ),
     )
 }

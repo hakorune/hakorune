@@ -193,6 +193,9 @@ impl<'source, 'ledger> SourceLoopBreakCompositePhysicalInputV1<'source, 'ledger>
                             CallableLoopSourceItemDispositionV1::CoreMethod(core_method) => {
                                 core_method.call_site() != item.call_site()
                             }
+                            CallableLoopSourceItemDispositionV1::InstanceMethod(binding) => {
+                                binding.call_site() != item.call_site()
+                            }
                         }
                 })
         {

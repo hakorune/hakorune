@@ -72,6 +72,8 @@ mod birth_abi_handoff;
 mod candidate;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
+#[path = "ordinary_new_lexical_instance_call.rs"]
+mod lexical_instance_call;
 #[path = "ordinary_new_root_instance_call.rs"]
 mod root_instance_call;
 #[path = "ordinary_new_terminal_access.rs"]
@@ -204,6 +206,9 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     >,
     root_instance_calls:
         RefCell<BTreeMap<OwnedExprSiteV1, root_instance_call::RootInstanceCallDispositionSlotV1>>,
+    lexical_instance_calls: RefCell<
+        BTreeMap<OwnedExprSiteV1, lexical_instance_call::LexicalInstanceCallDispositionSlotV1>,
+    >,
     root_instance_call_expected: RefCell<BTreeSet<FunctionOwnerIdV1>>,
     field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
     birth_abi_handoffs: RefCell<BTreeMap<OwnedExprSiteV1, BirthAbiHandoffV1>>,
@@ -301,6 +306,7 @@ impl OrdinaryNewClaimLedgerV1 {
             lifecycle_local_call_sites: RefCell::new(BTreeMap::new()),
             map_read_bindings: RefCell::new(BTreeMap::new()),
             root_instance_calls: RefCell::new(BTreeMap::new()),
+            lexical_instance_calls: RefCell::new(BTreeMap::new()),
             root_instance_call_expected: RefCell::new(BTreeSet::new()),
             field_reads: RefCell::new(BTreeMap::new()),
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),
@@ -538,6 +544,9 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
 #[cfg(test)]
 #[path = "ordinary_new_terminal_result_tests.rs"]
 mod terminal_result_tests;
+#[cfg(test)]
+#[path = "ordinary_new_lexical_instance_call_tests.rs"]
+mod lexical_instance_call_tests;
 #[cfg(test)]
 #[path = "ordinary_new_coseal_tests.rs"]
 mod tests;

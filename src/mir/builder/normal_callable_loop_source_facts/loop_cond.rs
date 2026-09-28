@@ -213,7 +213,11 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                 }
             }
             CallableLoopSourceCallCoverageV1::WithCalls(source_target) => {
-                if source_target.core_method_items().is_empty() {
+                let covered_items = source_target
+                    .core_method_items()
+                    .iter()
+                    .chain(source_target.instance_method_items().iter());
+                if covered_items.clone().next().is_none() {
                     let target_site = source_target.call_site();
                     let target_matches = self
                         .source_items
@@ -233,20 +237,20 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                         );
                     }
                 } else {
-                    let core_sites = source_target
-                        .core_method_items()
-                        .iter()
+                    let covered_sites = covered_items
                         .map(|item| item.call_site())
                         .collect::<std::collections::BTreeSet<_>>();
-                    if core_sites.len() != source_target.core_method_items().len()
-                        || core_sites.len() != self.source_items.len()
+                    let covered_count = source_target.core_method_items().len()
+                        + source_target.instance_method_items().len();
+                    if covered_sites.len() != covered_count
+                        || covered_sites.len() != self.source_items.len()
                         || self
                             .source_items
                             .iter()
-                            .any(|item| !core_sites.contains(item.call_site()))
+                            .any(|item| !covered_sites.contains(item.call_site()))
                     {
                         return Err(
-                            "[freeze:contract][callable-loop/loop-cond/core-method-item-coverage]"
+                            "[freeze:contract][callable-loop/loop-cond/call-item-coverage]"
                                 .to_owned(),
                         );
                     }
@@ -265,7 +269,9 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
             );
         }
         if let CallableLoopSourceCallCoverageV1::WithCalls(source_target) = &self.source_coverage {
-            if source_target.core_method_items().is_empty() && !source_target.has_exact_i64_result()
+            if source_target.core_method_items().is_empty()
+                && source_target.instance_method_items().is_empty()
+                && !source_target.has_exact_i64_result()
             {
                 return Err(
                     "[freeze:contract][callable-loop/loop-cond/result-requirement-mismatch]"

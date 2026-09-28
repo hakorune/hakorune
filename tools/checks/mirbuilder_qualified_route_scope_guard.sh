@@ -457,6 +457,9 @@ LOOP_SCOPE_TESTS="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_loop_sco
 # SourceItemsMissing; a hidden call never mints CallFree.
 ROUTE_ITEMS_SRC="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_route_items.rs"
 ROUTE_CALL_FREE_TESTS="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_route_call_free_tests.rs"
+LEXICAL_INSTANCE_CALL_SRC="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_lexical_instance_call.rs"
+LEXICAL_INSTANCE_CALL_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_lexical_instance_call_tests.rs"
+VALUE_METHOD_CALL_SRC="$ROOT_DIR/src/mir/builder/control_flow/plan/normalizer/helpers_value/method_call.rs"
 ROUTE_TEST_SURFACE="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_route_tests.rs"
 SOURCE_LOOP_BRIDGE="$ROOT_DIR/src/mir/builder/normal_callable_semantic_lowering_state/source_loop_bridge.rs"
 LOOP_COND_FACTS_SRC="$ROOT_DIR/src/mir/builder/normal_callable_loop_source_facts/loop_cond.rs"
@@ -485,7 +488,25 @@ rg -q 'issue_with_source_relations_rejects_a_foreign_call_free_site' "$ROUTE_CAL
 rg -q 'issue_with_source_relations_rejects_call_free_with_residual_evidence' "$ROUTE_CALL_FREE_TESTS"
 rg -q 'issue_with_source_relations_rejects_call_free_beside_call_items' "$ROUTE_CALL_FREE_TESTS"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS" "$ROUTE_PREDICATES" "$CALLABLE_ROUTE" "$DEAD_ROUTE_TESTS" "$CORE_METHOD_SRC" "$NAMED_ARRAY_SRC" "$NAMED_ARRAY_METHOD_TESTS" "$CONTRACT_ISSUER" "$LEDGER_CONTRACT_TESTS" "$DECLARED_INSTANCE_LOCATOR" "$CORE_EFFECT_PLAN" "$SOURCE_METHOD_PORT" "$UNIFIED_EMITTER" "$LOOP_DECLARED_TESTS" "$ASSOC_INPUT" "$NORMALIZER_COMMON" "$RAW_LOOP_PORT" "$RAW_LOOP_ENTRY" "$CALLABLE_LOWERING_STATE" "$LOOP_VALUE_PUBLICATION" "$BACKEND_VIEW_TESTS" "$BACKEND_VIEW_DRIFT_TESTS" "$BACKEND_VIEW_INTRINSIC_TESTS" "$ROOT_LIFECYCLE_TESTS" "$ROOT_MAIN_SELECTION_TESTS" "$LOOP_PIPELINE_TESTS" "$LOOP_SCOPE_TESTS" "$ROUTE_ITEMS_SRC" "$ROUTE_CALL_FREE_TESTS" "$ROUTE_TEST_SURFACE" "$SOURCE_LOOP_BRIDGE" "$LOOP_COND_FACTS_SRC" "$GENERIC_FACTS_ISSUER"; do
+# MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-S0: the ordinary_new co-seal
+# cohort issues InstanceMethod lexical dispositions — claim-local receivers
+# from their sole new initializer, parameter receivers only when every
+# caller edge matching the callee selector+arity proves one agreed
+# ordinary-new claim class (universal proof; ambiguous/rebound/call-result
+# evidence vetoes and stays unarmed). Variable receivers consult the
+# lexical map only; `me`/`this` keep the strict declared-instance locator.
+rg -q 'InstanceMethod' "$ROUTE_ITEMS_SRC"
+rg -q 'fn lexical_instance_call_covered' "$LEXICAL_INSTANCE_CALL_SRC"
+rg -q 'fn take_lexical_instance_call' "$LEXICAL_INSTANCE_CALL_SRC"
+rg -q 'lexical_instance_call_arms_parameter_receiver_with_claim_edge' "$LEXICAL_INSTANCE_CALL_TESTS"
+rg -q 'lexical_instance_call_arms_claim_local_receiver' "$LEXICAL_INSTANCE_CALL_TESTS"
+rg -q 'lexical_instance_call_keeps_call_result_argument_unarmed' "$LEXICAL_INSTANCE_CALL_TESTS"
+rg -q 'lexical_instance_call_keeps_call_result_receiver_unarmed' "$LEXICAL_INSTANCE_CALL_TESTS"
+rg -q 'lexical_instance_call_vetoes_ambiguous_argument_classes' "$LEXICAL_INSTANCE_CALL_TESTS"
+rg -q 'lexical_instance_call_keeps_rebound_parameter_unarmed' "$LEXICAL_INSTANCE_CALL_TESTS"
+rg -q 'fn lower_method_call_value_input' "$VALUE_METHOD_CALL_SRC"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS" "$ROUTE_PREDICATES" "$CALLABLE_ROUTE" "$DEAD_ROUTE_TESTS" "$CORE_METHOD_SRC" "$NAMED_ARRAY_SRC" "$NAMED_ARRAY_METHOD_TESTS" "$CONTRACT_ISSUER" "$LEDGER_CONTRACT_TESTS" "$DECLARED_INSTANCE_LOCATOR" "$CORE_EFFECT_PLAN" "$SOURCE_METHOD_PORT" "$UNIFIED_EMITTER" "$LOOP_DECLARED_TESTS" "$ASSOC_INPUT" "$NORMALIZER_COMMON" "$RAW_LOOP_PORT" "$RAW_LOOP_ENTRY" "$CALLABLE_LOWERING_STATE" "$LOOP_VALUE_PUBLICATION" "$BACKEND_VIEW_TESTS" "$BACKEND_VIEW_DRIFT_TESTS" "$BACKEND_VIEW_INTRINSIC_TESTS" "$ROOT_LIFECYCLE_TESTS" "$ROOT_MAIN_SELECTION_TESTS" "$LOOP_PIPELINE_TESTS" "$LOOP_SCOPE_TESTS" "$ROUTE_ITEMS_SRC" "$ROUTE_CALL_FREE_TESTS" "$ROUTE_TEST_SURFACE" "$SOURCE_LOOP_BRIDGE" "$LOOP_COND_FACTS_SRC" "$GENERIC_FACTS_ISSUER" "$LEXICAL_INSTANCE_CALL_SRC" "$LEXICAL_INSTANCE_CALL_TESTS" "$VALUE_METHOD_CALL_SRC"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2

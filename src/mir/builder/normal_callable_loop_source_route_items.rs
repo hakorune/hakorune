@@ -140,6 +140,11 @@ pub(in crate::mir::builder) struct CallableLoopSourceTargetRelationV1 {
     target: Option<CanonicalSameModuleCallableKeyV1>,
     requirement: Option<CallableLoopSourceTargetRequirementV1>,
     core_methods: Box<[CallableLoopSourceItemBindingV1]>,
+    /// Items covered by an armed lexical instance-call disposition
+    /// (claim-local or parameter receiver). They carry no static target and
+    /// no publication requirement; the physical emitter resolves each row at
+    /// lowering time.
+    instance_methods: Box<[CallableLoopSourceItemBindingV1]>,
 }
 
 impl CallableLoopSourceTargetRelationV1 {
@@ -153,20 +158,32 @@ impl CallableLoopSourceTargetRelationV1 {
             target: Some(target),
             requirement,
             core_methods: Box::new([]),
+            instance_methods: Box::new([]),
         }
     }
 
     pub(in crate::mir::builder) fn core_methods(
         methods: Box<[CallableLoopSourceItemBindingV1]>,
     ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
-        let Some(first) = methods.first() else {
+        Self::covered_call_items(methods, Box::new([]))
+    }
+
+    /// One relation for a loop whose call items are covered entirely by
+    /// non-static evidence: resolver-issued CoreMethod rows plus armed
+    /// lexical instance-call dispositions.
+    pub(in crate::mir::builder) fn covered_call_items(
+        core_methods: Box<[CallableLoopSourceItemBindingV1]>,
+        instance_methods: Box<[CallableLoopSourceItemBindingV1]>,
+    ) -> Result<Self, CallableLoopSourceRouteRejectV1> {
+        let Some(first) = core_methods.first().or_else(|| instance_methods.first()) else {
             return Err(CallableLoopSourceRouteRejectV1::SourceItemsMissing);
         };
         Ok(Self {
             call_site: first.call_site().clone(),
             target: None,
             requirement: None,
-            core_methods: methods,
+            core_methods,
+            instance_methods,
         })
     }
 
@@ -206,6 +223,12 @@ impl CallableLoopSourceTargetRelationV1 {
 
     pub(in crate::mir::builder) fn core_method_items(&self) -> &[CallableLoopSourceItemBindingV1] {
         &self.core_methods
+    }
+
+    pub(in crate::mir::builder) fn instance_method_items(
+        &self,
+    ) -> &[CallableLoopSourceItemBindingV1] {
+        &self.instance_methods
     }
 }
 
@@ -303,13 +326,14 @@ impl CallableLoopSourceCallCoverageV1 {
 pub(in crate::mir::builder) enum CallableLoopSourceItemDispositionV1 {
     SelectedStatic(CallableLoopSourceTargetRelationV1),
     CoreMethod(CallableLoopSourceItemBindingV1),
+    InstanceMethod(CallableLoopSourceItemBindingV1),
 }
 
 impl CallableLoopSourceItemDispositionV1 {
     pub(in crate::mir::builder) fn call_site(&self) -> &SourceExprSiteV1 {
         match self {
             Self::SelectedStatic(relation) => relation.call_site(),
-            Self::CoreMethod(item) => item.call_site(),
+            Self::CoreMethod(item) | Self::InstanceMethod(item) => item.call_site(),
         }
     }
 }
@@ -336,6 +360,11 @@ pub(in crate::mir::builder) struct CallableLoopSourceTargetProbeV1 {
     /// Resolver-issued CoreMethod rows that cover the loop's method items.
     /// This is a distinct source family from static publication evidence.
     core_methods: Box<[CallableLoopSourceItemBindingV1]>,
+    /// Items whose call site carries an armed lexical instance-call
+    /// disposition in the ordinary-new claim ledger (claim-local or
+    /// parameter receiver). This is route coverage evidence only; the
+    /// canonical emitter consumes the row at lowering time.
+    instance_methods: Box<[CallableLoopSourceItemBindingV1]>,
 }
 
 impl CallableLoopSourceTargetProbeV1 {
@@ -347,6 +376,7 @@ impl CallableLoopSourceTargetProbeV1 {
             uncovered: Box::new([]),
             requirement_mismatch: false,
             core_methods: Box::new([]),
+            instance_methods: Box::new([]),
         }
     }
 
@@ -356,7 +386,13 @@ impl CallableLoopSourceTargetProbeV1 {
         uncovered: Box<[SourceExprSiteV1]>,
         requirement_mismatch: bool,
     ) -> Self {
-        Self::from_parts_with_core_methods(selected, uncovered, requirement_mismatch, Box::new([]))
+        Self::from_parts_with_covered_methods(
+            selected,
+            uncovered,
+            requirement_mismatch,
+            Box::new([]),
+            Box::new([]),
+        )
     }
 
     pub(in crate::mir::builder) fn from_parts_with_core_methods(
@@ -365,11 +401,28 @@ impl CallableLoopSourceTargetProbeV1 {
         requirement_mismatch: bool,
         core_methods: Box<[CallableLoopSourceItemBindingV1]>,
     ) -> Self {
+        Self::from_parts_with_covered_methods(
+            selected,
+            uncovered,
+            requirement_mismatch,
+            core_methods,
+            Box::new([]),
+        )
+    }
+
+    pub(in crate::mir::builder) fn from_parts_with_covered_methods(
+        selected: Box<[CallableLoopSourceTargetRelationV1]>,
+        uncovered: Box<[SourceExprSiteV1]>,
+        requirement_mismatch: bool,
+        core_methods: Box<[CallableLoopSourceItemBindingV1]>,
+        instance_methods: Box<[CallableLoopSourceItemBindingV1]>,
+    ) -> Self {
         Self {
             selected,
             uncovered,
             requirement_mismatch,
             core_methods,
+            instance_methods,
         }
     }
 
@@ -381,6 +434,7 @@ impl CallableLoopSourceTargetProbeV1 {
             || !self.uncovered.is_empty()
             || self.requirement_mismatch
             || !self.core_methods.is_empty()
+            || !self.instance_methods.is_empty()
     }
 
     /// Resolve the classification into the single co-sealed target relation.
@@ -395,6 +449,7 @@ impl CallableLoopSourceTargetProbeV1 {
             uncovered,
             requirement_mismatch,
             core_methods,
+            instance_methods,
         } = self;
         if requirement_mismatch {
             return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
@@ -411,9 +466,10 @@ impl CallableLoopSourceTargetProbeV1 {
         if let Some(relation) = selected.pop() {
             return Ok(relation);
         }
-        if !core_methods.is_empty() {
+        if !core_methods.is_empty() || !instance_methods.is_empty() {
             let covered = core_methods
                 .iter()
+                .chain(instance_methods.iter())
                 .map(|item| item.call_site())
                 .collect::<std::collections::BTreeSet<_>>();
             let uncovered = source_items
@@ -428,7 +484,10 @@ impl CallableLoopSourceTargetProbeV1 {
                     },
                 );
             }
-            return CallableLoopSourceTargetRelationV1::core_methods(core_methods);
+            return CallableLoopSourceTargetRelationV1::covered_call_items(
+                core_methods,
+                instance_methods,
+            );
         }
         Err(
             CallableLoopSourceRouteRejectV1::SourceCallOutsideSelectedFamily {
@@ -455,6 +514,7 @@ impl CallableLoopSourceTargetProbeV1 {
             uncovered,
             requirement_mismatch,
             core_methods,
+            instance_methods,
         } = self;
         if requirement_mismatch {
             return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
@@ -464,11 +524,12 @@ impl CallableLoopSourceTargetProbeV1 {
                 call_sites: uncovered,
             });
         }
-        if !core_methods.is_empty() {
+        if !core_methods.is_empty() || !instance_methods.is_empty() {
             return Err(
                 CallableLoopSourceRouteRejectV1::SourceCallOutsideSelectedFamily {
                     call_sites: core_methods
                         .iter()
+                        .chain(instance_methods.iter())
                         .map(|item| item.call_site().clone())
                         .collect::<Vec<_>>()
                         .into_boxed_slice(),
@@ -509,6 +570,7 @@ impl CallableLoopSourceTargetProbeV1 {
             uncovered,
             requirement_mismatch,
             core_methods,
+            instance_methods,
         } = self;
         if requirement_mismatch {
             return Err(CallableLoopSourceRouteRejectV1::SourceTargetRequirementMismatch);
@@ -536,6 +598,16 @@ impl CallableLoopSourceTargetProbeV1 {
                 return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site });
             }
         }
+        let mut instance_by_site = BTreeMap::new();
+        for item in instance_methods {
+            let call_site = item.call_site().clone();
+            if instance_by_site
+                .insert(call_site.clone(), item)
+                .is_some()
+            {
+                return Err(CallableLoopSourceRouteRejectV1::SourceItemDuplicate { call_site });
+            }
+        }
 
         let mut seen_items = BTreeMap::new();
         let mut dispositions = Vec::with_capacity(source_items.len());
@@ -554,6 +626,10 @@ impl CallableLoopSourceTargetProbeV1 {
                 ));
             } else if let Some(core_method) = core_by_site.remove(item.call_site()) {
                 dispositions.push(CallableLoopSourceItemDispositionV1::CoreMethod(core_method));
+            } else if let Some(instance_method) = instance_by_site.remove(item.call_site()) {
+                dispositions.push(CallableLoopSourceItemDispositionV1::InstanceMethod(
+                    instance_method,
+                ));
             } else {
                 return Err(
                     CallableLoopSourceRouteRejectV1::SourceItemDispositionMissing {
@@ -566,6 +642,7 @@ impl CallableLoopSourceTargetProbeV1 {
         let mut residual = selected_by_site
             .into_keys()
             .chain(core_by_site.into_keys())
+            .chain(instance_by_site.into_keys())
             .collect::<Vec<_>>();
         if !residual.is_empty() {
             residual.sort();

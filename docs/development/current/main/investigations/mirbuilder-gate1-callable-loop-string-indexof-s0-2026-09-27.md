@@ -267,8 +267,8 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | Order | Task and completion boundary |
 | --- | --- |
 | 1 | DONE — `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0` landed below: the terminal is `Main.main`'s root-instance-call disposition, and the missing artifact is the callee's declared result contract (`MiWorkload.run` is unannotated). The S0 below completes the declared contract in source and re-measures. |
-| 2 | `MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-D0` (D5 fork b): census source admission for parameter/Dynamic-origin user-object calls (`store.readData`, `builder.make`, then call-result `itemCheck`). Decide Dynamic-origin versus exact nominal evidence before coverage; existing root-me locators are not proof for either parameter or returned-object receivers. Probe evidence (this card, D0 census): `new`-claim-proven local receivers already emit instance calls — the true remaining scope is parameter/Dynamic-origin receivers only. |
-| 3 | Allocator call-result provenance for `handles.push(heap.allocate(...))`: re-measure after S0 — the annotated mimalloc-lite probe emitted this shape already, so this row may shrink to evidence-only; parameter-receiver calls stay out. |
+| 2 | DONE — `MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-D0`/`S0` landed below: parameter receivers proven by universal caller-edge ordinary-new claims and claim-local `local x = new C()` receivers both arm lexical `InstanceBoxMethod` dispositions; boxtorrent-mini `materialize`/`releaseFrom` loops now lower through the canonical `SameModuleInstance` emitter. |
+| 3 | `MIRBUILDER-GATE1-CALL-RESULT-ARGUMENT-COVERAGE-D0`: boxtorrent-mini's new frontier — `ingest`'s loop freezes at `Argument(1)`, the `chunk_data.length()` core-method call nested inside `manifest.addChunk(cid, chunk_data.length())`. `chunk_data` is a call-result local (`data.slice(...)`), so the site needs either argument-position core-method coverage for call-result receivers or a census of what the core bucket already admits. Allocator `handles.push(heap.allocate(...))` shares the argument-position-call shape; re-measure it in the same census. Call-result *instance* receivers (`positive.itemCheck`) stay parked. |
 | 4 | Complete required app evidence: json-stream-aggregator EXE/output and typed-object JSON ingress/EXE exit 7. An emit-interface failure still blocks its registered acceptance; record its owner instead of dropping the row. The observed `Invoke` terminator JSON emit gap (`--emit-mir-json` serializer) is this row's dependency, not a semantic-lane blocker. |
 | 5 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
 
@@ -342,6 +342,57 @@ family (D18 lineage), unchanged by this slice. Focused pins:
 `store.readData`, `itemCheck`), since claim-proven local receivers are
 now measured as emitted. Gate 1 remains unsatisfied.
 
+### D0 decision — `MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-D0` (landed)
+
+```text
+Decision: admit parameter-receiver instance calls inside armed callable
+  loops by co-sealing a caller->callee argument-provenance edge (the
+  `map_argument_edge` precedent in `direct_call_lifecycle.rs`) that joins
+  every caller argument carrying an ordinary-new claim of exactly one
+  class to the callee's `Parameter{index}` binding; admitted loop items
+  then emit `Callee::SameModuleInstance` with the already-installed
+  parameter ValueId through the same emission contract the declared-
+  instance locator arm uses.
+Source authority + canonical issuer: caller-side ordinary-new claim and
+  initializer ledger + callee `Parameter{index}` binding + selected
+  `InstanceBoxMethod` catalog key + callee result/signature contract —
+  the ordinary_new co-seal cohort (`issuer.rs` ~700) already joins the
+  same ingredient set and stays the canonical issuer family.
+Non-authority: Dynamic-origin products (binding-only, no nominal class),
+  declared-type spellings (`OpaqueHandle`/`DeclaredHandle` admit no user
+  box), MIR types, name matching, runtime dispatch.
+Fail-fast boundary: zero/multiple classes across caller edges, a rebind
+  between claim and call, ambiguous or missing target/result contract,
+  a missing caller-edge claim -> named reject; non-admitted uncovered
+  items keep `SourceCallOutsideSelectedFamily` — no silent drop.
+Smallest next slice: `MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-S0` —
+  boxtorrent-mini `materialize(store)`/`releaseFrom(store)`, whose every
+  caller argument is the direct `local store = new BoxTorrentStore()`
+  claim (single class, no field provenance needed).
+Non-claims: no call-result receivers (`positive.itemCheck` stays a
+  separate queued family — its callee result contract drops the Home
+  terminal relation today); no field-read argument provenance
+  (binary-trees `builder` is `me.builder`, an S1+ shape); no non-loop
+  param calls; no Dynamic-lane widening; no declared-type parameter
+  admission; no Invoke serializer or VM-lane claims.
+```
+
+Census evidence (read-only worker + source reads): the reject is
+`CallableLoopSourceTargetProbeV1::into_selected_relation`
+(`normal_callable_loop_source_route_items.rs:389-442`) — a param-receiver
+item contributes nothing to `selected` (`VerifiedSourceCallTargetCatalogV1`
+filters non-static rows at `source_call_target/model.rs:162-172`), so
+`materialize`'s loop (`ids.get` core + `store.readData` param) dies on the
+uncovered remainder. The only landed local-receiver authority is
+`issue_root_instance_call_dispositions` (app-main + terminal + zero-arg
+scoped); its receiver chain — initializer -> claim -> class -> selected
+`InstanceBoxMethod` -> result contract -> `InstanceReceiver` lane-0 —
+is the same join this family needs at the call edge. Parameter bindings
+already carry `BindingKindV1::Parameter{index}` and installed ValueIds
+(`install_entry_values`); the missing join is caller argument -> claim ->
+class -> callee param binding. No declared-type or Dynamic evidence can
+supply it today.
+
 The historical selected-C UserBox row owns `UnsupportedBeforeObject` /
 `RetireAfterReplacement` and remains parked. This design does not choose
 `RetainTransition`. Queued instance work must name a canonical consumer and
@@ -391,3 +442,57 @@ Production evidence (quick-profile `./target/quick/hakorune
 (`new HakoAllocHeap()`) construction-artifact terminal, a different owned
 family and the next observable frontier. Gate 1 remains unsatisfied; this S0
 does not claim it.
+
+### S0 implementation receipt — `MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-S0` (landed)
+
+Issuer: `ordinary_new_lexical_instance_call.rs` (new) issues
+`InstanceMethod` lexical dispositions into `OrdinaryNewClaimLedgerV1`,
+co-sealing (a) claim-local receivers (`local x = new C()`; sole
+initializer, no rebind, claim class in the approved ordinary user-box
+catalog) and (b) parameter receivers proven universally: *every* package
+call edge matching the callee's selector+arity must be a lexical-receiver
+call whose argument at the bound ordinal is a local binding with exactly
+one initializer, no rebind, an ordinary-new claim, and one agreed claim
+class. Any unproven/ambiguous/rebound/non-lexical edge vetoes the
+parameter — the call stays unarmed (soft decline), so outside an armed
+loop the existing dynamic path survives and inside one the route names
+the site via `SourceCallOutsideSelectedFamily`.
+
+Transport: the ledger is shared by `Rc` into
+`CallableSemanticLoweringState` (`with_callable_source_scope`); lowering
+consults it via `lexical_instance_call_covered` /
+`take_lexical_instance_call` (one-shot per call site; bindings stay
+reusable across distinct sites). Consumers: `common.rs`
+`declared_instance_call_effect` consults the lexical map for `Variable`
+receivers only — `me`/`this` keep the strict declared-instance locator,
+and lexical misses return `Ok(None)` so unarmed core/dynamic calls are
+untouched. Both the value-position and statement-position `Variable`
+arms in the normalizer route through it; the emit stays
+`emit_canonical_instance_call_at_v1` (`SameModuleInstance`, never
+runtime dispatch).
+
+Route coverage: `CallableLoopSourceItemDispositionV1::InstanceMethod` is
+a new bucket; `source_target_for_loop` collects it, `loop_cond` physical
+validation unions core+instance items against source order, and
+`composite_physical` accepts the new arm — one item covers exactly one
+site, no static-publication obligation is inferred from lexical rows.
+
+Evidence (quick profile): new issuer suite
+`lexical_instance_call_tests` 6/6 — parameter receiver armed for both
+value (`readData`) and statement (`release`) positions with
+`InstanceBoxMethod`/`ParamStore`/arity pins and the one-shot take
+reject, claim-local receiver armed, and four unarmed pins (call-result
+argument, call-result receiver, ambiguous caller classes, rebound
+parameter). Suites: `normal_callable_loop_source_route` 29/29,
+`loop_scope_tests` 6/6, `callable_loop` 89/89, `ordinary_new` 66/66.
+
+Production evidence (quick-profile `./target/quick/hakorune
+--emit-mir-json apps/boxtorrent-mini`): `materialize`/`releaseFrom` no
+longer freeze — the param-receiver `store.readData`/`store.release`
+items arm and emit canonically (earlier `ParamManifest` probe dump:
+`call_same_module_instance ParamStore.readData(%21) [recv: %20]` where
+`%20` copies param `%1`). The new frontier is `ingest`'s loop at
+`Argument(1)` — `chunk_data.length()` nested inside
+`manifest.addChunk(cid, ...)`; `chunk_data` is a call-result local, an
+argument-position core-method coverage gap owned by queue row 3, not by
+this slice. Gate 1 remains unsatisfied; this S0 does not claim it.

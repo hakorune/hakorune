@@ -81,12 +81,13 @@ pub(super) fn with_callable_source_scope<'port, 'collector, 'source, R>(
     ) -> Result<R, String>,
 ) -> Result<R, String> {
     let transport = RawInvocationSourceTransportV1::root((), lineage);
-    let state = CallableSemanticLoweringState::from_exact_source_with_dynamic_source_and_core_methods_and_loop_break_source(
+    let mut state = CallableSemanticLoweringState::from_exact_source_with_dynamic_source_and_core_methods_and_loop_break_source(
         input,
         dynamic_source,
         core_method_calls,
         loop_break_source,
     )?;
+    state.lend_ordinary_new_claim_ledger(Rc::clone(&ordinary_new_claim_ledger));
     let state = Rc::new(RefCell::new(state));
     let mut scoped_inner = inner.reborrow();
     scoped_inner.semantic_ledger = None;

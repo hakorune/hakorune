@@ -6,7 +6,9 @@
 use super::{loop_body_lowering, PlanNormalizer};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::builder::calls::extern_calls;
-use crate::mir::builder::control_flow::plan::normalizer::common::me_this_method_call_effect;
+use crate::mir::builder::control_flow::plan::normalizer::common::{
+    declared_instance_call_effect, me_this_method_call_effect,
+};
 use crate::mir::builder::control_flow::plan::{
     CoreCallSourceV1, CoreEffectPlan, CoreExitPlan, CorePlan, LoopPlanExpressionPortV1,
     LoweredRecipe,
@@ -212,6 +214,19 @@ where
             });
         }
         ASTNode::Variable { name, .. } => {
+            if let Some(plan) = declared_instance_call_effect(
+                port,
+                &input,
+                method,
+                arguments.len() as u32,
+                None,
+                arg_ids.clone(),
+                source.clone(),
+                error_prefix,
+            )? {
+                effects.push(plan);
+                return Ok(effects);
+            }
             let object_id = if let Some(&phi_dst) = phi_bindings.get(name) {
                 phi_dst
             } else if let Some(&value_id) =

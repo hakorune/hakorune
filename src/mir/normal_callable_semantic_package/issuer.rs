@@ -350,6 +350,9 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     RootInstanceCall {
         _error: String,
     },
+    LexicalInstanceCall {
+        _error: String,
+    },
     AppMainRoot {
         _error: app_main_relation::AppMainRootRelationIssueV1,
     },
@@ -721,6 +724,11 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     .map_err(
         |error| NormalCallableSemanticPackageIssueV1::DeclaredInstanceLocator { _error: error },
     )?;
+    ordinary_new_claim_ledger
+        .issue_lexical_instance_call_dispositions(&batch, &selected, &physical_signature)
+        .map_err(
+            |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
+        )?;
 
     Ok(VerifiedNormalCallableSemanticPackageV1 {
         root_execution: super::model::NormalRootExecutionPackageStateV1::Prepared(root_execution),

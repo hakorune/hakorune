@@ -1,5 +1,5 @@
 pub(super) use super::add_result_representation::prepare_coreplan_add_result_representation_v1;
-pub(super) use super::common::me_this_method_call_effect;
+pub(super) use super::common::{declared_instance_call_effect, me_this_method_call_effect};
 pub(super) use super::cond_lowering_prelude::lower_blockexpr_value_prelude_stmts;
 pub(super) use super::helpers_pure_value::is_pure_value_expr;
 pub(super) use super::newbox::record_newbox_metadata;
@@ -31,4 +31,5 @@ impl super::PlanNormalizer {
 }
 
 mod lower;
+mod method_call;
 mod variant;

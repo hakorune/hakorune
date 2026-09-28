@@ -454,10 +454,10 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
     where
         Self: 'input,
     {
-        let Some(locator) = self.declared_instance_locator else {
+        let ASTNode::MethodCall { object, .. } = self.expr_syntax(input) else {
             return Ok(None);
         };
-        if !matches!(self.expr_syntax(input), ASTNode::MethodCall { .. }) {
+        if Self::source_of_expr(input).is_none() {
             return Ok(None);
         }
         let site = Self::exact_site(Self::source_of_expr(input))?;
@@ -465,6 +465,48 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
             self.ledger.borrow().owner(),
             SourceExprSiteV1::from_node(site),
         );
+        if matches!(object.as_ref(), ASTNode::Variable { .. }) {
+            // Lexical receivers are admitted only through the co-sealed
+            // ordinary-new disposition rows; the locator is `me`/`this`
+            // authority and must never widen to variable receivers.
+            let lexical_row = {
+                let state = self.ledger.borrow();
+                state
+                    .ordinary_new_claim_ledger()
+                    .map(|claims| {
+                        claims.take_lexical_instance_call(
+                            expected_site.owner(),
+                            expected_site.site(),
+                        )
+                    })
+                    .transpose()?
+                    .flatten()
+            };
+            if let Some(row) = lexical_row {
+                if row.target().name() != method || row.target().arity() != arity {
+                    return Err(
+                        "[freeze:contract][declared-instance/lexical/key-mismatch]".to_owned(),
+                    );
+                }
+                let receiver = self
+                    .ledger
+                    .borrow_mut()
+                    .take_exact_lexical_value(
+                        expected_site.owner(),
+                        row.receiver_site().node(),
+                        row.receiver_binding(),
+                    )
+                    .map_err(|error| error.to_string())?;
+                return Ok(Some(ExactSourceDeclaredInstanceCallV1::new(
+                    row.target().clone(),
+                    receiver,
+                )));
+            }
+            return Ok(None);
+        }
+        let Some(locator) = self.declared_instance_locator else {
+            return Ok(None);
+        };
         locator
             .take_exact_relation(&expected_site, |relation| {
                 if relation.target_key().name() != method || relation.target_key().arity() != arity

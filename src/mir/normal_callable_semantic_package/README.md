@@ -317,6 +317,18 @@ into claims/ledger once. Multiple invalid candidates reject in candidate order;
 the previous field-driven diagnostic priority is not retained. Candidate presence
 does not issue source availability, Map transfer or physical progress.
 
+The [lexical instance-call issuer](ordinary_new_lexical_instance_call.rs) arms
+two variable-receiver shapes with `InstanceMethod` dispositions on the same
+ledger: claim-local receivers proven by their sole `new` initializer, and
+parameter receivers proven only when *every* caller edge matching the callee's
+selector+arity passes a claim-proven local of one agreed class. Ambiguous,
+rebound, call-result or non-lexical evidence vetoes arming instead of guessing;
+the variable receiver then keeps its existing dynamic path outside armed loops
+or becomes a named uncovered route item inside one. `me`/`this` receivers stay
+exclusively on the strict declared-instance locator; the issued row carries the
+exact call/receiver sites, the binding and the selected `InstanceBoxMethod`
+key — never a Callee, ValueId, dispatch strategy or runtime fallback.
+
 For direct-local Map entries, a scoped callback checks the same candidate's exact
 New site/binding, construction eligibility and PlainI64NoHook destruction.
 The source walk owns availability and transfer; it keeps the acquisition site in
