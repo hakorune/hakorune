@@ -270,9 +270,10 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | 2 | DONE — `MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-D0`/`S0` landed below: parameter receivers proven by universal caller-edge ordinary-new claims and claim-local `local x = new C()` receivers both arm lexical `InstanceBoxMethod` dispositions; boxtorrent-mini `materialize`/`releaseFrom` loops now lower through the canonical `SameModuleInstance` emitter. |
 | 3 | DONE — `MIRBUILDER-GATE1-BODY-LENGTH-TEXT-EVIDENCE-S0` landed below: `StringLen/0` admits `Body` placement gated by `receiver_has_text_evidence` (TextToCaller initializer or literal); boxtorrent-mini now lowers fully (remaining terminal is the Invoke emit gap); the mixed-loop `SelectedStatic` bucket-drop hazard is fixed. New named frontier for the receiver family: binary-trees `iterationCheck` leaves `builder.make` (field-read caller argument, vetoed by universal edge proof) and `itemCheck` (call-result receiver, parked) uncovered — see `MIRBUILDER-GATE1-FIELD-ARG-AND-CALLRESULT-RECEIVER-D0`. |
 | 4 | DONE — `MIRBUILDER-GATE1-FIELD-WRITE-CLAIM-EDGE-TRANSPORT-S0` landed below: `(box, field) -> class` claims from uniform attributed `me.f = new C()` writes; binary-trees `iterationCheck` uncovered set halves to the two `itemCheck` call-result receivers; mimalloc-lite's semantic lane now completes to the shared Invoke emit gap. |
-| 5 | `MIRBUILDER-GATE1-CALLRESULT-RECEIVER-RESULTCLASS-S0` (D0 accepted below, depends on row 4): uniform `return new D` instance-callable result-class product (AST-free; NOT `callable_result_representation`) + `claim_local_class` call-result initializer arm. Admits `positive.itemCheck`/`negative.itemCheck` — closes binary-trees `iterationCheck` coverage. FieldAccess receivers (`me.left.itemCheck()`) stay parked. |
-| 6 | Complete required app evidence: json-stream-aggregator EXE/output and typed-object JSON ingress/EXE exit 7. An emit-interface failure still blocks its registered acceptance; record its owner instead of dropping the row. The observed `Invoke` terminator JSON emit gap (`--emit-mir-json` serializer) is this row's dependency, not a semantic-lane blocker. |
-| 7 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
+| 5 | DONE — `MIRBUILDER-GATE1-CALLRESULT-RECEIVER-RESULTCLASS-S0` landed below: `OrdinaryNewResultClassClaimDraftV1` seals `{selected key -> class}` only when a body ends in a value `return` and every `return` row constructs `new` of one agreed ordinary box; the lexical `MethodCall` initializer arm resolves the callee through the proven-receiver join. binary-trees `iterationCheck` call coverage closes — both `itemCheck` receivers arm — and the semantic lane now stops at the loop-handoff binding contract (`sum` carrier lacks `ConditionRead`), a different owner. |
+| 6 | `MIRBUILDER-GATE1-LOOP-HANDOFF-NONCOND-CARRIER-D0` (design_stop): binary-trees `iterationCheck`'s `sum` is body-read+body-rebound but never condition-read, so `build_callable_loop_ready_rows` freezes `incomplete-binding-coverage` — the contract requires every Carrier to be read in the loop condition. Census whether a body-only accumulator class is admissible (cf. `CallableLoopOutsideKindV1::BodyOnlyRebind`) or the shape stays outside the handoff profile; no implementation before the Decision. |
+| 7 | Complete required app evidence: json-stream-aggregator EXE/output and typed-object JSON ingress/EXE exit 7. An emit-interface failure still blocks its registered acceptance; record its owner instead of dropping the row. The observed `Invoke` terminator JSON emit gap (`--emit-mir-json` serializer) is this row's dependency, not a semantic-lane blocker. |
+| 8 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
 
 ### D0 decision — `MIRBUILDER-GATE1-ORDINARY-NEW-ARTIFACT-SOURCE-D0` (landed)
 
@@ -714,3 +715,64 @@ receiver row 5 below. `builder.make`×2 arm through the field-read edge.
 now reaches the same Invoke emit gap — its semantic lane completes
 (`heap.allocate` instance call + `handles.push` NamedArray both resolve
 in-loop). Gate 1 remains unsatisfied.
+
+### S0 implementation receipt — `MIRBUILDER-GATE1-CALLRESULT-RECEIVER-RESULTCLASS-S0` (landed)
+
+Product: `OrdinaryNewResultClassClaimDraftV1`
+(`ordinary_new_result_class_claim.rs`) seals
+`{CanonicalSameModuleCallableKeyV1 -> class}` claims. A selected
+callable claims a result class only when its sealed
+`BodyStatementShapeV1` inventory exists, the last top-level statement
+is a value-bearing `return` (so no normal exit can fall past the
+observed returns), every `return` row — nested `if`/`loop` returns
+included — resolves through `constructions()` to `new` of one agreed
+class, and that class is in the package's ordinary-box coverage.
+Missing inventories, value-less returns, non-`new` return values, and
+mixed classes all leave the key unclaimed — additive evidence, never a
+fallback. The product is distinct from the AST-walking
+`callable_result_representation` authority and mints no Recipe keys or
+physical IDs. Draft issuance rides the same per-declaration
+`with_lowering_input` loan as the field-write draft in
+`issue_ordinary_source_cohort_v1`, keyed by the selected
+`InstanceBoxMethod` key for that slot.
+
+Consumer: `initializer_class` in `ordinary_new_lexical_instance_call.rs`
+gains a `MethodCall` arm — a local initialized by `recv.method(args)`
+proves its class when the receiver binding's class is proven (shared
+`binding_class`: parameter via universal caller-edge claims, local via
+its sole initializer, `me.f` field reads via the field-write claims),
+the callee resolves to one unique selected `InstanceBoxMethod` key, and
+that key carries a result-class claim. A depth cap
+(`MAX_PROVENANCE_DEPTH`) bounds the `binding_class`/`initializer_class`
+mutual recursion. `prove_parameter_class` was split into a reusable
+`parameter_class` so the callee-key resolution is shared, not
+duplicated; emit stays canonical `SameModuleInstance`.
+
+Evidence (quick profile): `lexical_instance_call_*` 15/15 — new pins:
+`arms_call_result_receiver_with_result_class` (binary-trees shape:
+`local node = maker.make(i)` + `node.check()`, callee returns `new
+Node()` on both paths), `vetoes_mixed_return_classes` (`new Node()` +
+`new Other()`), `keeps_non_new_return_unarmed` (`return n`),
+`keeps_fallthrough_result_unarmed` (callee with no `return`),
+`keeps_call_result_receiver_unarmed` retained (no result-class
+evidence). Route 29/29, loop_scope 6/6, ordinary_new 75/75 unchanged.
+
+Production re-measure (`--emit-mir-json`, the acceptance lane used by
+row 7): `apps/binary-trees` `iterationCheck` call coverage **closes** —
+both `itemCheck` call-result receivers arm through
+`BinaryTreeBuilder.make/2`'s uniform `return new TreeNode(...)` — and
+the lane advances past call-site coverage to
+`[freeze:contract][callable-loop-handoff/incomplete-binding-coverage]`:
+the `sum` accumulator is body-read+body-rebound but never
+condition-read, which the ready-row contract (`Carrier` requires
+`ConditionRead`) does not admit. Owner:
+`normal_callable_loop_handoff_validation.rs`; queued as row 6 D0 —
+whether a non-condition accumulator class is admissible is a contract
+design question, not this slice. `apps/boxtorrent-mini` and
+`apps/mimalloc-lite` both reach the shared `Invoke` emit gap — no
+regression. Bisect note: an earlier bare-run (no `--emit-mir-json`)
+measurement showed `named-array/retained-source-required` on both apps;
+that freeze reproduces deterministically on `901df40d18` (pre-family-A)
+in the direct-run lane, so it is pre-existing baseline debt of that
+lane, not a result-class regression. Gate 1 remains unsatisfied; row 6
+is the next named boundary.

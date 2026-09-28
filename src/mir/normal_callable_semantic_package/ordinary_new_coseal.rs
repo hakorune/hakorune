@@ -76,6 +76,8 @@ mod candidate;
 mod local_commit;
 #[path = "ordinary_new_lexical_instance_call.rs"]
 mod lexical_instance_call;
+#[path = "ordinary_new_result_class_claim.rs"]
+mod result_class_claim;
 #[path = "ordinary_new_root_instance_call.rs"]
 mod root_instance_call;
 #[path = "ordinary_new_terminal_access.rs"]
@@ -224,6 +226,11 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // storing `new` of one agreed ordinary box. Read-only after issuance;
     // missing/ambiguous writers simply produce no row.
     field_write_claims: field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    // Callable result-class provenance: a selected callable claims a class
+    // only when its sealed body ends in a `return` and every `return` row
+    // constructs `new` of one agreed ordinary box. Read-only after
+    // issuance; non-uniform evidence simply produces no row.
+    callable_result_classes: result_class_claim::OrdinaryNewResultClassClaimsV1,
     terminal_relation: Option<TerminalRelationV1>,
     terminal_relation_index: BTreeMap<FunctionOwnerIdV1, Rc<TerminalRelationV1>>,
     terminal_integer_literal_value: RefCell<Option<crate::mir::ValueId>>,
@@ -319,6 +326,7 @@ impl OrdinaryNewClaimLedgerV1 {
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),
             birth_site_index: RefCell::new(BTreeMap::new()),
             field_write_claims: BTreeMap::new(),
+            callable_result_classes: BTreeMap::new(),
             terminal_relation: None,
             terminal_relation_index: BTreeMap::new(),
             terminal_integer_literal_value: RefCell::new(None),
@@ -429,6 +437,18 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn field_write_claim(&self, owner_box: &str, field: &str) -> Option<&str> {
         self.field_write_claims
             .get(&(owner_box.into(), field.into()))
+            .map(|class| class.as_ref())
+    }
+
+    /// Result-class provenance for one selected callable: the agreed `new`
+    /// class constructed by every `return`, when the body cannot exit
+    /// normally without executing one.
+    pub(crate) fn callable_result_class(
+        &self,
+        key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    ) -> Option<&str> {
+        self.callable_result_classes
+            .get(key)
             .map(|class| class.as_ref())
     }
 

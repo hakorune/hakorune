@@ -1,10 +1,10 @@
 date = "2026-09-28"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-CALLRESULT-RECEIVER-RESULTCLASS-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-GATE1-LOOP-HANDOFF-NONCOND-CARRIER-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
-current_design_stop = "none"
+current_design_stop = "MIRBUILDER-GATE1-LOOP-HANDOFF-NONCOND-CARRIER-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,18 +17,21 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-FIELD-WRITE-CLAIM-EDGE-TRANSPORT S0 landed: uniform attributed
-me.f = new C() writes seal (box, field)->class claims; param-edge args
-and claim-local receivers initialized by me.f field reads now arm.
-binary-trees iterationCheck halves to the two itemCheck call-result
-receivers (row 5, CALLRESULT-RECEIVER-RESULTCLASS-S0); boxtorrent-mini
-and mimalloc-lite both reach the shared Invoke emit gap. lexical
-11/11, route 29/29, loop_scope 30/30, ordinary_new 71/71. Gate 1
-remains unsatisfied; selected-C and Gates 2-4 stay parked.
+CALLRESULT-RECEIVER-RESULTCLASS S0 landed: OrdinaryNewResultClassClaimDraftV1
+seals {selected key -> class} only when a body ends in a value `return`
+and every `return` constructs `new` of one agreed ordinary box; the
+lexical MethodCall initializer arm resolves the callee through the
+proven-receiver join. binary-trees iterationCheck call coverage closes
+(both itemCheck receivers arm); the lane advances to
+callable-loop-handoff/incomplete-binding-coverage — the `sum` carrier
+lacks ConditionRead — now queue row 6 (NONCOND-CARRIER D0). boxtorrent
+and mimalloc still reach the Invoke emit gap; the bare-run lane's
+named-array freeze is pre-existing at 901df40d18. lexical 15/15, route
+29/29, loop_scope 6/6, ordinary_new 75/75. Gate 1 remains unsatisfied.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-GATE1-CALLRESULT-RECEIVER-RESULTCLASS-S0"
+next_design_card = "MIRBUILDER-GATE1-LOOP-HANDOFF-NONCOND-CARRIER-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -44,7 +47,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-28: MIRBUILDER-GATE1-CALLRESULT-RECEIVER-RESULTCLASS-S0 landed — OrdinaryNewResultClassClaimDraftV1 seals {selected key -> class} only when a sealed body ends in a value `return` and every `return` row (nested if/loop included) constructs `new` of one agreed ordinary box (missing inventory/value-less/non-new/mixed veto); lexical MethodCall initializer arm joins proven receiver class + unique selected InstanceBoxMethod key + claim, bounded by MAX_PROVENANCE_DEPTH. lexical 15/15, route 29/29, loop_scope 6/6, ordinary_new 75/75. binary-trees iterationCheck call coverage closes; next wall is callable-loop-handoff/incomplete-binding-coverage (sum carrier lacks ConditionRead) -> row 6 NONCOND-CARRIER D0; bare-run named-array freeze is pre-existing at 901df40d18.",
   "2026-09-28: MIRBUILDER-GATE1-FIELD-WRITE-CLAIM-EDGE-TRANSPORT-S0 landed — OrdinaryNewFieldWriteClaimDraftV1 seals (box, field)->class only when every package write to that field is an attributed me. write storing new of one agreed ordinary box (non-new/multi-class/unattributed writers veto; missing body_shape empties the product); shared initializer_class joins sole initializers me.f -> claim for both param edges and claim-local receivers. lexical 11/11, route 29/29, loop_scope 30/30, ordinary_new 71/71. binary-trees iterationCheck halves to itemCheck call-result receivers (row 5); mimalloc-lite semantic lane now completes to the shared Invoke emit gap.",
   "2026-09-28: MIRBUILDER-GATE1-BODY-LENGTH-TEXT-EVIDENCE-S0 landed — StringLen/0 admits Body placement gated by receiver_has_text_evidence (TextToCaller initializer or string literal; params/non-text locals veto); mirrored allowed_placements/allowed_target_placements moved in lockstep; mixed-loop into_selected_relation bucket-drop hazard fixed via with_covered_call_items + call_site union. body_position_length 3/3 pins green; boxtorrent-mini fully lowers (Invoke emit gap remains); binary-trees honestly names builder.make field-read-arg veto + itemCheck call-result receiver -> FIELD-ARG-AND-CALLRESULT-RECEIVER-D0.",
-  "2026-09-28: MIRBUILDER-GATE1-PARAM-RECEIVER-CALL-SOURCE-D0+S0 landed — ordinary_new_lexical_instance_call issues InstanceMethod lexical dispositions (claim-local receiver + parameter receiver proven by universal caller-edge ordinary-new claims; ambiguous/rebound/call-result evidence vetoes and stays unarmed); Variable receivers consult the lexical map only, me/this keep the strict locator, emit stays canonical SameModuleInstance. lexical tests 6/6, route 29/29, loop_scope 6/6, callable_loop 89/89, ordinary_new 66/66. boxtorrent-mini materialize/releaseFrom loops now lower; new frontier ingest Argument(1) = chunk_data.length() on call-result local -> queue row 3 CALL-RESULT-ARGUMENT-COVERAGE-D0.",
 ]

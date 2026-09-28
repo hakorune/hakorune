@@ -14,7 +14,7 @@ use super::candidate::{verified_birth_recipe_for_site_v1, OrdinaryNewCandidate};
 use super::coseal_helpers::{
     convert_selected_new_arguments, is_direct_local_initializer, retain_child_terminal_relation,
 };
-use super::{field_reads, field_write_claim, terminal_home};
+use super::{field_reads, field_write_claim, result_class_claim, terminal_home};
 use super::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1,
     VerifiedOrdinaryNewBirthRecipeV1,
@@ -416,8 +416,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     // are walked outside the program-source loan; constructor (birth)
     // rows join inside it, where `lowering_input` needs the program.
     let mut field_write_draft = field_write_claim::OrdinaryNewFieldWriteClaimDraftV1::new();
+    let mut result_class_draft =
+        result_class_claim::OrdinaryNewResultClassClaimDraftV1::new();
     for declaration in batch.declarations() {
-        let owner_box = selected
+        let selected_key = selected
             .keys()
             .filter_map(|selected_key| {
                 let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
@@ -425,16 +427,24 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 };
                 (selected.batch_slot(selected_key) == Some(declaration.batch_slot())
                     && key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod)
-                    .then(|| key.owner())
+                    .then(|| key.clone())
             })
             .next();
+        let owner_box = selected_key.as_ref().map(|key| key.owner());
         batch
             .with_lowering_input(declaration.batch_slot(), |input| {
                 field_write_draft.observe_function(
                     input.function(),
                     input.body_shape(),
                     owner_box,
-                )
+                );
+                if let Some(key) = &selected_key {
+                    result_class_draft.observe_function(
+                        input.function(),
+                        input.body_shape(),
+                        key,
+                    );
+                }
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
     }
@@ -454,6 +464,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         })
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
     let field_write_claims = field_write_draft.finish(batch.ordinary_box_coverage());
+    let callable_result_classes =
+        result_class_draft.finish(batch.ordinary_box_coverage());
     let names = batch
         .ordinary_box_coverage()
         .rows()
@@ -462,6 +474,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         .collect();
     let mut ledger = OrdinaryNewClaimLedgerV1::issue(claims.into_boxed_slice(), names);
     ledger.field_write_claims = field_write_claims;
+    ledger.callable_result_classes = callable_result_classes;
     ledger.birth_site_index = std::cell::RefCell::new(birth_site_index);
     ledger.root_completion = root_completion;
     ledger.field_reads = std::cell::RefCell::new(field_reads);

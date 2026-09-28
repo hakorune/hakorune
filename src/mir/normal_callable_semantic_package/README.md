@@ -338,6 +338,18 @@ and any function whose sealed body-shape inventory is missing all veto the
 field. Both edge arguments (`f.m(x)` passing `local v = me.f`) and claim-local
 receivers (`local v = me.f` then `v.m(...)`) consume the same proof.
 
+[Result-class claims](ordinary_new_result_class_claim.rs) transport class
+provenance across call-result locals: a selected callable claims a class only
+when its sealed body ends in a value-bearing `return` and every `return` row —
+nested `if`/`loop` returns included — constructs `new` of one agreed ordinary
+box. Missing inventories, value-less returns, non-`new` return values and mixed
+classes all leave the callable unclaimed. A local initialized by
+`recv.method(args)` then proves its class when the receiver's class is proven,
+the callee resolves to one unique selected `InstanceBoxMethod` key, and that
+key carries a claim — so `local n = b.make(d, i); n.check()` arms while
+unproven call-result receivers stay vetoed. This product is AST-free and is
+not the `callable_result_representation` authority.
+
 For direct-local Map entries, a scoped callback checks the same candidate's exact
 New site/binding, construction eligibility and PlainI64NoHook destruction.
 The source walk owns availability and transfer; it keeps the acquisition site in

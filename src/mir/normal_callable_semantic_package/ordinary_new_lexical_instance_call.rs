@@ -168,29 +168,15 @@ impl OrdinaryNewClaimLedgerV1 {
             if need.rebound {
                 continue;
             }
-            let target_matches = selected
-                .keys()
-                .filter_map(|selected_key| {
-                    let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
-                        return None;
-                    };
-                    if key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
-                        && key.owner() == class.as_ref()
-                        && key.name() == need.selector.as_ref()
-                        && key.arity() == need.arity
-                    {
-                        selected
-                            .batch_slot(selected_key)
-                            .map(|slot| (key.clone(), slot))
-                    } else {
-                        None
-                    }
-                })
-                .collect::<Vec<_>>();
-            let [(target, target_batch_slot)] = target_matches.as_slice() else {
+            let Some((target, target_batch_slot)) = unique_instance_target(
+                selected,
+                class.as_ref(),
+                need.selector.as_ref(),
+                need.arity,
+            ) else {
                 continue;
             };
-            let Some(signature) = signatures.row(*target_batch_slot) else {
+            let Some(signature) = signatures.row(target_batch_slot) else {
                 continue;
             };
             if signature.mode()
@@ -214,8 +200,8 @@ impl OrdinaryNewClaimLedgerV1 {
                             call_site,
                             receiver_site: need.receiver_site,
                             receiver_binding: need.receiver_binding,
-                            target: target.clone(),
-                            target_batch_slot: *target_batch_slot,
+                            target,
+                            target_batch_slot,
                         },
                     ),
                 )
@@ -243,11 +229,25 @@ impl OrdinaryNewClaimLedgerV1 {
         need: &LexicalInstanceCallNeedV1,
         index: u32,
     ) -> Result<Option<Box<str>>, String> {
+        self.parameter_class(batch, selected, need.callee_slot, index, 0)
+    }
+
+    /// The `prove_parameter_class` join keyed on the containing function's
+    /// batch slot instead of a call-site need, so initializer-call receiver
+    /// bindings can reuse the same caller-edge proof.
+    fn parameter_class(
+        &self,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        callee_slot: u32,
+        index: u32,
+        depth: u32,
+    ) -> Result<Option<Box<str>>, String> {
         let Some(callee_key) = selected.keys().find_map(|selected_key| {
             let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
                 return None;
             };
-            (selected.batch_slot(selected_key) == Some(need.callee_slot)).then(|| key.clone())
+            (selected.batch_slot(selected_key) == Some(callee_slot)).then(|| key.clone())
         }) else {
             return Ok(None);
         };
@@ -274,7 +274,7 @@ impl OrdinaryNewClaimLedgerV1 {
         for declaration in batch.declarations() {
             let slot = declaration.batch_slot();
             let edge_proven = batch
-                .with_lowering_input(slot, |input| {
+                .with_lowering_input(slot, |input| -> Result<bool, String> {
                     let owner = input.owner();
                     for (_site, call) in input.function().method_calls() {
                         if call.selector() != callee_key.name()
@@ -296,12 +296,12 @@ impl OrdinaryNewClaimLedgerV1 {
                                     .iter()
                                     .find(|argument| argument.ordinal() == index)
                                 else {
-                                    return false;
+                                    return Ok(false);
                                 };
                                 let Some(ResolvedLexicalRefV1::Local(argument_binding)) =
                                     input.function().variable_ref(argument.site())
                                 else {
-                                    return false;
+                                    return Ok(false);
                                 };
                                 if argument_binding.owner() != owner
                                     || input.function().assignment_targets().any(|(_, target)| {
@@ -312,7 +312,7 @@ impl OrdinaryNewClaimLedgerV1 {
                                         )
                                     })
                                 {
-                                    return false;
+                                    return Ok(false);
                                 }
                                 let mut initializers = input
                                     .function()
@@ -322,25 +322,27 @@ impl OrdinaryNewClaimLedgerV1 {
                                         initializer.binding() == argument_binding
                                     });
                                 let Some(initializer) = initializers.next() else {
-                                    return false;
+                                    return Ok(false);
                                 };
                                 if initializers.next().is_some() {
-                                    return false;
+                                    return Ok(false);
                                 }
                                 let Some(initializer_site) = initializer.initializer_site()
                                 else {
-                                    return false;
+                                    return Ok(false);
                                 };
                                 self.initializer_class(
+                                    batch,
                                     selected,
                                     slot,
                                     owner,
                                     input,
                                     initializer_site,
-                                )
+                                    depth + 1,
+                                )?
                             }
                         }) else {
-                            return false;
+                            return Ok(false);
                         };
                         let class: Box<str> = class;
                         if !self
@@ -348,13 +350,13 @@ impl OrdinaryNewClaimLedgerV1 {
                             .iter()
                             .any(|name| name.as_ref() == class.as_ref())
                         {
-                            return false;
+                            return Ok(false);
                         }
                         classes.insert(class);
                     }
-                    true
+                    Ok(true)
                 })
-                .map_err(|_| freeze("lexical-instance-call/batch-loan"))?;
+                .map_err(|_| freeze("lexical-instance-call/batch-loan"))??;
             if !edge_proven {
                 return Ok(None);
             }
@@ -367,9 +369,11 @@ impl OrdinaryNewClaimLedgerV1 {
 
     /// Prove one claim-local receiver's class from its sole initializer
     /// inside the callee itself: an ordinary-new claim (`local x = new
-    /// C()`) or a `me.f` field read whose field carries a field-write
+    /// C()`), a `me.f` field read whose field carries a field-write
     /// claim (`local x = me.f` where `me.f = new C()` in birth and no
-    /// other write anywhere stores another shape).
+    /// other write anywhere stores another shape), or a method call
+    /// whose proven receiver's callee carries a uniform `return new C`
+    /// result claim (`local x = builder.make(...)`).
     fn claim_local_class(
         &self,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -377,32 +381,46 @@ impl OrdinaryNewClaimLedgerV1 {
         need: &LexicalInstanceCallNeedV1,
     ) -> Result<Option<Box<str>>, String> {
         batch
-            .with_lowering_input(need.callee_slot, |input| {
+            .with_lowering_input(need.callee_slot, |input| -> Result<Option<Box<str>>, String> {
                 if input.owner() != need.owner {
-                    return None;
+                    return Ok(None);
                 }
                 let mut initializers = input
                     .function()
                     .expression_source()
                     .initializers()
                     .filter(|initializer| initializer.binding() == need.receiver_binding);
-                let initializer = initializers.next()?;
+                let Some(initializer) = initializers.next() else {
+                    return Ok(None);
+                };
                 if initializers.next().is_some() {
-                    return None;
+                    return Ok(None);
                 }
-                let initializer_site = initializer.initializer_site()?;
-                let class =
-                    self.initializer_class(selected, need.callee_slot, need.owner, input, initializer_site)?;
+                let Some(initializer_site) = initializer.initializer_site() else {
+                    return Ok(None);
+                };
+                let Some(class) = self.initializer_class(
+                    batch,
+                    selected,
+                    need.callee_slot,
+                    need.owner,
+                    input,
+                    initializer_site,
+                    0,
+                )?
+                else {
+                    return Ok(None);
+                };
                 if !self
                     .ordinary_box_names
                     .iter()
                     .any(|name| name.as_ref() == class.as_ref())
                 {
-                    return None;
+                    return Ok(None);
                 }
-                Some(class)
+                Ok(Some(class))
             })
-            .map_err(|_| freeze("lexical-instance-call/batch-loan"))
+            .map_err(|_| freeze("lexical-instance-call/batch-loan"))?
     }
 
     /// Class provenance for one sole-initializer expression site inside
@@ -410,49 +428,173 @@ impl OrdinaryNewClaimLedgerV1 {
     /// claim; `local x = me.f` carries the field-write claim sealed for
     /// (`owner_box`, `f`) — `me` must resolve to this function's lexical
     /// receiver binding and the function must be an `InstanceBoxMethod`
-    /// so its selected key names the owning box. Anything else (call
-    /// results, literals, arithmetic, unknown receivers) proves nothing.
+    /// so its selected key names the owning box; `local x = recv.m(...)`
+    /// carries the callee's result-class claim when `recv`'s binding
+    /// resolves to a proven class and `m` uniquely selects an
+    /// `InstanceBoxMethod` that returns `new` of one class on every
+    /// path. Anything else (literals, arithmetic, unknown receivers)
+    /// proves nothing.
     fn initializer_class(
         &self,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         batch_slot: u32,
         owner: FunctionOwnerIdV1,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         initializer_site: &SourceExprSiteV1,
-    ) -> Option<Box<str>> {
+        depth: u32,
+    ) -> Result<Option<Box<str>>, String> {
+        // Provenance chains cross functions through caller edges; mutually
+        // recursive callables could loop this join forever, so the walk
+        // gives up past a bounded depth and simply proves nothing.
+        if depth > MAX_PROVENANCE_DEPTH {
+            return Ok(None);
+        }
         if let Some(claim) = self
             .claims
             .borrow()
             .get(&OwnedExprSiteV1::new(owner, initializer_site.clone()))
         {
-            return Some(claim.class().into());
+            return Ok(Some(claim.class().into()));
         }
-        let shape = input.body_shape()?;
-        let BodyExpressionShapeV1::FieldAccess { object, field, .. } =
-            shape.expression_shape(initializer_site)?
-        else {
-            return None;
+        let Some(shape) = input.body_shape() else {
+            return Ok(None);
         };
-        let Some(BodyExpressionShapeV1::Me {
-            receiver: BodyMeReceiverV1::Lexical(receiver),
-            ..
-        }) = shape.expression_shape(object)
-        else {
-            return None;
-        };
-        if input.function().binding(*receiver)?.kind() != BindingKindV1::Receiver {
-            return None;
+        match shape.expression_shape(initializer_site) {
+            Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) => {
+                let Some(BodyExpressionShapeV1::Me {
+                    receiver: BodyMeReceiverV1::Lexical(receiver),
+                    ..
+                }) = shape.expression_shape(object)
+                else {
+                    return Ok(None);
+                };
+                if input
+                    .function()
+                    .binding(*receiver)
+                    .is_none_or(|record| record.kind() != BindingKindV1::Receiver)
+                {
+                    return Ok(None);
+                }
+                let Some(owner_box) = selected.keys().find_map(|selected_key| {
+                    let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
+                        return None;
+                    };
+                    (key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
+                        && selected.batch_slot(selected_key) == Some(batch_slot))
+                    .then(|| key.owner())
+                }) else {
+                    return Ok(None);
+                };
+                Ok(self
+                    .field_write_claim(owner_box, field.as_ref())
+                    .map(|class| class.into()))
+            }
+            Some(BodyExpressionShapeV1::MethodCall {
+                object, method, arity, ..
+            }) => {
+                let Some(ResolvedLexicalRefV1::Local(receiver_binding)) =
+                    input.function().variable_ref(object)
+                else {
+                    return Ok(None);
+                };
+                if receiver_binding.owner() != owner {
+                    return Ok(None);
+                }
+                let Some(receiver_class) = self.binding_class(
+                    batch,
+                    selected,
+                    batch_slot,
+                    owner,
+                    input,
+                    receiver_binding,
+                    depth,
+                )?
+                else {
+                    return Ok(None);
+                };
+                let Some((key, _)) = unique_instance_target(
+                    selected,
+                    receiver_class.as_ref(),
+                    method.as_ref(),
+                    *arity,
+                ) else {
+                    return Ok(None);
+                };
+                Ok(self
+                    .callable_result_class(&key)
+                    .map(|class| class.into()))
+            }
+            _ => Ok(None),
         }
-        let owner_box = selected.keys().find_map(|selected_key| {
-            let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
-                return None;
-            };
-            (key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
-                && selected.batch_slot(selected_key) == Some(batch_slot))
-            .then(|| key.owner())
-        })?;
-        self.field_write_claim(owner_box, field.as_ref())
-            .map(|class| class.into())
+    }
+
+    /// Class provenance for one lexical binding inside the containing
+    /// function: a parameter proven by the universal caller-edge join,
+    /// or a local proven by its sole initializer. Rebound bindings and
+    /// non-lexical kinds prove nothing.
+    fn binding_class(
+        &self,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        batch_slot: u32,
+        owner: FunctionOwnerIdV1,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        binding: BindingRefV1,
+        depth: u32,
+    ) -> Result<Option<Box<str>>, String> {
+        if binding.owner() != owner
+            || input.function().assignment_targets().any(|(_, target)| {
+                matches!(
+                    target,
+                    ResolvedAssignmentTargetV1::BindingRebind(rebound) if *rebound == binding
+                )
+            })
+        {
+            return Ok(None);
+        }
+        let Some(record) = input.function().binding(binding) else {
+            return Ok(None);
+        };
+        match record.kind() {
+            BindingKindV1::Parameter { index } => {
+                self.parameter_class(batch, selected, batch_slot, index, depth + 1)
+            }
+            BindingKindV1::Local { .. } => {
+                let mut initializers = input
+                    .function()
+                    .expression_source()
+                    .initializers()
+                    .filter(|initializer| initializer.binding() == binding);
+                let Some(initializer) = initializers.next() else {
+                    return Ok(None);
+                };
+                if initializers.next().is_some() {
+                    return Ok(None);
+                }
+                let Some(initializer_site) = initializer.initializer_site() else {
+                    return Ok(None);
+                };
+                let Some(class) = self.initializer_class(
+                    batch,
+                    selected,
+                    batch_slot,
+                    owner,
+                    input,
+                    initializer_site,
+                    depth + 1,
+                )?
+                else {
+                    return Ok(None);
+                };
+                Ok(self
+                    .ordinary_box_names
+                    .iter()
+                    .any(|name| name.as_ref() == class.as_ref())
+                    .then_some(class))
+            }
+            _ => Ok(None),
+        }
     }
 
     /// Whether a lexical instance-call row is still armed for one exact call
@@ -489,6 +631,42 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 }
+
+/// The unique selected `InstanceBoxMethod` target for
+/// (`owner_box`, `selector`, `arity`), when exactly one exists.
+fn unique_instance_target(
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    owner: &str,
+    selector: &str,
+    arity: u32,
+) -> Option<(CanonicalSameModuleCallableKeyV1, u32)> {
+    let matches = selected
+        .keys()
+        .filter_map(|selected_key| {
+            let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
+                return None;
+            };
+            (key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
+                && key.owner() == owner
+                && key.name() == selector
+                && key.arity() == arity)
+                .then(|| {
+                    selected
+                        .batch_slot(selected_key)
+                        .map(|slot| (key.clone(), slot))
+                })
+                .flatten()
+        })
+        .collect::<Vec<_>>();
+    let [pair] = matches.as_slice() else {
+        return None;
+    };
+    Some(pair.clone())
+}
+
+/// Provenance chains through caller edges could loop on mutually
+/// recursive callables; the join simply proves nothing past this depth.
+const MAX_PROVENANCE_DEPTH: u32 = 16;
 
 fn freeze(reason: &str) -> String {
     format!("[freeze:contract][ordinary-new/{reason}]")

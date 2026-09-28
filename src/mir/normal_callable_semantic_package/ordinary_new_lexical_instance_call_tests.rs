@@ -417,6 +417,232 @@ static box Main {
     assert_eq!(row.target().name(), "seal");
 }
 
+/// Call-result receiver proven through the callee's result-class claim:
+/// `node` is initialized by `maker.make(i)`, `maker` resolves to
+/// `TreeMaker` through the parameter edge (`me.go(maker)` passes a
+/// field-read local proven by `me.maker = new TreeMaker()`), and
+/// `TreeMaker.make/1` constructs `new TreeNode` on every `return`, so
+/// `node.check()` arms.
+#[test]
+fn lexical_instance_call_arms_call_result_receiver_with_result_class() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        r#"
+box TreeNode {
+    init { v }
+    birth(v) { me.v = v }
+    check(): i64 { return 1 }
+}
+box TreeMaker {
+    birth() { }
+    make(i) { return new TreeNode(i) }
+}
+box Driver {
+    init { maker }
+    birth() { me.maker = new TreeMaker() }
+    go(maker): i64 {
+        local i = 0
+        local out = 0
+        loop(i < 2) {
+            local node = maker.make(i)
+            local v = node.check()
+            out = out + v
+            i = i + 1
+        }
+        return out
+    }
+    run(): i64 {
+        local maker = me.maker
+        return me.go(maker)
+    }
+}
+static box Main {
+    main() {
+        local d = new Driver()
+        return d.run()
+    }
+}
+"#,
+    )
+    .expect("call-result receiver source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let (owner, site) = call_site_of(&package, "check");
+    let row = ledger
+        .take_lexical_instance_call(owner, &site)
+        .expect("take armed row")
+        .expect("call-result receiver disposition row");
+    assert_eq!(row.target().owner(), "TreeNode");
+    assert_eq!(row.target().name(), "check");
+}
+
+/// A callee whose `return` paths disagree on the constructed class
+/// carries no result-class claim, so the call-result receiver stays
+/// unarmed.
+#[test]
+fn lexical_instance_call_vetoes_mixed_return_classes() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        r#"
+box TreeNode {
+    init { v }
+    birth(v) { me.v = v }
+    check(): i64 { return 1 }
+}
+box OtherNode {
+    init { v }
+    birth(v) { me.v = v }
+    check(): i64 { return 2 }
+}
+box TreeMaker {
+    birth() { }
+    make(i) {
+        if i == 0 {
+            return new TreeNode(i)
+        }
+        return new OtherNode(i)
+    }
+}
+box Driver {
+    init { maker }
+    birth() { me.maker = new TreeMaker() }
+    go(maker): i64 {
+        local i = 0
+        local out = 0
+        loop(i < 2) {
+            local node = maker.make(i)
+            local v = node.check()
+            out = out + v
+            i = i + 1
+        }
+        return out
+    }
+    run(): i64 {
+        local maker = me.maker
+        return me.go(maker)
+    }
+}
+static box Main {
+    main() {
+        local d = new Driver()
+        return d.run()
+    }
+}
+"#,
+    )
+    .expect("mixed return source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let (owner, site) = call_site_of(&package, "check");
+    assert!(
+        !ledger.lexical_instance_call_covered(owner, &site),
+        "mixed return classes must veto the result-class claim"
+    );
+}
+
+/// A callee with no `return` at all (`make` only stores a marker)
+/// carries no result-class claim, so the call-result receiver stays
+/// unarmed.
+#[test]
+fn lexical_instance_call_keeps_fallthrough_result_unarmed() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        r#"
+box TreeNode {
+    init { v }
+    birth(v) { me.v = v }
+    check(): i64 { return 1 }
+}
+box TreeMaker {
+    birth() { }
+    make(i) {
+        local marker = i
+    }
+}
+box Driver {
+    init { maker }
+    birth() { me.maker = new TreeMaker() }
+    go(maker): i64 {
+        local i = 0
+        local out = 0
+        loop(i < 2) {
+            local node = maker.make(i)
+            local v = node.check()
+            out = out + v
+            i = i + 1
+        }
+        return out
+    }
+    run(): i64 {
+        local maker = me.maker
+        return me.go(maker)
+    }
+}
+static box Main {
+    main() {
+        local d = new Driver()
+        return d.run()
+    }
+}
+"#,
+    )
+    .expect("fallthrough result source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let (owner, site) = call_site_of(&package, "check");
+    assert!(
+        !ledger.lexical_instance_call_covered(owner, &site),
+        "a fall-through ending must veto the result-class claim"
+    );
+}
+
+/// A callee whose `return` value is not a `new` construction carries no
+/// result-class claim, so the call-result receiver stays unarmed even
+/// though the receiver parameter itself is proven.
+#[test]
+fn lexical_instance_call_keeps_non_new_return_unarmed() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        r#"
+box TreeNode {
+    init { v }
+    birth(v) { me.v = v }
+    check(): i64 { return 1 }
+}
+box TreeMaker {
+    init { spare }
+    birth() { me.spare = new TreeNode(0) }
+    make(i) { return me.spare }
+}
+box Driver {
+    init { maker }
+    birth() { me.maker = new TreeMaker() }
+    go(maker): i64 {
+        local i = 0
+        local out = 0
+        loop(i < 2) {
+            local node = maker.make(i)
+            local v = node.check()
+            out = out + v
+            i = i + 1
+        }
+        return out
+    }
+    run(): i64 {
+        local maker = me.maker
+        return me.go(maker)
+    }
+}
+static box Main {
+    main() {
+        local d = new Driver()
+        return d.run()
+    }
+}
+"#,
+    )
+    .expect("non-new return source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let (owner, site) = call_site_of(&package, "check");
+    assert!(
+        !ledger.lexical_instance_call_covered(owner, &site),
+        "a non-new return value must veto the result-class claim"
+    );
+}
+
 /// A field written with a non-`new` value carries no class claim:
 /// `me.inner = 7` vetoes `inner`, so the loop call stays unarmed.
 #[test]
