@@ -454,8 +454,8 @@ static int compile_json_public_generic_options(
       "pure-first",
       "none",
       hako_llvmc_generic_compat_opt_level(),
-      hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt", "opt-18"),
-      hako_llvmc_resolve_tool("NYASH_NY_LLVM_LLC_TOOL", "llc", "llc-18"),
+      hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt-18", "opt"),
+      hako_llvmc_resolve_tool("NYASH_NY_LLVM_LLC_TOOL", "llc-18", "llc"),
       hako_llvmc_llc_flags(),
       NULL,
   };

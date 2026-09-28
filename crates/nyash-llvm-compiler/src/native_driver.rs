@@ -53,14 +53,24 @@ fn compile_ir_to_object(ir: &str, out: &Path) -> Result<()> {
     Ok(())
 }
 
-fn resolve_llc() -> Option<&'static str> {
-    ["llc", "llc-18"].into_iter().find(|candidate| {
-        Command::new(candidate)
-            .arg("--version")
-            .output()
-            .map(|output| output.status.success())
-            .unwrap_or(false)
-    })
+fn resolve_llc() -> Option<String> {
+    if let Ok(configured) = std::env::var("NYASH_NY_LLVM_LLC_TOOL") {
+        if !configured.is_empty() && tool_runs(&configured) {
+            return Some(configured);
+        }
+    }
+    ["llc-18", "llc"]
+        .into_iter()
+        .find(|candidate| tool_runs(candidate))
+        .map(str::to_string)
+}
+
+fn tool_runs(candidate: &str) -> bool {
+    Command::new(candidate)
+        .arg("--version")
+        .output()
+        .map(|output| output.status.success())
+        .unwrap_or(false)
 }
 
 fn temporary_ll_path(out: &Path) -> PathBuf {

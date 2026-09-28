@@ -130,9 +130,18 @@ are exported as `opt-18`/`llc-18` when the caller left them unset and
 the versioned binaries resolve on PATH, so a PATH whose plain `opt`
 predates opaque pointers no longer fails the baseline and K2 steps.
 A plain `bash tools/checks/dev_gate.sh quick` re-run after this change
-passes 67/67 (281s) on this checkout; the only remaining host dependency
-is a `python3` with `llvmlite` for the `llvm_py` unittest step (this
-mount uses `/tmp/llvm-py-venv`, the checkout `.venv` is non-portable).
+passes 67/67 (281s) on this checkout.
+
+Follow-up (llvmlite host dependency): the quick step is now
+`tools/checks/llvm_py_keep_lane_probe.sh` — it resolves the keep-lane
+coverage through the first interpreter that imports llvmlite
+(`python3`, the checkout `.venv`, then `uv run --with llvmlite==0.47.0
+--no-project`, which matches the LLVM 18 profile), and reports a typed
+`SKIP` when none does. This keeps `test_strlen_fast.py` (a frozen
+`retain_keep` root in the G3 keep0 inventory) covered wherever
+obtainable while making the daily gate carry zero hard llvmlite
+dependency — consistent with the G2/AUTO0 direction. `dev_gate quick`
+runs fully self-contained on this mount: no manual venv PATH needed.
 
 ## P3 — frozen docs set
 

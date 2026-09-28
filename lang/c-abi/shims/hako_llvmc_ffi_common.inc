@@ -492,10 +492,10 @@ static int hako_llvmc_mem2reg_canonicalize_and_llc(
 
   opt_tool = hako_llvmc_physical_options_is_explicit(options)
       ? hako_llvmc_resolve_explicit_tool(options, 1)
-      : hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt", "opt-18");
+      : hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt-18", "opt");
   llc_tool = hako_llvmc_physical_options_is_explicit(options)
       ? hako_llvmc_resolve_explicit_tool(options, 0)
-      : hako_llvmc_resolve_tool("NYASH_NY_LLVM_LLC_TOOL", "llc", "llc-18");
+      : hako_llvmc_resolve_tool("NYASH_NY_LLVM_LLC_TOOL", "llc-18", "llc");
   llc_flags = hako_llvmc_llc_flags_for(options);
   opt_passes = hako_llvmc_mem2reg_opt_passes(options);
   if (!opt_tool) {

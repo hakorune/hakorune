@@ -2,24 +2,32 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-fn resolve_llc_tool() -> Option<&'static str> {
-    ["llc", "llc-18"].into_iter().find(|candidate| {
-        Command::new(candidate)
-            .arg("--version")
-            .output()
-            .map(|output| output.status.success())
-            .unwrap_or(false)
-    })
+fn tool_runs(candidate: &str) -> bool {
+    Command::new(candidate)
+        .arg("--version")
+        .output()
+        .map(|output| output.status.success())
+        .unwrap_or(false)
 }
 
-fn resolve_opt_tool() -> Option<&'static str> {
-    ["opt", "opt-18"].into_iter().find(|candidate| {
-        Command::new(candidate)
-            .arg("--version")
-            .output()
-            .map(|output| output.status.success())
-            .unwrap_or(false)
-    })
+fn resolve_tool(env_key: &str, primary: &'static str, fallback: &'static str) -> Option<String> {
+    if let Ok(configured) = std::env::var(env_key) {
+        if !configured.is_empty() && tool_runs(&configured) {
+            return Some(configured);
+        }
+    }
+    [primary, fallback]
+        .into_iter()
+        .find(|candidate| tool_runs(candidate))
+        .map(str::to_string)
+}
+
+fn resolve_llc_tool() -> Option<String> {
+    resolve_tool("NYASH_NY_LLVM_LLC_TOOL", "llc-18", "llc")
+}
+
+fn resolve_opt_tool() -> Option<String> {
+    resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt-18", "opt")
 }
 
 pub(crate) fn temporary_ll_output_path(out_path: &Path, lane_tag: &str) -> PathBuf {

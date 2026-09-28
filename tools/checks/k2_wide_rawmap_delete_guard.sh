@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
+source "$ROOT_DIR/tools/checks/lib/llvmlite_python.sh"
 
 RUST_TESTS=(
   delete_raw_alias_keeps_contract
@@ -29,7 +30,13 @@ for test_name in "${RUST_TESTS[@]}"; do
 done
 
 echo "[k2-wide-rawmap-delete] --- Python lowering lock ---"
-env PYTHONPATH=src/llvm_py:src python3 -m unittest "${PYTHON_TESTS[@]}"
+rc=0
+PYTHONPATH=src/llvm_py:src llvmlite_python -m unittest "${PYTHON_TESTS[@]}" || rc=$?
+case "$rc" in
+  0) ;;
+  127) echo "[k2-wide-rawmap-delete] SKIP: no interpreter provides llvmlite; python keep-lane pack deferred" ;;
+  *) exit "$rc" ;;
+esac
 
 echo "[k2-wide-rawmap-delete] --- route lock ---"
 rg -F -q 'pub(super) fn map_slot_delete_any(handle: i64, key_any: i64) -> i64' "$MAP_SLOT_MUTATE_FILE"

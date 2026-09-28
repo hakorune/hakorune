@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
+source "$ROOT_DIR/tools/checks/lib/llvmlite_python.sh"
 
 TESTS=(
   runtime_data_invalid_handle_returns_zero
@@ -37,6 +38,12 @@ for test_name in "${TESTS[@]}"; do
 done
 
 echo "[k2-core-rawarray-acceptance] --- Python lowering/manifest drift pack ---"
-env PYTHONPATH=src/llvm_py:src python3 -m unittest "${PYTHON_TESTS[@]}"
+rc=0
+PYTHONPATH=src/llvm_py:src llvmlite_python -m unittest "${PYTHON_TESTS[@]}" || rc=$?
+case "$rc" in
+  0) ;;
+  127) echo "[k2-core-rawarray-acceptance] SKIP: no interpreter provides llvmlite; python keep-lane pack deferred" ;;
+  *) exit "$rc" ;;
+esac
 
 echo "[k2-core-rawarray-acceptance] ok"

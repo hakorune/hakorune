@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT_DIR"
+source "$ROOT_DIR/tools/checks/lib/llvmlite_python.sh"
 
 RUST_TESTS=(
   runtime_data_map_get_keeps_mixed_runtime_i64_contract
@@ -30,7 +31,13 @@ for test_name in "${RUST_TESTS[@]}"; do
 done
 
 echo "[k2-wide-rawmap-first-slice] --- Python lowering lock ---"
-env PYTHONPATH=src/llvm_py:src python3 -m unittest "${PYTHON_TESTS[@]}"
+rc=0
+PYTHONPATH=src/llvm_py:src llvmlite_python -m unittest "${PYTHON_TESTS[@]}" || rc=$?
+case "$rc" in
+  0) ;;
+  127) echo "[k2-wide-rawmap-first-slice] SKIP: no interpreter provides llvmlite; python keep-lane pack deferred" ;;
+  *) exit "$rc" ;;
+esac
 
 echo "[k2-wide-rawmap-first-slice] --- ABI/substrate route lock ---"
 rg -zq 'MapBox",\s*"get".*nyash\.map\.slot_load_hh' "$GENERATED_DEFAULTS_FILE"

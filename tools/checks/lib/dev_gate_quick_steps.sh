@@ -41,7 +41,7 @@ dev_gate_script_step "route no-fallback guard" tools/checks/route_no_fallback_gu
 dev_gate_group_label "build and ABI drift"
 dev_gate_cmd_step "cargo check" "cargo check --bin hakorune" cargo check --bin hakorune
 dev_gate_cmd_step "ABI/decl codegen drift guard" "python3 tools/abi_manifest_codegen.py --check && python3 tools/backend_runtime_decl_manifest_codegen.py --check && python3 tools/backend_static_data_manifest_codegen.py --check" bash -lc 'python3 tools/abi_manifest_codegen.py --check && python3 tools/backend_runtime_decl_manifest_codegen.py --check && python3 tools/backend_static_data_manifest_codegen.py --check'
-dev_gate_cmd_step "llvm_py unittest (strlen_fast)" "PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py" env PYTHONPATH=src/llvm_py:. python3 -m unittest src/llvm_py/tests/test_strlen_fast.py
+dev_gate_script_step "llvm_py keep-lane unittest (strlen_fast)" tools/checks/llvm_py_keep_lane_probe.sh
 dev_gate_group_label "K2 memory and concurrency first rows"
 dev_gate_script_step "K2-core RawArray acceptance guard" tools/checks/k2_core_rawarray_acceptance_guard.sh
 dev_gate_script_step "K2-wide RawBuf first-row guard" tools/checks/k2_wide_rawbuf_first_row_guard.sh

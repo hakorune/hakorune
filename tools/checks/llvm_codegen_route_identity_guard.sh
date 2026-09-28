@@ -88,7 +88,9 @@ boundary_line="$(rg -n 'route::try_compile_via_boundary_default' "$ROUTE_ENTRY" 
 
 # Pin the typed request boundary, not descriptive names or ambient provider
 # labels. The caller-zero ny-llvmc provider helper must not re-enter here.
-need_fixed "$ROUTE" 'CodegenRouteRequestV1::ExplicitHarnessCompat => mir_json_to_object_llvmlite' \
+need_fixed "$ROUTE" 'CodegenRouteRequestV1::ExplicitHarnessCompat =>' \
+  "explicit llvmlite request arm missing"
+need_fixed "$ROUTE" 'mir_json_to_object_llvmlite(mir_json, opts).map(Some)' \
   "explicit llvmlite request route missing"
 need_fixed "$ROUTE" 'CodegenRouteRequestV1::BoundaryPureFirst => Ok(None)' \
   "Boundary request must not enter the explicit provider keep"
@@ -209,7 +211,7 @@ need_fixed "$CAPI_ROUTE" 'compile_json_public_generic_options' \
   "public Generic options bridge missing"
 need_fixed "$CAPI_ROUTE" 'HAKO_LLVMC_PHYSICAL_PROFILE_GENERIC_COMPAT' \
   "public Generic profile-0 bridge missing"
-need_fixed "$CAPI_ROUTE" 'hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt", "opt-18")' \
+need_fixed "$CAPI_ROUTE" 'hako_llvmc_resolve_tool("NYASH_NY_LLVM_OPT_TOOL", "opt-18", "opt")' \
   "public Generic opt-tool capture missing"
 need_fixed "$CAPI_ROUTE" 'hako_llvmc_llc_flags()' \
   "public Generic llc-flag capture missing"
