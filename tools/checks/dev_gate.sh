@@ -39,6 +39,18 @@ else
 fi
 export CARGO_BUILD_JOBS="$requested_cargo_jobs"
 
+# The recorded toolchain profile is LLVM 18: the K2 guards and the
+# cargo-lib baseline emit opaque-pointer IR. Respect an explicit caller
+# choice; otherwise prefer opt-18/llc-18 when they resolve, so a PATH
+# whose plain `opt`/`llc` predates opaque pointers is not silently
+# selected (the harness resolves env -> "opt" -> "opt-18").
+if [[ -z "${NYASH_NY_LLVM_OPT_TOOL:-}" ]] && command -v opt-18 >/dev/null 2>&1; then
+  export NYASH_NY_LLVM_OPT_TOOL="opt-18"
+fi
+if [[ -z "${NYASH_NY_LLVM_LLC_TOOL:-}" ]] && command -v llc-18 >/dev/null 2>&1; then
+  export NYASH_NY_LLVM_LLC_TOOL="llc-18"
+fi
+
 source "${ROOT_DIR}/tools/lib/ffi_contract.sh"
 source "${ROOT_DIR}/tools/checks/lib/dev_gate_group.sh"
 DEV_GATE_QUICK_STEPS="${ROOT_DIR}/tools/checks/lib/dev_gate_quick_steps.sh"

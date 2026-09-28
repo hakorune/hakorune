@@ -124,6 +124,16 @@ explicit-extern resolved relation, so `externcall` freezes
 `[explicit-extern/missing-resolved-relation]`. Repairing that lane is a
 MirBuilder design slice, not hygiene.
 
+Follow-up (same day): `dev_gate.sh` now self-defaults the recorded
+LLVM 18 tool profile — `NYASH_NY_LLVM_OPT_TOOL`/`NYASH_NY_LLVM_LLC_TOOL`
+are exported as `opt-18`/`llc-18` when the caller left them unset and
+the versioned binaries resolve on PATH, so a PATH whose plain `opt`
+predates opaque pointers no longer fails the baseline and K2 steps.
+A plain `bash tools/checks/dev_gate.sh quick` re-run after this change
+passes 67/67 (281s) on this checkout; the only remaining host dependency
+is a `python3` with `llvmlite` for the `llvm_py` unittest step (this
+mount uses `/tmp/llvm-py-venv`, the checkout `.venv` is non-portable).
+
 ## P3 — frozen docs set
 
 final-pipeline SSOT (frozen 09-12) and R7 cards (frozen 09-14) docs-batch
