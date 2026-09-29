@@ -1,10 +1,10 @@
 date = "2026-09-29"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-D0"
+current_execution_row = "MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
-current_design_stop = "none — constructor-argument evidence S0 landed; mixed null/new result ABI D0 is the next design row"
+current_design_stop = "none — mixed null/new result ABI D0 accepted; S0 lands the NullableObject claim arm + explicit null retention"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,16 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-Constructor-argument evidence S0 landed: Null and proven-i64
-field-read argument arms observe -> claim -> materialize through the
-existing owner; call-result arguments keep BoundValue provenance; the
-all-exits gate still defers emission on the real mimalloc sites. Focused
-9/9; three broader failures are pinned baseline debt. Mixed null/new
-result ABI is the next design row.
+Mixed null/new result ABI D0 accepted: the sole result-class issuer gains
+a NullableObject arm for `return new`/`return null`-only callees and
+NullLiteral terminal relations are retained explicitly; census corrected
+the waiting-callee shape (forwarded exits, named as a successor contract).
+S0 is claim issuance only — no observation, emission, or EXE change.
 """
-next_design_card = "MIRBUILDER-GATE1-RECEIVER-FIELD-WRITE-COVERAGE-D0 (receiver field-write statement coverage for me.f = e)"
+next_design_card = "MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-COMPOSITION-D0 (return <call>/<local> class forwarding)"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-D0"
+next_execution_card = "MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -42,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-29: MIXED-NULL-NEW-RESULT-ABI-D0 accepted — NullableObject claim arm + explicit NullLiteral retention through the sole result-class issuer; waiting callees corrected to forwarded-exit shape (successor D0 named); direct_call_lifecycle 788-line overage recorded as BoxShape blocker. Next: MIXED-NULL-NEW-RESULT-ABI-S0.",
   "2026-09-29: CONSTRUCTOR-ARGUMENT-EVIDENCE-S0 landed — Null + proven-i64 field-read argument arms through observe -> claim -> materialize; readiness probe uses the same issuer predicates (circular gate fixed); real-site frontier measured on page_heap_box; focused 9/9, three broader failures are baseline debt. Next: MIXED-NULL-NEW-RESULT-ABI-D0.",
   "2026-09-29: CONSTRUCTOR-ARGUMENT-EVIDENCE-D0 accepted — grammar gains Null literal + proven-i64 field-read arms (candidate or entry-loan receiver class proof); call-result args keep BoundValue; mixed null/new result ABI named as the next design row; selected.rs argument materialization splits to selected/arguments.rs in S0.",
-  "2026-09-29: PER-EXIT-HOME-FLOW-S0 landed — site-keyed RootHomeFlow/exits, If fork/join walks, (owner,site) terminal consumption, all-exits-ready lifecycle gating; focused set matches detached-HEAD baseline; no EXE claim.",
 ]

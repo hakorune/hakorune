@@ -1,6 +1,6 @@
 # MirBuilder Gate 1 — current design and acceptance
 
-Status: constructor-argument evidence S0 landed; mixed null/new result ABI D0 is next
+Status: mixed null/new result ABI D0 accepted (NullableObject claim arm + explicit null retention); S0 claim slice is next
 Date: 2026-09-29
 Scope: MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0; compact Gate-1 frontier.
 Related: CURRENT_STATE.toml; workstream row H; RULES.md;
@@ -702,6 +702,89 @@ library source; the probe was removed after recording. The remaining
 Next design row: `MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-D0` —
 nullable-handle result claims for mixed `return new`/`return null`
 callees, per the contract named above.
+
+## Accepted — MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-D0
+
+Census basis: one read-only worker census integrated with owner reading,
+covering `callable_result_class` issuance
+(`ordinary_new_result_class_claim.rs:29-108`,
+`ordinary_new_coseal_issue.rs:634-679`), `retain_child_terminal_relation`
+(`ordinary_new_coseal_helpers.rs:87-106`), `call_result_kind` /
+`uniform_call_result_kind`
+(`direct_call_lifecycle.rs:140-181`), `InvokeCallResultKind`
+(`instruction/invoke.rs:34-45`), the `me.`-receiver observation boundary
+(`home_local_call_flow.rs:121-206`), and the two waiting sites
+(`page_heap_box.hako:219,313`). Boundary: claim issuance through
+physical consumers of result class; excludes parameter-binding returns
+and `me.field.m()` member-call chains.
+
+**Corrected census fact:** the named waiting callees are not literal
+mixed-new/null functions. `HakoAllocHeap.allocate` returns forwarded
+calls (`me.small_page.allocate(size)`) plus `null`; `realloc` returns
+`null` ×4 plus locals/parameter-bound values. A grammar of
+`return new C(..)` ∪ `return null` exits covers only the leaf
+`HakoAllocPage.allocate` (:102) — which stays independently blocked by
+uncovered field writes and `me.field.m()` calls — and unblocks no
+waiting site end-to-end. Forwarded-exit claim composition is therefore a
+named successor, not part of this claim's first slice.
+
+```text
+Decision: extend the sole result-class issuer
+  (OrdinaryNewResultClassClaimDraftV1) with a NullableObject(C) claim
+  arm for callees whose exact sealed exits are `return new C(..)` or
+  `return null` only, and retain NullLiteral terminal relations
+  explicitly instead of the silent drop. Forwarded-result composition,
+  me.-receiver call observation, and the nullable physical ABI are
+  separate contracts.
+Source authority + canonical issuer: resolver-sealed body shape +
+  expression_source construction/literal membership inside the existing
+  draft's observe_function; the claim stays keyed by
+  CanonicalSameModuleCallableKeyV1 in callable_result_classes. The
+  retained NullLiteral relation lands in terminal_relation_index through
+  the same completion-seed lane — never a parallel issuer.
+Non-authority: no header annotation claims nullability; Handle keeps its
+  exact owned-transfer meaning — NullableObject never authorizes Handle
+  emission, lifecycle Invoke, or a maybe-null StoredLocal; MIR types,
+  runtime layout and `call_result_kind`'s scalar floor never infer
+  nullability; the generic Call lane does not gain a nullable result.
+Fail-fast boundary: every consumer of callable_result_class
+  (lexical instance call, terminal_call, direct_call_lifecycle
+  construction_result_callee re-check, handle_call) must classify
+  NullableObject as not-Handle — no implicit widening; a callee with any
+  other exit shape keeps no-claim; a retained NullLiteral relation that
+  reaches a uniform-kind check keeps the existing I64 floor only where
+  that floor is already the recorded contract.
+Smallest next slice: MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-S0 —
+  the NullableObject claim arm + explicit NullLiteral retention, co-sealed
+  with per-consumer not-Handle classification so claim issuance cannot
+  leak a wrong verdict. Claim product only; no observation or emission
+  change.
+Non-claims: no forwarded-exit composition (return <call>/<local>/<param>
+  — named MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-COMPOSITION-D0); no
+  me.-receiver LocalCallObservationV1 (named receiver-call contract);
+  no nullable InvokeCallResultKind/StoredLocal/physical projection;
+  no field-write coverage; no EXE or Gate-1 movement.
+```
+
+### Successor contracts named by this decision
+
+- `MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-COMPOSITION-D0`: claim
+  composition for `return <call>` / `return <local bound to such a
+  call>` whose target carries a proven class. Requires per-callee
+  fixpoint order or two-pass composition; `return <param>`
+  (`resizeInPlace` :176) is a third shape and stays out.
+- `MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-D0`: `me.m(..)` local/return
+  call observation over the existing entry-Home loan proof
+  (`entry_receiver_box_proof`), feeding classed results into
+  `StoredLocal`/`LocalCallResultClassV1`. Blocks sites :219/:313.
+- `MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0`: nullable arms in
+  `InvokeCallResultKind`/`LocalCallResultClassV1`/`StoredLocal`, physical
+  projection, verifier and cleanup (null path releases nothing).
+- BoxShape blocker recorded: `direct_call_lifecycle.rs` is 788 lines —
+  over the 760 design line — and must split (result-kind cluster into a
+  sibling) before this family touches it.
+
+Next execution row: `MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-S0`.
 
 ## Preserved contract boundaries
 
