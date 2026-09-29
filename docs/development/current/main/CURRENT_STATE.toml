@@ -1,10 +1,10 @@
 date = "2026-09-29"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Gate1ExeAcceptanceFrontierPause__AllSixRedsAwaitNamedParkedFamilies"
-current_design_stop = "11-entry EXE suite measured at 5/11 under the recorded LLVM 18 profile; every remaining red sits at a recorded designed terminal owned by a named parked or separately-owned family (OWN-FIELD/drop-plan orbit: mimalloc-lite retained return-new claims, boxtorrent-mini field-write new, binary-trees root-call-entry-unavailable; named-array/call-result provenance: allocator-stress; ParkedSealed DeclaredInstance route: json-stream-aggregator; phase-84 baseline: untyped-field-min). MULTI-RETURN-RESULT-NEW-D0 census corrected the scope: instance-method result prefixes stay Err via EntryDemandMissing + PrefixNotCovered, so observation extension alone unblocks nothing. Reopening requires explicit lane selection"
+current_blocker_token = "Gate1InstanceEntryHomeContractAccepted__ImplementationPending"
+current_design_stop = "none for the selected entry-home S0; per-exit Home flow and exit consumption are the next internal D0, not an external parked-family wait"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,31 +17,20 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-EXE-SUITE-ACCEPTANCE-S0 landed: the fixed 11-entry
-real-apps-exe-boundary suite measured under the recorded LLVM 18
-profile at 5 PASS / 6 FAIL, every failure at its recorded designed
-terminal (mimalloc-lite `artifact-unowned-lifecycle-site`,
-boxtorrent `unsupported terminator Invoke`, binary-trees
-`root-call-entry-unavailable`, allocator-stress
-`NamedArray(TextSourceMissing)`, json-stream
-`route-not-front-selected`, untyped-field-min phase-84 panic —
-baseline debt confirmed on parent 31c4bc072e). Two baseline gaps
-repaired in-slice: NewResultCommitV1 completion for retained
-result rows (30ffce464c debt) and explicit-tool LLVM-18-first
-resolution (454e49b755 debt completing cc5928ea2a). Gate 1
-remains unsatisfied. MULTI-RETURN-RESULT-NEW-D0 accepted (row 11):
-the nine retained mimalloc-lite claims mint `SourceMismatch` rows
-because the homes walk only observes `explicit_site()` —
-`ExplicitReturns` yields `None`; nested `if` returns are likewise
-unreachable — and their prefixes stay `Err` via receiver-entry
-`EntryDemandMissing` plus `PrefixNotCovered`, so the true owner is
-the instance-method home-flow coverage family in the parked
-OWN-FIELD orbit. Frontier pause: row 12 awaits explicit selection.
+Entry-home design accepted; implementation pending. The existing Home ABI
+owner will lend current-batch receiver/parameter demands to source Home flow,
+replacing unconditional receiver-presence EntryDemandMissing only for exact
+admitted entries. Results stay unresolved; no complete call-site ABI is issued.
+Next: per-exit Home flow plus source Fault scopes and site-bound exit consumption.
+Gate 1 remains at the recorded 5 PASS / 6 FAIL; not rerun in this design turn.
+Blanket parked attribution is withdrawn: source flow, generic JSON ingress,
+canonical root-me coverage, field destruction and baseline panic are distinct.
+Selected-C and field-destruction lanes remain parked. No semantic code changed.
 """
-next_design_card = "MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-D0"
+next_design_card = "MIRBUILDER-GATE1-PER-EXIT-HOME-FLOW-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -56,7 +45,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-29: MIRBUILDER-GATE1-EXE-SUITE-ACCEPTANCE-S0 landed — 11-entry real-apps-exe-boundary suite under recorded LLVM 18 profile at 5/11 PASS; all six reds at recorded designed terminals. Repaired in-slice: NewResultCommitV1::is_complete accepts RetainedUnavailable{ExpressionCompleted} for destination-less result rows (30ffce464c gap masking artifact-unowned-lifecycle-site), and explicit-tool resolver now prefers opt-18/llc-18 (454e49b755 debt completing cc5928ea2a). Gate 1 unsatisfied. Next: MIRBUILDER-GATE1-RESULT-NEW-ARGUMENT-EVIDENCE-D0.",
-  "2026-09-29: MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0+S0 landed — `local h = w.make()` seals a Handle observation from method_calls membership (claim-local non-rebound receiver + sole `new` initializer + unique selected InstanceBoxMethod + i64 formals + construction callee); row co-seals result=Handle; Invoke{SameModuleInstance x Handle} + InvokeNormalResult emit once; receiver Home unwinds on the call fault path and releases once per exit path; received object installs as owned Home released once; Value(Construction) terminals survive receiver-entry unavailable. Negatives stay dynamic; 32/32 lifecycle tests green.",
-  "2026-09-29: MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0+S0 landed — direct-call `local h = make(0)` installs the callee's canonical object as an owned caller Home (CallReceivedCommitV1), one Handle invoke + projection typed MirType::Box(class), exactly one HomeRelease, no caller-side NewBox/Copy; result-class claims now cover all cataloged keys. Negatives reject; lexical `w.make()` deferred.",
+  "2026-09-29: Entry-home design accepted; current card compacted, frontier attribution corrected, canonical Home ABI D0 admits only an aggregate-bound source-entry loan. Selected next S0 removes the receiver-presence rejection for exact evidence; per-exit flow/consumer D0 follows. Compiler implementation and new EXE evidence are not claimed.",
+  "2026-09-29: 339674c77b remediated qualified-route pins and six oversized source parents; eight child files plus three parents added to boundary checks. Commit reports focused 32/32, 58/58, 15/15, 7/7, 56/57; remaining root-catalog red reproduced at 053b659637. Cargo not rerun during design review.",
+  "2026-09-29: 574d90ffc5 records fixed 11-entry EXE suite at 5 PASS / 6 FAIL; c82b7a415a corrects explicit LLVM-18 tool order. Gate 1 remains unsatisfied. Recorded failures include a baseline panic and generic-ingress rejection; they are not all designed parked-family stops.",
 ]

@@ -1,6 +1,6 @@
 ---
-Status: closed — accepted design stop; implementation remains unopened
-Date: 2026-08-09
+Status: accepted — complete ABI contract retained; bounded entry-flow loan added
+Date: 2026-09-29
 Parent: `docs/development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md`
 Authority: `docs/development/current/main/design/ownership-home-model-ssot.md`
 ---
@@ -83,6 +83,38 @@ The aggregate is the only product that may be handed to a later target or
 call-site resolver. Callers cannot obtain a standalone receiver demand,
 parameter demand, or result relation and combine it with another declaration.
 
+### Source entry-flow projection (2026-09-29)
+
+The complete call-site ABI rule above remains unchanged. The same
+`CallableHomeAbiIssuerV1` owner may additionally lend **entry-only** demands
+to source Home Flow, without publishing a complete `VerifiedHomeAbiV1`.
+This is an accepted interface design; the current-batch entry path is not yet
+implemented. Its bounded production task is
+`MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0` in the
+[Gate-1 card](mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md).
+
+The owner retains one current verified callable-batch loan, its exact common
+parameter-contract catalog, and same-declaration resolver capability evidence.
+It checks parser/batch/declaration identity, instance mode, exact receiver
+binding and complete ordered parameter rows before lending entry demands.
+The existing ordinary-instance classifier supplies receiver `Handle`; parameter
+demands are projections of the common catalog's `home_demand()`, with original
+parameter kinds retained. Neither the scanner nor a second issuer classifies
+them. Borrowed Map/Text representation is not collapsed into generic Handle.
+
+The entry loan remains scoped to that owner aggregate and source invocation;
+it cannot be detached, paired by an owner key, converted into target/result
+authority, or reused with another declaration. Missing/foreign/duplicate
+evidence does not yield an empty entry. Captures and consuming receiver demands
+stay unsupported. Handle entries introduce no owned Home or release duty.
+
+For this projection the result remains explicitly unresolved: no missing return
+annotation becomes Unit, no complete Home ABI row is created, and no call-site
+ABI publication is allowed. Existing complete I64/Unit issuance is unchanged.
+This narrow projection does not grant general CFG Home Flow, field destruction,
+new argument/result ABI, Query, or backend admission. Their owners remain
+separate; source flow still rejects statements it cannot account for.
+
 ## Disposition and stop lines
 
 ```text
@@ -110,10 +142,11 @@ representation.
 
 ## Explicit non-claims
 
-This D0 authorizes no code or production caller for:
+The explicitly selected entry-flow S0 above is the sole bounded production
+exception. This D0 authorizes no additional code or production caller for:
 
 ```text
-Home Flow / Ownership SSA
+general Home Flow / Ownership SSA (including per-exit CFG flow)
 take/share/release grammar
 field/container/projection destinations
 Shared/Weak/Unique physical representation
@@ -130,6 +163,9 @@ only lifecycle/source direction. This row does not reopen `drop`, direct
 
 ## Ordered follow-up
 
+The sequence below concerns complete call-site integration. The entry-only
+Gate-1 row is selected separately by CURRENT_STATE; it does not reopen this chain.
+
 ```text
 OWN-HOME-CALLABLE-ABI-D0                  closed (this card)
   -> OWN-HOME-RELATION0-S0                passive branded relation vocabulary
@@ -141,4 +177,5 @@ OWN-HOME-CALLABLE-ABI-D0                  closed (this card)
 
 Every implementation slice must update its owner README, the relevant
 `docs/reference/**` receipt, focused negative matrix, and current pointers in
-the same commit. No Home production activation is implied.
+the same commit. Only the explicitly selected entry-flow S0 has bounded
+production scope; no broader Home production activation is implied.

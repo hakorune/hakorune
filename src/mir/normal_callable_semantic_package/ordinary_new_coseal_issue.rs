@@ -693,4 +693,3 @@ fn collect_birth_site_index_v1(
     }
     Ok(())
 }
-

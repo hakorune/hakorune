@@ -117,6 +117,17 @@ require_repo_file() {
   fi
 }
 
+require_active_doc_budget() {
+  local rel="$1"
+  local label="$2"
+  local lines
+  require_repo_file "$rel" "$label"
+  lines="$(wc -l < "$ROOT_DIR/$rel" | tr -d '[:space:]')"
+  if (( lines > MAX_ACTIVE_DOC_LINES )); then
+    guard_fail "$TAG" "$label exceeds ${MAX_ACTIVE_DOC_LINES} lines: $rel has $lines"
+  fi
+}
+
 echo "[$TAG] checking compact current state"
 
 if ! python3 - "$STATE_DOC" <<'PY'
@@ -149,18 +160,14 @@ require_repo_file "$mirbuilder_north_star" "mirbuilder_north_star"
 require_repo_file "$method_anchor" "method_anchor"
 require_repo_file "$taskboard" "taskboard"
 if [[ -n "$latest_workstream_card" ]]; then
-  require_repo_file "$latest_workstream_card" "latest_workstream_card"
-  active_doc_lines="$(wc -l < "$ROOT_DIR/$latest_workstream_card" | tr -d '[:space:]')"
-  if (( active_doc_lines > MAX_ACTIVE_DOC_LINES )); then
-    guard_fail "$TAG" "latest_workstream_card exceeds ${MAX_ACTIVE_DOC_LINES} lines: $latest_workstream_card has $active_doc_lines"
-  fi
+  require_active_doc_budget "$latest_workstream_card" "latest_workstream_card"
   active_doc_max_line_chars="$(awk '{ if (length($0) > max) max = length($0) } END { print max + 0 }' "$ROOT_DIR/$latest_workstream_card")"
   if (( active_doc_max_line_chars > MAX_TASK_ORDER_LINE_CHARS )); then
     guard_fail "$TAG" "latest_workstream_card exceeds ${MAX_TASK_ORDER_LINE_CHARS} characters per line: $latest_workstream_card has $active_doc_max_line_chars"
   fi
 fi
-require_repo_file "$latest_card_path" "latest_card_path"
-require_repo_file "$current_execution_design" "current_execution_design"
+require_active_doc_budget "$latest_card_path" "latest_card_path"
+require_active_doc_budget "$current_execution_design" "current_execution_design"
 require_repo_file "$current_update_policy" "current_update_policy"
 
 if ! landed_tail_rows="$(count_landed_tail_rows)"; then
