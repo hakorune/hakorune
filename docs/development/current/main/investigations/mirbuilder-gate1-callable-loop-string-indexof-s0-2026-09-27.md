@@ -345,6 +345,19 @@ split, first commit of the pair:
 - Register the child in `mirbuilder_qualified_route_scope_guard.sh`;
   no semantic change rides this split.
 
+Landed: `home_new_prefix_scan.rs` 779 -> 329 (loop/dispatch/Local arms),
+`home_new_prefix_terminal.rs` 481 (`observe_terminal_statement` takes the
+running state by reference; the caller still owns `break`). Registered
+`NEW_PREFIX_TERMINAL` in the scope guard. Focused evidence:
+`ordinary_new_coseal` 58/58, `instance_entry_home` 7/7; the wider focused
+set is 635 pass / 16 red and every red reproduces at `4d659f78a0` without
+the split — `raw_invocation_port_*` ×8 (`raw-invocation/missing-
+expression-source-receipt` freeze), `artifact_child_rejects_retained_
+unavailable`, `array_source_binding` (order-dependent), `production_
+skip_while` ×2, `main_f1`, `birth_receiver`, `main_static_child`,
+`qualified_call_map` — all recorded baseline debt, none touching the
+extracted code path.
+
 ## Preserved contract boundaries
 
 - Generic `mir_json_emit` rejects lifecycle Invoke. Invoke, normal-result and

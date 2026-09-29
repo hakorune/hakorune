@@ -146,6 +146,8 @@ mod arguments;
 pub(crate) use arguments::issue_new_home_prefixes_with_arguments_v1;
 #[path = "home_new_prefix_scan.rs"]
 mod scan;
+#[path = "home_new_prefix_terminal.rs"]
+mod terminal;
 use scan::scan_statement_flow;
 
 /// One source walk supplies both New-failure prefixes and terminal ownership.
