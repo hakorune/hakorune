@@ -405,12 +405,40 @@ parent), `mir_corebox_router_unified::map` ×2. Full lib run matches the
 same worktree comparison: in-scope lanes' failure sets are identical;
 remaining diffs rerun green in isolation (parallel flake).
 `mirbuilder_qualified_route_scope_guard` PASS (new child files
-registered); `mir_call_canonical_corridor_guard` fails identically at
-HEAD (`new_expression.rs` pin — baseline debt, file untouched).
+registered); `mir_call_canonical_corridor_guard` pin was stale at the
+landing — re-pinned and passing since the remediation below.
 `current_state_pointer_guard` PASS.
 
 Not claimed: constructor-argument evidence, Gate-1 EXE rerun, any
 physical emission beyond the existing selected admission path.
+
+### Reviewer remediation — per-exit S0 follow-up
+
+- `map_read_fact` no longer picks the owner's first Call relation:
+  read-fact edges resolve `call_relations_for_owner(..).find(..)` on the
+  exact call site, a missing caller completion is the named
+  `CallerTerminalMissing` issue, and non-terminal calls stay outside
+  read-fact scope as before.
+- `PrefixLocalFlow::join_branch` no longer unions branch-only bindings.
+  A binding produced on one side only was declared inside that branch's
+  own `IfThen`/`IfElse` lexical frame (`leave_region_scope` pops it, so
+  no post-join site can resolve it); the join now records it as
+  `Uninitialized`, keeping `observe`/`is_*` fail-closed.
+- `call_source_completion`, `call_source_completion_for_owner` and
+  `terminal_call_arguments` are `#[cfg(test)]` sole-exit shorthands that
+  return `None` on non-singletons; `direct_call_lifecycle`'s
+  `call_terminals.is_empty()` check names the actual intent and every
+  retained call terminal is membership-checked.
+- `mut terminal_relation` unused-mut removed.
+- Receipt re-baselined: `cargo_lib_red_baseline` now pins
+  passed=8071/failed=126/ignored=56 inventory=8253 — the delta vs the
+  old pin is `artifact_child_rejects_retained_unavailable_`
+  `commit_before_lifecycle_coverage`, which fails identically at
+  `3a9b98b75b` (`[freeze:contract][ordinary-new/local-commit/`
+  `literal-physical-drift]`). `mir_call_canonical_corridor_guard` pin
+  updated to `.map(OrdinaryNewClaimTakeV1::constructor)` — same claim
+  consumption, and the guard now passes instead of failing as stale
+  baseline debt.
 
 Next design row: `MIRBUILDER-GATE1-CONSTRUCTOR-ARGUMENT-EVIDENCE-D0` —
 constructor-argument evidence (null/field/call-result), per the

@@ -134,6 +134,9 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
+    /// Test-only sole-exit shorthand — production resolves through the
+    /// `*_at` accessors.
+    #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn call_source_completion(
         &self,
     ) -> Option<(
@@ -143,16 +146,16 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(Ok(completion)) = self.root_completion.as_ref() else {
             return None;
         };
-        let call = self
-            .terminal_relation
-            .values()
-            .find_map(|relation| match relation {
-                TerminalRelationV1::Call(call) => Some(call),
-                _ => None,
-            })?;
+        let relations = self.terminal_relation.values().collect::<Vec<_>>();
+        let [TerminalRelationV1::Call(call)] = relations.as_slice() else {
+            return None;
+        };
         Some((completion.as_ref(), call))
     }
 
+    /// Test-only sole-exit shorthand — `None` when `owner` keeps zero or
+    /// several Call relations, never an arbitrary first pick.
+    #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn call_source_completion_for_owner(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
@@ -161,8 +164,10 @@ impl OrdinaryNewClaimLedgerV1 {
         &crate::mir::resolved_semantics::home_new_prefix::TerminalI64CallReturnV1,
     )> {
         let completion = self.completion_for_owner(owner)?;
-        let call = self.call_relations_for_owner(owner).into_iter().next()?;
-        Some((completion, call))
+        match self.call_relations_for_owner(owner).as_slice() {
+            [call] => Some((completion, call)),
+            _ => None,
+        }
     }
 
     /// The caller completion plus the Call terminal seated at this exact

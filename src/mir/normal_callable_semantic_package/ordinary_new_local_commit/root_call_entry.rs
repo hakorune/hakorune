@@ -171,6 +171,9 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
+    /// Test-only sole-exit shorthand — production resolves through
+    /// `terminal_call_arguments_for_owner_at`.
+    #[cfg(test)]
     pub(crate) fn terminal_call_arguments(
         &self,
     ) -> Option<&[crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1]> {

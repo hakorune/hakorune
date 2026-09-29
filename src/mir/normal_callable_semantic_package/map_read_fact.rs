@@ -286,13 +286,23 @@ pub(super) fn issue_map_read_facts_v1(
     };
     for loan in loans.iter() {
         for (call_site, ordinal, callee_owner) in loan.map_formal_edges() {
-            let Some((caller, terminal)) = ledger.call_source_completion_for_owner(loan.owner())
+            if ledger.completion_for_owner(loan.owner()).is_none() {
+                return Err(MapReadFactIssueV1::CallerTerminalMissing {
+                    owner: loan.owner(),
+                });
+            }
+            // A caller may admit several Call terminals across explicit
+            // exits; the edge belongs to the relation seated at this exact
+            // call site, never to the owner's first row. Non-terminal
+            // calls (local-install edges) legitimately have no Call
+            // relation and stay outside read-fact scope.
+            let Some(terminal) = ledger
+                .call_relations_for_owner(loan.owner())
+                .into_iter()
+                .find(|call| call.call_site() == call_site.site())
             else {
                 continue;
             };
-            if terminal.call_site() != call_site.site() {
-                continue;
-            }
             let Some(argument) = terminal.arguments().get(ordinal as usize) else {
                 return Err(MapReadFactIssueV1::CallerArgumentMissing {
                     call: call_site,
@@ -408,7 +418,6 @@ pub(super) fn issue_map_read_facts_v1(
                     ordinal,
                 })??;
             rows.extend(issued);
-            let _ = caller;
         }
     }
     rows.sort_by(|left, right| left.site.cmp(&right.site));

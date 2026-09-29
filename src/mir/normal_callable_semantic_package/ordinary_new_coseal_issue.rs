@@ -336,7 +336,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         Ok((
                             completion,
                             prefixes,
-                            mut terminal_relation,
+                            terminal_relation,
                             observations,
                             result_prefixes,
                         )) => {

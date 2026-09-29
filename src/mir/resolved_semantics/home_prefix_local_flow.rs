@@ -100,18 +100,32 @@ impl<'source> PrefixLocalFlow<'source> {
     /// were forked from the same entry snapshot; a binding that exists on
     /// both sides must carry the identical stored class — disagreement is a
     /// divergence the caller names, never a merged guess.
+    ///
+    /// A binding present on only one side was declared inside that
+    /// branch's own scope: `resolve_if` pushes an `IfThen`/`IfElse`
+    /// lexical frame and `leave_region_scope` pops it, so no post-join
+    /// source site can resolve that `BindingRefV1`. The join still must
+    /// not keep the sibling's initialized class — the value was proven on
+    /// one path only — so the surviving entry is downgraded to
+    /// `Uninitialized`, which keeps `observe` and every `is_*` probe
+    /// fail-closed if a future shape ever does resolve it.
     pub(super) fn join_branch(&mut self, other: &Self) -> bool {
         for (binding, value) in &other.locals {
-            match self.locals.get(binding) {
-                Some(own) => {
-                    if !stored_local_same(own, value) {
-                        return false;
-                    }
-                }
-                None => {
-                    self.locals.insert(*binding, value.clone());
+            if let Some(own) = self.locals.get(binding) {
+                if !stored_local_same(own, value) {
+                    return false;
                 }
             }
+        }
+        for binding in self.locals.keys().copied().collect::<Vec<_>>() {
+            if !other.locals.contains_key(&binding) {
+                self.locals.insert(binding, StoredLocal::Uninitialized);
+            }
+        }
+        for binding in other.locals.keys() {
+            self.locals
+                .entry(*binding)
+                .or_insert(StoredLocal::Uninitialized);
         }
         true
     }

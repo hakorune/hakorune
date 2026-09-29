@@ -587,27 +587,21 @@ impl DirectCallDispositionLoanV1 {
                     continue;
                 };
                 let signature = row.emission.target().signature();
-                let (caller, terminal_site) =
-                    match root.call_relations_for_owner(self.owner).into_iter().next() {
-                        Some(terminal) => (
-                            root.completion_for_owner(self.owner).ok_or(reject)?,
-                            Some(terminal.return_site()),
-                        ),
-                        None => {
-                            // A lifecycle-bearing callee cannot ride the scalar
-                            // Call route even under the caller's Plain exit: its
-                            // own sealed flow already proves Invoke-bearing
-                            // members, so this call must reach it through the
-                            // same Invoke edge and the Plain exit entry records
-                            // the local binding groups directly. A callee with
-                            // no sealed lifecycle product keeps the Call route.
-                            let callee = row.emission.target().callable().owner();
-                            if !callee_lifecycle_participant(root, callee) {
-                                continue;
-                            }
-                            (root.completion_for_owner(self.owner).ok_or(reject)?, None)
-                        }
-                    };
+                let call_terminals = root.call_relations_for_owner(self.owner);
+                if call_terminals.is_empty() {
+                    // A lifecycle-bearing callee cannot ride the scalar
+                    // Call route even under the caller's Plain exit: its
+                    // own sealed flow already proves Invoke-bearing
+                    // members, so this call must reach it through the
+                    // same Invoke edge and the Plain exit entry records
+                    // the local binding groups directly. A callee with
+                    // no sealed lifecycle product keeps the Call route.
+                    let callee = row.emission.target().callable().owner();
+                    if !callee_lifecycle_participant(root, callee) {
+                        continue;
+                    }
+                }
+                let caller = root.completion_for_owner(self.owner).ok_or(reject)?;
                 if local.owner() != self.owner
                     || local.site() != site
                     || local.destination().owner() != self.owner
@@ -616,7 +610,9 @@ impl DirectCallDispositionLoanV1 {
                     || signature.arity() != row.argument_sites.len()
                     || signature.result() != Some(ExactTrivialScalarAbiV1::I64)
                     || caller.owner() != self.owner
-                    || terminal_site.is_some_and(|site| !caller.explicit_sites().contains(site))
+                    || call_terminals
+                        .iter()
+                        .any(|terminal| !caller.explicit_sites().contains(terminal.return_site()))
                     || !caller.returns_value()
                     || !caller
                         .cleanup()
