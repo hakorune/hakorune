@@ -1,10 +1,10 @@
 date = "2026-09-29"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "none"
-current_design_stop = "none"
+current_blocker_token = "Gate1ExeAcceptanceFrontierPause__AllSixRedsAwaitNamedParkedFamilies"
+current_design_stop = "11-entry EXE suite measured at 5/11 under the recorded LLVM 18 profile; every remaining red sits at a recorded designed terminal owned by a named parked or separately-owned family (OWN-FIELD/drop-plan orbit: mimalloc-lite retained return-new claims, boxtorrent-mini field-write new, binary-trees root-call-entry-unavailable; named-array/call-result provenance: allocator-stress; ParkedSealed DeclaredInstance route: json-stream-aggregator; phase-84 baseline: untyped-field-min). MULTI-RETURN-RESULT-NEW-D0 census corrected the scope: instance-method result prefixes stay Err via EntryDemandMissing + PrefixNotCovered, so observation extension alone unblocks nothing. Reopening requires explicit lane selection"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -33,13 +33,15 @@ remains unsatisfied. MULTI-RETURN-RESULT-NEW-D0 accepted (row 11):
 the nine retained mimalloc-lite claims mint `SourceMismatch` rows
 because the homes walk only observes `explicit_site()` —
 `ExplicitReturns` yields `None`; nested `if` returns are likewise
-unreachable. Next frontier:
-`MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-S0` (row 12).
+unreachable — and their prefixes stay `Err` via receiver-entry
+`EntryDemandMissing` plus `PrefixNotCovered`, so the true owner is
+the instance-method home-flow coverage family in the parked
+OWN-FIELD orbit. Frontier pause: row 12 awaits explicit selection.
 """
-next_design_card = "none"
+next_design_card = "MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

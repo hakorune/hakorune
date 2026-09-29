@@ -285,8 +285,8 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | 9i | DONE — `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0` accepted below: `local h = w.make()` (AST `Call`/`method_calls`) joins the Handle-result lane for claim-local receivers only (`local w = new W()`); the disposition row gains a co-sealed `result` at issue (issuer.rs:727 sees terminal_relation + callable_result_classes + result_contracts); a `method_calls` observation arm mints the Handle `LocalCallObservationV1` during scan; `CallReceivedCommitV1`, the verifier pairing (`Callee::SameModuleInstance × Handle`), and `OrdinaryHandle` publish carry over unchanged. Emission must be Invoke-shaped — the existing `CoreEffectPlan::DeclaredInstanceCall` emits a plain `Call` and stays the non-lifecycle path; a port-mediated emit mirroring `emit_local_lifecycle_call_v1` takes Handle rows. Parameter/nested/rebound receivers and the raw member route keep their current reject/dynamic boundary — a Handle-sealed site reaching the dynamic route freezes, never degrades. |
 | 9j | DONE — `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-S0` landed below: `local w = new W(); local h = w.make()` seals one Handle `LocalCallObservationV1` from `method_calls` membership (claim-local receiver, non-rebound, sole `new` initializer, unique selected `InstanceBoxMethod`, all-i64 exact formals, callee construction result); the disposition row co-seals `result=Handle` at issue against the callee's retained `Value(Construction)` terminal + unannotated contract + result-class claim. Emission is Invoke-shaped (`Callee::SameModuleInstance` × `Handle`) through the port hook; the receiver Home unwinds on the call fault path and releases once per exit path; the received object installs as owned Home releasing once on the normal path. Instance-method `return new` retains its `Value(Construction)` terminal relation even when receiver-entry demands make home-prefix flow unavailable (exact-site evidence; flow gaps stay in `result_prefixes`/claims). Negatives stay dynamic (rebound receiver, non-construction callee); result-kind/cleanup drift reject. 32/32 lifecycle tests green. Gate 1 remains unsatisfied. |
 | 10 | DONE — `MIRBUILDER-GATE1-EXE-SUITE-ACCEPTANCE-S0` landed below: suite measured at 5/11 PASS with all six reds at recorded designed terminals; two baseline gaps repaired in-slice (retained result-commit completion + explicit-tool LLVM order). Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
-| 11 | DONE — `MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-D0` accepted below: the nine retained mimalloc-lite result claims mint `SourceMismatch` rows because `scan_new_home_flow` runs its Return arm only for `explicit_site()` (`ExplicitReturns` → `None`); nested `if` returns are likewise unreachable. Decision: run the Return arm for every top-level explicit `return` (per-site result-prefix + argument observation from live `locals`); nested returns and `null`/field-read arg kinds stay named siblings. `OWN-FIELD-CONTAINER-DEST-D0` remains parked. |
-| 12 | NEXT — `MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-S0`: process every top-level explicit `return` through the existing Return arm (per-site `ResultNewHomePrefixV1` + `SelectedNewArgumentObservationV1`); no nested descent, no new argument kinds, no terminal-relation widening. |
+| 11 | DONE — `MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-D0` accepted below: census shows the nine retained mimalloc-lite result claims mint `SourceMismatch` rows (`ExplicitReturns` → `explicit_site() = None`; nested `if` returns unwalked) AND their prefixes stay `Err` regardless (`EntryDemandMissing` on every `me` receiver + `PrefixNotCovered` on `if`/`me.f =` statements force `prior_homes = None`). Observation extension alone unblocks nothing — the true owner is the instance-method home-flow coverage family inside the parked `OWN-FIELD-CONTAINER-DEST-D0` orbit. |
+| 12 | BLOCKED — frontier pause: all six suite reds map to named parked or separately-owned families (OWN-FIELD/drop-plan orbit: mimalloc-lite, boxtorrent-mini, binary-trees; named-array/call-result provenance: allocator-stress; parked DeclaredInstance route: json-stream-aggregator; phase-84 baseline: untyped-field-min). No unselected fast lane remains; the next step is explicit family selection, not self-scheduled implementation. |
 
 ### Landed slices tombstone (compressed 2026-09-28)
 
@@ -1363,46 +1363,52 @@ kinds but observation coverage:
   results (`BoundValue` kind already exists, 2 sites:
   `HakoAllocHandleResult(1, 0, handle|replacement)`).
 
+Extended census — the prefix gate binds before argument rows:
+`result_prefix` is `Err(issue)` whenever `unavailable` is set
+(home_new_prefix.rs:562-571), and `prior_homes = None` forces
+`available = false` in `compute_emission_prepare` (:606-607) regardless
+of argument classification. Two `unavailable` sources cover all nine
+sites: `EntryDemandMissing` is installed unconditionally for every
+`me`-receiver method (:188-195), and any `if`/`me.f =`/non-`Local`
+statement stamps `PrefixNotCovered` (:705-707) — `allocate`/`release`/
+`realloc` contain both. An `if` body can also install Homes the
+top-level walk cannot see, so prefix-Ok under skipped statements would
+be unsound without descent.
+
 ```text
-Decision: extend the existing one-pass homes walk to run the Return arm
-  for every top-level explicit `return` in the completion's
-  `explicit_sites()`, minting a per-site `ResultNewHomePrefixV1` (live
-  `locals` already carry prior-Homes state at each statement) and a
-  per-site `SelectedNewArgumentObservationV1`. Nested `IfThen`/`Else`
-  returns stay outside observation; their claims keep the designed
-  `SourceMismatch`→retained terminal.
-Source authority + canonical issuer: `scan_new_home_flow` remains the
-  sole observation issuer (home_new_prefix.rs); claim minting stays in
-  `ordinary_new_coseal_issue` (`result_sites`/`result_resolutions`).
-  `completion.explicit_sites()` is the membership enumeration — no new
-  authority, no AST rescan.
-Non-authority: no physical emission decisions here; prepared rows still
-  flow through the single ledger/`compute_emission_prepare` owner, and
-  downstream lifecycle coverage still owns
-  `artifact-unowned-lifecycle-site`. No terminal-relation widening:
-  `ExplicitReturns` functions mint no `Value(Construction)` relation
-  and stay outside the Handle-result callee lane.
-Fail-fast boundary: sites whose arguments do not classify under existing
-  kinds stay `ArgumentNotTrivial`→retained; nested returns stay
-  `SourceMismatch`→retained; a site reaching emission without a
-  per-site Ok prefix stays `RetainedUnavailable` — never fabricated.
-Smallest next slice: `MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-S0` —
-  process every top-level explicit `return` in the walk (drop the
-  single-`terminal` gate for `Return` statements), producing per-site
-  prefixes/observations; pin positive (`(1, 0, handle)`-shaped site:
-  Integer+BoundValue args, empty prior-Homes) and negative (nested
-  return stays retained; `null`/field-read arg stays retained) tests.
-Non-claims: no nested/`if`-body descent (named sibling frontier), no
-  `Null` or field-read argument kinds (each its own bounded S0 once
-  their sites are reachable), no Handle-result widening to multi-return
-  callees, parked `OWN-FIELD-CONTAINER-DEST-D0` untouched. mimalloc-lite
-  stays red at `artifact-unowned-lifecycle-site` until the nested/field
-  siblings land — that is its recorded designed terminal.
+Decision: no bounded observation slice unblocks mimalloc-lite's
+  retained result claims. Extending the Return arm to every top-level
+  explicit `return` would only sharpen `SourceMismatch` into
+  `ArgumentNotTrivial` while the `Err` prefix keeps `prior_homes=None`
+  — the same `RetainedUnavailable` terminal. The true owner is the
+  instance-method home-flow coverage family: receiver-entry demand
+  (`EntryDemandMissing`), non-`Local` statement coverage
+  (`PrefixNotCovered` — `if` bodies, `me.f =` writes), and nested-return
+  descent, which sits inside the parked `OWN-FIELD-CONTAINER-DEST-D0`
+  orbit (field/container residence and releasability). That family is
+  not unilaterally reopened.
+Source authority + canonical issuer: unchanged — `scan_new_home_flow`
+  is the sole observation issuer and `ordinary_new_coseal_issue` the
+  sole claim issuer; a future reopening must still co-seal per-site
+  `ResultNewHomePrefixV1` and argument observations there.
+Non-authority: nothing here mints physical instructions; downstream
+  lifecycle coverage continues to own `artifact-unowned-lifecycle-site`,
+  which stays the truthful designed terminal for these sites.
+Fail-fast boundary: retained rows remain `RetainedUnavailable` —
+  no fabricated prefixes, no entry-demand waivers, no silent emit.
+Smallest next slice: none selected — with this correction every suite
+  red maps to a named parked/separately-owned family, so the frontier
+  requires explicit selection (see the frontier-pause note below).
+Non-claims: no observation extension landed (it would churn the shared
+  walk without changing any terminal); no `Null`/field-read argument
+  kinds; no Handle-result widening to multi-return callees; parked
+  families untouched.
 ```
 
-Expected unblocking under existing kinds only: the two
-`HakoAllocHandleResult(1, 0, <bound-local>)` sites (`handle`/`replacement`
-bound to inventoried `me.allocate`/`me.realloc` results → `BoundValue`);
-`HakoAllocHandle(me.page_id, …)` stays retained pending a field-read
-argument kind; the six nested `null` sites stay retained pending nested
-observation. Red classification unchanged for the suite.
+Suite consequence: mimalloc-lite's `artifact-unowned-lifecycle-site` is
+a designed terminal owned by the same parked orbit as boxtorrent-mini
+(field-write `new` destinations) and binary-trees
+(`root-call-entry-unavailable` — unreleasable terminal home);
+allocator-stress awaits the named-array/call-result-argument
+provenance family, json-stream-aggregator the parked DeclaredInstance
+route family, and untyped-field-min its phase-84 baseline owner.
