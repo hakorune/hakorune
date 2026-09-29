@@ -363,6 +363,15 @@ impl DirectCallDispositionPortV1
             .emit_local_lifecycle_call_v1(builder, row, arguments)
     }
 
+    fn emit_local_lexical_lifecycle_call_v1(
+        &mut self,
+        builder: &mut crate::mir::MirBuilder,
+        method: &str,
+    ) -> Result<Option<crate::mir::ValueId>, String> {
+        self.inner
+            .emit_local_lexical_lifecycle_call_v1(builder, method)
+    }
+
     fn validate_current_call_argument_site_v1(
         &self,
         expected: &SourceExprSiteV1,

@@ -3,7 +3,8 @@
 use super::*;
 use crate::mir::definitions::MirCall;
 use crate::mir::normal_callable_semantic_package::{
-    DirectCallDispositionRowV1, RootCallDispositionV1, RootInstanceCallDispositionRowV1,
+    DirectCallDispositionRowV1, LexicalInstanceCallDispositionRowV1, RootCallDispositionV1,
+    RootInstanceCallDispositionRowV1,
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 
@@ -292,5 +293,106 @@ pub(in crate::mir::builder) fn emit_local(
         }
         _ => ledger.record_root_local_call_bindings(owner, owned_site, bindings)?,
     }
+    Ok(result)
+}
+
+/// Emit one source-issued lexical instance-call local result
+/// (`local h = recv.m(...)`) whose co-sealed result contract is `Handle`.
+/// The sealed local-call relation is sole membership, the disposition row
+/// names the unique selected callee, the callee's retained
+/// `Value(Construction)` terminal proves the transfer, and its minted
+/// object is the identity the received handle keeps. The receiver value is
+/// the ledger-installed binding value, never a re-lowered expression;
+/// arguments come from the sealed literal relation, not a re-walk of the
+/// AST. Prior homes (the receiver among them) stay live across the call.
+pub(in crate::mir::builder) fn emit_local_lexical(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
+    site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    row: LexicalInstanceCallDispositionRowV1,
+) -> Result<ValueId, String> {
+    let owned_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
+    if row.result() != Some(InvokeCallResultKind::Handle) {
+        return Err(freeze("lexical-handle-result-mismatch"));
+    }
+    let relation = ledger
+        .handle_call_source(&owned_site)
+        .ok_or_else(|| freeze("lexical-handle-source-missing"))?;
+    if relation.prior_homes().is_empty()
+        || !relation.prior_homes().contains(&row.receiver_binding())
+    {
+        return Err(freeze("lexical-handle-receiver-home-missing"));
+    }
+    let unwind = ledger.handle_call_prior_home_unwind(&owned_site)?;
+    if relation.arguments().len() != row.argument_sites().len()
+        || row.argument_sites().len() != row.target().arity() as usize
+    {
+        return Err(freeze("lexical-handle-arity-mismatch"));
+    }
+    ledger.begin_handle_call_emission(&owned_site, row.callee_owner())?;
+    let receiver = state
+        .take_exact_lexical_value(owner, row.receiver_site().node(), row.receiver_binding())
+        .map_err(|error| format!("[freeze:contract][lexical-handle/receiver/{error:?}]"))?;
+    let frame = state.borrow_fault_frame(builder)?;
+    let origin = builder
+        .function_state
+        .current_block
+        .ok_or_else(|| freeze("no-block"))?;
+    let normal_landing = builder.next_block_id();
+    let outward = builder.next_block_id();
+    let result = builder.next_value_id();
+    let mut bindings = vec![fault_frame_binding(builder, state, frame)?];
+    append_block(
+        builder,
+        outward,
+        MirInstruction::ReturnFault { fault_frame: frame },
+        &mut bindings,
+    )?;
+    // The call's fault path unwinds the prior Homes exactly like a `new`
+    // emission does — the receiver Home can never leak past a fault.
+    let fault_landing = cleanup_chain(builder, frame, unwind, outward, &mut bindings)?;
+    let arguments = relation
+        .arguments()
+        .iter()
+        .map(|literal| -> Result<ValueId, String> {
+            crate::mir::builder::emission::constant::emit_integer(builder, *literal)
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    let invoke = MirInstruction::Invoke {
+        operation: InvokeOperation::Call {
+            call: MirCall::new(
+                None,
+                crate::mir::definitions::Callee::SameModuleInstance {
+                    key: row.target().clone(),
+                    receiver,
+                },
+                arguments,
+            ),
+            result: InvokeCallResultKind::Handle,
+        },
+        fault_frame: frame,
+        normal_landing,
+        fault_landing,
+    };
+    builder.emit_instruction(invoke.clone())?;
+    builder.start_new_block(normal_landing)?;
+    let projection = MirInstruction::InvokeNormalResult {
+        invoke_block: origin,
+        dst: result,
+    };
+    builder.emit_instruction(projection.clone())?;
+    let result_class = ledger
+        .callable_result_class(row.target())
+        .ok_or_else(|| freeze("handle-result-class-missing"))?;
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(result, result_type(InvokeCallResultKind::Handle, Some(result_class))?);
+    bindings.push((origin, invoke));
+    bindings.push((normal_landing, projection));
+    ledger.record_handle_call_emission(&owned_site, result, bindings)?;
     Ok(result)
 }

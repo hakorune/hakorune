@@ -685,6 +685,59 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         Ok(Some(value))
     }
 
+    fn emit_local_lexical_lifecycle_call_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        method: &str,
+    ) -> Result<Option<ValueId>, String> {
+        let Some(RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::Cataloged(_),
+            site,
+            ..
+        }) = self.active_source.as_ref()
+        else {
+            return Ok(None);
+        };
+        let owner = self
+            .callable_owner_v1()
+            .ok_or_else(|| "[freeze:contract][lexical-handle/owner-missing]".to_owned())?;
+        let Some(ledger) = self.ordinary_new_claim_ledger.as_ref() else {
+            return Ok(None);
+        };
+        let site = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site.clone());
+        let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
+        if ledger.handle_call_source(&owned).is_none() {
+            return Ok(None);
+        }
+        // The caller-side scan sealed a Handle observation at this site:
+        // the disposition row must exist, agree on the selector, and carry
+        // the same Handle contract. Any half-sealed edge freezes.
+        let Some(row) = ledger.take_lexical_instance_call(owner, &site)? else {
+            return Err(
+                "[freeze:contract][lexical-handle/disposition-missing]".to_owned()
+            );
+        };
+        if row.result()
+            != Some(crate::mir::instruction::InvokeCallResultKind::Handle)
+            || row.target().name() != method
+        {
+            return Err("[freeze:contract][lexical-handle/result-mismatch]".to_owned());
+        }
+        let state = self
+            .callable_ledger
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][lexical-handle/state-missing]".to_owned())?;
+        let value = crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical(
+            builder,
+            &mut state.borrow_mut(),
+            ledger,
+            owner,
+            &site,
+            row,
+        )?;
+        Ok(Some(value))
+    }
+
     fn validate_current_call_argument_site_v1(
         &self,
         expected: &crate::mir::resolved_semantics::SourceExprSiteV1,

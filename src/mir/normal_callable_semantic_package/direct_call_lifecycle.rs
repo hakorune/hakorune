@@ -97,13 +97,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn map_result_callee(
 /// `callable_result_classes` claim seals. The header annotation alone
 /// never decides this, and the sealed terminal relation is re-checked
 /// against this class at co-seal.
-fn construction_result_callee(
+pub(in crate::mir::normal_callable_semantic_package) fn construction_result_callee(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
-    callable: crate::mir::resolved_semantics::ResolvedCallableRefV1,
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
 ) -> bool {
     let mut declarations = batch
         .declarations()
-        .filter(|declaration| declaration.owner() == callable.owner());
+        .filter(|declaration| declaration.owner() == owner);
     let Some(declaration) = declarations.next() else {
         return false;
     };
@@ -470,7 +470,7 @@ impl DirectCallDispositionLoanV1 {
         match self.rows.get(site) {
             Some(DirectCallDispositionSlotV1::Ready(row)) => {
                 row.emission.target().signature().result().is_none()
-                    && construction_result_callee(batch, row.emission.target().callable())
+                    && construction_result_callee(batch, row.emission.target().callable().owner())
                     && exact_formals(batch, parameters, row)
                     && input
                         .function()
@@ -504,7 +504,7 @@ impl DirectCallDispositionLoanV1 {
             // lifecycle gates as a map-owned one: its unannotated header
             // proves nothing, and the sealed terminal relation decides.
             let construction_result =
-                construction_result_callee(batch, row.emission.target().callable());
+                construction_result_callee(batch, row.emission.target().callable().owner());
             // Unavailable Map coverage is still Map-owned, never Scalar evidence.
             if !map_owned(batch, row) && !construction_result {
                 // An unannotated target is callable only through the

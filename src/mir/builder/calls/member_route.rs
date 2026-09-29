@@ -221,6 +221,23 @@ impl MirBuilder {
                 )?
                 .ok_or_else(|| format!("[member-call-route] unresolved me receiver for {method}"))
             }
+            MemberCallRoutePlan::Standard => {
+                // A claim-ingress Standard route still honors a sealed
+                // Handle local-call membership: the caller-side scan and
+                // the lexical disposition row must agree before the
+                // dynamic member route may take the site.
+                let method = port.method_call_syntax(input)?.method().to_owned();
+                if let Some(value) =
+                    port.emit_local_lexical_lifecycle_call_v1(self, &method)?
+                {
+                    return Ok(value);
+                }
+                self.execute_prepared_member_call_route_v1(
+                    port,
+                    input,
+                    MemberCallRoutePlan::Standard,
+                )
+            }
             route_plan => self.execute_prepared_member_call_route_v1(port, input, route_plan),
         }
     }

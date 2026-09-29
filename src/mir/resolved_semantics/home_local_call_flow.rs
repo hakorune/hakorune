@@ -94,6 +94,65 @@ impl LocalCallObservationV1 {
     }
 }
 
+/// Issue one exact literal-argument lexical instance Call (`recv.m(...)`)
+/// from already-resolved source. The caller supplies the same
+/// selected-call predicate; the receiver must be a resolver-sealed lexical
+/// local — this helper never resolves a target or guesses a receiver class.
+pub(crate) fn issue_lexical_local_call<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &SourceStmtSiteV1,
+    site: &OwnedExprSiteV1,
+    declaration: SourceBindingSiteV1,
+    destination: BindingRefV1,
+    prior_homes: &[BindingRefV1],
+    result: LocalCallResultClassV1,
+    is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+) -> Result<Option<LocalCallObservationV1>, E> {
+    if !is_selected_call(site)? {
+        return Ok(None);
+    }
+    let Some((observed_site, call)) = input
+        .function()
+        .method_calls()
+        .find(|(observed_site, _)| *observed_site == site.site())
+    else {
+        return Ok(None);
+    };
+    if observed_site != site.site()
+        || !matches!(
+            call.receiver(),
+            super::ResolvedMethodCallReceiverSourceV1::Lexical(
+                super::ResolvedLexicalRefV1::Local(binding)
+            ) if binding.owner() == input.owner()
+        )
+    {
+        return Ok(None);
+    }
+    let Some(arguments) = call
+        .arguments()
+        .iter()
+        .map(|argument| {
+            match input.function().expression_source().literal(argument.site()) {
+                Some(ResolvedLiteralSourceV1::Integer(value)) => Some(*value),
+                _ => None,
+            }
+        })
+        .collect::<Option<Vec<_>>>()
+    else {
+        return Ok(None);
+    };
+    Ok(Some(LocalCallObservationV1::issue(
+        input.owner(),
+        statement.clone(),
+        site.clone(),
+        declaration,
+        destination,
+        prior_homes.iter().copied().collect(),
+        arguments.into_boxed_slice(),
+        result,
+    )))
+}
+
 /// Issue one exact literal-argument local Call from already-resolved source.
 /// The caller supplies the existing selected-call predicate and the result
 /// class that predicate proved; this helper never resolves a target or turns

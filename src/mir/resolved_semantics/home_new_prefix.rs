@@ -675,7 +675,24 @@ pub(crate) fn scan_new_home_flow<E>(
                 None => Ok(homes.iter().rev().copied().collect()),
             };
             if terminal_homes.is_err() {
-                terminal_relation = None;
+                // `return new <class>` is exact-site evidence: its own
+                // `ResultNewHomePrefixV1` — and thus the retained result
+                // claim — already records whatever flow gap made the
+                // terminal homes unavailable. Receiver-entry demands and
+                // other prefix gaps must not erase the construction proof
+                // a caller's handle-result edge reads from the child
+                // contract; every other returned source depends on this
+                // frame's local flow, so those still drop.
+                terminal_relation = terminal_relation.filter(|relation| {
+                    matches!(
+                        relation,
+                        TerminalRelationV1::Value(row)
+                            if matches!(
+                                row.returned(),
+                                TerminalReturnedSourceV1::Construction(_)
+                            )
+                    )
+                });
             }
             break;
         }
@@ -763,7 +780,7 @@ pub(crate) fn scan_new_home_flow<E>(
                 locals.install_map(binding);
                 continue;
             }
-            if let Some(local_call) = local_call_flow::issue_local_call(
+            let local_call = match local_call_flow::issue_local_call(
                 input,
                 statement.site(),
                 &owned,
@@ -771,8 +788,24 @@ pub(crate) fn scan_new_home_flow<E>(
                 binding,
                 &homes,
                 local_call_flow::LocalCallResultClassV1::Handle,
-                local_handle_call,
+                &mut *local_handle_call,
             )? {
+                Some(local_call) => Some(local_call),
+                // Qualified receivers (`recv.make(...)`) sit in the
+                // method-call inventory, never in direct-call
+                // observations — try the lexical membership source.
+                None => local_call_flow::issue_lexical_local_call(
+                    input,
+                    statement.site(),
+                    &owned,
+                    declaration.clone(),
+                    binding,
+                    &homes,
+                    local_call_flow::LocalCallResultClassV1::Handle,
+                    &mut *local_handle_call,
+                )?,
+            };
+            if let Some(local_call) = local_call {
                 // A received object handle installs as an owned caller
                 // Home: the callee transferred ownership at the Return
                 // edge, so this owner owes exactly one release at exit.

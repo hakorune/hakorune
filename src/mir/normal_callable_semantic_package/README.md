@@ -328,6 +328,15 @@ or becomes a named uncovered route item inside one. `me`/`this` receivers stay
 exclusively on the strict declared-instance locator; the issued row carries the
 exact call/receiver sites, the binding and the selected `InstanceBoxMethod`
 key — never a Callee, ValueId, dispatch strategy or runtime fallback.
+Claim-local rows additionally co-seal the callee's result contract: when the
+caller-side scan independently minted a Handle local-call observation for the
+same site, the row records `InvokeCallResultKind::Handle` only if the callee's
+retained `Value(Construction)` terminal, unannotated declared result and
+`callable_result_classes` claim all agree; a half-sealed edge freezes. That
+Handle row emits the same caller-side lifecycle as the direct-call lane —
+`Invoke{result:Handle}` + `InvokeNormalResult`, the received object installed
+as an owned Home owing exactly one release per exit path, and the receiver
+Home unwound on the call's fault path.
 
 [Field-write claims](ordinary_new_field_write_claim.rs) extend the same sole-
 initializer join to `me.f` reads: a `(owning box, field)` pair claims a class

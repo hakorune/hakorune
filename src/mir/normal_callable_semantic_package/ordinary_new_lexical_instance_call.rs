@@ -18,6 +18,7 @@
 
 use super::OrdinaryNewClaimLedgerV1;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
+use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::normal_callable_semantic_package::physical_signature::{
     PhysicalCallableLaneRoleV1, VerifiedCallablePhysicalSignatureCohortV1,
 };
@@ -37,6 +38,16 @@ pub(crate) struct LexicalInstanceCallDispositionRowV1 {
     receiver_binding: BindingRefV1,
     target: CanonicalSameModuleCallableKeyV1,
     target_batch_slot: u32,
+    /// Owner of the callee declaration the target resolves to — the
+    /// terminal-relation lookup key for the co-sealed result contract.
+    callee_owner: FunctionOwnerIdV1,
+    /// Exact non-receiver argument sites in source order.
+    argument_sites: Box<[SourceExprSiteV1]>,
+    /// The callee's co-sealed result contract. `Handle` here only arms
+    /// emission when the caller-side scan independently sealed a Handle
+    /// local-call observation for this exact site; a truthful Handle row
+    /// without that observation stays on the dynamic path.
+    result: Option<InvokeCallResultKind>,
 }
 
 impl LexicalInstanceCallDispositionRowV1 {
@@ -59,6 +70,18 @@ impl LexicalInstanceCallDispositionRowV1 {
     pub(crate) const fn target_batch_slot(&self) -> u32 {
         self.target_batch_slot
     }
+
+    pub(crate) const fn callee_owner(&self) -> FunctionOwnerIdV1 {
+        self.callee_owner
+    }
+
+    pub(crate) fn argument_sites(&self) -> &[SourceExprSiteV1] {
+        &self.argument_sites
+    }
+
+    pub(crate) const fn result(&self) -> Option<InvokeCallResultKind> {
+        self.result
+    }
 }
 
 #[derive(Debug)]
@@ -80,6 +103,7 @@ struct LexicalInstanceCallNeedV1 {
     parameter_index: Option<u32>,
     selector: Box<str>,
     arity: u32,
+    argument_sites: Box<[SourceExprSiteV1]>,
     /// Whether the receiver binding is rebound anywhere in the callee.
     rebound: bool,
 }
@@ -99,6 +123,7 @@ impl OrdinaryNewClaimLedgerV1 {
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &VerifiedSelectedCallableBatchMapV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
+        results: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {
         let mut needs = Vec::new();
         for declaration in batch.declarations() {
@@ -140,6 +165,11 @@ impl OrdinaryNewClaimLedgerV1 {
                             parameter_index,
                             selector: call.selector().into(),
                             arity: call.arity(),
+                            argument_sites: call
+                                .arguments()
+                                .iter()
+                                .map(|argument| argument.site().clone())
+                                .collect(),
                             rebound,
                         });
                     }
@@ -191,6 +221,38 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             }
             let call_site = OwnedExprSiteV1::new(need.owner, need.call_site.clone());
+            let Some(callee_owner) = batch
+                .declarations()
+                .find(|declaration| declaration.batch_slot() == target_batch_slot)
+                .map(|declaration| declaration.owner())
+            else {
+                continue;
+            };
+            // The caller-side scan and this co-seal are independent proofs
+            // over the same sealed facts: a caller-minted Handle local-call
+            // observation must be matched by a callee-side `Value(
+            // Construction)` terminal, an unannotated declared result, and a
+            // `callable_result_classes` claim. Any half-sealed edge freezes.
+            let callee_result =
+                super::super::direct_call_loan::lifecycle::call_result_kind(
+                    self.terminal_relation_for_owner(callee_owner),
+                );
+            let handle_observation = self.handle_call_source(&call_site).is_some();
+            let result = match (handle_observation, callee_result) {
+                (true, Some(InvokeCallResultKind::Handle))
+                    if results
+                        .row(target_batch_slot)
+                        .and_then(|row| row.result())
+                        .is_none()
+                        && self.callable_result_class(&target).is_some() =>
+                {
+                    Some(InvokeCallResultKind::Handle)
+                }
+                (true, _) => {
+                    return Err(freeze("lexical-instance-call/handle-result-mismatch"))
+                }
+                (false, other) => other,
+            };
             let mut rows = self.lexical_instance_calls.borrow_mut();
             if rows
                 .insert(
@@ -202,6 +264,9 @@ impl OrdinaryNewClaimLedgerV1 {
                             receiver_binding: need.receiver_binding,
                             target,
                             target_batch_slot,
+                            callee_owner,
+                            argument_sites: need.argument_sites,
+                            result,
                         },
                     ),
                 )
@@ -634,7 +699,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
 /// The unique selected `InstanceBoxMethod` target for
 /// (`owner_box`, `selector`, `arity`), when exactly one exists.
-fn unique_instance_target(
+pub(in crate::mir::normal_callable_semantic_package) fn unique_instance_target(
     selected: &VerifiedSelectedCallableBatchMapV1,
     owner: &str,
     selector: &str,

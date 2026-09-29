@@ -283,8 +283,8 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | 9g | DONE — `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-D0` accepted below: `InvokeCallResultKind::Handle` admitted for callees whose sealed terminal is `Value(Construction)`; `callable_result_classes` stays the sole class-name authority, `call_result_kind` the sole issuer; the caller installs the received object as an owned Home owing exactly one release (ReturnReceive precedent). S0 bounds to the direct-call lane; the lexical `w.make()` row lacks any result field and is the named sibling `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0`. No root-ABI or annotation lanes touched. |
 | 9h | DONE — `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-S0` landed below: direct-call `local h = make(0)` (bare-name `FunctionCall` lane; `Work.make()` is a `Call`/lexical sibling) installs the callee's canonical object as an owned Home owing one `HomeRelease`; `InvokeCallResultKind::Handle` + `InvokeNormalResult` emit once, `MirType::Box("Point")` typed, no Copy/NewBox; negatives reject (returned-Home binding, annotated-construction mismatch); 29/29 lifecycle tests green. |
 | 9i | DONE — `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0` accepted below: `local h = w.make()` (AST `Call`/`method_calls`) joins the Handle-result lane for claim-local receivers only (`local w = new W()`); the disposition row gains a co-sealed `result` at issue (issuer.rs:727 sees terminal_relation + callable_result_classes + result_contracts); a `method_calls` observation arm mints the Handle `LocalCallObservationV1` during scan; `CallReceivedCommitV1`, the verifier pairing (`Callee::SameModuleInstance × Handle`), and `OrdinaryHandle` publish carry over unchanged. Emission must be Invoke-shaped — the existing `CoreEffectPlan::DeclaredInstanceCall` emits a plain `Call` and stays the non-lifecycle path; a port-mediated emit mirroring `emit_local_lifecycle_call_v1` takes Handle rows. Parameter/nested/rebound receivers and the raw member route keep their current reject/dynamic boundary — a Handle-sealed site reaching the dynamic route freezes, never degrades. |
-| 9j | NEXT — `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-S0`: scan-side `method_calls` Handle observation arm (claim-local receiver class via candidates + `unique_instance_target` + callee body-shape construction walk); row `result` field co-sealed at disposition issue; Invoke-shaped emission + `CallReceived` install for `local h = w.make()`; unconsumed-Handle audit. Evidence: `local w = new W(); local h = w.make()` installs one owned Home with exactly one HomeRelease; negatives: parameter receiver, rebound receiver, unclassified callee. |
-| 10 | Fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
+| 9j | DONE — `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-S0` landed below: `local w = new W(); local h = w.make()` seals one Handle `LocalCallObservationV1` from `method_calls` membership (claim-local receiver, non-rebound, sole `new` initializer, unique selected `InstanceBoxMethod`, all-i64 exact formals, callee construction result); the disposition row co-seals `result=Handle` at issue against the callee's retained `Value(Construction)` terminal + unannotated contract + result-class claim. Emission is Invoke-shaped (`Callee::SameModuleInstance` × `Handle`) through the port hook; the receiver Home unwinds on the call fault path and releases once per exit path; the received object installs as owned Home releasing once on the normal path. Instance-method `return new` retains its `Value(Construction)` terminal relation even when receiver-entry demands make home-prefix flow unavailable (exact-site evidence; flow gaps stay in `result_prefixes`/claims). Negatives stay dynamic (rebound receiver, non-construction callee); result-kind/cleanup drift reject. 32/32 lifecycle tests green. Gate 1 remains unsatisfied. |
+| 10 | NEXT — `MIRBUILDER-GATE1-EXE-SUITE-ACCEPTANCE-S0`: fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
 
 ### Landed slices tombstone (compressed 2026-09-28)
 
@@ -1226,3 +1226,53 @@ Smallest next slice: MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-S0
 Non-claims: no parameter/nested receivers; no raw-lane emission;
   no root return ABI; Gate 1 stays unsatisfied.
 ```
+
+### S0 landed — `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-S0` (2026-09-29)
+
+The lexical `recv.m(...)` Handle-result lane is wired end to end:
+
+- **Scan** (`home_local_call_flow::issue_lexical_local_call`): reads the
+  resolver-sealed `method_calls` inventory — never the AST again — admits
+  only `Lexical(Local)` receivers owned by the current function and exact
+  integer-literal arguments; mints `LocalCallObservationV1::Handle` with
+  the live prior-home list.
+- **Coseal predicate** (`lexical_handle_result_call`): proves the receiver
+  binding is a `Local`, non-rebound, sole-initializer claim-local `new`
+  (`candidates`), resolves one unique selected `InstanceBoxMethod` target,
+  requires all-i64 exact formals from the callee's parameter contract, and
+  requires `construction_result_callee` body-shape proof.
+- **Disposition row** (`issue_lexical_instance_call_dispositions`): gains
+  `callee_owner` + `argument_sites` + co-sealed `result`. `Handle` records
+  only when caller observation AND callee `Value(Construction)` terminal
+  AND unannotated declared result AND `callable_result_classes` claim all
+  agree; half-sealed edges freeze (`handle-result-mismatch`).
+- **Terminal relation retention** (`scan_new_home_flow`): an instance
+  method's receiver-entry `EntryDemandMissing` no longer erases a
+  `Value(Construction)` terminal — the exact-site construction evidence is
+  retained while the flow gap stays in `result_prefixes`/the result claim;
+  every other returned source still drops when homes are unavailable.
+- **Emission** (`emit_local_lexical` via the `MemberCallRoutePlan::Standard`
+  port hook): emits `Invoke{Call{callee: SameModuleInstance{key, receiver},
+  result: Handle}}` with the sealed receiver value (never re-lowered) and
+  sealed literal arguments; `InvokeNormalResult` projects the result typed
+  `MirType::Box(class)`; the call's fault path unwinds prior Homes through
+  `cleanup_chain` (same contract as `new` emission); `CallReceivedCommitV1`
+  records begin/record/complete.
+- **Non-fallback**: a Handle-observed site reaching the port without its
+  disposition row freezes (`lexical-handle/disposition-missing`); sites
+  with no observation keep the existing dynamic member route.
+
+Evidence: `direct_call_lifecycle` 32/32 green —
+`lexical_handle_result_call_installs_owned_home_and_releases_at_exit`
+asserts one `SameModuleInstance`×`Handle` invoke targeting `Work.make`,
+one `InvokeNormalResult` typed `MirType::Box("Point")`, path-sensitive
+release accounting (receiver once on each of normal+fault paths, received
+object once on the normal path), exactly one caller-side `NewBox`, no
+`Copy` of the received handle, strict MIR verify, finalized-root
+validation, and result-kind/cleanup drift rejection; the rebound-receiver
+and non-construction-callee negatives stay dynamic.
+
+Non-claims: parameter receivers, nested handle-result receivers, non-i64
+arguments, annotated callee results, and `me`/`this` receivers stay on
+their existing reject/dynamic lanes. Gate 1 remains unsatisfied — next
+named frontier from row 10.

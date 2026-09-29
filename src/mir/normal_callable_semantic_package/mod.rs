@@ -130,7 +130,7 @@ pub(crate) use model::{
 };
 pub(crate) use ordinary_new_coseal::{
     BirthAbiHandoffV1, FinalizedBirthActualsV1, FinalizedRootResultAbiV1,
-    FinalizedRootSourceHandoffV1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,
+    FinalizedRootSourceHandoffV1, LexicalInstanceCallDispositionRowV1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,
     OrdinaryNewConstructorDispositionV1, OrdinaryNewResultClaimV1,
     OrdinaryNewTrivialArgumentKindV1,
     OrdinaryNewTrivialArgumentV1, PreparedTerminalI64AddReturnV1, PreparedTerminalI64FieldReturnV1,

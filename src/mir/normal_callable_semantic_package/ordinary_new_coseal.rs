@@ -77,6 +77,7 @@ mod candidate;
 mod local_commit;
 #[path = "ordinary_new_lexical_instance_call.rs"]
 mod lexical_instance_call;
+pub(crate) use lexical_instance_call::LexicalInstanceCallDispositionRowV1;
 #[path = "ordinary_new_result_class_claim.rs"]
 mod result_class_claim;
 #[path = "ordinary_new_root_instance_call.rs"]

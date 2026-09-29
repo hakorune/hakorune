@@ -725,7 +725,12 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         |error| NormalCallableSemanticPackageIssueV1::DeclaredInstanceLocator { _error: error },
     )?;
     ordinary_new_claim_ledger
-        .issue_lexical_instance_call_dispositions(&batch, &selected, &physical_signature)
+        .issue_lexical_instance_call_dispositions(
+            &batch,
+            &selected,
+            &physical_signature,
+            &result_contracts,
+        )
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
         )?;

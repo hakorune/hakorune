@@ -877,6 +877,29 @@ impl OrdinaryNewClaimLedgerV1 {
             })
     }
 
+    /// Prior-home unwind operands for a Handle local call's fault landing:
+    /// every Home recorded live before the call must still be installed
+    /// and releasable, released newest-first like every other selected
+    /// unwind chain. A lexical receiver call can never strand a live
+    /// prior Home.
+    pub(crate) fn handle_call_prior_home_unwind(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Result<Vec<InvokeOperation>, String> {
+        let call = self
+            .handle_call_source(site)
+            .ok_or_else(|| freeze("handle-call-source-missing"))?;
+        let rows = self.local_commits.borrow();
+        call.prior_homes()
+            .iter()
+            .rev()
+            .map(|binding| match installed_home(&rows, *binding) {
+                Ok(row) if row.end_available() => Ok(row.end_operation()),
+                _ => Err(freeze("handle-call-prior-home-unavailable")),
+            })
+            .collect()
+    }
+
     /// The canonical object the callee's result claim/commit minted for a
     /// `return new` site — the identity a caller-side received handle keeps.
     pub(crate) fn result_object(

@@ -800,6 +800,319 @@ fn handle_result_lane_rejects_annotated_construction_callee() {
     );
 }
 
+#[test]
+fn lexical_handle_result_call_installs_owned_home_and_releases_at_exit() {
+    // `local w = new Work(0); local h = w.make(0)` — the receiver is a
+    // claim-local Home, the unique selected `Work.make` seals
+    // `Value(Construction)`, and the caller receives the callee's
+    // canonical object as an owned Home released once at exit.
+    let mut package = issue(
+        r#"box Point { x: i64 y: i64 birth(x, y) { me.x = x me.y = y } }
+        box Work {
+            n: i64
+            birth(n) { me.n = n }
+            make(args: i64) { return new Point(1, 2) }
+        }
+        static box Main {
+            main() { local w = new Work(0) local h = w.make(0) return 30 }
+        }"#,
+    )
+    .expect("lexical handle-result package");
+    // No bare `FunctionCall` exists here — the only call edge is the
+    // lexical `w.make(0)`, so this package carries no direct-call loans.
+    let mut loans = package.direct_call_loans.take();
+    let main = package
+        .declaration_catalog()
+        .source_backed_app_main()
+        .unwrap();
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.identity().same_as(main.parser_identity()))
+        .unwrap();
+    let ledger = package.ordinary_new_claim_ledger.clone();
+    // The sealed observation owes a lifecycle commit before emission.
+    let completion = ledger.root_completion_for_test();
+    let flow = completion.cleanup().root_flow().unwrap();
+    assert_eq!(
+        flow.local_calls()
+            .iter()
+            .filter(|call| {
+                call.result()
+                    == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
+            })
+            .count(),
+        1,
+        "the lexical site sealed one Handle local-call observation"
+    );
+    assert!(!ledger.map_demands_consumed());
+    let mut builder = MirBuilder::new();
+    let mut function = package
+        .batch()
+        .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+            builder.lower_map_dependency_for_test(
+                input,
+                SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
+                main.parser_identity(),
+                identity.method_source_observation().cloned(),
+                std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                loans.as_mut(),
+            )
+        })
+        .unwrap()
+        .expect("lexical handle-result lowering");
+    // Exactly one instance-receiver Handle invoke feeding one projection.
+    let mut received = None;
+    let mut receiver = None;
+    let mut landings = None;
+    for instruction in function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+    {
+        if let MirInstruction::Invoke {
+            operation:
+                InvokeOperation::Call {
+                    call,
+                    result: InvokeCallResultKind::Handle,
+                },
+            normal_landing,
+            fault_landing,
+            ..
+        } = instruction
+        {
+            let crate::mir::definitions::Callee::SameModuleInstance {
+                key,
+                receiver: recv,
+            } = &call.callee
+            else {
+                panic!("the lexical handle invoke keeps its instance receiver")
+            };
+            assert!(key.name() == "make", "the unique selected target is Work.make");
+            assert_eq!(key.namespace(), hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod);
+            assert!(received.is_none(), "exactly one handle invoke");
+            received = Some(instruction.clone());
+            receiver = Some(*recv);
+            landings = Some((*normal_landing, *fault_landing));
+        }
+    }
+    assert!(received.is_some());
+    let receiver = receiver.unwrap();
+    let projected: Vec<ValueId> = function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter_map(|instruction| match instruction {
+            MirInstruction::InvokeNormalResult { invoke_block, dst }
+                if function.blocks[invoke_block].all_instructions().any(|i| {
+                    matches!(
+                        i,
+                        MirInstruction::Invoke {
+                            operation: InvokeOperation::Call {
+                                result: InvokeCallResultKind::Handle,
+                                ..
+                            },
+                            ..
+                        }
+                    )
+                }) =>
+            {
+                Some(*dst)
+            }
+            _ => None,
+        })
+        .collect();
+    let [projected] = projected.as_slice() else {
+        panic!("exactly one handle-result projection expected")
+    };
+    let received = *projected;
+    assert!(
+        matches!(builder.value_type(received), Some(crate::mir::MirType::Box(name)) if name == "Point"),
+        "the received value carries the callee's result class"
+    );
+    // Path-sensitive release contract: every path releases a live Home
+    // exactly once. The invoke's fault path unwinds the prior Home `w`
+    // before the fault exits — the received object does not exist on that
+    // path and is never released. The normal path releases the received
+    // object and the receiver once each.
+    let (normal_head, fault_head) = landings.unwrap();
+    let fault_released = cleanup_path_releases(&function, fault_head);
+    assert_eq!(
+        fault_released,
+        vec![receiver],
+        "the call fault path unwinds exactly the prior receiver Home"
+    );
+    let normal_released = cleanup_path_releases(&function, normal_head);
+    assert_eq!(
+        normal_released
+            .iter()
+            .filter(|value| **value == received)
+            .count(),
+        1,
+        "the normal path releases the received object once"
+    );
+    assert_eq!(
+        normal_released
+            .iter()
+            .filter(|value| **value == receiver)
+            .count(),
+        1,
+        "the normal path releases the receiver Home once"
+    );
+    // `local w = new Work(0)` is the only caller-side acquisition: the
+    // received handle must not mint a second NewBox or re-bind by Copy.
+    assert_eq!(
+        function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .filter(|i| {
+                matches!(
+                    i,
+                    MirInstruction::Invoke {
+                        operation: InvokeOperation::NewBox { .. },
+                        ..
+                    }
+                )
+            })
+            .count(),
+        1,
+        "only the receiver's own `new` mints a caller-side acquisition"
+    );
+    assert!(!function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .any(|i| matches!(i, MirInstruction::Copy { src, .. } if *src == received)));
+    assert!(ledger.map_demands_consumed());
+    crate::mir::verification::MirVerifier::new_strict()
+        .verify_function(&function)
+        .expect("lexical handle-receive CFG verifies");
+    let observation = ledger
+        .validate_finalized_new_root(&function)
+        .expect("finalized lexical handle-receive root");
+    function
+        .install_root_ordinary_new_observation(observation)
+        .unwrap();
+    // Result-kind drift: the Handle call result reclassified as I64.
+    let mut drifted = function.clone();
+    let mut changed = false;
+    for block in drifted.blocks.values_mut() {
+        if let Some(MirInstruction::Invoke {
+            operation:
+                InvokeOperation::Call {
+                    result: result @ InvokeCallResultKind::Handle,
+                    ..
+                },
+            ..
+        }) = &mut block.terminator
+        {
+            *result = InvokeCallResultKind::I64;
+            changed = true;
+            break;
+        }
+    }
+    assert!(changed);
+    assert!(
+        ledger.validate_after_compiler_finishing(&drifted).is_err(),
+        "result-kind drift must reject"
+    );
+    // Cleanup drift: the exit release targets a different value.
+    let mut drifted = function.clone();
+    let mut changed = false;
+    for block in drifted.blocks.values_mut() {
+        if let Some(MirInstruction::Invoke {
+            operation: InvokeOperation::HomeRelease { value, .. },
+            ..
+        }) = &mut block.terminator
+        {
+            *value = ValueId(999);
+            changed = true;
+            break;
+        }
+    }
+    assert!(changed);
+    assert!(
+        ledger.validate_after_compiler_finishing(&drifted).is_err(),
+        "cleanup-value drift must reject"
+    );
+    ledger
+        .validate_after_compiler_finishing(&function)
+        .expect("finished lexical handle-receive artifact");
+}
+
+#[test]
+fn lexical_handle_lane_leaves_rebound_receiver_dynamic() {
+    // `w` is rebound between its `new` claim and the call: the receiver's
+    // provenance is no longer a single claim-local `new`, so no Handle
+    // observation seals and the site stays on the dynamic member route.
+    let mut package = issue(
+        r#"box Point { x: i64 y: i64 birth(x, y) { me.x = x me.y = y } }
+        box Work {
+            n: i64
+            birth(n) { me.n = n }
+            make(args: i64) { return new Point(1, 2) }
+        }
+        static box Main {
+            main() {
+                local w = new Work(0)
+                w = new Work(1)
+                local h = w.make(0)
+                return 30
+            }
+        }"#,
+    )
+    .expect("rebound receiver still issues");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let completion = ledger.root_completion_for_test();
+    let flow = completion.cleanup().root_flow().unwrap();
+    assert_eq!(
+        flow.local_calls()
+            .iter()
+            .filter(|call| {
+                call.result()
+                    == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
+            })
+            .count(),
+        0,
+        "a rebound receiver must not seal a Handle observation"
+    );
+    let _ = package.direct_call_loans.take();
+}
+
+#[test]
+fn lexical_handle_lane_leaves_nonconstruction_callee_dynamic() {
+    // `w.size()` returns an integer field, not `new`: the sealed terminal
+    // relation is truthful I64 evidence, the disposition records it, and
+    // the caller scan issues no Handle observation.
+    let mut package = issue(
+        r#"box Work {
+            n: i64
+            birth(n) { me.n = n }
+            size() { return me.n }
+        }
+        static box Main {
+            main() { local w = new Work(0) local h = w.size() return h }
+        }"#,
+    )
+    .expect("non-construction callee still issues");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let completion = ledger.root_completion_for_test();
+    let flow = completion.cleanup().root_flow().unwrap();
+    assert_eq!(
+        flow.local_calls()
+            .iter()
+            .filter(|call| {
+                call.result()
+                    == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
+            })
+            .count(),
+        0,
+        "a non-construction callee must not seal a Handle observation"
+    );
+    let _ = package.direct_call_loans.take();
+}
+
 fn follow_jumps(
     function: &crate::mir::MirFunction,
     mut id: crate::mir::BasicBlockId,
@@ -808,6 +1121,45 @@ fn follow_jumps(
         match function.blocks[&id].terminator.as_ref() {
             Some(MirInstruction::Jump { target, .. }) => id = *target,
             _ => return id,
+        }
+    }
+    panic!("cyclic source cleanup");
+}
+
+/// Walk one cleanup path from `head` following Jumps and Invoke normal
+/// landings until a `Return`/`ReturnFault` exit, collecting every
+/// `HomeRelease` operand in path order.
+fn cleanup_path_releases(
+    function: &crate::mir::MirFunction,
+    mut head: crate::mir::BasicBlockId,
+) -> Vec<ValueId> {
+    let mut released = Vec::new();
+    for _ in 0..=function.blocks.len() {
+        let block = &function.blocks[&head];
+        let mut next = None;
+        for instruction in block.all_instructions() {
+            match instruction {
+                MirInstruction::Jump { target, .. } => next = Some(*target),
+                MirInstruction::Invoke {
+                    operation,
+                    normal_landing,
+                    ..
+                } => {
+                    if let InvokeOperation::HomeRelease { value, .. } = operation {
+                        released.push(*value);
+                    }
+                    next = Some(*normal_landing);
+                }
+                MirInstruction::Return { .. } | MirInstruction::ReturnFault { .. } => {
+                    next = None;
+                    break;
+                }
+                _ => {}
+            }
+        }
+        match next {
+            Some(target) => head = target,
+            None => return released,
         }
     }
     panic!("cyclic source cleanup");

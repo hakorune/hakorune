@@ -258,6 +258,19 @@ pub(in crate::mir::builder) trait DirectCallDispositionPortV1 {
         Ok(None)
     }
 
+    /// Emit one lexical instance call (`recv.m(...)`) whose caller-side
+    /// scan sealed a Handle result observation at the current call site.
+    /// Ports without the ordinary-new claim ledger stay unarmed (`None`);
+    /// a port seeing the sealed observation but lacking the disposition
+    /// row freezes rather than degrading to the dynamic member route.
+    fn emit_local_lexical_lifecycle_call_v1(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _method: &str,
+    ) -> Result<Option<ValueId>, String> {
+        Ok(None)
+    }
+
     fn validate_current_call_argument_site_v1(
         &self,
         _expected: &SourceExprSiteV1,
