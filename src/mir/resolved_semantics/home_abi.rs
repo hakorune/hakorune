@@ -5,9 +5,10 @@
 //! Recipe, MIR, or physical-ABI authority.
 
 use super::{
-    HomeDemandV1, HomeRelationBrandIssuerV1, HomeRelationBrandV1, HomeRelationRejectV1,
-    HomeResultRelationV1, ResolverNominalBoxTypeIdV1, ResolverSemanticValueTypeV1,
-    VerifiedInstanceMethodDeclarationCatalogV1, VerifiedInstanceMethodDeclarationV1,
+    BindingRefV1, FunctionOwnerIdV1, HomeDemandV1, HomeRelationBrandIssuerV1, HomeRelationBrandV1,
+    HomeRelationRejectV1, HomeResultRelationV1, ResolverNominalBoxTypeIdV1,
+    ResolverSemanticValueTypeV1, VerifiedInstanceMethodDeclarationCatalogV1,
+    VerifiedInstanceMethodDeclarationV1,
 };
 use crate::parser::ResolverSourceInvocationProvenanceV1;
 
@@ -171,6 +172,146 @@ impl VerifiedDeclaredInstanceMethodHomeCatalogV1 {
 
     pub(crate) const fn relation_batch_brand(&self) -> HomeRelationBrandV1 {
         self.relation_batch_brand
+    }
+}
+
+/// One entry-only parameter demand lent to source Home flow. The kind is
+/// the common parameter catalog's own representation; `demand` is its
+/// `home_demand()` projection. No new parameter meaning is issued here.
+#[derive(Debug)]
+pub(crate) struct VerifiedInstanceEntryHomeParameterV1 {
+    ordinal: u32,
+    binding: BindingRefV1,
+    kind: crate::mir::callable_parameter_contract::CallableParameterContractKindV1,
+    demand: HomeDemandV1,
+}
+
+impl VerifiedInstanceEntryHomeParameterV1 {
+    /// Only the sole Home ABI issuer may mint an entry parameter row.
+    pub(in crate::mir) const fn issue(
+        ordinal: u32,
+        binding: BindingRefV1,
+        kind: crate::mir::callable_parameter_contract::CallableParameterContractKindV1,
+        demand: HomeDemandV1,
+    ) -> Self {
+        Self {
+            ordinal,
+            binding,
+            kind,
+            demand,
+        }
+    }
+
+    pub(crate) const fn ordinal(&self) -> u32 {
+        self.ordinal
+    }
+
+    pub(crate) const fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+
+    pub(crate) const fn kind(
+        &self,
+    ) -> crate::mir::callable_parameter_contract::CallableParameterContractKindV1 {
+        self.kind
+    }
+
+    #[allow(dead_code)]
+    pub(crate) const fn demand(&self) -> HomeDemandV1 {
+        self.demand
+    }
+}
+
+/// Entry-only Home demand loan for one exact instance declaration of one
+/// verified callable batch. This is not a `VerifiedHomeAbiV1` row: the
+/// result stays unresolved, no call-site ABI is published, and the row
+/// cannot be detached or recombined with another declaration.
+#[derive(Debug)]
+pub(crate) struct VerifiedInstanceEntryHomeLoanV1 {
+    batch_slot: u32,
+    identity: crate::parser::CallableDeclarationIdentityV1,
+    owner: FunctionOwnerIdV1,
+    mode: crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1,
+    receiver: BindingRefV1,
+    parameters: Box<[VerifiedInstanceEntryHomeParameterV1]>,
+}
+
+impl VerifiedInstanceEntryHomeLoanV1 {
+    /// Only the sole Home ABI issuer may mint an entry loan.
+    pub(in crate::mir) const fn issue(
+        batch_slot: u32,
+        identity: crate::parser::CallableDeclarationIdentityV1,
+        owner: FunctionOwnerIdV1,
+        mode: crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1,
+        receiver: BindingRefV1,
+        parameters: Box<[VerifiedInstanceEntryHomeParameterV1]>,
+    ) -> Self {
+        Self {
+            batch_slot,
+            identity,
+            owner,
+            mode,
+            receiver,
+            parameters,
+        }
+    }
+
+    #[allow(dead_code)]
+    pub(crate) const fn batch_slot(&self) -> u32 {
+        self.batch_slot
+    }
+
+    #[allow(dead_code)]
+    pub(crate) const fn identity(&self) -> &crate::parser::CallableDeclarationIdentityV1 {
+        &self.identity
+    }
+
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(crate) const fn mode(
+        &self,
+    ) -> crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 {
+        self.mode
+    }
+
+    pub(crate) const fn receiver(&self) -> BindingRefV1 {
+        self.receiver
+    }
+
+    pub(crate) fn parameters(&self) -> &[VerifiedInstanceEntryHomeParameterV1] {
+        &self.parameters
+    }
+}
+
+/// The batch-bound set of entry loans. Issued once by the sole Home ABI
+/// issuer against the verified callable batch and its common parameter
+/// catalog; rows are never rekeyed or recombined.
+#[derive(Debug)]
+pub(crate) struct VerifiedInstanceEntryHomeCatalogV1 {
+    loans: Box<[VerifiedInstanceEntryHomeLoanV1]>,
+}
+
+impl VerifiedInstanceEntryHomeCatalogV1 {
+    /// Only the sole Home ABI issuer may mint the catalog.
+    pub(in crate::mir) const fn issue(loans: Box<[VerifiedInstanceEntryHomeLoanV1]>) -> Self {
+        Self { loans }
+    }
+
+    /// The loan lent to one exact declaration, or `None` when the
+    /// declaration is outside the admitted entry cohort.
+    pub(crate) fn for_batch_slot(
+        &self,
+        batch_slot: u32,
+    ) -> Option<&VerifiedInstanceEntryHomeLoanV1> {
+        let mut rows = self
+            .loans
+            .iter()
+            .filter(|loan| loan.batch_slot == batch_slot);
+        let loan = rows.next()?;
+        debug_assert!(rows.next().is_none());
+        Some(loan)
     }
 }
 

@@ -24,6 +24,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
             crate::mir::callable_parameter_contract::CallableParameterContractKindV1,
         ),
     >,
+    entry_home: Option<&super::VerifiedInstanceEntryHomeLoanV1>,
 ) -> (
     BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
@@ -33,6 +34,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         input,
         selected,
         parameters,
+        entry_home,
         None,
         result_sites,
         &mut |_, _, _, _, _| Ok::<_, std::convert::Infallible>(false),

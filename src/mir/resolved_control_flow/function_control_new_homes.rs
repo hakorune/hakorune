@@ -38,6 +38,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         input,
         selected,
         std::iter::empty(),
+        None,
         field_is_integer,
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
@@ -69,6 +70,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
             crate::mir::callable_parameter_contract::CallableParameterContractKindV1,
         ),
     >,
+    entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
     field_is_integer: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
         &crate::mir::resolved_semantics::SourceExprSiteV1,
@@ -121,6 +123,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
             input,
             selected,
             parameters,
+            entry_home,
             completion.explicit_site(),
             result_sites,
             field_is_integer,

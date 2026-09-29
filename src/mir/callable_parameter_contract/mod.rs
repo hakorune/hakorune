@@ -11,7 +11,10 @@ mod issuer;
 mod model;
 
 pub(crate) use issuer::{issue_callable_parameter_contract_v1, CallableParameterContractIssueV1};
-pub(crate) use model::{CallableParameterContractKindV1, CallableParameterDeclarationModeV1};
+pub(crate) use model::{
+    CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
+    VerifiedCallableParameterContractCatalogV1,
+};
 
 #[cfg(test)]
 mod tests;

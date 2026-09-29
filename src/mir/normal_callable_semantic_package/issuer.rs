@@ -27,7 +27,8 @@ use crate::mir::compiler::dynamic_full_body_recipe::{
     DynamicInvocationCleanupProjectionRejectV1,
 };
 use crate::mir::resolved_semantics::{
-    CallableLookupErrorV1, FunctionSemanticResolverSessionV1, SourceExprSiteV1,
+    CallableHomeAbiIssuerV1, CallableLookupErrorV1, FunctionSemanticResolverSessionV1,
+    SourceExprSiteV1,
 };
 #[cfg(test)]
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
@@ -314,6 +315,9 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     OrdinaryNew {
         _error: OrdinaryNewCoSealIssueV1,
     },
+    EntryHome {
+        _error: super::SourceEntryHomeIssueV1,
+    },
     InstanceConstructors {
         _error: InstanceConstructorSemanticBatchIssueV1,
     },
@@ -487,30 +491,37 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             .map_err(|error| NormalCallableSemanticPackageIssueV1::DirectCall { _error: error })?,
         None => None,
     };
-    let parameter_contracts = {
-        let catalog = issue_callable_parameter_contract_v1(&batch).map_err(|error| {
+    let parameter_contract_catalog =
+        issue_callable_parameter_contract_v1(&batch).map_err(|error| {
             NormalCallableSemanticPackageIssueV1::ParameterContract { _error: error }
         })?;
-        catalog
-            .declarations()
-            .map(|declaration| OwnedCallableParameterContractDeclarationV1 {
-                batch_slot: declaration.batch_slot(),
-                owner: declaration.owner(),
-                mode: declaration.mode(),
-                parameters: declaration
-                    .parameters()
-                    .iter()
-                    .map(|parameter| OwnedCallableParameterContractV1 {
-                        ordinal: parameter.ordinal(),
-                        binding: parameter.binding(),
-                        kind: parameter.kind(),
-                    })
-                    .collect::<Vec<_>>()
-                    .into_boxed_slice(),
-            })
-            .collect::<Vec<_>>()
-            .into_boxed_slice()
-    };
+    let parameter_contracts = parameter_contract_catalog
+        .declarations()
+        .map(|declaration| OwnedCallableParameterContractDeclarationV1 {
+            batch_slot: declaration.batch_slot(),
+            owner: declaration.owner(),
+            mode: declaration.mode(),
+            parameters: declaration
+                .parameters()
+                .iter()
+                .map(|parameter| OwnedCallableParameterContractV1 {
+                    ordinal: parameter.ordinal(),
+                    binding: parameter.binding(),
+                    kind: parameter.kind(),
+                })
+                .collect::<Vec<_>>()
+                .into_boxed_slice(),
+        })
+        .collect::<Vec<_>>()
+        .into_boxed_slice();
+    // The sole Home ABI issuer consumes the live common parameter catalog
+    // once — it projects entry demands for the exact instance cohort without
+    // reissuing parameter meaning and publishes no complete call-site ABI.
+    let entry_home_loans = CallableHomeAbiIssuerV1::issue_source_entry_home_catalog_v1(
+        &batch,
+        &parameter_contract_catalog,
+    )
+    .map_err(|error| NormalCallableSemanticPackageIssueV1::EntryHome { _error: error })?;
     let mut candidate = None;
     for declaration in batch.declarations() {
         // The resolved batch row is the sole declaration-mode authority.  The
@@ -634,6 +645,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         app_main_identity.as_ref(),
         direct_call_loans.as_ref(),
         &parameter_contracts,
+        &entry_home_loans,
         &mut dynamic,
         &instance_constructors,
     )

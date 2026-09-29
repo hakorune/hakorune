@@ -299,6 +299,7 @@ fn formal_projection_missing_duplicate_and_foreign_bindings_are_unavailable() {
                     input,
                     &std::collections::BTreeMap::new(),
                     parameters,
+                    None,
                     terminal,
                     &std::collections::BTreeSet::new(),
                     &mut |_, _, _, _, _| Ok::<_, std::convert::Infallible>(false),

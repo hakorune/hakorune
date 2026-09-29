@@ -183,6 +183,8 @@ pub(in crate::mir) use function_view::ReceiverPolicyV1;
 pub(crate) use home_abi::{
     CallableHomeAbiIssuerV1, HomeAbiIssueV1, ResolverHomeCapabilityEnvironmentV1,
     VerifiedDeclaredInstanceMethodHomeCatalogV1, VerifiedHomeAbiV1,
+    VerifiedInstanceEntryHomeCatalogV1, VerifiedInstanceEntryHomeLoanV1,
+    VerifiedInstanceEntryHomeParameterV1,
 };
 pub(crate) use home_relation::{
     HomeDemandV1, HomeDestinationV1, HomeRelationBrandIssuerV1, HomeRelationBrandV1,

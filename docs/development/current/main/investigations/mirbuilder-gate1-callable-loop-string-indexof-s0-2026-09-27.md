@@ -173,6 +173,33 @@ The slice removes one obsolete source decision, not the shared scanner/owner.
 Tests after implementation and selected-decision removal are outputs; they are
 not demanded before coding. No broad suite rebuild is required for design.
 
+## Landed — MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0
+
+Landed route:
+`issue_normal_callable_semantic_package_v1` keeps the live common parameter
+catalog and calls
+`CallableHomeAbiIssuerV1::issue_source_entry_home_catalog_v1` once; the
+batch-facing projection lives in
+`normal_callable_semantic_package/instance_entry_home.rs` (sole authority
+stays `home_abi.rs`). The returned `VerifiedInstanceEntryHomeCatalogV1` is
+looked up per batch slot inside `issue_ordinary_source_cohort_v1` and lent to
+`verify_function_completion_with_new_homes_and_argument_observations_v1`,
+`issue_new_home_prefixes_with_arguments_v1`, and the `child_new_ready` probe.
+`scan_new_home_flow` replaces only the receiver-presence
+`EntryDemandMissing` when a loan is present; `PrefixLocalFlow::install_entry_home`
+re-verifies loan owner, receiver `Receiver` declaration binding, and complete
+unique parameter rows, installing the receiver as a borrowed self-rooted
+`Handle`. Capture demands and static/top-level declarations mint no loan.
+Evidence: `instance_entry_home_tests.rs` 7/7 — positive exact loan admits the
+`new` site prefix; negatives cover missing evidence, foreign cohort loan,
+foreign owner metadata, wrong receiver binding, duplicate/incomplete rows,
+and static non-admission. Result publication is type-absent (the loan has no
+result relation). Focused suite: 192 pass / `main_f1` red reproduces on
+`339674c77b`-era baseline (unrelated `normal_source_plan` debt). Guards:
+`current_state_pointer_guard.sh` ok, `mirbuilder_qualified_route_scope_guard.sh`
+ok (new pins + boundary registrations). Successor: the named
+`MIRBUILDER-GATE1-PER-EXIT-HOME-FLOW-D0` below; no EXE PASS is claimed.
+
 ## Following task — MIRBUILDER-GATE1-PER-EXIT-HOME-FLOW-D0
 
 After entry S0, settle one contract spanning source flow and exit consumption.

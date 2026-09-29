@@ -543,6 +543,15 @@ only, not resolver nominal identity. This does not make `take`, Home grammar,
 or production ABI live: Query/body conformance, Home Flow, physical ownership,
 targets, and production remain separate gates.
 
+For the verified ordinary instance cohort, the same issuer lends an
+entry-only projection: batch-slot-bound `VerifiedInstanceEntryHomeLoanV1`
+rows carry the exact `Receiver` binding and each parameter's projected
+`home_demand()` into source Home Flow, which installs them only for the exact
+matching declaration. The loan carries no result relation and publishes no
+complete call-site Home ABI. Missing capability, capture demands,
+static/top-level declarations, and foreign or incomplete rows all keep the
+named entry unavailability rather than receiving empty obligations.
+
 ### ClosedCallable
 
 A callable whose body and all relevant resolved facts are locally available

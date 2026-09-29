@@ -161,6 +161,42 @@ impl<'source> PrefixLocalFlow<'source> {
         }
     }
 
+    /// Install the receiver and parameters carried by a verified instance
+    /// entry loan. The loan is the sole authority for these bindings; the
+    /// caller passes the row minted for this exact declaration only. The
+    /// receiver installs as a borrowed self-rooted Handle — it is observable
+    /// as a handle root but owns no Home and owes no release.
+    pub(super) fn install_entry_home(
+        &mut self,
+        loan: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1,
+    ) -> bool {
+        // The loan is scoped to one exact declaration: a foreign-owner row
+        // never installs, even if its bindings happen to match by accident.
+        if loan.owner() != self.input.owner() {
+            return false;
+        }
+        let receiver = loan.receiver();
+        if !self.install_parameters(
+            loan.parameters()
+                .iter()
+                .map(|row| (row.ordinal(), row.binding(), row.kind())),
+        ) {
+            return false;
+        }
+        if receiver.owner() != self.input.owner()
+            || self
+                .input
+                .function()
+                .declaration_binding(&super::SourceBindingSiteV1::Receiver)
+                != Some(receiver)
+            || self.locals.contains_key(&receiver)
+        {
+            return false;
+        }
+        self.locals.insert(receiver, StoredLocal::Handle(receiver));
+        true
+    }
+
     /// `root` is a self-rooted handle exactly when it stores itself —
     /// i.e. a parameter-installed handle, never a live Home/Map local.
     pub(super) fn is_self_rooted_handle(&self, root: BindingRefV1) -> bool {

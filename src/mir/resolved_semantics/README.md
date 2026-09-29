@@ -464,6 +464,26 @@ Lambda syntax is borrowed through an AST-derived view and never cloned into a
 semantic product. A child declaration uses a child-local `BindingId`; raw IDs
 may repeat across owners without aliasing.
 
+### Instance entry Home loan (GATE1-INSTANCE-ENTRY-HOME-S0)
+
+The same sole issuer also mints the entry-only loan product
+(`VerifiedInstanceEntryHomeCatalogV1`, one `VerifiedInstanceEntryHomeLoanV1`
+per admitted declaration). The batch-facing projection lives in
+`normal_callable_semantic_package/instance_entry_home.rs` because it consumes
+`VerifiedResolvedCallableSemanticBatchV1`; authority stays with
+`CallableHomeAbiIssuerV1`. It requires the live common parameter catalog,
+exact `InstanceBoxMethod` mode, the declaration's own `Receiver` binding, and
+complete ordered parameter rows — foreign, duplicate, or missing evidence
+rejects before any flow sees a partial relation. Capture demands and
+static/top-level declarations produce no loan.
+
+The loan carries receiver plus parameter `home_demand()` projections only; it
+has no result relation and cannot publish a complete call-site Home ABI.
+`scan_new_home_flow` consumes it through `PrefixLocalFlow::install_entry_home`,
+which installs the receiver as a borrowed self-rooted `Handle` and each
+verified parameter binding for the exact matching declaration only — every
+other evidence keeps the named `EntryDemandMissing` unavailability.
+
 ## Named Array conditional requirement
 
 `named_array_requirement.rs` co-seals exact New/initializer/BindingRef and method

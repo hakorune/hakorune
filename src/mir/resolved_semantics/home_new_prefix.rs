@@ -8,6 +8,7 @@ use super::{
     BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, HomeDemandV1, OwnedExprSiteV1,
     ResolvedLexicalRefV1, ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1,
     SourceBindingSiteV1, SourceExprSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
+    VerifiedInstanceEntryHomeLoanV1,
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -121,11 +122,13 @@ pub(crate) use terminal_relation::{
 pub(crate) fn issue_new_home_prefixes_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
+    entry_home: Option<&VerifiedInstanceEntryHomeLoanV1>,
 ) -> BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>> {
     scan_new_home_flow(
         input,
         selected,
         std::iter::empty(),
+        entry_home,
         None,
         &BTreeSet::new(),
         &mut |_, _, _, _, _| Ok::<_, std::convert::Infallible>(false),
@@ -157,6 +160,7 @@ pub(crate) fn scan_new_home_flow<E>(
             crate::mir::callable_parameter_contract::CallableParameterContractKindV1,
         ),
     >,
+    entry_home: Option<&VerifiedInstanceEntryHomeLoanV1>,
     terminal: Option<&SourceStmtSiteV1>,
     result_sites: &BTreeSet<OwnedExprSiteV1>,
     field_is_integer: &mut impl FnMut(
@@ -188,13 +192,17 @@ pub(crate) fn scan_new_home_flow<E>(
     let mut argument_observations = BTreeMap::new();
     let mut result_prefixes = BTreeMap::new();
     let function = input.function();
-    let mut unavailable = (function
-        .declaration_sites()
-        .any(|site| matches!(site, SourceBindingSiteV1::Receiver))
-        || !input
-            .forest()
-            .ordered_capture_demands(input.owner())
-            .is_empty())
+    // Capture demands are never covered by an entry loan — they keep the
+    // named unavailability either way. A receiver demand is covered only by
+    // the sole Home ABI issuer's loan for this exact declaration.
+    let mut unavailable = (!input
+        .forest()
+        .ordered_capture_demands(input.owner())
+        .is_empty()
+        || (function
+            .declaration_sites()
+            .any(|site| matches!(site, SourceBindingSiteV1::Receiver))
+            && entry_home.is_none()))
     .then_some(HomePrefixUnavailableV1::EntryDemandMissing);
     let Ok(body) = input.source().root_body() else {
         return Ok((
@@ -216,7 +224,13 @@ pub(crate) fn scan_new_home_flow<E>(
         ));
     };
     let mut locals = PrefixLocalFlow::new(input);
-    if !locals.install_parameters(parameters) {
+    // A lent entry installs the loan's own verified receiver/parameter
+    // bindings; without one the caller's declared parameter rows install.
+    let installed = match entry_home {
+        Some(loan) => locals.install_entry_home(loan),
+        None => locals.install_parameters(parameters),
+    };
+    if !installed {
         unavailable = Some(HomePrefixUnavailableV1::EntryDemandMissing);
     }
     let mut homes = Vec::new();

@@ -45,6 +45,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     app_main_identity: Option<&crate::parser::CallableDeclarationIdentityV1>,
     direct_call_loans: Option<&super::super::direct_call_loan::DirectCallDispositionLoansV1>,
     parameter_contracts: &[super::super::model::OwnedCallableParameterContractDeclarationV1],
+    entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     dynamic: &mut super::super::model::NormalCallableDynamicProjectionV1,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
 ) -> Result<
@@ -120,6 +121,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             .with_lowering_input(batch_slot, |input| -> Result<_, OrdinaryNewCoSealIssueV1> {
                 let function = input.function();
                 let owner_loan = direct_call_loans.and_then(|loans| loans.get(owner));
+                let entry_home = entry_home_loans.for_batch_slot(batch_slot);
                 let mut candidates = Vec::new();
                 for initializer in function.expression_source().initializers() {
                     let Some(initializer_site) = initializer.initializer_site() else {
@@ -218,7 +220,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     });
                 let new_sites: BTreeMap<_, _> = candidates.iter().map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
                 let child_new_ready = seed_eligible && !new_sites.is_empty()
-                    && issue_new_home_prefixes_v1(input, &new_sites).values().all(Result::is_ok);
+                    && issue_new_home_prefixes_v1(input, &new_sites, entry_home).values().all(Result::is_ok);
                 // An owner whose `return` statement carries a `new`
                 // construction needs the homes-aware completion: the
                 // returned `Invoke{NewBox}` is a lifecycle instruction that
@@ -289,6 +291,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
                             .flat_map(|row| row.parameters.iter())
                             .map(|row| (row.ordinal, row.binding, row.kind)),
+                        entry_home,
                         &mut field_is_integer, &mut |site, binding| {
                             let mut exact = candidates.iter().filter(|row| &row.site == site);
                             let candidate = exact.next().ok_or_else(|| OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() })?;
@@ -390,6 +393,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
                                     .flat_map(|row| row.parameters.iter())
                                     .map(|row| (row.ordinal, row.binding, row.kind)),
+                                entry_home,
                             )
                         }
                     }
@@ -399,6 +403,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
                             .flat_map(|row| row.parameters.iter())
                             .map(|row| (row.ordinal, row.binding, row.kind)),
+                        entry_home,
                     )
                 };
                 Ok((

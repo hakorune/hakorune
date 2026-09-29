@@ -29,6 +29,7 @@ mod instance_construction;
 mod instance_constructor_loan;
 mod instance_constructor_non_escape;
 mod instance_constructor_semantic;
+mod instance_entry_home;
 pub(crate) use instance_construction::{
     ConstructionEligibilityV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
 };
@@ -36,6 +37,7 @@ pub(crate) use instance_constructor_semantic::{
     BirthFormalContractV1, BirthFormalDeclarationClassV1, BirthFormalPhysicalDispositionV1,
     BirthFormalUseCoverageV1, VerifiedInstanceConstructorSemanticBatchV1,
 };
+pub(in crate::mir) use instance_entry_home::SourceEntryHomeIssueV1;
 mod issuer;
 mod loop_break_source;
 pub(in crate::mir) use loop_break_source::LoopBreakSourcePackageLoanV1;
@@ -73,6 +75,8 @@ impl BuilderInstallTokenV1 {
 mod brand_catalog_tests;
 #[cfg(test)]
 mod declared_instance_locator_tests;
+#[cfg(test)]
+mod instance_entry_home_tests;
 #[cfg(test)]
 #[path = "loop_break_source_tests.rs"]
 mod loop_break_source_tests;
