@@ -1,6 +1,6 @@
 # MirBuilder Gate 1 — current design and acceptance
 
-Status: mixed null/new result ABI D0 accepted (NullableObject claim arm + explicit null retention); S0 claim slice is next
+Status: MIXED-NULL-NEW-RESULT-ABI-S0 landed (NullableObject claim arm + explicit NullLiteral retention + not-Handle consumer classification); FORWARDED-RESULT-CLASS-COMPOSITION-D0 is next
 Date: 2026-09-29
 Scope: MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0; compact Gate-1 frontier.
 Related: CURRENT_STATE.toml; workstream row H; RULES.md;
@@ -785,6 +785,47 @@ Non-claims: no forwarded-exit composition (return <call>/<local>/<param>
   sibling) before this family touches it.
 
 Next execution row: `MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-S0`.
+
+## Landed — MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-S0
+
+- `ordinary_new_result_class_claim.rs`: `OrdinaryNewResultClassV1` enum
+  (`Object` / `NullableObject`) is now the claim value; `observe_function`
+  keeps one agreed class but admits the exact `null` literal exit via the
+  sealed `expression_source().literal()` row — a null-only callee still
+  claims nothing. Same sole issuer, same `CanonicalSameModuleCallableKeyV1`
+  keying; `finish` keeps the ordinary-box coverage filter on `claim.class()`.
+- `ordinary_new_coseal_helpers.rs`: `retain_child_terminal_relation` now
+  retains `Value(NullLiteral)` — a mixed callee's `return null` exit lands
+  in `terminal_relation_index` instead of being silently dropped.
+- `ordinary_new_coseal.rs`: `callable_result_class` filters to the
+  `Object` arm, so every existing Handle/lifecycle consumer
+  (`lexical_instance_call`, `terminal_call`, `direct_call_lifecycle`
+  re-check, `handle_call`) automatically classifies `NullableObject` as
+  not-Handle — no call-site edit needed. `nullable_callable_result_class`
+  and `callable_result_class_claims_for_test` live in
+  `ordinary_new_terminal_access.rs` (coseal stays under the 760 line).
+- Honest tightening through retention: `uniform_call_result_kind` on a
+  mixed callee now returns `None` (was a masked `Some(Handle)` while the
+  null exit was dropped), and `handle_call`'s single-relation re-check
+  freezes a mixed callee (`handle-result-terminal-missing`) instead of
+  minting a Handle for a maybe-null result. `construction_result_callee`
+  already rejected mixed bodies — unchanged.
+- Focused tests (`brand_catalog_mixed_result_class_tests.rs`): mixed
+  `new`/`null` -> `NullableObject` + not-Handle, uniform `new` -> `Object`,
+  local/forwarded/null-only exits -> no claim, NullLiteral relation
+  retained in the child index. 4/4 pass; `normal_callable_semantic_package`
+  385 pass / 3 fail — all three are the recorded baseline debt
+  (`birth_receiver_non_escape`, `main_static_child_port`,
+  `qualified_call_map` BorrowedEntryEscape); `resolved_semantics` +
+  `resolved_control_flow` + `ordinary_new_admission` 396/0.
+- Guards: `current_state_pointer_guard`, `mirbuilder_qualified_route_scope`,
+  `mir_call_canonical_corridor` all pass; `git diff --check` clean.
+- Non-claims: no forwarded-result composition, no `me.` receiver
+  observation, no nullable `InvokeCallResultKind`/`StoredLocal`/physical
+  ABI, no EXE movement. The claim product exists; nothing consumes it for
+  emission yet.
+
+Next design row: `MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-COMPOSITION-D0`.
 
 ## Preserved contract boundaries
 

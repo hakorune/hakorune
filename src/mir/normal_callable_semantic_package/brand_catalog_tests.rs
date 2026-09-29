@@ -593,3 +593,4 @@ fn assert_normal_home_exit_paths(function: &crate::mir::MirFunction) {
 
 include!("brand_catalog_tail_tests.rs");
 include!("brand_catalog_selected_new_argument_tests.rs");
+include!("brand_catalog_mixed_result_class_tests.rs");

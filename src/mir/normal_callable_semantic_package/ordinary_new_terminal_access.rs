@@ -63,6 +63,30 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect()
     }
 
+    /// Nullable result-class provenance: `Some(class)` only when every
+    /// sealed exit is `new class(...)` or the exact `null` literal. This
+    /// is a claim product only — no Handle, lifecycle, or physical ABI
+    /// authorization follows from it.
+    #[cfg(test)]
+    pub(crate) fn nullable_callable_result_class(
+        &self,
+        key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    ) -> Option<&str> {
+        match self.callable_result_classes.get(key) {
+            Some(result_class_claim::OrdinaryNewResultClassV1::NullableObject(class)) => {
+                Some(class.as_ref())
+            }
+            _ => None,
+        }
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn callable_result_class_claims_for_test(
+        &self,
+    ) -> &result_class_claim::OrdinaryNewResultClassClaimsV1 {
+        &self.callable_result_classes
+    }
+
     /// Test-only: the sole retained relation for `owner` — `None` when the
     /// owner keeps zero or several exit relations, never an arbitrary pick.
     #[cfg(test)]

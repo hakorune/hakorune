@@ -94,13 +94,17 @@ pub(super) fn retain_child_terminal_relation(row: &TerminalRelationV1, has_map: 
         )
         // A `return new ...` relation is the co-sealed evidence that the
         // exact site owns a result claim, so it stays on the child contract
-        // even without a map obligation.
+        // even without a map obligation. A `return null` relation is
+        // retained explicitly for the same reason: dropping it would let a
+        // mixed `new`/`null` callee masquerade as a uniform-object callee
+        // downstream.
         || matches!(
             row,
             TerminalRelationV1::Value(value)
                 if matches!(
                     value.returned(),
                     TerminalReturnedSourceV1::Construction(_)
+                        | TerminalReturnedSourceV1::NullLiteral
                 )
         )
 }

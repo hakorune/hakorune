@@ -80,6 +80,7 @@ mod local_commit;
 pub(crate) use lexical_instance_call::LexicalInstanceCallDispositionRowV1;
 #[path = "ordinary_new_result_class_claim.rs"]
 mod result_class_claim;
+pub(crate) use result_class_claim::OrdinaryNewResultClassV1;
 #[path = "ordinary_new_root_instance_call.rs"]
 mod root_instance_call;
 #[path = "ordinary_new_terminal_access.rs"]
@@ -589,14 +590,20 @@ impl OrdinaryNewClaimLedgerV1 {
 
     /// Result-class provenance for one selected callable: the agreed `new`
     /// class constructed by every `return`, when the body cannot exit
-    /// normally without executing one.
+    /// normally without executing one. A `NullableObject` claim is never
+    /// returned here — Handle/lifecycle consumers only see definite object
+    /// results, so a callable that can `return null` stays unclaimed for
+    /// owned-result purposes.
     pub(crate) fn callable_result_class(
         &self,
         key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
     ) -> Option<&str> {
-        self.callable_result_classes
-            .get(key)
-            .map(|class| class.as_ref())
+        match self.callable_result_classes.get(key) {
+            Some(result_class_claim::OrdinaryNewResultClassV1::Object(class)) => {
+                Some(class.as_ref())
+            }
+            _ => None,
+        }
     }
 
     /// Consumes no source product: it only checks that the selected emitter is
