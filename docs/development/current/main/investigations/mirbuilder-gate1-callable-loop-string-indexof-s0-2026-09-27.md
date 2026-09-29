@@ -232,6 +232,119 @@ at each semantic boundary; run the fixed EXE suite at its acceptance boundary,
 not once per design edit. The corrected frontier table supplies later candidates
 without treating another owner's internal gap as an external wait.
 
+## Accepted — MIRBUILDER-GATE1-PER-EXIT-HOME-FLOW-D0
+
+Census basis: read-only worker census integrated with owner reading; the
+true single-terminal authorities are (1) `RootHomeFlow.terminal`
+(`home_map_flow.rs:9-24`), (2) the scan's `terminal: Option<&SourceStmtSiteV1>`
+gate plus `break` (`home_new_prefix_scan.rs:45,515`), (3) single
+`Option<TerminalRelationV1>` per owner, (4) `issue_result_new_fault_continuation_v1`'s
+`roots.body_pair().scope()` equality (`function_control.rs:133-146`), and
+(5) owner-keyed `root_exits` progress with `explicit_site()==site` equality
+(`ordinary_new_local_commit/root_home.rs:136-185`).
+
+```text
+Decision: one per-exit Home-flow contract replaces all five single-terminal
+  assumptions together — exits keyed by explicit site, If branches walked
+  with per-path state, ordered-intersection joins, named divergence.
+Source authority + canonical issuer: `verify_function_completion_v1`
+  (`explicit_sites()` + coverage rows) supplies exit identity;
+  `core.if_regions` / `VerifiedResolvedFunctionIfControlV1` supply exact
+  branch scope pairs and authorized-return membership; `scan_new_home_flow`
+  remains the sole issuer of the per-exit `RootHomeFlow`.
+Non-authority: `explicit_site()` callers never re-derive exits; MIR/physical
+  stages never re-infer branch joins; `crossed_scopes` stays fail-closed
+  empty for existing consumers; unclassified calls and field ownership
+  stay unavailable.
+Fail-fast boundary: `PrefixNotCovered` per uncovered site/subtree as today;
+  divergent joined homes -> named `HomeFlowBranchDivergent` retaining
+  per-branch state (never union, never empty substitution); duplicate
+  exit prepare -> existing freeze; missing/residual exit obligations ->
+  named failure at completion; unproven fault ancestry -> `SourceMismatch`.
+Smallest next slice: BoxShape split of `home_new_prefix_scan.rs` (779 ->
+  traversal/Local arms ~310 in place; terminal arm -> new
+  `home_new_prefix_terminal.rs` ~470 via `observe_terminal_statement`
+  taking running state by reference; zero semantic change), then per-exit
+  S0 as the semantic slice.
+Non-claims: no loops, no captures, no implicit-end exits
+  (`ExplicitUnitSetWithImplicitEnd`/`ImplicitVoid` keep
+  `TerminalNotCovered`); no `crossed_scopes` activation; no field
+  destruction, tagged storage, Selected-C, constructor-argument widening;
+  no EXE PASS or Gate-1 completion.
+```
+
+### Admitted subtree grammar (bounded, recursive)
+
+```text
+Statement := Local                     (existing arms unchanged)
+           | Return                    iff site ∈ completion.explicit_sites()
+           | If{cond, then, else?}     iff a verified `ResolvedIfRegionBundleV1`
+                                        row exists and each branch body
+                                        consists only of Statement
+```
+
+Any other statement or subtree keeps named unavailability for that region.
+Return sites outside `explicit_sites()` are already rejected upstream by
+`if_control`'s `authorized_return_sites` (`analyzer.rs:144`); the flow
+treats a foreign Return as unavailable, never silently admitted. Condition
+subtrees contribute descendant-map observations only — no `new` claims and
+no Home minting under conditions.
+
+### Branch states, joins, terminated paths
+
+Each path carries live-home order plus the existing locals/maps state. At an
+admitted `If` both branch bodies are walked from the same entry snapshot:
+
+- A branch ending in a completing `Return` is a terminated path — its live
+  homes in reverse order seal that exit's obligation; it does not join.
+- Fall-through branches join by ordered intersection: a home survives only
+  if live on every fall-through path in the same order. Missing `else`
+  joins as the entry snapshot.
+- Divergent surviving homes record `HomeFlowBranchDivergent` retaining the
+  per-branch states — no union, no empty-list substitution.
+
+### Per-exit obligations and consumption
+
+- `RootHomeFlow.terminal` becomes an exits map keyed by `SourceStmtSiteV1`
+  over `explicit_sites()`; each entry is that Return's reverse live-Home
+  order or its named unavailability.
+- `TerminalRelationV1` becomes per-exit; result-new co-seal runs per Return
+  site and `result_prefixes` stay keyed by `OwnedExprSiteV1`, co-sealing
+  only under the Return that owns the site.
+- `prepare_root_home_exit(owner, site)` keeps its signature but checks
+  `explicit_sites()` membership and consumes obligation `(owner, site)`
+  exactly once — duplicate prepare stays a freeze;
+  `root_home_exit_is_complete` requires every `explicit_sites()` member
+  prepared/emitted, so missing or residual obligations are named failures.
+- All `explicit_site()==site` drift checks listed by the census
+  (direct_call_lifecycle, coseal, terminal_access, terminal_field_return,
+  root_instance_call, finalized_root_handoff, map.rs) rewrite to
+  membership/per-exit lookups in S0 — the same slice that changes the
+  producer, never ahead of it.
+
+### Fault scopes
+
+`NewFaultContinuationV1.source_scope` takes the scope containing that
+Return's `new` site; for branch returns the ancestry must be proven a
+descendant of `roots.body_pair().scope()` through the if-region
+`ScopeRegionPair`s, recording the crossed scope sequence
+innermost→outermost on the continuation. Unproven ancestry ->
+`SourceMismatch`. `ResolvedCleanupObligationsV1.crossed_scopes` stays empty;
+its six fail-closed consumers are unchanged.
+
+### Split plan — `home_new_prefix_scan.rs` (779 lines)
+
+`MIRBUILDER-GATE1-PER-EXIT-HOME-FLOW-S0-SPLIT` — mechanical BoxShape
+split, first commit of the pair:
+
+- `home_new_prefix_scan.rs` keeps the loop head, per-statement dispatch,
+  non-`Local` catch-all and the `Local` arms (≈310 lines).
+- New `home_new_prefix_terminal.rs` receives the terminal arm (scan
+  :45-516, ≈470 lines) as `observe_terminal_statement(...)` taking the
+  running state (`locals`, `homes`, accumulators) by reference.
+- Register the child in `mirbuilder_qualified_route_scope_guard.sh`;
+  no semantic change rides this split.
+
 ## Preserved contract boundaries
 
 - Generic `mir_json_emit` rejects lifecycle Invoke. Invoke, normal-result and

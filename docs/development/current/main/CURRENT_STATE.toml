@@ -1,10 +1,10 @@
 date = "2026-09-29"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-PER-EXIT-HOME-FLOW-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-GATE1-PER-EXIT-HOME-FLOW-S0-SPLIT"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "Gate1InstanceEntryHomeLanded__PerExitFlowContractPending"
-current_design_stop = "entry-home S0 landed; per-exit Home flow needs one contract spanning source flow and exit consumption (explicit_sites/If-region joins, result-new fault scope, per-exit consumption) plus the home_new_prefix_scan.rs split plan before implementation"
+current_blocker_token = "none"
+current_design_stop = "none — per-exit D0 accepted; S0-SPLIT is the mechanical home_new_prefix_scan.rs division named by the D0 before the semantic per-exit S0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -21,13 +21,15 @@ Entry-home S0 landed: the sole Home ABI issuer lends batch-slot-bound
 receiver/parameter demands through VerifiedInstanceEntryHomeCatalogV1, and the
 source Home Flow installs them only for the exact declaration; foreign or
 missing evidence keeps EntryDemandMissing. Results stay unresolved; no
-complete call-site ABI is issued. Next: per-exit Home flow plus source Fault
-scopes and site-bound exit consumption (D0 in the same card).
+complete call-site ABI is issued. Per-exit Home flow D0 is accepted in the
+same card: per-exit RootHomeFlow keyed by explicit site, If-branch walks with
+ordered-intersection joins and named divergence, site-keyed exit consumption,
+proven fault ancestry.
 Gate 1 remains at the recorded 5 PASS / 6 FAIL; not rerun in this slice.
 """
-next_design_card = "MIRBUILDER-GATE1-PER-EXIT-HOME-FLOW-D0"
+next_design_card = "none — per-exit D0 accepted; constructor-argument evidence is the next design row after per-exit S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "none — per-exit S0 is named by the accepted D0"
+next_execution_card = "MIRBUILDER-GATE1-PER-EXIT-HOME-FLOW-S0-SPLIT"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -43,7 +45,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-29: PER-EXIT-HOME-FLOW-D0 accepted — one contract replaces the five single-terminal authorities (RootHomeFlow.terminal, scan terminal gate, single TerminalRelation, root-body fault scope, owner-keyed root_exits); exits keyed by explicit site, If branches joined by ordered intersection with named divergence, (owner,site) consumption once. Next: S0-SPLIT mechanical scan division, then per-exit S0.",
   "2026-09-29: INSTANCE-ENTRY-HOME-S0 landed — sole Home ABI issuer lends batch-slot-bound receiver/parameter demands via VerifiedInstanceEntryHomeCatalogV1; scan installs only the exact declaration's loan, all other evidence keeps EntryDemandMissing; 7/7 focused tests, both guards green. No result ABI issued; Gate 1 stays 5/11.",
   "2026-09-29: Entry-home design accepted; current card compacted, frontier attribution corrected, canonical Home ABI D0 admits only an aggregate-bound source-entry loan. Selected next S0 removes the receiver-presence rejection for exact evidence; per-exit flow/consumer D0 follows. Compiler implementation and new EXE evidence are not claimed.",
-  "2026-09-29: 339674c77b remediated qualified-route pins and six oversized source parents; eight child files plus three parents added to boundary checks. Commit reports focused 32/32, 58/58, 15/15, 7/7, 56/57; remaining root-catalog red reproduced at 053b659637. Cargo not rerun during design review.",
 ]
