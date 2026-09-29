@@ -285,7 +285,8 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | 9i | DONE — `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0` accepted below: `local h = w.make()` (AST `Call`/`method_calls`) joins the Handle-result lane for claim-local receivers only (`local w = new W()`); the disposition row gains a co-sealed `result` at issue (issuer.rs:727 sees terminal_relation + callable_result_classes + result_contracts); a `method_calls` observation arm mints the Handle `LocalCallObservationV1` during scan; `CallReceivedCommitV1`, the verifier pairing (`Callee::SameModuleInstance × Handle`), and `OrdinaryHandle` publish carry over unchanged. Emission must be Invoke-shaped — the existing `CoreEffectPlan::DeclaredInstanceCall` emits a plain `Call` and stays the non-lifecycle path; a port-mediated emit mirroring `emit_local_lifecycle_call_v1` takes Handle rows. Parameter/nested/rebound receivers and the raw member route keep their current reject/dynamic boundary — a Handle-sealed site reaching the dynamic route freezes, never degrades. |
 | 9j | DONE — `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-S0` landed below: `local w = new W(); local h = w.make()` seals one Handle `LocalCallObservationV1` from `method_calls` membership (claim-local receiver, non-rebound, sole `new` initializer, unique selected `InstanceBoxMethod`, all-i64 exact formals, callee construction result); the disposition row co-seals `result=Handle` at issue against the callee's retained `Value(Construction)` terminal + unannotated contract + result-class claim. Emission is Invoke-shaped (`Callee::SameModuleInstance` × `Handle`) through the port hook; the receiver Home unwinds on the call fault path and releases once per exit path; the received object installs as owned Home releasing once on the normal path. Instance-method `return new` retains its `Value(Construction)` terminal relation even when receiver-entry demands make home-prefix flow unavailable (exact-site evidence; flow gaps stay in `result_prefixes`/claims). Negatives stay dynamic (rebound receiver, non-construction callee); result-kind/cleanup drift reject. 32/32 lifecycle tests green. Gate 1 remains unsatisfied. |
 | 10 | DONE — `MIRBUILDER-GATE1-EXE-SUITE-ACCEPTANCE-S0` landed below: suite measured at 5/11 PASS with all six reds at recorded designed terminals; two baseline gaps repaired in-slice (retained result-commit completion + explicit-tool LLVM order). Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
-| 11 | NEXT — `MIRBUILDER-GATE1-RESULT-NEW-ARGUMENT-EVIDENCE-D0`: design the evidence contract for non-trivial `return new` arguments (field-read, `null`, call-result, bound values) — the retained-claim stop is the first-sorting terminal for mimalloc-lite (`HakoAllocHandleResult`/`HakoAllocHandle` returns). Parked `OWN-FIELD-CONTAINER-DEST-D0` stays untouched pending explicit selection. |
+| 11 | DONE — `MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-D0` accepted below: the nine retained mimalloc-lite result claims mint `SourceMismatch` rows because `scan_new_home_flow` runs its Return arm only for `explicit_site()` (`ExplicitReturns` → `None`); nested `if` returns are likewise unreachable. Decision: run the Return arm for every top-level explicit `return` (per-site result-prefix + argument observation from live `locals`); nested returns and `null`/field-read arg kinds stay named siblings. `OWN-FIELD-CONTAINER-DEST-D0` remains parked. |
+| 12 | NEXT — `MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-S0`: process every top-level explicit `return` through the existing Return arm (per-site `ResultNewHomePrefixV1` + `SelectedNewArgumentObservationV1`); no nested descent, no new argument kinds, no terminal-relation widening. |
 
 ### Landed slices tombstone (compressed 2026-09-28)
 
@@ -1324,12 +1325,84 @@ terminal:
 
 Gate 1 remains unsatisfied: the six red members sit at designed stops,
 not at misclassification or silent fallback. Named owners: mimalloc-lite
-stops on retained `return new` claims whose non-trivial arguments
-(`null`, `me.field` reads, call results) have no sealed evidence row —
-the bounded design frontier named by row 11 — while boxtorrent-mini's
-field-write `new` sites (`me.chunks = new MapBox()`, …) and
-binary-trees (`root-call-entry-unavailable`) await the parked
+stops on nine `return new` claims minted as `SourceMismatch`-retained —
+the single-terminal homes walk never observes multi-return or `if`-nested
+return sites — the bounded design frontier named by row 11 — while
+boxtorrent-mini's field-write `new` sites (`me.chunks = new MapBox()`, …)
+and binary-trees (`root-call-entry-unavailable`) await the parked
 `OWN-FIELD-CONTAINER-DEST-D0`/drop-plan family, allocator-stress awaits
 named-array text-source evidence, json-stream-aggregator awaits route
 front-selection, and untyped-field-min awaits its phase-84 inference
 owner.
+
+### D0 decision — `MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-D0` (accepted)
+
+Census (mimalloc-lite, nine retained `LocalCommitV1::Result` rows, all
+`RetainedUnavailable{ExpressionCompleted}`): every row's claim carries
+`argument_rows = Err(SourceMismatch)` **and** `home_prefix = Err` — no
+observation entries exist at all, so the first blocker is not argument
+kinds but observation coverage:
+
+- `scan_new_home_flow` (home_new_prefix.rs:227) runs the `Return` arm —
+  which mints `argument_observations`, `result_prefixes`, and the
+  `Value(Construction)` terminal relation — only for the single
+  `terminal` site (`completion.explicit_site()`).
+- `VerifiedFunctionCompletionV1::ExplicitReturns(_) =>
+  explicit_site() -> None` (function_control.rs:375): every function
+  with more than one `return` observes zero result sites. `allocate`
+  (`return null` ×2 + `return new HakoAllocHandle(...)`),
+  `HakoAllocHandleResult`-returning helpers — all nine sites sit in
+  `ExplicitReturns` functions; six are additionally nested inside
+  `if`-then bodies the top-level statement walk never descends into.
+- `compute_emission_prepare` (:606-607) makes `prior_homes=None` —
+  an `Err` prefix — sufficient for `RetainedUnavailable`, so argument
+  rows are the second stacked cause, not the first.
+- Argument-kind gaps that remain once observation exists: `null`
+  literal (6 sites: `HakoAllocHandleResult(0, N, null)`), `me.page_id`
+  field read (1 site), inventoried `me.allocate`/`me.realloc` call
+  results (`BoundValue` kind already exists, 2 sites:
+  `HakoAllocHandleResult(1, 0, handle|replacement)`).
+
+```text
+Decision: extend the existing one-pass homes walk to run the Return arm
+  for every top-level explicit `return` in the completion's
+  `explicit_sites()`, minting a per-site `ResultNewHomePrefixV1` (live
+  `locals` already carry prior-Homes state at each statement) and a
+  per-site `SelectedNewArgumentObservationV1`. Nested `IfThen`/`Else`
+  returns stay outside observation; their claims keep the designed
+  `SourceMismatch`→retained terminal.
+Source authority + canonical issuer: `scan_new_home_flow` remains the
+  sole observation issuer (home_new_prefix.rs); claim minting stays in
+  `ordinary_new_coseal_issue` (`result_sites`/`result_resolutions`).
+  `completion.explicit_sites()` is the membership enumeration — no new
+  authority, no AST rescan.
+Non-authority: no physical emission decisions here; prepared rows still
+  flow through the single ledger/`compute_emission_prepare` owner, and
+  downstream lifecycle coverage still owns
+  `artifact-unowned-lifecycle-site`. No terminal-relation widening:
+  `ExplicitReturns` functions mint no `Value(Construction)` relation
+  and stay outside the Handle-result callee lane.
+Fail-fast boundary: sites whose arguments do not classify under existing
+  kinds stay `ArgumentNotTrivial`→retained; nested returns stay
+  `SourceMismatch`→retained; a site reaching emission without a
+  per-site Ok prefix stays `RetainedUnavailable` — never fabricated.
+Smallest next slice: `MIRBUILDER-GATE1-MULTI-RETURN-RESULT-NEW-S0` —
+  process every top-level explicit `return` in the walk (drop the
+  single-`terminal` gate for `Return` statements), producing per-site
+  prefixes/observations; pin positive (`(1, 0, handle)`-shaped site:
+  Integer+BoundValue args, empty prior-Homes) and negative (nested
+  return stays retained; `null`/field-read arg stays retained) tests.
+Non-claims: no nested/`if`-body descent (named sibling frontier), no
+  `Null` or field-read argument kinds (each its own bounded S0 once
+  their sites are reachable), no Handle-result widening to multi-return
+  callees, parked `OWN-FIELD-CONTAINER-DEST-D0` untouched. mimalloc-lite
+  stays red at `artifact-unowned-lifecycle-site` until the nested/field
+  siblings land — that is its recorded designed terminal.
+```
+
+Expected unblocking under existing kinds only: the two
+`HakoAllocHandleResult(1, 0, <bound-local>)` sites (`handle`/`replacement`
+bound to inventoried `me.allocate`/`me.realloc` results → `BoundValue`);
+`HakoAllocHandle(me.page_id, …)` stays retained pending a field-read
+argument kind; the six nested `null` sites stay retained pending nested
+observation. Red classification unchanged for the suite.
