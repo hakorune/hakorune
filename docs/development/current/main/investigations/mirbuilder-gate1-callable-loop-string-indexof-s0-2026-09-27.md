@@ -1,6 +1,6 @@
 # MirBuilder Gate 1 — current design and acceptance
 
-Status: per-exit Home flow S0 landed; constructor-argument evidence D0 is next
+Status: constructor-argument evidence D0 accepted; S0 (null + i64 field-read argument arms) is next
 Date: 2026-09-29
 Scope: MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0; compact Gate-1 frontier.
 Related: CURRENT_STATE.toml; workstream row H; RULES.md;
@@ -443,6 +443,184 @@ physical emission beyond the existing selected admission path.
 Next design row: `MIRBUILDER-GATE1-CONSTRUCTOR-ARGUMENT-EVIDENCE-D0` —
 constructor-argument evidence (null/field/call-result), per the
 "Following task" contract above.
+
+## Accepted — MIRBUILDER-GATE1-CONSTRUCTOR-ARGUMENT-EVIDENCE-D0
+
+Census basis: one read-only worker census integrated with owner reading
+of the nine retained result-new sites in
+`lang/src/hako_alloc/memory/page_heap_box.hako` (`allocate/1` :102;
+`allocateResult/1` :216,:221,:224; `reallocResult/2`
+:302,:306,:310,:315,:318) and the full evidence chain
+`PrefixLocalFlow::observe` -> `observe_terminal_statement` ->
+`SelectedNewArgumentObservationV1` -> `convert_selected_new_arguments`
+-> `OrdinaryNewResultClaimV1.argument_rows` -> `compute_emission_prepare`
+-> `emit_selected_new`/`materialize_arguments`. Boundary covered:
+resolver literal/lexical rows through selected emission for both
+argument-observation loops (return-position `home_new_prefix_terminal.rs`
+and initializer-position `home_new_prefix_scan.rs:248`); excludes the raw
+lane's internals and `[Body,Initializer]` claim consumers beyond the
+shared argument machinery.
+
+```text
+Decision: extend the admitted constructor-argument grammar by exact
+  null-literal and proven-i64 field-read arms. Call-result arguments
+  keep the existing BoundValue provenance arm — the missing classed
+  call result belongs to the distinct mixed null/new result-ABI
+  contract, not to this grammar.
+Source authority + canonical issuer: `ResolvedLiteralSourceV1::Null`
+  (sealed per exact site) and the resolver's FieldAccess shape
+  (`expr_at` + `ExprChildRoleV1::Receiver`) supply argument-site
+  evidence. The field-class proof reuses the `field_is_integer`
+  provenance widened to the verified instance-entry loan: the object's
+  class comes from an `OrdinaryNewCandidate` destination (local `new`
+  homes) or the loan's exact receiver binding -> declaring class, then
+  the shared definition lookup requires i64, non-weak, unique
+  declaration. `scan_new_home_flow` / `observe_terminal_statement`
+  stays the sole observation issuer; `ordinary_new_coseal_issue`
+  supplies the predicate and stages argument field reads into the New
+  ledger; `materialize_arguments` in the selected emit owner stays the
+  sole physical consumer.
+Non-authority: MIR types/runtime layout never name a field class; the
+  raw AST lane never re-derives argument evidence; a `BoundValue`
+  binding never claims a result class; `null` claims the literal site
+  only, never a field or box type; the receiver never gains Home or
+  acquisition semantics from this arm — the entry loan is borrowed-
+  Handle evidence only.
+Fail-fast boundary: unobserved argument sites keep `ArgumentNotTrivial`;
+  unproven field class (no candidate/loan object-class proof, non-i64,
+  weak, duplicate declaration) keeps `ArgumentNotTrivial`, never a
+  default or a MIR-derived guess; a staged argument read not consumed
+  by emission, or an emitted `ObjectFieldGet` nobody staged, is a
+  freeze through the widened field-read validation; foreign
+  owner/site/binding keeps the existing drift checks.
+Smallest next slice: MIRBUILDER-GATE1-CONSTRUCTOR-ARGUMENT-EVIDENCE-S0 —
+  `Null` + `I64Field` arms through observe -> selected kind -> claim
+  kind -> materialize, plus the argument field-read ledger map; one
+  grammar contract, one observation issuer, one physical owner.
+Non-claims: no receiver-method local-call coverage, no callee
+  result-class claim changes, no mixed null/new result ABI, no field
+  writes/destruction, no tagged storage, no selected-C, no production
+  caller change, no EXE PASS or Gate-1 completion.
+```
+
+### Admitted argument grammar (this contract)
+
+```text
+ArgumentKind := Integer | Bool              (existing literal rows)
+              | Local  { binding }          (existing trivial local)
+              | Handle { binding }          (existing object-capable root)
+              | BoundValue { binding }      (existing call-result provenance)
+              | Null                        (new: exact Null literal row)
+              | I64Field { object, field }  (new: proven i64 field read)
+```
+
+`I64Field` admits `me.f` / `local_new.f` argument sites whose
+Receiver-role child resolves to an object-bearing binding (Home/Handle
+observations) and whose field declaration on the proven object class is
+i64, non-weak and unique. The canonical field ref is minted by the
+issuer-side predicate at observation time — never recomputed at
+emission. A proven field read consumes no Home and never lands in the
+in-path `ArgumentNotCovered` accounting; both argument-observation loops
+share one arm. `local x = null` bindings carry the same literal evidence
+transitively through `StoredLocal::Null`; `local x = me.f` is not an
+admitted initializer in this contract (field-read observation is
+argument-position only).
+
+### Physical materialization (single owner)
+
+`emit_selected_new` materializes arguments before `begin_new_emission`:
+`Null` -> `emit_null` (`ConstValue::Null`, existing const authority);
+`I64Field` -> take the staged argument field-read row -> resolve the
+object binding through `value_for_exact_binding` -> `ObjectFieldGet` ->
+record. Argument reads get their own staged map in the New ledger —
+same `Progress` discipline as `field_reads`, but not the terminal-only
+checks (no exit-relation membership, no `installs_ordinary` home
+requirement: the object may be a borrowed receiver).
+`validate_field_reads`'s whole-function `ObjectFieldGet` ownership scan
+widens to cover both staged maps — every emitted read must be staged
+and every staged read must be consumed.
+
+### Per-site frontier after this contract
+
+| Site | `argument_rows` after S0 | Prefix after S0 |
+| --- | --- | --- |
+| allocate/1 :102 `(me.page_id, block_id, requested_size)` | Ok — `I64Field` + `BoundValue` + `Handle` | still `PrefixNotCovered`: `me.free_top = me.free_top - 1` field write and `local block_id = me.free_stack.get(..)` receiver call stay uncovered |
+| allocateResult/1 :216,:221 `(0, c, null)` | Ok — `Integer` ×2 + `Null` | per-site ready; the function stays retained under `all_exits_ready` while :224 is uncovered |
+| allocateResult/1 :224 `(1, 0, handle)` | Ok (existing `BoundValue`) | still `PrefixNotCovered`: `local handle = me.allocate(size)` receiver call |
+| reallocResult/2 :302,:306,:310 `(0, c, null)` | Ok — `Integer` ×2 + `Null` | per-site ready; same all-exits gate via :315/:318 |
+| reallocResult/2 :315 `(0, 4, null)` | Ok — `Integer` ×2 + `Null` | per-site ready; same gate |
+| reallocResult/2 :318 `(1, 0, replacement)` | Ok (existing `BoundValue`) | still `PrefixNotCovered`: `local replacement = me.realloc(..)` receiver call |
+
+The S0's measured output is `argument_rows`/`home_prefix` readiness and
+claim Prepared state — physical emission still waits on the per-function
+all-exits gate and the contracts below; no EXE result is claimed.
+
+### Distinct contracts named here, implemented separately
+
+- `MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-D0` (next design row):
+  callee result-class claims for mixed `return new C(..)` / `return
+  null` exits. Census facts the D0 must resolve: `callable_result_class`
+  admits uniform-new callees only; `retain_child_terminal_relation`
+  currently drops `NullLiteral` for non-map children (silent — the D0
+  makes retention explicit); `call_result_kind` maps `NullLiteral` ->
+  `I64`; `InvokeCallResultKind` has no nullable arm; `me.`-receiver
+  local calls mint no `LocalCallObservationV1` (receiver-kind skip), so
+  classed `local h = me.m(..)` installs live inside this contract's
+  boundary. Sites :224 and :318 wait on it.
+- Field-write statement coverage (`me.f = e`) — site :102's first
+  uncovered statement `me.free_top = me.free_top - 1`; a scan-grammar
+  admission row in the existing field-write family
+  (`OWN-HOME-FIELD-TAKE0-D0` excluded ordinary stores). This contract
+  does not claim it; the candidate row name is
+  `MIRBUILDER-GATE1-RECEIVER-FIELD-WRITE-COVERAGE-D0`.
+- Site :102 additionally waits on the receiver-call coverage named
+  above (`local block_id = me.free_stack.get(..)`).
+
+### File split plan (S0)
+
+- `home_prefix_local_flow.rs` (362): `OrdinaryObservation::Null`,
+  `StoredLocal::Null`, and the `is_trivial`/`into_selected_argument`/
+  `install_observed` arms.
+- `home_new_prefix_terminal.rs` (497): argument-loop field-access arm —
+  `observe` `None` -> `expr_at` FieldAccess shape -> Receiver child ->
+  object-bearing binding -> issuer predicate; both passes share one
+  helper so a proven read never lands in `unavailable`.
+- `home_new_prefix_scan.rs` (372): the same arm in the
+  initializer-position argument loop (:248) through the shared helper.
+- `selected_new_arguments.rs` (89) / `ordinary_new_arguments.rs` (60):
+  `Null` + `I64Field` kind arms; the Facts row carries source shape
+  (object binding + field name), the package row resolves the staged
+  read by the argument site.
+- `ordinary_new_terminal_home.rs` (59): sibling predicate for
+  argument-position i64 fields — object-class proof from candidate
+  destination or entry-loan receiver, then the shared definition
+  lookup.
+- `ordinary_new_field_reads.rs` (212): `argument_field_reads` staged
+  map + take/record + `validate_field_reads` union.
+- `ordinary_new_coseal_issue.rs` (701): predicate wiring through the
+  existing `field_is_integer` slot and argument-read staging; the file
+  is near the 760 design line — the predicate body stays in
+  `terminal_home` and no unrelated growth is allowed.
+- `selected.rs` (724): `materialize_arguments` /
+  `validate_argument_rows_v1` move to a new `selected/arguments.rs`
+  child before the new arms land (keeps the parent under the 760
+  design line; registered in `mirbuilder_qualified_route_scope_guard`).
+
+### Verification for the S0
+
+Positive: a `return new R(0, 2, null)`-shaped site issues
+`argument_rows = Ok([Integer, Integer, Null])`; a `new H(me.f, ..)` site
+on a proven i64 field issues `I64Field` rows plus a staged argument
+read; a Prepared claim emits `ConstValue::Null` and `ObjectFieldGet`;
+`local x = null` -> `new X(x)` observes `Null` transitively. Negative:
+unproven object class, non-i64/weak/duplicate declarations, foreign
+owner/binding, and unconsumed staged reads keep their named rejections.
+Focused `ordinary_new_*`/`instance_entry_home`/terminal sets plus the
+route guards; reds classified against the pinned baseline. Successor
+terminals recorded per site — claim Prepared state and the remaining
+prefix blockers, not assumed EXE PASS.
+
+Next execution row: `MIRBUILDER-GATE1-CONSTRUCTOR-ARGUMENT-EVIDENCE-S0`.
 
 ## Preserved contract boundaries
 
