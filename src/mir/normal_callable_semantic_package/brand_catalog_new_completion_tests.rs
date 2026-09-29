@@ -212,19 +212,21 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         !ledger.is_empty(),
         "normal-exit obligation remains after New completion"
     );
-    let exit_site = ledger
+    let exit_stmt_site = ledger
         .root_completion_for_test()
         .explicit_site()
         .unwrap()
-        .node()
         .clone();
+    let exit_site = exit_stmt_site.node().clone();
     assert!(ledger
         .prepare_root_home_exit(sites[0].owner(), &exit_site)
         .unwrap());
     assert!(ledger
         .prepare_root_home_exit(sites[0].owner(), &exit_site)
         .is_err());
-    let origins = ledger.begin_root_home_exit(sites[0].owner()).unwrap();
+    let origins = ledger
+        .begin_root_home_exit(sites[0].owner(), &exit_stmt_site)
+        .unwrap();
     assert_eq!(
         origins
             .iter()
@@ -253,7 +255,7 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         value: crate::mir::ConstValue::Integer(literal),
     });
     ledger
-        .record_terminal_integer_literal_return(sites[0].owner(), result)
+        .record_terminal_integer_literal_return(sites[0].owner(), &exit_site, result)
         .unwrap();
     exit_block.set_terminator(exit.clone());
     physical.add_block(exit_block);
@@ -324,7 +326,7 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         });
     bindings.push((entry_id, entry_jump));
     ledger
-        .record_root_home_exit(sites[0].owner(), origin_bindings, bindings)
+        .record_root_home_exit(sites[0].owner(), &exit_stmt_site, origin_bindings, bindings)
         .unwrap();
     assert!(ledger.is_empty());
     let mut changed_home = physical.clone();

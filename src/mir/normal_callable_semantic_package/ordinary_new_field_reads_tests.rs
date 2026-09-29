@@ -113,18 +113,19 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
     ledger
         .complete_new_emissions(site.owner(), &function)
         .unwrap();
-    ledger.root_exits.borrow_mut().insert(
-        site.owner(),
-        local_commit::RootHomeExitProgress::Unavailable,
-    );
-    let read_site = ledger.field_reads.borrow().keys().next().unwrap().clone();
-    let return_site = ledger
+    let return_stmt_site = ledger
         .terminal_i64_field_return()
         .unwrap()
         .return_site()
-        .node();
+        .clone();
+    ledger.root_exits.borrow_mut().insert(
+        (site.owner(), return_stmt_site.clone()),
+        local_commit::RootHomeExitProgress::Unavailable,
+    );
+    let read_site = ledger.field_reads.borrow().keys().next().unwrap().clone();
+    let return_site = return_stmt_site.node().clone();
     let prepared = ledger
-        .prepare_terminal_i64_field_return(site.owner(), return_site, |binding, _| {
+        .prepare_terminal_i64_field_return(site.owner(), &return_site, |binding, _| {
             assert_eq!(binding, claim.destination);
             Ok(ValueId(2))
         })
@@ -154,7 +155,7 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
         value: Some(ValueId(3)),
     });
     ledger
-        .record_terminal_i64_field_return(site.owner(), ValueId(3))
+        .record_terminal_i64_field_return(site.owner(), &return_stmt_site, ValueId(3))
         .unwrap();
     assert!(ledger.field_reads_complete());
     ledger

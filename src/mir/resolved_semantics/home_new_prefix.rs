@@ -13,8 +13,7 @@ use super::{
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_control_flow::{
-    issue_new_fault_continuation_v1, issue_result_new_fault_continuation_v1,
-    NewFaultContinuationV1,
+    issue_new_fault_continuation_v1, issue_result_new_fault_continuation_v1, NewFaultContinuationV1,
 };
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -35,6 +34,14 @@ pub(crate) enum HomePrefixUnavailableV1 {
     TerminalNotCovered,
     MapCandidateNotCovered(SourceExprSiteV1),
     ReturnValueNotCovered(SourceStmtSiteV1),
+    /// The `If` branches fell through with disagreeing surviving Homes or
+    /// local classes. Both branch states are retained for diagnostics; the
+    /// joined path never substitutes a union or an empty list.
+    HomeFlowBranchDivergent {
+        site: SourceStmtSiteV1,
+        then_homes: Box<[BindingRefV1]>,
+        else_homes: Box<[BindingRefV1]>,
+    },
 }
 
 /// Immutable source facts. Cloning preserves the same owner/site identities;
@@ -106,7 +113,7 @@ mod map_flow;
 mod terminal_relation;
 pub(crate) use map_flow::{
     ArrayElementSource, MapDestinationV1, MapEntryBorrowKindV1, MapEntryStoreClassV1, MapHomeEntry,
-    MapHomeFlow, MapHomeObservation, MapValueSource, RootHomeFlow,
+    MapHomeFlow, MapHomeObservation, MapValueSource, RootHomeExitV1, RootHomeFlow,
 };
 pub(crate) use terminal_relation::issue_terminal_integer_literal_return_from_completion_v1;
 use terminal_relation::{
@@ -129,7 +136,8 @@ pub(crate) fn issue_new_home_prefixes_v1(
         selected,
         std::iter::empty(),
         entry_home,
-        None,
+        &[],
+        false,
         &BTreeSet::new(),
         &mut |_, _, _, _, _| Ok::<_, std::convert::Infallible>(false),
         &mut |_, _| Ok(false),
@@ -144,6 +152,8 @@ pub(crate) fn issue_new_home_prefixes_v1(
 #[path = "home_new_prefix_arguments.rs"]
 mod arguments;
 pub(crate) use arguments::issue_new_home_prefixes_with_arguments_v1;
+#[path = "home_new_prefix_branch.rs"]
+mod branch;
 #[path = "home_new_prefix_scan.rs"]
 mod scan;
 #[path = "home_new_prefix_terminal.rs"]
@@ -163,7 +173,8 @@ pub(crate) fn scan_new_home_flow<E>(
         ),
     >,
     entry_home: Option<&VerifiedInstanceEntryHomeLoanV1>,
-    terminal: Option<&SourceStmtSiteV1>,
+    exit_sites: &[SourceStmtSiteV1],
+    uncovered_implicit_exit: bool,
     result_sites: &BTreeSet<OwnedExprSiteV1>,
     field_is_integer: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -180,17 +191,29 @@ pub(crate) fn scan_new_home_flow<E>(
     (
         BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
         RootHomeFlow,
-        Option<TerminalRelationV1>,
+        BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
         BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
         BTreeMap<OwnedExprSiteV1, Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>>,
     ),
     E,
 > {
     let mut results = BTreeMap::new();
-    let mut terminal_homes = Err(HomePrefixUnavailableV1::TerminalNotCovered);
+    let mut exit_homes: BTreeMap<
+        SourceStmtSiteV1,
+        Result<RootHomeExitV1, HomePrefixUnavailableV1>,
+    > = exit_sites
+        .iter()
+        .map(|site| {
+            (
+                site.clone(),
+                Err(HomePrefixUnavailableV1::TerminalNotCovered),
+            )
+        })
+        .collect();
     let mut maps = Vec::new();
     let mut local_calls = Vec::new();
-    let mut terminal_relation = None;
+    let mut path_calls = BTreeSet::new();
+    let mut terminal_relations = BTreeMap::new();
     let mut argument_observations = BTreeMap::new();
     let mut result_prefixes = BTreeMap::new();
     let function = input.function();
@@ -213,11 +236,15 @@ pub(crate) fn scan_new_home_flow<E>(
                 .map(|site| (site.clone(), Err(HomePrefixUnavailableV1::SourceMismatch)))
                 .collect(),
             RootHomeFlow {
-                terminal: Err(HomePrefixUnavailableV1::SourceMismatch),
+                exits: exit_homes
+                    .into_iter()
+                    .map(|(site, _)| (site, Err(HomePrefixUnavailableV1::SourceMismatch)))
+                    .collect(),
+                uncovered_implicit_exit,
                 maps,
                 local_calls,
             },
-            terminal_relation,
+            terminal_relations,
             argument_observations,
             result_sites
                 .iter()
@@ -237,22 +264,26 @@ pub(crate) fn scan_new_home_flow<E>(
     }
     let mut homes = Vec::new();
     let mut covered_statements = Vec::new();
+    let mut selected_seen = Vec::new();
+    let exit_set: BTreeSet<SourceStmtSiteV1> = exit_sites.iter().cloned().collect();
     scan_statement_flow(
         input,
         &body,
-        terminal,
+        &exit_set,
         selected,
         result_sites,
         &mut results,
-        &mut terminal_homes,
+        &mut exit_homes,
         &mut maps,
         &mut local_calls,
-        &mut terminal_relation,
+        &mut path_calls,
+        &mut terminal_relations,
         &mut argument_observations,
         &mut result_prefixes,
         &mut locals,
         &mut homes,
         &mut covered_statements,
+        &mut selected_seen,
         &mut unavailable,
         field_is_integer,
         map_compatible,
@@ -283,11 +314,12 @@ pub(crate) fn scan_new_home_flow<E>(
     Ok((
         results,
         RootHomeFlow {
-            terminal: terminal_homes,
+            exits: exit_homes,
+            uncovered_implicit_exit,
             maps,
             local_calls,
         },
-        terminal_relation,
+        terminal_relations,
         argument_observations,
         result_prefixes,
     ))

@@ -1,6 +1,9 @@
 //! Affine Raw ordinary-`New` claim capability.
 use crate::mir::builder::fields::PreparedRawFieldReadV1;
 
+#[path = "raw_ordinary_new_claim/terminal_call.rs"]
+mod terminal_call;
+
 pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
     fn emit_terminal_i64_call_exit(
         &mut self,
@@ -126,9 +129,7 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
         _class: &str,
         _argument_count: usize,
     ) -> Result<
-        Option<
-            crate::mir::normal_callable_semantic_package::VerifiedOrdinaryNewBirthRecipeV1,
-        >,
+        Option<crate::mir::normal_callable_semantic_package::VerifiedOrdinaryNewBirthRecipeV1>,
         String,
     > {
         Ok(None)
@@ -191,74 +192,7 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         &mut self,
         builder: &mut crate::mir::MirBuilder,
     ) -> Result<Option<crate::mir::ValueId>, String> {
-        let Some(ledger) = self.ordinary_new_claim_ledger.as_ref() else {
-            return Ok(None);
-        };
-        let owner = self
-            .callable_owner_v1()
-            .ok_or("[freeze:contract][terminal-call/owner-missing]")?;
-        let site = self
-            .current_source_site_v1()
-            .ok_or("[freeze:contract][terminal-call/site-missing]")?;
-        if let Some(row) = ledger
-            .take_root_instance_call_for_return(owner, &site)
-            .map_err(|error| format!("[freeze:contract][terminal-call/{error}]"))?
-        {
-            let state = self
-                .callable_ledger
-                .as_ref()
-                .ok_or("[freeze:contract][terminal-call/state-missing]")?;
-            let receiver = state
-                .borrow_mut()
-                .take_exact_lexical_value(owner, row.receiver_site().node(), row.receiver_binding())
-                .map_err(|error| error.to_string())?;
-            return crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_instance(
-                builder,
-                &mut state.borrow_mut(),
-                ledger,
-                owner,
-                row,
-                receiver,
-            )
-            .map(Some);
-        }
-        if ledger.root_instance_call_expected(owner) {
-            return Err(
-                "[freeze:contract][ordinary-new/local-commit/artifact-source-unavailable]"
-                    .to_owned(),
-            );
-        }
-        if ledger.terminal_call_arguments_for_owner(owner).is_none() {
-            return Ok(None);
-        }
-        let Some(loan) = self
-            .direct_call_loans
-            .as_deref_mut()
-            .and_then(|loans| loans.get_mut(owner))
-        else {
-            // A source terminal Call without the exact direct or instance
-            // disposition remains unavailable; do not coerce it into the
-            // direct-call loan or synthesize a target.
-            return Ok(None);
-        };
-        let Some(row) = loan
-            .take_terminal(ledger, owner, &site)
-            .map_err(|error| format!("[freeze:contract][terminal-call/{error:?}]"))?
-        else {
-            return Ok(None);
-        };
-        let state = self
-            .callable_ledger
-            .as_ref()
-            .ok_or("[freeze:contract][terminal-call/state-missing]")?;
-        crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit(
-            builder,
-            &mut state.borrow_mut(),
-            ledger,
-            owner,
-            row,
-        )
-        .map(Some)
+        terminal_call::emit_terminal_i64_call_exit(self, builder)
     }
     fn prepare_terminal_field_read(
         &mut self,
@@ -375,7 +309,7 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             return Ok(None);
         };
         let emitted = crate::mir::builder::emission::constant::emit_integer(builder, value)?;
-        ledger.record_terminal_integer_literal_return(owner, emitted)?;
+        ledger.record_terminal_integer_literal_return(owner, &site, emitted)?;
         Ok(Some(emitted))
     }
 
@@ -479,6 +413,9 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         let owner = self
             .callable_owner_v1()
             .ok_or("[root-home-exit/owner-missing]")?;
+        let site = self
+            .current_source_site_v1()
+            .ok_or("[root-home-exit/site-missing]")?;
         let state = self
             .callable_ledger
             .as_ref()
@@ -492,6 +429,7 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             &mut state.borrow_mut(),
             ledger,
             owner,
+            &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site),
             value,
         )
     }
@@ -521,6 +459,7 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             &mut state.borrow_mut(),
             ledger,
             owner,
+            &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site),
         )
     }
     fn prepare_ordinary_new_emission(
@@ -724,16 +663,13 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         class: &str,
         argument_count: usize,
     ) -> Result<
-        Option<
-            crate::mir::normal_callable_semantic_package::VerifiedOrdinaryNewBirthRecipeV1,
-        >,
+        Option<crate::mir::normal_callable_semantic_package::VerifiedOrdinaryNewBirthRecipeV1>,
         String,
     > {
         let Some(ledger) = self.ordinary_new_claim_ledger.as_ref() else {
             return Ok(None);
         };
-        let (Some(owner), Some(node)) =
-            (self.callable_owner_v1(), self.current_source_site_v1())
+        let (Some(owner), Some(node)) = (self.callable_owner_v1(), self.current_source_site_v1())
         else {
             return Ok(None);
         };
@@ -743,9 +679,7 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         );
         ledger
             .take_birth_site_recipe(&site, class, argument_count)
-            .map_err(|error| {
-                format!("[freeze:contract][raw-ordinary-new/birth-site] {error:?}")
-            })
+            .map_err(|error| format!("[freeze:contract][raw-ordinary-new/birth-site] {error:?}"))
     }
 }
 

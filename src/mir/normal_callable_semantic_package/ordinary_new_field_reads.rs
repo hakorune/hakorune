@@ -1,6 +1,6 @@
 //! Realization of exact terminal field reads in the existing New ledger.
 use super::*;
-use crate::mir::resolved_semantics::FunctionOwnerIdV1;
+use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceStmtSiteV1};
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use hakorune_mir_defs::CanonicalFieldRefV1;
 use std::collections::BTreeMap;
@@ -41,30 +41,38 @@ pub(super) fn merge_staged_field_reads(
 pub(super) fn merge_terminal_relation_field_reads(
     destination: &mut BTreeMap<OwnedExprSiteV1, FieldRead>,
     owner: FunctionOwnerIdV1,
-    relation: Option<&TerminalRelationV1>,
+    relations: &BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
     staged: BTreeMap<OwnedExprSiteV1, FieldRead>,
 ) -> Result<(), OrdinaryNewCoSealIssueV1> {
-    match relation {
-        Some(TerminalRelationV1::I64Add(result)) => {
-            if result.owner() != owner
-                || result
-                    .field_reads()
-                    .iter()
-                    .any(|site| !staged.contains_key(site))
-            {
-                return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
-                    site: result.add_site().clone(),
-                });
+    let mut consumed = false;
+    for relation in relations.values() {
+        match relation {
+            TerminalRelationV1::I64Add(result) => {
+                if result.owner() != owner
+                    || result
+                        .field_reads()
+                        .iter()
+                        .any(|site| !staged.contains_key(site))
+                {
+                    return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
+                        site: result.add_site().clone(),
+                    });
+                }
+                consumed = true;
             }
-        }
-        Some(TerminalRelationV1::I64Field(result)) => {
-            if result.owner() != owner || !staged.contains_key(result.field_read_site()) {
-                return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
-                    site: result.field_read_site().clone(),
-                });
+            TerminalRelationV1::I64Field(result) => {
+                if result.owner() != owner || !staged.contains_key(result.field_read_site()) {
+                    return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
+                        site: result.field_read_site().clone(),
+                    });
+                }
+                consumed = true;
             }
+            _ => {}
         }
-        _ => return Ok(()),
+    }
+    if !consumed {
+        return Ok(());
     }
     merge_staged_field_reads(destination, owner, staged)
 }
@@ -79,8 +87,26 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(row) = reads.get_mut(site) else {
             return Ok(None);
         };
+        // The read belongs to the relation of its own exact exit site; the
+        // exit row for that site — never a sibling exit's — must be in the
+        // prepare window.
+        let exit_site = self
+            .terminal_relations_for_owner(site.owner())
+            .into_iter()
+            .find_map(|relation| match relation {
+                TerminalRelationV1::I64Add(relation) if relation.field_reads().contains(site) => {
+                    Some(relation.return_site().clone())
+                }
+                TerminalRelationV1::I64Field(relation) if relation.field_read_site() == site => {
+                    Some(relation.return_site().clone())
+                }
+                _ => None,
+            });
+        let Some(exit_site) = exit_site else {
+            return Err(fault("root-exit-phase"));
+        };
         if !matches!(
-            self.root_exits.borrow().get(&site.owner()),
+            self.root_exits.borrow().get(&(site.owner(), exit_site)),
             Some(
                 local_commit::RootHomeExitProgress::Prepared(_)
                     | local_commit::RootHomeExitProgress::Unavailable,

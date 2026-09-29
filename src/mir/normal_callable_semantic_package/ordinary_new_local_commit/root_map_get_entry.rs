@@ -6,24 +6,22 @@
 use super::*;
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// Move the pending local-call binding groups into the MapGet entry and
+    /// Claim this exit's lifecycle binding groups into the MapGet entry and
     /// seal the emitted read, mirroring `record_root_call_exit`.
     pub(crate) fn record_root_map_get_exit(
         &self,
         owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
         invoke: (BasicBlockId, MirInstruction),
         projection: (BasicBlockId, MirInstruction),
         frame: (BasicBlockId, MirInstruction),
         origins: Vec<(RootHomeReleaseOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
-        let mut pending = self.root_local_call_bindings.borrow_mut();
-        let pending_groups = pending.get(&owner).map(Vec::as_slice).unwrap_or(&[]);
-        self.validate_local_call_binding_groups(owner, pending_groups)?;
-        let local_bindings = pending.remove(&owner).unwrap_or_default();
-        drop(pending);
+        let local_bindings = self.select_local_call_binding_groups(owner, site)?;
         self.record_root_home_exit_with_entry(
             owner,
+            site,
             origins,
             bindings,
             RootHomeExitEntry::MapGet {
@@ -35,15 +33,16 @@ impl OrdinaryNewClaimLedgerV1 {
         )
     }
 
-    /// Artifact seal evidence: the owner's exit is an emitted MapGet entry.
-    /// Child completeness is separately enforced by finalized child
+    /// Artifact seal evidence: this exact exit site holds an emitted MapGet
+    /// entry. Child completeness is separately enforced by finalized child
     /// validation; this flag only answers the seal-time root question.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn terminal_map_get_return_emitted(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn terminal_map_get_return_emitted_at(
         &self,
         owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
     ) -> bool {
         matches!(
-            self.root_exits.borrow().get(&owner),
+            self.root_exits.borrow().get(&(owner, site.clone())),
             Some(RootHomeExitProgress::Emitted {
                 entry: RootHomeExitEntry::MapGet { .. },
                 ..
@@ -58,6 +57,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(super) fn validate_map_get_entry(
         &self,
         owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
         function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
         local_bindings: &[(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)],
@@ -67,7 +67,7 @@ impl OrdinaryNewClaimLedgerV1 {
         cleanup: &[(BasicBlockId, MirInstruction)],
     ) -> Result<(), String> {
         let relation = self
-            .terminal_map_get_return_for_owner(owner)
+            .terminal_map_get_return_for_owner_at(owner, exit)
             .ok_or_else(|| freeze("map-get-source-missing"))?;
         let MirInstruction::Invoke {
             operation:
@@ -102,7 +102,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("map-get-binding-drift"));
             }
         }
-        self.check_local_call_binding_groups(owner, function, finishing, local_bindings)?;
+        self.check_local_call_binding_groups(owner, exit, function, finishing, local_bindings)?;
         let mapped = |binding: &(BasicBlockId, MirInstruction)| match finishing {
             Some(p) => p
                 .binding(binding.0, &binding.1)?

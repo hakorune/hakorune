@@ -33,7 +33,7 @@ use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
-    SourcePathSegmentV1,
+    SourcePathSegmentV1, SourceStmtSiteV1,
 };
 use crate::mir::{Effect, EffectMask};
 use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
@@ -73,10 +73,10 @@ pub(crate) use terminal_map_get_return::PreparedTerminalMapGetReturnV1;
 mod birth_abi_handoff;
 #[path = "ordinary_new_candidate.rs"]
 mod candidate;
-#[path = "ordinary_new_local_commit.rs"]
-mod local_commit;
 #[path = "ordinary_new_lexical_instance_call.rs"]
 mod lexical_instance_call;
+#[path = "ordinary_new_local_commit.rs"]
+mod local_commit;
 pub(crate) use lexical_instance_call::LexicalInstanceCallDispositionRowV1;
 #[path = "ordinary_new_result_class_claim.rs"]
 mod result_class_claim;
@@ -203,7 +203,12 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     root_validation: RefCell<local_commit::RootNewValidation>,
     child_physical_validation:
         RefCell<BTreeMap<FunctionOwnerIdV1, local_commit::ChildPhysicalValidation>>,
-    root_exits: RefCell<BTreeMap<FunctionOwnerIdV1, local_commit::RootHomeExitProgress>>,
+    // One exit progress row per (owner, source exit statement site): a
+    // function with several `return` statements carries independent evidence
+    // and one exit's row can never satisfy another.
+    root_exits: RefCell<
+        BTreeMap<(FunctionOwnerIdV1, SourceStmtSiteV1), local_commit::RootHomeExitProgress>,
+    >,
     // Physical bindings for the bounded source-local Call prefix. These are
     // consumed by the existing root Call entry; they do not issue a target or
     // create a second lifecycle owner.
@@ -257,13 +262,20 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // constructs `new` of one agreed ordinary box. Read-only after
     // issuance; non-uniform evidence simply produces no row.
     callable_result_classes: result_class_claim::OrdinaryNewResultClassClaimsV1,
-    terminal_relation: Option<TerminalRelationV1>,
-    terminal_relation_index: BTreeMap<FunctionOwnerIdV1, Rc<TerminalRelationV1>>,
-    terminal_integer_literal_value: RefCell<Option<crate::mir::ValueId>>,
-    terminal_integer_literal_values: RefCell<BTreeMap<FunctionOwnerIdV1, crate::mir::ValueId>>,
-    terminal_i64_field_value: RefCell<Option<crate::mir::ValueId>>,
-    terminal_i64_field_values: RefCell<BTreeMap<FunctionOwnerIdV1, crate::mir::ValueId>>,
-    terminal_result_progress: RefCell<terminal_result::Progress>,
+    // Terminal relations are keyed by the exact source exit statement site:
+    // the App Main root map is owner-implied (App Main only), while children
+    // keep `(owner -> site -> relation)` in the index. One exit's evidence
+    // is never borrowed for another.
+    terminal_relation: BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
+    terminal_relation_index:
+        BTreeMap<FunctionOwnerIdV1, Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>>,
+    terminal_integer_literal_value: RefCell<BTreeMap<SourceStmtSiteV1, crate::mir::ValueId>>,
+    terminal_integer_literal_values:
+        RefCell<BTreeMap<(FunctionOwnerIdV1, SourceStmtSiteV1), crate::mir::ValueId>>,
+    terminal_i64_field_value: RefCell<BTreeMap<SourceStmtSiteV1, crate::mir::ValueId>>,
+    terminal_i64_field_values:
+        RefCell<BTreeMap<(FunctionOwnerIdV1, SourceStmtSiteV1), crate::mir::ValueId>>,
+    terminal_result_progress: RefCell<BTreeMap<SourceStmtSiteV1, terminal_result::Progress>>,
     root_completion: Option<
         Result<
             Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
@@ -376,13 +388,13 @@ impl OrdinaryNewClaimLedgerV1 {
             birth_site_index: RefCell::new(BTreeMap::new()),
             field_write_claims: BTreeMap::new(),
             callable_result_classes: BTreeMap::new(),
-            terminal_relation: None,
+            terminal_relation: BTreeMap::new(),
             terminal_relation_index: BTreeMap::new(),
-            terminal_integer_literal_value: RefCell::new(None),
+            terminal_integer_literal_value: RefCell::new(BTreeMap::new()),
             terminal_integer_literal_values: RefCell::new(BTreeMap::new()),
-            terminal_i64_field_value: RefCell::new(None),
+            terminal_i64_field_value: RefCell::new(BTreeMap::new()),
             terminal_i64_field_values: RefCell::new(BTreeMap::new()),
-            terminal_result_progress: RefCell::new(terminal_result::Progress::Pending),
+            terminal_result_progress: RefCell::new(BTreeMap::new()),
             root_completion: None,
             completion_index: BTreeMap::new(),
             app_main_identity: None,
@@ -526,11 +538,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 claim.argument_rows.clone(),
             )),
         );
-        Ok(Some(
-            claims
-                .remove(site)
-                .expect("result claim remained present after the checked lookup"),
-        ))
+        Ok(Some(claims.remove(site).expect(
+            "result claim remained present after the checked lookup",
+        )))
     }
 
     /// Affine take of a verified `Birth` recipe for a non-`[Body,
@@ -593,7 +603,9 @@ impl OrdinaryNewClaimLedgerV1 {
         if self.root_owner() != Some(owner) {
             return Ok(false);
         }
-        let Some(TerminalRelationV1::Unit(relation)) = self.terminal_relation_for_owner(owner)
+        let stmt_site = SourceStmtSiteV1::from_node(site.clone());
+        let Some(TerminalRelationV1::Unit(relation)) =
+            self.terminal_relation_for_owner_at(owner, &stmt_site)
         else {
             return Ok(false);
         };
@@ -604,8 +616,7 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         if relation.owner() != owner
             || completion.owner() != owner
-            || completion.explicit_site() != Some(relation.return_site())
-            || relation.return_site().node() != site
+            || !completion.explicit_sites().contains(&stmt_site)
         {
             return Err("[freeze:contract][ordinary-new/unit-return-source-drift]".to_owned());
         }
@@ -710,11 +721,11 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
 }
 
 #[cfg(test)]
-#[path = "ordinary_new_terminal_result_tests.rs"]
-mod terminal_result_tests;
-#[cfg(test)]
 #[path = "ordinary_new_lexical_instance_call_tests.rs"]
 mod lexical_instance_call_tests;
+#[cfg(test)]
+#[path = "ordinary_new_terminal_result_tests.rs"]
+mod terminal_result_tests;
 #[cfg(test)]
 #[path = "ordinary_new_coseal_tests.rs"]
 mod tests;

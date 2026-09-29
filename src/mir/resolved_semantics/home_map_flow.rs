@@ -5,15 +5,72 @@ use super::terminal_relation::{array_literal_element_count, map_literal_keys};
 use super::*;
 use crate::mir::resolved_semantics::{RegionId, ScopeId, SourcePathSegmentV1};
 
+/// One verified explicit exit's site-bound obligation: the live Homes this
+/// path must release (reverse live order) plus the local-call sites the
+/// path observed, for the consumer's per-exit binding-group expectation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct RootHomeExitV1 {
+    homes: Box<[BindingRefV1]>,
+    covered_calls: Box<[OwnedExprSiteV1]>,
+}
+
+impl RootHomeExitV1 {
+    pub(super) fn issue(homes: Box<[BindingRefV1]>, covered_calls: Box<[OwnedExprSiteV1]>) -> Self {
+        Self {
+            homes,
+            covered_calls,
+        }
+    }
+    pub(crate) fn homes(&self) -> &[BindingRefV1] {
+        &self.homes
+    }
+    pub(crate) fn covered_calls(&self) -> &[OwnedExprSiteV1] {
+        &self.covered_calls
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct RootHomeFlow {
-    pub(super) terminal: Result<Box<[BindingRefV1]>, HomePrefixUnavailableV1>,
+    /// One site-bound obligation per verified explicit exit. A completion
+    /// with no statement site (implicit body end) keeps the obligation
+    /// uncovered instead of borrowing another exit's evidence.
+    pub(super) exits: BTreeMap<SourceStmtSiteV1, Result<RootHomeExitV1, HomePrefixUnavailableV1>>,
+    /// `true` when the completion has an exit without a statement site
+    /// (`implicit_body_end`) — no `new` flow row can prove that boundary.
+    pub(super) uncovered_implicit_exit: bool,
     pub(super) maps: Vec<MapHomeObservation>,
     pub(super) local_calls: Vec<LocalCallObservationV1>,
 }
 impl RootHomeFlow {
+    /// The sole exit's homes — only when the flow observed exactly one
+    /// explicit site with no uncovered implicit end. Multi-exit functions
+    /// must read `exit_row` per site.
     pub(crate) fn terminal_homes(&self) -> Result<&[BindingRefV1], &HomePrefixUnavailableV1> {
-        self.terminal.as_deref()
+        if self.uncovered_implicit_exit || self.exits.len() != 1 {
+            return Err(&HomePrefixUnavailableV1::TerminalNotCovered);
+        }
+        self.exits
+            .values()
+            .next()
+            .expect("one exit")
+            .as_ref()
+            .map(RootHomeExitV1::homes)
+    }
+
+    /// The site-bound obligation for one verified explicit exit.
+    pub(crate) fn exit_row(
+        &self,
+        site: &SourceStmtSiteV1,
+    ) -> Option<Result<&RootHomeExitV1, &HomePrefixUnavailableV1>> {
+        self.exits.get(site).map(|row| row.as_ref())
+    }
+
+    /// Every verified explicit exit has a proven obligation and no exit
+    /// lacks a site — the only state where per-exit consumption may run.
+    pub(crate) fn all_exits_ready(&self) -> bool {
+        !self.uncovered_implicit_exit
+            && !self.exits.is_empty()
+            && self.exits.values().all(|row| row.is_ok())
     }
     pub(crate) fn maps(&self) -> &[MapHomeObservation] {
         &self.maps

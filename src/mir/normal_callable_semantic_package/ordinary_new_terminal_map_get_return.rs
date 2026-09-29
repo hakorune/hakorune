@@ -6,13 +6,14 @@
 //! decides ownership — a borrowed formal stays caller-owned and an owned
 //! map local keeps its own End obligation.
 use super::*;
-use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1};
+use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1, SourceStmtSiteV1};
 use crate::mir::ValueId;
 
 /// One resolved terminal map-get: the call site is retained source
 /// evidence, `map` is the receiver binding's existing physical value, and
 /// `utf8` is the sealed literal key carried inline like a prepared key.
 pub(crate) struct PreparedTerminalMapGetReturnV1 {
+    pub(crate) return_site: SourceStmtSiteV1,
     pub(crate) site: OwnedExprSiteV1,
     pub(crate) map: ValueId,
     pub(crate) utf8: String,
@@ -25,7 +26,8 @@ impl OrdinaryNewClaimLedgerV1 {
         return_site: &SourceNodeSiteV1,
         mut resolve_binding: impl FnMut(BindingRefV1, &SourceNodeSiteV1) -> Result<ValueId, String>,
     ) -> Result<Option<PreparedTerminalMapGetReturnV1>, String> {
-        let Some(relation) = self.terminal_map_get_return_for_owner(owner) else {
+        let stmt_site = SourceStmtSiteV1::from_node(return_site.clone());
+        let Some(relation) = self.terminal_map_get_return_for_owner_at(owner, &stmt_site) else {
             return Ok(None);
         };
         let Some(completion) = self.completion_for_owner(owner) else {
@@ -33,13 +35,13 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         if relation.owner() != owner
             || completion.owner() != owner
-            || completion.explicit_site() != Some(relation.return_site())
-            || relation.return_site().node() != return_site
+            || !completion.explicit_sites().contains(&stmt_site)
         {
             return Err(fault("source-drift"));
         }
         let map = resolve_binding(relation.receiver(), relation.receiver_site().node())?;
         Ok(Some(PreparedTerminalMapGetReturnV1 {
+            return_site: stmt_site,
             site: relation.call_site().clone(),
             map,
             utf8: relation.key().into(),

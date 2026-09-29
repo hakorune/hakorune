@@ -2,12 +2,15 @@
 //!
 //! The source relation names the exact staged field read. This module only
 //! reserves, emits, and verifies that one read; it never revisits raw syntax.
+//! The emitted value is retained per exact exit site so one `return x.f`
+//! can never satisfy a sibling exit.
 use super::*;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1};
 use crate::mir::{MirFunction, MirInstruction, ValueId};
 use hakorune_mir_defs::CanonicalFieldRefV1;
 
 pub(crate) struct PreparedTerminalI64FieldReturnV1 {
+    pub(crate) return_site: SourceStmtSiteV1,
     pub(crate) site: OwnedExprSiteV1,
     pub(crate) base: ValueId,
     pub(crate) field: CanonicalFieldRefV1,
@@ -20,7 +23,14 @@ impl OrdinaryNewClaimLedgerV1 {
         return_site: &SourceNodeSiteV1,
         mut resolve_binding: impl FnMut(BindingRefV1, &SourceNodeSiteV1) -> Result<ValueId, String>,
     ) -> Result<Option<PreparedTerminalI64FieldReturnV1>, String> {
-        let Some(relation) = self.terminal_i64_field_return_for_owner(owner) else {
+        let stmt_site = SourceStmtSiteV1::from_node(return_site.clone());
+        let Some(relation) = self
+            .terminal_relation_for_owner_at(owner, &stmt_site)
+            .and_then(|relation| match relation {
+                TerminalRelationV1::I64Field(row) => Some(row),
+                _ => None,
+            })
+        else {
             return Ok(None);
         };
         let Some(completion) = self.completion_for_owner(owner) else {
@@ -28,9 +38,10 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         if relation.owner() != owner
             || completion.owner() != owner
-            || completion.explicit_site() != Some(relation.return_site())
-            || relation.return_site().node() != return_site
-            || self.terminal_i64_field_value_for_owner(owner).is_some()
+            || !completion.explicit_sites().contains(&stmt_site)
+            || self
+                .terminal_i64_field_value_for_owner_at(owner, &stmt_site)
+                .is_some()
         {
             return Err(fault("source-drift"));
         }
@@ -49,29 +60,39 @@ impl OrdinaryNewClaimLedgerV1 {
         else {
             return Err(fault("field-read-missing"));
         };
-        Ok(Some(PreparedTerminalI64FieldReturnV1 { site, base, field }))
+        Ok(Some(PreparedTerminalI64FieldReturnV1 {
+            return_site: stmt_site,
+            site,
+            base,
+            field,
+        }))
     }
 
     pub(crate) fn record_terminal_i64_field_return(
         &self,
         owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
         value: ValueId,
     ) -> Result<(), String> {
-        if self.terminal_i64_field_return_for_owner(owner).is_none() {
+        if !matches!(
+            self.terminal_relation_for_owner_at(owner, site),
+            Some(TerminalRelationV1::I64Field(_))
+        ) {
             return Err(fault("duplicate-emission"));
         }
-        if self
-            .terminal_relation
-            .as_ref()
-            .is_some_and(|relation| relation.owner() == owner)
-        {
-            if self.terminal_i64_field_value.replace(Some(value)).is_some() {
+        if self.terminal_relation_is_indexed(owner, site) {
+            if self
+                .terminal_i64_field_values
+                .borrow_mut()
+                .insert((owner, site.clone()), value)
+                .is_some()
+            {
                 return Err(fault("duplicate-emission"));
             }
         } else if self
-            .terminal_i64_field_values
+            .terminal_i64_field_value
             .borrow_mut()
-            .insert(owner, value)
+            .insert(site.clone(), value)
             .is_some()
         {
             return Err(fault("duplicate-emission"));
@@ -79,16 +100,29 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
+    /// Every retained I64Field relation — root map and child index alike —
+    /// must carry its recorded emitted value at its own exit site.
     pub(super) fn terminal_i64_field_return_complete(&self) -> bool {
-        (self.terminal_i64_field_return().is_none()
-            || self.terminal_i64_field_value.borrow().is_some())
-            && self
-                .terminal_relation_index
-                .iter()
-                .filter(|(_, relation)| {
-                    matches!(relation.as_ref(), TerminalRelationV1::I64Field(_))
-                })
-                .all(|(owner, _)| self.terminal_i64_field_values.borrow().contains_key(owner))
+        let root_ready = self
+            .terminal_relation
+            .iter()
+            .filter(|(_, relation)| matches!(relation, TerminalRelationV1::I64Field(_)))
+            .all(|(site, _)| self.terminal_i64_field_value.borrow().contains_key(site));
+        let indexed_ready = self
+            .terminal_relation_index
+            .iter()
+            .flat_map(|(owner, relations)| {
+                relations
+                    .iter()
+                    .map(move |(site, relation)| (owner, site, relation))
+            })
+            .filter(|(_, _, relation)| matches!(relation, TerminalRelationV1::I64Field(_)))
+            .all(|(owner, site, _)| {
+                self.terminal_i64_field_values
+                    .borrow()
+                    .contains_key(&(*owner, site.clone()))
+            });
+        root_ready && indexed_ready
     }
 
     pub(super) fn validate_terminal_i64_field_return(
@@ -96,52 +130,59 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        let Some(relation) = self.terminal_i64_field_return_for_owner(owner) else {
-            return Ok(());
-        };
-        let Some(value) = self.terminal_i64_field_value_for_owner(owner) else {
-            return Err(fault("unconsumed"));
-        };
         let reads = self.field_reads.borrow();
-        let row = reads
-            .get(relation.field_read_site())
-            .ok_or_else(|| fault("field-read-missing"))?;
-        let field_reads::Progress::Emitted(
-            block,
-            MirInstruction::ObjectFieldGet { dst, base, field },
-        ) = &row.progress
-        else {
-            return Err(fault("field-read-not-emitted"));
-        };
-        if *dst != value {
-            return Err(fault("result-drift"));
+        for relation in self.terminal_relations_for_owner(owner) {
+            let TerminalRelationV1::I64Field(relation) = relation else {
+                continue;
+            };
+            let exit_site = relation.return_site().clone();
+            let Some(value) = self.terminal_i64_field_value_for_owner_at(owner, &exit_site) else {
+                return Err(fault("unconsumed"));
+            };
+            let row = reads
+                .get(relation.field_read_site())
+                .ok_or_else(|| fault("field-read-missing"))?;
+            let field_reads::Progress::Emitted(
+                block,
+                MirInstruction::ObjectFieldGet { dst, base, field },
+            ) = &row.progress
+            else {
+                return Err(fault("field-read-not-emitted"));
+            };
+            if *dst != value {
+                return Err(fault("result-drift"));
+            }
+            let exact_read = function.blocks.get(block).is_some_and(|block| {
+                block.all_instructions().any(|instruction| {
+                    matches!(instruction,
+                    MirInstruction::ObjectFieldGet { dst, base: actual_base, field: actual_field }
+                        if *dst == value && actual_base == base && actual_field == field)
+                })
+            });
+            let returned = function.blocks.values().any(|block| {
+                block.all_instructions().any(|instruction| {
+                    matches!(instruction, MirInstruction::Return { value: Some(actual) } if *actual == value)
+                })
+            });
+            if !(exact_read && returned) {
+                return Err(fault("physical-drift"));
+            }
         }
-        let exact_read = function.blocks.get(block).is_some_and(|block| {
-            block.all_instructions().any(|instruction| {
-                matches!(instruction,
-                MirInstruction::ObjectFieldGet { dst, base: actual_base, field: actual_field }
-                    if *dst == value && actual_base == base && actual_field == field)
-            })
-        });
-        let returned = function.blocks.values().any(|block| {
-            block.all_instructions().any(|instruction| {
-                matches!(instruction, MirInstruction::Return { value: Some(actual) } if *actual == value)
-            })
-        });
-        (exact_read && returned)
-            .then_some(())
-            .ok_or_else(|| fault("physical-drift"))
+        Ok(())
     }
 
-    fn terminal_i64_field_value_for_owner(&self, owner: FunctionOwnerIdV1) -> Option<ValueId> {
-        if self
-            .terminal_relation
-            .as_ref()
-            .is_some_and(|relation| relation.owner() == owner)
-        {
-            *self.terminal_i64_field_value.borrow()
+    fn terminal_i64_field_value_for_owner_at(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
+    ) -> Option<ValueId> {
+        if self.terminal_relation_is_indexed(owner, site) {
+            self.terminal_i64_field_values
+                .borrow()
+                .get(&(owner, site.clone()))
+                .copied()
         } else {
-            self.terminal_i64_field_values.borrow().get(&owner).copied()
+            self.terminal_i64_field_value.borrow().get(site).copied()
         }
     }
 }

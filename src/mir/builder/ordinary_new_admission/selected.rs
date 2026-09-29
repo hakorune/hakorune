@@ -33,7 +33,15 @@ pub(in crate::mir::builder) fn emit(
         .to_vec();
     let constructor = claim.constructor();
     emit_selected_new(
-        builder, state, ledger, site, object, class, arity, constructor, &rows,
+        builder,
+        state,
+        ledger,
+        site,
+        object,
+        class,
+        arity,
+        constructor,
+        &rows,
     )
 }
 
@@ -59,7 +67,15 @@ pub(in crate::mir::builder) fn emit_result(
         .to_vec();
     let constructor = claim.constructor();
     emit_selected_new(
-        builder, state, ledger, site, object, class, arity, constructor, &rows,
+        builder,
+        state,
+        ledger,
+        site,
+        object,
+        class,
+        arity,
+        constructor,
+        &rows,
     )
 }
 
@@ -319,9 +335,19 @@ pub(in crate::mir::builder) fn emit_root_home_exit(
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
     owner: FunctionOwnerIdV1,
+    site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
     value: ValueId,
 ) -> Result<ValueId, String> {
-    emit_root_home_exit_payload(builder, state, ledger, owner, Some(value), value, None)
+    emit_root_home_exit_payload(
+        builder,
+        state,
+        ledger,
+        owner,
+        site,
+        Some(value),
+        value,
+        None,
+    )
 }
 
 pub(in crate::mir::builder) fn emit_root_home_unit_exit(
@@ -329,9 +355,19 @@ pub(in crate::mir::builder) fn emit_root_home_unit_exit(
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
     owner: FunctionOwnerIdV1,
+    site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
 ) -> Result<ValueId, String> {
     let statement_result = crate::mir::builder::emission::constant::emit_void(builder)?;
-    emit_root_home_exit_payload(builder, state, ledger, owner, None, statement_result, None)
+    emit_root_home_exit_payload(
+        builder,
+        state,
+        ledger,
+        owner,
+        site,
+        None,
+        statement_result,
+        None,
+    )
 }
 
 /// One physically-emitting terminal ingress: the existing terminal Call or
@@ -347,11 +383,12 @@ fn emit_root_home_exit_payload(
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
     owner: FunctionOwnerIdV1,
+    site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
     return_value: Option<ValueId>,
     statement_result: ValueId,
     ingress: Option<RootExitIngress>,
 ) -> Result<ValueId, String> {
-    let operations = ledger.begin_root_home_exit(owner)?;
+    let operations = ledger.begin_root_home_exit(owner, site)?;
     let mut bindings = Vec::new();
     let mut clean = builder.next_block_id();
     append_block(
@@ -417,6 +454,7 @@ fn emit_root_home_exit_payload(
                 let frame_binding = fault_frame_binding(builder, state, frame)?;
                 ledger.record_root_call_exit(
                     owner,
+                    site,
                     call.row,
                     call.arguments,
                     invoke,
@@ -442,6 +480,7 @@ fn emit_root_home_exit_payload(
                 let frame_binding = fault_frame_binding(builder, state, frame)?;
                 ledger.record_root_map_get_exit(
                     owner,
+                    site,
                     invoke,
                     projection,
                     frame_binding,
@@ -463,7 +502,7 @@ fn emit_root_home_exit_payload(
     };
     builder.emit_instruction(jump.clone())?;
     bindings.push((origin, jump));
-    ledger.record_root_home_exit(owner, origins, bindings)?;
+    ledger.record_root_home_exit(owner, site, origins, bindings)?;
     Ok(statement_result)
 }
 
@@ -472,6 +511,7 @@ pub(in crate::mir::builder) fn emit_terminal_i64_add_return(
     ledger: &OrdinaryNewClaimLedgerV1,
     prepared: PreparedTerminalI64AddReturnV1,
 ) -> Result<ValueId, String> {
+    let return_site = prepared.return_site.clone();
     let mut values = [ValueId(0); 2];
     for (index, (site, base, field)) in prepared.reads.into_iter().enumerate() {
         let block = builder
@@ -508,8 +548,8 @@ pub(in crate::mir::builder) fn emit_terminal_i64_add_return(
         .type_ctx
         .value_types
         .insert(result, MirType::Integer);
-    ledger.record_terminal_i64_add(block, result, values[0], values[1])?;
-    ledger.complete_terminal_i64_add_return(result)?;
+    ledger.record_terminal_i64_add(&return_site, block, result, values[0], values[1])?;
+    ledger.complete_terminal_i64_add_return(&return_site, result)?;
     Ok(result)
 }
 
@@ -540,7 +580,11 @@ pub(in crate::mir::builder) fn emit_terminal_i64_field_return(
         prepared.base,
         prepared.field,
     )?;
-    ledger.record_terminal_i64_field_return(prepared.site.owner(), result)?;
+    ledger.record_terminal_i64_field_return(
+        prepared.site.owner(),
+        &prepared.return_site,
+        result,
+    )?;
     Ok(result)
 }
 
@@ -566,6 +610,7 @@ pub(in crate::mir::builder) fn emit_terminal_map_get_return(
         state,
         ledger,
         owner,
+        &prepared.return_site,
         Some(value),
         value,
         Some(RootExitIngress::MapGet {

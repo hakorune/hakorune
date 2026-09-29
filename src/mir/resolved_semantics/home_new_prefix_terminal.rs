@@ -1,18 +1,18 @@
-//! Terminal-statement observation inside `scan_statement_flow`: the
-//! single-exit arm owns the terminal relation, result co-seal, and the
-//! terminal Home snapshot — every row still lands in the caller state.
+//! Terminal-statement observation inside `scan_statement_flow`: each
+//! explicit exit site owns its own relation, result co-seal, and Home
+//! snapshot — every row lands in the site-keyed caller maps.
 use super::*;
 
 #[allow(clippy::too_many_arguments)]
 pub(super) fn observe_terminal_statement<'a, E>(
     input: ResolvedFunctionLoweringInputV1<'a>,
     statement: &crate::mir::compiler::located::LocatedStmtV1<'a>,
-    selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
     result_sites: &BTreeSet<OwnedExprSiteV1>,
     results: &mut BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
-    terminal_homes: &mut Result<Box<[BindingRefV1]>, HomePrefixUnavailableV1>,
+    exit_homes: &mut BTreeMap<SourceStmtSiteV1, Result<RootHomeExitV1, HomePrefixUnavailableV1>>,
+    path_calls: &BTreeSet<OwnedExprSiteV1>,
     maps: &mut Vec<MapHomeObservation>,
-    terminal_relation: &mut Option<TerminalRelationV1>,
+    terminal_relations: &mut BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
     argument_observations: &mut BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
     result_prefixes: &mut BTreeMap<
         OwnedExprSiteV1,
@@ -21,6 +21,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
     locals: &mut PrefixLocalFlow<'a>,
     homes: &mut Vec<BindingRefV1>,
     covered_statements: &mut Vec<SourceStmtSiteV1>,
+    selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
     field_is_integer: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -32,9 +33,10 @@ pub(super) fn observe_terminal_statement<'a, E>(
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<(), E> {
+    let mut relation: Option<TerminalRelationV1> = None;
     let scalar_return = match statement.node() {
         ASTNode::Return { value: None, .. } => {
-            *terminal_relation = Some(TerminalRelationV1::Unit(TerminalUnitReturnV1::issue(
+            relation = Some(TerminalRelationV1::Unit(TerminalUnitReturnV1::issue(
                 input.owner(),
                 statement.site().clone(),
             )));
@@ -66,13 +68,12 @@ pub(super) fn observe_terminal_statement<'a, E>(
                 )? {
                     Ok((map, remaining)) => {
                         *homes = remaining;
-                        *terminal_relation =
-                            Some(TerminalRelationV1::Value(TerminalValueReturnV1::issue(
-                                input.owner(),
-                                statement.site().clone(),
-                                value.site().clone(),
-                                TerminalReturnedSourceV1::MapLiteral(owned.clone()),
-                            )));
+                        relation = Some(TerminalRelationV1::Value(TerminalValueReturnV1::issue(
+                            input.owner(),
+                            statement.site().clone(),
+                            value.site().clone(),
+                            TerminalReturnedSourceV1::MapLiteral(owned.clone()),
+                        )));
                         maps.push(map_flow::MapHomeObservation::Complete(map));
                     }
                     Err(issue) => {
@@ -141,13 +142,14 @@ pub(super) fn observe_terminal_statement<'a, E>(
                     // `return void` spells the explicit-unit terminal;
                     // completion classifies it like a bare return.
                     Some(ResolvedLiteralSourceV1::Void) => {
-                        *terminal_relation = Some(TerminalRelationV1::Unit(
-                            TerminalUnitReturnV1::issue(input.owner(), statement.site().clone()),
-                        ));
+                        relation = Some(TerminalRelationV1::Unit(TerminalUnitReturnV1::issue(
+                            input.owner(),
+                            statement.site().clone(),
+                        )));
                         true
                     }
                     Some(ResolvedLiteralSourceV1::Integer(number)) => {
-                        *terminal_relation = Some(TerminalRelationV1::IntegerLiteral(
+                        relation = Some(TerminalRelationV1::IntegerLiteral(
                             TerminalIntegerLiteralReturnV1::issue(
                                 input.owner(),
                                 statement.site().clone(),
@@ -224,7 +226,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                 })
                         });
                         if let Some(arguments) = arguments {
-                            *terminal_relation =
+                            relation =
                                 Some(TerminalRelationV1::Call(TerminalI64CallReturnV1::issue(
                                     input.owner(),
                                     statement.site().clone(),
@@ -239,7 +241,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                     _ => {
                         match return_scalar(input, value.site(), &locals, field_is_integer)? {
                             Some(ReturnScalar::I64Add { site, field_reads }) => {
-                                *terminal_relation = Some(TerminalRelationV1::I64Add(
+                                relation = Some(TerminalRelationV1::I64Add(
                                     TerminalI64AddReturnV1::issue(
                                         input.owner(),
                                         statement.site().clone(),
@@ -250,7 +252,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                 true
                             }
                             Some(ReturnScalar::IntegerField(field_read_site)) => {
-                                *terminal_relation = Some(TerminalRelationV1::I64Field(
+                                relation = Some(TerminalRelationV1::I64Field(
                                     TerminalI64FieldReturnV1::issue(
                                         input.owner(),
                                         statement.site().clone(),
@@ -270,7 +272,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                 if let Some(row) =
                                     terminal_map_get(input, statement.site(), value.site(), &locals)
                                 {
-                                    *terminal_relation = Some(TerminalRelationV1::MapGet(row));
+                                    relation = Some(TerminalRelationV1::MapGet(row));
                                     true
                                 } else {
                                     match terminal_returned_source(input, value.site(), &locals) {
@@ -386,7 +388,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                 homes.retain(|home| *home != binding);
                                                 locals.consume_home(binding);
                                             }
-                                            *terminal_relation = Some(TerminalRelationV1::Value(
+                                            relation = Some(TerminalRelationV1::Value(
                                                 TerminalValueReturnV1::issue(
                                                     input.owner(),
                                                     statement.site().clone(),
@@ -413,7 +415,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                     )
                                             },
                                         ) {
-                                            *terminal_relation = Some(
+                                            relation = Some(
                                                 TerminalRelationV1::OpaqueCall(
                                                     TerminalOpaqueCallReturnV1::issue(
                                                         input.owner(),
@@ -449,15 +451,23 @@ pub(super) fn observe_terminal_statement<'a, E>(
         maps,
         map_compatible,
     )?;
-    *terminal_homes = match &*unavailable {
+    let homes_row = match &*unavailable {
         Some(issue) => Err(issue.clone()),
         None if !scalar_return => Err(HomePrefixUnavailableV1::ReturnValueNotCovered(
             statement.site().clone(),
         )),
-        None if results.len() != selected.len() => Err(HomePrefixUnavailableV1::SourceMismatch),
-        None => Ok(homes.iter().rev().copied().collect()),
+        None if selected_seen.iter().any(|site| !results.contains_key(site)) => {
+            Err(HomePrefixUnavailableV1::SourceMismatch)
+        }
+        // Exit-boundary obligation: every surviving caller-owned Home is
+        // released here, newest first, together with the local-call sites
+        // evaluation on this exit's path could have covered.
+        None => Ok(RootHomeExitV1::issue(
+            homes.iter().rev().copied().collect(),
+            path_calls.iter().cloned().collect(),
+        )),
     };
-    if terminal_homes.is_err() {
+    if homes_row.is_err() {
         // `return new <class>` is exact-site evidence: its own
         // `ResultNewHomePrefixV1` — and thus the retained result
         // claim — already records whatever flow gap made the
@@ -466,7 +476,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
         // a caller's handle-result edge reads from the child
         // contract; every other returned source depends on this
         // frame's local flow, so those still drop.
-        *terminal_relation = terminal_relation.take().filter(|relation| {
+        relation = relation.filter(|relation| {
             matches!(
                 relation,
                 TerminalRelationV1::Value(row)
@@ -476,6 +486,12 @@ pub(super) fn observe_terminal_statement<'a, E>(
                     )
             )
         });
+    }
+    // Site-bound consumption: this Return's Home obligation and relation
+    // live under its own site, never a function-level slot.
+    exit_homes.insert(statement.site().clone(), homes_row);
+    if let Some(relation) = relation {
+        terminal_relations.insert(statement.site().clone(), relation);
     }
     Ok(())
 }

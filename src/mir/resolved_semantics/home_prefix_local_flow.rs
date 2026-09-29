@@ -15,6 +15,7 @@ pub(crate) enum SourceScalarKind {
     Bool,
 }
 
+#[derive(Clone)]
 enum StoredLocal {
     Home {
         acquisition: super::OwnedExprSiteV1,
@@ -61,13 +62,27 @@ impl OrdinaryObservation {
             Self::Bool(value) => Some(SelectedNewArgumentKindV1::Bool(value)),
             Self::TrivialLocal(binding, _) => Some(SelectedNewArgumentKindV1::Local { binding }),
             Self::Handle(root) => Some(SelectedNewArgumentKindV1::Handle { binding: root }),
-            Self::BoundValue(binding) => {
-                Some(SelectedNewArgumentKindV1::BoundValue { binding })
-            }
+            Self::BoundValue(binding) => Some(SelectedNewArgumentKindV1::BoundValue { binding }),
         }
     }
 }
 
+fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
+    match (left, right) {
+        (StoredLocal::Home { acquisition: a }, StoredLocal::Home { acquisition: b }) => a == b,
+        (StoredLocal::ReceivedHandle, StoredLocal::ReceivedHandle) => true,
+        (StoredLocal::Map, StoredLocal::Map) => true,
+        (StoredLocal::BorrowedMap, StoredLocal::BorrowedMap) => true,
+        (StoredLocal::Consumed, StoredLocal::Consumed) => true,
+        (StoredLocal::Handle(a), StoredLocal::Handle(b)) => a == b,
+        (StoredLocal::Trivial(a), StoredLocal::Trivial(b)) => a == b,
+        (StoredLocal::BoundValue, StoredLocal::BoundValue) => true,
+        (StoredLocal::Uninitialized, StoredLocal::Uninitialized) => true,
+        _ => false,
+    }
+}
+
+#[derive(Clone)]
 pub(super) struct PrefixLocalFlow<'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
     locals: BTreeMap<BindingRefV1, StoredLocal>,
@@ -79,6 +94,26 @@ impl<'source> PrefixLocalFlow<'source> {
             input,
             locals: BTreeMap::new(),
         }
+    }
+
+    /// Join a sibling fall-through branch state into this one. Both sides
+    /// were forked from the same entry snapshot; a binding that exists on
+    /// both sides must carry the identical stored class — disagreement is a
+    /// divergence the caller names, never a merged guess.
+    pub(super) fn join_branch(&mut self, other: &Self) -> bool {
+        for (binding, value) in &other.locals {
+            match self.locals.get(binding) {
+                Some(own) => {
+                    if !stored_local_same(own, value) {
+                        return false;
+                    }
+                }
+                None => {
+                    self.locals.insert(*binding, value.clone());
+                }
+            }
+        }
+        true
     }
 
     // Declaration contracts are borrowed from the sole package issuer. No

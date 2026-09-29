@@ -20,8 +20,7 @@ pub(super) fn lexical_handle_result_call(
     site: &OwnedExprSiteV1,
 ) -> bool {
     use crate::mir::resolved_semantics::{
-        ResolvedLexicalRefV1, ResolvedMethodCallReceiverSourceV1,
-        ResolvedAssignmentTargetV1,
+        ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, ResolvedMethodCallReceiverSourceV1,
     };
     if site.owner() != input.owner() {
         return false;
@@ -95,9 +94,7 @@ pub(super) fn lexical_handle_result_call(
     let Some(contract) = contracts.next() else {
         return false;
     };
-    if contracts.next().is_some()
-        || contract.parameters.len() != call.arity() as usize
-    {
+    if contracts.next().is_some() || contract.parameters.len() != call.arity() as usize {
         return false;
     }
     let formals_exact = batch

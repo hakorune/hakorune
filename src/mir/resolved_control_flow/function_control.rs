@@ -13,11 +13,14 @@ use super::cleanup::ResolvedCleanupObligationsV1;
 /// Conditional outward propagation from an exact direct-local New. This is
 /// neither a Normal Return nor an empty cleanup contract: evaluation-frame
 /// unwind and caller Home discharge must precede this continuation.
+/// `crossed_scopes` records the proven branch scopes between the `new`
+/// site's scope and the root body scope, innermost first.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct NewFaultContinuationV1 {
     site: crate::mir::resolved_semantics::OwnedExprSiteV1,
     source_scope: crate::mir::resolved_semantics::ScopeId,
     target_function: RegionId,
+    crossed_scopes: Box<[crate::mir::resolved_semantics::ScopeId]>,
 }
 
 impl NewFaultContinuationV1 {
@@ -29,6 +32,9 @@ impl NewFaultContinuationV1 {
     }
     pub(crate) fn target_function(&self) -> RegionId {
         self.target_function
+    }
+    pub(crate) fn crossed_scopes(&self) -> &[crate::mir::resolved_semantics::ScopeId] {
+        &self.crossed_scopes
     }
 }
 
@@ -95,7 +101,39 @@ pub(crate) fn issue_new_fault_continuation_v1(
         site: site.clone(),
         source_scope: scope,
         target_function: target,
+        crossed_scopes: Box::default(),
     })
+}
+
+/// Prove that `scope` descends from the root body scope through verified
+/// If-region branch scopes only, returning the crossed scopes innermost
+/// first. Any other ancestry shape is unproven and rejected.
+fn prove_branch_scope_ancestry(
+    function: &crate::mir::resolved_semantics::VerifiedResolvedFunctionV1,
+    scope: crate::mir::resolved_semantics::ScopeId,
+    body_scope: crate::mir::resolved_semantics::ScopeId,
+) -> Result<Box<[crate::mir::resolved_semantics::ScopeId]>, &'static str> {
+    let mut crossed = Vec::new();
+    let mut cursor = scope;
+    while cursor != body_scope {
+        let proven_branch = function.if_region_sites().any(|site| {
+            function.if_region_bundle(site).is_ok_and(|bundle| {
+                bundle.then_pair().scope() == cursor
+                    || bundle
+                        .else_pair()
+                        .is_some_and(|pair| pair.scope() == cursor)
+            })
+        });
+        if !proven_branch {
+            return Err("outward-function-target-mismatch");
+        }
+        crossed.push(cursor);
+        cursor = function
+            .scope(cursor)
+            .and_then(|row| row.parent())
+            .ok_or("outward-function-target-mismatch")?;
+    }
+    Ok(crossed.into_boxed_slice())
 }
 
 /// Destination-less sibling of `issue_new_fault_continuation_v1` for the
@@ -135,8 +173,7 @@ pub(crate) fn issue_result_new_fault_continuation_v1(
         .ok_or("source-scope-missing")?;
     let roots = function.lowering_roots();
     let target = roots.function_pair().region();
-    if scope != roots.body_pair().scope()
-        || target != function.function_region()
+    if target != function.function_region()
         || function
             .region(roots.body_pair().region())
             .and_then(|row| row.parent())
@@ -144,10 +181,15 @@ pub(crate) fn issue_result_new_fault_continuation_v1(
     {
         return Err("outward-function-target-mismatch");
     }
+    // A return-position `new` may live inside a verified If branch: the
+    // ancestry between its scope and the root body scope must prove out
+    // through verified branch scope pairs, innermost first.
+    let crossed_scopes = prove_branch_scope_ancestry(function, scope, roots.body_pair().scope())?;
     Ok(NewFaultContinuationV1 {
         site: site.clone(),
         source_scope: scope,
         target_function: target,
+        crossed_scopes,
     })
 }
 

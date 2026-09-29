@@ -127,14 +127,18 @@ impl DirectCallDispositionLoanV1 {
         owner: FunctionOwnerIdV1,
         return_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
     ) -> Result<Option<DirectCallDispositionRowV1>, DirectCallLoanErrorV1> {
-        let Some((completion, terminal)) = ledger.call_source_completion_for_owner(owner) else {
+        let stmt_site =
+            crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(return_site.clone());
+        let Some((completion, terminal)) =
+            ledger.call_source_completion_for_owner_at(owner, &stmt_site)
+        else {
             return Ok(None);
         };
         if owner != self.owner
             || completion.owner() != owner
             || terminal.owner() != owner
             || terminal.return_site().node() != return_site
-            || completion.explicit_site() != Some(terminal.return_site())
+            || !completion.explicit_sites().contains(terminal.return_site())
         {
             return Err(DirectCallLoanErrorV1::LifecycleSourceMismatch);
         }

@@ -70,13 +70,15 @@ impl OrdinaryNewClaimLedgerV1 {
                             .blocks
                             .values()
                             .flat_map(|block| block.all_instructions())
-                            .filter(|instruction| matches!(
-                                instruction,
-                                MirInstruction::Return {
-                                    value: Some(value),
-                                    ..
-                                } if value == result
-                            ))
+                            .filter(|instruction| {
+                                matches!(
+                                    instruction,
+                                    MirInstruction::Return {
+                                        value: Some(value),
+                                        ..
+                                    } if value == result
+                                )
+                            })
                             .count();
                         if returns != 1 {
                             return Err(freeze("result-return-drift"));
@@ -280,9 +282,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("handle-call-projection-drift"));
         }
         for (block, expected) in bindings {
-            if !super::physical_boundary::check_binding(
-                function, projection, *block, expected,
-            )? {
+            if !super::physical_boundary::check_binding(function, projection, *block, expected)? {
                 return Err(freeze("emission-binding-drift"));
             }
         }

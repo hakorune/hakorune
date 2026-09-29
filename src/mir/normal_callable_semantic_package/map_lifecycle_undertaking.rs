@@ -534,31 +534,45 @@ impl super::VerifiedNormalCallableSemanticPackageV1 {
             // Co-seal the owner's exit evidence regardless of any
             // AppMain loan: completed Map rows alone cannot prove the
             // cleanup the consumer must execute at the terminal.
-            if !matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
+            if !completion
+                .cleanup()
+                .root_flow()
+                .is_some_and(|flow| flow.all_exits_ready())
+            {
                 return Err(MapObligationDescribeIssueV1::OwnerTerminalHomesUnavailable { owner });
             }
             let flow = completion
                 .cleanup()
                 .root_flow()
                 .ok_or(MapObligationDescribeIssueV1::OwnerRootFlowMissing { owner })?;
-            let terminal = self
+            let terminal_relations = self
                 .ordinary_new_claim_ledger
-                .terminal_relation_for_owner(owner)
-                .ok_or(MapObligationDescribeIssueV1::OwnerTerminalRelationMissing { owner })?;
-            let returned_map = match terminal {
-                TerminalRelationV1::Value(row) => match row.returned() {
-                    TerminalReturnedSourceV1::MapLiteral(site) => Some(ReturnedMapV1::Literal {
-                        site,
-                        return_site: row.return_site(),
-                    }),
-                    TerminalReturnedSourceV1::MapLocal(binding) => {
-                        Some(ReturnedMapV1::Local(*binding))
-                    }
+                .terminal_relations_for_owner(owner);
+            if terminal_relations.is_empty() {
+                return Err(MapObligationDescribeIssueV1::OwnerTerminalRelationMissing { owner });
+            }
+            // Every exit that returns a Map must have its row matched
+            // against the flow's observations — a sibling exit's matched
+            // literal never covers this exit's unmatched one.
+            let returned_maps: Vec<ReturnedMapV1<'_>> = terminal_relations
+                .iter()
+                .filter_map(|relation| match relation {
+                    TerminalRelationV1::Value(row) => match row.returned() {
+                        TerminalReturnedSourceV1::MapLiteral(site) => {
+                            Some(ReturnedMapV1::Literal {
+                                site,
+                                return_site: row.return_site(),
+                            })
+                        }
+                        TerminalReturnedSourceV1::MapLocal(binding) => {
+                            Some(ReturnedMapV1::Local(*binding))
+                        }
+                        _ => None,
+                    },
                     _ => None,
-                },
-                _ => None,
-            };
-            let mut returned_matched = returned_map.is_none();
+                })
+                .collect();
+            let mut returned_matched = vec![false; returned_maps.len()];
             let mut rows = Vec::with_capacity(sites.len());
             for site in sites {
                 let owned = OwnedExprSiteV1::new(owner, site);
@@ -572,29 +586,33 @@ impl super::VerifiedNormalCallableSemanticPackageV1 {
                         site: owned.clone(),
                     })?;
                 let mut returned_local = false;
-                match &returned_map {
-                    Some(ReturnedMapV1::Literal {
-                        site: returned_site,
-                        return_site,
-                    }) if observation.site() == *returned_site => {
-                        if !matches!(
-                            observation.destination(),
-                            MapDestinationV1::ReturnBoundary(statement)
-                                if statement.node() == return_site.node()
-                        ) {
-                            return Err(MapObligationDescribeIssueV1::OwnerTerminalMapUnmatched {
-                                owner,
-                            });
+                for (index, returned_map) in returned_maps.iter().enumerate() {
+                    match returned_map {
+                        ReturnedMapV1::Literal {
+                            site: returned_site,
+                            return_site,
+                        } if observation.site() == *returned_site => {
+                            if !matches!(
+                                observation.destination(),
+                                MapDestinationV1::ReturnBoundary(statement)
+                                    if statement.node() == return_site.node()
+                            ) {
+                                return Err(
+                                    MapObligationDescribeIssueV1::OwnerTerminalMapUnmatched {
+                                        owner,
+                                    },
+                                );
+                            }
+                            returned_matched[index] = true;
                         }
-                        returned_matched = true;
+                        ReturnedMapV1::Local(binding)
+                            if observation.local_binding() == Some(*binding) =>
+                        {
+                            returned_local = true;
+                            returned_matched[index] = true;
+                        }
+                        _ => {}
                     }
-                    Some(ReturnedMapV1::Local(binding))
-                        if observation.local_binding() == Some(*binding) =>
-                    {
-                        returned_local = true;
-                        returned_matched = true;
-                    }
-                    _ => {}
                 }
                 rows.push(describe_flow(observation, returned_local));
             }
@@ -630,7 +648,7 @@ impl super::VerifiedNormalCallableSemanticPackageV1 {
                     borrows: Box::default(),
                 });
             }
-            if !returned_matched {
+            if returned_matched.iter().any(|matched| !matched) {
                 return Err(MapObligationDescribeIssueV1::OwnerTerminalMapUnmatched { owner });
             }
             described.push(MapOwnerObligationsV1 {

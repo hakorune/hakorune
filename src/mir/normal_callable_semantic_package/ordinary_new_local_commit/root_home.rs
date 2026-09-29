@@ -49,6 +49,19 @@ pub(crate) enum RootHomeExitEntry {
     },
 }
 
+impl RootHomeExitEntry {
+    /// The lifecycle local-call binding groups this exact exit claimed.
+    pub(in crate::mir::normal_callable_semantic_package) fn local_call_groups(
+        &self,
+    ) -> &[(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)] {
+        match self {
+            Self::Plain { local_bindings }
+            | Self::Call { local_bindings, .. }
+            | Self::MapGet { local_bindings, .. } => local_bindings,
+        }
+    }
+}
+
 /// What one root-exit release operation reclaims. A `Binding` is a live
 /// local Home bound before the terminal expression; an `ArgumentMap` is a
 /// `%{...}` call-argument map constructed inside it — the caller keeps the
@@ -102,35 +115,72 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
     ) -> bool {
         let exits = self.root_exits.borrow();
+        let pending =
+            |completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1| {
+                completion.cleanup().root_flow().is_some_and(|flow| {
+                    flow.all_exits_ready()
+                        && !completion.explicit_sites().iter().all(|site| {
+                            matches!(
+                                exits.get(&(completion.owner(), site.clone())),
+                                Some(
+                                    RootHomeExitProgress::Unavailable
+                                        | RootHomeExitProgress::Emitted { .. }
+                                        | RootHomeExitProgress::Finalized
+                                )
+                            )
+                        })
+                })
+            };
         let indexed_pending = self.completion_index.values().any(|row| {
-            row.as_ref().ok().is_some_and(|completion| {
-                matches!(completion.cleanup().terminal_homes(), Some(Ok(_)))
-                    && !matches!(
-                        exits.get(&completion.owner()),
-                        Some(
-                            RootHomeExitProgress::Unavailable
-                                | RootHomeExitProgress::Emitted { .. }
-                                | RootHomeExitProgress::Finalized
-                        )
-                    )
-            })
+            row.as_ref()
+                .ok()
+                .is_some_and(|completion| pending(completion))
         });
         let root_pending = self
             .root_completion
             .as_ref()
             .and_then(|row| row.as_ref().ok())
-            .is_some_and(|completion| {
-                matches!(completion.cleanup().terminal_homes(), Some(Ok(_)))
-                    && !matches!(
-                        exits.get(&completion.owner()),
-                        Some(
-                            RootHomeExitProgress::Unavailable
-                                | RootHomeExitProgress::Emitted { .. }
-                                | RootHomeExitProgress::Finalized,
-                        )
-                    )
-            });
+            .is_some_and(|completion| pending(completion));
         !indexed_pending && !root_pending
+    }
+
+    /// Every recorded lifecycle local-call binding group must be claimed by
+    /// at least one emitted exit entry, or sit on paths whose exits are all
+    /// retained `Unavailable`. A recorded-but-never-claimed site is physical
+    /// evidence nobody consumed — a violation, not a benign leftover.
+    pub(in crate::mir::normal_callable_semantic_package) fn local_call_bindings_consumed(
+        &self,
+    ) -> bool {
+        let pending = self.root_local_call_bindings.borrow();
+        let exits = self.root_exits.borrow();
+        pending.iter().all(|(owner, groups)| {
+            groups.iter().all(|(site, _)| {
+                let Some(completion) = self.completion_for_owner(*owner) else {
+                    return false;
+                };
+                let Some(flow) = completion.cleanup().root_flow() else {
+                    return false;
+                };
+                completion.explicit_sites().iter().any(|exit| {
+                    let covers = flow
+                        .exit_row(exit)
+                        .and_then(|row| row.ok())
+                        .is_some_and(|row| row.covered_calls().contains(site));
+                    if !covers {
+                        return false;
+                    }
+                    match exits.get(&(*owner, exit.clone())) {
+                        Some(RootHomeExitProgress::Emitted { entry, .. }) => entry
+                            .local_call_groups()
+                            .iter()
+                            .any(|(group_site, _)| group_site == site),
+                        Some(RootHomeExitProgress::Unavailable)
+                        | Some(RootHomeExitProgress::Finalized) => true,
+                        _ => false,
+                    }
+                })
+            })
+        })
     }
 
     pub(crate) fn prepare_root_home_exit(
@@ -141,39 +191,42 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(completion) = self.completion_for_owner(owner) else {
             return Ok(false);
         };
-        let Some(Ok(homes)) = completion.cleanup().terminal_homes() else {
+        let Some(flow) = completion.cleanup().root_flow() else {
             return Ok(false);
         };
-        if !completion
-            .explicit_site()
-            .is_some_and(|expected| expected.node() == site)
-        {
+        // Per-exit admission is all-or-nothing per function: a sibling exit
+        // whose row is unavailable keeps this exit on the generic path too,
+        // so no `return` can silently skip proven release evidence.
+        if !flow.all_exits_ready() {
+            return Ok(false);
+        }
+        let exit = SourceStmtSiteV1::from_node(site.clone());
+        if !completion.explicit_sites().contains(&exit) {
             return Err(freeze("root-exit-site-mismatch"));
         }
+        let Some(Ok(row)) = flow.exit_row(&exit) else {
+            return Err(freeze("root-exit-site-mismatch"));
+        };
         let mut exits = self.root_exits.borrow_mut();
         let progress = exits
-            .entry(owner)
+            .entry((owner, exit.clone()))
             .or_insert(RootHomeExitProgress::Unprepared);
         if !matches!(*progress, RootHomeExitProgress::Unprepared) {
             return Err(freeze("duplicate-root-exit-prepare"));
         }
         let rows = self.local_commits.borrow();
-        let exit = completion
-            .explicit_site()
-            .expect("checked explicit root exit")
-            .clone();
         let mut origins = Vec::new();
         let mut available = true;
-        for binding in homes {
-            let row = installed_home(&rows, *binding).map_err(|error| match error {
+        for binding in row.homes() {
+            let home = installed_home(&rows, *binding).map_err(|error| match error {
                 HomeLookupError::Missing => freeze("root-home-not-installed"),
                 HomeLookupError::Duplicate => freeze("duplicate-root-home"),
             })?;
-            available &= row.end_available();
+            available &= home.end_available();
             origins.push(RootHomeReleaseOriginV1 {
                 subject: RootHomeReleaseSubjectV1::Binding(*binding),
                 exit: exit.clone(),
-                operation: row.end_operation(),
+                operation: home.end_operation(),
             });
         }
         *progress = if available {
@@ -187,10 +240,11 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn begin_root_home_exit(
         &self,
         owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
     ) -> Result<Vec<RootHomeReleaseOriginV1>, String> {
         let mut exits = self.root_exits.borrow_mut();
         let progress = exits
-            .get_mut(&owner)
+            .get_mut(&(owner, site.clone()))
             .ok_or_else(|| freeze("root-exit-not-prepared"))?;
         if !matches!(*progress, RootHomeExitProgress::Prepared(_)) {
             return Err(freeze("root-exit-not-prepared"));
@@ -208,11 +262,9 @@ impl OrdinaryNewClaimLedgerV1 {
         // after argument emission, so the origins attach here — never at
         // prepare time and never re-derived from MIR.
         let mut operations = Vec::new();
-        if let Some((completion, terminal)) = self.call_source_completion_for_owner(owner) {
+        if let Some((completion, terminal)) = self.call_source_completion_for_owner_at(owner, site)
+        {
             if completion.owner() == owner && terminal.owner() == owner {
-                let exit = completion
-                    .explicit_site()
-                    .ok_or_else(|| freeze("root-exit-source-missing"))?;
                 let rows = self.local_commits.borrow();
                 let mut argument_maps: Vec<(u32, &OwnedExprSiteV1)> = terminal
                     .arguments()
@@ -223,14 +275,14 @@ impl OrdinaryNewClaimLedgerV1 {
                     })
                     .collect();
                 argument_maps.sort_by_key(|(ordinal, _)| std::cmp::Reverse(*ordinal));
-                for (ordinal, site) in argument_maps {
-                    let Some(LocalCommitV1::Map(row)) = rows.get(site) else {
+                for (ordinal, map_site) in argument_maps {
+                    let Some(LocalCommitV1::Map(row)) = rows.get(map_site) else {
                         return Err(freeze("root-exit-argument-map-missing"));
                     };
-                    if site.owner() != owner || row.binding.is_some() {
+                    if map_site.owner() != owner || row.binding.is_some() {
                         return Err(freeze("root-exit-argument-map-drift"));
                     }
-                    let flow = self.map_flow(site)?;
+                    let flow = self.map_flow(map_site)?;
                     if !matches!(
                         flow.destination(),
                         crate::mir::resolved_semantics::home_new_prefix::MapDestinationV1::CallArgument {
@@ -245,10 +297,10 @@ impl OrdinaryNewClaimLedgerV1 {
                         .ok_or_else(|| freeze("root-exit-argument-map-missing"))?;
                     operations.push(RootHomeReleaseOriginV1 {
                         subject: RootHomeReleaseSubjectV1::ArgumentMap {
-                            site: site.clone(),
+                            site: map_site.clone(),
                             ordinal,
                         },
-                        exit: exit.clone(),
+                        exit: site.clone(),
                         operation: InvokeOperation::Map(
                             crate::mir::instruction::MapInvokeOperation::End { map },
                         ),
@@ -263,19 +315,17 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn record_root_home_exit(
         &self,
         owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
         origins: Vec<(RootHomeReleaseOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
-        // A Plain exit still owns the lifecycle local-call binding groups
-        // recorded under this owner: they move into the entry so final
-        // validation can match them against the finished function.
-        let mut pending = self.root_local_call_bindings.borrow_mut();
-        let pending_groups = pending.get(&owner).map(Vec::as_slice).unwrap_or(&[]);
-        self.validate_local_call_binding_groups(owner, pending_groups)?;
-        let local_bindings = pending.remove(&owner).unwrap_or_default();
-        drop(pending);
+        // A Plain exit claims exactly the lifecycle local-call binding
+        // groups this exit's `covered_calls` names — never the whole owner
+        // pool, which sibling exits still need.
+        let local_bindings = self.select_local_call_binding_groups(owner, site)?;
         self.record_root_home_exit_with_entry(
             owner,
+            site,
             origins,
             bindings,
             RootHomeExitEntry::Plain { local_bindings },
@@ -285,13 +335,14 @@ impl OrdinaryNewClaimLedgerV1 {
     fn record_root_home_exit_with_entry(
         &self,
         owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
         origins: Vec<(RootHomeReleaseOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
         entry: RootHomeExitEntry,
     ) -> Result<(), String> {
         let mut exits = self.root_exits.borrow_mut();
         let progress = exits
-            .get_mut(&owner)
+            .get_mut(&(owner, site.clone()))
             .ok_or_else(|| freeze("root-exit-record-without-prepare"))?;
         if !matches!(*progress, RootHomeExitProgress::Emitting) || bindings.is_empty() {
             return Err(freeze("root-exit-record-without-emission"));
@@ -317,142 +368,156 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
-    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+    ) -> Result<(), String> {
         let Some(completion) = self.completion_for_owner(owner) else {
-            return Ok(Vec::new());
+            return Ok(());
         };
-        if !matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
-            return Ok(Vec::new());
+        let Some(flow) = completion.cleanup().root_flow() else {
+            return Ok(());
+        };
+        if !flow.all_exits_ready() {
+            return Ok(());
         }
-        let expected_exit = completion
-            .explicit_site()
-            .ok_or_else(|| freeze("root-exit-source-missing"))?;
-        let Some(Ok(expected_homes)) = completion.cleanup().terminal_homes() else {
-            return Ok(Vec::new());
-        };
         let exits = self.root_exits.borrow();
-        match exits.get(&owner) {
-            Some(RootHomeExitProgress::Unavailable) => Ok(Vec::new()),
-            Some(RootHomeExitProgress::Emitted {
-                origins,
-                bindings,
-                entry,
-            }) => {
-                self.validate_call_entry(owner, function, projection, entry, bindings)?;
-                // Call-argument maps precede the binding origins: they are
-                // emitted inside the terminal expression (youngest), in
-                // descending argument order. Their expected sequence comes
-                // from the sealed terminal Call, never from the MIR.
-                let expected_argument_maps = self
-                    .call_source_completion_for_owner(owner)
-                    .filter(|(completion, _)| completion.owner() == owner)
-                    .map(|(_, terminal)| {
-                        terminal
-                            .arguments()
-                            .iter()
-                            .enumerate()
-                            .filter_map(|(ordinal, argument)| {
-                                argument
-                                    .map_site()
-                                    .map(|site| (ordinal as u32, site.clone()))
-                            })
-                            .collect::<Vec<_>>()
-                    })
-                    .unwrap_or_default();
-                let mut expected_argument_maps = expected_argument_maps;
-                expected_argument_maps.sort_by_key(|(ordinal, _)| std::cmp::Reverse(*ordinal));
-                if origins.len() != expected_homes.len() + expected_argument_maps.len() {
-                    return Err(freeze("root-exit-origin-count"));
-                }
-                if projection
-                    .is_some_and(|p| bindings.iter().any(|(id, _)| p.destination(*id).is_none()))
-                {
-                    return Err(freeze("root-cleanup-graph/residual-node"));
-                }
-                let mapped = projection.map(|p| p.bindings(bindings)).transpose()?;
-                if let (RootHomeExitEntry::Plain { .. }, Some(projection), Some(mapped)) =
-                    (entry, projection, mapped.as_ref())
-                {
-                    if let Some((entry, _)) = bindings.last() {
-                        super::root_cleanup_graph::validate_projected_ingress(
-                            function,
-                            mapped,
-                            projection
-                                .destination(*entry)
-                                .expect("checked root mapping"),
-                        )?;
+        for expected_exit in completion.explicit_sites() {
+            let Some(Ok(exit_row)) = flow.exit_row(expected_exit) else {
+                return Err(freeze("root-exit-source-missing"));
+            };
+            let expected_homes = exit_row.homes();
+            let Some(progress) = exits.get(&(owner, expected_exit.clone())) else {
+                return Err(freeze("root-exit-unconsumed"));
+            };
+            match progress {
+                RootHomeExitProgress::Unavailable => {}
+                RootHomeExitProgress::Emitted {
+                    origins,
+                    bindings,
+                    entry,
+                } => {
+                    self.validate_call_entry(
+                        owner,
+                        expected_exit,
+                        function,
+                        projection,
+                        entry,
+                        bindings,
+                    )?;
+                    // Call-argument maps precede the binding origins: they are
+                    // emitted inside the terminal expression (youngest), in
+                    // descending argument order. Their expected sequence comes
+                    // from the sealed terminal Call, never from the MIR.
+                    let expected_argument_maps = self
+                        .call_source_completion_for_owner_at(owner, expected_exit)
+                        .filter(|(completion, _)| completion.owner() == owner)
+                        .map(|(_, terminal)| {
+                            terminal
+                                .arguments()
+                                .iter()
+                                .enumerate()
+                                .filter_map(|(ordinal, argument)| {
+                                    argument
+                                        .map_site()
+                                        .map(|site| (ordinal as u32, site.clone()))
+                                })
+                                .collect::<Vec<_>>()
+                        })
+                        .unwrap_or_default();
+                    let mut expected_argument_maps = expected_argument_maps;
+                    expected_argument_maps.sort_by_key(|(ordinal, _)| std::cmp::Reverse(*ordinal));
+                    if origins.len() != expected_homes.len() + expected_argument_maps.len() {
+                        return Err(freeze("root-exit-origin-count"));
                     }
-                }
-                let expected_subjects = expected_argument_maps
-                    .iter()
-                    .map(|(ordinal, site)| RootHomeReleaseSubjectV1::ArgumentMap {
-                        site: site.clone(),
-                        ordinal: *ordinal,
-                    })
-                    .chain(
-                        expected_homes
-                            .iter()
-                            .map(|binding| RootHomeReleaseSubjectV1::Binding(*binding)),
-                    );
-                for (emitted, expected_subject) in origins.iter().zip(expected_subjects) {
-                    if emitted.origin.subject() != &expected_subject
-                        || emitted.origin.exit() != expected_exit
+                    if projection.is_some_and(|p| {
+                        bindings.iter().any(|(id, _)| p.destination(*id).is_none())
+                    }) {
+                        return Err(freeze("root-cleanup-graph/residual-node"));
+                    }
+                    let mapped = projection.map(|p| p.bindings(bindings)).transpose()?;
+                    if let (RootHomeExitEntry::Plain { .. }, Some(projection), Some(mapped)) =
+                        (entry, projection, mapped.as_ref())
                     {
-                        return Err(freeze("root-exit-origin-drift"));
+                        if let Some((entry, _)) = bindings.last() {
+                            super::root_cleanup_graph::validate_projected_ingress(
+                                function,
+                                mapped,
+                                projection
+                                    .destination(*entry)
+                                    .expect("checked root mapping"),
+                            )?;
+                        }
                     }
-                    if !matches!(
-                        &emitted.instruction,
-                        MirInstruction::Invoke { operation, .. }
-                            if operation == emitted.origin.operation()
-                    ) {
-                        return Err(freeze("root-exit-operation-drift"));
-                    }
-                    if bindings
+                    let expected_subjects = expected_argument_maps
                         .iter()
-                        .filter(|(id, instruction)| {
-                            *id == emitted.block && *instruction == emitted.instruction
+                        .map(|(ordinal, site)| RootHomeReleaseSubjectV1::ArgumentMap {
+                            site: site.clone(),
+                            ordinal: *ordinal,
                         })
-                        .count()
-                        != 1
-                    {
-                        return Err(freeze("root-exit-origin-binding-drift"));
+                        .chain(
+                            expected_homes
+                                .iter()
+                                .map(|binding| RootHomeReleaseSubjectV1::Binding(*binding)),
+                        );
+                    for (emitted, expected_subject) in origins.iter().zip(expected_subjects) {
+                        if emitted.origin.subject() != &expected_subject
+                            || emitted.origin.exit() != expected_exit
+                        {
+                            return Err(freeze("root-exit-origin-drift"));
+                        }
+                        if !matches!(
+                            &emitted.instruction,
+                            MirInstruction::Invoke { operation, .. }
+                                if operation == emitted.origin.operation()
+                        ) {
+                            return Err(freeze("root-exit-operation-drift"));
+                        }
+                        if bindings
+                            .iter()
+                            .filter(|(id, instruction)| {
+                                *id == emitted.block && *instruction == emitted.instruction
+                            })
+                            .count()
+                            != 1
+                        {
+                            return Err(freeze("root-exit-origin-binding-drift"));
+                        }
+                        let (actual_block, expected_instruction) = match projection {
+                            Some(p) => p
+                                .binding(emitted.block, &emitted.instruction)?
+                                .ok_or_else(|| freeze("root-exit-origin-binding-drift"))?,
+                            None => (emitted.block, emitted.instruction.clone()),
+                        };
+                        if !function.blocks.get(&actual_block).is_some_and(|block| {
+                            block.all_instructions().any(|actual| {
+                                matches!(
+                                    actual,
+                                    MirInstruction::Invoke { operation, .. }
+                                        if operation == emitted.origin.operation()
+                                )
+                            })
+                        }) {
+                            return Err(freeze("root-exit-operation-drift"));
+                        }
+                        if !function.blocks.get(&actual_block).is_some_and(|block| {
+                            block
+                                .all_instructions()
+                                .any(|actual| actual == &expected_instruction)
+                        }) {
+                            return Err(freeze("root-exit-origin-binding-drift"));
+                        }
                     }
-                    let (actual_block, expected_instruction) = match projection {
-                        Some(p) => p
-                            .binding(emitted.block, &emitted.instruction)?
-                            .ok_or_else(|| freeze("root-exit-origin-binding-drift"))?,
-                        None => (emitted.block, emitted.instruction.clone()),
-                    };
-                    if !function.blocks.get(&actual_block).is_some_and(|block| {
-                        block.all_instructions().any(|actual| {
-                            matches!(
-                                actual,
-                                MirInstruction::Invoke { operation, .. }
-                                    if operation == emitted.origin.operation()
-                            )
-                        })
-                    }) {
-                        return Err(freeze("root-exit-operation-drift"));
+                    for (id, expected) in bindings {
+                        if !super::physical_boundary::check_binding(
+                            function, projection, *id, expected,
+                        )? {
+                            return Err(freeze("root-exit-binding-drift"));
+                        }
                     }
-                    if !function.blocks.get(&actual_block).is_some_and(|block| {
-                        block
-                            .all_instructions()
-                            .any(|actual| actual == &expected_instruction)
-                    }) {
-                        return Err(freeze("root-exit-origin-binding-drift"));
-                    }
+                    let _ = mapped;
                 }
-                for (id, expected) in bindings {
-                    if !super::physical_boundary::check_binding(
-                        function, projection, *id, expected,
-                    )? {
-                        return Err(freeze("root-exit-binding-drift"));
-                    }
-                }
-                Ok(mapped.unwrap_or_else(|| bindings.clone()))
+                _ => return Err(freeze("root-exit-unconsumed")),
             }
-            _ => Err(freeze("root-exit-unconsumed")),
         }
+        Ok(())
     }
 }
 
@@ -463,12 +528,18 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &MirFunction,
     ) -> Result<(), String> {
         let exits = self.root_exits.borrow();
-        if let Some(RootHomeExitProgress::Emitted {
-            origins,
-            bindings,
-            entry,
-        }) = exits.get(&owner)
-        {
+        for (key, progress) in exits.iter() {
+            if key.0 != owner {
+                continue;
+            }
+            let RootHomeExitProgress::Emitted {
+                origins,
+                bindings,
+                entry,
+            } = progress
+            else {
+                continue;
+            };
             match entry {
                 RootHomeExitEntry::Plain { .. } if !origins.is_empty() => {
                     super::root_cleanup_graph::validate_original(function, bindings, origins.len())?

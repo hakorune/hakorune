@@ -30,6 +30,7 @@ pub(in crate::mir::builder) fn emit(
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
     owner: FunctionOwnerIdV1,
+    site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
     row: DirectCallDispositionRowV1,
 ) -> Result<ValueId, String> {
     let emission = row.physical_emission();
@@ -41,7 +42,7 @@ pub(in crate::mir::builder) fn emit(
     let mut arguments = Vec::new();
     let mut values = Vec::new();
     for argument in ledger
-        .terminal_call_arguments_for_owner(owner)
+        .terminal_call_arguments_for_owner_at(owner, site)
         .ok_or_else(|| freeze("call-source-missing"))?
     {
         use crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1;
@@ -88,6 +89,7 @@ pub(in crate::mir::builder) fn emit(
         state,
         ledger,
         owner,
+        site,
         Some(value),
         value,
         Some(RootExitIngress::Call(Emission {
@@ -104,6 +106,7 @@ pub(in crate::mir::builder) fn emit_instance(
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
     owner: FunctionOwnerIdV1,
+    site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
     row: RootInstanceCallDispositionRowV1,
     receiver: ValueId,
 ) -> Result<ValueId, String> {
@@ -127,6 +130,7 @@ pub(in crate::mir::builder) fn emit_instance(
         state,
         ledger,
         owner,
+        site,
         Some(value),
         value,
         Some(RootExitIngress::Call(Emission {
@@ -221,10 +225,7 @@ pub(in crate::mir::builder) fn emit_local(
         // The callee's canonical object moves to this owner at the Return
         // edge; begin records it so terminal cleanup owes one HomeRelease.
         InvokeCallResultKind::Handle => {
-            ledger.begin_handle_call_emission(
-                &owned_site,
-                lifecycle.target().callable().owner(),
-            )?
+            ledger.begin_handle_call_emission(&owned_site, lifecycle.target().callable().owner())?
         }
         _ => {}
     }
@@ -285,9 +286,7 @@ pub(in crate::mir::builder) fn emit_local(
     bindings.push((origin, invoke));
     bindings.push((normal_landing, projection));
     match result_kind {
-        InvokeCallResultKind::Map => {
-            ledger.record_map_emission(&owned_site, result, bindings)?
-        }
+        InvokeCallResultKind::Map => ledger.record_map_emission(&owned_site, result, bindings)?,
         InvokeCallResultKind::Handle => {
             ledger.record_handle_call_emission(&owned_site, result, bindings)?
         }
@@ -386,11 +385,10 @@ pub(in crate::mir::builder) fn emit_local_lexical(
     let result_class = ledger
         .callable_result_class(row.target())
         .ok_or_else(|| freeze("handle-result-class-missing"))?;
-    builder
-        .function_state
-        .type_ctx
-        .value_types
-        .insert(result, result_type(InvokeCallResultKind::Handle, Some(result_class))?);
+    builder.function_state.type_ctx.value_types.insert(
+        result,
+        result_type(InvokeCallResultKind::Handle, Some(result_class))?,
+    );
     bindings.push((origin, invoke));
     bindings.push((normal_landing, projection));
     ledger.record_handle_call_emission(&owned_site, result, bindings)?;

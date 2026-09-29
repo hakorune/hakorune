@@ -514,7 +514,7 @@ fn return_boundary_map_carries_exact_exit_membership() {
     let Some(crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Value(relation)) =
         package
             .ordinary_new_claim_ledger
-            .terminal_relation_for_owner(completion.owner())
+            .sole_terminal_relation_for_owner(completion.owner())
     else {
         panic!("return-boundary Map terminal relation");
     };

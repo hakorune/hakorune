@@ -40,7 +40,7 @@ fn return_position_new_mints_result_claim_and_construction_relation() {
     )
     .expect("return-position new package");
     let contract = work_contract(&package);
-    let Some(TerminalRelationV1::Value(relation)) = contract.terminal_relation() else {
+    let Some(TerminalRelationV1::Value(relation)) = contract.sole_terminal_relation() else {
         panic!("return-position `new` issues a Value relation");
     };
     let TerminalReturnedSourceV1::Construction(site) = relation.returned() else {
@@ -116,11 +116,7 @@ fn retained_result_position_commit_completes_when_its_expression_is_recorded() {
     let ledger = &package.ordinary_new_claim_ledger;
     let site = {
         let result_claims = ledger.pending_result_claims_for_test();
-        result_claims
-            .keys()
-            .next()
-            .expect("result claim")
-            .clone()
+        result_claims.keys().next().expect("result claim").clone()
     };
     let claim = ledger
         .try_take_result(&site, "Point", 1)
@@ -178,11 +174,10 @@ fn field_position_new_mints_no_result_claim() {
 }
 
 #[test]
-fn nested_if_return_position_new_claims_stay_truthfully_unavailable() {
-    // Membership still holds for `return new` nested under an `if` — but the
-    // home-flow scan's covered-statement inventory does not descend into
-    // branch bodies, so the prefix records `PrefixNotCovered` and the claim
-    // stays retained-unavailable rather than guessing coverage.
+fn nested_if_return_position_new_claims_cover_each_exit() {
+    // The per-exit home-flow scan walks branch bodies: each `return` site
+    // names its own exit row, so a `new` nested under an `if` is covered
+    // for its own exit instead of falling back to owner-level coverage.
     let package = issue(
         "box Point { x: i64 birth(x) { me.x = x } }
          static box Work { make(args) { if args { return new Point(1) } return new Point(2) } }
@@ -195,8 +190,8 @@ fn nested_if_return_position_new_claims_stay_truthfully_unavailable() {
     assert_eq!(claims.len(), 2, "both `return` sites mint claims");
     for claim in claims.values() {
         assert!(
-            claim.home_prefix().is_err(),
-            "branch-adjacent statements stay uncovered"
+            claim.home_prefix().is_ok(),
+            "each exit's `new` is covered at its own return site"
         );
     }
 }

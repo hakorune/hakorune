@@ -18,12 +18,12 @@
 
 use super::OrdinaryNewClaimLedgerV1;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
+use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::normal_callable_semantic_package::physical_signature::{
     PhysicalCallableLaneRoleV1, VerifiedCallablePhysicalSignatureCohortV1,
 };
 use crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1;
-use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, BodyExpressionShapeV1, BodyMeReceiverV1, FunctionOwnerIdV1,
     OwnedExprSiteV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1,
@@ -179,12 +179,10 @@ impl OrdinaryNewClaimLedgerV1 {
 
         for need in needs {
             let class = match need.parameter_index {
-                Some(index) => {
-                    match self.prove_parameter_class(batch, selected, &need, index)? {
-                        Some(class) => class,
-                        None => continue,
-                    }
-                }
+                Some(index) => match self.prove_parameter_class(batch, selected, &need, index)? {
+                    Some(class) => class,
+                    None => continue,
+                },
                 None => match self.claim_local_class(batch, selected, &need)? {
                     Some(class) => class,
                     None => continue,
@@ -233,10 +231,9 @@ impl OrdinaryNewClaimLedgerV1 {
             // observation must be matched by a callee-side `Value(
             // Construction)` terminal, an unannotated declared result, and a
             // `callable_result_classes` claim. Any half-sealed edge freezes.
-            let callee_result =
-                super::super::direct_call_loan::lifecycle::call_result_kind(
-                    self.terminal_relation_for_owner(callee_owner),
-                );
+            let callee_result = super::super::direct_call_loan::lifecycle::uniform_call_result_kind(
+                self.terminal_relations_for_owner(callee_owner).into_iter(),
+            );
             let handle_observation = self.handle_call_source(&call_site).is_some();
             let result = match (handle_observation, callee_result) {
                 (true, Some(InvokeCallResultKind::Handle))
@@ -248,9 +245,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 {
                     Some(InvokeCallResultKind::Handle)
                 }
-                (true, _) => {
-                    return Err(freeze("lexical-instance-call/handle-result-mismatch"))
-                }
+                (true, _) => return Err(freeze("lexical-instance-call/handle-result-mismatch")),
                 (false, other) => other,
             };
             let mut rows = self.lexical_instance_calls.borrow_mut();
@@ -379,21 +374,17 @@ impl OrdinaryNewClaimLedgerV1 {
                                 {
                                     return Ok(false);
                                 }
-                                let mut initializers = input
-                                    .function()
-                                    .expression_source()
-                                    .initializers()
-                                    .filter(|initializer| {
-                                        initializer.binding() == argument_binding
-                                    });
+                                let mut initializers =
+                                    input.function().expression_source().initializers().filter(
+                                        |initializer| initializer.binding() == argument_binding,
+                                    );
                                 let Some(initializer) = initializers.next() else {
                                     return Ok(false);
                                 };
                                 if initializers.next().is_some() {
                                     return Ok(false);
                                 }
-                                let Some(initializer_site) = initializer.initializer_site()
-                                else {
+                                let Some(initializer_site) = initializer.initializer_site() else {
                                     return Ok(false);
                                 };
                                 self.initializer_class(
@@ -446,45 +437,48 @@ impl OrdinaryNewClaimLedgerV1 {
         need: &LexicalInstanceCallNeedV1,
     ) -> Result<Option<Box<str>>, String> {
         batch
-            .with_lowering_input(need.callee_slot, |input| -> Result<Option<Box<str>>, String> {
-                if input.owner() != need.owner {
-                    return Ok(None);
-                }
-                let mut initializers = input
-                    .function()
-                    .expression_source()
-                    .initializers()
-                    .filter(|initializer| initializer.binding() == need.receiver_binding);
-                let Some(initializer) = initializers.next() else {
-                    return Ok(None);
-                };
-                if initializers.next().is_some() {
-                    return Ok(None);
-                }
-                let Some(initializer_site) = initializer.initializer_site() else {
-                    return Ok(None);
-                };
-                let Some(class) = self.initializer_class(
-                    batch,
-                    selected,
-                    need.callee_slot,
-                    need.owner,
-                    input,
-                    initializer_site,
-                    0,
-                )?
-                else {
-                    return Ok(None);
-                };
-                if !self
-                    .ordinary_box_names
-                    .iter()
-                    .any(|name| name.as_ref() == class.as_ref())
-                {
-                    return Ok(None);
-                }
-                Ok(Some(class))
-            })
+            .with_lowering_input(
+                need.callee_slot,
+                |input| -> Result<Option<Box<str>>, String> {
+                    if input.owner() != need.owner {
+                        return Ok(None);
+                    }
+                    let mut initializers = input
+                        .function()
+                        .expression_source()
+                        .initializers()
+                        .filter(|initializer| initializer.binding() == need.receiver_binding);
+                    let Some(initializer) = initializers.next() else {
+                        return Ok(None);
+                    };
+                    if initializers.next().is_some() {
+                        return Ok(None);
+                    }
+                    let Some(initializer_site) = initializer.initializer_site() else {
+                        return Ok(None);
+                    };
+                    let Some(class) = self.initializer_class(
+                        batch,
+                        selected,
+                        need.callee_slot,
+                        need.owner,
+                        input,
+                        initializer_site,
+                        0,
+                    )?
+                    else {
+                        return Ok(None);
+                    };
+                    if !self
+                        .ordinary_box_names
+                        .iter()
+                        .any(|name| name.as_ref() == class.as_ref())
+                    {
+                        return Ok(None);
+                    }
+                    Ok(Some(class))
+                },
+            )
             .map_err(|_| freeze("lexical-instance-call/batch-loan"))?
     }
 
@@ -556,7 +550,10 @@ impl OrdinaryNewClaimLedgerV1 {
                     .map(|class| class.into()))
             }
             Some(BodyExpressionShapeV1::MethodCall {
-                object, method, arity, ..
+                object,
+                method,
+                arity,
+                ..
             }) => {
                 let Some(ResolvedLexicalRefV1::Local(receiver_binding)) =
                     input.function().variable_ref(object)
@@ -586,9 +583,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 ) else {
                     return Ok(None);
                 };
-                Ok(self
-                    .callable_result_class(&key)
-                    .map(|class| class.into()))
+                Ok(self.callable_result_class(&key).map(|class| class.into()))
             }
             _ => Ok(None),
         }

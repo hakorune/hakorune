@@ -284,9 +284,9 @@ fn issue_s6c_child_for_row(
             let seed = seeds
                 .take_main_child_seed(map_row)
                 .ok_or(S6CSemanticChildIssueV1::MissingCompletionSeed)?;
-            let (batch_slot, owner, identity, role, _, completion, terminal_relation) =
+            let (batch_slot, owner, identity, role, _, completion, terminal_relations) =
                 seed.into_parts();
-            if terminal_relation.is_some() {
+            if !terminal_relations.is_empty() {
                 return Err(S6CSemanticChildIssueV1::UnexpectedTerminalRelation);
             }
             let coseal = row

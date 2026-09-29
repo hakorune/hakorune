@@ -172,7 +172,7 @@ fn owned_local_map_get_issues_terminal_relation_and_keeps_cleanup() {
     let ledger = &package.ordinary_new_claim_ledger;
     let completion = ledger.root_completion_for_test();
     let owner = completion.owner();
-    let Some(TerminalRelationV1::MapGet(relation)) = ledger.terminal_relation_for_owner(owner)
+    let Some(TerminalRelationV1::MapGet(relation)) = ledger.sole_terminal_relation_for_owner(owner)
     else {
         panic!("owned terminal map-get issues the MapGet relation");
     };
@@ -202,9 +202,14 @@ fn owned_local_map_get_in_child_owner_keeps_cleanup() {
         .result_contracts
         .rows()
         .map(|row| row.borrow())
-        .find(|row| matches!(row.terminal_relation(), Some(TerminalRelationV1::MapGet(_))))
+        .find(|row| {
+            matches!(
+                row.sole_terminal_relation(),
+                Some(TerminalRelationV1::MapGet(_))
+            )
+        })
         .expect("child contract row");
-    let Some(TerminalRelationV1::MapGet(relation)) = contract.terminal_relation() else {
+    let Some(TerminalRelationV1::MapGet(relation)) = contract.sole_terminal_relation() else {
         panic!("child terminal map-get issues the MapGet relation");
     };
     assert_eq!(
@@ -230,7 +235,7 @@ fn borrowed_map_parameter_map_get_issues_terminal_relation_without_cleanup() {
     )
     .expect("borrowed map-get package");
     let contract = contract_for(&package, 1);
-    let Some(TerminalRelationV1::MapGet(relation)) = contract.terminal_relation() else {
+    let Some(TerminalRelationV1::MapGet(relation)) = contract.sole_terminal_relation() else {
         panic!("borrowed terminal map-get issues the MapGet relation");
     };
     assert_eq!(relation.owner(), contract.owner());
@@ -260,7 +265,7 @@ fn borrowed_map_parameter_return_stays_uncovered() {
     .expect("borrowed-map return package");
     let contract = contract_for(&package, 1);
     assert!(
-        contract.terminal_relation().is_none(),
+        contract.terminal_relations().is_empty(),
         "borrowed-map return issues no relation"
     );
     assert!(
@@ -289,7 +294,7 @@ fn owned_local_map_get_with_borrowed_handle_entry_reads_as_tagged_fault() {
     )
     .expect("borrowed-entry map-get package");
     let contract = contract_for(&package, 1);
-    let Some(TerminalRelationV1::MapGet(relation)) = contract.terminal_relation() else {
+    let Some(TerminalRelationV1::MapGet(relation)) = contract.sole_terminal_relation() else {
         panic!("borrowed-entry map issues the MapGet relation");
     };
     assert_eq!(
@@ -320,7 +325,7 @@ fn call_returned_map_get_issues_relation_and_installs() {
     )
     .expect("call-returned map-get package");
     let contract = contract_for(&package, 1);
-    let Some(TerminalRelationV1::MapGet(relation)) = contract.terminal_relation() else {
+    let Some(TerminalRelationV1::MapGet(relation)) = contract.sole_terminal_relation() else {
         panic!("call-returned map issues the MapGet relation");
     };
     assert_eq!(
@@ -341,7 +346,7 @@ fn map_get_with_non_literal_key_stays_uncovered() {
     .expect("non-literal key package");
     let contract = contract_for(&package, 2);
     assert!(
-        contract.terminal_relation().is_none(),
+        contract.terminal_relations().is_empty(),
         "non-literal key issues no relation"
     );
     assert!(
@@ -369,7 +374,7 @@ fn map_terminal_with_non_get_selector_stays_uncovered() {
     .expect("non-get selector package");
     let contract = contract_for(&package, 1);
     assert!(
-        contract.terminal_relation().is_none(),
+        contract.terminal_relations().is_empty(),
         "non-get selector issues no relation"
     );
     assert!(

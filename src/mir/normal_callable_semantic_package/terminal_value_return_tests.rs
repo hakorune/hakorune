@@ -48,7 +48,7 @@ fn map_local_return_issues_value_relation_and_leaves_cleanup() {
     let package = issue(&work_program("local m = %{\"a\" => args} return m"))
         .expect("map-local return package");
     let contract = work_contract(&package);
-    let Some(TerminalRelationV1::Value(relation)) = contract.terminal_relation() else {
+    let Some(TerminalRelationV1::Value(relation)) = contract.sole_terminal_relation() else {
         panic!("map-local return issues a Value relation");
     };
     assert_eq!(relation.owner(), contract.owner());
@@ -78,7 +78,7 @@ fn home_local_return_issues_value_relation_and_leaves_cleanup() {
     ))
     .expect("home-local return package");
     let contract = work_contract(&package);
-    let Some(TerminalRelationV1::Value(relation)) = contract.terminal_relation() else {
+    let Some(TerminalRelationV1::Value(relation)) = contract.sole_terminal_relation() else {
         panic!("home-local return issues a Value relation");
     };
     let flow = contract
@@ -111,7 +111,7 @@ fn parameter_handle_return_issues_borrowed_value_relation() {
     let package = issue(&work_program("local m = %{\"k\" => 1} return args"))
         .expect("parameter handle return package");
     let contract = work_contract(&package);
-    let Some(TerminalRelationV1::Value(relation)) = contract.terminal_relation() else {
+    let Some(TerminalRelationV1::Value(relation)) = contract.sole_terminal_relation() else {
         panic!("parameter handle return issues a Value relation");
     };
     assert!(matches!(
@@ -143,7 +143,7 @@ fn non_i64_literal_returns_issue_value_relations() {
         let package = issue(&work_program(&format!("local m = %{{\"k\" => 1}} {body}")))
             .expect("literal return package");
         let contract = work_contract(&package);
-        let Some(TerminalRelationV1::Value(relation)) = contract.terminal_relation() else {
+        let Some(TerminalRelationV1::Value(relation)) = contract.sole_terminal_relation() else {
             panic!("literal return issues a Value relation: {body}");
         };
         assert_eq!(relation.returned(), &expected, "{body}");
@@ -155,7 +155,7 @@ fn return_void_issues_the_unit_terminal_relation() {
     let package =
         issue(&work_program("local m = %{\"k\" => 1} return void")).expect("return void package");
     let contract = work_contract(&package);
-    let Some(TerminalRelationV1::Unit(relation)) = contract.terminal_relation() else {
+    let Some(TerminalRelationV1::Unit(relation)) = contract.sole_terminal_relation() else {
         panic!("return void issues the Unit relation");
     };
     assert_eq!(relation.owner(), contract.owner());
@@ -185,7 +185,8 @@ fn qualified_call_return_issues_opaque_call_relation() {
         ))
         .expect("qualified-call return package");
         let contract = work_contract(&package);
-        let Some(TerminalRelationV1::OpaqueCall(relation)) = contract.terminal_relation() else {
+        let Some(TerminalRelationV1::OpaqueCall(relation)) = contract.sole_terminal_relation()
+        else {
             panic!("{body} issues an OpaqueCall relation");
         };
         assert_eq!(relation.owner(), contract.owner());
@@ -217,7 +218,7 @@ fn qualified_call_map_argument_reaches_the_named_capability_boundary() {
     )
     .expect("qualified-call map-argument package");
     let contract = work_contract(&package);
-    let Some(TerminalRelationV1::OpaqueCall(relation)) = contract.terminal_relation() else {
+    let Some(TerminalRelationV1::OpaqueCall(relation)) = contract.sole_terminal_relation() else {
         panic!("map-argument qualified call issues an OpaqueCall relation");
     };
     assert_eq!(relation.owner(), contract.owner());
@@ -252,7 +253,7 @@ fn consumed_or_uninitialized_returns_stay_uncovered() {
         let package = issue(&work_program(body)).expect("package");
         let contract = work_contract(&package);
         assert!(
-            contract.terminal_relation().is_none(),
+            contract.terminal_relations().is_empty(),
             "{body} issues no relation"
         );
         assert!(

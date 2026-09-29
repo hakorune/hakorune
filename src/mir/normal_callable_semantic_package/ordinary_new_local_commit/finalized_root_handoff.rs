@@ -19,8 +19,13 @@ impl OrdinaryNewClaimLedgerV1 {
             Some(Ok(completion)) => completion.owner(),
             _ => return Err(freeze("artifact-root-completion-unavailable")),
         };
-        // Structural exclusivity replaces collision checks, not physical progress.
-        if let Some(terminal) = &self.terminal_relation {
+        // Structural exclusivity replaces collision checks, not physical
+        // progress. Every exit row stands on its own site: no relation may
+        // satisfy, or be satisfied by, a sibling exit's evidence.
+        for (exit, terminal) in &self.terminal_relation {
+            if terminal.return_site() != exit {
+                return Err(freeze("artifact-root-site-drift"));
+            }
             match terminal {
                 TerminalRelationV1::Call(relation) => {
                     if relation.owner() != owner {
@@ -28,7 +33,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     }
                 }
                 TerminalRelationV1::I64Add(relation) => {
-                    if relation.owner() != owner || !self.terminal_result_complete() {
+                    if relation.owner() != owner {
                         return Err(freeze("artifact-root-result-unavailable"));
                     }
                 }
@@ -41,19 +46,22 @@ impl OrdinaryNewClaimLedgerV1 {
                         .as_ref()
                         .and_then(|row| row.as_ref().ok())
                         .ok_or_else(|| freeze("artifact-root-completion-unavailable"))?;
-                    if completion.explicit_site() != Some(relation.return_site()) {
+                    if !completion.explicit_sites().contains(relation.return_site()) {
                         return Err(freeze("artifact-root-unit-site-drift"));
                     }
                 }
                 TerminalRelationV1::IntegerLiteral(relation) => {
                     if relation.owner() != owner
-                        || self.terminal_integer_literal_value.borrow().is_none()
+                        || !self
+                            .terminal_integer_literal_value
+                            .borrow()
+                            .contains_key(relation.return_site())
                     {
                         return Err(freeze("artifact-root-literal-unavailable"));
                     }
                 }
                 TerminalRelationV1::I64Field(relation) => {
-                    if relation.owner() != owner || !self.terminal_i64_field_return_complete() {
+                    if relation.owner() != owner {
                         return Err(freeze("artifact-root-field-unavailable"));
                     }
                 }
@@ -68,49 +76,73 @@ impl OrdinaryNewClaimLedgerV1 {
                     }
                 }
                 TerminalRelationV1::MapGet(relation) => {
-                    if relation.owner() != owner || !self.terminal_map_get_return_emitted(owner) {
+                    if relation.owner() != owner
+                        || !self.terminal_map_get_return_emitted_at(owner, exit)
+                    {
                         return Err(freeze("artifact-root-map-get-unavailable"));
                     }
                 }
             }
         }
-        let call_payload = if matches!(
-            self.terminal_relation.as_ref(),
-            Some(TerminalRelationV1::Call(_))
-        ) {
-            let (entry, cleanup) = self
-                .take_finalized_root_call(owner)?
-                .ok_or_else(|| freeze("artifact-call-physical-missing"))?;
-            Some((entry, cleanup.into_boxed_slice()))
-        } else {
-            if self.take_finalized_root_call(owner)?.is_some() {
-                return Err(freeze("artifact-call-terminal-drift"));
+        if self
+            .terminal_relation
+            .values()
+            .any(|terminal| matches!(terminal, TerminalRelationV1::I64Add(_)))
+            && !self.terminal_result_complete()
+        {
+            return Err(freeze("artifact-root-result-unavailable"));
+        }
+        if self
+            .terminal_relation
+            .values()
+            .any(|terminal| matches!(terminal, TerminalRelationV1::I64Field(_)))
+            && !self.terminal_i64_field_return_complete()
+        {
+            return Err(freeze("artifact-root-field-unavailable"));
+        }
+        let mut call_entries = std::collections::BTreeMap::new();
+        for (site, terminal) in &self.terminal_relation {
+            if !matches!(terminal, TerminalRelationV1::Call(_)) {
+                continue;
             }
-            None
-        };
-        let (call_entry, call_cleanup) = match call_payload {
-            Some((entry, cleanup)) => (Some(entry), cleanup),
-            None => (
-                None,
-                Vec::<(BasicBlockId, MirInstruction)>::new().into_boxed_slice(),
-            ),
-        };
-        if self.terminal_relation.is_none() && call_entry.is_some() {
+            let (entry, cleanup) = self
+                .take_finalized_root_call(owner, site)?
+                .ok_or_else(|| freeze("artifact-call-physical-missing"))?;
+            call_entries.insert(site.clone(), (entry, cleanup));
+        }
+        // A Call payload emitted at an exit whose relation is not a Call is
+        // drift: the physical entry must never exist without its source row.
+        {
+            let exits = self.root_exits.borrow();
+            for ((row_owner, site), progress) in exits.iter() {
+                if *row_owner != owner {
+                    continue;
+                }
+                if matches!(
+                    progress,
+                    RootHomeExitProgress::Emitted {
+                        entry: RootHomeExitEntry::Call { .. },
+                        ..
+                    }
+                ) && !call_entries.contains_key(site)
+                {
+                    return Err(freeze("artifact-call-terminal-drift"));
+                }
+            }
+        }
+        if self.terminal_relation.is_empty() && !call_entries.is_empty() {
             return Err(freeze("artifact-call-root-source-missing"));
         }
-        let root_source = self
-            .terminal_relation
-            .as_ref()
-            .map(|terminal| {
+        let root_source = (!self.terminal_relation.is_empty())
+            .then(|| {
                 Ok::<_, String>(FinalizedRootSourceHandoffV1 {
                     app_main_identity: self
                         .app_main_identity
                         .as_ref()
                         .ok_or_else(|| freeze("artifact-root-identity-unavailable"))?
                         .clone(),
-                    terminal: terminal.clone(),
-                    call_entry,
-                    call_cleanup,
+                    terminals: self.terminal_relation.clone(),
+                    call_entries,
                 })
             })
             .transpose()?;

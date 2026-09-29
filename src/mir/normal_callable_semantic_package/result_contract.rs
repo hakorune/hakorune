@@ -14,9 +14,10 @@ use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 use crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
-use crate::mir::resolved_semantics::FunctionOwnerIdV1;
+use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceStmtSiteV1};
 use crate::parser::CallableDeclarationIdentityV1;
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
+use std::collections::BTreeMap;
 use std::rc::Rc;
 
 use super::completion_seed::VerifiedCallableCompletionSeedV1;
@@ -45,7 +46,9 @@ pub(super) struct VerifiedCallableResultContractRowV1 {
     role: SelectedCallableConsumptionRoleV1,
     result: Option<ExactTrivialScalarAbiV1>,
     completion: Rc<VerifiedFunctionCompletionV1>,
-    terminal_relation: Option<Rc<TerminalRelationV1>>,
+    // Exit-site keyed terminal relations; consumers needing a single row
+    // must name the site or prove a uniform projection over the whole map.
+    terminal_relations: Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
 }
 
 #[derive(Clone, Copy)]
@@ -55,7 +58,7 @@ pub(crate) struct CallableResultContractRefV1<'a> {
     role: SelectedCallableConsumptionRoleV1,
     result: Option<ExactTrivialScalarAbiV1>,
     completion: &'a VerifiedFunctionCompletionV1,
-    terminal_relation: Option<&'a TerminalRelationV1>,
+    terminal_relations: &'a BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
 }
 
 impl VerifiedCallableResultContractCohortV1 {
@@ -99,7 +102,7 @@ impl VerifiedCallableResultContractRowV1 {
             self.role,
             self.result,
             self.completion.as_ref(),
-            self.terminal_relation.as_deref(),
+            self.terminal_relations.as_ref(),
         )
     }
 }
@@ -111,7 +114,7 @@ impl<'a> CallableResultContractRefV1<'a> {
         role: SelectedCallableConsumptionRoleV1,
         result: Option<ExactTrivialScalarAbiV1>,
         completion: &'a VerifiedFunctionCompletionV1,
-        terminal_relation: Option<&'a TerminalRelationV1>,
+        terminal_relations: &'a BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
     ) -> Self {
         Self {
             owner,
@@ -119,7 +122,7 @@ impl<'a> CallableResultContractRefV1<'a> {
             role,
             result,
             completion,
-            terminal_relation,
+            terminal_relations,
         }
     }
 
@@ -144,9 +147,21 @@ impl<'a> CallableResultContractRefV1<'a> {
         self.completion.function_exit_contract().declared_result()
     }
 
-    /// Absence does not infer Unit, an ABI kind, or empty cleanup.
-    pub(crate) const fn terminal_relation(&self) -> Option<&'a TerminalRelationV1> {
-        self.terminal_relation
+    /// Every retained terminal relation keyed by its exact exit site.
+    /// An empty map does not infer Unit, an ABI kind, or empty cleanup.
+    pub(crate) const fn terminal_relations(
+        &self,
+    ) -> &'a BTreeMap<SourceStmtSiteV1, TerminalRelationV1> {
+        self.terminal_relations
+    }
+
+    /// Test-only: the sole retained relation, `None` when the row keeps
+    /// zero or several exit relations — never an arbitrary pick.
+    #[cfg(test)]
+    pub(crate) fn sole_terminal_relation(&self) -> Option<&'a TerminalRelationV1> {
+        (self.terminal_relations.len() == 1)
+            .then(|| self.terminal_relations.values().next())
+            .flatten()
     }
 
     /// Borrow the issued product; callers must not infer missing obligations
@@ -161,7 +176,7 @@ pub(super) fn issue_callable_result_contract_cohort_v1(
 ) -> Result<VerifiedCallableResultContractCohortV1, CallableResultContractIssueV1> {
     let mut rows = Vec::with_capacity(seeds.len());
     for seed in seeds {
-        let (batch_slot, owner, identity, role, result, completion, terminal_relation) =
+        let (batch_slot, owner, identity, role, result, completion, terminal_relations) =
             seed.into_parts();
         if rows
             .iter()
@@ -183,7 +198,7 @@ pub(super) fn issue_callable_result_contract_cohort_v1(
             role,
             result,
             completion,
-            terminal_relation,
+            terminal_relations,
         });
     }
     rows.sort_by_key(|row| row.batch_slot);

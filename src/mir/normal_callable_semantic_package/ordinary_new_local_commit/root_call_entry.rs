@@ -94,12 +94,70 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect())
     }
 
+    /// The routed lifecycle calls this exact exit covers, in `local_calls()`
+    /// source order. Sibling exits sharing a prefix each name the same
+    /// call sites; entry construction claims the recorded groups through
+    /// `select_local_call_binding_groups` instead of draining the pool.
+    fn expected_local_call_binding_sites_for_exit(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+    ) -> Result<Vec<OwnedExprSiteV1>, String> {
+        let completion = self
+            .completion_for_owner(owner)
+            .ok_or_else(|| freeze("local-call-source-missing"))?;
+        let flow = completion
+            .cleanup()
+            .root_flow()
+            .ok_or_else(|| freeze("local-call-source-missing"))?;
+        let Some(Ok(row)) = flow.exit_row(exit) else {
+            return Err(freeze("local-call-source-missing"));
+        };
+        let covered = row.covered_calls();
+        let routed = self.lifecycle_local_call_sites.borrow();
+        let routed = routed.get(&owner);
+        Ok(flow
+            .local_calls()
+            .iter()
+            .filter(|call| {
+                call.result()
+                    == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
+                    && covered.contains(call.site())
+                    && routed.is_some_and(|sites| sites.contains(call.site()))
+            })
+            .map(|call| call.site().clone())
+            .collect())
+    }
+
+    /// Select this exit's claimed binding-group rows from the recorded pool.
+    /// The pending map stays whole: a call site covered by several exits
+    /// must be claimable by each of them, and `local_call_bindings_consumed`
+    /// is the final arbiter that nothing recorded was left unclaimed.
+    pub(super) fn select_local_call_binding_groups(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+    ) -> Result<Vec<(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)>, String> {
+        let expected = self.expected_local_call_binding_sites_for_exit(owner, exit)?;
+        let pending = self.root_local_call_bindings.borrow();
+        let recorded = pending.get(&owner).map(Vec::as_slice).unwrap_or(&[]);
+        let mut selected = Vec::with_capacity(expected.len());
+        for site in &expected {
+            let Some((_, bindings)) = recorded.iter().find(|(recorded, _)| recorded == site) else {
+                return Err(freeze("local-call-binding-sequence"));
+            };
+            selected.push((site.clone(), bindings.clone()));
+        }
+        Ok(selected)
+    }
+
     pub(super) fn validate_local_call_binding_groups(
         &self,
         owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
         groups: &[(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)],
     ) -> Result<(), String> {
-        let expected = self.expected_local_call_binding_sites(owner)?;
+        let expected = self.expected_local_call_binding_sites_for_exit(owner, exit)?;
         if groups.len() != expected.len()
             || groups
                 .iter()
@@ -120,22 +178,22 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(|(_, terminal)| terminal.arguments())
     }
 
-    /// Borrow the root-owned terminal Call only when the selected lowering
-    /// owner is that same source owner. Child completions may retain their
-    /// own terminal relations while the root Call is still present; exposing
-    /// the root arguments to those children would make the physical Call
-    /// probe reject an otherwise valid child return.
-    pub(crate) fn terminal_call_arguments_for_owner(
+    /// Borrow the terminal Call seated at this exact exit site. A sibling
+    /// exit's Call relation is never a substitute — the argument evidence is
+    /// bound to its own `return` statement.
+    pub(crate) fn terminal_call_arguments_for_owner_at(
         &self,
         owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
     ) -> Option<&[crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1]> {
-        self.call_source_completion_for_owner(owner)
+        self.call_source_completion_for_owner_at(owner, site)
             .map(|(_, terminal)| terminal.arguments())
     }
 
     pub(crate) fn record_root_call_exit(
         &self,
         owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
         row: RootCallDispositionV1,
         arguments: Vec<(BasicBlockId, MirInstruction)>,
         invoke: (BasicBlockId, MirInstruction),
@@ -149,13 +207,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 let _ = direct.physical_emission();
             }
         }
-        let mut pending = self.root_local_call_bindings.borrow_mut();
-        let pending_groups = pending.get(&owner).map(Vec::as_slice).unwrap_or(&[]);
-        self.validate_local_call_binding_groups(owner, pending_groups)?;
-        let local_bindings = pending.remove(&owner).unwrap_or_default();
-        drop(pending);
+        let local_bindings = self.select_local_call_binding_groups(owner, site)?;
         self.record_root_home_exit_with_entry(
             owner,
+            site,
             origins,
             bindings,
             RootHomeExitEntry::Call {
@@ -172,10 +227,11 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn rebind_root_call_entry(
         &self,
         owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
         projection: &super::super::physical_boundary::FinishedBindings,
     ) -> Result<(), String> {
         let mut exits = self.root_exits.borrow_mut();
-        let Some(progress) = exits.get_mut(&owner) else {
+        let Some(progress) = exits.get_mut(&(owner, site.clone())) else {
             return Err(freeze("root-call-entry-missing"));
         };
         // A Call terminal whose receiver home can never reach `end_available`
@@ -234,9 +290,10 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn take_finalized_root_call(
         &self,
         owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
     ) -> Result<Option<(RootHomeExitEntry, Vec<(BasicBlockId, MirInstruction)>)>, String> {
         let mut exits = self.root_exits.borrow_mut();
-        let Some(progress) = exits.get_mut(&owner) else {
+        let Some(progress) = exits.get_mut(&(owner, site.clone())) else {
             return Ok(None);
         };
         let state = std::mem::replace(progress, RootHomeExitProgress::Finalized);
@@ -313,20 +370,30 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_call_entry(
         &self,
         owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
         function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
         entry: &RootHomeExitEntry,
         cleanup: &[(BasicBlockId, MirInstruction)],
     ) -> Result<(), String> {
-        let Some((_, terminal)) = self.call_source_completion_for_owner(owner) else {
+        let Some((_, terminal)) = self.call_source_completion_for_owner_at(owner, exit) else {
             return match entry {
                 RootHomeExitEntry::Plain { local_bindings } => {
                     // A source MapGet terminal owes its checked-read entry;
                     // a Plain exit can never carry it.
-                    if self.terminal_map_get_return_for_owner(owner).is_some() {
+                    if self
+                        .terminal_map_get_return_for_owner_at(owner, exit)
+                        .is_some()
+                    {
                         return Err(freeze("map-get-entry-missing"));
                     }
-                    self.check_local_call_binding_groups(owner, function, finishing, local_bindings)
+                    self.check_local_call_binding_groups(
+                        owner,
+                        exit,
+                        function,
+                        finishing,
+                        local_bindings,
+                    )
                 }
                 RootHomeExitEntry::Call { .. } => Err(freeze("call-source-missing")),
                 RootHomeExitEntry::MapGet {
@@ -336,6 +403,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     frame,
                 } => self.validate_map_get_entry(
                     owner,
+                    exit,
                     function,
                     finishing,
                     local_bindings,
@@ -358,7 +426,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let RootHomeExitEntry::Plain { local_bindings } = entry else {
                 return Err(freeze("call-entry-missing"));
             };
-            self.check_local_call_binding_groups(owner, function, finishing, local_bindings)?;
+            self.check_local_call_binding_groups(owner, exit, function, finishing, local_bindings)?;
             return if self.root_instance_call_expected(owner) {
                 // The source method is known, but its target result contract
                 // is unavailable. Preserve the existing artifact stop rather
@@ -503,7 +571,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("call-binding-drift"));
             }
         }
-        self.check_local_call_binding_groups(owner, function, finishing, local_bindings)?;
+        self.check_local_call_binding_groups(owner, exit, function, finishing, local_bindings)?;
         let mapped = |binding: &(BasicBlockId, MirInstruction)| match finishing {
             Some(p) => p
                 .binding(binding.0, &binding.1)?
@@ -523,17 +591,18 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
-    /// Match one owner's recorded lifecycle local-call binding groups
-    /// against the finished function: the source-ordered site sequence first,
-    /// then every recorded instruction at its projected block.
+    /// Match one exit's claimed lifecycle local-call binding groups against
+    /// the finished function: the source-ordered site sequence first, then
+    /// every recorded instruction at its projected block.
     pub(super) fn check_local_call_binding_groups(
         &self,
         owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
         function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
         groups: &[(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)],
     ) -> Result<(), String> {
-        self.validate_local_call_binding_groups(owner, groups)?;
+        self.validate_local_call_binding_groups(owner, exit, groups)?;
         for (_, group) in groups {
             for (id, instruction) in group {
                 if !super::super::physical_boundary::check_binding(
@@ -629,92 +698,8 @@ impl RootHomeExitEntry {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::mir::normal_callable_semantic_package::brand_catalog_tests;
-
-    fn package(
-    ) -> crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1 {
-        brand_catalog_tests::issue_with_brand_catalog(
-            r#"static box Main {
-                main() {
-                    local first = helper(10)
-                    local second = middle(20)
-                    return other(30)
-                }
-                helper(value: i64): i64 { local m = %{"first" => value} return 30 }
-                middle(value: i64): i64 { local m = %{"middle" => value} return 30 }
-                other(value: i64): i64 { local m = %{"other" => value} return 30 }
-            }"#,
-        )
-        .expect("two source local Call rows")
-    }
-
-    fn fake_binding() -> Vec<(BasicBlockId, MirInstruction)> {
-        vec![(BasicBlockId(0), MirInstruction::Return { value: None })]
-    }
-
-    #[test]
-    fn local_binding_groups_reject_duplicate_foreign_and_swapped_sites() {
-        let package = package();
-        let ledger = &package.ordinary_new_claim_ledger;
-        let owner = ledger.root_owner().expect("root owner");
-        let sites: Vec<_> = ledger
-            .completion_for_owner(owner)
-            .expect("root completion")
-            .cleanup()
-            .root_flow()
-            .expect("root flow")
-            .local_calls()
-            .iter()
-            .map(|call| call.site().clone())
-            .collect();
-        assert_eq!(sites.len(), 2);
-        assert!(ledger
-            .record_root_local_call_bindings(owner, sites[1].clone(), fake_binding())
-            .is_err());
-        ledger
-            .record_root_local_call_bindings(owner, sites[0].clone(), fake_binding())
-            .expect("first site");
-        assert!(ledger
-            .record_root_local_call_bindings(owner, sites[0].clone(), fake_binding())
-            .is_err());
-        let foreign_owner = package
-            .batch
-            .declarations()
-            .map(|row| row.owner())
-            .find(|candidate| *candidate != owner)
-            .expect("foreign owner");
-        assert!(ledger
-            .record_root_local_call_bindings(
-                owner,
-                OwnedExprSiteV1::new(foreign_owner, sites[1].site().clone()),
-                fake_binding(),
-            )
-            .is_err());
-    }
-
-    #[test]
-    fn local_binding_groups_reject_incomplete_sequence_before_transfer() {
-        let package = package();
-        let ledger = &package.ordinary_new_claim_ledger;
-        let owner = ledger.root_owner().expect("root owner");
-        let sites: Vec<_> = ledger
-            .completion_for_owner(owner)
-            .expect("root completion")
-            .cleanup()
-            .root_flow()
-            .expect("root flow")
-            .local_calls()
-            .iter()
-            .map(|call| call.site().clone())
-            .collect();
-        let groups = vec![(sites[0].clone(), fake_binding())];
-        assert!(ledger
-            .validate_local_call_binding_groups(owner, &groups)
-            .is_err());
-    }
-}
+#[path = "root_call_entry/tests.rs"]
+mod tests;
 
 impl RootHomeExitEntry {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn append_bindings(

@@ -44,10 +44,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     /// The canonical object the callee's result claim/commit minted for a
     /// `return new` site — the identity a caller-side received handle keeps.
-    pub(crate) fn result_object(
-        &self,
-        site: &OwnedExprSiteV1,
-    ) -> Option<CanonicalObjectIdV1> {
+    pub(crate) fn result_object(&self, site: &OwnedExprSiteV1) -> Option<CanonicalObjectIdV1> {
         if let Some(LocalCommitV1::Result(row)) = self.local_commits.borrow().get(site) {
             return Some(row.object());
         }
@@ -72,17 +69,17 @@ impl OrdinaryNewClaimLedgerV1 {
         if !matches!(call.declaration(), SourceBindingSiteV1::Local { .. }) {
             return Err(freeze("handle-call-declaration-drift"));
         }
-        let construction_site = match self.terminal_relation_for_owner(callee) {
-            Some(TerminalRelationV1::Value(row)) if row.owner() == callee => {
-                match row.returned() {
-                    TerminalReturnedSourceV1::Construction(owned)
-                        if owned.owner() == callee =>
-                    {
-                        owned.clone()
-                    }
-                    _ => return Err(freeze("handle-result-terminal-mismatch")),
+        // The callee must prove exactly one `return new` exit: several
+        // construction sites mint different canonical objects, and the
+        // caller cannot observe which exit ran — a mixed callee stays
+        // unadmitted rather than borrowing an arbitrary site's object.
+        let construction_site = match self.terminal_relations_for_owner(callee).as_slice() {
+            [TerminalRelationV1::Value(row)] if row.owner() == callee => match row.returned() {
+                TerminalReturnedSourceV1::Construction(owned) if owned.owner() == callee => {
+                    owned.clone()
                 }
-            }
+                _ => return Err(freeze("handle-result-terminal-mismatch")),
+            },
             _ => return Err(freeze("handle-result-terminal-missing")),
         };
         let object = self
@@ -115,9 +112,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(LocalCommitV1::CallReceived(row)) = rows.get_mut(site) else {
             return Err(freeze("handle-record-without-begin"));
         };
-        if !matches!(row.progress, CallReceivedProgress::Emitting)
-            || bindings.is_empty()
-        {
+        if !matches!(row.progress, CallReceivedProgress::Emitting) || bindings.is_empty() {
             return Err(freeze("handle-emission-state-drift"));
         }
         row.progress = CallReceivedProgress::Emitted {

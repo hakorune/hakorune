@@ -22,18 +22,18 @@ use super::{
     OrdinaryNewResultClaimV1, VerifiedOrdinaryNewBirthRecipeV1,
 };
 use crate::ast::ASTNode;
+use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::function::ObjectDestructionDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    issue_new_home_prefixes_v1, issue_new_home_prefixes_with_arguments_v1,
-    HomePrefixUnavailableV1, SelectedNewArgumentUnavailableV1, TerminalRelationV1,
+    issue_new_home_prefixes_v1, issue_new_home_prefixes_with_arguments_v1, HomePrefixUnavailableV1,
+    SelectedNewArgumentUnavailableV1, TerminalRelationV1,
 };
 use crate::mir::resolved_semantics::{
     BindingKindV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
     SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
 };
 use hakorune_mir_defs::SameModuleCallableNamespaceV1;
-use crate::mir::builder::SelectedNormalCallableKeyV1;
 
 #[path = "ordinary_new_coseal_issue_lexical.rs"]
 mod lexical;
@@ -74,7 +74,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     let mut seeds = super::super::completion_seed::VerifiedCallableCompletionSeedCohortV1::new();
     let mut root_completion = None;
     let mut field_reads = BTreeMap::new();
-    let mut root_terminal_relation = None;
+    let mut root_terminal_relation = BTreeMap::new();
     let mut birth_abi_handoffs = BTreeMap::new();
     for declaration in batch.declarations() {
         let owner = declaration.owner();
@@ -261,7 +261,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         .map_err(OrdinaryNewCoSealIssueV1::RootTerminalSource)?
                         {
                             root_completion = Some(Ok(Rc::clone(&completion)));
-                            root_terminal_relation = Some(TerminalRelationV1::IntegerLiteral(relation));
+                            root_terminal_relation.insert(
+                                relation.return_site().clone(),
+                                TerminalRelationV1::IntegerLiteral(relation),
+                            );
                         }
                     }
                     if seed_completion {
@@ -269,7 +272,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             declaration,
                             selected,
                             Rc::clone(&completion),
-                            None,
+                            BTreeMap::new(),
                         )
                         .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                     }
@@ -338,24 +341,33 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             result_prefixes,
                         )) => {
                             if is_app_main {
-                                if matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
-                                    if let Some(TerminalRelationV1::I64Add(result)) = &terminal_relation {
-                                        if result.owner() != input.owner()
-                                            || result.field_reads().iter().any(|site|
-                                                !staged_reads.contains_key(site))
-                                        {
-                                            return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
-                                                site: result.add_site().clone(),
-                                            });
-                                        }
-                                    }
-                                    if let Some(TerminalRelationV1::I64Field(result)) = &terminal_relation {
-                                        if result.owner() != input.owner()
-                                            || !staged_reads.contains_key(result.field_read_site())
-                                        {
-                                            return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
-                                                site: result.field_read_site().clone(),
-                                            });
+                                if completion
+                                    .cleanup()
+                                    .root_flow()
+                                    .is_some_and(|flow| flow.all_exits_ready())
+                                {
+                                    for terminal in terminal_relation.values() {
+                                        match terminal {
+                                            TerminalRelationV1::I64Add(result) => {
+                                                if result.owner() != input.owner()
+                                                    || result.field_reads().iter().any(|site|
+                                                        !staged_reads.contains_key(site))
+                                                {
+                                                    return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
+                                                        site: result.add_site().clone(),
+                                                    });
+                                                }
+                                            }
+                                            TerminalRelationV1::I64Field(result) => {
+                                                if result.owner() != input.owner()
+                                                    || !staged_reads.contains_key(result.field_read_site())
+                                                {
+                                                    return Err(OrdinaryNewCoSealIssueV1::TerminalResultFieldReadMissing {
+                                                        site: result.field_read_site().clone(),
+                                                    });
+                                                }
+                                            }
+                                            _ => {}
                                         }
                                     }
                                     field_reads::merge_staged_field_reads(
@@ -363,18 +375,20 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                         input.owner(),
                                         staged_reads,
                                     )?;
-                                    root_terminal_relation = terminal_relation.take();
+                                    root_terminal_relation.extend(terminal_relation);
                                 }
                                 root_completion = Some(Ok(Rc::new(completion)));
                             } else {
                                 field_reads::merge_terminal_relation_field_reads(
                                     &mut field_reads,
                                     input.owner(),
-                                    terminal_relation.as_ref(),
+                                    &terminal_relation,
                                     staged_reads,
                                 )?;
                                 let relation = terminal_relation
-                                    .filter(|row| retain_child_terminal_relation(row, has_map));
+                                    .into_iter()
+                                    .filter(|(_, row)| retain_child_terminal_relation(row, has_map))
+                                    .collect();
                                 seeds.push_completion(declaration, selected, Rc::new(completion), relation)
                                     .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                             }
@@ -549,9 +563,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     batch
         .with_normal_program_source_loan(|loan| -> Result<(), OrdinaryNewCoSealIssueV1> {
             for row in instance_constructors.rows() {
-                let input = row.lowering_input(loan.program()).map_err(|_| {
-                    OrdinaryNewCoSealIssueV1::BatchLoan
-                })?;
+                let input = row
+                    .lowering_input(loan.program())
+                    .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
                 collect_birth_site_index_v1(
                     input.function(),
                     input.owner(),
@@ -570,8 +584,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     // are walked outside the program-source loan; constructor (birth)
     // rows join inside it, where `lowering_input` needs the program.
     let mut field_write_draft = field_write_claim::OrdinaryNewFieldWriteClaimDraftV1::new();
-    let mut result_class_draft =
-        result_class_claim::OrdinaryNewResultClassClaimDraftV1::new();
+    let mut result_class_draft = result_class_claim::OrdinaryNewResultClassClaimDraftV1::new();
     for declaration in batch.declarations() {
         let selected_key = selected
             .keys()
@@ -593,17 +606,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             .map(|key| key.owner());
         batch
             .with_lowering_input(declaration.batch_slot(), |input| {
-                field_write_draft.observe_function(
-                    input.function(),
-                    input.body_shape(),
-                    owner_box,
-                );
+                field_write_draft.observe_function(input.function(), input.body_shape(), owner_box);
                 if let Some(key) = &selected_key {
-                    result_class_draft.observe_function(
-                        input.function(),
-                        input.body_shape(),
-                        key,
-                    );
+                    result_class_draft.observe_function(input.function(), input.body_shape(), key);
                 }
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
@@ -624,8 +629,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         })
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
     let field_write_claims = field_write_draft.finish(batch.ordinary_box_coverage());
-    let callable_result_classes =
-        result_class_draft.finish(batch.ordinary_box_coverage());
+    let callable_result_classes = result_class_draft.finish(batch.ordinary_box_coverage());
     let names = batch
         .ordinary_box_coverage()
         .rows()
@@ -670,10 +674,7 @@ fn collect_birth_site_index_v1(
         if claimed_sites.contains(&site) {
             continue;
         }
-        let Ok(coverage_row) = batch
-            .ordinary_box_coverage()
-            .row_for(construction.class())
-        else {
+        let Ok(coverage_row) = batch.ordinary_box_coverage().row_for(construction.class()) else {
             continue;
         };
         let Some(box_source) = coverage_row else {

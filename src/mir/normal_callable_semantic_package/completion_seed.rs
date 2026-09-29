@@ -10,8 +10,9 @@ use crate::mir::resolved_control_flow::{
     DeclaredFunctionResultContractV1, VerifiedFunctionCompletionV1,
 };
 use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
-use crate::mir::resolved_semantics::FunctionOwnerIdV1;
+use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceStmtSiteV1};
 use crate::parser::CallableDeclarationIdentityV1;
+use std::collections::BTreeMap;
 use std::rc::Rc;
 
 use super::model::OwnedCallableParameterContractDeclarationV1;
@@ -28,7 +29,9 @@ pub(super) struct VerifiedCallableCompletionSeedV1 {
     role: crate::mir::builder::SelectedCallableConsumptionRoleV1,
     result: Option<ExactTrivialScalarAbiV1>,
     completion: Rc<VerifiedFunctionCompletionV1>,
-    terminal_relation: Option<Rc<TerminalRelationV1>>,
+    // Exit-site keyed: multi-exit callees retain every terminal relation;
+    // callers must name the exact site or prove a uniform projection.
+    terminal_relations: Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
 }
 
 impl VerifiedCallableCompletionSeedV1 {
@@ -57,7 +60,7 @@ impl VerifiedCallableCompletionSeedV1 {
         crate::mir::builder::SelectedCallableConsumptionRoleV1,
         Option<ExactTrivialScalarAbiV1>,
         Rc<VerifiedFunctionCompletionV1>,
-        Option<Rc<TerminalRelationV1>>,
+        Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
     ) {
         (
             self.batch_slot,
@@ -66,7 +69,7 @@ impl VerifiedCallableCompletionSeedV1 {
             self.role,
             self.result,
             self.completion,
-            self.terminal_relation,
+            self.terminal_relations,
         )
     }
 }
@@ -158,7 +161,7 @@ impl VerifiedCallableCompletionSeedCohortV1 {
         declaration: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'_>,
         selected: &VerifiedSelectedCallableBatchMapV1,
         completion: Rc<VerifiedFunctionCompletionV1>,
-        terminal_relation: Option<TerminalRelationV1>,
+        terminal_relations: BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
     ) -> Result<(), CallablePhysicalHeaderIssueV1> {
         let batch_slot = declaration.batch_slot();
         let result = validate_result(completion.as_ref(), declaration.owner(), batch_slot)?;
@@ -172,7 +175,7 @@ impl VerifiedCallableCompletionSeedCohortV1 {
             role,
             result,
             completion,
-            terminal_relation: terminal_relation.map(Rc::new),
+            terminal_relations: Rc::new(terminal_relations),
         });
         Ok(())
     }
@@ -193,14 +196,14 @@ impl VerifiedCallableCompletionSeedCohortV1 {
 
     pub(super) fn terminal_relation_index(
         &self,
-    ) -> std::collections::BTreeMap<FunctionOwnerIdV1, Rc<TerminalRelationV1>> {
+    ) -> std::collections::BTreeMap<
+        FunctionOwnerIdV1,
+        Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
+    > {
         self.rows
             .iter()
-            .filter_map(|row| {
-                row.terminal_relation
-                    .as_ref()
-                    .map(|relation| (row.owner, Rc::clone(relation)))
-            })
+            .filter(|row| !row.terminal_relations.is_empty())
+            .map(|row| (row.owner, Rc::clone(&row.terminal_relations)))
             .collect()
     }
 }

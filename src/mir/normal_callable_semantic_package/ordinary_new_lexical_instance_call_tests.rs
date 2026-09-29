@@ -74,10 +74,9 @@ static box Main {
 /// (`readData`) and statement-position (`release`) rows must be armed.
 #[test]
 fn lexical_instance_call_arms_parameter_receiver_with_claim_edge() {
-    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        PARAM_RECEIVER_SOURCE,
-    )
-    .expect("parameter receiver source package");
+    let package =
+        super::super::brand_catalog_tests::issue_with_brand_catalog(PARAM_RECEIVER_SOURCE)
+            .expect("parameter receiver source package");
     let ledger = &package.ordinary_new_claim_ledger;
     for (selector, target_owner, arity) in [
         ("readData", "ParamStore", 1u32),

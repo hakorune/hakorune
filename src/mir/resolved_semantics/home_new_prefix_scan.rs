@@ -2,18 +2,24 @@
 //! separate authority — every observation still lands in the caller's rows.
 use super::*;
 
+/// Returns `true` when this path terminated at an explicit exit site —
+/// statements past it are unreachable on this path and are never walked.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn scan_statement_flow<'a, E>(
     input: ResolvedFunctionLoweringInputV1<'a>,
     body: &crate::mir::compiler::located::LocatedBodyV1<'a>,
-    terminal: Option<&SourceStmtSiteV1>,
+    exit_sites: &BTreeSet<SourceStmtSiteV1>,
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
     result_sites: &BTreeSet<OwnedExprSiteV1>,
     results: &mut BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
-    terminal_homes: &mut Result<Box<[BindingRefV1]>, HomePrefixUnavailableV1>,
+    exit_homes: &mut BTreeMap<SourceStmtSiteV1, Result<RootHomeExitV1, HomePrefixUnavailableV1>>,
     maps: &mut Vec<MapHomeObservation>,
     local_calls: &mut Vec<LocalCallObservationV1>,
-    terminal_relation: &mut Option<TerminalRelationV1>,
+    // The local-call sites observed on this path — cloned per branch,
+    // unioned at a fall-through join, and snapshotted into each exit row
+    // so the consumer can attribute binding groups per exit.
+    path_calls: &mut BTreeSet<OwnedExprSiteV1>,
+    terminal_relations: &mut BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
     argument_observations: &mut BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
     result_prefixes: &mut BTreeMap<
         OwnedExprSiteV1,
@@ -22,6 +28,7 @@ pub(super) fn scan_statement_flow<'a, E>(
     locals: &mut PrefixLocalFlow<'a>,
     homes: &mut Vec<BindingRefV1>,
     covered_statements: &mut Vec<SourceStmtSiteV1>,
+    selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
     field_is_integer: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -34,35 +41,67 @@ pub(super) fn scan_statement_flow<'a, E>(
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-) -> Result<(), E> {
+) -> Result<bool, E> {
     let function = input.function();
     for index in 0..body.statements().len() {
         let Ok(statement) = input.source().body_stmt(body, index) else {
             *unavailable = Some(HomePrefixUnavailableV1::SourceMismatch);
-            break;
+            return Ok(false);
         };
         covered_statements.push(statement.site().clone());
-        if terminal == Some(statement.site()) {
+        if exit_sites.contains(statement.site()) {
             super::terminal::observe_terminal_statement(
                 input,
                 &statement,
-                selected,
                 result_sites,
                 results,
-                terminal_homes,
+                exit_homes,
+                path_calls,
                 maps,
-                terminal_relation,
+                terminal_relations,
                 argument_observations,
                 result_prefixes,
                 locals,
                 homes,
                 covered_statements,
+                selected_seen,
                 unavailable,
                 field_is_integer,
                 map_compatible,
                 terminal_call,
             )?;
-            break;
+            return Ok(true);
+        }
+        if matches!(statement.node(), ASTNode::If { .. }) {
+            let terminated = super::branch::observe_if_statement(
+                input,
+                &statement,
+                exit_sites,
+                selected,
+                result_sites,
+                results,
+                exit_homes,
+                maps,
+                local_calls,
+                path_calls,
+                terminal_relations,
+                argument_observations,
+                result_prefixes,
+                locals,
+                homes,
+                covered_statements,
+                selected_seen,
+                unavailable,
+                field_is_integer,
+                map_compatible,
+                terminal_call,
+                local_map_call,
+                local_handle_call,
+            )?;
+            if terminated {
+                return Ok(true);
+            }
+            continue;
         }
         let ASTNode::Local {
             variables,
@@ -126,6 +165,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 local_call_flow::LocalCallResultClassV1::I64,
                 terminal_call,
             )? {
+                path_calls.insert(local_call.site().clone());
                 local_calls.push(local_call);
                 locals.install_i64_call_result(binding);
                 continue;
@@ -143,6 +183,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 // A received map installs as a live map binding and joins
                 // the caller's terminal Homes accounting so the owner's
                 // exit can release it.
+                path_calls.insert(local_call.site().clone());
                 local_calls.push(local_call);
                 homes.push(binding);
                 locals.install_map(binding);
@@ -178,6 +219,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 // Home: the callee transferred ownership at the Return
                 // edge, so this owner owes exactly one release at exit.
                 // Its acquisition is the call site, never a `new` site.
+                path_calls.insert(local_call.site().clone());
                 local_calls.push(local_call);
                 homes.push(binding);
                 locals.install_received_handle(binding);
@@ -271,6 +313,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                         }),
                 };
                 results.insert(owned.clone(), result);
+                selected_seen.push(owned.clone());
                 // This is the Normal successor only, after exact local commit.
                 homes.push(binding);
                 locals.install_selected_normal_home(binding, owned);
@@ -325,5 +368,5 @@ pub(super) fn scan_statement_flow<'a, E>(
             map_compatible,
         )?;
     }
-    Ok(())
+    Ok(false)
 }

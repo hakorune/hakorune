@@ -32,7 +32,7 @@ fn callee_lifecycle_participant(
     root: &OrdinaryNewClaimLedgerV1,
     callee: crate::mir::resolved_semantics::FunctionOwnerIdV1,
 ) -> bool {
-    if root.call_source_completion_for_owner(callee).is_some() {
+    if !root.call_relations_for_owner(callee).is_empty() {
         return true;
     }
     root.completion_for_owner(callee)
@@ -113,10 +113,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn construction_result_call
     let body = declaration.body_shape();
     if !matches!(
         body.statements().last(),
-        Some(BodyStatementShapeV1::Return {
-            value: Some(_),
-            ..
-        })
+        Some(BodyStatementShapeV1::Return { value: Some(_), .. })
     ) {
         return false;
     }
@@ -163,6 +160,26 @@ pub(in crate::mir::normal_callable_semantic_package) fn call_result_kind(
     }
 }
 
+/// A callee with several exits publishes one result kind only when every
+/// retained exit relation classifies to the same kind — the caller cannot
+/// observe which `return` executed, so a mixed-exit callee has no single
+/// kind. An empty relation set keeps the prior `I64` answer.
+pub(in crate::mir::normal_callable_semantic_package) fn uniform_call_result_kind<'a>(
+    relations: impl IntoIterator<Item = &'a TerminalRelationV1>,
+) -> Option<InvokeCallResultKind> {
+    let mut kind = None;
+    for relation in relations {
+        let row = call_result_kind(Some(relation))?;
+        match kind {
+            None => kind = Some(row),
+            Some(existing) if existing == row => {}
+            Some(_) => return None,
+        }
+    }
+    // An empty relation set keeps the prior `I64` answer.
+    kind.or_else(|| call_result_kind(None))
+}
+
 /// Co-seal one caller→callee borrowed-Map argument edge. The caller's
 /// sealed `%{...}` actual, the callee's `Map` formal ABI and contract
 /// kind, and the callee's own `BorrowedParameter` terminal read must
@@ -204,17 +221,28 @@ fn map_argument_edge(
     if contracts.next().is_some() || contract.parameters.len() != row.argument_sites.len() {
         return false;
     }
-    // Caller side: the sealed terminal Call carries every argument class.
-    let Some((caller, terminal)) = root.call_source_completion_for_owner(caller_owner) else {
+    // Caller side: the sealed terminal Call carrying this exact call site
+    // carries every argument class — a sibling exit's Call relation is
+    // never a substitute.
+    let Some(caller) = root.completion_for_owner(caller_owner) else {
+        return false;
+    };
+    let Some(terminal) = root
+        .call_relations_for_owner(caller_owner)
+        .into_iter()
+        .find(|call| call.call_site() == site.site())
+    else {
         return false;
     };
     if caller.owner() != caller_owner
         || terminal.owner() != caller_owner
-        || terminal.call_site() != site.site()
-        || caller.explicit_site() != Some(terminal.return_site())
+        || !caller.explicit_sites().contains(terminal.return_site())
         || !caller.returns_value()
         || terminal.arguments().len() != row.argument_sites.len()
-        || !matches!(caller.cleanup().terminal_homes(), Some(Ok(_)))
+        || !caller
+            .cleanup()
+            .root_flow()
+            .is_some_and(|flow| flow.all_exits_ready())
     {
         return false;
     }
@@ -241,19 +269,27 @@ fn map_argument_edge(
         .rows()
         .iter()
         .any(|fact| fact.owner() == callee_owner && fact.call_site() == site);
-    if flow.terminal_homes().is_err() && !source_fact_edge {
+    if !flow.all_exits_ready() && !source_fact_edge {
         return false;
     }
-    let terminal_receiver = match callee.terminal_relation() {
-        Some(TerminalRelationV1::MapGet(read))
-            if read.owner() == callee_owner
-                && read.receiver_class() == TerminalMapGetReceiverClassV1::BorrowedParameter
-                && callee.completion().explicit_site() == Some(read.return_site()) =>
-        {
-            Some(read.receiver())
-        }
-        _ => None,
-    };
+    let terminal_receiver =
+        callee
+            .terminal_relations()
+            .values()
+            .find_map(|relation| match relation {
+                TerminalRelationV1::MapGet(read)
+                    if read.owner() == callee_owner
+                        && read.receiver_class()
+                            == TerminalMapGetReceiverClassV1::BorrowedParameter
+                        && callee
+                            .completion()
+                            .explicit_sites()
+                            .contains(read.return_site()) =>
+                {
+                    Some(read.receiver())
+                }
+                _ => None,
+            });
     batch
         .with_lowering_input(contract.batch_slot, |input| {
             input.owner() == callee_owner
@@ -552,8 +588,11 @@ impl DirectCallDispositionLoanV1 {
                 };
                 let signature = row.emission.target().signature();
                 let (caller, terminal_site) =
-                    match root.call_source_completion_for_owner(self.owner) {
-                        Some((caller, terminal)) => (caller, Some(terminal.return_site())),
+                    match root.call_relations_for_owner(self.owner).into_iter().next() {
+                        Some(terminal) => (
+                            root.completion_for_owner(self.owner).ok_or(reject)?,
+                            Some(terminal.return_site()),
+                        ),
                         None => {
                             // A lifecycle-bearing callee cannot ride the scalar
                             // Call route even under the caller's Plain exit: its
@@ -577,9 +616,12 @@ impl DirectCallDispositionLoanV1 {
                     || signature.arity() != row.argument_sites.len()
                     || signature.result() != Some(ExactTrivialScalarAbiV1::I64)
                     || caller.owner() != self.owner
-                    || terminal_site.is_some_and(|site| caller.explicit_site() != Some(site))
+                    || terminal_site.is_some_and(|site| !caller.explicit_sites().contains(site))
                     || !caller.returns_value()
-                    || !matches!(caller.cleanup().terminal_homes(), Some(Ok(_)))
+                    || !caller
+                        .cleanup()
+                        .root_flow()
+                        .is_some_and(|flow| flow.all_exits_ready())
                     || !local.prior_homes().is_empty()
                 {
                     return Err(reject);
@@ -598,7 +640,11 @@ impl DirectCallDispositionLoanV1 {
             // `return <call>` site and a local `local m = <call>` site both
             // consume the same caller terminal Homes accounting.
             let caller = root.completion_for_owner(self.owner).ok_or(reject)?;
-            if !caller.returns_value() || !matches!(caller.cleanup().terminal_homes(), Some(Ok(_)))
+            if !caller.returns_value()
+                || !caller
+                    .cleanup()
+                    .root_flow()
+                    .is_some_and(|flow| flow.all_exits_ready())
             {
                 return Err(reject);
             }
@@ -612,10 +658,17 @@ impl DirectCallDispositionLoanV1 {
                 None if construction_result => LocalCallResultClassV1::Handle,
                 None => LocalCallResultClassV1::Map,
             };
-            let completion = root.call_source_completion_for_owner(self.owner);
-            let (argument_count, local_binding_site) = match completion {
-                Some((call_completion, terminal)) if site.site() == terminal.call_site() => {
-                    if call_completion.explicit_site() != Some(terminal.return_site())
+            let call_completion = root.completion_for_owner(self.owner);
+            let has_call_terminal = !root.call_relations_for_owner(self.owner).is_empty();
+            let terminal = root
+                .call_relations_for_owner(self.owner)
+                .into_iter()
+                .find(|call| call.call_site() == site.site());
+            let (argument_count, local_binding_site) = match (call_completion, terminal) {
+                (Some(call_completion), Some(terminal)) => {
+                    if !call_completion
+                        .explicit_sites()
+                        .contains(terminal.return_site())
                         || terminal.arguments().len() != row.argument_sites.len()
                     {
                         return Err(reject);
@@ -636,7 +689,9 @@ impl DirectCallDispositionLoanV1 {
                     // A scalar call into a map-owned callee stays admitted
                     // only under the caller's terminal-call undertaking.
                     // A Map receive owns its binding and cleanup directly.
-                    if local.result() == LocalCallResultClassV1::I64 && completion.is_none() {
+                    if local.result() == LocalCallResultClassV1::I64
+                        && (call_completion.is_none() || !has_call_terminal)
+                    {
                         return Err(reject);
                     }
                     // Only an I64-classified local call records a binding
@@ -657,66 +712,76 @@ impl DirectCallDispositionLoanV1 {
                 return Err(reject);
             }
             let flow = callee.completion().cleanup().root_flow().ok_or(reject)?;
-            if flow.terminal_homes().is_err()
+            if !flow.all_exits_ready()
                 || flow.maps().iter().any(|map| map.complete().is_none())
                 || argument_count != row.argument_sites.len()
             {
                 return Err(reject);
             }
             // The sealed result contract is the sole result-class
-            // authority: the annotation and the callee's terminal relation
-            // must agree, and the terminal classifies the result kind.
-            match (callee.result(), callee.terminal_relation()) {
-                (
-                    Some(ExactTrivialScalarAbiV1::I64),
-                    Some(TerminalRelationV1::IntegerLiteral(value)),
-                ) => {
-                    if value.owner() != owner
-                        || callee.completion().explicit_site() != Some(value.return_site())
-                        || flow.maps().is_empty()
-                    {
-                        return Err(reject);
-                    }
-                }
-                (None, Some(TerminalRelationV1::Value(value))) => {
-                    let covered = match value.returned() {
-                        TerminalReturnedSourceV1::MapLiteral(literal) => flow
-                            .maps()
-                            .iter()
-                            .any(|map| map.site() == literal && map.complete().is_some()),
-                        TerminalReturnedSourceV1::MapLocal(binding) => {
-                            flow.maps().iter().any(|map| {
-                                map.complete()
-                                    .is_some_and(|row| row.local_binding() == Some(*binding))
-                            })
+            // authority: the annotation and every retained terminal
+            // relation must agree, and the terminal classifies the result
+            // kind. A caller cannot observe which exit ran, so each exit
+            // must satisfy the contract on its own.
+            let callee_relations = callee.terminal_relations();
+            if callee_relations.is_empty() {
+                return Err(reject);
+            }
+            for relation in callee_relations.values() {
+                match (callee.result(), relation) {
+                    (
+                        Some(ExactTrivialScalarAbiV1::I64),
+                        TerminalRelationV1::IntegerLiteral(value),
+                    ) => {
+                        if value.owner() != owner
+                            || !callee
+                                .completion()
+                                .explicit_sites()
+                                .contains(value.return_site())
+                            || flow.maps().is_empty()
+                        {
+                            return Err(reject);
                         }
-                        TerminalReturnedSourceV1::Construction(owned) => {
-                            // `return new <class>`: the callee's sealed
-                            // result claim/commit proves the transfer, and
-                            // its result-class claim names the class — no
-                            // annotation or generic JSON lane decides.
-                            owned.owner() == owner
-                                && root.result_transfer_proven(owned)
-                                && row
-                                    .emission
-                                    .target()
-                                    .published_key()
-                                    .is_some_and(|key| {
+                    }
+                    (None, TerminalRelationV1::Value(value)) => {
+                        let covered = match value.returned() {
+                            TerminalReturnedSourceV1::MapLiteral(literal) => flow
+                                .maps()
+                                .iter()
+                                .any(|map| map.site() == literal && map.complete().is_some()),
+                            TerminalReturnedSourceV1::MapLocal(binding) => {
+                                flow.maps().iter().any(|map| {
+                                    map.complete()
+                                        .is_some_and(|row| row.local_binding() == Some(*binding))
+                                })
+                            }
+                            TerminalReturnedSourceV1::Construction(owned) => {
+                                // `return new <class>`: the callee's sealed
+                                // result claim/commit proves the transfer, and
+                                // its result-class claim names the class — no
+                                // annotation or generic JSON lane decides.
+                                owned.owner() == owner
+                                    && root.result_transfer_proven(owned)
+                                    && row.emission.target().published_key().is_some_and(|key| {
                                         root.callable_result_class(key).is_some()
                                     })
+                            }
+                            _ => false,
+                        };
+                        if value.owner() != owner
+                            || !callee
+                                .completion()
+                                .explicit_sites()
+                                .contains(value.return_site())
+                            || !covered
+                        {
+                            return Err(reject);
                         }
-                        _ => false,
-                    };
-                    if value.owner() != owner
-                        || callee.completion().explicit_site() != Some(value.return_site())
-                        || !covered
-                    {
-                        return Err(reject);
                     }
+                    _ => return Err(reject),
                 }
-                _ => return Err(reject),
             }
-            row.result = call_result_kind(callee.terminal_relation()).ok_or(reject)?;
+            row.result = uniform_call_result_kind(callee_relations.values()).ok_or(reject)?;
             row.execution = DirectCallExecutionV1::Lifecycle;
             if let Some(site) = local_binding_site {
                 root.record_lifecycle_local_call_site(self.owner, site);

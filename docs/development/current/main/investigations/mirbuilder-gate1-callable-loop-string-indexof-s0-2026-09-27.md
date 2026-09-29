@@ -1,6 +1,6 @@
 # MirBuilder Gate 1 — current design and acceptance
 
-Status: entry-home S0 design accepted; implementation pending
+Status: per-exit Home flow S0 landed; constructor-argument evidence D0 is next
 Date: 2026-09-29
 Scope: MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0; compact Gate-1 frontier.
 Related: CURRENT_STATE.toml; workstream row H; RULES.md;
@@ -357,6 +357,64 @@ unavailable`, `array_source_binding` (order-dependent), `production_
 skip_while` ×2, `main_f1`, `birth_receiver`, `main_static_child`,
 `qualified_call_map` — all recorded baseline debt, none touching the
 extracted code path.
+
+## Landed — MIRBUILDER-GATE1-PER-EXIT-HOME-FLOW-S0
+
+Per-exit Home flow replaces the single-terminal authority end to end:
+
+- `RootHomeFlow` carries `exits: BTreeMap<SourceStmtSiteV1,
+  Result<RootHomeExitV1, ..>>` plus `uncovered_implicit_exit`;
+  `all_exits_ready()` is the only readiness predicate; `terminal_homes()`
+  stays a strict sole-exit compat accessor that fails on zero/multiple
+  exits or an uncovered implicit end. Each exit row carries its homes and
+  the `covered_calls` path snapshot for per-exit binding groups.
+- The scan takes `exit_sites`/`uncovered_implicit_exit`, walks `If`
+  branches via `home_new_prefix_branch.rs` (fork/join of
+  `PrefixLocalFlow`, `path_calls`, `homes`; disagreement is
+  `HomeFlowBranchDivergent`), and writes every terminal relation into a
+  `(statement site -> relation)` map.
+- Consumers consume `(owner, site)`: ledger relations are site-keyed,
+  `*_at` accessors are the only production lookup; sole-row helpers are
+  `#[cfg(test)]`-gated and return `None` on non-singletons. Emit paths
+  forward `SourceStmtSiteV1` from `current_source_site_v1()`; terminal
+  value progress is per-exit `BTreeMap`.
+- `direct_call_lifecycle` requires `all_exits_ready()` on both caller and
+  callee, finds the exact call-site relation (`call.call_site() ==
+  site.site()`), and `uniform_call_result_kind` seeds from the first
+  relation — empty stays `I64`, mixed classes reject.
+
+Two regressions found and fixed inside the slice:
+
+- `uniform_call_result_kind` seeding from the scalar default made Map
+  callees compare `Map` against `I64` -> `LifecycleSourceMismatch`
+  (`map_result_local_call_installs_map_class_and_map_row`,
+  `call_returned_map_get_issues_relation_and_installs`).
+- `SourceStmtSiteV1` carries no owner identity, so a site-only probe of
+  the root relation map misrouted a child owner's same-`Body(N)` exit to
+  the root value lane (`literal-source-drift` in
+  `map_consumer_tests` ×2). `terminal_relation_is_indexed` now decides
+  the value lane by where the relation was retained, mirroring
+  `terminal_relation_for_owner_at`'s index-first lookup.
+
+Focused evidence: the `map_ terminal_ brand_catalog direct_call home_
+map_consumer ordinary_new` set is 674 pass / 7 red, identical to
+detached-worktree HEAD (`3a9b98b75b`) — `main_f1`,
+`global_call_route_plan` ×2, `birth_receiver`,
+`qualified_call_map_argument` (`BorrowedEntryEscape`, reproduced at
+parent), `mir_corebox_router_unified::map` ×2. Full lib run matches the
+same worktree comparison: in-scope lanes' failure sets are identical;
+remaining diffs rerun green in isolation (parallel flake).
+`mirbuilder_qualified_route_scope_guard` PASS (new child files
+registered); `mir_call_canonical_corridor_guard` fails identically at
+HEAD (`new_expression.rs` pin — baseline debt, file untouched).
+`current_state_pointer_guard` PASS.
+
+Not claimed: constructor-argument evidence, Gate-1 EXE rerun, any
+physical emission beyond the existing selected admission path.
+
+Next design row: `MIRBUILDER-GATE1-CONSTRUCTOR-ARGUMENT-EVIDENCE-D0` —
+constructor-argument evidence (null/field/call-result), per the
+"Following task" contract above.
 
 ## Preserved contract boundaries
 

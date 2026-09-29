@@ -371,7 +371,8 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
     assert!(root.call_entry().is_some(), "Call payload is retained");
     assert!(root.call_entry().unwrap().call_invoke().is_some());
     assert!(
-        !root.call_cleanup().is_empty(),
+        root.call_cleanup()
+            .is_some_and(|cleanup| !cleanup.is_empty()),
         "Call bindings stay retained"
     );
     let duplicate = ledger

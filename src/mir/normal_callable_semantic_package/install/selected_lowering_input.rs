@@ -111,13 +111,17 @@ impl InstalledNormalCallableSemanticPackageV1 {
                     .role_for_batch_slot(batch_slot)
                     .ok_or(NormalCallableSemanticPackageInstallIssueV1::ResultContractMismatch)?;
                 return program.with_canonical_session_authority(|authority| {
+                    // The canonical-session authority's completion has no
+                    // package-retained per-exit relation map; an empty map
+                    // is exactly that observation, never a Unit inference.
+                    let terminal_relations = std::collections::BTreeMap::new();
                     let contract = CallableResultContractRefV1::from_completion(
                         authority.completion().owner(),
                         identity,
                         role,
                         *result,
                         authority.completion(),
-                        None,
+                        &terminal_relations,
                     );
                     let header = CallablePhysicalHeaderRefV1::from_result_contract(contract);
                     lend(Some(contract), header)

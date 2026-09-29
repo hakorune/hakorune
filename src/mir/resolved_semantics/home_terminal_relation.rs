@@ -712,4 +712,20 @@ impl TerminalRelationV1 {
             Self::MapGet(row) => row.owner,
         }
     }
+
+    /// The exact source exit statement this relation terminates. Every row
+    /// kind carries the same field; keying consumers by this site is how
+    /// sibling exits stay independent.
+    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
+        match self {
+            Self::Call(row) => row.return_site(),
+            Self::I64Add(row) => row.return_site(),
+            Self::Unit(row) => row.return_site(),
+            Self::IntegerLiteral(row) => row.return_site(),
+            Self::I64Field(row) => row.return_site(),
+            Self::Value(row) => row.return_site(),
+            Self::OpaqueCall(row) => row.return_site(),
+            Self::MapGet(row) => row.return_site(),
+        }
+    }
 }

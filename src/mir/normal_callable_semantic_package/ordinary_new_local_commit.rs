@@ -17,6 +17,7 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 };
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceNodeSiteV1,
+    SourceStmtSiteV1,
 };
 use crate::mir::ValueId;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
@@ -150,90 +151,135 @@ pub(super) use local_entry::LocalCommitV1;
 #[derive(Debug)]
 pub(crate) struct FinalizedRootSourceHandoffV1 {
     app_main_identity: CallableDeclarationIdentityV1,
-    terminal: TerminalRelationV1,
-    // Existing physical Call payload, moved from the owner-indexed ledger at
-    // the finalization boundary. This is retention only; it does not select
-    // an ABI or infer a target from emitted MIR.
-    call_entry: Option<RootHomeExitEntry>,
-    call_cleanup: Box<[(BasicBlockId, MirInstruction)]>,
+    /// The root owner's retained terminal relations keyed by their exact
+    /// source exit site. Multi-exit roots keep every row; no single relation
+    /// is privileged and none may stand in for a sibling exit.
+    terminals: std::collections::BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
+    // Existing physical Call payloads, moved from the owner/site-indexed
+    // ledger at the finalization boundary. This is retention only; it does
+    // not select an ABI or infer a target from emitted MIR.
+    call_entries: std::collections::BTreeMap<
+        SourceStmtSiteV1,
+        (RootHomeExitEntry, Vec<(BasicBlockId, MirInstruction)>),
+    >,
 }
 
 impl FinalizedRootSourceHandoffV1 {
-    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
-        match &self.terminal {
-            TerminalRelationV1::Call(row) => row.owner(),
-            TerminalRelationV1::I64Add(row) => row.owner(),
-            TerminalRelationV1::Unit(row) => row.owner(),
-            TerminalRelationV1::IntegerLiteral(row) => row.owner(),
-            TerminalRelationV1::I64Field(row) => row.owner(),
-            TerminalRelationV1::Value(row) => row.owner(),
-            TerminalRelationV1::OpaqueCall(row) => row.owner(),
-            TerminalRelationV1::MapGet(row) => row.owner(),
-        }
+    fn sole_terminal(&self) -> Option<&TerminalRelationV1> {
+        (self.terminals.len() == 1)
+            .then(|| self.terminals.values().next())
+            .flatten()
     }
 
-    /// Derived at this result boundary; never retained as a second source tag.
+    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
+        self.terminals
+            .values()
+            .next()
+            .map(TerminalRelationV1::owner)
+            .expect("root handoff retains at least one exit relation")
+    }
+
+    /// Derived at this result boundary; never retained as a second source
+    /// tag. Every exit must project to the same physical result class —
+    /// divergent exit kinds name no single ABI and yield `None`.
     pub(crate) fn result_abi(&self) -> Option<FinalizedRootResultAbiV1> {
-        Some(match &self.terminal {
-            TerminalRelationV1::Call(row) => {
-                FinalizedRootResultAbiV1::CallReturn { owner: row.owner() }
+        let mut abi = None;
+        for terminal in self.terminals.values() {
+            let projected = match terminal {
+                TerminalRelationV1::Call(row) => {
+                    FinalizedRootResultAbiV1::CallReturn { owner: row.owner() }
+                }
+                TerminalRelationV1::I64Add(row) => {
+                    FinalizedRootResultAbiV1::I64AddReturn { owner: row.owner() }
+                }
+                TerminalRelationV1::Unit(row) => {
+                    FinalizedRootResultAbiV1::UnitReturn { owner: row.owner() }
+                }
+                TerminalRelationV1::IntegerLiteral(row) => {
+                    FinalizedRootResultAbiV1::IntegerLiteralReturn { owner: row.owner() }
+                }
+                TerminalRelationV1::I64Field(row) => {
+                    FinalizedRootResultAbiV1::I64FieldReturn { owner: row.owner() }
+                }
+                // A non-i64 value return derives no physical result ABI at
+                // this boundary; the lifecycle capability lane supplies it.
+                TerminalRelationV1::Value(_) => return None,
+                // An opaque call return proves no result class at all.
+                TerminalRelationV1::OpaqueCall(_) => return None,
+                TerminalRelationV1::MapGet(row) => {
+                    FinalizedRootResultAbiV1::MapGetReturn { owner: row.owner() }
+                }
+            };
+            match abi {
+                None => abi = Some(projected),
+                Some(existing) if existing == projected => {}
+                Some(_) => return None,
             }
-            TerminalRelationV1::I64Add(row) => {
-                FinalizedRootResultAbiV1::I64AddReturn { owner: row.owner() }
-            }
-            TerminalRelationV1::Unit(row) => {
-                FinalizedRootResultAbiV1::UnitReturn { owner: row.owner() }
-            }
-            TerminalRelationV1::IntegerLiteral(row) => {
-                FinalizedRootResultAbiV1::IntegerLiteralReturn { owner: row.owner() }
-            }
-            TerminalRelationV1::I64Field(row) => {
-                FinalizedRootResultAbiV1::I64FieldReturn { owner: row.owner() }
-            }
-            // A non-i64 value return derives no physical result ABI at this
-            // boundary; the lifecycle capability lane supplies it.
-            TerminalRelationV1::Value(_) => return None,
-            // An opaque call return proves no result class at all.
-            TerminalRelationV1::OpaqueCall(_) => return None,
-            TerminalRelationV1::MapGet(row) => {
-                FinalizedRootResultAbiV1::MapGetReturn { owner: row.owner() }
-            }
-        })
+        }
+        abi
     }
 
     pub(crate) fn app_main_identity(&self) -> &CallableDeclarationIdentityV1 {
         &self.app_main_identity
     }
 
+    /// The sole Call payload — `None` when zero or several exits carry Call
+    /// entries. Callers that need a specific exit must index
+    /// `call_entries()` by its site instead.
     pub(crate) fn call_entry(&self) -> Option<&RootHomeExitEntry> {
-        self.call_entry.as_ref()
+        (self.call_entries.len() == 1)
+            .then(|| self.call_entries.values().next().map(|(entry, _)| entry))
+            .flatten()
     }
 
-    pub(crate) fn call_cleanup(&self) -> &[(BasicBlockId, MirInstruction)] {
-        &self.call_cleanup
+    pub(crate) fn call_entries(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            &SourceStmtSiteV1,
+            &RootHomeExitEntry,
+            &[(BasicBlockId, MirInstruction)],
+        ),
+    > {
+        self.call_entries
+            .iter()
+            .map(|(site, (entry, cleanup))| (site, entry, cleanup.as_slice()))
+    }
+
+    /// Cleanup bindings of the sole Call payload. `None` for zero or
+    /// several Call exits — never a silently picked row.
+    pub(crate) fn call_cleanup(&self) -> Option<&[(BasicBlockId, MirInstruction)]> {
+        (self.call_entries.len() == 1)
+            .then(|| {
+                self.call_entries
+                    .values()
+                    .next()
+                    .map(|(_, cleanup)| cleanup.as_slice())
+            })
+            .flatten()
     }
 
     pub(crate) fn terminal_i64_add(&self) -> Option<&TerminalI64AddReturnV1> {
-        match &self.terminal {
-            TerminalRelationV1::I64Add(row) => Some(row),
+        match self.sole_terminal() {
+            Some(TerminalRelationV1::I64Add(row)) => Some(row),
             _ => None,
         }
     }
     pub(crate) fn terminal_unit_return(&self) -> Option<&TerminalUnitReturnV1> {
-        match &self.terminal {
-            TerminalRelationV1::Unit(row) => Some(row),
+        match self.sole_terminal() {
+            Some(TerminalRelationV1::Unit(row)) => Some(row),
             _ => None,
         }
     }
     pub(crate) fn terminal_integer_literal(&self) -> Option<&TerminalIntegerLiteralReturnV1> {
-        match &self.terminal {
-            TerminalRelationV1::IntegerLiteral(row) => Some(row),
+        match self.sole_terminal() {
+            Some(TerminalRelationV1::IntegerLiteral(row)) => Some(row),
             _ => None,
         }
     }
     pub(crate) fn terminal_i64_field_return(&self) -> Option<&TerminalI64FieldReturnV1> {
-        match &self.terminal {
-            TerminalRelationV1::I64Field(row) => Some(row),
+        match self.sole_terminal() {
+            Some(TerminalRelationV1::I64Field(row)) => Some(row),
             _ => None,
         }
     }
@@ -435,7 +481,11 @@ impl OrdinaryNewClaimLedgerV1 {
             Some(Err(_)) => return Unavailable(CompletionRejected),
             Some(Ok(completion)) => completion,
         };
-        if !matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
+        if !completion
+            .cleanup()
+            .root_flow()
+            .is_some_and(|flow| flow.all_exits_ready())
+        {
             return Unavailable(TerminalHomesUnavailable);
         }
         if selected.any(|row| {
@@ -450,10 +500,25 @@ impl OrdinaryNewClaimLedgerV1 {
         }) {
             return Unavailable(NewEmissionUnavailable);
         }
-        match self.root_exits.borrow().get(&owner) {
-            Some(RootHomeExitProgress::Emitted { .. }) => SourceCompleteAtFinalization,
-            Some(RootHomeExitProgress::Unavailable) => Unavailable(RootExitUnavailable),
-            _ => unreachable!("final root validation rejects unconsumed exit"),
+        // Every explicit exit keeps its own progress row; a single
+        // `Unavailable` or missing row means the physical root is not
+        // lifecycle-complete no matter how cleanly sibling exits emitted.
+        let mut complete = false;
+        for ((row_owner, _), progress) in self.root_exits.borrow().iter() {
+            if *row_owner != owner {
+                continue;
+            }
+            match progress {
+                RootHomeExitProgress::Emitted { .. } => complete = true,
+                RootHomeExitProgress::Unavailable => {
+                    return Unavailable(RootExitUnavailable);
+                }
+                _ => unreachable!("final root validation rejects unconsumed exit"),
+            }
+        }
+        match complete {
+            true => SourceCompleteAtFinalization,
+            false => unreachable!("final root validation rejects unconsumed exit"),
         }
     }
 
@@ -498,10 +563,8 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             if row.initializer() != Some(*initializer)
                 || (matches!(row, LocalCommitV1::Ordinary(_)) && initializer == local)
-                || (matches!(
-                    row,
-                    LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_)
-                ) && initializer != local)
+                || (matches!(row, LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_))
+                    && initializer != local)
             {
                 return Err(freeze("local-initializer-mismatch"));
             }

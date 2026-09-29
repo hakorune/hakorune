@@ -77,9 +77,7 @@ impl OrdinaryNewResultClaimV1 {
         self.constructor
     }
 
-    pub(crate) fn home_prefix(
-        &self,
-    ) -> Result<&ResultNewHomePrefixV1, &HomePrefixUnavailableV1> {
+    pub(crate) fn home_prefix(&self) -> Result<&ResultNewHomePrefixV1, &HomePrefixUnavailableV1> {
         self.home_prefix.as_ref()
     }
 

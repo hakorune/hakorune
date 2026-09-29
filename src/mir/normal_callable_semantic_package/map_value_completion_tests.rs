@@ -67,7 +67,8 @@ fn ordinary_i64_formal_repeated_values_keep_one_completion_and_map_cleanup() {
         flow.terminal_homes().unwrap(),
         [map.local_binding().unwrap()]
     );
-    let Some(TerminalRelationV1::IntegerLiteral(terminal)) = contract.terminal_relation() else {
+    let Some(TerminalRelationV1::IntegerLiteral(terminal)) = contract.sole_terminal_relation()
+    else {
         panic!("ordinary source terminal retained with Completion");
     };
     assert_eq!(terminal.value(), 30);
@@ -145,7 +146,7 @@ fn borrowed_formals_describe_a_handle_share_the_declared_lane_admits() {
                     .terminal_homes()
                     .unwrap()
                     .is_err());
-                assert!(contract.terminal_relation().is_none());
+                assert!(contract.terminal_relations().is_empty());
             }
             // A sealed scalar literal entry is covered; a borrowed
             // formal entry is an `OwnershipShare(Handle)` obligation —
@@ -213,7 +214,8 @@ fn app_main_call_admits_one_ordinary_map_callee_value_owner() {
     let rows: Vec<_> = package.result_contracts.rows().collect();
     assert_eq!(rows.len(), 1, "AppMain does not acquire an ordinary seed");
     let contract = rows[0].borrow();
-    let Some(TerminalRelationV1::IntegerLiteral(terminal)) = contract.terminal_relation() else {
+    let Some(TerminalRelationV1::IntegerLiteral(terminal)) = contract.sole_terminal_relation()
+    else {
         panic!("callee exact terminal retained");
     };
     assert_eq!(terminal.value(), 30);
@@ -270,7 +272,6 @@ fn formal_projection_missing_duplicate_and_foreign_bindings_are_unavailable() {
         .find(|row| row.borrow().completion().cleanup().root_flow().is_some())
         .unwrap();
     let contract = row.borrow();
-    let terminal = contract.completion().explicit_site();
     let own = package
         .parameter_contracts
         .iter()
@@ -300,7 +301,8 @@ fn formal_projection_missing_duplicate_and_foreign_bindings_are_unavailable() {
                     &std::collections::BTreeMap::new(),
                     parameters,
                     None,
-                    terminal,
+                    contract.completion().explicit_sites(),
+                    contract.completion().implicit_body_end().is_some(),
                     &std::collections::BTreeSet::new(),
                     &mut |_, _, _, _, _| Ok::<_, std::convert::Infallible>(false),
                     &mut |_, _| Ok(false),

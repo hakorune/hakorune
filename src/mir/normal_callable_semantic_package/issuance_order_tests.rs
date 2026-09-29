@@ -97,8 +97,8 @@ fn dynamic_lends_its_original_completion_without_owned_result_row() {
             assert!(input
                 .result_contract()
                 .unwrap()
-                .terminal_relation()
-                .is_none());
+                .terminal_relations()
+                .is_empty());
             assert!(std::ptr::eq(
                 input.result_contract().unwrap().completion(),
                 authority.completion()

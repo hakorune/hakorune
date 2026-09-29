@@ -6,8 +6,8 @@
 //! bindings — nothing is invented.
 
 use super::{
-    scan_new_home_flow, CallerNewHomePrefixV1, HomePrefixUnavailableV1,
-    ResultNewHomePrefixV1, SelectedNewArgumentObservationV1,
+    scan_new_home_flow, CallerNewHomePrefixV1, HomePrefixUnavailableV1, ResultNewHomePrefixV1,
+    SelectedNewArgumentObservationV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1};
@@ -35,7 +35,8 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         selected,
         parameters,
         entry_home,
-        None,
+        &[],
+        false,
         result_sites,
         &mut |_, _, _, _, _| Ok::<_, std::convert::Infallible>(false),
         &mut |_, _| Ok(false),

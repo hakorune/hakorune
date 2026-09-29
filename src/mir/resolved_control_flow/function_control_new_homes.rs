@@ -46,15 +46,22 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         &mut |_| Ok(false),
         &std::collections::BTreeSet::new(),
     )?;
-    Ok(result.map(|(completion, prefixes, terminal, _, _)| {
-        let terminal = match terminal {
-            Some(crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Add(
-                row,
-            )) => Some(row),
-            _ => None,
-        };
-        (completion, prefixes, terminal)
-    }))
+    Ok(
+        result.map(|(completion, prefixes, terminal_relations, _, _)| {
+            // This compat wrapper keeps the single-exit shape: a relation row
+            // surfaces only when the completion sealed exactly one exit site.
+            let terminal = (terminal_relations.len() == 1)
+                .then(|| terminal_relations.values().next())
+                .flatten()
+                .and_then(|relation| match relation {
+                    crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Add(
+                        row,
+                    ) => Some(row.clone()),
+                    _ => None,
+                });
+            (completion, prefixes, terminal)
+        }),
+    )
 }
 
 pub(crate) fn verify_function_completion_with_new_homes_and_argument_observations_v1<E>(
@@ -84,7 +91,9 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     ) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1) -> Result<bool, E>,
-    local_handle_call: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1) -> Result<bool, E>,
+    local_handle_call: &mut impl FnMut(
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    ) -> Result<bool, E>,
     result_sites: &std::collections::BTreeSet<crate::mir::resolved_semantics::OwnedExprSiteV1>,
 ) -> Result<
     Result<
@@ -97,7 +106,10 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
                     crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1,
                 >,
             >,
-            Option<crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1>,
+            std::collections::BTreeMap<
+                crate::mir::resolved_semantics::SourceStmtSiteV1,
+                crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1,
+            >,
             std::collections::BTreeMap<
                 crate::mir::resolved_semantics::OwnedExprSiteV1,
                 crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentObservationV1,
@@ -118,13 +130,14 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         Ok(completion) => completion,
         Err(error) => return Ok(Err(error)),
     };
-    let (prefixes, homes, terminal_relation, argument_observations, result_prefixes) =
+    let (prefixes, homes, terminal_relations, argument_observations, result_prefixes) =
         crate::mir::resolved_semantics::home_new_prefix::scan_new_home_flow(
             input,
             selected,
             parameters,
             entry_home,
-            completion.explicit_site(),
+            completion.explicit_sites(),
+            completion.implicit_body_end().is_some(),
             result_sites,
             field_is_integer,
             map_compatible,
@@ -143,7 +156,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     Ok(Ok((
         completion,
         prefixes,
-        terminal_relation,
+        terminal_relations,
         argument_observations,
         result_prefixes,
     )))

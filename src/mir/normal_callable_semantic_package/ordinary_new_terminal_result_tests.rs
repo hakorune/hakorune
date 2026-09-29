@@ -446,7 +446,11 @@ fn ordinary_child_literal_relation_is_borrowed_by_owner() {
         .unwrap()
         .is_none());
     ledger
-        .record_terminal_integer_literal_return(owner, crate::mir::ValueId(900))
+        .record_terminal_integer_literal_return(
+            owner,
+            relation.return_site().node(),
+            crate::mir::ValueId(900),
+        )
         .unwrap();
 }
 
@@ -608,7 +612,7 @@ fn mixed_or_unproven_add_discards_terminal_and_all_staged_reads() {
         assert!(matches!(completion.cleanup().terminal_homes(),
             Some(Err(crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1::ReturnValueNotCovered(_)))),
             "{suffix}");
-        assert!(ledger.terminal_relation.is_none(), "{suffix}");
+        assert!(ledger.terminal_relation.is_empty(), "{suffix}");
         assert!(ledger.field_reads.borrow().is_empty(), "{suffix}");
     }
 }

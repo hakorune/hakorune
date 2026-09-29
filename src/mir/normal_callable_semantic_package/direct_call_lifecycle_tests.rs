@@ -4,10 +4,10 @@ use super::direct_call_loan::DirectCallLoanErrorV1;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::MirBuilder;
 
-#[path = "direct_call_physical_tests.rs"]
-mod physical;
 #[path = "direct_call_handle_result_tests.rs"]
 mod handle_result;
+#[path = "direct_call_physical_tests.rs"]
+mod physical;
 
 #[test]
 fn terminal_map_call_borrows_real_caller_cleanup_and_stops_scalar_emission() {

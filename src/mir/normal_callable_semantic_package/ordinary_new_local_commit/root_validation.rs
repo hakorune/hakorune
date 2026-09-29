@@ -91,11 +91,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 {
                     return Err(freeze("artifact-source-unavailable"));
                 }
-                self.validate_artifact_lifecycle_coverage(
-                    owner,
-                    function,
-                    projection.recorded(),
-                )?;
+                self.validate_artifact_lifecycle_coverage(owner, function, projection.recorded())?;
             }
             *state = ChildPhysicalValidation::FinishingChecked;
         }
@@ -152,13 +148,19 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut projection = boundary.project(function)?;
         self.validate_root_body(owner, function, Some(&projection))?;
         boundary.validate_complete(function, &mut projection, &bindings)?;
-        // The finishing projection may rewrite block identities. Rebind the
-        // already-issued Call payload before the handoff moves it affinely.
-        if matches!(
-            self.terminal_relation.as_ref(),
-            Some(TerminalRelationV1::Call(_))
-        ) {
-            self.rebind_root_call_entry(owner, &projection)?;
+        // The finishing projection may rewrite block identities. Rebind each
+        // already-issued Call payload at its own exit before the handoff
+        // moves it affinely.
+        let call_sites: Vec<SourceStmtSiteV1> = self
+            .terminal_relation
+            .values()
+            .filter_map(|relation| match relation {
+                TerminalRelationV1::Call(call) => Some(call.return_site().clone()),
+                _ => None,
+            })
+            .collect();
+        for site in call_sites {
+            self.rebind_root_call_entry(owner, &site, &projection)?;
         }
         if artifact
             && !matches!(
@@ -186,10 +188,18 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        let Some(relation) = self.terminal_unit_return() else {
+        let units: Vec<&TerminalUnitReturnV1> = self
+            .terminal_relation
+            .values()
+            .filter_map(|relation| match relation {
+                TerminalRelationV1::Unit(row) => Some(row),
+                _ => None,
+            })
+            .collect();
+        if units.is_empty() {
             return Ok(());
-        };
-        if relation.owner() != owner {
+        }
+        if units.iter().any(|relation| relation.owner() != owner) {
             return Err(freeze("unit-return-owner-drift"));
         }
         let count = function
@@ -198,7 +208,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .flat_map(|block| block.all_instructions())
             .filter(|instruction| matches!(instruction, MirInstruction::Return { value: None }))
             .count();
-        if count != 1 {
+        if count != units.len() {
             return Err(freeze("unit-return-control-drift"));
         }
         Ok(())
@@ -211,29 +221,40 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        let Some(relation) = self.terminal_integer_literal_return_for_owner(owner) else {
+        let relations: Vec<&TerminalIntegerLiteralReturnV1> = self
+            .terminal_relations_for_owner(owner)
+            .into_iter()
+            .filter_map(|relation| match relation {
+                TerminalRelationV1::IntegerLiteral(row) => Some(row),
+                _ => None,
+            })
+            .collect();
+        if relations.is_empty() {
             return Ok(());
-        };
-        let value = if self
-            .terminal_relation
-            .as_ref()
-            .is_some_and(|terminal| terminal.owner() == owner)
-        {
-            *self.terminal_integer_literal_value.borrow()
-        } else {
-            self.terminal_integer_literal_values
-                .borrow()
-                .get(&owner)
-                .copied()
-        };
-        let Some(value) = value else {
-            return Err(freeze("literal-unconsumed"));
-        };
-        let exact = function.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| matches!(instruction, MirInstruction::Const { dst, value: crate::mir::ConstValue::Integer(actual) } if *dst == value && *actual == relation.value()));
-        let returned = function.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| matches!(instruction, MirInstruction::Return { value: Some(actual) } if *actual == value));
-        (exact && returned)
-            .then_some(())
-            .ok_or_else(|| freeze("literal-physical-drift"))
+        }
+        for relation in relations {
+            let site = relation.return_site();
+            let value = if self.terminal_relation_is_indexed(owner, site) {
+                self.terminal_integer_literal_values
+                    .borrow()
+                    .get(&(owner, site.clone()))
+                    .copied()
+            } else {
+                self.terminal_integer_literal_value
+                    .borrow()
+                    .get(site)
+                    .copied()
+            };
+            let Some(value) = value else {
+                return Err(freeze("literal-unconsumed"));
+            };
+            let exact = function.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| matches!(instruction, MirInstruction::Const { dst, value: crate::mir::ConstValue::Integer(actual) } if *dst == value && *actual == relation.value()));
+            let returned = function.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| matches!(instruction, MirInstruction::Return { value: Some(actual) } if *actual == value));
+            if !(exact && returned) {
+                return Err(freeze("literal-physical-drift"));
+            }
+        }
+        Ok(())
     }
 }
 
@@ -336,12 +357,17 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             result.extend_from_slice(bindings);
         }
-        if let Some(RootHomeExitProgress::Emitted {
-            bindings, entry, ..
-        }) = self.root_exits.borrow().get(&owner)
-        {
-            result.extend_from_slice(bindings);
-            entry.append_bindings(&mut result);
+        for ((row_owner, _), progress) in self.root_exits.borrow().iter() {
+            if *row_owner != owner {
+                continue;
+            }
+            if let RootHomeExitProgress::Emitted {
+                bindings, entry, ..
+            } = progress
+            {
+                result.extend_from_slice(bindings);
+                entry.append_bindings(&mut result);
+            }
         }
         if let Some(groups) = self.map_read_bindings.borrow().get(&owner) {
             for (_, bindings) in groups {
