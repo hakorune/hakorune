@@ -1,6 +1,6 @@
 # MirBuilder Gate 1 — current design and acceptance
 
-Status: FORWARDED-RESULT-CLASS-COMPOSITION-D0 accepted (two-pass draft + F1..F5 forwarded grammar, claim-only); COMPOSITION-S0 is next
+Status: FORWARDED-RESULT-CLASS-COMPOSITION-S0 landed (two-pass draft + bounded fixpoint, claim-only; HakoAllocHeap.allocate -> NullableObject); RECEIVER-CALL-OBSERVATION-D0 is next
 Date: 2026-09-29
 Scope: MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0; compact Gate-1 frontier.
 Related: CURRENT_STATE.toml; workstream row H; RULES.md;
@@ -788,42 +788,19 @@ Next execution row: `MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-S0`.
 
 ## Landed — MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-S0
 
-- `ordinary_new_result_class_claim.rs`: `OrdinaryNewResultClassV1` enum
-  (`Object` / `NullableObject`) is now the claim value; `observe_function`
-  keeps one agreed class but admits the exact `null` literal exit via the
-  sealed `expression_source().literal()` row — a null-only callee still
-  claims nothing. Same sole issuer, same `CanonicalSameModuleCallableKeyV1`
-  keying; `finish` keeps the ordinary-box coverage filter on `claim.class()`.
-- `ordinary_new_coseal_helpers.rs`: `retain_child_terminal_relation` now
-  retains `Value(NullLiteral)` — a mixed callee's `return null` exit lands
-  in `terminal_relation_index` instead of being silently dropped.
-- `ordinary_new_coseal.rs`: `callable_result_class` filters to the
-  `Object` arm, so every existing Handle/lifecycle consumer
-  (`lexical_instance_call`, `terminal_call`, `direct_call_lifecycle`
-  re-check, `handle_call`) automatically classifies `NullableObject` as
-  not-Handle — no call-site edit needed. `nullable_callable_result_class`
-  and `callable_result_class_claims_for_test` live in
-  `ordinary_new_terminal_access.rs` (coseal stays under the 760 line).
-- Honest tightening through retention: `uniform_call_result_kind` on a
-  mixed callee now returns `None` (was a masked `Some(Handle)` while the
-  null exit was dropped), and `handle_call`'s single-relation re-check
-  freezes a mixed callee (`handle-result-terminal-missing`) instead of
-  minting a Handle for a maybe-null result. `construction_result_callee`
-  already rejected mixed bodies — unchanged.
-- Focused tests (`brand_catalog_mixed_result_class_tests.rs`): mixed
-  `new`/`null` -> `NullableObject` + not-Handle, uniform `new` -> `Object`,
-  local/forwarded/null-only exits -> no claim, NullLiteral relation
-  retained in the child index. 4/4 pass; `normal_callable_semantic_package`
-  385 pass / 3 fail — all three are the recorded baseline debt
-  (`birth_receiver_non_escape`, `main_static_child_port`,
-  `qualified_call_map` BorrowedEntryEscape); `resolved_semantics` +
-  `resolved_control_flow` + `ordinary_new_admission` 396/0.
-- Guards: `current_state_pointer_guard`, `mirbuilder_qualified_route_scope`,
-  `mir_call_canonical_corridor` all pass; `git diff --check` clean.
-- Non-claims: no forwarded-result composition, no `me.` receiver
-  observation, no nullable `InvokeCallResultKind`/`StoredLocal`/physical
-  ABI, no EXE movement. The claim product exists; nothing consumes it for
-  emission yet.
+- `OrdinaryNewResultClassV1` (`Object`/`NullableObject`) is the claim
+  value of the same sole issuer; the exact `null` literal exit composes
+  via `expression_source().literal()` — a null-only callee still claims
+  nothing. `retain_child_terminal_relation` retains `Value(NullLiteral)`
+  so a mixed callee cannot masquerade as uniform-object.
+- `callable_result_class` filters to `Object`, so every Handle/lifecycle
+  consumer fails closed on `NullableObject`; `uniform_call_result_kind`
+  on a mixed callee now returns `None` (was a masked `Some(Handle)`).
+  Test-only accessors live in `ordinary_new_terminal_access.rs`.
+- Gates: focused 4/4; package suite 385 pass / 3 baseline-debt fail;
+  adjacent lanes 396/0; pointer/qualified-route/canonical-corridor
+  guards all pass. Non-claims: claim product only — no forwarded
+  composition, receiver observation, nullable ABI, or EXE movement.
 
 Next design row: `MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-COMPOSITION-D0`.
 
@@ -876,24 +853,45 @@ Non-claims: no return <param> (resizeInPlace :176 stays out); no me.-
 
 ### Census evidence anchors (worker, read-only)
 
-- Waiting-callee table: `HakoAllocPage.allocate` (null x2 + `new`) claims
-  `NullableObject` today; `HakoAllocHeap.allocate` (2 forwarded `me.f.m`
-  + null) is the one composition win; `realloc` chains to a
-  param-returning callee and stays unclaimed.
-- `batch.declarations()` is source order (`callable_semantic_batch/
-  model.rs:165-171, 277-280`); `selected.keys()` is key-sorted — neither
-  follows call edges, hence two-pass.
-- Sole-initializer/no-rebind proof precedent:
+- One composition win (`HakoAllocHeap.allocate`); `realloc` chains to a
+  param-returning callee and stays unclaimed. `batch.declarations()` is
+  source order and `selected.keys()` is key-sorted — neither follows
+  call edges, hence two-pass. Sole-initializer precedent:
   `ordinary_new_lexical_instance_call.rs:624-637`; callee-key resolution:
-  `direct_call_target(site)` -> batch_slot -> Cataloged key
-  (`issuer.rs:212-268`), `unique_instance_target` for receiver calls
-  (`ordinary_new_lexical_instance_call.rs:697-725`).
-- Handle-leak audit: `call_result_kind` floors `Call` to I64, `OpaqueCall`
-  to None; `construction_result_callee` and `begin_handle_call_emission`
-  reject forwarded bodies; `callable_result_class` filters to `Object` —
-  claim-only composition is fully additive.
+  `issuer.rs:212-268` / `unique_instance_target`. Handle-leak audit:
+  `call_result_kind` floors `Call` to I64, `construction_result_callee`
+  and `begin_handle_call_emission` reject forwarded bodies — claim-only
+  composition is fully additive.
 
-Next execution row: `MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-COMPOSITION-S0`.
+## Landed — MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-COMPOSITION-S0
+
+Two-pass draft in `ordinary_new_result_class_claim.rs`: pass A
+classifies each keyed callable's sealed `return` exits as New / Null /
+ForwardCall / ForwardLocal (order-free); pass B resolves forwarded edges
+(`direct_call_target` -> unique declaration -> selected Cataloged key;
+`me.m` via own-box; `me.f.m` via field-write claim +
+`unique_instance_target`; sole-initializer no-rebind locals) and
+composes by monotone fixpoint bounded by pending-key count — recursion
+waits forever and stays unclaimed.
+
+- Positive: `HakoAllocHeap.allocate` claims `NullableObject
+  (HakoAllocHandle)` on the real `page_heap_box.hako` fixture; the
+  composed claim never reaches `callable_result_class`. Inline F3/F5
+  positives: `me.page.make` and call-bound `local` forwards.
+- Negative: `realloc` unclaimed (param-returning `resizeInPlace`);
+  inline fixtures cover param return, rebound local, class disagreement
+  and recursive `me.` cycles.
+- F1 note: bare direct calls stay in the grammar, but the package's
+  direct-call co-seal gate requires a callee result signature object
+  classes cannot carry today — no in-lane fixture composes F1.
+- Gates: focused 7/7 green; package suite 388 pass / 3 baseline-debt
+  fail (unchanged set); pointer/qualified-route/canonical-corridor
+  guards all ok.
+- Non-claims: claim-only — no `TerminalRelationV1` variant, no
+  `InvokeCallResultKind`/`StoredLocal`/physical ABI change, no
+  caller-side emission, no EXE movement.
+
+Next design row: `MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-D0`.
 
 ## Preserved contract boundaries
 

@@ -655,7 +655,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             .with_lowering_input(declaration.batch_slot(), |input| {
                 field_write_draft.observe_function(input.function(), input.body_shape(), owner_box);
                 if let Some(key) = &selected_key {
-                    result_class_draft.observe_function(input.function(), input.body_shape(), key);
+                    result_class_draft.observe_function(
+                        input.function(),
+                        input.body_shape(),
+                        key,
+                        declaration.batch_slot(),
+                    );
                 }
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
@@ -676,7 +681,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         })
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
     let field_write_claims = field_write_draft.finish(batch.ordinary_box_coverage());
-    let callable_result_classes = result_class_draft.finish(batch.ordinary_box_coverage());
+    let callable_result_classes = result_class_draft.finish(
+        batch.ordinary_box_coverage(),
+        batch,
+        selected,
+        &field_write_claims,
+    );
     let names = batch
         .ordinary_box_coverage()
         .rows()

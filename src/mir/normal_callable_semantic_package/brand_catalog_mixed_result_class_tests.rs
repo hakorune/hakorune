@@ -170,6 +170,150 @@ static box Main {
     }
 }
 
+/// A callee that forwards to a claimed callee inherits that class — F3
+/// field-receiver instance calls and F5 sole-initializer local forwards
+/// compose through the same claim product.
+#[test]
+fn forwarded_call_exits_compose_the_callee_result_class() {
+    let package = issue_with_brand_catalog(
+        r#"
+box Page {
+    init { v }
+    birth(v) { me.v = v }
+    make(flag) {
+        if flag == 0 {
+            return new Page(1)
+        }
+        return new Page(2)
+    }
+}
+box Work {
+    page: Page
+    birth() { me.page = new Page(0) }
+    field_receiver(flag) {
+        return me.page.make(flag)
+    }
+    via_local(flag) {
+        local made = me.page.make(flag)
+        return made
+    }
+}
+static box Main {
+    main() { return 0 }
+}
+"#,
+    )
+    .expect("forwarded-call callee source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    for name in ["field_receiver", "via_local"] {
+        let (key, claim) = result_class_claim_row(&package, "Work", name)
+            .unwrap_or_else(|| panic!("Work.{name} composes its callee's result class"));
+        assert!(
+            matches!(
+                claim,
+                super::OrdinaryNewResultClassV1::Object(class) if class.as_ref() == "Page"
+            ),
+            "Work.{name} claims the definite callee class"
+        );
+        assert_eq!(ledger.callable_result_class(key), Some("Page"));
+    }
+    // F1 bare direct calls stay in the grammar, but the package's
+    // direct-call co-seal gate only issues observations whose callee
+    // carries a result signature — object classes have none today, so
+    // no in-lane fixture can exercise a composed F1 claim.
+}
+
+/// The real `page_heap_box.hako` fixture family: `HakoAllocPage.allocate`
+/// is the leaf mixed null/`new` claim, `HakoAllocHeap.allocate` composes
+/// it through two `me.<field>.allocate` exits plus `return null`, and
+/// `HakoAllocHeap.realloc` stays unclaimed because it forwards to the
+/// parameter-returning `resizeInPlace`.
+#[test]
+fn page_heap_fixture_composes_allocate_and_keeps_realloc_unclaimed() {
+    let package = issue_with_brand_catalog(include_str!(
+        "../../../lang/src/hako_alloc/memory/page_heap_box.hako"
+    ))
+    .expect("page_heap fixture source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let (key, claim) = result_class_claim_row(&package, "HakoAllocHeap", "allocate")
+        .expect("HakoAllocHeap.allocate composes the page claim");
+    assert!(matches!(
+        claim,
+        super::OrdinaryNewResultClassV1::NullableObject(class)
+            if class.as_ref() == "HakoAllocHandle"
+    ));
+    // Nullable composed claims never authorize Handle behavior.
+    assert_eq!(ledger.callable_result_class(key), None);
+    assert_eq!(
+        ledger.nullable_callable_result_class(key),
+        Some("HakoAllocHandle")
+    );
+    assert!(
+        result_class_claim_row(&package, "HakoAllocHeap", "realloc").is_none(),
+        "realloc forwards to a parameter-returning callee — no claim"
+    );
+}
+
+/// Fail-closed forwarded grammar: a parameter return, a rebound local,
+/// class disagreement, and a recursive/mutually recursive forwarded
+/// cycle all leave the caller unclaimed — and the fixpoint terminates.
+#[test]
+fn forwarded_grammar_negative_exits_issue_no_result_class_claim() {
+    let package = issue_with_brand_catalog(
+        r#"
+box Page {
+    init { v }
+    birth(v) { me.v = v }
+    make(flag) { return new Page(flag) }
+}
+box Other {
+    init { v }
+    birth(v) { me.v = v }
+}
+box Work {
+    page: Page
+    birth() { me.page = new Page(0) }
+    param_return(p) {
+        return p
+    }
+    rebound(flag) {
+        local made = me.page.make(flag)
+        made = me.page.make(flag + 1)
+        return made
+    }
+    disagree(flag) {
+        if flag == 0 {
+            return me.page.make(flag)
+        }
+        return new Other(0)
+    }
+    rec_a(flag) {
+        return me.rec_b(flag)
+    }
+    rec_b(flag) {
+        return me.rec_a(flag)
+    }
+}
+static box Main {
+    main() { return 0 }
+}
+"#,
+    )
+    .expect("negative forwarded callee source package");
+    for name in ["param_return", "rebound", "disagree", "rec_a", "rec_b"] {
+        assert!(
+            result_class_claim_row(&package, "Work", name).is_none(),
+            "Work.{name} must carry no result-class claim"
+        );
+    }
+    // The leaf callee still claims — negative callers do not veto it.
+    assert!(matches!(
+        result_class_claim_row(&package, "Page", "make"),
+        Some((_, super::OrdinaryNewResultClassV1::Object(class)))
+            if class.as_ref() == "Page"
+    ));
+}
+
 #[test]
 fn mixed_callee_null_literal_terminal_relation_is_retained() {
     use crate::mir::resolved_semantics::home_new_prefix::{
