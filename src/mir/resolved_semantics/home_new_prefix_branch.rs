@@ -49,6 +49,13 @@ fn walk_branch<'a, E>(
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    argument_i64_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
 ) -> Result<BranchPath<'a>, E> {
     path.terminated = super::scan::scan_statement_flow(
         input,
@@ -74,6 +81,7 @@ fn walk_branch<'a, E>(
         terminal_call,
         local_map_call,
         local_handle_call,
+        argument_i64_field,
     )?;
     Ok(path)
 }
@@ -133,6 +141,13 @@ pub(super) fn observe_if_statement<'a, E>(
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    argument_i64_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
 ) -> Result<bool, E> {
     let bundle = match input.function().if_region_bundle(statement.site()) {
         Ok(bundle) => bundle,
@@ -218,6 +233,7 @@ pub(super) fn observe_if_statement<'a, E>(
         terminal_call,
         local_map_call,
         local_handle_call,
+        argument_i64_field,
     )?;
     let else_path = match else_body {
         Ok(else_body) => walk_branch(
@@ -246,6 +262,7 @@ pub(super) fn observe_if_statement<'a, E>(
             terminal_call,
             local_map_call,
             local_handle_call,
+            argument_i64_field,
         )?,
         // A missing `else` joins the entry snapshot unchanged.
         Err(_) => BranchPath {

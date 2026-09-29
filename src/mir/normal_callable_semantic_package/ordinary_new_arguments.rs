@@ -9,11 +9,17 @@ use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1, SourceExprSi
 pub(crate) enum OrdinaryNewTrivialArgumentKindV1 {
     Integer(i64),
     Bool(bool),
+    /// The exact source `null` literal.
+    Null,
     Local { binding: BindingRefV1 },
     Handle { binding: BindingRefV1 },
     /// A binding produced by an inventoried call expression (source
     /// provenance only; no scalar/rooted-storage class is claimed).
     BoundValue { binding: BindingRefV1 },
+    /// A proven `i64` field read: the exact read site on this row keys
+    /// the staged issuer proof; `object` is the receiver expression's
+    /// lexical binding.
+    I64Field { object: BindingRefV1 },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

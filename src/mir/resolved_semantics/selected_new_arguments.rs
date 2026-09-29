@@ -10,12 +10,20 @@ use super::{BindingRefV1, OwnedExprSiteV1, SourceExprSiteV1};
 pub(crate) enum SelectedNewArgumentKindV1 {
     Integer(i64),
     Bool(bool),
+    /// The exact source `null` literal — a sealed literal fact, distinct
+    /// from `Void`, integer zero, or an absent expression.
+    Null,
     Local { binding: BindingRefV1 },
     Handle { binding: BindingRefV1 },
     /// A binding produced by an inventoried call expression. The row
     /// carries provenance only; class/materialization decisions stay
     /// downstream.
     BoundValue { binding: BindingRefV1 },
+    /// An exact `receiver.field` read the issuer proved `i64` on the
+    /// receiver's own source definition. The binding is the receiver
+    /// expression's lexical binding; the canonical field identity stays
+    /// in the issuer's staged read row — this kind keeps provenance only.
+    I64Field { object: BindingRefV1 },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

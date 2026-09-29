@@ -4,7 +4,11 @@
 //! records selected Normal installations; alias initialization stores a Handle.
 
 use super::SelectedNewArgumentKindV1;
-use super::{BindingRefV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1, SourceExprSiteV1};
+use super::{
+    BindingRefV1, ExprChildRoleV1, OwnedExprSiteV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
+    SourceExprSiteV1,
+};
+use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use std::collections::BTreeMap;
 
@@ -37,12 +41,16 @@ enum StoredLocal {
     /// exists at later sites but carries no scalar/rooted-storage class —
     /// it is neither a trivial local nor a Home/Map/Handle root.
     BoundValue,
+    /// A binding or site holding the exact source `null` literal. It is
+    /// neither a trivial scalar nor a handle root — only its own fact.
+    Null,
     Uninitialized,
 }
 
 pub(super) enum OrdinaryObservation {
     Integer(i64),
     Bool(bool),
+    Null,
     TrivialLocal(BindingRefV1, Option<SourceScalarKind>),
     Handle(BindingRefV1),
     BoundValue(BindingRefV1),
@@ -52,7 +60,7 @@ impl OrdinaryObservation {
     pub(super) fn is_trivial(&self) -> bool {
         match self {
             Self::Integer(_) | Self::Bool(_) | Self::TrivialLocal(..) => true,
-            Self::Handle(_) | Self::BoundValue(_) => false,
+            Self::Null | Self::Handle(_) | Self::BoundValue(_) => false,
         }
     }
 
@@ -60,6 +68,7 @@ impl OrdinaryObservation {
         match self {
             Self::Integer(value) => Some(SelectedNewArgumentKindV1::Integer(value)),
             Self::Bool(value) => Some(SelectedNewArgumentKindV1::Bool(value)),
+            Self::Null => Some(SelectedNewArgumentKindV1::Null),
             Self::TrivialLocal(binding, _) => Some(SelectedNewArgumentKindV1::Local { binding }),
             Self::Handle(root) => Some(SelectedNewArgumentKindV1::Handle { binding: root }),
             Self::BoundValue(binding) => Some(SelectedNewArgumentKindV1::BoundValue { binding }),
@@ -77,6 +86,7 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
         (StoredLocal::Handle(a), StoredLocal::Handle(b)) => a == b,
         (StoredLocal::Trivial(a), StoredLocal::Trivial(b)) => a == b,
         (StoredLocal::BoundValue, StoredLocal::BoundValue) => true,
+        (StoredLocal::Null, StoredLocal::Null) => true,
         (StoredLocal::Uninitialized, StoredLocal::Uninitialized) => true,
         _ => false,
     }
@@ -188,6 +198,9 @@ impl<'source> PrefixLocalFlow<'source> {
             Some(ResolvedLiteralSourceV1::Bool(value)) => {
                 return Some(OrdinaryObservation::Bool(*value));
             }
+            Some(ResolvedLiteralSourceV1::Null) => {
+                return Some(OrdinaryObservation::Null);
+            }
             _ => {}
         }
         let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else {
@@ -206,8 +219,65 @@ impl<'source> PrefixLocalFlow<'source> {
             StoredLocal::Handle(_) | StoredLocal::Consumed => None,
             StoredLocal::Trivial(kind) => Some(OrdinaryObservation::TrivialLocal(binding, *kind)),
             StoredLocal::BoundValue => Some(OrdinaryObservation::BoundValue(binding)),
+            StoredLocal::Null => Some(OrdinaryObservation::Null),
             StoredLocal::Uninitialized => None,
         }
+    }
+
+    /// Argument-position observation for one selected `new` site. Literal
+    /// and local rows come from `observe` first; a `receiver.field`
+    /// expression is admitted only when the caller's issuer predicate proves
+    /// the field `i64` on the receiver's own source definition — the scanner
+    /// never infers a field class from MIR types or runtime layout. The
+    /// predicate may be invoked twice for the same site (the observation
+    /// pass and the accounting pass walk the same arguments), so the issuer
+    /// must answer idempotently.
+    pub(super) fn observe_selected_argument<E>(
+        &self,
+        site: &SourceExprSiteV1,
+        argument_i64_field: &mut impl FnMut(
+            &OwnedExprSiteV1,
+            &SourceExprSiteV1,
+            BindingRefV1,
+            BindingRefV1,
+            &str,
+        ) -> Result<bool, E>,
+    ) -> Result<Option<SelectedNewArgumentKindV1>, E> {
+        if let Some(observation) = self.observe(site) {
+            return Ok(observation.into_selected_argument());
+        }
+        let Ok(expr) = self
+            .input
+            .source()
+            .expr_at(&OwnedExprSiteV1::new(self.input.owner(), site.clone()))
+        else {
+            return Ok(None);
+        };
+        let ASTNode::FieldAccess { field, .. } = expr.node() else {
+            return Ok(None);
+        };
+        let Ok(receiver) = self
+            .input
+            .source()
+            .child_expr_from_expr(&expr, ExprChildRoleV1::Receiver)
+        else {
+            return Ok(None);
+        };
+        let Some(OrdinaryObservation::Handle(home)) = self.observe(receiver.site()) else {
+            return Ok(None);
+        };
+        let Some(ResolvedLexicalRefV1::Local(binding)) =
+            self.input.function().variable_ref(receiver.site())
+        else {
+            return Ok(None);
+        };
+        let field_site = OwnedExprSiteV1::new(self.input.owner(), site.clone());
+        if !argument_i64_field(&field_site, receiver.site(), binding, home, field)? {
+            return Ok(None);
+        }
+        Ok(Some(SelectedNewArgumentKindV1::I64Field {
+            object: binding,
+        }))
     }
 
     /// Install the receiver and parameters carried by a verified instance
@@ -356,6 +426,7 @@ impl<'source> PrefixLocalFlow<'source> {
             OrdinaryObservation::Bool(_) => StoredLocal::Trivial(Some(SourceScalarKind::Bool)),
             OrdinaryObservation::TrivialLocal(_, kind) => StoredLocal::Trivial(kind),
             OrdinaryObservation::BoundValue(_) => StoredLocal::BoundValue,
+            OrdinaryObservation::Null => StoredLocal::Null,
         };
         self.locals.insert(binding, stored);
     }

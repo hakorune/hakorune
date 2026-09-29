@@ -31,6 +31,7 @@ pub(super) fn convert_selected_new_arguments(
                         SelectedNewArgumentKindV1::Bool(value) => {
                             OrdinaryNewTrivialArgumentKindV1::Bool(*value)
                         }
+                        SelectedNewArgumentKindV1::Null => OrdinaryNewTrivialArgumentKindV1::Null,
                         SelectedNewArgumentKindV1::Local { binding } => {
                             OrdinaryNewTrivialArgumentKindV1::Local { binding: *binding }
                         }
@@ -39,6 +40,9 @@ pub(super) fn convert_selected_new_arguments(
                         }
                         SelectedNewArgumentKindV1::BoundValue { binding } => {
                             OrdinaryNewTrivialArgumentKindV1::BoundValue { binding: *binding }
+                        }
+                        SelectedNewArgumentKindV1::I64Field { object } => {
+                            OrdinaryNewTrivialArgumentKindV1::I64Field { object: *object }
                         }
                     };
                     OrdinaryNewTrivialArgumentV1::new(

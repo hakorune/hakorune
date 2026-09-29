@@ -13,6 +13,7 @@ root = Path(sys.argv[1])
 new_expression = (root / "src/mir/builder/new_expression.rs").read_text()
 raw_dispatch = (root / "src/mir/builder/raw_expression_dispatch/mod.rs").read_text()
 selected = (root / "src/mir/builder/ordinary_new_admission/selected.rs").read_text()
+selected += (root / "src/mir/builder/ordinary_new_admission/selected/arguments.rs").read_text()
 admission = (root / "src/mir/builder/ordinary_new_admission.rs").read_text()
 if "usize::from(!self.selected_ordinary_claim) * arguments.len()" not in new_expression:
     fail("selected New no longer removes raw argument child demand")

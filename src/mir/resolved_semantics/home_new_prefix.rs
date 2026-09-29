@@ -144,6 +144,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
+        &mut |_, _, _, _, _| Ok(false),
     )
     .unwrap_or_else(|never| match never {})
     .0
@@ -151,7 +152,9 @@ pub(crate) fn issue_new_home_prefixes_v1(
 
 #[path = "home_new_prefix_arguments.rs"]
 mod arguments;
-pub(crate) use arguments::issue_new_home_prefixes_with_arguments_v1;
+pub(crate) use arguments::{
+    issue_new_home_prefixes_probing_fields_v1, issue_new_home_prefixes_with_arguments_v1,
+};
 #[path = "home_new_prefix_branch.rs"]
 mod branch;
 #[path = "home_new_prefix_scan.rs"]
@@ -187,6 +190,13 @@ pub(crate) fn scan_new_home_flow<E>(
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    argument_i64_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
 ) -> Result<
     (
         BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
@@ -290,6 +300,7 @@ pub(crate) fn scan_new_home_flow<E>(
         terminal_call,
         local_map_call,
         local_handle_call,
+        argument_i64_field,
     )?;
     // Statements after the terminal are never walked; their sealed map
     // literals still owe loop1 one row each — issue Unavailable rows.

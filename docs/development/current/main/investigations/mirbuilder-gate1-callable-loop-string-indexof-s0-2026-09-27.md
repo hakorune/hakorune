@@ -1,6 +1,6 @@
 # MirBuilder Gate 1 — current design and acceptance
 
-Status: constructor-argument evidence D0 accepted; S0 (null + i64 field-read argument arms) is next
+Status: constructor-argument evidence S0 landed; mixed null/new result ABI D0 is next
 Date: 2026-09-29
 Scope: MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0; compact Gate-1 frontier.
 Related: CURRENT_STATE.toml; workstream row H; RULES.md;
@@ -621,6 +621,87 @@ terminals recorded per site — claim Prepared state and the remaining
 prefix blockers, not assumed EXE PASS.
 
 Next execution row: `MIRBUILDER-GATE1-CONSTRUCTOR-ARGUMENT-EVIDENCE-S0`.
+
+## Landed — MIRBUILDER-GATE1-CONSTRUCTOR-ARGUMENT-EVIDENCE-S0
+
+### What landed
+
+- `selected.rs` argument materialization moved to
+  `src/mir/builder/ordinary_new_admission/selected/arguments.rs`
+  (mechanical; parent back under the design line).
+- Facts: `SelectedNewArgumentKindV1` gained `Null` and
+  `I64Field { object: BindingRefV1 }`; `OrdinaryNewTrivialArgumentKindV1`
+  gained the same two arms (`selected_new_arguments.rs`,
+  `ordinary_new_arguments.rs`).
+- Observation: `OrdinaryObservation::Null` + `StoredLocal::Null` in
+  `home_prefix_local_flow.rs`; one shared `observe_selected_argument`
+  serves the initializer-position loop (`home_new_prefix_scan.rs`) and
+  the return-position loop (`home_new_prefix_terminal.rs`), with the
+  argument-field predicate threaded through
+  `home_new_prefix_branch.rs` / `home_new_prefix.rs` /
+  `function_control_new_homes.rs`.
+- Proof: `terminal_home::argument_integer_field` resolves the entry-loan
+  receiver's declaring box through `ordinary_box_coverage().row_for` and
+  the canonical object definition — same authority as the terminal
+  field-read lane.
+- Ledger: `ArgumentFieldRead` rows stage during the verified walk and
+  merge only on success; `ArgumentFieldReadMissing` + the union check in
+  `validate_field_reads` keep every emitted read staged and every staged
+  read consumed (`ordinary_new_field_reads.rs`, `ordinary_new_coseal.rs`,
+  `emission_validation.rs`).
+- Physicalization: `Null` emits `ConstValue::Null`; `I64Field` emits one
+  `ObjectFieldGet` into a fresh value that feeds the `Birth` call
+  (`selected/arguments.rs`, `physical_abi.rs`).
+
+### Root cause recorded for the readiness gate
+
+The first field-test run observed `ArgumentNotTrivial` because `make`'s
+`child_new_ready` probe called the always-false-predicate
+`issue_new_home_prefixes_v1` — `me.f` arguments never counted as ready,
+the verified co-seal branch never ran, and the fallback path recorded
+the trivial-only terminal. `issue_new_home_prefixes_probing_fields_v1`
+(`home_new_prefix_arguments.rs`) now runs the same issuer predicates
+(`initialized_integer_field` / `argument_integer_field`) with staging
+discarded; the verified walk alone still stages and merges evidence.
+
+### Measured frontier (page_heap_box.hako, real sites)
+
+| Site | `argument_rows` | `home_prefix` |
+| --- | --- | --- |
+| allocate/1 `return new HakoAllocHandle(me.page_id, block_id, requested_size)` | Ok — `[I64Field, BoundValue, Handle]` | `PrefixNotCovered` — `me.free_top` field write + `me.free_stack.get(..)` receiver call |
+| allocateResult/1 `new ..(0, 2, null)` / `(0, 4, null)` / `(1, 0, handle)` | Ok — `[Integer, Integer, Null]` / `[Integer, Integer, BoundValue]` | first site ready; later two blocked at `local handle = me.allocate(size)` |
+| reallocResult/2 `new ..(0, 1..4, null)` ×3 / `(0, 4, null)` / `(1, 0, replacement)` | Ok — `[Integer, Integer, Null]` / `[Integer, Integer, BoundValue]` | three sites ready; last two blocked at `local replacement = me.realloc(..)` |
+
+Measured by a temporary probe over
+`issue_normal_callable_semantic_package_with_brand_catalog_v1` on the
+library source; the probe was removed after recording. The remaining
+`PrefixNotCovered` blockers are exactly the named out-of-scope contracts
+(receiver field write, `me.`-receiver call, mixed null/new result ABI).
+
+### Evidence
+
+- Focused `selected_new` set: 9/9 — null literal observation, null ->
+  `ConstValue::Null` in the Birth call, entry-receiver `I64Field` row,
+  exactly one `ObjectFieldGet` feeding Birth, call-result `BoundValue`,
+  and nontrivial/unproven rejections.
+- Adjacent lanes (`resolved_semantics`, `resolved_control_flow`,
+  `ordinary_new_admission`, `map_consumer`, `map_value_completion`,
+  `instance_entry_home`): 416/417 pass, 1 ignored.
+- Broader `normal_callable_semantic_package` run: 381 pass / 3 fail —
+  all three (`birth_receiver_non_escape_*`,
+  `main_static_child_port_consumes_all_role_rows_once`,
+  `qualified_call_map_argument_*`) reproduce on baseline `3a9b98b75b`
+  and are listed in `tools/checks/manifests/cargo_lib_red_baseline.*`.
+- Guards: `current_state_pointer_guard` ok,
+  `mirbuilder_qualified_route_scope_guard` ok,
+  `mir_call_canonical_corridor_guard` ok after its selected-emitter pin
+  was extended to `selected.rs` + `selected/arguments.rs`.
+- No EXE claim; the per-function all-exits gate still gates physical
+  emission for the sites above.
+
+Next design row: `MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-D0` —
+nullable-handle result claims for mixed `return new`/`return null`
+callees, per the contract named above.
 
 ## Preserved contract boundaries
 

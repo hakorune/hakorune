@@ -434,9 +434,13 @@ pub(super) fn scalar_actual_kind(
     match kind {
         Kind::Integer(_) => Ok(1),
         Kind::Bool(_) => Ok(2),
-        Kind::Local { .. } | Kind::Handle { .. } | Kind::BoundValue { .. } => {
-            Err(fault("actual-kind-unavailable"))
-        }
+        // `Null` is not a scalar tag and `I64Field` is a proven read, not a
+        // literal source — neither projects a literal actual kind.
+        Kind::Null
+        | Kind::Local { .. }
+        | Kind::Handle { .. }
+        | Kind::BoundValue { .. }
+        | Kind::I64Field { .. } => Err(fault("actual-kind-unavailable")),
     }
 }
 

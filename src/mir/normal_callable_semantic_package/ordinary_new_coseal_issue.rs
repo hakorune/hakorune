@@ -26,12 +26,13 @@ use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::function::ObjectDestructionDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    issue_new_home_prefixes_v1, issue_new_home_prefixes_with_arguments_v1, HomePrefixUnavailableV1,
+    issue_new_home_prefixes_with_arguments_v1, HomePrefixUnavailableV1,
     SelectedNewArgumentUnavailableV1, TerminalRelationV1,
 };
 use crate::mir::resolved_semantics::{
-    BindingKindV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
-    SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
+    BindingKindV1, BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1,
+    SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
+    VerifiedResolvedFunctionV1,
 };
 use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
@@ -74,6 +75,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     let mut seeds = super::super::completion_seed::VerifiedCallableCompletionSeedCohortV1::new();
     let mut root_completion = None;
     let mut field_reads = BTreeMap::new();
+    let mut argument_field_reads = BTreeMap::new();
     let mut root_terminal_relation = BTreeMap::new();
     let mut birth_abi_handoffs = BTreeMap::new();
     for declaration in batch.declarations() {
@@ -219,8 +221,27 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             == crate::mir::callable_parameter_contract::CallableParameterContractKindV1::Map
                     });
                 let new_sites: BTreeMap<_, _> = candidates.iter().map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
+                // The entry loan proves `me`-receiver argument reads: the
+                // sole Home ABI issuer bound `me` to this declaration's own
+                // box source. Computed once per declaration and shared by
+                // the readiness probe and the verified walk.
+                let receiver_proof = terminal_home::entry_receiver_box_proof(
+                    selected, batch, entry_home, batch_slot,
+                );
                 let child_new_ready = seed_eligible && !new_sites.is_empty()
-                    && issue_new_home_prefixes_v1(input, &new_sites, entry_home).values().all(Result::is_ok);
+                    && crate::mir::resolved_semantics::home_new_prefix::issue_new_home_prefixes_probing_fields_v1(
+                        input, &new_sites, entry_home,
+                        &mut |_: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+                            terminal_home::initialized_integer_field(
+                                instance_constructors, &candidates, home, name,
+                            ).map(|field| field.is_some())
+                        },
+                        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+                            terminal_home::argument_integer_field(
+                                instance_constructors, &candidates, site, receiver_proof, home, name,
+                            ).map(|field| field.is_some())
+                        },
+                    )?.values().all(Result::is_ok);
                 // An owner whose `return` statement carries a `new`
                 // construction needs the homes-aware completion: the
                 // returned `Invoke{NewBox}` is a lifecycle instruction that
@@ -289,6 +310,26 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         }).is_some() { return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: site.clone() }); }
                         Ok(true)
                     };
+                    // Argument-position `receiver.field` reads: a claim-local
+                    // `new` Home receiver reuses the terminal provenance; the
+                    // entry loan's receiver root proves against this
+                    // declaration's own box source. The same site is asked
+                    // twice (observation + accounting pass) — the staged row
+                    // makes the answer idempotent.
+                    let mut argument_staged_reads = BTreeMap::new();
+                    let mut argument_field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
+                        if argument_staged_reads.contains_key(site) {
+                            return Ok(true);
+                        }
+                        let Some(field) = terminal_home::argument_integer_field(
+                            instance_constructors, &candidates, site, receiver_proof, home, name,
+                        )? else { return Ok(false); };
+                        argument_staged_reads.insert(site.clone(), field_reads::ArgumentFieldRead {
+                            receiver_site: receiver_site.clone(), object: receiver, field,
+                            progress: field_reads::Progress::Pending,
+                        });
+                        Ok(true)
+                    };
                     match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_and_argument_observations_v1(
                         input, &new_sites,
                         parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
@@ -332,7 +373,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 input,
                                 site,
                             ))
-                        }, &result_sites)? {
+                        }, &result_sites, &mut argument_field_is_integer)? {
                         Ok((
                             completion,
                             prefixes,
@@ -340,6 +381,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             observations,
                             result_prefixes,
                         )) => {
+                            field_reads::merge_staged_argument_field_reads(
+                                &mut argument_field_reads,
+                                input.owner(),
+                                &observations,
+                                argument_staged_reads,
+                            )?;
                             if is_app_main {
                                 if completion
                                     .cleanup()
@@ -646,6 +693,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.birth_site_index = std::cell::RefCell::new(birth_site_index);
     ledger.root_completion = root_completion;
     ledger.field_reads = std::cell::RefCell::new(field_reads);
+    ledger.argument_field_reads = std::cell::RefCell::new(argument_field_reads);
     ledger.birth_abi_handoffs = std::cell::RefCell::new(birth_abi_handoffs);
     ledger.terminal_relation = root_terminal_relation;
     ledger.app_main_identity = app_main_identity.cloned();

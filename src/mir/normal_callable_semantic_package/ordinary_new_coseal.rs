@@ -246,6 +246,11 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     >,
     root_instance_call_expected: RefCell<BTreeSet<FunctionOwnerIdV1>>,
     field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
+    // Argument-position `receiver.field` reads keyed by the exact
+    // `FieldAccess` argument expression site — issued only for argument
+    // rows the sealed observation proved `I64Field`, consumed once by the
+    // selected `new` admission's argument materialization.
+    argument_field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::ArgumentFieldRead>>,
     birth_abi_handoffs: RefCell<BTreeMap<OwnedExprSiteV1, BirthAbiHandoffV1>>,
     // Destination-less verified `Birth` recipes for `new` sites outside the
     // local-commit claim lane (non-`[Body, Initializer]` positions). An entry
@@ -384,6 +389,7 @@ impl OrdinaryNewClaimLedgerV1 {
             lexical_instance_calls: RefCell::new(BTreeMap::new()),
             root_instance_call_expected: RefCell::new(BTreeSet::new()),
             field_reads: RefCell::new(BTreeMap::new()),
+            argument_field_reads: RefCell::new(BTreeMap::new()),
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),
             birth_site_index: RefCell::new(BTreeMap::new()),
             field_write_claims: BTreeMap::new(),
@@ -714,6 +720,11 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
         site: OwnedExprSiteV1,
     },
     TerminalResultFieldReadMissing {
+        site: OwnedExprSiteV1,
+    },
+    /// A sealed `I64Field` argument row reached the ledger without the
+    /// staged issuer proof at its exact `FieldAccess` site.
+    ArgumentFieldReadMissing {
         site: OwnedExprSiteV1,
     },
     AppMainIdentityMissing,

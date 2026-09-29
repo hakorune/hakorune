@@ -41,6 +41,16 @@ pub(super) fn scan_statement_flow<'a, E>(
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    // The issuer's argument-position i64-field proof: the scanner supplies
+    // the exact read site, receiver site, receiver binding, and observed
+    // handle root; the predicate alone decides the field class.
+    argument_i64_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
 ) -> Result<bool, E> {
     let function = input.function();
     for index in 0..body.statements().len() {
@@ -69,6 +79,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 field_is_integer,
                 map_compatible,
                 terminal_call,
+                argument_i64_field,
             )?;
             return Ok(true);
         }
@@ -97,6 +108,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 terminal_call,
                 local_map_call,
                 local_handle_call,
+                argument_i64_field,
             )?;
             if terminated {
                 return Ok(true);
@@ -238,18 +250,44 @@ pub(super) fn scan_statement_flow<'a, E>(
                                 field_initializers,
                                 ..
                             } => {
-                                let observed_arguments = arguments.iter().enumerate().map(|(ordinal, _)| {
-                                let ordinal = u32::try_from(ordinal).map_err(|_| {
-                                    SelectedNewArgumentUnavailableV1::ArgumentOrdinalOverflow { new_site: owned.clone() }
-                                })?;
-                                let argument = input.source().child_expr_from_expr(
-                                    &new, ExprChildRoleV1::CallArgument(ordinal),
-                                ).map_err(|_| SelectedNewArgumentUnavailableV1::SourceMismatch { new_site: owned.clone() })?;
-                                let kind = locals.observe(argument.site()).and_then(OrdinaryObservation::into_selected_argument).ok_or_else(|| {
-                                    SelectedNewArgumentUnavailableV1::ArgumentNotTrivial { new_site: owned.clone(), site: argument.site().clone() }
-                                })?;
-                                Ok(SelectedNewArgumentV1::new(ordinal, argument.site().clone(), kind))
-                            }).collect::<Result<Vec<_>, _>>().map(|rows| rows.into_boxed_slice());
+                                let observed_arguments = {
+                                    let mut rows = Vec::with_capacity(arguments.len());
+                                    let mut row_error = None;
+                                    for (ordinal, _) in arguments.iter().enumerate() {
+                                        let Ok(ordinal) = u32::try_from(ordinal) else {
+                                            row_error = Some(SelectedNewArgumentUnavailableV1::ArgumentOrdinalOverflow { new_site: owned.clone() });
+                                            break;
+                                        };
+                                        let argument = match input.source().child_expr_from_expr(
+                                            &new,
+                                            ExprChildRoleV1::CallArgument(ordinal),
+                                        ) {
+                                            Ok(argument) => argument,
+                                            Err(_) => {
+                                                row_error = Some(SelectedNewArgumentUnavailableV1::SourceMismatch { new_site: owned.clone() });
+                                                break;
+                                            }
+                                        };
+                                        match locals.observe_selected_argument(
+                                            argument.site(),
+                                            argument_i64_field,
+                                        )? {
+                                            Some(kind) => rows.push(SelectedNewArgumentV1::new(
+                                                ordinal,
+                                                argument.site().clone(),
+                                                kind,
+                                            )),
+                                            None => {
+                                                row_error = Some(SelectedNewArgumentUnavailableV1::ArgumentNotTrivial { new_site: owned.clone(), site: argument.site().clone() });
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    match row_error {
+                                        Some(error) => Err(error),
+                                        None => Ok(rows.into_boxed_slice()),
+                                    }
+                                };
                                 argument_observations.insert(
                                     owned.clone(),
                                     SelectedNewArgumentObservationV1::new(
@@ -272,10 +310,10 @@ pub(super) fn scan_statement_flow<'a, E>(
                                         // source demand, not merely a physical borrow ABI.
                                         Ok(arg)
                                             if locals
-                                                .observe(arg.site())
-                                                .and_then(
-                                                    OrdinaryObservation::into_selected_argument,
-                                                )
+                                                .observe_selected_argument(
+                                                    arg.site(),
+                                                    argument_i64_field,
+                                                )?
                                                 .is_some() => {}
                                         Ok(arg) => {
                                             unavailable.get_or_insert_with(|| {

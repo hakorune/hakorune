@@ -1,15 +1,29 @@
 //! Realization of exact terminal field reads in the existing New ledger.
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::{
+    SelectedNewArgumentKindV1, SelectedNewArgumentObservationV1,
+};
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceStmtSiteV1};
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use hakorune_mir_defs::CanonicalFieldRefV1;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug)]
 pub(super) struct FieldRead {
     pub(super) receiver_site: SourceExprSiteV1,
     pub(super) receiver: BindingRefV1,
     pub(super) home: BindingRefV1,
+    pub(super) field: CanonicalFieldRefV1,
+    pub(super) progress: Progress,
+}
+
+/// One argument-position `receiver.field` read staged by the issuer's
+/// proof. The site key is the exact `FieldAccess` argument expression site
+/// — the read belongs to that argument, never to a terminal exit.
+#[derive(Debug)]
+pub(super) struct ArgumentFieldRead {
+    pub(super) receiver_site: SourceExprSiteV1,
+    pub(super) object: BindingRefV1,
     pub(super) field: CanonicalFieldRefV1,
     pub(super) progress: Progress,
 }
@@ -77,6 +91,49 @@ pub(super) fn merge_terminal_relation_field_reads(
     merge_staged_field_reads(destination, owner, staged)
 }
 
+/// Merge staged argument-position reads into the ledger. Every sealed
+/// `I64Field` argument row must carry a staged read at its exact site
+/// (referenced ⊆ staged), and only referenced rows enter the ledger —
+/// a staged-but-unreferenced read would gate emission on evidence no
+/// claim can consume.
+pub(super) fn merge_staged_argument_field_reads(
+    destination: &mut BTreeMap<OwnedExprSiteV1, ArgumentFieldRead>,
+    owner: FunctionOwnerIdV1,
+    observations: &BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
+    staged: BTreeMap<OwnedExprSiteV1, ArgumentFieldRead>,
+) -> Result<(), OrdinaryNewCoSealIssueV1> {
+    let mut referenced = BTreeSet::new();
+    for observation in observations.values() {
+        let Ok(rows) = observation.arguments() else {
+            continue;
+        };
+        for row in rows.iter() {
+            if matches!(row.kind(), SelectedNewArgumentKindV1::I64Field { .. }) {
+                referenced.insert(OwnedExprSiteV1::new(owner, row.site().clone()));
+            }
+        }
+    }
+    for site in &referenced {
+        if !staged.contains_key(site) {
+            return Err(OrdinaryNewCoSealIssueV1::ArgumentFieldReadMissing { site: site.clone() });
+        }
+    }
+    for (site, row) in &staged {
+        if site.owner() != owner || row.object.owner() != owner {
+            return Err(OrdinaryNewCoSealIssueV1::FieldReadOwnerMismatch { site: site.clone() });
+        }
+        if destination.contains_key(site) {
+            return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: site.clone() });
+        }
+    }
+    destination.extend(
+        staged
+            .into_iter()
+            .filter(|(site, _)| referenced.contains(site)),
+    );
+    Ok(())
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn take_terminal_field_read(
         &self,
@@ -139,6 +196,59 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(Some((base, row.field)))
     }
 
+    /// Take the staged argument-position read for the exact `FieldAccess`
+    /// argument site once. The argument row's receiver binding must match
+    /// the staged object — a foreign or mismatched binding faults, never
+    /// silently substitutes.
+    pub(crate) fn take_argument_field_read(
+        &self,
+        site: &OwnedExprSiteV1,
+        object: BindingRefV1,
+        resolve_receiver: impl FnOnce(BindingRefV1, &SourceNodeSiteV1) -> Result<ValueId, String>,
+    ) -> Result<(ValueId, CanonicalFieldRefV1), String> {
+        let mut reads = self.argument_field_reads.borrow_mut();
+        let row = reads
+            .get_mut(site)
+            .ok_or_else(|| fault("missing-source-site"))?;
+        if row.object != object || row.object.owner() != site.owner() {
+            return Err(fault("foreign-binding"));
+        }
+        let Some((last, parent)) = row.receiver_site.node().segments().split_last() else {
+            return Err(fault("receiver-source-site"));
+        };
+        if *last != SourcePathSegmentV1::Receiver || parent != site.site().node().segments() {
+            return Err(fault("receiver-source-site"));
+        }
+        if !matches!(row.progress, Progress::Pending) {
+            return Err(fault("already-taken"));
+        }
+        let base = resolve_receiver(row.object, row.receiver_site.node())?;
+        row.progress = Progress::Taken(base);
+        Ok((base, row.field))
+    }
+
+    pub(crate) fn record_argument_field_read(
+        &self,
+        site: &OwnedExprSiteV1,
+        block: BasicBlockId,
+        dst: ValueId,
+        base: ValueId,
+        field: CanonicalFieldRefV1,
+    ) -> Result<(), String> {
+        let mut reads = self.argument_field_reads.borrow_mut();
+        let row = reads
+            .get_mut(site)
+            .ok_or_else(|| fault("missing-source-site"))?;
+        if !matches!(row.progress, Progress::Taken(expected) if expected == base)
+            || row.field != field
+        {
+            return Err(fault("emission-mismatch"));
+        }
+        row.progress =
+            Progress::Emitted(block, MirInstruction::ObjectFieldGet { dst, base, field });
+        Ok(())
+    }
+
     pub(crate) fn record_terminal_field_read(
         &self,
         site: &OwnedExprSiteV1,
@@ -166,6 +276,11 @@ impl OrdinaryNewClaimLedgerV1 {
             .borrow()
             .values()
             .all(|row| matches!(row.progress, Progress::Emitted(..)))
+            && self
+                .argument_field_reads
+                .borrow()
+                .values()
+                .all(|row| matches!(row.progress, Progress::Emitted(..)))
     }
 
     pub(super) fn validate_field_reads(
@@ -176,6 +291,16 @@ impl OrdinaryNewClaimLedgerV1 {
         let reads = self.field_reads.borrow();
         let mut expected = Vec::new();
         for (site, row) in reads.iter() {
+            if site.owner() != owner {
+                continue;
+            }
+            let Progress::Emitted(block, instruction) = &row.progress else {
+                return Err(fault("unconsumed-read"));
+            };
+            expected.push((*block, instruction));
+        }
+        let argument_reads = self.argument_field_reads.borrow();
+        for (site, row) in argument_reads.iter() {
             if site.owner() != owner {
                 continue;
             }

@@ -10,7 +10,9 @@ use super::{
     SelectedNewArgumentObservationV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1};
+use crate::mir::resolved_semantics::{
+    BindingRefV1, OwnedExprSiteV1, SourceExprSiteV1, VerifiedInstanceEntryHomeLoanV1,
+};
 use std::collections::{BTreeMap, BTreeSet};
 
 pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
@@ -43,7 +45,54 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         &mut |_| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
+        // This bounded sibling issues no field-read evidence: argument
+        // `me.f` reads stay truthfully unavailable here. Only the
+        // verified-completion lane carries the issuer predicate.
+        &mut |_, _, _, _, _| Ok(false),
     )
     .unwrap_or_else(|never| match never {});
     (prefixes, observations, result_prefixes)
+}
+
+/// Readiness probe for the caller-side `new` gate. The verified-completion
+/// lane runs the issuer's field predicates; this probe must predict that
+/// lane faithfully, so it shares the caller's predicate authority instead of
+/// the always-false stubs — an argument `me.f` read the issuer can prove must
+/// not look uncovered here. Nothing is staged: the proof is re-derived by the
+/// verified walk, which owns the ledger rows.
+pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
+    entry_home: Option<&VerifiedInstanceEntryHomeLoanV1>,
+    field_is_integer: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
+    argument_i64_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
+) -> Result<BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>, E> {
+    scan_new_home_flow(
+        input,
+        selected,
+        std::iter::empty(),
+        entry_home,
+        &[],
+        false,
+        &BTreeSet::new(),
+        field_is_integer,
+        &mut |_, _| Ok(false),
+        &mut |_| Ok(false),
+        &mut |_| Ok(false),
+        &mut |_| Ok(false),
+        argument_i64_field,
+    )
+    .map(|outcome| outcome.0)
 }

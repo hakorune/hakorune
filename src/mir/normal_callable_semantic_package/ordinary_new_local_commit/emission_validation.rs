@@ -341,9 +341,23 @@ impl OrdinaryNewClaimLedgerV1 {
                     } if *dst == value && actual == expected)
                 })
                 .count(),
+            OrdinaryNewTrivialArgumentKindV1::Null => function
+                .blocks
+                .values()
+                .flat_map(|block| block.all_instructions())
+                .filter(|instruction| {
+                    matches!(instruction, MirInstruction::Const {
+                        dst,
+                        value: crate::mir::ConstValue::Null,
+                    } if *dst == value)
+                })
+                .count(),
+            // `I64Field` emits an `ObjectFieldGet` — the argument field-read
+            // ledger, not a literal shape, validates that emission.
             OrdinaryNewTrivialArgumentKindV1::Local { .. }
             | OrdinaryNewTrivialArgumentKindV1::Handle { .. }
-            | OrdinaryNewTrivialArgumentKindV1::BoundValue { .. } => return Ok(()),
+            | OrdinaryNewTrivialArgumentKindV1::BoundValue { .. }
+            | OrdinaryNewTrivialArgumentKindV1::I64Field { .. } => return Ok(()),
         };
         if matching != 1 {
             return Err(freeze("argument-literal-drift"));
