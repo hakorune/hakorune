@@ -153,11 +153,11 @@ static const char* hako_llvmc_resolve_explicit_tool(
       ? (opt_tool ? options->opt_tool_path : options->llc_tool_path) : NULL;
   if (configured) return configured;
   if (opt_tool) {
-    if (hako_llvmc_tool_exists("opt")) return "opt";
     if (hako_llvmc_tool_exists("opt-18")) return "opt-18";
+    if (hako_llvmc_tool_exists("opt")) return "opt";
   } else {
-    if (hako_llvmc_tool_exists("llc")) return "llc";
     if (hako_llvmc_tool_exists("llc-18")) return "llc-18";
+    if (hako_llvmc_tool_exists("llc")) return "llc";
   }
   return NULL;
 }
