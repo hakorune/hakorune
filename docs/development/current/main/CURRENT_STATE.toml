@@ -1,10 +1,10 @@
 date = "2026-09-29"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-COMPOSITION-D0"
+current_execution_row = "MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-COMPOSITION-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
-current_design_stop = "none — mixed null/new result ABI S0 landed; forwarded-result class composition D0 is next"
+current_design_stop = "none — forwarded-result class composition D0 accepted; S0 lands the two-pass draft + F1..F5 forwarded grammar"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,16 +17,16 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-Mixed null/new result ABI S0 landed: the sole result-class issuer now
-emits Object/NullableObject arms (exact `return new` + `return null`
-grammar), NullLiteral relations are retained through the completion-seed
-lane, and every Handle consumer fails closed on nullable claims via the
-filtered accessor. Claim product only — no observation, emission, or EXE
-change.
+Forwarded-result class composition D0 accepted: the sole claim issuer
+becomes a two-pass draft (per-exit New/Null/Fwd/Kill classification, then
+monotone fixpoint composition over the F1..F5 forwarded grammar). Census
+shows the only in-tree win is HakoAllocHeap.allocate -> NullableObject;
+realloc stays unclaimed through the param return. Claim-only — no
+Handle/ABI change.
 """
 next_design_card = "MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-D0 (me.m(..) local/return call observation over the entry-Home proof)"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-COMPOSITION-D0"
+next_execution_card = "MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-COMPOSITION-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -42,7 +42,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-29: FORWARDED-RESULT-CLASS-COMPOSITION-D0 accepted — two-pass claim draft (New/Null/Fwd/Kill per exit + monotone fixpoint compose) over the F1..F5 forwarded grammar; census: only HakoAllocHeap.allocate gains a claim; realloc stays out through the param return. Next: COMPOSITION-S0.",
   "2026-09-29: MIXED-NULL-NEW-RESULT-ABI-S0 landed — Object/NullableObject claim arms through the sole result-class issuer, NullLiteral relations retained in the child index, filtered accessor keeps every Handle consumer fail-closed on nullable claims; focused 4/4, three package failures are baseline debt. Next: FORWARDED-RESULT-CLASS-COMPOSITION-D0.",
   "2026-09-29: MIXED-NULL-NEW-RESULT-ABI-D0 accepted — NullableObject claim arm + explicit NullLiteral retention through the sole result-class issuer; waiting callees corrected to forwarded-exit shape (successor D0 named); direct_call_lifecycle 788-line overage recorded as BoxShape blocker. Next: MIXED-NULL-NEW-RESULT-ABI-S0.",
-  "2026-09-29: CONSTRUCTOR-ARGUMENT-EVIDENCE-S0 landed — Null + proven-i64 field-read argument arms through observe -> claim -> materialize; readiness probe uses the same issuer predicates (circular gate fixed); real-site frontier measured on page_heap_box; focused 9/9, three broader failures are baseline debt. Next: MIXED-NULL-NEW-RESULT-ABI-D0.",
 ]

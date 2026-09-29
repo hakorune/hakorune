@@ -1,6 +1,6 @@
 # MirBuilder Gate 1 — current design and acceptance
 
-Status: MIXED-NULL-NEW-RESULT-ABI-S0 landed (NullableObject claim arm + explicit NullLiteral retention + not-Handle consumer classification); FORWARDED-RESULT-CLASS-COMPOSITION-D0 is next
+Status: FORWARDED-RESULT-CLASS-COMPOSITION-D0 accepted (two-pass draft + F1..F5 forwarded grammar, claim-only); COMPOSITION-S0 is next
 Date: 2026-09-29
 Scope: MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0; compact Gate-1 frontier.
 Related: CURRENT_STATE.toml; workstream row H; RULES.md;
@@ -826,6 +826,74 @@ Next execution row: `MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-S0`.
   emission yet.
 
 Next design row: `MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-COMPOSITION-D0`.
+
+## Decision — MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-COMPOSITION-D0 (accepted)
+
+Read-only worker census (exact evidence below) established: the only
+in-tree callee that gains a claim from forwarded composition today is
+`HakoAllocHeap.allocate` (two `me.f.m()` forwarded exits to the now-
+`NullableObject` `HakoAllocPage.allocate` plus a `return null` exit).
+`realloc` stays unclaimed: its `same` locals bind `resizeInPlace`, which
+returns a parameter — `return <param>` remains a separate contract.
+
+```text
+Decision: extend the same sole issuer (OrdinaryNewResultClassClaimDraftV1)
+  into a two-pass claim draft: pass A classifies every sealed `return`
+  exit of every keyed callable into New(C) / Null / Fwd(K) / Kill —
+  order-free because batch.declarations() is parser order, not call-graph
+  order; pass B composes Fwd exits against the claims map by monotone
+  fixpoint (claims only grow; bound = claimable-key count; self/mutual
+  recursion never resolves and stays unclaimed — same bounded ethos as
+  MAX_PROVENANCE_DEPTH).
+Source authority + canonical issuer: sealed body-shape Return rows +
+  expression_source literal/construction (existing), plus call-edge
+  resolution already proven elsewhere — direct_call_target(site) ->
+  owner -> selected batch_slot -> Cataloged key (F1); me.f.m via
+  field_write_claim + unique_instance_target (F3); me.m via the
+  function's own InstanceBoxMethod owner (F2); x.m via initializer
+  provenance (F4); `return <local>` via sole-initializer +
+  no-BindingRebind proof (F5) — all resolvable inside the draft's
+  VerifiedResolvedFunctionV1 input.
+Non-authority: composition is claim-only — no new TerminalRelationV1
+  variant, no construction_result_callee change, no
+  InvokeCallResultKind/StoredLocal/physical ABI arm; call_result_kind's
+  Call -> I64 floor and uniform_call_result_kind's None-on-mixed stay
+  exactly as they are, so a forwarded claim can never mint Handle.
+Fail-fast boundary: Fwd(K) resolving to an unclaimed key, a
+  QualifiedUnbound/OpaqueCall receiver, a param return, or a rebound/
+  multi-initializer local kills the caller's claim; class disagreement
+  across New and Fwd exits kills; NullableObject callee forces
+  NullableObject caller; a Kill exit anywhere keeps no-claim.
+Smallest next slice: MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-
+  COMPOSITION-S0 — the two-pass draft plus the F1/F2/F3/F4/F5 forwarded
+  grammar, with composed claims asserted on the page_heap fixture family
+  and focused negative coverage for param/rebound/foreign-class exits.
+Non-claims: no return <param> (resizeInPlace :176 stays out); no me.-
+  receiver local-call observation (RECEIVER-CALL-OBSERVATION-D0); no
+  nullable ABI (NULLABLE-RESULT-ABI-D0); no caller-side emission or EXE
+  movement — composition changes only the claim product.
+```
+
+### Census evidence anchors (worker, read-only)
+
+- Waiting-callee table: `HakoAllocPage.allocate` (null x2 + `new`) claims
+  `NullableObject` today; `HakoAllocHeap.allocate` (2 forwarded `me.f.m`
+  + null) is the one composition win; `realloc` chains to a
+  param-returning callee and stays unclaimed.
+- `batch.declarations()` is source order (`callable_semantic_batch/
+  model.rs:165-171, 277-280`); `selected.keys()` is key-sorted — neither
+  follows call edges, hence two-pass.
+- Sole-initializer/no-rebind proof precedent:
+  `ordinary_new_lexical_instance_call.rs:624-637`; callee-key resolution:
+  `direct_call_target(site)` -> batch_slot -> Cataloged key
+  (`issuer.rs:212-268`), `unique_instance_target` for receiver calls
+  (`ordinary_new_lexical_instance_call.rs:697-725`).
+- Handle-leak audit: `call_result_kind` floors `Call` to I64, `OpaqueCall`
+  to None; `construction_result_callee` and `begin_handle_call_emission`
+  reject forwarded bodies; `callable_result_class` filters to `Object` —
+  claim-only composition is fully additive.
+
+Next execution row: `MIRBUILDER-GATE1-FORWARDED-RESULT-CLASS-COMPOSITION-S0`.
 
 ## Preserved contract boundaries
 
