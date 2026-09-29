@@ -101,6 +101,49 @@ fn return_position_new_with_unavailable_arguments_stays_retained() {
 }
 
 #[test]
+fn retained_result_position_commit_completes_when_its_expression_is_recorded() {
+    // A `return new` whose argument co-seal is retained still emits through
+    // the raw lane; a destination-less row has no install step, so recording
+    // the emitted expression value is its reachable terminal. A row whose
+    // expression never ran stays incomplete — `IncompleteOrdinaryNewCoverage`
+    // keeps that real gap.
+    let package = issue(
+        "box Point { x: i64 birth(x) { me.x = x } }
+         static box Work { make(args) { return new Point(1 + 1) } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("retained result-position package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let site = {
+        let result_claims = ledger.pending_result_claims_for_test();
+        result_claims
+            .keys()
+            .next()
+            .expect("result claim")
+            .clone()
+    };
+    let claim = ledger
+        .try_take_result(&site, "Point", 1)
+        .expect("result take")
+        .expect("result claim present");
+    assert!(
+        !ledger.prepare_result_new_emission(&claim).unwrap(),
+        "non-trivial argument retains the claim"
+    );
+    assert!(
+        !ledger.local_commit_complete_for_test(&site),
+        "PendingExpression is still a coverage gap"
+    );
+    ledger
+        .complete_new_expression(&site, "Point", crate::mir::ValueId(7))
+        .expect("raw lane records the emitted expression");
+    assert!(
+        ledger.local_commit_complete_for_test(&site),
+        "a retained result row completes at expression completion"
+    );
+}
+
+#[test]
 fn argument_position_new_mints_no_result_claim() {
     let package = issue(
         "box Point { x: i64 birth(x) { me.x = x } }

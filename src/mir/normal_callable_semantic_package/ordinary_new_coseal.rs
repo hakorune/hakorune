@@ -332,6 +332,14 @@ impl OrdinaryNewClaimLedgerV1 {
         self.result_claims.borrow()
     }
 
+    #[cfg(test)]
+    pub(super) fn local_commit_complete_for_test(&self, site: &OwnedExprSiteV1) -> bool {
+        self.local_commits
+            .borrow()
+            .get(site)
+            .is_some_and(|row| row.is_complete())
+    }
+
     pub(crate) fn issue(
         claims: Box<[OrdinaryNewAdmissionClaimV1]>,
         result_claims: Box<[OrdinaryNewResultClaimV1]>,

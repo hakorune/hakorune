@@ -361,7 +361,16 @@ impl NewResultCommitV1 {
     }
 
     pub(super) fn is_complete(&self) -> bool {
-        self.emission.is_complete()
+        match &self.emission {
+            // A retained result-position row installs no local: once the raw
+            // lane records the emitted expression value, the row has reached
+            // its terminal state and downstream coverage still owns the
+            // unowned-lifecycle rejection.
+            NewEmissionProgress::RetainedUnavailable {
+                progress: UnavailableLocalProgress::ExpressionCompleted { .. },
+            } => true,
+            _ => self.emission.is_complete(),
+        }
     }
 }
 

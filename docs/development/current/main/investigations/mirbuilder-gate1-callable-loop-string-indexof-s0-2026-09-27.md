@@ -284,7 +284,8 @@ Ordinary implementation failures inside this mapping are work to resolve.
 | 9h | DONE — `MIRBUILDER-GATE1-RETURN-HANDLE-RESULT-ABI-S0` landed below: direct-call `local h = make(0)` (bare-name `FunctionCall` lane; `Work.make()` is a `Call`/lexical sibling) installs the callee's canonical object as an owned Home owing one `HomeRelease`; `InvokeCallResultKind::Handle` + `InvokeNormalResult` emit once, `MirType::Box("Point")` typed, no Copy/NewBox; negatives reject (returned-Home binding, annotated-construction mismatch); 29/29 lifecycle tests green. |
 | 9i | DONE — `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-D0` accepted below: `local h = w.make()` (AST `Call`/`method_calls`) joins the Handle-result lane for claim-local receivers only (`local w = new W()`); the disposition row gains a co-sealed `result` at issue (issuer.rs:727 sees terminal_relation + callable_result_classes + result_contracts); a `method_calls` observation arm mints the Handle `LocalCallObservationV1` during scan; `CallReceivedCommitV1`, the verifier pairing (`Callee::SameModuleInstance × Handle`), and `OrdinaryHandle` publish carry over unchanged. Emission must be Invoke-shaped — the existing `CoreEffectPlan::DeclaredInstanceCall` emits a plain `Call` and stays the non-lifecycle path; a port-mediated emit mirroring `emit_local_lifecycle_call_v1` takes Handle rows. Parameter/nested/rebound receivers and the raw member route keep their current reject/dynamic boundary — a Handle-sealed site reaching the dynamic route freezes, never degrades. |
 | 9j | DONE — `MIRBUILDER-GATE1-LEXICAL-CALL-HANDLE-RESULT-S0` landed below: `local w = new W(); local h = w.make()` seals one Handle `LocalCallObservationV1` from `method_calls` membership (claim-local receiver, non-rebound, sole `new` initializer, unique selected `InstanceBoxMethod`, all-i64 exact formals, callee construction result); the disposition row co-seals `result=Handle` at issue against the callee's retained `Value(Construction)` terminal + unannotated contract + result-class claim. Emission is Invoke-shaped (`Callee::SameModuleInstance` × `Handle`) through the port hook; the receiver Home unwinds on the call fault path and releases once per exit path; the received object installs as owned Home releasing once on the normal path. Instance-method `return new` retains its `Value(Construction)` terminal relation even when receiver-entry demands make home-prefix flow unavailable (exact-site evidence; flow gaps stay in `result_prefixes`/claims). Negatives stay dynamic (rebound receiver, non-construction callee); result-kind/cleanup drift reject. 32/32 lifecycle tests green. Gate 1 remains unsatisfied. |
-| 10 | NEXT — `MIRBUILDER-GATE1-EXE-SUITE-ACCEPTANCE-S0`: fixed 11-entry EXE suite under the recorded LLVM 18 profile, after changed owners' focused checks. Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
+| 10 | DONE — `MIRBUILDER-GATE1-EXE-SUITE-ACCEPTANCE-S0` landed below: suite measured at 5/11 PASS with all six reds at recorded designed terminals; two baseline gaps repaired in-slice (retained result-commit completion + explicit-tool LLVM order). Gate 1 remains unsatisfied until its actual acceptance closes; then follow language conformance -> mimalloc gate -> Facts migration/selfhost. |
+| 11 | NEXT — `MIRBUILDER-GATE1-RESULT-NEW-ARGUMENT-EVIDENCE-D0`: design the evidence contract for non-trivial `return new` arguments (field-read, `null`, call-result, bound values) — the retained-claim stop is the first-sorting terminal for mimalloc-lite (`HakoAllocHandleResult`/`HakoAllocHandle` returns). Parked `OWN-FIELD-CONTAINER-DEST-D0` stays untouched pending explicit selection. |
 
 ### Landed slices tombstone (compressed 2026-09-28)
 
@@ -1276,3 +1277,59 @@ Non-claims: parameter receivers, nested handle-result receivers, non-i64
 arguments, annotated callee results, and `me`/`this` receivers stay on
 their existing reject/dynamic lanes. Gate 1 remains unsatisfied — next
 named frontier from row 10.
+
+### S0 landed — `MIRBUILDER-GATE1-EXE-SUITE-ACCEPTANCE-S0` (2026-09-29)
+
+Fixed 11-entry `real-apps-exe-boundary` suite measured under the recorded
+LLVM 18 profile (dev binary, `opt-18`/`llc-18`/`clang-18` resolved). Two
+baseline gaps surfaced during measurement and were repaired in-slice:
+
+- **Retained result-commit completion gap** (`30ffce464c` debt):
+  `NewResultCommitV1` rows whose argument co-seal is retained minted
+  `RetainedUnavailable` emissions that could never reach `Installed` —
+  result-position rows install no local by design — so the port gate
+  `IncompleteOrdinaryNewCoverage` fired before the designed downstream
+  terminal. mimalloc-lite's nine `return new HakoAllocHandleResult`
+  sites (non-trivial `null` arguments, imported allocator bodies)
+  reproduced it; parent `31c4bc072e` confirmed pre-lexical, and
+  `c8c930d8e6` (pre-`30ffce464c`) confirmed the introducing commit.
+  `is_complete` now accepts `RetainedUnavailable{ExpressionCompleted}`
+  for result rows — `PendingExpression` still counts as a real coverage
+  gap. Focused pin:
+  `retained_result_position_commit_completes_when_its_expression_is_recorded`.
+- **Explicit-tool LLVM resolution order** (`454e49b755` debt completing
+  `cc5928ea2a`): `hako_llvmc_resolve_explicit_tool` probed unversioned
+  `opt`/`llc` first, so hosts where `opt` names LLVM 14 silently ran the
+  wrong toolchain on every `with_options` FFI entry — the `-18`-first
+  fix only covered the non-explicit resolver. The explicit fallback now
+  prefers `opt-18`/`llc-18`; `typed_object_newbox_min_exe` flipped to
+  green.
+
+Result: **5 PASS / 6 FAIL**, every failure at its recorded designed
+terminal:
+
+| member | observed terminal | record |
+| --- | --- | --- |
+| typed_object_newbox_min | PASS (EXE + runtime) | fixed by toolchain order |
+| typed_object_birth_min | PASS | |
+| typed_object_birth_param_min | PASS | |
+| typed_object_method_min | PASS | |
+| real_apps_exe_boundary_probe | PASS | |
+| mimalloc_lite | `artifact-unowned-lifecycle-site` | row 9c true terminal |
+| boxtorrent_mini | `unsupported terminator Invoke` | generic-ingress pin |
+| binary_trees | `root-call-entry-unavailable` | row 8 designed seal stop |
+| allocator_stress | `NamedArray(TextSourceMissing)` | recorded terminal |
+| json_stream_aggregator | `route-not-front-selected` | row 9b parked family |
+| typed_object_untyped_field_min | `return_type_strategy` panic | baseline debt (parent `31c4bc072e` reproduces) — phase-84 inference gap, separate owner |
+
+Gate 1 remains unsatisfied: the six red members sit at designed stops,
+not at misclassification or silent fallback. Named owners: mimalloc-lite
+stops on retained `return new` claims whose non-trivial arguments
+(`null`, `me.field` reads, call results) have no sealed evidence row —
+the bounded design frontier named by row 11 — while boxtorrent-mini's
+field-write `new` sites (`me.chunks = new MapBox()`, …) and
+binary-trees (`root-call-entry-unavailable`) await the parked
+`OWN-FIELD-CONTAINER-DEST-D0`/drop-plan family, allocator-stress awaits
+named-array text-source evidence, json-stream-aggregator awaits route
+front-selection, and untyped-field-min awaits its phase-84 inference
+owner.
