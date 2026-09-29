@@ -733,6 +733,9 @@ mod map_consumer_tests;
 #[cfg(test)]
 #[path = "normal_default_root_catalog_lifecycle_tests.rs"]
 mod normal_default_root_catalog_lifecycle_tests;
+#[cfg(test)]
+#[path = "normal_default_root_catalog_result_new_tests.rs"]
+mod normal_default_root_catalog_result_new_tests;
 
 #[cfg(test)]
 #[path = "normal_default_root_catalog_main_selection_tests.rs"]

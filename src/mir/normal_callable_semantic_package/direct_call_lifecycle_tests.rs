@@ -6,6 +6,8 @@ use crate::mir::MirBuilder;
 
 #[path = "direct_call_physical_tests.rs"]
 mod physical;
+#[path = "direct_call_handle_result_tests.rs"]
+mod handle_result;
 
 #[test]
 fn terminal_map_call_borrows_real_caller_cleanup_and_stops_scalar_emission() {

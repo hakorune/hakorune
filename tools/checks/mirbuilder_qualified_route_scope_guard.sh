@@ -59,7 +59,7 @@ rg -q 'is_direct_local_initializer' "$COSEAL_ISSUE"
 rg -q 'ordinary_birth_recipe' "$NEW_EXPR"
 rg -q 'if self\.ordinary_claim\.is_none\(\)' "$NEW_EXPR"
 rg -q 'ordinary_new_claim_ledger' "$CTOR_SCOPE"
-rg -q 'birth_site_index_covers_field_assign_and_return_position_sites' "$COSEAL_TESTS"
+rg -q 'birth_site_index_covers_field_assign_sites_while_return_position_claims' "$COSEAL_TESTS"
 rg -q 'birth_site_index_skips_builtin_and_missing_birth_classes' "$COSEAL_TESTS"
 rg -q 'birth_site_take_enforces_class_arity_and_is_affine' "$COSEAL_TESTS"
 
@@ -198,6 +198,7 @@ SEL_ARG="$ROOT_DIR/src/mir/resolved_semantics/selected_new_arguments.rs"
 LOCAL_FLOW="$ROOT_DIR/src/mir/resolved_semantics/home_prefix_local_flow.rs"
 NEW_PREFIX="$ROOT_DIR/src/mir/resolved_semantics/home_new_prefix.rs"
 NEW_PREFIX_ARGS="$ROOT_DIR/src/mir/resolved_semantics/home_new_prefix_arguments.rs"
+NEW_PREFIX_SCAN="$ROOT_DIR/src/mir/resolved_semantics/home_new_prefix_scan.rs"
 ORD_ARGS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_arguments.rs"
 COSEAL_HELPERS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal_helpers.rs"
 SEL_EMIT="$ROOT_DIR/src/mir/builder/ordinary_new_admission/selected.rs"
@@ -232,7 +233,7 @@ rg -q 'BoundValue \{ binding: BindingRefV1 \}' "$ORD_ARGS"
 rg -q 'StoredLocal::BoundValue' "$LOCAL_FLOW"
 rg -q 'OrdinaryObservation::BoundValue' "$LOCAL_FLOW"
 rg -q 'fn install_bound_value' "$LOCAL_FLOW"
-rg -q 'install_inventoried_call_result' "$NEW_PREFIX"
+rg -q 'install_inventoried_call_result' "$NEW_PREFIX_SCAN"
 rg -q 'OrdinaryNewTrivialArgumentKindV1::BoundValue \{ binding: \*binding \}' "$COSEAL_HELPERS"
 rg -q 'OrdinaryNewTrivialArgumentKindV1::BoundValue \{ binding \}' "$SEL_EMIT"
 rg -q 'Kind::BoundValue' "$PHYS_ABI"
@@ -558,7 +559,20 @@ rg -q 'lexical_instance_call_vetoes_mixed_return_classes' "$LEXICAL_INSTANCE_CAL
 rg -q 'lexical_instance_call_keeps_non_new_return_unarmed' "$LEXICAL_INSTANCE_CALL_TESTS"
 rg -q 'lexical_instance_call_keeps_fallthrough_result_unarmed' "$LEXICAL_INSTANCE_CALL_TESTS"
 
-for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS" "$ROUTE_PREDICATES" "$CALLABLE_ROUTE" "$DEAD_ROUTE_TESTS" "$CORE_METHOD_SRC" "$NAMED_ARRAY_SRC" "$NAMED_ARRAY_METHOD_TESTS" "$CONTRACT_ISSUER" "$LEDGER_CONTRACT_TESTS" "$DECLARED_INSTANCE_LOCATOR" "$CORE_EFFECT_PLAN" "$SOURCE_METHOD_PORT" "$UNIFIED_EMITTER" "$LOOP_DECLARED_TESTS" "$ASSOC_INPUT" "$NORMALIZER_COMMON" "$RAW_LOOP_PORT" "$RAW_LOOP_ENTRY" "$CALLABLE_LOWERING_STATE" "$LOOP_VALUE_PUBLICATION" "$BACKEND_VIEW_TESTS" "$BACKEND_VIEW_DRIFT_TESTS" "$BACKEND_VIEW_INTRINSIC_TESTS" "$ROOT_LIFECYCLE_TESTS" "$ROOT_MAIN_SELECTION_TESTS" "$LOOP_PIPELINE_TESTS" "$LOOP_SCOPE_TESTS" "$ROUTE_ITEMS_SRC" "$ROUTE_CALL_FREE_TESTS" "$ROUTE_TEST_SURFACE" "$SOURCE_LOOP_BRIDGE" "$LOOP_COND_FACTS_SRC" "$GENERIC_FACTS_ISSUER" "$LEXICAL_INSTANCE_CALL_SRC" "$LEXICAL_INSTANCE_CALL_TESTS" "$VALUE_METHOD_CALL_SRC" "$FIELD_WRITE_CLAIM_SRC" "$RESULT_CLASS_CLAIM_SRC"; do
+# Files split under this guard (2026-10 hard-stop remediation) are registered
+# here so the 800-line boundary cannot silently regrow.
+LOCAL_COMMIT="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_local_commit.rs"
+LOCAL_COMMIT_CALL_RECV="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_local_commit/call_received.rs"
+LOCAL_COMMIT_PREP="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_local_commit/emission_prepare.rs"
+LOCAL_COMMIT_HANDLE="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_local_commit/handle_call.rs"
+COSEAL_ISSUE_LEXICAL="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal_issue_lexical.rs"
+DIRECT_CALL_PHYSICAL_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/direct_call_physical_tests.rs"
+DIRECT_CALL_HANDLE_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/direct_call_handle_result_tests.rs"
+RECURSIVE_CHILD_LOWERING="$ROOT_DIR/src/mir/builder/recursive_child_lowering.rs"
+RECURSIVE_CHILD_DISPOSITION="$ROOT_DIR/src/mir/builder/recursive_child_lowering/direct_call_disposition_port.rs"
+ROOT_RESULT_NEW_TESTS="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_result_new_tests.rs"
+
+for file in "$MAIN_ROOT" "$PIN_TEST" "$ARITY_PIN_TEST" "$ENTRY_PORT" "$COSEAL" "$COSEAL_ISSUE" "$COSEAL_TESTS" "$RAW_CLAIM" "$NEW_EXPR" "$CTOR_SCOPE" "$NO_EXIT" "$LOOP_BUILDER" "$LOOP_COND_FACTS" "$REJECT_REASON" "$LOOP_COND_BC" "$BC_ITEM" "$ITEMS_SRC" "$COND_UPDATE_TESTS" "$COND_UPDATE_FACADE" "$HELPERS_LOWER" "$ITEMS_TESTS" "$TESTKIT" "$STATIC_INGRESS" "$STATIC_OWNER_POLICY" "$MEMBER_ROUTE" "$CALLS_MOD" "$PHYSICAL_BRIDGE" "$SEL_ARG" "$LOCAL_FLOW" "$NEW_PREFIX" "$NEW_PREFIX_ARGS" "$NEW_PREFIX_SCAN" "$ORD_ARGS" "$COSEAL_HELPERS" "$SEL_EMIT" "$PHYS_ABI" "$EMIT_VALID" "$BRAND_TESTS" "$ENV_DIRECT_TESTS" "$DESCENT_TESTKIT" "$DESCENT_TESTS" "$ITEM_SITE" "$MAP_LOCAL_TESTS" "$COMPOSITE_PROJECTION" "$LOOP_BREAK_FACTS" "$ROUTE_PREDICATES" "$CALLABLE_ROUTE" "$DEAD_ROUTE_TESTS" "$CORE_METHOD_SRC" "$NAMED_ARRAY_SRC" "$NAMED_ARRAY_METHOD_TESTS" "$CONTRACT_ISSUER" "$LEDGER_CONTRACT_TESTS" "$DECLARED_INSTANCE_LOCATOR" "$CORE_EFFECT_PLAN" "$SOURCE_METHOD_PORT" "$UNIFIED_EMITTER" "$LOOP_DECLARED_TESTS" "$ASSOC_INPUT" "$NORMALIZER_COMMON" "$RAW_LOOP_PORT" "$RAW_LOOP_ENTRY" "$CALLABLE_LOWERING_STATE" "$LOOP_VALUE_PUBLICATION" "$BACKEND_VIEW_TESTS" "$BACKEND_VIEW_DRIFT_TESTS" "$BACKEND_VIEW_INTRINSIC_TESTS" "$ROOT_LIFECYCLE_TESTS" "$ROOT_MAIN_SELECTION_TESTS" "$LOOP_PIPELINE_TESTS" "$LOOP_SCOPE_TESTS" "$ROUTE_ITEMS_SRC" "$ROUTE_CALL_FREE_TESTS" "$ROUTE_TEST_SURFACE" "$SOURCE_LOOP_BRIDGE" "$LOOP_COND_FACTS_SRC" "$GENERIC_FACTS_ISSUER" "$LEXICAL_INSTANCE_CALL_SRC" "$LEXICAL_INSTANCE_CALL_TESTS" "$VALUE_METHOD_CALL_SRC" "$FIELD_WRITE_CLAIM_SRC" "$RESULT_CLASS_CLAIM_SRC" "$LOCAL_COMMIT" "$LOCAL_COMMIT_CALL_RECV" "$LOCAL_COMMIT_PREP" "$LOCAL_COMMIT_HANDLE" "$COSEAL_ISSUE_LEXICAL" "$DIRECT_CALL_PHYSICAL_TESTS" "$DIRECT_CALL_HANDLE_TESTS" "$RECURSIVE_CHILD_LOWERING" "$RECURSIVE_CHILD_DISPOSITION" "$ROOT_RESULT_NEW_TESTS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2
