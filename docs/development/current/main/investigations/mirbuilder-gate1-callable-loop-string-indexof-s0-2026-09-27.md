@@ -427,6 +427,65 @@ physical smoke advanced deterministically (3/3) past
 — back to this lane's recorded frontier, which the selected lane's
 receiver-entry/flow obligations describe.
 
+## Decision — MIRBUILDER-GATE1-UNOWNED-LIFECYCLE-SITE-D0 (accepted)
+
+Observed site: `HakoAllocPage.allocate/1` BasicBlockId(39) — a raw-lane
+`Call{BirthConstructor{HakoAllocHandle.birth/3, receiver V131}}` for
+the retained `return new HakoAllocHandle(me.page_id, block_id,
+requested_size)` at `Body(13)`. `expected=0`: the claim resolved
+`RetainedUnavailable{ExpressionCompleted}`, so no lifecycle bindings
+were recorded and the raw lane's Birth Call has no owner.
+
+Decision:
+  The freeze is the designed terminal, not a boundary gap —
+  `local_entry.rs`'s `is_complete` documents that a retained
+  result-position row reaching `ExpressionCompleted` leaves "the
+  unowned-lifecycle rejection" to downstream coverage. The raw lane
+  legitimately emits `NewBox` + the Birth `Call`; the artifact gate
+  rejects because no claim owns the footprint. The real blocker is
+  `allocate`'s uncovered prefix: `return null` exits are already
+  covered (`TerminalReturnedSourceV1::NullLiteral` exists and the
+  terminal observer admits it), so the remaining named classes are
+  `me.<field> = <rhs>` field-write statements (first
+  `PrefixNotCovered`, `Body(2)`) and nested `me.<field>.m(..)`
+  receiver calls (`.get` initializers and bare `.set` statements).
+Source authority + canonical issuer:
+  `ResolvedAssignmentTargetV1::FieldWrite{receiver}` is the
+  resolver-sealed target classification; `scan_statement_flow` /
+  `walk_branch` remain the sole prefix-coverage issuer — a
+  receiver-rooted field write is a Home-neutral statement when its
+  RHS subtree is provably free of `new` sites, call observations,
+  map literals, and reads of owned bindings.
+Non-authority:
+  no physical emission change — the raw lane already emits the plain
+  `FieldSet` instruction, which `requires_lifecycle_validation` does
+  not cover; no new Facts row names the write itself; owning-field
+  moves (`me.f = <owned binding>`) stay the parked owning-field
+  family — this slice never classifies an owned-binding RHS as
+  writable.
+Fail-fast boundary:
+  a field write whose receiver is not the self-rooted `me`, whose RHS
+  subtree contains a `new`/call/map-literal site, or whose RHS names
+  a live owned Home/Handle/Map/Nullable binding keeps
+  `PrefixNotCovered` — the claim stays `RetainedUnavailable` and the
+  artifact gate stays armed.
+Smallest next slice:
+  `MIRBUILDER-GATE1-RECEIVER-FIELD-WRITE-S0` — admit self-rooted
+  `me.<field> = <rhs>` statements in `scan_statement_flow` (shared by
+  the branch walk) when the RHS subtree is Home-neutral; pin
+  positive (`me.free_top = me.free_top - 1` covered, claim prefix
+  advances past Body(2)) and negative (`me.f = handle` with an owned
+  `handle`, `x.f = v` non-self receiver, and `new`/call inside the
+  RHS each keep `PrefixNotCovered`).
+Non-claims:
+  `allocate`'s claim does not emit after this slice — nested
+  `me.<field>.m(..)` calls remain `PrefixNotCovered`, so the smoke
+  terminal is expected to stay `artifact-unowned-lifecycle-site`;
+  observable progress is the recorded prefix issue moving past the
+  field-write sites. Nested receiver calls, `release/1`'s
+  `handle.<field>` reads, and `Bool` return literals are distinct
+  later rows.
+
 ## Decision — MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (accepted)
 
 Decision:

@@ -1,7 +1,7 @@
 date = "2026-09-30"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-EMISSION-BLOCK-PHI-S0"
+current_execution_row = "MIRBUILDER-GATE1-RECEIVER-FIELD-WRITE-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -17,19 +17,19 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-EMISSION-BLOCK-PHI-S0 landed: `PhysicalBoundary::capture` admits a
-leading `Phi` run only on recorded blocks with >=2 incoming edges;
-sole/zero-predecessor blocks and non-leading phis still freeze
-`phi-in-recorded-block`. Mimalloc-lite smoke advanced 3/3
-deterministically past the phi boundary to
-`artifact-unowned-lifecycle-site` — the lane's recorded frontier.
-Serial lib suite 8101/126, failure set identical to parent. Next:
-UNOWNED-LIFECYCLE-SITE-D0 — which emitted lifecycle instruction lacks
-a recorded owning site.
+UNOWNED-LIFECYCLE-SITE-D0 accepted: the freeze at
+`HakoAllocPage.allocate/1` is the designed terminal — a
+`RetainedUnavailable` result claim leaves its raw-lane
+`Call{BirthConstructor}` unowned by contract (`is_complete` names the
+downstream coverage rejection). `return null` exits are already
+covered (`NullLiteral`); the remaining prefix blockers are
+`me.<field> = <rhs>` writes (first PrefixNotCovered at Body(2)) and
+nested `me.<field>.m(..)` calls. Next: RECEIVER-FIELD-WRITE-S0 —
+admit self-rooted field writes whose RHS subtree is Home-neutral.
 """
-next_design_card = "MIRBUILDER-GATE1-UNOWNED-LIFECYCLE-SITE-D0 (smoke returned to recorded frontier artifact-unowned-lifecycle-site; identify the unowned lifecycle emitter and its claim/claim-decline boundary before any implementation)"
+next_design_card = "MIRBUILDER-GATE1-UNOWNED-LIFECYCLE-SITE-D0 accepted (freeze is the designed terminal for RetainedUnavailable result claims; claim blocker inventory = receiver field writes + nested me.<field>.m(..) calls; return null already covered via NullLiteral)"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-GATE1-EMISSION-BLOCK-PHI-S0"
+next_execution_card = "MIRBUILDER-GATE1-RECEIVER-FIELD-WRITE-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -45,7 +45,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-30: UNOWNED-LIFECYCLE-SITE-D0 accepted — artifact-unowned-lifecycle-site at allocate/1 is the designed terminal for a RetainedUnavailable result claim (raw Birth Call unowned by contract); allocate's claim blocker inventory = me.<field> = <rhs> writes (first PrefixNotCovered Body(2)) + nested me.<field>.m(..) calls; return null already covered via NullLiteral. Next: RECEIVER-FIELD-WRITE-S0.",
   "2026-09-30: EMISSION-BLOCK-PHI-S0 landed — capture admits a leading Phi run only on >=2-incoming recorded blocks; sole-pred/non-leading still freeze. Smoke advanced past phi-in-recorded-block to artifact-unowned-lifecycle-site (3/3 deterministic). Serial suite 8101/126, failure set identical to parent. Next: UNOWNED-LIFECYCLE-SITE-D0.",
   "2026-09-30: RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0 landed — owned `new`-arg bindings consumed at the arg boundary on both scan paths after prior_homes capture (Normal-edge move, Fault-edge discharge kept); received-row validator derives owed count from recorded exit origins + emission bindings. Smoke's deterministic first terminal moved to physical-boundary/phi-in-recorded-block. Serial lib suite 8098/126, failure set identical to parent. Next: EMISSION-BLOCK-PHI-D0.",
-  "2026-09-30: RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0 accepted — a `new` positional arg naming a live owned binding moves the lease into the constructed object at the arg boundary (Normal-edge move; Fault-edge keeps prior_homes); the tail-exit HomeReleaseIfLive on allocateResult's handle was a real use-after-reclaim, not a validator nit. Received-row validator aligns to owed-exit count. Next: RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0.",
 ]
