@@ -424,3 +424,77 @@ and `FIELD-INIT-USER-NEW` (`ProviderConstruction` admits builtin
 zero-arg `new` only — user-class field init is `FieldContractUnsupported`
 today) is the sibling gate a compiling probe needs.
 
+## Decision — MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-OBJECT-FIELD-D0 (accepted)
+
+Decision:
+  Owned user-object fields join the parent teardown through ONE new
+  Invoke op, `OwnedObjectFieldRelease{field, base, child}` — wire
+  `object_field_release`. Inline expansion of the child's plan into the
+  parent cleanup chain is impossible: cleanup-graph nodes are
+  terminal-only (`root_cleanup_graph.rs` admits only Invoke/Return/
+  Jump rows), `object_field_get` is rejected on faulted blocks (fault
+  copies run `faulted=1`), and the intermediate child handle has no
+  lease representation on the wire. The op's C emit reads the slot
+  (`checked_field_get_i64_v1`) and, when live, calls a generated
+  `@hako_lifecycle_teardown_<child>` helper that runs the child's own
+  sealed plan then its `home_release_plain_i64_v1` — recursion for
+  grandchildren lands in the child's helper, once per class.
+
+Source authority + canonical issuer:
+  - Same SSOT: parent teardown releases fields in reverse declaration
+    order; a child finalizes only when its sole Home is terminal —
+    the claim-sealed birth-side store establishes exactly that.
+  - `field_write_claims` gains a typed child descriptor
+    `OwnedFieldChildV1{field, child: Array | Object(CanonicalObjectIdV1)}`
+    (replaces/widens `owned_field_children`'s `CanonicalFieldRefV1`
+    rows); the parent's issue path resolves the child class through
+    `instance_constructors` — accessible at claim issue time — and
+    requires the child's OWN disposition to be a supported plan
+    (recursive admission), its construction plan Ok, and no teardown
+    cycle (`box A { a: A }` rejected at plan build).
+  - The child's teardown plan is a NEW published product: the emit
+    helper is generated per referenced object from claim-sealed child
+    evidence — nothing on today's wire (`layouts` rows are placement
+    only) carries teardown data, so a `teardowns` product or generated
+    helper section is issued by the sole physical owner.
+
+Non-authority:
+  No statement-position reads, no per-field chain inside the parent
+  cleanup graph, no recursion inside kernel exports. `map.rs` stays
+  fail-closed (`map-candidate-end-unavailable`) for object-child
+  objects — correct, untouched.
+
+Fail-fast boundary:
+  Unproven child disposition (child's own fields unproven, weak field,
+  unsealed provider, teardown cycle, missing birth recipe) → parent
+  keeps `Unavailable`/`artifact-source-unavailable`; no speculative
+  release is emitted.
+
+Sibling dependency (ordering decision):
+  `FIELD-INIT-USER-NEW` is a hard prerequisite for any end-to-end
+  pin: `ProviderConstruction` today rejects user classes
+  (`FieldContractUnsupported`) — the arm must carry child object
+  identity + verified birth recipe + argument rows, emit
+  `Invoke{NewBox}+InvokeNormalResult+Invoke{Call{Birth,Unit}}+FieldSet`
+  on the shared fault frame, and the C flow admits `new_box`/
+  `birth_call` in the birth role (`(fi && !ordinary && !birth)`)
+  plus an in-flight child discharge admitted in birth on the
+  birth_call fault landing. Known gap recorded: the `field_set`
+  fault-edge discharge emits bare `nyrt_handle_release_h` — for a
+  user-object value it must instead run the child teardown (ArrayBox
+  is exact today because a runtime residence has no children).
+
+Smallest next slice:
+  `MIRBUILDER-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-D0` —
+  bounded provider-arm admission for
+  user-class field init inside birth units (emit shape above, validator
+  formula `stores + 2*provider` update, C admission `|| birth`,
+  fault-edge in-flight discharge). Then `DESTRUCTION-OBJECT-FIELD-S0`
+  lands the release op on top of proven field-initialized children.
+
+Non-claims:
+  No claim that object-child release shares the ArrayBox op — the
+  descriptor carries the child kind and each kind lowers to its own
+  op/helper. No nullable/weak field teardown. No teardown for
+  shared/multi-home children (claim proves sole residence).
+
