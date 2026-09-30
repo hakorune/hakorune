@@ -16,8 +16,9 @@ use super::candidate::{
 use super::coseal_helpers::{
     convert_selected_new_arguments, is_direct_local_initializer, retain_child_terminal_relation,
 };
-use super::{field_reads, field_write_claim, receiver_call_observation, result_class_claim,
-    terminal_home};
+use super::{
+    field_reads, field_write_claim, receiver_call_observation, result_class_claim, terminal_home,
+};
 use super::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1,
     OrdinaryNewResultClaimV1, VerifiedOrdinaryNewBirthRecipeV1,
@@ -79,6 +80,64 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     let mut argument_field_reads = BTreeMap::new();
     let mut root_terminal_relation = BTreeMap::new();
     let mut birth_abi_handoffs = BTreeMap::new();
+    let mut receiver_call_observations = BTreeMap::new();
+    // Field-write claims and callable result-class claims compose
+    // without any Home evidence — seal both before the verified walk so
+    // that walk can mint claim-faithful `me.m(..)` observations in the
+    // same sweep. Constructor (birth) rows join through the
+    // program-source loan, where `lowering_input` needs the program.
+    let mut field_write_draft = field_write_claim::OrdinaryNewFieldWriteClaimDraftV1::new();
+    let mut result_class_draft = result_class_claim::OrdinaryNewResultClassClaimDraftV1::new();
+    for declaration in batch.declarations() {
+        let selected_key = selected
+            .keys()
+            .filter_map(|selected_key| {
+                let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
+                    return None;
+                };
+                (selected.batch_slot(selected_key) == Some(declaration.batch_slot()))
+                    .then(|| key.clone())
+            })
+            .next();
+        // Field-write claims belong to instance boxes; the result-class
+        // claim admits any cataloged key — a static-box sibling returning
+        // `return new <class>` names the class for the direct-call
+        // handle-result edge too.
+        let owner_box = selected_key
+            .as_ref()
+            .filter(|key| key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod)
+            .map(|key| key.owner());
+        batch
+            .with_lowering_input(declaration.batch_slot(), |input| {
+                field_write_draft.observe_function(input.function(), input.body_shape(), owner_box);
+                if let Some(key) = &selected_key {
+                    result_class_draft.observe_function(input, key, declaration.batch_slot());
+                }
+            })
+            .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
+    }
+    batch
+        .with_normal_program_source_loan(|loan| -> Result<(), OrdinaryNewCoSealIssueV1> {
+            for row in instance_constructors.rows() {
+                let input = row
+                    .lowering_input(loan.program())
+                    .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
+                field_write_draft.observe_function(
+                    input.function(),
+                    input.body_shape(),
+                    Some(row.box_name()),
+                );
+            }
+            Ok(())
+        })
+        .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
+    let field_write_claims = field_write_draft.finish(batch.ordinary_box_coverage());
+    let callable_result_classes = result_class_draft.finish(
+        batch.ordinary_box_coverage(),
+        batch,
+        selected,
+        &field_write_claims,
+    );
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
@@ -222,12 +281,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             == crate::mir::callable_parameter_contract::CallableParameterContractKindV1::Map
                     });
                 let new_sites: BTreeMap<_, _> = candidates.iter().map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
-                // The entry loan proves `me`-receiver argument reads: the
-                // sole Home ABI issuer bound `me` to this declaration's own
-                // box source. Computed once per declaration and shared by
-                // the readiness probe and the verified walk.
+                // The entry loan proves `me`-receiver reads: the sole Home
+                // ABI issuer bound `me` to this box — shared by the probe,
+                // the walk, and the `me.m(..)` call-result observation.
                 let receiver_proof = terminal_home::entry_receiver_box_proof(
                     selected, batch, entry_home, batch_slot,
+                );
+                receiver_call_observation::observe_receiver_call_sites(
+                    input, receiver_proof, selected, &callable_result_classes,
+                    &mut receiver_call_observations,
                 );
                 let child_new_ready = seed_eligible && !new_sites.is_empty()
                     && crate::mir::resolved_semantics::home_new_prefix::issue_new_home_prefixes_probing_fields_v1(
@@ -626,63 +688,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             Ok(())
         })
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
-    // Field-write claims: `me.f = new C()` writes seal a field class only
-    // when every package write to that field name is an attributed `me.`
-    // write storing `new` of one agreed ordinary box. Batch declarations
-    // are walked outside the program-source loan; constructor (birth)
-    // rows join inside it, where `lowering_input` needs the program.
-    let mut field_write_draft = field_write_claim::OrdinaryNewFieldWriteClaimDraftV1::new();
-    let mut result_class_draft = result_class_claim::OrdinaryNewResultClassClaimDraftV1::new();
-    for declaration in batch.declarations() {
-        let selected_key = selected
-            .keys()
-            .filter_map(|selected_key| {
-                let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
-                    return None;
-                };
-                (selected.batch_slot(selected_key) == Some(declaration.batch_slot()))
-                    .then(|| key.clone())
-            })
-            .next();
-        // Field-write claims belong to instance boxes; the result-class
-        // claim admits any cataloged key — a static-box sibling returning
-        // `return new <class>` names the class for the direct-call
-        // handle-result edge too.
-        let owner_box = selected_key
-            .as_ref()
-            .filter(|key| key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod)
-            .map(|key| key.owner());
-        batch
-            .with_lowering_input(declaration.batch_slot(), |input| {
-                field_write_draft.observe_function(input.function(), input.body_shape(), owner_box);
-                if let Some(key) = &selected_key {
-                    result_class_draft.observe_function(input, key, declaration.batch_slot());
-                }
-            })
-            .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
-    }
-    batch
-        .with_normal_program_source_loan(|loan| -> Result<(), OrdinaryNewCoSealIssueV1> {
-            for row in instance_constructors.rows() {
-                let input = row
-                    .lowering_input(loan.program())
-                    .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
-                field_write_draft.observe_function(
-                    input.function(),
-                    input.body_shape(),
-                    Some(row.box_name()),
-                );
-            }
-            Ok(())
-        })
-        .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
-    let field_write_claims = field_write_draft.finish(batch.ordinary_box_coverage());
-    let callable_result_classes = result_class_draft.finish(
-        batch.ordinary_box_coverage(),
-        batch,
-        selected,
-        &field_write_claims,
-    );
     let names = batch
         .ordinary_box_coverage()
         .rows()
@@ -694,7 +699,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         result_claims.into_boxed_slice(),
         names,
     );
-    receiver_call_observation::install_v1(&mut ledger, batch, selected, &callable_result_classes);
+    ledger.receiver_call_observations = receiver_call_observations;
     ledger.field_write_claims = field_write_claims;
     ledger.callable_result_classes = callable_result_classes;
     ledger.birth_site_index = std::cell::RefCell::new(birth_site_index);

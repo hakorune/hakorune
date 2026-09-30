@@ -1,10 +1,10 @@
 date = "2026-09-30"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-CLAIM-FIRST-OBSERVATION-S0"
+current_execution_row = "MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
-current_design_stop = "none — exit evidence unified on the verified Completion; next: claims computed pre-scan feed the existing observation issuer (entry-loan proof), deferred map deleted"
+current_design_stop = "none — claims seal pre-walk and `me.m` sites mint in-walk under the entry-loan proof; next: receiver-observation closeout, then the nullable result ABI design row"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,17 +17,18 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-Receiver-observation rework in flight: claim exits now derive from the
-verified Completion (explicit_sites/returns_value) via one shared
-helper — claim issuer, construction_result_callee and map_result_callee
-unified; deferred `me.m` observation pass landed with site-keyed
-claim-faithful evidence (NullableObject never authorizes Handle).
-Next: claim-first rework feeds the existing observation issuer with
-the entry-loan proof; the deferred map is deleted.
+Claim-first rework landed: callable result-class and field-write claims
+seal before the verified walk, so `local x = me.m(..)` sites mint
+site-keyed claim-faithful observations in the same sweep — gated by the
+entry-loan proof (binding == the loan's `me`), with the deferred pass
+deleted. Exit evidence sits on the verified Completion via one shared
+helper (claim issuer + construction/map callee proofs unified).
+Nullable stays evidence-only, never Handle. Next: closeout assertions,
+then NULLABLE-RESULT-ABI-D0.
 """
 next_design_card = "MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0 (nullable arms in InvokeCallResultKind/LocalCallResultClassV1/StoredLocal + me.m result consumption/execution path — enum arms alone move no call)"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-GATE1-CLAIM-FIRST-OBSERVATION-S0"
+next_execution_card = "MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -43,7 +44,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-30: CLAIM-FIRST-OBSERVATION-S0 landed — claims seal before the verified walk; `me.m(..)` initializers mint site-keyed claim-faithful rows in-walk under the entry-loan proof, deferred pass deleted. Package suite 392/3 baseline debt. Next: RECEIVER-CALL-OBSERVATION-S0 closeout.",
   "2026-09-30: RESULT-CLASS-EXIT-EVIDENCE-S0 + RECEIVER-CALL-OBSERVATION-S0 (deferred pass) landed — claim exits derive from the verified Completion via one shared helper (claim issuer + construction/map callee proofs unified); `me.m(..)` initializers mint site-keyed claim-faithful evidence, no Handle authorization. Package suite 392/3 baseline debt. Next: CLAIM-FIRST-OBSERVATION-S0.",
   "2026-09-29: RECEIVER-CALL-OBSERVATION-D0 accepted — deferred claim-aware `me.m(..)` local-initializer observation pass minting claim-faithful class evidence (no Handle mint, no emission change); BoundValue floor stays for unclaimed callees. Next: RECEIVER-CALL-OBSERVATION-S0.",
-  "2026-09-29: FORWARDED-RESULT-CLASS-COMPOSITION-S0 landed — two-pass claim draft (New/Null/ForwardCall/ForwardLocal per exit + bounded fixpoint) over F1..F5; HakoAllocHeap.allocate claims NullableObject on the real fixture, realloc stays out; focused 7/7, three package failures are baseline debt. Next: RECEIVER-CALL-OBSERVATION-D0.",
 ]

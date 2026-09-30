@@ -1,6 +1,6 @@
 # MirBuilder Gate 1 — current design and acceptance
 
-Status: RESULT-CLASS-EXIT-EVIDENCE-S0 landed (verified-Completion exits via one shared helper — claim issuer + construction/map callee proofs unified); next CLAIM-FIRST-OBSERVATION-S0 (claims pre-scan into the existing observation issuer), then RECEIVER-CALL-OBSERVATION-S0 closeout
+Status: CLAIM-FIRST-OBSERVATION-S0 landed (claims seal pre-walk; `me.m` sites mint in-walk under entry-loan proof; deferred pass deleted); next RECEIVER-CALL-OBSERVATION-S0 closeout, then NULLABLE-RESULT-ABI-D0
 Date: 2026-09-29
 Scope: MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0; compact Gate-1 frontier.
 Related: CURRENT_STATE.toml; workstream row H; RULES.md;
@@ -907,17 +907,15 @@ Both reviews converge; audit adds the same flat-tail pattern in
 `construction_result_callee`/`map_result_callee` — one exit authority.
 
 P1 — claim correctness:
-1. `RESULT-CLASS-EXIT-EVIDENCE-S0` (in flight): exits from the verified
-   Completion (`explicit_sites`/`returns_value`) via one shared helper;
-   claim issuer and both lifecycle callee proofs stop re-deriving the
-   body tail. Fallthrough stays issuance-rejected (`NonTerminalReturn`).
-2. `CLAIM-FIRST-OBSERVATION-S0`: claims are Home-independent — finish
-   `callable_result_classes` pre-scan, feed the existing
-   `LocalCallObservationV1` issuance; entry-loan receiver proof gates
-   `me.m` rows; the deferred map (~140 lines, zero production consumers)
-   is deleted, not absorbed. Nullable stays distinct from owned Handle.
-3. `RECEIVER-CALL-OBSERVATION-S0` closeout: exact caller/site/
-   destination rows, entry-loan rejection, fail-closed negatives.
+1. `RESULT-CLASS-EXIT-EVIDENCE-S0` — landed (`436bbe44ad`): exits from
+   the verified Completion via `verified_value_return_sites`; claim
+   issuer + `construction_result_callee`/`map_result_callee` unified.
+2. `CLAIM-FIRST-OBSERVATION-S0` — landed: claims seal pre-walk; `me.m`
+   sites mint site-keyed claim-faithful rows inside the verified walk
+   gated by the entry-loan proof; deferred pass deleted —
+   `LocalCallObservationV1` merge waits for the nullable ABI design.
+3. `RECEIVER-CALL-OBSERVATION-S0` closeout: entry-loan rejection and
+   exact caller/site/destination assertions; card/state sync.
 
 P2 — thinning (~370-530 lines): merge the three post-loops
 (birth_site_index / field_write_draft / result_class_draft) into one
@@ -930,7 +928,7 @@ one owner (`CompletionSeed` ≡ `ResultContractRow`, seven identical
 fields); `map_read_facts` five scans → one; unify duplicated types
 (AdmissionClaim⇔ResultClaim, four sibling dispositions).
 
-Next execution row: `MIRBUILDER-GATE1-CLAIM-FIRST-OBSERVATION-S0`.
+Next execution row: `MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-S0`.
 
 ## Preserved contract boundaries
 
