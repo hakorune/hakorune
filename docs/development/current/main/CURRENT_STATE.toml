@@ -1,10 +1,10 @@
 date = "2026-09-30"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0"
+current_execution_row = "MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
-current_design_stop = "NULLABLE-RESULT-ABI-D0 — `me.m` nullable result consumption and the execution path (InvokeCallResultKind/LocalCallResultClassV1/StoredLocal); enum arms alone move no call"
+current_design_stop = "none — NULLABLE-RESULT-ABI-D0 accepted: dedicated nullable lane (never Handle reuse); open S0 decisions are typed argument carrier and null representation"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,17 +17,17 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-Receiver-call observation closed out: claims seal before the verified
-walk, `local x = me.m(..)` mints site-keyed rows in-walk under the
-entry-loan proof (binding == the loan's `me`), and every row carries
-the exact destination local asserted against its declaring site. The
-deferred pass is deleted; birth-body `me.m` is rejected upstream by
-receiver-non-escape before the observer runs. Nullable stays
-evidence-only, never Handle. Next: NULLABLE-RESULT-ABI-D0.
+NULLABLE-RESULT-ABI-D0 accepted (worker census): the executable result
+chain is I64|Map|Handle everywhere — a dedicated nullable lane is
+required, never a Handle reuse. Six contracts named: typed-argument
+observation product, InvokeCallResultKind + carrier, one lowering
+owner, StoredLocal/Observation arm, conditional-release commit,
+OrdinaryNullableHandle publication. Card compressed to 224 lines.
+Next: NULLABLE-RESULT-ABI-S0.
 """
-next_design_card = "MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0 (nullable arms in InvokeCallResultKind/LocalCallResultClassV1/StoredLocal + me.m result consumption/execution path — enum arms alone move no call)"
+next_design_card = "none — rework-queue P2/P3 items (single sweep, container ownership, type unification) are thinning, not new design rows"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0"
+next_execution_card = "MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -43,7 +43,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-30: NULLABLE-RESULT-ABI-D0 accepted — dedicated nullable lane over six named contracts (typed-argument observation, nullable result arm+carrier, one lowering owner, StoredLocal arm, conditional release, publication role); card tombstoned to 224 lines. Next: NULLABLE-RESULT-ABI-S0.",
   "2026-09-30: RECEIVER-CALL-OBSERVATION-S0 closeout landed — rows carry the exact destination local asserted per site; birth `me.m` rejected upstream (ReceiverNonEscape pin); same-box local/param receivers, unclaimed callees, rebinding stay unobserved. Package suite 393/3 baseline debt. Next: NULLABLE-RESULT-ABI-D0.",
   "2026-09-30: CLAIM-FIRST-OBSERVATION-S0 landed — claims seal before the verified walk; `me.m(..)` initializers mint site-keyed claim-faithful rows in-walk under the entry-loan proof, deferred pass deleted. Package suite 392/3 baseline debt. Next: RECEIVER-CALL-OBSERVATION-S0 closeout.",
-  "2026-09-30: RESULT-CLASS-EXIT-EVIDENCE-S0 + RECEIVER-CALL-OBSERVATION-S0 (deferred pass) landed — claim exits derive from the verified Completion via one shared helper (claim issuer + construction/map callee proofs unified); `me.m(..)` initializers mint site-keyed claim-faithful evidence, no Handle authorization. Package suite 392/3 baseline debt. Next: CLAIM-FIRST-OBSERVATION-S0.",
 ]

@@ -1,6 +1,6 @@
 # MirBuilder Gate 1 — current design and acceptance
 
-Status: RECEIVER-CALL-OBSERVATION-S0 closed (claim-first in-walk mint under entry-loan proof, exact destination evidence, upstream receiver-non-escape pin for unloaned `me`); next NULLABLE-RESULT-ABI-D0
+Status: NULLABLE-RESULT-ABI-D0 accepted (dedicated nullable lane — never Handle reuse; six-contract spanning set named); card compressed to tombstone history; next NULLABLE-RESULT-ABI-S0
 Date: 2026-09-29
 Scope: MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0; compact Gate-1 frontier.
 Related: CURRENT_STATE.toml; workstream row H; RULES.md;
@@ -171,7 +171,85 @@ one owner (`CompletionSeed` ≡ `ResultContractRow`, seven identical
 fields); `map_read_facts` five scans → one; unify duplicated types
 (AdmissionClaim⇔ResultClaim, four sibling dispositions).
 
-Next execution row: `MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0`.
+Next execution row: `MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-S0`.
+
+## Decision — MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0 (accepted)
+
+Decision: a dedicated nullable-result lane — never a reuse of Handle.
+
+Source authority + canonical issuer:
+  `OrdinaryNewResultClassV1::NullableObject(C)` (sealed claim) +
+  `ReceiverCallClassObservationV1` (site-keyed, entry-loan-gated,
+  exact destination) — both already issued inside one co-seal sweep.
+Non-authority:
+  `callable_result_class` stays `Object`-only; `BoundValue` stays the
+  unclassified floor; no consumer may infer ownership from the
+  observation row alone.
+Fail-fast boundary:
+  emit-time, not verify-time — missing observation, destination drift,
+  unsupported carrier, or claim↔kind disagreement all freeze.
+Smallest next slice:
+  one new semantic observation product + one physical result arm + one
+  lowering owner for exactly `local x = me.m(<args>)` whose callee is
+  `NullableObject` and whose destination is provably live-stored.
+Non-claims:
+  no backend execution contract exists today; enum arms alone move no
+  call; no implementation has been done under this row.
+
+### Census evidence anchors (worker, read-only)
+
+- Executable result chain is `I64 | Map | Handle` (+`Unit`) everywhere:
+  `LocalCallResultClassV1` (`home_local_call_flow.rs:14-25`),
+  `InvokeCallResultKind`/`InvokeNormalResultKind`
+  (`instruction/invoke.rs:34-45`, `invoke_map.rs:4-17`), `StoredLocal`
+  (`home_prefix_local_flow.rs:22-48`), published roles
+  (`physical_program.rs:34-73`, JSON `"i64"|"map"|"handle"` at
+  `physical_program_json.rs:501-581`), verifier matrix
+  (`verification/invoke.rs:164-216`). No nullable arm anywhere.
+- `local handle = me.allocate(size)` (`page_heap_box.hako:219`) is
+  doubly excluded: non-literal argument + non-definite class →
+  `install_inventoried_call_result` floors it to `BoundValue`
+  (`home_prefix_local_flow.rs:390-409`, prefix `PrefixNotCovered`).
+- `LocalCallObservationV1.arguments: Box<[i64]>` is literal-only
+  (`home_local_call_flow.rs:35`, gates :131-143/:183-195) — a
+  `Receiver`-kind `me` receiver and parameter arguments are both
+  ineligible; the nullable lane needs typed arguments, i.e. a *new*
+  observation product, not an arm on this row.
+- `CallReceivedCommitV1` emits unconditional `HomeRelease`
+  (`call_received.rs:87-91`) — structurally incompatible with null
+  paths; conditional release needs a checked-null operation that does
+  not exist yet.
+- Claim↔terminal divergence to resolve at design time: `allocate`
+  ends in `return <call>` which `call_result_kind` classifies `I64`
+  while the claim says `NullableObject` — the D0 names the claim map
+  the sole authority for the caller's ABI edge.
+- No `Option`/`MirType` nullability, no tag+payload carrier, no
+  null-check instruction (`physical_abi.rs:429-444` has null only as
+  a non-scalar argument tag); null representation (sentinel vs tagged
+  pair) is an open decision for the S0 slice.
+- Reads of a nullable local (`handle.f`, null checks) are out of
+  scope: unsupported downstream use keeps `PrefixNotCovered`.
+
+### Named contracts (spanning set, ordered)
+
+1. Semantic: a new receiver-call observation consumption product (typed
+   arguments — binding/literal kinds like `SelectedNewArgumentKindV1`,
+   not `Box<[i64]>`), or widening `LocalCallObservationV1`; decide one.
+2. Physical: `InvokeCallResultKind` + `InvokeNormalResultKind` nullable
+   arm with a `MirType` carrier; `verification/invoke.rs:164-216`
+   admits it per callee class; exactly one `InvokeNormalResult`.
+3. Lowering owner: extend the `emit_local_lexical` lane
+   (`terminal_call.rs:307-396`) to consume the observation row +
+   a disposition whose `row.result()` admits nullable (`:316`,
+   port `:87-92`), emitting `Call { SameModuleInstance, result:
+   <nullable> }`.
+4. Local state: `StoredLocal` + `OrdinaryObservation` nullable arm;
+   `stored_local_same`/`join_branch` stay fail-closed.
+5. Conditional cleanup: a new commit variant with a checked-null
+   release — never reuse `CallReceivedCommitV1`'s unconditional
+   `HomeRelease`.
+6. Publication: `OrdinaryNullableHandle` role + wire name +
+   `"nullable_handle"` JSON + `compiled_entry_contract` pairing.
 
 ## Preserved contract boundaries
 
