@@ -269,6 +269,83 @@ fn page_heap_fixture_composes_allocate_and_keeps_realloc_unclaimed() {
     );
 }
 
+/// A `return` nested inside a trailing `if` (or any non-completing
+/// terminal) can never mint a claim. The claim issuer now derives exits
+/// from the verified Completion — the same evidence that already makes
+/// package issuance reject a reachable fallthrough (`NonTerminalReturn`),
+/// so the claim layer no longer re-derives "last statement" by itself.
+#[test]
+fn nested_return_with_fallthrough_is_rejected_before_any_claim() {
+    for source in [
+        // Nested return as the flat list's last row — the shape the old
+        // tail check misread as an all-exit body.
+        r#"
+box Page {
+    init { v }
+    birth(v) { me.v = v }
+    no_else(flag) {
+        local x = flag
+        if flag == 0 {
+            return new Page(1)
+        }
+    }
+}
+static box Main {
+    main() { return 0 }
+}
+"#,
+        // An else branch that does not return keeps a fallthrough path.
+        r#"
+box Page {
+    init { v }
+    birth(v) { me.v = v }
+    else_fallthrough(flag) {
+        if flag == 0 {
+            return new Page(1)
+        } else {
+            me.v = flag
+        }
+        me.v = flag + 1
+    }
+}
+static box Main {
+    main() { return 0 }
+}
+"#,
+    ] {
+        assert!(
+            issue_with_brand_catalog(source).is_err(),
+            "a reachable fallthrough past a value return must be rejected"
+        );
+    }
+    // Positive control: nested `if` returns plus a terminal `return`
+    // still claim — every path verified by Completion exits with a value.
+    let package = issue_with_brand_catalog(
+        r#"
+box Page {
+    init { v }
+    birth(v) { me.v = v }
+    nested_positive(flag) {
+        if flag == 0 {
+            return new Page(1)
+        }
+        return new Page(2)
+    }
+}
+static box Main {
+    main() { return 0 }
+}
+"#,
+    )
+    .expect("all-exit value-return callee source package");
+    let (_, claim) = result_class_claim_row(&package, "Page", "nested_positive")
+        .expect("nested_positive keeps its claim");
+    assert!(matches!(
+        claim,
+        super::OrdinaryNewResultClassV1::Object(class) if class.as_ref() == "Page"
+    ));
+}
+
 /// Fail-closed forwarded grammar: a parameter return, a rebound local,
 /// class disagreement, and a recursive/mutually recursive forwarded
 /// cycle all leave the caller unclaimed — and the fixpoint terminates.

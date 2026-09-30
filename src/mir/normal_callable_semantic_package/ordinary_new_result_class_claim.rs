@@ -30,8 +30,8 @@ use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, BodyExpressionShapeV1, BodyMeReceiverV1, BodyStatementShapeV1,
     ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
-    ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1, VerifiedResolvedBodyShapeInventoryV1,
-    VerifiedResolvedFunctionV1,
+    ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1, SourceStmtSiteV1,
+    VerifiedResolvedBodyShapeInventoryV1, VerifiedResolvedFunctionV1,
 };
 use crate::parser::ParserOrdinaryBoxSourceCoverageV1;
 use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
@@ -96,6 +96,39 @@ struct ResultClassDraftRowV1 {
 #[derive(Default)]
 pub(crate) struct OrdinaryNewResultClassClaimDraftV1 {
     rows: Vec<ResultClassDraftRowV1>,
+}
+
+/// The value sites of a callable's verified explicit value returns —
+/// `Some` only when the Completion product proves every function exit
+/// is an explicit value `return` (no implicit end, no bare `return`).
+/// This is the sole exit-evidence authority for this package: callers
+/// that re-derive "the last statement is a return" from the flat
+/// `statements()` list misread a nested trailing `if`/`loop` return as
+/// the body tail.
+pub(in crate::mir::normal_callable_semantic_package) fn verified_value_return_sites(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    shape: &VerifiedResolvedBodyShapeInventoryV1,
+) -> Option<Vec<SourceExprSiteV1>> {
+    let completion =
+        crate::mir::resolved_control_flow::verify_function_completion_v1(input).ok()?;
+    if !completion.returns_value() {
+        return None;
+    }
+    let return_values: BTreeMap<SourceStmtSiteV1, SourceExprSiteV1> = shape
+        .statements()
+        .iter()
+        .filter_map(|statement| {
+            let BodyStatementShapeV1::Return { site, value } = statement else {
+                return None;
+            };
+            value.as_ref().map(|value| (site.clone(), value.clone()))
+        })
+        .collect();
+    completion
+        .explicit_sites()
+        .iter()
+        .map(|site| return_values.get(site).cloned())
+        .collect()
 }
 
 /// The owning box's own method-call target — `me` receivers only exist
@@ -355,51 +388,40 @@ impl OrdinaryNewResultClassClaimDraftV1 {
     }
 
     /// Pass A: observe one selected callable, classifying every sealed
-    /// `return` exit. Any unclassifiable value — a parameter, a field
-    /// read, an upvar, a bare literal — drops the row entirely; the row
-    /// can never compose a class.
+    /// `return` exit. The exit set is the verified Completion's own —
+    /// `returns_value` proves every function exit is an explicit value
+    /// return, so a nested `return` inside a trailing `if`/`loop` can
+    /// never masquerade as the body tail. Any unclassifiable value — a
+    /// parameter, a field read, an upvar, a bare literal — drops the row
+    /// entirely; the row can never compose a class.
     pub(crate) fn observe_function(
         &mut self,
-        function: &VerifiedResolvedFunctionV1,
-        body_shape: Option<&VerifiedResolvedBodyShapeInventoryV1>,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         key: &CanonicalSameModuleCallableKeyV1,
         batch_slot: u32,
     ) {
-        let Some(shape) = body_shape else {
+        let function = input.function();
+        let Some(shape) = input.body_shape() else {
             return;
         };
-        let statements = shape.statements();
-        // The last statement must be a `return` with a value: otherwise a
-        // path can fall off the end of the body without constructing the
-        // claimed class. Site ordering places a nested statement inside
-        // its parent's subtree, so `last` is the final top-level row.
-        if !matches!(
-            statements.last(),
-            Some(BodyStatementShapeV1::Return { value: Some(_), .. })
-        ) {
+        let Some(value_sites) = verified_value_return_sites(input, shape) else {
             return;
-        }
+        };
         let mut exits = Vec::new();
-        for statement in statements {
-            let BodyStatementShapeV1::Return { value, .. } = statement else {
-                continue;
-            };
-            let Some(site) = value else {
-                return;
-            };
+        for site in value_sites {
             let exit = if matches!(
-                function.expression_source().literal(site),
+                function.expression_source().literal(&site),
                 Some(ResolvedLiteralSourceV1::Null)
             ) {
                 ResultClassExitDraftV1::Null
-            } else if let Some(construction) = function.expression_source().construction(site) {
+            } else if let Some(construction) = function.expression_source().construction(&site) {
                 ResultClassExitDraftV1::New(construction.class().into())
-            } else if function.direct_call_target(site).is_some()
-                || function.method_call(site).is_some()
+            } else if function.direct_call_target(&site).is_some()
+                || function.method_call(&site).is_some()
             {
-                ResultClassExitDraftV1::ForwardCall(site.clone())
+                ResultClassExitDraftV1::ForwardCall(site)
             } else {
-                match function.variable_ref(site) {
+                match function.variable_ref(&site) {
                     Some(ResolvedLexicalRefV1::Local(binding))
                         if function.binding(binding).is_some_and(|record| {
                             matches!(record.kind(), BindingKindV1::Local { .. })

@@ -84,6 +84,7 @@ pub(crate) use receiver_call_observation::ReceiverCallClassObservationV1;
 #[path = "ordinary_new_result_class_claim.rs"]
 mod result_class_claim;
 pub(crate) use result_class_claim::OrdinaryNewResultClassV1;
+pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::verified_value_return_sites;
 #[path = "ordinary_new_root_instance_call.rs"]
 mod root_instance_call;
 #[path = "ordinary_new_terminal_access.rs"]

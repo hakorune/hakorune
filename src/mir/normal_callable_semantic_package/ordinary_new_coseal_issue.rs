@@ -656,12 +656,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             .with_lowering_input(declaration.batch_slot(), |input| {
                 field_write_draft.observe_function(input.function(), input.body_shape(), owner_box);
                 if let Some(key) = &selected_key {
-                    result_class_draft.observe_function(
-                        input.function(),
-                        input.body_shape(),
-                        key,
-                        declaration.batch_slot(),
-                    );
+                    result_class_draft.observe_function(input, key, declaration.batch_slot());
                 }
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;

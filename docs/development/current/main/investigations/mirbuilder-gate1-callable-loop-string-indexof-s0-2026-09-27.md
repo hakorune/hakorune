@@ -1,6 +1,6 @@
 # MirBuilder Gate 1 — current design and acceptance
 
-Status: receiver-observation rework queue recorded — RESULT-CLASS-EXIT-EVIDENCE-S0 (Completion-proven exits, no flat-tail check) is next; then CLAIM-FIRST-OBSERVATION-S0 (claims pre-scan into the existing observation issuer), then RECEIVER-CALL-OBSERVATION-S0 closeout
+Status: RESULT-CLASS-EXIT-EVIDENCE-S0 landed (verified-Completion exits via one shared helper — claim issuer + construction/map callee proofs unified); next CLAIM-FIRST-OBSERVATION-S0 (claims pre-scan into the existing observation issuer), then RECEIVER-CALL-OBSERVATION-S0 closeout
 Date: 2026-09-29
 Scope: MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0; compact Gate-1 frontier.
 Related: CURRENT_STATE.toml; workstream row H; RULES.md;
@@ -888,42 +888,49 @@ Non-claims: no Handle minting for me.m results (emission gates are a
 
 ### Census evidence anchors (worker, read-only)
 
-- `local x = me.m(..)` floors to `BoundValue` today:
-  `home_prefix_local_flow.rs:394-409` + `PrefixNotCovered`;
-  `lexical_handle_result_call` rejects `Receiver` kind
-  (`ordinary_new_coseal_issue_lexical.rs:44-47`); args-literal gate
-  `home_local_call_flow.rs:131-143`.
-- Observation scan precedes `callable_result_classes` (verify at
-  `coseal_issue.rs:333-376`, `finish` at `:683-689`) — a claim-aware
-  predicate needs the deferred pass, matching the draft's own two-pass
-  precedent.
-- Fail-closed consumers confirmed: `handle_call.rs:35-42`,
-  `map.rs:225-236`, `terminal_call.rs:316-325`, `lexical_instance_call.
-  rs:147-151`; no nullable arm in `LocalCallResultClassV1`/
-  `StoredLocal`/`InvokeCallResultKind`.
-- Sites: `:219`/`:287` `me.allocate` (NullableObject claim) and `:313`
-  `me.realloc` (unclaimed) are the `me.m` local-initializer sites;
-  `:204`/`:208` `me.f.m` returns already compose at the claim layer.
+`local x = me.m(..)` floors to `BoundValue` today
+(`home_prefix_local_flow.rs:394-409`; `lexical_handle_result_call`
+rejects `Receiver` at `coseal_issue_lexical.rs:44-47`; args-literal gate
+`home_local_call_flow.rs:131-143`). Observation scan precedes
+`callable_result_classes` (`finish` at `coseal_issue.rs:683`) — the
+deferred pass matches the draft's two-pass precedent. Downstream
+consumers all fail closed (`handle_call.rs:35-42`, `map.rs:225-236`,
+`terminal_call.rs:316-325`, `lexical_instance_call.rs:147-151`); no
+nullable arm exists in `LocalCallResultClassV1`/`StoredLocal`/
+`InvokeCallResultKind`. Sites: `:219`/`:287` `me.allocate`
+(NullableObject), `:313` `me.realloc` (unclaimed); `:204`/`:208` `me.f.m`
+returns compose at the claim layer.
 
-## Rework queue — reviewer feedback 2026-09-29
+## Rework queue — reviewer + worker design audit 2026-09-30
 
-Ordered before the receiver-observation row closes:
+Both reviews converge; audit adds the same flat-tail pattern in
+`construction_result_callee`/`map_result_callee` — one exit authority.
 
-1. `RESULT-CLASS-EXIT-EVIDENCE-S0`: `observe_function` trusts the flat
-   `statements()` tail — a nested trailing `if { return .. }` fakes an
-   all-exit claim (`result_class_claim.rs:371`). Issue exits from the
-   verified Completion (`explicit_sites`/`returns_value`); test
-   fallthrough shapes.
-2. `CLAIM-FIRST-OBSERVATION-S0`: claims need no Home evidence — finish
-   `callable_result_classes` pre-scan and feed the existing
-   `LocalCallObservationV1` issuance; the design-required entry-loan
-   receiver proof gates `me.m` rows; nullable classification stays
-   distinct from owned Handle; the deferred-map WIP is absorbed.
+P1 — claim correctness:
+1. `RESULT-CLASS-EXIT-EVIDENCE-S0` (in flight): exits from the verified
+   Completion (`explicit_sites`/`returns_value`) via one shared helper;
+   claim issuer and both lifecycle callee proofs stop re-deriving the
+   body tail. Fallthrough stays issuance-rejected (`NonTerminalReturn`).
+2. `CLAIM-FIRST-OBSERVATION-S0`: claims are Home-independent — finish
+   `callable_result_classes` pre-scan, feed the existing
+   `LocalCallObservationV1` issuance; entry-loan receiver proof gates
+   `me.m` rows; the deferred map (~140 lines, zero production consumers)
+   is deleted, not absorbed. Nullable stays distinct from owned Handle.
 3. `RECEIVER-CALL-OBSERVATION-S0` closeout: exact caller/site/
    destination rows, entry-loan rejection, fail-closed negatives.
-4. `NULLABLE-RESULT-ABI-D0`: design `me.m` result consumption + the
-   execution path — enum arms alone move no real call.
-Next execution row: `MIRBUILDER-GATE1-RESULT-CLASS-EXIT-EVIDENCE-S0`.
+
+P2 — thinning (~370-530 lines): merge the three post-loops
+(birth_site_index / field_write_draft / result_class_draft) into one
+sweep; compress this card to 300-400 lines (precedent `3b794d2ccd`);
+`NULLABLE-RESULT-ABI-D0` designs `me.m` result consumption plus the
+execution path — enum arms alone move no real call.
+
+P3 — containers/types (~250-350 lines): seed→contract→header→index in
+one owner (`CompletionSeed` ≡ `ResultContractRow`, seven identical
+fields); `map_read_facts` five scans → one; unify duplicated types
+(AdmissionClaim⇔ResultClaim, four sibling dispositions).
+
+Next execution row: `MIRBUILDER-GATE1-CLAIM-FIRST-OBSERVATION-S0`.
 
 ## Preserved contract boundaries
 
@@ -942,13 +949,13 @@ Next execution row: `MIRBUILDER-GATE1-RESULT-CLASS-EXIT-EVIDENCE-S0`.
   Invoke-shaped construction and exactly one Return of the emitted object.
   Argument/field-position constructions do not inherit this authority.
 - Direct and claim-local lexical Handle calls consume the callee's sealed
-  Construction result plus class claim. Received objects install as one owned
-  caller Home; release accounting is per normal/Fault path. Opaque, rebound,
-  parameter/nested receivers and unsupported result contracts do not gain a
-  new path. Root-result ABI is separate.
-- `BinaryTreesBench.run(): i64` (`5fd8f3fd17`) follows the explicit result
-  contract precedent `MiWorkload.run(): i64` (`b16c3548ac`). This agrees with
-  the selected source contract; it is not evidence for the unannotated input.
+  Construction result plus class claim; received objects install as one
+  owned caller Home, release accounted per normal/Fault path. Opaque,
+  rebound, parameter/nested receivers and unsupported result contracts
+  gain no path. Root-result ABI is separate.
+- `BinaryTreesBench.run(): i64` (`5fd8f3fd17`) follows the `MiWorkload`
+  explicit-contract precedent (`b16c3548ac`); not evidence for the
+  unannotated input.
 
 ## Evidence retained from the previous card
 
@@ -973,12 +980,7 @@ recovers the complete prior card. No archive copy or new card is created.
 
 | Commit | Landed responsibility / evidence |
 | --- | --- |
-| `d3a259a01c` | StringIndexOf/1 with receiver/needle text proof; focused source tests 11/11. |
-| `2a68ddc5a7` | Proven flat call-free LoopCond source coverage; existing sole physical route. |
-| `b16c3548ac` | MiWorkload declared result contract. |
-| `660dafc7b1` | Claim-proven parameter/local instance receiver source edges. |
-| `901df40d18` | Body StringLen text evidence and selected-static bucket preservation. |
-| `43b706e07e` | Uniform field-write class provenance for receiver claims. |
+| `d3a259a01c`..`43b706e07e` | Early slices: StringIndexOf/1, flat call-free LoopCond, MiWorkload contract, instance receivers, StringLen, field-write provenance — full record via git. |
 | `179c6c67c7` | Uniform return-new result-class claims and call-result receivers. |
 | `5fd8f3fd17` | Non-condition carrier coverage, root-call unavailable finishing/seal distinction, binary-trees result annotation. |
 | `4e89bbb551` | Generic Invoke rejection preserved; untyped-field smoke uses physical route. |
@@ -993,8 +995,6 @@ recovers the complete prior card. No archive copy or new card is created.
 ## Organization closeout
 
 Scope: this card, CURRENT_STATE, the canonical Home ABI D0, the existing
-pointer guard. The guard enforces the 1,000-line budget for all three
-active-document pointers (verified at `339674c77b`; the pre-compaction
-record remains recoverable there). The read-only worker's
-entry-authority/per-exit findings are integrated into the
-selected S0 and following D0; no new observer census or semantic receipt landed.
+pointer guard (1,000-line budget; verified at `339674c77b`, pre-compaction
+record recoverable there). Worker findings integrated; no new observer
+census or semantic receipt landed.

@@ -14,7 +14,7 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     TerminalMapGetReceiverClassV1, TerminalRelationV1, TerminalReturnedSourceV1,
 };
 use crate::mir::resolved_semantics::{
-    BodyExpressionShapeV1, BodyStatementShapeV1, ExactCallableParamAbiV1, SourceBindingSiteV1,
+    BodyExpressionShapeV1, ExactCallableParamAbiV1, SourceBindingSiteV1,
 };
 
 fn map_owned(
@@ -55,9 +55,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn map_owned_owner(
 }
 
 /// Whether the callable's sealed body proves a Map result: its own Map
-/// coverage exists and its terminal statement returns a Map literal.
-/// The header annotation alone never decides this. `return <map-local>`
-/// stays outside this source-level proof and fails closed.
+/// coverage exists and every verified explicit `return` exit yields a
+/// Map literal. The header annotation alone never decides this.
+/// `return <map-local>` stays outside this source-level proof and fails
+/// closed.
 pub(in crate::mir::normal_callable_semantic_package) fn map_result_callee(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     callable: crate::mir::resolved_semantics::ResolvedCallableRefV1,
@@ -79,21 +80,30 @@ pub(in crate::mir::normal_callable_semantic_package) fn map_result_callee(
     {
         return false;
     }
-    matches!(
-        body.statements().last(),
-        Some(crate::mir::resolved_semantics::BodyStatementShapeV1::Return {
-            value: Some(value_site),
-            ..
-        }) if matches!(
-            body.expression_shape(value_site),
-            Some(BodyExpressionShapeV1::MapLiteral { .. })
-        )
-    )
+    batch
+        .with_lowering_input(declaration.batch_slot(), |input| {
+            let Some(shape) = input.body_shape() else {
+                return false;
+            };
+            let Some(value_sites) =
+                super::super::ordinary_new_coseal::verified_value_return_sites(input, shape)
+            else {
+                return false;
+            };
+            !value_sites.is_empty()
+                && value_sites.iter().all(|site| {
+                    matches!(
+                        body.expression_shape(site),
+                        Some(BodyExpressionShapeV1::MapLiteral { .. })
+                    )
+                })
+        })
+        .unwrap_or(false)
 }
 
 /// Whether the callable's sealed body proves an owned-object result:
-/// its last statement is a `return` with a value and EVERY `return` row
-/// constructs `new` of one agreed class — the same source facts the
+/// every verified explicit `return` exit constructs `new` of one agreed
+/// class — the same verified-Completion exit evidence the
 /// `callable_result_classes` claim seals. The header annotation alone
 /// never decides this, and the sealed terminal relation is re-checked
 /// against this class at co-seal.
@@ -110,31 +120,30 @@ pub(in crate::mir::normal_callable_semantic_package) fn construction_result_call
     if declarations.next().is_some() {
         return false;
     }
-    let body = declaration.body_shape();
-    if !matches!(
-        body.statements().last(),
-        Some(BodyStatementShapeV1::Return { value: Some(_), .. })
-    ) {
-        return false;
-    }
-    let mut class: Option<Box<str>> = None;
-    for statement in body.statements() {
-        let BodyStatementShapeV1::Return { value, .. } = statement else {
-            continue;
-        };
-        let Some(site) = value else {
-            return false;
-        };
-        let Some(construction_class) = declaration.construction_class(site) else {
-            return false;
-        };
-        match &class {
-            None => class = Some(construction_class),
-            Some(existing) if existing.as_ref() == construction_class.as_ref() => {}
-            Some(_) => return false,
-        }
-    }
-    class.is_some()
+    batch
+        .with_lowering_input(declaration.batch_slot(), |input| {
+            let Some(shape) = input.body_shape() else {
+                return false;
+            };
+            let Some(value_sites) =
+                super::super::ordinary_new_coseal::verified_value_return_sites(input, shape)
+            else {
+                return false;
+            };
+            let mut class: Option<Box<str>> = None;
+            for site in value_sites {
+                let Some(construction_class) = declaration.construction_class(&site) else {
+                    return false;
+                };
+                match &class {
+                    None => class = Some(construction_class),
+                    Some(existing) if existing.as_ref() == construction_class.as_ref() => {}
+                    Some(_) => return false,
+                }
+            }
+            class.is_some()
+        })
+        .unwrap_or(false)
 }
 
 /// The callee's own terminal relation is the sole result-class evidence:
