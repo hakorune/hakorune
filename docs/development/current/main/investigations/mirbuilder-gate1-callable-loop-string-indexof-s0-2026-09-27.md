@@ -122,10 +122,11 @@ available flow for all nine sites or erase unsupported field/call operations.
   `home_new_prefix_scan.rs::scan_statement_flow` share the current issuer.
   A receiver/capture installs `EntryDemandMissing`; unsupported statements
   retain `PrefixNotCovered` (they do not override the earlier issue).
-- Return observation uses `completion.explicit_site()`;
-  `ExplicitReturns` yields no single site. Nested branch Returns are not
-  traversed by the top-level walk. Result claims can therefore be retained
-  with `SourceMismatch` even while exact Return membership exists.
+- Nested branch Returns are walked by `home_new_prefix_branch.rs` under a
+  resolver-sealed `ResolvedIfRegionBundleV1`: a `return`-terminated branch
+  leaves the join; fall-through branches join by ordered Home intersection;
+  divergent Homes become `HomeFlowBranchDivergent`. All nine retained sites
+  mint result claims with per-site `home_prefix` evidence.
 - `emission_prepare.rs` turns a failed prefix into `prior_homes=None` and
   unavailable emission. Observing additional Return sites cannot by itself
   fix entry demands, branch state, cleanup or artifact admission.
@@ -198,15 +199,71 @@ the result-contract builder issues one row end to end
 uses one source loan, and the three sibling `Ready`/`Taken` enums are
 aliases of one `DispositionSlotV1<T>`.
 
-Next execution row: `MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0` —
-design row for the re-observed `unconsumed-read` frontier above. The
-open question is which single admission owns the nine retained
-return-new sites' prefix coverage (receiver field write vs
-`me.`-receiver call vs nullable-local use) and whether
-`unconsumed-read` stands as the correct fail-closed terminal — or a
-retained-unavailable claim owes its staged argument reads a release.
+Result-claim census on the real fixture — pinned by
+`page_heap_fixture_result_claim_census`, which fixes all nine claims'
+sealed evidence states:
+
+| Sites | prefix | construction | argument rows |
+| --- | --- | --- | --- |
+| `HakoAllocPage.allocate` Body(13) — 1 `HakoAllocHandle` | `PrefixNotCovered` at Body(2) `me.free_top = me.free_top - 1` (receiver field-write statement) | Ok — Birth stores are `me.f = param` | Ok(3); stages the `me.page_id` `I64Field` read |
+| `allocateResult` ×3 + `reallocResult` nested ×3 — 6 `HakoAllocHandleResult` | **Ok** — the landed nullable lane already covers `local handle = me.allocate(size)`; branch conditions are outside the prefix walk | `BodyCoverageUnsupported` — normalized Birth stores `me.ok = 0`/`me.reason = 0` defaults, then user `me.ok = ok`/`me.reason = reason` re-store the same fields (replacement needs old-value release semantics); `me.handle = handle` object-typed param store waits behind it | Ok(3) |
+| `reallocResult` tail ×2 | `PrefixNotCovered` at Body(3) `local replacement = me.realloc(..)` — `me.realloc` stays unclaimed (param-forwarding result class) | `BodyCoverageUnsupported` — same class | Ok(3) |
+
+So the open "prefix ownership" question decomposes: prefix stays owned
+by the existing per-function Home-flow scan, and the remaining gaps are
+distinct bounded grammar admissions — receiver field-write statements,
+`me.<field>.m(..)` field-receiver calls, and the `me.realloc`
+param-forwarding result class — while eight of nine sites additionally
+wait on the `HakoAllocHandleResult` Birth plan's duplicate
+first-store/replacement bound and its object-typed param store
+(owning-field family). Separately, the emission-eligibility
+judgment (`compute_emission_prepare`, including dynamic prior-Home
+availability) exists only at take time, so a staged argument read under
+a claim judged `RetainedUnavailable` must be released there — it cannot
+be withheld at issue.
+
+`MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0` is accepted — see the
+Decision section below. Next execution row:
+`MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-S0` — the decline-time staged
+argument-read release; expected smoke effect is the recorded
+`artifact-unowned-lifecycle-site` frontier returning as first terminal.
 The nullable lane itself is complete for the bounded
 `local x = me.m(..)` slice.
+
+## Decision — MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0 (accepted)
+
+Decision:
+  Prefix coverage stays owned by the existing per-function Home-flow
+  scan — there is no new "nine-site prefix" admission; the remaining
+  gaps decompose into bounded grammar forms (receiver field-write
+  statements, `me.<field>.m(..)` field-receiver calls, the `me.realloc`
+  param-forwarding class) plus the `HakoAllocHandleResult` Birth
+  replacement-store/object-typed-param-store bound. A claim judged `RetainedUnavailable`
+  releases its staged argument field reads at the decline point;
+  `unconsumed-read` remains the fail-closed terminal only for
+  emission-eligible claims.
+Source authority + canonical issuer:
+  `home_new_prefix` scan and the ordinary-new claim ledger (existing
+  owners); the release is issued inside `prepare_new_emission` /
+  `prepare_result_new_emission` at the `RetainedUnavailable` store —
+  the single point where eligibility, including dynamic prior-Home
+  availability, is fully known.
+Non-authority:
+  The raw lane's compatibility `FieldGet` never discharges staged exact
+  evidence; `RetainedUnavailable` never authorizes emission or
+  publication; no site/class/destination shape infers ownership.
+Fail-fast boundary:
+  A staged read left neither `Emitted` nor `Released` still freezes
+  `ordinary-field-read/unconsumed-read`; `Taken`-without-`Emitted`
+  faults through `emission-mismatch`/`root-exit-phase` unchanged.
+Smallest next slice:
+  `RETAINED-NEW-HOME-FLOW-S0` — `Progress::Released` disposition plus
+  decline-time release for ordinary and result claims; the fixture
+  smoke's first terminal returns to `artifact-unowned-lifecycle-site`.
+Non-claims:
+  No retained site emits; no new grammar is admitted; the four coverage
+  families above and the recorded lifecycle-artifact boundary are
+  separate later rows; this is not a whole-gate claim.
 
 ## Decision — MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0 (accepted)
 

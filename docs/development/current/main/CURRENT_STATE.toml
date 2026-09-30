@@ -1,10 +1,10 @@
 date = "2026-09-30"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0"
+current_execution_row = "MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
-current_design_stop = "RETAINED-NEW-HOME-FLOW-D0 — mimalloc-lite EXE route re-observed: first terminal is now ordinary-field-read/unconsumed-read (staged me.page_id arg read on a RetainedUnavailable claim; allocate's prefix is PrefixNotCovered). Open: which admission owns the nine sites' prefix coverage (me-field write vs me.-receiver call vs nullable-local use) and whether unavailable claims release staged arg reads"
+current_design_stop = "none — RETAINED-NEW-HOME-FLOW-D0 accepted: prefix stays owned by the per-function Home-flow scan; staged argument field reads release at the prepare-time RetainedUnavailable decline (eligibility is partly dynamic, cannot be withheld at issue). Nine-site census pinned: allocate needs me-field-write + field-receiver-call statements; 8 HandleResult sites wait on the Birth replacement-store/object-param-store bound; 2 reallocResult tails also wait on the unclaimed me.realloc forward"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,19 +17,19 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-P3 containers landed (9b95d3adc4): one result-contract row owner, one
-map_read_facts loan, shared DispositionSlotV1<T>. mimalloc-lite EXE
-route re-observed: first terminal is now
-ordinary-field-read/unconsumed-read — HakoAllocPage.allocate's retained
-`return new HakoAllocHandle(me.page_id, ...)` claim is
-RetainedUnavailable (PrefixNotCovered body), leaving the staged
-I64Field argument read without a consumer; the recorded
-artifact-unowned-lifecycle-site is masked upstream. Next:
-RETAINED-NEW-HOME-FLOW-D0 over the named coverage contracts.
+RETAINED-NEW-HOME-FLOW-D0 accepted: the nine-site prefix question
+decomposes into existing Home-flow ownership plus distinct bounded
+grammar admissions (me-field writes, me.<field>.m(..) calls, me.realloc
+param forward, HakoAllocHandleResult Birth replacement/object-param
+stores). Claim census pinned on the real fixture. A
+RetainedUnavailable claim releases its staged argument field reads at
+the prepare-time decline. Next: RETAINED-NEW-HOME-FLOW-S0 —
+Progress::Released + decline-time release; the fixture smoke's first
+terminal should return to artifact-unowned-lifecycle-site.
 """
-next_design_card = "MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0 (per-return Home flow coverage for the nine retained return-new sites: receiver field write vs me.-receiver call vs nullable-local use; staged argument-read ownership across the RetainedUnavailable boundary)"
+next_design_card = "MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-S0 (decline-time staged argument-read release; next grammar admission selection after re-observation)"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0"
+next_execution_card = "MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -45,7 +45,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-30: RETAINED-NEW-HOME-FLOW-D0 accepted — prefix coverage stays with the per-function Home-flow scan; the nine-site census decomposes into bounded grammar admissions plus the HakoAllocHandleResult Birth store bound; RetainedUnavailable claims release staged argument field reads at the prepare-time decline. Next: RETAINED-NEW-HOME-FLOW-S0.",
   "2026-09-30: GATE1-P3-CONTAINERS-TYPES landed (9b95d3adc4) — CompletionSeed folded into the result-contract row owner; map_read_facts single source loan; three sibling Ready/Taken enums unified as DispositionSlotV1<T>. Package suite 396/3 baseline debt. Next: RETAINED-NEW-HOME-FLOW-D0.",
   "2026-09-30: NULLABLE-RESULT-ABI-S0b landed — emit_receiver_nullable in the handle_call owner emits NullableHandle invoke + InvokeNormalResult + HomeReleaseIfLive; flow Nullable row + StoredLocal::ReceivedNullable + CallReceivedNullable; published ordinary_nullable_handle/nullable_handle/const_null/home_release_if_live with C-shim arms; Result-commit birth actuals (destination Option). Focused 21/21; package suite 396/3 baseline debt; known flaky array_source_binding red on HEAD too. Next: rework-queue P3.",
-  "2026-09-30: NULLABLE-RESULT-ABI-S0a landed (d80d6c89cc) — receiver observations carry typed arguments (Integer/Bool/Null/Local; complex args unobserved). Birth-site index folded into the verified sweep — three post-loops merged into one walk. Package suite 393/3 baseline debt. Next: NULLABLE-RESULT-ABI-S0b.",
 ]
