@@ -87,6 +87,16 @@ impl OrdinaryNewClaimLedgerV1 {
         &self.callable_result_classes
     }
 
+    /// Claim-faithful `local x = me.m(..)` call-result evidence — the
+    /// site-keyed index minted by the deferred claim-aware pass. Evidence
+    /// only: no Handle authorization.
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn receiver_call_observations_for_test(
+        &self,
+    ) -> &BTreeMap<OwnedExprSiteV1, super::ReceiverCallClassObservationV1> {
+        &self.receiver_call_observations
+    }
+
     /// Test-only: the sole retained relation for `owner` — `None` when the
     /// owner keeps zero or several exit relations, never an arbitrary pick.
     #[cfg(test)]

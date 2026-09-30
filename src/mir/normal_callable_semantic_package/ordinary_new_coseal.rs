@@ -78,6 +78,9 @@ mod lexical_instance_call;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
 pub(crate) use lexical_instance_call::LexicalInstanceCallDispositionRowV1;
+#[path = "ordinary_new_receiver_call_observation.rs"]
+mod receiver_call_observation;
+pub(crate) use receiver_call_observation::ReceiverCallClassObservationV1;
 #[path = "ordinary_new_result_class_claim.rs"]
 mod result_class_claim;
 pub(crate) use result_class_claim::OrdinaryNewResultClassV1;
@@ -268,6 +271,12 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // constructs `new` of one agreed ordinary box. Read-only after
     // issuance; non-uniform evidence simply produces no row.
     callable_result_classes: result_class_claim::OrdinaryNewResultClassClaimsV1,
+    // Claim-faithful `local x = me.m(..)` call-result observations, keyed
+    // by the exact call site. Minted by the deferred pass after the
+    // result-class fixpoint; `NullableObject` evidence never authorizes
+    // Handle behavior.
+    receiver_call_observations:
+        BTreeMap<OwnedExprSiteV1, receiver_call_observation::ReceiverCallClassObservationV1>,
     // Terminal relations are keyed by the exact source exit statement site:
     // the App Main root map is owner-implied (App Main only), while children
     // keep `(owner -> site -> relation)` in the index. One exit's evidence
@@ -395,6 +404,7 @@ impl OrdinaryNewClaimLedgerV1 {
             birth_site_index: RefCell::new(BTreeMap::new()),
             field_write_claims: BTreeMap::new(),
             callable_result_classes: BTreeMap::new(),
+            receiver_call_observations: BTreeMap::new(),
             terminal_relation: BTreeMap::new(),
             terminal_relation_index: BTreeMap::new(),
             terminal_integer_literal_value: RefCell::new(BTreeMap::new()),

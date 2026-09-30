@@ -24,6 +24,21 @@ fn result_class_claim_row<'a>(
         .find(|(key, _)| key.owner() == owner && key.name() == name)
 }
 
+/// Every `local x = me.m(..)` observation bound to `owner.name` — the
+/// deferred claim-aware pass's site-keyed evidence.
+fn receiver_observations_for<'a>(
+    package: &'a super::VerifiedNormalCallableSemanticPackageV1,
+    owner: &str,
+    name: &str,
+) -> Vec<&'a super::ReceiverCallClassObservationV1> {
+    package
+        .ordinary_new_claim_ledger
+        .receiver_call_observations_for_test()
+        .values()
+        .filter(|row| row.callee().owner() == owner && row.callee().name() == name)
+        .collect()
+}
+
 /// Owner of the one callable whose body shape returns the exact `null`
 /// literal — found through the same sealed facts the claim issuer walks.
 fn null_return_owner(
@@ -312,6 +327,141 @@ static box Main {
         Some((_, super::OrdinaryNewResultClassV1::Object(class)))
             if class.as_ref() == "Page"
     ));
+}
+
+/// `local x = me.m(..)` initializers bind to the callee's composed claim:
+/// an `Object` callee yields definite evidence and a `NullableObject`
+/// callee yields nullable evidence — site-keyed, claim-faithful rows that
+/// never authorize Handle behavior by themselves.
+#[test]
+fn receiver_call_initializers_observe_the_composed_result_class() {
+    let package = issue_with_brand_catalog(
+        r#"
+box Page {
+    init { v }
+    birth(v) { me.v = v }
+    make(flag) { return new Page(flag) }
+    fetch(flag) {
+        if flag == 0 {
+            return null
+        }
+        return new Page(7)
+    }
+    observe(flag) {
+        local made = me.make(flag)
+        local fetched = me.fetch(flag)
+        return 0
+    }
+}
+static box Main {
+    main() { return 0 }
+}
+"#,
+    )
+    .expect("receiver-call observation source package");
+    let made = receiver_observations_for(&package, "Page", "make");
+    assert_eq!(made.len(), 1, "exactly one `me.make` initializer site");
+    assert!(matches!(
+        made[0].class(),
+        super::OrdinaryNewResultClassV1::Object(class) if class.as_ref() == "Page"
+    ));
+    let fetched = receiver_observations_for(&package, "Page", "fetch");
+    assert_eq!(fetched.len(), 1, "exactly one `me.fetch` initializer site");
+    assert!(matches!(
+        fetched[0].class(),
+        super::OrdinaryNewResultClassV1::NullableObject(class) if class.as_ref() == "Page"
+    ));
+}
+
+/// Fail-closed receiver-call grammar: an unclaimed callee, a `me.f.m`
+/// receiver, a parameter receiver, and a rebound destination all stay
+/// unobserved — the existing `BoundValue` + `PrefixNotCovered` floor.
+#[test]
+fn receiver_call_observation_negative_edges_stay_unobserved() {
+    let package = issue_with_brand_catalog(
+        r#"
+box Page {
+    init { v }
+    birth(v) { me.v = v }
+    make(flag) { return new Page(flag) }
+    param_return(p) { return p }
+    observe(flag) {
+        local made = me.make(flag)
+        return 0
+    }
+    unclaimed(flag) {
+        local same = me.param_return(flag)
+        return 0
+    }
+    param_receiver(p, flag) {
+        local made = p.make(flag)
+        return 0
+    }
+    rebound(flag) {
+        local made = me.make(flag)
+        made = me.make(flag + 1)
+        return 0
+    }
+}
+box Work {
+    page: Page
+    birth() { me.page = new Page(0) }
+    field_receiver(flag) {
+        local made = me.page.make(flag)
+        return 0
+    }
+}
+static box Main {
+    main() { return 0 }
+}
+"#,
+    )
+    .expect("negative receiver-call source package");
+    let made = receiver_observations_for(&package, "Page", "make");
+    // Only `observe`'s sole-initialized `me.make` site is evidence — the
+    // field receiver, parameter receiver, and rebound destination sites
+    // keep the non-coverage floor.
+    assert_eq!(made.len(), 1);
+    assert!(
+        receiver_observations_for(&package, "Page", "param_return").is_empty(),
+        "an unclaimed callee never mints an observation"
+    );
+}
+
+/// The real `page_heap_box.hako` sites: `local handle = me.allocate(size)`
+/// and `local replacement = me.allocate(requested_size)` observe the
+/// composed `NullableObject(HakoAllocHandle)` claim, while `me.realloc`
+/// and the `me.<field>.m` sites stay unobserved.
+#[test]
+fn page_heap_fixture_observes_me_allocate_and_floors_realloc() {
+    let package = issue_with_brand_catalog(include_str!(
+        "../../../lang/src/hako_alloc/memory/page_heap_box.hako"
+    ))
+    .expect("page_heap fixture source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let allocate = receiver_observations_for(&package, "HakoAllocHeap", "allocate");
+    assert_eq!(
+        allocate.len(),
+        2,
+        "allocateResult:219 and realloc:287 are the two `me.allocate` sites"
+    );
+    for row in &allocate {
+        assert!(matches!(
+            row.class(),
+            super::OrdinaryNewResultClassV1::NullableObject(class)
+                if class.as_ref() == "HakoAllocHandle"
+        ));
+    }
+    assert!(
+        receiver_observations_for(&package, "HakoAllocHeap", "realloc").is_empty(),
+        "realloc stays unclaimed — its `me.realloc` site keeps the floor"
+    );
+    // `me.<field>.m(..)` receivers are `Other` — never observed here even
+    // if the callee were claimed.
+    assert!(ledger
+        .receiver_call_observations_for_test()
+        .values()
+        .all(|row| row.callee().owner() == "HakoAllocHeap" && row.callee().name() == "allocate"));
 }
 
 #[test]

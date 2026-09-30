@@ -16,7 +16,8 @@ use super::candidate::{
 use super::coseal_helpers::{
     convert_selected_new_arguments, is_direct_local_initializer, retain_child_terminal_relation,
 };
-use super::{field_reads, field_write_claim, result_class_claim, terminal_home};
+use super::{field_reads, field_write_claim, receiver_call_observation, result_class_claim,
+    terminal_home};
 use super::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1,
     OrdinaryNewResultClaimV1, VerifiedOrdinaryNewBirthRecipeV1,
@@ -698,6 +699,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         result_claims.into_boxed_slice(),
         names,
     );
+    receiver_call_observation::install_v1(&mut ledger, batch, selected, &callable_result_classes);
     ledger.field_write_claims = field_write_claims;
     ledger.callable_result_classes = callable_result_classes;
     ledger.birth_site_index = std::cell::RefCell::new(birth_site_index);
@@ -707,8 +709,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.birth_abi_handoffs = std::cell::RefCell::new(birth_abi_handoffs);
     ledger.terminal_relation = root_terminal_relation;
     ledger.app_main_identity = app_main_identity.cloned();
-    let seeds = seeds.finish();
-    Ok((ledger, seeds))
+    Ok((ledger, seeds.finish()))
 }
 
 /// Admit one `new` construction site into the destination-less birth index
