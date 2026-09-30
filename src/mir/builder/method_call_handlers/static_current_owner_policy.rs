@@ -28,7 +28,9 @@ impl MeCallPolicyBox {
         descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
     ) -> Result<Option<ValueId>, String>
     where
-        Port: MethodCallLoweringPortV1 + StaticResultPublicationIngressPortV1,
+        Port: MethodCallLoweringPortV1
+            + StaticResultPublicationIngressPortV1
+            + crate::mir::builder::recursive_child_lowering_port::DirectCallDispositionPortV1,
     {
         // StaticCurrentOwner has a source-backed exact target.  Take that
         // target before the legacy header observer or any argument effect.
@@ -92,6 +94,18 @@ impl MeCallPolicyBox {
             arguments.len(),
             crate::config::env::builder_me_call_arity_strict(),
         )?;
+        // A sealed `Nullable` receiver-call observation owns this site's
+        // emission: the lifecycle invoke must fire before the generic
+        // canonical-instance terminal, and any contract gap freezes inside
+        // the port rather than degrading to the plain Call.
+        if let PreparedMeCallExecutionV1::CanonicalInstance { ref key, receiver } = prepared {
+            if let Some(value) = descent
+                .terminal_port()
+                .emit_receiver_nullable_lifecycle_call_v1(builder, key, receiver)?
+            {
+                return Ok(Some(value));
+            }
+        }
         Self::execute(builder, method, arguments, descent, prepared)
     }
 }

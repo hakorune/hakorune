@@ -17,11 +17,15 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 /// `Handle` marks a call into an unannotated callee whose sealed terminal
 /// relation proves a `return new` construction — the caller receives the
 /// transferred object as an owned Home and owes exactly one release.
+/// `Nullable` marks a `me.m(..)` receiver call whose callee claim is
+/// `NullableObject` — the caller receives an owned object or the `Void`
+/// sentinel and owes a checked release, never an unconditional one.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LocalCallResultClassV1 {
     I64,
     Map,
     Handle,
+    Nullable,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -150,6 +154,58 @@ pub(crate) fn issue_lexical_local_call<E>(
         prior_homes.iter().copied().collect(),
         arguments.into_boxed_slice(),
         result,
+    )))
+}
+
+/// Issue one `local x = me.m(..)` receiver-call continuation whose site
+/// already carries the package's nullable receiver-call observation. The
+/// predicate is the sole membership authority — this helper never re-reads
+/// the expression or infers a callee class. Typed argument evidence stays
+/// on the package row (`ReceiverCallClassObservationV1`); the flow row
+/// records no argument literals because they are not `i64` literals alone.
+pub(crate) fn issue_receiver_local_call<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &SourceStmtSiteV1,
+    site: &OwnedExprSiteV1,
+    declaration: SourceBindingSiteV1,
+    destination: BindingRefV1,
+    prior_homes: &[BindingRefV1],
+    local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+) -> Result<Option<LocalCallObservationV1>, E> {
+    if !local_nullable_call(site)? {
+        return Ok(None);
+    }
+    let Some((observed_site, call)) = input
+        .function()
+        .method_calls()
+        .find(|(observed_site, _)| *observed_site == site.site())
+    else {
+        return Ok(None);
+    };
+    // The sealed observation is sole membership — the predicate already
+    // proved this site is the entry-loan `me` receiver. The inventory
+    // check only retains that `me` in an instance method resolves to a
+    // lexical `Local` binding; `CurrentOwner`/`Other`/`QualifiedUnbound`
+    // receiver shapes can never agree with the sealed row.
+    if observed_site != site.site()
+        || !matches!(
+            call.receiver(),
+            super::ResolvedMethodCallReceiverSourceV1::Lexical(
+                super::ResolvedLexicalRefV1::Local(_)
+            )
+        )
+    {
+        return Ok(None);
+    }
+    Ok(Some(LocalCallObservationV1::issue(
+        input.owner(),
+        statement.clone(),
+        site.clone(),
+        declaration,
+        destination,
+        prior_homes.iter().copied().collect(),
+        Box::new([]),
+        LocalCallResultClassV1::Nullable,
     )))
 }
 

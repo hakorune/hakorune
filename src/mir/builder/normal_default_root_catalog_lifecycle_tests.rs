@@ -730,3 +730,85 @@ fn parser_scan_package_passes_callable_source_handoff_without_fallback() {
     assert!(rejected._source.is_none());
     rejected.discard();
 }
+
+/// `local h = me.fetch(..)` where `fetch` claims `NullableObject` lowers
+/// through the nullable lifecycle lane: the call site emits the
+/// `NullableHandle` invoke result and the caller's exit chain owes the
+/// received value a checked `HomeReleaseIfLive` — never an unconditional
+/// `HomeRelease` on a value that may carry the `Void` sentinel.
+#[test]
+fn nullable_receiver_call_emits_lifecycle_invoke_and_checked_release() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        r#"
+box Probe {
+    init { v }
+    birth(v) { me.v = v }
+    fetch(flag) {
+        if flag == 0 {
+            return null
+        }
+        return new Probe(7)
+    }
+    run(flag: i64) {
+        local h = me.fetch(flag)
+        return 0
+    }
+}
+static box Main {
+    main() {
+        local p = new Probe(1)
+        return p.run(0)
+    }
+}
+"#,
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("nullable receiver call must lower");
+    let (_, module, _) = completed.into_parts();
+    let run = module
+        .functions
+        .iter()
+        .find(|(_, function)| function.signature.name == "Probe.run/1")
+        .map(|(_, function)| function)
+        .expect("lowered Probe.run function");
+    let invokes: Vec<_> = run
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Invoke { operation, .. } => Some(operation),
+            _ => None,
+        })
+        .collect();
+    assert!(
+        invokes.iter().any(|operation| matches!(
+            operation,
+            crate::mir::instruction::InvokeOperation::Call {
+                result: crate::mir::instruction::InvokeCallResultKind::NullableHandle,
+                ..
+            }
+        )),
+        "nullable receiver call must emit the NullableHandle invoke: {invokes:?}"
+    );
+    assert!(
+        invokes.iter().any(|operation| matches!(
+            operation,
+            crate::mir::instruction::InvokeOperation::HomeReleaseIfLive { .. }
+        )),
+        "the received nullable owes a checked release at exit: {invokes:?}"
+    );
+    assert!(
+        invokes.iter().all(|operation| !matches!(
+            operation,
+            crate::mir::instruction::InvokeOperation::HomeRelease { .. }
+        )),
+        "a nullable result must never emit an unconditional release: {invokes:?}"
+    );
+}

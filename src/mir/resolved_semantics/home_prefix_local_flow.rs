@@ -29,6 +29,10 @@ enum StoredLocal {
     /// acquisition is a call site — never a `new` site — so the
     /// home-acquisition lookups must not surface it.
     ReceivedHandle,
+    /// A nullable receiver-call result the caller owns only when non-null.
+    /// It owes the caller's exit a checked release and must never satisfy
+    /// a `Handle`-only probe — the `Void` sentinel is a real outcome.
+    ReceivedNullable,
     Map,
     /// A `: MapBox` declared formal — caller-owned map storage borrowed
     /// read-only for the call. It reads like a live map but owns nothing:
@@ -80,6 +84,7 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
     match (left, right) {
         (StoredLocal::Home { acquisition: a }, StoredLocal::Home { acquisition: b }) => a == b,
         (StoredLocal::ReceivedHandle, StoredLocal::ReceivedHandle) => true,
+        (StoredLocal::ReceivedNullable, StoredLocal::ReceivedNullable) => true,
         (StoredLocal::Map, StoredLocal::Map) => true,
         (StoredLocal::BorrowedMap, StoredLocal::BorrowedMap) => true,
         (StoredLocal::Consumed, StoredLocal::Consumed) => true,
@@ -211,6 +216,11 @@ impl<'source> PrefixLocalFlow<'source> {
             | StoredLocal::ReceivedHandle
             | StoredLocal::Map
             | StoredLocal::BorrowedMap => Some(OrdinaryObservation::Handle(binding)),
+            // A nullable result is a produced value, never a handle root —
+            // the `Void` sentinel arm keeps every Handle-classified use
+            // fail-closed while `new` argument observation can still name
+            // the binding's value.
+            StoredLocal::ReceivedNullable => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::Handle(root)
                 if !matches!(self.locals.get(root), Some(StoredLocal::Consumed)) =>
             {
@@ -367,6 +377,13 @@ impl<'source> PrefixLocalFlow<'source> {
     /// carries no `new` acquisition site, so it installs on its own arm.
     pub(super) fn install_received_handle(&mut self, binding: BindingRefV1) {
         self.locals.insert(binding, StoredLocal::ReceivedHandle);
+    }
+
+    /// A received nullable call result: the caller owns it conditionally —
+    /// the exit chain owes a checked release, and no acquisition site or
+    /// scalar class ever applies.
+    pub(super) fn install_received_nullable(&mut self, binding: BindingRefV1) {
+        self.locals.insert(binding, StoredLocal::ReceivedNullable);
     }
 
     pub(super) fn install_i64_call_result(&mut self, binding: BindingRefV1) {

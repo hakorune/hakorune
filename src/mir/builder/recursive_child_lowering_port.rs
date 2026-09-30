@@ -271,6 +271,22 @@ pub(in crate::mir::builder) trait DirectCallDispositionPortV1 {
         Ok(None)
     }
 
+    /// Emit one receiver call (`me.m(...)`) whose caller-side scan sealed a
+    /// `Nullable` result observation at the current call site. `key` is the
+    /// prepared canonical instance target and `receiver` the materialized
+    /// `me` value from the declared-instance ingress. Ports without the
+    /// ordinary-new claim ledger stay unarmed (`None`); a port seeing the
+    /// sealed observation but failing any agreement check freezes rather
+    /// than degrading to the generic canonical-instance call.
+    fn emit_receiver_nullable_lifecycle_call_v1(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        _receiver: ValueId,
+    ) -> Result<Option<ValueId>, String> {
+        Ok(None)
+    }
+
     fn validate_current_call_argument_site_v1(
         &self,
         _expected: &SourceExprSiteV1,

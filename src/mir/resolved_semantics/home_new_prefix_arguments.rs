@@ -45,6 +45,9 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         &mut |_| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
+        // This bounded sibling mints no receiver-call rows: nullable flow
+        // membership lives on the verified-completion lane alone.
+        &mut |_| Ok(false),
         // This bounded sibling issues no field-read evidence: argument
         // `me.f` reads stay truthfully unavailable here. Only the
         // verified-completion lane carries the issuer predicate.
@@ -89,6 +92,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         &BTreeSet::new(),
         field_is_integer,
         &mut |_, _| Ok(false),
+        &mut |_| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),

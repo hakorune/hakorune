@@ -234,24 +234,49 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
-    /// A handle-result local `Call` emits exactly one `Invoke{Call{Handle}}`
-    /// whose normal result the receiving local keeps, and the caller's
-    /// terminal cleanup owes exactly one `HomeRelease` on the callee's
-    /// canonical object identity.
+    /// A received-call local emits exactly one `Invoke{Call}` whose normal
+    /// result the receiving local keeps, and the caller's terminal cleanup
+    /// discharges that value through the release the commit sealed: a
+    /// definite `Handle` result owes one unconditional `HomeRelease`, while
+    /// a `Nullable` result may carry the `Void` sentinel and owes exactly
+    /// one checked `HomeReleaseIfLive` — never an unconditional release.
     fn validate_call_received_emission(
         &self,
         site: &OwnedExprSiteV1,
         function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
-        let call = self
-            .handle_call_source(site)
-            .ok_or_else(|| freeze("handle-call-source-missing"))?;
         let rows = self.local_commits.borrow();
         let Some(LocalCommitV1::CallReceived(row)) = rows.get(site) else {
             return Err(freeze("handle-progress-missing"));
         };
-        if row.binding != call.destination() || row.local().is_none() {
+        // Flow membership and argument evidence share one sealed edge:
+        // Handle rows carry literal arguments on the flow row itself, while
+        // the Nullable row's typed arguments live on the receiver-call
+        // observation — the expected arity comes from whichever authority
+        // sealed the class.
+        let (call_destination, expected_arity) = match row.release {
+            CallReceivedReleaseV1::Handle => {
+                let call = self
+                    .handle_call_source(site)
+                    .ok_or_else(|| freeze("handle-call-source-missing"))?;
+                (call.destination(), call.arguments().len())
+            }
+            CallReceivedReleaseV1::Nullable => {
+                let call = self
+                    .nullable_call_source(site)
+                    .ok_or_else(|| freeze("nullable-call-source-missing"))?;
+                let observation = self
+                    .receiver_call_observation(site)
+                    .ok_or_else(|| freeze("nullable-observation-missing"))?;
+                (call.destination(), observation.arguments().len())
+            }
+        };
+        let expected_result_kind = match row.release {
+            CallReceivedReleaseV1::Handle => InvokeCallResultKind::Handle,
+            CallReceivedReleaseV1::Nullable => InvokeCallResultKind::NullableHandle,
+        };
+        if row.binding != call_destination || row.local().is_none() {
             return Err(freeze("handle-local-incomplete"));
         }
         let CallReceivedProgress::Emitted {
@@ -266,10 +291,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 matches!(instruction, MirInstruction::Invoke {
                     operation: InvokeOperation::Call {
                         call: emitted,
-                        result: InvokeCallResultKind::Handle,
+                        result: emitted_result,
                     },
                     ..
-                } if emitted.args.len() == call.arguments().len())
+                } if *emitted_result == expected_result_kind
+                    && emitted.args.len() == expected_arity)
             })
             .collect();
         if invokes.len() != 1 {
@@ -294,17 +320,45 @@ impl OrdinaryNewClaimLedgerV1 {
                 matches!(
                     instruction,
                     MirInstruction::Invoke {
-                        operation: InvokeOperation::HomeRelease { object, value },
+                        operation: InvokeOperation::HomeRelease { object, value }
+                        | InvokeOperation::HomeReleaseIfLive { object, value },
                         ..
                     } if *object == row.object && value == result
                 )
             })
+            .collect::<Vec<_>>();
+        let missing = match row.release {
+            CallReceivedReleaseV1::Handle => "handle-release-missing",
+            CallReceivedReleaseV1::Nullable => "nullable-release-missing",
+        };
+        let matching = releases
+            .iter()
+            .filter(|instruction| match (row.release, instruction) {
+                (
+                    CallReceivedReleaseV1::Handle,
+                    MirInstruction::Invoke {
+                        operation: InvokeOperation::HomeRelease { .. },
+                        ..
+                    },
+                )
+                | (
+                    CallReceivedReleaseV1::Nullable,
+                    MirInstruction::Invoke {
+                        operation: InvokeOperation::HomeReleaseIfLive { .. },
+                        ..
+                    },
+                ) => true,
+                _ => false,
+            })
             .count();
-        if releases != 1 {
-            return Err(freeze(if releases == 0 {
-                "handle-release-missing"
+        // A release of the wrong shape is just as fatal as a missing one:
+        // unconditional `HomeRelease` on a `Void`-carrying value would
+        // release the sentinel.
+        if releases.len() != 1 || matching != 1 {
+            return Err(freeze(if releases.is_empty() {
+                missing
             } else {
-                "handle-release-duplicate"
+                "handle-release-shape-drift"
             }));
         }
         Ok(())

@@ -42,6 +42,126 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect()
     }
 
+    /// The sealed nullable-result receiver call at this expression site:
+    /// the callee's claim is `NullableObject` — the caller owns the result
+    /// only when it is not the `Void` sentinel.
+    pub(crate) fn nullable_call_source(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Option<&LocalCallObservationV1> {
+        self.completion_for_owner(site.owner())
+            .and_then(|c| c.cleanup().root_flow())
+            .and_then(|flow| {
+                flow.local_calls().iter().find(|call| {
+                    call.site() == site
+                        && call.owner() == site.owner()
+                        && call.result() == LocalCallResultClassV1::Nullable
+                })
+            })
+    }
+
+    /// The sealed `local x = me.m(..)` class observation at one exact call
+    /// site — callee key, agreed class, and typed argument evidence.
+    pub(crate) fn receiver_call_observation(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Option<&crate::mir::normal_callable_semantic_package::ReceiverCallClassObservationV1>
+    {
+        self.receiver_call_observations.get(site)
+    }
+
+    /// Prior-home unwind operands for a Nullable receiver call's fault
+    /// landing — the same newest-first live-Home chain the Handle lane
+    /// emits; a `me` receiver borrows and never joins `prior_homes`.
+    pub(crate) fn nullable_call_prior_home_unwind(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Result<Vec<InvokeOperation>, String> {
+        let call = self
+            .nullable_call_source(site)
+            .ok_or_else(|| freeze("nullable-call-source-missing"))?;
+        let rows = self.local_commits.borrow();
+        call.prior_homes()
+            .iter()
+            .rev()
+            .map(|binding| match installed_home(&rows, *binding) {
+                Ok(row) if row.end_available() => Ok(row.end_operation()),
+                _ => Err(freeze("nullable-call-prior-home-unavailable")),
+            })
+            .collect()
+    }
+
+    /// Begin emission for a nullable-result receiver call: the sealed
+    /// local-call relation is sole membership, the callee's `NullableObject`
+    /// claim names the class, and the result claims for that class mint
+    /// the canonical object the live arm of the result carries. The `Void`
+    /// sentinel arm mints no object — the exit release is checked.
+    pub(crate) fn begin_nullable_call_emission(
+        &self,
+        site: &OwnedExprSiteV1,
+        callee: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    ) -> Result<(), String> {
+        let call = self
+            .nullable_call_source(site)
+            .ok_or_else(|| freeze("nullable-call-source-missing"))?;
+        if !matches!(call.declaration(), SourceBindingSiteV1::Local { .. }) {
+            return Err(freeze("nullable-call-declaration-drift"));
+        }
+        let class = match self.callable_result_classes.get(callee) {
+            Some(
+                crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(
+                    class,
+                ),
+            ) => class.clone(),
+            _ => return Err(freeze("nullable-result-class-mismatch")),
+        };
+        // Object identity is per-class canonical: every result claim naming
+        // this class — whichever `new` site minted it — must agree on the
+        // same object. An already-lowered `return new` site moves its row
+        // from `result_claims` to the `Result` commit, so the lookup covers
+        // both stores. No claims or a drifted set freezes rather than
+        // borrowing an arbitrary site's identity.
+        let object = {
+            let claims = self.result_claims.borrow();
+            let commits = self.local_commits.borrow();
+            let mut objects = claims
+                .values()
+                .filter(|claim| claim.class() == class.as_ref())
+                .map(|claim| claim.object())
+                .chain(commits.values().filter_map(|row| match row {
+                    LocalCommitV1::Result(result)
+                        if result.box_source.name() == class.as_ref() =>
+                    {
+                        Some(result.object())
+                    }
+                    _ => None,
+                }));
+            let object = objects
+                .next()
+                .ok_or_else(|| freeze("nullable-result-object-missing"))?;
+            if objects.any(|other| other != object) {
+                return Err(freeze("nullable-result-object-drift"));
+            }
+            object
+        };
+        let mut rows = self.local_commits.borrow_mut();
+        if rows.contains_key(site) {
+            return Err(freeze("nullable-duplicate-emission"));
+        }
+        rows.insert(
+            site.clone(),
+            LocalCommitV1::CallReceived(CallReceivedCommitV1 {
+                owner: site.owner(),
+                binding: call.destination(),
+                declaration: call.declaration().clone(),
+                object,
+                release: CallReceivedReleaseV1::Nullable,
+                progress: CallReceivedProgress::Emitting,
+            }),
+        );
+        Ok(())
+    }
+
     /// The canonical object the callee's result claim/commit minted for a
     /// `return new` site — the identity a caller-side received handle keeps.
     pub(crate) fn result_object(&self, site: &OwnedExprSiteV1) -> Option<CanonicalObjectIdV1> {
@@ -96,6 +216,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 binding: call.destination(),
                 declaration: call.declaration().clone(),
                 object,
+                release: CallReceivedReleaseV1::Handle,
                 progress: CallReceivedProgress::Emitting,
             }),
         );

@@ -21,6 +21,12 @@ fn result_type(result: InvokeCallResultKind, class: Option<&str>) -> Result<MirT
         InvokeCallResultKind::Handle => class
             .map(|class| MirType::Box(class.to_string()))
             .ok_or_else(|| freeze("handle-result-class-missing")),
+        // A nullable result is a box handle on the live arm and the `Void`
+        // sentinel otherwise — the sealed claim (not the runtime value)
+        // authorizes the `Box` classification of the live arm.
+        InvokeCallResultKind::NullableHandle => class
+            .map(|class| MirType::Box(class.to_string()))
+            .ok_or_else(|| freeze("nullable-result-class-missing")),
         _ => Ok(MirType::Integer),
     }
 }
@@ -388,6 +394,121 @@ pub(in crate::mir::builder) fn emit_local_lexical(
     builder.function_state.type_ctx.value_types.insert(
         result,
         result_type(InvokeCallResultKind::Handle, Some(result_class))?,
+    );
+    bindings.push((origin, invoke));
+    bindings.push((normal_landing, projection));
+    ledger.record_handle_call_emission(&owned_site, result, bindings)?;
+    Ok(result)
+}
+
+/// Emit one source-issued `local x = me.m(..)` receiver call whose sealed
+/// package observation carries the callee's `NullableObject` claim. The
+/// flow row is sole membership, the observation row is the sole typed
+/// argument/callee authority, and the `me` receiver arrives already
+/// materialized from the declared-instance ingress — this lane never
+/// re-lowers an expression or falls back to the generic call. The result
+/// binds a nullable handle: the caller's exit owes `HomeReleaseIfLive`,
+/// never an unconditional release.
+pub(in crate::mir::builder) fn emit_receiver_nullable(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
+    site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    receiver: ValueId,
+) -> Result<ValueId, String> {
+    let owned_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
+    let relation = ledger
+        .nullable_call_source(&owned_site)
+        .ok_or_else(|| freeze("nullable-call-source-missing"))?;
+    // The flow row proves membership; the observation row is the sealed
+    // evidence that minted it. One without the other is a half-sealed
+    // edge — freeze, never infer.
+    let observation = ledger
+        .receiver_call_observation(&owned_site)
+        .ok_or_else(|| freeze("nullable-observation-missing"))?;
+    let class = match observation.class() {
+        crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(
+            class,
+        ) => class.clone(),
+        _ => return Err(freeze("nullable-class-drift")),
+    };
+    if observation.callee() != key || observation.destination() != relation.destination() {
+        return Err(freeze("nullable-target-drift"));
+    }
+    if observation.arguments().len() != key.arity() as usize {
+        return Err(freeze("nullable-arity-mismatch"));
+    }
+    ledger.begin_nullable_call_emission(&owned_site, key)?;
+    let unwind = ledger.nullable_call_prior_home_unwind(&owned_site)?;
+    let frame = state.borrow_fault_frame(builder)?;
+    let origin = builder
+        .function_state
+        .current_block
+        .ok_or_else(|| freeze("no-block"))?;
+    let normal_landing = builder.next_block_id();
+    let outward = builder.next_block_id();
+    let result = builder.next_value_id();
+    let mut bindings = vec![fault_frame_binding(builder, state, frame)?];
+    append_block(
+        builder,
+        outward,
+        MirInstruction::ReturnFault { fault_frame: frame },
+        &mut bindings,
+    )?;
+    // The call's fault path unwinds the prior Homes exactly like every
+    // other lifecycle call — the received nullable does not exist yet.
+    let fault_landing = cleanup_chain(builder, frame, unwind, outward, &mut bindings)?;
+    let mut arguments = Vec::with_capacity(observation.arguments().len());
+    for argument in observation.arguments() {
+        use crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentKindV1;
+        let value = match argument.kind() {
+            SelectedNewArgumentKindV1::Integer(literal) => {
+                crate::mir::builder::emission::constant::emit_integer(builder, *literal)?
+            }
+            SelectedNewArgumentKindV1::Local { binding } => {
+                let value = state
+                    .take_exact_lexical_value(owner, argument.site().node(), *binding)
+                    .map_err(|error| format!("[freeze:contract][nullable-argument/{error:?}]"))?;
+                match builder.function_state.type_ctx.value_types.get(&value) {
+                    Some(MirType::Integer) => {}
+                    _ => return Err(freeze("nullable-argument-carrier")),
+                }
+                value
+            }
+            // The wire carries i64 carriers only — a Bool/Null literal
+            // argument stays unadmitted rather than guessing a lane.
+            _ => return Err(freeze("nullable-argument-carrier")),
+        };
+        arguments.push(value);
+    }
+    let invoke = MirInstruction::Invoke {
+        operation: InvokeOperation::Call {
+            call: MirCall::new(
+                None,
+                crate::mir::definitions::Callee::SameModuleInstance {
+                    key: key.clone(),
+                    receiver,
+                },
+                arguments,
+            ),
+            result: InvokeCallResultKind::NullableHandle,
+        },
+        fault_frame: frame,
+        normal_landing,
+        fault_landing,
+    };
+    builder.emit_instruction(invoke.clone())?;
+    builder.start_new_block(normal_landing)?;
+    let projection = MirInstruction::InvokeNormalResult {
+        invoke_block: origin,
+        dst: result,
+    };
+    builder.emit_instruction(projection.clone())?;
+    builder.function_state.type_ctx.value_types.insert(
+        result,
+        result_type(InvokeCallResultKind::NullableHandle, Some(class.as_ref()))?,
     );
     bindings.push((origin, invoke));
     bindings.push((normal_landing, projection));

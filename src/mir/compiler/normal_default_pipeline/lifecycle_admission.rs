@@ -51,9 +51,9 @@ pub(super) fn admit_lifecycle<'module>(
 }
 
 /// Ordinary membership is every sealed `Call` edge target in the module, not
-/// just the retained root's direct calls. A `Map` result edge carries the
-/// same membership authority as `I64`; artifact issuance keeps deciding which
-/// callers actually serialize rows.
+/// just the retained root's direct calls. A `Map` or `NullableHandle` result
+/// edge carries the same membership authority as `I64`; artifact issuance
+/// keeps deciding which callers actually serialize rows.
 fn ordinary_call_names(module: &MirModule) -> Result<BTreeSet<String>, String> {
     let mut names = BTreeSet::new();
     for function in module.functions.values() {
@@ -68,7 +68,8 @@ fn ordinary_call_names(module: &MirModule) -> Result<BTreeSet<String>, String> {
                         call,
                         result:
                             crate::mir::instruction::InvokeCallResultKind::I64
-                            | crate::mir::instruction::InvokeCallResultKind::Map,
+                            | crate::mir::instruction::InvokeCallResultKind::Map
+                            | crate::mir::instruction::InvokeCallResultKind::NullableHandle,
                     },
                 ..
             } = instruction

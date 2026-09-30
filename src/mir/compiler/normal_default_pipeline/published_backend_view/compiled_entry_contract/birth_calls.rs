@@ -15,15 +15,17 @@ pub(super) fn issue_birth_calls_for_program(
     let indexed = births.to_vec();
     for (i, actual) in actuals.iter().enumerate() {
         if actuals[..i].iter().any(|previous| {
-            previous.site() == actual.site() || previous.destination() == actual.destination()
-        }) || actual.destination().owner() != actual.site().owner()
+            previous.site() == actual.site()
+                || (actual.destination().is_some()
+                    && previous.destination() == actual.destination())
+        }) || actual.owner() != actual.site().owner()
             || actual
                 .arguments()
                 .iter()
                 .enumerate()
                 .any(|(ordinal, argument)| {
                     argument.source().ordinal() as usize != ordinal
-                        || argument.source().owner() != actual.destination().owner()
+                        || argument.source().owner() != actual.owner()
                         || argument.source().new_site() != actual.site()
                 })
         {
@@ -52,7 +54,10 @@ pub(super) fn issue_birth_calls_for_program(
             PublishedLifecyclePhysicalFunctionRoleV1::Root { .. } => Some(root_owner),
             PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key, .. }
             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { key, .. }
-            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { key, .. } => {
+            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { key, .. }
+            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle {
+                key, ..
+            } => {
                 let has_birth = function.blocks().iter().any(|block| {
                     block
                         .instructions()

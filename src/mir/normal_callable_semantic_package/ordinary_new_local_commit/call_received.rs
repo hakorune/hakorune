@@ -13,7 +13,16 @@ pub(super) struct CallReceivedCommitV1 {
     pub(super) binding: BindingRefV1,
     pub(super) declaration: SourceBindingSiteV1,
     pub(super) object: hakorune_mir_defs::CanonicalObjectIdV1,
+    /// How the caller's exit discharges the received value: a definite
+    /// `Handle` result is unconditionally live, while a `Nullable` result
+    /// may carry the `Void` sentinel and owes a checked release instead.
+    pub(super) release: CallReceivedReleaseV1,
     pub(super) progress: CallReceivedProgress,
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum CallReceivedReleaseV1 {
+    Handle,
+    Nullable,
 }
 #[derive(Debug)]
 pub(super) enum CallReceivedProgress {
@@ -85,9 +94,16 @@ impl CallReceivedCommitV1 {
         )
     }
     pub(super) fn end_operation(&self) -> InvokeOperation {
-        InvokeOperation::HomeRelease {
-            object: self.object,
-            value: self.local().expect("installed received handle"),
+        let value = self.local().expect("installed received handle");
+        match self.release {
+            CallReceivedReleaseV1::Handle => InvokeOperation::HomeRelease {
+                object: self.object,
+                value,
+            },
+            CallReceivedReleaseV1::Nullable => InvokeOperation::HomeReleaseIfLive {
+                object: self.object,
+                value,
+            },
         }
     }
     pub(super) fn checked_bindings(&self) -> Result<&[(BasicBlockId, MirInstruction)], String> {

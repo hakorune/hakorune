@@ -70,7 +70,11 @@ static hako_lv4_block* lv4_index_block(hako_lv4_function_index* fn, uint32_t id)
 static int lv4_operation_result(yyjson_val* op) {
   if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new")) return LV4_HANDLE;
   if (lv4_is(op, "kind", "ordinary_call"))
-    return lv4_is(op, "result", "map") ? LV4_MAP : LV4_I64;
+    /* A nullable call result occupies a handle lease slot: it carries a
+       live object or the Void sentinel and owns the caller one checked
+       release. */
+    return lv4_is(op, "result", "map") ? LV4_MAP
+        : lv4_is(op, "result", "nullable_handle") ? LV4_HANDLE : LV4_I64;
   if (lv4_is(op, "kind", "map_new")) return LV4_MAP;
   if (lv4_is(op, "kind", "map_prepare_key")) return LV4_KEY;
   if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
@@ -92,6 +96,9 @@ static int lv4_index_seed(hako_lv4_function_index* fn, hako_lv4_value* value) {
     value->kind = LV4_BOOL;
   else if (lv4_is(ins, "op", "const_f64_bits")) value->kind = LV4_F64;
   else if (lv4_is(ins, "op", "const_unit")) value->kind = LV4_UNIT;
+  /* The Void null sentinel shares the handle lane statically: origin stays
+     negative so it can never be a live lease or reach a release operand. */
+  else if (lv4_is(ins, "op", "const_null")) value->kind = LV4_HANDLE;
   else if (lv4_is(ins, "op", "const_string")) value->kind = LV4_TEXT;
   else if (lv4_is(ins, "op", "fault_frame_enter")) value->kind = LV4_FRAME;
   else if (lv4_is(ins, "op", "invoke_normal_result")) {
@@ -209,7 +216,8 @@ static int lv4_index_open(hako_lv4_input* in) {
     yyjson_val* body = yyjson_arr_get(in->functions, fi);
     int birth = lv4_is(body, "role", "birth_unit");
     int ordinary = lv4_is(body, "role", "ordinary_i64") ||
-        lv4_is(body, "role", "ordinary_map");
+        lv4_is(body, "role", "ordinary_map") ||
+        lv4_is(body, "role", "ordinary_nullable_handle");
     int ordinary_receiver = ordinary && yyjson_is_uint(yyjson_obj_get(body, "receiver"));
     yyjson_val* blocks = hako_physical_blocks(body);
     yyjson_val* params = yyjson_obj_get(body, "params");

@@ -37,6 +37,7 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     ArrayWrite,
     FieldSet,
     HomeRelease,
+    HomeReleaseIfLive,
     ReclaimUnpublished,
 }
 
@@ -64,6 +65,7 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             InvokeOperation::NewBox { .. } => Some(Self::NewBox),
             InvokeOperation::FieldSet { .. } => Some(Self::FieldSet),
             InvokeOperation::HomeRelease { .. } => Some(Self::HomeRelease),
+            InvokeOperation::HomeReleaseIfLive { .. } => Some(Self::HomeReleaseIfLive),
             InvokeOperation::ReclaimUnpublished { .. } => Some(Self::ReclaimUnpublished),
             InvokeOperation::IntrinsicArrayNew => Some(Self::ArrayNew),
             InvokeOperation::ArrayStateContractClaim { .. } => Some(Self::ArrayClaim),
@@ -387,6 +389,7 @@ fn referenced_objects(
                         })
                         | InvokeOperation::NewBox { object }
                         | InvokeOperation::HomeRelease { object, .. }
+                        | InvokeOperation::HomeReleaseIfLive { object, .. }
                         | InvokeOperation::ReclaimUnpublished { object, .. } => {
                             ids.insert(object.declaration_index());
                         }

@@ -42,6 +42,11 @@ pub enum InvokeCallResultKind {
     /// projected ValueId is a `MirType::Box(class)` handle the caller owns
     /// and must release exactly once.
     Handle,
+    /// The callee's sealed claim is `NullableObject(C)`: the Return edge
+    /// carries `BoxRef` or the `Void` null sentinel. The caller owns the
+    /// object when non-null and owes a checked release — never the
+    /// unconditional `Handle` contract.
+    NullableHandle,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -81,6 +86,12 @@ pub enum InvokeOperation {
         object: hakorune_mir_defs::CanonicalObjectIdV1,
         value: ValueId,
     },
+    /// Release a nullable received handle only when the value is non-null:
+    /// the `Void` sentinel skips the reclaim, a `BoxRef` releases once.
+    HomeReleaseIfLive {
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
+        value: ValueId,
+    },
     /// Reclaim only incomplete outer storage; never invoke the parent's fini.
     ReclaimUnpublished {
         object: hakorune_mir_defs::CanonicalObjectIdV1,
@@ -106,6 +117,10 @@ impl InvokeOperation {
                 ..
             } => Some(InvokeNormalResultKind::Handle),
             Self::Call {
+                result: InvokeCallResultKind::NullableHandle,
+                ..
+            } => Some(InvokeNormalResultKind::NullableHandle),
+            Self::Call {
                 result: InvokeCallResultKind::Unit,
                 ..
             }
@@ -113,6 +128,7 @@ impl InvokeOperation {
             | Self::ArrayStateContractClaim { .. }
             | Self::ArrayElementWrite { .. }
             | Self::HomeRelease { .. }
+            | Self::HomeReleaseIfLive { .. }
             | Self::ReclaimUnpublished { .. } => None,
         }
     }
@@ -125,7 +141,9 @@ impl InvokeOperation {
             Self::FieldSet { .. }
             | Self::ArrayStateContractClaim { .. }
             | Self::ArrayElementWrite { .. } => EffectMask::WRITE.add(Effect::Control),
-            Self::HomeRelease { .. } | Self::ReclaimUnpublished { .. } => EffectMask::WRITE
+            Self::HomeRelease { .. }
+            | Self::HomeReleaseIfLive { .. }
+            | Self::ReclaimUnpublished { .. } => EffectMask::WRITE
                 .union(EffectMask::MUT)
                 .union(EffectMask::IO)
                 .add(Effect::Control),
@@ -156,7 +174,9 @@ impl InvokeOperation {
                 values
             }
             Self::FieldSet { base, value, .. } => vec![*base, *value],
-            Self::HomeRelease { value, .. } | Self::ReclaimUnpublished { value, .. } => {
+            Self::HomeRelease { value, .. }
+            | Self::HomeReleaseIfLive { value, .. }
+            | Self::ReclaimUnpublished { value, .. } => {
                 vec![*value]
             }
         }
@@ -185,9 +205,9 @@ impl InvokeOperation {
                 }
                 rewrite(value);
             }
-            Self::HomeRelease { value, .. } | Self::ReclaimUnpublished { value, .. } => {
-                rewrite(value)
-            }
+            Self::HomeRelease { value, .. }
+            | Self::HomeReleaseIfLive { value, .. }
+            | Self::ReclaimUnpublished { value, .. } => rewrite(value),
             Self::FieldSet { base, value, .. } => {
                 rewrite(base);
                 rewrite(value);

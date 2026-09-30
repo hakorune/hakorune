@@ -41,6 +41,7 @@ pub(super) fn scan_statement_flow<'a, E>(
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     // The issuer's argument-position i64-field proof: the scanner supplies
     // the exact read site, receiver site, receiver binding, and observed
     // handle root; the predicate alone decides the field class.
@@ -108,6 +109,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 terminal_call,
                 local_map_call,
                 local_handle_call,
+                local_nullable_call,
                 argument_i64_field,
             )?;
             if terminated {
@@ -235,6 +237,24 @@ pub(super) fn scan_statement_flow<'a, E>(
                 local_calls.push(local_call);
                 homes.push(binding);
                 locals.install_received_handle(binding);
+                continue;
+            }
+            if let Some(local_call) = local_call_flow::issue_receiver_local_call(
+                input,
+                statement.site(),
+                &owned,
+                declaration.clone(),
+                binding,
+                &homes,
+                local_nullable_call,
+            )? {
+                // A nullable `me.m(..)` result joins the owned-Home ledger:
+                // the caller owes a checked release at every exit and the
+                // acquisition is this call site, never a `new` site.
+                path_calls.insert(local_call.site().clone());
+                local_calls.push(local_call);
+                homes.push(binding);
+                locals.install_received_nullable(binding);
                 continue;
             }
             if let Some(destination) = selected.get(&owned) {

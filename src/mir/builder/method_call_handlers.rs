@@ -563,7 +563,9 @@ impl MirBuilder {
         descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
     ) -> Result<Option<ValueId>, String>
     where
-        Port: MethodCallLoweringPortV1 + StaticResultPublicationIngressPortV1,
+        Port: MethodCallLoweringPortV1
+            + StaticResultPublicationIngressPortV1
+            + crate::mir::builder::recursive_child_lowering_port::DirectCallDispositionPortV1,
     {
         MeCallPolicyBox::resolve_me_call_with_publication_ingress(self, method, arguments, descent)
     }

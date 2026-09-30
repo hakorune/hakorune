@@ -1,6 +1,6 @@
 # MirBuilder Gate 1 — current design and acceptance
 
-Status: NULLABLE-RESULT-ABI-D0 accepted (dedicated nullable lane — never Handle reuse; six-contract spanning set named); card compressed to tombstone history; next NULLABLE-RESULT-ABI-S0
+Status: NULLABLE-RESULT-ABI-S0 landed — `local x = me.m(..)` against a `NullableObject(C)` callee lowers to `NullableHandle` + `HomeReleaseIfLive` and publishes `ordinary_nullable_handle`/`nullable_handle`/`const_null`/`home_release_if_live` through the C shim; card compressed to tombstone history
 Date: 2026-09-29
 Scope: MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0; compact Gate-1 frontier.
 Related: CURRENT_STATE.toml; workstream row H; RULES.md;
@@ -164,15 +164,20 @@ P2 — thinning: post-loops merged — `field_write`/`result_class`
 drafts pre-scan since claim-first (`d9bcf6108b`); `birth_site_index`
 collects in the same verified sweep (ctor rows join via the
 program-source loan — births are not batch declarations); card
-tombstoned (`b21e05ebe6`). Remaining: the NULLABLE-RESULT-ABI-S0
-slices — enum arms alone move no real call.
+tombstoned (`b21e05ebe6`). NULLABLE-RESULT-ABI-S0 landed end-to-end
+through the published wire. Reads of nullable locals (`h.f`, null
+checks) stay out of scope on the `PrefixNotCovered` floor.
 
 P3 — containers/types (~250-350 lines): seed→contract→header→index in
 one owner (`CompletionSeed` ≡ `ResultContractRow`, seven identical
 fields); `map_read_facts` five scans → one; unify duplicated types
 (AdmissionClaim⇔ResultClaim, four sibling dispositions).
 
-Next execution row: `MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-S0`.
+Next execution row: `MIRBUILDER-GATE1-P3-CONTAINERS-TYPES` —
+rework-queue P3 (seed→contract→header→index single owner;
+`map_read_facts` scan merge; sibling-disposition unification). The
+nullable lane itself is complete for the bounded `local x = me.m(..)`
+slice.
 
 ## Decision — MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0 (accepted)
 
@@ -258,15 +263,24 @@ Non-claims:
   typed arguments (`SelectedNewArgumentV1` — Integer/Bool/Null/Local
   only; anything else leaves the site unobserved). Consumption evidence
   complete, still no emission change.
-- S0b (emit owner): one lowering owner consumes the row and emits
-  `Call { SameModuleInstance, result: nullable }` — the
-  `emit_local_lexical` lane or a sibling; decided at S0b.
-- S0c (physical): `InvokeCallResultKind`/`InvokeNormalResultKind`
-  nullable arm + `MirType` carrier + verifier admission per class.
-- S0d (state/cleanup): `StoredLocal`/`OrdinaryObservation` nullable
-  arm + a checked-null conditional-release commit.
-- S0e (publication): `OrdinaryNullableHandle` role, wire name, JSON
-  spelling, contract pairing.
+- S0b (emit owner) — landed: `emit_receiver_nullable` inside the
+  `handle_call` emission owner consumes the sealed row and emits
+  `Invoke { Call { SameModuleInstance, result: NullableHandle } }` +
+  `InvokeNormalResult { NullableHandle }` with `MirType::Box(C)` on the
+  live arm. `LocalCallResultClassV1::Nullable` +
+  `StoredLocal::ReceivedNullable` carry the flow; `CallReceivedNullable`
+  commits with `HomeReleaseIfLive` (never unconditional `HomeRelease`).
+  Publication: `OrdinaryNullableHandle` role, `"nullable_handle"` wire
+  result, `const_null` sentinel (Void → i64 0), `home_release_if_live`
+  cleanup, `compiled_entry_contract` pair enforcement, C shim
+  (`const_null` seeds a handle-lane slot with negative origin;
+  release-if-live discharges the lease and calls the kernel only for
+  live handles). Return-position `new` birth actuals now mint from
+  `Result` commit rows (`destination` is `Option` — the site owner is
+  the only owner authority there). End-to-end JSON:
+  `nullable_receiver_call_serializes_nullable_handle_and_checked_release`.
+- S0c/S0d/S0e — folded into S0b (single owner + one wire vocabulary);
+  no separate rows remain.
 
 ## Preserved contract boundaries
 

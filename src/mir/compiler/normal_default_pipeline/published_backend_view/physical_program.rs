@@ -53,6 +53,13 @@ pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
         key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         receiver_object: Option<CanonicalObjectIdV1>,
     },
+    /// Caller-owned nullable object result (`NullableObject` claim): the
+    /// wire value is a live handle or the null sentinel, and the caller
+    /// owes a checked release, never an unconditional one.
+    OrdinaryNullableHandle {
+        key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        receiver_object: Option<CanonicalObjectIdV1>,
+    },
 }
 
 impl PublishedLifecyclePhysicalFunctionRoleV1 {
@@ -70,6 +77,7 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             Self::OrdinaryI64 { .. } => "ordinary_i64",
             Self::OrdinaryMap { .. } => "ordinary_map",
             Self::OrdinaryHandle { .. } => "ordinary_handle",
+            Self::OrdinaryNullableHandle { .. } => "ordinary_nullable_handle",
         }
     }
 
@@ -81,7 +89,8 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             Self::Root { .. }
             | Self::OrdinaryI64 { .. }
             | Self::OrdinaryMap { .. }
-            | Self::OrdinaryHandle { .. } => None,
+            | Self::OrdinaryHandle { .. }
+            | Self::OrdinaryNullableHandle { .. } => None,
         }
     }
 
@@ -91,7 +100,8 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
         match self {
             Self::OrdinaryI64 { key, .. }
             | Self::OrdinaryMap { key, .. }
-            | Self::OrdinaryHandle { key, .. } => Some(key),
+            | Self::OrdinaryHandle { key, .. }
+            | Self::OrdinaryNullableHandle { key, .. } => Some(key),
             Self::Root { .. } | Self::BirthUnit { .. } => None,
         }
     }
@@ -106,6 +116,9 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             }
             | Self::OrdinaryHandle {
                 receiver_object, ..
+            }
+            | Self::OrdinaryNullableHandle {
+                receiver_object, ..
             } => *receiver_object,
             Self::Root { .. } | Self::BirthUnit { .. } => None,
         }
@@ -116,7 +129,8 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             Self::BirthUnit { .. } => true,
             Self::OrdinaryI64 { key, .. }
             | Self::OrdinaryMap { key, .. }
-            | Self::OrdinaryHandle { key, .. } => {
+            | Self::OrdinaryHandle { key, .. }
+            | Self::OrdinaryNullableHandle { key, .. } => {
                 key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
             }
             Self::Root { .. } => false,
@@ -390,7 +404,9 @@ impl<'module> PublishedMirBackendView<'module> {
                     (site.result, &function.signature.return_type),
                     (InvokeCallResultKind::I64, crate::mir::MirType::Integer)
                         | (
-                            InvokeCallResultKind::Map | InvokeCallResultKind::Handle,
+                            InvokeCallResultKind::Map
+                            | InvokeCallResultKind::Handle
+                            | InvokeCallResultKind::NullableHandle,
                             crate::mir::MirType::Box(_) | crate::mir::MirType::Unknown,
                         )
                 )
@@ -414,6 +430,12 @@ impl<'module> PublishedMirBackendView<'module> {
                 }
                 InvokeCallResultKind::Handle => {
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle {
+                        key: key.clone(),
+                        receiver_object,
+                    }
+                }
+                InvokeCallResultKind::NullableHandle => {
+                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle {
                         key: key.clone(),
                         receiver_object,
                     }
@@ -487,7 +509,10 @@ fn collect_ordinary_calls(function: &MirFunction) -> Result<Vec<OrdinaryCallSite
                 operation:
                     InvokeOperation::Call {
                         call,
-                        result: result @ (InvokeCallResultKind::I64 | InvokeCallResultKind::Map),
+                        result:
+                            result @ (InvokeCallResultKind::I64
+                            | InvokeCallResultKind::Map
+                            | InvokeCallResultKind::NullableHandle),
                     },
                 ..
             } = instruction
@@ -608,7 +633,9 @@ fn issue_function_with_module<'module>(
                     InvokeOperation::Call {
                         call,
                         result:
-                            result @ (InvokeCallResultKind::I64 | InvokeCallResultKind::Map),
+                            result @ (InvokeCallResultKind::I64
+                            | InvokeCallResultKind::Map
+                            | InvokeCallResultKind::NullableHandle),
                     },
                 ..
             } = row.instruction()
@@ -691,7 +718,10 @@ fn validate_instruction_with_context(
         MirInstruction::Invoke {
             operation: InvokeOperation::Call {
                 call,
-                result: result @ (InvokeCallResultKind::I64 | InvokeCallResultKind::Map),
+                result:
+                    result @ (InvokeCallResultKind::I64
+                    | InvokeCallResultKind::Map
+                    | InvokeCallResultKind::NullableHandle),
             },
             ..
         } if ordinary_calls
@@ -707,6 +737,7 @@ fn validate_instruction_with_context(
                 value: ConstValue::Integer(_)
                     | ConstValue::Bool(_)
                     | ConstValue::String(_)
+                    | ConstValue::Null
                     | ConstValue::Void,
                 ..
             } | MirInstruction::BinOp {
@@ -721,6 +752,7 @@ fn validate_instruction_with_context(
                         | InvokeOperation::NewBox { .. }
                         | InvokeOperation::FieldSet { .. }
                         | InvokeOperation::HomeRelease { .. }
+                        | InvokeOperation::HomeReleaseIfLive { .. }
                         | InvokeOperation::ReclaimUnpublished { .. }
                         | InvokeOperation::Call {
                             call: MirCall {

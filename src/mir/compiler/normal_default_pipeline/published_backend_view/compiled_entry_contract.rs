@@ -251,6 +251,10 @@ impl<'module> PublishedMirBackendView<'module> {
                     PublishedLifecyclePhysicalFunctionRoleV1::Root { .. }
                         | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
                         | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
+                        | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. }
+                        | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle {
+                            ..
+                        }
                 ) {
                     continue;
                 }
@@ -269,7 +273,8 @@ impl<'module> PublishedMirBackendView<'module> {
                                 call,
                                 result:
                                     result @ (InvokeCallResultKind::I64
-                                    | InvokeCallResultKind::Map),
+                                    | InvokeCallResultKind::Map
+                                    | InvokeCallResultKind::NullableHandle),
                             },
                         ..
                     } = row.instruction()
@@ -335,7 +340,10 @@ impl<'module> PublishedMirBackendView<'module> {
                     }
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
-                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. } => {
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. }
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle {
+                        ..
+                    } => {
                         let key = function
                             .role()
                             .ordinary_target()
@@ -374,6 +382,11 @@ impl<'module> PublishedMirBackendView<'module> {
                         ) | (
                             InvokeCallResultKind::Map,
                             PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
+                        ) | (
+                            InvokeCallResultKind::NullableHandle,
+                            PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle {
+                                ..
+                            }
                         ) if function.role().ordinary_target() == Some(&key)
                     )
                 {
@@ -481,16 +494,18 @@ fn issue_birth_calls_for_owner_at(
 ) -> Result<Vec<CompiledEntryBirthCallV1>, String> {
     for (i, actual) in actuals.iter().enumerate() {
         if actuals[..i].iter().any(|previous| {
-            previous.site() == actual.site() || previous.destination() == actual.destination()
+            previous.site() == actual.site()
+                || (actual.destination().is_some()
+                    && previous.destination() == actual.destination())
         }) || actual.site().owner() != owner
-            || actual.destination().owner() != owner
+            || actual.owner() != owner
             || actual
                 .arguments()
                 .iter()
                 .enumerate()
                 .any(|(ordinal, argument)| {
                     argument.source().ordinal() as usize != ordinal
-                        || argument.source().owner() != actual.destination().owner()
+                        || argument.source().owner() != actual.owner()
                         || argument.source().new_site() != actual.site()
                 })
         {

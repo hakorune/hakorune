@@ -326,8 +326,24 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 // `Value(Construction)` terminal relation only comes from
                 // the verified walk — the plain seed path cannot issue it.
                 let child_result_ready = seed_eligible && !result_sites.is_empty();
+                // A sealed `Nullable` `me.m(..)` observation needs the
+                // homes-aware verify: the caller's local-call flow row,
+                // the conditional release at exit, and the prior-home
+                // unwind all come from the scanned root flow — the plain
+                // seed path cannot issue any of them. `Object` receiver
+                // observations keep today's generic call floor.
+                let has_nullable_receiver_call = receiver_call_observations
+                    .iter()
+                    .any(|(site, row)| {
+                        site.owner() == owner
+                            && matches!(
+                                row.class(),
+                                result_class_claim::OrdinaryNewResultClassV1::NullableObject(_)
+                            )
+                    });
                 let seed_completion = seed_eligible
                     && !has_map
+                    && !has_nullable_receiver_call
                     && !child_new_ready
                     && !child_result_ready
                     && (is_app_main || owner_loan.is_none());
@@ -375,7 +391,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                     }
                 }
-                let (home_prefixes, argument_observations, result_prefixes) = if owner_loan.is_some() || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty())) || (seed_eligible && (has_map || child_new_ready || child_result_ready)) {
+                let (home_prefixes, argument_observations, result_prefixes) = if owner_loan.is_some() || has_nullable_receiver_call || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty())) || (seed_eligible && (has_map || child_new_ready || child_result_ready)) {
                     let mut staged_reads = BTreeMap::new();
                     let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
                         let field = terminal_home::initialized_integer_field(
@@ -449,6 +465,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 &candidates,
                                 input,
                                 site,
+                            ))
+                        }, &mut |site| {
+                            // Nullable `me.m(..)` membership is the sealed
+                            // package observation map restricted to the
+                            // `NullableObject` class — an `Object` claim
+                            // stays on the Handle lane, and the flow row
+                            // never re-reads the expression or a callee claim.
+                            Ok(matches!(
+                                receiver_call_observations
+                                    .get(site)
+                                    .map(|row| row.class()),
+                                Some(result_class_claim::OrdinaryNewResultClassV1::NullableObject(_))
                             ))
                         }, &result_sites, &mut argument_field_is_integer)? {
                         Ok((

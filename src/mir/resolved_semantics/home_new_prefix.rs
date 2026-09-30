@@ -144,6 +144,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
+        &mut |_| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
     )
     .unwrap_or_else(|never| match never {})
@@ -190,6 +191,7 @@ pub(crate) fn scan_new_home_flow<E>(
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -300,6 +302,7 @@ pub(crate) fn scan_new_home_flow<E>(
         terminal_call,
         local_map_call,
         local_handle_call,
+        local_nullable_call,
         argument_i64_field,
     )?;
     // Statements after the terminal are never walked; their sealed map

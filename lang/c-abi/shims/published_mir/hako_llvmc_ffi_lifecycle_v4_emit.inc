@@ -24,7 +24,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
   yyjson_val* params = yyjson_obj_get(fn, "params");
   int birth = lv4_is(fn, "role", "birth_unit");
   int ordinary_map = lv4_is(fn, "role", "ordinary_map");
-  int ordinary = lv4_is(fn, "role", "ordinary_i64") || ordinary_map;
+  int ordinary = lv4_is(fn, "role", "ordinary_i64") || ordinary_map ||
+      lv4_is(fn, "role", "ordinary_nullable_handle");
   if (birth) {
     fprintf(f, "define internal i32 @hako_lifecycle_birth_%zu(ptr %%frame", fi);
     fprintf(f, ", i64 %%v%u", lv4_u(fn, "receiver"));
@@ -109,6 +110,10 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       } else if (lv4_is(ins, "op", "const_bool")) {
         fprintf(f, "  %%v%u = add i64 0, %u\n", dst,
             yyjson_get_bool(yyjson_obj_get(ins, "value")) ? 1u : 0u);
+      } else if (lv4_is(ins, "op", "const_null")) {
+        /* Void null sentinel: i64 0 on the wire; `home_release_if_live`
+           is the sole consumer that must not release it. */
+        fprintf(f, "  %%v%u = add i64 0, 0\n", dst);
       } else if (lv4_is(ins, "op", "const_f64_bits")) {
         fprintf(f, "  %%v%u = bitcast i64 %llu to double\n", dst,
             (unsigned long long)yyjson_get_uint(yyjson_obj_get(ins, "bits")));
@@ -158,6 +163,16 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         else if (kind == LV4_I64 && (lv4_is(producer_op, "kind", "map_checked_get") ||
             lv4_is(producer_op, "kind", "map_array_length")))
           fprintf(f, "  %%v%u = load i64, ptr %%get_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
+        else if ((kind == LV4_I64 || kind == LV4_HANDLE) &&
+            producer_op && lv4_is(producer_op, "kind", "ordinary_call")) {
+          /* A nullable call result lands in the same i64 out-slot as a
+             scalar one; the handle-or-sentinel distinction is carried by
+             the value, not the storage. */
+          if (fi)
+            fprintf(f, "  %%v%u = load i64, ptr %%call_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
+          else
+            fprintf(f, "  %%v%u = load i64, ptr %%ordinary_out, align 8\n", dst);
+        }
         else if (kind == LV4_I64 && fi)
           fprintf(f, "  %%v%u = load i64, ptr %%call_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
         else if (kind == LV4_I64)
@@ -265,6 +280,15 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         }
         fprintf(f, ")\n");
       } else {
+      /* `home_release_if_live` discharges the lease slot without touching
+         the kernel when the wire value is the Void sentinel (i64 0); only a
+         live handle reaches the release call, and its status still drives
+         the normal/fault landing. */
+      if (lv4_is(op, "kind", "home_release_if_live"))
+        fprintf(f,
+            "  %%live%u = icmp ne i64 %%v%u, 0\n"
+            "  br i1 %%live%u, label %%checked_rel%u, label %%%s\nchecked_rel%u:\n",
+            b, lv4_u(op, "value"), b, b, normal_label, b);
       fprintf(f, "  %%status%u = call i32 ", b);
       if (lv4_is(op, "kind", "array_new")) {
         fprintf(f, "@\"nyash.array.checked_new_v1\"(ptr %%frame, i64 %llu, ptr %%new%u)\n", site, b);
@@ -297,7 +321,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             in->profile, site, lv4_u(op, "base"), (long long)lv4_type_id(in, op), lv4_slot(in, op), lv4_u(op, "value"));
       } else {
         fprintf(f, "@\"nyash.object.%s_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld)\n",
-            lv4_is(op, "kind", "home_release") ? "home_release_plain_i64" : "reclaim_unpublished",
+            lv4_is(op, "kind", "home_release") || lv4_is(op, "kind", "home_release_if_live")
+                ? "home_release_plain_i64" : "reclaim_unpublished",
             in->profile, site, lv4_u(op, "value"), (long long)lv4_type_id(in, op));
       }
       }

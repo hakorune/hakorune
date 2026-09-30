@@ -679,3 +679,167 @@ static box Main {
             if matches!(row.returned(), TerminalReturnedSourceV1::Construction(_))
     )));
 }
+
+/// A sealed `Nullable` receiver-call observation also mints the caller's
+/// `Nullable` local-call flow row — the emission-side membership check
+/// (`nullable_call_source`) reads exactly this row, so the scan and the
+/// ledger lookup must agree on site, owner, and class.
+#[test]
+fn nullable_receiver_call_mints_the_caller_local_call_flow_row() {
+    let package = issue_with_brand_catalog(
+        r#"
+box Page {
+    init { v }
+    birth(v) { me.v = v }
+    make(flag) { return new Page(flag) }
+    fetch(flag) {
+        if flag == 0 {
+            return null
+        }
+        return new Page(7)
+    }
+    observe(flag) {
+        local made = me.make(flag)
+        local fetched = me.fetch(flag)
+        return 0
+    }
+}
+static box Main {
+    main() { return 0 }
+}
+"#,
+    )
+    .expect("nullable receiver-call flow source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    for (site, row) in ledger.receiver_call_observations_for_test() {
+        let expected_nullable = matches!(
+            row.class(),
+            super::OrdinaryNewResultClassV1::NullableObject(_)
+        );
+        let flow = ledger
+            .completion_for_owner(site.owner())
+            .and_then(|completion| completion.cleanup().root_flow())
+            .unwrap_or_else(|| panic!("{site:?} caller has a root flow"));
+        let local = flow
+            .local_calls()
+            .iter()
+            .find(|call| call.site() == site);
+        if expected_nullable {
+            let local =
+                local.unwrap_or_else(|| panic!("{site:?} mints a local-call flow row"));
+            assert_eq!(
+                local.result(),
+                crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable,
+                "{site:?} flow row class mirrors the sealed observation class"
+            );
+            assert_eq!(
+                local.destination(),
+                row.destination(),
+                "the flow row keeps the exact declared destination"
+            );
+        } else {
+            // `Object` receiver observations keep the generic call floor —
+            // no lifecycle flow row is minted for the Handle-absent `me`
+            // receiver lane.
+            assert!(
+                local.is_none(),
+                "{site:?} definite receiver calls mint no lifecycle flow row"
+            );
+        }
+    }
+}
+
+#[test]
+fn nullable_callee_result_claim_seals_the_returned_class() {
+    let package = issue_with_brand_catalog(
+        r#"
+box Probe {
+    v: i64
+    birth(v) { me.v = v }
+    fetch(flag) {
+        if flag == 0 {
+            return null
+        }
+        return new Probe(7)
+    }
+    run(flag: i64) {
+        local h = me.fetch(flag)
+        return 0
+    }
+}
+static box Main {
+    main() {
+        local p = new Probe(1)
+        return p.run(0)
+    }
+}
+"#,
+    )
+    .expect("probe fixture package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let claims = ledger.pending_result_claims_for_test();
+    let classes: Vec<&str> = claims.values().map(|c| c.class()).collect();
+    assert_eq!(
+        classes,
+        ["Probe"],
+        "the nullable callee's `return new Probe(7)` seals exactly one result claim"
+    );
+    for claim in claims.values() {
+        assert!(claim.home_prefix().is_ok(), "result home prefix sealed");
+        assert!(claim.construction().is_ok(), "result construction sealed");
+        assert!(claim.argument_rows().is_ok(), "result arguments sealed");
+    }
+}
+
+/// A `v: i64` declared-field box seals a complete result claim for a
+/// return-position `new` — the declared field list is the construction
+/// authority, and every evidence row arrives `Ok`.
+#[test]
+fn declared_fields_result_claim_carries_complete_evidence() {
+    let package = issue_with_brand_catalog(
+        r#"
+box Probe {
+    v: i64
+    birth(v) { me.v = v }
+    fetch(flag) {
+        if flag == 0 {
+            return null
+        }
+        return new Probe(7)
+    }
+    run() {
+        local h = me.fetch(0)
+        return 0
+    }
+}
+static box Main {
+    main() {
+        local p = new Probe(1)
+        return p.run()
+    }
+}
+"#,
+    )
+    .expect("probe fixture package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let local_claims = ledger.pending_claims_for_test();
+    let claims: Vec<_> = local_claims.values().collect();
+    assert_eq!(claims.len(), 1, "one `local p = new Probe(1)` claim");
+    for claim in claims {
+        assert!(claim.home_prefix().is_ok(), "local home prefix sealed");
+        assert!(claim.construction().is_ok(), "local construction sealed");
+        assert!(claim.argument_rows().is_ok(), "local arguments sealed");
+    }
+    let result_rows = ledger.pending_result_claims_for_test();
+    let result_claims: Vec<_> = result_rows.values().collect();
+    assert_eq!(
+        result_claims.len(),
+        1,
+        "one `return new Probe(7)` result claim"
+    );
+    for claim in result_claims {
+        assert!(claim.home_prefix().is_ok(), "result home prefix sealed");
+        assert!(claim.construction().is_ok(), "result construction sealed");
+        assert!(claim.argument_rows().is_ok(), "result arguments sealed");
+    }
+}

@@ -731,3 +731,106 @@ fn map_array_length_publishes_typed_i64_operation() {
             "utf8": "params", "site": 44})
     );
 }
+
+/// The nullable receiver call publishes its sealed wire shape: the callee
+/// row carries the `ordinary_nullable_handle` role, the call site spells
+/// `"nullable_handle"`, the callee materializes the Void null sentinel as
+/// `const_null`, and the caller's cleanup owes `home_release_if_live` —
+/// never an unconditional release on a maybe-null handle.
+#[test]
+fn nullable_receiver_call_serializes_nullable_handle_and_checked_release() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let mut compiler = MirCompiler::with_options(false);
+        compiler
+            .compile_normal_with_published(
+                request(
+                    "box Probe {
+                       v: i64
+                       birth(v) { me.v = v }
+                       fetch(flag) {
+                         if flag == 0 { return null }
+                         return new Probe(7)
+                       }
+                       run(): i64 {
+                         local h = me.fetch(0)
+                         return 0
+                       }
+                     }
+                     static box Main {
+                       main() {
+                         local p = new Probe(1)
+                         return p.run()
+                       }
+                     }",
+                ),
+                |view, verification| -> Result<(), String> {
+                    assert!(verification.is_ok(), "{verification:?}");
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    let json = emit_lifecycle_physical_abi_json(&input)?;
+                    let decoded: serde_json::Value = serde_json::from_str(&json).unwrap();
+                    let functions = decoded["functions"].as_array().unwrap();
+                    let callee = functions
+                        .iter()
+                        .find(|row| row["name"] == "Probe.fetch/1")
+                        .expect("nullable callee row");
+                    assert_eq!(callee["role"], "ordinary_nullable_handle");
+                    let callee_instructions: Vec<&serde_json::Value> = callee["blocks"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .flat_map(|block| {
+                            block["instructions"].as_array().unwrap().iter().chain(
+                                std::iter::once(&block["terminator"]["instruction"]),
+                            )
+                        })
+                        .map(|row| row.get("instruction").unwrap_or(row))
+                        .collect();
+                    assert!(
+                        callee_instructions
+                            .iter()
+                            .any(|row| row["op"] == "const_null"),
+                        "callee materializes the Void null sentinel: {callee_instructions:?}"
+                    );
+                    let caller = functions
+                        .iter()
+                        .find(|row| row["name"] == "Probe.run/0")
+                        .expect("caller row");
+                    let instructions: Vec<&serde_json::Value> = caller["blocks"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .flat_map(|block| {
+                            block["instructions"].as_array().unwrap().iter().chain(
+                                std::iter::once(&block["terminator"]["instruction"]),
+                            )
+                        })
+                        .map(|row| row.get("instruction").unwrap_or(row))
+                        .collect();
+                    let call = instructions
+                        .iter()
+                        .find(|row| row["operation"]["kind"] == "ordinary_call")
+                        .expect("nullable call edge");
+                    assert_eq!(call["operation"]["result"], "nullable_handle");
+                    let releases: Vec<&serde_json::Value> = instructions
+                        .iter()
+                        .filter(|row| row["operation"]["kind"] == "home_release_if_live")
+                        .copied()
+                        .collect();
+                    assert_eq!(
+                        releases.len(),
+                        1,
+                        "exactly one checked release for the nullable result"
+                    );
+                    assert!(
+                        !instructions
+                            .iter()
+                            .any(|row| row["operation"]["kind"] == "home_release"),
+                        "a maybe-null result never owes an unconditional release"
+                    );
+                    Ok(())
+                },
+            )
+            .unwrap();
+    });
+}

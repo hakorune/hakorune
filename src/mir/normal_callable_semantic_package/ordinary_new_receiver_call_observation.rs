@@ -47,27 +47,23 @@ pub(crate) struct ReceiverCallClassObservationV1 {
 
 impl ReceiverCallClassObservationV1 {
     /// The resolved callee — the same canonical key the claim map uses.
-    #[cfg(test)]
     pub(crate) fn callee(&self) -> &CanonicalSameModuleCallableKeyV1 {
         &self.callee
     }
 
     /// The callee's composed result-class claim, carried verbatim.
-    #[cfg(test)]
     pub(crate) fn class(&self) -> &super::OrdinaryNewResultClassV1 {
         &self.class
     }
 
     /// The sole local bound by the `local x = ..` initializer — exact
     /// destination evidence for the site-keyed row.
-    #[cfg(test)]
     pub(crate) fn destination(&self) -> BindingRefV1 {
         self.destination
     }
 
     /// Ordered typed arguments — the `SelectedNewArgumentV1` vocabulary
     /// restricted to the kinds this lane can prove without flow state.
-    #[cfg(test)]
     pub(crate) fn arguments(&self) -> &[SelectedNewArgumentV1] {
         &self.arguments
     }

@@ -153,27 +153,50 @@ impl OrdinaryNewClaimLedgerV1 {
             if !row.is_complete() {
                 return Err(freeze("artifact-local-commit-incomplete"));
             }
-            let Some(row) = row.ordinary() else {
-                continue;
+            let (birth_target, birth_abi, object, binding, emission) = match row {
+                LocalCommitV1::Ordinary(row) => (
+                    &row.birth_target,
+                    &row.birth_abi,
+                    row.object,
+                    Some(row.binding),
+                    &row.emission,
+                ),
+                // A return-position `new` is the same sealed Birth edge: it
+                // installs no local destination, so the site owner is the
+                // only owner authority.
+                LocalCommitV1::Result(row) => {
+                    if row.site != *site {
+                        return Err(freeze("artifact-birth-site-drift"));
+                    }
+                    (
+                        &row.birth_target,
+                        &row.birth_abi,
+                        row.object,
+                        None,
+                        &row.emission,
+                    )
+                }
+                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) => continue,
             };
-            let Some(key) = &row.birth_target else {
-                if row.birth_abi.is_some() {
+            let Some(key) = birth_target else {
+                if birth_abi.is_some() {
                     return Err(freeze("artifact-birth-abi-without-target"));
                 }
                 continue;
             };
             let key = key.clone();
-            let relation = row
-                .birth_abi
+            let relation = birth_abi
                 .as_ref()
                 .ok_or_else(|| freeze("artifact-birth-abi-missing"))?;
             if relation.target() != &key || relation.owner() == site.owner() {
                 return Err(freeze("artifact-birth-abi-drift"));
             }
-            if row.binding.owner() != site.owner() {
-                return Err(freeze("artifact-birth-owner-drift"));
+            if let Some(binding) = binding {
+                if binding.owner() != site.owner() {
+                    return Err(freeze("artifact-birth-owner-drift"));
+                }
             }
-            if relation.object() != row.object {
+            if relation.object() != object {
                 return Err(freeze("artifact-birth-object-drift"));
             }
             if !construction_keys.contains(&key) {
@@ -184,11 +207,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 arguments,
                 progress: EmittedLocalProgress::Checked { .. },
                 ..
-            } = &row.emission
+            } = emission
             {
                 actuals.push(FinalizedBirthActualsV1 {
                     site: site.clone(),
-                    destination: row.binding,
+                    destination: binding,
                     target: key.clone(),
                     receiver: *result,
                     arguments: arguments.clone(),

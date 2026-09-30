@@ -49,6 +49,7 @@ fn walk_branch<'a, E>(
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -81,6 +82,7 @@ fn walk_branch<'a, E>(
         terminal_call,
         local_map_call,
         local_handle_call,
+        local_nullable_call,
         argument_i64_field,
     )?;
     Ok(path)
@@ -141,6 +143,7 @@ pub(super) fn observe_if_statement<'a, E>(
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -233,6 +236,7 @@ pub(super) fn observe_if_statement<'a, E>(
         terminal_call,
         local_map_call,
         local_handle_call,
+        local_nullable_call,
         argument_i64_field,
     )?;
     let else_path = match else_body {
@@ -262,6 +266,7 @@ pub(super) fn observe_if_statement<'a, E>(
             terminal_call,
             local_map_call,
             local_handle_call,
+            local_nullable_call,
             argument_i64_field,
         )?,
         // A missing `else` joins the entry snapshot unchanged.

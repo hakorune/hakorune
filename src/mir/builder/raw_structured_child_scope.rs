@@ -313,6 +313,16 @@ where
             .emit_local_lifecycle_call_v1(builder, row, arguments)
     }
 
+    fn emit_receiver_nullable_lifecycle_call_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        receiver: ValueId,
+    ) -> Result<Option<ValueId>, String> {
+        self.child
+            .emit_receiver_nullable_lifecycle_call_v1(builder, key, receiver)
+    }
+
     fn validate_current_call_argument_site_v1(
         &self,
         expected: &crate::mir::resolved_semantics::SourceExprSiteV1,

@@ -190,7 +190,10 @@ fn check_function_inner(
                         .is_some_and(|arity| arity as usize == call.args.len()),
                     (
                         Callee::SameModuleInstance { key, .. },
-                        ResultKind::I64 | ResultKind::Map | ResultKind::Handle,
+                        ResultKind::I64
+                        | ResultKind::Map
+                        | ResultKind::Handle
+                        | ResultKind::NullableHandle,
                     ) => {
                         key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
                             && key.arity() as usize == call.args.len()

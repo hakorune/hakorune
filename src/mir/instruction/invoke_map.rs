@@ -5,6 +5,10 @@ use crate::mir::{Effect, EffectMask, ValueId};
 pub enum InvokeNormalResultKind {
     I64,
     Handle,
+    /// A `NullableObject` claim result: `BoxRef` or the `Void` null
+    /// sentinel; the caller owes a checked release, never an unconditional
+    /// one.
+    NullableHandle,
     Map,
     MapKey,
     MapOutcome,

@@ -70,10 +70,12 @@ impl EmittedNewArgumentV1 {
 }
 
 /// Existing checked emission retained per New, not deduplicated per definition.
+/// A return-position `new` installs no binding, so `destination` is `None`
+/// there; the site owner remains the only owner authority.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct FinalizedBirthActualsV1 {
     site: OwnedExprSiteV1,
-    destination: BindingRefV1,
+    destination: Option<BindingRefV1>,
     target: CanonicalSameModuleCallableKeyV1,
     receiver: ValueId,
     arguments: Box<[EmittedNewArgumentV1]>,
@@ -83,8 +85,11 @@ impl FinalizedBirthActualsV1 {
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
         &self.site
     }
-    pub(crate) fn destination(&self) -> BindingRefV1 {
+    pub(crate) fn destination(&self) -> Option<BindingRefV1> {
         self.destination
+    }
+    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
+        self.destination.map_or_else(|| self.site.owner(), |binding| binding.owner())
     }
     pub(crate) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
         &self.target
@@ -585,7 +590,9 @@ fn freeze(reason: &str) -> String {
 
 #[path = "ordinary_new_local_commit/call_received.rs"]
 mod call_received;
-use call_received::{CallReceivedCommitV1, CallReceivedPhase, CallReceivedProgress};
+use call_received::{
+    CallReceivedCommitV1, CallReceivedPhase, CallReceivedProgress, CallReceivedReleaseV1,
+};
 #[path = "ordinary_new_local_commit/emission_prepare.rs"]
 mod emission_prepare;
 #[path = "ordinary_new_local_commit/emission_validation.rs"]

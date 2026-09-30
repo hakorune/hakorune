@@ -254,6 +254,10 @@ fn encode_instruction(
         } => json!({ "op": "const_string", "dst": value(dst), "value": text }),
         MirInstruction::Const {
             dst,
+            value: ConstValue::Null,
+        } => json!({ "op": "const_null", "dst": value(dst) }),
+        MirInstruction::Const {
+            dst,
             value: ConstValue::Void,
         } => json!({ "op": "const_unit", "dst": value(dst) }),
         MirInstruction::BinOp {
@@ -512,7 +516,8 @@ fn encode_invoke(
             result:
                 result_kind @ (InvokeCallResultKind::I64
                 | InvokeCallResultKind::Map
-                | InvokeCallResultKind::Handle),
+                | InvokeCallResultKind::Handle
+                | InvokeCallResultKind::NullableHandle),
         } => {
             if diagnostic_site.is_some() {
                 return Err(fault("site-on-ordinary-call"));
@@ -575,6 +580,7 @@ fn encode_invoke(
                 "result": match result_kind {
                     InvokeCallResultKind::Map => "map",
                     InvokeCallResultKind::Handle => "handle",
+                    InvokeCallResultKind::NullableHandle => "nullable_handle",
                     _ => "i64",
                 },
             })
@@ -601,6 +607,14 @@ fn encode_invoke(
             value: released,
         } => with_site(
             json!({ "kind": "home_release", "object_id": object.declaration_index(), "value": value(released),
+            }),
+            required_site(diagnostic_site, abi_input.is_some())?,
+        )?,
+        InvokeOperation::HomeReleaseIfLive {
+            object,
+            value: released,
+        } => with_site(
+            json!({ "kind": "home_release_if_live", "object_id": object.declaration_index(), "value": value(released),
             }),
             required_site(diagnostic_site, abi_input.is_some())?,
         )?,

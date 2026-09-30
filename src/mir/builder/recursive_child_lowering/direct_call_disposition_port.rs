@@ -105,6 +105,53 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         Ok(Some(value))
     }
 
+    /// Emit one `me.m(..)` receiver call the caller-side scan sealed as a
+    /// `Nullable` local call. Sealed membership without the matching
+    /// package observation, a target/destination disagreement, or a failed
+    /// emission contract freezes — the generic canonical-instance path
+    /// must never silently consume a nullable observation.
+    fn emit_receiver_nullable_lifecycle_call_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        receiver: ValueId,
+    ) -> Result<Option<ValueId>, String> {
+        let Some(RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::Cataloged(_),
+            site,
+            ..
+        }) = self.active_source.as_ref()
+        else {
+            return Ok(None);
+        };
+        let owner = self
+            .callable_owner_v1()
+            .ok_or_else(|| "[freeze:contract][nullable-receiver/owner-missing]".to_owned())?;
+        let Some(ledger) = self.ordinary_new_claim_ledger.as_ref() else {
+            return Ok(None);
+        };
+        let site = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site.clone());
+        let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
+        if ledger.nullable_call_source(&owned).is_none() {
+            return Ok(None);
+        }
+        let state = self
+            .callable_ledger
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][nullable-receiver/state-missing]".to_owned())?;
+        let value =
+            crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_receiver_nullable(
+                builder,
+                &mut state.borrow_mut(),
+                ledger,
+                owner,
+                &site,
+                key,
+                receiver,
+            )?;
+        Ok(Some(value))
+    }
+
     fn validate_current_call_argument_site_v1(
         &self,
         expected: &crate::mir::resolved_semantics::SourceExprSiteV1,
