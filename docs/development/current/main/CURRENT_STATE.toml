@@ -1,7 +1,7 @@
 date = "2026-09-30"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-BUNDLE-MIMALLOC-LITE-D0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-SCALAR-FIELD-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -13,9 +13,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
 NESTED-RECEIVER-CALL-S0 landed: `me.<field>.m(..)` on a declared
 `ArrayBox` field of the self-rooted `me` is a covered prefix statement
@@ -30,14 +30,15 @@ wired baseline (release-only reds are env-cache artifacts, not in the
 baseline's domain). Smoke 3/3 deterministic at
 artifact-unowned-lifecycle-site. FIXED-EXE-SUITE-REMEASURE-I0 landed:
 11-entry suite still 5 PASS / 6 FAIL; per-app terminals recorded in
-the card. Next: APP-BUNDLE-MIMALLOC-LITE-D0 — bundle the catalogued
-mimalloc-lite dependency chain into bounded slices toward one-app
-completion.
+the card. APP-BUNDLE-MIMALLOC-LITE-D0 accepted: probe census pinned
+Destruction FieldType (non-i64 declared field) as the empirical first
+gate; the full slice inventory is in the card. Next:
+APP-MIMALLOC-LITE-DESTRUCTION-SCALAR-FIELD-D0.
 """
-next_design_card = "mimalloc-lite completion bundle: OpaqueHandle-parameter scalar positions (allocate Body(8) set-arg + requested_bytes RHS), release/1 handle.<field> reads, Bool return literals, constructor re-store/object arguments, forwarded results — each a bounded slice with normal/Fault verification"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-APP-BUNDLE-MIMALLOC-LITE-D0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
+next_design_card = "mimalloc-lite bundle slice 1: destruction FieldType admission for integer-scalar declared field types (usize etc.) — the empirical first gate for every allocator box claim"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-SCALAR-FIELD-D0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -52,7 +53,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-30: APP-BUNDLE-MIMALLOC-LITE-D0 accepted — probe census pinned the empirical first gate: any non-i64 declared field makes Destruction Unavailable(FieldType), so every allocator box's new claim stays RetainedUnavailable (prefix/construction/args all Ok). Bundle inventory recorded: destruction scalar/ArrayBox/object fields, field-init user-new, static-call claims, argumented instance calls, call-in-arg, handle.<field>, OpaqueHandle scalar positions, object-field receiver calls, result-new object args, forwarded results, seedBlocks loop/alias, MIR-JSON pin re-word. Next: DESTRUCTION-SCALAR-FIELD-D0.",
   "2026-09-30: FIXED-EXE-SUITE-REMEASURE-I0 landed — fixed 11-entry real-apps-exe-boundary suite re-run on post-S0 binary: 5 PASS / 6 FAIL (count unchanged from 2026-09-29). Terminals: untyped_field=artifact-source-unavailable, binary_trees=root-call-entry-unavailable, boxtorrent=emission-binding-drift, allocator_stress=NamedArray(TextSourceMissing), json_stream=callable-loop/route-not-front-selected, mimalloc=emission-binding-drift (MIR-JSON leg; drifted from the pinned Invoke token inside the fail-closed ladder). Next: APP-BUNDLE-MIMALLOC-LITE-D0.",
   "2026-09-30: NESTED-RECEIVER-CALL-S0 landed — me.<ArrayBox field>.m(..) is a covered prefix statement via the generated CORE_METHOD_CONTRACT_ROWS_V2 manifest (NoValue-only in statement position; manifest-class install for locals). allocate's prefix advanced Body(3)→Body(8), stopping at the OpaqueHandle requested_size argument by design. Quick-profile serial 8105/126 (identical to wired manifest); smoke 3/3 at artifact-unowned-lifecycle-site. Next: FIXED-EXE-SUITE-REMEASURE-I0.",
-  "2026-09-30: NESTED-RECEIVER-CALL-D0 accepted — me.<ArrayBox field>.m(..) on the self-rooted receiver is Home-neutral when (selector,arity) resolves in the generated CORE_METHOD_CONTRACT_ROWS_V2 manifest and every arg leaf is non-Handle/non-homes; local results install by manifest class (I64/Bool→Trivial, Dynamic→BoundValue), statement position admits NoValue rows only. Expected ceiling: allocate prefix to Body(8) — OpaqueHandle param requested_size stays excluded. Next: NESTED-RECEIVER-CALL-S0.",
 ]

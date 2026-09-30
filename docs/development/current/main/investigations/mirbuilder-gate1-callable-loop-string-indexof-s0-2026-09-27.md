@@ -649,14 +649,8 @@ program). The `--emit-exe` leg still reaches
 `artifact-unowned-lifecycle-site` 3/3. Pin re-wording belongs to the app
 bundle that closes this terminal, not to this slice.
 
-Next: `MIRBUILDER-APP-BUNDLE-MIMALLOC-LITE-D0` — bundle
-`mimalloc_lite_exe` to full completion. Selected because its remaining
-dependency chain is already catalogued (OpaqueHandle-parameter scalar
-positions, `release/1` `handle.<field>` reads, Bool return literals,
-constructor re-store/object arguments, forwarded results) and it is the
-flagship app the Gate-1 thinning work targets. The D0 enumerates each
-known dependency as an internal bounded slice with normal/Fault
-verification plus the production-switch and legacy-retirement criteria.
+Next: `MIRBUILDER-APP-BUNDLE-MIMALLOC-LITE` — see the app-bundle card
+`mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md`.
 
 ## Decision — MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (accepted)
 
