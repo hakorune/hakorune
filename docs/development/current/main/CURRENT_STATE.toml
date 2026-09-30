@@ -1,7 +1,7 @@
 date = "2026-09-30"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0"
+current_execution_row = "MIRBUILDER-GATE1-RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -17,20 +17,22 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-ARG-CARRIER-EVIDENCE-S0 landed: emit_receiver_nullable's `Local` arm
-follows the sealed scalar call-edge rule — Integer/Unknown/unrecorded
-carriers admit, concrete non-i64 still freezes under
-nullable-argument-carrier. Fixture smoke's deterministic first
-terminal moved to local-commit/handle-release-shape-drift: allocateResult
-emits two correctly-shaped HomeReleaseIfLive invokes for the received
-nullable result, one per reachable exit, while validation demands one
-release per function. Next: RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0 pins
-whether per-exit release is the contract and whether the tail-exit
-`new` store moves handle ownership.
+RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0 accepted: a `new` positional
+argument naming a live owned binding moves the lease into the
+constructed object at the argument boundary (the `return <local>`
+discharge's twin) — the tail-exit `HomeReleaseIfLive` on `handle`
+was a real use-after-reclaim, since `result.handle` is dereferenced
+post-return and `reclaim_checked_indexed` frees the slot. The move
+completes on the invoke's Normal edge; `prior_homes` keeps the arg
+binding so the Fault unwind still discharges it. The received-row
+validator's function-wide `releases == 1` bound was a single-exit
+leftover; it aligns to the owed-exit count the exit rows already
+record. Next: RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0 consumes owned
+`new`-arg bindings in both scan paths.
 """
-next_design_card = "MIRBUILDER-GATE1-RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0 (per-exit HomeReleaseIfLive cardinality vs tail-exit `new`-store ownership move; intersects owning-field family)"
+next_design_card = "MIRBUILDER-GATE1-RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0 accepted (new-arg boundary moves owned bindings; Normal-edge move, Fault-edge keeps prior_homes; validator aligns to owed-exit count)"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-GATE1-RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0"
+next_execution_card = "MIRBUILDER-GATE1-RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -46,7 +48,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-30: RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0 accepted — a `new` positional arg naming a live owned binding moves the lease into the constructed object at the arg boundary (Normal-edge move; Fault-edge keeps prior_homes); the tail-exit HomeReleaseIfLive on allocateResult's handle was a real use-after-reclaim, not a validator nit. Received-row validator aligns to owed-exit count. Next: RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0.",
   "2026-09-30: ARG-CARRIER-EVIDENCE-S0 landed — emit_receiver_nullable's Local arm follows the sealed scalar call-edge rule (Integer/Unknown/unrecorded admit, concrete non-i64 rejects under nullable-argument-carrier). Fixture smoke's deterministic first terminal moved to local-commit/handle-release-shape-drift (two per-exit HomeReleaseIfLive for one received nullable; validator demands one). Package suite 398/3 baseline debt. Next: RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0.",
   "2026-09-30: RETAINED-NEW-HOME-FLOW-S0 landed — RetainedUnavailable claims release staged argument field reads at the prepare-time decline (Progress::Released); unconsumed-read stays armed for eligible claims. Fixture smoke's deterministic first terminal moved to ordinary-new/emission/nullable-argument-carrier (untyped param arg carrier). Package suite 398/3 baseline debt. Next: ARG-CARRIER-EVIDENCE-D0.",
-  "2026-09-30: RETAINED-NEW-HOME-FLOW-D0 accepted — prefix coverage stays with the per-function Home-flow scan; the nine-site census decomposes into bounded grammar admissions plus the HakoAllocHandleResult Birth store bound; RetainedUnavailable claims release staged argument field reads at the prepare-time decline. Next: RETAINED-NEW-HOME-FLOW-S0.",
 ]

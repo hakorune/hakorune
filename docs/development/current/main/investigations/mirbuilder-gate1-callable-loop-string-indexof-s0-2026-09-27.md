@@ -269,7 +269,63 @@ from the carrier gate. Next design row:
 `MIRBUILDER-GATE1-RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0` — pin the
 ownership contract for a received-nullable local that reaches a
 constructor argument on one exit path, then reconcile validation with
-that contract before any emission or ownership change.
+that contract before any emission or ownership change. The D0 below is
+accepted; the next execution row is
+`MIRBUILDER-GATE1-RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0`.
+
+## Decision — MIRBUILDER-GATE1-RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0 (accepted)
+
+Decision:
+  A `new` positional argument that names a live owned binding — one
+  present in the frame's `homes` (`Home`, `ReceivedHandle`,
+  `ReceivedNullable`, `Map`) — moves the lease into the constructed
+  object at the argument boundary, the same discharge `return <local>`
+  already seals at `home_new_prefix_terminal.rs` ("a returned
+  local/Home leaves with the caller"). The "prior Homes remain this
+  frame's exit obligation" sentence there was sealed for scalar-only
+  arguments: storing `handle` into `new HakoAllocHandleResult(1, 0,
+  handle)` physically places the handle index in `result.handle`, and
+  callers dereference it after return (`release(handle)` reads
+  `handle.block_id`); `reclaim_checked_indexed` truly frees the slot,
+  so a tail-exit release is a real use-after-reclaim, not a validator
+  nit. The move completes on the invoke's Normal edge: `prior_homes`
+  still names the arg binding so the Fault unwind discharges it when
+  no store happened.
+Source authority + canonical issuer:
+  `scan_statement_flow` (`home_new_prefix_scan` /
+  `home_new_prefix_terminal`) owns the per-exit `homes` obligation;
+  `PrefixLocalFlow::consume_home` is the sole move operator, applied
+  to the observed arg kind's root binding (`Local`/`Handle`/`BoundValue`
+  — `Handle` resolves aliases to the owed root) after the result
+  prefix is captured, on both the `local x = new` and `return new`
+  paths. `validate_root_home_exit` already validates one origin per
+  owed home per exit.
+Non-authority:
+  the physical instruction count is never the authority for "owed";
+  `emission_validation`'s `releases.len() == 1` was a single-exit
+  leftover and aligns to the exit-row homes count — the same sealed
+  fact emission used. No Facts row, no arg-kind re-classification
+  (`BoundValue` stays the nullable arg's kind), no ownership inference
+  from MIR.
+Fail-fast boundary:
+  `I64Field` args never consume the receiver object (a field read
+  borrows); literal/`Null` args move nothing; a binding absent from
+  `homes` (parameters, `BorrowedMap`, generic `BoundValue`) is never
+  consumed; post-move uses stay unobservable through `Consumed`;
+  a release count disagreeing with the owed-exit count still freezes
+  `handle-release-shape-drift`/`missing`.
+Smallest next slice:
+  `RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0` — consume observed owned
+  `new`-arg bindings in both scan paths and align the received-row
+  release count to the owed-exit count; pin positive (moved arg drops
+  the tail-exit `HomeReleaseIfLive`, `releases == 1`) and negative
+  (a still-owed sibling exit keeps its checked release) coverage.
+Non-claims:
+  no field-store ownership contract is minted — the owning-field
+  family (`FieldContractUnsupported` on `me.handle = handle`) stays
+  parked; borrowed map/parameter handles stored into objects keep
+  today's escape hole as a named residual; no claim that a nullable
+  local owed on two exits emits correctly beyond the aligned count.
 
 ## Decision — MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (accepted)
 
