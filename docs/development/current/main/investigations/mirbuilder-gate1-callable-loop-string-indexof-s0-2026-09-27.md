@@ -223,12 +223,25 @@ a claim judged `RetainedUnavailable` must be released there — it cannot
 be withheld at issue.
 
 `MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0` is accepted — see the
-Decision section below. Next execution row:
-`MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-S0` — the decline-time staged
-argument-read release; expected smoke effect is the recorded
-`artifact-unowned-lifecycle-site` frontier returning as first terminal.
-The nullable lane itself is complete for the bounded
-`local x = me.m(..)` slice.
+Decision section below. `RETAINED-NEW-HOME-FLOW-S0` landed: the
+prepare-time `RetainedUnavailable` decline releases the claim's staged
+argument reads (`Progress::Released`), keeping `unconsumed-read` armed
+for emission-eligible claims.
+
+Re-observation after S0 (3/3 deterministic): the fixture smoke's first
+terminal moved upstream to
+`[freeze:contract][ordinary-new/emission/nullable-argument-carrier]` —
+the landed nullable lane's i64-carrier gate rejects `me.allocate(size)`/
+`me.allocate(requested_size)` because the untyped `size`/`requested_size`
+parameter carries no proven `MirType::Integer` carrier. This is the
+designed fail-closed boundary (the wire carries proven i64 only, never a
+guess), now surfaced ahead of the recorded `artifact-unowned-lifecycle-
+site`: the S0b argument gate admits `Local` args at observation but the
+parameter binding's carrier type is unproven at emit. The next design
+question is whether untyped-parameter arguments gain a bounded carrier
+evidence row (or the observation declines earlier). This is a distinct
+family from the four coverage bounds in the census above. Next
+execution row: `MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0`.
 
 ## Decision — MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0 (accepted)
 

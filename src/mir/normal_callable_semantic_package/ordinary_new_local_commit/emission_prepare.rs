@@ -108,6 +108,9 @@ impl OrdinaryNewClaimLedgerV1 {
             prior_homes,
         )?;
         let available = matches!(next, NewEmissionProgress::Prepared { .. });
+        if !available {
+            self.release_staged_argument_reads(claim.site())?;
+        }
         rows.get_mut(claim.site())
             .and_then(LocalCommitV1::ordinary_mut)
             .expect("checked ordinary row")
@@ -156,6 +159,9 @@ impl OrdinaryNewClaimLedgerV1 {
             };
         }
         let available = matches!(next, NewEmissionProgress::Prepared { .. });
+        if !available {
+            self.release_staged_argument_reads(claim.site())?;
+        }
         rows.get_mut(claim.site())
             .and_then(LocalCommitV1::result_mut)
             .expect("checked result row")

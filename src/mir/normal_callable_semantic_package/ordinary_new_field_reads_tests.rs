@@ -174,6 +174,78 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
         .contains("artifact-source-unavailable"));
 }
 
+/// A result claim that declines to `RetainedUnavailable` releases its
+/// staged argument field reads at the prepare point — the raw lane owns
+/// the physical read, and `field_reads_complete`/`validate_field_reads`
+/// treat the released row as discharged without expecting an
+/// `ObjectFieldGet`. `Pending` rows still gate on `unconsumed-read`.
+#[test]
+fn retained_unavailable_claim_releases_staged_argument_reads() {
+    let package = issue_with_brand_catalog(
+        "box Node {
+             value: i64
+             make() { me.value = 3 return new Leaf(me.value) }
+         }
+         box Leaf { birth(v) { } }
+         static box Main { main() { return 0 } }",
+    )
+    .expect("unavailable-claim package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let (staged_sites, staged_objects): (Vec<_>, Vec<_>) = {
+        let reads = ledger.argument_field_reads.borrow();
+        reads
+            .iter()
+            .map(|(site, row)| (site.clone(), row.object))
+            .unzip()
+    };
+    assert_eq!(staged_sites.len(), 1, "me.value stages one argument read");
+    let site = ledger
+        .pending_result_claims_for_test()
+        .keys()
+        .next()
+        .expect("result claim")
+        .clone();
+    let claim = ledger
+        .try_take_result(&site, "Leaf", 1)
+        .expect("result take")
+        .expect("result claim present");
+    assert!(
+        !ledger.prepare_result_new_emission(&claim).unwrap(),
+        "the receiver-write statement keeps the claim RetainedUnavailable"
+    );
+    {
+        let reads = ledger.argument_field_reads.borrow();
+        assert!(
+            matches!(reads[&staged_sites[0]].progress, Progress::Released),
+            "the declined claim's staged read releases"
+        );
+    }
+    assert!(ledger.field_reads_complete());
+    // Release is final — the staged site can no longer be taken.
+    assert!(ledger
+        .take_argument_field_read(&staged_sites[0], staged_objects[0], |_, _| {
+            panic!("released rows never take")
+        })
+        .unwrap_err()
+        .contains("already-taken"));
+    // And no `ObjectFieldGet` expectation is registered for the owner.
+    let entry = BasicBlockId(0);
+    let mut function = MirFunction::new(
+        crate::mir::FunctionSignature {
+            name: "release_validation".into(),
+            params: vec![],
+            return_type: crate::mir::MirType::Void,
+            effects: crate::mir::EffectMask::CONTROL,
+        },
+        entry,
+    );
+    let block = function.blocks.get_mut(&entry).unwrap();
+    block.set_terminator(MirInstruction::Return { value: None });
+    ledger
+        .validate_field_reads(site.owner(), &function)
+        .unwrap();
+}
+
 #[test]
 fn terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression() {
     for (suffix, expected, alias) in [

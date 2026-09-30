@@ -33,6 +33,11 @@ pub(super) enum Progress {
     Pending,
     Taken(ValueId),
     Emitted(BasicBlockId, MirInstruction),
+    /// Retired by the enclosing claim's `RetainedUnavailable` decline:
+    /// no selected emitter exists, so the raw lane owns the physical
+    /// read at that site. Distinct from `Taken`/`Emitted` — released
+    /// rows never produce an `ObjectFieldGet` expectation.
+    Released,
 }
 
 pub(super) fn merge_staged_field_reads(
@@ -227,6 +232,35 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok((base, row.field))
     }
 
+    /// Retire the staged argument reads owned by one `new` site whose
+    /// claim just declined to `RetainedUnavailable`. Staged read keys are
+    /// the `FieldAccess` argument sites — exactly the claim site's direct
+    /// `Argument(n)` children in the same owner. Only `Pending` rows may
+    /// release; `Taken`/`Emitted` state here is a contract violation.
+    pub(crate) fn release_staged_argument_reads(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Result<(), String> {
+        let parent = site.site().node().segments();
+        let mut reads = self.argument_field_reads.borrow_mut();
+        for (read_site, row) in reads.iter_mut() {
+            if read_site.owner() != site.owner() {
+                continue;
+            }
+            let Some((last, path)) = read_site.site().node().segments().split_last() else {
+                continue;
+            };
+            if !matches!(last, SourcePathSegmentV1::Argument(_)) || path != parent {
+                continue;
+            }
+            if !matches!(row.progress, Progress::Pending) {
+                return Err(fault("release-non-pending"));
+            }
+            row.progress = Progress::Released;
+        }
+        Ok(())
+    }
+
     pub(crate) fn record_argument_field_read(
         &self,
         site: &OwnedExprSiteV1,
@@ -280,7 +314,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 .argument_field_reads
                 .borrow()
                 .values()
-                .all(|row| matches!(row.progress, Progress::Emitted(..)))
+                .all(|row| {
+                    matches!(row.progress, Progress::Emitted(..) | Progress::Released)
+                })
     }
 
     pub(super) fn validate_field_reads(
@@ -301,7 +337,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let argument_reads = self.argument_field_reads.borrow();
         for (site, row) in argument_reads.iter() {
-            if site.owner() != owner {
+            if site.owner() != owner || matches!(row.progress, Progress::Released) {
                 continue;
             }
             let Progress::Emitted(block, instruction) = &row.progress else {
