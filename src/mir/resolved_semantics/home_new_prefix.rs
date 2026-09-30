@@ -104,7 +104,10 @@ pub(crate) use local_flow::SourceScalarKind;
 use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 #[path = "home_local_call_flow.rs"]
 mod local_call_flow;
-pub(crate) use local_call_flow::{LocalCallObservationV1, LocalCallResultClassV1};
+pub(crate) use local_call_flow::{
+    LocalCallArgumentV1, LocalCallObservationV1, LocalCallResultClassV1,
+    QualifiedStaticCallClaimV1,
+};
 #[path = "home_map_descendant_flow.rs"]
 mod map_descendant_flow;
 #[path = "home_map_flow.rs"]
@@ -145,6 +148,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
+        &mut |_| Ok(None),
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
@@ -198,6 +202,12 @@ pub(crate) fn scan_new_home_flow<E>(
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    // The issuer's qualified static-box call membership: `local x =
+    // Alias.m(..)` sites whose sealed target is a `StaticBoxMethod` with an
+    // `ExactI64` result disposition carry the callee-required i64 ordinals.
+    local_static_call: &mut impl FnMut(
+        &OwnedExprSiteV1,
+    ) -> Result<Option<QualifiedStaticCallClaimV1>, E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -329,6 +339,7 @@ pub(crate) fn scan_new_home_flow<E>(
         local_map_call,
         local_handle_call,
         local_nullable_call,
+        local_static_call,
         argument_i64_field,
         scalar_field,
         container_field,

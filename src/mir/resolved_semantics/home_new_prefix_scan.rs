@@ -42,6 +42,12 @@ pub(super) fn scan_statement_flow<'a, E>(
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    // The issuer's qualified static-box call membership — `local x =
+    // Alias.m(..)` sites sealed `ExactI64` join the I64 lane as ordinary
+    // non-lifecycle local-call claims.
+    local_static_call: &mut impl FnMut(
+        &OwnedExprSiteV1,
+    ) -> Result<Option<QualifiedStaticCallClaimV1>, E>,
     // The issuer's argument-position i64-field proof: the scanner supplies
     // the exact read site, receiver site, receiver binding, and observed
     // handle root; the predicate alone decides the field class.
@@ -128,6 +134,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 local_map_call,
                 local_handle_call,
                 local_nullable_call,
+                local_static_call,
                 argument_i64_field,
                 scalar_field,
                 container_field,
@@ -223,6 +230,24 @@ pub(super) fn scan_statement_flow<'a, E>(
                 &homes,
                 local_call_flow::LocalCallResultClassV1::I64,
                 terminal_call,
+            )? {
+                path_calls.insert(local_call.site().clone());
+                local_calls.push(local_call);
+                locals.install_i64_call_result(binding);
+                continue;
+            }
+            // Qualified `Alias.m(..)` static calls live in the method-call
+            // inventory — the package membership index admits only sealed
+            // `ExactI64` targets and the flow seals each argument's class.
+            if let Some(local_call) = local_call_flow::issue_qualified_static_local_call(
+                input,
+                statement.site(),
+                &owned,
+                declaration.clone(),
+                binding,
+                &homes,
+                locals,
+                local_static_call,
             )? {
                 path_calls.insert(local_call.site().clone());
                 local_calls.push(local_call);

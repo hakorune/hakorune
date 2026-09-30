@@ -1,7 +1,7 @@
 date = "2026-10-01"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-S0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -33,18 +33,21 @@ Integer/Bool/scalar-Local args, emit `new_box` + `birth_call` +
 reclaim/discharge jump landings, and publish through physical JSON +
 Lifecycle V4 + LLVM C API (fixture apps/user-object-field-init-min
 runs `Result: 0`).
-STATIC-CALL-CLAIM-D0 accepted: qualified static calls emit the
-existing `Call{Callee::Global}` (no lifecycle site owed); the claim
-gap is the prefix-scan I64 lane classifying local-call initializers
-only via `direct_call_observations`. S0 adds a package-injected
-membership predicate (QualifiedUnbound receiver + import-alias
-resolution + StaticBoxMethod header + solver scalar disposition)
-issuing `LocalCallObservationV1{I64}` — no Invoke, no ledger row.
-Next: APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-S0.
+STATIC-CALL-CLAIM-S0 landed: `QualifiedStaticCallClaimIndexV1`
+composes the sealed import-alias view + whole-source static target
+inventory + result solver into a (caller, site) membership map;
+`issue_qualified_static_local_call` admits `local x = Alias.m(..)` as
+`LocalCallObservationV1{I64}` with Integer/Bool/scalar-Local argument
+sealing and callee-required i64 ordinal checks. Probe and verified
+walk share the same predicate and parameter contracts. No Invoke, no
+ledger row, no lifecycle site; existing `Call{Callee::Global}` stays
+the sole emitter. mimalloc-lite emit frontier remains the pinned
+`emission-binding-drift` gate downstream of the claim lane.
+Next: APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-D0.
 """
-next_design_card = "mimalloc-lite bundle slice 5 implementation: prefix-scan I64 lane admits qualified static scalar calls via package-injected membership predicate"
+next_design_card = "mimalloc-lite bundle slice 6 design: scalar-argument claim surface for argumented instance calls (heap.allocate(8), heap.release(h))"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-S0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-D0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -60,7 +63,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-01: STATIC-CALL-CLAIM-S0 landed — QualifiedStaticCallClaimIndexV1 composes sealed import-alias view + static target inventory + result solver into (caller, site) claims; issue_qualified_static_local_call admits `local x = Alias.m(..)` as LocalCallObservationV1{I64} with Integer/Bool/scalar-Local argument sealing and required-i64 ordinal checks; probe and verified walk share one predicate + parameter contracts (probe was iter::empty). No Invoke/ledger/lifecycle row; Call{Callee::Global} stays sole emitter. LocalCallArgumentV1 enum widens the arguments field; lexical-handle emitter fails closed on non-Integer. mimalloc-lite emit frontier stays the pinned emission-binding-drift gate downstream. Next: INSTANCE-CALL-SCALAR-ARG-D0.",
   "2026-10-01: FIELD-INIT-USER-NEW-S0 landed — user-class provider `new` field initializers admit PlainI64NoHook children (exact membership, non-self, declared==provider class) with sealed Integer/Bool/scalar-Local args; emit NewBox+birth_call+ObjectFieldSet under the shared fault frame with dedicated reclaim/discharge jump landings; provider_births ledger lane folds actuals into FinalizedBirthActualsV1; BirthUnit caller role opened for birth_call publication; C flow/validator/emit admit the birth-unit ops. Fixture apps/user-object-field-init-min compiles via Lifecycle V4 + LLVM C API and runs Result: 0. Next: STATIC-CALL-CLAIM-D0.",
   "2026-10-01: DESTRUCTION-OBJECT-FIELD-S0 landed — OwnedObjectFieldsNoHook disposition + membership-gated Handle storage + typed OwnedFieldChildV1 (Array|Object) across coseal/end_plan/reclaim/fault chains; field-write claims record the exact written class and object children require declared==written + PlainI64NoHook + non-self. Invoke OwnedObjectFieldRelease threaded through verifier/graph/emission/ABI/JSON (`object_field_release` exact keys) and C validator+indexed-flow+emit (checked_field_get_i64_v1 + home_release_plain_i64_v1 with child type id). Claim/verification/wire green; physical positive stays deferred to FIELD-INIT-USER-NEW-S0 by design. Next: FIELD-INIT-USER-NEW-S0.",
-  "2026-10-01: DESTRUCTION-ARRAYBOX-FIELD-S0 landed — OwnedArrayFieldsNoHook + widened field-write-claim seal + reverse-order OwnedFieldResidenceRelease origins (normal and birth-fault chains); provider `new ArrayBox()` emits IntrinsicArrayNew+InvokeNormalResult on the shared fault frame with exact named-array provider ledgers; wire `field_residence_release` = checked_field_get_i64_v1 + release-if-live nyrt_handle_release_h; handle-valued field_set discharges on the fault edge. Probe compiles+runs Result 0; app smoke negative pin re-pinned to emission-binding-drift, EXE frontier stays artifact-unowned-lifecycle-site. DESTRUCTION-OBJECT-FIELD-D0 accepted (OwnedObjectFieldRelease op + generated per-class teardown helper; typed OwnedFieldChildV1 with recursive corroboration + cycle rejection). Next: FIELD-INIT-USER-NEW-D0.",
   ]

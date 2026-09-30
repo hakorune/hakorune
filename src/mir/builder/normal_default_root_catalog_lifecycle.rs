@@ -266,6 +266,7 @@ impl ModuleBuilderInvocationSessionV1 {
                         callable,
                         Some(catalog),
                         self.config().generic_loop_facts_policy_v1(),
+                        &import_rows,
                     )
                 }) {
                     Ok(package) => package,

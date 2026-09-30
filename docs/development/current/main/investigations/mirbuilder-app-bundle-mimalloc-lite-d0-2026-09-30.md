@@ -764,4 +764,65 @@ Non-claims: no emission lane added (StaticReceiver route is the sole
 Then `MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-S0` lands the
 claim end to end.
 
-Next: MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-S0
+## S0 landed — MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-S0
+
+Landed as designed — the claim product only; no emission, lifecycle, or
+ownership semantics moved:
+
+- `QualifiedStaticCallClaimIndexV1`
+  (`normal_callable_semantic_package/qualified_static_call_claim.rs`)
+  composes the already-sealed authorities into a
+  `(canonical caller key, source site) -> QualifiedStaticCallClaimV1`
+  map: `VerifiedStaticImportAliasViewV1::seal` (the same `using` rows the
+  lifecycle passes in via `issue_normal_callable_semantic_package_with_
+  brand_catalog_and_loop_policy_v1`'s new `import_rows` parameter),
+  `VerifiedWholeSourceStaticCallTargetInventoryV1::verify`, and
+  `VerifiedSameModuleCallableResultCatalogV1::verify`. Only
+  `QualifiedStatic` targets with an `ExactI64` disposition keep a row;
+  the row carries `required_i64_arguments`.
+- `issue_qualified_static_local_call` (`home_local_call_flow.rs`)
+  corroborates the `QualifiedUnbound` receiver shape against the
+  method-call inventory and seals every argument: Integer/Bool literals
+  or `TrivialLocal` scalar bindings via `PrefixLocalFlow::observe`;
+  callee-required i64 ordinals require i64-class evidence. Sole product:
+  `LocalCallObservationV1{result: I64}` — `install_i64_call_result`,
+  `path_calls` membership, no Home, no ledger row, no lifecycle site.
+- `LocalCallObservationV1.arguments` widened from `Box<[i64]>` to
+  `Box<[LocalCallArgumentV1]>` (`Integer`/`Bool`/`Scalar(binding)`);
+  the lexical-handle emitter consumes `Integer` only and fails closed
+  on any other class.
+- Predicate threading: `scan_statement_flow` / `observe_if_statement` /
+  `walk_branch` / `verify_function_completion_with_new_homes_and_
+  argument_observations_v1` take the package-injected predicate;
+  bounded siblings (`issue_new_home_prefixes_v1`,
+  `issue_new_home_prefixes_with_arguments_v1`, plain
+  `verify_function_completion_with_new_homes_v1`) stub `Ok(None)`.
+  `issue_new_home_prefixes_probing_fields_v1` now installs the caller's
+  declared parameter contracts (was `iter::empty()`) and the same
+  predicate — probe and verified walk can never diverge on scalar
+  arguments again.
+- Caller keys: selected rows translate through `caller_key_for_
+  function`; App Main (never a selected row) falls back to the
+  catalog's `source_backed_app_main` co-seal key.
+- Focused tests (`qualified_static_call_claim_tests.rs`, 6 green):
+  exact `Alias.m(size)` claim, scalar-parameter argument, imported
+  alias resolution; fail-closed for bool-at-i64-ordinal, handle/map
+  arguments, non-`QualifiedUnbound` receivers, and unregistered sites.
+- Incidental reclassification: same-module qualified static calls
+  (e.g. `Sizes.size(7)`) previously sat unclassified as `BoundValue`;
+  the claim now installs them as `Trivial(Integer)` and `new` argument
+  rows read `Local` — `selected_new_arguments_admit_inventoried_call_
+  result_local` updated to the honest kind (admission unchanged).
+- Gates: `cargo check --lib` clean; `cargo test --lib` over
+  `normal_callable_semantic_package` + `resolved_semantics` = 763 pass,
+  3 fail — all three are the documented red-baseline rows in
+  `cargo_lib_red_baseline.failures.txt` (no new regressions). Real-app
+  frontier check: `apps/mimalloc-lite` MIR emit still stops at the
+  pinned `emission-binding-drift` gate — downstream of this slice's
+  claim lane, unchanged by design (D0 non-claims: no app-level
+  completion claim).
+
+Next: `MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-D0` —
+bundle slice 6: argumented instance calls (`heap.allocate(8)`,
+`heap.release(h)`); 0-arg i64 instance calls already compile, this
+slice designs the scalar-argument claim surface.

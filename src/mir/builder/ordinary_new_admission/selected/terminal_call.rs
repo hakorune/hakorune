@@ -361,8 +361,18 @@ pub(in crate::mir::builder) fn emit_local_lexical(
     let arguments = relation
         .arguments()
         .iter()
-        .map(|literal| -> Result<ValueId, String> {
-            crate::mir::builder::emission::constant::emit_integer(builder, *literal)
+        .map(|argument| -> Result<ValueId, String> {
+            // The lexical-handle lane seals integer literals only — a scalar
+            // or bool row here means a claim boundary the emitter never
+            // admits, so fail closed instead of guessing a value.
+            match argument {
+                crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Integer(
+                    literal,
+                ) => crate::mir::builder::emission::constant::emit_integer(builder, *literal),
+                other => Err(format!(
+                    "[freeze:contract][lexical-handle/argument-class]{other:?}"
+                )),
+            }
         })
         .collect::<Result<Vec<_>, _>>()?;
     let invoke = MirInstruction::Invoke {

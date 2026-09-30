@@ -87,7 +87,10 @@ fn local_map_call_and_terminal_map_call_share_the_root_source_owner() {
     assert_eq!(flow.local_calls().len(), 1);
     let local = &flow.local_calls()[0];
     assert_eq!(local.owner(), terminal.owner());
-    assert_eq!(local.arguments(), [10]);
+    assert_eq!(
+        local.arguments(),
+        [crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Integer(10)]
+    );
     assert_eq!(
         terminal.arguments(),
         [crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::I64(20)]
@@ -554,7 +557,10 @@ fn non_map_local_call_selects_lifecycle_without_reclassifying_terminal() {
     let owner = completion.owner();
     let locals = completion.cleanup().root_flow().unwrap().local_calls();
     assert_eq!(locals.len(), 1);
-    assert_eq!(locals[0].arguments(), &[10]);
+    assert_eq!(
+        locals[0].arguments(),
+        &[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Integer(10)]
+    );
     let loans = package.direct_call_loans.as_mut().unwrap();
     let loan = loans.get_mut(owner).unwrap();
     let local = loan

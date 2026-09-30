@@ -1,0 +1,265 @@
+//! Focused boundary tests for `STATIC-CALL-CLAIM-S0` — the
+//! package-injected qualified static-call claim index.
+//!
+//! Positive membership requires the sealed chain: `QualifiedUnbound`
+//! receiver → alias view resolution → `StaticBoxMethod` target →
+//! `ExactI64` result disposition, plus argument sealing to Integer/Bool
+//! literals or trivial-scalar bindings (callee-required i64 ordinals
+//! must carry i64-class evidence).  Every rejected row keeps the
+//! ordinary `PrefixNotCovered` unavailability — the site is never
+//! silently claimed.
+
+use super::brand_catalog_tests::issue_with_brand_catalog as issue;
+use crate::mir::builder::NormalRootExecutionConsumerV1;
+use crate::mir::resolved_semantics::home_new_prefix::{
+    HomePrefixUnavailableV1, LocalCallArgumentV1, LocalCallObservationV1,
+    LocalCallResultClassV1,
+};
+use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, SourceBindingSiteV1};
+use crate::parser::{NyashParser, ParserBuildConfig};
+
+/// Issue the semantic package with injected `using` alias rows — the
+/// same channel `using_import_boxes` feeds in the production lane.
+fn issue_with_import_rows(
+    source: &str,
+    imports: &[(String, String)],
+) -> Result<
+    super::VerifiedNormalCallableSemanticPackageV1,
+    super::NormalCallableSemanticPackageIssueV1,
+> {
+    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+        source,
+        ParserBuildConfig::default(),
+    )
+    .expect("normal callable source");
+    let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        crate::r#macro::transform_normal_callable_program_v1(parsed)
+            .expect("exact callable transform")
+    });
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
+    else {
+        panic!("fixture must remain source-backed")
+    };
+    let catalog =
+        crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(
+            source.ast(),
+        )
+        .expect("brand catalog");
+    let source = NormalRootExecutionConsumerV1::consume_once(source)
+        .expect("root execution")
+        .into_consumed_source();
+    let mut resolver = FunctionSemanticResolverSessionV1::new(93).unwrap();
+    super::issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1(
+        &mut resolver,
+        source,
+        Some(&catalog),
+        crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(),
+        imports,
+    )
+}
+
+/// All local-call claim rows across every declaration owner — App
+/// Main's completion lives on the root slot, selected callables' in the
+/// per-owner completion index.
+fn local_calls(
+    package: &super::VerifiedNormalCallableSemanticPackageV1,
+) -> Vec<LocalCallObservationV1> {
+    let mut calls = Vec::new();
+    for declaration in package.batch().declarations() {
+        if let Some(flow) = package
+            .ordinary_new_claim_ledger
+            .completion_for_owner(declaration.owner())
+            .and_then(|completion| completion.cleanup().root_flow())
+        {
+            calls.extend(flow.local_calls().iter().cloned());
+        }
+    }
+    calls
+}
+
+/// The `new Page()` claim's prefix record — `Err(PrefixNotCovered(_))`
+/// is the named unavailability an unclaimed call leaves behind.
+fn new_claim_prefix_covered(
+    package: &super::VerifiedNormalCallableSemanticPackageV1,
+) -> bool {
+    package
+        .ordinary_new_claim_ledger
+        .pending_claims_for_test()
+        .values()
+        .all(|claim| claim.home_prefix().is_ok())
+}
+
+#[test]
+fn qualified_static_call_claims_i64_literal_argument() {
+    let package = issue(
+        "box Page { birth() { } }
+        static box LayoutBox { class_id(size) { return size } }
+        static box Main { main() {
+            local class_id = LayoutBox.class_id(7)
+            local page = new Page()
+            return class_id
+        } }",
+    )
+    .expect("qualified static call package");
+    let calls = local_calls(&package);
+    let [call] = calls.as_slice() else {
+        panic!("one qualified static-call claim, got {calls:?}")
+    };
+    assert_eq!(call.result(), LocalCallResultClassV1::I64);
+    assert_eq!(call.arguments(), &[LocalCallArgumentV1::Integer(7)]);
+    assert!(new_claim_prefix_covered(&package));
+}
+
+#[test]
+fn qualified_static_call_claims_scalar_parameter_argument() {
+    // The mimalloc-lite shape: `local class_id = LayoutBox.class_id(size)`
+    // inside a non-birth caller — the argument is a parameter binding,
+    // not a literal.
+    let package = issue(
+        "box Page { birth() { } }
+        static box LayoutBox { class_id(size) { return size } }
+        static box Helpers {
+            lookup(size: i64): i64 {
+                local class_id = LayoutBox.class_id(size)
+                local page = new Page()
+                return class_id
+            }
+        }
+        static box Main { main() { return Helpers.lookup(9) } }",
+    )
+    .expect("parameter-argument package");
+    let calls = local_calls(&package);
+    let [call] = calls.as_slice() else {
+        panic!("one qualified static-call claim, got {calls:?}")
+    };
+    assert_eq!(call.result(), LocalCallResultClassV1::I64);
+    let [LocalCallArgumentV1::Scalar(binding)] = call.arguments() else {
+        panic!("parameter argument must seal as Scalar, got {:?}", call.arguments())
+    };
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.owner() == call.owner())
+        .expect("exact owner");
+    let parameter = package
+        .batch()
+        .with_lowering_input(declaration.batch_slot(), |input| {
+            input
+                .function()
+                .declaration_binding(&SourceBindingSiteV1::Parameter { index: 0 })
+        })
+        .expect("lowering input");
+    assert_eq!(Some(*binding), parameter);
+    assert!(new_claim_prefix_covered(&package));
+}
+
+#[test]
+fn qualified_static_call_claim_resolves_import_alias() {
+    let package = issue_with_import_rows(
+        "box Page { birth() { } }
+        static box LayoutBox { class_id(size) { return size } }
+        static box Main { main() {
+            local class_id = LB.class_id(7)
+            local page = new Page()
+            return class_id
+        } }",
+        &[("LB".to_string(), "LayoutBox".to_string())],
+    )
+    .expect("alias-resolved package");
+    let calls = local_calls(&package);
+    let [call] = calls.as_slice() else {
+        panic!("one alias-resolved claim, got {calls:?}")
+    };
+    assert_eq!(call.result(), LocalCallResultClassV1::I64);
+    assert_eq!(call.arguments(), &[LocalCallArgumentV1::Integer(7)]);
+    assert!(new_claim_prefix_covered(&package));
+}
+
+#[test]
+fn qualified_static_call_claim_stays_fail_closed() {
+    for (label, call) in [
+        // No `StaticBoxMethod` declaration exists for the receiver.
+        ("unresolved-alias", "MissingBox.class_id(7)"),
+        // `Page` is an instance box — a `StaticBoxMethod` for owner
+        // `Page` does not exist.
+        ("non-static-target", "Page.class_id(7)"),
+        // `Any.make` has an `ExactNominalBox` disposition, not `ExactI64`.
+        ("unproven-result", "Any.make()"),
+        // A compound argument is outside the scalar seal.
+        ("non-trivial-arg", "LayoutBox.class_id(nine + 1)"),
+        // A Home argument is not scalar evidence.
+        ("handle-arg", "LayoutBox.class_id(page)"),
+    ] {
+        let source = format!(
+            "box Page {{ birth() {{ }} }}
+            static box LayoutBox {{ class_id(size) {{ return size }} }}
+            static box Any {{ make() {{ return new Page() }} }}
+            static box Main {{ main() {{
+                local nine = 9
+                local page = new Page()
+                local x = {call}
+                local page2 = new Page()
+                return 0
+            }} }}"
+        );
+        let package = issue(&source)
+            .unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
+        assert!(
+            local_calls(&package).is_empty(),
+            "{label}: unclaimed call issues no local-call row"
+        );
+        assert!(
+            !new_claim_prefix_covered(&package),
+            "{label}: a `new` past the unclaimed call keeps PrefixNotCovered"
+        );
+    }
+}
+
+#[test]
+fn qualified_static_call_claim_rejects_non_i64_evidence_at_required_ordinal() {
+    // `class_id` returns its `size` parameter, so ordinal 0 is a required
+    // i64 argument — a Bool literal there must refuse the claim.
+    let package = issue(
+        "box Page { birth() { } }
+        static box LayoutBox { class_id(size) { return size } }
+        static box Main { main() {
+            local class_id = LayoutBox.class_id(true)
+            local page = new Page()
+            return 0
+        } }",
+    )
+    .expect("bool-argument package");
+    assert!(local_calls(&package).is_empty());
+    assert!(!new_claim_prefix_covered(&package));
+}
+
+#[test]
+fn qualified_static_call_claim_covers_me_receiver_out_of_scope() {
+    // `me.m(..)` inside a static box is `CurrentOwnerStatic`, not the
+    // `QualifiedUnbound` lane — S0 keeps no claim for it.
+    let package = issue(
+        "box Page { birth() { } }
+        static box LayoutBox {
+            class_id(size: i64): i64 { return size }
+            wrap(size: i64): i64 {
+                local inner = me.class_id(size)
+                local page = new Page()
+                return inner
+            }
+        }
+        static box Main { main() { return LayoutBox.wrap(7) } }",
+    )
+    .expect("me-receiver package");
+    assert!(local_calls(&package).is_empty());
+    assert!(
+        package
+            .ordinary_new_claim_ledger
+            .pending_claims_for_test()
+            .values()
+            .any(|claim| matches!(
+                claim.home_prefix(),
+                Err(HomePrefixUnavailableV1::PrefixNotCovered(_))
+            )),
+        "the `new` past an out-of-scope `me` call keeps PrefixNotCovered"
+    );
+}

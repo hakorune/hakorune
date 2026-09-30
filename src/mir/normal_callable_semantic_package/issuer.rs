@@ -391,6 +391,9 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     LoopBreakSource {
         _error: super::loop_break_source::LoopBreakSourcePackageIssueV1,
     },
+    QualifiedStaticClaim {
+        _error: super::qualified_static_call_claim::QualifiedStaticCallClaimIndexIssueV1,
+    },
 }
 
 #[cfg(test)]
@@ -418,6 +421,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         source,
         brand_catalog,
         LoopFactsPolicyFrameV1::from_environment(),
+        &[],
     )
 }
 
@@ -426,6 +430,10 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     source: ConsumedNormalRootCallableSourceV1,
     brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
     loop_policy: LoopFactsPolicyFrameV1,
+    // The same `using` alias rows the lifecycle seals into the static-call
+    // import view — the qualified static-call claim index must resolve
+    // receiver names through one shared authority, never a second list.
+    import_rows: &[(String, String)],
 ) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
     let instance_constructors =
         issue_instance_constructor_semantic_batch_v1(resolver, source.source(), brand_catalog)
@@ -637,6 +645,18 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             )
         }
     };
+    // Qualified static-box call claims ride the same sealed authorities the
+    // publication owner later consumes: import view, target inventory, and
+    // the result solver — minted here so the homes-aware walk can admit
+    // `local x = Alias.m(..)` sites during the co-seal.
+    let static_claim_index =
+        super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1::issue(
+            catalog.catalog(),
+            import_rows.iter().cloned(),
+        )
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::QualifiedStaticClaim {
+            _error: error,
+        })?;
     let (mut ordinary_new_claim_ledger, mut completion_seeds) = issue_ordinary_source_cohort_v1(
         &batch,
         &selected,
@@ -646,6 +666,11 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         &entry_home_loans,
         &mut dynamic,
         &instance_constructors,
+        &static_claim_index,
+        catalog
+            .catalog()
+            .source_backed_app_main()
+            .map(|app_main| app_main.catalog_key()),
     )
     .map_err(|error| match error {
         OrdinaryNewCoSealIssueV1::CompletionSeed(error) => {

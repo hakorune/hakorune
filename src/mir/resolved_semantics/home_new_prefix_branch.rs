@@ -50,6 +50,9 @@ fn walk_branch<'a, E>(
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    local_static_call: &mut impl FnMut(
+        &OwnedExprSiteV1,
+    ) -> Result<Option<QualifiedStaticCallClaimV1>, E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -97,6 +100,7 @@ fn walk_branch<'a, E>(
         local_map_call,
         local_handle_call,
         local_nullable_call,
+        local_static_call,
         argument_i64_field,
         scalar_field,
         container_field,
@@ -160,6 +164,9 @@ pub(super) fn observe_if_statement<'a, E>(
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    local_static_call: &mut impl FnMut(
+        &OwnedExprSiteV1,
+    ) -> Result<Option<QualifiedStaticCallClaimV1>, E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -267,6 +274,7 @@ pub(super) fn observe_if_statement<'a, E>(
         local_map_call,
         local_handle_call,
         local_nullable_call,
+        local_static_call,
         argument_i64_field,
         scalar_field,
         container_field,
@@ -299,6 +307,7 @@ pub(super) fn observe_if_statement<'a, E>(
             local_map_call,
             local_handle_call,
             local_nullable_call,
+            local_static_call,
             argument_i64_field,
             scalar_field,
             container_field,

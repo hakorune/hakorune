@@ -25,7 +25,7 @@ use super::{
     OwnedFieldChildV1, VerifiedOrdinaryNewBirthRecipeV1,
 };
 use crate::ast::ASTNode;
-use crate::mir::builder::SelectedNormalCallableKeyV1;
+use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, SelectedNormalCallableKeyV1};
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::function::ObjectDestructionDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
@@ -52,6 +52,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     dynamic: &mut super::super::model::NormalCallableDynamicProjectionV1,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    static_call_claims: &super::super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
+    // App Main's canonical catalog key — App Main is never a selected
+    // row, so its claim-lookup key comes from the catalog co-seal.
+    app_main_claim_key: Option<&CanonicalSameModuleCallableKeyV1>,
 ) -> Result<
     (
         OrdinaryNewClaimLedgerV1,
@@ -320,9 +324,23 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     input.function(), owner, batch, instance_constructors,
                     &declared_claimed, &mut birth_site_index,
                 )?;
+                // The caller's canonical key drives the qualified static-call
+                // claim index — the probe and the verified walk share this
+                // predicate so readiness never diverges from the real lane.
+                let mut local_static_call =
+                    super::super::qualified_static_call_claim::local_static_call_predicate(
+                        static_call_claims,
+                        super::super::qualified_static_call_claim::caller_key_for_function(
+                            selected, batch_slot, is_app_main, app_main_claim_key,
+                        ),
+                    );
                 let child_new_ready = seed_eligible && !new_sites.is_empty()
                     && crate::mir::resolved_semantics::home_new_prefix::issue_new_home_prefixes_probing_fields_v1(
                         input, &new_sites, entry_home,
+                        parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
+                            .flat_map(|row| row.parameters.iter())
+                            .map(|row| (row.ordinal, row.binding, row.kind)),
+                        &mut local_static_call,
                         &mut |_: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
                             terminal_home::initialized_integer_field(
                                 instance_constructors, &candidates, home, name,
@@ -503,7 +521,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                     .map(|row| row.class()),
                                 Some(result_class_claim::OrdinaryNewResultClassV1::NullableObject(_))
                             ))
-                        }, &result_sites, &mut argument_field_is_integer, &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+                        }, &mut local_static_call, &result_sites, &mut argument_field_is_integer, &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
                             // RHS `me.<field>` reads inside a field write
                             // share the entry-receiver proof; the contract
                             // is the numeric integer-scalar set, not `i64`.

@@ -49,6 +49,7 @@ mod map_read_fact;
 mod map_read_fact_tests;
 mod model;
 mod ordinary_new_coseal;
+mod qualified_static_call_claim;
 mod physical_header;
 mod physical_signature;
 mod result_contract;
@@ -160,6 +161,8 @@ mod map_get_terminal_tests;
 mod map_home_flow_tests;
 #[cfg(test)]
 mod map_value_completion_tests;
+#[cfg(test)]
+mod qualified_static_call_claim_tests;
 #[cfg(test)]
 mod terminal_value_return_tests;
 

@@ -48,6 +48,9 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         // This bounded sibling mints no receiver-call rows: nullable flow
         // membership lives on the verified-completion lane alone.
         &mut |_| Ok(false),
+        // Qualified static-call claims are likewise issued only by the
+        // verified-completion lane; the bounded sibling admits none.
+        &mut |_| Ok(None),
         // This bounded sibling issues no field-read evidence: argument
         // `me.f` reads stay truthfully unavailable here. Only the
         // verified-completion lane carries the issuer predicate.
@@ -73,6 +76,25 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
     entry_home: Option<&VerifiedInstanceEntryHomeLoanV1>,
+    // The probe installs the caller's declared parameter contracts —
+    // identical to the verified lane — so a scalar-binding argument to a
+    // qualified static call is observed exactly once by one authority.
+    parameters: impl IntoIterator<
+        Item = (
+            u32,
+            BindingRefV1,
+            crate::mir::callable_parameter_contract::CallableParameterContractKindV1,
+        ),
+    >,
+    // The probe must see the same qualified static-call membership the
+    // verified lane sees: an admitted `local x = Alias.m(..)` keeps this
+    // walk covered, so the readiness gate never under- or over-predicts.
+    local_static_call: &mut impl FnMut(
+        &OwnedExprSiteV1,
+    ) -> Result<
+        Option<crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1>,
+        E,
+    >,
     field_is_integer: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -105,7 +127,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
     scan_new_home_flow(
         input,
         selected,
-        std::iter::empty(),
+        parameters,
         entry_home,
         &[],
         false,
@@ -116,6 +138,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         &mut |_| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
+        local_static_call,
         argument_i64_field,
         scalar_field,
         container_field,

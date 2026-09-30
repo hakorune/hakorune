@@ -100,13 +100,16 @@ fn selected_new_arguments_admit_inventoried_call_result_local() {
     assert_eq!(claims.len(), 1);
     let rows = claims[0]
         .argument_rows()
-        .expect("BoundValue provenance keeps argument rows complete");
+        .expect("admitted trivial argument keeps the row complete");
     let [row] = rows else {
         panic!("one argument row, got {rows:?}")
     };
-    let OrdinaryNewTrivialArgumentKindV1::BoundValue { binding } = row.kind() else {
+    // `Sizes.size(7)` carries an `ExactI64` result disposition, so the
+    // qualified static-call claim installs `h` as a trivial scalar local —
+    // the honest `Local` row, not the unclassified `BoundValue` shape.
+    let OrdinaryNewTrivialArgumentKindV1::Local { binding } = row.kind() else {
         panic!(
-            "call-result local must be a BoundValue row, got {:?}",
+            "i64-disposed call-result local must be a Local row, got {:?}",
             row.kind()
         )
     };
