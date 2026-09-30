@@ -1,6 +1,6 @@
 # MirBuilder Gate 1 — current design and acceptance
 
-Status: FORWARDED-RESULT-CLASS-COMPOSITION-S0 landed (two-pass draft + bounded fixpoint, claim-only; HakoAllocHeap.allocate -> NullableObject); RECEIVER-CALL-OBSERVATION-D0 is next
+Status: RECEIVER-CALL-OBSERVATION-D0 accepted (deferred claim-aware me.m observation pass, claim-faithful class evidence, no emission change); RECEIVER-CALL-OBSERVATION-S0 is next
 Date: 2026-09-29
 Scope: MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0; compact Gate-1 frontier.
 Related: CURRENT_STATE.toml; workstream row H; RULES.md;
@@ -414,31 +414,10 @@ physical emission beyond the existing selected admission path.
 
 ### Reviewer remediation — per-exit S0 follow-up
 
-- `map_read_fact` no longer picks the owner's first Call relation:
-  read-fact edges resolve `call_relations_for_owner(..).find(..)` on the
-  exact call site, a missing caller completion is the named
-  `CallerTerminalMissing` issue, and non-terminal calls stay outside
-  read-fact scope as before.
-- `PrefixLocalFlow::join_branch` no longer unions branch-only bindings.
-  A binding produced on one side only was declared inside that branch's
-  own `IfThen`/`IfElse` lexical frame (`leave_region_scope` pops it, so
-  no post-join site can resolve it); the join now records it as
-  `Uninitialized`, keeping `observe`/`is_*` fail-closed.
-- `call_source_completion`, `call_source_completion_for_owner` and
-  `terminal_call_arguments` are `#[cfg(test)]` sole-exit shorthands that
-  return `None` on non-singletons; `direct_call_lifecycle`'s
-  `call_terminals.is_empty()` check names the actual intent and every
-  retained call terminal is membership-checked.
-- `mut terminal_relation` unused-mut removed.
-- Receipt re-baselined: `cargo_lib_red_baseline` now pins
-  passed=8071/failed=126/ignored=56 inventory=8253 — the delta vs the
-  old pin is `artifact_child_rejects_retained_unavailable_`
-  `commit_before_lifecycle_coverage`, which fails identically at
-  `3a9b98b75b` (`[freeze:contract][ordinary-new/local-commit/`
-  `literal-physical-drift]`). `mir_call_canonical_corridor_guard` pin
-  updated to `.map(OrdinaryNewClaimTakeV1::constructor)` — same claim
-  consumption, and the guard now passes instead of failing as stale
-  baseline debt.
+Site-exact read-fact edges, branch-only join bindings recorded as
+`Uninitialized`, test-only sole-exit shorthands, and the
+`cargo_lib_red_baseline` re-pin (8071/126/56 of 8253) all landed; full
+detail recoverable from git at `339674c77b:this-file`.
 
 Next design row: `MIRBUILDER-GATE1-CONSTRUCTOR-ARGUMENT-EVIDENCE-D0` —
 constructor-argument evidence (null/field/call-result), per the
@@ -653,51 +632,17 @@ Next execution row: `MIRBUILDER-GATE1-CONSTRUCTOR-ARGUMENT-EVIDENCE-S0`.
   `ObjectFieldGet` into a fresh value that feeds the `Birth` call
   (`selected/arguments.rs`, `physical_abi.rs`).
 
-### Root cause recorded for the readiness gate
+### Readiness-gate root cause + measured frontier (recorded)
 
-The first field-test run observed `ArgumentNotTrivial` because `make`'s
-`child_new_ready` probe called the always-false-predicate
-`issue_new_home_prefixes_v1` — `me.f` arguments never counted as ready,
-the verified co-seal branch never ran, and the fallback path recorded
-the trivial-only terminal. `issue_new_home_prefixes_probing_fields_v1`
-(`home_new_prefix_arguments.rs`) now runs the same issuer predicates
-(`initialized_integer_field` / `argument_integer_field`) with staging
-discarded; the verified walk alone still stages and merges evidence.
-
-### Measured frontier (page_heap_box.hako, real sites)
-
-| Site | `argument_rows` | `home_prefix` |
-| --- | --- | --- |
-| allocate/1 `return new HakoAllocHandle(me.page_id, block_id, requested_size)` | Ok — `[I64Field, BoundValue, Handle]` | `PrefixNotCovered` — `me.free_top` field write + `me.free_stack.get(..)` receiver call |
-| allocateResult/1 `new ..(0, 2, null)` / `(0, 4, null)` / `(1, 0, handle)` | Ok — `[Integer, Integer, Null]` / `[Integer, Integer, BoundValue]` | first site ready; later two blocked at `local handle = me.allocate(size)` |
-| reallocResult/2 `new ..(0, 1..4, null)` ×3 / `(0, 4, null)` / `(1, 0, replacement)` | Ok — `[Integer, Integer, Null]` / `[Integer, Integer, BoundValue]` | three sites ready; last two blocked at `local replacement = me.realloc(..)` |
-
-Measured by a temporary probe over
-`issue_normal_callable_semantic_package_with_brand_catalog_v1` on the
-library source; the probe was removed after recording. The remaining
-`PrefixNotCovered` blockers are exactly the named out-of-scope contracts
-(receiver field write, `me.`-receiver call, mixed null/new result ABI).
-
-### Evidence
-
-- Focused `selected_new` set: 9/9 — null literal observation, null ->
-  `ConstValue::Null` in the Birth call, entry-receiver `I64Field` row,
-  exactly one `ObjectFieldGet` feeding Birth, call-result `BoundValue`,
-  and nontrivial/unproven rejections.
-- Adjacent lanes (`resolved_semantics`, `resolved_control_flow`,
-  `ordinary_new_admission`, `map_consumer`, `map_value_completion`,
-  `instance_entry_home`): 416/417 pass, 1 ignored.
-- Broader `normal_callable_semantic_package` run: 381 pass / 3 fail —
-  all three (`birth_receiver_non_escape_*`,
-  `main_static_child_port_consumes_all_role_rows_once`,
-  `qualified_call_map_argument_*`) reproduce on baseline `3a9b98b75b`
-  and are listed in `tools/checks/manifests/cargo_lib_red_baseline.*`.
-- Guards: `current_state_pointer_guard` ok,
-  `mirbuilder_qualified_route_scope_guard` ok,
-  `mir_call_canonical_corridor_guard` ok after its selected-emitter pin
-  was extended to `selected.rs` + `selected/arguments.rs`.
-- No EXE claim; the per-function all-exits gate still gates physical
-  emission for the sites above.
+`make`'s `child_new_ready` probe used the always-false predicate lane;
+`issue_new_home_prefixes_probing_fields_v1` now runs the real issuer
+predicates with staging discarded. Measured on `page_heap_box.hako`:
+allocate/allocateResult/reallocResult argument rows all Ok
+(`I64Field`/`BoundValue`/`Null`/`Handle` arms exercised); remaining
+`PrefixNotCovered` blockers were exactly the named out-of-scope
+contracts. Focused 9/9; adjacent lanes 416/417; package suite 381 pass /
+3 baseline-debt fail; all guards green. Full tables recoverable from
+git (`339674c77b:this-file` history).
 
 Next design row: `MIRBUILDER-GATE1-MIXED-NULL-NEW-RESULT-ABI-D0` —
 nullable-handle result claims for mixed `return new`/`return null`
@@ -893,6 +838,75 @@ waits forever and stays unclaimed.
 
 Next design row: `MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-D0`.
 
+## Decision — MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-D0 (accepted)
+
+Worker census (read-only) established the observation surface: a
+`local x = me.m(..)` initializer mints no `LocalCallObservationV1`
+today — `lexical_handle_result_call` rejects `BindingKindV1::Receiver`,
+the needs-collection skips receiver bindings, and the args-literal gate
+excludes real arguments — so the site lands `StoredLocal::BoundValue` +
+`PrefixNotCovered`. A `return me.m(..)` mints no terminal relation at
+all (`ReturnValueNotCovered`). The claim product already resolves `me.m`
+callees (F2), so only observation vocabulary is missing.
+
+```text
+Decision: observe `me.m(..)` call sites as claim-keyed classed call
+  results inside the same coseal ledger — a deferred, claim-aware pass
+  in `issue_ordinary_source_cohort_v1` after `result_class_draft.finish`
+  (the claim map cannot exist during the per-declaration scan; the draft
+  itself is the two-pass precedent). `me` is proven by the caller's own
+  InstanceBoxMethod owner (F2 arm) cross-checked against
+  `entry_receiver_box_proof` where an entry loan exists; the callee key
+  resolves through `unique_instance_target(selected, own_box, selector,
+  arity)` — the same F2 resolver the claim issuer uses.
+Source authority + canonical issuer: sealed method_call inventory +
+  Receiver binding kind + entry-loan receiver proof; minted into the
+  existing LocalCallObservationV1 ledger (one observation issuer) with
+  the result carried claim-faithfully — Object(C) is Handle-eligible
+  evidence, NullableObject(C) is nullable evidence that can never mint
+  Handle.
+Non-authority: no emission path changes — every existing consumer gate
+  (`map_demands_consumed`, `emit_local_lexical` prior_homes,
+  `handle_call_prior_home_unwind`, `begin_handle_call_emission`) keeps
+  failing closed; no new TerminalRelationV1 variant; no nullable arm in
+  InvokeCallResultKind/StoredLocal (NULLABLE-RESULT-ABI-D0 territory).
+Fail-fast boundary: no claim, foreign/unresolved callee, non-me or
+  Other receivers, rebound destinations, and parameter/field receivers
+  all keep the existing BoundValue + PrefixNotCovered floor — honest
+  non-coverage, never a silent Handle mint.
+Smallest next slice: RECEIVER-CALL-OBSERVATION-S0 — the deferred
+  claim-aware observation pass over `me.m` local-initializer sites,
+  claim-faithful result arm (Object/NullableObject evidence only), with
+  page_heap_box sites :219/:287 asserted and :313 (unclaimed realloc)
+  pinned to the BoundValue floor.
+Non-claims: no Handle minting for me.m results (emission gates are a
+  separate design), no `me.f.m` local-initializer observation (receiver
+  is Other — separate census needed), no return-position observation
+  (the claim product already carries it), no nullable physical ABI, no
+  StoredLocal arm.
+```
+
+### Census evidence anchors (worker, read-only)
+
+- `local x = me.m(..)` floors to `BoundValue` today:
+  `home_prefix_local_flow.rs:394-409` + `PrefixNotCovered`;
+  `lexical_handle_result_call` rejects `Receiver` kind
+  (`ordinary_new_coseal_issue_lexical.rs:44-47`); args-literal gate
+  `home_local_call_flow.rs:131-143`.
+- Observation scan precedes `callable_result_classes` (verify at
+  `coseal_issue.rs:333-376`, `finish` at `:683-689`) — a claim-aware
+  predicate needs the deferred pass, matching the draft's own two-pass
+  precedent.
+- Fail-closed consumers confirmed: `handle_call.rs:35-42`,
+  `map.rs:225-236`, `terminal_call.rs:316-325`, `lexical_instance_call.
+  rs:147-151`; no nullable arm in `LocalCallResultClassV1`/
+  `StoredLocal`/`InvokeCallResultKind`.
+- Sites: `:219`/`:287` `me.allocate` (NullableObject claim) and `:313`
+  `me.realloc` (unclaimed) are the `me.m` local-initializer sites;
+  `:204`/`:208` `me.f.m` returns already compose at the claim layer.
+
+Next execution row: `MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-S0`.
+
 ## Preserved contract boundaries
 
 - Generic `mir_json_emit` rejects lifecycle Invoke. Invoke, normal-result and
@@ -922,37 +936,16 @@ Next design row: `MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-D0`.
 
 ### Fixed EXE suite — recorded 2026-09-29, not rerun here
 
-Receipt source: `574d90ffc5`, plus explicit-tool resolution correction
-`c82b7a415a`; complete pre-compaction record at `339674c77b:this-file`.
-Profile: dev binary with LLVM 18 `opt-18` / `llc-18` / `clang-18`.
-The old receipt did not pin a binary digest/build SHA for the full run; these
-are record/fix commits, not a new exact-build execution claim.
-
-Result: **5 PASS / 6 FAIL**. Passing entries were
-`typed_object_newbox_min`, `typed_object_birth_min`,
-`typed_object_birth_param_min`, `typed_object_method_min`, and
-`real_apps_exe_boundary_probe`; the six red terminals are listed above.
-
-Two repaired gaps in that receipt: retained result commits complete after
-`ExpressionCompleted` without a nonexistent local install; explicit LLVM
-fallback resolves version 18 first. Pending expression remains incomplete.
-Do not replace suite failure with “six designed stops”: one is a baseline
-panic and generic-ingress rejection does not observe downstream EXE behavior.
+Receipt: `574d90ffc5` + `c82b7a415a`; full record at
+`339674c77b:this-file` — 5 PASS / 6 FAIL, retained-result completion and
+explicit-LLVM-18 fallback repaired; suite failure is not "six designed
+stops".
 
 ### Reviewer remediation — recorded at 339674c77b
 
-The stale `birth_site_index_covers_field_assign_sites_while_return_position_claims`
-pin and moved `install_inventoried_call_result` pin were corrected.
-Six oversized parents were split; all resulting files are below 800 lines.
-There are eight new child files and three previously unregistered parents in
-the boundary list (not the reported nine plus three).
-
-Commit-recorded checks: cargo check lib/tests clean; focused lifecycle 32/32,
-coseal 58/58, lexical instance 15/15, recursive child 7/7, root catalog 56/57.
-The remaining root-catalog failure
-`array_source_binding_survives_actual_compiler_finishing_with_optimization`
-reproduced in the same group on parent `053b659637` according to that commit.
-This turn does not independently rerun Cargo or refresh the baseline receipt.
+Stale pins corrected, six oversized parents split under 800 lines,
+focused suites recorded green; one root-catalog failure reproduced on
+parent `053b659637`. Full record at `339674c77b:this-file`.
 
 ### Landed history tombstone
 
@@ -981,18 +974,9 @@ recovers the complete prior card. No archive copy or new card is created.
 
 ## Organization closeout
 
-Current scope: this card, CURRENT_STATE, the canonical Home ABI D0 (its
-projection contract changes), existing pointer guard, and the one
-reviewed trailing blank line in `ordinary_new_coseal_issue.rs`. No workstream,
-reference, index or restart-mirror history expansion. The guard now enforces
-the existing 1,000-line budget for all three active-document pointers; this
-closes an enforcement gap and introduces no new policy or semantic authority.
-Validation: pointer guard and qualified-route scope guard PASS; `bash -n` and
-`git diff --check` PASS. The amended pointer guard first rejected the original
-1,414-line card. Eight full-guard runs in temporary copies then verified normal
-separate pointers, each pointer at 1,000/1,001 lines, and an oversized shared
-active/design target. All eight passed; the repository was not mutated by them.
-The review's single trailing blank line is removed. Cargo/compiler/EXE checks
-were not rerun; existing Rust baseline reports above remain historical.
-The read-only worker's entry-authority/per-exit findings are integrated into the
+Scope: this card, CURRENT_STATE, the canonical Home ABI D0, the existing
+pointer guard. The guard enforces the 1,000-line budget for all three
+active-document pointers (verified at `339674c77b`; the pre-compaction
+record remains recoverable there). The read-only worker's
+entry-authority/per-exit findings are integrated into the
 selected S0 and following D0; no new observer census or semantic receipt landed.

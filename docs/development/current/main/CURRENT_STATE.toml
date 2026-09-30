@@ -1,10 +1,10 @@
 date = "2026-09-29"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-D0"
+current_execution_row = "MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
-current_design_stop = "none — forwarded-result class composition S0 landed; receiver-call observation D0 is next"
+current_design_stop = "none — receiver-call observation D0 accepted; S0 lands the deferred claim-aware me.m observation pass"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,16 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-Forwarded-result class composition S0 landed: the sole claim issuer is
-now a two-pass draft — per-exit New/Null/ForwardCall/ForwardLocal
-classification plus a bounded monotone fixpoint over the F1..F5 grammar.
-HakoAllocHeap.allocate claims NullableObject(HakoAllocHandle) on the
-real fixture; realloc stays unclaimed through the param return.
-Claim-only — no Handle/ABI change. Focused 7/7 green.
+Receiver-call observation D0 accepted: `me.m(..)` call sites become
+claim-keyed classed call results via a deferred pass after the claim
+fixpoint — claim-faithful evidence only (Object is Handle-eligible,
+NullableObject can never mint Handle), no emission path changes.
+BoundValue + PrefixNotCovered stays the floor for unclaimed callees.
 """
 next_design_card = "MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0 (nullable arms in InvokeCallResultKind/LocalCallResultClassV1/StoredLocal + physical projection)"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-D0"
+next_execution_card = "MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -42,7 +41,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-29: RECEIVER-CALL-OBSERVATION-D0 accepted — deferred claim-aware `me.m(..)` local-initializer observation pass minting claim-faithful class evidence (no Handle mint, no emission change); BoundValue floor stays for unclaimed callees. Next: RECEIVER-CALL-OBSERVATION-S0.",
   "2026-09-29: FORWARDED-RESULT-CLASS-COMPOSITION-S0 landed — two-pass claim draft (New/Null/ForwardCall/ForwardLocal per exit + bounded fixpoint) over F1..F5; HakoAllocHeap.allocate claims NullableObject on the real fixture, realloc stays out; focused 7/7, three package failures are baseline debt. Next: RECEIVER-CALL-OBSERVATION-D0.",
   "2026-09-29: FORWARDED-RESULT-CLASS-COMPOSITION-D0 accepted — two-pass claim draft (New/Null/Fwd/Kill per exit + monotone fixpoint compose) over the F1..F5 forwarded grammar; census: only HakoAllocHeap.allocate gains a claim; realloc stays out through the param return. Next: COMPOSITION-S0.",
-  "2026-09-29: MIXED-NULL-NEW-RESULT-ABI-S0 landed — Object/NullableObject claim arms through the sole result-class issuer, NullLiteral relations retained in the child index, filtered accessor keeps every Handle consumer fail-closed on nullable claims; focused 4/4, three package failures are baseline debt. Next: FORWARDED-RESULT-CLASS-COMPOSITION-D0.",
 ]
