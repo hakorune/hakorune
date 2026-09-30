@@ -186,3 +186,20 @@ pub(super) fn receiver_scalar_field(
         name.is_some_and(crate::mir::numeric_substrate::is_numeric_integer_type_name)
     })
 }
+
+/// Receiver-side container-field proof for `me.<field>` receivers of
+/// builtin container calls. The entry loan's receiver root is proven
+/// against this declaration's own box source; only a declared `ArrayBox`
+/// field admits — the generated core-method manifest then decides which
+/// (selector, arity) pairs exist and what they return.
+pub(super) fn receiver_container_field(
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    site: &OwnedExprSiteV1,
+    home: BindingRefV1,
+    field: &str,
+) -> Result<Option<hakorune_mir_defs::CanonicalFieldRefV1>, OrdinaryNewCoSealIssueV1> {
+    entry_receiver_field(constructors, receiver, site, home, field, |name| {
+        name == Some("ArrayBox")
+    })
+}

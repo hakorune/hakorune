@@ -794,8 +794,11 @@ static box Main {
 /// Real `page_heap_box.hako` claim census: the nine retained `return new`
 /// sites split by evidence state. `HakoAllocPage.allocate`'s sole site
 /// carries a sealed construction and `me.page_id` argument evidence; its
-/// prefix covers the `me.<field> = ..` receiver writes and now stops at
-/// the first nested receiver call `me.free_stack.get(..)` (Body(3)).
+/// prefix covers the `me.<field> = ..` receiver writes and the
+/// manifest-proven `me.<ArrayBox>.get/.set` cluster, stopping at
+/// `me.requested_sizes.set(block_id, requested_size)` (Body(8)) — the
+/// `requested_size` parameter is an `OpaqueHandle` and stays outside
+/// Home-neutral argument admission by design.
 /// Every `HakoAllocHandleResult` site is blocked on the result class's
 /// Birth plan — `me.handle = handle` stores an object-typed parameter —
 /// and `reallocResult`'s two trailing sites additionally stop their
@@ -821,8 +824,8 @@ fn page_heap_fixture_result_claim_census() {
                     Err(crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1::PrefixNotCovered(site)) => {
                         assert_eq!(
                             site.node().segments().last(),
-                            Some(&crate::mir::resolved_semantics::SourcePathSegmentV1::Body(3)),
-                            "{key:?} prefix covers the field writes and stops at `me.free_stack.get`"
+                            Some(&crate::mir::resolved_semantics::SourcePathSegmentV1::Body(8)),
+                            "{key:?} prefix covers the field-call cluster and stops at `requested_size`"
                         );
                     }
                     other => panic!("{key:?} expected PrefixNotCovered, got {other:?}"),

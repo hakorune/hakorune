@@ -147,6 +147,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
+        &mut |_, _, _, _, _| Ok(false),
     )
     .unwrap_or_else(|never| match never {})
     .0
@@ -159,6 +160,8 @@ pub(crate) use arguments::{
 };
 #[path = "home_new_prefix_branch.rs"]
 mod branch;
+#[path = "home_new_prefix_field_call.rs"]
+mod field_call;
 #[path = "home_new_prefix_field_write.rs"]
 mod field_write;
 #[path = "home_new_prefix_scan.rs"]
@@ -206,6 +209,16 @@ pub(crate) fn scan_new_home_flow<E>(
     // inside a self-rooted field-write RHS — a separate contract from the
     // argument-position `i64` proof.
     scalar_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
+    // The issuer's receiver-side container-field proof for `me.<field>`
+    // receivers of builtin container calls — a separate contract from
+    // both scalar proofs.
+    container_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
         BindingRefV1,
@@ -318,6 +331,7 @@ pub(crate) fn scan_new_home_flow<E>(
         local_nullable_call,
         argument_i64_field,
         scalar_field,
+        container_field,
     )?;
     // Statements after the terminal are never walked; their sealed map
     // literals still owe loop1 one row each — issue Unavailable rows.

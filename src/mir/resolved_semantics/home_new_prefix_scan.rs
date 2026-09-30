@@ -61,6 +61,15 @@ pub(super) fn scan_statement_flow<'a, E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    // The issuer's receiver-side container-field proof for `me.<field>`
+    // receivers of builtin container calls — a separate contract.
+    container_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
 ) -> Result<bool, E> {
     let function = input.function();
     for index in 0..body.statements().len() {
@@ -121,6 +130,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 local_nullable_call,
                 argument_i64_field,
                 scalar_field,
+                container_field,
             )?;
             if terminated {
                 return Ok(true);
@@ -140,6 +150,20 @@ pub(super) fn scan_statement_flow<'a, E>(
                 input,
                 &statement,
                 locals,
+                scalar_field,
+            )? {
+                continue;
+            }
+            // A `me.<ArrayBox field>.m(..)` statement whose manifest row
+            // returns `NoValue` and whose arguments are Home-neutral is
+            // covered without ledger rows — the raw lane already owns
+            // `Callee::Method{RuntimeData}`/`ArrayElementWrite` emission.
+            if field_call::observe_statement_field_call(
+                input,
+                &statement,
+                locals,
+                homes,
+                container_field,
                 scalar_field,
             )? {
                 continue;
@@ -453,6 +477,31 @@ pub(super) fn scan_statement_flow<'a, E>(
                 }
             } else if let Some(class) = locals.observe(site) {
                 locals.install_observed(binding, class);
+            } else if let Some(result_kind) = field_call::observe_local_field_call(
+                input,
+                site,
+                locals,
+                homes,
+                container_field,
+                scalar_field,
+            )? {
+                // A manifest-proven `me.<ArrayBox field>.m(..)` result
+                // binds by its contract class — scalars are trivial,
+                // dynamic results stay `BoundValue`.
+                use crate::mir::core_method_result_kind::CoreMethodResultKindV1;
+                match result_kind {
+                    CoreMethodResultKindV1::I64Value => {
+                        locals.install_i64_call_result(binding);
+                    }
+                    CoreMethodResultKindV1::BoolValue => {
+                        locals.install_scalar_call_result(
+                            binding,
+                            local_flow::SourceScalarKind::Bool,
+                        );
+                    }
+                    _ => locals.install_bound_value(binding),
+                }
+                continue;
             } else {
                 locals.install_inventoried_call_result(binding, site);
                 unavailable.get_or_insert_with(|| {

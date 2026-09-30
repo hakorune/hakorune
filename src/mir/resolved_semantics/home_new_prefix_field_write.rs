@@ -16,7 +16,7 @@ use crate::mir::resolved_semantics::{
 
 /// `site` is a `me` expression bound to this frame's self-rooted borrowed
 /// receiver — never a parameter handle and never static-box owner syntax.
-fn self_rooted_me<'a>(
+pub(super) fn self_rooted_me<'a>(
     shape: &'a VerifiedResolvedBodyShapeInventoryV1,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,

@@ -574,6 +574,54 @@ Non-claims:
   return literals stay distinct later rows, so the smoke terminal is
   expected to keep `artifact-unowned-lifecycle-site`.
 
+Landed `MIRBUILDER-GATE1-NESTED-RECEIVER-CALL-S0`:
+`home_new_prefix_field_call.rs` admits `me.<field>.m(..)` when the
+sealed method-call row's receiver is a `FieldAccess` rooted at the
+lexical `me`, a new `container_field` predicate proves the field's
+declared type is exactly `ArrayBox` (source object definition — never
+MIR type or runtime layout), the (selector, arity) pair resolves in
+`CORE_METHOD_CONTRACT_ROWS_V2`, and every argument subtree is
+Home-neutral (trivial locals/literals, `me` receiver-position reads
+proven scalar, non-`homes` `BoundValue`s admitted; owned Handle/Home/
+Nullable arguments and `new`/call/map/array/block nodes keep
+`PrefixNotCovered`). Statement position admits `NoValue` manifest rows
+only; `local x = ..` installs `I64Value`/`BoolValue` as `Trivial`
+scalars (new `PrefixLocalFlow::install_scalar_call_result`) and
+`Dynamic`/`StringValue` as `BoundValue` — no ledger row is minted, the
+raw lane's `Callee::Method{RuntimeData}`/`ArrayElementWrite` emission
+stays the sole physical owner. `container_field` is threaded through
+`scan_new_home_flow`, `walk_branch`/`observe_if_statement`, both
+`issue_new_home_prefixes_*` siblings, the compat verify wrapper, and
+the coseal issuer's real `receiver_container_field` closure.
+Pinned by `ordinary_new_receiver_field_call_is_home_neutral`
+(`set`/`push`/`get`/`length`/`has` including a branch-local cluster)
+and `ordinary_new_receiver_field_call_stays_fail_closed` (14 negative
+shapes: discarded `get`, `NoValue`-in-local, `pop`/`insert`/`clear`/
+`contains`, non-self receiver, non-`ArrayBox` field, `new`/nested-call/
+array/map/owned-handle/`me.items` arguments). The real
+`page_heap_box` census now pins `allocate`'s prefix at Body(8) —
+`me.requested_sizes.set(block_id, requested_size)` — exactly the
+`OpaqueHandle` boundary the D0 predicted.
+Serial suite note: the wired deterministic baseline is
+`cargo test --profile quick --lib -- --test-threads=1`
+(`tools/checks/manifests/cargo_lib_red_baseline.toml`); an earlier
+`--release` run of this slice reported five extra reds
+(`outer_exit_after_nested_loop_targets_outer_region`, four
+`runtime::plugin_loader_v2` env-fallback tests) that reproduce only in
+release — `vm_compat_fallback_allowed` caches its env read in a
+release-only atomic — and pass under the official quick profile.
+Official-profile result: 8105/126, failure set byte-identical to the
+wired manifest; zero current-change delta. The mimalloc-lite physical
+smoke stays 3/3 deterministic at
+`[freeze:contract][ordinary-new/local-commit/artifact-unowned-lifecycle-site]`
+— `allocate` keeps `RetainedUnavailable` past `requested_size`, by
+design.
+
+Next: `MIRBUILDER-FIXED-EXE-SUITE-REMEASURE-I0` — re-run the fixed
+11-entry `real-apps-exe-boundary` suite once to re-pin the current
+pass/fail receipt (last record: 5 PASS / 6 FAIL on 2026-09-29); then
+bundle one chosen app to full completion as the next task lane.
+
 ## Decision — MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (accepted)
 
 Decision:

@@ -393,6 +393,18 @@ impl<'source> PrefixLocalFlow<'source> {
         );
     }
 
+    /// A `me.<ArrayBox field>.m(..)` result proven scalar by the generated
+    /// core-method manifest row — the class comes from the contract, never
+    /// from MIR types or runtime layout.
+    pub(super) fn install_scalar_call_result(
+        &mut self,
+        binding: BindingRefV1,
+        kind: SourceScalarKind,
+    ) {
+        self.locals
+            .insert(binding, StoredLocal::Trivial(Some(kind)));
+    }
+
     pub(super) fn install_uninitialized(&mut self, binding: BindingRefV1) {
         self.locals.insert(binding, StoredLocal::Uninitialized);
     }

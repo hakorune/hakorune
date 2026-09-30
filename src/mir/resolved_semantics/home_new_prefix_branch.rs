@@ -64,6 +64,13 @@ fn walk_branch<'a, E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    container_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
 ) -> Result<BranchPath<'a>, E> {
     path.terminated = super::scan::scan_statement_flow(
         input,
@@ -92,6 +99,7 @@ fn walk_branch<'a, E>(
         local_nullable_call,
         argument_i64_field,
         scalar_field,
+        container_field,
     )?;
     Ok(path)
 }
@@ -160,6 +168,13 @@ pub(super) fn observe_if_statement<'a, E>(
         &str,
     ) -> Result<bool, E>,
     scalar_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
+    container_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
         BindingRefV1,
@@ -254,6 +269,7 @@ pub(super) fn observe_if_statement<'a, E>(
         local_nullable_call,
         argument_i64_field,
         scalar_field,
+        container_field,
     )?;
     let else_path = match else_body {
         Ok(else_body) => walk_branch(
@@ -285,6 +301,7 @@ pub(super) fn observe_if_statement<'a, E>(
             local_nullable_call,
             argument_i64_field,
             scalar_field,
+            container_field,
         )?,
         // A missing `else` joins the entry snapshot unchanged.
         Err(_) => BranchPath {

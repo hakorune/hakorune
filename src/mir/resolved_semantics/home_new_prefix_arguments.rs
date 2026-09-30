@@ -55,6 +55,9 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         // Field-write scalar proof stays unavailable on this lane for the
         // same reason — no `me.<field> = ..` statement is admitted here.
         &mut |_, _, _, _, _| Ok(false),
+        // Container-field proof stays unavailable on this lane as well —
+        // no `me.<field>.m(..)` statement is admitted here.
+        &mut |_, _, _, _, _| Ok(false),
     )
     .unwrap_or_else(|never| match never {});
     (prefixes, observations, result_prefixes)
@@ -91,6 +94,13 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    container_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
 ) -> Result<BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>, E> {
     scan_new_home_flow(
         input,
@@ -108,6 +118,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         &mut |_| Ok(false),
         argument_i64_field,
         scalar_field,
+        container_field,
     )
     .map(|outcome| outcome.0)
 }

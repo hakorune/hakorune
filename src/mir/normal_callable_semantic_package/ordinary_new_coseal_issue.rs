@@ -323,6 +323,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 instance_constructors, receiver_proof, site, home, name,
                             ).map(|field| field.is_some())
                         },
+                        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+                            terminal_home::receiver_container_field(
+                                instance_constructors, receiver_proof, site, home, name,
+                            ).map(|field| field.is_some())
+                        },
                     )?.values().all(Result::is_ok);
                 // An owner whose `return` statement carries a `new`
                 // construction needs the homes-aware completion: the
@@ -488,6 +493,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             // share the entry-receiver proof; the contract
                             // is the numeric integer-scalar set, not `i64`.
                             terminal_home::receiver_scalar_field(
+                                instance_constructors, receiver_proof, site, home, name,
+                            ).map(|field| field.is_some())
+                        }, &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+                            // `me.<ArrayBox field>.m(..)` receiver proof
+                            // shares the entry receiver root; the declared
+                            // `ArrayBox` contract is the only admitted type.
+                            terminal_home::receiver_container_field(
                                 instance_constructors, receiver_proof, site, home, name,
                             ).map(|field| field.is_some())
                         })? {
