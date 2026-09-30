@@ -360,25 +360,49 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                                 HomePrefixUnavailableV1::OverridesNotCovered(owned.site().clone())
                                                             });
                                                                 }
+                                                                let mut moved_arguments = Vec::new();
                                                                 for argument in 0..arguments.len() {
                                                                     let arg = input.source().child_expr_from_expr(
                                                                 &located,
                                                                 ExprChildRoleV1::CallArgument(argument as u32),
                                                             );
                                                                     match arg {
-                                                                Ok(arg)
-                                                                    if locals
+                                                                Ok(arg) => {
+                                                                    match locals
                                                                         .observe_selected_argument(
                                                                             arg.site(),
                                                                             argument_i64_field,
-                                                                        )?
-                                                                        .is_some() => {}
-                                                                Ok(arg) => {
-                                                                    unavailable.get_or_insert_with(|| {
+                                                                        )? {
+                                                                        Some(kind) => {
+                                                                            match kind {
+                                                                                // An argument
+                                                                                // naming a live
+                                                                                // owned binding
+                                                                                // moves the lease
+                                                                                // into the
+                                                                                // constructed
+                                                                                // object; the
+                                                                                // frame's exit
+                                                                                // obligation ends
+                                                                                // at this edge.
+                                                                                SelectedNewArgumentKindV1::Local { binding }
+                                                                                | SelectedNewArgumentKindV1::Handle { binding }
+                                                                                | SelectedNewArgumentKindV1::BoundValue { binding }
+                                                                                    if homes.contains(&binding) =>
+                                                                                {
+                                                                                    moved_arguments.push(binding);
+                                                                                }
+                                                                                _ => {}
+                                                                            }
+                                                                        }
+                                                                        None => {
+                                                                            unavailable.get_or_insert_with(|| {
                                                                         HomePrefixUnavailableV1::ArgumentNotCovered(
                                                                             arg.site().clone(),
                                                                         )
                                                                     });
+                                                                        }
+                                                                    }
                                                                 }
                                                                 Err(_) => {
                                                                     unavailable.get_or_insert(
@@ -401,6 +425,30 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                                     owned.clone(),
                                                                     result_prefix,
                                                                 );
+                                                                // The arg
+                                                                // move
+                                                                // completes
+                                                                // on the
+                                                                // invoke's
+                                                                // Normal
+                                                                // edge —
+                                                                // `prior_homes`
+                                                                // above kept
+                                                                // the binding
+                                                                // so a Fault
+                                                                // unwind still
+                                                                // discharges
+                                                                // it.
+                                                                for moved in
+                                                                    moved_arguments
+                                                                {
+                                                                    homes.retain(
+                                                                        |home| {
+                                                                            *home != moved
+                                                                        },
+                                                                    );
+                                                                    locals.consume_home(moved);
+                                                                }
                                                             }
                                                             _ => {
                                                                 unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);

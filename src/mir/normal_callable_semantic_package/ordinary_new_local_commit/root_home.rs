@@ -110,6 +110,14 @@ pub(in crate::mir::normal_callable_semantic_package) struct RootHomeReleaseEmiss
     instruction: MirInstruction,
 }
 
+impl RootHomeReleaseEmissionV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn origin(
+        &self,
+    ) -> &RootHomeReleaseOriginV1 {
+        &self.origin
+    }
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn root_home_exit_is_complete(
         &self,

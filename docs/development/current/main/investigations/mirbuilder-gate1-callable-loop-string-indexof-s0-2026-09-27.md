@@ -327,6 +327,45 @@ Non-claims:
   today's escape hole as a named residual; no claim that a nullable
   local owed on two exits emits correctly beyond the aligned count.
 
+### S0 landed — RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0
+
+- `home_new_prefix_scan.rs` (`local x = new`) and
+  `home_new_prefix_terminal.rs` (`return new`) now collect observed
+  owned argument bindings (`Local`/`Handle`/`BoundValue` kinds whose
+  root binding is in `homes`) into `moved_arguments` and consume them
+  — `homes.retain` + `locals.consume_home` — *after* the result
+  prefix records `prior_homes`. Normal edge moves the lease; Fault
+  unwind still discharges it.
+- `emission_validation.rs` `validate_call_received_emission` derives
+  `owed` from recorded evidence: root-exit origins filtered to the
+  current row owner plus every recorded release operation in emitted
+  bindings (ordinary/result/call-received/map rows — the latter two
+  via new `RootHomeReleaseEmissionV1::origin` /
+  `MapLocalProgress::emitted_bindings` accessors) matching
+  `row.end_operation()`. `releases.len() != owed` freezes missing or
+  `handle-release-shape-drift`; every actual release must still match
+  the sealed operation shape.
+- Pin: `nullable_result_moved_into_new_releases_only_on_the_owed_exit`
+  — `if h == null { return new OwMoveHolder(0) }` sibling keeps its
+  `HomeReleaseIfLive`; the tail `return new OwMoveHolder(h)` owes
+  none. Exactly one checked release. Fixture box names are unique
+  (`OwMove*`): a process-global box-name registry made an earlier
+  `Probe`-named fixture collide with
+  `nullable_receiver_call_serializes_*`'s `Probe` under suite order
+  (`ordinary-membership-drift`), detected by parent-vs-current
+  failure-set diff (126 == 126 after rename).
+- Serial lib suite: 8098/126, failure set identical to parent
+  (zero regression delta; the earlier parallel-run 189 was
+  env/global-flag leakage between tests, not this change).
+- Fixture smoke re-observation (3/3 deterministic): first terminal
+  moved past `handle-release-shape-drift` to
+  `[freeze:contract][ordinary-new/local-commit/physical-boundary/phi-in-recorded-block]`
+  — `PhysicalBoundary::capture` rejects a `Phi` inside a recorded
+  emission block. Next design row:
+  `MIRBUILDER-GATE1-EMISSION-BLOCK-PHI-D0` — pin whether a phi may
+  share a recorded emission block at all (join-boundary lifecycle
+  snapshot ownership) before any boundary relaxation.
+
 ## Decision — MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (accepted)
 
 Decision:

@@ -103,6 +103,14 @@ impl MapLocalProgress {
             _ => Err(freeze("artifact-map-unchecked")),
         }
     }
+    /// The recorded emission snapshot before the Checked phase — a sibling
+    /// row's unwind chain may carry this binding's release among them.
+    pub(super) fn emitted_bindings(&self) -> &[(BasicBlockId, MirInstruction)] {
+        match &self.progress {
+            MapProgress::Emitted { bindings, .. } => bindings,
+            _ => &[],
+        }
+    }
 }
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn has_map_source(&self, site: &OwnedExprSiteV1) -> bool {

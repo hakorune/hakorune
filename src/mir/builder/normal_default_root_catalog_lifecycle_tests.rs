@@ -932,3 +932,80 @@ static box Main {
     );
     rejected.discard();
 }
+
+/// A `new` argument naming a live owned binding moves the lease into the
+/// constructed object: `return new Holder(h)` consumes `h` on that exit
+/// path, so the tail exit emits no `HomeReleaseIfLive`, while the sibling
+/// `h == null` exit still owes its checked release. `Holder`'s duplicate
+/// birth store stays construction-unsupported, so the `new` rides the raw
+/// lane and no fault-unwind operand enters the count — exactly one
+/// checked release survives: one per owed exit, never one per function.
+#[test]
+fn nullable_result_moved_into_new_releases_only_on_the_owed_exit() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        r#"
+box OwMoveHolder {
+    init { v }
+    birth(v) {
+        me.v = v
+        me.v = v
+    }
+}
+box OwMoveProbe {
+    init { v }
+    birth(v) { me.v = v }
+    fetch(flag) {
+        if flag == 0 {
+            return null
+        }
+        return new OwMoveProbe(7)
+    }
+    run(flag: i64) {
+        local h = me.fetch(flag)
+        if h == null {
+            return new OwMoveHolder(0)
+        }
+        return new OwMoveHolder(h)
+    }
+}
+static box OwMoveMain {
+    main() {
+        local p = new OwMoveProbe(1)
+        return p.run(0)
+    }
+}
+"#,
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("a moved nullable argument must keep the owed-exit release only");
+    let (_, module, _) = completed.into_parts();
+    let run = module
+        .functions
+        .iter()
+        .find(|(_, function)| function.signature.name == "OwMoveProbe.run/1")
+        .map(|(_, function)| function)
+        .expect("lowered OwMoveProbe.run function");
+    let checked_releases = run
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter(|instruction| matches!(
+            instruction,
+            crate::mir::MirInstruction::Invoke {
+                operation: crate::mir::instruction::InvokeOperation::HomeReleaseIfLive { .. },
+                ..
+            }
+        ))
+        .count();
+    assert_eq!(
+        checked_releases, 1,
+        "the moved `new` argument owes a release only on the sibling exit"
+    );
+}

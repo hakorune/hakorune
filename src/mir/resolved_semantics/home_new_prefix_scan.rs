@@ -262,6 +262,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                     unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
                 }
                 let located = input.source().expr_at(&owned);
+                let mut moved_arguments = Vec::new();
                 match located {
                     Ok(new) => {
                         match new.node() {
@@ -328,19 +329,36 @@ pub(super) fn scan_statement_flow<'a, E>(
                                     match arg {
                                         // Handle arguments require the selected parameter's
                                         // source demand, not merely a physical borrow ABI.
-                                        Ok(arg)
-                                            if locals
-                                                .observe_selected_argument(
-                                                    arg.site(),
-                                                    argument_i64_field,
-                                                )?
-                                                .is_some() => {}
                                         Ok(arg) => {
-                                            unavailable.get_or_insert_with(|| {
-                                                HomePrefixUnavailableV1::ArgumentNotCovered(
-                                                    arg.site().clone(),
-                                                )
-                                            });
+                                            match locals.observe_selected_argument(
+                                                arg.site(),
+                                                argument_i64_field,
+                                            )? {
+                                                Some(kind) => {
+                                                    match kind {
+                                                        // An argument naming a live owned
+                                                        // binding moves the lease into the
+                                                        // constructed object; the frame's
+                                                        // exit obligation ends at this
+                                                        // edge.
+                                                        SelectedNewArgumentKindV1::Local { binding }
+                                                        | SelectedNewArgumentKindV1::Handle { binding }
+                                                        | SelectedNewArgumentKindV1::BoundValue { binding }
+                                                            if homes.contains(&binding) =>
+                                                        {
+                                                            moved_arguments.push(binding);
+                                                        }
+                                                        _ => {}
+                                                    }
+                                                }
+                                                None => {
+                                                    unavailable.get_or_insert_with(|| {
+                                                        HomePrefixUnavailableV1::ArgumentNotCovered(
+                                                            arg.site().clone(),
+                                                        )
+                                                    });
+                                                }
+                                            }
                                         }
                                         Err(_) => {
                                             unavailable.get_or_insert(
@@ -372,6 +390,13 @@ pub(super) fn scan_statement_flow<'a, E>(
                 };
                 results.insert(owned.clone(), result);
                 selected_seen.push(owned.clone());
+                // Argument moves complete on the invoke's Normal edge —
+                // `prior_homes` above kept each binding so a Fault unwind
+                // still discharges it.
+                for moved in moved_arguments {
+                    homes.retain(|home| *home != moved);
+                    locals.consume_home(moved);
+                }
                 // This is the Normal successor only, after exact local commit.
                 homes.push(binding);
                 locals.install_selected_normal_home(binding, owned);

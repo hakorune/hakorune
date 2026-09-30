@@ -1,7 +1,7 @@
 date = "2026-09-30"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0"
+current_execution_row = "MIRBUILDER-GATE1-EMISSION-BLOCK-PHI-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -17,22 +17,21 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0 accepted: a `new` positional
-argument naming a live owned binding moves the lease into the
-constructed object at the argument boundary (the `return <local>`
-discharge's twin) — the tail-exit `HomeReleaseIfLive` on `handle`
-was a real use-after-reclaim, since `result.handle` is dereferenced
-post-return and `reclaim_checked_indexed` frees the slot. The move
-completes on the invoke's Normal edge; `prior_homes` keeps the arg
-binding so the Fault unwind still discharges it. The received-row
-validator's function-wide `releases == 1` bound was a single-exit
-leftover; it aligns to the owed-exit count the exit rows already
-record. Next: RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0 consumes owned
-`new`-arg bindings in both scan paths.
+RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0 landed: owned `new`-arg bindings
+are consumed at the argument boundary on both scan paths
+(`local x = new`, `return new`) after `prior_homes` capture — Normal
+edge moves the lease, Fault unwind still discharges it — and the
+received-row validator derives the owed release count from recorded
+exit origins plus emission bindings. Fixture smoke's deterministic
+first terminal moved past `handle-release-shape-drift` to
+`physical-boundary/phi-in-recorded-block` (a `Phi` inside a recorded
+emission block). Serial lib suite 8098/126 with a failure set
+identical to parent. Next: EMISSION-BLOCK-PHI-D0 — whether a phi may
+share a recorded emission block at all.
 """
-next_design_card = "MIRBUILDER-GATE1-RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0 accepted (new-arg boundary moves owned bindings; Normal-edge move, Fault-edge keeps prior_homes; validator aligns to owed-exit count)"
+next_design_card = "MIRBUILDER-GATE1-EMISSION-BLOCK-PHI-D0 (pin whether a phi may share a recorded emission block; PhysicalBoundary::capture currently rejects phi-in-recorded-block fail-closed)"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-GATE1-RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0"
+next_execution_card = "MIRBUILDER-GATE1-EMISSION-BLOCK-PHI-D0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -48,7 +47,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-30: RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0 landed — owned `new`-arg bindings consumed at the arg boundary on both scan paths after prior_homes capture (Normal-edge move, Fault-edge discharge kept); received-row validator derives owed count from recorded exit origins + emission bindings. Smoke's deterministic first terminal moved to physical-boundary/phi-in-recorded-block. Serial lib suite 8098/126, failure set identical to parent. Next: EMISSION-BLOCK-PHI-D0.",
   "2026-09-30: RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0 accepted — a `new` positional arg naming a live owned binding moves the lease into the constructed object at the arg boundary (Normal-edge move; Fault-edge keeps prior_homes); the tail-exit HomeReleaseIfLive on allocateResult's handle was a real use-after-reclaim, not a validator nit. Received-row validator aligns to owed-exit count. Next: RECEIVED-NULLABLE-EXIT-OWNERSHIP-S0.",
   "2026-09-30: ARG-CARRIER-EVIDENCE-S0 landed — emit_receiver_nullable's Local arm follows the sealed scalar call-edge rule (Integer/Unknown/unrecorded admit, concrete non-i64 rejects under nullable-argument-carrier). Fixture smoke's deterministic first terminal moved to local-commit/handle-release-shape-drift (two per-exit HomeReleaseIfLive for one received nullable; validator demands one). Package suite 398/3 baseline debt. Next: RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0.",
-  "2026-09-30: RETAINED-NEW-HOME-FLOW-S0 landed — RetainedUnavailable claims release staged argument field reads at the prepare-time decline (Progress::Released); unconsumed-read stays armed for eligible claims. Fixture smoke's deterministic first terminal moved to ordinary-new/emission/nullable-argument-carrier (untyped param arg carrier). Package suite 398/3 baseline debt. Next: ARG-CARRIER-EVIDENCE-D0.",
 ]

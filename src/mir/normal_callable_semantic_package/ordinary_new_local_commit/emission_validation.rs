@@ -351,11 +351,58 @@ impl OrdinaryNewClaimLedgerV1 {
                 _ => false,
             })
             .count();
+        // The binding owes one release per exit where it stays live, plus
+        // one per recorded fault-unwind chain that discharges it — the
+        // per-exit flow and the emission bindings already record every
+        // legitimate discharge, and an argument boundary that moved the
+        // lease into a constructed object ends the obligation on that
+        // path. The owed count comes from recorded emissions — never
+        // from recounting MIR shape.
+        let operation = row.end_operation();
+        let mut owed = 0usize;
+        for ((exit_owner, _), progress) in self.root_exits.borrow().iter() {
+            if *exit_owner != row.owner {
+                continue;
+            }
+            if let RootHomeExitProgress::Emitted { origins, .. } = progress {
+                owed += origins
+                    .iter()
+                    .filter(|emitted| *emitted.origin().operation() == operation)
+                    .count();
+            }
+        }
+        owed += rows
+            .values()
+            .flat_map(|other| match other {
+                LocalCommitV1::Ordinary(_) | LocalCommitV1::Result(_) => {
+                    match other.new_emission() {
+                        Some(NewEmissionProgress::Emitted { bindings, .. }) => {
+                            bindings.as_slice()
+                        }
+                        _ => &[],
+                    }
+                }
+                LocalCommitV1::CallReceived(other) => match &other.progress {
+                    CallReceivedProgress::Emitted { bindings, .. } => bindings.as_slice(),
+                    _ => &[],
+                },
+                LocalCommitV1::Map(other) => other.emitted_bindings(),
+            })
+            .filter(|(_, instruction)| {
+                matches!(
+                    instruction,
+                    MirInstruction::Invoke {
+                        operation: emitted,
+                        ..
+                    } if *emitted == operation
+                )
+            })
+            .count();
         // A release of the wrong shape is just as fatal as a missing one:
         // unconditional `HomeRelease` on a `Void`-carrying value would
         // release the sentinel.
-        if releases.len() != 1 || matching != 1 {
-            return Err(freeze(if releases.is_empty() {
+        if releases.len() != owed || matching != releases.len() {
+            return Err(freeze(if releases.len() < owed {
                 missing
             } else {
                 "handle-release-shape-drift"
