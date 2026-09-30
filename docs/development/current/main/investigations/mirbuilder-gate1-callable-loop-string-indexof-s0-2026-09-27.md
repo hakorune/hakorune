@@ -366,6 +366,51 @@ Non-claims:
   share a recorded emission block at all (join-boundary lifecycle
   snapshot ownership) before any boundary relaxation.
 
+## Decision — MIRBUILDER-GATE1-EMISSION-BLOCK-PHI-D0 (accepted)
+
+Observed site: `HakoAllocHeap.realloc/2` — `local replacement =
+me.allocate(requested_size)` emits its `Invoke{Call, NullableHandle}`
+as the terminator of BasicBlockId(144), a genuine join block for the
+`handle.page_id == 0` / `== 1` fallthrough merges (one real phi plus
+three degenerate identical-input phis, then `Const Void`). The phis
+are join semantics issued by the SSA value-join/phi_lifecycle
+machinery, not by the lifecycle emission — the emission merely
+records the invoke it finds there.
+
+Decision:
+  A recorded block may carry a leading `Phi` run only when it is a
+  genuine join — at least two recorded incoming edges — because the
+  sole-predecessor concatenation rule can never contract into it,
+  and any later phi-input rewrite or incoming-edge change still
+  fails `finished-sequence`/`incoming-drift`. `phi-in-recorded-block`
+  narrows to phis in sole/zero-predecessor recorded blocks and to
+  non-leading phis.
+Source authority + canonical issuer:
+  `PhysicalBoundary::capture` owns the recorded-block contract; the
+  snapshot already pins every instruction verbatim, so admitting a
+  join's phi head adds no second authority — finishing that rewrote
+  or dropped a phi would still be caught by the exact sequence check.
+Non-authority:
+  block occupancy never implies emission ownership of the join phis;
+  no phi rewriting, splitting, or emission-placement change is added;
+  `validate_original`'s phi rejection in `root_cleanup_graph` (the
+  cleanup-payload projection) stays untouched.
+Fail-fast boundary:
+  a phi in a sole/zero-predecessor recorded block — the only shape
+  the concatenation rule can silently corrupt — still freezes
+  `phi-in-recorded-block`; a phi after a non-phi instruction is not a
+  join head and still freezes.
+Smallest next slice:
+  `MIRBUILDER-GATE1-EMISSION-BLOCK-PHI-S0` — admit leading phis in
+  multi-incoming recorded blocks inside `capture`; pin positive
+  (nullable call invoke recorded as terminator of an if-join block)
+  and negative (phi in a sole-predecessor recorded block still
+  freezes).
+Non-claims:
+  no claim `realloc` compiles beyond this boundary; owning-field
+  release, `BodyCoverageUnsupported` for `HakoAllocHandleResult`, and
+  emission block-splitting remain parked.
+
 ## Decision — MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (accepted)
 
 Decision:
