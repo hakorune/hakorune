@@ -109,13 +109,14 @@ pub(super) fn issue(
     } else if projected_fields.iter().any(|field| field.is_weak) {
         Destruction::Unavailable(DestructionUnavailable::WeakField)
     } else if projected_fields.iter().any(|field| {
-        field
-            .declared_type_name
-            .as_deref()
-            .and_then(
-                crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type,
-            )
-            .is_none()
+        field.declared_type_name.as_deref() != Some("ArrayBox")
+            && field
+                .declared_type_name
+                .as_deref()
+                .and_then(
+                    crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type,
+                )
+                .is_none()
     }) {
         Destruction::Unavailable(DestructionUnavailable::FieldType)
     } else if methods.iter_selected_declaration_order().any(|entry| {
@@ -132,6 +133,11 @@ pub(super) fn issue(
         .any(|node| !ordinary_member(node, None))
     {
         Destruction::Unavailable(DestructionUnavailable::MemberRole)
+    } else if projected_fields
+        .iter()
+        .any(|field| field.declared_type_name.as_deref() == Some("ArrayBox"))
+    {
+        Destruction::OwnedArrayFieldsNoHook
     } else {
         Destruction::PlainI64NoHook
     };

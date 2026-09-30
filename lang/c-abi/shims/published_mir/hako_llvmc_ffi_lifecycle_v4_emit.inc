@@ -61,6 +61,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
     if (op && (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new")))
       fprintf(f, "  %%new%u = alloca i64, align 8\n", lv4_u(block, "id"));
+    if (op && lv4_is(op, "kind", "field_residence_release"))
+      fprintf(f, "  %%fr_read%u = alloca i64, align 8\n", lv4_u(block, "id"));
     /* A nested i64 call writes through a caller-local slot; the callee's
        own %%out_i64 remains reserved for this function's result. */
     if (ordinary && lv4_is(op, "kind", "ordinary_call") &&
@@ -289,6 +291,27 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             "  %%live%u = icmp ne i64 %%v%u, 0\n"
             "  br i1 %%live%u, label %%checked_rel%u, label %%%s\nchecked_rel%u:\n",
             b, lv4_u(op, "value"), b, b, normal_label, b);
+      if (lv4_is(op, "kind", "field_residence_release")) {
+        /* Owned ArrayBox field residence: read the zero-initialized slot,
+           release the child only when it carries a live handle, then land
+           on the normal edge. A failed read is contract violation, never
+           a fault edge. */
+        fprintf(f,
+            "  %%fr_get%u = call i32 @\"nyash.object.checked_field_get_i64_v1\"(i32 %u, i64 %%v%u, i64 %lld, i64 %d, ptr %%fr_read%u)\n"
+            "  %%fr_ok%u = icmp eq i32 %%fr_get%u, 0\n"
+            "  br i1 %%fr_ok%u, label %%fr_step%u, label %%invalid\nfr_step%u:\n",
+            b, in->profile, lv4_u(op, "base"), (long long)lv4_type_id(in, op),
+            lv4_slot(in, op), b, b, b, b, b, b);
+        fprintf(f,
+            "  %%fr_val%u = load i64, ptr %%fr_read%u, align 8\n"
+            "  %%fr_live%u = icmp ne i64 %%fr_val%u, 0\n"
+            "  br i1 %%fr_live%u, label %%fr_rel%u, label %%fr_done%u\nfr_rel%u:\n"
+            "  call void @nyrt_handle_release_h(i64 %%fr_val%u)\n"
+            "  br label %%fr_done%u\nfr_done%u:\n"
+            "  br label %%%s\n",
+            b, b, b, b, b, b, b, b, b, b, b, normal_label);
+        continue;
+      }
       fprintf(f, "  %%status%u = call i32 ", b);
       if (lv4_is(op, "kind", "array_new")) {
         fprintf(f, "@\"nyash.array.checked_new_v1\"(ptr %%frame, i64 %llu, ptr %%new%u)\n", site, b);
@@ -319,6 +342,17 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       } else if (lv4_is(op, "kind", "field_set")) {
         fprintf(f, "@\"nyash.object.checked_field_set_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, i64 %%v%u)\n",
             in->profile, site, lv4_u(op, "base"), (long long)lv4_type_id(in, op), lv4_slot(in, op), lv4_u(op, "value"));
+        /* A handle-valued store consumes the lease on both edges: the
+           kernel only validates and writes the slot, so a faulted store
+           leaves the in-flight residence owned by this frame — discharge
+           it here rather than dropping it silently. */
+        if (lv4_input_type(in, fn, lv4_u(op, "value")) == LV4_HANDLE) {
+          fprintf(f,
+              "  switch i32 %%status%u, label %%invalid [ i32 0, label %%%s i32 1, label %%fs_fault%u ]\n"
+              "fs_fault%u:\n  call void @nyrt_handle_release_h(i64 %%v%u)\n  br label %%%s\n",
+              b, normal_label, b, b, lv4_u(op, "value"), fault_label);
+          continue;
+        }
       } else {
         fprintf(f, "@\"nyash.object.%s_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld)\n",
             lv4_is(op, "kind", "home_release") || lv4_is(op, "kind", "home_release_if_live")
@@ -369,9 +403,11 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
     return lv4_emit_function(f, in, abi, 0);
   }
   fprintf(f,
+      "declare i32 @\"nyash.array.checked_new_v1\"(ptr, i64, ptr)\n"
       "declare i32 @\"nyash.object.checked_new_v1\"(ptr, i32, i64, i64, ptr, i64, ptr)\n"
       "declare i32 @\"nyash.object.checked_field_set_v1\"(ptr, i32, i64, i64, i64, i64, i64)\n"
       "declare i32 @\"nyash.object.checked_field_get_i64_v1\"(i32, i64, i64, i64, ptr)\n"
+      "declare void @nyrt_handle_release_h(i64)\n"
       "declare i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr, i32, i64, i64, i64)\n"
       "declare i32 @\"nyash.object.reclaim_unpublished_v1\"(ptr, i32, i64, i64, i64)\n");
   lv4_map_declarations(f, in);

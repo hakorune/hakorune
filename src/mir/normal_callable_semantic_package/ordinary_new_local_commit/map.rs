@@ -489,14 +489,16 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Vec<InvokeOperation>, String> {
         let flow = self.map_flow(site)?;
         let rows = self.local_commits.borrow();
-        flow.outer_after_installs(installed)
+        let mut operations = Vec::new();
+        for binding in flow
+            .outer_after_installs(installed)
             .ok_or_else(|| freeze("map-prefix-range"))?
-            .map(|binding| {
-                installed_home(&rows, binding)
-                    .map(LocalCommitV1::end_operation)
-                    .map_err(|_| freeze("map-outer-home-missing"))
-            })
-            .collect()
+        {
+            let row = installed_home(&rows, binding)
+                .map_err(|_| freeze("map-outer-home-missing"))?;
+            operations.extend(row.end_operations());
+        }
+        Ok(operations)
     }
     pub(crate) fn record_map_emission(
         &self,

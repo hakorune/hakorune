@@ -32,14 +32,16 @@ impl OrdinaryNewClaimLedgerV1 {
             .handle_call_source(site)
             .ok_or_else(|| freeze("handle-call-source-missing"))?;
         let rows = self.local_commits.borrow();
-        call.prior_homes()
-            .iter()
-            .rev()
-            .map(|binding| match installed_home(&rows, *binding) {
-                Ok(row) if row.end_available() => Ok(row.end_operation()),
-                _ => Err(freeze("handle-call-prior-home-unavailable")),
-            })
-            .collect()
+        let mut operations = Vec::new();
+        for binding in call.prior_homes().iter().rev() {
+            match installed_home(&rows, *binding) {
+                Ok(row) if row.end_available() => {
+                    operations.extend(row.end_operations());
+                }
+                _ => return Err(freeze("handle-call-prior-home-unavailable")),
+            }
+        }
+        Ok(operations)
     }
 
     /// The sealed nullable-result receiver call at this expression site:
@@ -81,14 +83,16 @@ impl OrdinaryNewClaimLedgerV1 {
             .nullable_call_source(site)
             .ok_or_else(|| freeze("nullable-call-source-missing"))?;
         let rows = self.local_commits.borrow();
-        call.prior_homes()
-            .iter()
-            .rev()
-            .map(|binding| match installed_home(&rows, *binding) {
-                Ok(row) if row.end_available() => Ok(row.end_operation()),
-                _ => Err(freeze("nullable-call-prior-home-unavailable")),
-            })
-            .collect()
+        let mut operations = Vec::new();
+        for binding in call.prior_homes().iter().rev() {
+            match installed_home(&rows, *binding) {
+                Ok(row) if row.end_available() => {
+                    operations.extend(row.end_operations());
+                }
+                _ => return Err(freeze("nullable-call-prior-home-unavailable")),
+            }
+        }
+        Ok(operations)
     }
 
     /// Begin emission for a nullable-result receiver call: the sealed
@@ -156,6 +160,14 @@ impl OrdinaryNewClaimLedgerV1 {
                 declaration: call.declaration().clone(),
                 object,
                 release: CallReceivedReleaseV1::Nullable,
+                // A `Void` sentinel carries no readable field residence: an
+                // owned-ArrayBox callee object cannot be discharged through
+                // the checked release, so its children stay unproven here
+                // even when the residence claim exists.
+                end_children: self
+                    .owned_field_children
+                    .get(&object)
+                    .map(|_| None),
                 progress: CallReceivedProgress::Emitting,
             }),
         );
@@ -217,6 +229,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 declaration: call.declaration().clone(),
                 object,
                 release: CallReceivedReleaseV1::Handle,
+                end_children: self.owned_field_children.get(&object).cloned(),
                 progress: CallReceivedProgress::Emitting,
             }),
         );

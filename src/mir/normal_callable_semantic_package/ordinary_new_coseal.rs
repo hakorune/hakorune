@@ -7,7 +7,7 @@
 
 use super::instance_construction::{ConstructionEligibilityV1, ConstructionUnavailableV1};
 use crate::mir::function::ObjectDestructionDispositionV1;
-use hakorune_mir_defs::CanonicalObjectIdV1;
+use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
 use std::{
     cell::RefCell,
     collections::{BTreeMap, BTreeSet},
@@ -168,6 +168,9 @@ pub(crate) struct OrdinaryNewClaimCoreV1 {
     object: CanonicalObjectIdV1,
     destruction: ObjectDestructionDispositionV1,
     argument_rows: Result<Box<[OrdinaryNewTrivialArgumentV1]>, SelectedNewArgumentUnavailableV1>,
+    /// Owned `ArrayBox` field residences in declaration order; `Some`
+    /// only when every ArrayBox field's birth-side provider is sealed.
+    array_children: Option<Box<[CanonicalFieldRefV1]>>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -267,6 +270,13 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // storing `new` of one agreed ordinary box. Read-only after issuance;
     // missing/ambiguous writers simply produce no row.
     field_write_claims: field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    // Owned `ArrayBox` field children per canonical object, issued once
+    // with the claims: `Some` means every declared ArrayBox field has a
+    // sealed birth-side residence and `None` means the destruction
+    // disposition requires children the package never proved. Objects
+    // outside `OwnedArrayFieldsNoHook` carry no row at all.
+    pub(super) owned_field_children:
+        BTreeMap<CanonicalObjectIdV1, Option<Box<[CanonicalFieldRefV1]>>>,
     // Callable result-class provenance: a selected callable claims a class
     // only when its sealed body ends in a `return` and every `return` row
     // constructs `new` of one agreed ordinary box. Read-only after
@@ -404,6 +414,7 @@ impl OrdinaryNewClaimLedgerV1 {
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),
             birth_site_index: RefCell::new(BTreeMap::new()),
             field_write_claims: BTreeMap::new(),
+            owned_field_children: BTreeMap::new(),
             callable_result_classes: BTreeMap::new(),
             receiver_call_observations: BTreeMap::new(),
             terminal_relation: BTreeMap::new(),
@@ -472,6 +483,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 birth_target,
                 birth_abi,
                 claim.core.argument_rows.clone(),
+                claim.core.array_children.clone(),
             )),
         );
         Ok(Some(
@@ -554,6 +566,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 birth_target,
                 birth_abi,
                 claim.core.argument_rows.clone(),
+                claim.core.array_children.clone(),
             )),
         );
         Ok(Some(claims.remove(site).expect(

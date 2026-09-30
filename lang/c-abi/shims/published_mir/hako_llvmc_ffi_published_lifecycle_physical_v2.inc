@@ -509,7 +509,10 @@ static int hako_physical_result_operation(yyjson_val* op, int native) {
   const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
   if (!kind) return 0;
   if (native) return !strcmp(kind, "array_new");
-  return !strcmp(kind, "new_box") || !strcmp(kind, "map_new") ||
+  /* `array_new` outside the native lane is the proven provider `new
+     ArrayBox()` inside a birth unit — its normal result is the store's
+     installed handle. */
+  return !strcmp(kind, "new_box") || !strcmp(kind, "array_new") || !strcmp(kind, "map_new") ||
       !strcmp(kind, "map_prepare_key") || (!strcmp(kind, "map_install_indexed") || !strcmp(kind, "map_install_value")) ||
       !strcmp(kind, "map_install_text") || !strcmp(kind, "map_install_empty_array") ||
       !strcmp(kind, "map_install_borrowed_array") ||
@@ -524,6 +527,7 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
   static const char* const ordinary_keys[] = {"kind", "call", "result"};
   static const char* const new_keys[] = {"kind", "object_id", "site"};
   static const char* const field_keys[] = {"kind", "object_id", "field_ordinal", "base", "value", "site"};
+  static const char* const field_release_keys[] = {"kind", "object_id", "field_ordinal", "base", "site"};
   static const char* const object_value_keys[] = {"kind", "object_id", "value", "site"};
   const char* kind = operation ? yyjson_get_str(yyjson_obj_get(operation, "kind")) : NULL;
   uint32_t object_id, ordinal, value;
@@ -553,6 +557,14 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
     }
     return 0;
   }
+  if (strcmp(kind, "array_new") == 0) {
+    static const char* const array_new_keys[] = {"kind", "site"};
+    /* A provider `new ArrayBox()` inside a birth unit rides the same
+       checked allocation op; the produced lease is consumed by the
+       following field store or released by a residence step. */
+    return hako_physical_exact_keys(operation, array_new_keys, 2) &&
+        hako_physical_u64(yyjson_obj_get(operation, "site"), NULL);
+  }
   if (strcmp(kind, "birth_call") == 0)
     return hako_physical_exact_keys(operation, call_keys, 2) && hako_physical_validate_call(function, functions, yyjson_obj_get(operation, "call"), block, index);
   if (strcmp(kind, "ordinary_call") == 0) {
@@ -571,6 +583,8 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
     return hako_physical_exact_keys(operation, new_keys, 3) && hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) && hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) && hako_physical_layout_has_object(layouts, object_id);
   if (strcmp(kind, "field_set") == 0)
     return hako_physical_exact_keys(operation, field_keys, 6) && hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) && hako_physical_u32(yyjson_obj_get(operation, "field_ordinal"), &ordinal) && hako_physical_u32(yyjson_obj_get(operation, "base"), &value) && hako_physical_value_available_at(function, value, block, index) && hako_physical_u32(yyjson_obj_get(operation, "value"), &value) && hako_physical_value_available_at(function, value, block, index) && hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) && hako_physical_layout_has_field(layouts, object_id, ordinal);
+  if (strcmp(kind, "field_residence_release") == 0)
+    return hako_physical_exact_keys(operation, field_release_keys, 5) && hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) && hako_physical_u32(yyjson_obj_get(operation, "field_ordinal"), &ordinal) && hako_physical_u32(yyjson_obj_get(operation, "base"), &value) && hako_physical_value_available_at(function, value, block, index) && hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) && hako_physical_layout_has_field(layouts, object_id, ordinal);
   if (strcmp(kind, "home_release") == 0 || strcmp(kind, "home_release_if_live") == 0 ||
       strcmp(kind, "reclaim_unpublished") == 0)
     return hako_physical_exact_keys(operation, object_value_keys, 4) && hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) && hako_physical_u32(yyjson_obj_get(operation, "value"), &value) && hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) && hako_physical_layout_has_object(layouts, object_id) && hako_physical_value_available_at(function, value, block, index);

@@ -4,6 +4,7 @@ use super::super::{
     OrdinaryNewResultClaimV1, OrdinaryNewTrivialArgumentV1,
 };
 use super::*;
+use crate::mir::function::ObjectDestructionDispositionV1;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Shared prepared-state computation: ABI check, reclaim origin and
@@ -17,6 +18,8 @@ impl OrdinaryNewClaimLedgerV1 {
         constructor: &OrdinaryNewConstructorDispositionV1,
         construction: &ConstructionEligibilityV1,
         object: hakorune_mir_defs::CanonicalObjectIdV1,
+        destruction: ObjectDestructionDispositionV1,
+        array_children: Option<&[hakorune_mir_defs::CanonicalFieldRefV1]>,
         prior_homes: Option<(&[BindingRefV1], &OwnedExprSiteV1)>,
     ) -> Result<NewEmissionProgress, String> {
         if let OrdinaryNewConstructorDispositionV1::Birth(recipe) = constructor {
@@ -46,11 +49,20 @@ impl OrdinaryNewClaimLedgerV1 {
                     constructor_source: constructor_source.clone(),
                     constructor_owner: *constructor_owner,
                     object: plan.object(),
+                    array_children: array_children.map(<[_]>::to_vec).map(Into::into),
                 })
             }
         };
         let mut operands = Vec::new();
         let mut available = construction.is_ok();
+        // A construction-fault reclaim of an owned-ArrayBox object must
+        // carry the sealed children — without them the fault path would
+        // free storage under live field residences.
+        if destruction == ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+            && array_children.is_none()
+        {
+            available = false;
+        }
         match prior_homes {
             None => available = false,
             Some((prior_homes, required_unwind)) => {
@@ -63,7 +75,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         HomeLookupError::Duplicate => freeze("duplicate-prior-home"),
                     })?;
                     available &= prior.end_available();
-                    operands.push(prior.end_operation());
+                    operands.extend(prior.end_operations());
                 }
             }
         }
@@ -105,6 +117,8 @@ impl OrdinaryNewClaimLedgerV1 {
             &claim.core.constructor,
             claim.construction(),
             claim.object(),
+            claim.core.destruction,
+            claim.core.array_children.as_deref(),
             prior_homes,
         )?;
         let available = matches!(next, NewEmissionProgress::Prepared { .. });
@@ -146,6 +160,8 @@ impl OrdinaryNewClaimLedgerV1 {
             &claim.core.constructor,
             claim.construction(),
             claim.object(),
+            claim.core.destruction,
+            claim.core.array_children.as_deref(),
             prior_homes,
         )?;
         // A non-trivial argument co-seal is a retained claim, not a take-time

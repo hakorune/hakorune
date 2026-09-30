@@ -445,10 +445,9 @@ fn encode_invoke(
             )?
         }
         InvokeOperation::IntrinsicArrayNew => {
-            require_native_input(abi_input)?;
             with_site(
                 json!({"kind": "array_new"}),
-                required_site(diagnostic_site, true)?,
+                required_site(diagnostic_site, abi_input.is_some())?,
             )?
         }
         InvokeOperation::ArrayStateContractClaim { contract_id, array } => {
@@ -615,6 +614,13 @@ fn encode_invoke(
             value: released,
         } => with_site(
             json!({ "kind": "home_release_if_live", "object_id": object.declaration_index(), "value": value(released),
+            }),
+            required_site(diagnostic_site, abi_input.is_some())?,
+        )?,
+        InvokeOperation::OwnedFieldResidenceRelease { field, base } => with_site(
+            json!({ "kind": "field_residence_release",
+                "object_id": field.object().declaration_index(),
+                "field_ordinal": field.declaration_ordinal(), "base": value(base),
             }),
             required_site(diagnostic_site, abi_input.is_some())?,
         )?,

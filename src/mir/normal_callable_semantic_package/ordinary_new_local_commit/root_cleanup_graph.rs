@@ -15,16 +15,18 @@ type Incoming = BTreeMap<(BasicBlockId, usize), (Discriminant<MirInstruction>, O
 pub(super) mod call;
 
 /// Root-specific source-origin count and graph-shape validation.
+/// `release_count` counts source-issued release operations — homes and
+/// their owned field-residence children — not just Home bindings.
 pub(super) fn validate_original(
     function: &MirFunction,
     bindings: &Bindings,
-    home_count: usize,
+    release_count: usize,
 ) -> Result<(), String> {
     // The emitter has N clean releases and N-1 pending-Fault releases.
-    let release_count = home_count
+    let release_count = release_count
         .checked_mul(2)
         .and_then(|n| n.checked_sub(1))
-        .ok_or_else(|| fault("home-count"))?;
+        .ok_or_else(|| fault("release-count"))?;
     let nodes = recorded_nodes(bindings, release_count)?;
     // The emitter records its final entry Jump after the cleanup nodes.
     let (entry, terminal) = bindings.last().ok_or_else(|| fault("empty"))?;
@@ -81,9 +83,9 @@ impl RootCleanupBoundary {
     fn capture(
         function: &MirFunction,
         bindings: &Bindings,
-        home_count: usize,
+        release_count: usize,
     ) -> Result<Self, String> {
-        validate_original(function, bindings, home_count)?;
+        validate_original(function, bindings, release_count)?;
         Ok(Self(super::physical_boundary::PhysicalBoundary::capture(
             function, bindings,
         )?))
@@ -189,6 +191,7 @@ fn edges(terminal: &MirInstruction) -> Result<Vec<(usize, BasicBlockId)>, String
             operation:
                 InvokeOperation::HomeRelease { .. }
                 | InvokeOperation::HomeReleaseIfLive { .. }
+                | InvokeOperation::OwnedFieldResidenceRelease { .. }
                 | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { .. }),
             normal_landing,
             fault_landing,

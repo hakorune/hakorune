@@ -750,9 +750,11 @@ fn validate_instruction_with_context(
                 | MirInstruction::Invoke {
                     operation: InvokeOperation::Map(_)
                         | InvokeOperation::NewBox { .. }
+                        | InvokeOperation::IntrinsicArrayNew
                         | InvokeOperation::FieldSet { .. }
                         | InvokeOperation::HomeRelease { .. }
                         | InvokeOperation::HomeReleaseIfLive { .. }
+                        | InvokeOperation::OwnedFieldResidenceRelease { .. }
                         | InvokeOperation::ReclaimUnpublished { .. }
                         | InvokeOperation::Call {
                             call: MirCall {

@@ -111,13 +111,17 @@ fn emit_selected_new(
     let mut reclaim = None;
     let birth_fault = if matches!(constructor, OrdinaryNewConstructorDispositionV1::Birth(_)) {
         let origin = reclaim_origin.ok_or_else(|| freeze("reclaim-origin-missing"))?;
-        let fault = cleanup_chain(
+        // Storage reclaim runs last: owned `ArrayBox` field residences —
+        // zero-initialized until their birth store — release live children
+        // first, in reverse declaration order, then the storage itself.
+        let tail = cleanup_step(
             builder,
             frame,
-            vec![InvokeOperation::ReclaimUnpublished {
+            InvokeOperation::ReclaimUnpublished {
                 object: origin.object(),
                 value: result,
-            }],
+            },
+            allocation_fault,
             allocation_fault,
             &mut bindings,
         )?;
@@ -125,8 +129,18 @@ fn emit_selected_new(
             .last()
             .cloned()
             .ok_or_else(|| freeze("reclaim-origin-binding-missing"))?;
-        reclaim = Some((origin, block, instruction));
-        fault
+        reclaim = Some((origin.clone(), block, instruction));
+        let children = origin
+            .array_children()
+            .unwrap_or_default()
+            .iter()
+            .rev()
+            .map(|field| InvokeOperation::OwnedFieldResidenceRelease {
+                field: *field,
+                base: result,
+            })
+            .collect();
+        cleanup_chain(builder, frame, children, tail, &mut bindings)?
     } else {
         if reclaim_origin.is_some() {
             return Err(freeze("reclaim-origin-unexpected"));

@@ -65,6 +65,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
                     normal,
                     base,
                     value,
+                    provider: None,
                 },
             },
         )]),

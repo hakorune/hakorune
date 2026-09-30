@@ -97,6 +97,13 @@ pub enum InvokeOperation {
         object: hakorune_mir_defs::CanonicalObjectIdV1,
         value: ValueId,
     },
+    /// Read the field's owned residence handle and release it when live.
+    /// Slots are zero-initialized, so an unwritten field is skipped; the
+    /// operation itself only runs for proven provider residences.
+    OwnedFieldResidenceRelease {
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        base: ValueId,
+    },
 }
 
 impl InvokeOperation {
@@ -129,7 +136,8 @@ impl InvokeOperation {
             | Self::ArrayElementWrite { .. }
             | Self::HomeRelease { .. }
             | Self::HomeReleaseIfLive { .. }
-            | Self::ReclaimUnpublished { .. } => None,
+            | Self::ReclaimUnpublished { .. }
+            | Self::OwnedFieldResidenceRelease { .. } => None,
         }
     }
 
@@ -143,7 +151,8 @@ impl InvokeOperation {
             | Self::ArrayElementWrite { .. } => EffectMask::WRITE.add(Effect::Control),
             Self::HomeRelease { .. }
             | Self::HomeReleaseIfLive { .. }
-            | Self::ReclaimUnpublished { .. } => EffectMask::WRITE
+            | Self::ReclaimUnpublished { .. }
+            | Self::OwnedFieldResidenceRelease { .. } => EffectMask::WRITE
                 .union(EffectMask::MUT)
                 .union(EffectMask::IO)
                 .add(Effect::Control),
@@ -174,6 +183,7 @@ impl InvokeOperation {
                 values
             }
             Self::FieldSet { base, value, .. } => vec![*base, *value],
+            Self::OwnedFieldResidenceRelease { base, .. } => vec![*base],
             Self::HomeRelease { value, .. }
             | Self::HomeReleaseIfLive { value, .. }
             | Self::ReclaimUnpublished { value, .. } => {
@@ -205,6 +215,7 @@ impl InvokeOperation {
                 }
                 rewrite(value);
             }
+            Self::OwnedFieldResidenceRelease { base, .. } => rewrite(base),
             Self::HomeRelease { value, .. }
             | Self::HomeReleaseIfLive { value, .. }
             | Self::ReclaimUnpublished { value, .. } => rewrite(value),

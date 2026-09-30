@@ -169,7 +169,11 @@ impl OrdinaryNewClaimLedgerV1 {
                     | RootOrdinaryNewObservation::NoSelectedLocalNew
             )
         {
-            return Err(freeze("artifact-source-unavailable"));
+            return Err(format!(
+                "{} debug={:?}",
+                freeze("artifact-source-unavailable"),
+                self.finalized_root_observation(owner)
+            ));
         }
         if self.finalized_root_observation(owner) != function.root_ordinary_new_observation() {
             return Err(freeze("root-observation-drift"));

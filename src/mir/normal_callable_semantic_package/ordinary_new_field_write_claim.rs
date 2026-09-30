@@ -28,11 +28,17 @@ use crate::parser::ParserOrdinaryBoxSourceCoverageV1;
 /// Key: (owning box name, field name). Value: the agreed `new` class.
 pub(crate) type OrdinaryNewFieldWriteClaimsV1 = BTreeMap<(Box<str>, Box<str>), Box<str>>;
 
+/// Key: (owning box name, field name). The field's sole observed write is
+/// a birth-side `me.<field> = new ArrayBox()` provider store; re-assignment,
+/// non-birth providers and unattributed writers all veto the residence.
+pub(crate) type OwnedArrayFieldResidencesV1 = BTreeSet<(Box<str>, Box<str>)>;
+
 /// One write observation: `Some(class)` for a `new C(...)` value site,
 /// `None` for any other stored value (vetoes the field).
 #[derive(Default)]
 pub(crate) struct OrdinaryNewFieldWriteClaimDraftV1 {
     writes: BTreeMap<(Box<str>, Box<str>), Vec<Option<Box<str>>>>,
+    array_birth_writes: BTreeSet<(Box<str>, Box<str>)>,
     unattributed_fields: BTreeSet<Box<str>>,
     opaque: bool,
 }
@@ -46,11 +52,14 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
     /// `owner_box` is the box this function belongs to when its selected
     /// key is `InstanceBoxMethod` (or the constructor row's `box_name`);
     /// a `me.` write with no attributable owner vetoes the field name.
+    /// `in_birth` marks constructor rows: only a birth-side `new ArrayBox()`
+    /// provider store can seed an owned residence claim.
     pub(crate) fn observe_function(
         &mut self,
         function: &VerifiedResolvedFunctionV1,
         body_shape: Option<&VerifiedResolvedBodyShapeInventoryV1>,
         owner_box: Option<&str>,
+        in_birth: bool,
     ) {
         let Some(shape) = body_shape else {
             // Writes we cannot observe could hold any value; no field
@@ -91,6 +100,10 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
                 .expression_source()
                 .construction(assignment.value_site())
                 .map(|construction| construction.class().into());
+            if in_birth && class.as_deref() == Some("ArrayBox") {
+                self.array_birth_writes
+                    .insert((owner_box.into(), field.clone()));
+            }
             self.writes
                 .entry((owner_box.into(), field.clone()))
                 .or_default()
@@ -101,19 +114,28 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
     /// Seal the observed writes. A field claims a class only when it was
     /// written at least once, every observed write stored `new` of the
     /// same ordinary box, and the field name never appeared on an
-    /// unattributed receiver anywhere in the package.
+    /// unattributed receiver anywhere in the package. An owned `ArrayBox`
+    /// residence is stronger still: exactly one write, the birth-side
+    /// `new ArrayBox()` provider store, nothing else.
     pub(crate) fn finish(
         self,
         ordinary_box_coverage: &ParserOrdinaryBoxSourceCoverageV1,
-    ) -> OrdinaryNewFieldWriteClaimsV1 {
+    ) -> (OrdinaryNewFieldWriteClaimsV1, OwnedArrayFieldResidencesV1) {
         if self.opaque {
-            return BTreeMap::new();
+            return (BTreeMap::new(), BTreeSet::new());
         }
-        self.writes
+        let mut residences = BTreeSet::new();
+        let claims = self
+            .writes
             .into_iter()
             .filter_map(|((owner_box, field), classes)| {
                 if self.unattributed_fields.contains(&field) {
                     return None;
+                }
+                if classes.as_slice() == [Some("ArrayBox".into())]
+                    && self.array_birth_writes.contains(&(owner_box.clone(), field.clone()))
+                {
+                    residences.insert((owner_box.clone(), field.clone()));
                 }
                 let mut unique = BTreeSet::new();
                 for class in classes {
@@ -129,6 +151,7 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
                     .flatten()
                     .map(|_| ((owner_box, field), class.clone()))
             })
-            .collect()
+            .collect();
+        (claims, residences)
     }
 }

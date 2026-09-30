@@ -74,6 +74,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         .transpose()?;
     let mut claims = Vec::new();
     let mut result_claims = Vec::new();
+    // Owned `ArrayBox` field children per canonical object: `Some` means
+    // every declared ArrayBox field has a sealed birth-side residence,
+    // `None` means the disposition needs children the package never proved.
+    let mut owned_field_children: BTreeMap<
+        hakorune_mir_defs::CanonicalObjectIdV1,
+        Option<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>>,
+    > = BTreeMap::new();
     let mut seeds = super::super::result_contract::VerifiedCallableResultContractBuilderV1::new();
     let mut root_completion = None;
     let mut field_reads = BTreeMap::new();
@@ -110,7 +117,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             .map(|key| key.owner());
         batch
             .with_lowering_input(declaration.batch_slot(), |input| {
-                field_write_draft.observe_function(input.function(), input.body_shape(), owner_box);
+                field_write_draft.observe_function(
+                    input.function(),
+                    input.body_shape(),
+                    owner_box,
+                    false,
+                );
                 if let Some(key) = &selected_key {
                     result_class_draft.observe_function(input, key, declaration.batch_slot());
                 }
@@ -127,12 +139,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     input.function(),
                     input.body_shape(),
                     Some(row.box_name()),
+                    true,
                 );
             }
             Ok(())
         })
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
-    let field_write_claims = field_write_draft.finish(batch.ordinary_box_coverage());
+    let (field_write_claims, array_residences) =
+        field_write_draft.finish(batch.ordinary_box_coverage());
     let callable_result_classes = result_class_draft.finish(
         batch.ordinary_box_coverage(),
         batch,
@@ -641,6 +655,25 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
                 }
             }
+            let array_children = owned_array_children(
+                &site,
+                instance_constructors,
+                &box_source,
+                destruction,
+                &array_residences,
+            )?;
+            if destruction == ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook {
+                match owned_field_children.entry(object) {
+                    std::collections::btree_map::Entry::Vacant(entry) => {
+                        entry.insert(array_children.clone());
+                    }
+                    std::collections::btree_map::Entry::Occupied(entry)
+                        if *entry.get() == array_children => {}
+                    std::collections::btree_map::Entry::Occupied(_) => {
+                        return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
+                    }
+                }
+            }
             claims.push(OrdinaryNewAdmissionClaimV1 {
                 core: OrdinaryNewClaimCoreV1 {
                     site: site.clone(),
@@ -652,6 +685,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     object,
                     destruction,
                     argument_rows,
+                    array_children,
                 },
                 destination,
                 declaration,
@@ -697,6 +731,25 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
                 }
             }
+            let array_children = owned_array_children(
+                &site,
+                instance_constructors,
+                &box_source,
+                destruction,
+                &array_residences,
+            )?;
+            if destruction == ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook {
+                match owned_field_children.entry(object) {
+                    std::collections::btree_map::Entry::Vacant(entry) => {
+                        entry.insert(array_children.clone());
+                    }
+                    std::collections::btree_map::Entry::Occupied(entry)
+                        if *entry.get() == array_children => {}
+                    std::collections::btree_map::Entry::Occupied(_) => {
+                        return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
+                    }
+                }
+            }
             result_claims.push(OrdinaryNewResultClaimV1 {
                 core: OrdinaryNewClaimCoreV1 {
                     site: site.clone(),
@@ -708,6 +761,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     object,
                     destruction,
                     argument_rows,
+                    array_children,
                 },
                 home_prefix,
             });
@@ -759,9 +813,60 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.field_reads = std::cell::RefCell::new(field_reads);
     ledger.argument_field_reads = std::cell::RefCell::new(argument_field_reads);
     ledger.birth_abi_handoffs = std::cell::RefCell::new(birth_abi_handoffs);
+    ledger.owned_field_children = owned_field_children;
     ledger.terminal_relation = root_terminal_relation;
     ledger.app_main_identity = app_main_identity.cloned();
     Ok((ledger, seeds.finish()))
+}
+
+/// Prove the owned `ArrayBox` field children of one canonical object.
+/// `OwnedArrayFieldsNoHook` objects carry their declared ArrayBox fields
+/// in declaration order only when each field has a sealed birth-side
+/// residence; any unproven field — or a missing object definition —
+/// yields `None`, which every consumer treats as unadmitted, never
+/// silently plain.
+fn owned_array_children(
+    site: &OwnedExprSiteV1,
+    instance_constructors: &crate::mir::normal_callable_semantic_package::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
+    box_source: &crate::parser::ParserOrdinaryBoxSourceRowV1,
+    destruction: crate::mir::function::ObjectDestructionDispositionV1,
+    array_residences: &field_write_claim::OwnedArrayFieldResidencesV1,
+) -> Result<
+    Option<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>>,
+    OrdinaryNewCoSealIssueV1,
+> {
+    use crate::mir::function::ObjectDestructionDispositionV1;
+    if destruction != ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook {
+        return Ok(None);
+    }
+    instance_constructors
+        .with_source_object_definition(box_source, |object, definition| {
+            let mut children = Vec::new();
+            for (ordinal, field) in definition.fields().iter().enumerate() {
+                if field.declared_type_name.as_deref() != Some("ArrayBox") {
+                    continue;
+                }
+                let key = (
+                    box_source.name().into(),
+                    field.name.clone().into_boxed_str(),
+                );
+                if !array_residences.contains(&key) {
+                    return None;
+                }
+                children.push(
+                    hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
+                        object, ordinal,
+                    )
+                    .expect("declared field ordinal resolves canonically"),
+                );
+            }
+            Some(children.into_boxed_slice())
+        })
+        .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
+            site: site.clone(),
+            class: box_source.name().into(),
+            error,
+        })
 }
 
 /// Admit one `new` construction site into the destination-less birth index

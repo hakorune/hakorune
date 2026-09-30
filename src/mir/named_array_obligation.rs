@@ -152,19 +152,41 @@ pub(crate) fn validate_physical_marker(
                 .get(provider_site)
                 .ok_or_else(|| fault("provider-allocation-missing"))?;
             let mut allocation_count = 0;
-            for instruction in provider
-                .blocks
-                .values()
-                .flat_map(|block| block.all_instructions())
-            {
-                if let MirInstruction::NewBox { dst, target, args } = instruction {
-                    if dst == allocation {
-                        if !matches!(target, ConstructionTarget::Named(name) if name == "ArrayBox")
-                            || !args.is_empty()
-                        {
-                            return Err(fault("allocation-drift"));
+            for (block_id, block) in &provider.blocks {
+                for instruction in block.all_instructions() {
+                    match instruction {
+                        MirInstruction::NewBox { dst, target, args } if dst == allocation => {
+                            if !matches!(target, ConstructionTarget::Named(name) if name == "ArrayBox")
+                                || !args.is_empty()
+                            {
+                                return Err(fault("allocation-drift"));
+                            }
+                            allocation_count += 1;
                         }
-                        allocation_count += 1;
+                        MirInstruction::InvokeNormalResult { dst, invoke_block }
+                            if dst == allocation =>
+                        {
+                            // The construction-store physical consumer emits
+                            // the proven provider `new ArrayBox()` as the
+                            // checked intrinsic; the landing result is the
+                            // stored value. Only that exact pair counts.
+                            let origin = provider.blocks.get(invoke_block).and_then(|origin| {
+                                origin.terminator.as_ref()
+                            });
+                            if !matches!(
+                                origin,
+                                Some(MirInstruction::Invoke {
+                                    operation:
+                                        crate::mir::instruction::InvokeOperation::IntrinsicArrayNew,
+                                    ..
+                                })
+                            ) || invoke_block == block_id
+                            {
+                                return Err(fault("allocation-drift"));
+                            }
+                            allocation_count += 1;
+                        }
+                        _ => {}
                     }
                 }
             }

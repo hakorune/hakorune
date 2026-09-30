@@ -66,10 +66,16 @@ impl RootHomeExitEntry {
 /// local Home bound before the terminal expression; an `ArgumentMap` is a
 /// `%{...}` call-argument map constructed inside it — the caller keeps the
 /// lease through the borrowed callee call and Ends it on both exit paths.
+/// A `FieldResidence` is one owned `ArrayBox` child of a `Binding` home,
+/// released in reverse declaration order before that Home's own release.
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum RootHomeReleaseSubjectV1 {
     Binding(BindingRefV1),
     ArgumentMap { site: OwnedExprSiteV1, ordinal: u32 },
+    FieldResidence {
+        binding: BindingRefV1,
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+    },
 }
 
 /// One source-issued root Home obligation after its existing local value has
@@ -89,7 +95,8 @@ impl RootHomeReleaseOriginV1 {
 
     pub(crate) fn binding(&self) -> Option<BindingRefV1> {
         match self.subject {
-            RootHomeReleaseSubjectV1::Binding(binding) => Some(binding),
+            RootHomeReleaseSubjectV1::Binding(binding)
+            | RootHomeReleaseSubjectV1::FieldResidence { binding, .. } => Some(binding),
             RootHomeReleaseSubjectV1::ArgumentMap { .. } => None,
         }
     }
@@ -231,11 +238,16 @@ impl OrdinaryNewClaimLedgerV1 {
                 HomeLookupError::Duplicate => freeze("duplicate-root-home"),
             })?;
             available &= home.end_available();
-            origins.push(RootHomeReleaseOriginV1 {
-                subject: RootHomeReleaseSubjectV1::Binding(*binding),
-                exit: exit.clone(),
-                operation: home.end_operation(),
-            });
+            if !home.end_available() {
+                continue;
+            }
+            for (subject, operation) in home.end_plan().into_vec() {
+                origins.push(RootHomeReleaseOriginV1 {
+                    subject,
+                    exit: exit.clone(),
+                    operation,
+                });
+            }
         }
         *progress = if available {
             RootHomeExitProgress::Prepared(origins)
@@ -432,9 +444,6 @@ impl OrdinaryNewClaimLedgerV1 {
                         .unwrap_or_default();
                     let mut expected_argument_maps = expected_argument_maps;
                     expected_argument_maps.sort_by_key(|(ordinal, _)| std::cmp::Reverse(*ordinal));
-                    if origins.len() != expected_homes.len() + expected_argument_maps.len() {
-                        return Err(freeze("root-exit-origin-count"));
-                    }
                     if projection.is_some_and(|p| {
                         bindings.iter().any(|(id, _)| p.destination(*id).is_none())
                     }) {
@@ -454,17 +463,39 @@ impl OrdinaryNewClaimLedgerV1 {
                             )?;
                         }
                     }
-                    let expected_subjects = expected_argument_maps
-                        .iter()
-                        .map(|(ordinal, site)| RootHomeReleaseSubjectV1::ArgumentMap {
-                            site: site.clone(),
-                            ordinal: *ordinal,
-                        })
-                        .chain(
-                            expected_homes
-                                .iter()
-                                .map(|binding| RootHomeReleaseSubjectV1::Binding(*binding)),
+                    let rows = self.local_commits.borrow();
+                    let mut expected_subjects: Vec<RootHomeReleaseSubjectV1> =
+                        expected_argument_maps
+                            .iter()
+                            .map(|(ordinal, site)| RootHomeReleaseSubjectV1::ArgumentMap {
+                                site: site.clone(),
+                                ordinal: *ordinal,
+                            })
+                            .collect();
+                    // Each installed Home expands to its sealed teardown
+                    // plan's subjects: owned `ArrayBox` residences precede
+                    // the Home's own Binding release.
+                    for binding in expected_homes {
+                        let home =
+                            installed_home(&rows, *binding).map_err(|error| match error {
+                                HomeLookupError::Missing => {
+                                    freeze("root-home-not-installed")
+                                }
+                                HomeLookupError::Duplicate => {
+                                    freeze("duplicate-root-home")
+                                }
+                            })?;
+                        expected_subjects.extend(
+                            home.end_plan()
+                                .into_vec()
+                                .into_iter()
+                                .map(|(subject, _)| subject),
                         );
+                    }
+                    if origins.len() != expected_subjects.len() {
+                        return Err(freeze("root-exit-origin-count"));
+                    }
+                    let expected_subjects = expected_subjects.into_iter();
                     for (emitted, expected_subject) in origins.iter().zip(expected_subjects) {
                         if emitted.origin.subject() != &expected_subject
                             || emitted.origin.exit() != expected_exit

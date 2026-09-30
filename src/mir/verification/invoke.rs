@@ -57,18 +57,52 @@ pub(super) fn check_module(
                         InvokeOperation::Map(MapInvokeOperation::InstallIndexed { object, .. })
                         | InvokeOperation::NewBox { object }
                         | InvokeOperation::HomeRelease { object, .. }
+                        | InvokeOperation::HomeReleaseIfLive { object, .. }
                         | InvokeOperation::ReclaimUnpublished { object, .. }
                             if module.canonical_object_definition(*object).is_none() =>
                         {
                             errors.push(error(*id, "object-definition-missing"));
                         }
                         InvokeOperation::Map(MapInvokeOperation::InstallIndexed { object, .. })
-                        | InvokeOperation::HomeRelease { object, .. }
                             if !module.canonical_object_definition(*object).is_some_and(|definition|
                                 definition.destruction_disposition()
                                     == crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook) =>
                         {
                             errors.push(error(*id, "home-destruction-unavailable"));
+                        }
+                        // A Home release is admissible for plain objects and
+                        // for owned-ArrayBox objects — the field children are
+                        // released by their own operations before this one.
+                        InvokeOperation::HomeRelease { object, .. }
+                        | InvokeOperation::HomeReleaseIfLive { object, .. }
+                            if !module.canonical_object_definition(*object).is_some_and(|definition|
+                                matches!(
+                                    definition.destruction_disposition(),
+                                    crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
+                                        | crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                                )) =>
+                        {
+                            errors.push(error(*id, "home-destruction-unavailable"));
+                        }
+                        // An owned field release names a canonical
+                        // declaration — never a name or slot guess. The
+                        // field must be a non-weak `ArrayBox` on an object
+                        // whose teardown owns it.
+                        InvokeOperation::OwnedFieldResidenceRelease { field, .. }
+                            if !(module.canonical_field_definition(*field).is_some_and(
+                                |definition| {
+                                    !definition.is_weak
+                                        && definition.declared_type_name.as_deref()
+                                            == Some("ArrayBox")
+                                },
+                            ) && module
+                                .canonical_object_definition(field.object())
+                                .is_some_and(|definition| {
+                                    definition.destruction_disposition()
+                                        == crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                                })) =>
+                        {
+                            errors.push(error(*id, "field-residence-release-invalid"));
                         }
                         InvokeOperation::FieldSet { field, .. }
                             if module.canonical_field_definition(*field).is_none() =>

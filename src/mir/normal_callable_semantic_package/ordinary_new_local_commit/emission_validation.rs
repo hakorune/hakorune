@@ -195,6 +195,39 @@ impl OrdinaryNewClaimLedgerV1 {
                             )? {
                                 return Err(freeze("reclaim-origin-binding-drift"));
                             }
+                            // The fault chain must release each sealed
+                            // `ArrayBox` child exactly once before the
+                            // storage reclaim; the claim's children are the
+                            // only authority for which fields those are.
+                            let expected_children = row
+                                .new_array_children()
+                                .ok_or_else(|| freeze("reclaim-children-source-missing"))?;
+                            if emitted.origin.array_children != *expected_children {
+                                return Err(freeze("reclaim-children-drift"));
+                            }
+                            for field in
+                                emitted.origin.array_children.as_deref().unwrap_or_default()
+                            {
+                                let matching = bindings
+                                    .iter()
+                                    .filter(|(_, instruction)| {
+                                        matches!(
+                                            instruction,
+                                            MirInstruction::Invoke {
+                                                operation:
+                                                    crate::mir::instruction::InvokeOperation::OwnedFieldResidenceRelease {
+                                                        field: emitted_field,
+                                                        base,
+                                                    },
+                                                ..
+                                            } if emitted_field == field && *base == *result
+                                        )
+                                    })
+                                    .count();
+                                if matching != 1 {
+                                    return Err(freeze("reclaim-children-drift"));
+                                }
+                            }
                         }
                         _ => return Err(freeze("reclaim-origin-presence-drift")),
                     }
@@ -312,101 +345,85 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("emission-binding-drift"));
             }
         }
-        let releases = function
-            .blocks
-            .values()
-            .flat_map(|block| block.all_instructions())
-            .filter(|instruction| {
-                matches!(
-                    instruction,
-                    MirInstruction::Invoke {
-                        operation: InvokeOperation::HomeRelease { object, value }
-                        | InvokeOperation::HomeReleaseIfLive { object, value },
-                        ..
-                    } if *object == row.object && value == result
-                )
-            })
-            .collect::<Vec<_>>();
-        let missing = match row.release {
-            CallReceivedReleaseV1::Handle => "handle-release-missing",
-            CallReceivedReleaseV1::Nullable => "nullable-release-missing",
-        };
-        let matching = releases
-            .iter()
-            .filter(|instruction| match (row.release, instruction) {
-                (
-                    CallReceivedReleaseV1::Handle,
-                    MirInstruction::Invoke {
-                        operation: InvokeOperation::HomeRelease { .. },
-                        ..
-                    },
-                )
-                | (
-                    CallReceivedReleaseV1::Nullable,
-                    MirInstruction::Invoke {
-                        operation: InvokeOperation::HomeReleaseIfLive { .. },
-                        ..
-                    },
-                ) => true,
-                _ => false,
-            })
-            .count();
-        // The binding owes one release per exit where it stays live, plus
-        // one per recorded fault-unwind chain that discharges it — the
-        // per-exit flow and the emission bindings already record every
-        // legitimate discharge, and an argument boundary that moved the
-        // lease into a constructed object ends the obligation on that
-        // path. The owed count comes from recorded emissions — never
-        // from recounting MIR shape.
-        let operation = row.end_operation();
-        let mut owed = 0usize;
-        for ((exit_owner, _), progress) in self.root_exits.borrow().iter() {
-            if *exit_owner != row.owner {
-                continue;
-            }
-            if let RootHomeExitProgress::Emitted { origins, .. } = progress {
-                owed += origins
-                    .iter()
-                    .filter(|emitted| *emitted.origin().operation() == operation)
-                    .count();
-            }
+        // An owned object whose residences were never proven has no
+        // teardown plan at all; emitting one is a contract violation,
+        // not a plain release.
+        if matches!(row.end_children, Some(None)) {
+            return Err(freeze("handle-release-unproven"));
         }
-        owed += rows
-            .values()
-            .flat_map(|other| match other {
-                LocalCommitV1::Ordinary(_) | LocalCommitV1::Result(_) => {
-                    match other.new_emission() {
-                        Some(NewEmissionProgress::Emitted { bindings, .. }) => {
-                            bindings.as_slice()
-                        }
-                        _ => &[],
-                    }
+        // The binding owes every operation of its sealed teardown plan —
+        // owned field residences then the Home release — once per exit
+        // where it stays live, plus once per recorded fault-unwind chain
+        // that discharges it. The owed count comes from recorded
+        // emissions — never from recounting MIR shape.
+        for (_, operation) in row.end_plan().iter() {
+            let actual = function
+                .blocks
+                .values()
+                .flat_map(|block| block.all_instructions())
+                .filter(|instruction| {
+                    matches!(
+                        instruction,
+                        MirInstruction::Invoke {
+                            operation: emitted,
+                            ..
+                        } if emitted == operation
+                    )
+                })
+                .count();
+            let mut owed = 0usize;
+            for ((exit_owner, _), progress) in self.root_exits.borrow().iter() {
+                if *exit_owner != row.owner {
+                    continue;
                 }
-                LocalCommitV1::CallReceived(other) => match &other.progress {
-                    CallReceivedProgress::Emitted { bindings, .. } => bindings.as_slice(),
-                    _ => &[],
-                },
-                LocalCommitV1::Map(other) => other.emitted_bindings(),
-            })
-            .filter(|(_, instruction)| {
-                matches!(
-                    instruction,
-                    MirInstruction::Invoke {
-                        operation: emitted,
-                        ..
-                    } if *emitted == operation
-                )
-            })
-            .count();
-        // A release of the wrong shape is just as fatal as a missing one:
-        // unconditional `HomeRelease` on a `Void`-carrying value would
-        // release the sentinel.
-        if releases.len() != owed || matching != releases.len() {
-            return Err(freeze(if releases.len() < owed {
-                missing
-            } else {
-                "handle-release-shape-drift"
-            }));
+                if let RootHomeExitProgress::Emitted { origins, .. } = progress {
+                    owed += origins
+                        .iter()
+                        .filter(|emitted| emitted.origin().operation() == operation)
+                        .count();
+                }
+            }
+            owed += rows
+                .values()
+                .flat_map(|other| match other {
+                    LocalCommitV1::Ordinary(_) | LocalCommitV1::Result(_) => {
+                        match other.new_emission() {
+                            Some(NewEmissionProgress::Emitted { bindings, .. }) => {
+                                bindings.as_slice()
+                            }
+                            _ => &[],
+                        }
+                    }
+                    LocalCommitV1::CallReceived(other) => match &other.progress {
+                        CallReceivedProgress::Emitted { bindings, .. } => bindings.as_slice(),
+                        _ => &[],
+                    },
+                    LocalCommitV1::Map(other) => other.emitted_bindings(),
+                })
+                .filter(|(_, instruction)| {
+                    matches!(
+                        instruction,
+                        MirInstruction::Invoke {
+                            operation: emitted,
+                            ..
+                        } if emitted == operation
+                    )
+                })
+                .count();
+            // A release of the wrong shape is just as fatal as a missing
+            // one: unconditional `HomeRelease` on a `Void`-carrying value
+            // would release the sentinel, and an extra field-residence op
+            // would double-free.
+            if actual != owed {
+                return Err(freeze(if actual < owed {
+                    match row.release {
+                        CallReceivedReleaseV1::Handle => "handle-release-missing",
+                        CallReceivedReleaseV1::Nullable => "nullable-release-missing",
+                    }
+                } else {
+                    "handle-release-shape-drift"
+                }));
+            }
         }
         Ok(())
     }

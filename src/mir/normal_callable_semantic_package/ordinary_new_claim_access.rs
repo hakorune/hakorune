@@ -42,6 +42,14 @@ impl OrdinaryNewClaimCoreV1 {
     > {
         self.argument_rows.as_deref()
     }
+
+    /// Sealed owned `ArrayBox` field residences in declaration order.
+    /// `Some` only on an `OwnedArrayFieldsNoHook` object whose every
+    /// ArrayBox field proved its birth-side provider store; `None` there
+    /// means unproven, never a plain teardown.
+    pub(crate) fn array_children(&self) -> Option<&[CanonicalFieldRefV1]> {
+        self.array_children.as_deref()
+    }
 }
 
 impl OrdinaryNewAdmissionClaimV1 {
@@ -88,6 +96,10 @@ impl OrdinaryNewAdmissionClaimV1 {
         &crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
     > {
         self.core.argument_rows()
+    }
+
+    pub(crate) fn array_children(&self) -> Option<&[CanonicalFieldRefV1]> {
+        self.core.array_children()
     }
 }
 

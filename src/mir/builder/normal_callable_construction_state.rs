@@ -7,7 +7,9 @@ use crate::mir::normal_callable_semantic_package::{
     ConstructionEligibilityV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
 };
 use crate::mir::resolved_semantics::{HomeDemandV1, SourceNodeSiteV1};
-use crate::mir::{BasicBlock, BasicBlockId, MirBuilder, MirFunction, MirInstruction, ValueId};
+use crate::mir::{
+    BasicBlock, BasicBlockId, MirBuilder, MirFunction, MirInstruction, MirType, ValueId,
+};
 use hakorune_mir_defs::CanonicalFieldRefV1;
 use std::collections::BTreeMap;
 
@@ -79,6 +81,9 @@ pub(super) enum StoreProgress {
         normal: BasicBlockId,
         base: ValueId,
         value: ValueId,
+        /// Invoke origin of the proven provider `new` — present only for
+        /// `ProviderConstruction` stores.
+        provider: Option<BasicBlockId>,
     },
 }
 
@@ -269,27 +274,30 @@ impl CallableSemanticLoweringState {
         if !source_ready {
             return Err(fault("emission-state"));
         }
-        if provider_value.is_some()
-            && !matches!(
-                taken.rhs,
-                ConstructionStoreRhsV1::ProviderConstruction { .. }
-            )
-        {
+        if provider_value.is_some() {
             return Err(fault("provider-value-foreign"));
         }
-        let value = match taken.rhs {
-            ConstructionStoreRhsV1::LiteralI64(value) => {
-                crate::mir::builder::emission::constant::emit_integer(builder, value)?
-            }
+        let mut provider_site = None;
+        let value = match &taken.rhs {
+            ConstructionStoreRhsV1::LiteralI64(value) => Some(
+                crate::mir::builder::emission::constant::emit_integer(builder, *value)?,
+            ),
             ConstructionStoreRhsV1::Parameter { site, binding } => {
                 let value = self
-                    .value_for_exact_binding(self.owner, binding)
+                    .value_for_exact_binding(self.owner, *binding)
                     .map_err(|error| error.to_string())?;
-                self.observe_variable_site(site.node(), binding, value)?;
-                value
+                self.observe_variable_site(site.node(), *binding, value)?;
+                Some(value)
             }
-            ConstructionStoreRhsV1::ProviderConstruction { .. } => {
-                provider_value.ok_or_else(|| fault("provider-value-missing"))?
+            ConstructionStoreRhsV1::ProviderConstruction { class, site } => {
+                // The plan only admits a bare `new` of a builtin class; this
+                // physical consumer owns `ArrayBox` and emits the checked
+                // intrinsic itself — nothing else is lowered.
+                if class.as_ref() != "ArrayBox" {
+                    return Err(fault("provider-class-unsupported"));
+                }
+                provider_site = Some(site.clone());
+                None
             }
         };
         let base = taken.receiver;
@@ -330,6 +338,52 @@ impl CallableSemanticLoweringState {
                 (id, landing)
             }
         };
+        let mut provider_origin = None;
+        let value = match value {
+            Some(value) => value,
+            None => {
+                // The proven provider `new ArrayBox()` emits the checked
+                // intrinsic on the same fault frame; the normal result in
+                // its own landing is the value the field store installs.
+                let allocation = builder.next_value_id();
+                let origin = builder
+                    .function_state
+                    .current_block
+                    .ok_or_else(|| fault("no-block"))?;
+                let provider_normal = builder.next_block_id();
+                builder.emit_instruction(MirInstruction::Invoke {
+                    operation: InvokeOperation::IntrinsicArrayNew,
+                    fault_frame,
+                    normal_landing: provider_normal,
+                    fault_landing,
+                })?;
+                builder.start_new_block(provider_normal)?;
+                builder.emit_instruction(MirInstruction::InvokeNormalResult {
+                    dst: allocation,
+                    invoke_block: origin,
+                })?;
+                builder
+                    .function_state
+                    .type_ctx
+                    .value_origin_newbox
+                    .insert(allocation, "ArrayBox".into());
+                builder
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .insert(allocation, MirType::Box("ArrayBox".into()));
+                builder
+                    .comp_ctx
+                    .type_registry
+                    .record_newbox(allocation, "ArrayBox".into());
+                builder
+                    .comp_ctx
+                    .type_registry
+                    .record_type(allocation, MirType::Box("ArrayBox".into()));
+                provider_origin = Some(origin);
+                allocation
+            }
+        };
         let origin = builder
             .function_state
             .current_block
@@ -351,7 +405,28 @@ impl CallableSemanticLoweringState {
             normal,
             base,
             value,
+            provider: provider_origin,
         };
+        if let Some(site) = provider_site {
+            // The generic new lane records a claimed provider allocation on
+            // both ledgers; this consumer keeps the same accounting exact.
+            self.record_named_array_allocation(&site, value)?;
+            if self.named_array_field_provider(&site).is_some() {
+                let function = builder
+                    .function_state
+                    .current_function
+                    .as_mut()
+                    .ok_or_else(|| fault("provider-function-missing"))?;
+                if function
+                    .metadata
+                    .named_array_field_allocations
+                    .insert(site, value)
+                    .is_some()
+                {
+                    return Err(fault("provider-allocation-duplicate"));
+                }
+            }
+        }
         Ok(value)
     }
 
@@ -409,13 +484,22 @@ impl ConstructionState {
         let ConstructionState::Selected { stores, frame, .. } = self else {
             return Ok(());
         };
+        let provider_count = stores
+            .values()
+            .filter(|store| {
+                matches!(
+                    store.rhs,
+                    ConstructionStoreRhsV1::ProviderConstruction { .. }
+                )
+            })
+            .count();
         let actual_count = function
             .blocks
             .values()
             .flat_map(|block| block.all_instructions())
             .filter(|instruction| matches!(instruction, MirInstruction::Invoke { .. }))
             .count();
-        if actual_count != stores.len() {
+        if actual_count != stores.len() + provider_count {
             return Err(fault("emission-count"));
         }
         let mut fault_returns = 0;
@@ -428,8 +512,25 @@ impl ConstructionState {
                         }
                         fault_returns += 1;
                     }
-                    MirInstruction::InvokeNormalResult { .. } => {
-                        return Err(fault("unexpected-normal-result"));
+                    MirInstruction::InvokeNormalResult { invoke_block, dst } => {
+                        // Only a proven provider `new` may land a normal
+                        // result — its store records the exact pair.
+                        let proven = stores.values().any(|store| {
+                            matches!(
+                                &store.progress,
+                                StoreProgress::Emitted {
+                                    block: home,
+                                    value,
+                                    provider: Some(origin),
+                                    ..
+                                } if *home == block.id
+                                    && *origin == *invoke_block
+                                    && *value == *dst
+                            )
+                        });
+                        if !proven {
+                            return Err(fault("unexpected-normal-result"));
+                        }
                     }
                     MirInstruction::Call(call)
                         if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }) =>
@@ -451,6 +552,7 @@ impl ConstructionState {
                 normal,
                 base,
                 value,
+                provider,
             } = progress
             else {
                 return Err(fault("store-residual"));
@@ -460,6 +562,29 @@ impl ConstructionState {
                 if actual == &field && b == base && v == value && normal_landing == normal && Some((*fault_frame, *fault_landing)) == *frame)
             {
                 return Err(fault("emission-drift"));
+            }
+            match (provider, &store.rhs) {
+                (
+                    Some(provider_origin),
+                    ConstructionStoreRhsV1::ProviderConstruction { .. },
+                ) => {
+                    if !matches!(function.blocks.get(provider_origin).and_then(|b| b.terminator.as_ref()),
+                        Some(MirInstruction::Invoke {
+                            operation: InvokeOperation::IntrinsicArrayNew,
+                            fault_frame,
+                            fault_landing,
+                            normal_landing,
+                        }) if *normal_landing == *block
+                            && Some((*fault_frame, *fault_landing)) == *frame)
+                    {
+                        return Err(fault("provider-emission-drift"));
+                    }
+                }
+                (None, ConstructionStoreRhsV1::ProviderConstruction { .. }) => {
+                    return Err(fault("provider-emission-missing"));
+                }
+                (Some(_), _) => return Err(fault("provider-emission-foreign")),
+                (None, _) => {}
             }
             if let ConstructionStoreRhsV1::LiteralI64(expected) = &store.rhs {
                 let literal_matches = function

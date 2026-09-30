@@ -758,6 +758,87 @@ fn assert_normal_home_exit_paths(function: &crate::mir::MirFunction) {
     );
 }
 
+/// A declaration default `items: ArrayBox = new ArrayBox()` desugars to a
+/// birth-side `me.items = new ArrayBox()` provider store; every declared
+/// ArrayBox field with that sealed store lands in `array_children` in
+/// declaration order under the `OwnedArrayFieldsNoHook` disposition.
+#[test]
+fn ordinary_new_owned_array_children_seal_in_declaration_order() {
+    let package = issue_with_brand_catalog(
+        "box Page {
+            left: i64
+            items: ArrayBox = new ArrayBox()
+            children: ArrayBox = new ArrayBox()
+            birth() { }
+        }
+        static box Main { main() { local item = new Page() return 0 } }",
+    )
+    .expect("owned-array package");
+    let rows = package
+        .ordinary_new_claim_ledger
+        .pending_claims_for_test();
+    let claims: Vec<_> = rows.values().collect();
+    let [claim] = claims.as_slice() else {
+        panic!("one claim, got {claims:?}")
+    };
+    assert_eq!(
+        claim.destruction(),
+        crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+    );
+    let ordinals: Vec<u32> = claim
+        .array_children()
+        .expect("proven owned residences")
+        .iter()
+        .map(|field| field.declaration_ordinal())
+        .collect();
+    assert_eq!(ordinals, [1, 2], "declaration order is the sealed order");
+}
+
+/// The residence proof stays fail-closed: no provider store, a second
+/// `me.` store, or a store outside the constructor path each leave
+/// `array_children` empty on an `OwnedArrayFieldsNoHook` claim — the
+/// lifecycle gate then refuses the teardown instead of releasing plain.
+#[test]
+fn ordinary_new_owned_array_children_stay_unproven_on_ambiguous_writes() {
+    for (label, members) in [
+        // No birth-side provider store at all.
+        ("missing", "items: ArrayBox\nbirth() { }"),
+        // A second `me.` store — even of `new ArrayBox()` — is re-assignment.
+        (
+            "rewritten",
+            "items: ArrayBox = new ArrayBox()\nbirth() { me.items = new ArrayBox() }",
+        ),
+        // A store outside the constructor path is not a birth provider.
+        (
+            "non-birth",
+            "items: ArrayBox = new ArrayBox()\nbirth() { }\ntouch() { me.items = new ArrayBox() }",
+        ),
+    ] {
+        let source = format!(
+            "box Page {{ {members} }}
+            static box Main {{ main() {{ local item = new Page() return 0 }} }}"
+        );
+        let package = issue_with_brand_catalog(&source)
+            .unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
+        let rows = package
+            .ordinary_new_claim_ledger
+            .pending_claims_for_test();
+        let claims: Vec<_> = rows.values().collect();
+        let [claim] = claims.as_slice() else {
+            panic!("{label}: one claim, got {claims:?}")
+        };
+        assert_eq!(
+            claim.destruction(),
+            crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook,
+            "{label}"
+        );
+        assert!(
+            claim.array_children().is_none(),
+            "{label}: an unproven residence stays unsealed"
+        );
+    }
+}
+
 include!("brand_catalog_tail_tests.rs");
 include!("brand_catalog_selected_new_argument_tests.rs");
 include!("brand_catalog_mixed_result_class_tests.rs");

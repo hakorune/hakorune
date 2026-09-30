@@ -117,6 +117,10 @@ pub(super) struct NewLocalCommitV1 {
         Box<[super::OrdinaryNewTrivialArgumentV1]>,
         crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
     >,
+    /// Sealed owned `ArrayBox` field residences in declaration order for
+    /// `OwnedArrayFieldsNoHook` objects; `None` means the disposition does
+    /// not apply or the proof failed — `end_available` rejects the latter.
+    array_children: Option<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>>,
     emission: NewEmissionProgress,
 }
 
@@ -139,6 +143,9 @@ pub(super) struct NewResultCommitV1 {
         Box<[super::OrdinaryNewTrivialArgumentV1]>,
         crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
     >,
+    /// Same sealed residence plan as `NewLocalCommitV1` — the
+    /// construction-fault reclaim releases these children before storage.
+    array_children: Option<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>>,
     emission: NewEmissionProgress,
 }
 
@@ -339,6 +346,7 @@ impl NewLocalCommitV1 {
             Box<[super::OrdinaryNewTrivialArgumentV1]>,
             crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
         >,
+        array_children: Option<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>>,
     ) -> Self {
         Self {
             box_source,
@@ -351,6 +359,7 @@ impl NewLocalCommitV1 {
             declaration,
             home_prefix,
             argument_rows,
+            array_children,
             emission: NewEmissionProgress::Unprepared,
         }
     }
@@ -387,6 +396,7 @@ impl NewResultCommitV1 {
             Box<[super::OrdinaryNewTrivialArgumentV1]>,
             crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
         >,
+        array_children: Option<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>>,
     ) -> Self {
         Self {
             site,
@@ -398,6 +408,7 @@ impl NewResultCommitV1 {
             birth_abi,
             home_prefix,
             argument_rows,
+            array_children,
             emission: NewEmissionProgress::Unprepared,
         }
     }
@@ -445,11 +456,49 @@ pub(super) fn installed_home(
 }
 
 impl NewLocalCommitV1 {
-    fn end_operation(&self) -> InvokeOperation {
-        InvokeOperation::HomeRelease {
-            object: self.object,
-            value: self.emission.local().expect("installed Home"),
-        }
+    /// Teardown plan for this home in execution order: owned `ArrayBox`
+    /// children release in reverse declaration order — zero-initialized
+    /// slots make the `if-live` check discharge only born children — then
+    /// the object's own Home. `end_available` already gated the sealed
+    /// residence proof, so `array_children` is always `Some` here.
+    fn end_plan(
+        &self,
+    ) -> Box<[(root_home::RootHomeReleaseSubjectV1, InvokeOperation)]> {
+        let base = self.emission.local().expect("installed Home");
+        let children = match (&self.array_children, self.destruction) {
+            (Some(children), _) => children.as_ref(),
+            // An owned teardown without the sealed residence proof can never
+            // plan a plain release — `end_available` rejects it earlier.
+            (
+                None,
+                super::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook,
+            ) => unreachable!("owned teardown without sealed residences"),
+            (None, _) => &[],
+        };
+        let children = children
+            .iter()
+            .rev()
+            .map(|field| {
+                (
+                    root_home::RootHomeReleaseSubjectV1::FieldResidence {
+                        binding: self.binding,
+                        field: *field,
+                    },
+                    InvokeOperation::OwnedFieldResidenceRelease {
+                        field: *field,
+                        base,
+                    },
+                )
+            });
+        children
+            .chain(std::iter::once((
+                root_home::RootHomeReleaseSubjectV1::Binding(self.binding),
+                InvokeOperation::HomeRelease {
+                    object: self.object,
+                    value: base,
+                },
+            )))
+            .collect()
     }
 }
 

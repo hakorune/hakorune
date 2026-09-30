@@ -57,6 +57,7 @@ fn claim(site: OwnedExprSiteV1, arity: usize) -> OrdinaryNewAdmissionClaimV1 {
             object,
             destruction,
             argument_rows,
+            array_children: None,
         },
         destination,
         declaration,

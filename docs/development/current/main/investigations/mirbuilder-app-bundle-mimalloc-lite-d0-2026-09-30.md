@@ -334,3 +334,93 @@ Physical surface (all existing runtime symbols):
     `layout-field-drift`); disposition check admits the plan variant
     alongside `PlainI64NoHook`.
 
+### S0 landed — DESTRUCTION-ARRAYBOX-FIELD (2026-10-01)
+
+Semantics (source-sealed, one issuer each):
+- `object_definition::issue` admits declared non-weak `ArrayBox` fields
+  as `OwnedArrayFieldsNoHook` (plan-pending; `FieldType` retained for
+  weak/untyped/other).
+- `ordinary_new_field_write_claim` widened: the same seal now records
+  core-`ArrayBox` writes into `owned_field_children` per definition —
+  every `me.<field>` write must be a `new` of one agreed class, with the
+  existing unattributed-receiver and opaque-body vetoes unchanged.
+- `OrdinaryNewClaimCoreV1::array_children` carries `Some(proven)` /
+  `Some(unproven)` / `None`; `end_plan` expands a home row into child
+  `OwnedFieldResidenceRelease` origins (reverse declaration order) +
+  parent `HomeRelease`. Unproven plans freeze `artifact-source-unavailable`
+  at `end_available` before any emission.
+- Birth-fault reclaim chain carries the same child plan:
+  `frr(last..first) → reclaim_unpublished`; the normal chain runs
+  `frr(last..first) → home_release`. Exactly-once holds because each op
+  is one node of the Invoke cleanup graph (fault edges replay only the
+  remaining suffix).
+
+Provider emission (the actual blocker found in S0):
+- `ProviderConstruction` of builtin `ArrayBox` was already admitted
+  semantically, but the store consumer emitted bare `NewBox`, which has
+  no published wire shape (`instruction-unsupported`).
+- `emit_construction_store` now emits `Invoke{IntrinsicArrayNew}` +
+  `InvokeNormalResult` on the shared fault frame under the
+  assignment-value source context, then the `FieldSet`. `StoreProgress::
+  Emitted.provider` records the origin; `validate_bindings` pins exact
+  provider/normal-result pairing.
+- The named-array provider ledgers stay exact:
+  `record_named_array_allocation` + `metadata.
+  named_array_field_allocations` (the generic-lane accounting was the
+  `incomplete-consumption` regression); `named_array_obligation`'s
+  `FieldResidence` arm accepts the `InvokeNormalResult`←
+  `Invoke{IntrinsicArrayNew}` pair as the provider allocation producer.
+
+Physical wire (all pre-existing runtime symbols):
+- `OwnedFieldResidenceRelease { field, base }` → JSON
+  `field_residence_release`; C emit reads the slot via
+  `nyash.object.checked_field_get_i64_v1` and releases through
+  `nyrt_handle_release_h` only when the zero-initialized slot is live
+  (partial-birth rollback is the same op).
+- `array_new` admitted on the non-native lane as the proven provider
+  allocation: `hako_physical_validate_operation` arm,
+  `hako_physical_result_operation`, indexed-flow lease arm
+  (`birth`/`ordinary` only), and `invoke_normal_result` no longer
+  birth-barred (still must be row 0 of the normal landing).
+- `field_set` with a handle-typed value consumes the lease on BOTH
+  edges: the emit discharges it through `nyrt_handle_release_h` on the
+  fault landing because `checked_field_set_v1` faults before storing —
+  no silent lease drop.
+- `physical_abi` admits `Handle` field storage for plan-carrying
+  objects; `canonical_layout` resolves `ArrayBox` → `Handle`; kernel
+  wire keeps `I64` slot tags (all `TypedObjectFieldStorage` variants
+  ride the integer lane).
+
+Evidence:
+- Positive pin `owned_array_fields_release_in_reverse_order_before_
+  home_release` walks the published JSON *edges* (block order ≠
+  execution order): normal chain `frr(last)→frr(first)→home_release`,
+  birth-fault chain `frr(last)→frr(first)→reclaim_unpublished`, and the
+  exit fault lane correctly replays only the remaining suffix.
+- Negative pins: unproven (reassigned) ArrayBox field keeps
+  `artifact-source-unavailable`; claim-layer pins cover ambiguous writes
+  and declaration order.
+- End-to-end probe `new Page{left:i64=0, items/children:ArrayBox=new
+  ArrayBox()}` + `return 0` compiles through Lifecycle V4 + LLVM C API
+  and the EXE runs `Result: 0` — the teardown chain actually executes.
+- Official `mimalloc_lite_exe` smoke: negative pin re-pinned to the
+  current first terminal `emission-binding-drift` (same fail-closed
+  ladder, moved forward); EXE still stops at the designed frontier
+  `artifact-unowned-lifecycle-site` (later slices).
+- Touched-module tests green; sole red in runs remains the
+  baseline-flaky `nullable_receiver_call_serializes`.
+
+Frontier census update:
+- `items: ArrayBox = new ArrayBox()` probe: compiles and runs.
+- `c: Child = new Child(1)` and user-object field destruction stay
+  closed (next slice). `handle.<field>` calls, scalar args, static-box
+  calls and the rest of the inventory remain their own slices.
+
+Next: `MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-OBJECT-FIELD-D0` —
+bundle slice 3: nested release for owned user-object fields
+(`HakoAllocHeap.small_page`/`medium_page`). The child-side claim must
+corroborate the child's own teardown plan (not just terminal residence),
+and `FIELD-INIT-USER-NEW` (`ProviderConstruction` admits builtin
+zero-arg `new` only — user-class field init is `FieldContractUnsupported`
+today) is the sibling gate a compiling probe needs.
+

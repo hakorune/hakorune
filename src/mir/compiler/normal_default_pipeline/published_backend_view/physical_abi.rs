@@ -38,6 +38,7 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     FieldSet,
     HomeRelease,
     HomeReleaseIfLive,
+    FieldResidenceRelease,
     ReclaimUnpublished,
 }
 
@@ -66,6 +67,9 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             InvokeOperation::FieldSet { .. } => Some(Self::FieldSet),
             InvokeOperation::HomeRelease { .. } => Some(Self::HomeRelease),
             InvokeOperation::HomeReleaseIfLive { .. } => Some(Self::HomeReleaseIfLive),
+            InvokeOperation::OwnedFieldResidenceRelease { .. } => {
+                Some(Self::FieldResidenceRelease)
+            }
             InvokeOperation::ReclaimUnpublished { .. } => Some(Self::ReclaimUnpublished),
             InvokeOperation::IntrinsicArrayNew => Some(Self::ArrayNew),
             InvokeOperation::ArrayStateContractClaim { .. } => Some(Self::ArrayClaim),
@@ -271,9 +275,11 @@ impl<'module> PublishedMirBackendView<'module> {
             let definition = definitions
                 .get(object_id as usize)
                 .ok_or_else(|| fault("object-definition-missing"))?;
-            if definition.destruction_disposition()
-                != ObjectDestructionDispositionV1::PlainI64NoHook
-            {
+            if !matches!(
+                definition.destruction_disposition(),
+                ObjectDestructionDispositionV1::PlainI64NoHook
+                    | ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+            ) {
                 return Err(fault("object-destruction"));
             }
             let layout = definition
@@ -289,7 +295,25 @@ impl<'module> PublishedMirBackendView<'module> {
                 .iter()
                 .enumerate()
                 .map(|(ordinal, field)| {
-                    if field.storage != TypedObjectFieldStorage::I64 || field.slot != ordinal as u32
+                    // Every plan storage kind projects onto the same i64
+                    // wire lane — `Handle` fields carry a residence handle
+                    // in the integer lane. Any future non-lane storage is
+                    // rejected here rather than silently tagged I64.
+                    if field.slot != ordinal as u32
+                        || !matches!(
+                            field.storage,
+                            TypedObjectFieldStorage::I8
+                                | TypedObjectFieldStorage::I16
+                                | TypedObjectFieldStorage::I32
+                                | TypedObjectFieldStorage::I64
+                                | TypedObjectFieldStorage::ISize
+                                | TypedObjectFieldStorage::U8
+                                | TypedObjectFieldStorage::U16
+                                | TypedObjectFieldStorage::U32
+                                | TypedObjectFieldStorage::U64
+                                | TypedObjectFieldStorage::USize
+                                | TypedObjectFieldStorage::Handle
+                        )
                     {
                         return Err(fault("layout-field-drift"));
                     }
@@ -393,7 +417,8 @@ fn referenced_objects(
                         | InvokeOperation::ReclaimUnpublished { object, .. } => {
                             ids.insert(object.declaration_index());
                         }
-                        InvokeOperation::FieldSet { field, .. } => {
+                        InvokeOperation::FieldSet { field, .. }
+                        | InvokeOperation::OwnedFieldResidenceRelease { field, .. } => {
                             ids.insert(field.object().declaration_index());
                         }
                         InvokeOperation::Call { .. } | InvokeOperation::Map(_) => {}

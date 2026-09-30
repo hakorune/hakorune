@@ -17,6 +17,11 @@ pub(super) struct CallReceivedCommitV1 {
     /// `Handle` result is unconditionally live, while a `Nullable` result
     /// may carry the `Void` sentinel and owes a checked release instead.
     pub(super) release: CallReceivedReleaseV1,
+    /// `OwnedArrayFieldsNoHook` children copied from the ledger's sealed
+    /// residence map at begin time: `Some(None)` marks an owned object the
+    /// package never proved — `end_available` stays false rather than
+    /// dropping the children.
+    pub(super) end_children: Option<Option<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>>>,
     pub(super) progress: CallReceivedProgress,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -93,18 +98,51 @@ impl CallReceivedCommitV1 {
             }
         )
     }
-    pub(super) fn end_operation(&self) -> InvokeOperation {
-        let value = self.local().expect("installed received handle");
-        match self.release {
+    /// Teardown plan for the received handle: proven owned `ArrayBox`
+    /// children in reverse declaration order, then the release the sealed
+    /// result kind owes. `end_available` guarantees `end_children` is not
+    /// `Some(None)`, so a missing proof never reaches this method.
+    pub(super) fn end_plan(
+        &self,
+    ) -> Box<[(super::root_home::RootHomeReleaseSubjectV1, InvokeOperation)]> {
+        let base = self.local().expect("installed received handle");
+        let children = match &self.end_children {
+            Some(Some(children)) => children.as_ref(),
+            // An owned object without residence proof has no releasable
+            // plan — `end_available` rejects it before any emission.
+            Some(None) => unreachable!("owned teardown without sealed residences"),
+            None => &[],
+        };
+        let release = match self.release {
             CallReceivedReleaseV1::Handle => InvokeOperation::HomeRelease {
                 object: self.object,
-                value,
+                value: base,
             },
             CallReceivedReleaseV1::Nullable => InvokeOperation::HomeReleaseIfLive {
                 object: self.object,
-                value,
+                value: base,
             },
-        }
+        };
+        children
+            .iter()
+            .rev()
+            .map(|field| {
+                (
+                    super::root_home::RootHomeReleaseSubjectV1::FieldResidence {
+                        binding: self.binding,
+                        field: *field,
+                    },
+                    InvokeOperation::OwnedFieldResidenceRelease {
+                        field: *field,
+                        base,
+                    },
+                )
+            })
+            .chain(std::iter::once((
+                super::root_home::RootHomeReleaseSubjectV1::Binding(self.binding),
+                release,
+            )))
+            .collect()
     }
     pub(super) fn checked_bindings(&self) -> Result<&[(BasicBlockId, MirInstruction)], String> {
         match &self.progress {

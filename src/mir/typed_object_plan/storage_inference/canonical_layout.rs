@@ -6,7 +6,7 @@ use super::TYPED_OBJECT_LAYOUT_KIND_RUNTIME_SLOT_OBJECT_V0;
 use crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type;
 use crate::mir::function::{
     CanonicalObjectDefinitionV1, CanonicalObjectLayoutUnavailableV1 as Unavailable,
-    CanonicalObjectLayoutV1, TypedObjectFieldPlan, TypedObjectPlan,
+    CanonicalObjectLayoutV1, TypedObjectFieldPlan, TypedObjectFieldStorage, TypedObjectPlan,
 };
 use crate::mir::MirModule;
 
@@ -31,11 +31,15 @@ fn layout(
         if field.is_weak {
             return Ok(Err(Unavailable::WeakField(slot)));
         }
-        let Some(storage) = field
+        let storage = field
             .declared_type_name
             .as_deref()
             .and_then(exact_numeric_storage_for_declared_type)
-        else {
+            .or_else(|| {
+                (field.declared_type_name.as_deref() == Some("ArrayBox"))
+                    .then_some(TypedObjectFieldStorage::Handle)
+            });
+        let Some(storage) = storage else {
             return Ok(Err(Unavailable::FieldType(slot)));
         };
         planned.push(TypedObjectFieldPlan {

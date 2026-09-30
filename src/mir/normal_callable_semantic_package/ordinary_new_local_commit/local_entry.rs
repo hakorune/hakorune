@@ -73,6 +73,15 @@ impl LocalCommitV1 {
             Self::Map(_) | Self::CallReceived(_) => None,
         }
     }
+    pub(super) fn new_array_children(
+        &self,
+    ) -> Option<&Option<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>>> {
+        match self {
+            Self::Ordinary(row) => Some(&row.array_children),
+            Self::Result(row) => Some(&row.array_children),
+            Self::Map(_) | Self::CallReceived(_) => None,
+        }
+    }
     pub(super) fn binding(&self) -> Option<BindingRefV1> {
         match self {
             Self::Ordinary(row) => Some(row.binding),
@@ -160,29 +169,60 @@ impl LocalCommitV1 {
     pub(super) fn end_available(&self) -> bool {
         match self {
             Self::Ordinary(row) => {
-                row.destruction
-                    == crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
-                    && matches!(row.emission, NewEmissionProgress::Emitted { .. })
+                let destruction_ok = match row.destruction {
+                    crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook => true,
+                    // An owned-ArrayBox teardown is admissible only with the
+                    // sealed per-field residence proof; `None` never degrades
+                    // to a plain release.
+                    crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook => {
+                        row.array_children.is_some()
+                    }
+                    crate::mir::function::ObjectDestructionDispositionV1::Unavailable(_) => false,
+                };
+                destruction_ok && matches!(row.emission, NewEmissionProgress::Emitted { .. })
             }
             // Ownership leaves with the caller; the callee never ends the
             // returned object.
             Self::Result(_) => false,
             Self::Map(row) => row.local().is_some(),
             // The caller received an owned handle; it owes one release.
-            Self::CallReceived(row) => row.local().is_some(),
+            // `Some(None)` children mean an owned object without residence
+            // proof — never releasable here.
+            Self::CallReceived(row) => {
+                row.local().is_some() && !matches!(row.end_children, Some(None))
+            }
         }
     }
-    pub(super) fn end_operation(&self) -> InvokeOperation {
+    /// Teardown plan in source-issued execution order: owned `ArrayBox`
+    /// field residences in reverse declaration order, then the home's own
+    /// release. Each pair carries the root-exit origin subject so prepare
+    /// and validation never re-derive the plan from MIR.
+    pub(super) fn end_plan(
+        &self,
+    ) -> Box<[(super::root_home::RootHomeReleaseSubjectV1, InvokeOperation)]> {
         match self {
-            Self::Ordinary(row) => row.end_operation(),
+            Self::Ordinary(row) => row.end_plan(),
             Self::Result(_) => unreachable!("returned object has no caller-side `End` here"),
             Self::Map(row) => {
-                InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End {
-                    map: row.local().expect("installed Map"),
-                })
+                let map = row.local().expect("installed Map");
+                Box::new([(
+                    super::root_home::RootHomeReleaseSubjectV1::Binding(
+                        row.binding.expect("installed Map binding"),
+                    ),
+                    InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { map }),
+                )])
             }
-            Self::CallReceived(row) => row.end_operation(),
+            Self::CallReceived(row) => row.end_plan(),
         }
+    }
+    /// The emitted operations alone — fault-unwind chains and map prefixes
+    /// consume the same plan without origin subjects.
+    pub(super) fn end_operations(&self) -> Vec<InvokeOperation> {
+        self.end_plan()
+            .into_vec()
+            .into_iter()
+            .map(|(_, operation)| operation)
+            .collect()
     }
     pub(super) fn at_statement(&self, owner: FunctionOwnerIdV1, site: &SourceNodeSiteV1) -> bool {
         self.owner() == owner

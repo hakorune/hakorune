@@ -64,7 +64,10 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
     } else if (lv4_is(ins, "op", "invoke_normal_result")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(ins, "dst"));
       int result_requires_live = value && value->kind != LV4_TEXT_VIEW;
-      if (birth || faulted || ri || !value || value->origin < 0 ||
+      /* Birth units carry one result projection: the proven provider
+         `new ArrayBox()` normal landing. It is still the first row of a
+         block reached only by the invoke's Normal edge. */
+      if (faulted || ri || !value || value->origin < 0 ||
           (result_requires_live && state[value->origin] != LV4_LIVE)) return 0;
       yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
       if (value->kind == LV4_KEY && (!(lv4_is(op, "kind", "map_install_indexed") ||
@@ -204,6 +207,12 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if (hako_physical_map_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) &&
           in->profile != LV4_INDEXED_SAFE_MUTEX) return 0;
       normal[bi] = LV4_LIVE;
+    } else if (lv4_is(op, "kind", "array_new")) {
+      /* A provider `new ArrayBox()` inside a birth unit (or ordinary
+         function) issues a live handle lease; a following field store
+         moves it into the object slot or a release discharges it. */
+      if ((fi && !ordinary && !birth) || faulted || state[bi]) return 0;
+      normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "birth_call")) {
       yyjson_val* call = yyjson_obj_get(op, "call");
       yyjson_val* args = yyjson_obj_get(call, "args");
@@ -223,8 +232,25 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       }
     } else if (lv4_is(op, "kind", "field_set")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
-      if (!fi || faulted || lv4_slot(in, op) < 0 || !value ||
-          (value->kind != LV4_I64 && value->kind != LV4_TAGGED) ||
+      if (!fi || faulted || lv4_slot(in, op) < 0 || !value) return 0;
+      if (value->kind == LV4_HANDLE) {
+        /* A live handle stored into an owned field moves the lease into
+           the object slot; a `field_residence_release` on the base
+           discharges it later — the store consumes the lease here. */
+        if (value->origin < 0 ||
+            !lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
+                0, 0)) return 0;
+        normal[value->origin] = state[value->origin] = 0;
+      } else if (value->kind != LV4_I64 && value->kind != LV4_TAGGED) return 0;
+      if (!lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
+              lv4_u(op, "object_id"), 1)) return 0;
+    } else if (lv4_is(op, "kind", "field_residence_release")) {
+      /* An owned field residence release discharges only the child slot.
+         The base Home stays live until its own release consumes it, so
+         the operand corroborates the exact object without ending it. */
+      hako_lv4_value* base = lv4_index_value(fn, lv4_u(op, "base"));
+      if ((fi && !ordinary) || lv4_slot(in, op) < 0 || !base ||
+          base->origin < 0 ||
           !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
     } else if (lv4_is(op, "kind", "home_release") || lv4_is(op, "kind", "home_release_if_live") ||

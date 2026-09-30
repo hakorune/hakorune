@@ -39,6 +39,11 @@ pub(crate) enum ObjectDestructionUnavailableV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ObjectDestructionDispositionV1 {
     PlainI64NoHook,
+    /// Non-weak `ArrayBox` declared fields hold owned residences the
+    /// teardown releases in reverse declaration order before the object
+    /// Home. Emission still requires the per-field write proof; this
+    /// disposition alone never releases a child.
+    OwnedArrayFieldsNoHook,
     Unavailable(ObjectDestructionUnavailableV1),
 }
 
