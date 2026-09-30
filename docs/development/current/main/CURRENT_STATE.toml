@@ -1,10 +1,10 @@
 date = "2026-09-30"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0"
+current_execution_row = "MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
-current_design_stop = "ARG-CARRIER-EVIDENCE-D0 — S0 release landed; fixture smoke's deterministic first terminal moved to ordinary-new/emission/nullable-argument-carrier (untyped params size/requested_size on me.allocate lack a proven i64 carrier; the observation admits Local args but emit requires MirType::Integer). Open: whether untyped-parameter arguments get a bounded carrier evidence row or the observation declines earlier"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,18 +17,17 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-RETAINED-NEW-HOME-FLOW-D0 accepted and S0 landed: RetainedUnavailable
-claims release staged argument field reads at the prepare-time decline
-(Progress::Released); unconsumed-read stays armed for
-emission-eligible claims. Nine-site census pinned on the real fixture.
-The smoke's deterministic first terminal moved upstream to
-ordinary-new/emission/nullable-argument-carrier — untyped params
-(size/requested_size) on me.allocate carry no proven i64 carrier. Next:
-ARG-CARRIER-EVIDENCE-D0 over parameter argument carriers.
+ARG-CARRIER-EVIDENCE-D0 accepted: `Local` argument carriers follow the
+sealed scalar call-edge rule (`check_call_edge`, verification/invoke.rs)
+— recorded Integer/Unknown/unrecorded types admit; concrete non-i64
+carriers still freeze nullable-argument-carrier. No carrier-evidence
+row is minted (the verifier's edge check is the sole wire contract
+authority) and the observation does not decline. Next:
+ARG-CARRIER-EVIDENCE-S0 aligns emit_receiver_nullable's carrier arm.
 """
-next_design_card = "MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (untyped-parameter argument carriers on the nullable lane: bounded carrier evidence vs earlier observation decline)"
+next_design_card = "MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 accepted (sealed scalar-edge carrier rule: Integer/Unknown/unrecorded admit; concrete non-i64 rejects; no new Facts row, no early decline)"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0"
+next_execution_card = "MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -44,7 +43,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-30: ARG-CARRIER-EVIDENCE-D0 accepted — Local argument carriers follow the sealed scalar call-edge rule (verification/invoke.rs check_call_edge): Integer/Unknown/unrecorded admit, concrete non-i64 rejects under the same nullable-argument-carrier token; no carrier Facts row, no earlier observation decline. Next: ARG-CARRIER-EVIDENCE-S0.",
   "2026-09-30: RETAINED-NEW-HOME-FLOW-S0 landed — RetainedUnavailable claims release staged argument field reads at the prepare-time decline (Progress::Released); unconsumed-read stays armed for eligible claims. Fixture smoke's deterministic first terminal moved to ordinary-new/emission/nullable-argument-carrier (untyped param arg carrier). Package suite 398/3 baseline debt. Next: ARG-CARRIER-EVIDENCE-D0.",
   "2026-09-30: RETAINED-NEW-HOME-FLOW-D0 accepted — prefix coverage stays with the per-function Home-flow scan; the nine-site census decomposes into bounded grammar admissions plus the HakoAllocHandleResult Birth store bound; RetainedUnavailable claims release staged argument field reads at the prepare-time decline. Next: RETAINED-NEW-HOME-FLOW-S0.",
-  "2026-09-30: GATE1-P3-CONTAINERS-TYPES landed (9b95d3adc4) — CompletionSeed folded into the result-contract row owner; map_read_facts single source loan; three sibling Ready/Taken enums unified as DispositionSlotV1<T>. Package suite 396/3 baseline debt. Next: RETAINED-NEW-HOME-FLOW-D0.",
 ]

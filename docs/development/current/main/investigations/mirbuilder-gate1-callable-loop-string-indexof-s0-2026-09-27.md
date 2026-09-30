@@ -241,7 +241,55 @@ parameter binding's carrier type is unproven at emit. The next design
 question is whether untyped-parameter arguments gain a bounded carrier
 evidence row (or the observation declines earlier). This is a distinct
 family from the four coverage bounds in the census above. Next
-execution row: `MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0`.
+execution row: `MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-S0` — the D0
+below resolves the question in favour of the already-sealed wire
+contract rather than a new Facts row or an earlier decline.
+
+## Decision — MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (accepted)
+
+Decision:
+  `Local` argument carriers follow the sealed scalar call-edge rule —
+  a recorded `Integer`, `Unknown`, or unrecorded wire type admits;
+  any recorded concrete non-i64 carrier rejects. No bounded
+  carrier-evidence row is minted: `check_call_edge`
+  (`verification/invoke.rs`, `Sealed` policy) already is the sole
+  carrier contract for cataloged same-module Call edges, and a Facts
+  row would only re-assert the same recorded `value_types` fact it
+  corroborates. Unannotated parameters (`size`, `requested_size`)
+  ride under the untyped admission the callee's own `Unknown` formal
+  and the legacy call path already implement — the wire carries i64
+  slots and borrowed arguments transfer no ownership.
+Source authority + canonical issuer:
+  `check_call_edge` is the canonical carrier rule ("a recorded
+  argument type must prove `Integer` — or stay unrecorded, matching
+  the physical lane's i64 spelling"); `emit_receiver_nullable` stays
+  the sole emission owner and `classify_argument` in
+  `ordinary_new_receiver_call_observation` stays the sole argument
+  issuer — neither gains a new authority.
+Non-authority:
+  `value_types` is the corroborated physical fact, not a semantic
+  classification source — no `param_decls` re-classification, no
+  callee-side param-ABI catalog inference; an unsealed instance-method
+  formal means untyped admission, never a guessed i64 demand.
+Fail-fast boundary:
+  a recorded concrete non-i64 argument type (`Box(_)`, `String`,
+  `Bool`, `Void`, `Float`, `Array`, `Future`, `WeakRef`) still freezes
+  `nullable-argument-carrier` — including `Box("MapBox")`, whose
+  borrowed-storage pair is a separate map-argument contract this lane
+  does not serve; `Bool`/`Null` literal and non-`Local` argument kinds
+  stay unadmitted exactly as issued today.
+Smallest next slice:
+  `ARG-CARRIER-EVIDENCE-S0` — align the `Local` arm's carrier check in
+  `emit_receiver_nullable` to the sealed edge rule under the same
+  freeze token; pin positive (untyped parameter arg emits) and
+  negative (concrete `Box`-typed local arg still freezes) coverage.
+  Expected fixture first terminal returns to
+  `artifact-unowned-lifecycle-site`.
+Non-claims:
+  no handle/map/object-carried argument family is admitted; no
+  parameter-ABI catalog is wired; no source type-annotation
+  requirement is added; the four census coverage families stay parked;
+  this is not a production-success claim.
 
 ## Decision — MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0 (accepted)
 
