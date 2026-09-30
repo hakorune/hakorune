@@ -471,14 +471,20 @@ pub(in crate::mir::builder) fn emit_receiver_nullable(
                 let value = state
                     .take_exact_lexical_value(owner, argument.site().node(), *binding)
                     .map_err(|error| format!("[freeze:contract][nullable-argument/{error:?}]"))?;
+                // The sealed scalar call-edge rule (`check_call_edge`)
+                // admits a recorded `Integer`/`Unknown` carrier — or an
+                // unrecorded slot — and rejects every recorded concrete
+                // non-i64 carrier; the recorded type is corroboration,
+                // never a re-classification of the binding.
                 match builder.function_state.type_ctx.value_types.get(&value) {
-                    Some(MirType::Integer) => {}
-                    _ => return Err(freeze("nullable-argument-carrier")),
+                    None | Some(MirType::Integer) | Some(MirType::Unknown) => {}
+                    Some(_) => return Err(freeze("nullable-argument-carrier")),
                 }
                 value
             }
-            // The wire carries i64 carriers only — a Bool/Null literal
-            // argument stays unadmitted rather than guessing a lane.
+            // Bool/Null literal arguments stay unadmitted — their const
+            // carriers record concrete non-i64 types the sealed scalar
+            // edge corroborates as drift, never a guessed lane.
             _ => return Err(freeze("nullable-argument-carrier")),
         };
         arguments.push(value);

@@ -240,10 +240,36 @@ site`: the S0b argument gate admits `Local` args at observation but the
 parameter binding's carrier type is unproven at emit. The next design
 question is whether untyped-parameter arguments gain a bounded carrier
 evidence row (or the observation declines earlier). This is a distinct
-family from the four coverage bounds in the census above. Next
-execution row: `MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-S0` — the D0
-below resolves the question in favour of the already-sealed wire
-contract rather than a new Facts row or an earlier decline.
+family from the four coverage bounds in the census above.
+`MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-S0` landed: the D0 below
+resolved the question in favour of the already-sealed wire contract —
+`emit_receiver_nullable`'s `Local` arm now admits recorded `Integer`,
+`Unknown`, and unrecorded carriers and still freezes concrete non-i64
+carriers under the same token.
+
+Re-observation after S0 (3/3 deterministic): the fixture smoke's first
+terminal moved upstream to
+`[freeze:contract][ordinary-new/local-commit/handle-release-shape-drift]`
+— `HakoAllocHeap.allocateResult/1` emits **two** correctly-shaped
+`HomeReleaseIfLive` invokes for the received nullable result
+`ValueId(15)` (the `local handle = me.allocate(size)` binding), one per
+reachable exit (`if handle == null { return new ...(0,4,null) }` and
+the tail `return new ...(1,0,handle)`), while received-local validation
+still demands exactly one release per function. Both releases pass the
+shape check (`releases=2 matching=2`), so the drift is cardinality, not
+vocabulary. The next design question decomposes into two sub-questions:
+(a) whether per-exit `HomeReleaseIfLive` is the intended discharge —
+one checked release on whichever exit runs — making the validator's
+global `releases.len() == 1` bound a single-exit leftover, and (b)
+whether the tail-exit `new HakoAllocHandleResult(1, 0, handle)` store
+*moves* `handle`'s ownership into the result object (releasing at that
+exit would free a handle the returned result still carries) — which
+intersects the parked owning-field family. This is a distinct family
+from the carrier gate. Next design row:
+`MIRBUILDER-GATE1-RECEIVED-NULLABLE-EXIT-OWNERSHIP-D0` — pin the
+ownership contract for a received-nullable local that reaches a
+constructor argument on one exit path, then reconcile validation with
+that contract before any emission or ownership change.
 
 ## Decision — MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (accepted)
 

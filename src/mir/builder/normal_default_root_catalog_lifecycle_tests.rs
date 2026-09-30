@@ -812,3 +812,123 @@ static box Main {
         "a nullable result must never emit an unconditional release: {invokes:?}"
     );
 }
+
+/// An unannotated parameter argument rides the scalar call edge under
+/// the sealed untyped admission (`check_call_edge`): `flag` records
+/// `MirType::Unknown` and the nullable invoke still emits — the wire
+/// carries the binding's slot, never a guessed carrier.
+#[test]
+fn nullable_receiver_call_admits_untyped_parameter_argument() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        r#"
+box Probe {
+    init { v }
+    birth(v) { me.v = v }
+    fetch(flag) {
+        if flag == 0 {
+            return null
+        }
+        return new Probe(7)
+    }
+    run(flag) {
+        local h = me.fetch(flag)
+        return 0
+    }
+}
+static box Main {
+    main() {
+        local p = new Probe(1)
+        return p.run(0)
+    }
+}
+"#,
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("untyped parameter argument must ride the scalar edge");
+    let (_, module, _) = completed.into_parts();
+    let run = module
+        .functions
+        .iter()
+        .find(|(_, function)| function.signature.name == "Probe.run/1")
+        .map(|(_, function)| function)
+        .expect("lowered Probe.run function");
+    let invokes: Vec<_> = run
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Invoke { operation, .. } => Some(operation),
+            _ => None,
+        })
+        .collect();
+    assert!(
+        invokes.iter().any(|operation| matches!(
+            operation,
+            crate::mir::instruction::InvokeOperation::Call {
+                result: crate::mir::instruction::InvokeCallResultKind::NullableHandle,
+                ..
+            }
+        )),
+        "the untyped parameter argument must emit the NullableHandle invoke: {invokes:?}"
+    );
+}
+
+/// A `Local` argument whose recorded wire type is a concrete non-i64
+/// carrier stays rejected: the sealed scalar edge corroborates that
+/// record as `call-argument-type-drift`, so emission freezes closed
+/// rather than letting a non-scalar value ride the i64 corridor. A
+/// `Bool` local keeps no Home obligation, so the argument carrier is
+/// the first gate the site reaches.
+#[test]
+fn nullable_receiver_call_rejects_concrete_non_i64_local_argument() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        r#"
+box Probe {
+    init { v }
+    birth(v) { me.v = v }
+    fetch(flag) {
+        if flag == 0 {
+            return null
+        }
+        return new Probe(7)
+    }
+    run() {
+        local b = true
+        local h = me.fetch(b)
+        return 0
+    }
+}
+static box Main {
+    main() {
+        local p = new Probe(1)
+        return p.run()
+    }
+}
+"#,
+        ParserBuildConfig::default(),
+    );
+    let rejected = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect_err("a concrete box carrier must not ride the scalar edge");
+    assert!(
+        rejected
+            .error()
+            .to_string()
+            .contains("nullable-argument-carrier"),
+        "unexpected rejection: {}",
+        rejected.error()
+    );
+    rejected.discard();
+}
