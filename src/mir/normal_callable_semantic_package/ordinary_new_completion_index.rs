@@ -3,14 +3,14 @@
 //! The index borrows the issuer's `Rc` products after S6C has consumed its
 //! exclusive seed. It does not verify, copy, or reclassify source meaning.
 
-use super::super::completion_seed::VerifiedCallableCompletionSeedCohortV1;
+use super::super::result_contract::VerifiedCallableResultContractBuilderV1;
 use super::OrdinaryNewClaimLedgerV1;
 use std::rc::Rc;
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn retain_completion_index(
         &mut self,
-        seeds: &VerifiedCallableCompletionSeedCohortV1,
+        seeds: &VerifiedCallableResultContractBuilderV1,
     ) {
         self.completion_index = seeds
             .completion_index()

@@ -84,11 +84,10 @@ impl LexicalInstanceCallDispositionRowV1 {
     }
 }
 
-#[derive(Debug)]
-pub(crate) enum LexicalInstanceCallDispositionSlotV1 {
-    Ready(LexicalInstanceCallDispositionRowV1),
-    Taken,
-}
+pub(crate) type LexicalInstanceCallDispositionSlotV1 =
+    crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1<
+        LexicalInstanceCallDispositionRowV1,
+    >;
 
 /// One callee-side call site whose lexical receiver still needs a class.
 struct LexicalInstanceCallNeedV1 {

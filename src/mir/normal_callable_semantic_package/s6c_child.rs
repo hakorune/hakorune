@@ -27,7 +27,7 @@ use crate::mir::source_call_target::{
     issue_source_bound_s6c_call_relation_v1, S6CSourceBoundCallRelationRejectV1,
 };
 
-use super::completion_seed::VerifiedCallableCompletionSeedCohortV1;
+use super::result_contract::VerifiedCallableResultContractBuilderV1;
 use super::s6c_effects::{
     issue_s6c_physical_function_effects_v1, S6CPhysicalFunctionEffectsRejectV1,
     VerifiedS6CPhysicalFunctionEffectsV1,
@@ -190,7 +190,7 @@ impl S6CSemanticChildRefV1<'_> {
 pub(super) fn issue_s6c_semantic_child_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    seeds: &mut VerifiedCallableCompletionSeedCohortV1,
+    seeds: &mut VerifiedCallableResultContractBuilderV1,
 ) -> Result<Option<VerifiedS6CSemanticChildV1>, S6CSemanticChildIssueV1> {
     let mut candidate = None;
     for row in selected.main_static_child_rows() {
@@ -213,7 +213,7 @@ pub(super) fn issue_s6c_semantic_child_v1(
 fn issue_s6c_child_for_row(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     map_row: SelectedCallableBatchMapRowRefV1<'_>,
-    seeds: &mut VerifiedCallableCompletionSeedCohortV1,
+    seeds: &mut VerifiedCallableResultContractBuilderV1,
     result: crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1,
 ) -> Result<Option<VerifiedS6CSemanticChildV1>, S6CSemanticChildIssueV1> {
     let result = batch
@@ -281,11 +281,11 @@ fn issue_s6c_child_for_row(
                     },
                 }
             })?;
-            let seed = seeds
-                .take_main_child_seed(map_row)
+            let contract_row = seeds
+                .take_main_child_row(map_row)
                 .ok_or(S6CSemanticChildIssueV1::MissingCompletionSeed)?;
             let (batch_slot, owner, identity, role, _, completion, terminal_relations) =
-                seed.into_parts();
+                contract_row.into_parts();
             if !terminal_relations.is_empty() {
                 return Err(S6CSemanticChildIssueV1::UnexpectedTerminalRelation);
             }

@@ -154,20 +154,28 @@ pub(crate) enum OrdinaryNewConstructorDispositionV1 {
     Birth(VerifiedOrdinaryNewBirthRecipeV1),
 }
 
+/// The sealed `new` evidence both claim families carry identically — one
+/// shared core so the site/class/constructor/construction/object rows exist
+/// once, never as duplicated fields to keep in sync.
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) struct OrdinaryNewAdmissionClaimV1 {
+pub(crate) struct OrdinaryNewClaimCoreV1 {
     site: OwnedExprSiteV1,
     box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
     class: Box<str>,
     arity: usize,
     constructor: OrdinaryNewConstructorDispositionV1,
-    destination: BindingRefV1,
-    declaration: SourceBindingSiteV1,
-    home_prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,
     construction: ConstructionEligibilityV1,
     object: CanonicalObjectIdV1,
     destruction: ObjectDestructionDispositionV1,
     argument_rows: Result<Box<[OrdinaryNewTrivialArgumentV1]>, SelectedNewArgumentUnavailableV1>,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct OrdinaryNewAdmissionClaimV1 {
+    core: OrdinaryNewClaimCoreV1,
+    destination: BindingRefV1,
+    declaration: SourceBindingSiteV1,
+    home_prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,
 }
 
 /// Bounded return-position claim for `return new <class>(...)`. The fresh
@@ -178,16 +186,8 @@ pub(crate) struct OrdinaryNewAdmissionClaimV1 {
 /// caller-side Handle result ABI is a separate downstream family.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct OrdinaryNewResultClaimV1 {
-    site: OwnedExprSiteV1,
-    box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
-    class: Box<str>,
-    arity: usize,
-    constructor: OrdinaryNewConstructorDispositionV1,
+    core: OrdinaryNewClaimCoreV1,
     home_prefix: Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>,
-    construction: ConstructionEligibilityV1,
-    object: CanonicalObjectIdV1,
-    destruction: ObjectDestructionDispositionV1,
-    argument_rows: Result<Box<[OrdinaryNewTrivialArgumentV1]>, SelectedNewArgumentUnavailableV1>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -385,7 +385,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 result_claims
                     .into_vec()
                     .into_iter()
-                    .map(|claim| (claim.site.clone(), claim))
+                    .map(|claim| (claim.core.site.clone(), claim))
                     .collect(),
             ),
             ordinary_box_names,
@@ -451,7 +451,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
             }
         }
-        let birth_target = match &claim.constructor {
+        let birth_target = match &claim.core.constructor {
             OrdinaryNewConstructorDispositionV1::NoBirthZero => None,
             OrdinaryNewConstructorDispositionV1::Birth(recipe) => Some(recipe.target_ref().clone()),
         };
@@ -466,12 +466,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 claim.declaration.clone(),
                 claim.home_prefix.clone(),
                 claim.box_source().clone(),
-                claim.construction.clone(),
-                claim.object,
-                claim.destruction,
+                claim.core.construction.clone(),
+                claim.core.object,
+                claim.core.destruction,
                 birth_target,
                 birth_abi,
-                claim.argument_rows.clone(),
+                claim.core.argument_rows.clone(),
             )),
         );
         Ok(Some(
@@ -534,7 +534,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
             }
         }
-        let birth_target = match &claim.constructor {
+        let birth_target = match &claim.core.constructor {
             OrdinaryNewConstructorDispositionV1::NoBirthZero => None,
             OrdinaryNewConstructorDispositionV1::Birth(recipe) => Some(recipe.target_ref().clone()),
         };
@@ -548,12 +548,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 site.clone(),
                 claim.home_prefix.clone(),
                 claim.box_source().clone(),
-                claim.construction.clone(),
-                claim.object,
-                claim.destruction,
+                claim.core.construction.clone(),
+                claim.core.object,
+                claim.core.destruction,
                 birth_target,
                 birth_abi,
-                claim.argument_rows.clone(),
+                claim.core.argument_rows.clone(),
             )),
         );
         Ok(Some(claims.remove(site).expect(

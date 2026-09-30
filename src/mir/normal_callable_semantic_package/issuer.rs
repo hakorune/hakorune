@@ -69,9 +69,7 @@ use super::physical_header::{
 use super::physical_signature::{
     issue_callable_physical_signature_v1, CallablePhysicalSignatureIssueV1,
 };
-use super::result_contract::{
-    issue_callable_result_contract_cohort_v1, CallableResultContractIssueV1,
-};
+use super::result_contract::CallableResultContractIssueV1;
 use super::s6c_child::{issue_s6c_semantic_child_v1, S6CSemanticChildIssueV1};
 use super::s6c_storage_header::VerifiedS6CStorageHeaderProjectionV1;
 use super::selected_mapping::{
@@ -680,8 +678,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             Some(VerifiedS6CStorageHeaderProjectionV1::from_catalog_declaration(declaration))
         }
     };
-    let result_contracts = issue_callable_result_contract_cohort_v1(completion_seeds.into_rows())
-        .map_err(|error| {
+    let result_contracts = completion_seeds.seal().map_err(|error| {
         NormalCallableSemanticPackageIssueV1::ResultContract { _error: error }
     })?;
     if let Some(loans) = &mut direct_call_loans {

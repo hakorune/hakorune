@@ -5,7 +5,6 @@
 //! projection before Builder effects begin. It owns no CFG, Completion
 //! consumption, physical ABI, or fallback route.
 
-mod completion_seed;
 mod core_method_source;
 #[cfg(test)]
 mod core_method_source_tests;
@@ -21,6 +20,7 @@ mod declared_instance_locator;
 #[cfg(test)]
 mod direct_call_lifecycle_tests;
 mod direct_call_loan;
+mod disposition_slot;
 #[cfg(test)]
 mod direct_call_owner_loan_tests;
 mod dynamic_admission;

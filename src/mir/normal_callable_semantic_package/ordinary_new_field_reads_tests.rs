@@ -55,7 +55,7 @@ fn unavailable_cleanup_preserves_exact_read_state_but_rejects_artifacts() {
     let mut reclaim_physical = BasicBlock::new(reclaim_block);
     reclaim_physical.add_instruction(reclaim_instruction.clone());
     function.add_block(reclaim_physical);
-    let OrdinaryNewConstructorDispositionV1::Birth(recipe) = &claim.constructor else {
+    let OrdinaryNewConstructorDispositionV1::Birth(recipe) = &claim.core.constructor else {
         panic!("source-issued Birth")
     };
     let MirInstruction::Call(call) = MirInstruction::call(

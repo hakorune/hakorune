@@ -76,11 +76,10 @@ impl RootInstanceCallDispositionRowV1 {
     }
 }
 
-#[derive(Debug)]
-pub(super) enum RootInstanceCallDispositionSlotV1 {
-    Ready(RootInstanceCallDispositionRowV1),
-    Taken,
-}
+pub(super) type RootInstanceCallDispositionSlotV1 =
+    crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1<
+        RootInstanceCallDispositionRowV1,
+    >;
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn issue_root_instance_call_dispositions(

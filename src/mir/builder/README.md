@@ -799,7 +799,7 @@ terminal is `Main.main`'s root-instance-call disposition for
 `return workload.run()`: `issue_root_instance_call_dispositions`
 (`ordinary_new_root_instance_call.rs`) owes a Ready row only when the
 callee carries a sealed declared result contract, and `MiWorkload.run`
-was unannotated (`completion_seed.rs` maps `Unannotated` to
+was unannotated (`result_contract.rs` maps `Unannotated` to
 `result = None`). Declaring `run(): i64` completes the source contract —
 the same authority as `sum(): i64` in `typed-object-method-min`; the
 disposition deliberately never infers `i64` from MIR — and the full app

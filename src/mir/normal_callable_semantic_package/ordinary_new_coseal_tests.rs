@@ -47,18 +47,20 @@ fn claim(site: OwnedExprSiteV1, arity: usize) -> OrdinaryNewAdmissionClaimV1 {
         new_site: site.clone(),
     });
     OrdinaryNewAdmissionClaimV1 {
-        site,
-        box_source,
-        class: "Page".into(),
-        arity,
-        constructor: OrdinaryNewConstructorDispositionV1::NoBirthZero,
+        core: OrdinaryNewClaimCoreV1 {
+            site,
+            box_source,
+            class: "Page".into(),
+            arity,
+            constructor: OrdinaryNewConstructorDispositionV1::NoBirthZero,
+            construction,
+            object,
+            destruction,
+            argument_rows,
+        },
         destination,
         declaration,
         home_prefix: Err(HomePrefixUnavailableV1::SourceMismatch),
-        construction,
-        object,
-        destruction,
-        argument_rows,
     }
 }
 

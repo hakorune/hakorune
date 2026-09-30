@@ -1,18 +1,17 @@
 //! Package-owned retention of one verified callable result/completion row.
 //!
-//! The completion seed is issued once by the resolver-owned verifier. This
-//! cohort keeps the original non-`Clone` Completion alive for every selected
-//! ordinary Cataloged callable after S6C takes its exclusive seed. Successful
-//! Dynamic uses the same borrowed view over its canonical authority Completion.
-//! Physical headers borrow this product and never become a second Completion
-//! owner.
+//! The completion is issued once by the resolver-owned verifier. One builder
+//! collects contract rows inside the source loan; the S6C child then takes its
+//! exclusive row, `seal` validates and retains the remaining rows, and the
+//! physical header borrows the cohort. No stage verifies, copies, or reowns the
+//! same `VerifiedFunctionCompletionV1`.
 
 use crate::mir::builder::SelectedCallableConsumptionRoleV1;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
-#[cfg(test)]
-use crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1;
-use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
+use crate::mir::resolved_control_flow::{
+    DeclaredFunctionResultContractV1, VerifiedFunctionCompletionV1,
+};
 use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceStmtSiteV1};
 use crate::parser::CallableDeclarationIdentityV1;
@@ -20,7 +19,11 @@ use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use std::collections::BTreeMap;
 use std::rc::Rc;
 
-use super::completion_seed::VerifiedCallableCompletionSeedV1;
+use super::model::OwnedCallableParameterContractDeclarationV1;
+use super::physical_header::CallablePhysicalHeaderIssueV1;
+use super::selected_mapping::{
+    SelectedCallableBatchMapRowRefV1, VerifiedSelectedCallableBatchMapV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum CallableResultContractIssueV1 {
@@ -93,6 +96,31 @@ impl VerifiedCallableResultContractRowV1 {
 
     pub(super) const fn result(&self) -> Option<ExactTrivialScalarAbiV1> {
         self.result
+    }
+
+    /// Exclusive handoff for the S6C child: the row is consumed, its
+    /// `Rc<Completion>` unwrapped by the receiver. Ordinary consumers borrow
+    /// instead.
+    pub(super) fn into_parts(
+        self,
+    ) -> (
+        u32,
+        FunctionOwnerIdV1,
+        CallableDeclarationIdentityV1,
+        SelectedCallableConsumptionRoleV1,
+        Option<ExactTrivialScalarAbiV1>,
+        Rc<VerifiedFunctionCompletionV1>,
+        Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
+    ) {
+        (
+            self.batch_slot,
+            self.owner,
+            self.identity,
+            self.role,
+            self.result,
+            self.completion,
+            self.terminal_relations,
+        )
     }
 
     pub(super) fn borrow(&self) -> CallableResultContractRefV1<'_> {
@@ -171,42 +199,189 @@ impl<'a> CallableResultContractRefV1<'a> {
     }
 }
 
-pub(super) fn issue_callable_result_contract_cohort_v1(
-    seeds: Vec<VerifiedCallableCompletionSeedV1>,
-) -> Result<VerifiedCallableResultContractCohortV1, CallableResultContractIssueV1> {
-    let mut rows = Vec::with_capacity(seeds.len());
-    for seed in seeds {
-        let (batch_slot, owner, identity, role, result, completion, terminal_relations) =
-            seed.into_parts();
-        if rows
-            .iter()
-            .any(|row: &VerifiedCallableResultContractRowV1| row.batch_slot == batch_slot)
-        {
-            return Err(CallableResultContractIssueV1::DuplicateBatchSlot {
-                _batch_slot: batch_slot,
-            });
-        }
-        if completion.owner() != owner {
-            return Err(CallableResultContractIssueV1::CompletionOwnerMismatch {
-                _batch_slot: batch_slot,
-            });
-        }
-        rows.push(VerifiedCallableResultContractRowV1 {
+/// Accumulates contract rows inside the ordinary source loan. The rows are
+/// already the retained contract shape — no destructure/rebuild hop — so the
+/// S6C child takes one row and `seal` keeps the rest under the same ownership.
+#[derive(Debug)]
+pub(super) struct VerifiedCallableResultContractBuilderV1 {
+    rows: Vec<VerifiedCallableResultContractRowV1>,
+}
+
+impl VerifiedCallableResultContractBuilderV1 {
+    pub(super) fn new() -> Self {
+        Self { rows: Vec::new() }
+    }
+
+    // Called inside the same source loan as ordinary-New candidate issuance.
+    pub(super) fn push_completion(
+        &mut self,
+        declaration: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'_>,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        completion: Rc<VerifiedFunctionCompletionV1>,
+        terminal_relations: BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
+    ) -> Result<(), CallablePhysicalHeaderIssueV1> {
+        let batch_slot = declaration.batch_slot();
+        let result = validate_result(completion.as_ref(), declaration.owner(), batch_slot)?;
+        let role = selected
+            .role_for_batch_slot(batch_slot)
+            .ok_or(CallablePhysicalHeaderIssueV1::SelectedBatchSlotUnavailable)?;
+        self.rows.push(VerifiedCallableResultContractRowV1 {
             batch_slot,
-            owner,
-            identity,
+            owner: declaration.owner(),
+            identity: declaration.identity().clone(),
             role,
             result,
             completion,
-            terminal_relations,
+            terminal_relations: Rc::new(terminal_relations),
+        });
+        Ok(())
+    }
+
+    pub(super) fn take_main_child_row(
+        &mut self,
+        row: SelectedCallableBatchMapRowRefV1<'_>,
+    ) -> Option<VerifiedCallableResultContractRowV1> {
+        let index = self.rows.iter().position(|candidate| {
+            candidate.batch_slot == row.batch_slot()
+                && candidate.identity().same_as(row.identity())
+                && candidate.role == row.role()
+        })?;
+        Some(self.rows.remove(index))
+    }
+
+    pub(super) fn peek_main_child_result(
+        &self,
+        row: SelectedCallableBatchMapRowRefV1<'_>,
+    ) -> Option<Option<ExactTrivialScalarAbiV1>> {
+        self.rows.iter().find_map(|candidate| {
+            (candidate.batch_slot() == row.batch_slot()
+                && candidate.identity().same_as(row.identity())
+                && candidate.role() == row.role())
+            .then_some(candidate.result())
+        })
+    }
+
+    pub(super) fn finish(mut self) -> Self {
+        self.rows.sort_by_key(|row| row.batch_slot);
+        self
+    }
+
+    pub(super) fn completion_index(
+        &self,
+    ) -> std::collections::BTreeMap<FunctionOwnerIdV1, Rc<VerifiedFunctionCompletionV1>> {
+        self.rows
+            .iter()
+            .map(|row| (row.owner, Rc::clone(&row.completion)))
+            .collect()
+    }
+
+    pub(super) fn terminal_relation_index(
+        &self,
+    ) -> std::collections::BTreeMap<
+        FunctionOwnerIdV1,
+        Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
+    > {
+        self.rows
+            .iter()
+            .filter(|row| !row.terminal_relations.is_empty())
+            .map(|row| (row.owner, Rc::clone(&row.terminal_relations)))
+            .collect()
+    }
+
+    /// Retain the collected rows as the sealed cohort. This checks
+    /// correspondence, never reissues source meaning or infers absent rows.
+    pub(super) fn seal(
+        mut self,
+    ) -> Result<VerifiedCallableResultContractCohortV1, CallableResultContractIssueV1> {
+        for (index, row) in self.rows.iter().enumerate() {
+            if self.rows[..index]
+                .iter()
+                .any(|earlier| earlier.batch_slot == row.batch_slot)
+            {
+                return Err(CallableResultContractIssueV1::DuplicateBatchSlot {
+                    _batch_slot: row.batch_slot,
+                });
+            }
+            if row.completion.owner() != row.owner {
+                return Err(CallableResultContractIssueV1::CompletionOwnerMismatch {
+                    _batch_slot: row.batch_slot,
+                });
+            }
+        }
+        self.rows.sort_by_key(|row| row.batch_slot);
+        Ok(VerifiedCallableResultContractCohortV1 {
+            rows: self.rows.into_boxed_slice(),
+            completed_context: None,
+            named_array_emissions: Box::new([]),
+        })
+    }
+}
+
+pub(super) fn preflight_declaration(
+    declaration: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'_>,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    parameter_contracts: &[OwnedCallableParameterContractDeclarationV1],
+) -> Result<bool, CallablePhysicalHeaderIssueV1> {
+    let batch_slot = declaration.batch_slot();
+    if !matches!(
+        selected.key_for_batch_slot(batch_slot),
+        Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+            _
+        ))
+    ) {
+        return Ok(false);
+    }
+    let mut contracts = parameter_contracts
+        .iter()
+        .filter(|row| row.batch_slot == batch_slot);
+    let Some(contract) = contracts.next() else {
+        return Ok(false);
+    };
+    if contracts.next().is_some() {
+        return Err(CallablePhysicalHeaderIssueV1::DuplicateParameterContract {
+            _batch_slot: batch_slot,
         });
     }
-    rows.sort_by_key(|row| row.batch_slot);
-    Ok(VerifiedCallableResultContractCohortV1 {
-        rows: rows.into_boxed_slice(),
-        completed_context: None,
-        named_array_emissions: Box::new([]),
-    })
+    if contract.owner != declaration.owner() {
+        return Err(CallablePhysicalHeaderIssueV1::ParameterOwnerMismatch {
+            _batch_slot: batch_slot,
+        });
+    }
+    if contract.parameters.len() != declaration.parameter_count() as usize {
+        return Err(CallablePhysicalHeaderIssueV1::ParameterCoverage {
+            _batch_slot: batch_slot,
+        });
+    }
+    if selected.role_for_batch_slot(batch_slot).is_none() {
+        return Err(CallablePhysicalHeaderIssueV1::SelectedBatchSlotUnavailable);
+    }
+    Ok(true)
+}
+
+pub(super) fn validate_result(
+    completion: &VerifiedFunctionCompletionV1,
+    owner: FunctionOwnerIdV1,
+    batch_slot: u32,
+) -> Result<Option<ExactTrivialScalarAbiV1>, CallablePhysicalHeaderIssueV1> {
+    let result = match completion.function_exit_contract().declared_result() {
+        DeclaredFunctionResultContractV1::Annotated(name) => {
+            Some(ExactTrivialScalarAbiV1::classify(name).ok_or_else(|| {
+                CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
+                    _batch_slot: batch_slot,
+                    _name: name.clone(),
+                }
+            })?)
+        }
+        DeclaredFunctionResultContractV1::Unannotated | DeclaredFunctionResultContractV1::Void => {
+            None
+        }
+    };
+    if completion.owner() != owner {
+        return Err(CallablePhysicalHeaderIssueV1::CompletionOwnerMismatch {
+            _batch_slot: batch_slot,
+        });
+    }
+    Ok(result)
 }
 
 impl VerifiedCallableResultContractCohortV1 {

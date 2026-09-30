@@ -20,8 +20,8 @@ use super::{
     field_reads, field_write_claim, receiver_call_observation, result_class_claim, terminal_home,
 };
 use super::{
-    OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1,
-    OrdinaryNewResultClaimV1, VerifiedOrdinaryNewBirthRecipeV1,
+    OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimCoreV1, OrdinaryNewClaimLedgerV1,
+    OrdinaryNewCoSealIssueV1, OrdinaryNewResultClaimV1, VerifiedOrdinaryNewBirthRecipeV1,
 };
 use crate::ast::ASTNode;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
@@ -54,7 +54,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
 ) -> Result<
     (
         OrdinaryNewClaimLedgerV1,
-        super::super::completion_seed::VerifiedCallableCompletionSeedCohortV1,
+        super::super::result_contract::VerifiedCallableResultContractBuilderV1,
     ),
     OrdinaryNewCoSealIssueV1,
 > {
@@ -74,7 +74,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         .transpose()?;
     let mut claims = Vec::new();
     let mut result_claims = Vec::new();
-    let mut seeds = super::super::completion_seed::VerifiedCallableCompletionSeedCohortV1::new();
+    let mut seeds = super::super::result_contract::VerifiedCallableResultContractBuilderV1::new();
     let mut root_completion = None;
     let mut field_reads = BTreeMap::new();
     let mut argument_field_reads = BTreeMap::new();
@@ -146,7 +146,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         if selected.role_for_batch_slot(batch_slot).is_none() && !is_app_main {
             continue;
         }
-        let seed_eligible = super::super::completion_seed::preflight_declaration(
+        let seed_eligible = super::super::result_contract::preflight_declaration(
             declaration,
             selected,
             parameter_contracts,
@@ -163,7 +163,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 if seed_eligible {
                     *result = program
                         .with_canonical_session_authority(|authority| {
-                            super::super::completion_seed::validate_result(
+                            super::super::result_contract::validate_result(
                                 authority.completion(),
                                 owner,
                                 batch_slot,
@@ -605,7 +605,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 });
             if claims
                 .iter()
-                .any(|claim: &OrdinaryNewAdmissionClaimV1| claim.site == site)
+                .any(|claim: &OrdinaryNewAdmissionClaimV1| claim.core.site == site)
             {
                 return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
             }
@@ -618,18 +618,20 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 }
             }
             claims.push(OrdinaryNewAdmissionClaimV1 {
-                site: site.clone(),
-                box_source,
-                class,
-                arity,
-                constructor,
+                core: OrdinaryNewClaimCoreV1 {
+                    site: site.clone(),
+                    box_source,
+                    class,
+                    arity,
+                    constructor,
+                    construction,
+                    object,
+                    destruction,
+                    argument_rows,
+                },
                 destination,
                 declaration,
                 home_prefix,
-                construction,
-                object,
-                destruction,
-                argument_rows,
             });
         }
         for resolution in result_resolutions {
@@ -654,10 +656,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 });
             if claims
                 .iter()
-                .any(|claim: &OrdinaryNewAdmissionClaimV1| claim.site == site)
+                .any(|claim: &OrdinaryNewAdmissionClaimV1| claim.core.site == site)
                 || result_claims
                     .iter()
-                    .any(|claim: &OrdinaryNewResultClaimV1| claim.site == site)
+                    .any(|claim: &OrdinaryNewResultClaimV1| claim.core.site == site)
             {
                 return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
             }
@@ -672,16 +674,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 }
             }
             result_claims.push(OrdinaryNewResultClaimV1 {
-                site: site.clone(),
-                box_source,
-                class,
-                arity,
-                constructor,
+                core: OrdinaryNewClaimCoreV1 {
+                    site: site.clone(),
+                    box_source,
+                    class,
+                    arity,
+                    constructor,
+                    construction,
+                    object,
+                    destruction,
+                    argument_rows,
+                },
                 home_prefix,
-                construction,
-                object,
-                destruction,
-                argument_rows,
             });
         }
     }
@@ -692,7 +696,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     let claimed_sites: BTreeSet<OwnedExprSiteV1> = claims
         .iter()
         .map(|claim| claim.site().clone())
-        .chain(result_claims.iter().map(|claim| claim.site.clone()))
+        .chain(result_claims.iter().map(|claim| claim.core.site.clone()))
         .collect();
     batch
         .with_normal_program_source_loan(|loan| -> Result<(), OrdinaryNewCoSealIssueV1> {

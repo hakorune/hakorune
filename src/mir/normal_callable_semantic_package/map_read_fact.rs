@@ -339,84 +339,64 @@ pub(super) fn issue_map_read_facts_v1(
                     owner: callee_owner,
                     ordinal,
                 })?;
-            let has_first_candidate = batch
-                .with_lowering_input(declaration.batch_slot(), |input| {
-                    has_first_lookup_candidate(input.function(), formal.binding)
-                })
-                .unwrap_or(false);
-            let has_params_length_candidate = batch
-                .with_lowering_input(declaration.batch_slot(), |input| {
-                    has_array_length_candidate(input.function(), formal.binding)
-                })
-                .unwrap_or(false);
-            let has_blocks_kind_candidate = batch
-                .with_lowering_input(declaration.batch_slot(), |input| {
-                    blocks_chain::has_blocks_kind_candidate(input.function(), formal.binding)
-                })
-                .unwrap_or(false);
-            let has_blocks_length_candidate = batch
-                .with_lowering_input(declaration.batch_slot(), |input| {
-                    blocks_chain::has_blocks_length_candidate(input.function(), formal.binding)
-                })
-                .unwrap_or(false);
-            if !has_first_candidate
-                && !has_params_length_candidate
-                && !has_blocks_kind_candidate
-                && !has_blocks_length_candidate
-            {
+            // One loan for all four candidate checks plus issuance — the
+            // callee function view is a single deterministic source product.
+            let issued = batch.with_lowering_input(declaration.batch_slot(), |input| {
+                let function = input.function();
+                let mut rows = Vec::new();
+                if has_first_lookup_candidate(function, formal.binding) {
+                    rows.extend(issue_chain(
+                        function,
+                        formal.binding,
+                        call_site.clone(),
+                        ordinal,
+                        actual_map,
+                        actual_flow,
+                        ledger,
+                    )?);
+                }
+                if has_array_length_candidate(function, formal.binding) {
+                    rows.extend(issue_array_length_chain(
+                        function,
+                        formal.binding,
+                        call_site.clone(),
+                        ordinal,
+                        actual_map,
+                        actual_flow,
+                    )?);
+                }
+                if blocks_chain::has_blocks_kind_candidate(function, formal.binding) {
+                    rows.extend(blocks_chain::issue_blocks_kind_chain(
+                        function,
+                        formal.binding,
+                        call_site.clone(),
+                        ordinal,
+                        actual_map,
+                        actual_flow,
+                        ledger,
+                    )?);
+                }
+                if blocks_chain::has_blocks_length_candidate(function, formal.binding) {
+                    rows.extend(blocks_chain::issue_blocks_length_chain(
+                        function,
+                        formal.binding,
+                        call_site.clone(),
+                        ordinal,
+                        actual_map,
+                        actual_flow,
+                    )?);
+                }
+                Ok::<_, MapReadFactIssueV1>(rows)
+            });
+            // A failed loan admits no candidates — the former
+            // `unwrap_or(false)` checks skipped the edge identically.
+            let Ok(issued) = issued else {
+                continue;
+            };
+            let issued = issued?;
+            if issued.is_empty() {
                 continue;
             }
-            let issued = batch
-                .with_lowering_input(declaration.batch_slot(), |input| {
-                    let mut rows = Vec::new();
-                    if has_first_candidate {
-                        rows.extend(issue_chain(
-                            input.function(),
-                            formal.binding,
-                            call_site.clone(),
-                            ordinal,
-                            actual_map,
-                            actual_flow,
-                            ledger,
-                        )?);
-                    }
-                    if has_params_length_candidate {
-                        rows.extend(issue_array_length_chain(
-                            input.function(),
-                            formal.binding,
-                            call_site.clone(),
-                            ordinal,
-                            actual_map,
-                            actual_flow,
-                        )?);
-                    }
-                    if has_blocks_kind_candidate {
-                        rows.extend(blocks_chain::issue_blocks_kind_chain(
-                            input.function(),
-                            formal.binding,
-                            call_site.clone(),
-                            ordinal,
-                            actual_map,
-                            actual_flow,
-                            ledger,
-                        )?);
-                    }
-                    if has_blocks_length_candidate {
-                        rows.extend(blocks_chain::issue_blocks_length_chain(
-                            input.function(),
-                            formal.binding,
-                            call_site,
-                            ordinal,
-                            actual_map,
-                            actual_flow,
-                        )?);
-                    }
-                    Ok(rows)
-                })
-                .map_err(|_| MapReadFactIssueV1::FormalMissing {
-                    owner: callee_owner,
-                    ordinal,
-                })??;
             rows.extend(issued);
         }
     }

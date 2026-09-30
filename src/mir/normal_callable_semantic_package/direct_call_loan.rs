@@ -88,11 +88,10 @@ impl DirectCallDispositionRowV1 {
     }
 }
 
-#[derive(Debug)]
-enum DirectCallDispositionSlotV1 {
-    Ready(DirectCallDispositionRowV1),
-    Taken,
-}
+type DirectCallDispositionSlotV1 =
+    crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1<
+        DirectCallDispositionRowV1,
+    >;
 
 /// A private affine inventory for one exact callable owner.
 #[must_use]
