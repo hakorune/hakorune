@@ -1,7 +1,7 @@
 date = "2026-10-01"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-D0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -38,14 +38,21 @@ EXE still stops at the designed frontier
 accepted: one `OwnedObjectFieldRelease` op emitting a generated
 per-class teardown helper; claim gets a typed `OwnedFieldChildV1`
 with recursive child-disposition corroboration + cycle rejection.
-FIELD-INIT-USER-NEW is the hard prerequisite for any end-to-end
-pin, so the next row is the provider-arm design for user-class
-field init inside birth units. Next:
-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-D0.
+FIELD-INIT-USER-NEW-D0 accepted: ProviderConstruction extends to
+user-class `new` (object id + verified birth recipe + sealed arg
+rows), emit mirrors emit_selected_new
+(NewBox+NormalResult+birth_call+FieldSet on the shared fault frame
+with a dedicated child-discharge chain), C admission gains `|| birth`
+for new_box/birth_call/field_residence_release/reclaim_unpublished,
+and field_set fault discharge dispatches on value origin (object
+children use a generated per-class teardown helper — the same product
+DESTRUCTION-OBJECT-FIELD-S0 reuses). S0 arg kinds are bounded to
+Integer/Bool/scalar Local. Next:
+APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-S0.
 """
 next_design_card = "mimalloc-lite bundle slice 4 prerequisite: user-class field-init provider new inside birth units (Invoke{NewBox}+NormalResult+birth_call+FieldSet on shared fault frame)"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-D0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

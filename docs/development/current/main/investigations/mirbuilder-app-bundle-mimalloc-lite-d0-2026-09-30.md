@@ -498,3 +498,93 @@ Non-claims:
   op/helper. No nullable/weak field teardown. No teardown for
   shared/multi-home children (claim proves sole residence).
 
+## Decision — MIRBUILDER-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-D0 (accepted)
+
+Decision:
+  `ConstructionStoreRhsV1::ProviderConstruction` extends to user-class
+  `new`: `{site, class, object: CanonicalObjectIdV1, birth recipe,
+  argument rows}`. `emit_construction_store` emits the same sequence
+  `emit_selected_new` already emits for ordinary `new`:
+  `Invoke{NewBox{child}}` + `InvokeNormalResult` +
+  `Invoke{Call{BirthConstructor}}` + `Invoke{FieldSet}` — NewBox/birth
+  fault edges route through a dedicated child-discharge chain
+  (proven child field releases + `reclaim_unpublished(child)`) that
+  continues into the birth unit's shared fault chain; the field_set
+  fault edge discharges the stored value by origin kind.
+
+Source authority + canonical issuer:
+  - The construction-plan issuer (`instance_construction.rs`,
+    `ASTNode::New` arm) stays the sole authority for construction
+    stores — today it rejects non-core classes at
+    `FieldContractUnsupported`; the user-class arm resolves the child
+    through `instance_constructors` (object sources are complete
+    before birth-plan issuance) and requires a verified birth recipe
+    (`published_birth_key` + ABI handoff, the same corroboration
+    `emit_selected_new` claims carry).
+  - Argument rows reuse the `SelectedNewArgumentObservation`
+    authority — the observation scan is extended to provider `new`
+    sites inside constructor functions. S0 admits only
+    `Integer`/`Bool`/scalar `Local` kinds: `null`, `Handle`,
+    `I64Field`, `BoundValue`, and inline call results
+    (`LayoutBox.class_size(0)` in the real heap) stay
+    `ArgumentNotTrivial` — field_get is birth-forbidden on the wire
+    and `birth_call` args admit only i64/bool kinds today.
+  - Ownership contract verified in kernel + flow model: a faulting
+    callee birth_unit does NOT reclaim `me` — the caller owns
+    unpublished storage reclamation. `reclaim_unpublished` /
+    `home_release` / `field_residence_release` are `(fi && !ordinary)`
+    gated, i.e. birth-forbidden today; the `value->origin < 0` borrow
+    check already confines any `|| birth` widening to owned
+    (new_box-leased) children and cannot target `me`.
+  - `field_set` HANDLE-value fault discharge dispatches on value
+    origin: `array_new` origin → `nyrt_handle_release_h` (unchanged);
+    `new_box` origin → `home_release_plain_i64_v1` for
+    PlainI64NoHook children, or the generated
+    `hako_lifecycle_teardown_<child>` helper otherwise. The per-class
+    helper emission therefore lands in THIS slice as the discharge
+    mechanism — `DESTRUCTION-OBJECT-FIELD-S0` later reuses it for
+    `object_field_release`.
+
+Non-authority:
+  No second argument parser, no construction authority outside the
+  existing issuer, no weakening of `ArgumentNotTrivial` beyond the
+  listed kinds. Teardown helpers are emitted per referenced object
+  from claim-sealed evidence only — never inferred from layouts.
+
+Fail-fast boundary:
+  Unresolvable class, missing/unverified birth recipe, unsupported
+  argument kind, or a self-referential provider field
+  (`box A { a: A = new A() }`) → `FieldContractUnsupported` /
+  `artifact-source-unavailable`; nothing speculative is emitted.
+  A second `reclaim` on the same handle traps
+  (`ObjectOrFieldMismatch` → InvalidContract) — no silent double
+  release is possible.
+
+Verification:
+  Positive probe `child: Child = new Child(1, 8)` (literal args):
+  claim seal, invoke-pair JSON shape, edge-walked birth/normal/fault
+  chains, end-to-end compile+run. Negatives: unresolvable class, no
+  birth recipe, `null`/handle/`I64Field`/inline-call args,
+  self-referential provider field.
+
+Smallest next slice:
+  `MIRBUILDER-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-S0` —
+  (a) provider arm extension + arg observation coverage in
+  constructor scans; (b) `emit_construction_store` user-class branch
+  emitting the invoke sequence with the nested child-discharge chain;
+  (c) `validate_bindings` provider formula (`stores + array_providers
+  + 2·user_providers` invoke accounting) and provider-op shape;
+  (d) C admission `|| birth` for `new_box`/`birth_call`/
+  `field_residence_release`/`reclaim_unpublished`, result-op
+  whitelist `new_box`; (e) emit-side per-class teardown helper +
+  field_set origin-dispatched discharge; (f) focused tests +
+  card/CURRENT_STATE sync.
+
+Non-claims:
+  No claim that inline call-result arguments work — the real
+  `HakoAllocHeap` init (`LayoutBox.class_size(0)`) still needs
+  `STATIC-CALL-CLAIM`/`CALL-RESULT-ARG-POSITION`; S0 probes use
+  literal args. No claim on `new` in non-constructor field writes,
+  reassignment, or non-`me` receivers. No change to the ordinary-`new`
+  path.
+
