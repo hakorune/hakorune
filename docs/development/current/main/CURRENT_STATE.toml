@@ -1,7 +1,7 @@
 date = "2026-09-30"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-SCALAR-FIELD-D0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-SCALAR-FIELD-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -35,9 +35,9 @@ Destruction FieldType (non-i64 declared field) as the empirical first
 gate; the full slice inventory is in the card. Next:
 APP-MIMALLOC-LITE-DESTRUCTION-SCALAR-FIELD-D0.
 """
-next_design_card = "mimalloc-lite bundle slice 1: destruction FieldType admission for integer-scalar declared field types (usize etc.) — the empirical first gate for every allocator box claim"
+next_design_card = "mimalloc-lite bundle: DESTRUCTION-ARRAYBOX-FIELD next (owned container fields need a child-release plan)"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-SCALAR-FIELD-D0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-SCALAR-FIELD-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

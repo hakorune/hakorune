@@ -120,3 +120,56 @@ bundle slice 1: admit integer-scalar declared field types to the
 destruction disposition (the `object_definition.rs` `FieldType` gate);
 empirically the first-order blocker for every allocator box claim.
 
+## Decision — MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-SCALAR-FIELD-D0 (accepted)
+
+Decision:
+  Admit integer-scalar declared field types (`i8..i64`, `isize`,
+  `u8..u64`, `usize`) to the destruction disposition. These are
+  teardown-free scalar slots; `DestructionUnavailable::FieldType` keeps
+  its closed meaning for `None`/`weak`/non-numeric/handle fields.
+
+Source authority + canonical issuer:
+  `object_definition::issue` is the SOLE issuer of
+  `ObjectDestructionDispositionV1` — production definitions flow only
+  through `take_object_definitions` →
+  `install_object_definitions_from_package`. The scalar-class authority
+  is `exact_numeric_storage_for_declared_type` (declared_type_storage),
+  which already seals the integer-scalar set including `usize` —
+  `TypedObjectFieldStorage::USize` exists in the layout plan.
+
+Non-authority:
+  No field-type re-inspection downstream: `verification/invoke.rs`,
+  `physical_abi.rs`, `end_available`, and the prior-home predicate only
+  compare the disposition enum. `PlainI64NoHook` physically means
+  "release = one plain `HomeRelease`, no per-field teardown" — the
+  emitted op is `InvokeOperation::HomeRelease{object, value}` and is
+  width-agnostic.
+
+Fail-fast boundary:
+  `None`-typed (legacy `init_fields`), `weak`, `ArrayBox`/`MapBox`/
+  `StringBox`, user-box, `bool`/`f64`, and any other non-integer-scalar
+  field keeps `Unavailable(FieldType)`. Declaration-shape, member-role,
+  and weak-field gates unchanged and still evaluated before the field
+  type check.
+
+Smallest next slice:
+  Replace `field.declared_type_name.as_deref() != Some("i64")` with the
+  sealed `exact_numeric_storage_for_declared_type(name).is_some()`
+  predicate in `object_definition.rs`; update the FieldType unit pins;
+  add positive `usize`/`u64` fixture + negative `ArrayBox`/object/
+  `None`-type pins; re-run probe_f (`v:i64 + extra:usize`) → expect
+  progress past `artifact-source-unavailable`; re-pin the
+  `page_heap` census frontier.
+
+Non-claims:
+  The variant name `PlainI64NoHook` becomes semantically wider than its
+  name — renaming to a scalar-honest name is a BoxShape follow-up, NOT
+  this slice (BoxCount/BoxShape never mix). This slice admits no
+  handle/container/object field — nested release stays a separate
+  design. No VM behavior change; the disposition is consumed only by
+  the lifecycle lane.
+
+Next: `MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-SCALAR-FIELD-S0` —
+implement the predicate admission, pin updates, and the probe-f
+progression evidence.
+
