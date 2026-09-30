@@ -55,6 +55,30 @@ No entry below is a newly measured runtime result.
 | json_stream_aggregator | `route-not-front-selected` | Root `me` loop source coverage and existing locator consumer need a bounded connection decision. The selected-C arbitrary-UserBox park does not close canonical MIR design. |
 | typed_object_untyped_field_min | `return_type_strategy` panic | Known compiler baseline defect reproduced at `31c4bc072e` in the recorded receipt; not an intentional rejection contract. |
 
+### Re-observation 2026-09-30 (post-P3) — mimalloc-lite first terminal moved upstream
+
+Re-run of `mimalloc_lite_exe.sh`'s `--emit-exe` physical route under the
+current compiler: the first terminal is now
+`[freeze:contract][ordinary-field-read/unconsumed-read]` (deterministic
+across reruns; one run surfaced the sibling
+`IncompleteOrdinaryNewCoverage` — same coverage family,
+ordering-dependent), not the recorded `artifact-unowned-lifecycle-site`.
+
+Root cause, no new census needed: `HakoAllocPage.allocate`'s retained
+`return new HakoAllocHandle(me.page_id, block_id, requested_size)`
+(`Body(13).Value.Argument(0)`). `7592ffc671` staged the `me.page_id`
+argument as proven `I64Field` evidence, but the claim resolves
+`RetainedUnavailable` — `allocate`'s body (`me.f = expr` writes at
+`Body(2)`, bare `me.<field>.m(..)` statements, `me.<field>.get(..)`
+initializers, branch `return null`) stays `PrefixNotCovered`, so the
+selected emit never runs and the staged read has no consumer. The freeze
+is the designed fail-closed boundary: a proven argument read must not
+drain through the raw lane's unowned `FieldGet`. This is the same gap
+the recorded `artifact-unowned-lifecycle-site` named, surfaced earlier
+by argument-read staging — the named out-of-scope contracts from
+`7592ffc671` (receiver field write, `me.`-receiver call, mixed/nullable
+local use) are the coverage owners.
+
 The selected-C park remains exactly
 `MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0`, whose manifest keeps
 canonical MIR routes. See
@@ -168,16 +192,21 @@ tombstoned (`b21e05ebe6`). NULLABLE-RESULT-ABI-S0 landed end-to-end
 through the published wire. Reads of nullable locals (`h.f`, null
 checks) stay out of scope on the `PrefixNotCovered` floor.
 
-P3 — containers/types (~250-350 lines): seed→contract→header→index in
-one owner (`CompletionSeed` ≡ `ResultContractRow`, seven identical
-fields); `map_read_facts` five scans → one; unify duplicated types
-(AdmissionClaim⇔ResultClaim, four sibling dispositions).
+P3 — containers/types — landed (`9b95d3adc4`): `CompletionSeed` deleted;
+the result-contract builder issues one row end to end
+(`completion_seed.rs` folded into `result_contract.rs`), `map_read_facts`
+uses one source loan, and the three sibling `Ready`/`Taken` enums are
+aliases of one `DispositionSlotV1<T>`.
 
-Next execution row: `MIRBUILDER-GATE1-P3-CONTAINERS-TYPES` —
-rework-queue P3 (seed→contract→header→index single owner;
-`map_read_facts` scan merge; sibling-disposition unification). The
-nullable lane itself is complete for the bounded `local x = me.m(..)`
-slice.
+Next execution row: `MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0` —
+design row for the re-observed `unconsumed-read` frontier above. The
+open question is which single admission owns the nine retained
+return-new sites' prefix coverage (receiver field write vs
+`me.`-receiver call vs nullable-local use) and whether
+`unconsumed-read` stands as the correct fail-closed terminal — or a
+retained-unavailable claim owes its staged argument reads a release.
+The nullable lane itself is complete for the bounded
+`local x = me.m(..)` slice.
 
 ## Decision — MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0 (accepted)
 

@@ -1,10 +1,10 @@
 date = "2026-09-30"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-P3-CONTAINERS-TYPES"
+current_execution_row = "MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
-current_design_stop = "none — NULLABLE-RESULT-ABI-S0 landed: dedicated nullable lane (never Handle reuse); executor=C-shim LLVM emit, null=Void sentinel (i64 0), conditional release=HomeReleaseIfLive"
+current_design_stop = "RETAINED-NEW-HOME-FLOW-D0 — mimalloc-lite EXE route re-observed: first terminal is now ordinary-field-read/unconsumed-read (staged me.page_id arg read on a RetainedUnavailable claim; allocate's prefix is PrefixNotCovered). Open: which admission owns the nine sites' prefix coverage (me-field write vs me.-receiver call vs nullable-local use) and whether unavailable claims release staged arg reads"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,19 +17,19 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-NULLABLE-RESULT-ABI-S0 landed: `local x = me.m(..)` on a
-NullableObject(C) callee lowers to InvokeCallResultKind::NullableHandle
-+ InvokeNormalResult + HomeReleaseIfLive and publishes
-ordinary_nullable_handle/nullable_handle/const_null/home_release_if_live
-through the C shim. Return-position `new` mints birth actuals from
-Result commit rows (destination Option, site owner sole authority).
-Nullable-local reads stay PrefixNotCovered. Next: rework-queue P3 —
-seed→contract→header→index single owner; map_read_facts scan merge;
-sibling-disposition unification.
+P3 containers landed (9b95d3adc4): one result-contract row owner, one
+map_read_facts loan, shared DispositionSlotV1<T>. mimalloc-lite EXE
+route re-observed: first terminal is now
+ordinary-field-read/unconsumed-read — HakoAllocPage.allocate's retained
+`return new HakoAllocHandle(me.page_id, ...)` claim is
+RetainedUnavailable (PrefixNotCovered body), leaving the staged
+I64Field argument read without a consumer; the recorded
+artifact-unowned-lifecycle-site is masked upstream. Next:
+RETAINED-NEW-HOME-FLOW-D0 over the named coverage contracts.
 """
-next_design_card = "none — rework-queue P3 items (container ownership, type unification) are thinning, not new design rows"
+next_design_card = "MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0 (per-return Home flow coverage for the nine retained return-new sites: receiver field write vs me.-receiver call vs nullable-local use; staged argument-read ownership across the RetainedUnavailable boundary)"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-GATE1-P3-CONTAINERS-TYPES"
+next_execution_card = "MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -45,7 +45,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-30: GATE1-P3-CONTAINERS-TYPES landed (9b95d3adc4) — CompletionSeed folded into the result-contract row owner; map_read_facts single source loan; three sibling Ready/Taken enums unified as DispositionSlotV1<T>. Package suite 396/3 baseline debt. Next: RETAINED-NEW-HOME-FLOW-D0.",
   "2026-09-30: NULLABLE-RESULT-ABI-S0b landed — emit_receiver_nullable in the handle_call owner emits NullableHandle invoke + InvokeNormalResult + HomeReleaseIfLive; flow Nullable row + StoredLocal::ReceivedNullable + CallReceivedNullable; published ordinary_nullable_handle/nullable_handle/const_null/home_release_if_live with C-shim arms; Result-commit birth actuals (destination Option). Focused 21/21; package suite 396/3 baseline debt; known flaky array_source_binding red on HEAD too. Next: rework-queue P3.",
   "2026-09-30: NULLABLE-RESULT-ABI-S0a landed (d80d6c89cc) — receiver observations carry typed arguments (Integer/Bool/Null/Local; complex args unobserved). Birth-site index folded into the verified sweep — three post-loops merged into one walk. Package suite 393/3 baseline debt. Next: NULLABLE-RESULT-ABI-S0b.",
-  "2026-09-30: RECEIVER-CALL-OBSERVATION-S0 closeout landed — rows carry the exact destination local asserted per site; birth `me.m` rejected upstream (ReceiverNonEscape pin); same-box local/param receivers, unclaimed callees, rebinding stay unobserved. Package suite 393/3 baseline debt. Next: NULLABLE-RESULT-ABI-D0.",
 ]
