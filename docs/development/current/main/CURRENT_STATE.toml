@@ -1,7 +1,7 @@
 date = "2026-09-30"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-SCALAR-FIELD-S0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-ARRAYBOX-FIELD-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -35,9 +35,9 @@ Destruction FieldType (non-i64 declared field) as the empirical first
 gate; the full slice inventory is in the card. Next:
 APP-MIMALLOC-LITE-DESTRUCTION-SCALAR-FIELD-D0.
 """
-next_design_card = "mimalloc-lite bundle: DESTRUCTION-ARRAYBOX-FIELD next (owned container fields need a child-release plan)"
+next_design_card = "mimalloc-lite bundle slice 2: owned ArrayBox fields need a child-release plan before destruction is provable"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-SCALAR-FIELD-S0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-ARRAYBOX-FIELD-D0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -53,7 +53,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-30: DESTRUCTION-SCALAR-FIELD-S0 landed — object_definition::issue now admits sealed integer-scalar declared types (usize etc.) as teardown-free via exact_numeric_storage_for_declared_type, matching the canonical-layout authority. probe_e compiles to the nyrt gate; container/object fields stay fail-closed. Serial 8104/127, sole delta is the baseline-flaky nullable_receiver_call_serializes; smoke 3/3 at artifact-unowned-lifecycle-site; allocate prefix still pinned at Body(8). Next: DESTRUCTION-ARRAYBOX-FIELD-D0.",
   "2026-09-30: APP-BUNDLE-MIMALLOC-LITE-D0 accepted — probe census pinned the empirical first gate: any non-i64 declared field makes Destruction Unavailable(FieldType), so every allocator box's new claim stays RetainedUnavailable (prefix/construction/args all Ok). Bundle inventory recorded: destruction scalar/ArrayBox/object fields, field-init user-new, static-call claims, argumented instance calls, call-in-arg, handle.<field>, OpaqueHandle scalar positions, object-field receiver calls, result-new object args, forwarded results, seedBlocks loop/alias, MIR-JSON pin re-word. Next: DESTRUCTION-SCALAR-FIELD-D0.",
   "2026-09-30: FIXED-EXE-SUITE-REMEASURE-I0 landed — fixed 11-entry real-apps-exe-boundary suite re-run on post-S0 binary: 5 PASS / 6 FAIL (count unchanged from 2026-09-29). Terminals: untyped_field=artifact-source-unavailable, binary_trees=root-call-entry-unavailable, boxtorrent=emission-binding-drift, allocator_stress=NamedArray(TextSourceMissing), json_stream=callable-loop/route-not-front-selected, mimalloc=emission-binding-drift (MIR-JSON leg; drifted from the pinned Invoke token inside the fail-closed ladder). Next: APP-BUNDLE-MIMALLOC-LITE-D0.",
-  "2026-09-30: NESTED-RECEIVER-CALL-S0 landed — me.<ArrayBox field>.m(..) is a covered prefix statement via the generated CORE_METHOD_CONTRACT_ROWS_V2 manifest (NoValue-only in statement position; manifest-class install for locals). allocate's prefix advanced Body(3)→Body(8), stopping at the OpaqueHandle requested_size argument by design. Quick-profile serial 8105/126 (identical to wired manifest); smoke 3/3 at artifact-unowned-lifecycle-site. Next: FIXED-EXE-SUITE-REMEASURE-I0.",
-]
+  ]

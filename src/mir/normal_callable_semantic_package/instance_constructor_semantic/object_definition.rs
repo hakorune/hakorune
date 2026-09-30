@@ -108,10 +108,15 @@ pub(super) fn issue(
         Destruction::Unavailable(DestructionUnavailable::Declaration(reason))
     } else if projected_fields.iter().any(|field| field.is_weak) {
         Destruction::Unavailable(DestructionUnavailable::WeakField)
-    } else if projected_fields
-        .iter()
-        .any(|field| field.declared_type_name.as_deref() != Some("i64"))
-    {
+    } else if projected_fields.iter().any(|field| {
+        field
+            .declared_type_name
+            .as_deref()
+            .and_then(
+                crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type,
+            )
+            .is_none()
+    }) {
         Destruction::Unavailable(DestructionUnavailable::FieldType)
     } else if methods.iter_selected_declaration_order().any(|entry| {
         use crate::ast::{
@@ -164,6 +169,8 @@ mod tests {
             "box Plain { value: i64 }",
             "box Plain { value: i64\nbirth(x) { me.value = x } }",
             "box Plain { value: i64\nhelper() { return 1 } }",
+            "box Plain { value: usize }",
+            "box Plain { value: u32\ncount: i8\nsize: isize }",
         ] {
             assert_eq!(
                 issue(&declaration(text)).unwrap().destruction_disposition(),

@@ -169,7 +169,37 @@ Non-claims:
   design. No VM behavior change; the disposition is consumed only by
   the lifecycle lane.
 
-Next: `MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-SCALAR-FIELD-S0` —
-implement the predicate admission, pin updates, and the probe-f
-progression evidence.
+### S0 landed — DESTRUCTION-SCALAR-FIELD (2026-09-30)
+
+`object_definition.rs` now admits any declared type resolved by the
+sealed `exact_numeric_storage_for_declared_type` authority
+(i8..i64/isize/u8..u64/usize) as teardown-free; every other field keeps
+`Unavailable(FieldType)`. The predicate matches the layout-side
+authority at `canonical_layout.rs` — a field is teardown-free exactly
+when it has scalar numeric storage.
+
+Evidence:
+- Unit pins: `usize`/`u32`/`i8`/`isize` fields → `PlainI64NoHook`;
+  untyped, `StringBox`, and legacy `init`-fields stay `FieldType`;
+  weak stays `WeakField` (checked first). 20/20
+  instance-constructor-semantic tests green.
+- Probe progression: `v: usize` now compiles to the nyrt gate (was
+  `artifact-source-unavailable`); `ArrayBox` and user-object fields
+  stay `artifact-source-unavailable` — the closed boundary is intact.
+- `new HakoAllocPage(0,8,4)` / `new HakoAllocHeap()` still stop at
+  `artifact-unowned-lifecycle-site` (container/object fields remain
+  unavailable, by design — slices 2/3).
+- Official quick-profile serial: **8104 passed / 127 failed / 56
+  ignored** — sole delta vs the wired 126-manifest is the
+  baseline-flaky `nullable_receiver_call_serializes` (nondeterministic
+  standalone: 2 fail / 4 pass; reproduced on the parent commit
+  earlier).
+- mimalloc-lite emit-exe smoke: 3/3 deterministic at
+  `artifact-unowned-lifecycle-site`.
+- `page_heap_fixture_result_claim_census` green — `allocate` prefix
+  stays pinned at Body(8).
+
+Next: `MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-ARRAYBOX-FIELD-D0` —
+bundle slice 2: owned `ArrayBox` fields need a child-release plan
+before their destruction can be provable.
 
