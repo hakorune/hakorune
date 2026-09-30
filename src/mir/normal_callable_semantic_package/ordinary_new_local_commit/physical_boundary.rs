@@ -71,12 +71,35 @@ impl PhysicalBoundary {
                 .blocks
                 .get(id)
                 .ok_or_else(|| fault("missing-block"))?;
-            if block
-                .instructions
-                .iter()
-                .any(|i| matches!(i, MirInstruction::Phi { .. }))
-            {
-                return Err(fault("phi-in-recorded-block"));
+            // A recorded block may share join semantics: a leading run of
+            // Phi instructions is legal only on a genuine join — at least
+            // two incoming edges — which the sole-predecessor concatenation
+            // below can never contract into, and whose phi inputs stay
+            // pinned by the exact sequence check at `validate_complete`.
+            // A phi anywhere else (mid-block, or in a sole-predecessor
+            // block that contraction could still reach) keeps the
+            // fail-closed rejection.
+            let mut saw_non_phi = false;
+            let mut has_phi = false;
+            for instruction in &block.instructions {
+                match instruction {
+                    MirInstruction::Phi { .. } if !saw_non_phi => has_phi = true,
+                    MirInstruction::Phi { .. } => {
+                        return Err(fault("phi-in-recorded-block"));
+                    }
+                    _ => saw_non_phi = true,
+                }
+            }
+            if has_phi {
+                let predecessors = function
+                    .blocks
+                    .values()
+                    .flat_map(|other| other.out_edges())
+                    .filter(|edge| edge.target == *id)
+                    .count();
+                if predecessors < 2 {
+                    return Err(fault("phi-in-recorded-block"));
+                }
             }
             for instruction in &block.instructions {
                 let candidate = match instruction {

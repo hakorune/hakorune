@@ -411,6 +411,22 @@ Non-claims:
   release, `BodyCoverageUnsupported` for `HakoAllocHandleResult`, and
   emission block-splitting remain parked.
 
+`MIRBUILDER-GATE1-EMISSION-BLOCK-PHI-S0` landed:
+`PhysicalBoundary::capture` now permits a leading `Phi` run only on
+recorded blocks with at least two incoming edges; sole/zero-predecessor
+blocks and phis after any non-phi still freeze
+`physical-boundary/phi-in-recorded-block`. Pinned by
+`leading_phi_in_a_genuine_join_recorded_block_captures_and_validates`,
+`phi_in_a_sole_predecessor_recorded_block_still_rejects`, and
+`non_leading_phi_in_a_join_recorded_block_still_rejects` (4/4 focused
+tests green; serial lib suite 8101 passed / 126 failed — the failure
+set is byte-identical to the parent baseline). The mimalloc-lite
+physical smoke advanced deterministically (3/3) past
+`physical-boundary/phi-in-recorded-block` to
+`[freeze:contract][ordinary-new/local-commit/artifact-unowned-lifecycle-site]`
+— back to this lane's recorded frontier, which the selected lane's
+receiver-entry/flow obligations describe.
+
 ## Decision — MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (accepted)
 
 Decision:
