@@ -1,6 +1,6 @@
 # MirBuilder Gate 1 — current design and acceptance
 
-Status: RECEIVER-CALL-OBSERVATION-D0 accepted (deferred claim-aware me.m observation pass, claim-faithful class evidence, no emission change); RECEIVER-CALL-OBSERVATION-S0 is next
+Status: receiver-observation rework queue recorded — RESULT-CLASS-EXIT-EVIDENCE-S0 (Completion-proven exits, no flat-tail check) is next; then CLAIM-FIRST-OBSERVATION-S0 (claims pre-scan into the existing observation issuer), then RECEIVER-CALL-OBSERVATION-S0 closeout
 Date: 2026-09-29
 Scope: MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0; compact Gate-1 frontier.
 Related: CURRENT_STATE.toml; workstream row H; RULES.md;
@@ -905,7 +905,25 @@ Non-claims: no Handle minting for me.m results (emission gates are a
   `me.realloc` (unclaimed) are the `me.m` local-initializer sites;
   `:204`/`:208` `me.f.m` returns already compose at the claim layer.
 
-Next execution row: `MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-S0`.
+## Rework queue — reviewer feedback 2026-09-29
+
+Ordered before the receiver-observation row closes:
+
+1. `RESULT-CLASS-EXIT-EVIDENCE-S0`: `observe_function` trusts the flat
+   `statements()` tail — a nested trailing `if { return .. }` fakes an
+   all-exit claim (`result_class_claim.rs:371`). Issue exits from the
+   verified Completion (`explicit_sites`/`returns_value`); test
+   fallthrough shapes.
+2. `CLAIM-FIRST-OBSERVATION-S0`: claims need no Home evidence — finish
+   `callable_result_classes` pre-scan and feed the existing
+   `LocalCallObservationV1` issuance; the design-required entry-loan
+   receiver proof gates `me.m` rows; nullable classification stays
+   distinct from owned Handle; the deferred-map WIP is absorbed.
+3. `RECEIVER-CALL-OBSERVATION-S0` closeout: exact caller/site/
+   destination rows, entry-loan rejection, fail-closed negatives.
+4. `NULLABLE-RESULT-ABI-D0`: design `me.m` result consumption + the
+   execution path — enum arms alone move no real call.
+Next execution row: `MIRBUILDER-GATE1-RESULT-CLASS-EXIT-EVIDENCE-S0`.
 
 ## Preserved contract boundaries
 

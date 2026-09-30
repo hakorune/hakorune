@@ -1,10 +1,10 @@
 date = "2026-09-29"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-S0"
+current_execution_row = "MIRBUILDER-GATE1-RESULT-CLASS-EXIT-EVIDENCE-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
-current_design_stop = "none — receiver-call observation D0 accepted; S0 lands the deferred claim-aware me.m observation pass"
+current_design_stop = "none — receiver-observation rework queue recorded; claim issuer must derive exits from the verified Completion before the observation closeout"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,15 +17,17 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-Receiver-call observation D0 accepted: `me.m(..)` call sites become
-claim-keyed classed call results via a deferred pass after the claim
-fixpoint — claim-faithful evidence only (Object is Handle-eligible,
-NullableObject can never mint Handle), no emission path changes.
-BoundValue + PrefixNotCovered stays the floor for unclaimed callees.
+Receiver-observation rework queue recorded: (1) claim exits must come
+from the verified Completion — the flat statements() tail fakes an
+all-exit claim on nested returns; (2) claims are Home-independent, so
+compute them pre-scan and feed the existing LocalCallObservationV1
+issuer with the entry-loan receiver proof; (3) S0 closes with exact
+caller/site/destination and fail-closed tests; nullable evidence is
+never owned Handle.
 """
-next_design_card = "MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0 (nullable arms in InvokeCallResultKind/LocalCallResultClassV1/StoredLocal + physical projection)"
+next_design_card = "MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0 (nullable arms in InvokeCallResultKind/LocalCallResultClassV1/StoredLocal + me.m result consumption/execution path — enum arms alone move no call)"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "MIRBUILDER-GATE1-RECEIVER-CALL-OBSERVATION-S0"
+next_execution_card = "MIRBUILDER-GATE1-RESULT-CLASS-EXIT-EVIDENCE-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
