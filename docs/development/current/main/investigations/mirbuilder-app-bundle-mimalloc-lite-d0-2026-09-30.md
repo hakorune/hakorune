@@ -199,19 +199,21 @@ Evidence:
 - `page_heap_fixture_result_claim_census` green — `allocate` prefix
   stays pinned at Body(8).
 
-Next: `MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-ARRAYBOX-FIELD-D0` —
-bundle slice 2: owned `ArrayBox` fields need a child-release plan
-before their destruction can be provable.
+Next: `MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-ARRAYBOX-FIELD-S0` —
+implement the bounded slice: disposition variant + residence-proof
+gate + new `InvokeOperation` child-release variant + origin expansion
+in reverse declaration order + positive/negative pins.
 
-## Decision — MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-ARRAYBOX-FIELD-D0 (drafted)
+## Decision — MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-ARRAYBOX-FIELD-D0 (accepted)
 
 Decision:
   Admit owned `ArrayBox` fields to destruction via a **reverse
   declaration-order child release plan**: parent teardown emits one
-  `ArrayResidenceRelease` per proven `me.<field>` residence (read the
-  field handle, release the native array), then the parent
-  `HomeRelease`. The SSOT pins the semantics; no new language rule is
-  invented.
+  child-release step per proven `me.<field>` residence (reverse
+  declaration order), then the parent's own `HomeRelease`. The child
+  step is a NEW `InvokeOperation` variant — `ArrayResidenceRelease`
+  cannot serve: it is a bare instruction with no fault edge and no
+  seat in the Invoke cleanup graph.
 
 Source authority + canonical issuer:
   - `box-lifecycle-cprime-terminal-home-finalization-ssot.md` pins:
@@ -223,10 +225,27 @@ Source authority + canonical issuer:
     `CanonicalFieldRefV1` + provider caller key — the exact shape
     `HakoAllocPage`'s `free_stack`/`block_used`/`use_counts`/
     `requested_sizes` inits normalize into.
-  - `object_definition::issue` remains the sole disposition issuer; the
-  disposition gains a child-release plan, not a boolean flip.
-  - Physical op `ArrayResidenceRelease{value}` already exists with
-    emitters and a lifecycle-validation seat.
+  - `object_definition::issue` remains the sole disposition issuer; a
+    declared non-weak `ArrayBox` field moves the disposition from
+    `Unavailable(FieldType)` to a plan-carrying variant, gated at
+    emission by the residence proof.
+
+Physical owner + wiring (traced, no gaps):
+  - Cleanup graph is an Invoke chain (`cleanup_step` → `Invoke` with
+    normal/fault landings). Each op runs exactly once on exactly one
+    path — per-child ops preserve no-double-release for free.
+  - New op lowers with EXISTING runtime symbols: read the field's
+    Handle slot via `nyash.object.checked_field_get_i64_v1`, release
+    the residence via `nyrt_handle_release_h` (the same symbol the
+    bare `array_residence_release` emit arm already calls). No new
+    kernel export.
+  - `physical_abi.rs` today requires `field.storage == I64` for every
+    referenced object (`layout-field-drift`) and `PlainI64NoHook`
+    (`object-destruction`) — the ABI admission must widen to `Handle`
+    storage for plan-carrying objects. Handle is an i64 wire slot.
+  - Emit plumbing points: `InvokeOperation` variant + JSON kind +
+    `physical_program`/`vocabulary`/`verification` seats + emit
+    `.inc` arm + native-admission `.inc` arm.
 
 Non-authority:
   The kernel's `reclaim_typed_object_storage` explicitly does NOT
@@ -237,30 +256,34 @@ Non-authority:
 Fail-fast boundary:
   Only fields proven `FieldResidence` (birth-side `new ArrayBox()`
   provider store, no weak, no reassign) join the plan. Reassigned
-  residence, weak field, foreign provider, or unproven residence →
+  residence, weak field, foreign provider, unproven residence, or an
+  uninitialized `ArrayBox` field (no provider store) →
   `Unavailable(FieldType)` stays.
 
-Open mechanical questions for the S0 (implementation shape, not
-  semantics):
-  - `end_operation` returns ONE `InvokeOperation` today; the parent
-    release becomes a sequence (child `ObjectFieldGet` +
-    `ArrayResidenceRelease` × N reverse order + parent `HomeRelease`).
-  - The disposition needs a plan-carrying variant (e.g.
-    `ReverseFieldsNoHook` listing proven children) — or the claim
-    computes the plan at emission from the object definition.
-  - `HakoAllocHeap`'s fields are `HakoAllocPage` (user object) — slice
-    3; this slice is `ArrayBox` fields only.
+Open sub-questions consumed by the S0, not semantics:
+  - `FieldResidence` claims today serve the NamedArray append lane;
+    the teardown consumer must reuse that detection (or its sealed
+    rows), not re-scan source.
+  - `end_operation` returns ONE `InvokeOperation`; the plan expands
+    a home row into N+1 origins (children reversed + parent
+    `HomeRelease`) inside `prepare_root_home_exit`/`begin_root_home_exit`
+    and the `emission_prepare` prior-homes path.
 
 Smallest next slice:
-  Land the slice-2 S0 as: (1) prove `FieldResidence` for the four
-  `HakoAllocPage` container fields, (2) extend the disposition/emission
-  to emit reverse-order child releases, (3) pin positive (`items:
-  ArrayBox` field compiles past `artifact-source-unavailable`) and
-  negative (reassigned/weak field stays `FieldType`) tests.
+  Land the slice-2 S0 as: (1) disposition variant for declared
+  non-weak `ArrayBox` fields + residence-proof gate, (2) new
+  `InvokeOperation` child-release variant wired through JSON/ABI/
+  emit/admission, (3) origin expansion in reverse declaration order,
+  (4) positive (`items: ArrayBox = new ArrayBox()` field compiles past
+  `artifact-source-unavailable`) and negative (reassigned/weak/
+  uninitialized field stays `FieldType`) tests.
 
 Non-claims:
   The NamedArray `FieldResidence` lane is observation authority only —
-  this slice must consume it, not duplicate its detection. No
-  statement-position `ArrayResidenceRelease` is emitted speculatively;
-  releases occur only at proven teardown points.
+  this slice consumes it, never duplicates its detection. No
+  statement-position release is emitted speculatively; releases occur
+  only at proven teardown points. User-object field children
+  (`HakoAllocPage` inside `HakoAllocHeap`) remain slice 3 — the app's
+  own teardown chain needs both slices before mimalloc's `new
+  HakoAllocHeap()` passes.
 
