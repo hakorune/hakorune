@@ -203,3 +203,64 @@ Next: `MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-ARRAYBOX-FIELD-D0` —
 bundle slice 2: owned `ArrayBox` fields need a child-release plan
 before their destruction can be provable.
 
+## Decision — MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-ARRAYBOX-FIELD-D0 (drafted)
+
+Decision:
+  Admit owned `ArrayBox` fields to destruction via a **reverse
+  declaration-order child release plan**: parent teardown emits one
+  `ArrayResidenceRelease` per proven `me.<field>` residence (read the
+  field handle, release the native array), then the parent
+  `HomeRelease`. The SSOT pins the semantics; no new language rule is
+  invented.
+
+Source authority + canonical issuer:
+  - `box-lifecycle-cprime-terminal-home-finalization-ssot.md` pins:
+    "parent teardown → release fields in reverse declaration order;
+    child hook only if the child becomes terminal." A field-init
+    `new` child has its sole Home in the parent field → terminal.
+  - `named_array_residence.rs` already seals `FieldResidence` claims:
+    `me.<field> = new ArrayBox()` birth-side provider store +
+    `CanonicalFieldRefV1` + provider caller key — the exact shape
+    `HakoAllocPage`'s `free_stack`/`block_used`/`use_counts`/
+    `requested_sizes` inits normalize into.
+  - `object_definition::issue` remains the sole disposition issuer; the
+  disposition gains a child-release plan, not a boolean flip.
+  - Physical op `ArrayResidenceRelease{value}` already exists with
+    emitters and a lifecycle-validation seat.
+
+Non-authority:
+  The kernel's `reclaim_typed_object_storage` explicitly does NOT
+  recurse into handle fields ("cannot discharge child Homes") — the
+  MIR-level plan must emit each child release; no hidden runtime
+  cascade is assumed or allowed.
+
+Fail-fast boundary:
+  Only fields proven `FieldResidence` (birth-side `new ArrayBox()`
+  provider store, no weak, no reassign) join the plan. Reassigned
+  residence, weak field, foreign provider, or unproven residence →
+  `Unavailable(FieldType)` stays.
+
+Open mechanical questions for the S0 (implementation shape, not
+  semantics):
+  - `end_operation` returns ONE `InvokeOperation` today; the parent
+    release becomes a sequence (child `ObjectFieldGet` +
+    `ArrayResidenceRelease` × N reverse order + parent `HomeRelease`).
+  - The disposition needs a plan-carrying variant (e.g.
+    `ReverseFieldsNoHook` listing proven children) — or the claim
+    computes the plan at emission from the object definition.
+  - `HakoAllocHeap`'s fields are `HakoAllocPage` (user object) — slice
+    3; this slice is `ArrayBox` fields only.
+
+Smallest next slice:
+  Land the slice-2 S0 as: (1) prove `FieldResidence` for the four
+  `HakoAllocPage` container fields, (2) extend the disposition/emission
+  to emit reverse-order child releases, (3) pin positive (`items:
+  ArrayBox` field compiles past `artifact-source-unavailable`) and
+  negative (reassigned/weak field stays `FieldType`) tests.
+
+Non-claims:
+  The NamedArray `FieldResidence` lane is observation authority only —
+  this slice must consume it, not duplicate its detection. No
+  statement-position `ArrayResidenceRelease` is emitted speculatively;
+  releases occur only at proven teardown points.
+
