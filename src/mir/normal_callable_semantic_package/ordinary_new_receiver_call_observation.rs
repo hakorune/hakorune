@@ -20,9 +20,13 @@
 use std::collections::BTreeMap;
 
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::resolved_semantics::home_new_prefix::{
+    SelectedNewArgumentKindV1, SelectedNewArgumentV1,
+};
 use crate::mir::resolved_semantics::{
     BindingRefV1, OwnedExprSiteV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1,
-    ResolvedMethodCallReceiverSourceV1,
+    ResolvedLiteralSourceV1, ResolvedMethodCallArgumentSourceV1,
+    ResolvedMethodCallReceiverSourceV1, VerifiedResolvedFunctionV1,
 };
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 
@@ -38,6 +42,7 @@ pub(crate) struct ReceiverCallClassObservationV1 {
     callee: CanonicalSameModuleCallableKeyV1,
     class: super::OrdinaryNewResultClassV1,
     destination: BindingRefV1,
+    arguments: Box<[SelectedNewArgumentV1]>,
 }
 
 impl ReceiverCallClassObservationV1 {
@@ -59,6 +64,42 @@ impl ReceiverCallClassObservationV1 {
     pub(crate) fn destination(&self) -> BindingRefV1 {
         self.destination
     }
+
+    /// Ordered typed arguments — the `SelectedNewArgumentV1` vocabulary
+    /// restricted to the kinds this lane can prove without flow state.
+    #[cfg(test)]
+    pub(crate) fn arguments(&self) -> &[SelectedNewArgumentV1] {
+        &self.arguments
+    }
+}
+
+/// Typed argument evidence for one receiver call: source literals carry
+/// their sealed value and a lexical `Local` ref carries its exact
+/// binding — nothing is evaluated and no storage class is inferred. Any
+/// other expression shape classifies nothing and rejects the row.
+fn classify_argument(
+    function: &VerifiedResolvedFunctionV1,
+    argument: &ResolvedMethodCallArgumentSourceV1,
+) -> Option<SelectedNewArgumentV1> {
+    let kind = match function.expression_source().literal(argument.site()) {
+        Some(ResolvedLiteralSourceV1::Integer(value)) => {
+            Some(SelectedNewArgumentKindV1::Integer(*value))
+        }
+        Some(ResolvedLiteralSourceV1::Bool(value)) => Some(SelectedNewArgumentKindV1::Bool(*value)),
+        Some(ResolvedLiteralSourceV1::Null) => Some(SelectedNewArgumentKindV1::Null),
+        Some(_) | None => None,
+    }
+    .or_else(|| match function.variable_ref(argument.site()) {
+        Some(ResolvedLexicalRefV1::Local(binding)) => {
+            Some(SelectedNewArgumentKindV1::Local { binding })
+        }
+        _ => None,
+    })?;
+    Some(SelectedNewArgumentV1::new(
+        argument.ordinal(),
+        argument.site().clone(),
+        kind,
+    ))
 }
 
 /// In-walk observation over one declaration's `local x = me.m(..)`
@@ -104,6 +145,14 @@ pub(super) fn observe_receiver_call_sites(
         }) {
             continue;
         }
+        let Some(arguments) = call
+            .arguments()
+            .iter()
+            .map(|argument| classify_argument(function, argument))
+            .collect::<Option<Vec<_>>>()
+        else {
+            continue;
+        };
         let Some((callee, _slot)) = super::lexical_instance_call::unique_instance_target(
             selected,
             box_row.name(),
@@ -121,6 +170,7 @@ pub(super) fn observe_receiver_call_sites(
                 callee: callee.clone(),
                 class: class.clone(),
                 destination,
+                arguments: arguments.into_boxed_slice(),
             },
         );
     }

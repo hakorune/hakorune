@@ -251,6 +251,22 @@ Non-claims:
 6. Publication: `OrdinaryNullableHandle` role + wire name +
    `"nullable_handle"` JSON + `compiled_entry_contract` pairing.
 
+### Split plan — NULLABLE-RESULT-ABI-S0
+
+- S0a (semantic) — landed: `ReceiverCallClassObservationV1` carries
+  typed arguments (`SelectedNewArgumentV1` — Integer/Bool/Null/Local
+  only; anything else leaves the site unobserved). Consumption evidence
+  complete, still no emission change.
+- S0b (emit owner): one lowering owner consumes the row and emits
+  `Call { SameModuleInstance, result: nullable }` — the
+  `emit_local_lexical` lane or a sibling; decided at S0b.
+- S0c (physical): `InvokeCallResultKind`/`InvokeNormalResultKind`
+  nullable arm + `MirType` carrier + verifier admission per class.
+- S0d (state/cleanup): `StoredLocal`/`OrdinaryObservation` nullable
+  arm + a checked-null conditional-release commit.
+- S0e (publication): `OrdinaryNullableHandle` role, wire name, JSON
+  spelling, contract pairing.
+
 ## Preserved contract boundaries
 
 - Generic `mir_json_emit` rejects lifecycle Invoke. Invoke, normal-result and

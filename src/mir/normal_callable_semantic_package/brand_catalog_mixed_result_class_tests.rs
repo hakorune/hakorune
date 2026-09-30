@@ -452,6 +452,7 @@ box Page {
     observe(flag) {
         local made = me.make(flag)
         local fetched = me.fetch(flag)
+        local literal = me.make(7)
         return 0
     }
 }
@@ -462,11 +463,24 @@ static box Main {
     )
     .expect("receiver-call observation source package");
     let made = receiver_observations_for(&package, "Page", "make");
-    assert_eq!(made.len(), 1, "exactly one `me.make` initializer site");
-    assert!(matches!(
-        made[0].class(),
+    assert_eq!(made.len(), 2, "the `flag` and `7` `me.make` sites");
+    assert!(made.iter().all(|row| matches!(
+        row.class(),
         super::OrdinaryNewResultClassV1::Object(class) if class.as_ref() == "Page"
-    ));
+    )));
+    // Typed arguments: the parameter arg is an exact `Local` binding and
+    // the literal arg carries its sealed value — both fail-closed kinds.
+    use crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentKindV1;
+    assert!(made.iter().any(|row| matches!(
+        row.arguments(),
+        [arg] if matches!(arg.kind(), SelectedNewArgumentKindV1::Local { .. })
+            && arg.ordinal() == 0
+    )));
+    assert!(made.iter().any(|row| matches!(
+        row.arguments(),
+        [arg] if matches!(arg.kind(), SelectedNewArgumentKindV1::Integer(7))
+            && arg.ordinal() == 0
+    )));
     let fetched = receiver_observations_for(&package, "Page", "fetch");
     assert_eq!(fetched.len(), 1, "exactly one `me.fetch` initializer site");
     assert!(matches!(
@@ -520,6 +534,10 @@ box Page {
         local made = p.make(flag)
         return 0
     }
+    complex_argument(flag) {
+        local made = me.make(flag + 1)
+        return 0
+    }
     rebound(flag) {
         local made = me.make(flag)
         made = me.make(flag + 1)
@@ -542,8 +560,9 @@ static box Main {
     .expect("negative receiver-call source package");
     let made = receiver_observations_for(&package, "Page", "make");
     // Only `observe`'s sole-initialized `me.make` site is evidence — the
-    // field receiver, parameter receiver, same-box local receiver, and
-    // rebound destination sites all keep the non-coverage floor.
+    // field receiver, parameter receiver, same-box local receiver,
+    // rebound destination, and the `flag + 1` argument site all keep the
+    // non-coverage floor.
     assert_eq!(made.len(), 1);
     assert!(
         receiver_observations_for(&package, "Page", "param_return").is_empty(),
