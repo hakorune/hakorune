@@ -287,3 +287,50 @@ Non-claims:
   own teardown chain needs both slices before mimalloc's `new
   HakoAllocHeap()` passes.
 
+## S0 implementation notes (surveyed)
+
+Residence-proof substrate:
+  `ordinary_new_field_write_claim.rs` already seals the exact rule the
+  plan needs: a `(box, field)` claim stands only when every package
+  `FieldWrite` is an attributed `me.` write storing `new` of ONE
+  agreed class, with a global veto when the field name appears on any
+  unattributed receiver or a function's body-shape inventory is
+  missing (`opaque` empties the product — additive evidence, no
+  fallback). Today `finish()` requires the agreed class to resolve in
+  `ordinary_box_coverage`, so `free_stack <- new ArrayBox()` claims
+  nothing (ArrayBox is a core box). The S0 extends the seal to also
+  record core-`ArrayBox` writes — same authority, wider value class —
+  rather than building a second scanner. `resolve_birth_provider` in
+  `named_array_residence.rs` is the sibling proof for the NamedArray
+  lane and stays untouched.
+
+Disposition placement:
+  `instance_constructor_semantic/object_definition.rs::issue` sees only
+  the declaration — it issues `OwnedArrayFields`-style plan-PENDING
+  disposition for non-weak `ArrayBox` declared fields (replacing
+  `FieldType` for exactly that shape). The residence proof is the
+  claim-side gate (`end_available`/origin expansion consult
+  `field_write_claims`), so an unproven field keeps
+  `RetainedUnavailable` — the disposition alone never emits a child
+  release.
+
+Emission expansion:
+  `NewLocalCommitV1::end_operation` returns one `InvokeOperation`
+  consumed by `prepare_root_home_exit` (per-binding origins) and
+  `compute_emission_prepare` (prior-homes operands). The plan expands
+  to child origins (reverse declaration order) + the parent
+  `HomeRelease` origin; each child is its own Invoke so the
+  normal/fault cleanup lanes keep the "emitted once, on exactly one
+  path" property — no double release by construction.
+
+Physical surface (all existing runtime symbols):
+  - `InvokeOperation::OwnedFieldArrayRelease { field, base }` (working
+    name) → JSON kind + `physical_program`/`vocabulary`/`verification`
+    seats + `lifecycle_v4_emit.inc` arm
+    (`checked_field_get_i64_v1` → `nyrt_handle_release_h`) +
+    `lifecycle_v4_native_admission.inc` arm.
+  - `physical_abi.rs`: admit `TypedObjectFieldStorage::Handle` slots for
+    objects whose disposition carries the plan (today `I64`-only →
+    `layout-field-drift`); disposition check admits the plan variant
+    alongside `PlainI64NoHook`.
+
