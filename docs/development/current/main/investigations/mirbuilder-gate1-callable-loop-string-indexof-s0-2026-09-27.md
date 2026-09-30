@@ -517,6 +517,63 @@ Next: `MIRBUILDER-GATE1-NESTED-RECEIVER-CALL-D0` — design the nested
 `me.<field>.m(..)` receiver-call family that now fronts `allocate`'s
 prefix at Body(3).
 
+## Decision — MIRBUILDER-GATE1-NESTED-RECEIVER-CALL-D0 (accepted)
+
+Decision:
+  a `me.<field>.m(..)` call whose receiver is a declared `ArrayBox`
+  field of the self-rooted `me` is a covered prefix statement when the
+  (selector, arity) pair resolves in the generated core-method
+  contract manifest `CORE_METHOD_CONTRACT_ROWS_V2` via
+  `lookup_core_method_result_row_v2` — the sealed result/effect
+  authority (`ArrayBox.get/1` → `Dynamic`/`PureRead`, `set/2` →
+  `NoValue`/`MutatesSlot`, `push/1` → `NoValue`, `length/0` →
+  `I64Value`; `MapBox.set/2` is `Dynamic`, so no blanket "set is
+  void") — and every argument subtree is Home-neutral. A
+  `local x = ..` initializer installs the result by manifest class:
+  `I64Value`/`BoolValue` → `Trivial(kind)`, `Dynamic`/`StringValue` →
+  `BoundValue` (produced value, no obligation — the existing
+  inventoried call-result vocabulary); a bare expression statement
+  admits `result_kind == NoValue` only and mints no row. No ledger
+  row, no claim change: the physical `Callee::Method{RuntimeData}` /
+  `ArrayElementWrite` emission is already owned by the raw lane and is
+  not lifecycle-required.
+Source authority + canonical issuer:
+  `VerifiedResolvedMethodCallSourceV1` rows keyed by call site in
+  `method_calls()` supply `receiver_site`, ordered `arguments`,
+  `selector`, `arity`. The receiver site must seal as
+  `BodyExpressionShapeV1::FieldAccess { object: <me site>, field }`
+  with `me` proven self-rooted by `PrefixLocalFlow::is_self_rooted_handle`;
+  the field's declared type proves `ArrayBox` via
+  `with_source_object_definition` on this declaration's own box
+  source — a `container_field` predicate sibling to `scalar_field`,
+  wired only into the verified-completion lane.
+Non-authority:
+  `ResolvedMethodCallReceiverSourceV1` — `Other` merely excludes the
+  lexical/me lanes; the FieldAccess shape row is the receiver proof.
+  MIR types, runtime layout, `ARRAY_SURFACE_METHODS`, and any
+  selector matching outside the generated manifest decide nothing.
+Fail-fast boundary:
+  a non-`me` receiver, a non-`ArrayBox` field, a selector/arity absent
+  from the manifest (`pop`/`slice`/`insert`/`clear`/`contains`/…), a
+  non-`NoValue` call in statement position, an argument subtree
+  containing a `new`/call/map/array/block node, or an argument leaf
+  observing `Handle`/a live `homes` member (`BoundValue` results of
+  nullable receiver calls are `homes` members and stay excluded —
+  passing them into a builtin call is an untracked ownership
+  transfer) keeps `PrefixNotCovered`.
+Smallest next slice:
+  `MIRBUILDER-GATE1-NESTED-RECEIVER-CALL-S0` — one sibling observer
+  under `home_new_prefix_*.rs` admitting both statement shapes.
+  Pins: `allocate`'s prefix advances past the `.get`/`.set` cluster
+  and stops at `me.requested_sizes.set(block_id, requested_size)` —
+  `requested_size` is an `OpaqueHandle` param observing `Handle`, so
+  the boundary must fire there; negatives cover each fail-closed arm.
+Non-claims:
+  `allocate`'s claim still does not emit — the `OpaqueHandle` param in
+  a store position, `release/1`'s `handle.<field>` reads, and `Bool`
+  return literals stay distinct later rows, so the smoke terminal is
+  expected to keep `artifact-unowned-lifecycle-site`.
+
 ## Decision — MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (accepted)
 
 Decision:
