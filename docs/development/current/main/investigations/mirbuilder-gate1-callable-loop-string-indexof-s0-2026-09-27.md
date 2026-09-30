@@ -160,11 +160,12 @@ P1 — claim correctness:
    upstream (`ReceiverNonEscape` pin); non-`me` receivers, unclaimed
    callees, rebinding stay unobserved.
 
-P2 — thinning (~370-530 lines): merge the three post-loops
-(birth_site_index / field_write_draft / result_class_draft) into one
-sweep; compress this card to 300-400 lines (precedent `3b794d2ccd`);
-`NULLABLE-RESULT-ABI-D0` designs `me.m` result consumption plus the
-execution path — enum arms alone move no real call.
+P2 — thinning: post-loops merged — `field_write`/`result_class`
+drafts pre-scan since claim-first (`d9bcf6108b`); `birth_site_index`
+collects in the same verified sweep (ctor rows join via the
+program-source loan — births are not batch declarations); card
+tombstoned (`b21e05ebe6`). Remaining: the NULLABLE-RESULT-ABI-S0
+slices — enum arms alone move no real call.
 
 P3 — containers/types (~250-350 lines): seed→contract→header→index in
 one owner (`CompletionSeed` ≡ `ResultContractRow`, seven identical

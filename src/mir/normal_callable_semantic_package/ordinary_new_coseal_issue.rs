@@ -81,6 +81,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     let mut root_terminal_relation = BTreeMap::new();
     let mut birth_abi_handoffs = BTreeMap::new();
     let mut receiver_call_observations = BTreeMap::new();
+    let mut birth_site_index = BTreeMap::new();
     // Field-write claims and callable result-class claims compose
     // without any Home evidence — seal both before the verified walk so
     // that walk can mint claim-faithful `me.m(..)` observations in the
@@ -291,6 +292,19 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     input, receiver_proof, selected, &callable_result_classes,
                     &mut receiver_call_observations,
                 );
+                // Destination-less birth index collects in the same
+                // sweep: this declaration's claimed sites are exactly
+                // `candidates` ∪ `result_resolutions` — both push
+                // unconditionally after the closure returns.
+                let declared_claimed: BTreeSet<OwnedExprSiteV1> = candidates
+                    .iter()
+                    .map(|row| row.site.clone())
+                    .chain(result_resolutions.iter().map(|row| row.site.clone()))
+                    .collect();
+                collect_birth_site_index_v1(
+                    input.function(), owner, batch, instance_constructors,
+                    &declared_claimed, &mut birth_site_index,
+                )?;
                 let child_new_ready = seed_eligible && !new_sites.is_empty()
                     && crate::mir::resolved_semantics::home_new_prefix::issue_new_home_prefixes_probing_fields_v1(
                         input, &new_sites, entry_home,
@@ -643,33 +657,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             });
         }
     }
-    // Destination-less birth-recipe index for `new` sites outside the
-    // local-commit claim lane.  `constructions` records every `new`
-    // regardless of position; this walk only admits a site whose class is
-    // covered and whose `birth_for` row passes the same verification as a
-    // claim candidate.  A site that admits nothing keeps its existing
-    // downstream terminal — the index never issues a new error.
-    let mut birth_site_index = BTreeMap::new();
+    // Constructor (birth) rows are not batch declarations — they join
+    // through the program-source loan, so the index collects them here.
+    // Their owners never collide with declaration-owned claim sites;
+    // the claimed set is still passed defensively.
     let claimed_sites: BTreeSet<OwnedExprSiteV1> = claims
         .iter()
         .map(|claim| claim.site().clone())
         .chain(result_claims.iter().map(|claim| claim.site.clone()))
         .collect();
-    for declaration in batch.declarations() {
-        let owner = declaration.owner();
-        batch
-            .with_lowering_input(declaration.batch_slot(), |input| {
-                collect_birth_site_index_v1(
-                    input.function(),
-                    owner,
-                    batch,
-                    instance_constructors,
-                    &claimed_sites,
-                    &mut birth_site_index,
-                )
-            })
-            .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
-    }
     batch
         .with_normal_program_source_loan(|loan| -> Result<(), OrdinaryNewCoSealIssueV1> {
             for row in instance_constructors.rows() {
