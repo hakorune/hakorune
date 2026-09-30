@@ -708,3 +708,60 @@ Landed end to end through the production physical route:
   `ordinary-membership-drift` parallel-order flake is unchanged.
 
 Next: MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-D0
+
+## Decision — MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-D0 (accepted)
+
+```text
+Decision: admit qualified static-box calls as non-lifecycle local-call
+          claims. `local class_id = LayoutBox.class_id(size)` must not
+          end as `PrefixNotCovered`: static calls emit the existing
+          generic `Call{Callee::Global}` (StaticReceiver route →
+          static-result ingress → typed receipt), never `Invoke`, so
+          they owe no lifecycle site — but the homes-aware prefix scan
+          classifies local-call initializers only through
+          `direct_call_observations`, which qualified receivers never
+          produce. The claim gap is the I64 lane of
+          `issue_local_call`, not emission.
+Source authority + canonical issuer: the method-call inventory row
+          (`QualifiedUnbound` receiver +
+          `ResolvedQualifiedReceiverIdentityV1`) resolved through the
+          source-call-target catalog /
+          `VerifiedStaticImportAliasViewV1` (`using … as LayoutBox` →
+          canonical owner), corroborated by the callable index
+          `StaticBoxMethod` header and the callable
+          result-representation solver disposition
+          (`ExactI64{required_i64_arguments}` /
+          `ExactBool`/`ExactString`). Sole claim product:
+          `LocalCallObservationV1{result: I64}` issued inside
+          `scan_statement_flow`'s I64 lane through a package-injected
+          membership predicate — the same injection pattern as
+          `terminal_call`/`local_map_call`. The issued row installs
+          `install_i64_call_result`, records no Home, no ledger row,
+          no lifecycle site.
+Non-authority: `direct_call_observations` for qualified receivers,
+          receiver-name spelling or `Unresolved` guesses, the retired
+          generic-compatibility lane (`UnissuedStaticCallRetirementV1`).
+Fail-fast boundary: sites failing exact membership keep
+          `PrefixNotCovered`; `new`-argument static calls keep
+          `ArgumentNotCovered`/`ArgumentNotTrivial` until
+          `CALL-RESULT-ARG-POSITION`; `me.class_id(..)` stays on the
+          separate `resolve_me_call_with_publication_ingress` route
+          (its `TargetOnly` freeze is out of scope).
+Smallest next slice: STATIC-CALL-CLAIM-S0 — package-injected static
+          membership predicate + I64-lane admission for
+          `local x = QualifiedBox.m(args)` in ordinary non-birth
+          functions; args sealed to Integer/Bool literals or scalar
+          `Local`/parameter bindings; positive pin
+          `local class_id = LayoutBox.class_id(size)`; negatives:
+          unresolvable alias, non-static target, unproven result
+          disposition, non-trivial arg.
+Non-claims: no emission lane added (StaticReceiver route is the sole
+          emitter), no `Invoke`/lifecycle/ledger row, no arg-position
+          or `new`-arg calls, no `me.m()` static-route change, no EXE
+          or app-level completion claim.
+```
+
+Then `MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-S0` lands the
+claim end to end.
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-S0

@@ -1,7 +1,7 @@
 date = "2026-10-01"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-D0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -33,11 +33,18 @@ Integer/Bool/scalar-Local args, emit `new_box` + `birth_call` +
 reclaim/discharge jump landings, and publish through physical JSON +
 Lifecycle V4 + LLVM C API (fixture apps/user-object-field-init-min
 runs `Result: 0`).
-Next: APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-D0.
+STATIC-CALL-CLAIM-D0 accepted: qualified static calls emit the
+existing `Call{Callee::Global}` (no lifecycle site owed); the claim
+gap is the prefix-scan I64 lane classifying local-call initializers
+only via `direct_call_observations`. S0 adds a package-injected
+membership predicate (QualifiedUnbound receiver + import-alias
+resolution + StaticBoxMethod header + solver scalar disposition)
+issuing `LocalCallObservationV1{I64}` — no Invoke, no ledger row.
+Next: APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-S0.
 """
-next_design_card = "mimalloc-lite bundle slice 5: static-box call claims (LayoutBox.class_size/class_id/class_capacity) — artifact-root-completion-unavailable"
+next_design_card = "mimalloc-lite bundle slice 5 implementation: prefix-scan I64 lane admits qualified static scalar calls via package-injected membership predicate"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-D0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
