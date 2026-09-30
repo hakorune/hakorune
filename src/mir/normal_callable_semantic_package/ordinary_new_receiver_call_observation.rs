@@ -27,16 +27,17 @@ use crate::mir::resolved_semantics::{
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 
 /// One observed `local x = me.m(..)` call result bound to a composed
-/// callee claim — the owning map key is the exact call site. Additive
-/// evidence — minted only when the entry loan proves the receiver is
-/// this declaration's own `me`, the callee's canonical key resolves
-/// uniquely, and it carries a claim; never a Handle authorization by
-/// itself.
+/// callee claim — the owning map key is the exact call site and the row
+/// carries the exact destination local. Additive evidence — minted only
+/// when the entry loan proves the receiver is this declaration's own
+/// `me`, the callee's canonical key resolves uniquely, and it carries a
+/// claim; never a Handle authorization by itself.
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub(crate) struct ReceiverCallClassObservationV1 {
     callee: CanonicalSameModuleCallableKeyV1,
     class: super::OrdinaryNewResultClassV1,
+    destination: BindingRefV1,
 }
 
 impl ReceiverCallClassObservationV1 {
@@ -50,6 +51,13 @@ impl ReceiverCallClassObservationV1 {
     #[cfg(test)]
     pub(crate) fn class(&self) -> &super::OrdinaryNewResultClassV1 {
         &self.class
+    }
+
+    /// The sole local bound by the `local x = ..` initializer — exact
+    /// destination evidence for the site-keyed row.
+    #[cfg(test)]
+    pub(crate) fn destination(&self) -> BindingRefV1 {
+        self.destination
     }
 }
 
@@ -112,6 +120,7 @@ pub(super) fn observe_receiver_call_sites(
             ReceiverCallClassObservationV1 {
                 callee: callee.clone(),
                 class: class.clone(),
+                destination,
             },
         );
     }

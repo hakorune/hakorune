@@ -24,8 +24,8 @@ fn result_class_claim_row<'a>(
         .find(|(key, _)| key.owner() == owner && key.name() == name)
 }
 
-/// Every `local x = me.m(..)` observation bound to `owner.name` — the
-/// deferred claim-aware pass's site-keyed evidence.
+/// Every `local x = me.m(..)` observation bound to `owner.name` —
+/// the claim-first in-walk pass's site-keyed evidence.
 fn receiver_observations_for<'a>(
     package: &'a super::VerifiedNormalCallableSemanticPackageV1,
     owner: &str,
@@ -37,6 +37,31 @@ fn receiver_observations_for<'a>(
         .values()
         .filter(|row| row.callee().owner() == owner && row.callee().name() == name)
         .collect()
+}
+
+/// The local binding declared by the exact initializer at `site`, or
+/// `None` when no declaration owns that initializer — the caller and
+/// destination the row must carry verbatim.
+fn initializer_destination(
+    package: &super::VerifiedNormalCallableSemanticPackageV1,
+    site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+) -> Option<crate::mir::resolved_semantics::BindingRefV1> {
+    package.batch().declarations().find_map(|declaration| {
+        (declaration.owner() == site.owner())
+            .then(|| {
+                package
+                    .batch()
+                    .with_lowering_input(declaration.batch_slot(), |input| {
+                        input
+                            .function()
+                            .expression_source()
+                            .initializers()
+                            .find(|row| row.initializer_site() == Some(site.site()))
+                            .map(|row| row.binding())
+                    })
+            })?
+            .expect("batch loan")
+    })
 }
 
 /// Owner of the one callable whose body shape returns the exact `null`
@@ -448,11 +473,27 @@ static box Main {
         fetched[0].class(),
         super::OrdinaryNewResultClassV1::NullableObject(class) if class.as_ref() == "Page"
     ));
+    // Exact caller/site/destination: every row key resolves to the
+    // initializer's own declaration owner, and the row's destination is
+    // the binding that initializer declares — nothing recomputed.
+    for (site, row) in package
+        .ordinary_new_claim_ledger
+        .receiver_call_observations_for_test()
+    {
+        assert_eq!(site.owner(), row.destination().owner());
+        assert_eq!(
+            initializer_destination(&package, site),
+            Some(row.destination()),
+            "destination is the exact `local` the site declares"
+        );
+    }
 }
 
 /// Fail-closed receiver-call grammar: an unclaimed callee, a `me.f.m`
-/// receiver, a parameter receiver, and a rebound destination all stay
-/// unobserved — the existing `BoundValue` + `PrefixNotCovered` floor.
+/// receiver, a parameter receiver, a same-box local receiver (the entry
+/// loan proves `me` only — no other binding counts), and a rebound
+/// destination all stay unobserved — the existing `BoundValue` +
+/// `PrefixNotCovered` floor.
 #[test]
 fn receiver_call_observation_negative_edges_stay_unobserved() {
     let package = issue_with_brand_catalog(
@@ -471,6 +512,11 @@ box Page {
         return 0
     }
     param_receiver(p, flag) {
+        local made = p.make(flag)
+        return 0
+    }
+    local_receiver(flag) {
+        local p = new Page(0)
         local made = p.make(flag)
         return 0
     }
@@ -496,12 +542,40 @@ static box Main {
     .expect("negative receiver-call source package");
     let made = receiver_observations_for(&package, "Page", "make");
     // Only `observe`'s sole-initialized `me.make` site is evidence — the
-    // field receiver, parameter receiver, and rebound destination sites
-    // keep the non-coverage floor.
+    // field receiver, parameter receiver, same-box local receiver, and
+    // rebound destination sites all keep the non-coverage floor.
     assert_eq!(made.len(), 1);
     assert!(
         receiver_observations_for(&package, "Page", "param_return").is_empty(),
         "an unclaimed callee never mints an observation"
+    );
+}
+
+/// `me.m(..)` inside `birth` carries no InstanceBoxMethod entry loan —
+/// and the receiver-non-escape gate rejects the use before issuance, so
+/// the unloaned `me` receiver can never reach the observer at all.
+#[test]
+fn receiver_call_in_birth_is_rejected_before_observation() {
+    let error = issue_with_brand_catalog(
+        r#"
+box Page {
+    init { v }
+    birth(v) {
+        local made = me.make(v)
+        me.v = v
+    }
+    make(flag) { return new Page(flag) }
+}
+static box Main {
+    main() { return 0 }
+}
+"#,
+    )
+    .expect_err("an unloaned `me` receiver is rejected upstream");
+    let report = format!("{error:?}");
+    assert!(
+        report.contains("ReceiverNonEscape"),
+        "birth-body `me.m` fails the receiver-non-escape proof: {report}"
     );
 }
 
