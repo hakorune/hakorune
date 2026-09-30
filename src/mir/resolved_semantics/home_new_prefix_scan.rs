@@ -52,6 +52,15 @@ pub(super) fn scan_statement_flow<'a, E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    // The issuer's receiver-side scalar-field proof for `me.<field>` reads
+    // inside a field-write RHS — same evidence shape, separate contract.
+    scalar_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
 ) -> Result<bool, E> {
     let function = input.function();
     for index in 0..body.statements().len() {
@@ -111,6 +120,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 local_handle_call,
                 local_nullable_call,
                 argument_i64_field,
+                scalar_field,
             )?;
             if terminated {
                 return Ok(true);
@@ -123,6 +133,17 @@ pub(super) fn scan_statement_flow<'a, E>(
             ..
         } = statement.node()
         else {
+            // A self-rooted `me.<field> = <rhs>` write with a Home-neutral
+            // RHS is covered without ledger rows — the raw lane already
+            // owns the plain `FieldSet` emission.
+            if field_write::observe_receiver_field_write(
+                input,
+                &statement,
+                locals,
+                scalar_field,
+            )? {
+                continue;
+            }
             unavailable.get_or_insert_with(|| {
                 HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
             });

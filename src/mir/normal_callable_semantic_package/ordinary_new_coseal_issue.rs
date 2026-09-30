@@ -318,6 +318,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 instance_constructors, &candidates, site, receiver_proof, home, name,
                             ).map(|field| field.is_some())
                         },
+                        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+                            terminal_home::receiver_scalar_field(
+                                instance_constructors, receiver_proof, site, home, name,
+                            ).map(|field| field.is_some())
+                        },
                     )?.values().all(Result::is_ok);
                 // An owner whose `return` statement carries a `new`
                 // construction needs the homes-aware completion: the
@@ -478,7 +483,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                     .map(|row| row.class()),
                                 Some(result_class_claim::OrdinaryNewResultClassV1::NullableObject(_))
                             ))
-                        }, &result_sites, &mut argument_field_is_integer)? {
+                        }, &result_sites, &mut argument_field_is_integer, &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+                            // RHS `me.<field>` reads inside a field write
+                            // share the entry-receiver proof; the contract
+                            // is the numeric integer-scalar set, not `i64`.
+                            terminal_home::receiver_scalar_field(
+                                instance_constructors, receiver_proof, site, home, name,
+                            ).map(|field| field.is_some())
+                        })? {
                         Ok((
                             completion,
                             prefixes,

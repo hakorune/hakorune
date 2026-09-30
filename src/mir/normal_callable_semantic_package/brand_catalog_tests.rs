@@ -277,6 +277,79 @@ fn ordinary_new_claim_records_parameter_handle_argument() {
     assert_eq!(Some(*binding), parameter);
 }
 
+/// `me.<field> = <rhs>` on the self-rooted receiver is a covered prefix
+/// statement when the RHS subtree is Home-neutral: `me.<field>` reads are
+/// proven by the receiver-side scalar contract (`i64` and `usize` both
+/// admit — argument-position `i64` evidence stays a separate authority),
+/// and the write itself mints no ledger row.
+#[test]
+fn ordinary_new_receiver_field_write_is_home_neutral() {
+    let package = issue_with_brand_catalog(
+        "box Page { left: i64 right: usize birth() { }
+        touch() {
+            me.left = me.left + 1
+            me.right = me.right - me.left
+            local item = new Page()
+            return 0
+        } }
+        static box Main { main() { return 0 } }",
+    )
+    .expect("field-write package");
+    let rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
+    let claims: Vec<_> = rows.values().collect();
+    let [claim] = claims.as_slice() else {
+        panic!("one claim inside `touch`, got {claims:?}")
+    };
+    assert_eq!(
+        claim.home_prefix().map(|_| ()),
+        Ok(()),
+        "self-rooted scalar field writes are covered prefix statements"
+    );
+}
+
+/// Field-write admission stays fail-closed: an owned-binding RHS, a
+/// non-`me` receiver, a `me`-field receiver call, and a `new` inside the
+/// RHS each keep `PrefixNotCovered` — no owning-field or receiver-write
+/// meaning is minted.
+#[test]
+fn ordinary_new_receiver_field_write_stays_fail_closed() {
+    for (label, write) in [
+        // An owned Home in the RHS is the parked owning-field family.
+        ("owned-handle-rhs", "local h = new Page() me.left = h"),
+        // A non-`me` receiver is not a self field write.
+        ("non-self-receiver", "local p = new Page() p.left = 5"),
+        // A call inside the RHS is the nested receiver-call family.
+        ("rhs-receiver-call", "me.left = me.right.make()"),
+        // `new` inside the RHS is a construction, not a scalar store.
+        ("rhs-new", "me.left = new Page()"),
+        // Compound `op=` reads and writes the same field.
+        ("compound", "me.left += 1"),
+    ] {
+        let source = format!(
+            "box Page {{ left: i64 right: Page birth() {{ }}
+            make() {{ return 0 }}
+            touch() {{ {write} local item = new Page() return 0 }} }}
+            static box Main {{ main() {{ return 0 }} }}"
+        );
+        let package = issue_with_brand_catalog(&source)
+            .unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
+        let rows = package
+            .ordinary_new_claim_ledger
+            .pending_claims_for_test();
+        let claims: Vec<_> = rows.values().collect();
+        // The `local item = new Page()` claim follows the write — its
+        // prefix must name the uncovered statement; claims declared before
+        // the write legitimately stay `Ok`.
+        assert!(
+            claims.iter().any(|claim| matches!(
+                claim.home_prefix(),
+                Err(crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1::PrefixNotCovered(_))
+            )),
+            "{label}: a claim past the write keeps PrefixNotCovered, got {claims:?}"
+        );
+    }
+}
+
 #[test]
 fn normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix() {
     for (suffix, available) in [

@@ -184,7 +184,8 @@ fn retained_unavailable_claim_releases_staged_argument_reads() {
     let package = issue_with_brand_catalog(
         "box Node {
              value: i64
-             make() { me.value = 3 return new Leaf(me.value) }
+             tick() { }
+             make() { me.value = 3 me.tick() return new Leaf(me.value) }
          }
          box Leaf { birth(v) { } }
          static box Main { main() { return 0 } }",
@@ -211,7 +212,7 @@ fn retained_unavailable_claim_releases_staged_argument_reads() {
         .expect("result claim present");
     assert!(
         !ledger.prepare_result_new_emission(&claim).unwrap(),
-        "the receiver-write statement keeps the claim RetainedUnavailable"
+        "the nested receiver-call statement keeps the claim RetainedUnavailable"
     );
     {
         let reads = ledger.argument_field_reads.borrow();

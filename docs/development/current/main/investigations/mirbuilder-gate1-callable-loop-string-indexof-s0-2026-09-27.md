@@ -486,6 +486,37 @@ Non-claims:
   `handle.<field>` reads, and `Bool` return literals are distinct
   later rows.
 
+Landed `MIRBUILDER-GATE1-RECEIVER-FIELD-WRITE-S0`:
+`scan_statement_flow` now admits a `me.<field> = <rhs>` statement when
+the target seals as `ResolvedAssignmentTargetV1::FieldWrite` rooted at
+the lexical `me` receiver and every RHS subtree row is Home-neutral
+(`new`, calls, map/array literals, and live owned Home/Handle/Map/
+Nullable reads all keep `PrefixNotCovered`). `me.<field>` reads inside
+the RHS are proven by a new receiver-side `scalar_field` predicate wired
+through `scan_new_home_flow` — backed by
+`numeric_substrate::is_numeric_integer_type_name` so `usize` fields
+admit, while argument-position `i64` evidence keeps its own authority.
+Pinned by `ordinary_new_receiver_field_write_is_home_neutral`,
+`ordinary_new_receiver_field_write_stays_fail_closed` (owned-handle RHS,
+non-self receiver, `new`/call inside RHS, compound `op=`), and the real
+`page_heap_box` census asserting `allocate`'s prefix now stops at
+`me.free_stack.get(..)` Body(3). The
+`retained_unavailable_claim_releases_staged_argument_reads` fixture was
+re-armed with an explicit `me.tick()` since `me.value = 3` is now
+covered. Serial lib suite 8102 passed / 127 failed — the sole delta
+versus the 8101/126 parent set is
+`nullable_receiver_call_serializes_nullable_handle_and_checked_release`,
+reproduced flaky on the parent commit standalone (per-process HashMap
+nondeterminism) and classified as baseline debt. The mimalloc-lite
+physical smoke stays 3/3 deterministic at
+`[freeze:contract][ordinary-new/local-commit/artifact-unowned-lifecycle-site]`
+— exactly the recorded frontier, since nested receiver calls still hold
+the claim `RetainedUnavailable`.
+
+Next: `MIRBUILDER-GATE1-NESTED-RECEIVER-CALL-D0` — design the nested
+`me.<field>.m(..)` receiver-call family that now fronts `allocate`'s
+prefix at Body(3).
+
 ## Decision — MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (accepted)
 
 Decision:

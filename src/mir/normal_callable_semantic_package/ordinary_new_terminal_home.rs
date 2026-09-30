@@ -91,27 +91,19 @@ pub(super) fn entry_receiver_box_proof<'a>(
     })
 }
 
-/// Argument-position `receiver.field` proof for one selected `new` site.
-///
-/// Two disjoint families admit a read:
-/// - the receiver's handle root is a claim-local selected `new` Home —
-///   the existing `initialized_integer_field` provenance decides;
-/// - the root is the sole entry loan's receiver binding — the field is
-///   proven `i64` on this declaration's own box source definition.
-///
-/// Anything else returns `None`; the scanner names that row
-/// `ArgumentNotTrivial`. No MIR type or runtime layout participates.
-pub(super) fn argument_integer_field(
+/// Shared entry-receiver field lookup: `home` must be the sole entry
+/// loan's receiver binding owned by this declaration — the field is then
+/// proven on this declaration's own box source definition. `scalar`
+/// alone decides the declared-type contract; weak and duplicate
+/// declarations stay unproven either way.
+fn entry_receiver_field(
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-    candidates: &[OrdinaryNewCandidate],
-    site: &OwnedExprSiteV1,
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    site: &OwnedExprSiteV1,
     home: BindingRefV1,
     field: &str,
+    scalar: impl FnOnce(Option<&str>) -> bool,
 ) -> Result<Option<hakorune_mir_defs::CanonicalFieldRefV1>, OrdinaryNewCoSealIssueV1> {
-    if let Some(field) = initialized_integer_field(constructors, candidates, home, field)? {
-        return Ok(Some(field));
-    }
     let Some((receiver, box_source)) = receiver else {
         return Ok(None);
     };
@@ -138,7 +130,7 @@ pub(super) fn argument_integer_field(
             };
             if fields.next().is_some()
                 || declaration.is_weak
-                || declaration.declared_type_name.as_deref() != Some("i64")
+                || !scalar(declaration.declared_type_name.as_deref())
             {
                 return Ok(None);
             }
@@ -149,4 +141,48 @@ pub(super) fn argument_integer_field(
                 })
         })
         .map_err(lookup_error)?
+}
+
+/// Argument-position `receiver.field` proof for one selected `new` site.
+///
+/// Two disjoint families admit a read:
+/// - the receiver's handle root is a claim-local selected `new` Home —
+///   the existing `initialized_integer_field` provenance decides;
+/// - the root is the sole entry loan's receiver binding — the field is
+///   proven `i64` on this declaration's own box source definition.
+///
+/// Anything else returns `None`; the scanner names that row
+/// `ArgumentNotTrivial`. No MIR type or runtime layout participates.
+pub(super) fn argument_integer_field(
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    candidates: &[OrdinaryNewCandidate],
+    site: &OwnedExprSiteV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    home: BindingRefV1,
+    field: &str,
+) -> Result<Option<hakorune_mir_defs::CanonicalFieldRefV1>, OrdinaryNewCoSealIssueV1> {
+    if let Some(field) = initialized_integer_field(constructors, candidates, home, field)? {
+        return Ok(Some(field));
+    }
+    entry_receiver_field(constructors, receiver, site, home, field, |name| {
+        name == Some("i64")
+    })
+}
+
+/// Receiver-side scalar-field proof for `me.<field>` reads inside a
+/// self-rooted field-write RHS. The entry loan's receiver root is proven
+/// against this declaration's own box source; the numeric substrate's
+/// integer-scalar name set (`usize` included) decides the contract —
+/// argument-position `i64` admission is a separate authority and stays
+/// unchanged.
+pub(super) fn receiver_scalar_field(
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    site: &OwnedExprSiteV1,
+    home: BindingRefV1,
+    field: &str,
+) -> Result<Option<hakorune_mir_defs::CanonicalFieldRefV1>, OrdinaryNewCoSealIssueV1> {
+    entry_receiver_field(constructors, receiver, site, home, field, |name| {
+        name.is_some_and(crate::mir::numeric_substrate::is_numeric_integer_type_name)
+    })
 }
