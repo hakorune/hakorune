@@ -379,6 +379,21 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
               b, normal_label, b, b, lv4_u(op, "value"), fault_label);
           continue;
         }
+      } else if (lv4_is(op, "kind", "object_field_set")) {
+        fprintf(f, "@\"nyash.object.checked_field_set_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, i64 %%v%u)\n",
+            in->profile, site, lv4_u(op, "base"), (long long)lv4_type_id(in, op), lv4_slot(in, op), lv4_u(op, "value"));
+        /* The child lease moves into the slot only on Normal; a faulted
+           store discharges the in-flight child with the child's own
+           plain-object release before joining the shared fault edge. */
+        fprintf(f,
+            "  switch i32 %%status%u, label %%invalid [ i32 0, label %%%s i32 1, label %%ofs_fault%u ]\n"
+            "ofs_fault%u:\n"
+            "  %%ofs_rel%u = call i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld)\n"
+            "  br label %%%s\n",
+            b, normal_label, b, b, b, in->profile, site, lv4_u(op, "value"),
+            (long long)lv4_u(lv4_layout(in, lv4_u(op, "child_object_id")), "runtime_type_id"),
+            fault_label);
+        continue;
       } else {
         fprintf(f, "@\"nyash.object.%s_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld)\n",
             lv4_is(op, "kind", "home_release") || lv4_is(op, "kind", "home_release_if_live")

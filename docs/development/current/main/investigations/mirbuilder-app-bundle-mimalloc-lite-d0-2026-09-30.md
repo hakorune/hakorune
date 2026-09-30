@@ -652,3 +652,59 @@ Landed end to end at the claim/verification/wire layers:
   program exercise stays deferred to FIELD-INIT-USER-NEW-S0 as designed.
 
 Next: MIRBUILDER-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-S0
+
+## S0 landed — MIRBUILDER-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-S0
+
+Landed end to end through the production physical route:
+
+- `issue_construction_plan` admits a user-class provider `new` as a
+  field initializer only when: exact object membership resolves the
+  child to exactly one object, the child is not the parent,
+  `destruction_for(child)` is `PlainI64NoHook`, the provider class
+  matches the declared field class, and every argument is a sealed
+  `OrdinaryNewTrivialArgumentV1` (Integer/Bool/scalar Local). All
+  other shapes stay fail-closed (`FieldContractUnsupported`).
+- `emit_construction_store` emits `Invoke{NewBox}` +
+  `InvokeNormalResult` + `Call{BirthConstructor, Unit}` +
+  `Invoke{ObjectFieldSet}` under the shared fault frame. Birth fault
+  lands on `ReclaimUnpublished{child}`; store fault lands on
+  `HomeRelease{child}` discharge. Reclaim/discharge landings are
+  dedicated jump blocks (invoke landings must differ and be
+  exclusive), both jumping to the shared fault continuation.
+  `validate_bindings` checks the exact block/op chain.
+- Constructor scopes now lend the shared `OrdinaryNewClaimLedgerV1`
+  (`provider-ledger-missing` fix in
+  `with_constructor_semantic_scope`).
+- Ledger gains a `provider_births` lane: `record_provider_birth`
+  seals site/handoff/receiver/emitted arguments, and
+  `seal_finalized_root_birth_handoff` folds them into
+  `FinalizedBirthActualsV1` + `BirthAbiHandoffV1` (construction-key
+  corroboration, duplicate-drift rejection).
+  `issue_birth_calls_for_program` opens the `BirthUnit` caller role
+  (`abi.owner()`) so provider `birth_call`s inside birth units
+  publish.
+- New `InvokeOperation::ObjectFieldSet{field, base, value, child}`
+  (wire `object_field_set`) threaded through invoke consumers,
+  MIR verification, physical program whitelist, JSON serializer.
+- C side: indexed-flow admits `new_box`/`birth_call`/
+  `object_field_set`/`home_release`/`reclaim_unpublished` inside
+  birth units (`lv4_indexed_admit` birth-caller gate), `field_set`
+  fault edges discharge in-flight leases; `physical_v2.inc`
+  validates `object_field_set` (exact keys, field layout, child
+  object); `emit.inc` emits the object-store write; diagnostic-site
+  whitelist extended.
+- Focused gates: `user_object_provider_construction_reaches_artifact_lane`
+  (optimized + unoptimized), `user_object_provider_physical_json_publishes_birth_chain`
+  (one each of `new_box`/`birth_call`/`object_field_set`/
+  `reclaim_unpublished`/`home_release`), expanded
+  `provider_construction_store_rejects_foreign_shapes` (class
+  mismatch, missing membership, non-plain child, field-read arg,
+  scalar field, malformed init). Fixture
+  `apps/user-object-field-init-min` compiles through Lifecycle V4 +
+  LLVM C API to a runnable EXE (`Result: 0`).
+- Known baseline debt unchanged: 3 red-baseline tests in
+  `normal_callable_semantic_package` remain in
+  `tools/checks/manifests/cargo_lib_red_baseline.failures.txt`; the
+  `ordinary-membership-drift` parallel-order flake is unchanged.
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-D0

@@ -39,12 +39,15 @@ pub(crate) enum ConstructionStoreRhsV1 {
         binding: BindingRefV1,
     },
     /// Coverage-only: the plan records the provider `new` site; the
-    /// existing new-expression owner produces the value. Bounded to a
-    /// bare `new` of a builtin class (zero arguments, zero field
-    /// initializers — builtin classes carry no user Birth row).
+    /// existing new-expression owner produces the value. Builtin class
+    /// providers keep `object`/`arguments` empty (`None`); a user-class
+    /// provider carries the canonical child identity and its sealed
+    /// literal arguments for the emitted Birth call.
     ProviderConstruction {
         site: SourceExprSiteV1,
         class: Box<str>,
+        object: Option<CanonicalObjectIdV1>,
+        arguments: Box<[super::OrdinaryNewTrivialArgumentV1]>,
     },
 }
 
@@ -127,6 +130,11 @@ pub(super) fn issue_construction_plan(
         &crate::parser::ConstructorSourceIdV1,
         ResolvedFunctionLoweringInputV1<'_>,
     )>,
+    objects: &[(
+        crate::parser::ParserOrdinaryBoxSourceRowV1,
+        CanonicalObjectIdV1,
+    )],
+    definitions: &[crate::mir::function::CanonicalObjectDefinitionV1],
 ) -> ConstructionEligibilityV1 {
     use ConstructionUnavailableV1 as U;
     // Parser normalization moves declared defaults into Birth stores. The
@@ -316,16 +324,88 @@ pub(super) fn issue_construction_plan(
                     .expression_source()
                     .construction(row.value_site())
                     .ok_or(U::SourceRelationMissing)?;
-                if crate::runtime::CoreBoxId::from_name(construction.class()).is_none()
-                    || !construction.arguments().is_empty()
-                    || !construction.field_initializers().is_empty()
-                {
+                if !construction.field_initializers().is_empty() {
+                    return Err(U::FieldContractUnsupported);
+                }
+                let class = construction.class();
+                let mut object = None;
+                let mut arguments: Box<
+                    [crate::mir::normal_callable_semantic_package::
+                        OrdinaryNewTrivialArgumentV1],
+                > = Box::new([]);
+                if crate::runtime::CoreBoxId::from_name(class).is_none() {
+                    // A user-class provider constructs its child through the
+                    // canonical Birth path: exact membership resolves the
+                    // child object, S0 admits only a `PlainI64NoHook` child
+                    // (its discharge is `home_release_plain_i64_v1`), and the
+                    // child can never be the parent itself.
+                    let mut resolved = objects.iter().filter_map(|(own, id)| {
+                        (own.name() == class).then_some(*id)
+                    });
+                    let Some(child) = resolved.next() else {
+                        return Err(U::FieldContractUnsupported);
+                    };
+                    if resolved.next().is_some()
+                        || child == object_id
+                        || definitions
+                            .get(child.declaration_index() as usize)
+                            .map(|definition| definition.destruction_disposition())
+                            != Some(
+                                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook,
+                            )
+                    {
+                        return Err(U::FieldContractUnsupported);
+                    }
+                    let new_site =
+                        OwnedExprSiteV1::new(input.owner(), row.value_site().clone());
+                    let mut sealed = Vec::with_capacity(construction.arguments().len());
+                    for (arg_ordinal, arg_site) in
+                        construction.arguments().iter().enumerate()
+                    {
+                        let node = input
+                            .source()
+                            .expr_at(&OwnedExprSiteV1::new(
+                                input.owner(),
+                                arg_site.clone(),
+                            ))
+                            .map_err(|_| U::SourceRelationMissing)?;
+                        let kind = match node.node() {
+                            ASTNode::Literal {
+                                value: LiteralValue::Integer(value),
+                                ..
+                            } => {
+                                super::OrdinaryNewTrivialArgumentKindV1::Integer(
+                                    *value,
+                                )
+                            }
+                            ASTNode::Literal {
+                                value: LiteralValue::Bool(value),
+                                ..
+                            } => {
+                                super::OrdinaryNewTrivialArgumentKindV1::Bool(*value)
+                            }
+                            _ => return Err(U::FieldContractUnsupported),
+                        };
+                        sealed.push(super::OrdinaryNewTrivialArgumentV1::new(
+                            input.owner(),
+                            new_site.clone(),
+                            arg_ordinal as u32,
+                            arg_site.clone(),
+                            kind,
+                        ));
+                        expressions.insert(arg_site.clone());
+                    }
+                    object = Some(child);
+                    arguments = sealed.into_boxed_slice();
+                } else if !construction.arguments().is_empty() {
                     return Err(U::FieldContractUnsupported);
                 }
                 provider_ordinals.insert(ordinal);
                 ConstructionStoreRhsV1::ProviderConstruction {
                     site: row.value_site().clone(),
-                    class: construction.class().into(),
+                    class: class.into(),
+                    object,
+                    arguments,
                 }
             }
             _ => return Err(U::BodyCoverageUnsupported),
@@ -373,10 +453,16 @@ pub(super) fn issue_construction_plan(
                 store.rhs(),
                 ConstructionStoreRhsV1::LiteralI64(_) | ConstructionStoreRhsV1::Parameter { .. }
             ),
-            Some(name) => matches!(
-                store.rhs(),
-                ConstructionStoreRhsV1::ProviderConstruction { class, .. } if class.as_ref() == name
-            ),
+            Some(name) => match store.rhs() {
+                ConstructionStoreRhsV1::ProviderConstruction {
+                    class, object, ..
+                } => {
+                    class.as_ref() == name
+                        && object.is_some()
+                            == (crate::runtime::CoreBoxId::from_name(name).is_none())
+                }
+                _ => false,
+            },
             None => matches!(
                 store.rhs(),
                 ConstructionStoreRhsV1::ProviderConstruction { .. }

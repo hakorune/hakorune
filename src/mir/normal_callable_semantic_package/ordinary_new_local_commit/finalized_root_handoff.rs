@@ -227,6 +227,31 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("artifact-birth-abi-duplicate-drift"));
             }
         }
+        for record in self.provider_births.borrow().iter() {
+            let relation = &record.handoff;
+            let key = relation.target().clone();
+            if relation.owner() == record.site.owner() {
+                return Err(freeze("artifact-birth-abi-drift"));
+            }
+            if relation.object() != record.object {
+                return Err(freeze("artifact-birth-object-drift"));
+            }
+            if !construction_keys.contains(&key) {
+                return Err(freeze("artifact-birth-construction-missing"));
+            }
+            actuals.push(FinalizedBirthActualsV1 {
+                site: record.site.clone(),
+                destination: None,
+                target: key.clone(),
+                receiver: record.receiver,
+                arguments: record.arguments.clone(),
+            });
+            if keys.insert(key.clone()) {
+                births.push(relation.clone());
+            } else if !births.iter().any(|existing| existing == relation) {
+                return Err(freeze("artifact-birth-abi-duplicate-drift"));
+            }
+        }
         if root_source.is_none() && !actuals.is_empty() {
             return Err(freeze("artifact-actual-root-source-missing"));
         }

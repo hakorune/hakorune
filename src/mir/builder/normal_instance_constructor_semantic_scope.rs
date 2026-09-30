@@ -25,6 +25,9 @@ pub(super) fn with_constructor_semantic_scope<R>(
     let mut state = CallableSemanticLoweringState::from_exact_source(input)?;
     state.install_construction(source_id, kind, construction)?;
     state.install_named_array_field_providers(named_array_field_providers)?;
+    // The shared ledger carries the birth-site index a provider `new`
+    // resolves through inside this constructor's construction stores.
+    state.lend_ordinary_new_claim_ledger(Rc::clone(&ordinary_new_claim_ledger));
     let state = Rc::new(RefCell::new(state));
     let parent = inner.callable_ledger.replace(state.clone());
     let parent_new_ledger = inner

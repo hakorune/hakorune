@@ -102,6 +102,19 @@ impl FinalizedBirthActualsV1 {
     }
 }
 
+/// A provider `new Child(args)` inside a Birth unit: the emitted checked
+/// `new_box` + `birth_call` + `object_field_set` chain is recorded at
+/// emission time because the store itself is the commit — there is no
+/// claim row to finalize separately.
+#[derive(Debug)]
+pub(super) struct ProviderBirthRecordV1 {
+    pub(super) site: OwnedExprSiteV1,
+    pub(super) object: hakorune_mir_defs::CanonicalObjectIdV1,
+    pub(super) handoff: BirthAbiHandoffV1,
+    pub(super) receiver: ValueId,
+    pub(super) arguments: Box<[EmittedNewArgumentV1]>,
+}
+
 #[derive(Debug)]
 pub(super) struct NewLocalCommitV1 {
     box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,

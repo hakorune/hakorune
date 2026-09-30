@@ -601,6 +601,19 @@ fn encode_invoke(
             }),
             required_site(diagnostic_site, abi_input.is_some())?,
         )?,
+        InvokeOperation::ObjectFieldSet {
+            field,
+            base,
+            value: stored,
+            child,
+        } => with_site(
+            json!({
+                "kind": "object_field_set", "object_id": field.object().declaration_index(),
+                "field_ordinal": field.declaration_ordinal(), "base": value(base),
+                "value": value(stored), "child_object_id": child.declaration_index(),
+            }),
+            required_site(diagnostic_site, abi_input.is_some())?,
+        )?,
         InvokeOperation::HomeRelease {
             object,
             value: released,

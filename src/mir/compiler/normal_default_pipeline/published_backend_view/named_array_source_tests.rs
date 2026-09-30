@@ -344,10 +344,27 @@ fn provider_construction_store_rejects_foreign_shapes() {
                 "box Holder { free_stack: ArrayBox = new StringBox() birth() { } seed() { } } static box Main { main() { return 1 } }",
                 "FieldContractUnsupported",
             ),
-            // The provider class has to be builtin — a user box fails the
-            // arm, and `unowned-birth-call` stays the outer guard.
+            // A user-box provider is admitted only when the child is
+            // `PlainI64NoHook`; a child owning an ArrayBox field needs the
+            // deeper teardown lane and still fails plan admission.
             (
-                "box Inner { value: i64 = 0 birth() { } } box Holder { inner: Inner = new Inner() birth() { } seed() { } } static box Main { main() { return 1 } }",
+                "box Inner { items: ArrayBox = new ArrayBox() birth() { } } box Holder { inner: Inner = new Inner() birth() { } seed() { } } static box Main { main() { return 1 } }",
+                "FieldContractUnsupported",
+            ),
+            // The provider must construct exactly the declared class.
+            (
+                "box Inner { value: i64 = 0 birth() { } } box Other { value: i64 = 0 birth() { } } box Holder { inner: Inner = new Other() birth() { } seed() { } } static box Main { main() { return 1 } }",
+                "FieldContractUnsupported",
+            ),
+            // A provider class outside exact object membership is foreign.
+            (
+                "box Holder { inner: Missing = new Missing() birth() { } seed() { } } static box Main { main() { return 1 } }",
+                "FieldContractUnsupported",
+            ),
+            // User-provider arguments admit sealed literals only: a field
+            // read argument is out of contract.
+            (
+                "box Inner { value: i64 = 0 birth(v) { } } box Holder { capacity: i64 = 0 inner: Inner = new Inner(me.capacity) birth() { } seed() { } } static box Main { main() { return 1 } }",
                 "FieldContractUnsupported",
             ),
             // An i64 field cannot carry a provider `new` store.
@@ -380,6 +397,52 @@ fn provider_construction_store_rejects_foreign_shapes() {
                 error.contains(expected),
                 "{expected}: unexpected rejection: {error}"
             );
+        }
+        });
+    });
+}
+
+/// User-object provider: `inner: Inner = new Inner()` emits a checked
+/// `NewBox`, the canonical `BirthConstructor` call and the checked
+/// `ObjectFieldSet` store inside `Holder.birth/1`, with the child reclaimed
+/// on birth fault and discharged on store fault.
+#[test]
+fn user_object_provider_construction_reaches_artifact_lane() {
+    run_on_test_thread("user-object-provider-construction", || {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        field_resident_env(|| {
+        let source = "box Inner { value: i64 = 0 birth() { } } box Holder { inner: Inner = new Inner() birth() { } seed() { } } static box Main { main() { return 1 } }";
+        for optimize in [false, true] {
+            let mut calls = 0;
+            MirCompiler::with_options(optimize).compile_normal_with_published(
+                published_request(source),
+                |view, verification| -> Result<(), String> {
+                    calls += 1;
+                    assert!(verification.is_ok(), "{verification:?}");
+                    let instructions = || {
+                        view.module().functions.values().flat_map(|f| f.blocks.values())
+                            .flat_map(|b| b.all_instructions())
+                    };
+                    let new_boxes = instructions().filter(|i| matches!(i,
+                        MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::NewBox { .. }, .. })).count();
+                    assert_eq!(new_boxes, 1, "provider emits the checked NewBox");
+                    let birth_calls = instructions().filter(|i| matches!(i,
+                        MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::Call { call, .. }, .. }
+                            if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }))).count();
+                    assert_eq!(birth_calls, 1, "provider emits the canonical BirthConstructor call");
+                    let field_sets = instructions().filter(|i| matches!(i,
+                        MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ObjectFieldSet { .. }, .. })).count();
+                    assert_eq!(field_sets, 1, "provider store is the checked ObjectFieldSet");
+                    let reclaims = instructions().filter(|i| matches!(i,
+                        MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ReclaimUnpublished { .. }, .. })).count();
+                    assert_eq!(reclaims, 1, "birth fault reclaims the unpublished child");
+                    let discharges = instructions().filter(|i| matches!(i,
+                        MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::HomeRelease { .. }, .. })).count();
+                    assert_eq!(discharges, 1, "store fault discharges the child");
+                    Ok(())
+                },
+            ).unwrap_or_else(|error| panic!("optimize={optimize}: {error:?}"));
+            assert_eq!(calls, 1);
         }
         });
     });

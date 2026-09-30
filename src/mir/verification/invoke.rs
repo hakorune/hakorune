@@ -149,6 +149,41 @@ pub(super) fn check_module(
                         {
                             errors.push(error(*id, "field-definition-missing"));
                         }
+                        // An object-field store names the field's declared
+                        // user class resolved through exact object
+                        // membership — the same authority as the release
+                        // side, never a name guess.
+                        InvokeOperation::ObjectFieldSet { field, child, .. }
+                            if !(module.canonical_field_definition(*field).is_some_and(
+                                |definition| {
+                                    !definition.is_weak
+                                        && definition
+                                            .declared_type_name
+                                            .as_deref()
+                                            .and_then(|name| {
+                                                module
+                                                    .metadata
+                                                    .canonical_object_membership
+                                                    .as_ref()
+                                                    .and_then(|members| members.get(name))
+                                            })
+                                            .is_some_and(|resolved| resolved == child)
+                                },
+                            ) && module
+                                .canonical_object_definition(*child)
+                                .is_some_and(|definition| {
+                                    definition.destruction_disposition()
+                                        == crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
+                                })
+                                && module
+                                    .canonical_object_definition(field.object())
+                                    .is_some_and(|definition| {
+                                        definition.destruction_disposition()
+                                            == crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
+                                    })) =>
+                        {
+                            errors.push(error(*id, "object-field-set-invalid"));
+                        }
                         _ => {}
                     }
                 }

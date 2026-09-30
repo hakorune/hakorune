@@ -21,6 +21,7 @@ static int hako_physical_checked_sites_unique(yyjson_val* functions, uint64_t pr
         operation = yyjson_obj_get(instruction, "operation");
         kind = yyjson_get_str(yyjson_obj_get(operation, "kind"));
         if (!kind || (strcmp(kind, "new_box") && strcmp(kind, "field_set") &&
+            strcmp(kind, "object_field_set") &&
             strcmp(kind, "field_residence_release") && strcmp(kind, "object_field_release") &&
             strcmp(kind, "home_release") && strcmp(kind, "home_release_if_live") &&
             strcmp(kind, "reclaim_unpublished") &&

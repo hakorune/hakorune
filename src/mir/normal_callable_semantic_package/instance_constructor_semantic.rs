@@ -450,7 +450,14 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     continue;
                 }
                 let plan = source.with_ordinary_box_syntax(parent, |declaration| {
-                    issue_construction_plan(*object_id, parent, declaration, None)
+                    issue_construction_plan(
+                        *object_id,
+                        parent,
+                        declaration,
+                        None,
+                        &object_sources,
+                        &object_definitions,
+                    )
                 }).map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
                 no_birth_construction.push((parent.clone(), plan));
             }
@@ -593,7 +600,14 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                         .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
                 let construction = if kind == ConstructorSourceKindV1::Birth {
                     source.with_ordinary_box_syntax(&box_source, |parent| {
-                        issue_construction_plan(object, &box_source, parent, Some((&source_id, input)))
+                        issue_construction_plan(
+                            object,
+                            &box_source,
+                            parent,
+                            Some((&source_id, input)),
+                            &object_sources,
+                            &object_definitions,
+                        )
                     }).map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?
                 } else {
                     Err(super::instance_construction::ConstructionUnavailableV1::BodyCoverageUnsupported)

@@ -677,8 +677,12 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             owner,
             crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node),
         );
+        // The raw lane keeps its prior contract: it consumes only the
+        // recipe half of the indexed pair; the sealed handoff is dropped
+        // because this emission path has no ABI handoff consumer.
         ledger
             .take_birth_site_recipe(&site, class, argument_count)
+            .map(|entry| entry.map(|(recipe, _handoff)| recipe))
             .map_err(|error| format!("[freeze:contract][raw-ordinary-new/birth-site] {error:?}"))
     }
 }

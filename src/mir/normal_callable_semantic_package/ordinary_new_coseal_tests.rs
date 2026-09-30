@@ -496,9 +496,10 @@ fn birth_site_index_covers_field_assign_sites_while_return_position_claims() {
     // family, so the index keeps authorizing its `Birth` call edge only.
     assert_eq!(index.len(), 1, "field-assign sites only");
     assert_eq!(result_claims.len(), 1, "return-position site is claimed");
-    for (site, recipe) in index.iter() {
+    for (site, (recipe, handoff)) in index.iter() {
         assert_eq!(recipe.target_ref().owner(), "Inner");
         assert_eq!(recipe.target_ref().arity(), 1);
+        assert_eq!(handoff.target(), recipe.target_ref());
         assert!(
             !matches!(
                 site.site().node().segments(),
@@ -570,11 +571,12 @@ fn birth_site_take_enforces_class_arity_and_is_affine() {
         ledger.take_birth_site_recipe(&site, "Other", 1),
         Err(OrdinaryNewClaimTakeErrorV1::Mismatch)
     );
-    let recipe = ledger
+    let (recipe, handoff) = ledger
         .take_birth_site_recipe(&site, "Inner", 1)
         .unwrap()
         .expect("verified recipe");
     assert_eq!(recipe.target_ref().owner(), "Inner");
+    assert_eq!(handoff.target(), recipe.target_ref());
     assert_eq!(
         ledger.take_birth_site_recipe(&site, "Inner", 1),
         Ok(None),

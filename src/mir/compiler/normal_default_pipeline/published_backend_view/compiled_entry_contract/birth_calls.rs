@@ -50,6 +50,36 @@ pub(super) fn issue_birth_calls_for_program(
     for (caller_function_index, function) in program.functions().iter().enumerate() {
         let caller_function_index =
             u32::try_from(caller_function_index).map_err(|_| fault("compiled-entry-call-index"))?;
+        let has_birth = |function: &super::super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>| {
+            function.blocks().iter().any(|block| {
+                block
+                    .instructions()
+                    .iter()
+                    .copied()
+                    .chain(std::iter::once(block.terminator()))
+                    .any(|row| {
+                        matches!(
+                            row.instruction(),
+                            MirInstruction::Call(crate::mir::definitions::MirCall {
+                                callee: Callee::BirthConstructor { .. },
+                                ..
+                            })
+                        ) || matches!(
+                            row.instruction(),
+                            MirInstruction::Invoke {
+                                operation: InvokeOperation::Call {
+                                    call: crate::mir::definitions::MirCall {
+                                        callee: Callee::BirthConstructor { .. },
+                                        ..
+                                    },
+                                    result: InvokeCallResultKind::Unit,
+                                },
+                                ..
+                            }
+                        )
+                    })
+            })
+        };
         let owner = match function.role() {
             PublishedLifecyclePhysicalFunctionRoleV1::Root { .. } => Some(root_owner),
             PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key, .. }
@@ -58,35 +88,7 @@ pub(super) fn issue_birth_calls_for_program(
             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle {
                 key, ..
             } => {
-                let has_birth = function.blocks().iter().any(|block| {
-                    block
-                        .instructions()
-                        .iter()
-                        .copied()
-                        .chain(std::iter::once(block.terminator()))
-                        .any(|row| {
-                            matches!(
-                                row.instruction(),
-                                MirInstruction::Call(crate::mir::definitions::MirCall {
-                                    callee: Callee::BirthConstructor { .. },
-                                    ..
-                                })
-                            ) || matches!(
-                                row.instruction(),
-                                MirInstruction::Invoke {
-                                    operation: InvokeOperation::Call {
-                                        call: crate::mir::definitions::MirCall {
-                                            callee: Callee::BirthConstructor { .. },
-                                            ..
-                                        },
-                                        result: InvokeCallResultKind::Unit,
-                                    },
-                                    ..
-                                }
-                            )
-                        })
-                });
-                if !has_birth {
+                if !has_birth(function) {
                     continue;
                 }
                 Some(
@@ -97,7 +99,14 @@ pub(super) fn issue_birth_calls_for_program(
                         .ok_or_else(|| fault("compiled-entry-caller-owner-missing"))?,
                 )
             }
-            PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { .. } => None,
+            // A provider `new` inside `birth` runs its child `birth_call`
+            // in this same unit; the unit's ABI owner is the caller owner.
+            PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } => {
+                if !has_birth(function) {
+                    continue;
+                }
+                Some(abi.owner())
+            }
         };
         let Some(owner) = owner else { continue };
         let mut owner_calls = Vec::new();

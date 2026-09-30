@@ -262,6 +262,40 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
+    /// Record a provider `new` Birth edge emitted inside a Birth unit. The
+    /// store emission itself is the commit boundary — the row is complete
+    /// the moment it is recorded, so no progress state machine is needed.
+    pub(crate) fn record_provider_birth(
+        &self,
+        site: OwnedExprSiteV1,
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
+        handoff: BirthAbiHandoffV1,
+        receiver: ValueId,
+        arguments: Vec<(OrdinaryNewTrivialArgumentV1, ValueId)>,
+    ) -> Result<(), String> {
+        if site.owner() == handoff.owner() {
+            return Err(freeze("provider-birth-owner-drift"));
+        }
+        let mut emitted = Vec::with_capacity(arguments.len());
+        for (ordinal, (source, value)) in arguments.into_iter().enumerate() {
+            if source.ordinal() as usize != ordinal
+                || source.new_site() != &site
+                || source.owner() != site.owner()
+            {
+                return Err(freeze("provider-birth-argument-drift"));
+            }
+            emitted.push(EmittedNewArgumentV1 { source, value });
+        }
+        self.provider_births.borrow_mut().push(ProviderBirthRecordV1 {
+            site,
+            object,
+            handoff,
+            receiver,
+            arguments: emitted.into_boxed_slice(),
+        });
+        Ok(())
+    }
+
     pub(crate) fn complete_new_emissions(
         &self,
         owner: FunctionOwnerIdV1,

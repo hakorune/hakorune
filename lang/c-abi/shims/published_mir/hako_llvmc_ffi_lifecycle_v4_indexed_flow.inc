@@ -202,7 +202,10 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "map_new") ||
         lv4_is(op, "kind", "map_prepare_key")) {
-      if ((fi && !ordinary) || faulted || state[bi]) return 0;
+      /* A provider `new <Child>` inside a birth unit issues the child
+         allocation on the shared frame, so `new_box` is admitted there:
+         the produced lease is still a caller-owned in-flight handle. */
+      if ((fi && !ordinary && !birth) || faulted || state[bi]) return 0;
       if (lv4_is(op, "kind", "new_box") && !lv4_layout(in, lv4_u(op, "object_id"))) return 0;
       if (hako_physical_map_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) &&
           in->profile != LV4_INDEXED_SAFE_MUTEX) return 0;
@@ -217,7 +220,9 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       yyjson_val* call = yyjson_obj_get(op, "call");
       yyjson_val* args = yyjson_obj_get(call, "args");
       uint32_t target = lv4_u(call, "target");
-      if ((fi && !ordinary) || faulted || !target || target >= in->index_count ||
+      /* A birth caller invokes its child's own birth unit on the in-flight
+         handle; the lease survives the call for the field store below. */
+      if ((fi && !ordinary && !birth) || faulted || !target || target >= in->index_count ||
           !lv4_is(in->index[target].function, "role", "birth_unit") ||
           !lv4_indexed_live(fn, lv4_u(call, "receiver"), LV4_HANDLE, state,
               in->index[target].receiver_object, 1)) return 0;
@@ -253,6 +258,20 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           base->origin < 0 ||
           !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
+    } else if (lv4_is(op, "kind", "object_field_set")) {
+      /* A checked user-object field store moves the live child handle
+         into the parent's slot. Normal owns the lease in the slot; Fault
+         keeps it live so the discharge block's own `home_release` on the
+         child still has a lease to consume. */
+      hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
+      if (!fi || faulted || lv4_slot(in, op) < 0 || !value ||
+          value->kind != LV4_HANDLE || value->origin < 0 ||
+          !lv4_layout(in, lv4_u(op, "child_object_id")) ||
+          !lv4_indexed_live(fn, value->id, LV4_HANDLE, state,
+              lv4_u(op, "child_object_id"), 1) ||
+          !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
+              lv4_u(op, "object_id"), 1)) return 0;
+      normal[value->origin] = 0;
     } else if (lv4_is(op, "kind", "object_field_release")) {
       /* Same child-slot discharge as a field residence release, keyed on
          the canonical child object — the emitted helper owns the child's
@@ -271,7 +290,10 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
          without the exact-object corroboration. */
       int nullable_release = lv4_is(op, "kind", "home_release_if_live");
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
-      if ((fi && !ordinary) || !lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
+      /* Birth units admit these only for an in-flight provider child
+         (origin >= 0); the borrowed `me` receiver still fails the origin
+         check, so self-release can never slip through this lane. */
+      if ((fi && !ordinary && !birth) || !lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), !nullable_release) || value->origin < 0) return 0;
       normal[value->origin] = state[value->origin] = 0;
     } else if (lv4_is(op, "kind", "map_install_text") ||
@@ -379,7 +401,8 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
     for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
       yyjson_val* op = yyjson_obj_get(lv4_term(yyjson_arr_get(blocks, bi)), "operation");
       if (!lv4_is(op, "kind", "birth_call")) continue;
-      if (fi && !ordinary) return 0;
+      int birth_caller = lv4_is(caller->function, "role", "birth_unit");
+      if (fi && !ordinary && !birth_caller) return 0;
       yyjson_val* call = yyjson_obj_get(op, "call");
       uint32_t target = lv4_u(call, "target");
       hako_lv4_value* receiver = lv4_index_value(caller, lv4_u(call, "receiver"));
@@ -387,7 +410,13 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
           !lv4_is(in->index[target].function, "role", "birth_unit") ||
           !receiver || receiver->kind != LV4_HANDLE || receiver->origin < 0) return 0;
       hako_lv4_function_index* birth = &in->index[target];
-      if (birth->receiver_object_set) return 0;
+      /* One birth unit may serve several provider sites (two fields can
+         construct the same class): a repeat binding is admitted only when
+         it restates the already-bound child object exactly. */
+      if (birth->receiver_object_set) {
+        if (birth->receiver_object != receiver->object_id) return 0;
+        continue;
+      }
       birth->receiver_object = receiver->object_id; birth->receiver_object_set = 1;
       for (size_t vi = 0; vi < birth->value_count; vi++)
         if (birth->values[vi].origin == -2) birth->values[vi].object_id = receiver->object_id;

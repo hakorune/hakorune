@@ -1,7 +1,7 @@
 date = "2026-10-01"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-S0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -17,44 +17,27 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-DESTRUCTION-ARRAYBOX-FIELD-S0 landed: declared non-weak `ArrayBox`
-fields issue `OwnedArrayFieldsNoHook`, field-write claims seal proven
-`me.<field> = new ArrayBox()` residences, and `end_plan` emits child
-`OwnedFieldResidenceRelease` origins (reverse declaration order) +
-parent `HomeRelease` on both normal exit and birth-fault chains.
-Provider `new ArrayBox()` emits `Invoke{IntrinsicArrayNew}` +
-`InvokeNormalResult` under the shared fault frame; wire
-`field_residence_release` = `checked_field_get_i64_v1` +
-`nyrt_handle_release_h` (release-if-live); handle `field_set`
-discharges on the fault edge. Probe compiles through Lifecycle V4 +
-LLVM C API and runs `Result: 0`; mimalloc_lite_exe negative pin is
-`emission-binding-drift`, EXE frontier stays
-`artifact-unowned-lifecycle-site`. DESTRUCTION-OBJECT-FIELD-D0
-accepted: one `OwnedObjectFieldRelease` op emitting a generated
-per-class teardown helper; claim gets a typed `OwnedFieldChildV1`
-with recursive child-disposition corroboration + cycle rejection.
-FIELD-INIT-USER-NEW-D0 accepted: ProviderConstruction extends to
-user-class `new` (object id + verified birth recipe + sealed arg
-rows), emit mirrors emit_selected_new
-(NewBox+NormalResult+birth_call+FieldSet on the shared fault frame
-with a dedicated child-discharge chain), C admission gains `|| birth`
-for new_box/birth_call/field_residence_release/reclaim_unpublished,
-and field_set fault discharge dispatches on value origin (object
-children use a generated per-class teardown helper — the same product
-DESTRUCTION-OBJECT-FIELD-S0 reuses). S0 arg kinds are bounded to
-Integer/Bool/scalar Local. Ordering refined at implementation entry:
-the destruction slice lands FIRST because a parent with an
-object-typed field needs a disposition + release op before any
-field-init program can compile, and S0 bounds object children to
-PlainI64NoHook (home_release discharge — no teardown helper yet).
-DESTRUCTION-OBJECT-FIELD-S0 landed at claim/verification/wire level
-(typed OwnedFieldChildV1, OwnedObjectFieldRelease op, C flow+emit);
-physical positive arrives with the provider arm.
-Next: APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-S0.
+DESTRUCTION-ARRAYBOX-FIELD-S0 landed: `OwnedArrayFieldsNoHook` +
+reverse-order `OwnedFieldResidenceRelease` origins on normal exit
+and birth-fault chains; wire `field_residence_release` =
+`checked_field_get_i64_v1` + `nyrt_handle_release_h`.
+DESTRUCTION-OBJECT-FIELD-S0 landed: `OwnedObjectFieldsNoHook` +
+membership-gated Handle storage + typed `OwnedFieldChildV1`
+(Array|Object); `object_field_release` threaded through verifier,
+JSON, and C validator/flow/emit (`checked_field_get_i64_v1` +
+`home_release_plain_i64_v1`).
+FIELD-INIT-USER-NEW-S0 landed end to end: user-class provider `new`
+field initializers admit `PlainI64NoHook` children with sealed
+Integer/Bool/scalar-Local args, emit `new_box` + `birth_call` +
+`object_field_set` under the shared fault frame with
+reclaim/discharge jump landings, and publish through physical JSON +
+Lifecycle V4 + LLVM C API (fixture apps/user-object-field-init-min
+runs `Result: 0`).
+Next: APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-D0.
 """
-next_design_card = "mimalloc-lite bundle slice 4 prerequisite: user-class field-init provider new inside birth units (Invoke{NewBox}+NormalResult+birth_call+FieldSet on shared fault frame)"
+next_design_card = "mimalloc-lite bundle slice 5: static-box call claims (LayoutBox.class_size/class_id/class_capacity) — artifact-root-completion-unavailable"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-S0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-D0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -70,7 +53,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-01: FIELD-INIT-USER-NEW-S0 landed — user-class provider `new` field initializers admit PlainI64NoHook children (exact membership, non-self, declared==provider class) with sealed Integer/Bool/scalar-Local args; emit NewBox+birth_call+ObjectFieldSet under the shared fault frame with dedicated reclaim/discharge jump landings; provider_births ledger lane folds actuals into FinalizedBirthActualsV1; BirthUnit caller role opened for birth_call publication; C flow/validator/emit admit the birth-unit ops. Fixture apps/user-object-field-init-min compiles via Lifecycle V4 + LLVM C API and runs Result: 0. Next: STATIC-CALL-CLAIM-D0.",
   "2026-10-01: DESTRUCTION-OBJECT-FIELD-S0 landed — OwnedObjectFieldsNoHook disposition + membership-gated Handle storage + typed OwnedFieldChildV1 (Array|Object) across coseal/end_plan/reclaim/fault chains; field-write claims record the exact written class and object children require declared==written + PlainI64NoHook + non-self. Invoke OwnedObjectFieldRelease threaded through verifier/graph/emission/ABI/JSON (`object_field_release` exact keys) and C validator+indexed-flow+emit (checked_field_get_i64_v1 + home_release_plain_i64_v1 with child type id). Claim/verification/wire green; physical positive stays deferred to FIELD-INIT-USER-NEW-S0 by design. Next: FIELD-INIT-USER-NEW-S0.",
   "2026-10-01: DESTRUCTION-ARRAYBOX-FIELD-S0 landed — OwnedArrayFieldsNoHook + widened field-write-claim seal + reverse-order OwnedFieldResidenceRelease origins (normal and birth-fault chains); provider `new ArrayBox()` emits IntrinsicArrayNew+InvokeNormalResult on the shared fault frame with exact named-array provider ledgers; wire `field_residence_release` = checked_field_get_i64_v1 + release-if-live nyrt_handle_release_h; handle-valued field_set discharges on the fault edge. Probe compiles+runs Result 0; app smoke negative pin re-pinned to emission-binding-drift, EXE frontier stays artifact-unowned-lifecycle-site. DESTRUCTION-OBJECT-FIELD-D0 accepted (OwnedObjectFieldRelease op + generated per-class teardown helper; typed OwnedFieldChildV1 with recursive corroboration + cycle rejection). Next: FIELD-INIT-USER-NEW-D0.",
-  "2026-09-30: DESTRUCTION-ARRAYBOX-FIELD-D0 accepted — owned ArrayBox fields get a reverse-declaration-order child-release plan; the child step is a NEW InvokeOperation variant (bare ArrayResidenceRelease has no fault edge / no cleanup-graph seat) lowering through existing symbols checked_field_get_i64_v1 + nyrt_handle_release_h, so no new kernel export. physical_abi must admit Handle storage for plan-carrying objects; FieldResidence claims gate the plan. User-object children (HakoAllocPage in HakoAllocHeap) stay slice 3. Next: DESTRUCTION-ARRAYBOX-FIELD-S0.",
   ]

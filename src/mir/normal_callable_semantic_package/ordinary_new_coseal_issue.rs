@@ -927,7 +927,10 @@ fn collect_birth_site_index_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     claimed_sites: &BTreeSet<OwnedExprSiteV1>,
-    index: &mut BTreeMap<OwnedExprSiteV1, VerifiedOrdinaryNewBirthRecipeV1>,
+    index: &mut BTreeMap<
+        OwnedExprSiteV1,
+        (VerifiedOrdinaryNewBirthRecipeV1, super::BirthAbiHandoffV1),
+    >,
 ) -> Result<(), OrdinaryNewCoSealIssueV1> {
     for construction in function.expression_source().constructions() {
         if is_direct_local_initializer(construction.site().node().segments()) {
@@ -948,7 +951,7 @@ fn collect_birth_site_index_v1(
         else {
             continue;
         };
-        let Ok((recipe, _)) = verified_birth_recipe_for_site_v1(
+        let Ok(pair) = verified_birth_recipe_for_site_v1(
             &site,
             construction.class(),
             construction.arguments().len(),
@@ -956,7 +959,7 @@ fn collect_birth_site_index_v1(
         ) else {
             continue;
         };
-        if index.insert(site.clone(), recipe).is_some() {
+        if index.insert(site.clone(), pair).is_some() {
             return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
         }
     }

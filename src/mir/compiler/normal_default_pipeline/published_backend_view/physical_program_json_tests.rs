@@ -80,6 +80,61 @@ fn map_argument_edge_serializes_corroborated_map_pair() {
     });
 }
 
+/// The provider `new Inner()` inside `Holder.birth` publishes the full
+/// physical chain: `new_box`, the nested `birth_call`, the checked
+/// `object_field_set`, plus `reclaim_unpublished`/`home_release` discharge
+/// rows — the birth unit keeps `receiver_object` unset since `me` is
+/// identified by its ABI slot.
+#[test]
+fn user_object_provider_physical_json_publishes_birth_chain() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let mut compiler = MirCompiler::with_options(false);
+        compiler.compile_normal_with_published(
+            request(include_str!("../../../../../apps/user-object-field-init-min/main.hako")),
+            |view, verification| -> Result<(), String> {
+                assert!(verification.is_ok(), "{verification:?}");
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let json = emit_lifecycle_physical_abi_json(&input)?;
+                let decoded: serde_json::Value = serde_json::from_str(&json).unwrap();
+                let functions = decoded["functions"].as_array().unwrap();
+                let birth = functions
+                    .iter()
+                    .find(|row| row["role"] == "birth_unit" && row["name"].as_str().unwrap_or_default().contains("Holder"))
+                    .expect("Holder birth unit");
+                assert!(birth["receiver_object"].is_null(), "birth receiver stays slot-identified");
+                let instructions: Vec<&serde_json::Value> = birth["blocks"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .flat_map(|block| {
+                        block["instructions"].as_array().unwrap().iter().chain(
+                            std::iter::once(&block["terminator"]["instruction"]),
+                        )
+                    })
+                    .collect();
+                let kinds = |wanted: &str| {
+                    instructions
+                        .iter()
+                        .filter(|row| row["op"] == "invoke" && row["operation"]["kind"] == wanted)
+                        .count()
+                };
+                assert_eq!(kinds("new_box"), 1, "provider NewBox: {json}");
+                assert_eq!(kinds("birth_call"), 1, "provider birth_call: {json}");
+                assert_eq!(kinds("object_field_set"), 1, "checked object store: {json}");
+                assert_eq!(kinds("reclaim_unpublished"), 1, "birth-fault reclaim: {json}");
+                assert_eq!(kinds("home_release"), 1, "store-fault discharge: {json}");
+                std::fs::write(
+                    std::env::temp_dir().join("hako-issued-physical-v2-object-provider.json"),
+                    json,
+                )
+                .unwrap();
+                Ok(())
+            },
+        ).unwrap();
+    });
+}
+
 #[test]
 fn unannotated_pair_issues_tagged_input_from_retained_contract() {
     use crate::mir::normal_callable_semantic_package::BirthFormalPhysicalDispositionV1;

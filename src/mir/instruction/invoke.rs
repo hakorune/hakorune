@@ -81,6 +81,16 @@ pub enum InvokeOperation {
         base: ValueId,
         value: ValueId,
     },
+    /// Store a proven user-object child handle into an exact field. The
+    /// lease moves into the object slot on both edges — a faulted checked
+    /// store leaves the in-flight child owned by this frame, so the
+    /// emitted discharge releases it under the child's own type id.
+    ObjectFieldSet {
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        base: ValueId,
+        value: ValueId,
+        child: hakorune_mir_defs::CanonicalObjectIdV1,
+    },
     /// Consume a completed Home; both outcomes continue the cleanup chain.
     HomeRelease {
         object: hakorune_mir_defs::CanonicalObjectIdV1,
@@ -141,6 +151,7 @@ impl InvokeOperation {
                 ..
             }
             | Self::FieldSet { .. }
+            | Self::ObjectFieldSet { .. }
             | Self::ArrayStateContractClaim { .. }
             | Self::ArrayElementWrite { .. }
             | Self::HomeRelease { .. }
@@ -157,6 +168,7 @@ impl InvokeOperation {
             Self::Call { call, .. } => call.effects.add(Effect::Control),
             Self::NewBox { .. } | Self::IntrinsicArrayNew => EffectMask::CONTROL.add(Effect::Alloc),
             Self::FieldSet { .. }
+            | Self::ObjectFieldSet { .. }
             | Self::ArrayStateContractClaim { .. }
             | Self::ArrayElementWrite { .. } => EffectMask::WRITE.add(Effect::Control),
             Self::HomeRelease { .. }
@@ -193,7 +205,8 @@ impl InvokeOperation {
                 values.push(*value);
                 values
             }
-            Self::FieldSet { base, value, .. } => vec![*base, *value],
+            Self::FieldSet { base, value, .. }
+            | Self::ObjectFieldSet { base, value, .. } => vec![*base, *value],
             Self::OwnedFieldResidenceRelease { base, .. }
             | Self::OwnedObjectFieldRelease { base, .. } => vec![*base],
             Self::HomeRelease { value, .. }
@@ -232,7 +245,8 @@ impl InvokeOperation {
             Self::HomeRelease { value, .. }
             | Self::HomeReleaseIfLive { value, .. }
             | Self::ReclaimUnpublished { value, .. } => rewrite(value),
-            Self::FieldSet { base, value, .. } => {
+            Self::FieldSet { base, value, .. }
+            | Self::ObjectFieldSet { base, value, .. } => {
                 rewrite(base);
                 rewrite(value);
             }

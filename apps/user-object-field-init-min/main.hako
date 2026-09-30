@@ -1,0 +1,29 @@
+// user-object-field-init-min
+//
+// User-object field initializer: `inner: Inner = new Inner()` inside a
+// field declaration emits the canonical provider path inside Holder.birth:
+//   checked new_box -> birth_call -> checked object_field_set
+// with child reclaim on birth fault and plain-object discharge on store
+// fault. Child is PlainI64NoHook; provider arguments stay bare (inline
+// static-call args remain a deferred slice).
+
+box Inner {
+  value: i64 = 0
+
+  birth() {
+  }
+}
+
+box Holder {
+  inner: Inner = new Inner()
+
+  birth() {
+  }
+}
+
+static box Main {
+  main() {
+    local holder = new Holder()
+    return 0
+  }
+}

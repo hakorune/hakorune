@@ -752,6 +752,7 @@ fn validate_instruction_with_context(
                         | InvokeOperation::NewBox { .. }
                         | InvokeOperation::IntrinsicArrayNew
                         | InvokeOperation::FieldSet { .. }
+                        | InvokeOperation::ObjectFieldSet { .. }
                         | InvokeOperation::HomeRelease { .. }
                         | InvokeOperation::HomeReleaseIfLive { .. }
                         | InvokeOperation::OwnedFieldResidenceRelease { .. }

@@ -281,7 +281,14 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // local-commit claim lane (non-`[Body, Initializer]` positions). An entry
     // admits only the typed `Callee::BirthConstructor` edge at that site; it
     // issues no destination, home, or lifecycle authority.
-    birth_site_index: RefCell<BTreeMap<OwnedExprSiteV1, VerifiedOrdinaryNewBirthRecipeV1>>,
+    birth_site_index: RefCell<
+        BTreeMap<OwnedExprSiteV1, (VerifiedOrdinaryNewBirthRecipeV1, BirthAbiHandoffV1)>,
+    >,
+    /// Emitted provider `new` Birth edges recorded by the construction-store
+    /// emitter; the final root handoff folds them into `birth_actuals` with
+    /// the same per-site exclusivity as claim rows.
+    provider_births:
+        RefCell<Vec<local_commit::ProviderBirthRecordV1>>,
     // Field-class provenance: `(owning box, field)` claims a class only
     // when every package write to that field is an attributed `me.` write
     // storing `new` of one agreed ordinary box. Read-only after issuance;
@@ -430,6 +437,7 @@ impl OrdinaryNewClaimLedgerV1 {
             argument_field_reads: RefCell::new(BTreeMap::new()),
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),
             birth_site_index: RefCell::new(BTreeMap::new()),
+            provider_births: RefCell::new(Vec::new()),
             field_write_claims: BTreeMap::new(),
             owned_field_children: BTreeMap::new(),
             callable_result_classes: BTreeMap::new(),
@@ -600,10 +608,13 @@ impl OrdinaryNewClaimLedgerV1 {
         site: &OwnedExprSiteV1,
         class: &str,
         arity: usize,
-    ) -> Result<Option<VerifiedOrdinaryNewBirthRecipeV1>, OrdinaryNewClaimTakeErrorV1> {
+    ) -> Result<
+        Option<(VerifiedOrdinaryNewBirthRecipeV1, BirthAbiHandoffV1)>,
+        OrdinaryNewClaimTakeErrorV1,
+    > {
         {
             let index = self.birth_site_index.borrow();
-            let Some(recipe) = index.get(site) else {
+            let Some((recipe, _)) = index.get(site) else {
                 return Ok(None);
             };
             if recipe.target_ref().owner() != class
