@@ -196,23 +196,22 @@ impl OrdinaryNewClaimLedgerV1 {
                                 return Err(freeze("reclaim-origin-binding-drift"));
                             }
                             // The fault chain must release each sealed
-                            // `ArrayBox` child exactly once before the
+                            // owned child exactly once before the
                             // storage reclaim; the claim's children are the
                             // only authority for which fields those are.
                             let expected_children = row
-                                .new_array_children()
+                                .new_children()
                                 .ok_or_else(|| freeze("reclaim-children-source-missing"))?;
-                            if emitted.origin.array_children != *expected_children {
+                            if emitted.origin.children != *expected_children {
                                 return Err(freeze("reclaim-children-drift"));
                             }
-                            for field in
-                                emitted.origin.array_children.as_deref().unwrap_or_default()
+                            for child in
+                                emitted.origin.children.as_deref().unwrap_or_default()
                             {
                                 let matching = bindings
                                     .iter()
                                     .filter(|(_, instruction)| {
-                                        matches!(
-                                            instruction,
+                                        match instruction {
                                             MirInstruction::Invoke {
                                                 operation:
                                                     crate::mir::instruction::InvokeOperation::OwnedFieldResidenceRelease {
@@ -220,8 +219,30 @@ impl OrdinaryNewClaimLedgerV1 {
                                                         base,
                                                     },
                                                 ..
-                                            } if emitted_field == field && *base == *result
-                                        )
+                                            } => {
+                                                child.kind
+                                                    == crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Array
+                                                    && *emitted_field == child.field
+                                                    && *base == *result
+                                            }
+                                            MirInstruction::Invoke {
+                                                operation:
+                                                    crate::mir::instruction::InvokeOperation::OwnedObjectFieldRelease {
+                                                        field: emitted_field,
+                                                        base,
+                                                        child: emitted_child,
+                                                    },
+                                                ..
+                                            } => {
+                                                child.kind
+                                                    == crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Object(
+                                                        *emitted_child,
+                                                    )
+                                                    && *emitted_field == child.field
+                                                    && *base == *result
+                                            }
+                                            _ => false,
+                                        }
                                     })
                                     .count();
                                 if matching != 1 {

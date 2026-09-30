@@ -192,6 +192,7 @@ fn edges(terminal: &MirInstruction) -> Result<Vec<(usize, BasicBlockId)>, String
                 InvokeOperation::HomeRelease { .. }
                 | InvokeOperation::HomeReleaseIfLive { .. }
                 | InvokeOperation::OwnedFieldResidenceRelease { .. }
+                | InvokeOperation::OwnedObjectFieldRelease { .. }
                 | InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End { .. }),
             normal_landing,
             fault_landing,

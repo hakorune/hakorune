@@ -755,6 +755,7 @@ fn validate_instruction_with_context(
                         | InvokeOperation::HomeRelease { .. }
                         | InvokeOperation::HomeReleaseIfLive { .. }
                         | InvokeOperation::OwnedFieldResidenceRelease { .. }
+                        | InvokeOperation::OwnedObjectFieldRelease { .. }
                         | InvokeOperation::ReclaimUnpublished { .. }
                         | InvokeOperation::Call {
                             call: MirCall {

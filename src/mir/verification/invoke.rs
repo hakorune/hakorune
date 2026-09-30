@@ -71,7 +71,7 @@ pub(super) fn check_module(
                             errors.push(error(*id, "home-destruction-unavailable"));
                         }
                         // A Home release is admissible for plain objects and
-                        // for owned-ArrayBox objects — the field children are
+                        // for owned-field objects — the field children are
                         // released by their own operations before this one.
                         InvokeOperation::HomeRelease { object, .. }
                         | InvokeOperation::HomeReleaseIfLive { object, .. }
@@ -80,6 +80,7 @@ pub(super) fn check_module(
                                     definition.destruction_disposition(),
                                     crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
                                         | crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                                        | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
                                 )) =>
                         {
                             errors.push(error(*id, "home-destruction-unavailable"));
@@ -98,11 +99,50 @@ pub(super) fn check_module(
                             ) && module
                                 .canonical_object_definition(field.object())
                                 .is_some_and(|definition| {
-                                    definition.destruction_disposition()
-                                        == crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                                    matches!(
+                                        definition.destruction_disposition(),
+                                        crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                                            | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
+                                    )
                                 })) =>
                         {
                             errors.push(error(*id, "field-residence-release-invalid"));
+                        }
+                        // An owned object-field release names the field's
+                        // declared user class resolved through exact object
+                        // membership — never a name guess. The child must
+                        // be `PlainI64NoHook` (S0 bound) and the parent an
+                        // owned-object-fields object.
+                        InvokeOperation::OwnedObjectFieldRelease { field, child, .. }
+                            if !(module.canonical_field_definition(*field).is_some_and(
+                                |definition| {
+                                    !definition.is_weak
+                                        && definition
+                                            .declared_type_name
+                                            .as_deref()
+                                            .and_then(|name| {
+                                                module
+                                                    .metadata
+                                                    .canonical_object_membership
+                                                    .as_ref()
+                                                    .and_then(|members| members.get(name))
+                                            })
+                                            .is_some_and(|resolved| resolved == child)
+                                },
+                            ) && module
+                                .canonical_object_definition(*child)
+                                .is_some_and(|definition| {
+                                    definition.destruction_disposition()
+                                        == crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
+                                })
+                                && module
+                                    .canonical_object_definition(field.object())
+                                    .is_some_and(|definition| {
+                                        definition.destruction_disposition()
+                                            == crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
+                                    })) =>
+                        {
+                            errors.push(error(*id, "object-field-release-invalid"));
                         }
                         InvokeOperation::FieldSet { field, .. }
                             if module.canonical_field_definition(*field).is_none() =>

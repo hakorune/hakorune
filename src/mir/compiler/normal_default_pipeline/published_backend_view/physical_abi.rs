@@ -39,6 +39,7 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     HomeRelease,
     HomeReleaseIfLive,
     FieldResidenceRelease,
+    ObjectFieldRelease,
     ReclaimUnpublished,
 }
 
@@ -70,6 +71,7 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             InvokeOperation::OwnedFieldResidenceRelease { .. } => {
                 Some(Self::FieldResidenceRelease)
             }
+            InvokeOperation::OwnedObjectFieldRelease { .. } => Some(Self::ObjectFieldRelease),
             InvokeOperation::ReclaimUnpublished { .. } => Some(Self::ReclaimUnpublished),
             InvokeOperation::IntrinsicArrayNew => Some(Self::ArrayNew),
             InvokeOperation::ArrayStateContractClaim { .. } => Some(Self::ArrayClaim),
@@ -279,6 +281,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 definition.destruction_disposition(),
                 ObjectDestructionDispositionV1::PlainI64NoHook
                     | ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                    | ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
             ) {
                 return Err(fault("object-destruction"));
             }
@@ -420,6 +423,10 @@ fn referenced_objects(
                         InvokeOperation::FieldSet { field, .. }
                         | InvokeOperation::OwnedFieldResidenceRelease { field, .. } => {
                             ids.insert(field.object().declaration_index());
+                        }
+                        InvokeOperation::OwnedObjectFieldRelease { field, child, .. } => {
+                            ids.insert(field.object().declaration_index());
+                            ids.insert(child.declaration_index());
                         }
                         InvokeOperation::Call { .. } | InvokeOperation::Map(_) => {}
                         InvokeOperation::IntrinsicArrayNew

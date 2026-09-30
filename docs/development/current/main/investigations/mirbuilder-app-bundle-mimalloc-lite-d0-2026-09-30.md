@@ -588,3 +588,67 @@ Non-claims:
   reassignment, or non-`me` receivers. No change to the ordinary-`new`
   path.
 
+
+## Ordering refinement at implementation entry (MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-OBJECT-FIELD-S0)
+
+A parent whose field is object-typed (`c: Child`) cannot compile at all
+until that field has a destruction disposition and a release operation
+— the field-init provider emits into a birth unit whose parent object
+must itself be admissible. `DESTRUCTION-OBJECT-FIELD-S0` therefore
+lands **before** the init slice:
+
+- Disposition `OwnedObjectFieldsNoHook`: at least one user-object
+  declared field; every field must be scalar, `ArrayBox`, or a
+  non-builtin user class. Issue stays declaration-only; residence
+  proof is per-claim as before.
+- `OwnedFieldChildV1 { field, kind: Array | Object(child_id) }`
+  replaces the array-only children list so parent teardown releases
+  all owned children in reverse declaration order.
+- Invoke `OwnedObjectFieldRelease { field, base, child }`
+  (wire `object_field_release`): emit = `checked_field_get_i64_v1` +
+  `home_release_plain_i64_v1` on the child handle.
+- **S0 bound**: object children must resolve to `PlainI64NoHook`
+  (scalar-only) classes — the generated teardown helper is deferred
+  to the sub-slice that admits a child with its own owned fields.
+- Physical exercise stays deferred to
+  `MIRBUILDER-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-S0`; this slice is
+  verified at claim/verification/wire level only, since no program
+  can construct such a parent until the provider arm exists.
+
+Then `MIRBUILDER-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-S0` lands the
+init probe end-to-end on top.
+
+## S0 landed — MIRBUILDER-APP-MIMALLOC-LITE-DESTRUCTION-OBJECT-FIELD-S0
+
+Landed end to end at the claim/verification/wire layers:
+
+- `ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook` issued when any
+  declared field is a non-builtin user class; a mixed
+  array+object parent takes the object disposition.
+- `canonical_layout` stores such fields as `Handle` only when the declared
+  class resolves through `canonical_object_membership` — name guesses and
+  absent membership stay `FieldType`-unavailable.
+- `OwnedFieldChildV1 { field, kind: Array | Object(child_id) }` replaced the
+  array-only children list across coseal, local-commit `end_plan`, reclaim
+  origins, emission gates, and `selected.rs` birth-fault chains.
+- Field-write claims now record the exact written class; coseal admits an
+  object child only when declared == written, the child resolves through
+  ordinary-box coverage + `destruction_for` to `PlainI64NoHook`, and
+  child != parent (self-reference rejected in S0).
+- `InvokeOperation::OwnedObjectFieldRelease { field, base, child }` threaded
+  through result-kind/effects/used_values/rewrite, MIR verifier
+  (`object-field-release-invalid`), root cleanup graph edges, emission
+  validation, physical program whitelist + JSON
+  (`object_field_release` kind, exact keys), compiled-entry cleanup kind,
+  and physical ABI object-id collection (parent + child).
+- C side: `physical_v2.inc` validator (exact keys, parent field layout,
+  child layout, base availability), indexed-flow arm (field read, zero
+  skip, child lease consume/release, fault edge), `emit.inc` LLVM arm
+  (`checked_field_get_i64_v1` + `home_release_plain_i64_v1` with the child
+  runtime type id), diagnostic-site kind whitelist.
+- Focused tests: positive declaration-order `Object` child seal, six
+  negative evidence shapes (missing/rewritten/non-birth/wrong-class/
+  non-plain-child/self), membership-boundary layout test. Physical
+  program exercise stays deferred to FIELD-INIT-USER-NEW-S0 as designed.
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-S0

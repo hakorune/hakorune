@@ -73,12 +73,12 @@ impl LocalCommitV1 {
             Self::Map(_) | Self::CallReceived(_) => None,
         }
     }
-    pub(super) fn new_array_children(
+    pub(super) fn new_children(
         &self,
-    ) -> Option<&Option<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>>> {
+    ) -> Option<&Option<Box<[super::super::OwnedFieldChildV1]>>> {
         match self {
-            Self::Ordinary(row) => Some(&row.array_children),
-            Self::Result(row) => Some(&row.array_children),
+            Self::Ordinary(row) => Some(&row.children),
+            Self::Result(row) => Some(&row.children),
             Self::Map(_) | Self::CallReceived(_) => None,
         }
     }
@@ -171,11 +171,12 @@ impl LocalCommitV1 {
             Self::Ordinary(row) => {
                 let destruction_ok = match row.destruction {
                     crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook => true,
-                    // An owned-ArrayBox teardown is admissible only with the
+                    // An owned-field teardown is admissible only with the
                     // sealed per-field residence proof; `None` never degrades
                     // to a plain release.
-                    crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook => {
-                        row.array_children.is_some()
+                    crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                    | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook => {
+                        row.children.is_some()
                     }
                     crate::mir::function::ObjectDestructionDispositionV1::Unavailable(_) => false,
                 };
@@ -193,8 +194,8 @@ impl LocalCommitV1 {
             }
         }
     }
-    /// Teardown plan in source-issued execution order: owned `ArrayBox`
-    /// field residences in reverse declaration order, then the home's own
+    /// Teardown plan in source-issued execution order: owned field
+    /// residences in reverse declaration order, then the home's own
     /// release. Each pair carries the root-exit origin subject so prepare
     /// and validation never re-derive the plan from MIR.
     pub(super) fn end_plan(

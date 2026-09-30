@@ -18,22 +18,17 @@ latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
 DESTRUCTION-ARRAYBOX-FIELD-S0 landed: declared non-weak `ArrayBox`
-fields issue `OwnedArrayFieldsNoHook`, the widened
-field-write-claim seal records proven `me.<field> = new ArrayBox()`
-residences, and `end_plan` expands teardown into child
+fields issue `OwnedArrayFieldsNoHook`, field-write claims seal proven
+`me.<field> = new ArrayBox()` residences, and `end_plan` emits child
 `OwnedFieldResidenceRelease` origins (reverse declaration order) +
-parent `HomeRelease` — on both the normal exit chain and the
-birth-fault reclaim chain. Provider `new ArrayBox()` now emits
-`Invoke{IntrinsicArrayNew}` + `InvokeNormalResult` (the bare `NewBox`
-had no published wire shape) under the shared fault frame, with the
-named-array provider ledgers kept exact. Physical wire
-`field_residence_release` lowers through
-`checked_field_get_i64_v1` + `nyrt_handle_release_h` (zero-init slot ⇒
-release-if-live); `field_set` with a handle value discharges the lease
-on the fault edge too. Probe `new Page{items/children:ArrayBox=new}`
-compiles through Lifecycle V4 + LLVM C API and runs `Result: 0`.
-mimalloc_lite_exe negative pin re-pinned to `emission-binding-drift`;
-EXE still stops at the designed frontier
+parent `HomeRelease` on both normal exit and birth-fault chains.
+Provider `new ArrayBox()` emits `Invoke{IntrinsicArrayNew}` +
+`InvokeNormalResult` under the shared fault frame; wire
+`field_residence_release` = `checked_field_get_i64_v1` +
+`nyrt_handle_release_h` (release-if-live); handle `field_set`
+discharges on the fault edge. Probe compiles through Lifecycle V4 +
+LLVM C API and runs `Result: 0`; mimalloc_lite_exe negative pin is
+`emission-binding-drift`, EXE frontier stays
 `artifact-unowned-lifecycle-site`. DESTRUCTION-OBJECT-FIELD-D0
 accepted: one `OwnedObjectFieldRelease` op emitting a generated
 per-class teardown helper; claim gets a typed `OwnedFieldChildV1`
@@ -47,8 +42,15 @@ for new_box/birth_call/field_residence_release/reclaim_unpublished,
 and field_set fault discharge dispatches on value origin (object
 children use a generated per-class teardown helper — the same product
 DESTRUCTION-OBJECT-FIELD-S0 reuses). S0 arg kinds are bounded to
-Integer/Bool/scalar Local. Next:
-APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-S0.
+Integer/Bool/scalar Local. Ordering refined at implementation entry:
+the destruction slice lands FIRST because a parent with an
+object-typed field needs a disposition + release op before any
+field-init program can compile, and S0 bounds object children to
+PlainI64NoHook (home_release discharge — no teardown helper yet).
+DESTRUCTION-OBJECT-FIELD-S0 landed at claim/verification/wire level
+(typed OwnedFieldChildV1, OwnedObjectFieldRelease op, C flow+emit);
+physical positive arrives with the provider arm.
+Next: APP-MIMALLOC-LITE-FIELD-INIT-USER-NEW-S0.
 """
 next_design_card = "mimalloc-lite bundle slice 4 prerequisite: user-class field-init provider new inside birth units (Invoke{NewBox}+NormalResult+birth_call+FieldSet on shared fault frame)"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
@@ -68,7 +70,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-01: DESTRUCTION-OBJECT-FIELD-S0 landed — OwnedObjectFieldsNoHook disposition + membership-gated Handle storage + typed OwnedFieldChildV1 (Array|Object) across coseal/end_plan/reclaim/fault chains; field-write claims record the exact written class and object children require declared==written + PlainI64NoHook + non-self. Invoke OwnedObjectFieldRelease threaded through verifier/graph/emission/ABI/JSON (`object_field_release` exact keys) and C validator+indexed-flow+emit (checked_field_get_i64_v1 + home_release_plain_i64_v1 with child type id). Claim/verification/wire green; physical positive stays deferred to FIELD-INIT-USER-NEW-S0 by design. Next: FIELD-INIT-USER-NEW-S0.",
   "2026-10-01: DESTRUCTION-ARRAYBOX-FIELD-S0 landed — OwnedArrayFieldsNoHook + widened field-write-claim seal + reverse-order OwnedFieldResidenceRelease origins (normal and birth-fault chains); provider `new ArrayBox()` emits IntrinsicArrayNew+InvokeNormalResult on the shared fault frame with exact named-array provider ledgers; wire `field_residence_release` = checked_field_get_i64_v1 + release-if-live nyrt_handle_release_h; handle-valued field_set discharges on the fault edge. Probe compiles+runs Result 0; app smoke negative pin re-pinned to emission-binding-drift, EXE frontier stays artifact-unowned-lifecycle-site. DESTRUCTION-OBJECT-FIELD-D0 accepted (OwnedObjectFieldRelease op + generated per-class teardown helper; typed OwnedFieldChildV1 with recursive corroboration + cycle rejection). Next: FIELD-INIT-USER-NEW-D0.",
   "2026-09-30: DESTRUCTION-ARRAYBOX-FIELD-D0 accepted — owned ArrayBox fields get a reverse-declaration-order child-release plan; the child step is a NEW InvokeOperation variant (bare ArrayResidenceRelease has no fault edge / no cleanup-graph seat) lowering through existing symbols checked_field_get_i64_v1 + nyrt_handle_release_h, so no new kernel export. physical_abi must admit Handle storage for plan-carrying objects; FieldResidence claims gate the plan. User-object children (HakoAllocPage in HakoAllocHeap) stay slice 3. Next: DESTRUCTION-ARRAYBOX-FIELD-S0.",
-  "2026-09-30: DESTRUCTION-SCALAR-FIELD-S0 landed — object_definition::issue now admits sealed integer-scalar declared types (usize etc.) as teardown-free via exact_numeric_storage_for_declared_type, matching the canonical-layout authority. probe_e compiles to the nyrt gate; container/object fields stay fail-closed. Serial 8104/127, sole delta is the baseline-flaky nullable_receiver_call_serializes; smoke 3/3 at artifact-unowned-lifecycle-site; allocate prefix still pinned at Body(8). Next: DESTRUCTION-ARRAYBOX-FIELD-D0.",
   ]

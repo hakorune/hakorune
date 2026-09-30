@@ -117,6 +117,7 @@ pub(super) fn issue(
                     crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type,
                 )
                 .is_none()
+            && !is_user_object_field(field)
     }) {
         Destruction::Unavailable(DestructionUnavailable::FieldType)
     } else if methods.iter_selected_declaration_order().any(|entry| {
@@ -133,6 +134,8 @@ pub(super) fn issue(
         .any(|node| !ordinary_member(node, None))
     {
         Destruction::Unavailable(DestructionUnavailable::MemberRole)
+    } else if projected_fields.iter().any(is_user_object_field) {
+        Destruction::OwnedObjectFieldsNoHook
     } else if projected_fields
         .iter()
         .any(|field| field.declared_type_name.as_deref() == Some("ArrayBox"))
@@ -147,6 +150,17 @@ pub(super) fn issue(
         declaration_shape,
         destruction,
     ))
+}
+
+/// A non-builtin, non-scalar declared field type is a user-object class.
+/// Builtin boxes (`MapBox` etc.) and untyped fields stay unsupported here.
+fn is_user_object_field(field: &UserBoxFieldDecl) -> bool {
+    field.declared_type_name.as_deref().is_some_and(|name| {
+        name != "ArrayBox"
+            && crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type(name)
+                .is_none()
+            && !crate::box_trait::is_builtin_box(name)
+    })
 }
 
 fn ordinary_member(node: &ASTNode, expected_name: Option<&str>) -> bool {

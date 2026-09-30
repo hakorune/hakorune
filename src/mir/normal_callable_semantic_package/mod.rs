@@ -137,7 +137,8 @@ pub(crate) use ordinary_new_coseal::{
     FinalizedRootSourceHandoffV1, LexicalInstanceCallDispositionRowV1, OrdinaryNewAdmissionClaimV1,
     OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1, OrdinaryNewResultClaimV1,
     OrdinaryNewResultClassV1, OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
-    PreparedTerminalI64AddReturnV1, PreparedTerminalI64FieldReturnV1,
+    OwnedFieldChildKindV1, OwnedFieldChildV1, PreparedTerminalI64AddReturnV1,
+    PreparedTerminalI64FieldReturnV1,
     PreparedTerminalMapGetReturnV1, ReceiverCallClassObservationV1, RootCallDispositionV1,
     RootInstanceCallDispositionRowV1, VerifiedOrdinaryNewBirthRecipeV1,
 };

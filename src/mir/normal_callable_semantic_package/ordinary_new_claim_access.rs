@@ -43,12 +43,12 @@ impl OrdinaryNewClaimCoreV1 {
         self.argument_rows.as_deref()
     }
 
-    /// Sealed owned `ArrayBox` field residences in declaration order.
-    /// `Some` only on an `OwnedArrayFieldsNoHook` object whose every
-    /// ArrayBox field proved its birth-side provider store; `None` there
-    /// means unproven, never a plain teardown.
-    pub(crate) fn array_children(&self) -> Option<&[CanonicalFieldRefV1]> {
-        self.array_children.as_deref()
+    /// Sealed owned field residences in declaration order. `Some` only
+    /// on an owned-field-disposition object whose every residence-capable
+    /// field proved its birth-side provider store; `None` there means
+    /// unproven, never a plain teardown.
+    pub(crate) fn children(&self) -> Option<&[OwnedFieldChildV1]> {
+        self.children.as_deref()
     }
 }
 
@@ -98,8 +98,8 @@ impl OrdinaryNewAdmissionClaimV1 {
         self.core.argument_rows()
     }
 
-    pub(crate) fn array_children(&self) -> Option<&[CanonicalFieldRefV1]> {
-        self.core.array_children()
+    pub(crate) fn children(&self) -> Option<&[OwnedFieldChildV1]> {
+        self.core.children()
     }
 }
 

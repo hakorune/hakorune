@@ -20,6 +20,7 @@ pub(super) fn type_id_at(position: usize) -> Result<u32, String> {
 fn layout(
     definition: &CanonicalObjectDefinitionV1,
     type_id: u32,
+    membership: Option<&std::collections::BTreeMap<String, hakorune_mir_defs::CanonicalObjectIdV1>>,
 ) -> Result<CanonicalObjectLayoutV1, String> {
     let fields = match definition.local_fields_for_layout() {
         Ok(fields) => fields,
@@ -38,6 +39,13 @@ fn layout(
             .or_else(|| {
                 (field.declared_type_name.as_deref() == Some("ArrayBox"))
                     .then_some(TypedObjectFieldStorage::Handle)
+            })
+            .or_else(|| {
+                field.declared_type_name.as_deref().and_then(|name| {
+                    (!crate::box_trait::is_builtin_box(name)
+                        && membership.is_some_and(|m| m.contains_key(name)))
+                    .then_some(TypedObjectFieldStorage::Handle)
+                })
             });
         let Some(storage) = storage else {
             return Ok(Err(Unavailable::FieldType(slot)));
@@ -88,7 +96,11 @@ pub(super) fn prepare(module: &MirModule) -> Result<Vec<CanonicalObjectLayoutV1>
         .enumerate()
     {
         // Every declaration reserves a position, even when its layout is unavailable.
-        let expected = layout(definition, type_id_at(position)?)?;
+        let expected = layout(
+            definition,
+            type_id_at(position)?,
+            module.metadata.canonical_object_membership.as_ref(),
+        )?;
         if let Some(existing) = definition.runtime_layout() {
             if existing != &expected {
                 return Err(fault("allocation-drift"));
@@ -299,7 +311,7 @@ mod tests {
             ),
         );
         assert_eq!(
-            layout(&definition, 1).unwrap(),
+            layout(&definition, 1, None).unwrap(),
             Err(Unavailable::FieldType(0))
         );
         let integer_box = CanonicalObjectDefinitionV1::from_source_declaration(
@@ -316,7 +328,7 @@ mod tests {
             ),
         );
         assert_eq!(
-            layout(&integer_box, 1).unwrap(),
+            layout(&integer_box, 1, None).unwrap(),
             Err(Unavailable::FieldType(0))
         );
         let mut weak = field("weak");
@@ -330,11 +342,50 @@ mod tests {
             ),
         );
         assert_eq!(
-            layout(&definition, 1).unwrap(),
+            layout(&definition, 1, None).unwrap(),
             Err(Unavailable::WeakField(0))
         );
         assert_eq!(type_id_at(u32::MAX as usize - 1).unwrap(), u32::MAX);
         assert!(type_id_at(u32::MAX as usize).is_err());
         assert!(type_id_at(usize::MAX).is_err());
+    }
+
+    /// A declared non-builtin user class stores as `Handle` only when
+    /// canonical object membership proves the class — a phantom name or a
+    /// missing membership map keeps the field `FieldType`-unavailable.
+    #[test]
+    fn user_object_field_storage_requires_canonical_membership() {
+        let module = module();
+        let membership = module.metadata.canonical_object_membership.as_ref();
+        let owner = |class: &str| {
+            CanonicalObjectDefinitionV1::from_source_declaration(
+                "Owner".into(),
+                vec![UserBoxFieldDecl {
+                    name: "child".into(),
+                    declared_type_name: Some(class.into()),
+                    is_weak: false,
+                }]
+                .into_boxed_slice(),
+                Ok(()),
+                crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook,
+            )
+        };
+        let member = owner("Pair");
+        let plan = layout(&member, 3, membership)
+            .unwrap()
+            .expect("a member class resolves to a field plan");
+        assert_eq!(plan.fields[0].storage, TypedObjectFieldStorage::Handle);
+        assert_eq!(plan.fields[0].declared_type_name.as_deref(), Some("Pair"));
+        let ghost = owner("Ghost");
+        assert_eq!(
+            layout(&ghost, 3, membership).unwrap(),
+            Err(Unavailable::FieldType(0)),
+            "a non-member name never resolves to a storage"
+        );
+        assert_eq!(
+            layout(&member, 3, None).unwrap(),
+            Err(Unavailable::FieldType(0)),
+            "without membership no class name is provable"
+        );
     }
 }

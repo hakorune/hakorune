@@ -131,13 +131,24 @@ fn emit_selected_new(
             .ok_or_else(|| freeze("reclaim-origin-binding-missing"))?;
         reclaim = Some((origin.clone(), block, instruction));
         let children = origin
-            .array_children()
+            .children()
             .unwrap_or_default()
             .iter()
             .rev()
-            .map(|field| InvokeOperation::OwnedFieldResidenceRelease {
-                field: *field,
-                base: result,
+            .map(|child| match child.kind {
+                crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Array => {
+                    InvokeOperation::OwnedFieldResidenceRelease {
+                        field: child.field,
+                        base: result,
+                    }
+                }
+                crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Object(
+                    child_object,
+                ) => InvokeOperation::OwnedObjectFieldRelease {
+                    field: child.field,
+                    base: result,
+                    child: child_object,
+                },
             })
             .collect();
         cleanup_chain(builder, frame, children, tail, &mut bindings)?

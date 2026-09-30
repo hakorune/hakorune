@@ -17,11 +17,11 @@ pub(super) struct CallReceivedCommitV1 {
     /// `Handle` result is unconditionally live, while a `Nullable` result
     /// may carry the `Void` sentinel and owes a checked release instead.
     pub(super) release: CallReceivedReleaseV1,
-    /// `OwnedArrayFieldsNoHook` children copied from the ledger's sealed
-    /// residence map at begin time: `Some(None)` marks an owned object the
-    /// package never proved — `end_available` stays false rather than
-    /// dropping the children.
-    pub(super) end_children: Option<Option<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>>>,
+    /// Owned-field children copied from the ledger's sealed residence map
+    /// at begin time: `Some(None)` marks an owned object the package
+    /// never proved — `end_available` stays false rather than dropping
+    /// the children.
+    pub(super) end_children: Option<Option<Box<[super::super::OwnedFieldChildV1]>>>,
     pub(super) progress: CallReceivedProgress,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -98,7 +98,7 @@ impl CallReceivedCommitV1 {
             }
         )
     }
-    /// Teardown plan for the received handle: proven owned `ArrayBox`
+    /// Teardown plan for the received handle: proven owned field
     /// children in reverse declaration order, then the release the sealed
     /// result kind owes. `end_available` guarantees `end_children` is not
     /// `Some(None)`, so a missing proof never reaches this method.
@@ -126,15 +126,26 @@ impl CallReceivedCommitV1 {
         children
             .iter()
             .rev()
-            .map(|field| {
+            .map(|child| {
                 (
                     super::root_home::RootHomeReleaseSubjectV1::FieldResidence {
                         binding: self.binding,
-                        field: *field,
+                        field: child.field,
                     },
-                    InvokeOperation::OwnedFieldResidenceRelease {
-                        field: *field,
-                        base,
+                    match child.kind {
+                        super::super::OwnedFieldChildKindV1::Array => {
+                            InvokeOperation::OwnedFieldResidenceRelease {
+                                field: child.field,
+                                base,
+                            }
+                        }
+                        super::super::OwnedFieldChildKindV1::Object(child_object) => {
+                            InvokeOperation::OwnedObjectFieldRelease {
+                                field: child.field,
+                                base,
+                                child: child_object,
+                            }
+                        }
                     },
                 )
             })

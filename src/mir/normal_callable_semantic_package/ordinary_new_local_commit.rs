@@ -117,10 +117,10 @@ pub(super) struct NewLocalCommitV1 {
         Box<[super::OrdinaryNewTrivialArgumentV1]>,
         crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
     >,
-    /// Sealed owned `ArrayBox` field residences in declaration order for
-    /// `OwnedArrayFieldsNoHook` objects; `None` means the disposition does
+    /// Sealed owned field children in declaration order for
+    /// owned-field-disposition objects; `None` means the disposition does
     /// not apply or the proof failed — `end_available` rejects the latter.
-    array_children: Option<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>>,
+    children: Option<Box<[super::OwnedFieldChildV1]>>,
     emission: NewEmissionProgress,
 }
 
@@ -145,7 +145,7 @@ pub(super) struct NewResultCommitV1 {
     >,
     /// Same sealed residence plan as `NewLocalCommitV1` — the
     /// construction-fault reclaim releases these children before storage.
-    array_children: Option<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>>,
+    children: Option<Box<[super::OwnedFieldChildV1]>>,
     emission: NewEmissionProgress,
 }
 
@@ -346,7 +346,7 @@ impl NewLocalCommitV1 {
             Box<[super::OrdinaryNewTrivialArgumentV1]>,
             crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
         >,
-        array_children: Option<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>>,
+        children: Option<Box<[super::OwnedFieldChildV1]>>,
     ) -> Self {
         Self {
             box_source,
@@ -359,7 +359,7 @@ impl NewLocalCommitV1 {
             declaration,
             home_prefix,
             argument_rows,
-            array_children,
+            children,
             emission: NewEmissionProgress::Unprepared,
         }
     }
@@ -396,7 +396,7 @@ impl NewResultCommitV1 {
             Box<[super::OrdinaryNewTrivialArgumentV1]>,
             crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentUnavailableV1,
         >,
-        array_children: Option<Box<[hakorune_mir_defs::CanonicalFieldRefV1]>>,
+        children: Option<Box<[super::OwnedFieldChildV1]>>,
     ) -> Self {
         Self {
             site,
@@ -408,7 +408,7 @@ impl NewResultCommitV1 {
             birth_abi,
             home_prefix,
             argument_rows,
-            array_children,
+            children,
             emission: NewEmissionProgress::Unprepared,
         }
     }
@@ -456,40 +456,50 @@ pub(super) fn installed_home(
 }
 
 impl NewLocalCommitV1 {
-    /// Teardown plan for this home in execution order: owned `ArrayBox`
+    /// Teardown plan for this home in execution order: owned field
     /// children release in reverse declaration order — zero-initialized
     /// slots make the `if-live` check discharge only born children — then
     /// the object's own Home. `end_available` already gated the sealed
-    /// residence proof, so `array_children` is always `Some` here.
+    /// residence proof, so `children` is always `Some` on an owned-field
+    /// disposition.
     fn end_plan(
         &self,
     ) -> Box<[(root_home::RootHomeReleaseSubjectV1, InvokeOperation)]> {
         let base = self.emission.local().expect("installed Home");
-        let children = match (&self.array_children, self.destruction) {
+        let children = match (&self.children, self.destruction) {
             (Some(children), _) => children.as_ref(),
             // An owned teardown without the sealed residence proof can never
             // plan a plain release — `end_available` rejects it earlier.
             (
                 None,
-                super::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook,
+                super::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                | super::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook,
             ) => unreachable!("owned teardown without sealed residences"),
             (None, _) => &[],
         };
-        let children = children
-            .iter()
-            .rev()
-            .map(|field| {
-                (
-                    root_home::RootHomeReleaseSubjectV1::FieldResidence {
-                        binding: self.binding,
-                        field: *field,
-                    },
-                    InvokeOperation::OwnedFieldResidenceRelease {
-                        field: *field,
-                        base,
-                    },
-                )
-            });
+        let children = children.iter().rev().map(|child| {
+            (
+                root_home::RootHomeReleaseSubjectV1::FieldResidence {
+                    binding: self.binding,
+                    field: child.field,
+                },
+                match child.kind {
+                    super::OwnedFieldChildKindV1::Array => {
+                        InvokeOperation::OwnedFieldResidenceRelease {
+                            field: child.field,
+                            base,
+                        }
+                    }
+                    super::OwnedFieldChildKindV1::Object(child_object) => {
+                        InvokeOperation::OwnedObjectFieldRelease {
+                            field: child.field,
+                            base,
+                            child: child_object,
+                        }
+                    }
+                },
+            )
+        });
         children
             .chain(std::iter::once((
                 root_home::RootHomeReleaseSubjectV1::Binding(self.binding),

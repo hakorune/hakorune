@@ -63,6 +63,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       fprintf(f, "  %%new%u = alloca i64, align 8\n", lv4_u(block, "id"));
     if (op && lv4_is(op, "kind", "field_residence_release"))
       fprintf(f, "  %%fr_read%u = alloca i64, align 8\n", lv4_u(block, "id"));
+    if (op && lv4_is(op, "kind", "object_field_release"))
+      fprintf(f, "  %%ofr_read%u = alloca i64, align 8\n", lv4_u(block, "id"));
     /* A nested i64 call writes through a caller-local slot; the callee's
        own %%out_i64 remains reserved for this function's result. */
     if (ordinary && lv4_is(op, "kind", "ordinary_call") &&
@@ -310,6 +312,30 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             "  br label %%fr_done%u\nfr_done%u:\n"
             "  br label %%%s\n",
             b, b, b, b, b, b, b, b, b, b, b, normal_label);
+        continue;
+      }
+      if (lv4_is(op, "kind", "object_field_release")) {
+        /* Owned user-object field: read the slot, then release the live
+           child with `home_release_plain_i64` under the child's own type
+           id — S0 children are scalar-only, so their teardown is the
+           plain Home release itself. The child's status drives this op's
+           fault edge; a failed slot read is contract violation. */
+        fprintf(f,
+            "  %%ofr_get%u = call i32 @\"nyash.object.checked_field_get_i64_v1\"(i32 %u, i64 %%v%u, i64 %lld, i64 %d, ptr %%ofr_read%u)\n"
+            "  %%ofr_ok%u = icmp eq i32 %%ofr_get%u, 0\n"
+            "  br i1 %%ofr_ok%u, label %%ofr_step%u, label %%invalid\nofr_step%u:\n",
+            b, in->profile, lv4_u(op, "base"), (long long)lv4_type_id(in, op),
+            lv4_slot(in, op), b, b, b, b, b, b);
+        fprintf(f,
+            "  %%ofr_val%u = load i64, ptr %%ofr_read%u, align 8\n"
+            "  %%ofr_live%u = icmp ne i64 %%ofr_val%u, 0\n"
+            "  br i1 %%ofr_live%u, label %%ofr_rel%u, label %%ofr_done%u\nofr_rel%u:\n"
+            "  %%ofr_status%u = call i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%ofr_val%u, i64 %lld)\n"
+            "  switch i32 %%ofr_status%u, label %%invalid [ i32 0, label %%ofr_done%u i32 1, label %%%s ]\nofr_done%u:\n"
+            "  br label %%%s\n",
+            b, b, b, b, b, b, b, b, b, in->profile, site, b,
+            (long long)lv4_u(lv4_layout(in, lv4_u(op, "child_object_id")), "runtime_type_id"),
+            b, b, fault_label, b, normal_label);
         continue;
       }
       fprintf(f, "  %%status%u = call i32 ", b);

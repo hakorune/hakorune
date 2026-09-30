@@ -129,6 +129,7 @@ pub(crate) enum CompiledEntryCleanupKindV1 {
     HomeRelease,
     ReclaimUnpublished,
     FieldResidenceRelease,
+    ObjectFieldRelease,
     FaultFrameEnter,
     ReturnFault,
     ArrayResidenceRelease,
@@ -644,6 +645,10 @@ fn issue_cleanup_coordinates(
                         operation: InvokeOperation::OwnedFieldResidenceRelease { .. },
                         ..
                     } => CompiledEntryCleanupKindV1::FieldResidenceRelease,
+                    MirInstruction::Invoke {
+                        operation: InvokeOperation::OwnedObjectFieldRelease { .. },
+                        ..
+                    } => CompiledEntryCleanupKindV1::ObjectFieldRelease,
                     MirInstruction::Invoke {
                         operation:
                             InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::End {

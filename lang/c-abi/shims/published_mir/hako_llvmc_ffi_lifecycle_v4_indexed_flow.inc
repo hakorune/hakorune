@@ -253,6 +253,16 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           base->origin < 0 ||
           !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
+    } else if (lv4_is(op, "kind", "object_field_release")) {
+      /* Same child-slot discharge as a field residence release, keyed on
+         the canonical child object — the emitted helper owns the child's
+         own teardown under the exact-child corroboration here. */
+      hako_lv4_value* base = lv4_index_value(fn, lv4_u(op, "base"));
+      if ((fi && !ordinary) || lv4_slot(in, op) < 0 || !base ||
+          base->origin < 0 ||
+          !lv4_layout(in, lv4_u(op, "child_object_id")) ||
+          !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
+              lv4_u(op, "object_id"), 1)) return 0;
     } else if (lv4_is(op, "kind", "home_release") || lv4_is(op, "kind", "home_release_if_live") ||
         lv4_is(op, "kind", "reclaim_unpublished")) {
       /* `home_release_if_live` releases a value that may carry the Void

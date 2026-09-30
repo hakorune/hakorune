@@ -29,16 +29,17 @@ use crate::parser::ParserOrdinaryBoxSourceCoverageV1;
 pub(crate) type OrdinaryNewFieldWriteClaimsV1 = BTreeMap<(Box<str>, Box<str>), Box<str>>;
 
 /// Key: (owning box name, field name). The field's sole observed write is
-/// a birth-side `me.<field> = new ArrayBox()` provider store; re-assignment,
+/// a birth-side `me.<field> = new <class>()` provider store; re-assignment,
 /// non-birth providers and unattributed writers all veto the residence.
-pub(crate) type OwnedArrayFieldResidencesV1 = BTreeSet<(Box<str>, Box<str>)>;
+/// The value is the agreed class (`ArrayBox` or a non-builtin user class).
+pub(crate) type OwnedFieldResidencesV1 = BTreeMap<(Box<str>, Box<str>), Box<str>>;
 
 /// One write observation: `Some(class)` for a `new C(...)` value site,
 /// `None` for any other stored value (vetoes the field).
 #[derive(Default)]
 pub(crate) struct OrdinaryNewFieldWriteClaimDraftV1 {
     writes: BTreeMap<(Box<str>, Box<str>), Vec<Option<Box<str>>>>,
-    array_birth_writes: BTreeSet<(Box<str>, Box<str>)>,
+    birth_new_writes: BTreeSet<(Box<str>, Box<str>)>,
     unattributed_fields: BTreeSet<Box<str>>,
     opaque: bool,
 }
@@ -52,8 +53,8 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
     /// `owner_box` is the box this function belongs to when its selected
     /// key is `InstanceBoxMethod` (or the constructor row's `box_name`);
     /// a `me.` write with no attributable owner vetoes the field name.
-    /// `in_birth` marks constructor rows: only a birth-side `new ArrayBox()`
-    /// provider store can seed an owned residence claim.
+    /// `in_birth` marks constructor rows: only a birth-side provider
+    /// `new` store can seed an owned residence claim.
     pub(crate) fn observe_function(
         &mut self,
         function: &VerifiedResolvedFunctionV1,
@@ -100,8 +101,12 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
                 .expression_source()
                 .construction(assignment.value_site())
                 .map(|construction| construction.class().into());
-            if in_birth && class.as_deref() == Some("ArrayBox") {
-                self.array_birth_writes
+            if in_birth
+                && class.as_deref().is_some_and(|name| {
+                    name == "ArrayBox" || !crate::box_trait::is_builtin_box(name)
+                })
+            {
+                self.birth_new_writes
                     .insert((owner_box.into(), field.clone()));
             }
             self.writes
@@ -114,17 +119,17 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
     /// Seal the observed writes. A field claims a class only when it was
     /// written at least once, every observed write stored `new` of the
     /// same ordinary box, and the field name never appeared on an
-    /// unattributed receiver anywhere in the package. An owned `ArrayBox`
-    /// residence is stronger still: exactly one write, the birth-side
-    /// `new ArrayBox()` provider store, nothing else.
+    /// unattributed receiver anywhere in the package. An owned field
+    /// residence is stronger still: exactly one write, a birth-side
+    /// `new` provider store of a residence-capable class, nothing else.
     pub(crate) fn finish(
         self,
         ordinary_box_coverage: &ParserOrdinaryBoxSourceCoverageV1,
-    ) -> (OrdinaryNewFieldWriteClaimsV1, OwnedArrayFieldResidencesV1) {
+    ) -> (OrdinaryNewFieldWriteClaimsV1, OwnedFieldResidencesV1) {
         if self.opaque {
-            return (BTreeMap::new(), BTreeSet::new());
+            return (BTreeMap::new(), BTreeMap::new());
         }
-        let mut residences = BTreeSet::new();
+        let mut residences = BTreeMap::new();
         let claims = self
             .writes
             .into_iter()
@@ -132,10 +137,15 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
                 if self.unattributed_fields.contains(&field) {
                     return None;
                 }
-                if classes.as_slice() == [Some("ArrayBox".into())]
-                    && self.array_birth_writes.contains(&(owner_box.clone(), field.clone()))
-                {
-                    residences.insert((owner_box.clone(), field.clone()));
+                if let [Some(class)] = classes.as_slice() {
+                    if (class.as_ref() == "ArrayBox"
+                        || !crate::box_trait::is_builtin_box(class.as_ref()))
+                        && self
+                            .birth_new_writes
+                            .contains(&(owner_box.clone(), field.clone()))
+                    {
+                        residences.insert((owner_box.clone(), field.clone()), class.clone());
+                    }
                 }
                 let mut unique = BTreeSet::new();
                 for class in classes {

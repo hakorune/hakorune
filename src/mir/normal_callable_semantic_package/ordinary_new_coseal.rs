@@ -154,6 +154,23 @@ pub(crate) enum OrdinaryNewConstructorDispositionV1 {
     Birth(VerifiedOrdinaryNewBirthRecipeV1),
 }
 
+/// One sealed owned field child of an object, in declaration order.
+/// `Array` children release through `OwnedFieldResidenceRelease`;
+/// `Object` children release through `OwnedObjectFieldRelease`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct OwnedFieldChildV1 {
+    pub(crate) field: CanonicalFieldRefV1,
+    pub(crate) kind: OwnedFieldChildKindV1,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum OwnedFieldChildKindV1 {
+    Array,
+    /// The child object's canonical identity; S0 admits only
+    /// `PlainI64NoHook` children (the helper-teardown bound is later).
+    Object(CanonicalObjectIdV1),
+}
+
 /// The sealed `new` evidence both claim families carry identically — one
 /// shared core so the site/class/constructor/construction/object rows exist
 /// once, never as duplicated fields to keep in sync.
@@ -168,9 +185,9 @@ pub(crate) struct OrdinaryNewClaimCoreV1 {
     object: CanonicalObjectIdV1,
     destruction: ObjectDestructionDispositionV1,
     argument_rows: Result<Box<[OrdinaryNewTrivialArgumentV1]>, SelectedNewArgumentUnavailableV1>,
-    /// Owned `ArrayBox` field residences in declaration order; `Some`
-    /// only when every ArrayBox field's birth-side provider is sealed.
-    array_children: Option<Box<[CanonicalFieldRefV1]>>,
+    /// Owned field residences in declaration order; `Some` only when
+    /// every residence-capable field's birth-side provider is sealed.
+    children: Option<Box<[OwnedFieldChildV1]>>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -270,13 +287,13 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // storing `new` of one agreed ordinary box. Read-only after issuance;
     // missing/ambiguous writers simply produce no row.
     field_write_claims: field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-    // Owned `ArrayBox` field children per canonical object, issued once
-    // with the claims: `Some` means every declared ArrayBox field has a
+    // Owned field children per canonical object, issued once with the
+    // claims: `Some` means every residence-capable declared field has a
     // sealed birth-side residence and `None` means the destruction
     // disposition requires children the package never proved. Objects
-    // outside `OwnedArrayFieldsNoHook` carry no row at all.
+    // outside the owned-field dispositions carry no row at all.
     pub(super) owned_field_children:
-        BTreeMap<CanonicalObjectIdV1, Option<Box<[CanonicalFieldRefV1]>>>,
+        BTreeMap<CanonicalObjectIdV1, Option<Box<[OwnedFieldChildV1]>>>,
     // Callable result-class provenance: a selected callable claims a class
     // only when its sealed body ends in a `return` and every `return` row
     // constructs `new` of one agreed ordinary box. Read-only after
@@ -483,7 +500,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 birth_target,
                 birth_abi,
                 claim.core.argument_rows.clone(),
-                claim.core.array_children.clone(),
+                claim.core.children.clone(),
             )),
         );
         Ok(Some(
@@ -566,7 +583,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 birth_target,
                 birth_abi,
                 claim.core.argument_rows.clone(),
-                claim.core.array_children.clone(),
+                claim.core.children.clone(),
             )),
         );
         Ok(Some(claims.remove(site).expect(

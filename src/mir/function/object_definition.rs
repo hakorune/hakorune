@@ -44,6 +44,12 @@ pub(crate) enum ObjectDestructionDispositionV1 {
     /// Home. Emission still requires the per-field write proof; this
     /// disposition alone never releases a child.
     OwnedArrayFieldsNoHook,
+    /// At least one declared field is a non-builtin user-object class.
+    /// Every field is scalar, `ArrayBox`, or a user-object residence the
+    /// teardown releases in reverse declaration order before the object
+    /// Home. Emission still requires the per-field write proof; this
+    /// disposition alone never releases a child.
+    OwnedObjectFieldsNoHook,
     Unavailable(ObjectDestructionUnavailableV1),
 }
 

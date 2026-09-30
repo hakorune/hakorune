@@ -104,6 +104,15 @@ pub enum InvokeOperation {
         field: hakorune_mir_defs::CanonicalFieldRefV1,
         base: ValueId,
     },
+    /// Read the field's owned user-object handle and release it when live.
+    /// The child must be a `PlainI64NoHook` object — S0 emits
+    /// `checked_field_get_i64_v1` + `home_release_plain_i64_v1` directly;
+    /// deeper teardown waits for the generated per-class helper.
+    OwnedObjectFieldRelease {
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        base: ValueId,
+        child: hakorune_mir_defs::CanonicalObjectIdV1,
+    },
 }
 
 impl InvokeOperation {
@@ -137,7 +146,8 @@ impl InvokeOperation {
             | Self::HomeRelease { .. }
             | Self::HomeReleaseIfLive { .. }
             | Self::ReclaimUnpublished { .. }
-            | Self::OwnedFieldResidenceRelease { .. } => None,
+            | Self::OwnedFieldResidenceRelease { .. }
+            | Self::OwnedObjectFieldRelease { .. } => None,
         }
     }
 
@@ -152,7 +162,8 @@ impl InvokeOperation {
             Self::HomeRelease { .. }
             | Self::HomeReleaseIfLive { .. }
             | Self::ReclaimUnpublished { .. }
-            | Self::OwnedFieldResidenceRelease { .. } => EffectMask::WRITE
+            | Self::OwnedFieldResidenceRelease { .. }
+            | Self::OwnedObjectFieldRelease { .. } => EffectMask::WRITE
                 .union(EffectMask::MUT)
                 .union(EffectMask::IO)
                 .add(Effect::Control),
@@ -183,7 +194,8 @@ impl InvokeOperation {
                 values
             }
             Self::FieldSet { base, value, .. } => vec![*base, *value],
-            Self::OwnedFieldResidenceRelease { base, .. } => vec![*base],
+            Self::OwnedFieldResidenceRelease { base, .. }
+            | Self::OwnedObjectFieldRelease { base, .. } => vec![*base],
             Self::HomeRelease { value, .. }
             | Self::HomeReleaseIfLive { value, .. }
             | Self::ReclaimUnpublished { value, .. } => {
@@ -215,7 +227,8 @@ impl InvokeOperation {
                 }
                 rewrite(value);
             }
-            Self::OwnedFieldResidenceRelease { base, .. } => rewrite(base),
+            Self::OwnedFieldResidenceRelease { base, .. }
+            | Self::OwnedObjectFieldRelease { base, .. } => rewrite(base),
             Self::HomeRelease { value, .. }
             | Self::HomeReleaseIfLive { value, .. }
             | Self::ReclaimUnpublished { value, .. } => rewrite(value),

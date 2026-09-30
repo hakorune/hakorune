@@ -624,6 +624,18 @@ fn encode_invoke(
             }),
             required_site(diagnostic_site, abi_input.is_some())?,
         )?,
+        InvokeOperation::OwnedObjectFieldRelease {
+            field,
+            base,
+            child,
+        } => with_site(
+            json!({ "kind": "object_field_release",
+                "object_id": field.object().declaration_index(),
+                "field_ordinal": field.declaration_ordinal(), "base": value(base),
+                "child_object_id": child.declaration_index(),
+            }),
+            required_site(diagnostic_site, abi_input.is_some())?,
+        )?,
         InvokeOperation::ReclaimUnpublished {
             object,
             value: reclaimed,

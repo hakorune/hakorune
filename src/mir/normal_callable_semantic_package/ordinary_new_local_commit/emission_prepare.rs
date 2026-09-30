@@ -19,7 +19,7 @@ impl OrdinaryNewClaimLedgerV1 {
         construction: &ConstructionEligibilityV1,
         object: hakorune_mir_defs::CanonicalObjectIdV1,
         destruction: ObjectDestructionDispositionV1,
-        array_children: Option<&[hakorune_mir_defs::CanonicalFieldRefV1]>,
+        children: Option<&[super::super::OwnedFieldChildV1]>,
         prior_homes: Option<(&[BindingRefV1], &OwnedExprSiteV1)>,
     ) -> Result<NewEmissionProgress, String> {
         if let OrdinaryNewConstructorDispositionV1::Birth(recipe) = constructor {
@@ -49,17 +49,20 @@ impl OrdinaryNewClaimLedgerV1 {
                     constructor_source: constructor_source.clone(),
                     constructor_owner: *constructor_owner,
                     object: plan.object(),
-                    array_children: array_children.map(<[_]>::to_vec).map(Into::into),
+                    children: children.map(<[_]>::to_vec).map(Into::into),
                 })
             }
         };
         let mut operands = Vec::new();
         let mut available = construction.is_ok();
-        // A construction-fault reclaim of an owned-ArrayBox object must
+        // A construction-fault reclaim of an owned-field object must
         // carry the sealed children — without them the fault path would
         // free storage under live field residences.
-        if destruction == ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-            && array_children.is_none()
+        if matches!(
+            destruction,
+            ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                | ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
+        ) && children.is_none()
         {
             available = false;
         }
@@ -118,7 +121,7 @@ impl OrdinaryNewClaimLedgerV1 {
             claim.construction(),
             claim.object(),
             claim.core.destruction,
-            claim.core.array_children.as_deref(),
+            claim.core.children.as_deref(),
             prior_homes,
         )?;
         let available = matches!(next, NewEmissionProgress::Prepared { .. });
@@ -161,7 +164,7 @@ impl OrdinaryNewClaimLedgerV1 {
             claim.construction(),
             claim.object(),
             claim.core.destruction,
-            claim.core.array_children.as_deref(),
+            claim.core.children.as_deref(),
             prior_homes,
         )?;
         // A non-trivial argument co-seal is a retained claim, not a take-time
