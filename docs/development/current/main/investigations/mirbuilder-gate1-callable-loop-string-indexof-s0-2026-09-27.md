@@ -622,6 +622,42 @@ Next: `MIRBUILDER-FIXED-EXE-SUITE-REMEASURE-I0` — re-run the fixed
 pass/fail receipt (last record: 5 PASS / 6 FAIL on 2026-09-29); then
 bundle one chosen app to full completion as the next task lane.
 
+### I0 landed — FIXED-EXE-SUITE-REMEASURE (2026-09-30, `1eba1bcb11`+wt)
+
+`tools/smokes/v2/run.sh --profile integration --owner-profile
+integration --suite real-apps-exe-boundary` on the post-S0 binary:
+**5 PASS / 6 FAIL** — the count matches the 2026-09-29 record; the
+per-app first terminals are:
+
+| app | result | first terminal |
+| --- | --- | --- |
+| typed_object_newbox_min | PASS | — |
+| typed_object_birth_param_min | PASS | — |
+| typed_object_method_min | PASS | — |
+| typed_object_birth_min | PASS | — |
+| real_apps_exe_boundary_probe | PASS | designed negative |
+| typed_object_untyped_field_min | FAIL | `ordinary-new/local-commit/artifact-source-unavailable` |
+| binary_trees | FAIL | `ordinary-new/local-commit/root-call-entry-unavailable` |
+| boxtorrent_mini | FAIL | `ordinary-new/local-commit/emission-binding-drift` |
+| allocator_stress | FAIL | `CoreMethodSource NamedArray(TextSourceMissing)` |
+| json_stream_aggregator | FAIL | `callable-loop/route-not-front-selected` (`SourceCallOutsideSelectedFamily` in `JsonStreamAggregator.ingest/1`) |
+| mimalloc_lite | FAIL | MIR-JSON leg now freezes `ordinary-new/local-commit/emission-binding-drift` — the 9/29 pin was `unsupported terminator Invoke`; coverage extension moved the app's first terminal to an earlier designed freeze (still fail-closed, no permissive Invoke admitted) |
+
+Note: the mimalloc MIR-JSON negative pin drifted inside the fail-closed
+ladder (compile now stops before the JSON emit leg ever sees the
+program). The `--emit-exe` leg still reaches
+`artifact-unowned-lifecycle-site` 3/3. Pin re-wording belongs to the app
+bundle that closes this terminal, not to this slice.
+
+Next: `MIRBUILDER-APP-BUNDLE-MIMALLOC-LITE-D0` — bundle
+`mimalloc_lite_exe` to full completion. Selected because its remaining
+dependency chain is already catalogued (OpaqueHandle-parameter scalar
+positions, `release/1` `handle.<field>` reads, Bool return literals,
+constructor re-store/object arguments, forwarded results) and it is the
+flagship app the Gate-1 thinning work targets. The D0 enumerates each
+known dependency as an internal bounded slice with normal/Fault
+verification plus the production-switch and legacy-retirement criteria.
+
 ## Decision — MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (accepted)
 
 Decision:
