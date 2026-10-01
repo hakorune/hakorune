@@ -146,6 +146,15 @@ pub(super) use source::{
     prepare_lexical_source_targets_v1, PreparedLexicalInstanceCallSourceTargetsV1,
 };
 
+#[path = "ordinary_new_borrowed_formal_uses.rs"]
+mod borrowed_formal_uses;
+
+#[path = "ordinary_new_borrowed_formal_source.rs"]
+mod borrowed_formal_source;
+pub(super) use borrowed_formal_source::{
+    prepare_borrowed_formal_ingress_v1, PreparedBorrowedFormalIngressV1,
+};
+
 impl OrdinaryNewClaimLedgerV1 {
     /// Join lexical receiver provenance to selected `InstanceBoxMethod`
     /// targets for every method call in the batch. Parameter receivers are
@@ -167,6 +176,11 @@ impl OrdinaryNewClaimLedgerV1 {
             .lexical_source_targets
             .take()
             .ok_or_else(|| freeze("lexical-instance-call/missing-source-preparation"))??;
+        if let Some(Ok(borrowed)) = &self.borrowed_formal_source {
+            borrowed.corroborate_source_targets(&prepared)?;
+        }
+        // Borrowed source errors stay pending until that profile is requested.
+        // Source preparation alone cannot change a definition's old scalar ABI.
         for source in prepared {
             let Some(source) = source? else {
                 continue;

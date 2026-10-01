@@ -268,6 +268,10 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
         RefCell<BTreeMap<OwnedExprSiteV1, root_instance_call::RootInstanceCallDispositionSlotV1>>,
     lexical_source_targets:
         Option<lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1>,
+    // Source-only transport closure. Errors are retained for the selected
+    // prefix callback; neither Ok nor Err installs or changes a carrier.
+    borrowed_formal_source:
+        Option<Result<lexical_instance_call::PreparedBorrowedFormalIngressV1, String>>,
     lexical_instance_calls: RefCell<
         BTreeMap<OwnedExprSiteV1, lexical_instance_call::LexicalInstanceCallDispositionSlotV1>,
     >,

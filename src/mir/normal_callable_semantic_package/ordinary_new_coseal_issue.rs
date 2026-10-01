@@ -131,6 +131,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         &field_write_claims,
         &callable_result_classes,
     );
+    let borrowed_formal_source = super::lexical_instance_call::prepare_borrowed_formal_ingress_v1(
+        batch,
+        selected,
+        parameter_contracts,
+        &lexical_source_targets,
+        app_main_batch_slot,
+        dynamic_slot,
+    );
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
@@ -683,6 +691,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         names,
     );
     ledger.lexical_source_targets = Some(lexical_source_targets);
+    ledger.borrowed_formal_source = Some(borrowed_formal_source);
     ledger.receiver_call_observations = receiver_call_observations;
     ledger.field_write_claims = field_write_claims;
     ledger.callable_result_classes = callable_result_classes;

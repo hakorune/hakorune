@@ -879,3 +879,11 @@ Result at its old declaration boundary; final disposition consumes that same
 source row after signature/result checks, without another receiver/target
 selection. Source preparation proves neither Home liveness nor an argument ABI.
 CurrentOwner/me and borrowed-formal activation remain separate construction.
+
+Ordinary borrowed-formal source preparation uses the same immutable lexical
+source targets. Its private source child closes transport-only Copy/forward
+profiles over the finite batch and retains complete incoming-coverage errors.
+Unsupported source uses are outside the profile before selection; owner/binding
+corruption is never a profile miss. The final lexical issuer corroborates those
+same source rows. This preparation alone installs no carrier: live actuals,
+ordinary entry adoption and physical/C publication remain required.

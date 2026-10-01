@@ -1,6 +1,6 @@
 # mimalloc-lite opaque ordinary-formal ingress D0
 
-Status: accepted ingress construction Decision; implementation not started.
+Status: accepted ingress construction Decision; S0 source implementation in progress.
 Scope: selected source-backed Ordinary instance-call borrowed formal transport.
 Related: docs/development/RULES.md; CURRENT_STATE.toml;
   mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md;
@@ -172,6 +172,24 @@ still rejects untouched brand_catalog_tests.rs=961 (pre-existing size debt,
 no waiver). T0 closes only responsibility placement, not opaque ingress.
 Next selected row: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-FORMAL-INGRESS-S0.
 
+S0 work-in-progress: ordinary lexical owner now has a private structural
+borrowed-formal use draft. Exact canonical parameter bindings, direct Copy
+aliases and exact method argument sites are covered; tagged ABI/forward target
+permission is not issued by this draft. Rebind, capture read/write, nontransport
+use, missing parameter and ordinal mismatch reject. Every argument row remains
+unresolved until exact selected target/formal, incoming-edge and live-actual
+joins complete. Expanded source-use revision: 9/9 PASS (quick, serial). Exact forwarding
+join now corroborates the existing lexical disposition against source callee
+owner/slot/opaque binding and exact argument site/ordinal. Finite mutual
+forwarding requires every callee draft; a missing owner is not assumed valid.
+Forward-use join revision: 12/12 PASS. Complete-batch incoming draft now
+requires exact selected call rows, source callee/formal identity, Ordinary
+caller scope and nonzero incoming coverage. Unresolved same-selector/arity
+rows only veto selection; they never prove a target. Incoming-call revision: 14/14 PASS after correcting the selected-key enum
+spelling to Cataloged plus InstanceBoxMethod namespace. No package activation, carrier installation,
+C consumer or EXE acceptance claimed; S0 remains open. Source draft revisions
+are included in the source-cohort construction receipt below.
+
 ### Prerequisite — MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-SOURCE-TARGET-T0
 
 Decision: move existing source identity fields into one immutable
@@ -259,3 +277,46 @@ qualified scope guard reaches the unchanged 961-line brand_catalog_tests.rs
 debt, without waiver. S0 remains open: next use these prepared source rows for
 borrowed use/incoming closure and the separate prefix callback, then entry,
 physical/C and generated Normal/Fault acceptance. No ABI or deletion credit.
+
+
+### S0 source-cohort construction (not carrier activation)
+
+Decision: the existing lexical source owner prepares transport-only opaque
+formal/Copy/forward closure from its already prepared exact targets before the
+prefix walk. It retains the result in the same ordinary ledger; final lexical
+issuance corroborates those source rows without re-resolving the target.
+Source OpaqueHandle and the existing strict-I64 predicate remain unchanged.
+Legitimate UnsupportedUse, Rebound, Captured and annotated Copy are outside the
+profile before selection. Alias identity/cardinality corruption, SourceIdentity
+and AmbiguousUse are named errors; annotation now has a separate error variant.
+Finite forwarding dependencies close before selection. Every remaining
+incoming call must match the same Ordinary source cohort, callee, argument
+site and ordinal; unresolved or foreign ingress is a named pending error.
+
+Read-only review found no source-only selection/fallback regression. Existing
+selected/AppMain non-Dynamic scope agrees with source_scope's Ordinary branch;
+S6C has separate completion/port ownership, not a separate source class.
+Next: both readiness and verified prefix walks consume these exact profiles,
+prove actual domain/root liveness, and propagate pending Err when that profile
+is requested. Keep strict-I64 callback unchanged; add a sibling borrowed
+argument seal on the existing LocalCallObservation path. Preserve original
+variable_ref binding for forwarding; generic Handle/self-rooted tests do not
+prove typed-object domain (entry actual must match the verified loan receiver).
+Unknown selected actuals reject by name. I64 local-result integration is an
+implementation step, not permission to narrow the complete ingress contract.
+Do not interpret Err as None or retry strict-I64. Entry adoption,
+physical/C transport and generated executable Normal/Fault acceptance remain
+required; source preparation alone is not S0 completion or deletion credit.
+
+
+Source-cohort receipt (2026-10-02): borrowed-formal focused 22/22 PASS
+(21 owned source tests plus one existing sibling), ordinary co-seal 85/85 PASS.
+Initial negative fixture used absent Main.me.probe and stopped at the earlier
+static-target inventory; corrected to the legal instance receiver and retested.
+Complete named lib observation: 8172 passed / 126 failed / 56 ignored,
+inventory 8354. Exact existing failure names/hash unchanged; only the 21 owned
+source tests were added to the accepted inventory. No failure is re-baselined. Updated baseline verifier KNOWN BASELINE exit 0.
+Touched rustfmt, diff, pointer and bash syntax PASS. Qualified scope guard
+continues to fail only at the recorded untouched brand_catalog_tests.rs=961;
+no waiver. Source/forward/incoming closure is connected to the production
+issuer, but actual liveness, carriers, C/EXE acceptance and cutover remain open.
