@@ -1,6 +1,6 @@
 # MirBuilder app bundle — mimalloc-lite completion D0 (2026-09-30)
 
-Status: active — SCALAR-EXPRESSION-POSITION-S0 verified; OPAQUE-BORROWED-OPERATIONS-D0 selected.
+Status: active bundle — scalar expression S0 landed at 06cf1a1481; opaque formal ingress child selected.
 Scope: mimalloc-lite completion bundle; selected source contracts and retirement only.
 Related: CURRENT_STATE.toml; docs/development/RULES.md; parent Gate-1 card below.
 
@@ -908,42 +908,11 @@ argument case remains negative. Do not rebaseline either discrepancy as debt.
   PASS, opaque support, String/call-root admission or global retirement claim.
 
 
-### Next design — MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-BORROWED-OPERATIONS-D0 (2026-10-01)
+### Task 4 handoff — opaque borrowed operations (2026-10-01)
 
-Decision: select existing bundle task 4, first the opaque formal ingress;
-no scalar relabeling, source annotation workaround or permissive prefix arm.
-Read-only worker confirmed that executable operation mapping is still missing.
-Source authority: callable_parameter_contract/issuer.rs declaration loan,
-exact allocate parameter ordinal 0/binding/owner/origin; absent declaration
-spelling issues OpaqueHandle. Runtime tags/call literals/MIR are non-authority.
-Finite consumers in lang/src/hako_alloc/memory/page_heap_box.hako:
-allocate Body(8), requested_sizes.set argument 1 (line 93); then ordered
-requested_bytes + requested_size and numeric field destination (line 96).
-The heap-to-page allocate calls (lines 204/208) own caller-side ingress.
-
-Ordered tasks, each requiring a Decision before its implementation:
-1. Bind the source-issued borrowed opaque formal to one checked physical value
-   representation; distinguish immediate payload and owned handle. Reuse the
-   existing parameter issuer and preserve caller ownership, not scalar inference.
-2. Select retained ArraySet value semantics: index/value ordinals, destination
-   retention/replacement, Fault without mutation, staged-retain cleanup. The
-   ArrayBox.set/2 manifest has Unprojected value law; checked primitive append
-   does not supply retained opaque Set. Runtime store sharing is evidence, not
-   the missing source contract.
-3. Select ordered Add(I64, Dynamic) and its destination separately. Existing
-   dynamic_operator_contract admits Dynamic + I64, publishes a nonaliasing
-   Dynamic with End obligation, and does not authorize reversed operands or
-   Integer projection. DynamicAdd physical execution still rejects before effect.
-   Any semantic envelope extension updates language reference before issuer code.
-4. Close exact source operation/site/destination -> once-only claim -> checked
-   physical consumer with transactional staging and Normal/Fault cleanup. Reuse
-   prior-Home unwind; borrowed formals/me are never ended as owned Homes.
-5. Positive exact ingress/retained Set and negatives for wrong owner/site/ordinal,
-   domain/destination and Fault: preserve operands/prior effects, skip later
-   statements, unwind owned Homes once. Re-observe the finite page-heap frontier
-   only after its implementation changes; eventual original app EXE gate remains.
-
-Non-claims: resize/realloc, result-new opaque arguments, mixed String/print/call
-roots, object-field method calls and forwarded nullable results remain separate
-bundle tasks. No parked platform/selected-C lane reopened. This is internal
-contract work, not an external dependency or whole-goal blocked condition.
+OPAQUE-BORROWED-OPERATIONS-D0's ingress Decision is accepted in
+[the focused opaque-formal card](mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md).
+Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-FORMAL-INGRESS-S0. The focused
+card owns exact domain/use-closure/entry/physical acceptance and remaining
+Set/Add decisions. Original app EXE completion and bundle tasks 10-12 remain.
+No opaque operation activation or physical deletion claim is made here.

@@ -1,10 +1,10 @@
 date = "2026-10-01"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-BORROWED-OPERATIONS-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-FORMAL-INGRESS-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "OpaqueBorrowedFormalIngress__OperationRepresentationAndRetentionUnselected"
-current_design_stop = "Select exact borrowed opaque formal representation, then retained ArraySet and ordered Add destination contracts inside bundle task 4; internal design, not external blocked."
+current_blocker_token = "none"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,24 +13,25 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md"
+latest_card = "mirbuilder-app-mimalloc-opaque-formal-ingress-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md"
 latest_card_summary = """
-SCALAR-EXPRESSION-POSITION-S0 verified: whole-root batch proof/staging,
-exact typed ObjectFieldGet, conditional RHS and live borrowed alias roots.
-Focused new tests 12/12, field regression 9/9; page-heap and selected-new
-regressions pass. Final baseline verifier KNOWN BASELINE: 8151/126/56,
-inventory 8333; deterministic failure set unchanged. Earlier nullable flake
-recorded, not added to manifest. Format/diff/pointer pass; scope guard has
-unchanged brand_catalog_tests.rs=961 debt, not waived.
-Next: task 4 opaque formal ingress, retained ArraySet value, ordered Add
-and checked destination contracts. No app EXE PASS or physical deletion claim.
+Opaque ordinary-formal ingress D0 accepted: one existing MIR ValueId owns a
+borrowed kind/payload carrier, expanded by the final lifecycle ABI owner.
+Source OpaqueHandle and exact caller/formal identity remain authoritative.
+Planned Ordinary scope installs selected carriers; no global S6C/static-I64
+reinterpretation. Full selected-use closure forbids unproved raw payload uses.
+Closed immediate I64/Bool/typed-object domain and forwarding are BorrowForCall,
+with no callee End; host/boxed domain needs its own producer/lifetime proof.
+Next: OPAQUE-FORMAL-INGRESS-S0, source co-seal -> entry -> physical/C consumer
+and Normal/Fault acceptance; implementation not started. Retained ArraySet,
+ordered Add/destination, mixed roots and original app EXE remain incomplete.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-BORROWED-OPERATIONS-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "none until opaque borrowed-operation mapping is accepted"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+next_design_card = "Remaining bundle task 4: retained opaque ArraySet and ordered Add/result-destination contracts after ingress S0."
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-FORMAL-INGRESS-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

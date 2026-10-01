@@ -586,3 +586,45 @@ schema/valid-frame cases, with no object publication, no active rows after
 compile, and one document destruction. Existing non-allocation ambient settings
 and process-global call-row storage remain separate concurrency obligations;
 this contract does not claim all settings frozen or parallel compile safety.
+
+
+### Selected ordinary-instance borrowed formal ingress
+
+Decision (2026-10-01): accepted compiler ABI construction, activation pending.
+Source OpaqueHandle remains an opaque parameter contract; its wire is not an
+Integer source proof. The existing normal package owns exact caller/formal
+relations and selected-use coverage. One aligned BorrowedTaggedValue carrier
+occupies one source/MIR parameter ValueId and expands only at final lifecycle
+ABI projection to i32 kind + i64 payload. MIR parameter counts/bindings and
+physical_ordinal stay unchanged. This does not change runtime/plugin ABI.
+
+The selected ordinary formal representation is `borrowed_kind_payload_v1`,
+separate from Birth `kind_payload_v1`. Kinds: 1 immediate I64, 2 canonical
+Bool (payload 0/1), 3 borrowed typed-object-store handle. Unsupported kinds and
+host/boxed handles without their own source producer/lifetime contract reject;
+Map tag 3 does not authorize a host-handle lookup or typed-object release.
+Boxed integer bits never become immediate I64 by inspection.
+
+Every incoming call to a changed internal definition must carry its exact
+selected actual/formal relation. Constant-tag and forwarded-pair actuals are
+exclusive transport forms; Copy/forwarding preserve both lanes and domain.
+No raw-I64 entry alias or default-tag adapter reaches the changed definition.
+Callee receipt is BorrowForCall, with no retain/transfer/End. Caller roots stay
+live through Normal/Fault and existing caller-owned cleanup remains once-only.
+
+Ingress alone admits ignored, Copy and exact selected call-argument forwarding
+uses. All uses require source closure and physical corroboration before effects.
+Raw arithmetic/comparison/branch, scalar store/projection, return, Phi, rebind
+and nonselected calls reject until their own checked operation contract exists.
+Final publication rejects these tagged uses before JSON/artifact; C admission
+corroborates TAGGED kinds and primitive operand requirements. No retry occurs.
+
+Ordinary unselected/legacy/S6C signatures and static exact-I64/Map contracts
+remain on their own source products. The selected carrier is installed through
+the existing Ordinary source scope before body lowering, never inferred from
+metadata defaults. Birth's currently admitted kind set remains 1/2.
+
+Implementation/acceptance ownership:
+[opaque ordinary-formal ingress D0](../../development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md).
+Retained ArraySet and ordered Add/result-destination contracts are separate;
+this Decision does not activate them or claim whole-app completion.
