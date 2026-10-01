@@ -1,7 +1,7 @@
 date = "2026-10-01"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-SCALAR-POSITION-D0"
+work_mode = "closeout"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-COSEAL-SIZE-T0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -17,31 +17,19 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-HANDLE-FIELD-READ-S0 landed end to end: `local x = <proven
-receiver>.<field>` is one claimed binding — `local_read_field`
-proves the declaration on the receiver's own class authority
-(claim-local `new` candidate, entry-loan `me` root, or a prior
-FieldAlias's retained class) and seals `Scalar`
-(`is_numeric_integer_type_name`, usize included) or `Alias(class)`
-(`coverage.contains_box`). `StoredLocal::FieldAlias` is borrowed,
-observable-as-None storage — no Home join, no teardown, not a
-movable `new` argument. Staged `LocalFieldRead` rows
-(take/record/complete/validate like terminal/argument rows) feed
-the exact-site emit lane: `ObjectFieldGet` typed `Integer` or
-`Box(class)` from the sealed class only.
-Pins: `local_field_read_claim_tests` 7/7 + lifecycle emit 2/2 —
-chained `page.alloc` bases on the alias's materialized Copy.
-mimalloc-lite emit frontier stays the pinned
-`emission-binding-drift` gate downstream: `small.alloc_count` in
-concat/if subtrees is slice 9's domain, `handle.block_id` param
-reads need DeclaredHandle widening — a separate D0.
-CALL-RESULT-ARG-POSITION-S0 / INSTANCE-CALL-SCALAR-ARG-S0 /
-STATIC-CALL-CLAIM-S0 landed — receipts in `landed_tail`.
-Next: APP-MIMALLOC-LITE-OPAQUE-SCALAR-POSITION-D0.
+OPAQUE-SCALAR-POSITION-D0 integrated; COSEAL-SIZE-T0 verified in worktree.
+Issuer/source helper: 711/405 lines; coseal/ledger: 434/381.
+Focused field-read 9/9; full lib verifier KNOWN BASELINE, 8139 passed,
+126 failed, 56 ignored, unchanged failure set. Pointer/format/diff pass.
+Scope guard still rejects unchanged brand_catalog_tests.rs (961 lines).
+Commit/push pending: local .git read-only; GitHub write requires approval
+which this session disallows. Preserve eight changed/new paths; publish
+D0 and T0 separately before selecting SCALAR-EXPRESSION-POSITION-S0.
+No app PASS, semantic cutover or physical retirement claimed.
 """
-next_design_card = "mimalloc-lite bundle slice 9 design: OPAQUE-SCALAR-POSITION census + decision"
+next_design_card = "mimalloc-lite slice 9 remaining contracts: opaque borrowed operations and mixed String/call roots; no inferred scalar or whole-root admission"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-SCALAR-POSITION-D0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-COSEAL-SIZE-T0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -57,7 +45,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-01: OPAQUE-SCALAR-POSITION-D0 integrated — one read-only worker verified declaration-backed scalar field projection versus opaque-parameter borrowing; accepted bounded pure scalar expression profile, exact existing field-read owner, no permissive call/String roots. No dynamic evidence or deletion claim. Next: prerequisite COSEAL-SIZE-T0, then SCALAR-EXPRESSION-POSITION-S0.",
   "2026-10-01: HANDLE-FIELD-READ-S0 landed — local_read_field proves `local x = recv.field` on the receiver's own class authority (claim-local new candidate / entry-loan me root / prior FieldAlias class) and seals Scalar or Alias(class); StoredLocal::FieldAlias is borrowed observable-None storage (no Home join/teardown/movable arg); staged LocalFieldRead rows feed the exact-site ObjectFieldGet emit typed Integer or Box(class). Pins: claim 7/7 + emit 2/2; chained alias read bases on the alias Copy. mimalloc-lite frontier stays pinned emission-binding-drift. Next: OPAQUE-SCALAR-POSITION-D0.",
   "2026-10-01: CALL-RESULT-ARG-POSITION-S0 landed — LocalCallArgumentV1::CallResult(Box<ArgumentCallObservationV1>) seals a proven-i64 inner lexical call in direct argument position (inner site + prior Homes + recursive arg rows via the shared lexical_i64_result_call predicate); emit_lexical_i64_call recurses — inner disposition taken once, inner Invoke+projection fold into the outer record_root_local_call_bindings group, inner result feeds the outer argument. Emit pin: two Invoke{SameModuleInstance, I64}, give on allocate's normal-landing edge. mimalloc-lite frontier stays pinned emission-binding-drift. Next: HANDLE-FIELD-READ-D0.",
-  "2026-10-01: INSTANCE-CALL-SCALAR-ARG-S0 landed — lexical_i64_result_call (claim-local receiver + unique InstanceBoxMethod + all-i64 formals + literal/i64-param value returns) feeds issue_lexical_i64_local_call -> LocalCallObservationV1{I64} with sealed scalar argument rows; disposition issuer mints Some(I64) + lifecycle local-call site; emit_local_lexical_i64 produces Invoke{SameModuleInstance, I64} with exact receiver binding + shared prior-home unwind, dst registered integer so `return r` type-checks. Standard route takes the disposition once and validates selector+result kind; dynamic route never re-emits. heap.release(h) stays a separate consume/borrow D0; mimalloc-lite frontier remains pinned emission-binding-drift. Next: CALL-RESULT-ARG-POSITION-D0.",
   ]

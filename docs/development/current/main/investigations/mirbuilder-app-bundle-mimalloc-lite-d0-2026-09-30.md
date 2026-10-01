@@ -1,5 +1,9 @@
 # MirBuilder app bundle — mimalloc-lite completion D0 (2026-09-30)
 
+Status: active — D0 integrated; COSEAL-SIZE-T0 verified in worktree 2026-10-01, commit/push pending.
+Scope: mimalloc-lite completion bundle; selected source contracts and retirement only.
+Related: CURRENT_STATE.toml; docs/development/RULES.md; parent Gate-1 card below.
+
 Parent card: `mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md`
 (the Gate-1 thinning ledger). This card carries the one-app completion
 bundle for `mimalloc_lite_exe` from the fixed `real-apps-exe-boundary`
@@ -653,3 +657,144 @@ stub (local-initializer reads admit on the verified lane only):
 
 Next: `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-SCALAR-POSITION-D0` — bundle
 slice 9.
+
+## Decision — OPAQUE-SCALAR-POSITION-D0 (2026-10-01)
+
+Read-only worker audited `e939989660`: the unresolved premise was whether
+scalar subtree projection and opaque-parameter use share an existing owner.
+They do not have the same admission contract; the decision separates them.
+No compiler execution or new baseline measurement was performed for this D0.
+
+```text
+Decision: reuse declaration-backed scalar field-read claims at explicit
+  expression positions; keep opaque parameters opaque. First restore the
+  source size boundary in a separate BoxShape T0, then implement the bounded
+  scalar-expression S0. Opaque borrowing and mixed call/String roots require
+  their own contract decisions inside this bundle, not a permissive observe.
+Source authority + canonical issuer: exact resolver expression_source rows
+  (operator and child sites), current PrefixLocalFlow scalar/receiver proofs,
+  terminal_home::local_read_field and the receiver's declared numeric field.
+  Existing LocalFieldRead ledger -> exact field port -> ObjectFieldGet stays
+  the sole projection/physical chain. No new field-read map or evaluator.
+Non-authority: parameter spelling, caller literal 8, a usize destination,
+  MIR value_types, Other("BinaryOp"), VM behavior or a proved leaf alone.
+Fail-fast boundary: missing receiver/field/operator evidence, opaque or
+  object-valued operands, and unproved call-containing roots remain unavailable.
+Smallest next slice: MIRBUILDER-APP-MIMALLOC-LITE-COSEAL-SIZE-T0; no semantic
+  change. Follow with SCALAR-EXPRESSION-POSITION-S0 under the profile below.
+Non-claims: no DeclaredHandle widening, nullable push, object-field method,
+  String concatenation, forwarded object result, app PASS or global retirement.
+```
+
+### Finite source inventory and distinct contracts
+
+| Selected source | Existing evidence / gap | Disposition |
+| --- | --- | --- |
+| `apps/mimalloc-lite/main.hako:39-40` | Eight numeric field leaves on prior `small`/`medium` aliases; surrounding print/concat also calls `freeCount` | Reuse field declaration proof; String/call root admission remains separate |
+| `apps/mimalloc-lite/main.hako:44` | The same eight fields in comparisons/And; root also calls `freeCount`, `requestedBytes`, `outstandingBlocks` | Condition traversal must be explicit; field support alone does not cover the whole root |
+| `page_heap_box.hako` allocate `Body(8)` and requested-bytes RHS | Unannotated `requested_size` is `OpaqueHandle`, installed as `StoredLocal::Handle`, not scalar | Keep rejection; select checked operation/borrow/Fault contract before widening |
+| Existing exact scalar local in builtin argument/store RHS | Field-call and field-store walkers have different transfer rules | Preserve each context's current admission; do not merge them by bool or spelling |
+
+There are 16 scalar field-read occurrences in the app source, not 16 new
+owners or proof products. Imported allocator operands are a separate part
+of the same app dependency chain. This static inventory is not an observed
+runtime terminal order and does not repeat the whole-repository census.
+
+### Ordered implementation tasks inside slice 9
+
+1. **COSEAL-SIZE-T0 (next).** The committed issuer is 1,048 lines and ledger
+   module 807. Split private source-claim preparation, per-declaration
+   observation/claim assembly and ledger/error vocabulary at their ownership
+   boundaries. Existing `#[path]` modules are sufficient; keep source loans,
+   invocation identity, take/finish order, errors, ABI and acceptance unchanged.
+   Merely moving the two bottom helpers does not make the issuer small enough.
+   Every touched/extracted source must be below 800, with room below 760 where
+   practical. Do not add semantic arms to either oversized parent beforehand.
+2. **SCALAR-EXPRESSION-POSITION-S0.** Generalize the existing field-read site
+   helper while retaining its direct-initializer adapter and Alias behavior.
+   New subtree positions accept only Scalar field results on an exact Home,
+   entry `me` or live prior alias. Use sealed expression source operator/child
+   rows, not the generic body-shape kind, for the initial pure profile:
+   Integer/Bool literals and exact scalar locals; integer Add/Subtract,
+   integer Equal/NotEqual comparisons, and Bool And/Or. Require Integer
+   operands for arithmetic/comparisons and Bool operands for And/Or; mixed
+   Integer/Bool operands reject. A fully proved initializer installs its
+   actual Integer or Bool class (existing scalar install), never a fabricated
+   local for each leaf. Require Bool for this profile's if-condition root
+   before branch traversal; branch
+   body verification does not prove condition leaves. Reuse existing ordinary
+   binary and short-circuit consumers; their evaluation/Fault semantics stay
+   unchanged. Other operators and effectful/mixed-call roots are excluded.
+3. **Transactional staging and physical cutover (same S0).** Prove the complete
+   selected root before committing staged field-read rows. Rejected roots
+   leave no successful partial claim/residual rows. Keep exact owner/site,
+   receiver child path and canonical field; every accepted leaf uses the
+   existing once-only take/record/finish checks and Integer ObjectFieldGet.
+   Short-circuit RHS reads remain in the RHS control region; never hoist them.
+   Existing core arguments/store RHS may reuse the leaf helper only while
+   preserving their own whole-root, transfer and effect checks.
+4. **Remaining slice-9 decisions.** For opaque allocator parameters select the
+   exact source binding, checked operation/provider, normal representation,
+   borrow/retain/transfer behavior, rejection/Fault and caller unwind. For
+   String concat/print and call-containing conditions name each existing call
+   and operation consumer before combining leaf evidence. Do not weaken an
+   exact-I64 call contract or relabel Handle from its use position. Keep these
+   tasks in this bundle; do not open a second interpreter or observer census.
+5. **App closeout and retirement.** Re-observe the chosen app after relevant
+   boundaries change; close the bundle only at its original EXE acceptance.
+   Scalar-expression green alone is not permission to re-pin the app as PASS.
+
+### Acceptance and deletion accounting
+
+- Positive: Home numeric field in `local n = page.count + 1`; entry `me`
+  numeric comparison; prior-alias numeric condition; supported scalar-local
+  store/argument; repeated same-field reads have distinct exact sites.
+- Negative: mixed scalar operands or non-Bool condition, unknown/rebound/
+  consumed receiver, missing/weak/noninteger field,
+  alias as numeric value, foreign/duplicate/wrong child site, double take,
+  opaque operand, hidden call, unsupported operator and partially proved root.
+- Physical: exact canonical field/base and Integer destination feed the
+  actual operator/condition; short-circuit RHS stays conditional. Normal/Fault
+  cleanup retains each original obligation exactly once; no borrowed alias
+  enters Home teardown or escapes as a movable argument.
+- T0 uses existing field-read claim/emit and touched-module regressions; S0
+  adds discriminating focused positives/negatives and physical tests. Classify
+  failures against the existing quick-profile baseline; never promote a flake
+  into the deterministic failure manifest to make a run green.
+- Retirement mapping: selected scalar FieldAccess source sites previously
+  entering raw Dynamic/FieldGet must consume the exact ObjectFieldGet port.
+  Assert no raw FieldGet/re-entry for those exact sites and no stranded claims.
+  The shared Dynamic arm has outside readers and is retained. Physical delete
+  credit is zero until an actual helper/edge has migrated callers, verified
+  acceptance and caller-zero; record any such finite delete set before removal.
+- Keep unrelated legacy schema/backend retirement parked. The app bundle's
+  production switch and selected-edge retirement remain mandatory closeout,
+  not a claim made by this design or by the BoxShape split.
+
+Next: `MIRBUILDER-APP-MIMALLOC-LITE-COSEAL-SIZE-T0`, then
+`MIRBUILDER-APP-MIMALLOC-LITE-SCALAR-EXPRESSION-POSITION-S0`.
+
+
+### COSEAL-SIZE-T0 worktree receipt (2026-10-01)
+
+- Behavior-preserving ownership split: issuer 1048 -> 711 lines, source-claim
+  child 405; coseal 807 -> 434, ledger child 381. Ledger method visibility
+  retains the original semantic-package boundary. Existing claim order,
+  invocation identity, errors and affine take/finish behavior are unchanged.
+- Module README and scope-guard pins follow the moved responsibilities; both
+  new modules are registered in the size boundary. No semantic arm or selected
+  old-edge retirement was added; physical deletion credit remains zero.
+- Focused quick/serial `local_field_read`: 9 passed, 0 failed (7 claim and
+  2 emitter tests). Full lib baseline verifier: KNOWN BASELINE, exit 0;
+  8139 passed / 126 failed / 56 ignored, inventory 8321, unchanged failure
+  SHA256 `eed5d558e18359d7d8502c87a0bd54b42cdbcb8215f3ab505671169c34e6e497`.
+- Pointer guard, touched-file rustfmt, shell syntax and diff check pass.
+  Qualified-route scope guard still rejects unchanged `brand_catalog_tests.rs`
+  at 961 lines: existing size debt, not a T0 regression; not waived or hidden.
+- Commit/push pending: local `.git` is read-only in this session. GitHub blob
+  creation was rejected with `MCP tool call requires approval, but approval
+  policy is never`; no remote write succeeded. Keep all eight worktree paths.
+- Next: publish the D0 decision separately from the T0 implementation/receipt,
+  then select SCALAR-EXPRESSION-POSITION-S0 under the accepted profile above.
+  Do not combine this BoxShape change with S0 semantics. App acceptance and
+  legacy retirement remain incomplete.

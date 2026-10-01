@@ -308,6 +308,12 @@ The definition issuer separately owns bounded destruction disposition, independe
 of construction/runtime layout. Claims copy ID/disposition before transfer;
 post-transfer lookup cannot reissue them or prove empty cleanup.
 
+The private [co-seal issuer](ordinary_new_coseal_issue.rs) owns the source walk.
+[Source claim preparation/assembly](ordinary_new_coseal_issue_source.rs) keeps
+the same candidate order, source loans and Birth-index membership;
+[ledger operations](ordinary_new_ledger.rs) own initialization, affine takes
+and root identity access. This split changes no admission or physical route.
+
 The private [New candidate](ordinary_new_candidate.rs) collects these existing
 descriptors in candidate source order before the caller source walk. Field-read
 validation borrows the same construction plan and exact Box source; it no longer
