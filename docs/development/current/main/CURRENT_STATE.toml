@@ -1,7 +1,7 @@
 date = "2026-10-01"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-COSEAL-SIZE-T0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-SCALAR-EXPRESSION-POSITION-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -17,19 +17,19 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-OPAQUE-SCALAR-POSITION-D0 integrated; COSEAL-SIZE-T0 verified in worktree.
+OPAQUE-SCALAR-POSITION-D0 and behavior-preserving COSEAL-SIZE-T0
+preserved and published at 0d60daa3f5. Local .git is writable again.
 Issuer/source helper: 711/405 lines; coseal/ledger: 434/381.
 Focused field-read 9/9; full lib verifier KNOWN BASELINE, 8139 passed,
 126 failed, 56 ignored, unchanged failure set. Pointer/format/diff pass.
 Scope guard still rejects unchanged brand_catalog_tests.rs (961 lines).
-Commit/push pending: local .git read-only; GitHub write requires approval
-which this session disallows. Preserve eight changed/new paths; publish
-D0 and T0 separately before selecting SCALAR-EXPRESSION-POSITION-S0.
-No app PASS, semantic cutover or physical retirement claimed.
+Next: accepted pure SCALAR-EXPRESSION-POSITION-S0, transactional root
+staging and existing exact field-read consumer; opaque and mixed call/
+String roots remain outside this profile. No app PASS or retirement claim.
 """
 next_design_card = "mimalloc-lite slice 9 remaining contracts: opaque borrowed operations and mixed String/call roots; no inferred scalar or whole-root admission"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-COSEAL-SIZE-T0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-SCALAR-EXPRESSION-POSITION-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

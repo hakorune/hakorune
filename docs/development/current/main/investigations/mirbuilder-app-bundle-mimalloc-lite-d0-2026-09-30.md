@@ -1,6 +1,6 @@
 # MirBuilder app bundle — mimalloc-lite completion D0 (2026-09-30)
 
-Status: active — D0 integrated; COSEAL-SIZE-T0 verified in worktree 2026-10-01, commit/push pending.
+Status: active — D0 and COSEAL-SIZE-T0 published at 0d60daa3f5; SCALAR-EXPRESSION-POSITION-S0 selected.
 Scope: mimalloc-lite completion bundle; selected source contracts and retirement only.
 Related: CURRENT_STATE.toml; docs/development/RULES.md; parent Gate-1 card below.
 
@@ -775,7 +775,7 @@ Next: `MIRBUILDER-APP-MIMALLOC-LITE-COSEAL-SIZE-T0`, then
 `MIRBUILDER-APP-MIMALLOC-LITE-SCALAR-EXPRESSION-POSITION-S0`.
 
 
-### COSEAL-SIZE-T0 worktree receipt (2026-10-01)
+### COSEAL-SIZE-T0 publication receipt (2026-10-01)
 
 - Behavior-preserving ownership split: issuer 1048 -> 711 lines, source-claim
   child 405; coseal 807 -> 434, ledger child 381. Ledger method visibility
@@ -791,10 +791,9 @@ Next: `MIRBUILDER-APP-MIMALLOC-LITE-COSEAL-SIZE-T0`, then
 - Pointer guard, touched-file rustfmt, shell syntax and diff check pass.
   Qualified-route scope guard still rejects unchanged `brand_catalog_tests.rs`
   at 961 lines: existing size debt, not a T0 regression; not waived or hidden.
-- Commit/push pending: local `.git` is read-only in this session. GitHub blob
-  creation was rejected with `MCP tool call requires approval, but approval
-  policy is never`; no remote write succeeded. Keep all eight worktree paths.
-- Next: publish the D0 decision separately from the T0 implementation/receipt,
-  then select SCALAR-EXPRESSION-POSITION-S0 under the accepted profile above.
-  Do not combine this BoxShape change with S0 semantics. App acceptance and
-  legacy retirement remain incomplete.
+- D0 and T0 worktree changes were preserved and pushed together by an external
+  handoff at `0d60daa3f59155990aa216b207df3cf5da9d49f6`. This existing history
+  is retained; separate D0/T0 patch snapshots remain available in `/tmp`.
+  Local `.git` is now writable; the earlier publication restriction is resolved.
+- Next: SCALAR-EXPRESSION-POSITION-S0 under the accepted profile above.
+  App acceptance and legacy retirement remain incomplete.
