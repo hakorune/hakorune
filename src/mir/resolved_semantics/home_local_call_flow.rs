@@ -39,13 +39,58 @@ impl QualifiedStaticCallClaimV1 {
 /// One sealed source argument on a local-call continuation row.
 ///
 /// `Integer`/`Bool` carry the exact literal; `Scalar` names a local or
-/// parameter binding the homes flow already proved trivial-scalar.  No other
-/// argument shape is admitted — a missing seal keeps the site unclaimed.
+/// parameter binding the homes flow already proved trivial-scalar.
+/// `CallResult` is a nested i64-result lexical call sitting directly in
+/// argument position — its sealed row carries the inner call's own
+/// arguments and the live prior-Home set at the enclosing statement, so
+/// the emitter can re-run the same call evidence without re-reading
+/// source.  No other argument shape is admitted — a missing seal keeps
+/// the site unclaimed.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum LocalCallArgumentV1 {
     Integer(i64),
     Bool(bool),
     Scalar(BindingRefV1),
+    CallResult(Box<ArgumentCallObservationV1>),
+}
+
+/// One proven-i64 lexical call sitting in direct argument position of a
+/// claimed call — `local x = recv.m(recv2.m2(..))` seals the inner call
+/// here.  There is no destination binding or `local` statement for an
+/// argument-position call, so this row is intentionally not a
+/// `LocalCallObservationV1`; the emitter folds the inner Invoke into the
+/// outer call's recorded binding group.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ArgumentCallObservationV1 {
+    site: OwnedExprSiteV1,
+    prior_homes: Box<[BindingRefV1]>,
+    arguments: Box<[LocalCallArgumentV1]>,
+}
+
+impl ArgumentCallObservationV1 {
+    fn issue(
+        site: OwnedExprSiteV1,
+        prior_homes: Box<[BindingRefV1]>,
+        arguments: Box<[LocalCallArgumentV1]>,
+    ) -> Self {
+        Self {
+            site,
+            prior_homes,
+            arguments,
+        }
+    }
+
+    pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
+        &self.site
+    }
+
+    pub(crate) fn prior_homes(&self) -> &[BindingRefV1] {
+        &self.prior_homes
+    }
+
+    pub(crate) fn arguments(&self) -> &[LocalCallArgumentV1] {
+        &self.arguments
+    }
 }
 
 /// Source-recorded result class of one local direct-call continuation.
@@ -302,18 +347,15 @@ pub(crate) fn issue_lexical_i64_local_call<E>(
     {
         return Ok(None);
     }
-    let mut arguments = Vec::with_capacity(call.arguments().len());
-    for argument in call.arguments() {
-        let row = match locals.observe(argument.site()) {
-            Some(OrdinaryObservation::Integer(value)) => LocalCallArgumentV1::Integer(value),
-            Some(OrdinaryObservation::TrivialLocal(
-                binding,
-                Some(SourceScalarKind::Integer),
-            )) => LocalCallArgumentV1::Scalar(binding),
-            _ => return Ok(None),
-        };
-        arguments.push(row);
-    }
+    let Some(arguments) = seal_i64_call_arguments(
+        input,
+        locals,
+        call,
+        prior_homes,
+        is_selected_call,
+    )? else {
+        return Ok(None);
+    };
     Ok(Some(LocalCallObservationV1::issue(
         input.owner(),
         statement.clone(),
@@ -323,6 +365,92 @@ pub(crate) fn issue_lexical_i64_local_call<E>(
         prior_homes.iter().copied().collect(),
         arguments.into_boxed_slice(),
         LocalCallResultClassV1::I64,
+    )))
+}
+
+/// Seal one admitted i64 call's source arguments in declared order.
+/// Literal `Integer` and `TrivialLocal` scalar bindings seal directly; a
+/// direct argument-position method call seals only when the package
+/// predicate proves the inner site is an i64-result lexical call too —
+/// its own arguments seal by the same rule (recursively), and the inner
+/// row keeps the enclosing statement's live prior-Home set. Every other
+/// shape keeps the outer site unclaimed.
+fn seal_i64_call_arguments<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    locals: &PrefixLocalFlow<'_>,
+    call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+    prior_homes: &[BindingRefV1],
+    is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+) -> Result<Option<Vec<LocalCallArgumentV1>>, E> {
+    let mut arguments = Vec::with_capacity(call.arguments().len());
+    for argument in call.arguments() {
+        let row = match locals.observe(argument.site()) {
+            Some(OrdinaryObservation::Integer(value)) => LocalCallArgumentV1::Integer(value),
+            Some(OrdinaryObservation::TrivialLocal(
+                binding,
+                Some(SourceScalarKind::Integer),
+            )) => LocalCallArgumentV1::Scalar(binding),
+            _ => {
+                let Some(inner) = seal_argument_call(
+                    input,
+                    locals,
+                    argument.site(),
+                    prior_homes,
+                    is_selected_call,
+                )? else {
+                    return Ok(None);
+                };
+                LocalCallArgumentV1::CallResult(Box::new(inner))
+            }
+        };
+        arguments.push(row);
+    }
+    Ok(Some(arguments))
+}
+
+/// Seal one argument-position method call — the inner site must be a
+/// lexical-receiver `Lexical(Local)` method call whose selected callee is
+/// i64-proven by the same package predicate the outer claim used. Nested
+/// deeper expression shapes (binary operands, condition operands) never
+/// reach `method_calls()` here and stay unclaimed.
+fn seal_argument_call<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    locals: &PrefixLocalFlow<'_>,
+    site: &SourceExprSiteV1,
+    prior_homes: &[BindingRefV1],
+    is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+) -> Result<Option<ArgumentCallObservationV1>, E> {
+    let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+    let Some((observed_site, call)) = input
+        .function()
+        .method_calls()
+        .find(|(observed_site, _)| *observed_site == site)
+    else {
+        return Ok(None);
+    };
+    if observed_site != site
+        || !matches!(
+            call.receiver(),
+            ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
+                if binding.owner() == input.owner()
+        )
+        || !is_selected_call(&owned)?
+    {
+        return Ok(None);
+    }
+    let Some(inner) = seal_i64_call_arguments(
+        input,
+        locals,
+        call,
+        prior_homes,
+        is_selected_call,
+    )? else {
+        return Ok(None);
+    };
+    Ok(Some(ArgumentCallObservationV1::issue(
+        owned,
+        prior_homes.iter().copied().collect(),
+        inner.into_boxed_slice(),
     )))
 }
 

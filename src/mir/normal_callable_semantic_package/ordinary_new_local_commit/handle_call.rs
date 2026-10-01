@@ -31,7 +31,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let call = self
             .handle_call_source(site)
             .ok_or_else(|| freeze("handle-call-source-missing"))?;
-        self.prior_home_unwind(call)
+        self.prior_home_unwind(call.prior_homes())
             .ok_or_else(|| freeze("handle-call-prior-home-unavailable"))
     }
 
@@ -64,17 +64,33 @@ impl OrdinaryNewClaimLedgerV1 {
         let call = self
             .lexical_i64_call_source(site)
             .ok_or_else(|| freeze("lexical-i64-call-source-missing"))?;
-        self.prior_home_unwind(call)
+        self.prior_home_unwind(call.prior_homes())
             .ok_or_else(|| freeze("lexical-i64-call-prior-home-unavailable"))
     }
 
-    /// Shared newest-first live-Home unwind for one sealed local-call
-    /// observation — `None` when any prior Home lost its installed row or
-    /// end operations, which the caller names per lane.
-    fn prior_home_unwind(&self, call: &LocalCallObservationV1) -> Option<Vec<InvokeOperation>> {
+    /// Newest-first live-Home unwind for one sealed prior-Home list —
+    /// statement calls pass their observation's list, argument-position
+    /// calls pass the enclosing call's live set (the same program point).
+    /// `Err` when any prior Home lost its installed row or end
+    /// operations.
+    pub(crate) fn prior_home_unwind_for(
+        &self,
+        prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
+    ) -> Result<Vec<InvokeOperation>, String> {
+        self.prior_home_unwind(prior_homes)
+            .ok_or_else(|| freeze("lexical-call-prior-home-unavailable"))
+    }
+
+    /// Shared newest-first live-Home unwind for one sealed prior-Home
+    /// list — `None` when any prior Home lost its installed row or end
+    /// operations, which the caller names per lane.
+    fn prior_home_unwind(
+        &self,
+        prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
+    ) -> Option<Vec<InvokeOperation>> {
         let rows = self.local_commits.borrow();
         let mut operations = Vec::new();
-        for binding in call.prior_homes().iter().rev() {
+        for binding in prior_homes.iter().rev() {
             match installed_home(&rows, *binding) {
                 Ok(row) if row.end_available() => {
                     operations.extend(row.end_operations());

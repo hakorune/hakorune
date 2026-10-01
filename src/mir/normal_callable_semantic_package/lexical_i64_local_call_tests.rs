@@ -267,6 +267,97 @@ fn lexical_i64_call_stays_fail_closed() {
 }
 
 #[test]
+fn lexical_i64_call_claims_call_result_argument() {
+    // `local r = pool.give(pool.allocate(8))` — the inner call sits in
+    // direct argument position of a claimed i64 call and seals as a
+    // `CallResult` row carrying its own sealed arguments.
+    let package = issue(
+        "box Pool {
+            birth() { }
+            allocate(size: i64): i64 { return size }
+            give(p: i64): i64 { return p }
+        }
+        static box Main { main() {
+            local pool = new Pool()
+            local r = pool.give(pool.allocate(8))
+            return r
+        } }",
+    )
+    .expect("call-result-argument package");
+    let calls = local_calls(&package);
+    let [call] = calls.as_slice() else {
+        panic!("one lexical i64 call claim, got {calls:?}")
+    };
+    assert_eq!(call.result(), LocalCallResultClassV1::I64);
+    let [LocalCallArgumentV1::CallResult(inner)] = call.arguments() else {
+        panic!(
+            "the nested call must seal as CallResult, got {:?}",
+            call.arguments()
+        )
+    };
+    assert_eq!(inner.arguments(), &[LocalCallArgumentV1::Integer(8)]);
+    // The enclosing statement's live prior-Home set is the inner call's
+    // unwind evidence too.
+    assert_eq!(inner.prior_homes(), call.prior_homes());
+    // The inner site is the `allocate` method call — its disposition row
+    // corroborates `I64` and can be taken exactly once at emission.
+    let (owner, allocate_site) = call_site_of(&package, "allocate");
+    assert_eq!(inner.site(), &crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, allocate_site.clone()));
+    let row = package
+        .ordinary_new_claim_ledger
+        .take_lexical_instance_call(owner, &allocate_site)
+        .expect("take armed inner row")
+        .expect("inner disposition row");
+    assert_eq!(row.result(), Some(InvokeCallResultKind::I64));
+    assert_eq!(row.target().name(), "allocate");
+    assert_eq!(row.target().arity(), 1);
+}
+
+#[test]
+fn lexical_i64_call_rejects_unproven_call_result_argument() {
+    for (label, call) in [
+        // The inner callee constructs — Handle result lane, not i64.
+        ("inner-construction", "pool.give(pool.make())"),
+        // The inner callee has an untyped (OpaqueHandle) formal.
+        ("inner-opaque-formal", "pool.give(pool.echo(8))"),
+        // The nested call sits deeper than a direct argument site — a
+        // binary-operand subtree never reaches the claim.
+        ("deeper-subtree", "pool.give(pool.allocate(8) + 1)"),
+        // A Bool actual is not i64 evidence for an inner i64 formal.
+        ("inner-bool-arg", "pool.give(pool.allocate(true))"),
+    ] {
+        let source = format!(
+            "box Page {{ birth() {{ }} }}
+            box Pool {{
+                birth() {{ }}
+                allocate(size: i64): i64 {{ return size }}
+                make() {{ return new Page() }}
+                echo(x) {{ return 0 }}
+                give(p: i64): i64 {{ return p }}
+            }}
+            static box Main {{ main() {{
+                local pool = new Pool()
+                local r = {call}
+                local tail = new Page()
+                return 0
+            }} }}"
+        );
+        let package = issue(&source)
+            .unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
+        assert!(
+            local_calls(&package)
+                .iter()
+                .all(|call| call.result() != LocalCallResultClassV1::I64),
+            "{label}: an unproven inner call keeps the outer site unclaimed"
+        );
+        assert!(
+            !new_claim_prefix_covered(&package),
+            "{label}: a `new` past the unclaimed call keeps PrefixNotCovered"
+        );
+    }
+}
+
+#[test]
 fn lexical_i64_call_rejects_rebound_receiver() {
     let package = issue(
         "box Pool {

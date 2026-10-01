@@ -1,7 +1,7 @@
 date = "2026-10-01"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-S0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -17,44 +17,29 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-FIELD-INIT-USER-NEW-S0 landed end to end: user-class provider `new`
-field initializers admit `PlainI64NoHook` children with sealed
-Integer/Bool/scalar-Local args, emit `new_box` + `birth_call` +
-`object_field_set` under the shared fault frame with
-reclaim/discharge jump landings, and publish through physical JSON +
-Lifecycle V4 + LLVM C API (fixture apps/user-object-field-init-min
-runs `Result: 0`).
-INSTANCE-CALL-SCALAR-ARG-S0 landed end to end:
-`lexical_i64_result_call` proves claim-local receiver + unique
-`InstanceBoxMethod` + all-i64 formals + literal/i64-param value
-returns; `issue_lexical_i64_local_call` mints
-`LocalCallObservationV1{I64}` with sealed scalar argument rows; the
-disposition issuer arms `Some(I64)` and marks the lifecycle
-local-call site; `emit_local_lexical_i64` emits
-`Invoke{SameModuleInstance(InstanceBoxMethod), I64}` from the exact
-lexical receiver binding + shared prior-home unwind, and the dst is
-registered integer so `return r` type-checks. Positive pin
-`local r = pool.allocate(8)`; fail-closed for handle/map/home/nested
-args, non-i64 formals, ambiguous targets, unproven receivers.
-Handle-arg calls (`heap.release(h)`) remain a separate
-consume/borrow D0. mimalloc-lite emit frontier stays the pinned
-`emission-binding-drift` gate downstream.
-CALL-RESULT-ARG-POSITION-D0 accepted: nested call args return `None`
-from `PrefixLocalFlow::observe` so outer claims are withheld, yet
-arg-position sites already own `LexicalInstanceCallDispositionRowV1`
-and the raw lane already emits the inner Invoke — the gap is claim +
-type attribution, not machinery (fixture probe: unclaimed nested i64
-call panics in return_type_strategy). S0 seals
-`LocalCallArgumentV1::CallResult{site}` for proven-i64 inner calls
-(the same `lexical_i64_result_call` predicate), mints a
-destination-free arg-position observation, and recursively emits the
-inner Invoke inside `emit_local_lexical_i64`. `push(heap.allocate)`
-needs the consume/borrow D0 — stays out.
-Next: APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-S0.
+CALL-RESULT-ARG-POSITION-S0 landed end to end:
+`LocalCallArgumentV1::CallResult(Box<ArgumentCallObservationV1>)`
+carries the inner site + enclosing prior Homes + recursively sealed
+argument rows; `seal_i64_call_arguments`/`seal_argument_call` reuse
+the unchanged `lexical_i64_result_call` predicate so a proven-i64
+inner call seals and anything else leaves the outer site unclaimed.
+`emit_local_lexical_i64` keeps one `record_root_local_call_bindings`
+for the outer site while `emit_lexical_i64_call` recurses — the
+inner disposition row is taken once, its Invoke + projection fold
+into the outer binding group, and the inner result `ValueId` feeds
+the outer argument slot. Emit pin: two `Invoke{SameModuleInstance,
+I64}` with `give` seated on `allocate`'s normal-landing edge.
+INSTANCE-CALL-SCALAR-ARG-S0 / STATIC-CALL-CLAIM-S0 /
+FIELD-INIT-USER-NEW-S0 landed — receipts in `landed_tail`.
+mimalloc-lite emit frontier stays the pinned
+`emission-binding-drift` gate downstream: `push(heap.allocate)`
+needs the consume/borrow D0 and `handles.push` itself is a NoValue
+core-method lane.
+Next: APP-MIMALLOC-LITE-HANDLE-FIELD-READ-D0.
 """
-next_design_card = "mimalloc-lite bundle slice 7 implementation: CallResult argument seal + arg-position i64 observation + recursive inner Invoke emit inside emit_local_lexical_i64"
+next_design_card = "mimalloc-lite bundle slice 8 design: HANDLE-FIELD-READ census + decision"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-S0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-D0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -70,7 +55,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-01: CALL-RESULT-ARG-POSITION-S0 landed — LocalCallArgumentV1::CallResult(Box<ArgumentCallObservationV1>) seals a proven-i64 inner lexical call in direct argument position (inner site + prior Homes + recursive arg rows via the shared lexical_i64_result_call predicate); emit_lexical_i64_call recurses — inner disposition taken once, inner Invoke+projection fold into the outer record_root_local_call_bindings group, inner result feeds the outer argument. Emit pin: two Invoke{SameModuleInstance, I64}, give on allocate's normal-landing edge. mimalloc-lite frontier stays pinned emission-binding-drift. Next: HANDLE-FIELD-READ-D0.",
   "2026-10-01: INSTANCE-CALL-SCALAR-ARG-S0 landed — lexical_i64_result_call (claim-local receiver + unique InstanceBoxMethod + all-i64 formals + literal/i64-param value returns) feeds issue_lexical_i64_local_call -> LocalCallObservationV1{I64} with sealed scalar argument rows; disposition issuer mints Some(I64) + lifecycle local-call site; emit_local_lexical_i64 produces Invoke{SameModuleInstance, I64} with exact receiver binding + shared prior-home unwind, dst registered integer so `return r` type-checks. Standard route takes the disposition once and validates selector+result kind; dynamic route never re-emits. heap.release(h) stays a separate consume/borrow D0; mimalloc-lite frontier remains pinned emission-binding-drift. Next: CALL-RESULT-ARG-POSITION-D0.",
   "2026-10-01: STATIC-CALL-CLAIM-S0 landed — QualifiedStaticCallClaimIndexV1 composes sealed import-alias view + static target inventory + result solver into (caller, site) claims; issue_qualified_static_local_call admits `local x = Alias.m(..)` as LocalCallObservationV1{I64} with Integer/Bool/scalar-Local argument sealing and required-i64 ordinal checks; probe and verified walk share one predicate + parameter contracts (probe was iter::empty). No Invoke/ledger/lifecycle row; Call{Callee::Global} stays sole emitter. LocalCallArgumentV1 enum widens the arguments field; lexical-handle emitter fails closed on non-Integer. mimalloc-lite emit frontier stays the pinned emission-binding-drift gate downstream. Next: INSTANCE-CALL-SCALAR-ARG-D0.",
-  "2026-10-01: FIELD-INIT-USER-NEW-S0 landed — user-class provider `new` field initializers admit PlainI64NoHook children (exact membership, non-self, declared==provider class) with sealed Integer/Bool/scalar-Local args; emit NewBox+birth_call+ObjectFieldSet under the shared fault frame with dedicated reclaim/discharge jump landings; provider_births ledger lane folds actuals into FinalizedBirthActualsV1; BirthUnit caller role opened for birth_call publication; C flow/validator/emit admit the birth-unit ops. Fixture apps/user-object-field-init-min compiles via Lifecycle V4 + LLVM C API and runs Result: 0. Next: STATIC-CALL-CLAIM-D0.",
   ]

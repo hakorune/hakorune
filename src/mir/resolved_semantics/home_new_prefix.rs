@@ -105,7 +105,7 @@ use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 #[path = "home_local_call_flow.rs"]
 mod local_call_flow;
 pub(crate) use local_call_flow::{
-    LocalCallArgumentV1, LocalCallObservationV1, LocalCallResultClassV1,
+    ArgumentCallObservationV1, LocalCallArgumentV1, LocalCallObservationV1, LocalCallResultClassV1,
     QualifiedStaticCallClaimV1,
 };
 #[path = "home_map_descendant_flow.rs"]

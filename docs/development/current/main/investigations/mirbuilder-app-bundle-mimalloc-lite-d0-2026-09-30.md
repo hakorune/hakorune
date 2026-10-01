@@ -454,3 +454,61 @@ Non-claims: `push(heap.allocate(8))` itself — a NullableObject result
 ```
 
 Next: MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-S0
+
+## S0 landed — MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-S0
+
+Landed as designed — one sealed argument row, one recursive seal, one
+recursive emit; no disposition-issuer change (the arg-position row was
+already minted with `Some(I64)` by the `(false, false, other)` arm) and
+no second lifecycle binding group:
+
+- `LocalCallArgumentV1::CallResult(Box<ArgumentCallObservationV1>)`
+  (`home_local_call_flow.rs`) is the sole nested-call evidence: the
+  inner `OwnedExprSiteV1`, the enclosing prior Homes, and recursively
+  sealed argument rows. `seal_i64_call_arguments`/
+  `seal_argument_call` reuse the unchanged `lexical_i64_result_call`
+  predicate — an arg-site that is a proven i64 lexical call seals as
+  `CallResult`, anything else leaves the outer site unclaimed.
+- Emit refactor (`terminal_call.rs`): `emit_local_lexical_i64` keeps
+  the single `record_root_local_call_bindings` call for the outer
+  site and delegates physical emission to `emit_lexical_i64_call`,
+  which the `CallResult` arm re-enters — take the inner site's
+  armed disposition exactly once, recursively emit its Invoke +
+  normal projection, and feed the inner result `ValueId` into the
+  outer argument slot. Inner instructions append to the outer
+  `bindings` vector in physical order, so the one recorded group
+  covers both invocations (the inner call owns no destination
+  binding and no expected lifecycle site — the strict
+  source-order accounting stays exact).
+- Focused tests: `lexical_i64_local_call_tests.rs` +2 (positive
+  `CallResult` seal with inner site/args/prior-Home evidence and a
+  one-shot armed disposition; four-case fail-closed table —
+  construction-result, opaque-formal, deeper-subtree, bool-actual
+  inner calls keep the outer site unclaimed) + an emit-level pin in
+  `normal_default_root_catalog_lifecycle_tests.rs` asserting two
+  `Invoke{SameModuleInstance, I64}` where the `give` invoke seats
+  on `allocate`'s normal-landing edge and the inner projection dst
+  is the outer call's argument.
+- Gates: focused `lexical_i64` (10/10) +
+  `normal_callable_semantic_package`/`resolved_semantics`/
+  lifecycle batches green modulo manifest baseline reds
+  (`main_static_child_port_consumes_all_role_rows_once`,
+  `qualified_call_map_argument_reaches_the_named_capability_boundary`,
+  `artifact_child_rejects_retained_unavailable_commit_before_lifecycle_coverage`,
+  `birth_receiver_non_escape_rejects_unproven_uses_before_row_publication`)
+  plus one batch-only flake that passes in isolation — no slice
+  regression. Serial quick-profile run: `8130/126/56` with the
+  failure-name set byte-identical to the accepted receipt
+  (`failure_sha256` unchanged); the manifest re-baselines the
+  +3-test inventory only. One intermittent observation:
+  `nullable_receiver_call_serializes_nullable_handle_and_checked_release`
+  flaked red in one serial run and in isolation — it reproduces
+  identically at the D0 HEAD (`ordinary-membership-drift`), so it is
+  pre-existing flake debt outside this slice, not a regression.
+  App smoke: `apps/mimalloc-lite` still stops at the
+  pinned `emission-binding-drift` frontier — `handles.push` is a
+  NoValue core-method lane and `heap.allocate` is nullable-result,
+  both D0 non-claims waiting on their own slices.
+
+Next: `MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-D0` — bundle
+slice 8.

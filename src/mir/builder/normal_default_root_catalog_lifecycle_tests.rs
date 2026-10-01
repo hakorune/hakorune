@@ -1085,3 +1085,117 @@ static box Main {
         "the literal argument materializes inside the source args"
     );
 }
+
+/// `local r = pool.give(pool.allocate(8))` — a proven-i64 call nested in
+/// direct argument position of another proven-i64 lexical call — lowers
+/// as two ordered `Invoke{SameModuleInstance, I64}` instructions: the
+/// inner `allocate` result feeds the outer `give` argument slot, and
+/// both invocations fold into the outer statement's single recorded
+/// binding group (the inner call owns no destination binding).
+#[test]
+fn lexical_i64_call_result_argument_emits_ordered_invokes() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        r#"
+box Pool {
+    birth() { }
+    allocate(size: i64): i64 { return size }
+    give(p: i64): i64 { return p }
+}
+static box Main {
+    main() {
+        local pool = new Pool()
+        local r = pool.give(pool.allocate(8))
+        return r
+    }
+}
+"#,
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("nested call-result argument must lower");
+    let (_, module, _) = completed.into_parts();
+    let main = module
+        .functions
+        .iter()
+        .find(|(_, function)| function.signature.name == "main")
+        .map(|(_, function)| function)
+        .expect("lowered main function");
+    let invoke_at = |name: &str| {
+        main.blocks
+            .iter()
+            .find_map(|(id, block)| {
+                block
+                    .all_instructions()
+                    .find(|instruction| {
+                        matches!(
+                            instruction,
+                            crate::mir::MirInstruction::Invoke {
+                                operation:
+                                    crate::mir::instruction::InvokeOperation::Call {
+                                        call,
+                                        result
+                                    },
+                                ..
+                            } if *result == crate::mir::instruction::InvokeCallResultKind::I64
+                                && matches!(
+                                    &call.callee,
+                                    crate::mir::Callee::SameModuleInstance { key, .. }
+                                        if key.namespace()
+                                            == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                                            && key.owner() == "Pool"
+                                            && key.name() == name
+                                )
+                        )
+                    })
+                    .map(|instruction| (*id, instruction))
+            })
+            .unwrap_or_else(|| panic!("{name} i64 instance invoke"))
+    };
+    let (allocate_block, allocate_invoke) = invoke_at("allocate");
+    let (give_block, give_invoke) = invoke_at("give");
+    let (
+        crate::mir::MirInstruction::Invoke {
+            normal_landing: allocate_landing,
+            ..
+        },
+        crate::mir::MirInstruction::Invoke {
+            operation: crate::mir::instruction::InvokeOperation::Call { call, .. },
+            ..
+        },
+    ) = (allocate_invoke, give_invoke)
+    else {
+        panic!("invoke shapes")
+    };
+    // The outer call emits inside the inner call's normal-landing block —
+    // the CFG edge is the ordering authority, not block-map iteration.
+    assert_eq!(
+        give_block, *allocate_landing,
+        "the consuming invoke seats on the argument call's normal edge"
+    );
+    // The inner projection names the inner result value, which feeds the
+    // outer argument slot.
+    let inner_result = main
+        .blocks
+        .get(allocate_landing)
+        .and_then(|block| {
+            block.all_instructions().find_map(|instruction| match instruction {
+                crate::mir::MirInstruction::InvokeNormalResult {
+                    invoke_block,
+                    dst,
+                } if *invoke_block == allocate_block => Some(*dst),
+                _ => None,
+            })
+        })
+        .expect("inner invoke normal projection");
+    assert!(
+        call.args.contains(&inner_result),
+        "the inner call result feeds the outer argument slot: {:?}",
+        call.args
+    );
+}
