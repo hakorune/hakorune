@@ -588,3 +588,123 @@ pub(super) fn stage_local_field_read_batch(
 #[cfg(test)]
 #[path = "ordinary_new_field_batch_tests.rs"]
 mod field_batch_tests;
+
+/// Run the source-only readiness/actual probe with the verified walk's same
+/// source predicates. Readiness and Completion selection remain in the issuer.
+pub(super) fn probe_source_home_prefixes_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    new_sites: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
+    entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
+    explicit_sites: &[SourceStmtSiteV1],
+    pending_actuals: &mut super::super::lexical_instance_call::PendingBorrowedFormalActualsV1,
+    batch_slot: u32,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    parameter_contracts: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    callable_result_classes: &result_class_claim::OrdinaryNewResultClassClaimsV1,
+    candidates: &[OrdinaryNewCandidate],
+    instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver_proof: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    borrowed_formal_source: &Result<
+        super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1,
+        String,
+    >,
+    local_static_call: &mut impl FnMut(
+        &OwnedExprSiteV1,
+    ) -> Result<
+        Option<crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1>,
+        OrdinaryNewCoSealIssueV1,
+    >,
+) -> Result<
+    BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
+    OrdinaryNewCoSealIssueV1,
+> {
+    crate::mir::resolved_semantics::home_new_prefix::issue_new_home_prefixes_probing_fields_v1(
+        input,
+        &new_sites,
+        entry_home,
+        explicit_sites,
+        parameter_contracts
+            .iter()
+            .filter(|row| row.batch_slot == batch_slot)
+            .flat_map(|row| row.parameters.iter())
+            .map(|row| (row.ordinal, row.binding, row.kind)),
+        &mut |site| {
+            Ok::<_, OrdinaryNewCoSealIssueV1>(lexical_i64_result_call(
+                selected,
+                batch,
+                parameter_contracts,
+                &callable_result_classes,
+                &candidates,
+                input,
+                site,
+            ))
+        },
+        local_static_call,
+        &mut |_: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+            terminal_home::initialized_integer_field(instance_constructors, &candidates, home, name)
+                .map(|field| field.is_some())
+        },
+        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+            terminal_home::argument_integer_field(
+                instance_constructors,
+                &candidates,
+                site,
+                receiver_proof,
+                home,
+                name,
+            )
+            .map(|field| field.is_some())
+        },
+        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+            terminal_home::receiver_scalar_field(
+                instance_constructors,
+                receiver_proof,
+                site,
+                home,
+                name,
+            )
+            .map(|field| field.is_some())
+        },
+        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+            terminal_home::receiver_container_field(
+                instance_constructors,
+                receiver_proof,
+                site,
+                home,
+                name,
+            )
+            .map(|field| field.is_some())
+        },
+        // The probe shares the verified lane's local
+        // field-read membership — no staging here; the
+        // verified walk owns the ledger rows.
+        &mut |requests, scalar_only| {
+            prove_local_field_read_batch(
+                instance_constructors,
+                &candidates,
+                batch.ordinary_box_coverage(),
+                receiver_proof,
+                requests,
+                scalar_only,
+            )
+            .map(|rows| rows.map(|rows| rows.into_iter().map(|(_, row)| row.result).collect()))
+        },
+        &mut |site, actuals| {
+            let pending = super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
+                &borrowed_formal_source,
+                parameter_contracts,
+                site,
+                actuals,
+                &candidates,
+                receiver_proof,
+            );
+            super::super::lexical_instance_call::stage_borrowed_call_actuals_v1(
+                pending_actuals,
+                site,
+                pending,
+            );
+            Ok(())
+        },
+    )
+}

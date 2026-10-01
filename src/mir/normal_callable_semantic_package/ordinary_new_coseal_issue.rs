@@ -295,62 +295,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 });
                 let mut probe = |explicit_sites: &[crate::mir::resolved_semantics::SourceStmtSiteV1],
                                  pending_actuals: &mut super::lexical_instance_call::PendingBorrowedFormalActualsV1| {
-                    crate::mir::resolved_semantics::home_new_prefix::issue_new_home_prefixes_probing_fields_v1(
-                        input, &new_sites, entry_home, explicit_sites,
-                        parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
-                            .flat_map(|row| row.parameters.iter())
-                            .map(|row| (row.ordinal, row.binding, row.kind)),
-                        &mut |site| {
-                            Ok::<_, OrdinaryNewCoSealIssueV1>(lexical_i64_result_call(
-                                selected,
-                                batch,
-                                parameter_contracts,
-                                &callable_result_classes,
-                                &candidates,
-                                input,
-                                site,
-                            ))
-                        },
-                        &mut local_static_call,
-                        &mut |_: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
-                            terminal_home::initialized_integer_field(
-                                instance_constructors, &candidates, home, name,
-                            ).map(|field| field.is_some())
-                        },
-                        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
-                            terminal_home::argument_integer_field(
-                                instance_constructors, &candidates, site, receiver_proof, home, name,
-                            ).map(|field| field.is_some())
-                        },
-                        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
-                            terminal_home::receiver_scalar_field(
-                                instance_constructors, receiver_proof, site, home, name,
-                            ).map(|field| field.is_some())
-                        },
-                        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
-                            terminal_home::receiver_container_field(
-                                instance_constructors, receiver_proof, site, home, name,
-                            ).map(|field| field.is_some())
-                        },
-                        // The probe shares the verified lane's local
-                        // field-read membership — no staging here; the
-                        // verified walk owns the ledger rows.
-                        &mut |requests, scalar_only| {
-                            source_claims::prove_local_field_read_batch(
-                                instance_constructors, &candidates, batch.ordinary_box_coverage(),
-                                receiver_proof, requests, scalar_only,
-                            ).map(|rows| rows.map(|rows| rows.into_iter().map(|(_, row)| row.result).collect()))
-                        },
-                        &mut |site, actuals| {
-                            let pending = super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
-                                &borrowed_formal_source, parameter_contracts, site, actuals,
-                                &candidates, receiver_proof,
-                            );
-                            super::lexical_instance_call::stage_borrowed_call_actuals_v1(
-                                pending_actuals, site, pending,
-                            );
-                            Ok(())
-                        },
+                    source_claims::probe_source_home_prefixes_v1(
+                        input, &new_sites, entry_home, explicit_sites, pending_actuals,
+                        batch_slot, selected, batch, parameter_contracts,
+                        &callable_result_classes, &candidates, instance_constructors,
+                        receiver_proof, &borrowed_formal_source, &mut local_static_call,
                     )
                 };
                 let readiness = if seed_eligible && !new_sites.is_empty() {

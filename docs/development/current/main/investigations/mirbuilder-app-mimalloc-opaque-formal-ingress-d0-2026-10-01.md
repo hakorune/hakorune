@@ -648,3 +648,37 @@ scope guard still rejects untouched brand_catalog_tests.rs=961, without waiver.
 Issuer 758, result child 163 and lexical parent 342 remain below hard stop.
 The same pending Result map now precedes both walks and moves into the ledger;
 caller continuations, physical/C consumers, ABI activation and S0 remain open.
+
+Probe placement T0 Decision: move only the readiness/source-actual probe's
+predicate invocation into the existing source-claim child. Keep readiness
+guards, empty/explicit exit inputs, Completion selection, source-only error
+overwrite and drop(probe) in the issuer. Compare the moved body mechanically
+and run existing co-seal/borrowed regression; do not add a new source authority,
+change callback output or activate a continuation in this invariant slice.
+
+Terminal ownership Decision (same read-only worker): add a Lexical arm to the
+existing RootCallDisposition that retains the same Taken lexical row, not a
+second root-instance row. For each exact selected borrowed terminal, corroborate
+the prepared incoming source before the old root issuer's owner-level expected
+mark; unselected Direct/Instance sites keep their existing owner. Prefix callback
+must issue the actual terminal relation with sealed arguments and live roots.
+Completion proves this call is that explicit return's direct value; raw port
+checks selected lexical terminal before any owner-level old-root unavailable
+check. Reuse one Invoke/projection group in the existing root exit, never a local
+group for this terminal. Final root-entry validation checks the same Taken row,
+original actual ordinals/source and real values/tags. Nested instructions belong
+to this terminal entry. Source/result/actual Err on selected demand is terminal;
+neither opaque spelling alone nor an unproved incoming row grants this path.
+This fixes the affine design gap; consumers and dynamic acceptance remain owed.
+
+Probe placement T0 receipt (2026-10-02): moved-body comparison unchanged apart
+from child module paths, predicate borrowing and formatting; read-only worker
+confirmed source loans, error priority and parent selection are preserved.
+Co-seal 121/121 and borrowed_formal 59/59 PASS. First named lib is 8217/127/56
+with only the known nullable ordinary-membership-drift extra, standalone PASS.
+Separate captured unchanged baseline verifier is KNOWN BASELINE exit 0:
+8218/126/56, inventory 8400 and original failure hash unchanged. No manifest edit.
+Source-child rustfmt, diff and pointer PASS; qualified guard still reports only
+untouched brand_catalog_tests.rs=961 debt. Issuer 707, source child 710 lines.
+This closes only probe placement; next is the same source/actual/result callback
+to all selected continuation shapes, then real tagged physical/C consumption.
