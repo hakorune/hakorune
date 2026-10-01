@@ -457,7 +457,7 @@ fn normal_home_completion_observes_suffix_and_does_not_reuse_last_new_prefix() {
         ("return false + first.left", false),
         ("return first.left - second.right", false),
         ("return first.left.right", false),
-        ("local value = first.left return value", false),
+        ("local value = first.left return value", true),
     ] {
         let source = format!(
             "box Page {{ left: i64 right: i64

@@ -1,5 +1,5 @@
 //! Affine Raw ordinary-`New` claim capability.
-use crate::mir::builder::fields::PreparedRawFieldReadV1;
+use crate::mir::builder::fields::{PreparedExactFieldReadClaimV1, PreparedRawFieldReadV1};
 
 #[path = "raw_ordinary_new_claim/terminal_call.rs"]
 mod terminal_call;
@@ -220,24 +220,38 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             .callable_ledger
             .as_ref()
             .ok_or("[ordinary-field-read/state-missing]")?;
-        let Some((base, field)) = ledger.take_terminal_field_read(&site, |binding| {
+        let resolve = |binding| {
             state
                 .borrow()
                 .value_for_exact_binding(owner, binding)
                 .map_err(|error| {
                     format!("[freeze:contract][ordinary-field-read/receiver-binding] {error:?}")
                 })
-        })?
-        else {
-            return Ok(None);
         };
-        Ok(Some(PreparedRawFieldReadV1::exact_object(
-            object,
-            base,
-            field,
-            site,
-            ledger.clone(),
-        )))
+        if let Some((base, field)) = ledger.take_terminal_field_read(&site, &resolve)? {
+            return Ok(Some(PreparedRawFieldReadV1::exact_object(
+                object,
+                base,
+                field,
+                site,
+                ledger.clone(),
+                PreparedExactFieldReadClaimV1::Terminal,
+            )));
+        }
+        // A claimed `local x = recv.field` initializer reaches the same
+        // raw FieldAccess dispatch — its staged row carries the sealed
+        // declared-type classification that decides the destination type.
+        if let Some((base, field, result)) = ledger.take_local_field_read(&site, &resolve)? {
+            return Ok(Some(PreparedRawFieldReadV1::exact_object(
+                object,
+                base,
+                field,
+                site,
+                ledger.clone(),
+                PreparedExactFieldReadClaimV1::Local(result),
+            )));
+        }
+        Ok(None)
     }
     fn prepare_root_home_exit(&mut self, builder: &crate::mir::MirBuilder) -> Result<bool, String> {
         let Some(ledger) = &self.ordinary_new_claim_ledger else {

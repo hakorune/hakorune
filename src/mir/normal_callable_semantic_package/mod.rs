@@ -152,6 +152,8 @@ pub(crate) use s6c_effects::VerifiedS6CPhysicalFunctionEffectsV1;
 #[cfg(test)]
 mod lexical_i64_local_call_tests;
 #[cfg(test)]
+mod local_field_read_claim_tests;
+#[cfg(test)]
 mod map_call_argument_flow_tests;
 #[cfg(test)]
 mod map_contained_descendant_flow_tests;

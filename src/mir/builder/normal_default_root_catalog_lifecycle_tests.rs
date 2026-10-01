@@ -1199,3 +1199,153 @@ static box Main {
         call.args
     );
 }
+
+/// `local n = pool.size` — a proven local-initializer field read on a
+/// claim-local `new` Home — lowers as one `ObjectFieldGet` against the
+/// receiver's materialized value, typed `Integer` from the sealed field
+/// declaration (never a layout guess).
+#[test]
+fn local_field_read_emits_object_field_get_scalar() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        r#"
+box Pool {
+    size: i64 = 0
+    birth() { }
+}
+static box Main {
+    main() {
+        local pool = new Pool()
+        local n = pool.size
+        return n
+    }
+}
+"#,
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("local scalar field read must lower");
+    let (_, module, _) = completed.into_parts();
+    let main = module
+        .functions
+        .iter()
+        .find(|(_, function)| function.signature.name == "main")
+        .map(|(_, function)| function)
+        .expect("lowered main function");
+    let reads: Vec<_> = main
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter_map(|instruction| match instruction {
+            crate::mir::MirInstruction::ObjectFieldGet { dst, base, field } => {
+                Some((*dst, *base, *field))
+            }
+            _ => None,
+        })
+        .collect();
+    let [(dst, _, field)] = reads.as_slice() else {
+        panic!("exactly one ObjectFieldGet, got {reads:?}")
+    };
+    assert_eq!(
+        field.declaration_ordinal(),
+        0,
+        "the read names Pool's `size` declaration"
+    );
+    assert_eq!(
+        main.metadata.value_types.get(dst),
+        Some(&crate::mir::MirType::Integer),
+        "the scalar read destination is typed Integer from the declaration"
+    );
+}
+
+/// `local page = pool.page; local n = page.alloc` — a proven
+/// ordinary-box field read binds a borrowed alias, and a later read on
+/// that alias lowers as a second `ObjectFieldGet` whose base is exactly
+/// the first read's destination. The alias destination is typed
+/// `Box("Page")` from the sealed declaration — never `Integer`.
+#[test]
+fn local_field_read_emits_chained_alias_object_field_get() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        r#"
+box Page {
+    alloc: i64 = 0
+    birth() { }
+}
+box Pool {
+    page: Page = new Page()
+    birth() { }
+}
+static box Main {
+    main() {
+        local pool = new Pool()
+        local page = pool.page
+        local n = page.alloc
+        return n
+    }
+}
+"#,
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("chained field read must lower");
+    let (_, module, _) = completed.into_parts();
+    let main = module
+        .functions
+        .iter()
+        .find(|(_, function)| function.signature.name == "main")
+        .map(|(_, function)| function)
+        .expect("lowered main function");
+    let reads: Vec<_> = main
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter_map(|instruction| match instruction {
+            crate::mir::MirInstruction::ObjectFieldGet { dst, base, field } => {
+                Some((*dst, *base, *field))
+            }
+            _ => None,
+        })
+        .collect();
+    // `pool.page` first, `page.alloc` second — the alias read must sit on
+    // the alias binding's materialized value (a Copy of the first read's
+    // destination), never on the receiver root.
+    let [(alias_dst, pool_base, _), (scalar_dst, alias_base, _)] = reads.as_slice() else {
+        panic!("two ObjectFieldGet instructions, got {reads:?}")
+    };
+    assert!(
+        main.blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .any(|instruction| matches!(
+                instruction,
+                crate::mir::MirInstruction::Copy { dst, src }
+                    if *dst == *alias_base && *src == *alias_dst
+            )),
+        "the second read bases on the alias binding materialized from the first read: {reads:?}"
+    );
+    assert_ne!(
+        *alias_base, *pool_base,
+        "the alias read must not re-read the receiver root"
+    );
+    assert_eq!(
+        main.metadata.value_types.get(alias_dst),
+        Some(&crate::mir::MirType::Box("Page".to_owned())),
+        "the alias destination keeps the declared Page class"
+    );
+    assert_eq!(
+        main.metadata.value_types.get(scalar_dst),
+        Some(&crate::mir::MirType::Integer),
+        "the scalar read destination is typed Integer"
+    );
+}

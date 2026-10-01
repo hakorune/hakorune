@@ -80,6 +80,18 @@ pub(super) fn scan_statement_flow<'a, E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    // The issuer's local-initializer `receiver.field` read membership —
+    // the scanner supplies the exact read site, receiver site, receiver
+    // binding, movable root, and any field-read alias class; the
+    // predicate alone decides the field declaration and result class.
+    local_field_read: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        Option<&str>,
+        &str,
+    ) -> Result<Option<LocalFieldReadResultV1>, E>,
 ) -> Result<bool, E> {
     let function = input.function();
     for index in 0..body.statements().len() {
@@ -143,6 +155,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 argument_i64_field,
                 scalar_field,
                 container_field,
+                local_field_read,
             )?;
             if terminated {
                 return Ok(true);
@@ -548,6 +561,28 @@ pub(super) fn scan_statement_flow<'a, E>(
                         );
                     }
                     _ => locals.install_bound_value(binding),
+                }
+                continue;
+            } else if let Some(result) = field_read::observe_local_field_read(
+                input,
+                site,
+                locals,
+                local_field_read,
+            )? {
+                // A proven `receiver.field` initializer binds by its
+                // declared result class — numeric scalars are trivial,
+                // ordinary-box results are borrowed field aliases that
+                // join no Home set.
+                match result {
+                    field_read::LocalFieldReadResultV1::Scalar => {
+                        locals.install_scalar_call_result(
+                            binding,
+                            local_flow::SourceScalarKind::Integer,
+                        );
+                    }
+                    field_read::LocalFieldReadResultV1::Alias(class) => {
+                        locals.install_field_alias(binding, class);
+                    }
                 }
                 continue;
             } else {

@@ -592,3 +592,64 @@ Non-claims: `handle.block_id` param-receiver reads (DeclaredHandle
 ```
 
 Next: MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-S0
+
+## S0 landed — MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-S0
+
+Landed as designed — one field-declaration authority, one staged
+ledger row, one physical `ObjectFieldGet` owner; `field_write_claims`
+stay non-authority and the bounded `with_arguments` sibling keeps its
+stub (local-initializer reads admit on the verified lane only):
+
+- `StoredLocal::FieldAlias { class }` + `field_read_receiver`
+  (`home_prefix_local_flow.rs`) is the sole alias record — borrowed
+  storage carrying the declared class, observable as `None` so an alias
+  never moves the receiver root into a `new` argument and never joins
+  the Home/teardown set. Receiver provenance classifies into
+  `OwnedHome` / `RootedHandle` / `Alias`; `me` receiver sites resolve
+  through the `Me` shape (`BodyMeReceiverV1::Lexical`), not
+  `variable_ref`.
+- `home_new_prefix_field_read.rs` is the sole local-initializer
+  observer — `local x = recv.field` only (the FieldAccess must be the
+  statement's direct initializer; subtree positions stay
+  `PrefixNotCovered`). It sits after the field-call arm and before the
+  inventoried-call fallback; scalar results install `Trivial(Integer)`,
+  box results install `FieldAlias`.
+- `terminal_home::local_read_field` is the one declaration authority —
+  three provenances each proven on their own class: claim-local `new`
+  candidate (construction plan's object must equal the definition's
+  object; duplicate destinations fail hard), the entry loan's `me` root
+  (`home == loan.receiver()`, same owner), and a prior alias's retained
+  declared class (resolved through ordinary-box coverage). Result class:
+  `is_numeric_integer_type_name` → `Scalar`, `coverage.contains_box` →
+  `Alias`, anything else (weak/duplicate/undeclared/MapBox) →
+  `Ok(None)` unclaimed.
+- Ledger (`ordinary_new_field_reads.rs`): `LocalFieldRead` rows stage
+  through the coseal predicate (idempotent across observation/accounting
+  passes), merge with owner/duplicate checks, take once with
+  receiver-site `Receiver`-segment + progress validation, and record
+  `Emitted` with `ObjectFieldGet`; completeness and physical validation
+  cover the local rows the same as terminal/argument rows.
+- Emit (`fields.rs` + `raw_ordinary_new_claim.rs`):
+  `PreparedExactFieldReadClaimV1::{Terminal, Local}` splits the claim
+  family — `Local(Scalar)` lowers `MirType::Integer`, `Local(Alias)`
+  lowers `MirType::Box(class)`; the terminal take falls through to
+  `take_local_field_read`, and the sealed class (not MIR inference)
+  types the destination.
+- Focused tests: `local_field_read_claim_tests.rs` +7 (scalar on
+  selected `new`, object alias, read-on-alias, `me` entry-receiver read
+  in a `new`-carrying method, alias rejected as movable `new` argument,
+  missing/MapBox field fail-closed, parameter receiver unstaged) + 2
+  emit-level pins in `normal_default_root_catalog_lifecycle_tests.rs`
+  (single `ObjectFieldGet` typed `Integer`; chained alias read basing on
+  the alias binding's materialized `Copy`, typed `Box("Page")`).
+- Gates: focused `local_field_read` (9/9) +
+  `normal_callable_semantic_package`/`resolved_semantics`/lifecycle
+  batches green modulo manifest baseline reds (unchanged set) plus the
+  known `array_source_binding` batch-only flake passing in isolation —
+  no slice regression. App smoke: `apps/mimalloc-lite` still stops at
+  the pinned `emission-binding-drift` frontier — `handles.push` is a
+  NoValue core-method lane and `heap.allocate` is nullable-result, both
+  D0 non-claims waiting on their own slices.
+
+Next: `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-SCALAR-POSITION-D0` — bundle
+slice 9.

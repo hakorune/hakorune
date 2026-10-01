@@ -276,6 +276,11 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // rows the sealed observation proved `I64Field`, consumed once by the
     // selected `new` admission's argument materialization.
     argument_field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::ArgumentFieldRead>>,
+    // Local-initializer `receiver.field` reads keyed by the exact
+    // `FieldAccess` initializer expression site — issued by the sealed
+    // `local_read_field` proof and consumed once by the raw field-read
+    // interception inside the claimed body's local statement lowering.
+    local_field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::LocalFieldRead>>,
     birth_abi_handoffs: RefCell<BTreeMap<OwnedExprSiteV1, BirthAbiHandoffV1>>,
     // Destination-less verified `Birth` recipes for `new` sites outside the
     // local-commit claim lane (non-`[Body, Initializer]` positions). An entry
@@ -435,6 +440,7 @@ impl OrdinaryNewClaimLedgerV1 {
             root_instance_call_expected: RefCell::new(BTreeSet::new()),
             field_reads: RefCell::new(BTreeMap::new()),
             argument_field_reads: RefCell::new(BTreeMap::new()),
+            local_field_reads: RefCell::new(BTreeMap::new()),
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),
             birth_site_index: RefCell::new(BTreeMap::new()),
             provider_births: RefCell::new(Vec::new()),

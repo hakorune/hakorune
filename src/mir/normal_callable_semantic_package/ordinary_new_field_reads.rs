@@ -28,6 +28,22 @@ pub(super) struct ArgumentFieldRead {
     pub(super) progress: Progress,
 }
 
+/// One local-initializer `receiver.field` read staged by the issuer's
+/// `local_read_field` proof. The site key is the exact `FieldAccess`
+/// initializer expression site — the read belongs to that `local`
+/// statement, never to a terminal exit or a selected `new` argument.
+/// `receiver` is the local binding whose materialized value is the read
+/// base; `result` is the sealed declared-type classification.
+#[derive(Debug)]
+pub(super) struct LocalFieldRead {
+    pub(super) receiver_site: SourceExprSiteV1,
+    pub(super) receiver: BindingRefV1,
+    pub(super) home: BindingRefV1,
+    pub(super) field: CanonicalFieldRefV1,
+    pub(super) result: crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1,
+    pub(super) progress: Progress,
+}
+
 #[derive(Debug)]
 pub(super) enum Progress {
     Pending,
@@ -139,7 +155,110 @@ pub(super) fn merge_staged_argument_field_reads(
     Ok(())
 }
 
+/// Merge staged local-initializer reads into the ledger. Every staged row
+/// corresponds to a local statement the source walk admitted — staging is
+/// the admission — so all staged rows enter; ownership and uniqueness are
+/// still checked against the claim's owner.
+pub(super) fn merge_staged_local_field_reads(
+    destination: &mut BTreeMap<OwnedExprSiteV1, LocalFieldRead>,
+    owner: FunctionOwnerIdV1,
+    staged: BTreeMap<OwnedExprSiteV1, LocalFieldRead>,
+) -> Result<(), OrdinaryNewCoSealIssueV1> {
+    for (site, row) in &staged {
+        if site.owner() != owner
+            || row.receiver.owner() != owner
+            || row.home.owner() != owner
+        {
+            return Err(OrdinaryNewCoSealIssueV1::FieldReadOwnerMismatch {
+                site: site.clone(),
+            });
+        }
+        if destination.contains_key(site) {
+            return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: site.clone() });
+        }
+    }
+    destination.extend(staged);
+    Ok(())
+}
+
 impl OrdinaryNewClaimLedgerV1 {
+    /// Take the staged local-initializer read for the exact `FieldAccess`
+    /// initializer site once. The caller resolves the staged receiver
+    /// binding to the live base value; the sealed result class returns
+    /// with the field so the emitter can type the destination from the
+    /// claim rather than a layout guess.
+    pub(crate) fn take_local_field_read(
+        &self,
+        site: &OwnedExprSiteV1,
+        resolve_receiver: impl FnOnce(BindingRefV1) -> Result<ValueId, String>,
+    ) -> Result<
+        Option<(
+            ValueId,
+            CanonicalFieldRefV1,
+            crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1,
+        )>,
+        String,
+    > {
+        let mut reads = self.local_field_reads.borrow_mut();
+        let Some(row) = reads.get_mut(site) else {
+            return Ok(None);
+        };
+        if row.receiver.owner() != site.owner() || row.home.owner() != site.owner() {
+            return Err(fault("foreign-binding"));
+        }
+        let Some((last, parent)) = row.receiver_site.node().segments().split_last() else {
+            return Err(fault("receiver-source-site"));
+        };
+        if *last != SourcePathSegmentV1::Receiver || parent != site.site().node().segments() {
+            return Err(fault("receiver-source-site"));
+        }
+        if !matches!(row.progress, Progress::Pending) {
+            return Err(fault("already-taken"));
+        }
+        let base = resolve_receiver(row.receiver)?;
+        row.progress = Progress::Taken(base);
+        Ok(Some((base, row.field, row.result.clone())))
+    }
+
+    /// Test/diagnostic view of one staged local-initializer read — the
+    /// sealed canonical field reference and declared result class at the
+    /// exact `FieldAccess` initializer site.
+    #[cfg(test)]
+    pub(crate) fn staged_local_field_read(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Option<(
+        CanonicalFieldRefV1,
+        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1,
+    )> {
+        self.local_field_reads
+            .borrow()
+            .get(site)
+            .map(|row| (row.field, row.result.clone()))
+    }
+
+    pub(crate) fn record_local_field_read(
+        &self,
+        site: &OwnedExprSiteV1,
+        block: BasicBlockId,
+        dst: ValueId,
+        base: ValueId,
+        field: CanonicalFieldRefV1,
+    ) -> Result<(), String> {
+        let mut reads = self.local_field_reads.borrow_mut();
+        let row = reads
+            .get_mut(site)
+            .ok_or_else(|| fault("missing-source-site"))?;
+        if !matches!(row.progress, Progress::Taken(expected) if expected == base)
+            || row.field != field
+        {
+            return Err(fault("emission-mismatch"));
+        }
+        row.progress =
+            Progress::Emitted(block, MirInstruction::ObjectFieldGet { dst, base, field });
+        Ok(())
+    }
+
     pub(crate) fn take_terminal_field_read(
         &self,
         site: &OwnedExprSiteV1,
@@ -317,6 +436,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 .all(|row| {
                     matches!(row.progress, Progress::Emitted(..) | Progress::Released)
                 })
+            && self
+                .local_field_reads
+                .borrow()
+                .values()
+                .all(|row| matches!(row.progress, Progress::Emitted(..)))
     }
 
     pub(super) fn validate_field_reads(
@@ -338,6 +462,16 @@ impl OrdinaryNewClaimLedgerV1 {
         let argument_reads = self.argument_field_reads.borrow();
         for (site, row) in argument_reads.iter() {
             if site.owner() != owner || matches!(row.progress, Progress::Released) {
+                continue;
+            }
+            let Progress::Emitted(block, instruction) = &row.progress else {
+                return Err(fault("unconsumed-read"));
+            };
+            expected.push((*block, instruction));
+        }
+        let local_reads = self.local_field_reads.borrow();
+        for (site, row) in local_reads.iter() {
+            if site.owner() != owner {
                 continue;
             }
             let Progress::Emitted(block, instruction) = &row.progress else {

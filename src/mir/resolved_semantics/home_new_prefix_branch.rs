@@ -75,6 +75,14 @@ fn walk_branch<'a, E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    local_field_read: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        Option<&str>,
+        &str,
+    ) -> Result<Option<LocalFieldReadResultV1>, E>,
 ) -> Result<BranchPath<'a>, E> {
     path.terminated = super::scan::scan_statement_flow(
         input,
@@ -106,6 +114,7 @@ fn walk_branch<'a, E>(
         argument_i64_field,
         scalar_field,
         container_field,
+        local_field_read,
     )?;
     Ok(path)
 }
@@ -191,6 +200,14 @@ pub(super) fn observe_if_statement<'a, E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    local_field_read: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        Option<&str>,
+        &str,
+    ) -> Result<Option<LocalFieldReadResultV1>, E>,
 ) -> Result<bool, E> {
     let bundle = match input.function().if_region_bundle(statement.site()) {
         Ok(bundle) => bundle,
@@ -282,6 +299,7 @@ pub(super) fn observe_if_statement<'a, E>(
         argument_i64_field,
         scalar_field,
         container_field,
+        local_field_read,
     )?;
     let else_path = match else_body {
         Ok(else_body) => walk_branch(
@@ -316,6 +334,7 @@ pub(super) fn observe_if_statement<'a, E>(
             argument_i64_field,
             scalar_field,
             container_field,
+            local_field_read,
         )?,
         // A missing `else` joins the entry snapshot unchanged.
         Err(_) => BranchPath {

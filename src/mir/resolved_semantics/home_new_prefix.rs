@@ -153,6 +153,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
+        &mut |_, _, _, _, _, _| Ok(None),
     )
     .unwrap_or_else(|never| match never {})
     .0
@@ -167,6 +168,9 @@ pub(crate) use arguments::{
 mod branch;
 #[path = "home_new_prefix_field_call.rs"]
 mod field_call;
+#[path = "home_new_prefix_field_read.rs"]
+mod field_read;
+pub(crate) use field_read::LocalFieldReadResultV1;
 #[path = "home_new_prefix_field_write.rs"]
 mod field_write;
 #[path = "home_new_prefix_scan.rs"]
@@ -239,6 +243,18 @@ pub(crate) fn scan_new_home_flow<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    // The issuer's local-initializer `receiver.field` read membership —
+    // the scanner supplies the exact read site, receiver site, receiver
+    // binding, movable root, and any field-read alias class; the
+    // predicate alone decides the field declaration and result class.
+    local_field_read: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        Option<&str>,
+        &str,
+    ) -> Result<Option<LocalFieldReadResultV1>, E>,
 ) -> Result<
     (
         BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
@@ -348,6 +364,7 @@ pub(crate) fn scan_new_home_flow<E>(
         argument_i64_field,
         scalar_field,
         container_field,
+        local_field_read,
     )?;
     // Statements after the terminal are never walked; their sealed map
     // literals still owe loop1 one row each — issue Unavailable rows.

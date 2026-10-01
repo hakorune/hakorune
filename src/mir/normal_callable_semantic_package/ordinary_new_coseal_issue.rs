@@ -90,6 +90,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     let mut root_completion = None;
     let mut field_reads = BTreeMap::new();
     let mut argument_field_reads = BTreeMap::new();
+    let mut local_field_reads = BTreeMap::new();
     let mut root_terminal_relation = BTreeMap::new();
     let mut birth_abi_handoffs = BTreeMap::new();
     let mut receiver_call_observations = BTreeMap::new();
@@ -372,6 +373,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 instance_constructors, receiver_proof, site, home, name,
                             ).map(|field| field.is_some())
                         },
+                        // The probe shares the verified lane's local
+                        // field-read membership — no staging here; the
+                        // verified walk owns the ledger rows.
+                        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, alias_class: Option<&str>, name: &str| {
+                            terminal_home::local_read_field(
+                                instance_constructors, &candidates,
+                                batch.ordinary_box_coverage(), receiver_proof,
+                                site, home, alias_class, name,
+                            ).map(|proven| proven.map(|(_, result)| result))
+                        },
                     )?.values().all(Result::is_ok);
                 // An owner whose `return` statement carries a `new`
                 // construction needs the homes-aware completion: the
@@ -477,6 +488,27 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         });
                         Ok(true)
                     };
+                    // Local-initializer `receiver.field` reads: the same
+                    // site may be re-asked across paths, so the staged row
+                    // is the idempotent answer — the first proof stages
+                    // the ledger row, later asks return its result class.
+                    let mut local_staged_reads: BTreeMap<OwnedExprSiteV1, field_reads::LocalFieldRead> = BTreeMap::new();
+                    let mut local_field_read = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, alias_class: Option<&str>, name: &str| {
+                        if let Some(staged) = local_staged_reads.get(site) {
+                            return Ok(Some(staged.result.clone()));
+                        }
+                        let Some((field, result)) = terminal_home::local_read_field(
+                            instance_constructors, &candidates,
+                            batch.ordinary_box_coverage(), receiver_proof,
+                            site, home, alias_class, name,
+                        )? else { return Ok(None); };
+                        local_staged_reads.insert(site.clone(), field_reads::LocalFieldRead {
+                            receiver_site: receiver_site.clone(), receiver, home, field,
+                            result: result.clone(),
+                            progress: field_reads::Progress::Pending,
+                        });
+                        Ok(Some(result))
+                    };
                     match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_and_argument_observations_v1(
                         input, &new_sites,
                         parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
@@ -560,7 +592,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             terminal_home::receiver_container_field(
                                 instance_constructors, receiver_proof, site, home, name,
                             ).map(|field| field.is_some())
-                        })? {
+                        }, &mut local_field_read)? {
                         Ok((
                             completion,
                             prefixes,
@@ -573,6 +605,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 input.owner(),
                                 &observations,
                                 argument_staged_reads,
+                            )?;
+                            field_reads::merge_staged_local_field_reads(
+                                &mut local_field_reads,
+                                input.owner(),
+                                local_staged_reads,
                             )?;
                             if is_app_main {
                                 if completion
@@ -866,6 +903,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.root_completion = root_completion;
     ledger.field_reads = std::cell::RefCell::new(field_reads);
     ledger.argument_field_reads = std::cell::RefCell::new(argument_field_reads);
+    ledger.local_field_reads = std::cell::RefCell::new(local_field_reads);
     ledger.birth_abi_handoffs = std::cell::RefCell::new(birth_abi_handoffs);
     ledger.owned_field_children = owned_field_children;
     ledger.terminal_relation = root_terminal_relation;

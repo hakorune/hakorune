@@ -17,6 +17,15 @@ pub(in crate::mir::builder) struct PreparedRawFieldReadV1 {
     route: PreparedRawFieldReadRouteV1,
 }
 
+/// Which sealed claim family owns one exact `receiver.field` read —
+/// decides the destination type and the ledger record family. `Local`
+/// carries the issuer's declared-type classification: `Scalar` reads an
+/// `Integer`, `Alias` reads a `Box` handle of the declared class.
+pub(in crate::mir::builder) enum PreparedExactFieldReadClaimV1 {
+    Terminal,
+    Local(crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1),
+}
+
 enum PreparedRawFieldReadRouteV1 {
     ExactObject {
         object: ASTNode,
@@ -24,6 +33,7 @@ enum PreparedRawFieldReadRouteV1 {
         field: hakorune_mir_defs::CanonicalFieldRefV1,
         site: crate::mir::resolved_semantics::OwnedExprSiteV1,
         ledger: std::rc::Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+        claim: PreparedExactFieldReadClaimV1,
     },
     ExistingRecord {
         value: ValueId,
@@ -57,6 +67,7 @@ impl PreparedRawFieldReadV1 {
         field: hakorune_mir_defs::CanonicalFieldRefV1,
         site: crate::mir::resolved_semantics::OwnedExprSiteV1,
         ledger: std::rc::Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+        claim: PreparedExactFieldReadClaimV1,
     ) -> Self {
         Self {
             route: PreparedRawFieldReadRouteV1::ExactObject {
@@ -65,6 +76,7 @@ impl PreparedRawFieldReadV1 {
                 field,
                 site,
                 ledger,
+                claim,
             },
         }
     }
@@ -149,6 +161,7 @@ impl super::MirBuilder {
                 field,
                 site,
                 ledger,
+                claim,
             } => {
                 let actual = drive_legacy_expression_v1(self, port, object)?;
                 if actual != base {
@@ -166,11 +179,24 @@ impl super::MirBuilder {
                     base,
                     field,
                 })?;
-                self.function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, crate::mir::MirType::Integer);
-                ledger.record_terminal_field_read(&site, block, dst, base, field)?;
+                let ty = match &claim {
+                    PreparedExactFieldReadClaimV1::Terminal
+                    | PreparedExactFieldReadClaimV1::Local(
+                        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar,
+                    ) => crate::mir::MirType::Integer,
+                    PreparedExactFieldReadClaimV1::Local(
+                        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias(class),
+                    ) => crate::mir::MirType::Box(class.to_string()),
+                };
+                self.function_state.type_ctx.value_types.insert(dst, ty);
+                match claim {
+                    PreparedExactFieldReadClaimV1::Terminal => {
+                        ledger.record_terminal_field_read(&site, block, dst, base, field)?;
+                    }
+                    PreparedExactFieldReadClaimV1::Local(_) => {
+                        ledger.record_local_field_read(&site, block, dst, base, field)?;
+                    }
+                }
                 Ok(dst)
             }
             PreparedRawFieldReadRouteV1::ExistingRecord { value, field } => {

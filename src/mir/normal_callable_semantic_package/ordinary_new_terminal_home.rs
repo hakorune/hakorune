@@ -187,6 +187,164 @@ pub(super) fn receiver_scalar_field(
     })
 }
 
+/// Shared declared-field lookup on one proven box source row: the field
+/// must be declared exactly once and non-weak. The result carries the
+/// declared type name — possibly absent — alongside the canonical ref;
+/// the caller alone classifies the result contract.
+fn source_declared_field(
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    box_source: &crate::parser::ParserOrdinaryBoxSourceRowV1,
+    site: &OwnedExprSiteV1,
+    field: &str,
+) -> Result<
+    Option<(hakorune_mir_defs::CanonicalFieldRefV1, Option<String>)>,
+    OrdinaryNewCoSealIssueV1,
+> {
+    let class: Box<str> = box_source.name().into();
+    let lookup_error = |error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
+        site: site.clone(),
+        class: class.clone(),
+        error,
+    };
+    constructors
+        .with_source_object_definition(box_source, |object, definition| {
+            let mut fields = definition
+                .fields()
+                .iter()
+                .enumerate()
+                .filter(|(_, row)| row.name == field);
+            let Some((ordinal, declaration)) = fields.next() else {
+                return Ok(None);
+            };
+            if fields.next().is_some() || declaration.is_weak {
+                return Ok(None);
+            }
+            match hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal) {
+                Some(field) => Ok(Some((field, declaration.declared_type_name.clone()))),
+                None => Err(lookup_error(
+                    InstanceConstructorBirthLookupErrorV1::ObjectDefinitionMissing,
+                )),
+            }
+        })
+        .map_err(lookup_error)?
+}
+
+/// Local-initializer `receiver.field` read membership. Three disjoint
+/// receiver provenances admit a read, each proven on its own class
+/// authority — never a MIR type or runtime layout:
+///
+/// - `alias_class` — the receiver is a binding produced by an earlier
+///   proven field read; its declared class resolves the box source row
+///   directly through the package's ordinary-box coverage.
+/// - a claim-local selected `new` Home — `home` is the candidate's
+///   destination; the candidate's own box source decides, and the
+///   construction plan's object must equal the definition's object.
+/// - the sole entry loan's receiver root — `me`'s field is proven on this
+///   declaration's own box source.
+///
+/// The declared type name classifies the result: a numeric-integer name
+/// is `Scalar`, a name the coverage proves is an ordinary box is `Alias`.
+/// Anything else — unknown field, weak field, duplicate declaration,
+/// absent or unrecognized type — returns `None`; the scanner keeps
+/// `PrefixNotCovered`.
+pub(super) fn local_read_field(
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    candidates: &[OrdinaryNewCandidate],
+    coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    site: &OwnedExprSiteV1,
+    home: BindingRefV1,
+    alias_class: Option<&str>,
+    field: &str,
+) -> Result<
+    Option<(
+        hakorune_mir_defs::CanonicalFieldRefV1,
+        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1,
+    )>,
+    OrdinaryNewCoSealIssueV1,
+> {
+    let declared = if let Some(class) = alias_class {
+        let Ok(Some(box_source)) = coverage.row_for(class) else {
+            return Ok(None);
+        };
+        source_declared_field(constructors, box_source, site, field)?
+    } else if let Some(candidate) = {
+        let mut matching = candidates
+            .iter()
+            .filter(|candidate| candidate.destination == home);
+        match (matching.next(), matching.next()) {
+            (Some(candidate), None) => Some(candidate),
+            (None, _) => None,
+            (Some(candidate), Some(_)) => {
+                return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch {
+                    site: candidate.site.clone(),
+                });
+            }
+        }
+    } {
+        // Unavailable construction (including overrides) remains a
+        // retained descriptor.
+        let Ok(plan) = &candidate.construction else {
+            return Ok(None);
+        };
+        let lookup_error = |error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
+            site: candidate.site.clone(),
+            class: candidate.class.clone(),
+            error,
+        };
+        constructors
+            .with_source_object_definition(&candidate.box_source, |object, definition| {
+                if plan.object() != object {
+                    return Err(lookup_error(
+                        InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch,
+                    ));
+                }
+                let mut fields = definition
+                    .fields()
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, row)| row.name == field);
+                let Some((ordinal, declaration)) = fields.next() else {
+                    return Ok(None);
+                };
+                if fields.next().is_some() || declaration.is_weak {
+                    return Ok(None);
+                }
+                match hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
+                    object, ordinal,
+                ) {
+                    Some(field) => Ok(Some((field, declaration.declared_type_name.clone()))),
+                    None => Err(lookup_error(
+                        InstanceConstructorBirthLookupErrorV1::ObjectDefinitionMissing,
+                    )),
+                }
+            })
+            .map_err(lookup_error)??
+    } else {
+        let Some((entry, box_source)) = receiver else {
+            return Ok(None);
+        };
+        // The receiver arm admits only the entry loan's exact receiver
+        // root — parameters and handle aliases keep `None`.
+        if home != entry || entry.owner() != site.owner() {
+            return Ok(None);
+        }
+        source_declared_field(constructors, box_source, site, field)?
+    };
+    let Some((field_ref, declared)) = declared else {
+        return Ok(None);
+    };
+    use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
+    let result = match declared.as_deref() {
+        Some(name) if crate::mir::numeric_substrate::is_numeric_integer_type_name(name) => {
+            LocalFieldReadResultV1::Scalar
+        }
+        Some(name) if coverage.contains_box(name) => LocalFieldReadResultV1::Alias(name.into()),
+        _ => return Ok(None),
+    };
+    Ok(Some((field_ref, result)))
+}
+
 /// Receiver-side container-field proof for `me.<field>` receivers of
 /// builtin container calls. The entry loan's receiver root is proven
 /// against this declaration's own box source; only a declared `ArrayBox`

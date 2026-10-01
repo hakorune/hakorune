@@ -40,6 +40,16 @@ enum StoredLocal {
     BorrowedMap,
     Consumed,
     Handle(BindingRefV1),
+    /// A local bound to a proven `receiver.field` read whose declared type
+    /// is an ordinary box — a borrowed alias into the receiver's storage.
+    /// It joins no Home set, owes no release, and is never observable as a
+    /// movable value: `observe` returns `None` so selected-`new` argument
+    /// observation cannot silently transfer the root's lease. The stored
+    /// class is the field's declared type name — the receiver-class
+    /// authority for a later `alias.<field>` read.
+    FieldAlias {
+        class: Box<str>,
+    },
     Trivial(Option<SourceScalarKind>),
     /// A binding produced by an inventoried call expression. The value
     /// exists at later sites but carries no scalar/rooted-storage class —
@@ -49,6 +59,20 @@ enum StoredLocal {
     /// neither a trivial scalar nor a handle root — only its own fact.
     Null,
     Uninitialized,
+}
+
+/// Receiver class provenance for one `receiver.field` initializer read.
+/// The scanner resolves the stored-local class; the issuer predicate alone
+/// decides the field declaration.
+pub(super) enum FieldReadReceiverV1 {
+    /// A claim-local selected `new` Home — the binding is its own root.
+    OwnedHome,
+    /// A handle alias or self-rooted entry/param binding — the payload is
+    /// the movable handle root the candidate/entry proof consults.
+    RootedHandle(BindingRefV1),
+    /// A binding produced by an earlier proven field read — the payload is
+    /// the field's declared class name.
+    Alias(Box<str>),
 }
 
 pub(super) enum OrdinaryObservation {
@@ -89,6 +113,7 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
         (StoredLocal::BorrowedMap, StoredLocal::BorrowedMap) => true,
         (StoredLocal::Consumed, StoredLocal::Consumed) => true,
         (StoredLocal::Handle(a), StoredLocal::Handle(b)) => a == b,
+        (StoredLocal::FieldAlias { class: a }, StoredLocal::FieldAlias { class: b }) => a == b,
         (StoredLocal::Trivial(a), StoredLocal::Trivial(b)) => a == b,
         (StoredLocal::BoundValue, StoredLocal::BoundValue) => true,
         (StoredLocal::Null, StoredLocal::Null) => true,
@@ -227,6 +252,9 @@ impl<'source> PrefixLocalFlow<'source> {
                 Some(OrdinaryObservation::Handle(*root))
             }
             StoredLocal::Handle(_) | StoredLocal::Consumed => None,
+            // A field-read alias names borrowed storage, never a movable
+            // value — every observation lane stays fail-closed on it.
+            StoredLocal::FieldAlias { .. } => None,
             StoredLocal::Trivial(kind) => Some(OrdinaryObservation::TrivialLocal(binding, *kind)),
             StoredLocal::BoundValue => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::Null => Some(OrdinaryObservation::Null),
@@ -366,6 +394,33 @@ impl<'source> PrefixLocalFlow<'source> {
             _ => None,
         }
     }
+    /// The receiver class provenance for a `receiver.field` initializer
+    /// read: `OwnedHome` for a claim-local `new` local, `RootedHandle` for
+    /// a handle alias or self-rooted entry/param binding (the stored root
+    /// names the movable handle root the candidate/entry proof consults),
+    /// `Alias` for a binding produced by an earlier proven field read — its
+    /// declared class is the receiver's own class authority.
+    pub(super) fn field_read_receiver(
+        &self,
+        binding: BindingRefV1,
+    ) -> Option<FieldReadReceiverV1> {
+        match self.locals.get(&binding)? {
+            StoredLocal::Home { .. } => Some(FieldReadReceiverV1::OwnedHome),
+            StoredLocal::Handle(root) => Some(FieldReadReceiverV1::RootedHandle(*root)),
+            StoredLocal::FieldAlias { class } => {
+                Some(FieldReadReceiverV1::Alias(class.clone()))
+            }
+            _ => None,
+        }
+    }
+
+    /// A proven `receiver.field` read whose declared type is an ordinary
+    /// box: the binding is a borrowed alias — no Home membership, no exit
+    /// obligation, no observable move.
+    pub(super) fn install_field_alias(&mut self, binding: BindingRefV1, class: Box<str>) {
+        self.locals.insert(binding, StoredLocal::FieldAlias { class });
+    }
+
     pub(super) fn consume_home(&mut self, binding: BindingRefV1) {
         self.locals.insert(binding, StoredLocal::Consumed);
     }
