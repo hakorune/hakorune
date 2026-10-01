@@ -414,3 +414,77 @@ HEAD; left unchanged as unrelated stale-pin debt. Pointer, shell syntax, moved
 body comparison and diff check PASS. This T0 changes no semantic acceptance,
 entry carrier, production caller or physical ABI. Next remains selected
 Ordinary entry/caller adoption and retained-source physical/C corroboration.
+
+
+### S0 selected entry-source adoption Decision
+
+The existing ordinary lexical-call ledger lends a borrowed entry projection
+only to an installed selected Ordinary instance-method input with source
+OpaqueHandle formals. Static/S6C, unrelated/nonopaque or Dynamic input does not
+demand pending borrowed source. A demanded input must belong to the existing
+retained Completion owner index; a foreign installed source loan rejects.
+A legitimate outside-profile definition stays unselected; a preparation Err
+for a demanded opaque input is a named terminal, never outside/None fallback.
+Before lending, corroborate exact source owner/ordinal/formal identity and every
+incoming actual row in the selected finite transport cohort, including callers
+other than the first visited caller. Missing, failed, truncated, reordered or
+foreign actuals reject before an entry carrier can be installed. Borrow the
+existing source/use/actual products; do not mint a second semantic authority.
+This construction step prepares the entry consumer seam. It does not activate
+metadata/carriers, change LocalCallObservation or claim runtime cutover. The
+following consumer connection must retain this source projection through the
+existing final artifact handoff and close all supported incoming positions.
+Acceptance: installed package source loan plus positive mixed domains and Copy
+forwarding; missing/failed later caller and ordinal/formal/source corruption;
+nonopaque input does not demand unrelated preparation Err.
+
+
+Entry-source read-only review confirms whole-cohort actual validation, Ordinary
+instance-only demand and compilation-branded Completion membership. Next scope
+adopter keeps the existing ledger Rc, copies only ordinal/BindingRef descriptors
+into lowering state, and maps the same PreparedCallableEntryValues parameter
+ValueIds. Carrier indexes include the receiver offset. Final artifact retention
+copies validated source + actual + entry/call commit correspondence at the
+existing root handoff boundary; no ledger Rc or borrowed accessor outlives scope.
+Caller coverage must account for local-initializer, standalone, return and
+nested-argument positions. Standalone calls have no existing local continuation
+row: represent discard explicitly in the existing call owner, never synthesize
+a local destination or claim an already implemented emitter. Nested inputs
+currently retain named unobserved/unsupported facts and need exact inner
+source/result evidence. New borrowed permission must use explicit result cohort
+and source return proof, never the old empty-terminal I64 default by itself.
+
+
+Entry-source construction receipt (2026-10-02): borrowed-formal focused 46/46
+and ordinary co-seal regression 109/109 PASS, including ten new entry tests.
+An installed Ordinary loan covers signed Integer, Bool and live typed-object
+actuals from separate callers without changing the source OpaqueHandle kind.
+Copy forwarding, failed later caller, missing/truncated actuals, exact ordinal/
+site/foreign formal corruption, source formal cardinality, foreign installed
+loan, static/nonopaque unrelated-error isolation and outside-profile selection
+are covered. Source child 176 lines, test child 375; scope size list includes
+both. No new unused import or suppression was retained.
+
+Initial compilation errors were missing local imports and a test constructor
+API spelling; fixed. Initial mixed-domain positive incorrectly assumed a Home
+remained proven after an unarmed call made its prefix unknown. Separate real
+caller bodies fix the fixture without weakening source liveness. These are
+current-change failures resolved by the focused run, not baseline additions.
+Named complete lib receipt: 8196 passed / 126 failed / 56 ignored, inventory
+8378; all original failure names/hash unchanged. Updated only the ten owned
+passing-test inventory rows/count/hash. Updated compare_observation PASS.
+Direct verifier also observed 8195/127/56; a name-preserving execution of the
+unchanged verifier confirms the sole extra name is the already recorded
+nullable_receiver_call_serializes_nullable_handle_and_checked_release flake
+(ordinary-membership-drift), with no missing accepted failures. That run is
+not PASS and the flake was not added to the accepted failure receipt. Exact
+126-red named receipt remains the accepted evidence; no baseline waiver.
+Rustfmt check, pointer, shell syntax and diff PASS. Qualified scope guard
+continues to reject only the untouched 961-line brand_catalog_tests debt.
+
+This API is the selected entry consumer seam, not production carrier adoption:
+production entry has not called it yet, caller continuations/retained physical
+rows/C admission and generated Normal/Fault acceptance remain open. Whole S0
+and the original mimalloc-lite bundle remain incomplete. Next: connect the
+Ordinary scope/entry descriptors and caller continuation coverage to the same
+retained source owner before enabling its physical ABI.
