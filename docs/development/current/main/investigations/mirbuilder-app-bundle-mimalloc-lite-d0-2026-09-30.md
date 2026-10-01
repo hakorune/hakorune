@@ -797,3 +797,49 @@ Next: `MIRBUILDER-APP-MIMALLOC-LITE-COSEAL-SIZE-T0`, then
   Local `.git` is now writable; the earlier publication restriction is resolved.
 - Next: SCALAR-EXPRESSION-POSITION-S0 under the accepted profile above.
   App acceptance and legacy retirement remain incomplete.
+
+
+### S0 transaction decision — worker audit (2026-10-01)
+
+The existing verified callback stages each successful leaf eagerly; the probe
+callback is pure. Recursing through that verified callback before whole-root
+acceptance would leave a left-hand read staged when a later operand rejects.
+This is an extension hazard, not evidence of a direct-initializer regression.
+
+Decision: change the existing local-field-read callback to an all-or-none batch
+at the same source/issuer boundary. Do not add a second semantic owner/map or
+use a rollback after physical emission. Ordered implementation within S0:
+
+1. Add passive exact read requests (owned read site, receiver expression site,
+   receiver binding, Home root, optional alias class, declared field name).
+   Direct initializer uses a singleton allow-Alias adapter; pure expression
+   roots request Scalar-only. Requests are not claims or authority.
+2. Preflight the whole root using sealed literal/local/operator rows. Check
+   binary row identity and exact Lhs/Rhs child paths. A field is a conditional
+   Integer obligation, not a proven Integer: collect its exact request while
+   checking receiver provenance. Reject unsupported/mixed roots before staging.
+   Preserve Integer/Bool class; obtain IfCondition through the existing located
+   source port and require Bool before branch forks. Do not tighten unrelated
+   previously accepted conditions without the selected-profile scope check.
+3. The existing issuer proves EVERY request via terminal_home::local_read_field
+   into a temporary vector. Check unique owner/sites, canonical fields and
+   declared result; Scalar-only batches reject Alias/None. Repeated exact sites
+   may be idempotent across passes only if receiver site/binding, Home root,
+   canonical field and result match the existing row. Reject drift rather than
+   answering solely from contains_key. No ledger insertion occurs on rejection
+   or error. Only after all checks succeed extend local_staged_reads once.
+   The source-only probe uses the same admission with no staging.
+4. Keep batch preparation private to the existing issuer's source-claim child
+   or a responsibility-specific child; do not grow the 711-line issuer to 800.
+   Update the existing scanner/branch/completion callback wiring together.
+   Exact ObjectFieldGet and one-shot ledger consumption stay the physical path;
+   RHS short-circuit placement stays owned by the existing operator consumer.
+5. Add focused negatives for valid-left/invalid-right, second-field Alias,
+   opaque/mixed operand, wrong binary child site, non-Bool condition, duplicate
+   request and cached-site drift. Check rejected roots add zero staged rows.
+   Positive emitter tests prove arithmetic/comparison destinations and a
+   conditional RHS field read, plus direct initializer/Alias regressions.
+
+This refines task 3's transaction mechanism; it does not broaden the accepted
+profile, claim app PASS, or authorize shared Dynamic-arm removal. S0 remains
+selected; no external dependency or completed migration is inferred.
