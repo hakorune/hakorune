@@ -1,7 +1,7 @@
 date = "2026-10-01"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-D0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -17,15 +17,6 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-DESTRUCTION-ARRAYBOX-FIELD-S0 landed: `OwnedArrayFieldsNoHook` +
-reverse-order `OwnedFieldResidenceRelease` origins on normal exit
-and birth-fault chains; wire `field_residence_release` =
-`checked_field_get_i64_v1` + `nyrt_handle_release_h`.
-DESTRUCTION-OBJECT-FIELD-S0 landed: `OwnedObjectFieldsNoHook` +
-membership-gated Handle storage + typed `OwnedFieldChildV1`
-(Array|Object); `object_field_release` threaded through verifier,
-JSON, and C validator/flow/emit (`checked_field_get_i64_v1` +
-`home_release_plain_i64_v1`).
 FIELD-INIT-USER-NEW-S0 landed end to end: user-class provider `new`
 field initializers admit `PlainI64NoHook` children with sealed
 Integer/Bool/scalar-Local args, emit `new_box` + `birth_call` +
@@ -48,11 +39,22 @@ args, non-i64 formals, ambiguous targets, unproven receivers.
 Handle-arg calls (`heap.release(h)`) remain a separate
 consume/borrow D0. mimalloc-lite emit frontier stays the pinned
 `emission-binding-drift` gate downstream.
-Next: APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-D0.
+CALL-RESULT-ARG-POSITION-D0 accepted: nested call args return `None`
+from `PrefixLocalFlow::observe` so outer claims are withheld, yet
+arg-position sites already own `LexicalInstanceCallDispositionRowV1`
+and the raw lane already emits the inner Invoke — the gap is claim +
+type attribution, not machinery (fixture probe: unclaimed nested i64
+call panics in return_type_strategy). S0 seals
+`LocalCallArgumentV1::CallResult{site}` for proven-i64 inner calls
+(the same `lexical_i64_result_call` predicate), mints a
+destination-free arg-position observation, and recursively emits the
+inner Invoke inside `emit_local_lexical_i64`. `push(heap.allocate)`
+needs the consume/borrow D0 — stays out.
+Next: APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-S0.
 """
-next_design_card = "mimalloc-lite bundle slice 7 design: call-result argument positions — `handles.push(heap.allocate(8))`, a live Invoke inside a core-method argument"
+next_design_card = "mimalloc-lite bundle slice 7 implementation: CallResult argument seal + arg-position i64 observation + recursive inner Invoke emit inside emit_local_lexical_i64"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-D0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
