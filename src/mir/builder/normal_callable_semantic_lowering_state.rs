@@ -31,6 +31,8 @@ mod normal_callable_semantic_receiver_crosswalk;
 #[path = "normal_callable_semantic_observation.rs"]
 mod observation;
 
+#[path = "normal_callable_semantic_lowering_state/borrowed_entry.rs"]
+mod borrowed_entry;
 #[path = "normal_callable_semantic_lowering_state/source_prepare.rs"]
 mod source_prepare;
 
@@ -77,6 +79,7 @@ pub(super) struct CallableSemanticLoweringState {
     values: BTreeMap<BindingRefV1, ValueId>,
     dynamic_origins: CallableDynamicOriginLoweringStateV1,
     entry_installed: bool,
+    borrowed_entry_formals: Option<Result<Option<Box<[(u32, BindingRefV1)]>>, String>>,
     materialized_locals: BTreeSet<SourceNodeSiteV1>,
     consumed_variables: BTreeSet<SourceNodeSiteV1>,
     consumed_assignments: BTreeSet<SourceNodeSiteV1>,
@@ -300,6 +303,13 @@ impl CallableSemanticLoweringState {
         {
             return Err(freeze("entry-shape-mismatch"));
         }
+        let borrowed_values = self.prepare_borrowed_entry_values(entry)?;
+        if let Some(row) = &borrowed_values {
+            self.ordinary_new_claim_ledger
+                .as_ref()
+                .ok_or_else(|| freeze("borrowed-entry/source-ledger-missing"))?
+                .validate_borrowed_ordinary_entry_values_v1(self.owner, row)?;
+        }
         if let (Some(binding), Some(value)) = (self.receiver, receiver) {
             self.insert_value(binding, value)?;
         }
@@ -309,6 +319,12 @@ impl CallableSemanticLoweringState {
         self.dynamic_origins
             .install_entry(&self.parameters, entry)
             .map_err(|error| error.to_string())?;
+        if let Some(row) = borrowed_values {
+            self.ordinary_new_claim_ledger
+                .as_ref()
+                .ok_or_else(|| freeze("borrowed-entry/source-ledger-missing"))?
+                .record_borrowed_ordinary_entry_values_v1(self.owner, row)?;
+        }
         self.entry_installed = true;
         Ok(())
     }

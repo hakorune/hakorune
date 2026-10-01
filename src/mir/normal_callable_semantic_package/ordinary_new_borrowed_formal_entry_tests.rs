@@ -373,3 +373,41 @@ fn static_opaque_loan_does_not_demand_an_ordinary_instance_profile() {
         })
         .unwrap();
 }
+
+#[test]
+fn entry_value_recording_cannot_bypass_another_callee_actual_failure() {
+    let mut package = package(
+        "local alias = p local recv = new Transport() local out = recv.sink(alias) return 0",
+        "local recv = new Transport() local out = recv.probe(-1) return 0",
+    );
+    let (owner, parameters) = target(&package);
+    let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    let source = ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    let other = source
+        .incoming
+        .iter()
+        .find(|row| row.callee != owner)
+        .unwrap()
+        .call
+        .clone();
+    *ledger.borrowed_formal_actuals.get_mut(&other).unwrap() =
+        Err("other-callee-source-failure".into());
+    assert_eq!(
+        ledger
+            .record_borrowed_ordinary_entry_values_v1(
+                owner,
+                Ok(vec![(0, parameters[0].1, crate::mir::ValueId::new(72))].into_boxed_slice())
+            )
+            .unwrap_err(),
+        "other-callee-source-failure"
+    );
+    assert!(ledger
+        .borrowed_ordinary_entry_values_v1(owner)
+        .unwrap_err()
+        .contains("entry-values-missing"));
+}

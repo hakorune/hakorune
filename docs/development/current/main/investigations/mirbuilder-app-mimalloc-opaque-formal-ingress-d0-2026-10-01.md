@@ -488,3 +488,61 @@ rows/C admission and generated Normal/Fault acceptance remain open. Whole S0
 and the original mimalloc-lite bundle remain incomplete. Next: connect the
 Ordinary scope/entry descriptors and caller continuation coverage to the same
 retained source owner before enabling its physical ABI.
+
+
+### S0 scope/entry physical-value correspondence Decision
+
+Wire only with_selected_source_scope: project the existing accessor outcome to
+owned ordinal/BindingRef rows and stage it on the created callable state before
+its body callback. Keep generic/Compatibility scope signatures untouched.
+Pending source Err remains Err in the same ledger until an actual borrowed
+consumer demands it; never turn it into outside/None or activate a raw ABI as
+its substitute. This construction tranche changes no current carrier policy.
+At existing install_entry_values, validate the source/entry correspondence and
+record the same existing formal ValueIds under the exact source owner. Exclude
+the receiver from logical formals; reject duplicate/foreign/changed ordinals,
+receiver-value collisions, wrong arity or repeated entry recording. Borrowed
+mapping is recorded only after normal entry materialization succeeds, so a
+failed install cannot leave successful physical correspondence. Source facts
+and complete actual proof stay in the existing ledger Rc across scope lifetime.
+Acceptance: installed package -> selected scope/state -> real existing entry
+values -> same ledger mapping; pending failed actual preserved; foreign/missing
+source, ordinal/binding/value drift and duplicate preparation/record rejected.
+No metadata/carrier activation, caller ABI switch, final source retention or
+C/EXE completion from this correspondence alone.
+
+Scope/entry correspondence receipt (2026-10-02): real selected source scope
+stages the existing source/actual projection before entry adoption. Eight state
+tests cover existing signed/Bool/live Home values, pending failed actual,
+receiver and nonopaque-parameter collisions, ordinal/binding drift, truncated
+formals rejected before state mutation, duplicate staging/recording and explicit
+unselected preparation. Two actual scope tests pass through the existing
+ModuleLoweringInvocation and adopt_callable_entry_values_v1: formal ordinal 0
+retains ValueId 72, receiver 51 stays separate, params stay unchanged and no
+physical carrier is activated. Failed actual evidence stays Err after the same
+scope closes. A ledger negative proves another callee's failed incoming cannot
+be bypassed by recording healthy-owner entry values. Shared full-cohort validation
+is preflighted before entry state mutation and checked again at recording.
+
+Focused borrowed_entry 9/9 (eight new state tests plus one existing Map negative),
+borrowed_formal 48/48, selected_scope 2/2, ordinary co-seal 110/110 PASS.
+Complete named lib: 8207 passed / 126 failed / 56 ignored; inventory 8389,
+all failure names/hash unchanged. Added only eleven owned passing inventory rows;
+unchanged baseline verifier reports KNOWN BASELINE exit 0. Initial Box conversion
+and test arity-type compile errors were corrected; no current-change failure is
+accepted into baseline. Rustfmt/diff/bash/pointer PASS. Qualified scope guard
+still rejects the unchanged brand_catalog_tests.rs=961 debt; no waiver.
+Read-only worker checked pending-error semantics, all-parameter collision and
+preflight atomicity. Repeated-owner entry recording remains a named failure.
+
+Entry source/value correspondence is connected; selected carrier activation,
+caller continuation coverage, physical/C publication and Normal/Fault EXE are
+still incomplete. No production ABI switch, retirement or S0 completion claim.
+Next construction series uses the existing lexical local-call owner, exact
+pending actual rows and explicit source/result I64 proof; Integer-literal probes
+must not replace the required exact source-I64 result coverage. Close local,
+statement-discard, return and nested incoming consumers in their existing owners
+before activating a changed callee ABI. Do not create a fake local for a discarded
+call, leave an unconsumed variant as finished work, use an empty-terminal I64
+default as result permission, or retry raw transport after selected failure.
+Final physical consumer must compare retained entry values with real params.

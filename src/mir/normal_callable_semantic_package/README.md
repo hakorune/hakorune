@@ -898,3 +898,14 @@ source-only observation borrows explicit exits from the existing control owner,
 without replacing Completion; any failed partial walk invalidates all owner
 incoming rows. Missing incoming observations remain named pending errors.
 Entry adoption must consume this complete relation before tagged ABI activation.
+
+
+Selected Ordinary instance entry now borrows opaque formal positions from that
+same complete source/actual cohort and joins them to the existing entry ValueIds.
+Receiver values are excluded. Source completeness and collisions with every
+physical parameter are checked before state mutation; successful correspondence
+is retained once in the original ledger, only after entry installation succeeds.
+Pending source errors remain errors for a future selected borrowed consumer;
+unselected generic/static paths do not demand them. This mapping does not enable
+carriers, authorize a raw payload ABI, or prove backend publication. A future
+physical consumer must corroborate these values against the real function params.

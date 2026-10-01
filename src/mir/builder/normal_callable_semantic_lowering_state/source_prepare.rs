@@ -212,6 +212,7 @@ impl CallableSemanticLoweringState {
                 crate::mir::builder::function_fault_frame::FunctionFaultFrameV1::borrowed(),
             ),
             entry_installed: false,
+            borrowed_entry_formals: None,
             materialized_locals: BTreeSet::new(),
             consumed_variables: BTreeSet::new(),
             consumed_assignments: BTreeSet::new(),

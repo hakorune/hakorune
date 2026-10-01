@@ -44,6 +44,10 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
             None
         }
     };
+    let borrowed_entry = ordinary_new_claim_ledger
+        .borrowed_ordinary_entry_source_v1(&input)
+        .map(|row| row.map(|row| row.formals().into()));
+    let owner = input.source().owner();
     with_callable_source_scope(
         inner,
         lineage,
@@ -56,7 +60,17 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
         loop_break_take
             .map(|take| take.take_for_owner(input.source().owner()))
             .transpose()?,
-        execute,
+        move |inner, transport| {
+            {
+                let state = inner.callable_ledger.as_ref().ok_or_else(|| {
+                    "[freeze:contract][borrowed-entry/callable-state-missing]".to_owned()
+                })?;
+                state
+                    .borrow_mut()
+                    .stage_borrowed_entry_formals(owner, borrowed_entry)?;
+            }
+            execute(inner, transport)
+        },
     )
 }
 
@@ -113,3 +127,7 @@ pub(super) fn with_callable_source_scope<'port, 'collector, 'source, R>(
         Err(error) => Err(error),
     }
 }
+
+#[cfg(test)]
+#[path = "borrowed_entry_scope_tests.rs"]
+mod tests;

@@ -103,8 +103,30 @@ impl OrdinaryNewClaimLedgerV1 {
         if roots != formals.iter().map(|(_, binding)| *binding).collect() {
             return Err(freeze("borrowed-entry/formal-cardinality"));
         }
-        // Validate the complete finite cohort, not just the first caller of
-        // this definition. A forwarded input cannot outrun its source proof.
+        let incoming = self.checked_borrowed_entry_incoming(source, owner)?;
+        for call in source.incoming.iter().filter(|call| call.callee == owner) {
+            if call.arguments.len() != formals.len()
+                || call.arguments.iter().zip(formals.iter()).any(
+                    |((ordinal, _, formal), (expected, binding))| {
+                        ordinal != expected || formal != binding
+                    },
+                )
+            {
+                return Err(freeze("borrowed-entry/incoming-formals"));
+            }
+        }
+        Ok(Some(BorrowedOrdinaryEntrySourceRefV1 {
+            owner,
+            formals: formals.into_boxed_slice(),
+            source,
+            incoming,
+        }))
+    }
+    fn checked_borrowed_entry_incoming<'a>(
+        &'a self,
+        source: &'a PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Box<[(&'a OwnedExprSiteV1, &'a [PreparedBorrowedFormalActualV1])]>, String> {
         let mut seen = BTreeSet::new();
         let mut incoming = Vec::new();
         for call in &source.incoming {
@@ -147,30 +169,19 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
             if call.callee == owner {
-                if call.arguments.len() != formals.len()
-                    || call.arguments.iter().zip(formals.iter()).any(
-                        |((ordinal, _, formal), (expected, binding))| {
-                            ordinal != expected || formal != binding
-                        },
-                    )
-                {
-                    return Err(freeze("borrowed-entry/incoming-formals"));
-                }
                 incoming.push((&call.call, actuals.as_ref()));
             }
         }
         if incoming.is_empty() {
             return Err(freeze("borrowed-entry/incoming-missing"));
         }
-        Ok(Some(BorrowedOrdinaryEntrySourceRefV1 {
-            owner,
-            formals: formals.into_boxed_slice(),
-            source,
-            incoming: incoming.into_boxed_slice(),
-        }))
+        Ok(incoming.into_boxed_slice())
     }
 }
 
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_formal_entry_tests.rs"]
 mod tests;
+
+#[path = "ordinary_new_borrowed_formal_entry_values.rs"]
+mod entry_values;

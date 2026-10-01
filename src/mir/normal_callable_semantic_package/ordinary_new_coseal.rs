@@ -273,6 +273,14 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     borrowed_formal_source:
         Option<Result<lexical_instance_call::PreparedBorrowedFormalIngressV1, String>>,
     borrowed_formal_actuals: lexical_instance_call::PendingBorrowedFormalActualsV1,
+    // Existing formal values joined to the borrowed source projection. This
+    // correspondence does not install a carrier or authorize a backend.
+    borrowed_entry_values: RefCell<
+        BTreeMap<
+            FunctionOwnerIdV1,
+            Result<Box<[(u32, BindingRefV1, crate::mir::ValueId)]>, String>,
+        >,
+    >,
     lexical_instance_calls: RefCell<
         BTreeMap<OwnedExprSiteV1, lexical_instance_call::LexicalInstanceCallDispositionSlotV1>,
     >,
