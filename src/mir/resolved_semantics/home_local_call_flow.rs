@@ -7,8 +7,9 @@
 
 use super::local_flow::{OrdinaryObservation, PrefixLocalFlow, SourceScalarKind};
 use super::{
-    BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
-    ResolvedMethodCallReceiverSourceV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
+    BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLexicalRefV1,
+    ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1, SourceBindingSiteV1,
+    SourceExprSiteV1, SourceStmtSiteV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 
@@ -218,7 +219,11 @@ pub(crate) fn issue_lexical_local_call<E>(
         .arguments()
         .iter()
         .map(|argument| {
-            match input.function().expression_source().literal(argument.site()) {
+            match input
+                .function()
+                .expression_source()
+                .literal(argument.site())
+            {
                 Some(ResolvedLiteralSourceV1::Integer(value)) => {
                     Some(LocalCallArgumentV1::Integer(*value))
                 }
@@ -289,11 +294,7 @@ pub(crate) fn issue_qualified_static_local_call<E>(
             ),
             _ => return Ok(None),
         };
-        if claim
-            .required_i64_arguments()
-            .contains(&argument.ordinal())
-            && !i64_evidence
-        {
+        if claim.required_i64_arguments().contains(&argument.ordinal()) && !i64_evidence {
             return Ok(None);
         }
         arguments.push(row);
@@ -347,13 +348,9 @@ pub(crate) fn issue_lexical_i64_local_call<E>(
     {
         return Ok(None);
     }
-    let Some(arguments) = seal_i64_call_arguments(
-        input,
-        locals,
-        call,
-        prior_homes,
-        is_selected_call,
-    )? else {
+    let Some(arguments) =
+        seal_i64_call_arguments(input, locals, call, prior_homes, is_selected_call)?
+    else {
         return Ok(None);
     };
     Ok(Some(LocalCallObservationV1::issue(
@@ -386,10 +383,9 @@ fn seal_i64_call_arguments<E>(
     for argument in call.arguments() {
         let row = match locals.observe(argument.site()) {
             Some(OrdinaryObservation::Integer(value)) => LocalCallArgumentV1::Integer(value),
-            Some(OrdinaryObservation::TrivialLocal(
-                binding,
-                Some(SourceScalarKind::Integer),
-            )) => LocalCallArgumentV1::Scalar(binding),
+            Some(OrdinaryObservation::TrivialLocal(binding, Some(SourceScalarKind::Integer))) => {
+                LocalCallArgumentV1::Scalar(binding)
+            }
             _ => {
                 let Some(inner) = seal_argument_call(
                     input,
@@ -397,7 +393,8 @@ fn seal_i64_call_arguments<E>(
                     argument.site(),
                     prior_homes,
                     is_selected_call,
-                )? else {
+                )?
+                else {
                     return Ok(None);
                 };
                 LocalCallArgumentV1::CallResult(Box::new(inner))
@@ -438,13 +435,8 @@ fn seal_argument_call<E>(
     {
         return Ok(None);
     }
-    let Some(inner) = seal_i64_call_arguments(
-        input,
-        locals,
-        call,
-        prior_homes,
-        is_selected_call,
-    )? else {
+    let Some(inner) = seal_i64_call_arguments(input, locals, call, prior_homes, is_selected_call)?
+    else {
         return Ok(None);
     };
     Ok(Some(ArgumentCallObservationV1::issue(
@@ -487,9 +479,9 @@ pub(crate) fn issue_receiver_local_call<E>(
     if observed_site != site.site()
         || !matches!(
             call.receiver(),
-            super::ResolvedMethodCallReceiverSourceV1::Lexical(
-                super::ResolvedLexicalRefV1::Local(_)
-            )
+            super::ResolvedMethodCallReceiverSourceV1::Lexical(super::ResolvedLexicalRefV1::Local(
+                _
+            ))
         )
     {
         return Ok(None);
@@ -559,3 +551,8 @@ pub(crate) fn issue_local_call<E>(
         result,
     )))
 }
+
+#[path = "home_local_call_borrowed_actuals.rs"]
+mod borrowed_actuals;
+pub(super) use borrowed_actuals::observe_borrowed_call_actuals;
+pub(crate) use borrowed_actuals::{BorrowedCallActualCandidateV1, BorrowedCallActualValueV1};

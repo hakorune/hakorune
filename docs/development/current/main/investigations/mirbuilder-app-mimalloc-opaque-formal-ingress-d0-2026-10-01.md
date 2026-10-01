@@ -320,3 +320,60 @@ Touched rustfmt, diff, pointer and bash syntax PASS. Qualified scope guard
 continues to fail only at the recorded untouched brand_catalog_tests.rs=961;
 no waiver. Source/forward/incoming closure is connected to the production
 issuer, but actual liveness, carriers, C/EXE acceptance and cutover remain open.
+
+
+### S0 pending actual preparation — construction Decision
+
+Keep actual source/domain/liveness preparation passive in the existing ordinary
+ledger until the entry/ABI consumer is connected. The same prefix-local flow
+observes exact argument bindings: immediate signed I64/Bool, declaration-backed
+scalar, live claim Home, exact entry receiver or selected formal/Copy forwarding.
+The lexical child corroborates those observations with the complete incoming
+source relation and retains named errors. No LocalCallObservation/path-call,
+Home transfer, physical carrier or runtime permission is installed by this step.
+Missing selected incoming observations remain named pending errors, never None.
+
+Preserve the original readiness guard and its error propagation. A verified
+prefix walk alone supplies actual facts when that original lane is selected.
+Otherwise borrow explicit exits from the existing function-control verifier and
+run the same prefix observer without publishing/replacing Completion or seeds.
+This additional source-only observation cannot change readiness or acceptance;
+its control/probe failures invalidate every partial actual row for that owner.
+Unreachable calls after a return or two terminal branches cannot prove ingress.
+The source-only result must be consumed as a complete prerequisite by subsequent
+entry adoption; it is not permission to skip a selected failed incoming edge.
+
+Responsibility boundary: the cohort issuer is close to the 760-line split
+threshold. Before further entry/ABI additions, move readiness/source-observation
+predicate orchestration into a private owner child in a separate invariant T0;
+do not expand this construction tranche into carrier activation. Whole S0 still
+requires ordinary entry, physical/C use closure, and generated Normal/Fault
+acceptance. No app completion or physical deletion credit from passive facts.
+
+Pending-actual receipt (2026-10-02): focused borrowed-formal 36/36 and ordinary
+co-seal 99/99 PASS, including 14 new actual-preparation tests. Exact scalar,
+signed I64/Bool domains, live Home, entry receiver, copied formal forwarding,
+consumed/unsupported actuals, ordinal drift and missing nested incoming covered.
+The source-only fixture asserts the original plain Completion has no Home flow;
+the existing verified forwarding fixture asserts pending actuals arm no local
+lifecycle call. Unreachable root/both-branch returns reject at the earlier
+NonTerminalReturn header boundary; those are not evidence of an actual callback.
+A failed partial source walk overwrites every selected incoming row for its owner.
+Read-only review found no readiness/Completion selection or carrier activation
+change. Parent issuer 756 lines; new observer/source/test children 107/225/291.
+
+Initial focused failures were current-change test assumptions: absent bridge
+incoming, expecting package acceptance of nonterminal returns, and assuming a
+verified fixture used the source-only path. Corrected fixtures and the distinct
+source-only assertion all pass; none were added to the failure baseline.
+The first full observation had 127 reds and isolated the already documented
+nullable_receiver_call_serializes_nullable_handle_and_checked_release flake
+(ordinary-membership-drift; also failed singly). The named repeat and updated
+baseline verifier both confirm 8186 passed / 126 failed / 56 ignored, inventory
+8368, unchanged accepted failure names/hash. Only 14 owned test inventory rows
+were added; no failure or waiver was added. Rustfmt on 15 touched Rust files,
+pointer, diff and shell syntax PASS. Qualified scope guard still rejects the
+unchanged brand_catalog_tests.rs=961 debt; not green. Next: invariant cohort
+predicate orchestration split if entry work touches this near-limit parent,
+then Ordinary entry adoption + physical/C closure + real Normal/Fault acceptance.
+Pending actual preparation is landed construction only; S0 remains open.

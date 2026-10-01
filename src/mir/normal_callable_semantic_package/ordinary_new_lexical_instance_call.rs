@@ -151,6 +151,14 @@ mod borrowed_formal_uses;
 
 #[path = "ordinary_new_borrowed_formal_source.rs"]
 mod borrowed_formal_source;
+
+#[path = "ordinary_new_borrowed_formal_actuals.rs"]
+mod borrowed_formal_actuals;
+pub(super) use borrowed_formal_actuals::{
+    finish_borrowed_call_actuals_v1, prepare_borrowed_call_actuals_v1,
+    reject_borrowed_actuals_for_owner_v1, stage_borrowed_call_actuals_v1,
+    PendingBorrowedFormalActualsV1,
+};
 pub(super) use borrowed_formal_source::{
     prepare_borrowed_formal_ingress_v1, PreparedBorrowedFormalIngressV1,
 };

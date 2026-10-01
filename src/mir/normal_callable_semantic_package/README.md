@@ -887,3 +887,14 @@ Unsupported source uses are outside the profile before selection; owner/binding
 corruption is never a profile miss. The final lexical issuer corroborates those
 same source rows. This preparation alone installs no carrier: live actuals,
 ordinary entry adoption and physical/C publication remain required.
+
+
+Pending ordinary borrowed actuals use the same prefix-local state and exact
+incoming source targets. The private `ordinary_new_borrowed_formal_actuals.rs`
+child retains ordered signed-I64/Bool, scalar, live typed Home, entry receiver
+and formal/Copy provenance; it does not activate a call or carrier. The old
+readiness predicate stays unchanged. When that verified walk is not selected,
+source-only observation borrows explicit exits from the existing control owner,
+without replacing Completion; any failed partial walk invalidates all owner
+incoming rows. Missing incoming observations remain named pending errors.
+Entry adoption must consume this complete relation before tagged ABI activation.

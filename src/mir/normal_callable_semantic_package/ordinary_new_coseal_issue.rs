@@ -96,6 +96,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     let mut birth_abi_handoffs = BTreeMap::new();
     let mut receiver_call_observations = BTreeMap::new();
     let mut birth_site_index = BTreeMap::new();
+    let mut borrowed_formal_actuals = BTreeMap::new();
     let (field_write_claims, field_residences, callable_result_classes) =
         source_claims::prepare_source_claims(batch, selected, instance_constructors)?;
     let dynamic_slot = match dynamic {
@@ -286,9 +287,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             selected, batch_slot, is_app_main, app_main_claim_key,
                         ),
                     );
-                let child_new_ready = seed_eligible && !new_sites.is_empty()
-                    && crate::mir::resolved_semantics::home_new_prefix::issue_new_home_prefixes_probing_fields_v1(
-                        input, &new_sites, entry_home,
+                let has_borrowed_source_calls = borrowed_formal_source.as_ref().is_ok_and(|rows| {
+                    rows.incoming_calls_for_owner(input.owner())
+                });
+                let mut probe = |explicit_sites: &[crate::mir::resolved_semantics::SourceStmtSiteV1],
+                                 pending_actuals: &mut super::lexical_instance_call::PendingBorrowedFormalActualsV1| {
+                    crate::mir::resolved_semantics::home_new_prefix::issue_new_home_prefixes_probing_fields_v1(
+                        input, &new_sites, entry_home, explicit_sites,
                         parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
                             .flat_map(|row| row.parameters.iter())
                             .map(|row| (row.ordinal, row.binding, row.kind)),
@@ -333,7 +338,22 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 receiver_proof, requests, scalar_only,
                             ).map(|rows| rows.map(|rows| rows.into_iter().map(|(_, row)| row.result).collect()))
                         },
-                    )?.values().all(Result::is_ok);
+                        &mut |site, actuals| {
+                            let pending = super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
+                                &borrowed_formal_source, parameter_contracts, site, actuals,
+                                &candidates, receiver_proof,
+                            );
+                            super::lexical_instance_call::stage_borrowed_call_actuals_v1(
+                                pending_actuals, site, pending,
+                            );
+                            Ok(())
+                        },
+                    )
+                };
+                let readiness = if seed_eligible && !new_sites.is_empty() {
+                    probe(&[], &mut BTreeMap::new())?.values().all(Result::is_ok)
+                } else { false };
+                let child_new_ready = seed_eligible && !new_sites.is_empty() && readiness;
                 // An owner whose `return` statement carries a `new`
                 // construction needs the homes-aware completion: the
                 // returned `Invoke{NewBox}` is a lifecycle instruction that
@@ -406,7 +426,21 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                     }
                 }
-                let (home_prefixes, argument_observations, result_prefixes) = if owner_loan.is_some() || has_nullable_receiver_call || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty())) || (seed_eligible && (has_map || child_new_ready || child_result_ready)) {
+                let verified_walk = owner_loan.is_some() || has_nullable_receiver_call || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty())) || (seed_eligible && (has_map || child_new_ready || child_result_ready));
+                if !verified_walk && has_borrowed_source_calls {
+                    // Borrow existing control authority without publishing Completion.
+                    let observed = crate::mir::resolved_control_flow::verify_function_completion_v1(input)
+                        .map_err(|issue| format!("borrowed-actual/control-unavailable: {issue:?}"))
+                        .and_then(|control| probe(control.explicit_sites(), &mut borrowed_formal_actuals)
+                            .map(|_| ()).map_err(|issue| format!("borrowed-actual/source-walk: {issue:?}")));
+                    if let Err(issue) = observed {
+                        super::lexical_instance_call::reject_borrowed_actuals_for_owner_v1(
+                            &borrowed_formal_source, input.owner(), &mut borrowed_formal_actuals, issue,
+                        );
+                    }
+                }
+                drop(probe);
+                let (home_prefixes, argument_observations, result_prefixes) = if verified_walk {
                     let mut staged_reads = BTreeMap::new();
                     let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
                         let field = terminal_home::initialized_integer_field(
@@ -534,7 +568,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             terminal_home::receiver_container_field(
                                 instance_constructors, receiver_proof, site, home, name,
                             ).map(|field| field.is_some())
-                        }, &mut local_field_read)? {
+                        }, &mut local_field_read, &mut |site, actuals| {
+                            let pending = super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
+                                &borrowed_formal_source, parameter_contracts, site, actuals,
+                                &candidates, receiver_proof,
+                            );
+                            super::lexical_instance_call::stage_borrowed_call_actuals_v1(
+                                &mut borrowed_formal_actuals, site, pending,
+                            );
+                            Ok(())
+                        })? {
                         Ok((
                             completion,
                             prefixes,
@@ -691,7 +734,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         names,
     );
     ledger.lexical_source_targets = Some(lexical_source_targets);
+    super::lexical_instance_call::finish_borrowed_call_actuals_v1(
+        &borrowed_formal_source,
+        &mut borrowed_formal_actuals,
+    );
     ledger.borrowed_formal_source = Some(borrowed_formal_source);
+    ledger.borrowed_formal_actuals = borrowed_formal_actuals;
     ledger.receiver_call_observations = receiver_call_observations;
     ledger.field_write_claims = field_write_claims;
     ledger.callable_result_classes = callable_result_classes;

@@ -67,6 +67,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         // Local-initializer field reads stay unavailable on this lane —
         // the verified-completion lane owns the issuer predicate.
         &mut |_, _| Ok(None),
+        &mut |_, _| Ok(()),
     )
     .unwrap_or_else(|never| match never {});
     (prefixes, observations, result_prefixes)
@@ -82,6 +83,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
     entry_home: Option<&VerifiedInstanceEntryHomeLoanV1>,
+    explicit_sites: &[crate::mir::resolved_semantics::SourceStmtSiteV1],
     // The probe installs the caller's declared parameter contracts —
     // identical to the verified lane — so a scalar-binding argument to a
     // qualified static call is observed exactly once by one authority.
@@ -141,13 +143,17 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         &[LocalFieldReadRequestV1],
         bool,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    borrowed_actuals: &mut impl FnMut(
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        &[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1],
+    ) -> Result<(), E>,
 ) -> Result<BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>, E> {
     scan_new_home_flow(
         input,
         selected,
         parameters,
         entry_home,
-        &[],
+        explicit_sites,
         false,
         &BTreeSet::new(),
         field_is_integer,
@@ -162,6 +168,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         scalar_field,
         container_field,
         local_field_read,
+        borrowed_actuals,
     )
     .map(|outcome| outcome.0)
 }

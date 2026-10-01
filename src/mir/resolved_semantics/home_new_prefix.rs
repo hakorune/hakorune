@@ -105,7 +105,8 @@ use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 #[path = "home_local_call_flow.rs"]
 mod local_call_flow;
 pub(crate) use local_call_flow::{
-    ArgumentCallObservationV1, LocalCallArgumentV1, LocalCallObservationV1, LocalCallResultClassV1,
+    ArgumentCallObservationV1, BorrowedCallActualCandidateV1, BorrowedCallActualValueV1,
+    LocalCallArgumentV1, LocalCallObservationV1, LocalCallResultClassV1,
     QualifiedStaticCallClaimV1,
 };
 #[path = "home_map_descendant_flow.rs"]
@@ -154,6 +155,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _| Ok(None),
+        &mut |_, _| Ok(()),
     )
     .unwrap_or_else(|never| match never {})
     .0
@@ -253,6 +255,10 @@ pub(crate) fn scan_new_home_flow<E>(
         &[LocalFieldReadRequestV1],
         bool,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    borrowed_actuals: &mut impl FnMut(
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        &[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1],
+    ) -> Result<(), E>,
 ) -> Result<
     (
         BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
@@ -363,6 +369,7 @@ pub(crate) fn scan_new_home_flow<E>(
         scalar_field,
         container_field,
         local_field_read,
+        borrowed_actuals,
     )?;
     // Statements after the terminal are never walked; their sealed map
     // literals still owe loop1 one row each — issue Unavailable rows.

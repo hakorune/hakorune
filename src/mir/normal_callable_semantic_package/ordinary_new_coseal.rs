@@ -272,6 +272,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // prefix callback; neither Ok nor Err installs or changes a carrier.
     borrowed_formal_source:
         Option<Result<lexical_instance_call::PreparedBorrowedFormalIngressV1, String>>,
+    borrowed_formal_actuals: lexical_instance_call::PendingBorrowedFormalActualsV1,
     lexical_instance_calls: RefCell<
         BTreeMap<OwnedExprSiteV1, lexical_instance_call::LexicalInstanceCallDispositionSlotV1>,
     >,

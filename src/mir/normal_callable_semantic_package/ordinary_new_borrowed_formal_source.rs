@@ -154,6 +154,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
 }
 
 impl PreparedBorrowedFormalIngressV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn incoming_calls_for_owner(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> bool {
+        self.incoming.iter().any(|row| row.call.owner() == owner)
+    }
+
     /// Corroborate the final issuer consumes precisely the source rows used by
     /// selection. This does not authorize actual liveness, result or tagged ABI.
     pub(super) fn corroborate_source_targets(

@@ -79,6 +79,10 @@ fn walk_branch<'a, E>(
         &[LocalFieldReadRequestV1],
         bool,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    borrowed_actuals: &mut impl FnMut(
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        &[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1],
+    ) -> Result<(), E>,
 ) -> Result<BranchPath<'a>, E> {
     path.terminated = super::scan::scan_statement_flow(
         input,
@@ -111,6 +115,7 @@ fn walk_branch<'a, E>(
         scalar_field,
         container_field,
         local_field_read,
+        borrowed_actuals,
     )?;
     Ok(path)
 }
@@ -200,6 +205,10 @@ pub(super) fn observe_if_statement<'a, E>(
         &[LocalFieldReadRequestV1],
         bool,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    borrowed_actuals: &mut impl FnMut(
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        &[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1],
+    ) -> Result<(), E>,
 ) -> Result<bool, E> {
     let bundle = match input.function().if_region_bundle(statement.site()) {
         Ok(bundle) => bundle,
@@ -314,6 +323,7 @@ pub(super) fn observe_if_statement<'a, E>(
         scalar_field,
         container_field,
         local_field_read,
+        borrowed_actuals,
     )?;
     let else_path = match else_body {
         Ok(else_body) => walk_branch(
@@ -349,6 +359,7 @@ pub(super) fn observe_if_statement<'a, E>(
             scalar_field,
             container_field,
             local_field_read,
+            borrowed_actuals,
         )?,
         // A missing `else` joins the entry snapshot unchanged.
         Err(_) => BranchPath {

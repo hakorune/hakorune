@@ -95,6 +95,7 @@ impl OrdinaryNewClaimLedgerV1 {
             root_instance_calls: RefCell::new(BTreeMap::new()),
             lexical_source_targets: None,
             borrowed_formal_source: None,
+            borrowed_formal_actuals: BTreeMap::new(),
             lexical_instance_calls: RefCell::new(BTreeMap::new()),
             root_instance_call_expected: RefCell::new(BTreeSet::new()),
             field_reads: RefCell::new(BTreeMap::new()),

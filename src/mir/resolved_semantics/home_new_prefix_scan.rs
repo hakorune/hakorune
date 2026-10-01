@@ -88,6 +88,10 @@ pub(super) fn scan_statement_flow<'a, E>(
         &[LocalFieldReadRequestV1],
         bool,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    borrowed_actuals: &mut impl FnMut(
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        &[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1],
+    ) -> Result<(), E>,
 ) -> Result<bool, E> {
     let function = input.function();
     for index in 0..body.statements().len() {
@@ -96,6 +100,29 @@ pub(super) fn scan_statement_flow<'a, E>(
             return Ok(false);
         };
         covered_statements.push(statement.site().clone());
+        let call_root = match statement.node() {
+            ASTNode::Return { value: Some(_), .. } => input
+                .source()
+                .child_expr_from_stmt(&statement, ExprChildRoleV1::ReturnValue)
+                .ok()
+                .map(|expr| expr.site().clone()),
+            ASTNode::MethodCall { .. } => {
+                Some(SourceExprSiteV1::from_node(statement.site().node().clone()))
+            }
+            _ => None,
+        };
+        if let Some(site) = call_root {
+            let owned = OwnedExprSiteV1::new(input.owner(), site);
+            if let Some(actuals) = local_call_flow::observe_borrowed_call_actuals(
+                input,
+                &owned,
+                locals,
+                unavailable.is_none(),
+            ) {
+                borrowed_actuals(&owned, &actuals)?;
+            }
+        }
+
         if exit_sites.contains(statement.site()) {
             super::terminal::observe_terminal_statement(
                 input,
@@ -152,6 +179,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 scalar_field,
                 container_field,
                 local_field_read,
+                borrowed_actuals,
             )?;
             if terminated {
                 return Ok(true);
@@ -230,6 +258,15 @@ pub(super) fn scan_statement_flow<'a, E>(
                 continue;
             };
             let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+            if let Some(actuals) = local_call_flow::observe_borrowed_call_actuals(
+                input,
+                &owned,
+                locals,
+                unavailable.is_none(),
+            ) {
+                // Preparation changes neither call coverage nor Home ownership.
+                borrowed_actuals(&owned, &actuals)?;
+            }
             if let Some(local_call) = local_call_flow::issue_local_call(
                 input,
                 statement.site(),
