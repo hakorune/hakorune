@@ -210,17 +210,21 @@ fn verified_entry_receiver_proves_its_typed_object_domain() {
 
 #[test]
 fn unwalked_nested_incoming_is_named_instead_of_silently_disappearing() {
+    // The direct inner call is now observed. Its enclosing opaque argument
+    // remains an unsupported CallResult, so the whole incoming cohort rejects.
     let package = package(
         "local recv = new Transport() local out = recv.probe(recv.probe(0)) return 0",
         "",
     );
     let rows = &package.ordinary_new_claim_ledger.borrowed_formal_actuals;
     assert_eq!(rows.len(), 2);
-    assert!(rows.values().all(Result::is_err));
-    assert!(rows.values().any(|row| row
-        .as_ref()
-        .unwrap_err()
-        .contains("borrowed-actual/selected-incoming-unobserved")));
+    assert_eq!(rows.values().filter(|row| row.is_ok()).count(), 1);
+    let error = rows.values().find_map(|row| row.as_ref().err()).unwrap();
+    assert!(
+        error.contains("borrowed-actual/unsupported-or-unavailable"),
+        "{error}"
+    );
+    assert_nested_consumers(package, Some("borrowed-actual/unsupported-or-unavailable"));
 }
 
 #[test]
@@ -558,4 +562,140 @@ fn installed_entry_demands_nonopaque_actual_proof_before_borrowed_values() {
         })
         .unwrap();
     }
+}
+
+fn nested_package(
+    parameters: &str,
+    main: &str,
+) -> crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1 {
+    let source = format!("box Transport {{ birth() {{ }} probe({parameters}): i64 {{ return 0 }} wrap(x: i64): i64 {{ return x }} pair(x: i64, y: i64): i64 {{ return x }} }} static box Main {{ main() {{ local recv = new Transport() {main} }} }}");
+    crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        &source,
+    )
+    .unwrap()
+}
+
+fn assert_nested_consumers(
+    package: crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1,
+    expected_error: Option<&str>,
+) {
+    let ledger = std::rc::Rc::clone(&package.ordinary_new_claim_ledger);
+    let source = ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    let callee = source.incoming[0].callee;
+    for call in &source.incoming {
+        let row = ledger
+            .take_lexical_instance_call(call.call.owner(), call.call.site())
+            .unwrap()
+            .unwrap();
+        let actuals = ledger.borrowed_call_actuals_v1(&row);
+        if let Some(expected) = expected_error {
+            let error = actuals.unwrap_err();
+            assert!(error.contains(expected), "{error}");
+        } else {
+            let actuals = actuals.unwrap().unwrap();
+            assert!(std::ptr::eq(
+                actuals,
+                ledger.borrowed_formal_actuals[&call.call]
+                    .as_ref()
+                    .unwrap()
+                    .as_ref()
+            ));
+            assert_eq!(actuals[0].ordinal, 0);
+            assert_eq!(actuals[0].site, row.argument_sites()[0]);
+        }
+    }
+    let contract = package
+        .parameter_contracts
+        .iter()
+        .find(|row| row.owner == callee)
+        .unwrap();
+    let key = package
+        .selected
+        .key_for_batch_slot(contract.batch_slot)
+        .unwrap()
+        .clone();
+    let expected_incoming = source.incoming.len();
+    let mut context = crate::mir::builder::CompilationContext::new();
+    let installed = package.prepare_install(&mut context).unwrap().commit();
+    let mut port = installed.begin_lowering(&context).unwrap();
+    port.with_selected_lowering_input(&key, |input| {
+        let entry = ledger.borrowed_ordinary_entry_source_v1(&input);
+        if let Some(expected) = expected_error {
+            let error = entry.unwrap_err();
+            assert!(error.contains(expected), "{error}");
+        } else {
+            assert_eq!(entry.unwrap().unwrap().incoming().len(), expected_incoming);
+        }
+    })
+    .unwrap();
+}
+
+#[test]
+fn nested_actuals_reach_entry_and_taken_lender_from_all_call_roots() {
+    for main in [
+        "local out = recv.wrap(recv.probe(true)) return 0",
+        "recv.wrap(recv.probe(true)) return 0",
+        "return recv.wrap(recv.probe(true))",
+        "local out = recv.wrap(recv.wrap(recv.probe(true))) return 0",
+    ] {
+        let package = nested_package("p", main);
+        assert_eq!(
+            only_actual(&package).source,
+            BorrowedFormalActualSourceV1::Bool(true)
+        );
+        assert_nested_consumers(package, None);
+    }
+}
+
+#[test]
+fn nested_sibling_actuals_keep_separate_source_sites_and_full_incoming_coverage() {
+    let package = nested_package(
+        "p",
+        "local out = recv.pair(recv.probe(true), recv.probe(false)) return 0",
+    );
+    let rows = &package.ordinary_new_claim_ledger.borrowed_formal_actuals;
+    assert_eq!(rows.len(), 2);
+    let actuals: Vec<_> = rows.values().map(|row| &row.as_ref().unwrap()[0]).collect();
+    assert_ne!(actuals[0].site, actuals[1].site);
+    assert_eq!(actuals[0].source, BorrowedFormalActualSourceV1::Bool(true));
+    assert_eq!(actuals[1].source, BorrowedFormalActualSourceV1::Bool(false));
+    assert_nested_consumers(package, None);
+}
+
+#[test]
+fn nested_failed_actuals_remain_terminal_for_real_consumers() {
+    for (parameters, call, expected) in [
+        (
+            "p",
+            "recv.wrap(recv.probe(\"unsupported\"))",
+            "borrowed-actual/unsupported-or-unavailable",
+        ),
+        (
+            "p, q: i64",
+            "recv.wrap(recv.probe(true, false))",
+            "borrowed-actual/nonopaque-scalar-unproved",
+        ),
+        (
+            "p",
+            "recv.pair(recv.probe(true), recv.probe(\"unsupported\"))",
+            "borrowed-actual/unsupported-or-unavailable",
+        ),
+    ] {
+        let package = nested_package(parameters, &format!("local out = {call} return 0"));
+        assert_nested_consumers(package, Some(expected));
+    }
+}
+
+#[test]
+fn nested_observer_does_not_claim_calls_inside_binary_argument_subtrees() {
+    let package = nested_package("p", "local out = recv.wrap(recv.probe(true) + 1) return 0");
+    assert_nested_consumers(
+        package,
+        Some("borrowed-actual/selected-incoming-unobserved"),
+    );
 }

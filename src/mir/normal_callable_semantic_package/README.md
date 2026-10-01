@@ -897,6 +897,10 @@ readiness predicate stays unchanged. When that verified walk is not selected,
 source-only observation borrows explicit exits from the existing control owner,
 without replacing Completion; any failed partial walk invalidates all owner
 incoming rows. Missing incoming observations remain named pending errors.
+Direct argument-position method calls are observed inner-first in source argument
+order by the same callback. Binary/condition descendants are not claimed, and
+a nested call result remains an unsupported outer opaque actual. Every incoming
+row, including bad siblings, must still pass the existing entry/Taken lender.
 All argument ordinals/sites must agree, including nonopaque neighbours. Exact
 integer-lane formals require Integer or caller-owned Integer scalar evidence;
 Bool/Home/unknown evidence cannot borrow permission from an opaque neighbour.

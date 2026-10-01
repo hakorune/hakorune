@@ -717,3 +717,56 @@ untouched brand_catalog_tests.rs=961 without waiver. Actual owner 257 and tests
 561 lines remain below hard stop. This closes only whole-argument source proof;
 caller continuations, carrier activation, physical/C closure and Normal/Fault
 execution acceptance remain incomplete.
+
+Nested source-observation Decision (2026-10-02, read-only worker confirmed):
+the current observer visits only local/return/discard call roots. Walk exact
+direct argument method-call sites inner-first, preserving argument order and
+the same prefix-local state. Stage each inner original source row through the
+existing callback, never through a new inventory or authority. Installed entry
+and Taken lender already demand these rows. Keep an outer opaque CallResult
+Unknown; do not recurse into binary/condition descendants or claim executable
+continuations. Acceptance: nested/sibling/three-level actuals reach those real
+consumers, bad inner incoming stays terminal, unsupported subtree stays missing.
+This repairs missing source proof within S0; all four caller continuations and
+physical/C activation remain required. No independent sealer extraction is needed.
+
+Nested source-observation receipt: focused borrowed_formal 70/70 and ordinary
+co-seal 132/132 PASS. Real installed-entry/Taken-lender tests cover local,
+discard and return roots, deeper direct nesting and sibling incoming closure;
+an outer opaque CallResult and binary descendants remain rejected. Read-only
+worker confirmed exact-site postorder and unchanged prefix/Home state.
+Named full lib and unchanged CLI verifier both observe 8228/127/56, inventory
+8411; only the recorded nullable receiver ordinary-membership-drift flake is
+extra. This time its standalone run also fails with that same known terminal.
+No stable baseline PASS is claimed and no current-change/unclassified red was
+found. Add only four owned passing inventory rows (8229 expected); accepted
+126 failure names/hash unchanged. Rustfmt/diff/pointer PASS; qualified scope
+guard still rejects untouched brand_catalog_tests.rs=961 without waiver.
+Observer 151, scan 651, actual tests 701 lines. This closes nested actual
+observation only; ordered continuation arguments, single terminal affine
+handoff, tagged physical/C consumer and Normal/Fault EXE remain owed.
+Initial staging was blocked by a managed read-only .git mount. On 2026-10-02,
+the user changed the execution permissions; the .git write check and preserved
+patch identity check passed. This receipt does not claim carrier activation.
+
+Discard continuation Decision (read-only worker, 2026-10-02): keep the existing
+LocalCallObservation and local_calls/path_calls inventory; replace its separate
+declaration/destination fields with LocalBinding { declaration, binding } or
+Discard. Issue Discard only for an exact MethodCall statement in the selected
+borrowed source-I64 profile, using the callback's owned ordered arguments and
+existing prior Homes. Never create a local binding or add a Home for discard.
+Source Err stays terminal; opaque ordinals retain neutral ordinal/site references.
+The same raw lexical port takes one disposition; its common emitter records one
+Invoke/projection group and block_stmt discards the returned ValueId. Do not emit
+again in statement dispatch. Existing exit covered_calls and site/group guards
+own branch attribution; nested calls fold into the outer discard group. Return
+uses the separate agreed Lexical root-entry handoff, never this local group.
+Map/Handle/Nullable/direct-local consumers must require LocalBinding explicitly;
+no unwrap/default binding and no expansion of those discard contracts. Keep
+map.rs=783 below hard stop during accessor adaptation; split by responsibility
+before any growth would reach 800. No separate speculative sealer/refactor row.
+Next implementation closes callback -> relation -> lexical co-seal for all four
+shapes, then the shared tagged physical/C consumer. Acceptance fixes one-shot
+Invoke/projection, no local install, branch/sibling exit groups, nested grouping,
+Normal/Fault cleanup and malformed source/destination/group rejection. This is
+a concrete implementation decision only; no new executable acceptance claim.

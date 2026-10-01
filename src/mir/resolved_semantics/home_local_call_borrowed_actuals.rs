@@ -27,7 +27,7 @@ pub(crate) struct BorrowedCallActualCandidateV1 {
     pub(crate) value: BorrowedCallActualValueV1,
 }
 
-pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_borrowed_call_actuals(
+fn observe_one_borrowed_call_actuals(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &OwnedExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
@@ -104,4 +104,48 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_borrowed_call
             })
             .collect(),
     )
+}
+
+/// Observe only calls at exact direct argument sites, in source evaluation
+/// order. The callback stages each original inner call before its enclosing
+/// call; this does not turn a CallResult into an opaque payload candidate.
+pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_borrowed_call_actuals(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &OwnedExprSiteV1,
+    locals: &PrefixLocalFlow<'_>,
+    prefix_known: bool,
+) -> Vec<(OwnedExprSiteV1, Vec<BorrowedCallActualCandidateV1>)> {
+    if site.owner() != input.owner() {
+        return Vec::new();
+    }
+    let mut pending = vec![(site.clone(), false)];
+    let mut observed = Vec::new();
+    while let Some((site, children_observed)) = pending.pop() {
+        if children_observed {
+            if let Some(actuals) =
+                observe_one_borrowed_call_actuals(input, &site, locals, prefix_known)
+            {
+                observed.push((site, actuals));
+            }
+            continue;
+        }
+        let Some((_, call)) = input
+            .function()
+            .method_calls()
+            .find(|(candidate, _)| *candidate == site.site())
+        else {
+            continue;
+        };
+        pending.push((site, true));
+        // Reverse stack insertion preserves the declared argument order.
+        // A binary/condition subtree is not a direct method-call site and
+        // cannot acquire coverage merely by containing a call somewhere.
+        for argument in call.arguments().iter().rev() {
+            pending.push((
+                OwnedExprSiteV1::new(input.owner(), argument.site().clone()),
+                false,
+            ));
+        }
+    }
+    observed
 }

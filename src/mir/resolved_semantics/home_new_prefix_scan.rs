@@ -113,13 +113,13 @@ pub(super) fn scan_statement_flow<'a, E>(
         };
         if let Some(site) = call_root {
             let owned = OwnedExprSiteV1::new(input.owner(), site);
-            if let Some(actuals) = local_call_flow::observe_borrowed_call_actuals(
+            for (call_site, actuals) in local_call_flow::observe_borrowed_call_actuals(
                 input,
                 &owned,
                 locals,
                 unavailable.is_none(),
             ) {
-                borrowed_actuals(&owned, &actuals)?;
+                borrowed_actuals(&call_site, &actuals)?;
             }
         }
 
@@ -258,14 +258,14 @@ pub(super) fn scan_statement_flow<'a, E>(
                 continue;
             };
             let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
-            if let Some(actuals) = local_call_flow::observe_borrowed_call_actuals(
+            for (call_site, actuals) in local_call_flow::observe_borrowed_call_actuals(
                 input,
                 &owned,
                 locals,
                 unavailable.is_none(),
             ) {
                 // Preparation changes neither call coverage nor Home ownership.
-                borrowed_actuals(&owned, &actuals)?;
+                borrowed_actuals(&call_site, &actuals)?;
             }
             if let Some(local_call) = local_call_flow::issue_local_call(
                 input,
