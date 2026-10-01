@@ -24,7 +24,8 @@ Planned Ordinary scope installs selected carriers; no global S6C/static-I64
 reinterpretation. Full selected-use closure forbids unproved raw payload uses.
 Closed immediate I64/Bool/typed-object domain and forwarding are BorrowForCall,
 with no callee End; host/boxed domain needs its own producer/lifetime proof.
-Next: OPAQUE-FORMAL-INGRESS-S0, source co-seal -> entry -> physical/C consumer
+Lexical class-provenance size T0 landed with 15/15 focused tests and unchanged
+8151/126/56 lib baseline. Next: ingress S0 source co-seal -> entry -> physical/C consumer
 and Normal/Fault acceptance; implementation not started. Retained ArraySet,
 ordered Add/destination, mixed roots and original app EXE remain incomplete.
 """

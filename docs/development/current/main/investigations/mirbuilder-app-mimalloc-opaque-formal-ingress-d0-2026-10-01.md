@@ -146,3 +146,28 @@ Audit receipt: two follow-ups on the same read-only worker resolved the domain,
 entry-shape and activation/use-closure questions. Existing entry source counts,
 carrier alignment, Birth tagged Copy and C primitive operand rejection inspected.
 No Cargo/runtime result is claimed by D0. Next: the selected ingress S0 above.
+
+
+### Prerequisite — MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-LEXICAL-SIZE-T0
+
+Selected before S0 adds borrowed rows: the 746-line lexical-call owner has
+no room for its required claim extension. Move existing parameter/local/
+initializer/binding class-provenance methods into a private child; retain
+call issuance, exact target selection and affine take in the parent. Only
+parent-required method visibility changes to pub(super). Keep the same
+universal caller join, depth bound, rejection, source identity and errors.
+No new argument kind, carrier, receipt, admission or physical behavior.
+Validation: exact moved-code comparison, existing lexical-instance-call tests,
+current lib baseline, format/diff/pointer; scope guard's known 961-line debt
+remains visible. Register the child and move relevant source pins together.
+Next after this T0: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-FORMAL-INGRESS-S0.
+
+T0 receipt (2026-10-01): parent 746 -> 359 lines; private provenance child
+392 lines. Exact moved-method/depth comparison unchanged except two
+parent-required pub(super) methods; no new acceptance or test inventory.
+Focused lexical_instance_call 15/15 PASS; lib verifier KNOWN BASELINE exit 0:
+8151 passed / 126 failed / 56 ignored, inventory 8333, failure hash unchanged.
+Touched rustfmt, bash -n, diff and pointer PASS. Qualified-route scope guard
+still rejects untouched brand_catalog_tests.rs=961 (pre-existing size debt,
+no waiver). T0 closes only responsibility placement, not opaque ingress.
+Next selected row: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-FORMAL-INGRESS-S0.

@@ -858,3 +858,9 @@ Scalar expression field reads share the existing local read ledger. The issuer's
 source-claim helper proves each declaration into a temporary batch and checks
 cached-site descriptors before committing any row. Duplicate/drifting sites
 reject without partial insertion; no new field-read authority or map is issued.
+
+Lexical instance-call ownership: `ordinary_new_lexical_instance_call.rs` owns
+exact selected disposition issuance and affine take; its private
+`ordinary_new_lexical_instance_call_provenance.rs` child owns the unchanged
+universal parameter/local/initializer/binding receiver-class proof and bounded
+depth. The child issues no call inventory or physical admission.
