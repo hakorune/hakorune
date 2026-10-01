@@ -512,3 +512,83 @@ no second lifecycle binding group:
 
 Next: `MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-D0` — bundle
 slice 8.
+
+## Decision — MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-D0 (accepted)
+
+```text
+Decision: admit `local x = <proven receiver>.<declared field>` as a
+          claimed field-read local binding — one meaning, two result
+          classes dispatched by the field's DECLARED type. Numeric
+          scalar fields (`is_numeric_integer_type_name`: i64/usize
+          family, i64 wire) seal a Trivial scalar local; object-class
+          fields seal a borrowed field-alias binding that joins NO
+          Home (the field's teardown is owned by the root object's
+          destruction plan) and carries the field's declared class as
+          the alias's binding-class authority — so a later `x.f` /
+          `x.m(..)` resolves on the field's class, never on the root
+          receiver's class. Census (read-only worker): the app's
+          `run()` needs `local small = heap.small_page` (handle field)
+          and `small.alloc_count`/`medium.*` (usize fields, all in
+          concat/if subtrees — slice 9's domain); the alias's class
+          authority is the missing link for every downstream read.
+Source authority + canonical issuer: `BodyExpressionShapeV1::FieldAccess`
+          sites on the local-initializer position only. Receiver class:
+          claim-local `new` candidate class OR `me` entry-loan box —
+          the existing `binding_class`/`initializer_class` provenance.
+          Field identity: `with_source_object_definition` →
+          `UserBoxFieldDecl` ordinal → `CanonicalFieldRefV1`
+          (declaration-ordinal authority — never a name lookup).
+          Result class: `UserBoxFieldDecl.declared_type_name` — a
+          numeric-integer name seals scalar, a known ordinary-box name
+          seals object-alias, anything else is unclaimed. The claim
+          product extends the local-initializer observation in
+          `scan_statement_flow` (the FieldAccess arm currently falls
+          through to `observe`=None → `PrefixNotCovered`) and installs
+          a `binding_class` initializer arm for non-`me` FieldAccess
+          receivers via declared type (the me-only `field_write_claim`
+          arm stays untouched). Physical owner: staged `FieldRead`
+          row + `ObjectFieldGet{dst, base, CanonicalFieldRefV1}`
+          (claims must reach Emitted — existing
+          `ordinary_new_field_reads.rs` validation); scalar results
+          register `Integer`, object-alias results register the field
+          class's box type so a downstream receiver/return stays typed.
+Non-authority: `field_origin_by_box`/`value_origin_newbox` MIR-level
+          inference (claim issuers never consult physical facts);
+          `field_write_claims` for non-`me` receivers (write-claim
+          provenance is not declaration authority); name-string field
+          resolution; `DeclaredHandle` param contracts
+          (`handle: HakoAllocHandle` stays `UnsupportedDeclaredType` —
+          param-receiver reads are a separate D0).
+Fail-fast boundary: receiver class unproven (no claim-local `new`, no
+          entry loan, rebound/multiple initializers) → unclaimed;
+          field absent/weak/undeclared-type → unclaimed; alias escape —
+          returned, container-stored, passed as a call argument, or
+          used where a Home join is assumed (e.g. as a lexical-i64-call
+          receiver, whose prior-Homes membership check would freeze) →
+          unclaimed for now; a scalar field read emits
+          `ObjectFieldGet` only — never a raw `FieldGet` guess.
+Smallest next slice: `HANDLE-FIELD-READ-S0` — one claim row minted by
+          a new initializer-observation arm, the field-alias binding
+          record (root binding + `CanonicalFieldRefV1` + declared
+          class, excluded from `homes` and from unwind evidence), the
+          non-`me` `binding_class` extension, staged `FieldRead` +
+          `ObjectFieldGet` emit. Positive pins: `local small =
+          heap.small_page` installs an alias whose class is
+          `HakoAllocPage` and joins no Home; `local n = page.capacity`
+          (usize) installs an Integer scalar. Negatives: param-receiver
+          reads, unproven receiver, weak/undeclared field, alias
+          escape (return/container/call-arg), subtree positions.
+Non-claims: `handle.block_id` param-receiver reads (DeclaredHandle
+          contract widening is its own D0); scalar field reads inside
+          concat/`==`/`&&` subtrees or call arguments
+          (`small.alloc_count` in the app's `print`/`if` — slice 9
+          OPAQUE-SCALAR-POSITION); `x.m(..)` calls on an alias receiver
+          (needs the alias's prior-Homes/exhaustion semantics — its
+          own decision); `me.<ObjectField>.m(..)` receivers (slice
+          10); `local a = me.<ArrayBox>` residence aliases (slice 13);
+          field writes on non-`me` receivers; chained
+          `a.b.c` reads; app-level completion — `run()` still needs
+          slices 9-13.
+```
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-S0

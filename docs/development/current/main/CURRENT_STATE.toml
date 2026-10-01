@@ -1,7 +1,7 @@
 date = "2026-10-01"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-D0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -35,11 +35,20 @@ mimalloc-lite emit frontier stays the pinned
 `emission-binding-drift` gate downstream: `push(heap.allocate)`
 needs the consume/borrow D0 and `handles.push` itself is a NoValue
 core-method lane.
-Next: APP-MIMALLOC-LITE-HANDLE-FIELD-READ-D0.
+HANDLE-FIELD-READ-D0 accepted: `local x = <proven receiver>.<field>`
+is one claimed field-read binding — numeric-declared fields seal a
+Trivial scalar local, object-declared fields seal a borrowed
+field-alias that joins no Home (teardown owned by the root's
+destruction plan) and carries the field's declared class as binding
+authority. Physical owner: staged `FieldRead` + `ObjectFieldGet`.
+Census: `run()` needs `heap.small_page` aliases + `small.alloc_count`
+subtree reads; param `handle.block_id` needs DeclaredHandle widening
+— a separate D0.
+Next: APP-MIMALLOC-LITE-HANDLE-FIELD-READ-S0.
 """
-next_design_card = "mimalloc-lite bundle slice 8 design: HANDLE-FIELD-READ census + decision"
+next_design_card = "mimalloc-lite bundle slice 8 implementation: field-read local claim + alias binding class + staged FieldRead/ObjectFieldGet emit"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-D0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
