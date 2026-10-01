@@ -843,3 +843,17 @@ use a rollback after physical emission. Ordered implementation within S0:
 This refines task 3's transaction mechanism; it does not broaden the accepted
 profile, claim app PASS, or authorize shared Dynamic-arm removal. S0 remains
 selected; no external dependency or completed migration is inferred.
+
+
+S0 lifetime refinement (read-only follow-up, 2026-10-01): the existing
+field_read_receiver bypasses ordinary Handle observation's Consumed-root
+check, and FieldAlias retains only class. Selected-new argument transfer calls
+consume_home before later reads, with no other source owner rejecting these
+stale receivers. Preserve root provenance inside existing FieldAlias state;
+pass the exact request Home root into alias installation and inherit it through
+alias chains. Require a live Home/self-rooted entry Handle for RootedHandle and
+Alias receiver proof; include root in branch-state equality. Keep the alias as
+borrowed storage with no Home obligation or movement authority. Add negatives
+for direct Handle alias and FieldAlias reads after a verified selected transfer;
+assert the transfer was accepted and later reads stage no rows. This closes the
+already-required consumed-receiver rejection, without new assignment admission.
