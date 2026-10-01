@@ -5,7 +5,7 @@ use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    BorrowedCallActualCandidateV1, BorrowedCallActualValueV1, SourceScalarKind,
+    BorrowedCallActualCandidateV1, BorrowedCallActualValueV1, LocalCallArgumentV1, SourceScalarKind,
 };
 use std::collections::BTreeMap;
 
@@ -42,8 +42,16 @@ pub(crate) struct PreparedBorrowedFormalActualV1 {
     pub(crate) source: BorrowedFormalActualSourceV1,
 }
 
+/// The same pending call owns both its opaque proofs and the full ordered
+/// argument projection. No second site inventory or domain authority is minted.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedCallActualsV1 {
+    pub(super) opaque_actuals: Box<[PreparedBorrowedFormalActualV1]>,
+    pub(super) ordered_arguments: Box<[LocalCallArgumentV1]>,
+}
+
 pub(in crate::mir::normal_callable_semantic_package) type PendingBorrowedFormalActualsV1 =
-    BTreeMap<OwnedExprSiteV1, Result<Box<[PreparedBorrowedFormalActualV1]>, String>>;
+    BTreeMap<OwnedExprSiteV1, Result<PreparedBorrowedCallActualsV1, String>>;
 
 pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_actuals_v1(
     prepared: &Result<PreparedBorrowedFormalIngressV1, String>,
@@ -52,7 +60,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
     actuals: &[BorrowedCallActualCandidateV1],
     candidates: &[super::super::candidate::OrdinaryNewCandidate],
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
-) -> Result<Option<Box<[PreparedBorrowedFormalActualV1]>>, String> {
+) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
     let prepared = prepared.as_ref().map_err(Clone::clone)?;
     let mut incoming = prepared.incoming.iter().filter(|row| &row.call == call);
     let Some(incoming_row) = incoming.next() else {
@@ -196,13 +204,37 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
             source,
         });
     }
-    Ok(Some(rows.into_boxed_slice()))
+    let ordered_arguments = actuals
+        .iter()
+        .map(|actual| {
+            if rows.iter().any(|row| row.ordinal == actual.ordinal) {
+                Ok(LocalCallArgumentV1::BorrowedActual {
+                    ordinal: actual.ordinal,
+                    site: actual.site.clone(),
+                })
+            } else {
+                match actual.value {
+                    BorrowedCallActualValueV1::Integer(value) => {
+                        Ok(LocalCallArgumentV1::Integer(value))
+                    }
+                    BorrowedCallActualValueV1::Scalar(binding, SourceScalarKind::Integer) => {
+                        Ok(LocalCallArgumentV1::Scalar(binding))
+                    }
+                    _ => Err(freeze("borrowed-actual/nonopaque-scalar-unproved")),
+                }
+            }
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    Ok(Some(PreparedBorrowedCallActualsV1 {
+        opaque_actuals: rows.into_boxed_slice(),
+        ordered_arguments: ordered_arguments.into_boxed_slice(),
+    }))
 }
 
 pub(in crate::mir::normal_callable_semantic_package) fn stage_borrowed_call_actuals_v1(
     staged: &mut PendingBorrowedFormalActualsV1,
     site: &OwnedExprSiteV1,
-    result: Result<Option<Box<[PreparedBorrowedFormalActualV1]>>, String>,
+    result: Result<Option<PreparedBorrowedCallActualsV1>, String>,
 ) {
     let result = match result {
         Ok(None) => return,

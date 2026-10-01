@@ -53,6 +53,11 @@ pub(crate) enum LocalCallArgumentV1 {
     Bool(bool),
     Scalar(BindingRefV1),
     CallResult(Box<ArgumentCallObservationV1>),
+    /// Original opaque argument reference; the package ledger owns its domain.
+    BorrowedActual {
+        ordinal: u32,
+        site: SourceExprSiteV1,
+    },
 }
 
 /// One proven-i64 lexical call sitting in direct argument position of a

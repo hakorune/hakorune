@@ -131,7 +131,14 @@ fn entry_rejects_missing_actuals_and_truncated_rows() {
         let (owner, parameters) = target(&package);
         let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
         if truncate {
-            *ledger.borrowed_formal_actuals.values_mut().next().unwrap() = Ok(Box::new([]));
+            ledger
+                .borrowed_formal_actuals
+                .values_mut()
+                .next()
+                .unwrap()
+                .as_mut()
+                .unwrap()
+                .opaque_actuals = Box::new([]);
         } else {
             ledger.borrowed_formal_actuals.clear();
         }
@@ -184,7 +191,8 @@ fn entry_rejects_actual_ordinal_site_and_formal_corruption() {
             .next()
             .unwrap()
             .as_mut()
-            .unwrap()[0];
+            .unwrap()
+            .opaque_actuals[0];
         match change {
             0 => row.ordinal += 1,
             1 => row.site = foreign_site,
@@ -410,4 +418,135 @@ fn entry_value_recording_cannot_bypass_another_callee_actual_failure() {
         .borrowed_ordinary_entry_values_v1(owner)
         .unwrap_err()
         .contains("entry-values-missing"));
+}
+
+#[test]
+fn ordered_projection_corruption_is_terminal_for_entry_and_taken_call() {
+    use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
+    for change in 0..7 {
+        let source = "box Transport { birth() { } probe(p, q: i64): i64 { return q } }
+            static box Main { main() { local recv = new Transport()
+                local a = recv.probe(true, 7) local b = recv.probe(false, 8) return 0 } }";
+        let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
+        let (owner, parameters) = target(&package);
+        let foreign_binding = parameters[0].1;
+        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        let call = ledger
+            .borrowed_formal_actuals
+            .keys()
+            .next()
+            .unwrap()
+            .clone();
+        let foreign_site = ledger
+            .borrowed_formal_actuals
+            .keys()
+            .last()
+            .unwrap()
+            .site()
+            .clone();
+        let pending = ledger
+            .borrowed_formal_actuals
+            .get_mut(&call)
+            .unwrap()
+            .as_mut()
+            .unwrap();
+        let expected = match change {
+            0 => {
+                pending.ordered_arguments = Box::new([]);
+                "ordered-arguments-cardinality"
+            }
+            1 => {
+                let LocalCallArgumentV1::BorrowedActual { ordinal, .. } =
+                    &mut pending.ordered_arguments[0]
+                else {
+                    panic!("opaque reference")
+                };
+                *ordinal += 1;
+                "ordered-arguments-identity"
+            }
+            2 => {
+                let LocalCallArgumentV1::BorrowedActual { site, .. } =
+                    &mut pending.ordered_arguments[0]
+                else {
+                    panic!("opaque reference")
+                };
+                *site = foreign_site;
+                "ordered-arguments-identity"
+            }
+            3 => {
+                pending.ordered_arguments.swap(0, 1);
+                "ordered-arguments-identity"
+            }
+            4 => {
+                pending.ordered_arguments[1] = LocalCallArgumentV1::Bool(false);
+                "ordered-arguments-identity"
+            }
+            5 => {
+                pending.ordered_arguments[1] = LocalCallArgumentV1::Scalar(foreign_binding);
+                "ordered-arguments-identity"
+            }
+            _ => {
+                pending.ordered_arguments[0] = LocalCallArgumentV1::Integer(0);
+                "ordered-arguments-identity"
+            }
+        };
+        let error = ledger
+            .borrowed_entry_source_for_contract(owner, &parameters)
+            .unwrap_err();
+        assert!(error.contains(expected), "{change}: {error}");
+        let row = ledger
+            .take_lexical_instance_call(call.owner(), call.site())
+            .unwrap()
+            .unwrap();
+        let error = ledger.borrowed_call_actuals_v1(&row).unwrap_err();
+        assert!(error.contains(expected), "{change}: {error}");
+    }
+}
+
+fn mixed_projection_package(
+    scalar_type: &str,
+    main: &str,
+) -> VerifiedNormalCallableSemanticPackageV1 {
+    let source = format!("box Transport {{ birth() {{ }} probe(p, q: {scalar_type}): i64 {{ return q }} }} static box Main {{ main() {{ {main} }} }}");
+    crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        &source,
+    )
+    .unwrap()
+}
+
+#[test]
+fn repeated_walk_drift_in_nonopaque_projection_poisons_entire_pending_call() {
+    use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
+    let package = mixed_projection_package(
+        "i64",
+        "local recv = new Transport() local out = recv.probe(true, 7) return 0",
+    );
+    let ledger = &package.ordinary_new_claim_ledger;
+    let mut pending = ledger.borrowed_formal_actuals.clone();
+    let (site, original) = pending.iter().next().unwrap();
+    let site = site.clone();
+    let mut changed = original.as_ref().unwrap().clone();
+    changed.ordered_arguments[1] = LocalCallArgumentV1::Integer(8);
+    super::super::borrowed_formal_actuals::stage_borrowed_call_actuals_v1(
+        &mut pending,
+        &site,
+        Ok(Some(changed)),
+    );
+    assert!(pending[&site]
+        .as_ref()
+        .unwrap_err()
+        .contains("repeated-walk-drift"));
+    let original = ledger.borrowed_formal_actuals[&site]
+        .as_ref()
+        .unwrap()
+        .clone();
+    super::super::borrowed_formal_actuals::stage_borrowed_call_actuals_v1(
+        &mut pending,
+        &site,
+        Ok(Some(original)),
+    );
+    assert!(pending[&site]
+        .as_ref()
+        .unwrap_err()
+        .contains("repeated-walk-drift"));
 }

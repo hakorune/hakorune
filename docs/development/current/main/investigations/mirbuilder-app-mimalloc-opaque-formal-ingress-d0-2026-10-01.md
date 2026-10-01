@@ -770,3 +770,48 @@ shapes, then the shared tagged physical/C consumer. Acceptance fixes one-shot
 Invoke/projection, no local install, branch/sibling exit groups, nested grouping,
 Normal/Fault cleanup and malformed source/destination/group rejection. This is
 a concrete implementation decision only; no new executable acceptance claim.
+
+
+Ordered argument projection Decision (read-only seam audit, 2026-10-02):
+retain opaque_actuals and full ordered_arguments in the same existing pending
+call value. Opaque positions carry only BorrowedActual { ordinal, site }; the
+original package proof remains the sole formal/domain/lifetime authority.
+Nonopaque positions retain proven Integer or caller-owned Integer Scalar in
+source order. Entry and Taken lender validate that same staged value's arity,
+opaque ordinal/site and nonopaque class/owner; repeated-walk Err wins. Keep
+source Err first and final result corroboration at the existing Taken boundary.
+Do not invent CallResult domain proof or arm the current physical emitter.
+This is the owned projection prerequisite for the agreed four-shape callback
+connection, not a new inventory or a local-only completion. Acceptance includes
+mixed i64/usize values and real entry/Taken rejection of truncated, moved or
+foreign projection references. Literal content is sealed at construction, not
+independently re-read from argument sites by these final consumers.
+
+Ordered projection receipt (2026-10-02): final focused 72/72 and ordinary
+co-seal 134/134 PASS. Mixed i64/usize tests distinguish exact literals (-7/7)
+from caller-owned Scalars; seven projection corruptions are refused by entry
+and the real Taken lender, and ordered-only repeated-walk drift stays poisoned.
+Read-only final review found no implementation blocker; fields remain within
+the same lexical owner. Unchanged baseline verifier reports KNOWN BASELINE,
+exit 0: 8231/126/56, inventory 8413, original failure names/hash unchanged.
+Inventory adds only the two owned passing tests, never an accepted failure.
+Rustfmt/diff/pointer PASS; scope guard still rejects only untouched
+brand_catalog_tests.rs=961 without waiver. Actual tests 753, entry tests 552;
+actual owner 289, entry owner 268 and flow 563 remain below hard stop. This
+closes retained ordered projection only. Four-shape continuation/physical/C,
+carrier activation and whole S0/app acceptance remain incomplete.
+
+
+Next callback connection Decision (read-only worker, 2026-10-02): reuse one
+callback with Some(actuals) for current observation/staging and None for demand
+of owned ordered arguments. No temporary site map or second source inventory.
+The lexical owner demand helper checks source identity, the same staged row
+(including Err/drift), then prepared source-I64 result; ignore only the final
+contract_corroborated flag before the walk. Ok(None) requires a successfully
+prepared source inventory that positively excludes the site. Selected absence
+or Err is terminal, never a strict-only retry. Common lexical sealing demands
+this projection before the old strict membership predicate; inner calls recurse
+through the same callback and retain enclosing live Homes. Keep observation
+errors pending without premature activation. Next: helper/callback/sealer, then
+all four local/discard/return/nested consumers per the existing Decisions. Final
+incoming/result corroboration and tagged physical/C acceptance remain required.

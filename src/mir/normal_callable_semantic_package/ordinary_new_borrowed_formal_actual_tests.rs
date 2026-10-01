@@ -27,7 +27,10 @@ fn only_actual(
             .is_none(),
         "pending borrowed actual must not install the old lifecycle local-call row"
     );
-    let rows = rows.as_ref().expect("complete pending actual source");
+    let rows = &rows
+        .as_ref()
+        .expect("complete pending actual source")
+        .opaque_actuals;
     assert_eq!(rows.len(), 1);
     &rows[0]
 }
@@ -97,7 +100,7 @@ fn formal_copy_forward_preserves_the_original_formal_and_actual_binding() {
         .borrowed_formal_actuals
         .values()
         .filter_map(|rows| rows.as_ref().ok())
-        .flat_map(|rows| rows.iter())
+        .flat_map(|rows| rows.opaque_actuals.iter())
         .find(|row| matches!(row.source, BorrowedFormalActualSourceV1::Forwarded { .. }))
         .unwrap();
     let BorrowedFormalActualSourceV1::Forwarded { binding, formal } = row.source else {
@@ -165,7 +168,7 @@ fn checked_actual_join_rejects_changed_argument_ordinal() {
         .iter()
         .next()
         .unwrap();
-    let actual = &pending.as_ref().unwrap()[0];
+    let actual = &pending.as_ref().unwrap().opaque_actuals[0];
     let candidates = [BorrowedCallActualCandidateV1 {
         ordinal: actual.ordinal + 1,
         site: actual.site.clone(),
@@ -281,7 +284,7 @@ fn source_only_actual_probe_keeps_the_existing_plain_completion() {
     assert_eq!(rows.len(), 1);
     let (call, rows) = rows.iter().next().unwrap();
     assert_eq!(
-        rows.as_ref().unwrap()[0].source,
+        rows.as_ref().unwrap().opaque_actuals[0].source,
         BorrowedFormalActualSourceV1::Integer(0)
     );
     let completion = package
@@ -343,6 +346,39 @@ fn mixed_actuals_preserve_opaque_domain_and_exact_integer_parameter_lanes() {
             let row = only_actual(&package);
             assert_eq!(row.ordinal, 0);
             assert_eq!(row.source, BorrowedFormalActualSourceV1::Bool(true));
+            let pending = package
+                .ordinary_new_claim_ledger
+                .borrowed_formal_actuals
+                .values()
+                .next()
+                .unwrap()
+                .as_ref()
+                .unwrap();
+            assert_eq!(pending.ordered_arguments.len(), 2);
+            assert_eq!(
+                pending.ordered_arguments[0],
+                LocalCallArgumentV1::BorrowedActual {
+                    ordinal: 0,
+                    site: row.site.clone()
+                }
+            );
+            if argument == "7" {
+                assert_eq!(
+                    pending.ordered_arguments[1],
+                    LocalCallArgumentV1::Integer(7)
+                );
+            } else {
+                let caller = package
+                    .ordinary_new_claim_ledger
+                    .borrowed_formal_actuals
+                    .keys()
+                    .next()
+                    .unwrap()
+                    .owner();
+                assert!(
+                    matches!(pending.ordered_arguments[1], LocalCallArgumentV1::Scalar(binding) if binding.owner() == caller)
+                );
+            }
         }
     }
     let package = mixed_package(
@@ -352,6 +388,18 @@ fn mixed_actuals_preserve_opaque_domain_and_exact_integer_parameter_lanes() {
     assert_eq!(
         only_actual(&package).source,
         BorrowedFormalActualSourceV1::Bool(true)
+    );
+    let pending = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_actuals
+        .values()
+        .next()
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    assert_eq!(
+        pending.ordered_arguments[1],
+        LocalCallArgumentV1::Integer(-7)
     );
 }
 
@@ -603,6 +651,7 @@ fn assert_nested_consumers(
                 ledger.borrowed_formal_actuals[&call.call]
                     .as_ref()
                     .unwrap()
+                    .opaque_actuals
                     .as_ref()
             ));
             assert_eq!(actuals[0].ordinal, 0);
@@ -660,7 +709,10 @@ fn nested_sibling_actuals_keep_separate_source_sites_and_full_incoming_coverage(
     );
     let rows = &package.ordinary_new_claim_ledger.borrowed_formal_actuals;
     assert_eq!(rows.len(), 2);
-    let actuals: Vec<_> = rows.values().map(|row| &row.as_ref().unwrap()[0]).collect();
+    let actuals: Vec<_> = rows
+        .values()
+        .map(|row| &row.as_ref().unwrap().opaque_actuals[0])
+        .collect();
     assert_ne!(actuals[0].site, actuals[1].site);
     assert_eq!(actuals[0].source, BorrowedFormalActualSourceV1::Bool(true));
     assert_eq!(actuals[1].source, BorrowedFormalActualSourceV1::Bool(false));

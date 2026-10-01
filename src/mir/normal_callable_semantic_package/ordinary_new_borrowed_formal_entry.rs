@@ -181,7 +181,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .get(row.call_site())
             .ok_or_else(|| freeze("borrowed-entry/actuals-missing"))?
             .as_ref()
-            .map(|rows| Some(rows.as_ref()))
+            .map(|rows| Some(rows.opaque_actuals.as_ref()))
             .map_err(Clone::clone)
     }
 
@@ -218,6 +218,24 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| freeze("borrowed-entry/actuals-missing"))?
                 .as_ref()
                 .map_err(Clone::clone)?;
+            if actuals.ordered_arguments.len() != call.source.argument_sites().len() {
+                return Err(freeze("borrowed-entry/ordered-arguments-cardinality"));
+            }
+            for (ordinal, argument) in actuals.ordered_arguments.iter().enumerate() {
+                let opaque = call
+                    .arguments
+                    .iter()
+                    .find(|(index, _, _)| *index as usize == ordinal);
+                match (opaque, argument) {
+                    (Some((index, site, _)), crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::BorrowedActual { ordinal: actual, site: observed })
+                        if actual == index && observed == site => {}
+                    (None, crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Integer(_)) => {}
+                    (None, crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Scalar(binding))
+                        if binding.owner() == call.call.owner() => {}
+                    _ => return Err(freeze("borrowed-entry/ordered-arguments-identity")),
+                }
+            }
+            let actuals = &actuals.opaque_actuals;
             if actuals.len() != call.arguments.len() {
                 return Err(freeze("borrowed-entry/actuals-cardinality"));
             }

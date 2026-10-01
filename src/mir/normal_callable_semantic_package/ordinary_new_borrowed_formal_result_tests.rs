@@ -40,7 +40,7 @@ fn borrowed_call_lends_original_actuals_after_source_and_result_corroboration() 
         let original = ledger.borrowed_formal_actuals[row.call_site()]
             .as_ref()
             .unwrap();
-        assert!(std::ptr::eq(actuals, original.as_ref()));
+        assert!(std::ptr::eq(actuals, original.opaque_actuals.as_ref()));
         assert_eq!(actuals.len(), 1);
         assert_eq!(actuals[0].site, row.argument_sites()[0]);
         assert_eq!(actuals[0].formal.owner(), row.callee_owner());

@@ -929,3 +929,9 @@ without reclassifying source values or issuing an alternate result authority.
 Pending errors stay terminal on demand. Legacy consumers do not demand this
 projection globally; caller/carrier activation and physical/C completion remain
 separate obligations before a changed definition can execute.
+
+Borrowed ingress pending actuals keep the opaque proofs and the full source-order
+argument projection in one call-owned value. Flow references opaque slots by
+original ordinal/site; it does not own their domain. Installed entry and Taken
+lender reject missing or moved projection references before lending that same
+opaque proof. This is not tagged ABI activation or four-continuation completion.
