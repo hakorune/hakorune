@@ -222,3 +222,40 @@ scope pins pass through to the unchanged brand_catalog_tests.rs=961 hard-limit
 debt; the guard is not green and no waiver is added. Full lib baseline was
 not rerun for this invariant extraction; no baseline manifest update. Pending
 S0 drafts remain separate, and ingress/carrier/C/EXE completion remains open.
+
+### Source-target preparation T0
+
+Decision: prepare each selected/AppMain non-Dynamic slot's existing local
+candidates once after prepare_source_claims. Store the complete per-slot Result;
+the old prefix position consumes it after its old preflight. Only complete Ok
+slots lend passive class facts. Reuse the existing lexical receiver provenance
+algorithm with those classes and the same field/result source claims. Preserve
+needs order and retain each target-preparation Result until its original final
+signature/result position; do not sort targets or publish errors early.
+Final disposition consumes the same immutable source row, without re-selecting
+receiver class or target. CurrentOwner/me, borrowed admission, ABI activation
+and result authority are excluded from this invariant prerequisite. Validate
+source/final correspondence and error ordering, existing lexical/co-seal
+regressions, full named lib baseline, format/diff/pointer and scope guard.
+One read-only worker confirmed the error-order and whole-slot publication
+constraints; shared class evidence never proves a live Home or prefix success.
+
+Preparation T0 receipt (2026-10-02): existing receiver-class proof compares
+exactly after replacing only the claim-class lookup with complete candidate
+class evidence. Read-only review found no source/final correspondence or error
+priority regression. Finalization consumes preparation once; its only
+production caller is issuer.rs. Parent/source/provenance/issuer-child sizes are
+314/128/429/699 lines; no touched Rust file reaches 800. Lexical 29/29 (15
+existing + 14 pending S0), ordinary co-seal 78/78 and four exact-name ordering/
+prefix pins PASS. Initial private re-export compile errors were current-change
+failures, corrected and retested. Full named observations twice:
+8164 passed / 127 failed / 56 ignored, inventory 8347. All 126 deterministic
+baseline failures remain exact; the only extra red is the previously documented
+nullable_receiver_call_serializes_nullable_handle_and_checked_release flake,
+with the same ordinary-membership-drift in isolation. The strict full baseline
+comparison is FAIL, not PASS; no failure or inventory manifest is changed for
+preserved S0 drafts. Touched format, shell syntax, pointer and diff PASS;
+qualified scope guard reaches the unchanged 961-line brand_catalog_tests.rs
+debt, without waiver. S0 remains open: next use these prepared source rows for
+borrowed use/incoming closure and the separate prefix callback, then entry,
+physical/C and generated Normal/Fault acceptance. No ABI or deletion credit.

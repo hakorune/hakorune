@@ -266,6 +266,8 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     >,
     root_instance_calls:
         RefCell<BTreeMap<OwnedExprSiteV1, root_instance_call::RootInstanceCallDispositionSlotV1>>,
+    lexical_source_targets:
+        Option<lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1>,
     lexical_instance_calls: RefCell<
         BTreeMap<OwnedExprSiteV1, lexical_instance_call::LexicalInstanceCallDispositionSlotV1>,
     >,

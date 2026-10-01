@@ -68,6 +68,35 @@ pub(super) fn collect_local_candidates_v1(
     Ok(candidates)
 }
 
+/// Calculate once, but keep every slot's success/error at its original walk boundary.
+/// No partial candidate vector from a failed slot is exposed to class preparation.
+pub(super) fn prepare_local_candidates_by_slot_v1(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    app_main_batch_slot: Option<u32>,
+    dynamic_slot: Option<u32>,
+) -> BTreeMap<u32, Result<Vec<OrdinaryNewCandidate>, OrdinaryNewCoSealIssueV1>> {
+    batch
+        .declarations()
+        .filter_map(|declaration| {
+            let slot = declaration.batch_slot();
+            if (selected.role_for_batch_slot(slot).is_none() && app_main_batch_slot != Some(slot))
+                || dynamic_slot == Some(slot)
+            {
+                return None;
+            }
+            let candidates = batch
+                .with_lowering_input(slot, |input| {
+                    collect_local_candidates_v1(batch, instance_constructors, input)
+                })
+                .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)
+                .and_then(|rows| rows);
+            Some((slot, candidates))
+        })
+        .collect()
+}
+
 pub(super) fn prepare_source_claims(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,

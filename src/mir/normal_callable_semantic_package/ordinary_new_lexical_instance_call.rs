@@ -140,6 +140,12 @@ struct LexicalInstanceCallNeedV1 {
 #[path = "ordinary_new_lexical_instance_call_provenance.rs"]
 mod provenance;
 
+#[path = "ordinary_new_lexical_instance_call_source.rs"]
+mod source;
+pub(super) use source::{
+    prepare_lexical_source_targets_v1, PreparedLexicalInstanceCallSourceTargetsV1,
+};
+
 impl OrdinaryNewClaimLedgerV1 {
     /// Join lexical receiver provenance to selected `InstanceBoxMethod`
     /// targets for every method call in the batch. Parameter receivers are
@@ -152,96 +158,29 @@ impl OrdinaryNewClaimLedgerV1 {
     /// hard freeze here.
     pub(in crate::mir::normal_callable_semantic_package) fn issue_lexical_instance_call_dispositions(
         &mut self,
-        batch: &VerifiedResolvedCallableSemanticBatchV1,
-        selected: &VerifiedSelectedCallableBatchMapV1,
+        _batch: &VerifiedResolvedCallableSemanticBatchV1,
+        _selected: &VerifiedSelectedCallableBatchMapV1,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {
-        let mut needs = Vec::new();
-        for declaration in batch.declarations() {
-            let slot = declaration.batch_slot();
-            batch
-                .with_lowering_input(slot, |input| {
-                    let owner = input.owner();
-                    for (site, call) in input.function().method_calls() {
-                        let ResolvedMethodCallReceiverSourceV1::Lexical(
-                            ResolvedLexicalRefV1::Local(binding),
-                        ) = call.receiver()
-                        else {
-                            continue;
-                        };
-                        if binding.owner() != owner {
-                            continue;
-                        }
-                        let Some(record) = input.function().binding(binding) else {
-                            continue;
-                        };
-                        let parameter_index = match record.kind() {
-                            BindingKindV1::Parameter { index } => Some(index),
-                            BindingKindV1::Local { .. } => None,
-                            _ => continue,
-                        };
-                        let rebound = input.function().assignment_targets().any(|(_, target)| {
-                            matches!(
-                                target,
-                                ResolvedAssignmentTargetV1::BindingRebind(rebound)
-                                    if *rebound == binding
-                            )
-                        });
-                        needs.push(LexicalInstanceCallNeedV1 {
-                            owner,
-                            callee_slot: slot,
-                            call_site: site.clone(),
-                            receiver_site: call.receiver_site().clone(),
-                            receiver_binding: binding,
-                            parameter_index,
-                            selector: call.selector().into(),
-                            arity: call.arity(),
-                            argument_sites: call
-                                .arguments()
-                                .iter()
-                                .map(|argument| argument.site().clone())
-                                .collect(),
-                            rebound,
-                        });
-                    }
-                })
-                .map_err(|_| freeze("lexical-instance-call/batch-loan"))?;
-        }
-
-        for need in needs {
-            let class = match need.parameter_index {
-                Some(index) => match self.prove_parameter_class(batch, selected, &need, index)? {
-                    Some(class) => class,
-                    None => continue,
-                },
-                None => match self.claim_local_class(batch, selected, &need)? {
-                    Some(class) => class,
-                    None => continue,
-                },
-            };
-            // Missing or contradictory evidence leaves the call unarmed:
-            // outside an armed loop it keeps the existing dynamic path, and
-            // inside one the route coverage names the uncovered site. Only
-            // structural corruption (batch loan, duplicate issuance) is a
-            // hard freeze.
-            if need.rebound {
-                continue;
-            }
-            let Some((target, target_batch_slot)) = unique_instance_target(
-                selected,
-                class.as_ref(),
-                need.selector.as_ref(),
-                need.arity,
-            ) else {
+        let prepared = self
+            .lexical_source_targets
+            .take()
+            .ok_or_else(|| freeze("lexical-instance-call/missing-source-preparation"))??;
+        for source in prepared {
+            let Some(source) = source? else {
                 continue;
             };
+            let target_batch_slot = source.target_batch_slot();
+            let target = source.target().clone();
+            let call_site = source.call_site().clone();
+            let callee_owner = source.callee_owner();
             let Some(signature) = signatures.row(target_batch_slot) else {
                 continue;
             };
             if signature.mode()
                 != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
-                || signature.source_logical_arity() != need.arity
+                || signature.source_logical_arity() != target.arity()
                 || signature.receiver_lane_count() != 1
                 || signature.lanes().first().is_none_or(|lane| {
                     lane.index() != 0
@@ -250,14 +189,6 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 continue;
             }
-            let call_site = OwnedExprSiteV1::new(need.owner, need.call_site.clone());
-            let Some(callee_owner) = batch
-                .declarations()
-                .find(|declaration| declaration.batch_slot() == target_batch_slot)
-                .map(|declaration| declaration.owner())
-            else {
-                continue;
-            };
             // The caller-side scan and this co-seal are independent proofs
             // over the same sealed facts: a caller-minted Handle local-call
             // observation must be matched by a callee-side `Value(
@@ -284,7 +215,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 // The observation owes the lifecycle lane: route the site
                 // so the emitter's binding-group expectation covers it.
                 (false, true, Some(InvokeCallResultKind::I64)) => {
-                    self.record_lifecycle_local_call_site(need.owner, call_site.clone());
+                    self.record_lifecycle_local_call_site(call_site.owner(), call_site.clone());
                     Some(InvokeCallResultKind::I64)
                 }
                 (false, true, _) => {
@@ -297,18 +228,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .insert(
                     call_site.clone(),
                     LexicalInstanceCallDispositionSlotV1::Ready(
-                        LexicalInstanceCallDispositionRowV1 {
-                            source: LexicalInstanceCallSourceTargetV1 {
-                                call_site,
-                                receiver_site: need.receiver_site,
-                                receiver_binding: need.receiver_binding,
-                                target,
-                                target_batch_slot,
-                                callee_owner,
-                                argument_sites: need.argument_sites,
-                            },
-                            result,
-                        },
+                        LexicalInstanceCallDispositionRowV1 { source, result },
                     ),
                 )
                 .is_some()

@@ -98,6 +98,39 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     let mut birth_site_index = BTreeMap::new();
     let (field_write_claims, field_residences, callable_result_classes) =
         source_claims::prepare_source_claims(batch, selected, instance_constructors)?;
+    let dynamic_slot = match dynamic {
+        super::super::model::NormalCallableDynamicProjectionV1::Selected { batch_slot, .. } => {
+            Some(*batch_slot)
+        }
+        _ => None,
+    };
+    let names: Box<[Box<str>]> = batch
+        .ordinary_box_coverage()
+        .rows()
+        .iter()
+        .map(|row| row.name().to_owned().into_boxed_str())
+        .collect();
+    let mut local_candidates = source_claims::prepare_local_candidates_by_slot_v1(
+        batch,
+        selected,
+        instance_constructors,
+        app_main_batch_slot,
+        dynamic_slot,
+    );
+    let new_classes = local_candidates
+        .values()
+        .filter_map(|rows| rows.as_ref().ok())
+        .flatten()
+        .map(|candidate| (candidate.site.clone(), candidate.class.clone()))
+        .collect();
+    let lexical_source_targets = super::lexical_instance_call::prepare_lexical_source_targets_v1(
+        batch,
+        selected,
+        &new_classes,
+        &names,
+        &field_write_claims,
+        &callable_result_classes,
+    );
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
@@ -144,9 +177,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let function = input.function();
                 let owner_loan = direct_call_loans.and_then(|loans| loans.get(owner));
                 let entry_home = entry_home_loans.for_batch_slot(batch_slot);
-                let candidates = source_claims::collect_local_candidates_v1(
-                    batch, instance_constructors, input,
-                )?;
+                let candidates = local_candidates.remove(&batch_slot)
+                    .ok_or(OrdinaryNewCoSealIssueV1::BatchLoan)??;
                 // Return-position `new` membership: the construction is the
                 // exact `ReturnValue` child of an inventoried `Return`
                 // statement. Position is checked against the source
@@ -644,17 +676,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             Ok(())
         })
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
-    let names = batch
-        .ordinary_box_coverage()
-        .rows()
-        .iter()
-        .map(|row| row.name().to_owned().into_boxed_str())
-        .collect();
+
     let mut ledger = OrdinaryNewClaimLedgerV1::issue(
         claims.into_boxed_slice(),
         result_claims.into_boxed_slice(),
         names,
     );
+    ledger.lexical_source_targets = Some(lexical_source_targets);
     ledger.receiver_call_observations = receiver_call_observations;
     ledger.field_write_claims = field_write_claims;
     ledger.callable_result_classes = callable_result_classes;

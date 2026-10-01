@@ -870,3 +870,12 @@ The lexical disposition owns one immutable `LexicalInstanceCallSourceTargetV1`
 for caller/receiver/target/argument identity, plus the final result authorization.
 Source preflight borrows that same relation; it cannot mint a result, completion,
 physical signature or affine disposition. Existing take and routing are unchanged.
+
+Source-target preparation now borrows complete per-slot local candidates and
+existing field/result class claims before the prefix walk. The private
+`ordinary_new_lexical_instance_call_source.rs` preserves the original needs
+order and deferred per-need results. The prefix consumes each cached candidate
+Result at its old declaration boundary; final disposition consumes that same
+source row after signature/result checks, without another receiver/target
+selection. Source preparation proves neither Home liveness nor an argument ABI.
+CurrentOwner/me and borrowed-formal activation remain separate construction.

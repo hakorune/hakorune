@@ -5,7 +5,45 @@ use super::*;
 /// recursive callables; the join simply proves nothing past this depth.
 const MAX_PROVENANCE_DEPTH: u32 = 16;
 
-impl OrdinaryNewClaimLedgerV1 {
+pub(super) struct LexicalReceiverClassSourceV1<'a> {
+    new_classes: &'a std::collections::BTreeMap<OwnedExprSiteV1, Box<str>>,
+    ordinary_box_names: &'a [Box<str>],
+    field_write_claims: &'a super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    callable_result_classes: &'a super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+}
+
+impl<'a> LexicalReceiverClassSourceV1<'a> {
+    pub(super) fn prepared(
+        new_classes: &'a std::collections::BTreeMap<OwnedExprSiteV1, Box<str>>,
+        ordinary_box_names: &'a [Box<str>],
+        field_write_claims: &'a super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+        callable_result_classes: &'a super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    ) -> Self {
+        Self {
+            new_classes,
+            ordinary_box_names,
+            field_write_claims,
+            callable_result_classes,
+        }
+    }
+
+    fn field_write_claim(&self, owner_box: &str, field: &str) -> Option<&str> {
+        self.field_write_claims
+            .get(&(owner_box.into(), field.into()))
+            .map(|class| class.as_ref())
+    }
+
+    fn callable_result_class(&self, key: &CanonicalSameModuleCallableKeyV1) -> Option<&str> {
+        match self.callable_result_classes.get(key) {
+            Some(super::super::result_class_claim::OrdinaryNewResultClassV1::Object(class)) => {
+                Some(class.as_ref())
+            }
+            _ => None,
+        }
+    }
+}
+
+impl LexicalReceiverClassSourceV1<'_> {
     /// Prove one callee `Parameter{index}` receiver's class from caller
     /// edges. The callee must be the only selected declaration carrying its
     /// name+arity, otherwise candidate edges cannot be attributed. Every
@@ -242,12 +280,11 @@ impl OrdinaryNewClaimLedgerV1 {
         if depth > MAX_PROVENANCE_DEPTH {
             return Ok(None);
         }
-        if let Some(claim) = self
-            .claims
-            .borrow()
+        if let Some(class) = self
+            .new_classes
             .get(&OwnedExprSiteV1::new(owner, initializer_site.clone()))
         {
-            return Ok(Some(claim.class().into()));
+            return Ok(Some(class.clone()));
         }
         let Some(shape) = input.body_shape() else {
             return Ok(None);
