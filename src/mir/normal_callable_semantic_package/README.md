@@ -897,6 +897,10 @@ readiness predicate stays unchanged. When that verified walk is not selected,
 source-only observation borrows explicit exits from the existing control owner,
 without replacing Completion; any failed partial walk invalidates all owner
 incoming rows. Missing incoming observations remain named pending errors.
+All argument ordinals/sites must agree, including nonopaque neighbours. Exact
+integer-lane formals require Integer or caller-owned Integer scalar evidence;
+Bool/Home/unknown evidence cannot borrow permission from an opaque neighbour.
+Other nonopaque contracts need their own consumer proof and stay pending errors.
 Entry adoption must consume this complete relation before tagged ABI activation.
 
 

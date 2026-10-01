@@ -289,3 +289,273 @@ fn source_only_actual_probe_keeps_the_existing_plain_completion() {
         "source-only observation must not publish a homes-aware completion"
     );
 }
+
+fn mixed_package(
+    scalar_type: &str,
+    main: &str,
+) -> crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1 {
+    let source = format!("box Transport {{ birth() {{ }} probe(p, q: {scalar_type}): i64 {{ return 0 }} }} static box Main {{ main() {{ {main} }} }}");
+    crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        &source,
+    )
+    .unwrap()
+}
+
+fn mixed_candidates(
+    package: &crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1,
+) -> (OwnedExprSiteV1, Vec<BorrowedCallActualCandidateV1>) {
+    let source = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    let call = &source.incoming[0];
+    let rows = call
+        .source
+        .argument_sites()
+        .iter()
+        .enumerate()
+        .map(|(index, site)| BorrowedCallActualCandidateV1 {
+            ordinal: index as u32,
+            site: site.clone(),
+            value: if index == 0 {
+                BorrowedCallActualValueV1::Bool(true)
+            } else {
+                BorrowedCallActualValueV1::Integer(7)
+            },
+        })
+        .collect();
+    (call.call.clone(), rows)
+}
+
+#[test]
+fn mixed_actuals_preserve_opaque_domain_and_exact_integer_parameter_lanes() {
+    for scalar_type in ["i64", "usize"] {
+        for prefix_and_argument in [("", "7"), ("local n = 7", "n")] {
+            let (prefix, argument) = prefix_and_argument;
+            let package = mixed_package(scalar_type, &format!("{prefix} local recv = new Transport() local out = recv.probe(true, {argument}) return 0"));
+            let row = only_actual(&package);
+            assert_eq!(row.ordinal, 0);
+            assert_eq!(row.source, BorrowedFormalActualSourceV1::Bool(true));
+        }
+    }
+    let package = mixed_package(
+        "i64",
+        "local recv = new Transport() local out = recv.probe(true, -7) return 0",
+    );
+    assert_eq!(
+        only_actual(&package).source,
+        BorrowedFormalActualSourceV1::Bool(true)
+    );
+}
+
+#[test]
+fn mixed_actuals_reject_noninteger_domains_in_the_nonopaque_scalar_slot() {
+    for argument in ["false", "recv", "\"text\"", "null", "1.5", "%{\"key\"=>1}"] {
+        let package = mixed_package(
+            "i64",
+            &format!(
+                "local recv = new Transport() local out = recv.probe(true, {argument}) return 0"
+            ),
+        );
+        let error = package
+            .ordinary_new_claim_ledger
+            .borrowed_formal_actuals
+            .values()
+            .next()
+            .unwrap()
+            .as_ref()
+            .unwrap_err();
+        assert!(
+            error.contains("borrowed-actual/nonopaque-scalar-unproved"),
+            "{argument}: {error}"
+        );
+    }
+}
+
+#[test]
+fn mixed_actuals_reject_bool_bindings_in_the_nonopaque_scalar_slot() {
+    let package = mixed_package(
+        "i64",
+        "local n = true local recv = new Transport() local out = recv.probe(0, n) return 0",
+    );
+    let error = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_actuals
+        .values()
+        .next()
+        .unwrap()
+        .as_ref()
+        .unwrap_err();
+    assert!(
+        error.contains("borrowed-actual/nonopaque-scalar-unproved"),
+        "{error}"
+    );
+}
+
+#[test]
+fn mixed_actuals_check_nonopaque_ordinal_and_source_site() {
+    let package = mixed_package(
+        "i64",
+        "local recv = new Transport() local out = recv.probe(true, 7) return 0",
+    );
+    for wrong_site in [false, true] {
+        let (call, mut actuals) = mixed_candidates(&package);
+        if wrong_site {
+            actuals[1].site = actuals[0].site.clone();
+        } else {
+            actuals[1].ordinal = 0;
+        }
+        let error = prepare_borrowed_call_actuals_v1(
+            package
+                .ordinary_new_claim_ledger
+                .borrowed_formal_source
+                .as_ref()
+                .unwrap(),
+            &package.parameter_contracts,
+            &call,
+            &actuals,
+            &[],
+            None,
+        )
+        .unwrap_err();
+        assert!(error.contains("borrowed-actual/source-identity"), "{error}");
+    }
+}
+
+#[test]
+fn mixed_actuals_reject_foreign_nonopaque_scalar_bindings() {
+    let package = mixed_package(
+        "i64",
+        "local recv = new Transport() local out = recv.probe(true, 7) return 0",
+    );
+    let (call, mut actuals) = mixed_candidates(&package);
+    let source = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    let callee = source.incoming[0].callee;
+    let foreign = package
+        .parameter_contracts
+        .iter()
+        .find(|row| row.owner == callee)
+        .unwrap()
+        .parameters[1]
+        .binding;
+    actuals[1].value = BorrowedCallActualValueV1::Scalar(foreign, SourceScalarKind::Integer);
+    let error = prepare_borrowed_call_actuals_v1(
+        package
+            .ordinary_new_claim_ledger
+            .borrowed_formal_source
+            .as_ref()
+            .unwrap(),
+        &package.parameter_contracts,
+        &call,
+        &actuals,
+        &[],
+        None,
+    )
+    .unwrap_err();
+    assert!(
+        error.contains("borrowed-actual/nonopaque-scalar-unproved"),
+        "{error}"
+    );
+}
+
+#[test]
+fn mixed_actuals_check_the_nonopaque_formal_ordinal() {
+    let mut package = mixed_package(
+        "i64",
+        "local recv = new Transport() local out = recv.probe(true, 7) return 0",
+    );
+    let (call, actuals) = mixed_candidates(&package);
+    let callee = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap()
+        .incoming[0]
+        .callee;
+    package
+        .parameter_contracts
+        .iter_mut()
+        .find(|row| row.owner == callee)
+        .unwrap()
+        .parameters[1]
+        .ordinal = 0;
+    let error = prepare_borrowed_call_actuals_v1(
+        package
+            .ordinary_new_claim_ledger
+            .borrowed_formal_source
+            .as_ref()
+            .unwrap(),
+        &package.parameter_contracts,
+        &call,
+        &actuals,
+        &[],
+        None,
+    )
+    .unwrap_err();
+    assert!(error.contains("borrowed-actual/source-identity"), "{error}");
+}
+
+#[test]
+fn installed_entry_demands_nonopaque_actual_proof_before_borrowed_values() {
+    for bad in [false, true] {
+        let package = mixed_package(
+            "i64",
+            &format!(
+                "local recv = new Transport() local out = recv.probe(true, {}) return 0",
+                if bad { "false" } else { "7" }
+            ),
+        );
+        let source = package
+            .ordinary_new_claim_ledger
+            .borrowed_formal_source
+            .as_ref()
+            .unwrap()
+            .as_ref()
+            .unwrap();
+        let callee = source.incoming[0].callee;
+        let contract = package
+            .parameter_contracts
+            .iter()
+            .find(|row| row.owner == callee)
+            .unwrap();
+        let key = package
+            .selected
+            .key_for_batch_slot(contract.batch_slot)
+            .unwrap()
+            .clone();
+        let ledger = std::rc::Rc::clone(&package.ordinary_new_claim_ledger);
+        let mut context = crate::mir::builder::CompilationContext::new();
+        let installed = package.prepare_install(&mut context).unwrap().commit();
+        let mut port = installed.begin_lowering(&context).unwrap();
+        port.with_selected_lowering_input(&key, |input| {
+            let projection = ledger.borrowed_ordinary_entry_source_v1(&input);
+            if bad {
+                let error = projection.unwrap_err();
+                assert!(
+                    error.contains("borrowed-actual/nonopaque-scalar-unproved"),
+                    "{error}"
+                );
+            } else {
+                let projection = projection.unwrap().unwrap();
+                assert_eq!(projection.formals().len(), 1);
+                assert_eq!(projection.incoming().len(), 1);
+                assert_eq!(
+                    projection.incoming()[0].1[0].source,
+                    BorrowedFormalActualSourceV1::Bool(true)
+                );
+            }
+        })
+        .unwrap();
+    }
+}

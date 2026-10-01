@@ -2,6 +2,7 @@
 //! Pending actuals do not arm LocalCallObservation or a physical signature.
 use super::borrowed_formal_source::PreparedBorrowedFormalIngressV1;
 use super::*;
+use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     BorrowedCallActualCandidateV1, BorrowedCallActualValueV1, SourceScalarKind,
@@ -68,6 +69,37 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
         .ok_or_else(|| freeze("borrowed-actual/formal-missing"))?;
     if contracts.next().is_some() || actuals.len() != contract.parameters.len() {
         return Err(freeze("borrowed-actual/arity"));
+    }
+    if incoming_row.source.call_site() != call
+        || incoming_row.source.callee_owner() != contract.owner
+        || incoming_row.source.target_batch_slot() != contract.batch_slot
+        || incoming_row.source.argument_sites().len() != contract.parameters.len()
+    {
+        return Err(freeze("borrowed-actual/source-identity"));
+    }
+    // The opaque subset cannot prove the unchanged scalar arguments beside
+    // it. Cover every source ordinal before lending any successful actuals
+    // to entry adoption or a continuation of this selected definition.
+    for (index, (formal, actual)) in contract.parameters.iter().zip(actuals).enumerate() {
+        if formal.ordinal as usize != index
+            || formal.binding.owner() != contract.owner
+            || actual.ordinal != formal.ordinal
+            || actual.site != incoming_row.source.argument_sites()[index]
+        {
+            return Err(freeze("borrowed-actual/source-identity"));
+        }
+        match formal.kind {
+            CallableParameterContractKindV1::OpaqueHandle => {}
+            CallableParameterContractKindV1::ExactTrivial(_) => match &actual.value {
+                BorrowedCallActualValueV1::Integer(_) => {}
+                BorrowedCallActualValueV1::Scalar(binding, SourceScalarKind::Integer)
+                    if binding.owner() == call.owner() => {}
+                _ => return Err(freeze("borrowed-actual/nonopaque-scalar-unproved")),
+            },
+            // Existing Map/Text/declared-handle contracts need their own
+            // source consumer proof; an opaque neighbour cannot provide it.
+            _ => return Err(freeze("borrowed-actual/nonopaque-contract-unproved")),
+        }
     }
     let mut rows = Vec::new();
     for (ordinal, site, formal) in &incoming_row.arguments {

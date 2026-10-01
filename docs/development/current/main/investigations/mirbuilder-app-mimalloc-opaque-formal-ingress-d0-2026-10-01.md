@@ -682,3 +682,38 @@ Source-child rustfmt, diff and pointer PASS; qualified guard still reports only
 untouched brand_catalog_tests.rs=961 debt. Issuer 707, source child 710 lines.
 This closes only probe placement; next is the same source/actual/result callback
 to all selected continuation shapes, then real tagged physical/C consumption.
+
+### S0 whole-argument source proof Decision
+
+The same actual callback currently joins only opaque slots. Before it can lend
+ordered continuation arguments, validate every formal/actual ordinal, call owner,
+target slot and source argument site against the immutable prepared call. For
+nonopaque ExactTrivial parameter lanes, require source Integer or caller-owned
+Integer scalar evidence; preserve the existing i64/usize declaration authority
+and bit representation, without inventing a numeric range. Bool/Home/unknown
+neighbours cannot be accepted merely because all opaque slots are healthy.
+Other nonopaque contracts need their existing consumer's proof; keep absence as
+a named pending error, not a selected-definition downgrade. Stage the same Err
+in the current actual map. The existing installed entry projection and consumed
+call lender demand that map, so no new receipt, authority or carrier is added.
+Acceptance: mixed literals/scalars, signed I64 and usize lanes, invalid neighbour
+domains, nonopaque site/ordinal/formal and foreign scalar drift; real installed
+entry must reject a failed mixed incoming. Ordinary nonselected ABI is unchanged.
+This closes an actual-proof gap; all four continuation shapes, tagged consumers
+and execution acceptance remain required and incomplete.
+
+Whole-argument proof receipt (2026-10-02): borrowed_formal 66/66 and ordinary
+co-seal 128/128 PASS, including real installed-entry rejection of a Bool in
+the nonopaque I64 slot. Named complete lib observation and final unchanged
+baseline verifier both record 8224/127/56, inventory 8407; the sole extra is
+the previously recorded nullable receiver ordinary-membership-drift flake.
+That exact test passes standalone. All seven new tests pass in the full run;
+no baseline failure disappeared and no unclassified/current-change red remains.
+Inventory/expected pass count add only those seven owned tests (8225 expected);
+the accepted 126-failure receipt/hash is unchanged. Strict verifier is NOT PASS
+for this run, and no stable full-baseline receipt is claimed.
+Touched Rust rustfmt, diff and pointer PASS. Qualified scope guard still rejects
+untouched brand_catalog_tests.rs=961 without waiver. Actual owner 257 and tests
+561 lines remain below hard stop. This closes only whole-argument source proof;
+caller continuations, carrier activation, physical/C closure and Normal/Fault
+execution acceptance remain incomplete.
