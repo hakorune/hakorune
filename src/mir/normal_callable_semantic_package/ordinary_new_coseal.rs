@@ -275,6 +275,10 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     borrowed_formal_actuals: lexical_instance_call::PendingBorrowedFormalActualsV1,
     // Existing formal values joined to the borrowed source projection. This
     // correspondence does not install a carrier or authorize a backend.
+    borrowed_i64_results: BTreeMap<
+        FunctionOwnerIdV1,
+        Result<lexical_instance_call::BorrowedI64ResultSourceV1, String>,
+    >,
     borrowed_entry_values: RefCell<
         BTreeMap<
             FunctionOwnerIdV1,

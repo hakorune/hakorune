@@ -33,7 +33,7 @@ use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableName
 
 /// Immutable source-target relation shared by preflight and final issuance.
 /// Result, completion, ABI adoption and affine consumption are not issued here.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct LexicalInstanceCallSourceTargetV1 {
     call_site: OwnedExprSiteV1,
     receiver_site: SourceExprSiteV1,
@@ -155,12 +155,15 @@ mod borrowed_formal_source;
 #[path = "ordinary_new_borrowed_formal_actuals.rs"]
 mod borrowed_formal_actuals;
 
+#[path = "ordinary_new_borrowed_formal_result.rs"]
+mod borrowed_formal_result;
+pub(super) use borrowed_formal_result::BorrowedI64ResultSourceV1;
+
 #[path = "ordinary_new_borrowed_formal_entry.rs"]
 mod borrowed_formal_entry;
 pub(super) use borrowed_formal_actuals::{
-    finish_borrowed_call_actuals_v1, prepare_borrowed_call_actuals_v1,
-    reject_borrowed_actuals_for_owner_v1, stage_borrowed_call_actuals_v1,
-    PendingBorrowedFormalActualsV1,
+    prepare_borrowed_call_actuals_v1, reject_borrowed_actuals_for_owner_v1,
+    stage_borrowed_call_actuals_v1, PendingBorrowedFormalActualsV1,
 };
 pub(super) use borrowed_formal_source::{
     prepare_borrowed_formal_ingress_v1, PreparedBorrowedFormalIngressV1,
@@ -196,6 +199,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let Some(source) = source? else {
                 continue;
             };
+            self.corroborate_borrowed_i64_result_v1(&source, results);
             let target_batch_slot = source.target_batch_slot();
             let target = source.target().clone();
             let call_site = source.call_site().clone();

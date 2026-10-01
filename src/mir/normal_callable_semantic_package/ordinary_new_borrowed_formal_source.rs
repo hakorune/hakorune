@@ -184,7 +184,8 @@ impl PreparedBorrowedFormalIngressV1 {
                 .definitions
                 .get(&incoming.callee)
                 .ok_or_else(|| freeze("borrowed-formal/final-definition-missing"))?;
-            if source.callee_owner() != incoming.callee
+            if *source != &incoming.source
+                || source.callee_owner() != incoming.callee
                 || incoming.arguments.iter().any(|(ordinal, site, formal)| {
                     source.argument_sites().get(*ordinal as usize) != Some(site)
                         || draft.origins.get(formal) != Some(formal)

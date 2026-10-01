@@ -546,3 +546,57 @@ before activating a changed callee ABI. Do not create a fake local for a discard
 call, leave an unconsumed variant as finished work, use an empty-terminal I64
 default as result permission, or retry raw transport after selected failure.
 Final physical consumer must compare retained entry values with real params.
+
+### S0 caller source/result correspondence Decision
+
+Keep the existing strict lexical-I64 predicate unchanged. The same lexical
+ledger caches one pending source-result projection per selected borrowed owner:
+all verified explicit value-return sites must be Integer or that callee's exact
+I64 formal. Bool/Text/opaque returns and absent/implicit value returns do not
+receive I64 permission. Exact parameter declarations, owner and source ordinal
+are corroborated, not inferred from MIR. Existing final result cohort then
+corroborates this projection; errors remain pending until borrowed consumption.
+No empty-terminal I64 default, result annotation alone, or first caller suffices.
+The emitter seam borrows the same actual rows using its consumed lexical row;
+check owned one-shot disposition, exact call/callee/argument sites, final I64
+result and full source/actual cohort. None is outside the selected profile only;
+selected missing/corrupt/error rows reject. This correspondence does not activate
+caller continuations or carriers. Their complete local/discard/return/nested
+coverage and the real physical/C consumer remain required in the same S0 series.
+Acceptance: Integer and exact-I64 formal results, mixed formal ordinals,
+source-domain mismatch, missing result corroboration, wrong/foreign/unconsumed
+call row and actual identity/coverage failures; existing scalar routes unchanged.
+
+Caller source/result correspondence receipt (2026-10-02): borrowed_call 11/11,
+borrowed_formal 59/59 and ordinary co-seal 121/121 PASS. Signed/Bool/live Home
+actuals lend the original rows after one-shot lexical consumption; exact-I64
+formal results with mixed opaque/scalar ordinals are covered. Bool/Text/null
+source results, missing or uncorroborated result source, changed return sites,
+opaque/nonopaque argument-site drift, target-slot/receiver drift, foreign or
+unconsumed rows, result drift and failed actuals reject. Incoming preparation
+retains the same immutable full lexical source target; it does not select again.
+Final result corroboration compares the complete return-value site set with the
+existing completion's explicit exits before marking the pending projection.
+
+Initial compilation exposed only result-cache type visibility; corrected to
+package-local visibility. Initial no-return/i64 fixture correctly failed the
+existing PhysicalHeader completion boundary before reaching the lender. The test
+now asserts that refusal and uses a legal unannotated empty method to prove the
+new lender refuses an empty-terminal default. Removed the new unused import;
+no suppression or current-change failure was retained.
+First full run: 8217/127/56, with only the pre-existing nullable receiver flake
+extra (same ordinary-membership-drift). That observation is not a PASS or an
+accepted failure-set extension. Separate full named receipt: 8218/126/56,
+inventory 8400, unchanged failure names/hash. Added only eleven owned passing
+inventory rows; unchanged baseline verifier reports KNOWN BASELINE exit 0.
+Rustfmt/diff/bash/pointer PASS. Scope guard still reports only unchanged
+brand_catalog_tests.rs=961 debt; new source/test children registered. Result
+child 150 lines, tests 234, co-seal issuer stays 756 without line compression.
+
+This lends source/actual/result facts for the real emitter seam; no caller
+continuation or tagged ABI has been activated. Whole S0 and app remain open.
+Next must project the prefix callback's same ordered actual rows into the
+existing continuation owners, with source result preparation available before
+that walk rather than cyclically reading the completed ledger. Close every
+selected local/discard/return/nested incoming, then physical/C use closure and
+Normal/Fault EXE; do not substitute a local-only accepted corpus for that scope.

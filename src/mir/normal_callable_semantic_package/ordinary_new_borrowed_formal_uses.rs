@@ -83,6 +83,7 @@ pub(super) enum BorrowedIncomingDraftErrorV1 {
 
 #[derive(Debug)]
 pub(super) struct BorrowedIncomingCallDraftV1 {
+    pub(super) source: super::LexicalInstanceCallSourceTargetV1,
     pub(super) call: OwnedExprSiteV1,
     pub(super) callee: FunctionOwnerIdV1,
     pub(super) arguments: Box<[(u32, SourceExprSiteV1, BindingRefV1)]>,
@@ -183,6 +184,7 @@ pub(super) fn draft_borrowed_incoming_calls_v1(
                             })
                             .collect();
                         rows.push(BorrowedIncomingCallDraftV1 {
+                            source: (*exact).clone(),
                             call: owned.clone(),
                             callee: *callee,
                             arguments,

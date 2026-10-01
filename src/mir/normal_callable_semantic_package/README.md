@@ -909,3 +909,15 @@ Pending source errors remain errors for a future selected borrowed consumer;
 unselected generic/static paths do not demand them. This mapping does not enable
 carriers, authorize a raw payload ABI, or prove backend publication. A future
 physical consumer must corroborate these values against the real function params.
+
+Borrowed call result preparation caches all verified source value-return sites:
+Integer literals and exact-I64 callee formals are accepted; literal Bool/Text/
+Null, opaque returns and implicit exits do not acquire I64 permission. The
+existing result cohort corroborates the same owner and complete return-site set.
+A borrowed consumer can lend actuals only with its consumed lexical disposition;
+full source target, receiver, slot and argument positions must remain unchanged,
+and all incoming actual proof must be complete. This lends the original rows,
+without reclassifying source values or issuing an alternate result authority.
+Pending errors stay terminal on demand. Legacy consumers do not demand this
+projection globally; caller/carrier activation and physical/C completion remain
+separate obligations before a changed definition can execute.

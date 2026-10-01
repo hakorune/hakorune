@@ -122,6 +122,69 @@ impl OrdinaryNewClaimLedgerV1 {
             incoming,
         }))
     }
+    /// Borrow the original actual rows only for a consumed, owned lexical row.
+    pub(crate) fn borrowed_call_actuals_v1(
+        &self,
+        row: &super::LexicalInstanceCallDispositionRowV1,
+    ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
+        if !matches!(
+            self.lexical_instance_calls.borrow().get(row.call_site()),
+            Some(super::LexicalInstanceCallDispositionSlotV1::Taken)
+        ) {
+            return Err(freeze("borrowed-call/disposition-not-owned-and-taken"));
+        }
+        let source = self
+            .borrowed_formal_source
+            .as_ref()
+            .ok_or_else(|| freeze("borrowed-call/source-missing"))?
+            .as_ref()
+            .map_err(Clone::clone)?;
+        let mut incoming = source
+            .incoming
+            .iter()
+            .filter(|call| &call.call == row.call_site());
+        let Some(call) = incoming.next() else {
+            return if source.definitions.contains_key(&row.callee_owner()) {
+                Err(freeze("borrowed-call/incoming-missing"))
+            } else {
+                Ok(None)
+            };
+        };
+        if incoming.next().is_some()
+            || call.callee != row.callee_owner()
+            || row.source_target() != &call.source
+            || row.argument_sites().len() != row.target().arity() as usize
+            || call
+                .arguments
+                .iter()
+                .any(|(ordinal, site, _)| row.argument_sites().get(*ordinal as usize) != Some(site))
+        {
+            return Err(freeze("borrowed-call/disposition-identity"));
+        }
+        self.checked_borrowed_entry_incoming(source, call.callee)?;
+        let proof = self
+            .borrowed_i64_results
+            .get(&call.callee)
+            .ok_or_else(|| freeze("borrowed-call/result-source-missing"))?
+            .as_ref()
+            .map_err(Clone::clone)?;
+        if !proof.contract_corroborated
+            || proof.returns.is_empty()
+            || proof.returns.iter().any(|site| site.owner() != call.callee)
+        {
+            return Err(freeze("borrowed-call/result-not-corroborated"));
+        }
+        if row.result() != Some(crate::mir::instruction::InvokeCallResultKind::I64) {
+            return Err(freeze("borrowed-call/result-mismatch"));
+        }
+        self.borrowed_formal_actuals
+            .get(row.call_site())
+            .ok_or_else(|| freeze("borrowed-entry/actuals-missing"))?
+            .as_ref()
+            .map(|rows| Some(rows.as_ref()))
+            .map_err(Clone::clone)
+    }
+
     fn checked_borrowed_entry_incoming<'a>(
         &'a self,
         source: &'a PreparedBorrowedFormalIngressV1,

@@ -734,12 +734,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         names,
     );
     ledger.lexical_source_targets = Some(lexical_source_targets);
-    super::lexical_instance_call::finish_borrowed_call_actuals_v1(
-        &borrowed_formal_source,
-        &mut borrowed_formal_actuals,
+    ledger.install_borrowed_formal_preparation_v1(
+        borrowed_formal_source,
+        borrowed_formal_actuals,
+        batch,
+        parameter_contracts,
     );
-    ledger.borrowed_formal_source = Some(borrowed_formal_source);
-    ledger.borrowed_formal_actuals = borrowed_formal_actuals;
     ledger.receiver_call_observations = receiver_call_observations;
     ledger.field_write_claims = field_write_claims;
     ledger.callable_result_classes = callable_result_classes;
