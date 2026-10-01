@@ -864,3 +864,8 @@ exact selected disposition issuance and affine take; its private
 `ordinary_new_lexical_instance_call_provenance.rs` child owns the unchanged
 universal parameter/local/initializer/binding receiver-class proof and bounded
 depth. The child issues no call inventory or physical admission.
+
+The lexical disposition owns one immutable `LexicalInstanceCallSourceTargetV1`
+for caller/receiver/target/argument identity, plus the final result authorization.
+Source preflight borrows that same relation; it cannot mint a result, completion,
+physical signature or affine disposition. Existing take and routing are unchanged.

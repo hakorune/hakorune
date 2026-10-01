@@ -31,8 +31,10 @@ use crate::mir::resolved_semantics::{
 };
 use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 
-#[derive(Debug)]
-pub(crate) struct LexicalInstanceCallDispositionRowV1 {
+/// Immutable source-target relation shared by preflight and final issuance.
+/// Result, completion, ABI adoption and affine consumption are not issued here.
+#[derive(Debug, Clone)]
+pub(crate) struct LexicalInstanceCallSourceTargetV1 {
     call_site: OwnedExprSiteV1,
     receiver_site: SourceExprSiteV1,
     receiver_binding: BindingRefV1,
@@ -43,14 +45,16 @@ pub(crate) struct LexicalInstanceCallDispositionRowV1 {
     callee_owner: FunctionOwnerIdV1,
     /// Exact non-receiver argument sites in source order.
     argument_sites: Box<[SourceExprSiteV1]>,
-    /// The callee's co-sealed result contract. `Handle` here only arms
-    /// emission when the caller-side scan independently sealed a Handle
-    /// local-call observation for this exact site; a truthful Handle row
-    /// without that observation stays on the dynamic path.
+}
+
+#[derive(Debug)]
+pub(crate) struct LexicalInstanceCallDispositionRowV1 {
+    source: LexicalInstanceCallSourceTargetV1,
+    // Outcome authorization remains on the final affine disposition only.
     result: Option<InvokeCallResultKind>,
 }
 
-impl LexicalInstanceCallDispositionRowV1 {
+impl LexicalInstanceCallSourceTargetV1 {
     pub(crate) fn call_site(&self) -> &OwnedExprSiteV1 {
         &self.call_site
     }
@@ -78,7 +82,33 @@ impl LexicalInstanceCallDispositionRowV1 {
     pub(crate) fn argument_sites(&self) -> &[SourceExprSiteV1] {
         &self.argument_sites
     }
+}
 
+impl LexicalInstanceCallDispositionRowV1 {
+    pub(crate) const fn source_target(&self) -> &LexicalInstanceCallSourceTargetV1 {
+        &self.source
+    }
+    pub(crate) fn call_site(&self) -> &OwnedExprSiteV1 {
+        self.source_target().call_site()
+    }
+    pub(crate) fn receiver_site(&self) -> &SourceExprSiteV1 {
+        self.source_target().receiver_site()
+    }
+    pub(crate) const fn receiver_binding(&self) -> BindingRefV1 {
+        self.source_target().receiver_binding()
+    }
+    pub(crate) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        self.source_target().target()
+    }
+    pub(crate) const fn target_batch_slot(&self) -> u32 {
+        self.source_target().target_batch_slot()
+    }
+    pub(crate) const fn callee_owner(&self) -> FunctionOwnerIdV1 {
+        self.source_target().callee_owner()
+    }
+    pub(crate) fn argument_sites(&self) -> &[SourceExprSiteV1] {
+        self.source_target().argument_sites()
+    }
     pub(crate) const fn result(&self) -> Option<InvokeCallResultKind> {
         self.result
     }
@@ -268,13 +298,15 @@ impl OrdinaryNewClaimLedgerV1 {
                     call_site.clone(),
                     LexicalInstanceCallDispositionSlotV1::Ready(
                         LexicalInstanceCallDispositionRowV1 {
-                            call_site,
-                            receiver_site: need.receiver_site,
-                            receiver_binding: need.receiver_binding,
-                            target,
-                            target_batch_slot,
-                            callee_owner,
-                            argument_sites: need.argument_sites,
+                            source: LexicalInstanceCallSourceTargetV1 {
+                                call_site,
+                                receiver_site: need.receiver_site,
+                                receiver_binding: need.receiver_binding,
+                                target,
+                                target_batch_slot,
+                                callee_owner,
+                                argument_sites: need.argument_sites,
+                            },
                             result,
                         },
                     ),

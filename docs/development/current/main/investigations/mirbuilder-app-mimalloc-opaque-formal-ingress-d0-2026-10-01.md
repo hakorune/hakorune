@@ -171,3 +171,28 @@ Touched rustfmt, bash -n, diff and pointer PASS. Qualified-route scope guard
 still rejects untouched brand_catalog_tests.rs=961 (pre-existing size debt,
 no waiver). T0 closes only responsibility placement, not opaque ingress.
 Next selected row: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-FORMAL-INGRESS-S0.
+
+### Prerequisite — MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-SOURCE-TARGET-T0
+
+Decision: move existing source identity fields into one immutable
+LexicalInstanceCallSourceTargetV1 within the same lexical owner; the final
+affine disposition keeps that source row and its result authorization.
+Existing getter signatures, target selection, issuance and take remain
+unchanged. This breaks the preflight/disposition dependency cycle: S0's joins
+borrow the source row, without early result, completion or ABI claims.
+No new acceptance shape, caller switch or retirement. Preserve pending S0
+draft files/tests independently; they are not part of this BoxShape commit.
+Validation: exact field/getter equivalence and existing lexical tests; run
+pending source tests as regression evidence, without claiming S0 closeout.
+Next: finish S0 source receiver preflight -> prefix callback -> final co-seal.
+
+T0 receipt: source fields and getters compare exactly with the prior row;
+existing lexical tests 15/15 and pending S0 tests 14/14 PASS (29 total).
+Captured complete lib observation: 8165 passed / 126 failed / 56 ignored,
+inventory 8347; all 126 failure names/hash match the accepted receipt and all
+14 inventory additions belong to pending borrowed-formal tests. Manifest is
+not updated by T0. The initial verifier observation had 127 reds without
+names; that incomplete transient census is superseded by the captured named
+run, not attributed to a specific known flake or used as PASS evidence.
+Format, field/getter comparison, pointer and diff PASS. No acceptance shape,
+ABI activation or physical deletion claim. Pending S0 code/tests are preserved.
