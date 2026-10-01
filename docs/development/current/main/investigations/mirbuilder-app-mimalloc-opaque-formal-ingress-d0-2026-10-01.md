@@ -377,3 +377,40 @@ unchanged brand_catalog_tests.rs=961 debt; not green. Next: invariant cohort
 predicate orchestration split if entry work touches this near-limit parent,
 then Ordinary entry adoption + physical/C closure + real Normal/Fault acceptance.
 Pending actual preparation is landed construction only; S0 remains open.
+
+### Prerequisite — entry and physical projection size T0
+
+Decision: before connecting Ordinary borrowed entry/publication, move the
+existing source-state constructor family into a private source_prepare child,
+and the existing final-view lifecycle program issuance method into a private
+physical_program_projection child. Lowering state is 784 lines; physical
+program is already 806. Keep source owner/navigation, origin, entry shape,
+function selection/order, error precedence, validation and all method callers
+unchanged. Only relative sibling paths and equivalent method visibility adapt
+to the private child placement. No borrowed carrier activation or new receipt.
+The 756-line cohort issuer does not need to be touched for the selected entry
+connection; its optional predicate split is not selected by this T0.
+Validation: exact moved-body comparison, existing state/physical projection and
+borrowed-formal/co-seal tests, named lib baseline, source size/format/pointer and
+scope pins. Register parent and both children; keep 961-line known guard debt.
+Next: existing Ordinary scope/entry install consumes complete source/actual
+relations, preserves one formal ValueId, and retains source correspondence at
+the existing final artifact boundary before JSON/C consumer cutover.
+
+
+Entry/physical size T0 receipt (2026-10-02): moved bodies match HEAD exactly
+apart from relative sibling paths and equivalent constructor visibility.
+Lowering state is 558 + 232 lines; physical program is 600 + 199 lines.
+Borrowed-formal 36/36, ordinary co-seal 99/99 and constructor projection 2/2
+PASS; constructor relation projection guard PASS with its source pin moved.
+Physical-program batch is 26 PASS plus the previously recorded nullable-call
+flake at ordinary-membership-drift. Initial strict full verifier also observed
+127 reds. The subsequent named observation verifies 8186/126/56, inventory
+8368, with no inventory or failure-name differences and unchanged failure hash;
+strict compare_observation PASS. Neither failure nor manifest was changed.
+Scope guard remains red only for untouched brand_catalog_tests.rs=961. The
+installed-callable consumer guard already demands absent constructor_count in
+HEAD; left unchanged as unrelated stale-pin debt. Pointer, shell syntax, moved
+body comparison and diff check PASS. This T0 changes no semantic acceptance,
+entry carrier, production caller or physical ABI. Next remains selected
+Ordinary entry/caller adoption and retained-source physical/C corroboration.

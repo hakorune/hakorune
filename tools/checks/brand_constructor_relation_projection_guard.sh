@@ -5,7 +5,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 MODEL=src/mir/builder/brand_constructor_lowering_projection.rs
-CALLABLE=src/mir/builder/normal_callable_semantic_lowering_state.rs
+CALLABLE=src/mir/builder/normal_callable_semantic_lowering_state/source_prepare.rs
+CALLABLE_STATE=src/mir/builder/normal_callable_semantic_lowering_state.rs
 SCRIPT=src/mir/builder/normal_script_semantic_lowering_projection.rs
 RAW=src/mir/builder/calls/function_call_preflight_route.rs
 
@@ -36,7 +37,7 @@ require_text "$RAW" "is_brand_declared"
 reject_text "$MODEL" "ASTNode"
 reject_text "$MODEL" "ValueId"
 
-for file in "$MODEL" "$CALLABLE" "$SCRIPT" \
+for file in "$MODEL" "$CALLABLE" "$CALLABLE_STATE" "$SCRIPT" \
   src/mir/builder/normal_script_semantic_lowering_state.rs \
   src/mir/resolved_semantics/product.rs \
   src/mir/resolved_semantics/source_site_inventory.rs; do
