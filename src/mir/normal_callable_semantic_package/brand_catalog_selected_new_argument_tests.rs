@@ -152,9 +152,21 @@ fn selected_new_rejects_unbound_and_call_expression_arguments() {
         let claim_rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
         let claims: Vec<_> = claim_rows.values().collect();
         assert_eq!(claims.len(), 1);
+        if body.starts_with("local x = 1 + 2") {
+            let rows = claims[0]
+                .argument_rows()
+                .expect("proved scalar initializer supplies its exact local binding");
+            assert_eq!(rows.len(), 1);
+            assert!(matches!(
+                rows[0].kind(),
+                crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::Local { .. }
+            ));
+            assert!(claims[0].home_prefix().is_ok());
+            continue;
+        }
         let error = claims[0]
             .argument_rows()
-            .expect_err("argument rows stay unavailable outside BoundValue scope");
+            .expect_err("direct call expressions stay unavailable outside BoundValue scope");
         assert!(
             matches!(
                 error,
@@ -451,4 +463,3 @@ fn selected_new_rejects_unproven_field_arguments() {
         );
     }
 }
-

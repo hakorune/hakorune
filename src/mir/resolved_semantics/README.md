@@ -81,6 +81,17 @@ coarse Trivial locals cannot supply that proof; rejected expressions publish no
 terminal relation or staged field reads. Exact field-pair and integer-only
 recursive evidence keep their existing meanings, without general Add activation.
 
+`home_new_prefix_scalar_expression` proves pure Integer/Bool initializer roots
+and selected field-containing conditions from exact source operators and child
+paths. It admits Integer Add/Subtract/Equal/NotEqual and Bool And/Or; fields
+are conditional Integer obligations until their declarations prove Scalar.
+The existing issuer proves and validates the entire exact read batch before
+staging any LocalFieldRead. Direct initializers keep the singleton Alias
+adapter. Borrowed aliases retain their original live Home/entry root across
+field chains; transferred roots reject further selected reads. Rejected roots
+leave no rows; opaque/call/String roots stay outside this profile. Physical reads use the same once-only exact ObjectFieldGet port,
+with short-circuit RHS evaluation deferred by the existing operator consumer.
+
 `home_new_prefix` owns the bounded ordinary-New caller-prefix facts, from one
 resolved source loan and exact selected initializer bindings. It walks source
 statement order, keeps aliases separate from new Homes, and records prior

@@ -51,7 +51,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
-        &mut |_, _, _, _, _, _| Ok(None),
+        &mut |_, _| Ok(None),
     )?;
     Ok(
         result.map(|(completion, prefixes, terminal_relations, _, _)| {
@@ -110,9 +110,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     local_static_call: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
     ) -> Result<
-        Option<
-            crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1,
-        >,
+        Option<crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1>,
         E,
     >,
     result_sites: &std::collections::BTreeSet<crate::mir::resolved_semantics::OwnedExprSiteV1>,
@@ -138,14 +136,10 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         &str,
     ) -> Result<bool, E>,
     local_field_read: &mut impl FnMut(
-        &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        &crate::mir::resolved_semantics::SourceExprSiteV1,
-        crate::mir::resolved_semantics::BindingRefV1,
-        crate::mir::resolved_semantics::BindingRefV1,
-        Option<&str>,
-        &str,
+        &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
+        bool,
     ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>,
+        Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>,
         E,
     >,
 ) -> Result<

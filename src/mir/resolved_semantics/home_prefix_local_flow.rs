@@ -49,6 +49,7 @@ enum StoredLocal {
     /// authority for a later `alias.<field>` read.
     FieldAlias {
         class: Box<str>,
+        root: BindingRefV1,
     },
     Trivial(Option<SourceScalarKind>),
     /// A binding produced by an inventoried call expression. The value
@@ -72,7 +73,7 @@ pub(super) enum FieldReadReceiverV1 {
     RootedHandle(BindingRefV1),
     /// A binding produced by an earlier proven field read — the payload is
     /// the field's declared class name.
-    Alias(Box<str>),
+    Alias { class: Box<str>, root: BindingRefV1 },
 }
 
 pub(super) enum OrdinaryObservation {
@@ -113,7 +114,10 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
         (StoredLocal::BorrowedMap, StoredLocal::BorrowedMap) => true,
         (StoredLocal::Consumed, StoredLocal::Consumed) => true,
         (StoredLocal::Handle(a), StoredLocal::Handle(b)) => a == b,
-        (StoredLocal::FieldAlias { class: a }, StoredLocal::FieldAlias { class: b }) => a == b,
+        (
+            StoredLocal::FieldAlias { class: a, root: ar },
+            StoredLocal::FieldAlias { class: b, root: br },
+        ) => a == b && ar == br,
         (StoredLocal::Trivial(a), StoredLocal::Trivial(b)) => a == b,
         (StoredLocal::BoundValue, StoredLocal::BoundValue) => true,
         (StoredLocal::Null, StoredLocal::Null) => true,
@@ -400,15 +404,31 @@ impl<'source> PrefixLocalFlow<'source> {
     /// names the movable handle root the candidate/entry proof consults),
     /// `Alias` for a binding produced by an earlier proven field read — its
     /// declared class is the receiver's own class authority.
-    pub(super) fn field_read_receiver(
-        &self,
-        binding: BindingRefV1,
-    ) -> Option<FieldReadReceiverV1> {
+    /// Scope selection preserves rejected receiver provenance; a dead root
+    /// must not silently send a selected field condition back to the raw lane.
+    pub(super) fn is_field_read_candidate(&self, binding: BindingRefV1) -> bool {
+        matches!(
+            self.locals.get(&binding),
+            Some(
+                StoredLocal::Home { .. }
+                    | StoredLocal::Handle(_)
+                    | StoredLocal::FieldAlias { .. }
+                    | StoredLocal::Consumed
+            )
+        )
+    }
+
+    pub(super) fn field_read_receiver(&self, binding: BindingRefV1) -> Option<FieldReadReceiverV1> {
         match self.locals.get(&binding)? {
             StoredLocal::Home { .. } => Some(FieldReadReceiverV1::OwnedHome),
-            StoredLocal::Handle(root) => Some(FieldReadReceiverV1::RootedHandle(*root)),
-            StoredLocal::FieldAlias { class } => {
-                Some(FieldReadReceiverV1::Alias(class.clone()))
+            StoredLocal::Handle(root) if self.field_root_is_live(*root) => {
+                Some(FieldReadReceiverV1::RootedHandle(*root))
+            }
+            StoredLocal::FieldAlias { class, root } if self.field_root_is_live(*root) => {
+                Some(FieldReadReceiverV1::Alias {
+                    class: class.clone(),
+                    root: *root,
+                })
             }
             _ => None,
         }
@@ -417,8 +437,22 @@ impl<'source> PrefixLocalFlow<'source> {
     /// A proven `receiver.field` read whose declared type is an ordinary
     /// box: the binding is a borrowed alias — no Home membership, no exit
     /// obligation, no observable move.
-    pub(super) fn install_field_alias(&mut self, binding: BindingRefV1, class: Box<str>) {
-        self.locals.insert(binding, StoredLocal::FieldAlias { class });
+    pub(super) fn install_field_alias(
+        &mut self,
+        binding: BindingRefV1,
+        class: Box<str>,
+        root: BindingRefV1,
+    ) {
+        self.locals
+            .insert(binding, StoredLocal::FieldAlias { class, root });
+    }
+
+    fn field_root_is_live(&self, root: BindingRefV1) -> bool {
+        match self.locals.get(&root) {
+            Some(StoredLocal::Home { .. }) => true,
+            Some(StoredLocal::Handle(entry)) => *entry == root,
+            _ => false,
+        }
     }
 
     pub(super) fn consume_home(&mut self, binding: BindingRefV1) {

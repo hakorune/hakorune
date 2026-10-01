@@ -853,3 +853,8 @@ The source statement port emits NoValue through the existing ArrayElementWrite
 writer. Allocation must be recorded before preparing the statement, and residual
 rows reject at finish. The extended package issuer stays unselected until selected
 backend discharge connects; these APIs alone do not claim production cutover.
+
+Scalar expression field reads share the existing local read ledger. The issuer's
+source-claim helper proves each declaration into a temporary batch and checks
+cached-site descriptors before committing any row. Duplicate/drifting sites
+reject without partial insertion; no new field-read authority or map is issued.

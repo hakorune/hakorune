@@ -20,9 +20,9 @@ mod declared_instance_locator;
 #[cfg(test)]
 mod direct_call_lifecycle_tests;
 mod direct_call_loan;
-mod disposition_slot;
 #[cfg(test)]
 mod direct_call_owner_loan_tests;
+mod disposition_slot;
 mod dynamic_admission;
 mod install;
 mod instance_construction;
@@ -49,9 +49,9 @@ mod map_read_fact;
 mod map_read_fact_tests;
 mod model;
 mod ordinary_new_coseal;
-mod qualified_static_call_claim;
 mod physical_header;
 mod physical_signature;
+mod qualified_static_call_claim;
 mod result_contract;
 pub(crate) use result_contract::VerifiedCallableResultContractCohortV1;
 mod s6c_child;
@@ -139,9 +139,9 @@ pub(crate) use ordinary_new_coseal::{
     OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1, OrdinaryNewResultClaimV1,
     OrdinaryNewResultClassV1, OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
     OwnedFieldChildKindV1, OwnedFieldChildV1, PreparedTerminalI64AddReturnV1,
-    PreparedTerminalI64FieldReturnV1,
-    PreparedTerminalMapGetReturnV1, ReceiverCallClassObservationV1, RootCallDispositionV1,
-    RootInstanceCallDispositionRowV1, VerifiedOrdinaryNewBirthRecipeV1,
+    PreparedTerminalI64FieldReturnV1, PreparedTerminalMapGetReturnV1,
+    ReceiverCallClassObservationV1, RootCallDispositionV1, RootInstanceCallDispositionRowV1,
+    VerifiedOrdinaryNewBirthRecipeV1,
 };
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{
@@ -167,6 +167,8 @@ mod map_home_flow_tests;
 mod map_value_completion_tests;
 #[cfg(test)]
 mod qualified_static_call_claim_tests;
+#[cfg(test)]
+mod scalar_expression_claim_tests;
 #[cfg(test)]
 mod terminal_value_return_tests;
 

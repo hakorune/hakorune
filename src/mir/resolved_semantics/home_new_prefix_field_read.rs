@@ -10,9 +10,9 @@
 //! installs `Trivial`, an ordinary-box name installs a `FieldAlias` — a
 //! borrowed, non-observable handle into the receiver's storage.
 //!
-//! Subtree positions (call arguments, operators, conditions) are out of
-//! scope: this observer only admits the direct initializer of a `local`
-//! statement. Anything else keeps `PrefixNotCovered`.
+//! The direct-initializer adapter allows Scalar/Alias. The sibling pure
+//! scalar-expression observer collects these same passive requests and
+//! submits a Scalar-only batch after proving its complete root.
 use super::*;
 use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1};
 
@@ -35,22 +35,51 @@ pub(super) fn observe_local_field_read<E>(
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     local_field_read: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        Option<&str>,
-        &str,
-    ) -> Result<Option<LocalFieldReadResultV1>, E>,
+        &[LocalFieldReadRequestV1],
+        bool,
+    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<Option<LocalFieldReadResultV1>, E> {
-    let Some(shape) = input.body_shape() else {
+    let Some(request) = field_read_request(input, site, locals) else {
         return Ok(None);
+    };
+    let Some(mut results) = local_field_read(&[request], false)? else {
+        return Ok(None);
+    };
+    Ok((results.len() == 1).then(|| results.remove(0)))
+}
+
+/// Passive exact-site request; declaration proof and atomic staging belong
+/// exclusively to the existing issuer, not to this source descriptor.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct LocalFieldReadRequestV1 {
+    pub(crate) site: OwnedExprSiteV1,
+    pub(crate) receiver_site: SourceExprSiteV1,
+    pub(crate) receiver: BindingRefV1,
+    pub(crate) home: BindingRefV1,
+    pub(crate) alias_class: Option<Box<str>>,
+    pub(crate) field: Box<str>,
+}
+
+pub(super) fn field_read_request(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+    locals: &PrefixLocalFlow<'_>,
+) -> Option<LocalFieldReadRequestV1> {
+    let Some(shape) = input.body_shape() else {
+        return None;
     };
     let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) =
         shape.expression_shape(site)
     else {
-        return Ok(None);
+        return None;
     };
+    if object
+        != &crate::mir::resolved_semantics::SourcePathV1::from_node(site.node())
+            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Receiver)
+            .expr()
+    {
+        return None;
+    }
     let receiver = match input.function().variable_ref(object) {
         Some(ResolvedLexicalRefV1::Local(receiver)) => receiver,
         _ => match shape.expression_shape(object) {
@@ -58,23 +87,23 @@ pub(super) fn observe_local_field_read<E>(
                 receiver: BodyMeReceiverV1::Lexical(binding),
                 ..
             }) => *binding,
-            _ => return Ok(None),
+            _ => return None,
         },
     };
     let Some(provenance) = locals.field_read_receiver(receiver) else {
-        return Ok(None);
+        return None;
     };
     let (home, alias_class) = match provenance {
         local_flow::FieldReadReceiverV1::OwnedHome => (receiver, None),
         local_flow::FieldReadReceiverV1::RootedHandle(root) => (root, None),
-        local_flow::FieldReadReceiverV1::Alias(class) => (receiver, Some(class)),
+        local_flow::FieldReadReceiverV1::Alias { class, root } => (root, Some(class)),
     };
-    local_field_read(
-        &OwnedExprSiteV1::new(input.owner(), site.clone()),
-        object,
+    Some(LocalFieldReadRequestV1 {
+        site: OwnedExprSiteV1::new(input.owner(), site.clone()),
+        receiver_site: object.clone(),
         receiver,
         home,
-        alias_class.as_deref(),
-        field,
-    )
+        alias_class,
+        field: field.clone(),
+    })
 }

@@ -1,6 +1,6 @@
 # MirBuilder app bundle — mimalloc-lite completion D0 (2026-09-30)
 
-Status: active — D0 and COSEAL-SIZE-T0 published at 0d60daa3f5; SCALAR-EXPRESSION-POSITION-S0 selected.
+Status: active — SCALAR-EXPRESSION-POSITION-S0 verified; OPAQUE-BORROWED-OPERATIONS-D0 selected.
 Scope: mimalloc-lite completion bundle; selected source contracts and retirement only.
 Related: CURRENT_STATE.toml; docs/development/RULES.md; parent Gate-1 card below.
 
@@ -857,3 +857,93 @@ borrowed storage with no Home obligation or movement authority. Add negatives
 for direct Handle alias and FieldAlias reads after a verified selected transfer;
 assert the transfer was accepted and later reads stage no rows. This closes the
 already-required consumed-receiver rejection, without new assignment admission.
+
+
+S0 condition-scope refinement (read-only audit, 2026-10-01): select the
+whole pure morphology before semantic proof, not merely the presence of a
+field or a supported outer operator. A recursive selector permits the profile's
+sealed binaries, Integer/Bool literals, lexical variables, and FieldAccess with
+only direct Variable/Me receivers. Nested unsupported operators, calls, String/
+Null, containers and nested/effectful receivers remain outside this profile and
+retain their existing condition owner, with zero new read claims. Selected pure
+roots still reject mixed types, missing fields, consumed receivers and non-Bool
+results. Add regression evidence for nested Greater, call and nested field
+receivers; the page-heap Body(0) Greater condition must not move its existing
+Body(8) opaque-operand frontier backwards. The old argument negative for a local
+initialized by `1 + 2` becomes a positive exact-Local assertion; its direct-call
+argument case remains negative. Do not rebaseline either discrepancy as debt.
+
+
+### SCALAR-EXPRESSION-POSITION-S0 receipt (2026-10-01)
+
+- Existing field declarations and sealed expression/operator paths now prove
+  complete pure Integer/Bool initializer roots and selected field conditions.
+  Every batch is checked before staging; cached-site descriptor drift and
+  duplicate sites reject without partial insertion. Direct initializer Alias
+  behavior remains on its singleton adapter. Borrowed aliases retain the
+  original root and reject reads after its selected transfer.
+- Source-backed physical tests consume the exact Integer ObjectFieldGet in
+  arithmetic (including existing Copy bindings); RHS short-circuit reads stay
+  in a distinct control block. Selected sites do not emit raw FieldGet. The
+  shared Dynamic arm retains outside readers: physical deletion credit zero.
+- Focused scalar expression 12/12; existing local_field_read 9/9. Page-heap
+  fixture census and selected-new argument regression each pass. The former
+  keeps Body(8), rather than regressing to the earlier Greater condition.
+  The old `local x = 1 + 2` negative now checks its admitted exact Local rows;
+  direct hidden-call arguments still reject.
+- Full quick/serial observation: 8150 passed / 127 failed / 56 ignored,
+  inventory 8333. Twelve tests added, none removed; all 126 deterministic
+  baseline failures unchanged. The sole extra failure is the already-recorded
+  nullable_receiver_call_serializes_nullable_handle_and_checked_release flake,
+  which passes in isolation. Baseline verifier reproduced that summary drift:
+  FAIL, not PASS. Its deterministic failure manifest is unchanged; inventory
+  and expected passing count alone are refreshed for the twelve added tests.
+- Qualified-route guard still rejects unchanged brand_catalog_tests.rs=961:
+  existing debt, not waived. All touched/new Rust sources are below 800.
+  Pointer, touched-file format, shell syntax and diff checks pass.
+- Final post-format verifier: KNOWN BASELINE, exit 0; 8151 passed / 126 failed /
+  56 ignored, inventory 8333, unchanged failure SHA256
+  `eed5d558e18359d7d8502c87a0bd54b42cdbcb8215f3ab505671169c34e6e497`.
+  Earlier nullable flake observations remain recorded above. No whole-app EXE
+  PASS, opaque support, String/call-root admission or global retirement claim.
+
+
+### Next design — MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-BORROWED-OPERATIONS-D0 (2026-10-01)
+
+Decision: select existing bundle task 4, first the opaque formal ingress;
+no scalar relabeling, source annotation workaround or permissive prefix arm.
+Read-only worker confirmed that executable operation mapping is still missing.
+Source authority: callable_parameter_contract/issuer.rs declaration loan,
+exact allocate parameter ordinal 0/binding/owner/origin; absent declaration
+spelling issues OpaqueHandle. Runtime tags/call literals/MIR are non-authority.
+Finite consumers in lang/src/hako_alloc/memory/page_heap_box.hako:
+allocate Body(8), requested_sizes.set argument 1 (line 93); then ordered
+requested_bytes + requested_size and numeric field destination (line 96).
+The heap-to-page allocate calls (lines 204/208) own caller-side ingress.
+
+Ordered tasks, each requiring a Decision before its implementation:
+1. Bind the source-issued borrowed opaque formal to one checked physical value
+   representation; distinguish immediate payload and owned handle. Reuse the
+   existing parameter issuer and preserve caller ownership, not scalar inference.
+2. Select retained ArraySet value semantics: index/value ordinals, destination
+   retention/replacement, Fault without mutation, staged-retain cleanup. The
+   ArrayBox.set/2 manifest has Unprojected value law; checked primitive append
+   does not supply retained opaque Set. Runtime store sharing is evidence, not
+   the missing source contract.
+3. Select ordered Add(I64, Dynamic) and its destination separately. Existing
+   dynamic_operator_contract admits Dynamic + I64, publishes a nonaliasing
+   Dynamic with End obligation, and does not authorize reversed operands or
+   Integer projection. DynamicAdd physical execution still rejects before effect.
+   Any semantic envelope extension updates language reference before issuer code.
+4. Close exact source operation/site/destination -> once-only claim -> checked
+   physical consumer with transactional staging and Normal/Fault cleanup. Reuse
+   prior-Home unwind; borrowed formals/me are never ended as owned Homes.
+5. Positive exact ingress/retained Set and negatives for wrong owner/site/ordinal,
+   domain/destination and Fault: preserve operands/prior effects, skip later
+   statements, unwind owned Homes once. Re-observe the finite page-heap frontier
+   only after its implementation changes; eventual original app EXE gate remains.
+
+Non-claims: resize/realloc, result-new opaque arguments, mixed String/print/call
+roots, object-field method calls and forwarded nullable results remain separate
+bundle tasks. No parked platform/selected-C lane reopened. This is internal
+contract work, not an external dependency or whole-goal blocked condition.

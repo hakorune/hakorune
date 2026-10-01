@@ -318,12 +318,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         // The probe shares the verified lane's local
                         // field-read membership — no staging here; the
                         // verified walk owns the ledger rows.
-                        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, alias_class: Option<&str>, name: &str| {
-                            terminal_home::local_read_field(
-                                instance_constructors, &candidates,
-                                batch.ordinary_box_coverage(), receiver_proof,
-                                site, home, alias_class, name,
-                            ).map(|proven| proven.map(|(_, result)| result))
+                        &mut |requests, scalar_only| {
+                            source_claims::prove_local_field_read_batch(
+                                instance_constructors, &candidates, batch.ordinary_box_coverage(),
+                                receiver_proof, requests, scalar_only,
+                            ).map(|rows| rows.map(|rows| rows.into_iter().map(|(_, row)| row.result).collect()))
                         },
                     )?.values().all(Result::is_ok);
                 // An owner whose `return` statement carries a `new`
@@ -435,21 +434,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     // is the idempotent answer — the first proof stages
                     // the ledger row, later asks return its result class.
                     let mut local_staged_reads: BTreeMap<OwnedExprSiteV1, field_reads::LocalFieldRead> = BTreeMap::new();
-                    let mut local_field_read = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, alias_class: Option<&str>, name: &str| {
-                        if let Some(staged) = local_staged_reads.get(site) {
-                            return Ok(Some(staged.result.clone()));
-                        }
-                        let Some((field, result)) = terminal_home::local_read_field(
-                            instance_constructors, &candidates,
-                            batch.ordinary_box_coverage(), receiver_proof,
-                            site, home, alias_class, name,
+                    let mut local_field_read = |requests: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], scalar_only| {
+                        let Some(rows) = source_claims::prove_local_field_read_batch(
+                            instance_constructors, &candidates, batch.ordinary_box_coverage(),
+                            receiver_proof, requests, scalar_only,
                         )? else { return Ok(None); };
-                        local_staged_reads.insert(site.clone(), field_reads::LocalFieldRead {
-                            receiver_site: receiver_site.clone(), receiver, home, field,
-                            result: result.clone(),
-                            progress: field_reads::Progress::Pending,
-                        });
-                        Ok(Some(result))
+                        source_claims::stage_local_field_read_batch(&mut local_staged_reads, rows)
+                            .map(Some)
                     };
                     match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_and_argument_observations_v1(
                         input, &new_sites,

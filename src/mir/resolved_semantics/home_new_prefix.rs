@@ -153,7 +153,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
-        &mut |_, _, _, _, _, _| Ok(None),
+        &mut |_, _| Ok(None),
     )
     .unwrap_or_else(|never| match never {})
     .0
@@ -170,7 +170,9 @@ mod branch;
 mod field_call;
 #[path = "home_new_prefix_field_read.rs"]
 mod field_read;
-pub(crate) use field_read::LocalFieldReadResultV1;
+#[path = "home_new_prefix_scalar_expression.rs"]
+mod scalar_expression;
+pub(crate) use field_read::{LocalFieldReadRequestV1, LocalFieldReadResultV1};
 #[path = "home_new_prefix_field_write.rs"]
 mod field_write;
 #[path = "home_new_prefix_scan.rs"]
@@ -248,13 +250,9 @@ pub(crate) fn scan_new_home_flow<E>(
     // binding, movable root, and any field-read alias class; the
     // predicate alone decides the field declaration and result class.
     local_field_read: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        Option<&str>,
-        &str,
-    ) -> Result<Option<LocalFieldReadResultV1>, E>,
+        &[LocalFieldReadRequestV1],
+        bool,
+    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<
     (
         BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,

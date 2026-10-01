@@ -28,10 +28,10 @@ pub(super) struct ArgumentFieldRead {
     pub(super) progress: Progress,
 }
 
-/// One local-initializer `receiver.field` read staged by the issuer's
-/// `local_read_field` proof. The site key is the exact `FieldAccess`
-/// initializer expression site — the read belongs to that `local`
-/// statement, never to a terminal exit or a selected `new` argument.
+/// One `receiver.field` read staged by the issuer's `local_read_field`
+/// proof. The exact FieldAccess site belongs to a direct initializer or
+/// a completely proved pure scalar expression/condition root, never to
+/// a terminal exit or a selected `new` argument.
 /// `receiver` is the local binding whose materialized value is the read
 /// base; `result` is the sealed declared-type classification.
 #[derive(Debug)]
@@ -155,9 +155,9 @@ pub(super) fn merge_staged_argument_field_reads(
     Ok(())
 }
 
-/// Merge staged local-initializer reads into the ledger. Every staged row
-/// corresponds to a local statement the source walk admitted — staging is
-/// the admission — so all staged rows enter; ownership and uniqueness are
+/// Merge staged local/expression reads into the ledger. Every staged row
+/// corresponds to a complete root the source walk admitted atomically, so
+/// all staged rows enter; ownership and uniqueness are
 /// still checked against the claim's owner.
 pub(super) fn merge_staged_local_field_reads(
     destination: &mut BTreeMap<OwnedExprSiteV1, LocalFieldRead>,
@@ -165,13 +165,8 @@ pub(super) fn merge_staged_local_field_reads(
     staged: BTreeMap<OwnedExprSiteV1, LocalFieldRead>,
 ) -> Result<(), OrdinaryNewCoSealIssueV1> {
     for (site, row) in &staged {
-        if site.owner() != owner
-            || row.receiver.owner() != owner
-            || row.home.owner() != owner
-        {
-            return Err(OrdinaryNewCoSealIssueV1::FieldReadOwnerMismatch {
-                site: site.clone(),
-            });
+        if site.owner() != owner || row.receiver.owner() != owner || row.home.owner() != owner {
+            return Err(OrdinaryNewCoSealIssueV1::FieldReadOwnerMismatch { site: site.clone() });
         }
         if destination.contains_key(site) {
             return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: site.clone() });
@@ -433,9 +428,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .argument_field_reads
                 .borrow()
                 .values()
-                .all(|row| {
-                    matches!(row.progress, Progress::Emitted(..) | Progress::Released)
-                })
+                .all(|row| matches!(row.progress, Progress::Emitted(..) | Progress::Released))
             && self
                 .local_field_reads
                 .borrow()

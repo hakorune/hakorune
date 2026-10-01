@@ -6,8 +6,8 @@
 //! bindings — nothing is invented.
 
 use super::{
-    scan_new_home_flow, CallerNewHomePrefixV1, HomePrefixUnavailableV1, ResultNewHomePrefixV1,
-    SelectedNewArgumentObservationV1,
+    scan_new_home_flow, CallerNewHomePrefixV1, HomePrefixUnavailableV1, LocalFieldReadRequestV1,
+    LocalFieldReadResultV1, ResultNewHomePrefixV1, SelectedNewArgumentObservationV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
@@ -66,7 +66,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         &mut |_, _, _, _, _| Ok(false),
         // Local-initializer field reads stay unavailable on this lane —
         // the verified-completion lane owns the issuer predicate.
-        &mut |_, _, _, _, _, _| Ok(None),
+        &mut |_, _| Ok(None),
     )
     .unwrap_or_else(|never| match never {});
     (prefixes, observations, result_prefixes)
@@ -138,16 +138,9 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
     // this walk covered, so the readiness gate never under- or
     // over-predicts.
     local_field_read: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        Option<&str>,
-        &str,
-    ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>,
-        E,
-    >,
+        &[LocalFieldReadRequestV1],
+        bool,
+    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>, E> {
     scan_new_home_flow(
         input,

@@ -85,13 +85,9 @@ pub(super) fn scan_statement_flow<'a, E>(
     // binding, movable root, and any field-read alias class; the
     // predicate alone decides the field declaration and result class.
     local_field_read: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        Option<&str>,
-        &str,
-    ) -> Result<Option<LocalFieldReadResultV1>, E>,
+        &[LocalFieldReadRequestV1],
+        bool,
+    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<bool, E> {
     let function = input.function();
     for index in 0..body.statements().len() {
@@ -171,12 +167,7 @@ pub(super) fn scan_statement_flow<'a, E>(
             // A self-rooted `me.<field> = <rhs>` write with a Home-neutral
             // RHS is covered without ledger rows — the raw lane already
             // owns the plain `FieldSet` emission.
-            if field_write::observe_receiver_field_write(
-                input,
-                &statement,
-                locals,
-                scalar_field,
-            )? {
+            if field_write::observe_receiver_field_write(input, &statement, locals, scalar_field)? {
                 continue;
             }
             // A `me.<ArrayBox field>.m(..)` statement whose manifest row
@@ -447,11 +438,15 @@ pub(super) fn scan_statement_flow<'a, E>(
                                                         // constructed object; the frame's
                                                         // exit obligation ends at this
                                                         // edge.
-                                                        SelectedNewArgumentKindV1::Local { binding }
-                                                        | SelectedNewArgumentKindV1::Handle { binding }
-                                                        | SelectedNewArgumentKindV1::BoundValue { binding }
-                                                            if homes.contains(&binding) =>
-                                                        {
+                                                        SelectedNewArgumentKindV1::Local {
+                                                            binding,
+                                                        }
+                                                        | SelectedNewArgumentKindV1::Handle {
+                                                            binding,
+                                                        }
+                                                        | SelectedNewArgumentKindV1::BoundValue {
+                                                            binding,
+                                                        } if homes.contains(&binding) => {
                                                             moved_arguments.push(binding);
                                                         }
                                                         _ => {}
@@ -563,12 +558,9 @@ pub(super) fn scan_statement_flow<'a, E>(
                     _ => locals.install_bound_value(binding),
                 }
                 continue;
-            } else if let Some(result) = field_read::observe_local_field_read(
-                input,
-                site,
-                locals,
-                local_field_read,
-            )? {
+            } else if let Some(result) =
+                field_read::observe_local_field_read(input, site, locals, local_field_read)?
+            {
                 // A proven `receiver.field` initializer binds by its
                 // declared result class — numeric scalars are trivial,
                 // ordinary-box results are borrowed field aliases that
@@ -581,9 +573,23 @@ pub(super) fn scan_statement_flow<'a, E>(
                         );
                     }
                     field_read::LocalFieldReadResultV1::Alias(class) => {
-                        locals.install_field_alias(binding, class);
+                        let Some(request) = field_read::field_read_request(input, site, locals)
+                        else {
+                            unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+                            continue;
+                        };
+                        locals.install_field_alias(binding, class, request.home);
                     }
                 }
+                continue;
+            } else if let Some(kind) = scalar_expression::observe_scalar_expression(
+                input,
+                site,
+                locals,
+                None,
+                local_field_read,
+            )? {
+                locals.install_scalar_call_result(binding, kind);
                 continue;
             } else {
                 locals.install_inventoried_call_result(binding, site);

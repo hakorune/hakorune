@@ -76,13 +76,9 @@ fn walk_branch<'a, E>(
         &str,
     ) -> Result<bool, E>,
     local_field_read: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        Option<&str>,
-        &str,
-    ) -> Result<Option<LocalFieldReadResultV1>, E>,
+        &[LocalFieldReadRequestV1],
+        bool,
+    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<BranchPath<'a>, E> {
     path.terminated = super::scan::scan_statement_flow(
         input,
@@ -201,13 +197,9 @@ pub(super) fn observe_if_statement<'a, E>(
         &str,
     ) -> Result<bool, E>,
     local_field_read: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        Option<&str>,
-        &str,
-    ) -> Result<Option<LocalFieldReadResultV1>, E>,
+        &[LocalFieldReadRequestV1],
+        bool,
+    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<bool, E> {
     let bundle = match input.function().if_region_bundle(statement.site()) {
         Ok(bundle) => bundle,
@@ -241,6 +233,28 @@ pub(super) fn observe_if_statement<'a, E>(
         return Ok(false);
     }
     if subtree_has_map_literal(input, statement) {
+        unavailable.get_or_insert_with(|| {
+            HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
+        });
+        return Ok(false);
+    }
+    let Ok(condition) = input
+        .source()
+        .child_expr_from_stmt(statement, ExprChildRoleV1::IfCondition)
+    else {
+        unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+        return Ok(false);
+    };
+    if scalar_expression::contains_field_request(input, condition.site(), locals)
+        && scalar_expression::observe_scalar_expression(
+            input,
+            condition.site(),
+            locals,
+            Some(SourceScalarKind::Bool),
+            local_field_read,
+        )?
+        .is_none()
+    {
         unavailable.get_or_insert_with(|| {
             HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
         });
