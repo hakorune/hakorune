@@ -600,3 +600,51 @@ existing continuation owners, with source result preparation available before
 that walk rather than cyclically reading the completed ledger. Close every
 selected local/discard/return/nested incoming, then physical/C use closure and
 Normal/Fault EXE; do not substitute a local-only accepted corpus for that scope.
+
+### S0 source-result preparation timing T0
+
+Decision: prepare the existing owner-keyed source-result Result map immediately
+after borrowed ingress preparation, before either prefix walk. Move that same
+map into the existing ledger at final installation. This is an invariant timing
+refactor: source_result reads only the immutable source loan, declarations and
+verified explicit return sites; it does not need caller-flow or final Completion.
+Keep per-owner Err pending, contract_corroborated false until the existing final
+result cohort checks it, and source Err ahead of result demand. Do not arm a
+continuation, change the strict lexical predicate or activate an ABI here.
+Acceptance: existing borrowed source/result negatives and full ordinary co-seal
+regression; unchanged named lib failure set. Read-only worker confirmed these
+dependencies. Subsequent caller connection still closes all four incoming shapes
+and the real tagged consumer in the same S0 series.
+
+Next caller connection order (read-only consumer audit, 2026-10-02):
+1. Move the probe invocation into the existing source-claim child before adding
+   to the 758-line issuer; keep readiness, explicit exits and error staging.
+2. Project the same callback actuals into neutral existing call-flow arguments;
+   package domain/formal authority stays in the same ledger. Preserve exact
+   source-I64 result proof, all argument sites and live roots in both walks.
+3. Local/nested use the existing lexical disposition/emitter; nested instructions
+   join the outer binding group. Discard needs an explicit destination in the
+   existing continuation inventory and per-exit coverage, never a fake local.
+4. Resolve terminal affine ownership before emission: current root-instance
+   terminal and lexical lender have different Taken rows. Do not consume both
+   or pass one as the other's proof. Extend the existing root-exit handoff and
+   validation to the same selected source/actual/result row; changing terminal
+   arguments alone cannot close this path (old emitter passes empty arguments).
+5. Prove all four shape consumers and complete incoming coverage before tagged
+   carrier activation; then physical/C closure and Normal/Fault EXE acceptance.
+
+Timing T0 receipt (2026-10-02): ordinary co-seal 121/121 and borrowed_formal
+59/59 PASS. Named complete lib observation is 8217/127/56, inventory 8400
+unchanged; the sole extra failure is the previously recorded nullable receiver
+ordinary-membership-drift flake, with no baseline failure removed. Direct
+baseline verifier and a final captured verifier also report summary drift;
+final captured failure names confirm that same sole extra. The exact nullable
+test passes standalone. These full runs are not PASS and the manifest is not
+expanded. No unclassified/current-change failure remains; stable baseline receipt
+for this refactor is not claimed. Initial helper visibility compilation errors
+were corrected before the passing focused runs.
+Private result/lexical child rustfmt checks, diff and pointer PASS. Qualified
+scope guard still rejects untouched brand_catalog_tests.rs=961, without waiver.
+Issuer 758, result child 163 and lexical parent 342 remain below hard stop.
+The same pending Result map now precedes both walks and moves into the ledger;
+caller continuations, physical/C consumers, ABI activation and S0 remain open.

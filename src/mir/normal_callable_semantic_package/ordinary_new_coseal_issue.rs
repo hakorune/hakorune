@@ -140,6 +140,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         app_main_batch_slot,
         dynamic_slot,
     );
+    let borrowed_i64_results = super::lexical_instance_call::prepare_borrowed_i64_results_v1(
+        &borrowed_formal_source, batch, parameter_contracts,
+    );
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
@@ -737,8 +740,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.install_borrowed_formal_preparation_v1(
         borrowed_formal_source,
         borrowed_formal_actuals,
-        batch,
-        parameter_contracts,
+        borrowed_i64_results,
     );
     ledger.receiver_call_observations = receiver_call_observations;
     ledger.field_write_claims = field_write_claims;

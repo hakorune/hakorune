@@ -6,7 +6,7 @@ use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use crate::mir::resolved_semantics::{ResolvedLiteralSourceV1, SourceBindingSiteV1};
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct BorrowedI64ResultSourceV1 {
@@ -83,22 +83,35 @@ fn source_result(
         .map_err(|_| freeze("borrowed-result/source-loan"))?
 }
 
+// Prepare from the same source loan before either prefix walk. Move this
+// projection into the existing ledger afterwards; never resolve it again
+// from an already completed caller flow.
+pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_i64_results_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+) -> BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>> {
+    match source {
+        Ok(rows) => rows
+            .definitions
+            .keys()
+            .map(|owner| (*owner, source_result(batch, contracts, *owner)))
+            .collect(),
+        // The source Err itself remains in the ledger and is demanded before
+        // any result projection. An empty map does not grant permission.
+        Err(_) => BTreeMap::new(),
+    }
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn install_borrowed_formal_preparation_v1(
         &mut self,
         source: Result<PreparedBorrowedFormalIngressV1, String>,
         mut actuals: PendingBorrowedFormalActualsV1,
-        batch: &VerifiedResolvedCallableSemanticBatchV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        results: BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
     ) {
         super::borrowed_formal_actuals::finish_borrowed_call_actuals_v1(&source, &mut actuals);
-        if let Ok(rows) = &source {
-            self.borrowed_i64_results = rows
-                .definitions
-                .keys()
-                .map(|owner| (*owner, source_result(batch, contracts, *owner)))
-                .collect();
-        }
+        self.borrowed_i64_results = results;
         self.borrowed_formal_source = Some(source);
         self.borrowed_formal_actuals = actuals;
     }

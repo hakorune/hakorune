@@ -157,7 +157,9 @@ mod borrowed_formal_actuals;
 
 #[path = "ordinary_new_borrowed_formal_result.rs"]
 mod borrowed_formal_result;
-pub(super) use borrowed_formal_result::BorrowedI64ResultSourceV1;
+pub(super) use borrowed_formal_result::{
+    prepare_borrowed_i64_results_v1, BorrowedI64ResultSourceV1,
+};
 
 #[path = "ordinary_new_borrowed_formal_entry.rs"]
 mod borrowed_formal_entry;
