@@ -826,3 +826,82 @@ Next: `MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-D0` —
 bundle slice 6: argumented instance calls (`heap.allocate(8)`,
 `heap.release(h)`); 0-arg i64 instance calls already compile, this
 slice designs the scalar-argument claim surface.
+
+## Decision — MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-D0 (accepted)
+
+```text
+Decision: admit `local x = recv.m(args)` — lexical-receiver instance
+          calls whose sealed callee is an `InstanceBoxMethod` with an
+          `I64` result — as non-lifecycle local-call claims. Census
+          (worker + fixture probes): no predicate admits an i64-result
+          lexical-receiver call today — `terminal_call`'s instance arm
+          is terminal-only and 0-arity, the I64 `issue_local_call` lane
+          requires `direct_call_observations` (method calls are never
+          there), and the site falls to
+          `install_inventoried_call_result` + soft `PrefixNotCovered`,
+          letting the generic/dynamic member route emit an unowned
+          Invoke (debug builds then panic in return_type_strategy for
+          `return r`). The semantic gap is the claim row, not physical
+          machinery: `LexicalInstanceCallDispositionRowV1` already
+          proves receiver class + unique InstanceBoxMethod target +
+          callee result kind, and `emit_canonical_instance_call_at_v1`
+          / the lexical Invoke emitters already take `Vec<ValueId>`.
+Source authority + canonical issuer: `LexicalInstanceCallDispositionRowV1`
+          (`ordinary_new_lexical_instance_call.rs`, minted at
+          issuer.rs) is the sole membership authority — claim-local or
+          parameter-proven receiver class -> unique
+          `InstanceBoxMethod` target -> callee's uniform result kind
+          `Some(I64)`; the row already carries `argument_sites`. The
+          flow-side issuer corroborates `Lexical(Local)` receiver
+          against the method-call inventory and seals every argument
+          via `PrefixLocalFlow::observe` — Integer/Bool literals or
+          `TrivialLocal` scalar bindings — while the callee's
+          `parameter_contracts` (`ExactTrivial(I64)` formals, the same
+          proof `lexical_handle_result_call` uses) supply the required
+          i64 ordinals. Sole claim product:
+          `LocalCallObservationV1{result: I64}` +
+          `install_i64_call_result`, `path_calls` membership; no Home,
+          no ledger row beyond the shared observation, no lifecycle
+          site change.
+Non-authority: `terminal_call`'s app-main 0-arg instance arm (keeps
+          its terminal-relation duty), `direct_call_observations`,
+          receiver-name spelling guesses, the dynamic member route
+          (it must never re-emit an armed site once the lifecycle gate
+          takes it), `me.m(..)` receiver calls (nullable route),
+          `me.<field>.m(..)` (manifest lane), `QualifiedUnbound`
+          (static lane).
+Fail-fast boundary: non-`Lexical(Local)` receivers, non-`I64`
+          dispositions, unproven receiver class, non-unique targets,
+          any callee formal not `ExactTrivial(I64)`, and any argument
+          that is not an Integer/Bool literal or scalar `TrivialLocal`
+          all keep `PrefixNotCovered` — Handle/BoundValue/map/home/
+          nested-call args are explicitly out. Emission honors the
+          Handle-lane co-seal contract: caller-side observation and
+          disposition row must agree on target and result class; a
+          half-sealed edge freezes.
+Smallest next slice: STATIC claim S0 shape reused —
+          `INSTANCE-CALL-SCALAR-ARG-S0`: an issuer predicate consulting
+          `lexical_instance_calls` + callee parameter contracts (all
+          formals `ExactTrivial(I64)` required for the claim), an
+          `issue_lexical_local_call`-style flow issuer producing
+          `LocalCallObservationV1{I64}` with `LocalCallArgumentV1`
+          rows, and a symmetric Standard-route emit gate
+          (observation + `take_lexical_instance_call` result==I64 +
+          selector agreement -> `Invoke{SameModuleInstance, I64}` with
+          materialized args; the dst value is registered I64 so
+          `return r` type-checks). Positive pin: `local r =
+          pool.allocate(8)` inside `main`/`run`; negatives: non-I64
+          callee, handle-typed formal (`release(h)`), map/home arg,
+          unproven receiver.
+Non-claims: `heap.release(h)` and any handle-argument call need a
+          consume-vs-borrow contract from source — a separate D0 (the
+          `new`-arg `moved_arguments` move is the existing precedent,
+          but no call-argument analog exists). Arg-position calls
+          (`handles.push(heap.allocate(8))`) stay with
+          CALL-RESULT-ARG-POSITION. `return recv.m()` terminal-forwarded
+          results stay with FORWARDED-RESULT. No `me.m(..)` route
+          change, no new ownership product, no app-level completion
+          claim.
+```
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-S0

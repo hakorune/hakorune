@@ -1,7 +1,7 @@
 date = "2026-10-01"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-D0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -43,11 +43,20 @@ walk share the same predicate and parameter contracts. No Invoke, no
 ledger row, no lifecycle site; existing `Call{Callee::Global}` stays
 the sole emitter. mimalloc-lite emit frontier remains the pinned
 `emission-binding-drift` gate downstream of the claim lane.
-Next: APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-D0.
+INSTANCE-CALL-SCALAR-ARG-D0 accepted: lexical-receiver i64 instance
+calls have no flow claim today (soft PrefixNotCovered -> unowned
+dynamic-route Invoke); `LexicalInstanceCallDispositionRowV1` is the
+sole membership authority. S0 adds an issuer predicate (disposition
+row + all callee formals `ExactTrivial(I64)`), a
+`LocalCallObservationV1{I64}` issuer with `LocalCallArgumentV1`
+sealing, and a symmetric Standard-route emit gate producing
+`Invoke{SameModuleInstance, I64}`. Handle-arg calls
+(`heap.release(h)`) are a separate consume/borrow D0.
+Next: APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-S0.
 """
-next_design_card = "mimalloc-lite bundle slice 6 design: scalar-argument claim surface for argumented instance calls (heap.allocate(8), heap.release(h))"
+next_design_card = "mimalloc-lite bundle slice 6 implementation: lexical-receiver i64 instance calls claim via LexicalInstanceCallDispositionRowV1 + same-route Invoke emit gate"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-D0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
