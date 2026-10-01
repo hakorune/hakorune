@@ -31,6 +31,47 @@ impl OrdinaryNewClaimLedgerV1 {
         let call = self
             .handle_call_source(site)
             .ok_or_else(|| freeze("handle-call-source-missing"))?;
+        self.prior_home_unwind(call)
+            .ok_or_else(|| freeze("handle-call-prior-home-unavailable"))
+    }
+
+    /// The sealed i64-result lexical instance call at this expression
+    /// site: the caller-side scan minted the claim only for a claim-local
+    /// receiver whose selected callee returns only literals — the minted
+    /// disposition row corroborates `I64` at emission.
+    pub(crate) fn lexical_i64_call_source(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Option<&LocalCallObservationV1> {
+        self.completion_for_owner(site.owner())
+            .and_then(|c| c.cleanup().root_flow())
+            .and_then(|flow| {
+                flow.local_calls().iter().find(|call| {
+                    call.site() == site
+                        && call.owner() == site.owner()
+                        && call.result() == LocalCallResultClassV1::I64
+                })
+            })
+    }
+
+    /// Prior-home unwind operands for an i64-result lexical instance
+    /// call's fault landing — the same newest-first live-Home chain the
+    /// Handle lane emits; the receiver stays a live prior Home.
+    pub(crate) fn lexical_i64_call_prior_home_unwind(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Result<Vec<InvokeOperation>, String> {
+        let call = self
+            .lexical_i64_call_source(site)
+            .ok_or_else(|| freeze("lexical-i64-call-source-missing"))?;
+        self.prior_home_unwind(call)
+            .ok_or_else(|| freeze("lexical-i64-call-prior-home-unavailable"))
+    }
+
+    /// Shared newest-first live-Home unwind for one sealed local-call
+    /// observation — `None` when any prior Home lost its installed row or
+    /// end operations, which the caller names per lane.
+    fn prior_home_unwind(&self, call: &LocalCallObservationV1) -> Option<Vec<InvokeOperation>> {
         let rows = self.local_commits.borrow();
         let mut operations = Vec::new();
         for binding in call.prior_homes().iter().rev() {
@@ -38,10 +79,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 Ok(row) if row.end_available() => {
                     operations.extend(row.end_operations());
                 }
-                _ => return Err(freeze("handle-call-prior-home-unavailable")),
+                _ => return None,
             }
         }
-        Ok(operations)
+        Some(operations)
     }
 
     /// The sealed nullable-result receiver call at this expression site:

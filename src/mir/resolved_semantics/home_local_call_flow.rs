@@ -7,7 +7,7 @@
 
 use super::local_flow::{OrdinaryObservation, PrefixLocalFlow, SourceScalarKind};
 use super::{
-    BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLiteralSourceV1,
+    BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
     ResolvedMethodCallReceiverSourceV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -251,6 +251,67 @@ pub(crate) fn issue_qualified_static_local_call<E>(
         {
             return Ok(None);
         }
+        arguments.push(row);
+    }
+    Ok(Some(LocalCallObservationV1::issue(
+        input.owner(),
+        statement.clone(),
+        site.clone(),
+        declaration,
+        destination,
+        prior_homes.iter().copied().collect(),
+        arguments.into_boxed_slice(),
+        LocalCallResultClassV1::I64,
+    )))
+}
+
+/// Issue one `local x = recv.m(..)` lexical instance-call continuation
+/// whose uniquely selected callee's every verified value-return is a
+/// literal — the package predicate is the sole membership authority, and
+/// the disposition row's co-sealed `I64` result is corroborated at
+/// emission. Every argument must seal to i64-class evidence: the admitted
+/// callee's formals are all `ExactTrivial(I64)`, so a Bool literal, a
+/// non-integer scalar, a handle, or an unproven shape keeps the site
+/// unclaimed.
+pub(crate) fn issue_lexical_i64_local_call<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &SourceStmtSiteV1,
+    site: &OwnedExprSiteV1,
+    declaration: SourceBindingSiteV1,
+    destination: BindingRefV1,
+    prior_homes: &[BindingRefV1],
+    locals: &PrefixLocalFlow<'_>,
+    is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+) -> Result<Option<LocalCallObservationV1>, E> {
+    if !is_selected_call(site)? {
+        return Ok(None);
+    }
+    let Some((observed_site, call)) = input
+        .function()
+        .method_calls()
+        .find(|(observed_site, _)| *observed_site == site.site())
+    else {
+        return Ok(None);
+    };
+    if observed_site != site.site()
+        || !matches!(
+            call.receiver(),
+            ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
+                if binding.owner() == input.owner()
+        )
+    {
+        return Ok(None);
+    }
+    let mut arguments = Vec::with_capacity(call.arguments().len());
+    for argument in call.arguments() {
+        let row = match locals.observe(argument.site()) {
+            Some(OrdinaryObservation::Integer(value)) => LocalCallArgumentV1::Integer(value),
+            Some(OrdinaryObservation::TrivialLocal(
+                binding,
+                Some(SourceScalarKind::Integer),
+            )) => LocalCallArgumentV1::Scalar(binding),
+            _ => return Ok(None),
+        };
         arguments.push(row);
     }
     Ok(Some(LocalCallObservationV1::issue(

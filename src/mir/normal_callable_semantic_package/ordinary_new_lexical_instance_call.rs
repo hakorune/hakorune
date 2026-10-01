@@ -229,13 +229,16 @@ impl OrdinaryNewClaimLedgerV1 {
             // over the same sealed facts: a caller-minted Handle local-call
             // observation must be matched by a callee-side `Value(
             // Construction)` terminal, an unannotated declared result, and a
-            // `callable_result_classes` claim. Any half-sealed edge freezes.
+            // `callable_result_classes` claim; a caller-minted i64
+            // observation must be matched by literal-return relations that
+            // uniformly classify `I64`. Any half-sealed edge freezes.
             let callee_result = super::super::direct_call_loan::lifecycle::uniform_call_result_kind(
                 self.terminal_relations_for_owner(callee_owner).into_iter(),
             );
             let handle_observation = self.handle_call_source(&call_site).is_some();
-            let result = match (handle_observation, callee_result) {
-                (true, Some(InvokeCallResultKind::Handle))
+            let scalar_observation = self.lexical_i64_call_source(&call_site).is_some();
+            let result = match (handle_observation, scalar_observation, callee_result) {
+                (true, false, Some(InvokeCallResultKind::Handle))
                     if results
                         .row(target_batch_slot)
                         .and_then(|row| row.result())
@@ -244,8 +247,19 @@ impl OrdinaryNewClaimLedgerV1 {
                 {
                     Some(InvokeCallResultKind::Handle)
                 }
-                (true, _) => return Err(freeze("lexical-instance-call/handle-result-mismatch")),
-                (false, other) => other,
+                (true, ..) => {
+                    return Err(freeze("lexical-instance-call/handle-result-mismatch"))
+                }
+                // The observation owes the lifecycle lane: route the site
+                // so the emitter's binding-group expectation covers it.
+                (false, true, Some(InvokeCallResultKind::I64)) => {
+                    self.record_lifecycle_local_call_site(need.owner, call_site.clone());
+                    Some(InvokeCallResultKind::I64)
+                }
+                (false, true, _) => {
+                    return Err(freeze("lexical-instance-call/i64-result-mismatch"))
+                }
+                (false, false, other) => other,
             };
             let mut rows = self.lexical_instance_calls.borrow_mut();
             if rows

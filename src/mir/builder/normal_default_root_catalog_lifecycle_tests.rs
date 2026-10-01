@@ -1009,3 +1009,79 @@ static box OwMoveMain {
         "the moved `new` argument owes a release only on the sibling exit"
     );
 }
+
+/// `local r = pool.allocate(8)` — a claim-local lexical receiver call
+/// whose callee returns an exact-`i64` scalar — lowers through the
+/// lexical lifecycle lane: the Standard-route gate corroborates the
+/// sealed observation with the minted disposition row and emits
+/// `Invoke{SameModuleInstance, I64}` — the receiver rides the callee's
+/// `me` slot outside the source arguments, the literal `8` materializes
+/// inside them, and the bound result is registered `Integer` so the
+/// terminal `return r` type-checks.
+#[test]
+fn lexical_i64_instance_call_emits_lifecycle_invoke() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        r#"
+box Pool {
+    birth() { }
+    allocate(size: i64): i64 { return size }
+}
+static box Main {
+    main() {
+        local pool = new Pool()
+        local r = pool.allocate(8)
+        return r
+    }
+}
+"#,
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("lexical i64 instance call must lower");
+    let (_, module, _) = completed.into_parts();
+    let main = module
+        .functions
+        .iter()
+        .find(|(_, function)| function.signature.name == "main")
+        .map(|(_, function)| function)
+        .expect("lowered main function");
+    let invokes: Vec<_> = main
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Invoke {
+                operation:
+                    crate::mir::instruction::InvokeOperation::Call { call, result },
+                ..
+            } => Some((call, *result)),
+            _ => None,
+        })
+        .collect();
+    let (call, result) = invokes
+        .iter()
+        .find(|(call, _)| {
+            matches!(
+                &call.callee,
+                crate::mir::Callee::SameModuleInstance { key, .. }
+                    if key.namespace()
+                        == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                        && key.owner() == "Pool"
+                        && key.name() == "allocate"
+                        && key.arity() == 1
+            )
+        })
+        .expect("lexical i64 instance invoke");
+    assert_eq!(*result, crate::mir::instruction::InvokeCallResultKind::I64);
+    assert_eq!(
+        call.args.len(),
+        1,
+        "the literal argument materializes inside the source args"
+    );
+}

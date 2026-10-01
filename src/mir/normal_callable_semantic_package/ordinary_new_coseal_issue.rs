@@ -41,7 +41,7 @@ use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
 #[path = "ordinary_new_coseal_issue_lexical.rs"]
 mod lexical;
-use lexical::lexical_handle_result_call;
+use lexical::{lexical_handle_result_call, lexical_i64_result_call};
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_cohort_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -340,6 +340,17 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
                             .flat_map(|row| row.parameters.iter())
                             .map(|row| (row.ordinal, row.binding, row.kind)),
+                        &mut |site| {
+                            Ok::<_, OrdinaryNewCoSealIssueV1>(lexical_i64_result_call(
+                                selected,
+                                batch,
+                                parameter_contracts,
+                                &callable_result_classes,
+                                &candidates,
+                                input,
+                                site,
+                            ))
+                        },
                         &mut local_static_call,
                         &mut |_: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
                             terminal_home::initialized_integer_field(
@@ -505,6 +516,20 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 selected,
                                 batch,
                                 parameter_contracts,
+                                &candidates,
+                                input,
+                                site,
+                            ))
+                        }, &mut |site| {
+                            // Lexical `recv.m(..)` i64-result membership —
+                            // the claim-local receiver, exact-i64 formals,
+                            // and the literal-only callee exits are all
+                            // proved from sealed facts before the claim.
+                            Ok(lexical_i64_result_call(
+                                selected,
+                                batch,
+                                parameter_contracts,
+                                &callable_result_classes,
                                 &candidates,
                                 input,
                                 site,

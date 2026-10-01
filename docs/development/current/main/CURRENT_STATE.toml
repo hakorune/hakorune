@@ -1,7 +1,7 @@
 date = "2026-10-01"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-S0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -33,30 +33,26 @@ Integer/Bool/scalar-Local args, emit `new_box` + `birth_call` +
 reclaim/discharge jump landings, and publish through physical JSON +
 Lifecycle V4 + LLVM C API (fixture apps/user-object-field-init-min
 runs `Result: 0`).
-STATIC-CALL-CLAIM-S0 landed: `QualifiedStaticCallClaimIndexV1`
-composes the sealed import-alias view + whole-source static target
-inventory + result solver into a (caller, site) membership map;
-`issue_qualified_static_local_call` admits `local x = Alias.m(..)` as
-`LocalCallObservationV1{I64}` with Integer/Bool/scalar-Local argument
-sealing and callee-required i64 ordinal checks. Probe and verified
-walk share the same predicate and parameter contracts. No Invoke, no
-ledger row, no lifecycle site; existing `Call{Callee::Global}` stays
-the sole emitter. mimalloc-lite emit frontier remains the pinned
-`emission-binding-drift` gate downstream of the claim lane.
-INSTANCE-CALL-SCALAR-ARG-D0 accepted: lexical-receiver i64 instance
-calls have no flow claim today (soft PrefixNotCovered -> unowned
-dynamic-route Invoke); `LexicalInstanceCallDispositionRowV1` is the
-sole membership authority. S0 adds an issuer predicate (disposition
-row + all callee formals `ExactTrivial(I64)`), a
-`LocalCallObservationV1{I64}` issuer with `LocalCallArgumentV1`
-sealing, and a symmetric Standard-route emit gate producing
-`Invoke{SameModuleInstance, I64}`. Handle-arg calls
-(`heap.release(h)`) are a separate consume/borrow D0.
-Next: APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-S0.
+INSTANCE-CALL-SCALAR-ARG-S0 landed end to end:
+`lexical_i64_result_call` proves claim-local receiver + unique
+`InstanceBoxMethod` + all-i64 formals + literal/i64-param value
+returns; `issue_lexical_i64_local_call` mints
+`LocalCallObservationV1{I64}` with sealed scalar argument rows; the
+disposition issuer arms `Some(I64)` and marks the lifecycle
+local-call site; `emit_local_lexical_i64` emits
+`Invoke{SameModuleInstance(InstanceBoxMethod), I64}` from the exact
+lexical receiver binding + shared prior-home unwind, and the dst is
+registered integer so `return r` type-checks. Positive pin
+`local r = pool.allocate(8)`; fail-closed for handle/map/home/nested
+args, non-i64 formals, ambiguous targets, unproven receivers.
+Handle-arg calls (`heap.release(h)`) remain a separate
+consume/borrow D0. mimalloc-lite emit frontier stays the pinned
+`emission-binding-drift` gate downstream.
+Next: APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-D0.
 """
-next_design_card = "mimalloc-lite bundle slice 6 implementation: lexical-receiver i64 instance calls claim via LexicalInstanceCallDispositionRowV1 + same-route Invoke emit gate"
+next_design_card = "mimalloc-lite bundle slice 7 design: call-result argument positions — `handles.push(heap.allocate(8))`, a live Invoke inside a core-method argument"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-S0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-D0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -72,7 +68,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-01: INSTANCE-CALL-SCALAR-ARG-S0 landed — lexical_i64_result_call (claim-local receiver + unique InstanceBoxMethod + all-i64 formals + literal/i64-param value returns) feeds issue_lexical_i64_local_call -> LocalCallObservationV1{I64} with sealed scalar argument rows; disposition issuer mints Some(I64) + lifecycle local-call site; emit_local_lexical_i64 produces Invoke{SameModuleInstance, I64} with exact receiver binding + shared prior-home unwind, dst registered integer so `return r` type-checks. Standard route takes the disposition once and validates selector+result kind; dynamic route never re-emits. heap.release(h) stays a separate consume/borrow D0; mimalloc-lite frontier remains pinned emission-binding-drift. Next: CALL-RESULT-ARG-POSITION-D0.",
   "2026-10-01: STATIC-CALL-CLAIM-S0 landed — QualifiedStaticCallClaimIndexV1 composes sealed import-alias view + static target inventory + result solver into (caller, site) claims; issue_qualified_static_local_call admits `local x = Alias.m(..)` as LocalCallObservationV1{I64} with Integer/Bool/scalar-Local argument sealing and required-i64 ordinal checks; probe and verified walk share one predicate + parameter contracts (probe was iter::empty). No Invoke/ledger/lifecycle row; Call{Callee::Global} stays sole emitter. LocalCallArgumentV1 enum widens the arguments field; lexical-handle emitter fails closed on non-Integer. mimalloc-lite emit frontier stays the pinned emission-binding-drift gate downstream. Next: INSTANCE-CALL-SCALAR-ARG-D0.",
   "2026-10-01: FIELD-INIT-USER-NEW-S0 landed — user-class provider `new` field initializers admit PlainI64NoHook children (exact membership, non-self, declared==provider class) with sealed Integer/Bool/scalar-Local args; emit NewBox+birth_call+ObjectFieldSet under the shared fault frame with dedicated reclaim/discharge jump landings; provider_births ledger lane folds actuals into FinalizedBirthActualsV1; BirthUnit caller role opened for birth_call publication; C flow/validator/emit admit the birth-unit ops. Fixture apps/user-object-field-init-min compiles via Lifecycle V4 + LLVM C API and runs Result: 0. Next: STATIC-CALL-CLAIM-D0.",
-  "2026-10-01: DESTRUCTION-OBJECT-FIELD-S0 landed — OwnedObjectFieldsNoHook disposition + membership-gated Handle storage + typed OwnedFieldChildV1 (Array|Object) across coseal/end_plan/reclaim/fault chains; field-write claims record the exact written class and object children require declared==written + PlainI64NoHook + non-self. Invoke OwnedObjectFieldRelease threaded through verifier/graph/emission/ABI/JSON (`object_field_release` exact keys) and C validator+indexed-flow+emit (checked_field_get_i64_v1 + home_release_plain_i64_v1 with child type id). Claim/verification/wire green; physical positive stays deferred to FIELD-INIT-USER-NEW-S0 by design. Next: FIELD-INIT-USER-NEW-S0.",
   ]

@@ -41,6 +41,10 @@ pub(super) fn scan_statement_flow<'a, E>(
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    // The issuer's lexical instance-call membership for the exact-i64
+    // result lane — `local x = recv.m(..)` sites whose uniquely selected
+    // callee returns only literals carry an `I64` local-call claim.
+    local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     // The issuer's qualified static-box call membership — `local x =
     // Alias.m(..)` sites sealed `ExactI64` join the I64 lane as ordinary
@@ -133,6 +137,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 terminal_call,
                 local_map_call,
                 local_handle_call,
+                local_lexical_i64_call,
                 local_nullable_call,
                 local_static_call,
                 argument_i64_field,
@@ -248,6 +253,24 @@ pub(super) fn scan_statement_flow<'a, E>(
                 &homes,
                 locals,
                 local_static_call,
+            )? {
+                path_calls.insert(local_call.site().clone());
+                local_calls.push(local_call);
+                locals.install_i64_call_result(binding);
+                continue;
+            }
+            // Lexical-receiver `recv.m(..)` calls whose selected callee
+            // returns only literals join the same I64 lane — the package
+            // predicate names the membership, the flow seals the arguments.
+            if let Some(local_call) = local_call_flow::issue_lexical_i64_local_call(
+                input,
+                statement.site(),
+                &owned,
+                declaration.clone(),
+                binding,
+                &homes,
+                locals,
+                local_lexical_i64_call,
             )? {
                 path_calls.insert(local_call.site().clone());
                 local_calls.push(local_call);

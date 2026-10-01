@@ -905,3 +905,64 @@ Non-claims: `heap.release(h)` and any handle-argument call need a
 ```
 
 Next: MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-S0
+
+## S0 landed — MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-S0
+
+Landed as designed — one claim lane, one disposition arm, one emit
+gate; no new ownership product and no semantic scope beyond the D0:
+
+- `lexical_i64_result_call`
+  (`ordinary_new_coseal_issue_lexical.rs`) is the package-injected
+  predicate: lexical `Local` receiver whose owner-local binding is
+  not rebound, exactly one initializer tied to an ordinary-new
+  claim, unique selected `InstanceBoxMethod`, all callee formals
+  `ExactTrivial(I64)`, no callable result-class claim
+  (Handle/Nullable/Object), and every verified value-return site is
+  literal/scalar-compatible — `return <i64 formal>` is admitted via
+  the callee's own parameter contract.
+- `issue_lexical_i64_local_call` (`home_local_call_flow.rs`)
+  corroborates the receiver binding against the method-call
+  inventory and seals each argument via `PrefixLocalFlow::observe`
+  — Integer literals or scalar local bindings only. Sole product:
+  `LocalCallObservationV1{result: I64, arguments: sealed rows}`.
+- Disposition issuer arm
+  (`ordinary_new_lexical_instance_call.rs`): an i64 observation +
+  uniform i64 callee result mints
+  `Some(InvokeCallResultKind::I64)` and records the site as a
+  lifecycle local-call site for root binding accounting; a
+  mismatched result class fails closed.
+- `emit_local_lexical_i64` (`terminal_call.rs`): requires the I64
+  disposition + sealed observation; receiver must appear in prior
+  Homes and is materialized from the exact lexical binding, args
+  from sealed rows zipped with exact `argument_sites`; emits
+  `Invoke{Call, SameModuleInstance(InstanceBoxMethod), I64}`, runs
+  the newest-first prior-home unwind (shared with the Handle lane
+  in `handle_call.rs`), registers the dst as integer, and records
+  root local-call bindings.
+- Standard-route dispatch (`direct_call_disposition_port.rs`)
+  consults Handle and i64 lexical observations together, takes the
+  disposition exactly once, validates selector + result kind, then
+  hands off to the matching emitter — the dynamic member route
+  never re-emits an armed site.
+- Predicate threading mirrors the static-claim S0: verified walk
+  and `probing_fields` share the same predicate, bounded siblings
+  stub `Ok(None)`.
+- Focused tests: `lexical_i64_local_call_tests.rs` (6 green —
+  parameter receiver, claim-local receiver, unproven call-result
+  arg/receiver, non-i64/mixed result, one-shot disposition) + an
+  emit-level pin in `normal_default_root_catalog_lifecycle_tests.rs`
+  asserting `Pool.allocate/1` emits
+  `Invoke{SameModuleInstance, I64}` with one scalar argument.
+- Gates: focused `normal_callable_semantic_package` +
+  `resolved_semantics` + lifecycle batches green; the only reds
+  observed are manifest rows 12/64 of
+  `cargo_lib_red_baseline.failures.txt`
+  (`literal-physical-drift`, upstream `ReceiverNonEscape` boundary)
+  — both reproduce identically at the D0 HEAD, no slice regression.
+  App smoke: `apps/mimalloc-lite` still stops at the pinned
+  `emission-binding-drift` frontier — `heap.allocate` is
+  nullable-result and correctly outside this lane (D0 non-claim).
+
+Next: `MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-D0` —
+bundle slice 7: `handles.push(heap.allocate(8))`, a live Invoke
+inside a core-method argument.

@@ -73,35 +73,58 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         };
         let site = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site.clone());
         let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
-        if ledger.handle_call_source(&owned).is_none() {
+        let handle = ledger.handle_call_source(&owned).is_some();
+        let scalar = ledger.lexical_i64_call_source(&owned).is_some();
+        if !handle && !scalar {
             return Ok(None);
         }
-        // The caller-side scan sealed a Handle observation at this site:
-        // the disposition row must exist, agree on the selector, and carry
-        // the same Handle contract. Any half-sealed edge freezes.
+        // The caller-side scan sealed a local-call observation at this
+        // site: the disposition row must exist, agree on the selector, and
+        // carry the same result contract. Any half-sealed edge freezes.
         let Some(row) = ledger.take_lexical_instance_call(owner, &site)? else {
             return Err(
-                "[freeze:contract][lexical-handle/disposition-missing]".to_owned()
+                "[freeze:contract][lexical-instance-call/disposition-missing]".to_owned()
             );
         };
-        if row.result()
-            != Some(crate::mir::instruction::InvokeCallResultKind::Handle)
-            || row.target().name() != method
-        {
-            return Err("[freeze:contract][lexical-handle/result-mismatch]".to_owned());
+        if row.target().name() != method {
+            return Err(
+                "[freeze:contract][lexical-instance-call/target-mismatch]".to_owned()
+            );
+        }
+        let expected = if handle {
+            crate::mir::instruction::InvokeCallResultKind::Handle
+        } else {
+            crate::mir::instruction::InvokeCallResultKind::I64
+        };
+        if row.result() != Some(expected) {
+            return Err(
+                "[freeze:contract][lexical-instance-call/result-mismatch]".to_owned()
+            );
         }
         let state = self
             .callable_ledger
             .as_ref()
-            .ok_or_else(|| "[freeze:contract][lexical-handle/state-missing]".to_owned())?;
-        let value = crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical(
-            builder,
-            &mut state.borrow_mut(),
-            ledger,
-            owner,
-            &site,
-            row,
-        )?;
+            .ok_or_else(|| "[freeze:contract][lexical-instance-call/state-missing]".to_owned())?;
+        let mut state = state.borrow_mut();
+        let value = if handle {
+            crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical(
+                builder,
+                &mut state,
+                ledger,
+                owner,
+                &site,
+                row,
+            )?
+        } else {
+            crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical_i64(
+                builder,
+                &mut state,
+                ledger,
+                owner,
+                &site,
+                row,
+            )?
+        };
         Ok(Some(value))
     }
 

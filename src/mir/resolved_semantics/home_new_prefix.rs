@@ -148,6 +148,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
+        &mut |_| Ok(false),
         &mut |_| Ok(None),
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
@@ -201,6 +202,9 @@ pub(crate) fn scan_new_home_flow<E>(
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_handle_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    // The issuer's lexical instance-call membership for the exact-i64
+    // result lane — `local x = recv.m(..)` on a claim-local `new` binding.
+    local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     // The issuer's qualified static-box call membership: `local x =
     // Alias.m(..)` sites whose sealed target is a `StaticBoxMethod` with an
@@ -338,6 +342,7 @@ pub(crate) fn scan_new_home_flow<E>(
         terminal_call,
         local_map_call,
         local_handle_call,
+        local_lexical_i64_call,
         local_nullable_call,
         local_static_call,
         argument_i64_field,
