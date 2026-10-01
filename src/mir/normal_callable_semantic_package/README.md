@@ -190,7 +190,8 @@ Invoke/ABI consumer is connected; source co-seal is not execution evidence.
 ### S6C and BlockExpr
 
 [The S6C child](s6c_child.rs) is issued inside the same package/batch owner.
-The ordinary source issuer creates New candidates and calls
+The ordinary source issuer uses `collect_local_candidates_v1` in its existing
+source child to create New candidates, then calls
 `verify_function_completion_v1` inside one declaration source loan, moving the
 Completion into the existing private seed cohort. There is no independent seed
 batch walk or second seed source loan. After Dynamic selection, declarations

@@ -1,5 +1,6 @@
 //! Claim-local `recv.m(...)` lexical call probes for the co-seal walk.
 use super::*;
+use crate::mir::resolved_semantics::BindingKindV1;
 
 /// The shared claim-local receiver proof for a `recv.m(...)` local call:
 /// the method-call inventory row at `site` carries a `Lexical(Local)`
@@ -195,8 +196,7 @@ pub(super) fn lexical_i64_result_call(
     else {
         return false;
     };
-    let Some(contract) =
-        all_formals_exact_i64(batch, parameter_contracts, callee_owner, arity)
+    let Some(contract) = all_formals_exact_i64(batch, parameter_contracts, callee_owner, arity)
     else {
         return false;
     };
@@ -208,8 +208,7 @@ pub(super) fn lexical_i64_result_call(
             let Some(shape) = callee_input.body_shape() else {
                 return false;
             };
-            let Some(sites) = super::super::verified_value_return_sites(callee_input, shape)
-            else {
+            let Some(sites) = super::super::verified_value_return_sites(callee_input, shape) else {
                 return false;
             };
             !sites.is_empty()

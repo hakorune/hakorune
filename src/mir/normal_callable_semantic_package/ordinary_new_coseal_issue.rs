@@ -13,9 +13,7 @@ use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use super::candidate::{
     verified_birth_recipe_for_site_v1, OrdinaryNewCandidate, OrdinaryNewSiteResolutionV1,
 };
-use super::coseal_helpers::{
-    convert_selected_new_arguments, is_direct_local_initializer, retain_child_terminal_relation,
-};
+use super::coseal_helpers::{convert_selected_new_arguments, retain_child_terminal_relation};
 use super::{
     field_reads, field_write_claim, receiver_call_observation, result_class_claim, terminal_home,
 };
@@ -33,9 +31,8 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     SelectedNewArgumentUnavailableV1, TerminalRelationV1,
 };
 use crate::mir::resolved_semantics::{
-    BindingKindV1, BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1,
-    SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
-    VerifiedResolvedFunctionV1,
+    BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
+    SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
 };
 use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
@@ -147,37 +144,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let function = input.function();
                 let owner_loan = direct_call_loans.and_then(|loans| loans.get(owner));
                 let entry_home = entry_home_loans.for_batch_slot(batch_slot);
-                let mut candidates = Vec::new();
-                for initializer in function.expression_source().initializers() {
-                    let Some(initializer_site) = initializer.initializer_site() else {
-                        continue;
-                    };
-                    if !is_direct_local_initializer(initializer_site.node().segments()) {
-                        continue;
-                    }
-                    let site = OwnedExprSiteV1::new(owner, initializer_site.clone());
-                    let located = input.source().expr_at(&site).map_err(|_| {
-                        OrdinaryNewCoSealIssueV1::SourceNavigation { site: site.clone() }
-                    })?;
-                    let ASTNode::New { class, arguments, field_initializers, .. } = located.node() else {
-                        continue;
-                    };
-                    if initializer.binding().owner() != owner
-                        || function.declaration_binding(initializer.declaration_site())
-                            != Some(initializer.binding())
-                        || !matches!(function.binding(initializer.binding()).map(|row| row.kind()),
-                            Some(BindingKindV1::Local { .. }))
-                    {
-                        return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site });
-                    }
-                    if let Some(candidate) = OrdinaryNewCandidate::resolve(
-                        batch, instance_constructors, site, class.clone().into_boxed_str(),
-                        arguments.len(), initializer.binding(), initializer.declaration_site().clone(),
-                        !field_initializers.is_empty(),
-                    )? {
-                        candidates.push(candidate);
-                    }
-                }
+                let candidates = source_claims::collect_local_candidates_v1(
+                    batch, instance_constructors, input,
+                )?;
                 // Return-position `new` membership: the construction is the
                 // exact `ReturnValue` child of an inventoried `Return`
                 // statement. Position is checked against the source

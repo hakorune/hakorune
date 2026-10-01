@@ -196,3 +196,29 @@ names; that incomplete transient census is superseded by the captured named
 run, not attributed to a specific known flake or used as PASS evidence.
 Format, field/getter comparison, pointer and diff PASS. No acceptance shape,
 ABI activation or physical deletion claim. Pending S0 code/tests are preserved.
+
+### Source-candidate responsibility extraction T0
+
+Decision: move direct-local candidate discovery into the existing source child
+as collect_local_candidates_v1. The current cohort calls it at exactly the old
+per-declaration point: preflight, Dynamic exclusion, source loan and error
+priority remain unchanged. It produces passive source/constructor identity,
+not a live Home, prefix availability or borrowed ABI authorization. S0 will
+reuse these exact candidates for receiver preparation and the prefix walk;
+this extraction alone does not introduce early cohort discovery or activation.
+Validation: moved-body token comparison, existing lexical and ordinary-New
+co-seal focused regressions, touched rustfmt and pointer/diff checks. Preserve
+uncommitted S0 drafts; commit only the invariant responsibility extraction.
+
+Extraction T0 receipt (2026-10-02): moved candidate-body token comparison
+PASS after normalizing rustfmt's redundant closure block/trailing commas;
+cohort 702 -> 671 lines, source child 499 -> 561. Lexical 29/29 (including
+14 pending S0 tests), ordinary co-seal 78/78 and four exact-name ordering/
+prefix regressions PASS. Two initial module-name filters selected zero tests;
+they are not acceptance and were replaced by nonzero exact-name runs.
+The initial missing child import was a current-change compile failure, fixed
+and retested. Touched rustfmt, bash syntax, pointer and diff PASS. Qualified
+scope pins pass through to the unchanged brand_catalog_tests.rs=961 hard-limit
+debt; the guard is not green and no waiver is added. Full lib baseline was
+not rerun for this invariant extraction; no baseline manifest update. Pending
+S0 drafts remain separate, and ingress/carrier/C/EXE completion remains open.

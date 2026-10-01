@@ -1,10 +1,72 @@
 //! Source-claim preparation and assembly for the ordinary-New cohort.
 //! This private move preserves source loans, claim order and failure boundaries.
+use super::super::coseal_helpers::is_direct_local_initializer;
 use super::super::BirthAbiHandoffV1;
 use super::*;
 use crate::mir::resolved_semantics::home_new_prefix::{
     CallerNewHomePrefixV1, ResultNewHomePrefixV1, SelectedNewArgumentObservationV1,
 };
+use crate::mir::resolved_semantics::BindingKindV1;
+
+/// Discover direct local construction candidates from this exact source loan.
+/// This produces passive class/constructor identity only; prefix availability,
+/// borrowing and lifecycle permission remain the subsequent walk's responsibility.
+pub(super) fn collect_local_candidates_v1(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+) -> Result<Vec<OrdinaryNewCandidate>, OrdinaryNewCoSealIssueV1> {
+    let function = input.function();
+    let owner = input.owner();
+    let mut candidates = Vec::new();
+    for initializer in function.expression_source().initializers() {
+        let Some(initializer_site) = initializer.initializer_site() else {
+            continue;
+        };
+        if !is_direct_local_initializer(initializer_site.node().segments()) {
+            continue;
+        }
+        let site = OwnedExprSiteV1::new(owner, initializer_site.clone());
+        let located = input
+            .source()
+            .expr_at(&site)
+            .map_err(|_| OrdinaryNewCoSealIssueV1::SourceNavigation { site: site.clone() })?;
+        let ASTNode::New {
+            class,
+            arguments,
+            field_initializers,
+            ..
+        } = located.node()
+        else {
+            continue;
+        };
+        if initializer.binding().owner() != owner
+            || function.declaration_binding(initializer.declaration_site())
+                != Some(initializer.binding())
+            || !matches!(
+                function
+                    .binding(initializer.binding())
+                    .map(|row| row.kind()),
+                Some(BindingKindV1::Local { .. })
+            )
+        {
+            return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site });
+        }
+        if let Some(candidate) = OrdinaryNewCandidate::resolve(
+            batch,
+            instance_constructors,
+            site,
+            class.clone().into_boxed_str(),
+            arguments.len(),
+            initializer.binding(),
+            initializer.declaration_site().clone(),
+            !field_initializers.is_empty(),
+        )? {
+            candidates.push(candidate);
+        }
+    }
+    Ok(candidates)
+}
 
 pub(super) fn prepare_source_claims(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
