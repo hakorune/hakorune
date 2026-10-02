@@ -133,12 +133,21 @@ helper/edge deletion, not this design's planned replacement.
 
 ## Remaining task 4 and non-claims
 
-Finite app ingress remains HakoAllocHeap.allocate -> page.allocate at
-page_heap_box.hako:204/208, opaque source parameter ordinal 0. Body(8) ArraySet
-(line 93) still requires retained value/replace/Fault contract; ordered
-I64 + Dynamic and numeric destination (line 96) remain distinct D0 work.
-Existing dynamic Add accepts Dynamic + I64 and its emitter rejects execution;
-this ingress does not reverse operands, extract Integer or activate that lane.
+Finite ingress remains HakoAllocHeap.allocate -> page.allocate, opaque ordinal 0.
+After transport S0, select OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0 before task4 stores/Add:
+1. Pin original allocate `requested_size > me.block_size` site/binding and later uses.
+2. Existing dynamic_operator_contract owner adds Greater/Normal Integer view contract;
+   currently Add/Less result contracts do not issue operand refinement. No new Receipt/Seal.
+3. Prove rhs logical Integer separately from `usize`/U64Bits storage; high unsigned bits
+   cannot select signed icmp. Keep source evaluation/Fault order even if lowering uses Less.
+4. Retain tagged formal; lend view only for same binding/value dominated by compare Normal,
+   on both true/false successors; reject pre-check/Fault/foreign-owner/rebound loans.
+5. Next task4 D0 connects original ArraySet -> ordered Add -> constructor via that view;
+   field usize range checks stay at original write, not parameter ingress. ArraySet retains
+   old-slot cleanup/Fault duties; object borrowing still needs lifetime/retention contracts.
+6. Tests: true/false, nonInteger Fault, -1 late range Fault and prior effects, rebind/dominance.
+Cohort immutable-index optimization is separate BoxShape; retain final mutation checks.
+This is future operation scope; transport S0 still rejects these uses and stays selected.
 Mixed String/call roots and bundle tasks 10-12 remain owed. No app EXE PASS,
 platform/selected-C reopening, all-backend parity or MirBuilder completion claim.
 
@@ -927,31 +936,14 @@ Physical preparation/Call-owner T0 receipts: `49990f8e36` / `dd6cebfee3`; ABI cl
 
 Original packet/source/Copy/Return Decisions and receipts: `38cd4191ce` and its
 referenced predecessors; affine rows stay private, ABI closed.
-Ordinary carrier Decision/implementation/receipt: `18066ef4f8` / `e3e61f8de8`.
-Unknown/Integer are storage, not source authority. Pending stays pending;
-writer/C/all incoming-use/Normal-Fault and selected retirement remain owed.
+Ordinary carrier Decision/receipt: `18066ef4f8` / `e3e61f8de8`; Unknown/Integer storage
+is not authority. Pending, writer/C/Normal-Fault and selected retirement remain owed.
 
-Next incoming/use Decision (same S0, read-only worker): extend existing
-compiled-entry owner after physical program issuance, before ordinary rows publish.
-Use retained caller/block/instruction coordinates in existing ordinary rows. Loan original
-local/Discard/Return/nested packets and entry source/value correspondence through
-existing final handoff visitors; do not clone Taken rows or expose the ledger Rc.
-Original node/producer/Copy -> held FinishedBindings -> unique actual function
-coordinate must agree with source actual ordinal/formal/receiver and Invoke args.
-Use ephemeral coordinate sets for both directions: every original selected
-incoming has exactly one final Invoke, and every Call to a borrowed callee has
-exactly one original incoming. Inspect all Call results/roles before filtering;
-Unit/Handle substitution, hidden callers and duplicate identical Calls reject.
-From original entry values and proved Copies, inspect every actual operand use:
-only original source-proved Copy/borrowed argument positions are allowed. Arithmetic,
-conditions, return/store/capture/rebind and unproved receiver uses remain terminal.
-Metadata selects inspection, never authority. No new semantic inventory or retry.
-Positive/negative: original direct/alias forwarding and four continuations;
-missing/extra incoming, foreign site/ordinal/formal, Copy/tag loss, metadata-only
-spoof, altered result, and profile-out uses. Normal/Fault execution remains required
-later; do not activate tagged payload before final writer/C and full closure.
+Original incoming/entry/Call-coordinate Decisions and receipts: `fc8e403459` /
+`4cbbc86d3a`. Original affine nodes/held Boundary remain authority for both-way
+Call coverage; all results/continuations, no metadata-only proof or hidden caller.
+Full-use/writer/C/Normal-Fault execution and selected retirement remain owed.
 
-Original entry/source/Call-coordinate Decision and classified receipt: `fc8e403459`.
 
 Full-use continuation Decision (same S0, read-only worker): retain original
 borrowed alias local materialization on the existing entry physical record.
@@ -983,11 +975,8 @@ Original optional alias Copies stay outside lifecycle DAG; mandatory dependencie
 or outside uses prevent omission. Same-Boundary coordinates, global definitions,
 all-block operands/return-env and parameter collision remain required; no scan authority.
 Full-use/writer/C/EXE and actual loop mapping remain owed, ABI closed.
-Mandatory-Copy loan Decision (read-only worker, same S0): extend the existing
-original-node visitor with a temporary original Copy/final-coordinate slice.
-Filter own site, deduplicate exact prefixes within a node; Copy coordinates stay
-outside global Invoke uniqueness. Existing Local/Discard/Return lenders demand
-survival, membership, unique definition/no parameter collision; optional omission separate.
+Mandatory-Copy loan Decision/implementation/complete receipt: `f94ede096a`.
+Own-site mandatory loans remain distinct from optional omission and Invoke uniqueness.
 Full-use continuation Decision (read-only worker): private child of existing incoming
 owner joins entry roots/aliases and mandatory loans with exact Forwarded actual positions.
 Use published instruction.index(), not enumeration; inspect module and published defs/uses,
@@ -997,4 +986,15 @@ Sealed BorrowedActual selects original actuals/borrowed callee columns even if m
 is all-I64; pure strict unselected nodes must not demand unrelated borrowed source errors.
 Negative evidence must include metadata loss, wrong arg ordinal, receiver/fault-frame/Phi/
 edge/return/store use, duplicate definition and projection-only leaks. No ABI activation yet.
-Mandatory loan receipt: check lib/tests, visitor 4/4, borrowed 162/162 +4 ignored, full KNOWN BASELINE 8312/126/56 PASS.
+Consumer evidence boundary: original Forwarded source/entry proofs + synthetic physical
+instructions establish operand closure; production emission still stops at borrowed-lender-missing.
+Do not open materialize_with_ledger in the emitter solely for tests. Original production
+success, writer/C/EXE and selected retirement remain required before S0 closes.
+ABI continuation findings (read-only worker, activation closed): ordinary writer actual
+carrier lookup must add callee.has_receiver offset for Borrowed and Map checks.
+Reuse Birth kind/payload parameter/Copy machinery; existing Birth admits kinds 1/2 only.
+Ordinary kind3 needs live typed-handle corroboration; forwarded TAGGED preserves both lanes,
+BorrowForCall consumes no lease/End, and Birth TAGGED field-store permission cannot extend
+into ordinary. Writer 741 lines / C preartifact 793 require responsibility T0 before growth.
+Use consumer receipt: check lib/tests, original-source/synthetic operand tests 5/5, full KNOWN BASELINE 8317/126/56; inventory +5/-0, failure hash unchanged.
+Borrowed regression 167/167 +4 ignored; pointer/diff/shell PASS. Scope guard still rejects untouched brand_catalog_tests.rs=961; no waiver.

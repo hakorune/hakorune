@@ -24,15 +24,16 @@ Planned Ordinary scope installs selected carriers; no global S6C/static-I64
 reinterpretation. Full selected-use closure forbids unproved raw payload uses.
 Closed immediate I64/Bool/typed-object domain and forwarding are BorrowForCall,
 with no callee End; host/boxed domain needs its own producer/lifetime proof.
-Source transport-use/forward/incoming preparation is connected to the existing
-ordinary issuer and final source-target corroboration. Focused 22/22 and ordinary
-co-seal 85/85 PASS; lib receipt 8172/126/56 has the unchanged known failure set.
-Next: both prefix walks prove exact profile/actual liveness, then ordinary entry,
-physical/C consumer and Normal/Fault acceptance. No carrier activation yet.
+Original entry/alias/Call/mandatory-Copy loans join the held physical Boundary.
+Incoming/use consumer now checks exact Forwarded positions and module/published
+use/definition coverage; evidence is original-source plus synthetic instructions.
+Projection-specific mutations and broader continuation positives remain owed.
+Next: complete publication evidence, then writer/C and Normal/Fault acceptance.
+Production emission still stops at borrowed-lender-missing; no carrier activation.
 Retained ArraySet,
 ordered Add/destination, mixed roots and original app EXE remain incomplete.
 """
-next_design_card = "Remaining bundle task 4: retained opaque ArraySet and ordered Add/result-destination contracts after ingress S0."
+next_design_card = "After ingress S0: OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0 in existing operation owner, then task 4 ArraySet/ordered Add/destination; usize range stays at write."
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md"
 next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-FORMAL-INGRESS-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md"

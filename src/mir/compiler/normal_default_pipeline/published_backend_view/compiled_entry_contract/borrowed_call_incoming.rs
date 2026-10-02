@@ -4,6 +4,9 @@ use super::*;
 use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
 use crate::mir::MirModule;
 
+#[path = "borrowed_call_uses.rs"]
+mod borrowed_uses;
+
 pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn verify_borrowed_call_incoming(
     program: &PublishedLifecyclePhysicalProgramV1<'_>,
     module: &MirModule,
@@ -27,13 +30,13 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
             return Err(fault("borrowed-incoming/callee-metadata"));
         }
     }
-    if callees.is_empty() {
-        return Ok(());
-    }
-    let source = program
-        .handoff()
-        .root_source()
-        .ok_or_else(|| fault("borrowed-incoming/source-missing"))?;
+    let Some(source) = program.handoff().root_source() else {
+        return if callees.is_empty() {
+            Ok(())
+        } else {
+            Err(fault("borrowed-incoming/source-missing"))
+        };
+    };
     let mut physical = BTreeMap::new();
     // Inspect every caller and every Call result, including Birth/Unit/Handle.
     for (caller_index, function) in program.functions().iter().enumerate() {
@@ -72,16 +75,25 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
             }
         }
     }
+    let mut uses = borrowed_uses::BorrowedCallUses::default();
     let mut witnessed = BTreeSet::new();
     let mut owners = BTreeMap::new();
     let mut incoming = BTreeSet::new();
     let mut original = BTreeSet::new();
     source.visit_finalized_lexical_call_nodes_v1(
         module,
-        |_, _, packet, _, caller, (block, index), _copies| {
+        |_, _, packet, arguments, caller, (block, index), copies| {
             let row = packet.original_row();
-            let Some(callee) = callees.get(row.target()) else {
+            let selected_source = arguments.iter().any(|argument| matches!(argument,
+                crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::BorrowedActual { .. }));
+            let callee = callees.get(row.target());
+            if !selected_source && callee.is_none() {
                 return Ok(());
+            }
+            let Some(callee) = callee else {
+                source.borrowed_call_actuals_v1(row)?
+                    .ok_or_else(|| fault("borrowed-incoming/actuals-missing"))?;
+                return Err(fault("borrowed-incoming/callee-carrier-missing"));
             };
             if let Some(previous) = owners.insert(row.target().clone(), row.callee_owner()) {
                 if previous != row.callee_owner() {
@@ -125,9 +137,10 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 }
                 incoming.insert(target.call_site().clone());
             }
-            if source.borrowed_call_actuals_v1(row)?.is_none() {
-                return Err(fault("borrowed-incoming/actuals-missing"));
-            }
+            let actuals = source.borrowed_call_actuals_v1(row)?
+                .ok_or_else(|| fault("borrowed-incoming/actuals-missing"))?;
+            uses.entry(source, row.callee_owner(), callee_function)?;
+            uses.call(caller, (block, index), actuals, copies)?;
             original.insert(row.call_site().clone());
             let mut callers = program
                 .functions()
@@ -158,7 +171,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     {
         return Err(fault("borrowed-incoming/coverage-mismatch"));
     }
-    Ok(())
+    uses.finish(program, module)
 }
 
 /// Exact consumer boundary: a coordinate alone cannot prove a published Call.
