@@ -147,7 +147,6 @@ entry-shape and activation/use-closure questions. Existing entry source counts,
 carrier alignment, Birth tagged Copy and C primitive operand rejection inspected.
 No Cargo/runtime result is claimed by D0. Next: the selected ingress S0 above.
 
-
 ### Prerequisite — MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-LEXICAL-SIZE-T0
 
 Selected before S0 adds borrowed rows: the 746-line lexical-call owner has
@@ -278,7 +277,6 @@ debt, without waiver. S0 remains open: next use these prepared source rows for
 borrowed use/incoming closure and the separate prefix callback, then entry,
 physical/C and generated Normal/Fault acceptance. No ABI or deletion credit.
 
-
 ### S0 source-cohort construction (not carrier activation)
 
 Decision: the existing lexical source owner prepares transport-only opaque
@@ -308,7 +306,6 @@ Do not interpret Err as None or retry strict-I64. Entry adoption,
 physical/C transport and generated executable Normal/Fault acceptance remain
 required; source preparation alone is not S0 completion or deletion credit.
 
-
 Source-cohort receipt (2026-10-02): borrowed-formal focused 22/22 PASS
 (21 owned source tests plus one existing sibling), ordinary co-seal 85/85 PASS.
 Initial negative fixture used absent Main.me.probe and stopped at the earlier
@@ -320,7 +317,6 @@ Touched rustfmt, diff, pointer and bash syntax PASS. Qualified scope guard
 continues to fail only at the recorded untouched brand_catalog_tests.rs=961;
 no waiver. Source/forward/incoming closure is connected to the production
 issuer, but actual liveness, carriers, C/EXE acceptance and cutover remain open.
-
 
 ### S0 pending actual preparation — construction Decision
 
@@ -397,7 +393,6 @@ Next: existing Ordinary scope/entry install consumes complete source/actual
 relations, preserves one formal ValueId, and retains source correspondence at
 the existing final artifact boundary before JSON/C consumer cutover.
 
-
 Entry/physical size T0 receipt (2026-10-02): moved bodies match HEAD exactly
 apart from relative sibling paths and equivalent constructor visibility.
 Lowering state is 558 + 232 lines; physical program is 600 + 199 lines.
@@ -414,7 +409,6 @@ HEAD; left unchanged as unrelated stale-pin debt. Pointer, shell syntax, moved
 body comparison and diff check PASS. This T0 changes no semantic acceptance,
 entry carrier, production caller or physical ABI. Next remains selected
 Ordinary entry/caller adoption and retained-source physical/C corroboration.
-
 
 ### S0 selected entry-source adoption Decision
 
@@ -438,7 +432,6 @@ Acceptance: installed package source loan plus positive mixed domains and Copy
 forwarding; missing/failed later caller and ordinal/formal/source corruption;
 nonopaque input does not demand unrelated preparation Err.
 
-
 Entry-source read-only review confirms whole-cohort actual validation, Ordinary
 instance-only demand and compilation-branded Completion membership. Next scope
 adopter keeps the existing ledger Rc, copies only ordinal/BindingRef descriptors
@@ -453,7 +446,6 @@ a local destination or claim an already implemented emitter. Nested inputs
 currently retain named unobserved/unsupported facts and need exact inner
 source/result evidence. New borrowed permission must use explicit result cohort
 and source return proof, never the old empty-terminal I64 default by itself.
-
 
 Entry-source construction receipt (2026-10-02): borrowed-formal focused 46/46
 and ordinary co-seal regression 109/109 PASS, including ten new entry tests.
@@ -488,7 +480,6 @@ rows/C admission and generated Normal/Fault acceptance remain open. Whole S0
 and the original mimalloc-lite bundle remain incomplete. Next: connect the
 Ordinary scope/entry descriptors and caller continuation coverage to the same
 retained source owner before enabling its physical ABI.
-
 
 ### S0 scope/entry physical-value correspondence Decision
 
@@ -771,7 +762,6 @@ Invoke/projection, no local install, branch/sibling exit groups, nested grouping
 Normal/Fault cleanup and malformed source/destination/group rejection. This is
 a concrete implementation decision only; no new executable acceptance claim.
 
-
 Ordered argument projection Decision (read-only seam audit, 2026-10-02):
 retain opaque_actuals and full ordered_arguments in the same existing pending
 call value. Opaque positions carry only BorrowedActual { ordinal, site }; the
@@ -800,7 +790,6 @@ brand_catalog_tests.rs=961 without waiver. Actual tests 753, entry tests 552;
 actual owner 289, entry owner 268 and flow 563 remain below hard stop. This
 closes retained ordered projection only. Four-shape continuation/physical/C,
 carrier activation and whole S0/app acceptance remain incomplete.
-
 
 Next callback connection Decision (read-only worker, 2026-10-02): reuse one
 callback with Some(actuals) for current observation/staging and None for demand
@@ -844,7 +833,6 @@ not the whole ingress S0 or physical activation.
 Local/nested connection is implemented; discard/return and tagged physical/C
 Normal/Fault acceptance remain required within the original whole S0 scope.
 
-
 Discard source/continuation component receipt (2026-10-02): the same
 LocalCallObservation now owns LocalBinding { declaration, binding } or Discard.
 The exact LocatedStmt MethodCall issuer demands the original borrowed callback
@@ -870,7 +858,6 @@ further growth; source flow=663, scan=669. Return Lexical root-entry handoff,
 real tagged physical/C consumers, single Invoke/group and Normal/Fault EXE
 acceptance are still owed. This receipt does not close ingress S0 or the goal.
 
-
 Terminal validation size T0 Decision (2026-10-02, read-only worker confirmed):
 before the accepted Return Lexical handoff grows root_call_entry.rs=746, move
 only validate_call_entry, resolve_instance_receiver and its test helper into
@@ -880,7 +867,6 @@ record/group selection/rebind/finalize and entry accessors; validation borrows
 those existing methods. Register the child in the same scope guard. Mechanically
 compare moved bodies and run existing root_call_entry/co-seal and lib baseline.
 No terminal argument, carrier or consumer permission changes in this T0.
-
 
 Terminal validation size T0 receipt: parent 746 -> 484; validation child 270.
 Moved-method comparison is unchanged except module paths/format, with no new
@@ -900,17 +886,14 @@ once. Validate ordinal-bound physical values/proofs in the same Call entry,
 never instruction count or expected args copied from the actual Invoke.
 Ingress S0, carrier activation, Normal/Fault EXE and the overall goal stay open.
 
-
 Direct Return source/affine: `ef874d20bf` retains ordered arguments/Taken row
 and exact exit identity without a local/Home. Its full source/affine receipt,
 unchanged baseline and classified guard debt are retained in that commit.
 Physical/C activation and this S0 remain open.
 
-
 Nested Return Decision implemented in `76cae30f54`: original strict sealer,
 exact Argument ordinals/same Homes, nonempty real I64 result completion,
 canonical whole-tree Ready closure. The physical handoff below remains owed.
-
 
 Strict result proof repair Decision: return annotations establish the declared
 contract but do not verify literal representation. In the existing lexical I64
@@ -933,14 +916,11 @@ root exit validation/rebind/finalization. Do not derive expected arguments from
 actual Invoke or count instructions as arity. Tagged carrier/use closure and
 physical/C Normal/Fault execution are required before ingress S0 can close.
 
-
 Nested Return source/affine: `76cae30f54` retains original strict/borrowed
 rows and exact owner/ordinal/Homes; its focused and unchanged-baseline receipts
 are in the commit. Strict source rejects nonInteger literals. S0 remains open.
 
-Lexical I64 emitter size T0: `834243d2e7` moved existing I64 emitters
-(parent708 -> 542, child173); exact reconstruction, passing focused/co-seal and
-known nullable-extra full-verifier receipt are in that commit. No ABI activation.
+Lexical I64 emitter size T0 and complete receipt: `834243d2e7`; ABI closed.
 
 Physical handoff Decision (read-only worker, same accepted S0): retain an
 optional lexical projection tree on the original Call entry, not a semantic
@@ -992,9 +972,22 @@ Entry receiver, forwarding Copy and tagged execution remain owed.
 Borrowed projection: `1a54469222` / receipt `bbf0e8b271`; Copy: `647f4bb33b`.
 Return Decision `602408591c`, implementation/complete receipt `fbd781670b`; ABI closed.
 Ordinary carrier/full-use, writer/C and Normal/Fault EXE remain owed.
-Copy Decision `861e50aeb2` implemented: capture/finish/final loans require unique Copy.
-New7/7, co-seal174/174, lib+tests/pointer/diff PASS; touched source sizes <800.
-Full8285/126/56 inventory8467 KNOWN BASELINE; `/tmp/hakorune-finished-copy-*.log`.
-Existing guard961 and builder.rs fmt debt unchanged; S0 pending-method warnings remain.
-Child Forwarded local source + synthetic CFG only; no Return/compiler/ABI/EXE claim.
-Next same S0: Ordinary carrier/full incoming/use closure, writer/C, Normal/Fault EXE.
+Copy Decision/complete receipt: `861e50aeb2` / `38cd4191ce`; ABI remains closed.
+
+Ordinary carrier Decision (same S0, read-only worker): adopt original successful
+borrowed entry formals at the existing ordinary entry-value port, not S6C's issuer.
+Preflight original owner/ordinal/BindingRef and entry ValueIds against existing
+function params/signature and carrier column. Preserve receiver, Map and numeric
+slots; change selected scalar slots only. Pending Err/unselected entries cannot
+mint carriers. Commit metadata only after entry installation succeeds, with no
+remaining fallible step. Keep one MIR parameter; wire expansion stays final-owner.
+Add BorrowedTaggedValue to the existing column; metadata is not ABI authority.
+Until original incoming/use closure and writer/C are complete, both parameter
+representation and ordinary actual encoding explicitly reject this carrier,
+and strict Borrowed Invoke materialization remains closed. No raw-i64 fallback.
+Next: close all original incoming local/Discard/Return/nested packets and uses
+against exact FinishedBindings/functions, then final kind/payload writer/C,
+Normal/Fault EXE and selected raw-edge retirement. S0/overall goal remain open.
+Focused acceptance: original source-backed mixed formal adoption; preserve
+params/receiver/other carriers; missing/short/conflicting column and repeat
+install reject without metadata mutation; pending source never yields carrier.
