@@ -21,7 +21,7 @@ pub(in crate::mir::builder) enum ExactBindingValueErrorV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum ExactReceiverValueErrorV1 {
+pub(in crate::mir) enum ExactReceiverValueErrorV1 {
     OwnerMismatch,
     ReceiverBindingMismatch,
     ReceiverSiteUnavailable,
@@ -29,6 +29,33 @@ pub(in crate::mir::builder) enum ExactReceiverValueErrorV1 {
     AlreadyTaken,
     EntryNotInstalled,
     ValueUnavailable,
+}
+
+/// The original exact lexical read, retained for physical corroboration.
+/// Only this state module can construct it; it issues no source meaning.
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir) struct ExactLexicalReadV1 {
+    owner: FunctionOwnerIdV1,
+    site: crate::mir::resolved_semantics::SourceNodeSiteV1,
+    binding: BindingRefV1,
+    value: ValueId,
+}
+
+impl ExactLexicalReadV1 {
+    pub(in crate::mir) fn value_for(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+        binding: BindingRefV1,
+    ) -> Result<ValueId, ExactReceiverValueErrorV1> {
+        if self.owner != owner || binding.owner() != owner {
+            return Err(ExactReceiverValueErrorV1::OwnerMismatch);
+        }
+        if &self.site != site || self.binding != binding {
+            return Err(ExactReceiverValueErrorV1::SiteBindingMismatch);
+        }
+        Ok(self.value)
+    }
 }
 
 impl fmt::Display for ExactReceiverValueErrorV1 {
@@ -143,6 +170,16 @@ impl CallableSemanticLoweringState {
         source_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
         expected_binding: BindingRefV1,
     ) -> Result<ValueId, ExactReceiverValueErrorV1> {
+        self.take_exact_lexical_read(expected_owner, source_site, expected_binding)?
+            .value_for(expected_owner, source_site, expected_binding)
+    }
+
+    pub(in crate::mir::builder) fn take_exact_lexical_read(
+        &mut self,
+        expected_owner: FunctionOwnerIdV1,
+        source_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+        expected_binding: BindingRefV1,
+    ) -> Result<ExactLexicalReadV1, ExactReceiverValueErrorV1> {
         if self.owner != expected_owner || expected_binding.owner() != self.owner {
             return Err(ExactReceiverValueErrorV1::OwnerMismatch);
         }
@@ -172,7 +209,12 @@ impl CallableSemanticLoweringState {
         if !self.consumed_variables.insert(source_site.clone()) {
             return Err(ExactReceiverValueErrorV1::AlreadyTaken);
         }
-        Ok(value)
+        Ok(ExactLexicalReadV1 {
+            owner: expected_owner,
+            site: source_site.clone(),
+            binding: expected_binding,
+            value,
+        })
     }
 }
 

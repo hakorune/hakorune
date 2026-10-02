@@ -28,6 +28,7 @@ pub(super) mod construction;
 mod fault;
 #[path = "normal_callable_semantic_receiver_crosswalk.rs"]
 mod normal_callable_semantic_receiver_crosswalk;
+pub(in crate::mir) use normal_callable_semantic_receiver_crosswalk::ExactLexicalReadV1;
 #[path = "normal_callable_semantic_observation.rs"]
 mod observation;
 

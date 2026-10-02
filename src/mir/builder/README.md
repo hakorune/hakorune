@@ -586,6 +586,13 @@ the later DeclaredInstance crosswalk may borrow it after proving an exact source
 relation. It does not inspect names or positions, consume locator rows, issue a
 target, open a receiver-specific loan, or infer Method/receiver semantics.
 
+Lexical call materialization can retain the original exact read as a private
+owner/site/binding/ValueId witness. Only the crosswalk constructs it after the
+same one-shot checks; later corroboration reads that snapshot rather than a
+new binding value. Shared lexical I64 argument preparation retains actual Const
+and nested affine call/Invoke/NormalResult observations. This physical proof
+does not classify opaque formals or authorize a tagged ABI.
+
 ### DeclaredInstance receiver authority crosswalk
 
 The selected root `me.method(...)` path now borrows the installed package's

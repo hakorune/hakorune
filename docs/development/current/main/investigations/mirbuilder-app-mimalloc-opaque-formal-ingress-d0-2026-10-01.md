@@ -910,19 +910,9 @@ remains red at untouched brand_catalog_tests.rs=961. Full evidence is retained
 in that commit. This closes only direct source/affine, not physical/C or S0.
 
 
-Next nested Return Decision (same read-only worker): reuse the existing strict
-sealer for the outer call, selecting this new terminal only when its recursively
-sealed argument tree contains a selected BorrowedActual. Pure strict roots stay
-with the old owner. Each nested CallResult site must equal the parent's exact
-argument_sites[ordinal], with the same owner and terminal program-point Homes.
-A borrowed node requires the same full ordered pending projection; strict None
-is allowed only under retained successful strict source authority, not because
-projection is absent. Reuse the existing final result cohort/explicit nonempty
-Completion to corroborate strict outer I64; old empty-terminal I64 defaults or
-the borrowed child's result are not authority. Inner and outer each keep their
-original one-shot lexical row. Share receiver/argument preparation with the root
-emitter, never emit the outer Invoke twice or create a local binding group.
-Then close the agreed root physical/C path and Normal/Fault acceptance.
+Nested Return Decision implemented in `76cae30f54`: original strict sealer,
+exact Argument ordinals/same Homes, nonempty real I64 result completion,
+canonical whole-tree Ready closure. The physical handoff below remains owed.
 
 
 Strict result proof repair Decision: return annotations establish the declared
@@ -983,3 +973,20 @@ corroboration, published writer and C index/useflow/call/emitter together for
 constant versus forwarded tags and ordinary typed-object kind 3. Metadata,
 MirType and physical_signature's old OrdinaryScalar default are non-authority.
 Missing carrier activation remains terminal until this same S0 is closed.
+
+Shared physical preparation receipt (2026-10-02): the original state crosswalk
+issues a non-clone exact owner/site/binding/value read; ordered materialization
+retains actual Const and nested Taken row/Invoke/NormalResult observations.
+Expected calls come from sealed source arguments, not actual Invoke arguments.
+Focused source/MIR + mutation tests 13/13, exact-read crosswalk 7/7, co-seal
+155/155 PASS. New five passing tests alone extend inventory to 8439 and expected
+passing count to 8257; original 126 failure names/hash are unchanged.
+Captured unchanged full verifier exit 1: 8256/127/56, with only the known nullable
+receiver serialization flake added and no removed baseline failures. This is
+not a green baseline receipt; no flaky failure is admitted to the manifest.
+Initial three-test fixture failures used wrong private access/optional index/
+local paths; exact resolver declaration sites/ordinals corrected setup before
+PASS. One zero-result crosswalk filter was rejected as evidence and corrected.
+Pointer/format/diff/bash PASS; known untouched brand_catalog_tests.rs=961 guard
+red remains. Return entry retention, borrowed tagged arguments, ordinary ABI/C
+use closure and Normal/Fault EXE are still owed in this same accepted S0.
