@@ -928,16 +928,12 @@ physical/C Normal/Fault execution are required before ingress S0 can close.
 Nested Return source/affine contracts and receipts: `76cae30f54`; strict source
 rejects nonInteger literals, S0 open. Emitter size T0 receipt: `834243d2e7`; ABI closed.
 
-Original handoff contracts/Decision: `49990f8e36`; Taken producer/read/Copy loans
-are physical corroboration, never source authority. One ValueId expands at final
-ABI only; Birth kinds 1/2 unchanged. Full-use/writer/C/execution remain owed.
-
-Physical preparation/Call-owner T0 receipts: `49990f8e36` / `dd6cebfee3`; ABI closed.
-
-Original packet/source/Copy/Return Decisions and receipts: `38cd4191ce` and its
-referenced predecessors; affine rows stay private, ABI closed.
-Ordinary carrier Decision/receipt: `18066ef4f8` / `e3e61f8de8`; Unknown/Integer storage
-is not authority. Pending, writer/C/Normal-Fault and selected retirement remain owed.
+Original handoff/preparation/Call contracts: `49990f8e36` / `dd6cebfee3`;
+packet/source/Copy/Return contracts: `38cd4191ce` and referenced predecessors.
+Taken producer/read/Copy loans corroborate source; affine rows remain private,
+one ValueId expands only at final ABI, Birth kinds1/2 unchanged, ABI closed.
+Ordinary carrier contracts: `18066ef4f8` / `e3e61f8de8`; storage is not authority.
+Pending/full-use/writer/C/Normal-Fault/retirement obligations remain open.
 
 Original incoming/entry/Call-coordinate Decisions and receipts: `fc8e403459` /
 `4cbbc86d3a`. Original affine nodes/held Boundary remain authority for both-way
@@ -945,56 +941,41 @@ Call coverage; all results/continuations, no metadata-only proof or hidden calle
 Full-use/writer/C/Normal-Fault execution and selected retirement remain owed.
 
 
-Full-use continuation Decision (same S0, read-only worker): retain original
-borrowed alias local materialization on the existing entry physical record.
-record_completed_local joins original initializer/binding to existing source
-origins/uses and entry formal; preserve LocalProvenance, never derive it from MIR.
-Loan exact original Copies through the same owner Boundary/FinishedBindings.
-Packet-required Copy chains remain mandatory; unused-only removed Copies are
-allowed only with no residual destination use or replacement definition.
-Seed per-owner tracking with original entry values, propagate proved Copies;
-allow only source Forwarded actuals at their exact Call coordinate/ordinal.
-Inspect all operands, including receiver/fault-frame/edge args and definitions.
-Reject arithmetic/condition/Phi/store/return/rebind/unproved uses. Preserve valid
-unused aliases; source_local_copies DCE permission is not transport authority.
-Same-Boundary optional alias Copy membership must remain separate from mandatory
-packet dependencies and existing source_local_copies DCE permission. Capture exact
-original tuples; allow omission only in the original graph's unused Copy cone
-with no final destination use/redefinition. Residual Copies require exact equality.
-
-Original final-Call Decision/classified receipt: `4cbbc86d3a`; native and
-synthetic evidence stay separate; nullable flake is not re-baselined. ABI closed.
-Loop audit: at `30aa4838fc`, zero-Copy completion hit LocalBindingMismatch.
-Borrowed reuse fixes source/shared completion; physical Loop acceptance is owed.
-Keep cycle guard; optional Copy relocation needs original/loop-owner block mapping.
-
-Alias-retention and reuse Decisions/full classified receipts:
-`30aa4838fc` / `03f9012a04`; shared completion is not physical Loop/EXE acceptance.
-Boundary Decision/implementation/full classified receipt: `313e6149f4`.
-Original optional alias Copies stay outside lifecycle DAG; mandatory dependencies
-or outside uses prevent omission. Same-Boundary coordinates, global definitions,
-all-block operands/return-env and parameter collision remain required; no scan authority.
-Full-use/writer/C/EXE and actual loop mapping remain owed, ABI closed.
-Mandatory-Copy loans: `f94ede096a`; distinct from optional omission/Invoke uniqueness.
-Full-use consumer Decision/implementation/receipt: `4acebb7ddc`; original entry,
-alias/mandatory-Copy and Forwarded loans check module and published defs/uses,
-including return_env, copied edges and exact published indices. No scan authority.
-Source-selected borrowed columns cannot silently lose metadata; unselected strict
-nodes do not demand unrelated borrowed errors. Synthetic operand tests 5/5,
-borrowed 167/167 +4 ignored and full KNOWN BASELINE 8317/126/56; failures unchanged.
-Projection continuation Decision: reuse that same private published checker;
-a cfg(test)-only closure captures original proofs, tracked roots and expected name.
-Synthetic published rows first pass, then mutate function/block/index identity,
-Copy/Call/parameter coverage, copied edges and receiver/fault-frame/argument uses.
-Tests cannot replace authority/name or add ledger/receipt/ABI authority. Production
-still stops at borrowed-lender-missing; source-to-publication/writer/C/EXE/retirement owed.
+Original alias/Copy Decisions and receipts: `30aa4838fc`, `03f9012a04`,
+`313e6149f4`, `f94ede096a`. Entry owner retains original LocalProvenance and
+same-Boundary Copy loans. Packet-required copies remain mandatory; unused-only
+omission requires no residual dst use/definition and cannot satisfy an argument.
+Mandatory own-site loans remain distinct from optional omission/Invoke uniqueness.
+Full-use/source/writer/C/EXE and actual Loop mapping remain separate obligations.
+Full-use consumer/projection Decisions and receipts: `4acebb7ddc` / `ae202f471a`.
+Original entry/Copy/Forwarded loans, exact indices, copied edges and module/published
+use/definition checks stay authoritative; no metadata-only or scan authority.
+Synthetic operand/projection evidence only: production lender still closed.
+Projection 4/4, borrowed171/171+4ignored, captured full/verifier8321/126/56,
+inventory8503, failures unchanged. Initial count-only127 run is unaccepted drift.
+Source-to-publication/writer/C/EXE/retirement remain owed; S0 remains open.
 ABI audit: writer Borrowed/Map actual lookup needs callee.has_receiver offset; reuse Birth
 kind/payload machinery (Birth kinds 1/2 only). Ordinary kind3 requires live typed handles,
 TAGGED forwarding preserves both lanes, BorrowForCall no lease/End; ordinary cannot inherit
 Birth tagged stores. Writer741/C preartifact793 need responsibility T0 before growth.
-Projection receipt: new projection tests 4/4; broad borrowed 171/171 +4 ignored.
-Captured full run and baseline verifier: KNOWN BASELINE 8321/126/56, inventory +4/-0,
-8503 total; all failure names/hash unchanged. Initial count-only verifier 8320/127/56
-had no retained failure identity and is unaccepted informational run drift, not PASS.
-Two subsequent captured full runs agree with baseline; no failure receipt expansion.
-Lib/tests check, pointer/fmt/diff/shell PASS; scope red existing brand_catalog_tests.rs=961; S0 open.
+Lib/tests check, pointer/fmt/diff/shell PASS; existing scope red brand_catalog_tests.rs=961.
+
+Writer/C continuation Decision (read-only worker): install writer/C together before
+production materialize_with_ledger cutover; JSON-only closure cannot authorize other
+MIR consumers. Source-success is construction acceptance, not a prerequisite.
+Prerequisite transport-size T0: private JSON child owns parameters and Birth/ordinary
+Call encoding; parent keeps program/instruction assembly. Preserve exact expressions,
+errors, field order, current receiver lookup and closed borrowed activation.
+Then C formal/Call helpers move at their original definition/include positions;
+keep availability helper order, prototypes, exact schema and domains unchanged.
+Validation: moved-body comparison, existing writer positives/negatives and generated
+JSON byte equality; C parser/nested-call/receiver tests, baseline/pointer/fmt/diff.
+Receiver offset fix, new tagged encoding/C acceptance and production switch are
+subsequent semantic work; no source shape/ABI/deletion expansion in this T0.
+
+JSON transport T0 receipt: parent741 ->599/private Call child163. Parameter/Birth/ordinary
+moved bodies match; generated JSON9/9 byte-identical. Writer before/after21PASS + same
+nullable ordinary-membership-drift flake (pre-change reproduced); borrowed171PASS/4ignored.
+Full KNOWN BASELINE8321/126/56, inventory8503/failure hash unchanged; no manifest change.
+Lib/tests check and pointer/fmt/diff/shell PASS; existing brand_catalog_tests961 scope red, no waiver.
+Carrier activation and receiver offset remain unchanged; production materialization closed.
