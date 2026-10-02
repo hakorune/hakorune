@@ -605,6 +605,11 @@ host/boxed handles without their own source producer/lifetime contract reject;
 Map tag 3 does not authorize a host-handle lookup or typed-object release.
 Boxed integer bits never become immediate I64 by inspection.
 
+The exact actual wire is `{kind,value}`: numeric kinds 1/2/3 for source-issued
+classes, or `kind:"tagged"` for an original selected formal/Copy. Kind 3 must
+trace to a canonical live new-object producer or verified receiver, not merely
+a HANDLE lane/nonzero payload; array/null/nullable results do not prove it.
+
 Every incoming call to a changed internal definition must carry its exact
 selected actual/formal relation. Constant-tag and forwarded-pair actuals are
 exclusive transport forms; Copy/forwarding preserve both lanes and domain.

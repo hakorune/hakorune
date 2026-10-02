@@ -41,6 +41,11 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       fprintf(f, ", i64 %%v%u", lv4_u(fn, "receiver"));
     for (size_t i = 0; i < yyjson_arr_size(params); i++) {
       yyjson_val* param = yyjson_arr_get(params, i);
+      if (lv4_is(param, "representation", "borrowed_kind_payload_v1")) {
+        uint32_t v = lv4_u(param, "value");
+        fprintf(f, ", i32 %%k%u, i64 %%v%u", v, v);
+        continue;
+      }
       /* Borrowed checked-map storage arrives as a pointer, not an i64. */
       fprintf(f, lv4_is(param, "representation", "map") ? ", ptr %%v%u" : ", i64 %%v%u",
           lv4_u(param, "value"));
@@ -87,6 +92,24 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         "  %%arg_ok%u = or i1 %%arg_int%u, %%arg_valid_bool%u\n"
         "  br i1 %%arg_ok%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
         v,v,v,v,v,v,v,v,v,v,v,v,v,v,v);
+  }
+  if (ordinary) for (size_t i = 0; i < yyjson_arr_size(params); i++) {
+    yyjson_val* param = yyjson_arr_get(params, i);
+    if (!lv4_is(param, "representation", "borrowed_kind_payload_v1")) continue;
+    uint32_t v = lv4_u(param, "value");
+    /* Nonzero supplements the closed incoming/live proof; it is not that proof. */
+    fprintf(f,
+        "  %%arg_int%u = icmp eq i32 %%k%u, 1\n"
+        "  %%arg_bool%u = icmp eq i32 %%k%u, 2\n"
+        "  %%arg_bit%u = icmp ule i64 %%v%u, 1\n"
+        "  %%arg_valid_bool%u = and i1 %%arg_bool%u, %%arg_bit%u\n"
+        "  %%arg_scalar%u = or i1 %%arg_int%u, %%arg_valid_bool%u\n"
+        "  %%arg_object%u = icmp eq i32 %%k%u, 3\n"
+        "  %%arg_nonzero%u = icmp ne i64 %%v%u, 0\n"
+        "  %%arg_live%u = and i1 %%arg_object%u, %%arg_nonzero%u\n"
+        "  %%arg_ok%u = or i1 %%arg_scalar%u, %%arg_live%u\n"
+        "  br i1 %%arg_ok%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
+        v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v);
   }
   fprintf(f, "  br label %%bb%u\n", lv4_u(fn, "entry"));
   for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
@@ -277,6 +300,16 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           fprintf(f, ", i64 %%v%u", lv4_u(call, "receiver"));
         for (size_t i = 0; i < yyjson_arr_size(args); i++) {
           yyjson_val* arg = yyjson_arr_get(args, i);
+          yyjson_val* tag = yyjson_obj_get(arg, "kind");
+          uint32_t value = lv4_u(arg, "value");
+          if (yyjson_is_uint(tag)) {
+            fprintf(f, ", i32 %u, i64 %%v%u", (uint32_t)yyjson_get_uint(tag), value);
+            continue;
+          }
+          if (lv4_is(arg, "kind", "tagged")) {
+            fprintf(f, ", i32 %%k%u, i64 %%v%u", value, value);
+            continue;
+          }
           /* A "map" actual is the caller's borrowed storage pointer; the
              callee's "map" formal receives it as `ptr`. */
           fprintf(f, lv4_is(arg, "kind", "map") ? ", ptr %%v%u" : ", i64 %%v%u",

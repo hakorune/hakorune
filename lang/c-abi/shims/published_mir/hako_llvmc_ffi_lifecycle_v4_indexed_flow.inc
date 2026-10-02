@@ -23,6 +23,43 @@ static int lv4_indexed_map_readable(hako_lv4_function_index* fn, uint32_t id,
   return value->origin >= 0 && state[value->origin] == LV4_LIVE;
 }
 
+/* Type unions do not prove provenance. Follow the exact Copy producer instead. */
+static hako_lv4_value* lv4_borrowed_copy_root(hako_lv4_function_index* fn,
+    hako_lv4_value* value) {
+  for (size_t steps = 0; value && lv4_is(value->instruction, "op", "copy"); steps++) {
+    if (steps >= fn->value_count) return NULL;
+    value = lv4_index_value(fn, lv4_u(value->instruction, "src"));
+  }
+  return value;
+}
+
+static int lv4_borrowed_typed_live(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, hako_lv4_value* value, const uint16_t* state) {
+  if (!value || value->kind != LV4_HANDLE || !lv4_layout(in, value->object_id) ||
+      !lv4_indexed_live(fn, value->id, LV4_HANDLE, state, value->object_id, 1)) return 0;
+  hako_lv4_value* root = lv4_borrowed_copy_root(fn, value);
+  if (!root || root->object_id != value->object_id) return 0;
+  if (root->origin == -2)
+    return fn->receiver_object_set && yyjson_is_uint(yyjson_obj_get(fn->function, "receiver")) &&
+        root->id == lv4_u(fn->function, "receiver") && root->object_id == fn->receiver_object;
+  if (!lv4_is(root->instruction, "op", "invoke_normal_result")) return 0;
+  hako_lv4_block* producer = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
+  yyjson_val* op = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
+  return lv4_is(op, "kind", "new_box") && lv4_u(op, "object_id") == root->object_id;
+}
+
+static int lv4_borrowed_tagged_formal(hako_lv4_function_index* fn, hako_lv4_value* value) {
+  if (!value || value->kind != LV4_TAGGED || !fn->receiver_object_set ||
+      !lv4_is(fn->function, "role", "ordinary_i64")) return 0;
+  hako_lv4_value* root = lv4_borrowed_copy_root(fn, value);
+  yyjson_val* params = yyjson_obj_get(fn->function, "params");
+  for (size_t i = 0; root && i < yyjson_arr_size(params); i++) {
+    yyjson_val* param = yyjson_arr_get(params, i);
+    if (lv4_u(param, "value") == root->id && lv4_is(param, "representation", "borrowed_kind_payload_v1")) return 1;
+  }
+  return 0;
+}
+
 static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* fn,
     yyjson_val* block, uint16_t* state, int faulted, int birth) {
   yyjson_val* rows = yyjson_obj_get(block, "instructions");
@@ -189,6 +226,19 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           const char* repr = yyjson_get_str(yyjson_obj_get(
               yyjson_arr_get(cparams, i), "representation"));
           const char* arg_kind = yyjson_get_str(yyjson_obj_get(arg, "kind"));
+          if (repr && !strcmp(repr, "borrowed_kind_payload_v1")) {
+            yyjson_val* kind = yyjson_obj_get(arg, "kind");
+            if (arg_kind && !strcmp(arg_kind, "tagged")) {
+              if (!lv4_borrowed_tagged_formal(fn, value)) return 0;
+            } else if (yyjson_is_uint(kind)) {
+              uint64_t tag = yyjson_get_uint(kind);
+              if (!value || (tag == 1 && value->kind != LV4_I64) ||
+                  (tag == 2 && value->kind != LV4_BOOL) ||
+                  (tag == 3 && !lv4_borrowed_typed_live(in, fn, value, state)) ||
+                  tag < 1 || tag > 3) return 0;
+            } else return 0;
+            continue; /* BorrowForCall: no lease state is consumed. */
+          }
           int want = repr && !strcmp(repr, "i64") ? LV4_I64
               : repr && !strcmp(repr, "map") ? LV4_MAP : LV4_BAD;
           if (!value || value->kind != want) return 0;
@@ -246,7 +296,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
             !lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
                 0, 0)) return 0;
         normal[value->origin] = state[value->origin] = 0;
-      } else if (value->kind != LV4_I64 && value->kind != LV4_TAGGED) return 0;
+      } else if (value->kind != LV4_I64 && !(birth && value->kind == LV4_TAGGED)) return 0;
       if (!lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
     } else if (lv4_is(op, "kind", "field_residence_release")) {

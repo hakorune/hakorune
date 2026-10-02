@@ -867,25 +867,10 @@ further growth; source flow=663, scan=669. Return Lexical root-entry handoff,
 real tagged physical/C consumers, single Invoke/group and Normal/Fault EXE
 acceptance are still owed. This receipt does not close ingress S0 or the goal.
 
-Terminal validation size T0 Decision (2026-10-02, read-only worker confirmed):
-before the accepted Return Lexical handoff grows root_call_entry.rs=746, move
-only validate_call_entry, resolve_instance_receiver and its test helper into
-root_call_entry/validation.rs. Preserve exact source/disposition/MIR and cleanup
-checks, Plain/root-instance tolerance, errors and visibility. Parent keeps
-record/group selection/rebind/finalize and entry accessors; validation borrows
-those existing methods. Register the child in the same scope guard. Mechanically
-compare moved bodies and run existing root_call_entry/co-seal and lib baseline.
-No terminal argument, carrier or consumer permission changes in this T0.
-
-Terminal validation size T0 receipt: parent 746 -> 484; validation child 270.
-Moved-method comparison is unchanged except module paths/format, with no new
-semantic permissions, source rows, tests or inventory. Existing binding-group
-negative tests 2/2 and co-seal 140/140 PASS. Initial filename-based filter ran
-zero tests and is not acceptance. Captured unchanged baseline verifier is
-KNOWN BASELINE exit 0: 8237/126/56, inventory 8419 and original failure hash
-unchanged. Pointer/format/diff/bash syntax PASS. Qualified scope guard remains
-red at untouched brand_catalog_tests.rs=961; child is registered without waiver.
-Next: the accepted Return Lexical handoff, then shared tagged physical/C closure.
+Terminal validation size T0 Decision/receipt: `5a2ae4d347` retains the original
+validation contracts, mechanical comparison and unchanged baseline receipt.
+Parent record/group ownership and private validation child stay distinct;
+no new carrier/consumer permissions. Qualified scope debt is not waived.
 Return uses the same owned ordered arguments wrapped in TerminalCallArgument's
 Lexical arm; Direct/Instance reject that arm. Root source selection precedes the
 old expected mark using prepared evidence, while final corroboration and one
@@ -963,16 +948,6 @@ Lib/tests check, pointer/fmt/diff/shell PASS; existing scope red brand_catalog_t
 Writer/C continuation Decision (read-only worker): install writer/C together before
 production materialize_with_ledger cutover; JSON-only closure cannot authorize other
 MIR consumers. Source-success is construction acceptance, not a prerequisite.
-Prerequisite transport-size T0: private JSON child owns parameters and Birth/ordinary
-Call encoding; parent keeps program/instruction assembly. Preserve exact expressions,
-errors, field order, current receiver lookup and closed borrowed activation.
-Then C formal/Call helpers move at their original definition/include positions;
-keep availability helper order, prototypes, exact schema and domains unchanged.
-Validation: moved-body comparison, existing writer positives/negatives and generated
-JSON byte equality; C parser/nested-call/receiver tests, baseline/pointer/fmt/diff.
-Receiver offset fix, new tagged encoding/C acceptance and production switch are
-subsequent semantic work; no source shape/ABI/deletion expansion in this T0.
-
 Transport size T0 landed: JSON `1d97a8df8e` (parent599/private child163;
 three moved bodies match, JSON9/9 byte-identical), C `d789bc6b69` (parser692,
 formal30/Call77; reinlined bytes identical). Existing writer/C/Birth EXE regressions
@@ -984,16 +959,37 @@ handoff, not owned self-referential source. Existing incoming witnessed coordina
 one temporary map of original immutable actual slices, consumed into existing ordinary
 Call rows; reject residual coordinates. No clone, new receipt, Seal or permanent inventory.
 This remains source-lent transport, not Integer operand refinement or production cutover.
-Wire Decision for subsequent writer/C: formal kind_payload_v1; exact actual {kind,value}.
+Wire Decision: formal borrowed_kind_payload_v1 (ABI reference); exact actual {kind,value}.
 Original Integer/Bool/live typed object classes issue numeric kinds1/2/3; Forwarded uses
-"tagged" and preserves both lanes. Match exact Call coordinates/result and receiver offset.
+"tagged" and preserves both lanes. Match exact Call coordinates/result and receiver offset; demand original or current
+Borrowed selection and compare final snapshot producers/edges, rejecting carrier erasure.
 C kind3 requires canonical new_box or verified receiver producer through Copy, matching
 layout and live borrowing; HANDLE/nonzero alone cannot prove it (exclude array/null/nullable).
 Closed internal incoming/Copy/forward closure proves the loan; no external raw entry,
 ordinary tagged store or callee End. Install writer/C before production ledger cutover,
 then real Ordinary source-to-publication and generated Normal/Fault EXE/retirement evidence.
-Original Call-loan receipt: external source slices retained without cloning; residual map rejects.
-Lib/tests check PASS; focused5/5, borrowed171/4ignored, KNOWN BASELINE8321/126/56
-(inventory8503/failure hash unchanged); pointer/fmt/diff PASS, existing961 scope debt.
-No positive source-to-tagged-publication claim: writer/C activation, original-loan identity
-acceptance, production switch and Normal/Fault EXE remain owed. Worker diff review PASS.
+Original source-loan component landed at `d387ad1a82`: original external slices,
+residual-map rejection, focused5/borrowed171 and unchanged8321/126/56 baseline.
+Production cutover and original-loan source-to-publication acceptance remain owed.
+
+Writer/C continuation: borrowed_kind_payload_v1 follows the existing ABI reference;
+Birth kind_payload_v1 stays1/2. Original actual slices choose tags, not MirType/payload.
+Physical C graphs execute six I64/Bool/object payload variants via Forwarded Copy:
+Normal/Fault caller cleanup once; verified receiver positive;17 malformed inputs reject.
+Array/nullable default-id collisions reject with independently passing CFG/lease controls.
+This is physical ABI evidence, not source publication/cutover. Writer snapshot negatives
+and original-codec positives are component proofs; full original borrowed-input erasure,
+literal/Forwarded producer mutations remain required with the production continuation.
+Observed outside-scope C const_null dst is absent from the definition index; nullable-null
+source/C acceptance needs separate followup, not a silent repair in this transport slice.
+
+Writer/C receipt: original codec2/2 and borrowed173 PASS/4ignored; final full
+verifier KNOWN BASELINE8323/126/56, inventory8505 (only2 new codec names),
+original failure hash unchanged. Original snapshot carrier/Const/Copy and two
+Birth-target swaps reject; the initial short --exact filter was0, rerun exact1PASS.
+Existing C parser/nested/receiver and V4 Pair/Bool EXE regressions PASS.
+Next ready mapping (read-only worker): lexical_i64 materialize_with_ledger plus
+value_with_ledger, lexical_return materialize_with_ledger; retain lender-free
+API refusal. Original source/publication mutations and EXE remain owed; S0 open.
+Lib/tests check, pointer, format/diff and Python/shell syntax PASS. Scope guard
+still rejects untouched brand_catalog_tests.rs=961; no waiver or suppression.

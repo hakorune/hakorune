@@ -20,6 +20,8 @@ use super::physical_program::{
 
 #[path = "physical_program_json_call_transport.rs"]
 mod call_transport;
+#[cfg(test)]
+pub(super) use call_transport::corroborate_function as corroborate_borrowed_function_snapshot;
 
 const SCHEMA: &str = "hako.published-lifecycle-physical-program.v2";
 
@@ -27,6 +29,7 @@ pub(super) fn emit_lifecycle_physical_program_value(
     program: &PublishedLifecyclePhysicalProgramV1<'_>,
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
+    call_transport::verify_borrowed_projection(program, abi_input)?;
     let (births, ordinary) = function_ordinals(program)?;
     let functions = program
         .functions()
@@ -49,7 +52,7 @@ pub(super) fn emit_lifecycle_physical_program_value(
                                 diagnostic_site(abi_input, function_ordinal, block.id().0, row.index(), row.instruction())?,
                                 abi_input,
                                 &ordinary,
-                                Some((program.functions(), function)),
+                                Some((program.functions(), function, (block.id(), row.index()))),
                             )?,
                         })) })
                         .collect::<Result<Vec<_>, String>>()?;
@@ -67,7 +70,7 @@ pub(super) fn emit_lifecycle_physical_program_value(
                                 )?,
                                 abi_input,
                                 &ordinary,
-                                Some((program.functions(), function)),
+                                Some((program.functions(), function, (block.id(), block.terminator().index()))),
                             )?,
                         },
                         "edges": block.edges().iter().map(encode_edge).collect::<Vec<_>>(),
@@ -82,7 +85,7 @@ pub(super) fn emit_lifecycle_physical_program_value(
                     .role()
                     .receiver_object()
                     .map(|object| object.declaration_index()),
-                "params": call_transport::encode_parameters(function)?,
+                "params": call_transport::encode_parameters(function, function_ordinal, abi_input)?,
                 "entry": function.entry().0,
                 "blocks": blocks,
             }))
@@ -188,6 +191,7 @@ fn encode_edge_args(args: &EdgeArgs) -> Value {
 type CallContext<'module> = (
     &'module [PublishedLifecyclePhysicalFunctionV1<'module>],
     &'module PublishedLifecyclePhysicalFunctionV1<'module>,
+    (crate::mir::BasicBlockId, u32),
 );
 
 #[allow(clippy::too_many_arguments)]
@@ -487,7 +491,14 @@ fn encode_invoke(
             if diagnostic_site.is_some() {
                 return Err(fault("site-on-ordinary-call"));
             }
-            call_transport::encode_ordinary_call(call, *result_kind, ordinary, call_context)?
+            call_transport::encode_ordinary_call(
+                call,
+                *result_kind,
+                ordinary,
+                call_context,
+                caller_function_index,
+                abi_input,
+            )?
         }
         InvokeOperation::NewBox { object } => with_site(
             json!({

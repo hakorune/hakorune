@@ -62,10 +62,15 @@ static int hako_physical_validate_ordinary_call(yyjson_val* function, yyjson_val
        pointer rides the edge borrowed. Every other pair stays i64; a map
        claim on one side alone is ABI drift, never a silent scalar fill. */
     if (!hako_physical_exact_keys(arg, arg_keys, 2) ||
-        !(arg_kind = yyjson_get_str(yyjson_obj_get(arg, "kind"))) ||
         !hako_physical_u32(yyjson_obj_get(arg, "value"), &value) ||
         !hako_physical_value_available_at(function, value, block, index)) return 0;
-    if (!strcmp(arg_kind, "map")) {
+    arg_kind = yyjson_get_str(yyjson_obj_get(arg, "kind"));
+    if (hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) {
+      uint32_t kind;
+      if ((!arg_kind || strcmp(arg_kind, "tagged")) &&
+          (!hako_physical_u32(yyjson_obj_get(arg, "kind"), &kind) || kind < 1 || kind > 3)) return 0;
+    } else if (!arg_kind) { return 0;
+    } else if (!strcmp(arg_kind, "map")) {
       if (!hako_physical_string(yyjson_obj_get(param, "representation"), "map")) return 0;
     } else if (strcmp(arg_kind, "i64") ||
         !hako_physical_string(yyjson_obj_get(param, "representation"), "i64")) {

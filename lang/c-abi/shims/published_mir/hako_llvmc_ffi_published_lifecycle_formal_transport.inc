@@ -22,7 +22,12 @@ static int hako_physical_params(yyjson_val* fn) {
         hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_nullable_handle")) {
       /* "map" marks a borrowed checked-map storage pointer (MapBox formal). */
       if (!hako_physical_string(yyjson_obj_get(param, "representation"), "i64") &&
-          !hako_physical_string(yyjson_obj_get(param, "representation"), "map")) return 0;
+          !hako_physical_string(yyjson_obj_get(param, "representation"), "map")) {
+        /* Selected borrowed carrier belongs to an internal instance I64 callee. */
+        if (!hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") ||
+            !yyjson_is_uint(yyjson_obj_get(fn, "receiver")) ||
+            !hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) return 0;
+      }
     } else if (!hako_physical_string(yyjson_obj_get(param, "representation"), "kind_payload_v1")) return 0;
   }
   return 1;

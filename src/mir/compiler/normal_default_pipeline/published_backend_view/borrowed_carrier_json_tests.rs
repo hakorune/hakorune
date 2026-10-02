@@ -28,6 +28,65 @@ fn borrowed_carrier_writer_refuses_both_parameter_and_actual_encoding() {
             .compile_normal_with_published(request, |view, verification| -> Result<(), String> {
                 assert!(verification.is_ok(), "{verification:?}");
                 let input = view.issue_lifecycle_physical_abi_input()?;
+                // A real immutable published snapshot exercises the shared
+                // comparison boundary; this is not borrowed source activation.
+                let compare =
+                    super::super::physical_program_json::corroborate_borrowed_function_snapshot;
+                for (ordinal, original) in input.program().functions().iter().enumerate() {
+                    let clone = original.clone();
+                    compare(&clone, ordinal as u32, &input)?;
+                    if original.param_carriers().is_some() {
+                        for carriers in [None, Some(&[Carrier::ExistingCallableI64][..])] {
+                            let mut changed = clone.clone();
+                            changed.param_carriers = carriers;
+                            assert!(compare(&changed, ordinal as u32, &input)
+                                .unwrap_err()
+                                .contains("function-drift"));
+                        }
+                    }
+                }
+                let original = &input.program().functions()[0];
+                let mut changed = original.clone();
+                let (block_index, row_index) = changed
+                    .blocks
+                    .iter()
+                    .enumerate()
+                    .find_map(|(bi, block)| {
+                        block
+                            .instructions
+                            .iter()
+                            .position(|row| {
+                                matches!(
+                                    row.instruction,
+                                    MirInstruction::Const {
+                                        value: crate::mir::ConstValue::Integer(_),
+                                        ..
+                                    }
+                                )
+                            })
+                            .map(|ri| (bi, ri))
+                    })
+                    .expect("actual source Integer producer");
+                let mut instruction = changed.blocks[block_index].instructions[row_index]
+                    .instruction
+                    .clone();
+                let MirInstruction::Const { dst, value } = &mut instruction else {
+                    unreachable!()
+                };
+                let dst = *dst;
+                *value = crate::mir::ConstValue::Integer(999);
+                changed.blocks[block_index].instructions[row_index].instruction = &instruction;
+                assert!(compare(&changed, 0, &input)
+                    .unwrap_err()
+                    .contains("projection-drift"));
+                let altered_copy = MirInstruction::Copy {
+                    dst,
+                    src: ValueId(998),
+                };
+                changed.blocks[block_index].instructions[row_index].instruction = &altered_copy;
+                assert!(compare(&changed, 0, &input)
+                    .unwrap_err()
+                    .contains("projection-drift"));
                 let mut program = input.program().clone();
                 let callee = program
                     .functions
@@ -60,6 +119,42 @@ fn borrowed_carrier_writer_refuses_both_parameter_and_actual_encoding() {
                         error.contains("borrowed-carrier-activation-missing"),
                         "{error}"
                     );
+                }
+                Ok(())
+            })
+            .unwrap();
+        // Swapping two canonical Birth targets must not silently redirect
+        // the original new_box constructor ordinals during JSON projection.
+        let source = "box Pair { left: i64 birth(left) { me.left = left } } box Other { right: i64 birth(right) { me.right = right } } static box Main { main() { local pair = new Pair(7) local other = new Other(8) return pair.left + other.right } }";
+        let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+            source,
+            crate::parser::ParserBuildConfig::default(),
+        )
+        .unwrap();
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+        else {
+            panic!("source-backed")
+        };
+        let request = NormalCompileRequestV1::for_mir_mode_callable_source(
+            source,
+            None,
+            std::collections::HashMap::new(),
+        );
+        MirCompiler::with_options(false)
+            .compile_normal_with_published(request, |view, verification| -> Result<(), String> {
+                assert!(verification.is_ok(), "{verification:?}");
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let births: Vec<_> = input.program().functions().iter().enumerate()
+                    .filter(|(_, function)| function.role().birth_target().is_some()).collect();
+                assert_eq!(births.len(), 2);
+                assert_ne!(births[0].1.role().birth_target(), births[1].1.role().birth_target());
+                for (from, to) in [(0, 1), (1, 0)] {
+                    let mut changed = births[from].1.clone();
+                    changed.role = births[to].1.role().clone();
+                    assert!(super::super::physical_program_json::corroborate_borrowed_function_snapshot(
+                        &changed, births[from].0 as u32, &input,
+                    ).unwrap_err().contains("function-drift"));
                 }
                 Ok(())
             })

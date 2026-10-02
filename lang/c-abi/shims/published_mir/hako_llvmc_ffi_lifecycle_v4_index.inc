@@ -249,7 +249,7 @@ static int lv4_index_open(hako_lv4_input* in) {
            allocation and never ended here. */
         param->kind = LV4_MAP; param->origin = -2;
       } else {
-        param->kind = ordinary ? LV4_I64 : LV4_TAGGED; param->origin = -1;
+        param->kind = ordinary && !lv4_is(row, "representation", "borrowed_kind_payload_v1") ? LV4_I64 : LV4_TAGGED; param->origin = -1;
       }
     }
     for (size_t bi = 0; bi < fn->block_count; bi++) {
