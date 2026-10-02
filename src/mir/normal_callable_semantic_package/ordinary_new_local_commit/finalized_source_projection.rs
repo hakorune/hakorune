@@ -189,6 +189,22 @@ impl FinalizedRootSourceHandoffV1 {
             .finalized_borrowed_ordinary_entry_source_v1(owner)
     }
 
+    pub(in crate::mir) fn borrowed_ordinary_entry_source_for_function_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<super::super::lexical_instance_call::BorrowedOrdinaryEntrySourceRefV1<'_>, String>
+    {
+        let source = self.borrowed_ordinary_entry_source_v1(owner)?;
+        self.ledger.with_finished_projection(owner, |symbol, _| {
+            if function.signature.name != symbol {
+                return Err(freeze("borrowed-entry/finished-function"));
+            }
+            Ok(())
+        })?;
+        Ok(source)
+    }
+
     pub(in crate::mir) fn borrowed_ordinary_entry_values_v1(
         &self,
         owner: FunctionOwnerIdV1,
@@ -198,11 +214,21 @@ impl FinalizedRootSourceHandoffV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    fn finished_binding_for_owner(
+    pub(super) fn finished_binding_for_owner(
         &self,
         owner: FunctionOwnerIdV1,
         original: &Binding,
     ) -> Result<(String, Binding), String> {
+        self.with_finished_projection(owner, |symbol, projection| {
+            project_recorded(symbol, projection, original)
+        })
+    }
+
+    fn with_finished_projection<T>(
+        &self,
+        owner: FunctionOwnerIdV1,
+        read: impl FnOnce(&str, &physical_boundary::FinishedBindings) -> Result<T, String>,
+    ) -> Result<T, String> {
         let root = self.root_validation.borrow();
         if let RootNewValidation::ArtifactFinalized {
             owner: root_owner,
@@ -211,7 +237,7 @@ impl OrdinaryNewClaimLedgerV1 {
         } = &*root
         {
             if *root_owner == owner {
-                return project_recorded(symbol, projection, original);
+                return read(symbol, projection);
             }
         } else {
             return Err(freeze("finished-local-call/root-not-finalized"));
@@ -219,7 +245,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let children = self.child_physical_validation.borrow();
         match children.get(&owner) {
             Some(ChildPhysicalValidation::FinishingChecked { symbol, projection }) => {
-                project_recorded(symbol, projection, original)
+                read(symbol, projection)
             }
             _ => Err(freeze("finished-local-call/child-not-finished")),
         }

@@ -652,6 +652,16 @@ inputs. Incoming target loans retain the original source object. Compiled
 ordinary Call rows retain caller function, block and instruction coordinates;
 these coordinates locate instructions, but do not grant borrowed-use authority.
 
+The final source visitor reads the original local pool once and the root/child
+Return entries separately. It joins each original nested node to the same
+owner's finished symbol and unique actual Invoke; sibling exit-prefix views
+are not independent calls. Before ordinary-result filtering, compiled entry
+checks every Call to a selected borrowed callee against these original nodes,
+all original incoming sites and recorded entry slots. Published Call target,
+receiver, ordered arguments and result must match the finished instruction.
+This incoming check does not replace full operand-use/Copy and C ABI closure;
+borrowed emission and writer activation remain closed until those are proved.
+
 ### DeclaredInstance receiver authority crosswalk
 
 The selected root `me.method(...)` path now borrows the installed package's

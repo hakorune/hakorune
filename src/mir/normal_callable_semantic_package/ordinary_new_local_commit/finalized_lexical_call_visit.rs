@@ -1,0 +1,161 @@
+//! Original call-tree loans joined to the same owner's finished instructions.
+use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
+use crate::mir::MirModule;
+use std::collections::BTreeSet;
+
+/// The outer source continuation. Nested nodes keep their enclosing context;
+/// their own site and target always come from their original Taken row.
+#[derive(Debug, Clone, Copy)]
+pub(in crate::mir) enum FinalizedLexicalCallContextV1<'source> {
+    Local {
+        group_site: &'source OwnedExprSiteV1,
+        declaration: &'source SourceBindingSiteV1,
+        binding: BindingRefV1,
+    },
+    Discard {
+        group_site: &'source OwnedExprSiteV1,
+    },
+    Return {
+        exit: &'source SourceStmtSiteV1,
+    },
+}
+
+impl FinalizedRootSourceHandoffV1 {
+    /// Only the retained original pool is enumerated, never rebound exit-prefix
+    /// views. Both original sites and final instruction coordinates are unique.
+    pub(in crate::mir) fn visit_finalized_lexical_call_nodes_v1(
+        &self,
+        module: &MirModule,
+        mut visit: impl FnMut(
+            FunctionOwnerIdV1,
+            FinalizedLexicalCallContextV1<'_>,
+            &EmittedLexicalCallProjectionV1,
+            &[LocalCallArgumentV1],
+            &MirFunction,
+            (BasicBlockId, usize),
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        let mut source_sites = BTreeSet::new();
+        let mut coordinates = BTreeSet::new();
+        let mut walk = |owner,
+                        context,
+                        packet: &EmittedLexicalCallProjectionV1,
+                        arguments: &[LocalCallArgumentV1]| {
+            packet.visit_original_nodes_v1(owner, arguments, &self.ledger, &mut |node, args| {
+                if !source_sites.insert(node.call_site().clone()) {
+                    return Err(freeze("final-call-visit/source-duplicate"));
+                }
+                let (symbol, _) = self
+                    .ledger
+                    .finished_binding_for_owner(owner, node.outer_bindings().0)?;
+                let function = module
+                    .functions
+                    .get(&symbol)
+                    .ok_or_else(|| freeze("final-call-visit/function-missing"))?;
+                let coordinate = match context {
+                    FinalizedLexicalCallContextV1::Local { group_site, .. }
+                    | FinalizedLexicalCallContextV1::Discard { group_site } => self
+                        .finished_local_call_producer_v1(
+                            owner,
+                            group_site,
+                            node.call_site(),
+                            node.outer_bindings().0,
+                            function,
+                        )?,
+                    FinalizedLexicalCallContextV1::Return { exit } => self
+                        .finished_terminal_call_producer_v1(
+                            owner,
+                            exit,
+                            node.call_site(),
+                            node.outer_bindings().0,
+                            function,
+                        )?,
+                };
+                if !coordinates.insert((symbol, coordinate)) {
+                    return Err(freeze("final-call-visit/coordinate-duplicate"));
+                }
+                visit(owner, context, node, args, function, coordinate)
+            })
+        };
+        for (owner, group) in self.local_call_binding_groups() {
+            let Some(packet) = group.lexical() else {
+                continue;
+            };
+            let source = self
+                .ledger
+                .lexical_i64_call_source(group.site())
+                .ok_or_else(|| freeze("final-call-visit/local-source-missing"))?;
+            if source.owner() != owner || packet.call_site() != group.site() {
+                return Err(freeze("final-call-visit/local-source-identity"));
+            }
+            let context = match source.local_binding() {
+                Some((declaration, binding)) => FinalizedLexicalCallContextV1::Local {
+                    group_site: group.site(),
+                    declaration,
+                    binding,
+                },
+                None => FinalizedLexicalCallContextV1::Discard {
+                    group_site: group.site(),
+                },
+            };
+            walk(owner, context, packet, source.arguments())?;
+        }
+        // The finalized root has moved its original Call entries here.
+        for (exit, (entry, _)) in &self.call_entries {
+            if !matches!(
+                entry,
+                RootHomeExitEntry::Call {
+                    row: super::super::RootCallDispositionV1::Lexical(_),
+                    ..
+                }
+            ) {
+                continue;
+            }
+            self.with_terminal_call_packet_v1(self.owner(), exit, |packet| {
+                let arguments = self
+                    .ledger
+                    .borrowed_terminal_arguments_v1(self.owner(), exit)?
+                    .ok_or_else(|| freeze("final-call-visit/terminal-source-missing"))?;
+                walk(
+                    self.owner(),
+                    FinalizedLexicalCallContextV1::Return { exit },
+                    packet,
+                    &arguments,
+                )
+            })?;
+        }
+        // Child entries remain Emitted in their existing owner. Never enumerate
+        // the root's old ledger views again, or plain exits' shared prefixes.
+        let exits = self.ledger.root_exits.borrow();
+        for ((owner, exit), progress) in exits.iter() {
+            if *owner == self.owner()
+                || !matches!(
+                    progress,
+                    RootHomeExitProgress::Emitted {
+                        entry: RootHomeExitEntry::Call {
+                            row: super::super::RootCallDispositionV1::Lexical(_),
+                            ..
+                        },
+                        ..
+                    }
+                )
+            {
+                continue;
+            }
+            self.with_terminal_call_packet_v1(*owner, exit, |packet| {
+                let arguments = self
+                    .ledger
+                    .borrowed_terminal_arguments_v1(*owner, exit)?
+                    .ok_or_else(|| freeze("final-call-visit/terminal-source-missing"))?;
+                walk(
+                    *owner,
+                    FinalizedLexicalCallContextV1::Return { exit },
+                    packet,
+                    &arguments,
+                )
+            })?;
+        }
+        Ok(())
+    }
+}

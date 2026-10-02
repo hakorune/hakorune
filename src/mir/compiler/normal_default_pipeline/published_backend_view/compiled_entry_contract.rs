@@ -15,6 +15,12 @@ use std::collections::{BTreeMap, BTreeSet};
 #[path = "compiled_entry_contract/birth_calls.rs"]
 mod birth_calls;
 
+#[path = "compiled_entry_contract/borrowed_call_incoming.rs"]
+mod borrowed_call_incoming;
+#[cfg(test)]
+pub(super) use borrowed_call_incoming::corroborate_final_call;
+pub(super) use borrowed_call_incoming::verify_borrowed_call_incoming;
+
 use super::{
     physical_program::{
         PublishedLifecyclePhysicalFunctionRoleV1, PublishedLifecyclePhysicalProgramV1,
@@ -244,6 +250,7 @@ impl<'module> PublishedMirBackendView<'module> {
         &self,
     ) -> Result<CompiledEntryContractV1<'module>, String> {
         let program = self.issue_lifecycle_physical_program()?;
+        verify_borrowed_call_incoming(&program, self.module)?;
         let (root_result, ordinary_calls, contract_births, birth_calls, cleanup) = {
             let [root, tail @ ..] = program.functions() else {
                 return Err(fault("compiled-entry-root-missing"));

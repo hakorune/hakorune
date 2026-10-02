@@ -354,3 +354,83 @@ fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() 
         )
         .is_err());
 }
+
+#[test]
+fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
+    use crate::mir::normal_callable_semantic_package::FinalizedLexicalCallContextV1 as Context;
+    let (ledger, exit, packet, arguments) = fixture();
+    let owner = packet.call_site().owner();
+    let (physical, frame, cleanup) = function(&packet, &arguments);
+    let bindings: Vec<_> = arguments
+        .iter()
+        .chain(cleanup.iter())
+        .chain([&packet.invoke, &packet.projection])
+        .cloned()
+        .collect();
+    let boundary = PhysicalBoundary::capture(&physical, &bindings).unwrap();
+    let mut projection = boundary.project(&physical).unwrap();
+    boundary
+        .validate_complete(&physical, &mut projection, &bindings)
+        .unwrap();
+    record(
+        &ledger,
+        &exit,
+        Rc::clone(&packet),
+        arguments,
+        frame,
+        cleanup,
+    );
+    let (entry, cleanup) = ledger
+        .take_finalized_root_call(owner, &exit)
+        .unwrap()
+        .unwrap();
+    *ledger.root_validation.borrow_mut() = RootNewValidation::ArtifactFinalized {
+        owner,
+        symbol: physical.signature.name.clone(),
+        projection: Rc::new(projection),
+    };
+    let source = FinalizedRootSourceHandoffV1 {
+        ledger: Rc::clone(&ledger),
+        app_main_identity: ledger.app_main_identity.as_ref().unwrap().clone(),
+        terminals: ledger.terminal_relation.clone(),
+        call_entries: [(exit.clone(), (entry, cleanup))].into(),
+        local_calls: Default::default(),
+    };
+    let mut module = crate::mir::MirModule::new("return-loan".into());
+    module
+        .functions
+        .insert(physical.signature.name.clone(), physical);
+    let mut visited = 0;
+    source
+        .visit_finalized_lexical_call_nodes_v1(
+            &module,
+            |observed_owner, context, original, _, _, coordinate| {
+                let Context::Return {
+                    exit: observed_exit,
+                } = context
+                else {
+                    panic!("Return");
+                };
+                assert_eq!(observed_exit, &exit);
+                assert_eq!(observed_owner, owner);
+                assert!(std::ptr::eq(original, packet.as_ref()));
+                assert_eq!(coordinate.0, BasicBlockId(10));
+                visited += 1;
+                Ok(())
+            },
+        )
+        .unwrap();
+    assert_eq!(visited, 1);
+    module
+        .functions
+        .values_mut()
+        .next()
+        .unwrap()
+        .signature
+        .name
+        .push_str("-foreign");
+    assert!(source
+        .visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _| Ok(()))
+        .unwrap_err()
+        .contains("/function"));
+}

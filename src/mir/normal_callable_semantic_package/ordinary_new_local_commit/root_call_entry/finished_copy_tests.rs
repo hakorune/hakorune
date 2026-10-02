@@ -21,8 +21,17 @@ fn fixture() -> Fixture {
 }
 
 fn fixture_at(copy_block: BasicBlockId) -> Fixture {
+    fixture_with_continuation(copy_block, false)
+}
+
+fn fixture_with_continuation(copy_block: BasicBlockId, discard: bool) -> Fixture {
     let text = "box Transport { birth() {} probe(p): i64 { return 0 } forward(q): i64 { local alias = q local recv = new Transport() local out = recv.probe(alias) return 0 } } static box Main { main() { local recv = new Transport() local out = recv.forward(true) return 0 } }";
-    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(text).unwrap();
+    let text = if discard {
+        text.replace("local out = recv.probe(alias)", "recv.probe(alias)")
+    } else {
+        text.into()
+    };
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
     let (prepared, row, source, ledger, exit, copies) =
         crate::mir::builder::lexical_call_projection_forwarded_fixture(package, copy_block);
     let call = prepared
@@ -194,4 +203,89 @@ fn source_forwarded_copy_survives_block_contraction_and_original_packet_rebind()
     ledger
         .validate_forwarded_copies(owner, &finished, &projection)
         .unwrap();
+}
+
+#[test]
+fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physical_finish() {
+    use super::super::super::super::{ChildPhysicalValidation, FinalizedRootSourceHandoffV1};
+    use crate::mir::normal_callable_semantic_package::FinalizedLexicalCallContextV1 as Context;
+    // Original unannotated borrowed source and one-shot disposition, synthetic
+    // CFG finishing only. This does not claim tagged ABI or EXE execution.
+    let (ledger, _, packet, physical, _) = fixture_with_continuation(BasicBlockId(0), true);
+    let owner = packet.call_site().owner();
+    assert!(ledger
+        .lexical_i64_call_source(packet.call_site())
+        .unwrap()
+        .local_binding()
+        .is_none());
+    let bindings = ledger.lifecycle_bindings(owner).unwrap();
+    let boundary = PhysicalBoundary::capture(&physical, &bindings).unwrap();
+    let mut projection = boundary.project(&physical).unwrap();
+    boundary
+        .validate_complete(&physical, &mut projection, &bindings)
+        .unwrap();
+    ledger
+        .validate_forwarded_copies(owner, &physical, &projection)
+        .unwrap();
+    // The final lender requires the root finalization prerequisite even when
+    // this isolated synthetic component visits only an ordinary child.
+    let mut root = crate::mir::MirFunction::new(
+        crate::mir::FunctionSignature {
+            name: "synthetic-root-prerequisite".into(),
+            params: vec![],
+            return_type: crate::mir::MirType::Integer,
+            effects: crate::mir::EffectMask::PURE,
+        },
+        BasicBlockId(0),
+    );
+    root.blocks.get_mut(&BasicBlockId(0)).unwrap().terminator =
+        Some(MirInstruction::Return { value: None });
+    let root_boundary = PhysicalBoundary::capture(&root, &[]).unwrap();
+    let mut root_projection = root_boundary.project(&root).unwrap();
+    root_boundary
+        .validate_complete(&root, &mut root_projection, &[])
+        .unwrap();
+    *ledger.root_validation.borrow_mut() =
+        super::super::super::super::RootNewValidation::ArtifactFinalized {
+            owner: ledger.root_owner().unwrap(),
+            symbol: root.signature.name.clone(),
+            projection: Rc::new(root_projection),
+        };
+    ledger.child_physical_validation.borrow_mut().insert(
+        owner,
+        ChildPhysicalValidation::FinishingChecked {
+            symbol: physical.signature.name.clone(),
+            projection,
+        },
+    );
+    let group = RootLocalCallBindingGroupV1::new(
+        packet.call_site().clone(),
+        vec![packet.invoke.clone(), packet.projection.clone()],
+        Some(Rc::clone(&packet)),
+    )
+    .unwrap();
+    let source = FinalizedRootSourceHandoffV1 {
+        ledger: Rc::clone(&ledger),
+        app_main_identity: ledger.app_main_identity.as_ref().unwrap().clone(),
+        terminals: ledger.terminal_relation.clone(),
+        call_entries: Default::default(),
+        local_calls: [(owner, vec![group])].into(),
+    };
+    let mut module = crate::mir::MirModule::new("borrowed-discard-loan".into());
+    module
+        .functions
+        .insert(physical.signature.name.clone(), physical);
+    let mut visited = 0;
+    source.visit_finalized_lexical_call_nodes_v1(&module,
+        |observed_owner, context, original, arguments, _, coordinate| {
+            let Context::Discard { group_site } = context else { panic!("borrowed Discard"); };
+            assert_eq!(group_site, packet.call_site());
+            assert_eq!(observed_owner, owner);
+            assert!(std::ptr::eq(original, packet.as_ref()));
+            assert!(matches!(arguments, [crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::BorrowedActual { ordinal: 0, .. }]));
+            assert_eq!(coordinate.0, BasicBlockId(10));
+            visited += 1;
+            Ok(())
+        }).unwrap();
+    assert_eq!(visited, 1);
 }

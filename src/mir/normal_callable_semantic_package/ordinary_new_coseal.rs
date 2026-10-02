@@ -454,6 +454,6 @@ mod terminal_result_tests;
 mod tests;
 
 pub(in crate::mir) use local_commit::{
-    EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
+    EmittedLexicalCallProjectionV1, FinalizedLexicalCallContextV1, LexicalCallArgumentProjectionV1,
     PreparedLexicalCallProjectionV1,
 };

@@ -211,6 +211,10 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
 #[path = "ordinary_new_local_commit/finalized_source_projection.rs"]
 mod finalized_source_projection;
 
+#[path = "ordinary_new_local_commit/finalized_lexical_call_visit.rs"]
+mod finalized_lexical_call_visit;
+pub(in crate::mir) use finalized_lexical_call_visit::FinalizedLexicalCallContextV1;
+
 impl FinalizedRootSourceHandoffV1 {
     pub(in crate::mir) fn local_call_binding_groups(
         &self,

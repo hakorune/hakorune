@@ -66,3 +66,109 @@ fn borrowed_carrier_writer_refuses_both_parameter_and_actual_encoding() {
             .unwrap();
     });
 }
+
+#[test]
+fn borrowed_incoming_rejects_metadata_spoof_and_unit_handle_result_before_filter() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    // The existing fixture owns its environment lock; do not reacquire it.
+    {
+        let (module, handoff) =
+            crate::mir::builder::lexical_call_projection_finished_artifact_fixture();
+        // These are the existing source-backed builder/finalization owner
+        // invocations. This does not claim the broader compiler/EXE route.
+        let view = super::super::PublishedMirBackendView::try_new(&module)
+            .unwrap()
+            .bind_finalized_root_handoff(Some(&handoff))
+            .unwrap();
+        let profile =
+            super::super::PublishedObjectStorageProfileV1::from_runtime_name(None).unwrap();
+        let view =
+            super::super::super::lifecycle_admission::admit_lifecycle(view, &profile).unwrap();
+        let program = view.issue_lifecycle_physical_program().unwrap();
+        let mut visited = 0;
+        view.retained_root_source().unwrap().visit_finalized_lexical_call_nodes_v1(view.module(),
+                |_, context, _, _, caller, coordinate| {
+                    use crate::mir::normal_callable_semantic_package::FinalizedLexicalCallContextV1 as Context;
+                    assert!(matches!(context, Context::Local { .. }));
+                    let MirInstruction::Invoke { operation: InvokeOperation::Call { call, result }, .. } =
+                        caller.blocks[&coordinate.0].all_instructions().nth(coordinate.1).unwrap()
+                        else { panic!("actual Invoke"); };
+                    super::super::compiled_entry_contract::corroborate_final_call(call, *result, caller, coordinate)?;
+                    for mutation in 0..4 {
+                        let mut published = call.clone();
+                        let mut published_result = *result;
+                        match mutation {
+                            0 => published.callee = Callee::SameModuleInstance {
+                                key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Pool", "foreign", 1),
+                                receiver: match &call.callee { Callee::SameModuleInstance { receiver, .. } => *receiver, _ => panic!("receiver") },
+                            },
+                            1 => { let Callee::SameModuleInstance { receiver, .. } = &mut published.callee else { panic!("receiver") }; *receiver = ValueId(999); },
+                            2 => {
+                                if let Some(argument) = published.args.first_mut() { *argument = ValueId(998); }
+                                else { published.args.push(ValueId(998)); }
+                            },
+                            _ => published_result = InvokeCallResultKind::Handle,
+                        }
+                        assert!(super::super::compiled_entry_contract::corroborate_final_call(
+                            &published, published_result, caller, coordinate).unwrap_err().contains("actual-call-mismatch"));
+                    }
+                    visited += 1;
+                    Ok(())
+                }).unwrap();
+        assert_eq!(visited, 5);
+        super::super::compiled_entry_contract::verify_borrowed_call_incoming(
+            &program,
+            view.module(),
+        )
+        .unwrap();
+        for result in [
+            InvokeCallResultKind::I64,
+            InvokeCallResultKind::Unit,
+            InvokeCallResultKind::Handle,
+        ] {
+            let mut mutated = program.clone();
+            let callee = mutated
+                .functions
+                .iter_mut()
+                .find(|f| f.name == "Pool.give/1")
+                .unwrap();
+            callee.param_carriers =
+                Some(&[Carrier::ExistingCallableI64, Carrier::BorrowedTaggedValue]);
+            let caller = mutated
+                .functions
+                .iter_mut()
+                .find(|f| f.name == "main")
+                .unwrap();
+            let block = caller.blocks.iter_mut().find(|b| matches!(b.terminator.instruction,
+                    MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. }
+                    if matches!(&call.callee, Callee::SameModuleInstance { key, .. } if key == &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Pool", "give", 1))))
+                    .unwrap();
+            let mut altered = block.terminator.instruction.clone();
+            let MirInstruction::Invoke {
+                operation:
+                    InvokeOperation::Call {
+                        result: observed, ..
+                    },
+                ..
+            } = &mut altered
+            else {
+                panic!("Call");
+            };
+            *observed = result;
+            block.terminator.instruction = &altered;
+            let error = super::super::compiled_entry_contract::verify_borrowed_call_incoming(
+                &mutated,
+                view.module(),
+            )
+            .unwrap_err();
+            assert!(
+                error.contains(if result == InvokeCallResultKind::I64 {
+                    "entry-values-missing"
+                } else {
+                    "borrowed-incoming/result-mismatch"
+                }),
+                "{error}"
+            );
+        }
+    }
+}

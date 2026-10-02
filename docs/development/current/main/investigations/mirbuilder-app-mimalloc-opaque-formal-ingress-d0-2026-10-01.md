@@ -922,22 +922,11 @@ are in the commit. Strict source rejects nonInteger literals. S0 remains open.
 
 Lexical I64 emitter size T0 and complete receipt: `834243d2e7`; ABI closed.
 
-Physical handoff Decision (read-only worker, same accepted S0): retain an
-optional lexical projection tree on the original Call entry, not a semantic
-inventory. Integer keeps actual Const; receiver/Scalar keep the state-issued
-exact-read witness; CallResult retains original inner Taken row and Invoke/
-NormalResult; BorrowedActual retains ordinal/site plus original lender and
-physical producer/read. Rebind/finalized handoff preserve this tree; validate
-against original sealed arguments and source proofs, never outer Invoke args.
-Birth's existing kind/payload expansion is at the final physical boundary, not
-a new MIR producer. Reuse that machinery without changing Birth kinds 1/2.
-Forwarded must demand borrowed_ordinary_entry_values and exact formal/value
-read; these alone do not authorize tags. Install BorrowedTaggedValue only via
-selected Ordinary source/full incoming/use coverage. Extend parameter capability
-corroboration, published writer and C index/useflow/call/emitter together for
-constant versus forwarded tags and ordinary typed-object kind 3. Metadata,
-MirType and physical_signature's old OrdinaryScalar default are non-authority.
-Missing carrier activation remains terminal until this same S0 is closed.
+Original optional lexical-tree/receiver/argument handoff contracts and Decision
+are retained by physical preparation `49990f8e36`: original Taken rows and exact
+producer/read/Copy loans are physical corroboration, never source authority.
+One MIR ValueId expands only at the final ABI boundary; Birth kinds 1/2 stay
+unchanged. Ordinary source/full-use, writer/C and execution closure are owed.
 
 Physical preparation `49990f8e36` and root Call owner T0 `dd6cebfee3`:
 original contracts and complete receipts remain in those commits. No ABI activation.
@@ -946,17 +935,11 @@ Original local/Return packet retention Decision and complete receipt:
 `0c873be1f5`; finished-coordinate/source-loan Decision and receipt: `480d357c85`.
 Original affine rows remain private in the existing handoff; only read-only
 coordinate/source loans may be used. Ordinary full-use/C closure remains owed.
-Borrowed projection Decision (same S0, read-only worker): add original ordinal/
-site/formal and literal/exact-read/entry physical evidence to the existing tree.
-Corroboration borrows original Taken-row actuals again; no source row clone.
-Forwarding demands original entry correspondence and Copy proof for a distinct
-alias ValueId. Production activation stays closed until Return/carrier/full use/
-writer/C/Normal-Fault closure; strict emission cannot authorize borrowed payload.
-Focused tests cover source Integer/Bool/scalar/typed Home and proof substitution.
-Entry receiver, forwarding Copy and tagged execution remain owed.
-Borrowed projection: `1a54469222` / receipt `bbf0e8b271`; Copy: `647f4bb33b`.
-Return Decision `602408591c`, implementation/complete receipt `fbd781670b`; ABI closed.
-Ordinary carrier/full-use, writer/C and Normal/Fault EXE remain owed.
+Original borrowed projection/source identity, forwarding and Return contracts:
+`1a54469222` / `bbf0e8b271`; Copy `647f4bb33b`;
+Return Decision/implementation/complete receipt `602408591c` / `fbd781670b`.
+Those commits retain original proofs and classified tests. ABI remains closed;
+Ordinary full-use, writer/C and Normal/Fault EXE remain owed.
 Copy Decision/complete receipt: `861e50aeb2` / `38cd4191ce`; ABI remains closed.
 
 Ordinary carrier Decision/implementation/complete classified receipt:
@@ -985,14 +968,33 @@ missing/extra incoming, foreign site/ordinal/formal, Copy/tag loss, metadata-onl
 spoof, altered result, and profile-out uses. Normal/Fault execution remains required
 later; do not activate tagged payload before final writer/C and full closure.
 
-Final entry/source loan and ordinary Call-coordinate component receipt:
-Original entry values share the incoming/source correspondence check without
-repeating the one-shot record guard; final handoff loans the original source and
-incoming target objects, without reconstructing lowering input/formal contracts.
-Ordinary rows retain physical caller/block/instruction (including terminators).
-Entry 15/15, compiled-entry 3/3, co-seal 14/14, borrowed 144/144 + 4 ignored PASS;
-full verifier KNOWN BASELINE 8291/126/56, inventory 8473, failures unchanged.
-Lib+tests check, pointer/diff PASS; scope guard known brand_catalog_tests.rs=961.
-Read-only worker confirms ownership/target identity and pending-error boundaries.
-Remaining: original packet visitors, finished symbol/coordinate joins, all-Call
-bidirectional incoming/full-use, writer/C, Normal/Fault EXE and raw-edge retirement.
+Final entry/source loan and ordinary Call-coordinate component: `fc8e403459`.
+Original correspondence/target contracts and full classified receipt remain
+in that commit. Entry source loans do not recreate lowering inputs or contracts.
+
+Full-use continuation Decision (same S0, read-only worker): retain original
+borrowed alias local materialization on the existing entry physical record.
+record_completed_local joins original initializer/binding to existing source
+origins/uses and entry formal; preserve LocalProvenance, never derive it from MIR.
+Loan exact original Copies through the same owner Boundary/FinishedBindings.
+Packet-required Copy chains remain mandatory; unused-only removed Copies are
+allowed only with no residual destination use or replacement definition.
+Seed per-owner tracking with original entry values, propagate proved Copies;
+allow only source Forwarded actuals at their exact Call coordinate/ordinal.
+Inspect all operands, including receiver/fault-frame/edge args and definitions.
+Reject arithmetic/condition/Phi/store/return/rebind/unproved uses. Preserve valid
+unused aliases; source_local_copies DCE permission is not transport authority.
+Same-Boundary optional alias Copy membership must remain separate from mandatory
+packet dependencies and existing source_local_copies DCE permission. Capture exact
+original tuples; allow omission only in the original graph's unused Copy cone
+with no final destination use/redefinition. Residual Copies require exact equality.
+
+Original final-Call visitor/incoming component receipt (2026-10-03): visitor 4/4,
+incoming mutations 1/1, borrowed regression 146/146 + 4 ignored, lexical 23/23 PASS.
+Native Local/nested source reaches builder/finalization/admission; borrowed
+Discard/Return use original source with synthetic CFG, not tagged EXE evidence.
+Inventory adds only these 5 tests (8478 total), failure manifest unchanged.
+Full serial: 8295/127/56; baseline verifier red twice solely the documented nullable
+receiver ordinary-membership-drift flake beyond the known126; isolated 1/1 PASS.
+Pointer/diff/shell PASS; scope guard red at untouched brand_catalog_tests.rs=961.
+Full-use/writer/C/Normal-Fault execution and selected retirement remain owed.

@@ -176,7 +176,8 @@ mod terminal_value_return_tests;
 mod map_physical_dependency_tests;
 
 pub(in crate::mir) use ordinary_new_coseal::{
-    BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,
-    EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
-    PreparedLexicalCallProjectionV1,
+    BorrowedFormalActualSourceV1, EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
+    PreparedBorrowedFormalActualV1, PreparedLexicalCallProjectionV1,
 };
+
+pub(in crate::mir) use ordinary_new_coseal::FinalizedLexicalCallContextV1;

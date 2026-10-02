@@ -215,6 +215,27 @@ impl EmittedLexicalCallProjectionV1 {
             .materialize_with_ledger(owner, &self.row, source, ledger)
     }
 
+    /// Walk the original ordered tree against its sealed source, in evaluation
+    /// order. This lends affine rows; it neither clones nor reissues them.
+    pub(in crate::mir::normal_callable_semantic_package) fn visit_original_nodes_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        source: &[LocalCallArgumentV1],
+        ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+        visit: &mut impl FnMut(&Self, &[LocalCallArgumentV1]) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.call_with_ledger(owner, source, ledger)?;
+        for (argument, original) in self.prepared.arguments.iter().zip(source) {
+            if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
+                let LocalCallArgumentV1::CallResult(original) = original else {
+                    return Err(freeze("lexical-i64/nested-source-missing"));
+                };
+                inner.visit_original_nodes_v1(owner, original.arguments(), ledger, visit)?;
+            }
+        }
+        visit(self, source)
+    }
+
     /// Exact original membership, including each nested node's own call site.
     pub(in crate::mir) fn has_producer_at(
         &self,
