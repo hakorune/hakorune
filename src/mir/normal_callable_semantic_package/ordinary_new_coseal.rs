@@ -105,6 +105,7 @@ pub(crate) use root_instance_call::RootInstanceCallDispositionRowV1;
 pub(crate) enum RootCallDispositionV1 {
     Direct(super::direct_call_loan::DirectCallDispositionRowV1),
     Instance(RootInstanceCallDispositionRowV1),
+    Lexical(std::rc::Rc<local_commit::EmittedLexicalCallProjectionV1>),
 }
 
 #[derive(Debug, PartialEq, Eq)]

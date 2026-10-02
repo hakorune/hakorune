@@ -1,7 +1,7 @@
 //! Real source actuals are lent again; retained physical fields cannot issue them.
 use super::*;
 
-fn fixture(
+pub(super) fn fixture(
     argument: &str,
     prefix: &str,
 ) -> (

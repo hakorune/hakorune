@@ -345,7 +345,7 @@ fn emit_root_home_exit_payload(
                 ledger.record_root_call_exit(
                     owner,
                     site,
-                    call.row,
+                    call.source.finish(invoke.clone(), projection.clone()),
                     call.arguments,
                     invoke,
                     projection,

@@ -13,10 +13,35 @@ pub(in crate::mir::builder) use lexical_i64::emit_local_lexical_i64;
 pub(in crate::mir::builder) use lexical_i64::prepare_arguments as prepare_lexical_arguments;
 
 pub(in crate::mir::builder::ordinary_new_admission) struct Emission {
-    pub(super) row: RootCallDispositionV1,
+    pub(super) source: Source,
     pub(super) arguments: Vec<(BasicBlockId, MirInstruction)>,
     pub(super) call: MirCall,
     pub(super) result: InvokeCallResultKind,
+}
+
+pub(in crate::mir::builder::ordinary_new_admission) enum Source {
+    Existing(RootCallDispositionV1),
+    Lexical {
+        row: LexicalInstanceCallDispositionRowV1,
+        prepared: crate::mir::normal_callable_semantic_package::PreparedLexicalCallProjectionV1,
+    },
+}
+
+impl Source {
+    pub(super) fn finish(
+        self,
+        invoke: (BasicBlockId, MirInstruction),
+        projection: (BasicBlockId, MirInstruction),
+    ) -> RootCallDispositionV1 {
+        match self {
+            Self::Existing(row) => row,
+            Self::Lexical { row, prepared } => RootCallDispositionV1::Lexical(std::rc::Rc::new(
+                crate::mir::normal_callable_semantic_package::EmittedLexicalCallProjectionV1::new(
+                    row, prepared, invoke, projection,
+                ),
+            )),
+        }
+    }
 }
 
 fn result_type(result: InvokeCallResultKind, class: Option<&str>) -> Result<MirType, String> {
@@ -106,7 +131,7 @@ pub(in crate::mir::builder) fn emit(
         Some(value),
         value,
         Some(RootExitIngress::Call(Emission {
-            row: RootCallDispositionV1::Direct(row),
+            source: Source::Existing(RootCallDispositionV1::Direct(row)),
             arguments,
             call,
             result,
@@ -147,7 +172,7 @@ pub(in crate::mir::builder) fn emit_instance(
         Some(value),
         value,
         Some(RootExitIngress::Call(Emission {
-            row: RootCallDispositionV1::Instance(row),
+            source: Source::Existing(RootCallDispositionV1::Instance(row)),
             arguments: Vec::new(),
             call,
             result,
@@ -541,3 +566,7 @@ pub(in crate::mir::builder) fn emit_receiver_nullable(
     ledger.record_handle_call_emission(&owned_site, result, bindings)?;
     Ok(result)
 }
+
+#[path = "terminal_call/lexical_return.rs"]
+mod lexical_return;
+pub(in crate::mir::builder) use lexical_return::emit as emit_borrowed_return;

@@ -966,7 +966,13 @@ cohort and a nonempty value-return Completion, then requires every node in the
 canonical terminal tree to have its original Ready row. Missing sources cannot
 vanish through a skipped preparation row; Unit/Float and old empty-I64 defaults
 supply no result permission. The strict source predicate proves Integer literals
-or exact-I64 formals, never a result annotation alone. The Return physical
-handoff and tagged C
-Normal/Fault acceptance remain required; this source/affine seam alone does not
-activate the new ABI or complete ingress S0.
+or exact-I64 formals, never a result annotation alone. The existing root Call disposition now owns an immutable emitted lexical packet:
+original Taken row, prepared argument tree and original outer Invoke/NormalResult.
+Record checks the exact terminal source and producer membership; exit views rebind
+only flat coordinates. Final root/child lending uses the original packet, the same
+owner FinishedBindings and exactly one instruction in the actual function. Foreign
+exits, lenders, original producer drift and already-mapped coordinates reject.
+Focused contraction tests cover this physical boundary; they do not prove an
+actual tagged source Return execution. Ordinary carrier/full-use, finished Copy,
+writer/C and Normal/Fault acceptance remain required before ABI activation or
+completion of ingress S0.

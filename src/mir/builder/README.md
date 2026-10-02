@@ -626,6 +626,13 @@ a distinct alias value still owes its original Copy proof. Strict emission has
 no borrowed lender, so this projection component does not activate an untagged ABI.
 
 
+Direct borrowed-I64 Return now uses the same argument preparer and existing
+root exit outer-Invoke boundary. Its staged original row/tree become one immutable
+emitted packet at record time; no second outer Invoke is emitted. Strict
+materialization still rejects borrowed payloads until Ordinary carrier, complete
+incoming/use coverage and writer/C closure are installed. This transport does not
+activate the ABI or prove source-to-EXE acceptance.
+
 ### DeclaredInstance receiver authority crosswalk
 
 The selected root `me.method(...)` path now borrows the installed package's

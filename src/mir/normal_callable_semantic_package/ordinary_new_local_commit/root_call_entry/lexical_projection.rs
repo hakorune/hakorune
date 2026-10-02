@@ -38,7 +38,7 @@ pub(in crate::mir) struct PreparedLexicalCallProjectionV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::mir) struct EmittedLexicalCallProjectionV1 {
+pub(crate) struct EmittedLexicalCallProjectionV1 {
     row: LexicalInstanceCallDispositionRowV1,
     prepared: PreparedLexicalCallProjectionV1,
     invoke: Binding,
@@ -174,6 +174,25 @@ impl PreparedLexicalCallProjectionV1 {
 }
 
 impl EmittedLexicalCallProjectionV1 {
+    pub(in crate::mir) fn outer_bindings(&self) -> (&Binding, &Binding) {
+        (&self.invoke, &self.projection)
+    }
+
+    pub(in crate::mir) fn original_row(&self) -> &LexicalInstanceCallDispositionRowV1 {
+        &self.row
+    }
+
+    pub(in crate::mir) fn call_with_ledger(
+        &self,
+        owner: FunctionOwnerIdV1,
+        source: &[LocalCallArgumentV1],
+        ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+    ) -> Result<MirCall, String> {
+        self.value_with_ledger(owner, source, ledger)?;
+        self.prepared
+            .materialize_with_ledger(owner, &self.row, source, ledger)
+    }
+
     /// Exact original membership, including each nested node's own call site.
     pub(in crate::mir) fn has_producer_at(
         &self,
@@ -309,3 +328,7 @@ mod borrowed_projection_tests;
 #[cfg(test)]
 #[path = "finished_projection_tests.rs"]
 mod finished_projection_tests;
+
+#[cfg(test)]
+#[path = "lexical_terminal_tests.rs"]
+mod terminal_tests;

@@ -229,6 +229,16 @@ impl OrdinaryNewClaimLedgerV1 {
                 let _ = direct.physical_emission();
             }
         }
+        if let RootCallDispositionV1::Lexical(packet) = &row {
+            self.validate_lexical_terminal_packet(owner, site, packet)?;
+            let (original_invoke, original_projection) = packet.outer_bindings();
+            if original_invoke != &invoke || original_projection != &projection {
+                return Err(freeze("lexical-terminal/original-outer-drift"));
+            }
+            let mut recorded = arguments.clone();
+            recorded.extend([invoke.clone(), projection.clone()]);
+            packet.validate_recorded(&recorded)?;
+        }
         let local_bindings = self.select_local_call_binding_groups(owner, site)?;
         self.record_root_home_exit_with_entry(
             owner,
@@ -519,3 +529,6 @@ pub(in crate::mir) use lexical_projection::{
 #[path = "root_call_entry/local_binding_group.rs"]
 mod local_binding_group;
 pub(crate) use local_binding_group::RootLocalCallBindingGroupV1;
+
+#[path = "root_call_entry/lexical_terminal.rs"]
+mod lexical_terminal;

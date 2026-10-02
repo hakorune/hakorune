@@ -989,12 +989,12 @@ alias ValueId. Production activation stays closed until Return/carrier/full use/
 writer/C/Normal-Fault closure; strict emission cannot authorize borrowed payload.
 Focused tests cover source Integer/Bool/scalar/typed Home and proof substitution.
 Entry receiver, forwarding Copy and tagged execution remain owed.
-Borrowed projection implementation `1a54469222`, complete receipt `bbf0e8b271`.
-Pending re-export/value_with_ledger warnings2 and brand_catalog_tests961 debt remain.
-Copy provenance implementation and complete receipt: `647f4bb33b`.
-Return Decision: existing RootCall disposition retains immutable original Emitted
-packet (Taken row + Prepared tree + original Invoke/NormalResult), one owner only.
-Stage row/tree before outer Invoke; finish packet once at existing record boundary.
-Rebind flat views only; validate original source/tree and the same FinishedBindings.
-Source/issuer remain original borrowed terminal/actual owners; no semantic inventory.
-ABI activation stays closed; carrier/full-use/finished Copy/writer/C/EXE remain owed.
+Borrowed projection: `1a54469222` / receipt `bbf0e8b271`; Copy: `647f4bb33b`.
+Return Decision `602408591c` implemented: one original Taken/tree/Invoke/result packet;
+record once, rebind flat views only, final source + same FinishedBindings lending.
+Receipt: terminal3/3, co-seal171/171, lib+tests check, touched fmt/diff/pointer PASS.
+Full8278/126/56 inventory8460: KNOWN BASELINE; `/tmp/hakorune-lexical-return-*.log`.
+Scope guard remains pre-existing brand_catalog_tests961; pending S0 lender/packet
+methods and PreparedBorrowedFormalActual re-export warnings remain unsuppressed.
+Contraction unit evidence is not tagged source Return/EXE acceptance; ABI closed.
+Next same S0: finished Copy, Ordinary carrier/full-use, writer/C, Normal/Fault EXE.

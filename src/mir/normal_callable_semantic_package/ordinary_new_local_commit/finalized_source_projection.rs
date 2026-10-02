@@ -38,24 +38,61 @@ impl FinalizedRootSourceHandoffV1 {
             return Err(freeze("finished-local-call/original-producer"));
         }
         let (symbol, finished) = self.ledger.finished_binding_for_owner(owner, original)?;
-        if function.signature.name != symbol {
-            return Err(freeze("finished-local-call/function"));
+        find_finished_producer(&symbol, &finished, function)
+    }
+
+    /// Read the original Return packet without copying an affine row or issuing source.
+    pub(in crate::mir) fn with_terminal_call_packet_v1<T>(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        read: impl FnOnce(&EmittedLexicalCallProjectionV1) -> Result<T, String>,
+    ) -> Result<T, String> {
+        let extract = |entry: &RootHomeExitEntry| match entry {
+            RootHomeExitEntry::Call {
+                row: super::super::RootCallDispositionV1::Lexical(packet),
+                ..
+            } => Ok(Rc::clone(packet)),
+            _ => Err(freeze("finished-terminal-call/packet-missing")),
+        };
+        let packet = if owner == self.owner() {
+            extract(
+                &self
+                    .call_entries
+                    .get(exit)
+                    .ok_or_else(|| freeze("finished-terminal-call/exit-missing"))?
+                    .0,
+            )?
+        } else {
+            let exits = self.ledger.root_exits.borrow();
+            match exits.get(&(owner, exit.clone())) {
+                Some(RootHomeExitProgress::Emitted { entry, .. }) => extract(entry)?,
+                _ => return Err(freeze("finished-terminal-call/child-exit-missing")),
+            }
+        };
+        self.ledger
+            .validate_lexical_terminal_packet(owner, exit, &packet)?;
+        read(&packet)
+    }
+
+    pub(in crate::mir) fn finished_terminal_call_producer_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        node_site: &OwnedExprSiteV1,
+        original: &Binding,
+        function: &MirFunction,
+    ) -> Result<(BasicBlockId, usize), String> {
+        if node_site.owner() != owner {
+            return Err(freeze("finished-terminal-call/owner"));
         }
-        let block = function
-            .blocks
-            .get(&finished.0)
-            .ok_or_else(|| freeze("finished-local-call/block-missing"))?;
-        let mut matches = block
-            .all_instructions()
-            .enumerate()
-            .filter(|(_, instruction)| *instruction == &finished.1);
-        let (index, _) = matches
-            .next()
-            .ok_or_else(|| freeze("finished-local-call/producer-missing"))?;
-        if matches.next().is_some() {
-            return Err(freeze("finished-local-call/producer-duplicate"));
-        }
-        Ok((finished.0, index))
+        self.with_terminal_call_packet_v1(owner, exit, |packet| {
+            if !packet.has_producer_at(node_site, original) {
+                return Err(freeze("finished-terminal-call/original-producer"));
+            }
+            let (symbol, finished) = self.ledger.finished_binding_for_owner(owner, original)?;
+            find_finished_producer(&symbol, &finished, function)
+        })
     }
 
     pub(in crate::mir) fn borrowed_call_actuals_v1(
@@ -114,4 +151,29 @@ fn project_recorded(
         return Err(freeze("finished-local-call/producer-unrecorded"));
     }
     Ok((symbol.to_owned(), finished))
+}
+
+fn find_finished_producer(
+    symbol: &str,
+    finished: &Binding,
+    function: &MirFunction,
+) -> Result<(BasicBlockId, usize), String> {
+    if function.signature.name != symbol {
+        return Err(freeze("finished-local-call/function"));
+    }
+    let block = function
+        .blocks
+        .get(&finished.0)
+        .ok_or_else(|| freeze("finished-local-call/block-missing"))?;
+    let mut matches = block
+        .all_instructions()
+        .enumerate()
+        .filter(|(_, instruction)| *instruction == &finished.1);
+    let (index, _) = matches
+        .next()
+        .ok_or_else(|| freeze("finished-local-call/producer-missing"))?;
+    if matches.next().is_some() {
+        return Err(freeze("finished-local-call/producer-duplicate"));
+    }
+    Ok((finished.0, index))
 }

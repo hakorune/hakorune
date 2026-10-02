@@ -74,18 +74,37 @@ impl OrdinaryNewClaimLedgerV1 {
                 Err(freeze("call-entry-missing"))
             };
         };
-        let row_argument_count = match row {
-            RootCallDispositionV1::Direct(row) => row.argument_sites().len(),
-            RootCallDispositionV1::Instance(row) => row.argument_sites().len(),
-        };
-        if arguments.len() != terminal.arguments().len() || row_argument_count != arguments.len() {
-            return Err(freeze("call-argument-count"));
-        }
-        let mut values = Vec::with_capacity(arguments.len());
-        for (ordinal, ((_, instruction), argument)) in
-            arguments.iter().zip(terminal.arguments()).enumerate()
-        {
-            match (instruction, argument) {
+        let expected = if let RootCallDispositionV1::Lexical(packet) = row {
+            self.validate_lexical_terminal_packet(owner, exit, packet)?;
+            let mut recorded = arguments.clone();
+            recorded.extend([invoke.clone(), projection.clone()]);
+            packet.validate_recorded(&recorded)?;
+            let (original_invoke, original_projection) = packet.outer_bindings();
+            if original_invoke != invoke || original_projection != projection {
+                return Err(freeze("lexical-terminal/original-outer-drift"));
+            }
+            let source = self
+                .borrowed_terminal_arguments_v1(owner, exit)?
+                .ok_or_else(|| freeze("lexical-terminal/source-missing"))?;
+            packet.call_with_ledger(owner, &source, self)?
+        } else {
+            let row_argument_count = match row {
+                RootCallDispositionV1::Direct(row) => row.argument_sites().len(),
+                RootCallDispositionV1::Instance(row) => row.argument_sites().len(),
+                RootCallDispositionV1::Lexical(_) => {
+                    return Err(freeze("lexical-terminal/strict-row"))
+                }
+            };
+            if arguments.len() != terminal.arguments().len()
+                || row_argument_count != arguments.len()
+            {
+                return Err(freeze("call-argument-count"));
+            }
+            let mut values = Vec::with_capacity(arguments.len());
+            for (ordinal, ((_, instruction), argument)) in
+                arguments.iter().zip(terminal.arguments()).enumerate()
+            {
+                match (instruction, argument) {
                 (
                     MirInstruction::Const {
                         dst,
@@ -126,8 +145,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 _ => return Err(freeze("call-argument-drift")),
             }
-        }
-        let typed: Vec<_> = values
+            }
+            let typed: Vec<_> = values
             .into_iter()
             .zip(terminal.arguments())
             .map(|(value, argument)| {
@@ -143,49 +162,53 @@ impl OrdinaryNewClaimLedgerV1 {
                 Ok((value, class))
             })
             .collect::<Result<_, String>>()?;
-        let expected = match row {
-            RootCallDispositionV1::Direct(row) => row
-                .physical_emission()
-                .materialize_call_typed(None, typed)
-                .map_err(|_| freeze("call-projection-failed"))?,
-            RootCallDispositionV1::Instance(row) => {
-                if !typed.is_empty() || row.argument_sites().iter().next().is_some() {
-                    return Err(freeze("instance-call-arguments"));
+            match row {
+                RootCallDispositionV1::Direct(row) => row
+                    .physical_emission()
+                    .materialize_call_typed(None, typed)
+                    .map_err(|_| freeze("call-projection-failed"))?,
+                RootCallDispositionV1::Lexical(_) => {
+                    return Err(freeze("lexical-terminal/strict-row"))
                 }
-                let receiver = self.resolve_instance_receiver(owner, row)?;
-                let MirInstruction::Invoke {
-                    operation:
-                        InvokeOperation::Call {
-                            call,
-                            result: InvokeCallResultKind::I64,
-                        },
-                    ..
-                } = &invoke.1
-                else {
-                    return Err(freeze("instance-call-shape"));
-                };
-                if let crate::mir::definitions::Callee::SameModuleInstance {
-                    receiver: actual_receiver,
-                    ..
-                } = &call.callee
-                {
-                    if *actual_receiver != receiver {
-                        return Err(freeze("instance-call-receiver"));
+                RootCallDispositionV1::Instance(row) => {
+                    if !typed.is_empty() || row.argument_sites().iter().next().is_some() {
+                        return Err(freeze("instance-call-arguments"));
                     }
+                    let receiver = self.resolve_instance_receiver(owner, row)?;
+                    let MirInstruction::Invoke {
+                        operation:
+                            InvokeOperation::Call {
+                                call,
+                                result: InvokeCallResultKind::I64,
+                            },
+                        ..
+                    } = &invoke.1
+                    else {
+                        return Err(freeze("instance-call-shape"));
+                    };
+                    if let crate::mir::definitions::Callee::SameModuleInstance {
+                        receiver: actual_receiver,
+                        ..
+                    } = &call.callee
+                    {
+                        if *actual_receiver != receiver {
+                            return Err(freeze("instance-call-receiver"));
+                        }
+                    }
+                    if *call
+                        != crate::mir::definitions::MirCall::new(
+                            None,
+                            crate::mir::definitions::Callee::SameModuleInstance {
+                                key: row.target().clone(),
+                                receiver,
+                            },
+                            Vec::new(),
+                        )
+                    {
+                        return Err(freeze("instance-call-target"));
+                    }
+                    call.clone()
                 }
-                if *call
-                    != crate::mir::definitions::MirCall::new(
-                        None,
-                        crate::mir::definitions::Callee::SameModuleInstance {
-                            key: row.target().clone(),
-                            receiver,
-                        },
-                        Vec::new(),
-                    )
-                {
-                    return Err(freeze("instance-call-target"));
-                }
-                call.clone()
             }
         };
         if !matches!(&invoke.1, MirInstruction::Invoke {
