@@ -666,6 +666,10 @@ Selected borrowed entry records also retain original local initializer/binding
 and private Copy provenance, including unused aliases and initializer reuse.
 Recording and lending both corroborate original source Copy uses and entry roots.
 The finalized handoff demands the same finished owner before lending these proofs.
+For a source-proved zero-Copy alias, local completion lends the original formal
+into the existing dynamic alias owner, which checks the shared root value before
+recording a new binding. Default dynamic local completion still rejects value
+reuse; Loop physical acceptance remains a separate obligation.
 Optional Boundary membership, DCE and all-use verification remain separate
 obligations; retaining a local proof does not activate the borrowed ABI.
 

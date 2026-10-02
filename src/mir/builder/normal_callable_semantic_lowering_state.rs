@@ -355,6 +355,7 @@ impl CallableSemanticLoweringState {
         {
             return Err(freeze("local-materialization-mismatch"));
         }
+        let mut borrowed_reuse = BTreeMap::new();
         for (ordinal, (binding, row)) in bindings.iter().zip(completed.bindings()).enumerate() {
             let relation = self.local_initializer(site, ordinal)?.clone();
             let source = relation
@@ -362,18 +363,28 @@ impl CallableSemanticLoweringState {
                 .and_then(|initializer| self.variables.get(initializer.node()).copied());
             let provenance = source.and_then(|source| self.values.local_provenance(source, row));
             if matches!(&self.borrowed_entry_formals, Some(Ok(Some(_)))) {
-                self.ordinary_new_claim_ledger.as_ref()
+                let formal = self.ordinary_new_claim_ledger.as_ref()
                     .ok_or_else(|| freeze("borrowed-alias/source-ledger-missing"))?
                     .record_borrowed_ordinary_alias_v1(
                         self.owner, &relation, source, row.local(), provenance.as_ref(),
                     )?;
+                if row.copy().is_none() && row.local() == row.initializer() {
+                    if let Some(formal) = formal {
+                        borrowed_reuse.insert(*binding, formal);
+                    }
+                }
             }
             self.insert_value(*binding, row.local())?;
             self.values.attach_provenance(*binding, provenance);
         }
-        self.dynamic_origins
-            .record_local(site, &bindings, completed.bindings())
-            .map_err(|error| error.to_string())?;
+        let dynamic_completion = if borrowed_reuse.is_empty() {
+            self.dynamic_origins.record_local(site, &bindings, completed.bindings())
+        } else {
+            self.dynamic_origins.record_local_with_borrowed_reuse(
+                site, &bindings, completed.bindings(), &borrowed_reuse,
+            )
+        };
+        dynamic_completion.map_err(|error| error.to_string())?;
         Ok(())
     }
 

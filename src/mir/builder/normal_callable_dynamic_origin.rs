@@ -276,6 +276,18 @@ impl CallableDynamicOriginLoweringStateV1 {
         bindings: &[BindingRefV1],
         completed: &[CompletedLocalBindingV1],
     ) -> Result<(), CallableDynamicOriginErrorV1> {
+        self.record_local_with_borrowed_reuse(statement, bindings, completed, &BTreeMap::new())
+    }
+
+    /// This mapping is lent only after the original borrowed source, entry and
+    /// immutable local provenance agree. It never changes the default local arm.
+    pub(super) fn record_local_with_borrowed_reuse(
+        &mut self,
+        statement: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+        bindings: &[BindingRefV1],
+        completed: &[CompletedLocalBindingV1],
+        borrowed_reuse: &BTreeMap<BindingRefV1, BindingRefV1>,
+    ) -> Result<(), CallableDynamicOriginErrorV1> {
         if bindings.len() != completed.len() {
             return Err(CallableDynamicOriginErrorV1::LocalShapeMismatch);
         }
@@ -288,6 +300,18 @@ impl CallableDynamicOriginLoweringStateV1 {
             let Some(expected) = self.local_expectations.get(&binding) else {
                 continue;
             };
+            if let Some(&formal) = borrowed_reuse.get(&binding) {
+                if physical.copy().is_some() || physical.local() != physical.initializer() {
+                    return Err(CallableDynamicOriginErrorV1::LocalBindingMismatch(binding));
+                }
+                if self.value_origins.get(&physical.initializer()) != Some(&formal) {
+                    return Err(CallableDynamicOriginErrorV1::InitializerOriginMismatch(
+                        binding,
+                    ));
+                }
+                self.record_alias_local(statement, binding, formal, physical.local(), ordinal)?;
+                continue;
+            }
             let SourceBindingSiteV1::Local {
                 statement: expected_statement,
                 ordinal: expected_ordinal,

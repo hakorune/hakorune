@@ -959,9 +959,7 @@ missing/extra incoming, foreign site/ordinal/formal, Copy/tag loss, metadata-onl
 spoof, altered result, and profile-out uses. Normal/Fault execution remains required
 later; do not activate tagged payload before final writer/C and full closure.
 
-Final entry/source loan and ordinary Call-coordinate component: `fc8e403459`.
-Original correspondence/target contracts and full classified receipt remain
-in that commit. Entry source loans do not recreate lowering inputs or contracts.
+Original entry/source/Call-coordinate Decision and classified receipt: `fc8e403459`.
 
 Full-use continuation Decision (same S0, read-only worker): retain original
 borrowed alias local materialization on the existing entry physical record.
@@ -980,21 +978,22 @@ packet dependencies and existing source_local_copies DCE permission. Capture exa
 original tuples; allow omission only in the original graph's unused Copy cone
 with no final destination use/redefinition. Residual Copies require exact equality.
 
-Original final-Call visitor/incoming Decision, tests and classified receipt:
-`4cbbc86d3a`. Native builder/admission and synthetic Discard/Return evidence stay
-separate; known nullable flake is not re-baselined. ABI and full-use remain open.
+Original final-Call Decision/classified receipt: `4cbbc86d3a`; native and
+synthetic evidence stay separate; nullable flake is not re-baselined. ABI closed.
+Loop audit: at `30aa4838fc`, zero-Copy completion hit LocalBindingMismatch.
+Borrowed reuse fixes source/shared completion; physical Loop acceptance is owed.
+Keep cycle guard; optional Copy relocation needs original/loop-owner block mapping.
 
-Loop audit correction: source profile does not exclude loop aliases, but the
-Loop port's zero-Copy completion hits existing dynamic-origin LocalBindingMismatch.
-Original zero-Copy retention alone is not production loop acceptance evidence.
-Keep cycle guard; optional Copies outside lifecycle nodes need original block
-identity or existing loop-owner mapping, not global tuple-based relocation.
-
-Alias-retention receipt: original source/entry/private provenance rechecked on
-record/final loan, including unused chains. Focused6/6, borrowed152/152 +4ignored,
-lexical23/23 PASS; lib/tests check PASS before final zero-Copy test correction;
-latest test build PASS. Inventory +6 only (8484); stable8302/126/56 expected.
-Failure manifest unchanged. Verifier RED8301/127/56; named full run differs only
-by existing nullable receiver flake (ordinary-membership-drift); standalone PASS.
-Pointer/diff/shell PASS; changed Rust <800; scope guard RED untouched brand tests961.
-Boundary/full-use/production reuse/ABI/EXE remain owed; no completion claim.
+Alias-retention implementation and classified receipt: `30aa4838fc`; ABI closed.
+Borrowed reuse Decision (same S0, read-only worker): original source/entry/proof
+record returns its original formal only after successful alias retention.
+Only zero-Copy initializer==local rows lend that mapping to dynamic-origin owner;
+it demands same active formal/root and uses existing record_alias_local without
+re-inserting value_origins. Default record_local keeps its same-value rejection.
+Direct/chain/foreign value/Copy/duplicate tests required; loop production success
+still needs focused invocation. No metadata/bool authority or ABI activation.
+Reuse receipt: focused9/9, Dynamic origin9/9, borrowed155/155 +4ignored PASS.
+Latest test build PASS; inventory +3 only8487, failure names/hash unchanged.
+Verifier first RED8304/127/56; named full run8305/126/56 matched exact baseline;
+verifier recheck KNOWN BASELINE8305/126/56 PASS. Pointer/diff PASS; source <800.
+Worker review clean; physical Loop/Boundary/full-use/C/EXE and ABI activation owed.

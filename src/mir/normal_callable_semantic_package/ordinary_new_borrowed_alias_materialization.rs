@@ -28,7 +28,7 @@ impl OrdinaryNewClaimLedgerV1 {
         source_binding: Option<BindingRefV1>,
         value: ValueId,
         proof: Option<&LocalProvenanceV1>,
-    ) -> Result<(), String> {
+    ) -> Result<Option<BindingRefV1>, String> {
         let source = self
             .borrowed_formal_source
             .as_ref()
@@ -44,7 +44,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("borrowed-alias/binding-owner"));
         }
         let Some(formal) = definition.origins.get(&binding).copied() else {
-            return Ok(());
+            return Ok(None);
         };
         if binding == formal || binding.owner() != owner || formal.owner() != owner {
             return Err(freeze("borrowed-alias/binding"));
@@ -92,7 +92,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 proof: proof.clone(),
             },
         );
-        Ok(())
+        Ok(Some(formal))
     }
 
     fn check_borrowed_alias_source_v1(

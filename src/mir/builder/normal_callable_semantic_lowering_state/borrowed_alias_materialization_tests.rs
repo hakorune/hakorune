@@ -59,7 +59,7 @@ fn borrowed_alias_materialization_retains_unused_chain_on_original_entry() {
 
 #[test]
 fn borrowed_alias_materialization_retains_original_zero_copy_proof() {
-    let mut state = state_with_body("local alias = p return 0");
+    let state = state_with_body("local alias = p return 0");
     let site = state.locals.keys().next().unwrap().clone();
     let relation = state.local_initializer(&site, 0).unwrap().clone();
     let source = state.parameters[0];
@@ -159,4 +159,91 @@ fn borrowed_alias_materialization_refuses_unproved_value_materialization() {
         .record_completed_local(&site, &completed(999, 73, true))
         .unwrap_err();
     assert!(error.contains("proof-missing"), "{error}");
+}
+
+#[test]
+fn borrowed_alias_materialization_completes_proved_reuse_chain() {
+    let mut state = state_with_body("local a = p local b = a return 0");
+    let sites: Vec<_> = state.locals.keys().cloned().collect();
+    let formal = state.parameters[0];
+    for (index, site) in sites.iter().enumerate() {
+        let binding = state.locals[site][0];
+        state
+            .record_completed_local(site, &completed(72, 72, false))
+            .unwrap();
+        assert_eq!(state.values.get(&binding), Some(&ValueId(72)));
+        let dynamic_entry = state.dynamic_origins.local_entry(binding);
+        if index == 0 {
+            assert!(
+                dynamic_entry.is_some(),
+                "direct formal alias must use existing dynamic alias arm"
+            );
+        }
+        if let Some(row) = dynamic_entry {
+            assert_eq!(row.formal(), formal);
+            assert_eq!(row.initializer(), ValueId(72));
+            assert_eq!(row.local(), ValueId(72));
+        }
+    }
+    assert_eq!(
+        state.dynamic_origins.value_origin(ValueId(72)),
+        Some(formal)
+    );
+    let mut count = 0;
+    state
+        .ordinary_new_claim_ledger
+        .as_ref()
+        .unwrap()
+        .with_borrowed_ordinary_alias_copies_v1(state.owner, |_, _, _, root, value, copies| {
+            assert_eq!(root, formal);
+            assert_eq!(value, ValueId(72));
+            assert!(copies.is_empty());
+            count += 1;
+            Ok(())
+        })
+        .unwrap();
+    assert_eq!(count, 2);
+    assert!(state
+        .record_completed_local(&sites[0], &completed(72, 72, false))
+        .unwrap_err()
+        .contains("local-materialization-mismatch"));
+}
+
+#[test]
+fn borrowed_alias_materialization_reuse_does_not_relax_unproved_local_completion() {
+    for (source, destination, copy, selected) in [
+        (999, 999, false, true),
+        (72, 72, true, true),
+        (72, 72, false, false),
+    ] {
+        let mut state = state_with_body("local alias = p return 0");
+        if !selected {
+            state.borrowed_entry_formals = None;
+        }
+        let site = state.locals.keys().next().unwrap().clone();
+        let error = state
+            .record_completed_local(&site, &completed(source, destination, copy))
+            .unwrap_err();
+        assert!(
+            error.contains("proof-missing") || error.contains("LocalBindingMismatch"),
+            "{error}"
+        );
+    }
+}
+
+#[test]
+fn borrowed_alias_materialization_completes_source_loop_local_reuse() {
+    // This exercises the exact loop-local source and shared completion owner;
+    // it does not substitute for physical LoopCond/EXE acceptance.
+    let mut state = state_with_body("loop(true) { local alias = p break } return 0");
+    let site = state.locals.keys().next().unwrap().clone();
+    state
+        .record_completed_local(&site, &completed(72, 72, false))
+        .unwrap();
+    let binding = state.locals[&site][0];
+    assert_eq!(state.values.get(&binding), Some(&ValueId(72)));
+    assert_eq!(
+        state.dynamic_origins.value_origin(ValueId(72)),
+        Some(state.parameters[0])
+    );
 }
