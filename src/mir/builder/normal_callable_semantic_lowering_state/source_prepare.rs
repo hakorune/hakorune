@@ -205,7 +205,7 @@ impl CallableSemanticLoweringState {
             explicit_extern_calls,
             brand_constructors,
             direct_lambda_captures,
-            values: BTreeMap::new(),
+            values: MaterializedValuesV1::default(),
             dynamic_origins,
             construction: construction::ConstructionState::NotConstruction,
             fault_frame: Some(

@@ -83,7 +83,7 @@ pub(super) fn value(
                     }
                     // A distinct alias value needs the original Copy-chain proof.
                     // A raw matching type cannot stand in for that obligation.
-                    if value != expected.2 {
+                    if !read.proves_forwarded_entry(formal, expected.2) {
                         return Err(freeze("lexical-i64/forwarded-copy-proof-missing"));
                     }
                 }

@@ -989,12 +989,12 @@ alias ValueId. Production activation stays closed until Return/carrier/full use/
 writer/C/Normal-Fault closure; strict emission cannot authorize borrowed payload.
 Focused tests cover source Integer/Bool/scalar/typed Home and proof substitution.
 Entry receiver, forwarding Copy and tagged execution remain owed.
-Borrowed projection `1a54469222`: focused4/projection13/source10/crosswalk7/
-co-seal168 PASS; inventory8449 adds passing4 only. Fixed verifier KNOWN
-BASELINE8267/126/56; failure set unchanged. Pointer/diff/touched-source format
-PASS; untouched brand_catalog_tests961 guard red retained. New pending
-re-export/value_with_ledger warnings2 are S0-owned.
-Next Copy proof Decision: retain block/Copy in original CompletedLocalBindingV1,
-join source binding in record_completed_local and preserve provenance in existing
-values entries. No separate alias map; rebind invalidates old provenance. Then
-Return payload/carrier/writer/C/Normal-Fault closure stays in this same S0.
+Borrowed projection implementation `1a54469222`, complete receipt `bbf0e8b271`.
+Pending re-export/value_with_ledger warnings2 and brand_catalog_tests961 debt remain.
+Copy component: original completion joins initializer; value-slot provenance only.
+Focused state5/receipt3/crosswalk12/projection13/lexical10/co-seal168 PASS.
+Final lib/tests check, pointer/diff and touched-source format PASS; sources below800.
+Full8274/127/56, inventory8457 adds passing8 only; failure names and nullable panic
+match pre-change `480d357c85` receipt exactly (fixed126 + known nullable flake1).
+Fixed verifier detects that flake; manifest stays126, no retry or baseline widening.
+Next: Return tree, finished Copy corroboration, carrier/full-use/writer/C/EXE closure.

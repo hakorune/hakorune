@@ -56,6 +56,10 @@ mod source_loop_bridge;
 pub(in crate::mir) use map_local::validate_map_local_annotation;
 pub(in crate::mir::builder) use source_loop_bridge::CallableLoopSourceBridgeTakeV1;
 
+#[path = "normal_callable_semantic_lowering_state/materialized_values.rs"]
+mod materialized_values;
+pub(in crate::mir::builder) use materialized_values::MaterializedValuesV1;
+
 #[derive(Debug)]
 pub(super) struct CallableSemanticLoweringState {
     fault_frame: Option<crate::mir::builder::function_fault_frame::FunctionFaultFrameV1>,
@@ -77,7 +81,7 @@ pub(super) struct CallableSemanticLoweringState {
     brand_constructors:
         super::brand_constructor_lowering_projection::BrandConstructorLoweringProjectionV1,
     direct_lambda_captures: BTreeMap<SourceNodeSiteV1, Box<[(Box<str>, BindingRefV1)]>>,
-    values: BTreeMap<BindingRefV1, ValueId>,
+    values: MaterializedValuesV1,
     dynamic_origins: CallableDynamicOriginLoweringStateV1,
     entry_installed: bool,
     borrowed_entry_formals: Option<Result<Option<Box<[(u32, BindingRefV1)]>>, String>>,
@@ -341,16 +345,23 @@ impl CallableSemanticLoweringState {
             .cloned()
             .ok_or_else(|| freeze("missing-local-site"))?;
         if bindings.len() != completed.bindings().len()
+            || completed
+                .bindings()
+                .iter()
+                .enumerate()
+                .any(|(ordinal, row)| row.ordinal() as usize != ordinal)
             || !self.materialized_locals.insert(site.clone())
         {
             return Err(freeze("local-materialization-mismatch"));
         }
-        for (binding, value) in bindings
-            .iter()
-            .copied()
-            .zip(completed.bindings().iter().map(|row| row.local()))
-        {
-            self.insert_value(binding, value)?;
+        for (ordinal, (binding, row)) in bindings.iter().zip(completed.bindings()).enumerate() {
+            let relation = self.local_initializer(site, ordinal)?;
+            let source = relation
+                .initializer_site()
+                .and_then(|initializer| self.variables.get(initializer.node()).copied());
+            let provenance = source.and_then(|source| self.values.local_provenance(source, row));
+            self.insert_value(*binding, row.local())?;
+            self.values.attach_provenance(*binding, provenance);
         }
         self.dynamic_origins
             .record_local(site, &bindings, completed.bindings())

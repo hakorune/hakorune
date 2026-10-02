@@ -15,10 +15,17 @@ fn materialized_parameter_fixture() -> (
     crate::mir::resolved_semantics::FunctionOwnerIdV1,
     BindingRefV1,
 ) {
-    let program = NyashParser::parse_from_string(
-        "function caller(first, second, third, fourth) { return first }",
-    )
-    .expect("fixture parses");
+    materialized_fixture("function caller(first, second, third, fourth) { return first }")
+}
+
+fn materialized_fixture(
+    source: &str,
+) -> (
+    CallableSemanticLoweringState,
+    crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    BindingRefV1,
+) {
+    let program = NyashParser::parse_from_string(source).expect("fixture parses");
     let crate::ast::ASTNode::Program { mut statements, .. } = program else {
         panic!("fixture must be a program")
     };
@@ -217,3 +224,6 @@ fn exact_lexical_read_refuses_foreign_owner_site_and_binding() {
         Err(ExactReceiverValueErrorV1::SiteBindingMismatch)
     );
 }
+
+#[path = "normal_callable_local_copy_tests.rs"]
+mod local_copy_tests;

@@ -33,15 +33,28 @@ pub(in crate::mir) enum ExactReceiverValueErrorV1 {
 
 /// The original exact lexical read, retained for physical corroboration.
 /// Only this state module can construct it; it issues no source meaning.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 pub(in crate::mir) struct ExactLexicalReadV1 {
     owner: FunctionOwnerIdV1,
     site: crate::mir::resolved_semantics::SourceNodeSiteV1,
     binding: BindingRefV1,
     value: ValueId,
+    provenance: Option<super::materialized_values::LocalProvenanceV1>,
 }
 
 impl ExactLexicalReadV1 {
+    pub(in crate::mir) fn proves_forwarded_entry(
+        &self,
+        formal: BindingRefV1,
+        value: ValueId,
+    ) -> bool {
+        (self.binding == formal && self.value == value)
+            || self
+                .provenance
+                .as_ref()
+                .is_some_and(|proof| proof.matches(formal, value))
+    }
+
     pub(in crate::mir) fn value_for(
         &self,
         owner: FunctionOwnerIdV1,
@@ -214,6 +227,7 @@ impl CallableSemanticLoweringState {
             site: source_site.clone(),
             binding: expected_binding,
             value,
+            provenance: self.values.provenance(&expected_binding),
         })
     }
 }

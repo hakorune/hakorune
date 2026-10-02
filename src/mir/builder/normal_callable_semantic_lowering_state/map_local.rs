@@ -68,7 +68,7 @@ impl CallableSemanticLoweringState {
     }
     // The statement/ordinal is a locator only; the retained binding remains
     // authoritative. Registration already rejects duplicate declaration keys.
-    fn local_initializer(
+    pub(super) fn local_initializer(
         &self,
         statement: &SourceNodeSiteV1,
         ordinal: usize,

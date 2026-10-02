@@ -132,7 +132,7 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
             crate::typed_array_contract_spec::ArrayElementContractSpec,
         )>,
     >,
-    mut receipt_values: Option<&mut Vec<ValueId>>,
+    mut receipt_values: Option<&mut Vec<super::CompletedLocalBindingV1>>,
     placements: &[LocalValuePlacement],
 ) -> Result<ValueId, String> {
     if !placements.is_empty() && placements.len() != variables.len() {
@@ -192,6 +192,7 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
             .transpose()?
             .flatten()
             .is_some();
+        let mut copy = None;
         if reuse {
             // The exact caller supplied physical identity; no Copy or contract write.
         } else if exact_contract {
@@ -257,15 +258,9 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
                     array: init_val,
                 })?;
             }
-            builder.emit_instruction(crate::mir::MirInstruction::Copy {
-                dst: var_id,
-                src: init_val,
-            })?;
+            copy = Some(emit_local_copy(builder, var_id, init_val)?);
         } else {
-            builder.emit_instruction(crate::mir::MirInstruction::Copy {
-                dst: var_id,
-                src: init_val,
-            })?;
+            copy = Some(emit_local_copy(builder, var_id, init_val)?);
         }
         crate::mir::builder::metadata::propagate::propagate(builder, init_val, var_id);
 
@@ -288,11 +283,30 @@ fn build_local_statement_from_values_with_types_and_preclaims_with_receipt(
             reg.ensure_slot(&var_name, ty);
         }
         if let Some(values) = receipt_values.as_deref_mut() {
-            values.push(var_id);
+            let ordinal = u32::try_from(index).map_err(|_| {
+                "[freeze:contract][local-descent/completion-ordinal-overflow]".to_owned()
+            })?;
+            values.push(
+                super::CompletedLocalBindingV1::new(ordinal, init_val, var_id).with_copy(copy)?,
+            );
         }
         last_value = Some(var_id);
     }
     Ok(last_value.unwrap_or_else(|| builder.next_value_id()))
+}
+
+fn emit_local_copy(
+    builder: &mut MirBuilder,
+    dst: ValueId,
+    src: ValueId,
+) -> Result<(crate::mir::BasicBlockId, crate::mir::MirInstruction), String> {
+    let block = builder
+        .function_state
+        .current_block
+        .ok_or("[freeze:contract][local-descent/copy-block-missing]")?;
+    let instruction = crate::mir::MirInstruction::Copy { dst, src };
+    builder.emit_instruction(instruction.clone())?;
+    Ok((block, instruction))
 }
 
 pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_preclaims_with_receipt_v1(
@@ -306,7 +320,7 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_
             crate::typed_array_contract_spec::ArrayElementContractSpec,
         )>,
     >,
-    receipt_values: &mut Vec<ValueId>,
+    receipt_values: &mut Vec<super::CompletedLocalBindingV1>,
     placements: &[LocalValuePlacement],
 ) -> Result<ValueId, String> {
     build_local_statement_from_values_with_types_and_preclaims_with_receipt(
@@ -389,7 +403,7 @@ pub(in crate::mir::builder) fn build_outbox_statement_with_receipt_v1(
         .enumerate()
         .map(|(ordinal, value)| OutboxBindingValueV1 {
             ordinal: ordinal as u32,
-            value,
+            value: value.local(),
         })
         .collect();
     Ok(CompletedOutboxStatementV1 { result, bindings })
@@ -716,3 +730,7 @@ mod local_contract_tests {
 #[cfg(test)]
 #[path = "local_placement_tests.rs"]
 mod local_placement_tests;
+
+#[cfg(test)]
+#[path = "local_materialization_receipt_tests.rs"]
+mod local_materialization_receipt_tests;

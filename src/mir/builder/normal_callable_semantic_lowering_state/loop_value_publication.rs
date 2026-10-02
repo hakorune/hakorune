@@ -64,12 +64,17 @@ impl CallableSemanticLoweringState {
     /// condition would read branch-produced rebinds.  The snapshot covers
     /// `values` only: consumption receipts and `active_origins` are facts
     /// about already-emitted values and stay monotone.
-    pub(in crate::mir::builder) fn source_values_snapshot(&self) -> BTreeMap<BindingRefV1, ValueId> {
+    pub(in crate::mir::builder) fn source_values_snapshot(
+        &self,
+    ) -> crate::mir::builder::normal_callable_semantic_lowering_state::MaterializedValuesV1 {
         self.values.clone()
     }
 
     /// Restores the `values` projection captured by `source_values_snapshot`.
-    pub(in crate::mir::builder) fn restore_source_values(&mut self, snapshot: BTreeMap<BindingRefV1, ValueId>) {
+    pub(in crate::mir::builder) fn restore_source_values(
+        &mut self,
+        snapshot: crate::mir::builder::normal_callable_semantic_lowering_state::MaterializedValuesV1,
+    ) {
         self.values = snapshot;
     }
 }

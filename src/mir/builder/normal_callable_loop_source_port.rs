@@ -22,8 +22,7 @@ use crate::mir::builder::raw_invocation_source_transport::RawInvocationSourceCon
 use crate::mir::builder::stmts::{CompletedLocalBindingV1, CompletedLocalStatementV1};
 use crate::mir::normal_callable_semantic_package::DeclaredInstanceCallLocatorScopeV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1, OwnedExprSiteV1,
-    SourceExprSiteV1,
+    BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1, OwnedExprSiteV1, SourceExprSiteV1,
 };
 use crate::mir::ValueId;
 
@@ -118,13 +117,18 @@ impl<'ledger> CallableLoopSourceExpressionPortV1<'ledger> {
     /// branch-then-condition transaction the shared `if` state cores run.
     /// The port forwards to the ledger so `values` stays the sole physical
     /// authority; no second store is snapshot here.
-    pub(super) fn source_values_snapshot(&self) -> BTreeMap<BindingRefV1, ValueId> {
+    pub(super) fn source_values_snapshot(
+        &self,
+    ) -> crate::mir::builder::normal_callable_semantic_lowering_state::MaterializedValuesV1 {
         self.ledger.borrow().source_values_snapshot()
     }
 
     /// Restores the `values` projection captured by `source_values_snapshot`.
     /// Branch-side rebinds roll back; consumption receipts stay monotone.
-    pub(super) fn restore_source_values(&self, snapshot: BTreeMap<BindingRefV1, ValueId>) {
+    pub(super) fn restore_source_values(
+        &self,
+        snapshot: crate::mir::builder::normal_callable_semantic_lowering_state::MaterializedValuesV1,
+    ) {
         self.ledger.borrow_mut().restore_source_values(snapshot);
     }
 
@@ -474,10 +478,8 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
                 state
                     .ordinary_new_claim_ledger()
                     .map(|claims| {
-                        claims.take_lexical_instance_call(
-                            expected_site.owner(),
-                            expected_site.site(),
-                        )
+                        claims
+                            .take_lexical_instance_call(expected_site.owner(), expected_site.site())
                     })
                     .transpose()?
                     .flatten()
@@ -485,7 +487,7 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
             if let Some(row) = lexical_row {
                 if row.target().name() != method || row.target().arity() != arity {
                     return Err(
-                        "[freeze:contract][declared-instance/lexical/key-mismatch]".to_owned(),
+                        "[freeze:contract][declared-instance/lexical/key-mismatch]".to_owned()
                     );
                 }
                 let receiver = self

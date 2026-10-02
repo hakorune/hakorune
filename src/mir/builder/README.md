@@ -594,6 +594,17 @@ and nested affine call/Invoke/NormalResult observations. The root Call entry's
 private lexical projection owns these proofs and their pure corroboration;
 Builder retains emission and lends exact reads through its owner interface.
 This physical proof does not classify opaque formals or authorize a tagged ABI.
+The original local completion retains the actual block/Copy when one was emitted;
+ReuseInitializer and LocalContractWrite do not fabricate a Copy receipt. Existing
+initializer relations join that completion to the exact source binding. Local
+provenance lives in the same physical value slot, travels with branch snapshots,
+and is invalidated by ordinary publication/rebind. Receipt ordinals are checked
+before publication. When later initializer evaluation has changed the source
+value, the earlier local remains valid but receives no unproved borrowing
+provenance; the selected borrowed consumer keeps its named rejection. An exact
+read retains immutable proof; forwarded corroboration demands the original entry binding/value,
+including aliases, rather than matching raw bits alone. Final carrier/use coverage
+and finished-coordinate Copy corroboration remain required before ABI activation.
 The existing local binding group retains the same emitted packet through sibling
 exit views and the final root source handoff. Views share the original affine
 rows; only their flat bindings are rebound. Each packet producer must occur
