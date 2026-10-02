@@ -990,11 +990,11 @@ writer/C/Normal-Fault closure; strict emission cannot authorize borrowed payload
 Focused tests cover source Integer/Bool/scalar/typed Home and proof substitution.
 Entry receiver, forwarding Copy and tagged execution remain owed.
 Borrowed projection: `1a54469222` / receipt `bbf0e8b271`; Copy: `647f4bb33b`.
-Return Decision `602408591c` implemented: one original Taken/tree/Invoke/result packet;
-record once, rebind flat views only, final source + same FinishedBindings lending.
-Receipt: terminal3/3, co-seal171/171, lib+tests check, touched fmt/diff/pointer PASS.
-Full8278/126/56 inventory8460: KNOWN BASELINE; `/tmp/hakorune-lexical-return-*.log`.
-Scope guard remains pre-existing brand_catalog_tests961; pending S0 lender/packet
-methods and PreparedBorrowedFormalActual re-export warnings remain unsuppressed.
-Contraction unit evidence is not tagged source Return/EXE acceptance; ABI closed.
-Next same S0: finished Copy, Ordinary carrier/full-use, writer/C, Normal/Fault EXE.
+Return Decision `602408591c`, implementation/complete receipt `fbd781670b`; ABI closed.
+Ordinary carrier/full-use, writer/C and Normal/Fault EXE remain owed.
+Next Decision (read-only worker): exact-read lends existing Copy chain after original
+Forwarded actual and entry/root/value proof; contiguous src/dst ending at exact read.
+Direct formal lends empty. Same packet dependencies enter lifecycle_bindings uniquely;
+original node/Copy -> same FinishedBindings -> unique Copy in actual function.
+Missing/changed/duplicate Copy or foreign owner/function rejects, no DCE permission.
+Tests: direct/reuse/one+two alias, root/child/rebind, broken/foreign/missing/duplicate.
