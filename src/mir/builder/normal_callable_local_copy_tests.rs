@@ -128,3 +128,75 @@ fn later_initializer_rebind_does_not_reject_an_earlier_local() {
     assert!(state.values.provenance(&alias).is_none());
     assert_eq!(state.values.get(&formal), Some(&ValueId::new(88)));
 }
+
+#[test]
+fn exact_forwarded_copy_loan_checks_original_root_chain_and_read_value() {
+    for length in 0..=2 {
+        let (mut state, owner, formal) = materialized_fixture(
+            "function caller(first: i64) { local a = first local b = a return b }",
+        );
+        let sites: Vec<_> = state.locals.keys().cloned().collect();
+        state
+            .record_completed_local(&sites[0], &copied_local(ValueId(77), ValueId(78)))
+            .unwrap();
+        state
+            .record_completed_local(&sites[1], &copied_local(ValueId(78), ValueId(79)))
+            .unwrap();
+        let binding = if length == 0 {
+            formal
+        } else {
+            state.locals[&sites[length - 1]][0]
+        };
+        let site = state
+            .variables
+            .iter()
+            .find(|(_, b)| **b == binding)
+            .unwrap()
+            .0
+            .clone();
+        let read = state
+            .take_exact_lexical_read(owner, &site, binding)
+            .unwrap();
+        let copies = read.loan_forwarded_copies(formal, ValueId(77)).unwrap();
+        assert_eq!(copies.len(), length);
+        assert!(read.loan_forwarded_copies(formal, ValueId(88)).is_err());
+        if length != 0 {
+            assert!(read.loan_forwarded_copies(binding, ValueId(77)).is_err());
+        }
+        state.values.insert(binding, ValueId(200));
+        assert_eq!(
+            read.loan_forwarded_copies(formal, ValueId(77)).unwrap(),
+            copies
+        );
+        assert!(state.values.provenance(&binding).is_none());
+    }
+}
+
+#[test]
+fn reused_forwarded_local_lends_empty_copy_chain() {
+    let (mut state, owner, formal) =
+        materialized_fixture("function caller(first: i64) { local a = first return a }");
+    let site = state.locals.keys().next().unwrap().clone();
+    state
+        .record_completed_local(
+            &site,
+            &CompletedLocalStatementV1::from_parts(
+                ValueId(77),
+                vec![CompletedLocalBindingV1::new(0, ValueId(77), ValueId(77))],
+            ),
+        )
+        .unwrap();
+    let alias = state.locals[&site][0];
+    let site = state
+        .variables
+        .iter()
+        .find(|(_, b)| **b == alias)
+        .unwrap()
+        .0
+        .clone();
+    let read = state.take_exact_lexical_read(owner, &site, alias).unwrap();
+    assert!(read
+        .loan_forwarded_copies(formal, ValueId(77))
+        .unwrap()
+        .is_empty());
+}

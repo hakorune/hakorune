@@ -72,6 +72,7 @@ impl OrdinaryNewClaimLedgerV1 {
             self.validate_terminal_i64_field_return(owner, function)?;
             self.validate_root_home_exit(owner, function, Some(&projection))?;
             boundary.validate_complete(function, &mut projection, &bindings)?;
+            self.validate_forwarded_copies(owner, function, &projection)?;
             if artifact {
                 // Children share the root's inadmissibility contract: a
                 // RetainedUnavailable commit row is source-unavailable, not a
@@ -154,6 +155,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut projection = boundary.project(function)?;
         self.validate_root_body(owner, function, Some(&projection))?;
         boundary.validate_complete(function, &mut projection, &bindings)?;
+        self.validate_forwarded_copies(owner, function, &projection)?;
         // The finishing projection may rewrite block identities. Rebind each
         // already-issued Call payload at its own exit before the handoff
         // moves it affinely.
@@ -347,6 +349,47 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(result)
     }
 
+    pub(super) fn validate_forwarded_copies(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        projection: &super::physical_boundary::FinishedBindings,
+    ) -> Result<(), String> {
+        for ((row_owner, _), progress) in self.root_exits.borrow().iter() {
+            if *row_owner != owner {
+                continue;
+            }
+            let RootHomeExitProgress::Emitted { entry, .. } = progress else {
+                continue;
+            };
+            for original in entry.copy_dependencies(self)? {
+                let finished = projection
+                    .binding(original.0, &original.1)?
+                    .ok_or_else(|| freeze("forwarded-copy/removed"))?;
+                let MirInstruction::Copy { dst, .. } = &finished.1 else {
+                    return Err(freeze("forwarded-copy/finished-instruction"));
+                };
+                let count = function
+                    .blocks
+                    .get(&finished.0)
+                    .ok_or_else(|| freeze("forwarded-copy/finished-block"))?
+                    .all_instructions()
+                    .filter(|i| *i == &finished.1)
+                    .count();
+                let definitions = function
+                    .blocks
+                    .values()
+                    .flat_map(|b| b.all_instructions())
+                    .filter(|i| i.dst_value() == Some(*dst))
+                    .count();
+                if count != 1 || definitions != 1 {
+                    return Err(freeze("forwarded-copy/finished-unique"));
+                }
+            }
+        }
+        Ok(())
+    }
+
     pub(super) fn lifecycle_bindings(
         &self,
         owner: FunctionOwnerIdV1,
@@ -381,6 +424,11 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 result.extend_from_slice(bindings);
                 entry.append_bindings(&mut result);
+                for dependency in entry.copy_dependencies(self)? {
+                    if !result.contains(&dependency) {
+                        result.push(dependency);
+                    }
+                }
             }
         }
         if let Some(groups) = self.map_read_bindings.borrow().get(&owner) {

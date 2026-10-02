@@ -95,3 +95,27 @@ pub(super) fn value(
         _ => Err(freeze("lexical-i64/borrowed-projection-identity")),
     }
 }
+
+/// Original source lending precedes access to a retained physical dependency.
+pub(super) fn copies<'a>(
+    projection: &'a LexicalCallArgumentProjectionV1,
+    owner: FunctionOwnerIdV1,
+    row: &LexicalInstanceCallDispositionRowV1,
+    ledger: &OrdinaryNewClaimLedgerV1,
+) -> Result<&'a [Binding], String> {
+    let LexicalCallArgumentProjectionV1::BorrowedRead {
+        ordinal,
+        site,
+        read,
+        entry,
+        ..
+    } = projection
+    else {
+        return Ok(&[]);
+    };
+    value(projection, owner, row, *ordinal, site, ledger)?;
+    match entry {
+        Some((_, formal, entry_value)) => read.loan_forwarded_copies(*formal, *entry_value),
+        None => Ok(&[]),
+    }
+}

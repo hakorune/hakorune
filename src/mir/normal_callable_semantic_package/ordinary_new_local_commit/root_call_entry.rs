@@ -476,6 +476,39 @@ impl RootHomeExitEntry {
 mod tests;
 
 impl RootHomeExitEntry {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn copy_dependencies(
+        &self,
+        ledger: &OrdinaryNewClaimLedgerV1,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        let groups = match self {
+            Self::Plain { local_bindings }
+            | Self::Call { local_bindings, .. }
+            | Self::MapGet { local_bindings, .. } => local_bindings,
+        };
+        let mut copies = Vec::new();
+        for packet in groups.iter().filter_map(|group| group.lexical()) {
+            copies.extend(
+                packet
+                    .copy_dependencies(ledger)?
+                    .into_iter()
+                    .map(|(_, copy)| copy),
+            );
+        }
+        if let Self::Call {
+            row: RootCallDispositionV1::Lexical(packet),
+            ..
+        } = self
+        {
+            copies.extend(
+                packet
+                    .copy_dependencies(ledger)?
+                    .into_iter()
+                    .map(|(_, copy)| copy),
+            );
+        }
+        Ok(copies)
+    }
+
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn append_bindings(
         &self,
         bindings: &mut Vec<(BasicBlockId, MirInstruction)>,

@@ -14,6 +14,31 @@ impl LocalProvenanceV1 {
     pub(super) fn matches(&self, binding: BindingRefV1, value: ValueId) -> bool {
         self.root == binding && self.root_value == value
     }
+
+    pub(super) fn loan_copies(
+        &self,
+        binding: BindingRefV1,
+        value: ValueId,
+        result: ValueId,
+    ) -> Result<&[(BasicBlockId, MirInstruction)], String> {
+        if !self.matches(binding, value) {
+            return Err("[freeze:contract][forwarded-copy/root]".into());
+        }
+        let mut current = value;
+        for (index, copy) in self.copies.iter().enumerate() {
+            let MirInstruction::Copy { dst, src } = &copy.1 else {
+                return Err("[freeze:contract][forwarded-copy/instruction]".into());
+            };
+            if *src != current || self.copies[..index].contains(copy) {
+                return Err("[freeze:contract][forwarded-copy/chain]".into());
+            }
+            current = *dst;
+        }
+        if current != result {
+            return Err("[freeze:contract][forwarded-copy/result]".into());
+        }
+        Ok(&self.copies)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -98,5 +123,96 @@ impl MaterializedValuesV1 {
     #[cfg(test)]
     pub(super) fn remove(&mut self, binding: &BindingRefV1) -> Option<ValueId> {
         self.entries.remove(binding).map(|entry| entry.value)
+    }
+}
+
+#[cfg(test)]
+mod copy_loan_tests {
+    use super::*;
+    use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
+    use hakorune_mir_core::BindingId;
+
+    fn proof() -> LocalProvenanceV1 {
+        let owner = FunctionOwnerIssuerV1::new_for_compilation()
+            .unwrap()
+            .issue()
+            .unwrap();
+        LocalProvenanceV1 {
+            root: BindingRefV1::new(owner, BindingId::new(1)),
+            root_value: ValueId(77),
+            copies: vec![
+                (
+                    BasicBlockId(1),
+                    MirInstruction::Copy {
+                        dst: ValueId(78),
+                        src: ValueId(77),
+                    },
+                ),
+                (
+                    BasicBlockId(2),
+                    MirInstruction::Copy {
+                        dst: ValueId(79),
+                        src: ValueId(78),
+                    },
+                ),
+            ],
+        }
+    }
+
+    #[test]
+    fn original_copy_loan_rejects_disconnected_changed_and_duplicate_dependencies() {
+        for mutation in 0..6 {
+            let mut proof = proof();
+            match mutation {
+                0 => {
+                    proof.copies.remove(0);
+                }
+                1 => {
+                    proof.copies.remove(1);
+                }
+                2 => {
+                    proof.copies[1].1 = MirInstruction::Copy {
+                        dst: ValueId(79),
+                        src: ValueId(77),
+                    };
+                }
+                3 => {
+                    proof.copies[1].1 = MirInstruction::Copy {
+                        dst: ValueId(80),
+                        src: ValueId(78),
+                    };
+                }
+                4 => {
+                    proof.copies.push(proof.copies[1].clone());
+                }
+                _ => {
+                    proof.copies[0].1 = MirInstruction::Return { value: None };
+                }
+            };
+            assert!(proof
+                .loan_copies(proof.root, ValueId(77), ValueId(79))
+                .is_err());
+        }
+    }
+
+    #[test]
+    fn original_copy_loan_retains_both_blocks_and_refuses_wrong_entry_result() {
+        let original = proof();
+        assert_eq!(
+            original
+                .loan_copies(original.root, ValueId(77), ValueId(79))
+                .unwrap(),
+            original.copies
+        );
+        assert!(original
+            .loan_copies(original.root, ValueId(78), ValueId(79))
+            .is_err());
+        assert!(original
+            .loan_copies(original.root, ValueId(77), ValueId(80))
+            .is_err());
+        let foreign = proof();
+        assert!(original
+            .loan_copies(foreign.root, ValueId(77), ValueId(79))
+            .is_err());
     }
 }

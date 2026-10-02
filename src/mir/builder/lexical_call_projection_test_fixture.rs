@@ -376,3 +376,156 @@ fn artifact_fixture_checked(
     }
     (module, handoff)
 }
+
+/// Real child Forwarded source/entry/completion; physical fixture, no ABI activation.
+pub(in crate::mir) fn forwarded_fixture(
+    package: crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1,
+    copy_block: BasicBlockId,
+) -> (
+    PreparedLexicalCallProjectionV1,
+    LexicalInstanceCallDispositionRowV1,
+    Box<[LocalCallArgumentV1]>,
+    Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+    crate::mir::resolved_semantics::SourceStmtSiteV1,
+    Vec<(BasicBlockId, MirInstruction)>,
+) {
+    let mut context = super::CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .map_err(|(_, e)| e)
+        .unwrap()
+        .commit();
+    let ledger = installed.ordinary_new_claim_ledger();
+    let key = super::SelectedNormalCallableKeyV1::Cataloged(
+        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
+            "Transport",
+            "forward",
+            1,
+        ),
+    );
+    let (mut state, local_site, receiver_local, call_site) = installed
+        .begin_lowering(&context)
+        .unwrap()
+        .with_selected_lowering_input(&key, |input| {
+            let rows = ledger
+                .borrowed_ordinary_entry_source_v1(&input)
+                .map(|row| row.map(|row| row.formals().into()));
+            let local_site = input
+                .source()
+                .function()
+                .expression_source()
+                .initializers()
+                .find_map(|initializer| match initializer.declaration_site() {
+                    SourceBindingSiteV1::Local { statement, .. } => Some(statement.node().clone()),
+                    _ => None,
+                })
+                .unwrap();
+            let mut state =
+                CallableSemanticLoweringState::from_exact_source(input.source()).unwrap();
+            state.lend_ordinary_new_claim_ledger(Rc::clone(&ledger));
+            state
+                .stage_borrowed_entry_formals(state.owner(), rows)
+                .unwrap();
+            let receiver_local = input
+                .source()
+                .function()
+                .expression_source()
+                .initializers()
+                .filter_map(|initializer| match initializer.declaration_site() {
+                    SourceBindingSiteV1::Local { statement, ordinal } => {
+                        Some((initializer.binding(), statement.node().clone(), *ordinal))
+                    }
+                    _ => None,
+                })
+                .nth(1)
+                .unwrap();
+            let call_site = input
+                .source()
+                .function()
+                .method_calls()
+                .find(|(_, call)| call.selector() == "probe")
+                .map(|(site, _)| {
+                    crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                        input.source().owner(),
+                        site.clone(),
+                    )
+                })
+                .unwrap();
+            (state, local_site, receiver_local, call_site)
+        })
+        .unwrap();
+    let owner = state.owner();
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("Transport/forward/1".into());
+    builder
+        .function_state
+        .current_function
+        .as_mut()
+        .unwrap()
+        .params = vec![ValueId(51), ValueId(72)];
+    let entry = PreparedCallableEntryValuesV1::instance_method(&builder, 1).unwrap();
+    state.install_entry_values(&entry).unwrap();
+    let copy = (
+        copy_block,
+        MirInstruction::Copy {
+            dst: ValueId(73),
+            src: ValueId(72),
+        },
+    );
+    let completed = crate::mir::builder::stmts::CompletedLocalStatementV1::from_parts(
+        ValueId(73),
+        vec![
+            crate::mir::builder::stmts::CompletedLocalBindingV1::new(0, ValueId(72), ValueId(73))
+                .with_copy(Some(copy.clone()))
+                .unwrap(),
+        ],
+    );
+    state
+        .record_completed_local(&local_site, &completed)
+        .unwrap();
+    state
+        .install_single_local_for_test(
+            &receiver_local.1,
+            receiver_local.0,
+            receiver_local.2,
+            ValueId(76),
+            ValueId(77),
+        )
+        .unwrap();
+    let exit = crate::mir::resolved_semantics::SourcePathV1::root_body(3).stmt();
+    let source: Box<[LocalCallArgumentV1]> = ledger
+        .lexical_i64_call_source(&call_site)
+        .unwrap()
+        .arguments()
+        .to_vec()
+        .into();
+    let row = ledger
+        .take_lexical_instance_call(owner, call_site.site())
+        .unwrap()
+        .unwrap();
+    assert!(matches!(
+        ledger.borrowed_call_actuals_v1(&row).unwrap().unwrap()[0].source,
+        crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::Forwarded { .. }
+    ));
+    let receiver = state
+        .take_exact_lexical_read(owner, row.receiver_site().node(), row.receiver_binding())
+        .unwrap();
+    let mut emitted = Vec::new();
+    let prepared =
+        super::ordinary_new_admission::selected::terminal_call::prepare_lexical_arguments(
+            &mut builder,
+            &mut state,
+            &ledger,
+            owner,
+            receiver,
+            &source,
+            &row,
+            &mut emitted,
+        )
+        .unwrap();
+    assert!(
+        emitted.is_empty(),
+        "alias Copy is a dependency, not a call argument producer"
+    );
+    (prepared, row, source, ledger, exit, vec![copy])
+}

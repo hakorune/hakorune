@@ -678,3 +678,6 @@ pub(in crate::mir) use lexical_call_projection_test_fixture::finished_artifact_f
 
 #[cfg(test)]
 pub(in crate::mir) use lexical_call_projection_test_fixture::borrowed_fixture as lexical_call_projection_borrowed_fixture;
+
+#[cfg(test)]
+pub(in crate::mir) use lexical_call_projection_test_fixture::forwarded_fixture as lexical_call_projection_forwarded_fixture;

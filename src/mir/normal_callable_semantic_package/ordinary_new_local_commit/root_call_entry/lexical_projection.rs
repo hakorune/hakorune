@@ -174,6 +174,28 @@ impl PreparedLexicalCallProjectionV1 {
 }
 
 impl EmittedLexicalCallProjectionV1 {
+    pub(in crate::mir) fn copy_dependencies(
+        &self,
+        ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+    ) -> Result<Vec<(crate::mir::resolved_semantics::OwnedExprSiteV1, Binding)>, String> {
+        let mut dependencies = Vec::new();
+        for argument in &self.prepared.arguments {
+            if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
+                dependencies.extend(inner.copy_dependencies(ledger)?);
+            } else {
+                for copy in borrowed_projection::copies(
+                    argument,
+                    self.row.call_site().owner(),
+                    &self.row,
+                    ledger,
+                )? {
+                    dependencies.push((self.row.call_site().clone(), copy.clone()));
+                }
+            }
+        }
+        Ok(dependencies)
+    }
+
     pub(in crate::mir) fn outer_bindings(&self) -> (&Binding, &Binding) {
         (&self.invoke, &self.projection)
     }
@@ -332,3 +354,7 @@ mod finished_projection_tests;
 #[cfg(test)]
 #[path = "lexical_terminal_tests.rs"]
 mod terminal_tests;
+
+#[cfg(test)]
+#[path = "finished_copy_tests.rs"]
+mod finished_copy_tests;

@@ -48,11 +48,24 @@ impl ExactLexicalReadV1 {
         formal: BindingRefV1,
         value: ValueId,
     ) -> bool {
-        (self.binding == formal && self.value == value)
-            || self
-                .provenance
-                .as_ref()
-                .is_some_and(|proof| proof.matches(formal, value))
+        self.loan_forwarded_copies(formal, value).is_ok()
+    }
+
+    pub(in crate::mir) fn loan_forwarded_copies(
+        &self,
+        formal: BindingRefV1,
+        value: ValueId,
+    ) -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
+        if formal.owner() != self.owner {
+            return Err("[freeze:contract][forwarded-copy/owner]".into());
+        }
+        if self.binding == formal && self.value == value {
+            return Ok(&[]);
+        }
+        self.provenance
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][forwarded-copy/proof-missing]".to_string())?
+            .loan_copies(formal, value, self.value)
     }
 
     pub(in crate::mir) fn value_for(

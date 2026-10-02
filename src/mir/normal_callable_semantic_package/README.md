@@ -973,6 +973,13 @@ only flat coordinates. Final root/child lending uses the original packet, the sa
 owner FinishedBindings and exactly one instruction in the actual function. Foreign
 exits, lenders, original producer drift and already-mapped coordinates reject.
 Focused contraction tests cover this physical boundary; they do not prove an
-actual tagged source Return execution. Ordinary carrier/full-use, finished Copy,
+actual tagged source Return execution. The same packet now lends original
+Forwarded Copy dependencies after source/entry corroboration. Dependencies enter
+existing physical capture once; root and child finishing project them and require
+one exact surviving Copy and one destination definition before state advancement.
+Unused-Copy omission cannot discharge this selected obligation. Final local/Return
+loans require original node/Copy membership and the same owner's FinishedBindings.
+Source-issued child fixture tests exercise these physical boundaries, separately
+from normal compiler emission and tagged execution. Ordinary carrier/full-use,
 writer/C and Normal/Fault acceptance remain required before ABI activation or
 completion of ingress S0.

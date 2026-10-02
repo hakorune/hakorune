@@ -95,6 +95,84 @@ impl FinalizedRootSourceHandoffV1 {
         })
     }
 
+    /// Copy dependencies belong to the original call node, not its emitted argument group.
+    pub(in crate::mir) fn finished_local_call_copy_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        group_site: &OwnedExprSiteV1,
+        node_site: &OwnedExprSiteV1,
+        original: &Binding,
+        function: &MirFunction,
+    ) -> Result<(BasicBlockId, usize), String> {
+        if group_site.owner() != owner || node_site.owner() != owner {
+            return Err(freeze("finished-copy/owner"));
+        }
+        let mut groups = self
+            .local_calls
+            .get(&owner)
+            .into_iter()
+            .flatten()
+            .filter(|group| group.site() == group_site);
+        let group = groups.next().ok_or_else(|| freeze("finished-copy/group"))?;
+        if groups.next().is_some() {
+            return Err(freeze("finished-copy/group-duplicate"));
+        }
+        let packet = group
+            .lexical()
+            .ok_or_else(|| freeze("finished-copy/packet"))?;
+        self.finished_packet_copy(owner, packet, node_site, original, function)
+    }
+
+    pub(in crate::mir) fn finished_terminal_call_copy_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        node_site: &OwnedExprSiteV1,
+        original: &Binding,
+        function: &MirFunction,
+    ) -> Result<(BasicBlockId, usize), String> {
+        if node_site.owner() != owner {
+            return Err(freeze("finished-copy/owner"));
+        }
+        self.with_terminal_call_packet_v1(owner, exit, |packet| {
+            self.finished_packet_copy(owner, packet, node_site, original, function)
+        })
+    }
+
+    fn finished_packet_copy(
+        &self,
+        owner: FunctionOwnerIdV1,
+        packet: &EmittedLexicalCallProjectionV1,
+        node_site: &OwnedExprSiteV1,
+        original: &Binding,
+        function: &MirFunction,
+    ) -> Result<(BasicBlockId, usize), String> {
+        if !packet
+            .copy_dependencies(&self.ledger)?
+            .iter()
+            .any(|(node, copy)| node == node_site && copy == original)
+        {
+            return Err(freeze("finished-copy/original-membership"));
+        }
+        let (symbol, finished) = self.ledger.finished_binding_for_owner(owner, original)?;
+        if !matches!(finished.1, MirInstruction::Copy { .. }) {
+            return Err(freeze("finished-copy/instruction"));
+        }
+        let coordinate = find_finished_producer(&symbol, &finished, function)?;
+        let dst = finished.1.dst_value().expect("checked Copy");
+        if function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .filter(|instruction| instruction.dst_value() == Some(dst))
+            .count()
+            != 1
+        {
+            return Err(freeze("finished-copy/destination-duplicate"));
+        }
+        Ok(coordinate)
+    }
+
     pub(in crate::mir) fn borrowed_call_actuals_v1(
         &self,
         row: &LexicalInstanceCallDispositionRowV1,

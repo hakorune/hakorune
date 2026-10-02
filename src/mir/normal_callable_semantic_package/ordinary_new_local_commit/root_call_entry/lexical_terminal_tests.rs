@@ -59,7 +59,7 @@ fn fixture() -> Fixture {
     (ledger, exit, packet, arguments)
 }
 
-fn function(
+pub(super) fn function(
     packet: &EmittedLexicalCallProjectionV1,
     arguments: &[Binding],
 ) -> (MirFunction, Binding, Vec<Binding>) {

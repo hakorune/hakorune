@@ -603,8 +603,11 @@ before publication. When later initializer evaluation has changed the source
 value, the earlier local remains valid but receives no unproved borrowing
 provenance; the selected borrowed consumer keeps its named rejection. An exact
 read retains immutable proof; forwarded corroboration demands the original entry binding/value,
-including aliases, rather than matching raw bits alone. Final carrier/use coverage
-and finished-coordinate Copy corroboration remain required before ABI activation.
+including aliases, rather than matching raw bits alone. Copy loans check the
+original root/value, contiguous src/dst chain and final read value. The same packet
+lends dependencies to physical capture; root/child finishing requires every selected
+Copy to remain unique in the projected function before advancing validation state.
+Final carrier/use coverage and writer/C closure remain required before ABI activation.
 The existing local binding group retains the same emitted packet through sibling
 exit views and the final root source handoff. Views share the original affine
 rows; only their flat bindings are rebound. Each packet producer must occur

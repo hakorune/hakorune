@@ -992,9 +992,9 @@ Entry receiver, forwarding Copy and tagged execution remain owed.
 Borrowed projection: `1a54469222` / receipt `bbf0e8b271`; Copy: `647f4bb33b`.
 Return Decision `602408591c`, implementation/complete receipt `fbd781670b`; ABI closed.
 Ordinary carrier/full-use, writer/C and Normal/Fault EXE remain owed.
-Next Decision (read-only worker): exact-read lends existing Copy chain after original
-Forwarded actual and entry/root/value proof; contiguous src/dst ending at exact read.
-Direct formal lends empty. Same packet dependencies enter lifecycle_bindings uniquely;
-original node/Copy -> same FinishedBindings -> unique Copy in actual function.
-Missing/changed/duplicate Copy or foreign owner/function rejects, no DCE permission.
-Tests: direct/reuse/one+two alias, root/child/rebind, broken/foreign/missing/duplicate.
+Copy Decision `861e50aeb2` implemented: capture/finish/final loans require unique Copy.
+New7/7, co-seal174/174, lib+tests/pointer/diff PASS; touched source sizes <800.
+Full8285/126/56 inventory8467 KNOWN BASELINE; `/tmp/hakorune-finished-copy-*.log`.
+Existing guard961 and builder.rs fmt debt unchanged; S0 pending-method warnings remain.
+Child Forwarded local source + synthetic CFG only; no Return/compiler/ABI/EXE claim.
+Next same S0: Ordinary carrier/full incoming/use closure, writer/C, Normal/Fault EXE.
