@@ -9,10 +9,15 @@ mod borrowed_uses;
 #[cfg(test)]
 pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) use borrowed_uses::projection_fixture;
 
-pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn verify_borrowed_call_incoming(
-    program: &PublishedLifecyclePhysicalProgramV1<'_>,
+pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn verify_borrowed_call_incoming<
+    'module,
+>(
+    program: &PublishedLifecyclePhysicalProgramV1<'module>,
     module: &MirModule,
-) -> Result<(), String> {
+) -> Result<
+    BTreeMap<(usize, crate::mir::BasicBlockId, usize), &'module [PreparedBorrowedFormalActualV1]>,
+    String,
+> {
     let mut callees = BTreeMap::new();
     for function in program.functions() {
         let Some(carriers) = function.param_carriers() else {
@@ -34,7 +39,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     }
     let Some(source) = program.handoff().root_source() else {
         return if callees.is_empty() {
-            Ok(())
+            Ok(BTreeMap::new())
         } else {
             Err(fault("borrowed-incoming/source-missing"))
         };
@@ -78,7 +83,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
         }
     }
     let mut uses = borrowed_uses::BorrowedCallUses::default();
-    let mut witnessed = BTreeSet::new();
+    let mut witnessed = BTreeMap::new();
     let mut owners = BTreeMap::new();
     let mut incoming = BTreeSet::new();
     let mut original = BTreeSet::new();
@@ -161,7 +166,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 .get(&coordinate)
                 .ok_or_else(|| fault("borrowed-incoming/coordinate-mismatch"))?;
             corroborate_final_call(published_call.0, *published_call.1, caller, (block, index))?;
-            if !witnessed.insert(coordinate) {
+            if witnessed.insert(coordinate, actuals).is_some() {
                 return Err(fault("borrowed-incoming/coordinate-mismatch"));
             }
             Ok(())
@@ -169,11 +174,12 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     )?;
     if owners.len() != callees.len()
         || incoming != original
-        || witnessed != physical.keys().copied().collect()
+        || witnessed.keys().copied().collect::<BTreeSet<_>>() != physical.keys().copied().collect()
     {
         return Err(fault("borrowed-incoming/coverage-mismatch"));
     }
-    uses.finish(program, module)
+    uses.finish(program, module)?;
+    Ok(witnessed)
 }
 
 /// Exact consumer boundary: a coordinate alone cannot prove a published Call.

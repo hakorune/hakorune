@@ -973,20 +973,27 @@ JSON byte equality; C parser/nested-call/receiver tests, baseline/pointer/fmt/di
 Receiver offset fix, new tagged encoding/C acceptance and production switch are
 subsequent semantic work; no source shape/ABI/deletion expansion in this T0.
 
-JSON transport T0 receipt: parent741 ->599/private Call child163. Parameter/Birth/ordinary
-moved bodies match; generated JSON9/9 byte-identical. Writer before/after21PASS + same
-nullable ordinary-membership-drift flake (pre-change reproduced); borrowed171PASS/4ignored.
-Full KNOWN BASELINE8321/126/56, inventory8503/failure hash unchanged; no manifest change.
-Lib/tests check and pointer/fmt/diff/shell PASS; existing brand_catalog_tests961 scope red, no waiver.
-Carrier activation and receiver offset remain unchanged; production materialization closed.
+Transport size T0 landed: JSON `1d97a8df8e` (parent599/private child163;
+three moved bodies match, JSON9/9 byte-identical), C `d789bc6b69` (parser692,
+formal30/Call77; reinlined bytes identical). Existing writer/C/Birth EXE regressions
+pass apart from reproduced nullable flake; KNOWN BASELINE8321/126/56, inventory8503.
+Existing untouched brand_catalog_tests961 scope debt remains; no waiver or activation.
 
-C transport T0 receipt: parser793 ->692; private formal30/Call77 includes stay at
-original definition positions. Reinlining reconstructs every original byte. Fresh C
-build plus parser/preartifact, nested-call and receiver-identity tests PASS before/after.
-Existing V4 source-issued Pair/Bool physical EXE suite PASS after split: Normal/Fault
-cleanup, tagged copies/range/invalid-kind/Bool,14 negative schema inputs, artifact/temp
-preservation and library/session seams. This is existing Birth ABI regression, not
-new Ordinary borrowed acceptance. JSON T0 `1d97a8df8e`; inventory/failure receipt unchanged.
-New JSON/C children and parents registered to 800-line scope guard; existing961 red
-remains classified debt. Next: exact source-lent tagged JSON/C implementation, then
-production ledger cutover and Ordinary generated-EXE Normal/Fault/retirement evidence.
+Original-loan continuation Decision: physical program holds an external module-lifetime
+handoff, not owned self-referential source. Existing incoming witnessed coordinates become
+one temporary map of original immutable actual slices, consumed into existing ordinary
+Call rows; reject residual coordinates. No clone, new receipt, Seal or permanent inventory.
+This remains source-lent transport, not Integer operand refinement or production cutover.
+Wire Decision for subsequent writer/C: formal kind_payload_v1; exact actual {kind,value}.
+Original Integer/Bool/live typed object classes issue numeric kinds1/2/3; Forwarded uses
+"tagged" and preserves both lanes. Match exact Call coordinates/result and receiver offset.
+C kind3 requires canonical new_box or verified receiver producer through Copy, matching
+layout and live borrowing; HANDLE/nonzero alone cannot prove it (exclude array/null/nullable).
+Closed internal incoming/Copy/forward closure proves the loan; no external raw entry,
+ordinary tagged store or callee End. Install writer/C before production ledger cutover,
+then real Ordinary source-to-publication and generated Normal/Fault EXE/retirement evidence.
+Original Call-loan receipt: external source slices retained without cloning; residual map rejects.
+Lib/tests check PASS; focused5/5, borrowed171/4ignored, KNOWN BASELINE8321/126/56
+(inventory8503/failure hash unchanged); pointer/fmt/diff PASS, existing961 scope debt.
+No positive source-to-tagged-publication claim: writer/C activation, original-loan identity
+acceptance, production switch and Normal/Fault EXE remain owed. Worker diff review PASS.

@@ -116,11 +116,20 @@ fn borrowed_incoming_rejects_metadata_spoof_and_unit_handle_result_before_filter
                     Ok(())
                 }).unwrap();
         assert_eq!(visited, 5);
-        super::super::compiled_entry_contract::verify_borrowed_call_incoming(
+        let loans = super::super::compiled_entry_contract::verify_borrowed_call_incoming(
             &program,
             view.module(),
         )
         .unwrap();
+        assert!(
+            loans.is_empty(),
+            "nonborrowed calls must not mint source loans"
+        );
+        let entry = view.issue_lifecycle_compiled_entry_contract().unwrap();
+        assert!(entry
+            .ordinary_calls()
+            .iter()
+            .all(|call| call.borrowed_actuals().is_none()));
         for result in [
             InvokeCallResultKind::I64,
             InvokeCallResultKind::Unit,

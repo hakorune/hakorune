@@ -7,7 +7,7 @@ use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
     BirthFormalContractV1, BirthFormalPhysicalDispositionV1, FinalizedBirthActualsV1,
-    FinalizedRootResultAbiV1,
+    FinalizedRootResultAbiV1, PreparedBorrowedFormalActualV1,
 };
 use crate::mir::{Callee, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
@@ -89,16 +89,20 @@ pub(crate) struct CompiledEntryBirthCallV1 {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) struct CompiledEntryOrdinaryCallV1 {
+pub(crate) struct CompiledEntryOrdinaryCallV1<'module> {
     caller_function_index: u32,
     caller_block_id: crate::mir::BasicBlockId,
     caller_instruction_index: u32,
     function_index: u32,
     call: crate::mir::definitions::MirCall,
     result: InvokeCallResultKind,
+    borrowed_actuals: Option<&'module [PreparedBorrowedFormalActualV1]>,
 }
 
-impl CompiledEntryOrdinaryCallV1 {
+impl<'module> CompiledEntryOrdinaryCallV1<'module> {
+    pub(crate) fn borrowed_actuals(&self) -> Option<&'module [PreparedBorrowedFormalActualV1]> {
+        self.borrowed_actuals
+    }
     pub(crate) const fn caller_block_id(&self) -> crate::mir::BasicBlockId {
         self.caller_block_id
     }
@@ -213,7 +217,7 @@ pub(crate) struct CompiledEntryContractV1<'module> {
     root_result: CompiledEntryRootResultV1,
     births: Box<[CompiledEntryBirthV1]>,
     birth_calls: Box<[CompiledEntryBirthCallV1]>,
-    ordinary_calls: Box<[CompiledEntryOrdinaryCallV1]>,
+    ordinary_calls: Box<[CompiledEntryOrdinaryCallV1<'module>]>,
     cleanup: Box<[CompiledEntryCleanupCoordinateV1]>,
     array_claims: Box<[CompiledEntryArrayClaimV1<'module>]>,
     array_writes: Box<[CompiledEntryArrayWriteV1]>,
@@ -239,7 +243,7 @@ impl<'module> CompiledEntryContractV1<'module> {
     pub(crate) fn birth_calls(&self) -> &[CompiledEntryBirthCallV1] {
         &self.birth_calls
     }
-    pub(crate) fn ordinary_calls(&self) -> &[CompiledEntryOrdinaryCallV1] {
+    pub(crate) fn ordinary_calls(&self) -> &[CompiledEntryOrdinaryCallV1<'module>] {
         &self.ordinary_calls
     }
     pub(crate) fn cleanup(&self) -> &[CompiledEntryCleanupCoordinateV1] {
@@ -252,7 +256,7 @@ impl<'module> PublishedMirBackendView<'module> {
         &self,
     ) -> Result<CompiledEntryContractV1<'module>, String> {
         let program = self.issue_lifecycle_physical_program()?;
-        verify_borrowed_call_incoming(&program, self.module)?;
+        let mut borrowed_actuals = verify_borrowed_call_incoming(&program, self.module)?;
         let (root_result, ordinary_calls, contract_births, birth_calls, cleanup) = {
             let [root, tail @ ..] = program.functions() else {
                 return Err(fault("compiled-entry-root-missing"));
@@ -422,9 +426,17 @@ impl<'module> PublishedMirBackendView<'module> {
                     caller_block_id,
                     caller_instruction_index,
                     function_index,
+                    borrowed_actuals: borrowed_actuals.remove(&(
+                        caller_function_index as usize,
+                        caller_block_id,
+                        caller_instruction_index as usize,
+                    )),
                     call,
                     result,
                 });
+            }
+            if !borrowed_actuals.is_empty() {
+                return Err(fault("borrowed-incoming/unconsumed-coordinate"));
             }
             if referenced_ordinary_keys.len() != ordinary_function_indices.len() {
                 return Err(fault("compiled-entry-ordinary-unissued"));
