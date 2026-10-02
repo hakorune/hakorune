@@ -947,15 +947,36 @@ actual Invoke or count instructions as arity. Tagged carrier/use closure and
 physical/C Normal/Fault execution are required before ingress S0 can close.
 
 
-Nested Return source/affine receipt (2026-10-02): original strict outer/sibling
-and borrowed inner rows are retained with exact owner/ordinal/Homes; canonical
-index priority and whole-tree Ready/result closure reject missing/foreign rows.
-The strict I64 source predicate rejects Float/Bool/String/Null and mixed exits.
-Terminal focused 15/15, lexical local 8/8, borrowed 134 PASS/4 ignored, co-seal
-155/155 PASS. Nine owned passing additions update inventory only: captured
-unchanged verifier KNOWN BASELINE exit 0, 8252/126/56, inventory 8434 and
-original failure names/hash unchanged. Source format/diff/pointer/bash PASS.
-Scope guard remains known red at untouched brand_catalog_tests.rs=961; no
-waiver. Earlier one-test failure was an incorrect pure-strict test assertion
-about an old expected mark, corrected to actual nonselection; no product gate
-was relaxed. Physical handoff/carrier activation/C Normal/Fault and S0 stay open.
+Nested Return source/affine receipt: `76cae30f54` (2026-10-02) retains original
+strict/borrowed rows, exact owner/ordinal/Homes and canonical Ready/result
+closure; strict source rejects nonInteger literals. Terminal 15/15, lexical
+local 8/8, borrowed 134 PASS/4 ignored, co-seal 155/155. Captured unchanged
+verifier KNOWN BASELINE 8252/126/56, inventory 8434, failure set/hash unchanged.
+Pointer/format/diff/bash PASS; untouched brand_catalog_tests.rs=961 guard red.
+Full evidence and corrected test assertion are in the commit. S0 remains open.
+
+
+Lexical I64 physical size T0 in progress: parent 708 -> 542, private child 173;
+only emit_local_lexical_i64 and recursive emit_lexical_i64_call moved. Original
+body comparison is identical modulo whitespace. Handle emitter stays in the
+parent. First extraction accidentally included Handle and failed E0425; the
+range was corrected after that Cargo terminated. Focused lexical_i64 validation
+is running; no tested T0 closeout, physical activation or new Invoke claim yet.
+
+
+Physical handoff Decision (read-only worker, same accepted S0): retain an
+optional lexical projection tree on the original Call entry, not a semantic
+inventory. Integer keeps actual Const; receiver/Scalar keep the state-issued
+exact-read witness; CallResult retains original inner Taken row and Invoke/
+NormalResult; BorrowedActual retains ordinal/site plus original lender and
+physical producer/read. Rebind/finalized handoff preserve this tree; validate
+against original sealed arguments and source proofs, never outer Invoke args.
+Birth's existing kind/payload expansion is at the final physical boundary, not
+a new MIR producer. Reuse that machinery without changing Birth kinds 1/2.
+Forwarded must demand borrowed_ordinary_entry_values and exact formal/value
+read; these alone do not authorize tags. Install BorrowedTaggedValue only via
+selected Ordinary source/full incoming/use coverage. Extend parameter capability
+corroboration, published writer and C index/useflow/call/emitter together for
+constant versus forwarded tags and ordinary typed-object kind 3. Metadata,
+MirType and physical_signature's old OrdinaryScalar default are non-authority.
+Missing carrier activation remains terminal until this same S0 is closed.
