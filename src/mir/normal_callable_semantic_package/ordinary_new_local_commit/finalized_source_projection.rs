@@ -225,6 +225,20 @@ impl FinalizedRootSourceHandoffV1 {
             .with_borrowed_ordinary_alias_copies_v1(owner, visit)
     }
 
+    /// Original alias tuple -> the same held Boundary -> exact final coordinate.
+    /// None is allowed only by the original optional Copy cone, never a scan.
+    pub(in crate::mir) fn borrowed_ordinary_alias_copy_coordinate_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        original: &(BasicBlockId, MirInstruction),
+    ) -> Result<Option<(BasicBlockId, usize)>, String> {
+        self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        self.ledger.with_finished_projection(owner, |_, projection| {
+            projection.borrowed_copy_coordinate(function, original)
+        })
+    }
+
     pub(in crate::mir) fn borrowed_ordinary_entry_values_v1(
         &self,
         owner: FunctionOwnerIdV1,

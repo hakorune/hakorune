@@ -334,8 +334,9 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_root_cleanup_shape(owner, function)?;
         let bindings = self.lifecycle_bindings(owner)?;
         let copies = self.source_local_copies(owner)?;
+        let aliases = self.borrowed_ordinary_alias_bindings_v1(owner)?;
         let boundary = physical_boundary::PhysicalBoundary::capture_with_source_copies(
-            function, &bindings, &copies,
+            function, &bindings, &copies, &aliases,
         )?;
         self.child_physical_validation.borrow_mut().insert(
             owner,

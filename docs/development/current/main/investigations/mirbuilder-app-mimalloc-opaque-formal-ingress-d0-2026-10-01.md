@@ -928,13 +928,10 @@ producer/read/Copy loans are physical corroboration, never source authority.
 One MIR ValueId expands only at the final ABI boundary; Birth kinds 1/2 stay
 unchanged. Ordinary source/full-use, writer/C and execution closure are owed.
 
-Physical preparation `49990f8e36` and root Call owner T0 `dd6cebfee3`:
-original contracts and complete receipts remain in those commits. No ABI activation.
+Physical preparation/Call-owner T0 receipts: `49990f8e36` / `dd6cebfee3`; ABI closed.
 
-Original packet/source/Copy/Return Decisions and classified receipts:
-`0c873be1f5` / `480d357c85` / `1a54469222` / `bbf0e8b271` /
-`647f4bb33b` / `602408591c` / `fbd781670b` / `861e50aeb2` / `38cd4191ce`.
-Affine rows remain private; read-only loans do not activate the ABI.
+Original packet/source/Copy/Return Decisions and receipts: `38cd4191ce` and its
+referenced predecessors; affine rows stay private, ABI closed.
 Ordinary carrier Decision/implementation/receipt: `18066ef4f8` / `e3e61f8de8`.
 Unknown/Integer are storage, not source authority. Pending stays pending;
 writer/C/all incoming-use/Normal-Fault and selected retirement remain owed.
@@ -984,16 +981,20 @@ Loop audit: at `30aa4838fc`, zero-Copy completion hit LocalBindingMismatch.
 Borrowed reuse fixes source/shared completion; physical Loop acceptance is owed.
 Keep cycle guard; optional Copy relocation needs original/loop-owner block mapping.
 
-Alias-retention implementation and classified receipt: `30aa4838fc`; ABI closed.
-Borrowed reuse Decision (same S0, read-only worker): original source/entry/proof
-record returns its original formal only after successful alias retention.
-Only zero-Copy initializer==local rows lend that mapping to dynamic-origin owner;
-it demands same active formal/root and uses existing record_alias_local without
-re-inserting value_origins. Default record_local keeps its same-value rejection.
-Direct/chain/foreign value/Copy/duplicate tests required; loop production success
-still needs focused invocation. No metadata/bool authority or ABI activation.
-Reuse receipt: focused9/9, Dynamic origin9/9, borrowed155/155 +4ignored PASS.
-Latest test build PASS; inventory +3 only8487, failure names/hash unchanged.
-Verifier first RED8304/127/56; named full run8305/126/56 matched exact baseline;
-verifier recheck KNOWN BASELINE8305/126/56 PASS. Pointer/diff PASS; source <800.
-Worker review clean; physical Loop/Boundary/full-use/C/EXE and ABI activation owed.
+Alias-retention and reuse Decisions/full classified receipts:
+`30aa4838fc` / `03f9012a04`; shared completion is not physical Loop/EXE acceptance.
+Boundary Decision (same S0, read-only worker): capture original alias Copies in
+private physical rows on existing Boundary/FinishedBindings, outside lifecycle DAG.
+Deduplicate exact prefixes; require original tuple/global dst definition uniqueness
+and no parameter collision. Compute unused optional Copy cone; mandatory packet
+Copies or any outside operand use stop it. Validate all optional rows even when
+lifecycle bindings are empty. Retained copies need exact original/mapped block and
+unique actual coordinate; omitted copies need original cone + final dst use/def0.
+Inspect all blocks, including Phi/edge args/return-env; never use global tuple
+relocation or legacy source_local_copies permission as source authority.
+Positive/negative: unused chain preserved/removed/partial, empty Boundary/loop,
+mandatory prefix, relocation/redefinition/Phi/edge arg/parameter collision.
+Full-use/writer/C/Normal-Fault EXE and actual loop mapping remain owed; ABI closed.
+Boundary receipt: focused 11/11, borrowed 162/162 +4 ignored, check lib/tests PASS.
+Full verifier KNOWN BASELINE: 8312/126/56, inventory 8494 (+7 only); failures unchanged.
+Pointer/diff/shell PASS; scope guard retains pre-existing brand_catalog_tests.rs 961-line red.

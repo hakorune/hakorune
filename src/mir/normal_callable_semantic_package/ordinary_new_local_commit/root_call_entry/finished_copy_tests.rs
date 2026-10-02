@@ -219,7 +219,10 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
         .local_binding()
         .is_none());
     let bindings = ledger.lifecycle_bindings(owner).unwrap();
-    let boundary = PhysicalBoundary::capture(&physical, &bindings).unwrap();
+    let aliases = ledger.borrowed_ordinary_alias_bindings_v1(owner).unwrap();
+    let boundary = PhysicalBoundary::capture_with_source_copies(
+        &physical, &bindings, &[], &aliases,
+    ).unwrap();
     let mut projection = boundary.project(&physical).unwrap();
     boundary
         .validate_complete(&physical, &mut projection, &bindings)
@@ -294,6 +297,10 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
         .with_borrowed_ordinary_alias_copies_v1(owner, actual, |_, _, _, _, value, copies| {
             assert_eq!(value, ValueId(73));
             assert_eq!(copies.len(), 1);
+            let coordinate = source.borrowed_ordinary_alias_copy_coordinate_v1(
+                owner, actual, &copies[0],
+            ).unwrap().expect("mandatory forwarded alias Copy must survive");
+            assert_eq!(actual.blocks[&coordinate.0].instructions[coordinate.1], copies[0].1);
             aliases += 1;
             Ok(())
         })

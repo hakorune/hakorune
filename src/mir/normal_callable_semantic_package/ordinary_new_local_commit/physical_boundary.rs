@@ -4,6 +4,10 @@ use super::*;
 use crate::mir::EdgeArgs;
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "physical_boundary_borrowed_copies.rs"]
+mod borrowed_copies;
+use borrowed_copies::OriginalBorrowedCopies;
+
 type Bindings = [(BasicBlockId, MirInstruction)];
 type Incoming = BTreeMap<
     (BasicBlockId, usize),
@@ -28,6 +32,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct
     removable_constants: BTreeSet<ValueId>,
     removable_copies: BTreeSet<ValueId>,
     source_copies: BTreeMap<ValueId, (BasicBlockId, MirInstruction)>,
+    borrowed_copies: OriginalBorrowedCopies,
 }
 
 #[derive(Debug)]
@@ -37,18 +42,21 @@ pub(super) struct FinishedBindings {
     sequences: BTreeMap<BasicBlockId, (Vec<MirInstruction>, MirInstruction)>,
     removable_copies: BTreeSet<ValueId>,
     source_copies: BTreeMap<ValueId, (BasicBlockId, MirInstruction)>,
+    borrowed_copies: OriginalBorrowedCopies,
 }
 
 impl PhysicalBoundary {
     pub(super) fn capture(function: &MirFunction, bindings: &Bindings) -> Result<Self, String> {
-        Self::capture_with_source_copies(function, bindings, &[])
+        Self::capture_with_source_copies(function, bindings, &[], &[])
     }
 
     pub(super) fn capture_with_source_copies(
         function: &MirFunction,
         bindings: &Bindings,
         copies: &[(ValueId, ValueId)],
+        borrowed_copies: &Bindings,
     ) -> Result<Self, String> {
+        let borrowed_copies = OriginalBorrowedCopies::capture(function, bindings, borrowed_copies)?;
         let used = used_values(function);
         let reachable = crate::mir::verification::utils::compute_reachable_blocks(function);
         let mut definitions = BTreeMap::<ValueId, usize>::new();
@@ -201,6 +209,7 @@ impl PhysicalBoundary {
             removable_constants,
             removable_copies,
             source_copies,
+            borrowed_copies,
         })
     }
 
@@ -255,6 +264,7 @@ impl PhysicalBoundary {
             sequences: expected,
             removable_copies: self.removable_copies.clone(),
             source_copies: self.source_copies.clone(),
+            borrowed_copies: self.borrowed_copies.clone(),
         })
     }
 
@@ -270,6 +280,7 @@ impl PhysicalBoundary {
         // DCE may remove an unrecorded Const or Copy already unused before
         // finishing. These are one-way omission permissions, never an
         // actual-side filter.
+        projection.validate_borrowed_copies(function)?;
         let used = used_values(function);
         if !self.removable_constants.is_disjoint(&used) || !self.removable_copies.is_disjoint(&used)
         {
@@ -286,6 +297,10 @@ impl PhysicalBoundary {
             for expected in &instructions {
                 if remaining.peek().is_some_and(|actual| *actual == expected) {
                     remaining.next();
+                } else if self.borrowed_copies.contains(expected) {
+                    if !self.borrowed_copies.may_omit(function, expected) {
+                        return Err(fault("borrowed-copy-omission"));
+                    }
                 } else if matches!(expected, MirInstruction::Const { dst, .. }
                     if self.removable_constants.contains(dst))
                     || matches!(expected, MirInstruction::Copy { dst, .. }

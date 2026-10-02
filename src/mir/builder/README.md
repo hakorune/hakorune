@@ -670,7 +670,11 @@ For a source-proved zero-Copy alias, local completion lends the original formal
 into the existing dynamic alias owner, which checks the shared root value before
 recording a new binding. Default dynamic local completion still rejects value
 reuse; Loop physical acceptance remains a separate obligation.
-Optional Boundary membership, DCE and all-use verification remain separate
+Draft Boundary borrows these original alias Copies outside its lifecycle DAG.
+It retains their exact membership and original unused Copy cone through finishing;
+final coordinate loans require the original/mapped block and unique definition.
+Omission requires no residual use or redefinition in any block. Mandatory packet
+Copies remain required. Full-use, writer/C and execution remain separate
 obligations; retaining a local proof does not activate the borrowed ABI.
 
 ### DeclaredInstance receiver authority crosswalk

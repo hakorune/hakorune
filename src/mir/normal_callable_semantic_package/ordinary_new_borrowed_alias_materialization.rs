@@ -144,6 +144,23 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
+    /// Borrow immutable original aliases into the existing draft Boundary.
+    /// An ordinary owner without a selected borrowed entry has no such rows.
+    pub(in crate::mir) fn borrowed_ordinary_alias_bindings_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        if !self.borrowed_entry_values.borrow().contains_key(&owner) {
+            return Ok(Vec::new());
+        }
+        let mut copies = Vec::new();
+        self.with_borrowed_ordinary_alias_copies_v1(owner, |_, _, _, _, _, original| {
+            copies.extend_from_slice(original);
+            Ok(())
+        })?;
+        Ok(copies)
+    }
+
     /// Original physical evidence only. The final consumer still must demand
     /// the same owner's Boundary mapping and check every residual operand use.
     pub(in crate::mir) fn with_borrowed_ordinary_alias_copies_v1(
