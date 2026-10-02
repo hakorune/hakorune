@@ -60,7 +60,7 @@ impl OrdinaryNewClaimLedgerV1 {
         exit: &SourceStmtSiteV1,
         function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
-        local_bindings: &[(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)],
+        local_bindings: &[super::super::RootLocalCallBindingGroupV1],
         invoke: &(BasicBlockId, MirInstruction),
         projection: &(BasicBlockId, MirInstruction),
         frame: &(BasicBlockId, MirInstruction),

@@ -61,6 +61,16 @@ impl RootValidation {
 }
 
 impl CompletedNormalDefaultRootCatalogLifecycleV1 {
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn ordinary_root_ledger_for_test(
+        &self,
+    ) -> (String, Rc<OrdinaryNewClaimLedgerV1>) {
+        match &self.root_validation {
+            RootValidation::OrdinaryNew { key, ledger } => (key.clone(), Rc::clone(ledger)),
+            _ => panic!("ordinary root fixture"),
+        }
+    }
+
     pub(in crate::mir) fn into_parts(
         self,
     ) -> (

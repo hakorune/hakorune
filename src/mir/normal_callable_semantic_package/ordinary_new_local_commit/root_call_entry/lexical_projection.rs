@@ -33,6 +33,21 @@ pub(in crate::mir) struct EmittedLexicalCallProjectionV1 {
 }
 
 impl PreparedLexicalCallProjectionV1 {
+    fn validate_recorded(&self, bindings: &[Binding]) -> Result<(), String> {
+        for argument in &self.arguments {
+            match argument {
+                LexicalCallArgumentProjectionV1::Integer(binding) => {
+                    require_recorded(bindings, binding)?;
+                }
+                LexicalCallArgumentProjectionV1::Scalar(_) => {}
+                LexicalCallArgumentProjectionV1::CallResult(inner) => {
+                    inner.validate_recorded(bindings)?;
+                }
+            }
+        }
+        Ok(())
+    }
+
     pub(in crate::mir) fn new(
         receiver: ExactLexicalReadV1,
         arguments: Vec<LexicalCallArgumentProjectionV1>,
@@ -108,6 +123,16 @@ impl PreparedLexicalCallProjectionV1 {
 }
 
 impl EmittedLexicalCallProjectionV1 {
+    pub(in crate::mir) fn call_site(&self) -> &crate::mir::resolved_semantics::OwnedExprSiteV1 {
+        self.row.call_site()
+    }
+
+    pub(in crate::mir) fn validate_recorded(&self, bindings: &[Binding]) -> Result<(), String> {
+        require_recorded(bindings, &self.invoke)?;
+        require_recorded(bindings, &self.projection)?;
+        self.prepared.validate_recorded(bindings)
+    }
+
     pub(in crate::mir) fn new(
         row: LexicalInstanceCallDispositionRowV1,
         prepared: PreparedLexicalCallProjectionV1,
@@ -154,6 +179,18 @@ impl EmittedLexicalCallProjectionV1 {
     }
 }
 
+fn require_recorded(bindings: &[Binding], expected: &Binding) -> Result<(), String> {
+    if bindings
+        .iter()
+        .filter(|binding| *binding == expected)
+        .count()
+        != 1
+    {
+        return Err(freeze("lexical-i64/producer-record-drift"));
+    }
+    Ok(())
+}
+
 // Preserve the existing physical emission error vocabulary during owner move.
 fn freeze(reason: &str) -> String {
     format!("[freeze:contract][ordinary-new/emission/{reason}]")
@@ -162,3 +199,7 @@ fn freeze(reason: &str) -> String {
 #[cfg(test)]
 #[path = "lexical_projection_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "local_binding_group_tests.rs"]
+mod local_group_tests;

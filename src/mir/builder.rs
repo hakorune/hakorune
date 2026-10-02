@@ -668,3 +668,8 @@ pub(in crate::mir) use normal_callable_semantic_lowering_state::ExactLexicalRead
 mod lexical_call_projection_test_fixture;
 #[cfg(test)]
 pub(in crate::mir) use lexical_call_projection_test_fixture::fixture as lexical_call_projection_test_fixture;
+
+#[cfg(test)]
+pub(in crate::mir) use lexical_call_projection_test_fixture::artifact_fixture as lexical_call_projection_artifact_fixture;
+#[cfg(test)]
+pub(in crate::mir) use lexical_call_projection_test_fixture::assert_artifact_reseal_rejected as assert_lexical_call_projection_reseal_rejected;

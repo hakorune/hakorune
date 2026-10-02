@@ -938,12 +938,9 @@ Nested Return source/affine: `76cae30f54` retains original strict/borrowed
 rows and exact owner/ordinal/Homes; its focused and unchanged-baseline receipts
 are in the commit. Strict source rejects nonInteger literals. S0 remains open.
 
-
-Lexical I64 emitter size T0: `834243d2e7` moved only existing I64 emitters
-(parent 708 -> 542, child 173). Exact reconstruction and passing focused/co-seal
-receipts are in that commit; full verifier had only the known nullable extra
-flake, not a green baseline. No ABI/acceptance activation; guard debt retained.
-
+Lexical I64 emitter size T0: `834243d2e7` moved existing I64 emitters
+(parent708 -> 542, child173); exact reconstruction, passing focused/co-seal and
+known nullable-extra full-verifier receipt are in that commit. No ABI activation.
 
 Physical handoff Decision (read-only worker, same accepted S0): retain an
 optional lexical projection tree on the original Call entry, not a semantic
@@ -962,22 +959,16 @@ constant versus forwarded tags and ordinary typed-object kind 3. Metadata,
 MirType and physical_signature's old OrdinaryScalar default are non-authority.
 Missing carrier activation remains terminal until this same S0 is closed.
 
-Shared physical preparation: `49990f8e36` retains state-issued exact reads
-and source-ordered Const/nested Taken row/Invoke/NormalResult observations.
-Focused 13/13, crosswalk 7/7, co-seal 155/155; inventory 8439. Captured full
-verifier had only the known nullable extra flake (8256/127/56); no failure
-baseline widening. Full receipt and corrected fixture history are in the commit.
+Shared physical preparation: `49990f8e36` retains state-issued exact reads and
+ordered Const/nested Taken row/Invoke/NormalResult. Focused13/crosswalk7/co-seal155
+PASS, inventory8439, known nullable-extra verifier8256/127/56; full receipt and
+corrected fixture history in that commit. No failure-baseline widening.
 
-Root Call projection owner T0 receipt (2026-10-02): original pure validation
-and mutation tests moved to the existing root Call entry private child. Builder
-retains emission and cfg(test) source fixture; state/entry visibility unchanged.
-Corroboration body comparison PASS; proof 3/3, source/MIR 10/10, crosswalk 7/7,
-co-seal 158/158 PASS. Inventory renames only the moved three tests (8439 total).
-Captured unchanged verifier exit 1, 8256/127/56; sole extra is the known nullable
-receiver flake. Original failure set/hash unchanged. Pointer/diff/new-child
-format/bash PASS; parent formatting drift is pre-existing, and untouched
-brand_catalog_tests.rs=961 guard red remains. Initial private-import/substring
-rename compile errors were fixed before these receipts. No ABI activation.
+Root Call projection owner T0: `dd6cebfee3` retains original pure validation
+in the existing root Call child, with Builder-only cfg(test) fixtures. Body
+comparison and focused3/source10/crosswalk7/co-seal158 PASS; inventory8439 only
+renames moved tests. Full verifier had the known nullable extra; failure set
+unchanged. Detailed compile fixes/format/guard debt receipts are in that commit.
 
 Next retention Decision (same accepted S0, read-only worker): retain original
 packet on existing local-call groups as well as Return Call entry; no parallel
@@ -986,3 +977,24 @@ or rebinding it twice for sibling exits. Preserve original borrowed source/
 actual/entry products in the existing final handoff for tagged corroboration.
 Lend source proofs by exact caller and physical producer identity, not MirCall
 alone. Return/ordinary tagged ABI/C closure and Normal/Fault EXE remain owed.
+
+Local packet retention receipt (2026-10-02): existing groups share the original
+immutable packet (no Taken clone), then move their pool into root source handoff.
+Foreign sites/missing/duplicate producers reject. Existing RootNewValidation now
+advances once to ArtifactFinalized; empty-key/None reseal rejects before movement.
+Focused4/source10/crosswalk7/co-seal162 and terminal-payload1 PASS; inventory8443
+adds verified passing4 only. Final full verifier exit1,8260/127/56: unchanged126
+plus known nullable receiver flake; failure manifest unchanged, no retry-to-green.
+First full observation's extra was the stale Call-specific reseal error pin,
+corrected and verified. `return r` had existing missing-terminal artifact boundary;
+`return 0` tests the same nested packet. Pointer/diff/new-source format PASS;
+untouched961-line brand_catalog_tests guard red retained. Original pool
+coordinates remain distinct from finished Call exit views.
+
+Next physical Decision (same S0, read-only worker): retain original ledger Rc
+privately in existing final source handoff, lending original borrowed products
+read-only. Retain root/child FinishedBindings in existing validation progress.
+Original producer -> owner's finished projection -> caller/block/instruction
+must match uniquely. Return retains PreparedCall and original Lexical Taken row;
+shared preparation never emits its outer Invoke twice. Return/BorrowedActual/
+tagged ABI/full use closure/C/Normal-Fault EXE remain owed.

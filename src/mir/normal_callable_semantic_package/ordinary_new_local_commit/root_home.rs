@@ -27,11 +27,11 @@ pub(crate) enum RootHomeExitEntry {
     /// the Plain exit owns them directly because no terminal Call entry
     /// exists to carry them.
     Plain {
-        local_bindings: Vec<(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)>,
+        local_bindings: Vec<super::RootLocalCallBindingGroupV1>,
     },
     Call {
         row: crate::mir::normal_callable_semantic_package::RootCallDispositionV1,
-        local_bindings: Vec<(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)>,
+        local_bindings: Vec<super::RootLocalCallBindingGroupV1>,
         arguments: Vec<(BasicBlockId, MirInstruction)>,
         invoke: (BasicBlockId, MirInstruction),
         projection: (BasicBlockId, MirInstruction),
@@ -42,7 +42,7 @@ pub(crate) enum RootHomeExitEntry {
     /// no target row or argument list because the key is sealed inline and
     /// the receiver binding is resolved at prepare time.
     MapGet {
-        local_bindings: Vec<(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)>,
+        local_bindings: Vec<super::RootLocalCallBindingGroupV1>,
         invoke: (BasicBlockId, MirInstruction),
         projection: (BasicBlockId, MirInstruction),
         frame: (BasicBlockId, MirInstruction),
@@ -53,7 +53,7 @@ impl RootHomeExitEntry {
     /// The lifecycle local-call binding groups this exact exit claimed.
     pub(in crate::mir::normal_callable_semantic_package) fn local_call_groups(
         &self,
-    ) -> &[(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)] {
+    ) -> &[super::RootLocalCallBindingGroupV1] {
         match self {
             Self::Plain { local_bindings }
             | Self::Call { local_bindings, .. }
@@ -169,7 +169,8 @@ impl OrdinaryNewClaimLedgerV1 {
         let pending = self.root_local_call_bindings.borrow();
         let exits = self.root_exits.borrow();
         pending.iter().all(|(owner, groups)| {
-            groups.iter().all(|(site, _)| {
+            groups.iter().all(|group| {
+                let site = group.site();
                 let Some(completion) = self.completion_for_owner(*owner) else {
                     return false;
                 };
@@ -188,7 +189,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         Some(RootHomeExitProgress::Emitted { entry, .. }) => entry
                             .local_call_groups()
                             .iter()
-                            .any(|(group_site, _)| group_site == site),
+                            .any(|group| group.site() == site),
                         Some(RootHomeExitProgress::Unavailable)
                         | Some(RootHomeExitProgress::Finalized) => true,
                         _ => false,
@@ -614,3 +615,5 @@ pub(in crate::mir) use call_entry::{
     EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
     PreparedLexicalCallProjectionV1,
 };
+
+pub(crate) use call_entry::RootLocalCallBindingGroupV1;

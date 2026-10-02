@@ -15,7 +15,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let owner = match *state {
             RootNewValidation::Unregistered => return Ok(RootOrdinaryNewObservation::NotIssued),
             RootNewValidation::Pending(owner) => owner,
-            RootNewValidation::Checked(..) | RootNewValidation::FinishingChecked => {
+            RootNewValidation::Checked(..)
+            | RootNewValidation::FinishingChecked
+            | RootNewValidation::ArtifactFinalized => {
                 return Err(freeze("duplicate-root-validation"));
             }
         };
@@ -140,7 +142,7 @@ impl OrdinaryNewClaimLedgerV1 {
             RootNewValidation::Unregistered => return Ok(()),
             RootNewValidation::Checked(owner, boundary) => (*owner, boundary),
             RootNewValidation::Pending(_) => return Err(freeze("root-before-draft-validation")),
-            RootNewValidation::FinishingChecked => {
+            RootNewValidation::FinishingChecked | RootNewValidation::ArtifactFinalized => {
                 return Err(freeze("duplicate-finishing-validation"));
             }
         };

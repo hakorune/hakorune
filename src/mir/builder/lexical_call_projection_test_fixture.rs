@@ -188,3 +188,71 @@ pub(in crate::mir) fn fixture() -> (
         source,
     )
 }
+
+pub(in crate::mir) fn artifact_fixture() -> (
+    crate::mir::MirModule,
+    crate::mir::finalized_root_handoff::FinalizedRootHandoffV1,
+) {
+    artifact_fixture_checked(false)
+}
+
+pub(in crate::mir) fn assert_artifact_reseal_rejected() {
+    let _ = artifact_fixture_checked(true);
+}
+
+fn artifact_fixture_checked(
+    check_reseal: bool,
+) -> (
+    crate::mir::MirModule,
+    crate::mir::finalized_root_handoff::FinalizedRootHandoffV1,
+) {
+    use crate::mir::builder::{
+        BuilderInvocationConfigV1, CallableMainMaterializationPolicyV1,
+        ModuleBuilderInvocationSessionV1, NormalRuntimeInputSnapshotV1,
+        PreparedNormalDefaultProgramRootV1,
+    };
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+        "box Pool { birth() {} wrap(x: i64): i64 { return x } give(x: i64): i64 { return x } } static box Main { main() { local pool = new Pool() local r = pool.give(pool.wrap(9)) return 0 } }",
+        crate::parser::ParserBuildConfig::default(),
+    ).unwrap();
+    let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+    });
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
+        panic!("source-backed fixture")
+    };
+    let builder = crate::mir::MirBuilder::new();
+    let session = ModuleBuilderInvocationSessionV1::open(
+        &builder,
+        BuilderInvocationConfigV1::snapshot_for_raw(&builder, None),
+    );
+    let completed = session
+        .complete_normal_default_program_root_catalog_lifecycle(
+            PreparedNormalDefaultProgramRootV1::from_callable_source(source),
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .unwrap();
+    let (root_key, ledger) = completed.ordinary_root_ledger_for_test();
+    let (_, module, validate) = completed.into_artifact_parts();
+    let handoff = validate(&module).unwrap().unwrap();
+    if check_reseal {
+        assert_eq!(
+            handoff
+                .root_source()
+                .unwrap()
+                .local_call_binding_groups()
+                .count(),
+            1
+        );
+        let second = ledger
+            .seal_finalized_root_birth_handoff(root_key, &std::collections::BTreeSet::new(), None)
+            .unwrap_err();
+        assert!(
+            second.contains("artifact-root-already-finalized"),
+            "{second}"
+        );
+    }
+    (module, handoff)
+}

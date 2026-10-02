@@ -13,6 +13,9 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<FinalizedRootHandoffV1, String> {
         match *self.root_validation.borrow() {
             RootNewValidation::FinishingChecked => {}
+            RootNewValidation::ArtifactFinalized => {
+                return Err(freeze("artifact-root-already-finalized"));
+            }
             _ => return Err(freeze("artifact-root-not-finished")),
         }
         let owner = match self.root_completion.as_ref() {
@@ -133,7 +136,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if self.terminal_relation.is_empty() && !call_entries.is_empty() {
             return Err(freeze("artifact-call-root-source-missing"));
         }
-        let root_source = (!self.terminal_relation.is_empty())
+        let mut root_source = (!self.terminal_relation.is_empty())
             .then(|| {
                 Ok::<_, String>(FinalizedRootSourceHandoffV1 {
                     app_main_identity: self
@@ -143,6 +146,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         .clone(),
                     terminals: self.terminal_relation.clone(),
                     call_entries,
+                    local_calls: std::collections::BTreeMap::new(),
                 })
             })
             .transpose()?;
@@ -255,7 +259,21 @@ impl OrdinaryNewClaimLedgerV1 {
         if root_source.is_none() && !actuals.is_empty() {
             return Err(freeze("artifact-actual-root-source-missing"));
         }
+        if root_source.is_none()
+            && self
+                .root_local_call_bindings
+                .borrow()
+                .values()
+                .flatten()
+                .any(|group| group.lexical().is_some())
+        {
+            return Err(freeze("artifact-local-call-root-source-missing"));
+        }
+        if let Some(source) = &mut root_source {
+            source.local_calls = std::mem::take(&mut *self.root_local_call_bindings.borrow_mut());
+        }
         let birth_actuals = actuals.into_boxed_slice();
+        *self.root_validation.borrow_mut() = RootNewValidation::ArtifactFinalized;
         Ok(if births.is_empty() {
             FinalizedRootHandoffV1::NoBirth {
                 named_arrays: Box::new([]),

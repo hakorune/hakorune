@@ -383,7 +383,7 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
         )
         .expect_err("a finalized Call payload cannot be taken twice");
     assert!(
-        duplicate.contains("root-call-already-finalized"),
+        duplicate.contains("artifact-root-already-finalized"),
         "{duplicate}"
     );
 }

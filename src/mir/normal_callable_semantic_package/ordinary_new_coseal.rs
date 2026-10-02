@@ -237,15 +237,8 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // Physical bindings for the bounded source-local Call prefix. These are
     // consumed by the existing root Call entry; they do not issue a target or
     // create a second lifecycle owner.
-    root_local_call_bindings: RefCell<
-        BTreeMap<
-            FunctionOwnerIdV1,
-            Vec<(
-                OwnedExprSiteV1,
-                Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
-            )>,
-        >,
-    >,
+    root_local_call_bindings:
+        RefCell<BTreeMap<FunctionOwnerIdV1, Vec<local_commit::RootLocalCallBindingGroupV1>>>,
     // The local-call sites `co_seal_lifecycle` routed through the lifecycle
     // lane under each caller owner. Sealed I64 `local_calls()` rows are the
     // candidate set only: a callee with no sealed lifecycle product keeps

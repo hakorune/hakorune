@@ -594,6 +594,15 @@ and nested affine call/Invoke/NormalResult observations. The root Call entry's
 private lexical projection owns these proofs and their pure corroboration;
 Builder retains emission and lends exact reads through its owner interface.
 This physical proof does not classify opaque formals or authorize a tagged ABI.
+The existing local binding group retains the same emitted packet through sibling
+exit views and the final root source handoff. Views share the original affine
+rows; only their flat bindings are rebound. Each packet producer must occur
+exactly once in its original recorded group. A group without an original packet
+cannot supply tagged ingress evidence.
+The original local pool remains in its emission coordinates; finished exit
+views alone are rebound. Final artifact sealing advances existing progress once
+and rejects a second seal before lending or moving any source evidence.
+
 
 ### DeclaredInstance receiver authority crosswalk
 

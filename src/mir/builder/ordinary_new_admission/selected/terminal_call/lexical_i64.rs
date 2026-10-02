@@ -52,7 +52,7 @@ pub(in crate::mir::builder) fn emit_local_lexical_i64(
     // into this one group (they have no destination binding of their
     // own).
     let result = emitted.value_for_source(owner, relation.arguments())?;
-    ledger.record_root_local_call_bindings(owner, owned_site, bindings)?;
+    ledger.record_root_lexical_call_bindings(owner, owned_site, bindings, emitted)?;
     Ok(result)
 }
 

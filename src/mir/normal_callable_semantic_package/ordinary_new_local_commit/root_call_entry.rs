@@ -28,16 +28,38 @@ impl OrdinaryNewClaimLedgerV1 {
         site: OwnedExprSiteV1,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
-        if bindings.is_empty() {
-            return Err(freeze("local-call-bindings-empty"));
-        }
+        self.record_local_call_binding_group(
+            owner,
+            RootLocalCallBindingGroupV1::new(site, bindings, None)?,
+        )
+    }
+
+    pub(crate) fn record_root_lexical_call_bindings(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: OwnedExprSiteV1,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+        packet: EmittedLexicalCallProjectionV1,
+    ) -> Result<(), String> {
+        self.record_local_call_binding_group(
+            owner,
+            RootLocalCallBindingGroupV1::new(site, bindings, Some(std::rc::Rc::new(packet)))?,
+        )
+    }
+
+    fn record_local_call_binding_group(
+        &self,
+        owner: FunctionOwnerIdV1,
+        group: RootLocalCallBindingGroupV1,
+    ) -> Result<(), String> {
+        let site = group.site().clone();
         if site.owner() != owner {
             return Err(freeze("local-call-binding-owner-drift"));
         }
         let expected = self.expected_local_call_binding_sites(owner)?;
         let mut rows = self.root_local_call_bindings.borrow_mut();
         let groups = rows.entry(owner).or_default();
-        if groups.iter().any(|(recorded, _)| recorded == &site) {
+        if groups.iter().any(|recorded| recorded.site() == &site) {
             return Err(freeze("duplicate-local-call-bindings"));
         }
         if groups.len() >= expected.len() {
@@ -46,7 +68,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if expected.get(groups.len()) != Some(&site) {
             return Err(freeze("local-call-binding-site-order"));
         }
-        groups.push((site, bindings));
+        groups.push(group);
         Ok(())
     }
 
@@ -135,16 +157,16 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
         exit: &SourceStmtSiteV1,
-    ) -> Result<Vec<(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)>, String> {
+    ) -> Result<Vec<RootLocalCallBindingGroupV1>, String> {
         let expected = self.expected_local_call_binding_sites_for_exit(owner, exit)?;
         let pending = self.root_local_call_bindings.borrow();
         let recorded = pending.get(&owner).map(Vec::as_slice).unwrap_or(&[]);
         let mut selected = Vec::with_capacity(expected.len());
         for site in &expected {
-            let Some((_, bindings)) = recorded.iter().find(|(recorded, _)| recorded == site) else {
+            let Some(group) = recorded.iter().find(|recorded| recorded.site() == site) else {
                 return Err(freeze("local-call-binding-sequence"));
             };
-            selected.push((site.clone(), bindings.clone()));
+            selected.push(group.clone());
         }
         Ok(selected)
     }
@@ -153,16 +175,15 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
         exit: &SourceStmtSiteV1,
-        groups: &[(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)],
+        groups: &[RootLocalCallBindingGroupV1],
     ) -> Result<(), String> {
         let expected = self.expected_local_call_binding_sites_for_exit(owner, exit)?;
         if groups.len() != expected.len()
-            || groups
-                .iter()
-                .zip(expected.iter())
-                .any(|((site, bindings), expected)| {
-                    site.owner() != owner || site != expected || bindings.is_empty()
-                })
+            || groups.iter().zip(expected.iter()).any(|(group, expected)| {
+                group.site().owner() != owner
+                    || group.site() != expected
+                    || group.bindings().is_empty()
+            })
         {
             return Err(freeze("local-call-binding-sequence"));
         }
@@ -267,11 +288,16 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let mapped_local_bindings = local_bindings
             .iter()
-            .map(|(site, bindings)| {
-                Ok::<_, String>((
-                    site.clone(),
-                    bindings.iter().map(map).collect::<Result<Vec<_>, _>>()?,
-                ))
+            .map(|group| {
+                Ok::<_, String>(
+                    group.with_bindings(
+                        group
+                            .bindings()
+                            .iter()
+                            .map(map)
+                            .collect::<Result<Vec<_>, _>>()?,
+                    ),
+                )
             })
             .collect::<Result<Vec<_>, _>>()?;
         let mapped_arguments = arguments.iter().map(map).collect::<Result<Vec<_>, _>>()?;
@@ -377,11 +403,11 @@ impl OrdinaryNewClaimLedgerV1 {
         exit: &SourceStmtSiteV1,
         function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
-        groups: &[(OwnedExprSiteV1, Vec<(BasicBlockId, MirInstruction)>)],
+        groups: &[RootLocalCallBindingGroupV1],
     ) -> Result<(), String> {
         self.validate_local_call_binding_groups(owner, exit, groups)?;
-        for (_, group) in groups {
-            for (id, instruction) in group {
+        for group in groups {
+            for (id, instruction) in group.bindings() {
                 if !super::super::physical_boundary::check_binding(
                     function,
                     finishing,
@@ -450,8 +476,8 @@ impl RootHomeExitEntry {
                 local_bindings
             }
         };
-        for (_, group) in local_groups {
-            bindings.extend_from_slice(group);
+        for group in local_groups {
+            bindings.extend_from_slice(group.bindings());
         }
         if let Self::Call {
             arguments,
@@ -489,3 +515,7 @@ pub(in crate::mir) use lexical_projection::{
     EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
     PreparedLexicalCallProjectionV1,
 };
+
+#[path = "root_call_entry/local_binding_group.rs"]
+mod local_binding_group;
+pub(crate) use local_binding_group::RootLocalCallBindingGroupV1;

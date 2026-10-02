@@ -33,6 +33,7 @@ pub(super) enum RootNewValidation {
     Pending(FunctionOwnerIdV1),
     Checked(FunctionOwnerIdV1, physical_boundary::PhysicalBoundary),
     FinishingChecked,
+    ArtifactFinalized,
 }
 
 /// Physical validation retained for one selected ordinary child.  This is
@@ -187,9 +188,20 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
         SourceStmtSiteV1,
         (RootHomeExitEntry, Vec<(BasicBlockId, MirInstruction)>),
     >,
+    // Original local prefix groups from every selected owner. The same
+    // packet can be shared with sibling exit entries; its Taken rows are not copied.
+    local_calls: std::collections::BTreeMap<FunctionOwnerIdV1, Vec<RootLocalCallBindingGroupV1>>,
 }
 
 impl FinalizedRootSourceHandoffV1 {
+    pub(in crate::mir) fn local_call_binding_groups(
+        &self,
+    ) -> impl Iterator<Item = (FunctionOwnerIdV1, &RootLocalCallBindingGroupV1)> {
+        self.local_calls.iter().flat_map(|(owner, groups)| {
+            groups.iter().map(move |group| (*owner, group))
+        })
+    }
+
     fn sole_terminal(&self) -> Option<&TerminalRelationV1> {
         (self.terminals.len() == 1)
             .then(|| self.terminals.values().next())
@@ -694,3 +706,5 @@ pub(in crate::mir) use root_home::{
     EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
     PreparedLexicalCallProjectionV1,
 };
+
+pub(crate) use root_home::RootLocalCallBindingGroupV1;
