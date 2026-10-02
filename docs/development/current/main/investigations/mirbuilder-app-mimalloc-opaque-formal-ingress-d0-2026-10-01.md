@@ -869,3 +869,33 @@ map.rs=790 and direct_call_lifecycle.rs=797 require responsibility split before
 further growth; source flow=663, scan=669. Return Lexical root-entry handoff,
 real tagged physical/C consumers, single Invoke/group and Normal/Fault EXE
 acceptance are still owed. This receipt does not close ingress S0 or the goal.
+
+
+Terminal validation size T0 Decision (2026-10-02, read-only worker confirmed):
+before the accepted Return Lexical handoff grows root_call_entry.rs=746, move
+only validate_call_entry, resolve_instance_receiver and its test helper into
+root_call_entry/validation.rs. Preserve exact source/disposition/MIR and cleanup
+checks, Plain/root-instance tolerance, errors and visibility. Parent keeps
+record/group selection/rebind/finalize and entry accessors; validation borrows
+those existing methods. Register the child in the same scope guard. Mechanically
+compare moved bodies and run existing root_call_entry/co-seal and lib baseline.
+No terminal argument, carrier or consumer permission changes in this T0.
+
+
+Terminal validation size T0 receipt: parent 746 -> 484; validation child 270.
+Moved-method comparison is unchanged except module paths/format, with no new
+semantic permissions, source rows, tests or inventory. Existing binding-group
+negative tests 2/2 and co-seal 140/140 PASS. Initial filename-based filter ran
+zero tests and is not acceptance. Captured unchanged baseline verifier is
+KNOWN BASELINE exit 0: 8237/126/56, inventory 8419 and original failure hash
+unchanged. Pointer/format/diff/bash syntax PASS. Qualified scope guard remains
+red at untouched brand_catalog_tests.rs=961; child is registered without waiver.
+Next: the accepted Return Lexical handoff, then shared tagged physical/C closure.
+Return uses the same owned ordered arguments wrapped in TerminalCallArgument's
+Lexical arm; Direct/Instance reject that arm. Root source selection precedes the
+old expected mark using prepared evidence, while final corroboration and one
+Taken lexical row remain package-complete/raw responsibilities. Share receiver
+and argument preparation only: the existing root owner emits the outer Invoke
+once. Validate ordinal-bound physical values/proofs in the same Call entry,
+never instruction count or expected args copied from the actual Invoke.
+Ingress S0, carrier activation, Normal/Fault EXE and the overall goal stay open.
