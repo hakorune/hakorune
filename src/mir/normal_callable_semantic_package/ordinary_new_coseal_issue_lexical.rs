@@ -168,20 +168,12 @@ pub(super) fn lexical_handle_result_call(
 /// is a literal or an exact-`i64` formal — the sole scan-side proof that
 /// the callee's co-sealed disposition mints `InvokeCallResultKind::I64`.
 ///
-/// Why this shape only: the callee's terminal relations are minted by the
-/// same cohort walk that needs this predicate, so the scan cannot re-read
-/// them. A literal `return` always classifies to an i64-kind relation
-/// (`IntegerLiteral`, scalar `OtherTrivial`, or a `Value` row whose
-/// `String`/`Null`/`Float` source maps to `I64`), and a `return` of a
-/// formal the callee's own contract proves `ExactTrivial(I64)` can never
-/// resolve to a `Map`/`Handle`/`Construction` source either — while every
-/// other shape can hide a relation the sealed disposition would record
-/// differently. Claiming such a site and then disagreeing at emission is
-/// a freeze, so the gate stays fail-closed and the unclaimed call keeps
-/// its existing dynamic path. A class-claimed callee
-/// (`Object`/`NullableObject`) likewise belongs to another lane. The
-/// symmetric Standard-route emitter corroborates the minted row's
-/// `result == Some(I64)` — a half-sealed edge freezes, never degrades.
+/// The scan cannot re-read terminal relations minted by the same cohort walk.
+/// Only Integer literals and the callee's exact-I64 formals prove the source
+/// representation here. A return annotation alone does not verify the literal
+/// type: Float, Bool, String and Null must not enter this lane. Other result
+/// shapes keep their existing owner. The emitter separately corroborates the
+/// minted row's `result == Some(I64)`; disagreement freezes without fallback.
 pub(super) fn lexical_i64_result_call(
     selected: &VerifiedSelectedCallableBatchMapV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -214,18 +206,20 @@ pub(super) fn lexical_i64_result_call(
             !sites.is_empty()
                 && sites.iter().all(|site| {
                     let function = callee_input.function();
-                    function.expression_source().literal(site).is_some()
-                        || matches!(
-                            function.variable_ref(site),
-                            Some(
-                                crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(
-                                    binding
-                                )
-                            ) if contract
-                                .parameters
-                                .iter()
-                                .any(|parameter| parameter.binding == binding)
-                        )
+                    matches!(
+                        function.expression_source().literal(site),
+                        Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(_))
+                    ) || matches!(
+                        function.variable_ref(site),
+                        Some(
+                            crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(
+                                binding
+                            )
+                        ) if contract
+                            .parameters
+                            .iter()
+                            .any(|parameter| parameter.binding == binding)
+                    )
                 })
         })
         .unwrap_or(false)

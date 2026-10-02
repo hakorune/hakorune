@@ -957,6 +957,16 @@ Final lending consumes the original lexical disposition once and requires its
 corroborated incoming/result evidence. Missing source, ordered-argument drift
 and foreign/sibling exits reject before consuming the correct call. Direct and
 old root-instance consumers cannot reinterpret Lexical terminal arguments.
-Strict outer calls with a borrowed inner argument, the Return physical handoff
-and tagged C Normal/Fault acceptance remain required; this source/affine seam
-alone does not activate the new ABI or complete ingress S0.
+The same private strict sealer also retains outer and sibling I64 calls around
+borrowed argument calls. Only trees containing the original BorrowedActual
+select this Return seam; pure strict terminals retain their old owner. Nested
+sites are exact Argument ordinals with the same owner and program-point Homes.
+Final lexical issuance corroborates each selected node against the real result
+cohort and a nonempty value-return Completion, then requires every node in the
+canonical terminal tree to have its original Ready row. Missing sources cannot
+vanish through a skipped preparation row; Unit/Float and old empty-I64 defaults
+supply no result permission. The strict source predicate proves Integer literals
+or exact-I64 formals, never a result annotation alone. The Return physical
+handoff and tagged C
+Normal/Fault acceptance remain required; this source/affine seam alone does not
+activate the new ABI or complete ingress S0.

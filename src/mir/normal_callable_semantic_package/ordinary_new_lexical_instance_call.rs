@@ -207,7 +207,14 @@ impl OrdinaryNewClaimLedgerV1 {
             let target = source.target().clone();
             let call_site = source.call_site().clone();
             let callee_owner = source.callee_owner();
+            let terminal_selected = self.terminal_lexical_call_selected_v1(&call_site);
+            if terminal_selected {
+                self.corroborate_terminal_lexical_result_v1(&source, results)?;
+            }
             let Some(signature) = signatures.row(target_batch_slot) else {
+                if terminal_selected {
+                    return Err(freeze("lexical-instance-call/terminal-signature-missing"));
+                }
                 continue;
             };
             if signature.mode()
@@ -219,6 +226,9 @@ impl OrdinaryNewClaimLedgerV1 {
                         || lane.role() != PhysicalCallableLaneRoleV1::InstanceReceiver
                 })
             {
+                if terminal_selected {
+                    return Err(freeze("lexical-instance-call/terminal-signature-mismatch"));
+                }
                 continue;
             }
             // The caller-side scan and this co-seal are independent proofs
@@ -268,6 +278,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("lexical-instance-call/duplicate"));
             }
         }
+        self.validate_terminal_lexical_ready_v1()?;
         Ok(())
     }
 

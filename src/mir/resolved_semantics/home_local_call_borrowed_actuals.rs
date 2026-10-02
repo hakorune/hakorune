@@ -149,3 +149,14 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_borrowed_call
     }
     observed
 }
+
+/// Only trees containing the original borrowed projection select the new Return seam.
+pub(super) fn contains_borrowed_actual_v1(arguments: &[super::LocalCallArgumentV1]) -> bool {
+    arguments.iter().any(|argument| match argument {
+        super::LocalCallArgumentV1::BorrowedActual { .. } => true,
+        super::LocalCallArgumentV1::CallResult(inner) => {
+            contains_borrowed_actual_v1(inner.arguments())
+        }
+        _ => false,
+    })
+}

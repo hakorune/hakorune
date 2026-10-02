@@ -901,27 +901,14 @@ never instruction count or expected args copied from the actual Invoke.
 Ingress S0, carrier activation, Normal/Fault EXE and the overall goal stay open.
 
 
-Direct Return source/affine component receipt (2026-10-02): the shared borrowed
-callback seals direct ReturnValue MethodCall arguments in the existing terminal
-relation's Lexical wrapper. Exact Completion owner, explicit exit and direct
-call site are checked against the original pending ordered projection before
-old root expected-mark issuance. No local group or Home is invented; final
-lending consumes the same lexical disposition once and demands fully
-corroborated incoming/result evidence. Direct/old-instance consumers reject the
-new wrapper rather than interpreting it as literals or Map. New 6/6 tests cover
-Bool/Integer/object actual identity, source versus final result phase, missing
-source/incoming, ordered drift, sibling exits, mis-seated relations, source Err
-and second take. Read-only worker found no direct-source/affine ownership defect.
-Borrowed regression 125 PASS / 4 ignored and co-seal 146/146 PASS. Captured
-unchanged baseline verifier reports KNOWN BASELINE exit 0: 8243/126/56,
-inventory 8425; original failure names/hash unchanged. Inventory adds exactly
-the six owned passing tests. Touched Rust formatting, diff and pointer PASS;
-qualified scope guard remains red only at untouched brand_catalog_tests.rs=961.
-Source flow=739, terminal relation=733, observer=617, result helper=245 and new
-tests=225, all below hard stop. This closes direct Return source/affine only:
-strict-outer/borrowed-inner Return, root physical handoff, tagged C consumer and
-Normal/Fault EXE remain mandatory within the original ingress S0; no activation,
-production cutover or whole-goal completion is claimed.
+Direct Return source/affine receipt: `ef874d20bf` (2026-10-02) retains the
+same ordered arguments/Taken row and exact exit identity, without a local or
+Home; old consumers reject Lexical wrappers. New 6/6, borrowed 125 PASS/4
+ignored, co-seal 146/146; captured baseline 8243/126/56, inventory 8425,
+original failure set/hash unchanged. Pointer/format/diff PASS; scope guard
+remains red at untouched brand_catalog_tests.rs=961. Full evidence is retained
+in that commit. This closes only direct source/affine, not physical/C or S0.
+
 
 Next nested Return Decision (same read-only worker): reuse the existing strict
 sealer for the outer call, selecting this new terminal only when its recursively
@@ -936,3 +923,39 @@ the borrowed child's result are not authority. Inner and outer each keep their
 original one-shot lexical row. Share receiver/argument preparation with the root
 emitter, never emit the outer Invoke twice or create a local binding group.
 Then close the agreed root physical/C path and Normal/Fault acceptance.
+
+
+Strict result proof repair Decision: return annotations establish the declared
+contract but do not verify literal representation. In the existing lexical I64
+source predicate, accept Integer literals or exact-I64 formals only; Float,
+Bool, String, Null and mixed exits cannot prove this lane. Preserve the existing
+callee selection and borrowed result owner. Check both local and nested Return
+selection against actual packages; no new result authority or carrier activation.
+
+TypedInteger is not a supported canonical source shape: the existing grammar
+rejects typed_integer_suffix before package issuance. Its retained Rust-evidence
+projection is not source authority for this selection; no suffix lane is reopened.
+
+Next physical responsibility T0: extract the existing lexical I64 receiver/arg
+and Invoke emitters into a private terminal_call child, preserving behavior.
+Then the same original Taken lexical row feeds RootCallDisposition::Lexical.
+Share receiver/ordered argument preparation only; the existing root Call ingress
+emits the outer Invoke once. Retain each ordinal's producer binding, nested
+InvokeNormalResult, exact scalar binding and original borrowed lender through
+root exit validation/rebind/finalization. Do not derive expected arguments from
+actual Invoke or count instructions as arity. Tagged carrier/use closure and
+physical/C Normal/Fault execution are required before ingress S0 can close.
+
+
+Nested Return source/affine receipt (2026-10-02): original strict outer/sibling
+and borrowed inner rows are retained with exact owner/ordinal/Homes; canonical
+index priority and whole-tree Ready/result closure reject missing/foreign rows.
+The strict I64 source predicate rejects Float/Bool/String/Null and mixed exits.
+Terminal focused 15/15, lexical local 8/8, borrowed 134 PASS/4 ignored, co-seal
+155/155 PASS. Nine owned passing additions update inventory only: captured
+unchanged verifier KNOWN BASELINE exit 0, 8252/126/56, inventory 8434 and
+original failure names/hash unchanged. Source format/diff/pointer/bash PASS.
+Scope guard remains known red at untouched brand_catalog_tests.rs=961; no
+waiver. Earlier one-test failure was an incorrect pure-strict test assertion
+about an old expected mark, corrected to actual nonselection; no product gate
+was relaxed. Physical handoff/carrier activation/C Normal/Fault and S0 stay open.

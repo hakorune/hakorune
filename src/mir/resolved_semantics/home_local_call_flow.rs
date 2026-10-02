@@ -468,13 +468,16 @@ pub(super) fn issue_borrowed_i64_terminal_call<E>(
         &site,
         prior_homes,
         locals,
-        false,
+        true,
         is_selected_call,
         borrowed_arguments,
     )?
     else {
         return Ok(None);
     };
+    if !borrowed_actuals::contains_borrowed_actual_v1(&arguments) {
+        return Ok(None);
+    }
     Ok(Some(super::TerminalI64CallReturnV1::issue(
         input.owner(),
         statement.site().clone(),

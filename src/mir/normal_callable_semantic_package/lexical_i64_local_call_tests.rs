@@ -225,6 +225,31 @@ fn lexical_i64_call_keeps_construction_callee_on_handle_lane() {
 #[test]
 fn lexical_i64_call_stays_fail_closed() {
     for (label, method, call) in [
+        (
+            "float-result",
+            "bad(x: i64): i64 { return 1.5 }",
+            "pool.bad(1)",
+        ),
+        (
+            "bool-result",
+            "bad(x: i64): i64 { return true }",
+            "pool.bad(1)",
+        ),
+        (
+            "string-result",
+            "bad(x: i64): i64 { return \"s\" }",
+            "pool.bad(1)",
+        ),
+        (
+            "null-result",
+            "bad(x: i64): i64 { return null }",
+            "pool.bad(1)",
+        ),
+        (
+            "mixed-literal-results",
+            "bad(x: i64): i64 { if x > 0 { return 1 } return 1.5 }",
+            "pool.bad(1)",
+        ),
         // A callee formal without `: i64` is `OpaqueHandle`, never
         // `ExactTrivial(I64)`.
         (
