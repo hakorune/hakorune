@@ -180,6 +180,15 @@ impl FinalizedRootSourceHandoffV1 {
         self.ledger.borrowed_call_actuals_v1(row)
     }
 
+    pub(in crate::mir) fn borrowed_ordinary_entry_source_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<super::super::lexical_instance_call::BorrowedOrdinaryEntrySourceRefV1<'_>, String>
+    {
+        self.ledger
+            .finalized_borrowed_ordinary_entry_source_v1(owner)
+    }
+
     pub(in crate::mir) fn borrowed_ordinary_entry_values_v1(
         &self,
         owner: FunctionOwnerIdV1,

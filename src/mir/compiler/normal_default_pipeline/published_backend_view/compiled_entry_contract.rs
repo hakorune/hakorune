@@ -83,12 +83,20 @@ pub(crate) struct CompiledEntryBirthCallV1 {
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct CompiledEntryOrdinaryCallV1 {
     caller_function_index: u32,
+    caller_block_id: crate::mir::BasicBlockId,
+    caller_instruction_index: u32,
     function_index: u32,
     call: crate::mir::definitions::MirCall,
     result: InvokeCallResultKind,
 }
 
 impl CompiledEntryOrdinaryCallV1 {
+    pub(crate) const fn caller_block_id(&self) -> crate::mir::BasicBlockId {
+        self.caller_block_id
+    }
+    pub(crate) const fn caller_instruction_index(&self) -> u32 {
+        self.caller_instruction_index
+    }
     pub(crate) const fn caller_function_index(&self) -> u32 {
         self.caller_function_index
     }
@@ -254,20 +262,19 @@ impl<'module> PublishedMirBackendView<'module> {
                         | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
                         | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
                         | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. }
-                        | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle {
-                            ..
-                        }
+                        | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle { .. }
                 ) {
                     continue;
                 }
                 let caller_function_index =
                     u32::try_from(index).map_err(|_| fault("compiled-entry-index"))?;
-                for row in function.blocks().iter().flat_map(|block| {
+                for (block_id, row) in function.blocks().iter().flat_map(|block| {
                     block
                         .instructions()
                         .iter()
                         .copied()
                         .chain(std::iter::once(block.terminator()))
+                        .map(move |row| (block.id(), row))
                 }) {
                     let MirInstruction::Invoke {
                         operation:
@@ -283,7 +290,13 @@ impl<'module> PublishedMirBackendView<'module> {
                     else {
                         continue;
                     };
-                    program_ordinary_calls.push((caller_function_index, call.clone(), *result));
+                    program_ordinary_calls.push((
+                        caller_function_index,
+                        block_id,
+                        row.index(),
+                        call.clone(),
+                        *result,
+                    ));
                 }
             }
             let mut contract_births = Vec::with_capacity(tail.len());
@@ -343,9 +356,7 @@ impl<'module> PublishedMirBackendView<'module> {
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. }
-                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle {
-                        ..
-                    } => {
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle { .. } => {
                         let key = function
                             .role()
                             .ordinary_target()
@@ -364,7 +375,9 @@ impl<'module> PublishedMirBackendView<'module> {
             }
             let mut referenced_ordinary_keys = BTreeSet::new();
             let mut ordinary_calls = Vec::with_capacity(program_ordinary_calls.len());
-            for (caller_function_index, call, result) in program_ordinary_calls {
+            for (caller_function_index, caller_block_id, caller_instruction_index, call, result) in
+                program_ordinary_calls
+            {
                 let key = super::physical_program::ordinary_callable_key(&call.callee)?;
                 let function_index = *ordinary_function_indices
                     .get(&key)
@@ -397,6 +410,8 @@ impl<'module> PublishedMirBackendView<'module> {
                 referenced_ordinary_keys.insert(key);
                 ordinary_calls.push(CompiledEntryOrdinaryCallV1 {
                     caller_function_index,
+                    caller_block_id,
+                    caller_instruction_index,
                     function_index,
                     call,
                     result,

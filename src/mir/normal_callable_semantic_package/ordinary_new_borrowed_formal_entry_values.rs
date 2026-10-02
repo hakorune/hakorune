@@ -27,7 +27,17 @@ impl OrdinaryNewClaimLedgerV1 {
         if self.borrowed_entry_values.borrow().contains_key(&owner) {
             return Err(freeze("borrowed-entry/duplicate-entry-values"));
         }
-        if let Ok(rows) = &values {
+        self.check_borrowed_ordinary_entry_values_v1(owner, values)
+    }
+
+    // The final source loan checks the same correspondence without repeating
+    // the record-only duplicate-state guard.
+    pub(super) fn check_borrowed_ordinary_entry_values_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        values: &Result<EntryValues, String>,
+    ) -> Result<(), String> {
+        if let Ok(rows) = values {
             let source = self
                 .borrowed_formal_source
                 .as_ref()

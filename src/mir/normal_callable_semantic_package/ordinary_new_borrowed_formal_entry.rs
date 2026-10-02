@@ -35,9 +35,46 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn incoming(&self) -> &[(&OwnedExprSiteV1, &[PreparedBorrowedFormalActualV1])] {
         &self.incoming
     }
+    /// Loan the original target, including its source owner and batch identity.
+    pub(crate) fn incoming_targets(
+        &self,
+    ) -> impl Iterator<Item = &super::LexicalInstanceCallSourceTargetV1> {
+        self.source
+            .incoming
+            .iter()
+            .filter(move |row| row.callee == self.owner)
+            .map(|row| &row.source)
+    }
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Finalization borrows the original source and recorded correspondence;
+    /// it must not reconstruct a lowering input or issue new formal contracts.
+    pub(crate) fn finalized_borrowed_ordinary_entry_source_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<BorrowedOrdinaryEntrySourceRefV1<'_>, String> {
+        let values = self.borrowed_ordinary_entry_values_v1(owner);
+        self.check_borrowed_ordinary_entry_values_v1(owner, &values)?;
+        let values = values?;
+        let source = self
+            .borrowed_formal_source
+            .as_ref()
+            .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
+            .as_ref()
+            .map_err(Clone::clone)?;
+        let incoming = self.checked_borrowed_entry_incoming(source, owner)?;
+        Ok(BorrowedOrdinaryEntrySourceRefV1 {
+            owner,
+            formals: values
+                .iter()
+                .map(|(ordinal, binding, _)| (*ordinal, *binding))
+                .collect(),
+            source,
+            incoming,
+        })
+    }
+
     /// Only the installed Ordinary source input can request this projection.
     /// Nonopaque and Dynamic callers do not demand unrelated pending errors.
     pub(crate) fn borrowed_ordinary_entry_source_v1(

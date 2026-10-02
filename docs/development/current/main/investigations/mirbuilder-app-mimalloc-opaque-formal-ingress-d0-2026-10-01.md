@@ -967,7 +967,7 @@ closed; all incoming/use/C/Normal-Fault and selected raw-edge retirement are owe
 
 Next incoming/use Decision (same S0, read-only worker): extend existing
 compiled-entry owner after physical program issuance, before ordinary rows publish.
-Retain caller/block/instruction coordinates in existing ordinary rows. Loan original
+Use retained caller/block/instruction coordinates in existing ordinary rows. Loan original
 local/Discard/Return/nested packets and entry source/value correspondence through
 existing final handoff visitors; do not clone Taken rows or expose the ledger Rc.
 Original node/producer/Copy -> held FinishedBindings -> unique actual function
@@ -984,3 +984,15 @@ Positive/negative: original direct/alias forwarding and four continuations;
 missing/extra incoming, foreign site/ordinal/formal, Copy/tag loss, metadata-only
 spoof, altered result, and profile-out uses. Normal/Fault execution remains required
 later; do not activate tagged payload before final writer/C and full closure.
+
+Final entry/source loan and ordinary Call-coordinate component receipt:
+Original entry values share the incoming/source correspondence check without
+repeating the one-shot record guard; final handoff loans the original source and
+incoming target objects, without reconstructing lowering input/formal contracts.
+Ordinary rows retain physical caller/block/instruction (including terminators).
+Entry 15/15, compiled-entry 3/3, co-seal 14/14, borrowed 144/144 + 4 ignored PASS;
+full verifier KNOWN BASELINE 8291/126/56, inventory 8473, failures unchanged.
+Lib+tests check, pointer/diff PASS; scope guard known brand_catalog_tests.rs=961.
+Read-only worker confirms ownership/target identity and pending-error boundaries.
+Remaining: original packet visitors, finished symbol/coordinate joins, all-Call
+bidirectional incoming/full-use, writer/C, Normal/Fault EXE and raw-edge retirement.

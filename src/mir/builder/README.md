@@ -645,6 +645,13 @@ and unselected entries never mint tagged slots. Until complete incoming/use and
 C closure, published parameter/actual encoding explicitly rejects these slots;
 metadata alone cannot authorize raw-i64 transport or a Borrowed Invoke.
 
+The final handoff loans the original borrowed entry source only against the
+already-recorded ordinal/binding/value correspondence. This rechecks incoming
+actuals without rerunning the one-shot record guard or fabricating lowering
+inputs. Incoming target loans retain the original source object. Compiled
+ordinary Call rows retain caller function, block and instruction coordinates;
+these coordinates locate instructions, but do not grant borrowed-use authority.
+
 ### DeclaredInstance receiver authority crosswalk
 
 The selected root `me.method(...)` path now borrows the installed package's

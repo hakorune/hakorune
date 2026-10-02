@@ -79,6 +79,17 @@ fn child_birth_actual_is_retained_and_attributed_to_child_function() {
             .compile_normal_with_published(request, |view, verification| {
                 assert!(verification.is_ok(), "{verification:?}");
                 let contract = view.issue_lifecycle_compiled_entry_contract()?;
+                assert_eq!(contract.ordinary_calls().len(), 1);
+                for call in contract.ordinary_calls() {
+                    let caller = &contract.program().functions()[call.caller_function_index() as usize];
+                    let block = caller.blocks().iter().find(|block| block.id() == call.caller_block_id()).unwrap();
+                    let instruction = block.instructions().iter().copied()
+                        .chain(std::iter::once(block.terminator()))
+                        .find(|row| row.index() == call.caller_instruction_index()).unwrap();
+                    assert!(matches!(instruction.instruction(), MirInstruction::Invoke {
+                        operation: InvokeOperation::Call { call: actual, result }, ..
+                    } if actual == call.call() && *result == call.result()));
+                }
                 assert_eq!(contract.births().len(), 1);
                 assert_eq!(contract.birth_calls().len(), 1);
                 assert_eq!(contract.birth_calls()[0].caller_function_index(), 1);

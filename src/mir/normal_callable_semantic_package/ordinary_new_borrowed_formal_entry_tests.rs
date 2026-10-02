@@ -555,3 +555,87 @@ fn repeated_walk_drift_in_nonopaque_projection_poisons_entire_pending_call() {
         .unwrap_err()
         .contains("repeated-walk-drift"));
 }
+
+#[test]
+fn final_entry_loan_retains_original_targets_and_rechecks_recorded_values() {
+    let mut package = package(
+        "return 0",
+        "local recv = new Transport() local a = recv.probe(0) local b = recv.probe(true) return 0",
+    );
+    let (owner, parameters) = target(&package);
+    let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    assert!(ledger
+        .finalized_borrowed_ordinary_entry_source_v1(owner)
+        .unwrap_err()
+        .contains("entry-values-missing"));
+    let values = vec![(0, parameters[0].1, crate::mir::ValueId::new(72))].into_boxed_slice();
+    ledger
+        .record_borrowed_ordinary_entry_values_v1(owner, Ok(values.clone()))
+        .unwrap();
+    for _ in 0..2 {
+        let loan = ledger
+            .finalized_borrowed_ordinary_entry_source_v1(owner)
+            .unwrap();
+        assert_eq!(loan.formals(), &[(0, parameters[0].1)]);
+        assert_eq!(loan.incoming_targets().count(), 2);
+        let source = ledger
+            .borrowed_formal_source
+            .as_ref()
+            .unwrap()
+            .as_ref()
+            .unwrap();
+        for (target, original) in loan.incoming_targets().zip(source.incoming.iter()) {
+            assert!(std::ptr::eq(target, &original.source));
+        }
+    }
+    assert!(ledger
+        .record_borrowed_ordinary_entry_values_v1(owner, Ok(values))
+        .unwrap_err()
+        .contains("duplicate-entry-values"));
+    ledger
+        .borrowed_entry_values
+        .borrow_mut()
+        .get_mut(&owner)
+        .unwrap()
+        .as_mut()
+        .unwrap()[0]
+        .0 = 1;
+    assert!(ledger
+        .finalized_borrowed_ordinary_entry_source_v1(owner)
+        .unwrap_err()
+        .contains("entry-values-source-drift"));
+}
+
+#[test]
+fn final_entry_loan_does_not_hide_pending_or_changed_incoming() {
+    for pending in [false, true] {
+        let mut package = package(
+            "return 0",
+            "local recv = new Transport() local a = recv.probe(0) return 0",
+        );
+        let (owner, parameters) = target(&package);
+        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        ledger
+            .record_borrowed_ordinary_entry_values_v1(
+                owner,
+                if pending {
+                    Err("pending-entry".into())
+                } else {
+                    Ok(vec![(0, parameters[0].1, crate::mir::ValueId::new(72))].into_boxed_slice())
+                },
+            )
+            .unwrap();
+        *ledger.borrowed_formal_actuals.values_mut().next().unwrap() =
+            Err("changed-incoming".into());
+        assert_eq!(
+            ledger
+                .finalized_borrowed_ordinary_entry_source_v1(owner)
+                .unwrap_err(),
+            if pending {
+                "pending-entry"
+            } else {
+                "changed-incoming"
+            }
+        );
+    }
+}
