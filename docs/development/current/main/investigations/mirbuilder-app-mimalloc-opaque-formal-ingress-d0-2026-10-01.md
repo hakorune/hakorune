@@ -901,13 +901,10 @@ never instruction count or expected args copied from the actual Invoke.
 Ingress S0, carrier activation, Normal/Fault EXE and the overall goal stay open.
 
 
-Direct Return source/affine receipt: `ef874d20bf` (2026-10-02) retains the
-same ordered arguments/Taken row and exact exit identity, without a local or
-Home; old consumers reject Lexical wrappers. New 6/6, borrowed 125 PASS/4
-ignored, co-seal 146/146; captured baseline 8243/126/56, inventory 8425,
-original failure set/hash unchanged. Pointer/format/diff PASS; scope guard
-remains red at untouched brand_catalog_tests.rs=961. Full evidence is retained
-in that commit. This closes only direct source/affine, not physical/C or S0.
+Direct Return source/affine: `ef874d20bf` retains ordered arguments/Taken row
+and exact exit identity without a local/Home. Its full source/affine receipt,
+unchanged baseline and classified guard debt are retained in that commit.
+Physical/C activation and this S0 remain open.
 
 
 Nested Return Decision implemented in `76cae30f54`: original strict sealer,
@@ -990,3 +987,10 @@ PASS. One zero-result crosswalk filter was rejected as evidence and corrected.
 Pointer/format/diff/bash PASS; known untouched brand_catalog_tests.rs=961 guard
 red remains. Return entry retention, borrowed tagged arguments, ordinary ABI/C
 use closure and Normal/Fault EXE are still owed in this same accepted S0.
+
+Next T0 Decision: move only projection types/pure corroboration to the existing
+root Call entry private child; re-export the owner interface, not builder paths.
+Then connect Return in a separate commit. Flat arguments alone enumerate
+capture; tree producers use the same FinishedBindings mapping, missing producers
+reject, while exact reads/ValueIds/Taken rows move unchanged through finalization.
+Test missing/foreign/modified proofs, nested ordinals and real block contraction.
