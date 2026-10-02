@@ -174,3 +174,8 @@ mod terminal_value_return_tests;
 
 #[cfg(test)]
 mod map_physical_dependency_tests;
+
+pub(in crate::mir) use ordinary_new_coseal::{
+    EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
+    PreparedLexicalCallProjectionV1,
+};

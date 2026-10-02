@@ -609,3 +609,8 @@ impl OrdinaryNewClaimLedgerV1 {
 mod call_entry;
 #[path = "root_map_get_entry.rs"]
 mod map_get_entry;
+
+pub(in crate::mir) use call_entry::{
+    EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
+    PreparedLexicalCallProjectionV1,
+};

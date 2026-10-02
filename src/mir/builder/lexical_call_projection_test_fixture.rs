@@ -1,10 +1,17 @@
-//! Corroborate physical arguments against real source-issued call rows.
-use super::*;
-use crate::mir::builder::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
+//! Build real source-issued projection packets without exposing builder state.
+use super::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
+use super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
+use crate::mir::instruction::{InvokeCallResultKind, InvokeOperation};
+use crate::mir::normal_callable_semantic_package::{
+    EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
+    LexicalInstanceCallDispositionRowV1, PreparedLexicalCallProjectionV1,
+};
+use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 use crate::mir::resolved_semantics::SourceBindingSiteV1;
+use crate::mir::{BasicBlockId, MirBuilder, MirInstruction, ValueId};
 
-fn fixture() -> (
-    PreparedCall,
+pub(in crate::mir) fn fixture() -> (
+    PreparedLexicalCallProjectionV1,
     LexicalInstanceCallDispositionRowV1,
     Vec<LocalCallArgumentV1>,
 ) {
@@ -133,23 +140,23 @@ fn fixture() -> (
             inner_row.receiver_binding(),
         )
         .unwrap();
-    let inner_prepared = PreparedCall {
-        receiver: inner_receiver,
-        arguments: vec![ArgumentProjection::Integer((
+    let inner_prepared = PreparedLexicalCallProjectionV1::new(
+        inner_receiver,
+        vec![LexicalCallArgumentProjectionV1::Integer((
             BasicBlockId(1),
             MirInstruction::Const {
                 dst: ValueId(80),
                 value: crate::mir::ConstValue::Integer(9),
             },
         ))],
-    };
+    );
     let inner_call = inner_prepared
         .materialize(owner, &inner_row, inner.arguments())
         .unwrap();
-    let emitted = EmittedCall {
-        row: inner_row,
-        prepared: inner_prepared,
-        invoke: (
+    let emitted = EmittedLexicalCallProjectionV1::new(
+        inner_row,
+        inner_prepared,
+        (
             BasicBlockId(1),
             MirInstruction::Invoke {
                 operation: InvokeOperation::Call {
@@ -161,101 +168,23 @@ fn fixture() -> (
                 fault_landing: BasicBlockId(3),
             },
         ),
-        projection: (
+        (
             BasicBlockId(2),
             MirInstruction::InvokeNormalResult {
                 invoke_block: BasicBlockId(1),
                 dst: ValueId(81),
             },
         ),
-    };
+    );
     (
-        PreparedCall {
+        PreparedLexicalCallProjectionV1::new(
             receiver,
-            arguments: vec![
-                ArgumentProjection::Scalar(scalar),
-                ArgumentProjection::CallResult(Box::new(emitted)),
+            vec![
+                LexicalCallArgumentProjectionV1::Scalar(scalar),
+                LexicalCallArgumentProjectionV1::CallResult(Box::new(emitted)),
             ],
-        },
+        ),
         row,
         source,
     )
-}
-
-#[test]
-fn ordered_projection_uses_exact_scalar_and_original_nested_result() {
-    let (prepared, row, source) = fixture();
-    let call = prepared
-        .materialize(row.call_site().owner(), &row, &source)
-        .unwrap();
-    assert_eq!(call.args, vec![ValueId(79), ValueId(81)]);
-    assert!(matches!(
-        call.callee,
-        crate::mir::definitions::Callee::SameModuleInstance {
-            receiver: ValueId(77),
-            ..
-        }
-    ));
-    assert_eq!(
-        prepared.arguments.len(),
-        2,
-        "arity follows ordinals, not recorded instruction count"
-    );
-}
-
-#[test]
-fn ordered_projection_refuses_swapped_arguments_and_foreign_receiver_read() {
-    let (mut prepared, row, source) = fixture();
-    let owner = row.call_site().owner();
-    prepared.arguments.swap(0, 1);
-    assert!(prepared
-        .materialize(owner, &row, &source)
-        .unwrap_err()
-        .contains("argument-projection-drift"));
-    prepared.arguments.swap(0, 1);
-    let ArgumentProjection::Scalar(scalar) = prepared.arguments.remove(0) else {
-        panic!("scalar");
-    };
-    prepared.arguments.insert(
-        0,
-        ArgumentProjection::Scalar(std::mem::replace(&mut prepared.receiver, scalar)),
-    );
-    assert!(prepared
-        .materialize(owner, &row, &source)
-        .unwrap_err()
-        .contains("receiver"));
-}
-
-#[test]
-fn ordered_projection_refuses_nested_target_landing_and_literal_drift() {
-    for mutation in 0..3 {
-        let (mut prepared, row, source) = fixture();
-        let ArgumentProjection::CallResult(inner) = &mut prepared.arguments[1] else {
-            panic!("nested");
-        };
-        match mutation {
-            0 => {
-                let MirInstruction::Invoke {
-                    operation: InvokeOperation::Call { call, .. },
-                    ..
-                } = &mut inner.invoke.1
-                else {
-                    panic!("invoke");
-                };
-                call.args[0] = ValueId(999);
-            }
-            1 => inner.projection.0 = BasicBlockId(999),
-            _ => {
-                let ArgumentProjection::Integer((_, MirInstruction::Const { value, .. })) =
-                    &mut inner.prepared.arguments[0]
-                else {
-                    panic!("constant");
-                };
-                *value = crate::mir::ConstValue::Integer(10);
-            }
-        }
-        assert!(prepared
-            .materialize(row.call_site().owner(), &row, &source)
-            .is_err());
-    }
 }

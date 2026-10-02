@@ -590,8 +590,10 @@ Lexical call materialization can retain the original exact read as a private
 owner/site/binding/ValueId witness. Only the crosswalk constructs it after the
 same one-shot checks; later corroboration reads that snapshot rather than a
 new binding value. Shared lexical I64 argument preparation retains actual Const
-and nested affine call/Invoke/NormalResult observations. This physical proof
-does not classify opaque formals or authorize a tagged ABI.
+and nested affine call/Invoke/NormalResult observations. The root Call entry's
+private lexical projection owns these proofs and their pure corroboration;
+Builder retains emission and lends exact reads through its owner interface.
+This physical proof does not classify opaque formals or authorize a tagged ABI.
 
 ### DeclaredInstance receiver authority crosswalk
 

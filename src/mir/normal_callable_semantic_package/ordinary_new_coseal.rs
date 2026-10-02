@@ -455,3 +455,8 @@ mod terminal_result_tests;
 #[cfg(test)]
 #[path = "ordinary_new_coseal_tests.rs"]
 mod tests;
+
+pub(in crate::mir) use local_commit::{
+    EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
+    PreparedLexicalCallProjectionV1,
+};

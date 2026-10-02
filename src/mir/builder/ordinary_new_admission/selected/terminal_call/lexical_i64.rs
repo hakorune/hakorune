@@ -1,126 +1,13 @@
 //! Existing local/nested lexical I64 emission from sealed source rows.
 use super::*;
 use crate::mir::builder::normal_callable_semantic_lowering_state::ExactLexicalReadV1;
+use crate::mir::normal_callable_semantic_package::{
+    EmittedLexicalCallProjectionV1 as EmittedCall,
+    LexicalCallArgumentProjectionV1 as ArgumentProjection,
+    PreparedLexicalCallProjectionV1 as PreparedCall,
+};
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 type Binding = (crate::mir::BasicBlockId, MirInstruction);
-
-/// Physical observations of the original ordered argument tree. These rows
-/// cannot classify a source argument or choose a call target.
-#[derive(Debug)]
-enum ArgumentProjection {
-    Integer(Binding),
-    Scalar(ExactLexicalReadV1),
-    CallResult(Box<EmittedCall>),
-}
-
-#[derive(Debug)]
-struct PreparedCall {
-    receiver: ExactLexicalReadV1,
-    arguments: Vec<ArgumentProjection>,
-}
-
-#[derive(Debug)]
-struct EmittedCall {
-    row: LexicalInstanceCallDispositionRowV1,
-    prepared: PreparedCall,
-    invoke: Binding,
-    projection: Binding,
-}
-
-impl PreparedCall {
-    fn materialize(
-        &self,
-        owner: FunctionOwnerIdV1,
-        row: &LexicalInstanceCallDispositionRowV1,
-        source: &[LocalCallArgumentV1],
-    ) -> Result<MirCall, String> {
-        if row.call_site().owner() != owner
-            || self.arguments.len() != source.len()
-            || source.len() != row.argument_sites().len()
-            || source.len() != row.target().arity() as usize
-        {
-            return Err(freeze("lexical-i64/prepared-arity-or-owner"));
-        }
-        let receiver = self
-            .receiver
-            .value_for(owner, row.receiver_site().node(), row.receiver_binding())
-            .map_err(|error| format!("[freeze:contract][lexical-i64/receiver/{error:?}]"))?;
-        let mut values = Vec::with_capacity(source.len());
-        for ((projection, source), site) in
-            self.arguments.iter().zip(source).zip(row.argument_sites())
-        {
-            let value = match (projection, source) {
-                (
-                    ArgumentProjection::Integer((
-                        _,
-                        MirInstruction::Const {
-                            dst,
-                            value: crate::mir::ConstValue::Integer(actual),
-                        },
-                    )),
-                    LocalCallArgumentV1::Integer(expected),
-                ) if actual == expected => *dst,
-                (ArgumentProjection::Scalar(read), LocalCallArgumentV1::Scalar(binding)) => read
-                    .value_for(owner, site.node(), *binding)
-                    .map_err(|error| {
-                        format!("[freeze:contract][lexical-i64/argument/{error:?}]")
-                    })?,
-                (
-                    ArgumentProjection::CallResult(emitted),
-                    LocalCallArgumentV1::CallResult(inner),
-                ) if inner.site().owner() == owner
-                    && inner.site().site() == site
-                    && emitted.row.call_site() == inner.site() =>
-                {
-                    emitted.value_for_source(owner, inner.arguments())?
-                }
-                _ => return Err(freeze("lexical-i64/argument-projection-drift")),
-            };
-            values.push(value);
-        }
-        Ok(MirCall::new(
-            None,
-            crate::mir::definitions::Callee::SameModuleInstance {
-                key: row.target().clone(),
-                receiver,
-            },
-            values,
-        ))
-    }
-}
-
-impl EmittedCall {
-    fn value_for_source(
-        &self,
-        owner: FunctionOwnerIdV1,
-        source: &[LocalCallArgumentV1],
-    ) -> Result<ValueId, String> {
-        let expected = self.prepared.materialize(owner, &self.row, source)?;
-        let MirInstruction::Invoke {
-            operation:
-                InvokeOperation::Call {
-                    call,
-                    result: InvokeCallResultKind::I64,
-                },
-            normal_landing,
-            ..
-        } = &self.invoke.1
-        else {
-            return Err(freeze("lexical-i64/nested-invoke-shape"));
-        };
-        let MirInstruction::InvokeNormalResult { invoke_block, dst } = &self.projection.1 else {
-            return Err(freeze("lexical-i64/nested-projection-shape"));
-        };
-        if self.row.result() != Some(InvokeCallResultKind::I64)
-            || *call != expected
-            || *invoke_block != self.invoke.0
-            || *normal_landing != self.projection.0
-        {
-            return Err(freeze("lexical-i64/nested-producer-drift"));
-        }
-        Ok(*dst)
-    }
-}
 
 /// Emit one source-issued lexical instance-call local result
 /// (`local x = recv.m(...)`) whose co-sealed result contract is `I64`.
@@ -254,12 +141,7 @@ fn emit_lexical_i64_call(
     let projection = (normal_landing, projection);
     bindings.push(invoke.clone());
     bindings.push(projection.clone());
-    Ok(EmittedCall {
-        row,
-        prepared,
-        invoke,
-        projection,
-    })
+    Ok(EmittedCall::new(row, prepared, invoke, projection))
 }
 
 /// Materialize only the source-issued receiver/ordered arguments. The caller
@@ -326,12 +208,5 @@ fn prepare_arguments(
         };
         arguments.push(projection);
     }
-    Ok(PreparedCall {
-        receiver,
-        arguments,
-    })
+    Ok(PreparedCall::new(receiver, arguments))
 }
-
-#[cfg(test)]
-#[path = "lexical_i64_tests.rs"]
-mod tests;

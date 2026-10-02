@@ -482,3 +482,10 @@ impl RootHomeExitEntry {
 
 #[path = "root_call_entry/validation.rs"]
 mod validation;
+
+#[path = "root_call_entry/lexical_projection.rs"]
+mod lexical_projection;
+pub(in crate::mir) use lexical_projection::{
+    EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
+    PreparedLexicalCallProjectionV1,
+};

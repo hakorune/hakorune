@@ -934,24 +934,15 @@ actual Invoke or count instructions as arity. Tagged carrier/use closure and
 physical/C Normal/Fault execution are required before ingress S0 can close.
 
 
-Nested Return source/affine receipt: `76cae30f54` (2026-10-02) retains original
-strict/borrowed rows, exact owner/ordinal/Homes and canonical Ready/result
-closure; strict source rejects nonInteger literals. Terminal 15/15, lexical
-local 8/8, borrowed 134 PASS/4 ignored, co-seal 155/155. Captured unchanged
-verifier KNOWN BASELINE 8252/126/56, inventory 8434, failure set/hash unchanged.
-Pointer/format/diff/bash PASS; untouched brand_catalog_tests.rs=961 guard red.
-Full evidence and corrected test assertion are in the commit. S0 remains open.
+Nested Return source/affine: `76cae30f54` retains original strict/borrowed
+rows and exact owner/ordinal/Homes; its focused and unchanged-baseline receipts
+are in the commit. Strict source rejects nonInteger literals. S0 remains open.
 
 
-Lexical I64 physical size T0 receipt: `834243d2e7` (2026-10-02), parent 708
--> 542, child 173; only existing I64 emitters moved. Whole parent reconstruction
-is identical modulo whitespace; Handle stays in parent. Focused 10/10, co-seal
-155/155 PASS. Captured unchanged full verifier exit 1: 8251/127/56, inventory
-8434 unchanged; only extra failure is the pre-existing nullable receiver
-serialization flake. Original 126 failure names/hash and manifest remain
-unchanged. This is not a green baseline receipt. Pointer/format/diff/bash PASS;
-known untouched 961-line brand_catalog guard debt remains. Initial extraction
-E0425 was corrected before these tests. No acceptance or ABI activation change.
+Lexical I64 emitter size T0: `834243d2e7` moved only existing I64 emitters
+(parent 708 -> 542, child 173). Exact reconstruction and passing focused/co-seal
+receipts are in that commit; full verifier had only the known nullable extra
+flake, not a green baseline. No ABI/acceptance activation; guard debt retained.
 
 
 Physical handoff Decision (read-only worker, same accepted S0): retain an
@@ -971,26 +962,27 @@ constant versus forwarded tags and ordinary typed-object kind 3. Metadata,
 MirType and physical_signature's old OrdinaryScalar default are non-authority.
 Missing carrier activation remains terminal until this same S0 is closed.
 
-Shared physical preparation receipt (2026-10-02): the original state crosswalk
-issues a non-clone exact owner/site/binding/value read; ordered materialization
-retains actual Const and nested Taken row/Invoke/NormalResult observations.
-Expected calls come from sealed source arguments, not actual Invoke arguments.
-Focused source/MIR + mutation tests 13/13, exact-read crosswalk 7/7, co-seal
-155/155 PASS. New five passing tests alone extend inventory to 8439 and expected
-passing count to 8257; original 126 failure names/hash are unchanged.
-Captured unchanged full verifier exit 1: 8256/127/56, with only the known nullable
-receiver serialization flake added and no removed baseline failures. This is
-not a green baseline receipt; no flaky failure is admitted to the manifest.
-Initial three-test fixture failures used wrong private access/optional index/
-local paths; exact resolver declaration sites/ordinals corrected setup before
-PASS. One zero-result crosswalk filter was rejected as evidence and corrected.
-Pointer/format/diff/bash PASS; known untouched brand_catalog_tests.rs=961 guard
-red remains. Return entry retention, borrowed tagged arguments, ordinary ABI/C
-use closure and Normal/Fault EXE are still owed in this same accepted S0.
+Shared physical preparation: `49990f8e36` retains state-issued exact reads
+and source-ordered Const/nested Taken row/Invoke/NormalResult observations.
+Focused 13/13, crosswalk 7/7, co-seal 155/155; inventory 8439. Captured full
+verifier had only the known nullable extra flake (8256/127/56); no failure
+baseline widening. Full receipt and corrected fixture history are in the commit.
 
-Next T0 Decision: move only projection types/pure corroboration to the existing
-root Call entry private child; re-export the owner interface, not builder paths.
-Then connect Return in a separate commit. Flat arguments alone enumerate
-capture; tree producers use the same FinishedBindings mapping, missing producers
-reject, while exact reads/ValueIds/Taken rows move unchanged through finalization.
-Test missing/foreign/modified proofs, nested ordinals and real block contraction.
+Root Call projection owner T0 receipt (2026-10-02): original pure validation
+and mutation tests moved to the existing root Call entry private child. Builder
+retains emission and cfg(test) source fixture; state/entry visibility unchanged.
+Corroboration body comparison PASS; proof 3/3, source/MIR 10/10, crosswalk 7/7,
+co-seal 158/158 PASS. Inventory renames only the moved three tests (8439 total).
+Captured unchanged verifier exit 1, 8256/127/56; sole extra is the known nullable
+receiver flake. Original failure set/hash unchanged. Pointer/diff/new-child
+format/bash PASS; parent formatting drift is pre-existing, and untouched
+brand_catalog_tests.rs=961 guard red remains. Initial private-import/substring
+rename compile errors were fixed before these receipts. No ABI activation.
+
+Next retention Decision (same accepted S0, read-only worker): retain original
+packet on existing local-call groups as well as Return Call entry; no parallel
+site inventory. Local groups share the same packet without cloning Taken rows
+or rebinding it twice for sibling exits. Preserve original borrowed source/
+actual/entry products in the existing final handoff for tagged corroboration.
+Lend source proofs by exact caller and physical producer identity, not MirCall
+alone. Return/ordinary tagged ABI/C closure and Normal/Fault EXE remain owed.

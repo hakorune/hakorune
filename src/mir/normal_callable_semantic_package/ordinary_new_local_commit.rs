@@ -689,3 +689,8 @@ mod finalized_root_handoff;
 
 #[path = "ordinary_new_local_commit/physical_boundary.rs"]
 mod physical_boundary;
+
+pub(in crate::mir) use root_home::{
+    EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
+    PreparedLexicalCallProjectionV1,
+};

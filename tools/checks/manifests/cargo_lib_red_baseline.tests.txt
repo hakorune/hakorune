@@ -2132,9 +2132,6 @@ mir::builder::ops::short_circuit_expression_raw_tests::raw_rhs_is_materialized_o
 mir::builder::ops::short_circuit_expression_raw_tests::raw_short_circuit_selector_preserves_and_or_completion
 mir::builder::ops::unary::tests::source_operator_partition_is_total_and_disjoint
 mir::builder::ordinary_new_admission::selected::arguments::tests::selected_new_argument_rows_reject_malformed_source_relations
-mir::builder::ordinary_new_admission::selected::terminal_call::lexical_i64::tests::ordered_projection_refuses_nested_target_landing_and_literal_drift
-mir::builder::ordinary_new_admission::selected::terminal_call::lexical_i64::tests::ordered_projection_refuses_swapped_arguments_and_foreign_receiver_read
-mir::builder::ordinary_new_admission::selected::terminal_call::lexical_i64::tests::ordered_projection_uses_exact_scalar_and_original_nested_result
 mir::builder::phi_completion::tests::cfg_ready_completion_consumes_one_sealed_row_product
 mir::builder::phi_completion::tests::cfg_ready_completion_rejects_duplicate_missing_and_phantom_rows
 mir::builder::phi_completion::tests::completion_prepares_normalized_rows_and_commits_type_only_after_instruction_success
@@ -5450,6 +5447,9 @@ mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_c
 mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_cleanup_graph::tests::exact_original_and_three_contractions_preserve_full_release
 mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_cleanup_graph::tests::finished_cleanup_rejects_operation_path_and_prefix_mutations
 mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_cleanup_graph::tests::multiple_homes_preserve_clean_and_fault_suffixes_after_contraction
+mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_home::call_entry::lexical_projection::tests::ordered_projection_refuses_nested_target_landing_and_literal_drift
+mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_home::call_entry::lexical_projection::tests::ordered_projection_refuses_swapped_arguments_and_foreign_receiver_read
+mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_home::call_entry::lexical_projection::tests::ordered_projection_uses_exact_scalar_and_original_nested_result
 mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_home::call_entry::tests::local_binding_groups_reject_duplicate_foreign_and_swapped_sites
 mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit::root_home::call_entry::tests::local_binding_groups_reject_incomplete_sequence_before_transfer
 mir::normal_callable_semantic_package::ordinary_new_coseal::terminal_result_tests::child_and_root_add_field_reads_merge_in_declaration_order
