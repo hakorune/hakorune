@@ -4,7 +4,7 @@ use crate::mir::builder::stmts::CompletedLocalBindingV1;
 use crate::mir::{BasicBlockId, MirInstruction};
 
 #[derive(Debug, Clone, PartialEq)]
-pub(super) struct LocalProvenanceV1 {
+pub(in crate::mir) struct LocalProvenanceV1 {
     root: BindingRefV1,
     root_value: ValueId,
     copies: Vec<(BasicBlockId, MirInstruction)>,
@@ -15,7 +15,7 @@ impl LocalProvenanceV1 {
         self.root == binding && self.root_value == value
     }
 
-    pub(super) fn loan_copies(
+    pub(in crate::mir) fn loan_copies(
         &self,
         binding: BindingRefV1,
         value: ValueId,

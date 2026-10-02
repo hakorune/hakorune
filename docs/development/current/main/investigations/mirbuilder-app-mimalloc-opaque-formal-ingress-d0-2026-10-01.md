@@ -931,22 +931,13 @@ unchanged. Ordinary source/full-use, writer/C and execution closure are owed.
 Physical preparation `49990f8e36` and root Call owner T0 `dd6cebfee3`:
 original contracts and complete receipts remain in those commits. No ABI activation.
 
-Original local/Return packet retention Decision and complete receipt:
-`0c873be1f5`; finished-coordinate/source-loan Decision and receipt: `480d357c85`.
-Original affine rows remain private in the existing handoff; only read-only
-coordinate/source loans may be used. Ordinary full-use/C closure remains owed.
-Original borrowed projection/source identity, forwarding and Return contracts:
-`1a54469222` / `bbf0e8b271`; Copy `647f4bb33b`;
-Return Decision/implementation/complete receipt `602408591c` / `fbd781670b`.
-Those commits retain original proofs and classified tests. ABI remains closed;
-Ordinary full-use, writer/C and Normal/Fault EXE remain owed.
-Copy Decision/complete receipt: `861e50aeb2` / `38cd4191ce`; ABI remains closed.
-
-Ordinary carrier Decision/implementation/complete classified receipt:
-`18066ef4f8` / `e3e61f8de8`; source/entry/signature preflight and last metadata
-commit are live. Unknown/Integer are storage placeholders, not numeric authority.
-Pending source stays pending. Writer parameter/actual and strict Invoke remain
-closed; all incoming/use/C/Normal-Fault and selected raw-edge retirement are owed.
+Original packet/source/Copy/Return Decisions and classified receipts:
+`0c873be1f5` / `480d357c85` / `1a54469222` / `bbf0e8b271` /
+`647f4bb33b` / `602408591c` / `fbd781670b` / `861e50aeb2` / `38cd4191ce`.
+Affine rows remain private; read-only loans do not activate the ABI.
+Ordinary carrier Decision/implementation/receipt: `18066ef4f8` / `e3e61f8de8`.
+Unknown/Integer are storage, not source authority. Pending stays pending;
+writer/C/all incoming-use/Normal-Fault and selected retirement remain owed.
 
 Next incoming/use Decision (same S0, read-only worker): extend existing
 compiled-entry owner after physical program issuance, before ordinary rows publish.
@@ -989,12 +980,21 @@ packet dependencies and existing source_local_copies DCE permission. Capture exa
 original tuples; allow omission only in the original graph's unused Copy cone
 with no final destination use/redefinition. Residual Copies require exact equality.
 
-Original final-Call visitor/incoming component receipt (2026-10-03): visitor 4/4,
-incoming mutations 1/1, borrowed regression 146/146 + 4 ignored, lexical 23/23 PASS.
-Native Local/nested source reaches builder/finalization/admission; borrowed
-Discard/Return use original source with synthetic CFG, not tagged EXE evidence.
-Inventory adds only these 5 tests (8478 total), failure manifest unchanged.
-Full serial: 8295/127/56; baseline verifier red twice solely the documented nullable
-receiver ordinary-membership-drift flake beyond the known126; isolated 1/1 PASS.
-Pointer/diff/shell PASS; scope guard red at untouched brand_catalog_tests.rs=961.
-Full-use/writer/C/Normal-Fault execution and selected retirement remain owed.
+Original final-Call visitor/incoming Decision, tests and classified receipt:
+`4cbbc86d3a`. Native builder/admission and synthetic Discard/Return evidence stay
+separate; known nullable flake is not re-baselined. ABI and full-use remain open.
+
+Loop audit correction: source profile does not exclude loop aliases, but the
+Loop port's zero-Copy completion hits existing dynamic-origin LocalBindingMismatch.
+Original zero-Copy retention alone is not production loop acceptance evidence.
+Keep cycle guard; optional Copies outside lifecycle nodes need original block
+identity or existing loop-owner mapping, not global tuple-based relocation.
+
+Alias-retention receipt: original source/entry/private provenance rechecked on
+record/final loan, including unused chains. Focused6/6, borrowed152/152 +4ignored,
+lexical23/23 PASS; lib/tests check PASS before final zero-Copy test correction;
+latest test build PASS. Inventory +6 only (8484); stable8302/126/56 expected.
+Failure manifest unchanged. Verifier RED8301/127/56; named full run differs only
+by existing nullable receiver flake (ordinary-membership-drift); standalone PASS.
+Pointer/diff/shell PASS; changed Rust <800; scope guard RED untouched brand tests961.
+Boundary/full-use/production reuse/ABI/EXE remain owed; no completion claim.

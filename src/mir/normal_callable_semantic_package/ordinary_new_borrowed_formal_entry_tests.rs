@@ -597,6 +597,7 @@ fn final_entry_loan_retains_original_targets_and_rechecks_recorded_values() {
         .borrow_mut()
         .get_mut(&owner)
         .unwrap()
+        .values
         .as_mut()
         .unwrap()[0]
         .0 = 1;

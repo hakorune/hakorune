@@ -662,6 +662,13 @@ receiver, ordered arguments and result must match the finished instruction.
 This incoming check does not replace full operand-use/Copy and C ABI closure;
 borrowed emission and writer activation remain closed until those are proved.
 
+Selected borrowed entry records also retain original local initializer/binding
+and private Copy provenance, including unused aliases and initializer reuse.
+Recording and lending both corroborate original source Copy uses and entry roots.
+The finalized handoff demands the same finished owner before lending these proofs.
+Optional Boundary membership, DCE and all-use verification remain separate
+obligations; retaining a local proof does not activate the borrowed ABI.
+
 ### DeclaredInstance receiver authority crosswalk
 
 The selected root `me.method(...)` path now borrows the installed package's

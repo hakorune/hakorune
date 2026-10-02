@@ -59,6 +59,7 @@ pub(in crate::mir::builder) use source_loop_bridge::CallableLoopSourceBridgeTake
 #[path = "normal_callable_semantic_lowering_state/materialized_values.rs"]
 mod materialized_values;
 pub(in crate::mir::builder) use materialized_values::MaterializedValuesV1;
+pub(in crate::mir) use materialized_values::LocalProvenanceV1;
 
 #[derive(Debug)]
 pub(super) struct CallableSemanticLoweringState {
@@ -355,11 +356,18 @@ impl CallableSemanticLoweringState {
             return Err(freeze("local-materialization-mismatch"));
         }
         for (ordinal, (binding, row)) in bindings.iter().zip(completed.bindings()).enumerate() {
-            let relation = self.local_initializer(site, ordinal)?;
+            let relation = self.local_initializer(site, ordinal)?.clone();
             let source = relation
                 .initializer_site()
                 .and_then(|initializer| self.variables.get(initializer.node()).copied());
             let provenance = source.and_then(|source| self.values.local_provenance(source, row));
+            if matches!(&self.borrowed_entry_formals, Some(Ok(Some(_)))) {
+                self.ordinary_new_claim_ledger.as_ref()
+                    .ok_or_else(|| freeze("borrowed-alias/source-ledger-missing"))?
+                    .record_borrowed_ordinary_alias_v1(
+                        self.owner, &relation, source, row.local(), provenance.as_ref(),
+                    )?;
+            }
             self.insert_value(*binding, row.local())?;
             self.values.attach_provenance(*binding, provenance);
         }

@@ -4,6 +4,16 @@ use crate::mir::ValueId;
 
 type EntryValues = Box<[(u32, BindingRefV1, ValueId)]>;
 
+/// Physical observations of this already-selected entry, not source products.
+#[derive(Debug)]
+pub(in crate::mir::normal_callable_semantic_package) struct BorrowedOrdinaryEntryPhysicalV1 {
+    pub(in crate::mir::normal_callable_semantic_package) values: Result<EntryValues, String>,
+    aliases: BTreeMap<BindingRefV1, alias_materialization::BorrowedAliasMaterializationV1>,
+}
+
+#[path = "ordinary_new_borrowed_alias_materialization.rs"]
+mod alias_materialization;
+
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn record_borrowed_ordinary_entry_values_v1(
         &self,
@@ -15,7 +25,13 @@ impl OrdinaryNewClaimLedgerV1 {
         if recorded.contains_key(&owner) {
             return Err(freeze("borrowed-entry/duplicate-entry-values"));
         }
-        recorded.insert(owner, values);
+        recorded.insert(
+            owner,
+            BorrowedOrdinaryEntryPhysicalV1 {
+                values,
+                aliases: BTreeMap::new(),
+            },
+        );
         Ok(())
     }
 
@@ -88,6 +104,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .borrow()
             .get(&owner)
             .ok_or_else(|| freeze("borrowed-entry/entry-values-missing"))?
+            .values
             .clone()
     }
 }

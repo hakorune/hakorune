@@ -205,6 +205,26 @@ impl FinalizedRootSourceHandoffV1 {
         Ok(source)
     }
 
+    /// Same original alias materialization, demanded against the finished owner.
+    /// Boundary mapping and residual-use checking remain consumer obligations.
+    pub(in crate::mir) fn with_borrowed_ordinary_alias_copies_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        visit: impl FnMut(
+            &OwnedExprSiteV1,
+            &SourceBindingSiteV1,
+            BindingRefV1,
+            BindingRefV1,
+            ValueId,
+            &[(BasicBlockId, MirInstruction)],
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        self.ledger
+            .with_borrowed_ordinary_alias_copies_v1(owner, visit)
+    }
+
     pub(in crate::mir) fn borrowed_ordinary_entry_values_v1(
         &self,
         owner: FunctionOwnerIdV1,

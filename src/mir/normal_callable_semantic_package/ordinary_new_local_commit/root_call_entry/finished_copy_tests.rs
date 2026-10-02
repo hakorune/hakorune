@@ -288,4 +288,23 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
             Ok(())
         }).unwrap();
     assert_eq!(visited, 1);
+    let actual = module.functions.values().next().unwrap();
+    let mut aliases = 0;
+    source
+        .with_borrowed_ordinary_alias_copies_v1(owner, actual, |_, _, _, _, value, copies| {
+            assert_eq!(value, ValueId(73));
+            assert_eq!(copies.len(), 1);
+            aliases += 1;
+            Ok(())
+        })
+        .unwrap();
+    assert_eq!(aliases, 1);
+    let mut foreign = actual.clone();
+    foreign.signature.name.push_str("-foreign");
+    assert!(source
+        .with_borrowed_ordinary_alias_copies_v1(owner, &foreign, |_, _, _, _, _, _| panic!(
+            "foreign function must not obtain alias proofs"
+        ))
+        .unwrap_err()
+        .contains("finished-function"));
 }

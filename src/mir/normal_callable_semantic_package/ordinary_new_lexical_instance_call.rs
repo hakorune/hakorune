@@ -172,6 +172,7 @@ pub(in crate::mir) use borrowed_formal_actuals::{
     BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,
 };
 pub(in crate::mir) use borrowed_formal_entry::BorrowedOrdinaryEntrySourceRefV1;
+pub(super) use borrowed_formal_entry::BorrowedOrdinaryEntryPhysicalV1;
 pub(super) use borrowed_formal_source::{
     prepare_borrowed_formal_ingress_v1, PreparedBorrowedFormalIngressV1,
 };

@@ -17,7 +17,15 @@ fn package_with_parameters(
     parameters: &str,
     actual: &str,
 ) -> VerifiedNormalCallableSemanticPackageV1 {
-    let text = format!("box Transport {{ birth() {{ }} probe({parameters}): i64 {{ return 0 }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe({actual}) return 0 }} }}");
+    package_with_body(parameters, actual, "return 0")
+}
+
+fn package_with_body(
+    parameters: &str,
+    actual: &str,
+    body: &str,
+) -> VerifiedNormalCallableSemanticPackageV1 {
+    let text = format!("box Transport {{ birth() {{ }} probe({parameters}): i64 {{ {body} }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe({actual}) return 0 }} }}");
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         &text,
         ParserBuildConfig::default(),
@@ -381,3 +389,6 @@ fn borrowed_carrier_preflight_never_promotes_pending_or_unselected_source() {
     assert!(!state.entry_installed);
     assert!(function.metadata.physical_param_carriers.is_none());
 }
+
+#[path = "borrowed_alias_materialization_tests.rs"]
+mod alias_materialization_tests;

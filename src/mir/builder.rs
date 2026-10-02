@@ -663,7 +663,7 @@ impl Default for MirBuilder {
 #[path = "builder/builder_binding_id_tests.rs"]
 mod binding_id_tests;
 
-pub(in crate::mir) use normal_callable_semantic_lowering_state::ExactLexicalReadV1;
+pub(in crate::mir) use normal_callable_semantic_lowering_state::{ExactLexicalReadV1, LocalProvenanceV1};
 #[cfg(test)]
 mod lexical_call_projection_test_fixture;
 #[cfg(test)]

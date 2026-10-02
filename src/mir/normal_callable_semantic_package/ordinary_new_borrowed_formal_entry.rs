@@ -281,3 +281,5 @@ mod tests;
 
 #[path = "ordinary_new_borrowed_formal_entry_values.rs"]
 mod entry_values;
+
+pub(in crate::mir::normal_callable_semantic_package) use entry_values::BorrowedOrdinaryEntryPhysicalV1;

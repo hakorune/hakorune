@@ -279,7 +279,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     borrowed_entry_values: RefCell<
         BTreeMap<
             FunctionOwnerIdV1,
-            Result<Box<[(u32, BindingRefV1, crate::mir::ValueId)]>, String>,
+            lexical_instance_call::BorrowedOrdinaryEntryPhysicalV1,
         >,
     >,
     lexical_instance_calls: RefCell<
