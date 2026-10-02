@@ -959,14 +959,8 @@ constant versus forwarded tags and ordinary typed-object kind 3. Metadata,
 MirType and physical_signature's old OrdinaryScalar default are non-authority.
 Missing carrier activation remains terminal until this same S0 is closed.
 
-Shared physical preparation: `49990f8e36` retains state-issued exact reads and
-ordered Const/nested Taken row/Invoke/NormalResult. Focused13/crosswalk7/co-seal155
-PASS, inventory8439, known nullable-extra verifier8256/127/56; full receipt and
-corrected fixture history in that commit. No failure-baseline widening.
-
-Root Call owner T0: `dd6cebfee3`; behavior-preserving private owner move,
-Builder-only fixtures, focused/full-verifier receipts and guard debt are retained
-in that commit. Inventory8439 only renames moved tests; no ABI activation.
+Physical preparation `49990f8e36` and root Call owner T0 `dd6cebfee3`:
+original contracts and complete receipts remain in those commits. No ABI activation.
 
 Next retention Decision (same accepted S0, read-only worker): retain original
 packet on existing local-call groups as well as Return Call entry; no parallel
@@ -976,8 +970,7 @@ actual/entry products in the existing final handoff for tagged corroboration.
 Lend source proofs by exact caller and physical producer identity, not MirCall
 alone. Return/ordinary tagged ABI/C closure and Normal/Fault EXE remain owed.
 
-Local packet retention: `0c873be1f5`; original packet/one-shot state, focused
-receipts and known nullable-extra full-verifier result are retained in that commit.
+Local packet retention and complete receipt: `0c873be1f5`.
 
 Next physical Decision (same S0, read-only worker): retain original ledger Rc
 privately in existing final source handoff, lending original borrowed products
@@ -987,8 +980,7 @@ must match uniquely. Return retains PreparedCall and original Lexical Taken row;
 shared preparation never emits its outer Invoke twice. Return/BorrowedActual/
 tagged ABI/full use closure/C/Normal-Fault EXE remain owed.
 
-Finished-coordinate transport: `480d357c85` retains original ledger and checked
-owner maps. Focused/baseline/guard receipts and non-claims are in that commit.
+Finished-coordinate transport and complete receipt: `480d357c85`.
 Borrowed projection Decision (same S0, read-only worker): add original ordinal/
 site/formal and literal/exact-read/entry physical evidence to the existing tree.
 Corroboration borrows original Taken-row actuals again; no source row clone.
@@ -996,4 +988,13 @@ Forwarding demands original entry correspondence and Copy proof for a distinct
 alias ValueId. Production activation stays closed until Return/carrier/full use/
 writer/C/Normal-Fault closure; strict emission cannot authorize borrowed payload.
 Focused tests cover source Integer/Bool/scalar/typed Home and proof substitution.
-Entry receiver, forwarding Copy and tagged execution remain owed. Validation pending.
+Entry receiver, forwarding Copy and tagged execution remain owed.
+Borrowed projection `1a54469222`: focused4/projection13/source10/crosswalk7/
+co-seal168 PASS; inventory8449 adds passing4 only. Fixed verifier KNOWN
+BASELINE8267/126/56; failure set unchanged. Pointer/diff/touched-source format
+PASS; untouched brand_catalog_tests961 guard red retained. New pending
+re-export/value_with_ledger warnings2 are S0-owned.
+Next Copy proof Decision: retain block/Copy in original CompletedLocalBindingV1,
+join source binding in record_completed_local and preserve provenance in existing
+values entries. No separate alias map; rebind invalidates old provenance. Then
+Return payload/carrier/writer/C/Normal-Fault closure stays in this same S0.
