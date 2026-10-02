@@ -8,8 +8,7 @@ use std::collections::BTreeSet;
 
 use crate::ast::ParamDecl;
 use crate::mir::normal_callable_semantic_package::{
-    PhysicalCallableLaneRoleV1, PhysicalCallableSignatureRowRefV1,
-    S6CCommonV2PreSessionLoanRefV1,
+    PhysicalCallableLaneRoleV1, PhysicalCallableSignatureRowRefV1, S6CCommonV2PreSessionLoanRefV1,
 };
 use crate::mir::resolved_semantics::BindingRefV1;
 
@@ -20,6 +19,9 @@ pub(in crate::mir) enum PhysicalCallableLaneCarrierV1 {
     /// A borrowed checked-map storage pointer (`ptr` wire); the callee
     /// never owns or disposes the pointed storage.
     CheckedMapStorage,
+    /// Original Ordinary source-selected opaque formal. One MIR value;
+    /// kind/payload expansion requires the final owner's full-use proof.
+    BorrowedTaggedValue,
 }
 
 impl PhysicalCallableLaneCarrierV1 {
@@ -30,7 +32,9 @@ impl PhysicalCallableLaneCarrierV1 {
     pub(in crate::mir) fn mir_type(self) -> crate::mir::MirType {
         match self {
             Self::CheckedMapStorage => crate::mir::MirType::Box("MapBox".to_owned()),
-            Self::ExistingCallableI64 | Self::U64BitsOnI64 => crate::mir::MirType::Integer,
+            Self::ExistingCallableI64 | Self::U64BitsOnI64 | Self::BorrowedTaggedValue => {
+                crate::mir::MirType::Integer
+            }
         }
     }
 }

@@ -19,15 +19,33 @@ use super::recursive_child_lowering::{
 impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
     fn adopt_callable_entry_values_v1(
         &mut self,
-        builder: &MirBuilder,
+        builder: &mut MirBuilder,
         shape: CallableEntryShapeV1,
     ) -> Result<(), String> {
         let Some(ledger) = self.callable_ledger.clone() else {
             return Ok(());
         };
         let values = shape.prepare_values(builder)?;
-        let result = ledger.borrow_mut().install_entry_values(&values);
-        result
+        let carriers = ledger.borrow().prepare_borrowed_entry_carriers(
+            &values,
+            builder
+                .function_state
+                .current_function
+                .as_ref()
+                .ok_or_else(|| freeze("borrowed-entry/no-current-function"))?,
+        )?;
+        ledger.borrow_mut().install_entry_values(&values)?;
+        if let Some(carriers) = carriers {
+            // All checks precede entry installation; metadata commits last.
+            builder
+                .function_state
+                .current_function
+                .as_mut()
+                .unwrap()
+                .metadata
+                .physical_param_carriers = Some(carriers);
+        }
+        Ok(())
     }
 }
 

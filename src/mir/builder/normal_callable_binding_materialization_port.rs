@@ -11,13 +11,19 @@ use super::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 /// Exact callable entry shape selected by the existing draft owner.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CallableEntryShapeV1 {
-    Static { parameter_count: usize },
-    Instance { parameter_count: usize },
+    Static {
+        parameter_count: usize,
+    },
+    Instance {
+        parameter_count: usize,
+    },
     /// App-main wrapper route: declared source parameters are realized
     /// as the injector's published `variable_map` locals (the retained
     /// argv materialization contract), not function formals.  The
     /// declared names snapshot those locals in source order.
-    StaticInjectedLocals { parameter_names: Box<[String]> },
+    StaticInjectedLocals {
+        parameter_names: Box<[String]>,
+    },
 }
 
 impl CallableEntryShapeV1 {
@@ -106,9 +112,7 @@ impl PreparedCallableEntryValuesV1 {
         let mut parameters = Vec::with_capacity(parameter_names.len());
         for name in parameter_names {
             let value = variable_map.get(name).copied().ok_or_else(|| {
-                format!(
-                    "[freeze:contract][callable-entry/injected-local-missing] name={name}"
-                )
+                format!("[freeze:contract][callable-entry/injected-local-missing] name={name}")
             })?;
             parameters.push(value);
         }
@@ -140,7 +144,7 @@ fn current_formal_values_v1(builder: &MirBuilder) -> Result<Vec<ValueId>, String
 pub(in crate::mir::builder) trait CallableBindingMaterializationPortV1 {
     fn adopt_callable_entry_values_v1(
         &mut self,
-        builder: &MirBuilder,
+        builder: &mut MirBuilder,
         shape: CallableEntryShapeV1,
     ) -> Result<(), String>;
 }
@@ -150,7 +154,7 @@ pub(in crate::mir::builder) trait CallableBindingMaterializationPortV1 {
 impl CallableBindingMaterializationPortV1 for RawLegacyChildLoweringPortV1 {
     fn adopt_callable_entry_values_v1(
         &mut self,
-        _builder: &MirBuilder,
+        _builder: &mut MirBuilder,
         _shape: CallableEntryShapeV1,
     ) -> Result<(), String> {
         Ok(())
@@ -195,8 +199,7 @@ mod tests {
             .variable_map
             .insert("args".to_string(), ValueId(41));
         let error = CallableEntryShapeV1::StaticInjectedLocals {
-            parameter_names: vec!["args".to_string(), "unseen".to_string()]
-                .into_boxed_slice(),
+            parameter_names: vec!["args".to_string(), "unseen".to_string()].into_boxed_slice(),
         }
         .prepare_values(&builder)
         .expect_err("a missing injected local must fail");

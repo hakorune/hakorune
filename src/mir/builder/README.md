@@ -635,6 +635,15 @@ emitted packet at record time; no second outer Invoke is emitted. Strict
 materialization still rejects borrowed payloads until Ordinary carrier, complete
 incoming/use coverage and writer/C closure are installed. This transport does not
 activate the ABI or prove source-to-EXE acceptance.
+Ordinary entry adoption refines only original successful opaque formal slots in
+`physical_param_carriers`, after source/entry/signature preflight and successful
+entry installation. The source-selected opaque slot preserves Unknown/Integer
+storage placeholders; neither is I64 semantic proof. Receiver and other carriers
+remain unchanged; missing,
+conflicting or repeated carrier preparation is terminal. Pending source errors
+and unselected entries never mint tagged slots. Until complete incoming/use and
+C closure, published parameter/actual encoding explicitly rejects these slots;
+metadata alone cannot authorize raw-i64 transport or a Borrowed Invoke.
 
 ### DeclaredInstance receiver authority crosswalk
 

@@ -273,3 +273,111 @@ fn borrowed_entry_rejects_collision_with_nonopaque_formal() {
     assert!(state.values.is_empty());
     assert!(!state.entry_installed);
 }
+
+fn carrier_function(values: &[ValueId]) -> crate::mir::MirFunction {
+    let mut builder = crate::mir::MirBuilder::new();
+    builder.enter_function_for_test("Transport.probe/2".into());
+    let mut function = builder.function_state.current_function.take().unwrap();
+    function.params = values.to_vec();
+    function.signature.params = vec![crate::mir::MirType::Integer; values.len()];
+    function.signature.params[0] = crate::mir::MirType::Box("Transport".into());
+    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+    function.metadata.physical_param_carriers =
+        Some(vec![Carrier::ExistingCallableI64; values.len()].into_boxed_slice());
+    function
+}
+
+#[test]
+fn borrowed_carrier_preflight_preserves_mixed_original_formals_without_effects() {
+    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+    let state = state_from_package(package_with_parameters("p, q: i64", "true, 7"), 2);
+    let mut function = carrier_function(&[ValueId(51), ValueId(72), ValueId(73)]);
+    let mut builder = crate::mir::MirBuilder::new();
+    builder.function_state.current_function = Some(function.clone());
+    let entry = PreparedCallableEntryValuesV1::instance_method(&builder, 2).unwrap();
+    for ty in [crate::mir::MirType::Unknown, crate::mir::MirType::Integer] {
+        function.signature.params[1] = ty.clone();
+        let prepared = state
+            .prepare_borrowed_entry_carriers(&entry, &function)
+            .unwrap()
+            .unwrap();
+        assert_eq!(
+            &*prepared,
+            &[
+                Carrier::ExistingCallableI64,
+                Carrier::BorrowedTaggedValue,
+                Carrier::ExistingCallableI64
+            ]
+        );
+        assert_eq!(function.signature.params[1], ty);
+    }
+    assert_eq!(function.params, vec![ValueId(51), ValueId(72), ValueId(73)]);
+    assert_eq!(
+        function.metadata.physical_param_carriers.as_deref(),
+        Some(&[Carrier::ExistingCallableI64; 3][..])
+    );
+    assert!(!state.entry_installed);
+    assert!(state.values.is_empty());
+}
+
+#[test]
+fn borrowed_carrier_preflight_rejects_missing_conflicting_and_drifted_column() {
+    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+    for change in 0..10 {
+        let state = state("true");
+        let mut function = carrier_function(&[ValueId(51), ValueId(72)]);
+        let entry = entry(51, 72);
+        match change {
+            0 => function.metadata.physical_param_carriers = None,
+            1 => {
+                function.metadata.physical_param_carriers =
+                    Some(vec![Carrier::ExistingCallableI64].into_boxed_slice())
+            }
+            2 => {
+                function.metadata.physical_param_carriers.as_mut().unwrap()[0] =
+                    Carrier::CheckedMapStorage
+            }
+            3 => {
+                function.metadata.physical_param_carriers.as_mut().unwrap()[1] =
+                    Carrier::CheckedMapStorage
+            }
+            4 => {
+                function.metadata.physical_param_carriers.as_mut().unwrap()[1] =
+                    Carrier::BorrowedTaggedValue
+            }
+            5 => function.params[1] = ValueId(99),
+            6 => function.signature.params[0] = crate::mir::MirType::Integer,
+            7 => function.signature.params[1] = crate::mir::MirType::Float,
+            8 => function.signature.params[1] = crate::mir::MirType::Bool,
+            9 => function.signature.params[1] = crate::mir::MirType::Box("MapBox".into()),
+            _ => unreachable!(),
+        }
+        let original = function.metadata.physical_param_carriers.clone();
+        let error = state
+            .prepare_borrowed_entry_carriers(&entry, &function)
+            .unwrap_err();
+        assert!(error.contains("borrowed-entry/"), "{error}");
+        assert_eq!(function.metadata.physical_param_carriers, original);
+        assert!(!state.entry_installed);
+        assert!(state.values.is_empty());
+    }
+}
+
+#[test]
+fn borrowed_carrier_preflight_never_promotes_pending_or_unselected_source() {
+    let mut state = state("0");
+    let mut function = carrier_function(&[ValueId(51), ValueId(72)]);
+    function.metadata.physical_param_carriers = None;
+    state.borrowed_entry_formals = Some(Err("source-pending".into()));
+    assert!(state
+        .prepare_borrowed_entry_carriers(&entry(51, 72), &function)
+        .unwrap()
+        .is_none());
+    state.borrowed_entry_formals = Some(Ok(None));
+    assert!(state
+        .prepare_borrowed_entry_carriers(&entry(51, 72), &function)
+        .unwrap()
+        .is_none());
+    assert!(!state.entry_installed);
+    assert!(function.metadata.physical_param_carriers.is_none());
+}

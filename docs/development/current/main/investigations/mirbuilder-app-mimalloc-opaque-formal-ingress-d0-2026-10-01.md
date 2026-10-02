@@ -978,7 +978,8 @@ Ordinary carrier Decision (same S0, read-only worker): adopt original successful
 borrowed entry formals at the existing ordinary entry-value port, not S6C's issuer.
 Preflight original owner/ordinal/BindingRef and entry ValueIds against existing
 function params/signature and carrier column. Preserve receiver, Map and numeric
-slots; change selected scalar slots only. Pending Err/unselected entries cannot
+slots; change selected scalar slots only. Unknown/Integer storage placeholders
+remain unchanged, never numeric authority. Pending Err/unselected entries cannot
 mint carriers. Commit metadata only after entry installation succeeds, with no
 remaining fallible step. Keep one MIR parameter; wire expansion stays final-owner.
 Add BorrowedTaggedValue to the existing column; metadata is not ABI authority.
@@ -991,3 +992,9 @@ Normal/Fault EXE and selected raw-edge retirement. S0/overall goal remain open.
 Focused acceptance: original source-backed mixed formal adoption; preserve
 params/receiver/other carriers; missing/short/conflicting column and repeat
 install reject without metadata mutation; pending source never yields carrier.
+Ordinary carrier receipt: new4/4, borrowed142/142(+4 ignored), co-seal174/174 PASS.
+Lib/tests, pointer, diff and touched formatting PASS; all touched Rust <800.
+Full8288/127/56 inventory8471: fixed verifier ERROR, only extra known nullable
+ordinary-membership-drift; accepted126 failure names/hash unchanged (no waiver).
+Existing guard961/commonV2 fmt debt retained; `/tmp/hakorune-ordinary-carrier-*.log`.
+Real header setup/JSON mutation only; no full compiler ABI/C/EXE or S0 closeout.

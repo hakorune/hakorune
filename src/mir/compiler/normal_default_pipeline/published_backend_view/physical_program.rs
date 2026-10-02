@@ -598,3 +598,7 @@ mod call_result_tests;
 #[cfg(test)]
 #[path = "physical_program_order_tests.rs"]
 mod order_tests;
+
+#[cfg(test)]
+#[path = "borrowed_carrier_json_tests.rs"]
+mod borrowed_carrier_json_tests;

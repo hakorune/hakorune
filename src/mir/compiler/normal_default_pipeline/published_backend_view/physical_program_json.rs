@@ -20,7 +20,7 @@ use super::physical_program::{
 
 const SCHEMA: &str = "hako.published-lifecycle-physical-program.v2";
 
-fn emit_lifecycle_physical_program_value(
+pub(super) fn emit_lifecycle_physical_program_value(
     program: &PublishedLifecyclePhysicalProgramV1<'_>,
     abi_input: Option<&PublishedLifecyclePhysicalAbiInputV1<'_>>,
 ) -> Result<Value, String> {
@@ -98,6 +98,9 @@ fn emit_lifecycle_physical_program_value(
                             crate::mir::MirType::Box(name) if name == "MapBox"
                         );
                         let representation = match (carrier, named_map) {
+                            (Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue), _) => {
+                                return Err(fault("borrowed-carrier-activation-missing"));
+                            }
                             (Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage), true) => {
                                 // Borrowed checked-map storage pointer, not an i64 payload.
                                 "map"
@@ -444,12 +447,10 @@ fn encode_invoke(
                 required_site(diagnostic_site, abi_input.is_some())?,
             )?
         }
-        InvokeOperation::IntrinsicArrayNew => {
-            with_site(
-                json!({"kind": "array_new"}),
-                required_site(diagnostic_site, abi_input.is_some())?,
-            )?
-        }
+        InvokeOperation::IntrinsicArrayNew => with_site(
+            json!({"kind": "array_new"}),
+            required_site(diagnostic_site, abi_input.is_some())?,
+        )?,
         InvokeOperation::ArrayStateContractClaim { contract_id, array } => {
             let input = require_native_input(abi_input)?;
             let mut rows = input
@@ -544,6 +545,12 @@ fn encode_invoke(
                 .iter()
                 .enumerate()
                 .map(|(index, value)| {
+                    if matches!(
+                        callee.param_carriers().and_then(|carriers| carriers.get(index)),
+                        Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue)
+                    ) {
+                        return Err(fault("borrowed-carrier-activation-missing"));
+                    }
                     let map_actual = matches!(
                         caller.value_types().get(value),
                         Some(crate::mir::MirType::Box(name)) if name == "MapBox"
@@ -637,11 +644,7 @@ fn encode_invoke(
             }),
             required_site(diagnostic_site, abi_input.is_some())?,
         )?,
-        InvokeOperation::OwnedObjectFieldRelease {
-            field,
-            base,
-            child,
-        } => with_site(
+        InvokeOperation::OwnedObjectFieldRelease { field, base, child } => with_site(
             json!({ "kind": "object_field_release",
                 "object_id": field.object().declaration_index(),
                 "field_ordinal": field.declaration_ordinal(), "base": value(base),

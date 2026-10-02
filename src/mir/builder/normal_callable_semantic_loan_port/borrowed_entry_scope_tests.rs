@@ -15,7 +15,7 @@ use crate::mir::ValueId;
 use crate::parser::{NyashParser, ParserBuildConfig};
 use std::{collections::BTreeMap, rc::Rc};
 
-fn scope(actual: &str) -> Result<ValueId, String> {
+fn scope(actual: &str) -> Result<(ValueId, ValueId), String> {
     let text = format!("box Transport {{ birth() {{ }} probe(p): i64 {{ return 0 }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe({actual}) return 0 }} }}");
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         &text,
@@ -52,13 +52,38 @@ fn scope(actual: &str) -> Result<ValueId, String> {
         ),
     );
     let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("Transport.probe/1".into());
+    let params = vec!["p".to_owned()];
+    // Header-only fixture: the source's declared i64 return is projected
+    // separately; the actual callable body is not lowered in this test.
     builder
-        .function_state
-        .current_function
-        .as_mut()
-        .unwrap()
-        .params = vec![ValueId::new(51), ValueId::new(72)];
+        .create_method_skeleton("Transport.probe/1".into(), "Transport", &params, &[])
+        .unwrap();
+    builder.set_current_function_declared_signature(
+        vec![
+            crate::mir::function::MirParamDecl {
+                name: "me".into(),
+                declared_type_name: None,
+                implicit_receiver: true,
+            },
+            crate::mir::function::MirParamDecl {
+                name: "p".into(),
+                declared_type_name: None,
+                implicit_receiver: false,
+            },
+        ],
+        Some("i64".into()),
+    );
+    builder.setup_method_params("Transport", &params).unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
+    let original_params = function.params.clone();
+    let original_signature = function.signature.params.clone();
+    assert_eq!(
+        original_signature,
+        vec![
+            crate::mir::MirType::Box("Transport".into()),
+            crate::mir::MirType::Unknown
+        ]
+    );
     let mut invocation =
         ModuleLoweringInvocationV1::with_collector(&mut builder, ModuleDraftCollectorV1::default());
     let owner = selected
@@ -82,7 +107,32 @@ fn scope(actual: &str) -> Result<ValueId, String> {
                         inner.adopt_callable_entry_values_v1(
                             builder,
                             CallableEntryShapeV1::Instance { parameter_count: 1 },
-                        )
+                        )?;
+                        let before = builder
+                            .function_state
+                            .current_function
+                            .as_ref()
+                            .unwrap()
+                            .metadata
+                            .physical_param_carriers
+                            .clone();
+                        assert!(inner
+                            .adopt_callable_entry_values_v1(
+                                builder,
+                                CallableEntryShapeV1::Instance { parameter_count: 1 }
+                            )
+                            .is_err());
+                        assert_eq!(
+                            builder
+                                .function_state
+                                .current_function
+                                .as_ref()
+                                .unwrap()
+                                .metadata
+                                .physical_param_carriers,
+                            before
+                        );
+                        Ok(())
                     },
                 )
                 .unwrap();
@@ -98,26 +148,47 @@ fn scope(actual: &str) -> Result<ValueId, String> {
             .as_ref()
             .unwrap()
             .params,
-        vec![ValueId::new(51), ValueId::new(72)]
+        original_params
     );
-    assert!(builder
-        .function_state
-        .current_function
-        .as_ref()
-        .unwrap()
-        .metadata
-        .physical_param_carriers
-        .is_none());
-    let rows = ledger.borrowed_ordinary_entry_values_v1(owner)?;
+    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+    let rows = ledger.borrowed_ordinary_entry_values_v1(owner);
+    let expected = if rows.is_ok() {
+        [Carrier::ExistingCallableI64, Carrier::BorrowedTaggedValue]
+    } else {
+        [Carrier::ExistingCallableI64; 2]
+    };
+    assert_eq!(
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .metadata
+            .physical_param_carriers
+            .as_deref(),
+        Some(&expected[..])
+    );
+    assert_eq!(
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .signature
+            .params,
+        original_signature
+    );
+    let rows = rows?;
     assert_eq!(rows.len(), 1);
     assert_eq!(rows[0].0, 0);
     assert_eq!(rows[0].1.owner(), owner);
-    Ok(rows[0].2)
+    Ok((original_params[1], rows[0].2))
 }
 
 #[test]
 fn selected_scope_adopts_existing_borrowed_formal_value() {
-    assert_eq!(scope("0").unwrap(), ValueId::new(72));
+    let (original, adopted) = scope("0").unwrap();
+    assert_eq!(adopted, original);
 }
 
 #[test]
