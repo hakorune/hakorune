@@ -4,24 +4,29 @@ use std::collections::BTreeSet;
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn seal_finalized_root_birth_handoff(
-        &self,
+        self: &Rc<Self>,
         root_key: String,
         construction_keys: &BTreeSet<CanonicalSameModuleCallableKeyV1>,
         callables: Option<
             crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1,
         >,
     ) -> Result<FinalizedRootHandoffV1, String> {
-        match *self.root_validation.borrow() {
-            RootNewValidation::FinishingChecked => {}
-            RootNewValidation::ArtifactFinalized => {
+        let (validated_owner, symbol, projection) = match &*self.root_validation.borrow() {
+            RootNewValidation::FinishingChecked { owner, symbol, projection } => {
+                (*owner, symbol.clone(), Rc::clone(projection))
+            }
+            RootNewValidation::ArtifactFinalized { .. } => {
                 return Err(freeze("artifact-root-already-finalized"));
             }
             _ => return Err(freeze("artifact-root-not-finished")),
-        }
+        };
         let owner = match self.root_completion.as_ref() {
             Some(Ok(completion)) => completion.owner(),
             _ => return Err(freeze("artifact-root-completion-unavailable")),
         };
+        if owner != validated_owner || root_key != symbol {
+            return Err(freeze("artifact-root-finished-identity"));
+        }
         // Structural exclusivity replaces collision checks, not physical
         // progress. Every exit row stands on its own site: no relation may
         // satisfy, or be satisfied by, a sibling exit's evidence.
@@ -139,6 +144,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut root_source = (!self.terminal_relation.is_empty())
             .then(|| {
                 Ok::<_, String>(FinalizedRootSourceHandoffV1 {
+                    ledger: Rc::clone(self),
                     app_main_identity: self
                         .app_main_identity
                         .as_ref()
@@ -273,7 +279,11 @@ impl OrdinaryNewClaimLedgerV1 {
             source.local_calls = std::mem::take(&mut *self.root_local_call_bindings.borrow_mut());
         }
         let birth_actuals = actuals.into_boxed_slice();
-        *self.root_validation.borrow_mut() = RootNewValidation::ArtifactFinalized;
+        *self.root_validation.borrow_mut() = RootNewValidation::ArtifactFinalized {
+            owner,
+            symbol,
+            projection,
+        };
         Ok(if births.is_empty() {
             FinalizedRootHandoffV1::NoBirth {
                 named_arrays: Box::new([]),

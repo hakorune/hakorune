@@ -352,6 +352,14 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
         .install_root_ordinary_new_observation(observation)
         .unwrap();
     ledger.validate_after_compiler_finishing(&function).unwrap();
+    let foreign_root = ledger
+        .seal_finalized_root_birth_handoff(
+            "Other.main/0".into(),
+            &std::collections::BTreeSet::new(),
+            None,
+        )
+        .unwrap_err();
+    assert!(foreign_root.contains("artifact-root-finished-identity"));
     let handoff = ledger
         .seal_finalized_root_birth_handoff(
             "Main.main/0".into(),

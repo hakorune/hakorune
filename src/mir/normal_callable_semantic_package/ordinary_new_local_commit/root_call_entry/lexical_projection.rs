@@ -123,6 +123,28 @@ impl PreparedLexicalCallProjectionV1 {
 }
 
 impl EmittedLexicalCallProjectionV1 {
+    /// Exact original membership, including each nested node's own call site.
+    pub(in crate::mir) fn has_producer_at(
+        &self,
+        site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        binding: &Binding,
+    ) -> bool {
+        if self.row.call_site() == site
+            && (&self.invoke == binding
+                || &self.projection == binding
+                || self.prepared.arguments.iter().any(|argument| {
+                    matches!(argument, LexicalCallArgumentProjectionV1::Integer(original)
+                        if original == binding)
+                }))
+        {
+            return true;
+        }
+        self.prepared.arguments.iter().any(|argument| {
+            matches!(argument, LexicalCallArgumentProjectionV1::CallResult(inner)
+                if inner.has_producer_at(site, binding))
+        })
+    }
+
     pub(in crate::mir) fn call_site(&self) -> &crate::mir::resolved_semantics::OwnedExprSiteV1 {
         self.row.call_site()
     }
@@ -203,3 +225,7 @@ mod tests;
 #[cfg(test)]
 #[path = "local_binding_group_tests.rs"]
 mod local_group_tests;
+
+#[cfg(test)]
+#[path = "finished_projection_tests.rs"]
+mod finished_projection_tests;

@@ -16,8 +16,8 @@ impl OrdinaryNewClaimLedgerV1 {
             RootNewValidation::Unregistered => return Ok(RootOrdinaryNewObservation::NotIssued),
             RootNewValidation::Pending(owner) => owner,
             RootNewValidation::Checked(..)
-            | RootNewValidation::FinishingChecked
-            | RootNewValidation::ArtifactFinalized => {
+            | RootNewValidation::FinishingChecked { .. }
+            | RootNewValidation::ArtifactFinalized { .. } => {
                 return Err(freeze("duplicate-root-validation"));
             }
         };
@@ -95,7 +95,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 self.validate_artifact_lifecycle_coverage(owner, function, projection.recorded())?;
             }
-            *state = ChildPhysicalValidation::FinishingChecked;
+            *state = ChildPhysicalValidation::FinishingChecked {
+                symbol: symbol.clone(),
+                projection,
+            };
         }
         Ok(covered)
     }
@@ -142,7 +145,8 @@ impl OrdinaryNewClaimLedgerV1 {
             RootNewValidation::Unregistered => return Ok(()),
             RootNewValidation::Checked(owner, boundary) => (*owner, boundary),
             RootNewValidation::Pending(_) => return Err(freeze("root-before-draft-validation")),
-            RootNewValidation::FinishingChecked | RootNewValidation::ArtifactFinalized => {
+            RootNewValidation::FinishingChecked { .. }
+            | RootNewValidation::ArtifactFinalized { .. } => {
                 return Err(freeze("duplicate-finishing-validation"));
             }
         };
@@ -183,7 +187,11 @@ impl OrdinaryNewClaimLedgerV1 {
         if artifact {
             self.validate_artifact_lifecycle_coverage(owner, function, projection.recorded())?;
         }
-        *state = RootNewValidation::FinishingChecked;
+        *state = RootNewValidation::FinishingChecked {
+            owner,
+            symbol: function.signature.name.clone(),
+            projection: Rc::new(projection),
+        };
         Ok(())
     }
 }

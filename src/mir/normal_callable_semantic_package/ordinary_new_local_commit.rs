@@ -24,6 +24,7 @@ use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 use crate::parser::CallableDeclarationIdentityV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
+use std::rc::Rc;
 
 use self::root_home::RootHomeExitEntry;
 
@@ -32,8 +33,16 @@ pub(super) enum RootNewValidation {
     Unregistered,
     Pending(FunctionOwnerIdV1),
     Checked(FunctionOwnerIdV1, physical_boundary::PhysicalBoundary),
-    FinishingChecked,
-    ArtifactFinalized,
+    FinishingChecked {
+        owner: FunctionOwnerIdV1,
+        symbol: String,
+        projection: Rc<physical_boundary::FinishedBindings>,
+    },
+    ArtifactFinalized {
+        owner: FunctionOwnerIdV1,
+        symbol: String,
+        projection: Rc<physical_boundary::FinishedBindings>,
+    },
 }
 
 /// Physical validation retained for one selected ordinary child.  This is
@@ -44,7 +53,10 @@ pub(super) enum ChildPhysicalValidation {
         symbol: String,
         boundary: physical_boundary::PhysicalBoundary,
     },
-    FinishingChecked,
+    FinishingChecked {
+        symbol: String,
+        projection: physical_boundary::FinishedBindings,
+    },
 }
 
 #[path = "ordinary_new_local_commit/progress.rs"]
@@ -176,6 +188,9 @@ pub(super) use local_entry::LocalCommitV1;
 /// recreate source membership from a physical key.
 #[derive(Debug)]
 pub(crate) struct FinalizedRootSourceHandoffV1 {
+    // The original issuer's source/actual/entry products and finishing proof.
+    // Lenders expose read-only projections, never this mutable ledger handle.
+    ledger: Rc<OrdinaryNewClaimLedgerV1>,
     app_main_identity: CallableDeclarationIdentityV1,
     /// The root owner's retained terminal relations keyed by their exact
     /// source exit site. Multi-exit roots keep every row; no single relation
@@ -192,6 +207,9 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
     // packet can be shared with sibling exit entries; its Taken rows are not copied.
     local_calls: std::collections::BTreeMap<FunctionOwnerIdV1, Vec<RootLocalCallBindingGroupV1>>,
 }
+
+#[path = "ordinary_new_local_commit/finalized_source_projection.rs"]
+mod finalized_source_projection;
 
 impl FinalizedRootSourceHandoffV1 {
     pub(in crate::mir) fn local_call_binding_groups(

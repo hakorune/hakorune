@@ -9,6 +9,7 @@ use crate::mir::normal_callable_semantic_package::{
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 use crate::mir::resolved_semantics::SourceBindingSiteV1;
 use crate::mir::{BasicBlockId, MirBuilder, MirInstruction, ValueId};
+use std::rc::Rc;
 
 pub(in crate::mir) fn fixture() -> (
     PreparedLexicalCallProjectionV1,
@@ -193,15 +194,23 @@ pub(in crate::mir) fn artifact_fixture() -> (
     crate::mir::MirModule,
     crate::mir::finalized_root_handoff::FinalizedRootHandoffV1,
 ) {
-    artifact_fixture_checked(false)
+    artifact_fixture_checked(false, false)
 }
 
 pub(in crate::mir) fn assert_artifact_reseal_rejected() {
-    let _ = artifact_fixture_checked(true);
+    let _ = artifact_fixture_checked(true, false);
+}
+
+pub(in crate::mir) fn finished_artifact_fixture() -> (
+    crate::mir::MirModule,
+    crate::mir::finalized_root_handoff::FinalizedRootHandoffV1,
+) {
+    artifact_fixture_checked(false, true)
 }
 
 fn artifact_fixture_checked(
     check_reseal: bool,
+    simplify: bool,
 ) -> (
     crate::mir::MirModule,
     crate::mir::finalized_root_handoff::FinalizedRootHandoffV1,
@@ -212,10 +221,16 @@ fn artifact_fixture_checked(
         PreparedNormalDefaultProgramRootV1,
     };
     crate::runtime::ring0::ensure_global_ring0_initialized();
+    let text = if simplify {
+        "box Pool { birth() {} wrap(x: i64): i64 { return x } give(x: i64): i64 { return x } child(): i64 { local peer = new Pool() local r = peer.give(peer.wrap(9)) return 0 } } static box Main { main() { local pool = new Pool() local r = pool.give(pool.wrap(9)) local c = pool.child() return 0 } }"
+    } else {
+        "box Pool { birth() {} wrap(x: i64): i64 { return x } give(x: i64): i64 { return x } } static box Main { main() { local pool = new Pool() local r = pool.give(pool.wrap(9)) return 0 } }"
+    };
     let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
-        "box Pool { birth() {} wrap(x: i64): i64 { return x } give(x: i64): i64 { return x } } static box Main { main() { local pool = new Pool() local r = pool.give(pool.wrap(9)) return 0 } }",
+        text,
         crate::parser::ParserBuildConfig::default(),
-    ).unwrap();
+    )
+    .unwrap();
     let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
     });
@@ -235,8 +250,15 @@ fn artifact_fixture_checked(
         )
         .unwrap();
     let (root_key, ledger) = completed.ordinary_root_ledger_for_test();
-    let (_, module, validate) = completed.into_artifact_parts();
+    let original = Rc::downgrade(&ledger);
+    let (_, mut module, validate) = completed.into_artifact_parts();
+    if simplify {
+        crate::mir::passes::simplify_cfg::simplify(&mut module);
+    }
     let handoff = validate(&module).unwrap().unwrap();
+    drop(ledger);
+    assert!(original.upgrade().is_some(), "original ledger retained");
+    let ledger = original.upgrade().unwrap();
     if check_reseal {
         assert_eq!(
             handoff

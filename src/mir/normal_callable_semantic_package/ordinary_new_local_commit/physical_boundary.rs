@@ -30,6 +30,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct
     source_copies: BTreeMap<ValueId, (BasicBlockId, MirInstruction)>,
 }
 
+#[derive(Debug)]
 pub(super) struct FinishedBindings {
     destinations: BTreeMap<BasicBlockId, BasicBlockId>,
     recorded: Vec<(BasicBlockId, MirInstruction)>,

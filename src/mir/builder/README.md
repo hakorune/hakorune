@@ -602,6 +602,12 @@ cannot supply tagged ingress evidence.
 The original local pool remains in its emission coordinates; finished exit
 views alone are rebound. Final artifact sealing advances existing progress once
 and rejects a second seal before lending or moving any source evidence.
+The same final source handoff privately retains the original ledger and each
+owner's checked finishing projection. A coordinate loan requires the original
+group, node site and producer tuple, including its draft block; matching frame
+or cleanup instructions cannot authorize it. It then requires the held physical
+function and exactly one finished instruction. Original borrowed actual/entry
+products are read-only loans; neither coordinates nor those loans activate tags.
 
 
 ### DeclaredInstance receiver authority crosswalk
