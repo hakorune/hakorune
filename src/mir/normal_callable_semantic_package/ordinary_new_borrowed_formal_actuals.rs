@@ -50,6 +50,46 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedCall
     pub(super) ordered_arguments: Box<[LocalCallArgumentV1]>,
 }
 
+impl PreparedBorrowedCallActualsV1 {
+    pub(super) fn ordered_arguments_for_v1(
+        &self,
+        call: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+    ) -> Result<&[LocalCallArgumentV1], String> {
+        if self.ordered_arguments.len() != call.source.argument_sites().len() {
+            return Err(freeze("borrowed-entry/ordered-arguments-cardinality"));
+        }
+        for (ordinal, argument) in self.ordered_arguments.iter().enumerate() {
+            let opaque = call
+                .arguments
+                .iter()
+                .find(|(index, _, _)| *index as usize == ordinal);
+            match (opaque, argument) {
+                    (Some((index, site, _)), crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::BorrowedActual { ordinal: actual, site: observed })
+                        if actual == index && observed == site => {}
+                    (None, crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Integer(_)) => {}
+                    (None, crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Scalar(binding))
+                        if binding.owner() == call.call.owner() => {}
+                    _ => return Err(freeze("borrowed-entry/ordered-arguments-identity")),
+                }
+        }
+        if self.opaque_actuals.len() != call.arguments.len() {
+            return Err(freeze("borrowed-entry/actuals-cardinality"));
+        }
+        for (actual, (ordinal, site, formal)) in
+            self.opaque_actuals.iter().zip(call.arguments.iter())
+        {
+            if actual.ordinal != *ordinal
+                || &actual.site != site
+                || actual.formal != *formal
+                || formal.owner() != call.callee
+            {
+                return Err(freeze("borrowed-entry/actuals-identity"));
+            }
+        }
+        Ok(&self.ordered_arguments)
+    }
+}
+
 pub(in crate::mir::normal_callable_semantic_package) type PendingBorrowedFormalActualsV1 =
     BTreeMap<OwnedExprSiteV1, Result<PreparedBorrowedCallActualsV1, String>>;
 
@@ -251,6 +291,46 @@ pub(in crate::mir::normal_callable_semantic_package) fn stage_borrowed_call_actu
     } else {
         staged.insert(site.clone(), result);
     }
+}
+
+/// Demand by exact selected site. Source failure cannot become an empty result.
+pub(in crate::mir::normal_callable_semantic_package) fn project_pending_borrowed_i64_arguments_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    actuals: &PendingBorrowedFormalActualsV1,
+    results: &BTreeMap<
+        FunctionOwnerIdV1,
+        Result<super::borrowed_formal_result::BorrowedI64ResultSourceV1, String>,
+    >,
+    site: &OwnedExprSiteV1,
+) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
+    let source = source.as_ref().map_err(Clone::clone)?;
+    let mut incoming = source.incoming.iter().filter(|call| &call.call == site);
+    let Some(call) = incoming.next() else {
+        return Ok(None);
+    };
+    if incoming.next().is_some()
+        || call.source.call_site() != site
+        || call.source.callee_owner() != call.callee
+        || !source.definitions.contains_key(&call.callee)
+    {
+        return Err(freeze("borrowed-call/source-identity"));
+    }
+    let actuals = actuals
+        .get(site)
+        .ok_or_else(|| freeze("borrowed-entry/actuals-missing"))?
+        .as_ref()
+        .map_err(Clone::clone)?;
+    let arguments = actuals.ordered_arguments_for_v1(call)?;
+    let proof = results
+        .get(&call.callee)
+        .ok_or_else(|| freeze("borrowed-call/result-source-missing"))?
+        .as_ref()
+        .map_err(Clone::clone)?;
+    if proof.returns.is_empty() || proof.returns.iter().any(|site| site.owner() != call.callee) {
+        return Err(freeze("borrowed-call/result-source-identity"));
+    }
+    // Final corroboration follows Completion issuance; demanding it now cycles.
+    Ok(Some(arguments.to_vec().into_boxed_slice()))
 }
 
 /// A failed partial source walk cannot leave successful actual rows behind.

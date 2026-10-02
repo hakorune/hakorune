@@ -316,14 +316,10 @@ pub(crate) fn issue_qualified_static_local_call<E>(
     )))
 }
 
-/// Issue one `local x = recv.m(..)` lexical instance-call continuation
-/// whose uniquely selected callee's every verified value-return is a
-/// literal — the package predicate is the sole membership authority, and
-/// the disposition row's co-sealed `I64` result is corroborated at
-/// emission. Every argument must seal to i64-class evidence: the admitted
-/// callee's formals are all `ExactTrivial(I64)`, so a Bool literal, a
-/// non-integer scalar, a handle, or an unproven shape keeps the site
-/// unclaimed.
+/// Issue an exact lexical instance-call local continuation. The package
+/// callback lends a selected borrowed call's original ordered arguments;
+/// otherwise the existing strict-I64 predicate owns membership. Result class
+/// remains source-proved I64 and is corroborated at physical emission.
 pub(crate) fn issue_lexical_i64_local_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
@@ -333,10 +329,11 @@ pub(crate) fn issue_lexical_i64_local_call<E>(
     prior_homes: &[BindingRefV1],
     locals: &PrefixLocalFlow<'_>,
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    borrowed_arguments: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        Option<&[BorrowedCallActualCandidateV1]>,
+    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
 ) -> Result<Option<LocalCallObservationV1>, E> {
-    if !is_selected_call(site)? {
-        return Ok(None);
-    }
     let Some((observed_site, call)) = input
         .function()
         .method_calls()
@@ -353,8 +350,14 @@ pub(crate) fn issue_lexical_i64_local_call<E>(
     {
         return Ok(None);
     }
-    let Some(arguments) =
-        seal_i64_call_arguments(input, locals, call, prior_homes, is_selected_call)?
+    let Some(arguments) = seal_i64_call_arguments(
+        input,
+        locals,
+        call,
+        prior_homes,
+        is_selected_call,
+        borrowed_arguments,
+    )?
     else {
         return Ok(None);
     };
@@ -370,20 +373,28 @@ pub(crate) fn issue_lexical_i64_local_call<E>(
     )))
 }
 
-/// Seal one admitted i64 call's source arguments in declared order.
-/// Literal `Integer` and `TrivialLocal` scalar bindings seal directly; a
-/// direct argument-position method call seals only when the package
-/// predicate proves the inner site is an i64-result lexical call too —
-/// its own arguments seal by the same rule (recursively), and the inner
-/// row keeps the enclosing statement's live prior-Home set. Every other
-/// shape keeps the outer site unclaimed.
+/// Demand the selected borrowed projection first, without re-observing locals.
+/// Only positively unselected sites may use strict-I64 sealing. Its Integer/
+/// Scalar arguments and direct argument-call recursion retain source order
+/// and the enclosing live-Home set. No other subtree is accepted here.
 fn seal_i64_call_arguments<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     locals: &PrefixLocalFlow<'_>,
     call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
     prior_homes: &[BindingRefV1],
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    borrowed_arguments: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        Option<&[BorrowedCallActualCandidateV1]>,
+    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
 ) -> Result<Option<Vec<LocalCallArgumentV1>>, E> {
+    let owned = OwnedExprSiteV1::new(input.owner(), call.site().clone());
+    if let Some(arguments) = borrowed_arguments(&owned, None)? {
+        return Ok(Some(arguments.into_vec()));
+    }
+    if !is_selected_call(&owned)? {
+        return Ok(None);
+    }
     let mut arguments = Vec::with_capacity(call.arguments().len());
     for argument in call.arguments() {
         let row = match locals.observe(argument.site()) {
@@ -398,6 +409,7 @@ fn seal_i64_call_arguments<E>(
                     argument.site(),
                     prior_homes,
                     is_selected_call,
+                    borrowed_arguments,
                 )?
                 else {
                     return Ok(None);
@@ -421,6 +433,10 @@ fn seal_argument_call<E>(
     site: &SourceExprSiteV1,
     prior_homes: &[BindingRefV1],
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    borrowed_arguments: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        Option<&[BorrowedCallActualCandidateV1]>,
+    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
 ) -> Result<Option<ArgumentCallObservationV1>, E> {
     let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
     let Some((observed_site, call)) = input
@@ -436,11 +452,17 @@ fn seal_argument_call<E>(
             ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
                 if binding.owner() == input.owner()
         )
-        || !is_selected_call(&owned)?
     {
         return Ok(None);
     }
-    let Some(inner) = seal_i64_call_arguments(input, locals, call, prior_homes, is_selected_call)?
+    let Some(inner) = seal_i64_call_arguments(
+        input,
+        locals,
+        call,
+        prior_homes,
+        is_selected_call,
+        borrowed_arguments,
+    )?
     else {
         return Ok(None);
     };

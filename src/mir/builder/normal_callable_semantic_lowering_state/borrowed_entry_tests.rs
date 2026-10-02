@@ -130,7 +130,10 @@ fn borrowed_entry_installs_existing_formal_values_for_all_closed_actual_domains(
 
 #[test]
 fn borrowed_entry_preserves_pending_failed_actual_without_success_mapping() {
-    let mut state = state("\"unsupported\"");
+    let mut state = state("0");
+    state.borrowed_entry_formals = Some(Err(
+        "[freeze:contract][ordinary-new/borrowed-actual/unsupported-or-unavailable]".into(),
+    ));
     state.install_entry_values(&entry(51, 72)).unwrap();
     let error = state
         .ordinary_new_claim_ledger

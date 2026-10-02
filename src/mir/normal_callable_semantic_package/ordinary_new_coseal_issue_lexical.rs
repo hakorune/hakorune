@@ -230,3 +230,132 @@ pub(super) fn lexical_i64_result_call(
         })
         .unwrap_or(false)
 }
+
+/// The same callback prepares observations or demands the already-staged row.
+/// This neither re-observes locals nor reads a completed caller ledger.
+pub(super) fn borrowed_call_arguments_callback_v1(
+    targets: &super::super::lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1,
+    contracts: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    candidates: &[OrdinaryNewCandidate],
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    source: &Result<super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
+    pending: &mut super::super::lexical_instance_call::PendingBorrowedFormalActualsV1,
+    results: &BTreeMap<
+        FunctionOwnerIdV1,
+        Result<super::super::lexical_instance_call::BorrowedI64ResultSourceV1, String>,
+    >,
+    site: &OwnedExprSiteV1,
+    actuals: Option<
+        &[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1],
+    >,
+) -> Result<
+    Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+    OrdinaryNewCoSealIssueV1,
+> {
+    if let Some(actuals) = actuals {
+        let prepared = super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
+            source, contracts, site, actuals, candidates, receiver,
+        );
+        super::super::lexical_instance_call::stage_borrowed_call_actuals_v1(
+            pending, site, prepared,
+        );
+        return Ok(None);
+    }
+    if source.is_err() {
+        // A failed preparation staged Err even for unrelated observed calls.
+        // Demand that error only through the prepared source target/declaration proof.
+        let borrowed_target = targets.as_ref().ok().is_some_and(|rows| rows.iter()
+            .filter_map(|row| row.as_ref().ok().and_then(Option::as_ref))
+            .any(|target| target.call_site() == site && contracts.iter().any(|contract|
+                contract.owner == target.callee_owner()
+                    && contract.batch_slot == target.target_batch_slot()
+                    && contract.parameters.iter().any(|formal| formal.kind ==
+                        crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle))));
+        if !borrowed_target {
+            return Ok(None);
+        }
+    }
+    super::super::lexical_instance_call::project_pending_borrowed_i64_arguments_v1(
+        source, pending, results, site,
+    )
+    .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+        site: site.clone(),
+        issue,
+    })
+}
+
+#[cfg(test)]
+mod borrowed_callback_tests {
+    use super::*;
+
+    #[test]
+    fn borrowed_source_error_demands_parameter_target_but_not_strict_sibling() {
+        let source = "box ParamStore { birth() { } readData(p): i64 { return 0 } readStrict(q: i64): i64 { return q } }
+            box ParamManifest { birth() { } materialize(store): i64 {
+                local out = store.readData(0) local strict = store.readStrict(1) return 0
+            } }
+            static box Main { main() {
+                local store = new ParamStore() local manifest = new ParamManifest()
+                local out = manifest.materialize(store) return 0
+            } }";
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        // Final issuance consumes the preparation; its Ready rows retain the
+        // identical source targets. Borrow those rows without another resolver.
+        let slots = ledger.lexical_instance_calls.borrow();
+        let targets: super::super::super::lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1 = Ok(slots.values().filter_map(|slot| match slot {
+            crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1::Ready(row) => Some(Ok(Some(row.source_target().clone()))),
+            _ => None,
+        }).collect());
+        for (name, borrowed) in [("readData", true), ("readStrict", false)] {
+            let target = targets
+                .as_ref()
+                .unwrap()
+                .iter()
+                .filter_map(|row| row.as_ref().ok().and_then(Option::as_ref))
+                .find(|target| target.target().name() == name)
+                .unwrap();
+            let contract = package
+                .parameter_contracts
+                .iter()
+                .find(|row| row.owner == target.call_site().owner())
+                .unwrap();
+            package
+                .batch()
+                .with_lowering_input(contract.batch_slot, |input| {
+                    assert!(matches!(
+                        input
+                            .function()
+                            .binding(target.receiver_binding())
+                            .unwrap()
+                            .kind(),
+                        BindingKindV1::Parameter { .. }
+                    ));
+                })
+                .unwrap();
+            let mut pending = BTreeMap::new();
+            let result = borrowed_call_arguments_callback_v1(
+                &targets,
+                &package.parameter_contracts,
+                &[],
+                None,
+                &Err("source-sentinel".into()),
+                &mut pending,
+                &BTreeMap::new(),
+                target.call_site(),
+                None,
+            );
+            if borrowed {
+                assert!(
+                    matches!(result, Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { issue, .. }) if issue == "source-sentinel")
+                );
+            } else {
+                assert!(result.unwrap().is_none());
+            }
+            assert!(
+                pending.is_empty(),
+                "demand does not stage a second inventory"
+            );
+        }
+    }
+}

@@ -90,8 +90,11 @@ pub(super) fn scan_statement_flow<'a, E>(
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        &[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1],
-    ) -> Result<(), E>,
+        Option<&[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1]>,
+    ) -> Result<
+        Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+        E,
+    >,
 ) -> Result<bool, E> {
     let function = input.function();
     for index in 0..body.statements().len() {
@@ -119,7 +122,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 locals,
                 unavailable.is_none(),
             ) {
-                borrowed_actuals(&call_site, &actuals)?;
+                borrowed_actuals(&call_site, Some(&actuals))?;
             }
         }
 
@@ -265,7 +268,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 unavailable.is_none(),
             ) {
                 // Preparation changes neither call coverage nor Home ownership.
-                borrowed_actuals(&call_site, &actuals)?;
+                borrowed_actuals(&call_site, Some(&actuals))?;
             }
             if let Some(local_call) = local_call_flow::issue_local_call(
                 input,
@@ -312,6 +315,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 &homes,
                 locals,
                 local_lexical_i64_call,
+                borrowed_actuals,
             )? {
                 path_calls.insert(local_call.site().clone());
                 local_calls.push(local_call);

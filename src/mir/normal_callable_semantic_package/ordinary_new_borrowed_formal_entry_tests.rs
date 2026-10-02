@@ -101,9 +101,14 @@ fn installed_ordinary_loan_borrows_all_actual_domains_without_reclassifying_form
 
 #[test]
 fn entry_rejects_failed_later_incoming_instead_of_using_first_caller() {
-    let mut package = package("return 0", "local recv = new Transport() local a = recv.probe(0) local b = recv.probe(\"unsupported\") return 0");
+    let mut package = package(
+        "return 0",
+        "local recv = new Transport() local a = recv.probe(0) local b = recv.probe(true) return 0",
+    );
     let (owner, parameters) = target(&package);
     let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    *ledger.borrowed_formal_actuals.values_mut().last().unwrap() =
+        Err("borrowed-actual/unsupported-or-unavailable".into());
     assert_eq!(
         ledger
             .borrowed_formal_actuals

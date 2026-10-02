@@ -67,7 +67,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         // Local-initializer field reads stay unavailable on this lane —
         // the verified-completion lane owns the issuer predicate.
         &mut |_, _| Ok(None),
-        &mut |_, _| Ok(()),
+        &mut |_, _| Ok(None),
     )
     .unwrap_or_else(|never| match never {});
     (prefixes, observations, result_prefixes)
@@ -145,8 +145,11 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        &[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1],
-    ) -> Result<(), E>,
+        Option<&[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1]>,
+    ) -> Result<
+        Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+        E,
+    >,
 ) -> Result<BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>, E> {
     scan_new_home_flow(
         input,

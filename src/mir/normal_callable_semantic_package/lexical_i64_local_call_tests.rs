@@ -7,7 +7,8 @@
 //! `ExactTrivial(I64)` → no `Object`/`NullableObject` result-class claim →
 //! every verified value-return a literal or an exact-i64 formal, plus
 //! argument sealing to Integer literals or Integer-class scalar bindings.
-//! Every rejected row keeps the ordinary `PrefixNotCovered`
+//! A selected borrowed-I64 inner call retains its original opaque actual row.
+//! Every unselected rejected row keeps the ordinary `PrefixNotCovered`
 //! unavailability — the site is never silently claimed, and a callee that
 //! uniformly constructs stays on the Handle lane.
 
@@ -66,9 +67,7 @@ fn local_calls(
 
 /// The `new` claim's prefix record — `Err(PrefixNotCovered(_))` is the
 /// named unavailability an unclaimed call leaves behind.
-fn new_claim_prefix_covered(
-    package: &super::VerifiedNormalCallableSemanticPackageV1,
-) -> bool {
+fn new_claim_prefix_covered(package: &super::VerifiedNormalCallableSemanticPackageV1) -> bool {
     package
         .ordinary_new_claim_ledger
         .pending_claims_for_test()
@@ -97,7 +96,10 @@ fn lexical_i64_call_claims_literal_argument() {
     assert_eq!(call.result(), LocalCallResultClassV1::I64);
     assert_eq!(call.arguments(), &[LocalCallArgumentV1::Integer(8)]);
     let (owner, site) = call_site_of(&package, "allocate");
-    assert_eq!(call.site(), &crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone()));
+    assert_eq!(
+        call.site(),
+        &crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone())
+    );
     assert!(
         package
             .ordinary_new_claim_ledger
@@ -139,7 +141,10 @@ fn lexical_i64_call_claims_parameter_argument() {
     };
     assert_eq!(call.result(), LocalCallResultClassV1::I64);
     let [LocalCallArgumentV1::Scalar(binding)] = call.arguments() else {
-        panic!("parameter argument must seal as Scalar, got {:?}", call.arguments())
+        panic!(
+            "parameter argument must seal as Scalar, got {:?}",
+            call.arguments()
+        )
     };
     let declaration = package
         .batch()
@@ -222,18 +227,42 @@ fn lexical_i64_call_stays_fail_closed() {
     for (label, method, call) in [
         // A callee formal without `: i64` is `OpaqueHandle`, never
         // `ExactTrivial(I64)`.
-        ("untyped-formal", "allocate(size): i64 { return size }", "pool.allocate(8)"),
+        (
+            "untyped-formal",
+            "allocate(size): i64 { return size }",
+            "pool.allocate(8)",
+        ),
         // A handle actual is not scalar-i64 evidence.
-        ("handle-argument", "give(p: i64): i64 { return p }", "pool.give(page)"),
+        (
+            "handle-argument",
+            "give(p: i64): i64 { return p }",
+            "pool.give(page)",
+        ),
         // A Bool actual is not scalar-i64 evidence for an i64 formal.
-        ("bool-argument", "check(x: i64): i64 { return x }", "pool.check(true)"),
+        (
+            "bool-argument",
+            "check(x: i64): i64 { return x }",
+            "pool.check(true)",
+        ),
         // A compound argument is outside the scalar seal.
-        ("non-trivial-arg", "bump(x: i64): i64 { return x }", "pool.bump(eight + 1)"),
+        (
+            "non-trivial-arg",
+            "bump(x: i64): i64 { return x }",
+            "pool.bump(eight + 1)",
+        ),
         // A `return new` exit keeps the callee off the i64 lane even
         // when the other exit returns a literal.
-        ("mixed-exits", "mix(x: i64): i64 { if x > 0 { return x } return new Page() }", "pool.mix(1)"),
+        (
+            "mixed-exits",
+            "mix(x: i64): i64 { if x > 0 { return x } return new Page() }",
+            "pool.mix(1)",
+        ),
         // A `me` field read is neither a literal nor an i64 formal.
-        ("field-return", "look(x: i64): i64 { return me.size }", "pool.look(3)"),
+        (
+            "field-return",
+            "look(x: i64): i64 { return me.size }",
+            "pool.look(3)",
+        ),
     ] {
         let source = format!(
             "box Page {{ birth() {{ }} }}
@@ -251,8 +280,7 @@ fn lexical_i64_call_stays_fail_closed() {
                 return 0
             }} }}"
         );
-        let package = issue(&source)
-            .unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
+        let package = issue(&source).unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
         assert!(
             local_calls(&package)
                 .iter()
@@ -302,7 +330,10 @@ fn lexical_i64_call_claims_call_result_argument() {
     // The inner site is the `allocate` method call — its disposition row
     // corroborates `I64` and can be taken exactly once at emission.
     let (owner, allocate_site) = call_site_of(&package, "allocate");
-    assert_eq!(inner.site(), &crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, allocate_site.clone()));
+    assert_eq!(
+        inner.site(),
+        &crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, allocate_site.clone())
+    );
     let row = package
         .ordinary_new_claim_ledger
         .take_lexical_instance_call(owner, &allocate_site)
@@ -318,7 +349,7 @@ fn lexical_i64_call_rejects_unproven_call_result_argument() {
     for (label, call) in [
         // The inner callee constructs — Handle result lane, not i64.
         ("inner-construction", "pool.give(pool.make())"),
-        // The inner callee has an untyped (OpaqueHandle) formal.
+        // The selected borrowed profile proves this inner source-I64 call.
         ("inner-opaque-formal", "pool.give(pool.echo(8))"),
         // The nested call sits deeper than a direct argument site — a
         // binary-operand subtree never reaches the claim.
@@ -342,8 +373,24 @@ fn lexical_i64_call_rejects_unproven_call_result_argument() {
                 return 0
             }} }}"
         );
-        let package = issue(&source)
-            .unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
+        let package = issue(&source).unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
+        if label == "inner-opaque-formal" {
+            let calls = local_calls(&package);
+            assert_eq!(calls.len(), 1);
+            assert_eq!(calls[0].result(), LocalCallResultClassV1::I64);
+            let [LocalCallArgumentV1::CallResult(inner)] = calls[0].arguments() else {
+                panic!("direct nested result retains its source call");
+            };
+            assert!(matches!(
+                inner.arguments(),
+                [LocalCallArgumentV1::BorrowedActual { ordinal: 0, .. }]
+            ));
+            assert!(
+                new_claim_prefix_covered(&package),
+                "proved nested borrowed call admits the following Home"
+            );
+            continue;
+        }
         assert!(
             local_calls(&package)
                 .iter()

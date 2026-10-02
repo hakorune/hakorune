@@ -218,33 +218,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| freeze("borrowed-entry/actuals-missing"))?
                 .as_ref()
                 .map_err(Clone::clone)?;
-            if actuals.ordered_arguments.len() != call.source.argument_sites().len() {
-                return Err(freeze("borrowed-entry/ordered-arguments-cardinality"));
-            }
-            for (ordinal, argument) in actuals.ordered_arguments.iter().enumerate() {
-                let opaque = call
-                    .arguments
-                    .iter()
-                    .find(|(index, _, _)| *index as usize == ordinal);
-                match (opaque, argument) {
-                    (Some((index, site, _)), crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::BorrowedActual { ordinal: actual, site: observed })
-                        if actual == index && observed == site => {}
-                    (None, crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Integer(_)) => {}
-                    (None, crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Scalar(binding))
-                        if binding.owner() == call.call.owner() => {}
-                    _ => return Err(freeze("borrowed-entry/ordered-arguments-identity")),
-                }
-            }
+            actuals.ordered_arguments_for_v1(call)?;
             let actuals = &actuals.opaque_actuals;
-            if actuals.len() != call.arguments.len() {
-                return Err(freeze("borrowed-entry/actuals-cardinality"));
-            }
-            for (actual, (ordinal, site, formal)) in actuals.iter().zip(call.arguments.iter()) {
-                if actual.ordinal != *ordinal
-                    || &actual.site != site
-                    || actual.formal != *formal
-                    || formal.owner() != call.callee
-                    || source.definitions[&call.callee].origins.get(formal) != Some(formal)
+            for actual in actuals.iter() {
+                if source.definitions[&call.callee].origins.get(&actual.formal)
+                    != Some(&actual.formal)
                 {
                     return Err(freeze("borrowed-entry/actuals-identity"));
                 }

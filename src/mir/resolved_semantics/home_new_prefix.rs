@@ -155,7 +155,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _| Ok(None),
-        &mut |_, _| Ok(()),
+        &mut |_, _| Ok(None),
     )
     .unwrap_or_else(|never| match never {})
     .0
@@ -257,8 +257,11 @@ pub(crate) fn scan_new_home_flow<E>(
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        &[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1],
-    ) -> Result<(), E>,
+        Option<&[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1]>,
+    ) -> Result<
+        Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+        E,
+    >,
 ) -> Result<
     (
         BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,

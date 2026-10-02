@@ -167,18 +167,9 @@ fn source_contract_identity_corruption_is_not_profile_outside() {
 
 #[test]
 fn selected_cohort_unresolved_incoming_is_retained_as_named_error() {
-    let package = package(
-        "local bad = me.probe(1) return 0",
-        "return 0",
-        "local recv = new Transport() local good = recv.probe(0) return 0",
-    );
-    let error = package
-        .ordinary_new_claim_ledger
-        .borrowed_formal_source
-        .as_ref()
-        .unwrap()
-        .as_ref()
-        .expect_err("unresolved potential incoming cannot downgrade the selected definition");
+    let source = "box Transport { birth() { } probe(p): i64 { local bad = me.probe(1) return 0 } sink(q): i64 { return 0 } } static box Main { main() { local recv = new Transport() local good = recv.probe(0) return 0 } }";
+    let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).err().expect("unresolved selected incoming is terminal before continuation");
+    let error = format!("{error:?}");
     assert!(
         error.contains("borrowed-formal/incoming-coverage"),
         "{error}"

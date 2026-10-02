@@ -892,8 +892,16 @@ ordinary entry adoption and physical/C publication remain required.
 Pending ordinary borrowed actuals use the same prefix-local state and exact
 incoming source targets. The private `ordinary_new_borrowed_formal_actuals.rs`
 child retains ordered signed-I64/Bool, scalar, live typed Home, entry receiver
-and formal/Copy provenance; it does not activate a call or carrier. The old
-readiness predicate stays unchanged. When that verified walk is not selected,
+and formal/Copy provenance in the original pending row. The same callback stages
+observations with `Some(actuals)` and lends an owned ordered projection on `None`.
+Selected local/nested I64 continuation sealing demands that projection before
+strict-only membership; source/actual/result errors stop package issuance instead
+of retrying strict arguments. Source-error selection uses the existing exact
+prepared lexical target and formal declaration, including parameter receivers.
+Pre-walk projection requires source-I64 returns but not final corroboration;
+the final Taken lender still requires that corroboration. Carrier activation,
+discard and terminal continuation consumption remain required. When the verified
+walk is not selected,
 source-only observation borrows explicit exits from the existing control owner,
 without replacing Completion; any failed partial walk invalidates all owner
 incoming rows. Missing incoming observations remain named pending errors.
@@ -913,7 +921,7 @@ same complete source/actual cohort and joins them to the existing entry ValueIds
 Receiver values are excluded. Source completeness and collisions with every
 physical parameter are checked before state mutation; successful correspondence
 is retained once in the original ledger, only after entry installation succeeds.
-Pending source errors remain errors for a future selected borrowed consumer;
+Entry adoption retains source errors until its selected consumer demands them;
 unselected generic/static paths do not demand them. This mapping does not enable
 carriers, authorize a raw payload ABI, or prove backend publication. A future
 physical consumer must corroborate these values against the real function params.

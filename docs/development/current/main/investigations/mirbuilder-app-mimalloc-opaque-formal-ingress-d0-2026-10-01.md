@@ -815,3 +815,31 @@ through the same callback and retain enclosing live Homes. Keep observation
 errors pending without premature activation. Next: helper/callback/sealer, then
 all four local/discard/return/nested consumers per the existing Decisions. Final
 incoming/result corroboration and tagged physical/C acceptance remain required.
+
+Callback selection parity Decision (2026-10-02, read-only worker): source Err
+is demanded only for an exact successfully prepared lexical target whose callee
+owner/batch-slot declaration contains OpaqueHandle. Reuse the already-prepared
+immutable lexical_source_targets, including existing parameter receiver provenance;
+do not run another resolver or gate only on claim-local receivers. Unrelated
+strict-I64 calls do not demand a global source error. The projection helper still
+returns None only when successful borrowed inventory excludes the exact site.
+Callback connection receipt (2026-10-02): broad borrowed_ 115 PASS / 4 ignored,
+co-seal 136/136 PASS. Early selected source/actual/result rejection and late
+entry/Taken corruption remain separately tested; the two new tests prove
+pre-walk corroboration/priority and parameter receiver error-scope parity.
+Accepted locals require the exact retained projection; the proved inner opaque
+call preserves its nested BorrowedActual and following Home coverage. Other
+construction/deeper-subtree/strict-Bool negatives remain unchanged.
+Final named full lib is 8233/126/56, inventory 8415; complete failure names match
+the original 126 exactly. The unchanged verifier with captured observation is
+KNOWN BASELINE exit 0 with the original failure hash. A preceding summary-only
+127 comparison failed and is not an accepted receipt; no extra failure identity
+is claimed from that incomplete output. Captured final observation has no extra
+or missing failure. Inventory adds only the two verified passing tests and
+renames the scope test to reflect early rejection; failure receipt is untouched.
+Touched Rust formatting, source hard limits, diff and pointer PASS. Qualified
+scope guard still stops only on untouched brand_catalog_tests.rs=961 debt,
+without waiver. This closes the callback/shared-sealer local+nested connection,
+not the whole ingress S0 or physical activation.
+Local/nested connection is implemented; discard/return and tagged physical/C
+Normal/Fault acceptance remain required within the original whole S0 scope.

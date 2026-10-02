@@ -609,6 +609,11 @@ pub(super) fn probe_source_home_prefixes_v1(
         super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1,
         String,
     >,
+    lexical_source_targets: &super::super::lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1,
+    borrowed_i64_results: &BTreeMap<
+        FunctionOwnerIdV1,
+        Result<super::super::lexical_instance_call::BorrowedI64ResultSourceV1, String>,
+    >,
     local_static_call: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<
@@ -691,20 +696,17 @@ pub(super) fn probe_source_home_prefixes_v1(
             .map(|rows| rows.map(|rows| rows.into_iter().map(|(_, row)| row.result).collect()))
         },
         &mut |site, actuals| {
-            let pending = super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
-                &borrowed_formal_source,
+            borrowed_call_arguments_callback_v1(
+                lexical_source_targets,
                 parameter_contracts,
+                candidates,
+                receiver_proof,
+                borrowed_formal_source,
+                pending_actuals,
+                borrowed_i64_results,
                 site,
                 actuals,
-                &candidates,
-                receiver_proof,
-            );
-            super::super::lexical_instance_call::stage_borrowed_call_actuals_v1(
-                pending_actuals,
-                site,
-                pending,
-            );
-            Ok(())
+            )
         },
     )
 }

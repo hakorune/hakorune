@@ -67,12 +67,9 @@ fn borrowed_call_result_accepts_exact_i64_formal_with_mixed_opaque_ordinals() {
 #[test]
 fn borrowed_call_refuses_old_literal_i64_defaults_for_other_source_domains() {
     for body in ["return true", "return \"text\"", "return null"] {
-        let package = package("p", "", body, "0");
-        let row = take(&package);
-        let error = package
-            .ordinary_new_claim_ledger
-            .borrowed_call_actuals_v1(&row)
-            .unwrap_err();
+        let source = format!("box Transport {{ birth() {{ }} probe(p) {{ {body} }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe(0) return 0 }} }}");
+        let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).err().expect("selected result must be source-I64");
+        let error = format!("{error:?}");
         assert!(
             error.contains("borrowed-result/source-not-i64"),
             "{body}: {error}"
@@ -86,12 +83,9 @@ fn borrowed_call_refuses_annotation_without_explicit_value_return() {
         "box Transport { birth() { } probe(p): i64 { } } static box Main { main() { return 0 } }";
     let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(invalid).err().expect("annotation requires a real value return");
     assert!(format!("{error:?}").contains("MissingReturnValueOnPath"));
-    let package = package("p", "", "", "0");
-    let row = take(&package);
-    let error = package
-        .ordinary_new_claim_ledger
-        .borrowed_call_actuals_v1(&row)
-        .unwrap_err();
+    let source = "box Transport { birth() { } probe(p) { } } static box Main { main() { local recv = new Transport() local out = recv.probe(0) return 0 } }";
+    let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).err().expect("selected call needs an explicit return");
+    let error = format!("{error:?}");
     assert!(
         error.contains("borrowed-result/explicit-value-return-missing"),
         "{error}"
@@ -166,8 +160,14 @@ fn borrowed_call_refuses_changed_argument_site_and_result() {
 
 #[test]
 fn borrowed_call_refuses_failed_actual_before_lending_rows() {
-    let package = package("p", ": i64", "return 0", "\"unsupported\"");
+    let mut package = package("p", ": i64", "return 0", "0");
     let row = take(&package);
+    *Rc::get_mut(&mut package.ordinary_new_claim_ledger)
+        .unwrap()
+        .borrowed_formal_actuals
+        .values_mut()
+        .next()
+        .unwrap() = Err("borrowed-actual/unsupported-or-unavailable".into());
     let error = package
         .ordinary_new_claim_ledger
         .borrowed_call_actuals_v1(&row)
@@ -231,4 +231,72 @@ fn borrowed_call_result_corroboration_rejects_changed_return_site() {
         .borrowed_call_actuals_v1(&row)
         .unwrap_err()
         .contains("borrowed-result/result-contract-mismatch"));
+}
+
+#[test]
+fn prewalk_projection_keeps_source_actual_result_priority_without_corroboration_cycle() {
+    let mut package = package("p", ": i64", "return 0", "true");
+    let row = take(&package);
+    let site = row.call_site().clone();
+    let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    let demand = |ledger: &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::OrdinaryNewClaimLedgerV1| {
+        super::super::project_pending_borrowed_i64_arguments_v1(
+            ledger.borrowed_formal_source.as_ref().unwrap(),
+            &ledger.borrowed_formal_actuals,
+            &ledger.borrowed_i64_results,
+            &site,
+        )
+    };
+    ledger
+        .borrowed_i64_results
+        .get_mut(&row.callee_owner())
+        .unwrap()
+        .as_mut()
+        .unwrap()
+        .contract_corroborated = false;
+    let arguments = demand(ledger).unwrap().unwrap();
+    assert!(matches!(
+        arguments.as_ref(),
+        [
+            crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::BorrowedActual {
+                ordinal: 0,
+                ..
+            }
+        ]
+    ));
+    assert!(ledger
+        .borrowed_call_actuals_v1(&row)
+        .unwrap_err()
+        .contains("result-not-corroborated"));
+    let actuals = ledger.borrowed_formal_actuals.remove(&site).unwrap();
+    assert!(demand(ledger).unwrap_err().contains("actuals-missing"));
+    ledger.borrowed_formal_actuals.insert(site.clone(), actuals);
+    let proof = ledger
+        .borrowed_i64_results
+        .remove(&row.callee_owner())
+        .unwrap();
+    assert!(demand(ledger)
+        .unwrap_err()
+        .contains("result-source-missing"));
+    ledger
+        .borrowed_i64_results
+        .insert(row.callee_owner(), proof);
+    let excluded = OwnedExprSiteV1::new(site.owner(), row.argument_sites()[0].clone());
+    assert!(super::super::project_pending_borrowed_i64_arguments_v1(
+        ledger.borrowed_formal_source.as_ref().unwrap(),
+        &BTreeMap::new(),
+        &BTreeMap::new(),
+        &excluded,
+    )
+    .unwrap()
+    .is_none());
+    *ledger
+        .borrowed_i64_results
+        .get_mut(&row.callee_owner())
+        .unwrap() = Err("result-sentinel".into());
+    assert_eq!(demand(ledger).unwrap_err(), "result-sentinel");
+    *ledger.borrowed_formal_actuals.get_mut(&site).unwrap() = Err("actual-sentinel".into());
+    assert_eq!(demand(ledger).unwrap_err(), "actual-sentinel");
+    ledger.borrowed_formal_source = Some(Err("source-sentinel".into()));
+    assert_eq!(demand(ledger).unwrap_err(), "source-sentinel");
 }

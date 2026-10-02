@@ -187,12 +187,17 @@ fn forwarding_package(
     } else {
         "return 0"
     };
+    let main = if mutual {
+        "return 0"
+    } else {
+        "local recv = new BorrowUse() local out = recv.probe(0) return 0"
+    };
     let source = format!(
         "box BorrowUse {{ birth() {{ }} \
          probe(p): i64 {{ local a = p local recv = new BorrowUse() \
              local value = recv.sink(a) return 0 }} \
          sink(q): i64 {{ {sink} }} }} \
-         static box Main {{ main() {{ return 0 }} }}"
+         static box Main {{ main() {{ {main} }} }}"
     );
     crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
         &source,
@@ -341,7 +346,8 @@ fn all_incoming_edges_must_be_exact_and_in_the_same_ordinary_scope() {
 
 #[test]
 fn ignored_formal_without_any_incoming_edge_does_not_authorize_an_abi_change() {
-    let package = forwarding_package(false);
+    let source = "box BorrowUse { birth() { } probe(p): i64 { return 0 } sink(q): i64 { return 0 } } static box Main { main() { return 0 } }";
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
     let drafts = drafts_for_package(&package);
     let slots = package
         .ordinary_new_claim_ledger

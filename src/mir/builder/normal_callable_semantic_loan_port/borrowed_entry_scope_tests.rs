@@ -38,7 +38,7 @@ fn scope(actual: &str) -> Result<ValueId, String> {
         source,
         Some(&brands),
     )
-    .unwrap();
+    .map_err(|issue| format!("{issue:?}"))?;
     let mut context = CompilationContext::new();
     let installed = package.prepare_install(&mut context).unwrap().commit();
     let ledger = installed.ordinary_new_claim_ledger();
@@ -121,7 +121,7 @@ fn selected_scope_adopts_existing_borrowed_formal_value() {
 }
 
 #[test]
-fn selected_scope_keeps_failed_actual_pending_without_raw_carrier_activation() {
+fn selected_scope_rejects_failed_actual_before_raw_carrier_activation() {
     let error = scope("\"unsupported\"").unwrap_err();
     assert!(
         error.contains("borrowed-actual/unsupported-or-unavailable"),

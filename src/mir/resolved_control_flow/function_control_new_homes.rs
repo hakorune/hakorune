@@ -52,7 +52,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _| Ok(None),
-        &mut |_, _| Ok(()),
+        &mut |_, _| Ok(None),
     )?;
     Ok(
         result.map(|(completion, prefixes, terminal_relations, _, _)| {
@@ -145,8 +145,11 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     >,
     borrowed_actuals: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        &[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1],
-    ) -> Result<(), E>,
+        Option<&[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1]>,
+    ) -> Result<
+        Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+        E,
+    >,
 ) -> Result<
     Result<
         (

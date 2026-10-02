@@ -38,7 +38,9 @@ use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
 #[path = "ordinary_new_coseal_issue_lexical.rs"]
 mod lexical;
-use lexical::{lexical_handle_result_call, lexical_i64_result_call};
+use lexical::{
+    borrowed_call_arguments_callback_v1, lexical_handle_result_call, lexical_i64_result_call,
+};
 
 #[path = "ordinary_new_coseal_issue_source.rs"]
 mod source_claims;
@@ -141,7 +143,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         dynamic_slot,
     );
     let borrowed_i64_results = super::lexical_instance_call::prepare_borrowed_i64_results_v1(
-        &borrowed_formal_source, batch, parameter_contracts,
+        &borrowed_formal_source,
+        batch,
+        parameter_contracts,
     );
     for declaration in batch.declarations() {
         let owner = declaration.owner();
@@ -299,7 +303,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         input, &new_sites, entry_home, explicit_sites, pending_actuals,
                         batch_slot, selected, batch, parameter_contracts,
                         &callable_result_classes, &candidates, instance_constructors,
-                        receiver_proof, &borrowed_formal_source, &mut local_static_call,
+                        receiver_proof, &borrowed_formal_source, &lexical_source_targets, &borrowed_i64_results, &mut local_static_call,
                     )
                 };
                 let readiness = if seed_eligible && !new_sites.is_empty() {
@@ -521,14 +525,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 instance_constructors, receiver_proof, site, home, name,
                             ).map(|field| field.is_some())
                         }, &mut local_field_read, &mut |site, actuals| {
-                            let pending = super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
-                                &borrowed_formal_source, parameter_contracts, site, actuals,
-                                &candidates, receiver_proof,
-                            );
-                            super::lexical_instance_call::stage_borrowed_call_actuals_v1(
-                                &mut borrowed_formal_actuals, site, pending,
-                            );
-                            Ok(())
+                            borrowed_call_arguments_callback_v1(
+                                &lexical_source_targets, parameter_contracts, &candidates, receiver_proof,
+                                &borrowed_formal_source, &mut borrowed_formal_actuals, &borrowed_i64_results,
+                                site, actuals,
+                            )
                         })? {
                         Ok((
                             completion,

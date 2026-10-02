@@ -20,13 +20,15 @@ fn only_actual(
     let rows = &package.ordinary_new_claim_ledger.borrowed_formal_actuals;
     assert_eq!(rows.len(), 1);
     let (site, rows) = rows.iter().next().unwrap();
-    assert!(
-        package
-            .ordinary_new_claim_ledger
-            .lexical_i64_call_source(site)
-            .is_none(),
-        "pending borrowed actual must not install the old lifecycle local-call row"
-    );
+    if let Some(relation) = package
+        .ordinary_new_claim_ledger
+        .lexical_i64_call_source(site)
+    {
+        assert_eq!(
+            relation.arguments(),
+            rows.as_ref().unwrap().ordered_arguments.as_ref()
+        );
+    }
     let rows = &rows
         .as_ref()
         .expect("complete pending actual source")
@@ -47,6 +49,7 @@ fn production_prefix_keeps_signed_integer_and_bool_payload_domains_separate() {
             &format!("local recv = new Transport() local out = recv.probe({argument}) return 0"),
             "",
         );
+        assert_local_projection(&package);
         assert_eq!(only_actual(&package).source, expected);
     }
 }
@@ -81,7 +84,8 @@ fn typed_object_home_is_borrowed_and_not_transferred_into_the_pending_call() {
     assert_eq!(class.as_ref(), "Transport");
     let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
     let flow = completion.cleanup().root_flow().unwrap();
-    assert!(flow.local_calls().is_empty());
+    assert_eq!(flow.local_calls().len(), 1);
+    assert!(flow.local_calls()[0].prior_homes().contains(root));
 }
 
 #[test]
@@ -112,32 +116,20 @@ fn formal_copy_forward_preserves_the_original_formal_and_actual_binding() {
         .ordinary_new_claim_ledger
         .completion_for_owner(binding.owner())
         .expect("existing homes-aware completion is preserved");
-    assert!(
-        completion
-            .cleanup()
-            .root_flow()
-            .unwrap()
-            .local_calls()
-            .is_empty(),
-        "pending borrowed actuals must not arm lifecycle calls"
-    );
+    let calls = completion.cleanup().root_flow().unwrap().local_calls();
+    assert_eq!(calls.len(), 1);
+    assert!(matches!(
+        calls[0].arguments(),
+        [LocalCallArgumentV1::BorrowedActual { ordinal: 0, .. }]
+    ));
 }
 
 #[test]
 fn unsupported_actuals_are_pending_named_errors_and_never_integer_payloads() {
     for argument in ["1.5", "\"text\"", "null", "%{\"key\"=>1}"] {
-        let package = package(
-            &format!("local recv = new Transport() local out = recv.probe({argument}) return 0"),
-            "",
-        );
-        let rows = &package.ordinary_new_claim_ledger.borrowed_formal_actuals;
-        assert_eq!(rows.len(), 1, "argument: {argument}");
-        let error = rows
-            .values()
-            .next()
-            .unwrap()
-            .as_ref()
-            .expect_err("unsupported domain");
+        let source = format!("box Transport {{ birth() {{ }} probe(p): i64 {{ return 0 }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe({argument}) return 0 }} }}");
+        let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).err().expect("selected unsupported domain stops package issue");
+        let error = format!("{error:?}");
         assert!(
             error.contains("borrowed-actual/unsupported-or-unavailable"),
             "{error}"
@@ -147,13 +139,9 @@ fn unsupported_actuals_are_pending_named_errors_and_never_integer_payloads() {
 
 #[test]
 fn a_home_consumed_by_a_map_cannot_be_borrowed_afterwards() {
-    let package = package("local obj = new Transport() local m = %{\"key\"=>obj} local recv = new Transport() local out = recv.probe(obj) return 0", "");
-    let rows = &package.ordinary_new_claim_ledger.borrowed_formal_actuals;
-    assert_eq!(rows.len(), 1);
-    assert!(
-        rows.values().next().unwrap().is_err(),
-        "consumed root never obtains tag 3"
-    );
+    let source = "box Transport { birth() { } probe(p): i64 { return 0 } } static box Main { main() { local obj = new Transport() local m = %{\"key\"=>obj} local recv = new Transport() local out = recv.probe(obj) return 0 } }";
+    let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).err().expect("consumed root never obtains tag 3");
+    assert!(format!("{error:?}").contains("borrowed-actual/unsupported-or-unavailable"));
 }
 
 #[test]
@@ -215,19 +203,8 @@ fn verified_entry_receiver_proves_its_typed_object_domain() {
 fn unwalked_nested_incoming_is_named_instead_of_silently_disappearing() {
     // The direct inner call is now observed. Its enclosing opaque argument
     // remains an unsupported CallResult, so the whole incoming cohort rejects.
-    let package = package(
-        "local recv = new Transport() local out = recv.probe(recv.probe(0)) return 0",
-        "",
-    );
-    let rows = &package.ordinary_new_claim_ledger.borrowed_formal_actuals;
-    assert_eq!(rows.len(), 2);
-    assert_eq!(rows.values().filter(|row| row.is_ok()).count(), 1);
-    let error = rows.values().find_map(|row| row.as_ref().err()).unwrap();
-    assert!(
-        error.contains("borrowed-actual/unsupported-or-unavailable"),
-        "{error}"
-    );
-    assert_nested_consumers(package, Some("borrowed-actual/unsupported-or-unavailable"));
+    let source = "box Transport { birth() { } probe(p): i64 { return 0 } } static box Main { main() { local recv = new Transport() local out = recv.probe(recv.probe(0)) return 0 } }";
+    assert_package_rejected(source, "borrowed-actual/unsupported-or-unavailable");
 }
 
 #[test]
@@ -343,6 +320,7 @@ fn mixed_actuals_preserve_opaque_domain_and_exact_integer_parameter_lanes() {
         for prefix_and_argument in [("", "7"), ("local n = 7", "n")] {
             let (prefix, argument) = prefix_and_argument;
             let package = mixed_package(scalar_type, &format!("{prefix} local recv = new Transport() local out = recv.probe(true, {argument}) return 0"));
+            assert_local_projection(&package);
             let row = only_actual(&package);
             assert_eq!(row.ordinal, 0);
             assert_eq!(row.source, BorrowedFormalActualSourceV1::Bool(true));
@@ -406,20 +384,9 @@ fn mixed_actuals_preserve_opaque_domain_and_exact_integer_parameter_lanes() {
 #[test]
 fn mixed_actuals_reject_noninteger_domains_in_the_nonopaque_scalar_slot() {
     for argument in ["false", "recv", "\"text\"", "null", "1.5", "%{\"key\"=>1}"] {
-        let package = mixed_package(
-            "i64",
-            &format!(
-                "local recv = new Transport() local out = recv.probe(true, {argument}) return 0"
-            ),
-        );
-        let error = package
-            .ordinary_new_claim_ledger
-            .borrowed_formal_actuals
-            .values()
-            .next()
-            .unwrap()
-            .as_ref()
-            .unwrap_err();
+        let source = format!("box Transport {{ birth() {{ }} probe(p, q: i64): i64 {{ return 0 }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe(true, {argument}) return 0 }} }}");
+        let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).err().expect("selected nonopaque slot is required");
+        let error = format!("{error:?}");
         assert!(
             error.contains("borrowed-actual/nonopaque-scalar-unproved"),
             "{argument}: {error}"
@@ -429,22 +396,8 @@ fn mixed_actuals_reject_noninteger_domains_in_the_nonopaque_scalar_slot() {
 
 #[test]
 fn mixed_actuals_reject_bool_bindings_in_the_nonopaque_scalar_slot() {
-    let package = mixed_package(
-        "i64",
-        "local n = true local recv = new Transport() local out = recv.probe(0, n) return 0",
-    );
-    let error = package
-        .ordinary_new_claim_ledger
-        .borrowed_formal_actuals
-        .values()
-        .next()
-        .unwrap()
-        .as_ref()
-        .unwrap_err();
-    assert!(
-        error.contains("borrowed-actual/nonopaque-scalar-unproved"),
-        "{error}"
-    );
+    let source = "box Transport { birth() { } probe(p, q: i64): i64 { return 0 } } static box Main { main() { local n = true local recv = new Transport() local out = recv.probe(0, n) return 0 } }";
+    assert_package_rejected(source, "borrowed-actual/nonopaque-scalar-unproved");
 }
 
 #[test]
@@ -561,13 +514,18 @@ fn mixed_actuals_check_the_nonopaque_formal_ordinal() {
 #[test]
 fn installed_entry_demands_nonopaque_actual_proof_before_borrowed_values() {
     for bad in [false, true] {
-        let package = mixed_package(
+        let mut package = mixed_package(
             "i64",
-            &format!(
-                "local recv = new Transport() local out = recv.probe(true, {}) return 0",
-                if bad { "false" } else { "7" }
-            ),
+            "local recv = new Transport() local out = recv.probe(true, 7) return 0",
         );
+        if bad {
+            *std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger)
+                .unwrap()
+                .borrowed_formal_actuals
+                .values_mut()
+                .next()
+                .unwrap() = Err("borrowed-actual/nonopaque-scalar-unproved".into());
+        }
         let source = package
             .ordinary_new_claim_ledger
             .borrowed_formal_source
@@ -738,8 +696,8 @@ fn nested_failed_actuals_remain_terminal_for_real_consumers() {
             "borrowed-actual/unsupported-or-unavailable",
         ),
     ] {
-        let package = nested_package(parameters, &format!("local out = {call} return 0"));
-        assert_nested_consumers(package, Some(expected));
+        let source = format!("box Transport {{ birth() {{ }} probe({parameters}): i64 {{ return 0 }} wrap(x: i64): i64 {{ return x }} pair(x: i64, y: i64): i64 {{ return x }} }} static box Main {{ main() {{ local recv = new Transport() local out = {call} return 0 }} }}");
+        assert_package_rejected(&source, expected);
     }
 }
 
@@ -750,4 +708,24 @@ fn nested_observer_does_not_claim_calls_inside_binary_argument_subtrees() {
         package,
         Some("borrowed-actual/selected-incoming-unobserved"),
     );
+}
+
+fn assert_package_rejected(source: &str, terminal: &str) {
+    let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).err().expect("selected failure stops package issue");
+    assert!(format!("{error:?}").contains(terminal), "{error:?}");
+}
+
+fn assert_local_projection(
+    package: &crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1,
+) {
+    let ledger = &package.ordinary_new_claim_ledger;
+    for (site, actuals) in &ledger.borrowed_formal_actuals {
+        let relation = ledger
+            .lexical_i64_call_source(site)
+            .expect("accepted local must retain its selected continuation");
+        assert_eq!(
+            relation.arguments(),
+            actuals.as_ref().unwrap().ordered_arguments.as_ref()
+        );
+    }
 }
