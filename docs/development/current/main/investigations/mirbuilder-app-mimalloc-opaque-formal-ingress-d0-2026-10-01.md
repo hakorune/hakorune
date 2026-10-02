@@ -991,10 +991,10 @@ Focused tests cover source Integer/Bool/scalar/typed Home and proof substitution
 Entry receiver, forwarding Copy and tagged execution remain owed.
 Borrowed projection implementation `1a54469222`, complete receipt `bbf0e8b271`.
 Pending re-export/value_with_ledger warnings2 and brand_catalog_tests961 debt remain.
-Copy component: original completion joins initializer; value-slot provenance only.
-Focused state5/receipt3/crosswalk12/projection13/lexical10/co-seal168 PASS.
-Final lib/tests check, pointer/diff and touched-source format PASS; sources below800.
-Full8274/127/56, inventory8457 adds passing8 only; failure names and nullable panic
-match pre-change `480d357c85` receipt exactly (fixed126 + known nullable flake1).
-Fixed verifier detects that flake; manifest stays126, no retry or baseline widening.
-Next: Return tree, finished Copy corroboration, carrier/full-use/writer/C/EXE closure.
+Copy provenance implementation and complete receipt: `647f4bb33b`.
+Return Decision: existing RootCall disposition retains immutable original Emitted
+packet (Taken row + Prepared tree + original Invoke/NormalResult), one owner only.
+Stage row/tree before outer Invoke; finish packet once at existing record boundary.
+Rebind flat views only; validate original source/tree and the same FinishedBindings.
+Source/issuer remain original borrowed terminal/actual owners; no semantic inventory.
+ABI activation stays closed; carrier/full-use/finished Copy/writer/C/EXE remain owed.
