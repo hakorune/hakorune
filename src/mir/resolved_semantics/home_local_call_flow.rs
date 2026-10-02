@@ -410,27 +410,11 @@ fn issue_lexical_i64_call<E>(
         Option<&[BorrowedCallActualCandidateV1]>,
     ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
 ) -> Result<Option<LocalCallObservationV1>, E> {
-    let Some((observed_site, call)) = input
-        .function()
-        .method_calls()
-        .find(|(observed_site, _)| *observed_site == site.site())
-    else {
-        return Ok(None);
-    };
-    if observed_site != site.site()
-        || !matches!(
-            call.receiver(),
-            ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
-                if binding.owner() == input.owner()
-        )
-    {
-        return Ok(None);
-    }
-    let Some(arguments) = seal_i64_call_arguments(
+    let Some(arguments) = seal_lexical_i64_arguments_at(
         input,
-        locals,
-        call,
+        site,
         prior_homes,
+        locals,
         allow_strict,
         is_selected_call,
         borrowed_arguments,
@@ -447,6 +431,98 @@ fn issue_lexical_i64_call<E>(
         arguments: arguments.into_boxed_slice(),
         result: LocalCallResultClassV1::I64,
     }))
+}
+
+/// Direct ReturnValue only; this does not create a local/discard continuation.
+pub(super) fn issue_borrowed_i64_terminal_call<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    prior_homes: &[BindingRefV1],
+    locals: &PrefixLocalFlow<'_>,
+    is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    borrowed_arguments: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        Option<&[BorrowedCallActualCandidateV1]>,
+    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
+) -> Result<Option<super::TerminalI64CallReturnV1>, E> {
+    if statement.owner() != input.owner()
+        || !matches!(
+            statement.node(),
+            crate::ast::ASTNode::Return { value: Some(_), .. }
+        )
+    {
+        return Ok(None);
+    }
+    let Ok(value) = input.source().child_expr_from_stmt(
+        statement,
+        crate::mir::resolved_semantics::ExprChildRoleV1::ReturnValue,
+    ) else {
+        return Ok(None);
+    };
+    if !matches!(value.node(), crate::ast::ASTNode::MethodCall { .. }) {
+        return Ok(None);
+    }
+    let site = OwnedExprSiteV1::new(input.owner(), value.site().clone());
+    let Some(arguments) = seal_lexical_i64_arguments_at(
+        input,
+        &site,
+        prior_homes,
+        locals,
+        false,
+        is_selected_call,
+        borrowed_arguments,
+    )?
+    else {
+        return Ok(None);
+    };
+    Ok(Some(super::TerminalI64CallReturnV1::issue(
+        input.owner(),
+        statement.site().clone(),
+        value.site().clone(),
+        arguments
+            .into_iter()
+            .map(super::TerminalCallArgumentV1::Lexical)
+            .collect(),
+    )))
+}
+
+fn seal_lexical_i64_arguments_at<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &OwnedExprSiteV1,
+    prior_homes: &[BindingRefV1],
+    locals: &PrefixLocalFlow<'_>,
+    allow_strict: bool,
+    is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    borrowed_arguments: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        Option<&[BorrowedCallActualCandidateV1]>,
+    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
+) -> Result<Option<Vec<LocalCallArgumentV1>>, E> {
+    let Some((observed_site, call)) = input
+        .function()
+        .method_calls()
+        .find(|(observed_site, _)| *observed_site == site.site())
+    else {
+        return Ok(None);
+    };
+    if observed_site != site.site()
+        || !matches!(
+            call.receiver(),
+            ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
+                if binding.owner() == input.owner()
+        )
+    {
+        return Ok(None);
+    }
+    seal_i64_call_arguments(
+        input,
+        locals,
+        call,
+        prior_homes,
+        allow_strict,
+        is_selected_call,
+        borrowed_arguments,
+    )
 }
 
 /// Demand the selected borrowed projection first, without re-observing locals.

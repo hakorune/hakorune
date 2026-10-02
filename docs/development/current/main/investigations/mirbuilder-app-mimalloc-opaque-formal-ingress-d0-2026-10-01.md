@@ -899,3 +899,40 @@ and argument preparation only: the existing root owner emits the outer Invoke
 once. Validate ordinal-bound physical values/proofs in the same Call entry,
 never instruction count or expected args copied from the actual Invoke.
 Ingress S0, carrier activation, Normal/Fault EXE and the overall goal stay open.
+
+
+Direct Return source/affine component receipt (2026-10-02): the shared borrowed
+callback seals direct ReturnValue MethodCall arguments in the existing terminal
+relation's Lexical wrapper. Exact Completion owner, explicit exit and direct
+call site are checked against the original pending ordered projection before
+old root expected-mark issuance. No local group or Home is invented; final
+lending consumes the same lexical disposition once and demands fully
+corroborated incoming/result evidence. Direct/old-instance consumers reject the
+new wrapper rather than interpreting it as literals or Map. New 6/6 tests cover
+Bool/Integer/object actual identity, source versus final result phase, missing
+source/incoming, ordered drift, sibling exits, mis-seated relations, source Err
+and second take. Read-only worker found no direct-source/affine ownership defect.
+Borrowed regression 125 PASS / 4 ignored and co-seal 146/146 PASS. Captured
+unchanged baseline verifier reports KNOWN BASELINE exit 0: 8243/126/56,
+inventory 8425; original failure names/hash unchanged. Inventory adds exactly
+the six owned passing tests. Touched Rust formatting, diff and pointer PASS;
+qualified scope guard remains red only at untouched brand_catalog_tests.rs=961.
+Source flow=739, terminal relation=733, observer=617, result helper=245 and new
+tests=225, all below hard stop. This closes direct Return source/affine only:
+strict-outer/borrowed-inner Return, root physical handoff, tagged C consumer and
+Normal/Fault EXE remain mandatory within the original ingress S0; no activation,
+production cutover or whole-goal completion is claimed.
+
+Next nested Return Decision (same read-only worker): reuse the existing strict
+sealer for the outer call, selecting this new terminal only when its recursively
+sealed argument tree contains a selected BorrowedActual. Pure strict roots stay
+with the old owner. Each nested CallResult site must equal the parent's exact
+argument_sites[ordinal], with the same owner and terminal program-point Homes.
+A borrowed node requires the same full ordered pending projection; strict None
+is allowed only under retained successful strict source authority, not because
+projection is absent. Reuse the existing final result cohort/explicit nonempty
+Completion to corroborate strict outer I64; old empty-terminal I64 defaults or
+the borrowed child's result are not authority. Inner and outer each keep their
+original one-shot lexical row. Share receiver/argument preparation with the root
+emitter, never emit the outer Invoke twice or create a local binding group.
+Then close the agreed root physical/C path and Normal/Fault acceptance.

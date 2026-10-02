@@ -79,6 +79,9 @@ pub(in crate::mir::builder) fn emit(
                     crate::mir::resolved_semantics::ExactCallableParamAbiV1::Map,
                 ));
             }
+            TerminalCallArgumentV1::Lexical(_) => {
+                return Err(freeze("direct-call-lexical-argument"))
+            }
         }
     }
     let call = emission

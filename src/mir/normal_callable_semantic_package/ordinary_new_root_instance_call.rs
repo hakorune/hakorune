@@ -104,6 +104,14 @@ impl OrdinaryNewClaimLedgerV1 {
             else {
                 continue;
             };
+            if self
+                .borrowed_terminal_arguments_v1(owner, terminal.return_site())?
+                .is_some()
+            {
+                // Same source/actual/result owner; lexical issuance later corroborates
+                // and arms its sole affine row. Do not issue a second root row.
+                continue;
+            }
             self.root_instance_call_expected.borrow_mut().insert(owner);
             // The sole consumer (`prepare_root_home_exit`) can take this row only
             // when every terminal home reaches `end_available`: an Ordinary row

@@ -138,10 +138,11 @@ impl OrdinaryNewClaimLedgerV1 {
                     crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::Map(_) => {
                         crate::mir::resolved_semantics::ExactCallableParamAbiV1::Map
                     }
+                    crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::Lexical(_) => return Err(freeze("call-lexical-argument")),
                 };
-                (value, class)
+                Ok((value, class))
             })
-            .collect();
+            .collect::<Result<_, String>>()?;
         let expected = match row {
             RootCallDispositionV1::Direct(row) => row
                 .physical_emission()

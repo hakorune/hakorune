@@ -637,11 +637,13 @@ pub(super) fn terminal_map_get(
 pub(crate) enum TerminalCallArgumentV1 {
     I64(i64),
     Map(OwnedExprSiteV1),
+    /// Original ordered projection; package retains opaque domain authority.
+    Lexical(super::local_call_flow::LocalCallArgumentV1),
 }
 impl TerminalCallArgumentV1 {
     pub(crate) const fn map_site(&self) -> Option<&OwnedExprSiteV1> {
         match self {
-            Self::I64(_) => None,
+            Self::I64(_) | Self::Lexical(_) => None,
             Self::Map(site) => Some(site),
         }
     }

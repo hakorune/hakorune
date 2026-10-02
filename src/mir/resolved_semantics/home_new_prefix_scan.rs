@@ -147,6 +147,8 @@ pub(super) fn scan_statement_flow<'a, E>(
                 map_compatible,
                 terminal_call,
                 argument_i64_field,
+                local_lexical_i64_call,
+                borrowed_actuals,
             )?;
             return Ok(true);
         }

@@ -156,8 +156,90 @@ impl OrdinaryNewClaimLedgerV1 {
             *pending = Err(freeze("borrowed-result/result-contract-mismatch"));
         }
     }
+
+    /// Source-phase corroboration precedes old root selection and final result issuance.
+    pub(crate) fn borrowed_terminal_arguments_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+    ) -> Result<
+        Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+        String,
+    > {
+        use crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1;
+        let Some(crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Call(
+            terminal,
+        )) = self.terminal_relation_for_owner_at(owner, exit)
+        else {
+            return Ok(None);
+        };
+        if !terminal
+            .arguments()
+            .iter()
+            .any(|arg| matches!(arg, TerminalCallArgumentV1::Lexical(_)))
+        {
+            return Ok(None);
+        }
+        let completion = self
+            .completion_for_owner(owner)
+            .ok_or_else(|| freeze("borrowed-terminal/completion-missing"))?;
+        let direct_value = crate::mir::resolved_semantics::SourcePathV1::from_node(exit.node())
+            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Value)
+            .expr();
+        if completion.owner() != owner
+            || !completion.returns_value()
+            || !completion.explicit_sites().contains(exit)
+            || terminal.owner() != owner
+            || terminal.return_site() != exit
+            || terminal.call_site() != &direct_value
+        {
+            return Err(freeze("borrowed-terminal/return-site"));
+        }
+        let source = self
+            .borrowed_formal_source
+            .as_ref()
+            .ok_or_else(|| freeze("borrowed-terminal/source-missing"))?;
+        let site = OwnedExprSiteV1::new(owner, terminal.call_site().clone());
+        let arguments = super::borrowed_formal_actuals::project_pending_borrowed_i64_arguments_v1(
+            source,
+            &self.borrowed_formal_actuals,
+            &self.borrowed_i64_results,
+            &site,
+        )?
+        .ok_or_else(|| freeze("borrowed-terminal/incoming-missing"))?;
+        if terminal.arguments().len() != arguments.len()
+            || terminal.arguments().iter().zip(arguments.iter()).any(|(observed, expected)|
+                !matches!(observed, TerminalCallArgumentV1::Lexical(arg) if arg == expected)) {
+            return Err(freeze("borrowed-terminal/ordered-arguments"));
+        }
+        Ok(Some(arguments))
+    }
+
+    /// Retain the original Taken lexical row; no second root-instance slot exists.
+    pub(crate) fn take_borrowed_lexical_call_for_return_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+    ) -> Result<Option<LexicalInstanceCallDispositionRowV1>, String> {
+        if self.borrowed_terminal_arguments_v1(owner, exit)?.is_none() {
+            return Ok(None);
+        }
+        let (_, terminal) = self
+            .call_source_completion_for_owner_at(owner, exit)
+            .ok_or_else(|| freeze("borrowed-terminal/source-missing"))?;
+        let row = self
+            .take_lexical_instance_call(owner, terminal.call_site())?
+            .ok_or_else(|| freeze("borrowed-terminal/disposition-missing"))?;
+        self.borrowed_call_actuals_v1(&row)?
+            .ok_or_else(|| freeze("borrowed-terminal/actuals-missing"))?;
+        Ok(Some(row))
+    }
 }
 
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_formal_result_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "ordinary_new_borrowed_formal_terminal_tests.rs"]
+mod terminal_tests;

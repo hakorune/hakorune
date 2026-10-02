@@ -947,3 +947,16 @@ an explicit Discard destination: no local or Home is installed. Strict-only
 statement calls remain outside this profile. Map/Handle/Nullable and direct-local
 consumers require LocalBinding; branch exits retain only their own call sites.
 This is not tagged ABI activation or four-continuation completion.
+
+
+Direct borrowed-I64 Return seals the original source-order arguments as Lexical
+terminal arguments, without a local destination or Home installation. Root
+selection verifies the exact owner, explicit exit and direct ReturnValue call
+site against the existing prepared projection before marking an old root call.
+Final lending consumes the original lexical disposition once and requires its
+corroborated incoming/result evidence. Missing source, ordered-argument drift
+and foreign/sibling exits reject before consuming the correct call. Direct and
+old root-instance consumers cannot reinterpret Lexical terminal arguments.
+Strict outer calls with a borrowed inner argument, the Return physical handoff
+and tagged C Normal/Fault acceptance remain required; this source/affine seam
+alone does not activate the new ABI or complete ingress S0.
