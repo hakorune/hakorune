@@ -942,25 +942,10 @@ Missing carrier activation remains terminal until this same S0 is closed.
 Physical preparation `49990f8e36` and root Call owner T0 `dd6cebfee3`:
 original contracts and complete receipts remain in those commits. No ABI activation.
 
-Next retention Decision (same accepted S0, read-only worker): retain original
-packet on existing local-call groups as well as Return Call entry; no parallel
-site inventory. Local groups share the same packet without cloning Taken rows
-or rebinding it twice for sibling exits. Preserve original borrowed source/
-actual/entry products in the existing final handoff for tagged corroboration.
-Lend source proofs by exact caller and physical producer identity, not MirCall
-alone. Return/ordinary tagged ABI/C closure and Normal/Fault EXE remain owed.
-
-Local packet retention and complete receipt: `0c873be1f5`.
-
-Next physical Decision (same S0, read-only worker): retain original ledger Rc
-privately in existing final source handoff, lending original borrowed products
-read-only. Retain root/child FinishedBindings in existing validation progress.
-Original producer -> owner's finished projection -> caller/block/instruction
-must match uniquely. Return retains PreparedCall and original Lexical Taken row;
-shared preparation never emits its outer Invoke twice. Return/BorrowedActual/
-tagged ABI/full use closure/C/Normal-Fault EXE remain owed.
-
-Finished-coordinate transport and complete receipt: `480d357c85`.
+Original local/Return packet retention Decision and complete receipt:
+`0c873be1f5`; finished-coordinate/source-loan Decision and receipt: `480d357c85`.
+Original affine rows remain private in the existing handoff; only read-only
+coordinate/source loans may be used. Ordinary full-use/C closure remains owed.
 Borrowed projection Decision (same S0, read-only worker): add original ordinal/
 site/formal and literal/exact-read/entry physical evidence to the existing tree.
 Corroboration borrows original Taken-row actuals again; no source row clone.
@@ -974,27 +959,28 @@ Return Decision `602408591c`, implementation/complete receipt `fbd781670b`; ABI 
 Ordinary carrier/full-use, writer/C and Normal/Fault EXE remain owed.
 Copy Decision/complete receipt: `861e50aeb2` / `38cd4191ce`; ABI remains closed.
 
-Ordinary carrier Decision (same S0, read-only worker): adopt original successful
-borrowed entry formals at the existing ordinary entry-value port, not S6C's issuer.
-Preflight original owner/ordinal/BindingRef and entry ValueIds against existing
-function params/signature and carrier column. Preserve receiver, Map and numeric
-slots; change selected scalar slots only. Unknown/Integer storage placeholders
-remain unchanged, never numeric authority. Pending Err/unselected entries cannot
-mint carriers. Commit metadata only after entry installation succeeds, with no
-remaining fallible step. Keep one MIR parameter; wire expansion stays final-owner.
-Add BorrowedTaggedValue to the existing column; metadata is not ABI authority.
-Until original incoming/use closure and writer/C are complete, both parameter
-representation and ordinary actual encoding explicitly reject this carrier,
-and strict Borrowed Invoke materialization remains closed. No raw-i64 fallback.
-Next: close all original incoming local/Discard/Return/nested packets and uses
-against exact FinishedBindings/functions, then final kind/payload writer/C,
-Normal/Fault EXE and selected raw-edge retirement. S0/overall goal remain open.
-Focused acceptance: original source-backed mixed formal adoption; preserve
-params/receiver/other carriers; missing/short/conflicting column and repeat
-install reject without metadata mutation; pending source never yields carrier.
-Ordinary carrier receipt: new4/4, borrowed142/142(+4 ignored), co-seal174/174 PASS.
-Lib/tests, pointer, diff and touched formatting PASS; all touched Rust <800.
-Full8288/127/56 inventory8471: fixed verifier ERROR, only extra known nullable
-ordinary-membership-drift; accepted126 failure names/hash unchanged (no waiver).
-Existing guard961/commonV2 fmt debt retained; `/tmp/hakorune-ordinary-carrier-*.log`.
-Real header setup/JSON mutation only; no full compiler ABI/C/EXE or S0 closeout.
+Ordinary carrier Decision/implementation/complete classified receipt:
+`18066ef4f8` / `e3e61f8de8`; source/entry/signature preflight and last metadata
+commit are live. Unknown/Integer are storage placeholders, not numeric authority.
+Pending source stays pending. Writer parameter/actual and strict Invoke remain
+closed; all incoming/use/C/Normal-Fault and selected raw-edge retirement are owed.
+
+Next incoming/use Decision (same S0, read-only worker): extend existing
+compiled-entry owner after physical program issuance, before ordinary rows publish.
+Retain caller/block/instruction coordinates in existing ordinary rows. Loan original
+local/Discard/Return/nested packets and entry source/value correspondence through
+existing final handoff visitors; do not clone Taken rows or expose the ledger Rc.
+Original node/producer/Copy -> held FinishedBindings -> unique actual function
+coordinate must agree with source actual ordinal/formal/receiver and Invoke args.
+Use ephemeral coordinate sets for both directions: every original selected
+incoming has exactly one final Invoke, and every Call to a borrowed callee has
+exactly one original incoming. Inspect all Call results/roles before filtering;
+Unit/Handle substitution, hidden callers and duplicate identical Calls reject.
+From original entry values and proved Copies, inspect every actual operand use:
+only original source-proved Copy/borrowed argument positions are allowed. Arithmetic,
+conditions, return/store/capture/rebind and unproved receiver uses remain terminal.
+Metadata selects inspection, never authority. No new semantic inventory or retry.
+Positive/negative: original direct/alias forwarding and four continuations;
+missing/extra incoming, foreign site/ordinal/formal, Copy/tag loss, metadata-only
+spoof, altered result, and profile-out uses. Normal/Fault execution remains required
+later; do not activate tagged payload before final writer/C and full closure.
