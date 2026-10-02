@@ -979,3 +979,14 @@ nullable ordinary-membership-drift flake (pre-change reproduced); borrowed171PAS
 Full KNOWN BASELINE8321/126/56, inventory8503/failure hash unchanged; no manifest change.
 Lib/tests check and pointer/fmt/diff/shell PASS; existing brand_catalog_tests961 scope red, no waiver.
 Carrier activation and receiver offset remain unchanged; production materialization closed.
+
+C transport T0 receipt: parser793 ->692; private formal30/Call77 includes stay at
+original definition positions. Reinlining reconstructs every original byte. Fresh C
+build plus parser/preartifact, nested-call and receiver-identity tests PASS before/after.
+Existing V4 source-issued Pair/Bool physical EXE suite PASS after split: Normal/Fault
+cleanup, tagged copies/range/invalid-kind/Bool,14 negative schema inputs, artifact/temp
+preservation and library/session seams. This is existing Birth ABI regression, not
+new Ordinary borrowed acceptance. JSON T0 `1d97a8df8e`; inventory/failure receipt unchanged.
+New JSON/C children and parents registered to 800-line scope guard; existing961 red
+remains classified debt. Next: exact source-lent tagged JSON/C implementation, then
+production ledger cutover and Ordinary generated-EXE Normal/Fault/retirement evidence.
