@@ -2,7 +2,7 @@
 //! This is operand-closure evidence, not production publication or tagged ABI.
 use super::*;
 
-fn fixture() -> (FunctionUses, MirFunction, MirInstruction) {
+pub(super) fn fixture() -> (FunctionUses, MirFunction, MirInstruction) {
     let text = "box Transport { birth() {} probe(p): i64 { return 0 } forward(q): i64 { local alias = q local recv = new Transport() local out = recv.probe(alias) return 0 } } static box Main { main() { local recv = new Transport() local out = recv.forward(true) return 0 } }";
     let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
         text,

@@ -27,7 +27,7 @@ with no callee End; host/boxed domain needs its own producer/lifetime proof.
 Original entry/alias/Call/mandatory-Copy loans join the held physical Boundary.
 Incoming/use consumer now checks exact Forwarded positions and module/published
 use/definition coverage; evidence is original-source plus synthetic instructions.
-Projection-specific mutations and broader continuation positives remain owed.
+Projection-only mutation checks pass; broader continuation positives remain owed.
 Next: complete publication evidence, then writer/C and Normal/Fault acceptance.
 Production emission still stops at borrowed-lender-missing; no carrier activation.
 Retained ArraySet,

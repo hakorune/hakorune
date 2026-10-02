@@ -975,26 +975,26 @@ Original optional alias Copies stay outside lifecycle DAG; mandatory dependencie
 or outside uses prevent omission. Same-Boundary coordinates, global definitions,
 all-block operands/return-env and parameter collision remain required; no scan authority.
 Full-use/writer/C/EXE and actual loop mapping remain owed, ABI closed.
-Mandatory-Copy loan Decision/implementation/complete receipt: `f94ede096a`.
-Own-site mandatory loans remain distinct from optional omission and Invoke uniqueness.
-Full-use continuation Decision (read-only worker): private child of existing incoming
-owner joins entry roots/aliases and mandatory loans with exact Forwarded actual positions.
-Use published instruction.index(), not enumeration; inspect module and published defs/uses,
-module return_env and separately copied published edges. Reject receiver/callee/fault-frame
-uses independently of args; caller Forwarded.formal is distinct from callee actual.formal.
-Sealed BorrowedActual selects original actuals/borrowed callee columns even if metadata
-is all-I64; pure strict unselected nodes must not demand unrelated borrowed source errors.
-Negative evidence must include metadata loss, wrong arg ordinal, receiver/fault-frame/Phi/
-edge/return/store use, duplicate definition and projection-only leaks. No ABI activation yet.
-Consumer evidence boundary: original Forwarded source/entry proofs + synthetic physical
-instructions establish operand closure; production emission still stops at borrowed-lender-missing.
-Do not open materialize_with_ledger in the emitter solely for tests. Original production
-success, writer/C/EXE and selected retirement remain required before S0 closes.
-ABI continuation findings (read-only worker, activation closed): ordinary writer actual
-carrier lookup must add callee.has_receiver offset for Borrowed and Map checks.
-Reuse Birth kind/payload parameter/Copy machinery; existing Birth admits kinds 1/2 only.
-Ordinary kind3 needs live typed-handle corroboration; forwarded TAGGED preserves both lanes,
-BorrowForCall consumes no lease/End, and Birth TAGGED field-store permission cannot extend
-into ordinary. Writer 741 lines / C preartifact 793 require responsibility T0 before growth.
-Use consumer receipt: check lib/tests, original-source/synthetic operand tests 5/5, full KNOWN BASELINE 8317/126/56; inventory +5/-0, failure hash unchanged.
-Borrowed regression 167/167 +4 ignored; pointer/diff/shell PASS. Scope guard still rejects untouched brand_catalog_tests.rs=961; no waiver.
+Mandatory-Copy loans: `f94ede096a`; distinct from optional omission/Invoke uniqueness.
+Full-use consumer Decision/implementation/receipt: `4acebb7ddc`; original entry,
+alias/mandatory-Copy and Forwarded loans check module and published defs/uses,
+including return_env, copied edges and exact published indices. No scan authority.
+Source-selected borrowed columns cannot silently lose metadata; unselected strict
+nodes do not demand unrelated borrowed errors. Synthetic operand tests 5/5,
+borrowed 167/167 +4 ignored and full KNOWN BASELINE 8317/126/56; failures unchanged.
+Projection continuation Decision: reuse that same private published checker;
+a cfg(test)-only closure captures original proofs, tracked roots and expected name.
+Synthetic published rows first pass, then mutate function/block/index identity,
+Copy/Call/parameter coverage, copied edges and receiver/fault-frame/argument uses.
+Tests cannot replace authority/name or add ledger/receipt/ABI authority. Production
+still stops at borrowed-lender-missing; source-to-publication/writer/C/EXE/retirement owed.
+ABI audit: writer Borrowed/Map actual lookup needs callee.has_receiver offset; reuse Birth
+kind/payload machinery (Birth kinds 1/2 only). Ordinary kind3 requires live typed handles,
+TAGGED forwarding preserves both lanes, BorrowForCall no lease/End; ordinary cannot inherit
+Birth tagged stores. Writer741/C preartifact793 need responsibility T0 before growth.
+Projection receipt: new projection tests 4/4; broad borrowed 171/171 +4 ignored.
+Captured full run and baseline verifier: KNOWN BASELINE 8321/126/56, inventory +4/-0,
+8503 total; all failure names/hash unchanged. Initial count-only verifier 8320/127/56
+had no retained failure identity and is unaccepted informational run drift, not PASS.
+Two subsequent captured full runs agree with baseline; no failure receipt expansion.
+Lib/tests check, pointer/fmt/diff/shell PASS; scope red existing brand_catalog_tests.rs=961; S0 open.

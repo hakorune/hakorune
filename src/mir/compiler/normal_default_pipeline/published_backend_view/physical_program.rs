@@ -602,3 +602,7 @@ mod order_tests;
 #[cfg(test)]
 #[path = "borrowed_carrier_json_tests.rs"]
 mod borrowed_carrier_json_tests;
+
+#[cfg(test)]
+#[path = "borrowed_use_projection_tests.rs"]
+mod borrowed_use_projection_tests;

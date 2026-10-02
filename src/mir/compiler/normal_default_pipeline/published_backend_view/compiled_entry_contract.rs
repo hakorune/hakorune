@@ -19,6 +19,8 @@ mod birth_calls;
 mod borrowed_call_incoming;
 #[cfg(test)]
 pub(super) use borrowed_call_incoming::corroborate_final_call;
+#[cfg(test)]
+pub(super) use borrowed_call_incoming::projection_fixture as borrowed_projection_test_fixture;
 pub(super) use borrowed_call_incoming::verify_borrowed_call_incoming;
 
 use super::{

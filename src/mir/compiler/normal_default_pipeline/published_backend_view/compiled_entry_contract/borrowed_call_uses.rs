@@ -1,6 +1,7 @@
 //! Final operand closure over original entry/Copy/Forwarded loans.
 //! These temporary sets corroborate one publication; they issue no authority.
 use super::*;
+use crate::mir::compiler::normal_default_pipeline::published_backend_view::physical_program::PublishedLifecyclePhysicalFunctionV1;
 use crate::mir::normal_callable_semantic_package::{
     BorrowedFormalActualSourceV1, FinalizedRootSourceHandoffV1, PreparedBorrowedFormalActualV1,
 };
@@ -121,49 +122,60 @@ impl BorrowedCallUses {
                 }
             }
             state.definitions(&tracked, &function.params, &definitions)?;
-            let mut published_rows = program.functions().iter().filter(|row| row.name() == name);
-            let published = published_rows
-                .next()
-                .ok_or_else(|| fault("borrowed-use/published-missing"))?;
-            if published_rows.next().is_some() {
-                return Err(fault("borrowed-use/published-duplicate"));
-            }
-            // Publication is checked independently: projection-only operand or
-            // definition drift must not inherit the module's proof.
-            let mut definitions = Scan::default();
-            let mut blocks = BTreeSet::new();
-            for block in published.blocks() {
-                if !blocks.insert(block.id()) {
-                    return Err(fault("borrowed-use/published-block-duplicate"));
-                }
-                for edge in block.edges() {
-                    if edge.args().is_some_and(|args| {
-                        args.values.iter().any(|value| tracked.contains_key(value))
-                    }) {
-                        return Err(fault("borrowed-use/published-edge"));
-                    }
-                }
-                for instruction in block
-                    .instructions()
-                    .iter()
-                    .copied()
-                    .chain(std::iter::once(block.terminator()))
-                {
-                    state.instruction(
-                        &tracked,
-                        (block.id(), instruction.index() as usize),
-                        instruction.instruction(),
-                        &mut definitions,
-                    )?;
-                }
-            }
-            state.definitions(&tracked, published.params(), &definitions)?;
+            state.verify_published(&tracked, &name, program.functions())?;
         }
         Ok(())
     }
 }
 
 impl FunctionUses {
+    fn verify_published(
+        &self,
+        tracked: &BTreeMap<ValueId, BindingRefV1>,
+        name: &str,
+        rows: &[PublishedLifecyclePhysicalFunctionV1<'_>],
+    ) -> Result<(), String> {
+        let mut published_rows = rows.iter().filter(|row| row.name() == name);
+        let published = published_rows
+            .next()
+            .ok_or_else(|| fault("borrowed-use/published-missing"))?;
+        if published_rows.next().is_some() {
+            return Err(fault("borrowed-use/published-duplicate"));
+        }
+        // Publication is checked independently: projection-only operand or
+        // definition drift must not inherit the module's proof.
+        let mut definitions = Scan::default();
+        let mut blocks = BTreeSet::new();
+        for block in published.blocks() {
+            if !blocks.insert(block.id()) {
+                return Err(fault("borrowed-use/published-block-duplicate"));
+            }
+            for edge in block.edges() {
+                if edge
+                    .args()
+                    .is_some_and(|args| args.values.iter().any(|value| tracked.contains_key(value)))
+                {
+                    return Err(fault("borrowed-use/published-edge"));
+                }
+            }
+            for instruction in block
+                .instructions()
+                .iter()
+                .copied()
+                .chain(std::iter::once(block.terminator()))
+            {
+                self.instruction(
+                    tracked,
+                    (block.id(), instruction.index() as usize),
+                    instruction.instruction(),
+                    &mut definitions,
+                )?;
+            }
+        }
+        self.definitions(tracked, published.params(), &definitions)?;
+        Ok(())
+    }
+
     fn copy(&mut self, original: &Binding, coordinate: Option<Coordinate>) -> Result<(), String> {
         let MirInstruction::Copy { dst, .. } = original.1 else {
             return Err(fault("borrowed-use/copy-instruction"));
@@ -312,3 +324,19 @@ impl FunctionUses {
 #[cfg(test)]
 #[path = "borrowed_call_uses_tests.rs"]
 mod tests;
+
+// Lend the original-source proof only through the production projection checker.
+// Tests cannot substitute the expected name or tracked bindings.
+#[cfg(test)]
+pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn projection_fixture(
+) -> (
+    MirFunction,
+    impl for<'a> Fn(&[PublishedLifecyclePhysicalFunctionV1<'a>]) -> Result<(), String>,
+) {
+    let (state, function, _) = tests::fixture();
+    let tracked = state.tracked().unwrap();
+    let name = function.signature.name.clone();
+    (function, move |rows| {
+        state.verify_published(&tracked, &name, rows)
+    })
+}

@@ -6,6 +6,8 @@ use crate::mir::MirModule;
 
 #[path = "borrowed_call_uses.rs"]
 mod borrowed_uses;
+#[cfg(test)]
+pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) use borrowed_uses::projection_fixture;
 
 pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn verify_borrowed_call_incoming(
     program: &PublishedLifecyclePhysicalProgramV1<'_>,
