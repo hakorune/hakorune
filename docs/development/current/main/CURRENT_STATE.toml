@@ -1,7 +1,7 @@
-date = "2026-10-01"
+date = "2026-10-03"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -13,26 +13,24 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md"
-latest_card = "mirbuilder-app-mimalloc-opaque-formal-ingress-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-normal-integer-d0-2026-10-03.md"
+latest_card = "mirbuilder-app-mimalloc-lite-opaque-checked-compare-normal-integer-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-normal-integer-d0-2026-10-03.md"
 latest_card_summary = """
-OPAQUE-FORMAL-INGRESS-S0 landed: original source loans prove borrowed
-kind/payload carriers end to end — selected entry/formal/actual/Call slots,
-finalized_root source-bound final strict gate (invoke_borrowed_calls;
-pretransform report unchanged), production cutover via
-materialize_with_ledger/value_with_ledger, and the caller-zero
-invoke::check_module wrapper retired. Receipts: publication tests 2/2 with
-carrier-erasure/producer-drift negatives; all 30 source-issued JSONs execute
-unchanged through the C driver and real kernel (Normal rc7; callee-Birth
-Fault rc70, scratch reclaim once); baseline KNOWN BASELINE 8325/126/56.
-Open followups: Loop mapping, const_null gap, typed-local Return handoff,
-Retained ArraySet, ordered Add/destination, mixed roots, original app EXE.
+OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0 accepted: a checked-compare lends
+a Normal-Integer operand view to the borrowed tagged formal for the compared
+use and its dominated successors (carrier retained; site/binding-branded
+view row, no new Receipt/Seal). dynamic_operator_contract gains a
+Greater(NormalInteger,NormalInteger) envelope with the borrowed-formal
+co-seal as its first production consumer. Signed predicates stay; usize
+range authority stays at writes; rhs Integer is lent by the compare, not
+derived from usize storage. S0 boundary: compare-operand view only —
+full allocate admission deferred to the task-4 D0 (ArraySet/Add/ctor).
 """
-next_design_card = "OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0 in existing operation owner, then task 4 ArraySet/ordered Add/destination; usize range stays at write."
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md"
+next_design_card = "Task-4 D0: original ArraySet -> ordered Add -> constructor via the compare view; usize range stays at write."
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-normal-integer-d0-2026-10-03.md"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-normal-integer-d0-2026-10-03.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -47,7 +45,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-03: OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0 accepted — checked-compare lends a Normal-Integer operand view to the retained borrowed tagged carrier (same binding/ValueId, dominated by compare Normal edge, both successors; rejects pre-check/Fault/foreign/rebound). dynamic_operator_contract gains Greater/NormalInteger envelope via borrowed-formal co-seal consumer; signed predicates only, usize range at writes, rhs Integer lent not storage-derived. Pinned site page_heap_box.hako:75; current frontier TerminalHomesUnavailable (callee decline). Next: COMPARE-NORMAL-INTEGER-S0.",
   "2026-10-03: OPAQUE-FORMAL-INGRESS-S0 landed — original source loans prove borrowed kind/payload ingress end to end; source-bound final strict gate (invoke_borrowed_calls) joins finalized root handoff, emitters cut over to materialize_with_ledger, invoke::check_module retired. Pins: publication 2/2 + mutation negatives, 30 source-issued JSONs execute unchanged (Normal rc7 / callee-Birth Fault rc70), KNOWN BASELINE 8325/126/56. Next: OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0.",
   "2026-10-01: OPAQUE-SCALAR-POSITION-D0 integrated — one read-only worker verified declaration-backed scalar field projection versus opaque-parameter borrowing; accepted bounded pure scalar expression profile, exact existing field-read owner, no permissive call/String roots. No dynamic evidence or deletion claim. Next: prerequisite COSEAL-SIZE-T0, then SCALAR-EXPRESSION-POSITION-S0.",
-  "2026-10-01: CALL-RESULT-ARG-POSITION-S0 landed — LocalCallArgumentV1::CallResult(Box<ArgumentCallObservationV1>) seals a proven-i64 inner lexical call in direct argument position (inner site + prior Homes + recursive arg rows via the shared lexical_i64_result_call predicate); emit_lexical_i64_call recurses — inner disposition taken once, inner Invoke+projection fold into the outer record_root_local_call_bindings group, inner result feeds the outer argument. Emit pin: two Invoke{SameModuleInstance, I64}, give on allocate's normal-landing edge. mimalloc-lite frontier stays pinned emission-binding-drift. Next: HANDLE-FIELD-READ-D0.",
   ]
