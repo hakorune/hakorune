@@ -160,7 +160,7 @@ fn finalized_call_visitor_lends_original_nested_nodes_in_evaluation_order() {
     source
         .visit_finalized_lexical_call_nodes_v1(
             &module,
-            |owner, context, packet, arguments, function, (block, index)| {
+            |owner, context, packet, arguments, function, (block, index), copies| {
                 let Context::Local {
                     group_site,
                     declaration,
@@ -189,6 +189,9 @@ fn finalized_call_visitor_lends_original_nested_nodes_in_evaluation_order() {
                         ..
                     })
                 ));
+                for (original, finished) in copies {
+                    assert_eq!(function.blocks[&finished.0].instructions[finished.1], original.1);
+                }
                 seen.push((owner, group_site.clone(), packet.call_site().clone()));
                 Ok(())
             },
@@ -234,7 +237,7 @@ fn finalized_call_visitor_rejects_duplicate_source_and_changed_finished_function
             let groups = source.local_calls.values_mut().next().unwrap();
             groups.push(groups[0].clone());
             let error = source
-                .visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _| Ok(()))
+                .visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(()))
                 .unwrap_err();
             assert!(error.contains("group-duplicate"), "{error}");
             continue;
@@ -265,7 +268,7 @@ fn finalized_call_visitor_rejects_duplicate_source_and_changed_finished_function
         }
         let source = handoff.root_source().unwrap();
         let error = source
-            .visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _| Ok(()))
+            .visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(()))
             .unwrap_err();
         assert!(
             error.contains(if mutation == 1 {

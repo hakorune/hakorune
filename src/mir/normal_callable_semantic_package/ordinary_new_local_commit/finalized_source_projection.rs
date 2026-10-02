@@ -160,6 +160,9 @@ impl FinalizedRootSourceHandoffV1 {
         }
         let coordinate = find_finished_producer(&symbol, &finished, function)?;
         let dst = finished.1.dst_value().expect("checked Copy");
+        if function.params.contains(&dst) {
+            return Err(freeze("finished-copy/parameter-collision"));
+        }
         if function
             .blocks
             .values()

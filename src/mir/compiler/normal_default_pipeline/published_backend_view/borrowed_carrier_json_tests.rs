@@ -87,7 +87,7 @@ fn borrowed_incoming_rejects_metadata_spoof_and_unit_handle_result_before_filter
         let program = view.issue_lifecycle_physical_program().unwrap();
         let mut visited = 0;
         view.retained_root_source().unwrap().visit_finalized_lexical_call_nodes_v1(view.module(),
-                |_, context, _, _, caller, coordinate| {
+                |_, context, _, _, caller, coordinate, _copies| {
                     use crate::mir::normal_callable_semantic_package::FinalizedLexicalCallContextV1 as Context;
                     assert!(matches!(context, Context::Local { .. }));
                     let MirInstruction::Invoke { operation: InvokeOperation::Call { call, result }, .. } =

@@ -78,7 +78,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     let mut original = BTreeSet::new();
     source.visit_finalized_lexical_call_nodes_v1(
         module,
-        |_, _, packet, _, caller, (block, index)| {
+        |_, _, packet, _, caller, (block, index), _copies| {
             let row = packet.original_row();
             let Some(callee) = callees.get(row.target()) else {
                 return Ok(());

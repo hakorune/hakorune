@@ -280,17 +280,40 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
         .insert(physical.signature.name.clone(), physical);
     let mut visited = 0;
     source.visit_finalized_lexical_call_nodes_v1(&module,
-        |observed_owner, context, original, arguments, _, coordinate| {
+        |observed_owner, context, original, arguments, function, coordinate, copies| {
             let Context::Discard { group_site } = context else { panic!("borrowed Discard"); };
             assert_eq!(group_site, packet.call_site());
             assert_eq!(observed_owner, owner);
             assert!(std::ptr::eq(original, packet.as_ref()));
             assert!(matches!(arguments, [crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::BorrowedActual { ordinal: 0, .. }]));
             assert_eq!(coordinate.0, BasicBlockId(10));
+            assert_eq!(copies.len(), 1);
+            let (original_copy, finished_copy) = &copies[0];
+            assert_eq!(original_copy, &packet.copy_dependencies(&ledger).unwrap()[0].1);
+            assert_eq!(function.blocks[&finished_copy.0].instructions[finished_copy.1], original_copy.1);
             visited += 1;
             Ok(())
         }).unwrap();
     assert_eq!(visited, 1);
+    // The lender must reject changes before entering the callback, even though
+    // optional aliases have their own omission permissions.
+    for mutation in 0..3 {
+        let mut changed = module.clone();
+        let function = changed.functions.values_mut().next().unwrap();
+        let original = &packet.copy_dependencies(&ledger).unwrap()[0].1;
+        let dst = original.1.dst_value().unwrap();
+        match mutation {
+            0 => function.blocks.get_mut(&original.0).unwrap().instructions
+                .retain(|instruction| instruction != &original.1),
+            1 => function.blocks.get_mut(&BasicBlockId(12)).unwrap()
+                .instructions.push(original.1.clone()),
+            _ => function.params.push(dst),
+        }
+        let error = source.visit_finalized_lexical_call_nodes_v1(&changed,
+            |_, _, _, _, _, _, _| panic!("invalid mandatory Copy must not be lent"))
+            .unwrap_err();
+        assert!(error.contains("finished-"), "{error}");
+    }
     let actual = module.functions.values().next().unwrap();
     let mut aliases = 0;
     source

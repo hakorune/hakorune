@@ -916,17 +916,12 @@ root exit validation/rebind/finalization. Do not derive expected arguments from
 actual Invoke or count instructions as arity. Tagged carrier/use closure and
 physical/C Normal/Fault execution are required before ingress S0 can close.
 
-Nested Return source/affine: `76cae30f54` retains original strict/borrowed
-rows and exact owner/ordinal/Homes; its focused and unchanged-baseline receipts
-are in the commit. Strict source rejects nonInteger literals. S0 remains open.
+Nested Return source/affine contracts and receipts: `76cae30f54`; strict source
+rejects nonInteger literals, S0 open. Emitter size T0 receipt: `834243d2e7`; ABI closed.
 
-Lexical I64 emitter size T0 and complete receipt: `834243d2e7`; ABI closed.
-
-Original optional lexical-tree/receiver/argument handoff contracts and Decision
-are retained by physical preparation `49990f8e36`: original Taken rows and exact
-producer/read/Copy loans are physical corroboration, never source authority.
-One MIR ValueId expands only at the final ABI boundary; Birth kinds 1/2 stay
-unchanged. Ordinary source/full-use, writer/C and execution closure are owed.
+Original handoff contracts/Decision: `49990f8e36`; Taken producer/read/Copy loans
+are physical corroboration, never source authority. One ValueId expands at final
+ABI only; Birth kinds 1/2 unchanged. Full-use/writer/C/execution remain owed.
 
 Physical preparation/Call-owner T0 receipts: `49990f8e36` / `dd6cebfee3`; ABI closed.
 
@@ -983,18 +978,23 @@ Keep cycle guard; optional Copy relocation needs original/loop-owner block mappi
 
 Alias-retention and reuse Decisions/full classified receipts:
 `30aa4838fc` / `03f9012a04`; shared completion is not physical Loop/EXE acceptance.
-Boundary Decision (same S0, read-only worker): capture original alias Copies in
-private physical rows on existing Boundary/FinishedBindings, outside lifecycle DAG.
-Deduplicate exact prefixes; require original tuple/global dst definition uniqueness
-and no parameter collision. Compute unused optional Copy cone; mandatory packet
-Copies or any outside operand use stop it. Validate all optional rows even when
-lifecycle bindings are empty. Retained copies need exact original/mapped block and
-unique actual coordinate; omitted copies need original cone + final dst use/def0.
-Inspect all blocks, including Phi/edge args/return-env; never use global tuple
-relocation or legacy source_local_copies permission as source authority.
-Positive/negative: unused chain preserved/removed/partial, empty Boundary/loop,
-mandatory prefix, relocation/redefinition/Phi/edge arg/parameter collision.
-Full-use/writer/C/Normal-Fault EXE and actual loop mapping remain owed; ABI closed.
-Boundary receipt: focused 11/11, borrowed 162/162 +4 ignored, check lib/tests PASS.
-Full verifier KNOWN BASELINE: 8312/126/56, inventory 8494 (+7 only); failures unchanged.
-Pointer/diff/shell PASS; scope guard retains pre-existing brand_catalog_tests.rs 961-line red.
+Boundary Decision/implementation/full classified receipt: `313e6149f4`.
+Original optional alias Copies stay outside lifecycle DAG; mandatory dependencies
+or outside uses prevent omission. Same-Boundary coordinates, global definitions,
+all-block operands/return-env and parameter collision remain required; no scan authority.
+Full-use/writer/C/EXE and actual loop mapping remain owed, ABI closed.
+Mandatory-Copy loan Decision (read-only worker, same S0): extend the existing
+original-node visitor with a temporary original Copy/final-coordinate slice.
+Filter own site, deduplicate exact prefixes within a node; Copy coordinates stay
+outside global Invoke uniqueness. Existing Local/Discard/Return lenders demand
+survival, membership, unique definition/no parameter collision; optional omission separate.
+Full-use continuation Decision (read-only worker): private child of existing incoming
+owner joins entry roots/aliases and mandatory loans with exact Forwarded actual positions.
+Use published instruction.index(), not enumeration; inspect module and published defs/uses,
+module return_env and separately copied published edges. Reject receiver/callee/fault-frame
+uses independently of args; caller Forwarded.formal is distinct from callee actual.formal.
+Sealed BorrowedActual selects original actuals/borrowed callee columns even if metadata
+is all-I64; pure strict unselected nodes must not demand unrelated borrowed source errors.
+Negative evidence must include metadata loss, wrong arg ordinal, receiver/fault-frame/Phi/
+edge/return/store use, duplicate definition and projection-only leaks. No ABI activation yet.
+Mandatory loan receipt: check lib/tests, visitor 4/4, borrowed 162/162 +4 ignored, full KNOWN BASELINE 8312/126/56 PASS.

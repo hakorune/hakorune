@@ -34,6 +34,7 @@ impl FinalizedRootSourceHandoffV1 {
             &[LocalCallArgumentV1],
             &MirFunction,
             (BasicBlockId, usize),
+            &[((BasicBlockId, MirInstruction), (BasicBlockId, usize))],
         ) -> Result<(), String>,
     ) -> Result<(), String> {
         let mut source_sites = BTreeSet::new();
@@ -75,7 +76,29 @@ impl FinalizedRootSourceHandoffV1 {
                 if !coordinates.insert((symbol, coordinate)) {
                     return Err(freeze("final-call-visit/coordinate-duplicate"));
                 }
-                visit(owner, context, node, args, function, coordinate)
+                // This node alone owns its dependencies. Nested nodes are
+                // visited separately, while exact shared prefixes are lent once.
+                let mut copies = Vec::new();
+                for (site, original) in node.copy_dependencies(&self.ledger)? {
+                    if &site != node.call_site()
+                        || copies.iter().any(|(previous, _)| previous == &original)
+                    {
+                        continue;
+                    }
+                    let finished = match context {
+                        FinalizedLexicalCallContextV1::Local { group_site, .. }
+                        | FinalizedLexicalCallContextV1::Discard { group_site } => self
+                            .finished_local_call_copy_v1(
+                                owner, group_site, node.call_site(), &original, function,
+                            )?,
+                        FinalizedLexicalCallContextV1::Return { exit } => self
+                            .finished_terminal_call_copy_v1(
+                                owner, exit, node.call_site(), &original, function,
+                            )?,
+                    };
+                    copies.push((original, finished));
+                }
+                visit(owner, context, node, args, function, coordinate, &copies)
             })
         };
         for (owner, group) in self.local_call_binding_groups() {

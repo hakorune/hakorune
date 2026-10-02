@@ -404,7 +404,7 @@ fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
     source
         .visit_finalized_lexical_call_nodes_v1(
             &module,
-            |observed_owner, context, original, _, _, coordinate| {
+            |observed_owner, context, original, _, _, coordinate, copies| {
                 let Context::Return {
                     exit: observed_exit,
                 } = context
@@ -415,6 +415,7 @@ fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
                 assert_eq!(observed_owner, owner);
                 assert!(std::ptr::eq(original, packet.as_ref()));
                 assert_eq!(coordinate.0, BasicBlockId(10));
+                assert!(copies.is_empty(), "this Return has no borrowed Copy dependencies");
                 visited += 1;
                 Ok(())
             },
@@ -430,7 +431,7 @@ fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
         .name
         .push_str("-foreign");
     assert!(source
-        .visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _| Ok(()))
+        .visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(()))
         .unwrap_err()
         .contains("/function"));
 }
