@@ -956,12 +956,15 @@ Pointer/format/diff/bash PASS; untouched brand_catalog_tests.rs=961 guard red.
 Full evidence and corrected test assertion are in the commit. S0 remains open.
 
 
-Lexical I64 physical size T0 in progress: parent 708 -> 542, private child 173;
-only emit_local_lexical_i64 and recursive emit_lexical_i64_call moved. Original
-body comparison is identical modulo whitespace. Handle emitter stays in the
-parent. First extraction accidentally included Handle and failed E0425; the
-range was corrected after that Cargo terminated. Focused lexical_i64 validation
-is running; no tested T0 closeout, physical activation or new Invoke claim yet.
+Lexical I64 physical size T0 receipt: `834243d2e7` (2026-10-02), parent 708
+-> 542, child 173; only existing I64 emitters moved. Whole parent reconstruction
+is identical modulo whitespace; Handle stays in parent. Focused 10/10, co-seal
+155/155 PASS. Captured unchanged full verifier exit 1: 8251/127/56, inventory
+8434 unchanged; only extra failure is the pre-existing nullable receiver
+serialization flake. Original 126 failure names/hash and manifest remain
+unchanged. This is not a green baseline receipt. Pointer/format/diff/bash PASS;
+known untouched 961-line brand_catalog guard debt remains. Initial extraction
+E0425 was corrected before these tests. No acceptance or ABI activation change.
 
 
 Physical handoff Decision (read-only worker, same accepted S0): retain an
