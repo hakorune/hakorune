@@ -608,6 +608,11 @@ group, node site and producer tuple, including its draft block; matching frame
 or cleanup instructions cannot authorize it. It then requires the held physical
 function and exactly one finished instruction. Original borrowed actual/entry
 products are read-only loans; neither coordinates nor those loans activate tags.
+Borrowed argument views retain only ordinal/site/formal and a Const or exact-read
+snapshot. Ledger-aware corroboration demands the original actual again and keeps
+Bool/Integer domains distinct. Forwarding requires original entry correspondence;
+a distinct alias value still owes its original Copy proof. Strict emission has
+no borrowed lender, so this projection component does not activate an untagged ABI.
 
 
 ### DeclaredInstance receiver authority crosswalk

@@ -40,6 +40,7 @@ fn records(packet: &EmittedLexicalCallProjectionV1) -> Vec<Binding> {
             LexicalCallArgumentProjectionV1::Integer(binding) => result.push(binding.clone()),
             LexicalCallArgumentProjectionV1::Scalar(_) => {}
             LexicalCallArgumentProjectionV1::CallResult(inner) => result.extend(records(inner)),
+            _ => panic!("strict fixture contains no borrowed arguments"),
         }
     }
     result

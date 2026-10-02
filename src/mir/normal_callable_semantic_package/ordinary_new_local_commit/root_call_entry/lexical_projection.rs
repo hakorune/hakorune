@@ -16,6 +16,19 @@ pub(in crate::mir) enum LexicalCallArgumentProjectionV1 {
     Integer(Binding),
     Scalar(ExactLexicalReadV1),
     CallResult(Box<EmittedLexicalCallProjectionV1>),
+    BorrowedLiteral {
+        ordinal: u32,
+        site: crate::mir::resolved_semantics::SourceExprSiteV1,
+        formal: crate::mir::resolved_semantics::BindingRefV1,
+        binding: Binding,
+    },
+    BorrowedRead {
+        ordinal: u32,
+        site: crate::mir::resolved_semantics::SourceExprSiteV1,
+        formal: crate::mir::resolved_semantics::BindingRefV1,
+        read: ExactLexicalReadV1,
+        entry: Option<(u32, crate::mir::resolved_semantics::BindingRefV1, ValueId)>,
+    },
 }
 
 #[derive(Debug)]
@@ -39,6 +52,10 @@ impl PreparedLexicalCallProjectionV1 {
                 LexicalCallArgumentProjectionV1::Integer(binding) => {
                     require_recorded(bindings, binding)?;
                 }
+                LexicalCallArgumentProjectionV1::BorrowedLiteral { binding, .. } => {
+                    require_recorded(bindings, binding)?;
+                }
+                LexicalCallArgumentProjectionV1::BorrowedRead { .. } => {}
                 LexicalCallArgumentProjectionV1::Scalar(_) => {}
                 LexicalCallArgumentProjectionV1::CallResult(inner) => {
                     inner.validate_recorded(bindings)?;
@@ -63,6 +80,26 @@ impl PreparedLexicalCallProjectionV1 {
         owner: FunctionOwnerIdV1,
         row: &LexicalInstanceCallDispositionRowV1,
         source: &[LocalCallArgumentV1],
+    ) -> Result<MirCall, String> {
+        self.materialize_using(owner, row, source, None)
+    }
+
+    pub(in crate::mir) fn materialize_with_ledger(
+        &self,
+        owner: FunctionOwnerIdV1,
+        row: &LexicalInstanceCallDispositionRowV1,
+        source: &[LocalCallArgumentV1],
+        ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+    ) -> Result<MirCall, String> {
+        self.materialize_using(owner, row, source, Some(ledger))
+    }
+
+    fn materialize_using(
+        &self,
+        owner: FunctionOwnerIdV1,
+        row: &LexicalInstanceCallDispositionRowV1,
+        source: &[LocalCallArgumentV1],
+        ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
     ) -> Result<MirCall, String> {
         if row.call_site().owner() != owner
             || self.arguments.len() != source.len()
@@ -105,8 +142,22 @@ impl PreparedLexicalCallProjectionV1 {
                     && inner.site().site() == site
                     && emitted.row.call_site() == inner.site() =>
                 {
-                    emitted.value_for_source(owner, inner.arguments())?
+                    emitted.value_using(owner, inner.arguments(), ledger)?
                 }
+                (
+                    projection,
+                    LocalCallArgumentV1::BorrowedActual {
+                        ordinal,
+                        site: original,
+                    },
+                ) if original == site => borrowed_projection::value(
+                    projection,
+                    owner,
+                    row,
+                    *ordinal,
+                    original,
+                    ledger.ok_or_else(|| freeze("lexical-i64/borrowed-lender-missing"))?,
+                )?,
                 _ => return Err(freeze("lexical-i64/argument-projection-drift")),
             };
             values.push(value);
@@ -135,6 +186,8 @@ impl EmittedLexicalCallProjectionV1 {
                 || self.prepared.arguments.iter().any(|argument| {
                     matches!(argument, LexicalCallArgumentProjectionV1::Integer(original)
                         if original == binding)
+                        || matches!(argument, LexicalCallArgumentProjectionV1::BorrowedLiteral { binding: original, .. }
+                            if original == binding)
                 }))
         {
             return true;
@@ -174,7 +227,27 @@ impl EmittedLexicalCallProjectionV1 {
         owner: FunctionOwnerIdV1,
         source: &[LocalCallArgumentV1],
     ) -> Result<ValueId, String> {
-        let expected = self.prepared.materialize(owner, &self.row, source)?;
+        self.value_using(owner, source, None)
+    }
+
+    pub(in crate::mir) fn value_with_ledger(
+        &self,
+        owner: FunctionOwnerIdV1,
+        source: &[LocalCallArgumentV1],
+        ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+    ) -> Result<ValueId, String> {
+        self.value_using(owner, source, Some(ledger))
+    }
+
+    fn value_using(
+        &self,
+        owner: FunctionOwnerIdV1,
+        source: &[LocalCallArgumentV1],
+        ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+    ) -> Result<ValueId, String> {
+        let expected = self
+            .prepared
+            .materialize_using(owner, &self.row, source, ledger)?;
         let MirInstruction::Invoke {
             operation:
                 InvokeOperation::Call {
@@ -225,6 +298,13 @@ mod tests;
 #[cfg(test)]
 #[path = "local_binding_group_tests.rs"]
 mod local_group_tests;
+
+#[path = "borrowed_projection.rs"]
+mod borrowed_projection;
+
+#[cfg(test)]
+#[path = "borrowed_projection_tests.rs"]
+mod borrowed_projection_tests;
 
 #[cfg(test)]
 #[path = "finished_projection_tests.rs"]

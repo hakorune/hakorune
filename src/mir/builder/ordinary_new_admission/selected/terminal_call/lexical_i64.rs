@@ -146,7 +146,7 @@ fn emit_lexical_i64_call(
 
 /// Materialize only the source-issued receiver/ordered arguments. The caller
 /// owns its outer Invoke; nested calls retain their original affine rows here.
-fn prepare_arguments(
+pub(in crate::mir::builder) fn prepare_arguments(
     builder: &mut MirBuilder,
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
@@ -199,6 +199,98 @@ fn prepare_arguments(
                     inner_row,
                     bindings,
                 )?))
+            }
+            LocalCallArgumentV1::BorrowedActual {
+                ordinal,
+                site: original,
+            } => {
+                if original != site {
+                    return Err(freeze("lexical-i64/borrowed-site"));
+                }
+                let actuals = ledger
+                    .borrowed_call_actuals_v1(row)?
+                    .ok_or_else(|| freeze("lexical-i64/borrowed-actuals-missing"))?;
+                let actual = actuals
+                    .iter()
+                    .find(|actual| actual.ordinal == *ordinal && &actual.site == site)
+                    .ok_or_else(|| freeze("lexical-i64/borrowed-actual-missing"))?;
+                use crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1 as Source;
+                match &actual.source {
+                    Source::Integer(literal) => {
+                        let block = builder
+                            .function_state
+                            .current_block
+                            .ok_or_else(|| freeze("no-block"))?;
+                        let dst = crate::mir::builder::emission::constant::emit_integer(
+                            builder, *literal,
+                        )?;
+                        let binding = (
+                            block,
+                            MirInstruction::Const {
+                                dst,
+                                value: crate::mir::ConstValue::Integer(*literal),
+                            },
+                        );
+                        bindings.push(binding.clone());
+                        ArgumentProjection::BorrowedLiteral {
+                            ordinal: *ordinal,
+                            site: site.clone(),
+                            formal: actual.formal,
+                            binding,
+                        }
+                    }
+                    Source::Bool(literal) => {
+                        let block = builder
+                            .function_state
+                            .current_block
+                            .ok_or_else(|| freeze("no-block"))?;
+                        let dst =
+                            crate::mir::builder::emission::constant::emit_bool(builder, *literal)?;
+                        let binding = (
+                            block,
+                            MirInstruction::Const {
+                                dst,
+                                value: crate::mir::ConstValue::Bool(*literal),
+                            },
+                        );
+                        bindings.push(binding.clone());
+                        ArgumentProjection::BorrowedLiteral {
+                            ordinal: *ordinal,
+                            site: site.clone(),
+                            formal: actual.formal,
+                            binding,
+                        }
+                    }
+                    source => {
+                        let (binding, entry) = match source {
+                            Source::Scalar { binding, .. }
+                            | Source::TypedHome { binding, .. }
+                            | Source::EntryReceiver { binding, .. } => (*binding, None),
+                            Source::Forwarded { binding, formal } => {
+                                let rows = ledger.borrowed_ordinary_entry_values_v1(owner)?;
+                                let entry = rows
+                                    .iter()
+                                    .find(|(_, root, _)| root == formal)
+                                    .copied()
+                                    .ok_or_else(|| freeze("lexical-i64/forwarded-entry-missing"))?;
+                                (*binding, Some(entry))
+                            }
+                            _ => return Err(freeze("lexical-i64/borrowed-source")),
+                        };
+                        let read = state
+                            .take_exact_lexical_read(owner, site.node(), binding)
+                            .map_err(|error| {
+                                format!("[freeze:contract][lexical-i64/borrowed-read/{error:?}]")
+                            })?;
+                        ArgumentProjection::BorrowedRead {
+                            ordinal: *ordinal,
+                            site: site.clone(),
+                            formal: actual.formal,
+                            read,
+                            entry,
+                        }
+                    }
+                }
             }
             other => {
                 return Err(format!(

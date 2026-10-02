@@ -197,6 +197,104 @@ pub(in crate::mir) fn artifact_fixture() -> (
     artifact_fixture_checked(false, false)
 }
 
+pub(in crate::mir) fn borrowed_fixture(
+    package: crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1,
+    exit: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+) -> (
+    PreparedLexicalCallProjectionV1,
+    LexicalInstanceCallDispositionRowV1,
+    Box<[LocalCallArgumentV1]>,
+    Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+    Vec<(BasicBlockId, MirInstruction)>,
+) {
+    let (mut state, locals) = package
+        .batch()
+        .declarations()
+        .find_map(|declaration| {
+            package
+                .batch()
+                .with_lowering_input(declaration.batch_slot(), |input| {
+                    input
+                        .function()
+                        .method_calls()
+                        .find(|(_, call)| call.selector() == "probe")
+                        .map(|_| {
+                            let locals = input
+                                .function()
+                                .expression_source()
+                                .initializers()
+                                .filter_map(|initializer| {
+                                    let SourceBindingSiteV1::Local { statement, ordinal } =
+                                        initializer.declaration_site()
+                                    else {
+                                        return None;
+                                    };
+                                    Some((
+                                        initializer.binding(),
+                                        statement.node().clone(),
+                                        *ordinal,
+                                    ))
+                                })
+                                .collect::<Vec<_>>();
+                            (
+                                CallableSemanticLoweringState::from_exact_source(input).unwrap(),
+                                locals,
+                            )
+                        })
+                })
+                .unwrap()
+        })
+        .unwrap();
+    let owner = state.owner();
+    let mut context = crate::mir::builder::CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .map_err(|(_, error)| error)
+        .unwrap()
+        .commit();
+    let ledger = installed.ordinary_new_claim_ledger();
+    let source = ledger
+        .borrowed_terminal_arguments_v1(owner, exit)
+        .unwrap()
+        .unwrap();
+    let row = ledger
+        .take_borrowed_lexical_call_for_return_v1(owner, exit)
+        .unwrap()
+        .unwrap();
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("main".into());
+    let entry = PreparedCallableEntryValuesV1::static_function(&builder, 0).unwrap();
+    state.install_entry_values(&entry).unwrap();
+    for (i, (binding, statement, ordinal)) in locals.iter().enumerate() {
+        state
+            .install_single_local_for_test(
+                statement,
+                *binding,
+                *ordinal,
+                ValueId(76 + i as u32 * 2),
+                ValueId(77 + i as u32 * 2),
+            )
+            .unwrap();
+    }
+    let receiver = state
+        .take_exact_lexical_read(owner, row.receiver_site().node(), row.receiver_binding())
+        .unwrap();
+    let mut bindings = Vec::new();
+    let prepared =
+        super::ordinary_new_admission::selected::terminal_call::prepare_lexical_arguments(
+            &mut builder,
+            &mut state,
+            &ledger,
+            owner,
+            receiver,
+            &source,
+            &row,
+            &mut bindings,
+        )
+        .unwrap();
+    (prepared, row, source, ledger, bindings)
+}
+
 pub(in crate::mir) fn assert_artifact_reseal_rejected() {
     let _ = artifact_fixture_checked(true, false);
 }

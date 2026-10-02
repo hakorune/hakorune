@@ -987,14 +987,13 @@ must match uniquely. Return retains PreparedCall and original Lexical Taken row;
 shared preparation never emits its outer Invoke twice. Return/BorrowedActual/
 tagged ABI/full use closure/C/Normal-Fault EXE remain owed.
 
-Finished-coordinate implementation scope: retain the original ledger privately
-and root/child checked projection in existing states. Loan only an exact original
-node/site/block/instruction, then require a unique producer in the held finished
-function. Root-key drift rejects before source movement. Tests use actual root
-and child source after simplify; they do not claim a source producer is contracted.
-Borrowed products stay read-only; Return/tagged ABI/C/EXE closure remains owed.
-Focused2/local4/source10/crosswalk7/co-seal164/terminal1/boundary4 PASS.
-Inventory8445 adds passing2 only. Full verifier exit1,8262/127/56: original126
-plus known nullable receiver flake; no failure widening/retry. Pointer/diff/new
-source format PASS; untouched brand_catalog_tests961 scope-guard debt retained.
-Original borrowing/coordinate transport only; no tagged ABI or S0 closure.
+Finished-coordinate transport: `480d357c85` retains original ledger and checked
+owner maps. Focused/baseline/guard receipts and non-claims are in that commit.
+Borrowed projection Decision (same S0, read-only worker): add original ordinal/
+site/formal and literal/exact-read/entry physical evidence to the existing tree.
+Corroboration borrows original Taken-row actuals again; no source row clone.
+Forwarding demands original entry correspondence and Copy proof for a distinct
+alias ValueId. Production activation stays closed until Return/carrier/full use/
+writer/C/Normal-Fault closure; strict emission cannot authorize borrowed payload.
+Focused tests cover source Integer/Bool/scalar/typed Home and proof substitution.
+Entry receiver, forwarding Copy and tagged execution remain owed. Validation pending.

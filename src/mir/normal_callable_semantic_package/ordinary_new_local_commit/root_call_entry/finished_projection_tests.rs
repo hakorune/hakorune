@@ -16,6 +16,7 @@ fn producers<'a>(
             }
             LexicalCallArgumentProjectionV1::CallResult(inner) => producers(inner, result),
             LexicalCallArgumentProjectionV1::Scalar(_) => {}
+            _ => panic!("strict fixture contains no borrowed arguments"),
         }
     }
 }

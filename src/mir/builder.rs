@@ -675,3 +675,6 @@ pub(in crate::mir) use lexical_call_projection_test_fixture::artifact_fixture as
 pub(in crate::mir) use lexical_call_projection_test_fixture::assert_artifact_reseal_rejected as assert_lexical_call_projection_reseal_rejected;
 #[cfg(test)]
 pub(in crate::mir) use lexical_call_projection_test_fixture::finished_artifact_fixture as lexical_call_projection_finished_artifact_fixture;
+
+#[cfg(test)]
+pub(in crate::mir) use lexical_call_projection_test_fixture::borrowed_fixture as lexical_call_projection_borrowed_fixture;

@@ -167,7 +167,9 @@ pub(super) use borrowed_formal_actuals::{
     prepare_borrowed_call_actuals_v1, project_pending_borrowed_i64_arguments_v1,
     reject_borrowed_actuals_for_owner_v1, stage_borrowed_call_actuals_v1,
     PendingBorrowedFormalActualsV1,
-    PreparedBorrowedFormalActualV1,
+};
+pub(in crate::mir) use borrowed_formal_actuals::{
+    BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,
 };
 pub(super) use borrowed_formal_source::{
     prepare_borrowed_formal_ingress_v1, PreparedBorrowedFormalIngressV1,

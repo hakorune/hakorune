@@ -78,6 +78,9 @@ mod lexical_instance_call;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
 pub(crate) use lexical_instance_call::LexicalInstanceCallDispositionRowV1;
+pub(in crate::mir) use lexical_instance_call::{
+    BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,
+};
 #[path = "ordinary_new_receiver_call_observation.rs"]
 mod receiver_call_observation;
 pub(crate) use receiver_call_observation::ReceiverCallClassObservationV1;
