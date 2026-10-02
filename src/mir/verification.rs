@@ -66,7 +66,11 @@ impl MirVerifier {
     /// Verify an entire MIR module under the sealed-corridor call-edge
     /// policy — the cataloged Integer-domain argument rule applies.
     pub fn verify_module(&mut self, module: &MirModule) -> Result<(), Vec<VerificationError>> {
-        self.verify_module_with_call_edge_policy(module, invoke::CatalogedCallEdgePolicyV1::Sealed)
+        self.verify_module_with_call_edge_policy(
+            module,
+            invoke::CatalogedCallEdgePolicyV1::Sealed,
+            None,
+        )
     }
 
     /// Verify the module as a publication document: the same canonical
@@ -80,6 +84,20 @@ impl MirVerifier {
         self.verify_module_with_call_edge_policy(
             module,
             invoke::CatalogedCallEdgePolicyV1::Document,
+            None,
+        )
+    }
+
+    /// Final source-bound gate; the pretransform report remains unchanged.
+    pub(crate) fn verify_module_with_finalized_root(
+        &mut self,
+        module: &MirModule,
+        root: Option<&crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
+    ) -> Result<(), Vec<VerificationError>> {
+        self.verify_module_with_call_edge_policy(
+            module,
+            invoke::CatalogedCallEdgePolicyV1::Sealed,
+            root,
         )
     }
 
@@ -89,11 +107,15 @@ impl MirVerifier {
         &mut self,
         module: &MirModule,
         edge_policy: invoke::CatalogedCallEdgePolicyV1,
+        root: Option<&crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
     ) -> Result<(), Vec<VerificationError>> {
         self.errors.clear();
 
         // Canonical Fault control is not a compatibility/dev verification lane.
-        collect_errors!(self.errors, invoke::check_module(module, edge_policy));
+        collect_errors!(
+            self.errors,
+            invoke::check_module_with_source(module, edge_policy, root)
+        );
         for function in module.functions.values() {
             collect_errors!(
                 self.errors,

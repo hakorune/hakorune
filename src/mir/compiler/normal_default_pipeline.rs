@@ -599,7 +599,10 @@ impl MirCompiler {
                         );
                         }
                         super::MirVerifier::new_strict()
-                            .verify_module(&result.module)
+                            .verify_module_with_finalized_root(
+                                &result.module,
+                                retained_root.as_ref(),
+                            )
                             .map_err(|errors| {
                                 errors
                                     .iter()
@@ -610,7 +613,10 @@ impl MirCompiler {
                     }
                     PublishedStaticMethodRouteV1::CanonicalTyped => {
                         super::MirVerifier::new_strict()
-                            .verify_module(&result.module)
+                            .verify_module_with_finalized_root(
+                                &result.module,
+                                retained_root.as_ref(),
+                            )
                             .map_err(|errors| {
                                 errors
                                     .iter()
@@ -708,8 +714,8 @@ impl MirCompiler {
                 // enforce (CATALOGED-CALL-EDGE-DOMAIN-D19).  Every other arm —
                 // arity drift, structural/lifecycle checks — is covered by the
                 // strict document verify here.
-                let document_verification = super::MirVerifier::new_strict()
-                    .verify_document_module(&result.module);
+                let document_verification =
+                    super::MirVerifier::new_strict().verify_document_module(&result.module);
                 document_verification.as_ref().map_err(|errors| {
                     errors
                         .iter()

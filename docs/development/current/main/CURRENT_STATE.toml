@@ -1,7 +1,7 @@
 date = "2026-10-01"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-FORMAL-INGRESS-S0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -17,25 +17,21 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-mimalloc-opaque-formal-ingress-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md"
 latest_card_summary = """
-Opaque ordinary-formal ingress D0 accepted: one existing MIR ValueId owns a
-borrowed kind/payload carrier, expanded by the final lifecycle ABI owner.
-Source OpaqueHandle and exact caller/formal identity remain authoritative.
-Planned Ordinary scope installs selected carriers; no global S6C/static-I64
-reinterpretation. Full selected-use closure forbids unproved raw payload uses.
-Closed immediate I64/Bool/typed-object domain and forwarding are BorrowForCall,
-with no callee End; host/boxed domain needs its own producer/lifetime proof.
-Original entry/alias/Call/mandatory-Copy loans join the held physical Boundary.
-Incoming/use consumer now checks exact Forwarded positions and module/published
-use/definition coverage; evidence is original-source plus synthetic instructions.
-Projection-only mutation checks pass; broader continuation positives remain owed.
-Next: complete publication evidence, then writer/C and Normal/Fault acceptance.
-Production emission still stops at borrowed-lender-missing; no carrier activation.
-Retained ArraySet,
-ordered Add/destination, mixed roots and original app EXE remain incomplete.
+OPAQUE-FORMAL-INGRESS-S0 landed: original source loans prove borrowed
+kind/payload carriers end to end — selected entry/formal/actual/Call slots,
+finalized_root source-bound final strict gate (invoke_borrowed_calls;
+pretransform report unchanged), production cutover via
+materialize_with_ledger/value_with_ledger, and the caller-zero
+invoke::check_module wrapper retired. Receipts: publication tests 2/2 with
+carrier-erasure/producer-drift negatives; all 30 source-issued JSONs execute
+unchanged through the C driver and real kernel (Normal rc7; callee-Birth
+Fault rc70, scratch reclaim once); baseline KNOWN BASELINE 8325/126/56.
+Open followups: Loop mapping, const_null gap, typed-local Return handoff,
+Retained ArraySet, ordered Add/destination, mixed roots, original app EXE.
 """
-next_design_card = "After ingress S0: OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0 in existing operation owner, then task 4 ArraySet/ordered Add/destination; usize range stays at write."
+next_design_card = "OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0 in existing operation owner, then task 4 ArraySet/ordered Add/destination; usize range stays at write."
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-FORMAL-INGRESS-S0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -51,7 +47,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-03: OPAQUE-FORMAL-INGRESS-S0 landed — original source loans prove borrowed kind/payload ingress end to end; source-bound final strict gate (invoke_borrowed_calls) joins finalized root handoff, emitters cut over to materialize_with_ledger, invoke::check_module retired. Pins: publication 2/2 + mutation negatives, 30 source-issued JSONs execute unchanged (Normal rc7 / callee-Birth Fault rc70), KNOWN BASELINE 8325/126/56. Next: OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0.",
   "2026-10-01: OPAQUE-SCALAR-POSITION-D0 integrated — one read-only worker verified declaration-backed scalar field projection versus opaque-parameter borrowing; accepted bounded pure scalar expression profile, exact existing field-read owner, no permissive call/String roots. No dynamic evidence or deletion claim. Next: prerequisite COSEAL-SIZE-T0, then SCALAR-EXPRESSION-POSITION-S0.",
-  "2026-10-01: HANDLE-FIELD-READ-S0 landed — local_read_field proves `local x = recv.field` on the receiver's own class authority (claim-local new candidate / entry-loan me root / prior FieldAlias class) and seals Scalar or Alias(class); StoredLocal::FieldAlias is borrowed observable-None storage (no Home join/teardown/movable arg); staged LocalFieldRead rows feed the exact-site ObjectFieldGet emit typed Integer or Box(class). Pins: claim 7/7 + emit 2/2; chained alias read bases on the alias Copy. mimalloc-lite frontier stays pinned emission-binding-drift. Next: OPAQUE-SCALAR-POSITION-D0.",
   "2026-10-01: CALL-RESULT-ARG-POSITION-S0 landed — LocalCallArgumentV1::CallResult(Box<ArgumentCallObservationV1>) seals a proven-i64 inner lexical call in direct argument position (inner site + prior Homes + recursive arg rows via the shared lexical_i64_result_call predicate); emit_lexical_i64_call recurses — inner disposition taken once, inner Invoke+projection fold into the outer record_root_local_call_bindings group, inner result feeds the outer argument. Emit pin: two Invoke{SameModuleInstance, I64}, give on allocate's normal-landing edge. mimalloc-lite frontier stays pinned emission-binding-drift. Next: HANDLE-FIELD-READ-D0.",
   ]

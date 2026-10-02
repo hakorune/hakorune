@@ -604,5 +604,9 @@ mod order_tests;
 mod borrowed_carrier_json_tests;
 
 #[cfg(test)]
+#[path = "borrowed_source_publication_tests.rs"]
+mod borrowed_source_publication_tests;
+
+#[cfg(test)]
 #[path = "borrowed_use_projection_tests.rs"]
 mod borrowed_use_projection_tests;

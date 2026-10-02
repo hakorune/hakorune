@@ -4,6 +4,8 @@
 use super::{cfg, dom, ssa, utils};
 use crate::mir::instruction::{InvokeOperation, MapInvokeOperation};
 
+#[path = "invoke_borrowed_calls.rs"]
+mod borrowed_calls;
 #[path = "invoke_map.rs"]
 mod map;
 use crate::mir::verification_types::VerificationError;
@@ -22,14 +24,26 @@ pub(super) enum CatalogedCallEdgePolicyV1 {
 
 /// Declaration references survive publication; a backend must never recover
 /// a missing field from a diagnostic name or the receiver's physical origin.
-pub(super) fn check_module(
+pub(super) fn check_module_with_source(
     module: &crate::mir::MirModule,
     edge_policy: CatalogedCallEdgePolicyV1,
+    root: Option<&crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>,
 ) -> Result<(), Vec<VerificationError>> {
+    let mut loans = borrowed_calls::original_call_slots(module, root).map_err(|reason| {
+        vec![error(
+            module
+                .functions
+                .values()
+                .next()
+                .map(|f| f.entry_block)
+                .unwrap_or(crate::mir::BasicBlockId(0)),
+            &reason,
+        )]
+    })?;
     let mut errors = Vec::new();
     for function in module.functions.values() {
         for (id, block) in &function.blocks {
-            for instruction in block.all_instructions() {
+            for (index, instruction) in block.all_instructions().enumerate() {
                 if let MirInstruction::ObjectFieldGet { field, .. } = instruction {
                     if !module
                         .canonical_field_definition(*field)
@@ -50,7 +64,17 @@ pub(super) fn check_module(
                     _ => None,
                 };
                 if let Some(call) = call {
-                    check_call_edge(module, function, *id, call, edge_policy, &mut errors);
+                    let slots = loans.remove(&(function.signature.name.clone(), *id, index));
+                    check_call_edge(
+                        module,
+                        function,
+                        *id,
+                        call,
+                        edge_policy,
+                        slots.as_ref(),
+                        root.is_some(),
+                        &mut errors,
+                    );
                 }
                 if let MirInstruction::Invoke { operation, .. } = instruction {
                     match operation {
@@ -189,6 +213,12 @@ pub(super) fn check_module(
                 }
             }
         }
+    }
+    if !loans.is_empty() {
+        errors.push(error(
+            crate::mir::BasicBlockId(0),
+            "borrowed-source-residual",
+        ));
     }
     if errors.is_empty() {
         Ok(())
@@ -477,6 +507,8 @@ fn check_call_edge(
     block: BasicBlockId,
     call: &crate::mir::definitions::MirCall,
     edge_policy: CatalogedCallEdgePolicyV1,
+    borrowed_slots: Option<&std::collections::BTreeSet<usize>>,
+    source_bound: bool,
     errors: &mut Vec<VerificationError>,
 ) {
     let Some((callee, receiver_params)) = cataloged_call_target(module, call) else {
@@ -501,6 +533,20 @@ fn check_call_edge(
         .zip(params.iter().skip(receiver_params))
         .enumerate()
     {
+        let tagged_formal = callee.metadata.physical_param_carriers.as_deref()
+            .and_then(|rows| rows.get(index + receiver_params))
+            == Some(&crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue);
+        if source_bound
+            && tagged_formal != borrowed_slots.is_some_and(|slots| slots.contains(&index))
+        {
+            errors.push(error(block, "borrowed-source-call-coverage"));
+            return;
+        }
+        if borrowed_slots.is_some_and(|slots| slots.contains(&index)) {
+            // Only the exact original entry/Call loan admits a tagged actual.
+            // Full producer/use and physical publication checks remain mandatory.
+            continue;
+        }
         let named_map = matches!(parameter, crate::mir::MirType::Box(name) if name == "MapBox");
         // Where signature-aligned carriers were issued, either the
         // `CheckedMapStorage` carrier or the `Box("MapBox")` name asserting a

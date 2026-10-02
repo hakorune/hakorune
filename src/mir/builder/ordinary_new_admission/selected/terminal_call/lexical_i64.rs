@@ -51,7 +51,7 @@ pub(in crate::mir::builder) fn emit_local_lexical_i64(
     // nested argument-position calls fold their emitted instructions
     // into this one group (they have no destination binding of their
     // own).
-    let result = emitted.value_for_source(owner, relation.arguments())?;
+    let result = emitted.value_with_ledger(owner, relation.arguments(), ledger)?;
     ledger.record_root_lexical_call_bindings(owner, owned_site, bindings, emitted)?;
     Ok(result)
 }
@@ -111,7 +111,7 @@ fn emit_lexical_i64_call(
         &row,
         bindings,
     )?;
-    let call = prepared.materialize(owner, &row, sealed_arguments)?;
+    let call = prepared.materialize_with_ledger(owner, &row, sealed_arguments, ledger)?;
     let origin = builder
         .function_state
         .current_block

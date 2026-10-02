@@ -27,7 +27,8 @@ uint32_t wrap_store(void* f,uint32_t p,uint64_t s,int64_t h,int64_t t,size_t slo
   stores++;
   if (!strcmp(mode, "store-invalid")) return 2;
   if ((!strcmp(mode, "fault-first") && stores == 1) ||
-      (!strcmp(mode, "fault-second") && stores == 2) || !strcmp(mode, "report-failure"))
+      (!strcmp(mode, "fault-second") && stores == 2) || !strcmp(mode, "report-failure") ||
+      (getenv("V4_PROBE_FAULT_AT") && stores == strtoul(getenv("V4_PROBE_FAULT_AT"), NULL, 10)))
     return nyrt_fault_record_static_v1(f, 101, s, v, 0);
   return real_store(f,p,s,h,t,slot,v);
 }

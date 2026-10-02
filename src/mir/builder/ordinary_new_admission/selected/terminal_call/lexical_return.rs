@@ -26,10 +26,9 @@ pub(in crate::mir::builder) fn emit(
         &row,
         &mut arguments,
     )?;
-    // Keep the existing strict materialization boundary until Ordinary carrier,
-    // full incoming/use coverage and the final writer/C contract are installed.
-    // A lender-backed physical proof alone cannot open a payload-only Invoke.
-    let call = prepared.materialize(owner, &row, &source)?;
+    // The original source lender supplies the selected actual/formal relation;
+    // final incoming/use verification and writer/C preserve both ABI lanes.
+    let call = prepared.materialize_with_ledger(owner, &row, &source, ledger)?;
     let value = builder.next_value_id();
     builder
         .function_state
