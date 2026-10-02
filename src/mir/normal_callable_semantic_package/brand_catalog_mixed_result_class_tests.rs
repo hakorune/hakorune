@@ -720,20 +720,16 @@ static box Main {
             .completion_for_owner(site.owner())
             .and_then(|completion| completion.cleanup().root_flow())
             .unwrap_or_else(|| panic!("{site:?} caller has a root flow"));
-        let local = flow
-            .local_calls()
-            .iter()
-            .find(|call| call.site() == site);
+        let local = flow.local_calls().iter().find(|call| call.site() == site);
         if expected_nullable {
-            let local =
-                local.unwrap_or_else(|| panic!("{site:?} mints a local-call flow row"));
+            let local = local.unwrap_or_else(|| panic!("{site:?} mints a local-call flow row"));
             assert_eq!(
                 local.result(),
                 crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable,
                 "{site:?} flow row class mirrors the sealed observation class"
             );
             assert_eq!(
-                local.destination(),
+                local.local_binding().expect("local destination").1,
                 row.destination(),
                 "the flow row keeps the exact declared destination"
             );

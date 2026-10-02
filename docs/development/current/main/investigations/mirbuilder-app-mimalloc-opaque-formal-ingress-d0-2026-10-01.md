@@ -843,3 +843,29 @@ without waiver. This closes the callback/shared-sealer local+nested connection,
 not the whole ingress S0 or physical activation.
 Local/nested connection is implemented; discard/return and tagged physical/C
 Normal/Fault acceptance remain required within the original whole S0 scope.
+
+
+Discard source/continuation component receipt (2026-10-02): the same
+LocalCallObservation now owns LocalBinding { declaration, binding } or Discard.
+The exact LocatedStmt MethodCall issuer demands the original borrowed callback
+once; strict-only statement roots stay unselected, and selected Err is terminal.
+Scanner retains prior Homes and branch-local path_calls, without installing a
+local or adding a Home. Owned Map/Handle/Nullable and direct-local consumers
+explicitly require LocalBinding; their receiving-binding contracts are unchanged.
+Read-only worker found no ownership/site defect and required per-branch exits:
+new 4/4 tests prove actual-slice identity, one-shot take, no destination/Home,
+strict exclusion, unsupported-domain rejection and distinct per-exit call groups.
+Borrowed regression 119 PASS/4 ignored; co-seal 140/140 PASS. Broad initial
+`discard_tests` filter also ran two existing DynamicCarrierMismatch baseline reds.
+Named full lib and captured unchanged verifier both report 8236/127/56; their
+only extra failure is the pre-existing nullable receiver serialization flake
+(ordinary-membership-drift), with no missing baseline failure. Verifier exit 1
+is not a green receipt; failure inventory/hash remain unchanged. Only four
+verified passing new names update inventory to 8419, expected 8237/126/56.
+Pointer/diff checks PASS. Qualified scope guard remains red at untouched
+brand_catalog_tests.rs=961. Existing mixed-result tests receive only accessor
+adaptation (905 -> 901); no tests/acceptance removed or new scope added there.
+map.rs=790 and direct_call_lifecycle.rs=797 require responsibility split before
+further growth; source flow=663, scan=669. Return Lexical root-entry handoff,
+real tagged physical/C consumers, single Invoke/group and Normal/Fault EXE
+acceptance are still owed. This receipt does not close ingress S0 or the goal.

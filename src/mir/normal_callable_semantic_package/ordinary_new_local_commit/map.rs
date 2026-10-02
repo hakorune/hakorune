@@ -142,7 +142,8 @@ impl OrdinaryNewClaimLedgerV1 {
     /// A map-result local call is also a map source: its site is the call
     /// expression and its destination is the receiving local binding.
     pub(crate) fn map_call_source_binding(&self, site: &OwnedExprSiteV1) -> Option<BindingRefV1> {
-        self.map_call_source(site).map(|call| call.destination())
+        self.map_call_source(site)
+            .and_then(|call| call.local_binding().map(|(_, binding)| binding))
     }
     pub(crate) fn map_flow(&self, site: &OwnedExprSiteV1) -> Result<&MapHomeFlow, String> {
         let completion = self
@@ -322,7 +323,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let call = self
             .map_call_source(site)
             .ok_or_else(|| freeze("map-call-source-missing"))?;
-        if !matches!(call.declaration(), SourceBindingSiteV1::Local { .. }) {
+        let (declaration, binding) = call
+            .local_binding()
+            .ok_or_else(|| freeze("map-call-destination-drift"))?;
+        if !matches!(declaration, SourceBindingSiteV1::Local { .. }) {
             return Err(freeze("map-call-declaration-drift"));
         }
         if !call.prior_homes().is_empty() {
@@ -336,8 +340,8 @@ impl OrdinaryNewClaimLedgerV1 {
             site.clone(),
             LocalCommitV1::Map(MapLocalProgress {
                 owner: site.owner(),
-                binding: Some(call.destination()),
-                declaration: Some(call.declaration().clone()),
+                binding: Some(binding),
+                declaration: Some(declaration.clone()),
                 progress: MapProgress::Emitting,
             }),
         );
@@ -494,8 +498,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .outer_after_installs(installed)
             .ok_or_else(|| freeze("map-prefix-range"))?
         {
-            let row = installed_home(&rows, binding)
-                .map_err(|_| freeze("map-outer-home-missing"))?;
+            let row =
+                installed_home(&rows, binding).map_err(|_| freeze("map-outer-home-missing"))?;
             operations.extend(row.end_operations());
         }
         Ok(operations)
@@ -721,7 +725,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(LocalCommitV1::Map(row)) = rows.get(site) else {
             return Err(freeze("map-progress-missing"));
         };
-        if row.binding != Some(call.destination()) || row.local().is_none() {
+        let (_, binding) = call
+            .local_binding()
+            .ok_or_else(|| freeze("map-call-destination-drift"))?;
+        if row.binding != Some(binding) || row.local().is_none() {
             return Err(freeze("map-local-incomplete"));
         }
         let MapProgress::Emitted {

@@ -942,4 +942,8 @@ Borrowed ingress pending actuals keep the opaque proofs and the full source-orde
 argument projection in one call-owned value. Flow references opaque slots by
 original ordinal/site; it does not own their domain. Installed entry and Taken
 lender reject missing or moved projection references before lending that same
-opaque proof. This is not tagged ABI activation or four-continuation completion.
+opaque proof. Exact borrowed-I64 statement calls retain that same call row with
+an explicit Discard destination: no local or Home is installed. Strict-only
+statement calls remain outside this profile. Map/Handle/Nullable and direct-local
+consumers require LocalBinding; branch exits retain only their own call sites.
+This is not tagged ABI activation or four-continuation completion.

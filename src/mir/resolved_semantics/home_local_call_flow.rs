@@ -116,13 +116,22 @@ pub(crate) enum LocalCallResultClassV1 {
     Nullable,
 }
 
+/// Exact source destination; discard never installs a binding or owns a Home.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum LocalCallDestinationV1 {
+    LocalBinding {
+        declaration: SourceBindingSiteV1,
+        binding: BindingRefV1,
+    },
+    Discard,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct LocalCallObservationV1 {
     owner: FunctionOwnerIdV1,
     statement: SourceStmtSiteV1,
     site: OwnedExprSiteV1,
-    declaration: SourceBindingSiteV1,
-    destination: BindingRefV1,
+    destination: LocalCallDestinationV1,
     prior_homes: Box<[BindingRefV1]>,
     arguments: Box<[LocalCallArgumentV1]>,
     result: LocalCallResultClassV1,
@@ -143,8 +152,10 @@ impl LocalCallObservationV1 {
             owner,
             statement,
             site,
-            declaration,
-            destination,
+            destination: LocalCallDestinationV1::LocalBinding {
+                declaration,
+                binding: destination,
+            },
             prior_homes,
             arguments,
             result,
@@ -163,14 +174,15 @@ impl LocalCallObservationV1 {
         &self.site
     }
 
-    /// The receiving binding's own declaration site; the physical commit
-    /// row keys its local-statement install on this exact site.
-    pub(crate) const fn declaration(&self) -> &SourceBindingSiteV1 {
-        &self.declaration
-    }
-
-    pub(crate) const fn destination(&self) -> BindingRefV1 {
-        self.destination
+    /// Owned-result consumers must explicitly require a receiving local.
+    pub(crate) fn local_binding(&self) -> Option<(&SourceBindingSiteV1, BindingRefV1)> {
+        match &self.destination {
+            LocalCallDestinationV1::LocalBinding {
+                declaration,
+                binding,
+            } => Some((declaration, *binding)),
+            LocalCallDestinationV1::Discard => None,
+        }
     }
 
     pub(crate) fn prior_homes(&self) -> &[BindingRefV1] {
@@ -334,6 +346,70 @@ pub(crate) fn issue_lexical_i64_local_call<E>(
         Option<&[BorrowedCallActualCandidateV1]>,
     ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
 ) -> Result<Option<LocalCallObservationV1>, E> {
+    issue_lexical_i64_call(
+        input,
+        statement,
+        site,
+        LocalCallDestinationV1::LocalBinding {
+            declaration,
+            binding: destination,
+        },
+        prior_homes,
+        locals,
+        true,
+        is_selected_call,
+        borrowed_arguments,
+    )
+}
+
+/// Only an exact statement call with selected borrowed-I64 evidence can discard.
+pub(crate) fn issue_lexical_i64_discard_call<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    prior_homes: &[BindingRefV1],
+    locals: &PrefixLocalFlow<'_>,
+    is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    borrowed_arguments: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        Option<&[BorrowedCallActualCandidateV1]>,
+    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
+) -> Result<Option<LocalCallObservationV1>, E> {
+    if statement.owner() != input.owner()
+        || !matches!(statement.node(), crate::ast::ASTNode::MethodCall { .. })
+    {
+        return Ok(None);
+    }
+    let site = OwnedExprSiteV1::new(
+        input.owner(),
+        SourceExprSiteV1::from_node(statement.site().node().clone()),
+    );
+    issue_lexical_i64_call(
+        input,
+        statement.site(),
+        &site,
+        LocalCallDestinationV1::Discard,
+        prior_homes,
+        locals,
+        false,
+        is_selected_call,
+        borrowed_arguments,
+    )
+}
+
+fn issue_lexical_i64_call<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &SourceStmtSiteV1,
+    site: &OwnedExprSiteV1,
+    destination: LocalCallDestinationV1,
+    prior_homes: &[BindingRefV1],
+    locals: &PrefixLocalFlow<'_>,
+    allow_strict: bool,
+    is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    borrowed_arguments: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        Option<&[BorrowedCallActualCandidateV1]>,
+    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
+) -> Result<Option<LocalCallObservationV1>, E> {
     let Some((observed_site, call)) = input
         .function()
         .method_calls()
@@ -355,22 +431,22 @@ pub(crate) fn issue_lexical_i64_local_call<E>(
         locals,
         call,
         prior_homes,
+        allow_strict,
         is_selected_call,
         borrowed_arguments,
     )?
     else {
         return Ok(None);
     };
-    Ok(Some(LocalCallObservationV1::issue(
-        input.owner(),
-        statement.clone(),
-        site.clone(),
-        declaration,
+    Ok(Some(LocalCallObservationV1 {
+        owner: input.owner(),
+        statement: statement.clone(),
+        site: site.clone(),
         destination,
-        prior_homes.iter().copied().collect(),
-        arguments.into_boxed_slice(),
-        LocalCallResultClassV1::I64,
-    )))
+        prior_homes: prior_homes.iter().copied().collect(),
+        arguments: arguments.into_boxed_slice(),
+        result: LocalCallResultClassV1::I64,
+    }))
 }
 
 /// Demand the selected borrowed projection first, without re-observing locals.
@@ -382,6 +458,7 @@ fn seal_i64_call_arguments<E>(
     locals: &PrefixLocalFlow<'_>,
     call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
     prior_homes: &[BindingRefV1],
+    allow_strict: bool,
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -392,7 +469,7 @@ fn seal_i64_call_arguments<E>(
     if let Some(arguments) = borrowed_arguments(&owned, None)? {
         return Ok(Some(arguments.into_vec()));
     }
-    if !is_selected_call(&owned)? {
+    if !allow_strict || !is_selected_call(&owned)? {
         return Ok(None);
     }
     let mut arguments = Vec::with_capacity(call.arguments().len());
@@ -460,6 +537,7 @@ fn seal_argument_call<E>(
         locals,
         call,
         prior_homes,
+        true,
         is_selected_call,
         borrowed_arguments,
     )?

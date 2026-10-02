@@ -195,6 +195,20 @@ pub(super) fn scan_statement_flow<'a, E>(
             ..
         } = statement.node()
         else {
+            if matches!(statement.node(), ASTNode::MethodCall { .. }) {
+                if let Some(call) = local_call_flow::issue_lexical_i64_discard_call(
+                    input,
+                    &statement,
+                    homes,
+                    locals,
+                    local_lexical_i64_call,
+                    borrowed_actuals,
+                )? {
+                    path_calls.insert(call.site().clone());
+                    local_calls.push(call);
+                    continue;
+                }
+            }
             // A self-rooted `me.<field> = <rhs>` write with a Home-neutral
             // RHS is covered without ledger rows — the raw lane already
             // owns the plain `FieldSet` emission.

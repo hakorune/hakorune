@@ -124,8 +124,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn receiver_call_observation(
         &self,
         site: &OwnedExprSiteV1,
-    ) -> Option<&crate::mir::normal_callable_semantic_package::ReceiverCallClassObservationV1>
-    {
+    ) -> Option<&crate::mir::normal_callable_semantic_package::ReceiverCallClassObservationV1> {
         self.receiver_call_observations.get(site)
     }
 
@@ -165,7 +164,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let call = self
             .nullable_call_source(site)
             .ok_or_else(|| freeze("nullable-call-source-missing"))?;
-        if !matches!(call.declaration(), SourceBindingSiteV1::Local { .. }) {
+        let (declaration, binding) = call
+            .local_binding()
+            .ok_or_else(|| freeze("nullable-call-destination-drift"))?;
+        if !matches!(declaration, SourceBindingSiteV1::Local { .. }) {
             return Err(freeze("nullable-call-declaration-drift"));
         }
         let class = match self.callable_result_classes.get(callee) {
@@ -190,9 +192,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .filter(|claim| claim.class() == class.as_ref())
                 .map(|claim| claim.object())
                 .chain(commits.values().filter_map(|row| match row {
-                    LocalCommitV1::Result(result)
-                        if result.box_source.name() == class.as_ref() =>
-                    {
+                    LocalCommitV1::Result(result) if result.box_source.name() == class.as_ref() => {
                         Some(result.object())
                     }
                     _ => None,
@@ -213,18 +213,15 @@ impl OrdinaryNewClaimLedgerV1 {
             site.clone(),
             LocalCommitV1::CallReceived(CallReceivedCommitV1 {
                 owner: site.owner(),
-                binding: call.destination(),
-                declaration: call.declaration().clone(),
+                binding,
+                declaration: declaration.clone(),
                 object,
                 release: CallReceivedReleaseV1::Nullable,
                 // A `Void` sentinel carries no readable field residence: an
                 // owned-ArrayBox callee object cannot be discharged through
                 // the checked release, so its children stay unproven here
                 // even when the residence claim exists.
-                end_children: self
-                    .owned_field_children
-                    .get(&object)
-                    .map(|_| None),
+                end_children: self.owned_field_children.get(&object).map(|_| None),
                 progress: CallReceivedProgress::Emitting,
             }),
         );
@@ -255,7 +252,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let call = self
             .handle_call_source(site)
             .ok_or_else(|| freeze("handle-call-source-missing"))?;
-        if !matches!(call.declaration(), SourceBindingSiteV1::Local { .. }) {
+        let (declaration, binding) = call
+            .local_binding()
+            .ok_or_else(|| freeze("handle-call-destination-drift"))?;
+        if !matches!(declaration, SourceBindingSiteV1::Local { .. }) {
             return Err(freeze("handle-call-declaration-drift"));
         }
         // The callee must prove exactly one `return new` exit: several
@@ -282,8 +282,8 @@ impl OrdinaryNewClaimLedgerV1 {
             site.clone(),
             LocalCommitV1::CallReceived(CallReceivedCommitV1 {
                 owner: site.owner(),
-                binding: call.destination(),
-                declaration: call.declaration().clone(),
+                binding,
+                declaration: declaration.clone(),
                 object,
                 release: CallReceivedReleaseV1::Handle,
                 end_children: self.owned_field_children.get(&object).cloned(),

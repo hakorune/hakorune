@@ -513,9 +513,7 @@ fn emit_lexical_i64_call(
                 binding,
             ) => state
                 .take_exact_lexical_value(owner, site.node(), *binding)
-                .map_err(|error| {
-                    format!("[freeze:contract][lexical-i64/argument/{error:?}]")
-                })?,
+                .map_err(|error| format!("[freeze:contract][lexical-i64/argument/{error:?}]"))?,
             crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::CallResult(
                 inner,
             ) => {
@@ -617,7 +615,10 @@ pub(in crate::mir::builder) fn emit_receiver_nullable(
         ) => class.clone(),
         _ => return Err(freeze("nullable-class-drift")),
     };
-    if observation.callee() != key || observation.destination() != relation.destination() {
+    let (_, destination) = relation
+        .local_binding()
+        .ok_or_else(|| freeze("nullable-call-destination-drift"))?;
+    if observation.callee() != key || observation.destination() != destination {
         return Err(freeze("nullable-target-drift"));
     }
     if observation.arguments().len() != key.arity() as usize {

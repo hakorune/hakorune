@@ -613,7 +613,7 @@ impl DirectCallDispositionLoanV1 {
                 let caller = root.completion_for_owner(self.owner).ok_or(reject)?;
                 if local.owner() != self.owner
                     || local.site() != site
-                    || local.destination().owner() != self.owner
+                    || !matches!(local.local_binding(), Some((_, binding)) if binding.owner() == self.owner)
                     || local.arguments().len() != row.argument_sites.len()
                     || local.result() != LocalCallResultClassV1::I64
                     || signature.arity() != row.argument_sites.len()

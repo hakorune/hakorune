@@ -205,9 +205,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             if emitted.origin.children != *expected_children {
                                 return Err(freeze("reclaim-children-drift"));
                             }
-                            for child in
-                                emitted.origin.children.as_deref().unwrap_or_default()
-                            {
+                            for child in emitted.origin.children.as_deref().unwrap_or_default() {
                                 let matching = bindings
                                     .iter()
                                     .filter(|(_, instruction)| {
@@ -314,7 +312,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 let call = self
                     .handle_call_source(site)
                     .ok_or_else(|| freeze("handle-call-source-missing"))?;
-                (call.destination(), call.arguments().len())
+                (
+                    call.local_binding()
+                        .ok_or_else(|| freeze("handle-call-destination-drift"))?
+                        .1,
+                    call.arguments().len(),
+                )
             }
             CallReceivedReleaseV1::Nullable => {
                 let call = self
@@ -323,7 +326,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 let observation = self
                     .receiver_call_observation(site)
                     .ok_or_else(|| freeze("nullable-observation-missing"))?;
-                (call.destination(), observation.arguments().len())
+                (
+                    call.local_binding()
+                        .ok_or_else(|| freeze("nullable-call-destination-drift"))?
+                        .1,
+                    observation.arguments().len(),
+                )
             }
         };
         let expected_result_kind = match row.release {

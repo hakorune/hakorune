@@ -636,9 +636,15 @@ impl super::VerifiedNormalCallableSemanticPackageV1 {
                         site: call.site().clone(),
                     });
                 }
+                let (_, binding) = call.local_binding().ok_or_else(|| {
+                    MapObligationDescribeIssueV1::ObligationUnavailable {
+                        owner,
+                        site: call.site().clone(),
+                    }
+                })?;
                 rows.push(MapSiteObligationV1 {
                     site: call.site().clone(),
-                    destination: MapDestinationV1::LocalBinding(call.destination()),
+                    destination: MapDestinationV1::LocalBinding(binding),
                     operations: [
                         MapLifecycleOperationV1::NormalCleanup,
                         MapLifecycleOperationV1::FaultCleanup,

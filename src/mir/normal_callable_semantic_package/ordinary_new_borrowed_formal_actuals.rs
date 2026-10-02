@@ -367,3 +367,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn finish_borrowed_call_act
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_formal_actual_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "ordinary_new_borrowed_formal_discard_tests.rs"]
+mod discard_tests;
