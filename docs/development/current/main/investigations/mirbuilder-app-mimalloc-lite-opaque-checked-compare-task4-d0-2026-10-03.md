@@ -1,6 +1,6 @@
 # mimalloc-lite opaque checked-compare task-4 D0 (dominated view uses)
 
-Status: accepted task-4 Decisions; I64RESULT-S0, ROOTSOURCE-S0, USESIZE-T0, NULLCOMPARE-S0 and NULLACTUAL-S0 landed; next FIELDSIZE-T0 (BoxShape extraction pending).
+Status: accepted task-4 Decisions; I64RESULT-S0, ROOTSOURCE-S0, USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0 and FIELDSIZE-T0 landed; next PARAMFIELD-S0 (implementation pending).
 Scope: `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-D0`
   and its bounded PARAMFIELD prerequisite/acceptance series.
 Related: docs/development/RULES.md; CURRENT_STATE.toml;
@@ -311,13 +311,13 @@ coverage must agree through Rust, JSON, C index and emission together.
 Token prefix below:
 `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-`.
 Every row is one responsibility; I64RESULT-S0, ROOTSOURCE-S0,
-USESIZE-T0, NULLCOMPARE-S0 and NULLACTUAL-S0 are landed and
-FIELDSIZE-T0 is currently selected.
+USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0 and FIELDSIZE-T0 are
+landed and PARAMFIELD-S0 is currently selected.
 
 Selected construction row:
-`MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDSIZE-T0`.
-Next construction row after its closeout:
 `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-S0`.
+Next construction row after its closeout:
+`MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDRESULT-S0`.
 
 | Order | Suffix | Responsibility / predecessor |
 | --- | --- | --- |
@@ -326,7 +326,7 @@ Next construction row after its closeout:
 | 3 | USESIZE-T0 | BoxShape: extracted operation-use classifiers to `ordinary_new_borrowed_formal_use_operands.rs`; landed |
 | 4 | NULLCOMPARE-S0 | C: exact null-equality source envelope and physical use; landed |
 | 5 | NULLACTUAL-S0 | D: literal null and received-nullable borrowed actuals; landed |
-| 6 | FIELDSIZE-T0 | BoxShape: extract existing field-read batch issuer/stager from the 770-line source parent; after 5 |
+| 6 | FIELDSIZE-T0 | BoxShape: extract existing field-read batch issuer/stager from the 770-line source parent; landed |
 | 7 | PARAMFIELD-S0 | B: complete class view + guarded scalar field initializer; after 6 |
 | 8 | FIELDRESULT-S0 | Exact scalar field-return result proof using 7's view; after 7 |
 | 9 | PARAMFIELD-ACCEPTANCE-R0 | Selected source-to-EXE null/object/nullable cases and inverse failures; after 8 |
@@ -371,7 +371,7 @@ Next construction row after its closeout:
 - Negative: missing/foreign root source, wrong main owner/identity, changed birth
   site/receiver/arguments and a missing original producer reject before JSON.
 
-### 3 / 6 — the two invariant size prerequisites
+### 3 / 6 — the two invariant size prerequisites (both landed)
 
 USESIZE-T0 moves existing compare/add/source-operand classifier bodies into a
 private child of the same borrowed-use owner; FIELDSIZE-T0 moves the existing
@@ -754,11 +754,33 @@ clean baseline) and is untouched by this slice; qualified-route scope
 guard PASS except `brand_catalog_tests.rs=961` known structural debt;
 pointer guard PASS.
 
-Open frontiers (deliberately out of this slice): field-issuer size
-extraction (FIELDSIZE-T0), guarded formal field reads
-(PARAMFIELD-S0), the field-return result proof (FIELDRESULT-S0), the
-bound-alias nullable variant and everything the frontier test still
-pins.
+Open frontiers (deliberately out of this slice): guarded formal field
+reads (PARAMFIELD-S0), the field-return result proof
+(FIELDRESULT-S0), the bound-alias nullable variant and everything the
+frontier test still pins.
 
-Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDSIZE-T0
-(BoxShape extraction of the field-read batch issuer/stager).
+#### FIELDSIZE-T0 — landed record
+
+Landed (commit pending on `codex/birth-definition-publication`):
+
+- BoxShape only: `prove_local_field_read_batch` and
+  `stage_local_field_read_batch` move verbatim into the new private
+  `field_batch` child `ordinary_new_coseal_issue_source_field_batch.rs`
+  (111 lines); `issue_source` drops 780 -> 681 lines and re-exports both
+  (`pub(super) use field_batch::{..}`), so the `source_claims::` call
+  sites in `ordinary_new_coseal_issue.rs` and the `use super::*`
+  staged-read tests resolve unchanged. Moved functions carry
+  `pub(in crate::mir::normal_callable_semantic_package)` — the only
+  required visibility change; no predicate, evaluation order, error arm
+  or signature changed. Verbatim diff proven
+  (`git show` body comparison identical modulo the visibility keyword).
+  No null/field admission moved with it.
+
+Evidence pins (test profile `--lib`):
+`field_batch` staged-drift tests 2/2, `field_read` 29/29, `coseal`
+274/274 identical; qualified-route scope guard PASS (pins relocated to
+the child spelling) except `brand_catalog_tests.rs=961` known structural
+debt; pointer guard PASS.
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-S0
+(complete class view + guarded scalar field read).
