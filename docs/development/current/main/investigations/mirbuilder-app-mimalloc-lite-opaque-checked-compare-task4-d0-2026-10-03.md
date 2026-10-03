@@ -455,3 +455,52 @@ Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-S0
 (parameter-field read on a guarded nullable formal — the
 `handle.block_id` boundary inside `release(handle)` toward
 `releaseLocal` admission).
+
+## PARAMFIELD-S0 census record (2026-10-03, design stop)
+
+`release(handle)` decomposes into at least five stacked frontiers; none is
+a closed mapping today. Probed boundary per shape
+(`parameter_field_frontiers_stay_fail_closed` pins all of them
+fail-closed):
+
+| Shape | Observed terminal |
+| --- | --- |
+| callee `return 0` (unannotated i64) + `local r = s.release(h)` | `borrowed-result/result-contract-mismatch` — the `I64` corroboration demands a declared `: i64`; `Nullable` admits an unannotated contract plus the sealed claim, `I64` does not |
+| callee `release(handle): i64` + `local h = new ..; local r = s.release(h)` | `artifact-actual-root-source-missing` — `main`'s birth actual reaches the local-commit handoff without a `root_source` |
+| callee `if handle == null` | `TerminalHomesUnavailable` — `compare_operand_kind` admits only `>` + NormalInteger; an opaque formal's null compare has no envelope |
+| callee `handle.page_id` (guarded or not) | `TerminalHomesUnavailable` — no `BorrowedFormalUseDraftKindV1` arm carries a field read, and an `OpaqueHandle` formal has no class authority to prove the field |
+| caller `s.release(null)` / `s.release(h)` (h = `ReceivedNullable`) | `TerminalHomesUnavailable` / `IncompleteOrdinaryNewCoverage` — `BorrowedCallActualValueV1`/`BorrowedFormalActualSourceV1` have no null or received-nullable arm |
+| caller `s.release(new Handle(..))` inline `new` actual | `borrowed-actual/unsupported-or-unavailable` — inline `new` is not an inventoried Home binding |
+| caller `return s.release(h)` | `lexical-instance-call/terminal-result-mismatch` — terminal forward requires the callee's `Some(I64)` result row |
+
+Transport already exists for the object lane:
+`BorrowedFormalActualSourceV1::TypedHome`/`EntryReceiver` encode kind `3`
+(object payload) and `Forwarded` encodes `"tagged"` — the caller-edge
+carrier is not the blocker; the use vocabulary, result contract, and
+actual arms are.
+
+Six-line brief:
+
+```text
+Decision: pending — fork A (unannotated i64 callee contract: admit
+  unannotated+completion-proven i64 like the NullableObject lane, or keep
+  declared-only), fork B (formal class authority for handle.page_id:
+  incoming-actual TypedHome class fixpoint vs a declared
+  `handle: <Box>` formal kind), fork C (null-compare envelope spelling on
+  the borrowed tagged carrier), fork D (null/ReceivedNullable actual
+  transport at the call edge).
+Source authority + canonical issuer: borrowed formal-uses draft
+  vocabulary + callable_parameter_contract + borrowed actual/result
+  issuers — the same corridor the landed TASK4 slices extended.
+Non-authority: MIR types, runtime layout, per-test green, .hako
+  reshaping as an admission dodge.
+Fail-fast boundary: the five named terminals above — each already
+  fail-closed at an exact site.
+Smallest next slice: proposed R-I64-S0 — unannotated i64 result
+  contract for a borrowed callee (mirrors the unannotated NullableObject
+  rule), since every later frontier needs `release` selected into
+  `definitions` with a provable result before any callee body work can
+  publish end to end.
+Non-claims: no `release`/`allocate` admission, no formal field read, no
+  null compare, no `me.` receiver call admission.
+```

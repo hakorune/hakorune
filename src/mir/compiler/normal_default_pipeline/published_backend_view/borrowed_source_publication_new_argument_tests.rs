@@ -576,6 +576,128 @@ fn nullable_field_read_stays_fail_closed() {
     });
 }
 
+/// PARAMFIELD census pin: a nullable/object formal's guarded use inside an
+/// instance callee stays fail-closed at the observed named terminals until
+/// the authority forks recorded in the task-4 card are decided — the
+/// unannotated i64 result contract, the main-owner birth-actual root
+/// source, the null-compare envelope, the formal field-read class
+/// authority, and the null/nullable actual transport.
+#[test]
+fn parameter_field_frontiers_stay_fail_closed() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for (label, callee_sig, callee_body, caller_tail) in [
+            (
+                "pa-guarded-nullarg",
+                "",
+                "if handle == null { return 0 } return handle.page_id",
+                "return s.release(null)",
+            ),
+            (
+                "pa-guarded-nullarg-cmp",
+                "",
+                "if handle == null { return 0 } if handle.page_id < 0 { return 0 } return handle.page_id",
+                "return s.release(null)",
+            ),
+            (
+                "pa-unguarded-nullarg",
+                "",
+                "return handle.page_id",
+                "return s.release(null)",
+            ),
+            (
+                "pa-guarded-handlearg",
+                "",
+                "if handle == null { return 0 } return handle.page_id",
+                "local h = s.check(5) return s.release(h)",
+            ),
+            (
+                "pa-newarg-unguarded",
+                "",
+                "return handle.page_id",
+                "return s.release(new Handle(1, 2))",
+            ),
+            (
+                "pa-newarg-guarded",
+                "",
+                "if handle == null { return 0 } return handle.page_id",
+                "return s.release(new Handle(1, 2))",
+            ),
+            (
+                "pa-trivial-newarg",
+                "",
+                "return 0",
+                "return s.release(new Handle(1, 2))",
+            ),
+            (
+                "pa-trivial-handlearg",
+                "",
+                "return 0",
+                "local h = s.check(5) return s.release(h)",
+            ),
+            (
+                "pa-eqnull-newarg",
+                "",
+                "if handle == null { return 0 } return 1",
+                "return s.release(new Handle(1, 2))",
+            ),
+            (
+                "pa-trivial-localnewarg",
+                "",
+                "return 0",
+                "local h = new Handle(1, 2) return s.release(h)",
+            ),
+            (
+                "pa-eqnull-localnewarg",
+                "",
+                "if handle == null { return 0 } return 1",
+                "local h = new Handle(1, 2) return s.release(h)",
+            ),
+            (
+                "pa-trivial-localnewarg-bind",
+                "",
+                "return 0",
+                "local h = new Handle(1, 2) local r = s.release(h) return r",
+            ),
+            (
+                "pa-trivial-localnewarg-discard",
+                "",
+                "return 0",
+                "local h = new Handle(1, 2) s.release(h) return 1",
+            ),
+            (
+                "pa-trivial-localnewarg-annotated",
+                ": i64",
+                "return 0",
+                "local h = new Handle(1, 2) local r = s.release(h) return r",
+            ),
+        ] {
+            let text = format!(
+                "box Handle {{ page_id: i64 block_id: i64 birth(pid, bid) {{ me.page_id = pid me.block_id = bid }} }} \
+                box Store {{ limit: i64 birth() {{ me.limit = 10 }} \
+                check(p) {{ if p > me.limit {{ return null }} return new Handle(p, 3) }} \
+                release(handle){callee_sig} {{ {callee_body} }} }} \
+                static box Main {{ main() {{ local s = new Store() {caller_tail} }} }}",
+            );
+            let error = MirCompiler::with_options(false)
+                .compile_normal_with_published(request(&text), |view, verification| {
+                    classify_pretransform_report(verification);
+                    view.issue_lifecycle_physical_abi_input().map(|_| ())
+                })
+                .err()
+                .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"));
+            assert!(
+                error.contains("freeze:contract")
+                    || error.contains("IncompleteOrdinaryNewCoverage")
+                    || error.contains("artifact-source-unavailable")
+                    || error.contains("BorrowedFormalIngress")
+                    || error.contains("LexicalInstanceCall"),
+                "{label}: {error}"
+            );
+        }
+    });
+}
+
 #[test]
 fn nonscalar_birth_actuals_still_reject() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
