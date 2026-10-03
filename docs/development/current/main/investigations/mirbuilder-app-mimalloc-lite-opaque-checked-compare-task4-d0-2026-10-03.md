@@ -870,7 +870,7 @@ Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDRESULT-S0
 
 #### FIELDRESULT-S0 — landed record
 
-Landed (commit pending on `codex/birth-definition-publication`):
+Landed (`6f34f4c6c4` on `codex/birth-definition-publication`):
 
 - Flow (`PrefixLocalFlow::field_home`): a `Handle` observation rooted at
   a `Parameter`-kind binding is live only while the binding is in the
