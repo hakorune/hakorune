@@ -612,3 +612,148 @@ fn borrowed_use_rejects_undominated_and_drifting_add_view() {
         .unwrap_err()
         .contains("unproved-copy"));
 }
+
+fn set_write(
+    dst: ValueId,
+    receiver: ValueId,
+    index: ValueId,
+    value: ValueId,
+) -> MirInstruction {
+    MirInstruction::ArrayElementWrite {
+        site_id: crate::mir::ArrayWriteSiteId(0),
+        dst: Some(dst),
+        kind: crate::mir::ArrayElementWriteKind::Set,
+        producer: crate::mir::ArrayWriteProducerKind::MethodCall,
+        receiver,
+        index: Some(index),
+        value,
+    }
+}
+
+#[test]
+fn borrowed_use_dominated_set_view_passes() {
+    // Same block, ordered after the compare's site check: the lent view
+    // serves the `.set` element value; receiver and index never carry it.
+    let (mut state, mut function, view, formal) = compare_fixture();
+    state.set_admissions.insert(formal, 1);
+    let carrier = *state.roots.keys().next().unwrap();
+    function
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .extend([
+            MirInstruction::Compare {
+                dst: ValueId(701),
+                op: CompareOp::Gt,
+                lhs: view,
+                rhs: ValueId(800),
+            },
+            MirInstruction::Copy {
+                dst: ValueId(704),
+                src: carrier,
+            },
+            set_write(
+                ValueId(706),
+                ValueId(810),
+                ValueId(811),
+                ValueId(704),
+            ),
+        ]);
+    verify(&mut state, &function).unwrap();
+    // The tracked carrier itself may serve the element value directly.
+    let (mut state, mut function, view, formal) = compare_fixture();
+    state.set_admissions.insert(formal, 1);
+    let carrier = *state.roots.keys().next().unwrap();
+    function
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .extend([
+            MirInstruction::Compare {
+                dst: ValueId(701),
+                op: CompareOp::Gt,
+                lhs: view,
+                rhs: ValueId(800),
+            },
+            set_write(ValueId(706), ValueId(810), ValueId(811), carrier),
+        ]);
+    verify(&mut state, &function).unwrap();
+}
+
+#[test]
+fn borrowed_use_rejects_undominated_and_drifting_set_view() {
+    // Ordered `.set` before the compare's site check in the same block.
+    let (mut state, mut function, view, formal) = compare_fixture();
+    state.set_admissions.insert(formal, 1);
+    let carrier = *state.roots.keys().next().unwrap();
+    function
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .extend([
+            MirInstruction::Copy {
+                dst: ValueId(704),
+                src: carrier,
+            },
+            set_write(ValueId(706), ValueId(810), ValueId(811), ValueId(704)),
+            MirInstruction::Compare {
+                dst: ValueId(701),
+                op: CompareOp::Gt,
+                lhs: view,
+                rhs: ValueId(800),
+            },
+        ]);
+    assert!(verify(&mut state, &function)
+        .unwrap_err()
+        .contains("undominated-view"));
+
+    // The admitted `.set` use never observed: coverage stays per admission.
+    let (mut state, mut function, view, formal) = compare_fixture();
+    state.set_admissions.insert(formal, 1);
+    function
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::Compare {
+            dst: ValueId(701),
+            op: CompareOp::Gt,
+            lhs: view,
+            rhs: ValueId(800),
+        });
+    assert!(verify(&mut state, &function)
+        .unwrap_err()
+        .contains("set-coverage"));
+
+    // The lent view may not move into the receiver or index lanes.
+    for (receiver, index) in [(true, false), (false, true)] {
+        let (mut state, mut function, view, formal) = compare_fixture();
+        state.set_admissions.insert(formal, 1);
+        let carrier = *state.roots.keys().next().unwrap();
+        function
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .instructions
+            .extend([
+                MirInstruction::Compare {
+                    dst: ValueId(701),
+                    op: CompareOp::Gt,
+                    lhs: view,
+                    rhs: ValueId(800),
+                },
+                set_write(
+                    ValueId(706),
+                    if receiver { carrier } else { ValueId(810) },
+                    if index { carrier } else { ValueId(811) },
+                    carrier,
+                ),
+            ]);
+        assert!(verify(&mut state, &function)
+            .unwrap_err()
+            .contains("forbidden-operand"));
+    }
+}

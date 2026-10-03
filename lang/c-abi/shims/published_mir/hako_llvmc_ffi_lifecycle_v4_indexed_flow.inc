@@ -108,6 +108,18 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (!lhs || !rhs ||
           (lhs->kind != LV4_I64 && lhs->kind != LV4_TAGGED) ||
           (rhs->kind != LV4_I64 && rhs->kind != LV4_TAGGED)) return 0;
+    } else if (lv4_is(ins, "op", "array_set")) {
+      hako_lv4_value *array = lv4_index_value(fn, lv4_u(ins, "array")),
+          *index = lv4_index_value(fn, lv4_u(ins, "index")),
+          *value = lv4_index_value(fn, lv4_u(ins, "value"));
+      /* The element write is a checked kernel call: the array operand is a
+         raw slot-loaded handle lane, the index a committed i64, and the
+         element value may read the same lent Integer view — the emitted
+         kind==1 branch proves that read at this exact site, uniform with
+         the checked compare and the dominated `+`. */
+      if (faulted || birth || !array || array->kind != LV4_I64 ||
+          !index || index->kind != LV4_I64 ||
+          !value || (value->kind != LV4_I64 && value->kind != LV4_TAGGED)) return 0;
     } else if (lv4_is(ins, "op", "object_field_get")) {
       if (faulted || birth || lv4_slot(in, ins) < 0 ||
           !lv4_indexed_live(fn, lv4_u(ins, "base"), LV4_HANDLE, state,

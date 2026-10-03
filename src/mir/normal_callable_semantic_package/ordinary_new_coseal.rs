@@ -95,7 +95,7 @@ mod terminal_access;
 #[path = "ordinary_new_terminal_home.rs"]
 mod terminal_home;
 pub(in crate::mir::normal_callable_semantic_package) use terminal_home::{
-    entry_receiver_box_proof, receiver_scalar_field,
+    entry_receiver_box_proof, receiver_array_field, receiver_scalar_field,
 };
 use candidate::OrdinaryNewCandidate;
 

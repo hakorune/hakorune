@@ -68,6 +68,23 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                 _ => None,
             })
     }
+    /// Dominated `.set` element-value admissions this owner's draft proved:
+    /// `(binding, formal, call site)` rows on a proven `me.<ArrayBox>`
+    /// receiver guarded by an admitted compare. Admission evidence only;
+    /// publication still counts the exact physical operand uses.
+    pub(crate) fn array_element_uses(
+        &self,
+    ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
+        self.source.definitions[&self.owner]
+            .uses
+            .iter()
+            .filter_map(|row| match &row.kind {
+                super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::ArrayElementValue {
+                    call,
+                } => Some((row.binding, row.formal, call)),
+                _ => None,
+            })
+    }
     /// Loan the original target, including its source owner and batch identity.
     pub(crate) fn incoming_targets(
         &self,

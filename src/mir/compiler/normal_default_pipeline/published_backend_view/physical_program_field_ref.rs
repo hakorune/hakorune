@@ -62,8 +62,25 @@ fn project_field_get(
                 )
             },
         );
+    // An `ArrayBox` field load publishes the raw i64 host-handle lane only
+    // inside the same corridor: the routed `.set` receiver is the sole
+    // admitted consumer and the kernel owns element/index validation.
+    let array_receiver_route = matches!(instruction,
+            MirInstruction::FieldGet {
+                declared_type: Some(crate::mir::MirType::Box(name)),
+                ..
+            } if name == "ArrayBox")
+        && decision.selected_route == "hako.typed_object.slot_load_handle"
+        && decision.selected_storage == Some("handle")
+        && function.metadata.physical_param_carriers.as_deref().is_some_and(
+            |carriers| {
+                carriers.contains(
+                    &crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue,
+                )
+            },
+        );
     if rows.next().is_some()
-        || !(i64_route || numeric_view_route)
+        || !(i64_route || numeric_view_route || array_receiver_route)
         || decision.field_id.as_deref() != Some(field.as_str())
     {
         return Err(fault("field-get-route-drift"));

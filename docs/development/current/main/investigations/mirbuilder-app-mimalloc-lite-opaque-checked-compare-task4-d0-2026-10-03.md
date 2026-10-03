@@ -189,3 +189,55 @@ Evidence pins (release `--lib`):
 
 Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ARRAYSET-S0
 (the dominated ArraySet element view — new `array_set` op end to end).
+
+## S0 landed record (MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ARRAYSET-S0)
+
+Landed (commit pending on `codex/birth-definition-publication`):
+
+- Source draft `ArrayElementValue`: `me.<ArrayBox field>.set(index, value)`
+  admits only the ordinal-1 value operand of the tracked formal or a proven
+  copied view, only when the receiver resolves through the proven ArrayBox
+  field (`receiver_array_field`), the ordinal-0 index is a Normal-Integer
+  operand, and the value use sits in the bounded dominated region of the
+  same checked compare; non-ArrayBox receivers, wrong ordinals, borrowed
+  receiver/index, and undominated uses stay `UnresolvedArgument`/
+  `UnsupportedUse`. Draft unit pin:
+  `set_element_value_without_entry_receiver_loan_stays_unresolved` (no
+  fabricated admission without receiver proof).
+- Finalized projection `borrowed_ordinary_array_element_uses_v1` projects
+  finalized `.set` value uses as (binding, formal, call site) triples.
+- Physical closure: `ArrayElementWrite{Set}` consumes two operands; the
+  value admits only under checked-compare dominance, receiver/index may
+  not carry the borrowed lane, `borrowed-use/set-coverage` closes on
+  distinct value counts (edge-port duplication counts once).
+- Bare `ArrayElementWrite{Set}` whitelist admission is route-gated:
+  `producer == MethodCall`, `index.is_some()`, route kind `ArrayStoreAny`,
+  exact block/instruction coordinate, matching `array_write_site_id`,
+  receiver, and index; anything else fails `array-set-unsupported`.
+- Field route projection accepts `hako.typed_object.slot_load_handle`
+  (`handle` storage, `MirType::Box("ArrayBox")`) only inside the
+  borrowed-tagged corridor; i64/numeric-view routes unchanged.
+- Publication emits one canonical `array_set` row
+  (`array`/`index`/`value`/`site`); C v2 validates exact keys plus value
+  availability; indexed flow requires `array`/`index` `LV4_I64`, `value`
+  `LV4_I64` or `LV4_TAGGED`, not faulted, not birth; emit adds a
+  `kind == 1` tag check for tagged values then calls
+  `nyash.array.checked_set_i64_v1` (new kernel export over
+  `slot_store_i64_result`; bounds → `ARRAY_SET_BOUNDS` 204, element
+  contract → `ARRAY_SET_ELEMENT_MISMATCH` 203).
+
+Evidence pins (release `--lib`):
+`set_element_value_without_entry_receiver_loan_stays_unresolved`,
+`borrowed_use_dominated_set_view_passes`,
+`borrowed_use_rejects_undominated_and_drifting_set_view` (12-test file
+green),
+`dominated_set_view_publishes_from_original_source` (5 JSON variants +
+projection-drift reject),
+`lang/c-abi/tests/published_lifecycle_v4_set_view_execution_test.py`
+(ok index-0 in-range/oversized executes; index-3 bounds fault; bool/object
+kind!=1 fault; 3 checked-compare inputs unchanged).
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-CTORARG-S0
+(constructor argument view + non-literal birth actual transport +
+`borrowed-result` nullable-handle class — the `new HakoAllocHandle(...) +
+return` admission).

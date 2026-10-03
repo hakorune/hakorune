@@ -373,6 +373,36 @@ fn issue_function_with_module<'module>(
             .ok_or_else(|| fault("block-terminator-missing"))?;
         let mut instructions = Vec::with_capacity(block.instructions.len());
         for (index, instruction) in block.instructions.iter().enumerate() {
+            // A `.set` element write publishes only through the resolver's
+            // own ArrayStoreAny route at this exact coordinate: the route is
+            // the receiver's array proof and pins receiver/index operands.
+            if let MirInstruction::ArrayElementWrite {
+                site_id,
+                kind,
+                producer,
+                receiver,
+                index: element_index,
+                value: _,
+                dst,
+            } = instruction
+            {
+                let routed = *kind == crate::mir::ArrayElementWriteKind::Set
+                    && *producer == crate::mir::ArrayWriteProducerKind::MethodCall
+                    && element_index.is_some()
+                    && function.metadata.generic_method_routes.iter().any(|route| {
+                        route.route_kind()
+                            == crate::mir::generic_method_route_plan::GenericMethodRouteKind::ArrayStoreAny
+                            && route.block() == block.id
+                            && route.instruction_index() == index
+                            && route.array_write_site_id() == Some(*site_id)
+                            && route.receiver_value() == *receiver
+                            && route.key_value() == *element_index
+                            && route.result_value() == *dst
+                    });
+                if !routed {
+                    return Err(fault("array-set-unsupported"));
+                }
+            }
             let field_ref = prepare_field_ref(module, function, block.id, index, instruction)?;
             validate_instruction_with_context(field_ref, instruction, script, ordinary_calls)?;
             instructions.push(PublishedLifecyclePhysicalInstructionRefV1 {
@@ -565,6 +595,12 @@ fn validate_instruction_with_context(
                     ..
                 }
                 | MirInstruction::InvokeNormalResult { .. }
+                | MirInstruction::ArrayElementWrite {
+                    kind: crate::mir::ArrayElementWriteKind::Set,
+                    producer: crate::mir::ArrayWriteProducerKind::MethodCall,
+                    index: Some(_),
+                    ..
+                }
                 | MirInstruction::ReturnFault { .. }
                 | MirInstruction::FaultFrameEnter { .. }
                 | MirInstruction::Branch { .. }

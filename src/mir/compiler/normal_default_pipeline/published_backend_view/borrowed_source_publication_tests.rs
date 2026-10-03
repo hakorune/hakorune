@@ -427,6 +427,134 @@ fn reject_drifted_compare_view(input: &super::super::PublishedLifecyclePhysicalA
     assert!(views > 0, "checked-compare view copies present");
 }
 
+/// `me.sizes.set(index, requested)` reads the same lent Normal-Integer view
+/// as the dominating compare: the ArrayBox receiver is proven by its own
+/// resolver route, the index stays a committed i64, and the kernel call owns
+/// bounds/element faults at the exact site. `index == len` is the array's
+/// own append-at-end contract; index 3 on an empty array is the bounds arm.
+#[test]
+fn dominated_set_view_publishes_from_original_source() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for (suffix, index, argument) in [
+            ("ok", "0", "5"),
+            ("over", "0", "20"),
+            ("oob", "3", "5"),
+            ("bool", "0", "true"),
+            ("object", "0", "c"),
+        ] {
+            let text = format!(
+                "box Store {{ limit: usize sizes: ArrayBox = new ArrayBox() \
+                 birth() {{ me.limit = 10 }} \
+                 check(requested): i64 {{ if requested > me.limit {{ return 0 }} \
+                 me.sizes.set({index}, requested) return 1 }} }} static box Main {{ \
+                 main() {{ local s = new Store() local c = new Store() return s.check({argument}) }} }}"
+            );
+            MirCompiler::with_options(false)
+                .compile_normal_with_published(
+                    request(&text),
+                    |view, verification| -> Result<(), String> {
+                        classify_pretransform_report(verification);
+                        let input = view.issue_lifecycle_physical_abi_input()?;
+                        let wire =
+                            super::super::physical_program_json::emit_lifecycle_physical_abi_json(
+                                &input,
+                            )?;
+                        let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                        let callee = json["functions"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .find(|f| f["name"] == "Store.check/1")
+                            .unwrap();
+                        assert!(callee["params"].as_array().unwrap().iter().any(|p| {
+                            p["representation"] == "borrowed_kind_payload_v1"
+                        }));
+                        let rows: Vec<_> = callee["blocks"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .flat_map(|b| b["instructions"].as_array().unwrap())
+                            .collect();
+                        let compares: Vec<_> = rows
+                            .iter()
+                            .filter(|row| row["instruction"]["op"] == "compare")
+                            .collect();
+                        assert_eq!(compares.len(), 2, "{suffix}");
+                        let sets: Vec<_> = rows
+                            .iter()
+                            .filter(|row| row["instruction"]["op"] == "array_set")
+                            .collect();
+                        assert_eq!(sets.len(), 1, "{suffix}");
+                        let set = sets[0]["instruction"].clone();
+                        assert!(set["site"].is_u64(), "{suffix}");
+                        assert!(set["array"].is_u64(), "{suffix}");
+                        assert!(set["index"].is_u64(), "{suffix}");
+                        assert!(set["value"].is_u64(), "{suffix}");
+                        reject_erased_carriers(&input);
+                        reject_drifted_set_view(&input);
+                        std::fs::write(
+                            std::env::temp_dir()
+                                .join(format!("hako-issued-set-view-{suffix}.json")),
+                            wire,
+                        )
+                        .unwrap();
+                        Ok(())
+                    },
+                )
+                .unwrap_or_else(|error| panic!("{suffix}: {error}"));
+        }
+    });
+}
+
+/// The dominated `.set` element value is pinned to its carrier: rewiring the
+/// element operand to any other value is projection drift, never a silently
+/// widened or dropped admitted use.
+fn reject_drifted_set_view(input: &super::super::PublishedLifecyclePhysicalAbiInputV1<'_>) {
+    let mut views = 0;
+    for (fi, function) in input.program().functions().iter().enumerate() {
+        for (bi, block) in function.blocks().iter().enumerate() {
+            for (ri, row) in block.instructions().iter().enumerate() {
+                let MirInstruction::ArrayElementWrite {
+                    site_id,
+                    dst,
+                    kind: crate::mir::ArrayElementWriteKind::Set,
+                    producer,
+                    receiver,
+                    index,
+                    ..
+                } = row.instruction()
+                else {
+                    continue;
+                };
+                let changed = MirInstruction::ArrayElementWrite {
+                    site_id: *site_id,
+                    dst: *dst,
+                    kind: crate::mir::ArrayElementWriteKind::Set,
+                    producer: *producer,
+                    receiver: *receiver,
+                    index: *index,
+                    value: ValueId(998),
+                };
+                let mut program = input.program().clone();
+                program.functions[fi].blocks[bi].instructions[ri].instruction = &changed;
+                let error =
+                    super::super::physical_program_json::emit_lifecycle_physical_program_value(
+                        &program,
+                        Some(input),
+                    )
+                    .unwrap_err();
+                assert!(
+                    error.contains("borrowed-carrier-projection-drift"),
+                    "{error}"
+                );
+                views += 1;
+            }
+        }
+    }
+    assert!(views > 0, "set view element operands present");
+}
+
 /// The dominated Add reads the same lent projection: rewiring the view copy
 /// that feeds `Add(NormalInteger, NormalInteger)` is projection drift, never
 /// a silently widened or dropped admitted use.

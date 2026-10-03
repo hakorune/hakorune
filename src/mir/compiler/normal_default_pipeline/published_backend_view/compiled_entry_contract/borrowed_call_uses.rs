@@ -24,6 +24,9 @@ struct FunctionUses {
     /// Dominated `+` operand admissions per formal under the same source
     /// draft; each admits exactly one distinct operand value per scan.
     add_admissions: BTreeMap<BindingRefV1, usize>,
+    /// Dominated `.set` element-value admissions per formal under the same
+    /// source draft; each admits exactly one distinct operand value per scan.
+    set_admissions: BTreeMap<BindingRefV1, usize>,
 }
 
 #[derive(Default)]
@@ -36,6 +39,8 @@ struct Scan {
     compare_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
     /// Distinct operand values serving each formal's dominated `+` view.
     add_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
+    /// Distinct element values serving each formal's dominated `.set` view.
+    set_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
 }
 
 /// The sole physical projections a lent view may take: an untracked operand
@@ -99,6 +104,12 @@ impl BorrowedCallUses {
             .iter()
         {
             *state.add_admissions.entry(*formal).or_default() += 1;
+        }
+        for (_, formal, _) in source
+            .borrowed_ordinary_array_element_uses_v1(owner, function)?
+            .iter()
+        {
+            *state.set_admissions.entry(*formal).or_default() += 1;
         }
         Ok(())
     }
@@ -319,6 +330,11 @@ impl FunctionUses {
                     rhs,
                     ..
                 } => [*lhs, *rhs],
+                MirInstruction::ArrayElementWrite {
+                    kind: crate::mir::ArrayElementWriteKind::Set,
+                    value,
+                    ..
+                } => [*value, *value],
                 _ => continue,
             };
             for operand in operands {
@@ -466,6 +482,41 @@ impl FunctionUses {
                     }
                 }
             }
+            MirInstruction::ArrayElementWrite {
+                kind: crate::mir::ArrayElementWriteKind::Set,
+                receiver,
+                index,
+                value,
+                ..
+            } => {
+                // A `.set` element value may read the same lent view only
+                // inside the admitted compare's dominance cone; the receiver
+                // and index operands never carry a borrowed lane.
+                if tracked.contains_key(receiver)
+                    || views.views.contains_key(receiver)
+                    || index.is_some_and(|index| {
+                        tracked.contains_key(&index) || views.views.contains_key(&index)
+                    })
+                {
+                    return Err(fault("borrowed-use/forbidden-operand"));
+                }
+                if let Some(formal) = tracked.get(value).or(views.views.get(value)) {
+                    let dominated = views.compares.get(formal).is_some_and(|sites| {
+                        sites.iter().any(|&(block, index)| {
+                            dominates(block, coordinate.0)
+                                && (block != coordinate.0 || index < coordinate.1)
+                        })
+                    });
+                    if !dominated {
+                        return Err(fault("borrowed-use/undominated-view"));
+                    }
+                    definitions
+                        .set_uses
+                        .entry(*formal)
+                        .or_default()
+                        .insert(*value);
+                }
+            }
             _ if instruction.used_values().iter().any(|value| {
                 tracked.contains_key(value) || views.views.contains_key(value)
             }) =>
@@ -501,6 +552,14 @@ impl FunctionUses {
             .collect();
         if add_uses != self.add_admissions {
             return Err(fault("borrowed-use/add-coverage"));
+        }
+        let set_uses: BTreeMap<_, _> = definitions
+            .set_uses
+            .iter()
+            .map(|(formal, values)| (*formal, values.len()))
+            .collect();
+        if set_uses != self.set_admissions {
+            return Err(fault("borrowed-use/set-coverage"));
         }
         for value in tracked.keys() {
             let parameter_count = params

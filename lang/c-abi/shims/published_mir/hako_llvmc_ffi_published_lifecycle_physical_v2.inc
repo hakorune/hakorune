@@ -612,6 +612,20 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
           hako_physical_string(yyjson_obj_get(check, "declared_type"), "usize");
     return 0;
   }
+  if (!strcmp(op, "array_set")) {
+    /* A routed `.set` element write: the array operand is a slot-loaded
+       handle lane, index and value are committed i64 payloads, and the
+       kernel records bounds/element faults at this exact site. */
+    static const char* const keys[] = {"op", "array", "index", "value", "site"};
+    return hako_physical_exact_keys(instruction, keys, 5) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "array"), &a) &&
+        hako_physical_value_available_at(function, a, current_block, current_index) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "index"), &b) &&
+        hako_physical_value_available_at(function, b, current_block, current_index) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "value"), &c) &&
+        hako_physical_value_available_at(function, c, current_block, current_index) &&
+        hako_physical_u64(yyjson_obj_get(instruction, "site"), NULL);
+  }
   if (!strcmp(op, "invoke")) return hako_physical_exact_keys(instruction, invoke, 5) && hako_physical_u32(yyjson_obj_get(instruction, "fault_frame"), &a) && hako_physical_frame_mode(function, a, frame_mode) && hako_physical_value_available_at(function, a, current_block, current_index) && hako_physical_u32(yyjson_obj_get(instruction, "normal"), &b) && hako_physical_has_block(function, b) && hako_physical_u32(yyjson_obj_get(instruction, "fault"), &c) && hako_physical_has_block(function, c) && hako_physical_validate_operation(function, functions, layouts, yyjson_obj_get(instruction, "operation"), current_block, current_index, native);
   if (!strcmp(op, "invoke_normal_result")) { yyjson_val* invoke;
     return hako_physical_exact_keys(instruction, normal_result, 3) && hako_physical_u32(yyjson_obj_get(instruction, "invoke_block"), &a) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &b) && (invoke = hako_physical_block_invoke_terminator(function, a)) && hako_physical_u32(yyjson_obj_get(invoke, "normal"), &c) && c == current_block && hako_physical_result_operation(yyjson_obj_get(invoke, "operation"), native);

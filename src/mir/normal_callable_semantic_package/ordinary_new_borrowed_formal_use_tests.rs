@@ -277,6 +277,76 @@ fn add_operand_rejects_unguarded_undominated_and_unproved_sibling_uses() {
     }
 }
 
+fn draft_with_fields(body: &str) -> Result<BorrowedFormalUsesDraftV1, BorrowedFormalUseDraftErrorV1> {
+    let source = format!(
+        "box BorrowUse {{ sizes: ArrayBox birth() {{ }} probe(p): i64 {{ {body} }} \
+         sink(q): i64 {{ return 0 }} }} static box Main {{ main() {{ return 0 }} }}"
+    );
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::
+        issue_with_brand_catalog(&source).expect("source-backed package");
+    let contract = package
+        .parameter_contracts
+        .iter()
+        .find(|contract| {
+            package
+                .batch()
+                .with_lowering_input(contract.batch_slot, |input| {
+                    contract.parameters.iter().any(|parameter| {
+                        input
+                            .function()
+                            .binding(parameter.binding)
+                            .is_some_and(|row| row.diagnostic_name() == "p")
+                    })
+                })
+                .expect("exact declaration loan")
+        })
+        .expect("probe parameter contract");
+    package
+        .batch()
+        .with_lowering_input(contract.batch_slot, |input| {
+            draft_borrowed_formal_uses_v1(
+                input,
+                &OwnedCallableParameterContractDeclarationV1 {
+                    batch_slot: contract.batch_slot,
+                    owner: contract.owner,
+                    mode: contract.mode,
+                    parameters: contract.parameters.iter().map(|row| {
+                        crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1 {
+                            ordinal: row.ordinal,
+                            binding: row.binding,
+                            kind: row.kind,
+                        }
+                    }).collect(),
+                },
+                package.instance_constructors(),
+                None,
+            )
+        })
+        .expect("exact source loan")
+}
+
+#[test]
+fn set_element_value_without_entry_receiver_loan_stays_unresolved() {
+    // The unit harness carries no entry receiver loan, so even a spelled
+    // `me.sizes` receiver cannot prove `ArrayBox` here: the dominated `.set`
+    // element value stays an unresolved argument rather than fabricating a
+    // use kind. Full admission is proven through the published lane.
+    for body in [
+        "if p > 5 { return 1 } me.sizes.set(0, p) return 0",
+        "me.sizes.set(0, p) return 0",
+        "if p > 5 { me.sizes.set(0, p) return 1 } return 0",
+    ] {
+        let row = draft_with_fields(body).expect("set argument use");
+        assert!(
+            row.uses.iter().any(|row| matches!(
+                row.kind,
+                BorrowedFormalUseDraftKindV1::UnresolvedArgument { ordinal: 1, .. }
+            )),
+            "set element argument stays unresolved without the entry loan: {body}"
+        );
+    }
+}
+
 fn forwarding_package(
     mutual: bool,
 ) -> crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1 {

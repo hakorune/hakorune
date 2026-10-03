@@ -112,7 +112,7 @@ impl ArrayBox {
 
     /// Check and mutation share one state lock. Only the raw wrapper erases errors.
     #[inline(always)]
-    pub(crate) fn slot_store_i64_result(
+    pub fn slot_store_i64_result(
         &self,
         idx: i64,
         value: i64,

@@ -52,6 +52,17 @@ impl PublishedLifecycleCheckedOperationKindV1 {
         if let MirInstruction::FieldSet { .. } = instruction {
             return Some(Self::FieldSet);
         }
+        // A routed bare `.set` element write is a checked kernel call on the
+        // same authority: its recorded Fault needs the same site identity.
+        if let MirInstruction::ArrayElementWrite {
+            kind: crate::mir::ArrayElementWriteKind::Set,
+            producer: crate::mir::ArrayWriteProducerKind::MethodCall,
+            index: Some(_),
+            ..
+        } = instruction
+        {
+            return Some(Self::ArrayWrite);
+        }
         let MirInstruction::Invoke { operation, .. } = instruction else {
             return None;
         };

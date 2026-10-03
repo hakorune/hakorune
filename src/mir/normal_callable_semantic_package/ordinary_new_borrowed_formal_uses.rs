@@ -17,6 +17,9 @@ use crate::mir::resolved_semantics::{
     SourcePathSegmentV1,
 };
 
+#[path = "ordinary_new_borrowed_formal_use_array_element.rs"]
+mod array_element;
+
 #[derive(Debug, PartialEq, Eq)]
 pub(super) enum BorrowedFormalUseDraftErrorV1 {
     SourceIdentity,
@@ -51,6 +54,13 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
     /// no borrowed identity into the fresh-integer result.
     AddOperand {
         binary: OwnedExprSiteV1,
+    },
+    /// The value argument of a `.set(index, value)` element write on a
+    /// proven `me.<ArrayBox>` receiver, dominated by an admitted checked
+    /// compare of the same formal. The call site pins the sole admitted
+    /// operand use; the receiver and index never carry the lent view.
+    ArrayElementValue {
+        call: OwnedExprSiteV1,
     },
 }
 
@@ -687,10 +697,26 @@ pub(super) fn draft_borrowed_formal_uses_v1(
                 if kind.is_some() {
                     return Err(BorrowedFormalUseDraftErrorV1::AmbiguousUse(owned));
                 }
-                kind = Some(BorrowedFormalUseDraftKindV1::UnresolvedArgument {
-                    call: OwnedExprSiteV1::new(input.owner(), call_site.clone()),
-                    ordinal: argument.ordinal(),
-                });
+                kind = if argument.ordinal() == 1 {
+                    array_element::array_element_value_kind(
+                        input,
+                        &origins,
+                        constructors,
+                        receiver,
+                        formal,
+                        &compare_guards,
+                        call,
+                        site,
+                    )?
+                } else {
+                    None
+                };
+                if kind.is_none() {
+                    kind = Some(BorrowedFormalUseDraftKindV1::UnresolvedArgument {
+                        call: OwnedExprSiteV1::new(input.owner(), call_site.clone()),
+                        ordinal: argument.ordinal(),
+                    });
+                }
             }
         }
         if kind.is_none() {

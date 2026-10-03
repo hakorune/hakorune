@@ -187,6 +187,22 @@ pub(in crate::mir::normal_callable_semantic_package) fn receiver_scalar_field(
     })
 }
 
+/// Receiver-side array-field proof for `me.<field>` receivers of a `.set`
+/// element write. The entry loan's receiver root is proven against this
+/// declaration's own box source and the declared type must spell exactly
+/// `ArrayBox`; any other receiver or element class stays outside admission.
+pub(in crate::mir::normal_callable_semantic_package) fn receiver_array_field(
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    site: &OwnedExprSiteV1,
+    home: BindingRefV1,
+    field: &str,
+) -> Result<Option<hakorune_mir_defs::CanonicalFieldRefV1>, OrdinaryNewCoSealIssueV1> {
+    entry_receiver_field(constructors, receiver, site, home, field, |name| {
+        name == Some("ArrayBox")
+    })
+}
+
 /// Shared declared-field lookup on one proven box source row: the field
 /// must be declared exactly once and non-weak. The result carries the
 /// declared type name — possibly absent — alongside the canonical ref;

@@ -279,6 +279,22 @@ impl FinalizedRootSourceHandoffV1 {
             .map(|(binding, formal, binary)| (binding, formal, binary.clone()))
             .collect())
     }
+
+    /// Same finalized entry proof, projecting only the admitted dominated
+    /// `.set` element-value uses: `(binding, formal, call site)` triples.
+    /// The finished-function check runs through the same owner/function
+    /// binding as the alias copy projection.
+    pub(in crate::mir) fn borrowed_ordinary_array_element_uses_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<Box<[(BindingRefV1, BindingRefV1, OwnedExprSiteV1)]>, String> {
+        let source = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        Ok(source
+            .array_element_uses()
+            .map(|(binding, formal, call)| (binding, formal, call.clone()))
+            .collect())
+    }
 }
 
 impl OrdinaryNewClaimLedgerV1 {

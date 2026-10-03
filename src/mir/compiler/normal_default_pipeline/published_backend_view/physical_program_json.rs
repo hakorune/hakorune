@@ -305,6 +305,18 @@ fn encode_instruction(
         MirInstruction::InvokeNormalResult { invoke_block, dst } => {
             json!({ "op": "invoke_normal_result", "invoke_block": invoke_block.0, "dst": value(dst) })
         }
+        MirInstruction::ArrayElementWrite {
+            kind: crate::mir::ArrayElementWriteKind::Set,
+            producer: crate::mir::ArrayWriteProducerKind::MethodCall,
+            receiver,
+            index: Some(index),
+            value: stored,
+            ..
+        } => {
+            let site = required_site(diagnostic_site, abi_input.is_some())?;
+            json!({ "op": "array_set", "array": value(receiver),
+                "index": value(index), "value": value(stored), "site": site })
+        }
         MirInstruction::ArrayResidenceRelease { value: released } => {
             require_native_input(abi_input)?;
             json!({ "op": "array_residence_release", "value": value(released) })

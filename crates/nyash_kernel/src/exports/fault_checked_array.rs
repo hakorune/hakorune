@@ -19,6 +19,8 @@ const ELEMENT_U32: u32 = 7;
 const ARRAY_CLAIM_CONFLICT: u32 = 200;
 const ARRAY_EXISTING_ELEMENT_MISMATCH: u32 = 201;
 const ARRAY_APPEND_ELEMENT_MISMATCH: u32 = 202;
+const ARRAY_SET_ELEMENT_MISMATCH: u32 = 203;
+const ARRAY_SET_BOUNDS: u32 = 204;
 const TYPE_MISMATCH: i64 = 1;
 const NEGATIVE_TO_UNSIGNED: i64 = 2;
 const OUT_OF_RANGE: i64 = 3;
@@ -212,6 +214,39 @@ pub unsafe extern "C" fn append_f64(
         site,
         with_array_box_direct(handle, |array| array.slot_append_f64_result(value)),
     )
+}
+
+/// Checked i64 element store at a committed index. The index is payload,
+/// never an out parameter; an out-of-range index is a recorded source Fault
+/// and an element-contract mismatch keeps the subtype vocabulary of append.
+#[export_name = "nyash.array.checked_set_i64_v1"]
+pub unsafe extern "C" fn set_i64(
+    storage: *mut c_void,
+    site: u64,
+    handle: i64,
+    index: i64,
+    value: i64,
+) -> u32 {
+    let frame = match unsafe { admit(storage) } {
+        Ok(frame) => frame,
+        Err(status) => return status as u32,
+    };
+    match with_array_box_direct(handle, |array| array.slot_store_i64_result(index, value))
+    {
+        Some(Ok(())) => Status::Normal as u32,
+        Some(Err(ArrayPrimitiveWriteError::ElementContract { reason })) => record(
+            frame,
+            subtype(reason)
+                .map(|kind| Diagnostic::new(ARRAY_SET_ELEMENT_MISMATCH, site, [kind, 0])),
+        ),
+        Some(Err(ArrayPrimitiveWriteError::InvalidIndex)) => record(
+            frame,
+            Ok(Diagnostic::new(ARRAY_SET_BOUNDS, site, [index, 0])),
+        ),
+        None | Some(Err(ArrayPrimitiveWriteError::UnsupportedStorage)) => {
+            Status::InvalidContract as u32
+        }
+    }
 }
 
 #[cfg(test)]

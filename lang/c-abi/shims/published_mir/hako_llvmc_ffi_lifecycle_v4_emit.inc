@@ -260,6 +260,22 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             b, ri, in->profile, site, fbase,
             (long long)lv4_type_id(in, ins), lv4_slot(in, ins), fstored,
             b, ri, b, ri, b, ri);
+      } else if (lv4_is(ins, "op", "array_set")) {
+        uint32_t sarray = lv4_u(ins, "array"), sindex = lv4_u(ins, "index"),
+            svalue = lv4_u(ins, "value");
+        unsigned long long site =
+            (unsigned long long)yyjson_get_uint(yyjson_obj_get(ins, "site"));
+        /* A dominated `.set` element value may read the same lent Integer
+           view; the kind==1 branch proves the i64 payload at the use site,
+           uniform with the checked compare and the dominated `+`. */
+        if (lv4_input_type(in, fn, svalue) == LV4_TAGGED)
+          fprintf(f, "  %%vok%u_%u_%zu = icmp eq i32 %%k%u, 1\n"
+              "  br i1 %%vok%u_%u_%zu, label %%vs%u_%u_%zu, label %%fault\nvs%u_%u_%zu:\n",
+              svalue, b, ri, svalue, svalue, b, ri, svalue, b, ri, svalue, b, ri);
+        fprintf(f,
+            "  %%aset%u_%zu = call i32 @\"nyash.array.checked_set_i64_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, i64 %%v%u, i64 %%v%u)\n"
+            "  switch i32 %%aset%u_%zu, label %%invalid [ i32 0, label %%asd%u_%zu i32 1, label %%fault ]\nasd%u_%zu:\n",
+            b, ri, site, sarray, sindex, svalue, b, ri, b, ri, b, ri);
       }
       /* const_unit has no lane; unused text is eliminated, never materialized as zero. */
     }
@@ -520,6 +536,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
         "declare i32 @\"nyash.array.checked_append_i64_v1\"(ptr, i64, i64, i64)\n"
         "declare i32 @\"nyash.array.checked_append_bool_v1\"(ptr, i64, i64, i32)\n"
         "declare i32 @\"nyash.array.checked_append_f64_v1\"(ptr, i64, i64, double)\n"
+        "declare i32 @\"nyash.array.checked_set_i64_v1\"(ptr, i64, i64, i64, i64)\n"
         "declare void @nyrt_handle_release_h(i64)\n");
     return lv4_emit_function(f, in, abi, 0);
   }
@@ -528,6 +545,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
       "declare i32 @\"nyash.object.checked_new_v1\"(ptr, i32, i64, i64, ptr, i64, ptr)\n"
       "declare i32 @\"nyash.object.checked_field_set_v1\"(ptr, i32, i64, i64, i64, i64, i64)\n"
       "declare i32 @\"nyash.object.checked_field_get_i64_v1\"(i32, i64, i64, i64, ptr)\n"
+      "declare i32 @\"nyash.array.checked_set_i64_v1\"(ptr, i64, i64, i64, i64)\n"
       "declare void @nyrt_handle_release_h(i64)\n"
       "declare i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr, i32, i64, i64, i64)\n"
       "declare i32 @\"nyash.object.reclaim_unpublished_v1\"(ptr, i32, i64, i64, i64)\n");
