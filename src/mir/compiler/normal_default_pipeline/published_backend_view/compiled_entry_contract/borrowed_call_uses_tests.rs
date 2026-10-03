@@ -104,15 +104,30 @@ fn verify(state: &mut FunctionUses, function: &MirFunction) -> Result<(), String
         .collect();
     let tracked = state.tracked()?;
     let mut definitions = Scan::default();
+    let mut successors: BTreeMap<BasicBlockId, Vec<BasicBlockId>> = BTreeMap::new();
     let mut indexed = Vec::new();
     for (block, row) in &function.blocks {
+        successors
+            .entry(*block)
+            .or_default()
+            .extend(row.successors.iter().copied());
         for (index, instruction) in row.all_instructions().enumerate() {
             indexed.push(((*block, index), instruction));
         }
     }
-    let views = state.compare_views(&tracked, &indexed)?;
+    let views = state.scan_views(&tracked, &indexed)?;
+    let dominates = |from: BasicBlockId, to: BasicBlockId| {
+        path_dominates(function.entry_block, &successors, from, to)
+    };
     for (coordinate, instruction) in &indexed {
-        state.instruction(&tracked, &views, *coordinate, instruction, &mut definitions)?;
+        state.instruction(
+            &tracked,
+            &views,
+            *coordinate,
+            instruction,
+            &mut definitions,
+            &dominates,
+        )?;
     }
     state.definitions(&tracked, &function.params, &definitions)
 }
@@ -262,13 +277,28 @@ fn borrowed_use_rejects_missing_call_omitted_alias_use_and_duplicate_coordinate(
         .contains("omitted-copy-argument"));
     let tracked = state.tracked().unwrap();
     let mut scan = Scan::default();
-    let views = BTreeMap::new();
+    let views = ViewScan::default();
+    let dominates = |_: BasicBlockId, _: BasicBlockId| false;
     let unused = MirInstruction::Return { value: None };
     state
-        .instruction(&tracked, &views, (BasicBlockId(0), 0), &unused, &mut scan)
+        .instruction(
+            &tracked,
+            &views,
+            (BasicBlockId(0), 0),
+            &unused,
+            &mut scan,
+            &dominates,
+        )
         .unwrap();
     assert!(state
-        .instruction(&tracked, &views, (BasicBlockId(0), 0), &unused, &mut scan)
+        .instruction(
+            &tracked,
+            &views,
+            (BasicBlockId(0), 0),
+            &unused,
+            &mut scan,
+            &dominates,
+        )
         .unwrap_err()
         .contains("coordinate-duplicate"));
 }
@@ -427,4 +457,158 @@ fn borrowed_use_rejects_view_shape_drift() {
         rhs: ValueId(800),
     });
     verify(&mut state, &function).unwrap();
+}
+
+#[test]
+fn borrowed_use_dominated_add_view_passes() {
+    // Same block, ordered after the compare's site check: the lent view
+    // serves the ordered `+` operand.
+    let (mut state, mut function, view, formal) = compare_fixture();
+    state.add_admissions.insert(formal, 1);
+    let carrier = *state.roots.keys().next().unwrap();
+    function
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .extend([
+            MirInstruction::Compare {
+                dst: ValueId(701),
+                op: CompareOp::Gt,
+                lhs: view,
+                rhs: ValueId(800),
+            },
+            MirInstruction::Copy {
+                dst: ValueId(704),
+                src: carrier,
+            },
+            MirInstruction::BinOp {
+                dst: ValueId(705),
+                op: crate::mir::BinaryOp::Add,
+                lhs: ValueId(704),
+                rhs: ValueId(800),
+            },
+        ]);
+    verify(&mut state, &function).unwrap();
+}
+
+#[test]
+fn borrowed_use_rejects_undominated_and_drifting_add_view() {
+    // Ordered `+` before the compare's site check in the same block.
+    let (mut state, mut function, view, formal) = compare_fixture();
+    state.add_admissions.insert(formal, 1);
+    let carrier = *state.roots.keys().next().unwrap();
+    function
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .extend([
+            MirInstruction::Copy {
+                dst: ValueId(704),
+                src: carrier,
+            },
+            MirInstruction::BinOp {
+                dst: ValueId(705),
+                op: crate::mir::BinaryOp::Add,
+                lhs: ValueId(704),
+                rhs: ValueId(800),
+            },
+            MirInstruction::Compare {
+                dst: ValueId(701),
+                op: CompareOp::Gt,
+                lhs: view,
+                rhs: ValueId(800),
+            },
+        ]);
+    assert!(verify(&mut state, &function)
+        .unwrap_err()
+        .contains("undominated-view"));
+
+    // A compare in a sibling arm never reaches the `+` use.
+    let (mut state, mut function, view, formal) = compare_fixture();
+    state.add_admissions.insert(formal, 1);
+    let carrier = *state.roots.keys().next().unwrap();
+    {
+        let entry = function.blocks.get_mut(&BasicBlockId(0)).unwrap();
+        entry.successors.insert(BasicBlockId(1));
+        entry.successors.insert(BasicBlockId(2));
+    }
+    let mut arm = crate::mir::basic_block::BasicBlock::new(BasicBlockId(1));
+    arm.instructions.push(MirInstruction::Compare {
+        dst: ValueId(701),
+        op: CompareOp::Gt,
+        lhs: view,
+        rhs: ValueId(800),
+    });
+    arm.terminator = Some(MirInstruction::Return { value: None });
+    function.blocks.insert(BasicBlockId(1), arm);
+    let mut other = crate::mir::basic_block::BasicBlock::new(BasicBlockId(2));
+    other.instructions.extend([
+        MirInstruction::Copy {
+            dst: ValueId(704),
+            src: carrier,
+        },
+        MirInstruction::BinOp {
+            dst: ValueId(705),
+            op: crate::mir::BinaryOp::Add,
+            lhs: ValueId(704),
+            rhs: ValueId(800),
+        },
+    ]);
+    other.terminator = Some(MirInstruction::Return { value: None });
+    function.blocks.insert(BasicBlockId(2), other);
+    assert!(verify(&mut state, &function)
+        .unwrap_err()
+        .contains("undominated-view"));
+
+    // The admitted `+` use never observed: coverage stays per admission.
+    let (mut state, mut function, view, formal) = compare_fixture();
+    state.add_admissions.insert(formal, 1);
+    function
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::Compare {
+            dst: ValueId(701),
+            op: CompareOp::Gt,
+            lhs: view,
+            rhs: ValueId(800),
+        });
+    assert!(verify(&mut state, &function)
+        .unwrap_err()
+        .contains("add-coverage"));
+
+    // A different arithmetic operator is no lent-view site: its carrier
+    // copy stays an unproved copy.
+    let (mut state, mut function, view, formal) = compare_fixture();
+    state.add_admissions.insert(formal, 1);
+    let carrier = *state.roots.keys().next().unwrap();
+    function
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .extend([
+            MirInstruction::Compare {
+                dst: ValueId(701),
+                op: CompareOp::Gt,
+                lhs: view,
+                rhs: ValueId(800),
+            },
+            MirInstruction::Copy {
+                dst: ValueId(704),
+                src: carrier,
+            },
+            MirInstruction::BinOp {
+                dst: ValueId(705),
+                op: crate::mir::BinaryOp::Sub,
+                lhs: ValueId(704),
+                rhs: ValueId(800),
+            },
+        ]);
+    assert!(verify(&mut state, &function)
+        .unwrap_err()
+        .contains("unproved-copy"));
 }

@@ -146,5 +146,46 @@ siblings; no unsigned lane; no general usize field publication; no
 `allocate`/`resizeInPlace`/`realloc` admission claim; no app EXE PASS or
 MirBuilder completion claim; no retirement.
 
-Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ADD-S0
-(the bounded dominated ordered-Add view use above).
+## S0 landed record (MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ADD-S0)
+
+Landed (commit pending on `codex/birth-definition-publication`):
+
+- `dynamic_operator_contract` gained `Add(NormalInteger, NormalInteger)`
+  with the fresh `NormalInteger` result class (no lifecycle obligation).
+- Source draft `AddOperand`: an ordered `+` operand of the tracked formal
+  or alias admits only beside a proven Normal-Integer sibling (Integer
+  literal, tracked formal copy, or `me.<field>`) and only inside the
+  bounded dominated region — the statements strictly after the guarding
+  `if` in its own sequence; uses inside the guard's own arms, the
+  condition, pre-guard positions, wrong operators, and unproved siblings
+  stay `UnsupportedUse`.
+- Physical closure: view copies may feed `BinOp{Add}` operands only where
+  a compare site of the same formal dominates the add block (strictly
+  earlier in the same block); `undominated-view`/`add-coverage` close it,
+  coverage counts distinct operand values (edge-port re-evaluation is one
+  use).
+- Bare `MirInstruction::FieldSet` publication end to end: field_ref route
+  projection (`slot_store_i64` or `slot_store_u64` inside the borrowed-
+  tagged corridor), whitelist admission, `field_set` JSON row with
+  `exact_numeric_runtime_check`, abi-input check coordinates, diagnostic
+  site, C v2/indexed-flow/emit arms — `dynamic_integer_range/usize`
+  discharges by an emitted negative-value branch to
+  `NYRT_FAULT_REASON_FIELD_RANGE_V1` (113) before
+  `nyash.object.checked_field_set_v1`; the kernel still owns slot/storage
+  identity.
+- `exact_numeric_backend_capability/lifecycle` binds the same contract to
+  bare rows (usize storage spelling, exact field/layout/slot proof,
+  birth-formal coverage skipped for the computed i64 value lane) while
+  the invoke form keeps i64-only.
+
+Evidence pins (release `--lib`):
+`dominated_add_admits_guarded_integer_sibling_and_aliased_operands`,
+`add_operand_rejects_unguarded_undominated_and_unproved_sibling_uses`,
+`borrowed_use_dominated_add_view_passes`,
+`borrowed_use_rejects_undominated_and_drifting_add_view`,
+`dominated_add_view_publishes_from_original_source` (5 JSON variants),
+`lang/c-abi/tests/published_lifecycle_v4_add_view_execution_test.py`
+(hi=1, over=0, neg/bool/object=70 Fault).
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ARRAYSET-S0
+(the dominated ArraySet element view — new `array_set` op end to end).

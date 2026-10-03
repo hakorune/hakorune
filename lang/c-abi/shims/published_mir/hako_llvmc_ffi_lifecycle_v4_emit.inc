@@ -156,7 +156,19 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         if (kind == LV4_TAGGED)
           fprintf(f, "  %%k%u = add i32 0, %%k%u\n", dst, src);
       } else if (lv4_is(ins, "op", "add")) {
-        fprintf(f, "  %%v%u = add i64 %%v%u, %%v%u\n", dst, lv4_u(ins, "lhs"), lv4_u(ins, "rhs"));
+        uint32_t alhs = lv4_u(ins, "lhs"), arhs = lv4_u(ins, "rhs");
+        /* A dominated `+` operand may read the same lent Integer view;
+           the kind==1 branch proves the i64 read at the use site and any
+           other kind is a semantic Fault, uniform with the compare. */
+        if (lv4_input_type(in, fn, alhs) == LV4_TAGGED)
+          fprintf(f, "  %%aok%u_%u_%zu = icmp eq i32 %%k%u, 1\n"
+              "  br i1 %%aok%u_%u_%zu, label %%as%u_%u_%zu, label %%fault\nas%u_%u_%zu:\n",
+              alhs, b, ri, alhs, alhs, b, ri, alhs, b, ri, alhs, b, ri);
+        if (arhs != alhs && lv4_input_type(in, fn, arhs) == LV4_TAGGED)
+          fprintf(f, "  %%aok%u_%u_%zu = icmp eq i32 %%k%u, 1\n"
+              "  br i1 %%aok%u_%u_%zu, label %%as%u_%u_%zu, label %%fault\nas%u_%u_%zu:\n",
+              arhs, b, ri, arhs, arhs, b, ri, arhs, b, ri, arhs, b, ri);
+        fprintf(f, "  %%v%u = add i64 %%v%u, %%v%u\n", dst, alhs, arhs);
       } else if (lv4_is(ins, "op", "compare")) {
         uint32_t clhs = lv4_u(ins, "lhs"), crhs = lv4_u(ins, "rhs");
         /* A borrowed tagged operand may lend the checked-compare Integer
@@ -225,6 +237,29 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             "  %%v%u = load i64, ptr %%read%u, align 8\n",
             dst, in->profile, lv4_u(ins, "base"), (long long)lv4_type_id(in, ins), lv4_slot(in, ins), dst,
             dst, dst, dst, b, ri, b, ri, dst, dst);
+      } else if (lv4_is(ins, "op", "field_set")) {
+        yyjson_val* check = yyjson_obj_get(ins, "exact_numeric_runtime_check");
+        unsigned long long site =
+            (unsigned long long)yyjson_get_uint(yyjson_obj_get(ins, "site"));
+        uint32_t fbase = lv4_u(ins, "base"), fstored = lv4_u(ins, "value");
+        if (lv4_is(check, "kind", "dynamic_integer_range"))
+          /* usize write lane: the i64 lane is in range exactly when it is
+             non-negative. The emitted branch is the range authority's own
+             lowering; a negative value is a semantic Fault at this row. */
+          fprintf(f,
+              "  %%rc%u_%zu = icmp slt i64 %%v%u, 0\n"
+              "  br i1 %%rc%u_%zu, label %%rcf%u_%zu, label %%fst%u_%zu\nrcf%u_%zu:\n"
+              "  %%rcs%u_%zu = call i32 @\"nyash.fault.record_static_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 0)\n"
+              "  %%rco%u_%zu = icmp eq i32 %%rcs%u_%zu, 1\n"
+              "  br i1 %%rco%u_%zu, label %%fault, label %%invalid\nfst%u_%zu:\n",
+              b, ri, fstored, b, ri, b, ri, b, ri, b, ri, b, ri,
+              NYRT_FAULT_REASON_FIELD_RANGE_V1, site, fstored, b, ri, b, ri, b, ri, b, ri);
+        fprintf(f,
+            "  %%set%u_%zu = call i32 @\"nyash.object.checked_field_set_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, i64 %%v%u)\n"
+            "  switch i32 %%set%u_%zu, label %%invalid [ i32 0, label %%sd%u_%zu i32 1, label %%fault ]\nsd%u_%zu:\n",
+            b, ri, in->profile, site, fbase,
+            (long long)lv4_type_id(in, ins), lv4_slot(in, ins), fstored,
+            b, ri, b, ri, b, ri);
       }
       /* const_unit has no lane; unused text is eliminated, never materialized as zero. */
     }

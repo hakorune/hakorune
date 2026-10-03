@@ -17,6 +17,11 @@ static int hako_physical_checked_sites_unique(yyjson_val* functions, uint64_t pr
         const char* kind;
         uint64_t site;
         size_t i;
+        if (hako_physical_string(yyjson_obj_get(instruction, "op"), "field_set")) {
+          /* A routed bare FieldSet row is a checked store and carries its
+             site on the instruction itself, like the invoke form. */
+          if (!hako_physical_u64(yyjson_obj_get(instruction, "site"), &site)) { free(sites); return 0; }
+        } else {
         if (!hako_physical_string(yyjson_obj_get(instruction, "op"), "invoke")) continue;
         operation = yyjson_obj_get(instruction, "operation");
         kind = yyjson_get_str(yyjson_obj_get(operation, "kind"));
@@ -27,6 +32,7 @@ static int hako_physical_checked_sites_unique(yyjson_val* functions, uint64_t pr
             strcmp(kind, "reclaim_unpublished") &&
             strcmp(kind, "array_new") && strcmp(kind, "array_claim") && strcmp(kind, "array_append") && !hako_physical_map_kind(kind))) continue;
         if (!hako_physical_u64(yyjson_obj_get(operation, "site"), &site)) { free(sites); return 0; }
+        }
         if (site == process_result_site) { free(sites); return 0; }
         for (i = 0; i < count; i++) if (sites[i] == site) { free(sites); return 0; }
         if (count == capacity) {

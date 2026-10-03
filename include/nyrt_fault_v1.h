@@ -9,6 +9,8 @@
 #define NYRT_FAULT_REASON_EXIT_CODE_OUT_OF_RANGE_V1 102u
 /* Exact FieldSet type failure; details = { expected kind, actual kind }. */
 #define NYRT_FAULT_REASON_FIELD_TYPE_MISMATCH_V1 103u
+/* Exact FieldSet numeric range failure; details = { actual signed i64, 0 }. */
+#define NYRT_FAULT_REASON_FIELD_RANGE_V1 113u
 /* Checked Map scalar read found a present non-i64 payload; details = {0,0}. */
 #define NYRT_FAULT_REASON_MAP_NON_SCALAR_READ_V1 104u
 

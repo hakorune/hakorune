@@ -269,6 +269,27 @@ fn encode_instruction(
                 "field_ordinal": field.declaration_ordinal(),
             })
         }
+        MirInstruction::FieldSet { base, value: stored, .. } => {
+            let field = field_ref.ok_or_else(|| fault("field-set-route-missing"))?;
+            let site = required_site(diagnostic_site, abi_input.is_some())?;
+            let runtime_check = call_context
+                .and_then(|(.., (block, index))| {
+                    abi_input.and_then(|input| {
+                        input.exact_numeric_check_at(caller_function_index, block.0, index)
+                    })
+                })
+                .map(|declared_type| {
+                    json!({"kind": "dynamic_integer_range", "declared_type": declared_type})
+                })
+                .unwrap_or_else(|| json!({"kind": "none"}));
+            json!({
+                "op": "field_set", "base": value(base),
+                "object_id": field.object().declaration_index(),
+                "field_ordinal": field.declaration_ordinal(),
+                "value": value(stored), "site": site,
+                "exact_numeric_runtime_check": runtime_check,
+            })
+        }
         MirInstruction::Invoke {
             operation,
             fault_frame,

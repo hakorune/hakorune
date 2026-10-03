@@ -11,13 +11,22 @@ pub(super) fn prepare_field_ref(
     instruction_index: usize,
     instruction: &MirInstruction,
 ) -> Result<Option<CanonicalFieldRefV1>, String> {
-    let MirInstruction::FieldGet { .. } = instruction else {
-        return Ok(None);
-    };
+    match instruction {
+        MirInstruction::FieldGet { .. } | MirInstruction::FieldSet { .. } => {}
+        _ => return Ok(None),
+    }
     let Some(module) = module else {
         return Ok(None);
     };
-    project_field_get(module, function, block, instruction_index, instruction)
+    match instruction {
+        MirInstruction::FieldGet { .. } => {
+            project_field_get(module, function, block, instruction_index, instruction)
+        }
+        MirInstruction::FieldSet { .. } => {
+            project_field_set(module, function, block, instruction_index, instruction)
+        }
+        _ => unreachable!("field instructions filtered above"),
+    }
 }
 
 fn project_field_get(
@@ -76,6 +85,64 @@ fn project_field_get(
     CanonicalFieldRefV1::from_declaration_ordinal(object, slot as usize)
         .map(Some)
         .ok_or_else(|| fault("field-get-slot-overflow"))
+}
+
+fn project_field_set(
+    module: &MirModule,
+    function: &MirFunction,
+    block: BasicBlockId,
+    instruction_index: usize,
+    instruction: &MirInstruction,
+) -> Result<Option<CanonicalFieldRefV1>, String> {
+    let MirInstruction::FieldSet { field, .. } = instruction else {
+        return Ok(None);
+    };
+    let mut rows = function.metadata.route_decisions.iter().filter(|decision| {
+        decision.source_plan_kind == "TypedObjectExactSlotRoute"
+            && decision.semantic_op == "FieldSet"
+            && decision.block == block
+            && decision.instruction_index == instruction_index
+    });
+    let Some(decision) = rows.next() else {
+        return Ok(None);
+    };
+    // Exact i64 stores are unchanged; a numeric-integer slot stays physical
+    // bits only inside a function that carries a borrowed tagged formal, the
+    // same corridor the u64 load lane already uses.
+    let i64_route = decision.selected_route == "hako.typed_object.slot_store_i64"
+        && decision.selected_storage == Some("i64");
+    let numeric_view_route = decision.selected_route == "hako.typed_object.slot_store_u64"
+        && decision.selected_storage == Some("u64")
+        && function.metadata.physical_param_carriers.as_deref().is_some_and(
+            |carriers| {
+                carriers.contains(
+                    &crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue,
+                )
+            },
+        );
+    if rows.next().is_some()
+        || !(i64_route || numeric_view_route)
+        || decision.field_id.as_deref() != Some(field.as_str())
+    {
+        return Err(fault("field-set-route-drift"));
+    }
+    let Some(box_name) = decision.receiver_box_name.as_deref() else {
+        return Err(fault("field-set-receiver-missing"));
+    };
+    let Some(slot) = decision.selected_slot else {
+        return Err(fault("field-set-slot-missing"));
+    };
+    let object = module
+        .metadata
+        .canonical_object_membership
+        .as_ref()
+        .and_then(|membership| membership.get(box_name).copied())
+        .ok_or_else(|| fault("field-set-object-missing"))?;
+    let object = CanonicalObjectIdV1::from_declaration_index(object.declaration_index() as usize)
+        .ok_or_else(|| fault("field-set-object-overflow"))?;
+    CanonicalFieldRefV1::from_declaration_ordinal(object, slot as usize)
+        .map(Some)
+        .ok_or_else(|| fault("field-set-slot-overflow"))
 }
 
 fn fault(reason: &str) -> String {

@@ -224,7 +224,6 @@ fn checked_compare_rejects_outside_if_wrong_operator_and_unproved_sibling() {
         "if p < 5 { return 1 } return 0",
         "if p > true { return 1 } return 0",
         "local n = 5 if p > n { return 1 } return 0",
-        "if p > 5 { return 1 } local x = p + 1 return 0",
         "loop(p > 5) { return 1 } return 0",
     ] {
         assert!(
@@ -233,6 +232,47 @@ fn checked_compare_rejects_outside_if_wrong_operator_and_unproved_sibling() {
                 Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(_))
             ),
             "rejected use: {body}"
+        );
+    }
+}
+
+#[test]
+fn dominated_add_admits_guarded_integer_sibling_and_aliased_operands() {
+    for body in [
+        "if p > 5 { return 1 } local t = p + 1 return t",
+        "if p > 5 { return 1 } local t = 1 + p return t",
+        "local a = p if a > 5 { return 1 } local t = a + 1 return t",
+        "if p > 5 { return 1 } local t = p + p return t",
+    ] {
+        let row = draft(body).expect("admitted add operand");
+        let adds = row
+            .uses
+            .iter()
+            .filter(|row| matches!(row.kind, BorrowedFormalUseDraftKindV1::AddOperand { .. }))
+            .count();
+        assert!(adds >= 1, "add operand admitted: {body}");
+    }
+}
+
+#[test]
+fn add_operand_rejects_unguarded_undominated_and_unproved_sibling_uses() {
+    for body in [
+        "local t = p + 1 return t",
+        "local t = p + 1 if p > 5 { return 1 } return t",
+        "if p > 5 { local t = p + 1 return t } return 0",
+        "if p > 5 { return 1 } else { local t = p + 1 return t } return 0",
+        "if p >= 5 { return 1 } local t = p + 1 return t",
+        "if p > true { return 1 } local t = p + 1 return t",
+        "if p > 5 { return 1 } local t = p - 1 return t",
+        "if p > 5 { return 1 } local t = p + true return t",
+        "local n = 5 if p > 5 { return 1 } local t = p + n return t",
+    ] {
+        assert!(
+            matches!(
+                draft(body),
+                Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(_))
+            ),
+            "rejected add use: {body}"
         );
     }
 }

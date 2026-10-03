@@ -21,6 +21,9 @@ struct FunctionUses {
     /// exactly one distinct operand value per admitted use, in the module
     /// and again in publication.
     compare_admissions: BTreeMap<BindingRefV1, usize>,
+    /// Dominated `+` operand admissions per formal under the same source
+    /// draft; each admits exactly one distinct operand value per scan.
+    add_admissions: BTreeMap<BindingRefV1, usize>,
 }
 
 #[derive(Default)]
@@ -31,6 +34,18 @@ struct Scan {
     /// Distinct operand values serving each formal's checked-compare view:
     /// an edge-port model may evaluate the same projection more than once.
     compare_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
+    /// Distinct operand values serving each formal's dominated `+` view.
+    add_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
+}
+
+/// The sole physical projections a lent view may take: an untracked operand
+/// of an admitted instruction kind whose single definition is a `Copy`
+/// straight from a tracked carrier, plus the checked-compare sites that
+/// dominate later `+` uses per formal.
+#[derive(Default)]
+struct ViewScan {
+    views: BTreeMap<ValueId, BindingRefV1>,
+    compares: BTreeMap<BindingRefV1, Vec<Coordinate>>,
 }
 
 #[derive(Default)]
@@ -78,6 +93,12 @@ impl BorrowedCallUses {
             .iter()
         {
             *state.compare_admissions.entry(*formal).or_default() += 1;
+        }
+        for (_, formal, _) in source
+            .borrowed_ordinary_add_uses_v1(owner, function)?
+            .iter()
+        {
+            *state.add_admissions.entry(*formal).or_default() += 1;
         }
         Ok(())
     }
@@ -134,14 +155,26 @@ impl BorrowedCallUses {
                 }
             }
             let mut indexed = Vec::new();
+            let mut successors: BTreeMap<BasicBlockId, Vec<BasicBlockId>> = BTreeMap::new();
             for (block, row) in &function.blocks {
+                successors.entry(*block).or_default().extend(row.successors.iter().copied());
                 for (index, instruction) in row.all_instructions().enumerate() {
                     indexed.push(((*block, index), instruction));
                 }
             }
-            let views = state.compare_views(&tracked, &indexed)?;
+            let views = state.scan_views(&tracked, &indexed)?;
+            let dominates = |from: BasicBlockId, to: BasicBlockId| {
+                path_dominates(function.entry_block, &successors, from, to)
+            };
             for (coordinate, instruction) in &indexed {
-                state.instruction(&tracked, &views, *coordinate, instruction, &mut definitions)?;
+                state.instruction(
+                    &tracked,
+                    &views,
+                    *coordinate,
+                    instruction,
+                    &mut definitions,
+                    &dominates,
+                )?;
             }
             state.definitions(&tracked, &function.params, &definitions)?;
             state.verify_published(&tracked, &name, program.functions())?;
@@ -168,13 +201,16 @@ impl FunctionUses {
         // definition drift must not inherit the module's proof.
         let mut definitions = Scan::default();
         let mut blocks = BTreeSet::new();
-        let mut edges = Vec::new();
+        let mut successors: BTreeMap<BasicBlockId, Vec<BasicBlockId>> = BTreeMap::new();
         let mut indexed = Vec::new();
         for block in published.blocks() {
             if !blocks.insert(block.id()) {
                 return Err(fault("borrowed-use/published-block-duplicate"));
             }
-            edges.extend(block.edges());
+            successors
+                .entry(block.id())
+                .or_default()
+                .extend(block.edges().iter().map(|edge| edge.target()));
             for instruction in block
                 .instructions()
                 .iter()
@@ -187,18 +223,30 @@ impl FunctionUses {
                 ));
             }
         }
-        let views = self.compare_views(tracked, &indexed)?;
-        for edge in edges {
-            if edge.args().is_some_and(|args| {
-                args.values
-                    .iter()
-                    .any(|value| tracked.contains_key(value) || views.contains_key(value))
-            }) {
-                return Err(fault("borrowed-use/published-edge"));
+        let views = self.scan_views(tracked, &indexed)?;
+        for block in published.blocks() {
+            for edge in block.edges() {
+                if edge.args().is_some_and(|args| {
+                    args.values
+                        .iter()
+                        .any(|value| tracked.contains_key(value) || views.views.contains_key(value))
+                }) {
+                    return Err(fault("borrowed-use/published-edge"));
+                }
             }
         }
+        let dominates = |from: BasicBlockId, to: BasicBlockId| {
+            path_dominates(published.entry(), &successors, from, to)
+        };
         for (coordinate, instruction) in &indexed {
-            self.instruction(tracked, &views, *coordinate, instruction, &mut definitions)?;
+            self.instruction(
+                tracked,
+                &views,
+                *coordinate,
+                instruction,
+                &mut definitions,
+                &dominates,
+            )?;
         }
         self.definitions(tracked, published.params(), &definitions)?;
         Ok(())
@@ -242,16 +290,17 @@ impl FunctionUses {
         Ok(tracked)
     }
 
-    /// A checked-compare view copy is the sole physical projection the
-    /// envelope lends: an untracked compare operand whose single definition
-    /// is a `Copy` straight from a tracked carrier. The projection itself
-    /// never joins the tracked set — a read through any other instruction
-    /// stays a forbidden operand.
-    fn compare_views(
+    /// A lent view copy is the sole physical projection the envelopes lend:
+    /// an untracked operand of a `Compare` or `BinOp{Add}` whose single
+    /// definition is a `Copy` straight from a tracked carrier. The
+    /// projection itself never joins the tracked set — a read through any
+    /// other instruction stays a forbidden operand, and each `+` use must
+    /// additionally sit inside the admitted compare's dominance cone.
+    fn scan_views(
         &self,
         tracked: &BTreeMap<ValueId, BindingRefV1>,
         indexed: &[(Coordinate, &MirInstruction)],
-    ) -> Result<BTreeMap<ValueId, BindingRefV1>, String> {
+    ) -> Result<ViewScan, String> {
         let mut defs: BTreeMap<ValueId, &MirInstruction> = BTreeMap::new();
         for (_, instruction) in indexed {
             if let Some(dst) = instruction.dst_value() {
@@ -262,36 +311,55 @@ impl FunctionUses {
         }
         let mut views = BTreeMap::new();
         for (_, instruction) in indexed {
-            let MirInstruction::Compare { lhs, rhs, .. } = instruction else {
-                continue;
+            let operands: [ValueId; 2] = match instruction {
+                MirInstruction::Compare { lhs, rhs, .. } => [*lhs, *rhs],
+                MirInstruction::BinOp {
+                    op: crate::mir::BinaryOp::Add,
+                    lhs,
+                    rhs,
+                    ..
+                } => [*lhs, *rhs],
+                _ => continue,
             };
-            for operand in [lhs, rhs] {
-                if tracked.contains_key(operand) {
+            for operand in operands {
+                if tracked.contains_key(&operand) {
                     continue;
                 }
-                let Some(MirInstruction::Copy { src, .. }) = defs.get(operand) else {
+                let Some(MirInstruction::Copy { src, .. }) = defs.get(&operand) else {
                     continue;
                 };
                 let Some(formal) = tracked.get(src) else {
                     continue;
                 };
-                if let Some(previous) = views.insert(*operand, *formal) {
+                if let Some(previous) = views.insert(operand, *formal) {
                     if previous != *formal {
                         return Err(fault("borrowed-use/view-conflict"));
                     }
                 }
             }
         }
-        Ok(views)
+        let mut compares: BTreeMap<BindingRefV1, Vec<Coordinate>> = BTreeMap::new();
+        for (coordinate, instruction) in indexed {
+            let MirInstruction::Compare { lhs, rhs, .. } = instruction else {
+                continue;
+            };
+            for operand in [lhs, rhs] {
+                if let Some(formal) = tracked.get(operand).or(views.get(operand)) {
+                    compares.entry(*formal).or_default().push(*coordinate);
+                }
+            }
+        }
+        Ok(ViewScan { views, compares })
     }
 
     fn instruction(
         &self,
         tracked: &BTreeMap<ValueId, BindingRefV1>,
-        views: &BTreeMap<ValueId, BindingRefV1>,
+        views: &ViewScan,
         coordinate: Coordinate,
         instruction: &MirInstruction,
         definitions: &mut Scan,
+        dominates: &dyn Fn(BasicBlockId, BasicBlockId) -> bool,
     ) -> Result<(), String> {
         if !definitions.coordinates.insert(coordinate) {
             return Err(fault("borrowed-use/coordinate-duplicate"));
@@ -310,7 +378,7 @@ impl FunctionUses {
         }
         match instruction {
             MirInstruction::Copy { dst, src } if tracked.contains_key(src) => {
-                let view = views.get(dst) == tracked.get(src);
+                let view = views.views.get(dst) == tracked.get(src);
                 if !view
                     && !self.copies.get(dst).is_some_and(|(original, expected)| {
                         original.1 == *instruction && *expected == Some(coordinate)
@@ -361,7 +429,7 @@ impl FunctionUses {
                 // A tracked operand is legal only through an admitted
                 // checked-compare view; the draft count closes coverage.
                 for operand in [lhs, rhs] {
-                    if let Some(formal) = tracked.get(operand).or(views.get(operand)) {
+                    if let Some(formal) = tracked.get(operand).or(views.views.get(operand)) {
                         definitions
                             .compare_uses
                             .entry(*formal)
@@ -370,8 +438,36 @@ impl FunctionUses {
                     }
                 }
             }
+            MirInstruction::BinOp {
+                op: crate::mir::BinaryOp::Add,
+                lhs,
+                rhs,
+                ..
+            } => {
+                // A `+` operand may read the same lent view only inside the
+                // admitted compare's dominance cone — a same-block use must
+                // also order after the compare's site check.
+                for operand in [lhs, rhs] {
+                    if let Some(formal) = tracked.get(operand).or(views.views.get(operand)) {
+                        let dominated = views.compares.get(formal).is_some_and(|sites| {
+                            sites.iter().any(|&(block, index)| {
+                                dominates(block, coordinate.0)
+                                    && (block != coordinate.0 || index < coordinate.1)
+                            })
+                        });
+                        if !dominated {
+                            return Err(fault("borrowed-use/undominated-view"));
+                        }
+                        definitions
+                            .add_uses
+                            .entry(*formal)
+                            .or_default()
+                            .insert(*operand);
+                    }
+                }
+            }
             _ if instruction.used_values().iter().any(|value| {
-                tracked.contains_key(value) || views.contains_key(value)
+                tracked.contains_key(value) || views.views.contains_key(value)
             }) =>
             {
                 return Err(fault("borrowed-use/forbidden-operand"));
@@ -398,6 +494,14 @@ impl FunctionUses {
         if compare_uses != self.compare_admissions {
             return Err(fault("borrowed-use/compare-coverage"));
         }
+        let add_uses: BTreeMap<_, _> = definitions
+            .add_uses
+            .iter()
+            .map(|(formal, values)| (*formal, values.len()))
+            .collect();
+        if add_uses != self.add_admissions {
+            return Err(fault("borrowed-use/add-coverage"));
+        }
         for value in tracked.keys() {
             let parameter_count = params
                 .iter()
@@ -414,6 +518,34 @@ impl FunctionUses {
         }
         Ok(())
     }
+}
+
+/// Exact dominance by reachability cut: `from` dominates `to` when every
+/// entry->`to` path visits `from`. An unreachable `to` counts as dominated,
+/// matching the verifier's DominatorTree convention.
+fn path_dominates(
+    entry: BasicBlockId,
+    successors: &BTreeMap<BasicBlockId, Vec<BasicBlockId>>,
+    from: BasicBlockId,
+    to: BasicBlockId,
+) -> bool {
+    if from == to {
+        return true;
+    }
+    let mut seen = BTreeSet::from([from]);
+    let mut stack = vec![entry];
+    while let Some(node) = stack.pop() {
+        if node == to {
+            return false;
+        }
+        if !seen.insert(node) {
+            continue;
+        }
+        if let Some(next) = successors.get(&node) {
+            stack.extend(next.iter().copied());
+        }
+    }
+    true
 }
 
 #[cfg(test)]

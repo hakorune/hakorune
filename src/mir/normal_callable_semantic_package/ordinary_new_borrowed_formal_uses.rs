@@ -13,7 +13,8 @@ use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSem
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, BodyExpressionShapeV1, BodyMeReceiverV1, FunctionOwnerIdV1,
     OwnedExprSiteV1, ResolvedAssignmentTargetV1, ResolvedBinaryOperatorV1, ResolvedLexicalRefV1,
-    ResolvedLiteralSourceV1, SourceBindingSiteV1, SourceExprSiteV1,
+    ResolvedLiteralSourceV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
+    SourcePathSegmentV1,
 };
 
 #[derive(Debug, PartialEq, Eq)]
@@ -42,6 +43,13 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
     /// binary site pins the sole admitted operand use; the view stays lent
     /// to this binding/ValueId only.
     CompareOperand {
+        binary: OwnedExprSiteV1,
+    },
+    /// An ordered `+` operand use dominated by an admitted checked compare
+    /// of the same formal, under the operation owner's
+    /// `Add(NormalInteger, NormalInteger)` envelope. The lent view carries
+    /// no borrowed identity into the fresh-integer result.
+    AddOperand {
         binary: OwnedExprSiteV1,
     },
 }
@@ -389,6 +397,129 @@ fn normal_integer_operand(
     .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)
 }
 
+/// `site` is an ordered `+` operand of an `Add` binary only when the sibling
+/// operand proves the Normal-Integer class and an admitted checked compare
+/// of the same formal owns a region dominating this use. The physical
+/// closure still proves block dominance; this draft admits only the exact
+/// guarded shape.
+fn add_operand_kind(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    origins: &BTreeMap<BindingRefV1, BindingRefV1>,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    formal: BindingRefV1,
+    guards: &BTreeMap<BindingRefV1, Vec<SourceNodeSiteV1>>,
+    site: &SourceExprSiteV1,
+) -> Result<Option<BorrowedFormalUseDraftKindV1>, BorrowedFormalUseDraftErrorV1> {
+    let function = input.function();
+    let mut matching = function
+        .expression_source()
+        .binaries()
+        .filter(|row| row.lhs() == site || row.rhs() == site);
+    let Some(binary) = matching.next() else {
+        return Ok(None);
+    };
+    if matching.next().is_some() || binary.operator() != ResolvedBinaryOperatorV1::Add {
+        return Ok(None);
+    }
+    let other = if binary.lhs() == site {
+        binary.rhs()
+    } else {
+        binary.lhs()
+    };
+    if !normal_integer_operand(input, origins, constructors, receiver, other)? {
+        return Ok(None);
+    }
+    let dominated = guards
+        .get(&formal)
+        .into_iter()
+        .flatten()
+        .any(|guard| use_dominated_by_if(site.node(), guard));
+    if !dominated {
+        return Ok(None);
+    }
+    // The same operation owner issues the arithmetic view envelope; the
+    // draft consumes it, it does not mint a new authority.
+    use crate::mir::dynamic_operator_contract::{
+        DynamicOperatorDomainV1, DynamicOperatorFamilyV1, DynamicOperatorValueClassV1,
+    };
+    crate::mir::dynamic_operator_contract::issue_dynamic_operator_execution_envelope_v1(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::Add,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ),
+    )
+    .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
+    Ok(Some(BorrowedFormalUseDraftKindV1::AddOperand {
+        binary: OwnedExprSiteV1::new(input.owner(), binary.site().clone()),
+    }))
+}
+
+/// Whether `site` serves any method-call argument position. The main use
+/// loop re-validates ordinal identity for admitted arguments; this loan
+/// only keeps argument sites out of the compare-guard pre-pass.
+fn is_call_argument(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+) -> Result<bool, BorrowedFormalUseDraftErrorV1> {
+    for (_, call) in input.function().method_calls() {
+        if call.owner() != input.owner() || call.arguments().len() != call.arity() as usize {
+            return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
+        }
+        if call.arguments().iter().any(|argument| argument.site() == site) {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
+
+/// Source-order dominance evidence: `use_node` sits strictly after the
+/// guarding `if` statement in the same enclosing sequence — the bounded
+/// dominated region of this slice. A use inside the guard's own arms (the
+/// early-return interior) or inside the condition itself stays outside
+/// admission per the task-4 D0 boundary; block-level dominance remains the
+/// physical gate's own proof.
+fn use_dominated_by_if(use_node: &SourceNodeSiteV1, guard: &SourceNodeSiteV1) -> bool {
+    let guard = guard.segments();
+    let path = use_node.segments();
+    let Some(index) = guard
+        .iter()
+        .zip(path.iter())
+        .position(|(left, right)| left != right)
+    else {
+        return false;
+    };
+    let (Some(guard), Some(use_)) = (guard.get(index), path.get(index)) else {
+        return false;
+    };
+    std::mem::discriminant(guard) == std::mem::discriminant(use_)
+        && sequence_ordinal(guard)
+            .zip(sequence_ordinal(use_))
+            .is_some_and(|(guard, use_)| guard < use_)
+}
+
+/// Sibling statement positions share one sequence vocabulary per container
+/// kind; only equal-kind indexed steps are ordered.
+fn sequence_ordinal(segment: &SourcePathSegmentV1) -> Option<u32> {
+    match segment {
+        SourcePathSegmentV1::Body(index)
+        | SourcePathSegmentV1::ProgramBody(index)
+        | SourcePathSegmentV1::ScopeBody(index)
+        | SourcePathSegmentV1::TaskScopeBody(index)
+        | SourcePathSegmentV1::FastMemBody(index)
+        | SourcePathSegmentV1::IfThen(index)
+        | SourcePathSegmentV1::IfElse(index)
+        | SourcePathSegmentV1::LoopBody(index)
+        | SourcePathSegmentV1::LambdaBody(index)
+        | SourcePathSegmentV1::BlockExprPrelude(index)
+        | SourcePathSegmentV1::TryBody(index)
+        | SourcePathSegmentV1::CatchBody(index)
+        | SourcePathSegmentV1::CleanupBody(index) => Some(*index),
+        _ => None,
+    }
+}
+
 pub(super) fn draft_borrowed_formal_uses_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     contract: &OwnedCallableParameterContractDeclarationV1,
@@ -503,6 +634,31 @@ pub(super) fn draft_borrowed_formal_uses_v1(
         }
     }
 
+    // Admitted checked compares dominate the lent view's later uses; record
+    // each compare's owning `if` statement per formal before the use loop so
+    // a dominated `+` can prove its guard regardless of visit order.
+    let mut compare_guards: BTreeMap<BindingRefV1, Vec<SourceNodeSiteV1>> = BTreeMap::new();
+    for (site, reference) in function.variable_refs() {
+        let ResolvedLexicalRefV1::Local(binding) = reference else {
+            continue;
+        };
+        let Some(formal) = origins.get(binding).copied() else {
+            continue;
+        };
+        if copies.contains_key(site) || is_call_argument(input, site)? {
+            continue;
+        }
+        let Some(BorrowedFormalUseDraftKindV1::CompareOperand { binary }) =
+            compare_operand_kind(input, &origins, constructors, receiver, site)?
+        else {
+            continue;
+        };
+        let guard = function
+            .with_if_region_for_condition(binary.site(), |row| row.site().node().clone())
+            .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
+        compare_guards.entry(formal).or_default().push(guard);
+    }
+
     let mut uses = Vec::new();
     for (site, reference) in function.variable_refs() {
         let ResolvedLexicalRefV1::Local(binding) = reference else {
@@ -543,6 +699,17 @@ pub(super) fn draft_borrowed_formal_uses_v1(
                 &origins,
                 constructors,
                 receiver,
+                site,
+            )?;
+        }
+        if kind.is_none() {
+            kind = add_operand_kind(
+                input,
+                &origins,
+                constructors,
+                receiver,
+                formal,
+                &compare_guards,
                 site,
             )?;
         }

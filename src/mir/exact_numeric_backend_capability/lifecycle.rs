@@ -89,28 +89,49 @@ fn enforce_contracts(
             .chain(std::iter::once(block.terminator()))
             .find(|r| r.index() as usize == contract.instruction_index)
             .ok_or_else(|| fault("uncovered-instruction"))?;
-        let MirInstruction::Invoke {
-            operation: InvokeOperation::FieldSet { field, value, .. },
-            ..
-        } = row.instruction()
-        else {
-            return Err(fault("not-field-set"));
+        let (field, value, bare_row) = match row.instruction() {
+            MirInstruction::Invoke {
+                operation: InvokeOperation::FieldSet { field, value, .. },
+                ..
+            } => (*field, *value, false),
+            // A bare routed FieldSet row carries the same obligation through
+            // its exact field reference; the declared spelling gates the
+            // lane width below.
+            MirInstruction::FieldSet { value, .. } => (
+                row.field_ref().ok_or_else(|| fault("field-missing"))?,
+                *value,
+                true,
+            ),
+            _ => return Err(fault("not-field-set")),
         };
         if contract.kind != ExactNumericRuntimeCheckContractKind::DynamicIntegerRange
-            || *value != contract.value
+            || value != contract.value
         {
             return Err(fault("contract-value"));
         }
         let declaration = module
-            .canonical_field_definition(*field)
+            .canonical_field_definition(field)
             .ok_or_else(|| fault("field-missing"))?;
         if declaration.name != contract.field
             || declaration.declared_type_name.as_deref()
                 != Some(contract.declared_type_name.as_str())
-            || declaration.declared_type_name.as_deref() != Some("i64")
         {
             return Err(fault("field-projection"));
         }
+        // The invoke store lane admits only i64 declarations; the bare-row
+        // lane admits the usize write lane only — wider numeric lanes join
+        // deliberately, never by this match widening silently.
+        let expected_storage = if bare_row {
+            if declaration.declared_type_name.as_deref() != Some("usize") {
+                return Err(fault("field-projection"));
+            }
+            TypedObjectFieldStorage::USize
+        } else {
+            if declaration.declared_type_name.as_deref() != Some("i64") {
+                return Err(fault("field-projection"));
+            }
+            TypedObjectFieldStorage::I64
+        };
         let object = module
             .canonical_object_definition(field.object())
             .ok_or_else(|| fault("object-missing"))?;
@@ -138,9 +159,15 @@ fn enforce_contracts(
             || lane.object_id() != layout.object_id()
             || lane.runtime_slot() != stored.slot
             || lane.storage_kind() != 1
-            || stored.storage != TypedObjectFieldStorage::I64
+            || stored.storage != expected_storage
         {
             return Err(fault("layout-drift"));
+        }
+        if bare_row {
+            // The bare-row usize write lane discharges its obligation inside
+            // the emitted store itself; the contract binding above already
+            // proved the exact row value.
+            continue;
         }
         // Constants already use verifier proofs and do not reach this runtime
         // obligation. Here V4 consumes the retained tagged Birth parameter.
@@ -153,7 +180,7 @@ fn enforce_contracts(
         let formal = birth
             .formals()
             .iter()
-            .find(|f| f.value() == *value)
+            .find(|f| f.value() == value)
             .ok_or_else(|| fault("value-coverage-unavailable"))?;
         let source = formal
             .contract()
@@ -164,7 +191,7 @@ fn enforce_contracts(
                 source.uses(),
                 BirthFormalUseCoverageV1::I64FieldStores { .. }
             )
-            || physical.params().get(formal.physical_ordinal() as usize) != Some(value)
+            || physical.params().get(formal.physical_ordinal() as usize) != Some(&value)
         {
             return Err(fault("formal-coverage"));
         }

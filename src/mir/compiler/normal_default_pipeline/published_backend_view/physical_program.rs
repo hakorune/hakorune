@@ -523,8 +523,11 @@ fn validate_instruction_with_context(
             .any(|expected| expected.call == *call && expected.result == *result)
     );
     let field_get = matches!(instruction, MirInstruction::FieldGet { .. }) && field_ref.is_some();
+    let field_set =
+        matches!(instruction, MirInstruction::FieldSet { .. }) && field_ref.is_some();
     let supported = ordinary
         || field_get
+        || field_set
         || matches!(
             instruction,
             MirInstruction::Const {

@@ -78,6 +78,9 @@ pub(crate) enum DynamicOperatorInputAccessV1 {
 pub(crate) enum DynamicOperatorNormalResultV1 {
     SelfContainedNonAliasingDynamicCarrier,
     TrivialBool,
+    /// A fresh logical signed-integer value produced by an arithmetic view
+    /// use; it carries no borrowed identity and no lifecycle obligation.
+    NormalInteger,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -46,6 +46,12 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
 
 impl PublishedLifecycleCheckedOperationKindV1 {
     pub(crate) const fn from_instruction(instruction: &MirInstruction) -> Option<Self> {
+        // A routed bare FieldSet row is a checked store: the kernel call can
+        // record a source Fault, so it carries the same diagnostic site as
+        // the invoke form.
+        if let MirInstruction::FieldSet { .. } = instruction {
+            return Some(Self::FieldSet);
+        }
         let MirInstruction::Invoke { operation, .. } = instruction else {
             return None;
         };
@@ -164,12 +170,23 @@ pub(crate) enum PublishedLifecycleRuntimeRequirementsV1 {
     NativeArray,
 }
 
+/// One final-view-issued exact-numeric runtime-check obligation at an exact
+/// physical row. Only bare routed `FieldSet` rows carry one today.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct PublishedLifecycleExactNumericCheckV1 {
+    function: u32,
+    block: u32,
+    instruction: u32,
+    declared_type_name: String,
+}
+
 /// One C-consumer input whose parts were issued by the same final view.
 #[derive(Debug, Clone)]
 pub(crate) struct PublishedLifecyclePhysicalAbiInputV1<'module> {
     entry: CompiledEntryContractV1<'module>,
     layouts: Box<[PublishedLifecyclePhysicalObjectLayoutV1]>,
     diagnostic_sites: Box<[PublishedLifecycleOperationDiagnosticSiteV1]>,
+    exact_numeric_checks: Box<[PublishedLifecycleExactNumericCheckV1]>,
     process_result_site: u64,
     fault_abi_version: u32,
     runtime_requirements: PublishedLifecycleRuntimeRequirementsV1,
@@ -188,6 +205,25 @@ impl<'module> PublishedLifecyclePhysicalAbiInputV1<'module> {
     pub(crate) fn diagnostic_sites(&self) -> &[PublishedLifecycleOperationDiagnosticSiteV1] {
         &self.diagnostic_sites
     }
+    /// Exact-numeric range-check obligation issued at one physical row.
+    /// The declared source spelling is the single authority; each consumer
+    /// lowers it to its own range proof instead of re-deriving meaning.
+    pub(crate) fn exact_numeric_check_at(
+        &self,
+        function: u32,
+        block: u32,
+        instruction: u32,
+    ) -> Option<&str> {
+        self.exact_numeric_checks
+            .iter()
+            .find(|check| {
+                check.function == function
+                    && check.block == block
+                    && check.instruction == instruction
+            })
+            .map(|check| check.declared_type_name.as_str())
+    }
+
     pub(crate) fn diagnostic_site_at(
         &self,
         function: u32,
@@ -253,6 +289,8 @@ impl<'module> PublishedMirBackendView<'module> {
             }
         }
         let diagnostic_sites = issue_diagnostic_sites(entry.program())?;
+        let exact_numeric_checks =
+            issue_exact_numeric_checks(self.module(), entry.program())?;
         // The process projection is an entry epilogue, not a MIR Invoke.
         let process_result_site = u64::try_from(diagnostic_sites.len())
             .map_err(|_| fault("process-result-site-overflow"))?;
@@ -261,6 +299,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 entry,
                 layouts: Box::new([]),
                 diagnostic_sites: diagnostic_sites.into_boxed_slice(),
+                exact_numeric_checks: exact_numeric_checks.into_boxed_slice(),
                 process_result_site,
                 fault_abi_version: 1,
                 runtime_requirements: PublishedLifecycleRuntimeRequirementsV1::NativeArray,
@@ -341,6 +380,7 @@ impl<'module> PublishedMirBackendView<'module> {
             entry,
             layouts: layouts.into_boxed_slice(),
             diagnostic_sites: diagnostic_sites.into_boxed_slice(),
+            exact_numeric_checks: exact_numeric_checks.into_boxed_slice(),
             process_result_site,
             fault_abi_version: 1,
             runtime_requirements: PublishedLifecycleRuntimeRequirementsV1::TypedObject {
@@ -348,6 +388,59 @@ impl<'module> PublishedMirBackendView<'module> {
             },
         })
     }
+}
+
+/// Binds every issued dynamic-integer-range contract to its physical row.
+/// Only bare routed `FieldSet` rows enter the transport set; invoke-form
+/// stores are covered by the separate lifecycle enforce arm instead.
+fn issue_exact_numeric_checks(
+    module: &crate::mir::MirModule,
+    program: &PublishedLifecyclePhysicalProgramV1<'_>,
+) -> Result<Vec<PublishedLifecycleExactNumericCheckV1>, String> {
+    let mut checks = Vec::new();
+    let mut coordinates = BTreeSet::new();
+    for (name, function) in &module.functions {
+        for contract in &function.metadata.exact_numeric_runtime_check_contracts {
+            if contract.kind
+                != crate::mir::function::ExactNumericRuntimeCheckContractKind::DynamicIntegerRange
+            {
+                continue;
+            }
+            let (ordinal, physical) = program
+                .functions()
+                .iter()
+                .enumerate()
+                .find(|(_, p)| p.name() == name.as_str())
+                .ok_or_else(|| fault("check-uncovered-function"))?;
+            let block = physical
+                .blocks()
+                .iter()
+                .find(|b| b.id() == contract.block)
+                .ok_or_else(|| fault("check-uncovered-block"))?;
+            let row = block
+                .instructions()
+                .iter()
+                .copied()
+                .chain(std::iter::once(block.terminator()))
+                .find(|r| r.index() as usize == contract.instruction_index)
+                .ok_or_else(|| fault("check-uncovered-instruction"))?;
+            let MirInstruction::FieldSet { .. } = row.instruction() else {
+                continue;
+            };
+            let function_ordinal =
+                u32::try_from(ordinal).map_err(|_| fault("check-function-overflow"))?;
+            if !coordinates.insert((function_ordinal, contract.block.as_u32(), row.index())) {
+                return Err(fault("check-coordinate-duplicate"));
+            }
+            checks.push(PublishedLifecycleExactNumericCheckV1 {
+                function: function_ordinal,
+                block: contract.block.as_u32(),
+                instruction: row.index(),
+                declared_type_name: contract.declared_type_name.clone(),
+            });
+        }
+    }
+    Ok(checks)
 }
 
 fn issue_diagnostic_sites(

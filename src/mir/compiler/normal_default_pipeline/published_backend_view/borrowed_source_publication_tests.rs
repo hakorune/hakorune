@@ -286,6 +286,102 @@ fn checked_compare_view_publishes_from_original_source() {
     });
 }
 
+/// The dominated ordered-Add view reads the same lent Normal-Integer
+/// projection inside the checked compare's dominance cone; the fresh i64
+/// result writes back through the checked usize store lane, whose emitted
+/// range check is the sole write-side authority.
+#[test]
+fn dominated_add_view_publishes_from_original_source() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for (suffix, argument) in [
+            ("hi", "5"),
+            ("over", "20"),
+            ("neg", "-1"),
+            ("bool", "true"),
+            ("object", "c"),
+        ] {
+            let text = format!(
+                "box Counter {{ limit: usize total: usize \
+                 birth() {{ me.limit = 10 me.total = 0 }} \
+                 check(requested): i64 {{ if requested > me.limit {{ return 0 }} \
+                 me.total = me.total + requested return 1 }} }} static box Main {{ \
+                 main() {{ local c = new Counter() return c.check({argument}) }} }}"
+            );
+            MirCompiler::with_options(false)
+                .compile_normal_with_published(
+                    request(&text),
+                    |view, verification| -> Result<(), String> {
+                        classify_pretransform_report(verification);
+                        let input = view.issue_lifecycle_physical_abi_input()?;
+                        let wire =
+                            super::super::physical_program_json::emit_lifecycle_physical_abi_json(
+                                &input,
+                            )?;
+                        let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                        let callee = json["functions"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .find(|f| f["name"] == "Counter.check/1")
+                            .unwrap();
+                        assert!(callee["params"].as_array().unwrap().iter().any(|p| {
+                            p["representation"] == "borrowed_kind_payload_v1"
+                        }));
+                        let rows: Vec<_> = callee["blocks"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .flat_map(|b| b["instructions"].as_array().unwrap())
+                            .collect();
+                        let compares: Vec<_> = rows
+                            .iter()
+                            .filter(|row| row["instruction"]["op"] == "compare")
+                            .collect();
+                        // One source compare; the edge-port model evaluates
+                        // the same projection twice.
+                        assert_eq!(compares.len(), 2, "{suffix}");
+                        assert!(compares.iter().all(|row| {
+                            row["instruction"]["predicate"] == "sgt"
+                        }));
+                        let adds: Vec<_> = rows
+                            .iter()
+                            .filter(|row| row["instruction"]["op"] == "add")
+                            .collect();
+                        assert_eq!(adds.len(), 2, "{suffix}");
+                        let stores: Vec<_> = rows
+                            .iter()
+                            .filter(|row| row["instruction"]["op"] == "field_set")
+                            .collect();
+                        assert_eq!(stores.len(), 1, "{suffix}");
+                        let store = stores[0]["instruction"].clone();
+                        assert!(store["site"].is_u64(), "{suffix}");
+                        assert_eq!(
+                            store["exact_numeric_runtime_check"]["kind"],
+                            "dynamic_integer_range",
+                            "{suffix}"
+                        );
+                        assert_eq!(
+                            store["exact_numeric_runtime_check"]["declared_type"],
+                            "usize",
+                            "{suffix}"
+                        );
+                        reject_erased_carriers(&input);
+                        reject_drifted_add_view(&input);
+                        std::fs::write(
+                            std::env::temp_dir()
+                                .join(format!("hako-issued-add-view-{suffix}.json")),
+                            wire,
+                        )
+                        .unwrap();
+                        Ok(())
+                    },
+                )
+                .unwrap_or_else(|error| panic!("{suffix}: {error}"));
+        }
+    });
+}
+
 /// The lent operand projection is pinned to its carrier: rewiring the view
 /// copy to any other source is projection drift, never a silently widened
 /// or dropped admitted use.
@@ -329,4 +425,49 @@ fn reject_drifted_compare_view(input: &super::super::PublishedLifecyclePhysicalA
         }
     }
     assert!(views > 0, "checked-compare view copies present");
+}
+
+/// The dominated Add reads the same lent projection: rewiring the view copy
+/// that feeds `Add(NormalInteger, NormalInteger)` is projection drift, never
+/// a silently widened or dropped admitted use.
+fn reject_drifted_add_view(input: &super::super::PublishedLifecyclePhysicalAbiInputV1<'_>) {
+    let mut views = 0;
+    for (fi, function) in input.program().functions().iter().enumerate() {
+        for (bi, block) in function.blocks().iter().enumerate() {
+            for (ri, row) in block.instructions().iter().enumerate() {
+                let MirInstruction::Copy { dst, .. } = row.instruction() else {
+                    continue;
+                };
+                let operand = *dst;
+                let feeds_add = block.instructions().iter().any(|candidate| {
+                    matches!(
+                        candidate.instruction(),
+                        MirInstruction::BinOp { lhs, rhs, .. }
+                            if *lhs == operand || *rhs == operand
+                    )
+                });
+                if !feeds_add {
+                    continue;
+                }
+                let mut program = input.program().clone();
+                let changed = MirInstruction::Copy {
+                    dst: operand,
+                    src: ValueId(998),
+                };
+                program.functions[fi].blocks[bi].instructions[ri].instruction = &changed;
+                let error =
+                    super::super::physical_program_json::emit_lifecycle_physical_program_value(
+                        &program,
+                        Some(input),
+                    )
+                    .unwrap_err();
+                assert!(
+                    error.contains("borrowed-carrier-projection-drift"),
+                    "{error}"
+                );
+                views += 1;
+            }
+        }
+    }
+    assert!(views > 0, "add view copies present");
 }

@@ -94,7 +94,12 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
     } else if (lv4_is(ins, "op", "add")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
-      if (!lhs || !rhs || lhs->kind != LV4_I64 || rhs->kind != LV4_I64) return 0;
+      /* The borrowed kind/payload lane may serve a dominated `+` operand
+         only; the emitted kind==1 branch proves the i64 read at the use
+         site, uniform with the checked compare. */
+      if (!lhs || !rhs ||
+          (lhs->kind != LV4_I64 && lhs->kind != LV4_TAGGED) ||
+          (rhs->kind != LV4_I64 && rhs->kind != LV4_TAGGED)) return 0;
     } else if (lv4_is(ins, "op", "compare")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
@@ -105,6 +110,22 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           (rhs->kind != LV4_I64 && rhs->kind != LV4_TAGGED)) return 0;
     } else if (lv4_is(ins, "op", "object_field_get")) {
       if (faulted || birth || lv4_slot(in, ins) < 0 ||
+          !lv4_indexed_live(fn, lv4_u(ins, "base"), LV4_HANDLE, state,
+              lv4_u(ins, "object_id"), 1)) return 0;
+    } else if (lv4_is(ins, "op", "field_set")) {
+      hako_lv4_value* value = lv4_index_value(fn, lv4_u(ins, "value"));
+      yyjson_val* check = yyjson_obj_get(ins, "exact_numeric_runtime_check");
+      /* A routed scalar store consumes the same checked helper as the
+         invoke form: the base is the exact live object and the value is a
+         proven i64 lane only — tagged carriers and handle leases never
+         reach this row. A dynamic-integer-range obligation is discharged by
+         the emitted bounds check at this row, not by the kernel. */
+      if (lv4_is(fn->function, "role", "root_unit") || faulted ||
+          lv4_slot(in, ins) < 0 || !value || value->kind != LV4_I64 ||
+          !check ||
+          !(lv4_is(check, "kind", "none") ||
+            (lv4_is(check, "kind", "dynamic_integer_range") &&
+             lv4_is(check, "declared_type", "usize"))) ||
           !lv4_indexed_live(fn, lv4_u(ins, "base"), LV4_HANDLE, state,
               lv4_u(ins, "object_id"), 1)) return 0;
     } else if (lv4_is(ins, "op", "invoke_normal_result")) {
