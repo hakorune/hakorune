@@ -141,6 +141,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         &lexical_source_targets,
         app_main_batch_slot,
         dynamic_slot,
+        entry_home_loans,
+        instance_constructors,
     );
     let borrowed_i64_results = super::lexical_instance_call::prepare_borrowed_i64_results_v1(
         &borrowed_formal_source,

@@ -4,12 +4,16 @@ use crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1;
 pub(crate) enum DynamicOperatorFamilyV1 {
     Add,
     Less,
+    Greater,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum DynamicOperatorValueClassV1 {
     Dynamic,
     I64,
+    /// Logical signed-integer operand proven by a checked view, never by
+    /// storage spelling (`usize`/U64Bits lanes stay physical detail).
+    NormalInteger,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

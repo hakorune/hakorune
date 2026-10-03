@@ -94,6 +94,9 @@ mod root_instance_call;
 mod terminal_access;
 #[path = "ordinary_new_terminal_home.rs"]
 mod terminal_home;
+pub(in crate::mir::normal_callable_semantic_package) use terminal_home::{
+    entry_receiver_box_proof, receiver_scalar_field,
+};
 use candidate::OrdinaryNewCandidate;
 
 pub(crate) use local_commit::{

@@ -39,9 +39,22 @@ fn project_field_get(
     let Some(decision) = rows.next() else {
         return Ok(None);
     };
+    // Exact i64 reads are unchanged; a numeric-integer slot stays physical
+    // bits only inside a function that carries a borrowed tagged formal, the
+    // same corridor invoke.rs grants the checked-compare view.
+    let i64_route = decision.selected_route == "hako.typed_object.slot_load_i64"
+        && decision.selected_storage == Some("i64");
+    let numeric_view_route = decision.selected_route == "hako.typed_object.slot_load_u64"
+        && decision.selected_storage == Some("u64")
+        && function.metadata.physical_param_carriers.as_deref().is_some_and(
+            |carriers| {
+                carriers.contains(
+                    &crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue,
+                )
+            },
+        );
     if rows.next().is_some()
-        || decision.selected_route != "hako.typed_object.slot_load_i64"
-        || decision.selected_storage != Some("i64")
+        || !(i64_route || numeric_view_route)
         || decision.field_id.as_deref() != Some(field.as_str())
     {
         return Err(fault("field-get-route-drift"));

@@ -38,6 +38,20 @@ const LESS_DYNAMIC_I64: VerifiedDynamicOperatorExecutionEnvelopeV1 =
         None,
     );
 
+/// The checked compare lends a Normal-Integer operand view: both operands
+/// must prove the logical signed-integer class, and a fault arrives before
+/// any result without operand mutation or rebind.
+const GREATER_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::Greater,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ),
+        DynamicOperatorNormalResultV1::TrivialBool,
+        None,
+    );
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum DynamicOperatorEnvelopeIssueV1 {
     UnsupportedDomain,
@@ -62,6 +76,11 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
             DynamicOperatorValueClassV1::Dynamic,
             DynamicOperatorValueClassV1::I64,
         ) => Ok(&LESS_DYNAMIC_I64),
+        (
+            DynamicOperatorFamilyV1::Greater,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ) => Ok(&GREATER_NORMAL_INTEGER_NORMAL_INTEGER),
         _ => Err(DynamicOperatorEnvelopeIssueV1::UnsupportedDomain),
     }
 }

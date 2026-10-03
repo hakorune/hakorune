@@ -25,6 +25,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
     prepared: &PreparedLexicalInstanceCallSourceTargetsV1,
     app_main_slot: Option<u32>,
     dynamic_slot: Option<u32>,
+    entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
+    instance_constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
 ) -> Result<PreparedBorrowedFormalIngressV1, String> {
     let mut calls = BTreeMap::new();
     for row in prepared.as_ref().map_err(Clone::clone)? {
@@ -58,9 +60,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
         {
             continue;
         }
+        let receiver = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
+            selected,
+            batch,
+            entry_home_loans.for_batch_slot(contract.batch_slot),
+            contract.batch_slot,
+        );
         let draft = batch
             .with_lowering_input(contract.batch_slot, |input| {
-                draft_borrowed_formal_uses_v1(input, contract)
+                draft_borrowed_formal_uses_v1(input, contract, instance_constructors, receiver)
             })
             .map_err(|_| freeze("borrowed-formal/batch-loan"))?;
         match draft {

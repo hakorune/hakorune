@@ -79,7 +79,8 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
         lv4_is(ins, "op", "const_string")) {
       /* Text constants have no runtime lane; their uses remain unsupported. */
     } else if (lv4_is(ins, "op", "const_unit")) {
-      if (!birth) return 0;
+      /* A missing else projects a dead Unit row; it carries no lane and
+         no operand position accepts the UNIT kind. */
     } else if (lv4_is(ins, "op", "const_null")) {
       /* The null sentinel materializes only inside a nullable-result
          callee; it seeds a handle-lane slot that never owns a lease. */
@@ -90,10 +91,18 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           source->kind != LV4_HANDLE && source->kind != LV4_TAGGED)) return 0;
       if (source->kind == LV4_HANDLE && !lv4_indexed_live(fn, source->id,
           LV4_HANDLE, state, 0, 0)) return 0;
-    } else if (lv4_is(ins, "op", "add") || lv4_is(ins, "op", "compare")) {
+    } else if (lv4_is(ins, "op", "add")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
       if (!lhs || !rhs || lhs->kind != LV4_I64 || rhs->kind != LV4_I64) return 0;
+    } else if (lv4_is(ins, "op", "compare")) {
+      hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
+          *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
+      /* The borrowed kind/payload lane may serve a checked compare only;
+         the emitted kind==1 branch proves the i64 read at the use site. */
+      if (!lhs || !rhs ||
+          (lhs->kind != LV4_I64 && lhs->kind != LV4_TAGGED) ||
+          (rhs->kind != LV4_I64 && rhs->kind != LV4_TAGGED)) return 0;
     } else if (lv4_is(ins, "op", "object_field_get")) {
       if (faulted || birth || lv4_slot(in, ins) < 0 ||
           !lv4_indexed_live(fn, lv4_u(ins, "base"), LV4_HANDLE, state,
@@ -431,7 +440,15 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
   for (size_t ei = 0; ei < yyjson_arr_size(edges); ei++) {
     yyjson_val* edge = yyjson_arr_get(edges, ei);
     hako_lv4_block* next = lv4_index_block(fn, lv4_u(edge, "target"));
-    if (!next || !yyjson_is_null(yyjson_obj_get(edge, "args"))) return 0;
+    yyjson_val* edge_args = yyjson_obj_get(edge, "args");
+    /* An empty carriers_only edge transports nothing and is the same
+       physical shape as a null args row. */
+    if (!yyjson_is_null(edge_args)) {
+      yyjson_val* values = yyjson_obj_get(edge_args, "values");
+      if (!lv4_is(edge_args, "layout", "carriers_only") || !values ||
+          !yyjson_is_arr(values) || yyjson_arr_size(values)) return 0;
+    }
+    if (!next) return 0;
     if (!lv4_indexed_deliver(work, next->ordinal,
         ei ? state : normal, ei ? failed : faulted)) return 0;
   }

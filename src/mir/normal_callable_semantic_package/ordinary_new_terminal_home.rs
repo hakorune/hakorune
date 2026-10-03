@@ -64,7 +64,7 @@ pub(super) fn initialized_integer_field(
 /// verified walk: the declaration's own box source row, resolved through
 /// the selected callable's ordinary-box coverage. `None` when the owner
 /// is not an instance-box method or carries no entry loan.
-pub(super) fn entry_receiver_box_proof<'a>(
+pub(in crate::mir::normal_callable_semantic_package) fn entry_receiver_box_proof<'a>(
     selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     batch: &'a crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
@@ -175,7 +175,7 @@ pub(super) fn argument_integer_field(
 /// integer-scalar name set (`usize` included) decides the contract —
 /// argument-position `i64` admission is a separate authority and stays
 /// unchanged.
-pub(super) fn receiver_scalar_field(
+pub(in crate::mir::normal_callable_semantic_package) fn receiver_scalar_field(
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     site: &OwnedExprSiteV1,

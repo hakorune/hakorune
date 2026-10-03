@@ -248,6 +248,22 @@ impl FinalizedRootSourceHandoffV1 {
     ) -> Result<Box<[(u32, BindingRefV1, ValueId)]>, String> {
         self.ledger.borrowed_ordinary_entry_values_v1(owner)
     }
+
+    /// Same finalized entry proof, projecting only the admitted checked-
+    /// compare operand uses: `(binding, formal, binary site)` triples.
+    /// The finished-function check runs through the same owner/function
+    /// binding as the alias copy projection.
+    pub(in crate::mir) fn borrowed_ordinary_compare_uses_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<Box<[(BindingRefV1, BindingRefV1, OwnedExprSiteV1)]>, String> {
+        let source = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        Ok(source
+            .compare_uses()
+            .map(|(binding, formal, binary)| (binding, formal, binary.clone()))
+            .collect())
+    }
 }
 
 impl OrdinaryNewClaimLedgerV1 {

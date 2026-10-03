@@ -214,3 +214,119 @@ fn classify_pretransform_report(
         );
     }
 }
+
+/// The borrowed tagged carrier keeps its physical identity while the
+/// checked-compare view lends exactly one Normal-Integer operand read: the
+/// `me.<numeric field>` sibling resolves through the entry-receiver proof,
+/// and the edge-port model may evaluate the same projection more than once.
+#[test]
+fn checked_compare_view_publishes_from_original_source() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for (suffix, sibling, argument) in [
+            ("hi", "me.limit", "15"),
+            ("lo", "me.limit", "5"),
+            ("neg", "me.limit", "-1"),
+            ("bool", "me.limit", "true"),
+            ("object", "me.limit", "c"),
+            ("literal", "10", "15"),
+        ] {
+            let text = format!(
+                "box Counter {{ limit: usize birth() {{ me.limit = 10 }} \
+                 check(requested): i64 {{ if requested > {sibling} {{ return 7 }} \
+                 return 3 }} }} static box Main {{ main() {{ \
+                 local c = new Counter() return c.check({argument}) }} }}"
+            );
+            MirCompiler::with_options(false)
+                .compile_normal_with_published(
+                    request(&text),
+                    |view, verification| -> Result<(), String> {
+                        classify_pretransform_report(verification);
+                        let input = view.issue_lifecycle_physical_abi_input()?;
+                        let wire =
+                            super::super::physical_program_json::emit_lifecycle_physical_abi_json(
+                                &input,
+                            )?;
+                        let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                        let callee = json["functions"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .find(|f| f["name"] == "Counter.check/1")
+                            .unwrap();
+                        assert!(callee["params"].as_array().unwrap().iter().any(|p| {
+                            p["representation"] == "borrowed_kind_payload_v1"
+                        }));
+                        let compares: Vec<_> = callee["blocks"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .flat_map(|b| b["instructions"].as_array().unwrap())
+                            .filter(|row| row["instruction"]["op"] == "compare")
+                            .collect();
+                        // One source compare; the edge-port model evaluates
+                        // the same projection twice.
+                        assert_eq!(compares.len(), 2, "{suffix}");
+                        assert!(compares.iter().all(|row| {
+                            row["instruction"]["predicate"] == "sgt"
+                        }));
+                        reject_erased_carriers(&input);
+                        reject_drifted_compare_view(&input);
+                        std::fs::write(
+                            std::env::temp_dir()
+                                .join(format!("hako-issued-checked-compare-{suffix}.json")),
+                            wire,
+                        )
+                        .unwrap();
+                        Ok(())
+                    },
+                )
+                .unwrap_or_else(|error| panic!("{suffix}: {error}"));
+        }
+    });
+}
+
+/// The lent operand projection is pinned to its carrier: rewiring the view
+/// copy to any other source is projection drift, never a silently widened
+/// or dropped admitted use.
+fn reject_drifted_compare_view(input: &super::super::PublishedLifecyclePhysicalAbiInputV1<'_>) {
+    let mut views = 0;
+    for (fi, function) in input.program().functions().iter().enumerate() {
+        for (bi, block) in function.blocks().iter().enumerate() {
+            for (ri, row) in block.instructions().iter().enumerate() {
+                let MirInstruction::Copy { dst, .. } = row.instruction() else {
+                    continue;
+                };
+                let operand = *dst;
+                let feeds_compare = block.instructions().iter().any(|candidate| {
+                    matches!(
+                        candidate.instruction(),
+                        MirInstruction::Compare { lhs, rhs, .. }
+                            if *lhs == operand || *rhs == operand
+                    )
+                });
+                if !feeds_compare {
+                    continue;
+                }
+                let mut program = input.program().clone();
+                let changed = MirInstruction::Copy {
+                    dst: operand,
+                    src: ValueId(998),
+                };
+                program.functions[fi].blocks[bi].instructions[ri].instruction = &changed;
+                let error =
+                    super::super::physical_program_json::emit_lifecycle_physical_program_value(
+                        &program,
+                        Some(input),
+                    )
+                    .unwrap_err();
+                assert!(
+                    error.contains("borrowed-carrier-projection-drift"),
+                    "{error}"
+                );
+                views += 1;
+            }
+        }
+    }
+    assert!(views > 0, "checked-compare view copies present");
+}

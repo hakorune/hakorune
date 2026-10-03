@@ -49,7 +49,7 @@ fn draft_with_contract(
     package
         .batch()
         .with_lowering_input(contract.batch_slot, |input| {
-            draft_borrowed_formal_uses_v1(input, &contract)
+            draft_borrowed_formal_uses_v1(input, &contract, package.instance_constructors(), None)
         })
         .expect("exact source loan")
 }
@@ -179,6 +179,64 @@ fn lexical_shadowing_does_not_borrow_the_formal_by_name() {
     assert!(row.uses.is_empty());
 }
 
+#[test]
+fn checked_compare_admits_direct_if_greater_with_integer_or_origin_sibling() {
+    for body in [
+        "if p > 5 { return 1 } return 0",
+        "if 5 > p { return 1 } return 0",
+        "local q = p if p > q { return 1 } return 0",
+    ] {
+        let row = draft(body).expect("admitted compare operand");
+        let compares = row
+            .uses
+            .iter()
+            .filter(|row| {
+                matches!(
+                    row.kind,
+                    BorrowedFormalUseDraftKindV1::CompareOperand { .. }
+                )
+            })
+            .count();
+        assert!(compares >= 1, "compare operand admitted: {body}");
+    }
+    let aliased = draft("local a = p if a > 5 { return 1 } return 0")
+        .expect("alias compare operand");
+    assert_eq!(aliased.uses.len(), 2);
+    let compare = aliased
+        .uses
+        .iter()
+        .find(|row| {
+            matches!(
+                row.kind,
+                BorrowedFormalUseDraftKindV1::CompareOperand { .. }
+            )
+        })
+        .expect("view row");
+    assert_ne!(compare.binding, compare.formal);
+    assert_eq!(aliased.origins[&compare.binding], compare.formal);
+}
+
+#[test]
+fn checked_compare_rejects_outside_if_wrong_operator_and_unproved_sibling() {
+    for body in [
+        "local b = p > 5 return 0",
+        "if p >= 5 { return 1 } return 0",
+        "if p < 5 { return 1 } return 0",
+        "if p > true { return 1 } return 0",
+        "local n = 5 if p > n { return 1 } return 0",
+        "if p > 5 { return 1 } local x = p + 1 return 0",
+        "loop(p > 5) { return 1 } return 0",
+    ] {
+        assert!(
+            matches!(
+                draft(body),
+                Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(_))
+            ),
+            "rejected use: {body}"
+        );
+    }
+}
+
 fn forwarding_package(
     mutual: bool,
 ) -> crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1 {
@@ -221,7 +279,12 @@ fn drafts_for_package(
             let draft = package
                 .batch()
                 .with_lowering_input(contract.batch_slot, |input| {
-                    draft_borrowed_formal_uses_v1(input, contract)
+                    draft_borrowed_formal_uses_v1(
+                        input,
+                        contract,
+                        package.instance_constructors(),
+                        None,
+                    )
                 })
                 .expect("exact source loan")
                 .expect("transport-only uses");

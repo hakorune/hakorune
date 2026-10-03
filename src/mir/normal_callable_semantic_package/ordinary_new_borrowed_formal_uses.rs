@@ -9,9 +9,11 @@ use std::collections::BTreeMap;
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1;
 use crate::mir::resolved_semantics::{
-    BindingKindV1, BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedAssignmentTargetV1,
-    ResolvedLexicalRefV1, SourceBindingSiteV1, SourceExprSiteV1,
+    BindingKindV1, BindingRefV1, BodyExpressionShapeV1, BodyMeReceiverV1, FunctionOwnerIdV1,
+    OwnedExprSiteV1, ResolvedAssignmentTargetV1, ResolvedBinaryOperatorV1, ResolvedLexicalRefV1,
+    ResolvedLiteralSourceV1, SourceBindingSiteV1, SourceExprSiteV1,
 };
 
 #[derive(Debug, PartialEq, Eq)]
@@ -34,6 +36,13 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
     UnresolvedArgument {
         call: OwnedExprSiteV1,
         ordinal: u32,
+    },
+    /// A checked-compare operand use admitted under the existing operation
+    /// owner's `Greater(NormalInteger, NormalInteger)` view envelope. The
+    /// binary site pins the sole admitted operand use; the view stays lent
+    /// to this binding/ValueId only.
+    CompareOperand {
+        binary: OwnedExprSiteV1,
     },
 }
 
@@ -277,9 +286,114 @@ pub(super) fn join_borrowed_forward_uses_v1(
     Ok(rows.into_boxed_slice())
 }
 
+/// `site` is a checked-compare operand of a `>` binary only when the binary
+/// is a direct `if` condition and the sibling operand proves the
+/// Normal-Integer class: an Integer literal, another borrowed view operand,
+/// or `me.<field>` whose declaration the entry-receiver proof resolves to a
+/// numeric-integer name. Anything else stays outside the draft profile.
+fn compare_operand_kind(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    origins: &BTreeMap<BindingRefV1, BindingRefV1>,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    site: &SourceExprSiteV1,
+) -> Result<Option<BorrowedFormalUseDraftKindV1>, BorrowedFormalUseDraftErrorV1> {
+    let function = input.function();
+    let mut matching = function
+        .expression_source()
+        .binaries()
+        .filter(|row| row.lhs() == site || row.rhs() == site);
+    let Some(binary) = matching.next() else {
+        return Ok(None);
+    };
+    if matching.next().is_some() || binary.operator() != ResolvedBinaryOperatorV1::Greater {
+        return Ok(None);
+    }
+    if function
+        .with_if_region_for_condition(binary.site(), |_| ())
+        .is_err()
+    {
+        return Ok(None);
+    }
+    let other = if binary.lhs() == site {
+        binary.rhs()
+    } else {
+        binary.lhs()
+    };
+    if !normal_integer_operand(input, origins, constructors, receiver, other)? {
+        return Ok(None);
+    }
+    // The existing operation owner issues the checked-compare view envelope;
+    // this draft is its first production consumer, not a new authority.
+    use crate::mir::dynamic_operator_contract::{
+        DynamicOperatorDomainV1, DynamicOperatorFamilyV1, DynamicOperatorValueClassV1,
+    };
+    crate::mir::dynamic_operator_contract::issue_dynamic_operator_execution_envelope_v1(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::Greater,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ),
+    )
+    .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
+    Ok(Some(BorrowedFormalUseDraftKindV1::CompareOperand {
+        binary: OwnedExprSiteV1::new(input.owner(), binary.site().clone()),
+    }))
+}
+
+/// Whether the sibling operand of a checked compare proves the logical
+/// Normal-Integer class without inspecting storage spelling.
+fn normal_integer_operand(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    origins: &BTreeMap<BindingRefV1, BindingRefV1>,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    site: &SourceExprSiteV1,
+) -> Result<bool, BorrowedFormalUseDraftErrorV1> {
+    let function = input.function();
+    if matches!(
+        function.expression_source().literal(site),
+        Some(ResolvedLiteralSourceV1::Integer(_))
+    ) {
+        return Ok(true);
+    }
+    if let Some(ResolvedLexicalRefV1::Local(binding)) = function.variable_ref(site) {
+        return Ok(origins.contains_key(&binding));
+    }
+    let Some(shape) = input.body_shape() else {
+        return Ok(false);
+    };
+    let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) =
+        shape.expression_shape(site)
+    else {
+        return Ok(false);
+    };
+    let me = match function.variable_ref(object) {
+        Some(ResolvedLexicalRefV1::Local(binding)) => binding,
+        _ => match shape.expression_shape(object) {
+            Some(BodyExpressionShapeV1::Me {
+                receiver: BodyMeReceiverV1::Lexical(binding),
+                ..
+            }) => *binding,
+            _ => return Ok(false),
+        },
+    };
+    crate::mir::normal_callable_semantic_package::ordinary_new_coseal::receiver_scalar_field(
+        constructors,
+        receiver,
+        &OwnedExprSiteV1::new(input.owner(), site.clone()),
+        me,
+        field,
+    )
+    .map(|result| result.is_some())
+    .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)
+}
+
 pub(super) fn draft_borrowed_formal_uses_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     contract: &OwnedCallableParameterContractDeclarationV1,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
 ) -> Result<BorrowedFormalUsesDraftV1, BorrowedFormalUseDraftErrorV1> {
     let function = input.function();
     if input.owner() != contract.owner
@@ -422,6 +536,15 @@ pub(super) fn draft_borrowed_formal_uses_v1(
                     ordinal: argument.ordinal(),
                 });
             }
+        }
+        if kind.is_none() {
+            kind = compare_operand_kind(
+                input,
+                &origins,
+                constructors,
+                receiver,
+                site,
+            )?;
         }
         uses.push(BorrowedFormalUseDraftRowV1 {
             site: owned.clone(),

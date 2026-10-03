@@ -1,6 +1,7 @@
 //! Original source/entry/Forwarded proofs with synthetic physical instructions.
 //! This is operand-closure evidence, not production publication or tagged ABI.
 use super::*;
+use crate::mir::CompareOp;
 
 pub(super) fn fixture() -> (FunctionUses, MirFunction, MirInstruction) {
     let text = "box Transport { birth() {} probe(p): i64 { return 0 } forward(q): i64 { local alias = q local recv = new Transport() local out = recv.probe(alias) return 0 } } static box Main { main() { local recv = new Transport() local out = recv.forward(true) return 0 } }";
@@ -92,21 +93,34 @@ pub(super) fn fixture() -> (FunctionUses, MirFunction, MirInstruction) {
     )
 }
 
-fn verify(state: &FunctionUses, function: &MirFunction) -> Result<(), String> {
+fn verify(state: &mut FunctionUses, function: &MirFunction) -> Result<(), String> {
+    // The call's expected coordinate follows the terminator, which shifts
+    // when tests append instructions before it.
+    let index = function.blocks[&BasicBlockId(0)].instructions.len();
+    state.arguments = state
+        .arguments
+        .iter()
+        .map(|((block, _, ordinal), formal)| ((*block, index, *ordinal), *formal))
+        .collect();
     let tracked = state.tracked()?;
     let mut definitions = Scan::default();
+    let mut indexed = Vec::new();
     for (block, row) in &function.blocks {
         for (index, instruction) in row.all_instructions().enumerate() {
-            state.instruction(&tracked, (*block, index), instruction, &mut definitions)?;
+            indexed.push(((*block, index), instruction));
         }
+    }
+    let views = state.compare_views(&tracked, &indexed)?;
+    for (coordinate, instruction) in &indexed {
+        state.instruction(&tracked, &views, *coordinate, instruction, &mut definitions)?;
     }
     state.definitions(&tracked, &function.params, &definitions)
 }
 
 #[test]
 fn borrowed_use_original_forwarded_copy_and_exact_call_position_pass() {
-    let (state, function, _) = fixture();
-    verify(&state, &function).unwrap();
+    let (mut state, function, _) = fixture();
+    verify(&mut state, &function).unwrap();
     assert_eq!(state.roots.len(), 1);
     assert_eq!(state.copies.len(), 1);
     assert_eq!(state.arguments.len(), 1);
@@ -115,7 +129,7 @@ fn borrowed_use_original_forwarded_copy_and_exact_call_position_pass() {
 #[test]
 fn borrowed_use_rejects_receiver_fault_frame_wrong_ordinal_and_argument_loss() {
     for mutation in 0..4 {
-        let (state, mut function, mut instruction) = fixture();
+        let (mut state, mut function, mut instruction) = fixture();
         let MirInstruction::Invoke {
             operation: InvokeOperation::Call { call, .. },
             fault_frame,
@@ -141,7 +155,7 @@ fn borrowed_use_rejects_receiver_fault_frame_wrong_ordinal_and_argument_loss() {
             .get_mut(&BasicBlockId(0))
             .unwrap()
             .terminator = Some(instruction);
-        assert!(verify(&state, &function)
+        assert!(verify(&mut state, &function)
             .unwrap_err()
             .contains("borrowed-use/"));
     }
@@ -150,7 +164,7 @@ fn borrowed_use_rejects_receiver_fault_frame_wrong_ordinal_and_argument_loss() {
 #[test]
 fn borrowed_use_rejects_unproved_copy_phi_return_and_edge_transport() {
     for mutation in 0..4 {
-        let (state, mut function, _) = fixture();
+        let (mut state, mut function, _) = fixture();
         let value = *state.roots.keys().next().unwrap();
         let instruction = match mutation {
             0 => MirInstruction::Copy {
@@ -177,7 +191,7 @@ fn borrowed_use_rejects_unproved_copy_phi_return_and_edge_transport() {
             .unwrap()
             .instructions
             .push(instruction);
-        assert!(verify(&state, &function)
+        assert!(verify(&mut state, &function)
             .unwrap_err()
             .contains("borrowed-use/"));
     }
@@ -186,7 +200,7 @@ fn borrowed_use_rejects_unproved_copy_phi_return_and_edge_transport() {
 #[test]
 fn borrowed_use_rejects_root_copy_definition_and_parameter_drift() {
     for mutation in 0..4 {
-        let (state, mut function, _) = fixture();
+        let (mut state, mut function, _) = fixture();
         let value = *state.roots.keys().next().unwrap();
         let copy = state.copies.values().next().unwrap().0 .1.clone();
         match mutation {
@@ -208,7 +222,7 @@ fn borrowed_use_rejects_root_copy_definition_and_parameter_drift() {
                 }),
             _ => function.params.clear(),
         }
-        assert!(verify(&state, &function)
+        assert!(verify(&mut state, &function)
             .unwrap_err()
             .contains("borrowed-use/"));
     }
@@ -222,7 +236,7 @@ fn borrowed_use_rejects_missing_call_omitted_alias_use_and_duplicate_coordinate(
         .get_mut(&BasicBlockId(0))
         .unwrap()
         .terminator = Some(MirInstruction::Return { value: None });
-    assert!(verify(&state, &function)
+    assert!(verify(&mut state, &function)
         .unwrap_err()
         .contains("argument-coverage"));
     let dst = *state.copies.keys().next().unwrap();
@@ -243,17 +257,174 @@ fn borrowed_use_rejects_missing_call_omitted_alias_use_and_duplicate_coordinate(
         *state.roots.values().next().unwrap(),
     )]
     .into();
-    assert!(verify(&state, &function)
+    assert!(verify(&mut state, &function)
         .unwrap_err()
         .contains("omitted-copy-argument"));
     let tracked = state.tracked().unwrap();
     let mut scan = Scan::default();
+    let views = BTreeMap::new();
     let unused = MirInstruction::Return { value: None };
     state
-        .instruction(&tracked, (BasicBlockId(0), 0), &unused, &mut scan)
+        .instruction(&tracked, &views, (BasicBlockId(0), 0), &unused, &mut scan)
         .unwrap();
     assert!(state
-        .instruction(&tracked, (BasicBlockId(0), 0), &unused, &mut scan)
+        .instruction(&tracked, &views, (BasicBlockId(0), 0), &unused, &mut scan)
         .unwrap_err()
         .contains("coordinate-duplicate"));
+}
+
+fn compare_fixture() -> (FunctionUses, MirFunction, ValueId, BindingRefV1) {
+    let (mut state, mut function, _) = fixture();
+    let carrier = *state.roots.keys().next().unwrap();
+    let formal = *state.roots.values().next().unwrap();
+    state.compare_admissions.insert(formal, 1);
+    function
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::Copy {
+            dst: ValueId(700),
+            src: carrier,
+        });
+    (state, function, ValueId(700), formal)
+}
+
+#[test]
+fn borrowed_use_checked_compare_view_counts_distinct_operands_once() {
+    // The edge-port model may evaluate the same projection twice; the lent
+    // view is used once per admitted source operand.
+    let (mut state, mut function, view, _) = compare_fixture();
+    for (index, dst) in [(0usize, ValueId(701)), (1, ValueId(702))] {
+        let _ = index;
+        function
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .instructions
+            .push(MirInstruction::Compare {
+                dst,
+                op: CompareOp::Gt,
+                lhs: view,
+                rhs: ValueId(800),
+            });
+    }
+    verify(&mut state, &function).unwrap();
+}
+
+#[test]
+fn borrowed_use_rejects_compare_view_escape_and_coverage_drift() {
+    // View operand reaching a non-compare instruction.
+    let (mut state, mut function, view, _) = compare_fixture();
+    function
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .extend([
+            MirInstruction::Compare {
+                dst: ValueId(701),
+                op: CompareOp::Gt,
+                lhs: view,
+                rhs: ValueId(800),
+            },
+            MirInstruction::Copy {
+                dst: ValueId(703),
+                src: view,
+            },
+        ]);
+    assert!(verify(&mut state, &function)
+        .unwrap_err()
+        .contains("forbidden-operand"));
+    // View operand leaving through an edge argument.
+    let (mut state, mut function, view, _) = compare_fixture();
+    function
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .extend([
+            MirInstruction::Compare {
+                dst: ValueId(701),
+                op: CompareOp::Gt,
+                lhs: view,
+                rhs: ValueId(800),
+            },
+            MirInstruction::Jump {
+                target: BasicBlockId(9),
+                edge_args: Some(crate::mir::EdgeArgs {
+                    layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly,
+                    values: vec![view],
+                }),
+            },
+        ]);
+    assert!(verify(&mut state, &function)
+        .unwrap_err()
+        .contains("forbidden-operand"));
+    // The admitted use never observed: without the compare the view copy
+    // itself is only an unproved carrier copy.
+    let (mut state, mut function, _, _) = compare_fixture();
+    function
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .pop();
+    assert!(verify(&mut state, &function)
+        .unwrap_err()
+        .contains("compare-coverage"));
+    // A physical compare without the source admission.
+    let (mut state, mut function, view, formal) = compare_fixture();
+    state.compare_admissions.remove(&formal);
+    function
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .unwrap()
+        .instructions
+        .push(MirInstruction::Compare {
+            dst: ValueId(701),
+            op: CompareOp::Gt,
+            lhs: view,
+            rhs: ValueId(800),
+        });
+    assert!(verify(&mut state, &function)
+        .unwrap_err()
+        .contains("compare-coverage"));
+}
+
+#[test]
+fn borrowed_use_rejects_view_shape_drift() {
+    // A compare operand copied from anything but the tracked carrier is no
+    // view; the stray copy of an untracked value stays legal, the admitted
+    // use is then missing.
+    let (mut state, mut function, _, _) = compare_fixture();
+    let block = function.blocks.get_mut(&BasicBlockId(0)).unwrap();
+    block.instructions.pop();
+    block.instructions.extend([
+        MirInstruction::Copy {
+            dst: ValueId(700),
+            src: ValueId(801),
+        },
+        MirInstruction::Compare {
+            dst: ValueId(701),
+            op: CompareOp::Gt,
+            lhs: ValueId(700),
+            rhs: ValueId(800),
+        },
+    ]);
+    assert!(verify(&mut state, &function)
+        .unwrap_err()
+        .contains("compare-coverage"));
+    // A tracked operand used directly still counts toward the admission.
+    let (mut state, mut function, _, _) = compare_fixture();
+    let carrier = *state.roots.keys().next().unwrap();
+    let block = function.blocks.get_mut(&BasicBlockId(0)).unwrap();
+    block.instructions.pop();
+    block.instructions.push(MirInstruction::Compare {
+        dst: ValueId(701),
+        op: CompareOp::Gt,
+        lhs: carrier,
+        rhs: ValueId(800),
+    });
+    verify(&mut state, &function).unwrap();
 }

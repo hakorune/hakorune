@@ -121,3 +121,53 @@ claimed. Cohort immutable-index optimization remains separate BoxShape.
 
 Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-S0
 (the bounded compare-operand view construction and acceptance above).
+
+## S0 landed (checked-compare operand view)
+
+- Contract: `DynamicOperatorFamilyV1::Greater` +
+  `NormalInteger`/`NormalInteger` operand class added to
+  `dynamic_operator_contract` (model+issuer); same-owner envelope only.
+- Source: `BorrowedFormalUseDraftKindV1::CompareOperand` admits the opaque
+  formal only as a direct `if`-condition Greater operand beside an
+  integer-literal or receiver-origin numeric-integer field sibling;
+  pre-check, wrong-operator, unproved-sibling, post-compare, loop-condition,
+  and rebound uses stay `UnsupportedUse` (draft tests 16/16).
+- Physical: `BorrowedCallUses` discovers one-step Copy compare views from
+  tracked carriers, whitelists `Compare` on proved views only, counts
+  distinct operand `ValueId`s (edge-port lowering re-emits the same compare:
+  two physical rows, one view use), rejects view escape/coverage/shape
+  drift (closure tests 12/12, view tests 3/3).
+- Field gate: `invoke.rs` and `physical_program_field_ref` extend the
+  numeric-integer slot read (`slot_load_u64`/`u64`) only inside functions
+  carrying a `BorrowedTaggedValue` param — the checked-compare corridor.
+- C lane: emitter adds a `kind==1` site check per tagged compare operand
+  (signed `icmp sgt` unchanged, unique labels per instruction index);
+  indexed admission accepts `LV4_I64`/`LV4_TAGGED` compare operands, dead
+  `const_unit` rows in ordinary functions, and empty `carriers_only` edge
+  args as the null row.
+- Receipts: `checked_compare_view_publishes_from_original_source` (3 tests;
+  six JSONs: usize-field hi/lo/neg, bool/object, literal sibling) plus
+  `lang/c-abi/tests/published_lifecycle_v4_checked_compare_execution_test.py`
+  — 4 Normal executions (incl. -1 signed path) and 2 kind!=1 Fault
+  executions through driver->object->EXE.
+- Scope guard pins added; guard otherwise stops only on pre-existing
+  `brand_catalog_tests.rs=961` debt (untouched since e939989660).
+- Baseline delta classified: `cargo test --lib` showed +5 passed/+1 failed
+  vs the 8325/126/56 receipt; the extra failure is
+  `nullable_receiver_call_serializes_nullable_handle_and_checked_release`,
+  a pre-existing flaky test — `new Probe(7)`'s `value_types` entry
+  nondeterministically lands `Box`/`Void`, flipping `Probe.fetch/1`'s
+  inferred return between `Box` and `Void`
+  (`published-lifecycle-program/ordinary-membership-drift`). Reproduced at
+  clean `c10ee46bb2` with zero slice changes: 4 failures in 6 runs of the
+  test alone, and the fixture alone fails ~40% with no prior compile.
+  Root owners (`return_type_strategy`, `module_lifecycle`, phi/copy type
+  propagation) are untouched by this slice -> known baseline debt, not a
+  current-change failure.
+- Non-claims held: no `ArraySet`/`Add`/constructor admission, no unsigned
+  lane, no retirement; `allocate` still declines at `page_heap_box.hako:75`
+  until task-4 D0.
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-D0 —
+original `ArraySet` -> ordered `Add` -> constructor via the same view;
+usize range stays at the checked write lane.
