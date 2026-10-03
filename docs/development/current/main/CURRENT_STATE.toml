@@ -1,7 +1,7 @@
 date = "2026-10-04"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-S0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDRESULT-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -18,21 +18,21 @@ latest_card = "mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
 latest_card_summary = """
 PARAMFIELD task-4 series in flight; I64RESULT-S0, ROOTSOURCE-S0,
-USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0 and FIELDSIZE-T0 landed —
-borrowed actuals admit the exact `null` literal (wire tag 0 beside its
-sole `const_null` producer) and a caller-owned `ReceivedNullable` whose
-sealed `NullableObject(C)` claim is the sole class authority, crossing
-as `nullable_typed_object`; the field-read batch issuer/stager is now a
-private `field_batch` child of issue_source (verbatim, 780 -> 681).
-Next PARAMFIELD-S0, FIELDRESULT and PARAMFIELD-ACCEPTANCE. Object views
-compose the complete source class cohort in the existing ledger;
-non-null, class and lifetime stay distinct. All later frontier pins
-remain fail-closed until their slice activates. No release/app EXE or
-migration completion claim.
+USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0, FIELDSIZE-T0 and
+PARAMFIELD-S0 landed — a dominated `formal.field` read on a guarded
+`Handle` formal publishes one `object_field_get` against the co-sealed
+`BorrowedFormalObjectViewV1` (minted only when every incoming actual
+agrees on one ordinary class), riding the param row as `object_view`;
+viewless callees stay bounded and fail `unproved-copy`. C witness
+`published_lifecycle_v4_param_field_execution_test.py` executes the
+issued program and rejects seven forged rows. Next FIELDRESULT-S0 and
+PARAMFIELD-ACCEPTANCE-R0. Non-null, class and lifetime stay distinct.
+All later frontier pins remain fail-closed until their slice activates.
+No release/app EXE or migration completion claim.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-S0"
+next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDRESULT-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-S0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDRESULT-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

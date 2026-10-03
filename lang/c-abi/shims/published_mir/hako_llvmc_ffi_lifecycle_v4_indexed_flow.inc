@@ -64,6 +64,25 @@ static int lv4_borrowed_tagged_formal(hako_lv4_function_index* fn, hako_lv4_valu
   return 0;
 }
 
+/* A guarded `formal.field` read rides the same borrowed kind/payload
+   formal: the copy root must be a borrowed param whose sealed `object_view`
+   names exactly this canonical object. The emitted checked get re-validates
+   type and slot at the site, so a null-state or foreign payload faults
+   inside its own row instead of guessing a layout. */
+static int lv4_borrowed_object_formal(hako_lv4_function_index* fn,
+    hako_lv4_value* value, uint32_t object_id) {
+  if (!lv4_borrowed_tagged_formal(fn, value)) return 0;
+  hako_lv4_value* root = lv4_borrowed_copy_root(fn, value);
+  yyjson_val* params = yyjson_obj_get(fn->function, "params");
+  for (size_t i = 0; root && i < yyjson_arr_size(params); i++) {
+    yyjson_val* param = yyjson_arr_get(params, i);
+    yyjson_val* view = yyjson_obj_get(param, "object_view");
+    if (lv4_u(param, "value") == root->id)
+      return yyjson_is_uint(view) && yyjson_get_uint(view) == object_id;
+  }
+  return 0;
+}
+
 /* The null sentinel's other admitted lanes: the function carries at
    least one `borrowed_null_compare` row, or a call edge whose borrowed
    actual spells tag 0 — the arg's own `value` field still names the
@@ -171,9 +190,16 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           !index || index->kind != LV4_I64 ||
           !value || (value->kind != LV4_I64 && value->kind != LV4_TAGGED)) return 0;
     } else if (lv4_is(ins, "op", "object_field_get")) {
-      if (faulted || birth || lv4_slot(in, ins) < 0 ||
-          !lv4_indexed_live(fn, lv4_u(ins, "base"), LV4_HANDLE, state,
-              lv4_u(ins, "object_id"), 1)) return 0;
+      /* A borrowed formal's guarded read carries no owned lease: the
+         tagged pair's payload names the object, and the param's sealed
+         `object_view` must equal this row's canonical object — the
+         publisher's dominance proof, not this arm, places the row in the
+         non-null cone. */
+      hako_lv4_value* base = lv4_index_value(fn, lv4_u(ins, "base"));
+      if (faulted || birth || lv4_slot(in, ins) < 0 || !base ||
+          (!lv4_indexed_live(fn, base->id, LV4_HANDLE, state,
+              lv4_u(ins, "object_id"), 1) &&
+           !lv4_borrowed_object_formal(fn, base, lv4_u(ins, "object_id")))) return 0;
     } else if (lv4_is(ins, "op", "field_set")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(ins, "value"));
       yyjson_val* check = yyjson_obj_get(ins, "exact_numeric_runtime_check");

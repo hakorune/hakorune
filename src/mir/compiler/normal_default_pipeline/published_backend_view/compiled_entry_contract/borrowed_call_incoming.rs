@@ -15,7 +15,10 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     program: &PublishedLifecyclePhysicalProgramV1<'module>,
     module: &MirModule,
 ) -> Result<
-    BTreeMap<(usize, crate::mir::BasicBlockId, usize), &'module [PreparedBorrowedFormalActualV1]>,
+    (
+        BTreeMap<(usize, crate::mir::BasicBlockId, usize), &'module [PreparedBorrowedFormalActualV1]>,
+        BTreeMap<u32, BTreeMap<u32, u32>>,
+    ),
     String,
 > {
     let mut callees = BTreeMap::new();
@@ -39,7 +42,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     }
     let Some(source) = program.handoff().root_source() else {
         return if callees.is_empty() {
-            Ok(BTreeMap::new())
+            Ok((BTreeMap::new(), BTreeMap::new()))
         } else {
             Err(fault("borrowed-incoming/source-missing"))
         };
@@ -191,8 +194,8 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     {
         return Err(fault("borrowed-incoming/coverage-mismatch"));
     }
-    uses.finish(program, module)?;
-    Ok(witnessed)
+    let object_views = uses.finish(program, module)?;
+    Ok((witnessed, object_views))
 }
 
 /// Exact consumer boundary: a coordinate alone cannot prove a published Call.

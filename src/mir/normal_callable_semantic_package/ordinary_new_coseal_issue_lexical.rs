@@ -281,7 +281,7 @@ pub(super) fn lexical_nullable_result_call(
 /// `NullableObject` claim is the sole class authority. Anything else —
 /// an unclassifiable initializer, a non-selected target, an `Object` or
 /// absent claim — answers `None`; the caller stays on its existing path.
-pub(super) fn nullable_received_result_class(
+pub(in crate::mir::normal_callable_semantic_package) fn nullable_received_result_class(
     selected: &VerifiedSelectedCallableBatchMapV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,

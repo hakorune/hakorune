@@ -79,6 +79,12 @@ pub(super) enum FieldReadReceiverV1 {
     /// live base. The issuer resolves the class from the sealed call's
     /// `NullableObject` claim, never from the stored local itself.
     ReceivedNullable,
+    /// A self-rooted `OpaqueHandle` formal whose exact `== null` arm
+    /// terminated — the surviving join marked it non-null. The binding
+    /// itself is the borrowed base on this path; the issuer resolves the
+    /// class only from the co-sealed borrowed-formal object view, never
+    /// from the stored local or the declaration contract.
+    GuardedFormal,
 }
 
 pub(super) enum OrdinaryObservation {
@@ -160,14 +166,16 @@ impl<'source> PrefixLocalFlow<'source> {
     }
 
     /// Mark the binding non-null on this surviving path. Only a live
-    /// `ReceivedNullable` can carry the mark; any other stored class —
-    /// including an `Uninitialized` produced by a sibling branch scope —
-    /// ignores it.
+    /// `ReceivedNullable` or a self-rooted `Handle` can carry the mark; any
+    /// other stored class — including an `Uninitialized` produced by a
+    /// sibling branch scope — ignores it.
     pub(super) fn mark_nonnull(&mut self, binding: BindingRefV1) {
-        if matches!(
-            self.locals.get(&binding),
-            Some(StoredLocal::ReceivedNullable)
-        ) {
+        let narrowable = match self.locals.get(&binding) {
+            Some(StoredLocal::ReceivedNullable) => true,
+            Some(StoredLocal::Handle(root)) => *root == binding,
+            _ => false,
+        };
+        if narrowable {
             self.nonnull.insert(binding);
         }
     }
@@ -476,7 +484,17 @@ impl<'source> PrefixLocalFlow<'source> {
         match self.locals.get(&binding)? {
             StoredLocal::Home { .. } => Some(FieldReadReceiverV1::OwnedHome),
             StoredLocal::Handle(root) if self.field_root_is_live(*root) => {
-                Some(FieldReadReceiverV1::RootedHandle(*root))
+                if *root == binding
+                    && self.nonnull.contains(&binding)
+                    && matches!(
+                        self.input.function().binding(binding).map(|row| row.kind()),
+                        Some(crate::mir::resolved_semantics::BindingKindV1::Parameter { .. })
+                    )
+                {
+                    Some(FieldReadReceiverV1::GuardedFormal)
+                } else {
+                    Some(FieldReadReceiverV1::RootedHandle(*root))
+                }
             }
             StoredLocal::FieldAlias { class, root } if self.field_root_is_live(*root) => {
                 Some(FieldReadReceiverV1::Alias {

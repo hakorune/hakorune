@@ -155,6 +155,8 @@ fn source_contract_identity_corruption_is_not_profile_outside() {
         .ordinal = 1;
     let empty_loans =
         crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1::issue(Box::new([]));
+    let empty_candidates = BTreeMap::new();
+    let empty_classes = BTreeMap::new();
     let error = prepare_borrowed_formal_ingress_v1(
         package.batch(),
         &package.selected,
@@ -164,6 +166,8 @@ fn source_contract_identity_corruption_is_not_profile_outside() {
         None,
         &empty_loans,
         package.instance_constructors(),
+        &empty_candidates,
+        &empty_classes,
     )
     .expect_err("sealed identity mismatch");
     assert!(error.contains("borrowed-formal/source-identity"), "{error}");
@@ -213,6 +217,8 @@ fn final_corroboration_rejects_changed_incoming_argument_ordinal() {
     let prepared = Ok(source_rows);
     let empty_loans =
         crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1::issue(Box::new([]));
+    let empty_candidates = BTreeMap::new();
+    let empty_classes = BTreeMap::new();
     let mut borrowed = prepare_borrowed_formal_ingress_v1(
         package.batch(),
         &package.selected,
@@ -222,6 +228,8 @@ fn final_corroboration_rejects_changed_incoming_argument_ordinal() {
         None,
         &empty_loans,
         package.instance_constructors(),
+        &empty_candidates,
+        &empty_classes,
     )
     .unwrap();
     borrowed

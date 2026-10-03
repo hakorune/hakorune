@@ -42,6 +42,9 @@ use lexical::{
     borrowed_call_arguments_callback_v1, lexical_handle_result_call, lexical_i64_result_call,
     lexical_nullable_result_call,
 };
+// The borrowed-formal object view resolves received-nullable classes with
+// the same sealed `NullableObject` claim lookup as the field issuer.
+pub(in crate::mir::normal_callable_semantic_package) use lexical::nullable_received_result_class;
 
 #[path = "ordinary_new_coseal_issue_source.rs"]
 mod source_claims;
@@ -144,6 +147,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         dynamic_slot,
         entry_home_loans,
         instance_constructors,
+        &local_candidates,
+        &callable_result_classes,
     );
     let borrowed_i64_results = super::lexical_instance_call::prepare_borrowed_i64_results_v1(
         &borrowed_formal_source,
@@ -300,6 +305,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let has_borrowed_source_calls = borrowed_formal_source.as_ref().is_ok_and(|rows| {
                     rows.incoming_calls_for_owner(input.owner())
                 });
+                let has_formal_field_read = borrowed_formal_source.as_ref().is_ok_and(|rows| {
+                    rows.formal_field_read_target(input.owner())
+                });
                 let mut probe = |explicit_sites: &[crate::mir::resolved_semantics::SourceStmtSiteV1],
                                  pending_actuals: &mut super::lexical_instance_call::PendingBorrowedFormalActualsV1| {
                     source_claims::probe_source_home_prefixes_v1(
@@ -350,6 +358,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let seed_completion = seed_eligible
                     && !has_map
                     && !has_nullable_receiver_call
+                    && !has_formal_field_read
                     && !child_new_ready
                     && !child_result_ready
                     && (is_app_main || owner_loan.is_none());
@@ -397,7 +406,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                     }
                 }
-                let verified_walk = owner_loan.is_some() || has_nullable_receiver_call || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty())) || (seed_eligible && (has_map || child_new_ready || child_result_ready));
+                // A callee whose sealed use draft admits a dominated
+                // `formal.field` read needs the verified walk too: the read
+                // is issued only by this lane's `local_field_read` authority
+                // — the bounded sibling scan keeps it truthfully unavailable.
+                let verified_walk = owner_loan.is_some() || has_nullable_receiver_call || has_formal_field_read || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty())) || (seed_eligible && (has_map || child_new_ready || child_result_ready));
                 if !verified_walk && has_borrowed_source_calls {
                     // Borrow existing control authority without publishing Completion.
                     let observed = crate::mir::resolved_control_flow::verify_function_completion_v1(input)
@@ -473,6 +486,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             &mut |home| lexical::nullable_received_result_class(
                                 selected, batch, &callable_result_classes, &candidates, input, home,
                             ),
+                            &mut |home| {
+                                borrowed_formal_source
+                                    .as_ref()
+                                    .ok()
+                                    .and_then(|source| source.formal_object_view(home))
+                                    .map(|view| view.class().into())
+                            },
                         )? else { return Ok(None); };
                         source_claims::stage_local_field_read_batch(&mut local_staged_reads, rows)
                             .map(Some)

@@ -1,6 +1,6 @@
 # mimalloc-lite opaque checked-compare task-4 D0 (dominated view uses)
 
-Status: accepted task-4 Decisions; I64RESULT-S0, ROOTSOURCE-S0, USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0 and FIELDSIZE-T0 landed; next PARAMFIELD-S0 (implementation pending).
+Status: accepted task-4 Decisions; I64RESULT-S0, ROOTSOURCE-S0, USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0, FIELDSIZE-T0 and PARAMFIELD-S0 landed; next FIELDRESULT-S0 (implementation pending).
 Scope: `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-D0`
   and its bounded PARAMFIELD prerequisite/acceptance series.
 Related: docs/development/RULES.md; CURRENT_STATE.toml;
@@ -311,13 +311,13 @@ coverage must agree through Rust, JSON, C index and emission together.
 Token prefix below:
 `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-`.
 Every row is one responsibility; I64RESULT-S0, ROOTSOURCE-S0,
-USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0 and FIELDSIZE-T0 are
-landed and PARAMFIELD-S0 is currently selected.
+USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0, FIELDSIZE-T0 and
+PARAMFIELD-S0 are landed and FIELDRESULT-S0 is currently selected.
 
 Selected construction row:
-`MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-S0`.
-Next construction row after its closeout:
 `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDRESULT-S0`.
+Next construction row after its closeout:
+`MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-ACCEPTANCE-R0`.
 
 | Order | Suffix | Responsibility / predecessor |
 | --- | --- | --- |
@@ -327,7 +327,7 @@ Next construction row after its closeout:
 | 4 | NULLCOMPARE-S0 | C: exact null-equality source envelope and physical use; landed |
 | 5 | NULLACTUAL-S0 | D: literal null and received-nullable borrowed actuals; landed |
 | 6 | FIELDSIZE-T0 | BoxShape: extract existing field-read batch issuer/stager from the 770-line source parent; landed |
-| 7 | PARAMFIELD-S0 | B: complete class view + guarded scalar field initializer; after 6 |
+| 7 | PARAMFIELD-S0 | B: complete class view + guarded scalar field initializer; landed |
 | 8 | FIELDRESULT-S0 | Exact scalar field-return result proof using 7's view; after 7 |
 | 9 | PARAMFIELD-ACCEPTANCE-R0 | Selected source-to-EXE null/object/nullable cases and inverse failures; after 8 |
 
@@ -409,7 +409,7 @@ selected implementation needs it; never compress or exceed the 800-line stop.
   ordinal, missing incoming arm and host/boxed domain reject before artifact.
   Callee End is zero and caller release-if-live is exactly once on each outcome.
 
-### 7 — PARAMFIELD-S0
+### 7 — PARAMFIELD-S0 (landed)
 
 - Owners: existing borrowed source/actual ledger for the complete class view;
   existing prefix non-null flow and field-read batch/terminal-home issuer for
@@ -784,3 +784,86 @@ debt; pointer guard PASS.
 
 Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-S0
 (complete class view + guarded scalar field read).
+
+#### PARAMFIELD-S0 — landed record
+
+Landed (commit pending on `codex/birth-definition-publication`):
+
+- Flow: `PrefixLocalFlow::mark_nonnull` now also narrows a self-rooted
+  `Handle` stored local (not only `ReceivedNullable`), so the surviving
+  join of the exact `formal == null` terminating arm marks the formal
+  non-null; `FieldReadReceiverV1::GuardedFormal` spells that receiver —
+  `Parameter` binding kind + non-null mark + live self root — and the
+  request carries `formal = true` with `home = receiver`.
+- Draft: `BorrowedFormalUseDraftKindV1::FieldReadOperand` admits exactly
+  one `FieldAccess` receiver site dominated (same-sequence, strictly
+  later) by an admitted null compare of the same formal; the guard
+  pre-pass collects each formal's `== null` `if` sites. Unguarded,
+  inside-arm, ambiguous and `!=`-operator uses stay `UnsupportedUse`.
+- Co-sealed class view (`BorrowedFormalObjectViewV1`): each incoming
+  actual is classified from exact source — claim-local `new` candidate,
+  entry receiver, sealed `NullableObject` received value, resolved
+  forward — while the exact `null` literal proves `Void` and never a
+  class; mixed classes, scalars, unsupported or unresolved forwards mint
+  no row. Class->object resolves through the same ordinary-box coverage
+  and source object definition the field issuer consults. Views mint
+  only for formals whose draft admits a field read.
+- Verified-walk ownership: `formal_field_read_target` (draft admits a
+  read AND its view minted) both excludes the callee from
+  `seed_completion` and joins it to the verified walk — one completion
+  authority proves the guard and issues the read. A viewless callee
+  (null-only/conflicting callers) stays on the bounded sibling: the read
+  is truthfully unclaimed and legacy `FieldGet` fails `unproved-copy`.
+  `prove_local_field_read_batch` gained the `formal_class` arm feeding
+  the same `alias_class` path; entry ledger corroborates sealed actuals
+  against the view (`borrowed-entry/object-view-drift`).
+- Physical/ABI: `borrowed_call_uses` gained `field_admissions` +
+  `object_views` state and an `ObjectFieldGet` arm — dominated by the
+  formal's non-null successor (anchored at each borrowed null compare's
+  `else_bb`) and naming exactly the sealed canonical object
+  (`undominated-view`/`object-view`/`field-coverage` close it).
+  `finish` returns `param value -> object` per function index; the
+  contract carries `borrowed_object_views` and the JSON encoder writes
+  `object_view` only on `borrowed_kind_payload_v1` params. C:
+  `hako_physical_params` admits the optional third key only with that
+  representation and a declared layout; `lv4_borrowed_object_formal`
+  admits the tagged-param base whose `object_view` equals the row's
+  `object_id`. Extraction: `path_dominates`, `finish` and
+  `verify_published` live in `object_field`/`closure` children
+  (681-line parent under the 800 boundary).
+
+Evidence pins (test profile `--lib`):
+`guarded_formal_field_read_publishes_object_view` (param
+`borrowed_kind_payload_v1` + sealed `object_view` naming a declared
+layout; exactly one `object_field_get` on the formal base; zero
+release/end on the formal; emits `hako-issued-param-field-handle.json`),
+`parameter_field_frontiers_stay_fail_closed` (null-only caller →
+`unproved-copy`; terminal field-return variants →
+`borrowed-result/source-not-i64` pending FIELDRESULT-S0; inline new,
+aliases, `!=`, unguarded and malformed uses keep their named stops),
+`dominated_add_view_publishes_from_original_source` +
+`dominated_set_view_publishes_from_original_source` 4/4 focused,
+`borrowed` family 220/220, `normal_callable_semantic_package` family
+green (the page_heap fixture's null-only callers stay bounded and its
+claim census unchanged), scope guard pins PASS except
+`brand_catalog_tests.rs=961` +
+`normal_default_root_catalog_lifecycle_tests.rs=1351` known structural
+debt; C witness
+`published_lifecycle_v4_param_field_execution_test.py`: one issued
+program executes (exit 1, `page_id=5` read), seven forged rows
+(view dropped/changed, wrong transport, foreign layout, extra param
+key, duplicate read, wrong object) reject.
+Baseline reds observed while gating (all already classified):
+`birth_receiver_non_escape_rejects_unproven_uses_before_row_publication`,
+`main_static_child_port_consumes_all_role_rows_once`,
+`qualified_call_map_argument_reaches_the_named_capability_boundary`
+reproduce at clean `8fbfffd487` HEAD identically.
+
+Open frontiers (deliberately out of this slice): terminal
+`return handle.page_id` (FIELDRESULT-S0), `!=` guards, inside-arm
+reads, `me.` receivers, `.get` element reads, argument-position field
+reads, mixed/forward-chain views without a class seed, and EXE
+acceptance (PARAMFIELD-ACCEPTANCE-R0).
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDRESULT-S0
+(exact scalar field-return result proof over this view).

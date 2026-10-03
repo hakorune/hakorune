@@ -211,14 +211,19 @@ fn borrowed_incoming_rejects_metadata_spoof_and_unit_handle_result_before_filter
                     Ok(())
                 }).unwrap();
         assert_eq!(visited, 5);
-        let loans = super::super::compiled_entry_contract::verify_borrowed_call_incoming(
-            &program,
-            view.module(),
-        )
-        .unwrap();
+        let (loans, object_views) =
+            super::super::compiled_entry_contract::verify_borrowed_call_incoming(
+                &program,
+                view.module(),
+            )
+            .unwrap();
         assert!(
             loans.is_empty(),
             "nonborrowed calls must not mint source loans"
+        );
+        assert!(
+            object_views.is_empty(),
+            "nonborrowed calls must not mint object views"
         );
         let entry = view.issue_lifecycle_compiled_entry_contract().unwrap();
         assert!(entry

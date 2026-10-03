@@ -651,6 +651,13 @@ pub(super) fn probe_source_home_prefixes_v1(
                         home,
                     )
                 },
+                &mut |home| {
+                    borrowed_formal_source
+                        .as_ref()
+                        .ok()
+                        .and_then(|source| source.formal_object_view(home))
+                        .map(|view| view.class().into())
+                },
             )
             .map(|rows| rows.map(|rows| rows.into_iter().map(|(_, row)| row.result).collect()))
         },

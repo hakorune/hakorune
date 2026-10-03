@@ -475,7 +475,8 @@ pub(super) fn observe_if_statement<'a, E>(
     // arm is the `else`. The joined state alone records the mark — an
     // arm's interior never sees it.
     let mut join_locals = join_locals;
-    if let Some((binding, operator)) = null_guarded_local(input.function(), condition.site()) {
+    let guarded = null_guarded_local(input.function(), condition.site());
+    if let Some((binding, operator)) = guarded {
         let narrowed = matches!(operator, ResolvedBinaryOperatorV1::Equal)
             && then_path.terminated
             || matches!(operator, ResolvedBinaryOperatorV1::NotEqual)

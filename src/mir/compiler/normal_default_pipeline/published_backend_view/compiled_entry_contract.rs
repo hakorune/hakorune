@@ -221,6 +221,10 @@ pub(crate) struct CompiledEntryContractV1<'module> {
     cleanup: Box<[CompiledEntryCleanupCoordinateV1]>,
     array_claims: Box<[CompiledEntryArrayClaimV1<'module>]>,
     array_writes: Box<[CompiledEntryArrayWriteV1]>,
+    /// Sealed formal object views by callee: `function index -> param
+    /// value -> canonical object declaration index`. The param row's
+    /// `object_view` key carries exactly this number.
+    borrowed_object_views: BTreeMap<u32, BTreeMap<u32, u32>>,
 }
 
 impl<'module> CompiledEntryContractV1<'module> {
@@ -249,6 +253,13 @@ impl<'module> CompiledEntryContractV1<'module> {
     pub(crate) fn cleanup(&self) -> &[CompiledEntryCleanupCoordinateV1] {
         &self.cleanup
     }
+    /// One formal's sealed canonical object view at a published param
+    /// row; absent formals carry no `object_view` key.
+    pub(crate) fn borrowed_object_view(&self, function: u32, param: u32) -> Option<u32> {
+        self.borrowed_object_views
+            .get(&function)
+            .and_then(|views| views.get(&param).copied())
+    }
 }
 
 impl<'module> PublishedMirBackendView<'module> {
@@ -256,7 +267,8 @@ impl<'module> PublishedMirBackendView<'module> {
         &self,
     ) -> Result<CompiledEntryContractV1<'module>, String> {
         let program = self.issue_lifecycle_physical_program()?;
-        let mut borrowed_actuals = verify_borrowed_call_incoming(&program, self.module)?;
+        let (mut borrowed_actuals, borrowed_object_views) =
+            verify_borrowed_call_incoming(&program, self.module)?;
         let (root_result, ordinary_calls, contract_births, birth_calls, cleanup) = {
             let [root, tail @ ..] = program.functions() else {
                 return Err(fault("compiled-entry-root-missing"));
@@ -504,6 +516,7 @@ impl<'module> PublishedMirBackendView<'module> {
             cleanup: cleanup.into_boxed_slice(),
             array_claims: array_claims.into_boxed_slice(),
             array_writes: array_writes.into_boxed_slice(),
+            borrowed_object_views,
         })
     }
 }

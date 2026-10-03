@@ -9,8 +9,10 @@ use super::*;
 
 /// Prove the complete root batch without modifying the persistent staging map.
 /// A `nullable` request's class comes from `nullable_class` — the issuer's
-/// sealed-call claim resolution — and enters `local_read_field` through the
-/// same `alias_class` arm an earlier proven field read uses.
+/// sealed-call claim resolution — and a `formal` request's class comes from
+/// `formal_class` — the co-sealed borrowed-formal object view. Both enter
+/// `local_read_field` through the same `alias_class` arm an earlier proven
+/// field read uses; neither mints a release or ownership transfer.
 #[allow(clippy::too_many_arguments)]
 pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_batch(
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
@@ -20,6 +22,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
     requests: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
     scalar_only: bool,
     nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
+    formal_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
 ) -> Result<Option<Vec<(OwnedExprSiteV1, field_reads::LocalFieldRead)>>, OrdinaryNewCoSealIssueV1> {
     use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
     let mut seen = BTreeSet::new();
@@ -42,6 +45,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         }
         let alias_class = if request.nullable {
             match nullable_class(request.home) {
+                Some(class) => Some(class),
+                None => return Ok(None),
+            }
+        } else if request.formal {
+            match formal_class(request.home) {
                 Some(class) => Some(class),
                 None => return Ok(None),
             }

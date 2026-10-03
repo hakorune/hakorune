@@ -121,6 +121,31 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                 _ => None,
             })
     }
+    /// Guarded `formal.field` receiver admissions this owner's draft
+    /// proved: `(binding, formal, field-access site)` rows dominated by an
+    /// admitted null compare of the same formal. Admission evidence only;
+    /// publication still counts the exact physical operand uses.
+    pub(crate) fn field_read_uses(
+        &self,
+    ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
+        self.source.definitions[&self.owner]
+            .uses
+            .iter()
+            .filter_map(|row| match &row.kind {
+                super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::FieldReadOperand {
+                    site,
+                } => Some((row.binding, row.formal, site)),
+                _ => None,
+            })
+    }
+    /// The co-sealed class view for one of this owner's formals — `Some`
+    /// only when every incoming actual agreed on one ordinary class.
+    pub(crate) fn formal_object_view(
+        &self,
+        formal: BindingRefV1,
+    ) -> Option<&super::borrowed_formal_source::BorrowedFormalObjectViewV1> {
+        self.source.formal_object_view(formal)
+    }
     /// Loan the original target, including its source owner and batch identity.
     pub(crate) fn incoming_targets(
         &self,
@@ -359,6 +384,29 @@ impl OrdinaryNewClaimLedgerV1 {
                     != Some(&actual.formal)
                 {
                     return Err(freeze("borrowed-entry/actuals-identity"));
+                }
+                // A minted object view binds every incoming actual to one
+                // agreed class — a sealed actual naming a different class
+                // (or no class at all) is drift, never a second authority.
+                if let Some(view) = source.object_views.get(&actual.formal) {
+                    let agrees = match &actual.source {
+                        super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::ReceivedNullable { class, .. }
+                        | super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::TypedHome { class, .. }
+                        | super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::EntryReceiver { class, .. } => {
+                            class.as_ref() == view.class()
+                        }
+                        super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::Null => true,
+                        super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::Forwarded { formal, .. } => {
+                            source
+                                .object_views
+                                .get(formal)
+                                .is_some_and(|origin| origin.class() == view.class())
+                        }
+                        _ => false,
+                    };
+                    if !agrees {
+                        return Err(freeze("borrowed-entry/object-view-drift"));
+                    }
                 }
             }
             if call.callee == owner {

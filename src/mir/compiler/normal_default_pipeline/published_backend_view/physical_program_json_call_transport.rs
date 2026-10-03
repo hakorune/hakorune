@@ -48,10 +48,24 @@ pub(super) fn encode_parameters(
                             _ if function.role().ordinary_target().is_some() => "i64",
                             _ => "kind_payload_v1",
                         };
-                        Ok(json!({
+                        // A sealed formal object view rides the param row as
+                        // `object_view`: the canonical object the guarded
+                        // `formal.field` read must name — never a layout
+                        // guess the C consumer could mint on its own.
+                        let mut row = json!({
                             "value": value(param),
                             "representation": representation,
-                        }))
+                        });
+                        if representation == "borrowed_kind_payload_v1" {
+                            let input = abi_input
+                                .ok_or_else(|| fault("borrowed-carrier-activation-missing"))?;
+                            if let Some(view) =
+                                input.entry().borrowed_object_view(ordinal, param.0)
+                            {
+                                row["object_view"] = json!(view);
+                            }
+                        }
+                        Ok(row)
                     })
                     .collect::<Result<Vec<_>, String>>()
 }

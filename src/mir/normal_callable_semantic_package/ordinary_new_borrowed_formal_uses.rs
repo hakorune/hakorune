@@ -19,6 +19,9 @@ use crate::mir::resolved_semantics::{
 #[path = "ordinary_new_borrowed_formal_use_array_element.rs"]
 mod array_element;
 
+#[path = "ordinary_new_borrowed_formal_use_field_read.rs"]
+mod field_read;
+
 #[path = "ordinary_new_borrowed_formal_use_new_argument.rs"]
 mod new_argument;
 
@@ -87,6 +90,14 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
     /// non-null only — never Integer, class or liveness.
     NullCompareOperand {
         binary: OwnedExprSiteV1,
+    },
+    /// The receiver of a `formal.field` read dominated by an admitted null
+    /// compare of the same formal — the surviving successor is the only
+    /// path where the borrowed object is live. The FieldAccess site pins
+    /// the sole admitted read; class and field declaration belong to the
+    /// issuer's sealed object view, never to this draft.
+    FieldReadOperand {
+        site: OwnedExprSiteV1,
     },
 }
 
@@ -446,8 +457,12 @@ pub(super) fn draft_borrowed_formal_uses_v1(
 
     // Admitted checked compares dominate the lent view's later uses; record
     // each compare's owning `if` statement per formal before the use loop so
-    // a dominated `+` can prove its guard regardless of visit order.
+    // a dominated `+` can prove its guard regardless of visit order. The
+    // same pass records each admitted null compare's `if` — the surviving
+    // successor is the only path where a `formal.field` read may carry a
+    // live borrowed object.
     let mut compare_guards: BTreeMap<BindingRefV1, Vec<SourceNodeSiteV1>> = BTreeMap::new();
+    let mut null_guards: BTreeMap<BindingRefV1, Vec<SourceNodeSiteV1>> = BTreeMap::new();
     for (site, reference) in function.variable_refs() {
         let ResolvedLexicalRefV1::Local(binding) = reference else {
             continue;
@@ -458,15 +473,22 @@ pub(super) fn draft_borrowed_formal_uses_v1(
         if copies.contains_key(site) || is_call_argument(input, site)? {
             continue;
         }
-        let Some(BorrowedFormalUseDraftKindV1::CompareOperand { binary }) =
+        if let Some(BorrowedFormalUseDraftKindV1::CompareOperand { binary }) =
             compare_operand_kind(input, &origins, constructors, receiver, site)?
-        else {
-            continue;
-        };
-        let guard = function
-            .with_if_region_for_condition(binary.site(), |row| row.site().node().clone())
-            .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
-        compare_guards.entry(formal).or_default().push(guard);
+        {
+            let guard = function
+                .with_if_region_for_condition(binary.site(), |row| row.site().node().clone())
+                .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
+            compare_guards.entry(formal).or_default().push(guard);
+        }
+        if let Some(BorrowedFormalUseDraftKindV1::NullCompareOperand { binary }) =
+            null_compare_operand_kind(input, site)?
+        {
+            let guard = function
+                .with_if_region_for_condition(binary.site(), |row| row.site().node().clone())
+                .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
+            null_guards.entry(formal).or_default().push(guard);
+        }
     }
 
     let mut uses = Vec::new();
@@ -544,6 +566,9 @@ pub(super) fn draft_borrowed_formal_uses_v1(
         }
         if kind.is_none() {
             kind = null_compare_operand_kind(input, site)?;
+        }
+        if kind.is_none() {
+            kind = field_read::field_read_operand_kind(input, formal, &null_guards, site)?;
         }
         uses.push(BorrowedFormalUseDraftRowV1 {
             site: owned.clone(),

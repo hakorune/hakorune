@@ -2,6 +2,11 @@
 //! These temporary sets corroborate one publication; they issue no authority.
 #[path = "borrowed_call_uses_null_compare.rs"]
 mod null_compare;
+#[path = "borrowed_call_uses_object_field.rs"]
+mod object_field;
+#[path = "borrowed_call_uses_closure.rs"]
+mod closure;
+use object_field::path_dominates;
 use super::*;
 use crate::mir::compiler::normal_default_pipeline::published_backend_view::physical_program::PublishedLifecyclePhysicalFunctionV1;
 use crate::mir::normal_callable_semantic_package::{
@@ -35,6 +40,12 @@ struct FunctionUses {
     /// Null-equality operand admissions per formal under the same source
     /// draft; each admits exactly one distinct operand value per scan.
     null_admissions: BTreeMap<BindingRefV1, usize>,
+    /// Dominated `formal.field` admissions per formal under the same
+    /// source draft; each admits exactly one `object_field_get` row.
+    field_admissions: BTreeMap<BindingRefV1, usize>,
+    /// Sealed `formal -> canonical object` the physical
+    /// `object_field_get` must name exactly.
+    object_views: BTreeMap<BindingRefV1, hakorune_mir_defs::CanonicalObjectIdV1>,
 }
 
 #[derive(Default)]
@@ -54,6 +65,8 @@ struct Scan {
     ctor_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
     /// Distinct operand values serving each formal's null-equality view.
     null_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
+    /// Physical `object_field_get` rows serving each formal's guarded read.
+    field_uses: BTreeMap<BindingRefV1, usize>,
 }
 
 /// The sole physical projections a lent view may take: an untracked operand
@@ -67,6 +80,9 @@ struct ViewScan {
     /// Values whose single definition is the exact `ConstValue::Null`
     /// producer; only a `borrowed_null_compare` sibling may reference them.
     null_consts: BTreeSet<ValueId>,
+    /// Non-null successor blocks per formal, anchored by each borrowed
+    /// null compare's consuming `if` branch.
+    nonnull_successors: BTreeMap<BindingRefV1, Vec<BasicBlockId>>,
 }
 
 #[derive(Default)]
@@ -139,6 +155,14 @@ impl BorrowedCallUses {
         {
             *state.null_admissions.entry(*formal).or_default() += 1;
         }
+        for (_, formal, _) in source
+            .borrowed_ordinary_field_read_uses_v1(owner, function)?
+            .iter()
+        {
+            *state.field_admissions.entry(*formal).or_default() += 1;
+        }
+        state.object_views =
+            source.borrowed_ordinary_formal_object_views_v1(owner, function)?;
         Ok(())
     }
 
@@ -168,129 +192,9 @@ impl BorrowedCallUses {
         }
         Ok(())
     }
-
-    pub(super) fn finish(
-        self,
-        program: &PublishedLifecyclePhysicalProgramV1<'_>,
-        module: &crate::mir::MirModule,
-    ) -> Result<(), String> {
-        for (name, state) in self.functions {
-            let function = module
-                .functions
-                .get(&name)
-                .ok_or_else(|| fault("borrowed-use/function-missing"))?;
-            let tracked = state.tracked()?;
-            let mut definitions = Scan::default();
-            for (block, row) in &function.blocks {
-                if *block != row.id {
-                    return Err(fault("borrowed-use/block-identity"));
-                }
-                if row
-                    .return_env
-                    .as_ref()
-                    .is_some_and(|values| values.iter().any(|value| tracked.contains_key(value)))
-                {
-                    return Err(fault("borrowed-use/return-env"));
-                }
-            }
-            let mut indexed = Vec::new();
-            let mut successors: BTreeMap<BasicBlockId, Vec<BasicBlockId>> = BTreeMap::new();
-            for (block, row) in &function.blocks {
-                successors.entry(*block).or_default().extend(row.successors.iter().copied());
-                for (index, instruction) in row.all_instructions().enumerate() {
-                    indexed.push(((*block, index), instruction));
-                }
-            }
-            let views = state.scan_views(&tracked, &indexed)?;
-            let dominates = |from: BasicBlockId, to: BasicBlockId| {
-                path_dominates(function.entry_block, &successors, from, to)
-            };
-            for (coordinate, instruction) in &indexed {
-                state.instruction(
-                    &tracked,
-                    &views,
-                    *coordinate,
-                    instruction,
-                    &mut definitions,
-                    &dominates,
-                )?;
-            }
-            state.definitions(&tracked, &function.params, &definitions)?;
-            state.verify_published(&tracked, &name, program.functions())?;
-        }
-        Ok(())
-    }
 }
 
 impl FunctionUses {
-    fn verify_published(
-        &self,
-        tracked: &BTreeMap<ValueId, BindingRefV1>,
-        name: &str,
-        rows: &[PublishedLifecyclePhysicalFunctionV1<'_>],
-    ) -> Result<(), String> {
-        let mut published_rows = rows.iter().filter(|row| row.name() == name);
-        let published = published_rows
-            .next()
-            .ok_or_else(|| fault("borrowed-use/published-missing"))?;
-        if published_rows.next().is_some() {
-            return Err(fault("borrowed-use/published-duplicate"));
-        }
-        // Publication is checked independently: projection-only operand or
-        // definition drift must not inherit the module's proof.
-        let mut definitions = Scan::default();
-        let mut blocks = BTreeSet::new();
-        let mut successors: BTreeMap<BasicBlockId, Vec<BasicBlockId>> = BTreeMap::new();
-        let mut indexed = Vec::new();
-        for block in published.blocks() {
-            if !blocks.insert(block.id()) {
-                return Err(fault("borrowed-use/published-block-duplicate"));
-            }
-            successors
-                .entry(block.id())
-                .or_default()
-                .extend(block.edges().iter().map(|edge| edge.target()));
-            for instruction in block
-                .instructions()
-                .iter()
-                .copied()
-                .chain(std::iter::once(block.terminator()))
-            {
-                indexed.push((
-                    (block.id(), instruction.index() as usize),
-                    instruction.instruction(),
-                ));
-            }
-        }
-        let views = self.scan_views(tracked, &indexed)?;
-        for block in published.blocks() {
-            for edge in block.edges() {
-                if edge.args().is_some_and(|args| {
-                    args.values
-                        .iter()
-                        .any(|value| tracked.contains_key(value) || views.views.contains_key(value))
-                }) {
-                    return Err(fault("borrowed-use/published-edge"));
-                }
-            }
-        }
-        let dominates = |from: BasicBlockId, to: BasicBlockId| {
-            path_dominates(published.entry(), &successors, from, to)
-        };
-        for (coordinate, instruction) in &indexed {
-            self.instruction(
-                tracked,
-                &views,
-                *coordinate,
-                instruction,
-                &mut definitions,
-                &dominates,
-            )?;
-        }
-        self.definitions(tracked, published.params(), &definitions)?;
-        Ok(())
-    }
-
     fn copy(&mut self, original: &Binding, coordinate: Option<Coordinate>) -> Result<(), String> {
         let MirInstruction::Copy { dst, .. } = original.1 else {
             return Err(fault("borrowed-use/copy-instruction"));
@@ -414,10 +318,13 @@ impl FunctionUses {
                 _ => {}
             }
         }
+        let nonnull_successors =
+            object_field::collect_nonnull_successors(tracked, &views, &null_consts, indexed);
         Ok(ViewScan {
             views,
             compares,
             null_consts,
+            nonnull_successors,
         })
     }
 
@@ -602,6 +509,22 @@ impl FunctionUses {
                     return Err(fault("borrowed-use/forbidden-operand"));
                 }
             }
+            MirInstruction::ObjectFieldGet { base, field, .. } => {
+                // A borrowed formal's guarded field read: dominated by its
+                // admitted null compare's non-null successor and naming
+                // exactly the sealed object view — untracked bases fall
+                // through to their own lanes.
+                object_field::observe_operand(
+                    tracked,
+                    views,
+                    &self.object_views,
+                    base,
+                    field,
+                    coordinate,
+                    &mut definitions.field_uses,
+                    dominates,
+                )?;
+            }
             MirInstruction::BinOp {
                 op: crate::mir::BinaryOp::Add,
                 lhs,
@@ -718,6 +641,7 @@ impl FunctionUses {
             return Err(fault("borrowed-use/ctor-coverage"));
         }
         null_compare::coverage(&definitions.null_uses, &self.null_admissions)?;
+        object_field::coverage(&definitions.field_uses, &self.field_admissions)?;
         for value in tracked.keys() {
             let parameter_count = params
                 .iter()
@@ -734,34 +658,6 @@ impl FunctionUses {
         }
         Ok(())
     }
-}
-
-/// Exact dominance by reachability cut: `from` dominates `to` when every
-/// entry->`to` path visits `from`. An unreachable `to` counts as dominated,
-/// matching the verifier's DominatorTree convention.
-fn path_dominates(
-    entry: BasicBlockId,
-    successors: &BTreeMap<BasicBlockId, Vec<BasicBlockId>>,
-    from: BasicBlockId,
-    to: BasicBlockId,
-) -> bool {
-    if from == to {
-        return true;
-    }
-    let mut seen = BTreeSet::from([from]);
-    let mut stack = vec![entry];
-    while let Some(node) = stack.pop() {
-        if node == to {
-            return false;
-        }
-        if !seen.insert(node) {
-            continue;
-        }
-        if let Some(next) = successors.get(&node) {
-            stack.extend(next.iter().copied());
-        }
-    }
-    true
 }
 
 #[cfg(test)]

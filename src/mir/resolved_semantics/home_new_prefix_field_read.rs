@@ -61,6 +61,12 @@ pub(crate) struct LocalFieldReadRequestV1 {
     /// proved liveness, and the issuer must resolve the class from the
     /// sealed call's `NullableObject` claim — `alias_class` stays empty.
     pub(crate) nullable: bool,
+    /// The receiver is a non-null-narrowed `OpaqueHandle` formal: the
+    /// scanner proved the surviving path carries a live borrowed object,
+    /// and the issuer must resolve the class from the co-sealed
+    /// borrowed-formal object view — `alias_class` stays empty and the
+    /// request never mints a release.
+    pub(crate) formal: bool,
     pub(crate) field: Box<str>,
 }
 
@@ -97,11 +103,14 @@ pub(super) fn field_read_request(
     let Some(provenance) = locals.field_read_receiver(receiver) else {
         return None;
     };
-    let (home, alias_class, nullable) = match provenance {
-        local_flow::FieldReadReceiverV1::OwnedHome => (receiver, None, false),
-        local_flow::FieldReadReceiverV1::RootedHandle(root) => (root, None, false),
-        local_flow::FieldReadReceiverV1::Alias { class, root } => (root, Some(class), false),
-        local_flow::FieldReadReceiverV1::ReceivedNullable => (receiver, None, true),
+    let (home, alias_class, nullable, formal) = match provenance {
+        local_flow::FieldReadReceiverV1::OwnedHome => (receiver, None, false, false),
+        local_flow::FieldReadReceiverV1::RootedHandle(root) => (root, None, false, false),
+        local_flow::FieldReadReceiverV1::Alias { class, root } => {
+            (root, Some(class), false, false)
+        }
+        local_flow::FieldReadReceiverV1::ReceivedNullable => (receiver, None, true, false),
+        local_flow::FieldReadReceiverV1::GuardedFormal => (receiver, None, false, true),
     };
     Some(LocalFieldReadRequestV1 {
         site: OwnedExprSiteV1::new(input.owner(), site.clone()),
@@ -110,6 +119,7 @@ pub(super) fn field_read_request(
         home,
         alias_class,
         nullable,
+        formal,
         field: field.clone(),
     })
 }

@@ -307,6 +307,48 @@ impl FinalizedRootSourceHandoffV1 {
             .collect())
     }
 
+    /// Same finalized entry proof, projecting only the admitted guarded
+    /// `formal.field` receiver uses: `(binding, formal, field-access site)`
+    /// triples dominated by an admitted null compare of the same formal.
+    /// The finished-function check runs through the same owner/function
+    /// binding as the alias copy projection.
+    pub(in crate::mir) fn borrowed_ordinary_field_read_uses_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<Box<[(BindingRefV1, BindingRefV1, OwnedExprSiteV1)]>, String> {
+        let source = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        Ok(source
+            .field_read_uses()
+            .map(|(binding, formal, site)| (binding, formal, site.clone()))
+            .collect())
+    }
+
+    /// Same finalized entry proof, projecting each formal's co-sealed
+    /// object view: `formal -> canonical object definition` only for
+    /// formals whose incoming actuals agreed on one ordinary class.
+    /// Formals without a view produce no row — the physical param check
+    /// treats them as absent, never as a guessed class.
+    pub(in crate::mir) fn borrowed_ordinary_formal_object_views_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<
+        std::collections::BTreeMap<BindingRefV1, hakorune_mir_defs::CanonicalObjectIdV1>,
+        String,
+    > {
+        let source = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        Ok(source
+            .formals()
+            .iter()
+            .filter_map(|(_, formal)| {
+                source
+                    .formal_object_view(*formal)
+                    .map(|view| (*formal, view.object()))
+            })
+            .collect())
+    }
+
     /// Same finalized entry proof, projecting only the admitted
     /// null-equality operand uses: `(binding, formal, binary site)`
     /// triples under the `Equal(Dynamic, Null)` envelope. The
