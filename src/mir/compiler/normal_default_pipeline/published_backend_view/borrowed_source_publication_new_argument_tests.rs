@@ -640,10 +640,13 @@ fn parameter_field_frontiers_stay_fail_closed() {
                 "borrowed-actual/unsupported-or-unavailable",
             ),
             (
-                "pa-trivial-handlearg",
+                "pa-trivial-handlearg-alias",
                 "",
                 "return 0",
-                "local h = s.check(5) return s.release(h)",
+                // A rebound alias is not the nullable binding itself:
+                // `q`'s bound value names `h`'s binding, not `q`'s, so the
+                // actual keeps rejecting before publication.
+                "local h = s.check(5) local q = h return s.release(q)",
                 "borrowed-actual/unsupported-or-unavailable",
             ),
             (

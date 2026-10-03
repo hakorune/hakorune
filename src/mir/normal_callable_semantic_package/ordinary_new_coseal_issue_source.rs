@@ -762,6 +762,16 @@ pub(super) fn probe_source_home_prefixes_v1(
                 borrowed_formal_source,
                 pending_actuals,
                 borrowed_i64_results,
+                &mut |binding| {
+                    super::lexical::nullable_received_result_class(
+                        selected,
+                        batch,
+                        callable_result_classes,
+                        &candidates,
+                        input,
+                        binding,
+                    )
+                },
                 site,
                 actuals,
             )

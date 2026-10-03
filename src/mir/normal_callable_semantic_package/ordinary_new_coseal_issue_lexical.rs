@@ -326,6 +326,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         FunctionOwnerIdV1,
         Result<super::super::lexical_instance_call::BorrowedI64ResultSourceV1, String>,
     >,
+    nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
     site: &OwnedExprSiteV1,
     actuals: Option<
         &[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1],
@@ -336,7 +337,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
 > {
     if let Some(actuals) = actuals {
         let prepared = super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
-            source, contracts, site, actuals, candidates, receiver,
+            source, contracts, site, actuals, candidates, receiver, nullable_class,
         );
         super::super::lexical_instance_call::stage_borrowed_call_actuals_v1(
             pending, site, prepared,
@@ -424,6 +425,7 @@ mod borrowed_callback_tests {
                 &Err("source-sentinel".into()),
                 &mut pending,
                 &BTreeMap::new(),
+                &mut |_| None,
                 target.call_site(),
                 None,
             );

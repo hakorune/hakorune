@@ -69,7 +69,7 @@ fn strict_statement_call_does_not_acquire_borrowed_discard_membership() {
 
 #[test]
 fn selected_discard_failure_is_terminal_without_strict_retry() {
-    for argument in ["\"unsupported\"", "null", "1.5"] {
+    for argument in ["\"unsupported\"", "1.5"] {
         let source = format!("box Transport {{ birth() {{ }} probe(p): i64 {{ return 0 }} }} static box Main {{ main() {{ local recv = new Transport() recv.probe({argument}) return 0 }} }}");
         let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source)
             .err().expect("selected unsupported discard must reject");

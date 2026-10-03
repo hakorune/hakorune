@@ -6,7 +6,9 @@ use super::*;
 pub(crate) enum BorrowedCallActualValueV1 {
     Integer(i64),
     Bool(bool),
+    Null,
     Scalar(BindingRefV1, SourceScalarKind),
+    ReceivedNullable(BindingRefV1),
     Home {
         binding: BindingRefV1,
         root: BindingRefV1,
@@ -53,6 +55,9 @@ fn observe_one_borrowed_call_actuals(
                     Some(ResolvedLiteralSourceV1::Bool(value)) => {
                         BorrowedCallActualValueV1::Bool(*value)
                     }
+                    // The exact `null` literal is its own candidate class —
+                    // never an integer-zero or bool-false payload.
+                    Some(ResolvedLiteralSourceV1::Null) => BorrowedCallActualValueV1::Null,
                     _ => {
                         // A signed immediate spelling retains its exact sealed unary
                         // site and operand. Overflow is not wrapped into a payload.
@@ -88,6 +93,17 @@ fn observe_one_borrowed_call_actuals(
                                         } else {
                                             BorrowedCallActualValueV1::Binding(binding)
                                         }
+                                    }
+                                    // A received nullable observes as a
+                                    // bound value; the stored class alone
+                                    // proves it — the non-null mark stays a
+                                    // field-read concern since the actual
+                                    // carries both runtime states.
+                                    Some(OrdinaryObservation::BoundValue(actual))
+                                        if actual == binding
+                                            && locals.is_received_nullable(binding) =>
+                                    {
+                                        BorrowedCallActualValueV1::ReceivedNullable(binding)
                                     }
                                     _ => BorrowedCallActualValueV1::Binding(binding),
                                 },

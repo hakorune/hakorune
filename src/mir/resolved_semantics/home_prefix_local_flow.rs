@@ -493,6 +493,18 @@ impl<'source> PrefixLocalFlow<'source> {
         }
     }
 
+    /// The binding is a live received nullable: a `NullableObject` call
+    /// result the caller owns conditionally. Unlike `field_read_receiver`
+    /// this lane answers without the non-null narrowing mark — a borrowed
+    /// actual carries both runtime states, so the source classifier only
+    /// needs the stored class itself.
+    pub(super) fn is_received_nullable(&self, binding: BindingRefV1) -> bool {
+        matches!(
+            self.locals.get(&binding),
+            Some(StoredLocal::ReceivedNullable)
+        )
+    }
+
     /// A proven `receiver.field` read whose declared type is an ordinary
     /// box: the binding is a borrowed alias — no Home membership, no exit
     /// obligation, no observable move.

@@ -411,10 +411,23 @@ impl OrdinaryNewClaimLedgerV1 {
                 if *exit_owner != row.owner {
                     continue;
                 }
-                if let RootHomeExitProgress::Emitted { origins, .. } = progress {
-                    owed += origins
+                if let RootHomeExitProgress::Emitted { bindings, .. } = progress {
+                    // The recorded exit bindings carry the clean release
+                    // and its pending-Fault twin — a Call/MapGet ingress
+                    // retries every operation on Fault, while a Plain exit
+                    // keeps the last link clean-only. Count recorded
+                    // emissions, never origins.
+                    owed += bindings
                         .iter()
-                        .filter(|emitted| emitted.origin().operation() == operation)
+                        .filter(|(_, emitted)| {
+                            matches!(
+                                emitted,
+                                MirInstruction::Invoke {
+                                    operation: emitted,
+                                    ..
+                                } if emitted == operation
+                            )
+                        })
                         .count();
                 }
             }
@@ -435,6 +448,28 @@ impl OrdinaryNewClaimLedgerV1 {
                     },
                     LocalCommitV1::Map(other) => other.emitted_bindings(),
                 })
+                .filter(|(_, instruction)| {
+                    matches!(
+                        instruction,
+                        MirInstruction::Invoke {
+                            operation: emitted,
+                            ..
+                        } if emitted == operation
+                    )
+                })
+                .count();
+            // A recorded lexical-call binding group's fault-unwind chain
+            // discharges the binding exactly like a commit row's own
+            // emitted unwind — both are recorded emissions, never
+            // recounts of MIR shape.
+            owed += self
+                .root_local_call_bindings
+                .borrow()
+                .get(&row.owner)
+                .map(Vec::as_slice)
+                .unwrap_or(&[])
+                .iter()
+                .flat_map(|group| group.bindings())
                 .filter(|(_, instruction)| {
                     matches!(
                         instruction,

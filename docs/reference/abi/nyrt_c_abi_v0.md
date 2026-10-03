@@ -634,16 +634,17 @@ Implementation/acceptance ownership:
 Retained ArraySet and ordered Add/result-destination contracts are separate;
 this Decision does not activate them or claim whole-app completion.
 
-### Accepted task-4 null/object-view extension (activation pending)
+### Accepted task-4 null/object-view extension (actuals landed; field view pending)
 
 Decision (2026-10-03): extend only the selected compiler-private
-`borrowed_kind_payload_v1` corridor. Until NULLACTUAL-S0 closes, the existing
-actual consumers still admit only kinds 1/2/3 and original tagged forwarding.
-The accepted extension adds kind 0 with payload exactly 0 for a source-issued
-null value; kinds 1/2/3 retain their meaning. This changes neither Birth's
-`kind_payload_v1` nor runtime/plugin ABI. It adds no MIR parameter or carrier.
-All selected Rust/JSON/C consumers switch together; old consumers may reject
-the extension and are not compatibility adapters.
+`borrowed_kind_payload_v1` corridor. NULLACTUAL-S0 landed (2026-10-04):
+the actual consumers now admit kind 0 with payload exactly 0 for a
+source-issued null value beside `nullable_typed_object` below; kinds
+1/2/3 retain their meaning. This changes neither Birth's
+`kind_payload_v1` nor runtime/plugin ABI. It adds no MIR parameter or
+carrier. All selected Rust/JSON/C consumers switched together; old
+consumers may reject the extension and are not compatibility adapters.
+The guarded field-view half below remains pending for PARAMFIELD-S0.
 
 The new actual spellings retain the exact `{kind,value}` row:
 

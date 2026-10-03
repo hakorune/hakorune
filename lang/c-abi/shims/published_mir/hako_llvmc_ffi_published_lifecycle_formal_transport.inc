@@ -23,8 +23,11 @@ static int hako_physical_params(yyjson_val* fn) {
       /* "map" marks a borrowed checked-map storage pointer (MapBox formal). */
       if (!hako_physical_string(yyjson_obj_get(param, "representation"), "i64") &&
           !hako_physical_string(yyjson_obj_get(param, "representation"), "map")) {
-        /* Selected borrowed carrier belongs to an internal instance I64 callee. */
-        if (!hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") ||
+        /* Selected borrowed carrier belongs to an internal instance callee;
+           the same kind/payload transport serves i64 and nullable-handle
+           result roles — the prologue revalidates the exact pair either way. */
+        if ((!hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&
+             !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_nullable_handle")) ||
             !yyjson_is_uint(yyjson_obj_get(fn, "receiver")) ||
             !hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) return 0;
       }

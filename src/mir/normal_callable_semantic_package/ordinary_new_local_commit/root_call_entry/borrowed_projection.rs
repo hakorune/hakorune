@@ -49,6 +49,13 @@ pub(super) fn value(
                         value: crate::mir::ConstValue::Bool(value),
                     },
                 ) if expected == value => Ok(*dst),
+                (
+                    Source::Null,
+                    MirInstruction::Const {
+                        dst,
+                        value: crate::mir::ConstValue::Null,
+                    },
+                ) => Ok(*dst),
                 _ => Err(freeze("lexical-i64/borrowed-literal")),
             }
         }
@@ -62,7 +69,8 @@ pub(super) fn value(
             let (binding, forwarded) = match &actual.source {
                 Source::Scalar { binding, .. }
                 | Source::TypedHome { binding, .. }
-                | Source::EntryReceiver { binding, .. } => (*binding, None),
+                | Source::EntryReceiver { binding, .. }
+                | Source::ReceivedNullable { binding, .. } => (*binding, None),
                 Source::Forwarded { binding, formal } => (*binding, Some(*formal)),
                 _ => return Err(freeze("lexical-i64/borrowed-read-source")),
             };

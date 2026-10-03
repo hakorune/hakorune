@@ -611,3 +611,6 @@ mod root_source_tests;
 
 #[path = "borrowed_source_publication_null_compare_tests.rs"]
 mod null_compare_tests;
+
+#[path = "borrowed_source_publication_nullable_actual_tests.rs"]
+mod nullable_actual_tests;

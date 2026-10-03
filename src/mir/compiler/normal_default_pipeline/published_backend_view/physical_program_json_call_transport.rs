@@ -296,6 +296,9 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
 
 fn encode_borrowed_actual_kind(source: &Source) -> Value {
     match source {
+        // The exact `null` literal spells tag 0; the `value` field still
+        // names the exact `const_null` producer, never a zero payload.
+        Source::Null => json!(0),
         Source::Integer(_)
         | Source::Scalar {
             kind: SourceScalarKind::Integer,
@@ -307,6 +310,7 @@ fn encode_borrowed_actual_kind(source: &Source) -> Value {
             ..
         } => json!(2),
         Source::TypedHome { .. } | Source::EntryReceiver { .. } => json!(3),
+        Source::ReceivedNullable { .. } => json!("nullable_typed_object"),
         Source::Forwarded { .. } => json!("tagged"),
     }
 }

@@ -49,8 +49,12 @@ static int lv4_borrowed_typed_live(const hako_lv4_input* in,
 }
 
 static int lv4_borrowed_tagged_formal(hako_lv4_function_index* fn, hako_lv4_value* value) {
+  /* The dominated `new`-argument view rides the same borrowed kind/payload
+     formal on i64 and nullable-handle callees alike — the tagged pair
+     transport is identical; only the result lane differs. */
   if (!value || value->kind != LV4_TAGGED || !fn->receiver_object_set ||
-      !lv4_is(fn->function, "role", "ordinary_i64")) return 0;
+      (!lv4_is(fn->function, "role", "ordinary_i64") &&
+       !lv4_is(fn->function, "role", "ordinary_nullable_handle"))) return 0;
   hako_lv4_value* root = lv4_borrowed_copy_root(fn, value);
   yyjson_val* params = yyjson_obj_get(fn->function, "params");
   for (size_t i = 0; root && i < yyjson_arr_size(params); i++) {
@@ -60,17 +64,29 @@ static int lv4_borrowed_tagged_formal(hako_lv4_function_index* fn, hako_lv4_valu
   return 0;
 }
 
-/* The null sentinel's other admitted lane: the function carries at
-   least one `borrowed_null_compare` row. Like the other const lanes this
-   is a function-scope admission — dead const projections stay admitted
-   and the compare arm still pins the exact const_null sibling. */
-static int lv4_null_compare_present(hako_lv4_function_index* fn) {
+/* The null sentinel's other admitted lanes: the function carries at
+   least one `borrowed_null_compare` row, or a call edge whose borrowed
+   actual spells tag 0 — the arg's own `value` field still names the
+   exact const_null producer at the flow arm below. Like the other const
+   lanes this is a function-scope admission — dead const projections
+   stay admitted and the compare/arg arms pin their exact siblings. */
+static int lv4_null_lane_present(hako_lv4_function_index* fn) {
   yyjson_val* blocks = hako_physical_blocks(fn->function);
   for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
     yyjson_val* rows = yyjson_obj_get(yyjson_arr_get(blocks, bi), "instructions");
+    yyjson_val* op;
     for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
       yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
       if (lv4_is(ins, "op", "borrowed_null_compare")) return 1;
+    }
+    op = yyjson_obj_get(lv4_term(yyjson_arr_get(blocks, bi)), "operation");
+    if (op && (lv4_is(op, "kind", "ordinary_call") ||
+        lv4_is(op, "kind", "birth_call"))) {
+      yyjson_val* args = yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
+      for (size_t i = 0; args && i < yyjson_arr_size(args); i++) {
+        yyjson_val* kind = yyjson_obj_get(yyjson_arr_get(args, i), "kind");
+        if (yyjson_is_uint(kind) && yyjson_get_uint(kind) == 0) return 1;
+      }
     }
   }
   return 0;
@@ -102,7 +118,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
          callee or inside a function carrying the admitted borrowed/null
          equality; it seeds a handle-lane slot that never owns a lease. */
       if (!lv4_is(fn->function, "role", "ordinary_nullable_handle") &&
-          !lv4_null_compare_present(fn)) return 0;
+          !lv4_null_lane_present(fn)) return 0;
     } else if (lv4_is(ins, "op", "copy")) {
       hako_lv4_value* source = lv4_index_value(fn, lv4_u(ins, "src"));
       if (!source || (source->kind != LV4_I64 && source->kind != LV4_BOOL &&
@@ -306,12 +322,24 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
             yyjson_val* kind = yyjson_obj_get(arg, "kind");
             if (arg_kind && !strcmp(arg_kind, "tagged")) {
               if (!lv4_borrowed_tagged_formal(fn, value)) return 0;
+            } else if (arg_kind && !strcmp(arg_kind, "nullable_typed_object")) {
+              /* A caller-owned received nullable lends its handle lane
+                 borrowed: the Void sentinel or a live lease — never a
+                 spent origin, never a forwarded tagged carrier. The ABI
+                 owner selects tag 0/3 at runtime. */
+              if (!value || value->kind != LV4_HANDLE || value->origin < 0 ||
+                  state[value->origin] != LV4_LIVE) return 0;
             } else if (yyjson_is_uint(kind)) {
               uint64_t tag = yyjson_get_uint(kind);
-              if (!value || (tag == 1 && value->kind != LV4_I64) ||
+              /* Tag 0 admits the exact const_null producer only — a
+                 forged zero payload never spells the null actual. */
+              if (!value ||
+                  (tag == 0 &&
+                      !lv4_is(value->instruction, "op", "const_null")) ||
+                  (tag == 1 && value->kind != LV4_I64) ||
                   (tag == 2 && value->kind != LV4_BOOL) ||
                   (tag == 3 && !lv4_borrowed_typed_live(in, fn, value, state)) ||
-                  tag < 1 || tag > 3) return 0;
+                  tag > 3) return 0;
             } else return 0;
             continue; /* BorrowForCall: no lease state is consumed. */
           }

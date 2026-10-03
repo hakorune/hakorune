@@ -261,11 +261,33 @@ pub(in crate::mir::builder) fn prepare_arguments(
                             binding,
                         }
                     }
+                    Source::Null => {
+                        let block = builder
+                            .function_state
+                            .current_block
+                            .ok_or_else(|| freeze("no-block"))?;
+                        let dst = crate::mir::builder::emission::constant::emit_null(builder)?;
+                        let binding = (
+                            block,
+                            MirInstruction::Const {
+                                dst,
+                                value: crate::mir::ConstValue::Null,
+                            },
+                        );
+                        bindings.push(binding.clone());
+                        ArgumentProjection::BorrowedLiteral {
+                            ordinal: *ordinal,
+                            site: site.clone(),
+                            formal: actual.formal,
+                            binding,
+                        }
+                    }
                     source => {
                         let (binding, entry) = match source {
                             Source::Scalar { binding, .. }
                             | Source::TypedHome { binding, .. }
-                            | Source::EntryReceiver { binding, .. } => (*binding, None),
+                            | Source::EntryReceiver { binding, .. }
+                            | Source::ReceivedNullable { binding, .. } => (*binding, None),
                             Source::Forwarded { binding, formal } => {
                                 let rows = ledger.borrowed_ordinary_entry_values_v1(owner)?;
                                 let entry = rows

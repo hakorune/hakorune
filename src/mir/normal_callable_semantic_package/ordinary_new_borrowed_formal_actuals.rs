@@ -13,6 +13,16 @@ use std::collections::BTreeMap;
 pub(crate) enum BorrowedFormalActualSourceV1 {
     Integer(i64),
     Bool(bool),
+    /// The exact `null` literal — tag `0` on the wire, never a zero
+    /// payload borrowed from an integer or bool producer.
+    Null,
+    /// A caller-owned received nullable (`NullableObject(C)` call
+    /// result): the ABI owner selects tag `0` or tag `3` at runtime;
+    /// the sealed claim class is the sole class authority.
+    ReceivedNullable {
+        binding: BindingRefV1,
+        class: Box<str>,
+    },
     Scalar {
         binding: BindingRefV1,
         kind: SourceScalarKind,
@@ -100,6 +110,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
     actuals: &[BorrowedCallActualCandidateV1],
     candidates: &[super::super::candidate::OrdinaryNewCandidate],
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
     let prepared = prepared.as_ref().map_err(Clone::clone)?;
     let mut incoming = prepared.incoming.iter().filter(|row| &row.call == call);
@@ -165,6 +176,20 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
                 BorrowedFormalActualSourceV1::Integer(*value)
             }
             BorrowedCallActualValueV1::Bool(value) => BorrowedFormalActualSourceV1::Bool(*value),
+            BorrowedCallActualValueV1::Null => BorrowedFormalActualSourceV1::Null,
+            BorrowedCallActualValueV1::ReceivedNullable(binding)
+                if binding.owner() == call.owner() =>
+            {
+                // The sealed `NullableObject` claim is the sole class
+                // authority — a fake, foreign, or unclaimed producer can
+                // never mint the nullable typed-object actual.
+                let class = nullable_class(*binding)
+                    .ok_or_else(|| freeze("borrowed-actual/nullable-class-unavailable"))?;
+                BorrowedFormalActualSourceV1::ReceivedNullable {
+                    binding: *binding,
+                    class,
+                }
+            }
             BorrowedCallActualValueV1::Scalar(binding, kind) if binding.owner() == call.owner() => {
                 BorrowedFormalActualSourceV1::Scalar {
                     binding: *binding,

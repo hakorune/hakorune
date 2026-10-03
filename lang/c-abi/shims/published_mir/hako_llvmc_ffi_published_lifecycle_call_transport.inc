@@ -81,8 +81,12 @@ static int hako_physical_validate_ordinary_call(yyjson_val* function, yyjson_val
     arg_kind = yyjson_get_str(yyjson_obj_get(arg, "kind"));
     if (hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) {
       uint32_t kind;
-      if ((!arg_kind || strcmp(arg_kind, "tagged")) &&
-          (!hako_physical_u32(yyjson_obj_get(arg, "kind"), &kind) || kind < 1 || kind > 3)) return 0;
+      /* Tag 0 (exact null) and the nullable typed-object pair join the
+         borrowed kind/payload transport; the flow layer still pins the
+         exact const_null producer and the live handle lane. */
+      if ((!arg_kind ||
+           (strcmp(arg_kind, "tagged") && strcmp(arg_kind, "nullable_typed_object"))) &&
+          (!hako_physical_u32(yyjson_obj_get(arg, "kind"), &kind) || kind > 3)) return 0;
     } else if (!arg_kind) { return 0;
     } else if (!strcmp(arg_kind, "map")) {
       if (!hako_physical_string(yyjson_obj_get(param, "representation"), "map")) return 0;

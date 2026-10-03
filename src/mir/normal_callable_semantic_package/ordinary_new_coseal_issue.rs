@@ -579,6 +579,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             borrowed_call_arguments_callback_v1(
                                 &lexical_source_targets, parameter_contracts, &candidates, receiver_proof,
                                 &borrowed_formal_source, &mut borrowed_formal_actuals, &borrowed_i64_results,
+                                &mut |binding| lexical::nullable_received_result_class(
+                                    selected, batch, &callable_result_classes, &candidates, input, binding,
+                                ),
                                 site, actuals,
                             )
                         })? {

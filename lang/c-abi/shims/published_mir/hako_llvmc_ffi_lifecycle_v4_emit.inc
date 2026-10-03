@@ -97,7 +97,10 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     yyjson_val* param = yyjson_arr_get(params, i);
     if (!lv4_is(param, "representation", "borrowed_kind_payload_v1")) continue;
     uint32_t v = lv4_u(param, "value");
-    /* Nonzero supplements the closed incoming/live proof; it is not that proof. */
+    /* Nonzero supplements the closed incoming/live proof; it is not that
+       proof. The null pair (kind 0, payload 0) is the third admitted
+       shape — every other kind/payload mix is ABI drift, never a
+       silently nulled carrier. */
     fprintf(f,
         "  %%arg_int%u = icmp eq i32 %%k%u, 1\n"
         "  %%arg_bool%u = icmp eq i32 %%k%u, 2\n"
@@ -107,9 +110,13 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         "  %%arg_object%u = icmp eq i32 %%k%u, 3\n"
         "  %%arg_nonzero%u = icmp ne i64 %%v%u, 0\n"
         "  %%arg_live%u = and i1 %%arg_object%u, %%arg_nonzero%u\n"
-        "  %%arg_ok%u = or i1 %%arg_scalar%u, %%arg_live%u\n"
+        "  %%arg_null%u = icmp eq i32 %%k%u, 0\n"
+        "  %%arg_void%u = icmp eq i64 %%v%u, 0\n"
+        "  %%arg_nulok%u = and i1 %%arg_null%u, %%arg_void%u\n"
+        "  %%arg_pre%u = or i1 %%arg_scalar%u, %%arg_live%u\n"
+        "  %%arg_ok%u = or i1 %%arg_pre%u, %%arg_nulok%u\n"
         "  br i1 %%arg_ok%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
-        v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v);
+        v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v);
   }
   fprintf(f, "  br label %%bb%u\n", lv4_u(fn, "entry"));
   for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
@@ -371,6 +378,19 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       if (lv4_is(op, "kind", "ordinary_call")) {
         yyjson_val* call = yyjson_obj_get(op, "call");
         yyjson_val* args = yyjson_obj_get(call, "args");
+        /* A nullable typed-object actual selects its wire kind before the
+           call line: a live payload lends tag 3, the Void sentinel lends
+           tag 0. The payload lane passes through unchanged in both
+           states — the callee's own prologue re-proves the pair. */
+        for (size_t i = 0; i < yyjson_arr_size(args); i++) {
+          yyjson_val* arg = yyjson_arr_get(args, i);
+          uint32_t value = lv4_u(arg, "value");
+          if (lv4_is(arg, "kind", "nullable_typed_object"))
+            fprintf(f,
+                "  %%nol%u_%u_%zu = icmp ne i64 %%v%u, 0\n"
+                "  %%nok%u_%u_%zu = select i1 %%nol%u_%u_%zu, i32 3, i32 0\n",
+                value, b, i, value, value, b, i, value, b, i);
+        }
         if (lv4_is(op, "result", "map"))
           fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%map%u",
               b, lv4_u(call, "target"), b);
@@ -392,6 +412,10 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           }
           if (lv4_is(arg, "kind", "tagged")) {
             fprintf(f, ", i32 %%k%u, i64 %%v%u", value, value);
+            continue;
+          }
+          if (lv4_is(arg, "kind", "nullable_typed_object")) {
+            fprintf(f, ", i32 %%nok%u_%u_%zu, i64 %%v%u", value, b, i, value);
             continue;
           }
           /* A "map" actual is the caller's borrowed storage pointer; the

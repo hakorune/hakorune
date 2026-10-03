@@ -126,7 +126,7 @@ fn formal_copy_forward_preserves_the_original_formal_and_actual_binding() {
 
 #[test]
 fn unsupported_actuals_are_pending_named_errors_and_never_integer_payloads() {
-    for argument in ["1.5", "\"text\"", "null", "%{\"key\"=>1}"] {
+    for argument in ["1.5", "\"text\"", "%{\"key\"=>1}"] {
         let source = format!("box Transport {{ birth() {{ }} probe(p): i64 {{ return 0 }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe({argument}) return 0 }} }}");
         let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).err().expect("selected unsupported domain stops package issue");
         let error = format!("{error:?}");
@@ -135,6 +135,18 @@ fn unsupported_actuals_are_pending_named_errors_and_never_integer_payloads() {
             "{error}"
         );
     }
+}
+
+#[test]
+fn exact_null_actual_selects_the_null_source_not_a_scalar_payload() {
+    let package = package(
+        "local recv = new Transport() local out = recv.probe(null) return 0",
+        "",
+    );
+    assert!(matches!(
+        only_actual(&package).source,
+        BorrowedFormalActualSourceV1::Null
+    ));
 }
 
 #[test]
@@ -173,6 +185,7 @@ fn checked_actual_join_rejects_changed_argument_ordinal() {
         &candidates,
         &[],
         None,
+        &mut |_| None,
     )
     .unwrap_err();
     assert!(error.contains("borrowed-actual/source-identity"), "{error}");
@@ -424,6 +437,7 @@ fn mixed_actuals_check_nonopaque_ordinal_and_source_site() {
             &actuals,
             &[],
             None,
+            &mut |_| None,
         )
         .unwrap_err();
         assert!(error.contains("borrowed-actual/source-identity"), "{error}");
@@ -464,6 +478,7 @@ fn mixed_actuals_reject_foreign_nonopaque_scalar_bindings() {
         &actuals,
         &[],
         None,
+        &mut |_| None,
     )
     .unwrap_err();
     assert!(
@@ -506,6 +521,7 @@ fn mixed_actuals_check_the_nonopaque_formal_ordinal() {
         &actuals,
         &[],
         None,
+        &mut |_| None,
     )
     .unwrap_err();
     assert!(error.contains("borrowed-actual/source-identity"), "{error}");
