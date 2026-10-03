@@ -361,6 +361,28 @@ pub(super) fn local_read_field(
     Ok(Some((field_ref, result)))
 }
 
+/// Integer-field proof for a non-null-narrowed received nullable: `class`
+/// is the sealed `NullableObject` claim name the issuer resolved, the
+/// coverage row names its box source, and the field must be declared
+/// exactly `i64` — the same contract `initialized_integer_field` enforces
+/// on a `new` Home.
+pub(super) fn nullable_result_integer_field(
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
+    class: &str,
+    site: &OwnedExprSiteV1,
+    field: &str,
+) -> Result<Option<hakorune_mir_defs::CanonicalFieldRefV1>, OrdinaryNewCoSealIssueV1> {
+    let Ok(Some(box_source)) = coverage.row_for(class) else {
+        return Ok(None);
+    };
+    let Some((field_ref, declared)) = source_declared_field(constructors, box_source, site, field)?
+    else {
+        return Ok(None);
+    };
+    Ok((declared.as_deref() == Some("i64")).then_some(field_ref))
+}
+
 /// Receiver-side container-field proof for `me.<field>` receivers of
 /// builtin container calls. The entry loan's receiver root is proven
 /// against this declaration's own box source; only a declared `ArrayBox`

@@ -57,6 +57,10 @@ pub(crate) struct LocalFieldReadRequestV1 {
     pub(crate) receiver: BindingRefV1,
     pub(crate) home: BindingRefV1,
     pub(crate) alias_class: Option<Box<str>>,
+    /// The receiver is a non-null-narrowed received nullable: the scanner
+    /// proved liveness, and the issuer must resolve the class from the
+    /// sealed call's `NullableObject` claim — `alias_class` stays empty.
+    pub(crate) nullable: bool,
     pub(crate) field: Box<str>,
 }
 
@@ -93,10 +97,11 @@ pub(super) fn field_read_request(
     let Some(provenance) = locals.field_read_receiver(receiver) else {
         return None;
     };
-    let (home, alias_class) = match provenance {
-        local_flow::FieldReadReceiverV1::OwnedHome => (receiver, None),
-        local_flow::FieldReadReceiverV1::RootedHandle(root) => (root, None),
-        local_flow::FieldReadReceiverV1::Alias { class, root } => (root, Some(class)),
+    let (home, alias_class, nullable) = match provenance {
+        local_flow::FieldReadReceiverV1::OwnedHome => (receiver, None, false),
+        local_flow::FieldReadReceiverV1::RootedHandle(root) => (root, None, false),
+        local_flow::FieldReadReceiverV1::Alias { class, root } => (root, Some(class), false),
+        local_flow::FieldReadReceiverV1::ReceivedNullable => (receiver, None, true),
     };
     Some(LocalFieldReadRequestV1 {
         site: OwnedExprSiteV1::new(input.owner(), site.clone()),
@@ -104,6 +109,7 @@ pub(super) fn field_read_request(
         receiver,
         home,
         alias_class,
+        nullable,
         field: field.clone(),
     })
 }

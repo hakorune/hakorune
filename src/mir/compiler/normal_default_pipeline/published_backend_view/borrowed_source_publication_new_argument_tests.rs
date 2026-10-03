@@ -430,6 +430,152 @@ fn borrowed_nullable_result_frontiers_stay_fail_closed() {
     });
 }
 
+/// A terminated `h == null` arm narrows the surviving fall-through: the
+/// received nullable binding is proven non-null, its sealed `NullableObject`
+/// claim names the field's class authority, and the checked release still
+/// discharges the caller's ownership exactly once. Both published shapes —
+/// the terminal `return h.id` and the `local v = h.id` initializer —
+/// emit `object_field_get` on the invoke result.
+#[test]
+fn nullable_field_read_publishes_guarded_object_field_get() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for (label, tail) in [
+            (
+                "terminal",
+                "if h == null { return s.limit } return h.id",
+            ),
+            (
+                "initializer",
+                "if h == null { return s.limit } local v = h.id return s.limit",
+            ),
+        ] {
+            let text = format!(
+                "box Item {{ id: i64 serial: i64 birth(id, serial) {{ me.id = id me.serial = serial }} }} \
+                box Store {{ limit: i64 birth() {{ me.limit = 10 }} \
+                check(p) {{ if p > me.limit {{ return null }} return new Item(p, 3) }} }} \
+                static box Main {{ main() {{ local s = new Store() local h = s.check(5) {tail} }} }}",
+            );
+            MirCompiler::with_options(false)
+                .compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
+                    classify_pretransform_report(verification);
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                    let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                    let functions = json["functions"].as_array().unwrap();
+                    let caller = functions
+                        .iter()
+                        .find(|f| f["name"] == "main")
+                        .expect("caller row");
+                    let instructions: Vec<&serde_json::Value> = caller["blocks"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .flat_map(|block| {
+                            block["instructions"].as_array().unwrap().iter().chain(
+                                std::iter::once(&block["terminator"]["instruction"]),
+                            )
+                        })
+                        .map(|row| row.get("instruction").unwrap_or(row))
+                        .collect();
+                    let call = instructions
+                        .iter()
+                        .find(|row| row["operation"]["kind"] == "ordinary_call")
+                        .expect("nullable call edge");
+                    assert_eq!(
+                        call["operation"]["result"], "nullable_handle",
+                        "{label}: {wire}"
+                    );
+                    let result_values: Vec<serde_json::Value> = instructions
+                        .iter()
+                        .filter(|row| row["op"] == "invoke_normal_result")
+                        .map(|row| row["dst"].clone())
+                        .collect();
+                    let reads: Vec<&serde_json::Value> = instructions
+                        .iter()
+                        .filter(|row| {
+                            row["op"] == "object_field_get"
+                                && result_values.contains(&row["base"])
+                        })
+                        .copied()
+                        .collect();
+                    assert_eq!(
+                        reads.len(),
+                        1,
+                        "{label}: exactly one field read on the nullable invoke result: {wire}"
+                    );
+                    let exits = instructions
+                        .iter()
+                        .filter(|row| row["op"] == "return")
+                        .count();
+                    let checked: Vec<&serde_json::Value> = instructions
+                        .iter()
+                        .filter(|row| row["operation"]["kind"] == "home_release_if_live")
+                        .copied()
+                        .collect();
+                    assert_eq!(
+                        checked.len(),
+                        exits,
+                        "{label}: one checked release per exit for the nullable result: {wire}"
+                    );
+                    assert!(
+                        result_values.iter().all(|result| !instructions.iter().any(
+                            |row| row["operation"]["kind"] == "home_release"
+                                && row["operation"]["value"] == *result
+                        )),
+                        "{label}: a maybe-null result never owes an unconditional release: {wire}"
+                    );
+                    Ok(())
+                })
+                .unwrap_or_else(|error| panic!("{label}: {error}"));
+        }
+    });
+}
+
+/// Unguarded `h.id`, a read inside the null-check arm before its `return`,
+/// and an undeclared field all stay fail-closed — the narrow proof comes
+/// only from a terminated `== null` arm on the surviving fall-through.
+#[test]
+fn nullable_field_read_stays_fail_closed() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for (label, tail) in [
+            (
+                "unguarded",
+                "return h.id",
+            ),
+            (
+                "inside-null-arm",
+                "if h == null { return h.id } return s.limit",
+            ),
+            (
+                "unknown-field",
+                "if h == null { return s.limit } return h.missing",
+            ),
+        ] {
+            let text = format!(
+                "box Item {{ id: i64 serial: i64 birth(id, serial) {{ me.id = id me.serial = serial }} }} \
+                box Store {{ limit: i64 birth() {{ me.limit = 10 }} \
+                check(p) {{ if p > me.limit {{ return null }} return new Item(p, 3) }} }} \
+                static box Main {{ main() {{ local s = new Store() local h = s.check(5) {tail} }} }}",
+            );
+            let error = MirCompiler::with_options(false)
+                .compile_normal_with_published(request(&text), |view, verification| {
+                    classify_pretransform_report(verification);
+                    view.issue_lifecycle_physical_abi_input()
+                        .map(|_| ())
+                })
+                .err()
+                .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"));
+            assert!(
+                error.contains("IncompleteOrdinaryNewCoverage")
+                    || error.contains("artifact-source-unavailable"),
+                "{label}: {error}"
+            );
+        }
+    });
+}
+
 #[test]
 fn nonscalar_birth_actuals_still_reject() {
     crate::runtime::ring0::ensure_global_ring0_initialized();

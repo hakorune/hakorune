@@ -275,6 +275,44 @@ pub(super) fn lexical_nullable_result_call(
         .unwrap_or(false)
 }
 
+/// The proven nullable-result object class for one received binding: the
+/// binding's own initializer site names the same claim-local call target
+/// that minted its `Nullable` observation, and that callee's sealed
+/// `NullableObject` claim is the sole class authority. Anything else —
+/// an unclassifiable initializer, a non-selected target, an `Object` or
+/// absent claim — answers `None`; the caller stays on its existing path.
+pub(super) fn nullable_received_result_class(
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    candidates: &[OrdinaryNewCandidate],
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    home: BindingRefV1,
+) -> Option<Box<str>> {
+    let site = input
+        .function()
+        .expression_source()
+        .initializers()
+        .find(|row| row.binding() == home)?
+        .initializer_site()?
+        .clone();
+    let (key, ..) = lexical_claim_local_target(
+        selected,
+        batch,
+        candidates,
+        input,
+        &crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site),
+    )?;
+    match callable_result_classes.get(&key) {
+        Some(
+            crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(
+                class,
+            ),
+        ) => Some(class.clone()),
+        _ => None,
+    }
+}
+
 /// The same callback prepares observations or demands the already-staged row.
 /// This neither re-observes locals nor reads a completed caller ledger.
 pub(super) fn borrowed_call_arguments_callback_v1(

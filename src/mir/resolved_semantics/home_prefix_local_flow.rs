@@ -74,6 +74,11 @@ pub(super) enum FieldReadReceiverV1 {
     /// A binding produced by an earlier proven field read — the payload is
     /// the field's declared class name.
     Alias { class: Box<str>, root: BindingRefV1 },
+    /// A received nullable call result whose `== null` arm terminated —
+    /// the surviving join marked it non-null, so the binding is its own
+    /// live base. The issuer resolves the class from the sealed call's
+    /// `NullableObject` claim, never from the stored local itself.
+    ReceivedNullable,
 }
 
 pub(super) enum OrdinaryObservation {
@@ -130,6 +135,12 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
 pub(super) struct PrefixLocalFlow<'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
     locals: BTreeMap<BindingRefV1, StoredLocal>,
+    /// Path-sensitive non-null narrowing for `ReceivedNullable` bindings:
+    /// a terminated `binding == null` arm proves the surviving fall-through
+    /// carries a live object. Entries are added only by the branch join
+    /// and invalidated by every re-store — the set alone proves nothing
+    /// without the `ReceivedNullable` stored class.
+    nonnull: std::collections::BTreeSet<BindingRefV1>,
 }
 
 impl<'source> PrefixLocalFlow<'source> {
@@ -137,7 +148,45 @@ impl<'source> PrefixLocalFlow<'source> {
         Self {
             input,
             locals: BTreeMap::new(),
+            nonnull: std::collections::BTreeSet::new(),
         }
+    }
+
+    /// Every stored-class mutation discards the binding's narrowing — a
+    /// rebound or consumed binding must never inherit an old proof.
+    fn store(&mut self, binding: BindingRefV1, value: StoredLocal) {
+        self.nonnull.remove(&binding);
+        self.locals.insert(binding, value);
+    }
+
+    /// Mark the binding non-null on this surviving path. Only a live
+    /// `ReceivedNullable` can carry the mark; any other stored class —
+    /// including an `Uninitialized` produced by a sibling branch scope —
+    /// ignores it.
+    pub(super) fn mark_nonnull(&mut self, binding: BindingRefV1) {
+        if matches!(
+            self.locals.get(&binding),
+            Some(StoredLocal::ReceivedNullable)
+        ) {
+            self.nonnull.insert(binding);
+        }
+    }
+
+    /// The receiver root for a `receiver.field` read: an ordinary Handle
+    /// observation first, then a non-null-narrowed received nullable —
+    /// the binding itself is the live base on this path.
+    pub(super) fn field_home(&self, site: &SourceExprSiteV1) -> Option<BindingRefV1> {
+        if let Some(OrdinaryObservation::Handle(home)) = self.observe(site) {
+            return Some(home);
+        }
+        let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else {
+            return None;
+        };
+        (matches!(
+            self.locals.get(&binding),
+            Some(StoredLocal::ReceivedNullable)
+        ) && self.nonnull.contains(&binding))
+        .then_some(binding)
     }
 
     /// Join a sibling fall-through branch state into this one. Both sides
@@ -163,14 +212,18 @@ impl<'source> PrefixLocalFlow<'source> {
         }
         for binding in self.locals.keys().copied().collect::<Vec<_>>() {
             if !other.locals.contains_key(&binding) {
-                self.locals.insert(binding, StoredLocal::Uninitialized);
+                self.store(binding, StoredLocal::Uninitialized);
             }
         }
         for binding in other.locals.keys() {
-            self.locals
-                .entry(*binding)
-                .or_insert(StoredLocal::Uninitialized);
+            if !self.locals.contains_key(binding) {
+                self.store(*binding, StoredLocal::Uninitialized);
+            }
         }
+        // Narrowing is path-sensitive: a mark survives the join only when
+        // both siblings carried it.
+        self.nonnull
+            .retain(|binding| other.nonnull.contains(binding));
         true
     }
 
@@ -212,7 +265,7 @@ impl<'source> PrefixLocalFlow<'source> {
                 | CallableParameterContractKindV1::DeclaredHandle
                 | CallableParameterContractKindV1::ExactText(_) => StoredLocal::Handle(binding),
             };
-            self.locals.insert(binding, value);
+            self.store(binding, value);
             count += 1;
         }
         count
@@ -354,7 +407,7 @@ impl<'source> PrefixLocalFlow<'source> {
         {
             return false;
         }
-        self.locals.insert(receiver, StoredLocal::Handle(receiver));
+        self.store(receiver, StoredLocal::Handle(receiver));
         true
     }
 
@@ -413,6 +466,7 @@ impl<'source> PrefixLocalFlow<'source> {
                 StoredLocal::Home { .. }
                     | StoredLocal::Handle(_)
                     | StoredLocal::FieldAlias { .. }
+                    | StoredLocal::ReceivedNullable
                     | StoredLocal::Consumed
             )
         )
@@ -430,6 +484,11 @@ impl<'source> PrefixLocalFlow<'source> {
                     root: *root,
                 })
             }
+            // A received nullable carries no field provenance until the
+            // branch join proves the surviving path non-null.
+            StoredLocal::ReceivedNullable if self.nonnull.contains(&binding) => {
+                Some(FieldReadReceiverV1::ReceivedNullable)
+            }
             _ => None,
         }
     }
@@ -443,8 +502,7 @@ impl<'source> PrefixLocalFlow<'source> {
         class: Box<str>,
         root: BindingRefV1,
     ) {
-        self.locals
-            .insert(binding, StoredLocal::FieldAlias { class, root });
+        self.store(binding, StoredLocal::FieldAlias { class, root });
     }
 
     fn field_root_is_live(&self, root: BindingRefV1) -> bool {
@@ -456,27 +514,27 @@ impl<'source> PrefixLocalFlow<'source> {
     }
 
     pub(super) fn consume_home(&mut self, binding: BindingRefV1) {
-        self.locals.insert(binding, StoredLocal::Consumed);
+        self.store(binding, StoredLocal::Consumed);
     }
     pub(super) fn install_map(&mut self, binding: BindingRefV1) {
-        self.locals.insert(binding, StoredLocal::Map);
+        self.store(binding, StoredLocal::Map);
     }
 
     /// A received call-result handle: the caller owns it as a Home but it
     /// carries no `new` acquisition site, so it installs on its own arm.
     pub(super) fn install_received_handle(&mut self, binding: BindingRefV1) {
-        self.locals.insert(binding, StoredLocal::ReceivedHandle);
+        self.store(binding, StoredLocal::ReceivedHandle);
     }
 
     /// A received nullable call result: the caller owns it conditionally —
     /// the exit chain owes a checked release, and no acquisition site or
     /// scalar class ever applies.
     pub(super) fn install_received_nullable(&mut self, binding: BindingRefV1) {
-        self.locals.insert(binding, StoredLocal::ReceivedNullable);
+        self.store(binding, StoredLocal::ReceivedNullable);
     }
 
     pub(super) fn install_i64_call_result(&mut self, binding: BindingRefV1) {
-        self.locals.insert(
+        self.store(
             binding,
             StoredLocal::Trivial(Some(SourceScalarKind::Integer)),
         );
@@ -490,19 +548,18 @@ impl<'source> PrefixLocalFlow<'source> {
         binding: BindingRefV1,
         kind: SourceScalarKind,
     ) {
-        self.locals
-            .insert(binding, StoredLocal::Trivial(Some(kind)));
+        self.store(binding, StoredLocal::Trivial(Some(kind)));
     }
 
     pub(super) fn install_uninitialized(&mut self, binding: BindingRefV1) {
-        self.locals.insert(binding, StoredLocal::Uninitialized);
+        self.store(binding, StoredLocal::Uninitialized);
     }
 
     /// Record a call-result local the flow cannot classify further. The
     /// binding stays observable for `new` arguments; it joins no Home or
     /// scalar accounting.
     pub(super) fn install_bound_value(&mut self, binding: BindingRefV1) {
-        self.locals.insert(binding, StoredLocal::BoundValue);
+        self.store(binding, StoredLocal::BoundValue);
     }
 
     /// A local bound to an inventoried call keeps a produced value at
@@ -531,8 +588,7 @@ impl<'source> PrefixLocalFlow<'source> {
         binding: BindingRefV1,
         acquisition: super::OwnedExprSiteV1,
     ) {
-        self.locals
-            .insert(binding, StoredLocal::Home { acquisition });
+        self.store(binding, StoredLocal::Home { acquisition });
     }
 
     pub(super) fn install_observed(&mut self, binding: BindingRefV1, value: OrdinaryObservation) {
@@ -546,6 +602,6 @@ impl<'source> PrefixLocalFlow<'source> {
             OrdinaryObservation::BoundValue(_) => StoredLocal::BoundValue,
             OrdinaryObservation::Null => StoredLocal::Null,
         };
-        self.locals.insert(binding, stored);
+        self.store(binding, stored);
     }
 }

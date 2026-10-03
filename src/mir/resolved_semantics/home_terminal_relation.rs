@@ -414,7 +414,7 @@ pub(super) fn return_scalar<E>(
             else {
                 return Ok(None);
             };
-            let Some(OrdinaryObservation::Handle(home)) = locals.observe(receiver.site()) else {
+            let Some(home) = locals.field_home(receiver.site()) else {
                 return Ok(None);
             };
             let Some(ResolvedLexicalRefV1::Local(binding)) =

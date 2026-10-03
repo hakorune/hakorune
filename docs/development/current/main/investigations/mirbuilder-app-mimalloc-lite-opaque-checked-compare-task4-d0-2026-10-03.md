@@ -393,3 +393,65 @@ Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDREAD-S0
 (nullable field-read forwarding — `handle.block_id` on a received
 nullable Home — the `literal-physical-drift` boundary blocking
 `release(handle)` and `allocate`'s `.get`/`handle` uses).
+
+## S0 landed record (MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDREAD-S0)
+
+Landed (commit pending on `codex/birth-definition-publication`):
+
+- Scope taken: guarded field read on a *local* received nullable —
+  `local h = s.check(5); if h == null { return .. }; return h.id` and
+  the `local v = h.id` initializer form. `handle.block_id` on a formal,
+  `me.`-receiver calls, and `.get` element reads stay named follow-ons.
+- Path-sensitive non-null narrowing in `PrefixLocalFlow`: a dominating
+  `binding == null` guard whose null arm terminates marks the binding
+  in `nonnull`; the mark lives only on `ReceivedNullable` locals (the
+  source class stays the authority — a bare proof set cannot mint it).
+  Centralized `store()` drops the mark on any rebinding, and branch
+  joins intersect marks across surviving sides — a terminated branch
+  contributes nothing, sibling fall-through requires both sides.
+- Admission reuses the field issuer: `FieldReadReceiverV1::
+  ReceivedNullable` + `LocalFieldReadRequestV1.nullable`; the request
+  carries `home == receiver` and no alias class. The issuer resolves
+  the class from the sealed `NullableObject(class)` claim
+  (`nullable_received_result_class`), never from MIR types or layout,
+  and proves the field through `prove_local_field_read_batch`.
+- Terminal lane: `return_scalar`'s FieldAccess arm resolves the receiver
+  via `field_home` (non-null + ReceivedNullable), and the terminal
+  field-return helper gains the nullable integer-field arm so an
+  `I64Field` exit still feeds `result_abi` unification (the null arm
+  must return a field-class-compatible value — `return s.limit` — a
+  literal-only null arm diverges the ABI and stays rejected).
+- Physical owner unchanged: the claimed read is consumed by
+  `take_terminal_field_read`/`take_local_field_read` (whose
+  `installs_ordinary` relaxed to `installs` so a `CallReceived` commit
+  satisfies the receiver), emitted exactly once as `ObjectFieldGet`
+  with base = the `invoke_normal_result` value; cleanup stays one
+  `home_release_if_live` per return exit, zero unconditional releases
+  on the nullable result.
+
+Evidence pins (test profile `--lib`):
+`nullable_field_read_publishes_guarded_object_field_get` (terminal +
+initializer: `ordinary_call`/`nullable_handle`, `object_field_get`
+base == `invoke_normal_result` dst, checked releases == return exits,
+no unconditional release on the invoke result),
+`nullable_field_read_stays_fail_closed` (unguarded, inside-null-arm,
+unknown field → `IncompleteOrdinaryNewCoverage`),
+`resolved_semantics` 349/349, `field_read` family 29/29,
+`borrowed_source_publication` 14/14, deterministic ×3.
+Baseline reds observed while gating (all already classified):
+`birth_receiver_non_escape_rejects_unproven_uses_before_row_publication`,
+`main_static_child_port_consumes_all_role_rows_once`,
+`qualified_call_map_argument_reaches_the_named_capability_boundary`, and
+`refresh_module_user_box_method_routes_accepts_loop_carried_nullable_object_return`
+reproduce at clean `8f9fde4bdd` HEAD identically.
+
+Open frontiers (deliberately out of this slice):
+formal/parameter field reads (`handle.block_id` inside
+`release(handle)`), `.get` element reads (`me.pages.get(..)`), and
+`me.`-receiver nullable calls (`artifact-source-unavailable`/
+`TerminalHomesUnavailable`).
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-S0
+(parameter-field read on a guarded nullable formal — the
+`handle.block_id` boundary inside `release(handle)` toward
+`releaseLocal` admission).

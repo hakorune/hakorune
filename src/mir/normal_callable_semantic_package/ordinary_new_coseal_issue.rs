@@ -416,6 +416,24 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
                         let field = terminal_home::initialized_integer_field(
                             instance_constructors, &candidates, home, name)?;
+                        // A non-null-narrowed received nullable names its
+                        // class through the sealed call's `NullableObject`
+                        // claim; the declared `i64` contract is unchanged.
+                        let field = match field {
+                            Some(field) => Some(field),
+                            None => match lexical::nullable_received_result_class(
+                                selected, batch, &callable_result_classes, &candidates, input, home,
+                            ) {
+                                Some(class) => terminal_home::nullable_result_integer_field(
+                                    instance_constructors,
+                                    batch.ordinary_box_coverage(),
+                                    &class,
+                                    site,
+                                    name,
+                                )?,
+                                None => None,
+                            },
+                        };
                         let Some(field) = field else { return Ok(false); };
                         if staged_reads.insert(site.clone(), field_reads::FieldRead {
                             receiver_site: receiver_site.clone(), receiver, home, field,
@@ -452,6 +470,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         let Some(rows) = source_claims::prove_local_field_read_batch(
                             instance_constructors, &candidates, batch.ordinary_box_coverage(),
                             receiver_proof, requests, scalar_only,
+                            &mut |home| lexical::nullable_received_result_class(
+                                selected, batch, &callable_result_classes, &candidates, input, home,
+                            ),
                         )? else { return Ok(None); };
                         source_claims::stage_local_field_read_batch(&mut local_staged_reads, rows)
                             .map(Some)

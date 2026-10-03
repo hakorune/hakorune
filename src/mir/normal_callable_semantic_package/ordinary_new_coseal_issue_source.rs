@@ -496,6 +496,10 @@ pub(super) fn collect_birth_site_index_v1(
 }
 
 /// Prove the complete root batch without modifying the persistent staging map.
+/// A `nullable` request's class comes from `nullable_class` — the issuer's
+/// sealed-call claim resolution — and enters `local_read_field` through the
+/// same `alias_class` arm an earlier proven field read uses.
+#[allow(clippy::too_many_arguments)]
 pub(super) fn prove_local_field_read_batch(
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     candidates: &[OrdinaryNewCandidate],
@@ -503,6 +507,7 @@ pub(super) fn prove_local_field_read_batch(
     receiver_proof: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     requests: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
     scalar_only: bool,
+    nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
 ) -> Result<Option<Vec<(OwnedExprSiteV1, field_reads::LocalFieldRead)>>, OrdinaryNewCoSealIssueV1> {
     use crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1;
     let mut seen = BTreeSet::new();
@@ -523,6 +528,14 @@ pub(super) fn prove_local_field_read_batch(
                 site: request.site.clone(),
             });
         }
+        let alias_class = if request.nullable {
+            match nullable_class(request.home) {
+                Some(class) => Some(class),
+                None => return Ok(None),
+            }
+        } else {
+            request.alias_class.clone()
+        };
         let Some((field, result)) = terminal_home::local_read_field(
             constructors,
             candidates,
@@ -530,7 +543,7 @@ pub(super) fn prove_local_field_read_batch(
             receiver_proof,
             &request.site,
             request.home,
-            request.alias_class.as_deref(),
+            alias_class.as_deref(),
             &request.field,
         )?
         else {
@@ -656,9 +669,34 @@ pub(super) fn probe_source_home_prefixes_v1(
             ))
         },
         local_static_call,
-        &mut |_: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
-            terminal_home::initialized_integer_field(instance_constructors, &candidates, home, name)
-                .map(|field| field.is_some())
+        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+            let field = terminal_home::initialized_integer_field(
+                instance_constructors,
+                &candidates,
+                home,
+                name,
+            )?;
+            match field {
+                Some(_) => Ok(true),
+                None => match super::lexical::nullable_received_result_class(
+                    selected,
+                    batch,
+                    callable_result_classes,
+                    &candidates,
+                    input,
+                    home,
+                ) {
+                    Some(class) => terminal_home::nullable_result_integer_field(
+                        instance_constructors,
+                        batch.ordinary_box_coverage(),
+                        &class,
+                        site,
+                        name,
+                    )
+                    .map(|field| field.is_some()),
+                    None => Ok(false),
+                },
+            }
         },
         &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
             terminal_home::argument_integer_field(
@@ -702,6 +740,16 @@ pub(super) fn probe_source_home_prefixes_v1(
                 receiver_proof,
                 requests,
                 scalar_only,
+                &mut |home| {
+                    super::lexical::nullable_received_result_class(
+                        selected,
+                        batch,
+                        callable_result_classes,
+                        &candidates,
+                        input,
+                        home,
+                    )
+                },
             )
             .map(|rows| rows.map(|rows| rows.into_iter().map(|(_, row)| row.result).collect()))
         },

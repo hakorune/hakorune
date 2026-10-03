@@ -1,7 +1,7 @@
 date = "2026-10-03"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDREAD-S0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -29,9 +29,9 @@ gap); return null/new -> borrowed-result needs a nullable-handle class.
 S0 boundary: dominated ordered-Add view only; ArraySet and ctor+result
 stay named follow-ons inside task-4.
 """
-next_design_card = "Task-4 follow-on: nullable field-read forwarding (`handle.block_id` on a received nullable Home — `literal-physical-drift` frontier) and `me.`-receiver nullable calls inside nested lowering (`artifact-source-unavailable`/`TerminalHomesUnavailable`) toward `allocate`/`release` admission."
+next_design_card = "Task-4 follow-on: parameter-field read on a guarded nullable formal (`handle.block_id` inside `release(handle)`), `.get` element reads (`me.pages.get(..)`), and `me.`-receiver nullable calls inside nested lowering (`artifact-source-unavailable`/`TerminalHomesUnavailable`) toward `releaseLocal`/`allocate` admission."
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDREAD-S0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -47,7 +47,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-03: OPAQUE-CHECKED-COMPARE-TASK4-FIELDREAD-S0 landed — guarded field read on a local received nullable: PrefixLocalFlow nonnull narrowing (dominating ==null guard + terminated null arm; store() drops mark, joins intersect; ReceivedNullable stays the class authority), FieldReadReceiverV1::ReceivedNullable + request.nullable reuse prove_local_field_read_batch with class from the sealed NullableObject claim (never MIR types), return_scalar/field_return gain field_home + nullable integer-field arms (ABI-uniform exits), installs lets CallReceived feed take_*_field_read; one object_field_get base=invoke_normal_result, one home_release_if_live per exit. Pins: publication positive (terminal+initializer) + fail-closed negatives (unguarded/null-arm/unknown field), resolved_semantics 349/349, field_read 29/29, publication 14/14, deterministic x3. Baseline: 4 HEAD-repro reds. Next: TASK4-PARAMFIELD-S0 (handle.block_id formal), .get, me.-receiver.",
   "2026-10-03: OPAQUE-CHECKED-COMPARE-TASK4-RESULT-S0 landed — borrowed-result nullable-handle class end to end: BorrowedResultClassV1{I64,Nullable} per-site classification (null+new admitted, mixed->source-class-mixed, null-only stays source-not-i64), NullableObject corroboration + exact site inventory, lexical nullable local-call mint before i64 issuer, emit_local_lexical_nullable sole physical owner (NullableHandle invoke + prior-Home fault unwind + binding group), HomeReleaseIfLive checked cleanup, deterministic child return inference (sorted blocks — fixes intermittent ordinary-membership-drift). Pins: publication + 2 negatives, ordinary_new 230/230, lexical 208/208, deterministic x8. Baseline: manifest 12/91 + map_value_get x2 HEAD-repro; brand_catalog_tests.rs=961 unchanged. Open: me.-receiver + field forwarding.",
   "2026-10-03: OPAQUE-CHECKED-COMPARE-TASK4-CTORARG-S0 landed — dominated ctor-argument view + non-literal i64 birth actuals: scalar_actual_kind MirType::Integer corroboration (Local/BoundValue/I64Field), readiness probe on verified-lane explicit_sites, NewArgument draft ((site, ordinal) under compare dominance), new-argument projection + entry membership probe, ctor-view closure for bare/Invoke BirthConstructor (view lanes hardened, ctor-coverage), 'tagged' actual vs kind_payload_v1 (C v2/indexed/emit kind==1 at call edge), finishing-checked children own ledger ObjectFieldGet. Pins: selected-new 5/5, draft 2, closure 18/18, publication 4-variant + drift reject + 3 negatives, EXE 4. Baseline reds: manifest 12/91 + 2 batch flakes; brand_catalog_tests.rs=961 unchanged. Next: TASK4-RESULT-S0.",
-  "2026-10-03: OPAQUE-CHECKED-COMPARE-TASK4-ARRAYSET-S0 landed — dominated ArraySet element view end to end: ArrayElementValue draft (proven me.<ArrayBox> receiver, ordinal-0 NormalInteger index, ordinal-1 dominated value), finalized projection, physical set-view closure (receiver/index borrowed-lane reject, set-coverage), route-gated ArrayElementWrite{Set}/ArrayStoreAny whitelist, slot_load_handle field route inside the borrowed corridor, array_set JSON row + C v2/indexed/emit arms, new kernel export nyash.array.checked_set_i64_v1 (bounds 204, element mismatch 203). Pins: draft pin 1, closure 12/12, publication 5-variant + drift reject, EXE 6 (index-0 in/over ok, index-3 bounds, bool/object kind fault, 3 compare inputs unchanged). Scope guard green except pre-existing brand_catalog_tests.rs=961 debt. Next: TASK4-CTORARG-S0.",
   ]

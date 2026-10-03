@@ -299,11 +299,14 @@ impl OrdinaryNewClaimLedgerV1 {
         if *last != SourcePathSegmentV1::Receiver || parent != site.site().node().segments() {
             return Err(fault("receiver-source-site"));
         }
+        // `installs` — not `installs_ordinary`: a non-null-narrowed
+        // received nullable is a `CallReceived` row, not an `Ordinary`
+        // `new` Home, and it still names a physically materialized base.
         if !self
             .local_commits
             .borrow()
             .values()
-            .any(|local| local.installs_ordinary(row.home))
+            .any(|local| local.installs(row.home))
         {
             return Err(fault("home-not-installed"));
         }
