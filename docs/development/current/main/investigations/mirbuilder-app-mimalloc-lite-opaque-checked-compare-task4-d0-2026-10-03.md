@@ -1,6 +1,6 @@
 # mimalloc-lite opaque checked-compare task-4 D0 (dominated view uses)
 
-Status: accepted task-4 Decisions; I64RESULT-S0, ROOTSOURCE-S0, USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0, FIELDSIZE-T0, PARAMFIELD-S0 and FIELDRESULT-S0 landed; next PARAMFIELD-ACCEPTANCE-R0 (implementation pending).
+Status: accepted task-4 Decisions; all nine PARAMFIELD-series rows landed (I64RESULT-S0 through PARAMFIELD-ACCEPTANCE-R0); bounded series complete — next work needs a new accepted Decision.
 Scope: `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-D0`
   and its bounded PARAMFIELD prerequisite/acceptance series.
 Related: docs/development/RULES.md; CURRENT_STATE.toml;
@@ -310,14 +310,13 @@ coverage must agree through Rust, JSON, C index and emission together.
 
 Token prefix below:
 `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-`.
-Every row is one responsibility; I64RESULT-S0, ROOTSOURCE-S0,
-USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0, FIELDSIZE-T0,
-PARAMFIELD-S0 and FIELDRESULT-S0 are landed and
-PARAMFIELD-ACCEPTANCE-R0 is currently selected.
+Every row is one responsibility; all nine rows —
+I64RESULT-S0, ROOTSOURCE-S0, USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0,
+FIELDSIZE-T0, PARAMFIELD-S0, FIELDRESULT-S0 and
+PARAMFIELD-ACCEPTANCE-R0 — are landed. This bounded series is complete;
+any further work needs a new accepted Decision.
 
-Selected construction row:
-`MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-ACCEPTANCE-R0`.
-Last construction row of this series.
+Selected construction row: none — series complete.
 
 | Order | Suffix | Responsibility / predecessor |
 | --- | --- | --- |
@@ -329,7 +328,7 @@ Last construction row of this series.
 | 6 | FIELDSIZE-T0 | BoxShape: extract existing field-read batch issuer/stager from the 770-line source parent; landed |
 | 7 | PARAMFIELD-S0 | B: complete class view + guarded scalar field initializer; landed |
 | 8 | FIELDRESULT-S0 | Exact scalar field-return result proof using 7's view; landed |
-| 9 | PARAMFIELD-ACCEPTANCE-R0 | Selected source-to-EXE null/object/nullable cases and inverse failures; after 8 |
+| 9 | PARAMFIELD-ACCEPTANCE-R0 | Selected source-to-EXE null/object/nullable cases and inverse failures; landed |
 
 ### 1 — I64RESULT-S0 (landed)
 
@@ -938,3 +937,62 @@ acceptance (PARAMFIELD-ACCEPTANCE-R0).
 
 Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-ACCEPTANCE-R0
 (selected source-to-EXE null/object/nullable cases and inverse failures).
+
+#### PARAMFIELD-ACCEPTANCE-R0 — landed record
+
+Landed (commit pending on `codex/birth-definition-publication`):
+
+- Emit (`borrowed_source_publication_param_field_acceptance_tests.rs`):
+  the three frontier shapes without a prior C witness — unused
+  formal/I64 result (`release(handle) { return 0 }` + direct caller
+  return), local-new TypedHome call (`local h = new Item(1, 2);
+  local r = s.release(h); return r`) and the exact null guard with a
+  literal-null actual (`check(handle) { if handle == null { return 7 }
+  return 3 }` + `s.check(null)`) — publish unchanged and write
+  `hako-issued-param-acceptance-{unused-i64,localnew,null-guard}.json`,
+  pinning the borrowed carrier and each actual's wire tag (1/3/0).
+- Acceptance driver
+  (`published_lifecycle_v4_param_field_acceptance_execution_test.py`):
+  consumes those three plus the sibling witnesses
+  (`hako-issued-param-field-{handle,return}`,
+  `hako-issued-null-compare-object`,
+  `hako-issued-null-actual-{null,nullable}`) — eight source-issued inputs
+  through `published_lifecycle_v4_driver.c` -> OBJ -> runtime-probe EXE:
+  - unused-i64 exits 0 with one caller release;
+  - localnew exits 0 with both homes released once;
+  - null-guard answers 7 on the null arm and 3 on the object actual;
+  - field-init answers 1 and field-return answers 5 through the exact
+    sealed `object_view`/`object_field_get` pair;
+  - field-return's Void state (issued literal mutated 5 -> 20, same
+    shape) transports (0,0) and the guard arm answers 0 with no release;
+  - literal null answers 0 with the sentinel never released; the live
+    received nullable releases h and s once each;
+  - injected `V4_PROBE_FAULT_AT=2` birth-store faults on localnew and
+    field-return unwind with exit 70, one reclaim and cleanup once;
+  - five forged rows (dropped object_view, drifted object_id, forged
+    Integer tag on the null actual, missing const_null producer,
+    out-of-range wire tag) reject before OBJ.
+
+Evidence pins:
+`param_field_acceptance_shapes_publish_their_issued_inputs` (3/3 emitted
+inputs carry the borrowed carrier and expected actual tag); the quick-lib
+emitters run with `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib
+param_field_acceptance` plus the sibling emit filters
+(`null_compare_publishes`, `guarded_formal_field_read_publishes`,
+`borrowed_source_publication_tests::nullable`) — all green — then
+`python3
+lang/c-abi/tests/published_lifecycle_v4_param_field_acceptance_execution_test.py
+/tmp` — `8 source-issued inputs execute (normal/null/fault); five forged
+rows reject`. Scope guard pins PASS except
+`brand_catalog_tests.rs=961` known structural debt; pointer guard PASS.
+
+Open frontiers (deliberately out of this series): inline `new` actuals,
+general field/result aliases, `.get` element reads, `me.`-receiver calls,
+Bool-returning production release, `!=` guards, inside-arm reads,
+argument-position field reads, object-typed/aliased field results,
+mixed-class results — all keep their named stops — plus the
+`releaseLocal`/`allocate` app admission itself.
+
+Series complete — the nine ordered rows of the bounded PARAMFIELD
+prerequisite/acceptance series are all landed; further work needs a new
+accepted Decision.

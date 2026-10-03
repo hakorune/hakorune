@@ -617,3 +617,6 @@ mod nullable_actual_tests;
 
 #[path = "borrowed_source_publication_param_field_tests.rs"]
 mod param_field_tests;
+
+#[path = "borrowed_source_publication_param_field_acceptance_tests.rs"]
+mod param_field_acceptance_tests;
