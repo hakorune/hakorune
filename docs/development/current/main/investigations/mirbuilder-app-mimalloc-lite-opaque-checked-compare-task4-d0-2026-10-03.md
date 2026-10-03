@@ -1,0 +1,150 @@
+# mimalloc-lite opaque checked-compare task-4 D0 (dominated view uses)
+
+Status: accepted Decision; S0 bounded to the dominated ordered-Add view use.
+Scope: `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-D0`.
+Related: docs/development/RULES.md; CURRENT_STATE.toml;
+  mirbuilder-app-mimalloc-lite-opaque-checked-compare-normal-integer-d0-2026-10-03.md
+  (parent; view lending rules and S0 receipts);
+  mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md (grandparent).
+
+## Decision
+
+The checked compare's kind==1 proof extends the lent Normal-Integer *view*
+to the same formal's uses dominated by the compare's block: the original
+`ArraySet` element, the ordered `Add` operand, and the constructor
+argument. One lent view class, one ledger — no second authority, no
+per-instruction reinterpretation, no `StoredLocal`/parameter-contract
+change. The tagged carrier (`borrowed_kind_payload_v1`) is retained end to
+end; usize range authority stays at the checked write lane
+(`verification/numeric_substrate.rs`), which rejects out-of-range payloads
+at `me.<usize field>`/array-element/birth-field stores.
+
+Because the compare's site check dominates both successors, a dominated
+use can read the view payload directly; the emitter still re-checks
+`k==1` per tagged operand site (uniform with compare), so a projected or
+drifted operand can never bypass the fault boundary.
+
+Source authority + canonical issuer:
+- `expression_source.rs`/`body_shape` keep the site identities: `binaries()`
+  for `+`, `method_calls()` for `me.<ArrayBox>.set`, `constructions()` for
+  `new`. The guarding relation is the existing `if` region
+  (`with_if_region_for_condition`) plus block dominance
+  (`compute_dominators`/`dominates` in `verification/utils.rs`; the
+  `MapSetScalarI64DominatesNoEscape` proof is the precedent).
+- `dynamic_operator_contract` gains `Add(NormalInteger, NormalInteger)`
+  with a fresh-integer result class (no lifecycle obligation) — the
+  existing operation owner, consumed through the same borrowed-formal
+  co-seal; `Add(Dynamic, I64)` is untouched.
+- `ordinary_new_borrowed_formal_uses.rs` gains dominated-use draft kinds
+  beside `CompareOperand`: `AddOperand`, `ArrayElementValue`,
+  `ConstructionArgument` — each requiring the same binding, a proved
+  Normal-Integer sibling where applicable, and a guarding admitted compare
+  whose region dominates the use site.
+- `ordinary_new_borrowed_formal_result.rs` gains a nullable-handle result
+  source class (`null` literal and `new`-construction return sites) —
+  constructor use cannot be proved while `borrowed-result` requires i64.
+- Physical: `borrowed_call_uses` extends the one-step view closure from
+  `Compare` operands to `BinOp{Add}`, `ArrayElementWrite{Set}.value`, and
+  constructor-call args at proved ordinals — only inside blocks dominated
+  by the admitted compare's block; coverage stays per distinct operand.
+
+Non-authority: `usize`/U64Bits storage spelling is never the proof;
+`DynamicOperatorValueClassV1::I64` stays a lane name; a `.set` argument is
+not an `UnresolvedArgument` forward candidate (generic method route, not a
+same-module lexical call — the silent `outside` drop stays rejected by
+class, not retried); `new` argument transport must not reuse the
+literal-scalar `scalar_actual_kind` wall — non-literal birth actuals get
+the same `{"kind":..., "value": vid}` encoding class as `ordinary_call`,
+extended by the new view tag, never a permissive literal fallback.
+
+## Pinned census (read-only worker + probes, integrated)
+
+Site: `lang/src/hako_alloc/memory/page_heap_box.hako` — `allocate(requested_size)`:
+- L75 `requested_size > me.block_size` — compare view (landed S0).
+- L93 `me.requested_sizes.set(block_id, requested_size)` — `.set` arg is a
+  `method_calls()` row with a non-`Me` receiver (`ResolvedMethodCallReceiverSourceV1::Other`);
+  today classifies `UnresolvedArgument`, then the owner is silently dropped
+  (`ordinary_new_borrowed_formal_source.rs` `outside` insertion), because
+  `ArrayBox.set` is a generic-method-route call, not a lexical instance
+  call. Physical `MirInstruction::ArrayElementWrite{Set}` is absent from
+  the ordinary supported whitelist; JSON has no `array_set` op kind; C has
+  no validator/index/emit arm — a new operation kind end to end.
+- L96 `me.requested_bytes = me.requested_bytes + requested_size` — `+` rhs
+  site hits `UnsupportedUse` (operator not `Greater`); first observed
+  decline. Physical `BinOp{Add}` is whitelist-admitted; `map_value_domains`
+  admits only `I64×I64`; C `add` requires `LV4_I64` both operands.
+- L102 `new HakoAllocHandle(me.page_id, block_id, requested_size)` — `new`
+  is a `constructions()` row, not `method_calls()`; arg site hits
+  `UnsupportedUse`. Wider frontier: `scalar_actual_kind` admits literal
+  Integer/Bool only (`physical_abi.rs`), so `me.page_id` (I64Field) and
+  `block_id` (Local) are independently unavailable — non-literal birth
+  actuals are a general gap, not borrowed-specific.
+- Result lane: `return null`/`return new HakoAllocHandle` hits
+  `borrowed-result/source-not-i64` — functions carrying admitted borrowed
+  formals currently require Integer-literal or ExactTrivial(I64) return
+  sites; a nullable-handle class is owed.
+
+Empirical frontier (bisect probe, since removed):
+- `me.items.set(0, requested)` -> `TerminalHomesUnavailable` (owner
+  silently dropped at draft; callee unclaimed -> `new Store()` unowned).
+- `me.total = me.total + requested` -> `TerminalHomesUnavailable`
+  (`UnsupportedUse`, same propagation).
+- `new Pair(requested)` -> `TerminalHomesUnavailable` (`UnsupportedUse`).
+- `return new Pair(1)` (literal arg, ctor only) ->
+  `[ordinary-new/borrowed-result/source-not-i64]` — confirming the result
+  lane is an independent fourth gate.
+
+## Contract and fail-closed boundary
+
+View scope (parent rule preserved): same binding/ValueId; the use site
+must be dominated by the compare's block (both successors carry kind==1 —
+the site check precedes the branch). Reject: pre-check uses, non-dominated
+uses (including the true-branch interior — it returns), Fault-edge uses,
+foreign-owner values, rebound loans, sibling-free operands — all stay
+`UnsupportedUse`/`forbidden-operand`.
+
+Physical gates, all named and fail-closed:
+1. `draft_borrowed_formal_uses_v1`: `AddOperand` only for `operator() ==
+   Add` with a `normal_integer_operand` sibling and a guarding admitted
+   compare dominating the use; everything else stays `UnsupportedUse`.
+2. `borrowed_call_uses`: view copies may feed `BinOp{Add}` operands only in
+   blocks dominated by their formal's compare block; coverage counts
+   distinct operand values per admitted use (edge-port re-evaluation is
+   one use).
+3. `invoke.rs`/`physical_program_field_ref`: the `me.<usize>` sibling read
+   stays inside the existing borrowed-tagged corridor; the Add result
+   writes back through the checked usize write lane.
+4. C: `lv4_indexed_rows` `add` arm admits `LV4_TAGGED` operands only when
+   the function carries the borrowed corridor; `lv4_emit` emits the same
+   `k==1` site check per tagged operand before `add i64` — uniform with
+   compare, no cross-instruction state.
+
+## S0 acceptance boundary (ordered-Add view use)
+
+- Focused positives: opaque formal `>` check dominating
+  `me.<usize field> = me.<usize field> + requested` — published JSON shows
+  the tagged view feeding `add`; EXE executes: in-range arg yields
+  field+arg, `-1` faults at the usize write (range authority stays at
+  write), bool/object fault at the compare site before the add.
+- Negatives: add operand without a guarding compare, add outside the
+  dominated region, wrong sibling class, view escape into edge args —
+  decline/fault.
+- `.set` and `new` uses stay `UnsupportedUse`/`forbidden-operand` in this
+  slice; `borrowed-result` stays i64-only (`check` returns literals).
+- No retirement; additive view extension only.
+
+Follow-on slices inside task-4 (named, ordered): ArraySet element view
+(new `array_set` op kind end to end), then constructor argument view +
+non-literal birth actual transport + `borrowed-result` nullable-handle
+class. `allocate` admission completes only after all three.
+
+## Non-claims
+
+No `ArraySet`/`NewBox`/birth-actual admission in S0; no nullable-handle
+borrowed result in S0; no `LessEqual`/`GreaterEqual`/`Equal`/other binary
+siblings; no unsigned lane; no general usize field publication; no
+`allocate`/`resizeInPlace`/`realloc` admission claim; no app EXE PASS or
+MirBuilder completion claim; no retirement.
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ADD-S0
+(the bounded dominated ordered-Add view use above).

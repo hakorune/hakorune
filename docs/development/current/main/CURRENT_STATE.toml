@@ -1,7 +1,7 @@
 date = "2026-10-03"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-D0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ADD-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -13,24 +13,26 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-normal-integer-d0-2026-10-03.md"
-latest_card = "mirbuilder-app-mimalloc-lite-opaque-checked-compare-normal-integer-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-normal-integer-d0-2026-10-03.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
+latest_card = "mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
 latest_card_summary = """
-OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0 accepted: a checked-compare lends
-a Normal-Integer operand view to the borrowed tagged formal for the compared
-use and its dominated successors (carrier retained; site/binding-branded
-view row, no new Receipt/Seal). dynamic_operator_contract gains a
-Greater(NormalInteger,NormalInteger) envelope with the borrowed-formal
-co-seal as its first production consumer. Signed predicates stay; usize
-range authority stays at writes; rhs Integer is lent by the compare, not
-derived from usize storage. S0 boundary: compare-operand view only —
-full allocate admission deferred to the task-4 D0 (ArraySet/Add/ctor).
+OPAQUE-CHECKED-COMPARE-TASK4-D0 accepted: the compare's kind==1 proof
+extends the lent Normal-Integer view to the same formal's dominated uses —
+original ArraySet element, ordered Add operand, constructor argument —
+one ledger, no second authority, carrier retained, usize range at write.
+Census: .set -> UnresolvedArgument/silent drop (generic route, needs new
+array_set op end to end); + rhs -> UnsupportedUse (smallest: draft kind +
+Add(NormalInteger,NormalInteger) envelope + C tagged add arm); ctor arg ->
+UnsupportedUse + literal-only birth transport (general non-literal actual
+gap); return null/new -> borrowed-result needs a nullable-handle class.
+S0 boundary: dominated ordered-Add view only; ArraySet and ctor+result
+stay named follow-ons inside task-4.
 """
-next_design_card = "Task-4 D0: original ArraySet -> ordered Add -> constructor via the compare view; usize range stays at write."
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-normal-integer-d0-2026-10-03.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-D0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-normal-integer-d0-2026-10-03.md"
+next_design_card = "Task-4 follow-ons: ArraySet element view (new array_set op); constructor argument view + non-literal birth transport + borrowed-result nullable-handle class."
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ADD-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -45,7 +47,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-03: OPAQUE-CHECKED-COMPARE-TASK4-D0 accepted — kind==1 compare proof extends the lent view to dominated uses (ArraySet element / ordered Add / ctor arg; one ledger, usize range at write). Census: .set->silent UnresolvedArgument drop (new array_set op needed), +->UnsupportedUse (smallest), ctor arg->UnsupportedUse + literal-only birth transport gap, return null/new->borrowed-result nullable-handle class owed. S0: dominated ordered-Add view only.",
   "2026-10-03: OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-S0 landed — checked-compare view end to end: CompareOperand draft admission, physical compare-view whitelist with distinct-operand coverage, usize numeric-integer field gate under the borrowed-tagged corridor, C kind==1 site check with signed sgt. Pins: draft 16/16, closure/view 15, publication 3, EXE 6 (4 Normal incl. -1 path + 2 kind!=1 Fault). Scope guard green except pre-existing brand_catalog_tests.rs=961 debt. Next: Task-4 D0 (ArraySet -> ordered Add -> ctor via the view).",
   "2026-10-03: OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0 accepted — checked-compare lends a Normal-Integer operand view to the retained borrowed tagged carrier (same binding/ValueId, dominated by compare Normal edge, both successors; rejects pre-check/Fault/foreign/rebound). dynamic_operator_contract gains Greater/NormalInteger envelope via borrowed-formal co-seal consumer; signed predicates only, usize range at writes, rhs Integer lent not storage-derived. Pinned site page_heap_box.hako:75; current frontier TerminalHomesUnavailable (callee decline). Next: COMPARE-NORMAL-INTEGER-S0.",
-  "2026-10-03: OPAQUE-FORMAL-INGRESS-S0 landed — original source loans prove borrowed kind/payload ingress end to end; source-bound final strict gate (invoke_borrowed_calls) joins finalized root handoff, emitters cut over to materialize_with_ledger, invoke::check_module retired. Pins: publication 2/2 + mutation negatives, 30 source-issued JSONs execute unchanged (Normal rc7 / callee-Birth Fault rc70), KNOWN BASELINE 8325/126/56. Next: OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-D0.",
   ]
