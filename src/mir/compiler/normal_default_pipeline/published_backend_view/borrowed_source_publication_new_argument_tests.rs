@@ -651,14 +651,14 @@ fn parameter_field_frontiers_stay_fail_closed() {
                 "",
                 "if handle == null { return 0 } return 1",
                 "return s.release(new Handle(1, 2))",
-                "artifact-source-unavailable",
+                "borrowed-actual/unsupported-or-unavailable",
             ),
             (
                 "pa-eqnull-localnewarg",
                 "",
                 "if handle == null { return 0 } return 1",
                 "local h = new Handle(1, 2) return s.release(h)",
-                "artifact-source-unavailable",
+                "admission-function-not-birth",
             ),
         ] {
             let text = format!(

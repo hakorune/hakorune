@@ -60,6 +60,22 @@ static int lv4_borrowed_tagged_formal(hako_lv4_function_index* fn, hako_lv4_valu
   return 0;
 }
 
+/* The null sentinel's other admitted lane: the function carries at
+   least one `borrowed_null_compare` row. Like the other const lanes this
+   is a function-scope admission — dead const projections stay admitted
+   and the compare arm still pins the exact const_null sibling. */
+static int lv4_null_compare_present(hako_lv4_function_index* fn) {
+  yyjson_val* blocks = hako_physical_blocks(fn->function);
+  for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
+    yyjson_val* rows = yyjson_obj_get(yyjson_arr_get(blocks, bi), "instructions");
+    for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
+      yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
+      if (lv4_is(ins, "op", "borrowed_null_compare")) return 1;
+    }
+  }
+  return 0;
+}
+
 static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* fn,
     yyjson_val* block, uint16_t* state, int faulted, int birth) {
   yyjson_val* rows = yyjson_obj_get(block, "instructions");
@@ -83,8 +99,10 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
          no operand position accepts the UNIT kind. */
     } else if (lv4_is(ins, "op", "const_null")) {
       /* The null sentinel materializes only inside a nullable-result
-         callee; it seeds a handle-lane slot that never owns a lease. */
-      if (!lv4_is(fn->function, "role", "ordinary_nullable_handle")) return 0;
+         callee or inside a function carrying the admitted borrowed/null
+         equality; it seeds a handle-lane slot that never owns a lease. */
+      if (!lv4_is(fn->function, "role", "ordinary_nullable_handle") &&
+          !lv4_null_compare_present(fn)) return 0;
     } else if (lv4_is(ins, "op", "copy")) {
       hako_lv4_value* source = lv4_index_value(fn, lv4_u(ins, "src"));
       if (!source || (source->kind != LV4_I64 && source->kind != LV4_BOOL &&
@@ -108,6 +126,22 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (!lhs || !rhs ||
           (lhs->kind != LV4_I64 && lhs->kind != LV4_TAGGED) ||
           (rhs->kind != LV4_I64 && rhs->kind != LV4_TAGGED)) return 0;
+    } else if (lv4_is(ins, "op", "borrowed_null_compare")) {
+      hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
+          *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
+      hako_lv4_value* carrier;
+      int lnull, rnull;
+      /* The borrowed/null equality admits exactly one carrier operand and
+         the exact const_null producer as its sibling. Equality reads the
+         carrier's kind or payload lane — never the Integer view — so a
+         well-formed non-null kind answers false instead of faulting. */
+      if (!lhs || !rhs) return 0;
+      lnull = lv4_is(lhs->instruction, "op", "const_null");
+      rnull = lv4_is(rhs->instruction, "op", "const_null");
+      if (lnull == rnull) return 0;
+      carrier = lnull ? rhs : lhs;
+      if (carrier->kind != LV4_TAGGED && carrier->kind != LV4_HANDLE &&
+          carrier->kind != LV4_I64 && carrier->kind != LV4_BOOL) return 0;
     } else if (lv4_is(ins, "op", "array_set")) {
       hako_lv4_value *array = lv4_index_value(fn, lv4_u(ins, "array")),
           *index = lv4_index_value(fn, lv4_u(ins, "index")),

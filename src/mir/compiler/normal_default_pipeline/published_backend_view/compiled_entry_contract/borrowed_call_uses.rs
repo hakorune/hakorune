@@ -1,5 +1,7 @@
 //! Final operand closure over original entry/Copy/Forwarded loans.
 //! These temporary sets corroborate one publication; they issue no authority.
+#[path = "borrowed_call_uses_null_compare.rs"]
+mod null_compare;
 use super::*;
 use crate::mir::compiler::normal_default_pipeline::published_backend_view::physical_program::PublishedLifecyclePhysicalFunctionV1;
 use crate::mir::normal_callable_semantic_package::{
@@ -30,6 +32,9 @@ struct FunctionUses {
     /// Dominated `new`-argument admissions per formal under the same source
     /// draft; each admits exactly one distinct operand value per scan.
     ctor_admissions: BTreeMap<BindingRefV1, usize>,
+    /// Null-equality operand admissions per formal under the same source
+    /// draft; each admits exactly one distinct operand value per scan.
+    null_admissions: BTreeMap<BindingRefV1, usize>,
 }
 
 #[derive(Default)]
@@ -47,6 +52,8 @@ struct Scan {
     /// Distinct argument values serving each formal's dominated `new`-arg
     /// view.
     ctor_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
+    /// Distinct operand values serving each formal's null-equality view.
+    null_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
 }
 
 /// The sole physical projections a lent view may take: an untracked operand
@@ -57,6 +64,9 @@ struct Scan {
 struct ViewScan {
     views: BTreeMap<ValueId, BindingRefV1>,
     compares: BTreeMap<BindingRefV1, Vec<Coordinate>>,
+    /// Values whose single definition is the exact `ConstValue::Null`
+    /// producer; only a `borrowed_null_compare` sibling may reference them.
+    null_consts: BTreeSet<ValueId>,
 }
 
 #[derive(Default)]
@@ -122,6 +132,12 @@ impl BorrowedCallUses {
             .iter()
         {
             *state.ctor_admissions.entry(*formal).or_default() += 1;
+        }
+        for (_, formal, _) in source
+            .borrowed_ordinary_null_compare_uses_v1(owner, function)?
+            .iter()
+        {
+            *state.null_admissions.entry(*formal).or_default() += 1;
         }
         Ok(())
     }
@@ -376,17 +392,33 @@ impl FunctionUses {
             }
         }
         let mut compares: BTreeMap<BindingRefV1, Vec<Coordinate>> = BTreeMap::new();
+        let mut null_consts = BTreeSet::new();
         for (coordinate, instruction) in indexed {
-            let MirInstruction::Compare { lhs, rhs, .. } = instruction else {
-                continue;
-            };
-            for operand in [lhs, rhs] {
-                if let Some(formal) = tracked.get(operand).or(views.get(operand)) {
-                    compares.entry(*formal).or_default().push(*coordinate);
+            null_compare::observe_null_const(instruction, &mut null_consts);
+            match instruction {
+                // Only the admitted checked compare (`>` + Normal-Integer
+                // proof) anchors `+`/`.set`/`new` dominance cones; a null
+                // equality supplies non-null only, never the Integer lane.
+                MirInstruction::Compare {
+                    op: crate::mir::CompareOp::Gt,
+                    lhs,
+                    rhs,
+                    ..
+                } => {
+                    for operand in [lhs, rhs] {
+                        if let Some(formal) = tracked.get(operand).or(views.get(operand)) {
+                            compares.entry(*formal).or_default().push(*coordinate);
+                        }
+                    }
                 }
+                _ => {}
             }
         }
-        Ok(ViewScan { views, compares })
+        Ok(ViewScan {
+            views,
+            compares,
+            null_consts,
+        })
     }
 
     fn instruction(
@@ -525,7 +557,12 @@ impl FunctionUses {
                     }
                 }
             }
-            MirInstruction::Compare { lhs, rhs, .. } => {
+            MirInstruction::Compare {
+                op: crate::mir::CompareOp::Gt,
+                lhs,
+                rhs,
+                ..
+            } => {
                 // A tracked operand is legal only through an admitted
                 // checked-compare view; the draft count closes coverage.
                 for operand in [lhs, rhs] {
@@ -536,6 +573,33 @@ impl FunctionUses {
                             .or_default()
                             .insert(*operand);
                     }
+                }
+            }
+            MirInstruction::Compare {
+                op: crate::mir::CompareOp::Eq,
+                lhs,
+                rhs,
+                ..
+            } => {
+                // A lent view may answer `==` only against the exact
+                // `ConstValue::Null` producer — the sibling, never a
+                // forged zero or another borrowed carrier.
+                null_compare::observe_operand(
+                    tracked,
+                    &views.views,
+                    &views.null_consts,
+                    lhs,
+                    rhs,
+                    &mut definitions.null_uses,
+                )?;
+            }
+            MirInstruction::Compare { lhs, rhs, .. } => {
+                // `!=`, `<`, `<=`, `>=` and general tagged equality stay
+                // outside the admitted envelopes.
+                if [lhs, rhs].iter().any(|operand| {
+                    tracked.contains_key(operand) || views.views.contains_key(operand)
+                }) {
+                    return Err(fault("borrowed-use/forbidden-operand"));
                 }
             }
             MirInstruction::BinOp {
@@ -653,6 +717,7 @@ impl FunctionUses {
         if ctor_uses != self.ctor_admissions {
             return Err(fault("borrowed-use/ctor-coverage"));
         }
+        null_compare::coverage(&definitions.null_uses, &self.null_admissions)?;
         for value in tracked.keys() {
             let parameter_count = params
                 .iter()

@@ -27,7 +27,7 @@ mod operands;
 
 use operands::{
     add_operand_kind, compare_operand_kind, is_call_argument, normal_integer_operand,
-    use_dominated_by_if,
+    null_compare_operand_kind, use_dominated_by_if,
 };
 
 #[derive(Debug, PartialEq, Eq)]
@@ -79,6 +79,14 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
     NewArgument {
         site: OwnedExprSiteV1,
         ordinal: u32,
+    },
+    /// A `==` operand of an admitted null equality: the binary is a direct
+    /// `if` condition and the sibling is the exact `null` literal, under
+    /// the operation owner's `Equal(Dynamic, Null)` envelope. The lent
+    /// view is read-only and non-suspending; the false successor supplies
+    /// non-null only — never Integer, class or liveness.
+    NullCompareOperand {
+        binary: OwnedExprSiteV1,
     },
 }
 
@@ -533,6 +541,9 @@ pub(super) fn draft_borrowed_formal_uses_v1(
                 &compare_guards,
                 site,
             )?;
+        }
+        if kind.is_none() {
+            kind = null_compare_operand_kind(input, site)?;
         }
         uses.push(BorrowedFormalUseDraftRowV1 {
             site: owned.clone(),

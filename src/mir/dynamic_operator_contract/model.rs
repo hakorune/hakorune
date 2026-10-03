@@ -5,6 +5,7 @@ pub(crate) enum DynamicOperatorFamilyV1 {
     Add,
     Less,
     Greater,
+    Equal,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -14,6 +15,9 @@ pub(crate) enum DynamicOperatorValueClassV1 {
     /// Logical signed-integer operand proven by a checked view, never by
     /// storage spelling (`usize`/U64Bits lanes stay physical detail).
     NormalInteger,
+    /// The exact source `null` literal producer; Integer zero and Bool
+    /// false are never this class.
+    Null,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -62,6 +66,10 @@ pub(crate) enum DynamicOperatorOrderingV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum DynamicOperatorSuspensionV1 {
     MaySuspend,
+    /// The envelope's evaluation completes at its own expression site: no
+    /// allocation, dispatch or suspension point. Non-suspending equality
+    /// never suspends where the unrelated Dynamic Add envelope may.
+    NonSuspending,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -95,6 +103,7 @@ pub(crate) enum DynamicOperatorFaultV1 {
 pub(crate) struct VerifiedDynamicOperatorExecutionEnvelopeV1 {
     domain: DynamicOperatorDomainV1,
     normal_result: DynamicOperatorNormalResultV1,
+    suspension: DynamicOperatorSuspensionV1,
     lifecycle: Option<DynamicCarrierLifecycleObligationV1>,
     _sealed: (),
 }
@@ -103,11 +112,13 @@ impl VerifiedDynamicOperatorExecutionEnvelopeV1 {
     pub(super) const fn sealed(
         domain: DynamicOperatorDomainV1,
         normal_result: DynamicOperatorNormalResultV1,
+        suspension: DynamicOperatorSuspensionV1,
         lifecycle: Option<DynamicCarrierLifecycleObligationV1>,
     ) -> Self {
         Self {
             domain,
             normal_result,
+            suspension,
             lifecycle,
             _sealed: (),
         }
@@ -126,7 +137,7 @@ impl VerifiedDynamicOperatorExecutionEnvelopeV1 {
     }
 
     pub(crate) const fn suspension(&self) -> DynamicOperatorSuspensionV1 {
-        DynamicOperatorSuspensionV1::MaySuspend
+        self.suspension
     }
 
     pub(crate) const fn control(&self) -> DynamicOperatorControlV1 {

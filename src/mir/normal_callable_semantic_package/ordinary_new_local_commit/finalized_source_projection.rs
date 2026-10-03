@@ -307,6 +307,23 @@ impl FinalizedRootSourceHandoffV1 {
             .collect())
     }
 
+    /// Same finalized entry proof, projecting only the admitted
+    /// null-equality operand uses: `(binding, formal, binary site)`
+    /// triples under the `Equal(Dynamic, Null)` envelope. The
+    /// finished-function check runs through the same owner/function
+    /// binding as the alias copy projection.
+    pub(in crate::mir) fn borrowed_ordinary_null_compare_uses_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<Box<[(BindingRefV1, BindingRefV1, OwnedExprSiteV1)]>, String> {
+        let source = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        Ok(source
+            .null_compare_uses()
+            .map(|(binding, formal, binary)| (binding, formal, binary.clone()))
+            .collect())
+    }
+
     /// Same finalized entry proof, projecting only the admitted dominated
     /// `new`-argument uses: `(binding, formal, new site, ordinal)` tuples.
     /// The finished-function check runs through the same owner/function

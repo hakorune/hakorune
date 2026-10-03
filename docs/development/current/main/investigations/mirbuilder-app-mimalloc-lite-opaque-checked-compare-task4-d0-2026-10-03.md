@@ -1,6 +1,6 @@
 # mimalloc-lite opaque checked-compare task-4 D0 (dominated view uses)
 
-Status: accepted task-4 Decisions; I64RESULT-S0, ROOTSOURCE-S0 and USESIZE-T0 landed; next NULLCOMPARE-S0 (implementation pending).
+Status: accepted task-4 Decisions; I64RESULT-S0, ROOTSOURCE-S0, USESIZE-T0 and NULLCOMPARE-S0 landed; next NULLACTUAL-S0 (implementation pending).
 Scope: `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-D0`
   and its bounded PARAMFIELD prerequisite/acceptance series.
 Related: docs/development/RULES.md; CURRENT_STATE.toml;
@@ -610,20 +610,21 @@ coverage must agree through Rust, JSON, C index and emission together.
 
 Token prefix below:
 `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-`.
-Every row is one responsibility; I64RESULT-S0, ROOTSOURCE-S0 and
-USESIZE-T0 are landed and NULLCOMPARE-S0 is currently selected.
+Every row is one responsibility; I64RESULT-S0, ROOTSOURCE-S0,
+USESIZE-T0 and NULLCOMPARE-S0 are landed and NULLACTUAL-S0 is
+currently selected.
 
 Selected construction row:
-`MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NULLCOMPARE-S0`.
-Next construction row after its closeout:
 `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NULLACTUAL-S0`.
+Next construction row after its closeout:
+`MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDSIZE-T0`.
 
 | Order | Suffix | Responsibility / predecessor |
 | --- | --- | --- |
 | 1 | I64RESULT-S0 | A: unannotated source-proven I64; landed |
 | 2 | ROOTSOURCE-S0 | Retain verified main source for birth/local-call actuals independently of terminal-map presence; landed |
 | 3 | USESIZE-T0 | BoxShape: extracted operation-use classifiers to `ordinary_new_borrowed_formal_use_operands.rs`; landed |
-| 4 | NULLCOMPARE-S0 | C: exact null-equality source envelope and physical use; after 3 |
+| 4 | NULLCOMPARE-S0 | C: exact null-equality source envelope and physical use; landed |
 | 5 | NULLACTUAL-S0 | D: literal null and received-nullable borrowed actuals; after 4 |
 | 6 | FIELDSIZE-T0 | BoxShape: extract existing field-read batch issuer/stager from the 770-line source parent; after 5 |
 | 7 | PARAMFIELD-S0 | B: complete class view + guarded scalar field initializer; after 6 |
@@ -683,7 +684,7 @@ Use responsibility-specific test children; the publication-new-argument parent
 is already 727 lines and physical use parent 720. Split further only when the
 selected implementation needs it; never compress or exceed the 800-line stop.
 
-### 4 — NULLCOMPARE-S0
+### 4 — NULLCOMPARE-S0 (landed)
 
 - Owners: source-use child, `dynamic_operator_contract`, original borrowed view
   ledger, compiled-entry use verifier, JSON and existing V2/V4 index/emitter.
@@ -901,5 +902,82 @@ the same 3 baseline reds; scope guard pins all moved symbol spellings and
 the parent shrink, PASS except `brand_catalog_tests.rs=961` known structural
 debt; pointer guard PASS. No null/field admission, no test changes.
 
-Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NULLCOMPARE-S0
-(exact null-equality source envelope and physical use).
+#### NULLCOMPARE-S0 — landed record
+
+Landed (commit pending on `codex/birth-definition-publication`):
+
+- Semantic envelope: `dynamic_operator_contract` gains
+  `DynamicOperatorFamilyV1::Equal`, `DynamicOperatorValueClassV1::Null` and
+  `DynamicOperatorSuspensionV1::NonSuspending`; the issuer seals exactly one
+  new envelope `Equal(Dynamic, Null)` — `TrivialBool` result, no carrier
+  lifecycle obligation, both source operand orders. Existing envelopes keep
+  `MaySuspend` and are unchanged.
+- Source admission (`ordinary_new_borrowed_formal_use_operands.rs::
+  null_compare_operand_kind`): a formal use drafts
+  `NullCompareOperand{binary}` only when exactly one binary expression
+  contains the candidate site, the operator is `Equal`, the binary is a
+  direct `if` condition, the sibling is the exact
+  `ResolvedLiteralSourceV1::Null` literal, and the envelope issues. `!=`,
+  integer `0`, Bool `false`, another binding as sibling, ambiguous multiple
+  matches and equality outside a direct `if` all stay `UnsupportedUse` —
+  the unchanged fail-closed artifact boundary.
+- Projections: `null_compare_uses` (entry) and
+  `borrowed_ordinary_null_compare_uses_v1` (finalized source projection)
+  reuse the same owner/function binding checks as the existing borrowed-use
+  projections.
+- Use verifier: `FunctionUses.null_admissions`, `Scan.null_uses` and
+  `ViewScan.null_consts` (exact `ConstValue::Null` producers). `Compare{Gt}`
+  keeps the checked normal-integer compare path; `Compare{Eq}` admits a
+  tracked or lent operand only beside an exact null producer; every other
+  compare operator touching a tracked/view operand stays
+  `borrowed-use/forbidden-operand`; per-admission coverage closes at
+  `borrowed-use/null-coverage`. The null-verification block lives in the new
+  `borrowed_call_uses_null_compare.rs` child so the parent stays at 785
+  lines (<800).
+- Physical: the JSON emitter spells admitted null equality as
+  `borrowed_null_compare` (`predicate: "eq"`, original lhs/rhs order, exact
+  `const_null` sibling) while ordinary integer equality keeps `compare`.
+  The C parser registers `const_null`/`borrowed_null_compare`
+  destinations, validates the exact five-key shape and eq-only predicate;
+  the index seeds the row as `LV4_BOOL`; the flow admits exactly one
+  carrier (TAGGED/HANDLE/I64/BOOL lane) beside the exact null producer and
+  admits `const_null` in a function carrying the dedicated row; emission
+  reads the carrier's kind/payload lane — never the Integer view — so a
+  well-formed non-null kind answers false without a fault branch.
+- Publication/EXE witness: `null_compare_publishes_the_dedicated_physical_row`
+  emits three source programs (`handle == null`, `null == handle`, object
+  argument) — `Store.check/1` keeps `borrowed_kind_payload_v1`, no `compare`
+  row appears, two `borrowed_null_compare` rows (edge-port model) carry the
+  exact `const_null` sibling. The C execution test compiles all three to
+  .o, links the runtime probe and executes them: every non-null carrier
+  answers false (exit 3, no fault); seven forged physical rows (wrong
+  predicate, ordinary-compare spelling, carrier/carrier, null/null,
+  undefined operand, extra key, foreign `const_null`) reject.
+
+Evidence pins (test profile `--lib`):
+`null_compare_admits_direct_if_equal_with_null_sibling`,
+`null_compare_rejects_wrong_operator_sibling_and_position`,
+`borrowed_use_null_compare_view_passes_in_either_operand_order`,
+`borrowed_use_rejects_null_compare_operator_and_sibling_drift`,
+`borrowed_use_null_compare_coverage_is_per_admission`,
+`non_null_equalities_stay_fail_closed_before_publication` (`!=`, `== 0`,
+`== false`, `q == handle` all stop at `artifact-source-unavailable`),
+`parameter_field_frontiers_stay_fail_closed` re-pinned (`pa-eqnull-newarg`
+now reaches `borrowed-actual/unsupported-or-unavailable`,
+`pa-eqnull-localnewarg` reaches `admission-function-not-birth` — both
+correct frontier advances), dynamic-operator contract suite,
+`borrowed_` sweep 216/216, package/`resolved_semantics` sweep — the same
+3 baseline reds reproduce identically without this change
+(`birth_receiver_non_escape...`, `main_static_child_port...`,
+`qualified_call_map_argument...`); all four existing V4 execution tests
+rerun green; `published_lifecycle_v4_null_compare_execution_test.py`
+PASS; qualified-route scope guard PASS except `brand_catalog_tests.rs=961`
+known structural debt; pointer guard PASS.
+
+Open frontiers (deliberately out of this slice): `null`/ReceivedNullable
+actuals (NULLACTUAL-S0 — the null-true branch has no admissible caller
+argument yet), formal field reads under the non-null successor
+(PARAMFIELD-S0), and everything the frontier test still pins.
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NULLACTUAL-S0
+(literal null and received-nullable borrowed actuals).

@@ -104,6 +104,23 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                 _ => None,
             })
     }
+    /// Admitted null-equality operand uses this owner's draft proved:
+    /// `(binding, formal, binary site)` rows under the operation owner's
+    /// `Equal(Dynamic, Null)` envelope. Admission evidence only;
+    /// publication still counts the exact physical operand uses.
+    pub(crate) fn null_compare_uses(
+        &self,
+    ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
+        self.source.definitions[&self.owner]
+            .uses
+            .iter()
+            .filter_map(|row| match &row.kind {
+                super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::NullCompareOperand {
+                    binary,
+                } => Some((row.binding, row.formal, binary)),
+                _ => None,
+            })
+    }
     /// Loan the original target, including its source owner and batch identity.
     pub(crate) fn incoming_targets(
         &self,

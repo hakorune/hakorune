@@ -181,6 +181,65 @@ pub(super) fn add_operand_kind(
     }))
 }
 
+/// `site` is a `==` operand of an admitted null equality only when the
+/// binary is a direct `if` condition and the sibling operand is an exact
+/// `null` literal; the borrowed carrier may sit in either operand order.
+/// `!=` and general tagged equality stay outside the profile, and the
+/// admitted compare proves nothing about class, lifetime or the Integer
+/// lane — the false successor supplies non-null only.
+pub(super) fn null_compare_operand_kind(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+) -> Result<Option<BorrowedFormalUseDraftKindV1>, BorrowedFormalUseDraftErrorV1> {
+    let function = input.function();
+    let mut matching = function
+        .expression_source()
+        .binaries()
+        .filter(|row| row.lhs() == site || row.rhs() == site);
+    let Some(binary) = matching.next() else {
+        return Ok(None);
+    };
+    if matching.next().is_some() || binary.operator() != ResolvedBinaryOperatorV1::Equal {
+        return Ok(None);
+    }
+    if function
+        .with_if_region_for_condition(binary.site(), |_| ())
+        .is_err()
+    {
+        return Ok(None);
+    }
+    let other = if binary.lhs() == site {
+        binary.rhs()
+    } else {
+        binary.lhs()
+    };
+    // The sibling must be the exact `null` literal; an Integer literal,
+    // Bool or another origin binding is not a null producer.
+    if !matches!(
+        function.expression_source().literal(other),
+        Some(ResolvedLiteralSourceV1::Null)
+    ) {
+        return Ok(None);
+    }
+    // The same operation owner issues the bounded borrowed-value/null
+    // equality envelope; the draft consumes it, it does not mint a new
+    // authority. Either source operand order shares the one envelope.
+    use crate::mir::dynamic_operator_contract::{
+        DynamicOperatorDomainV1, DynamicOperatorFamilyV1, DynamicOperatorValueClassV1,
+    };
+    crate::mir::dynamic_operator_contract::issue_dynamic_operator_execution_envelope_v1(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::Equal,
+            DynamicOperatorValueClassV1::Dynamic,
+            DynamicOperatorValueClassV1::Null,
+        ),
+    )
+    .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
+    Ok(Some(BorrowedFormalUseDraftKindV1::NullCompareOperand {
+        binary: OwnedExprSiteV1::new(input.owner(), binary.site().clone()),
+    }))
+}
+
 /// Whether `site` serves any method-call argument position. The main use
 /// loop re-validates ordinal identity for admitted arguments; this loan
 /// only keeps argument sites out of the compare-guard pre-pass.

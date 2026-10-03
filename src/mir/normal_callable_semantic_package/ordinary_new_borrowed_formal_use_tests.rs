@@ -236,6 +236,68 @@ fn checked_compare_rejects_outside_if_wrong_operator_and_unproved_sibling() {
     }
 }
 
+/// The bounded `Equal(Dynamic, Null)` envelope admits the direct-`if`
+/// equality against the exact `null` literal in either operand order —
+/// aliased through an origin copy or not — under the same operation
+/// owner; the false successor supplies non-null only.
+#[test]
+fn null_compare_admits_direct_if_equal_with_null_sibling() {
+    for body in [
+        "if p == null { return 1 } return 0",
+        "if null == p { return 1 } return 0",
+        "local a = p if a == null { return 1 } return 0",
+    ] {
+        let row = draft(body).expect("admitted null-compare operand");
+        let compares = row
+            .uses
+            .iter()
+            .filter(|row| {
+                matches!(
+                    row.kind,
+                    BorrowedFormalUseDraftKindV1::NullCompareOperand { .. }
+                )
+            })
+            .count();
+        assert_eq!(compares, 1, "null-compare operand admitted: {body}");
+    }
+    let aliased = draft("local a = p if a == null { return 1 } return 0")
+        .expect("alias null-compare operand");
+    let compare = aliased
+        .uses
+        .iter()
+        .find(|row| {
+            matches!(
+                row.kind,
+                BorrowedFormalUseDraftKindV1::NullCompareOperand { .. }
+            )
+        })
+        .expect("view row");
+    assert_ne!(compare.binding, compare.formal);
+    assert_eq!(aliased.origins[&compare.binding], compare.formal);
+}
+
+/// `!=`, non-null siblings, non-if positions and unproven origins stay
+/// outside the admitted null-equality profile.
+#[test]
+fn null_compare_rejects_wrong_operator_sibling_and_position() {
+    for body in [
+        "if p != null { return 1 } return 0",
+        "if p == 0 { return 1 } return 0",
+        "if p == false { return 1 } return 0",
+        "local b = p == null return 0",
+        "loop(p == null) { return 1 } return 0",
+        "local q = p if p == q { return 1 } return 0",
+    ] {
+        assert!(
+            matches!(
+                draft(body),
+                Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(_))
+            ),
+            "rejected use: {body}"
+        );
+    }
+}
+
 #[test]
 fn dominated_add_admits_guarded_integer_sibling_and_aliased_operands() {
     for body in [

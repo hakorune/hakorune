@@ -247,8 +247,23 @@ fn encode_instruction(
                 crate::mir::CompareOp::Gt => "sgt",
                 crate::mir::CompareOp::Ge => "sge",
             };
-            json!({ "op": "compare", "dst": value(dst), "lhs": value(lhs),
-                "rhs": value(rhs), "predicate": predicate })
+            // Exactly one operand produced by the `ConstValue::Null` row
+            // makes this the borrowed/null equality, never an integer
+            // compare: the physical row keeps the operands in source order
+            // and the emitter reads the carrier's kind lane only. Without
+            // the function context (serializer tests) the row keeps the
+            // ordinary spelling.
+            let null_equality = *op == crate::mir::CompareOp::Eq
+                && call_context.is_some_and(|(_, function, _)| {
+                    null_producer(function, *lhs) ^ null_producer(function, *rhs)
+                });
+            if null_equality {
+                json!({ "op": "borrowed_null_compare", "dst": value(dst), "lhs": value(lhs),
+                    "rhs": value(rhs), "predicate": predicate })
+            } else {
+                json!({ "op": "compare", "dst": value(dst), "lhs": value(lhs),
+                    "rhs": value(rhs), "predicate": predicate })
+            }
         }
         MirInstruction::Copy { dst, src } => {
             json!({ "op": "copy", "dst": value(dst), "src": value(src) })
@@ -349,6 +364,28 @@ fn encode_instruction(
             json!({ "op": "birth_call", "call": call_transport::encode_birth_call(call, births, caller_function_index, abi_input)? })
         }
         _ => return Err(fault("instruction-unsupported")),
+    })
+}
+
+/// Whether `operand`'s producer inside `function` is the exact
+/// `ConstValue::Null` row — the null sentinel materialization, never a
+/// borrowed carrier or a forged zero.
+fn null_producer(function: &PublishedLifecyclePhysicalFunctionV1<'_>, operand: ValueId) -> bool {
+    function.blocks().iter().any(|block| {
+        block
+            .instructions()
+            .iter()
+            .copied()
+            .chain(std::iter::once(block.terminator()))
+            .any(|row| {
+                matches!(
+                    row.instruction(),
+                    MirInstruction::Const {
+                        dst,
+                        value: ConstValue::Null
+                    } if *dst == operand
+                )
+            })
     })
 }
 

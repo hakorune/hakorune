@@ -78,6 +78,67 @@ fn less_domains_issue_trivial_bool_without_carrier_lifecycle() {
     }
 }
 
+/// The bounded borrowed-value/null equality: one envelope in either
+/// operand order, TrivialBool result, read-only operands, no suspension
+/// and no lifecycle obligation — Null is the only kind answering true.
+#[test]
+fn equal_dynamic_null_issues_non_suspending_trivial_bool() {
+    for (left, right) in [
+        (
+            DynamicOperatorValueClassV1::Dynamic,
+            DynamicOperatorValueClassV1::Null,
+        ),
+        (
+            DynamicOperatorValueClassV1::Null,
+            DynamicOperatorValueClassV1::Dynamic,
+        ),
+    ] {
+        let envelope = issue(DynamicOperatorFamilyV1::Equal, left, right).unwrap();
+        assert_eq!(
+            envelope.normal_result(),
+            DynamicOperatorNormalResultV1::TrivialBool
+        );
+        assert_eq!(envelope.lifecycle(), None);
+        assert_eq!(
+            envelope.suspension(),
+            DynamicOperatorSuspensionV1::NonSuspending
+        );
+        assert_eq!(
+            envelope.input_access(),
+            DynamicOperatorInputAccessV1::BorrowedNoEscapeForOperation
+        );
+        assert_eq!(
+            envelope.fault(),
+            DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind
+        );
+    }
+    // General tagged equality and the Integer-Zero literal stay outside
+    // the bounded domain.
+    for (left, right) in [
+        (
+            DynamicOperatorValueClassV1::Dynamic,
+            DynamicOperatorValueClassV1::Dynamic,
+        ),
+        (
+            DynamicOperatorValueClassV1::Dynamic,
+            DynamicOperatorValueClassV1::I64,
+        ),
+        (
+            DynamicOperatorValueClassV1::I64,
+            DynamicOperatorValueClassV1::Null,
+        ),
+        (
+            DynamicOperatorValueClassV1::Null,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ),
+    ] {
+        assert_eq!(
+            issue(DynamicOperatorFamilyV1::Equal, left, right),
+            Err(DynamicOperatorEnvelopeIssueV1::UnsupportedDomain)
+        );
+    }
+}
+
 #[test]
 fn unsupported_domains_fail_without_fallback() {
     for domain in [

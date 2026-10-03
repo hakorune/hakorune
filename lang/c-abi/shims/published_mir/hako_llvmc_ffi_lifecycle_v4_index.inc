@@ -92,7 +92,8 @@ static int lv4_index_seed(hako_lv4_function_index* fn, hako_lv4_value* value) {
   if (value->kind != LV4_BAD) return 1;
   if (lv4_is(ins, "op", "const_i64") || lv4_is(ins, "op", "add") ||
       lv4_is(ins, "op", "object_field_get")) value->kind = LV4_I64;
-  else if (lv4_is(ins, "op", "const_bool") || lv4_is(ins, "op", "compare"))
+  else if (lv4_is(ins, "op", "const_bool") || lv4_is(ins, "op", "compare") ||
+      lv4_is(ins, "op", "borrowed_null_compare"))
     value->kind = LV4_BOOL;
   else if (lv4_is(ins, "op", "const_f64_bits")) value->kind = LV4_F64;
   else if (lv4_is(ins, "op", "const_unit")) value->kind = LV4_UNIT;

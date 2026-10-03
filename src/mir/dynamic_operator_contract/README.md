@@ -1,7 +1,7 @@
 # Dynamic operator contract
 
 This module is the sole profile-neutral semantic owner for supported Dynamic
-Add/Less execution domains.
+Add/Less/Equal execution domains.
 
 It issues only complete borrowed envelopes. Callers cannot construct or pair
 effect, ordering, suspension, control, input access, Normal result, Fault, or

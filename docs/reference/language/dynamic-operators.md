@@ -33,7 +33,7 @@ DynamicLess(Dynamic, Dynamic|I64):
 result is self-contained and is not a borrowed alias of either operand. This
 is an operator-result relation, not a Home classification.
 
-## Selected borrowed null equality (construction accepted; activation pending)
+## Selected borrowed null equality (landed NULLCOMPARE-S0)
 
 Decision (2026-10-03): the existing `dynamic_operator_contract` owner issues
 the bounded equality envelope for an original borrowed tagged value and an
@@ -60,8 +60,15 @@ The physical projection is `borrowed_null_compare` with the original `lhs`,
 carrier and the other is an exact null producer. The final ABI owner compares
 the kind with Null's tag, without reading the payload as Integer. Source and
 final operand/use correspondence are required before publication.
-Implementation and tag activation follow the
-[task-4 card](../../development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md).
+
+NULLCOMPARE-S0 landed the full chain: source admission (exact `==`, direct
+`if`, exact `null` sibling, either operand order), the `Equal(Dynamic, Null)`
+envelope (`TrivialBool`, `NonSuspending`, no lifecycle obligation), the
+per-admission null coverage verifier, the `borrowed_null_compare` wire
+spelling, and physical validation/indexing/flow/emission executing through
+the C lane. `!=`, non-null siblings, ambiguous operands and equality outside
+a direct `if` keep the unchanged fail-closed artifact boundary; a `null`
+actual argument remains the later NULLACTUAL slice.
 
 ## Normal and Fault
 

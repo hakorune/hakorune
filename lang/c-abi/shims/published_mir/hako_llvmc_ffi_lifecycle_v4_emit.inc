@@ -186,6 +186,27 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             "  %%v%u = zext i1 %%cmp%u to i64\n", dst,
             yyjson_get_str(yyjson_obj_get(ins, "predicate")),
             clhs, crhs, dst, dst);
+      } else if (lv4_is(ins, "op", "borrowed_null_compare")) {
+        /* The borrowed/null equality reads the carrier's kind or payload
+           lane only — never the Integer view — so Null answers true and
+           every well-formed non-null kind answers false with no fault
+           branch and no payload read of the tagged carrier. */
+        uint32_t nlhs = lv4_u(ins, "lhs"), nrhs = lv4_u(ins, "rhs");
+        hako_lv4_value* lrow = lv4_index_value(&in->index[fi], nlhs);
+        hako_lv4_value* rrow = lv4_index_value(&in->index[fi], nrhs);
+        hako_lv4_value* carrier;
+        if (!lrow || !rrow) return 0;
+        if (lv4_is(lrow->instruction, "op", "const_null") ==
+            lv4_is(rrow->instruction, "op", "const_null")) return 0;
+        carrier = lv4_is(lrow->instruction, "op", "const_null") ? rrow : lrow;
+        if (carrier->kind == LV4_TAGGED)
+          fprintf(f, "  %%nul%u = icmp eq i32 %%k%u, 0\n"
+              "  %%v%u = zext i1 %%nul%u to i64\n", dst, carrier->id, dst, dst);
+        else if (carrier->kind == LV4_HANDLE)
+          fprintf(f, "  %%nul%u = icmp eq i64 %%v%u, 0\n"
+              "  %%v%u = zext i1 %%nul%u to i64\n", dst, carrier->id, dst, dst);
+        else
+          fprintf(f, "  %%v%u = add i64 0, 0\n", dst);
       } else if (lv4_is(ins, "op", "phi")) {
         yyjson_val* inputs = yyjson_obj_get(ins, "inputs");
         fprintf(f, "  %%v%u = phi i64 ", dst);

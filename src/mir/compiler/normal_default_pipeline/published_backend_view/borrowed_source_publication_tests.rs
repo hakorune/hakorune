@@ -608,3 +608,6 @@ mod i64_result_tests;
 
 #[path = "borrowed_source_publication_root_source_tests.rs"]
 mod root_source_tests;
+
+#[path = "borrowed_source_publication_null_compare_tests.rs"]
+mod null_compare_tests;

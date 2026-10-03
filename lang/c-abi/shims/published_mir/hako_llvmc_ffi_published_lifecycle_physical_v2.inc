@@ -132,7 +132,9 @@ static yyjson_val* hako_physical_instruction_dst(yyjson_val* instruction) {
   if (!op) return NULL;
   if (strcmp(op, "const_i64") == 0 || strcmp(op, "const_f64_bits") == 0 ||
       strcmp(op, "const_bool") == 0 || strcmp(op, "const_string") == 0 ||
-      strcmp(op, "const_unit") == 0 || strcmp(op, "add") == 0 || strcmp(op, "compare") == 0 ||
+      strcmp(op, "const_unit") == 0 || strcmp(op, "const_null") == 0 ||
+      strcmp(op, "add") == 0 || strcmp(op, "compare") == 0 ||
+      strcmp(op, "borrowed_null_compare") == 0 ||
       strcmp(op, "copy") == 0 || strcmp(op, "phi") == 0 ||
       strcmp(op, "object_field_get") == 0 || strcmp(op, "invoke_normal_result") == 0 ||
       strcmp(op, "fault_frame_enter") == 0)
@@ -569,6 +571,19 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
     const char* p = yyjson_get_str(yyjson_obj_get(instruction, "predicate"));
     return p && (!strcmp(p, "eq") || !strcmp(p, "ne") || !strcmp(p, "slt") ||
         !strcmp(p, "sle") || !strcmp(p, "sgt") || !strcmp(p, "sge")) &&
+        hako_physical_exact_keys(instruction, compare, 5) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "lhs"), &b) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "rhs"), &c) &&
+        hako_physical_value_available_at(function, b, current_block, current_index) &&
+        hako_physical_value_available_at(function, c, current_block, current_index);
+  }
+  /* The borrowed/null equality: source order is preserved in lhs/rhs and
+     the flow admission verifies exactly one side is the const_null
+     producer — the row itself only pins the eq predicate and shape. */
+  if (!strcmp(op, "borrowed_null_compare")) {
+    const char* p = yyjson_get_str(yyjson_obj_get(instruction, "predicate"));
+    return p && !strcmp(p, "eq") &&
         hako_physical_exact_keys(instruction, compare, 5) &&
         hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) &&
         hako_physical_u32(yyjson_obj_get(instruction, "lhs"), &b) &&
