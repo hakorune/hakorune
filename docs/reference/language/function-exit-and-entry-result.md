@@ -296,6 +296,29 @@ of that cohort and may expose the existing exact `i64` scalar; it does not
 infer, clone, or reissue the result contract. This is transport evidence for
 the accepted semantics, not a new ABI or Call-schema decision.
 
+### Selected borrowed I64 result projection
+
+Decision (2026-10-03): accepted construction design; I64RESULT-S0 is landed.
+An unannotated borrowed callee publishes an I64 result when its
+source-result issuer proves every explicit value-return site Integer, and the
+retained Completion corroborates the exact owner and complete exit-site set.
+The landed slice admits the existing Integer-literal and exact-I64-formal
+return vocabulary. Guarded scalar field returns require the later FIELDRESULT
+slice and its independently issued field-read proof.
+
+Declaration and executable result remain separate: Unannotated stays
+Unannotated, its declaration-derived `result()` stays `None`, and the verified
+call/terminal projection may carry I64. Explicit `: i64` still requires the
+same source proof; explicit Void and other annotations do not acquire this
+permission. `None` alone never proves Unannotated or an executable result.
+Implicit/bare returns, missing or duplicate sites, mixed result classes and
+uncorroborated projections reject. Local, discard, nested and direct-return
+consumers borrow the same result relation; they do not issue another
+Completion or restore a source annotation from a physical signature.
+
+Construction order and acceptance belong to the
+[task-4 card](../../development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md).
+
 ## Source Entry and Physical Entry
 
 Decision (2026-09-12): the bounded Generic G0 consumer preserves the source

@@ -602,3 +602,6 @@ fn reject_drifted_add_view(input: &super::super::PublishedLifecyclePhysicalAbiIn
 
 #[path = "borrowed_source_publication_new_argument_tests.rs"]
 mod new_argument_tests;
+
+#[path = "borrowed_source_publication_i64_result_tests.rs"]
+mod i64_result_tests;

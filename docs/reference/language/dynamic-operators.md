@@ -33,6 +33,36 @@ DynamicLess(Dynamic, Dynamic|I64):
 result is self-contained and is not a borrowed alias of either operand. This
 is an operator-result relation, not a Home classification.
 
+## Selected borrowed null equality (construction accepted; activation pending)
+
+Decision (2026-10-03): the existing `dynamic_operator_contract` owner issues
+the bounded equality envelope for an original borrowed tagged value and an
+exact source `null` literal, in either source operand order. The first profile
+admits a direct `if` condition with `==`; `!=` and general tagged equality
+remain separate capabilities. This preserves the null/void value law in
+`types.md`; it does not treat a Unit completion as an argument value.
+
+For a well-formed carrier, equality returns TrivialBool: Null is true and
+Integer, Bool and typed object are false. Integer zero and Bool false are not
+null. Evaluation stays at the original source site in operand order, with no
+allocation, provider dispatch, suspension, operand mutation or result lifecycle.
+No semantic TypeError is introduced for the admitted non-null kinds. Missing
+source authority and malformed transport remain contract failures.
+
+The false successor proves only non-null; it proves neither Integer nor an
+object class nor liveness. A formal field read additionally needs the complete
+source-backed object-class view and BorrowForCall proof. The initial field
+profile uses a terminating null arm and the existing surviving-path/intersection
+rules, with invalidation on rebind and no lending into the null arm or Fault.
+
+The physical projection is `borrowed_null_compare` with the original `lhs`,
+`rhs`, Bool `dst` and `predicate: "eq"`; exactly one operand is the admitted
+carrier and the other is an exact null producer. The final ABI owner compares
+the kind with Null's tag, without reading the payload as Integer. Source and
+final operand/use correspondence are required before publication.
+Implementation and tag activation follow the
+[task-4 card](../../development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md).
+
 ## Normal and Fault
 
 Normal publishes exactly the result described by the contract. A carrier

@@ -190,12 +190,22 @@ impl OrdinaryNewClaimLedgerV1 {
                 .collect();
             // The declared result contract must agree with the class the
             // source sites already proved: an exact `i64` annotation for
-            // the scalar lane, an unannotated declaration plus the sealed
-            // `NullableObject` claim for the nullable lane.
+            // the scalar lane, or an unannotated declaration whose complete
+            // source-I64 return set already proved the same class — the
+            // declaration stays Unannotated and the executable I64 is this
+            // borrowed projection, never a manufactured annotation. `Void`
+            // also reports `result() == None` and does not acquire the
+            // permission. The nullable lane keeps its unannotated declaration
+            // plus the sealed `NullableObject` claim.
             let result_agrees = match class {
                 BorrowedResultClassV1::I64 => {
                     row.result()
                         == Some(crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64)
+                        || (row.result().is_none()
+                            && matches!(
+                                completion.function_exit_contract().declared_result(),
+                                crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1::Unannotated
+                            ))
                 }
                 BorrowedResultClassV1::Nullable => {
                     row.result().is_none()
@@ -376,9 +386,22 @@ impl OrdinaryNewClaimLedgerV1 {
         if results.row(source.target_batch_slot()).is_some_and(|row| {
             let borrowed = row.borrow();
             let completion = borrowed.completion();
+            // Direct-return corroboration borrows the same complete
+            // source-result evidence as the local-call lane: an annotated
+            // `i64` row, or the unannotated callee whose I64 proof already
+            // passed `corroborate_borrowed_i64_result_v1`.
+            let unannotated_proven = row.result().is_none()
+                && self
+                    .borrowed_i64_results
+                    .get(&source.callee_owner())
+                    .and_then(|proof| proof.as_ref().ok())
+                    .is_some_and(|proof| {
+                        proof.class == BorrowedResultClassV1::I64 && proof.contract_corroborated
+                    });
             row.owner() == source.callee_owner()
-                && row.result()
+                && (row.result()
                     == Some(crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64)
+                    || unannotated_proven)
                 && completion.owner() == source.callee_owner()
                 && completion.returns_value()
                 && !completion.explicit_sites().is_empty()

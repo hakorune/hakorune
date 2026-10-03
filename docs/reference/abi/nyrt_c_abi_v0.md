@@ -633,3 +633,59 @@ Implementation/acceptance ownership:
 [opaque ordinary-formal ingress D0](../../development/current/main/investigations/mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md).
 Retained ArraySet and ordered Add/result-destination contracts are separate;
 this Decision does not activate them or claim whole-app completion.
+
+### Accepted task-4 null/object-view extension (activation pending)
+
+Decision (2026-10-03): extend only the selected compiler-private
+`borrowed_kind_payload_v1` corridor. Until NULLACTUAL-S0 closes, the existing
+actual consumers still admit only kinds 1/2/3 and original tagged forwarding.
+The accepted extension adds kind 0 with payload exactly 0 for a source-issued
+null value; kinds 1/2/3 retain their meaning. This changes neither Birth's
+`kind_payload_v1` nor runtime/plugin ABI. It adds no MIR parameter or carrier.
+All selected Rust/JSON/C consumers switch together; old consumers may reject
+the extension and are not compatibility adapters.
+
+The new actual spellings retain the exact `{kind,value}` row:
+
+- `kind: 0`: an exact source null producer, never Integer(0), Bool(false), a
+  Unit completion, or an arbitrary zero handle.
+- `kind: "nullable_typed_object"`: an owned received-nullable result whose
+  exact selected call, Normal projection, `NullableObject(C)` source claim
+  and caller root/lifetime are co-sealed. Only this producer authorizes the
+  final ABI owner to select kind 0 for its null result or kind 3 for its live
+  typed-object result. The non-null branch must preserve canonical object C.
+- `kind: "tagged"`: the existing original formal/Copy forwarding, preserving
+  both lanes and their provenance, including the authorized null arm.
+
+BorrowForCall consumes nothing. A received-nullable Home stays caller-owned
+through Normal/Fault and is released once by its existing checked cleanup;
+the callee has no retain, transfer or End. Unsupported host/boxed/array domains,
+wrong producers/classes, dead roots and malformed tag/payload pairs reject.
+
+The borrowed formal remains source OpaqueHandle. A guarded field read borrows
+an object-class view only when the complete selected incoming/forward graph
+proves one canonical object class: typed Home/entry-receiver source facts and
+sealed received-nullable result claims are seeds; null contributes no class.
+Every forwarding dependency must be resolved. Conflicting classes, scalar or
+unknown incoming arms, a null-only cohort and an unseeded forwarding cycle
+cannot authorize that view. These failures restrict the field-view profile,
+not the existing mixed-domain transport profile. Class selection never uses
+the first caller, field names, MIR types, payloads or backend layout.
+
+The view is retained in the existing ledger and projected through the aligned
+parameter descriptor as optional `borrowed_object_view` (canonical object ID;
+absent for transport/scalar-only parameters). It adds no physical ABI lane.
+C's existing invocation index corroborates incoming classes with that row;
+it does not infer a class from a callee FieldGet. Existing `object_field_get`
+remains the sole scalar-field physical operation: tagged bases require that
+view, the exact CanonicalFieldRef, non-null path coverage and the borrowed
+lifetime. The final owner checks kind 3 before the existing checked accessor;
+unknown class/slot and operand drift reject before artifact output. The initial
+profile admits exact scalar-I64 fields only, with no borrowed object escape.
+
+`borrowed_null_compare` tests kind 0, not payload zero; well-formed kinds 1/2/3
+compare unequal to null without obtaining an Integer/object view. Its null
+operand must retain exact source/producer identity. Operation and use closure,
+Numeric field-write range checks and atomic publication remain authoritative.
+Detailed slices and pending activation are owned by the
+[task-4 card](../../development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md).

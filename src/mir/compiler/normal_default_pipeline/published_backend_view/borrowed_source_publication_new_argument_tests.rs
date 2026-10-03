@@ -577,99 +577,102 @@ fn nullable_field_read_stays_fail_closed() {
 }
 
 /// PARAMFIELD census pin: a nullable/object formal's guarded use inside an
-/// instance callee stays fail-closed at the observed named terminals until
-/// the authority forks recorded in the task-4 card are decided — the
-/// unannotated i64 result contract, the main-owner birth-actual root
-/// source, the null-compare envelope, the formal field-read class
-/// authority, and the null/nullable actual transport.
+/// instance callee stays fail-closed at its named stop until the ordered
+/// task-4 rows land. The unannotated-I64 result slice promoted the
+/// `return s.release(h)` local-new terminal and discard forms to positives;
+/// every remaining variant re-pins its next named stop — the callee-side
+/// use envelope (`TerminalHomesUnavailable`/`IncompleteOrdinaryNewCoverage`),
+/// the literal-null/inline-new/received-nullable actual arm
+/// (`borrowed-actual/unsupported-or-unavailable`), and the main-owner root
+/// source for bound results (`artifact-actual-root-source-missing`).
 #[test]
 fn parameter_field_frontiers_stay_fail_closed() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        for (label, callee_sig, callee_body, caller_tail) in [
+        for (label, callee_sig, callee_body, caller_tail, stop) in [
             (
                 "pa-guarded-nullarg",
                 "",
                 "if handle == null { return 0 } return handle.page_id",
                 "return s.release(null)",
+                "artifact-source-unavailable",
             ),
             (
                 "pa-guarded-nullarg-cmp",
                 "",
                 "if handle == null { return 0 } if handle.page_id < 0 { return 0 } return handle.page_id",
                 "return s.release(null)",
+                "artifact-source-unavailable",
             ),
             (
                 "pa-unguarded-nullarg",
                 "",
                 "return handle.page_id",
                 "return s.release(null)",
+                "artifact-source-unavailable",
             ),
             (
                 "pa-guarded-handlearg",
                 "",
                 "if handle == null { return 0 } return handle.page_id",
                 "local h = s.check(5) return s.release(h)",
+                "IncompleteOrdinaryNewCoverage",
             ),
             (
                 "pa-newarg-unguarded",
                 "",
                 "return handle.page_id",
                 "return s.release(new Handle(1, 2))",
+                "artifact-source-unavailable",
             ),
             (
                 "pa-newarg-guarded",
                 "",
                 "if handle == null { return 0 } return handle.page_id",
                 "return s.release(new Handle(1, 2))",
+                "artifact-source-unavailable",
             ),
             (
                 "pa-trivial-newarg",
                 "",
                 "return 0",
                 "return s.release(new Handle(1, 2))",
+                "borrowed-actual/unsupported-or-unavailable",
             ),
             (
                 "pa-trivial-handlearg",
                 "",
                 "return 0",
                 "local h = s.check(5) return s.release(h)",
+                "borrowed-actual/unsupported-or-unavailable",
             ),
             (
                 "pa-eqnull-newarg",
                 "",
                 "if handle == null { return 0 } return 1",
                 "return s.release(new Handle(1, 2))",
-            ),
-            (
-                "pa-trivial-localnewarg",
-                "",
-                "return 0",
-                "local h = new Handle(1, 2) return s.release(h)",
+                "artifact-source-unavailable",
             ),
             (
                 "pa-eqnull-localnewarg",
                 "",
                 "if handle == null { return 0 } return 1",
                 "local h = new Handle(1, 2) return s.release(h)",
+                "artifact-source-unavailable",
             ),
             (
                 "pa-trivial-localnewarg-bind",
                 "",
                 "return 0",
                 "local h = new Handle(1, 2) local r = s.release(h) return r",
-            ),
-            (
-                "pa-trivial-localnewarg-discard",
-                "",
-                "return 0",
-                "local h = new Handle(1, 2) s.release(h) return 1",
+                "artifact-actual-root-source-missing",
             ),
             (
                 "pa-trivial-localnewarg-annotated",
                 ": i64",
                 "return 0",
                 "local h = new Handle(1, 2) local r = s.release(h) return r",
+                "artifact-actual-root-source-missing",
             ),
         ] {
             let text = format!(
@@ -686,14 +689,7 @@ fn parameter_field_frontiers_stay_fail_closed() {
                 })
                 .err()
                 .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"));
-            assert!(
-                error.contains("freeze:contract")
-                    || error.contains("IncompleteOrdinaryNewCoverage")
-                    || error.contains("artifact-source-unavailable")
-                    || error.contains("BorrowedFormalIngress")
-                    || error.contains("LexicalInstanceCall"),
-                "{label}: {error}"
-            );
+            assert!(error.contains(stop), "{label}: {error}");
         }
     });
 }

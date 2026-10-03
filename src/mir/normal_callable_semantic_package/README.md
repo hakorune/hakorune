@@ -930,6 +930,9 @@ Borrowed call result preparation caches all verified source value-return sites:
 Integer literals and exact-I64 callee formals are accepted; literal Bool/Text/
 Null, opaque returns and implicit exits do not acquire I64 permission. The
 existing result cohort corroborates the same owner and complete return-site set.
+An explicit `i64` annotation or an unannotated declaration whose complete
+return-site set proves source I64 both corroborate the executable projection;
+the declaration itself is never reannotated.
 A borrowed consumer can lend actuals only with its consumed lexical disposition;
 full source target, receiver, slot and argument positions must remain unchanged,
 and all incoming actual proof must be complete. This lends the original rows,

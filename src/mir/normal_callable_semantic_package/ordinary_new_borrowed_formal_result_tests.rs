@@ -303,3 +303,92 @@ fn prewalk_projection_keeps_source_actual_result_priority_without_corroboration_
     ledger.borrowed_formal_source = Some(Err("source-sentinel".into()));
     assert_eq!(demand(ledger).unwrap_err(), "source-sentinel");
 }
+
+/// TASK4-I64RESULT-S0: an unannotated declaration stays `Unannotated` while
+/// the complete source-I64 return set proves the executable projection —
+/// the same Completion/site corroboration the annotated lane demands, never
+/// a manufactured annotation or an unconstrained `None` acceptance.
+#[test]
+fn borrowed_call_result_accepts_unannotated_complete_i64_source() {
+    for (parameters, body, arguments) in [
+        ("p", "return 0", "0"),
+        ("p", "if p > 0 { return 0 } return 1", "0"),
+        ("p, q: i64", "return q", "true, 7"),
+    ] {
+        let package = package(parameters, "", body, arguments);
+        let row = take(&package);
+        assert_eq!(row.result, Some(InvokeCallResultKind::I64), "{body}");
+        let ledger = &package.ordinary_new_claim_ledger;
+        let proof = ledger.borrowed_i64_results[&row.callee_owner()]
+            .as_ref()
+            .unwrap();
+        assert!(matches!(proof.class, BorrowedResultClassV1::I64), "{body}");
+        assert!(proof.contract_corroborated, "{body}");
+        let contract = package
+            .result_contracts
+            .row(row.source_target().target_batch_slot())
+            .unwrap()
+            .borrow();
+        assert!(contract.result().is_none(), "{body}");
+        assert_eq!(
+            contract.declared_result(),
+            &crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1::Unannotated,
+            "{body}"
+        );
+        ledger.borrowed_call_actuals_v1(&row).unwrap().unwrap();
+    }
+}
+
+/// The unannotated arm borrows only the existing I64 source vocabulary:
+/// opaque/other-domain returns, mixed exits, implicit exits and other
+/// declared annotations never acquire the projection.
+#[test]
+fn borrowed_call_result_keeps_unannotated_i64_bounded() {
+    for (label, result, body, token) in [
+        ("opaque-return", "", "return p", "borrowed-result/source-not-i64"),
+        (
+            "mixed-exit",
+            "",
+            "if p > 0 { return 0 } return null",
+            "borrowed-result/source-class-mixed",
+        ),
+        (
+            "implicit-exit",
+            "",
+            "local x = 1",
+            "borrowed-result/explicit-value-return-missing",
+        ),
+        (
+            "bool-annotation",
+            ": bool",
+            "return 0",
+            "UnsupportedResultAnnotation",
+        ),
+        (
+            "void-annotation",
+            ": void",
+            "return 0",
+            "ReturnContractMismatch",
+        ),
+    ] {
+        let source = format!("box Transport {{ birth() {{ }} probe(p) {result} {{ {body} }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe(0) return 0 }} }}");
+        match crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source) {
+            Err(error) => {
+                let error = format!("{error:?}");
+                assert!(error.contains(token), "{label}: {error}");
+            }
+            // An opaque-return body leaves the callee outside the borrowed
+            // profile at the use-draft frontier, so no result row exists to
+            // demand at package level; the pin is that no callee ever
+            // acquires the corroborated I64 permission.
+            Ok(package) => assert!(
+                package
+                    .ordinary_new_claim_ledger
+                    .borrowed_i64_results
+                    .values()
+                    .all(|proof| proof.is_err()),
+                "{label}: an opaque-return callee acquired an I64 permission"
+            ),
+        }
+    }
+}
