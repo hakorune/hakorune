@@ -73,6 +73,11 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("artifact-root-field-unavailable"));
                     }
                 }
+                TerminalRelationV1::I64Scalar(relation) => {
+                    if relation.owner() != owner {
+                        return Err(freeze("artifact-root-scalar-unavailable"));
+                    }
+                }
                 TerminalRelationV1::Value(relation) => {
                     if relation.owner() != owner {
                         return Err(freeze("artifact-root-value-owner-drift"));
@@ -141,21 +146,6 @@ impl OrdinaryNewClaimLedgerV1 {
         if self.terminal_relation.is_empty() && !call_entries.is_empty() {
             return Err(freeze("artifact-call-root-source-missing"));
         }
-        let mut root_source = (!self.terminal_relation.is_empty())
-            .then(|| {
-                Ok::<_, String>(FinalizedRootSourceHandoffV1 {
-                    ledger: Rc::clone(self),
-                    app_main_identity: self
-                        .app_main_identity
-                        .as_ref()
-                        .ok_or_else(|| freeze("artifact-root-identity-unavailable"))?
-                        .clone(),
-                    terminals: self.terminal_relation.clone(),
-                    call_entries,
-                    local_calls: std::collections::BTreeMap::new(),
-                })
-            })
-            .transpose()?;
         let mut keys = BTreeSet::new();
         let mut births = Vec::new();
         let mut actuals = Vec::new();
@@ -262,21 +252,43 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("artifact-birth-abi-duplicate-drift"));
             }
         }
+        let has_lexical_local_calls = self
+            .root_local_call_bindings
+            .borrow()
+            .values()
+            .flatten()
+            .any(|group| group.lexical().is_some());
+        // The source loan follows verified main identity plus retained
+        // source evidence — a terminal relation is only one inventory.
+        // Checked birth actuals and lexical local-call rows are equally
+        // real source evidence, so presence derives from their union,
+        // never from the terminal map alone. An actually-empty terminal
+        // map is legitimate transport data.
+        let root_source = (!self.terminal_relation.is_empty()
+            || !actuals.is_empty()
+            || has_lexical_local_calls)
+            .then(|| {
+                Ok::<_, String>(FinalizedRootSourceHandoffV1 {
+                    ledger: Rc::clone(self),
+                    app_main_identity: self
+                        .app_main_identity
+                        .as_ref()
+                        .ok_or_else(|| freeze("artifact-root-identity-unavailable"))?
+                        .clone(),
+                    owner,
+                    terminals: self.terminal_relation.clone(),
+                    call_entries,
+                    local_calls: std::mem::take(
+                        &mut *self.root_local_call_bindings.borrow_mut(),
+                    ),
+                })
+            })
+            .transpose()?;
         if root_source.is_none() && !actuals.is_empty() {
             return Err(freeze("artifact-actual-root-source-missing"));
         }
-        if root_source.is_none()
-            && self
-                .root_local_call_bindings
-                .borrow()
-                .values()
-                .flatten()
-                .any(|group| group.lexical().is_some())
-        {
+        if root_source.is_none() && has_lexical_local_calls {
             return Err(freeze("artifact-local-call-root-source-missing"));
-        }
-        if let Some(source) = &mut root_source {
-            source.local_calls = std::mem::take(&mut *self.root_local_call_bindings.borrow_mut());
         }
         let birth_actuals = actuals.into_boxed_slice();
         *self.root_validation.borrow_mut() = RootNewValidation::ArtifactFinalized {

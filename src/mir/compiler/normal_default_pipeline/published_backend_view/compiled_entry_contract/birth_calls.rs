@@ -41,6 +41,7 @@ pub(super) fn issue_birth_calls_for_program(
             | FinalizedRootResultAbiV1::UnitReturn { owner }
             | FinalizedRootResultAbiV1::IntegerLiteralReturn { owner }
             | FinalizedRootResultAbiV1::I64FieldReturn { owner }
+            | FinalizedRootResultAbiV1::I64ScalarReturn { owner }
             | FinalizedRootResultAbiV1::MapGetReturn { owner } => owner,
         })
         .ok_or_else(|| fault("compiled-entry-root-owner-missing"))?;

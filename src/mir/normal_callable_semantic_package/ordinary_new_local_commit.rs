@@ -192,6 +192,10 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
     // Lenders expose read-only projections, never this mutable ledger handle.
     ledger: Rc<OrdinaryNewClaimLedgerV1>,
     app_main_identity: CallableDeclarationIdentityV1,
+    /// The verified main owner, carried explicitly so the handoff stays
+    /// sound when the relation map is empty: checked births and retained
+    /// local-call inventories are real source evidence without a terminal.
+    owner: FunctionOwnerIdV1,
     /// The root owner's retained terminal relations keyed by their exact
     /// source exit site. Multi-exit roots keep every row; no single relation
     /// is privileged and none may stand in for a sibling exit.
@@ -231,11 +235,7 @@ impl FinalizedRootSourceHandoffV1 {
     }
 
     pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
-        self.terminals
-            .values()
-            .next()
-            .map(TerminalRelationV1::owner)
-            .expect("root handoff retains at least one exit relation")
+        self.owner
     }
 
     /// Derived at this result boundary; never retained as a second source
@@ -259,6 +259,9 @@ impl FinalizedRootSourceHandoffV1 {
                 }
                 TerminalRelationV1::I64Field(row) => {
                     FinalizedRootResultAbiV1::I64FieldReturn { owner: row.owner() }
+                }
+                TerminalRelationV1::I64Scalar(row) => {
+                    FinalizedRootResultAbiV1::I64ScalarReturn { owner: row.owner() }
                 }
                 // A non-i64 value return derives no physical result ABI at
                 // this boundary; the lifecycle capability lane supplies it.
@@ -360,6 +363,12 @@ pub(crate) enum FinalizedRootResultAbiV1 {
         owner: FunctionOwnerIdV1,
     },
     I64FieldReturn {
+        owner: FunctionOwnerIdV1,
+    },
+    /// `return <bound-i64-local>`/trivial integer expression — the scalar
+    /// classifier's proven-i64 exit. The i64 proof stays in the sealed
+    /// expression-source inventory; this row only carries the owner.
+    I64ScalarReturn {
         owner: FunctionOwnerIdV1,
     },
     /// `return <map>.get("<literal>")` — the readable-Map terminal. The

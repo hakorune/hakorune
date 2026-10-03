@@ -578,13 +578,13 @@ fn nullable_field_read_stays_fail_closed() {
 
 /// PARAMFIELD census pin: a nullable/object formal's guarded use inside an
 /// instance callee stays fail-closed at its named stop until the ordered
-/// task-4 rows land. The unannotated-I64 result slice promoted the
-/// `return s.release(h)` local-new terminal and discard forms to positives;
-/// every remaining variant re-pins its next named stop — the callee-side
-/// use envelope (`TerminalHomesUnavailable`/`IncompleteOrdinaryNewCoverage`),
-/// the literal-null/inline-new/received-nullable actual arm
-/// (`borrowed-actual/unsupported-or-unavailable`), and the main-owner root
-/// source for bound results (`artifact-actual-root-source-missing`).
+/// task-4 rows land. The unannotated-I64 result and root-source slices
+/// promoted the `return s.release(h)` local-new, discard, and bound-result
+/// forms to positives; every remaining variant re-pins its next named
+/// stop — the callee-side use envelope
+/// (`TerminalHomesUnavailable`/`IncompleteOrdinaryNewCoverage`/`artifact-source-unavailable`)
+/// and the literal-null/inline-new/received-nullable actual arm
+/// (`borrowed-actual/unsupported-or-unavailable`).
 #[test]
 fn parameter_field_frontiers_stay_fail_closed() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
@@ -659,20 +659,6 @@ fn parameter_field_frontiers_stay_fail_closed() {
                 "if handle == null { return 0 } return 1",
                 "local h = new Handle(1, 2) return s.release(h)",
                 "artifact-source-unavailable",
-            ),
-            (
-                "pa-trivial-localnewarg-bind",
-                "",
-                "return 0",
-                "local h = new Handle(1, 2) local r = s.release(h) return r",
-                "artifact-actual-root-source-missing",
-            ),
-            (
-                "pa-trivial-localnewarg-annotated",
-                ": i64",
-                "return 0",
-                "local h = new Handle(1, 2) local r = s.release(h) return r",
-                "artifact-actual-root-source-missing",
             ),
         ] {
             let text = format!(

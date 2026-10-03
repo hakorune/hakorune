@@ -65,6 +65,43 @@ pub(crate) struct TerminalIntegerLiteralReturnV1 {
     value: i64,
 }
 
+/// Exact source relation for a Completion-backed `return <expr>` whose
+/// scalar classifier proves an i64 value that is neither a literal nor a
+/// field read: a local bound to a proven-i64 source (literal store, exact
+/// formal, field-read result, or classified call result) or a trivial
+/// integer expression. The row records owner and sites only — the i64 proof
+/// lives in the sealed expression-source inventory and the running local
+/// flow, never in this row.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct TerminalI64ScalarReturnV1 {
+    owner: FunctionOwnerIdV1,
+    return_site: SourceStmtSiteV1,
+    value_site: SourceExprSiteV1,
+}
+
+impl TerminalI64ScalarReturnV1 {
+    pub(super) fn issue(
+        owner: FunctionOwnerIdV1,
+        return_site: SourceStmtSiteV1,
+        value_site: SourceExprSiteV1,
+    ) -> Self {
+        Self {
+            owner,
+            return_site,
+            value_site,
+        }
+    }
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 {
+        &self.return_site
+    }
+    pub(crate) fn value_site(&self) -> &SourceExprSiteV1 {
+        &self.value_site
+    }
+}
+
 /// Exact source relation for a Completion-backed direct selected i64 field
 /// return. The referenced field-read row retains receiver/Home/field identity.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -397,8 +434,20 @@ pub(super) fn return_scalar<E>(
     ) {
         return Ok(Some(ReturnScalar::Integer));
     }
-    if locals.observe(site).is_some_and(|value| value.is_trivial()) {
-        return Ok(Some(ReturnScalar::OtherTrivial));
+    match locals.observe(site) {
+        // A local bound to a proven-i64 source returns an integer scalar:
+        // the stored `SourceScalarKind` is the sole class authority —
+        // `OtherTrivial` must never reclassify it.
+        Some(OrdinaryObservation::TrivialLocal(
+            _,
+            Some(super::local_flow::SourceScalarKind::Integer),
+        )) => {
+            return Ok(Some(ReturnScalar::Integer));
+        }
+        Some(value) if value.is_trivial() => {
+            return Ok(Some(ReturnScalar::OtherTrivial));
+        }
+        _ => {}
     }
     let Ok(expr) = input
         .source()
@@ -696,6 +745,7 @@ pub(crate) enum TerminalRelationV1 {
     Unit(TerminalUnitReturnV1),
     IntegerLiteral(TerminalIntegerLiteralReturnV1),
     I64Field(TerminalI64FieldReturnV1),
+    I64Scalar(TerminalI64ScalarReturnV1),
     Value(TerminalValueReturnV1),
     OpaqueCall(TerminalOpaqueCallReturnV1),
     MapGet(TerminalMapGetReturnV1),
@@ -709,6 +759,7 @@ impl TerminalRelationV1 {
             Self::Unit(row) => row.owner,
             Self::IntegerLiteral(row) => row.owner,
             Self::I64Field(row) => row.owner,
+            Self::I64Scalar(row) => row.owner,
             Self::Value(row) => row.owner,
             Self::OpaqueCall(row) => row.owner,
             Self::MapGet(row) => row.owner,
@@ -725,6 +776,7 @@ impl TerminalRelationV1 {
             Self::Unit(row) => row.return_site(),
             Self::IntegerLiteral(row) => row.return_site(),
             Self::I64Field(row) => row.return_site(),
+            Self::I64Scalar(row) => row.return_site(),
             Self::Value(row) => row.return_site(),
             Self::OpaqueCall(row) => row.return_site(),
             Self::MapGet(row) => row.return_site(),

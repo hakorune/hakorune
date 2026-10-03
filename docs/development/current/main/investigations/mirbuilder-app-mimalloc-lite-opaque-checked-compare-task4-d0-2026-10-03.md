@@ -1,6 +1,6 @@
 # mimalloc-lite opaque checked-compare task-4 D0 (dominated view uses)
 
-Status: accepted task-4 Decisions; I64RESULT-S0 landed; next ROOTSOURCE-S0 (implementation pending).
+Status: accepted task-4 Decisions; I64RESULT-S0 and ROOTSOURCE-S0 landed; next USESIZE-T0 (implementation pending).
 Scope: `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-D0`
   and its bounded PARAMFIELD prerequisite/acceptance series.
 Related: docs/development/RULES.md; CURRENT_STATE.toml;
@@ -610,18 +610,18 @@ coverage must agree through Rust, JSON, C index and emission together.
 
 Token prefix below:
 `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-`.
-Every row is one responsibility; I64RESULT-S0 is landed and
-ROOTSOURCE-S0 is currently selected.
+Every row is one responsibility; I64RESULT-S0 and ROOTSOURCE-S0 are
+landed and USESIZE-T0 is currently selected.
 
 Selected construction row:
-`MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ROOTSOURCE-S0`.
-Next construction row after its closeout:
 `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-USESIZE-T0`.
+Next construction row after its closeout:
+`MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NULLCOMPARE-S0`.
 
 | Order | Suffix | Responsibility / predecessor |
 | --- | --- | --- |
 | 1 | I64RESULT-S0 | A: unannotated source-proven I64; landed |
-| 2 | ROOTSOURCE-S0 | Retain verified main source for birth/local-call actuals independently of terminal-map presence; after 1 |
+| 2 | ROOTSOURCE-S0 | Retain verified main source for birth/local-call actuals independently of terminal-map presence; landed |
 | 3 | USESIZE-T0 | BoxShape: extract existing operation-use classifiers from the 771-line source-use parent; after 2, before new null arm |
 | 4 | NULLCOMPARE-S0 | C: exact null-equality source envelope and physical use; after 3 |
 | 5 | NULLACTUAL-S0 | D: literal null and received-nullable borrowed actuals; after 4 |
@@ -823,3 +823,65 @@ read, field result, Bool result, inline-new actuals, `.get`,
 Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ROOTSOURCE-S0
 (retain verified main source for birth/local-call actuals independently
 of the terminal map).
+
+## S0 landed record (MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ROOTSOURCE-S0)
+
+Landed (commit pending on `codex/birth-definition-publication`):
+
+- Scope taken: `seal_finalized_root_birth_handoff` now issues the root
+  source loan from the union of retained inventories — terminal
+  relations, checked birth actuals and lexical local-call groups — with
+  the verified main owner carried explicitly on
+  `FinalizedRootSourceHandoffV1`, so presence no longer derives from
+  `!terminal_relation.is_empty()` and an actually-empty relation map is
+  legitimate transport data. The missing-source checks
+  (`artifact-actual-root-source-missing`,
+  `artifact-local-call-root-source-missing`) stay verbatim.
+- The bound-i64 return class: `return_scalar` reclassifies a local bound
+  to a proven-i64 source (literal store, exact formal, field-read or
+  classified call result — the stored `SourceScalarKind::Integer` is the
+  sole class authority) as `ReturnScalar::Integer`, and the terminal
+  observer mints `TerminalI64ScalarReturnV1` (owner + exact return/value
+  sites only) as `TerminalRelationV1::I64Scalar`. `result_abi` projects
+  it to `FinalizedRootResultAbiV1::I64ScalarReturn` → compiled `I64`;
+  `Value`/`OpaqueCall` still return `None` and a retained loan without a
+  result ABI keeps failing at the unchanged
+  `retained-root-result-missing` boundary.
+- The card witness `local h = new Item(..); local r = s.release(h);
+  return r` publishes end to end through the existing binding-group and
+  generic-return lanes; bound literal/copy/trivial-add and the
+  no-`new`-argument bound call publish the same way.
+- File sizes: `home_terminal_relation.rs`=785,
+  `home_new_prefix_terminal.rs`=632, `ordinary_new_local_commit.rs`=741,
+  `finalized_root_handoff.rs`=319 — all under the 800-line stop.
+
+Evidence pins (test profile `--lib`):
+`bound_i64_scalar_issues_exact_terminal_relation` (bound literal, copy
+chain and proven field-add mixes mint the exact owner/site relation),
+`empty_terminal_root_source_keeps_verified_owner_without_abi` (the loan
+retains owner and lexical groups with an empty terminal map; `result_abi`
+honestly reports `None`),
+`bound_i64_returns_publish_through_root_source` (publication witness:
+`root_i64` main, `invoke_normal_result`, kind-3 typed-home actual),
+`unproven_bound_returns_stay_fail_closed` (bound bool/object →
+`retained-root-result-missing`; bound text → `artifact-source-unavailable`;
+pure main → `artifact-root-completion-unavailable`),
+`mixed_or_unproven_add_discards_terminal_and_all_staged_reads` re-pinned
+(the two `local value = 1` suffixes promoted to the new positive test),
+`parameter_field_frontiers_stay_fail_closed` re-pins 10 named stops,
+`borrowed_` sweep 209/209, package/`resolved_semantics` sweep 924/927 —
+the same 3 baseline reds reproduce identically without this change
+(`birth_receiver_non_escape...`, `main_static_child_port...`,
+`qualified_call_map_argument...`); qualified-route scope guard PASS
+except `brand_catalog_tests.rs=961` known structural debt; pointer guard
+PASS.
+
+Open frontiers (deliberately out of this slice): pure-main bound returns
+without any checked `new` (`artifact-root-completion-unavailable` is the
+unchanged gate), bound bool/nullable/text/object results, null equality,
+null/received-nullable actuals, formal field read, field result, Bool
+result, inline-new actuals, `.get`, `me.`-receiver calls and the
+app/migration route.
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-USESIZE-T0
+(BoxShape extraction of the source-use classifiers).

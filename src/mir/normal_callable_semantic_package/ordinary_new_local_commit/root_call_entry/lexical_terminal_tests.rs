@@ -305,6 +305,7 @@ fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() 
     let source = FinalizedRootSourceHandoffV1 {
         ledger: Rc::clone(&ledger),
         app_main_identity: ledger.app_main_identity.as_ref().unwrap().clone(),
+        owner,
         terminals: ledger.terminal_relation.clone(),
         call_entries: [(exit.clone(), (entry, cleanup))].into(),
         local_calls: Default::default(),
@@ -392,6 +393,7 @@ fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
     let source = FinalizedRootSourceHandoffV1 {
         ledger: Rc::clone(&ledger),
         app_main_identity: ledger.app_main_identity.as_ref().unwrap().clone(),
+        owner,
         terminals: ledger.terminal_relation.clone(),
         call_entries: [(exit.clone(), (entry, cleanup))].into(),
         local_calls: Default::default(),

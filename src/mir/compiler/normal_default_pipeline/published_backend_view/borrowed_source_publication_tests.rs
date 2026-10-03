@@ -605,3 +605,6 @@ mod new_argument_tests;
 
 #[path = "borrowed_source_publication_i64_result_tests.rs"]
 mod i64_result_tests;
+
+#[path = "borrowed_source_publication_root_source_tests.rs"]
+mod root_source_tests;

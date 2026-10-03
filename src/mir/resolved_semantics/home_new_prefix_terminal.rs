@@ -289,6 +289,21 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                     ));
                                     true
                                 }
+                                // A top-level proven-i64 scalar — a bound
+                                // local or trivial integer expression — is
+                                // its own source relation. Literal and Call
+                                // exits were classified above; this row only
+                                // records the exact return/value sites.
+                                Some(ReturnScalar::Integer) => {
+                                    relation = Some(TerminalRelationV1::I64Scalar(
+                                        TerminalI64ScalarReturnV1::issue(
+                                            input.owner(),
+                                            statement.site().clone(),
+                                            value.site().clone(),
+                                        ),
+                                    ));
+                                    true
+                                }
                                 Some(_) => true,
                                 None => {
                                     // `return <map>.get("<key>")` — the

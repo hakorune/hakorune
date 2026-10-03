@@ -584,6 +584,43 @@ fn direct_bool_does_not_issue_i64_field_terminal_relation() {
     assert!(ledger.terminal_integer_literal_return().is_none());
 }
 
+/// TASK4-ROOTSOURCE-S0: a proven-i64 bound local — stored literal or a
+/// classified call result — returns its own scalar terminal relation.
+/// Proven mixes (bound i64 + i64 field) join the same row; the stored
+/// `SourceScalarKind` is the sole class authority.
+#[test]
+fn bound_i64_scalar_issues_exact_terminal_relation() {
+    for (label, suffix) in [
+        ("bound-literal", "local value = 1 return value"),
+        ("bound-copy", "local value = 1 local copy = value return copy"),
+        ("bound-field-add", "local value = 1 return value + pair.left"),
+        ("bound-field-add-rev", "local value = 1 return pair.left + value"),
+    ] {
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+            &format!(
+                "box Pair {{ left: i64 right: i64 birth(left, right) {{ me.left = left me.right = right }} }} static box Main {{ main() {{ local pair = new Pair(10, 20) {suffix} }} }}"
+            ),
+        )
+        .expect("source package");
+        let ledger = &package.ordinary_new_claim_ledger;
+        let completion = ledger.root_completion_for_test();
+        let relation = ledger
+            .terminal_relation
+            .values()
+            .find_map(|relation| match relation {
+                crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(row) => Some(row),
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("{label}: scalar relation"));
+        assert_eq!(relation.owner(), completion.owner(), "{label}");
+        assert_eq!(
+            completion.explicit_site(),
+            Some(relation.return_site()),
+            "{label}"
+        );
+    }
+}
+
 #[test]
 fn mixed_or_unproven_add_discards_terminal_and_all_staged_reads() {
     for suffix in [
@@ -597,8 +634,6 @@ fn mixed_or_unproven_add_discards_terminal_and_all_staged_reads() {
         "return pair.left + (true + pair.right)",
         "local value = true return value + pair.left",
         "local value = true return pair.left + value",
-        "local value = 1 return value + pair.left",
-        "local value = 1 return pair.left + value",
     ] {
         let source = format!(
             "box Pair {{ left: i64 right: i64

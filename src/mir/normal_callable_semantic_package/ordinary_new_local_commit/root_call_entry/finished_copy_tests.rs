@@ -270,6 +270,7 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
     let source = FinalizedRootSourceHandoffV1 {
         ledger: Rc::clone(&ledger),
         app_main_identity: ledger.app_main_identity.as_ref().unwrap().clone(),
+        owner,
         terminals: ledger.terminal_relation.clone(),
         call_entries: Default::default(),
         local_calls: [(owner, vec![group])].into(),
@@ -337,4 +338,38 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
         ))
         .unwrap_err()
         .contains("finished-function"));
+}
+
+/// TASK4-ROOTSOURCE-S0: the retained handoff must stay sound when the
+/// relation map is actually empty — checked births and local-call groups
+/// are legitimate source evidence without a terminal. The explicit owner
+/// field is the identity authority; `result_abi` honestly reports `None`
+/// so the unchanged result boundary rejects.
+#[test]
+fn empty_terminal_root_source_keeps_verified_owner_without_abi() {
+    use super::super::super::super::FinalizedRootSourceHandoffV1;
+    let (ledger, _, packet, _, _) = fixture();
+    let owner = ledger.root_owner().unwrap();
+    assert_ne!(owner, packet.call_site().owner());
+    let group = RootLocalCallBindingGroupV1::new(
+        packet.call_site().clone(),
+        vec![packet.invoke.clone(), packet.projection.clone()],
+        Some(Rc::clone(&packet)),
+    )
+    .unwrap();
+    let source = FinalizedRootSourceHandoffV1 {
+        ledger: Rc::clone(&ledger),
+        app_main_identity: ledger.app_main_identity.as_ref().unwrap().clone(),
+        owner,
+        terminals: Default::default(),
+        call_entries: Default::default(),
+        local_calls: [(owner, vec![group])].into(),
+    };
+    assert_eq!(source.owner(), owner);
+    assert!(source.result_abi().is_none());
+    assert_eq!(
+        source.local_call_binding_groups().count(),
+        1,
+        "the lexical group survives an empty terminal map"
+    );
 }
