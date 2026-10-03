@@ -309,7 +309,19 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     )
                 };
                 let readiness = if seed_eligible && !new_sites.is_empty() {
-                    probe(&[], &mut BTreeMap::new())?.values().all(Result::is_ok)
+                    // The probe must predict the verified-completion lane:
+                    // without its explicit exit sites a `return` inside a
+                    // guard arm reads as `PrefixNotCovered` and poisons the
+                    // joined prefix before the selected `new` is walked.
+                    match crate::mir::resolved_control_flow::verify_function_completion_v1(input) {
+                        Ok(control) => probe(control.explicit_sites(), &mut BTreeMap::new())?
+                            .values()
+                            .all(Result::is_ok),
+                        // When completion itself is unverifiable the verified
+                        // lane cannot run; predict `false` so the bounded
+                        // sibling keeps its existing graceful fallback.
+                        Err(_) => false,
+                    }
                 } else { false };
                 let child_new_ready = seed_eligible && !new_sites.is_empty() && readiness;
                 // An owner whose `return` statement carries a `new`

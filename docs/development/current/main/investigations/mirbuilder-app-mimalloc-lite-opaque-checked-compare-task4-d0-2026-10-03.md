@@ -241,3 +241,81 @@ Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-CTORARG-S0
 (constructor argument view + non-literal birth actual transport +
 `borrowed-result` nullable-handle class — the `new HakoAllocHandle(...) +
 return` admission).
+
+## S0 landed record (MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-CTORARG-S0)
+
+Landed (commit pending on `codex/birth-definition-publication`):
+
+- S0a non-literal i64 birth-actual transport: `scalar_actual_kind` now takes
+  the emitted value plus the caller's `value_types` and admits `Local`,
+  `BoundValue`, and `I64Field` actuals only when the physical lane is
+  exactly `MirType::Integer`; null/handle/non-scalar actuals still reject
+  with `actual-kind-unavailable`. `me.<i64 field>` admission rides the
+  exact entry-receiver-field proof (`entry_receiver_field`), so guarded
+  bodies (`if … { return 0 }` before the `new`) keep the same authority.
+- Readiness probe coherency: the verified-vs-bounded lane probe now runs
+  `verify_function_completion_v1(input)` and feeds
+  `control.explicit_sites()` — without exit sites a guarded `return`
+  poisoned the joined prefix as `PrefixNotCovered`, forced
+  `verified_walk=false`, and silently selected the bounded sibling lane
+  (all-false argument predicates → `ArgumentNotTrivial`). Completion
+  failure keeps the existing graceful fallback (`readiness=false`).
+- S0b source draft `NewArgument`: a `new <Child>(...)` argument site admits
+  only inside an admitted checked compare's dominance of the same formal;
+  the `(new site, ordinal)` pair pins the sole admitted argument position.
+  Draft pins: `dominated_new_argument_admits_exact_site_and_ordinal`,
+  `new_argument_rejects_unguarded_and_inside_arm_uses`.
+- Finalized projection `borrowed_ordinary_new_argument_uses_v1` projects
+  admitted uses as `(binding, formal, new site, ordinal)` tuples;
+  `has_borrowed_ordinary_entry_v1` membership keeps non-borrowed birth
+  callers on ordinary scalar validation instead of demanding entry values
+  they never recorded (`entry-values-missing` stays the borrowed-only
+  contract).
+- Physical closure: bare `Call` and `Invoke`-wrapped `BirthConstructor`
+  argument positions consume the lent view only inside the admitted
+  compare's dominance cone; receiver/callee-operand and fault-frame lanes
+  reject tracked roots and copied views alike (`callee-operand`,
+  `callee-or-fault-frame`, `undominated-view`, `ctor-coverage` on distinct
+  operand values). The invoke arm's operand check now folds the view lane
+  into the common forbidden scan.
+- Publication: `issue_tagged_birth_actuals` admits `"tagged"` only for
+  exact `(new site, ordinal)` rows whose argument kind is
+  `Handle { binding }` matching the admitted formal, rejects duplicate
+  tagged coordinates, and the wire spells `{"kind":"tagged","value":N}`
+  against the callee's `kind_payload_v1` param; C v2 validates the pair,
+  indexed flow requires the caller's own borrowed tagged formal, and emit
+  re-proves `kind==1` at the call edge before the `(k,v)` pair reaches
+  `hako_lifecycle_birth_*`.
+- Artifact ownership: finishing-checked children carrying ledger-owned
+  `ObjectFieldGet` (`validate_field_reads`) are exact-read owners beside
+  the retained root — `unowned-exact-field-read` no longer mis-fires on
+  `me.<field>` argument reads inside admitted child bodies.
+
+Evidence pins (test profile `--lib`):
+`selected_new_arguments_admit_entry_receiver_i64_field` plus the existing
+selected-new suite (5/5),
+`dominated_new_argument_admits_exact_site_and_ordinal` /
+`new_argument_rejects_unguarded_and_inside_arm_uses`,
+`borrowed_use_dominated_ctor_view_passes` /
+`borrowed_use_rejects_undominated_and_drifting_ctor_view` (18/18 file
+green),
+`nonliteral_i64_birth_actuals_publish_integer_payload_tag`,
+`dominated_new_argument_view_publishes_tagged_birth_actual` (4 JSON
+variants + projection-drift reject),
+`undominated_new_argument_view_still_rejects`,
+`nonscalar_birth_actuals_still_reject`,
+`lang/c-abi/tests/published_lifecycle_v4_new_argument_execution_test.py`
+(ok=1/over=0 executes; bool/object kind!=1 fault at the compare).
+
+Baseline reds observed while gating (all already classified):
+`artifact_child_rejects_retained_unavailable_commit_before_lifecycle_coverage`
+and `test_weak_handle_lifecycle` are manifest rows 12/91 —
+`literal-physical-drift` is the upstream `ReceiverNonEscape` boundary
+reproducing at `ee30614975`/`bdbe0202fb` HEAD identically; the two
+`array_source_*` rows are batch-only flakes passing in isolation. The
+guard's only structural debt remains `brand_catalog_tests.rs=961` at HEAD.
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-RESULT-S0
+(borrowed-result nullable-handle class — `return null` and `return new`
+inside the same corridor, completing `HakoAllocPageModel.allocate`'s
+`return new HakoAllocHandle(me.page_id, block_id, requested_size)`).

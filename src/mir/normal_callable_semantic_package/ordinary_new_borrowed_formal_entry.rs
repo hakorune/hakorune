@@ -85,6 +85,25 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                 _ => None,
             })
     }
+    /// Dominated `new`-argument admissions this owner's draft proved:
+    /// `(binding, formal, new site, ordinal)` rows on the sole admitted
+    /// argument position, guarded by an admitted compare of the same
+    /// formal. Admission evidence only; publication still counts the exact
+    /// physical operand uses.
+    pub(crate) fn new_argument_uses(
+        &self,
+    ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1, u32)> {
+        self.source.definitions[&self.owner]
+            .uses
+            .iter()
+            .filter_map(|row| match &row.kind {
+                super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::NewArgument {
+                    site,
+                    ordinal,
+                } => Some((row.binding, row.formal, site, *ordinal)),
+                _ => None,
+            })
+    }
     /// Loan the original target, including its source owner and batch identity.
     pub(crate) fn incoming_targets(
         &self,

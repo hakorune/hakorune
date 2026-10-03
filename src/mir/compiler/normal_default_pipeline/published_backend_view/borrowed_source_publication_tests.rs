@@ -599,3 +599,6 @@ fn reject_drifted_add_view(input: &super::super::PublishedLifecyclePhysicalAbiIn
     }
     assert!(views > 0, "add view copies present");
 }
+
+#[path = "borrowed_source_publication_new_argument_tests.rs"]
+mod new_argument_tests;

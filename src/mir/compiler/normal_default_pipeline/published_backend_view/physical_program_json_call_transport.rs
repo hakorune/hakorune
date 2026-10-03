@@ -184,13 +184,27 @@ pub(super) fn encode_birth_call(
     if matches.next().is_some() {
         return Err(fault("birth-actual-duplicate"));
     }
+    let caller = input
+        .entry()
+        .program()
+        .functions()
+        .get(caller_function_index as usize)
+        .ok_or_else(|| fault("birth-caller-missing"))?;
     let args = issued
         .actual()
         .arguments()
         .iter()
         .map(|argument| {
+            // An admitted dominated `new`-argument use carries the same lent
+            // Integer view as a checked compare operand; the `"tagged"`
+            // spelling hands the callee its proven kind==1 payload.
+            if input.tagged_birth_actual(argument.source().new_site(), argument.source().ordinal())
+            {
+                return Ok(json!({ "kind": "tagged", "value": argument.value().0 }));
+            }
             Ok(
-                json!({ "kind": super::super::physical_abi::scalar_actual_kind(argument.source().kind())?,
+                json!({ "kind": super::super::physical_abi::scalar_actual_kind(
+                    argument.source().kind(), argument.value(), caller.value_types())?,
             "value": argument.value().0 }),
             )
         })

@@ -434,6 +434,23 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             b, b, fault_label, b, normal_label);
         continue;
       }
+      if (lv4_is(op, "kind", "birth_call")) {
+        yyjson_val* call = yyjson_obj_get(op, "call");
+        yyjson_val* args = yyjson_obj_get(call, "args");
+        /* A dominated `new`-argument view spells "tagged": the caller
+           proves the lent Integer lane (kind==1) at this exact call edge —
+           any other kind is a semantic Fault at the use site, uniform with
+           the checked-compare and dominated-`+` lanes — and the callee
+           still sees the proven pair through its own prologue. */
+        for (size_t i = 0; i < yyjson_arr_size(args); i++) {
+          yyjson_val* arg = yyjson_arr_get(args, i);
+          uint32_t value = lv4_u(arg, "value");
+          if (lv4_is(arg, "kind", "tagged"))
+            fprintf(f, "  %%bok%u_%u_%zu = icmp eq i32 %%k%u, 1\n"
+                "  br i1 %%bok%u_%u_%zu, label %%bs%u_%u_%zu, label %%fault\nbs%u_%u_%zu:\n",
+                value, b, i, value, value, b, i, value, b, i, value, b, i);
+        }
+      }
       fprintf(f, "  %%status%u = call i32 ", b);
       if (lv4_is(op, "kind", "array_new")) {
         fprintf(f, "@\"nyash.array.checked_new_v1\"(ptr %%frame, i64 %llu, ptr %%new%u)\n", site, b);
@@ -454,7 +471,12 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         fprintf(f, "@hako_lifecycle_birth_%u(ptr %%frame, i64 %%v%u", lv4_u(call, "target"), lv4_u(call, "receiver"));
         for (size_t i = 0; i < yyjson_arr_size(args); i++) {
           yyjson_val* arg = yyjson_arr_get(args, i);
-          fprintf(f, ", i32 %u, i64 %%v%u", lv4_u(arg, "kind"), lv4_u(arg, "value"));
+          uint32_t value = lv4_u(arg, "value");
+          if (lv4_is(arg, "kind", "tagged")) {
+            fprintf(f, ", i32 %%k%u, i64 %%v%u", value, value);
+            continue;
+          }
+          fprintf(f, ", i32 %u, i64 %%v%u", lv4_u(arg, "kind"), value);
         }
         fprintf(f, ")\n");
       } else if (lv4_is(op, "kind", "new_box")) {

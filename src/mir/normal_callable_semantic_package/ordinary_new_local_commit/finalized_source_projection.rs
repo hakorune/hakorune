@@ -249,6 +249,17 @@ impl FinalizedRootSourceHandoffV1 {
         self.ledger.borrowed_ordinary_entry_values_v1(owner)
     }
 
+    /// Membership probe for the closed borrowed-entry profile: true iff
+    /// `owner` recorded borrowed entry values. Birth-actual publication
+    /// enumerates every caller, including non-borrowed owners, so it asks
+    /// here before demanding the per-owner projections.
+    pub(in crate::mir) fn has_borrowed_ordinary_entry_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> bool {
+        self.ledger.has_borrowed_ordinary_entry_v1(owner)
+    }
+
     /// Same finalized entry proof, projecting only the admitted checked-
     /// compare operand uses: `(binding, formal, binary site)` triples.
     /// The finished-function check runs through the same owner/function
@@ -293,6 +304,24 @@ impl FinalizedRootSourceHandoffV1 {
         Ok(source
             .array_element_uses()
             .map(|(binding, formal, call)| (binding, formal, call.clone()))
+            .collect())
+    }
+
+    /// Same finalized entry proof, projecting only the admitted dominated
+    /// `new`-argument uses: `(binding, formal, new site, ordinal)` tuples.
+    /// The finished-function check runs through the same owner/function
+    /// binding as the alias copy projection.
+    pub(in crate::mir) fn borrowed_ordinary_new_argument_uses_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<Box<[(BindingRefV1, BindingRefV1, OwnedExprSiteV1, u32)]>, String> {
+        let source = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        Ok(source
+            .new_argument_uses()
+            .map(|(binding, formal, site, ordinal)| {
+                (binding, formal, site.clone(), ordinal)
+            })
             .collect())
     }
 }

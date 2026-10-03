@@ -27,6 +27,9 @@ struct FunctionUses {
     /// Dominated `.set` element-value admissions per formal under the same
     /// source draft; each admits exactly one distinct operand value per scan.
     set_admissions: BTreeMap<BindingRefV1, usize>,
+    /// Dominated `new`-argument admissions per formal under the same source
+    /// draft; each admits exactly one distinct operand value per scan.
+    ctor_admissions: BTreeMap<BindingRefV1, usize>,
 }
 
 #[derive(Default)]
@@ -41,6 +44,9 @@ struct Scan {
     add_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
     /// Distinct element values serving each formal's dominated `.set` view.
     set_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
+    /// Distinct argument values serving each formal's dominated `new`-arg
+    /// view.
+    ctor_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
 }
 
 /// The sole physical projections a lent view may take: an untracked operand
@@ -110,6 +116,12 @@ impl BorrowedCallUses {
             .iter()
         {
             *state.set_admissions.entry(*formal).or_default() += 1;
+        }
+        for (_, formal, _, _) in source
+            .borrowed_ordinary_new_argument_uses_v1(owner, function)?
+            .iter()
+        {
+            *state.ctor_admissions.entry(*formal).or_default() += 1;
         }
         Ok(())
     }
@@ -322,19 +334,28 @@ impl FunctionUses {
         }
         let mut views = BTreeMap::new();
         for (_, instruction) in indexed {
-            let operands: [ValueId; 2] = match instruction {
-                MirInstruction::Compare { lhs, rhs, .. } => [*lhs, *rhs],
+            let operands: Vec<ValueId> = match instruction {
+                MirInstruction::Compare { lhs, rhs, .. } => vec![*lhs, *rhs],
                 MirInstruction::BinOp {
                     op: crate::mir::BinaryOp::Add,
                     lhs,
                     rhs,
                     ..
-                } => [*lhs, *rhs],
+                } => vec![*lhs, *rhs],
                 MirInstruction::ArrayElementWrite {
                     kind: crate::mir::ArrayElementWriteKind::Set,
                     value,
                     ..
-                } => [*value, *value],
+                } => vec![*value],
+                MirInstruction::Invoke {
+                    operation: InvokeOperation::Call { call, .. },
+                    ..
+                }
+                | MirInstruction::Call(call)
+                    if matches!(call.callee, Callee::BirthConstructor { .. }) =>
+                {
+                    call.args.clone()
+                }
                 _ => continue,
             };
             for operand in operands {
@@ -403,42 +424,105 @@ impl FunctionUses {
                     return Err(fault("borrowed-use/unproved-copy"));
                 }
             }
+            MirInstruction::Call(call)
+                if matches!(call.callee, Callee::BirthConstructor { .. }) =>
+            {
+                // Bare BirthConstructor calls carry the same dominated
+                // `new`-argument rule as the invoke form.
+                let mut forbidden = false;
+                call.callee
+                    .for_each_value_operand(|value| {
+                        forbidden |=
+                            tracked.contains_key(&value) || views.views.contains_key(&value);
+                    });
+                if forbidden {
+                    return Err(fault("borrowed-use/callee-operand"));
+                }
+                for value in &call.args {
+                    if let Some(formal) = tracked.get(value).or(views.views.get(value)) {
+                        let dominated = views.compares.get(formal).is_some_and(|sites| {
+                            sites.iter().any(|&(block, index)| {
+                                dominates(block, coordinate.0)
+                                    && (block != coordinate.0 || index < coordinate.1)
+                            })
+                        });
+                        if !dominated {
+                            return Err(fault("borrowed-use/undominated-view"));
+                        }
+                        definitions
+                            .ctor_uses
+                            .entry(*formal)
+                            .or_default()
+                            .insert(*value);
+                    }
+                }
+            }
             MirInstruction::Invoke {
                 operation: InvokeOperation::Call { call, .. },
                 fault_frame,
                 ..
             } => {
-                let mut forbidden = tracked.contains_key(fault_frame);
-                call.callee
-                    .for_each_value_operand(|value| forbidden |= tracked.contains_key(&value));
+                let mut forbidden = tracked.contains_key(fault_frame)
+                    || views.views.contains_key(fault_frame);
+                call.callee.for_each_value_operand(|value| {
+                    forbidden |=
+                        tracked.contains_key(&value) || views.views.contains_key(&value);
+                });
                 if forbidden {
                     return Err(fault("borrowed-use/callee-or-fault-frame"));
                 }
-                for (ordinal, value) in call.args.iter().enumerate() {
-                    match (
-                        tracked.get(value),
-                        self.arguments.get(&(coordinate.0, coordinate.1, ordinal)),
-                    ) {
-                        (Some(formal), Some(expected)) if formal == expected => {
-                            if self
-                                .copies
-                                .get(value)
-                                .is_some_and(|(_, coordinate)| coordinate.is_none())
-                            {
-                                return Err(fault("borrowed-use/omitted-copy-argument"));
+                if matches!(call.callee, Callee::BirthConstructor { .. }) {
+                    // A `new <Child>(...)` argument may read the same lent
+                    // view only inside the admitted compare's dominance cone;
+                    // the receiver and sibling scalar actuals never carry a
+                    // borrowed lane.
+                    for value in &call.args {
+                        if let Some(formal) =
+                            tracked.get(value).or(views.views.get(value))
+                        {
+                            let dominated = views.compares.get(formal).is_some_and(|sites| {
+                                sites.iter().any(|&(block, index)| {
+                                    dominates(block, coordinate.0)
+                                        && (block != coordinate.0 || index < coordinate.1)
+                                })
+                            });
+                            if !dominated {
+                                return Err(fault("borrowed-use/undominated-view"));
                             }
                             definitions
-                                .arguments
-                                .insert((coordinate.0, coordinate.1, ordinal));
+                                .ctor_uses
+                                .entry(*formal)
+                                .or_default()
+                                .insert(*value);
                         }
-                        (None, None) => {}
-                        _ => return Err(fault("borrowed-use/argument")),
                     }
-                }
-                if self.arguments.keys().any(|(block, index, ordinal)| {
-                    (*block, *index) == coordinate && *ordinal >= call.args.len()
-                }) {
-                    return Err(fault("borrowed-use/argument-missing"));
+                } else {
+                    for (ordinal, value) in call.args.iter().enumerate() {
+                        match (
+                            tracked.get(value),
+                            self.arguments.get(&(coordinate.0, coordinate.1, ordinal)),
+                        ) {
+                            (Some(formal), Some(expected)) if formal == expected => {
+                                if self
+                                    .copies
+                                    .get(value)
+                                    .is_some_and(|(_, coordinate)| coordinate.is_none())
+                                {
+                                    return Err(fault("borrowed-use/omitted-copy-argument"));
+                                }
+                                definitions
+                                    .arguments
+                                    .insert((coordinate.0, coordinate.1, ordinal));
+                            }
+                            (None, None) => {}
+                            _ => return Err(fault("borrowed-use/argument")),
+                        }
+                    }
+                    if self.arguments.keys().any(|(block, index, ordinal)| {
+                        (*block, *index) == coordinate && *ordinal >= call.args.len()
+                    }) {
+                        return Err(fault("borrowed-use/argument-missing"));
+                    }
                 }
             }
             MirInstruction::Compare { lhs, rhs, .. } => {
@@ -560,6 +644,14 @@ impl FunctionUses {
             .collect();
         if set_uses != self.set_admissions {
             return Err(fault("borrowed-use/set-coverage"));
+        }
+        let ctor_uses: BTreeMap<_, _> = definitions
+            .ctor_uses
+            .iter()
+            .map(|(formal, values)| (*formal, values.len()))
+            .collect();
+        if ctor_uses != self.ctor_admissions {
+            return Err(fault("borrowed-use/ctor-coverage"));
         }
         for value in tracked.keys() {
             let parameter_count = params

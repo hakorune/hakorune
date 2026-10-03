@@ -124,6 +124,11 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                 RootValidation::Script { .. } | RootValidation::Absent => None,
             };
             let child_symbols = root_validation.validate(module, true)?;
+            // Finishing-checked children carry ledger-owned exact field
+            // reads (`validate_field_reads` ran for each of them inside
+            // `validate`), so they own `ObjectFieldGet` the same way the
+            // retained root does.
+            let exact_read_owners: BTreeSet<_> = child_symbols.iter().cloned().collect();
             covered.extend(child_symbols);
             if let Some(key) = &retained_root {
                 covered.insert(key.clone());
@@ -173,7 +178,10 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                 }
             }
             for (symbol, function) in &module.functions {
-                if has_exact_field_read(function) && retained_root.as_ref() != Some(symbol) {
+                if has_exact_field_read(function)
+                    && retained_root.as_ref() != Some(symbol)
+                    && !exact_read_owners.contains(symbol)
+                {
                     return Err(fault("unowned-exact-field-read"));
                 }
                 if has_lifecycle(function) && !covered.contains(symbol) {

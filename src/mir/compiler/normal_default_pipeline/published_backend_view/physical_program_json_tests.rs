@@ -432,9 +432,16 @@ fn bool_actuals_keep_kind_and_do_not_specialize_the_birth_definition() {
                             .unwrap();
                         assert_eq!(constant["value"], ordinal == 0);
                         let args = input.entry().birth_calls()[0].actual().arguments();
+                        let caller = &input.program().functions()[input
+                            .entry()
+                            .birth_calls()[0]
+                            .caller_function_index()
+                            as usize];
                         assert_eq!(
                             super::super::physical_abi::scalar_actual_kind(
-                                args[ordinal].source().kind()
+                                args[ordinal].source().kind(),
+                                args[ordinal].value(),
+                                caller.value_types(),
                             )?,
                             2
                         );

@@ -630,6 +630,9 @@ fn set_write(
     }
 }
 
+#[path = "borrowed_call_uses_ctor_view_tests.rs"]
+mod ctor_view_tests;
+
 #[test]
 fn borrowed_use_dominated_set_view_passes() {
     // Same block, ordered after the compare's site check: the lent view

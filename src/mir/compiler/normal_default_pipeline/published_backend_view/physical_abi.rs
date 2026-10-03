@@ -8,6 +8,7 @@ use std::collections::BTreeSet;
 use super::compiled_entry_contract::CompiledEntryFormalKindV1;
 use crate::mir::function::{ObjectDestructionDispositionV1, TypedObjectFieldStorage};
 use crate::mir::instruction::{InvokeOperation, MapInvokeOperation};
+use crate::mir::resolved_semantics::OwnedExprSiteV1;
 use crate::mir::MirInstruction;
 
 use super::{
@@ -198,6 +199,10 @@ pub(crate) struct PublishedLifecyclePhysicalAbiInputV1<'module> {
     layouts: Box<[PublishedLifecyclePhysicalObjectLayoutV1]>,
     diagnostic_sites: Box<[PublishedLifecycleOperationDiagnosticSiteV1]>,
     exact_numeric_checks: Box<[PublishedLifecycleExactNumericCheckV1]>,
+    /// Dominated `new`-argument uses admitted by the finalized draft, keyed
+    /// by the argument's own (new site, ordinal) identity. Each admitted
+    /// row spells `"tagged"` so the callee sees the proven kind==1 payload.
+    tagged_birth_actuals: BTreeSet<(OwnedExprSiteV1, u32)>,
     process_result_site: u64,
     fault_abi_version: u32,
     runtime_requirements: PublishedLifecycleRuntimeRequirementsV1,
@@ -244,6 +249,13 @@ impl<'module> PublishedLifecyclePhysicalAbiInputV1<'module> {
         self.diagnostic_sites.iter().copied().find(|site| {
             site.function == function && site.block == block && site.instruction == instruction
         })
+    }
+    /// Whether this exact (new site, ordinal) actual is an admitted
+    /// dominated `new`-argument view: the birth transport spells it
+    /// `"tagged"` so the callee sees the proven kind==1 payload.
+    pub(crate) fn tagged_birth_actual(&self, site: &OwnedExprSiteV1, ordinal: u32) -> bool {
+        self.tagged_birth_actuals
+            .contains(&(site.clone(), ordinal))
     }
     pub(crate) const fn process_result_site(&self) -> u64 {
         self.process_result_site
@@ -294,11 +306,7 @@ impl<'module> PublishedMirBackendView<'module> {
         }
         // Exact call identity, arity and ordering were checked by compiled-entry.
         // Inspect every actual, including unused formals; never specialize a body.
-        for call in entry.birth_calls() {
-            for actual in call.actual().arguments() {
-                scalar_actual_kind(actual.source().kind())?;
-            }
-        }
+        let tagged_birth_actuals = self.issue_tagged_birth_actuals(&entry)?;
         let diagnostic_sites = issue_diagnostic_sites(entry.program())?;
         let exact_numeric_checks =
             issue_exact_numeric_checks(self.module(), entry.program())?;
@@ -311,6 +319,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 layouts: Box::new([]),
                 diagnostic_sites: diagnostic_sites.into_boxed_slice(),
                 exact_numeric_checks: exact_numeric_checks.into_boxed_slice(),
+                tagged_birth_actuals,
                 process_result_site,
                 fault_abi_version: 1,
                 runtime_requirements: PublishedLifecycleRuntimeRequirementsV1::NativeArray,
@@ -392,12 +401,78 @@ impl<'module> PublishedMirBackendView<'module> {
             layouts: layouts.into_boxed_slice(),
             diagnostic_sites: diagnostic_sites.into_boxed_slice(),
             exact_numeric_checks: exact_numeric_checks.into_boxed_slice(),
+            tagged_birth_actuals,
             process_result_site,
             fault_abi_version: 1,
             runtime_requirements: PublishedLifecycleRuntimeRequirementsV1::TypedObject {
                 storage_profile,
             },
         })
+    }
+
+    /// The finalized draft admits a dominated `new`-argument lane per
+    /// exact (site, ordinal): that emitted `Handle{binding}` actual is the
+    /// same lent Integer view and is transported as `"tagged"`. Every
+    /// other actual must still prove its scalar lane here — `null` and
+    /// non-admitted handle actuals fail closed.
+    fn issue_tagged_birth_actuals(
+        &self,
+        entry: &CompiledEntryContractV1<'_>,
+    ) -> Result<BTreeSet<(OwnedExprSiteV1, u32)>, String> {
+        use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as Kind;
+        let mut tagged = BTreeSet::new();
+        for call in entry.birth_calls() {
+            let caller = entry
+                .program()
+                .functions()
+                .get(call.caller_function_index() as usize)
+                .ok_or_else(|| fault("birth-caller-missing"))?;
+            let uses = entry
+                .program()
+                .handoff()
+                .root_source()
+                .map(|source| {
+                    // Callers outside the closed borrowed-entry profile
+                    // cannot carry admitted `new`-argument uses; asking for
+                    // their projection would demand entry values that were
+                    // never recorded.
+                    if !source.has_borrowed_ordinary_entry_v1(call.actual().owner()) {
+                        return Ok(Vec::new().into_boxed_slice());
+                    }
+                    let caller_function = self
+                        .module()
+                        .functions
+                        .get(caller.name())
+                        .ok_or_else(|| fault("birth-caller-draft-missing"))?;
+                    source.borrowed_ordinary_new_argument_uses_v1(
+                        call.actual().owner(),
+                        caller_function,
+                    )
+                })
+                .transpose()?
+                .unwrap_or_default();
+            for actual in call.actual().arguments() {
+                let admitted = uses.iter().any(|(_, formal, site, ordinal)| {
+                    *ordinal == actual.source().ordinal()
+                        && site == actual.source().new_site()
+                        && matches!(
+                            actual.source().kind(),
+                            Kind::Handle { binding } if binding == formal
+                        )
+                });
+                if admitted {
+                    if !tagged.insert((
+                        actual.source().new_site().clone(),
+                        actual.source().ordinal(),
+                    )) {
+                        return Err(fault("birth-actual-tagged-duplicate"));
+                    }
+                    continue;
+                }
+                scalar_actual_kind(actual.source().kind(), actual.value(), caller.value_types())?;
+            }
+        }
+        Ok(tagged)
     }
 }
 
@@ -569,15 +644,24 @@ pub(super) fn array_element_tag(
 }
 
 /// Sole source-kind to physical-tag projection for this bounded input.
+/// A non-literal scalar actual — a local/bound read or a proven `i64`
+/// field read — spells the integer payload tag only when the caller's own
+/// value table pins the emitted ValueId to `MirType::Integer`; `Null` and
+/// `Handle` actuals still carry no scalar tag.
 pub(super) fn scalar_actual_kind(
     kind: &crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1,
+    value: crate::mir::ValueId,
+    caller: &std::collections::BTreeMap<crate::mir::ValueId, crate::mir::MirType>,
 ) -> Result<u32, String> {
     use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as Kind;
     match kind {
         Kind::Integer(_) => Ok(1),
         Kind::Bool(_) => Ok(2),
-        // `Null` is not a scalar tag and `I64Field` is a proven read, not a
-        // literal source — neither projects a literal actual kind.
+        Kind::Local { .. } | Kind::BoundValue { .. } | Kind::I64Field { .. }
+            if caller.get(&value) == Some(&crate::mir::MirType::Integer) =>
+        {
+            Ok(1)
+        }
         Kind::Null
         | Kind::Local { .. }
         | Kind::Handle { .. }

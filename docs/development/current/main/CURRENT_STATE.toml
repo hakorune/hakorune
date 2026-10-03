@@ -1,7 +1,7 @@
 date = "2026-10-03"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-CTORARG-S0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-RESULT-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -29,9 +29,9 @@ gap); return null/new -> borrowed-result needs a nullable-handle class.
 S0 boundary: dominated ordered-Add view only; ArraySet and ctor+result
 stay named follow-ons inside task-4.
 """
-next_design_card = "Task-4 follow-ons: ArraySet element view (new array_set op); constructor argument view + non-literal birth transport + borrowed-result nullable-handle class."
+next_design_card = "Task-4 follow-on: borrowed-result nullable-handle class — `return null` and `return new` inside the checked-compare corridor (the last `HakoAllocPageModel.allocate` frontier)."
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-CTORARG-S0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-RESULT-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -47,8 +47,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-03: OPAQUE-CHECKED-COMPARE-TASK4-CTORARG-S0 landed — dominated ctor-argument view + non-literal i64 birth actuals: scalar_actual_kind MirType::Integer corroboration (Local/BoundValue/I64Field), readiness probe on verified-lane explicit_sites, NewArgument draft ((site, ordinal) under compare dominance), new-argument projection + entry membership probe, ctor-view closure for bare/Invoke BirthConstructor (view lanes hardened, ctor-coverage), 'tagged' actual vs kind_payload_v1 (C v2/indexed/emit kind==1 at call edge), finishing-checked children own ledger ObjectFieldGet. Pins: selected-new 5/5, draft 2, closure 18/18, publication 4-variant + drift reject + 3 negatives, EXE 4. Baseline reds: manifest 12/91 + 2 batch flakes; brand_catalog_tests.rs=961 unchanged. Next: TASK4-RESULT-S0.",
   "2026-10-03: OPAQUE-CHECKED-COMPARE-TASK4-ARRAYSET-S0 landed — dominated ArraySet element view end to end: ArrayElementValue draft (proven me.<ArrayBox> receiver, ordinal-0 NormalInteger index, ordinal-1 dominated value), finalized projection, physical set-view closure (receiver/index borrowed-lane reject, set-coverage), route-gated ArrayElementWrite{Set}/ArrayStoreAny whitelist, slot_load_handle field route inside the borrowed corridor, array_set JSON row + C v2/indexed/emit arms, new kernel export nyash.array.checked_set_i64_v1 (bounds 204, element mismatch 203). Pins: draft pin 1, closure 12/12, publication 5-variant + drift reject, EXE 6 (index-0 in/over ok, index-3 bounds, bool/object kind fault, 3 compare inputs unchanged). Scope guard green except pre-existing brand_catalog_tests.rs=961 debt. Next: TASK4-CTORARG-S0.",
   "2026-10-03: OPAQUE-CHECKED-COMPARE-TASK4-ADD-S0 landed — dominated ordered-Add view end to end: AddOperand draft (NormalInteger sibling + strictly-after-if dominance), physical add-view closure (undominated-view/add-coverage, distinct-operand counts), Add(NormalInteger,NormalInteger) envelope with fresh result, bare field_set row end to end (field_ref route, site, exact_numeric_runtime_check, C indexed/emit arms, FIELD_RANGE_V1 113 write-lane guard). Pins: draft 20/20, closure/projection 19, publication, EXE 5 (hi=1 over=0 neg/bool/object=70). Scope guard green except pre-existing brand_catalog_tests.rs=961 debt. Next: TASK4-ARRAYSET-S0.",
-  "2026-10-03: OPAQUE-CHECKED-COMPARE-TASK4-D0 accepted — kind==1 compare proof extends the lent view to dominated uses (ArraySet element / ordered Add / ctor arg; one ledger, usize range at write). Census: .set->silent UnresolvedArgument drop (new array_set op needed), +->UnsupportedUse (smallest), ctor arg->UnsupportedUse + literal-only birth transport gap, return null/new->borrowed-result nullable-handle class owed. S0: dominated ordered-Add view only.",
-  "2026-10-03: OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-S0 landed — checked-compare view end to end: CompareOperand draft admission, physical compare-view whitelist with distinct-operand coverage, usize numeric-integer field gate under the borrowed-tagged corridor, C kind==1 site check with signed sgt. Pins: draft 16/16, closure/view 15, publication 3, EXE 6 (4 Normal incl. -1 path + 2 kind!=1 Fault). Scope guard green except pre-existing brand_catalog_tests.rs=961 debt. Next: Task-4 D0 (ArraySet -> ordered Add -> ctor via the view).",
   ]

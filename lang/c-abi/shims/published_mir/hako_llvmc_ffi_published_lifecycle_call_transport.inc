@@ -1,15 +1,28 @@
 /* Exact Birth/ordinary Call transport; included after value availability helpers. */
-static int hako_physical_call_args(yyjson_val* function, yyjson_val* args,
-    uint32_t block, uint32_t index) {
+static int hako_physical_call_args(yyjson_val* function, yyjson_val* callee,
+    yyjson_val* args, uint32_t block, uint32_t index) {
   static const char* const keys[] = {"kind", "value"};
-  if (!yyjson_is_arr(args)) return 0;
+  yyjson_val* params = callee ? yyjson_obj_get(callee, "params") : NULL;
+  if (!yyjson_is_arr(args) || !params) return 0;
   for (size_t i = 0; i < yyjson_arr_size(args); i++) {
     yyjson_val* arg = yyjson_arr_get(args, i);
+    yyjson_val* param = yyjson_arr_get(params, i);
     uint32_t kind, value;
     if (!hako_physical_exact_keys(arg, keys, 2) ||
-        !hako_physical_u32(yyjson_obj_get(arg, "kind"), &kind) || (kind != 1 && kind != 2) ||
         !hako_physical_u32(yyjson_obj_get(arg, "value"), &value) ||
         !hako_physical_value_available_at(function, value, block, index)) return 0;
+    /* A dominated `new`-argument view spells "tagged" and is admitted only
+       against a kind/payload pair formal — the birth unit reads both lanes,
+       so any other representation is ABI drift, never a silent rewrap. */
+    {
+      const char* arg_kind = yyjson_get_str(yyjson_obj_get(arg, "kind"));
+      if (arg_kind && !strcmp(arg_kind, "tagged")) {
+        if (!hako_physical_string(yyjson_obj_get(param, "representation"),
+            "kind_payload_v1")) return 0;
+        continue;
+      }
+    }
+    if (!hako_physical_u32(yyjson_obj_get(arg, "kind"), &kind) || (kind != 1 && kind != 2)) return 0;
   }
   return 1;
 }
@@ -21,10 +34,11 @@ static int hako_physical_validate_call(yyjson_val* function, yyjson_val* functio
   if (!hako_physical_exact_keys(call, keys, 4) ||
       !hako_physical_u32(yyjson_obj_get(call, "target"), &target) ||
       !hako_physical_u32(yyjson_obj_get(call, "receiver"), &receiver) ||
-      !hako_physical_call_args(function, yyjson_obj_get(call, "args"), block, index) ||
       !hako_physical_value_available_at(function, receiver, block, index) || target == 0 || target >= yyjson_arr_size(functions))
     return 0;
   callee = yyjson_arr_get(functions, target);
+  if (!hako_physical_call_args(function, callee, yyjson_obj_get(call, "args"), block, index))
+    return 0;
   return hako_physical_string(callee ? yyjson_obj_get(callee, "role") : NULL, "birth_unit") &&
       yyjson_arr_size(yyjson_obj_get(callee, "params")) == yyjson_arr_size(yyjson_obj_get(call, "args")) &&
       yyjson_is_null(yyjson_obj_get(call, "dst"));

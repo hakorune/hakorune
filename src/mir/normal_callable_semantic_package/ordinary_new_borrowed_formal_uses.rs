@@ -20,6 +20,9 @@ use crate::mir::resolved_semantics::{
 #[path = "ordinary_new_borrowed_formal_use_array_element.rs"]
 mod array_element;
 
+#[path = "ordinary_new_borrowed_formal_use_new_argument.rs"]
+mod new_argument;
+
 #[derive(Debug, PartialEq, Eq)]
 pub(super) enum BorrowedFormalUseDraftErrorV1 {
     SourceIdentity,
@@ -61,6 +64,14 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
     /// operand use; the receiver and index never carry the lent view.
     ArrayElementValue {
         call: OwnedExprSiteV1,
+    },
+    /// One argument position of a `new <Child>(...)` construction dominated
+    /// by an admitted checked compare of the same formal. The (new site,
+    /// ordinal) pair pins the sole admitted argument use; the transport
+    /// spells the tagged actual only for this exact ordinal.
+    NewArgument {
+        site: OwnedExprSiteV1,
+        ordinal: u32,
     },
 }
 
@@ -718,6 +729,9 @@ pub(super) fn draft_borrowed_formal_uses_v1(
                     });
                 }
             }
+        }
+        if kind.is_none() {
+            kind = new_argument::new_argument_kind(input, formal, &compare_guards, site)?;
         }
         if kind.is_none() {
             kind = compare_operand_kind(

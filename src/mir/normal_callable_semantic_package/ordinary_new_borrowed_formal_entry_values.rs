@@ -107,4 +107,12 @@ impl OrdinaryNewClaimLedgerV1 {
             .values
             .clone()
     }
+
+    /// Membership probe for the closed transport profile. Consumers that
+    /// enumerate every birth caller — including owners outside the
+    /// profile — use this to skip non-borrowed owners instead of decoding
+    /// the `entry-values-missing` freeze.
+    pub(crate) fn has_borrowed_ordinary_entry_v1(&self, owner: FunctionOwnerIdV1) -> bool {
+        self.borrowed_entry_values.borrow().contains_key(&owner)
+    }
 }

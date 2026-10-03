@@ -347,6 +347,91 @@ fn set_element_value_without_entry_receiver_loan_stays_unresolved() {
     }
 }
 
+fn draft_with_child(body: &str) -> Result<BorrowedFormalUsesDraftV1, BorrowedFormalUseDraftErrorV1> {
+    let source = format!(
+        "box Child {{ a: i64 b: i64 birth(a, b) {{ me.a = a me.b = b }} }} \
+         box BorrowUse {{ birth() {{ }} probe(p): i64 {{ {body} }} \
+         sink(q): i64 {{ return 0 }} }} static box Main {{ main() {{ return 0 }} }}"
+    );
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::
+        issue_with_brand_catalog(&source).expect("source-backed package");
+    let contract = package
+        .parameter_contracts
+        .iter()
+        .find(|contract| {
+            package
+                .batch()
+                .with_lowering_input(contract.batch_slot, |input| {
+                    contract.parameters.iter().any(|parameter| {
+                        input
+                            .function()
+                            .binding(parameter.binding)
+                            .is_some_and(|row| row.diagnostic_name() == "p")
+                    })
+                })
+                .expect("exact declaration loan")
+        })
+        .expect("probe parameter contract");
+    package
+        .batch()
+        .with_lowering_input(contract.batch_slot, |input| {
+            draft_borrowed_formal_uses_v1(
+                input,
+                &OwnedCallableParameterContractDeclarationV1 {
+                    batch_slot: contract.batch_slot,
+                    owner: contract.owner,
+                    mode: contract.mode,
+                    parameters: contract.parameters.iter().map(|row| {
+                        crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1 {
+                            ordinal: row.ordinal,
+                            binding: row.binding,
+                            kind: row.kind,
+                        }
+                    }).collect(),
+                },
+                package.instance_constructors(),
+                None,
+            )
+        })
+        .expect("exact source loan")
+}
+
+#[test]
+fn dominated_new_argument_admits_exact_site_and_ordinal() {
+    for (body, ordinal) in [
+        ("if p > 5 { return 1 } local h = new Child(p, 0) return 0", 0),
+        ("if p > 5 { return 1 } local h = new Child(0, p) return 0", 1),
+    ] {
+        let row = draft_with_child(body).expect("admitted new argument");
+        assert!(
+            row.uses.iter().any(|row| matches!(
+                row.kind,
+                BorrowedFormalUseDraftKindV1::NewArgument { ordinal: actual, .. }
+                    if actual == ordinal
+            )),
+            "new argument admitted at ordinal {ordinal}: {body}"
+        );
+    }
+}
+
+#[test]
+fn new_argument_rejects_unguarded_and_inside_arm_uses() {
+    for body in [
+        "local h = new Child(p, 0) if p > 5 { return 1 } return 0",
+        "local h = new Child(p, 0) return 0",
+        "if p > 5 { local h = new Child(p, 0) return 1 } return 0",
+        "if p >= 5 { return 1 } local h = new Child(p, 0) return 0",
+    ] {
+        assert!(
+            matches!(
+                draft_with_child(body),
+                Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(_))
+            ),
+            "rejected new-argument use: {body}"
+        );
+    }
+}
+
 fn forwarding_package(
     mutual: bool,
 ) -> crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1 {
