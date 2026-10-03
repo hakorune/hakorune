@@ -12,15 +12,24 @@ use super::*;
 fn guarded_formal_field_read_publishes_object_view() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        for (label, caller) in [(
-            "handle",
-            "local h = s.check(5) return s.release(h)",
-        )] {
+        for (label, callee_body, caller) in [
+            (
+                "handle",
+                "if handle == null { return 0 } local id = handle.page_id if id > 0 { return 1 } return 0",
+                "local h = s.check(5) return s.release(h)",
+            ),
+            (
+                "return",
+                "if handle == null { return 0 } return handle.page_id",
+                "local h = s.check(5) return s.release(h)",
+            ),
+        ] {
             let text = "box Handle { page_id: i64 block_id: i64 birth(pid, bid) { me.page_id = pid me.block_id = bid } } \
                 box Store { limit: i64 birth() { me.limit = 10 } \
                 check(p) { if p > me.limit { return null } return new Handle(p, 3) } \
-                release(handle) { if handle == null { return 0 } local id = handle.page_id if id > 0 { return 1 } return 0 } } \
-                static box Main { main() { local s = new Store() ".to_string()
+                release(handle) { ".to_string()
+                + callee_body
+                + " } } static box Main { main() { local s = new Store() "
                 + caller
                 + " } }";
             MirCompiler::with_options(false)
@@ -85,6 +94,14 @@ fn guarded_formal_field_read_publishes_object_view() {
                             1,
                             "{label}: exactly one field read on the guarded formal: {wire}"
                         );
+                        if label == "return" {
+                            let dst = reads[0]["dst"].as_u64().expect("field read dst");
+                            assert!(
+                                instructions.iter().any(|row| row["op"] == "return"
+                                    && row["value"].as_u64() == Some(dst)),
+                                "{label}: the field read is the returned value: {wire}"
+                            );
+                        }
                         assert!(
                             !instructions.iter().any(|row| {
                                 matches!(
@@ -127,15 +144,16 @@ fn guarded_formal_field_read_publishes_object_view() {
     });
 }
 
-/// PARAMFIELD census pin: a nullable/object formal's guarded use inside an
-/// instance callee stays fail-closed at its named stop until the ordered
-/// task-4 rows land. The guarded field-read slice admitted the dominated
-/// `handle.page_id` receiver and moved its terminal-return variants to the
-/// FIELDRESULT stop (`borrowed-result/source-not-i64`); the remaining
-/// variants re-pin their named stop — the callee-side use envelope
-/// (`artifact-source-unavailable`) and the literal-null/inline-new/
-/// received-nullable actual arm
-/// (`borrowed-actual/unsupported-or-unavailable`).
+/// PARAMFIELD/FIELDRESULT census pin: the guarded formal field read is
+/// admitted both as an initializer read and as a direct `i64` return —
+/// `pa-guarded-handlearg` graduated to the positive publication. The
+/// remaining variants re-pin their named stops: unguarded reads and `!=`
+/// guards keep the callee coverage envelope (`IncompleteOrdinaryNewCoverage`
+/// / `artifact-source-unavailable`), a rebound alias and an object-typed
+/// field keep `borrowed-result/source-not-i64`, a mixed i64/nullable
+/// return set keeps `borrowed-result/source-class-mixed`, and the
+/// literal-null/inline-new/received-nullable actual arm keeps
+/// `borrowed-actual/unsupported-or-unavailable`.
 #[test]
 fn parameter_field_frontiers_stay_fail_closed() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
@@ -163,11 +181,32 @@ fn parameter_field_frontiers_stay_fail_closed() {
                 "artifact-source-unavailable",
             ),
             (
-                "pa-guarded-handlearg",
+                "fr-unguarded-handlearg",
                 "",
-                "if handle == null { return 0 } return handle.page_id",
+                "return handle.page_id",
+                "local h = s.check(5) return s.release(h)",
+                "IncompleteOrdinaryNewCoverage",
+            ),
+            (
+                "fr-alias-handlearg",
+                "",
+                "if handle == null { return 0 } local q = handle return q.page_id",
                 "local h = s.check(5) return s.release(h)",
                 "borrowed-result/source-not-i64",
+            ),
+            (
+                "fr-neqguard-handlearg",
+                "",
+                "if handle != null { return handle.page_id } return 0",
+                "local h = s.check(5) return s.release(h)",
+                "IncompleteOrdinaryNewCoverage",
+            ),
+            (
+                "fr-mixed-handlearg",
+                "",
+                "if handle == null { return 0 } if handle.page_id > 0 { return handle.page_id } return null",
+                "local h = s.check(5) return s.release(h)",
+                "borrowed-result/source-class-mixed",
             ),
             (
                 "pa-newarg-unguarded",
@@ -231,5 +270,25 @@ fn parameter_field_frontiers_stay_fail_closed() {
                 .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"));
             assert!(error.contains(stop), "{label}: {error}");
         }
+        // FIELDRESULT frontier: an object-typed field is a proven guarded
+        // read but never an i64 result — the scalar classification keeps
+        // its named stop; the read never mints a second result authority.
+        let text = "box Handle { page_id: i64 block_id: i64 birth(pid, bid) { me.page_id = pid me.block_id = bid } } \
+            box Holder { inner: Handle birth(pid) { me.inner = new Handle(pid, 0) } } \
+            box Store { limit: i64 birth() { me.limit = 10 } \
+            check(p) { if p > me.limit { return null } return new Holder(p) } \
+            release(holder) { if holder == null { return 0 } return holder.inner } } \
+            static box Main { main() { local s = new Store() local o = s.check(5) return s.release(o) } }";
+        let error = MirCompiler::with_options(false)
+            .compile_normal_with_published(request(text), |view, verification| {
+                classify_pretransform_report(verification);
+                view.issue_lifecycle_physical_abi_input().map(|_| ())
+            })
+            .err()
+            .unwrap_or_else(|| panic!("fr-object-field: unexpectedly admitted"));
+        assert!(
+            error.contains("borrowed-result/source-not-i64"),
+            "fr-object-field: {error}"
+        );
     });
 }

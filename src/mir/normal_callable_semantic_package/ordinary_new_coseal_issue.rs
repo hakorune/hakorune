@@ -154,6 +154,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         &borrowed_formal_source,
         batch,
         parameter_contracts,
+        instance_constructors,
     );
     for declaration in batch.declarations() {
         let owner = declaration.owner();
@@ -431,12 +432,22 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             instance_constructors, &candidates, home, name)?;
                         // A non-null-narrowed received nullable names its
                         // class through the sealed call's `NullableObject`
-                        // claim; the declared `i64` contract is unchanged.
+                        // claim; a guarded borrowed formal names it through
+                        // the co-sealed object view — the declared `i64`
+                        // contract and `field_home`'s non-null proof are
+                        // unchanged.
                         let field = match field {
                             Some(field) => Some(field),
                             None => match lexical::nullable_received_result_class(
                                 selected, batch, &callable_result_classes, &candidates, input, home,
-                            ) {
+                            )
+                            .or_else(|| {
+                                borrowed_formal_source
+                                    .as_ref()
+                                    .ok()
+                                    .and_then(|source| source.formal_object_view(home))
+                                    .map(|view| view.class().into())
+                            }) {
                                 Some(class) => terminal_home::nullable_result_integer_field(
                                     instance_constructors,
                                     batch.ordinary_box_coverage(),

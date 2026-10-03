@@ -366,7 +366,7 @@ pub(super) fn local_read_field(
 /// coverage row names its box source, and the field must be declared
 /// exactly `i64` — the same contract `initialized_integer_field` enforces
 /// on a `new` Home.
-pub(super) fn nullable_result_integer_field(
+pub(in crate::mir::normal_callable_semantic_package) fn nullable_result_integer_field(
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
     class: &str,

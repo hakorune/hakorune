@@ -182,9 +182,22 @@ impl<'source> PrefixLocalFlow<'source> {
 
     /// The receiver root for a `receiver.field` read: an ordinary Handle
     /// observation first, then a non-null-narrowed received nullable —
-    /// the binding itself is the live base on this path.
+    /// the binding itself is the live base on this path. A self-rooted
+    /// `Handle` that names a formal parameter answers only on the
+    /// non-null-narrowed surviving path — the borrowed object is not
+    /// proven live before the guard.
     pub(super) fn field_home(&self, site: &SourceExprSiteV1) -> Option<BindingRefV1> {
         if let Some(OrdinaryObservation::Handle(home)) = self.observe(site) {
+            // A formal parameter's borrowed object is live only on the
+            // non-null-narrowed path — `me` (Receiver) and rooted locals
+            // keep their unconditional answer.
+            if matches!(
+                self.input.function().binding(home).map(|row| row.kind()),
+                Some(crate::mir::resolved_semantics::BindingKindV1::Parameter { .. })
+            ) && !self.nonnull.contains(&home)
+            {
+                return None;
+            }
             return Some(home);
         }
         let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else {

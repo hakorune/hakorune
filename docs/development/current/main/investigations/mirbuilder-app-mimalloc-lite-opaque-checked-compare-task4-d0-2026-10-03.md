@@ -1,6 +1,6 @@
 # mimalloc-lite opaque checked-compare task-4 D0 (dominated view uses)
 
-Status: accepted task-4 Decisions; I64RESULT-S0, ROOTSOURCE-S0, USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0, FIELDSIZE-T0 and PARAMFIELD-S0 landed; next FIELDRESULT-S0 (implementation pending).
+Status: accepted task-4 Decisions; I64RESULT-S0, ROOTSOURCE-S0, USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0, FIELDSIZE-T0, PARAMFIELD-S0 and FIELDRESULT-S0 landed; next PARAMFIELD-ACCEPTANCE-R0 (implementation pending).
 Scope: `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-D0`
   and its bounded PARAMFIELD prerequisite/acceptance series.
 Related: docs/development/RULES.md; CURRENT_STATE.toml;
@@ -311,13 +311,13 @@ coverage must agree through Rust, JSON, C index and emission together.
 Token prefix below:
 `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-`.
 Every row is one responsibility; I64RESULT-S0, ROOTSOURCE-S0,
-USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0, FIELDSIZE-T0 and
-PARAMFIELD-S0 are landed and FIELDRESULT-S0 is currently selected.
+USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0, FIELDSIZE-T0,
+PARAMFIELD-S0 and FIELDRESULT-S0 are landed and
+PARAMFIELD-ACCEPTANCE-R0 is currently selected.
 
 Selected construction row:
-`MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDRESULT-S0`.
-Next construction row after its closeout:
 `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-ACCEPTANCE-R0`.
+Last construction row of this series.
 
 | Order | Suffix | Responsibility / predecessor |
 | --- | --- | --- |
@@ -328,7 +328,7 @@ Next construction row after its closeout:
 | 5 | NULLACTUAL-S0 | D: literal null and received-nullable borrowed actuals; landed |
 | 6 | FIELDSIZE-T0 | BoxShape: extract existing field-read batch issuer/stager from the 770-line source parent; landed |
 | 7 | PARAMFIELD-S0 | B: complete class view + guarded scalar field initializer; landed |
-| 8 | FIELDRESULT-S0 | Exact scalar field-return result proof using 7's view; after 7 |
+| 8 | FIELDRESULT-S0 | Exact scalar field-return result proof using 7's view; landed |
 | 9 | PARAMFIELD-ACCEPTANCE-R0 | Selected source-to-EXE null/object/nullable cases and inverse failures; after 8 |
 
 ### 1 — I64RESULT-S0 (landed)
@@ -426,7 +426,7 @@ selected implementation needs it; never compress or exceed the 800-line stop.
 - Accept initializer form first: terminal `return handle.page_id` remains row
   8's named result frontier, so result admission cannot conceal field-read debt.
 
-### 8 — FIELDRESULT-S0
+### 8 — FIELDRESULT-S0 (landed)
 
 - Borrow the exact source field-read scalar proof in the existing I64 result
   preparation/Completion corroboration and lexical/terminal consumers. Arrange
@@ -470,7 +470,7 @@ fixture, Cargo, physical compilation or EXE result is introduced by this plan.
 
 ## S0 landed record (MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-I64RESULT-S0)
 
-Landed (commit pending on `codex/birth-definition-publication`):
+Landed (`976257bcf0` on `codex/birth-definition-publication`):
 
 - Scope taken: an unannotated borrowed callee whose complete explicit
   value-return set is source-proven Integer/exact-I64 corroborates the
@@ -527,7 +527,7 @@ of the terminal map).
 
 ## S0 landed record (MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ROOTSOURCE-S0)
 
-Landed (commit pending on `codex/birth-definition-publication`):
+Landed (`93b0cdaee8` on `codex/birth-definition-publication`):
 
 - Scope taken: `seal_finalized_root_birth_handoff` now issues the root
   source loan from the union of retained inventories — terminal
@@ -604,7 +604,7 @@ debt; pointer guard PASS. No null/field admission, no test changes.
 
 #### NULLCOMPARE-S0 — landed record
 
-Landed (commit pending on `codex/birth-definition-publication`):
+Landed (`160cd13a8e` on `codex/birth-definition-publication`):
 
 - Semantic envelope: `dynamic_operator_contract` gains
   `DynamicOperatorFamilyV1::Equal`, `DynamicOperatorValueClassV1::Null` and
@@ -681,7 +681,7 @@ still pins.
 
 #### NULLACTUAL-S0 — landed record
 
-Landed (commit pending on `codex/birth-definition-publication`):
+Landed (`d32898b92b` on `codex/birth-definition-publication`):
 
 - Candidate vocabulary (`home_local_call_borrowed_actuals.rs`): the exact
   `ResolvedLiteralSourceV1::Null` literal observes as its own
@@ -761,7 +761,7 @@ frontier test still pins.
 
 #### FIELDSIZE-T0 — landed record
 
-Landed (commit pending on `codex/birth-definition-publication`):
+Landed (`8fbfffd487` on `codex/birth-definition-publication`):
 
 - BoxShape only: `prove_local_field_read_batch` and
   `stage_local_field_read_batch` move verbatim into the new private
@@ -787,7 +787,7 @@ Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-S0
 
 #### PARAMFIELD-S0 — landed record
 
-Landed (commit pending on `codex/birth-definition-publication`):
+Landed (`02927e1f60` on `codex/birth-definition-publication`):
 
 - Flow: `PrefixLocalFlow::mark_nonnull` now also narrows a self-rooted
   `Handle` stored local (not only `ReceivedNullable`), so the surviving
@@ -867,3 +867,74 @@ acceptance (PARAMFIELD-ACCEPTANCE-R0).
 
 Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDRESULT-S0
 (exact scalar field-return result proof over this view).
+
+#### FIELDRESULT-S0 — landed record
+
+Landed (commit pending on `codex/birth-definition-publication`):
+
+- Flow (`PrefixLocalFlow::field_home`): a `Handle` observation rooted at
+  a `Parameter`-kind binding is live only while the binding is in the
+  path-sensitive `nonnull` set — `me` (Receiver) and rooted local handles
+  keep their unconditional answer, so an unguarded formal read no longer
+  counts as a live terminal home.
+- Field authority (`field_is_integer` in both the verified walk and the
+  probing/source walk): after the owned-home and received-nullable arms,
+  the class falls back to the co-sealed
+  `source.formal_object_view(home)`; `nullable_result_integer_field`
+  (re-export widened through `ordinary_new_coseal`) resolves the view's
+  sealed class against the same ordinary-box coverage + canonical object
+  definition and requires an exact `i64` declaration before the read is
+  staged — one field-declaration authority, no runtime layout reuse.
+- Result classification (`ordinary_new_borrowed_formal_result.rs`):
+  `guarded_formal_i64_field` admits `return formal.field` as I64 only
+  when the body shape is an exact `FieldAccess`, the receiver is the
+  exact declared parameter binding, that FieldAccess site is admitted in
+  the draft as `FieldReadOperand`, the co-sealed object view exists and
+  the canonical declaration is `i64`.
+  `prepare_borrowed_i64_results_v1` now takes
+  `&VerifiedInstanceConstructorSemanticBatchV1` so the classifier
+  consults the same authority the issuer uses; uniformity across all
+  explicit value-return sites is unchanged.
+- Physical lane unchanged: the existing `I64Field` terminal relation and
+  `take_terminal_field_read` consume the exact staged read; the ledger's
+  home check additionally accepts a formal home proven by its co-sealed
+  object view (no local commit needed — the physical verifier already
+  checks the emitted base is the exact formal root in the non-null
+  cone). One `object_field_get` + `Return`, zero release/end on the
+  formal.
+
+Evidence pins (test profile `--lib`):
+`guarded_formal_field_read_publishes_object_view` (now two variants —
+`handle`: initializer form returns 1; `return`: direct
+`return handle.page_id` returns the emitted field-get dst; emits
+`hako-issued-param-field-{handle,return}.json`),
+`parameter_field_frontiers_stay_fail_closed` (rebound alias →
+`borrowed-result/source-not-i64`; object-typed field → same; unguarded
+and `!=` guards → `IncompleteOrdinaryNewCoverage`; mixed i64/nullable
+returns → `borrowed-result/source-class-mixed`; inline-new/null-arg
+actual arms keep `borrowed-actual/unsupported-or-unavailable` and
+`artifact-source-unavailable`), focused suite 4/4,
+`resolved_semantics` 349/349, `published_backend_view` 158/160 (the 2
+are classified baseline), `normal_callable_semantic_package` 578/581
+(same 3 baseline reds), scope guard pins PASS except
+`brand_catalog_tests.rs=961` +
+`normal_default_root_catalog_lifecycle_tests.rs=1351` known structural
+debt; pointer guard PASS; C witness
+`published_lifecycle_v4_param_field_execution_test.py` now runs two
+issued programs — initializer answers 1, direct return answers 5
+(`page_id=5`) — and seven forged rows still reject.
+Baseline reds observed while gating (all already classified):
+`per_new_actuals_survive_definition_dedup_and_are_consumed_once`,
+`published_array_write_typed_contract_rejects_before_object`,
+`birth_receiver_non_escape_rejects_unproven_uses_before_row_publication`,
+`main_static_child_port_consumes_all_role_rows_once`,
+`qualified_call_map_argument_reaches_the_named_capability_boundary`
+reproduce at clean `02927e1f60` HEAD identically.
+
+Open frontiers (deliberately out of this slice): `!=` guards, inside-arm
+reads, `me.` receivers, `.get` element reads, argument-position field
+reads, object-typed/aliased field results, mixed-class results and EXE
+acceptance (PARAMFIELD-ACCEPTANCE-R0).
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-ACCEPTANCE-R0
+(selected source-to-EXE null/object/nullable cases and inverse failures).

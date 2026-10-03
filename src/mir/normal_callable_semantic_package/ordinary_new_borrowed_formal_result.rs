@@ -1,11 +1,16 @@
 //! Source-result projection for borrowed callers of the existing lexical owner.
 use super::borrowed_formal_actuals::PendingBorrowedFormalActualsV1;
 use super::borrowed_formal_source::PreparedBorrowedFormalIngressV1;
+use super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1;
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
-use crate::mir::resolved_semantics::{ResolvedLiteralSourceV1, SourceBindingSiteV1};
+use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1;
+use crate::mir::resolved_semantics::{
+    BodyExpressionShapeV1, ResolvedLiteralSourceV1, SourceBindingSiteV1, SourceExprSiteV1,
+};
 use std::collections::{BTreeMap, BTreeSet};
 
 /// The sole result class a borrowed callee's uniform return sites prove.
@@ -27,9 +32,75 @@ pub(in crate::mir::normal_callable_semantic_package) struct BorrowedI64ResultSou
     pub(super) contract_corroborated: bool,
 }
 
+/// `return <formal>.<field>` — a guarded borrowed-formal field read is an
+/// I64 result when the callee's own sealed draft admitted this exact
+/// FieldAccess site, the co-sealed object view was minted for the exact
+/// formal binding, and the field is declared `i64` on the view's class —
+/// the same declaration authority the received-nullable lane enforces.
+/// Aliases, undominated reads and object-typed fields never classify.
+fn guarded_formal_i64_field(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    source: &PreparedBorrowedFormalIngressV1,
+    instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    owner: FunctionOwnerIdV1,
+    contract: &OwnedCallableParameterContractDeclarationV1,
+    site: &SourceExprSiteV1,
+) -> Result<bool, String> {
+    let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) = input
+        .body_shape()
+        .and_then(|shape| shape.expression_shape(site))
+    else {
+        return Ok(false);
+    };
+    // The receiver must be the exact parameter binding — a rebound alias
+    // keeps its own binding and stays unclassified here.
+    let formal = match input.function().variable_ref(object) {
+        Some(ResolvedLexicalRefV1::Local(binding))
+            if contract
+                .parameters
+                .iter()
+                .any(|parameter| parameter.binding == binding) =>
+        {
+            binding
+        }
+        _ => return Ok(false),
+    };
+    let owned_site = OwnedExprSiteV1::new(owner, site.clone());
+    // The callee's sealed use draft must admit this exact FieldAccess —
+    // an undominated, in-arm or ambiguous read never entered the draft.
+    let admitted = source.definitions.get(&owner).is_some_and(|draft| {
+        draft.uses.iter().any(|row| {
+            row.formal == formal
+                && matches!(
+                    row.kind,
+                    BorrowedFormalUseDraftKindV1::FieldReadOperand { site: ref read }
+                        if *read == owned_site
+                )
+        })
+    });
+    if !admitted {
+        return Ok(false);
+    }
+    let Some(view) = source.formal_object_view(formal) else {
+        return Ok(false);
+    };
+    crate::mir::normal_callable_semantic_package::ordinary_new_coseal::nullable_result_integer_field(
+        instance_constructors,
+        batch.ordinary_box_coverage(),
+        view.class(),
+        &owned_site,
+        field,
+    )
+    .map(|field| field.is_some())
+    .map_err(|error| format!("{}: {error:?}", freeze("borrowed-result/field-authority")))
+}
+
 fn source_result(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
+    source: &PreparedBorrowedFormalIngressV1,
+    instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     owner: FunctionOwnerIdV1,
 ) -> Result<BorrowedI64ResultSourceV1, String> {
     let mut matches = contracts.iter().filter(|row| row.owner == owner);
@@ -86,9 +157,22 @@ fn source_result(
                 // `return null` is the sealed literal projection and
                 // `return new ..` is the sealed construction inventory —
                 // together they form the bounded nullable-result class.
-                // Anything else (String/Float/Bool, variable handles,
-                // opaque subtrees) is not an admitted result form.
-                let site_class = if integer || exact_formal {
+                // A `return <formal>.<i64 field>` on the guarded view joins
+                // the scalar lane through its own draft/view/declaration
+                // proof. Anything else (String/Float/Bool, variable
+                // handles, opaque subtrees) is not an admitted result form.
+                let site_class = if integer
+                    || exact_formal
+                    || guarded_formal_i64_field(
+                        input,
+                        batch,
+                        source,
+                        instance_constructors,
+                        owner,
+                        contract,
+                        site,
+                    )?
+                {
                     BorrowedResultClassV1::I64
                 } else if matches!(
                     function.expression_source().literal(site),
@@ -135,12 +219,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_i64_res
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
+    instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
 ) -> BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>> {
     match source {
         Ok(rows) => rows
             .definitions
             .keys()
-            .map(|owner| (*owner, source_result(batch, contracts, *owner)))
+            .map(|owner| {
+                (
+                    *owner,
+                    source_result(batch, contracts, rows, instance_constructors, *owner),
+                )
+            })
             .collect(),
         // The source Err itself remains in the ledger and is demanded before
         // any result projection. An empty map does not grant permission.

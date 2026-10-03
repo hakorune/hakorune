@@ -302,11 +302,21 @@ impl OrdinaryNewClaimLedgerV1 {
         // `installs` — not `installs_ordinary`: a non-null-narrowed
         // received nullable is a `CallReceived` row, not an `Ordinary`
         // `new` Home, and it still names a physically materialized base.
+        // A borrowed formal needs no local commit: the co-sealed object
+        // view already proves its physical base is the incoming tagged
+        // param, and the physical verifier checks the emitted read's base
+        // is that exact formal/copy root in the non-null cone.
         if !self
             .local_commits
             .borrow()
             .values()
             .any(|local| local.installs(row.home))
+            && self
+                .borrowed_formal_source
+                .as_ref()
+                .and_then(|source| source.as_ref().ok())
+                .and_then(|source| source.formal_object_view(row.home))
+                .is_none()
         {
             return Err(fault("home-not-installed"));
         }

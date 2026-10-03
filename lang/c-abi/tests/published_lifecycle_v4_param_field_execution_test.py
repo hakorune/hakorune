@@ -25,7 +25,9 @@ DIRECTORY = Path(sys.argv[1])
 # release(handle): if handle == null { return 0 }
 #   local id = handle.page_id; if id > 0 { return 1 } return 0
 # The caller passes check(5)'s Handle(page_id=5): main answers 1.
-CASES = ['handle']
+# The FIELDRESULT sibling returns `handle.page_id` directly: the same
+# sealed object view serves the terminal read and main answers 5.
+CASES = [('handle', 1), ('return', 5)]
 
 
 def checked(argv, **kwargs):
@@ -57,7 +59,7 @@ with tempfile.TemporaryDirectory(prefix='hako param field ') as directory:
         return result
 
     issued = {}
-    for suffix in CASES:
+    for suffix, expected in CASES:
         path = DIRECTORY / ('hako-issued-param-field-' + suffix + '.json')
         data = json.loads(path.read_text())
         callee = next(f for f in data['functions'] if f['name'] == 'Store.release/1')
@@ -72,10 +74,10 @@ with tempfile.TemporaryDirectory(prefix='hako param field ') as directory:
                  *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
                  '-lpthread', '-ldl', '-lm', '-o', exe])
         run = subprocess.run([str(exe)], env=ENV, capture_output=True, text=True)
-        assert run.returncode == 1, (suffix, run.returncode, run.stdout, run.stderr)
+        assert run.returncode == expected, (suffix, run.returncode, run.stdout, run.stderr)
         assert 'FAULT ' not in run.stdout, (suffix, run.stdout)
         issued[suffix] = data
-        print(suffix, 'guarded formal field read executes; page_id=5 answers 1')
+        print(suffix, 'guarded formal field read executes; page_id=5 answers', expected)
 
     base = issued['handle']
 
@@ -129,4 +131,4 @@ with tempfile.TemporaryDirectory(prefix='hako param field ') as directory:
                     row['instruction']['object_id'] += 1
     mutate(wrong_object)
 
-    print('1 source-issued program executes; seven forged physical rows reject')
+    print('2 source-issued programs execute; seven forged physical rows reject')

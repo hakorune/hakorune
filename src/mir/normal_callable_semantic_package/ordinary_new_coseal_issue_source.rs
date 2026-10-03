@@ -595,7 +595,24 @@ pub(super) fn probe_source_home_prefixes_v1(
                         name,
                     )
                     .map(|field| field.is_some()),
-                    None => Ok(false),
+                    // A guarded borrowed formal names its class through
+                    // the co-sealed object view; the declared `i64`
+                    // contract is unchanged.
+                    None => match borrowed_formal_source
+                        .as_ref()
+                        .ok()
+                        .and_then(|source| source.formal_object_view(home))
+                    {
+                        Some(view) => terminal_home::nullable_result_integer_field(
+                            instance_constructors,
+                            batch.ordinary_box_coverage(),
+                            view.class(),
+                            site,
+                            name,
+                        )
+                        .map(|field| field.is_some()),
+                        None => Ok(false),
+                    },
                 },
             }
         },

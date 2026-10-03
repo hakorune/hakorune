@@ -1,7 +1,7 @@
 date = "2026-10-04"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDRESULT-S0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-ACCEPTANCE-R0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -18,21 +18,22 @@ latest_card = "mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
 latest_card_summary = """
 PARAMFIELD task-4 series in flight; I64RESULT-S0, ROOTSOURCE-S0,
-USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0, FIELDSIZE-T0 and
-PARAMFIELD-S0 landed — a dominated `formal.field` read on a guarded
-`Handle` formal publishes one `object_field_get` against the co-sealed
-`BorrowedFormalObjectViewV1` (minted only when every incoming actual
-agrees on one ordinary class), riding the param row as `object_view`;
-viewless callees stay bounded and fail `unproved-copy`. C witness
-`published_lifecycle_v4_param_field_execution_test.py` executes the
-issued program and rejects seven forged rows. Next FIELDRESULT-S0 and
-PARAMFIELD-ACCEPTANCE-R0. Non-null, class and lifetime stay distinct.
-All later frontier pins remain fail-closed until their slice activates.
-No release/app EXE or migration completion claim.
+USESIZE-T0, NULLCOMPARE-S0, NULLACTUAL-S0, FIELDSIZE-T0, PARAMFIELD-S0
+and FIELDRESULT-S0 landed — a guarded `return formal.field` now
+classifies I64 through the exact FieldAccess, the draft's
+`FieldReadOperand` row and the co-sealed `BorrowedFormalObjectViewV1`
+(same canonical `i64` declaration authority), while `field_home` keeps a
+Parameter-rooted handle live only on the non-null-marked successor and
+the existing `I64Field` terminal lane consumes the staged read. C
+witness runs two issued programs (initializer answers 1, direct return
+answers 5). Next PARAMFIELD-ACCEPTANCE-R0 (source-to-EXE). Non-null,
+class and lifetime stay distinct. All later frontier pins remain
+fail-closed until their slice activates. No release/app EXE or
+migration completion claim.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDRESULT-S0"
+next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-ACCEPTANCE-R0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDRESULT-S0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-ACCEPTANCE-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -48,7 +49,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-FIELDRESULT-S0 landed — guarded `return formal.field` classifies I64 only beside the exact FieldAccess, the draft FieldReadOperand row and the co-sealed BorrowedFormalObjectViewV1 (same canonical i64 declaration via nullable_result_integer_field); field_home keeps a Parameter-rooted handle live only on the non-null successor, the ledger accepts a view-proven formal home, and the existing I64Field terminal lane emits one object_field_get + Return. Frontier re-pins: alias/object field -> source-not-i64, unguarded/!= -> IncompleteOrdinaryNewCoverage, mixed -> source-class-mixed. C witness: two issued programs execute (1 and 5). Next: TASK4-PARAMFIELD-ACCEPTANCE-R0.",
+  "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-S0 landed (02927e1f60) — dominated formal.field read on a guarded Handle/OpaqueHandle formal publishes one object_field_get against the co-sealed BorrowedFormalObjectViewV1 (minted only when every incoming actual agrees on one ordinary class; null proves Void); FieldReadOperand draft + GuardedFormal receiver + verified-walk ownership; viewless callees stay bounded at unproved-copy. C witness executes and rejects seven forged rows. Next: TASK4-FIELDRESULT-S0.",
   "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-FIELDSIZE-T0 landed — BoxShape extraction only: the field-read batch issuer/stager (prove_local_field_read_batch, stage_local_field_read_batch) moves verbatim into new private child ordinary_new_coseal_issue_source_field_batch.rs (111 lines); issue_source drops 780 -> 681 and re-exports both so source_claims:: callers and staged-read tests resolve unchanged; only required visibility changed (pub(in package)). Verbatim diff proven; field_batch 2/2, field_read 29/29, coseal 274/274 identical; scope guard pins relocated to the child, brand_catalog_tests.rs=961 baseline debt only. Next: TASK4-PARAMFIELD-S0.",
-  "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-NULLACTUAL-S0 landed — borrowed actuals admit exact `null` (wire tag 0 beside its sole const_null producer, never Integer(0)/Bool(false)) and owned ReceivedNullable: the sealed NullableObject(C) claim is the sole class authority, the arg crosses as nullable_typed_object, the caller selects tag 3/0 on payload!=0 and the callee prologue re-proves the pair. EXE probe: literal null HOME=1, live nullable HOME=2 exactly once, null-state transports (0,0), callee End 0; 7 forged mutations reject; pa-trivial-handlearg promoted positive. Sweeps green, same 6 baseline reds. Next: TASK4-FIELDSIZE-T0.",
-  "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-NULLCOMPARE-S0 landed — borrowed/null equality travels the full lane: source admission (exact == + direct if + exact null sibling, either operand order) issues Equal(Dynamic, Null); the per-admission null-coverage verifier admits Compare{Eq} only beside the exact ConstValue::Null producer; JSON spells borrowed_null_compare; C registers both dst kinds, validates the eq-only shape, seeds LV4_BOOL and emits kind/payload-lane equality — never the Integer view. Three source programs execute on the V4 probe (non-null answers false, no fault); seven forged rows reject; !=/non-null/outside-if stays fail-closed. borrowed_ 216/216, package sweep same 3 baseline reds, all 4 existing V4 tests green. Next: TASK4-NULLACTUAL-S0.",
   ]
