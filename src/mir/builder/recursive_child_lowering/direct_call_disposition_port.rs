@@ -75,7 +75,8 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
         let handle = ledger.handle_call_source(&owned).is_some();
         let scalar = ledger.lexical_i64_call_source(&owned).is_some();
-        if !handle && !scalar {
+        let nullable = ledger.nullable_call_source(&owned).is_some();
+        if !handle && !scalar && !nullable {
             return Ok(None);
         }
         // The caller-side scan sealed a local-call observation at this
@@ -93,6 +94,8 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         }
         let expected = if handle {
             crate::mir::instruction::InvokeCallResultKind::Handle
+        } else if nullable {
+            crate::mir::instruction::InvokeCallResultKind::NullableHandle
         } else {
             crate::mir::instruction::InvokeCallResultKind::I64
         };
@@ -108,6 +111,15 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         let mut state = state.borrow_mut();
         let value = if handle {
             crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical(
+                builder,
+                &mut state,
+                ledger,
+                owner,
+                &site,
+                row,
+            )?
+        } else if nullable {
+            crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical_nullable(
                 builder,
                 &mut state,
                 ledger,

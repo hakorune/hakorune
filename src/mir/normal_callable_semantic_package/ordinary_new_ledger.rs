@@ -326,6 +326,21 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
+    /// The live-arm class of a `NullableObject` result claim — the box the
+    /// non-`Void` exit constructs. `Object` claims and unclaimed callables
+    /// answer `None`; consumers of the checked-release lane read only this.
+    pub(crate) fn nullable_result_class(
+        &self,
+        key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    ) -> Option<&str> {
+        match self.callable_result_classes.get(key) {
+            Some(result_class_claim::OrdinaryNewResultClassV1::NullableObject(class)) => {
+                Some(class.as_ref())
+            }
+            _ => None,
+        }
+    }
+
     /// Consumes no source product: it only checks that the selected emitter is
     /// at the exact Completion-backed bare-return site already retained here.
     pub(crate) fn prepare_terminal_unit_return(

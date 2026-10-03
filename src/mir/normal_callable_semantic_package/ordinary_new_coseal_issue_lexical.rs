@@ -225,6 +225,56 @@ pub(super) fn lexical_i64_result_call(
         .unwrap_or(false)
 }
 
+/// A `recv.m(...)` local-call site whose receiver is a claim-local `new`
+/// binding and whose uniquely selected callee carries the sealed
+/// `NullableObject` claim — every verified value-return is `return null`
+/// or a `return new ..` construction. This is the sole scan-side proof
+/// that the callee's co-sealed disposition mints
+/// `InvokeCallResultKind::NullableHandle`: the claim names the result
+/// class and the same sealed return sites re-prove its shape, so the
+/// lane never infers nullability from MIR types or a backend role. The
+/// received binding joins the owned-Home ledger for a checked release.
+pub(super) fn lexical_nullable_result_call(
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    candidates: &[OrdinaryNewCandidate],
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    site: &OwnedExprSiteV1,
+) -> bool {
+    let Some((key, target_batch_slot, _callee_owner, _arity)) =
+        lexical_claim_local_target(selected, batch, candidates, input, site)
+    else {
+        return false;
+    };
+    if !matches!(
+        callable_result_classes.get(&key),
+        Some(
+            crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(_),
+        )
+    ) {
+        return false;
+    }
+    batch
+        .with_lowering_input(target_batch_slot, |callee_input| {
+            let Some(shape) = callee_input.body_shape() else {
+                return false;
+            };
+            let Some(sites) = super::super::verified_value_return_sites(callee_input, shape) else {
+                return false;
+            };
+            !sites.is_empty()
+                && sites.iter().all(|site| {
+                    let function = callee_input.function();
+                    matches!(
+                        function.expression_source().literal(site),
+                        Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null)
+                    ) || function.expression_source().construction(site).is_some()
+                })
+        })
+        .unwrap_or(false)
+}
+
 /// The same callback prepares observations or demands the already-staged row.
 /// This neither re-observes locals nor reads a completed caller ledger.
 pub(super) fn borrowed_call_arguments_callback_v1(

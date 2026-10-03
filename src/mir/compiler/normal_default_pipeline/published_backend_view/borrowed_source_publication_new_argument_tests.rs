@@ -260,6 +260,176 @@ fn undominated_new_argument_view_still_rejects() {
     });
 }
 
+/// A borrowed nullable result (`return null` / `return new ..`) reached
+/// through `local h = recv.m(..)` publishes the sole physical lane: the
+/// callee row carries `ordinary_nullable_handle`, the invoke spells
+/// `"nullable_handle"`, the callee materializes `const_null`, and the
+/// caller owes exactly one `home_release_if_live` — never an unconditional
+/// release on a maybe-null handle.
+#[test]
+fn borrowed_nullable_result_lexical_call_publishes_checked_release() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = "box Item { id: i64 serial: i64 birth(id, serial) { me.id = id me.serial = serial } } \
+            box Store { limit: i64 birth() { me.limit = 10 } \
+            check(p) { if p > me.limit { return null } return new Item(p, 3) } } \
+            static box Main { main() { local s = new Store() local h = s.check(5) return 0 } }";
+        MirCompiler::with_options(false)
+            .compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
+                classify_pretransform_report(verification);
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                let functions = json["functions"].as_array().unwrap();
+                let callee = functions
+                    .iter()
+                    .find(|f| f["name"] == "Store.check/1")
+                    .expect("Store.check/1 published");
+                assert_eq!(callee["role"], "ordinary_nullable_handle", "{wire}");
+                let callee_instructions: Vec<&serde_json::Value> = callee["blocks"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .flat_map(|block| {
+                        block["instructions"].as_array().unwrap().iter().chain(
+                            std::iter::once(&block["terminator"]["instruction"]),
+                        )
+                    })
+                    .map(|row| row.get("instruction").unwrap_or(row))
+                    .collect();
+                assert!(
+                    callee_instructions
+                        .iter()
+                        .any(|row| row["op"] == "const_null"),
+                    "callee materializes the Void null sentinel: {wire}"
+                );
+                let caller = functions
+                    .iter()
+                    .find(|f| f["name"] == "main")
+                    .expect("caller row");
+                let instructions: Vec<&serde_json::Value> = caller["blocks"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .flat_map(|block| {
+                        block["instructions"].as_array().unwrap().iter().chain(
+                            std::iter::once(&block["terminator"]["instruction"]),
+                        )
+                    })
+                    .map(|row| row.get("instruction").unwrap_or(row))
+                    .collect();
+                let call = instructions
+                    .iter()
+                    .find(|row| row["operation"]["kind"] == "ordinary_call")
+                    .expect("nullable call edge");
+                assert_eq!(call["operation"]["result"], "nullable_handle", "{wire}");
+                let checked: Vec<&serde_json::Value> = instructions
+                    .iter()
+                    .filter(|row| row["operation"]["kind"] == "home_release_if_live")
+                    .copied()
+                    .collect();
+                assert_eq!(
+                    checked.len(),
+                    1,
+                    "exactly one checked release for the nullable result: {wire}"
+                );
+                let released = checked[0]["operation"]["value"].clone();
+                assert!(
+                    !instructions
+                        .iter()
+                        .any(|row| row["operation"]["kind"] == "home_release"
+                            && row["operation"]["value"] == released),
+                    "a maybe-null result never owes an unconditional release: {wire}"
+                );
+                Ok(())
+            })
+            .unwrap();
+    });
+}
+
+/// The borrowed nullable class is bounded: exits splitting scalar i64 and
+/// nullable object forms, or return shapes outside `null`/`new ..`, freeze
+/// at the source gate instead of falling back to the scalar lane.
+#[test]
+fn borrowed_nullable_result_rejects_mixed_and_unproved_returns() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for (label, callee, token) in [
+            (
+                "mixed",
+                "check(p) { if p > me.limit { return null } return 1 }",
+                "source-class-mixed",
+            ),
+            (
+                "string-return",
+                "check(p) { return \"s\" }",
+                "source-not-i64",
+            ),
+            (
+                "bool-return",
+                "check(p) { return true }",
+                "source-not-i64",
+            ),
+        ] {
+            let text = format!(
+                "box Item {{ id: i64 serial: i64 birth(id, serial) {{ me.id = id me.serial = serial }} }} \
+                box Store {{ limit: i64 birth() {{ me.limit = 10 }} {callee} }} \
+                static box Main {{ main() {{ local s = new Store() local h = s.check(5) return 0 }} }}",
+            );
+            let error = MirCompiler::with_options(false)
+                .compile_normal_with_published(request(&text), |view, verification| {
+                    classify_pretransform_report(verification);
+                    view.issue_lifecycle_physical_abi_input()
+                        .map(|_| ())
+                })
+                .err()
+                .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"));
+            assert!(error.contains(token), "{label}: {error}");
+        }
+    });
+}
+
+/// The `local h = recv.m(..)` lane is the sole admitted caller edge for
+/// borrowed nullable results today: `me.`-receiver forwarding inside a
+/// nested method and field reads through the received handle stay
+/// fail-closed at their own boundaries.
+#[test]
+fn borrowed_nullable_result_frontiers_stay_fail_closed() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for (label, caller, callee, token) in [
+            (
+                "me-receiver",
+                "main() { local s = new Store() return s.run(5) }",
+                "run(q) { local h = me.check(q) return 0 }",
+                "artifact-source-unavailable",
+            ),
+            (
+                "forward",
+                "main() { local s = new Store() local h = s.run(5) return 0 }",
+                "run(q) { local h = me.check(q) if h == null { return 0 } return h.id }",
+                "literal-physical-drift",
+            ),
+        ] {
+            let text = format!(
+                "box Item {{ id: i64 serial: i64 birth(id, serial) {{ me.id = id me.serial = serial }} }} \
+                box Store {{ limit: i64 birth() {{ me.limit = 10 }} \
+                check(p) {{ if p > me.limit {{ return null }} return new Item(p, 3) }} {callee} }} \
+                static box Main {{ {caller} }}",
+            );
+            let error = MirCompiler::with_options(false)
+                .compile_normal_with_published(request(&text), |view, verification| {
+                    classify_pretransform_report(verification);
+                    view.issue_lifecycle_physical_abi_input()
+                        .map(|_| ())
+                })
+                .err()
+                .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"));
+            assert!(error.contains(token), "{label}: {error}");
+        }
+    });
+}
+
 #[test]
 fn nonscalar_birth_actuals_still_reject() {
     crate::runtime::ring0::ensure_global_ring0_initialized();

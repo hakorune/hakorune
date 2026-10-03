@@ -280,7 +280,18 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("borrowed-call/result-not-corroborated"));
         }
-        if row.result() != Some(crate::mir::instruction::InvokeCallResultKind::I64) {
+        // The source-proved result class names the one invoke result kind
+        // this call may carry: scalar i64 transport or the checked
+        // nullable-handle transport — never a third shape.
+        let expected = match proof.class {
+            super::borrowed_formal_result::BorrowedResultClassV1::I64 => {
+                crate::mir::instruction::InvokeCallResultKind::I64
+            }
+            super::borrowed_formal_result::BorrowedResultClassV1::Nullable => {
+                crate::mir::instruction::InvokeCallResultKind::NullableHandle
+            }
+        };
+        if row.result() != Some(expected) {
             return Err(freeze("borrowed-call/result-mismatch"));
         }
         self.borrowed_formal_actuals

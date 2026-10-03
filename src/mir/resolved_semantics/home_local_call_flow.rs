@@ -362,6 +362,60 @@ pub(crate) fn issue_lexical_i64_local_call<E>(
     )
 }
 
+/// Issue an exact lexical instance-call local continuation whose selected
+/// callee carries the sealed `NullableObject` claim — `local x = recv.m(..)`
+/// on a claim-local receiver where every callee exit is `return null` or
+/// `return new ..`. The nullable-result predicate is sole membership for
+/// this site and is demanded before any argument evidence is consumed;
+/// the sealed arguments come from the same source sealer the i64 lane
+/// uses — borrowed actuals first, then strict i64-shaped literals and
+/// scalar bindings, with nested argument calls still proven by the i64
+/// predicate. The minted row carries `Nullable`: the caller receives a
+/// checked-release Home, never an unconditional one.
+pub(crate) fn issue_lexical_nullable_local_call<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &SourceStmtSiteV1,
+    site: &OwnedExprSiteV1,
+    declaration: SourceBindingSiteV1,
+    destination: BindingRefV1,
+    prior_homes: &[BindingRefV1],
+    locals: &PrefixLocalFlow<'_>,
+    local_lexical_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    borrowed_arguments: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        Option<&[BorrowedCallActualCandidateV1]>,
+    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
+) -> Result<Option<LocalCallObservationV1>, E> {
+    if !local_lexical_nullable_call(site)? {
+        return Ok(None);
+    }
+    let Some(arguments) = seal_lexical_i64_arguments_at(
+        input,
+        site,
+        prior_homes,
+        locals,
+        true,
+        local_lexical_i64_call,
+        borrowed_arguments,
+    )?
+    else {
+        return Ok(None);
+    };
+    Ok(Some(LocalCallObservationV1 {
+        owner: input.owner(),
+        statement: statement.clone(),
+        site: site.clone(),
+        destination: LocalCallDestinationV1::LocalBinding {
+            declaration,
+            binding: destination,
+        },
+        prior_homes: prior_homes.iter().copied().collect(),
+        arguments: arguments.into_boxed_slice(),
+        result: LocalCallResultClassV1::Nullable,
+    }))
+}
+
 /// Only an exact statement call with selected borrowed-I64 evidence can discard.
 pub(crate) fn issue_lexical_i64_discard_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,

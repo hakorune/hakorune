@@ -645,6 +645,16 @@ pub(super) fn probe_source_home_prefixes_v1(
                 site,
             ))
         },
+        &mut |site| {
+            Ok::<_, OrdinaryNewCoSealIssueV1>(lexical_nullable_result_call(
+                selected,
+                batch,
+                &callable_result_classes,
+                &candidates,
+                input,
+                site,
+            ))
+        },
         local_static_call,
         &mut |_: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
             terminal_home::initialized_integer_field(instance_constructors, &candidates, home, name)

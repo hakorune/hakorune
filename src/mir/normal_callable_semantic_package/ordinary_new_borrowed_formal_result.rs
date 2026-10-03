@@ -8,9 +8,22 @@ use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterC
 use crate::mir::resolved_semantics::{ResolvedLiteralSourceV1, SourceBindingSiteV1};
 use std::collections::{BTreeMap, BTreeSet};
 
+/// The sole result class a borrowed callee's uniform return sites prove.
+/// `I64` is the existing literal/exact-formal scalar lane; `Nullable` is
+/// the borrowed-result nullable-handle class — every explicit value-return
+/// site is `return null` or `return new ..`, the callee carries a
+/// `NullableObject` claim, and the caller's invoke mints `NullableHandle`.
+/// Mixed or unproven forms stay rejected — never a silent scalar fallback.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum BorrowedResultClassV1 {
+    I64,
+    Nullable,
+}
+
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct BorrowedI64ResultSourceV1 {
     pub(super) returns: Box<[OwnedExprSiteV1]>,
+    pub(super) class: BorrowedResultClassV1,
     pub(super) contract_corroborated: bool,
 }
 
@@ -50,6 +63,8 @@ fn source_result(
                 .and_then(|shape| super::super::verified_value_return_sites(input, shape))
                 .filter(|sites| !sites.is_empty())
                 .ok_or_else(|| freeze("borrowed-result/explicit-value-return-missing"))?;
+            let mut class = None;
+            let mut has_construction = false;
             for site in &sites {
                 let function = input.function();
                 let integer = matches!(
@@ -68,15 +83,45 @@ fn source_result(
                     }
                     _ => false,
                 };
-                if !integer && !exact_formal {
+                // `return null` is the sealed literal projection and
+                // `return new ..` is the sealed construction inventory —
+                // together they form the bounded nullable-result class.
+                // Anything else (String/Float/Bool, variable handles,
+                // opaque subtrees) is not an admitted result form.
+                let site_class = if integer || exact_formal {
+                    BorrowedResultClassV1::I64
+                } else if matches!(
+                    function.expression_source().literal(site),
+                    Some(ResolvedLiteralSourceV1::Null)
+                ) || function.expression_source().construction(site).is_some()
+                {
+                    BorrowedResultClassV1::Nullable
+                } else {
                     return Err(freeze("borrowed-result/source-not-i64"));
+                };
+                has_construction |= function.expression_source().construction(site).is_some();
+                match class {
+                    None => class = Some(site_class),
+                    Some(existing) if existing == site_class => {}
+                    // A callee whose exits split scalar i64 and nullable
+                    // object forms has no single borrowed result contract.
+                    Some(_) => return Err(freeze("borrowed-result/source-class-mixed")),
                 }
+            }
+            let class = class.expect("explicit value-return sites are non-empty");
+            // A nullable result is an object-or-null contract: without a
+            // `return new ..` exit no `NullableObject` claim can name the
+            // carried class, so a null-only body stays unclassified rather
+            // than drifting onto the old literal-i64 default.
+            if class == BorrowedResultClassV1::Nullable && !has_construction {
+                return Err(freeze("borrowed-result/source-not-i64"));
             }
             Ok(BorrowedI64ResultSourceV1 {
                 returns: sites
                     .into_iter()
                     .map(|site| OwnedExprSiteV1::new(owner, site))
                     .collect(),
+                class,
                 contract_corroborated: false,
             })
         })
@@ -128,6 +173,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return;
         };
         let expected: BTreeSet<_> = proof.returns.iter().cloned().collect();
+        let class = proof.class;
         let agrees = results.row(source.target_batch_slot()).is_some_and(|row| {
             let borrowed = row.borrow();
             let completion = borrowed.completion();
@@ -142,13 +188,31 @@ impl OrdinaryNewClaimLedgerV1 {
                     OwnedExprSiteV1::new(completion.owner(), value)
                 })
                 .collect();
+            // The declared result contract must agree with the class the
+            // source sites already proved: an exact `i64` annotation for
+            // the scalar lane, an unannotated declaration plus the sealed
+            // `NullableObject` claim for the nullable lane.
+            let result_agrees = match class {
+                BorrowedResultClassV1::I64 => {
+                    row.result()
+                        == Some(crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64)
+                }
+                BorrowedResultClassV1::Nullable => {
+                    row.result().is_none()
+                        && matches!(
+                            self.callable_result_classes.get(source.target()),
+                            Some(
+                                crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(_)
+                            )
+                        )
+                }
+            };
             row.owner() == source.callee_owner()
                 && completion.owner() == source.callee_owner()
                 && completion.returns_value()
                 && expected.len() == proof.returns.len()
                 && observed == expected
-                && row.result()
-                    == Some(crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64)
+                && result_agrees
         });
         if agrees {
             proof.contract_corroborated = true;

@@ -45,6 +45,11 @@ pub(super) fn scan_statement_flow<'a, E>(
     // result lane — `local x = recv.m(..)` sites whose uniquely selected
     // callee returns only literals carry an `I64` local-call claim.
     local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    // The issuer's lexical instance-call membership for the nullable-result
+    // lane — `local x = recv.m(..)` sites whose uniquely selected callee
+    // carries the sealed `NullableObject` claim join the checked-release
+    // lane instead of the scalar lane.
+    local_lexical_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     // The issuer's qualified static-box call membership — `local x =
     // Alias.m(..)` sites sealed `ExactI64` join the I64 lane as ordinary
@@ -178,6 +183,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 local_map_call,
                 local_handle_call,
                 local_lexical_i64_call,
+                local_lexical_nullable_call,
                 local_nullable_call,
                 local_static_call,
                 argument_i64_field,
@@ -317,6 +323,29 @@ pub(super) fn scan_statement_flow<'a, E>(
                 path_calls.insert(local_call.site().clone());
                 local_calls.push(local_call);
                 locals.install_i64_call_result(binding);
+                continue;
+            }
+            // Lexical-receiver `recv.m(..)` calls whose selected callee
+            // carries the sealed `NullableObject` claim join the
+            // checked-release lane before the i64 lane — the same sealed
+            // argument evidence, but the received binding is an owned
+            // nullable Home the caller releases only when live.
+            if let Some(local_call) = local_call_flow::issue_lexical_nullable_local_call(
+                input,
+                statement.site(),
+                &owned,
+                declaration.clone(),
+                binding,
+                &homes,
+                locals,
+                local_lexical_nullable_call,
+                local_lexical_i64_call,
+                borrowed_actuals,
+            )? {
+                path_calls.insert(local_call.site().clone());
+                local_calls.push(local_call);
+                homes.push(binding);
+                locals.install_received_nullable(binding);
                 continue;
             }
             // Lexical-receiver `recv.m(..)` calls whose selected callee

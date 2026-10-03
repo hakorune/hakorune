@@ -314,7 +314,7 @@ impl EmittedLexicalCallProjectionV1 {
             operation:
                 InvokeOperation::Call {
                     call,
-                    result: InvokeCallResultKind::I64,
+                    result: emitted_result,
                 },
             normal_landing,
             ..
@@ -325,7 +325,10 @@ impl EmittedLexicalCallProjectionV1 {
         let MirInstruction::InvokeNormalResult { invoke_block, dst } = &self.projection.1 else {
             return Err(freeze("lexical-i64/nested-projection-shape"));
         };
-        if self.row.result() != Some(InvokeCallResultKind::I64)
+        // The disposition row names the one result contract this packet may
+        // carry — `I64` for the scalar lane, `NullableHandle` for the
+        // checked-release nullable lane. Anything else is producer drift.
+        if self.row.result() != Some(*emitted_result)
             || *call != expected
             || *invoke_block != self.invoke.0
             || *normal_landing != self.projection.0

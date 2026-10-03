@@ -106,9 +106,11 @@ impl OrdinaryNewClaimLedgerV1 {
             .local_calls()
             .iter()
             .filter(|call| {
-                call.result()
-                    == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
-                    && routed.is_some_and(|sites| sites.contains(call.site()))
+                matches!(
+                    call.result(),
+                    crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
+                        | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable
+                ) && routed.is_some_and(|sites| sites.contains(call.site()))
             })
             .map(|call| call.site().clone())
             .collect())
@@ -140,9 +142,11 @@ impl OrdinaryNewClaimLedgerV1 {
             .local_calls()
             .iter()
             .filter(|call| {
-                call.result()
-                    == crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
-                    && covered.contains(call.site())
+                matches!(
+                    call.result(),
+                    crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
+                        | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable
+                ) && covered.contains(call.site())
                     && routed.is_some_and(|sites| sites.contains(call.site()))
             })
             .map(|call| call.site().clone())

@@ -242,12 +242,17 @@ impl OrdinaryNewClaimLedgerV1 {
             // Construction)` terminal, an unannotated declared result, and a
             // `callable_result_classes` claim; a caller-minted i64
             // observation must be matched by literal-return relations that
-            // uniformly classify `I64`. Any half-sealed edge freezes.
+            // uniformly classify `I64`; a caller-minted nullable
+            // observation must be matched by the callee's `NullableObject`
+            // claim and an unannotated declared result — its mixed
+            // null/construction exits never classify to one scalar kind.
+            // Any half-sealed edge freezes.
             let callee_result = super::super::direct_call_loan::lifecycle::uniform_call_result_kind(
                 self.terminal_relations_for_owner(callee_owner).into_iter(),
             );
             let handle_observation = self.handle_call_source(&call_site).is_some();
             let scalar_observation = self.lexical_i64_call_source(&call_site).is_some();
+            let nullable_observation = self.nullable_call_source(&call_site).is_some();
             let result = match (handle_observation, scalar_observation, callee_result) {
                 (true, false, Some(InvokeCallResultKind::Handle))
                     if results
@@ -267,6 +272,30 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 (false, true, _) => {
                     return Err(freeze("lexical-instance-call/i64-result-mismatch"))
+                }
+                (false, false, _)
+                    if nullable_observation
+                        && results
+                            .row(target_batch_slot)
+                            .and_then(|row| row.result())
+                            .is_none()
+                        && matches!(
+                            self.callable_result_classes.get(&target),
+                            Some(
+                                crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(_)
+                            )
+                        ) =>
+                {
+                    // The checked-release lane owes the lifecycle invoke:
+                    // the `CallReceived` commit owns the received Home and
+                    // the checked release, while the routed binding group
+                    // keeps the producer inventory the finalized-call
+                    // visitor and the exit cleanup both claim.
+                    self.record_lifecycle_local_call_site(call_site.owner(), call_site.clone());
+                    Some(InvokeCallResultKind::NullableHandle)
+                }
+                (false, false, _) if nullable_observation => {
+                    return Err(freeze("lexical-instance-call/nullable-result-mismatch"))
                 }
                 (false, false, other) => other,
             };

@@ -254,23 +254,36 @@ impl MirBuilder {
         if let Some(ref mut f) = self.function_state.current_function {
             if returns_value && matches!(f.signature.return_type, MirType::Void | MirType::Unknown)
             {
-                let mut inferred: Option<MirType> = None;
-                'search: for (_bid, bb) in f.blocks.iter() {
+                // `f.blocks` is a HashMap: iteration order is
+                // nondeterministic. Collect every Return operand in a
+                // fixed block-id order and let a concrete result win over
+                // a Void/Unknown one, so multi-return functions infer the
+                // same type on every run — the same ordering rule
+                // `return_type_strategy` applies to the module root.
+                let mut candidates: Vec<crate::mir::ValueId> = Vec::new();
+                let mut ordered: Vec<_> = f.blocks.iter().collect();
+                ordered.sort_by_key(|(bid, _)| bid.0);
+                for (_bid, bb) in ordered {
                     for inst in bb.instructions.iter() {
                         if let MirInstruction::Return { value: Some(v) } = inst {
-                            if let Some(mt) =
-                                self.function_state.type_ctx.value_types.get(v).cloned()
-                            {
-                                inferred = Some(mt);
-                                break 'search;
-                            }
+                            candidates.push(*v);
                         }
                     }
                     if let Some(MirInstruction::Return { value: Some(v) }) = &bb.terminator {
-                        if let Some(mt) = self.function_state.type_ctx.value_types.get(v).cloned() {
-                            inferred = Some(mt);
-                            break;
-                        }
+                        candidates.push(*v);
+                    }
+                }
+                let mut inferred: Option<MirType> = None;
+                for v in candidates {
+                    let Some(mt) = self.function_state.type_ctx.value_types.get(&v).cloned()
+                    else {
+                        continue;
+                    };
+                    if matches!(mt, MirType::Void | MirType::Unknown) {
+                        inferred.get_or_insert(mt);
+                    } else {
+                        inferred = Some(mt);
+                        break;
                     }
                 }
                 if let Some(mt) = inferred {

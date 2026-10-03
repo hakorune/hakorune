@@ -40,6 +40,7 @@ use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 mod lexical;
 use lexical::{
     borrowed_call_arguments_callback_v1, lexical_handle_result_call, lexical_i64_result_call,
+    lexical_nullable_result_call,
 };
 
 #[path = "ordinary_new_coseal_issue_source.rs"]
@@ -507,6 +508,21 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 selected,
                                 batch,
                                 parameter_contracts,
+                                &callable_result_classes,
+                                &candidates,
+                                input,
+                                site,
+                            ))
+                        }, &mut |site| {
+                            // Lexical `recv.m(..)` nullable-result
+                            // membership — claim-local receiver plus the
+                            // callee's sealed `NullableObject` claim and
+                            // its null/construction return sites. The
+                            // `me.m(..)` receiver observation stays a
+                            // separate lane below.
+                            Ok(lexical_nullable_result_call(
+                                selected,
+                                batch,
                                 &callable_result_classes,
                                 &candidates,
                                 input,

@@ -66,6 +66,9 @@ fn borrowed_call_result_accepts_exact_i64_formal_with_mixed_opaque_ordinals() {
 
 #[test]
 fn borrowed_call_refuses_old_literal_i64_defaults_for_other_source_domains() {
+    // A nullable result is an object-or-null contract: a null-only body
+    // has no `return new ..` exit a `NullableObject` claim could name, so
+    // it stays rejected beside the other unclassified scalar domains.
     for body in ["return true", "return \"text\"", "return null"] {
         let source = format!("box Transport {{ birth() {{ }} probe(p) {{ {body} }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe(0) return 0 }} }}");
         let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).err().expect("selected result must be source-I64");

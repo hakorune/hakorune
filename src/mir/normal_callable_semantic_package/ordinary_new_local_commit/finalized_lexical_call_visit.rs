@@ -108,6 +108,7 @@ impl FinalizedRootSourceHandoffV1 {
             let source = self
                 .ledger
                 .lexical_i64_call_source(group.site())
+                .or_else(|| self.ledger.nullable_call_source(group.site()))
                 .ok_or_else(|| freeze("final-call-visit/local-source-missing"))?;
             if source.owner() != owner || packet.call_site() != group.site() {
                 return Err(freeze("final-call-visit/local-source-identity"));

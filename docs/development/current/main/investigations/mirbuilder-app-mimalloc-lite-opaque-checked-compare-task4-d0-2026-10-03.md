@@ -319,3 +319,77 @@ Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-RESULT-S0
 (borrowed-result nullable-handle class — `return null` and `return new`
 inside the same corridor, completing `HakoAllocPageModel.allocate`'s
 `return new HakoAllocHandle(me.page_id, block_id, requested_size)`).
+
+## S0 landed record (MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-RESULT-S0)
+
+Landed (commit pending on `codex/birth-definition-publication`):
+
+- Source class `BorrowedResultClassV1::{I64, Nullable}`: every explicit
+  value-return site classifies exactly once — `return null` and
+  `return new ..` spell `Nullable`, mixed scalar/nullable exits freeze
+  `source-class-mixed`, and a null-only body stays `source-not-i64`
+  (no `return new` exit means no `NullableObject` claim can name the
+  carried class — the old literal-i64 default hole stays closed).
+- Corroboration: `Nullable` demands an unannotated result contract plus
+  the sealed `NullableObject` claim and an exact observed-site inventory
+  match; disagreement mints `result-contract-mismatch` instead of
+  admitting.
+- Caller-side lexical membership: `issue_lexical_nullable_local_call`
+  (before the i64 issuer) mints `LocalCallResultClassV1::Nullable` for
+  `local x = recv.m(..)` whose callee carries the claim; the predicate
+  `lexical_nullable_result_call` re-proves claim-local receiver,
+  `NullableObject`, and all-null-or-new return sites — never MIR types.
+- Physical emission: `emit_local_lexical_nullable` validates site /
+  `NullableHandle` result / sealed relation / receiver Home / arity,
+  reuses the i64 lane's argument preparation for literal/scalar/borrowed
+  actuals and nested call rows, unwinds prior Homes on the fault edge,
+  emits `Invoke { result: NullableHandle }` + `InvokeNormalResult`, and
+  records the binding group the finalized-call inventory and exit
+  cleanup both claim.
+- Checked cleanup: the received binding installs as an owned nullable
+  Home — exits owe exactly one `HomeReleaseIfLive`, never unconditional.
+  `validate_call_received_emission` takes arity from the receiver
+  observation or the lexical flow relation; projection packets carry the
+  emitted result kind instead of a hard-coded `I64`, and the finalized
+  visitor admits nullable lexical nodes.
+- Deterministic child return-type inference: `finalize_function_draft`
+  collected `Return` operands from `HashMap` blocks in arbitrary order,
+  so a `return null`/`return new` callee could infer `Void` or the box
+  type per run; block iteration is now sorted by `BasicBlockId` with the
+  concrete-over-Void rule the module root already used — this was the
+  root cause of the intermittent `ordinary-membership-drift`.
+
+Evidence pins (test profile `--lib`):
+`borrowed_nullable_result_lexical_call_publishes_checked_release`
+(callee `ordinary_nullable_handle`, `const_null`, invoke
+`nullable_handle`, exactly one `home_release_if_live`, deterministic ×3
+plus 5× probe),
+`borrowed_nullable_result_rejects_mixed_and_unproved_returns`
+(mixed → `source-class-mixed`, string/bool → `source-not-i64`),
+`borrowed_nullable_result_frontiers_stay_fail_closed`
+(`me.` receiver → `artifact-source-unavailable`, field-forwarding →
+`literal-physical-drift`),
+`borrowed_call_refuses_old_literal_i64_defaults_for_other_source_domains`
+(`return null` re-pinned `source-not-i64`),
+`ordinary_new` suite 230/230, `lexical` suite 208/208,
+`nullable_receiver_call` family 17/17,
+guard `mirbuilder_qualified_route_scope_guard.sh` extended with the
+RESULT-S0 pin block and the new file list.
+
+Baseline reds observed while gating (all already classified):
+`artifact_child_rejects_retained_unavailable_commit_before_lifecycle_coverage`
+and `test_weak_handle_lifecycle` are manifest rows 12/91;
+`map_value_get_missing_key_stays_unknown_after_typed_write` and
+`map_value_get_mixed_value_results_stay_unknown` reproduce at clean
+`549a54c811` HEAD identically. The guard's only structural debt remains
+`brand_catalog_tests.rs=961` at HEAD.
+
+Open frontiers (deliberately out of this slice):
+`me.`-receiver nullable calls inside nested callable lowering
+(`artifact-source-unavailable`/`TerminalHomesUnavailable`) and nullable
+field-read forwarding (`literal-physical-drift`).
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDREAD-S0
+(nullable field-read forwarding — `handle.block_id` on a received
+nullable Home — the `literal-physical-drift` boundary blocking
+`release(handle)` and `allocate`'s `.get`/`handle` uses).

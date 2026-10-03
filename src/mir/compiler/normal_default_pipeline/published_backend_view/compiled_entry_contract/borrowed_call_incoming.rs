@@ -64,10 +64,23 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 let Callee::SameModuleInstance { key, .. } = &call.callee else {
                     continue;
                 };
-                if !callees.contains_key(key) {
+                let Some(callee) = callees.get(key) else {
                     continue;
-                }
-                if *result != InvokeCallResultKind::I64 {
+                };
+                // The callee's published role names the one result contract
+                // its call sites may carry — scalar transport or the
+                // checked-release nullable transport. `Handle`/`Map` roles
+                // stay unadmitted on the borrowed lane.
+                let expected = match callee.role() {
+                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. } => {
+                        InvokeCallResultKind::I64
+                    }
+                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle { .. } => {
+                        InvokeCallResultKind::NullableHandle
+                    }
+                    _ => return Err(fault("borrowed-incoming/result-mismatch")),
+                };
+                if *result != expected {
                     return Err(fault("borrowed-incoming/result-mismatch"));
                 }
                 if physical

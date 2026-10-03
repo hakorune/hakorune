@@ -323,14 +323,20 @@ impl OrdinaryNewClaimLedgerV1 {
                 let call = self
                     .nullable_call_source(site)
                     .ok_or_else(|| freeze("nullable-call-source-missing"))?;
-                let observation = self
-                    .receiver_call_observation(site)
-                    .ok_or_else(|| freeze("nullable-observation-missing"))?;
+                // `me.` receiver calls keep their typed-argument evidence
+                // on the package observation; lexical `local x = recv.m(..)`
+                // calls seal the same arguments on the flow row itself —
+                // exactly one of the two shapes seals each site, so the
+                // sealed one names the expected arity.
+                let arity = self.receiver_call_observation(site).map_or_else(
+                    || call.arguments().len(),
+                    |observation| observation.arguments().len(),
+                );
                 (
                     call.local_binding()
                         .ok_or_else(|| freeze("nullable-call-destination-drift"))?
                         .1,
-                    observation.arguments().len(),
+                    arity,
                 )
             }
         };
