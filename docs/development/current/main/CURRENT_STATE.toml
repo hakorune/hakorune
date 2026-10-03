@@ -1,7 +1,7 @@
 date = "2026-10-03"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-USESIZE-T0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NULLCOMPARE-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -17,22 +17,20 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
 latest_card_summary = """
-PARAMFIELD task-4 series in flight; I64RESULT-S0 and ROOTSOURCE-S0
-landed: root-source presence now derives from the union of retained
-inventories (terminals, checked birth actuals, lexical local-call
-groups) with an explicit owner field, and proven-i64 bound returns mint
-the I64Scalar source relation — `local r = s.release(h); return r`
-publishes while a loan without a result ABI stays fail-closed. Next
-USESIZE-T0, NULLCOMPARE, NULLACTUAL, FIELDSIZE-T0, PARAMFIELD,
-FIELDRESULT and PARAMFIELD-ACCEPTANCE. Object views compose the complete
-source class cohort in the existing ledger; non-null, class and lifetime
-stay distinct. Null uses kind 0; ReceivedNullable keeps caller-owned
-checked cleanup. All later frontier pins remain fail-closed until their
-slice activates. No release/app EXE or migration completion claim.
+PARAMFIELD task-4 series in flight; I64RESULT-S0, ROOTSOURCE-S0 and
+USESIZE-T0 landed — the operation-use operand classifiers moved verbatim
+into the private `use_operands` child (parent 771 -> 552 lines), ready
+for the next null arm without touching classifier semantics. Next
+NULLCOMPARE-S0, NULLACTUAL, FIELDSIZE-T0, PARAMFIELD, FIELDRESULT and
+PARAMFIELD-ACCEPTANCE. Object views compose the complete source class
+cohort in the existing ledger; non-null, class and lifetime stay
+distinct. Null uses kind 0; ReceivedNullable keeps caller-owned checked
+cleanup. All later frontier pins remain fail-closed until their slice
+activates. No release/app EXE or migration completion claim.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-USESIZE-T0"
+next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NULLCOMPARE-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-USESIZE-T0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NULLCOMPARE-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -48,7 +46,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-03: OPAQUE-CHECKED-COMPARE-TASK4-USESIZE-T0 landed — BoxShape extraction only: six operand classifier/helper bodies (compare_operand_kind, normal_integer_operand, add_operand_kind, is_call_argument, use_dominated_by_if, sequence_ordinal) move verbatim into new private child ordinary_new_borrowed_formal_use_operands.rs (246 lines); parent drops 771 -> 552 lines and re-exports them so array_element/new_argument children resolve unchanged super:: imports. Verbatim diff proven; borrowed_ 209/209 identical; package sweep same 3 baseline reds; scope guard pins moved spellings, brand_catalog_tests.rs=961 baseline debt only; no null/field admission. Next: TASK4-NULLCOMPARE-S0.",
   "2026-10-03: OPAQUE-CHECKED-COMPARE-TASK4-ROOTSOURCE-S0 landed — finalized root source loan issues from the union of retained inventories (terminals + checked birth actuals + lexical local-call groups) with an explicit owner field on FinalizedRootSourceHandoffV1; bound-i64 returns mint TerminalI64ScalarReturnV1 (stored SourceScalarKind is the sole class authority) -> FinalizedRootResultAbiV1::I64ScalarReturn -> compiled I64. local r = s.release(h); return r publishes end to end; empty-terminal loan with no ABI still fails retained-root-result-missing; missing-source checks stay verbatim. Pins: bound_i64_scalar_issues_exact_terminal_relation, empty_terminal_root_source_keeps_verified_owner_without_abi, bound_i64_returns_publish_through_root_source, unproven_bound_returns_stay_fail_closed, frontier pin re-pinned to 10 stops, borrowed_ 209/209, package sweep 924/927 with same 3 baseline reds. Next: TASK4-USESIZE-T0.",
   "2026-10-03: OPAQUE-CHECKED-COMPARE-TASK4-I64RESULT-S0 landed — unannotated borrowed callee's complete source-I64 return set corroborates the executable I64 projection: corroborate_borrowed_i64_result_v1 admits result()==None only under retained DeclaredFunctionResultContractV1::Unannotated (Void shares None, stays rejected), corroborate_terminal_lexical_result_v1 admits it only beside owner-issued corroborated I64 proof; declaration never reannotated, no new receipt. Local-new TypedHome actual promoted to real positive (kind-3 transport); bound-return stays pinned at artifact-actual-root-source-missing for ROOTSOURCE. Pins: owner positive/negative (Unannotated kept, result() None), publication witness (ordinary_i64 + kind-1/kind-3 actuals + invoke_normal_result), 12 named frontier stops re-pinned, borrowed_ 207/207, package sweep 922/925 with 3 baseline reds reproduced clean. Next: TASK4-ROOTSOURCE-S0.",
-  "2026-10-03: OPAQUE-CHECKED-COMPARE-TASK4-FIELDREAD-S0 landed — guarded field read on a local received nullable: PrefixLocalFlow nonnull narrowing (dominating ==null guard + terminated null arm; store() drops mark, joins intersect; ReceivedNullable stays the class authority), FieldReadReceiverV1::ReceivedNullable + request.nullable reuse prove_local_field_read_batch with class from the sealed NullableObject claim (never MIR types), return_scalar/field_return gain field_home + nullable integer-field arms (ABI-uniform exits), installs lets CallReceived feed take_*_field_read; one object_field_get base=invoke_normal_result, one home_release_if_live per exit. Pins: publication positive (terminal+initializer) + fail-closed negatives (unguarded/null-arm/unknown field), resolved_semantics 349/349, field_read 29/29, publication 14/14, deterministic x3. Baseline: 4 HEAD-repro reds. Next: TASK4-PARAMFIELD-S0 (handle.block_id formal), .get, me.-receiver.",
   ]

@@ -1,6 +1,6 @@
 # mimalloc-lite opaque checked-compare task-4 D0 (dominated view uses)
 
-Status: accepted task-4 Decisions; I64RESULT-S0 and ROOTSOURCE-S0 landed; next USESIZE-T0 (implementation pending).
+Status: accepted task-4 Decisions; I64RESULT-S0, ROOTSOURCE-S0 and USESIZE-T0 landed; next NULLCOMPARE-S0 (implementation pending).
 Scope: `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-D0`
   and its bounded PARAMFIELD prerequisite/acceptance series.
 Related: docs/development/RULES.md; CURRENT_STATE.toml;
@@ -610,19 +610,19 @@ coverage must agree through Rust, JSON, C index and emission together.
 
 Token prefix below:
 `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-`.
-Every row is one responsibility; I64RESULT-S0 and ROOTSOURCE-S0 are
-landed and USESIZE-T0 is currently selected.
+Every row is one responsibility; I64RESULT-S0, ROOTSOURCE-S0 and
+USESIZE-T0 are landed and NULLCOMPARE-S0 is currently selected.
 
 Selected construction row:
-`MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-USESIZE-T0`.
-Next construction row after its closeout:
 `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NULLCOMPARE-S0`.
+Next construction row after its closeout:
+`MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NULLACTUAL-S0`.
 
 | Order | Suffix | Responsibility / predecessor |
 | --- | --- | --- |
 | 1 | I64RESULT-S0 | A: unannotated source-proven I64; landed |
 | 2 | ROOTSOURCE-S0 | Retain verified main source for birth/local-call actuals independently of terminal-map presence; landed |
-| 3 | USESIZE-T0 | BoxShape: extract existing operation-use classifiers from the 771-line source-use parent; after 2, before new null arm |
+| 3 | USESIZE-T0 | BoxShape: extracted operation-use classifiers to `ordinary_new_borrowed_formal_use_operands.rs`; landed |
 | 4 | NULLCOMPARE-S0 | C: exact null-equality source envelope and physical use; after 3 |
 | 5 | NULLACTUAL-S0 | D: literal null and received-nullable borrowed actuals; after 4 |
 | 6 | FIELDSIZE-T0 | BoxShape: extract existing field-read batch issuer/stager from the 770-line source parent; after 5 |
@@ -883,5 +883,23 @@ null/received-nullable actuals, formal field read, field result, Bool
 result, inline-new actuals, `.get`, `me.`-receiver calls and the
 app/migration route.
 
-Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-USESIZE-T0
-(BoxShape extraction of the source-use classifiers).
+#### USESIZE-T0 — landed record
+
+BoxShape extraction, no semantic change: `ordinary_new_borrowed_formal_uses.rs`
+(771 → 552 lines) keeps the draft types, `draft_borrowed_incoming_calls_v1`,
+`join_borrowed_forward_uses_v1` and the main use loop; the six operand
+classifier/helper bodies (`compare_operand_kind`, `normal_integer_operand`,
+`add_operand_kind`, `is_call_argument`, `use_dominated_by_if`,
+`sequence_ordinal`) move verbatim into the new private child
+`ordinary_new_borrowed_formal_use_operands.rs` (246 lines). Only private
+visibility changed (`pub(super)` + one `use operands::{...}` re-export in the
+parent so `array_element`/`new_argument` children resolve their existing
+`super::` imports untouched). Evidence: git-verbatim diff of moved bodies
+(only the `fn`→`pub(super) fn` prefix and one trailing blank line differ);
+`borrowed_` sweep 209/209 identical to baseline; package sweep 575/578 —
+the same 3 baseline reds; scope guard pins all moved symbol spellings and
+the parent shrink, PASS except `brand_catalog_tests.rs=961` known structural
+debt; pointer guard PASS. No null/field admission, no test changes.
+
+Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NULLCOMPARE-S0
+(exact null-equality source envelope and physical use).
