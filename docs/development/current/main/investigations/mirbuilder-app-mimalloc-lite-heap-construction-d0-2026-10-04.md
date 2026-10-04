@@ -297,7 +297,7 @@ checks and baseline comparison. No fallback, mimalloc-specific name branch,
 source workaround, provider activation, whole-app completion or arbitrary
 recursive destruction claim is authorized by this Decision.
 
-## Landed: HEAP-CONSTRUCTION-SIZE-T0 (commit: pending)
+## Landed: HEAP-CONSTRUCTION-SIZE-T0 (`e366f4c521`)
 
 `src/mir/builder/normal_callable_construction_state.rs` (971 lines) split
 into private responsibility children — pure code motion, no predicate,
