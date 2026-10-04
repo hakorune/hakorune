@@ -115,9 +115,11 @@ pub enum InvokeOperation {
         base: ValueId,
     },
     /// Read the field's owned user-object handle and release it when live.
-    /// The child must be a `PlainI64NoHook` object — S0 emits
-    /// `checked_field_get_i64_v1` + `home_release_plain_i64_v1` directly;
-    /// deeper teardown waits for the generated per-class helper.
+    /// The child must be `PlainI64NoHook` or a sealed
+    /// `OwnedArrayFieldsNoHook` — the physical consumer walks the child's
+    /// `owned_residences` layout mark newest-first before
+    /// `home_release_plain_i64_v1` under the child's own type id. Deeper
+    /// teardown stays unadmitted.
     OwnedObjectFieldRelease {
         field: hakorune_mir_defs::CanonicalFieldRefV1,
         base: ValueId,

@@ -95,6 +95,7 @@ impl CallableSemanticLoweringState {
                     site: rhs_site,
                     object,
                     arguments,
+                    owned_fields,
                 } = &taken.rhs
                 else {
                     unreachable!("provider value implies provider rhs")
@@ -136,6 +137,35 @@ impl CallableSemanticLoweringState {
                             .ordinary_new_claim_ledger
                             .as_ref()
                             .ok_or_else(|| fault("provider-ledger-missing"))?;
+                        // An owned-array child owes each sealed `ArrayBox`
+                        // residence release before its storage on every
+                        // in-flight cleanup edge — the plan's declared
+                        // inventory must agree exactly with the sealed
+                        // children, in declaration order. The provider
+                        // `new` mints no `local`-bound claim, so its row
+                        // was sealed by `seal_provider_owned_children_v1`
+                        // beside the claims.
+                        let teardown: Box<[CanonicalFieldRefV1]> = if owned_fields.is_empty() {
+                            Box::new([])
+                        } else {
+                            let children = ledger
+                                .owned_field_children_for(child)
+                                .ok_or_else(|| fault("provider-children-missing"))?
+                                .ok_or_else(|| fault("provider-children-unproven"))?;
+                            if children.len() != owned_fields.len()
+                                || children.iter().zip(owned_fields.iter()).any(
+                                    |(child_row, field)| {
+                                        !matches!(
+                                            child_row.kind,
+                                            crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Array
+                                        ) || child_row.field != *field
+                                    },
+                                )
+                            {
+                                return Err(fault("provider-children-drift"));
+                            }
+                            owned_fields.clone()
+                        };
                         let owned_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
                             self.owner,
                             rhs_site.clone(),
@@ -178,28 +208,58 @@ impl CallableSemanticLoweringState {
                             arg_values.push(arg_value);
                             arg_pairs.push((argument.clone(), arg_value));
                         }
-                        let reclaim = builder.next_block_id();
                         // Invoke landings must stay distinct and exclusive:
                         // both converge on the shared fault edge through
                         // dedicated jump blocks.
-                        let reclaim_normal = jump_landing(builder, fault_landing)?;
-                        let reclaim_fault = jump_landing(builder, fault_landing)?;
-                        let mut reclaim_block = BasicBlock::new(reclaim);
-                        reclaim_block.set_terminator(MirInstruction::Invoke {
-                            operation: InvokeOperation::ReclaimUnpublished {
-                                object: child,
-                                value: allocation,
-                            },
-                            fault_frame,
-                            normal_landing: reclaim_normal,
-                            fault_landing: reclaim_fault,
-                        });
-                        builder
-                            .function_state
-                            .current_function
-                            .as_mut()
-                            .ok_or_else(|| fault("no-function"))?
-                            .add_block(reclaim_block);
+                        let reclaim = {
+                            // Birth-fault cleanup runs newest-first: each
+                            // sealed `ArrayBox` residence releases before
+                            // the unpublished child storage is reclaimed.
+                            let tail = builder.next_block_id();
+                            let tail_normal = jump_landing(builder, fault_landing)?;
+                            let tail_fault = jump_landing(builder, fault_landing)?;
+                            let mut tail_block = BasicBlock::new(tail);
+                            tail_block.set_terminator(MirInstruction::Invoke {
+                                operation: InvokeOperation::ReclaimUnpublished {
+                                    object: child,
+                                    value: allocation,
+                                },
+                                fault_frame,
+                                normal_landing: tail_normal,
+                                fault_landing: tail_fault,
+                            });
+                            builder
+                                .function_state
+                                .current_function
+                                .as_mut()
+                                .ok_or_else(|| fault("no-function"))?
+                                .add_block(tail_block);
+                            let mut head = tail;
+                            for field in teardown.iter().rev() {
+                                let block = builder.next_block_id();
+                                let normal = jump_landing(builder, head)?;
+                                let fault_edge = jump_landing(builder, head)?;
+                                let mut step = BasicBlock::new(block);
+                                step.set_terminator(MirInstruction::Invoke {
+                                    operation:
+                                        InvokeOperation::OwnedFieldResidenceRelease {
+                                            field: *field,
+                                            base: allocation,
+                                        },
+                                    fault_frame,
+                                    normal_landing: normal,
+                                    fault_landing: fault_edge,
+                                });
+                                builder
+                                    .function_state
+                                    .current_function
+                                    .as_mut()
+                                    .ok_or_else(|| fault("no-function"))?
+                                    .add_block(step);
+                                head = block;
+                            }
+                            head
+                        };
                         let store_entry = builder.next_block_id();
                         let effects = recipe.physical_effect_mask();
                         let MirInstruction::Call(call) = MirInstruction::call(
@@ -230,7 +290,7 @@ impl CallableSemanticLoweringState {
                             allocation,
                             arg_pairs,
                         )?;
-                        object_child = Some(child);
+                        object_child = Some((child, teardown));
                         provider_birth = Some((provider_normal, reclaim));
                     }
                 }
@@ -261,39 +321,64 @@ impl CallableSemanticLoweringState {
             .current_block
             .ok_or_else(|| fault("no-block"))?;
         let normal = builder.next_block_id();
-        let (operation, store_fault_landing) = match object_child {
-            Some(child) => {
+        let (operation, store_fault_landing) = match &object_child {
+            Some((child, teardown)) => {
                 // The checked object-field store consumes the child lease
-                // on both edges: a faulted store discharges the in-flight
-                // child with its own plain-object release before landing
-                // on the shared fault edge.
-                let discharge = builder.next_block_id();
-                let discharge_normal = jump_landing(builder, fault_landing)?;
-                let discharge_fault = jump_landing(builder, fault_landing)?;
+                // on both edges: a faulted store releases each sealed
+                // `ArrayBox` residence newest-first, then discharges the
+                // in-flight child with its own release — the child was
+                // never installed, so reclaiming it through the parent
+                // slot would release the wrong object.
+                let tail = builder.next_block_id();
+                let tail_normal = jump_landing(builder, fault_landing)?;
+                let tail_fault = jump_landing(builder, fault_landing)?;
                 let function = builder
                     .function_state
                     .current_function
                     .as_mut()
                     .ok_or_else(|| fault("no-function"))?;
-                let mut block = BasicBlock::new(discharge);
-                block.set_terminator(MirInstruction::Invoke {
+                let mut tail_block = BasicBlock::new(tail);
+                tail_block.set_terminator(MirInstruction::Invoke {
                     operation: InvokeOperation::HomeRelease {
-                        object: child,
+                        object: *child,
                         value,
                     },
                     fault_frame,
-                    normal_landing: discharge_normal,
-                    fault_landing: discharge_fault,
+                    normal_landing: tail_normal,
+                    fault_landing: tail_fault,
                 });
-                function.add_block(block);
+                function.add_block(tail_block);
+                let mut head = tail;
+                for field in teardown.iter().rev() {
+                    let step_id = builder.next_block_id();
+                    let normal_step = jump_landing(builder, head)?;
+                    let fault_step = jump_landing(builder, head)?;
+                    let function = builder
+                        .function_state
+                        .current_function
+                        .as_mut()
+                        .ok_or_else(|| fault("no-function"))?;
+                    let mut step = BasicBlock::new(step_id);
+                    step.set_terminator(MirInstruction::Invoke {
+                        operation: InvokeOperation::OwnedFieldResidenceRelease {
+                            field: *field,
+                            base: value,
+                        },
+                        fault_frame,
+                        normal_landing: normal_step,
+                        fault_landing: fault_step,
+                    });
+                    function.add_block(step);
+                    head = step_id;
+                }
                 (
                     InvokeOperation::ObjectFieldSet {
                         field: store.field,
                         base,
                         value,
-                        child,
+                        child: *child,
                     },
-                    discharge,
+                    head,
                 )
             }
             None => (
@@ -323,6 +408,10 @@ impl CallableSemanticLoweringState {
                     birth_call,
                     reclaim,
                     store_discharge: store_fault_landing,
+                    owned_fields: object_child
+                        .as_ref()
+                        .map(|(_, fields)| fields.iter().rev().copied().collect())
+                        .unwrap_or_default(),
                 }
             }),
         };

@@ -86,13 +86,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         .transpose()?;
     let mut claims = Vec::new();
     let mut result_claims = Vec::new();
-    // Owned field children per canonical object: `Some` means every
-    // residence-capable declared field has a sealed birth-side residence,
-    // `None` means the disposition needs children the package never proved.
-    let mut owned_field_children: BTreeMap<
-        hakorune_mir_defs::CanonicalObjectIdV1,
-        Option<Box<[OwnedFieldChildV1]>>,
-    > = BTreeMap::new();
     let mut seeds = super::super::result_contract::VerifiedCallableResultContractBuilderV1::new();
     let mut root_completion = None;
     let mut field_reads = BTreeMap::new();
@@ -103,10 +96,17 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     let mut receiver_call_observations = BTreeMap::new();
     let mut birth_site_index = BTreeMap::new();
     let mut borrowed_formal_actuals = BTreeMap::new();
-    let (field_write_claims, field_residences, callable_result_classes) =
-        source_claims::prepare_source_claims(
-            batch, selected, instance_constructors, parameter_contracts,
-        )?;
+    // Owned field children per canonical object: `Some` means every
+    // residence-capable declared field has a sealed birth-side residence,
+    // `None` means the disposition needs children the package never proved.
+    let (
+        field_write_claims,
+        field_residences,
+        callable_result_classes,
+        mut owned_field_children,
+    ) = source_claims::prepare_source_claims(
+        batch, selected, instance_constructors, parameter_contracts,
+    )?;
     let dynamic_slot = match dynamic {
         super::super::model::NormalCallableDynamicProjectionV1::Selected { batch_slot, .. } => {
             Some(*batch_slot)

@@ -299,6 +299,20 @@ impl OrdinaryNewClaimLedgerV1 {
         ))
     }
 
+    /// The sealed owned-field inventory of one canonical object. Rows
+    /// exist for admitted owned-disposition objects and for nested
+    /// `OwnedArrayFieldsNoHook` provider children sealed through their
+    /// parent claims; `Some(None)` marks an owned object whose residences
+    /// stayed unproven — consumers must not release its slots as owned.
+    pub(crate) fn owned_field_children_for(
+        &self,
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
+    ) -> Option<Option<&[OwnedFieldChildV1]>> {
+        self.owned_field_children
+            .get(&object)
+            .map(|children| children.as_deref())
+    }
+
     /// Class provenance for `me.f` reads: the agreed `new` class of field
     /// `field` on `owner_box`, when every package write to that field is an
     /// attributed `me.` write of one ordinary box.

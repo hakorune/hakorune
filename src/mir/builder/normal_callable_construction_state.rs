@@ -73,11 +73,17 @@ pub(super) enum StoreProgress {
 pub(super) struct ProviderBirthEmission {
     /// Block whose terminator is `Invoke{Call{BirthConstructor}}`.
     birth_call: BasicBlockId,
-    /// Block whose terminator is `Invoke{ReclaimUnpublished}` on the child.
+    /// Head of the birth-fault cleanup chain: one
+    /// `Invoke{OwnedFieldResidenceRelease}` block per `owned_fields`
+    /// entry (emitted order), then the `Invoke{ReclaimUnpublished}` tail
+    /// — with no owned fields the head is the reclaim tail itself.
     reclaim: BasicBlockId,
-    /// Block whose terminator is `Invoke{HomeRelease}` on the child,
-    /// reached when the checked object-field store faults.
+    /// Head of the store-fault discharge chain under the same layout,
+    /// ending in the `Invoke{HomeRelease}` tail.
     store_discharge: BasicBlockId,
+    /// The child's sealed `ArrayBox` residences in emitted teardown
+    /// order (reverse declaration order). Empty for a plain child.
+    owned_fields: Box<[CanonicalFieldRefV1]>,
 }
 
 #[derive(Debug)]

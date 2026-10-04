@@ -68,8 +68,13 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       fprintf(f, "  %%new%u = alloca i64, align 8\n", lv4_u(block, "id"));
     if (op && lv4_is(op, "kind", "field_residence_release"))
       fprintf(f, "  %%fr_read%u = alloca i64, align 8\n", lv4_u(block, "id"));
-    if (op && lv4_is(op, "kind", "object_field_release"))
+    if (op && lv4_is(op, "kind", "object_field_release")) {
+      yyjson_val* child = lv4_layout(in, lv4_u(op, "child_object_id"));
+      yyjson_val* marks = child ? yyjson_obj_get(child, "owned_residences") : NULL;
       fprintf(f, "  %%ofr_read%u = alloca i64, align 8\n", lv4_u(block, "id"));
+      for (size_t ni = 0; ni < yyjson_arr_size(marks); ni++)
+        fprintf(f, "  %%ofr_nread%u_%zu = alloca i64, align 8\n", lv4_u(block, "id"), ni);
+    }
     /* A nested i64 call writes through a caller-local slot; the callee's
        own %%out_i64 remains reserved for this function's result. */
     if (ordinary && lv4_is(op, "kind", "ordinary_call") &&
@@ -456,11 +461,15 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         continue;
       }
       if (lv4_is(op, "kind", "object_field_release")) {
-        /* Owned user-object field: read the slot, then release the live
-           child with `home_release_plain_i64` under the child's own type
-           id — S0 children are scalar-only, so their teardown is the
-           plain Home release itself. The child's status drives this op's
-           fault edge; a failed slot read is contract violation. */
+        /* Owned user-object field: read the slot, then under the live
+           child release each `owned_residences` slot of the child's own
+           layout — newest-first — before the child's plain Home release.
+           A plain child carries an empty mark list and keeps the plain
+           release unchanged. The child's status drives this op's fault
+           edge; a failed slot read is contract violation. */
+        yyjson_val* child = lv4_layout(in, lv4_u(op, "child_object_id"));
+        yyjson_val* marks = child ? yyjson_obj_get(child, "owned_residences") : NULL;
+        size_t nested = yyjson_arr_size(marks);
         fprintf(f,
             "  %%ofr_get%u = call i32 @\"nyash.object.checked_field_get_i64_v1\"(i32 %u, i64 %%v%u, i64 %lld, i64 %d, ptr %%ofr_read%u)\n"
             "  %%ofr_ok%u = icmp eq i32 %%ofr_get%u, 0\n"
@@ -470,12 +479,36 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         fprintf(f,
             "  %%ofr_val%u = load i64, ptr %%ofr_read%u, align 8\n"
             "  %%ofr_live%u = icmp ne i64 %%ofr_val%u, 0\n"
-            "  br i1 %%ofr_live%u, label %%ofr_rel%u, label %%ofr_done%u\nofr_rel%u:\n"
+            "  br i1 %%ofr_live%u, label %%ofr_rel%u, label %%ofr_done%u\nofr_rel%u:\n",
+            b, b, b, b, b, b, b, b);
+        for (size_t ni = nested; ni > 0; ni--) {
+          size_t idx = ni - 1;
+          int slot = lv4_layout_slot(child,
+              (uint32_t)yyjson_get_uint(yyjson_arr_get(marks, idx)));
+          fprintf(f,
+              "  %%ofr_nget%u_%zu = call i32 @\"nyash.object.checked_field_get_i64_v1\"(i32 %u, i64 %%ofr_val%u, i64 %lld, i64 %d, ptr %%ofr_nread%u_%zu)\n",
+              b, idx, in->profile, b,
+              (long long)lv4_u(child, "runtime_type_id"), slot, b, idx);
+          fprintf(f,
+              "  %%ofr_nok%u_%zu = icmp eq i32 %%ofr_nget%u_%zu, 0\n"
+              "  br i1 %%ofr_nok%u_%zu, label %%ofr_nstep%u_%zu, label %%invalid\nofr_nstep%u_%zu:\n",
+              b, idx, b, idx, b, idx, b, idx, b, idx);
+          fprintf(f,
+              "  %%ofr_nval%u_%zu = load i64, ptr %%ofr_nread%u_%zu, align 8\n"
+              "  %%ofr_nlive%u_%zu = icmp ne i64 %%ofr_nval%u_%zu, 0\n"
+              "  br i1 %%ofr_nlive%u_%zu, label %%ofr_nrel%u_%zu, label %%ofr_ndone%u_%zu\nofr_nrel%u_%zu:\n",
+              b, idx, b, idx, b, idx, b, idx, b, idx, b, idx, b, idx, b, idx);
+          fprintf(f,
+              "  call void @nyrt_handle_release_h(i64 %%ofr_nval%u_%zu)\n"
+              "  br label %%ofr_ndone%u_%zu\nofr_ndone%u_%zu:\n",
+              b, idx, b, idx, b, idx);
+        }
+        fprintf(f,
             "  %%ofr_status%u = call i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%ofr_val%u, i64 %lld)\n"
             "  switch i32 %%ofr_status%u, label %%invalid [ i32 0, label %%ofr_done%u i32 1, label %%%s ]\nofr_done%u:\n"
             "  br label %%%s\n",
-            b, b, b, b, b, b, b, b, b, in->profile, site, b,
-            (long long)lv4_u(lv4_layout(in, lv4_u(op, "child_object_id")), "runtime_type_id"),
+            b, in->profile, site, b,
+            (long long)lv4_u(child, "runtime_type_id"),
             b, b, fault_label, b, normal_label);
         continue;
       }
@@ -546,17 +579,10 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         fprintf(f, "@\"nyash.object.checked_field_set_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, i64 %%v%u)\n",
             in->profile, site, lv4_u(op, "base"), (long long)lv4_type_id(in, op), lv4_slot(in, op), lv4_u(op, "value"));
         /* The child lease moves into the slot only on Normal; a faulted
-           store discharges the in-flight child with the child's own
-           plain-object release before joining the shared fault edge. */
-        fprintf(f,
-            "  switch i32 %%status%u, label %%invalid [ i32 0, label %%%s i32 1, label %%ofs_fault%u ]\n"
-            "ofs_fault%u:\n"
-            "  %%ofs_rel%u = call i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld)\n"
-            "  br label %%%s\n",
-            b, normal_label, b, b, b, in->profile, site, lv4_u(op, "value"),
-            (long long)lv4_u(lv4_layout(in, lv4_u(op, "child_object_id")), "runtime_type_id"),
-            fault_label);
-        continue;
+           store lands on the op's own fault edge where the MIR discharge
+           chain — sealed residence releases newest-first, then the
+           child's Home — is the sole physical owner of the in-flight
+           cleanup. No inline discharge here. */
       } else {
         fprintf(f, "@\"nyash.object.%s_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld)\n",
             lv4_is(op, "kind", "home_release") || lv4_is(op, "kind", "home_release_if_live")

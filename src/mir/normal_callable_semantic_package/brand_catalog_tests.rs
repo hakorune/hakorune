@@ -896,8 +896,49 @@ fn ordinary_new_owned_object_children_seal_in_declaration_order() {
     );
 }
 
+/// A child owning sealed `ArrayBox` residences is the admitted bounded
+/// nesting: `child: OwnChild = new OwnChild()` seals an `Object` child
+/// while the child's own teardown inventory lands in the ledger —
+/// releasing its slots is sound exactly while every residence is a
+/// proven provider store.
+#[test]
+fn ordinary_new_owned_nested_array_child_seals() {
+    use crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1;
+    let package = issue_with_brand_catalog(
+        "box OwnChild {
+            items: ArrayBox = new ArrayBox()
+            birth() { }
+        }
+        box Parent {
+            child: OwnChild = new OwnChild()
+            birth() { }
+        }
+        static box Main { main() { local item = new Parent() return 0 } }",
+    )
+    .expect("nested owned-array package");
+    let rows = package
+        .ordinary_new_claim_ledger
+        .pending_claims_for_test();
+    let claims: Vec<_> = rows
+        .values()
+        .filter(|claim| claim.class() == "Parent")
+        .collect();
+    let [claim] = claims.as_slice() else {
+        panic!("one Parent claim, got {claims:?}")
+    };
+    let children = claim.children().expect("proven owned residences");
+    let [child] = children.as_ref() else {
+        panic!("one Object child, got {children:?}")
+    };
+    assert!(
+        matches!(child.kind, OwnedFieldChildKindV1::Object(_)),
+        "owned-array child seals as an Object child, got {child:?}"
+    );
+}
+
 /// The user-object residence proof stays fail-closed: missing or ambiguous
-/// birth stores, a wrong-class store, a non-`PlainI64NoHook` child, and a
+/// birth stores, a wrong-class store, a child deeper than the bounded
+/// owned-`ArrayBox` level or with unproven nested residences, and a
 /// self-referential field each leave `children` unsealed — the lifecycle
 /// gate refuses the teardown rather than guessing a release shape.
 #[test]
@@ -917,10 +958,17 @@ fn ordinary_new_owned_object_children_stay_unproven_on_rejected_evidence() {
         ),
         // The sole birth store must write exactly the declared class.
         ("wrong-class", "child: Child = new Other()\nbirth() { }"),
-        // S0 admits only `PlainI64NoHook` children — deeper teardown waits.
+        // A child owning a user-object field is deeper than the bounded
+        // owned-`ArrayBox` nesting level.
         (
-            "non-plain-child",
-            "child: OwnChild = new OwnChild()\nbirth() { }",
+            "deeper-child",
+            "child: DeepChild = new DeepChild()\nbirth() { }",
+        ),
+        // A child whose own `ArrayBox` residence never proved a birth
+        // provider keeps the whole nested claim unsealed.
+        (
+            "unproven-nested",
+            "child: HalfChild = new HalfChild()\nbirth() { }",
         ),
         // A field of the enclosing class can never terminate in S0.
         ("self", "child: Parent = new Parent()\nbirth() { }"),
@@ -928,7 +976,8 @@ fn ordinary_new_owned_object_children_stay_unproven_on_rejected_evidence() {
         let source = format!(
             "box Child {{ v: i64 = 0\nbirth() {{ }} }}
             box Other {{ v: i64 = 0\nbirth() {{ }} }}
-            box OwnChild {{ items: ArrayBox = new ArrayBox()\nbirth() {{ }} }}
+            box DeepChild {{ inner: Child = new Child()\nbirth() {{ }} }}
+            box HalfChild {{ items: ArrayBox\nbirth() {{ }} }}
             box Parent {{ {members} }}
             static box Main {{ main() {{ local item = new Parent() return 0 }} }}"
         );

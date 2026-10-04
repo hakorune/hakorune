@@ -107,6 +107,10 @@ pub(super) fn prepare_source_claims(
         field_write_claim::OrdinaryNewFieldWriteClaimsV1,
         field_write_claim::OwnedFieldResidencesV1,
         result_class_claim::OrdinaryNewResultClassClaimsV1,
+        BTreeMap<
+            hakorune_mir_defs::CanonicalObjectIdV1,
+            Option<Box<[OwnedFieldChildV1]>>,
+        >,
     ),
     OrdinaryNewCoSealIssueV1,
 > {
@@ -168,6 +172,17 @@ pub(super) fn prepare_source_claims(
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
     let (field_write_claims, field_residences) =
         field_write_draft.finish(batch.ordinary_box_coverage());
+    // A provider `new` mints no `local`-bound claim, so its child's
+    // owned-field inventory would never reach the ledger through a claim.
+    // Seal it here against the same residences; unproven children stay
+    // explicitly unadmitted for every cleanup consumer.
+    let mut owned_field_children = BTreeMap::new();
+    seal_provider_owned_children_v1(
+        batch,
+        instance_constructors,
+        &field_residences,
+        &mut owned_field_children,
+    )?;
     let callable_result_classes = result_class_draft.finish(
         batch.ordinary_box_coverage(),
         batch,
@@ -179,6 +194,7 @@ pub(super) fn prepare_source_claims(
         field_write_claims,
         field_residences,
         callable_result_classes,
+        owned_field_children,
     ))
 }
 
@@ -248,6 +264,7 @@ pub(super) fn append_source_claims(
             &box_source,
             destruction,
             &field_residences,
+            owned_field_children,
         )?;
         if matches!(
             destruction,
@@ -329,6 +346,7 @@ pub(super) fn append_source_claims(
             &box_source,
             destruction,
             &field_residences,
+            owned_field_children,
         )?;
         if matches!(
             destruction,
@@ -363,107 +381,6 @@ pub(super) fn append_source_claims(
         });
     }
     Ok(())
-}
-
-/// Prove the owned field children of one canonical object.
-/// `OwnedArrayFieldsNoHook`/`OwnedObjectFieldsNoHook` objects carry their
-/// residence-capable declared fields in declaration order only when each
-/// field has a sealed birth-side residence whose written class equals the
-/// declared type. A user-object child must additionally resolve to a
-/// `PlainI64NoHook` object — deeper teardown stays unadmitted for S0.
-/// Any unproven field — or a missing object definition — yields `None`,
-/// which every consumer treats as unadmitted, never silently plain.
-fn owned_field_children_of(
-    site: &OwnedExprSiteV1,
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
-    instance_constructors: &crate::mir::normal_callable_semantic_package::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
-    box_source: &crate::parser::ParserOrdinaryBoxSourceRowV1,
-    destruction: crate::mir::function::ObjectDestructionDispositionV1,
-    residences: &field_write_claim::OwnedFieldResidencesV1,
-) -> Result<Option<Box<[OwnedFieldChildV1]>>, OrdinaryNewCoSealIssueV1> {
-    use crate::mir::function::ObjectDestructionDispositionV1;
-    if !matches!(
-        destruction,
-        ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
-            | ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
-    ) {
-        return Ok(None);
-    }
-    instance_constructors
-        .with_source_object_definition(box_source, |object, definition| {
-            let mut children = Vec::new();
-            for (ordinal, field) in definition.fields().iter().enumerate() {
-                let declared = field.declared_type_name.as_deref();
-                if declared
-                    .and_then(
-                        crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type,
-                    )
-                    .is_some()
-                {
-                    continue;
-                }
-                let key = (
-                    box_source.name().into(),
-                    field.name.clone().into_boxed_str(),
-                );
-                let Some(residence) = residences.get(&key) else {
-                    return None;
-                };
-                let class: &str = match residence {
-                    field_write_claim::OwnedFieldResidenceV1::Provider(class) => {
-                        class.as_ref()
-                    }
-                    // A provided store names no class at the write site;
-                    // the declared field type is the sole authority and
-                    // it must be a user class — builtin/`ArrayBox` fields
-                    // keep their provider-only boundary.
-                    field_write_claim::OwnedFieldResidenceV1::Provided => {
-                        let name = declared?;
-                        if name == "ArrayBox" || crate::box_trait::is_builtin_box(name) {
-                            return None;
-                        }
-                        name
-                    }
-                };
-                // The sole birth write must store the declared class
-                // exactly — a proven residence of a different class does
-                // not satisfy the typed field.
-                if declared != Some(class) {
-                    return None;
-                }
-                let field_ref = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
-                    object, ordinal,
-                )
-                .expect("declared field ordinal resolves canonically");
-                let kind = if class == "ArrayBox" {
-                    OwnedFieldChildKindV1::Array
-                } else {
-                    let child_source = match batch.ordinary_box_coverage().row_for(class) {
-                        Ok(Some(row)) => row,
-                        _ => return None,
-                    };
-                    let child = match instance_constructors.destruction_for(child_source) {
-                        Ok((child, ObjectDestructionDispositionV1::PlainI64NoHook))
-                            if child != object =>
-                        {
-                            child
-                        }
-                        _ => return None,
-                    };
-                    OwnedFieldChildKindV1::Object(child)
-                };
-                children.push(OwnedFieldChildV1 {
-                    field: field_ref,
-                    kind,
-                });
-            }
-            Some(children.into_boxed_slice())
-        })
-        .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
-            site: site.clone(),
-            class: box_source.name().into(),
-            error,
-        })
 }
 
 /// Admit one `new` construction site into the destination-less birth index
@@ -516,6 +433,10 @@ pub(super) fn collect_birth_site_index_v1(
 #[path = "ordinary_new_coseal_issue_source_field_batch.rs"]
 mod field_batch;
 pub(super) use field_batch::{prove_local_field_read_batch, stage_local_field_read_batch};
+
+#[path = "ordinary_new_coseal_issue_source_owned_children.rs"]
+mod owned_children;
+use owned_children::{owned_field_children_of, seal_provider_owned_children_v1};
 
 #[cfg(test)]
 #[path = "ordinary_new_field_batch_tests.rs"]

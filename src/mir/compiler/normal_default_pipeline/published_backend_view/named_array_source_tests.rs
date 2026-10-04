@@ -344,11 +344,16 @@ fn provider_construction_store_rejects_foreign_shapes() {
                 "box Holder { free_stack: ArrayBox = new StringBox() birth() { } seed() { } } static box Main { main() { return 1 } }",
                 "FieldContractUnsupported",
             ),
-            // A user-box provider is admitted only when the child is
-            // `PlainI64NoHook`; a child owning an ArrayBox field needs the
-            // deeper teardown lane and still fails plan admission.
+            // A user-box provider child deeper than one owned `ArrayBox`
+            // level — here a child owning a user-object field itself —
+            // stays outside the bounded teardown bound.
             (
-                "box Inner { items: ArrayBox = new ArrayBox() birth() { } } box Holder { inner: Inner = new Inner() birth() { } seed() { } } static box Main { main() { return 1 } }",
+                "box Leaf { items: ArrayBox = new ArrayBox() birth() { } } box Inner { leaf: Leaf = new Leaf() birth() { } } box Holder { inner: Inner = new Inner() birth() { } seed() { } } static box Main { main() { return 1 } }",
+                "FieldContractUnsupported",
+            ),
+            // A provider can never construct the enclosing object itself.
+            (
+                "box Holder { inner: Holder = new Holder() birth() { } seed() { } } static box Main { main() { return 1 } }",
                 "FieldContractUnsupported",
             ),
             // The provider must construct exactly the declared class.
@@ -433,6 +438,45 @@ fn user_object_provider_construction_reaches_artifact_lane() {
                     let field_sets = instructions().filter(|i| matches!(i,
                         MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ObjectFieldSet { .. }, .. })).count();
                     assert_eq!(field_sets, 1, "provider store is the checked ObjectFieldSet");
+                    let reclaims = instructions().filter(|i| matches!(i,
+                        MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ReclaimUnpublished { .. }, .. })).count();
+                    assert_eq!(reclaims, 1, "birth fault reclaims the unpublished child");
+                    let discharges = instructions().filter(|i| matches!(i,
+                        MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::HomeRelease { .. }, .. })).count();
+                    assert_eq!(discharges, 1, "store fault discharges the child");
+                    Ok(())
+                },
+            ).unwrap_or_else(|error| panic!("optimize={optimize}: {error:?}"));
+            assert_eq!(calls, 1);
+        }
+        });
+    });
+}
+
+/// Owned-array provider child: `inner: Inner = new Inner()` where `Inner`
+/// owns a sealed `ArrayBox` residence admits the bounded nested teardown —
+/// each in-flight cleanup chain releases the child's residences
+/// newest-first before the child storage itself.
+#[test]
+fn provider_owned_array_child_reaches_artifact_lane() {
+    run_on_test_thread("provider-owned-array-child", || {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        field_resident_env(|| {
+        let source = "box Inner { items: ArrayBox = new ArrayBox() birth() { } } box Holder { inner: Inner = new Inner() birth() { } seed() { } } static box Main { main() { return 1 } }";
+        for optimize in [false, true] {
+            let mut calls = 0;
+            MirCompiler::with_options(optimize).compile_normal_with_published(
+                published_request(source),
+                |view, verification| -> Result<(), String> {
+                    calls += 1;
+                    assert!(verification.is_ok(), "{verification:?}");
+                    let instructions = || {
+                        view.module().functions.values().flat_map(|f| f.blocks.values())
+                            .flat_map(|b| b.all_instructions())
+                    };
+                    let residences = instructions().filter(|i| matches!(i,
+                        MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::OwnedFieldResidenceRelease { .. }, .. })).count();
+                    assert_eq!(residences, 2, "one residence release on each cleanup chain");
                     let reclaims = instructions().filter(|i| matches!(i,
                         MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ReclaimUnpublished { .. }, .. })).count();
                     assert_eq!(reclaims, 1, "birth fault reclaims the unpublished child");

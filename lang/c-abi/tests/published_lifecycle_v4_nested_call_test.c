@@ -82,6 +82,30 @@ int main(void) {
   assert(fgetc(output) != EOF);
   assert(fclose(output) == 0);
 
+  /* Installed-object teardown: object 7 stores an owned-array child 8
+   * whose layout row marks its sole ArrayBox residence. The
+   * object_field_release consumer must emit the nested walk — read the
+   * child's marked slot, release the live residence, then release the
+   * child storage — inside one checked step. */
+  const char* nested_release =
+      "{\"schema\":\"hako.published-lifecycle-physical-program.v2\",\"fault_abi_version\":1,\"storage_profile\":1,\"process_result_site\":99,\"functions\":["
+      "{\"name\":\"main\",\"role\":\"root_i64\",\"receiver\":null,\"receiver_object\":null,\"params\":[],\"entry\":0,\"blocks\":["
+      "{\"id\":0,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"fault_frame_enter\",\"dst\":1,\"mode\":\"root_owned\"}}],\"terminator\":{\"index\":1,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"new_box\",\"object_id\":7,\"site\":0},\"fault_frame\":1,\"normal\":1,\"fault\":9}},\"edges\":[{\"target\":1,\"args\":null},{\"target\":9,\"args\":null}]},"
+      "{\"id\":1,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"invoke_normal_result\",\"invoke_block\":0,\"dst\":2}}],\"terminator\":{\"index\":1,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"object_field_release\",\"object_id\":7,\"field_ordinal\":0,\"base\":2,\"child_object_id\":8,\"site\":1},\"fault_frame\":1,\"normal\":2,\"fault\":10}},\"edges\":[{\"target\":2,\"args\":null},{\"target\":10,\"args\":null}]},"
+      "{\"id\":2,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"home_release\",\"object_id\":7,\"value\":2,\"site\":2},\"fault_frame\":1,\"normal\":5,\"fault\":9}},\"edges\":[{\"target\":5,\"args\":null},{\"target\":9,\"args\":null}]},"
+      "{\"id\":5,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"const_i64\",\"dst\":4,\"value\":0}}],\"terminator\":{\"index\":1,\"instruction\":{\"op\":\"return\",\"value\":4}},\"edges\":[]},"
+      "{\"id\":9,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return_fault\",\"fault_frame\":1}},\"edges\":[]},"
+      "{\"id\":10,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"home_release\",\"object_id\":7,\"value\":2,\"site\":3},\"fault_frame\":1,\"normal\":9,\"fault\":9}},\"edges\":[{\"target\":9,\"args\":null},{\"target\":9,\"args\":null}]}]}"
+      "],\"layouts\":[{\"object_id\":7,\"runtime_type_id\":7,\"field_count\":1,\"fields\":[{\"declaration_ordinal\":0,\"runtime_slot\":0,\"storage_kind\":1}],\"owned_residences\":[]},{\"object_id\":8,\"runtime_type_id\":8,\"field_count\":1,\"fields\":[{\"declaration_ordinal\":0,\"runtime_slot\":0,\"storage_kind\":1}],\"owned_residences\":[0]}]}";
+  error = NULL;
+  rc = compile(&session, nested_release, &error);
+  assert(rc == 0);
+  assert(error == NULL);
+  output = fopen(output_path, "rb");
+  assert(output);
+  assert(fgetc(output) != EOF);
+  assert(fclose(output) == 0);
+
   /* The same nested shape with the helper's invoke_block pointer moved to a
    * non-invoke block is a parser-level malformed relation. */
   char* malformed = replace_once(nested,
@@ -131,7 +155,7 @@ int main(void) {
       "{\"id\":2,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return_fault\",\"fault_frame\":1}},\"edges\":[]}]},"
       "{\"name\":\"inner\",\"role\":\"ordinary_i64\",\"receiver\":null,\"receiver_object\":null,\"params\":[],\"entry\":0,\"blocks\":["
       "{\"id\":0,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"fault_frame_enter\",\"dst\":1,\"mode\":\"borrowed\"}},{\"index\":1,\"instruction\":{\"op\":\"const_i64\",\"dst\":2,\"value\":7}}],\"terminator\":{\"index\":2,\"instruction\":{\"op\":\"return\",\"value\":2}},\"edges\":[]}]}],"
-      "\"layouts\":[{\"object_id\":7,\"runtime_type_id\":7,\"field_count\":0,\"fields\":[]}]}";
+      "\"layouts\":[{\"object_id\":7,\"runtime_type_id\":7,\"field_count\":0,\"fields\":[],\"owned_residences\":[]}]}";
   error = NULL;
   rc = compile(&session, birth_caller, &error);
   assert(rc != 0);

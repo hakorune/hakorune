@@ -34,7 +34,7 @@ int main(void) {
       "{\"id\":6,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return_fault\",\"fault_frame\":1}},\"edges\":[]}]},"
       "{\"name\":\"Pair.sum\",\"role\":\"ordinary_i64\",\"receiver\":0,\"receiver_object\":%u,\"params\":[],\"entry\":0,\"blocks\":["
       "{\"id\":0,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"fault_frame_enter\",\"dst\":1,\"mode\":\"borrowed\"}},{\"index\":1,\"instruction\":{\"op\":\"const_i64\",\"dst\":2,\"value\":42}}],\"terminator\":{\"index\":2,\"instruction\":{\"op\":\"return\",\"value\":2}},\"edges\":[]}] }"
-      "],\"layouts\":[{\"object_id\":7,\"runtime_type_id\":7,\"field_count\":0,\"fields\":[]},{\"object_id\":8,\"runtime_type_id\":8,\"field_count\":0,\"fields\":[]}]}";
+      "],\"layouts\":[{\"object_id\":7,\"runtime_type_id\":7,\"field_count\":0,\"fields\":[],\"owned_residences\":[]},{\"object_id\":8,\"runtime_type_id\":8,\"field_count\":0,\"fields\":[],\"owned_residences\":[]}]}";
   assert(snprintf(json, sizeof(json), json_template, 8u) > 0);
   write_input(json);
   remove(output_path);

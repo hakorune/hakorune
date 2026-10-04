@@ -158,6 +158,13 @@ pub(crate) struct PublishedLifecyclePhysicalObjectLayoutV1 {
     runtime_type_id: u32,
     field_count: u32,
     fields: Box<[PublishedLifecyclePhysicalFieldLayoutV1]>,
+    /// Declaration ordinals of this object's owned `ArrayBox` residences,
+    /// in declaration order — the same declaration rows the destruction
+    /// disposition and residence seal classify. The physical release
+    /// consumer walks them newest-first before the object Home; a plain
+    /// object carries an empty list. Placement is untouched: no slot or
+    /// storage kind changes here.
+    owned_residences: Box<[u32]>,
 }
 
 impl PublishedLifecyclePhysicalObjectLayoutV1 {
@@ -172,6 +179,9 @@ impl PublishedLifecyclePhysicalObjectLayoutV1 {
     }
     pub(crate) fn fields(&self) -> &[PublishedLifecyclePhysicalFieldLayoutV1] {
         &self.fields
+    }
+    pub(crate) fn owned_residences(&self) -> &[u32] {
+        &self.owned_residences
     }
 }
 
@@ -389,11 +399,27 @@ impl<'module> PublishedMirBackendView<'module> {
                     })
                 })
                 .collect::<Result<Vec<_>, String>>()?;
+            // The owned-residence mark is the declared `ArrayBox` field
+            // set of this exact object — the same declaration rows the
+            // destruction disposition and the sealed residence claim
+            // consume. It is a teardown inventory, not a storage fact:
+            // ordinals only, in declaration order.
+            let owned_residences = definition
+                .fields()
+                .iter()
+                .enumerate()
+                .filter(|(_, field)| {
+                    field.declared_type_name.as_deref() == Some("ArrayBox")
+                })
+                .map(|(ordinal, _)| ordinal as u32)
+                .collect::<Vec<_>>()
+                .into_boxed_slice();
             layouts.push(PublishedLifecyclePhysicalObjectLayoutV1 {
                 object_id,
                 runtime_type_id: layout.type_id,
                 field_count: layout.field_count,
                 fields: fields.into_boxed_slice(),
+                owned_residences,
             });
         }
         Ok(PublishedLifecyclePhysicalAbiInputV1 {

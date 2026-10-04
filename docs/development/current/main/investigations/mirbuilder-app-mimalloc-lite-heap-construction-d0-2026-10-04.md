@@ -190,9 +190,9 @@ designed `unsupported terminator Invoke` boundary.
 All row names have prefix `MIRBUILDER-APP-MIMALLOC-LITE-`.
 
 Selected execution row:
-`MIRBUILDER-APP-MIMALLOC-LITE-HEAP-CONSTRUCTION-SIZE-T0`.
+`MIRBUILDER-APP-MIMALLOC-LITE-HEAP-PROVIDER-CALL-ARG-S0`.
 Next semantic row:
-`MIRBUILDER-APP-MIMALLOC-LITE-HEAP-OWNED-PROVIDER-S0`.
+`MIRBUILDER-APP-MIMALLOC-LITE-HEAP-BIRTH-FIELD-CALL-S0`.
 
 1. **HEAP-CONSTRUCTION-SIZE-T0** (selected, BoxShape only). Split the
    provider emission/validation responsibilities out of
@@ -345,3 +345,70 @@ Evidence:
 Non-claims: no admitted construction shape changed; the app frontier is
 unchanged at `new HakoAllocHeap()`; no progress toward A/B/C semantics;
 structural commit kept separate.
+
+## Landed: HEAP-OWNED-PROVIDER-S0 (A)
+
+Provider `new` admits a canonical user-object child whose destruction is
+`OwnedArrayFieldsNoHook`, bounded at parent -> user-object child ->
+`ArrayBox` leaves. The existing construction plan plus owned-field
+ledger remain the proof owners; nothing mints a parallel analyzer.
+
+- Plan (`instance_construction.rs`): the child bound widens to
+  `{PlainI64NoHook, OwnedArrayFieldsNoHook}`; the store records the
+  child's declaration-order `ArrayBox` ordinals as `owned_fields`.
+- Seal (`ordinary_new_coseal_issue_source_owned_children.rs`, new 272-line
+  child of `source_claims`): `seal_provider_owned_children_v1` runs inside
+  `prepare_source_claims` against the same residence ledger a `new`
+  claim would use, because a provider site mints no `local`-bound claim.
+  `owned_field_children_of` moves here unchanged in role; its
+  `OwnedArrayFieldsNoHook` arm admits exactly one nested level — the
+  child's own `ArrayBox` residences must all seal.
+- Emission (`emission.rs`): the provider store rejects a missing,
+  unproven or drifted ledger row (`provider-children-*`), and the
+  reclaim/discharge cleanup chains emit one
+  `OwnedFieldResidenceRelease` per sealed residence newest-first before
+  `ReclaimUnpublished`/`HomeRelease`.
+- Validation (`validation.rs`): `residence_chain` walks each cleanup
+  chain link-by-link (exact field order, base, frame, distinct
+  landings); the invoke census adds `2 * nested_releases`.
+- Wire (`physical_abi.rs`, `physical_program_json.rs`): each layout row
+  publishes `owned_residences`, declaration-ordinals derived from the
+  same field authority as the disposition; the physical validator
+  requires the key and admits only strictly ascending in-range ordinals.
+- Physical emit (`hako_llvmc_ffi_lifecycle_v4_emit.inc`):
+  `object_field_release` reads the child layout's marks, walks each
+  marked slot newest-first, releases the live residence, then releases
+  the child home. `object_field_set` no longer releases the child
+  inline on fault — the MIR discharge chain is the sole owner of
+  in-flight cleanup.
+- File split: the seal move keeps `ordinary_new_coseal_issue_source.rs`
+  at 664 and `ordinary_new_coseal_issue.rs` at 797 under the 800
+  boundary.
+
+Evidence:
+- `cargo test --lib construction` 29/29; focused family
+  (owned/provider/physical_json/named_array filters) green;
+  `provider` filter reproduces the recorded baseline flake
+  `source_stringbox_literal_uses_source_anchor_admission` on HEAD too.
+- Positive: `ordinary_new_owned_nested_array_child_seals` (seal),
+  `provider_owned_array_child_reaches_artifact_lane` (chain census on
+  the artifact lane, optimize on/off),
+  `installed_owned_array_child_publishes_residence_marks` (wire marks +
+  release naming).
+- Negative: deeper user-object nesting, self-reference, and unproven
+  nested residences stay `unproven`; foreign ledger rows reject as
+  `provider-children-drift`; missing rows as
+  `provider-children-missing`.
+- C: `published_lifecycle_physical_parser_preartifact_test`,
+  `published_lifecycle_v4_nested_call_test`,
+  `published_lifecycle_v4_receiver_identity_test` PASS, including a new
+  `object_field_release` + `owned_residences:[0]` emit fixture and
+  five strict-layout rejections.
+- Scope guard: A pins added; guard stops on the recorded baseline
+  `brand_catalog_tests.rs=1010` (was 961 at HEAD, already over).
+
+Non-claims: the unchanged `new HakoAllocHeap()` still stops at
+`FieldContractUnsupported` — the provider arm now reaches its
+call-argument check (B's edge) and `seedBlocks()` (C's edge); VM lane
+terminal `birth-global-legacy-stopped` is unchanged. No whole-app
+success is claimed.

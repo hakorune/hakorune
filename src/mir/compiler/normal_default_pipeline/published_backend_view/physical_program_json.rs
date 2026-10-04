@@ -135,6 +135,7 @@ pub(crate) fn emit_lifecycle_physical_abi_json(
                                 "runtime_slot": field.runtime_slot(),
                                 "storage_kind": field.storage_kind(),
                             })).collect::<Vec<_>>(),
+                            "owned_residences": layout.owned_residences(),
                         })
                     })
                     .collect(),

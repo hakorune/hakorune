@@ -153,8 +153,10 @@ pub(super) fn check_module_with_source(
                         // An owned object-field release names the field's
                         // declared user class resolved through exact object
                         // membership — never a name guess. The child must
-                        // be `PlainI64NoHook` (S0 bound) and the parent an
-                        // owned-object-fields object.
+                        // be `PlainI64NoHook` or a sealed
+                        // `OwnedArrayFieldsNoHook` (the bounded nested
+                        // bound) and the parent an owned-object-fields
+                        // object.
                         InvokeOperation::OwnedObjectFieldRelease { field, child, .. }
                             if !(module.canonical_field_definition(*field).is_some_and(
                                 |definition| {
@@ -174,8 +176,11 @@ pub(super) fn check_module_with_source(
                             ) && module
                                 .canonical_object_definition(*child)
                                 .is_some_and(|definition| {
-                                    definition.destruction_disposition()
-                                        == crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
+                                    matches!(
+                                        definition.destruction_disposition(),
+                                        crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
+                                            | crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                                    )
                                 })
                                 && module
                                     .canonical_object_definition(field.object())
@@ -194,7 +199,11 @@ pub(super) fn check_module_with_source(
                         // An object-field store names the field's declared
                         // user class resolved through exact object
                         // membership — the same authority as the release
-                        // side, never a name guess.
+                        // side, never a name guess. The child carries the
+                        // same bounded bound: `PlainI64NoHook` or a sealed
+                        // `OwnedArrayFieldsNoHook` whose residences the
+                        // in-flight discharge releases before the child
+                        // storage.
                         InvokeOperation::ObjectFieldSet { field, child, .. }
                             if !(module.canonical_field_definition(*field).is_some_and(
                                 |definition| {
@@ -214,8 +223,11 @@ pub(super) fn check_module_with_source(
                             ) && module
                                 .canonical_object_definition(*child)
                                 .is_some_and(|definition| {
-                                    definition.destruction_disposition()
-                                        == crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
+                                    matches!(
+                                        definition.destruction_disposition(),
+                                        crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
+                                            | crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                                    )
                                 })
                                 && module
                                     .canonical_object_definition(field.object())

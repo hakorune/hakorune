@@ -72,7 +72,7 @@ int main(void) {
       "{\"id\":4,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"phi\",\"dst\":9,\"inputs\":[{\"block\":3,\"value\":8}]}}],\"terminator\":{\"index\":1,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"birth_call\",\"call\":{\"target\":1,\"receiver\":3,\"args\":[{\"kind\":1,\"value\":4},{\"kind\":1,\"value\":6}],\"dst\":null}},\"fault_frame\":2,\"normal\":5,\"fault\":2}},\"edges\":[{\"target\":5,\"args\":null},{\"target\":2,\"args\":null}]},"
       "{\"id\":5,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\",\"value\":9}},\"edges\":[]}]},"
       "{\"name\":\"Pair.birth\",\"role\":\"birth_unit\",\"receiver\":0,\"receiver_object\":null,\"params\":[{\"value\":1,\"representation\":\"kind_payload_v1\"},{\"value\":2,\"representation\":\"kind_payload_v1\"}],\"entry\":0,\"blocks\":[{\"id\":0,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"fault_frame_enter\",\"dst\":3,\"mode\":\"borrowed\"}},{\"index\":1,\"instruction\":{\"op\":\"const_string\",\"dst\":4,\"value\":\"pair\"}},{\"index\":2,\"instruction\":{\"op\":\"const_unit\",\"dst\":5}},{\"index\":3,\"instruction\":{\"op\":\"birth_call\",\"call\":{\"target\":1,\"receiver\":0,\"args\":[{\"kind\":1,\"value\":1},{\"kind\":1,\"value\":2}],\"dst\":null}}}],\"terminator\":{\"index\":4,\"instruction\":{\"op\":\"return\",\"value\":5}},\"edges\":[]}] }],"
-      "\"layouts\":[{\"object_id\":7,\"runtime_type_id\":9,\"field_count\":1,\"fields\":[{\"declaration_ordinal\":0,\"runtime_slot\":0,\"storage_kind\":1}]}]}";
+      "\"layouts\":[{\"object_id\":7,\"runtime_type_id\":9,\"field_count\":1,\"fields\":[{\"declaration_ordinal\":0,\"runtime_slot\":0,\"storage_kind\":1}],\"owned_residences\":[]}]}";
   accepts(valid);
   rejects_replace(valid, "\"process_result_site\":2,", "", "schema");
   rejects_replace(valid, "\"process_result_site\":2", "\"process_result_site\":0", "diagnostic-sites");
@@ -113,6 +113,14 @@ int main(void) {
   rejects_replace(valid, "\"op\":\"const_i64\",\"dst\":1,\"value\":30", "\"op\":\"const_bool\",\"dst\":1,\"value\":1", "function-body");
   rejects_replace(valid, "\"storage_kind\":1", "\"storage_kind\":0", "abi-layout");
   rejects_replace(valid, "\"storage_kind\":1", "\"storage_kind\":2", "abi-layout");
+  /* `owned_residences` is a required exact-key layout row: its ordinals
+   * must be u32 array elements, strictly ascending and inside the row's
+   * own field_count — the release consumer walks them newest-first. */
+  rejects_replace(valid, ",\"owned_residences\":[]", "", "abi-layout");
+  rejects_replace(valid, "\"owned_residences\":[]", "\"owned_residences\":7", "abi-layout");
+  rejects_replace(valid, "\"owned_residences\":[]", "\"owned_residences\":[1]", "abi-layout");
+  rejects_replace(valid, "\"owned_residences\":[]", "\"owned_residences\":[0,0]", "abi-layout");
+  rejects_replace(valid, "\"owned_residences\":[]", "\"owned_residences\":[\"0\"]", "abi-layout");
   remove(path);
   return 0;
 }

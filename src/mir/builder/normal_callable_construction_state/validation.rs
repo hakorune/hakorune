@@ -65,6 +65,16 @@ impl ConstructionState {
                 )
             })
             .count();
+        let nested_releases: usize = stores
+            .values()
+            .map(|store| match &store.progress {
+                StoreProgress::Emitted {
+                    provider_birth: Some(birth),
+                    ..
+                } => birth.owned_fields.len(),
+                _ => 0,
+            })
+            .sum();
         let actual_count = function
             .blocks
             .values()
@@ -73,8 +83,12 @@ impl ConstructionState {
             .count();
         // A user-class provider adds three more invokes on the frame:
         // `birth_call`, the `reclaim_unpublished` on its fault edge, and the
-        // `home_release` discharge on the object-field store's fault edge.
-        if actual_count != stores.len() + provider_count + 3 * birth_providers {
+        // `home_release` discharge on the object-field store's fault edge —
+        // plus one `field_residence_release` per sealed nested residence
+        // on each of the two cleanup chains.
+        if actual_count
+            != stores.len() + provider_count + 3 * birth_providers + 2 * nested_releases
+        {
             return Err(fault("emission-count"));
         }
         let mut fault_returns = 0;
@@ -221,7 +235,18 @@ impl ConstructionState {
                     {
                         return Err(fault("provider-birth-drift"));
                     }
-                    if !matches!(function.blocks.get(&birth.reclaim).and_then(|b| b.terminator.as_ref()),
+                    // Birth-fault cleanup: each sealed `ArrayBox` residence
+                    // releases newest-first on the in-flight child handle,
+                    // then the unpublished storage is reclaimed.
+                    let reclaim_tail = residence_chain(
+                        function,
+                        birth.reclaim,
+                        &birth.owned_fields,
+                        *value,
+                        *frame,
+                    )
+                    .ok_or_else(|| fault("provider-reclaim-chain"))?;
+                    if !matches!(function.blocks.get(&reclaim_tail).and_then(|b| b.terminator.as_ref()),
                         Some(MirInstruction::Invoke {
                             operation: InvokeOperation::ReclaimUnpublished { object, value: reclaimed },
                             fault_frame,
@@ -235,7 +260,17 @@ impl ConstructionState {
                     {
                         return Err(fault("provider-reclaim-drift"));
                     }
-                    if !matches!(function.blocks.get(&birth.store_discharge).and_then(|b| b.terminator.as_ref()),
+                    // Store-fault discharge: the same residence chain on
+                    // the in-flight lease, then the child's own Home.
+                    let discharge_tail = residence_chain(
+                        function,
+                        birth.store_discharge,
+                        &birth.owned_fields,
+                        *value,
+                        *frame,
+                    )
+                    .ok_or_else(|| fault("provider-discharge-chain"))?;
+                    if !matches!(function.blocks.get(&discharge_tail).and_then(|b| b.terminator.as_ref()),
                         Some(MirInstruction::Invoke {
                             operation: InvokeOperation::HomeRelease { object, value: released },
                             fault_frame,
@@ -290,8 +325,69 @@ fn lands_on(
     landing: BasicBlockId,
     target: BasicBlockId,
 ) -> bool {
-    matches!(
-        function.blocks.get(&landing).and_then(|b| b.terminator.as_ref()),
-        Some(MirInstruction::Jump { target: actual, edge_args: None }) if *actual == target
-    )
+    jump_target(function, landing) == Some(target)
+}
+
+/// The unique jump target of a dedicated landing block, or `None` when
+/// the block is missing or carries any other terminator shape.
+fn jump_target(
+    function: &crate::mir::MirFunction,
+    landing: BasicBlockId,
+) -> Option<BasicBlockId> {
+    match function
+        .blocks
+        .get(&landing)
+        .and_then(|b| b.terminator.as_ref())
+    {
+        Some(MirInstruction::Jump {
+            target,
+            edge_args: None,
+        }) => Some(*target),
+        _ => None,
+    }
+}
+
+/// Walk a nested-residence cleanup chain starting at `head`: exactly one
+/// `OwnedFieldResidenceRelease` invoke per expected field in emitted
+/// order, each releasing `base` on the shared fault frame and landing
+/// through distinct jump blocks onto the next link. Returns the tail
+/// block — the caller validates its terminator (`ReclaimUnpublished` or
+/// `HomeRelease`) — or `None` on any missing, foreign, duplicated, or
+/// reordered link.
+fn residence_chain(
+    function: &crate::mir::MirFunction,
+    head: BasicBlockId,
+    expected: &[hakorune_mir_defs::CanonicalFieldRefV1],
+    base: crate::mir::ValueId,
+    frame: Option<(crate::mir::ValueId, BasicBlockId)>,
+) -> Option<BasicBlockId> {
+    let mut cursor = head;
+    for field in expected {
+        let MirInstruction::Invoke {
+            operation:
+                InvokeOperation::OwnedFieldResidenceRelease {
+                    field: actual,
+                    base: released,
+                },
+            fault_frame,
+            normal_landing,
+            fault_landing,
+        } = function.blocks.get(&cursor)?.terminator.as_ref()?
+        else {
+            return None;
+        };
+        if actual != field
+            || *released != base
+            || normal_landing == fault_landing
+            || !frame.is_some_and(|(id, _)| *fault_frame == id)
+        {
+            return None;
+        }
+        let next = jump_target(function, *normal_landing)?;
+        if jump_target(function, *fault_landing)? != next {
+            return None;
+        }
+        cursor = next;
+    }
+    Some(cursor)
 }

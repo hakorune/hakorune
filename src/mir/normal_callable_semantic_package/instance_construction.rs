@@ -42,12 +42,16 @@ pub(crate) enum ConstructionStoreRhsV1 {
     /// existing new-expression owner produces the value. Builtin class
     /// providers keep `object`/`arguments` empty (`None`); a user-class
     /// provider carries the canonical child identity and its sealed
-    /// literal arguments for the emitted Birth call.
+    /// literal arguments for the emitted Birth call. `owned_fields`
+    /// names the child's declared `ArrayBox` residences — empty for a
+    /// `PlainI64NoHook` child — so the in-flight reclaim/discharge chain
+    /// can release each owned child field before the child storage.
     ProviderConstruction {
         site: SourceExprSiteV1,
         class: Box<str>,
         object: Option<CanonicalObjectIdV1>,
         arguments: Box<[super::OrdinaryNewTrivialArgumentV1]>,
+        owned_fields: Box<[CanonicalFieldRefV1]>,
     },
 }
 
@@ -345,28 +349,57 @@ pub(super) fn issue_construction_plan(
                     [crate::mir::normal_callable_semantic_package::
                         OrdinaryNewTrivialArgumentV1],
                 > = Box::new([]);
+                let mut owned_fields = Vec::new();
                 if crate::runtime::CoreBoxId::from_name(class).is_none() {
                     // A user-class provider constructs its child through the
                     // canonical Birth path: exact membership resolves the
-                    // child object, S0 admits only a `PlainI64NoHook` child
-                    // (its discharge is `home_release_plain_i64_v1`), and the
-                    // child can never be the parent itself.
+                    // child object, and the child can never be the parent
+                    // itself. The admitted child bound is one level of
+                    // owned `ArrayBox` fields — the in-flight teardown then
+                    // discharges each sealed residence before the child
+                    // storage; deeper nesting stays unsupported.
                     let mut resolved = objects.iter().filter_map(|(own, id)| {
                         (own.name() == class).then_some(*id)
                     });
                     let Some(child) = resolved.next() else {
                         return Err(U::FieldContractUnsupported);
                     };
+                    let child_definition = definitions
+                        .get(child.declaration_index() as usize);
+                    let child_disposition =
+                        child_definition.map(|definition| definition.destruction_disposition());
                     if resolved.next().is_some()
                         || child == object_id
-                        || definitions
-                            .get(child.declaration_index() as usize)
-                            .map(|definition| definition.destruction_disposition())
-                            != Some(
-                                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook,
+                        || !matches!(
+                            child_disposition,
+                            Some(
+                                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
+                                    | crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
                             )
+                        )
                     {
                         return Err(U::FieldContractUnsupported);
+                    }
+                    if child_disposition
+                        == Some(
+                            crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook,
+                        )
+                    {
+                        for (ordinal, field) in child_definition
+                            .expect("child definition checked above")
+                            .fields()
+                            .iter()
+                            .enumerate()
+                        {
+                            if field.declared_type_name.as_deref() == Some("ArrayBox") {
+                                owned_fields.push(
+                                    CanonicalFieldRefV1::from_declaration_ordinal(
+                                        child, ordinal,
+                                    )
+                                    .ok_or(U::SourceRelationMissing)?,
+                                );
+                            }
+                        }
                     }
                     let new_site =
                         OwnedExprSiteV1::new(input.owner(), row.value_site().clone());
@@ -417,6 +450,7 @@ pub(super) fn issue_construction_plan(
                     class: class.into(),
                     object,
                     arguments,
+                    owned_fields: owned_fields.into_boxed_slice(),
                 }
             }
             _ => return Err(U::BodyCoverageUnsupported),

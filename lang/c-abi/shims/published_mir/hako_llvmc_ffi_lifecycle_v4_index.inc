@@ -38,14 +38,17 @@ static yyjson_val* lv4_layout(const hako_lv4_input* in, uint32_t id) {
       sizeof(key), lv4_layout_compare);
   return found ? found->row : NULL;
 }
-static int lv4_slot(const hako_lv4_input* in, yyjson_val* op) {
-  yyjson_val* fields = yyjson_obj_get(lv4_layout(in, lv4_u(op, "object_id")), "fields");
+static int lv4_layout_slot(yyjson_val* layout, uint32_t ordinal) {
+  yyjson_val* fields = yyjson_obj_get(layout, "fields");
   for (size_t i = 0; i < yyjson_arr_size(fields); i++) {
     yyjson_val* field = yyjson_arr_get(fields, i);
-    if (lv4_u(field, "declaration_ordinal") == lv4_u(op, "field_ordinal"))
+    if (lv4_u(field, "declaration_ordinal") == ordinal)
       return (int)lv4_u(field, "runtime_slot");
   }
   return -1;
+}
+static int lv4_slot(const hako_lv4_input* in, yyjson_val* op) {
+  return lv4_layout_slot(lv4_layout(in, lv4_u(op, "object_id")), lv4_u(op, "field_ordinal"));
 }
 static uint32_t lv4_type_id(const hako_lv4_input* in, yyjson_val* op) {
   return lv4_u(lv4_layout(in, lv4_u(op, "object_id")), "runtime_type_id");

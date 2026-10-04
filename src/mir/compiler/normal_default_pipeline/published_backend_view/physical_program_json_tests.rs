@@ -1103,3 +1103,88 @@ fn unproven_owned_array_field_never_publishes_a_teardown() {
         );
     });
 }
+
+/// An installed user-object child carrying a sealed `ArrayBox` residence
+/// publishes `object_field_release` on the containing field while the
+/// child's own layout row carries the `owned_residences` mark — the
+/// physical consumer walks those slots newest-first before the child's
+/// plain Home release.
+#[test]
+fn installed_owned_array_child_publishes_residence_marks() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let mut compiler = MirCompiler::with_options(false);
+        compiler
+            .compile_normal_with_published(
+                request(
+                    "box Page {
+                       items: ArrayBox = new ArrayBox()
+                       birth() { }
+                     }
+                     box Parent {
+                       items: ArrayBox = new ArrayBox()
+                       child: Page = new Page()
+                       birth() { }
+                     }
+                     static box Main {
+                       main() {
+                         local p = new Parent()
+                         return 0
+                       }
+                     }",
+                ),
+                |view, verification| -> Result<(), String> {
+                    assert!(verification.is_ok(), "{verification:?}");
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    let json = emit_lifecycle_physical_abi_json(&input)?;
+                    let decoded: serde_json::Value = serde_json::from_str(&json).unwrap();
+                    // The child's layout row marks its owned `ArrayBox`
+                    // residence — declaration ordinal zero here.
+                    let page_layout = input
+                        .layouts()
+                        .iter()
+                        .find(|layout| !layout.owned_residences().is_empty())
+                        .expect("an owned-array layout mark");
+                    assert_eq!(page_layout.owned_residences(), &[0]);
+                    let object_id = page_layout.object_id() as u64;
+                    let decoded_layouts = decoded["layouts"].as_array().unwrap();
+                    let marked = decoded_layouts
+                        .iter()
+                        .find(|layout| layout["object_id"].as_u64() == Some(object_id))
+                        .expect("layout row on the wire");
+                    assert_eq!(marked["owned_residences"].as_array().unwrap().len(), 1);
+                    // The caller's teardown releases the installed child
+                    // through `object_field_release` — the op naming the
+                    // marked child — before the parent's own residence and
+                    // Home release, all newest-first.
+                    let caller = decoded["functions"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .find(|row| row["name"] == "main")
+                        .expect("caller row");
+                    let operations: Vec<&serde_json::Value> = caller["blocks"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .filter_map(|block| {
+                            block["terminator"]["instruction"]["operation"]
+                                .as_object()
+                                .map(|_| &block["terminator"]["instruction"]["operation"])
+                        })
+                        .collect();
+                    let release = operations
+                        .iter()
+                        .find(|op| op["kind"] == "object_field_release")
+                        .expect("installed child releases through object_field_release");
+                    assert_eq!(
+                        release["child_object_id"].as_u64(),
+                        Some(object_id),
+                        "the release names the owned-array child"
+                    );
+                    Ok(())
+                },
+            )
+            .unwrap();
+    });
+}
