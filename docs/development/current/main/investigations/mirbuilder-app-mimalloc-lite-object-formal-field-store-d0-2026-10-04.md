@@ -137,7 +137,7 @@ locals, non-formal expressions); census flip — all eight
 real-lane observation of the next named stop (the two
 `me.realloc`-blocked sites stay `RetainedUnavailable`).
 
-## S0 landed — `OBJECT-FORMAL-FIELD-STORE-S0` (commit `<commit>`)
+## S0 landed — `OBJECT-FORMAL-FIELD-STORE-S0` (commit `57562186df`)
 
 Landed scope covers the accepted arm plus one measured co-blocker the
 D0 census had folded into the wrong reject kind:
