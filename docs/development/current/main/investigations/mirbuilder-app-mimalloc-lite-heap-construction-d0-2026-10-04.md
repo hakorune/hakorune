@@ -2,7 +2,7 @@
 
 Status: design stop — residual census recorded, decision space below.
 Owns the EXE lane's frontier after FORMAL-FORWARD-RESULT-S0
-(`<commit>`): the `artifact-source-unavailable` stop on
+(`a92f003d8e`): the `artifact-source-unavailable` stop on
 `MiWorkload.run/0` Body(0), where `local heap = new HakoAllocHeap()`
 stays `RetainedUnavailable { progress: Installed }` because the
 `HakoAllocHeap` construction plan is
