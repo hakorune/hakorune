@@ -787,60 +787,6 @@ static box Main {
     }
 }
 
-/// Real `page_heap_box.hako` claim census: the nine retained `return new`
-/// sites split by evidence state. `HakoAllocPage.allocate`'s sole site
-/// carries a sealed construction, `me.page_id` argument evidence, and —
-/// since the dominated-view consult admits `requested_size`'s proven
-/// `.set`/`+`/`new` leaves — a fully covered prefix. `allocate` is only
-/// invoked through `me.<field>` receivers, so it never enters the
-/// borrowed transport profile; the consult reads classification output,
-/// not transport membership.
-/// Every `HakoAllocHandleResult` site is blocked on the result class's
-/// Birth plan — `me.handle = handle` stores an object-typed parameter —
-/// and `reallocResult`'s two trailing sites additionally stop their
-/// prefixes at the unclaimed `me.realloc` forward (Body(3)).
-#[test]
-fn page_heap_fixture_result_claim_census() {
-    let package = issue_with_brand_catalog(include_str!(
-        "../../../lang/src/hako_alloc/memory/page_heap_box.hako"
-    ))
-    .expect("page_heap fixture source package");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let claims = ledger.pending_result_claims_for_test();
-    assert_eq!(claims.len(), 9, "nine retained result-new claims");
-    let mut handle_sites = 0;
-    let mut result_ok_prefix = 0;
-    let mut result_bad_prefix = 0;
-    for (key, claim) in claims.iter() {
-        match claim.class() {
-            "HakoAllocHandle" => {
-                handle_sites += 1;
-                assert!(claim.construction().is_ok(), "{key:?} construction");
-                assert!(
-                    claim.home_prefix().is_ok(),
-                    "{key:?} prefix covered through the dominated-view consult"
-                );
-            }
-            "HakoAllocHandleResult" => {
-                assert!(claim.construction().is_err(), "{key:?} construction");
-                if claim.home_prefix().is_ok() {
-                    result_ok_prefix += 1;
-                } else {
-                    result_bad_prefix += 1;
-                }
-            }
-            other => panic!("unexpected retained class {other}"),
-        }
-        assert!(claim.argument_rows().is_ok(), "{key:?} argument rows");
-    }
-    assert_eq!(handle_sites, 1, "one HakoAllocHandle site");
-    assert_eq!(
-        (result_ok_prefix, result_bad_prefix),
-        (6, 2),
-        "six prefix-covered plus two realloc-forward-blocked sites"
-    );
-}
-
 /// A `v: i64` declared-field box seals a complete result claim for a
 /// return-position `new` — the declared field list is the construction
 /// authority, and every evidence row arrives `Ok`.

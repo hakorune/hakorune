@@ -212,3 +212,231 @@ fn assignment_position_new_mints_no_result_claim() {
         "assignment `Value` positions are not return membership"
     );
 }
+
+/// Real `page_heap_box.hako` claim census: the nine retained `return new`
+/// sites split by evidence state. `HakoAllocPage.allocate`'s sole site
+/// carries a sealed construction, `me.page_id` argument evidence, and —
+/// since the dominated-view consult admits `requested_size`'s proven
+/// `.set`/`+`/`new` leaves — a fully covered prefix. `allocate` is only
+/// invoked through `me.<field>` receivers, so it never enters the
+/// borrowed transport profile; the consult reads classification output,
+/// not transport membership.
+/// Every `HakoAllocHandleResult` site now carries a sealed Birth plan —
+/// `me.handle = handle` is an admitted caller-provided object store
+/// (declared-class `PlainI64NoHook` bound) and the `= 0` scalar defaults
+/// admit the birth overwrite — while `reallocResult`'s two trailing
+/// sites still stop their prefixes at the unclaimed `me.realloc`
+/// forward (Body(3)).
+#[test]
+fn page_heap_fixture_result_claim_census() {
+    let package = issue(include_str!(
+        "../../../lang/src/hako_alloc/memory/page_heap_box.hako"
+    ))
+    .expect("page_heap fixture source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let claims = ledger.pending_result_claims_for_test();
+    assert_eq!(claims.len(), 9, "nine retained result-new claims");
+    let mut handle_sites = 0;
+    let mut result_ok_prefix = 0;
+    let mut result_bad_prefix = 0;
+    for (key, claim) in claims.iter() {
+        match claim.class() {
+            "HakoAllocHandle" => {
+                handle_sites += 1;
+                assert!(claim.construction().is_ok(), "{key:?} construction");
+                assert!(
+                    claim.home_prefix().is_ok(),
+                    "{key:?} prefix covered through the dominated-view consult"
+                );
+            }
+            "HakoAllocHandleResult" => {
+                assert!(
+                    claim.construction().is_ok(),
+                    "{key:?} construction — the provided-object store arm seals, got {:?}",
+                    claim.construction()
+                );
+                if claim.home_prefix().is_ok() {
+                    result_ok_prefix += 1;
+                } else {
+                    result_bad_prefix += 1;
+                }
+            }
+            other => panic!("unexpected retained class {other}"),
+        }
+        assert!(claim.argument_rows().is_ok(), "{key:?} argument rows");
+    }
+    assert_eq!(handle_sites, 1, "one HakoAllocHandle site");
+    assert_eq!(
+        (result_ok_prefix, result_bad_prefix),
+        (6, 2),
+        "six prefix-covered plus two realloc-forward-blocked sites"
+    );
+}
+
+/// A birth that stores a `Parameter` into a declared user-class field is
+/// a caller-provided object store: the declared class is the sole class
+/// authority and `Token`'s `PlainI64NoHook` disposition satisfies the
+/// child bound, so the claim's construction seals and the full
+/// available chain prepares.
+#[test]
+fn provided_parameter_object_store_seals_and_prepares() {
+    let package = issue(
+        "box Token { v: i64 birth(v) { me.v = v } }
+         box Wrap { flag: i64 tok: Token
+             birth(flag, tok) { me.flag = flag me.tok = tok } }
+         static box Work { make(args) { return new Wrap(1, null) } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("provided-parameter package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let site = {
+        let claims = ledger.pending_result_claims_for_test();
+        let (site, claim) = claims
+            .iter()
+            .find(|(_, claim)| claim.class() == "Wrap")
+            .expect("Wrap result claim");
+        assert!(
+            claim.construction().is_ok(),
+            "provided-object store seals construction, got {:?}",
+            claim.construction()
+        );
+        let Ok(plan) = claim.construction() else {
+            unreachable!()
+        };
+        assert_eq!(
+            plan.field_demands(),
+            [
+                crate::mir::resolved_semantics::HomeDemandV1::Trivial,
+                crate::mir::resolved_semantics::HomeDemandV1::Handle
+            ],
+            "the provided object field carries Handle demand like a provider"
+        );
+        let (_, destruction) = package
+            .instance_constructors
+            .destruction_for(claim.box_source())
+            .expect("Wrap definition");
+        assert_eq!(
+            destruction,
+            crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook,
+            "the object field keeps the owned-field disposition"
+        );
+        site.clone()
+    };
+    let claim = ledger
+        .try_take_result(&site, "Wrap", 2)
+        .expect("result take")
+        .expect("Wrap claim present");
+    assert!(
+        ledger.prepare_result_new_emission(&claim).unwrap(),
+        "sealed construction plus provided children prepares the site"
+    );
+}
+
+/// The provided-store arm is bound to `PlainI64NoHook` user classes —
+/// a builtin declared field (`ArrayBox`) and a non-plain declared child
+/// both keep `FieldContractUnsupported`.
+#[test]
+fn provided_parameter_store_rejects_builtin_and_non_plain_fields() {
+    let package = issue(
+        "box Token { v: i64 birth(v) { me.v = v } }
+         box Rich { tok: Token birth(t) { me.tok = t } }
+         box ArrHolder { buf: ArrayBox birth(buf) { me.buf = buf } }
+         box RichHolder { child: Rich birth(child) { me.child = child } }
+         static box Work {
+             make(args) { return new ArrHolder(null) }
+             other(args) { return new RichHolder(null) }
+         }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("provided-parameter rejection package");
+    let claims = package
+        .ordinary_new_claim_ledger
+        .pending_result_claims_for_test();
+    for (site, claim) in claims.iter() {
+        assert!(
+            claim.construction().is_err(),
+            "{site:?} {} stays FieldContractUnsupported",
+            claim.class()
+        );
+    }
+    assert_eq!(claims.len(), 2, "both rejection sites are retained");
+}
+
+/// Parser normalization prepends `me.<field> = <default>` to every birth,
+/// so a defaulted scalar field that the birth also stores observes two
+/// stores for one ordinal. The overwritten literal is a plain scalar never
+/// observed before return — the re-store is admitted and the plan seals.
+#[test]
+fn defaulted_scalar_field_accepts_birth_overwrite() {
+    let package = issue(
+        "box Point { x: i64 = 0 y: i64
+             birth(x, y) { me.x = x me.y = y } }
+         static box Work { make(args) { return new Point(1, 2) } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("defaulted-scalar overwrite package");
+    let claims = package
+        .ordinary_new_claim_ledger
+        .pending_result_claims_for_test();
+    let claim = claims
+        .values()
+        .find(|claim| claim.class() == "Point")
+        .expect("Point result claim");
+    assert!(
+        claim.construction().is_ok(),
+        "a scalar default overwritten in birth seals, got {:?}",
+        claim.construction()
+    );
+}
+
+/// A re-stored object field needs real release of the stored `new` — in
+/// the same defaulted box where the scalar overwrite is admitted, the
+/// object-field re-store stays `BodyCoverageUnsupported`.
+#[test]
+fn defaulted_object_field_rejects_birth_overwrite() {
+    let package = issue(
+        "box Token { v: i64 birth(v) { me.v = v } }
+         box Wrap { n: i64 = 0 tok: Token
+             birth(n, t) { me.tok = new Token(0) me.n = n me.tok = t } }
+         static box Work { make(args) { return new Wrap(1, null) } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("defaulted-object overwrite package");
+    let claims = package
+        .ordinary_new_claim_ledger
+        .pending_result_claims_for_test();
+    let claim = claims
+        .values()
+        .find(|claim| claim.class() == "Wrap")
+        .expect("Wrap result claim");
+    assert!(
+        claim.construction().is_err(),
+        "an object-field re-store still needs release semantics"
+    );
+}
+
+/// A copy of a birth formal is a `Local` binding, not the `Parameter`
+/// itself — the store falls to the same `BodyCoverageUnsupported`
+/// boundary as any non-formal RHS.
+#[test]
+fn provided_parameter_store_rejects_copied_local() {
+    let package = issue(
+        "box Token { v: i64 birth(v) { me.v = v } }
+         box Wrap { tok: Token
+             birth(tok) { local t = tok me.tok = t } }
+         static box Work { make(args) { return new Wrap(null) } }
+         static box Main { main() { return 30 } }",
+    )
+    .expect("copied-local package");
+    let claims = package
+        .ordinary_new_claim_ledger
+        .pending_result_claims_for_test();
+    let claim = claims
+        .values()
+        .find(|claim| claim.class() == "Wrap")
+        .expect("Wrap result claim");
+    assert!(
+        claim.construction().is_err(),
+        "a copied local is not a provided parameter"
+    );
+}

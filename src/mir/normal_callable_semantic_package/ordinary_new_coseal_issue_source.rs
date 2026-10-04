@@ -404,23 +404,39 @@ fn owned_field_children_of(
                     box_source.name().into(),
                     field.name.clone().into_boxed_str(),
                 );
-                let Some(class) = residences.get(&key) else {
+                let Some(residence) = residences.get(&key) else {
                     return None;
+                };
+                let class: &str = match residence {
+                    field_write_claim::OwnedFieldResidenceV1::Provider(class) => {
+                        class.as_ref()
+                    }
+                    // A provided store names no class at the write site;
+                    // the declared field type is the sole authority and
+                    // it must be a user class — builtin/`ArrayBox` fields
+                    // keep their provider-only boundary.
+                    field_write_claim::OwnedFieldResidenceV1::Provided => {
+                        let name = declared?;
+                        if name == "ArrayBox" || crate::box_trait::is_builtin_box(name) {
+                            return None;
+                        }
+                        name
+                    }
                 };
                 // The sole birth write must store the declared class
                 // exactly — a proven residence of a different class does
                 // not satisfy the typed field.
-                if declared != Some(class.as_ref()) {
+                if declared != Some(class) {
                     return None;
                 }
                 let field_ref = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
                     object, ordinal,
                 )
                 .expect("declared field ordinal resolves canonically");
-                let kind = if class.as_ref() == "ArrayBox" {
+                let kind = if class == "ArrayBox" {
                     OwnedFieldChildKindV1::Array
                 } else {
-                    let child_source = match batch.ordinary_box_coverage().row_for(class.as_ref()) {
+                    let child_source = match batch.ordinary_box_coverage().row_for(class) {
                         Ok(Some(row)) => row,
                         _ => return None,
                     };

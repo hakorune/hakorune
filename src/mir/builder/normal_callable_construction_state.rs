@@ -181,10 +181,21 @@ impl CallableSemanticLoweringState {
                             )
                     });
                     if provider {
-                        *demand != HomeDemandV1::Handle
-                    } else {
-                        *demand != HomeDemandV1::Trivial
+                        return *demand != HomeDemandV1::Handle;
                     }
+                    // A caller-provided object store (`me.<field> =
+                    // <Parameter>`) carries `Handle` demand like a provider
+                    // — the field type is the semantic layer's class
+                    // authority, so `Handle` is accepted only on ordinals
+                    // carrying a `Parameter` store.
+                    let provided = plan.stores().iter().any(|store| {
+                        store.field().declaration_ordinal() == ordinal as u32
+                            && matches!(
+                                store.rhs(),
+                                ConstructionStoreRhsV1::Parameter { .. }
+                            )
+                    });
+                    !provided && *demand != HomeDemandV1::Trivial
                 })
         {
             return Err(fault("source-or-cleanup-contract"));

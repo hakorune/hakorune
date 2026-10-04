@@ -231,7 +231,6 @@ pub(super) fn issue_construction_plan(
     let mut initialized = BTreeSet::new();
     let mut statements = BTreeSet::new();
     let mut expressions = BTreeSet::new();
-    let mut provider_ordinals = BTreeSet::new();
     for index in 0..body.statements().len() {
         let statement = input
             .source()
@@ -282,8 +281,21 @@ pub(super) fn issue_construction_plan(
             .iter()
             .position(|name| name == field.as_ref())
             .ok_or(U::SourceRelationMissing)?;
-        // Replacement requires old-value release semantics; not first-store proof.
-        if !initialized.insert(ordinal) {
+        // Replacement requires old-value release semantics; not first-store
+        // proof. One bounded exception: when the box declares stored-field
+        // initializers, the parser prepends `me.<field> = <default>` to every
+        // birth, so a handwritten scalar store to a defaulted field observes
+        // a second store for the same ordinal. The overwritten value is a
+        // plain scalar never observed before constructor return — release is
+        // trivial, and the plan emits both stores in source order. Object
+        // field re-stores still need real release semantics and stay closed.
+        if !initialized.insert(ordinal)
+            && !(source.has_stored_field_initializer()
+                && matches!(
+                    field_decls[ordinal].declared_type_name.as_deref(),
+                    Some("i64") | Some("usize")
+                ))
+        {
             return Err(U::BodyCoverageUnsupported);
         }
         let rhs = input
@@ -400,7 +412,6 @@ pub(super) fn issue_construction_plan(
                 } else if !construction.arguments().is_empty() {
                     return Err(U::FieldContractUnsupported);
                 }
-                provider_ordinals.insert(ordinal);
                 ConstructionStoreRhsV1::ProviderConstruction {
                     site: row.value_site().clone(),
                     class: class.into(),
@@ -461,6 +472,31 @@ pub(super) fn issue_construction_plan(
                         && object.is_some()
                             == (crate::runtime::CoreBoxId::from_name(name).is_none())
                 }
+                // Caller-provided object store: birth formals are
+                // unannotated, so the declared field class is the sole
+                // class authority and it must resolve to a non-self
+                // `PlainI64NoHook` user class — the same child bound a
+                // `ProviderConstruction` carries.
+                ConstructionStoreRhsV1::Parameter { .. } => {
+                    if crate::runtime::CoreBoxId::from_name(name).is_some() {
+                        false
+                    } else {
+                        let mut resolved = objects
+                            .iter()
+                            .filter_map(|(own, id)| (own.name() == name).then_some(*id));
+                        match (resolved.next(), resolved.next()) {
+                            (Some(child), None) if child != object_id => {
+                                definitions
+                                    .get(child.declaration_index() as usize)
+                                    .map(|definition| definition.destruction_disposition())
+                                    == Some(
+                                        crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook,
+                                    )
+                            }
+                            _ => false,
+                        }
+                    }
+                }
                 _ => false,
             },
             None => matches!(
@@ -471,7 +507,11 @@ pub(super) fn issue_construction_plan(
         if !supported {
             return Err(U::FieldContractUnsupported);
         }
-        if provider_ordinals.contains(&ordinal) {
+        let object_field = !matches!(
+            field.declared_type_name.as_deref(),
+            Some("i64") | Some("usize")
+        );
+        if object_field {
             demands[ordinal] = HomeDemandV1::Handle;
         }
     }

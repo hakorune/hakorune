@@ -28,18 +28,37 @@ use crate::parser::ParserOrdinaryBoxSourceCoverageV1;
 /// Key: (owning box name, field name). Value: the agreed `new` class.
 pub(crate) type OrdinaryNewFieldWriteClaimsV1 = BTreeMap<(Box<str>, Box<str>), Box<str>>;
 
-/// Key: (owning box name, field name). The field's sole observed write is
-/// a birth-side `me.<field> = new <class>()` provider store; re-assignment,
-/// non-birth providers and unattributed writers all veto the residence.
-/// The value is the agreed class (`ArrayBox` or a non-builtin user class).
-pub(crate) type OwnedFieldResidencesV1 = BTreeMap<(Box<str>, Box<str>), Box<str>>;
+/// The sole observed birth-side write proves an owned field residence.
+/// `Provider` stores `new <class>()` at the store site; `Provided`
+/// stores a `Parameter` binding — the declared field type is the sole
+/// class authority for the transferred object.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum OwnedFieldResidenceV1 {
+    Provider(Box<str>),
+    Provided,
+}
 
-/// One write observation: `Some(class)` for a `new C(...)` value site,
-/// `None` for any other stored value (vetoes the field).
+/// Key: (owning box name, field name). The field's sole observed write is
+/// a birth-side `me.<field> = <residence value>` store; re-assignment,
+/// non-birth writers and unattributed writers all veto the residence.
+pub(crate) type OwnedFieldResidencesV1 =
+    BTreeMap<(Box<str>, Box<str>), OwnedFieldResidenceV1>;
+
+/// One write observation: `Construction(class)` for a `new C(...)` value
+/// site, `Provided` for a `Parameter` binding store, `Other` for any
+/// other stored value (vetoes the field).
+#[derive(Debug)]
+enum ObservedFieldStoreV1 {
+    Construction(Box<str>),
+    Provided,
+    Other,
+}
+
 #[derive(Default)]
 pub(crate) struct OrdinaryNewFieldWriteClaimDraftV1 {
-    writes: BTreeMap<(Box<str>, Box<str>), Vec<Option<Box<str>>>>,
+    writes: BTreeMap<(Box<str>, Box<str>), Vec<ObservedFieldStoreV1>>,
     birth_new_writes: BTreeSet<(Box<str>, Box<str>)>,
+    birth_provided_writes: BTreeSet<(Box<str>, Box<str>)>,
     unattributed_fields: BTreeSet<Box<str>>,
     opaque: bool,
 }
@@ -97,22 +116,50 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
                 self.unattributed_fields.insert(field.clone());
                 continue;
             }
-            let class = function
+            let store = match function
                 .expression_source()
                 .construction(assignment.value_site())
-                .map(|construction| construction.class().into());
-            if in_birth
-                && class.as_deref().is_some_and(|name| {
-                    name == "ArrayBox" || !crate::box_trait::is_builtin_box(name)
-                })
             {
-                self.birth_new_writes
-                    .insert((owner_box.into(), field.clone()));
+                Some(construction) => {
+                    ObservedFieldStoreV1::Construction(construction.class().into())
+                }
+                None => {
+                    let provided = matches!(
+                        shape.expression_shape(assignment.value_site()),
+                        Some(BodyExpressionShapeV1::Variable {
+                            resolved: crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding),
+                            ..
+                        }) if matches!(
+                            function.binding(*binding).map(|record| record.kind()),
+                            Some(BindingKindV1::Parameter { .. })
+                        )
+                    );
+                    if provided {
+                        ObservedFieldStoreV1::Provided
+                    } else {
+                        ObservedFieldStoreV1::Other
+                    }
+                }
+            };
+            match &store {
+                ObservedFieldStoreV1::Construction(class)
+                    if in_birth
+                        && (class.as_ref() == "ArrayBox"
+                            || !crate::box_trait::is_builtin_box(class.as_ref())) =>
+                {
+                    self.birth_new_writes
+                        .insert((owner_box.into(), field.clone()));
+                }
+                ObservedFieldStoreV1::Provided if in_birth => {
+                    self.birth_provided_writes
+                        .insert((owner_box.into(), field.clone()));
+                }
+                _ => {}
             }
             self.writes
                 .entry((owner_box.into(), field.clone()))
                 .or_default()
-                .push(class);
+                .push(store);
         }
     }
 
@@ -121,7 +168,9 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
     /// same ordinary box, and the field name never appeared on an
     /// unattributed receiver anywhere in the package. An owned field
     /// residence is stronger still: exactly one write, a birth-side
-    /// `new` provider store of a residence-capable class, nothing else.
+    /// provider `new` or `Parameter` store, nothing else. A `Provided`
+    /// residence carries no class — children sealing resolves the
+    /// declared field type, and it never mints a stored-`new` claim.
     pub(crate) fn finish(
         self,
         ordinary_box_coverage: &ParserOrdinaryBoxSourceCoverageV1,
@@ -133,23 +182,33 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
         let claims = self
             .writes
             .into_iter()
-            .filter_map(|((owner_box, field), classes)| {
+            .filter_map(|((owner_box, field), stores)| {
                 if self.unattributed_fields.contains(&field) {
                     return None;
                 }
-                if let [Some(class)] = classes.as_slice() {
-                    if (class.as_ref() == "ArrayBox"
-                        || !crate::box_trait::is_builtin_box(class.as_ref()))
-                        && self
-                            .birth_new_writes
-                            .contains(&(owner_box.clone(), field.clone()))
+                let key = (owner_box.clone(), field.clone());
+                match stores.as_slice() {
+                    [ObservedFieldStoreV1::Construction(class)]
+                        if (class.as_ref() == "ArrayBox"
+                            || !crate::box_trait::is_builtin_box(class.as_ref()))
+                            && self.birth_new_writes.contains(&key) =>
                     {
-                        residences.insert((owner_box.clone(), field.clone()), class.clone());
+                        residences
+                            .insert(key, OwnedFieldResidenceV1::Provider(class.clone()));
                     }
+                    [ObservedFieldStoreV1::Provided]
+                        if self.birth_provided_writes.contains(&key) =>
+                    {
+                        residences.insert(key, OwnedFieldResidenceV1::Provided);
+                    }
+                    _ => {}
                 }
                 let mut unique = BTreeSet::new();
-                for class in classes {
-                    unique.insert(class?);
+                for store in stores {
+                    let ObservedFieldStoreV1::Construction(class) = store else {
+                        return None;
+                    };
+                    unique.insert(class);
                 }
                 let unique = unique.into_iter().collect::<Vec<_>>();
                 let [class] = unique.as_slice() else {

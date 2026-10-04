@@ -1,10 +1,11 @@
 # mimalloc-lite object-formal field store D0 (caller-provided object into declared field)
 
-Status: design stop — census recorded, Decision below. Owns the EXE
-lane's next frontier after TASK4-ARTIFACT-S0 (ad1fc53776): the
-`artifact-unowned-lifecycle-site` stop on the
+Status: S0 landed — census recorded, Decision accepted and
+implemented. Owns the EXE lane's frontier after TASK4-ARTIFACT-S0
+(ad1fc53776): the `artifact-unowned-lifecycle-site` stop on the
 `Call(BirthConstructor HakoAllocHandleResult.birth/3)` sites inside
-`HakoAllocHeap.allocateResult`/`reallocResult` (owner slot 34).
+`HakoAllocHeap.allocateResult`/`reallocResult` — now reduced to the
+two `me.realloc`-prefix-blocked sites (owner slot 38 measured).
 Parent bundle slice: `RESULT-NEW-OBJECT-ARGS` (bundle card
 `mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md` slice 11).
 Scope: `MIRBUILDER-APP-MIMALLOC-LITE-OBJECT-FORMAL-FIELD-STORE-D0`
@@ -23,14 +24,21 @@ Related: `mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-artifact-d0-
 | realloc:302/306/310 | Ok | Err | Ok |
 | realloc:315/318 | Err `PrefixNotCovered(Body(3))` | Err | Ok |
 
-Decomposition (worker census, verified):
+Decomposition (worker census + S0 measured correction):
 
-- `construction()` Err is `ConstructionUnavailableV1::
-  FieldContractUnsupported` at `instance_construction.rs:451-472`:
-  `birth`'s `me.handle = handle` stores a `Parameter` RHS into the
-  `handle: HakoAllocHandle` declared-type field; the `Some(name)` arm
-  admits only `ProviderConstruction` (`new` at the store site). This is
-  the universal blocker — all eight rows.
+- `construction()` Err measured at S0 is `ConstructionUnavailableV1::
+  BodyCoverageUnsupported`, not the `FieldContractUnsupported` the
+  worker census inferred from code reading. `issue_construction_plan`
+  walks the birth body before the field-demand check: parser
+  normalization (`apply_stored_field_initializer_constructor_prologues`)
+  prepends `me.ok = 0` / `me.reason = 0` for the `= 0` declared defaults,
+  so the handwritten `me.ok = ok` / `me.reason = reason` re-store the
+  same ordinals and the first-store guard rejects before the
+  `Some(name)` arm is ever evaluated. Two blockers sat behind one row:
+  (a) the scalar default-overwrite re-store, and (b) `me.handle =
+  handle` — a `Parameter` RHS into the `handle: HakoAllocHandle`
+  declared-type field, where the `Some(name)` arm admitted only
+  `ProviderConstruction`.
 - `home_prefix` Err on the last two `reallocResult` sites is
   `PrefixNotCovered(Body(3))`: `local replacement =
   me.realloc(handle, requested_size)` (`page_heap_box.hako:313`) is an
@@ -62,17 +70,30 @@ Decomposition (worker census, verified):
 ## Decision — `MIRBUILDER-APP-MIMALLOC-LITE-OBJECT-FORMAL-FIELD-STORE-D0` (accepted)
 
 The `Some(<user-class>)` field arm of `issue_construction_plan` gains
-one RHS form: a caller-provided object — `Parameter` (birth formal)
-whose resolved type matches the declared field class — admitted as a
-new `ConstructionStoreRhsV1` variant recorded with its exact site and
-binding. Ownership transfers into the storing box: the field is an
-owned object field, so the box's destruction disposition and
-construction-fault reclaim treat the stored value exactly like a
-`ProviderConstruction` child — same `PlainI64NoHook` child bound (the
-declared class must resolve to a `PlainI64NoHook` definition), same
-field-release discharge machinery. `HakoAllocHandle` (all-scalar
-fields) is `PlainI64NoHook`, so `me.handle = handle` becomes the first
-admitted instance.
+one RHS form: the existing `ConstructionStoreRhsV1::Parameter` (a birth
+formal recorded with its exact site and binding), admitted when the
+**declared field class** resolves uniquely to a `PlainI64NoHook`
+user-class definition — birth formals are unannotated (`OpaqueHandle`
+kind only), so the declared field type is the sole class authority;
+the actual object's class remains the `new` call site's obligation.
+Ownership transfers into the storing box: the field is an owned object
+field, so `field_demands` marks the ordinal `Handle` and the
+destruction/reclaim machinery treats the stored value exactly like a
+`ProviderConstruction` child — same `PlainI64NoHook` child bound, same
+if-live `OwnedObjectFieldRelease` discharge (zero-initialized slots
+make the stored `null` case safe).
+
+Residence proof extends symmetrically: `OwnedFieldResidencesV1` gains a
+`Provided` arm recorded when the field's sole observed write is a
+birth-side `me.<field> = <Parameter>` store. Children sealing resolves
+`Provided` to the declared class and runs the same checks as
+`Provider(class)` — user class, `PlainI64NoHook`, non-self. The
+`OrdinaryNewFieldWriteClaimsV1` class-claim map stays untouched: no
+`me.<field>.<method>` resolver needs a provided-store class, and the
+map records stored-`new` classes only.
+
+`HakoAllocHandle` (all-scalar fields) is `PlainI64NoHook`, so
+`me.handle = handle` becomes the first admitted instance.
 
 Rejected alternatives:
 
@@ -106,13 +127,87 @@ Boundaries that stay closed in this slice:
   lane's object-arg admission is observed, not widened.
 
 Smallest next slice:
-`MIRBUILDER-APP-MIMALLOC-LITE-OBJECT-FORMAL-FIELD-STORE-S0` — the new
-`ConstructionStoreRhsV1` arm plus the `Some(name)` support check for a
-class-matching `Parameter`, `PlainI64NoHook` child bound, unit pins
-(admit `handle`; reject wrong class, non-plain child, rebound/copy
-locals, non-formal expressions), census flip on the six prefix-clean
-sites (`construction()` Ok → their `RetainedUnavailable` lifts), and
-real-lane observation of the next named stop.
+`MIRBUILDER-APP-MIMALLOC-LITE-OBJECT-FORMAL-FIELD-STORE-S0` — the
+`Some(name)` `Parameter` arm (declared-class `PlainI64NoHook` bound)
+plus the `Provided` residence arm and `Handle` demand marking; unit
+pins (admit a formal into a plain user-class field; reject
+builtin/`ArrayBox` fields, non-plain declared classes, rebound/copy
+locals, non-formal expressions); census flip — all eight
+`construction()` Ok, `home_prefix` keeps the 6/2 split — and
+real-lane observation of the next named stop (the two
+`me.realloc`-blocked sites stay `RetainedUnavailable`).
+
+## S0 landed — `OBJECT-FORMAL-FIELD-STORE-S0` (commit `<commit>`)
+
+Landed scope covers the accepted arm plus one measured co-blocker the
+D0 census had folded into the wrong reject kind:
+
+- `issue_construction_plan`: `Some(<user-class>)` fields admit a birth
+  `Parameter` RHS when the declared class resolves uniquely to a
+  non-self `PlainI64NoHook` user class; every non-scalar declared field
+  is marked `HomeDemandV1::Handle`. A second bounded admission —
+  `has_stored_field_initializer() &&` scalar (`i64`/`usize`) declared
+  type — lets a generated `me.<field> = <default>` initializer be
+  overwritten by the field's handwritten store; the dead literal is a
+  plain scalar never observed before constructor return, so release is
+  trivial and both stores emit in source order. Object-field re-stores
+  stay `BodyCoverageUnsupported` (real release semantics required).
+- `ordinary_new_field_write_claim.rs`: `OwnedFieldResidenceV1::
+  Provided` + `ObservedFieldStoreV1::Provided` — a sole birth-attributed
+  `me.<field> = <Parameter>` write issues a provided residence without
+  minting a stored-`new` class claim.
+- `ordinary_new_coseal_issue_source.rs`: `Provided` resolves through
+  the declared field type — user class, `PlainI64NoHook`, non-self —
+  and seals `OwnedFieldChildKindV1::Object` children identical to the
+  provider path.
+- Focused pins (`ordinary_new_result_claim_tests.rs`):
+  `provided_parameter_object_store_seals_and_prepares`,
+  `provided_parameter_store_rejects_builtin_and_non_plain_fields`,
+  `provided_parameter_store_rejects_copied_local`,
+  `defaulted_scalar_field_accepts_birth_overwrite`,
+  `defaulted_object_field_rejects_birth_overwrite`.
+- Real census: all eight `HakoAllocHandleResult` `construction()` Ok;
+  `home_prefix` keeps the 6/2 split — `reallocResult`'s two trailing
+  sites stay `PrefixNotCovered(Body(3))` at the unclaimed `me.realloc`
+  forward.
+- Physical consumer edge (`normal_callable_construction_state.rs`):
+  `install_construction`'s `source-or-cleanup-contract` check encoded a
+  provider-only invariant — `Handle` demand was legal iff a
+  `ProviderConstruction` store occupied the same ordinal. A sealed plan
+  whose object store is `Parameter` (provided residence) violated it,
+  surfacing as the new real-lane terminal
+  `[freeze:contract][construction-store/source-or-cleanup-contract]`.
+  Bounded repair: the check now derives provided-object ordinals from
+  the plan's `Parameter` stores and accepts `Handle` demand on either
+  provider or provided ordinals. `emit_construction_store` already
+  lowers `Parameter` to plain `FieldSet` — the caller hands the object
+  across the birth ABI, so no emission change is needed.
+- Lane observation: `--emit-mir-json` regained the designed negative
+  `unsupported terminator Invoke`; `--emit-exe` still stops at
+  `[freeze:contract][ordinary-new/local-commit/artifact-unowned-lifecycle-site]`,
+  attributed to owner slot 38's
+  `Call(BirthConstructor HakoAllocHandleResult.birth/3)` — the two
+  `RetainedUnavailable` `reallocResult` sites whose `home_prefix` Err
+  keeps their claims untaken, leaving the birth calls to emit
+  unowned. Residual boundary, ordered task 2 territory.
+- Focused evidence: 13/13 `ordinary_new_result_claim_tests` ok (incl.
+  relocated census); regression `mir::normal_callable_semantic_package`
+  587 passed / 3 failed — same known baselines
+  (`birth_receiver_non_escape_rejects_unproven_uses_before_row_publication`,
+  `main_static_child_port_consumes_all_role_rows_once`,
+  `qualified_call_map_argument_reaches_the_named_capability_boundary`).
+  `mir::resolved_semantics` 396/396.
+- Guard: S0 pins added to `mirbuilder_qualified_route_scope_guard.sh`
+  (Parameter arm, `Provided` residence, demand handling, five focused
+  tests, relocated census, `INSTANCE_CONSTRUCTION_SRC`/
+  `RESULT_CLAIM_TESTS` watch). The guard still stops at the unchanged
+  baseline `brand_catalog_tests.rs`=961; `construction_state.rs` grew
+  960→971 (already-over boundary, unwatched);
+  `brand_catalog_mixed_result_class_tests.rs` shrank 895→841 after the
+  census moved out.
+
+Non-claims stand: no app EXE PASS, no production switch, the two
+`me.realloc`-blocked sites stay `RetainedUnavailable`.
 
 ## Ordered tasks
 
