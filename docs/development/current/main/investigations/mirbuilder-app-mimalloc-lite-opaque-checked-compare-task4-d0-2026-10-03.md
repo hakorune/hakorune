@@ -1,6 +1,6 @@
 # mimalloc-lite opaque checked-compare task-4 D0 (dominated view uses)
 
-Status: accepted task-4 Decisions; all nine PARAMFIELD-series rows landed (I64RESULT-S0 through PARAMFIELD-ACCEPTANCE-R0); REAL-RELEASE-D0 row TASK4-FIELDOPERAND-S0 landed (guarded formal field read admitted as order-compare operand); remaining release() shapes parked for the next Decision.
+Status: accepted task-4 Decisions; all nine PARAMFIELD-series rows landed (I64RESULT-S0 through PARAMFIELD-ACCEPTANCE-R0); REAL-RELEASE-D0 rows TASK4-FIELDOPERAND-S0, TASK4-FINISHBIND-S0 and TASK4-NUMFIELD-S0 landed (guarded formal order-compare operand; full-graph boundary projection; numeric-integer field-read admission); next frontier `unsupported terminator Invoke` parked for the next Decision.
 Scope: `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-D0`
   and its bounded PARAMFIELD prerequisite/acceptance series.
 Related: docs/development/RULES.md; CURRENT_STATE.toml;
@@ -790,16 +790,9 @@ removal is not entered through a surviving node's `Jump` chain, and
 (b) recorded instructions carrying draft block ids can mismatch the
 finished instruction even when the block maps correctly.
 
-Bounded next slice proposal (TASK4-FINISHBIND-S0): close the projection
-gap for recorded bindings — every draft binding block must resolve a
-finished destination (or a named dead-removal stop), and every
-`BasicBlockId` embedded in a recorded instruction must rewrite through
-the projection. Diagnose which removal path leaves `Heap.allocate/1`
-block 12 unmapped (unreachable prune vs post-capture binding vs
-non-Jump-edge contraction), apply the minimal authority-preserving
-fix, and pin the reproducer plus the real `allocateResult/1` shape.
-Non-claims: no `.get` lane change, no named-array route change, no
-production switch.
+Bounded next slice proposal (TASK4-FINISHBIND-S0 — landed): close the
+projection gap for recorded bindings via full-graph contraction walk +
+embedded-id rewrite; diagnosis and acceptance in the Decision below.
 
 Accepted Decision (2026-10-04, REAL-RELEASE boundary projection):
 
@@ -836,26 +829,8 @@ Non-claims: no `.get`/named-array lane change, no dead-site
 
 ## Ordered construction task — MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FINISHBIND-S0
 
-One responsibility: `PhysicalBoundary`/`FinishedBindings` projection
-covers every recorded binding through finishing contraction — the
-contraction walk runs over the complete draft graph (`walk_graph`),
-not only captured nodes, and embedded block ids inside recorded
-instructions rewrite through the destination map. Validation scope
-(`sequences`, `incoming`, `unmapped-block`, removable sets) stays on
-captured nodes.
-
-- Positive: the minimal reproducer
-  (`if size < 8 {return null} return new Handle(size)` inside
-  `Heap.allocate/1`) validates past `emission-binding-drift`; the real
-  `apps/mimalloc-lite` emit-mir-json lane reaches the next named stop
-  (or JSON).
-- Negative/frontier re-pins: `unmapped-block`,
-  `contraction-predecessor`, `foreign-target`, `incoming-drift` and the
-  physical-boundary unit tests keep their fail-closed behaviour; a
-  forged/mutated binding still drifts.
-- Checks: `physical_boundary`/`root_cleanup_graph` unit suites, the
-  ordinary_new local-commit sweep, focused publication tests, the
-  real-app emit-mir-json observation, scope guard pins, pointer guard.
+Landed — scope, evidence and fail-fast pins are in the landed record
+below; the pre-landing proposal above is superseded.
 
 #### FINISHBIND-S0 — landed record
 
@@ -917,11 +892,109 @@ vocabulary gap, not a binding failure). Real `apps/mimalloc-lite`
 `--emit-mir-json` advances past `emission-binding-drift`,
 `finished-sequence` and `incoming-drift` to the next named stop
 `[freeze:contract][mir/invoke/object-field-read-definition-invalid]`
-(bb33) — object-typed field reads (`me.queue`/`me.pages` family), a
-separate carded frontier outside this slice. Scope guard PASS except
+(bb33, attributed below) — a separate carded frontier outside this
+slice. Scope guard PASS except
 `brand_catalog_tests.rs=961` +
 `normal_default_root_catalog_lifecycle_tests.rs` known structural debt;
 pointer guard PASS.
 
 Non-claims kept: no `.get`/named-array lane change, no dead-site
 discharge, no production switch, no app EXE completion.
+
+## Post-FINISHBIND frontier census (2026-10-04, field-read verifier gate)
+
+bb33 attribution (temporary diagnostic, reverted):
+`HakoAllocPage.allocate/1` `ObjectFieldGet{field: free_top}` — a `usize`
+scalar read (`if me.free_top == 0` / `me.free_top = me.free_top - 1`).
+The verifier arm (`verification/invoke.rs:47-81`) admits `i64` always
+and numeric-integer only under a `BorrowedTaggedValue` param carrier —
+the checked-compare-view corridor (`8bfc8534ba`). Two families hit it:
+
+- `me.<numeric-integer>` scalar reads (`me.block_size`, `me.free_top`,
+  `me.capacity` in `allocate`/`isLiveHandle`/`resizeInPlace`/`freeCount`/
+  `requestedBytes`): semantically staged by `local_read_field`/
+  `receiver_scalar_field`, physically emitted — no `me.` function carries
+  `BorrowedTaggedValue` (the instance receiver is `InstanceReceiver`,
+  never a carrier).
+- Object-typed `Alias` reads (`local small = heap.small_page`,
+  `local free_stack = me.free_stack`): classified `Alias`/`MirType::Box`;
+  `heap.small_page` also gates on `candidate.construction` (blocked by
+  `me.small_page.seedBlocks()`), and `HakoAllocHeap` is
+  `RetainedUnavailable` (child `OwnedArrayFieldsNoHook`).
+
+Boundary census (worker + direct reads): `ObjectFieldGet` is emitted
+only by the claimed `ExactObject` route (`fields.rs:177`, via
+`take_terminal_field_read`/`take_local_field_read`) — every emitted read
+is backed by a staged ledger row (`validate_field_reads` already rejects
+unowned/drifted reads); unclaimed reads emit dynamic `FieldGet` and
+never reach this arm. The `BorrowedTaggedValue` gate therefore
+duplicates no upstream proof — it was the first-corridor scope pin, and
+a canonical field definition is layout-proven by construction.
+
+Accepted Decision (2026-10-04, numeric field-read corridor):
+
+```text
+Decision: a strong canonical field declared with a numeric-integer
+  type is physically readable as `MirType::Integer` anywhere a staged
+  claim emits `ObjectFieldGet` — the verifier's corridor opens to
+  `is_numeric_integer_type_name` unconditionally and the
+  `BorrowedTaggedValue` special case is subsumed.
+Source authority + canonical issuer: the staged field-read ledger rows
+  (`local_read_field`/`receiver_scalar_field`/batch prover) remain the
+  sole issuers; the verifier arm only mirrors the physical field-type
+  contract.
+Non-authority: emitted instruction payloads, receiver provenance at
+  verify time, runtime layout re-inference.
+Fail-fast boundary: weak fields, non-numeric declared types
+  (object/ArrayBox/dynamic) and absent declared types stay
+  `object-field-read-definition-invalid`; `unowned-or-drifted-read`
+  keeps rejecting unstaged emissions.
+Smallest next slice: TASK4-NUMFIELD-S0 — numeric-integer field reads
+  admit in the verifier arm; positive `HakoAllocPage.allocate` passes
+  bb33, negatives (object/ArrayBox/weak/undeclared) keep rejecting.
+Non-claims: no object-typed Alias read admission, no ArrayBox alias,
+  no corridor for `FieldGet`, no production switch.
+```
+
+## Ordered construction task — MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NUMFIELD-S0
+
+One responsibility: the verifier's `ObjectFieldGet` field-type arm
+admits numeric-integer declared types uniformly, retiring the
+`BorrowedTaggedValue` corridor carve-out.
+
+#### NUMFIELD-S0 — landed record
+
+Landed (`<pending>` on `codex/birth-definition-publication`):
+
+- `verification/invoke.rs`: the `ObjectFieldGet` definition arm now
+  accepts any non-weak declared type recognized by
+  `is_numeric_integer_type_name`; the `BorrowedTaggedValue` param
+  carrier gate is removed — staged ledger rows remain the sole
+  issuer, and the verifier only mirrors the uniform field-type
+  contract.
+- Unit pin
+  `object_field_read_admits_numeric_fields_and_rejects_other_types`
+  (invoke_tests): `i64`/`usize` admit; object-typed, `ArrayBox`, weak
+  and undeclared-typed fields keep
+  `object-field-read-definition-invalid`.
+- Evidence: `invoke` verifier suite 36/36, `mir::verification::`
+  111/111, `normal_callable_semantic_package` 580/583 — the same 3
+  classified baseline reds. Real `apps/mimalloc-lite --emit-mir-json`
+  advances past bb33 to the next named stop
+  `MIR JSON emit contract violation: unsupported terminator Invoke`
+  (README-recorded emitter vocabulary gap — a downstream frontier,
+  not a field-read failure). Scope guard pins unchanged (known
+  structural debts only); pointer guard PASS.
+- Non-claims kept: no object-typed `Alias` read admission, no
+  ArrayBox alias, no `.get`/field-write/method-forwarding lane, no
+  production switch, no app EXE completion.
+
+Next frontier (needs its own Decision): `unsupported terminator
+Invoke` in the MIR JSON emitter
+(`runner/mir_json_emit/emitters/control_flow.rs`) — census whether
+`Invoke` already has a JSON representation elsewhere or is
+intentionally outside the contract before any emitter change.
+
+Open behind this row (separate Decisions): object-typed `Alias` reads,
+`me.<ArrayBox>` aliases, nested `me.<obj>.<scalar>` receivers, and
+`HakoAllocHeap` `RetainedUnavailable` (`OwnedArrayFieldsNoHook` child).

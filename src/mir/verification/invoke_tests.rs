@@ -528,3 +528,89 @@ fn fault_frame_is_internal_and_rejects_substitution_or_escape() {
         );
     }
 }
+
+#[test]
+fn object_field_read_admits_numeric_fields_and_rejects_other_types() {
+    use crate::mir::function::{
+        CanonicalObjectDefinitionV1, ObjectDestructionDispositionV1, UserBoxFieldDecl,
+    };
+    use crate::mir::{
+        BasicBlock, BasicBlockId, FunctionSignature, MirFunction, MirModule, MirType, MirVerifier,
+    };
+    use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
+
+    fn field_decl(name: &str, declared: Option<&str>, is_weak: bool) -> UserBoxFieldDecl {
+        UserBoxFieldDecl {
+            name: name.into(),
+            declared_type_name: declared.map(str::to_string),
+            is_weak,
+        }
+    }
+    fn read_function(ordinal: usize) -> MirFunction {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: format!("read_field_{ordinal}"),
+                params: vec![MirType::Box("Page".into())],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        block.add_instruction(MirInstruction::ObjectFieldGet {
+            dst: ValueId::new(1),
+            base: ValueId::new(0),
+            field: CanonicalFieldRefV1::from_declaration_ordinal(
+                CanonicalObjectIdV1::from_declaration_index(0).unwrap(),
+                ordinal,
+            )
+            .unwrap(),
+        });
+        block.set_terminator(MirInstruction::Return {
+            value: Some(ValueId::new(1)),
+        });
+        function.add_block(block);
+        function.update_cfg();
+        function
+    }
+    let mut module = MirModule::new("field_read_types".into());
+    module.install_object_definitions_preflighted(
+        vec![CanonicalObjectDefinitionV1::from_source_declaration(
+            "Page".into(),
+            vec![
+                field_decl("page_id", Some("i64"), false),
+                field_decl("free_top", Some("usize"), false),
+                field_decl("child", Some("ChildBox"), false),
+                field_decl("items", Some("ArrayBox"), false),
+                field_decl("weak_id", Some("i64"), true),
+                field_decl("untyped", None, false),
+            ]
+            .into_boxed_slice(),
+            Ok(()),
+            ObjectDestructionDispositionV1::PlainI64NoHook,
+        )]
+        .into_boxed_slice(),
+    );
+    let cases: &[(usize, &str, bool)] = &[
+        (0, "i64", true),
+        (1, "usize", true),
+        (2, "ChildBox", false),
+        (3, "ArrayBox", false),
+        (4, "weak i64", false),
+        (5, "untyped", false),
+    ];
+    for (ordinal, name, admitted) in cases {
+        let mut case = module.clone();
+        case.add_function(read_function(*ordinal));
+        let outcome = MirVerifier::new().verify_module(&case);
+        let rejected = outcome
+            .as_ref()
+            .err()
+            .map(|errors| format!("{errors:?}").contains("object-field-read-definition-invalid"))
+            .unwrap_or(false);
+        assert_eq!(
+            *admitted, !rejected,
+            "field {name} (ordinal {ordinal}): outcome={outcome:?}"
+        );
+    }
+}

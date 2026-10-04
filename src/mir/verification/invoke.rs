@@ -53,24 +53,17 @@ pub(super) fn check_module_with_source(
                             }
                             match definition.declared_type_name.as_deref() {
                                 Some("i64") => true,
-                                // The checked-compare view's sibling operand:
-                                // numeric-integer declared fields stay
-                                // readable only inside functions that carry
-                                // a borrowed tagged parameter — the view can
-                                // exist nowhere else. Other lanes keep the
-                                // exact-i64 contract.
-                                Some(name)
-                                    if crate::mir::numeric_substrate::is_numeric_integer_type_name(
+                                // Numeric-integer declared fields share the
+                                // i64 physical representation; every
+                                // `ObjectFieldGet` reaching this arm is
+                                // backed by a staged ledger claim, so the
+                                // field-type contract is uniform across
+                                // functions — the earlier
+                                // `BorrowedTaggedValue` corridor carve-out
+                                // is subsumed.
+                                Some(name) => {
+                                    crate::mir::numeric_substrate::is_numeric_integer_type_name(
                                         name,
-                                    ) =>
-                                {
-                                    function.metadata.physical_param_carriers.as_deref().is_some_and(
-                                        |carriers| {
-                                            carriers.iter().any(|carrier| {
-                                                *carrier
-                                                    == crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue
-                                            })
-                                        },
                                     )
                                 }
                                 _ => false,

@@ -1,7 +1,7 @@
 date = "2026-10-04"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FINISHBIND-S0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NUMFIELD-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "none"
 current_design_stop = "none"
@@ -17,27 +17,23 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
 latest_card_summary = """
-REAL-RELEASE-D0 row TASK4-FINISHBIND-S0 landed — the
-physical-boundary projection captures the full draft `walk_graph`
-beside recorded `nodes`, walks every surviving block through
-value-free `Jump` and equal-arm `Branch` contraction with
-deduplicated predecessors, rewrites every embedded `BasicBlockId` in
-recorded instructions, and keys expected sequences at the surviving
-walk start whenever the walk carried a binding so absorbed content is
-never waived. Dead pure definitions may be omitted only when
-unrecorded/unused/uniquely defined; incoming edges compare through
-the destination map with equal-arm normalization. Real
-`apps/mimalloc-lite` --emit-mir-json advances past
-emission-binding-drift/finished-sequence/incoming-drift to the next
-named stop `object-field-read-definition-invalid` (bb33) — the
-object-typed field-read frontier. Remaining `release(handle)` shapes
-(.get element reads, `me.` field writes, `me.`-receiver method
-forwards, Bool result, object field reads) await the next Decision.
-No release/app EXE or migration completion claim.
+REAL-RELEASE-D0 row TASK4-NUMFIELD-S0 landed — the verifier's
+`ObjectFieldGet` field-type arm now admits any non-weak declared type
+recognized by `is_numeric_integer_type_name` (i64/usize and siblings),
+retiring the `BorrowedTaggedValue` param-carrier carve-out; staged
+ledger rows remain the sole field-read issuer and weak/object-typed/
+ArrayBox/undeclared fields keep `object-field-read-definition-invalid`.
+Real `apps/mimalloc-lite` --emit-mir-json advances past bb33 to the
+next named stop `MIR JSON emit contract violation: unsupported
+terminator Invoke` — a README-recorded emitter vocabulary gap needing
+its own Decision. Remaining release() shapes (.get element reads,
+`me.` field writes, `me.`-receiver method forwards, Bool result,
+object-typed field/alias reads) still await Decisions. No release/app
+EXE or migration completion claim.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FINISHBIND-S0"
+next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NUMFIELD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FINISHBIND-S0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-NUMFIELD-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -53,7 +49,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-FINISHBIND-S0 landed — the physical-boundary projection now captures the full draft `walk_graph` beside recorded `nodes`, walks every surviving block through value-free `Jump` and equal-arm `Branch` contraction with deduplicated predecessors, rewrites every embedded `BasicBlockId` in recorded instructions, and keys expected sequences at the surviving walk start whenever the walk carried a binding (`carries_binding`) so absorbed content is never waived. Dead pure definitions may be omitted only when unrecorded/unused/uniquely defined; incoming edges compare through the destination map with equal-arm branch normalization. Real `apps/mimalloc-lite` --emit-mir-json advances past emission-binding-drift/finished-sequence/incoming-drift to the next named stop `object-field-read-definition-invalid` (bb33). Next: object-typed field-read frontier under a fresh Decision.",
+  "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-NUMFIELD-S0 landed — the verifier's `ObjectFieldGet` field-type arm now admits any non-weak numeric-integer declared type (`is_numeric_integer_type_name`), retiring the `BorrowedTaggedValue` param-carrier carve-out; staged ledger rows remain the sole field-read issuer while weak/object/ArrayBox/undeclared fields keep `object-field-read-definition-invalid` (unit pin covers i64/usize admit + four rejects). Real `apps/mimalloc-lite` --emit-mir-json advances past bb33 to the next named stop `unsupported terminator Invoke` — an emitter vocabulary gap parked for its own Decision. Next: Invoke JSON-emit census.",
+  "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-FINISHBIND-S0 landed — the physical-boundary projection now captures the full draft `walk_graph` beside recorded `nodes`, walks every surviving block through value-free `Jump` and equal-arm `Branch` contraction with deduplicated predecessors, rewrites every embedded `BasicBlockId` in recorded instructions, and keys expected sequences at the surviving walk start whenever the walk carried a binding (`carries_binding`) so absorbed content is never waived. Dead pure definitions may be omitted only when unrecorded/unused/uniquely defined; incoming edges compare through the destination map with equal-arm branch normalization. Real `apps/mimalloc-lite` --emit-mir-json advances past emission-binding-drift/finished-sequence/incoming-drift to the next named stop `object-field-read-definition-invalid` (bb33, `me.free_top` usize in `HakoAllocPage.allocate`). Next: numeric field-read corridor under TASK4-NUMFIELD-S0.",
   "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-FIELDOPERAND-S0 landed — order compares (`<`/`>`/`<=`/`>=`) join the pure-scalar vocabulary; under an order-compare subtree only a GuardedFormal field leaf selects the staged field-read root, `me.` receivers stay admissible without selecting, and any other provenance falls the whole root back to the original compare lane unchanged. `handle.page_id < 0`/`>= me.limit` publish sealed-view `object_field_get` + `slt`/`sge`; ten source-issued inputs execute through JSON -> C -> OBJ/EXE. Next: remaining release() frontier rows under a fresh Decision.",
-  "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-ACCEPTANCE-R0 landed — the bounded PARAMFIELD series is complete: eight source-issued inputs execute through Rust -> JSON -> C -> OBJ/EXE (unused-i64 exit 0/1 home, localnew 0/2 homes, null-guard 7 vs object 3, field-init 1, field-return 5, Void-state 0/1 home, null actual 0/1, nullable 0/2), two injected birth-store faults unwind exit 70 with cleanup once + one reclaim, five forged rows reject before OBJ. Series complete; next work needs a new accepted Decision.",
   ]
