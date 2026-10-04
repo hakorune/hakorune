@@ -142,32 +142,107 @@ out empty:
   `replacement` would install `received_nullable`, and releasing a
   possibly-i64 value is exactly what the Home ledger must not guess.
 
-## Decision space (needs its own Decision before implementation)
+## Decision — `MIRBUILDER-APP-MIMALLOC-LITE-FORMAL-FORWARD-RESULT-D0` (accepted)
 
-1. `DeclaredHandle` user-class admission — the only honest authority:
-   `handle: HakoAllocHandle` annotations on `reallocResult`/`realloc`/
-   `resizeInPlace`, contract admission extended from `ArrayBox` to
-   resolved ordinary boxes, and a `return <declared formal>` exit arm
-   composing to `NullableObject(HakoAllocHandle)`. Language + contract
-   + production-source-sized; the declared formal's physical ABI for
-   user classes is its own question. Correctly owned by the
-   contract/ABI domain, not this card.
-2. Field-access-signature class proof — self-contained but mints a new
-   duck-typing authority against the documented object-view boundary
-   above. Declined unless that boundary is explicitly re-opened.
-3. Reachable-set narrowing — already declined on the parent card:
-   no selection authority exists and the sealed-undertaking criterion
-   excludes AppMain reachability.
-4. Keep `NoSafeSlice`: name the missing authority (a class authority
-   for call-less opaque formals) and leave the two sites
-   `RetainedUnavailable` — correct but leaves the EXE lane frozen at
-   `artifact-unowned-lifecycle-site` until one of 1–3 is owned.
+Owner contract (user-fixed):
 
-The `handle` call-arg use kind (consumed by `release` inside `realloc`,
-mutated inside `resizeInPlace`) is a separate open question — the
-result-class chain never inspects callee bodies, so it does not block
-option 1, but any claim minted without it describes result shape only,
-not argument ownership.
+1. **Class authority lives in the callable parameter contract issuer**:
+   an explicit `formal: <name>` declaration resolves to an existing
+   resolved class identity — the same `ordinary_box_coverage` inventory
+   `new` sites use. No field-set inference (that boundary stays:
+   `FieldReadOperand` keeps class under the sealed object view).
+   `CallableParameterContractKindV1::DeclaredObject(class)` is a new
+   kind **arm in the existing contract catalog**, not a new receipt —
+   an ordinary-box declared formal, `home_demand() == Handle`, same
+   parameter carrier as `OpaqueHandle`.
+2. **The `.hako` annotation is a legitimate API contract change**, not
+   a workaround: `reallocResult`/`realloc`/`resizeInPlace` already use
+   `handle` exclusively as a `HakoAllocHandle` (field accesses and
+   forwards); the declaration makes the implicit contract source-level
+   authority. Existing inputs are untouched — unannotated formals stay
+   `OpaqueHandle`, `i64`/`usize` keep `ExactTrivial`, `ArrayBox` keeps
+   `DeclaredHandle`, unresolvable declared names keep
+   `UnsupportedDeclaredType`. **Null is admissible**: every callee
+   null-guards `handle` first — `handle == null → return null` is the
+   existing check site, so the declared contract means "nullable
+   `HakoAllocHandle`"; a `null` actual is the Void literal, legal for
+   any object-typed formal.
+3. **Class guarantee and ownership are separate, and borrowed values
+   never become Homes**:
+   - `realloc`/`reallocResult` `handle: HakoAllocHandle` →
+     `DeclaredObject` = **owned** formal (moved-in). `me.realloc(handle,
+     ..)` consumes `reallocResult.handle` at the call edge — last use.
+   - `resizeInPlace` `handle` stays `OpaqueHandle` = **borrowed** —
+     `realloc` keeps using `handle` after the call (`handle.page_id`
+     reads, `me.release(handle)`), so the arg cannot be consuming. Its
+     `return handle` is a **borrowed return**: the result is the
+     caller's arg-0 object or `null`. New exit-draft arm
+     `ForwardFormal{ordinal}` → pending `NullableForwarded{ordinal}` —
+     an identity claim ("result ≡ caller's arg-0, or null"), class-free
+     and sound for any actual kind.
+   - Composition substitutes at the caller: `realloc`'s `return same`
+     (`same` bound from `me.small_page.resizeInPlace(handle, ..)`)
+     resolves `Fwd` to `NullableForwarded{0}` → substitutes arg-0's
+     actual = `realloc.handle` → `DeclaredObject(HakoAllocHandle)` →
+     the exit composes as `New(HakoAllocHandle)`. Unprovable actual
+     classes stay Dead — `NullableForwarded` never leaks a borrowed
+     value into a Home; only a resolved class composes `NullableObject`.
+   - `realloc` then claims `NullableObject(HakoAllocHandle)` by
+     fixpoint, `me.realloc` mints its observation, `replacement`
+     installs `received_nullable` — the **caller re-owns** the returned
+     object (consumed-in, owned-out); `new(1,0,replacement)` feeds the
+     landed `Parameter` store arm end-to-end.
+   - `realloc`/`reallocResult` are the only methods annotated:
+     `resizeInPlace`'s `handle` must stay borrowed (caller reuse), and
+     `release`/`isLiveHandle` are outside the claim chain — their
+     `OpaqueHandle` formals accept owned bindings as borrowed actuals.
+4. **Existing ABI owners close the carrier**: `DeclaredObject` →
+   `home_demand() == Handle` → identical param carrier to
+   `OpaqueHandle`; results cross the same Return edge —
+   `unsupported terminator Invoke` stays the designed backend
+   boundary. Caller-side lifetime/cleanup is the existing
+   `received_nullable` machinery (same shape as `allocateResult`'s
+   `handle`). No new Receipt types: `DeclaredObject` is a contract-kind
+   arm, `NullableForwarded` is a result-class claim arm, the
+   observation/prefix machinery is untouched.
+
+Rejected alternatives:
+
+- Field-access-signature class proof — mints a duck-typing authority
+  against the documented object-view boundary (see above).
+- `NullableOpaque` class-free owned claim — unsound: `received_nullable`
+  would owe release on possibly-i64 values.
+- Reachable-set narrowing — declined on the parent card (no selection
+  authority; the sealed-undertaking criterion excludes AppMain
+  reachability).
+- `NoSafeSlice` — a real authority exists via explicit declaration;
+  stopping would strand a solvable frontier.
+
+Residual notes (recorded, not blocking):
+
+- `realloc`/`resizeInPlace` bodies are never homes-verified (no `new`
+  sites): under owned-formal semantics, `realloc`'s early `return null`
+  paths keep `handle` owned — the block is freed by `me.release` or
+  never freed; descriptor accounting is outside the verified set.
+  `release`'s consuming contract is the honest next ownership row —
+  naming it, not implementing it.
+- Consuming-actual enforcement (`reallocResult.handle` dead after
+  `me.realloc`) is untracked, same as all arg actuals today.
+- `isLiveHandle`/`release`/`HakoAllocPage.release` formals stay
+  `OpaqueHandle`; annotating them is an API-consistency choice outside
+  this slice.
+
+Smallest next slice:
+`MIRBUILDER-APP-MIMALLOC-LITE-FORMAL-FORWARD-RESULT-S0` — contract
+`DeclaredObject` arm (issuer resolves declared name → unique ordinary
+box), `.hako` annotations on `reallocResult`/`realloc` only,
+`ForwardFormal`/`NullableForwarded` exit arms with caller-side arg-0
+substitution, `install_parameters` arm, census flip (the two sites'
+`home_prefix` → Ok, all eight claims complete), focused pins
+(declared-formal claim mints `NullableObject`; opaque-formal return
+mints `NullableForwarded`; unresolvable declared name stays
+`UnsupportedDeclaredType`; forwarded-actual without class stays dead),
+scope-guard pin, real-lane observation.
 
 Non-claims:
 
