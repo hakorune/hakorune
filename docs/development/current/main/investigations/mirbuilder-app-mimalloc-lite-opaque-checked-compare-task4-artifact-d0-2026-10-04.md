@@ -4,8 +4,8 @@ Status: TASK4-ARTIFACT-S0 landed (ad1fc53776) — dominated-view
   positions admitted end-to-end for `HakoAllocPage.allocate/1`; the app
   EXE lane advanced to the next designed boundary
   (`HakoAllocHandleResult` Birth plan — object-typed `handle` formal
-  stored to a field). Next frontier census pending on that boundary's
-  owning card.
+  stored to a field). Frontier census + Decision recorded on
+  `mirbuilder-app-mimalloc-lite-object-formal-field-store-d0-2026-10-04.md`.
 Scope: `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ARTIFACT-D0`
 Related:
   mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md

@@ -1,10 +1,10 @@
 date = "2026-10-04"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ARTIFACT-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OBJECT-FORMAL-FIELD-STORE-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "none"
-current_design_stop = "none"
+current_blocker_token = "ordinary-new/local-commit/artifact-unowned-lifecycle-site"
+current_design_stop = "MIRBUILDER-APP-MIMALLOC-LITE-OBJECT-FORMAL-FIELD-STORE-D0 — census recorded on the new card: the real EXE lane's eight `HakoAllocHandleResult` result claims all hold `construction()` Err = `FieldContractUnsupported` because `birth`'s `me.handle = handle` stores a Parameter RHS into the `handle: HakoAllocHandle` declared-type field (the `Some(name)` arm admits only `ProviderConstruction`); `argument_rows` all Ok, `home_prefix` 6 Ok / 2 Err (`me.realloc` unclaimed forward). Decision accepted: transferred-ownership `Parameter` store arm bound to `PlainI64NoHook` children; reachable-set narrowing declined (no authority, contradicts the sealed-undertaking coverage criterion)."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,30 +13,28 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-artifact-d0-2026-10-04.md"
-latest_card = "mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-artifact-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-artifact-d0-2026-10-04.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-object-formal-field-store-d0-2026-10-04.md"
+latest_card = "mirbuilder-app-mimalloc-lite-object-formal-field-store-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-object-formal-field-store-d0-2026-10-04.md"
 latest_card_summary = """
-TASK4-ARTIFACT-S0 landed — `.set` index `.get`-result proof
-(`get_result_index`: sole `me.<ArrayBox>.get`/1 initializer,
-manifest row + `receiver_array_field`, no rebind) plus a prefix
-`Handle`-leaf consult over `dominated_view_sites`, the dominated-view
-use sites recorded at draft-classification time — classification
-output, not borrowed-transport membership (`me.<field>` receiver
-callees like `allocate` never enter the lexical incoming map, so the
-consult must read pre-closure rows). Verified walk and probe share
-`dominated_view_use_consult_v1`; bounded siblings stay fail-closed.
-`HakoAllocHandle`'s Result claim `home_prefix` is now Ok; the EXE
-lane advances to slot 34 `HakoAllocHandleResult.birth/3` —
-`construction()` Err (object-typed `handle` formal field store;
-bundle slice 11 RESULT-NEW-OBJECT-ARGS family). `--emit-mir-json`
-returned to the designed `unsupported terminator Invoke` negative;
-smoke pin re-pointed. No app EXE or production switch claim.
+Object-formal field-store frontier (design stop, Decision accepted).
+The EXE lane's `artifact-unowned-lifecycle-site` on
+`HakoAllocHandleResult.birth/3` decomposes: all eight result claims
+hold `construction()` Err = `FieldContractUnsupported` —
+`birth`'s `me.handle = handle` stores a `Parameter` RHS into the
+`handle: HakoAllocHandle` declared-type field and the `Some(name)`
+arm admits only `ProviderConstruction`. `argument_rows` all Ok;
+`home_prefix` 6 Ok / 2 Err (`me.realloc` unclaimed forward, separate
+row). Reachable-set narrowing declined — no authority exists, the
+sealed-undertaking criterion excludes AppMain reachability, and the
+declaration-derived constructor batch would emit `birth` anyway.
+S0 admits a transferred-ownership `Parameter` store arm bound to
+`PlainI64NoHook` children. No app EXE or production switch claim.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ARTIFACT-S0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-artifact-d0-2026-10-04.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ARTIFACT-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-artifact-d0-2026-10-04.md"
+next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OBJECT-FORMAL-FIELD-STORE-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-object-formal-field-store-d0-2026-10-04.md"
+next_execution_card = "none"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-object-formal-field-store-d0-2026-10-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
