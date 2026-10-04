@@ -114,21 +114,60 @@ unclaimed sites emit — emission-time skipping stays rejected
 (`IncompleteSelectedCoverage`; see the parent card's declined
 reachable-set alternative).
 
+## Sharpened finding — no in-program class authority exists
+
+The census narrows to exactly one missing authority: the class of
+`resizeInPlace`'s `handle` formal. Every existing authority bottoms
+out empty:
+
+- `BorrowedFormalObjectViewV1` composes a formal's class from incoming
+  actuals (`ordinary_new_borrowed_formal_source.rs:19-34,56-69`).
+  `reallocResult` has **no callers anywhere in the program** — `main`
+  calls `heap.allocate` only — so `reallocResult.handle` mints no view,
+  and the `Forward` chain through `realloc`/`resizeInPlace` stays
+  pending forever.
+- `field_write_claims` records stored-`new` classes for `me.<field>`
+  writes only; `handle.<field>` accesses mint nothing.
+- `DeclaredHandle` is admitted only for `ArrayBox`
+  (`callable_parameter_contract/issuer.rs:49-51,93-101`) — a user-class
+  declared formal (`handle: HakoAllocHandle`) is rejected at
+  `UnsupportedDeclaredType`, and `OpaqueHandle` (unannotated) proves
+  neither class nor object-ness.
+- Field-access-signature inference (`{page_id, block_id,
+  requested_size}` uniquely names `HakoAllocHandle` here) contradicts
+  the documented authority boundary — `FieldReadOperand`: "class and
+  field declaration belong to the issuer's sealed object view, never
+  to this draft" (`ordinary_new_borrowed_formal_uses.rs:94-99`).
+- A class-free `NullableOpaque`-style arm is unsound for this lane:
+  `replacement` would install `received_nullable`, and releasing a
+  possibly-i64 value is exactly what the Home ledger must not guess.
+
 ## Decision space (needs its own Decision before implementation)
 
-1. Extend the result-class grammar with a formal-forward arm whose
-   class authority is settled first (a/b/c above) — `resizeInPlace`
-   claims, `realloc` composes by fixpoint, the `me.realloc` observation
-   mints, `replacement` installs `received_nullable`, the last `if`'s
-   null guard consumes it, and `new(1,0,replacement)` feeds the now-
-   landed `Parameter` store arm end-to-end.
-2. Pair (1) with the object-formal call-arg claim: `handle`'s transfer
-   into `realloc` (consumed by `release`) is a different use kind than
-   the borrowed reads admitted so far; the same arm family likely owns
-   `me.release(handle)`/`me.isLiveHandle(handle)` condition calls.
-3. Declared-formal annotations (`handle: HakoAllocHandle`) would give
-   the class authority directly but are a language change — outside a
-   MirBuilder slice.
+1. `DeclaredHandle` user-class admission — the only honest authority:
+   `handle: HakoAllocHandle` annotations on `reallocResult`/`realloc`/
+   `resizeInPlace`, contract admission extended from `ArrayBox` to
+   resolved ordinary boxes, and a `return <declared formal>` exit arm
+   composing to `NullableObject(HakoAllocHandle)`. Language + contract
+   + production-source-sized; the declared formal's physical ABI for
+   user classes is its own question. Correctly owned by the
+   contract/ABI domain, not this card.
+2. Field-access-signature class proof — self-contained but mints a new
+   duck-typing authority against the documented object-view boundary
+   above. Declined unless that boundary is explicitly re-opened.
+3. Reachable-set narrowing — already declined on the parent card:
+   no selection authority exists and the sealed-undertaking criterion
+   excludes AppMain reachability.
+4. Keep `NoSafeSlice`: name the missing authority (a class authority
+   for call-less opaque formals) and leave the two sites
+   `RetainedUnavailable` — correct but leaves the EXE lane frozen at
+   `artifact-unowned-lifecycle-site` until one of 1–3 is owned.
+
+The `handle` call-arg use kind (consumed by `release` inside `realloc`,
+mutated inside `resizeInPlace`) is a separate open question — the
+result-class chain never inspects callee bodies, so it does not block
+option 1, but any claim minted without it describes result shape only,
+not argument ownership.
 
 Non-claims:
 
