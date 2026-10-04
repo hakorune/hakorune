@@ -14,7 +14,8 @@ use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, BodyExpressionShapeV1, BodyMeReceiverV1, FunctionOwnerIdV1,
     HomeDemandV1, OwnedExprSiteV1, ResolvedAssignmentFormV1, ResolvedAssignmentSourceV1,
-    ResolvedAssignmentTargetV1, ResolvedLexicalRefV1,
+    ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
+    ResolvedMethodCallReceiverSourceV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -46,12 +47,16 @@ pub(crate) enum ConstructionStoreRhsV1 {
     /// names the child's declared `ArrayBox` residences — empty for a
     /// `PlainI64NoHook` child — so the in-flight reclaim/discharge chain
     /// can release each owned child field before the child storage.
+    /// `caller` is this birth constructor's canonical key: the exact
+    /// caller half of the `(caller, site)` publication rows a sealed
+    /// `QualifiedStaticCall` argument consumes.
     ProviderConstruction {
         site: SourceExprSiteV1,
         class: Box<str>,
         object: Option<CanonicalObjectIdV1>,
         arguments: Box<[super::OrdinaryNewTrivialArgumentV1]>,
         owned_fields: Box<[CanonicalFieldRefV1]>,
+        caller: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
     },
 }
 
@@ -126,6 +131,12 @@ impl ConstructionPlanV1 {
 }
 
 /// Called only within the exact parser declaration loan at semantic issuance.
+///
+/// `provider_static_claims` is the caller's published `birth` key paired
+/// with the package's qualified static-call membership index: the sole
+/// authority for admitting `Alias.m(..)` results as provider `new`
+/// arguments. Rows outside a Birth carry `None` — they own no provider
+/// arguments at all.
 pub(super) fn issue_construction_plan(
     object_id: CanonicalObjectIdV1,
     source: &crate::parser::ParserOrdinaryBoxSourceRowV1,
@@ -133,6 +144,10 @@ pub(super) fn issue_construction_plan(
     birth: Option<(
         &crate::parser::ConstructorSourceIdV1,
         ResolvedFunctionLoweringInputV1<'_>,
+    )>,
+    provider_static_claims: Option<(
+        &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        &super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
     )>,
     objects: &[(
         crate::parser::ParserOrdinaryBoxSourceRowV1,
@@ -429,6 +444,71 @@ pub(super) fn issue_construction_plan(
                             } => {
                                 super::OrdinaryNewTrivialArgumentKindV1::Bool(*value)
                             }
+                            ASTNode::MethodCall { .. } => {
+                                // A qualified `Alias.m(..)` actual joins only
+                                // through the package claim index: the row
+                                // corroborates the resolver's own
+                                // `QualifiedUnbound` receiver shape, the
+                                // claim proves the `StaticBoxMethod` target
+                                // and its `ExactI64` result, and every inner
+                                // actual must seal to an Integer/Bool literal
+                                // with i64 evidence at the callee's
+                                // required-i64 ordinals — the same discipline
+                                // `issue_qualified_static_local_call` owns.
+                                let Some((caller_key, claims)) = provider_static_claims else {
+                                    return Err(U::FieldContractUnsupported);
+                                };
+                                let Some(call) = function.method_call(arg_site) else {
+                                    return Err(U::FieldContractUnsupported);
+                                };
+                                if call.receiver()
+                                    != ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
+                                    || call.site() != arg_site
+                                {
+                                    return Err(U::FieldContractUnsupported);
+                                }
+                                let Some((claim, target)) =
+                                    claims.claim_target(caller_key, arg_site)
+                                else {
+                                    return Err(U::FieldContractUnsupported);
+                                };
+                                if call.arguments().len() != target.arity() as usize {
+                                    return Err(U::FieldContractUnsupported);
+                                }
+                                let mut sealed_arguments =
+                                    Vec::with_capacity(call.arguments().len());
+                                for argument in call.arguments() {
+                                    let (kind, i64_evidence) = match input
+                                        .function()
+                                        .expression_source()
+                                        .literal(argument.site())
+                                    {
+                                        Some(ResolvedLiteralSourceV1::Integer(value)) => (
+                                            super::QualifiedStaticCallArgumentKindV1::Integer(
+                                                *value,
+                                            ),
+                                            true,
+                                        ),
+                                        Some(ResolvedLiteralSourceV1::Bool(value)) => (
+                                            super::QualifiedStaticCallArgumentKindV1::Bool(*value),
+                                            false,
+                                        ),
+                                        _ => return Err(U::FieldContractUnsupported),
+                                    };
+                                    if claim.required_i64_arguments().contains(&argument.ordinal())
+                                        && !i64_evidence
+                                    {
+                                        return Err(U::FieldContractUnsupported);
+                                    }
+                                    sealed_arguments.push(kind);
+                                    expressions.insert(argument.site().clone());
+                                }
+                                expressions.insert(call.receiver_site().clone());
+                                super::OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall {
+                                    target: target.clone(),
+                                    arguments: sealed_arguments.into_boxed_slice(),
+                                }
+                            }
                             _ => return Err(U::FieldContractUnsupported),
                         };
                         sealed.push(super::OrdinaryNewTrivialArgumentV1::new(
@@ -451,6 +531,9 @@ pub(super) fn issue_construction_plan(
                     object,
                     arguments,
                     owned_fields: owned_fields.into_boxed_slice(),
+                    caller: provider_static_claims
+                        .map(|(caller, _)| caller.clone())
+                        .ok_or(U::SourceRelationMissing)?,
                 }
             }
             _ => return Err(U::BodyCoverageUnsupported),

@@ -145,6 +145,32 @@ impl CallableSemanticLoweringState {
         Ok(Some(handoff))
     }
 
+    /// Take one staged publication handoff for a provider `new` argument —
+    /// the qualified-static call's exact `(caller, site)` row the port
+    /// installed before delegating store emission. The handoff must name
+    /// the sealed claim's target; consumption is marked so a second take
+    /// or a residual staged row both fail closed.
+    pub(in crate::mir::builder) fn take_provider_static_result_publication(
+        &mut self,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+        target: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    ) -> Result<VerifiedStaticCallResultPublicationHandoffV1, String> {
+        let handoff = self
+            .source_static_result_publications
+            .remove(site)
+            .ok_or_else(|| freeze("provider-static-publication-missing"))?;
+        if handoff.site() != site || handoff.target() != target {
+            return Err(freeze("provider-static-publication-target"));
+        }
+        if !self
+            .consumed_source_static_result_publications
+            .insert(site.clone())
+        {
+            return Err(freeze("duplicate-static-publication-consumption"));
+        }
+        Ok(handoff)
+    }
+
     pub(in crate::mir::builder) fn has_pending_source_static_result_publications(&self) -> bool {
         !self.source_static_result_publications.is_empty()
     }

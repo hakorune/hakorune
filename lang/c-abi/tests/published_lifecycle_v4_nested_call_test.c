@@ -138,17 +138,20 @@ int main(void) {
   assert(fopen(output_path, "rb") == NULL);
   free(drifted);
 
-  /* A birth caller may not issue an ordinary call even when the call
-   * itself is structurally valid: only root and ordinary callers own that
-   * lane. The parser admits the shape; V4 admission rejects the cohort. */
+  /* A birth caller owns the ExactI64 provider-argument lane: its sealed
+   * qualified-static call invokes the ordinary callee through the same
+   * caller-local out-slot, lands faults on the shared reclaim head, and
+   * the projection feeds the birth_call actuals. Root's own fault edges
+   * converge through the discharge block so merged lease states agree. */
   const char* birth_caller =
       "{\"schema\":\"hako.published-lifecycle-physical-program.v2\",\"fault_abi_version\":1,\"storage_profile\":1,\"process_result_site\":99,\"functions\":["
       "{\"name\":\"main\",\"role\":\"root_i64\",\"receiver\":null,\"receiver_object\":null,\"params\":[],\"entry\":0,\"blocks\":["
       "{\"id\":0,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"fault_frame_enter\",\"dst\":1,\"mode\":\"root_owned\"}}],\"terminator\":{\"index\":1,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"new_box\",\"object_id\":7,\"site\":0},\"fault_frame\":1,\"normal\":1,\"fault\":4}},\"edges\":[{\"target\":1,\"args\":null},{\"target\":4,\"args\":null}]},"
-      "{\"id\":1,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"invoke_normal_result\",\"invoke_block\":0,\"dst\":2}}],\"terminator\":{\"index\":1,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"birth_call\",\"call\":{\"target\":1,\"receiver\":2,\"args\":[],\"dst\":null}},\"fault_frame\":1,\"normal\":2,\"fault\":4}},\"edges\":[{\"target\":2,\"args\":null},{\"target\":4,\"args\":null}]},"
+      "{\"id\":1,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"invoke_normal_result\",\"invoke_block\":0,\"dst\":2}}],\"terminator\":{\"index\":1,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"birth_call\",\"call\":{\"target\":1,\"receiver\":2,\"args\":[],\"dst\":null}},\"fault_frame\":1,\"normal\":2,\"fault\":5}},\"edges\":[{\"target\":2,\"args\":null},{\"target\":5,\"args\":null}]},"
       "{\"id\":2,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"home_release\",\"object_id\":7,\"value\":2,\"site\":1},\"fault_frame\":1,\"normal\":3,\"fault\":4}},\"edges\":[{\"target\":3,\"args\":null},{\"target\":4,\"args\":null}]},"
       "{\"id\":3,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"const_i64\",\"dst\":3,\"value\":0}}],\"terminator\":{\"index\":1,\"instruction\":{\"op\":\"return\",\"value\":3}},\"edges\":[]},"
-      "{\"id\":4,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return_fault\",\"fault_frame\":1}},\"edges\":[]}]},"
+      "{\"id\":4,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return_fault\",\"fault_frame\":1}},\"edges\":[]},"
+      "{\"id\":5,\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"home_release\",\"object_id\":7,\"value\":2,\"site\":2},\"fault_frame\":1,\"normal\":4,\"fault\":4}},\"edges\":[{\"target\":4,\"args\":null},{\"target\":4,\"args\":null}]}]},"
       "{\"name\":\"Pair.birth\",\"role\":\"birth_unit\",\"receiver\":0,\"receiver_object\":null,\"params\":[],\"entry\":0,\"blocks\":["
       "{\"id\":0,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"fault_frame_enter\",\"dst\":1,\"mode\":\"borrowed\"}}],\"terminator\":{\"index\":1,\"instruction\":{\"op\":\"invoke\",\"operation\":{\"kind\":\"ordinary_call\",\"call\":{\"target\":2,\"args\":[],\"dst\":null},\"result\":\"i64\"},\"fault_frame\":1,\"normal\":1,\"fault\":2}},\"edges\":[{\"target\":1,\"args\":null},{\"target\":2,\"args\":null}]},"
       "{\"id\":1,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"invoke_normal_result\",\"invoke_block\":0,\"dst\":2}},{\"index\":1,\"instruction\":{\"op\":\"const_unit\",\"dst\":3}}],\"terminator\":{\"index\":2,\"instruction\":{\"op\":\"return\",\"value\":3}},\"edges\":[]},"
@@ -158,12 +161,28 @@ int main(void) {
       "\"layouts\":[{\"object_id\":7,\"runtime_type_id\":7,\"field_count\":0,\"fields\":[],\"owned_residences\":[]}]}";
   error = NULL;
   rc = compile(&session, birth_caller, &error);
+  assert(rc == 0);
+  assert(error == NULL);
+  output = fopen(output_path, "rb");
+  assert(output);
+  assert(fgetc(output) != EOF);
+  assert(fclose(output) == 0);
+
+  /* The same birth caller spelling any other result kind is outside the
+   * sealed ExactI64 provider lane: a map claim fails the parser's
+   * function-body contract before admission even runs. */
+  char* birth_map = replace_once(birth_caller,
+      "\"kind\":\"ordinary_call\",\"call\":{\"target\":2,\"args\":[],\"dst\":null},\"result\":\"i64\"",
+      "\"kind\":\"ordinary_call\",\"call\":{\"target\":2,\"args\":[],\"dst\":null},\"result\":\"map\"");
+  error = NULL;
+  rc = compile(&session, birth_map, &error);
   assert(rc != 0);
   assert(error != NULL);
   assert(strstr(error,
-      "[freeze:contract][published-lifecycle-v4/unsupported-cohort]") != NULL);
+      "[freeze:contract][published-lifecycle-physical-parser/function-body]") != NULL);
   free(error);
   assert(fopen(output_path, "rb") == NULL);
+  free(birth_map);
 
   remove(input_path);
   return 0;

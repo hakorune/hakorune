@@ -683,7 +683,10 @@ pub(super) fn scalar_actual_kind(
     match kind {
         Kind::Integer(_) => Ok(1),
         Kind::Bool(_) => Ok(2),
-        Kind::Local { .. } | Kind::BoundValue { .. } | Kind::I64Field { .. }
+        Kind::Local { .. }
+        | Kind::BoundValue { .. }
+        | Kind::I64Field { .. }
+        | Kind::QualifiedStaticCall { .. }
             if caller.get(&value) == Some(&crate::mir::MirType::Integer) =>
         {
             Ok(1)
@@ -692,7 +695,8 @@ pub(super) fn scalar_actual_kind(
         | Kind::Local { .. }
         | Kind::Handle { .. }
         | Kind::BoundValue { .. }
-        | Kind::I64Field { .. } => Err(fault("actual-kind-unavailable")),
+        | Kind::I64Field { .. }
+        | Kind::QualifiedStaticCall { .. } => Err(fault("actual-kind-unavailable")),
     }
 }
 

@@ -1,7 +1,7 @@
 date = "2026-10-05"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-PROVIDER-CALL-ARG-S0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-BIRTH-FIELD-CALL-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "ordinary-new/local-commit/artifact-source-unavailable"
 current_design_stop = "none"
@@ -27,9 +27,9 @@ call arguments, preserving evaluation order and Fault cleanup. C borrows
 fully constructed stored-child receivers for covered birth-time calls.
 The unchanged app requires all three; no EXE PASS or production switch claim.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-PROVIDER-CALL-ARG-S0"
+next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-BIRTH-FIELD-CALL-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-heap-construction-d0-2026-10-04.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-PROVIDER-CALL-ARG-S0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-BIRTH-FIELD-CALL-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-heap-construction-d0-2026-10-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -45,7 +45,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-05: HEAP-PROVIDER-CALL-ARG-S0 (B) landed — provider `new` args admit a proven `Alias.m(..)` qualified static call: `claim_target` pairs each `(caller, site)` row with its sealed `StaticBoxMethod` target; the Birth plan seals `QualifiedStaticCall` actuals (QualifiedUnbound receiver, arity match, Integer/Bool literals, required-i64 evidence); the port installs the publication handoff through the sole ledger boundary; emission emits one `Call{Global, I64}` per row in source order faulting onto the shared reclaim head, `InvokeNormalResult` projecting the i64 birth actual. Birth units seed the physical ordinary-call census (i64 only); V4 admits `birth_i64` calls + birth-caller `field_set`/`field_residence_release`/`object_field_set` and `%call_out` slots. Seal/JSON/C tests + real-wire V4 compile green. App `--emit-exe` terminal advances `FieldContractUnsupported` -> `BodyCoverageUnsupported` at `seedBlocks()` (C's edge). Next: HEAP-BIRTH-FIELD-CALL-S0 (C).",
   "2026-10-05: HEAP-OWNED-PROVIDER-S0 (A) landed — provider `new` admits a bounded `OwnedArrayFieldsNoHook` child (parent -> user child -> ArrayBox leaves): plan stores carry declaration-order `owned_fields`, `seal_provider_owned_children_v1` joins the provider site into the existing `owned_field_children` ledger inside `prepare_source_claims` (new `source_owned_children` child file; issue_source 664 / issue 797 under 800), emission+validation emit and census the `OwnedFieldResidenceRelease` newest-first chains on birth/store fault, and layout rows publish `owned_residences` consumed by the physical `object_field_release` nested walk — `object_field_set` fault inline release removed (MIR chain sole owner). Focused family + 3 C tests green; guard stops at baseline `brand_catalog_tests.rs=1010`. App unchanged: `new HakoAllocHeap` still `FieldContractUnsupported` at B/C edges. Next: HEAP-PROVIDER-CALL-ARG-S0 (B).",
   "2026-10-05: HEAP-CONSTRUCTION-SIZE-T0 landed — the 971-line `normal_callable_construction_state.rs` split into private responsibility children: `emission.rs` (store/provider-new invoke emission, 379) and `validation.rs` (retained transport + emitted-shape census, 297); parent keeps install/take/complete lifecycle + fault tag (321). Verbatim code motion — same predicates, order, landings, verification, visibility. Tests 2/2 construction + 591/3-baseline package; both lanes hold their recorded terminals (Invoke negative / `new HakoAllocHeap` FieldContractUnsupported). Guard pins added; baseline `brand_catalog_tests.rs=961` unchanged. Next: HEAP-OWNED-PROVIDER-S0 (A).",
-  "2026-10-04: FORMAL-FORWARD-RESULT-S0 landed — `DeclaredObject(Box<str>)` parameter-contract arm binds explicit `formal: <box>` declarations to `ordinary_box_coverage` identities (`realloc`/`reallocResult` annotated, `resizeInPlace` stays `OpaqueHandle`); `ForwardFormal`/`NullableForwarded{ordinal}` mint a class-free identity claim for `return <formal>`, substituted through call-site actuals — `me.realloc` observes `NullableObject(HakoAllocHandle)` and the census flips to (8,0); receiver observation skips class-free claims, nullable emission admits `Handle` args, physical boundary derives projected edges through contractible bridges. MIR JSON holds designed `unsupported terminator Invoke`; EXE advances to `MiWorkload.run`'s `new HakoAllocHeap()` — `FieldContractUnsupported` on three edges (owned-field provider child, call-typed provider args, non-store birth body). Next: HEAP-CONSTRUCTION-D0 decision on split/authorities.",
   ]

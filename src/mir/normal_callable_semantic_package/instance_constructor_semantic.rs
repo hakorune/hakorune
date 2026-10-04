@@ -422,6 +422,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
     resolver: &mut FunctionSemanticResolverSessionV1,
     source: &VerifiedFinalCallableProgramSourceV1,
     brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+    static_claims: &super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
 ) -> Result<VerifiedInstanceConstructorSemanticBatchV1, InstanceConstructorSemanticBatchIssueV1> {
     let mut object_sources = Vec::new();
     let mut object_definitions = Vec::new();
@@ -454,6 +455,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                         *object_id,
                         parent,
                         declaration,
+                        None,
                         None,
                         &object_sources,
                         &object_definitions,
@@ -599,12 +601,18 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                         .map(|(_, id)| *id)
                         .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
                 let construction = if kind == ConstructorSourceKindV1::Birth {
+                    let birth_key =
+                        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor(
+                            &box_name,
+                            source_arity,
+                        );
                     source.with_ordinary_box_syntax(&box_source, |parent| {
                         issue_construction_plan(
                             object,
                             &box_source,
                             parent,
                             Some((&source_id, input)),
+                            Some((&birth_key, static_claims)),
                             &object_sources,
                             &object_definitions,
                         )

@@ -65,16 +65,16 @@ impl ConstructionState {
                 )
             })
             .count();
-        let nested_releases: usize = stores
+        let (nested_releases, call_args): (usize, usize) = stores
             .values()
             .map(|store| match &store.progress {
                 StoreProgress::Emitted {
                     provider_birth: Some(birth),
                     ..
-                } => birth.owned_fields.len(),
-                _ => 0,
+                } => (birth.owned_fields.len(), birth.call_args.len()),
+                _ => (0, 0),
             })
-            .sum();
+            .fold((0, 0), |(fields, calls), (f, c)| (fields + f, calls + c));
         let actual_count = function
             .blocks
             .values()
@@ -85,9 +85,10 @@ impl ConstructionState {
         // `birth_call`, the `reclaim_unpublished` on its fault edge, and the
         // `home_release` discharge on the object-field store's fault edge —
         // plus one `field_residence_release` per sealed nested residence
-        // on each of the two cleanup chains.
+        // on each of the two cleanup chains, and one `Call{Global, I64}`
+        // per sealed qualified-static argument row.
         if actual_count
-            != stores.len() + provider_count + 3 * birth_providers + 2 * nested_releases
+            != stores.len() + provider_count + 3 * birth_providers + 2 * nested_releases + call_args
         {
             return Err(fault("emission-count"));
         }
@@ -102,28 +103,39 @@ impl ConstructionState {
                         fault_returns += 1;
                     }
                     MirInstruction::InvokeNormalResult { invoke_block, dst } => {
-                        // Only a proven provider `new` may land a normal
-                        // result — its store records the exact pair, and the
-                        // projection sits in the allocation's normal
-                        // landing (the `birth_call` block for a user-class
-                        // provider, the store block otherwise).
+                        // Only a proven provider `new` or a recorded
+                        // qualified-static argument call may land a normal
+                        // result — the store records each exact pair, and
+                        // the projection sits in the matching landing (the
+                        // `entry` block for the allocation, the call's own
+                        // landing for an argument, the store block for a
+                        // builtin provider).
                         let proven = stores.values().any(|store| {
-                            matches!(
-                                &store.progress,
-                                StoreProgress::Emitted {
-                                    block: home,
-                                    value,
-                                    provider: Some(origin),
-                                    provider_birth,
-                                    ..
-                                } if provider_birth
-                                    .as_ref()
-                                    .map(|birth| birth.birth_call)
-                                    .unwrap_or(*home)
-                                    == block.id
-                                    && *origin == *invoke_block
-                                    && *value == *dst
-                            )
+                            let StoreProgress::Emitted {
+                                block: home,
+                                value,
+                                provider: Some(origin),
+                                provider_birth,
+                                ..
+                            } = &store.progress
+                            else {
+                                return false;
+                            };
+                            match provider_birth {
+                                Some(birth) => {
+                                    (birth.entry == block.id
+                                        && *origin == *invoke_block
+                                        && *value == *dst)
+                                        || birth.call_args.iter().any(|arg| {
+                                            arg.landing == block.id
+                                                && arg.invoke_block == *invoke_block
+                                                && arg.value == *dst
+                                        })
+                                }
+                                None => {
+                                    *home == block.id && *origin == *invoke_block && *value == *dst
+                                }
+                            }
                         });
                         if !proven {
                             return Err(fault("unexpected-normal-result"));
@@ -213,11 +225,41 @@ impl ConstructionState {
                             fault_landing,
                             normal_landing,
                         }) if *object == *child
-                            && *normal_landing == birth.birth_call
+                            && *normal_landing == birth.entry
                             && *fault_landing == frame_landing
                             && frame.is_some_and(|(id, _)| *fault_frame == id))
                     {
                         return Err(fault("provider-emission-drift"));
+                    }
+                    // Argument chain: `entry` terminates in the first
+                    // recorded `Call{Global, I64}` invoke, each landing
+                    // projects the i64 result and terminates in the next,
+                    // and the last landing ends on `birth_call`. Every
+                    // invoke faults onto the reclaim head — the same
+                    // cleanup the birth call owns.
+                    let mut cursor = birth.entry;
+                    for arg in birth.call_args.iter() {
+                        if !matches!(function.blocks.get(&cursor).and_then(|b| b.terminator.as_ref()),
+                            Some(MirInstruction::Invoke {
+                                operation: InvokeOperation::Call {
+                                    call,
+                                    result: crate::mir::instruction::InvokeCallResultKind::I64,
+                                },
+                                fault_frame,
+                                fault_landing,
+                                normal_landing,
+                            }) if matches!(call.callee, crate::mir::Callee::Global(_))
+                                && call.dst.is_none()
+                                && *normal_landing == arg.landing
+                                && *fault_landing == birth.reclaim
+                                && frame.is_some_and(|(id, _)| *fault_frame == id))
+                        {
+                            return Err(fault("provider-argument-drift"));
+                        }
+                        cursor = arg.landing;
+                    }
+                    if cursor != birth.birth_call {
+                        return Err(fault("provider-argument-chain"));
                     }
                     if !matches!(function.blocks.get(&birth.birth_call).and_then(|b| b.terminator.as_ref()),
                         Some(MirInstruction::Invoke {

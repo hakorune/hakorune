@@ -76,8 +76,10 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         fprintf(f, "  %%ofr_nread%u_%zu = alloca i64, align 8\n", lv4_u(block, "id"), ni);
     }
     /* A nested i64 call writes through a caller-local slot; the callee's
-       own %%out_i64 remains reserved for this function's result. */
-    if (ordinary && lv4_is(op, "kind", "ordinary_call") &&
+       own %%out_i64 remains reserved for this function's result. A birth
+       caller's sealed provider-argument calls are ExactI64 only — the
+       flow arm already closed every other result kind. */
+    if ((ordinary || birth) && lv4_is(op, "kind", "ordinary_call") &&
         !lv4_is(op, "result", "map"))
       fprintf(f, "  %%call_out%u = alloca i64, align 8\n", lv4_u(block, "id"));
     lv4_map_alloca(f, op, lv4_u(block, "id"), session);
@@ -399,7 +401,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         if (lv4_is(op, "result", "map"))
           fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%map%u",
               b, lv4_u(call, "target"), b);
-        else if (ordinary)
+        else if (ordinary || birth)
           fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%call_out%u",
               b, lv4_u(call, "target"), b);
         else

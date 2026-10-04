@@ -17,6 +17,21 @@ impl<'module> PublishedMirBackendView<'module> {
         // Ordinary membership is transitive: every emitted function carries
         // its own sealed call rows, and callees discovered mid-walk join the
         // walk. The retained root selects the entry, not the edge set.
+        // Birth units seed the walk too: a qualified-static provider
+        // argument is a sealed `ExactI64` call row emitted inside the birth
+        // caller, so its callee joins `ordinary_sites` through the same
+        // membership proof and the birth carries its own call set.
+        let births: &[crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1] =
+            if handoff.script_array().is_none() {
+                if self.route() != PublishedStaticMethodRouteV1::CanonicalTyped {
+                    return Err(fault("not-final-lifecycle-view"));
+                }
+                handoff
+                    .births()
+                    .ok_or_else(|| fault("birth-handoff-missing"))?
+            } else {
+                &[][..]
+            };
         let mut call_sets: std::collections::BTreeMap<&str, Vec<OrdinaryCallSite>> =
             std::collections::BTreeMap::new();
         let mut ordinary_sites: std::collections::BTreeMap<
@@ -26,6 +41,20 @@ impl<'module> PublishedMirBackendView<'module> {
         if handoff.script_array().is_none() {
             let mut visited = BTreeSet::from([root.signature.name.as_str()]);
             let mut pending = std::collections::VecDeque::from([root]);
+            for birth in births {
+                let symbol = self
+                    .module()
+                    .canonical_callable_definition_symbol(birth.target())
+                    .ok_or_else(|| fault("birth-definition-missing"))?;
+                if visited.insert(symbol) {
+                    pending.push_back(
+                        self.module()
+                            .functions
+                            .get(symbol)
+                            .ok_or_else(|| fault("birth-function-missing"))?,
+                    );
+                }
+            }
             while let Some(function) = pending.pop_front() {
                 let sites = collect_ordinary_calls(function)?;
                 for site in &sites {
@@ -56,31 +85,21 @@ impl<'module> PublishedMirBackendView<'module> {
                 call_sets.insert(function.signature.name.as_str(), sites);
             }
         }
-        let (root_result, births) = if let Some(script) = handoff.script_array() {
+        let root_result = if let Some(script) = handoff.script_array() {
             script.validate_root_binding(root)?;
-            let result = match script.root_result()? {
+            match script.root_result()? {
                 crate::mir::builder::ScriptArrayRootResultV1::Integer { .. } => {
                     CompiledEntryRootResultV1::I64
                 }
                 crate::mir::builder::ScriptArrayRootResultV1::Unit => {
                     CompiledEntryRootResultV1::Unit
                 }
-            };
-            (result, &[][..])
-        } else {
-            if self.route() != PublishedStaticMethodRouteV1::CanonicalTyped {
-                return Err(fault("not-final-lifecycle-view"));
             }
-            let result = match handoff.root_result() {
+        } else {
+            match handoff.root_result() {
                 Some(result) => super::super::compiled_entry_contract::root_result_category(result),
                 None => return Err(fault("root-result-missing")),
-            };
-            (
-                result,
-                handoff
-                    .births()
-                    .ok_or_else(|| fault("birth-handoff-missing"))?,
-            )
+            }
         };
         let mut names = BTreeSet::new();
         let mut functions = Vec::with_capacity(births.len() + ordinary_sites.len() + 1);
@@ -188,7 +207,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 function,
                 PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi: birth.clone() },
                 false,
-                &[],
+                call_sets.get(symbol).map(Vec::as_slice).unwrap_or(&[]),
             )?);
         }
         Ok(PublishedLifecyclePhysicalProgramV1 {

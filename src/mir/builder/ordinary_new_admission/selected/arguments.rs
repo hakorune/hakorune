@@ -40,6 +40,13 @@ pub(super) fn materialize_arguments(
                     .map_err(|_| freeze("argument-local-observation"))?;
                 Ok(value)
             }
+            // `QualifiedStaticCall` is a provider-`new`-only row sealed by
+            // the Birth construction plan; the selected `local x = new`
+            // lane never admits it. A row reaching this owner is issuer
+            // drift, not a supported actual.
+            OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall { .. } => {
+                return Err(freeze("argument-kind-provider-only"))
+            }
             OrdinaryNewTrivialArgumentKindV1::I64Field { object } => {
                 // The read site is this row's exact `FieldAccess`
                 // expression site; the staged issuer proof under it is

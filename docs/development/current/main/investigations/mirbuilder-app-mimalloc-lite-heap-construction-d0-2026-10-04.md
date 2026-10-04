@@ -190,9 +190,10 @@ designed `unsupported terminator Invoke` boundary.
 All row names have prefix `MIRBUILDER-APP-MIMALLOC-LITE-`.
 
 Selected execution row:
-`MIRBUILDER-APP-MIMALLOC-LITE-HEAP-PROVIDER-CALL-ARG-S0`.
-Next semantic row:
 `MIRBUILDER-APP-MIMALLOC-LITE-HEAP-BIRTH-FIELD-CALL-S0`.
+Next semantic row:
+none — C is the final construction row on this card; the unchanged
+heap/app frontier probe follows it.
 
 1. **HEAP-CONSTRUCTION-SIZE-T0** (selected, BoxShape only). Split the
    provider emission/validation responsibilities out of
@@ -412,3 +413,98 @@ Non-claims: the unchanged `new HakoAllocHeap()` still stops at
 call-argument check (B's edge) and `seedBlocks()` (C's edge); VM lane
 terminal `birth-global-legacy-stopped` is unchanged. No whole-app
 success is claimed.
+
+## Landed: HEAP-PROVIDER-CALL-ARG-S0 (B)
+
+A provider `new` argument admits a proven `Alias.m(..)` qualified static
+call — `LayoutBox.class_size(0)` — with the result routed through the
+existing `InvokeNormalResult` lane into the provider `birth_call` actuals.
+One claim, one consumption boundary, one emitted invoke per sealed row.
+
+- Claim (`qualified_static_call_claim.rs`): each `(caller, site)` index
+  row now pairs the `ExactI64` claim with the sealed `StaticBoxMethod`
+  target from one seal — `claim_target` is the construction issuer's
+  membership lookup; claim and target are never two lookups.
+- Seal (`instance_construction.rs`, `ordinary_new_arguments.rs`): the
+  provider arm admits a `MethodCall` actual only under
+  `provider_static_claims` — `QualifiedUnbound` receiver, exact
+  `(caller, site)` claim row, arity match, Integer/Bool literal actuals,
+  i64 evidence at every required-i64 ordinal — and seals
+  `OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall { target,
+  arguments }`. `ConstructionStoreRhsV1::ProviderConstruction` carries
+  the birth caller key. The issuer mints the claim index before the
+  constructor batch so the plan reads it as an AST-free fact.
+- Transport (`child_lowering_impl.rs`,
+  `source_call_publication.rs`): the port takes each sealed
+  `(caller, site)` publication handoff through the sole module boundary
+  and installs it on the callable ledger; `take_provider_static_
+  result_publication` consumes exactly one row per argument site —
+  missing, target-drifted, duplicated or residual rows all fail closed.
+- Emission (`emission.rs`, `normal_callable_construction_state.rs`):
+  the reclaim chain is built before argument evaluation so each
+  `Call{Global, I64}` invoke faults onto the same cleanup the birth
+  call owns — no new ownership mechanism. One invoke per sealed row in
+  source order; each normal landing projects through
+  `InvokeNormalResult`, and `ProviderCallArgEmission` records the exact
+  invoke/landing/value triple for validation.
+- Validation (`validation.rs`, `emission_validation.rs`): the census
+  adds one invoke per `call_args` row; the chain walk requires `entry`
+  -> each invoke -> its landing -> `birth_call` with the shared reclaim
+  fault landing; `InvokeNormalResult` pairs are checked against the
+  recorded triples. The local-commit lane re-verifies target, literal
+  actuals and projection against the sealed row.
+- Selected lane (`selected/arguments.rs`): a `QualifiedStaticCall` row
+  reaching `local x = new` materialization is issuer drift —
+  `argument-kind-provider-only`, never an admitted actual.
+- Physical (`physical_program_projection.rs`,
+  `compiled_entry_contract.rs`, `physical_abi.rs`): birth units seed
+  the ordinary-call census — a provider argument is a sealed `ExactI64`
+  call row, so its callee joins membership through the same proof and
+  each birth function carries its own call set; a birth caller with a
+  non-i64 call result is `compiled-entry-birth-call-result`.
+  `scalar_actual_kind` tags the projected i64 actual 1.
+- V4 (`hako_llvmc_ffi_lifecycle_v4_indexed_flow.inc`,
+  `hako_llvmc_ffi_lifecycle_v4_emit.inc`): `ordinary_call` admits a
+  birth caller only for `result == "i64"` (`birth_i64`) — map and
+  handle results stay rejected. `field_set`,
+  `field_residence_release` and `object_field_set` admit the birth
+  caller under the same lifecycle proofs (stamped receiver origin -2,
+  in-flight lease origin >= 0). Nested i64 calls get a caller-local
+  `%call_out<block>` slot; `invoke_normal_result` loads from it.
+
+Evidence:
+- `provider_static_call_argument_seals_target_and_literal_actuals`,
+  `provider_static_call_arguments_seal_in_source_order`,
+  `provider_static_call_argument_stays_fail_closed` (new
+  `provider_static_call_argument_tests.rs`): seal proves target, caller
+  key and source order; unresolved method, non-static receiver,
+  non-i64 result, compound inner arg, Bool at a required-i64 ordinal
+  and an unqualified call all stay `FieldContractUnsupported`.
+- `provider_static_call_argument_serializes_inside_birth_unit`
+  (physical JSON): exactly one `ordinary_call` inside `Parent.birth/0`
+  targeting `LayoutBox.class_size/1` with `result == "i64"`, the
+  `invoke_normal_result` projection in the normal landing, and the
+  i64-tagged actual on the `birth_call`.
+- `cargo test --lib construction` 29/29, `provider` 207/207,
+  `physical_program_json` 26/26, `qualified_static_call_claim` 6/6,
+  `ordinary_new_emission_validation` 2/2 — no new failures; the
+  recorded baseline set is unchanged.
+- C: `published_lifecycle_v4_nested_call_test`,
+  `published_rows_preartifact_test`,
+  `published_lifecycle_physical_parser_preartifact_test` PASS —
+  including a positive birth-caller `ordinary_call` fixture and a
+  map-result birth-caller variant rejected at the physical parser
+  boundary. A real emitted wire
+  (`hako-provider-static-arg-wire.json`) compiles through V4 with
+  rc=0.
+- Scope guard: B pins added; guard stops on the recorded baseline
+  `brand_catalog_tests.rs=1010` (was 961 at HEAD, already over).
+
+Non-claims: the unchanged `apps/mimalloc-lite` `--emit-exe` probe now
+stops at `construction=Err(BodyCoverageUnsupported)` at
+`MiWorkload.run/0` — the provider `new` arguments seal and the plan
+reaches the `seedBlocks()` statements (C's edge); the VM lane still
+stops at `birth-global-legacy-stopped`. No fault-suppression,
+annotation, fold or whole-app claim is made; a Birth-unit call outside
+the qualified-static provider-argument lane issues no claim and stays
+closed.

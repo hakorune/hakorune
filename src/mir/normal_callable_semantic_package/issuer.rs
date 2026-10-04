@@ -435,17 +435,30 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     // receiver names through one shared authority, never a second list.
     import_rows: &[(String, String)],
 ) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
-    let instance_constructors =
-        issue_instance_constructor_semantic_batch_v1(resolver, source.source(), brand_catalog)
-            .map_err(
-                |error| NormalCallableSemanticPackageIssueV1::InstanceConstructors {
-                    _error: error,
-                },
-            )?;
     let catalog =
         issue_source_backed_same_module_callable_catalog_v1(&source).map_err(|error| {
             NormalCallableSemanticPackageIssueV1::SourceBackedCatalog { _error: error }
         })?;
+    // Qualified static-box call claims ride the same sealed authorities the
+    // publication owner later consumes — minted ahead of the construction
+    // issuer so it can admit `Alias.m(..)` provider arguments.
+    let static_claim_index =
+        super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1::issue(
+            catalog.catalog(),
+            import_rows.iter().cloned(),
+        )
+        .map_err(
+            |error| NormalCallableSemanticPackageIssueV1::QualifiedStaticClaim { _error: error },
+        )?;
+    let instance_constructors = issue_instance_constructor_semantic_batch_v1(
+        resolver,
+        source.source(),
+        brand_catalog,
+        &static_claim_index,
+    )
+    .map_err(
+        |error| NormalCallableSemanticPackageIssueV1::InstanceConstructors { _error: error },
+    )?;
     let app_main_identity = catalog
         .catalog()
         .source_backed_app_main()
@@ -645,18 +658,6 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             )
         }
     };
-    // Qualified static-box call claims ride the same sealed authorities the
-    // publication owner later consumes: import view, target inventory, and
-    // the result solver — minted here so the homes-aware walk can admit
-    // `local x = Alias.m(..)` sites during the co-seal.
-    let static_claim_index =
-        super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1::issue(
-            catalog.catalog(),
-            import_rows.iter().cloned(),
-        )
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::QualifiedStaticClaim {
-            _error: error,
-        })?;
     let (mut ordinary_new_claim_ledger, mut completion_seeds) = issue_ordinary_source_cohort_v1(
         &batch,
         &selected,
@@ -703,9 +704,9 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             Some(VerifiedS6CStorageHeaderProjectionV1::from_catalog_declaration(declaration))
         }
     };
-    let result_contracts = completion_seeds.seal().map_err(|error| {
-        NormalCallableSemanticPackageIssueV1::ResultContract { _error: error }
-    })?;
+    let result_contracts = completion_seeds
+        .seal()
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::ResultContract { _error: error })?;
     if let Some(loans) = &mut direct_call_loans {
         for loan in loans.iter_mut() {
             loan.co_seal_lifecycle(

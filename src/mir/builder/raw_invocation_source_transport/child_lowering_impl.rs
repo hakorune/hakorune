@@ -24,9 +24,79 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         store: crate::mir::builder::normal_callable_semantic_lowering_state::construction::TakenConstructionStore,
         provider_value: Option<ValueId>,
     ) -> Result<ValueId, String> {
-        self.callable_ledger
+        let ledger = self
+            .callable_ledger
             .as_ref()
-            .ok_or("[freeze:contract][construction-store/no-ledger]")?
+            .ok_or("[freeze:contract][construction-store/no-ledger]")?;
+        if let crate::mir::normal_callable_semantic_package::ConstructionStoreRhsV1::ProviderConstruction {
+            caller,
+            arguments,
+            ..
+        } = store.rhs()
+        {
+            let has_call_argument = arguments.iter().any(|argument| {
+                matches!(
+                    argument.kind(),
+                    crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall { .. }
+                )
+            });
+            if has_call_argument {
+                let declarations = builder
+                    .comp_ctx
+                    .callable_declaration_catalog()
+                    .map_err(|_| {
+                        "[freeze:contract][construction-store/declarations-missing]"
+                            .to_owned()
+                    })?;
+                for argument in arguments.iter() {
+                    let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall {
+                        target,
+                        ..
+                    } = argument.kind()
+                    else {
+                        continue;
+                    };
+                    // The sole consumption boundary for the sealed
+                    // `(caller, site)` publication row: exactly one
+                    // `Selected` handoff may ride into the ledger, and
+                    // its target must equal the claim's sealed target.
+                    let take = self
+                        .module_port
+                        .take_static_result_publication_handoff(
+                            declarations,
+                            caller,
+                            argument.site(),
+                        )
+                        .map_err(|error| {
+                            format!(
+                                "[freeze:contract][construction-store/publication-take/{error:?}]"
+                            )
+                        })?;
+                    let crate::mir::callable_result_representation::StaticCallResultPublicationTakeV1::Selected(
+                        handoff,
+                    ) = take
+                    else {
+                        return Err(
+                            "[freeze:contract][construction-store/publication-not-selected]"
+                                .to_owned(),
+                        );
+                    };
+                    if handoff.target() != target || handoff.site() != argument.site() {
+                        return Err(
+                            "[freeze:contract][construction-store/publication-relation-drift]"
+                                .to_owned(),
+                        );
+                    }
+                    ledger
+                        .borrow_mut()
+                        .install_source_static_result_publication(
+                            argument.site(),
+                            handoff,
+                        )?;
+                }
+            }
+        }
+        ledger
             .borrow_mut()
             .emit_construction_store(builder, store, provider_value)
     }

@@ -1188,3 +1188,101 @@ fn installed_owned_array_child_publishes_residence_marks() {
             .unwrap();
     });
 }
+
+/// A sealed qualified-static provider argument (`LayoutBox.class_size(0)`)
+/// emits exactly one `ordinary_call` invoke inside the provider's Birth
+/// unit — i64 result projected through `invoke_normal_result` — and the
+/// projected value reaches the `birth_call` actuals with the i64 tag.
+#[test]
+fn provider_static_call_argument_serializes_inside_birth_unit() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let mut compiler = MirCompiler::with_options(false);
+        compiler
+            .compile_normal_with_published(
+                request(
+                    "static box LayoutBox {
+                       class_size(unused) { return 8 }
+                     }
+                     box Page {
+                       items: ArrayBox = new ArrayBox()
+                       birth(size) { }
+                     }
+                     box Parent {
+                       child: Page = new Page(LayoutBox.class_size(0))
+                       birth() { }
+                     }
+                     static box Main {
+                       main() { local p = new Parent() return 0 }
+                     }",
+                ),
+                |view, verification| -> Result<(), String> {
+                    assert!(verification.is_ok(), "{verification:?}");
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    let json = emit_lifecycle_physical_abi_json(&input)?;
+                    std::fs::write(
+                        std::env::temp_dir().join("hako-provider-static-arg-wire.json"),
+                        &json,
+                    )
+                    .unwrap();
+                    let decoded: serde_json::Value = serde_json::from_str(&json).unwrap();
+                    let functions = decoded["functions"].as_array().unwrap();
+                    let callee_index = functions
+                        .iter()
+                        .position(|row| row["name"] == "LayoutBox.class_size/1")
+                        .expect("static callee row") as u64;
+                    let birth = functions
+                        .iter()
+                        .find(|row| row["role"] == "birth_unit" && row["name"] == "Parent.birth/0")
+                        .expect("parent birth row");
+                    let rows: Vec<&serde_json::Value> = birth["blocks"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .flat_map(|block| {
+                            block["instructions"]
+                                .as_array()
+                                .unwrap()
+                                .iter()
+                                .chain(std::iter::once(&block["terminator"]["instruction"]))
+                        })
+                        .collect();
+                    let calls: Vec<&&serde_json::Value> = rows
+                        .iter()
+                        .filter(|row| {
+                            row["op"] == "invoke" && row["operation"]["kind"] == "ordinary_call"
+                        })
+                        .collect();
+                    assert_eq!(calls.len(), 1, "exactly one argument call");
+                    let call = &calls[0]["operation"];
+                    assert_eq!(call["call"]["target"].as_u64(), Some(callee_index));
+                    assert_eq!(call["result"], "i64");
+                    assert_eq!(call["call"]["args"][0]["kind"], "i64");
+                    // The projection sits in the call's normal landing and
+                    // its value is the i64 actual on the birth_call edge.
+                    let landing = birth["blocks"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .find(|block| block["id"].as_u64() == calls[0]["normal"].as_u64())
+                        .expect("normal landing block");
+                    let projection = &landing["instructions"][0]["instruction"];
+                    assert_eq!(projection["op"], "invoke_normal_result");
+                    let projected = projection["dst"].as_u64().unwrap();
+                    let birth_call = rows
+                        .iter()
+                        .find(|row| row["operation"]["kind"] == "birth_call")
+                        .expect("provider birth call");
+                    let actual = birth_call["operation"]["call"]["args"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .find(|arg| arg["value"].as_u64() == Some(projected))
+                        .expect("projected value is a birth actual");
+                    assert_eq!(actual["kind"].as_u64(), Some(1));
+                    Ok(())
+                },
+            )
+            .unwrap();
+    });
+}

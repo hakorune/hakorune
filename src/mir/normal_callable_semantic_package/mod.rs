@@ -140,8 +140,8 @@ pub(crate) use ordinary_new_coseal::{
     OrdinaryNewResultClassV1, OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
     OwnedFieldChildKindV1, OwnedFieldChildV1, PreparedTerminalI64AddReturnV1,
     PreparedTerminalI64FieldReturnV1, PreparedTerminalMapGetReturnV1,
-    ReceiverCallClassObservationV1, RootCallDispositionV1, RootInstanceCallDispositionRowV1,
-    VerifiedOrdinaryNewBirthRecipeV1,
+    QualifiedStaticCallArgumentKindV1, ReceiverCallClassObservationV1, RootCallDispositionV1,
+    RootInstanceCallDispositionRowV1, VerifiedOrdinaryNewBirthRecipeV1,
 };
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{
@@ -165,6 +165,9 @@ mod map_get_terminal_tests;
 mod map_home_flow_tests;
 #[cfg(test)]
 mod map_value_completion_tests;
+#[cfg(test)]
+#[path = "provider_static_call_argument_tests.rs"]
+mod provider_static_call_argument_tests;
 #[cfg(test)]
 mod qualified_static_call_claim_tests;
 #[cfg(test)]

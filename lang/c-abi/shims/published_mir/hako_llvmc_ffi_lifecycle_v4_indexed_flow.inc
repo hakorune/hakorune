@@ -320,7 +320,11 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       int callee_has_receiver = callee && yyjson_is_uint(yyjson_obj_get(callee, "receiver"));
       int want_map = lv4_is(op, "result", "map");
       int want_nullable = lv4_is(op, "result", "nullable_handle");
-      if ((fi && !ordinary) || faulted || state[bi] || !target || target >= in->index_count ||
+      /* A birth caller joins this lane only for a qualified-static provider
+         argument: its sealed claims are ExactI64, so the i64 spelling is the
+         entire surface — map and handle results still fail here. */
+      int birth_i64 = birth && lv4_is(op, "result", "i64");
+      if ((fi && !ordinary && !birth_i64) || faulted || state[bi] || !target || target >= in->index_count ||
           !lv4_is(callee, "role", want_map ? "ordinary_map" :
               want_nullable ? "ordinary_nullable_handle" : "ordinary_i64") ||
           (callee_has_receiver != (receiver && !yyjson_is_null(receiver))) ||
@@ -427,7 +431,11 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       }
     } else if (lv4_is(op, "kind", "field_set")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
-      if (!fi || faulted || lv4_slot(in, op) < 0 || !value) return 0;
+      /* A birth caller installs provider `new` results and scalar formals
+         into its borrowed receiver's fields: the base is the stamped
+         receiver handle (origin -2, object-corroborated), the value an
+         in-flight live lease or a scalar lane exactly as below. */
+      if ((fi && !ordinary && !birth) || faulted || lv4_slot(in, op) < 0 || !value) return 0;
       if (value->kind == LV4_HANDLE) {
         /* A live handle stored into an owned field moves the lease into
            the object slot; a `field_residence_release` on the base
@@ -444,7 +452,10 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
          The base Home stays live until its own release consumes it, so
          the operand corroborates the exact object without ending it. */
       hako_lv4_value* base = lv4_index_value(fn, lv4_u(op, "base"));
-      if ((fi && !ordinary) || lv4_slot(in, op) < 0 || !base ||
+      /* A birth caller's fault discharge releases the in-flight provider
+         child's residence slot the same way: origin >= 0 keeps the
+         borrowed receiver out of this lane. */
+      if ((fi && !ordinary && !birth) || lv4_slot(in, op) < 0 || !base ||
           base->origin < 0 ||
           !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
@@ -454,7 +465,11 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
          keeps it live so the discharge block's own `home_release` on the
          child still has a lease to consume. */
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
-      if (!fi || faulted || lv4_slot(in, op) < 0 || !value ||
+      /* Inside a birth unit the checked store moves the provider child
+         into the borrowed receiver's slot: the base is the stamped
+         receiver (origin -2 admitted by lv4_indexed_live), the child is
+         still an in-flight live lease (origin >= 0). */
+      if ((fi && !ordinary && !birth) || faulted || lv4_slot(in, op) < 0 || !value ||
           value->kind != LV4_HANDLE || value->origin < 0 ||
           !lv4_layout(in, lv4_u(op, "child_object_id")) ||
           !lv4_indexed_live(fn, value->id, LV4_HANDLE, state,

@@ -39,9 +39,17 @@ pub(in crate::mir::normal_callable_semantic_package) enum QualifiedStaticCallCla
 }
 
 /// `(caller, site) -> claim` membership for qualified static-box calls.
+///
+/// Each row pairs the claim with the sealed `StaticBoxMethod` target the
+/// target inventory proved for that exact site — the claim and its target
+/// come from one seal, never two lookups. Construction plans consume the
+/// pair as their AST-free provider-argument fact.
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct QualifiedStaticCallClaimIndexV1 {
-    rows: BTreeMap<(CanonicalSameModuleCallableKeyV1, SourceExprSiteV1), QualifiedStaticCallClaimV1>,
+    rows: BTreeMap<
+        (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
+        (QualifiedStaticCallClaimV1, CanonicalSameModuleCallableKeyV1),
+    >,
 }
 
 impl QualifiedStaticCallClaimIndexV1 {
@@ -75,7 +83,10 @@ impl QualifiedStaticCallClaimIndexV1 {
             };
             rows.insert(
                 (caller.clone(), site.clone()),
-                QualifiedStaticCallClaimV1::new(required_i64_arguments.clone()),
+                (
+                    QualifiedStaticCallClaimV1::new(required_i64_arguments.clone()),
+                    source_target.target().clone(),
+                ),
             );
         }
         Ok(Self { rows })
@@ -90,7 +101,21 @@ impl QualifiedStaticCallClaimIndexV1 {
         caller: &CanonicalSameModuleCallableKeyV1,
         site: &SourceExprSiteV1,
     ) -> Option<QualifiedStaticCallClaimV1> {
-        self.rows.get(&(caller.clone(), site.clone())).cloned()
+        self.rows
+            .get(&(caller.clone(), site.clone()))
+            .map(|(claim, _)| claim)
+            .cloned()
+    }
+
+    /// Membership lookup carrying the sealed target with the claim — the
+    /// construction issuer's provider-argument seal needs both from one
+    /// row; absent row means the site is no qualified static claim.
+    pub(in crate::mir::normal_callable_semantic_package) fn claim_target(
+        &self,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<&(QualifiedStaticCallClaimV1, CanonicalSameModuleCallableKeyV1)> {
+        self.rows.get(&(caller.clone(), site.clone()))
     }
 }
 

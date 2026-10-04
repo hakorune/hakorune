@@ -67,16 +67,39 @@ pub(super) enum StoreProgress {
     },
 }
 
+/// Emitted coordinates of one provider `new` argument's qualified static
+/// call — one invoke per sealed `QualifiedStaticCall` row, in source
+/// order.
+#[derive(Debug)]
+pub(super) struct ProviderCallArgEmission {
+    /// Block whose terminator is `Invoke{Call{Global, I64}}`.
+    invoke_block: BasicBlockId,
+    /// Normal landing hosting the `InvokeNormalResult` projection.
+    landing: BasicBlockId,
+    /// Projected i64 value — the provider Birth actual at this ordinal.
+    value: ValueId,
+}
+
 /// Emitted provider-Birth chain coordinates for one user-class provider
 /// store — the binding validator checks each block's terminator exactly.
 #[derive(Debug)]
 pub(super) struct ProviderBirthEmission {
+    /// Chain head: the `new_box` normal landing. Each sealed
+    /// qualified-static argument call extends the chain from here;
+    /// with no call arguments the head is `birth_call` itself.
+    entry: BasicBlockId,
     /// Block whose terminator is `Invoke{Call{BirthConstructor}}`.
     birth_call: BasicBlockId,
+    /// Qualified-static argument invokes in emitted (source) order:
+    /// `entry`'s terminator is the first, each `landing` carries the
+    /// projection and the next invoke, and the last `landing`
+    /// terminates in `birth_call`.
+    call_args: Box<[ProviderCallArgEmission]>,
     /// Head of the birth-fault cleanup chain: one
     /// `Invoke{OwnedFieldResidenceRelease}` block per `owned_fields`
     /// entry (emitted order), then the `Invoke{ReclaimUnpublished}` tail
     /// — with no owned fields the head is the reclaim tail itself.
+    /// Argument-call invokes fault onto this same head.
     reclaim: BasicBlockId,
     /// Head of the store-fault discharge chain under the same layout,
     /// ending in the `Invoke{HomeRelease}` tail.

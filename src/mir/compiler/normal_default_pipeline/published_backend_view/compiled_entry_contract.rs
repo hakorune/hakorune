@@ -278,17 +278,27 @@ impl<'module> PublishedMirBackendView<'module> {
             };
             // Ordinary calls are per-caller rows: every caller-capable
             // function (root and ordinary alike) carries its own edges, and
-            // the caller's program index is part of the row identity.
+            // the caller's program index is part of the row identity. A
+            // BirthUnit joins as a caller only for the qualified-static
+            // provider-argument lane — its sealed claims are `ExactI64`, so
+            // a birth caller carrying any other result kind is census
+            // drift, never a new capability.
             let mut program_ordinary_calls = Vec::new();
             for (index, function) in program.functions().iter().enumerate() {
-                if !matches!(
+                let birth_caller = matches!(
                     function.role(),
-                    PublishedLifecyclePhysicalFunctionRoleV1::Root { .. }
-                        | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
-                        | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
-                        | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. }
-                        | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle { .. }
-                ) {
+                    PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { .. }
+                );
+                if !birth_caller
+                    && !matches!(
+                        function.role(),
+                        PublishedLifecyclePhysicalFunctionRoleV1::Root { .. }
+                            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
+                            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
+                            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. }
+                            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle { .. }
+                    )
+                {
                     continue;
                 }
                 let caller_function_index =
@@ -315,6 +325,9 @@ impl<'module> PublishedMirBackendView<'module> {
                     else {
                         continue;
                     };
+                    if birth_caller && *result != InvokeCallResultKind::I64 {
+                        return Err(fault("compiled-entry-birth-call-result"));
+                    }
                     program_ordinary_calls.push((
                         caller_function_index,
                         block_id,

@@ -206,6 +206,7 @@ pub(super) fn seal_provider_owned_children_v1(
                 object: Some(child),
                 arguments,
                 owned_fields,
+                ..
             } = store.rhs()
             else {
                 continue;

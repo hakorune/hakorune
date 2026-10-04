@@ -44,6 +44,7 @@ mod claim_access;
 mod ordinary_new_arguments;
 pub(crate) use ordinary_new_arguments::{
     OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
+    QualifiedStaticCallArgumentKindV1,
 };
 #[path = "ordinary_new_completion_index.rs"]
 mod completion_index;

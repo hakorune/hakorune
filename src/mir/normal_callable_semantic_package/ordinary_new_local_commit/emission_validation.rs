@@ -540,6 +540,95 @@ impl OrdinaryNewClaimLedgerV1 {
                     } if *dst == value)
                 })
                 .count(),
+            // `QualifiedStaticCall` emits one `Call{Global, I64}` invoke
+            // whose normal landing projects `value` through
+            // `InvokeNormalResult`. Validation re-walks the chain against
+            // the sealed row: exactly one invoke carries the sealed global
+            // target with literal-only actuals in source order, and its
+            // normal landing owns the projection.
+            OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall { target, arguments } => {
+                let global = target
+                    .canonical_global_target_v1()
+                    .map_err(|_| freeze("argument-call-target"))?;
+                let matching =
+                    function
+                        .blocks
+                        .iter()
+                        .filter(|(block_id, block)| {
+                            let Some(crate::mir::MirInstruction::Invoke {
+                                operation:
+                                    crate::mir::instruction::InvokeOperation::Call {
+                                        call,
+                                        result: crate::mir::instruction::InvokeCallResultKind::I64,
+                                    },
+                                normal_landing,
+                                ..
+                            }) = block.terminator.as_ref()
+                            else {
+                                return false;
+                            };
+                            if call.dst.is_some()
+                                || call.callee != crate::mir::Callee::Global(global.clone())
+                                || call.args.len() != arguments.len()
+                            {
+                                return false;
+                            }
+                            let literals_match = call.args.iter().zip(arguments.iter()).all(
+                                |(argument_value, kind)| {
+                                    let expected = match kind {
+                                        super::super::QualifiedStaticCallArgumentKindV1::Integer(
+                                            literal,
+                                        ) => crate::mir::ConstValue::Integer(*literal),
+                                        super::super::QualifiedStaticCallArgumentKindV1::Bool(
+                                            literal,
+                                        ) => crate::mir::ConstValue::Bool(*literal),
+                                    };
+                                    function
+                                        .blocks
+                                        .values()
+                                        .flat_map(|candidate| candidate.all_instructions())
+                                        .filter(|instruction| {
+                                            matches!(
+                                                instruction,
+                                                crate::mir::MirInstruction::Const {
+                                                    dst,
+                                                    value: actual,
+                                                } if dst == argument_value && *actual == expected
+                                            )
+                                        })
+                                        .count()
+                                        == 1
+                                },
+                            );
+                            if !literals_match {
+                                return false;
+                            }
+                            function
+                                .blocks
+                                .get(normal_landing)
+                                .map(|landing| {
+                                    landing
+                                        .all_instructions()
+                                        .filter(|instruction| {
+                                            matches!(
+                                                instruction,
+                                                crate::mir::MirInstruction::InvokeNormalResult {
+                                                    dst,
+                                                    invoke_block,
+                                                } if *dst == value && invoke_block == *block_id
+                                            )
+                                        })
+                                        .count()
+                                        == 1
+                                })
+                                .unwrap_or(false)
+                        })
+                        .count();
+                if matching != 1 {
+                    return Err(freeze("argument-call-drift"));
+                }
+                return Ok(());
+            }
             // `I64Field` emits an `ObjectFieldGet` — the argument field-read
             // ledger, not a literal shape, validates that emission.
             OrdinaryNewTrivialArgumentKindV1::Local { .. }
