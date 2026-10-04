@@ -903,33 +903,16 @@ discharge, no production switch, no app EXE completion.
 
 ## Post-FINISHBIND frontier census (2026-10-04, field-read verifier gate)
 
-bb33 attribution (temporary diagnostic, reverted):
-`HakoAllocPage.allocate/1` `ObjectFieldGet{field: free_top}` — a `usize`
-scalar read (`if me.free_top == 0` / `me.free_top = me.free_top - 1`).
-The verifier arm (`verification/invoke.rs:47-81`) admits `i64` always
-and numeric-integer only under a `BorrowedTaggedValue` param carrier —
-the checked-compare-view corridor (`8bfc8534ba`). Two families hit it:
-
-- `me.<numeric-integer>` scalar reads (`me.block_size`, `me.free_top`,
-  `me.capacity` in `allocate`/`isLiveHandle`/`resizeInPlace`/`freeCount`/
-  `requestedBytes`): semantically staged by `local_read_field`/
-  `receiver_scalar_field`, physically emitted — no `me.` function carries
-  `BorrowedTaggedValue` (the instance receiver is `InstanceReceiver`,
-  never a carrier).
-- Object-typed `Alias` reads (`local small = heap.small_page`,
-  `local free_stack = me.free_stack`): classified `Alias`/`MirType::Box`;
-  `heap.small_page` also gates on `candidate.construction` (blocked by
-  `me.small_page.seedBlocks()`), and `HakoAllocHeap` is
-  `RetainedUnavailable` (child `OwnedArrayFieldsNoHook`).
-
-Boundary census (worker + direct reads): `ObjectFieldGet` is emitted
-only by the claimed `ExactObject` route (`fields.rs:177`, via
-`take_terminal_field_read`/`take_local_field_read`) — every emitted read
-is backed by a staged ledger row (`validate_field_reads` already rejects
-unowned/drifted reads); unclaimed reads emit dynamic `FieldGet` and
-never reach this arm. The `BorrowedTaggedValue` gate therefore
-duplicates no upstream proof — it was the first-corridor scope pin, and
-a canonical field definition is layout-proven by construction.
+bb33 attribution: `HakoAllocPage.allocate/1`
+`ObjectFieldGet{field: free_top}` — a `usize` scalar read. The
+verifier arm admitted numeric-integer only under a
+`BorrowedTaggedValue` carrier (`8bfc8534ba`) which no `me.` function
+ever carries. `ObjectFieldGet` is emitted only by the claimed
+`ExactObject` route (`fields.rs:177`), so every read reaching the arm
+is ledger-backed — the carrier gate duplicated no upstream proof.
+Object-typed `Alias` reads (`heap.small_page`, `me.free_stack`,
+`HakoAllocHeap` `RetainedUnavailable`) remain separate frontier
+shapes.
 
 Accepted Decision (2026-10-04, numeric field-read corridor):
 
@@ -968,33 +951,48 @@ Landed (`29adaa7b84` on `codex/birth-definition-publication`):
 
 - `verification/invoke.rs`: the `ObjectFieldGet` definition arm now
   accepts any non-weak declared type recognized by
-  `is_numeric_integer_type_name`; the `BorrowedTaggedValue` param
-  carrier gate is removed — staged ledger rows remain the sole
-  issuer, and the verifier only mirrors the uniform field-type
-  contract.
+  `is_numeric_integer_type_name`; the `BorrowedTaggedValue` carrier
+  gate is removed — staged ledger rows remain the sole issuer.
 - Unit pin
-  `object_field_read_admits_numeric_fields_and_rejects_other_types`
-  (invoke_tests): `i64`/`usize` admit; object-typed, `ArrayBox`, weak
-  and undeclared-typed fields keep
-  `object-field-read-definition-invalid`.
-- Evidence: `invoke` verifier suite 36/36, `mir::verification::`
-  111/111, `normal_callable_semantic_package` 580/583 — the same 3
-  classified baseline reds. Real `apps/mimalloc-lite --emit-mir-json`
-  advances past bb33 to the next named stop
-  `MIR JSON emit contract violation: unsupported terminator Invoke`
-  (README-recorded emitter vocabulary gap — a downstream frontier,
-  not a field-read failure). Scope guard pins unchanged (known
-  structural debts only); pointer guard PASS.
-- Non-claims kept: no object-typed `Alias` read admission, no
-  ArrayBox alias, no `.get`/field-write/method-forwarding lane, no
-  production switch, no app EXE completion.
+  `object_field_read_admits_numeric_fields_and_rejects_other_types`:
+  `i64`/`usize` admit; object-typed, `ArrayBox`, weak and undeclared
+  fields keep `object-field-read-definition-invalid`. Suites:
+  `invoke` 36/36, `mir::verification::` 111/111, package 580/583
+  (same 3 baseline reds). Real `--emit-mir-json` advances past bb33
+  to `unsupported terminator Invoke` — a designed negative (census
+  below), not a field-read failure. Scope/pointer guards PASS.
+- Non-claims kept: no object `Alias`/ArrayBox alias, no
+  `.get`/field-write/method-forwarding lane, no production switch.
 
-Next frontier (needs its own Decision): `unsupported terminator
-Invoke` in the MIR JSON emitter
-(`runner/mir_json_emit/emitters/control_flow.rs`) — census whether
-`Invoke` already has a JSON representation elsewhere or is
-intentionally outside the contract before any emitter change.
+Next frontier resolved by the census below — a designed negative.
 
-Open behind this row (separate Decisions): object-typed `Alias` reads,
-`me.<ArrayBox>` aliases, nested `me.<obj>.<scalar>` receivers, and
-`HakoAllocHeap` `RetainedUnavailable` (`OwnedArrayFieldsNoHook` child).
+## Post-NUMFIELD lane census (2026-10-04, Invoke emit vocabulary)
+
+`unsupported terminator Invoke` is a designed negative, not a task:
+accepted Decision `MIRBUILDER-INVOKE-LIFECYCLE-JSON-TERMINATOR-D0`
+(`mirbuilder-final-pipeline-ssot.md`) forbids adding `Invoke` to
+generic `src/runner/mir_json_emit` — its explicit rejection is the
+fail-fast boundary, and the lifecycle Invoke triplet already
+serializes through the sole physical owner
+(`published_backend_view/physical_program_json.rs`, the
+`hako.published-lifecycle-physical-program.v2` transport). The
+emit-mir-json probe lane is therefore exhausted by design for this
+app: it never runs artifact lifecycle coverage (root validation is
+invoked with `artifact=false`).
+
+Real production lane (`mimalloc_lite_exe.sh`): `--backend mir
+--emit-exe` (pure-first → lifecycle V4 → LLVM C API → EXE). First
+observation there: the app fails at
+`[freeze:contract][ordinary-new/local-commit/artifact-unowned-lifecycle-site]`
+— `HakoAllocPage.allocate/1` emits `Call{BirthConstructor
+HakoAllocHandle.birth/3}` (tail-return `new`, page_heap_box.hako:102)
+with zero recorded artifact bindings. Attribution, prefix-coverage
+questions and the next design stop continue in the child card
+`mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-artifact-d0-2026-10-04.md`.
+`mimalloc_lite_exe.sh` still greps the stale pinned terminal
+`emission-binding-drift` — the designed terminal is now
+`unsupported terminator Invoke` again (progress, not regression).
+
+Open behind (separate Decisions): object `Alias` reads, `me.<ArrayBox>`
+aliases, `me.<obj>.<scalar>` receivers, `HakoAllocHeap`
+`RetainedUnavailable`.
