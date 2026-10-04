@@ -296,3 +296,52 @@ Each slice owns its focused positive/negative checks, publication/physical
 checks and baseline comparison. No fallback, mimalloc-specific name branch,
 source workaround, provider activation, whole-app completion or arbitrary
 recursive destruction claim is authorized by this Decision.
+
+## Landed: HEAP-CONSTRUCTION-SIZE-T0 (commit: pending)
+
+`src/mir/builder/normal_callable_construction_state.rs` (971 lines) split
+into private responsibility children — pure code motion, no predicate,
+evaluation-order, fault-landing, verification or visibility change:
+
+- `normal_callable_construction_state/emission.rs` (379 lines):
+  `emit_construction_store` plus `jump_landing` — literal/parameter value
+  emission, the provider `new` chain (intrinsic `ArrayBox` and user-class
+  `NewBox`/`birth_call`/`ReclaimUnpublished`/`ObjectFieldSet`+`HomeRelease`
+  discharge) and the checked field-store invoke.
+- `normal_callable_construction_state/validation.rs` (297 lines):
+  `RetainedConstructionValidation` artifact checks, `validate_bindings`
+  (emitted-shape census: invoke count, fault-return shape, per-store
+  terminator/landing match) plus `lands_on`.
+- Parent (321 lines): state/progress/transport types, `install_construction`,
+  `take_construction_store`, completion/finalize/transfer entry points and
+  the shared `construction-store/*` fault tag. The test file now imports
+  its own MIR types instead of reusing parent imports.
+
+Diff check: moved code is byte-verbatim against HEAD except the
+`impl`/`pub(super)` wrappers needed by the new module boundary; file
+doc comments record each child's responsibility.
+
+Evidence:
+- `cargo test --lib 'construction::'` — 2/2 (drift/residual and artifact
+  transport pins unchanged).
+- `cargo test --lib normal_callable_semantic_package` — 591 passed,
+  3 failed — identical to the recorded baseline
+  (`birth_receiver_non_escape_rejects_unproven_uses_before_row_publication`,
+  `main_static_child_port_consumes_all_role_rows_once`,
+  `qualified_call_map_argument_reaches_the_named_capability_boundary`).
+- Production lanes (fresh debug bin): MIR JSON holds the designed
+  `unsupported terminator Invoke` negative; EXE holds the same
+  `artifact-source-unavailable` stop at `MiWorkload.run/0` Body(0) —
+  `construction=Err(FieldContractUnsupported)` unchanged.
+- `rustfmt --check` on the touched files shows only drift already present
+  in HEAD's file carried verbatim by the move; no new deviation.
+- Scope guard: SIZE-T0 pins added (emission/validation/parent symbols and
+  all three files in the <800 watch); guard stops on the recorded baseline
+  `brand_catalog_tests.rs=961`.
+- `ordinary_new_coseal_issue.rs` remains 797 lines; the conditional
+  headroom extraction was not needed by this structural slice and stays
+  owned by the first semantic slice that needs it.
+
+Non-claims: no admitted construction shape changed; the app frontier is
+unchanged at `new HakoAllocHeap()`; no progress toward A/B/C semantics;
+structural commit kept separate.

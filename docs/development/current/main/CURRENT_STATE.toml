@@ -1,7 +1,7 @@
 date = "2026-10-05"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-CONSTRUCTION-SIZE-T0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-OWNED-PROVIDER-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "ordinary-new/local-commit/artifact-source-unavailable"
 current_design_stop = "none"
@@ -27,9 +27,9 @@ call arguments, preserving evaluation order and Fault cleanup. C borrows
 fully constructed stored-child receivers for covered birth-time calls.
 The unchanged app requires all three; no EXE PASS or production switch claim.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-OWNED-PROVIDER-S0"
+next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-PROVIDER-CALL-ARG-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-heap-construction-d0-2026-10-04.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-CONSTRUCTION-SIZE-T0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-OWNED-PROVIDER-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-heap-construction-d0-2026-10-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -45,7 +45,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-05: HEAP-CONSTRUCTION-SIZE-T0 landed — the 971-line `normal_callable_construction_state.rs` split into private responsibility children: `emission.rs` (store/provider-new invoke emission, 379) and `validation.rs` (retained transport + emitted-shape census, 297); parent keeps install/take/complete lifecycle + fault tag (321). Verbatim code motion — same predicates, order, landings, verification, visibility. Tests 2/2 construction + 591/3-baseline package; both lanes hold their recorded terminals (Invoke negative / `new HakoAllocHeap` FieldContractUnsupported). Guard pins added; baseline `brand_catalog_tests.rs=961` unchanged. Next: HEAP-OWNED-PROVIDER-S0 (A).",
   "2026-10-04: FORMAL-FORWARD-RESULT-S0 landed — `DeclaredObject(Box<str>)` parameter-contract arm binds explicit `formal: <box>` declarations to `ordinary_box_coverage` identities (`realloc`/`reallocResult` annotated, `resizeInPlace` stays `OpaqueHandle`); `ForwardFormal`/`NullableForwarded{ordinal}` mint a class-free identity claim for `return <formal>`, substituted through call-site actuals — `me.realloc` observes `NullableObject(HakoAllocHandle)` and the census flips to (8,0); receiver observation skips class-free claims, nullable emission admits `Handle` args, physical boundary derives projected edges through contractible bridges. MIR JSON holds designed `unsupported terminator Invoke`; EXE advances to `MiWorkload.run`'s `new HakoAllocHeap()` — `FieldContractUnsupported` on three edges (owned-field provider child, call-typed provider args, non-store birth body). Next: HEAP-CONSTRUCTION-D0 decision on split/authorities.",
   "2026-10-04: OBJECT-FORMAL-FIELD-STORE-S0 landed — `issue_construction_plan` admits a `Parameter` RHS into `Some(<user-class>)` declared fields (declared class is authority, unique non-self `PlainI64NoHook` bound); `OwnedFieldResidenceV1::Provided` seals object children like providers with `Handle` demand; scalar default-overwrite admitted, object re-store closed; `install_construction` admits the provided-store demand shape. All eight `HakoAllocHandleResult` `construction()` Ok, `home_prefix` keeps 6/2; --emit-mir-json is back at designed negative `unsupported terminator Invoke`, --emit-exe stops at `artifact-unowned-lifecycle-site` on the two `me.realloc`-blocked sites. Next: residual census on the `me.realloc` object-formal call forward (ordered task 2).",
-  "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-ARTIFACT-S0 landed — `.set` index `.get`-result proof plus a `dominated_view_sites` consult (draft-classification output, independent of borrowed-transport membership) admits `requested_size`'s `.set`/`+`/`new` leaves; `HakoAllocHandle` Result `home_prefix` is Ok and the EXE lane advances to `HakoAllocHandleResult.birth` (construction Err — object-typed formal field store, bundle slice 11 family). New pins cover field-receiver outside-transport retention and plain-copy index rejection. Next: RESULT-OBJECT-BIRTH frontier census on the slot-34 boundary's owning card.",
   ]
