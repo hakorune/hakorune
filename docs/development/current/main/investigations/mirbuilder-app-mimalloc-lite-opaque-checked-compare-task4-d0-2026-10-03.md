@@ -859,7 +859,7 @@ captured nodes.
 
 #### FINISHBIND-S0 — landed record
 
-Landed (`<pending>` on `codex/birth-definition-publication`):
+Landed (`6307a566a2` on `codex/birth-definition-publication`):
 
 - Full draft-graph capture (`physical_boundary.rs`): `PhysicalBoundary`
   keeps `nodes` scoped to recorded-binding blocks for validation and
