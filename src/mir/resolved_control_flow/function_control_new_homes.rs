@@ -54,6 +54,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _| Ok(None),
         &mut |_, _| Ok(None),
+        &mut |_| Ok(false),
     )?;
     Ok(
         result.map(|(completion, prefixes, terminal_relations, _, _)| {
@@ -154,6 +155,13 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
         E,
     >,
+    // The issuer's dominated-view use membership — `true` only when the
+    // sealed borrowed-formal draft admits an `ArrayElementValue`,
+    // `AddOperand`, or `NewArgument` value use at this exact leaf site.
+    // Coverage consult only; the draft stays the sole admission authority.
+    view_use: &mut impl FnMut(
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    ) -> Result<bool, E>,
 ) -> Result<
     Result<
         (
@@ -212,6 +220,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
             container_field,
             local_field_read,
             borrowed_actuals,
+            view_use,
         )?;
     match &mut completion {
         VerifiedFunctionCompletionV1::ExplicitReturn(row) => row.cleanup.attach_root_flow(homes),

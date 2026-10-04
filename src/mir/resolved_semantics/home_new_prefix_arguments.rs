@@ -71,6 +71,9 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         // the verified-completion lane owns the issuer predicate.
         &mut |_, _| Ok(None),
         &mut |_, _| Ok(None),
+        // The dominated-view consult stays unavailable on this lane for
+        // the same reason — a `Handle` leaf is truthfully uncovered here.
+        &mut |_| Ok(false),
     )
     .unwrap_or_else(|never| match never {});
     (prefixes, observations, result_prefixes)
@@ -157,6 +160,11 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
         E,
     >,
+    // The probe must see the same dominated-view use membership the
+    // verified lane sees: an admitted `ArrayElementValue`/`AddOperand`/
+    // `NewArgument` leaf keeps this walk covered exactly as the verified
+    // lane admits it — the draft stays the sole admission authority.
+    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>, E> {
     scan_new_home_flow(
         input,
@@ -180,6 +188,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         container_field,
         local_field_read,
         borrowed_actuals,
+        view_use,
     )
     .map(|outcome| outcome.0)
 }

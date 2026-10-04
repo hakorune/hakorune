@@ -503,6 +503,27 @@ pub(super) use field_batch::{prove_local_field_read_batch, stage_local_field_rea
 #[path = "ordinary_new_field_batch_tests.rs"]
 mod field_batch_tests;
 
+/// `Handle`-leaf consult shared by the verified walk and the source
+/// probe: true only when the sealed borrowed-formal draft admits a
+/// dominated-view value use — `ArrayElementValue`, `AddOperand`, or
+/// `NewArgument` — at this exact leaf site. This is a coverage consult
+/// only: the lent view is read-only here, the draft stays the sole
+/// admission authority, and the physical `borrowed_call_uses` whitelist
+/// still proves each routed operand.
+pub(super) fn dominated_view_use_consult_v1<'a>(
+    borrowed_formal_source: &'a Result<
+        super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1,
+        String,
+    >,
+) -> impl FnMut(&OwnedExprSiteV1) -> Result<bool, OrdinaryNewCoSealIssueV1> + 'a {
+    move |site: &OwnedExprSiteV1| {
+        Ok(borrowed_formal_source
+            .as_ref()
+            .ok()
+            .is_some_and(|source| source.dominated_view_use_at(site.owner(), site)))
+    }
+}
+
 /// Run the source-only readiness/actual probe with the verified walk's same
 /// source predicates. Readiness and Completion selection remain in the issuer.
 pub(super) fn probe_source_home_prefixes_v1(
@@ -701,5 +722,6 @@ pub(super) fn probe_source_home_prefixes_v1(
                 actuals,
             )
         },
+        &mut dominated_view_use_consult_v1(borrowed_formal_source),
     )
 }

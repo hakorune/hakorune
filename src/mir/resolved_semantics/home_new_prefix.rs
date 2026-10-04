@@ -158,6 +158,10 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _| Ok(None),
         &mut |_, _| Ok(None),
+        // The bounded sibling consults no dominated-view draft: a `Handle`
+        // leaf stays truthfully uncovered on this lane — the verified
+        // completion lane owns the issuer predicate.
+        &mut |_| Ok(false),
     )
     .unwrap_or_else(|never| match never {})
     .0
@@ -268,6 +272,11 @@ pub(crate) fn scan_new_home_flow<E>(
         Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
         E,
     >,
+    // The issuer's dominated-view use membership — `true` only when the
+    // sealed borrowed-formal draft admits an `ArrayElementValue`,
+    // `AddOperand`, or `NewArgument` value use at this exact leaf site.
+    // Coverage consult only; the draft stays the sole admission authority.
+    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<
     (
         BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
@@ -380,6 +389,7 @@ pub(crate) fn scan_new_home_flow<E>(
         container_field,
         local_field_read,
         borrowed_actuals,
+        view_use,
     )?;
     // Statements after the terminal are never walked; their sealed map
     // literals still owe loop1 one row each — issue Unavailable rows.

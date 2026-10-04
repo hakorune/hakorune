@@ -36,6 +36,15 @@ impl BorrowedFormalObjectViewV1 {
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedFormalIngressV1 {
     pub(super) definitions: BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
+    /// Dominated-view value-use sites across every classified owner —
+    /// `ArrayElementValue`, `AddOperand`, or `NewArgument` rows recorded
+    /// at draft classification time, before borrowed-transport selection.
+    /// Owners whose only incoming edges are non-lexical (for example an
+    /// `me.<field>` receiver call) are never part of the borrowed-entry
+    /// profile, yet their sealed drafts still admit these value uses —
+    /// the dominated view answers a source-classification question, not
+    /// a transport-selection one.
+    pub(super) dominated_view_sites: BTreeSet<OwnedExprSiteV1>,
     pub(super) forwards: Box<[BorrowedForwardUseDraftRowV1]>,
     pub(super) incoming: Box<[BorrowedIncomingCallDraftV1]>,
     /// `formal -> sealed class view`, complete across the co-sealed
@@ -98,6 +107,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
         .map(|row| row.owner())
         .collect();
     let mut definitions = BTreeMap::new();
+    let mut dominated_view_sites = BTreeSet::new();
     let mut seen = BTreeSet::new();
     for contract in contracts {
         if !seen.insert(contract.owner) {
@@ -125,6 +135,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
             .map_err(|_| freeze("borrowed-formal/batch-loan"))?;
         match draft {
             Ok(draft) => {
+                for row in draft.uses.iter() {
+                    if matches!(
+                        row.kind,
+                        BorrowedFormalUseDraftKindV1::ArrayElementValue { .. }
+                            | BorrowedFormalUseDraftKindV1::AddOperand { .. }
+                            | BorrowedFormalUseDraftKindV1::NewArgument { .. }
+                    ) {
+                        dominated_view_sites.insert(row.site.clone());
+                    }
+                }
                 definitions.insert(contract.owner, draft);
             }
             Err(
@@ -218,6 +238,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
     )?;
     Ok(PreparedBorrowedFormalIngressV1 {
         definitions,
+        dominated_view_sites,
         forwards,
         incoming,
         object_views,
@@ -514,6 +535,23 @@ impl PreparedBorrowedFormalIngressV1 {
                     && self.object_views.contains_key(&row.formal)
             })
         })
+    }
+
+    /// `true` when `owner`'s sealed use draft admitted a dominated-view
+    /// value use at this exact leaf site — `ArrayElementValue`,
+    /// `AddOperand`, or `NewArgument`. The consult reads classification
+    /// output, not borrowed-transport membership: an owner invoked only
+    /// through `me.<field>` receivers never enters the borrowed-entry
+    /// profile, yet its draft still proves these uses. This is a
+    /// coverage consult only — the draft stays the sole admission
+    /// authority and the physical `borrowed_call_uses` whitelist still
+    /// proves each routed operand.
+    pub(in crate::mir::normal_callable_semantic_package) fn dominated_view_use_at(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &OwnedExprSiteV1,
+    ) -> bool {
+        site.owner() == owner && self.dominated_view_sites.contains(site)
     }
 
     /// Corroborate the final issuer consumes precisely the source rows used by

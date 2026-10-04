@@ -54,10 +54,10 @@ fi
 # rows. Generic MIR JSON deliberately keeps rejecting the lifecycle program
 # (accepted MIRBUILDER-INVOKE-LIFECYCLE-JSON-TERMINATOR-D0); a pass here would
 # mean the harness lane silently admitted the lifecycle shape. The pinned
-# terminal is the current first fail-closed gate of that ladder —
-# `emission-binding-drift` at the local-commit boundary, which moved forward
-# from `unsupported terminator Invoke` once ordinary-new claims reached
-# emission (recorded in the app-bundle investigation card).
+# terminal is `unsupported terminator Invoke` — the dominated-view consult
+# (TASK4-ARTIFACT-S0) sealed `HakoAllocPage.allocate`'s Result claim, so the
+# lane now clears the earlier `emission-binding-drift` gate and reaches the
+# designed Invoke negative again.
 set +e
 NYASH_DISABLE_PLUGINS=1 \
   timeout "$RUN_TIMEOUT_SECS" \
@@ -73,7 +73,7 @@ if [ "$mir_rc" -eq 0 ]; then
   exit 1
 fi
 
-if ! grep -Fq "emission-binding-drift" "$BUILD_LOG"; then
+if ! grep -Fq "unsupported terminator Invoke" "$BUILD_LOG"; then
   echo "[INFO] MIR emit output tail:"
   tail -n 120 "$BUILD_LOG" || true
   test_fail "$SMOKE_NAME: MIR emit failed off the designed Invoke boundary"

@@ -615,7 +615,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 ),
                                 site, actuals,
                             )
-                        })? {
+                        }, &mut source_claims::dominated_view_use_consult_v1(
+                            &borrowed_formal_source,
+                        ))? {
                         Ok((
                             completion,
                             prefixes,

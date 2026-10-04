@@ -46,6 +46,7 @@ pub(super) fn observe_receiver_field_write<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<bool, E> {
     if !matches!(statement.node(), ASTNode::Assignment { .. }) {
         return Ok(false);
@@ -100,7 +101,13 @@ pub(super) fn observe_receiver_field_write<E>(
             | BodyExpressionShapeV1::MethodCall { .. }
             | BodyExpressionShapeV1::BlockExpr { .. } => return Ok(false),
             BodyExpressionShapeV1::Variable { site, .. } => {
-                if !locals.observe(site).is_some_and(|row| row.is_trivial()) {
+                // A non-trivial leaf — a `Handle` read of an opaque formal —
+                // is neutral only when the sealed draft admits a
+                // dominated-view value use at this exact site; the issuer's
+                // predicate is the consult, the draft stays the authority.
+                if !locals.observe(site).is_some_and(|row| row.is_trivial())
+                    && !view_use(&OwnedExprSiteV1::new(input.owner(), site.clone()))?
+                {
                     return Ok(false);
                 }
             }

@@ -100,6 +100,11 @@ pub(super) fn scan_statement_flow<'a, E>(
         Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
         E,
     >,
+    // The issuer's dominated-view use membership — `true` only when the
+    // sealed borrowed-formal draft admits an `ArrayElementValue`,
+    // `AddOperand`, or `NewArgument` value use at this exact leaf site.
+    // Coverage consult only; the draft stays the sole admission authority.
+    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<bool, E> {
     let function = input.function();
     for index in 0..body.statements().len() {
@@ -191,6 +196,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 container_field,
                 local_field_read,
                 borrowed_actuals,
+                view_use,
             )?;
             if terminated {
                 return Ok(true);
@@ -220,7 +226,13 @@ pub(super) fn scan_statement_flow<'a, E>(
             // A self-rooted `me.<field> = <rhs>` write with a Home-neutral
             // RHS is covered without ledger rows — the raw lane already
             // owns the plain `FieldSet` emission.
-            if field_write::observe_receiver_field_write(input, &statement, locals, scalar_field)? {
+            if field_write::observe_receiver_field_write(
+                input,
+                &statement,
+                locals,
+                scalar_field,
+                view_use,
+            )? {
                 continue;
             }
             // A `me.<ArrayBox field>.m(..)` statement whose manifest row
@@ -234,6 +246,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 homes,
                 container_field,
                 scalar_field,
+                view_use,
             )? {
                 continue;
             }
@@ -626,6 +639,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 homes,
                 container_field,
                 scalar_field,
+                view_use,
             )? {
                 // A manifest-proven `me.<ArrayBox field>.m(..)` result
                 // binds by its contract class — scalars are trivial,

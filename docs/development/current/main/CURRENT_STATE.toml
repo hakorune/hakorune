@@ -1,10 +1,10 @@
 date = "2026-10-04"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ARTIFACT-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ARTIFACT-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/local-commit/artifact-unowned-lifecycle-site"
-current_design_stop = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ARTIFACT-D0 — census recorded on the task-4-artifact card: the real EXE lane (--backend mir --emit-exe) hits artifact-unowned-lifecycle-site because HakoAllocPage.allocate/1's Result claim is RetainedUnavailable (home_prefix Err PrefixNotCovered Body(8) — requested_size OpaqueHandle in a .set argument). Decision pending on dominated-view use-kind order (.set arg / + operand / new arg) and the home_prefix coverage contract; the emit-mir-json Invoke stop is a designed negative, not a task."
+current_blocker_token = "none"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,24 +17,25 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-artifact-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-artifact-d0-2026-10-04.md"
 latest_card_summary = """
-Task-4 dominated-view artifact frontier (design stop). Lane census:
-`unsupported terminator Invoke` on --emit-mir-json is a designed
-negative per accepted MIRBUILDER-INVOKE-LIFECYCLE-JSON-TERMINATOR-D0 —
-the real production lane is --backend mir --emit-exe, which also runs
-artifact lifecycle coverage invisible to the emit probe. First stop:
-`HakoAllocPage.allocate/1`'s result `new HakoAllocHandle` is a
-correctly-owned `LocalCommitV1::Result` row whose `home_prefix` is
-Err(PrefixNotCovered(Body(8))) — `requested_size` (unannotated formal,
-OpaqueHandle) in the `me.requested_sizes.set` argument — so the claim
-is RetainedUnavailable, emits raw-lane `Call(BirthConstructor)` with
-zero recorded bindings, and the coverage gate rejects by design.
-Decision pending on dominated-view use-kind order (`.set` arg /
-`+` operand / `new` arg) and the `home_prefix` coverage contract.
-No app EXE or production switch claim.
+TASK4-ARTIFACT-S0 landed — `.set` index `.get`-result proof
+(`get_result_index`: sole `me.<ArrayBox>.get`/1 initializer,
+manifest row + `receiver_array_field`, no rebind) plus a prefix
+`Handle`-leaf consult over `dominated_view_sites`, the dominated-view
+use sites recorded at draft-classification time — classification
+output, not borrowed-transport membership (`me.<field>` receiver
+callees like `allocate` never enter the lexical incoming map, so the
+consult must read pre-closure rows). Verified walk and probe share
+`dominated_view_use_consult_v1`; bounded siblings stay fail-closed.
+`HakoAllocHandle`'s Result claim `home_prefix` is now Ok; the EXE
+lane advances to slot 34 `HakoAllocHandleResult.birth/3` —
+`construction()` Err (object-typed `handle` formal field store;
+bundle slice 11 RESULT-NEW-OBJECT-ARGS family). `--emit-mir-json`
+returned to the designed `unsupported terminator Invoke` negative;
+smoke pin re-pointed. No app EXE or production switch claim.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ARTIFACT-D0"
+next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ARTIFACT-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-artifact-d0-2026-10-04.md"
-next_execution_card = "none"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-ARTIFACT-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-artifact-d0-2026-10-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -50,7 +51,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-ARTIFACT-S0 landed — `.set` index `.get`-result proof plus a `dominated_view_sites` consult (draft-classification output, independent of borrowed-transport membership) admits `requested_size`'s `.set`/`+`/`new` leaves; `HakoAllocHandle` Result `home_prefix` is Ok and the EXE lane advances to `HakoAllocHandleResult.birth` (construction Err — object-typed formal field store, bundle slice 11 family). New pins cover field-receiver outside-transport retention and plain-copy index rejection. Next: RESULT-OBJECT-BIRTH frontier census on the slot-34 boundary's owning card.",
   "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-NUMFIELD-S0 landed — the verifier's `ObjectFieldGet` field-type arm now admits any non-weak numeric-integer declared type (`is_numeric_integer_type_name`), retiring the `BorrowedTaggedValue` param-carrier carve-out; staged ledger rows remain the sole field-read issuer while weak/object/ArrayBox/undeclared fields keep `object-field-read-definition-invalid` (unit pin covers i64/usize admit + four rejects). Real `apps/mimalloc-lite` --emit-mir-json advances past bb33 to the next named stop `unsupported terminator Invoke` — a designed negative per INVOKE-LIFECYCLE-JSON-TERMINATOR-D0. Next: TASK4-ARTIFACT-D0 design stop on the EXE lane (artifact-unowned-lifecycle-site, Result claim home_prefix PrefixNotCovered Body(8)).",
   "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-FINISHBIND-S0 landed — the physical-boundary projection now captures the full draft `walk_graph` beside recorded `nodes`, walks every surviving block through value-free `Jump` and equal-arm `Branch` contraction with deduplicated predecessors, rewrites every embedded `BasicBlockId` in recorded instructions, and keys expected sequences at the surviving walk start whenever the walk carried a binding (`carries_binding`) so absorbed content is never waived. Dead pure definitions may be omitted only when unrecorded/unused/uniquely defined; incoming edges compare through the destination map with equal-arm branch normalization. Real `apps/mimalloc-lite` --emit-mir-json advances past emission-binding-drift/finished-sequence/incoming-drift to the next named stop `object-field-read-definition-invalid` (bb33, `me.free_top` usize in `HakoAllocPage.allocate`). Next: numeric field-read corridor under TASK4-NUMFIELD-S0.",
-  "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-FIELDOPERAND-S0 landed — order compares (`<`/`>`/`<=`/`>=`) join the pure-scalar vocabulary; under an order-compare subtree only a GuardedFormal field leaf selects the staged field-read root, `me.` receivers stay admissible without selecting, and any other provenance falls the whole root back to the original compare lane unchanged. `handle.page_id < 0`/`>= me.limit` publish sealed-view `object_field_get` + `slt`/`sge`; ten source-issued inputs execute through JSON -> C -> OBJ/EXE. Next: remaining release() frontier rows under a fresh Decision.",
   ]

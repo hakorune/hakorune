@@ -44,6 +44,7 @@ fn proven_field_call<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<Option<CoreMethodResultKindV1>, E> {
     let Some(shape) = input.body_shape() else {
         return Ok(None);
@@ -79,7 +80,15 @@ fn proven_field_call<E>(
         return Ok(None);
     };
     for argument in call.arguments() {
-        if !argument_subtree_neutral(input, shape, argument.site(), locals, homes, scalar_field)? {
+        if !argument_subtree_neutral(
+            input,
+            shape,
+            argument.site(),
+            locals,
+            homes,
+            scalar_field,
+            view_use,
+        )? {
             return Ok(None);
         }
     }
@@ -106,6 +115,7 @@ fn argument_subtree_neutral<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<bool, E> {
     let prefix = root.node().segments();
     let subtree: Vec<&BodyExpressionShapeV1> = shape
@@ -142,7 +152,15 @@ fn argument_subtree_neutral<E>(
                 ) => {}
                 Some(local_flow::OrdinaryObservation::BoundValue(binding))
                     if !homes.contains(&binding) => {}
-                _ => return Ok(false),
+                // A `Handle` leaf is neutral only when the sealed draft
+                // admits a dominated-view value use at this exact site —
+                // the issuer's predicate is the consult, the draft stays
+                // the sole admission authority.
+                _ => {
+                    if !view_use(&OwnedExprSiteV1::new(input.owner(), site.clone()))? {
+                        return Ok(false);
+                    }
+                }
             },
             BodyExpressionShapeV1::Me { site, .. } => {
                 if !field_receivers.contains(site) {
@@ -210,6 +228,7 @@ pub(super) fn observe_statement_field_call<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<bool, E> {
     if !matches!(statement.node(), ASTNode::MethodCall { .. }) {
         return Ok(false);
@@ -223,6 +242,7 @@ pub(super) fn observe_statement_field_call<E>(
             homes,
             container_field,
             scalar_field,
+            view_use,
         )?,
         Some(CoreMethodResultKindV1::NoValue)
     ))
@@ -250,9 +270,17 @@ pub(super) fn observe_local_field_call<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<Option<CoreMethodResultKindV1>, E> {
-    let Some(kind) =
-        proven_field_call(input, site, locals, homes, container_field, scalar_field)?
+    let Some(kind) = proven_field_call(
+        input,
+        site,
+        locals,
+        homes,
+        container_field,
+        scalar_field,
+        view_use,
+    )?
     else {
         return Ok(None);
     };
