@@ -523,7 +523,30 @@ pub(in crate::mir::builder) fn emit_receiver_nullable(
                 // never a re-classification of the binding.
                 match builder.function_state.type_ctx.value_types.get(&value) {
                     None | Some(MirType::Integer) | Some(MirType::Unknown) => {}
-                    Some(_) => return Err(freeze("nullable-argument-carrier")),
+                    Some(other) => {
+                        return Err(format!(
+                            "[freeze:contract][ordinary-new/emission/nullable-argument-carrier] carrier={other:?}"
+                        ))
+                    }
+                }
+                value
+            }
+            SelectedNewArgumentKindV1::Handle { binding } => {
+                let value = state
+                    .take_exact_lexical_value(owner, argument.site().node(), *binding)
+                    .map_err(|error| format!("[freeze:contract][nullable-argument/{error:?}]"))?;
+                // A `Handle` arg is the contract issuer's `DeclaredObject`
+                // formal: the object occupies the same scalar wire slot,
+                // so a corroborating `Box` publication is consistent —
+                // the class itself stays with the issuer's contract.
+                match builder.function_state.type_ctx.value_types.get(&value) {
+                    None | Some(MirType::Integer) | Some(MirType::Unknown)
+                    | Some(MirType::Box(_)) => {}
+                    Some(other) => {
+                        return Err(format!(
+                            "[freeze:contract][ordinary-new/emission/nullable-argument-carrier] carrier={other:?}"
+                        ))
+                    }
                 }
                 value
             }

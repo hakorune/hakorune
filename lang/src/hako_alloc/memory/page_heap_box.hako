@@ -257,7 +257,7 @@ box HakoAllocHeap {
         return 0
     }
 
-    realloc(handle, requested_size) {
+    realloc(handle: HakoAllocHandle, requested_size) {
         if handle == null {
             return null
         }
@@ -297,7 +297,7 @@ box HakoAllocHeap {
         return null
     }
 
-    reallocResult(handle, requested_size) {
+    reallocResult(handle: HakoAllocHandle, requested_size) {
         if handle == null {
             return new HakoAllocHandleResult(0, 1, null)
         }

@@ -210,10 +210,10 @@ impl VerifiedInstanceEntryHomeParameterV1 {
         self.binding
     }
 
-    pub(crate) const fn kind(
+    pub(crate) fn kind(
         &self,
     ) -> crate::mir::callable_parameter_contract::CallableParameterContractKindV1 {
-        self.kind
+        self.kind.clone()
     }
 
     #[allow(dead_code)]

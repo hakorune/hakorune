@@ -79,21 +79,29 @@ impl OrdinaryNewClaimLedgerV1 {
                 // RetainedUnavailable commit row is source-unavailable, not a
                 // stray coverage site. Mirror the root's observation ordering
                 // so the same failure class reports the same terminal.
-                if self
+                let retained: Vec<_> = self
                     .local_commits
                     .borrow()
                     .values()
                     .filter(|row| row.owner() == owner)
-                    .any(|row| {
-                        row.ordinary().is_some_and(|row| {
-                            matches!(
+                    .filter_map(|row| {
+                        let row = row.ordinary()?;
+                        matches!(row.emission, NewEmissionProgress::RetainedUnavailable { .. })
+                            .then(|| format!(
+                                "{:?} decl={:?} construction={:?} home_prefix_err={} children={}",
                                 row.emission,
-                                NewEmissionProgress::RetainedUnavailable { .. }
-                            )
-                        })
+                                row.declaration,
+                                row.construction,
+                                row.home_prefix.is_err(),
+                                row.children.is_some()
+                            ))
                     })
-                {
-                    return Err(freeze("artifact-source-unavailable"));
+                    .collect();
+                if !retained.is_empty() {
+                    return Err(format!(
+                        "{} owner={owner:?} symbol={symbol} retained={retained:?}",
+                        freeze("artifact-source-unavailable"),
+                    ));
                 }
                 self.validate_artifact_lifecycle_coverage(owner, function, projection.recorded())?;
             }

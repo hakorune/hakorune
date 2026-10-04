@@ -284,6 +284,7 @@ impl<'source> PrefixLocalFlow<'source> {
                 CallableParameterContractKindV1::Map => StoredLocal::BorrowedMap,
                 CallableParameterContractKindV1::OpaqueHandle
                 | CallableParameterContractKindV1::DeclaredHandle
+                | CallableParameterContractKindV1::DeclaredObject(_)
                 | CallableParameterContractKindV1::ExactText(_) => StoredLocal::Handle(binding),
             };
             self.store(binding, value);

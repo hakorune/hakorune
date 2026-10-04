@@ -49,9 +49,9 @@ pub(super) fn emit_terminal_i64_call_exit(
         .map(Some);
     }
     if ledger.root_instance_call_expected(owner) {
-        return Err(
-            "[freeze:contract][ordinary-new/local-commit/artifact-source-unavailable]".to_owned(),
-        );
+        return Err(format!(
+            "[freeze:contract][ordinary-new/local-commit/artifact-source-unavailable] owner={owner:?} site={stmt_site:?}"
+        ));
     }
     if ledger
         .terminal_call_arguments_for_owner_at(owner, &stmt_site)

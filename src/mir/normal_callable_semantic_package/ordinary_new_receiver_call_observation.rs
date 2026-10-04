@@ -70,12 +70,16 @@ impl ReceiverCallClassObservationV1 {
 }
 
 /// Typed argument evidence for one receiver call: source literals carry
-/// their sealed value and a lexical `Local` ref carries its exact
-/// binding — nothing is evaluated and no storage class is inferred. Any
-/// other expression shape classifies nothing and rejects the row.
+/// their sealed value, a lexical `Local` ref carries its exact binding,
+/// and a lexical ref whose binding the callable parameter contract
+/// issuer resolved as a `DeclaredObject` formal carries the handle-root
+/// kind — the issuer's explicit class authority, never a storage
+/// inference. Any other expression shape classifies nothing and rejects
+/// the row.
 fn classify_argument(
     function: &VerifiedResolvedFunctionV1,
     argument: &ResolvedMethodCallArgumentSourceV1,
+    parameter_contracts: &[&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
 ) -> Option<SelectedNewArgumentV1> {
     let kind = match function.expression_source().literal(argument.site()) {
         Some(ResolvedLiteralSourceV1::Integer(value)) => {
@@ -87,7 +91,21 @@ fn classify_argument(
     }
     .or_else(|| match function.variable_ref(argument.site()) {
         Some(ResolvedLexicalRefV1::Local(binding)) => {
-            Some(SelectedNewArgumentKindV1::Local { binding })
+            let declared_object = parameter_contracts
+                .iter()
+                .flat_map(|row| row.parameters.iter())
+                .any(|row| {
+                    row.binding == binding
+                        && matches!(
+                            row.kind,
+                            crate::mir::callable_parameter_contract::CallableParameterContractKindV1::DeclaredObject(_)
+                        )
+                });
+            Some(if declared_object {
+                SelectedNewArgumentKindV1::Handle { binding }
+            } else {
+                SelectedNewArgumentKindV1::Local { binding }
+            })
         }
         _ => None,
     })?;
@@ -110,6 +128,7 @@ pub(super) fn observe_receiver_call_sites(
     receiver_proof: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     claims: &super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    parameter_contracts: &[&crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     observations: &mut BTreeMap<OwnedExprSiteV1, ReceiverCallClassObservationV1>,
 ) {
     let Some((receiver, box_row)) = receiver_proof else {
@@ -144,7 +163,7 @@ pub(super) fn observe_receiver_call_sites(
         let Some(arguments) = call
             .arguments()
             .iter()
-            .map(|argument| classify_argument(function, argument))
+            .map(|argument| classify_argument(function, argument, parameter_contracts))
             .collect::<Option<Vec<_>>>()
         else {
             continue;
@@ -160,6 +179,12 @@ pub(super) fn observe_receiver_call_sites(
         let Some(class) = claims.get(&callee) else {
             continue;
         };
+        // A forwarded-formal claim is class-free identity: only its
+        // caller-side composition resolves a class, so it mints no
+        // usable site observation here.
+        if class.class().is_none() {
+            continue;
+        }
         observations.insert(
             OwnedExprSiteV1::new(owner, site.clone()),
             ReceiverCallClassObservationV1 {

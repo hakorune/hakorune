@@ -101,6 +101,7 @@ pub(super) fn prepare_source_claims(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
 ) -> Result<
     (
         field_write_claim::OrdinaryNewFieldWriteClaimsV1,
@@ -172,6 +173,7 @@ pub(super) fn prepare_source_claims(
         batch,
         selected,
         &field_write_claims,
+        parameter_contracts,
     );
     Ok((
         field_write_claims,
@@ -584,7 +586,7 @@ pub(super) fn probe_source_home_prefixes_v1(
             .iter()
             .filter(|row| row.batch_slot == batch_slot)
             .flat_map(|row| row.parameters.iter())
-            .map(|row| (row.ordinal, row.binding, row.kind)),
+            .map(|row| (row.ordinal, row.binding, row.kind.clone())),
         &mut |site| {
             Ok::<_, OrdinaryNewCoSealIssueV1>(lexical_i64_result_call(
                 selected,

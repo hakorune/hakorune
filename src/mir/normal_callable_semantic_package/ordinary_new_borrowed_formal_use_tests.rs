@@ -41,7 +41,7 @@ fn draft_with_contract(
             crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1 {
                 ordinal: row.ordinal,
                 binding: row.binding,
-                kind: row.kind,
+                kind: row.kind.clone(),
             }
         }).collect(),
     };
@@ -376,7 +376,7 @@ fn draft_with_fields(body: &str) -> Result<BorrowedFormalUsesDraftV1, BorrowedFo
                         crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1 {
                             ordinal: row.ordinal,
                             binding: row.binding,
-                            kind: row.kind,
+                            kind: row.kind.clone(),
                         }
                     }).collect(),
                 },
@@ -447,7 +447,7 @@ fn draft_with_child(body: &str) -> Result<BorrowedFormalUsesDraftV1, BorrowedFor
                         crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1 {
                             ordinal: row.ordinal,
                             binding: row.binding,
-                            kind: row.kind,
+                            kind: row.kind.clone(),
                         }
                     }).collect(),
                 },

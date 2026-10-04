@@ -34,6 +34,13 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct
     /// from any surviving draft block, not only from binding carriers.
     walk_graph: BTreeMap<BasicBlockId, Node>,
     incoming: Incoming,
+    /// Every draft edge `(source, target, args)` in block order — the
+    /// unfiltered counterpart of `incoming`. `incoming` only records raw
+    /// edges ending on a recorded block, which loses an approach that
+    /// reaches a recorded region through a contractible unrecorded
+    /// bridge; the projected expected-edge set is derived from this list
+    /// with the same destination predicate the actual side applies.
+    all_edges: Vec<(BasicBlockId, BasicBlockId, Option<EdgeArgs>)>,
     recorded_dsts: BTreeSet<ValueId>,
     single_definitions: BTreeSet<ValueId>,
     removable_constants: BTreeSet<ValueId>,
@@ -232,6 +239,17 @@ impl PhysicalBoundary {
             nodes,
             walk_graph,
             incoming: incoming(function, &ids),
+            all_edges: function
+                .blocks
+                .values()
+                .flat_map(|block| {
+                    block
+                        .out_edges()
+                        .into_iter()
+                        .map(|edge| (block.id, edge.target, edge.args))
+                        .collect::<Vec<_>>()
+                })
+                .collect(),
             recorded_dsts: recorded,
             single_definitions: definitions
                 .iter()
@@ -410,7 +428,12 @@ impl PhysicalBoundary {
         // terminator shape and args, a source that was itself contracted or
         // pruned contributes nothing, and a both-arms-equal `Branch` is
         // normalized to the `Jump` finishing folds it into — so the two
-        // identical slots collapse onto the single surviving edge.
+        // identical slots collapse onto the single surviving edge. An edge
+        // is expected exactly when the actual side would record it: it
+        // enters a surviving recorded destination from outside — including
+        // through a contractible unrecorded bridge the raw `incoming` map
+        // could not see — and never between two projected positions inside
+        // the same recorded region.
         let jump_discriminant = std::mem::discriminant(&MirInstruction::Jump {
             target: BasicBlockId(0),
             edge_args: None,
@@ -419,29 +442,40 @@ impl PhysicalBoundary {
         // `BTreeMap` iteration, so a slot-stable sort by (source, target)
         // keeps equal-arm duplicates comparable element-wise.
         let mut expected_edges: Vec<_> = self
-            .incoming
+            .all_edges
             .iter()
-            .filter_map(|((source, _), (discriminant, target, args))| {
+            .filter_map(|(source, target, args)| {
                 let mapped_source = *projection.destinations.get(source)?;
-                let mapped_target = projection.destinations[target];
-                if mapped_source == mapped_target {
+                let mapped_target = *projection.destinations.get(target)?;
+                if mapped_source == mapped_target
+                    || !surviving.contains(&mapped_target)
+                    || surviving.contains(&mapped_source)
+                {
                     return None;
                 }
-                let (discriminant, args) = match self
+                let discriminant = std::mem::discriminant(
+                    &self
+                        .walk_graph
+                        .get(source)
+                        .expect("walk-graph edge source is a walk node")
+                        .terminal,
+                );
+                let (discriminant, args) = match &self
                     .walk_graph
                     .get(source)
-                    .map(|node| &node.terminal)
+                    .expect("walk-graph edge source is a walk node")
+                    .terminal
                 {
-                    Some(MirInstruction::Branch {
+                    MirInstruction::Branch {
                         then_bb,
                         else_bb,
                         then_edge_args,
                         else_edge_args,
                         ..
-                    }) if then_bb == else_bb && then_edge_args == else_edge_args => {
+                    } if then_bb == else_bb && then_edge_args == else_edge_args => {
                         (jump_discriminant, then_edge_args.clone())
                     }
-                    _ => (*discriminant, args.clone()),
+                    _ => (discriminant, args.clone()),
                 };
                 Some((mapped_source, discriminant, mapped_target, args))
             })
@@ -457,7 +491,20 @@ impl PhysicalBoundary {
         actual_edges.sort_by_key(|(source, _, target, _)| (*source, *target));
         actual_edges.dedup();
         if actual_edges != expected_edges {
-            return Err(fault("incoming-drift"));
+            let missing: Vec<_> = expected_edges
+                .iter()
+                .filter(|edge| !actual_edges.contains(edge))
+                .map(|(s, _, t, _)| (*s, *t))
+                .collect();
+            let extra: Vec<_> = actual_edges
+                .iter()
+                .filter(|edge| !expected_edges.contains(edge))
+                .map(|(s, _, t, _)| (*s, *t))
+                .collect();
+            return Err(fault(&format!(
+                "incoming-drift function={} missing={missing:?} extra={extra:?}",
+                function.signature.name
+            )));
         }
         for binding in projection.bindings(bindings)? {
             if !projection.recorded.contains(&binding) {

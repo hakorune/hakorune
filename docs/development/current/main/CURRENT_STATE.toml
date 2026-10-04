@@ -1,10 +1,10 @@
 date = "2026-10-04"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-FORMAL-FORWARD-RESULT-D0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-CONSTRUCTION-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "ordinary-new/local-commit/artifact-unowned-lifecycle-site"
-current_design_stop = "MIRBUILDER-APP-MIMALLOC-LITE-FORMAL-FORWARD-RESULT-D0 — Decision accepted under the owner contract: `DeclaredObject(class)` contract-kind arm binds explicit declarations to `ordinary_box_coverage` identities (no field inference); `realloc`/`reallocResult` get `handle: HakoAllocHandle` (owned formal, null admissible, callee `== null` guard is the check site); `resizeInPlace.handle` stays `OpaqueHandle` — `return <opaque formal>` becomes a class-free `NullableForwarded{ordinal}` identity claim substituted at the caller's actual; `return <DeclaredObject formal>` composes `New(class)`; borrowed values never become Homes. Carrier/ABI/cleanup reuse existing owners — no new receipts. S0 implements the contract arm, annotations, and forwarded-substitution arms."
+current_blocker_token = "ordinary-new/local-commit/artifact-source-unavailable"
+current_design_stop = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-CONSTRUCTION-D0 — census recorded: `new HakoAllocHeap()` (MiWorkload.run Body(0)) is RetainedUnavailable because `issue_construction_plan` fails `FieldContractUnsupported` on three independent edges, all required: (A) provider child `HakoAllocPage` is `OwnedArrayFieldsNoHook`, not `PlainI64NoHook` — nested owned-field reclamation is undesigned; (B) provider `new` args `LayoutBox.class_size(0)`/`class_capacity(0)` are calls, not sealed literals; (C) `birth()` carries `me.<field>.seedBlocks()` call statements outside the store-only grammar. Proposal: (A)+(B) composite first (shared provider-arm boundary), then (C); awaits owner Decision on split and authorities."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,29 +13,26 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-formal-forward-result-d0-2026-10-04.md"
-latest_card = "mirbuilder-app-mimalloc-lite-formal-forward-result-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-formal-forward-result-d0-2026-10-04.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-heap-construction-d0-2026-10-04.md"
+latest_card = "mirbuilder-app-mimalloc-lite-heap-construction-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-heap-construction-d0-2026-10-04.md"
 latest_card_summary = """
-Formal-forward result frontier (design stop, census recorded). The
-EXE lane's remaining `artifact-unowned-lifecycle-site` decomposes:
-`reallocResult`'s two `RetainedUnavailable` sites stop at
-`PrefixNotCovered(Body(3))` — `local replacement = me.realloc(handle,
-requested_size)` needs a `receiver_call_observations` row, which needs
-`realloc`'s result-class claim, whose `Fwd(HakoAllocPage.resizeInPlace/2)`
-exits are Dead because `resizeInPlace` drops its draft row at `return
-handle` (a `Parameter`, outside the `Local`-only `ForwardLocal`
-grammar). Deeper gaps: a pass-through formal's class authority
-(field-use constraint / caller-actual composition / class-free
-nullable arm) and `handle`'s consuming+mutating call-arg use kind —
-bundle slices 10/12 territory. Condition-position calls
-(`me.isLiveHandle(handle)`) are ungated today — named boundary.
+Heap-construction frontier (design stop, census recorded). The EXE
+lane's `artifact-source-unavailable` now names `MiWorkload.run/0`
+Body(0): `local heap = new HakoAllocHeap()` is `RetainedUnavailable`
+because `HakoAllocHeap`'s construction plan is
+`FieldContractUnsupported` — generated field-default stores carry a
+provider `new HakoAllocPage(0, LayoutBox.class_size(0), ..)` whose
+child is `OwnedArrayFieldsNoHook` (not `PlainI64NoHook`), whose args
+are static calls (not literals), and `birth()` itself holds
+`seedBlocks` call statements outside the store-only grammar. All
+three edges gate the same site; split/authority Decision owed.
 No EXE PASS, no production switch claim.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-FORMAL-FORWARD-RESULT-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-formal-forward-result-d0-2026-10-04.md"
+next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-CONSTRUCTION-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-heap-construction-d0-2026-10-04.md"
 next_execution_card = "none"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-formal-forward-result-d0-2026-10-04.md"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-heap-construction-d0-2026-10-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -50,7 +47,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-04: FORMAL-FORWARD-RESULT-S0 landed — `DeclaredObject(Box<str>)` parameter-contract arm binds explicit `formal: <box>` declarations to `ordinary_box_coverage` identities (`realloc`/`reallocResult` annotated, `resizeInPlace` stays `OpaqueHandle`); `ForwardFormal`/`NullableForwarded{ordinal}` mint a class-free identity claim for `return <formal>`, substituted through call-site actuals — `me.realloc` observes `NullableObject(HakoAllocHandle)` and the census flips to (8,0); receiver observation skips class-free claims, nullable emission admits `Handle` args, physical boundary derives projected edges through contractible bridges. MIR JSON holds designed `unsupported terminator Invoke`; EXE advances to `MiWorkload.run`'s `new HakoAllocHeap()` — `FieldContractUnsupported` on three edges (owned-field provider child, call-typed provider args, non-store birth body). Next: HEAP-CONSTRUCTION-D0 decision on split/authorities.",
   "2026-10-04: OBJECT-FORMAL-FIELD-STORE-S0 landed — `issue_construction_plan` admits a `Parameter` RHS into `Some(<user-class>)` declared fields (declared class is authority, unique non-self `PlainI64NoHook` bound); `OwnedFieldResidenceV1::Provided` seals object children like providers with `Handle` demand; scalar default-overwrite admitted, object re-store closed; `install_construction` admits the provided-store demand shape. All eight `HakoAllocHandleResult` `construction()` Ok, `home_prefix` keeps 6/2; --emit-mir-json is back at designed negative `unsupported terminator Invoke`, --emit-exe stops at `artifact-unowned-lifecycle-site` on the two `me.realloc`-blocked sites. Next: residual census on the `me.realloc` object-formal call forward (ordered task 2).",
   "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-ARTIFACT-S0 landed — `.set` index `.get`-result proof plus a `dominated_view_sites` consult (draft-classification output, independent of borrowed-transport membership) admits `requested_size`'s `.set`/`+`/`new` leaves; `HakoAllocHandle` Result `home_prefix` is Ok and the EXE lane advances to `HakoAllocHandleResult.birth` (construction Err — object-typed formal field store, bundle slice 11 family). New pins cover field-receiver outside-transport retention and plain-copy index rejection. Next: RESULT-OBJECT-BIRTH frontier census on the slot-34 boundary's owning card.",
-  "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-NUMFIELD-S0 landed — the verifier's `ObjectFieldGet` field-type arm now admits any non-weak numeric-integer declared type (`is_numeric_integer_type_name`), retiring the `BorrowedTaggedValue` param-carrier carve-out; staged ledger rows remain the sole field-read issuer while weak/object/ArrayBox/undeclared fields keep `object-field-read-definition-invalid` (unit pin covers i64/usize admit + four rejects). Real `apps/mimalloc-lite` --emit-mir-json advances past bb33 to the next named stop `unsupported terminator Invoke` — a designed negative per INVOKE-LIFECYCLE-JSON-TERMINATOR-D0. Next: TASK4-ARTIFACT-D0 design stop on the EXE lane (artifact-unowned-lifecycle-site, Result claim home_prefix PrefixNotCovered Body(8)).",
   ]

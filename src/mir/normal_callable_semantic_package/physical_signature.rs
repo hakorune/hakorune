@@ -302,6 +302,7 @@ pub(super) fn issue_callable_physical_signature_v1(
                         }
                         CallableParameterContractKindV1::OpaqueHandle
                         | CallableParameterContractKindV1::DeclaredHandle
+                        | CallableParameterContractKindV1::DeclaredObject(_)
                         | CallableParameterContractKindV1::ExactTrivial(_) => {
                             PhysicalCallableLaneRoleV1::OrdinaryScalar
                         }

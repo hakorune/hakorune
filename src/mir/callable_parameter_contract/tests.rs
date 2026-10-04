@@ -249,7 +249,7 @@ fn declared_box_names_project_as_handle_not_opaque_or_exact() {
             .map(|row| row.kind())
             .collect::<Vec<_>>(),
         [
-            CallableParameterContractKindV1::DeclaredHandle,
+            CallableParameterContractKindV1::Map,
             CallableParameterContractKindV1::OpaqueHandle,
         ]
     );
@@ -259,6 +259,40 @@ fn declared_box_names_project_as_handle_not_opaque_or_exact() {
             .iter()
             .all(|row| row.home_demand() == crate::mir::resolved_semantics::HomeDemandV1::Handle));
     }
+}
+
+#[test]
+fn ordinary_box_declaration_projects_declared_object() {
+    let batch = batch(
+        "box Wrap { v: i64 }\n\
+         box Door { give(t: Wrap) { return t } }",
+        14,
+    );
+    let catalog = issue_callable_parameter_contract_v1(&batch).unwrap();
+    let declaration = catalog
+        .declarations()
+        .find(|row| row.parameters().len() == 1)
+        .expect("Door.give declaration");
+    let parameter = &declaration.parameters()[0];
+    assert_eq!(
+        parameter.kind(),
+        CallableParameterContractKindV1::DeclaredObject("Wrap".into())
+    );
+    assert_eq!(
+        parameter.home_demand(),
+        crate::mir::resolved_semantics::HomeDemandV1::Handle
+    );
+}
+
+#[test]
+fn unresolved_declared_box_name_still_rejects() {
+    let batch = batch("box Door { give(t: Wrap) { return t } }", 15);
+    assert!(matches!(
+        issue_callable_parameter_contract_v1(&batch),
+        Err(
+            super::CallableParameterContractIssueV1::UnsupportedDeclaredType { .. }
+        )
+    ));
 }
 
 #[test]

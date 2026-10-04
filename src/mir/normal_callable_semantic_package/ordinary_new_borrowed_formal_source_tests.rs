@@ -141,7 +141,7 @@ fn source_contract_identity_corruption_is_not_profile_outside() {
                     |formal| crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1 {
                         ordinal: formal.ordinal,
                         binding: formal.binding,
-                        kind: formal.kind,
+                        kind: formal.kind.clone(),
                     },
                 )
                 .collect(),

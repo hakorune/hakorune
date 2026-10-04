@@ -34,7 +34,7 @@ fn target(
         contract
             .parameters
             .iter()
-            .map(|row| (row.ordinal, row.binding, row.kind))
+            .map(|row| (row.ordinal, row.binding, row.kind.clone()))
             .collect(),
     )
 }
@@ -228,7 +228,7 @@ fn entry_rejects_formal_ordinal_and_duplicate_cardinality() {
         .unwrap_err()
         .contains("borrowed-entry/formal-identity"));
     let mut duplicate = parameters.clone();
-    duplicate.push((1, parameters[0].1, parameters[0].2));
+    duplicate.push((1, parameters[0].1, parameters[0].2.clone()));
     assert!(ledger
         .borrowed_entry_source_for_contract(owner, &duplicate)
         .unwrap_err()
@@ -277,7 +277,7 @@ fn outside_profile_remains_unselected_before_entry() {
     let parameters: Vec<_> = contract
         .parameters
         .iter()
-        .map(|row| (row.ordinal, row.binding, row.kind))
+        .map(|row| (row.ordinal, row.binding, row.kind.clone()))
         .collect();
     assert!(package
         .ordinary_new_claim_ledger
@@ -309,7 +309,7 @@ fn selected_entry_retains_copied_formal_forwarding_in_the_same_cohort() {
         let parameters: Vec<_> = contract
             .parameters
             .iter()
-            .map(|row| (row.ordinal, row.binding, row.kind))
+            .map(|row| (row.ordinal, row.binding, row.kind.clone()))
             .collect();
         let projection = package
             .ordinary_new_claim_ledger

@@ -9,7 +9,7 @@
 
 /// The one result-class claim row for `owner.name`, or `None` when the
 /// callable stayed unclaimed.
-fn result_class_claim_row<'a>(
+pub(super) fn result_class_claim_row<'a>(
     package: &'a super::VerifiedNormalCallableSemanticPackageV1,
     owner: &str,
     name: &str,
@@ -26,7 +26,7 @@ fn result_class_claim_row<'a>(
 
 /// Every `local x = me.m(..)` observation bound to `owner.name` —
 /// the claim-first in-walk pass's site-keyed evidence.
-fn receiver_observations_for<'a>(
+pub(super) fn receiver_observations_for<'a>(
     package: &'a super::VerifiedNormalCallableSemanticPackageV1,
     owner: &str,
     name: &str,
@@ -263,37 +263,6 @@ static box Main {
     // no in-lane fixture can exercise a composed F1 claim.
 }
 
-/// The real `page_heap_box.hako` fixture family: `HakoAllocPage.allocate`
-/// is the leaf mixed null/`new` claim, `HakoAllocHeap.allocate` composes
-/// it through two `me.<field>.allocate` exits plus `return null`, and
-/// `HakoAllocHeap.realloc` stays unclaimed because it forwards to the
-/// parameter-returning `resizeInPlace`.
-#[test]
-fn page_heap_fixture_composes_allocate_and_keeps_realloc_unclaimed() {
-    let package = issue_with_brand_catalog(include_str!(
-        "../../../lang/src/hako_alloc/memory/page_heap_box.hako"
-    ))
-    .expect("page_heap fixture source package");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let (key, claim) = result_class_claim_row(&package, "HakoAllocHeap", "allocate")
-        .expect("HakoAllocHeap.allocate composes the page claim");
-    assert!(matches!(
-        claim,
-        super::OrdinaryNewResultClassV1::NullableObject(class)
-            if class.as_ref() == "HakoAllocHandle"
-    ));
-    // Nullable composed claims never authorize Handle behavior.
-    assert_eq!(ledger.callable_result_class(key), None);
-    assert_eq!(
-        ledger.nullable_callable_result_class(key),
-        Some("HakoAllocHandle")
-    );
-    assert!(
-        result_class_claim_row(&package, "HakoAllocHeap", "realloc").is_none(),
-        "realloc forwards to a parameter-returning callee — no claim"
-    );
-}
-
 /// A `return` nested inside a trailing `if` (or any non-completing
 /// terminal) can never mint a claim. The claim issuer now derives exits
 /// from the verified Completion — the same evidence that already makes
@@ -371,7 +340,8 @@ static box Main {
     ));
 }
 
-/// Fail-closed forwarded grammar: a parameter return, a rebound local,
+/// Fail-closed forwarded grammar: a parameter return mints only the
+/// class-free `NullableForwarded` identity claim, while a rebound local,
 /// class disagreement, and a recursive/mutually recursive forwarded
 /// cycle all leave the caller unclaimed — and the fixpoint terminates.
 #[test]
@@ -417,12 +387,25 @@ static box Main {
 "#,
     )
     .expect("negative forwarded callee source package");
-    for name in ["param_return", "rebound", "disagree", "rec_a", "rec_b"] {
+    for name in ["rebound", "disagree", "rec_a", "rec_b"] {
         assert!(
             result_class_claim_row(&package, "Work", name).is_none(),
             "Work.{name} must carry no result-class claim"
         );
     }
+    // A bare parameter return is not a negative: it mints the class-free
+    // forwarded identity claim — usable only through caller-side actual
+    // substitution, never as a callable's own class evidence.
+    let (param_key, param_claim) =
+        result_class_claim_row(&package, "Work", "param_return")
+            .expect("parameter return mints the forwarded identity claim");
+    assert!(matches!(
+        param_claim,
+        super::OrdinaryNewResultClassV1::NullableForwarded { ordinal: 0 }
+    ));
+    let ledger = &package.ordinary_new_claim_ledger;
+    assert_eq!(ledger.nullable_callable_result_class(param_key), None);
+    assert_eq!(ledger.callable_result_class(param_key), None);
     // The leaf callee still claims — negative callers do not veto it.
     assert!(matches!(
         result_class_claim_row(&package, "Page", "make"),
@@ -564,9 +547,11 @@ static box Main {
     // rebound destination, and the `flag + 1` argument site all keep the
     // non-coverage floor.
     assert_eq!(made.len(), 1);
+    // `param_return` carries only the class-free `NullableForwarded`
+    // identity claim — it mints no usable site observation either.
     assert!(
         receiver_observations_for(&package, "Page", "param_return").is_empty(),
-        "an unclaimed callee never mints an observation"
+        "a class-free forwarded claim never mints an observation"
     );
 }
 
@@ -596,42 +581,6 @@ static box Main {
         report.contains("ReceiverNonEscape"),
         "birth-body `me.m` fails the receiver-non-escape proof: {report}"
     );
-}
-
-/// The real `page_heap_box.hako` sites: `local handle = me.allocate(size)`
-/// and `local replacement = me.allocate(requested_size)` observe the
-/// composed `NullableObject(HakoAllocHandle)` claim, while `me.realloc`
-/// and the `me.<field>.m` sites stay unobserved.
-#[test]
-fn page_heap_fixture_observes_me_allocate_and_floors_realloc() {
-    let package = issue_with_brand_catalog(include_str!(
-        "../../../lang/src/hako_alloc/memory/page_heap_box.hako"
-    ))
-    .expect("page_heap fixture source package");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let allocate = receiver_observations_for(&package, "HakoAllocHeap", "allocate");
-    assert_eq!(
-        allocate.len(),
-        2,
-        "allocateResult:219 and realloc:287 are the two `me.allocate` sites"
-    );
-    for row in &allocate {
-        assert!(matches!(
-            row.class(),
-            super::OrdinaryNewResultClassV1::NullableObject(class)
-                if class.as_ref() == "HakoAllocHandle"
-        ));
-    }
-    assert!(
-        receiver_observations_for(&package, "HakoAllocHeap", "realloc").is_empty(),
-        "realloc stays unclaimed — its `me.realloc` site keeps the floor"
-    );
-    // `me.<field>.m(..)` receivers are `Other` — never observed here even
-    // if the callee were claimed.
-    assert!(ledger
-        .receiver_call_observations_for_test()
-        .values()
-        .all(|row| row.callee().owner() == "HakoAllocHeap" && row.callee().name() == "allocate"));
 }
 
 #[test]

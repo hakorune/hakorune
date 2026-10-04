@@ -5,10 +5,16 @@ use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOriginV1, FunctionOwnerIdV1, HomeDemandV1,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum CallableParameterContractKindV1 {
     OpaqueHandle,
     DeclaredHandle,
+    /// A declared formal whose spelling resolves to an ordinary box of
+    /// this package — the source's explicit declaration bound to the
+    /// resolved class identity, never a field-set inference. The formal
+    /// is an owned binding: `return <formal>` is an owned pass-through,
+    /// and a call-position actual of it transfers ownership.
+    DeclaredObject(Box<str>),
     /// A `: MapBox` declared formal under the checked-map argument
     /// contract: a synchronous read-only no-escape borrow of caller-owned
     /// map storage. The variant itself is the whole admitted contract —
@@ -19,9 +25,12 @@ pub(crate) enum CallableParameterContractKindV1 {
 }
 
 impl CallableParameterContractKindV1 {
-    pub(crate) const fn home_demand(self) -> HomeDemandV1 {
+    pub(crate) fn home_demand(&self) -> HomeDemandV1 {
         match self {
-            Self::OpaqueHandle | Self::DeclaredHandle | Self::Map => HomeDemandV1::Handle,
+            Self::OpaqueHandle
+            | Self::DeclaredHandle
+            | Self::DeclaredObject(_)
+            | Self::Map => HomeDemandV1::Handle,
             Self::ExactTrivial(_) => HomeDemandV1::Trivial,
             Self::ExactText(_) => HomeDemandV1::Handle,
         }
@@ -56,11 +65,11 @@ impl VerifiedCallableParameterContractV1 {
         self.binding
     }
 
-    pub(crate) const fn kind(&self) -> CallableParameterContractKindV1 {
-        self.kind
+    pub(crate) fn kind(&self) -> CallableParameterContractKindV1 {
+        self.kind.clone()
     }
 
-    pub(crate) const fn home_demand(&self) -> HomeDemandV1 {
+    pub(crate) fn home_demand(&self) -> HomeDemandV1 {
         self.kind.home_demand()
     }
 }

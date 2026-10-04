@@ -92,6 +92,19 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                                 CallableParameterContractKindV1::Map
                             } else if is_admitted_declared_box_name(source_type) {
                                 CallableParameterContractKindV1::DeclaredHandle
+                            } else if matches!(
+                                batch.ordinary_box_coverage().row_for(source_type),
+                                Ok(Some(_))
+                            ) {
+                                // An explicit declaration that resolves
+                                // to an ordinary box of this package is the
+                                // class authority — the resolved identity is
+                                // the declaration's own class, not a field
+                                // inference. Unresolvable spellings keep the
+                                // fail-closed `UnsupportedDeclaredType` edge.
+                                CallableParameterContractKindV1::DeclaredObject(
+                                    source_type.into(),
+                                )
                             } else {
                                 return Err(
                                     CallableParameterContractIssueV1::UnsupportedDeclaredType {

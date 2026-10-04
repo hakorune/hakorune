@@ -104,7 +104,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     let mut birth_site_index = BTreeMap::new();
     let mut borrowed_formal_actuals = BTreeMap::new();
     let (field_write_claims, field_residences, callable_result_classes) =
-        source_claims::prepare_source_claims(batch, selected, instance_constructors)?;
+        source_claims::prepare_source_claims(
+            batch, selected, instance_constructors, parameter_contracts,
+        )?;
     let dynamic_slot = match dynamic {
         super::super::model::NormalCallableDynamicProjectionV1::Selected { batch_slot, .. } => {
             Some(*batch_slot)
@@ -202,6 +204,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let function = input.function();
                 let owner_loan = direct_call_loans.and_then(|loans| loans.get(owner));
                 let entry_home = entry_home_loans.for_batch_slot(batch_slot);
+                let batch_contract_rows: Vec<_> = parameter_contracts
+                    .iter()
+                    .filter(|row| row.batch_slot == batch_slot)
+                    .collect();
+                let batch_params =
+                    || batch_contract_rows.iter().flat_map(|row| row.parameters.iter());
                 let candidates = local_candidates.remove(&batch_slot)
                     .ok_or(OrdinaryNewCoSealIssueV1::BatchLoan)??;
                 // Return-position `new` membership: the construction is the
@@ -261,14 +269,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         row,
                         crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral { .. }
                     ))
-                }) || parameter_contracts
-                    .iter()
-                    .filter(|row| row.batch_slot == batch_slot)
-                    .flat_map(|row| row.parameters.iter())
-                    .any(|row| {
-                        row.kind
-                            == crate::mir::callable_parameter_contract::CallableParameterContractKindV1::Map
-                    });
+                }) || batch_params().any(|row| {
+                    row.kind
+                        == crate::mir::callable_parameter_contract::CallableParameterContractKindV1::Map
+                });
                 let new_sites: BTreeMap<_, _> = candidates.iter().map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
                 // The entry loan proves `me`-receiver reads: the sole Home
                 // ABI issuer bound `me` to this box — shared by the probe,
@@ -278,6 +282,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 );
                 receiver_call_observation::observe_receiver_call_sites(
                     input, receiver_proof, selected, &callable_result_classes,
+                    &batch_contract_rows,
                     &mut receiver_call_observations,
                 );
                 // Destination-less birth index collects in the same
@@ -510,9 +515,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     };
                     match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_and_argument_observations_v1(
                         input, &new_sites,
-                        parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
-                            .flat_map(|row| row.parameters.iter())
-                            .map(|row| (row.ordinal, row.binding, row.kind)),
+                        batch_params()
+                            .map(|row| (row.ordinal, row.binding, row.kind.clone())),
                         entry_home,
                         &mut field_is_integer, &mut |site, binding| {
                             let mut exact = candidates.iter().filter(|row| &row.site == site);
@@ -700,9 +704,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             root_completion = Some(Err(error));
                             issue_new_home_prefixes_with_arguments_v1(
                                 input, &new_sites, &result_sites,
-                                parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
-                                    .flat_map(|row| row.parameters.iter())
-                                    .map(|row| (row.ordinal, row.binding, row.kind)),
+                                batch_params()
+                                    .map(|row| (row.ordinal, row.binding, row.kind.clone())),
                                 entry_home,
                             )
                         }
@@ -710,9 +713,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 } else {
                     issue_new_home_prefixes_with_arguments_v1(
                         input, &new_sites, &result_sites,
-                        parameter_contracts.iter().filter(|row| row.batch_slot == batch_slot)
-                            .flat_map(|row| row.parameters.iter())
-                            .map(|row| (row.ordinal, row.binding, row.kind)),
+                        batch_params()
+                            .map(|row| (row.ordinal, row.binding, row.kind.clone())),
                         entry_home,
                     )
                 };

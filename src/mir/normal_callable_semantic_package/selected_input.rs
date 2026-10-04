@@ -16,7 +16,7 @@ impl<'loan> super::SelectedCallableLoweringInputRefV1<'loan> {
     {
         self.parameter_contracts
             .iter()
-            .map(|row| (row.ordinal, row.binding, row.kind))
+            .map(|row| (row.ordinal, row.binding, row.kind.clone()))
     }
 
     /// Borrow the resolver-owned BlockExpr expectation from the same batch
