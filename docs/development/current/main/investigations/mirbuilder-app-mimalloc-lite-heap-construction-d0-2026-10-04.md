@@ -1,6 +1,6 @@
 # mimalloc-lite heap construction D0 (`new HakoAllocHeap` contract)
 
-Status: design stop — residual census recorded, decision space below.
+Status: Decisions accepted (2026-10-05); SIZE-T0 selected, then A -> B -> C.
 Owns the EXE lane's frontier after FORMAL-FORWARD-RESULT-S0
 (`a92f003d8e`): the `artifact-source-unavailable` stop on
 `MiWorkload.run/0` Body(0), where `local heap = new HakoAllocHeap()`
@@ -144,7 +144,7 @@ Declined/closed:
   carry real storage; the owned-field discharge arm exists precisely
   because they are not trivial.
 
-## Smallest next slice (proposal, needs owner Decision)
+## Historical smallest-slice proposal (superseded by Decision below)
 
 `MIRBUILDER-APP-MIMALLOC-LITE-HEAP-CONSTRUCTION-S0` — one bounded arm,
 suggested order by dependency: (C) cannot help before (A)+(B) since
@@ -170,3 +170,129 @@ Non-claims:
   statements are outside this frontier; their lanes are separate.
 - No claim that all three gaps share one slice — the split above is
   a proposal awaiting the owner Decision.
+
+## Accepted Decision (2026-10-05)
+
+Decision: keep A, B and C as separate semantic slices, in that order.
+Sharing a provider-store boundary does not make reclamation and argument
+evaluation one responsibility. A has an executable witness with literal
+arguments and an owned-array child; B has one with a plain child and exact
+static-call arguments. C has one with already-supported stores followed by
+an exact field-receiver call. These are focused compiler fixtures, not
+rewrites or substitutions for the production mimalloc-lite app.
+
+All three remain required for the original heap construction. A focused
+success is not whole-app acceptance. The MIR JSON negative stays at its
+designed `unsupported terminator Invoke` boundary.
+
+### Ordered tasks
+
+All row names have prefix `MIRBUILDER-APP-MIMALLOC-LITE-`.
+
+Selected execution row:
+`MIRBUILDER-APP-MIMALLOC-LITE-HEAP-CONSTRUCTION-SIZE-T0`.
+Next semantic row:
+`MIRBUILDER-APP-MIMALLOC-LITE-HEAP-OWNED-PROVIDER-S0`.
+
+1. **HEAP-CONSTRUCTION-SIZE-T0** (selected, BoxShape only). Split the
+   provider emission/validation responsibilities out of
+   `src/mir/builder/normal_callable_construction_state.rs` (971 lines at
+   decision time) into private responsibility children. Preserve source
+   predicates, evaluation order, fault landings, verification and visibility
+   boundary. Bring touched parents/children below 800 without compression.
+   `ordinary_new_coseal_issue.rs` is 797 lines: create headroom by a separate
+   behavior-preserving extraction if the next issuer change needs it. Keep
+   structural commits separate from A/B/C. Run existing constructor/provider
+   positive/negative tests, touched-file formatting, scope/pointer guards
+   and diff check; record pre-existing unrelated guard debt truthfully.
+2. **HEAP-OWNED-PROVIDER-S0** (A). Extend the existing provider-owned
+   residence to a child whose destruction is `OwnedArrayFieldsNoHook`,
+   construction is covered and every owned ArrayBox residence is sealed.
+   Bound this first slice to parent -> user-object child -> ArrayBox leaves;
+   retain plain children. Further user-object nesting, hooks, cycles,
+   unsupported providers and unsealed children remain unavailable.
+3. **HEAP-PROVIDER-CALL-ARG-S0** (B). Admit exact qualified static-call
+   scalar results as provider arguments through the existing source-target
+   and result authority. Do not fold, add source annotations, or treat a
+   scalar result as a non-faulting/non-effectful call.
+4. **HEAP-BIRTH-FIELD-CALL-S0** (C). Admit exact sequential, discarded-result
+   calls on an already-stored, fully constructed owned user-object field.
+   Require canonical target, borrowed receiver lifetime and covered callee
+   completion/effects. Then run the unchanged original heap/app frontier
+   probe; report the next stop rather than predicting EXE PASS.
+
+### Source authority + canonical issuer
+
+**A:** constructor source identity and declaration-order field stores from
+the verified constructor batch; canonical object definitions and destruction
+dispositions from `instance_constructor_semantic/object_definition.rs`;
+exact birth-side residences and child coverage from the existing co-seal.
+`issue_construction_plan` remains the construction issuer;
+`owned_field_children_of` and the existing ledger remain the child-obligation
+owner. Extend their existing products, not a parallel recursive analyzer or
+new receipt family. Unresolved/cyclic dependencies issue no plan.
+
+Cleanup must cover Normal end as well as construction Fault. A child-birth
+Fault releases only its Normal-committed child fields, then reclaims its
+unpublished outer storage. A completed child not yet stored in the parent
+is an in-flight owner; a parent-store Fault releases that child and its
+ArrayBox fields exactly once. After a Normal store the parent owns it;
+a later store/birth-call Fault releases the parent's committed residences,
+including those nested fields, before parent storage reclamation. Preserve
+the existing declaration-order cleanup convention and fault-frame policy.
+Unstored slots need an explicit empty/initialization-state guarantee; neither
+the final field inventory nor a zero-looking payload proves initialization.
+
+The selected construction physical owner is
+`normal_callable_construction_state` (after T0 extraction), with existing
+local-commit cleanup and publication consumers. Current V4
+`object_field_release` in `hako_llvmc_ffi_lifecycle_v4_emit.inc` calls
+`home_release_plain_i64_v1`: widening only the issuer would leak nested
+fields. A must carry the source-sealed nested cleanup obligation through
+publication and this physical consumer; any wire change updates its owning
+reference before code. Layout/type IDs alone do not issue child ownership.
+
+**B:** borrow `VerifiedStaticImportAliasViewV1`, the whole-source static
+target inventory and `VerifiedSameModuleCallableResultCatalogV1` through
+the existing qualified-static-call membership owner. Seal exact caller,
+new site, argument ordinal, call expression site, target and required scalar
+argument obligations inside the existing construction argument product.
+The existing call physical owner evaluates each source argument once, in
+source order; only its Normal result is the Birth actual. Keep the language's
+existing allocation/argument order, and discharge any already-acquired
+unpublished storage on argument Fault. MIR value types, method names and
+result annotation alone are not authority. Missing result/argument proof,
+wrong result class, nested unsupported argument shapes and site drift reject.
+
+**C:** the constructor plan owns statement order and the initialized-field
+set. Only a prior Normal-committed store with completed child birth lends
+the exact receiver; the child callee's existing verified callable contract
+owns its body, including `seedBlocks` internals. The call borrows the child,
+does not transfer it or lend the partially initialized parent `me`, and its
+Fault feeds the same source-backed construction cleanup. A later store cannot
+justify an earlier call. Receiver-before-store, unavailable/escaping callee,
+unknown target, transfer/re-store and unsupported control flow stay closed.
+
+### Acceptance and non-claims
+
+A: execute a literal-argument nested-array fixture through publication/C;
+verify Normal end and injected child allocation/store/birth Fault,
+parent-store Fault and later-parent Fault. Observe each acquired lease
+released once, no unacquired-slot release and no outer-only reclaim over
+live children. Reject missing/forged child descriptors, wrong class/field,
+duplicate cleanup and unsupported deeper/cyclic ownership.
+
+B: execute a plain-child fixture with qualified static-call arguments;
+verify result-to-actual identity, argument order/single evaluation and Fault
+cleanup. Reject forged result/target/ordinal/site rows and wrong scalar kind.
+
+C: execute stored-child mutation calls in order, then the unchanged
+`new HakoAllocHeap()` probe. Verify second-call Fault discharges both stored
+children, and reject receiver-before-store or unproved completion/lifetime.
+If a callee's existing lane is uncovered, record that separate frontier;
+do not infer coverage from this construction contract.
+
+Each slice owns its focused positive/negative checks, publication/physical
+checks and baseline comparison. No fallback, mimalloc-specific name branch,
+source workaround, provider activation, whole-app completion or arbitrary
+recursive destruction claim is authorized by this Decision.
