@@ -1,6 +1,6 @@
 # mimalloc-lite opaque checked-compare task-4 artifact D0 (dominated-view use coverage)
 
-Status: TASK4-ARTIFACT-S0 landed (<commit>) — dominated-view
+Status: TASK4-ARTIFACT-S0 landed (ad1fc53776) — dominated-view
   positions admitted end-to-end for `HakoAllocPage.allocate/1`; the app
   EXE lane advanced to the next designed boundary
   (`HakoAllocHandleResult` Birth plan — object-typed `handle` formal
