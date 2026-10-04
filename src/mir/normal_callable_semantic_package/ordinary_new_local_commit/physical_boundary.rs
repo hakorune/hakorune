@@ -27,8 +27,15 @@ struct Node {
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct PhysicalBoundary {
+    /// Recorded-binding blocks only — the validation scope.
     nodes: BTreeMap<BasicBlockId, Node>,
+    /// Every draft block — the contraction-walk scope. A recorded block may
+    /// merge into an uncaptured trampoline, so destinations must be found
+    /// from any surviving draft block, not only from binding carriers.
+    walk_graph: BTreeMap<BasicBlockId, Node>,
     incoming: Incoming,
+    recorded_dsts: BTreeSet<ValueId>,
+    single_definitions: BTreeSet<ValueId>,
     removable_constants: BTreeSet<ValueId>,
     removable_copies: BTreeSet<ValueId>,
     source_copies: BTreeMap<ValueId, (BasicBlockId, MirInstruction)>,
@@ -203,9 +210,33 @@ impl PhysicalBoundary {
                 removable_copies.insert(*local);
             }
         }
+        let mut walk_graph = BTreeMap::new();
+        for block in function.blocks.values() {
+            // A block without a terminator can never be a merge middle, so
+            // it contributes no contraction walk entry — if it is removed
+            // later it can only be dead-pruned, and any chain reaching it
+            // stays fail-closed at `foreign-target`.
+            let Some(terminal) = block.terminator.clone() else {
+                continue;
+            };
+            walk_graph.insert(
+                block.id,
+                Node {
+                    instructions: block.instructions.clone(),
+                    terminal,
+                    edges: block.out_edges().iter().map(|edge| edge.target).collect(),
+                },
+            );
+        }
         Ok(Self {
             nodes,
+            walk_graph,
             incoming: incoming(function, &ids),
+            recorded_dsts: recorded,
+            single_definitions: definitions
+                .iter()
+                .filter_map(|(dst, count)| (*count == 1).then_some(*dst))
+                .collect(),
             removable_constants,
             removable_copies,
             source_copies,
@@ -214,49 +245,85 @@ impl PhysicalBoundary {
     }
 
     pub(super) fn project(&self, function: &MirFunction) -> Result<FinishedBindings, String> {
+        // A sole predecessor means one predecessor *block*, matching the
+        // finishing merge's `predecessors.len() == 1` on the deduplicated
+        // predecessor set — a both-arms-equal `Branch` is still one.
         let mut predecessors: BTreeMap<_, Vec<_>> = BTreeMap::new();
-        for (id, node) in &self.nodes {
+        for (id, node) in &self.walk_graph {
             for target in &node.edges {
-                predecessors.entry(*target).or_default().push(*id);
+                let preds = predecessors.entry(*target).or_default();
+                if !preds.contains(id) {
+                    preds.push(*id);
+                }
             }
         }
         for ((id, _), (_, target, _)) in &self.incoming {
-            predecessors.entry(*target).or_default().push(*id);
+            let preds = predecessors.entry(*target).or_default();
+            if !preds.contains(id) {
+                preds.push(*id);
+            }
         }
         let mut destinations = BTreeMap::new();
         let mut expected = BTreeMap::new();
-        for (id, node) in &self.nodes {
+        for (id, node) in &self.walk_graph {
             if !function.blocks.contains_key(id) {
                 continue;
             }
             let mut cursor = *id;
             let mut current = node;
             let mut instructions = Vec::new();
+            // A recorded block may contract into an uncaptured surviving
+            // predecessor: the merged sequence still lands at the surviving
+            // walk start, so the expected sequence is recorded whenever the
+            // walk carried any binding block, not only when the start is one.
+            let mut carries_binding = self.nodes.contains_key(id);
             loop {
                 if destinations.insert(cursor, *id).is_some() {
                     return Err(fault("duplicate-or-cycle"));
                 }
                 instructions.extend(current.instructions.iter().cloned());
-                let MirInstruction::Jump {
-                    target,
-                    edge_args: None,
-                } = &current.terminal
-                else {
-                    break;
+                // Finishing contracts a block through either a plain `Jump`
+                // or a `Branch` whose both arms reach it: the merge folds
+                // the equal-arm branch to a jump first, so the draft-side
+                // walk must recognize the same effective edge. Edge args
+                // carrying values would substitute into merged phis, which
+                // stays outside this bounded projection — only value-free
+                // edges may contract.
+                let consumable = |args: &Option<EdgeArgs>| {
+                    args.as_ref().is_none_or(|args| args.values.is_empty())
                 };
-                if function.blocks.contains_key(target) {
+                let target = match &current.terminal {
+                    MirInstruction::Jump { target, edge_args } if consumable(edge_args) => *target,
+                    MirInstruction::Branch {
+                        then_bb,
+                        else_bb,
+                        then_edge_args,
+                        else_edge_args,
+                        ..
+                    } if then_bb == else_bb
+                        && then_edge_args == else_edge_args
+                        && consumable(then_edge_args) =>
+                    {
+                        *then_bb
+                    }
+                    _ => break,
+                };
+                if function.blocks.contains_key(&target) {
                     break;
                 }
-                if predecessors.get(target).map(Vec::as_slice) != Some(&[cursor][..]) {
+                if predecessors.get(&target).map(Vec::as_slice) != Some(&[cursor][..]) {
                     return Err(fault("contraction-predecessor"));
                 }
                 current = self
-                    .nodes
-                    .get(target)
+                    .walk_graph
+                    .get(&target)
                     .ok_or_else(|| fault("foreign-target"))?;
-                cursor = *target;
+                cursor = target;
+                carries_binding |= self.nodes.contains_key(&cursor);
             }
-            expected.insert(*id, (instructions, current.terminal.clone()));
+            if carries_binding {
+                expected.insert(*id, (instructions, current.terminal.clone()));
+            }
         }
         Ok(FinishedBindings {
             destinations,
@@ -274,7 +341,11 @@ impl PhysicalBoundary {
         projection: &mut FinishedBindings,
         bindings: &Bindings,
     ) -> Result<(), String> {
-        if projection.destinations.len() != self.nodes.len() {
+        if self
+            .nodes
+            .keys()
+            .any(|id| !projection.destinations.contains_key(id))
+        {
             return Err(fault("unmapped-block"));
         }
         // DCE may remove an unrecorded Const or Copy already unused before
@@ -304,8 +375,19 @@ impl PhysicalBoundary {
                 } else if matches!(expected, MirInstruction::Const { dst, .. }
                     if self.removable_constants.contains(dst))
                     || matches!(expected, MirInstruction::Copy { dst, .. }
-                        if self.removable_copies.contains(dst) || !used.contains(dst))
+                        if self.removable_copies.contains(dst))
+                    || (expected.effects().is_pure()
+                        && expected.dst_value().is_some_and(|dst| {
+                            !used.contains(&dst)
+                                && !self.recorded_dsts.contains(&dst)
+                                && self.single_definitions.contains(&dst)
+                        }))
                 {
+                    // Finishing may drop an unrecorded, uniquely-defined pure
+                    // definition whose result became dead — a CSE'd
+                    // duplicate, a folded phi, or plain DCE. A recorded
+                    // binding never rides this permission, and an actual-side
+                    // extra instruction still fails the sequence.
                     continue;
                 } else {
                     return Err(fault("finished-sequence"));
@@ -317,8 +399,64 @@ impl PhysicalBoundary {
                 return Err(fault("finished-sequence"));
             }
         }
-        let surviving = projection.destinations.values().copied().collect();
-        if incoming(function, &surviving) != self.incoming {
+        let surviving: BTreeSet<BasicBlockId> = self
+            .nodes
+            .keys()
+            .filter_map(|id| projection.destinations.get(id))
+            .copied()
+            .collect();
+        // Entry-edge correspondence is checked through the destination map:
+        // a draft edge `s -> t` lands as `dest(s) -> dest(t)` keeping its
+        // terminator shape and args, a source that was itself contracted or
+        // pruned contributes nothing, and a both-arms-equal `Branch` is
+        // normalized to the `Jump` finishing folds it into — so the two
+        // identical slots collapse onto the single surviving edge.
+        let jump_discriminant = std::mem::discriminant(&MirInstruction::Jump {
+            target: BasicBlockId(0),
+            edge_args: None,
+        });
+        // `EdgeArgs` carries no `Ord`; both sides are built from ordered
+        // `BTreeMap` iteration, so a slot-stable sort by (source, target)
+        // keeps equal-arm duplicates comparable element-wise.
+        let mut expected_edges: Vec<_> = self
+            .incoming
+            .iter()
+            .filter_map(|((source, _), (discriminant, target, args))| {
+                let mapped_source = *projection.destinations.get(source)?;
+                let mapped_target = projection.destinations[target];
+                if mapped_source == mapped_target {
+                    return None;
+                }
+                let (discriminant, args) = match self
+                    .walk_graph
+                    .get(source)
+                    .map(|node| &node.terminal)
+                {
+                    Some(MirInstruction::Branch {
+                        then_bb,
+                        else_bb,
+                        then_edge_args,
+                        else_edge_args,
+                        ..
+                    }) if then_bb == else_bb && then_edge_args == else_edge_args => {
+                        (jump_discriminant, then_edge_args.clone())
+                    }
+                    _ => (*discriminant, args.clone()),
+                };
+                Some((mapped_source, discriminant, mapped_target, args))
+            })
+            .collect();
+        expected_edges.sort_by_key(|(source, _, target, _)| (*source, *target));
+        expected_edges.dedup();
+        let mut actual_edges: Vec<_> = incoming(function, &surviving)
+            .iter()
+            .map(|((source, _), (discriminant, target, args))| {
+                (*source, *discriminant, *target, args.clone())
+            })
+            .collect();
+        actual_edges.sort_by_key(|(source, _, target, _)| (*source, *target));
+        actual_edges.dedup();
+        if actual_edges != expected_edges {
             return Err(fault("incoming-drift"));
         }
         for binding in projection.bindings(bindings)? {
@@ -383,10 +521,51 @@ impl FinishedBindings {
             && !used_values(function).contains(&local))
     }
     fn instruction(&self, mut instruction: MirInstruction) -> MirInstruction {
-        if let MirInstruction::InvokeNormalResult { invoke_block, .. } = &mut instruction {
-            if let Some(mapped) = self.destinations.get(invoke_block) {
-                *invoke_block = *mapped;
+        // Finishing may contract or re-route a draft block; every block id
+        // embedded in a recorded instruction rewrites through the same
+        // destination map the binding block itself resolves against.
+        let map = |id: &mut BasicBlockId| {
+            if let Some(mapped) = self.destinations.get(id) {
+                *id = *mapped;
             }
+        };
+        match &mut instruction {
+            MirInstruction::Branch {
+                then_bb, else_bb, ..
+            } => {
+                map(then_bb);
+                map(else_bb);
+            }
+            MirInstruction::Jump { target, .. } => map(target),
+            MirInstruction::Invoke {
+                normal_landing,
+                fault_landing,
+                ..
+            }
+            | MirInstruction::CheckedCallOut {
+                normal_landing,
+                fault_landing,
+                ..
+            } => {
+                map(normal_landing);
+                map(fault_landing);
+            }
+            MirInstruction::InvokeNormalResult { invoke_block, .. } => map(invoke_block),
+            MirInstruction::PinnedTextResidenceEnter {
+                normal_landing,
+                trap_landing,
+                ..
+            } => {
+                map(normal_landing);
+                map(trap_landing);
+            }
+            MirInstruction::Phi { inputs, .. } => {
+                for (predecessor, _) in inputs {
+                    map(predecessor);
+                }
+            }
+            MirInstruction::Catch { handler_bb, .. } => map(handler_bb),
+            _ => {}
         }
         instruction
     }

@@ -330,113 +330,16 @@ Selected construction row: none — series complete.
 | 8 | FIELDRESULT-S0 | Exact scalar field-return result proof using 7's view; landed |
 | 9 | PARAMFIELD-ACCEPTANCE-R0 | Selected source-to-EXE null/object/nullable cases and inverse failures; landed |
 
-### 1 — I64RESULT-S0 (landed)
+### 1-8 — landed row task descriptions (compressed to references)
 
-- Production change: selected borrowed lexical callees' result and direct-return
-  corroboration in `ordinary_new_borrowed_formal_result.rs`; existing local,
-  discard/nested and terminal lenders consume that same proof. Source I64
-  classification and `result_contract.rs` declaration interpretation stay owned
-  where they are. No global header/result/default change.
-- Positive: unannotated Integer-literal and exact-I64-formal returns, multiple
-  complete I64 exits, existing annotated I64, and original local/discard/nested/
-  direct-return call forms. Assert source declaration remains Unannotated while
-  the selected disposition/Invoke/result projection is I64.
-- Negative: Void/other annotation, implicit/bare return, Bool/Text/null-only,
-  mixed return classes, missing/extra/duplicate exit, wrong owner and unproved
-  projection. Keep nullable-result and all-ordinal actual regressions.
-- Publication/EXE witness: unused opaque formal with immediate actual and a
-  direct caller Return; this avoids independently blocked main local-new
-  actuals. Package-level continuation tests do not claim those actuals execute.
-  The newly accepted local-new shape may advance to ROOTSOURCE's named stop.
-- Scope: result owner/tests, exact publication positives/negatives, owner README
-  and existing focused guard pins. Other 14-variant frontiers retain exact
-  rejection evidence; promote only result-covered cases and re-pin their next
-  named stop. No full-field or app acceptance is owed by this row.
-
-### 2 — ROOTSOURCE-S0
-
-- Production owner: `ordinary_new_local_commit/finalized_root_handoff.rs::
-  seal_finalized_root_birth_handoff`, its existing finalized-source projection
-  and compiled-entry borrower. Source-handoff presence follows verified main
-  identity/Completion plus retained birth/local-call inventories; it must not
-  depend solely on `!terminal_relation.is_empty()`.
-- Preserve exact existing owner, app-main identity, target, construction site,
-  destination, receiver and finished producer joins. An actually empty terminal
-  map is legitimate transport data, not a fabricated terminal or cleanup proof.
-  Do not remove the missing-source checks without supplying this original loan.
-- Positive: `local h = new Handle(..); local r = s.release(h); return r`
-  with unused formal/I64 body, plus local/discard main uses without a terminal
-  Call. Birth and actual source remain inventoried; cleanup is once on outcomes.
-- Negative: missing/foreign root source, wrong main owner/identity, changed birth
-  site/receiver/arguments and a missing original producer reject before JSON.
-
-### 3 / 6 — the two invariant size prerequisites (both landed)
-
-USESIZE-T0 moves existing compare/add/source-operand classifier bodies into a
-private child of the same borrowed-use owner; FIELDSIZE-T0 moves the existing
-field-read batch issuer/stager into a private child of its source issuer.
-Keep exact predicates, evaluation/error order, signatures, forwarding closure
-and all old rejection arms; change only required private visibility/imports and
-relocate existing guard source pins. Do not mix null or field admission into
-these T0s. Validate moved-code equivalence and nonzero existing focused suites.
-Use responsibility-specific test children; the publication-new-argument parent
-is already 727 lines and physical use parent 720. Split further only when the
-selected implementation needs it; never compress or exceed the 800-line stop.
-
-### 4 — NULLCOMPARE-S0 (landed)
-
-- Owners: source-use child, `dynamic_operator_contract`, original borrowed view
-  ledger, compiled-entry use verifier, JSON and existing V2/V4 index/emitter.
-  Install only exact equality rows, preserving greater/add permissions.
-- Positive: guarded ignored/formal-only I64 body with live TypedHome, Integer(0)
-  and Bool(false) actuals; all compare unequal to null without an Integer fault.
-  Check both source operand orders, original null site and Bool branch result.
-- Negative: arbitrary tagged equality, non-null sibling, forged zero-as-null,
-  original/final site or operand drift and unsupported use reject. No field
-  permission arises from non-null. Null-true source EXE belongs to row 5.
-
-### 5 — NULLACTUAL-S0 (landed)
-
-- Owners: `home_local_call_borrowed_actuals.rs`, both prefix walks, original
-  borrowed actual/result lenders, final incoming verifier and physical/C call
-  transport consumers. No nullable argument may be repaired as constant tag 3.
-- Positive: exact null, owned ReceivedNullable in both runtime states, existing
-  TypedHome and original formal/Copy forwarding; null compare returns true only
-  for the null state. Verify identical source arity and intact pair transport.
-- Negative: Integer(0)/Bool(false) substituted for null, malformed 0/nonzero
-  payload, fake/foreign nullable producer or class, consumed root, wrong site/
-  ordinal, missing incoming arm and host/boxed domain reject before artifact.
-  Callee End is zero and caller release-if-live is exactly once on each outcome.
-
-### 7 — PARAMFIELD-S0 (landed)
-
-- Owners: existing borrowed source/actual ledger for the complete class view;
-  existing prefix non-null flow and field-read batch/terminal-home issuer for
-  exact scalar field; existing parameter descriptor, incoming index and
-  ObjectFieldGet consumer for physical corroboration. No declared formal kind.
-- Positive: `if handle == null { return 0 }; local id = handle.page_id; return 0`
-  with literal null, TypedHome(C), ReceivedNullable(C) and seeded forwarding.
-  Null returns before any access; non-null publishes one exact ObjectFieldGet
-  based on the original tagged formal/Copy with matching object/slot.
-- Negative: unguarded/null-arm/non-dominated read, rebind or lost join proof,
-  unknown field, conflicting same-layout classes, missing incoming proof,
-  all-null/unseeded cycles, scalar/nonobject arm, wrong canonical object/slot,
-  missing view row and physical base substitution reject. Borrow is no-End.
-- Accept initializer form first: terminal `return handle.page_id` remains row
-  8's named result frontier, so result admission cannot conceal field-read debt.
-
-### 8 — FIELDRESULT-S0 (landed)
-
-- Borrow the exact source field-read scalar proof in the existing I64 result
-  preparation/Completion corroboration and lexical/terminal consumers. Arrange
-  passive declaration/view preparation before prefix walks and final co-seal
-  afterwards; do not infer the result from emitted FieldGet/MirType.
-- Positive: unannotated guarded `return handle.page_id` with an I64-compatible
-  null-arm literal; all complete scalar field/literal exits have one executable
-  I64 projection while the declaration stays Unannotated.
-- Negative: object/unknown field, missing or unguarded field proof, mixed
-  classes/results, wrong owner/site, partial return coverage and result-value
-  substitution reject. Returning a borrowed object is not admitted here.
+Rows 1-8 are landed; their per-row positive/negative boundaries now
+live only as history. Evidence is preserved in the landed-record
+archive
+`mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-paramfield-landed-records-2026-10-04.md`
+(I64RESULT-S0 .. FIELDSIZE-T0) and the in-card landed records below
+(PARAMFIELD-S0 `02927e1f60`, FIELDRESULT-S0 `6f34f4c6c4`,
+PARAMFIELD-ACCEPTANCE-R0 `cf169b2c8f`). The order table above is the
+index; reopen only through a new accepted Decision.
 
 ### 9 — PARAMFIELD-ACCEPTANCE-R0 and shared checks
 
@@ -846,3 +749,179 @@ releaseLocal/allocate.
 
 Next: the remaining `release(handle)` shapes need their own bounded
 rows under a fresh Decision (REAL-RELEASE census above stays the map).
+
+## Post-FIELDOPERAND app frontier census (2026-10-04, emit-mir-json lane)
+
+With FIELDOPERAND-S0 landed, the real `apps/mimalloc-lite/main.hako`
+was re-measured on both lanes:
+
+- `--dump-mir` stops at
+  `[freeze:contract][named-array/retained-source-required]` — a designed
+  lane-capability stop, not an unadmitted source shape. The contributor
+  is `HakoAllocPage.seedBlocks/0`: loop-internal `me.<ArrayBox field>`
+  pushes mint `FieldResidence` requirements discharged as
+  `NamedArrayWriteMarkerV1` metadata; the plain `into_parts` lane has no
+  retained handoff to consume them. `.get` uses mint no requirement —
+  `handles.get`/`me.pages.get` are straight-line and ride the generic
+  lane.
+- `--emit-mir-json` (document lane discharges markers) advances to
+  `[freeze:contract][ordinary-new/local-commit/emission-binding-drift]`.
+  Attribution (temporary diagnostic): `HakoAllocHeap.allocateResult/1`
+  block 105 expected `Invoke{Call me.allocate}` bindings; the minimal
+  reproducer `/tmp/allocresult-repro/main.hako`
+  (`if size < 8 {return null} return new Handle(size)` /
+  `if size <= 0 {return new R} local h = me.allocate(size) ...`)
+  reproduces the same class at `Heap.allocate/1` block 12 with
+  `Invoke{NewBox}` — i.e. recorded invoke bindings whose draft block no
+  longer has a `FinishedBindings` destination after `simplify_cfg`
+  finishing. The reproducer contains no field-operand shapes, so the
+  drift is a pre-existing app-scale gap, not FIELDOPERAND fallout.
+
+Boundary model (verified against
+`ordinary_new_local_commit/physical_boundary.rs`): `nodes` are exactly
+the blocks carrying recorded bindings at capture;
+`project()` maps destinations only along plain-`Jump` contraction
+chains entered from surviving nodes; `instruction()` rewrites only
+`InvokeNormalResult.invoke_block` — embedded landing/branch targets in
+recorded `Invoke`/`Jump`/`Branch` bindings keep draft ids. Small
+fixtures pass because surviving ids coincide; at app scale the two
+gaps are (a) a recorded block can lose every destination when its
+removal is not entered through a surviving node's `Jump` chain, and
+(b) recorded instructions carrying draft block ids can mismatch the
+finished instruction even when the block maps correctly.
+
+Bounded next slice proposal (TASK4-FINISHBIND-S0): close the projection
+gap for recorded bindings — every draft binding block must resolve a
+finished destination (or a named dead-removal stop), and every
+`BasicBlockId` embedded in a recorded instruction must rewrite through
+the projection. Diagnose which removal path leaves `Heap.allocate/1`
+block 12 unmapped (unreachable prune vs post-capture binding vs
+non-Jump-edge contraction), apply the minimal authority-preserving
+fix, and pin the reproducer plus the real `allocateResult/1` shape.
+Non-claims: no `.get` lane change, no named-array route change, no
+production switch.
+
+Accepted Decision (2026-10-04, REAL-RELEASE boundary projection):
+
+```text
+Decision: the physical-boundary projection covers contraction beyond
+  captured-node Jump chains. `capture()` keeps `nodes` scoped to
+  recorded-binding blocks for validation but also captures a
+  `walk_graph` over every draft block; `project()` walks Jump
+  contraction chains from every surviving draft block so a recorded
+  block merged into an uncaptured trampoline still resolves a
+  destination; `instruction()` rewrites every BasicBlockId embedded in
+  a recorded instruction through the destination map.
+Source authority + canonical issuer: the recorded ledger bindings and
+  the captured draft graph are the only authorities; `simplify_cfg`
+  merge/threading stays the sole contraction owner and reports nothing
+  new — the projection reconstructs from the draft graph plus the
+  finished function, matching the established projection-fix pattern
+  (772e6d6908, 313e6149f4, 480d357c85).
+Non-authority: instruction payloads, runtime layout, optimizer order,
+  and any post-hoc id remapping outside the finished-vs-draft pair.
+Fail-fast boundary: every captured node must resolve a destination
+  (`unmapped-block`); a recorded instruction that does not appear at
+  its mapped destination stays `emission-binding-drift`; a recorded
+  site on a genuinely dead/removed arm stays fail-closed — no
+  dead-site discharge is admitted in this slice.
+Smallest next slice: TASK4-FINISHBIND-S0 — walk_graph capture +
+  full-graph Jump-chain walk + embedded-id projection, proven by the
+  minimal reproducer (merge-into-trampoline `Invoke{NewBox}`) and the
+  real `allocateResult/1`/`allocate/1` shapes reaching the next named
+  stop.
+Non-claims: no `.get`/named-array lane change, no dead-site
+  discharge, no production switch, no app EXE completion claim.
+```
+
+## Ordered construction task — MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FINISHBIND-S0
+
+One responsibility: `PhysicalBoundary`/`FinishedBindings` projection
+covers every recorded binding through finishing contraction — the
+contraction walk runs over the complete draft graph (`walk_graph`),
+not only captured nodes, and embedded block ids inside recorded
+instructions rewrite through the destination map. Validation scope
+(`sequences`, `incoming`, `unmapped-block`, removable sets) stays on
+captured nodes.
+
+- Positive: the minimal reproducer
+  (`if size < 8 {return null} return new Handle(size)` inside
+  `Heap.allocate/1`) validates past `emission-binding-drift`; the real
+  `apps/mimalloc-lite` emit-mir-json lane reaches the next named stop
+  (or JSON).
+- Negative/frontier re-pins: `unmapped-block`,
+  `contraction-predecessor`, `foreign-target`, `incoming-drift` and the
+  physical-boundary unit tests keep their fail-closed behaviour; a
+  forged/mutated binding still drifts.
+- Checks: `physical_boundary`/`root_cleanup_graph` unit suites, the
+  ordinary_new local-commit sweep, focused publication tests, the
+  real-app emit-mir-json observation, scope guard pins, pointer guard.
+
+#### FINISHBIND-S0 — landed record
+
+Landed (`<pending>` on `codex/birth-definition-publication`):
+
+- Full draft-graph capture (`physical_boundary.rs`): `PhysicalBoundary`
+  keeps `nodes` scoped to recorded-binding blocks for validation and
+  adds `walk_graph` — every draft block carrying a terminator (a block
+  without one can never be a merge middle, so chains reaching it stay
+  fail-closed at `foreign-target`).
+- Whole-graph contraction walk (`project()`): every surviving draft
+  block starts a walk; contraction follows a value-free `Jump` or an
+  equal-arm `Branch` with identical targets and edge args (the fold
+  finishing performs before merging — observed `preds=[104,104]` on
+  `HakoAllocHeap.allocateResult/1` block 105). Predecessor lists
+  deduplicate blocks to match `BasicBlock::predecessors` `BTreeSet`
+  semantics — a both-arms-equal branch counts once.
+- Destination-keyed expected sequences: the expected instruction
+  sequence is stored at the surviving walk start whenever the walk
+  carried any binding block (`carries_binding`), so content merged into
+  an uncaptured predecessor is still checked — an absorbed node's
+  instructions are never waived (the "entry removed" mutation now
+  rejects `finished-sequence` instead of slipping past an unchecked
+  start).
+- Embedded-id rewrite (`instruction()`): every `BasicBlockId` inside a
+  recorded instruction — `Jump`/`Branch` targets,
+  `Invoke`/`CheckedCallOut`/`PinnedTextResidenceEnter` landings,
+  `InvokeNormalResult.invoke_block`, `Phi` predecessors, `Catch`
+  handler — rewrites through the destination map.
+- Dead pure-definition omission: a finished-side omission is admitted
+  only for a dst unused in the finished function, not a recorded
+  binding dst (`recorded_dsts`) and uniquely defined in the draft
+  (`single_definitions`) — a CSE'd duplicate `Compare` and folded
+  phis ride this permission; recorded or duplicated definitions still
+  fail.
+- Incoming-edge comparison: expected draft edges map through
+  destinations, an edge collapsing into one destination drops out, an
+  equal-arm draft `Branch` normalizes to the folded `Jump`
+  discriminant, and the comparison is slot-stable sorted on
+  (source,target) — source/target/terminator-shape/args drift still
+  rejects `incoming-drift`.
+
+Evidence pins: `physical_boundary` unit suite 11/11 (recorded and
+duplicate definition omission keep rejecting; phi pins intact),
+`root_cleanup_graph` 5/5
+(`finished_cleanup_rejects_operation_path_and_prefix_mutations` —
+omit/duplicate/receiver/frame/landing-swap/prefix/incoming-slot/
+entry-removed/restored mutations all reject), `local_commit` 43/43,
+`ordinary_new_coseal` 203/203, `normal_callable_semantic_package`
+580/583 — the 3 reds are the previously classified baseline set
+(`birth_receiver_non_escape_rejects_unproven_uses_before_row_publication`,
+`main_static_child_port_consumes_all_role_rows_once`,
+`qualified_call_map_argument_reaches_the_named_capability_boundary`).
+Minimal reproducer (`Heap.allocate/1` conditional + `Invoke{NewBox}`,
+`/tmp/finishbind_repro.hako`): `--dump-mir` completes; the freeze
+contract binding validation passes (`--emit-mir-json` then reaches the
+downstream emit-contract `unsupported terminator Invoke` stop — a JSON
+vocabulary gap, not a binding failure). Real `apps/mimalloc-lite`
+`--emit-mir-json` advances past `emission-binding-drift`,
+`finished-sequence` and `incoming-drift` to the next named stop
+`[freeze:contract][mir/invoke/object-field-read-definition-invalid]`
+(bb33) — object-typed field reads (`me.queue`/`me.pages` family), a
+separate carded frontier outside this slice. Scope guard PASS except
+`brand_catalog_tests.rs=961` +
+`normal_default_root_catalog_lifecycle_tests.rs` known structural debt;
+pointer guard PASS.
+
+Non-claims kept: no `.get`/named-array lane change, no dead-site
+discharge, no production switch, no app EXE completion.
