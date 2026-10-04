@@ -964,7 +964,7 @@ admits numeric-integer declared types uniformly, retiring the
 
 #### NUMFIELD-S0 — landed record
 
-Landed (`<pending>` on `codex/birth-definition-publication`):
+Landed (`29adaa7b84` on `codex/birth-definition-publication`):
 
 - `verification/invoke.rs`: the `ObjectFieldGet` definition arm now
   accepts any non-weak declared type recognized by
