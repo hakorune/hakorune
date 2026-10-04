@@ -778,7 +778,7 @@ use — a uniform vocabulary, not a formal-only arm.
 
 #### FIELDOPERAND-S0 — landed record
 
-Landed (`<pending>` on `codex/birth-definition-publication`):
+Landed (`cdbc75e943` on `codex/birth-definition-publication`):
 
 - Scalar vocabulary (`home_new_prefix_scalar_expression.rs`):
   `preflight` admits `Less`/`LessEqual`/`Greater`/`GreaterEqual` as
