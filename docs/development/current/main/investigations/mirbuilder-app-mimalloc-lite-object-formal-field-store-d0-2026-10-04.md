@@ -217,7 +217,12 @@ Non-claims stand: no app EXE PASS, no production switch, the two
    EXE-lane terminal; scope-guard pin.
 2. Residual census on `me.realloc` unclaimed forward — object-formal
    call-argument/callee-claim owner; assign to its own card (bundle
-   slices 10/12 territory).
+   slices 10/12 territory). Done →
+   `mirbuilder-app-mimalloc-lite-formal-forward-result-d0-2026-10-04.md`:
+   the dead claim chain ends at `resizeInPlace`'s `return handle` — a
+   `Parameter` outside the `Local`-only `ForwardLocal` grammar — plus
+   the formal pass-through class-authority and consuming/mutating
+   call-arg use-kind questions.
 
 ## Non-claims
 

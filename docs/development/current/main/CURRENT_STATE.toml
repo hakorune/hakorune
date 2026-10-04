@@ -1,10 +1,10 @@
 date = "2026-10-04"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OBJECT-FORMAL-FIELD-STORE-D0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-FORMAL-FORWARD-RESULT-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "ordinary-new/local-commit/artifact-unowned-lifecycle-site"
-current_design_stop = "MIRBUILDER-APP-MIMALLOC-LITE-OBJECT-FORMAL-FIELD-STORE-D0 — S0 landed. All eight `HakoAllocHandleResult` `construction()` are Ok (`Parameter` store arm + `Provided` residence + `Handle` demand; declared field class is the authority, bound to `PlainI64NoHook`; scalar default-overwrite admitted, object re-store stays closed). `install_construction`'s `source-or-cleanup-contract` was widened to the provided-store shape so the plan installs. `home_prefix` keeps 6/2; `--emit-mir-json` is back at designed negative `unsupported terminator Invoke`; `--emit-exe` stays `artifact-unowned-lifecycle-site` on owner slot 38 — the two `RetainedUnavailable` `reallocResult` sites blocked at `PrefixNotCovered(Body(3))` (`me.realloc` unclaimed forward). Next: residual census on the `me.realloc` object-formal call forward; assign its own card."
+current_design_stop = "MIRBUILDER-APP-MIMALLOC-LITE-FORMAL-FORWARD-RESULT-D0 — residual census recorded on the new card: `reallocResult`'s two trailing claims stay `PrefixNotCovered(Body(3))` because `me.realloc` lacks a `receiver_call_observations` row, which needs `realloc`'s result-class claim, whose `Fwd(HakoAllocPage.resizeInPlace/2)` exits are Dead — `resizeInPlace` drops its draft row at `return handle` (a `Parameter`, outside the `Local`-only `ForwardLocal` grammar). Deeper: a pass-through formal needs a class authority (field-use constraint / caller-actual composition / class-free nullable arm) and `handle`'s call-arg use is consuming (`me.release(handle)`) plus mutating (`handle.requested_size =`) — bundle slices 10/12 territory. Decision pending."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,30 +13,29 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-object-formal-field-store-d0-2026-10-04.md"
-latest_card = "mirbuilder-app-mimalloc-lite-object-formal-field-store-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-object-formal-field-store-d0-2026-10-04.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-formal-forward-result-d0-2026-10-04.md"
+latest_card = "mirbuilder-app-mimalloc-lite-formal-forward-result-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-formal-forward-result-d0-2026-10-04.md"
 latest_card_summary = """
-Object-formal field-store frontier (S0 landed). `issue_construction_plan`
-admits a `Parameter` RHS into `Some(<user-class>)` declared fields —
-the declared class is the sole authority (birth formals are
-unannotated), bound to a unique non-self `PlainI64NoHook` user class.
-`OwnedFieldResidenceV1::Provided` seals object children identically to
-providers; object fields carry `Handle` demand; parser-generated scalar
-default stores may be overwritten by the handwritten scalar store while
-object re-stores stay closed. `install_construction`'s
-`source-or-cleanup-contract` admits the provided-store demand shape.
-Census: all eight `HakoAllocHandleResult` `construction()` Ok;
-`home_prefix` keeps 6/2 — the two trailing `reallocResult` sites stay
-`PrefixNotCovered(Body(3))` at the unclaimed `me.realloc` forward.
-Lanes: `--emit-mir-json` = designed negative `unsupported terminator
-Invoke`; `--emit-exe` = `artifact-unowned-lifecycle-site` on the two
-unavailable sites' birth calls. No app EXE or production switch claim.
+Formal-forward result frontier (design stop, census recorded). The
+EXE lane's remaining `artifact-unowned-lifecycle-site` decomposes:
+`reallocResult`'s two `RetainedUnavailable` sites stop at
+`PrefixNotCovered(Body(3))` — `local replacement = me.realloc(handle,
+requested_size)` needs a `receiver_call_observations` row, which needs
+`realloc`'s result-class claim, whose `Fwd(HakoAllocPage.resizeInPlace/2)`
+exits are Dead because `resizeInPlace` drops its draft row at `return
+handle` (a `Parameter`, outside the `Local`-only `ForwardLocal`
+grammar). Deeper gaps: a pass-through formal's class authority
+(field-use constraint / caller-actual composition / class-free
+nullable arm) and `handle`'s consuming+mutating call-arg use kind —
+bundle slices 10/12 territory. Condition-position calls
+(`me.isLiveHandle(handle)`) are ungated today — named boundary.
+No EXE PASS, no production switch claim.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OBJECT-FORMAL-FIELD-STORE-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-object-formal-field-store-d0-2026-10-04.md"
+next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-FORMAL-FORWARD-RESULT-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-formal-forward-result-d0-2026-10-04.md"
 next_execution_card = "none"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-object-formal-field-store-d0-2026-10-04.md"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-formal-forward-result-d0-2026-10-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

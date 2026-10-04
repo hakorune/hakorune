@@ -1,0 +1,141 @@
+# mimalloc-lite formal-forward result D0 (`me.realloc` unclaimed forward)
+
+Status: design stop — residual census recorded, decision space below.
+Owns the EXE lane's frontier after OBJECT-FORMAL-FIELD-STORE-S0
+(`57562186df`): the last `artifact-unowned-lifecycle-site` stop, on the
+two `RetainedUnavailable` `reallocResult` sites whose
+`Call(BirthConstructor HakoAllocHandleResult.birth/3)` instructions
+emit raw-lane with no owning local commit (owner slot 38 measured).
+Parent bundle slices: `OBJECT-FIELD-RECEIVER-CALL` (10),
+`RESULT-NEW-OBJECT-ARGS` (11), `FORWARDED-RESULT` (12) of
+`mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md`.
+Scope: `MIRBUILDER-APP-MIMALLOC-LITE-FORMAL-FORWARD-RESULT-D0`
+Related: `mirbuilder-app-mimalloc-lite-object-formal-field-store-d0-2026-10-04.md`
+
+## Census — the `PrefixNotCovered(Body(3))` chain
+
+`reallocResult` (`page_heap_box.hako:300-319`) holds two result claims
+whose `home_prefix` stops at Body(3):
+
+```hako
+local replacement = me.realloc(handle, requested_size)   // Body(3)
+if replacement == null {                                 // Body(4), site :315
+    return new HakoAllocHandleResult(0, 4, null)
+}
+return new HakoAllocHandleResult(1, 0, replacement)      // site :318
+```
+
+Code-verified decomposition, top to bottom:
+
+1. The `Local` statement falls through every claim lane in
+   `scan_statement_flow` — I64 direct, qualified static, lexical
+   nullable/i64, Map, Handle, receiver nullable — and lands on the
+   inventory fallback: `install_inventoried_call_result` +
+   `PrefixNotCovered(Body(3))`
+   (`home_new_prefix_scan.rs:694-698`).
+2. `me.realloc(..)` is a `me.<method>` receiver call returning a
+   nullable object; its lane is `issue_receiver_local_call`, whose
+   `local_nullable_call` predicate requires a sealed
+   `receiver_call_observations` row carrying
+   `OrdinaryNewResultClassV1::NullableObject`
+   (`ordinary_new_coseal_issue.rs:583-594`,
+   `home_local_call_flow.rs:693-737` — the row itself seals no
+   arguments).
+3. `observe_receiver_call_sites` mints that row only when
+   `claims.get(&callee)` exists — `HakoAllocHeap.realloc/2` carries no
+   `OrdinaryNewResultClassV1` claim
+   (`ordinary_new_receiver_call_observation.rs:160-161`).
+4. `realloc`'s pass-B exits are `Null` ×4 plus three forwards:
+   `return same` ×2 → `me.small_page.resizeInPlace` /
+   `me.medium_page.resizeInPlace` (resolved through the `small_page`/
+   `medium_page` field-write claims to `HakoAllocPage.resizeInPlace/2`)
+   and `return replacement` → `me.allocate` (claimed
+   `NullableObject(HakoAllocHandle)` — the same claim that already
+   covers `allocateResult`'s prefix). `evaluate_row` marks the row Dead
+   because `HakoAllocPage.resizeInPlace` is neither claimed nor pending
+   (`ordinary_new_result_class_claim.rs:354-364`).
+5. `HakoAllocPage.resizeInPlace` (`page_heap_box.hako:145-178`) drops
+   its entire draft row in pass A: `return handle` returns a
+   `Parameter` binding — `observe_function`'s exit grammar admits only
+   `Local`-kind `ForwardLocal`s, so the `_ => return` arm discards the
+   row (`ordinary_new_result_class_claim.rs:424-432`). `BindingKindV1`
+   keeps `Parameter` and `Local` disjoint (`records.rs:9-19`).
+
+## The two semantic gaps behind the dead claim
+
+The pass-A grammar hole is the surface; the deeper questions are the
+same family the parent card predicted:
+
+- **Pass-through formal result class.** `resizeInPlace` returns
+  `handle` — a caller-provided object, not a construction.
+  `Object(C)`/`NullableObject(C)` assert "every exit is `new C` or
+  `null`"; a formal forward needs a new arm, and that arm needs a
+  class authority the source does not carry: `handle` is an
+  unannotated formal. Candidate authorities, none landed:
+  (a) intra-body field-use constraint — `handle.page_id`,
+  `handle.block_id`, `handle.requested_size =` uniquely name
+  `HakoAllocHandle`'s field set (a new, duck-typing-shaped authority);
+  (b) caller-side argument-class composition — `realloc`'s `handle`
+  actual is `reallocResult`'s own opaque formal, and `reallocResult`
+  has no callers in this program, so the chain has no ground truth;
+  (c) a class-free `Nullable`-family claim — "returns null or some
+  object" — honest from source alone but weaker than every existing
+  arm and must still compose with `Fwd(allocate)`'s
+  `NullableObject(HakoAllocHandle)` in `realloc`'s row.
+- **Object-formal call-argument use kind.** `handle` at the
+  `me.realloc` actual is not a dominated value leaf — inside `realloc`
+  it is *consumed* (`me.release(handle)`) and inside `resizeInPlace`
+  it is *mutated* (`handle.requested_size = requested_size`). In
+  `reallocResult` `handle` is dead after Body(3), so a transfer shape
+  fits, but the claim vocabulary has no consuming/mutating formal-arg
+  arm — the borrowed-actual machinery records evidence without
+  ownership classification.
+- **Boundary to name, not a bug:** condition-position calls are not
+  claim-gated at all — `if me.isLiveHandle(handle) == 0` (Body(2)) is
+  covered because `observe_if_statement` only checks field-request
+  scalar conditions; its `handle` actual needs no row. Arg-position
+  object formals in condition calls are unclaimed evidence today;
+  whether they need gating is this family's question, not this card's
+  fix.
+
+## Why the residual still freezes the EXE lane
+
+The two sites stay `RetainedUnavailable`: their result-`new` claims
+are retained (membership is sealed) but `home_prefix` is Err, so the
+local commits never take them — while the raw lane still emits
+`Call(BirthConstructor HakoAllocHandleResult.birth/3)` instructions
+with `requires_lifecycle_validation()`. Root validation then finds a
+lifecycle instruction with no owning completed commit
+(`root_validation.rs:296-315`) → `artifact-unowned-lifecycle-site`.
+The freeze is correct: an unclaimed result `new` emitting a lifecycle
+site is exactly the gap it guards. Resolution must either complete the
+claim (the `me.realloc` forward chain above) or change what selected
+unclaimed sites emit — emission-time skipping stays rejected
+(`IncompleteSelectedCoverage`; see the parent card's declined
+reachable-set alternative).
+
+## Decision space (needs its own Decision before implementation)
+
+1. Extend the result-class grammar with a formal-forward arm whose
+   class authority is settled first (a/b/c above) — `resizeInPlace`
+   claims, `realloc` composes by fixpoint, the `me.realloc` observation
+   mints, `replacement` installs `received_nullable`, the last `if`'s
+   null guard consumes it, and `new(1,0,replacement)` feeds the now-
+   landed `Parameter` store arm end-to-end.
+2. Pair (1) with the object-formal call-arg claim: `handle`'s transfer
+   into `realloc` (consumed by `release`) is a different use kind than
+   the borrowed reads admitted so far; the same arm family likely owns
+   `me.release(handle)`/`me.isLiveHandle(handle)` condition calls.
+3. Declared-formal annotations (`handle: HakoAllocHandle`) would give
+   the class authority directly but are a language change — outside a
+   MirBuilder slice.
+
+Non-claims:
+
+- No claim that `reallocResult`/`realloc`/`resizeInPlace` must be
+  covered — they are unreachable from `main`; the selection authority
+  question stays declined as before.
+- No reachable-set narrowing, no emission-time skip.
+- No EXE PASS, no production switch.
+- The `home_prefix` 6/2 split is the status quo, not a regression — the
+  six covered sites keep their claims under any fix.
