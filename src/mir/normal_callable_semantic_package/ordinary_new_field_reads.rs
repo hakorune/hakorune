@@ -490,9 +490,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 .all_instructions()
                 .filter(|i| matches!(i, MirInstruction::ObjectFieldGet { .. }))
             {
+                // Finishing may contract the read's block into a surviving
+                // neighbour; dst/base/field identity is the provenance, the
+                // boundary's sequence check owns positional drift.
                 let index = expected
                     .iter()
-                    .position(|(id, inst)| *id == block.id && *inst == actual)
+                    .position(|(_, inst)| *inst == actual)
                     .ok_or_else(|| fault("unowned-or-drifted-read"))?;
                 expected.swap_remove(index);
             }

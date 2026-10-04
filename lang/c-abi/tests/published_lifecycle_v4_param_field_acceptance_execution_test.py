@@ -4,9 +4,10 @@
 The selected frontier shapes execute through the real driver on the
 source-issued inputs — the unused formal/I64 result, the local-new
 TypedHome call, the exact null guard (literal-null and object actuals),
-the guarded field initializer and terminal return, and the literal
-null/received-nullable actuals. Each family runs its normal, null-state
-or injected-fault lane; inverse forged rows still reject before OBJ.
+the guarded field initializer, terminal return and order-compare
+operands, and the literal null/received-nullable actuals. Each family
+runs its normal, null-state or injected-fault lane; inverse forged rows
+still reject before OBJ.
 Caller cleanup is exactly once per required exit and the callee never
 disposes the borrowed formal.
 """
@@ -96,13 +97,15 @@ with tempfile.TemporaryDirectory(prefix='hako param acceptance ') as directory:
 
     issued = {}
     for suffix in ('unused-i64', 'localnew', 'null-guard', 'null-guard-object',
-                   'field-init', 'field-return'):
+                   'field-init', 'field-return', 'cmp', 'cmp-ge'):
         name = {'unused-i64': 'param-acceptance-unused-i64',
                 'localnew': 'param-acceptance-localnew',
                 'null-guard': 'param-acceptance-null-guard',
                 'null-guard-object': 'null-compare-object',
                 'field-init': 'param-field-handle',
-                'field-return': 'param-field-return'}[suffix]
+                'field-return': 'param-field-return',
+                'cmp': 'param-field-cmp',
+                'cmp-ge': 'param-field-cmp-ge'}[suffix]
         data = json.loads((DIRECTORY / ('hako-issued-' + name + '.json')).read_text())
         issued[suffix] = data
 
@@ -142,6 +145,25 @@ with tempfile.TemporaryDirectory(prefix='hako param acceptance ') as directory:
                        for row in all_rows(data, 'Store.release/1')), suffix
         execute(data, expected, 2, 3)
         print(suffix, 'guarded field read executes; page_id=5 answers', expected)
+
+    # 6/7. Guarded order-compare operands: `<`/`>=` read the same sealed
+    #      formal — `slt`/`sge` compare the claimed object_field_get and
+    #      the `me.limit` receiver read rides the same issued root.
+    for suffix, predicate in (('cmp', 'slt'), ('cmp-ge', 'sge')):
+        data = issued[suffix]
+        callee = next(f for f in data['functions'] if f['name'] == 'Store.release/1')
+        reads = [row for row in instructions(data, 'Store.release/1')
+                 if row['op'] == 'object_field_get']
+        assert callee['params'][0]['object_view'] == reads[0]['object_id'], suffix
+        compares = [row for row in instructions(data, 'Store.release/1')
+                    if row['op'] == 'compare']
+        assert any(row['predicate'] == predicate for row in compares), (suffix, compares)
+        assert not any(op_of(row) in ('home_release', 'home_release_if_live',
+                                      'reclaim_unpublished', 'object_field_release')
+                       and row['operation'].get('value') == callee['params'][0]['value']
+                       for row in all_rows(data, 'Store.release/1')), suffix
+        execute(data, 1, 2, 3)
+        print(suffix, 'order-compare operand executes; predicate', predicate)
 
     # Null state: the same issued field-return input with check(20)
     # selecting the Void pair — the callee's own guard arm answers 0 and
@@ -238,4 +260,4 @@ with tempfile.TemporaryDirectory(prefix='hako param acceptance ') as directory:
         raise AssertionError('nullable actual missing')
     mutate('field-return', tag_over_range)
 
-    print('8 source-issued inputs execute (normal/null/fault); five forged rows reject')
+    print('10 source-issued inputs execute (normal/null/fault); five forged rows reject')

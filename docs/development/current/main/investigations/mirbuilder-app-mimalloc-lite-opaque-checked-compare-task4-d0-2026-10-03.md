@@ -1,6 +1,6 @@
 # mimalloc-lite opaque checked-compare task-4 D0 (dominated view uses)
 
-Status: accepted task-4 Decisions; all nine PARAMFIELD-series rows landed (I64RESULT-S0 through PARAMFIELD-ACCEPTANCE-R0); bounded series complete — next work needs a new accepted Decision.
+Status: accepted task-4 Decisions; all nine PARAMFIELD-series rows landed (I64RESULT-S0 through PARAMFIELD-ACCEPTANCE-R0); REAL-RELEASE-D0 row TASK4-FIELDOPERAND-S0 landed (guarded formal field read admitted as order-compare operand); remaining release() shapes parked for the next Decision.
 Scope: `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-D0`
   and its bounded PARAMFIELD prerequisite/acceptance series.
 Related: docs/development/RULES.md; CURRENT_STATE.toml;
@@ -711,26 +711,138 @@ release(handle) {
 | --- | --- | --- |
 | `if handle == null` terminating guard | NULLCOMPARE-S0 + PARAMFIELD-S0 | landed |
 | `handle.page_id` dominated by the guard | PARAMFIELD-S0/FIELDRESULT-S0 (initializer/return positions) | landed for initializer/return |
-| `handle.page_id < 0` / `>= me.next_page_id` | guarded read exists; `compare_operand_kind` has no field-read operand arm | **operand-position field read — unadmitted; observed terminal `published-lifecycle/borrowed-use/unproved-copy`** |
+| `handle.page_id < 0` / `>= me.next_page_id` | guarded read exists; `if` conditions carrying a field request route through `observe_scalar_expression`, whose pure-scalar vocabulary (`Add`/`Subtract`/`Equal`/`NotEqual`/`And`/`Or`) has no order-compare arm, so the read stayed unstaged and the legacy `FieldGet` emitted on a formal copy | **operand-position field read — unadmitted; observed terminal `published-lifecycle/borrowed-use/unproved-copy`** |
 | `me.pages.get(handle.page_id)` element read | owned `me.` field reads + `.get` are separate open lanes | **open frontier** |
 | `me.reject_count = me.reject_count + 1` field write | owned `me.` field writes are outside the borrowed lane | **different lane — unadmitted here** |
 | `me.route.release(handle)` borrowed forward | forwarded uses exist for call arguments | **`me.`-receiver method call — open frontier** |
 | `Bool` result on release | result classifier keeps I64/Nullable only | **open frontier** |
 
-Pending Decision brief (candidate ordering; acceptance still required):
+Accepted Decision (2026-10-04, REAL-RELEASE-D0):
 
 ```text
-Decision:
-Source authority + canonical issuer:
-Non-authority:
-Fail-fast boundary:
-Smallest next slice:
-Non-claims:
+Decision: order compares join the pure-scalar vocabulary —
+  `Less`/`LessEqual`/`Greater`/`GreaterEqual` read Integer operands and
+  answer Bool beside the existing `Equal`/`NotEqual` arm, so a dominated
+  `formal.<i64>` read inside an `if` condition (or any scalar root)
+  stages through the same LocalFieldRead issuer; no new draft arm, no
+  compare-envelope change, no second authority.
+Source authority + canonical issuer: the exact FieldAccess site plus the
+  admitted `formal == null` guard plus the co-sealed
+  BorrowedFormalObjectViewV1; `field_read_request` /
+  `prove_local_field_read_batch` / `local_read_field` staging and the
+  `take_local_field_read` -> `object_field_get` physical owner, all
+  unchanged; the canonical field declaration stays the sole class proof.
+Non-authority: emitted MIR types, field names, runtime layout, payload
+  values, compare-operator spelling and .hako annotation workarounds;
+  the draft's own operand envelopes (`Greater` checked compare, `Add`,
+  null equality) are untouched.
+Fail-fast boundary: `scalar_only` keeps object-typed field reads
+  rejected inside scalar roots; unguarded reads, `!=` guards, inside-arm
+  reads, argument-position reads (`.get` operands) and receiver aliases
+  keep their named stops; every request must batch-prove or the
+  condition keeps its PrefixNotCovered decline.
+Smallest next slice: TASK4-FIELDOPERAND-S0 — the vocabulary extension
+  plus publication and EXE witnesses for `handle.page_id < 0` and
+  `handle.page_id >= me.<i64>` under the admitted `== null` guard.
+Non-claims: no `.get` element read, `me.`-receiver method forward,
+  field write, Bool release result, inline-new actual,
+  releaseLocal/allocate admission, app EXE or migration completion.
 ```
 
-Proposed smallest next slice: operand-position guarded field read —
-`handle.page_id` as a compare operand under the same admitted `== null`
-guard — extending the existing `FieldReadOperand` admission and sealed
-object view rather than minting a second read authority; the `.get`,
-`me.`-receiver, field-write, Bool-result and inline-new cohorts keep
-their named stops until their own Decisions.
+## Ordered construction task — MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDOPERAND-S0
+
+One responsibility: the four order compares
+(`Less`/`LessEqual`/`Greater`/`GreaterEqual`) join the pure-scalar
+vocabulary of `observe_scalar_expression`/`contains_field_request`
+(`home_new_prefix_scalar_expression.rs`), operands Integer -> result
+Bool, beside the existing `Equal`/`NotEqual` arm. The change is one
+vocabulary line per function; every staged request still flows through
+`prove_local_field_read_batch` with `scalar_only`, so class, ownership
+and declaration authority do not move.
+
+Owned-lane reach: `me.<i64>` and owned-home field reads inside order
+compares enter the same staged lane the `==`/`!=` conditions already
+use — a uniform vocabulary, not a formal-only arm.
+
+- Positive: `release(handle)` —
+  `if handle == null { return 0 } if handle.page_id < 0 { return 0 } return handle.page_id`
+  publishes one `object_field_get` per read site and executes; the
+  `me.next_page_id` sibling compare (`>=`) publishes both staged reads.
+- Negative/frontier re-pins: unguarded reads keep
+  `unproved-copy`/`artifact-source-unavailable`, `!=` guards keep their
+  named stop, `.get` argument-position reads stay at their terminal,
+  object-typed field operands reject through `scalar_only`.
+- Checks: focused publication tests, the borrowed-formal use sweep, the
+  scalar-expression claim tests, C EXE witness, qualified-route scope
+  guard pins, pointer guard.
+
+#### FIELDOPERAND-S0 — landed record
+
+Landed (`<pending>` on `codex/birth-definition-publication`):
+
+- Scalar vocabulary (`home_new_prefix_scalar_expression.rs`):
+  `preflight` admits `Less`/`LessEqual`/`Greater`/`GreaterEqual` as
+  Integer-operand -> Bool beside `Equal`/`NotEqual`, and
+  `contains_field_request`/`profile_scope` recognize the same four
+  operators — one vocabulary line per arm, no new draft, no compare
+  envelope change.
+- Narrow profile selection: under an order-compare subtree only a
+  `GuardedFormal` field leaf selects the staged field-read root
+  (`Some(true)`); a `me.` receiver stays an admissible operand without
+  triggering selection (`Some(false)`); every other provenance returns
+  `None` so the whole root falls back to the original compare lane
+  unchanged — `p > me.limit` and
+  `(pool.size > 0) && (pool.size == 1)` keep their prior behaviour (zero
+  staged reads), and no owned/unsupported receiver silently changes
+  lanes.
+- Symmetric proof gate: requests minted under an order compare must be
+  `request.formal` (guarded formal via the sealed object view) or a
+  `me.` receiver; anything else declines the entire root before any row
+  is staged — no partial claims.
+- Unchanged authorities: the `FieldReadOperand` draft arm,
+  `prove_local_field_read_batch` with `scalar_only` (object-typed field
+  operands still reject), `local_read_field` staging, and
+  `take_local_field_read` -> `object_field_get` on the formal's sealed
+  `object_view` — no second field-read authority, no ownership
+  transfer, no callee `End`.
+- Read-site validation (`ordinary_new_field_reads.rs`): a claimed
+  `ObjectFieldGet` matches its expected site by instruction identity
+  (dst/base/field), not the recorded block id — finishing may contract
+  the read's block into a surviving neighbour (observed drift 15 -> 14
+  inside `check`'s merged condition block); the boundary's sequence
+  check keeps positional drift.
+
+Evidence pins (test profile `--lib`):
+`scalar_expression_claims_order_compare_field_operands` (the formal
+package stages exactly 3 reads — `me.limit` in `check`, `handle.page_id`
+in both `<` and `>=`; the owned `pool.size` order conditions and
+`p > me.limit` keep the original compare lane, zero staged),
+`scalar_expression_rejects_order_compare_on_object_typed_field`
+(object-typed operands keep their `scalar_only` decline),
+`scalar_expression_scope_preserves_outside_nested_conditions_without_claims`
+(pin preserved), `guarded_formal_field_read_publishes_object_view`
+(variants `cmp` -> `slt`, `cmp-ge` -> `sge`; emits
+`hako-issued-param-field-{cmp,cmp-ge}.json`),
+`parameter_field_frontiers_stay_fail_closed` (`pa-guarded-nullarg-cmp`
+and siblings unchanged). Suites: scalar-expression claims 14/14,
+param-field publication 5/5, borrowed sweep 221 + 4 ignored,
+resolved_semantics 349/349, field_read 30/30, ordinary_new 237/237,
+normal_callable_semantic_package 580/583 — the 3 reds are the
+previously classified baseline set
+(`birth_receiver_non_escape_rejects_unproven_uses_before_row_publication`,
+`main_static_child_port_consumes_all_role_rows_once`,
+`qualified_call_map_argument_reaches_the_named_capability_boundary`).
+C witness: `published_lifecycle_v4_param_field_acceptance_execution_test.py`
+runs 10 source-issued inputs — both operand variants answer 1 with the
+expected `slt`/`sge` predicates and no release on the borrowed formal.
+Scope guard PASS except `brand_catalog_tests.rs=961` +
+`normal_default_root_catalog_lifecycle_tests.rs` known structural debt;
+pointer guard PASS.
+
+Open frontiers (deliberately out of this slice): `.get` element reads,
+`me.` field writes, `me.`-receiver method forwards, Bool release
+result, `!=` guards, inside-arm reads, argument-position reads,
+releaseLocal/allocate.
+
+Next: the remaining `release(handle)` shapes need their own bounded
+rows under a fresh Decision (REAL-RELEASE census above stays the map).

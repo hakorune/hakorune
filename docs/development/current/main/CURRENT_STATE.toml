@@ -1,10 +1,10 @@
 date = "2026-10-04"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-REAL-RELEASE-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDOPERAND-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "published-lifecycle/borrowed-use/unproved-copy"
-current_design_stop = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-REAL-RELEASE-D0 — census recorded on the task-4 card: the real release(handle) decomposes into operand-position guarded field reads (observed terminal published-lifecycle/borrowed-use/unproved-copy), me.-receiver .get element reads, me. field writes, me.-receiver method forwards, and Bool results. Decision pending on fork ordering — proposed first bounded slice: operand-position guarded field read under the admitted == null guard."
+current_blocker_token = "none"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,22 +17,24 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
 latest_card_summary = """
-PARAMFIELD task-4 series complete — all nine rows landed through
-PARAMFIELD-ACCEPTANCE-R0: the selected frontier shapes execute through
-the real Rust -> physical JSON -> C -> OBJ/link/EXE path (unused
-formal/I64 result, local-new TypedHome call, exact null guard on
-null/object actuals, guarded field initializer/terminal, literal null
-and received-nullable actuals), in normal, Void-state and injected-fault
-lanes with cleanup once per exit and no callee disposal; five forged
-rows reject. The guarded `return formal.field` I64 result rides the same
-co-sealed `BorrowedFormalObjectViewV1` authority. Out-of-series
-frontiers (inline new, aliases, .get, me. receivers, Bool release,
-releaseLocal/allocate) stay fail-closed; further work needs a new
-accepted Decision. No release/app EXE or migration completion claim.
+PARAMFIELD task-4 series complete; REAL-RELEASE-D0 row
+TASK4-FIELDOPERAND-S0 landed — order compares (`<`/`>`/`<=`/`>=`) join
+the pure-scalar vocabulary as Integer-operand -> Bool expressions, and
+under an order-compare subtree only a GuardedFormal field leaf selects
+the staged field-read root while `me.` receivers stay admissible
+operands and any other provenance falls the whole root back to the
+original compare lane. `handle.page_id < 0` and
+`handle.page_id >= me.limit` publish the sealed-view `object_field_get`
+plus `slt`/`sge` through the existing FieldReadOperand -> batch stager
+-> `take_local_field_read` owner chain; ten source-issued inputs
+execute through JSON -> C -> OBJ/EXE. Remaining `release(handle)`
+shapes (.get element reads, `me.` field writes, `me.`-receiver method
+forwards, Bool result) await the next Decision. No release/app EXE or
+migration completion claim.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-REAL-RELEASE-D0"
+next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDOPERAND-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
-next_execution_card = "none"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-FIELDOPERAND-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-opaque-checked-compare-task4-d0-2026-10-03.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -48,7 +50,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-FIELDOPERAND-S0 landed — order compares (`<`/`>`/`<=`/`>=`) join the pure-scalar vocabulary; under an order-compare subtree only a GuardedFormal field leaf selects the staged field-read root, `me.` receivers stay admissible without selecting, and any other provenance falls the whole root back to the original compare lane unchanged. `handle.page_id < 0`/`>= me.limit` publish sealed-view `object_field_get` + `slt`/`sge`; ten source-issued inputs execute through JSON -> C -> OBJ/EXE. Next: remaining release() frontier rows under a fresh Decision.",
   "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-ACCEPTANCE-R0 landed — the bounded PARAMFIELD series is complete: eight source-issued inputs execute through Rust -> JSON -> C -> OBJ/EXE (unused-i64 exit 0/1 home, localnew 0/2 homes, null-guard 7 vs object 3, field-init 1, field-return 5, Void-state 0/1 home, null actual 0/1, nullable 0/2), two injected birth-store faults unwind exit 70 with cleanup once + one reclaim, five forged rows reject before OBJ. Series complete; next work needs a new accepted Decision.",
   "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-FIELDRESULT-S0 landed — guarded `return formal.field` classifies I64 only beside the exact FieldAccess, the draft FieldReadOperand row and the co-sealed BorrowedFormalObjectViewV1 (same canonical i64 declaration via nullable_result_integer_field); field_home keeps a Parameter-rooted handle live only on the non-null successor, the ledger accepts a view-proven formal home, and the existing I64Field terminal lane emits one object_field_get + Return. Frontier re-pins: alias/object field -> source-not-i64, unguarded/!= -> IncompleteOrdinaryNewCoverage, mixed -> source-class-mixed. C witness: two issued programs execute (1 and 5). Next: TASK4-PARAMFIELD-ACCEPTANCE-R0.",
-  "2026-10-04: OPAQUE-CHECKED-COMPARE-TASK4-PARAMFIELD-S0 landed (02927e1f60) — dominated formal.field read on a guarded Handle/OpaqueHandle formal publishes one object_field_get against the co-sealed BorrowedFormalObjectViewV1 (minted only when every incoming actual agrees on one ordinary class; null proves Void); FieldReadOperand draft + GuardedFormal receiver + verified-walk ownership; viewless callees stay bounded at unproved-copy. C witness executes and rejects seven forged rows. Next: TASK4-FIELDRESULT-S0.",
   ]

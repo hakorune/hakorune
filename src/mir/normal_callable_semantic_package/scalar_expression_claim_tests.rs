@@ -128,6 +128,51 @@ fn scalar_expression_rejects_field_reads_after_selected_root_transfer() {
 }
 
 #[test]
+fn scalar_expression_claims_order_compare_field_operands() {
+    // FIELDOPERAND-S0: a guarded formal's `i64` field is admitted as an
+    // order-compare operand through the same staged local-read authority —
+    // `<` and `>=` both claim their exact FieldAccess sites, and the `me.`
+    // receiver operand rides the same request inside the selected root.
+    let formal = issue(
+        "box Handle { page_id: i64 block_id: i64 birth(pid, bid) { me.page_id = pid me.block_id = bid } } \
+        box Store { limit: i64 birth() { me.limit = 10 } \
+        check(p) { if p > me.limit { return null } return new Handle(p, 3) } \
+        release(handle) { if handle == null { return 0 } if handle.page_id < 0 { return 0 } \
+        if handle.page_id >= me.limit { return 0 } return 1 } } \
+        static box Main { main() { local s = new Store() local h = s.check(5) return s.release(h) } }",
+    )
+    .expect("guarded formal order compare package");
+    assert_eq!(staged_count(&formal), 3);
+    // Owned receivers keep the existing compare lane: `pool.size > 0`
+    // shapes still stage nothing here, and an order compare nested in a
+    // selected `&&` root falls back to the original lane unchanged.
+    let owned = package("if (pool.size > 0) && (pool.size == 1) { return 1 } return 0");
+    assert_eq!(staged_count(&owned), 0);
+}
+
+#[test]
+fn scalar_expression_rejects_order_compare_on_object_typed_field() {
+    // An ordinary-box declared field read still cannot feed an order
+    // compare: `scalar_only` keeps the Alias result out of Integer
+    // operand position, so the root stays uncovered and unstaged.
+    for root in [
+        "if pool.page > 0 { return 1 } return 0",
+        "if pool.page <= pool.size { return 1 } return 0",
+    ] {
+        let package = package(&format!("{root} local later = new Page() return 0"));
+        assert_eq!(staged_count(&package), 0, "rejected root {root}");
+        assert!(
+            package
+                .ordinary_new_claim_ledger
+                .pending_claims_for_test()
+                .values()
+                .any(|claim| claim.home_prefix().is_err()),
+            "root must remain uncovered: {root}"
+        );
+    }
+}
+
+#[test]
 fn scalar_expression_scope_preserves_outside_nested_conditions_without_claims() {
     for condition in [
         "(pool.size > 0) && (pool.size == 1)",

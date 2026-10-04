@@ -59,12 +59,34 @@ fn preflight(
     use SourceScalarKind as Kind;
     let (operand, result) = match row.operator() {
         Op::Add | Op::Subtract => (Kind::Integer, Kind::Integer),
-        Op::Equal | Op::NotEqual => (Kind::Integer, Kind::Bool),
+        Op::Equal | Op::NotEqual | Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual => {
+            (Kind::Integer, Kind::Bool)
+        }
         Op::And | Op::Or => (Kind::Bool, Kind::Bool),
         _ => return None,
     };
+    let mark = requests.len();
     let lhs = preflight(input, row.lhs(), locals, requests)?;
     let rhs = preflight(input, row.rhs(), locals, requests)?;
+    if matches!(
+        row.operator(),
+        Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual
+    ) {
+        // Order-compare operands admit the receivers the compare lane has:
+        // a guarded formal via its sealed object view, or the `me` entry
+        // receiver. Any other provenance declines the whole root.
+        for request in &requests[mark..] {
+            let me_receiver = input
+                .body_shape()
+                .and_then(|shape| shape.expression_shape(&request.receiver_site))
+                .is_some_and(|shape| {
+                    matches!(shape, crate::mir::resolved_semantics::BodyExpressionShapeV1::Me { .. })
+                });
+            if !request.formal && !me_receiver {
+                return None;
+            }
+        }
+    }
     (lhs == operand && rhs == operand).then_some(result)
 }
 
@@ -75,26 +97,43 @@ pub(super) fn contains_field_request(
     root: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
 ) -> bool {
-    profile_scope(input, root, locals).unwrap_or(false)
+    profile_scope(input, root, locals, false).unwrap_or(false)
 }
 
 /// Morphology-only scope: declaration, scalar class and liveness stay with
 /// the subsequent proof. An excluded subtree never selects the new profile.
+/// Order compares select the scalar lane only for a guarded formal field
+/// read — owned receiver operands keep the existing compare lane, so a
+/// `me.`/`new`-local order condition never silently changes lanes.
 fn profile_scope(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
+    order_compare: bool,
 ) -> Option<bool> {
     if let Some(row) = input.function().expression_source().binary(site) {
         use ResolvedBinaryOperatorV1 as Op;
         if !matches!(
             row.operator(),
-            Op::Add | Op::Subtract | Op::Equal | Op::NotEqual | Op::And | Op::Or
+            Op::Add
+                | Op::Subtract
+                | Op::Equal
+                | Op::NotEqual
+                | Op::Less
+                | Op::Greater
+                | Op::LessEqual
+                | Op::GreaterEqual
+                | Op::And
+                | Op::Or
         ) {
             return None;
         }
-        let left = profile_scope(input, row.lhs(), locals)?;
-        let right = profile_scope(input, row.rhs(), locals)?;
+        let operand_order = matches!(
+            row.operator(),
+            Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual
+        );
+        let left = profile_scope(input, row.lhs(), locals, operand_order)?;
+        let right = profile_scope(input, row.rhs(), locals, operand_order)?;
         return Some(left || right);
     }
     if matches!(
@@ -115,6 +154,10 @@ fn profile_scope(
     else {
         return None;
     };
+    let via_me = matches!(
+        shape.expression_shape(object),
+        Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::Me { .. })
+    );
     let binding = match input.function().variable_ref(object) {
         Some(ResolvedLexicalRefV1::Local(binding)) => binding,
         _ => match shape.expression_shape(object) {
@@ -125,6 +168,19 @@ fn profile_scope(
             _ => return None,
         },
     };
+    if order_compare {
+        // Only a guarded formal selects this lane for an order compare;
+        // `me.` operands stay admissible inside a selected root, and any
+        // other receiver provenance falls the whole root back to the
+        // existing compare lane unchanged.
+        if matches!(
+            locals.field_read_receiver(binding),
+            Some(local_flow::FieldReadReceiverV1::GuardedFormal)
+        ) {
+            return Some(true);
+        }
+        return via_me.then_some(false);
+    }
     Some(locals.is_field_read_candidate(binding))
 }
 

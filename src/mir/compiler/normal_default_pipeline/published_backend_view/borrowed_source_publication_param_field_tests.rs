@@ -23,6 +23,16 @@ fn guarded_formal_field_read_publishes_object_view() {
                 "if handle == null { return 0 } return handle.page_id",
                 "local h = s.check(5) return s.release(h)",
             ),
+            (
+                "cmp",
+                "if handle == null { return 0 } if handle.page_id < 0 { return 0 } return 1",
+                "local h = s.check(5) return s.release(h)",
+            ),
+            (
+                "cmp-ge",
+                "if handle == null { return 0 } if handle.page_id >= me.limit { return 0 } return 1",
+                "local h = s.check(5) return s.release(h)",
+            ),
         ] {
             let text = "box Handle { page_id: i64 block_id: i64 birth(pid, bid) { me.page_id = pid me.block_id = bid } } \
                 box Store { limit: i64 birth() { me.limit = 10 } \
@@ -100,6 +110,18 @@ fn guarded_formal_field_read_publishes_object_view() {
                                 instructions.iter().any(|row| row["op"] == "return"
                                     && row["value"].as_u64() == Some(dst)),
                                 "{label}: the field read is the returned value: {wire}"
+                            );
+                        }
+                        let expected_predicate = match label {
+                            "cmp" => Some("slt"),
+                            "cmp-ge" => Some("sge"),
+                            _ => None,
+                        };
+                        if let Some(predicate) = expected_predicate {
+                            assert!(
+                                instructions.iter().any(|row| row["op"] == "compare"
+                                    && row["predicate"].as_str() == Some(predicate)),
+                                "{label}: the order compare rides the staged read: {wire}"
                             );
                         }
                         assert!(
