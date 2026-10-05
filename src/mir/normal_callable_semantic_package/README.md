@@ -992,3 +992,7 @@ completion of ingress S0.
 The private brand catalog test module includes receiver-field and owned-child
 fragments alongside its existing source helpers. These fragments preserve
 test names and source predicates; they introduce no semantic authority.
+
+The ordinary-New co-seal issuer orchestrates declaration order; its private
+source-claims child owns the existing App Main identity query. This placement
+changes no source predicate or authority.

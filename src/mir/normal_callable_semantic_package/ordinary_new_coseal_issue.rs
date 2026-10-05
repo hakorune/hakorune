@@ -70,20 +70,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ),
     OrdinaryNewCoSealIssueV1,
 > {
-    let app_main_batch_slot = app_main_identity
-        .map(|identity| {
-            let mut matches = batch
-                .declarations()
-                .filter(|declaration| declaration.identity().same_as(identity));
-            let declaration = matches
-                .next()
-                .ok_or(OrdinaryNewCoSealIssueV1::AppMainIdentityMissing)?;
-            if matches.next().is_some() {
-                return Err(OrdinaryNewCoSealIssueV1::AppMainIdentityDuplicate);
-            }
-            Ok(declaration.batch_slot())
-        })
-        .transpose()?;
+    let app_main_batch_slot = source_claims::app_main_batch_slot_v1(batch, app_main_identity)?;
     let mut claims = Vec::new();
     let mut result_claims = Vec::new();
     let mut seeds = super::super::result_contract::VerifiedCallableResultContractBuilderV1::new();

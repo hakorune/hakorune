@@ -530,3 +530,21 @@ shared variables and evaluation order remain unchanged. Shell syntax passed.
 Both shell files are below 800 lines. Current C semantic pins are separate;
 full guard still reports unchanged HEAD root-catalog test size debt (1351).
 No source/wire/runtime acceptance changed in this structural series.
+
+## Selected: MIRBUILDER-APP-MIMALLOC-LITE-HEAP-LOCAL-ARRAY-ISSUER-SIZE-T0
+
+Required structural series before ordinary helper local Array lifetime wiring:
+co-seal issuer starts at 797 lines. Part one moves the exact App Main identity
+query into its existing private source-claims child; part two moves the sealed
+Nullable receiver query there. Predicates, errors, ordering, borrowed inputs and
+authority stay unchanged. No Array admission is issued. Code/test evidence uses
+the combined structural tree and explicit query-motion comparison; existing
+C/S1/audit WIP is preserved outside these commits. Full provider Fault matrix,
+unchanged app probes and C/S1 closeout remain open. No app/goal PASS is claimed.
+
+Structural evidence: package 600 passed / the same 3 baseline failures
+(`/tmp/hako-goal-array-size-package-tests.log`); test inventory 8588 unchanged.
+Both query expressions equal their prior bodies after whitespace normalization
+(`/tmp/hako-local-array-size-query-motion-proof.json`). Scope semantic pins pass;
+full guard stops at unchanged HEAD root-catalog size debt (1351). Pointer and
+selected diff checks pass. These results do not close C/S1 or its runtime matrix.

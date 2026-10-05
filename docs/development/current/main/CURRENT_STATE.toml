@@ -1,7 +1,7 @@
 date = "2026-10-05"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-BIRTH-FIELD-CALL-S0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-LOCAL-ARRAY-ISSUER-SIZE-T0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "ordinary-new/local-commit/artifact-source-unavailable"
 current_design_stop = "none"
@@ -17,19 +17,16 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-mimalloc-lite-heap-construction-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-heap-construction-d0-2026-10-04.md"
 latest_card_summary = """
-Heap-construction Decisions accepted 2026-10-05: split A -> B -> C,
-not a provider-arm composite. First SIZE-T0 isolates provider emission /
-validation from the 971-line construction-state owner; no semantics change.
-A owns bounded parent -> owned-array user child -> ArrayBox cleanup through
-Normal/Fault and publication/C, including the existing plain-only release
-consumer. B borrows exact qualified-static target/result proof for provider
-call arguments, preserving evaluation order and Fault cleanup. C borrows
-fully constructed stored-child receivers for covered birth-time calls.
-The unchanged app requires all three; no EXE PASS or production switch claim.
+User resumed C goal. Required issuer BoxShape is selected before ordinary
+helper local Array lifetime wiring: existing App Main identity and sealed
+Nullable receiver queries move into the private source-claims child. Source
+meaning, authority and execution order stay unchanged. C/S1 implementation
+and audit WIP remain uncommitted outside this structural series. Provider
+Fault matrix and unchanged app probes remain required; no C/app/goal PASS.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-BIRTH-FIELD-CALL-S0"
+next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-LOCAL-ARRAY-ISSUER-SIZE-T0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-heap-construction-d0-2026-10-04.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-BIRTH-FIELD-CALL-S0"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-HEAP-LOCAL-ARRAY-ISSUER-SIZE-T0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-heap-construction-d0-2026-10-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
