@@ -933,6 +933,15 @@ existing result cohort corroborates the same owner and complete return-site set.
 An explicit `i64` annotation or an unannotated declaration whose complete
 return-site set proves source I64 both corroborate the executable projection;
 the declaration itself is never reannotated.
+A sole never-rebound local call-result return composes the original incoming
+source target with a grounded callee I64 proof in the same result map. Exact
+binding/declaration/initializer, receiver and ordered arguments remain required.
+Private readiness folds admit only independently grounded dependencies; an
+unseeded cycle or Nullable/Unit/unproven callee grants no scalar permission.
+Final lexical issuance corroborates all callee completions before checking
+canonical dependency identity and propagating pending result errors, then issues
+affine call rows. Source annotation alone is never a dependency seed. Direct
+returned calls and direct stored-child receivers remain separate obligations.
 A borrowed consumer can lend actuals only with its consumed lexical disposition;
 full source target, receiver, slot and argument positions must remain unchanged,
 and all incoming actual proof must be complete. This lends the original rows,

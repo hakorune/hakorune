@@ -171,8 +171,8 @@ pub(super) use borrowed_formal_actuals::{
 pub(in crate::mir) use borrowed_formal_actuals::{
     BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,
 };
-pub(in crate::mir) use borrowed_formal_entry::BorrowedOrdinaryEntrySourceRefV1;
 pub(super) use borrowed_formal_entry::BorrowedOrdinaryEntryPhysicalV1;
+pub(in crate::mir) use borrowed_formal_entry::BorrowedOrdinaryEntrySourceRefV1;
 pub(super) use borrowed_formal_source::{
     prepare_borrowed_formal_ingress_v1, PreparedBorrowedFormalIngressV1,
 };
@@ -201,13 +201,13 @@ impl OrdinaryNewClaimLedgerV1 {
         if let Some(Ok(borrowed)) = &self.borrowed_formal_source {
             borrowed.corroborate_source_targets(&prepared)?;
         }
-        // Borrowed source errors stay pending until that profile is requested.
-        // Source preparation alone cannot change a definition's old scalar ABI.
+        // All callee completions precede dependency checks and affine issuance.
+        // Pending result errors are still demanded by their selected profile.
+        self.corroborate_borrowed_result_cohort_v1(&prepared, results);
         for source in prepared {
             let Some(source) = source? else {
                 continue;
             };
-            self.corroborate_borrowed_i64_result_v1(&source, results);
             let target_batch_slot = source.target_batch_slot();
             let target = source.target().clone();
             let call_site = source.call_site().clone();

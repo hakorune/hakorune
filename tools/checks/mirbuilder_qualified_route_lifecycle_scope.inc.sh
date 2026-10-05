@@ -603,6 +603,10 @@ for file in "$DECLARED_BORROW_ENTRY_TESTS" "$DECLARED_BORROW_SOURCE_TESTS"; do
   fi
 done
 
+CALL_RESULT_OWNER="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_borrowed_formal_result_composition.rs"
+CALL_RESULT_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_borrowed_formal_result_composition_tests.rs"
+rg -q 'ground_source_results' "$CALL_RESULT_OWNER"
+rg -q 'composed_result_corroboration_rejects_foreign_dependencies' "$CALL_RESULT_TESTS"
 # Direct field result finishing uses the original captured boundary projection.
 FIELD_RETURN_PROJECTION_SRC="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_terminal_field_return.rs"
 FIELD_RETURN_PROJECTION_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_local_commit/terminal_field_projection_tests.rs"
@@ -612,7 +616,7 @@ rg -q 'full_child_finishing_rejects_foreign_field_positions_and_masked_exits' "$
 rg -q 'root_and_borrowed_child_field_returns_survive_canonical_finishing' "$FIELD_RETURN_SOURCE_TESTS"
 rg -q 'field_return_publication_rejects_swapped_null_guard_with_original_handoff' "$FIELD_RETURN_SOURCE_TESTS"
 test -f "$ROOT_DIR/lang/c-abi/tests/published_lifecycle_v4_field_return_projection_execution_test.py"
-for file in "$FIELD_RETURN_PROJECTION_SRC" "$FIELD_RETURN_PROJECTION_TESTS" "$FIELD_RETURN_SOURCE_TESTS"; do
+for file in "$FIELD_RETURN_PROJECTION_SRC" "$FIELD_RETURN_PROJECTION_TESTS" "$FIELD_RETURN_SOURCE_TESTS" "$CALL_RESULT_OWNER" "$CALL_RESULT_TESTS"; do
   if (( $(wc -l < "$file") >= 800 )); then
     echo "[$TAG] terminal field projection owner reached hard 800-line boundary" >&2
     exit 1

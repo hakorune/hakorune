@@ -13,6 +13,9 @@ use crate::mir::resolved_semantics::{
 };
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "ordinary_new_borrowed_formal_result_composition.rs"]
+mod composition;
+
 /// The sole result class a borrowed callee's uniform return sites prove.
 /// `I64` is the existing literal/exact-formal scalar lane; `Nullable` is
 /// the borrowed-result nullable-handle class — every explicit value-return
@@ -30,6 +33,8 @@ pub(in crate::mir::normal_callable_semantic_package) struct BorrowedI64ResultSou
     pub(super) returns: Box<[OwnedExprSiteV1]>,
     pub(super) class: BorrowedResultClassV1,
     pub(super) contract_corroborated: bool,
+    /// Original call rows, never result permission inferred from an annotation.
+    dependencies: Box<[LexicalInstanceCallSourceTargetV1]>,
 }
 
 /// `return <formal>.<field>` — a guarded borrowed-formal field read is an
@@ -136,6 +141,7 @@ fn source_result(
                 .ok_or_else(|| freeze("borrowed-result/explicit-value-return-missing"))?;
             let mut class = None;
             let mut has_construction = false;
+            let mut dependencies = Vec::new();
             for site in &sites {
                 let function = input.function();
                 let integer = matches!(
@@ -172,7 +178,13 @@ fn source_result(
                         contract,
                         site,
                     )?
-                {
+                    || composition::retain_local_call_dependency(
+                        input,
+                        source,
+                        owner,
+                        site,
+                        &mut dependencies,
+                    )? {
                     BorrowedResultClassV1::I64
                 } else if matches!(
                     function.expression_source().literal(site),
@@ -207,6 +219,7 @@ fn source_result(
                     .collect(),
                 class,
                 contract_corroborated: false,
+                dependencies: dependencies.into_boxed_slice(),
             })
         })
         .map_err(|_| freeze("borrowed-result/source-loan"))?
@@ -221,7 +234,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_i64_res
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
 ) -> BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>> {
-    match source {
+    let mut results = match source {
         Ok(rows) => rows
             .definitions
             .keys()
@@ -232,10 +245,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_i64_res
                 )
             })
             .collect(),
-        // The source Err itself remains in the ledger and is demanded before
-        // any result projection. An empty map does not grant permission.
+        // The source error remains mandatory at selected demand.
         Err(_) => BTreeMap::new(),
-    }
+    };
+    composition::ground_source_results(&mut results);
+    results
 }
 
 impl OrdinaryNewClaimLedgerV1 {

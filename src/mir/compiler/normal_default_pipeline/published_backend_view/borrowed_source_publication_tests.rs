@@ -626,3 +626,6 @@ mod declared_tests;
 
 #[path = "borrowed_source_publication_field_return_projection_tests.rs"]
 mod field_return_projection_tests;
+
+#[path = "borrowed_source_publication_call_result_tests.rs"]
+mod call_result_tests;
