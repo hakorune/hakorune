@@ -1,7 +1,7 @@
 # Stored-child borrowed call receiver D0
 
-Status: T0/T1 landed / T2 verified / S0 WIP / PROFILE-D0 selected
-Execution row: MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-D0
+Status: T0/T1/T2 landed / T3 verified / PROFILE-S0 selected / receiver S0 WIP
+Execution row: MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-S0
 Scope: required original direct `me.<Provider field>.m(borrowed actual)` receiver
 in the existing ordinary-new lexical call/result pipeline.
 Related:
@@ -369,3 +369,72 @@ Scope guard reaches unchanged root1351 debt; pointer and diff whitespace PASS.
 Logs /tmp/hako-source-draft-T2-*.log. Source parent614/private child82.
 T2 closes only the exact collection extraction; S0 and full goal stay open.
 Return PROFILE-D0 for the existing Pending/SourceSealed mapping; no Cargo live.
+
+## PROFILE-D0 integrated function-loan Decision / T3 predecessor
+
+Read-only worker completed the concrete mapping. Collect original use drafts
+once; classify original returns once into the existing result owner's Pending
+phase; original source-needs retain prospective stored key/slot/owner/sites
+without receiver authority; conditional class and existing dependency fold
+ground eligibility; sole stored issuer seals inventory only after eligibility;
+finish ingress from the same drafts once, then seal pending fields and call
+references without return AST reclassification. Pending field requirement may
+remain None for old lexical opaque fields until incoming view is available;
+stored promotion requires its conditional requirement grounded beforehand.
+Unseeded/missing requirements never promote stored rows. Forward identity is
+the exact existing row tuple, not a cloned guard. SourceSealed is mandatory
+for actual projection, entry result selection and completion corroboration.
+All pending/preparation visibility stays within the lexical owner.
+
+MIRBUILDER-BORROWED-SOURCE-FINISH-SPLIT-T3 is the necessary final BoxShape
+predecessor: expose collected drafts only within the lexical owner and make
+the existing ingress finish consume that exact owned triple and the original
+validated calls map. Old preparation façade remains calls-map -> collect ->
+finish, preserving error order, graph closure, forwards, strict incoming and
+object views. No new product, scan, source registry or borrowed ABI permission.
+Scope: borrowed_formal_source.rs, its collection visibility, owner README, this
+card and pointer. Acceptance: exact original finish-body comparison; source/use,
+publication/stored and package regressions, with original S0 NEW5 kept distinct.
+After T3, construct the already-decided profile correction; do not select further
+BoxShape work absent measured hard-cap pressure. Production target remains
+Heap.isLiveHandle -> Page.isLiveHandle and facade -> Heap original stored returns.
+
+T3 worker verification independently confirms the original 82-line finish tail
+byte-identical and lexical-owner-only visibility. Critical semantic boundary:
+replace candidate-exists has_stored_terminal with a retained demand that
+distinguishes unpromoted source needs from promoted target rows. Unpromoted
+needs alone may return false. For a promoted stored row, owner SourceSealed I64
+permits the verified terminal walk; owner Err/Pending/missing must return a
+named selected error (Result<bool, issue> or the same retained demand), never
+false followed by seed/plain-path selection. The current bool caller at
+coseal_issue.rs338 feeds seed_completion; this is an explicit replacement edge.
+
+Consumer census for SourceSealed: actuals::project_pending_borrowed_i64_arguments_v1
+currently permits source results before final Completion, so it must require
+source seal but still not demand contract_corroborated early. Entry's final
+result-kind selector requires both source seal and Completion corroboration.
+Result corroboration and terminal unannotated-I64 permission also require source
+seal; dependency corroboration propagates failures without profile retry.
+Do not change the current necessary pre-Completion ordering into a new cycle.
+
+T3 closeout: original finish tail independently byte-identical (worker and
+primary comparison). Cargo64464 terminal101: source13/1 same S0 source-not-i64.
+Sequential83958 terminal: uses23/publication30/stored8 PASS, package627/8 with
+exact T2 failed-test set (script PASS). No newly introduced failure; S0 NEW5
+and known3 remain distinct and unclosed. Scope guard unchanged root1351 debt;
+pointer/whitespace PASS. Logs /tmp/hako-source-finish-T3-*.log, no Cargo live.
+
+Select MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-S0 fast. Internal mapping
+is closed: Direct or Local(original ResolvedInitializerRelationV1 source fact)
+retains stable call origin once; Pending retains original return/call/receiver/
+argument/selector/arity identities, canonical need key/slot/owner, field-use and
+conditional declaration requirement. Resolve eligibility before owned inventory,
+consume original drafts once through finish, then seal against strict incoming
+and complete views. Sealed full-target dependencies enter the same final map.
+Source-seal demands cover prefix projection, caller/callee dependency prepass,
+completion success, final entry result-kind, and terminal result corroboration
+(including annotated rows); old nonborrowed strict lexical callers remain intact.
+Promoted stored failure is a named error, not seed fallback. Acceptance and
+replacement scope remain the integrated PROFILE-D0 Decision above. No further
+BoxShape predecessor is selected; source-only probe/Pending/seal construction
+starts under this row, then focused tests must restore NEW5 and preserve stored32.

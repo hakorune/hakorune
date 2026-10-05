@@ -1,7 +1,7 @@
 //! Original borrowed source drafts, collected before transport profile closure.
 use super::*;
 
-pub(super) fn collect_borrowed_source_drafts_v1(
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn collect_borrowed_source_drafts_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],

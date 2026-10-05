@@ -11,6 +11,8 @@ use std::collections::{BTreeMap, BTreeSet};
 #[path = "ordinary_new_borrowed_formal_source_drafts.rs"]
 mod source_drafts;
 
+pub(super) use source_drafts::collect_borrowed_source_drafts_v1;
+
 /// The sealed class view one borrowed formal may carry on a dominated
 /// `formal.field` read: minted only when every incoming actual names one
 /// agreed ordinary class (the exact `null` literal is always admissible —
@@ -106,16 +108,52 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
             }
         }
     }
-    let (ordinary_callers, mut definitions, dominated_view_sites) =
-        source_drafts::collect_borrowed_source_drafts_v1(
-            batch,
-            selected,
-            contracts,
-            app_main_slot,
-            dynamic_slot,
-            entry_home_loans,
-            instance_constructors,
-        )?;
+    let drafts = collect_borrowed_source_drafts_v1(
+        batch,
+        selected,
+        contracts,
+        app_main_slot,
+        dynamic_slot,
+        entry_home_loans,
+        instance_constructors,
+    )?;
+    finish_ingress_from_drafts_v1(
+        batch,
+        selected,
+        contracts,
+        entry_home_loans,
+        instance_constructors,
+        local_candidates,
+        callable_result_classes,
+        calls,
+        drafts,
+    )
+}
+
+/// Consume the original drafts once; never reconstruct them after profile selection.
+#[allow(clippy::too_many_arguments)]
+pub(super) fn finish_ingress_from_drafts_v1(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
+    instance_constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    local_candidates: &BTreeMap<
+        u32,
+        Result<
+            Vec<super::super::candidate::OrdinaryNewCandidate>,
+            super::super::OrdinaryNewCoSealIssueV1,
+        >,
+    >,
+    callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    calls: BTreeMap<OwnedExprSiteV1, &LexicalInstanceCallSourceTargetV1>,
+    drafts: (
+        BTreeSet<FunctionOwnerIdV1>,
+        BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
+        BTreeSet<OwnedExprSiteV1>,
+    ),
+) -> Result<PreparedBorrowedFormalIngressV1, String> {
+    let (ordinary_callers, mut definitions, dominated_view_sites) = drafts;
     // Close the finite graph before selection. Removing one outside-profile
     // destination invalidates every source that forwards an opaque value to it.
     // Repetition terminates because every nonfinal pass removes an owner.

@@ -886,6 +886,12 @@ child. It returns the original caller set, owner-indexed drafts and dominated-vi
 sites as owned values. The source parent constructs its calls map first and then
 closes the profile and incoming class views over those same drafts; collection
 adds no transport authority or physical carrier.
+The existing preparation façade validates its calls map first, collects once,
+and passes that owned triple and the same map to
+`finish_ingress_from_drafts_v1`. The finish owns profile closure, forward join,
+strict incoming census and object-view sealing in the original order; it does
+not rebuild source drafts. Both stage entry points remain private to the
+lexical-call owner for its source/result preparation ordering.
 
 Ordinary borrowed-formal source preparation uses the same immutable lexical
 source targets. Its private source child closes transport-only Copy/forward

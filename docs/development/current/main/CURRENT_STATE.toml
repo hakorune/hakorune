@@ -1,10 +1,10 @@
 date = "2026-10-05"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "stored-child-receiver/pre-ingress-profile-boundary"
-current_design_stop = "stored-child-receiver/pre-ingress-profile-boundary"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,17 +17,18 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-stored-child-borrowed-call-receiver-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 latest_card_summary = """
-T0/T1 landed353bf1d2fd; T2 exact source-draft extraction verified (parent614/child82).
-Source13/1 has same S0 field-receiver failure; uses23/publication30/stored8 PASS.
-Package627/8 exact same pre-T2 set: known3 + S0 NEW5, no reclassification.
-Scope guard unchanged root1351 debt, pointer/whitespace PASS; no Cargo live.
-Select PROFILE-D0 pending/source-sealed mapping; S0 not closed or committed.
-T2 changes collection location only, no transport/result authority added.
-C parent projection, Page Array.get result, C/Array/S2 landing and app/full goal owed.
+T2 landed50f44a92ec; T3 same-draft finish verified (source652/child82).
+Source13/1 same S0 failure, uses23/publication30/stored8 PASS. Package627/8 exact
+unchanged T2 set: S0 NEW5 + known3, no relabeling. Scope guard root1351 debt;
+pointer/whitespace PASS, no Cargo live. Read-only worker closed exact Pending
+payload/function loans and consumer/no-fallback demands. Select PROFILE-S0 fast:
+source-only needs -> conditional grounding -> inventory promotion -> same-draft
+strict ingress -> SourceSealed; no further BoxShape predecessor selected.
+S0 remains WIP; C parent projection, Page Array.get, C/Array/S2 and full goal owed.
 """
-next_design_card = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-D0"
+next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
-next_execution_card = "none"
+next_execution_card = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
