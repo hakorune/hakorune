@@ -68,6 +68,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
                 receiver_site,
                 receiver_binding,
                 rhs: ConstructionStoreRhsV1::LiteralI64(7),
+                fault_discharge: Box::new([]),
                 progress: StoreProgress::Emitted {
                     block: origin,
                     normal,
@@ -75,6 +76,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
                     value,
                     provider: None,
                     provider_birth: None,
+                    discharge: landing,
                 },
             },
         )]),

@@ -598,3 +598,6 @@ include!("brand_catalog_owned_children_tests.rs");
 include!("brand_catalog_tail_tests.rs");
 include!("brand_catalog_selected_new_argument_tests.rs");
 include!("brand_catalog_mixed_result_class_tests.rs");
+
+#[path = "brand_catalog_construction_fault_tests.rs"]
+mod construction_fault_tests;

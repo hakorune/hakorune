@@ -85,10 +85,19 @@ impl ConstructionState {
         // `birth_call`, the `reclaim_unpublished` on its fault edge, and the
         // `home_release` discharge on the object-field store's fault edge —
         // plus one `field_residence_release` per sealed nested residence
-        // on each of the two cleanup chains, and one `Call{Global, I64}`
+        // on the completed child store-Fault chain, prior-field discharge and
+        // one `Call{Global, I64}`
         // per sealed qualified-static argument row.
         if actual_count
-            != stores.len() + provider_count + 3 * birth_providers + 2 * nested_releases + call_args
+            != stores.len()
+                + provider_count
+                + 3 * birth_providers
+                + nested_releases
+                + stores
+                    .values()
+                    .map(|store| store.fault_discharge.len())
+                    .sum::<usize>()
+                + call_args
         {
             return Err(fault("emission-count"));
         }
@@ -163,10 +172,19 @@ impl ConstructionState {
                 value,
                 provider,
                 provider_birth,
+                discharge,
             } = progress
             else {
                 return Err(fault("store-residual"));
             };
+            let Some((frame_id, frame_landing)) = *frame else {
+                return Err(fault("emission-state"));
+            };
+            if field_discharge_chain(function, *discharge, &store.fault_discharge, *base, *frame)
+                != Some(frame_landing)
+            {
+                return Err(fault("store-discharge-chain"));
+            }
             let store_ok = match (&store.rhs, provider_birth) {
                 (
                     ConstructionStoreRhsV1::ProviderConstruction {
@@ -182,7 +200,7 @@ impl ConstructionState {
                         && frame.is_some_and(|(id, _)| *fault_frame == id)),
                 _ => matches!(function.blocks.get(block).and_then(|b| b.terminator.as_ref()),
                     Some(MirInstruction::Invoke { operation: InvokeOperation::FieldSet { field: actual, base: b, value: v }, fault_frame, fault_landing, normal_landing })
-                    if actual == &field && b == base && v == value && normal_landing == normal && Some((*fault_frame, *fault_landing)) == *frame),
+                    if actual == &field && b == base && v == value && normal_landing == normal && *fault_frame == frame_id && fault_landing == discharge),
             };
             if !store_ok {
                 return Err(fault("emission-drift"));
@@ -202,7 +220,7 @@ impl ConstructionState {
                             fault_landing,
                             normal_landing,
                         }) if *normal_landing == *block
-                            && Some((*fault_frame, *fault_landing)) == *frame)
+                            && *fault_frame == frame_id && fault_landing == discharge)
                     {
                         return Err(fault("provider-emission-drift"));
                     }
@@ -226,7 +244,7 @@ impl ConstructionState {
                             normal_landing,
                         }) if *object == *child
                             && *normal_landing == birth.entry
-                            && *fault_landing == frame_landing
+                            && fault_landing == discharge
                             && frame.is_some_and(|(id, _)| *fault_frame == id))
                     {
                         return Err(fault("provider-emission-drift"));
@@ -277,17 +295,9 @@ impl ConstructionState {
                     {
                         return Err(fault("provider-birth-drift"));
                     }
-                    // Birth-fault cleanup: each sealed `ArrayBox` residence
-                    // releases newest-first on the in-flight child handle,
-                    // then the unpublished storage is reclaimed.
-                    let reclaim_tail = residence_chain(
-                        function,
-                        birth.reclaim,
-                        &birth.owned_fields,
-                        *value,
-                        *frame,
-                    )
-                    .ok_or_else(|| fault("provider-reclaim-chain"))?;
+                    // Child Birth discharged its own partial fields;
+                    // this caller reclaims only that child's storage.
+                    let reclaim_tail = birth.reclaim;
                     if !matches!(function.blocks.get(&reclaim_tail).and_then(|b| b.terminator.as_ref()),
                         Some(MirInstruction::Invoke {
                             operation: InvokeOperation::ReclaimUnpublished { object, value: reclaimed },
@@ -296,8 +306,8 @@ impl ConstructionState {
                             normal_landing,
                         }) if *object == *child && *reclaimed == *value
                             && normal_landing != fault_landing
-                            && lands_on(function, *normal_landing, frame_landing)
-                            && lands_on(function, *fault_landing, frame_landing)
+                            && lands_on(function, *normal_landing, *discharge)
+                            && lands_on(function, *fault_landing, *discharge)
                             && frame.is_some_and(|(id, _)| *fault_frame == id))
                     {
                         return Err(fault("provider-reclaim-drift"));
@@ -320,8 +330,8 @@ impl ConstructionState {
                             normal_landing,
                         }) if *object == *child && *released == *value
                             && normal_landing != fault_landing
-                            && lands_on(function, *normal_landing, frame_landing)
-                            && lands_on(function, *fault_landing, frame_landing)
+                            && lands_on(function, *normal_landing, *discharge)
+                            && lands_on(function, *fault_landing, *discharge)
                             && frame.is_some_and(|(id, _)| *fault_frame == id))
                     {
                         return Err(fault("provider-discharge-drift"));
@@ -433,3 +443,60 @@ fn residence_chain(
     }
     Some(cursor)
 }
+
+/// Compare per-store cleanup against its retained source-sealed inventory.
+fn field_discharge_chain(
+    function: &MirFunction,
+    head: BasicBlockId,
+    expected: &[crate::mir::normal_callable_semantic_package::OwnedFieldChildV1],
+    base: ValueId,
+    frame: Option<(ValueId, BasicBlockId)>,
+) -> Option<BasicBlockId> {
+    use crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1;
+    let mut cursor = head;
+    for child in expected {
+        let MirInstruction::Invoke {
+            operation,
+            fault_frame,
+            normal_landing,
+            fault_landing,
+        } = function.blocks.get(&cursor)?.terminator.as_ref()?
+        else {
+            return None;
+        };
+        let matches_source = match (child.kind, operation) {
+            (
+                OwnedFieldChildKindV1::Array,
+                InvokeOperation::OwnedFieldResidenceRelease {
+                    field,
+                    base: released,
+                },
+            ) => *field == child.field && *released == base,
+            (
+                OwnedFieldChildKindV1::Object(object),
+                InvokeOperation::OwnedObjectFieldRelease {
+                    field,
+                    base: released,
+                    child: released_child,
+                },
+            ) => *field == child.field && *released == base && *released_child == object,
+            _ => false,
+        };
+        if !matches_source
+            || normal_landing == fault_landing
+            || !frame.is_some_and(|(id, _)| id == *fault_frame)
+        {
+            return None;
+        }
+        let next = jump_target(function, *normal_landing)?;
+        if jump_target(function, *fault_landing)? != next {
+            return None;
+        }
+        cursor = next;
+    }
+    Some(cursor)
+}
+
+#[cfg(test)]
+#[path = "fault_cleanup_tests.rs"]
+mod fault_cleanup_tests;

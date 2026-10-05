@@ -18,6 +18,8 @@ use std::collections::BTreeMap;
 
 #[path = "normal_callable_construction_state/emission.rs"]
 mod emission;
+#[path = "normal_callable_construction_state/fault_cleanup.rs"]
+mod fault_cleanup;
 #[path = "normal_callable_construction_state/validation.rs"]
 mod validation;
 
@@ -64,6 +66,8 @@ pub(super) enum StoreProgress {
         /// normal landing, with `reclaim_unpublished`/`home_release`
         /// discharge blocks on the two fault edges.
         provider_birth: Option<ProviderBirthEmission>,
+        /// Head of this store's source-sealed prior-field Fault discharge.
+        discharge: BasicBlockId,
     },
 }
 
@@ -95,11 +99,9 @@ pub(super) struct ProviderBirthEmission {
     /// projection and the next invoke, and the last `landing`
     /// terminates in `birth_call`.
     call_args: Box<[ProviderCallArgEmission]>,
-    /// Head of the birth-fault cleanup chain: one
-    /// `Invoke{OwnedFieldResidenceRelease}` block per `owned_fields`
-    /// entry (emitted order), then the `Invoke{ReclaimUnpublished}` tail
-    /// — with no owned fields the head is the reclaim tail itself.
-    /// Argument-call invokes fault onto this same head.
+    /// Storage-only reclaim after argument or child-Birth Fault. Child
+    /// Birth owns its partial fields; both outcomes lead to this parent's
+    /// source-sealed prior-field discharge.
     reclaim: BasicBlockId,
     /// Head of the store-fault discharge chain under the same layout,
     /// ending in the `Invoke{HomeRelease}` tail.
@@ -115,6 +117,7 @@ pub(super) struct SelectedConstructionStore {
     receiver_site: crate::mir::resolved_semantics::SourceExprSiteV1,
     receiver_binding: crate::mir::resolved_semantics::BindingRefV1,
     rhs: ConstructionStoreRhsV1,
+    fault_discharge: Box<[crate::mir::normal_callable_semantic_package::OwnedFieldChildV1]>,
     progress: StoreProgress,
 }
 
@@ -215,6 +218,7 @@ impl CallableSemanticLoweringState {
                         receiver_site: store.receiver_site().clone(),
                         receiver_binding: store.receiver_binding(),
                         rhs: store.rhs().clone(),
+                        fault_discharge: store.fault_discharge().into(),
                         progress: StoreProgress::Pending,
                     },
                 )

@@ -1,7 +1,7 @@
 # Stored-child borrowed call receiver D0
 
-Status: C receiver verified in composed WIP / Birth cleanup prerequisite integration
-Execution row: MIRBUILDER-BIRTH-PRIOR-FIELD-CLEANUP-S0
+Status: Birth cleanup prerequisite verified / C receiver integration dependency design
+Execution row: MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-INTEGRATION-D0
 Scope: required original direct `me.<Provider field>.m(borrowed actual)` receiver
 in the existing ordinary-new lexical call/result pipeline.
 Related:
@@ -909,3 +909,44 @@ Next after terminal: exact red classification, cleanup/state/physical/completion
 owned-child controls, fresh unchanged source96 + composed C check, then verified
 semantic-hunk integration/commit/push; C dependency/source capture/app/full-goal
 obligations remain intact. Goal active, not blocked or paused.
+
+## Prior-field cleanup verified closeout / 2026-10-06
+
+Selected16 source/test/contract/guard paths byte-match the isolated candidate
+based on1a3c4abc17; child-call grammar/Unit and Array-local changes are excluded.
+Cargo71164 terminal101: package618 PASS and exact known3, matching source615
+baseline names and causes: birth receiver Capture; main-static-child
+IncompleteOrdinaryNewCoverage; qualified Map argument BorrowedEntryEscape.
+No introduced or unclassified red remains. Earlier interrupted lock/missing
+imports are corrected candidate failures, not final acceptance.
+
+Sequential36353 terminal0: cleanup2 (Array/Object plus child/base/frame/field/
+Fault continuation negatives), construction state2, source issuer2,
+prior-installation1, owned-array children2, physical boundary11,
+source original-receiver1 (regenerates96), compiled-entry21 PASS. Package includes
+stronger coordinated old caller cleanup negative: every retained physical
+binding independently checks before reclaim-duplicate-field-cleanup rejection.
+C23240 terminal0: all96 freshly regenerated unchanged-source inputs compile
+with composed protected C consumer. Original pre-correction null witnesses,
+both opts, reject partial-Birth bypass at unsupported-cohort with no artifact.
+These are composed C dependency evidence, not an isolated C landing claim.
+Logs: /tmp/hako-birth-prior-field-cleanup-S0-stage/*-final.log,
+fresh-source-C96.log and old-producer-C-negative.log. No Cargo/rustc live.
+
+Production issuer seals prior-only newest-first inventory once; Birth owns
+partial-field Fault discharge. Caller unpublished reclaim is storage-only;
+Normal completed-child teardown remains retained. Selected origin.children,
+reclaim.children and reclaim-children-source-missing/drift edges are removed
+from admission/local-commit/reclaim; no shared Normal inventory deletion.
+Scope guard reaches only unchanged root1351 with recorded HEAD-identical hash;
+not whole guard PASS. Whitespace/pointer PASS. Narrow README repairs the stale
+universal user-provider exclusion to existing source-proven provider authority;
+this wording correction adds no admission. Protected mixed main WIP retained.
+
+Next Decision: read-only worker audit_cost_oct5 audits C mapping prerequisites
+against HEAD and actual shim. Select exact existing sibling-Birth helper / row
+role / S2 dependencies before any C integration, then integrate one Decision.
+No implementation authority is inferred from composed green alone. Next row
+MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-INTEGRATION-D0 owns only this dependency
+question. Required C Normal/Fault controls, Page Array.get, unchanged-app probe,
+production cutover/selected legacy retirement and whole-goal acceptance remain.

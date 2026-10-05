@@ -3,6 +3,7 @@
 //! Emits no field identity and owns no source predicate — it consumes the
 //! selected plan rows the parent installed.
 
+use super::fault_cleanup::{emit_discharge, jump_landing};
 use super::*;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::{BasicBlock, BasicBlockId, MirBuilder, MirInstruction, MirType};
@@ -96,14 +97,21 @@ impl CallableSemanticLoweringState {
                     .as_mut()
                     .ok_or_else(|| fault("no-function"))?;
                 let mut block = BasicBlock::new(landing);
-                // The selected source plan proves every initialized field Trivial.
-                // No parent fini or field release is owed inside this Birth.
+                // Source-sealed per-operation discharge precedes this
+                // shared Fault tail; the caller reclaims outer storage.
                 block.set_terminator(MirInstruction::ReturnFault { fault_frame: id });
                 function.add_block(block);
                 *frame = Some((id, landing));
                 (id, landing)
             }
         };
+        let fault_landing = emit_discharge(
+            builder,
+            &store.fault_discharge,
+            base,
+            fault_frame,
+            fault_landing,
+        )?;
         let mut provider_origin = None;
         let mut provider_birth = None;
         let mut object_child = None;
@@ -222,9 +230,8 @@ impl CallableSemanticLoweringState {
                         // the unpublished child is reclaimed exactly once
                         // on every fault edge.
                         let reclaim = {
-                            // Birth-fault cleanup runs newest-first: each
-                            // sealed `ArrayBox` residence releases before
-                            // the unpublished child storage is reclaimed.
+                            // Child Birth owns its partial residences.
+                            // This caller reclaims only unpublished storage.
                             let tail = builder.next_block_id();
                             let tail_normal = jump_landing(builder, fault_landing)?;
                             let tail_fault = jump_landing(builder, fault_landing)?;
@@ -244,31 +251,7 @@ impl CallableSemanticLoweringState {
                                 .as_mut()
                                 .ok_or_else(|| fault("no-function"))?
                                 .add_block(tail_block);
-                            let mut head = tail;
-                            for field in teardown.iter().rev() {
-                                let block = builder.next_block_id();
-                                let normal = jump_landing(builder, head)?;
-                                let fault_edge = jump_landing(builder, head)?;
-                                let mut step = BasicBlock::new(block);
-                                step.set_terminator(MirInstruction::Invoke {
-                                    operation:
-                                        InvokeOperation::OwnedFieldResidenceRelease {
-                                            field: *field,
-                                            base: allocation,
-                                        },
-                                    fault_frame,
-                                    normal_landing: normal,
-                                    fault_landing: fault_edge,
-                                });
-                                builder
-                                    .function_state
-                                    .current_function
-                                    .as_mut()
-                                    .ok_or_else(|| fault("no-function"))?
-                                    .add_block(step);
-                                head = block;
-                            }
-                            head
+                            tail
                         };
                         let mut arg_values = Vec::with_capacity(arguments.len());
                         let mut arg_pairs = Vec::with_capacity(arguments.len());
@@ -478,7 +461,7 @@ impl CallableSemanticLoweringState {
                 });
                 function.add_block(tail_block);
                 let mut head = tail;
-                for field in teardown.iter().rev() {
+                for field in teardown.iter() {
                     let step_id = builder.next_block_id();
                     let normal_step = jump_landing(builder, head)?;
                     let fault_step = jump_landing(builder, head)?;
@@ -532,6 +515,7 @@ impl CallableSemanticLoweringState {
             base,
             value,
             provider: provider_origin,
+            discharge: fault_landing,
             provider_birth: provider_birth.map(|(entry, birth_call, call_args, reclaim)| {
                 ProviderBirthEmission {
                     entry,
@@ -571,29 +555,4 @@ impl CallableSemanticLoweringState {
         }
         Ok(value)
     }
-}
-
-/// Dedicated single-predecessor landing that forwards to `target`: invoke
-/// normal/fault edges may converge on the same continuation only through
-/// distinct jump blocks.
-fn jump_landing(
-    builder: &mut MirBuilder,
-    target: BasicBlockId,
-) -> Result<BasicBlockId, String> {
-    let id = builder.next_block_id();
-    let function = builder
-        .function_state
-        .current_function
-        .as_mut()
-        .ok_or_else(|| fault("no-function"))?;
-    if function.blocks.contains_key(&id) {
-        return Err(fault("duplicate-block"));
-    }
-    let mut block = BasicBlock::new(id);
-    block.set_terminator(MirInstruction::Jump {
-        target,
-        edge_args: None,
-    });
-    function.add_block(block);
-    Ok(id)
 }

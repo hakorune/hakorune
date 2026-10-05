@@ -659,8 +659,8 @@ consumers use the exact binding observer, not assignment AST recovery.
 
 Only empty NoBirthZero and exhaustively initialized scalar+provider Birth
 bodies have this construction eligibility — i64/usize fields behind literal or
-parameter stores, and builtin-class fields behind bare `new` stores. A
-user-box provider, a declared type that disagrees with its store's class,
+parameter stores, and source-proven provider fields behind bare `new` stores. An
+unsupported provider class, a declared type that disagrees with its store's class,
 missing initialization, other field demands, acquisition/structured bodies
 and overrides are explicit unavailable outcomes, not invalid-source or
 zero-filled success. NoBirth retains explicit absence; a Box alone cannot
@@ -1114,3 +1114,16 @@ target, even when several original incoming calls share it. The existing
 canonical target/owner map supplies this traversal guard; each incoming call
 still corroborates its entry, source target, parameter slots, actuals and
 physical coordinate separately. Operand coverage is never scaled by call count.
+
+### Partial Birth Fault discharge
+
+Each construction store retains the source-issued, newest-first inventory of
+prior Normal-committed owned fields; its current field is excluded. The selected
+Birth emitter lends this inventory to its Fault paths, and final validation
+checks the exact field/child/base/frame and both continuations. A failed child
+Birth owns its partial-field discharge: provider and ordinary-New callers
+reclaim unpublished storage only. If the child Birth completed and its parent
+store faults, the caller tears down that completed child before prior fields.
+New emission validation rejects recorded caller field cleanup on the unpublished
+result with `reclaim-duplicate-field-cleanup`, even when bindings match the MIR.
+Normal Home teardown continues to require the sealed child inventory.

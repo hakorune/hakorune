@@ -111,9 +111,8 @@ fn emit_selected_new(
     let mut reclaim = None;
     let birth_fault = if matches!(constructor, OrdinaryNewConstructorDispositionV1::Birth(_)) {
         let origin = reclaim_origin.ok_or_else(|| freeze("reclaim-origin-missing"))?;
-        // Storage reclaim runs last: owned `ArrayBox` field residences —
-        // zero-initialized until their birth store — release live children
-        // first, in reverse declaration order, then the storage itself.
+        // Birth discharged its source-sealed partial fields before Fault.
+        // This caller reclaims only unpublished storage, then prior Homes.
         let tail = cleanup_step(
             builder,
             frame,
@@ -130,28 +129,7 @@ fn emit_selected_new(
             .cloned()
             .ok_or_else(|| freeze("reclaim-origin-binding-missing"))?;
         reclaim = Some((origin.clone(), block, instruction));
-        let children = origin
-            .children()
-            .unwrap_or_default()
-            .iter()
-            .rev()
-            .map(|child| match child.kind {
-                crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Array => {
-                    InvokeOperation::OwnedFieldResidenceRelease {
-                        field: child.field,
-                        base: result,
-                    }
-                }
-                crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Object(
-                    child_object,
-                ) => InvokeOperation::OwnedObjectFieldRelease {
-                    field: child.field,
-                    base: result,
-                    child: child_object,
-                },
-            })
-            .collect();
-        cleanup_chain(builder, frame, children, tail, &mut bindings)?
+        tail
     } else {
         if reclaim_origin.is_some() {
             return Err(freeze("reclaim-origin-unexpected"));

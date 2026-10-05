@@ -49,15 +49,14 @@ impl OrdinaryNewClaimLedgerV1 {
                     constructor_source: constructor_source.clone(),
                     constructor_owner: *constructor_owner,
                     object: plan.object(),
-                    children: children.map(<[_]>::to_vec).map(Into::into),
                 })
             }
         };
         let mut operands = Vec::new();
         let mut available = construction.is_ok();
-        // A construction-fault reclaim of an owned-field object must
-        // carry the sealed children — without them the fault path would
-        // free storage under live field residences.
+        // Owned publication still requires sealed residences for Normal
+        // Home teardown. Birth owns partial-field Fault cleanup; its
+        // external caller retains only source-backed storage reclaim.
         if matches!(
             destruction,
             ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook

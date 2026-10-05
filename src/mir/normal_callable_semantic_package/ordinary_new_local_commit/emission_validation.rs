@@ -195,57 +195,16 @@ impl OrdinaryNewClaimLedgerV1 {
                             )? {
                                 return Err(freeze("reclaim-origin-binding-drift"));
                             }
-                            // The fault chain must release each sealed
-                            // owned child exactly once before the
-                            // storage reclaim; the claim's children are the
-                            // only authority for which fields those are.
-                            let expected_children = row
-                                .new_children()
-                                .ok_or_else(|| freeze("reclaim-children-source-missing"))?;
-                            if emitted.origin.children != *expected_children {
-                                return Err(freeze("reclaim-children-drift"));
-                            }
-                            for child in emitted.origin.children.as_deref().unwrap_or_default() {
-                                let matching = bindings
-                                    .iter()
-                                    .filter(|(_, instruction)| {
-                                        match instruction {
-                                            MirInstruction::Invoke {
-                                                operation:
-                                                    crate::mir::instruction::InvokeOperation::OwnedFieldResidenceRelease {
-                                                        field: emitted_field,
-                                                        base,
-                                                    },
-                                                ..
-                                            } => {
-                                                child.kind
-                                                    == crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Array
-                                                    && *emitted_field == child.field
-                                                    && *base == *result
-                                            }
-                                            MirInstruction::Invoke {
-                                                operation:
-                                                    crate::mir::instruction::InvokeOperation::OwnedObjectFieldRelease {
-                                                        field: emitted_field,
-                                                        base,
-                                                        child: emitted_child,
-                                                    },
-                                                ..
-                                            } => {
-                                                child.kind
-                                                    == crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Object(
-                                                        *emitted_child,
-                                                    )
-                                                    && *emitted_field == child.field
-                                                    && *base == *result
-                                            }
-                                            _ => false,
-                                        }
-                                    })
-                                    .count();
-                                if matching != 1 {
-                                    return Err(freeze("reclaim-children-drift"));
-                                }
+                            // These selected New bindings may reclaim storage,
+                            // but never repeat Birth's field-residence discharge.
+                            if bindings.iter().any(|(_, instruction)| matches!(instruction,
+                                MirInstruction::Invoke {
+                                    operation: crate::mir::instruction::InvokeOperation::OwnedFieldResidenceRelease { base, .. }
+                                        | crate::mir::instruction::InvokeOperation::OwnedObjectFieldRelease { base, .. },
+                                    ..
+                                } if base == result))
+                            {
+                                return Err(freeze("reclaim-duplicate-field-cleanup"));
                             }
                         }
                         _ => return Err(freeze("reclaim-origin-presence-drift")),
@@ -642,3 +601,7 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 }
+
+#[cfg(test)]
+#[path = "reclaim_cleanup_tests.rs"]
+mod reclaim_cleanup_tests;

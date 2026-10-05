@@ -5,6 +5,7 @@
 //! Fault, even when every field demand is Trivial. A store commits only on its
 //! Normal edge. No MIR type, event absence or non-escape result issues this plan.
 
+use super::{OwnedFieldChildKindV1, OwnedFieldChildV1};
 use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
 use std::collections::BTreeSet;
 
@@ -45,8 +46,9 @@ pub(crate) enum ConstructionStoreRhsV1 {
     /// provider carries the canonical child identity and its sealed
     /// literal arguments for the emitted Birth call. `owned_fields`
     /// names the child's declared `ArrayBox` residences — empty for a
-    /// `PlainI64NoHook` child — so the in-flight reclaim/discharge chain
-    /// can release each owned child field before the child storage.
+    /// `PlainI64NoHook` child — for full teardown when child Birth
+    /// completed but its parent store faults. Child Birth owns its
+    /// own partial fields; its caller reclaims unpublished storage only.
     /// `caller` is this birth constructor's canonical key: the exact
     /// caller half of the `(caller, site)` publication rows a sealed
     /// `QualifiedStaticCall` argument consumes.
@@ -67,6 +69,9 @@ pub(crate) struct ConstructionStoreV1 {
     receiver_site: SourceExprSiteV1,
     receiver_binding: BindingRefV1,
     rhs: ConstructionStoreRhsV1,
+    /// Prior Normal-committed residences, sealed newest-first from the
+    /// constructor's source-ordered stores. The current store is excluded.
+    fault_discharge: Box<[OwnedFieldChildV1]>,
 }
 
 impl ConstructionStoreV1 {
@@ -88,6 +93,10 @@ impl ConstructionStoreV1 {
 
     pub(crate) const fn rhs(&self) -> &ConstructionStoreRhsV1 {
         &self.rhs
+    }
+
+    pub(crate) fn fault_discharge(&self) -> &[OwnedFieldChildV1] {
+        &self.fault_discharge
     }
 }
 
@@ -545,12 +554,57 @@ pub(super) fn issue_construction_plan(
         ]);
         let field = CanonicalFieldRefV1::from_declaration_ordinal(object_id, ordinal)
             .ok_or(U::SourceRelationMissing)?;
+        let fault_discharge = stores
+            .iter()
+            .rev()
+            .filter_map(|prior: &ConstructionStoreV1| {
+                let kind = match prior.rhs() {
+                    ConstructionStoreRhsV1::ProviderConstruction {
+                        object: Some(child),
+                        ..
+                    } => OwnedFieldChildKindV1::Object(*child),
+                    ConstructionStoreRhsV1::ProviderConstruction {
+                        object: None,
+                        class,
+                        ..
+                    } if class.as_ref() == "ArrayBox" => OwnedFieldChildKindV1::Array,
+                    ConstructionStoreRhsV1::Parameter { .. } => {
+                        // The existing Provided residence is an exact birth
+                        // formal store into a declared owned user-class field.
+                        // The final field-contract check below corroborates
+                        // unique/non-self PlainI64NoHook class authority before
+                        // this constructor plan can escape the issuer.
+                        let name = field_decls
+                            .get(prior.field().declaration_ordinal() as usize)?
+                            .declared_type_name
+                            .as_deref()?;
+                        if matches!(name, "i64" | "usize") {
+                            return None;
+                        }
+                        let mut resolved = objects
+                            .iter()
+                            .filter_map(|(own, id)| (own.name() == name).then_some(*id));
+                        let (Some(child), None) = (resolved.next(), resolved.next()) else {
+                            return None;
+                        };
+                        OwnedFieldChildKindV1::Object(child)
+                    }
+                    _ => return None,
+                };
+                Some(OwnedFieldChildV1 {
+                    field: prior.field(),
+                    kind,
+                })
+            })
+            .collect::<Vec<_>>()
+            .into_boxed_slice();
         stores.push(ConstructionStoreV1 {
             assignment: row.clone(),
             field,
             receiver_site: object.clone(),
             receiver_binding: *receiver,
             rhs,
+            fault_discharge,
         });
     }
     // Reject residual syntax/child owners; SequenceItem or absent Call events

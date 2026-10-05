@@ -10,21 +10,11 @@ pub(crate) struct ReclaimUnpublishedOriginV1 {
     pub(super) constructor_source: crate::parser::ConstructorSourceIdV1,
     pub(super) constructor_owner: FunctionOwnerIdV1,
     pub(super) object: CanonicalObjectIdV1,
-    /// Sealed owned field children (declaration order) the
-    /// construction-fault path releases before reclaiming storage.
-    /// `None` on an owned-field-disposition object means the proof was
-    /// absent — the claim stays unavailable rather than reclaiming over
-    /// live children.
-    pub(super) children: Option<Box<[super::super::OwnedFieldChildV1]>>,
 }
 
 impl ReclaimUnpublishedOriginV1 {
     pub(crate) const fn object(&self) -> CanonicalObjectIdV1 {
         self.object
-    }
-
-    pub(crate) fn children(&self) -> Option<&[super::super::OwnedFieldChildV1]> {
-        self.children.as_deref()
     }
 }
 

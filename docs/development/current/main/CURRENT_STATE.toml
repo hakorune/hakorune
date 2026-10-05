@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-BIRTH-PRIOR-FIELD-CLEANUP-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-INTEGRATION-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "birth-prior-field-cleanup/prerequisite-integration"
-current_design_stop = "none"
+current_blocker_token = "stored-child-c-receiver/prerequisite-dependency-authority"
+current_design_stop = "MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-INTEGRATION-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,22 +17,19 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-stored-child-borrowed-call-receiver-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 latest_card_summary = """
-HEAD1a3c4abc17: C composed source96/NormalFault verified, cleanup prerequisite
-selected. Isolated HEAD + nine production cleanup hunks + focused test/wiring,
-package README and scope guard; no child-call/Unit/Array-local hunk. Cargo60480
-terminal0: healthy source-backed New ledger/MIR plus coordinated old caller field
-cleanup rejects exact duplicate fence. Add full physical-binding corroboration
-and Object cleanup negatives; sole package Cargo71164 live, quick/jobs4/--locked,
-shared original target and main lock. No final package/strengthened-test PASS yet.
-Earlier generated lock build interrupted130, missing-import build101 classified.
-Scope updated owner pins reaches unchanged root1351 only. Protected main WIP and
-C/tests unchanged outside own Object test. Next classify package, focused source
-and physical controls, regenerate unchanged96, integrate only verified hunks.
-Full goal/production cutover/legacy retirement/Page Array.get remain owed.
+Prior-field cleanup prerequisite independently verified:16 selected paths match
+isolated HEAD1a3c candidate; package618/exact known3, focused cleanup/state/issuer/
+physical/compiled-entry controls PASS. Fresh unchanged-source96 compiles composed
+C; old partial-Birth bypass negatives reject both opts. Birth owns partial fields,
+caller unpublished reclaim storage only; selected duplicate cleanup edges deleted.
+Guard only unchanged root1351, not whole PASS. Protected child-call/Array/S2 WIP
+excluded. Next read-only worker audits minimal C receiver dependency series;
+resolve internal Decision then selected C integration, no goal pause/blocked.
+Full goal, Page Array.get, unchanged-app/production/legacy retirement remain owed.
 """
-next_design_card = "none"
+next_design_card = "MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-INTEGRATION-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
-next_execution_card = "MIRBUILDER-BIRTH-PRIOR-FIELD-CLEANUP-S0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

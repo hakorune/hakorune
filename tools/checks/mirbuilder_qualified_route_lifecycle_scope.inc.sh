@@ -478,7 +478,8 @@ rg -q 'declared_rebind_and_escape_stay_outside_the_closed_source_profile' "$DECL
 CONSTRUCTION_EMISSION_SRC="$ROOT_DIR/src/mir/builder/normal_callable_construction_state/emission.rs"
 CONSTRUCTION_VALIDATION_SRC="$ROOT_DIR/src/mir/builder/normal_callable_construction_state/validation.rs"
 rg -q 'fn emit_construction_store' "$CONSTRUCTION_EMISSION_SRC"
-rg -q 'fn jump_landing' "$CONSTRUCTION_EMISSION_SRC"
+FAULT_CLEANUP="$ROOT_DIR/src/mir/builder/normal_callable_construction_state/fault_cleanup.rs"
+rg -q 'fn jump_landing' "$FAULT_CLEANUP"
 rg -q 'fn validate_artifact_after_compiler_finishing' "$CONSTRUCTION_VALIDATION_SRC"
 rg -q 'fn validate_bindings' "$CONSTRUCTION_VALIDATION_SRC"
 rg -q 'fn lands_on' "$CONSTRUCTION_VALIDATION_SRC"
@@ -491,9 +492,9 @@ rg -q 'fn take_finalized_construction_validation' "$CONSTRUCTION_STATE_SRC"
 # nesting level — the plan store records the child's declaration-order
 # `ArrayBox` ordinals in `owned_fields`, and the co-seal pass seals the
 # inventory into the existing `owned_field_children` ledger because a
-# provider site mints no `local`-bound claim. In-flight cleanup is the
-# MIR discharge chain (`OwnedFieldResidenceRelease` newest-first, then
-# `ReclaimUnpublished`/`HomeRelease`); installed teardown stays with the
+# provider site mints no `local`-bound claim. Child Birth owns its partial
+# Fault discharge; caller reclaims unpublished storage only. Post-Normal
+# store Fault tears down the completed child; installed teardown stays with the
 # physical `object_field_release` consumer, which walks the child layout
 # row's `owned_residences` marks — `object_field_set` fault no longer
 # releases the child inline. Missing, unproven, deeper, self-referential
@@ -619,6 +620,22 @@ test -f "$ROOT_DIR/lang/c-abi/tests/published_lifecycle_v4_field_return_projecti
 for file in "$FIELD_RETURN_PROJECTION_SRC" "$FIELD_RETURN_PROJECTION_TESTS" "$FIELD_RETURN_SOURCE_TESTS" "$CALL_RESULT_OWNER" "$CALL_RESULT_TESTS"; do
   if (( $(wc -l < "$file") >= 800 )); then
     echo "[$TAG] terminal field projection owner reached hard 800-line boundary" >&2
+    exit 1
+  fi
+done
+
+# Selected partial Birth inventory and caller duplicate-cleanup fence.
+BIRTH_CLEANUP_TESTS="$ROOT_DIR/src/mir/builder/normal_callable_construction_state/fault_cleanup_tests.rs"
+RECLAIM_CLEANUP_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_local_commit/reclaim_cleanup_tests.rs"
+rg -q 'fault_discharge' "$INSTANCE_CONSTRUCTION_SRC"
+rg -q 'field_discharge_chain' "$CONSTRUCTION_VALIDATION_SRC"
+rg -q 'emit_discharge' "$FAULT_CLEANUP"
+rg -q 'prior_committed_cleanup_rejects_missing_reordered_and_duplicate_fields' "$BIRTH_CLEANUP_TESTS"
+rg -q 'reclaim_rejects_coordinated_duplicate_field_cleanup_after_healthy_control' "$RECLAIM_CLEANUP_TESTS"
+for file in "$FAULT_CLEANUP" "$BIRTH_CLEANUP_TESTS" "$RECLAIM_CLEANUP_TESTS"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 800 )); then
+    echo "[$TAG] source reached hard 800-line boundary: ${file#"$ROOT_DIR/"}=$lines" >&2
     exit 1
   fi
 done
