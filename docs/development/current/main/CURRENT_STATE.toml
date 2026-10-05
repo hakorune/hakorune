@@ -1,10 +1,10 @@
 date = "2026-10-05"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-BORROWED-I64-DIRECT-CALL-RESULT-SOURCE-S1"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-RECEIVER-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "borrowed-result/source-not-i64"
-current_design_stop = "none"
+current_blocker_token = "stored-child-receiver/source-authority-mapping"
+current_design_stop = "StoredChildReceiver__ExactResidenceAndEntryPacketLending"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,29 +13,27 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-borrowed-i64-call-result-source-d0-2026-10-05.md"
-latest_card = "mirbuilder-borrowed-i64-call-result-source-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-borrowed-i64-call-result-source-d0-2026-10-05.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
+latest_card = "mirbuilder-stored-child-borrowed-call-receiver-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 latest_card_summary = """
-Borrowed local I64 result composition S0 landed/pushed ee60c70fb7. Existing
-incoming source targets and sole-local initializer/return sites ground I64 only
-from source-proven callee dependencies; unseeded cycles/non-I64 stay rejected.
-Lexical issuer corroborates all completion/dependencies before affine rows;
-per-edge order-sensitive production corroboration retired. Source28/entry21/
-boundary11/JSON29, chain16 bothorders/annotations/domains/opts and C16NormalFault,
-private mutual/self/literal cycle and five two-hop invalidation variants PASS.
-Package625/exact known3; HEAD-identical root1351 guard debt, never whole green.
-Worker mapped next direct lexical Return(MethodCall) through same incoming loan,
-grounded map and existing terminal owner; selected fast S1, no new emitter or
-facade799 change. Stored-child direct receiver remains a separate required
-prerequisite. Protected C/Array/S2 WIP/landing and Provided/vocabulary remain owed.
-Last unchanged app artifact-unowned-lifecycle-site, no EXE. Full finite pipeline
-production/retirement and acceptance remain open; parked lanes unchanged.
+Borrowed direct I64 result S1 landed/pushed61d94d5cf2. Same original incoming
+source join and grounded map; child completion retains source-issued borrowed
+Call, final frame mode follows original root owner. Direct/local chain16 each
+reach JSON and C NormalFault; source29/entry21/boundary11/JSON29/composition5 PASS.
+Package630/exact known3 and HEAD-identical root1351 guard debt remain baseline.
+Next required stored-child direct receiver D0: original me.ProviderField call,
+existing source residence/class/owned inventory and parent entry lifetime.
+Source residences are sealed before target preparation; exact closed receiver
+arm and packet lending remain to close. Separate C published-parent projection
+and Page Array.get I64 result are required, not inferred from receiver admission.
+Protected C/Array/S2 WIP landing and Provided/vocabulary remain owed. Last app
+artifact-unowned-lifecycle-site, no fresh EXE. Full finite goal remains open.
 """
-next_design_card = "none"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-borrowed-i64-call-result-source-d0-2026-10-05.md"
-next_execution_card = "MIRBUILDER-BORROWED-I64-DIRECT-CALL-RESULT-SOURCE-S1"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-borrowed-i64-call-result-source-d0-2026-10-05.md"
+next_design_card = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-RECEIVER-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
+next_execution_card = "none"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

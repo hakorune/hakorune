@@ -1,6 +1,6 @@
 # Borrowed I64 call-result source D0
 
-Status: S0 landed / S1 verified; scoped landing pending
+Status: S0 and S1 landed / next stored-child receiver D0 selected
 Execution row: MIRBUILDER-BORROWED-I64-DIRECT-CALL-RESULT-SOURCE-S1
 Scope: required I64 result composition inside the existing borrowed-result owner;
 no implementation until source-site/target/result/completion mapping is closed.
@@ -351,7 +351,17 @@ now transports the existing borrowed Lexical Call instead of dropping it; final
 call checker uses original root owner for RootOwned/Borrowed rather than root-only
 mode. All original site/result/argument/frame/cleanup checks remain. Scalar/
 nonborrowed/foreign/cyclic sources retain named failure boundaries.
-Scoped staged patch will use the S1 before snapshots; protected C/Array/S2 WIP
-and all app .hako stay unchanged. No fresh app EXE or full-goal claim.
+Scoped S1 landed/pushed `61d94d5cf2`; remote branch hash verified equal.
+The before-snapshot patch selected only S1 changes, including the mixed README
+paragraph. Protected C/Array/S2 WIP and all app .hako remain unchanged.
+No fresh app EXE or full-goal claim.
 Direct stored-child receiver, Page Array-get I64 result, Provided/vocabulary
 and protected C/Array/S2 landing remain required future work.
+
+## Next selection
+
+S1 is closed by the evidence above and commit `61d94d5cf2`. Next required
+source receiver mapping is selected in
+[stored-child receiver D0](mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md).
+Canonical source residence evidence exists before lexical target preparation;
+its exact receiver/entry/packet lending remains the next design obligation.
