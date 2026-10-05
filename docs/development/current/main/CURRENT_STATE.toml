@@ -1,10 +1,10 @@
 date = "2026-10-05"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-RECEIVER-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "stored-child-receiver/source-authority-mapping"
-current_design_stop = "none"
+current_blocker_token = "stored-child-receiver/pre-ingress-profile-boundary"
+current_design_stop = "stored-child-receiver/pre-ingress-profile-boundary"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,22 +17,17 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-stored-child-borrowed-call-receiver-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 latest_card_summary = """
-Borrowed direct I64 result S1 landed61d94d5cf2; argument-owner T0 landed366632a676.
-Required co-seal BoxShape T1 verified: original source call preflight moved into
-existing lexical child; parent771/child522. Same five owned outputs/order/errors.
-Call_result34/publication29/source14/entry21/instance15/resolved349 PASS;
-selected guard same HEAD-identical root1351 debt, never whole green.
-Resume semantic S0: original direct me.ProviderField Return(MethodCall), exact
-parent entry, canonical field/child tuple and existing borrowed I64 result proof.
-On-demand tuple seal uses same issuer/map; minimal no-local-new owner must retain
-verified terminal Completion. No lexical-local alias or child-owned lease.
-Separate C published-parent projection and Page Array.get I64 source result remain
-required; Provided/vocabulary and protected C/Array/S2 landing remain owed.
-Last app artifact-unowned-lifecycle-site, no fresh EXE. Full finite goal open.
+T0/T1 landed353bf1d2fd; T2 exact source-draft extraction verified (parent614/child82).
+Source13/1 has same S0 field-receiver failure; uses23/publication30/stored8 PASS.
+Package627/8 exact same pre-T2 set: known3 + S0 NEW5, no reclassification.
+Scope guard unchanged root1351 debt, pointer/whitespace PASS; no Cargo live.
+Select PROFILE-D0 pending/source-sealed mapping; S0 not closed or committed.
+T2 changes collection location only, no transport/result authority added.
+C parent projection, Page Array.get result, C/Array/S2 landing and app/full goal owed.
 """
-next_design_card = "none"
+next_design_card = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
-next_execution_card = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-RECEIVER-S0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

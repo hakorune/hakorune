@@ -1,7 +1,7 @@
 # Stored-child borrowed call receiver D0
 
-Status: source-flow T0 landed / co-seal T1 verified / semantic receiver S0 selected
-Execution row: MIRBUILDER-STORED-CHILD-BORROWED-CALL-RECEIVER-S0
+Status: T0/T1 landed / T2 verified / S0 WIP / PROFILE-D0 selected
+Execution row: MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-D0
 Scope: required original direct `me.<Provider field>.m(borrowed actual)` receiver
 in the existing ordinary-new lexical call/result pipeline.
 Related:
@@ -338,3 +338,34 @@ context and original selected-terminal walk predicate; no further refactor is
 selected. The existing source-owned issuer remains canonical. Field receiver
 admission itself has not yet been implemented; its full source/packet negatives
 and source->JSON acceptance still need construction and verification.
+
+## MIRBUILDER-BORROWED-SOURCE-DRAFT-SPLIT-T2 / selected BoxShape predecessor
+
+Decision: extract only the original ordinary caller selection, duplicate-contract
+check and use-draft/origin/dominated-view collection from the borrowed source
+owner into its private source_drafts child. Read-only worker confirmed the
+owned triple and seven existing inputs; no lifetime or semantic authority added.
+Calls-map construction and duplicate-call rejection remain before collection;
+finite profile closure, forwards, strict incoming and object-view fixpoint remain
+after it, with identical ordering, four outside-profile error variants and tokens.
+This is required so the subsequent pending-result stage can borrow the same
+original drafts rather than rescan source. No S0 admission fix is claimed here.
+
+Scope: ordinary_new_borrowed_formal_source.rs and its new private child, this
+card and selection pointer. No fixture changes or other WIP staging.
+Acceptance: exact moved-body comparison, focused source/use/source-identity
+positive and negative tests, publication regression and selected stable guards.
+The prior S0 NEW5 and exact known3 remain separately unclosed; do not relabel.
+After verified T2 closeout return to PROFILE-D0 for exact pending mapping.
+
+T2 verification: original collection body and full profile/incoming tail compare
+exactly with the pre-T2 snapshot. Cargo29069 terminal101 after 5m07s build:
+source13/1, the one failure is the already-open S0 field-receiver source-not-i64.
+Sequential Cargo43983 terminal: uses23, publication30 and stored8 PASS;
+page_heap0/4 and package627/8 have exactly the pre-T2 failed test set (script
+comparison PASS). The failures remain S0 NEW5 plus exact known3, not baseline
+reclassification and not T2 semantic changes. No new failures introduced.
+Scope guard reaches unchanged root1351 debt; pointer and diff whitespace PASS.
+Logs /tmp/hako-source-draft-T2-*.log. Source parent614/private child82.
+T2 closes only the exact collection extraction; S0 and full goal stay open.
+Return PROFILE-D0 for the existing Pending/SourceSealed mapping; no Cargo live.

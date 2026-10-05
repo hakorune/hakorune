@@ -8,6 +8,9 @@ use crate::mir::callable_parameter_contract::{
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "ordinary_new_borrowed_formal_source_drafts.rs"]
+mod source_drafts;
+
 /// The sealed class view one borrowed formal may carry on a dominated
 /// `formal.field` read: minted only when every incoming actual names one
 /// agreed ordinary class (the exact `null` literal is always admissible —
@@ -103,70 +106,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
             }
         }
     }
-    let ordinary_callers: BTreeSet<_> = batch
-        .declarations()
-        .filter(|row| {
-            Some(row.batch_slot()) != dynamic_slot
-                && (selected.role_for_batch_slot(row.batch_slot()).is_some()
-                    || Some(row.batch_slot()) == app_main_slot)
-        })
-        .map(|row| row.owner())
-        .collect();
-    let mut definitions = BTreeMap::new();
-    let mut dominated_view_sites = BTreeSet::new();
-    let mut seen = BTreeSet::new();
-    for contract in contracts {
-        if !seen.insert(contract.owner) {
-            return Err(freeze("borrowed-formal/duplicate-source-contract"));
-        }
-        if !ordinary_callers.contains(&contract.owner)
-            || contract.mode != CallableParameterDeclarationModeV1::InstanceBoxMethod
-            || !contract
-                .parameters
-                .iter()
-                .any(|formal| formal.kind.is_ordinary_borrowed_handle())
-        {
-            continue;
-        }
-        let receiver = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
-            selected,
+    let (ordinary_callers, mut definitions, dominated_view_sites) =
+        source_drafts::collect_borrowed_source_drafts_v1(
             batch,
-            entry_home_loans.for_batch_slot(contract.batch_slot),
-            contract.batch_slot,
-        );
-        let draft = batch
-            .with_lowering_input(contract.batch_slot, |input| {
-                draft_borrowed_formal_uses_v1(input, contract, instance_constructors, receiver)
-            })
-            .map_err(|_| freeze("borrowed-formal/batch-loan"))?;
-        match draft {
-            Ok(draft) => {
-                for row in draft.uses.iter() {
-                    if matches!(
-                        row.kind,
-                        BorrowedFormalUseDraftKindV1::ArrayElementValue { .. }
-                            | BorrowedFormalUseDraftKindV1::AddOperand { .. }
-                            | BorrowedFormalUseDraftKindV1::NewArgument { .. }
-                    ) {
-                        dominated_view_sites.insert(row.site.clone());
-                    }
-                }
-                definitions.insert(contract.owner, draft);
-            }
-            Err(
-                BorrowedFormalUseDraftErrorV1::UnsupportedUse(_)
-                | BorrowedFormalUseDraftErrorV1::Rebound(_)
-                | BorrowedFormalUseDraftErrorV1::Captured(_)
-                | BorrowedFormalUseDraftErrorV1::AnnotatedAlias(_),
-            ) => {}
-            Err(error) => {
-                return Err(format!(
-                    "{}: {error:?}",
-                    freeze("borrowed-formal/source-identity")
-                ));
-            }
-        }
-    }
+            selected,
+            contracts,
+            app_main_slot,
+            dynamic_slot,
+            entry_home_loans,
+            instance_constructors,
+        )?;
     // Close the finite graph before selection. Removing one outside-profile
     // destination invalidates every source that forwards an opaque value to it.
     // Repetition terminates because every nonfinal pass removes an owner.

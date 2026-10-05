@@ -880,6 +880,13 @@ source row after signature/result checks, without another receiver/target
 selection. Source preparation proves neither Home liveness nor an argument ABI.
 CurrentOwner/me and borrowed-formal activation remain separate construction.
 
+Original caller selection, duplicate-contract validation and borrowed use-draft
+collection live in the private `ordinary_new_borrowed_formal_source_drafts.rs`
+child. It returns the original caller set, owner-indexed drafts and dominated-view
+sites as owned values. The source parent constructs its calls map first and then
+closes the profile and incoming class views over those same drafts; collection
+adds no transport authority or physical carrier.
+
 Ordinary borrowed-formal source preparation uses the same immutable lexical
 source targets. Its private source child closes transport-only Copy/forward
 profiles over the finite batch and retains complete incoming-coverage errors.
