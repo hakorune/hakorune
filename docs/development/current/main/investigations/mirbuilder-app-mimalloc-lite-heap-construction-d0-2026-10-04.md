@@ -300,52 +300,10 @@ recursive destruction claim is authorized by this Decision.
 
 ## Landed: HEAP-CONSTRUCTION-SIZE-T0 (`e366f4c521`)
 
-`src/mir/builder/normal_callable_construction_state.rs` (971 lines) split
-into private responsibility children — pure code motion, no predicate,
-evaluation-order, fault-landing, verification or visibility change:
-
-- `normal_callable_construction_state/emission.rs` (379 lines):
-  `emit_construction_store` plus `jump_landing` — literal/parameter value
-  emission, the provider `new` chain (intrinsic `ArrayBox` and user-class
-  `NewBox`/`birth_call`/`ReclaimUnpublished`/`ObjectFieldSet`+`HomeRelease`
-  discharge) and the checked field-store invoke.
-- `normal_callable_construction_state/validation.rs` (297 lines):
-  `RetainedConstructionValidation` artifact checks, `validate_bindings`
-  (emitted-shape census: invoke count, fault-return shape, per-store
-  terminator/landing match) plus `lands_on`.
-- Parent (321 lines): state/progress/transport types, `install_construction`,
-  `take_construction_store`, completion/finalize/transfer entry points and
-  the shared `construction-store/*` fault tag. The test file now imports
-  its own MIR types instead of reusing parent imports.
-
-Diff check: moved code is byte-verbatim against HEAD except the
-`impl`/`pub(super)` wrappers needed by the new module boundary; file
-doc comments record each child's responsibility.
-
-Evidence:
-- `cargo test --lib 'construction::'` — 2/2 (drift/residual and artifact
-  transport pins unchanged).
-- `cargo test --lib normal_callable_semantic_package` — 591 passed,
-  3 failed — identical to the recorded baseline
-  (`birth_receiver_non_escape_rejects_unproven_uses_before_row_publication`,
-  `main_static_child_port_consumes_all_role_rows_once`,
-  `qualified_call_map_argument_reaches_the_named_capability_boundary`).
-- Production lanes (fresh debug bin): MIR JSON holds the designed
-  `unsupported terminator Invoke` negative; EXE holds the same
-  `artifact-source-unavailable` stop at `MiWorkload.run/0` Body(0) —
-  `construction=Err(FieldContractUnsupported)` unchanged.
-- `rustfmt --check` on the touched files shows only drift already present
-  in HEAD's file carried verbatim by the move; no new deviation.
-- Scope guard: SIZE-T0 pins added (emission/validation/parent symbols and
-  all three files in the <800 watch); guard stops on the recorded baseline
-  `brand_catalog_tests.rs=961`.
-- `ordinary_new_coseal_issue.rs` remains 797 lines; the conditional
-  headroom extraction was not needed by this structural slice and stays
-  owned by the first semantic slice that needs it.
-
-Non-claims: no admitted construction shape changed; the app frontier is
-unchanged at `new HakoAllocHeap()`; no progress toward A/B/C semantics;
-structural commit kept separate.
+Closed motion, tests, baseline classification and historical probes live in
+`e366f4c521`: construction-state parent/emission/validation 321/379/297,
+same predicates/order/Fault landings. Construction 2/2; package 591/3 baseline.
+No source shape or app frontier changed; A/B/C semantics were separate.
 
 ## Landed: HEAP-OWNED-PROVIDER-S0 (A)
 
@@ -511,72 +469,83 @@ closed.
 
 ## Test-owner motion: HEAP-TEST-OWNER-SIZE-T1
 
-Receiver-field/owned-child brand tests and composite-result/owned-residence
-physical JSON tests moved verbatim into private included fragments. Parent
-helpers, test-module identity, names and predicates are unchanged. Against
-the preserved C WIP: brand 49 passed / 1 recorded ReceiverNonEscape baseline;
-physical JSON 25/25. Before/after complete test inventory matched (8582).
-All six selected test files are below 800 lines. Moved-owner guard pointers
-match the new paths; later C scope pins reach the unchanged HEAD size debt
-`normal_default_root_catalog_lifecycle_tests.rs=1351`. Full guard is not PASS.
-Evidence: `/tmp/hako-goal-T1-{brand,physical}-tests.log` and byte-motion proof
-`/tmp/hako-goal-test-owner-motion-proof.json`. C runtime acceptance stays open.
+Closed code/test/guard motion: `066de030a1`, `c093922571`, both pushed.
+Names/predicates preserved; inventory 8582 unchanged; brand 49/1 baseline,
+physical JSON 25/25; selected owners below 800; shell syntax passed.
+Full guard still stops at unchanged root-catalog size debt 1351, not PASS.
+Current C/S1 semantic pins and runtime acceptance remain separate and open.
 
-### Guard continuation (T1 structural series)
+## Landed: MIRBUILDER-APP-MIMALLOC-LITE-HEAP-LOCAL-ARRAY-ISSUER-SIZE-T0
 
-The existing dominated-add-through-size-check tail moved verbatim into
-a private sourced lifecycle fragment. The public guard is the sole entry;
-shared variables and evaluation order remain unchanged. Shell syntax passed.
-Both shell files are below 800 lines. Current C semantic pins are separate;
-full guard still reports unchanged HEAD root-catalog test size debt (1351).
-No source/wire/runtime acceptance changed in this structural series.
-
-## Selected: MIRBUILDER-APP-MIMALLOC-LITE-HEAP-LOCAL-ARRAY-ISSUER-SIZE-T0
-
-Required structural series before ordinary helper local Array lifetime wiring:
-co-seal issuer starts at 797 lines. Part one moves the exact App Main identity
-query into its existing private source-claims child; part two moves the sealed
-Nullable receiver query there. Predicates, errors, ordering, borrowed inputs and
-authority stay unchanged. No Array admission is issued. Code/test evidence uses
-the combined structural tree and explicit query-motion comparison; existing
-C/S1/audit WIP is preserved outside these commits. Full provider Fault matrix,
-unchanged app probes and C/S1 closeout remain open. No app/goal PASS is claimed.
-
-Structural evidence: package 600 passed / the same 3 baseline failures
-(`/tmp/hako-goal-array-size-package-tests.log`); test inventory 8588 unchanged.
-Both query expressions equal their prior bodies after whitespace normalization
-(`/tmp/hako-local-array-size-query-motion-proof.json`). Scope semantic pins pass;
-full guard stops at unchanged HEAD root-catalog size debt (1351). Pointer and
-selected diff checks pass. These results do not close C/S1 or its runtime matrix.
+Query motion and full evidence: `ba4c248d29`, `bdc3db75e2`, both pushed.
+Parent/private child 778/706; package 600/3 unchanged baseline, child-call 4/4,
+inventory 8588 unchanged. Scope guard stops at unchanged size debt 1351.
+No semantic admission changed. Existing C/S1/audit WIP remains protected.
 
 ## Decision: MIRBUILDER-ORDINARY-I64-LOCAL-ARRAY-LIFETIME-D0
 
-Issuer BoxShape closed in two commits: App Main query `ba4c248d29`, sealed
-Nullable query in this commit. Parent/private child are 778/706, below 800.
-Package 600 pass/3 unchanged baseline; child-call 4/4; inventory 8588 unchanged.
-Query-motion proof, pointer and selected diff checks pass; full scope guard
-reaches unchanged root-catalog size debt 1351. No semantic admission changed.
+D0 mapping closed after read-only worker review and direct consumer inspection.
+Decision: existing callable source flow/local ledger owns builtin Array locals;
+one closed cleanup step travels through existing Normal/Fault consumers.
 
-Source prerequisite for S1's unchanged provider matrix: qualified StaticBoxMethod
-helper with sealed I64 result, straight-line zero-arg builtin ArrayBox local and
-explicit literal Return. Existing callable ledger seals initializer owner/site/
-binding, Core membership, collision absence, no rebind/escape and exact exit.
-Source authority/issuer: existing co-seal `batch.with_lowering_input` and
-`home_new_prefix_scan` local observation; add Array acquisition to the existing
-source flow and `local_commits` enum. Reuse completed-local installation and
-existing RootHome exit; do not borrow Script proof or invent a second program
-plan/receipt. Resolve the closed cleanup-step mapping for nonfaulting Array
-release (current origin/end plan only store InvokeOperation) before effects.
-Physical new consumes the sealed exact site before raw New fallback and emits
-checked acquisition/projection; Normal exit releases its live local, acquisition
-Fault releases no unacquired local and forwards borrowed caller frame. Verify
-local copy, acquisition, release and Fault terminal in the existing finalizer.
-Non-authority: raw NewBox/MIR types, runtime handle, method/name matching,
-Script/native single-function proof or an opcode whitelist. Negative fences:
-collision/arguments/rebind/escape; missing/duplicate/foreign/pre-acquisition
-release, wrong copy, bypassed release and raw New reentry. Retain unselected
-Array consumers; no retry. After source acceptance, join existing indexed ABI
-lease consumer and preserve Script/native/loop-writer boundaries. Both optimize
-variants/full provider allocation/argument/Birth/store Fault matrix remain owed.
-D0 resolves exact source-arm/cleanup/finalizer mapping; S1/C remain uncommitted
-and open. No app PASS, production promotion or goal completion is claimed.
+Source authority + canonical issuer: co-seal `batch.with_lowering_input`, exact
+resolved initializer/declaration/binding relation and Core membership/collision
+proof. `home_new_prefix_scan` records acquisition only on Normal in the existing
+homes sequence; dedicated Array local state cannot masquerade as object/handle.
+Use a private child for eligibility/ledger progress; existing parent wiring only.
+Selected cohort: qualified StaticBoxMethod with sealed I64 result, straight-line
+zero-arg builtin ArrayBox local(s), explicit I64 literal Return, no escape/rebind.
+Unannotated helpers use existing sealed result evidence, not a new annotation rule.
+Exclude this cohort from plain completion seed; verified walk owns its exit flow.
+
+Cleanup vocabulary at existing root Home owner:
+`RootHomeReleaseStepV1 = Checked(InvokeOperation) | ArrayResidenceRelease{value}`.
+`LocalCommit.end_plan`, release origin and prior-Home unwind carry this same step.
+Subject remains `Binding(binding)`; value must equal that exact installed local.
+Owned Array fields retain `FieldResidence + Checked(OwnedFieldResidenceRelease)`.
+Fault terminal/frame gate is `has_checked || ingress.is_some()`: terminal Call or
+MapGet can Fault even if all cleanup is nonfaulting. Plain Array-only exit has no
+disconnected Fault terminal. Pending copy exists only for Fault ingress or a
+preceding Checked step in execution order. Plain `[Array(young), Checked(old)]`
+must not create an unreachable pending copy for old; reversed order must retain
+Array on the Checked Fault suffix. Existing all-Checked Plain keeps `2N-1`;
+Call/MapGet retain both clean/pending copies. Cleanup remains newest-first.
+
+Consumers: `local_entry` / ordinary / call_received end plans; `root_home` origins;
+`progress` / `emission_prepare` acquisition/Birth prior cleanup; `handle_call` /
+`map` unwind; selected root-exit/common Fault chain, selected Map/terminal Call
+and lexical result consumers. All consume one closed step, no parallel receipt.
+Root-exit allowed Checked operations stay bounded; storage reclaim retains its
+existing owner and cannot become a root-exit release by sharing an emitter.
+
+Physical source consumer: existing exact-site new claim port before raw New;
+checked Array acquisition -> Normal projection -> completed-local installation.
+Acquisition Fault releases prior installed homes only, never current residence,
+and propagates borrowed caller frame. Normal exit emits Array release plus Jump.
+Finalizer joins acquisition/copy/release/Fault bindings in existing PhysicalBoundary.
+Compare each origin's subject AND exact step to installed `end_plan`, not subject
+alone. Graph validator groups body/terminator bindings per block; current one-
+binding-per-node/Invoke-count assumptions cannot admit Array release plus Jump.
+Call graph skips only body-empty Jumps, never a Jump carrying Array release.
+Validate each clean/pending path's exact operands, order, continuation and terminal.
+
+Non-authority: raw MIR types/NewBox, runtime handle, method/name-only match,
+Script/native single-function proof or opcode whitelist. Fail-fast fences:
+collision/constructor arguments/rebind/escape; missing/duplicate/foreign/value-drift
+or pre-acquisition release, wrong copy, bypass, unreachable pending copy and raw
+New reentry. Retain unselected Script/native/loop-writer consumers; no retry.
+
+Smallest next slice: `MIRBUILDER-ORDINARY-I64-LOCAL-ARRAY-LIFETIME-S0`, source-to-
+finalized-MIR only, before indexed ABI admission. Switch exact helper local New
+and exit caller into existing ledger; selected old raw-New responsibility ends
+for this cohort. Keep other raw-New callers. Positive source cases one/two locals
+and unchanged `Layout.seed`; source negatives collision/args/rebind/escape.
+Physical tests cover Array-only Plain, both mixed step orders, prior-Home Fault
+unwind and Call ingress+Array; drift negatives above reject before publication.
+Focused package/physical tests and existing scope/pointer guards are required;
+classify unchanged baseline independently. Do not claim indexed wire/runtime PASS.
+Next bounded slice joins indexed ABI live-residence lease producer/release consumer,
+then unchanged S1 provider capture and allocation/argument/Birth/store Fault matrix
+in both optimization variants. These remain required before S1/C closeout.
+Non-claims: no Array methods/escape/return/loops, no new language syntax, no fixture
+rewrite, no C/S1 completion, app PASS, production promotion or whole goal completion.

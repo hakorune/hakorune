@@ -1,10 +1,10 @@
 date = "2026-10-05"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-ORDINARY-I64-LOCAL-ARRAY-LIFETIME-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-ORDINARY-I64-LOCAL-ARRAY-LIFETIME-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "ordinary-new/local-commit/artifact-source-unavailable"
-current_design_stop = "callable-local-array/source-cleanup-vocabulary-mapping"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,17 +17,17 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-mimalloc-lite-heap-construction-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-heap-construction-d0-2026-10-04.md"
 latest_card_summary = """
-Required issuer BoxShape landed: App Main and sealed Nullable queries move
-into the existing private source-claims child without semantic changes.
-Package 600 pass/3 unchanged baseline; child-call 4/4; inventory 8588 unchanged.
-Selected D0 connects ordinary I64 helper local Array lifetime to existing
-source flow/local ledger and closed cleanup vocabulary before indexed ABI.
-C/S1/audit WIP remains protected outside structural commits; full provider
-Fault matrix and unchanged app probes remain required. No C/app/goal PASS.
+Required issuer BoxShape landed/pushed at ba4c248d29 + bdc3db75e2.
+D0 mapping closed by read-only review and direct consumer inspection. Selected
+S0 connects ordinary I64 helper Array locals to existing source flow/local ledger
+and one closed Checked/Array cleanup vocabulary, through finalized MIR only.
+Fault ingress and mixed-step pending-copy conditions are explicit in the card.
+C/S1/audit WIP remains protected; indexed ABI admission, unchanged full provider
+Fault matrix and fresh app probes remain required. No C/app/goal PASS.
 """
-next_design_card = "MIRBUILDER-ORDINARY-I64-LOCAL-ARRAY-LIFETIME-D0"
+next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-heap-construction-d0-2026-10-04.md"
-next_execution_card = "none"
+next_execution_card = "MIRBUILDER-ORDINARY-I64-LOCAL-ARRAY-LIFETIME-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-mimalloc-lite-heap-construction-d0-2026-10-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
