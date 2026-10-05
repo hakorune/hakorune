@@ -6,6 +6,62 @@ use std::collections::BTreeMap;
 pub(in crate::mir::normal_callable_semantic_package) type PreparedLexicalInstanceCallSourceTargetsV1 =
     Result<Vec<Result<Option<LexicalInstanceCallSourceTargetV1>, String>>, String>;
 
+/// Passive receiver source facts. This is neither an owned-child lease nor inventory.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::normal_callable_semantic_package) struct StoredReceiverSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) parent_binding: BindingRefV1,
+    pub(in crate::mir::normal_callable_semantic_package) parent_site: SourceExprSiteV1,
+    pub(in crate::mir::normal_callable_semantic_package) parent_class: Box<str>,
+    pub(in crate::mir::normal_callable_semantic_package) field_name: Box<str>,
+    pub(in crate::mir::normal_callable_semantic_package) child_class: Box<str>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct CallTargetReferenceV1 {
+    pub(super) call_site: OwnedExprSiteV1,
+    pub(super) receiver_site: SourceExprSiteV1,
+    pub(super) target: CanonicalSameModuleCallableKeyV1,
+    pub(super) target_batch_slot: u32,
+    pub(super) callee_owner: FunctionOwnerIdV1,
+    pub(super) argument_sites: Box<[SourceExprSiteV1]>,
+}
+
+impl CallTargetReferenceV1 {
+    pub(super) fn from_target(row: &LexicalInstanceCallSourceTargetV1) -> Self {
+        Self {
+            call_site: row.call_site.clone(), receiver_site: row.receiver_site.clone(),
+            target: row.target.clone(), target_batch_slot: row.target_batch_slot,
+            callee_owner: row.callee_owner, argument_sites: row.argument_sites.clone(),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub(super) enum PreparedSourceCallNeedV1 {
+    Lexical(LexicalInstanceCallSourceTargetV1),
+    Stored { reference: CallTargetReferenceV1, receiver: StoredReceiverSourceV1 },
+}
+
+impl PreparedSourceCallNeedV1 {
+    pub(super) fn reference(&self) -> CallTargetReferenceV1 {
+        match self {
+            Self::Lexical(row) => CallTargetReferenceV1::from_target(row),
+            Self::Stored { reference, .. } => reference.clone(),
+        }
+    }
+    pub(super) fn stored(&self) -> Option<&StoredReceiverSourceV1> {
+        match self { Self::Stored { receiver, .. } => Some(receiver), _ => None }
+    }
+}
+
+pub(super) type PreparedSourceNeedsV1 =
+    Result<Vec<Result<Option<PreparedSourceCallNeedV1>, String>>, String>;
+
+enum SourceReceiverNeedV1 {
+    Lexical(LexicalInstanceCallNeedV1),
+    Stored(Result<Option<PreparedSourceCallNeedV1>, String>),
+}
+
 pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_targets_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
@@ -13,7 +69,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
     ordinary_box_names: &[Box<str>],
     field_write_claims: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
-) -> PreparedLexicalInstanceCallSourceTargetsV1 {
+    stored_receiver: &mut impl FnMut(
+        u32,
+        crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+    ) -> Result<
+        Option<StoredReceiverSourceV1>,
+        String,
+    >,
+) -> PreparedSourceNeedsV1 {
     let source = provenance::LexicalReceiverClassSourceV1::prepared(
         new_classes,
         ordinary_box_names,
@@ -31,6 +95,34 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                         binding,
                     )) = call.receiver()
                     else {
+                        let row = stored_receiver(slot, input, call).map(|proof| {
+                            let receiver = proof?;
+                            let (target, target_batch_slot) = unique_instance_target(
+                                selected,
+                                receiver.child_class.as_ref(),
+                                call.selector(),
+                                call.arity(),
+                            )?;
+                            let callee_owner = batch
+                                .declarations()
+                                .find(|row| row.batch_slot() == target_batch_slot)?
+                                .owner();
+                            Some(PreparedSourceCallNeedV1::Stored {
+                              reference: CallTargetReferenceV1 {
+                                call_site: OwnedExprSiteV1::new(owner, site.clone()),
+                                receiver_site: call.receiver_site().clone(),
+                                target,
+                                target_batch_slot,
+                                callee_owner,
+                                argument_sites: call
+                                    .arguments()
+                                    .iter()
+                                    .map(|argument| argument.site().clone())
+                                    .collect(),
+                              }, receiver,
+                            })
+                        });
+                        needs.push(SourceReceiverNeedV1::Stored(row));
                         continue;
                     };
                     if binding.owner() != owner {
@@ -51,7 +143,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                                 if *rebound == binding
                         )
                     });
-                    needs.push(LexicalInstanceCallNeedV1 {
+                    needs.push(SourceReceiverNeedV1::Lexical(LexicalInstanceCallNeedV1 {
                         owner,
                         callee_slot: slot,
                         call_site: site.clone(),
@@ -66,7 +158,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                             .map(|argument| argument.site().clone())
                             .collect(),
                         rebound,
-                    });
+                    }));
                 }
             })
             .map_err(|_| freeze("lexical-instance-call/batch-loan"))?;
@@ -75,7 +167,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
     Ok(needs
         .into_iter()
         .map(|need| {
-            (|| -> Result<Option<LexicalInstanceCallSourceTargetV1>, String> {
+            let SourceReceiverNeedV1::Lexical(need) = need else {
+                let SourceReceiverNeedV1::Stored(row) = need else {
+                    unreachable!()
+                };
+                return row;
+            };
+            (|| -> Result<Option<PreparedSourceCallNeedV1>, String> {
                 let class = match need.parameter_index {
                     Some(index) => {
                         match source.prove_parameter_class(batch, selected, &need, index)? {
@@ -113,15 +211,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                     return Ok(None);
                 };
 
-                Ok(Some(LexicalInstanceCallSourceTargetV1 {
+                Ok(Some(PreparedSourceCallNeedV1::Lexical(LexicalInstanceCallSourceTargetV1 {
                     call_site,
                     receiver_site: need.receiver_site,
-                    receiver_binding: need.receiver_binding,
+                    receiver: LexicalInstanceCallReceiverV1::Lexical(need.receiver_binding),
                     target,
                     target_batch_slot,
                     callee_owner,
                     argument_sites: need.argument_sites,
-                }))
+                })))
             })()
         })
         .collect())

@@ -1,7 +1,7 @@
 # Stored-child borrowed call receiver D0
 
-Status: provider/layout publication verified / source profile closeout selected
-Execution row: MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-S0
+Status: source receiver/profile verified / C receiver mapping selected
+Execution row: MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-D0
 Scope: required original direct `me.<Provider field>.m(borrowed actual)` receiver
 in the existing ordinary-new lexical call/result pipeline.
 Related:
@@ -906,3 +906,34 @@ pointer/whitespace PASS. Source/C/Array/S2 WIP remain outside metadata stage.
 This closes inventory transport/schema only; C borrowed child authority and
 full app execution remain unproved. Next reapply saved36-path source candidate
 on provider+metadata HEAD and verify source receiver publication/negatives.
+
+## Source receiver/profile S0 verified closeout
+
+Provider e0355851e6 and metadata e00407c579 landed/pushed. Sole source candidate
+/tmp/hako-stored-child-S0-final-checkout = e00407c579 + saved36-path source patch,
+without C/Array/S2 WIP. Cargo28548 terminal0: source JSON96 witness and exact
+receiver identity/final-recorded read corruption3 PASS. Sequential1426: stored22,
+source14/page_heap4/call_result35/resolved349/physical_boundary11/compiled-entry4/
+metadata2 PASS; package615/exact known3 only, same boundaries confirmed. Initial
+result_pending_tests filter matched0 and is NOT evidence; corrected exact
+borrowed_formal_result::pending::tests executes4 PASS, all included in package.
+Logs /tmp/hako-stored-child-S0-stage/final-isolated-*.log. Scope guard reaches
+only unchanged root1351; pointer/whitespace PASS. All36 staged source files
+byte-match the tested isolated candidate. No changed-row red remains.
+
+Production result Pending/profile uses one original draft collection, conditional
+class proposals are monotone/singleton only, promotion borrows sealed inventory
+and SourceSealed gates projection/completion/terminal consumers. Selected weak
+receiver and foreign ingress errors remain exact; conflicts do not promote.
+The late AST classifiers are deleted; prepare_borrowed_formal_ingress_v1 and
+reexport are cfg(test) only for2 corruption tests, production caller-zero.
+Selected field-read final validator arm retained, Unit arm and all other WIP
+excluded. Source meaning closes, not C runtime/Array.get/unchanged-app/goal.
+
+Next selected C receiver D0: integrate original tuple -> ordinary_i64 receiver
+Copy-root -> borrowed child class/origin mapping against actual protected shim
+code. No ordinary_nullable_handle ownership extension or new source registry.
+Read-only worker first verifies current helper signatures, role/root gates and
+Normal/Fault + malformed tuple/class/borrowed release acceptance; resolve one
+Decision internally, then select bounded implementation. Source fixture JSON96
+remains mandatory. C design stop is temporary selection, not goal pause/blocked.

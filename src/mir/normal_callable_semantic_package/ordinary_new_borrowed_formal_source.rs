@@ -65,7 +65,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
 }
 
 /// One incoming argument's contribution to a callee formal's class view.
-enum FormalActualSeedV1 {
+pub(super) enum FormalActualSeedV1 {
     /// A class-carrying actual: claim-local `new` local, the entry
     /// receiver, a sealed received nullable, or a resolved forward.
     Class(Box<str>),
@@ -82,6 +82,8 @@ enum FormalActualSeedV1 {
 /// Only complete transport-use profiles are candidates. An ordinary source
 /// use outside this profile is not an attempted borrowed ABI followed by a
 /// fallback. Source identity corruption is never classified as profile-outside.
+// Test adapter for direct ingress corruption; production uses the unified profile.
+#[cfg(test)]
 pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_ingress_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
@@ -388,7 +390,7 @@ fn prepare_borrowed_formal_object_views_v1(
 /// conflicts — a scalar, foreign, or unproven actual can never carry a
 /// borrowed object class.
 #[allow(clippy::too_many_arguments)]
-fn classify_actual_seed(
+pub(super) fn classify_actual_seed(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
@@ -469,7 +471,7 @@ fn classify_actual_seed(
 
 /// The binding an argument site names: a local variable ref first, then a
 /// `me` shape row's lexical receiver.
-fn arg_site_binding(
+pub(super) fn arg_site_binding(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
 ) -> Option<BindingRefV1> {

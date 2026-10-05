@@ -60,11 +60,20 @@ pub(super) fn check_module_with_source(
                                 // field-type contract is uniform across
                                 // functions — the earlier
                                 // `BorrowedTaggedValue` corridor carve-out
-                                // is subsumed.
+                                // is subsumed. A stored-child receiver
+                                // read names the field's declared user
+                                // class resolved through exact object
+                                // membership — the same authority as the
+                                // `ObjectFieldSet`/`OwnedObjectFieldRelease`
+                                // sides, never a name guess.
                                 Some(name) => {
                                     crate::mir::numeric_substrate::is_numeric_integer_type_name(
                                         name,
-                                    )
+                                    ) || module
+                                        .metadata
+                                        .canonical_object_membership
+                                        .as_ref()
+                                        .is_some_and(|members| members.get(name).is_some())
                                 }
                                 _ => false,
                             }

@@ -31,7 +31,7 @@ pub(in crate::mir::builder) fn emit_local_lexical_nullable(
         .nullable_call_source(&owned_site)
         .ok_or_else(|| freeze("lexical-nullable/source-missing"))?;
     if relation.prior_homes().is_empty()
-        || !relation.prior_homes().contains(&row.receiver_binding())
+        || !relation.prior_homes().contains(&row.receiver_binding()?)
     {
         return Err(freeze("lexical-nullable/receiver-home-missing"));
     }
@@ -50,7 +50,7 @@ pub(in crate::mir::builder) fn emit_local_lexical_nullable(
     ledger.begin_nullable_call_emission(&owned_site, row.target())?;
     let unwind = ledger.nullable_call_prior_home_unwind(&owned_site)?;
     let receiver = state
-        .take_exact_lexical_read(owner, row.receiver_site().node(), row.receiver_binding())
+        .take_exact_lexical_read(owner, row.receiver_site().node(), row.receiver_binding()?)
         .map_err(|error| format!("[freeze:contract][lexical-nullable/receiver/{error:?}]"))?;
     let frame = state.borrow_fault_frame(builder)?;
     let normal_landing = builder.next_block_id();

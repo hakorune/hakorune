@@ -98,7 +98,7 @@ fn lexical_instance_call_arms_parameter_receiver_with_claim_edge() {
             row.target().namespace(),
             hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
         );
-        assert_eq!(row.receiver_binding().owner(), owner);
+        assert_eq!(row.receiver_binding().unwrap().owner(), owner);
         // A second take of the same site is a named one-shot violation.
         let error = ledger
             .take_lexical_instance_call(owner, &site)

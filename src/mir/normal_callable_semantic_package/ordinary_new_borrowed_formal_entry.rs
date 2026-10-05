@@ -316,6 +316,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-call/result-source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
+        proof.require_source_sealed_v1()?;
         if !proof.contract_corroborated
             || proof.returns.is_empty()
             || proof.returns.iter().any(|site| site.owner() != call.callee)

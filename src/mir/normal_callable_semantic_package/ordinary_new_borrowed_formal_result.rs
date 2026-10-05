@@ -15,6 +15,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 #[path = "ordinary_new_borrowed_formal_result_composition.rs"]
 mod composition;
+pub(super) use composition::grounded_source_results_v1;
 
 /// The sole result class a borrowed callee's uniform return sites prove.
 /// `I64` is the existing literal/exact-formal scalar lane; `Nullable` is
@@ -35,222 +36,35 @@ pub(in crate::mir::normal_callable_semantic_package) struct BorrowedI64ResultSou
     pub(super) contract_corroborated: bool,
     /// Original call rows, never result permission inferred from an annotation.
     dependencies: Box<[LexicalInstanceCallSourceTargetV1]>,
+    phase: pending::BorrowedResultSourcePhaseV1,
 }
 
-/// `return <formal>.<field>` — a guarded borrowed-formal field read is an
-/// I64 result when the callee's own sealed draft admitted this exact
-/// FieldAccess site, the co-sealed object view was minted for the exact
-/// formal binding, and the field is declared `i64` on the view's class —
-/// the same declaration authority the received-nullable lane enforces.
-/// Aliases, undominated reads and object-typed fields never classify.
-fn guarded_formal_i64_field(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
-    source: &PreparedBorrowedFormalIngressV1,
-    instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-    owner: FunctionOwnerIdV1,
-    contract: &OwnedCallableParameterContractDeclarationV1,
-    site: &SourceExprSiteV1,
-) -> Result<bool, String> {
-    let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) = input
-        .body_shape()
-        .and_then(|shape| shape.expression_shape(site))
-    else {
-        return Ok(false);
-    };
-    // The receiver must be the exact parameter binding — a rebound alias
-    // keeps its own binding and stays unclassified here.
-    let formal = match input.function().variable_ref(object) {
-        Some(ResolvedLexicalRefV1::Local(binding))
-            if contract
-                .parameters
-                .iter()
-                .any(|parameter| parameter.binding == binding) =>
-        {
-            binding
+impl BorrowedI64ResultSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn require_source_i64_v1(
+        &self,
+    ) -> Result<(), String> {
+        self.require_source_sealed_v1()?;
+        if self.class != BorrowedResultClassV1::I64 {
+            return Err(freeze("stored-child/result-not-i64"));
         }
-        _ => return Ok(false),
-    };
-    let owned_site = OwnedExprSiteV1::new(owner, site.clone());
-    // The callee's sealed use draft must admit this exact FieldAccess —
-    // an undominated, in-arm or ambiguous read never entered the draft.
-    let admitted = source.definitions.get(&owner).is_some_and(|draft| {
-        draft.uses.iter().any(|row| {
-            row.formal == formal
-                && matches!(
-                    row.kind,
-                    BorrowedFormalUseDraftKindV1::FieldReadOperand { site: ref read }
-                        if *read == owned_site
-                )
-        })
-    });
-    if !admitted {
-        return Ok(false);
+        Ok(())
     }
-    let Some(view) = source.formal_object_view(formal) else {
-        return Ok(false);
-    };
-    crate::mir::normal_callable_semantic_package::ordinary_new_coseal::nullable_result_integer_field(
-        instance_constructors,
-        batch.ordinary_box_coverage(),
-        view.class(),
-        &owned_site,
-        field,
-    )
-    .map(|field| field.is_some())
-    .map_err(|error| format!("{}: {error:?}", freeze("borrowed-result/field-authority")))
+
+    pub(in crate::mir::normal_callable_semantic_package) fn require_source_sealed_v1(
+        &self,
+    ) -> Result<(), String> {
+        match self.phase {
+            pending::BorrowedResultSourcePhaseV1::SourceSealed => Ok(()),
+            pending::BorrowedResultSourcePhaseV1::Pending { .. } => {
+                Err(freeze("borrowed-result/source-not-sealed"))
+            }
+        }
+    }
 }
 
-fn source_result(
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
-    source: &PreparedBorrowedFormalIngressV1,
-    instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-    owner: FunctionOwnerIdV1,
-) -> Result<BorrowedI64ResultSourceV1, String> {
-    let mut matches = contracts.iter().filter(|row| row.owner == owner);
-    let contract = matches
-        .next()
-        .ok_or_else(|| freeze("borrowed-result/source-contract-missing"))?;
-    if matches.next().is_some() {
-        return Err(freeze("borrowed-result/source-contract-duplicate"));
-    }
-    batch
-        .with_lowering_input(contract.batch_slot, |input| {
-            let identity_matches = input.owner() == owner
-                && contract
-                    .parameters
-                    .iter()
-                    .enumerate()
-                    .all(|(index, parameter)| {
-                        parameter.ordinal as usize == index
-                            && parameter.binding.owner() == owner
-                            && input.function().declaration_binding(
-                                &SourceBindingSiteV1::Parameter {
-                                    index: parameter.ordinal,
-                                },
-                            ) == Some(parameter.binding)
-                    });
-            if !identity_matches {
-                return Err(freeze("borrowed-result/source-contract-identity"));
-            }
-            let sites = input
-                .body_shape()
-                .and_then(|shape| super::super::verified_value_return_sites(input, shape))
-                .filter(|sites| !sites.is_empty())
-                .ok_or_else(|| freeze("borrowed-result/explicit-value-return-missing"))?;
-            let mut class = None;
-            let mut has_construction = false;
-            let mut dependencies = Vec::new();
-            for site in &sites {
-                let function = input.function();
-                let integer = matches!(
-                    function.expression_source().literal(site),
-                    Some(ResolvedLiteralSourceV1::Integer(_))
-                );
-                let exact_formal = match function.variable_ref(site) {
-                    Some(ResolvedLexicalRefV1::Local(binding)) => {
-                        contract.parameters.iter().any(|parameter| {
-                            parameter.binding == binding
-                                && parameter.kind
-                                    == CallableParameterContractKindV1::ExactTrivial(
-                                        ExactTrivialParameterAbiV1::I64,
-                                    )
-                        })
-                    }
-                    _ => false,
-                };
-                // `return null` is the sealed literal projection and
-                // `return new ..` is the sealed construction inventory —
-                // together they form the bounded nullable-result class.
-                // A `return <formal>.<i64 field>` on the guarded view joins
-                // the scalar lane through its own draft/view/declaration
-                // proof. Anything else (String/Float/Bool, variable
-                // handles, opaque subtrees) is not an admitted result form.
-                let site_class = if integer
-                    || exact_formal
-                    || guarded_formal_i64_field(
-                        input,
-                        batch,
-                        source,
-                        instance_constructors,
-                        owner,
-                        contract,
-                        site,
-                    )?
-                    || composition::retain_call_dependency(
-                        input,
-                        source,
-                        owner,
-                        site,
-                        &mut dependencies,
-                    )? {
-                    BorrowedResultClassV1::I64
-                } else if matches!(
-                    function.expression_source().literal(site),
-                    Some(ResolvedLiteralSourceV1::Null)
-                ) || function.expression_source().construction(site).is_some()
-                {
-                    BorrowedResultClassV1::Nullable
-                } else {
-                    return Err(freeze("borrowed-result/source-not-i64"));
-                };
-                has_construction |= function.expression_source().construction(site).is_some();
-                match class {
-                    None => class = Some(site_class),
-                    Some(existing) if existing == site_class => {}
-                    // A callee whose exits split scalar i64 and nullable
-                    // object forms has no single borrowed result contract.
-                    Some(_) => return Err(freeze("borrowed-result/source-class-mixed")),
-                }
-            }
-            let class = class.expect("explicit value-return sites are non-empty");
-            // A nullable result is an object-or-null contract: without a
-            // `return new ..` exit no `NullableObject` claim can name the
-            // carried class, so a null-only body stays unclassified rather
-            // than drifting onto the old literal-i64 default.
-            if class == BorrowedResultClassV1::Nullable && !has_construction {
-                return Err(freeze("borrowed-result/source-not-i64"));
-            }
-            Ok(BorrowedI64ResultSourceV1 {
-                returns: sites
-                    .into_iter()
-                    .map(|site| OwnedExprSiteV1::new(owner, site))
-                    .collect(),
-                class,
-                contract_corroborated: false,
-                dependencies: dependencies.into_boxed_slice(),
-            })
-        })
-        .map_err(|_| freeze("borrowed-result/source-loan"))?
-}
-
-// Prepare from the same source loan before either prefix walk. Move this
-// projection into the existing ledger afterwards; never resolve it again
-// from an already completed caller flow.
-pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_i64_results_v1(
-    source: &Result<PreparedBorrowedFormalIngressV1, String>,
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
-    instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-) -> BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>> {
-    let mut results = match source {
-        Ok(rows) => rows
-            .definitions
-            .keys()
-            .map(|owner| {
-                (
-                    *owner,
-                    source_result(batch, contracts, rows, instance_constructors, *owner),
-                )
-            })
-            .collect(),
-        // The source error remains mandatory at selected demand.
-        Err(_) => BTreeMap::new(),
-    };
-    composition::ground_source_results(&mut results);
-    results
-}
+#[path = "ordinary_new_borrowed_formal_result_pending.rs"]
+mod pending;
+pub(super) use pending::{prepare_pending_results_v1, seal_pending_results_v1, stored_eligible_v1};
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn install_borrowed_formal_preparation_v1(
@@ -276,6 +90,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let Ok(proof) = pending else {
             return;
         };
+        if let Err(issue) = proof.require_source_sealed_v1() {
+            *pending = Err(issue);
+            return;
+        }
         let expected: BTreeSet<_> = proof.returns.iter().cloned().collect();
         let class = proof.class;
         let agrees = results.row(source.target_batch_slot()).is_some_and(|row| {
@@ -487,6 +305,12 @@ impl OrdinaryNewClaimLedgerV1 {
         source: &LexicalInstanceCallSourceTargetV1,
         results: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {
+        if let Some(proof) = self.borrowed_i64_results.get(&source.callee_owner()) {
+            proof
+                .as_ref()
+                .map_err(Clone::clone)?
+                .require_source_sealed_v1()?;
+        }
         if results.row(source.target_batch_slot()).is_some_and(|row| {
             let borrowed = row.borrow();
             let completion = borrowed.completion();
@@ -500,7 +324,9 @@ impl OrdinaryNewClaimLedgerV1 {
                     .get(&source.callee_owner())
                     .and_then(|proof| proof.as_ref().ok())
                     .is_some_and(|proof| {
-                        proof.class == BorrowedResultClassV1::I64 && proof.contract_corroborated
+                        proof.require_source_sealed_v1().is_ok()
+                            && proof.class == BorrowedResultClassV1::I64
+                            && proof.contract_corroborated
                     });
             row.owner() == source.callee_owner()
                 && (row.result()

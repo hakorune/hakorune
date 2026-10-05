@@ -725,16 +725,33 @@ CALL_PREFLIGHT="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_
 COSEAL_WALK="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal_issue.rs"
 rg -q 'lexical::prepare_source_preflight_v1' "$COSEAL_WALK"
 rg -q 'prepare_local_candidates_by_slot_v1' "$CALL_PREFLIGHT"
-rg -q 'prepare_lexical_source_targets_v1' "$CALL_PREFLIGHT"
-rg -q 'prepare_borrowed_formal_ingress_v1' "$CALL_PREFLIGHT"
-rg -q 'prepare_borrowed_i64_results_v1' "$CALL_PREFLIGHT"
-if rg -n '::prepare_(lexical_source_targets|borrowed_formal_ingress|borrowed_i64_results)_v1' "$COSEAL_WALK"; then
+rg -q 'prepare_borrowed_profile_v1' "$CALL_PREFLIGHT"
+rg -q 'collect_borrowed_source_drafts_v1' "$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_borrowed_formal_profile.rs"
+rg -q 'finish_ingress_from_drafts_v1' "$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_borrowed_formal_profile.rs"
+if rg -n '::prepare_(lexical_source_targets|borrowed_formal_ingress|borrowed_i64_results|borrowed_profile)_v1' "$COSEAL_WALK"; then
   echo "[$TAG] duplicate facade call preparation" >&2
   exit 1
 fi
 for file in "$CALL_PREFLIGHT" "$COSEAL_WALK"; do
   if (( $(wc -l < "$file") >= 800 )); then
     echo "[$TAG] call preparation owner reaches 800 lines: $file" >&2
+    exit 1
+  fi
+done
+
+# STORED-CHILD-RECEIVER-S0: original source and one retained terminal packet.
+STORED_SOURCE="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal_issue_source_owned_children.rs"
+STORED_PACKET="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_local_commit/root_call_entry/lexical_projection.rs"
+STORED_TARGET="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_lexical_instance_call.rs"
+rg -q 'fn stored_child_receiver_v1' "$STORED_SOURCE"
+rg -q 'owned_field_children_of' "$STORED_SOURCE"
+rg -q 'StoredOwnedChild' "$STORED_TARGET"
+rg -q 'stored-receiver-outside-terminal' "$STORED_TARGET"
+rg -q 'stored-read-drift' "$STORED_PACKET"
+rg -q 'has_stored_terminal' "$COSEAL_WALK"
+for file in "$STORED_SOURCE" "$STORED_PACKET" "$STORED_TARGET" "$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_borrowed_formal_result_pending.rs" "$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_borrowed_formal_result_class_loans.rs" "$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_borrowed_formal_profile.rs"; do
+  if (( $(wc -l < "$file") >= 800 )); then
+    echo "[$TAG] stored receiver owner reaches 800 lines: $file" >&2
     exit 1
   fi
 done

@@ -100,12 +100,12 @@ pub(in crate::mir) fn fixture() -> (
         .unwrap();
     let (_, pool_stmt, pool_ordinal) = locals
         .iter()
-        .find(|(binding, _, _)| *binding == row.receiver_binding())
+        .find(|(binding, _, _)| *binding == row.receiver_binding().unwrap())
         .unwrap();
     state
         .install_single_local_for_test(
             pool_stmt,
-            row.receiver_binding(),
+            row.receiver_binding().unwrap(),
             *pool_ordinal,
             ValueId(76),
             ValueId(77),
@@ -122,7 +122,11 @@ pub(in crate::mir) fn fixture() -> (
         .install_single_local_for_test(n_stmt, binding, *n_ordinal, ValueId(78), ValueId(79))
         .unwrap();
     let receiver = state
-        .take_exact_lexical_read(owner, row.receiver_site().node(), row.receiver_binding())
+        .take_exact_lexical_read(
+            owner,
+            row.receiver_site().node(),
+            row.receiver_binding().unwrap(),
+        )
         .unwrap();
     let scalar = state
         .take_exact_lexical_read(owner, row.argument_sites()[0].node(), binding)
@@ -138,7 +142,7 @@ pub(in crate::mir) fn fixture() -> (
         .take_exact_lexical_read(
             owner,
             inner_row.receiver_site().node(),
-            inner_row.receiver_binding(),
+            inner_row.receiver_binding().unwrap(),
         )
         .unwrap();
     let inner_prepared = PreparedLexicalCallProjectionV1::new(
@@ -277,7 +281,11 @@ pub(in crate::mir) fn borrowed_fixture(
             .unwrap();
     }
     let receiver = state
-        .take_exact_lexical_read(owner, row.receiver_site().node(), row.receiver_binding())
+        .take_exact_lexical_read(
+            owner,
+            row.receiver_site().node(),
+            row.receiver_binding().unwrap(),
+        )
         .unwrap();
     let mut bindings = Vec::new();
     let prepared =
@@ -508,7 +516,11 @@ pub(in crate::mir) fn forwarded_fixture(
         crate::mir::normal_callable_semantic_package::BorrowedFormalActualSourceV1::Forwarded { .. }
     ));
     let receiver = state
-        .take_exact_lexical_read(owner, row.receiver_site().node(), row.receiver_binding())
+        .take_exact_lexical_read(
+            owner,
+            row.receiver_site().node(),
+            row.receiver_binding().unwrap(),
+        )
         .unwrap();
     let mut emitted = Vec::new();
     let prepared =

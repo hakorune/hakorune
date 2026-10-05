@@ -36,9 +36,12 @@ fn ordered_projection_refuses_swapped_arguments_and_foreign_receiver_read() {
     let LexicalCallArgumentProjectionV1::Scalar(scalar) = prepared.arguments.remove(0) else {
         panic!("scalar");
     };
+    let LexicalReceiverProjectionV1::Lexical(receiver) = &mut prepared.receiver else {
+        panic!("lexical receiver");
+    };
     prepared.arguments.insert(
         0,
-        LexicalCallArgumentProjectionV1::Scalar(std::mem::replace(&mut prepared.receiver, scalar)),
+        LexicalCallArgumentProjectionV1::Scalar(std::mem::replace(receiver, scalar)),
     );
     assert!(prepared
         .materialize(owner, &row, &source)

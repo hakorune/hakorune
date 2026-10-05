@@ -31,13 +31,29 @@ use crate::mir::resolved_semantics::{
 };
 use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 
+/// Closed original receiver spelling; a stored child lends no owned Home.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum LexicalInstanceCallReceiverV1 {
+    Lexical(BindingRefV1),
+    StoredOwnedChild {
+        parent_binding: BindingRefV1,
+        parent_site: SourceExprSiteV1,
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        child: hakorune_mir_defs::CanonicalObjectIdV1,
+    },
+}
+
+#[cfg(test)]
+#[path = "ordinary_new_stored_child_receiver_tests.rs"]
+mod stored_child_receiver_tests;
+
 /// Immutable source-target relation shared by preflight and final issuance.
 /// Result, completion, ABI adoption and affine consumption are not issued here.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct LexicalInstanceCallSourceTargetV1 {
     call_site: OwnedExprSiteV1,
     receiver_site: SourceExprSiteV1,
-    receiver_binding: BindingRefV1,
+    receiver: LexicalInstanceCallReceiverV1,
     target: CanonicalSameModuleCallableKeyV1,
     target_batch_slot: u32,
     /// Owner of the callee declaration the target resolves to — the
@@ -63,8 +79,55 @@ impl LexicalInstanceCallSourceTargetV1 {
         &self.receiver_site
     }
 
-    pub(crate) const fn receiver_binding(&self) -> BindingRefV1 {
-        self.receiver_binding
+    pub(crate) fn receiver_binding(&self) -> Result<BindingRefV1, String> {
+        match self.receiver {
+            LexicalInstanceCallReceiverV1::Lexical(binding) => Ok(binding),
+            LexicalInstanceCallReceiverV1::StoredOwnedChild { .. } => Err(freeze(
+                "lexical-instance-call/stored-receiver-outside-terminal",
+            )),
+        }
+    }
+
+    pub(crate) fn stored_receiver(
+        &self,
+    ) -> Option<(
+        BindingRefV1,
+        &SourceExprSiteV1,
+        hakorune_mir_defs::CanonicalFieldRefV1,
+        hakorune_mir_defs::CanonicalObjectIdV1,
+    )> {
+        match &self.receiver {
+            LexicalInstanceCallReceiverV1::StoredOwnedChild {
+                parent_binding,
+                parent_site,
+                field,
+                child,
+            } => Some((*parent_binding, parent_site, *field, *child)),
+            LexicalInstanceCallReceiverV1::Lexical(_) => None,
+        }
+    }
+
+    pub(super) fn matches_receiver(
+        &self,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+    ) -> bool {
+        if call.receiver_site() != self.receiver_site() {
+            return false;
+        }
+        match &self.receiver {
+            LexicalInstanceCallReceiverV1::Lexical(binding) => call.receiver()
+                == ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(*binding)),
+            LexicalInstanceCallReceiverV1::StoredOwnedChild { parent_binding, parent_site, .. } => {
+                input.body_shape().is_some_and(|shape| {
+                    matches!(shape.expression_shape(call.receiver_site()),
+                        Some(BodyExpressionShapeV1::FieldAccess { object, .. }) if object == parent_site)
+                    && matches!(shape.expression_shape(parent_site),
+                        Some(BodyExpressionShapeV1::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. })
+                            if binding == parent_binding && binding.owner() == input.owner())
+                })
+            }
+        }
     }
 
     pub(crate) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
@@ -94,7 +157,7 @@ impl LexicalInstanceCallDispositionRowV1 {
     pub(crate) fn receiver_site(&self) -> &SourceExprSiteV1 {
         self.source_target().receiver_site()
     }
-    pub(crate) const fn receiver_binding(&self) -> BindingRefV1 {
+    pub(crate) fn receiver_binding(&self) -> Result<BindingRefV1, String> {
         self.source_target().receiver_binding()
     }
     pub(crate) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
@@ -143,7 +206,7 @@ mod provenance;
 #[path = "ordinary_new_lexical_instance_call_source.rs"]
 mod source;
 pub(super) use source::{
-    prepare_lexical_source_targets_v1, PreparedLexicalInstanceCallSourceTargetsV1,
+    PreparedLexicalInstanceCallSourceTargetsV1, StoredReceiverSourceV1,
 };
 
 #[path = "ordinary_new_borrowed_formal_uses.rs"]
@@ -158,8 +221,12 @@ mod borrowed_formal_actuals;
 #[path = "ordinary_new_borrowed_formal_result.rs"]
 mod borrowed_formal_result;
 pub(super) use borrowed_formal_result::{
-    prepare_borrowed_i64_results_v1, BorrowedI64ResultSourceV1,
+    BorrowedI64ResultSourceV1,
 };
+
+#[path = "ordinary_new_borrowed_formal_profile.rs"]
+mod profile;
+pub(super) use profile::prepare_borrowed_profile_v1;
 
 #[path = "ordinary_new_borrowed_formal_entry.rs"]
 mod borrowed_formal_entry;
@@ -173,9 +240,9 @@ pub(in crate::mir) use borrowed_formal_actuals::{
 };
 pub(super) use borrowed_formal_entry::BorrowedOrdinaryEntryPhysicalV1;
 pub(in crate::mir) use borrowed_formal_entry::BorrowedOrdinaryEntrySourceRefV1;
-pub(super) use borrowed_formal_source::{
-    prepare_borrowed_formal_ingress_v1, PreparedBorrowedFormalIngressV1,
-};
+#[cfg(test)]
+pub(super) use borrowed_formal_source::prepare_borrowed_formal_ingress_v1;
+pub(super) use borrowed_formal_source::PreparedBorrowedFormalIngressV1;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Join lexical receiver provenance to selected `InstanceBoxMethod`

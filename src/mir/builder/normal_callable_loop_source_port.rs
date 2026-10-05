@@ -496,7 +496,7 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
                     .take_exact_lexical_value(
                         expected_site.owner(),
                         row.receiver_site().node(),
-                        row.receiver_binding(),
+                        row.receiver_binding()?,
                     )
                     .map_err(|error| error.to_string())?;
                 return Ok(Some(ExactSourceDeclaredInstanceCallV1::new(

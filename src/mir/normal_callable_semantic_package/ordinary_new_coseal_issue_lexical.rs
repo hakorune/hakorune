@@ -1,10 +1,10 @@
 //! Claim-local `recv.m(...)` lexical call probes for the co-seal walk.
-use super::*;
-use crate::mir::resolved_semantics::BindingKindV1;
 use super::super::lexical_instance_call::{
     BorrowedI64ResultSourceV1, PreparedBorrowedFormalIngressV1,
     PreparedLexicalInstanceCallSourceTargetsV1,
 };
+use super::*;
+use crate::mir::resolved_semantics::BindingKindV1;
 
 /// The shared claim-local receiver proof for a `recv.m(...)` local call:
 /// the method-call inventory row at `site` carries a `Lexical(Local)`
@@ -254,7 +254,9 @@ pub(super) fn lexical_nullable_result_call(
     if !matches!(
         callable_result_classes.get(&key),
         Some(
-            crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(_),
+            crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(
+                _
+            ),
         )
     ) {
         return false;
@@ -341,7 +343,13 @@ pub(super) fn borrowed_call_arguments_callback_v1(
 > {
     if let Some(actuals) = actuals {
         let prepared = super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
-            source, contracts, site, actuals, candidates, receiver, nullable_class,
+            source,
+            contracts,
+            site,
+            actuals,
+            candidates,
+            receiver,
+            nullable_class,
         );
         super::super::lexical_instance_call::stage_borrowed_call_actuals_v1(
             pending, site, prepared,
@@ -351,12 +359,21 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     if source.is_err() {
         // A failed preparation staged Err even for unrelated observed calls.
         // Demand that error only through the prepared source target/declaration proof.
-        let borrowed_target = targets.as_ref().ok().is_some_and(|rows| rows.iter()
-            .filter_map(|row| row.as_ref().ok().and_then(Option::as_ref))
-            .any(|target| target.call_site() == site && contracts.iter().any(|contract|
-                contract.owner == target.callee_owner()
-                    && contract.batch_slot == target.target_batch_slot()
-                    && contract.parameters.iter().any(|formal| formal.kind.is_ordinary_borrowed_handle()))));
+        let borrowed_target = targets.as_ref().ok().is_some_and(|rows| {
+            rows.iter()
+                .filter_map(|row| row.as_ref().ok().and_then(Option::as_ref))
+                .any(|target| {
+                    target.call_site() == site
+                        && contracts.iter().any(|contract| {
+                            contract.owner == target.callee_owner()
+                                && contract.batch_slot == target.target_batch_slot()
+                                && contract
+                                    .parameters
+                                    .iter()
+                                    .any(|formal| formal.kind.is_ordinary_borrowed_handle())
+                        })
+                })
+        });
         if !borrowed_target {
             return Ok(None);
         }
@@ -412,7 +429,7 @@ mod borrowed_callback_tests {
                     assert!(matches!(
                         input
                             .function()
-                            .binding(target.receiver_binding())
+                            .binding(target.receiver_binding().unwrap())
                             .unwrap()
                             .kind(),
                         BindingKindV1::Parameter { .. }
@@ -458,13 +475,18 @@ pub(super) fn prepare_source_preflight_v1(
     entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     field_write_claims: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     callable_result_classes: &result_class_claim::OrdinaryNewResultClassClaimsV1,
-) -> (
-    Box<[Box<str>]>,
-    BTreeMap<u32, Result<Vec<OrdinaryNewCandidate>, OrdinaryNewCoSealIssueV1>>,
-    PreparedLexicalInstanceCallSourceTargetsV1,
-    Result<PreparedBorrowedFormalIngressV1, String>,
-    BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
-) {
+    residences: &field_write_claim::OwnedFieldResidencesV1,
+    owned: &mut BTreeMap<hakorune_mir_defs::CanonicalObjectIdV1, Option<Box<[OwnedFieldChildV1]>>>,
+) -> Result<
+    (
+        Box<[Box<str>]>,
+        BTreeMap<u32, Result<Vec<OrdinaryNewCandidate>, OrdinaryNewCoSealIssueV1>>,
+        PreparedLexicalInstanceCallSourceTargetsV1,
+        Result<PreparedBorrowedFormalIngressV1, String>,
+        BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
+    ),
+    OrdinaryNewCoSealIssueV1,
+> {
     let names: Box<[Box<str>]> = batch
         .ordinary_box_coverage()
         .rows()
@@ -484,39 +506,72 @@ pub(super) fn prepare_source_preflight_v1(
         .flatten()
         .map(|candidate| (candidate.site.clone(), candidate.class.clone()))
         .collect();
-    let lexical_source_targets =
-        super::super::lexical_instance_call::prepare_lexical_source_targets_v1(
+    let (lexical_source_targets, borrowed_formal_source, borrowed_i64_results) =
+        super::super::lexical_instance_call::prepare_borrowed_profile_v1(
             batch,
             selected,
+            instance_constructors,
+            parameter_contracts,
+            app_main_batch_slot,
+            dynamic_slot,
+            entry_home_loans,
+            &local_candidates,
             &new_classes,
             &names,
             field_write_claims,
             callable_result_classes,
-        );
-    let borrowed_formal_source =
-        super::super::lexical_instance_call::prepare_borrowed_formal_ingress_v1(
-            batch,
-            selected,
-            parameter_contracts,
-            &lexical_source_targets,
-            app_main_batch_slot,
-            dynamic_slot,
-            entry_home_loans,
-            instance_constructors,
-            &local_candidates,
-            callable_result_classes,
-        );
-    let borrowed_i64_results = super::super::lexical_instance_call::prepare_borrowed_i64_results_v1(
-        &borrowed_formal_source,
-        batch,
-        parameter_contracts,
-        instance_constructors,
-    );
-    (
+            &mut |slot, input, call| {
+                source_claims::stored_child_source_v1(
+                    batch,
+                    selected,
+                    entry_home_loans.for_batch_slot(slot),
+                    slot,
+                    input,
+                    call,
+                    residences,
+                )
+            },
+            &mut |site, receiver| {
+                source_claims::stored_child_receiver_v1(
+                    batch,
+                    instance_constructors,
+                    site,
+                    receiver,
+                    residences,
+                    owned,
+                )
+            },
+        )?;
+    Ok((
         names,
         local_candidates,
         lexical_source_targets,
         borrowed_formal_source,
         borrowed_i64_results,
-    )
+    ))
+}
+
+/// An admitted stored row demands sealed I64; errors cannot return to the seed path.
+pub(super) fn has_stored_terminal_v1(
+    rows: &PreparedLexicalInstanceCallSourceTargetsV1,
+    results: &BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
+    owner: FunctionOwnerIdV1,
+) -> Result<bool, OrdinaryNewCoSealIssueV1> {
+    let Some(row) = rows.as_ref().ok().and_then(|rows| {
+        rows.iter()
+            .filter_map(|row| row.as_ref().ok()?.as_ref())
+            .find(|row| row.call_site().owner() == owner && row.stored_receiver().is_some())
+    }) else {
+        return Ok(false);
+    };
+    let demand = results
+        .get(&owner)
+        .ok_or_else(|| "[freeze:contract][stored-child/result-source-missing]".to_owned())
+        .and_then(|proof| proof.as_ref().map_err(Clone::clone))
+        .and_then(|proof| proof.require_source_i64_v1());
+    demand.map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+        site: row.call_site().clone(),
+        issue,
+    })?;
+    Ok(true)
 }

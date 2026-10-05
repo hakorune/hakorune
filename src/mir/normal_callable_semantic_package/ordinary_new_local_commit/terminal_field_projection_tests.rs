@@ -3,6 +3,90 @@ use super::*;
 use crate::mir::compiler::{MirCompiler, NormalCompileRequestV1};
 use crate::mir::{BasicBlock, ConstValue};
 
+#[test]
+fn stored_child_finishing_rejects_missing_duplicate_and_drifted_receiver_reads() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = "box Item { value: i64 birth() { me.value = 5 } }
+            box Leaf { flag: i64 birth() { me.flag = 0 }
+                read(p: Item) { if p == null { return 7 } return p.value } }
+            box Parent { left: Leaf right: Leaf
+                birth() { me.left = new Leaf() me.right = new Leaf() }
+                first(p: Item) { return me.left.read(p) }
+                second(p: Item) { return me.right.read(p) } }
+            static box Main { main() { local parent = new Parent() local item = new Item()
+                local ignored = parent.second(item) return parent.first(item) } }";
+        let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+            text,
+            crate::parser::ParserBuildConfig::default(),
+        )
+        .unwrap();
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+        else {
+            panic!("original source")
+        };
+        let request =
+            NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default());
+        MirCompiler::with_options(false).compile_normal_with_published(request, |view, _| -> Result<(), String> {
+            let source = view.retained_root_source().unwrap();
+            let ledger = &source.ledger;
+            let original = view.module().clone();
+            rearm_children(ledger, &original);
+            ledger.validate_finalized_child_functions(&original, false)?;
+            let reader = &original.functions["Parent.first/1"];
+            let (read_block, read_index, read) = reader.blocks.iter().find_map(|(id, block)| {
+                block.instructions.iter().enumerate().find_map(|(index, instruction)| {
+                    matches!(instruction, MirInstruction::ObjectFieldGet { .. })
+                        .then(|| (*id, index, instruction.clone()))
+                })
+            }).expect("healthy original receiver read");
+            let MirInstruction::ObjectFieldGet { dst, base, field } = read else { unreachable!() };
+            for change in 0..6 {
+                let mut changed = original.clone();
+                let reader = changed.functions.get_mut("Parent.first/1").unwrap();
+                match change {
+                    0 => {
+                        let block = reader.blocks.get_mut(&read_block).unwrap();
+                        block.instructions.remove(read_index);
+                        block.instruction_spans.remove(read_index);
+                    }
+                    1 => reader.blocks.get_mut(&read_block).unwrap().add_instruction(read.clone()),
+                    2..=4 => {
+                        reader.blocks.get_mut(&read_block).unwrap().instructions[read_index] =
+                            MirInstruction::ObjectFieldGet {
+                                dst: if change == 2 { ValueId(9999) } else { dst },
+                                base: if change == 3 { dst } else { base },
+                                field: if change == 4 {
+                                    hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(field.object(), 1).unwrap()
+                                } else { field },
+                            };
+                    }
+                    _ => {
+                        let block = reader.blocks.get_mut(&read_block).unwrap();
+                        let instruction = block.instructions.remove(read_index);
+                        block.instruction_spans.remove(read_index);
+                        let mut orphan = BasicBlock::new(BasicBlockId(99998));
+                        orphan.add_instruction(instruction);
+                        orphan.set_terminator(MirInstruction::Return { value: Some(dst) });
+                        reader.add_block(orphan);
+                    }
+                }
+                rearm_children(ledger, &original);
+                let error = ledger.validate_finalized_child_functions(&changed, false)
+                    .expect_err("changed stored receiver cannot finish");
+                if change == 5 {
+                    assert!(error.contains("ordinary-new/local-commit/call-binding-drift"), "{error}");
+                } else {
+                    assert!(error.contains("physical-boundary/")
+                        || error.contains("ordinary-field-read/"), "change={change}: {error}");
+                }
+            }
+            Ok(())
+        }).unwrap();
+    });
+}
+
 fn request() -> NormalCompileRequestV1 {
     let text = "box Item { value: i64 other: i64 birth() { me.value = 5 me.other = 9 } }
         box Transport { flag: i64 birth() { me.flag = 0 }

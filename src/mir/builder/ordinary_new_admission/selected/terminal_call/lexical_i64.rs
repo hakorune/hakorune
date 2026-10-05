@@ -75,7 +75,7 @@ fn emit_lexical_i64_call(
     if row.result() != Some(InvokeCallResultKind::I64) {
         return Err(freeze("lexical-i64-result-mismatch"));
     }
-    if prior_homes.is_empty() || !prior_homes.contains(&row.receiver_binding()) {
+    if prior_homes.is_empty() || !prior_homes.contains(&row.receiver_binding()?) {
         return Err(freeze("lexical-i64-receiver-home-missing"));
     }
     let unwind = ledger.prior_home_unwind_for(prior_homes)?;
@@ -85,7 +85,7 @@ fn emit_lexical_i64_call(
         return Err(freeze("lexical-i64-arity-mismatch"));
     }
     let receiver = state
-        .take_exact_lexical_read(owner, row.receiver_site().node(), row.receiver_binding())
+        .take_exact_lexical_read(owner, row.receiver_site().node(), row.receiver_binding()?)
         .map_err(|error| format!("[freeze:contract][lexical-i64/receiver/{error:?}]"))?;
     let frame = state.borrow_fault_frame(builder)?;
     let normal_landing = builder.next_block_id();

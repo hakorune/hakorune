@@ -32,8 +32,17 @@ pub(in crate::mir) enum LexicalCallArgumentProjectionV1 {
 }
 
 #[derive(Debug)]
+enum LexicalReceiverProjectionV1 {
+    Lexical(ExactLexicalReadV1),
+    StoredChild {
+        parent: ExactLexicalReadV1,
+        read: Binding,
+    },
+}
+
+#[derive(Debug)]
 pub(in crate::mir) struct PreparedLexicalCallProjectionV1 {
-    receiver: ExactLexicalReadV1,
+    receiver: LexicalReceiverProjectionV1,
     arguments: Vec<LexicalCallArgumentProjectionV1>,
 }
 
@@ -47,6 +56,9 @@ pub(crate) struct EmittedLexicalCallProjectionV1 {
 
 impl PreparedLexicalCallProjectionV1 {
     fn validate_recorded(&self, bindings: &[Binding]) -> Result<(), String> {
+        if let LexicalReceiverProjectionV1::StoredChild { read, .. } = &self.receiver {
+            require_recorded(bindings, read)?;
+        }
         for argument in &self.arguments {
             match argument {
                 LexicalCallArgumentProjectionV1::Integer(binding) => {
@@ -70,9 +82,17 @@ impl PreparedLexicalCallProjectionV1 {
         arguments: Vec<LexicalCallArgumentProjectionV1>,
     ) -> Self {
         Self {
-            receiver,
+            receiver: LexicalReceiverProjectionV1::Lexical(receiver),
             arguments,
         }
+    }
+
+    pub(in crate::mir) fn with_stored_receiver(mut self, read: Binding) -> Result<Self, String> {
+        let LexicalReceiverProjectionV1::Lexical(parent) = self.receiver else {
+            return Err(freeze("lexical-terminal/duplicate-stored-receiver"));
+        };
+        self.receiver = LexicalReceiverProjectionV1::StoredChild { parent, read };
+        Ok(self)
     }
 
     pub(in crate::mir) fn materialize(
@@ -108,10 +128,37 @@ impl PreparedLexicalCallProjectionV1 {
         {
             return Err(freeze("lexical-i64/prepared-arity-or-owner"));
         }
-        let receiver = self
-            .receiver
-            .value_for(owner, row.receiver_site().node(), row.receiver_binding())
-            .map_err(|error| format!("[freeze:contract][lexical-i64/receiver/{error:?}]"))?;
+        let receiver = match (&self.receiver, row.source_target().stored_receiver()) {
+            (LexicalReceiverProjectionV1::Lexical(read), None) => read
+                .value_for(owner, row.receiver_site().node(), row.receiver_binding()?)
+                .map_err(|error| format!("[freeze:contract][lexical-i64/receiver/{error:?}]"))?,
+            (
+                LexicalReceiverProjectionV1::StoredChild { parent, read },
+                Some((binding, site, field, child)),
+            ) => {
+                if field.object() == child {
+                    return Err(freeze("lexical-terminal/stored-child-identity"));
+                }
+                let base = parent
+                    .value_for(owner, site.node(), binding)
+                    .map_err(|error| {
+                        format!("[freeze:contract][lexical-terminal/parent/{error:?}]")
+                    })?;
+                let MirInstruction::ObjectFieldGet {
+                    dst,
+                    base: actual,
+                    field: actual_field,
+                } = &read.1
+                else {
+                    return Err(freeze("lexical-terminal/stored-read-kind"));
+                };
+                if *actual != base || *actual_field != field || *dst == base {
+                    return Err(freeze("lexical-terminal/stored-read-drift"));
+                }
+                *dst
+            }
+            _ => return Err(freeze("lexical-terminal/receiver-arm-drift")),
+        };
         let mut values = Vec::with_capacity(source.len());
         for ((projection, source), site) in
             self.arguments.iter().zip(source).zip(row.argument_sites())
@@ -245,6 +292,8 @@ impl EmittedLexicalCallProjectionV1 {
         if self.row.call_site() == site
             && (&self.invoke == binding
                 || &self.projection == binding
+                || matches!(&self.prepared.receiver,
+                    LexicalReceiverProjectionV1::StoredChild { read, .. } if read == binding)
                 || self.prepared.arguments.iter().any(|argument| {
                     matches!(argument, LexicalCallArgumentProjectionV1::Integer(original)
                         if original == binding)
@@ -262,6 +311,15 @@ impl EmittedLexicalCallProjectionV1 {
 
     pub(in crate::mir) fn call_site(&self) -> &crate::mir::resolved_semantics::OwnedExprSiteV1 {
         self.row.call_site()
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn stored_receiver_read_v1(
+        &self,
+    ) -> Option<&Binding> {
+        match &self.prepared.receiver {
+            LexicalReceiverProjectionV1::StoredChild { read, .. } => Some(read),
+            LexicalReceiverProjectionV1::Lexical(_) => None,
+        }
     }
 
     pub(in crate::mir) fn validate_recorded(&self, bindings: &[Binding]) -> Result<(), String> {

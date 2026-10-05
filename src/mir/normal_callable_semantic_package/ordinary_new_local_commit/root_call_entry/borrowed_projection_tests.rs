@@ -61,7 +61,7 @@ fn borrowed_projection_rejects_reassigned_ordinal_site_formal_and_literal_domain
         match mutation {
             0 => *ordinal = 1,
             1 => *site = row.receiver_site().clone(),
-            2 => *formal = row.receiver_binding(),
+            2 => *formal = row.receiver_binding().unwrap(),
             _ => {
                 let MirInstruction::Const { value, .. } = &mut binding.1 else {
                     panic!("Const")
@@ -86,7 +86,10 @@ fn borrowed_projection_rejects_foreign_lender_and_foreign_exact_read() {
     else {
         panic!("read")
     };
-    std::mem::swap(read, &mut prepared.receiver);
+    let LexicalReceiverProjectionV1::Lexical(receiver) = &mut prepared.receiver else {
+        panic!("lexical receiver");
+    };
+    std::mem::swap(read, receiver);
     assert!(prepared
         .materialize_with_ledger(row.call_site().owner(), &row, &source, &ledger)
         .is_err());

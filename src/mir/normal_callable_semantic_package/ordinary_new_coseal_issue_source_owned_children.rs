@@ -73,9 +73,7 @@ pub(super) fn owned_field_children_of(
                     return None;
                 };
                 let class: &str = match residence {
-                    field_write_claim::OwnedFieldResidenceV1::Provider(class) => {
-                        class.as_ref()
-                    }
+                    field_write_claim::OwnedFieldResidenceV1::Provider(class) => class.as_ref(),
                     // A provided store names no class at the write site;
                     // the declared field type is the sole authority and
                     // it must be a user class — builtin/`ArrayBox` fields
@@ -134,9 +132,10 @@ pub(super) fn owned_field_children_of(
                                     return None;
                                 }
                             };
-                            if nested.iter().any(|row| {
-                                !matches!(row.kind, OwnedFieldChildKindV1::Array)
-                            }) {
+                            if nested
+                                .iter()
+                                .any(|row| !matches!(row.kind, OwnedFieldChildKindV1::Array))
+                            {
                                 return None;
                             }
                             match owned_field_children.entry(child) {
@@ -144,15 +143,11 @@ pub(super) fn owned_field_children_of(
                                     entry.insert(Some(nested));
                                 }
                                 std::collections::btree_map::Entry::Occupied(entry)
-                                    if entry.get().as_deref() == Some(nested.as_ref()) =>
-                                {
-                                }
+                                    if entry.get().as_deref() == Some(nested.as_ref()) => {}
                                 std::collections::btree_map::Entry::Occupied(_) => {
-                                    issue_error = Some(
-                                        OrdinaryNewCoSealIssueV1::DuplicateSite {
-                                            site: site.clone(),
-                                        },
-                                    );
+                                    issue_error = Some(OrdinaryNewCoSealIssueV1::DuplicateSite {
+                                        site: site.clone(),
+                                    });
                                     return None;
                                 }
                             }
@@ -261,8 +256,8 @@ pub(super) fn seal_provider_owned_children_v1(
                 std::collections::btree_map::Entry::Vacant(entry) => {
                     entry.insert(children);
                 }
-                std::collections::btree_map::Entry::Occupied(entry)
-                    if *entry.get() == children => {}
+                std::collections::btree_map::Entry::Occupied(entry) if *entry.get() == children => {
+                }
                 std::collections::btree_map::Entry::Occupied(_) => {
                     return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: owned_site });
                 }
@@ -270,4 +265,132 @@ pub(super) fn seal_provider_owned_children_v1(
         }
     }
     Ok(())
+}
+
+/// Borrow original receiver identity and residence; issue no child inventory.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue) fn stored_child_source_v1(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    entry: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
+    slot: u32,
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+    residences: &field_write_claim::OwnedFieldResidencesV1,
+) -> Result<Option<super::super::super::lexical_instance_call::StoredReceiverSourceV1>, String> {
+    use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1};
+    let Some(shape) = input.body_shape() else {
+        return Ok(None);
+    };
+    let Some(BodyExpressionShapeV1::FieldAccess {
+        object: parent_site,
+        field: name,
+        ..
+    }) = shape.expression_shape(call.receiver_site())
+    else {
+        return Ok(None);
+    };
+    let Some(BodyExpressionShapeV1::Me {
+        receiver: BodyMeReceiverV1::Lexical(parent_binding),
+        ..
+    }) = shape.expression_shape(parent_site)
+    else {
+        return Ok(None);
+    };
+    let Some((receiver, source)) =
+        super::super::super::terminal_home::entry_receiver_box_proof(selected, batch, entry, slot)
+    else {
+        return Ok(None);
+    };
+    if receiver != *parent_binding
+        || receiver.owner() != input.owner()
+        || entry.is_none_or(|loan| loan.owner() != input.owner() || loan.batch_slot() != slot)
+    {
+        return Ok(None);
+    }
+    let key = (source.name().into(), name.clone());
+    let Some(field_write_claim::OwnedFieldResidenceV1::Provider(class)) = residences.get(&key)
+    else {
+        return Ok(None);
+    };
+    Ok(Some(super::super::super::lexical_instance_call::StoredReceiverSourceV1 {
+        parent_binding: *parent_binding, parent_site: parent_site.clone(),
+        parent_class: source.name().into(), field_name: name.clone(), child_class: class.clone(),
+    }))
+}
+
+/// Seal inventory only for an eligible source receiver through the existing issuer.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue) fn stored_child_receiver_v1(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    site: &OwnedExprSiteV1,
+    receiver: &super::super::super::lexical_instance_call::StoredReceiverSourceV1,
+    residences: &field_write_claim::OwnedFieldResidencesV1,
+    owned: &mut BTreeMap<hakorune_mir_defs::CanonicalObjectIdV1, Option<Box<[OwnedFieldChildV1]>>>,
+) -> Result<Option<super::super::super::lexical_instance_call::LexicalInstanceCallReceiverV1>, String> {
+    let class = &receiver.child_class;
+    let name = &receiver.field_name;
+    let source = batch.ordinary_box_coverage().row_for(&receiver.parent_class)
+        .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))?
+        .ok_or_else(|| "[freeze:contract][stored-child/parent-source-missing]".to_owned())?;
+    let Some(child_source) = batch.ordinary_box_coverage().row_for(class).ok().flatten() else {
+        return Ok(None);
+    };
+    let (child, _) = constructors
+        .destruction_for(child_source)
+        .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))?;
+    let (parent, destruction) = constructors
+        .destruction_for(source)
+        .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))?;
+    let field = constructors
+        .with_source_object_definition(source, |object, definition| {
+            let mut fields = definition
+                .fields()
+                .iter()
+                .enumerate()
+                .filter(|(_, row)| row.name == name.as_ref());
+            let (ordinal, declaration) = fields.next()?;
+            if fields.next().is_some()
+                || declaration.is_weak
+                || declaration.declared_type_name.as_deref() != Some(class.as_ref())
+            {
+                return None;
+            }
+            hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal)
+        })
+        .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))?;
+    let Some(field) = field else {
+        return Ok(None);
+    };
+    let inventory = owned_field_children_of(
+        site,
+        batch,
+        constructors,
+        source,
+        destruction,
+        residences,
+        owned,
+    )
+    .map_err(|error| format!("[freeze:contract][stored-child/residence]{error:?}"))?;
+    let Some(inventory) = inventory else {
+        return Ok(None);
+    };
+    if inventory
+        .iter()
+        .filter(|row| row.field == field && row.kind == OwnedFieldChildKindV1::Object(child))
+        .count()
+        != 1
+    {
+        return Ok(None);
+    }
+    match owned.entry(parent) {
+        std::collections::btree_map::Entry::Vacant(entry) => {
+            entry.insert(Some(inventory));
+        }
+        std::collections::btree_map::Entry::Occupied(entry)
+            if entry.get().as_deref() == Some(inventory.as_ref()) => {}
+        _ => return Err("[freeze:contract][stored-child/residence-drift]".into()),
+    }
+    Ok(Some(super::super::super::lexical_instance_call::LexicalInstanceCallReceiverV1::StoredOwnedChild {
+        parent_binding: receiver.parent_binding, parent_site: receiver.parent_site.clone(), field, child,
+    }))
 }

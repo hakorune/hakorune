@@ -116,7 +116,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         entry_home_loans,
         &field_write_claims,
         &callable_result_classes,
-    );
+        &field_residences,
+        &mut owned_field_children,
+    )?;
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
@@ -314,9 +316,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let has_nullable_receiver_call = source_claims::has_nullable_receiver_call_v1(
                     owner, &receiver_call_observations,
                 );
+                let has_stored_terminal = lexical::has_stored_terminal_v1(&lexical_source_targets, &borrowed_i64_results, owner)?;
                 let seed_completion = seed_eligible
                     && !has_map
                     && !has_nullable_receiver_call
+                    && !has_stored_terminal
                     && !has_formal_field_read
                     && !child_new_ready
                     && !child_result_ready
@@ -369,7 +373,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 // `formal.field` read needs the verified walk too: the read
                 // is issued only by this lane's `local_field_read` authority
                 // — the bounded sibling scan keeps it truthfully unavailable.
-                let verified_walk = owner_loan.is_some() || has_nullable_receiver_call || has_formal_field_read || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty())) || (seed_eligible && (has_map || child_new_ready || child_result_ready));
+                let verified_walk = owner_loan.is_some()
+                    || has_nullable_receiver_call
+                    || has_formal_field_read
+                    || has_stored_terminal
+                    || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty()))
+                    || (seed_eligible && (has_map || child_new_ready || child_result_ready));
                 if !verified_walk && has_borrowed_source_calls {
                     // Borrow existing control authority without publishing Completion.
                     let observed = crate::mir::resolved_control_flow::verify_function_completion_v1(input)

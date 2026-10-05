@@ -118,6 +118,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                     .ok_or_else(|| fault("borrowed-incoming/actuals-missing"))?;
                 return Err(fault("borrowed-incoming/callee-carrier-missing"));
             };
+            let first_entry = !owners.contains_key(row.target());
             if let Some(previous) = owners.insert(row.target().clone(), row.callee_owner()) {
                 if previous != row.callee_owner() {
                     return Err(fault("borrowed-incoming/callee-owner"));
@@ -162,7 +163,11 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
             }
             let actuals = source.borrowed_call_actuals_v1(row)?
                 .ok_or_else(|| fault("borrowed-incoming/actuals-missing"))?;
-            uses.entry(source, row.callee_owner(), callee_function)?;
+            // Source use admissions are function obligations; incoming actuals
+            // and their entry correspondence remain checked on every call.
+            if first_entry {
+                uses.entry(source, row.callee_owner(), callee_function)?;
+            }
             uses.call(caller, (block, index), actuals, copies)?;
             original.insert(row.call_site().clone());
             let mut callers = program

@@ -891,15 +891,32 @@ source row after signature/result checks, without another receiver/target
 selection. Source preparation proves neither Home liveness nor an argument ABI.
 CurrentOwner/me and borrowed-formal activation remain separate construction.
 
+Stored borrowed calls are selected by the existing lexical/result preparation
+stage in `ordinary_new_borrowed_formal_profile.rs`. Original returns are captured
+once as Pending field/call obligations under the result owner; conditional
+DeclaredObject/forward loans accumulate all conditional class proposals; only
+a consistent singleton schedules a canonical I64 field requirement. Conflicting
+candidates remain outside the stored profile, independent of declaration order;
+these loans never mint incoming views. The same finite result fold grounds eligibility before
+the source-owned issuer seals a Provider child inventory. Prospective needs have
+source identity and selected keys, never child ownership or executable results.
+The one strict incoming/object-view finish consumes those original drafts.
+Result sealing reconciles retained obligations and call origins with that
+finished source, and final consumers require SourceSealed. Completion
+corroboration follows the prefix walk; source seal is required earlier but final
+corroboration is not. Promoted stored errors stay named demands and cannot return
+to plain seed selection. Unsupported candidates do not induce a borrowed ABI.
+
 Original caller selection, duplicate-contract validation and borrowed use-draft
 collection live in the private `ordinary_new_borrowed_formal_source_drafts.rs`
 child. It returns the original caller set, owner-indexed drafts and dominated-view
-sites as owned values. The source parent constructs its calls map first and then
-closes the profile and incoming class views over those same drafts; collection
+sites as owned values. The unified profile stage constructs the admitted calls map and lends it to
+the source parent for profile closure and incoming views over the same drafts; collection
 adds no transport authority or physical carrier.
-The existing preparation façade validates its calls map first, collects once,
-and passes that owned triple and the same map to
-`finish_ingress_from_drafts_v1`. The finish owns profile closure, forward join,
+The previous preparation façade is a cfg(test)-only adapter for the two direct
+ingress corruption tests; it has no production callers. Production collection
+and finish are ordered only by the unified profile stage, which passes the
+original owned triple and admitted map to `finish_ingress_from_drafts_v1`. The finish owns profile closure, forward join,
 strict incoming census and object-view sealing in the original order; it does
 not rebuild source drafts. Both stage entry points remain private to the
 lexical-call owner for its source/result preparation ordering.
@@ -1075,3 +1092,25 @@ The existing private `ordinary_new_coseal_issue_lexical` child owns the
 ordinary-box/local class, lexical target, borrowed ingress and source-I64
 preparation sequence. Per-slot failures stay retained until the same declaration
 walk demands them. This extraction issues no additional permission or affine row.
+
+Direct borrowed-I64 terminal calls may borrow a child from an original
+`me.<field>` Provider residence. The lexical target retains a closed stored
+receiver arm with original parent site/binding and canonical field/child; the
+source-owned residence issuer populates the same inventory on demand. Parent
+entry lifetime and source-I64 callee completion remain mandatory. The verified
+Home walk retains this terminal even in a wrapper with no local construction.
+The original parent read and one ObjectFieldGet are recorded in the existing
+terminal packet and independently corroborated against final MIR. No child
+lease or teardown is issued. Local/nested/nullable/discard/loop consumers keep
+an explicit lexical-only receiver boundary; C ordinary-parent class projection
+and Array.get source-result authority are separate required obligations.
+The terminal owner lends its exact stored receiver read to the whole-function
+field-read census after owner/exit/source packet validation. This preserves the
+independent census for missing, duplicate and changed reads, while the existing
+PhysicalBoundary checks finished position and sequence. No parallel field-read
+registry or general argument-instruction collector is introduced.
+Publication gathers each callee's source use admissions once per canonical
+target, even when several original incoming calls share it. The existing
+canonical target/owner map supplies this traversal guard; each incoming call
+still corroborates its entry, source target, parameter slots, actuals and
+physical coordinate separately. Operand coverage is never scaled by call count.

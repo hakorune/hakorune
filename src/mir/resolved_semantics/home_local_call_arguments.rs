@@ -21,14 +21,34 @@ pub(super) fn seal_lexical_i64_arguments_at<E>(
     else {
         return Ok(None);
     };
-    if observed_site != site.site()
-        || !matches!(
-            call.receiver(),
-            ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
-                if binding.owner() == input.owner()
-        )
-    {
+    if observed_site != site.site() {
         return Ok(None);
+    }
+    if !matches!(call.receiver(),
+        ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
+            if binding.owner() == input.owner())
+    {
+        // Membership comes only from the selected package callback. The
+        // original field/Me spelling is corroborated here, never a class guess.
+        let stored = input.body_shape().is_some_and(|shape| {
+            let Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess {
+                object,
+                ..
+            }) = shape.expression_shape(call.receiver_site())
+            else {
+                return false;
+            };
+            matches!(shape.expression_shape(object),
+                Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::Me {
+                    receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(binding), ..
+                }) if binding.owner() == input.owner())
+        });
+        if !stored {
+            return Ok(None);
+        }
+        return Ok(borrowed_arguments(site, None)?
+            .filter(|arguments| super::borrowed_actuals::contains_borrowed_actual_v1(arguments))
+            .map(|arguments| arguments.into_vec()));
     }
     seal_i64_call_arguments(
         input,

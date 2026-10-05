@@ -437,6 +437,7 @@ pub(super) use field_batch::{prove_local_field_read_batch, stage_local_field_rea
 #[path = "ordinary_new_coseal_issue_source_owned_children.rs"]
 mod owned_children;
 use owned_children::{owned_field_children_of, seal_provider_owned_children_v1};
+pub(super) use owned_children::{stored_child_receiver_v1, stored_child_source_v1};
 
 #[cfg(test)]
 #[path = "ordinary_new_field_batch_tests.rs"]

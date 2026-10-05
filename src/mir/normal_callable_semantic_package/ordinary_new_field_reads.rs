@@ -456,6 +456,12 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let reads = self.field_reads.borrow();
         let mut expected = Vec::new();
+        let stored_receivers = self.stored_terminal_receiver_reads_v1(owner)?;
+        expected.extend(
+            stored_receivers
+                .iter()
+                .map(|(block, instruction)| (*block, instruction)),
+        );
         for (site, row) in reads.iter() {
             if site.owner() != owner {
                 continue;

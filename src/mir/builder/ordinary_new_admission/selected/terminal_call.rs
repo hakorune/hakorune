@@ -358,7 +358,7 @@ pub(in crate::mir::builder) fn emit_local_lexical(
         .handle_call_source(&owned_site)
         .ok_or_else(|| freeze("lexical-handle-source-missing"))?;
     if relation.prior_homes().is_empty()
-        || !relation.prior_homes().contains(&row.receiver_binding())
+        || !relation.prior_homes().contains(&row.receiver_binding()?)
     {
         return Err(freeze("lexical-handle-receiver-home-missing"));
     }
@@ -370,7 +370,7 @@ pub(in crate::mir::builder) fn emit_local_lexical(
     }
     ledger.begin_handle_call_emission(&owned_site, row.callee_owner())?;
     let receiver = state
-        .take_exact_lexical_value(owner, row.receiver_site().node(), row.receiver_binding())
+        .take_exact_lexical_value(owner, row.receiver_site().node(), row.receiver_binding()?)
         .map_err(|error| format!("[freeze:contract][lexical-handle/receiver/{error:?}]"))?;
     let frame = state.borrow_fault_frame(builder)?;
     let origin = builder

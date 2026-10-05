@@ -382,6 +382,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_borrowed
         .ok_or_else(|| freeze("borrowed-call/result-source-missing"))?
         .as_ref()
         .map_err(Clone::clone)?;
+    proof.require_source_sealed_v1()?;
     if proof.returns.is_empty() || proof.returns.iter().any(|site| site.owner() != call.callee) {
         return Err(freeze("borrowed-call/result-source-identity"));
     }
